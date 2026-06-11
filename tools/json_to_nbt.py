@@ -8,6 +8,7 @@ Supported DSL forms:
   - top-level "ops" or "operations":
       {"op": "set", "pos": [x,y,z], "state": "alias_or_blockstate"}
       {"op": "fill", "from": [x1,y1,z1], "to": [x2,y2,z2], "state": "alias_or_blockstate"}
+      {"op": "line", "from": [x1,y1,z1], "to": [x2,y2,z2], "state": "alias_or_blockstate"}
 
 No third-party Python packages are required.
 """
@@ -230,8 +231,27 @@ def iter_box(a: Tuple[int, int, int], b: Tuple[int, int, int]) -> Iterator[Tuple
                 yield (x, y, z)
 
 
-def iter_json_ops(data: Mapping[str, Any], size: List[int]) -> Iterator[Tuple[str, Tuple[int, int, int] | Tuple[Tuple[int, int, int], Tuple[int, int, int]], str]]:
-    """Yield normalized operations as ('set', pos, state) or ('fill', (from,to), state)."""
+def iter_line(a: Tuple[int, int, int], b: Tuple[int, int, int]) -> Iterator[Tuple[int, int, int]]:
+    varying_axes = [axis for axis in range(3) if a[axis] != b[axis]]
+    if len(varying_axes) > 1:
+        raise ValueError(f"line endpoints must be axis-aligned, got {list(a)!r} to {list(b)!r}")
+    if not varying_axes:
+        yield a
+        return
+
+    axis = varying_axes[0]
+    step = 1 if b[axis] > a[axis] else -1
+    pos = list(a)
+    for value in range(a[axis], b[axis] + step, step):
+        pos[axis] = value
+        yield tuple(pos)  # type: ignore[misc]
+
+
+NormalizedTarget = Tuple[int, int, int] | Tuple[Tuple[int, int, int], Tuple[int, int, int]]
+
+
+def iter_json_ops(data: Mapping[str, Any], size: List[int]) -> Iterator[Tuple[str, NormalizedTarget, str]]:
+    """Yield normalized operations as ('set', pos, state), ('fill', (from,to), state), or ('line', (from,to), state)."""
     blocks = data.get("blocks", [])
     if blocks is None:
         blocks = []
@@ -266,8 +286,15 @@ def iter_json_ops(data: Mapping[str, Any], size: List[int]) -> Iterator[Tuple[st
                 raise ValueError(f"ops[{i}] fill operation is missing state")
             low, high = _normalized_box(from_pos, to_pos)
             yield ("fill", (low, high), str(op.get("state")))
+        elif kind == "line":
+            from_pos = validate_pos(op.get("from"), size, f"ops[{i}].from")
+            to_pos = validate_pos(op.get("to"), size, f"ops[{i}].to")
+            if "state" not in op:
+                raise ValueError(f"ops[{i}] line operation is missing state")
+            list(iter_line(from_pos, to_pos))
+            yield ("line", (from_pos, to_pos), str(op.get("state")))
         else:
-            raise ValueError(f"ops[{i}] has unsupported op {op.get('op')!r}; expected 'set' or 'fill'")
+            raise ValueError(f"ops[{i}] has unsupported op {op.get('op')!r}; expected 'set', 'fill', or 'line'")
 
 
 def expand_structure(data: Mapping[str, Any]) -> Tuple[List[int], int, Dict[Tuple[int, int, int], str], OrderedDict[str, int]]:
@@ -308,6 +335,12 @@ def expand_structure(data: Mapping[str, Any]) -> Tuple[List[int], int, Dict[Tupl
         elif kind == "fill":
             low, high = target  # type: ignore[misc]
             for pos in iter_box(low, high):
+                if pos in explicit:
+                    overwritten += 1
+                explicit[pos] = state_text
+        elif kind == "line":
+            from_pos, to_pos = target  # type: ignore[misc]
+            for pos in iter_line(from_pos, to_pos):
                 if pos in explicit:
                     overwritten += 1
                 explicit[pos] = state_text

@@ -20,7 +20,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 if SCRIPT_DIR not in sys.path:
     sys.path.insert(0, SCRIPT_DIR)
 
-from json_to_nbt import iter_box, parse_block_state, validate_pos, validate_size  # noqa: E402
+from json_to_nbt import iter_box, iter_line, parse_block_state, validate_pos, validate_size  # noqa: E402
 
 
 class ValidationError(Exception):
@@ -133,8 +133,20 @@ def validate_structure(data: Mapping[str, Any]) -> OrderedDict[str, int | List[i
             )
             for pos in iter_box(from_pos, to_pos):
                 overwritten += _put_block(final_blocks, pos, state_text)
+        elif kind == "line":
+            try:
+                from_pos = validate_pos(op.get("from"), size, f"{context}.from")
+                to_pos = validate_pos(op.get("to"), size, f"{context}.to")
+                positions = list(iter_line(from_pos, to_pos))
+            except ValueError as exc:
+                raise ValidationError(str(exc)) from exc
+            state_text = _resolve_state_or_error(
+                op.get("state"), palette, f"{context} line from {list(from_pos)} to {list(to_pos)}"
+            )
+            for pos in positions:
+                overwritten += _put_block(final_blocks, pos, state_text)
         else:
-            raise ValidationError(f"{context}: unsupported op {op.get('op')!r}; expected 'set' or 'fill'")
+            raise ValidationError(f"{context}: unsupported op {op.get('op')!r}; expected 'set', 'fill', or 'line'")
 
     if bool(data.get("fill_air", False)):
         for y in range(sy):

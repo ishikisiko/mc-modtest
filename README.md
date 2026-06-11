@@ -16,7 +16,30 @@ tools/validate_structure_json.py  Validate JSON DSL operations and blockstate sy
 tools/export_to_world.py          Copy a generated .nbt into a Minecraft test world's generated structures folder
 examples/test_house_01.json       First technical validation house, legacy blocks[] DSL
 examples/test_house_02.json       Second house, ops[] DSL with fill/set operations and a sloped roof
+examples/test_house_03.json       Third house, improved medieval cottage using line/fill/set operations
+docs/visual_feedback.md           In-game visual feedback from /place template and screenshot reviews
+docs/building_rules.md            Reusable building rules learned from visual feedback
+docs/blockstate_notes.md          Notes for blockstates that are easy to get wrong
 out/                              Generated .nbt output files
+```
+
+## Visual feedback notes
+
+Before asking AI to modify a structure, read these files first:
+
+```text
+docs/visual_feedback.md
+docs/building_rules.md
+docs/blockstate_notes.md
+```
+
+Workflow:
+
+```text
+1. After a screenshot review or /place template test reveals a visual issue, record it in docs/visual_feedback.md first.
+2. If the issue is a reusable building rule, summarize it in docs/building_rules.md.
+3. If the issue is related to Minecraft blockstate behavior, summarize it in docs/blockstate_notes.md.
+4. Before later AI edits to structures, read all three files before changing JSON or generated NBT.
 ```
 
 ## Supported JSON DSL
@@ -37,7 +60,8 @@ It also supports the newer operation form:
 {
   "ops": [
     { "op": "set", "pos": [4, 1, 1], "state": "door_lower" },
-    { "op": "fill", "from": [1, 0, 1], "to": [7, 0, 7], "state": "foundation" }
+    { "op": "fill", "from": [1, 0, 1], "to": [7, 0, 7], "state": "foundation" },
+    { "op": "line", "from": [1, 4, 1], "to": [7, 4, 1], "state": "beam_x" }
   ]
 }
 ```
@@ -79,6 +103,19 @@ For Minecraft 1.20.1:
 python tools/json_to_nbt.py examples/test_house_02.json out/test_house_02_1_20_1.nbt --mc-version 1.20.1
 ```
 
+## Validate test_house_03
+
+```bash
+python tools/validate_structure_json.py examples/test_house_03.json
+```
+
+## Convert test_house_03
+
+```bash
+python tools/json_to_nbt.py examples/test_house_03.json out/test_house_03_1_21_1.nbt --mc-version 1.21.1
+python tools/json_to_nbt.py examples/test_house_03.json out/test_house_03_1_20_1.nbt --mc-version 1.20.1
+```
+
 Default DataVersion values in the script:
 
 ```text
@@ -94,6 +131,12 @@ After creating/opening a Minecraft world named `StructureTest`, run:
 
 ```bash
 python tools/export_to_world.py out/test_house_02_1_21_1.nbt --world StructureTest --namespace myvillage --name test_house_02
+```
+
+For `test_house_03`:
+
+```bash
+python tools/export_to_world.py out/test_house_03_1_21_1.nbt --world StructureTest --namespace myvillage --name test_house_03
 ```
 
 The tool copies the NBT file to:
@@ -134,6 +177,12 @@ In the test world, run:
 /place template myvillage:test_house_02 ~ ~ ~
 ```
 
+For `test_house_03`:
+
+```mcfunction
+/place template myvillage:test_house_03 ~ ~ ~
+```
+
 Or use a structure block with the structure name:
 
 ```text
@@ -146,13 +195,14 @@ Implemented:
 
 ```text
 - JSON DSL validation
-- set/fill operation expansion
+- set/fill/line operation expansion
 - palette alias resolution
 - basic blockstate string syntax validation
 - duplicate/overwritten coordinate reporting
 - vanilla gzipped structure NBT writing
 - export helper for the generated/<namespace>/structures folder
 - test_house_02 with foundation, logs, walls, glass windows, door, lantern, and sloped spruce roof
+- test_house_03 with mixed cobblestone/wood walls, framed windows, interior utility blocks, sealed gables, and a one-block roof overhang
 ```
 
 Not implemented yet:
