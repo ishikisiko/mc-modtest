@@ -1,0 +1,9 @@
+{
+  Version: 3,
+  Width: 3,
+  Height: 3,
+  Length: 3,
+  Palette: {"minecraft:cobblestone": 0},
+  BlockData: [0]
+}
+

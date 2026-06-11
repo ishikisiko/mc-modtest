@@ -1,0 +1,7 @@
+{
+  size: [3, 3, 3],
+  palette: [{Name: "minecraft:cobblestone"}],
+  blocks: [{pos: [0, 0, 0], state: 0}],
+  entities: []
+}
+

@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "id": "minecraft_town_mod:valid_small_house",
+  "size": [3, 3, 3],
+  "origin": [0, 0, 0],
+  "palette": {
+    "floor": "minecraft:cobblestone",
+    "wall": "minecraft:oak_planks",
+    "roof": "minecraft:oak_slab"
+  },
+  "blocks": [
+    {"pos": [0, 0, 0], "palette": "floor"},
+    {"pos": [1, 0, 0], "palette": "floor"},
+    {"pos": [2, 0, 0], "palette": "floor"},
+    {"pos": [0, 1, 0], "palette": "wall"},
+    {"pos": [2, 1, 0], "palette": "wall"},
+    {"pos": [1, 2, 0], "palette": "roof", "state": {"type": "bottom", "waterlogged": "false"}}
+  ]
+}
+

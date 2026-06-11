@@ -1,0 +1,40 @@
+$ python tools/validate_structure_json.py examples/test_house_01.json
+VALIDATION OK
+size: [7, 6, 7]
+volume: 294
+non_air_blocks: 194
+palette_count: 7
+overwritten_blocks: 0
+air_blocks: 100
+
+$ python tools/json_to_nbt.py examples/test_house_01.json out/test_house_01_1_21_1.nbt --mc-version 1.21.1
+output path: out/test_house_01_1_21_1.nbt
+DataVersion: 3955
+size: [7, 6, 7]
+palette count: 7
+block count: 294
+
+$ python tools/validate_structure_json.py examples/test_house_02.json
+VALIDATION OK
+size: [9, 7, 9]
+volume: 567
+non_air_blocks: 235
+palette_count: 14
+overwritten_blocks: 39
+air_blocks: 332
+
+$ python tools/json_to_nbt.py examples/test_house_02.json out/test_house_02_1_21_1.nbt --mc-version 1.21.1
+output path: out/test_house_02_1_21_1.nbt
+DataVersion: 3955
+size: [9, 7, 9]
+palette count: 14
+block count: 567
+
+$ python tools/json_to_nbt.py examples/test_house_02.json out/test_house_02_1_20_1.nbt --mc-version 1.20.1
+output path: out/test_house_02_1_20_1.nbt
+DataVersion: 3465
+size: [9, 7, 9]
+palette count: 14
+block count: 567
+
+$ python tools/export_to_world.py out/test_house_02_1_21_1.nbt --world StructureTest --namespace myvillage --name test_house_02

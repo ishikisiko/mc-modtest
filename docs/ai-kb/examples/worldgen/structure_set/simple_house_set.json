@@ -1,0 +1,15 @@
+{
+  "structures": [
+    {
+      "structure": "minecraft_town_mod:simple_house_structure",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "salt": 1388677,
+    "spacing": 32,
+    "separation": 8
+  }
+}
+
