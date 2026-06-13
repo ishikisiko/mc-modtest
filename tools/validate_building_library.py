@@ -111,7 +111,7 @@ def validate_functions(style_id: str, structure_names: list) -> list:
     with open(gallery, "r", encoding="utf-8") as f:
         lines = [l.strip() for l in f if l.strip() and not l.startswith("#")]
     pat = re.compile(
-        rf"^place template {MOD_ID}:{style_id}/(\w+) ~(-?\d+)? ~ ~(-?\d+)?$")
+        rf"^place template {MOD_ID}:(\w+) ~(-?\d+)? ~ ~(-?\d+)?$")
     placed = {}
     for line in lines:
         m = pat.match(line)
@@ -143,7 +143,7 @@ def main() -> int:
 
     style = load_style(args.style)
     registry = load_registry()
-    struct_dir = os.path.join(RES, "structure", args.style)
+    struct_dir = os.path.join(RES, "structure")
 
     results = []
     names = []

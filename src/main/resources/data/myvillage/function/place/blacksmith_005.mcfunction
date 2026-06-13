@@ -1,1 +1,1 @@
-place template myvillage:medieval_village/blacksmith_005 ~ ~ ~
+place template myvillage:blacksmith_005 ~ ~ ~

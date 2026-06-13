@@ -35,7 +35,7 @@ def grid_to_structure_data(grid: BlockGrid) -> dict:
 
 def write_structure_nbt(grid: BlockGrid, style_id: str, name: str) -> Tuple[str, dict]:
     data = grid_to_structure_data(grid)
-    out_dir = os.path.join(RESOURCES, "structure", style_id)
+    out_dir = os.path.join(RESOURCES, "structure")
     path = os.path.join(out_dir, f"{name}.nbt")
     root = json_to_nbt.structure_json_to_root_nbt(data)
     json_to_nbt.write_gzipped_nbt(root, path)
@@ -63,7 +63,7 @@ def write_gallery_function(style_id: str, entries: List[dict],
         lines.append(f"# --- {archetype} ---")
         x = 0
         for e in rows[archetype]:
-            lines.append(f"place template {MOD_ID}:{style_id}/{e['name']} "
+            lines.append(f"place template {MOD_ID}:{e['name']} "
                          f"~{x} ~ ~{z}")
             x += spacing_x
         z += spacing_z
@@ -78,5 +78,5 @@ def write_place_function(style_id: str, name: str) -> str:
     out = os.path.join(RESOURCES, "function", "place", f"{name}.mcfunction")
     os.makedirs(os.path.dirname(out), exist_ok=True)
     with open(out, "w", encoding="utf-8") as f:
-        f.write(f"place template {MOD_ID}:{style_id}/{name} ~ ~ ~\n")
+        f.write(f"place template {MOD_ID}:{name} ~ ~ ~\n")
     return out

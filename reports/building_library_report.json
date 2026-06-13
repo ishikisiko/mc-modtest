@@ -47,7 +47,7 @@
         ],
         "block_count": 519,
         "palette_count": 28,
-        "path": "src/main/resources/data/myvillage/structure/medieval_village/small_house_001.nbt"
+        "path": "src/main/resources/data/myvillage/structure/small_house_001.nbt"
       },
       "massing_graph": {
         "meta": {
@@ -309,7 +309,7 @@
         ],
         "block_count": 584,
         "palette_count": 29,
-        "path": "src/main/resources/data/myvillage/structure/medieval_village/small_house_002.nbt"
+        "path": "src/main/resources/data/myvillage/structure/small_house_002.nbt"
       },
       "massing_graph": {
         "meta": {
@@ -571,7 +571,7 @@
         ],
         "block_count": 524,
         "palette_count": 26,
-        "path": "src/main/resources/data/myvillage/structure/medieval_village/small_house_003.nbt"
+        "path": "src/main/resources/data/myvillage/structure/small_house_003.nbt"
       },
       "massing_graph": {
         "meta": {
@@ -832,7 +832,7 @@
         ],
         "block_count": 726,
         "palette_count": 25,
-        "path": "src/main/resources/data/myvillage/structure/medieval_village/small_house_004.nbt"
+        "path": "src/main/resources/data/myvillage/structure/small_house_004.nbt"
       },
       "massing_graph": {
         "meta": {
@@ -1072,7 +1072,7 @@
         ],
         "block_count": 409,
         "palette_count": 31,
-        "path": "src/main/resources/data/myvillage/structure/medieval_village/small_house_005.nbt"
+        "path": "src/main/resources/data/myvillage/structure/small_house_005.nbt"
       },
       "massing_graph": {
         "meta": {
@@ -1333,7 +1333,7 @@
         ],
         "block_count": 680,
         "palette_count": 26,
-        "path": "src/main/resources/data/myvillage/structure/medieval_village/small_house_006.nbt"
+        "path": "src/main/resources/data/myvillage/structure/small_house_006.nbt"
       },
       "massing_graph": {
         "meta": {
@@ -1573,7 +1573,7 @@
         ],
         "block_count": 533,
         "palette_count": 29,
-        "path": "src/main/resources/data/myvillage/structure/medieval_village/small_house_007.nbt"
+        "path": "src/main/resources/data/myvillage/structure/small_house_007.nbt"
       },
       "massing_graph": {
         "meta": {
@@ -1835,7 +1835,7 @@
         ],
         "block_count": 796,
         "palette_count": 31,
-        "path": "src/main/resources/data/myvillage/structure/medieval_village/small_house_008.nbt"
+        "path": "src/main/resources/data/myvillage/structure/small_house_008.nbt"
       },
       "massing_graph": {
         "meta": {
@@ -2096,7 +2096,7 @@
         ],
         "block_count": 438,
         "palette_count": 29,
-        "path": "src/main/resources/data/myvillage/structure/medieval_village/small_house_009.nbt"
+        "path": "src/main/resources/data/myvillage/structure/small_house_009.nbt"
       },
       "massing_graph": {
         "meta": {
@@ -2336,7 +2336,7 @@
         ],
         "block_count": 454,
         "palette_count": 24,
-        "path": "src/main/resources/data/myvillage/structure/medieval_village/small_house_010.nbt"
+        "path": "src/main/resources/data/myvillage/structure/small_house_010.nbt"
       },
       "massing_graph": {
         "meta": {
@@ -2598,7 +2598,7 @@
         ],
         "block_count": 999,
         "palette_count": 32,
-        "path": "src/main/resources/data/myvillage/structure/medieval_village/medium_house_001.nbt"
+        "path": "src/main/resources/data/myvillage/structure/medium_house_001.nbt"
       },
       "massing_graph": {
         "meta": {
@@ -2915,7 +2915,7 @@
         ],
         "block_count": 981,
         "palette_count": 29,
-        "path": "src/main/resources/data/myvillage/structure/medieval_village/medium_house_002.nbt"
+        "path": "src/main/resources/data/myvillage/structure/medium_house_002.nbt"
       },
       "massing_graph": {
         "meta": {
@@ -3232,7 +3232,7 @@
         ],
         "block_count": 1051,
         "palette_count": 38,
-        "path": "src/main/resources/data/myvillage/structure/medieval_village/medium_house_003.nbt"
+        "path": "src/main/resources/data/myvillage/structure/medium_house_003.nbt"
       },
       "massing_graph": {
         "meta": {
@@ -3549,7 +3549,7 @@
         ],
         "block_count": 960,
         "palette_count": 31,
-        "path": "src/main/resources/data/myvillage/structure/medieval_village/medium_house_004.nbt"
+        "path": "src/main/resources/data/myvillage/structure/medium_house_004.nbt"
       },
       "massing_graph": {
         "meta": {
@@ -3866,7 +3866,7 @@
         ],
         "block_count": 1244,
         "palette_count": 28,
-        "path": "src/main/resources/data/myvillage/structure/medieval_village/medium_house_005.nbt"
+        "path": "src/main/resources/data/myvillage/structure/medium_house_005.nbt"
       },
       "massing_graph": {
         "meta": {
@@ -4183,7 +4183,7 @@
         ],
         "block_count": 958,
         "palette_count": 34,
-        "path": "src/main/resources/data/myvillage/structure/medieval_village/medium_house_006.nbt"
+        "path": "src/main/resources/data/myvillage/structure/medium_house_006.nbt"
       },
       "massing_graph": {
         "meta": {
@@ -4500,7 +4500,7 @@
         ],
         "block_count": 1100,
         "palette_count": 32,
-        "path": "src/main/resources/data/myvillage/structure/medieval_village/medium_house_007.nbt"
+        "path": "src/main/resources/data/myvillage/structure/medium_house_007.nbt"
       },
       "massing_graph": {
         "meta": {
@@ -4818,7 +4818,7 @@
         ],
         "block_count": 1485,
         "palette_count": 30,
-        "path": "src/main/resources/data/myvillage/structure/medieval_village/medium_house_008.nbt"
+        "path": "src/main/resources/data/myvillage/structure/medium_house_008.nbt"
       },
       "massing_graph": {
         "meta": {
@@ -5210,7 +5210,7 @@
         ],
         "block_count": 1358,
         "palette_count": 31,
-        "path": "src/main/resources/data/myvillage/structure/medieval_village/medium_house_009.nbt"
+        "path": "src/main/resources/data/myvillage/structure/medium_house_009.nbt"
       },
       "massing_graph": {
         "meta": {
@@ -5602,7 +5602,7 @@
         ],
         "block_count": 1483,
         "palette_count": 35,
-        "path": "src/main/resources/data/myvillage/structure/medieval_village/medium_house_010.nbt"
+        "path": "src/main/resources/data/myvillage/structure/medium_house_010.nbt"
       },
       "massing_graph": {
         "meta": {
@@ -5992,7 +5992,7 @@
         ],
         "block_count": 488,
         "palette_count": 32,
-        "path": "src/main/resources/data/myvillage/structure/medieval_village/blacksmith_001.nbt"
+        "path": "src/main/resources/data/myvillage/structure/blacksmith_001.nbt"
       },
       "massing_graph": {
         "meta": {
@@ -6283,7 +6283,7 @@
         ],
         "block_count": 494,
         "palette_count": 27,
-        "path": "src/main/resources/data/myvillage/structure/medieval_village/blacksmith_002.nbt"
+        "path": "src/main/resources/data/myvillage/structure/blacksmith_002.nbt"
       },
       "massing_graph": {
         "meta": {
@@ -6575,7 +6575,7 @@
         ],
         "block_count": 837,
         "palette_count": 27,
-        "path": "src/main/resources/data/myvillage/structure/medieval_village/blacksmith_003.nbt"
+        "path": "src/main/resources/data/myvillage/structure/blacksmith_003.nbt"
       },
       "massing_graph": {
         "meta": {
@@ -6893,7 +6893,7 @@
         ],
         "block_count": 864,
         "palette_count": 27,
-        "path": "src/main/resources/data/myvillage/structure/medieval_village/blacksmith_004.nbt"
+        "path": "src/main/resources/data/myvillage/structure/blacksmith_004.nbt"
       },
       "massing_graph": {
         "meta": {
@@ -7211,7 +7211,7 @@
         ],
         "block_count": 837,
         "palette_count": 30,
-        "path": "src/main/resources/data/myvillage/structure/medieval_village/blacksmith_005.nbt"
+        "path": "src/main/resources/data/myvillage/structure/blacksmith_005.nbt"
       },
       "massing_graph": {
         "meta": {
@@ -7529,7 +7529,7 @@
         ],
         "block_count": 872,
         "palette_count": 31,
-        "path": "src/main/resources/data/myvillage/structure/medieval_village/blacksmith_006.nbt"
+        "path": "src/main/resources/data/myvillage/structure/blacksmith_006.nbt"
       },
       "massing_graph": {
         "meta": {
@@ -7847,7 +7847,7 @@
         ],
         "block_count": 834,
         "palette_count": 29,
-        "path": "src/main/resources/data/myvillage/structure/medieval_village/blacksmith_007.nbt"
+        "path": "src/main/resources/data/myvillage/structure/blacksmith_007.nbt"
       },
       "massing_graph": {
         "meta": {
@@ -8165,7 +8165,7 @@
         ],
         "block_count": 968,
         "palette_count": 27,
-        "path": "src/main/resources/data/myvillage/structure/medieval_village/blacksmith_008.nbt"
+        "path": "src/main/resources/data/myvillage/structure/blacksmith_008.nbt"
       },
       "massing_graph": {
         "meta": {
@@ -8483,7 +8483,7 @@
         ],
         "block_count": 1067,
         "palette_count": 31,
-        "path": "src/main/resources/data/myvillage/structure/medieval_village/blacksmith_009.nbt"
+        "path": "src/main/resources/data/myvillage/structure/blacksmith_009.nbt"
       },
       "massing_graph": {
         "meta": {
@@ -8854,7 +8854,7 @@
         ],
         "block_count": 1396,
         "palette_count": 32,
-        "path": "src/main/resources/data/myvillage/structure/medieval_village/blacksmith_010.nbt"
+        "path": "src/main/resources/data/myvillage/structure/blacksmith_010.nbt"
       },
       "massing_graph": {
         "meta": {

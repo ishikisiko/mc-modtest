@@ -16,16 +16,20 @@ neoForge {
     version = project.neo_version
 }
 
-// Resource-pack style mod: sync generated structures/functions into resources
-// before they are packed into the jar.
-tasks.register('syncGeneratedResources', Exec) {
+def pythonExecutable = providers.environmentVariable('PYTHON').orElse('python3')
+
+// Generate the structure resources that are packed into the NeoForge mod jar.
+tasks.register('generateAllStructures', Exec) {
     workingDir = projectDir
-    commandLine 'python3', 'tools/sync_resources_to_mod.py'
+    executable = pythonExecutable.get()
+    args 'tools/generate_all_structures.py',
+            '--mc-version', '1.21.1',
+            '--output', 'src/main/resources/data/myvillage/structure'
 }
 
 tasks.named('processResources') {
-    dependsOn 'syncGeneratedResources'
-    // sync script may change outputs between runs
+    dependsOn 'generateAllStructures'
+    // Generation may change outputs between runs.
     outputs.upToDateWhen { false }
 }
 

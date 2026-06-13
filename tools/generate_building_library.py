@@ -10,7 +10,7 @@ Pipeline per building (see tools/buildgen/):
     NBT + mcfunction resources
 
 Outputs (resource_export_pass):
-    src/main/resources/data/myvillage/structure/<style>/<archetype>_NNN.nbt
+    src/main/resources/data/myvillage/structure/<archetype>_NNN.nbt
     src/main/resources/data/myvillage/function/gallery/<style>.mcfunction
     src/main/resources/data/myvillage/function/place/<name>.mcfunction
     reports/building_library_report.json
