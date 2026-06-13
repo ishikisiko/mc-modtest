@@ -1,0 +1,327 @@
+{
+  "mc_version": "1.21.1",
+  "data_version": 3955,
+  "success_count": 9,
+  "failure_count": 0,
+  "structures": [
+    {
+      "source": "examples/buildings/small_house_01.json",
+      "id": "myvillage:small_house_01",
+      "category": "building",
+      "size": [
+        11,
+        8,
+        10
+      ],
+      "block_count": 880,
+      "palette_count": 15,
+      "output_path": "out/1_21_1/small_house_01.nbt",
+      "entrances": [
+        {
+          "pos": [
+            5,
+            1,
+            0
+          ],
+          "facing": "north"
+        }
+      ],
+      "connections": [],
+      "block_ids": [
+        "minecraft:air",
+        "minecraft:barrel",
+        "minecraft:cobblestone",
+        "minecraft:cobblestone_stairs",
+        "minecraft:crafting_table",
+        "minecraft:furnace",
+        "minecraft:glass",
+        "minecraft:lantern",
+        "minecraft:oak_door",
+        "minecraft:oak_log",
+        "minecraft:oak_planks",
+        "minecraft:spruce_slab",
+        "minecraft:spruce_stairs"
+      ]
+    },
+    {
+      "source": "examples/buildings/small_house_02.json",
+      "id": "myvillage:small_house_02",
+      "category": "building",
+      "size": [
+        9,
+        9,
+        9
+      ],
+      "block_count": 729,
+      "palette_count": 15,
+      "output_path": "out/1_21_1/small_house_02.nbt",
+      "entrances": [
+        {
+          "pos": [
+            4,
+            1,
+            8
+          ],
+          "facing": "south"
+        }
+      ],
+      "connections": [],
+      "block_ids": [
+        "minecraft:air",
+        "minecraft:barrel",
+        "minecraft:bookshelf",
+        "minecraft:glass",
+        "minecraft:ladder",
+        "minecraft:lantern",
+        "minecraft:spruce_door",
+        "minecraft:spruce_log",
+        "minecraft:spruce_planks",
+        "minecraft:stone_brick_slab",
+        "minecraft:stone_brick_stairs",
+        "minecraft:stone_bricks",
+        "minecraft:white_terracotta"
+      ]
+    },
+    {
+      "source": "examples/buildings/storage_01.json",
+      "id": "myvillage:storage_01",
+      "category": "building",
+      "size": [
+        9,
+        7,
+        9
+      ],
+      "block_count": 567,
+      "palette_count": 18,
+      "output_path": "out/1_21_1/storage_01.nbt",
+      "entrances": [
+        {
+          "pos": [
+            3,
+            1,
+            0
+          ],
+          "facing": "north"
+        },
+        {
+          "pos": [
+            4,
+            1,
+            0
+          ],
+          "facing": "north"
+        }
+      ],
+      "connections": [],
+      "block_ids": [
+        "minecraft:air",
+        "minecraft:barrel",
+        "minecraft:coarse_dirt",
+        "minecraft:cobblestone",
+        "minecraft:crafting_table",
+        "minecraft:glass",
+        "minecraft:hay_block",
+        "minecraft:lantern",
+        "minecraft:oak_log",
+        "minecraft:oak_slab",
+        "minecraft:oak_stairs",
+        "minecraft:spruce_door",
+        "minecraft:spruce_planks"
+      ]
+    },
+    {
+      "source": "examples/buildings/workshop_01.json",
+      "id": "myvillage:workshop_01",
+      "category": "building",
+      "size": [
+        13,
+        8,
+        11
+      ],
+      "block_count": 1144,
+      "palette_count": 17,
+      "output_path": "out/1_21_1/workshop_01.nbt",
+      "entrances": [
+        {
+          "pos": [
+            4,
+            1,
+            0
+          ],
+          "facing": "north"
+        },
+        {
+          "pos": [
+            12,
+            1,
+            5
+          ],
+          "facing": "east"
+        }
+      ],
+      "connections": [],
+      "block_ids": [
+        "minecraft:air",
+        "minecraft:anvil",
+        "minecraft:barrel",
+        "minecraft:cobblestone",
+        "minecraft:crafting_table",
+        "minecraft:furnace",
+        "minecraft:glass",
+        "minecraft:lantern",
+        "minecraft:oak_door",
+        "minecraft:oak_fence",
+        "minecraft:oak_log",
+        "minecraft:oak_planks",
+        "minecraft:smooth_stone",
+        "minecraft:spruce_slab",
+        "minecraft:spruce_stairs"
+      ]
+    },
+    {
+      "source": "examples/props/lamp_post_01.json",
+      "id": "myvillage:lamp_post_01",
+      "category": "prop",
+      "size": [
+        2,
+        6,
+        1
+      ],
+      "block_count": 8,
+      "palette_count": 3,
+      "output_path": "out/1_21_1/lamp_post_01.nbt",
+      "entrances": [],
+      "connections": [],
+      "block_ids": [
+        "minecraft:cobblestone_wall",
+        "minecraft:lantern",
+        "minecraft:oak_fence"
+      ]
+    },
+    {
+      "source": "examples/props/market_stall_01.json",
+      "id": "myvillage:market_stall_01",
+      "category": "prop",
+      "size": [
+        5,
+        4,
+        5
+      ],
+      "block_count": 52,
+      "palette_count": 6,
+      "output_path": "out/1_21_1/market_stall_01.nbt",
+      "entrances": [],
+      "connections": [],
+      "block_ids": [
+        "minecraft:barrel",
+        "minecraft:hay_block",
+        "minecraft:oak_fence",
+        "minecraft:oak_slab",
+        "minecraft:red_wool",
+        "minecraft:white_wool"
+      ]
+    },
+    {
+      "source": "examples/props/well_01.json",
+      "id": "myvillage:well_01",
+      "category": "prop",
+      "size": [
+        5,
+        6,
+        5
+      ],
+      "block_count": 150,
+      "palette_count": 11,
+      "output_path": "out/1_21_1/well_01.nbt",
+      "entrances": [],
+      "connections": [],
+      "block_ids": [
+        "minecraft:air",
+        "minecraft:cobblestone",
+        "minecraft:cobblestone_wall",
+        "minecraft:spruce_planks",
+        "minecraft:spruce_slab",
+        "minecraft:spruce_stairs",
+        "minecraft:stone_bricks",
+        "minecraft:water"
+      ]
+    },
+    {
+      "source": "examples/roads/path_corner_01.json",
+      "id": "myvillage:path_corner_01",
+      "category": "road",
+      "size": [
+        7,
+        1,
+        7
+      ],
+      "block_count": 26,
+      "palette_count": 4,
+      "output_path": "out/1_21_1/path_corner_01.nbt",
+      "entrances": [],
+      "connections": [
+        {
+          "pos": [
+            3,
+            0,
+            0
+          ],
+          "facing": "north"
+        },
+        {
+          "pos": [
+            6,
+            0,
+            3
+          ],
+          "facing": "east"
+        }
+      ],
+      "block_ids": [
+        "minecraft:coarse_dirt",
+        "minecraft:cobblestone",
+        "minecraft:dirt_path",
+        "minecraft:gravel"
+      ]
+    },
+    {
+      "source": "examples/roads/path_straight_01.json",
+      "id": "myvillage:path_straight_01",
+      "category": "road",
+      "size": [
+        5,
+        1,
+        7
+      ],
+      "block_count": 35,
+      "palette_count": 4,
+      "output_path": "out/1_21_1/path_straight_01.nbt",
+      "entrances": [],
+      "connections": [
+        {
+          "pos": [
+            2,
+            0,
+            0
+          ],
+          "facing": "north"
+        },
+        {
+          "pos": [
+            2,
+            0,
+            6
+          ],
+          "facing": "south"
+        }
+      ],
+      "block_ids": [
+        "minecraft:coarse_dirt",
+        "minecraft:cobblestone",
+        "minecraft:dirt_path",
+        "minecraft:gravel"
+      ]
+    }
+  ],
+  "failures": []
+}

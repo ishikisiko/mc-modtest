@@ -1,0 +1,741 @@
+当前项目已经完成基础 NeoForge mod 打包验证，生成的函数可以在游戏中使用。
+
+当前不进入 worldgen。
+当前交付物必须是 NeoForge mod jar，而不是孤立的 JSON、NBT 或 Python 脚本。
+
+目标是 v0.3.0：Building Library Preview Mod。
+
+这个版本要验证：结构生成系统是否能在不同尺寸下生成风格一致但不单调，并且有审美效果的建筑。
+
+请注意：
+不要只实现组件 DSL。
+组件 DSL 只能作为构造层。
+本阶段核心不是“多几个建筑组件”，而是建立一套能服务 mod 资源生成的建筑生成管线。
+
+最终输出必须是：
+build/libs/<modid>-<version>.jar
+
+jar 内必须包含生成好的结构 NBT 和 gallery mcfunction，放入 mods 文件夹后可以在游戏中直接测试。
+1. 总体架构要求
+
+请将结构生成系统调整为以下层级：
+
+Style Profile 风格层
+↓
+Building Archetype 建筑类型层
+↓
+Scale Tier 尺寸层
+↓
+Massing Graph 体块规划层
+↓
+Facade Grammar 立面语法层
+↓
+Build Ops 构造层
+↓
+Pass + Protection 细节与保护机制
+↓
+Quality Check 质量检查
+↓
+NBT + mcfunction 资源输出
+↓
+NeoForge mod jar
+
+这些层级都要落到实际文件、数据结构或代码中，不能只写 README 概念说明。
+
+2. Style Profile 风格层
+
+实现一个风格：
+
+medieval_village
+
+它必须定义抽象材料槽，而不是让建筑模板直接到处硬编码具体方块。
+
+至少包含：
+
+BASE_STONE
+WALL_MAIN
+FRAME_WOOD
+ROOF_DARK
+DETAIL_WOOD
+LIGHTING
+GROUND_PATH
+INTERIOR_WORK
+INTERIOR_STORAGE
+
+示例映射：
+
+{
+  "style_id": "medieval_village",
+  "material_slots": {
+    "BASE_STONE": [
+      "minecraft:cobblestone",
+      "minecraft:mossy_cobblestone",
+      "minecraft:stone_bricks"
+    ],
+    "WALL_MAIN": [
+      "minecraft:oak_planks",
+      "minecraft:stripped_oak_wood"
+    ],
+    "FRAME_WOOD": [
+      "minecraft:oak_log",
+      "minecraft:stripped_oak_log"
+    ],
+    "ROOF_DARK": [
+      "minecraft:spruce_stairs",
+      "minecraft:spruce_slab",
+      "minecraft:spruce_planks"
+    ],
+    "DETAIL_WOOD": [
+      "minecraft:oak_trapdoor",
+      "minecraft:spruce_trapdoor",
+      "minecraft:oak_fence",
+      "minecraft:spruce_fence",
+      "minecraft:spruce_slab"
+    ],
+    "LIGHTING": [
+      "minecraft:lantern",
+      "minecraft:torch"
+    ],
+    "GROUND_PATH": [
+      "minecraft:coarse_dirt",
+      "minecraft:gravel",
+      "minecraft:cobblestone"
+    ],
+    "INTERIOR_WORK": [
+      "minecraft:crafting_table",
+      "minecraft:furnace",
+      "minecraft:smithing_table"
+    ],
+    "INTERIOR_STORAGE": [
+      "minecraft:barrel"
+    ]
+  }
+}
+
+风格层还必须定义：
+
+允许屋顶类型：
+- gable_roof
+- cross_gable_roof
+- lean_to_roof，用于棚屋或侧翼
+
+允许墙体结构：
+- stone_lower_wall
+- timber_frame_wall
+- mixed_stone_wood_wall
+
+允许门窗样式：
+- single_door_with_frame
+- window_with_trapdoor_frame
+- window_with_slab_sill
+- small_high_window
+
+允许装饰 motif：
+- small_porch
+- side_chimney
+- woodpile
+- barrel_cluster
+- fence_patch
+- lantern_post
+- small_path_patch
+
+禁用方块：
+- quartz
+- concrete
+- terracotta
+- warped / crimson 系列
+- metal-heavy 现代感方块
+- 任何需要复杂 block entity NBT 的装饰
+
+还要定义比例范围：
+
+wall_height: 3-5
+roof_height_ratio: 0.35-0.65
+foundation_height: 1-2
+roof_overhang: 0-1
+max_flat_wall_width: 4
+window_min_count: 2
+interior_required_function_blocks: 3
+exterior_required_decoration_count: 2
+3. Building Archetype 建筑类型层
+
+至少支持三个建筑类型：
+
+small_house
+medium_house
+blacksmith
+
+每种建筑必须有自己的功能逻辑，不允许只是换名字。
+
+small_house
+
+定位：
+
+小型民居
+
+要求：
+
+单主体体块
+门廊或门框
+至少一个烟囱或明显窗饰
+生活区
+储物点
+炉子或工作台
+
+推荐结构：
+
+main_volume
+porch
+chimney 或 window_detail
+path_patch
+interior_living_zone
+interior_storage_zone
+medium_house
+
+定位：
+
+中型民居
+
+要求：
+
+不能只是 small_house 放大
+必须有主体 + 侧翼
+必须有主屋顶 + 副屋顶
+室内至少两个功能区
+外部至少两个装饰点
+立面不能完全机械对称
+
+推荐结构：
+
+main_volume
+side_wing
+porch
+chimney
+main_roof
+side_roof
+interior_living_zone
+interior_work_zone
+interior_storage_zone
+exterior_decoration_patch
+blacksmith
+
+定位：
+
+铁匠铺
+
+要求：
+
+必须有工作区
+必须有熔炉
+必须有烟囱
+必须有储物桶
+建议有半开放工作棚
+外部可加入砧、石头、木桶、煤炭视觉元素
+
+推荐结构：
+
+main_volume
+side_shed 或 open_work_area
+chimney
+furnace_cluster
+barrel_cluster
+stone_work_floor
+porch 或 open_front
+
+不要加入：
+
+村民
+实体
+刷怪笼
+箱子内容
+告示牌文本
+复杂 block entity NBT
+4. Scale Tier 尺寸层
+
+不要把小建筑直接放大。
+
+必须实现尺寸策略：
+
+small
+单主体 + 门廊 + 烟囱/窗饰
+
+适用于：
+
+small_house
+small blacksmith variant
+
+典型尺寸：
+
+9 x 7
+11 x 9
+
+审美重点：
+
+屋顶比例
+门口
+窗框
+木梁
+材质分层
+少量高密度细节
+medium
+主体 + 侧翼 + 副屋顶 + 功能区
+
+适用于：
+
+medium_house
+blacksmith
+
+典型尺寸：
+
+13 x 11
+15 x 13
+17 x 13
+
+审美重点：
+
+体块组合
+侧翼
+屋顶层级
+不完全对称立面
+室内功能分区
+large-lite
+
+本阶段只做轻量大建筑验证，不做大型城堡。
+
+定义：
+
+多个中小体块组合，而不是一个大盒子
+
+可以先用于：
+
+medium_house 的大变体
+blacksmith 的大变体
+
+典型组合：
+
+main_hall
+side_wing
+rear_shed
+porch
+courtyard_patch
+chimney
+
+审美重点：
+
+多个体块形成轮廓变化
+屋顶不能只有一个巨大坡顶
+侧翼和后棚必须有自己的屋顶
+5. Massing Graph 体块规划层
+
+实现体块图，不要直接生成一个长方体。
+
+每个建筑由若干节点组成：
+
+main_volume
+side_wing
+porch
+chimney
+shed
+courtyard_patch
+path_patch
+decoration_patch
+
+每个节点至少要有：
+
+id
+type
+origin
+size
+attach_to
+orientation
+priority
+tags
+
+示例：
+
+{
+  "nodes": [
+    {
+      "id": "main",
+      "type": "main_volume",
+      "origin": [0, 0, 0],
+      "size": [11, 5, 9],
+      "orientation": "south",
+      "tags": ["STRUCTURE"]
+    },
+    {
+      "id": "porch_front",
+      "type": "porch",
+      "attach_to": "main",
+      "side": "south",
+      "size": [5, 3, 3],
+      "tags": ["DETAIL", "PROTECTED"]
+    },
+    {
+      "id": "chimney_left",
+      "type": "chimney",
+      "attach_to": "main",
+      "side": "west",
+      "size": [1, 7, 2],
+      "tags": ["STRUCTURE", "DETAIL"]
+    }
+  ]
+}
+
+要求：
+
+small_house 可以只有 main + porch + chimney/path
+medium_house 必须有 main + side_wing
+blacksmith 必须有 main + work_shed/chimney
+large-lite 必须至少 3 个建筑体块
+6. Facade Grammar 立面语法层
+
+立面不能靠随机放窗。
+
+必须按 bay 分割墙面，控制节奏。
+
+要求：
+
+最大连续平墙宽度不能超过 4
+梁柱要和墙体、屋顶边界对齐
+窗户不要完全机械对称
+门窗不要贴到建筑角落
+正面必须有入口
+每栋建筑至少有 2 个窗户
+窗户必须有窗框或窗台
+下半墙和上半墙要有材质分层
+
+实现建议：
+
+将墙面按 3 格或 5 格 bay 切分
+corner bay 放竖向木柱
+middle bay 可放窗、横梁、材质变化
+door bay 放 doorway
+空 bay 也要放木梁或材质变化，不能整面平墙
+
+立面语法必须支持：
+
+front_facade
+side_facade
+back_facade
+side_wing_facade
+shed_facade
+
+不同面细节密度可以不同：
+
+front_facade: high
+side_facade: medium
+back_facade: low
+7. Build Ops 构造层
+
+组件 DSL 只能作为这一层。
+
+必须实现或保留以下参数化操作：
+
+hollow_box
+line
+plane
+wall_frame
+gable_roof
+cross_gable_roof
+doorway
+window_kit
+porch
+chimney
+interior_zone
+exterior_decoration_patch
+clear_inside
+
+要求：
+
+所有 op 必须支持材料槽，不要只支持具体方块
+所有 op 必须支持 tags
+所有 op 必须能写入方块层
+所有 op 必须避免覆盖 PROTECTED 区域
+必须保持旧 test_house_01 / test_house_02 兼容
+
+示例：
+
+{
+  "op": "wall_frame",
+  "volume": "main",
+  "wall": "front",
+  "base_slot": "BASE_STONE",
+  "wall_slot": "WALL_MAIN",
+  "frame_slot": "FRAME_WOOD",
+  "max_flat_width": 4,
+  "tags": ["STRUCTURE", "FACADE"]
+}
+{
+  "op": "gable_roof",
+  "volume": "main",
+  "axis": "z",
+  "roof_slot": "ROOF_DARK",
+  "overhang": 1,
+  "pitch": "medium",
+  "close_gables": true,
+  "ridge": true,
+  "tags": ["ROOF", "PROTECTED"]
+}
+{
+  "op": "window_kit",
+  "wall": "front",
+  "bay": 2,
+  "size": [1, 2],
+  "glass": "minecraft:glass",
+  "frame_slot": "DETAIL_WOOD",
+  "sill": true,
+  "awning": false,
+  "tags": ["OPENING", "DETAIL", "PROTECTED"]
+}
+8. Pass 和保护机制
+
+必须实现标签和优先级，避免后续 pass 覆盖关键结构。
+
+支持标签：
+
+STRUCTURE
+ROOF
+FACADE
+OPENING
+INTERIOR
+DETAIL
+AIR_CARVE
+PROTECTED
+
+建议优先级：
+
+0 AIR_CARVE
+10 FOUNDATION
+20 STRUCTURE
+30 FACADE
+40 OPENING
+50 ROOF
+60 INTERIOR
+70 DETAIL
+90 PROTECTED
+
+规则：
+
+PROTECTED 区域不能被后续普通 pass 覆盖
+doorway / window_kit / roof ridge / chimney core 应标记 PROTECTED
+clear_inside 不能清掉 INTERIOR 和 PROTECTED
+roof pass 不能覆盖 doorway/window opening
+detail pass 只能放在 air 或 replaceable 方块上
+exterior decoration 不能堵门
+
+必须实现这些 pass：
+
+massing_pass
+structure_pass
+facade_detail_pass
+roof_pass
+roof_cleanup_pass
+material_variation_pass
+interior_furnishing_pass
+exterior_decoration_pass
+quality_check_pass
+resource_export_pass
+9. Quality Check
+
+必须有自动质量检查。
+
+检查项至少包括：
+
+是否有入口
+是否有窗户
+是否室内全空
+是否有大面积同材质平墙
+屋顶山墙是否封住
+入口是否通畅
+是否使用了风格禁用方块
+材料比例是否超出风格范围
+是否有明显悬空梁或悬空屋顶
+是否有装饰堵门
+是否生成了复杂 block entity NBT
+
+质量检查应输出报告：
+
+structure_id
+style_id
+archetype
+scale_tier
+seed
+passed
+errors
+warnings
+scores
+
+评分可以先简单实现：
+
+style_score
+facade_score
+roof_score
+interior_score
+material_balance_score
+silhouette_score
+
+不要求评分完全准确，但必须能过滤明显失败品。
+
+失败条件：
+
+没有门：fail
+没有窗：fail
+室内全空：fail
+屋顶未封山墙：fail
+入口被堵：fail
+使用禁用方块：fail
+存在复杂 block entity NBT：fail
+大面积连续平墙超过阈值：warning 或 fail
+10. Gallery
+
+同一个 medieval_village 风格下，为每个建筑类型生成多个 seed：
+
+small_house x 10
+medium_house x 10
+blacksmith x 10
+
+输出结构：
+
+src/main/resources/data/<modid>/structure/medieval_village/small_house_001.nbt
+src/main/resources/data/<modid>/structure/medieval_village/small_house_002.nbt
+...
+src/main/resources/data/<modid>/structure/medieval_village/medium_house_001.nbt
+...
+src/main/resources/data/<modid>/structure/medieval_village/blacksmith_001.nbt
+...
+
+生成 gallery 函数：
+
+src/main/resources/data/<modid>/function/gallery/medieval_village.mcfunction
+
+该函数横向摆放全部 30 个建筑，间距至少 20-28 格。
+
+示例内容：
+
+place template <modid>:medieval_village/small_house_001 ~0 ~ ~0
+place template <modid>:medieval_village/small_house_002 ~24 ~ ~0
+place template <modid>:medieval_village/small_house_003 ~48 ~ ~0
+
+place template <modid>:medieval_village/medium_house_001 ~0 ~ ~32
+place template <modid>:medieval_village/medium_house_002 ~28 ~ ~32
+
+place template <modid>:medieval_village/blacksmith_001 ~0 ~ ~72
+
+同时生成单体放置函数：
+
+src/main/resources/data/<modid>/function/place/small_house_001.mcfunction
+src/main/resources/data/<modid>/function/place/medium_house_001.mcfunction
+src/main/resources/data/<modid>/function/place/blacksmith_001.mcfunction
+11. Mod 资源输出
+
+生成系统的输出必须进入 mod resources，而不是只进入 out/。
+
+推荐输出路径：
+
+src/generated/resources/data/<modid>/structure/medieval_village/*.nbt
+src/generated/resources/data/<modid>/function/gallery/medieval_village.mcfunction
+src/generated/resources/data/<modid>/function/place/*.mcfunction
+
+或者直接输出到：
+
+src/main/resources/data/<modid>/structure/...
+src/main/resources/data/<modid>/function/...
+
+但要在 README 里说明选择哪种方式。
+
+最终必须能打包成：
+
+build/libs/<modid>-0.3.0.jar
+
+jar 内必须包含：
+
+data/<modid>/structure/medieval_village/*.nbt
+data/<modid>/function/gallery/medieval_village.mcfunction
+data/<modid>/function/place/*.mcfunction
+12. README 必须更新
+
+README 不能只写 Python 脚本用法。
+
+必须优先写：
+
+1. 如何构建 mod
+   ./gradlew clean build
+
+2. jar 输出位置
+   build/libs/<modid>-0.3.0.jar
+
+3. 如何安装
+   放入 Minecraft NeoForge 客户端或服务端 mods 文件夹
+
+4. 如何在游戏内测试 gallery
+   /function <modid>:gallery/medieval_village
+
+5. 如何单独放置建筑
+   /place template <modid>:medieval_village/small_house_001 ~ ~ ~
+
+6. 如何重新生成结构资源
+   python tools/generate_building_library.py --style medieval_village --count 10
+
+7. 当前明确不包含
+   - worldgen
+   - Java 自定义命令
+   - GUI
+   - 配置界面
+   - 村民/实体
+   - 复杂 block entity NBT
+13. 验证要求
+
+必须运行或说明以下结果：
+
+python tools/generate_building_library.py --style medieval_village --count 10
+python tools/validate_building_library.py --style medieval_village
+./gradlew clean build
+
+验证 jar：
+
+jar tf build/libs/<modid>-0.3.0.jar | grep 'data/<modid>/structure/medieval_village'
+jar tf build/libs/<modid>-0.3.0.jar | grep 'data/<modid>/function/gallery'
+
+游戏内验证命令：
+
+/function <modid>:gallery/medieval_village
+/place template <modid>:medieval_village/small_house_001 ~ ~ ~
+/place template <modid>:medieval_village/medium_house_001 ~ ~ ~
+/place template <modid>:medieval_village/blacksmith_001 ~ ~ ~
+14. 不可接受的实现
+
+以下情况视为没有完成任务：
+
+只新增几个固定 JSON 模板，没有 Style Profile
+只做组件 DSL，没有 Building Archetype / Scale Tier / Massing Graph
+small / medium / blacksmith 只是尺寸不同，功能逻辑相同
+medium_house 只是 small_house 放大
+blacksmith 没有熔炉、烟囱、工作区、储物桶
+gallery 只是摆 3 个建筑，不是 30 个 seed
+结构只输出到 out/，没有进入 mod resources
+README 只写脚本，不写 mod 安装和游戏内测试
+没有质量检查报告
+没有 jar 打包验证
+破坏已有 test_house_01 / test_house_02 兼容性
+15. 最终总结必须包含
+
+完成后请总结：
+
+1. 生成的 jar 文件名
+2. 新增/修改的文件
+3. Style Profile 文件位置
+4. Building Archetype 文件位置
+5. 生成器文件位置
+6. Quality Check 文件位置
+7. 生成的建筑列表，必须列出 30 个结构 ID
+8. gallery 测试命令
+9. 单体放置命令示例
+10. 自动质量检查通过/失败数量
+11. 当前仍未实现的内容：
+    - worldgen
+    - Java 自定义命令
+    - GUI
+    - 配置系统
+    - 多风格
+    - 大型组合建筑完整版

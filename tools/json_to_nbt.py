@@ -40,19 +40,10 @@ TAG_COMPOUND = 10
 TAG_INT_ARRAY = 11
 TAG_LONG_ARRAY = 12
 
-# Common DataVersion values. You can override with --data-version.
-# Values used by this project:
-#   1.20.1 -> 3465
-#   1.21.1 -> 3955
+# This project targets Minecraft 1.21.1 only (stage 4+). 1.20.1 export was
+# removed; use --data-version to override the DataVersion integer if needed.
+SUPPORTED_MC_VERSION = "1.21.1"
 DATA_VERSION_BY_MC_VERSION = {
-    "1.20": 3463,
-    "1.20.1": 3465,
-    "1.20.2": 3578,
-    "1.20.3": 3698,
-    "1.20.4": 3700,
-    "1.20.5": 3837,
-    "1.20.6": 3839,
-    "1.21": 3953,
     "1.21.1": 3955,
 }
 
@@ -373,13 +364,15 @@ def structure_json_to_root_nbt(
 ) -> Tag:
     size, _overwritten, blocks, unique_states = expand_structure(data)
 
-    mc_version = mc_version_override or str(data.get("mc_version", "1.21.1"))
+    mc_version = mc_version_override or str(data.get("mc_version", SUPPORTED_MC_VERSION))
+    if mc_version != SUPPORTED_MC_VERSION:
+        raise ValueError(
+            f"unsupported mc_version {mc_version!r}; this project only exports Minecraft {SUPPORTED_MC_VERSION} NBT"
+        )
     if data_version_override is not None:
         data_version = int(data_version_override)
-    elif mc_version_override is not None:
-        data_version = int(DATA_VERSION_BY_MC_VERSION.get(mc_version, 3955))
     else:
-        data_version = int(data.get("data_version", DATA_VERSION_BY_MC_VERSION.get(mc_version, 3955)))
+        data_version = DATA_VERSION_BY_MC_VERSION[SUPPORTED_MC_VERSION]
 
     palette_tags = [palette_state_to_tag(state_text) for state_text in unique_states.keys()]
 
@@ -405,9 +398,16 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Convert custom structure JSON to gzipped Minecraft structure NBT")
     parser.add_argument("input_json", help="Input structure JSON")
     parser.add_argument("output_nbt", help="Output .nbt path")
-    parser.add_argument("--mc-version", default=None, help="Override mc_version from JSON, e.g. 1.20.1 or 1.21.1")
+    parser.add_argument(
+        "--mc-version",
+        default=SUPPORTED_MC_VERSION,
+        help=f"Target Minecraft version (only {SUPPORTED_MC_VERSION} is supported)",
+    )
     parser.add_argument("--data-version", type=int, default=None, help="Override DataVersion integer")
     args = parser.parse_args()
+
+    if args.mc_version != SUPPORTED_MC_VERSION:
+        parser.error(f"unsupported --mc-version {args.mc_version!r}; only {SUPPORTED_MC_VERSION} is supported")
 
     with open(args.input_json, "r", encoding="utf-8") as f:
         data = json.load(f)

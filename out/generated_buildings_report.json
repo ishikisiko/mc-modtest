@@ -1,0 +1,449 @@
+{
+  "mc_version": "1.21.1",
+  "seed": 123,
+  "generated_json_count": 0,
+  "validated_count": 9,
+  "exported_nbt_count": 0,
+  "copied_count": 0,
+  "failed_count": 0,
+  "structures": [
+    {
+      "source": "examples/buildings/small_house_01.json",
+      "id": "myvillage:small_house_01",
+      "metadata": {
+        "id": "myvillage:small_house_01",
+        "category": "building",
+        "size": [
+          11,
+          8,
+          10
+        ],
+        "entrances": [
+          {
+            "pos": [
+              5,
+              1,
+              0
+            ],
+            "facing": "north"
+          }
+        ],
+        "connections": [],
+        "weight": 10,
+        "tags": [
+          "house",
+          "medieval",
+          "oak",
+          "cobblestone"
+        ]
+      },
+      "block_count": 880,
+      "palette_count": 15,
+      "used_blocks": [
+        "minecraft:air",
+        "minecraft:barrel",
+        "minecraft:cobblestone",
+        "minecraft:cobblestone_stairs",
+        "minecraft:crafting_table",
+        "minecraft:furnace",
+        "minecraft:glass",
+        "minecraft:lantern",
+        "minecraft:oak_door",
+        "minecraft:oak_log",
+        "minecraft:oak_planks",
+        "minecraft:spruce_slab",
+        "minecraft:spruce_stairs"
+      ],
+      "validation_status": "ok",
+      "export_status": "skipped",
+      "copy_status": "skipped",
+      "errors": []
+    },
+    {
+      "source": "examples/buildings/small_house_02.json",
+      "id": "myvillage:small_house_02",
+      "metadata": {
+        "id": "myvillage:small_house_02",
+        "category": "building",
+        "size": [
+          9,
+          9,
+          9
+        ],
+        "entrances": [
+          {
+            "pos": [
+              4,
+              1,
+              8
+            ],
+            "facing": "south"
+          }
+        ],
+        "connections": [],
+        "weight": 10,
+        "tags": [
+          "house",
+          "medieval",
+          "spruce",
+          "stone_bricks",
+          "two_story"
+        ]
+      },
+      "block_count": 729,
+      "palette_count": 15,
+      "used_blocks": [
+        "minecraft:air",
+        "minecraft:barrel",
+        "minecraft:bookshelf",
+        "minecraft:glass",
+        "minecraft:ladder",
+        "minecraft:lantern",
+        "minecraft:spruce_door",
+        "minecraft:spruce_log",
+        "minecraft:spruce_planks",
+        "minecraft:stone_brick_slab",
+        "minecraft:stone_brick_stairs",
+        "minecraft:stone_bricks",
+        "minecraft:white_terracotta"
+      ],
+      "validation_status": "ok",
+      "export_status": "skipped",
+      "copy_status": "skipped",
+      "errors": []
+    },
+    {
+      "source": "examples/buildings/workshop_01.json",
+      "id": "myvillage:workshop_01",
+      "metadata": {
+        "id": "myvillage:workshop_01",
+        "category": "building",
+        "size": [
+          13,
+          8,
+          11
+        ],
+        "entrances": [
+          {
+            "pos": [
+              4,
+              1,
+              0
+            ],
+            "facing": "north"
+          },
+          {
+            "pos": [
+              12,
+              1,
+              5
+            ],
+            "facing": "east"
+          }
+        ],
+        "connections": [],
+        "weight": 6,
+        "tags": [
+          "workshop",
+          "smithy",
+          "medieval",
+          "oak",
+          "cobblestone"
+        ]
+      },
+      "block_count": 1144,
+      "palette_count": 17,
+      "used_blocks": [
+        "minecraft:air",
+        "minecraft:anvil",
+        "minecraft:barrel",
+        "minecraft:cobblestone",
+        "minecraft:crafting_table",
+        "minecraft:furnace",
+        "minecraft:glass",
+        "minecraft:lantern",
+        "minecraft:oak_door",
+        "minecraft:oak_fence",
+        "minecraft:oak_log",
+        "minecraft:oak_planks",
+        "minecraft:smooth_stone",
+        "minecraft:spruce_slab",
+        "minecraft:spruce_stairs"
+      ],
+      "validation_status": "ok",
+      "export_status": "skipped",
+      "copy_status": "skipped",
+      "errors": []
+    },
+    {
+      "source": "examples/buildings/storage_01.json",
+      "id": "myvillage:storage_01",
+      "metadata": {
+        "id": "myvillage:storage_01",
+        "category": "building",
+        "size": [
+          9,
+          7,
+          9
+        ],
+        "entrances": [
+          {
+            "pos": [
+              3,
+              1,
+              0
+            ],
+            "facing": "north"
+          },
+          {
+            "pos": [
+              4,
+              1,
+              0
+            ],
+            "facing": "north"
+          }
+        ],
+        "connections": [],
+        "weight": 6,
+        "tags": [
+          "storage",
+          "barn",
+          "medieval",
+          "spruce",
+          "cobblestone"
+        ]
+      },
+      "block_count": 567,
+      "palette_count": 18,
+      "used_blocks": [
+        "minecraft:air",
+        "minecraft:barrel",
+        "minecraft:coarse_dirt",
+        "minecraft:cobblestone",
+        "minecraft:crafting_table",
+        "minecraft:glass",
+        "minecraft:hay_block",
+        "minecraft:lantern",
+        "minecraft:oak_log",
+        "minecraft:oak_slab",
+        "minecraft:oak_stairs",
+        "minecraft:spruce_door",
+        "minecraft:spruce_planks"
+      ],
+      "validation_status": "ok",
+      "export_status": "skipped",
+      "copy_status": "skipped",
+      "errors": []
+    },
+    {
+      "source": "examples/props/well_01.json",
+      "id": "myvillage:well_01",
+      "metadata": {
+        "id": "myvillage:well_01",
+        "category": "prop",
+        "size": [
+          5,
+          6,
+          5
+        ],
+        "entrances": [],
+        "connections": [],
+        "weight": 4,
+        "tags": [
+          "well",
+          "medieval",
+          "stone_bricks",
+          "water"
+        ]
+      },
+      "block_count": 150,
+      "palette_count": 11,
+      "used_blocks": [
+        "minecraft:air",
+        "minecraft:cobblestone",
+        "minecraft:cobblestone_wall",
+        "minecraft:spruce_planks",
+        "minecraft:spruce_slab",
+        "minecraft:spruce_stairs",
+        "minecraft:stone_bricks",
+        "minecraft:water"
+      ],
+      "validation_status": "ok",
+      "export_status": "skipped",
+      "copy_status": "skipped",
+      "errors": []
+    },
+    {
+      "source": "examples/props/lamp_post_01.json",
+      "id": "myvillage:lamp_post_01",
+      "metadata": {
+        "id": "myvillage:lamp_post_01",
+        "category": "prop",
+        "size": [
+          2,
+          6,
+          1
+        ],
+        "entrances": [],
+        "connections": [],
+        "weight": 8,
+        "tags": [
+          "lamp",
+          "light",
+          "medieval",
+          "fence",
+          "lantern"
+        ]
+      },
+      "block_count": 8,
+      "palette_count": 3,
+      "used_blocks": [
+        "minecraft:cobblestone_wall",
+        "minecraft:lantern",
+        "minecraft:oak_fence"
+      ],
+      "validation_status": "ok",
+      "export_status": "skipped",
+      "copy_status": "skipped",
+      "errors": []
+    },
+    {
+      "source": "examples/props/market_stall_01.json",
+      "id": "myvillage:market_stall_01",
+      "metadata": {
+        "id": "myvillage:market_stall_01",
+        "category": "prop",
+        "size": [
+          5,
+          4,
+          5
+        ],
+        "entrances": [],
+        "connections": [],
+        "weight": 5,
+        "tags": [
+          "market",
+          "stall",
+          "medieval",
+          "wool",
+          "barrel"
+        ]
+      },
+      "block_count": 52,
+      "palette_count": 6,
+      "used_blocks": [
+        "minecraft:barrel",
+        "minecraft:hay_block",
+        "minecraft:oak_fence",
+        "minecraft:oak_slab",
+        "minecraft:red_wool",
+        "minecraft:white_wool"
+      ],
+      "validation_status": "ok",
+      "export_status": "skipped",
+      "copy_status": "skipped",
+      "errors": []
+    },
+    {
+      "source": "examples/roads/path_straight_01.json",
+      "id": "myvillage:path_straight_01",
+      "metadata": {
+        "id": "myvillage:path_straight_01",
+        "category": "road",
+        "size": [
+          5,
+          1,
+          7
+        ],
+        "entrances": [],
+        "connections": [
+          {
+            "pos": [
+              2,
+              0,
+              0
+            ],
+            "facing": "north"
+          },
+          {
+            "pos": [
+              2,
+              0,
+              6
+            ],
+            "facing": "south"
+          }
+        ],
+        "weight": 10,
+        "tags": [
+          "road",
+          "path",
+          "straight"
+        ]
+      },
+      "block_count": 35,
+      "palette_count": 4,
+      "used_blocks": [
+        "minecraft:coarse_dirt",
+        "minecraft:cobblestone",
+        "minecraft:dirt_path",
+        "minecraft:gravel"
+      ],
+      "validation_status": "ok",
+      "export_status": "skipped",
+      "copy_status": "skipped",
+      "errors": []
+    },
+    {
+      "source": "examples/roads/path_corner_01.json",
+      "id": "myvillage:path_corner_01",
+      "metadata": {
+        "id": "myvillage:path_corner_01",
+        "category": "road",
+        "size": [
+          7,
+          1,
+          7
+        ],
+        "entrances": [],
+        "connections": [
+          {
+            "pos": [
+              3,
+              0,
+              0
+            ],
+            "facing": "north"
+          },
+          {
+            "pos": [
+              6,
+              0,
+              3
+            ],
+            "facing": "east"
+          }
+        ],
+        "weight": 8,
+        "tags": [
+          "road",
+          "path",
+          "corner"
+        ]
+      },
+      "block_count": 26,
+      "palette_count": 4,
+      "used_blocks": [
+        "minecraft:coarse_dirt",
+        "minecraft:cobblestone",
+        "minecraft:dirt_path",
+        "minecraft:gravel"
+      ],
+      "validation_status": "ok",
+      "export_status": "skipped",
+      "copy_status": "skipped",
+      "errors": []
+    }
+  ]
+}

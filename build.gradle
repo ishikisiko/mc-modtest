@@ -1,0 +1,34 @@
+plugins {
+    id 'java'
+    id 'net.neoforged.moddev' version '2.0.141'
+}
+
+group = mod_group_id
+version = mod_version
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+neoForge {
+    version = project.neo_version
+}
+
+// Resource-pack style mod: sync generated structures/functions into resources
+// before they are packed into the jar.
+tasks.register('syncGeneratedResources', Exec) {
+    workingDir = projectDir
+    commandLine 'python3', 'tools/sync_resources_to_mod.py'
+}
+
+tasks.named('processResources') {
+    dependsOn 'syncGeneratedResources'
+    // sync script may change outputs between runs
+    outputs.upToDateWhen { false }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}

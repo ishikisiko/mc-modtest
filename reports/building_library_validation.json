@@ -1,0 +1,459 @@
+{
+  "style_id": "medieval_village",
+  "total": 30,
+  "passed": 30,
+  "failed": 0,
+  "function_errors": [],
+  "results": [
+    {
+      "name": "small_house_001",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        13,
+        12,
+        16
+      ],
+      "block_count": 519,
+      "palette_count": 28,
+      "glass": 8,
+      "function_blocks": 7
+    },
+    {
+      "name": "small_house_002",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        13,
+        13,
+        15
+      ],
+      "block_count": 584,
+      "palette_count": 29,
+      "glass": 9,
+      "function_blocks": 5
+    },
+    {
+      "name": "small_house_003",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        13,
+        12,
+        14
+      ],
+      "block_count": 524,
+      "palette_count": 26,
+      "glass": 6,
+      "function_blocks": 4
+    },
+    {
+      "name": "small_house_004",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        15,
+        11,
+        17
+      ],
+      "block_count": 726,
+      "palette_count": 25,
+      "glass": 2,
+      "function_blocks": 5
+    },
+    {
+      "name": "small_house_005",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        13,
+        10,
+        14
+      ],
+      "block_count": 409,
+      "palette_count": 31,
+      "glass": 4,
+      "function_blocks": 4
+    },
+    {
+      "name": "small_house_006",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        14,
+        10,
+        15
+      ],
+      "block_count": 680,
+      "palette_count": 26,
+      "glass": 4,
+      "function_blocks": 7
+    },
+    {
+      "name": "small_house_007",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        13,
+        12,
+        14
+      ],
+      "block_count": 533,
+      "palette_count": 29,
+      "glass": 3,
+      "function_blocks": 7
+    },
+    {
+      "name": "small_house_008",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        15,
+        13,
+        14
+      ],
+      "block_count": 796,
+      "palette_count": 31,
+      "glass": 6,
+      "function_blocks": 4
+    },
+    {
+      "name": "small_house_009",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        13,
+        9,
+        14
+      ],
+      "block_count": 438,
+      "palette_count": 29,
+      "glass": 5,
+      "function_blocks": 5
+    },
+    {
+      "name": "small_house_010",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        13,
+        11,
+        13
+      ],
+      "block_count": 454,
+      "palette_count": 24,
+      "glass": 3,
+      "function_blocks": 7
+    },
+    {
+      "name": "medium_house_001",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        20,
+        12,
+        17
+      ],
+      "block_count": 999,
+      "palette_count": 32,
+      "glass": 10,
+      "function_blocks": 7
+    },
+    {
+      "name": "medium_house_002",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        20,
+        12,
+        14
+      ],
+      "block_count": 981,
+      "palette_count": 29,
+      "glass": 6,
+      "function_blocks": 8
+    },
+    {
+      "name": "medium_house_003",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        20,
+        13,
+        15
+      ],
+      "block_count": 1051,
+      "palette_count": 38,
+      "glass": 11,
+      "function_blocks": 10
+    },
+    {
+      "name": "medium_house_004",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        18,
+        13,
+        16
+      ],
+      "block_count": 960,
+      "palette_count": 31,
+      "glass": 7,
+      "function_blocks": 9
+    },
+    {
+      "name": "medium_house_005",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        20,
+        15,
+        16
+      ],
+      "block_count": 1244,
+      "palette_count": 28,
+      "glass": 10,
+      "function_blocks": 9
+    },
+    {
+      "name": "medium_house_006",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        17,
+        13,
+        15
+      ],
+      "block_count": 958,
+      "palette_count": 34,
+      "glass": 4,
+      "function_blocks": 6
+    },
+    {
+      "name": "medium_house_007",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        19,
+        14,
+        17
+      ],
+      "block_count": 1100,
+      "palette_count": 32,
+      "glass": 6,
+      "function_blocks": 7
+    },
+    {
+      "name": "medium_house_008",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        23,
+        15,
+        18
+      ],
+      "block_count": 1485,
+      "palette_count": 30,
+      "glass": 7,
+      "function_blocks": 9
+    },
+    {
+      "name": "medium_house_009",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        25,
+        14,
+        18
+      ],
+      "block_count": 1358,
+      "palette_count": 31,
+      "glass": 10,
+      "function_blocks": 10
+    },
+    {
+      "name": "medium_house_010",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        23,
+        15,
+        17
+      ],
+      "block_count": 1483,
+      "palette_count": 35,
+      "glass": 4,
+      "function_blocks": 8
+    },
+    {
+      "name": "blacksmith_001",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        15,
+        11,
+        12
+      ],
+      "block_count": 488,
+      "palette_count": 32,
+      "glass": 7,
+      "function_blocks": 8
+    },
+    {
+      "name": "blacksmith_002",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        13,
+        11,
+        14
+      ],
+      "block_count": 494,
+      "palette_count": 27,
+      "glass": 4,
+      "function_blocks": 10
+    },
+    {
+      "name": "blacksmith_003",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        17,
+        13,
+        17
+      ],
+      "block_count": 837,
+      "palette_count": 27,
+      "glass": 8,
+      "function_blocks": 10
+    },
+    {
+      "name": "blacksmith_004",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        20,
+        12,
+        14
+      ],
+      "block_count": 864,
+      "palette_count": 27,
+      "glass": 6,
+      "function_blocks": 8
+    },
+    {
+      "name": "blacksmith_005",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        17,
+        13,
+        15
+      ],
+      "block_count": 837,
+      "palette_count": 30,
+      "glass": 6,
+      "function_blocks": 6
+    },
+    {
+      "name": "blacksmith_006",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        20,
+        12,
+        15
+      ],
+      "block_count": 872,
+      "palette_count": 31,
+      "glass": 6,
+      "function_blocks": 9
+    },
+    {
+      "name": "blacksmith_007",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        18,
+        13,
+        15
+      ],
+      "block_count": 834,
+      "palette_count": 29,
+      "glass": 4,
+      "function_blocks": 9
+    },
+    {
+      "name": "blacksmith_008",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        21,
+        13,
+        15
+      ],
+      "block_count": 968,
+      "palette_count": 27,
+      "glass": 10,
+      "function_blocks": 8
+    },
+    {
+      "name": "blacksmith_009",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        20,
+        13,
+        18
+      ],
+      "block_count": 1067,
+      "palette_count": 31,
+      "glass": 9,
+      "function_blocks": 10
+    },
+    {
+      "name": "blacksmith_010",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        21,
+        14,
+        19
+      ],
+      "block_count": 1396,
+      "palette_count": 32,
+      "glass": 12,
+      "function_blocks": 10
+    }
+  ]
+}

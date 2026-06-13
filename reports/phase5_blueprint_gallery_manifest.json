@@ -1,0 +1,117 @@
+{
+  "function_file": "out/datapack_phase5_gallery/data/myvillage/function/phase5_blueprint_gallery.mcfunction",
+  "datapack_dir": "out/datapack_phase5_gallery",
+  "spacing": 20,
+  "axis": "x",
+  "building_count": 9,
+  "buildings": [
+    {
+      "structure_name": "myvillage:lamp_post_01",
+      "source_nbt": "out/1_21_1/lamp_post_01.nbt",
+      "size": [
+        2,
+        6,
+        1
+      ],
+      "offset_x": 0,
+      "offset_y": 0,
+      "offset_z": 0
+    },
+    {
+      "structure_name": "myvillage:market_stall_01",
+      "source_nbt": "out/1_21_1/market_stall_01.nbt",
+      "size": [
+        5,
+        4,
+        5
+      ],
+      "offset_x": 20,
+      "offset_y": 0,
+      "offset_z": 0
+    },
+    {
+      "structure_name": "myvillage:path_corner_01",
+      "source_nbt": "out/1_21_1/path_corner_01.nbt",
+      "size": [
+        7,
+        1,
+        7
+      ],
+      "offset_x": 40,
+      "offset_y": 0,
+      "offset_z": 0
+    },
+    {
+      "structure_name": "myvillage:path_straight_01",
+      "source_nbt": "out/1_21_1/path_straight_01.nbt",
+      "size": [
+        5,
+        1,
+        7
+      ],
+      "offset_x": 60,
+      "offset_y": 0,
+      "offset_z": 0
+    },
+    {
+      "structure_name": "myvillage:small_house_01",
+      "source_nbt": "out/1_21_1/small_house_01.nbt",
+      "size": [
+        11,
+        8,
+        10
+      ],
+      "offset_x": 80,
+      "offset_y": 0,
+      "offset_z": 0
+    },
+    {
+      "structure_name": "myvillage:small_house_02",
+      "source_nbt": "out/1_21_1/small_house_02.nbt",
+      "size": [
+        9,
+        9,
+        9
+      ],
+      "offset_x": 100,
+      "offset_y": 0,
+      "offset_z": 0
+    },
+    {
+      "structure_name": "myvillage:storage_01",
+      "source_nbt": "out/1_21_1/storage_01.nbt",
+      "size": [
+        9,
+        7,
+        9
+      ],
+      "offset_x": 120,
+      "offset_y": 0,
+      "offset_z": 0
+    },
+    {
+      "structure_name": "myvillage:well_01",
+      "source_nbt": "out/1_21_1/well_01.nbt",
+      "size": [
+        5,
+        6,
+        5
+      ],
+      "offset_x": 140,
+      "offset_y": 0,
+      "offset_z": 0
+    },
+    {
+      "structure_name": "myvillage:workshop_01",
+      "source_nbt": "out/1_21_1/workshop_01.nbt",
+      "size": [
+        13,
+        8,
+        11
+      ],
+      "offset_x": 160,
+      "offset_y": 0,
+      "offset_z": 0
+    }
+  ]
+}

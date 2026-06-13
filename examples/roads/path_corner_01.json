@@ -1,0 +1,179 @@
+{
+  "format": "mc_structure_dsl_v1",
+  "name": "path_corner_01",
+  "mc_version": "1.21.1",
+  "data_version": 3955,
+  "author": "generate_all_buildings.py",
+  "metadata": {
+    "id": "myvillage:path_corner_01",
+    "category": "road",
+    "size": [
+      7,
+      1,
+      7
+    ],
+    "entrances": [],
+    "connections": [
+      {
+        "pos": [
+          3,
+          0,
+          0
+        ],
+        "facing": "north"
+      },
+      {
+        "pos": [
+          6,
+          0,
+          3
+        ],
+        "facing": "east"
+      }
+    ],
+    "weight": 8,
+    "tags": [
+      "road",
+      "path",
+      "corner"
+    ]
+  },
+  "size": [
+    7,
+    1,
+    7
+  ],
+  "fill_air": false,
+  "palette": {
+    "path": "minecraft:dirt_path",
+    "gravel": "minecraft:gravel",
+    "coarse": "minecraft:coarse_dirt",
+    "cobble": "minecraft:cobblestone"
+  },
+  "ops": [
+    {
+      "op": "fill",
+      "from": [
+        2,
+        0,
+        0
+      ],
+      "to": [
+        4,
+        0,
+        4
+      ],
+      "state": "path"
+    },
+    {
+      "op": "fill",
+      "from": [
+        2,
+        0,
+        2
+      ],
+      "to": [
+        6,
+        0,
+        4
+      ],
+      "state": "path"
+    },
+    {
+      "op": "line",
+      "from": [
+        1,
+        0,
+        0
+      ],
+      "to": [
+        1,
+        0,
+        4
+      ],
+      "state": "cobble"
+    },
+    {
+      "op": "line",
+      "from": [
+        3,
+        0,
+        0
+      ],
+      "to": [
+        3,
+        0,
+        3
+      ],
+      "state": "gravel"
+    },
+    {
+      "op": "line",
+      "from": [
+        3,
+        0,
+        3
+      ],
+      "to": [
+        6,
+        0,
+        3
+      ],
+      "state": "gravel"
+    },
+    {
+      "op": "set",
+      "pos": [
+        4,
+        0,
+        4
+      ],
+      "state": "coarse"
+    },
+    {
+      "op": "set",
+      "pos": [
+        2,
+        0,
+        1
+      ],
+      "state": "gravel"
+    },
+    {
+      "op": "set",
+      "pos": [
+        2,
+        0,
+        2
+      ],
+      "state": "cobble"
+    },
+    {
+      "op": "set",
+      "pos": [
+        4,
+        0,
+        0
+      ],
+      "state": "coarse"
+    },
+    {
+      "op": "set",
+      "pos": [
+        2,
+        0,
+        3
+      ],
+      "state": "cobble"
+    },
+    {
+      "op": "set",
+      "pos": [
+        3,
+        0,
+        4
+      ],
+      "state": "gravel"
+    }
+  ]
+}

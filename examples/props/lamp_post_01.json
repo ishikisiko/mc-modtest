@@ -1,0 +1,89 @@
+{
+  "format": "mc_structure_dsl_v1",
+  "name": "lamp_post_01",
+  "mc_version": "1.21.1",
+  "data_version": 3955,
+  "author": "generate_all_buildings.py",
+  "metadata": {
+    "id": "myvillage:lamp_post_01",
+    "category": "prop",
+    "size": [
+      2,
+      6,
+      1
+    ],
+    "entrances": [],
+    "connections": [],
+    "weight": 8,
+    "tags": [
+      "lamp",
+      "light",
+      "medieval",
+      "fence",
+      "lantern"
+    ]
+  },
+  "size": [
+    2,
+    6,
+    1
+  ],
+  "fill_air": false,
+  "palette": {
+    "base": "minecraft:cobblestone_wall[east=none,north=none,south=none,up=true,waterlogged=false,west=none]",
+    "pole": "minecraft:oak_fence[east=false,north=false,south=false,waterlogged=false,west=false]",
+    "lamp": "minecraft:lantern[hanging=true,waterlogged=false]"
+  },
+  "ops": [
+    {
+      "op": "set",
+      "pos": [
+        0,
+        0,
+        0
+      ],
+      "state": "base"
+    },
+    {
+      "op": "line",
+      "from": [
+        0,
+        1,
+        0
+      ],
+      "to": [
+        0,
+        4,
+        0
+      ],
+      "state": "pole"
+    },
+    {
+      "op": "set",
+      "pos": [
+        0,
+        5,
+        0
+      ],
+      "state": "pole"
+    },
+    {
+      "op": "set",
+      "pos": [
+        1,
+        5,
+        0
+      ],
+      "state": "pole"
+    },
+    {
+      "op": "set",
+      "pos": [
+        1,
+        4,
+        0
+      ],
+      "state": "lamp"
+    }
+  ]
+}

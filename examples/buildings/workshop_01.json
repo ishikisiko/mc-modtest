@@ -1,0 +1,617 @@
+{
+  "format": "mc_structure_dsl_v1",
+  "name": "workshop_01",
+  "mc_version": "1.21.1",
+  "data_version": 3955,
+  "author": "generate_all_buildings.py",
+  "metadata": {
+    "id": "myvillage:workshop_01",
+    "category": "building",
+    "size": [
+      13,
+      8,
+      11
+    ],
+    "entrances": [
+      {
+        "pos": [
+          4,
+          1,
+          0
+        ],
+        "facing": "north"
+      },
+      {
+        "pos": [
+          12,
+          1,
+          5
+        ],
+        "facing": "east"
+      }
+    ],
+    "connections": [],
+    "weight": 6,
+    "tags": [
+      "workshop",
+      "smithy",
+      "medieval",
+      "oak",
+      "cobblestone"
+    ]
+  },
+  "size": [
+    13,
+    8,
+    11
+  ],
+  "fill_air": true,
+  "palette": {
+    "foundation": "minecraft:cobblestone",
+    "floor": "minecraft:smooth_stone",
+    "wall_lower": "minecraft:cobblestone",
+    "wall_upper": "minecraft:oak_planks",
+    "corner_log": "minecraft:oak_log[axis=y]",
+    "window": "minecraft:glass",
+    "door_lower": "minecraft:oak_door[facing=north,half=lower,hinge=left,open=false,powered=false]",
+    "door_upper": "minecraft:oak_door[facing=north,half=upper,hinge=left,open=false,powered=false]",
+    "roof_n": "minecraft:spruce_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]",
+    "roof_s": "minecraft:spruce_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]",
+    "ridge": "minecraft:spruce_slab[type=bottom,waterlogged=false]",
+    "gable": "minecraft:oak_planks",
+    "post": "minecraft:oak_log[axis=y]",
+    "furnace": "minecraft:furnace[facing=north,lit=false]",
+    "crafting_table": "minecraft:crafting_table",
+    "barrel": "minecraft:barrel[facing=up,open=false]",
+    "anvil": "minecraft:anvil[facing=east]",
+    "fence": "minecraft:oak_fence[east=false,north=false,south=false,waterlogged=false,west=false]",
+    "lantern_floor": "minecraft:lantern[hanging=false,waterlogged=false]"
+  },
+  "ops": [
+    {
+      "op": "fill",
+      "from": [
+        1,
+        0,
+        1
+      ],
+      "to": [
+        11,
+        0,
+        9
+      ],
+      "state": "foundation"
+    },
+    {
+      "op": "fill",
+      "from": [
+        2,
+        0,
+        2
+      ],
+      "to": [
+        7,
+        0,
+        8
+      ],
+      "state": "floor"
+    },
+    {
+      "op": "set",
+      "pos": [
+        4,
+        0,
+        0
+      ],
+      "state": "foundation"
+    },
+    {
+      "op": "fill",
+      "from": [
+        1,
+        1,
+        1
+      ],
+      "to": [
+        7,
+        1,
+        1
+      ],
+      "state": "wall_lower"
+    },
+    {
+      "op": "fill",
+      "from": [
+        1,
+        1,
+        9
+      ],
+      "to": [
+        7,
+        1,
+        9
+      ],
+      "state": "wall_lower"
+    },
+    {
+      "op": "fill",
+      "from": [
+        1,
+        1,
+        2
+      ],
+      "to": [
+        1,
+        1,
+        8
+      ],
+      "state": "wall_lower"
+    },
+    {
+      "op": "fill",
+      "from": [
+        7,
+        1,
+        2
+      ],
+      "to": [
+        7,
+        1,
+        8
+      ],
+      "state": "wall_lower"
+    },
+    {
+      "op": "fill",
+      "from": [
+        1,
+        2,
+        1
+      ],
+      "to": [
+        7,
+        4,
+        1
+      ],
+      "state": "wall_upper"
+    },
+    {
+      "op": "fill",
+      "from": [
+        1,
+        2,
+        9
+      ],
+      "to": [
+        7,
+        4,
+        9
+      ],
+      "state": "wall_upper"
+    },
+    {
+      "op": "fill",
+      "from": [
+        1,
+        2,
+        2
+      ],
+      "to": [
+        1,
+        4,
+        8
+      ],
+      "state": "wall_upper"
+    },
+    {
+      "op": "fill",
+      "from": [
+        7,
+        2,
+        2
+      ],
+      "to": [
+        7,
+        4,
+        8
+      ],
+      "state": "wall_upper"
+    },
+    {
+      "op": "line",
+      "from": [
+        1,
+        1,
+        1
+      ],
+      "to": [
+        1,
+        4,
+        1
+      ],
+      "state": "corner_log"
+    },
+    {
+      "op": "line",
+      "from": [
+        7,
+        1,
+        1
+      ],
+      "to": [
+        7,
+        4,
+        1
+      ],
+      "state": "corner_log"
+    },
+    {
+      "op": "line",
+      "from": [
+        1,
+        1,
+        9
+      ],
+      "to": [
+        1,
+        4,
+        9
+      ],
+      "state": "corner_log"
+    },
+    {
+      "op": "line",
+      "from": [
+        7,
+        1,
+        9
+      ],
+      "to": [
+        7,
+        4,
+        9
+      ],
+      "state": "corner_log"
+    },
+    {
+      "op": "set",
+      "pos": [
+        4,
+        1,
+        1
+      ],
+      "state": "door_lower"
+    },
+    {
+      "op": "set",
+      "pos": [
+        4,
+        2,
+        1
+      ],
+      "state": "door_upper"
+    },
+    {
+      "op": "fill",
+      "from": [
+        7,
+        1,
+        4
+      ],
+      "to": [
+        7,
+        2,
+        6
+      ],
+      "state": "minecraft:air"
+    },
+    {
+      "op": "set",
+      "pos": [
+        2,
+        2,
+        1
+      ],
+      "state": "window"
+    },
+    {
+      "op": "set",
+      "pos": [
+        6,
+        2,
+        1
+      ],
+      "state": "window"
+    },
+    {
+      "op": "set",
+      "pos": [
+        3,
+        2,
+        9
+      ],
+      "state": "window"
+    },
+    {
+      "op": "set",
+      "pos": [
+        5,
+        2,
+        9
+      ],
+      "state": "window"
+    },
+    {
+      "op": "set",
+      "pos": [
+        1,
+        2,
+        4
+      ],
+      "state": "window"
+    },
+    {
+      "op": "set",
+      "pos": [
+        1,
+        2,
+        6
+      ],
+      "state": "window"
+    },
+    {
+      "op": "set",
+      "pos": [
+        2,
+        1,
+        8
+      ],
+      "state": "crafting_table"
+    },
+    {
+      "op": "set",
+      "pos": [
+        6,
+        1,
+        8
+      ],
+      "state": "barrel"
+    },
+    {
+      "op": "set",
+      "pos": [
+        6,
+        2,
+        8
+      ],
+      "state": "lantern_floor"
+    },
+    {
+      "op": "line",
+      "from": [
+        11,
+        1,
+        1
+      ],
+      "to": [
+        11,
+        4,
+        1
+      ],
+      "state": "post"
+    },
+    {
+      "op": "line",
+      "from": [
+        11,
+        1,
+        9
+      ],
+      "to": [
+        11,
+        4,
+        9
+      ],
+      "state": "post"
+    },
+    {
+      "op": "set",
+      "pos": [
+        10,
+        1,
+        8
+      ],
+      "state": "furnace"
+    },
+    {
+      "op": "set",
+      "pos": [
+        10,
+        2,
+        8
+      ],
+      "state": "furnace"
+    },
+    {
+      "op": "set",
+      "pos": [
+        9,
+        1,
+        5
+      ],
+      "state": "anvil"
+    },
+    {
+      "op": "set",
+      "pos": [
+        11,
+        1,
+        5
+      ],
+      "state": "fence"
+    },
+    {
+      "op": "set",
+      "pos": [
+        11,
+        2,
+        5
+      ],
+      "state": "lantern_floor"
+    },
+    {
+      "op": "fill",
+      "from": [
+        0,
+        4,
+        0
+      ],
+      "to": [
+        12,
+        4,
+        0
+      ],
+      "state": "roof_n"
+    },
+    {
+      "op": "fill",
+      "from": [
+        0,
+        4,
+        10
+      ],
+      "to": [
+        12,
+        4,
+        10
+      ],
+      "state": "roof_s"
+    },
+    {
+      "op": "fill",
+      "from": [
+        0,
+        5,
+        1
+      ],
+      "to": [
+        12,
+        5,
+        1
+      ],
+      "state": "roof_n"
+    },
+    {
+      "op": "fill",
+      "from": [
+        0,
+        5,
+        9
+      ],
+      "to": [
+        12,
+        5,
+        9
+      ],
+      "state": "roof_s"
+    },
+    {
+      "op": "fill",
+      "from": [
+        0,
+        6,
+        2
+      ],
+      "to": [
+        12,
+        6,
+        2
+      ],
+      "state": "roof_n"
+    },
+    {
+      "op": "fill",
+      "from": [
+        0,
+        6,
+        8
+      ],
+      "to": [
+        12,
+        6,
+        8
+      ],
+      "state": "roof_s"
+    },
+    {
+      "op": "fill",
+      "from": [
+        0,
+        7,
+        3
+      ],
+      "to": [
+        12,
+        7,
+        3
+      ],
+      "state": "roof_n"
+    },
+    {
+      "op": "fill",
+      "from": [
+        0,
+        7,
+        7
+      ],
+      "to": [
+        12,
+        7,
+        7
+      ],
+      "state": "roof_s"
+    },
+    {
+      "op": "fill",
+      "from": [
+        0,
+        7,
+        4
+      ],
+      "to": [
+        12,
+        7,
+        6
+      ],
+      "state": "ridge"
+    },
+    {
+      "op": "fill",
+      "from": [
+        1,
+        5,
+        2
+      ],
+      "to": [
+        1,
+        5,
+        8
+      ],
+      "state": "gable"
+    },
+    {
+      "op": "fill",
+      "from": [
+        1,
+        6,
+        3
+      ],
+      "to": [
+        1,
+        6,
+        7
+      ],
+      "state": "gable"
+    }
+  ]
+}
