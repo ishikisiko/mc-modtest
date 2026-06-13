@@ -50,6 +50,8 @@ class WallPlan:
     post_positions: List[int] = field(default_factory=list)
     door_along: Optional[int] = None
     windows: List[Tuple[int, str]] = field(default_factory=list)  # (along, opening_style)
+    story_index: int = 0
+    y_base: Optional[int] = None
 
 
 def _occlusions(graph: MassingGraph, vol: Node, wall: str) -> List[Tuple[int, int]]:
@@ -66,6 +68,16 @@ def _occlusions(graph: MassingGraph, vol: Node, wall: str) -> List[Tuple[int, in
             out.append((max(vol.x0, other.x0), min(vol.x1, other.x1)))
         elif wall == "front" and other.z1 == vol.z0 - 1:
             out.append((max(vol.x0, other.x0), min(vol.x1, other.x1)))
+    stair = graph.meta.get("stairwell")
+    if stair and stair.get("volume") == vol.id:
+        if wall == "east" and stair["x1"] >= vol.x1 - 2:
+            out.append((stair["z0"], stair["z1"]))
+        elif wall == "west" and stair["x0"] <= vol.x0 + 2:
+            out.append((stair["z0"], stair["z1"]))
+        elif wall == "back" and stair["z1"] >= vol.z1 - 2:
+            out.append((stair["x0"], stair["x1"]))
+        elif wall == "front" and stair["z0"] <= vol.z0 + 2:
+            out.append((stair["x0"], stair["x1"]))
     return [iv for iv in out if iv[0] <= iv[1]]
 
 
@@ -83,8 +95,10 @@ def _in_occlusion(along: int, occlusions, pad: int = 0) -> bool:
 
 def plan_wall(graph: MassingGraph, style: Style, rng: random.Random, vol: Node,
               wall: str, facade: str, density: str,
-              door_along: Optional[int], opening_style: str) -> WallPlan:
-    plan = WallPlan(vol.id, wall, facade, density, door_along=door_along)
+              door_along: Optional[int], opening_style: str,
+              story_index: int = 0, y_base: Optional[int] = None) -> WallPlan:
+    plan = WallPlan(vol.id, wall, facade, density, door_along=door_along,
+                    story_index=story_index, y_base=y_base)
     if wall in ("front", "back"):
         a0, a1 = vol.x0, vol.x1
     else:
@@ -151,6 +165,23 @@ def plan_building_facades(graph: MassingGraph, style: Style,
                                        wall == door["wall"]) else None
             plans.append(plan_wall(graph, style, rng, vol, wall, facade,
                                    density, door_along, opening_style))
+            stories = vol.meta.get("stories", 1)
+            if stories > 1:
+                story_wall_h = vol.meta.get("story_wall_h", vol.meta["wall_h"])
+                base_plan = plans.pop()
+                base_plan.y_base = vol.meta["foundation_h"]
+                plans.append(base_plan)
+                for story in range(1, stories):
+                    upper = WallPlan(
+                        base_plan.volume_id, base_plan.wall, base_plan.facade,
+                        base_plan.density,
+                        post_positions=list(base_plan.post_positions),
+                        door_along=None,
+                        windows=list(base_plan.windows),
+                        story_index=story,
+                        y_base=vol.meta["foundation_h"] + story * story_wall_h,
+                    )
+                    plans.append(upper)
 
     # guarantee the style's minimum window count
     min_windows = style.prop("window_min_count")

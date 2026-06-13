@@ -1,0 +1,80 @@
+{
+  "style_id": "chinese_courtyard",
+  "passed": true,
+  "errors": [],
+  "total": 6,
+  "nbt_results": [
+    {
+      "name": "chinese_courtyard_001",
+      "passed": true,
+      "errors": [],
+      "size": [
+        39,
+        18,
+        46
+      ],
+      "block_count": 6513,
+      "palette_count": 41
+    },
+    {
+      "name": "chinese_courtyard_002",
+      "passed": true,
+      "errors": [],
+      "size": [
+        47,
+        19,
+        47
+      ],
+      "block_count": 6861,
+      "palette_count": 40
+    },
+    {
+      "name": "chinese_courtyard_003",
+      "passed": true,
+      "errors": [],
+      "size": [
+        47,
+        18,
+        48
+      ],
+      "block_count": 6525,
+      "palette_count": 40
+    },
+    {
+      "name": "chinese_courtyard_004",
+      "passed": true,
+      "errors": [],
+      "size": [
+        39,
+        18,
+        46
+      ],
+      "block_count": 6335,
+      "palette_count": 40
+    },
+    {
+      "name": "chinese_courtyard_005",
+      "passed": true,
+      "errors": [],
+      "size": [
+        43,
+        18,
+        48
+      ],
+      "block_count": 5976,
+      "palette_count": 40
+    },
+    {
+      "name": "chinese_courtyard_006",
+      "passed": true,
+      "errors": [],
+      "size": [
+        47,
+        19,
+        48
+      ],
+      "block_count": 6863,
+      "palette_count": 38
+    }
+  ]
+}

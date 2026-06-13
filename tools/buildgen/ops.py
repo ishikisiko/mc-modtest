@@ -173,7 +173,8 @@ def wall_frame(grid: BlockGrid, style: Style, rng: random.Random, vol: Node,
     axis, fixed, (a0, a1), _ = wall_info(vol, wall)
     # every wall type keeps a stone plinth so lower/upper walls stay layered
     stone_rows = {"stone_lower_wall": 2, "mixed_stone_wood_wall": 1,
-                  "timber_frame_wall": 1}[wall_type]
+                  "timber_frame_wall": 1,
+                  "white_plaster_timber_wall": 1}[wall_type]
     stone_rows = min(stone_rows, vol.meta["wall_h"] - 2)
     stone = style.primary("BASE_STONE")
     planks = style.primary("WALL_MAIN")
@@ -190,7 +191,7 @@ def wall_frame(grid: BlockGrid, style: Style, rng: random.Random, vol: Node,
     for along in range(a0, a1 + 1):
         grid.set(wall_pos(vol, wall, along, wall_top), beam, tags, p, "FRAME_WOOD")
     # timber frame walls get an extra mid-height beam (windows cut through it)
-    if wall_type == "timber_frame_wall" and vol.meta["wall_h"] >= 4:
+    if wall_type in ("timber_frame_wall", "white_plaster_timber_wall") and vol.meta["wall_h"] >= 4:
         for along in range(a0, a1 + 1):
             grid.set(wall_pos(vol, wall, along, fh + 2), beam, tags, p, "FRAME_WOOD")
     # vertical posts: corners + bay boundaries
@@ -225,8 +226,17 @@ def doorway(grid: BlockGrid, style: Style, rng: random.Random, vol: Node,
     grid.set(wall_pos(vol, wall, along, fh + 2, depth_offset=1),
              stair_state(style, inward), ["DETAIL", "PROTECTED"], p)
     # entry step + protected breathing room in front of the door
-    grid.set(wall_pos(vol, wall, along, fh - 1, depth_offset=1),
-             stair_state(style, inward), ["DETAIL", "PROTECTED"], p)
+    step_pos = wall_pos(vol, wall, along, fh - 1, depth_offset=1)
+    grid.set(step_pos, stair_state(style, inward),
+             ["DETAIL", "PROTECTED"], p, force=True)
+    for side in (-1, 1):
+        side_pos = wall_pos(vol, wall, along + side, fh - 1, depth_offset=1)
+        grid.set(side_pos, AIR, ["AIR_CARVE", "PROTECTED"], p, force=True)
+        lower_pos = (side_pos[0], fh - 2, side_pos[2])
+        if grid.is_empty(lower_pos):
+            grid.set(lower_pos, rng.choice(style.material_slots["GROUND_PATH"]),
+                     ["DETAIL", "GROUND", "PROTECTED"], p, "GROUND_PATH",
+                     force=True)
     for y in (fh, fh + 1):
         grid.set(wall_pos(vol, wall, along, y, depth_offset=1), AIR,
                  ["AIR_CARVE", "PROTECTED"], p)
@@ -236,10 +246,11 @@ def doorway(grid: BlockGrid, style: Style, rng: random.Random, vol: Node,
 
 def window_kit(grid: BlockGrid, style: Style, rng: random.Random, vol: Node,
                wall: str, along: int, width: int = 1, opening_style: str =
-               "window_with_trapdoor_frame", glass: str = "minecraft:glass") -> int:
+               "window_with_trapdoor_frame", glass: str = "minecraft:glass",
+               y_base: Optional[int] = None) -> int:
     """Window with frame/sill; returns number of glass cells placed."""
-    fh = vol.meta["foundation_h"]
-    wall_top = fh + vol.meta["wall_h"] - 1
+    fh = y_base if y_base is not None else vol.meta["foundation_h"]
+    wall_top = vol.meta["foundation_h"] + vol.meta["wall_h"] - 1
     outward = OUTWARD_FACING[wall]
     p = PRIORITY["OPENING"]
     placed = 0
@@ -275,6 +286,81 @@ def window_kit(grid: BlockGrid, style: Style, rng: random.Random, vol: Node,
             if grid.is_empty(pos):
                 grid.set(pos, shutter, ["DETAIL"], PRIORITY["DETAIL"], "DETAIL_WOOD")
     return placed
+
+
+def storefront(grid: BlockGrid, style: Style, rng: random.Random, vol: Node,
+               wall: str, door_along: int, meta: dict) -> None:
+    """Wide ground-floor shopfront using glass, timber trim, and a wood awning."""
+    fh = vol.meta["foundation_h"]
+    story_wall_h = vol.meta.get("story_wall_h", vol.meta["wall_h"])
+    wall_top = fh + story_wall_h - 1
+    width = meta.get("width", 5)
+    a0, a1 = wall_info(vol, wall)[2]
+    lo = max(a0 + 2, door_along - width // 2)
+    hi = min(a1 - 2, lo + width - 1)
+    lo = max(a0 + 2, hi - width + 1)
+    p = PRIORITY["OPENING"]
+    glass = "minecraft:glass"
+    for along in range(lo, hi + 1):
+        if abs(along - door_along) <= 1:
+            continue
+        for y in range(fh + 1, min(wall_top, fh + 2) + 1):
+            grid.set(wall_pos(vol, wall, along, y), glass,
+                     ["OPENING", "FACADE", "PROTECTED"], p)
+    beam_axis = "x" if wall in ("front", "back") else "z"
+    for along in range(lo - 1, hi + 2):
+        if a0 <= along <= a1 and wall_top >= fh + 3:
+            grid.set(wall_pos(vol, wall, along, fh + 3),
+                     log_state(style, beam_axis, rng, 0.2),
+                     ["FACADE", "DETAIL"], PRIORITY["DETAIL"], "FRAME_WOOD")
+        awning_y = min(fh + 3, wall_top)
+        grid.set(wall_pos(vol, wall, along, awning_y, depth_offset=1),
+                 slab_state(style, "bottom", "DETAIL_WOOD"),
+                 ["DETAIL", "ROOF"], PRIORITY["DETAIL"], "DETAIL_WOOD")
+    if meta.get("signage") == "post":
+        for along in (lo - 1, hi + 1):
+            if a0 <= along <= a1:
+                grid.set(wall_pos(vol, wall, along, fh + 2, depth_offset=1),
+                         fence_state(style), ["DETAIL"], PRIORITY["DETAIL"],
+                         "DETAIL_WOOD")
+
+
+def floor_slab(grid: BlockGrid, style: Style, vol: Node, y: int,
+               opening: Optional[dict]) -> None:
+    floor = style.primary("WALL_MAIN")
+    for x in range(vol.x0 + 1, vol.x1):
+        for z in range(vol.z0 + 1, vol.z1):
+            if opening and opening["x0"] <= x <= opening["x1"] and opening["z0"] <= z <= opening["z1"]:
+                continue
+            grid.set((x, y, z), floor, ["STRUCTURE", "INTERIOR"],
+                     PRIORITY["STRUCTURE"], "WALL_MAIN")
+
+
+def stairwell(grid: BlockGrid, style: Style, vol: Node, opening: dict) -> None:
+    stories = vol.meta.get("stories", 1)
+    if stories <= 1:
+        return
+    fh = vol.meta["foundation_h"]
+    story_wall_h = vol.meta.get("story_wall_h", vol.meta["wall_h"])
+    stair_x = opening["x0"]
+    z_values = list(range(opening["z0"], opening["z1"] + 1))
+    if opening.get("direction") == "south":
+        facing = "south"
+    else:
+        z_values = list(reversed(z_values))
+        facing = "north"
+    for story in range(stories - 1):
+        base_y = fh + story * story_wall_h
+        boundary_y = fh + (story + 1) * story_wall_h
+        for x in range(opening["x0"], opening["x1"] + 1):
+            for z in range(opening["z0"], opening["z1"] + 1):
+                for y in (boundary_y, boundary_y + 1):
+                    grid.set((x, y, z), AIR, ["AIR_CARVE", "PROTECTED"],
+                             PRIORITY["OPENING"], force=True)
+        for step, z in enumerate(z_values[:story_wall_h]):
+            grid.set((stair_x, base_y + step, z),
+                     stair_state(style, facing), ["STRUCTURE", "INTERIOR"],
+                     PRIORITY["INTERIOR"], "ROOF_DARK")
 
 
 # ---------------------------------------------------------------------------
@@ -430,9 +516,10 @@ def porch(grid: BlockGrid, style: Style, rng: random.Random, node: Node,
     fh = main.meta["foundation_h"]
     roof_y = min(fh + 3, fh + main.meta["wall_h"])
     p = PRIORITY["DETAIL"]
+    floor_y = fh - 2
     # corner posts on the outer edge
     for px in (node.x0, node.x1):
-        for y in range(0, roof_y):
+        for y in range(floor_y, roof_y):
             grid.set((px, y, node.z0), fence_state(style), ["DETAIL"], p,
                      "DETAIL_WOOD")
     # slab roof over the porch, skipping cells the main roof already used
@@ -448,13 +535,34 @@ def porch(grid: BlockGrid, style: Style, rng: random.Random, node: Node,
     if grid.is_empty(lpos):
         grid.set(lpos, lantern_state(style, hanging=True), ["DETAIL"], p,
                  "LIGHTING")
-    # porch floor pad
+    # porch floor pad; all entry hardscape sits one block below the stair.
     for x in range(node.x0, node.x1 + 1):
         for z in range(node.z0, node.z1 + 1):
-            pos = (x, 0, z)
+            pos = (x, floor_y, z)
             if grid.is_empty(pos):
                 grid.set(pos, rng.choice(style.material_slots["GROUND_PATH"]),
                          ["DETAIL", "GROUND"], p, "GROUND_PATH")
+
+
+def chinese_timber_brackets(grid: BlockGrid, style: Style, rng: random.Random,
+                            vol: Node) -> None:
+    """Small dougong-like rhythm under the front/back eaves."""
+    fh = vol.meta["foundation_h"]
+    wall_top = fh + vol.meta["wall_h"] - 1
+    p = PRIORITY["DETAIL"]
+    bracket = fence_state(style)
+    for wall in ("front", "back"):
+        axis, fixed, (a0, a1), _ = wall_info(vol, wall)
+        outward = OUTWARD_FACING[wall]
+        y = wall_top
+        for along in range(a0 + 2, a1 - 1, 3):
+            pos = wall_pos(vol, wall, along, y, depth_offset=1)
+            if grid.is_empty(pos):
+                grid.set(pos, bracket, ["DETAIL"], p, "DETAIL_WOOD")
+            trim = wall_pos(vol, wall, along, y - 1, depth_offset=1)
+            if grid.is_empty(trim):
+                grid.set(trim, trapdoor_state(style, outward, rng),
+                         ["DETAIL"], p, "DETAIL_WOOD")
 
 
 def interior_zone(grid: BlockGrid, style: Style, rng: random.Random, vol: Node,
@@ -577,9 +685,17 @@ def ground_patch(grid: BlockGrid, style: Style, rng: random.Random,
                  node: Node) -> None:
     """path_patch / courtyard_patch: ground material mix at y=0."""
     p = PRIORITY["DETAIL"]
+    door_x = node.meta.get("door_x")
+    step_z = node.meta.get("step_z")
+    step_y = node.meta.get("step_y", 0)
     for x in range(node.x0, node.x1 + 1):
         for z in range(node.z0, node.z1 + 1):
             pos = (x, 0, z)
+            if door_x is not None and step_z is not None:
+                if not (x == door_x and z == step_z):
+                    grid.set((x, step_y, z), AIR,
+                             ["AIR_CARVE", "PROTECTED"], p, force=True)
+                pos = (x, step_y - 1, z)
             if grid.is_empty(pos):
                 grid.set(pos, rng.choice(style.material_slots["GROUND_PATH"]),
                          ["DETAIL", "GROUND"], p, "GROUND_PATH")

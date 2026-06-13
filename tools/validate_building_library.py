@@ -26,6 +26,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+from buildgen.archetypes import ARCHETYPES, NEW_ARCHETYPE_COUNTS
 from buildgen.nbtread import read_gzipped_nbt, state_string
 from buildgen.style import load_style
 
@@ -33,9 +34,9 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MOD_ID = "myvillage"
 RES = os.path.join(PROJECT_ROOT, "src", "main", "resources", "data", MOD_ID)
 REGISTRY = os.path.join(PROJECT_ROOT, "docs", "ai-kb", "references", "blocks_121.json")
-ARCHETYPES = ("small_house", "medium_house", "blacksmith")
 DATA_VERSION = 3955
 MIN_SPACING = 20
+MULTISTORY_ARCHETYPES = {"medium_shop", "big_house"}
 
 FUNCTION_BLOCKS = ("crafting_table", "furnace", "smithing_table", "barrel", "anvil")
 
@@ -47,7 +48,8 @@ def load_registry() -> set:
     return {b if ":" in b else f"minecraft:{b}" for b in ids}
 
 
-def validate_structure(path: str, style, registry: set) -> dict:
+def validate_structure(path: str, style, registry: set,
+                       expect_multistory: bool = False) -> dict:
     errors, warnings = [], []
     name = os.path.splitext(os.path.basename(path))[0]
     try:
@@ -96,6 +98,15 @@ def validate_structure(path: str, style, registry: set) -> dict:
 
     if not any("_stairs" in s or "_slab" in s for s in palette):
         warnings.append("no_roof_blocks: no stairs/slabs in palette")
+    if expect_multistory:
+        if len(size) == 3 and size[1] < 12:
+            errors.append(f"multi_story_too_short: {size}")
+        air_idx = {i for i, s in enumerate(palette) if s == "minecraft:air"}
+        air_positions = {tuple(b["pos"]) for b in blocks if b["state"] in air_idx}
+        aligned_air = any((x, y + 1, z) in air_positions
+                          for x, y, z in air_positions if y >= 4)
+        if not aligned_air:
+            errors.append("multi_story_stair_opening_missing")
 
     return {"name": name, "passed": not errors, "errors": errors,
             "warnings": warnings, "size": size,
@@ -111,14 +122,14 @@ def validate_functions(style_id: str, structure_names: list) -> list:
     with open(gallery, "r", encoding="utf-8") as f:
         lines = [l.strip() for l in f if l.strip() and not l.startswith("#")]
     pat = re.compile(
-        rf"^place template {MOD_ID}:(\w+) ~(-?\d+)? ~ ~(-?\d+)?$")
+        rf"^place template {MOD_ID}:(\w+) ~(-?\d+)? ~(-?\d+)? ~(-?\d+)?$")
     placed = {}
     for line in lines:
         m = pat.match(line)
         if not m:
             errors.append(f"gallery_bad_line: {line}")
             continue
-        placed[m.group(1)] = (int(m.group(2) or 0), int(m.group(3) or 0))
+        placed[m.group(1)] = (int(m.group(2) or 0), int(m.group(4) or 0))
     missing = set(structure_names) - set(placed)
     if missing:
         errors.append(f"gallery_missing_structures: {sorted(missing)}")
@@ -148,7 +159,8 @@ def main() -> int:
     results = []
     names = []
     for archetype in ARCHETYPES:
-        for i in range(1, args.count + 1):
+        archetype_count = NEW_ARCHETYPE_COUNTS.get(archetype, args.count)
+        for i in range(1, archetype_count + 1):
             name = f"{archetype}_{i:03d}"
             names.append(name)
             path = os.path.join(struct_dir, f"{name}.nbt")
@@ -156,7 +168,8 @@ def main() -> int:
                 results.append({"name": name, "passed": False,
                                 "errors": ["missing_file"], "warnings": []})
                 continue
-            results.append(validate_structure(path, style, registry))
+            results.append(validate_structure(
+                path, style, registry, archetype in MULTISTORY_ARCHETYPES))
 
     fn_errors = validate_functions(args.style, names)
 

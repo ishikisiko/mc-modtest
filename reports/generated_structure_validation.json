@@ -1,15 +1,174 @@
 {
   "structure_dir": "src/main/resources/data/myvillage/structure",
   "passed": true,
-  "file_count": 31,
+  "file_count": 55,
   "category_counts": {
+    "big_house": 5,
     "blacksmith": 10,
+    "chinese_courtyard": 6,
+    "chinese_review": 3,
     "medium_house": 10,
+    "medium_shop": 5,
     "small_house": 10,
+    "small_shop": 5,
     "test_house_03": 1
   },
   "errors": [],
   "results": [
+    {
+      "path": "big_house_001.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        18,
+        17,
+        18
+      ],
+      "palette_count": 31,
+      "block_count": 859,
+      "roof_block_count": 182,
+      "top_layer_counts": {
+        "14": 16,
+        "15": 2,
+        "16": 2
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 4,
+        "minecraft:crafting_table": 2,
+        "minecraft:furnace": 1,
+        "minecraft:oak_log": 138,
+        "minecraft:oak_planks": 240,
+        "minecraft:spruce_planks": 33,
+        "minecraft:spruce_slab": 9,
+        "minecraft:spruce_stairs": 155,
+        "minecraft:stripped_oak_log": 6,
+        "minecraft:stripped_oak_wood": 77
+      }
+    },
+    {
+      "path": "big_house_002.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        22,
+        19,
+        19
+      ],
+      "palette_count": 33,
+      "block_count": 1329,
+      "roof_block_count": 221,
+      "top_layer_counts": {
+        "16": 17,
+        "17": 2,
+        "18": 2
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 6,
+        "minecraft:crafting_table": 2,
+        "minecraft:furnace": 1,
+        "minecraft:oak_log": 198,
+        "minecraft:oak_planks": 327,
+        "minecraft:spruce_planks": 58,
+        "minecraft:spruce_slab": 10,
+        "minecraft:spruce_stairs": 226,
+        "minecraft:stripped_oak_log": 14,
+        "minecraft:stripped_oak_wood": 126
+      }
+    },
+    {
+      "path": "big_house_003.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        17,
+        21,
+        15
+      ],
+      "palette_count": 30,
+      "block_count": 973,
+      "roof_block_count": 115,
+      "top_layer_counts": {
+        "18": 13,
+        "19": 2,
+        "20": 2
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 5,
+        "minecraft:crafting_table": 2,
+        "minecraft:furnace": 1,
+        "minecraft:oak_log": 199,
+        "minecraft:oak_planks": 306,
+        "minecraft:spruce_planks": 26,
+        "minecraft:spruce_slab": 9,
+        "minecraft:spruce_stairs": 96,
+        "minecraft:stripped_oak_wood": 85
+      }
+    },
+    {
+      "path": "big_house_004.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        24,
+        18,
+        20
+      ],
+      "palette_count": 31,
+      "block_count": 1353,
+      "roof_block_count": 270,
+      "top_layer_counts": {
+        "15": 34,
+        "16": 30,
+        "17": 15
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 8,
+        "minecraft:crafting_table": 2,
+        "minecraft:furnace": 1,
+        "minecraft:oak_log": 207,
+        "minecraft:oak_planks": 385,
+        "minecraft:spruce_planks": 68,
+        "minecraft:spruce_slab": 15,
+        "minecraft:spruce_stairs": 272,
+        "minecraft:stripped_oak_log": 21,
+        "minecraft:stripped_oak_wood": 159
+      }
+    },
+    {
+      "path": "big_house_005.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        19,
+        22,
+        20
+      ],
+      "palette_count": 34,
+      "block_count": 1416,
+      "roof_block_count": 219,
+      "top_layer_counts": {
+        "19": 16,
+        "20": 2,
+        "21": 2
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 4,
+        "minecraft:crafting_table": 2,
+        "minecraft:furnace": 1,
+        "minecraft:oak_log": 235,
+        "minecraft:oak_planks": 489,
+        "minecraft:spruce_planks": 52,
+        "minecraft:spruce_slab": 17,
+        "minecraft:spruce_stairs": 225,
+        "minecraft:stripped_oak_log": 36,
+        "minecraft:stripped_oak_wood": 161
+      }
+    },
     {
       "path": "blacksmith_001.nbt",
       "passed": true,
@@ -29,7 +188,7 @@
         "10": 2
       },
       "key_state_counts": {
-        "minecraft:barrel": 4,
+        "minecraft:barrel": 5,
         "minecraft:furnace": 2,
         "minecraft:oak_log": 64,
         "minecraft:oak_planks": 45,
@@ -51,7 +210,7 @@
         14
       ],
       "palette_count": 27,
-      "block_count": 358,
+      "block_count": 356,
       "roof_block_count": 76,
       "top_layer_counts": {
         "8": 11,
@@ -77,10 +236,10 @@
       "size": [
         17,
         13,
-        17
+        16
       ],
       "palette_count": 27,
-      "block_count": 585,
+      "block_count": 601,
       "roof_block_count": 131,
       "top_layer_counts": {
         "10": 15,
@@ -88,14 +247,14 @@
         "12": 2
       },
       "key_state_counts": {
-        "minecraft:barrel": 6,
+        "minecraft:barrel": 4,
         "minecraft:furnace": 2,
         "minecraft:oak_log": 83,
-        "minecraft:oak_planks": 66,
+        "minecraft:oak_planks": 79,
         "minecraft:spruce_planks": 39,
         "minecraft:spruce_slab": 49,
         "minecraft:spruce_stairs": 130,
-        "minecraft:stripped_oak_wood": 40
+        "minecraft:stripped_oak_wood": 45
       }
     },
     {
@@ -137,8 +296,8 @@
         13,
         15
       ],
-      "palette_count": 30,
-      "block_count": 584,
+      "palette_count": 29,
+      "block_count": 602,
       "roof_block_count": 126,
       "top_layer_counts": {
         "10": 15,
@@ -149,12 +308,12 @@
         "minecraft:barrel": 2,
         "minecraft:furnace": 2,
         "minecraft:oak_log": 83,
-        "minecraft:oak_planks": 92,
+        "minecraft:oak_planks": 104,
         "minecraft:spruce_planks": 32,
         "minecraft:spruce_slab": 47,
         "minecraft:spruce_stairs": 130,
         "minecraft:stripped_oak_log": 12,
-        "minecraft:stripped_oak_wood": 38
+        "minecraft:stripped_oak_wood": 44
       }
     },
     {
@@ -197,8 +356,8 @@
         13,
         15
       ],
-      "palette_count": 29,
-      "block_count": 581,
+      "palette_count": 30,
+      "block_count": 598,
       "roof_block_count": 127,
       "top_layer_counts": {
         "10": 15,
@@ -206,15 +365,15 @@
         "12": 2
       },
       "key_state_counts": {
-        "minecraft:barrel": 5,
+        "minecraft:barrel": 4,
         "minecraft:furnace": 2,
         "minecraft:oak_log": 80,
-        "minecraft:oak_planks": 91,
+        "minecraft:oak_planks": 104,
         "minecraft:spruce_planks": 32,
         "minecraft:spruce_slab": 42,
         "minecraft:spruce_stairs": 130,
         "minecraft:stripped_oak_log": 12,
-        "minecraft:stripped_oak_wood": 43
+        "minecraft:stripped_oak_wood": 48
       }
     },
     {
@@ -228,7 +387,7 @@
         15
       ],
       "palette_count": 27,
-      "block_count": 659,
+      "block_count": 681,
       "roof_block_count": 147,
       "top_layer_counts": {
         "10": 16,
@@ -239,12 +398,12 @@
         "minecraft:barrel": 4,
         "minecraft:furnace": 2,
         "minecraft:oak_log": 97,
-        "minecraft:oak_planks": 94,
+        "minecraft:oak_planks": 110,
         "minecraft:spruce_planks": 35,
         "minecraft:spruce_slab": 59,
         "minecraft:spruce_stairs": 151,
         "minecraft:stripped_oak_log": 5,
-        "minecraft:stripped_oak_wood": 50
+        "minecraft:stripped_oak_wood": 56
       }
     },
     {
@@ -258,7 +417,7 @@
         18
       ],
       "palette_count": 31,
-      "block_count": 744,
+      "block_count": 767,
       "roof_block_count": 142,
       "top_layer_counts": {
         "10": 17,
@@ -266,15 +425,15 @@
         "12": 2
       },
       "key_state_counts": {
-        "minecraft:barrel": 6,
+        "minecraft:barrel": 7,
         "minecraft:furnace": 2,
         "minecraft:oak_log": 116,
-        "minecraft:oak_planks": 109,
+        "minecraft:oak_planks": 125,
         "minecraft:spruce_planks": 33,
         "minecraft:spruce_slab": 79,
         "minecraft:spruce_stairs": 142,
         "minecraft:stripped_oak_log": 1,
-        "minecraft:stripped_oak_wood": 62
+        "minecraft:stripped_oak_wood": 68
       }
     },
     {
@@ -287,8 +446,8 @@
         14,
         19
       ],
-      "palette_count": 32,
-      "block_count": 909,
+      "palette_count": 33,
+      "block_count": 935,
       "roof_block_count": 162,
       "top_layer_counts": {
         "11": 18,
@@ -299,12 +458,242 @@
         "minecraft:barrel": 6,
         "minecraft:furnace": 2,
         "minecraft:oak_log": 126,
-        "minecraft:oak_planks": 151,
+        "minecraft:oak_planks": 170,
         "minecraft:spruce_planks": 43,
         "minecraft:spruce_slab": 76,
         "minecraft:spruce_stairs": 196,
         "minecraft:stripped_oak_log": 7,
-        "minecraft:stripped_oak_wood": 66
+        "minecraft:stripped_oak_wood": 73
+      }
+    },
+    {
+      "path": "chinese_courtyard_001.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        39,
+        18,
+        46
+      ],
+      "palette_count": 41,
+      "block_count": 4419,
+      "roof_block_count": 734,
+      "top_layer_counts": {
+        "15": 44,
+        "16": 42,
+        "17": 21
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 9,
+        "minecraft:crafting_table": 5,
+        "minecraft:dark_oak_log": 530,
+        "minecraft:dark_oak_planks": 182,
+        "minecraft:dark_oak_slab": 178,
+        "minecraft:dark_oak_stairs": 1042,
+        "minecraft:furnace": 3,
+        "minecraft:stripped_dark_oak_log": 70
+      }
+    },
+    {
+      "path": "chinese_courtyard_002.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        47,
+        19,
+        47
+      ],
+      "palette_count": 40,
+      "block_count": 4640,
+      "roof_block_count": 740,
+      "top_layer_counts": {
+        "16": 44,
+        "17": 42,
+        "18": 21
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 9,
+        "minecraft:crafting_table": 5,
+        "minecraft:dark_oak_log": 559,
+        "minecraft:dark_oak_planks": 179,
+        "minecraft:dark_oak_slab": 181,
+        "minecraft:dark_oak_stairs": 1038,
+        "minecraft:furnace": 3,
+        "minecraft:stripped_dark_oak_log": 56
+      }
+    },
+    {
+      "path": "chinese_courtyard_003.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        47,
+        18,
+        48
+      ],
+      "palette_count": 40,
+      "block_count": 4507,
+      "roof_block_count": 690,
+      "top_layer_counts": {
+        "15": 44,
+        "16": 42,
+        "17": 21
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 8,
+        "minecraft:crafting_table": 5,
+        "minecraft:dark_oak_log": 558,
+        "minecraft:dark_oak_planks": 176,
+        "minecraft:dark_oak_slab": 182,
+        "minecraft:dark_oak_stairs": 1008,
+        "minecraft:furnace": 3,
+        "minecraft:stripped_dark_oak_log": 45
+      }
+    },
+    {
+      "path": "chinese_courtyard_004.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        39,
+        18,
+        46
+      ],
+      "palette_count": 40,
+      "block_count": 4315,
+      "roof_block_count": 693,
+      "top_layer_counts": {
+        "15": 44,
+        "16": 42,
+        "17": 21
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 8,
+        "minecraft:crafting_table": 5,
+        "minecraft:dark_oak_log": 532,
+        "minecraft:dark_oak_planks": 170,
+        "minecraft:dark_oak_slab": 190,
+        "minecraft:dark_oak_stairs": 992,
+        "minecraft:furnace": 3,
+        "minecraft:stripped_dark_oak_log": 51
+      }
+    },
+    {
+      "path": "chinese_courtyard_005.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        43,
+        18,
+        48
+      ],
+      "palette_count": 40,
+      "block_count": 4051,
+      "roof_block_count": 525,
+      "top_layer_counts": {
+        "15": 40,
+        "16": 38,
+        "17": 19
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 7,
+        "minecraft:crafting_table": 5,
+        "minecraft:dark_oak_log": 494,
+        "minecraft:dark_oak_planks": 171,
+        "minecraft:dark_oak_slab": 184,
+        "minecraft:dark_oak_stairs": 803,
+        "minecraft:furnace": 3,
+        "minecraft:stripped_dark_oak_log": 97
+      }
+    },
+    {
+      "path": "chinese_courtyard_006.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        47,
+        19,
+        48
+      ],
+      "palette_count": 38,
+      "block_count": 4537,
+      "roof_block_count": 642,
+      "top_layer_counts": {
+        "16": 44,
+        "17": 42,
+        "18": 21
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 10,
+        "minecraft:crafting_table": 5,
+        "minecraft:dark_oak_log": 557,
+        "minecraft:dark_oak_planks": 171,
+        "minecraft:dark_oak_slab": 186,
+        "minecraft:dark_oak_stairs": 929,
+        "minecraft:furnace": 3,
+        "minecraft:stripped_dark_oak_log": 71
+      }
+    },
+    {
+      "path": "front_row_review.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        23,
+        11,
+        12
+      ],
+      "palette_count": 27,
+      "block_count": 728,
+      "roof_block_count": 264,
+      "top_layer_counts": {
+        "8": 48,
+        "9": 46,
+        "10": 23
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 2,
+        "minecraft:crafting_table": 1,
+        "minecraft:dark_oak_log": 102,
+        "minecraft:dark_oak_planks": 34,
+        "minecraft:dark_oak_stairs": 232,
+        "minecraft:stripped_dark_oak_log": 19
+      }
+    },
+    {
+      "path": "main_hall_review.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        21,
+        18,
+        17
+      ],
+      "palette_count": 26,
+      "block_count": 1387,
+      "roof_block_count": 399,
+      "top_layer_counts": {
+        "15": 44,
+        "16": 42,
+        "17": 21
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 1,
+        "minecraft:crafting_table": 2,
+        "minecraft:dark_oak_log": 196,
+        "minecraft:dark_oak_planks": 63,
+        "minecraft:dark_oak_slab": 10,
+        "minecraft:dark_oak_stairs": 342,
+        "minecraft:furnace": 1,
+        "minecraft:stripped_dark_oak_log": 17
       }
     },
     {
@@ -318,7 +707,7 @@
         17
       ],
       "palette_count": 32,
-      "block_count": 658,
+      "block_count": 661,
       "roof_block_count": 117,
       "top_layer_counts": {
         "9": 15,
@@ -326,16 +715,16 @@
         "11": 2
       },
       "key_state_counts": {
-        "minecraft:barrel": 3,
+        "minecraft:barrel": 2,
         "minecraft:crafting_table": 2,
         "minecraft:furnace": 1,
         "minecraft:oak_log": 121,
-        "minecraft:oak_planks": 109,
+        "minecraft:oak_planks": 112,
         "minecraft:spruce_planks": 32,
         "minecraft:spruce_slab": 21,
         "minecraft:spruce_stairs": 154,
         "minecraft:stripped_oak_log": 13,
-        "minecraft:stripped_oak_wood": 42
+        "minecraft:stripped_oak_wood": 43
       }
     },
     {
@@ -349,7 +738,7 @@
         14
       ],
       "palette_count": 29,
-      "block_count": 639,
+      "block_count": 644,
       "roof_block_count": 116,
       "top_layer_counts": {
         "9": 15,
@@ -357,16 +746,16 @@
         "11": 2
       },
       "key_state_counts": {
-        "minecraft:barrel": 4,
+        "minecraft:barrel": 5,
         "minecraft:crafting_table": 2,
         "minecraft:furnace": 1,
         "minecraft:oak_log": 105,
-        "minecraft:oak_planks": 105,
+        "minecraft:oak_planks": 108,
         "minecraft:spruce_planks": 32,
         "minecraft:spruce_slab": 13,
         "minecraft:spruce_stairs": 154,
         "minecraft:stripped_oak_log": 5,
-        "minecraft:stripped_oak_wood": 49
+        "minecraft:stripped_oak_wood": 50
       }
     },
     {
@@ -380,7 +769,7 @@
         15
       ],
       "palette_count": 38,
-      "block_count": 710,
+      "block_count": 734,
       "roof_block_count": 164,
       "top_layer_counts": {
         "10": 17,
@@ -388,16 +777,16 @@
         "12": 2
       },
       "key_state_counts": {
-        "minecraft:barrel": 6,
+        "minecraft:barrel": 4,
         "minecraft:crafting_table": 2,
         "minecraft:furnace": 1,
         "minecraft:oak_log": 102,
-        "minecraft:oak_planks": 126,
+        "minecraft:oak_planks": 145,
         "minecraft:spruce_planks": 39,
         "minecraft:spruce_slab": 6,
         "minecraft:spruce_stairs": 198,
         "minecraft:stripped_oak_log": 8,
-        "minecraft:stripped_oak_wood": 56
+        "minecraft:stripped_oak_wood": 63
       }
     },
     {
@@ -408,10 +797,10 @@
       "size": [
         18,
         13,
-        16
+        17
       ],
       "palette_count": 31,
-      "block_count": 666,
+      "block_count": 690,
       "roof_block_count": 141,
       "top_layer_counts": {
         "10": 15,
@@ -419,16 +808,16 @@
         "12": 2
       },
       "key_state_counts": {
-        "minecraft:barrel": 5,
+        "minecraft:barrel": 6,
         "minecraft:crafting_table": 2,
         "minecraft:furnace": 1,
         "minecraft:oak_log": 96,
-        "minecraft:oak_planks": 109,
+        "minecraft:oak_planks": 127,
         "minecraft:spruce_planks": 30,
         "minecraft:spruce_slab": 12,
         "minecraft:spruce_stairs": 184,
         "minecraft:stripped_oak_log": 20,
-        "minecraft:stripped_oak_wood": 56
+        "minecraft:stripped_oak_wood": 61
       }
     },
     {
@@ -442,7 +831,7 @@
         16
       ],
       "palette_count": 28,
-      "block_count": 871,
+      "block_count": 894,
       "roof_block_count": 204,
       "top_layer_counts": {
         "12": 15,
@@ -454,12 +843,12 @@
         "minecraft:crafting_table": 2,
         "minecraft:furnace": 1,
         "minecraft:oak_log": 110,
-        "minecraft:oak_planks": 124,
+        "minecraft:oak_planks": 141,
         "minecraft:spruce_planks": 44,
         "minecraft:spruce_slab": 14,
         "minecraft:spruce_stairs": 184,
         "minecraft:stripped_oak_log": 11,
-        "minecraft:stripped_oak_wood": 55
+        "minecraft:stripped_oak_wood": 61
       }
     },
     {
@@ -473,7 +862,7 @@
         15
       ],
       "palette_count": 34,
-      "block_count": 684,
+      "block_count": 688,
       "roof_block_count": 136,
       "top_layer_counts": {
         "10": 13,
@@ -485,12 +874,12 @@
         "minecraft:crafting_table": 2,
         "minecraft:furnace": 1,
         "minecraft:oak_log": 80,
-        "minecraft:oak_planks": 92,
+        "minecraft:oak_planks": 95,
         "minecraft:spruce_planks": 36,
         "minecraft:spruce_slab": 6,
         "minecraft:spruce_stairs": 122,
         "minecraft:stripped_oak_log": 18,
-        "minecraft:stripped_oak_wood": 39
+        "minecraft:stripped_oak_wood": 40
       }
     },
     {
@@ -504,7 +893,7 @@
         17
       ],
       "palette_count": 32,
-      "block_count": 806,
+      "block_count": 828,
       "roof_block_count": 148,
       "top_layer_counts": {
         "11": 15,
@@ -512,16 +901,16 @@
         "13": 2
       },
       "key_state_counts": {
-        "minecraft:barrel": 3,
+        "minecraft:barrel": 2,
         "minecraft:crafting_table": 2,
         "minecraft:furnace": 1,
         "minecraft:oak_log": 86,
-        "minecraft:oak_planks": 98,
+        "minecraft:oak_planks": 115,
         "minecraft:spruce_planks": 43,
         "minecraft:spruce_slab": 12,
         "minecraft:spruce_stairs": 184,
         "minecraft:stripped_oak_log": 10,
-        "minecraft:stripped_oak_wood": 54
+        "minecraft:stripped_oak_wood": 60
       }
     },
     {
@@ -535,7 +924,7 @@
         18
       ],
       "palette_count": 30,
-      "block_count": 1047,
+      "block_count": 1076,
       "roof_block_count": 208,
       "top_layer_counts": {
         "12": 16,
@@ -543,16 +932,16 @@
         "14": 2
       },
       "key_state_counts": {
-        "minecraft:barrel": 5,
+        "minecraft:barrel": 7,
         "minecraft:crafting_table": 2,
         "minecraft:furnace": 1,
         "minecraft:oak_log": 140,
-        "minecraft:oak_planks": 186,
+        "minecraft:oak_planks": 206,
         "minecraft:spruce_planks": 45,
         "minecraft:spruce_slab": 36,
         "minecraft:spruce_stairs": 179,
         "minecraft:stripped_oak_log": 14,
-        "minecraft:stripped_oak_wood": 75
+        "minecraft:stripped_oak_wood": 82
       }
     },
     {
@@ -566,7 +955,7 @@
         18
       ],
       "palette_count": 31,
-      "block_count": 901,
+      "block_count": 927,
       "roof_block_count": 156,
       "top_layer_counts": {
         "11": 17,
@@ -578,12 +967,12 @@
         "minecraft:crafting_table": 2,
         "minecraft:furnace": 1,
         "minecraft:oak_log": 140,
-        "minecraft:oak_planks": 198,
+        "minecraft:oak_planks": 216,
         "minecraft:spruce_planks": 30,
         "minecraft:spruce_slab": 46,
         "minecraft:spruce_stairs": 190,
         "minecraft:stripped_oak_log": 12,
-        "minecraft:stripped_oak_wood": 72
+        "minecraft:stripped_oak_wood": 80
       }
     },
     {
@@ -597,7 +986,7 @@
         17
       ],
       "palette_count": 35,
-      "block_count": 1046,
+      "block_count": 1073,
       "roof_block_count": 208,
       "top_layer_counts": {
         "12": 16,
@@ -609,12 +998,194 @@
         "minecraft:crafting_table": 2,
         "minecraft:furnace": 1,
         "minecraft:oak_log": 159,
-        "minecraft:oak_planks": 173,
+        "minecraft:oak_planks": 192,
         "minecraft:spruce_planks": 45,
         "minecraft:spruce_slab": 34,
         "minecraft:spruce_stairs": 179,
         "minecraft:stripped_oak_log": 14,
-        "minecraft:stripped_oak_wood": 64
+        "minecraft:stripped_oak_wood": 72
+      }
+    },
+    {
+      "path": "medium_shop_001.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        17,
+        15,
+        13
+      ],
+      "palette_count": 27,
+      "block_count": 696,
+      "roof_block_count": 160,
+      "top_layer_counts": {
+        "12": 32,
+        "13": 28,
+        "14": 13
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 5,
+        "minecraft:crafting_table": 2,
+        "minecraft:furnace": 1,
+        "minecraft:oak_log": 101,
+        "minecraft:oak_planks": 213,
+        "minecraft:spruce_planks": 30,
+        "minecraft:spruce_slab": 17,
+        "minecraft:spruce_stairs": 136,
+        "minecraft:stripped_oak_log": 15,
+        "minecraft:stripped_oak_wood": 79
+      }
+    },
+    {
+      "path": "medium_shop_002.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        16,
+        14,
+        13
+      ],
+      "palette_count": 29,
+      "block_count": 703,
+      "roof_block_count": 131,
+      "top_layer_counts": {
+        "11": 32,
+        "12": 28,
+        "13": 13
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 6,
+        "minecraft:crafting_table": 2,
+        "minecraft:furnace": 1,
+        "minecraft:oak_log": 113,
+        "minecraft:oak_planks": 228,
+        "minecraft:spruce_planks": 27,
+        "minecraft:spruce_slab": 13,
+        "minecraft:spruce_stairs": 110,
+        "minecraft:stripped_oak_log": 20,
+        "minecraft:stripped_oak_wood": 74
+      }
+    },
+    {
+      "path": "medium_shop_003.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        18,
+        16,
+        15
+      ],
+      "palette_count": 34,
+      "block_count": 826,
+      "roof_block_count": 196,
+      "top_layer_counts": {
+        "13": 32,
+        "14": 28,
+        "15": 13
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 5,
+        "minecraft:crafting_table": 2,
+        "minecraft:furnace": 1,
+        "minecraft:oak_log": 127,
+        "minecraft:oak_planks": 249,
+        "minecraft:spruce_planks": 40,
+        "minecraft:spruce_slab": 7,
+        "minecraft:spruce_stairs": 162,
+        "minecraft:stripped_oak_log": 26,
+        "minecraft:stripped_oak_wood": 90
+      }
+    },
+    {
+      "path": "medium_shop_004.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        17,
+        16,
+        16
+      ],
+      "palette_count": 31,
+      "block_count": 920,
+      "roof_block_count": 218,
+      "top_layer_counts": {
+        "13": 36,
+        "14": 32,
+        "15": 15
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 4,
+        "minecraft:crafting_table": 2,
+        "minecraft:furnace": 1,
+        "minecraft:oak_log": 170,
+        "minecraft:oak_planks": 292,
+        "minecraft:spruce_planks": 38,
+        "minecraft:spruce_slab": 11,
+        "minecraft:spruce_stairs": 186,
+        "minecraft:stripped_oak_log": 4,
+        "minecraft:stripped_oak_wood": 100
+      }
+    },
+    {
+      "path": "medium_shop_005.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        20,
+        14,
+        12
+      ],
+      "palette_count": 29,
+      "block_count": 778,
+      "roof_block_count": 148,
+      "top_layer_counts": {
+        "11": 36,
+        "12": 32,
+        "13": 15
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 2,
+        "minecraft:crafting_table": 2,
+        "minecraft:furnace": 1,
+        "minecraft:oak_log": 157,
+        "minecraft:oak_planks": 255,
+        "minecraft:spruce_planks": 28,
+        "minecraft:spruce_slab": 17,
+        "minecraft:spruce_stairs": 126,
+        "minecraft:stripped_oak_wood": 81
+      }
+    },
+    {
+      "path": "side_wing_review.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        9,
+        10,
+        21
+      ],
+      "palette_count": 28,
+      "block_count": 564,
+      "roof_block_count": 182,
+      "top_layer_counts": {
+        "7": 44,
+        "8": 40,
+        "9": 19
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 2,
+        "minecraft:crafting_table": 1,
+        "minecraft:dark_oak_log": 86,
+        "minecraft:dark_oak_planks": 30,
+        "minecraft:dark_oak_stairs": 154,
+        "minecraft:furnace": 1,
+        "minecraft:stripped_dark_oak_log": 25
       }
     },
     {
@@ -628,7 +1199,7 @@
         16
       ],
       "palette_count": 28,
-      "block_count": 383,
+      "block_count": 396,
       "roof_block_count": 82,
       "top_layer_counts": {
         "9": 12,
@@ -636,15 +1207,15 @@
         "11": 2
       },
       "key_state_counts": {
-        "minecraft:barrel": 5,
+        "minecraft:barrel": 4,
         "minecraft:crafting_table": 1,
         "minecraft:furnace": 1,
         "minecraft:oak_log": 78,
-        "minecraft:oak_planks": 42,
+        "minecraft:oak_planks": 52,
         "minecraft:spruce_planks": 22,
         "minecraft:spruce_slab": 9,
         "minecraft:spruce_stairs": 89,
-        "minecraft:stripped_oak_wood": 26
+        "minecraft:stripped_oak_wood": 30
       }
     },
     {
@@ -658,7 +1229,7 @@
         15
       ],
       "palette_count": 29,
-      "block_count": 448,
+      "block_count": 462,
       "roof_block_count": 112,
       "top_layer_counts": {
         "10": 13,
@@ -670,12 +1241,12 @@
         "minecraft:crafting_table": 1,
         "minecraft:furnace": 1,
         "minecraft:oak_log": 71,
-        "minecraft:oak_planks": 41,
+        "minecraft:oak_planks": 51,
         "minecraft:spruce_planks": 26,
         "minecraft:spruce_slab": 13,
         "minecraft:spruce_stairs": 88,
         "minecraft:stripped_oak_log": 8,
-        "minecraft:stripped_oak_wood": 23
+        "minecraft:stripped_oak_wood": 27
       }
     },
     {
@@ -689,7 +1260,7 @@
         14
       ],
       "palette_count": 26,
-      "block_count": 422,
+      "block_count": 437,
       "roof_block_count": 82,
       "top_layer_counts": {
         "9": 12,
@@ -697,15 +1268,15 @@
         "11": 2
       },
       "key_state_counts": {
-        "minecraft:barrel": 2,
+        "minecraft:barrel": 3,
         "minecraft:crafting_table": 1,
         "minecraft:furnace": 1,
         "minecraft:oak_log": 54,
-        "minecraft:oak_planks": 45,
+        "minecraft:oak_planks": 53,
         "minecraft:spruce_planks": 23,
         "minecraft:spruce_slab": 14,
         "minecraft:spruce_stairs": 89,
-        "minecraft:stripped_oak_wood": 20
+        "minecraft:stripped_oak_wood": 26
       }
     },
     {
@@ -719,7 +1290,7 @@
         17
       ],
       "palette_count": 25,
-      "block_count": 541,
+      "block_count": 559,
       "roof_block_count": 170,
       "top_layer_counts": {
         "8": 32,
@@ -731,11 +1302,11 @@
         "minecraft:crafting_table": 1,
         "minecraft:furnace": 1,
         "minecraft:oak_log": 68,
-        "minecraft:oak_planks": 68,
+        "minecraft:oak_planks": 81,
         "minecraft:spruce_planks": 37,
         "minecraft:spruce_slab": 5,
         "minecraft:spruce_stairs": 132,
-        "minecraft:stripped_oak_wood": 41
+        "minecraft:stripped_oak_wood": 46
       }
     },
     {
@@ -873,7 +1444,7 @@
         14
       ],
       "palette_count": 29,
-      "block_count": 337,
+      "block_count": 351,
       "roof_block_count": 122,
       "top_layer_counts": {
         "6": 28,
@@ -885,12 +1456,12 @@
         "minecraft:crafting_table": 1,
         "minecraft:furnace": 1,
         "minecraft:oak_log": 44,
-        "minecraft:oak_planks": 39,
+        "minecraft:oak_planks": 51,
         "minecraft:spruce_planks": 24,
         "minecraft:spruce_slab": 15,
         "minecraft:spruce_stairs": 90,
         "minecraft:stripped_oak_log": 12,
-        "minecraft:stripped_oak_wood": 26
+        "minecraft:stripped_oak_wood": 28
       }
     },
     {
@@ -904,7 +1475,7 @@
         13
       ],
       "palette_count": 24,
-      "block_count": 353,
+      "block_count": 367,
       "roof_block_count": 82,
       "top_layer_counts": {
         "8": 12,
@@ -916,11 +1487,160 @@
         "minecraft:crafting_table": 1,
         "minecraft:furnace": 1,
         "minecraft:oak_log": 58,
-        "minecraft:oak_planks": 40,
+        "minecraft:oak_planks": 51,
         "minecraft:spruce_planks": 20,
         "minecraft:spruce_slab": 12,
         "minecraft:spruce_stairs": 89,
-        "minecraft:stripped_oak_wood": 29
+        "minecraft:stripped_oak_wood": 32
+      }
+    },
+    {
+      "path": "small_shop_001.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        11,
+        10,
+        11
+      ],
+      "palette_count": 30,
+      "block_count": 349,
+      "roof_block_count": 113,
+      "top_layer_counts": {
+        "7": 28,
+        "8": 24,
+        "9": 11
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 1,
+        "minecraft:crafting_table": 1,
+        "minecraft:oak_log": 70,
+        "minecraft:oak_planks": 51,
+        "minecraft:spruce_planks": 25,
+        "minecraft:spruce_slab": 7,
+        "minecraft:spruce_stairs": 90,
+        "minecraft:stripped_oak_log": 2,
+        "minecraft:stripped_oak_wood": 28
+      }
+    },
+    {
+      "path": "small_shop_002.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        13,
+        9,
+        11
+      ],
+      "palette_count": 27,
+      "block_count": 331,
+      "roof_block_count": 92,
+      "top_layer_counts": {
+        "6": 28,
+        "7": 24,
+        "8": 11
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 4,
+        "minecraft:crafting_table": 1,
+        "minecraft:oak_log": 78,
+        "minecraft:oak_planks": 49,
+        "minecraft:spruce_planks": 17,
+        "minecraft:spruce_slab": 13,
+        "minecraft:spruce_stairs": 68,
+        "minecraft:stripped_oak_wood": 21
+      }
+    },
+    {
+      "path": "small_shop_003.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        13,
+        11,
+        13
+      ],
+      "palette_count": 28,
+      "block_count": 420,
+      "roof_block_count": 138,
+      "top_layer_counts": {
+        "8": 28,
+        "9": 24,
+        "10": 11
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 4,
+        "minecraft:crafting_table": 1,
+        "minecraft:oak_log": 62,
+        "minecraft:oak_planks": 78,
+        "minecraft:spruce_planks": 28,
+        "minecraft:spruce_slab": 7,
+        "minecraft:spruce_stairs": 112,
+        "minecraft:stripped_oak_log": 5,
+        "minecraft:stripped_oak_wood": 51
+      }
+    },
+    {
+      "path": "small_shop_004.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        15,
+        11,
+        13
+      ],
+      "palette_count": 29,
+      "block_count": 485,
+      "roof_block_count": 164,
+      "top_layer_counts": {
+        "8": 32,
+        "9": 28,
+        "10": 13
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 1,
+        "minecraft:crafting_table": 1,
+        "minecraft:oak_log": 69,
+        "minecraft:oak_planks": 81,
+        "minecraft:spruce_planks": 34,
+        "minecraft:spruce_slab": 11,
+        "minecraft:spruce_stairs": 132,
+        "minecraft:stripped_oak_log": 3,
+        "minecraft:stripped_oak_wood": 47
+      }
+    },
+    {
+      "path": "small_shop_005.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        17,
+        9,
+        12
+      ],
+      "palette_count": 34,
+      "block_count": 382,
+      "roof_block_count": 110,
+      "top_layer_counts": {
+        "6": 32,
+        "7": 28,
+        "8": 13
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 1,
+        "minecraft:crafting_table": 1,
+        "minecraft:oak_log": 87,
+        "minecraft:oak_planks": 57,
+        "minecraft:spruce_planks": 23,
+        "minecraft:spruce_slab": 9,
+        "minecraft:spruce_stairs": 80,
+        "minecraft:stripped_oak_log": 3,
+        "minecraft:stripped_oak_wood": 21
       }
     },
     {

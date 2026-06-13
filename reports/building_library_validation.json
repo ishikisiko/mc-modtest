@@ -1,7 +1,7 @@
 {
   "style_id": "medieval_village",
-  "total": 30,
-  "passed": 30,
+  "total": 45,
+  "passed": 45,
   "failed": 0,
   "function_errors": [],
   "results": [
@@ -15,10 +15,10 @@
         12,
         16
       ],
-      "block_count": 519,
+      "block_count": 533,
       "palette_count": 28,
       "glass": 8,
-      "function_blocks": 7
+      "function_blocks": 6
     },
     {
       "name": "small_house_002",
@@ -30,7 +30,7 @@
         13,
         15
       ],
-      "block_count": 584,
+      "block_count": 600,
       "palette_count": 29,
       "glass": 9,
       "function_blocks": 5
@@ -45,10 +45,10 @@
         12,
         14
       ],
-      "block_count": 524,
+      "block_count": 540,
       "palette_count": 26,
       "glass": 6,
-      "function_blocks": 4
+      "function_blocks": 5
     },
     {
       "name": "small_house_004",
@@ -60,7 +60,7 @@
         11,
         17
       ],
-      "block_count": 726,
+      "block_count": 746,
       "palette_count": 25,
       "glass": 2,
       "function_blocks": 5
@@ -105,7 +105,7 @@
         12,
         14
       ],
-      "block_count": 533,
+      "block_count": 535,
       "palette_count": 29,
       "glass": 3,
       "function_blocks": 7
@@ -120,7 +120,7 @@
         13,
         14
       ],
-      "block_count": 796,
+      "block_count": 798,
       "palette_count": 31,
       "glass": 6,
       "function_blocks": 4
@@ -135,7 +135,7 @@
         9,
         14
       ],
-      "block_count": 438,
+      "block_count": 452,
       "palette_count": 29,
       "glass": 5,
       "function_blocks": 5
@@ -150,7 +150,7 @@
         11,
         13
       ],
-      "block_count": 454,
+      "block_count": 468,
       "palette_count": 24,
       "glass": 3,
       "function_blocks": 7
@@ -165,10 +165,10 @@
         12,
         17
       ],
-      "block_count": 999,
+      "block_count": 1003,
       "palette_count": 32,
       "glass": 10,
-      "function_blocks": 7
+      "function_blocks": 6
     },
     {
       "name": "medium_house_002",
@@ -180,10 +180,10 @@
         12,
         14
       ],
-      "block_count": 981,
+      "block_count": 985,
       "palette_count": 29,
       "glass": 6,
-      "function_blocks": 8
+      "function_blocks": 9
     },
     {
       "name": "medium_house_003",
@@ -195,10 +195,10 @@
         13,
         15
       ],
-      "block_count": 1051,
+      "block_count": 1076,
       "palette_count": 38,
       "glass": 11,
-      "function_blocks": 10
+      "function_blocks": 8
     },
     {
       "name": "medium_house_004",
@@ -208,12 +208,12 @@
       "size": [
         18,
         13,
-        16
+        17
       ],
-      "block_count": 960,
+      "block_count": 984,
       "palette_count": 31,
       "glass": 7,
-      "function_blocks": 9
+      "function_blocks": 10
     },
     {
       "name": "medium_house_005",
@@ -225,7 +225,7 @@
         15,
         16
       ],
-      "block_count": 1244,
+      "block_count": 1268,
       "palette_count": 28,
       "glass": 10,
       "function_blocks": 9
@@ -240,7 +240,7 @@
         13,
         15
       ],
-      "block_count": 958,
+      "block_count": 964,
       "palette_count": 34,
       "glass": 4,
       "function_blocks": 6
@@ -255,10 +255,10 @@
         14,
         17
       ],
-      "block_count": 1100,
+      "block_count": 1125,
       "palette_count": 32,
       "glass": 6,
-      "function_blocks": 7
+      "function_blocks": 6
     },
     {
       "name": "medium_house_008",
@@ -270,10 +270,10 @@
         15,
         18
       ],
-      "block_count": 1485,
+      "block_count": 1514,
       "palette_count": 30,
       "glass": 7,
-      "function_blocks": 9
+      "function_blocks": 11
     },
     {
       "name": "medium_house_009",
@@ -285,7 +285,7 @@
         14,
         18
       ],
-      "block_count": 1358,
+      "block_count": 1385,
       "palette_count": 31,
       "glass": 10,
       "function_blocks": 10
@@ -300,7 +300,7 @@
         15,
         17
       ],
-      "block_count": 1483,
+      "block_count": 1512,
       "palette_count": 35,
       "glass": 4,
       "function_blocks": 8
@@ -318,7 +318,7 @@
       "block_count": 488,
       "palette_count": 32,
       "glass": 7,
-      "function_blocks": 8
+      "function_blocks": 9
     },
     {
       "name": "blacksmith_002",
@@ -330,7 +330,7 @@
         11,
         14
       ],
-      "block_count": 494,
+      "block_count": 492,
       "palette_count": 27,
       "glass": 4,
       "function_blocks": 10
@@ -343,12 +343,12 @@
       "size": [
         17,
         13,
-        17
+        16
       ],
-      "block_count": 837,
+      "block_count": 854,
       "palette_count": 27,
       "glass": 8,
-      "function_blocks": 10
+      "function_blocks": 8
     },
     {
       "name": "blacksmith_004",
@@ -375,8 +375,8 @@
         13,
         15
       ],
-      "block_count": 837,
-      "palette_count": 30,
+      "block_count": 855,
+      "palette_count": 29,
       "glass": 6,
       "function_blocks": 6
     },
@@ -405,10 +405,10 @@
         13,
         15
       ],
-      "block_count": 834,
-      "palette_count": 29,
+      "block_count": 851,
+      "palette_count": 30,
       "glass": 4,
-      "function_blocks": 9
+      "function_blocks": 8
     },
     {
       "name": "blacksmith_008",
@@ -420,7 +420,7 @@
         13,
         15
       ],
-      "block_count": 968,
+      "block_count": 990,
       "palette_count": 27,
       "glass": 10,
       "function_blocks": 8
@@ -435,10 +435,10 @@
         13,
         18
       ],
-      "block_count": 1067,
+      "block_count": 1089,
       "palette_count": 31,
       "glass": 9,
-      "function_blocks": 10
+      "function_blocks": 11
     },
     {
       "name": "blacksmith_010",
@@ -450,10 +450,235 @@
         14,
         19
       ],
-      "block_count": 1396,
-      "palette_count": 32,
+      "block_count": 1421,
+      "palette_count": 33,
       "glass": 12,
       "function_blocks": 10
+    },
+    {
+      "name": "small_shop_001",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        11,
+        10,
+        11
+      ],
+      "block_count": 487,
+      "palette_count": 30,
+      "glass": 10,
+      "function_blocks": 3
+    },
+    {
+      "name": "small_shop_002",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        13,
+        9,
+        11
+      ],
+      "block_count": 509,
+      "palette_count": 27,
+      "glass": 16,
+      "function_blocks": 6
+    },
+    {
+      "name": "small_shop_003",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        13,
+        11,
+        13
+      ],
+      "block_count": 613,
+      "palette_count": 28,
+      "glass": 7,
+      "function_blocks": 6
+    },
+    {
+      "name": "small_shop_004",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        15,
+        11,
+        13
+      ],
+      "block_count": 735,
+      "palette_count": 29,
+      "glass": 12,
+      "function_blocks": 3
+    },
+    {
+      "name": "small_shop_005",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        17,
+        9,
+        12
+      ],
+      "block_count": 600,
+      "palette_count": 34,
+      "glass": 16,
+      "function_blocks": 3
+    },
+    {
+      "name": "medium_shop_001",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        17,
+        15,
+        13
+      ],
+      "block_count": 1135,
+      "palette_count": 27,
+      "glass": 24,
+      "function_blocks": 9
+    },
+    {
+      "name": "medium_shop_002",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        16,
+        14,
+        13
+      ],
+      "block_count": 1239,
+      "palette_count": 29,
+      "glass": 22,
+      "function_blocks": 10
+    },
+    {
+      "name": "medium_shop_003",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        18,
+        16,
+        15
+      ],
+      "block_count": 1391,
+      "palette_count": 34,
+      "glass": 18,
+      "function_blocks": 9
+    },
+    {
+      "name": "medium_shop_004",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        17,
+        16,
+        16
+      ],
+      "block_count": 1611,
+      "palette_count": 31,
+      "glass": 18,
+      "function_blocks": 8
+    },
+    {
+      "name": "medium_shop_005",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        20,
+        14,
+        12
+      ],
+      "block_count": 1413,
+      "palette_count": 29,
+      "glass": 24,
+      "function_blocks": 6
+    },
+    {
+      "name": "big_house_001",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        18,
+        17,
+        18
+      ],
+      "block_count": 1396,
+      "palette_count": 31,
+      "glass": 18,
+      "function_blocks": 8
+    },
+    {
+      "name": "big_house_002",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        22,
+        19,
+        19
+      ],
+      "block_count": 2080,
+      "palette_count": 33,
+      "glass": 11,
+      "function_blocks": 10
+    },
+    {
+      "name": "big_house_003",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        17,
+        21,
+        15
+      ],
+      "block_count": 1609,
+      "palette_count": 30,
+      "glass": 15,
+      "function_blocks": 9
+    },
+    {
+      "name": "big_house_004",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        24,
+        18,
+        20
+      ],
+      "block_count": 2243,
+      "palette_count": 31,
+      "glass": 12,
+      "function_blocks": 12
+    },
+    {
+      "name": "big_house_005",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        19,
+        22,
+        20
+      ],
+      "block_count": 2460,
+      "palette_count": 34,
+      "glass": 17,
+      "function_blocks": 8
     }
   ]
 }

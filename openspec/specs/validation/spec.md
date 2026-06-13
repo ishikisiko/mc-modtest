@@ -52,3 +52,21 @@ Automated validation SHALL NOT be treated as complete visual acceptance. In-game
 - **WHEN** all automated validators report success
 - **THEN** the generated structures SHALL be considered mechanically valid
 - **AND** final visual acceptance SHOULD still include in-game review for appearance-sensitive changes.
+
+### Requirement: Manual acceptance has documented preparation
+Staged manual acceptance SHALL start from a prepared mod artifact and command list. The acceptance handoff SHALL NOT rely only on generated NBT files or validator reports.
+
+#### Scenario: A reviewer starts a staged acceptance pass
+- **WHEN** a reviewer is asked to inspect generated structures in game
+- **THEN** a current mod jar build path SHALL be available or documented
+- **AND** the README command list SHALL include `/myvillage list`, `/myvillage place <structure_id>`, and `/myvillage gallery`
+- **AND** the reviewer SHOULD first run `/myvillage list` to confirm the expected templates are loaded before placing individual structures.
+
+### Requirement: Compound validation checks generated resources
+The compound library validator SHALL validate generated courtyard report data and exported mod resources, including NBT files and generated place/gallery functions.
+
+#### Scenario: The Chinese courtyard library is validated
+- **WHEN** `tools/validate_compound_library.py --count 6` succeeds
+- **THEN** six distinct compound structures SHALL be validated
+- **AND** the validator SHALL confirm exported NBTs include compound landscape markers such as water and planting
+- **AND** generated place/gallery functions SHALL exist for the compound library.

@@ -121,7 +121,45 @@ def quality_check(ctx: BuildContext, structure_id: str) -> dict:
     if floating > 2:
         warnings.append(f"floating_roof: {floating} unsupported roof cells")
 
-    # 10. no complex block entity NBT: the exporter only writes blockstates,
+    # 10. multi-story invariants
+    multi_story_vols = [v for v in graph.volumes() if v.meta.get("stories", 1) > 1]
+    if multi_story_vols:
+        highest_roof = max((info.get("peak_y", 0) for info in ctx.roof_info), default=0)
+        stair = graph.meta.get("stairwell")
+        if not stair:
+            errors.append("multi_story_missing_stairwell")
+        for vol in multi_story_vols:
+            top_story_y = vol.meta["foundation_h"] + vol.meta["wall_h"] - 1
+            if highest_roof <= top_story_y:
+                errors.append(
+                    f"roof_below_top_story: peak={highest_roof} top={top_story_y}")
+            if not stair or stair.get("volume") != vol.id:
+                continue
+            story_wall_h = vol.meta.get("story_wall_h", vol.meta["wall_h"])
+            for story in range(1, vol.meta.get("stories", 1)):
+                y = vol.meta["foundation_h"] + story * story_wall_h
+                aligned_opening = False
+                for x in range(stair["x0"], stair["x1"] + 1):
+                    for z in range(stair["z0"], stair["z1"] + 1):
+                        foot = grid.get((x, y, z))
+                        head = grid.get((x, y + 1, z))
+                        if (foot and head and foot.is_air and head.is_air and
+                                foot.protected and head.protected):
+                            aligned_opening = True
+                if not aligned_opening:
+                    errors.append(
+                        f"stair_opening_not_aligned: story={story} y={y}")
+                landing_z = stair.get("landing_z", stair["z1"] + 1)
+                landing = grid.get((stair["x0"], y, landing_z))
+                landing_head = grid.get((stair["x0"], y + 1, landing_z))
+                if not landing or landing.is_air or "INTERIOR" not in landing.tags:
+                    errors.append(
+                        f"stair_landing_missing: story={story} pos={(stair['x0'], y, landing_z)}")
+                if landing_head and not landing_head.is_air:
+                    errors.append(
+                        f"stair_landing_head_blocked: story={story} pos={(stair['x0'], y + 1, landing_z)}")
+
+    # 11. no complex block entity NBT: the exporter only writes blockstates,
     # still verify nothing slipped in that needs container/text NBT
     complex_be = sorted({c.state for _, c in states
                          if any(k in c.state for k in ("chest", "sign", "spawner"))})

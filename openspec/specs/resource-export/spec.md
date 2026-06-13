@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This spec captures the current resource export baseline. It is temporary and mutable; proposed changes to output paths, namespaces, target Minecraft version, or generated resource types should be discussed with the project owner first.
+This spec captures the current resource export baseline for structure resources that are expected to grow into a broader town-generation pipeline. It is temporary and mutable; proposed changes to output paths, namespaces, target Minecraft version, or generated resource types should be discussed with the project owner first.
 
 ## Requirements
 
@@ -46,13 +46,33 @@ The generated building library SHALL write one gallery mcfunction per style and 
 - **THEN** the exporter SHALL write `src/main/resources/data/myvillage/function/gallery/medieval_village.mcfunction`
 - **AND** it SHALL write `src/main/resources/data/myvillage/function/place/<name>.mcfunction` for each generated building.
 
-### Requirement: Canonical mod generation includes smoke test and library
-The canonical mod generation entrypoint SHALL generate `test_house_03.nbt` from the hand-authored Structure JSON DSL and the generated building library into `src/main/resources/data/myvillage/structure/`.
+### Requirement: The v0.4 mod exposes debug commands for manual acceptance
+The NeoForge mod SHALL expose debug commands for staged manual acceptance: `/myvillage list`, `/myvillage place <structure_id>`, and `/myvillage gallery`. Command documentation SHALL be prepared with the mod artifact before asking for manual visual acceptance.
+
+#### Scenario: A reviewer prepares for in-game acceptance
+- **WHEN** the v0.4 mod jar is built for review
+- **THEN** the README SHALL list the available `/myvillage` debug commands
+- **AND** `/myvillage list` SHALL report loaded `myvillage` structure templates
+- **AND** `/myvillage place <structure_id>` SHALL place a named template at the player
+- **AND** `/myvillage gallery` SHALL place loaded templates with spacing suitable for compound structures.
+
+### Requirement: Canonical mod generation includes smoke test and libraries
+The canonical mod generation entrypoint SHALL generate `test_house_03.nbt` from the hand-authored Structure JSON DSL, the generated building library, and the generated Chinese courtyard compound library into `src/main/resources/data/myvillage/structure/`.
 
 #### Scenario: `generate_all_structures.py` runs with default arguments
 - **WHEN** generation succeeds
 - **THEN** the output structure directory SHALL contain `test_house_03.nbt`
-- **AND** it SHALL contain generated `small_house`, `medium_house`, and `blacksmith` library NBTs.
+- **AND** it SHALL contain generated `small_house`, `medium_house`, `blacksmith`, shop, and big-house library NBTs
+- **AND** it SHALL contain `main_hall_review.nbt`, `side_wing_review.nbt`, `front_row_review.nbt`, and six `chinese_courtyard_*.nbt` compound structures.
+
+### Requirement: Manual acceptance prep includes mod artifact and command docs
+Before a staged manual acceptance pass, contributors SHALL prepare both the buildable mod artifact and current command documentation.
+
+#### Scenario: A staged manual acceptance pass is requested
+- **WHEN** generated structures are ready for visual review
+- **THEN** the repository SHOULD have a current v0.4 mod jar build path documented
+- **AND** README and AGENTS guidance SHALL identify the available debug commands
+- **AND** relevant specs SHALL state that command documentation is part of acceptance prep, not an optional afterthought.
 
 ### Requirement: Worldgen resources are not currently exported
 The current export pipeline SHALL NOT claim support for worldgen, jigsaw pools, structure sets, biome placement, entities, villagers, loot tables, or complex block entity NBT.
@@ -61,3 +81,11 @@ The current export pipeline SHALL NOT claim support for worldgen, jigsaw pools, 
 - **WHEN** resources are packed
 - **THEN** generated structure templates and debug functions MAY be present
 - **AND** generated worldgen registration resources SHALL NOT be assumed present.
+
+### Requirement: Future export scope may include town and NPC systems
+Future export changes MAY add town layout resources, structure pools, functional-building metadata, or NPC-related data, but such support SHALL be introduced explicitly rather than implied by the current structure-template export.
+
+#### Scenario: NPC-related export is proposed
+- **WHEN** a contributor proposes exporting villager, NPC, profession, loot, or behavior-related data
+- **THEN** the proposal SHALL identify the new resource formats and runtime assumptions
+- **AND** it SHALL keep the current NBT-only structure export contract clear until those resources are implemented.

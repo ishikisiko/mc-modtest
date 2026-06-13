@@ -1,1 +1,1 @@
-place template myvillage:medium_house_010 ~ ~ ~
+place template myvillage:medium_house_010 ~ ~-1 ~

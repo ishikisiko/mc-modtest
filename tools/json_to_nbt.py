@@ -114,8 +114,9 @@ def write_gzipped_nbt(root: Tag, path: str, root_name: str = "") -> None:
     if root.tag_id != TAG_COMPOUND:
         raise TypeError("Root NBT tag must be a compound")
     os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
-    with gzip.open(path, "wb") as gz:
-        _write_named_tag(gz, root_name, root)
+    with open(path, "wb") as raw:
+        with gzip.GzipFile(filename="", mode="wb", fileobj=raw, mtime=0) as gz:
+            _write_named_tag(gz, root_name, root)
 
 
 _BLOCKSTATE_RE = re.compile(

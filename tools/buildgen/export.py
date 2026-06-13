@@ -24,6 +24,36 @@ MOD_ID = "myvillage"
 RESOURCES = os.path.join(PROJECT_ROOT, "src", "main", "resources", "data", MOD_ID)
 
 
+def gallery_group(archetype: str, name: str = "") -> str:
+    key = name or archetype
+    if key.startswith(("small_shop", "medium_shop")) or archetype in ("small_shop", "medium_shop"):
+        return "shop"
+    if key.startswith(("small_house", "medium_house", "big_house")) or archetype in ("small_house", "medium_house", "big_house"):
+        return "house"
+    if key.startswith("blacksmith") or archetype == "blacksmith":
+        return "blacksmith"
+    if key.startswith("chinese_courtyard") or archetype == "chinese_courtyard":
+        return "chinese_courtyard"
+    if key.endswith("_review"):
+        return "chinese_review"
+    if key.startswith("test_"):
+        return "test"
+    return archetype
+
+
+def placement_y_offset(name: str) -> int:
+    """Generated structures include terrain-replacement cells one layer below.
+
+    Placing them at Y-1 keeps building floors/stairs at the requested origin
+    while water, planting, and entry hardscape replace the terrain block.
+    """
+    return 0 if name.startswith("test_") else -1
+
+
+def _rel(value: int) -> str:
+    return "~" if value == 0 else f"~{value}"
+
+
 def grid_to_structure_data(grid: BlockGrid) -> dict:
     """Normalize the grid to origin and emit the json_to_nbt block list."""
     size = grid.normalized()
@@ -50,23 +80,23 @@ def write_structure_nbt(grid: BlockGrid, style_id: str, name: str) -> Tuple[str,
 
 def write_gallery_function(style_id: str, entries: List[dict],
                            spacing_x: int = 28, spacing_z: int = 36) -> str:
-    """One mcfunction placing every building in archetype rows."""
+    """One mcfunction placing every building in archetype columns."""
     lines = [
         f"# auto-generated building library gallery: {style_id}",
         f"# usage: /function {MOD_ID}:gallery/{style_id}",
     ]
     rows: Dict[str, List[dict]] = {}
     for e in entries:
-        rows.setdefault(e["archetype"], []).append(e)
-    z = 0
+        rows.setdefault(gallery_group(e["archetype"], e["name"]), []).append(e)
+    x = 0
     for archetype in sorted(rows):
         lines.append(f"# --- {archetype} ---")
-        x = 0
+        z = 0
         for e in rows[archetype]:
             lines.append(f"place template {MOD_ID}:{e['name']} "
-                         f"~{x} ~ ~{z}")
-            x += spacing_x
-        z += spacing_z
+                         f"~{x} {_rel(placement_y_offset(e['name']))} ~{z}")
+            z += spacing_z
+        x += spacing_x
     out = os.path.join(RESOURCES, "function", "gallery", f"{style_id}.mcfunction")
     os.makedirs(os.path.dirname(out), exist_ok=True)
     with open(out, "w", encoding="utf-8") as f:
@@ -78,5 +108,5 @@ def write_place_function(style_id: str, name: str) -> str:
     out = os.path.join(RESOURCES, "function", "place", f"{name}.mcfunction")
     os.makedirs(os.path.dirname(out), exist_ok=True)
     with open(out, "w", encoding="utf-8") as f:
-        f.write(f"place template {MOD_ID}:{name} ~ ~ ~\n")
+        f.write(f"place template {MOD_ID}:{name} ~ {_rel(placement_y_offset(name))} ~\n")
     return out

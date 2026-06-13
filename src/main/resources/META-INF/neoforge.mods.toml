@@ -4,10 +4,11 @@ license = "MIT"
 
 [[mods]]
 modId = "myvillage"
-version = "0.3.0"
+version = "0.4.1"
 displayName = "MyVillage"
 description = '''
-Resource-pack style mod shipping myvillage structure templates and functions.
+Resource-validation mod shipping myvillage structure templates, debug commands,
+and generated placement functions for staged manual acceptance.
 '''
 
 [[dependencies.myvillage]]

@@ -19,7 +19,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Comparator;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -29,7 +32,7 @@ import java.util.Optional;
 @Mod(MyVillageMod.MOD_ID)
 public final class MyVillageMod {
     public static final String MOD_ID = "myvillage";
-    private static final int GALLERY_SPACING = 20;
+    private static final int GALLERY_SPACING = 60;
     private static final Logger LOGGER = LoggerFactory.getLogger(MyVillageMod.class);
 
     public MyVillageMod() {
@@ -46,6 +49,8 @@ public final class MyVillageMod {
                                         .executes(ctx -> placeNamedStructure(
                                                 ctx.getSource(),
                                                 StringArgumentType.getString(ctx, "structure_id")))))
+                        .then(Commands.literal("list")
+                                .executes(ctx -> listStructures(ctx.getSource())))
                         .then(Commands.literal("gallery")
                                 .executes(ctx -> placeGallery(ctx.getSource()))));
     }
@@ -63,11 +68,7 @@ public final class MyVillageMod {
 
     private int placeGallery(CommandSourceStack source) throws CommandSyntaxException {
         ServerLevel level = source.getLevel();
-        List<ResourceLocation> structures = level.getStructureManager()
-                .listTemplates()
-                .filter(id -> MOD_ID.equals(id.getNamespace()))
-                .sorted(Comparator.comparing(ResourceLocation::getPath))
-                .toList();
+        List<ResourceLocation> structures = myvillageStructures(level);
 
         if (structures.isEmpty()) {
             source.sendFailure(Component.literal("No myvillage structures are loaded"));
@@ -77,11 +78,18 @@ public final class MyVillageMod {
         ServerPlayer player = source.getPlayerOrException();
         BlockPos origin = player.blockPosition();
         int placed = 0;
-        for (ResourceLocation id : structures) {
-            BlockPos pos = origin.offset(placed * GALLERY_SPACING, 0, 0);
-            if (placeStructure(source, id, pos) == 1) {
-                placed++;
+        Map<String, List<ResourceLocation>> columns = groupedGalleryStructures(structures);
+        int column = 0;
+        for (List<ResourceLocation> columnStructures : columns.values()) {
+            int row = 0;
+            for (ResourceLocation id : columnStructures) {
+                BlockPos pos = origin.offset(column * GALLERY_SPACING, 0, row * GALLERY_SPACING);
+                if (placeStructure(source, id, pos) == 1) {
+                    placed++;
+                    row++;
+                }
             }
+            column++;
         }
 
         final int placedCount = placed;
@@ -89,6 +97,23 @@ public final class MyVillageMod {
                 () -> Component.literal("Placed myvillage gallery: " + placedCount + " structures"),
                 false);
         return placedCount;
+    }
+
+    private int listStructures(CommandSourceStack source) {
+        List<ResourceLocation> structures = myvillageStructures(source.getLevel());
+        if (structures.isEmpty()) {
+            source.sendFailure(Component.literal("No myvillage structures are loaded"));
+            return 0;
+        }
+
+        String names = structures.stream()
+                .map(ResourceLocation::toString)
+                .reduce((a, b) -> a + ", " + b)
+                .orElse("");
+        source.sendSuccess(
+                () -> Component.literal("Loaded myvillage structures (" + structures.size() + "): " + names),
+                false);
+        return structures.size();
     }
 
     private int placeStructure(CommandSourceStack source, ResourceLocation structureId, BlockPos origin) {
@@ -99,10 +124,11 @@ public final class MyVillageMod {
             return 0;
         }
 
+        BlockPos placementOrigin = origin.offset(0, placementYOffset(structureId), 0);
         boolean placed = template.get().placeInWorld(
                 level,
-                origin,
-                origin,
+                placementOrigin,
+                placementOrigin,
                 new StructurePlaceSettings(),
                 level.getRandom(),
                 Block.UPDATE_CLIENTS);
@@ -113,9 +139,13 @@ public final class MyVillageMod {
 
         source.sendSuccess(
                 () -> Component.literal("Placed " + structureId + " at "
-                        + origin.getX() + " " + origin.getY() + " " + origin.getZ()),
+                        + placementOrigin.getX() + " " + placementOrigin.getY() + " " + placementOrigin.getZ()),
                 false);
         return 1;
+    }
+
+    private static int placementYOffset(ResourceLocation structureId) {
+        return structureId.getPath().startsWith("test_") ? 0 : -1;
     }
 
     private static ResourceLocation parseStructureId(String rawId) {
@@ -127,5 +157,47 @@ public final class MyVillageMod {
             return ResourceLocation.tryParse(trimmed);
         }
         return ResourceLocation.tryBuild(MOD_ID, trimmed);
+    }
+
+    private static List<ResourceLocation> myvillageStructures(ServerLevel level) {
+        return level.getStructureManager()
+                .listTemplates()
+                .filter(id -> MOD_ID.equals(id.getNamespace()))
+                .sorted(Comparator.comparing(ResourceLocation::getPath))
+                .toList();
+    }
+
+    private static Map<String, List<ResourceLocation>> groupedGalleryStructures(List<ResourceLocation> structures) {
+        Map<String, List<ResourceLocation>> columns = new LinkedHashMap<>();
+        for (String group : List.of("house", "shop", "blacksmith", "chinese_courtyard", "chinese_review", "test", "other")) {
+            columns.put(group, new ArrayList<>());
+        }
+        for (ResourceLocation id : structures) {
+            columns.computeIfAbsent(galleryGroup(id.getPath()), ignored -> new ArrayList<>()).add(id);
+        }
+        columns.entrySet().removeIf(entry -> entry.getValue().isEmpty());
+        return columns;
+    }
+
+    private static String galleryGroup(String path) {
+        if (path.startsWith("small_shop") || path.startsWith("medium_shop")) {
+            return "shop";
+        }
+        if (path.startsWith("small_house") || path.startsWith("medium_house") || path.startsWith("big_house")) {
+            return "house";
+        }
+        if (path.startsWith("blacksmith")) {
+            return "blacksmith";
+        }
+        if (path.startsWith("chinese_courtyard")) {
+            return "chinese_courtyard";
+        }
+        if (path.endsWith("_review")) {
+            return "chinese_review";
+        }
+        if (path.startsWith("test_")) {
+            return "test";
+        }
+        return "other";
     }
 }

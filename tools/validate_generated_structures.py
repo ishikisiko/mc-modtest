@@ -21,6 +21,8 @@ ROOF_MARKERS = ("_stairs", "_slab", "spruce_planks", "dark_oak_planks")
 KEY_BLOCK_MARKERS = ("_stairs", "_slab", "_log", "_wood", "_planks")
 HOUSE_FUNCTION_BLOCKS = ("crafting_table", "furnace", "barrel")
 BLACKSMITH_FUNCTION_BLOCKS = ("furnace", "campfire", "smoker", "blast_furnace")
+SHOP_FUNCTION_BLOCKS = ("crafting_table", "barrel")
+MULTISTORY_NAMES = ("medium_shop", "big_house")
 
 
 def is_air(state: str) -> bool:
@@ -57,15 +59,19 @@ def validate_gable_heuristic(name: str, palette: list[str], blocks: list[dict]) 
 
     min_roof_y = min(pos[1] for pos, _ in stair_blocks)
     for axis, low_plane, high_plane in checks:
-        for plane in (low_plane, high_plane):
+        for side, plane in (("low", low_plane), ("high", high_plane)):
+            direction = 1 if side == "low" else -1
+            candidate_planes = [plane + direction * offset for offset in range(3)]
             sealed = 0
             for pos, state in by_pos.items():
                 if is_air(state) or is_roof_like(state) or pos[1] < min_roof_y:
                     continue
-                if (axis == "x" and pos[0] == plane) or (axis == "z" and pos[2] == plane):
+                coord = pos[0] if axis == "x" else pos[2]
+                if coord in candidate_planes:
                     sealed += 1
             if sealed == 0:
-                errors.append(f"{name}: possible open gable on {axis}={plane}")
+                errors.append(
+                    f"{name}: possible open gable on {axis} near {plane}")
     return errors
 
 
@@ -113,6 +119,21 @@ def validate_file(path: Path, root_dir: Path) -> dict:
         missing = [marker for marker in HOUSE_FUNCTION_BLOCKS if not has_marker(states_present, (marker,))]
         if missing:
             errors.append(f"house_function_blocks_missing: {missing}")
+    elif "shop" in building_name:
+        missing = [marker for marker in SHOP_FUNCTION_BLOCKS if not has_marker(states_present, (marker,))]
+        if missing:
+            errors.append(f"shop_function_blocks_missing: {missing}")
+    if building_name.startswith(MULTISTORY_NAMES):
+        if len(size) == 3 and size[1] < 12:
+            errors.append(f"multi_story_too_short: {size}")
+        air_positions = {
+            tuple(block["pos"]) for block in blocks
+            if block["state"] < len(palette) and is_air(palette[block["state"]])
+        }
+        aligned_air = any((x, y + 1, z) in air_positions
+                          for x, y, z in air_positions if y >= 4)
+        if not aligned_air:
+            errors.append("multi_story_stair_opening_missing")
 
     errors.extend(validate_gable_heuristic(rel, palette, non_air_blocks))
 
@@ -166,6 +187,16 @@ def main() -> int:
             by_category["medium_house"] += 1
         elif name.startswith("blacksmith"):
             by_category["blacksmith"] += 1
+        elif name.startswith("small_shop"):
+            by_category["small_shop"] += 1
+        elif name.startswith("medium_shop"):
+            by_category["medium_shop"] += 1
+        elif name.startswith("big_house"):
+            by_category["big_house"] += 1
+        elif name.startswith("chinese_courtyard"):
+            by_category["chinese_courtyard"] += 1
+        elif name in ("main_hall_review", "side_wing_review", "front_row_review"):
+            by_category["chinese_review"] += 1
         elif name == "test_house_03":
             by_category["test_house_03"] += 1
         else:

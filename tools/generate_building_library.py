@@ -26,7 +26,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from buildgen import export
-from buildgen.archetypes import ARCHETYPES, TIER_PLAN
+from buildgen.archetypes import ARCHETYPES, NEW_ARCHETYPE_COUNTS, TIER_PLAN
 from buildgen.passes import generate_building
 from buildgen.quality import quality_check
 from buildgen.style import load_style
@@ -49,8 +49,11 @@ def main() -> int:
     reports = []
     failed_attempts = 0
 
+    requested = 0
     for archetype in ARCHETYPES:
-        for i in range(1, args.count + 1):
+        archetype_count = NEW_ARCHETYPE_COUNTS.get(archetype, args.count)
+        requested += archetype_count
+        for i in range(1, archetype_count + 1):
             tier = TIER_PLAN[archetype].get(i, "medium")
             name = f"{archetype}_{i:03d}"
             report = None
@@ -89,7 +92,7 @@ def main() -> int:
     passed = sum(1 for r in reports if r["passed"])
     summary = {
         "style_id": args.style,
-        "requested": args.count * len(ARCHETYPES),
+        "requested": requested,
         "generated": len(entries),
         "passed": passed,
         "failed": len(reports) - passed,

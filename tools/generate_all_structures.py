@@ -2,7 +2,8 @@
 """Generate all NeoForge-verifiable structures into the mod resources tree.
 
 This is the canonical mod validation entrypoint. It writes the hand-authored
-JSON DSL smoke-test structure plus the generated building library into:
+JSON DSL smoke-test structure plus generated building and compound libraries
+into:
 
     src/main/resources/data/myvillage/structure/
 """
@@ -63,6 +64,18 @@ def generate_building_library(style: str, count: int, base_seed: int) -> None:
     subprocess.run(cmd, cwd=REPO_ROOT, check=True)
 
 
+def generate_compound_library(count: int, base_seed: int) -> None:
+    cmd = [
+        sys.executable,
+        str(SCRIPT_DIR / "generate_compound_library.py"),
+        "--count",
+        str(count),
+        "--base-seed",
+        str(base_seed),
+    ]
+    subprocess.run(cmd, cwd=REPO_ROOT, check=True)
+
+
 def copy_default_output(output_dir: Path) -> None:
     if output_dir.resolve() == DEFAULT_OUTPUT.resolve():
         return
@@ -80,6 +93,8 @@ def main() -> int:
     parser.add_argument("--style", default="medieval_village")
     parser.add_argument("--count", type=int, default=10)
     parser.add_argument("--base-seed", type=int, default=20260612)
+    parser.add_argument("--compound-count", type=int, default=6)
+    parser.add_argument("--compound-base-seed", type=int, default=20260614)
     args = parser.parse_args()
 
     if args.mc_version != SUPPORTED_MC_VERSION:
@@ -90,6 +105,7 @@ def main() -> int:
         clean_nbt_tree(output_dir)
         test_house = generate_test_house(args.mc_version, output_dir)
         generate_building_library(args.style, args.count, args.base_seed)
+        generate_compound_library(args.compound_count, args.compound_base_seed)
         copy_default_output(output_dir)
     except (OSError, ValueError, ValidationError, subprocess.CalledProcessError) as exc:
         print(f"GENERATION FAILED: {exc}", file=sys.stderr)

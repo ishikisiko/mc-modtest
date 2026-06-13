@@ -1,8 +1,9 @@
 """Pass pipeline + protection mechanism.
 
 Pass order (priorities in grid.PRIORITY):
-    massing_pass -> structure_pass -> facade_detail_pass -> roof_pass ->
-    roof_cleanup_pass -> material_variation_pass -> interior_furnishing_pass ->
+    massing_pass -> structure_pass -> floor_slab_pass -> stair_pass ->
+    facade_detail_pass -> roof_pass -> roof_cleanup_pass ->
+    material_variation_pass -> interior_furnishing_pass ->
     exterior_decoration_pass -> quality_check_pass -> resource_export_pass
 
 PROTECTED cells (doorway, windows, roof ridge, chimney core, porch slots)
@@ -17,7 +18,7 @@ from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple
 
 from . import ops
-from .archetypes import build_massing
+from .archetypes import build_massing, reserved_stair_footprint
 from .facade import plan_building_facades
 from .grid import AIR, BlockGrid, PRIORITY
 from .massing import MassingGraph, Node
@@ -88,21 +89,57 @@ def structure_pass(ctx: BuildContext) -> None:
     ctx.passes_run.append("structure_pass")
 
 
+def floor_slab_pass(ctx: BuildContext) -> None:
+    graph = ctx.graph
+    for vol in graph.volumes():
+        stories = vol.meta.get("stories", 1)
+        if stories <= 1:
+            continue
+        fh = vol.meta["foundation_h"]
+        story_wall_h = vol.meta.get("story_wall_h", vol.meta["wall_h"])
+        opening = reserved_stair_footprint(graph, vol.id)
+        for story in range(1, stories):
+            ops.floor_slab(ctx.grid, ctx.style, vol, fh + story * story_wall_h,
+                           opening)
+    ctx.passes_run.append("floor_slab_pass")
+
+
+def stair_pass(ctx: BuildContext) -> None:
+    graph = ctx.graph
+    for vol in graph.volumes():
+        stories = vol.meta.get("stories", 1)
+        if stories <= 1:
+            continue
+        opening = reserved_stair_footprint(graph, vol.id)
+        if opening:
+            ops.stairwell(ctx.grid, ctx.style, vol, opening)
+    ctx.passes_run.append("stair_pass")
+
+
 def facade_detail_pass(ctx: BuildContext) -> None:
     grid, style, graph, rng = ctx.grid, ctx.style, ctx.graph, ctx.rng
     ctx.wall_plans = plan_building_facades(graph, style, rng)
+    framed = set()
     for plan in ctx.wall_plans:
+        key = (plan.volume_id, plan.wall)
+        if key in framed:
+            continue
+        framed.add(key)
         vol = graph.get(plan.volume_id)
         ops.wall_frame(grid, style, rng, vol, plan.wall, plan.post_positions,
                        vol.meta.get("wall_type", "mixed_stone_wood_wall"))
     door = graph.meta["door"]
     door_vol = graph.get(door["volume"])
     ctx.door_info = ops.doorway(grid, style, rng, door_vol, door["wall"], door["x"])
+    if door_vol.meta.get("storefront"):
+        ops.storefront(grid, style, rng, door_vol, door["wall"], door["x"],
+                       door_vol.meta["storefront"])
     for plan in ctx.wall_plans:
         vol = graph.get(plan.volume_id)
         for along, ostyle in plan.windows:
             ctx.window_cells += ops.window_kit(grid, style, rng, vol, plan.wall,
-                                               along, opening_style=ostyle)
+                                               along, opening_style=ostyle,
+                                               y_base=plan.y_base)
     ctx.passes_run.append("facade_detail_pass")
 
 
@@ -140,6 +177,31 @@ def roof_cleanup_pass(ctx: BuildContext) -> None:
             if grid.is_empty(pos):
                 grid.set(pos, gable_state, ["FACADE", "ROOF"],
                          PRIORITY["ROOF"], "WALL_MAIN")
+    # close any remaining vertical gap between a closed wall and the first
+    # roof cell above it, including gable/cross-gable volumes.
+    for vol in graph.volumes():
+        if vol.meta.get("open"):
+            continue
+        fh = vol.meta["foundation_h"]
+        wall_top = fh + vol.meta["wall_h"] - 1
+        for x in range(vol.x0, vol.x1 + 1):
+            for z in range(vol.z0, vol.z1 + 1):
+                on_perimeter = (x in (vol.x0, vol.x1) or z in (vol.z0, vol.z1))
+                if not on_perimeter:
+                    continue
+                roof_y = None
+                for y in range(wall_top + 1, wall_top + 10):
+                    cell = grid.get((x, y, z))
+                    if cell and "ROOF" in cell.tags:
+                        roof_y = y
+                        break
+                if roof_y is None:
+                    continue
+                for y in range(wall_top + 1, roof_y):
+                    if grid.is_empty((x, y, z)):
+                        grid.set((x, y, z), style.primary("WALL_MAIN"),
+                                 ["FACADE", "STRUCTURE"], PRIORITY["ROOF"],
+                                 "WALL_MAIN")
     # fill wall-top gaps under lean-to roofs of closed sheds
     for vol in graph.volumes():
         vroof = vol.meta.get("roof", {})
@@ -250,6 +312,12 @@ def interior_furnishing_pass(ctx: BuildContext) -> None:
 
 def exterior_decoration_pass(ctx: BuildContext) -> None:
     grid, style, graph, rng = ctx.grid, ctx.style, ctx.graph, ctx.rng
+    if graph.meta.get("style_family") == "chinese_courtyard":
+        for vol in graph.volumes():
+            if vol.meta.get("open"):
+                continue
+            ops.chinese_timber_brackets(grid, style, rng, vol)
+        ctx.decoration_motifs.append("timber_bracket")
     for node in graph.by_type("porch"):
         main = graph.get(node.attach_to)
         ops.porch(grid, style, rng, node, main)
@@ -269,6 +337,8 @@ def exterior_decoration_pass(ctx: BuildContext) -> None:
 PIPELINE = [
     massing_pass,
     structure_pass,
+    floor_slab_pass,
+    stair_pass,
     facade_detail_pass,
     roof_pass,
     roof_cleanup_pass,

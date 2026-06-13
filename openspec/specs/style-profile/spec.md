@@ -14,6 +14,12 @@ The building generator SHALL load style profiles from `tools/buildgen/styles/<st
 - **THEN** it SHALL load `tools/buildgen/styles/medieval_village.json`
 - **AND** the loaded profile SHALL include `material_slots`, `allowed_roof_types`, `allowed_wall_types`, `allowed_opening_styles`, `allowed_motifs`, `forbidden_blocks`, and `proportions`.
 
+#### Scenario: Loading the Chinese courtyard style
+- **WHEN** the generator requests style id `chinese_courtyard`
+- **THEN** it SHALL load `tools/buildgen/styles/chinese_courtyard.json`
+- **AND** the loaded profile SHALL include `material_slots`, `allowed_roof_types`, `allowed_wall_types`, `allowed_opening_styles`, `allowed_motifs`, `forbidden_blocks`, and `proportions`
+- **AND** `allowed_roof_types` SHALL include `硬山`, `悬山`, and `歇山`.
+
 ### Requirement: Build operations resolve primary materials through style slots
 Build operations SHALL use style material slots rather than hardcoding concrete block choices for primary building materials.
 
@@ -29,6 +35,11 @@ Generated building quality checks SHALL reject generated buildings containing bl
 - **WHEN** quality validation sees a non-air blockstate whose block id contains a forbidden fragment
 - **THEN** the generated building SHALL fail the quality gate
 - **AND** the report SHALL include a `forbidden_blocks` error.
+
+#### Scenario: Chinese style excludes Western-only materials
+- **WHEN** a Chinese courtyard sub-building or compound is validated
+- **THEN** blockstates matching the Chinese style profile's Western-incompatible forbidden fragments SHALL fail validation
+- **AND** the generated resource SHALL not be accepted for staged manual review until the forbidden-block gate passes.
 
 ### Requirement: Variation preserves protected cells
 Material variation SHALL NOT modify cells tagged as `PROTECTED`.
