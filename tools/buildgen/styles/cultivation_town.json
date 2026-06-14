@@ -35,6 +35,14 @@
       "minecraft:coarse_dirt",
       "minecraft:stone_bricks"
     ],
+    "WATER": [
+      "minecraft:water"
+    ],
+    "PLANTING": [
+      "minecraft:moss_block",
+      "minecraft:azalea_leaves",
+      "minecraft:flowering_azalea_leaves"
+    ],
     "INTERIOR_WORK": [
       "minecraft:crafting_table",
       "minecraft:furnace",

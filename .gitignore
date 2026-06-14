@@ -1,6 +1,7 @@
 .gradle/
 build/
 run/
+out/preview/
 __pycache__/
 *.pyc
 .claude/

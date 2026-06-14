@@ -65,17 +65,27 @@ Staged manual acceptance SHALL start from a prepared mod artifact and command li
 - **WHEN** a reviewer is asked to inspect generated structures in game
 - **THEN** a current mod jar build path SHALL be available or documented
 - **AND** the README command list SHALL include `/myvillage list`, `/myvillage place <structure_id>`, `/myvillage gallery`, `/myvillage gallery original`, and `/myvillage gallery cultivation`
+- **AND** the offline preview prep SHOULD include `python3 tools/preview_structure.py --all`, producing static PNG previews and per-structure `viewer.html` files under `out/preview/`
+- **AND** when more than one `viewer.html` is produced, the preview prep SHALL produce an aggregate `out/preview/index.html` review entry point
+- **AND** the acceptance handoff SHALL include a running local HTTP server rooted at `out/preview/` and report the exact review URL, such as `http://127.0.0.1:8765/index.html`
+- **AND** the preview HTTP server SHALL remain running for reviewer acceptance until the reviewer explicitly says it can be closed, or until the related OpenSpec change is being archived
 - **AND** the changelog SHALL identify the version or fix label under review
 - **AND** the reviewer SHOULD first run `/myvillage list` to confirm the expected templates are loaded before placing individual structures.
 
 ### Requirement: Compound validation checks generated resources
-The compound library validator SHALL validate generated courtyard report data and exported mod resources, including NBT files and generated place/gallery functions.
+The compound library validator SHALL validate generated courtyard and town-block report data and exported mod resources, including NBT files and generated place/gallery functions.
 
 #### Scenario: The Chinese courtyard library is validated
 - **WHEN** `tools/validate_compound_library.py --count 6` succeeds
 - **THEN** six distinct compound structures SHALL be validated
 - **AND** the validator SHALL confirm exported NBTs include compound landscape markers such as water and planting
 - **AND** generated place/gallery functions SHALL exist for the compound library.
+
+#### Scenario: The cultivation town block library is validated
+- **WHEN** `tools/validate_compound_library.py --group cultivation_town --count 6` succeeds
+- **THEN** six distinct town-block structures SHALL be validated
+- **AND** the validator SHALL confirm exported NBTs include compound landscape markers such as water and planting
+- **AND** generated `place/cultivation_town_*.mcfunction` and `gallery/cultivation_town.mcfunction` files SHALL exist.
 
 
 ### Requirement: Civic structures carry signature role blocks

@@ -245,6 +245,8 @@ def main() -> int:
             by_category["cultivation_market"] += 1
         elif name.startswith("town_shrine"):
             by_category["town_shrine"] += 1
+        elif name.startswith("cultivation_town"):
+            by_category["cultivation_town"] += 1
         elif name.startswith("cultivation_sect"):
             by_category["cultivation_sect"] += 1
         elif name.startswith("sect_gate"):

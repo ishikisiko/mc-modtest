@@ -10,7 +10,7 @@ from __future__ import annotations
 import random
 from collections import deque
 from dataclasses import dataclass, field
-from typing import Dict, Iterable, List, Optional, Set, Tuple
+from typing import Dict, Iterable, List, Optional, Sequence, Set, Tuple
 
 from .grid import AIR, BlockGrid, PRIORITY
 from .massing import MassingGraph
@@ -23,15 +23,27 @@ Pos = Tuple[int, int, int]
 
 
 COURTYARD_SIZE = {
+    "town_small": (35, 31),
     "small": (39, 45),
     "medium": (43, 47),
     "large": (47, 47),
 }
+COURTYARD_VARIANT_SIZES = ("small", "medium", "large")
 WATER_FORMS = ("pool", "channel", "well")
 PLANTING_LAYOUTS = ("corner_beds", "side_beds", "asymmetric_beds")
 ROOF_GRADES = ("硬山", "悬山", "歇山")
 GATE_STYLES = ("plain_gate", "lantern_gate", "double_eave_gate")
 SYMMETRY_MODES = ("mild_asymmetry", "strict_mirror")
+TOWN_BLOCK_SHAPES = ((1, 2), (1, 3), (2, 2))
+TOWN_STREET_WIDTHS = (5, 7)
+TOWN_LANE_WIDTH = 3
+DEFAULT_TOWN_ROSTER = (
+    "cultivation_house",
+    "cultivation_shop",
+    "cultivation_inn",
+    "cultivation_market",
+    "town_shrine",
+)
 
 
 @dataclass(frozen=True)
@@ -61,6 +73,36 @@ class CompoundVariant:
             "roof_grade": self.roof_grade,
             "gate_style": self.gate_style,
             "symmetry": self.symmetry,
+        }
+
+
+@dataclass(frozen=True)
+class TownBlockVariant:
+    rows: int
+    courtyards_per_row: int
+    street_width: int
+    lane: bool
+    corner_frontage: bool
+    courtyard_size: str = "town_small"
+
+    def key(self) -> Tuple[int, int, int, bool, bool, str]:
+        return (
+            self.rows,
+            self.courtyards_per_row,
+            self.street_width,
+            self.lane,
+            self.corner_frontage,
+            self.courtyard_size,
+        )
+
+    def to_dict(self) -> dict:
+        return {
+            "rows": self.rows,
+            "courtyards_per_row": self.courtyards_per_row,
+            "street_width": self.street_width,
+            "lane": self.lane,
+            "corner_frontage": self.corner_frontage,
+            "courtyard_size": self.courtyard_size,
         }
 
 
@@ -141,12 +183,25 @@ class CompoundGraph:
 def select_variant(seed: int) -> CompoundVariant:
     rng = random.Random(seed)
     return CompoundVariant(
-        courtyard_size=rng.choice(tuple(COURTYARD_SIZE)),
+        courtyard_size=rng.choice(COURTYARD_VARIANT_SIZES),
         water_form=rng.choice(WATER_FORMS),
         planting_layout=rng.choice(PLANTING_LAYOUTS),
         roof_grade=rng.choice(ROOF_GRADES),
         gate_style=rng.choice(GATE_STYLES),
         symmetry=rng.choice(("mild_asymmetry", "mild_asymmetry", "strict_mirror")),
+    )
+
+
+def select_town_block_variant(seed: int) -> TownBlockVariant:
+    rng = random.Random(seed)
+    rows, cols = rng.choice(TOWN_BLOCK_SHAPES)
+    lane = cols >= 3 and rng.choice((False, True))
+    return TownBlockVariant(
+        rows=rows,
+        courtyards_per_row=cols,
+        street_width=rng.choice(TOWN_STREET_WIDTHS),
+        lane=lane,
+        corner_frontage=rng.choice((False, True)),
     )
 
 
@@ -215,6 +270,32 @@ def _translate_context(compound: CompoundGraph, slot_id: str, ctx: BuildContext,
     return slot
 
 
+def _context_bounds_2d(ctx: BuildContext) -> Tuple[int, int, int, int]:
+    volumes = ctx.graph.volumes()
+    if not volumes:
+        main = ctx.graph.get("main")
+        volumes = [main]
+    return (
+        min(vol.x0 for vol in volumes),
+        min(vol.z0 for vol in volumes),
+        max(vol.x1 for vol in volumes),
+        max(vol.z1 for vol in volumes),
+    )
+
+
+def _translate_context_to_min(compound: CompoundGraph, slot_id: str,
+                              ctx: BuildContext, target_x0: int,
+                              target_z0: int) -> BuildingSlot:
+    x0, z0, _, _ = _context_bounds_2d(ctx)
+    main = ctx.graph.get("main")
+    return _translate_context(
+        compound,
+        slot_id,
+        ctx,
+        (main.x0 + target_x0 - x0, 0, main.z0 + target_z0 - z0),
+    )
+
+
 def _rect(x0: int, z0: int, x1: int, z1: int) -> Set[Cell2]:
     return {(x, z) for x in range(x0, x1 + 1) for z in range(z0, z1 + 1)}
 
@@ -278,7 +359,13 @@ def _add_perimeter(compound: CompoundGraph, style: Style) -> None:
     axis = compound.axis_x
     gate_half = {"plain_gate": 1, "lantern_gate": 2,
                  "double_eave_gate": 2}[compound.variant.gate_style]
-    gate = {(x, 0) for x in range(axis - gate_half, axis + gate_half + 1)}
+    gate_side = compound.meta.get("gate_side", "south")
+    if gate_side == "north":
+        gate = {(x, lot_d - 1) for x in range(axis - gate_half, axis + gate_half + 1)}
+    elif gate_side == "south":
+        gate = {(x, 0) for x in range(axis - gate_half, axis + gate_half + 1)}
+    else:
+        raise ValueError(f"unsupported gate_side {gate_side!r}")
     wall_cells = set()
     for x in range(lot_w):
         for z in (0, lot_d - 1):
@@ -297,7 +384,12 @@ def _add_perimeter(compound: CompoundGraph, style: Style) -> None:
                           ["ROOF"], PRIORITY["ROOF"], "ROOF_DARK")
     compound.parcel_nodes.append(
         ParcelNode("perimeter_wall", "perimeter_wall", wall_cells,
-                   {"gate_opening": [axis - gate_half, 0, axis + gate_half, 0]}))
+                   {"gate_opening": [
+                       min(x for x, _ in gate),
+                       min(z for _, z in gate),
+                       max(x for x, _ in gate),
+                       max(z for _, z in gate),
+                   ], "gate_side": gate_side}))
 
 
 def _place_landscape(compound: CompoundGraph, style: Style,
@@ -371,10 +463,16 @@ def _route_circulation(compound: CompoundGraph, style: Style,
                        east_slot: BuildingSlot) -> None:
     lot_w, lot_d = compound.lot_size
     axis = compound.axis_x
+    gate_side = compound.meta.get("gate_side", "south")
     blocked = (compound.building_cells() |
                compound.node_cells("water_feature", "planting", "perimeter_wall"))
-    main_front_z = min(z for _, z in main_slot.footprint) - 1
-    central = set(_bfs((axis, 1), (axis, main_front_z), lot_w, lot_d, blocked))
+    if gate_side == "north":
+        gate_entry = (axis, lot_d - 2)
+        main_approach_z = max(z for _, z in main_slot.footprint) + 1
+    else:
+        gate_entry = (axis, 1)
+        main_approach_z = min(z for _, z in main_slot.footprint) - 1
+    central = set(_bfs(gate_entry, (axis, main_approach_z), lot_w, lot_d, blocked))
     _put_cells(compound, "central_path", "path", central,
                style.primary("GROUND_PATH"), ["DETAIL", "GROUND"], y=-1,
                slot="GROUND_PATH")
@@ -384,8 +482,8 @@ def _route_circulation(compound: CompoundGraph, style: Style,
                   (min(z for _, z in west_slot.footprint) + max(z for _, z in west_slot.footprint)) // 2)
     east_start = (min(x for x, _ in east_slot.footprint) - 1,
                   (min(z for _, z in east_slot.footprint) + max(z for _, z in east_slot.footprint)) // 2)
-    for start, goal in ((west_start, (axis - 2, main_front_z)),
-                        (east_start, (axis + 2, main_front_z))):
+    for start, goal in ((west_start, (axis - 2, main_approach_z)),
+                        (east_start, (axis + 2, main_approach_z))):
         corridor_cells.update(_bfs(start, goal, lot_w, lot_d, blocked | central))
     _put_cells(compound, "side_corridors", "corridor", corridor_cells,
                style.primary("GROUND_PATH"), ["DETAIL", "GROUND"], y=-1,
@@ -453,6 +551,338 @@ def generate_compound(seed: int, style: Optional[Style] = None,
     _route_circulation(compound, style, main_slot, west_slot, east_slot)
     compound.meta["courtyard"] = list(courtyard)
     compound.meta["gate_house_slot"] = gate_slot.id
+    return compound
+
+
+def _small_courtyard_variant(seed: int, size: str) -> CompoundVariant:
+    rng = random.Random(seed)
+    return CompoundVariant(
+        courtyard_size=size,
+        water_form=rng.choice(WATER_FORMS),
+        planting_layout=rng.choice(PLANTING_LAYOUTS),
+        roof_grade="town_roof_mix",
+        gate_style=rng.choice(("plain_gate", "plain_gate", "lantern_gate")),
+        symmetry="mild_asymmetry",
+    )
+
+
+def _town_roster(roster: Sequence[str]) -> Tuple[str, ...]:
+    values = tuple(roster) or DEFAULT_TOWN_ROSTER
+    unknown = [a for a in values if a not in DEFAULT_TOWN_ROSTER]
+    if unknown:
+        raise ValueError(f"small courtyard roster contains unsupported archetypes: {unknown}")
+    return values
+
+
+def _select_courtyard_archetypes(seed: int, roster: Sequence[str],
+                                 preferred_focal: Optional[str] = None) -> Tuple[str, str, str]:
+    roster = _town_roster(roster)
+    rng = random.Random(seed + 313)
+    compact = tuple(a for a in roster if a in ("cultivation_house", "cultivation_shop", "cultivation_market"))
+    side_pool = compact or roster
+    focal_pool = tuple(a for a in roster if a in (
+        "cultivation_market", "cultivation_inn", "town_shrine",
+        "cultivation_shop", "cultivation_house",
+    ))
+    if preferred_focal in roster:
+        focal = preferred_focal
+    else:
+        focal = rng.choice(focal_pool or roster)
+    return focal, rng.choice(side_pool), rng.choice(side_pool)
+
+
+def generate_small_courtyard(seed: int, style: Optional[Style] = None,
+                             roster: Sequence[str] = DEFAULT_TOWN_ROSTER,
+                             size: str = "town_small",
+                             gate_side: str = "south",
+                             preferred_focal: Optional[str] = None) -> CompoundGraph:
+    """Generate a compact walled town courtyard for street-block tiling."""
+    style = style or load_style("cultivation_town")
+    if size not in COURTYARD_SIZE:
+        raise ValueError(f"unknown courtyard size {size!r}")
+    if gate_side not in ("south", "north"):
+        raise ValueError(f"unsupported small courtyard gate side {gate_side!r}")
+
+    lot_w, lot_d = COURTYARD_SIZE[size]
+    axis = lot_w // 2
+    group_id = "cultivation_town" if style.style_id == "cultivation_town" else None
+    last_error = None
+    for attempt in range(12):
+        attempt_seed = seed + attempt * 7919
+        variant = _small_courtyard_variant(attempt_seed, size)
+        compound = CompoundGraph(
+            style.style_id,
+            attempt_seed,
+            variant,
+            (lot_w, lot_d),
+            axis,
+            meta={
+                "layout_strategy": "small_courtyard_unit",
+                "gate_side": gate_side,
+            },
+        )
+        focal, west, east = _select_courtyard_archetypes(
+            attempt_seed, roster, preferred_focal)
+        slot_seed = attempt_seed * 1009
+        focal_ctx = generate_subbuilding(style, focal, slot_seed + 1, None, group_id)
+        west_ctx = generate_subbuilding(style, west, slot_seed + 2, None, group_id)
+        east_ctx = generate_subbuilding(style, east, slot_seed + 3, None, group_id)
+
+        focal_x0, focal_z0, focal_x1, focal_z1 = _context_bounds_2d(focal_ctx)
+        west_x0, west_z0, west_x1, west_z1 = _context_bounds_2d(west_ctx)
+        east_x0, east_z0, east_x1, east_z1 = _context_bounds_2d(east_ctx)
+        focal_w = focal_x1 - focal_x0 + 1
+        focal_d = focal_z1 - focal_z0 + 1
+        west_w = west_x1 - west_x0 + 1
+        west_d = west_z1 - west_z0 + 1
+        east_w = east_x1 - east_x0 + 1
+        east_d = east_z1 - east_z0 + 1
+
+        focal_min_x = max(2, min(lot_w - 3 - focal_w, axis - focal_w // 2))
+        west_min_x = 2
+        east_min_x = lot_w - 2 - east_w
+        if gate_side == "north":
+            focal_min_z = 3
+            side_min_z = lot_d - 4 - max(west_d, east_d)
+        else:
+            focal_min_z = lot_d - 3 - focal_d
+            side_min_z = 4
+        if focal_min_z <= 1 or side_min_z <= 1:
+            last_error = "building_depth_exceeds_town_small"
+            continue
+        if east_min_x - (west_min_x + west_w) < 5:
+            last_error = "side_buildings_leave_no_tianjing_width"
+            continue
+
+        focal_slot = _translate_context_to_min(
+            compound, f"focal_{focal}", focal_ctx, focal_min_x, focal_min_z)
+        west_slot = _translate_context_to_min(
+            compound, f"west_{west}", west_ctx, west_min_x, side_min_z)
+        east_slot = _translate_context_to_min(
+            compound, f"east_{east}", east_ctx, east_min_x, side_min_z)
+        building_overlap = (
+            focal_slot.footprint & west_slot.footprint |
+            focal_slot.footprint & east_slot.footprint |
+            west_slot.footprint & east_slot.footprint
+        )
+        if building_overlap:
+            last_error = f"small_courtyard_building_overlap: {sorted(building_overlap)[:8]}"
+            continue
+
+        _add_perimeter(compound, style)
+        if gate_side == "north":
+            courtyard = (
+                max(x for x, _ in west_slot.footprint) + 2,
+                max(z for _, z in focal_slot.footprint) + 2,
+                min(x for x, _ in east_slot.footprint) - 2,
+                min(z for _, z in west_slot.footprint) - 2,
+            )
+        else:
+            courtyard = (
+                max(x for x, _ in west_slot.footprint) + 2,
+                max(z for _, z in west_slot.footprint) + 2,
+                min(x for x, _ in east_slot.footprint) - 2,
+                min(z for _, z in focal_slot.footprint) - 2,
+            )
+        if courtyard[0] > courtyard[2] or courtyard[1] > courtyard[3]:
+            last_error = f"invalid_tianjing_bounds: {courtyard}"
+            continue
+        tianjing = _bounded(_rect(*courtyard), lot_w, lot_d,
+                            compound.building_cells() | compound.node_cells("perimeter_wall"))
+        if len(tianjing) < 9:
+            last_error = f"tianjing_too_small: {len(tianjing)}"
+            continue
+        compound.parcel_nodes.append(
+            ParcelNode("tianjing", "tianjing", tianjing, {"bounds": list(courtyard)}))
+        try:
+            _place_landscape(compound, style, courtyard)
+            _route_circulation(compound, style, focal_slot, west_slot, east_slot)
+        except ValueError as exc:
+            last_error = str(exc)
+            continue
+        compound.meta["courtyard"] = list(courtyard)
+        compound.meta["roster_slots"] = [slot.archetype for slot in compound.building_slots]
+
+        report = validate_small_courtyard(compound)
+        if report["passed"]:
+            return compound
+        last_error = report["errors"]
+    raise ValueError(f"failed to generate valid small courtyard: {last_error}")
+
+
+def _shift_cells(cells: Iterable[Cell2], dx: int, dz: int) -> Set[Cell2]:
+    return {(x + dx, z + dz) for x, z in cells}
+
+
+def _shift_gate_opening(meta: dict, dx: int, dz: int) -> dict:
+    shifted = dict(meta)
+    opening = shifted.get("gate_opening")
+    if opening:
+        shifted["gate_opening"] = [
+            opening[0] + dx,
+            opening[1] + dz,
+            opening[2] + dx,
+            opening[3] + dz,
+        ]
+    return shifted
+
+
+def _copy_compound_into(parent: CompoundGraph, child: CompoundGraph,
+                        prefix: str, dx: int, dz: int,
+                        wall_seen: Set[Cell2]) -> None:
+    for (x, y, z), cell in list(child.grid.iter_cells()):
+        parent.grid.set((x + dx, y, z + dz), cell.state, cell.tags,
+                        cell.priority, cell.slot)
+    for node in child.parcel_nodes:
+        cells = _shift_cells(node.cells, dx, dz)
+        if node.type == "perimeter_wall":
+            fresh = cells - wall_seen
+            wall_seen.update(fresh)
+            cells = fresh
+        if not cells:
+            continue
+        parent.parcel_nodes.append(
+            ParcelNode(f"{prefix}_{node.id}", node.type, cells,
+                       _shift_gate_opening(node.meta, dx, dz)))
+    for slot in child.building_slots:
+        shifted_graph = MassingGraph(
+            meta={**slot.graph.meta, "town_block_offset": [dx, 0, dz]},
+            nodes=list(slot.graph.nodes),
+        )
+        parent.building_slots.append(
+            BuildingSlot(
+                f"{prefix}_{slot.id}",
+                slot.archetype,
+                (slot.origin[0] + dx, slot.origin[1], slot.origin[2] + dz),
+                shifted_graph,
+                _shift_cells(slot.footprint, dx, dz),
+                slot.quality,
+            ))
+
+
+def _town_column_origins(variant: TownBlockVariant, lot_w: int) -> Tuple[List[int], Set[Cell2]]:
+    origins: List[int] = []
+    lane_after = 0 if variant.lane and variant.courtyards_per_row >= 3 else None
+    x = 0
+    for col in range(variant.courtyards_per_row):
+        origins.append(x)
+        if col == variant.courtyards_per_row - 1:
+            break
+        if lane_after == col:
+            lane_x0 = x + lot_w
+            lane_x1 = lane_x0 + TOWN_LANE_WIDTH - 1
+            x = lane_x1 + 1
+        else:
+            x += lot_w - 1
+    return origins, set()
+
+
+def _town_row_layout(variant: TownBlockVariant, lot_d: int) -> Tuple[List[Tuple[int, str]], Set[Cell2], int]:
+    if variant.rows == 1:
+        row_layout = [(variant.street_width, "south")]
+        block_d = variant.street_width + lot_d
+        street = _rect(0, 0, 0, variant.street_width - 1)
+    elif variant.rows == 2:
+        row_layout = [(0, "north"), (lot_d + variant.street_width, "south")]
+        block_d = lot_d * 2 + variant.street_width
+        street = _rect(0, lot_d, 0, lot_d + variant.street_width - 1)
+    else:
+        raise ValueError(f"unsupported town-block row count {variant.rows}")
+    return row_layout, street, block_d
+
+
+def generate_town_block(seed: int, style: Optional[Style] = None,
+                        roster: Sequence[str] = DEFAULT_TOWN_ROSTER,
+                        variant: Optional[TownBlockVariant] = None) -> CompoundGraph:
+    """Generate a flattened cultivation-town street block from small courtyards."""
+    style = style or load_style("cultivation_town")
+    variant = variant or select_town_block_variant(seed)
+    lot_w, lot_d = COURTYARD_SIZE[variant.courtyard_size]
+    col_origins, _ = _town_column_origins(variant, lot_w)
+    row_layout, street_template, block_d = _town_row_layout(variant, lot_d)
+    block_w = col_origins[-1] + lot_w
+    street_cells = {
+        (x, z)
+        for x in range(block_w)
+        for _, z in street_template
+    }
+    lane_cells: Set[Cell2] = set()
+    if variant.lane and variant.courtyards_per_row >= 3:
+        lane_x0 = col_origins[0] + lot_w
+        lane_x1 = lane_x0 + TOWN_LANE_WIDTH - 1
+        lane_cells = {
+            (x, z)
+            for x in range(lane_x0, lane_x1 + 1)
+            for z in range(block_d)
+        }
+
+    compound = CompoundGraph(
+        style.style_id,
+        seed,
+        variant,
+        (block_w, block_d),
+        block_w // 2,
+        meta={
+            "layout_strategy": "courtyard_street_block",
+            "variant_axes": variant.to_dict(),
+            "courtyards": [],
+            "street_width": variant.street_width,
+            "lane_width": TOWN_LANE_WIDTH if variant.lane else 0,
+        },
+    )
+
+    wall_seen: Set[Cell2] = set()
+    for row, (origin_z, gate_side) in enumerate(row_layout):
+        for col, origin_x in enumerate(col_origins):
+            child_seed = seed * 1009 + row * 101 + col * 17
+            preferred = None
+            if variant.corner_frontage and col in (0, variant.courtyards_per_row - 1):
+                preferred = "cultivation_market" if "cultivation_market" in roster else "cultivation_shop"
+            child = generate_small_courtyard(
+                child_seed,
+                style,
+                roster,
+                variant.courtyard_size,
+                gate_side=gate_side,
+                preferred_focal=preferred,
+            )
+            prefix = f"court_r{row + 1}c{col + 1}"
+            _copy_compound_into(compound, child, prefix, origin_x, origin_z, wall_seen)
+            wall_meta = next(n.meta for n in child.parcel_nodes if n.type == "perimeter_wall")
+            gate = wall_meta["gate_opening"]
+            compound.meta["courtyards"].append({
+                "id": prefix,
+                "row": row,
+                "col": col,
+                "origin": [origin_x, origin_z],
+                "lot_size": [lot_w, lot_d],
+                "gate_side": gate_side,
+                "gate_opening": [
+                    gate[0] + origin_x,
+                    gate[1] + origin_z,
+                    gate[2] + origin_x,
+                    gate[3] + origin_z,
+                ],
+                "roster_slots": child.meta.get("roster_slots", []),
+            })
+
+    circulation = street_cells | lane_cells
+    occupied = (compound.building_cells() |
+                compound.node_cells("perimeter_wall", "water_feature", "planting", "tianjing"))
+    overlap = circulation & occupied
+    if overlap:
+        raise ValueError(f"town circulation overlaps courtyard cells: {sorted(overlap)[:8]}")
+    _put_cells(compound, "street_network", "street", street_cells,
+               style.primary("GROUND_PATH"), ["DETAIL", "GROUND"], y=-1,
+               slot="GROUND_PATH")
+    if lane_cells:
+        _put_cells(compound, "lane_network", "lane", lane_cells,
+                   style.primary("GROUND_PATH"), ["DETAIL", "GROUND"], y=-1,
+                   slot="GROUND_PATH")
+
+    report = validate_town_block(compound)
+    if not report["passed"]:
+        raise ValueError(f"invalid town block: {report['errors']}")
     return compound
 
 
@@ -608,6 +1038,208 @@ def validate_compound(compound: CompoundGraph) -> dict:
     }
 
 
+def _gate_opening_cells(opening: Sequence[int]) -> Set[Cell2]:
+    x0, z0, x1, z1 = opening
+    return _rect(x0, z0, x1, z1)
+
+
+def _boundary_cells(lot_w: int, lot_d: int) -> Set[Cell2]:
+    cells = {(x, 0) for x in range(lot_w)}
+    cells |= {(x, lot_d - 1) for x in range(lot_w)}
+    cells |= {(0, z) for z in range(lot_d)}
+    cells |= {(lot_w - 1, z) for z in range(lot_d)}
+    return cells
+
+
+def _is_single_line(cells: Set[Cell2]) -> bool:
+    if not cells:
+        return False
+    xs = sorted({x for x, _ in cells})
+    zs = sorted({z for _, z in cells})
+    if len(zs) == 1:
+        return xs == list(range(xs[0], xs[-1] + 1))
+    if len(xs) == 1:
+        return zs == list(range(zs[0], zs[-1] + 1))
+    return False
+
+
+def validate_small_courtyard(compound: CompoundGraph) -> dict:
+    errors: List[str] = []
+    lot_w, lot_d = compound.lot_size
+    buildings = compound.building_cells()
+    perimeter = compound.node_cells("perimeter_wall")
+    tianjing = compound.node_cells("tianjing")
+    landscape = compound.node_cells("water_feature", "planting")
+    path = compound.node_cells("path")
+    corridors = compound.node_cells("corridor")
+
+    if compound.meta.get("layout_strategy") != "small_courtyard_unit":
+        errors.append(f"bad_layout_strategy: {compound.meta.get('layout_strategy')}")
+    if not 2 <= len(compound.building_slots) <= 4:
+        errors.append(f"building_slot_count: {len(compound.building_slots)}")
+    if not tianjing:
+        errors.append("missing_tianjing")
+    if buildings & tianjing:
+        errors.append(f"building_tianjing_overlap: {sorted(buildings & tianjing)[:8]}")
+    if buildings & landscape:
+        errors.append(f"building_landscape_overlap: {sorted(buildings & landscape)[:8]}")
+    if buildings & perimeter:
+        errors.append(f"building_wall_overlap: {sorted(buildings & perimeter)[:8]}")
+
+    outside = [(x, z) for x, z in buildings
+               if not (0 < x < lot_w - 1 and 0 < z < lot_d - 1)]
+    if outside:
+        errors.append(f"building_outside_perimeter: {outside[:8]}")
+
+    openings = _boundary_cells(lot_w, lot_d) - perimeter
+    wall_nodes = [n for n in compound.parcel_nodes if n.type == "perimeter_wall"]
+    if len(wall_nodes) != 1:
+        errors.append(f"perimeter_wall_node_count: {len(wall_nodes)}")
+    elif set(map(tuple, _gate_opening_cells(wall_nodes[0].meta["gate_opening"]))) != openings:
+        errors.append(f"gate_opening_meta_mismatch: {sorted(openings)}")
+    if not _is_single_line(openings):
+        errors.append(f"multiple_gate_openings: {sorted(openings)}")
+
+    one_courtyard_area = COURTYARD_SIZE["small"][0] * COURTYARD_SIZE["small"][1]
+    if lot_w * lot_d >= one_courtyard_area:
+        errors.append(
+            f"small_courtyard_not_compact: {lot_w * lot_d} >= {one_courtyard_area}")
+    if not path:
+        errors.append("missing_central_path")
+    if not corridors:
+        errors.append("missing_side_corridors")
+    if path & landscape:
+        errors.append("path_overlaps_landscape")
+    if corridors & landscape:
+        errors.append("corridor_overlaps_landscape")
+
+    return {
+        "seed": compound.seed,
+        "variant": compound.variant.to_dict(),
+        "passed": not errors,
+        "errors": errors,
+        "stats": {
+            "lot_size": list(compound.lot_size),
+            "building_slots": len(compound.building_slots),
+            "tianjing_cells": len(tianjing),
+            "water_cells": len(compound.node_cells("water_feature")),
+            "planting_cells": len(compound.node_cells("planting")),
+            "path_cells": len(path),
+            "corridor_cells": len(corridors),
+        },
+    }
+
+
+def _gate_network_entries(opening: Sequence[int], gate_side: str,
+                          circulation: Set[Cell2]) -> Set[Cell2]:
+    gates = _gate_opening_cells(opening)
+    entries: Set[Cell2] = set()
+    for x, z in gates:
+        if gate_side == "south":
+            entries.add((x, z - 1))
+        elif gate_side == "north":
+            entries.add((x, z + 1))
+    return entries & circulation
+
+
+def _reachable_cells(start: Cell2, cells: Set[Cell2]) -> Set[Cell2]:
+    q = deque([start])
+    seen = {start}
+    while q:
+        x, z = q.popleft()
+        for nxt in ((x + 1, z), (x - 1, z), (x, z + 1), (x, z - 1)):
+            if nxt in cells and nxt not in seen:
+                seen.add(nxt)
+                q.append(nxt)
+    return seen
+
+
+def validate_town_block(compound: CompoundGraph) -> dict:
+    errors: List[str] = []
+    if compound.meta.get("layout_strategy") != "courtyard_street_block":
+        errors.append(f"bad_layout_strategy: {compound.meta.get('layout_strategy')}")
+    courtyards = compound.meta.get("courtyards", [])
+    if len(courtyards) < 2:
+        errors.append(f"too_few_courtyards: {len(courtyards)}")
+
+    buildings_seen: Set[Cell2] = set()
+    for slot in compound.building_slots:
+        overlap = buildings_seen & slot.footprint
+        if overlap:
+            errors.append(f"building_footprint_overlap: {slot.id}: {sorted(overlap)[:8]}")
+            break
+        buildings_seen.update(slot.footprint)
+
+    wall = compound.node_cells("perimeter_wall")
+    landscape = compound.node_cells("water_feature", "planting", "tianjing")
+    circulation = compound.node_cells("street", "lane")
+    streets = compound.node_cells("street")
+    lanes = compound.node_cells("lane")
+    if not streets:
+        errors.append("missing_street_network")
+    circulation_overlap = circulation & (compound.building_cells() | wall | landscape)
+    if circulation_overlap:
+        errors.append(f"circulation_overlap: {sorted(circulation_overlap)[:8]}")
+
+    gate_entries: List[Set[Cell2]] = []
+    for court in courtyards:
+        opening = court["gate_opening"]
+        gate_cells = _gate_opening_cells(opening)
+        if gate_cells & wall:
+            errors.append(f"gate_blocked_by_wall: {court['id']}")
+        entries = _gate_network_entries(opening, court["gate_side"], circulation)
+        if not entries:
+            errors.append(f"gate_not_adjacent_to_street: {court['id']}")
+        gate_entries.append(entries)
+
+    if gate_entries and gate_entries[0]:
+        reachable = _reachable_cells(next(iter(gate_entries[0])), circulation)
+        for court, entries in zip(courtyards, gate_entries):
+            if entries and not (entries & reachable):
+                errors.append(f"gate_unreachable_from_street_network: {court['id']}")
+
+    courts_by_row: Dict[int, List[dict]] = {}
+    for court in courtyards:
+        courts_by_row.setdefault(court["row"], []).append(court)
+        origin_x, origin_z = court["origin"]
+        lot_w, lot_d = court["lot_size"]
+        expected_wall = _shift_cells(_boundary_cells(lot_w, lot_d), origin_x, origin_z)
+        expected_wall -= _gate_opening_cells(court["gate_opening"])
+        missing = expected_wall - wall
+        if missing:
+            errors.append(f"outer_wall_gap: {court['id']}: {sorted(missing)[:8]}")
+    for row, row_courts in courts_by_row.items():
+        ordered = sorted(row_courts, key=lambda c: c["col"])
+        for left, right in zip(ordered, ordered[1:]):
+            left_x, left_z = left["origin"]
+            left_w, left_d = left["lot_size"]
+            right_x, _ = right["origin"]
+            shared_x = left_x + left_w - 1
+            if right_x == shared_x:
+                shared = {(shared_x, z) for z in range(left_z, left_z + left_d)}
+                missing = shared - wall
+                if missing:
+                    errors.append(
+                        f"party_wall_gap_row_{row}: {sorted(missing)[:8]}")
+            elif right_x <= shared_x:
+                errors.append(f"courtyard_x_overlap_row_{row}: {left['id']} {right['id']}")
+
+    return {
+        "seed": compound.seed,
+        "variant": compound.variant.to_dict(),
+        "passed": not errors,
+        "errors": errors,
+        "stats": {
+            "lot_size": list(compound.lot_size),
+            "courtyards": len(courtyards),
+            "building_slots": len(compound.building_slots),
+            "street_cells": len(streets),
+            "lane_cells": len(lanes),
+            "wall_cells": len(wall),
+        },
+    }
+
+
 def validate_sect_compound(compound: CompoundGraph) -> dict:
     errors: List[str] = []
     lot_w, lot_d = compound.lot_size
@@ -702,8 +1334,55 @@ def sample_sect_compound_library(count: int = 2, base_seed: int = 20260616,
     return compounds
 
 
+def sample_town_block_library(count: int = 6, base_seed: int = 20260617,
+                              style: Optional[Style] = None,
+                              roster: Sequence[str] = DEFAULT_TOWN_ROSTER) -> List[CompoundGraph]:
+    style = style or load_style("cultivation_town")
+    compounds: List[CompoundGraph] = []
+    seen: Set[Tuple[int, int, int, bool, bool, str]] = set()
+    attempt = 0
+    while len(compounds) < count and attempt < count * 30:
+        seed = base_seed + attempt * 101
+        variant = select_town_block_variant(seed)
+        attempt += 1
+        if variant.key() in seen:
+            continue
+        try:
+            compound = generate_town_block(seed, style, roster, variant)
+        except ValueError:
+            continue
+        report = validate_town_block(compound)
+        if not report["passed"]:
+            continue
+        seen.add(variant.key())
+        compounds.append(compound)
+    if len(compounds) < count:
+        raise ValueError(f"only generated {len(compounds)}/{count} valid town blocks")
+    return compounds
+
+
+def validate_town_block_library(compounds: List[CompoundGraph],
+                                min_distinct: int = 6) -> dict:
+    results = [validate_town_block(c) for c in compounds]
+    distinct = {c.variant.key() for c in compounds}
+    errors = []
+    if len(distinct) < min_distinct:
+        errors.append(f"too_few_distinct_town_variants: {len(distinct)} < {min_distinct}")
+    failed = [r for r in results if not r["passed"]]
+    if failed:
+        errors.append(f"failed_town_blocks: {[r['seed'] for r in failed]}")
+    return {
+        "passed": not errors,
+        "errors": errors,
+        "distinct_variants": len(distinct),
+        "results": results,
+    }
+
+
 def validate_compound_library(compounds: List[CompoundGraph],
                               min_distinct: int = 6) -> dict:
+    if compounds and compounds[0].meta.get("layout_strategy") == "courtyard_street_block":
+        return validate_town_block_library(compounds, min_distinct)
     results = [validate_compound(c) for c in compounds]
     distinct = {c.variant.key() for c in compounds}
     errors = []

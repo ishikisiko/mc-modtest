@@ -22,8 +22,9 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from buildgen import export
 from buildgen.compound import (sample_compound_library, sample_sect_compound_library,
-                               validate_compound, validate_compound_library,
-                               validate_sect_compound)
+                               sample_town_block_library, validate_compound,
+                               validate_compound_library, validate_sect_compound,
+                               validate_town_block, validate_town_block_library)
 from buildgen.compound import generate_subbuilding
 from buildgen.groups import get_group
 from buildgen.quality import quality_check
@@ -128,6 +129,50 @@ def main() -> int:
         print(f"report: {os.path.relpath(report_path, PROJECT_ROOT)}")
         print(f"gallery: {summary['gallery_function']}")
         return 0
+
+    if group.layout_strategy == "courtyard_street_block":
+        compounds = sample_town_block_library(
+            args.count, args.base_seed, style, group.archetype_roster)
+        entries = []
+        compound_reports = []
+        for index, compound in enumerate(compounds, start=1):
+            name = f"{args.group}_{index:03d}"
+            report = validate_town_block(compound)
+            if not report["passed"]:
+                raise RuntimeError(f"{name} failed town block validation: {report['errors']}")
+            _, info = export.write_structure_nbt(compound.grid, style.style_id, name)
+            export.write_place_function(style.style_id, name)
+            report["name"] = name
+            report["export"] = info
+            report["compound_graph"] = compound.to_dict()
+            compound_reports.append(report)
+            entries.append({"name": name, "archetype": args.group,
+                            "scale_tier": f"{compound.variant.rows}x{compound.variant.courtyards_per_row}",
+                            "size": info["size"],
+                            "group_id": args.group})
+            print(f"OK {name:24s} variant={compound.variant.key()} size={info['size']} blocks={info['block_count']}")
+        gallery_path = export.write_gallery_function(style.style_id, entries,
+                                                     spacing_x=128, spacing_z=96)
+        library_report = validate_town_block_library(compounds, min_distinct=args.count)
+        summary = {
+            "style_id": style.style_id,
+            "group_id": args.group,
+            "requested": args.count,
+            "generated": len(compound_reports),
+            "passed": library_report["passed"],
+            "errors": library_report["errors"],
+            "distinct_variants": library_report["distinct_variants"],
+            "gallery_function": os.path.relpath(gallery_path, PROJECT_ROOT),
+            "standalone_reports": [],
+            "compounds": compound_reports,
+        }
+        os.makedirs(os.path.dirname(report_path), exist_ok=True)
+        with open(report_path, "w", encoding="utf-8") as f:
+            json.dump(summary, f, indent=2, ensure_ascii=False)
+        print(f"\ngenerated {len(compound_reports)}/{args.count} town blocks")
+        print(f"report: {os.path.relpath(report_path, PROJECT_ROOT)}")
+        print(f"gallery: {summary['gallery_function']}")
+        return 0 if summary["passed"] else 1
 
     standalone_reports = generate_standalone_reviews(style, args.base_seed)
     compounds = sample_compound_library(args.count, args.base_seed, style)

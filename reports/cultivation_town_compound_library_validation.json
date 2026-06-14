@@ -1,0 +1,81 @@
+{
+  "style_id": "cultivation_town",
+  "group_id": "cultivation_town",
+  "passed": true,
+  "errors": [],
+  "total": 6,
+  "nbt_results": [
+    {
+      "name": "cultivation_town_001",
+      "passed": true,
+      "errors": [],
+      "size": [
+        70,
+        15,
+        36
+      ],
+      "block_count": 8020,
+      "palette_count": 53
+    },
+    {
+      "name": "cultivation_town_002",
+      "passed": true,
+      "errors": [],
+      "size": [
+        104,
+        18,
+        38
+      ],
+      "block_count": 11735,
+      "palette_count": 63
+    },
+    {
+      "name": "cultivation_town_003",
+      "passed": true,
+      "errors": [],
+      "size": [
+        108,
+        15,
+        36
+      ],
+      "block_count": 10030,
+      "palette_count": 52
+    },
+    {
+      "name": "cultivation_town_004",
+      "passed": true,
+      "errors": [],
+      "size": [
+        70,
+        21,
+        71
+      ],
+      "block_count": 14514,
+      "palette_count": 62
+    },
+    {
+      "name": "cultivation_town_005",
+      "passed": true,
+      "errors": [],
+      "size": [
+        72,
+        15,
+        68
+      ],
+      "block_count": 15631,
+      "palette_count": 51
+    },
+    {
+      "name": "cultivation_town_006",
+      "passed": true,
+      "errors": [],
+      "size": [
+        72,
+        15,
+        69
+      ],
+      "block_count": 12143,
+      "palette_count": 53
+    }
+  ]
+}

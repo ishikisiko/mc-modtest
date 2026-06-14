@@ -32,7 +32,7 @@ import java.util.Optional;
 @Mod(MyVillageMod.MOD_ID)
 public final class MyVillageMod {
     public static final String MOD_ID = "myvillage";
-    private static final int GALLERY_SPACING = 60;
+    private static final int GALLERY_SPACING = 128;
     private static final List<String> GALLERY_GROUP_ORDER = List.of(
             "house",
             "shop",

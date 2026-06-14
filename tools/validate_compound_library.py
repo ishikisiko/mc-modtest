@@ -16,6 +16,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from buildgen.nbtread import read_gzipped_nbt, state_string
+from buildgen.groups import get_group
 from buildgen.style import load_style
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -103,26 +104,47 @@ def validate_functions(style_id: str, names: list) -> list:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--style", default="chinese_courtyard")
-    parser.add_argument("--report", default=DEFAULT_REPORT)
+    parser.add_argument("--style", default=None)
+    parser.add_argument("--group", default="chinese_courtyard")
+    parser.add_argument("--report", default=None)
     parser.add_argument("--count", type=int, default=6)
     args = parser.parse_args()
 
-    style = load_style(args.style)
+    group = get_group(args.group)
+    style_id = args.style or group.style_id
+    if style_id != group.style_id:
+        parser.error(
+            f"group {args.group!r} requires --style {group.style_id!r}, got {style_id!r}")
+    report_path = args.report
+    if report_path is None:
+        report_path = DEFAULT_REPORT if args.group == "chinese_courtyard" else os.path.join(
+            PROJECT_ROOT, "reports", f"{args.group}_compound_library_report.json")
+    elif not os.path.isabs(report_path):
+        report_path = os.path.join(PROJECT_ROOT, report_path)
+    out_report = OUT_REPORT if args.group == "chinese_courtyard" else os.path.join(
+        PROJECT_ROOT, "reports", f"{args.group}_compound_library_validation.json")
+
+    style = load_style(style_id)
     errors = []
-    if not os.path.isfile(args.report):
-        errors.append(f"missing_report: {args.report}")
+    if not os.path.isfile(report_path):
+        errors.append(f"missing_report: {report_path}")
         data = {}
     else:
-        with open(args.report, "r", encoding="utf-8") as f:
+        with open(report_path, "r", encoding="utf-8") as f:
             data = json.load(f)
     compounds = data.get("compounds", [])
     if len(compounds) < args.count:
         errors.append(f"too_few_compounds: {len(compounds)} < {args.count}")
-    variant_keys = {
-        tuple(c.get("variant", {}).get(k) for k in (
+    if group.layout_strategy == "courtyard_street_block":
+        variant_fields = (
+            "rows", "courtyards_per_row", "street_width",
+            "lane", "corner_frontage", "courtyard_size")
+    else:
+        variant_fields = (
             "courtyard_size", "water_form", "planting_layout",
-            "roof_grade", "gate_style", "symmetry"))
+            "roof_grade", "gate_style", "symmetry")
+    variant_keys = {
+        tuple(c.get("variant", {}).get(k) for k in variant_fields)
         for c in compounds
     }
     if len(variant_keys) < args.count:
@@ -132,8 +154,9 @@ def main() -> int:
             errors.append(f"compound_report_failed: {c.get('name')}: {c.get('errors')}")
 
     names = [c.get("name") for c in compounds if c.get("name")]
-    nbt_results = [validate_nbt(name, style) for name in names]
-    fn_errors = validate_functions(args.style, names)
+    max_size = 128 if group.layout_strategy == "courtyard_street_block" else 64
+    nbt_results = [validate_nbt(name, style, max_size=max_size) for name in names]
+    fn_errors = validate_functions(style_id, names)
     failed_nbt = [r for r in nbt_results if not r["passed"]]
     if failed_nbt:
         errors.append(f"failed_nbt: {[r['name'] for r in failed_nbt]}")
@@ -148,17 +171,18 @@ def main() -> int:
         print(f"FAIL {err}")
 
     summary = {
-        "style_id": args.style,
+        "style_id": style_id,
+        "group_id": args.group,
         "passed": not errors,
         "errors": errors,
         "total": len(nbt_results),
         "nbt_results": nbt_results,
     }
-    os.makedirs(os.path.dirname(OUT_REPORT), exist_ok=True)
-    with open(OUT_REPORT, "w", encoding="utf-8") as f:
+    os.makedirs(os.path.dirname(out_report), exist_ok=True)
+    with open(out_report, "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2, ensure_ascii=False)
     print(f"\n{len(nbt_results) - len(failed_nbt)}/{len(nbt_results)} compound structures passed")
-    print(f"report: {os.path.relpath(OUT_REPORT, PROJECT_ROOT)}")
+    print(f"report: {os.path.relpath(out_report, PROJECT_ROOT)}")
     return 0 if summary["passed"] else 1
 
 

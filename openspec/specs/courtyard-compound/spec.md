@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This spec captures the current parcel-level compound implementations. A compound is a parcel-level structure made from generated sub-buildings plus perimeter, landscape, and circulation elements. The current compound families are the Chinese one-courtyard layout and the cultivation sect terraced axial layout.
+This spec captures the current parcel-level compound implementations. A compound is a parcel-level structure made from generated sub-buildings plus perimeter, landscape, and circulation elements. The current compound families are the Chinese one-courtyard layout, the cultivation town courtyard-street block layout, and the cultivation sect terraced axial layout.
 
 ## Requirements
 
@@ -57,7 +57,7 @@ Compound variation SHALL be produced by independent variant axes combined per se
 - **AND** the instances SHALL differ in at least one variant axis from one another.
 
 ### Requirement: Compound resources are part of v0.5 mod acceptance prep
-The Chinese courtyard compound library and cultivation sect compound library SHALL be generated, validated, packed into the v0.5 mod jar, and documented in the available command list before staged manual acceptance.
+The Chinese courtyard compound library, cultivation town block library, and cultivation sect compound library SHALL be generated, validated, packed into the v0.5 mod jar, and documented in the available command list before staged manual acceptance.
 
 #### Scenario: A courtyard compound is prepared for visual review
 - **WHEN** a staged manual acceptance pass is requested for v0.5
@@ -70,6 +70,39 @@ The Chinese courtyard compound library and cultivation sect compound library SHA
 - **THEN** `cultivation_sect_001.nbt` through `cultivation_sect_002.nbt` SHALL be present under `src/main/resources/data/myvillage/structure/`
 - **AND** the command documentation SHALL include `/myvillage place cultivation_sect_001` and `/myvillage gallery cultivation`
 - **AND** the reviewer SHOULD place at least one sect compound in game to inspect the terraced axis, gate, side buildings, circulation, and principal hall.
+
+### Requirement: Small-courtyard unit layout
+The compound layer SHALL provide a small-courtyard unit layout that produces a compact walled `CompoundGraph` reusing the existing parcel machinery and per-building pass pipeline. A small courtyard SHALL enclose two to four roster buildings around a single small 天井 with a four-sided `perimeter_wall` broken by exactly one gate, at a footprint smaller than the one-진 `chinese_courtyard` layout.
+
+#### Scenario: A small courtyard is generated
+- **WHEN** a small-courtyard unit is generated for a seed
+- **THEN** the result SHALL be a `CompoundGraph` reusing `ParcelNode` and `BuildingSlot` parcel elements
+- **AND** it SHALL enclose between two and four building slots around a single small 天井
+- **AND** its `perimeter_wall` SHALL have exactly one gate opening.
+
+#### Scenario: The small courtyard is more compact than the one-courtyard layout
+- **WHEN** a small-courtyard unit and a one-진 `chinese_courtyard` compound are generated
+- **THEN** the small courtyard's lot footprint SHALL be smaller than the one-courtyard layout's lot footprint.
+
+#### Scenario: Small-courtyard buildings respect landscape and walls
+- **WHEN** a small courtyard places its building slots, 天井, and perimeter wall
+- **THEN** no building footprint SHALL overlap the 天井 landscape cells or the wall cells.
+
+### Requirement: Cultivation town courtyard-street block layout
+The compound layer SHALL provide a `courtyard_street_block` layout strategy that tiles small courtyards along streets and optional lanes into one flattened `CompoundGraph`. Adjacent courtyards in a row SHALL share one party-wall thickness, and each courtyard gate SHALL face and reach the nearest street network.
+
+#### Scenario: A cultivation town block is generated
+- **WHEN** a town block is generated
+- **THEN** it SHALL contain at least two small courtyards
+- **AND** it SHALL include `street` parcel cells and MAY include `lane` parcel cells
+- **AND** no building, wall, tianjing, water, or planting cell SHALL overlap street or lane cells
+- **AND** each gate SHALL be reachable from the street network.
+
+#### Scenario: A cultivation town block is prepared for visual review
+- **WHEN** a staged manual acceptance pass is requested for v0.5
+- **THEN** `cultivation_town_001.nbt` through `cultivation_town_006.nbt` SHALL be present under `src/main/resources/data/myvillage/structure/`
+- **AND** the command documentation SHALL include `/myvillage place cultivation_town_001` and `/myvillage gallery cultivation`
+- **AND** the reviewer SHOULD place at least one town block in game to inspect continuous frontage, party walls, street and lane traversability, and gate orientation.
 
 ### Requirement: Cultivation sect terraced axial layout
 The compound layer SHALL provide a `cultivation_sect` layout strategy that arranges sect-roster sub-buildings along a central axis at monumental scale with hierarchical terraced slots. The sect strategy SHALL reuse the existing `CompoundGraph` parcel machinery and per-building pass pipeline.

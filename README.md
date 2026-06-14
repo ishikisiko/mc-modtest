@@ -37,8 +37,8 @@ If your shell maps `python` to Python 3, the same commands also work with
 
 The canonical batch command generates `test_house_03.nbt`, the
 `medieval_village` building library, the default Chinese courtyard compound
-library, the civic library, the cultivation town library, and the cultivation
-sect standalone/compound libraries:
+library, the civic library, the cultivation town block library, and the
+cultivation sect standalone/compound libraries:
 
 ```bash
 python3 tools/generate_all_structures.py --mc-version 1.21.1 --output src/main/resources/data/myvillage/structure
@@ -60,11 +60,7 @@ src/main/resources/data/myvillage/structure/front_row_review.nbt
 src/main/resources/data/myvillage/structure/chinese_courtyard_001.nbt ... chinese_courtyard_006.nbt
 src/main/resources/data/myvillage/structure/tavern_001.nbt ... tavern_005.nbt
 src/main/resources/data/myvillage/structure/lord_manor_001.nbt ... lord_manor_003.nbt
-src/main/resources/data/myvillage/structure/cultivation_house_001.nbt ... cultivation_house_003.nbt
-src/main/resources/data/myvillage/structure/cultivation_shop_001.nbt ... cultivation_shop_003.nbt
-src/main/resources/data/myvillage/structure/cultivation_inn_001.nbt ... cultivation_inn_003.nbt
-src/main/resources/data/myvillage/structure/cultivation_market_001.nbt ... cultivation_market_003.nbt
-src/main/resources/data/myvillage/structure/town_shrine_001.nbt ... town_shrine_003.nbt
+src/main/resources/data/myvillage/structure/cultivation_town_001.nbt ... cultivation_town_006.nbt
 src/main/resources/data/myvillage/structure/sect_gate_001.nbt ... sect_gate_002.nbt
 src/main/resources/data/myvillage/structure/sect_main_hall_001.nbt ... sect_main_hall_002.nbt
 src/main/resources/data/myvillage/structure/scripture_pavilion_001.nbt ... scripture_pavilion_002.nbt
@@ -104,10 +100,10 @@ multi-template stamping function is needed yet.
 
 ## Generate Cultivation Libraries
 
-Generate the mortal town group and immortal sect group directly:
+Generate the mortal town block group and immortal sect group directly:
 
 ```bash
-python3 tools/generate_building_library.py --group cultivation_town --count 3
+python3 tools/generate_compound_library.py --group cultivation_town --count 6 --base-seed 20260617
 python3 tools/generate_building_library.py --group cultivation_sect --count 2
 python3 tools/generate_compound_library.py --group cultivation_sect --count 2 --base-seed 20260616
 ```
@@ -115,7 +111,7 @@ python3 tools/generate_compound_library.py --group cultivation_sect --count 2 --
 These commands write group-specific reports under `reports/`:
 
 ```text
-reports/cultivation_town_building_library_report.json
+reports/cultivation_town_compound_library_report.json
 reports/cultivation_sect_building_library_report.json
 reports/cultivation_sect_compound_library_report.json
 ```
@@ -127,6 +123,7 @@ Run the NBT-level integrity checks after generation:
 ```bash
 python3 tools/validate_generated_structures.py src/main/resources/data/myvillage/structure
 python3 tools/validate_compound_library.py --count 6
+python3 tools/validate_compound_library.py --group cultivation_town --count 6
 python3 tools/validate_civic_library.py
 python3 tools/check_style_policy.py
 python3 tools/check_cultivation_forms.py
@@ -139,6 +136,39 @@ the expected function blocks. Blacksmiths must contain forge-equivalent blocks;
 houses must contain crafting/furnace/barrel-style utility blocks; civic
 structures must contain tavern or lord-manor signature role blocks; cultivation
 town and sect structures must contain their expected town/sect signatures.
+
+## Preview Structures Offline
+
+Render structures to offline PNG and HTML previews without launching the game,
+to eyeball layout, massing, roof form, and fenestration before doing an in-game
+`/place template` pass. This is a coarse voxel-color preview (not textured);
+blockstate detail such as door facing or trapdoor open/close still needs an
+in-game check.
+
+```bash
+python3 tools/preview_structure.py src/main/resources/data/myvillage/structure/small_house_001.nbt
+python3 tools/preview_structure.py examples/buildings/small_house_01.json   # DSL source form
+python3 tools/preview_structure.py --all                                    # every .nbt
+python3 tools/preview_structure.py --viewer-only src/main/resources/data/myvillage/structure/cultivation_sect_001.nbt
+python3 tools/preview_structure.py --no-viewer --all                        # PNGs only
+python3 -m http.server 8765 --bind 127.0.0.1 --directory out/preview         # serve previews for review
+```
+
+Outputs land in `out/preview/<stem>/`: `isometric.png` (shaded 3D overview),
+`slices_contact.png` plus per-Y `slice_yNN.png` (top-down floor plans), and
+`legend.png` / `legend.txt` mapping swatch indices to block ids. The generated
+`viewer.html` opens directly from disk and supports orbit/zoom/pan, X/Y/Z
+cross-section cuts, Y-layer range sliders, and block-base checkboxes. When a
+run emits more than one `viewer.html`, the tool also writes
+`out/preview/index.html` as the reviewer entry point, with browser assets copied
+under `out/preview/_assets/` so the directory is self-contained for HTTP review.
+For acceptance handoff, serve `out/preview/` with a local HTTP server and report
+the URL, for example `http://127.0.0.1:8765/index.html`, so review starts from
+an opened preview surface instead of a file list. Keep the preview server running
+until the reviewer says it can be closed, or until the related OpenSpec change is
+being archived. Add new block colors to `tools/block_colors.json`; unknown blocks
+render magenta and should be reported there. `--max-px` (default 2048)
+auto-reduces static PNG scale so large compounds stay bounded.
 
 ## Build The Mod
 
@@ -157,7 +187,7 @@ jar tf build/libs/*.jar | grep "data/myvillage/structure"
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.5.0.jar
+build/libs/myvillage-0.5.1.jar
 ```
 
 ## Versioning And Changelog
@@ -187,11 +217,14 @@ command documentation:
 python3 tools/generate_all_structures.py --mc-version 1.21.1 --output src/main/resources/data/myvillage/structure
 python3 tools/validate_generated_structures.py src/main/resources/data/myvillage/structure
 python3 tools/validate_compound_library.py --count 6
+python3 tools/validate_compound_library.py --group cultivation_town --count 6
 python3 tools/validate_civic_library.py
 python3 tools/check_style_policy.py
 python3 tools/check_cultivation_forms.py
+python3 tools/preview_structure.py --all
+python3 -m http.server 8765 --bind 127.0.0.1 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.5.0.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.5.1.jar | grep "data/myvillage/structure"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -234,8 +267,7 @@ Place a generated building directly:
 /myvillage place chinese_courtyard_001
 /myvillage place tavern_001
 /myvillage place lord_manor_001
-/myvillage place cultivation_house_001
-/myvillage place town_shrine_001
+/myvillage place cultivation_town_001
 /myvillage place sect_gate_001
 /myvillage place cultivation_sect_001
 ```
@@ -251,11 +283,11 @@ directly, place generated structures with the same offset:
 /place template myvillage:chinese_courtyard_001 ~ ~-1 ~
 /place template myvillage:tavern_001 ~ ~-1 ~
 /place template myvillage:lord_manor_001 ~ ~-1 ~
-/place template myvillage:cultivation_house_001 ~ ~-1 ~
+/place template myvillage:cultivation_town_001 ~ ~-1 ~
 /place template myvillage:cultivation_sect_001 ~ ~-1 ~
 ```
 
-Place all loaded `myvillage` blueprints in a grouped gallery with 60-block
+Place all loaded `myvillage` blueprints in a grouped gallery with 128-block
 spacing:
 
 ```mcfunction
@@ -288,7 +320,7 @@ Generated datapack functions are also available after resource generation:
 /function myvillage:place/chinese_courtyard_001
 /function myvillage:place/tavern_001
 /function myvillage:place/lord_manor_001
-/function myvillage:place/cultivation_house_001
+/function myvillage:place/cultivation_town_001
 /function myvillage:place/cultivation_sect_001
 ```
 
@@ -304,7 +336,7 @@ Build Ops            tools/buildgen/ops.py          wall ops + registered roof/m
 Pass + Protection    tools/buildgen/passes.py       ordered passes, mezzanine_floor_pass, tag/priority grid, PROTECTED cells
 Quality Check        tools/buildgen/quality.py      entrance, windows, interior, mezzanine, belfry, gables, forms, forbidden blocks
 Resource Export      tools/buildgen/export.py       structure NBT + gallery/place mcfunctions
-Compound Graph       tools/buildgen/compound.py     Chinese one-courtyard and cultivation sect parcel layouts
+Compound Graph       tools/buildgen/compound.py     Chinese one-courtyard, cultivation town block, and cultivation sect parcel layouts
 Civic Generator      tools/generate_civic_library.py tavern_001..005 + lord_manor_001..003
 ```
 
@@ -331,8 +363,9 @@ Important properties:
   and the `main_hall`, `side_wing`, `front_row`, and `gate_house` sub-building
   builders. These are composed by `CompoundGraph`, not emitted by the default
   medieval building-library generator.
-- Cultivation town generation uses `cultivation_town.json` with standalone
-  mortal-town archetypes. Cultivation sect generation uses
+- Cultivation town generation uses `cultivation_town.json` with compact
+  courtyard-street blocks (`cultivation_town_001...006`) composed from the
+  mortal-town archetype roster. Cultivation sect generation uses
   `cultivation_sect.json` with standalone sect archetypes plus a terraced axial
   compound layout.
 - Chinese courtyard water and gravel/path cells are authored as
@@ -362,10 +395,10 @@ Included:
 - 45 medieval_village building-library structures
 - 6 generated Chinese courtyard compound structures
 - 8 generated civic structures (`tavern_001..005`, `lord_manor_001..003`)
-- 15 generated cultivation town structures
+- 6 generated cultivation town block structures
 - 10 generated standalone cultivation sect structures
 - 2 generated cultivation sect compound structures
-- 90 generated NBT structures in the default batch, including `test_house_03.nbt`
+- 81 generated NBT structures in the default batch, including `test_house_03.nbt`
 - test_house_03.nbt Mod resource smoke test
 - /myvillage place <structure_id>
 - /myvillage list
@@ -413,6 +446,6 @@ The automated validators check the mechanical parts of this list, but final
 acceptance still needs a v0.5 mod jar plus in-game visual inspection with
 `/myvillage list`, `/myvillage place chinese_courtyard_001`,
 `/myvillage place tavern_001`, `/myvillage place lord_manor_001`, and
-`/myvillage place cultivation_house_001`,
+`/myvillage place cultivation_town_001`,
 `/myvillage place cultivation_sect_001`, `/myvillage gallery`,
 `/myvillage gallery original`, and `/myvillage gallery cultivation`.

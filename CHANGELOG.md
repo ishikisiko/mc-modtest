@@ -26,6 +26,28 @@ All notable project changes should be recorded here when a version is prepared.
 
 - Added project changelog and versioning rules.
 
+## 0.5.1
+
+### Added
+
+- Added the `cultivation_town` courtyard-street block library:
+  `cultivation_town_001.nbt` through `cultivation_town_006.nbt`.
+- Added small-courtyard and courtyard-street block generation/validation,
+  including street, lane, party-wall, gate-orientation, and traversability
+  checks.
+
+### Changed
+
+- Changed the `cultivation_town` settlement group from standalone structures to
+  the `courtyard_street_block` layout strategy.
+- Updated command and acceptance documentation for
+  `/myvillage place cultivation_town_001` and the cultivation town gallery.
+
+### Removed
+
+- Removed the old standalone cultivation town NBT/place-function outputs from
+  the default generated resource set.
+
 ## 0.5.0
 
 ### Added

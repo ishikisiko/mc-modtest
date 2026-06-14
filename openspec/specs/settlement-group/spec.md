@@ -7,7 +7,7 @@ This spec captures settlement groups as the family-level binding between style p
 ## Requirements
 
 ### Requirement: Settlement groups bind style, roster, and layout
-The generator SHALL define a settlement-group layer above the style profile. Each group SHALL bind a `style_id`, an archetype roster, and a layout strategy into one named family. The generator SHALL ship two groups: `cultivation_town` (mortal, standalone/street layout) and `cultivation_sect` (immortal, terraced axial compound layout).
+The generator SHALL define a settlement-group layer above the style profile. Each group SHALL bind a `style_id`, an archetype roster, and a layout strategy into one named family. The generator SHALL ship two groups: `cultivation_town` (mortal, courtyard-street block layout) and `cultivation_sect` (immortal, terraced axial compound layout).
 
 #### Scenario: A group resolves its bindings
 - **WHEN** the generator selects the `cultivation_sect` group
@@ -15,11 +15,11 @@ The generator SHALL define a settlement-group layer above the style profile. Eac
 - **AND** it SHALL restrict archetype selection to the sect roster
 - **AND** it SHALL use the sect terraced/axial layout strategy.
 
-#### Scenario: A town group uses the standalone layout
+#### Scenario: A town group uses the courtyard-street layout
 - **WHEN** the generator selects the `cultivation_town` group
 - **THEN** it SHALL resolve the `cultivation_town` style profile
 - **AND** it SHALL restrict archetype selection to the town roster
-- **AND** it SHALL use the standalone building layout rather than the compound layout.
+- **AND** it SHALL use the `courtyard_street_block` layout rather than the standalone building layout.
 
 ### Requirement: Group rosters do not force archetype sharing
 Each settlement group SHALL declare its own archetype roster. A group's roster MAY be disjoint from another group's roster. The generator SHALL NOT require town archetypes such as houses and shops and sect archetypes such as halls and towers to share massing logic.

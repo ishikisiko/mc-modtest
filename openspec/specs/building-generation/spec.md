@@ -28,7 +28,7 @@ Building archetypes SHALL construct a `MassingGraph` made of semantic nodes and 
 - **AND** block placement SHALL occur in later passes.
 
 ### Requirement: Supported archetypes and tiers are explicit
-The current default generated building-library archetypes SHALL be `small_house`, `medium_house`, `blacksmith`, `small_shop`, `medium_shop`, and `big_house`. The current default scale tiers SHALL include `small`, `medium`, `large_lite`, shop variant tiers, and big-house variant tiers. Chinese courtyard sub-building archetypes `main_hall`, `side_wing`, `front_row`, and `gate_house` SHALL be available to the compound generator rather than emitted by the default medieval building-library loop. Civic archetypes `tavern` and `lord_manor` SHALL be available to the civic library generator rather than emitted by the default medieval building-library loop. Cultivation town archetypes SHALL be emitted only by the `cultivation_town` group, and cultivation sect archetypes SHALL be emitted only by the `cultivation_sect` group.
+The current default generated building-library archetypes SHALL be `small_house`, `medium_house`, `blacksmith`, `small_shop`, `medium_shop`, and `big_house`. The current default scale tiers SHALL include `small`, `medium`, `large_lite`, shop variant tiers, and big-house variant tiers. Chinese courtyard sub-building archetypes `main_hall`, `side_wing`, `front_row`, and `gate_house` SHALL be available to the compound generator rather than emitted by the default medieval building-library loop. Civic archetypes `tavern` and `lord_manor` SHALL be available to the civic library generator rather than emitted by the default medieval building-library loop. Cultivation town archetypes SHALL be available to the `cultivation_town` courtyard-street block generator, and cultivation sect archetypes SHALL be emitted only by the `cultivation_sect` group.
 
 #### Scenario: The building library is generated with count 10
 - **WHEN** the library generator emits ten entries per archetype
@@ -52,8 +52,8 @@ The current default generated building-library archetypes SHALL be `small_house`
 - **AND** the medieval building-library loop SHALL NOT emit civic archetypes
 - **AND** the compound generator SHALL NOT emit civic archetypes.
 
-#### Scenario: A cultivation town archetype is generated
-- **WHEN** the library generator requests `cultivation_house`, `cultivation_shop`, `cultivation_inn`, `cultivation_market`, or `town_shrine` under the `cultivation_town` group
+#### Scenario: A cultivation town archetype is generated inside a town block
+- **WHEN** the courtyard-street block generator requests `cultivation_house`, `cultivation_shop`, `cultivation_inn`, `cultivation_market`, or `town_shrine` under the `cultivation_town` group
 - **THEN** the building pipeline SHALL use the `cultivation_town` style profile
 - **AND** the sect-roster archetypes SHALL NOT be emitted by the town group.
 

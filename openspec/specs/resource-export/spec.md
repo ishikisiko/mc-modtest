@@ -70,7 +70,7 @@ The NeoForge mod SHALL expose debug commands for staged manual acceptance: `/myv
 - **AND** `/myvillage gallery cultivation` SHALL place only cultivation template groups.
 
 ### Requirement: Canonical mod generation includes smoke test and libraries
-The canonical mod generation entrypoint SHALL generate `test_house_03.nbt` from the hand-authored Structure JSON DSL, the generated building library, the generated Chinese courtyard compound library, the generated civic library, the cultivation town building library, the cultivation sect building library, and the cultivation sect compound library into `src/main/resources/data/myvillage/structure/`.
+The canonical mod generation entrypoint SHALL generate `test_house_03.nbt` from the hand-authored Structure JSON DSL, the generated building library, the generated Chinese courtyard compound library, the generated civic library, the cultivation town block library, the cultivation sect building library, and the cultivation sect compound library into `src/main/resources/data/myvillage/structure/`.
 
 #### Scenario: `generate_all_structures.py` runs with default arguments
 - **WHEN** generation succeeds
@@ -78,7 +78,7 @@ The canonical mod generation entrypoint SHALL generate `test_house_03.nbt` from 
 - **AND** it SHALL contain generated `small_house`, `medium_house`, `blacksmith`, shop, and big-house library NBTs
 - **AND** it SHALL contain `main_hall_review.nbt`, `side_wing_review.nbt`, `front_row_review.nbt`, and six `chinese_courtyard_*.nbt` compound structures
 - **AND** it SHALL contain `tavern_001.nbt` through `tavern_005.nbt` and `lord_manor_001.nbt` through `lord_manor_003.nbt`
-- **AND** it SHALL contain cultivation town structures, standalone sect structures, and `cultivation_sect_001.nbt` through `cultivation_sect_002.nbt`.
+- **AND** it SHALL contain `cultivation_town_001.nbt` through `cultivation_town_006.nbt`, standalone sect structures, and `cultivation_sect_001.nbt` through `cultivation_sect_002.nbt`.
 
 ### Requirement: Civic structures appear in the grouped gallery
 The `/myvillage gallery` and `/myvillage gallery original` commands SHALL include civic structures in a dedicated civic column, distinct from the housing, shop, blacksmith, Chinese courtyard, cultivation, and test columns. The civic column SHALL be ordered by archetype (`tavern` before `lord_manor`) and by variant index within each archetype.
@@ -86,19 +86,19 @@ The `/myvillage gallery` and `/myvillage gallery original` commands SHALL includ
 #### Scenario: The grouped gallery includes civic structures
 - **WHEN** `/myvillage gallery` runs after civic library generation
 - **THEN** tavern and lord manor structures SHALL appear in a civic column
-- **AND** the civic column spacing SHALL match the 60-block spacing used by other columns.
+- **AND** the civic column spacing SHALL match the wide debug-gallery spacing used by other columns.
 - **WHEN** `/myvillage gallery original` runs after civic library generation
 - **THEN** tavern and lord manor structures SHALL appear in the original gallery
 - **AND** cultivation structures SHALL NOT appear in that gallery.
 
 ### Requirement: Cultivation structures appear in the grouped gallery
-The `/myvillage gallery` and `/myvillage gallery cultivation` commands SHALL include cultivation town and cultivation sect structures in dedicated columns. Town buildings SHALL be grouped separately from sect standalone buildings and sect compounds. `/myvillage gallery original` SHALL exclude cultivation structures.
+The `/myvillage gallery` and `/myvillage gallery cultivation` commands SHALL include cultivation town and cultivation sect structures in dedicated columns. Town blocks SHALL be grouped separately from sect standalone buildings and sect compounds. `/myvillage gallery original` SHALL exclude cultivation structures.
 
 #### Scenario: The grouped gallery includes cultivation structures
 - **WHEN** `/myvillage gallery` runs after cultivation library generation
 - **THEN** cultivation town structures SHALL appear in a cultivation town column
 - **AND** cultivation sect structures SHALL appear in a cultivation sect column
-- **AND** the column spacing SHALL match the 60-block spacing used by other columns.
+- **AND** the column spacing SHALL match the wide debug-gallery spacing used by other columns.
 - **WHEN** `/myvillage gallery cultivation` runs after cultivation library generation
 - **THEN** only cultivation town and cultivation sect columns SHALL be placed.
 
@@ -111,9 +111,9 @@ Generated civic and cultivation structures SHALL be placed by `/myvillage place 
 - **AND** the underlying vanilla equivalent SHALL be `/place template myvillage:tavern_001 ~ ~-1 ~`.
 
 #### Scenario: A cultivation structure is placed via the debug command
-- **WHEN** `/myvillage place cultivation_sect_001` runs
+- **WHEN** `/myvillage place cultivation_town_001` or `/myvillage place cultivation_sect_001` runs
 - **THEN** the structure SHALL be placed with a one-block downward Y offset
-- **AND** the underlying vanilla equivalent SHALL be `/place template myvillage:cultivation_sect_001 ~ ~-1 ~`.
+- **AND** the underlying vanilla equivalent SHALL use `/place template myvillage:<id> ~ ~-1 ~`.
 
 ### Requirement: Manual acceptance prep includes mod artifact and command docs
 Before a staged manual acceptance pass, contributors SHALL prepare both the buildable mod artifact and current command documentation.

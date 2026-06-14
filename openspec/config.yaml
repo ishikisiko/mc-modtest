@@ -11,10 +11,16 @@ schema: spec-driven
 
 # Per-artifact rules (optional)
 # Add custom rules for specific artifacts.
-# Example:
-#   rules:
-#     proposal:
-#       - Keep proposals under 500 words
-#       - Always include a "Non-goals" section
-#     tasks:
-#       - Break tasks into chunks of max 2 hours
+rules:
+  tasks:
+    - Every feature or fix change MUST include a task to bump the mod version
+      per the AGENTS.md rule (large feature 0.x.y -> 0.(x+1).0; small feature
+      bumps y; single validated fix appends -fix1/-fix2), and that task MUST
+      update gradle.properties, src/main/resources/META-INF/neoforge.mods.toml,
+      README jar-name examples, and CHANGELOG.md together.
+    - Any change that produces new structures or assets MUST include a task to
+      land the outputs into the mod files (export to
+      src/main/resources/data/myvillage/structure/ and pack into the mod jar).
+    - Any change that adds placeable/usable content MUST include a task to add
+      the corresponding in-game command manual entries (e.g. /myvillage place,
+      /myvillage gallery, /myvillage list) to the documented command list.

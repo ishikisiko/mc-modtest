@@ -75,8 +75,8 @@ GROUPS: Dict[str, SettlementGroup] = {
             "cultivation_market",
             "town_shrine",
         ),
-        layout_strategy="standalone_library",
-        scale_params={"gallery_group": "cultivation_town"},
+        layout_strategy="courtyard_street_block",
+        scale_params={"gallery_group": "cultivation_town", "compound_count": 6},
         classifications={
             "cultivation_house": "housing",
             "cultivation_shop": "functional",
