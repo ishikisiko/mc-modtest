@@ -1,7 +1,8 @@
-"""Building generation pipeline for the medieval_village building library.
+"""Building generation pipeline for settlement-group libraries.
 
 Layer stack (each layer maps to a module):
 
+    Settlement Group    groups.py (style + archetype roster + layout strategy)
     Style Profile        styles/*.json + style.py
     Building Archetype   archetypes.py
     Scale Tier           archetypes.py (SCALE_TIERS)

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This spec captures the current Chinese courtyard compound implementation. A compound is a parcel-level structure made from generated sub-buildings plus perimeter, landscape, and circulation elements.
+This spec captures the current parcel-level compound implementations. A compound is a parcel-level structure made from generated sub-buildings plus perimeter, landscape, and circulation elements. The current compound families are the Chinese one-courtyard layout and the cultivation sect terraced axial layout.
 
 ## Requirements
 
@@ -14,8 +14,8 @@ The generator SHALL represent a courtyard compound as a `CompoundGraph` that own
 - **THEN** the result SHALL include a `CompoundGraph` with parcel elements and building slots
 - **AND** each building slot SHALL contain a generated sub-building produced by the per-building pipeline.
 
-### Requirement: One-courtyard axial layout
-A compound SHALL be laid out along a central north-south axis as a single courtyard. It SHALL place a `gate_house` at the south end of the axis, a `front_row` building behind the gate, two `side_wing` buildings on the east and west sides, and a `main_hall` at the north end, all enclosed by a four-sided `perimeter_wall`.
+### Requirement: Chinese one-courtyard axial layout
+A Chinese courtyard compound SHALL be laid out along a central north-south axis as a single courtyard. It SHALL place a `gate_house` at the south end of the axis, a `front_row` building behind the gate, two `side_wing` buildings on the east and west sides, and a `main_hall` at the north end, all enclosed by a four-sided `perimeter_wall`.
 
 #### Scenario: The axial buildings are placed
 - **WHEN** the one-courtyard layout is generated
@@ -56,11 +56,35 @@ Compound variation SHALL be produced by independent variant axes combined per se
 - **THEN** it SHALL emit six compound instances
 - **AND** the instances SHALL differ in at least one variant axis from one another.
 
-### Requirement: Compound resources are part of v0.4 mod acceptance prep
-The Chinese courtyard compound library SHALL be generated, validated, packed into the v0.4 mod jar, and documented in the available command list before staged manual acceptance.
+### Requirement: Compound resources are part of v0.5 mod acceptance prep
+The Chinese courtyard compound library and cultivation sect compound library SHALL be generated, validated, packed into the v0.5 mod jar, and documented in the available command list before staged manual acceptance.
 
 #### Scenario: A courtyard compound is prepared for visual review
-- **WHEN** a staged manual acceptance pass is requested for v0.4
+- **WHEN** a staged manual acceptance pass is requested for v0.5
 - **THEN** `chinese_courtyard_001.nbt` through `chinese_courtyard_006.nbt` SHALL be present under `src/main/resources/data/myvillage/structure/`
-- **AND** the command documentation SHALL include `/myvillage list`, `/myvillage place chinese_courtyard_001`, and `/myvillage gallery`
+- **AND** the command documentation SHALL include `/myvillage list`, `/myvillage place chinese_courtyard_001`, `/myvillage gallery`, and `/myvillage gallery original`
 - **AND** the reviewer SHOULD place at least one compound in game to inspect axial layout, perimeter and gate, landscape, corridors, and the two-story main hall.
+
+#### Scenario: A cultivation sect compound is prepared for visual review
+- **WHEN** a staged manual acceptance pass is requested for v0.5
+- **THEN** `cultivation_sect_001.nbt` through `cultivation_sect_002.nbt` SHALL be present under `src/main/resources/data/myvillage/structure/`
+- **AND** the command documentation SHALL include `/myvillage place cultivation_sect_001` and `/myvillage gallery cultivation`
+- **AND** the reviewer SHOULD place at least one sect compound in game to inspect the terraced axis, gate, side buildings, circulation, and principal hall.
+
+### Requirement: Cultivation sect terraced axial layout
+The compound layer SHALL provide a `cultivation_sect` layout strategy that arranges sect-roster sub-buildings along a central axis at monumental scale with hierarchical terraced slots. The sect strategy SHALL reuse the existing `CompoundGraph` parcel machinery and per-building pass pipeline.
+
+#### Scenario: A sect compound is generated
+- **WHEN** a sect compound is generated for a seed
+- **THEN** the result SHALL be a `CompoundGraph` whose building slots are filled by sect-roster sub-buildings
+- **AND** the slots SHALL be arranged along a central axis from entrance to principal hall.
+
+#### Scenario: The sect layout is distinct from the courtyard layout
+- **WHEN** the sect layout strategy is selected
+- **THEN** it SHALL be selected via the settlement group's layout binding
+- **AND** it SHALL NOT be produced by the existing one-courtyard `chinese_courtyard` layout.
+
+#### Scenario: A terraced sect compound connects levels
+- **WHEN** a sect compound places building slots on more than one platform level
+- **THEN** circulation SHALL connect lower entrance levels to higher hall levels
+- **AND** no building footprint SHALL overlap water or planting cells.

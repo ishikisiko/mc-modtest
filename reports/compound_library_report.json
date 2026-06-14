@@ -56,6 +56,19 @@
             "wall": "front",
             "x": 9
           },
+          "stairwells": {
+            "main": {
+              "volume": "main",
+              "x0": 1,
+              "x1": 2,
+              "z0": 7,
+              "z1": 10,
+              "landing_z": 11,
+              "direction": "south",
+              "stories": 2,
+              "story_wall_h": 4
+            }
+          },
           "stairwell": {
             "volume": "main",
             "x0": 1,
@@ -69,6 +82,7 @@
           },
           "roof_grade": "悬山",
           "style_id": "chinese_courtyard",
+          "group_id": "chinese_courtyard",
           "opening_style": "window_with_slab_sill"
         },
         "nodes": [
@@ -244,6 +258,7 @@
           },
           "roof_grade": "歇山",
           "style_id": "chinese_courtyard",
+          "group_id": "chinese_courtyard",
           "opening_style": "window_with_trapdoor_frame"
         },
         "nodes": [
@@ -406,6 +421,7 @@
           },
           "roof_grade": "硬山",
           "style_id": "chinese_courtyard",
+          "group_id": "chinese_courtyard",
           "opening_style": "window_with_trapdoor_frame"
         },
         "nodes": [
@@ -1979,6 +1995,7 @@
                 },
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
+                "group_id": "chinese_courtyard",
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   14,
@@ -2571,6 +2588,7 @@
                 },
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
+                "group_id": "chinese_courtyard",
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   11,
@@ -3484,6 +3502,19 @@
                   "wall": "front",
                   "x": 7
                 },
+                "stairwells": {
+                  "main": {
+                    "volume": "main",
+                    "x0": 14,
+                    "x1": 15,
+                    "z0": 5,
+                    "z1": 8,
+                    "landing_z": 9,
+                    "direction": "south",
+                    "stories": 2,
+                    "story_wall_h": 4
+                  }
+                },
                 "stairwell": {
                   "volume": "main",
                   "x0": 14,
@@ -3497,6 +3528,7 @@
                 },
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
+                "group_id": "chinese_courtyard",
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   11,
@@ -4153,6 +4185,7 @@
                 },
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
+                "group_id": "chinese_courtyard",
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   3,
@@ -4860,6 +4893,7 @@
                 },
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
+                "group_id": "chinese_courtyard",
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   27,
@@ -6677,6 +6711,7 @@
                 },
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
+                "group_id": "chinese_courtyard",
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   19,
@@ -7269,6 +7304,7 @@
                 },
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
+                "group_id": "chinese_courtyard",
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   15,
@@ -8318,6 +8354,19 @@
                   "wall": "front",
                   "x": 10
                 },
+                "stairwells": {
+                  "main": {
+                    "volume": "main",
+                    "x0": 1,
+                    "x1": 2,
+                    "z0": 7,
+                    "z1": 10,
+                    "landing_z": 11,
+                    "direction": "south",
+                    "stories": 2,
+                    "story_wall_h": 4
+                  }
+                },
                 "stairwell": {
                   "volume": "main",
                   "x0": 1,
@@ -8331,6 +8380,7 @@
                 },
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
+                "group_id": "chinese_courtyard",
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   15,
@@ -8931,6 +8981,7 @@
                 },
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
+                "group_id": "chinese_courtyard",
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   3,
@@ -9574,6 +9625,7 @@
                 },
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
+                "group_id": "chinese_courtyard",
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   37,
@@ -11379,6 +11431,7 @@
                 },
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
+                "group_id": "chinese_courtyard",
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   18,
@@ -11915,6 +11968,7 @@
                 },
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
+                "group_id": "chinese_courtyard",
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   16,
@@ -12828,6 +12882,19 @@
                   "wall": "front",
                   "x": 8
                 },
+                "stairwells": {
+                  "main": {
+                    "volume": "main",
+                    "x0": 1,
+                    "x1": 2,
+                    "z0": 5,
+                    "z1": 8,
+                    "landing_z": 9,
+                    "direction": "south",
+                    "stories": 2,
+                    "story_wall_h": 4
+                  }
+                },
                 "stairwell": {
                   "volume": "main",
                   "x0": 1,
@@ -12841,6 +12908,7 @@
                 },
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
+                "group_id": "chinese_courtyard",
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   15,
@@ -13497,6 +13565,7 @@
                 },
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
+                "group_id": "chinese_courtyard",
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   3,
@@ -14140,6 +14209,7 @@
                 },
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
+                "group_id": "chinese_courtyard",
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   37,
@@ -15853,6 +15923,7 @@
                 },
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
+                "group_id": "chinese_courtyard",
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   15,
@@ -16501,6 +16572,7 @@
                 },
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
+                "group_id": "chinese_courtyard",
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   10,
@@ -17414,6 +17486,19 @@
                   "wall": "front",
                   "x": 10
                 },
+                "stairwells": {
+                  "main": {
+                    "volume": "main",
+                    "x0": 1,
+                    "x1": 2,
+                    "z0": 5,
+                    "z1": 8,
+                    "landing_z": 9,
+                    "direction": "south",
+                    "stories": 2,
+                    "story_wall_h": 4
+                  }
+                },
                 "stairwell": {
                   "volume": "main",
                   "x0": 1,
@@ -17427,6 +17512,7 @@
                 },
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
+                "group_id": "chinese_courtyard",
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   11,
@@ -18027,6 +18113,7 @@
                 },
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
+                "group_id": "chinese_courtyard",
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   3,
@@ -18614,6 +18701,7 @@
                 },
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
+                "group_id": "chinese_courtyard",
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   29,
@@ -20303,6 +20391,7 @@
                 },
                 "roof_grade": "歇山",
                 "style_id": "chinese_courtyard",
+                "group_id": "chinese_courtyard",
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   16,
@@ -20895,6 +20984,7 @@
                 },
                 "roof_grade": "歇山",
                 "style_id": "chinese_courtyard",
+                "group_id": "chinese_courtyard",
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   13,
@@ -21720,6 +21810,19 @@
                   "wall": "front",
                   "x": 5
                 },
+                "stairwells": {
+                  "main": {
+                    "volume": "main",
+                    "x0": 12,
+                    "x1": 13,
+                    "z0": 5,
+                    "z1": 8,
+                    "landing_z": 9,
+                    "direction": "south",
+                    "stories": 2,
+                    "story_wall_h": 4
+                  }
+                },
                 "stairwell": {
                   "volume": "main",
                   "x0": 12,
@@ -21733,6 +21836,7 @@
                 },
                 "roof_grade": "歇山",
                 "style_id": "chinese_courtyard",
+                "group_id": "chinese_courtyard",
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   14,
@@ -22333,6 +22437,7 @@
                 },
                 "roof_grade": "歇山",
                 "style_id": "chinese_courtyard",
+                "group_id": "chinese_courtyard",
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   3,
@@ -23040,6 +23145,7 @@
                 },
                 "roof_grade": "歇山",
                 "style_id": "chinese_courtyard",
+                "group_id": "chinese_courtyard",
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   31,
@@ -24829,6 +24935,7 @@
                 },
                 "roof_grade": "硬山",
                 "style_id": "chinese_courtyard",
+                "group_id": "chinese_courtyard",
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   18,
@@ -25477,6 +25584,7 @@
                 },
                 "roof_grade": "硬山",
                 "style_id": "chinese_courtyard",
+                "group_id": "chinese_courtyard",
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   14,
@@ -26526,6 +26634,19 @@
                   "wall": "front",
                   "x": 9
                 },
+                "stairwells": {
+                  "main": {
+                    "volume": "main",
+                    "x0": 1,
+                    "x1": 2,
+                    "z0": 7,
+                    "z1": 10,
+                    "landing_z": 11,
+                    "direction": "south",
+                    "stories": 2,
+                    "story_wall_h": 4
+                  }
+                },
                 "stairwell": {
                   "volume": "main",
                   "x0": 1,
@@ -26539,6 +26660,7 @@
                 },
                 "roof_grade": "硬山",
                 "style_id": "chinese_courtyard",
+                "group_id": "chinese_courtyard",
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   15,
@@ -27259,6 +27381,7 @@
                 },
                 "roof_grade": "硬山",
                 "style_id": "chinese_courtyard",
+                "group_id": "chinese_courtyard",
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   3,
@@ -27846,6 +27969,7 @@
                 },
                 "roof_grade": "硬山",
                 "style_id": "chinese_courtyard",
+                "group_id": "chinese_courtyard",
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   37,

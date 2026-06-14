@@ -12,13 +12,13 @@
       "warnings": [],
       "size": [
         13,
-        12,
+        13,
         16
       ],
-      "block_count": 533,
-      "palette_count": 28,
+      "block_count": 545,
+      "palette_count": 27,
       "glass": 8,
-      "function_blocks": 6
+      "function_blocks": 8
     },
     {
       "name": "small_house_002",
@@ -30,10 +30,10 @@
         13,
         15
       ],
-      "block_count": 600,
+      "block_count": 606,
       "palette_count": 29,
       "glass": 9,
-      "function_blocks": 5
+      "function_blocks": 4
     },
     {
       "name": "small_house_003",
@@ -45,7 +45,7 @@
         12,
         14
       ],
-      "block_count": 540,
+      "block_count": 544,
       "palette_count": 26,
       "glass": 6,
       "function_blocks": 5
@@ -60,10 +60,10 @@
         11,
         17
       ],
-      "block_count": 746,
+      "block_count": 752,
       "palette_count": 25,
       "glass": 2,
-      "function_blocks": 5
+      "function_blocks": 4
     },
     {
       "name": "small_house_005",
@@ -72,10 +72,10 @@
       "warnings": [],
       "size": [
         13,
-        10,
+        11,
         14
       ],
-      "block_count": 409,
+      "block_count": 423,
       "palette_count": 31,
       "glass": 4,
       "function_blocks": 4
@@ -87,10 +87,10 @@
       "warnings": [],
       "size": [
         14,
-        10,
+        11,
         15
       ],
-      "block_count": 680,
+      "block_count": 691,
       "palette_count": 26,
       "glass": 4,
       "function_blocks": 7
@@ -105,10 +105,10 @@
         12,
         14
       ],
-      "block_count": 535,
-      "palette_count": 29,
+      "block_count": 543,
+      "palette_count": 28,
       "glass": 3,
-      "function_blocks": 7
+      "function_blocks": 6
     },
     {
       "name": "small_house_008",
@@ -120,8 +120,8 @@
         13,
         14
       ],
-      "block_count": 798,
-      "palette_count": 31,
+      "block_count": 804,
+      "palette_count": 30,
       "glass": 6,
       "function_blocks": 4
     },
@@ -132,13 +132,13 @@
       "warnings": [],
       "size": [
         13,
-        9,
+        10,
         14
       ],
-      "block_count": 452,
+      "block_count": 463,
       "palette_count": 29,
       "glass": 5,
-      "function_blocks": 5
+      "function_blocks": 4
     },
     {
       "name": "small_house_010",
@@ -147,13 +147,13 @@
       "warnings": [],
       "size": [
         13,
-        11,
+        12,
         13
       ],
-      "block_count": 468,
+      "block_count": 479,
       "palette_count": 24,
       "glass": 3,
-      "function_blocks": 7
+      "function_blocks": 6
     },
     {
       "name": "medium_house_001",
@@ -162,10 +162,10 @@
       "warnings": [],
       "size": [
         20,
-        12,
+        13,
         17
       ],
-      "block_count": 1003,
+      "block_count": 1014,
       "palette_count": 32,
       "glass": 10,
       "function_blocks": 6
@@ -177,10 +177,10 @@
       "warnings": [],
       "size": [
         20,
-        12,
+        13,
         14
       ],
-      "block_count": 985,
+      "block_count": 996,
       "palette_count": 29,
       "glass": 6,
       "function_blocks": 9
@@ -192,10 +192,10 @@
       "warnings": [],
       "size": [
         20,
-        13,
+        14,
         15
       ],
-      "block_count": 1076,
+      "block_count": 1087,
       "palette_count": 38,
       "glass": 11,
       "function_blocks": 8
@@ -207,13 +207,13 @@
       "warnings": [],
       "size": [
         18,
-        13,
+        14,
         17
       ],
-      "block_count": 984,
+      "block_count": 995,
       "palette_count": 31,
       "glass": 7,
-      "function_blocks": 10
+      "function_blocks": 9
     },
     {
       "name": "medium_house_005",
@@ -225,7 +225,7 @@
         15,
         16
       ],
-      "block_count": 1268,
+      "block_count": 1277,
       "palette_count": 28,
       "glass": 10,
       "function_blocks": 9
@@ -240,8 +240,8 @@
         13,
         15
       ],
-      "block_count": 964,
-      "palette_count": 34,
+      "block_count": 968,
+      "palette_count": 35,
       "glass": 4,
       "function_blocks": 6
     },
@@ -255,7 +255,7 @@
         14,
         17
       ],
-      "block_count": 1125,
+      "block_count": 1131,
       "palette_count": 32,
       "glass": 6,
       "function_blocks": 6
@@ -270,7 +270,7 @@
         15,
         18
       ],
-      "block_count": 1514,
+      "block_count": 1523,
       "palette_count": 30,
       "glass": 7,
       "function_blocks": 11
@@ -282,10 +282,10 @@
       "warnings": [],
       "size": [
         25,
-        14,
+        15,
         18
       ],
-      "block_count": 1385,
+      "block_count": 1396,
       "palette_count": 31,
       "glass": 10,
       "function_blocks": 10
@@ -300,8 +300,8 @@
         15,
         17
       ],
-      "block_count": 1512,
-      "palette_count": 35,
+      "block_count": 1518,
+      "palette_count": 36,
       "glass": 4,
       "function_blocks": 8
     },
@@ -312,11 +312,11 @@
       "warnings": [],
       "size": [
         15,
-        11,
+        12,
         12
       ],
-      "block_count": 488,
-      "palette_count": 32,
+      "block_count": 497,
+      "palette_count": 31,
       "glass": 7,
       "function_blocks": 9
     },
@@ -327,13 +327,13 @@
       "warnings": [],
       "size": [
         13,
-        11,
+        12,
         14
       ],
-      "block_count": 492,
-      "palette_count": 27,
+      "block_count": 499,
+      "palette_count": 26,
       "glass": 4,
-      "function_blocks": 10
+      "function_blocks": 8
     },
     {
       "name": "blacksmith_003",
@@ -342,10 +342,10 @@
       "warnings": [],
       "size": [
         17,
-        13,
+        14,
         16
       ],
-      "block_count": 854,
+      "block_count": 868,
       "palette_count": 27,
       "glass": 8,
       "function_blocks": 8
@@ -357,13 +357,13 @@
       "warnings": [],
       "size": [
         20,
-        12,
+        13,
         14
       ],
-      "block_count": 864,
+      "block_count": 876,
       "palette_count": 27,
       "glass": 6,
-      "function_blocks": 8
+      "function_blocks": 9
     },
     {
       "name": "blacksmith_005",
@@ -372,10 +372,10 @@
       "warnings": [],
       "size": [
         17,
-        13,
+        14,
         15
       ],
-      "block_count": 855,
+      "block_count": 866,
       "palette_count": 29,
       "glass": 6,
       "function_blocks": 6
@@ -387,13 +387,13 @@
       "warnings": [],
       "size": [
         20,
-        12,
-        15
+        13,
+        16
       ],
-      "block_count": 872,
-      "palette_count": 31,
+      "block_count": 884,
+      "palette_count": 30,
       "glass": 6,
-      "function_blocks": 9
+      "function_blocks": 10
     },
     {
       "name": "blacksmith_007",
@@ -402,10 +402,10 @@
       "warnings": [],
       "size": [
         18,
-        13,
+        14,
         15
       ],
-      "block_count": 851,
+      "block_count": 865,
       "palette_count": 30,
       "glass": 4,
       "function_blocks": 8
@@ -417,13 +417,13 @@
       "warnings": [],
       "size": [
         21,
-        13,
+        14,
         15
       ],
-      "block_count": 990,
+      "block_count": 1002,
       "palette_count": 27,
       "glass": 10,
-      "function_blocks": 8
+      "function_blocks": 9
     },
     {
       "name": "blacksmith_009",
@@ -432,10 +432,10 @@
       "warnings": [],
       "size": [
         20,
-        13,
+        14,
         18
       ],
-      "block_count": 1089,
+      "block_count": 1100,
       "palette_count": 31,
       "glass": 9,
       "function_blocks": 11
@@ -447,10 +447,10 @@
       "warnings": [],
       "size": [
         21,
-        14,
+        15,
         19
       ],
-      "block_count": 1421,
+      "block_count": 1430,
       "palette_count": 33,
       "glass": 12,
       "function_blocks": 10
@@ -462,11 +462,11 @@
       "warnings": [],
       "size": [
         11,
-        10,
+        11,
         11
       ],
-      "block_count": 487,
-      "palette_count": 30,
+      "block_count": 494,
+      "palette_count": 32,
       "glass": 10,
       "function_blocks": 3
     },
@@ -477,13 +477,13 @@
       "warnings": [],
       "size": [
         13,
-        9,
+        10,
         11
       ],
-      "block_count": 509,
-      "palette_count": 27,
+      "block_count": 517,
+      "palette_count": 28,
       "glass": 16,
-      "function_blocks": 6
+      "function_blocks": 5
     },
     {
       "name": "small_shop_003",
@@ -492,13 +492,13 @@
       "warnings": [],
       "size": [
         13,
-        11,
+        12,
         13
       ],
-      "block_count": 613,
+      "block_count": 622,
       "palette_count": 28,
       "glass": 7,
-      "function_blocks": 6
+      "function_blocks": 7
     },
     {
       "name": "small_shop_004",
@@ -507,13 +507,13 @@
       "warnings": [],
       "size": [
         15,
-        11,
+        12,
         13
       ],
-      "block_count": 735,
+      "block_count": 746,
       "palette_count": 29,
       "glass": 12,
-      "function_blocks": 3
+      "function_blocks": 4
     },
     {
       "name": "small_shop_005",
@@ -522,11 +522,11 @@
       "warnings": [],
       "size": [
         17,
-        9,
+        10,
         12
       ],
-      "block_count": 600,
-      "palette_count": 34,
+      "block_count": 611,
+      "palette_count": 32,
       "glass": 16,
       "function_blocks": 3
     },
@@ -537,11 +537,11 @@
       "warnings": [],
       "size": [
         17,
-        15,
+        16,
         13
       ],
-      "block_count": 1135,
-      "palette_count": 27,
+      "block_count": 1146,
+      "palette_count": 28,
       "glass": 24,
       "function_blocks": 9
     },
@@ -552,13 +552,13 @@
       "warnings": [],
       "size": [
         16,
-        14,
+        15,
         13
       ],
-      "block_count": 1239,
+      "block_count": 1249,
       "palette_count": 29,
       "glass": 22,
-      "function_blocks": 10
+      "function_blocks": 9
     },
     {
       "name": "medium_shop_003",
@@ -567,11 +567,11 @@
       "warnings": [],
       "size": [
         18,
-        16,
+        17,
         15
       ],
-      "block_count": 1391,
-      "palette_count": 34,
+      "block_count": 1402,
+      "palette_count": 35,
       "glass": 18,
       "function_blocks": 9
     },
@@ -582,10 +582,10 @@
       "warnings": [],
       "size": [
         17,
-        16,
+        17,
         16
       ],
-      "block_count": 1611,
+      "block_count": 1620,
       "palette_count": 31,
       "glass": 18,
       "function_blocks": 8
@@ -597,11 +597,11 @@
       "warnings": [],
       "size": [
         20,
-        14,
+        15,
         12
       ],
-      "block_count": 1413,
-      "palette_count": 29,
+      "block_count": 1422,
+      "palette_count": 30,
       "glass": 24,
       "function_blocks": 6
     },
@@ -612,13 +612,13 @@
       "warnings": [],
       "size": [
         18,
-        17,
+        18,
         18
       ],
-      "block_count": 1396,
+      "block_count": 1411,
       "palette_count": 31,
       "glass": 18,
-      "function_blocks": 8
+      "function_blocks": 10
     },
     {
       "name": "big_house_002",
@@ -630,8 +630,8 @@
         19,
         19
       ],
-      "block_count": 2080,
-      "palette_count": 33,
+      "block_count": 2089,
+      "palette_count": 32,
       "glass": 11,
       "function_blocks": 10
     },
@@ -645,10 +645,10 @@
         21,
         15
       ],
-      "block_count": 1609,
+      "block_count": 1614,
       "palette_count": 30,
       "glass": 15,
-      "function_blocks": 9
+      "function_blocks": 8
     },
     {
       "name": "big_house_004",
@@ -657,13 +657,13 @@
       "warnings": [],
       "size": [
         24,
-        18,
+        19,
         20
       ],
-      "block_count": 2243,
+      "block_count": 2256,
       "palette_count": 31,
       "glass": 12,
-      "function_blocks": 12
+      "function_blocks": 11
     },
     {
       "name": "big_house_005",
@@ -672,13 +672,13 @@
       "warnings": [],
       "size": [
         19,
-        22,
+        23,
         20
       ],
-      "block_count": 2460,
+      "block_count": 2474,
       "palette_count": 34,
       "glass": 17,
-      "function_blocks": 8
+      "function_blocks": 7
     }
   ]
 }

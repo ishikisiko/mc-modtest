@@ -22,7 +22,9 @@ KEY_BLOCK_MARKERS = ("_stairs", "_slab", "_log", "_wood", "_planks")
 HOUSE_FUNCTION_BLOCKS = ("crafting_table", "furnace", "barrel")
 BLACKSMITH_FUNCTION_BLOCKS = ("furnace", "campfire", "smoker", "blast_furnace")
 SHOP_FUNCTION_BLOCKS = ("crafting_table", "barrel")
-MULTISTORY_NAMES = ("medium_shop", "big_house")
+CIVIC_TAVERN_MARKERS = ("brewing_stand", "barrel")
+CIVIC_MANOR_MARKERS = ("bell", "lectern")
+MULTISTORY_NAMES = ("medium_shop", "big_house", "tavern", "lord_manor")
 
 
 def is_air(state: str) -> bool:
@@ -112,18 +114,52 @@ def validate_file(path: Path, root_dir: Path) -> dict:
         errors.append("key_building_blocks_missing")
 
     building_name = Path(rel).stem
-    if "blacksmith" in building_name:
+    block_state_counts = Counter(palette[block["state"]].split("[", 1)[0] for block in non_air_blocks)
+    if building_name.startswith("tavern_"):
+        barrel_count = sum(count for state, count in block_state_counts.items() if "barrel" in state)
+        has_brewing = has_marker(states_present, ("brewing_stand",))
+        has_bed = has_marker(states_present, ("_bed",))
+        if not (has_brewing or barrel_count >= 3):
+            errors.append("civic_signature_tavern_hall_missing")
+        if not has_bed:
+            errors.append("civic_signature_tavern_bed_missing")
+    elif building_name.startswith("lord_manor_"):
+        if not has_marker(states_present, CIVIC_MANOR_MARKERS):
+            errors.append("civic_signature_lord_manor_marker_missing")
+        if not has_marker(states_present, ("banner",)):
+            errors.append("civic_signature_lord_manor_banner_missing")
+    elif building_name.startswith("blacksmith"):
         if not has_marker(states_present, BLACKSMITH_FUNCTION_BLOCKS):
             errors.append("blacksmith_function_block_missing")
-    elif "house" in building_name:
+    elif building_name.startswith(("small_house", "medium_house", "big_house")):
         missing = [marker for marker in HOUSE_FUNCTION_BLOCKS if not has_marker(states_present, (marker,))]
         if missing:
             errors.append(f"house_function_blocks_missing: {missing}")
-    elif "shop" in building_name:
+    elif building_name.startswith(("small_shop", "medium_shop")):
         missing = [marker for marker in SHOP_FUNCTION_BLOCKS if not has_marker(states_present, (marker,))]
         if missing:
             errors.append(f"shop_function_blocks_missing: {missing}")
-    if building_name.startswith(MULTISTORY_NAMES):
+    elif building_name.startswith(("cultivation_house", "disciple_quarters")):
+        missing = [marker for marker in HOUSE_FUNCTION_BLOCKS if not has_marker(states_present, (marker,))]
+        if missing:
+            errors.append(f"cultivation_housing_function_blocks_missing: {missing}")
+    elif building_name.startswith(("cultivation_shop", "cultivation_market")):
+        missing = [marker for marker in SHOP_FUNCTION_BLOCKS if not has_marker(states_present, (marker,))]
+        if missing:
+            errors.append(f"cultivation_shop_function_blocks_missing: {missing}")
+    elif building_name.startswith("cultivation_inn"):
+        if not has_marker(states_present, CIVIC_TAVERN_MARKERS):
+            errors.append("cultivation_inn_signature_missing")
+    elif building_name.startswith("town_shrine"):
+        if not has_marker(states_present, CIVIC_MANOR_MARKERS):
+            errors.append("town_shrine_civic_marker_missing")
+    elif building_name.startswith(("sect_gate", "sect_main_hall", "scripture_pavilion", "alchemy_room")):
+        if not has_marker(states_present, ("amethyst", "oxidized_copper", "quartz", "sea_lantern", "dark_prismarine", "calcite")):
+            errors.append("sect_spirit_material_marker_missing")
+    if building_name.startswith(MULTISTORY_NAMES + (
+        "cultivation_inn", "town_shrine", "sect_main_hall",
+        "scripture_pavilion", "disciple_quarters",
+    )):
         if len(size) == 3 and size[1] < 12:
             errors.append(f"multi_story_too_short: {size}")
         air_positions = {
@@ -138,7 +174,7 @@ def validate_file(path: Path, root_dir: Path) -> dict:
     errors.extend(validate_gable_heuristic(rel, palette, non_air_blocks))
 
     by_y = Counter(block["pos"][1] for block in non_air_blocks)
-    state_counts = Counter(palette[block["state"]].split("[", 1)[0] for block in non_air_blocks)
+    state_counts = block_state_counts
     return {
         "path": rel,
         "passed": not errors,
@@ -151,7 +187,7 @@ def validate_file(path: Path, root_dir: Path) -> dict:
         "top_layer_counts": {str(y): by_y.get(y, 0) for y in sorted(top_layers)},
         "key_state_counts": {
             key: value for key, value in sorted(state_counts.items())
-            if any(marker in key for marker in KEY_BLOCK_MARKERS + HOUSE_FUNCTION_BLOCKS + BLACKSMITH_FUNCTION_BLOCKS)
+            if any(marker in key for marker in KEY_BLOCK_MARKERS + HOUSE_FUNCTION_BLOCKS + BLACKSMITH_FUNCTION_BLOCKS + CIVIC_TAVERN_MARKERS + CIVIC_MANOR_MARKERS + ("bed", "banner"))
         },
     }
 
@@ -195,6 +231,32 @@ def main() -> int:
             by_category["big_house"] += 1
         elif name.startswith("chinese_courtyard"):
             by_category["chinese_courtyard"] += 1
+        elif name.startswith("tavern"):
+            by_category["tavern"] += 1
+        elif name.startswith("lord_manor"):
+            by_category["lord_manor"] += 1
+        elif name.startswith("cultivation_house"):
+            by_category["cultivation_house"] += 1
+        elif name.startswith("cultivation_shop"):
+            by_category["cultivation_shop"] += 1
+        elif name.startswith("cultivation_inn"):
+            by_category["cultivation_inn"] += 1
+        elif name.startswith("cultivation_market"):
+            by_category["cultivation_market"] += 1
+        elif name.startswith("town_shrine"):
+            by_category["town_shrine"] += 1
+        elif name.startswith("cultivation_sect"):
+            by_category["cultivation_sect"] += 1
+        elif name.startswith("sect_gate"):
+            by_category["sect_gate"] += 1
+        elif name.startswith("sect_main_hall"):
+            by_category["sect_main_hall"] += 1
+        elif name.startswith("scripture_pavilion"):
+            by_category["scripture_pavilion"] += 1
+        elif name.startswith("alchemy_room"):
+            by_category["alchemy_room"] += 1
+        elif name.startswith("disciple_quarters"):
+            by_category["disciple_quarters"] += 1
         elif name in ("main_hall_review", "side_wing_review", "front_row_review"):
             by_category["chinese_review"] += 1
         elif name == "test_house_03":

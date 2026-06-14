@@ -161,12 +161,13 @@ def _apply_roof_grade(ctx: BuildContext, roof_grade: str) -> None:
 
 
 def generate_subbuilding(style: Style, archetype: str, seed: int,
-                         roof_grade: str) -> BuildContext:
+                         roof_grade: Optional[str],
+                         group_id: Optional[str] = None) -> BuildContext:
     ctx = BuildContext(style=style, archetype=archetype, scale_tier=archetype,
-                       seed=seed, rng=random.Random(seed))
+                       seed=seed, rng=random.Random(seed), group_id=group_id)
     for pass_fn in PIPELINE:
         pass_fn(ctx)
-        if pass_fn.__name__ == "massing_pass":
+        if roof_grade and pass_fn.__name__ == "massing_pass":
             _apply_roof_grade(ctx, roof_grade)
     return ctx
 
@@ -202,7 +203,11 @@ def _translate_context(compound: CompoundGraph, slot_id: str, ctx: BuildContext,
         nodes=list(ctx.graph.nodes),
     )
     quality = None
-    if ctx.archetype in ("main_hall", "side_wing", "front_row"):
+    if ctx.archetype in (
+        "main_hall", "side_wing", "front_row",
+        "sect_gate", "sect_main_hall", "scripture_pavilion",
+        "alchemy_room", "disciple_quarters",
+    ):
         quality = quality_check(ctx, f"{compound.style_id}/{slot_id}")
     slot = BuildingSlot(slot_id, ctx.archetype, main_origin, shifted_graph,
                         footprint, quality)
@@ -397,18 +402,18 @@ def generate_compound(seed: int, style: Optional[Style] = None,
 
     slot_seed = seed * 1009
     main_ctx = generate_subbuilding(style, "main_hall", slot_seed + 1,
-                                    variant.roof_grade)
+                                    variant.roof_grade, "chinese_courtyard")
     gate_ctx = generate_subbuilding(style, "gate_house", slot_seed + 2,
-                                    variant.roof_grade)
+                                    variant.roof_grade, "chinese_courtyard")
     front_ctx = generate_subbuilding(style, "front_row", slot_seed + 3,
-                                     variant.roof_grade)
+                                     variant.roof_grade, "chinese_courtyard")
     side_seed = slot_seed + 4
     west_ctx = generate_subbuilding(style, "side_wing", side_seed,
-                                    variant.roof_grade)
+                                    variant.roof_grade, "chinese_courtyard")
     east_ctx = generate_subbuilding(
         style, "side_wing",
         side_seed if variant.symmetry == "strict_mirror" else slot_seed + 5,
-        variant.roof_grade)
+        variant.roof_grade, "chinese_courtyard")
 
     main = main_ctx.graph.get("main")
     gate = gate_ctx.graph.get("main")
@@ -448,6 +453,91 @@ def generate_compound(seed: int, style: Optional[Style] = None,
     _route_circulation(compound, style, main_slot, west_slot, east_slot)
     compound.meta["courtyard"] = list(courtyard)
     compound.meta["gate_house_slot"] = gate_slot.id
+    return compound
+
+
+def generate_sect_compound(seed: int, style: Optional[Style] = None) -> CompoundGraph:
+    style = style or load_style("cultivation_sect")
+    variant = CompoundVariant(
+        courtyard_size="sect_terraced",
+        water_form="spirit_court",
+        planting_layout="mountain_edges",
+        roof_grade="tiered_eave_roof",
+        gate_style="moon_gate_axis",
+        symmetry="axial",
+    )
+    lot_w, lot_d = (63, 63)
+    axis = lot_w // 2
+    compound = CompoundGraph(style.style_id, seed, variant, (lot_w, lot_d), axis,
+                             meta={"layout_strategy": "sect_terraced_axial_compound"})
+
+    slot_seed = seed * 1009
+    gate_ctx = generate_subbuilding(style, "sect_gate", slot_seed + 1, None,
+                                    "cultivation_sect")
+    quarters_ctx = generate_subbuilding(style, "disciple_quarters", slot_seed + 2, None,
+                                        "cultivation_sect")
+    alchemy_ctx = generate_subbuilding(style, "alchemy_room", slot_seed + 3, None,
+                                       "cultivation_sect")
+    scripture_ctx = generate_subbuilding(style, "scripture_pavilion", slot_seed + 4, None,
+                                         "cultivation_sect")
+    main_ctx = generate_subbuilding(style, "sect_main_hall", slot_seed + 5, None,
+                                    "cultivation_sect")
+
+    gate = gate_ctx.graph.get("main")
+    quarters = quarters_ctx.graph.get("main")
+    alchemy = alchemy_ctx.graph.get("main")
+    scripture = scripture_ctx.graph.get("main")
+    main = main_ctx.graph.get("main")
+
+    lower_platform = _rect(2, 1, lot_w - 3, 29)
+    upper_platform = _rect(8, 30, lot_w - 9, lot_d - 3)
+    platform_state = style.primary("BASE_STONE")
+    _put_cells(compound, "lower_terrace", "terrace", lower_platform,
+               platform_state, ["STRUCTURE", "GROUND"], y=-1, slot="BASE_STONE")
+    _put_cells(compound, "upper_terrace", "terrace", upper_platform,
+               platform_state, ["STRUCTURE", "GROUND"], y=0, slot="BASE_STONE")
+
+    gate_slot = _translate_context(
+        compound, "sect_gate", gate_ctx,
+        (axis - gate.size[0] // 2, 0, 3))
+    quarters_slot = _translate_context(
+        compound, "disciple_quarters", quarters_ctx,
+        (6, 0, 20))
+    alchemy_slot = _translate_context(
+        compound, "alchemy_room", alchemy_ctx,
+        (lot_w - 6 - alchemy.size[0], 0, 21))
+    scripture_slot = _translate_context(
+        compound, "scripture_pavilion", scripture_ctx,
+        (axis - scripture.size[0] // 2, 1, 34))
+    main_slot = _translate_context(
+        compound, "sect_main_hall", main_ctx,
+        (axis - main.size[0] // 2, 2, lot_d - main.size[2] - 4))
+
+    path_cells = {(axis, z) for z in range(1, min(z for _, z in main_slot.footprint))}
+    path_cells |= {(axis - 1, z) for z in range(6, min(z for _, z in main_slot.footprint))}
+    path_cells |= {(axis + 1, z) for z in range(6, min(z for _, z in main_slot.footprint))}
+    _put_cells(compound, "central_axis_path", "path", path_cells,
+               style.primary("GROUND_PATH"), ["DETAIL", "GROUND"], y=-1,
+               slot="GROUND_PATH")
+    stair_cells = {(axis + dx, z) for dx in (-1, 0, 1) for z in (29, 30, 31)}
+    _put_cells(compound, "terrace_steps", "circulation", stair_cells,
+               style.slot_entry("ROOF_DARK", "_slab"), ["DETAIL", "GROUND"],
+               y=0, slot="ROOF_DARK")
+
+    compound.meta["hierarchy"] = [
+        gate_slot.id,
+        quarters_slot.id,
+        alchemy_slot.id,
+        scripture_slot.id,
+        main_slot.id,
+    ]
+    compound.meta["terrace_levels"] = {
+        gate_slot.id: 0,
+        quarters_slot.id: 0,
+        alchemy_slot.id: 0,
+        scripture_slot.id: 1,
+        main_slot.id: 2,
+    }
     return compound
 
 
@@ -518,6 +608,59 @@ def validate_compound(compound: CompoundGraph) -> dict:
     }
 
 
+def validate_sect_compound(compound: CompoundGraph) -> dict:
+    errors: List[str] = []
+    lot_w, lot_d = compound.lot_size
+    axis = compound.axis_x
+    slot_ids = {s.id for s in compound.building_slots}
+    required = {
+        "sect_gate", "disciple_quarters", "alchemy_room",
+        "scripture_pavilion", "sect_main_hall",
+    }
+    missing = sorted(required - slot_ids)
+    if missing:
+        errors.append(f"missing_slots: {missing}")
+    outside = [
+        (x, z) for x, z in compound.building_cells()
+        if not (0 < x < lot_w - 1 and 0 < z < lot_d - 1)
+    ]
+    if outside:
+        errors.append(f"building_outside_perimeter: {outside[:8]}")
+    path = compound.node_cells("path")
+    circulation = compound.node_cells("circulation")
+    if not path or (axis, 1) not in path:
+        errors.append("missing_axis_path_from_gate")
+    if not circulation:
+        errors.append("missing_terrace_circulation")
+    if not missing:
+        slots = {slot.id: slot for slot in compound.building_slots}
+        gate_z = min(z for _, z in slots["sect_gate"].footprint)
+        scripture_z = min(z for _, z in slots["scripture_pavilion"].footprint)
+        hall_z = min(z for _, z in slots["sect_main_hall"].footprint)
+        if not gate_z < scripture_z < hall_z:
+            errors.append(
+                f"hierarchy_not_axial: gate={gate_z} scripture={scripture_z} hall={hall_z}")
+    failed_quality = [
+        s.id for s in compound.building_slots
+        if s.quality is not None and not s.quality.get("passed")
+    ]
+    if failed_quality:
+        errors.append(f"subbuilding_quality_failed: {failed_quality}")
+    return {
+        "seed": compound.seed,
+        "variant": compound.variant.to_dict(),
+        "passed": not errors,
+        "errors": errors,
+        "stats": {
+            "lot_size": list(compound.lot_size),
+            "building_slots": len(compound.building_slots),
+            "path_cells": len(path),
+            "circulation_cells": len(circulation),
+            "terrace_levels": compound.meta.get("terrace_levels", {}),
+        },
+    }
+
+
 def sample_compound_library(count: int = 6, base_seed: int = 20260614,
                             style: Optional[Style] = None) -> List[CompoundGraph]:
     style = style or load_style("chinese_courtyard")
@@ -538,6 +681,24 @@ def sample_compound_library(count: int = 6, base_seed: int = 20260614,
         compounds.append(compound)
     if len(compounds) < count:
         raise ValueError(f"only generated {len(compounds)}/{count} valid compounds")
+    return compounds
+
+
+def sample_sect_compound_library(count: int = 2, base_seed: int = 20260616,
+                                 style: Optional[Style] = None) -> List[CompoundGraph]:
+    style = style or load_style("cultivation_sect")
+    compounds: List[CompoundGraph] = []
+    attempt = 0
+    while len(compounds) < count and attempt < count * 12:
+        seed = base_seed + attempt * 101
+        attempt += 1
+        compound = generate_sect_compound(seed, style)
+        report = validate_sect_compound(compound)
+        if not report["passed"]:
+            continue
+        compounds.append(compound)
+    if len(compounds) < count:
+        raise ValueError(f"only generated {len(compounds)}/{count} valid sect compounds")
     return compounds
 
 

@@ -13,6 +13,7 @@ import random
 from typing import Dict, List, Optional
 
 STYLE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "styles")
+OPTIONAL_MATERIAL_SLOTS = ("SPIRIT_CRYSTAL", "RITUAL_METAL")
 
 
 def _block_id(state: str) -> str:
@@ -23,6 +24,8 @@ class Style:
     def __init__(self, data: dict) -> None:
         self.style_id: str = data["style_id"]
         self.material_slots: Dict[str, List[str]] = data["material_slots"]
+        for slot in OPTIONAL_MATERIAL_SLOTS:
+            self.material_slots.setdefault(slot, [])
         self.variation_rate: Dict[str, float] = data.get("variation_rate", {})
         self.allowed_roof_types: List[str] = data["allowed_roof_types"]
         self.allowed_wall_types: List[str] = data["allowed_wall_types"]
@@ -43,6 +46,15 @@ class Style:
     def pick(self, slot: str, rng: random.Random) -> str:
         return rng.choice(self.material_slots[slot])
 
+    def has_slot(self, slot: str) -> bool:
+        return bool(self.material_slots.get(slot))
+
+    def slot_options(self, slot: str, contains: Optional[str] = None) -> List[str]:
+        entries = list(self.material_slots.get(slot, []))
+        if contains is None:
+            return entries
+        return [state for state in entries if contains in _block_id(state)]
+
     def slot_entry(self, slot: str, contains: str, default: Optional[str] = None) -> str:
         """Pick the slot entry whose block id contains a substring.
 
@@ -55,6 +67,13 @@ class Style:
         if default is not None:
             return default
         raise KeyError(f"slot {slot} has no entry containing {contains!r}")
+
+    def optional_slot_entry(self, slot: str, contains: str,
+                            default: Optional[str] = None) -> Optional[str]:
+        for state in self.material_slots.get(slot, []):
+            if contains in _block_id(state):
+                return state
+        return default
 
     # ---- proportions / rules ------------------------------------------
 
@@ -75,4 +94,7 @@ def load_style(style_id: str) -> Style:
     if not os.path.isfile(path):
         raise FileNotFoundError(f"unknown style {style_id!r}: {path}")
     with open(path, "r", encoding="utf-8") as f:
-        return Style(json.load(f))
+        style = Style(json.load(f))
+    from .ops import validate_style_vocabulary
+    validate_style_vocabulary(style)
+    return style

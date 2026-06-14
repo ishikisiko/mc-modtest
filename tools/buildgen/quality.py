@@ -11,9 +11,14 @@ from typing import Dict, List, Tuple
 from .grid import AIR
 from .passes import BuildContext
 
-FUNCTION_BLOCKS = ("crafting_table", "furnace", "smithing_table", "barrel", "anvil")
+FUNCTION_BLOCKS = (
+    "crafting_table", "furnace", "smithing_table", "barrel", "anvil",
+    "brewing_stand", "lectern", "bell", "bookshelf", "cauldron", "chest",
+)
 PASSABLE_FOOT = ("_stairs", "_slab", "coarse_dirt", "gravel", "cobblestone",
                  "carpet", "_pressure_plate")
+CULTIVATION_ROOF_FORMS = {"tiered_eave_roof"}
+CULTIVATION_MOTIFS = {"moon_gate", "spirit_array", "incense_altar", "cloud_rail"}
 
 
 def _clamp(v: float) -> int:
@@ -85,6 +90,16 @@ def quality_check(ctx: BuildContext, structure_id: str) -> dict:
                 open_gables += 1
     if open_gables:
         errors.append(f"open_gable: {open_gables} unsealed gable cells")
+    invoked_roofs = {info.get("roof_type") for info in ctx.roof_info if info.get("roof_type")}
+    unknown_roof_forms = sorted(invoked_roofs - set(style.allowed_roof_types) -
+                                {"硬山", "悬山", "歇山"})
+    if unknown_roof_forms:
+        errors.append(f"roof_form_not_allowed: {unknown_roof_forms}")
+    for info in ctx.roof_info:
+        if (info.get("roof_type") == "tiered_eave_roof"
+                and not info.get("fallback")
+                and info.get("tier_count", 0) < 2):
+            errors.append("tiered_eave_roof_missing_upper_tier")
 
     # 6. entrance clear
     if ctx.door_info:
@@ -125,17 +140,24 @@ def quality_check(ctx: BuildContext, structure_id: str) -> dict:
     multi_story_vols = [v for v in graph.volumes() if v.meta.get("stories", 1) > 1]
     if multi_story_vols:
         highest_roof = max((info.get("peak_y", 0) for info in ctx.roof_info), default=0)
-        stair = graph.meta.get("stairwell")
-        if not stair:
-            errors.append("multi_story_missing_stairwell")
         for vol in multi_story_vols:
+            stair = (vol.meta.get("stairwell") or
+                     graph.meta.get("stairwells", {}).get(vol.id) or
+                     (graph.meta.get("stairwell") if graph.meta.get("stairwell", {}).get("volume") == vol.id else None))
+            if not stair:
+                errors.append(f"multi_story_missing_stairwell: {vol.id}")
+                continue
             top_story_y = vol.meta["foundation_h"] + vol.meta["wall_h"] - 1
             if highest_roof <= top_story_y:
                 errors.append(
-                    f"roof_below_top_story: peak={highest_roof} top={top_story_y}")
-            if not stair or stair.get("volume") != vol.id:
-                continue
+                    f"roof_below_top_story: {vol.id} peak={highest_roof} top={top_story_y}")
             story_wall_h = vol.meta.get("story_wall_h", vol.meta["wall_h"])
+            mezzanine_story = vol.meta.get("mezzanine_story")
+            mezzanine_stories = set(vol.meta.get("mezzanine_stories", []))
+            if mezzanine_story is True:
+                mezzanine_stories.add(1)
+            elif isinstance(mezzanine_story, int):
+                mezzanine_stories.add(mezzanine_story)
             for story in range(1, vol.meta.get("stories", 1)):
                 y = vol.meta["foundation_h"] + story * story_wall_h
                 aligned_opening = False
@@ -148,21 +170,53 @@ def quality_check(ctx: BuildContext, structure_id: str) -> dict:
                             aligned_opening = True
                 if not aligned_opening:
                     errors.append(
-                        f"stair_opening_not_aligned: story={story} y={y}")
+                        f"stair_opening_not_aligned: {vol.id} story={story} y={y}")
+                if story in mezzanine_stories:
+                    continue
                 landing_z = stair.get("landing_z", stair["z1"] + 1)
                 landing = grid.get((stair["x0"], y, landing_z))
                 landing_head = grid.get((stair["x0"], y + 1, landing_z))
                 if not landing or landing.is_air or "INTERIOR" not in landing.tags:
                     errors.append(
-                        f"stair_landing_missing: story={story} pos={(stair['x0'], y, landing_z)}")
+                        f"stair_landing_missing: {vol.id} story={story} pos={(stair['x0'], y, landing_z)}")
                 if landing_head and not landing_head.is_air:
                     errors.append(
-                        f"stair_landing_head_blocked: story={story} pos={(stair['x0'], y + 1, landing_z)}")
+                        f"stair_landing_head_blocked: {vol.id} story={story} pos={(stair['x0'], y + 1, landing_z)}")
 
-    # 11. no complex block entity NBT: the exporter only writes blockstates,
-    # still verify nothing slipped in that needs container/text NBT
-    complex_be = sorted({c.state for _, c in states
-                         if any(k in c.state for k in ("chest", "sign", "spawner"))})
+    # 11. mezzanine ceilings stay open over the uncovered half-plane.
+    for vol in graph.volumes():
+        mezzanine = vol.meta.get("mezzanine")
+        if not mezzanine:
+            continue
+        story_wall_h = vol.meta.get("story_wall_h", vol.meta["wall_h"])
+        y = vol.meta["foundation_h"] + story_wall_h + mezzanine.get("y_offset", 0)
+        depth = mezzanine.get("depth", max(1, (vol.size[0] - 2) // 2))
+        ix0, ix1 = vol.x0 + 1, vol.x1 - 1
+        if mezzanine.get("covers") == "east":
+            ux0, ux1 = ix0, max(ix0, vol.x1 - depth) - 1
+        else:
+            ux0, ux1 = min(ix1, vol.x0 + depth) + 1, ix1
+        blocked = []
+        for x in range(ux0, ux1 + 1):
+            for z in range(vol.z0 + 1, vol.z1):
+                cell = grid.get((x, y, z))
+                if cell and not cell.is_air:
+                    blocked.append((x, y, z))
+        if blocked:
+            errors.append(f"mezzanine_uncovered_ceiling_blocked: {vol.id} count={len(blocked)}")
+
+    # 12. belfry towers carry a bell marker.
+    for vol in graph.by_type("tower_volume"):
+        if not vol.meta.get("belfry"):
+            continue
+        bells = [p for p, c in states
+                 if "bell" in c.state and vol.x0 <= p[0] <= vol.x1 and vol.z0 <= p[2] <= vol.z1]
+        if not bells:
+            errors.append(f"belfry_missing_bell: {vol.id}")
+
+    # 13. no forbidden complex block entities: empty chests, blank signs,
+    # and banners are exported as blockstates only and are allowed.
+    complex_be = sorted({c.state for _, c in states if "spawner" in c.state})
     if complex_be:
         errors.append(f"complex_block_entity: {complex_be}")
 
@@ -183,6 +237,17 @@ def quality_check(ctx: BuildContext, structure_id: str) -> dict:
     }
 
     deco_required = style.prop("exterior_required_decoration_count")
+    disallowed_cultivation_motifs = sorted(
+        set(ctx.decoration_motifs) & CULTIVATION_MOTIFS - set(style.allowed_motifs))
+    if disallowed_cultivation_motifs:
+        errors.append(f"cultivation_motif_not_allowed: {disallowed_cultivation_motifs}")
+    legacy_styles = {"medieval_village", "chinese_courtyard"}
+    if style.style_id in legacy_styles:
+        invoked_cultivation = sorted(
+            (invoked_roofs & CULTIVATION_ROOF_FORMS) |
+            (set(ctx.decoration_motifs) & CULTIVATION_MOTIFS))
+        if invoked_cultivation:
+            errors.append(f"legacy_style_invoked_cultivation_forms: {invoked_cultivation}")
     if len(ctx.decoration_motifs) < deco_required:
         warnings.append(f"few_decorations: {len(ctx.decoration_motifs)} "
                         f"< required {deco_required}")

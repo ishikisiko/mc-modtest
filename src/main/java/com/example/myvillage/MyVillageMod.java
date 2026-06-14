@@ -33,6 +33,17 @@ import java.util.Optional;
 public final class MyVillageMod {
     public static final String MOD_ID = "myvillage";
     private static final int GALLERY_SPACING = 60;
+    private static final List<String> GALLERY_GROUP_ORDER = List.of(
+            "house",
+            "shop",
+            "blacksmith",
+            "chinese_courtyard",
+            "civic",
+            "cultivation_town",
+            "cultivation_sect",
+            "chinese_review",
+            "test",
+            "other");
     private static final Logger LOGGER = LoggerFactory.getLogger(MyVillageMod.class);
 
     public MyVillageMod() {
@@ -52,7 +63,11 @@ public final class MyVillageMod {
                         .then(Commands.literal("list")
                                 .executes(ctx -> listStructures(ctx.getSource())))
                         .then(Commands.literal("gallery")
-                                .executes(ctx -> placeGallery(ctx.getSource()))));
+                                .executes(ctx -> placeGallery(ctx.getSource(), GalleryScope.ALL))
+                                .then(Commands.literal("original")
+                                        .executes(ctx -> placeGallery(ctx.getSource(), GalleryScope.ORIGINAL)))
+                                .then(Commands.literal("cultivation")
+                                        .executes(ctx -> placeGallery(ctx.getSource(), GalleryScope.CULTIVATION)))));
     }
 
     private int placeNamedStructure(CommandSourceStack source, String rawId) throws CommandSyntaxException {
@@ -66,7 +81,7 @@ public final class MyVillageMod {
         return placeStructure(source, structureId, player.blockPosition());
     }
 
-    private int placeGallery(CommandSourceStack source) throws CommandSyntaxException {
+    private int placeGallery(CommandSourceStack source, GalleryScope scope) throws CommandSyntaxException {
         ServerLevel level = source.getLevel();
         List<ResourceLocation> structures = myvillageStructures(level);
 
@@ -78,7 +93,12 @@ public final class MyVillageMod {
         ServerPlayer player = source.getPlayerOrException();
         BlockPos origin = player.blockPosition();
         int placed = 0;
-        Map<String, List<ResourceLocation>> columns = groupedGalleryStructures(structures);
+        Map<String, List<ResourceLocation>> columns = groupedGalleryStructures(structures, scope);
+        if (columns.isEmpty()) {
+            source.sendFailure(Component.literal("No myvillage " + scope.label() + " structures are loaded"));
+            return 0;
+        }
+
         int column = 0;
         for (List<ResourceLocation> columnStructures : columns.values()) {
             int row = 0;
@@ -94,7 +114,8 @@ public final class MyVillageMod {
 
         final int placedCount = placed;
         source.sendSuccess(
-                () -> Component.literal("Placed myvillage gallery: " + placedCount + " structures"),
+                () -> Component.literal("Placed myvillage " + scope.label() + " gallery: "
+                        + placedCount + " structures"),
                 false);
         return placedCount;
     }
@@ -167,14 +188,22 @@ public final class MyVillageMod {
                 .toList();
     }
 
-    private static Map<String, List<ResourceLocation>> groupedGalleryStructures(List<ResourceLocation> structures) {
+    private static Map<String, List<ResourceLocation>> groupedGalleryStructures(
+            List<ResourceLocation> structures,
+            GalleryScope scope) {
         Map<String, List<ResourceLocation>> columns = new LinkedHashMap<>();
-        for (String group : List.of("house", "shop", "blacksmith", "chinese_courtyard", "chinese_review", "test", "other")) {
+        for (String group : GALLERY_GROUP_ORDER) {
             columns.put(group, new ArrayList<>());
         }
         for (ResourceLocation id : structures) {
-            columns.computeIfAbsent(galleryGroup(id.getPath()), ignored -> new ArrayList<>()).add(id);
+            String group = galleryGroup(id.getPath());
+            if (scope.includesGroup(group)) {
+                columns.computeIfAbsent(group, ignored -> new ArrayList<>()).add(id);
+            }
         }
+        columns.get("civic").sort(
+                Comparator.<ResourceLocation>comparingInt(id -> civicGalleryOrder(id.getPath()))
+                        .thenComparing(ResourceLocation::getPath));
         columns.entrySet().removeIf(entry -> entry.getValue().isEmpty());
         return columns;
     }
@@ -192,6 +221,17 @@ public final class MyVillageMod {
         if (path.startsWith("chinese_courtyard")) {
             return "chinese_courtyard";
         }
+        if (path.startsWith("tavern") || path.startsWith("lord_manor")) {
+            return "civic";
+        }
+        if (path.startsWith("sect_") || path.startsWith("scripture_pavilion")
+                || path.startsWith("alchemy_room") || path.startsWith("disciple_quarters")
+                || path.startsWith("cultivation_sect")) {
+            return "cultivation_sect";
+        }
+        if (path.startsWith("cultivation_") || path.startsWith("town_shrine")) {
+            return "cultivation_town";
+        }
         if (path.endsWith("_review")) {
             return "chinese_review";
         }
@@ -200,4 +240,40 @@ public final class MyVillageMod {
         }
         return "other";
     }
+
+    private enum GalleryScope {
+        ALL("all"),
+        ORIGINAL("original"),
+        CULTIVATION("cultivation");
+
+        private final String label;
+
+        GalleryScope(String label) {
+            this.label = label;
+        }
+
+        private String label() {
+            return label;
+        }
+
+        private boolean includesGroup(String group) {
+            boolean cultivation = group.equals("cultivation_town") || group.equals("cultivation_sect");
+            return switch (this) {
+                case ALL -> true;
+                case ORIGINAL -> !cultivation;
+                case CULTIVATION -> cultivation;
+            };
+        }
+    }
+
+    private static int civicGalleryOrder(String path) {
+        if (path.startsWith("tavern")) {
+            return 0;
+        }
+        if (path.startsWith("lord_manor")) {
+            return 1;
+        }
+        return 2;
+    }
+
 }

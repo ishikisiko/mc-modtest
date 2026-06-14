@@ -42,6 +42,40 @@
     ],
     "INTERIOR_STORAGE": [
       "minecraft:barrel"
+    ],
+    "INTERIOR_CIVIC": [
+      "minecraft:brewing_stand[has_bottle_0=false,has_bottle_1=false,has_bottle_2=false]",
+      "minecraft:lectern[facing=north,has_book=false,powered=false]",
+      "minecraft:bell[attachment=ceiling,facing=north,powered=false]",
+      "minecraft:bookshelf",
+      "minecraft:cauldron",
+      "minecraft:flower_pot"
+    ],
+    "FURNITURE": [
+      "minecraft:red_bed",
+      "minecraft:blue_bed",
+      "minecraft:green_bed",
+      "minecraft:yellow_bed",
+      "minecraft:white_bed",
+      "minecraft:chest"
+    ],
+    "SIGNAGE": [
+      "minecraft:oak_sign",
+      "minecraft:spruce_sign",
+      "minecraft:oak_wall_sign",
+      "minecraft:spruce_wall_sign"
+    ],
+    "HERALDRY": [
+      "minecraft:red_banner",
+      "minecraft:blue_banner",
+      "minecraft:black_banner",
+      "minecraft:green_banner",
+      "minecraft:yellow_banner",
+      "minecraft:red_wall_banner",
+      "minecraft:blue_wall_banner",
+      "minecraft:black_wall_banner",
+      "minecraft:green_wall_banner",
+      "minecraft:yellow_wall_banner"
     ]
   },
   "variation_rate": {
@@ -83,21 +117,29 @@
     "copper",
     "gold_block",
     "netherite",
-    "chest",
-    "sign",
     "spawner",
     "command_block",
     "shulker",
-    "banner",
-    "bed",
     "jukebox",
     "beacon"
   ],
   "proportions": {
-    "wall_height": [3, 5],
-    "roof_height_ratio": [0.35, 0.65],
-    "foundation_height": [1, 2],
-    "roof_overhang": [0, 1],
+    "wall_height": [
+      3,
+      5
+    ],
+    "roof_height_ratio": [
+      0.35,
+      0.65
+    ],
+    "foundation_height": [
+      1,
+      2
+    ],
+    "roof_overhang": [
+      0,
+      1
+    ],
     "max_flat_wall_width": 4,
     "window_min_count": 2,
     "interior_required_function_blocks": 3,

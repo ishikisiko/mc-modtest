@@ -29,3 +29,25 @@ The project SHALL treat the current structure library as a step toward multi-cat
 - **WHEN** project documentation or specs discuss long-term goals
 - **THEN** they SHALL allow for multiple settlement categories, varied house types, functional buildings, town pieces, roads, and possible NPC-related systems
 - **AND** they SHALL distinguish those goals from currently implemented behavior.
+
+### Requirement: Releases keep version and changelog data synchronized
+When a release version or accepted fix version is prepared, contributors SHALL update the mod version, user-facing jar-name examples, and changelog together.
+
+#### Scenario: A large feature addition is prepared for release
+- **WHEN** the current version is `0.x.y`
+- **THEN** the release version SHALL become `0.(x+1).0`
+- **AND** `CHANGELOG.md` SHALL summarize the large addition.
+
+#### Scenario: A small feature addition is prepared for release
+- **WHEN** the current version is `0.x.y`
+- **THEN** the release version SHALL become `0.x.(y+1)`
+- **AND** `CHANGELOG.md` SHALL summarize the small addition.
+
+#### Scenario: A single fix passes validation
+- **WHEN** a single fix is accepted after the relevant validation or build step passes
+- **THEN** the fix version SHALL keep the base version and add the next ordered suffix such as `-fix1` or `-fix2`
+- **AND** `CHANGELOG.md` SHALL identify the fix and validation performed.
+
+#### Scenario: A mod version changes
+- **WHEN** `gradle.properties` changes `mod_version`
+- **THEN** `src/main/resources/META-INF/neoforge.mods.toml`, README jar-name examples, and `CHANGELOG.md` SHALL be updated in the same change.

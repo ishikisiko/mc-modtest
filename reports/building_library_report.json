@@ -1,5 +1,6 @@
 {
   "style_id": "medieval_village",
+  "group_id": null,
   "requested": 45,
   "generated": 45,
   "passed": 45,
@@ -266,6 +267,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -537,6 +539,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -808,6 +811,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -1056,6 +1060,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -1327,6 +1332,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -1575,6 +1581,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -1846,6 +1853,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -2117,6 +2125,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -2365,6 +2374,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -2636,6 +2646,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -2962,6 +2973,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -3288,6 +3300,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -3614,6 +3627,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -3940,6 +3954,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -4266,6 +4281,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -4592,6 +4608,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -4918,6 +4935,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -5319,6 +5337,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -5720,6 +5739,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -6121,6 +6141,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -6421,6 +6442,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -6721,6 +6743,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -7048,6 +7071,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -7375,6 +7399,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -7702,6 +7727,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -8029,6 +8055,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -8356,6 +8383,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -8683,6 +8711,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -9063,6 +9092,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -9443,6 +9473,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -9671,6 +9702,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -9899,6 +9931,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -10127,6 +10160,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -10355,6 +10389,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -10583,6 +10618,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -10644,6 +10680,19 @@
             "volume": "main",
             "wall": "front",
             "x": 4
+          },
+          "stairwells": {
+            "main": {
+              "volume": "main",
+              "x0": 8,
+              "x1": 9,
+              "z0": 3,
+              "z1": 6,
+              "landing_z": 7,
+              "direction": "south",
+              "stories": 2,
+              "story_wall_h": 4
+            }
           },
           "stairwell": {
             "volume": "main",
@@ -10858,6 +10907,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -10919,6 +10969,19 @@
             "volume": "main",
             "wall": "front",
             "x": 7
+          },
+          "stairwells": {
+            "main": {
+              "volume": "main",
+              "x0": 1,
+              "x1": 2,
+              "z0": 3,
+              "z1": 6,
+              "landing_z": 7,
+              "direction": "south",
+              "stories": 2,
+              "story_wall_h": 4
+            }
           },
           "stairwell": {
             "volume": "main",
@@ -11133,6 +11196,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -11194,6 +11258,19 @@
             "volume": "main",
             "wall": "front",
             "x": 5
+          },
+          "stairwells": {
+            "main": {
+              "volume": "main",
+              "x0": 1,
+              "x1": 2,
+              "z0": 5,
+              "z1": 8,
+              "landing_z": 9,
+              "direction": "south",
+              "stories": 2,
+              "story_wall_h": 4
+            }
           },
           "stairwell": {
             "volume": "main",
@@ -11408,6 +11485,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -11471,6 +11549,19 @@
             "volume": "main",
             "wall": "front",
             "x": 4
+          },
+          "stairwells": {
+            "main": {
+              "volume": "main",
+              "x0": 10,
+              "x1": 11,
+              "z0": 5,
+              "z1": 8,
+              "landing_z": 9,
+              "direction": "south",
+              "stories": 2,
+              "story_wall_h": 4
+            }
           },
           "stairwell": {
             "volume": "main",
@@ -11685,6 +11776,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -11746,6 +11838,19 @@
             "volume": "main",
             "wall": "front",
             "x": 9
+          },
+          "stairwells": {
+            "main": {
+              "volume": "main",
+              "x0": 1,
+              "x1": 2,
+              "z0": 3,
+              "z1": 6,
+              "landing_z": 7,
+              "direction": "south",
+              "stories": 2,
+              "story_wall_h": 4
+            }
           },
           "stairwell": {
             "volume": "main",
@@ -11960,6 +12065,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -12024,6 +12130,19 @@
             "volume": "main",
             "wall": "front",
             "x": 5
+          },
+          "stairwells": {
+            "main": {
+              "volume": "main",
+              "x0": 10,
+              "x1": 11,
+              "z0": 3,
+              "z1": 6,
+              "landing_z": 7,
+              "direction": "south",
+              "stories": 2,
+              "story_wall_h": 4
+            }
           },
           "stairwell": {
             "volume": "main",
@@ -12303,6 +12422,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -12367,6 +12487,19 @@
             "volume": "main",
             "wall": "front",
             "x": 4
+          },
+          "stairwells": {
+            "main": {
+              "volume": "main",
+              "x0": 10,
+              "x1": 11,
+              "z0": 5,
+              "z1": 8,
+              "landing_z": 9,
+              "direction": "south",
+              "stories": 2,
+              "story_wall_h": 4
+            }
           },
           "stairwell": {
             "volume": "main",
@@ -12701,6 +12834,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -12765,6 +12899,19 @@
             "volume": "main",
             "wall": "front",
             "x": 3
+          },
+          "stairwells": {
+            "main": {
+              "volume": "main",
+              "x0": 8,
+              "x1": 9,
+              "z0": 3,
+              "z1": 6,
+              "landing_z": 7,
+              "direction": "south",
+              "stories": 3,
+              "story_wall_h": 4
+            }
           },
           "stairwell": {
             "volume": "main",
@@ -13044,6 +13191,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -13108,6 +13256,19 @@
             "volume": "main",
             "wall": "front",
             "x": 6
+          },
+          "stairwells": {
+            "main": {
+              "volume": "main",
+              "x0": 12,
+              "x1": 13,
+              "z0": 5,
+              "z1": 8,
+              "landing_z": 9,
+              "direction": "south",
+              "stories": 2,
+              "story_wall_h": 4
+            }
           },
           "stairwell": {
             "volume": "main",
@@ -13442,6 +13603,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
@@ -13506,6 +13668,19 @@
             "volume": "main",
             "wall": "front",
             "x": 7
+          },
+          "stairwells": {
+            "main": {
+              "volume": "main",
+              "x0": 1,
+              "x1": 2,
+              "z0": 5,
+              "z1": 8,
+              "landing_z": 9,
+              "direction": "south",
+              "stories": 3,
+              "story_wall_h": 4
+            }
           },
           "stairwell": {
             "volume": "main",
@@ -13840,6 +14015,7 @@
       "passes_run": [
         "massing_pass",
         "structure_pass",
+        "mezzanine_floor_pass",
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",

@@ -73,7 +73,14 @@ class Node:
         return d
 
 
-VOLUME_TYPES = {"main_volume", "side_wing", "shed", "rear_shed"}
+VOLUME_TYPES = {
+    "main_volume",
+    "great_hall_volume",
+    "side_wing",
+    "shed",
+    "rear_shed",
+    "tower_volume",
+}
 
 
 @dataclass

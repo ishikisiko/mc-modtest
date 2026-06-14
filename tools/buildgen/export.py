@@ -18,13 +18,17 @@ if _TOOLS_DIR not in sys.path:
 import json_to_nbt  # noqa: E402
 
 from .grid import BlockGrid  # noqa: E402
+from .groups import get_group  # noqa: E402
 
 PROJECT_ROOT = os.path.dirname(_TOOLS_DIR)
 MOD_ID = "myvillage"
 RESOURCES = os.path.join(PROJECT_ROOT, "src", "main", "resources", "data", MOD_ID)
 
 
-def gallery_group(archetype: str, name: str = "") -> str:
+def gallery_group(archetype: str, name: str = "", group_id: str = "") -> str:
+    if group_id:
+        group = get_group(group_id)
+        return str(group.scale_params.get("gallery_group", group.group_id))
     key = name or archetype
     if key.startswith(("small_shop", "medium_shop")) or archetype in ("small_shop", "medium_shop"):
         return "shop"
@@ -32,8 +36,10 @@ def gallery_group(archetype: str, name: str = "") -> str:
         return "house"
     if key.startswith("blacksmith") or archetype == "blacksmith":
         return "blacksmith"
-    if key.startswith("chinese_courtyard") or archetype == "chinese_courtyard":
+    if archetype == "chinese_courtyard":
         return "chinese_courtyard"
+    if key.startswith(("tavern", "lord_manor")) or archetype in ("tavern", "lord_manor"):
+        return "civic"
     if key.endswith("_review"):
         return "chinese_review"
     if key.startswith("test_"):
@@ -87,7 +93,9 @@ def write_gallery_function(style_id: str, entries: List[dict],
     ]
     rows: Dict[str, List[dict]] = {}
     for e in entries:
-        rows.setdefault(gallery_group(e["archetype"], e["name"]), []).append(e)
+        rows.setdefault(
+            gallery_group(e["archetype"], e["name"], e.get("group_id", "")),
+            []).append(e)
     x = 0
     for archetype in sorted(rows):
         lines.append(f"# --- {archetype} ---")
@@ -102,6 +110,10 @@ def write_gallery_function(style_id: str, entries: List[dict],
     with open(out, "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
     return out
+
+
+def write_civic_gallery_function(entries: List[dict]) -> str:
+    return write_gallery_function("civic", entries, spacing_x=60, spacing_z=60)
 
 
 def write_place_function(style_id: str, name: str) -> str:

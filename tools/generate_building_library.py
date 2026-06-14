@@ -27,6 +27,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from buildgen import export
 from buildgen.archetypes import ARCHETYPES, NEW_ARCHETYPE_COUNTS, TIER_PLAN
+from buildgen.groups import get_group
 from buildgen.passes import generate_building
 from buildgen.quality import quality_check
 from buildgen.style import load_style
@@ -39,18 +40,40 @@ MAX_ATTEMPTS = 8
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--style", default="medieval_village")
+    parser.add_argument("--group", default=None,
+                        help="optional settlement group id; defaults to the legacy medieval library")
+    parser.add_argument("--report", default=None,
+                        help="optional report path; cultivation groups default to a group-specific report")
     parser.add_argument("--count", type=int, default=10,
                         help="buildings per archetype (default 10)")
     parser.add_argument("--base-seed", type=int, default=20260612)
     args = parser.parse_args()
 
-    style = load_style(args.style)
+    style_id = args.style
+    archetypes = ARCHETYPES
+    group_id = args.group
+    if group_id:
+        group = get_group(group_id)
+        if args.style == parser.get_default("style"):
+            style_id = group.style_id
+        elif args.style != group.style_id:
+            parser.error(
+                f"group {group_id!r} requires --style {group.style_id!r}, got {args.style!r}")
+        archetypes = group.archetype_roster
+
+    style = load_style(style_id)
+    report_path = args.report
+    if report_path is None:
+        report_name = f"{group_id}_building_library_report.json" if group_id else "building_library_report.json"
+        report_path = os.path.join(PROJECT_ROOT, "reports", report_name)
+    elif not os.path.isabs(report_path):
+        report_path = os.path.join(PROJECT_ROOT, report_path)
     entries = []
     reports = []
     failed_attempts = 0
 
     requested = 0
-    for archetype in ARCHETYPES:
+    for archetype in archetypes:
         archetype_count = NEW_ARCHETYPE_COUNTS.get(archetype, args.count)
         requested += archetype_count
         for i in range(1, archetype_count + 1):
@@ -59,10 +82,10 @@ def main() -> int:
             report = None
             ctx = None
             for attempt in range(MAX_ATTEMPTS):
-                seed = (args.base_seed + ARCHETYPES.index(archetype) * 100000
+                seed = (args.base_seed + list(archetypes).index(archetype) * 100000
                         + i * 101 + attempt * 7919)
-                ctx = generate_building(style, archetype, tier, seed)
-                report = quality_check(ctx, f"{args.style}/{name}")
+                ctx = generate_building(style, archetype, tier, seed, group_id)
+                report = quality_check(ctx, f"{style_id}/{name}")
                 report["attempt"] = attempt + 1
                 if report["passed"]:
                     break
@@ -75,23 +98,25 @@ def main() -> int:
                 reports.append(report)
                 continue
             ctx.passes_run.append("quality_check_pass")
-            path, info = export.write_structure_nbt(ctx.grid, args.style, name)
-            export.write_place_function(args.style, name)
+            path, info = export.write_structure_nbt(ctx.grid, style_id, name)
+            export.write_place_function(style_id, name)
             ctx.passes_run.append("resource_export_pass")
             report["export"] = info
             report["massing_graph"] = ctx.graph.to_dict()
             report["passes_run"] = ctx.passes_run
             reports.append(report)
             entries.append({"name": name, "archetype": archetype,
-                            "scale_tier": tier, "size": info["size"]})
+                            "scale_tier": tier, "size": info["size"],
+                            "group_id": group_id or ""})
             print(f"OK {name:24s} tier={tier:10s} size={info['size']} "
                   f"blocks={info['block_count']} seed={report['seed']}")
 
-    gallery_path = export.write_gallery_function(args.style, entries)
+    gallery_path = export.write_gallery_function(style_id, entries)
 
     passed = sum(1 for r in reports if r["passed"])
     summary = {
-        "style_id": args.style,
+        "style_id": style_id,
+        "group_id": group_id,
         "requested": requested,
         "generated": len(entries),
         "passed": passed,
@@ -100,12 +125,12 @@ def main() -> int:
         "gallery_function": os.path.relpath(gallery_path, PROJECT_ROOT),
         "reports": reports,
     }
-    os.makedirs(os.path.dirname(REPORT_PATH), exist_ok=True)
-    with open(REPORT_PATH, "w", encoding="utf-8") as f:
+    os.makedirs(os.path.dirname(report_path), exist_ok=True)
+    with open(report_path, "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2)
     print(f"\ngenerated {len(entries)}/{summary['requested']} buildings "
           f"({failed_attempts} rejected attempts)")
-    print(f"report: {os.path.relpath(REPORT_PATH, PROJECT_ROOT)}")
+    print(f"report: {os.path.relpath(report_path, PROJECT_ROOT)}")
     print(f"gallery: {summary['gallery_function']}")
     return 0 if len(entries) == summary["requested"] else 1
 

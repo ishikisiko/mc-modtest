@@ -1,0 +1,148 @@
+{
+  "style_id": "cultivation_town",
+  "material_slots": {
+    "BASE_STONE": [
+      "minecraft:stone_bricks",
+      "minecraft:andesite",
+      "minecraft:polished_andesite"
+    ],
+    "WALL_MAIN": [
+      "minecraft:smooth_stone",
+      "minecraft:stone_bricks"
+    ],
+    "FRAME_WOOD": [
+      "minecraft:dark_oak_log",
+      "minecraft:stripped_dark_oak_log"
+    ],
+    "ROOF_DARK": [
+      "minecraft:brick_stairs",
+      "minecraft:brick_slab",
+      "minecraft:dark_oak_planks"
+    ],
+    "DETAIL_WOOD": [
+      "minecraft:dark_oak_trapdoor",
+      "minecraft:spruce_trapdoor",
+      "minecraft:dark_oak_fence",
+      "minecraft:spruce_fence",
+      "minecraft:dark_oak_slab"
+    ],
+    "LIGHTING": [
+      "minecraft:lantern",
+      "minecraft:torch"
+    ],
+    "GROUND_PATH": [
+      "minecraft:gravel",
+      "minecraft:coarse_dirt",
+      "minecraft:stone_bricks"
+    ],
+    "INTERIOR_WORK": [
+      "minecraft:crafting_table",
+      "minecraft:furnace",
+      "minecraft:smithing_table"
+    ],
+    "INTERIOR_STORAGE": [
+      "minecraft:barrel"
+    ],
+    "INTERIOR_CIVIC": [
+      "minecraft:brewing_stand[has_bottle_0=false,has_bottle_1=false,has_bottle_2=false]",
+      "minecraft:lectern[facing=north,has_book=false,powered=false]",
+      "minecraft:bell[attachment=ceiling,facing=north,powered=false]",
+      "minecraft:bookshelf",
+      "minecraft:cauldron",
+      "minecraft:flower_pot"
+    ],
+    "FURNITURE": [
+      "minecraft:red_bed",
+      "minecraft:white_bed",
+      "minecraft:green_bed",
+      "minecraft:chest"
+    ],
+    "SIGNAGE": [
+      "minecraft:dark_oak_sign",
+      "minecraft:dark_oak_wall_sign",
+      "minecraft:spruce_sign",
+      "minecraft:spruce_wall_sign"
+    ],
+    "HERALDRY": [
+      "minecraft:green_banner",
+      "minecraft:white_banner",
+      "minecraft:brown_banner",
+      "minecraft:green_wall_banner",
+      "minecraft:white_wall_banner",
+      "minecraft:brown_wall_banner"
+    ]
+  },
+  "variation_rate": {
+    "BASE_STONE": 0.16,
+    "WALL_MAIN": 0.08
+  },
+  "allowed_roof_types": [
+    "gable_roof",
+    "cross_gable_roof",
+    "lean_to_roof"
+  ],
+  "allowed_wall_types": [
+    "stone_lower_wall",
+    "timber_frame_wall",
+    "mixed_stone_wood_wall"
+  ],
+  "allowed_opening_styles": [
+    "single_door_with_frame",
+    "window_with_trapdoor_frame",
+    "window_with_slab_sill",
+    "small_high_window"
+  ],
+  "allowed_motifs": [
+    "small_porch",
+    "side_chimney",
+    "woodpile",
+    "barrel_cluster",
+    "fence_patch",
+    "lantern_post",
+    "small_path_patch"
+  ],
+  "forbidden_blocks": [
+    "quartz",
+    "amethyst",
+    "prismarine",
+    "purpur",
+    "end_stone",
+    "concrete",
+    "warped_",
+    "crimson_",
+    "iron_block",
+    "copper",
+    "gold_block",
+    "netherite",
+    "sea_lantern",
+    "end_rod",
+    "froglight",
+    "spawner",
+    "command_block",
+    "shulker",
+    "jukebox",
+    "beacon"
+  ],
+  "proportions": {
+    "wall_height": [
+      3,
+      5
+    ],
+    "roof_height_ratio": [
+      0.35,
+      0.65
+    ],
+    "foundation_height": [
+      1,
+      2
+    ],
+    "roof_overhang": [
+      0,
+      1
+    ],
+    "max_flat_wall_width": 4,
+    "window_min_count": 2,
+    "interior_required_function_blocks": 3,
+    "exterior_required_decoration_count": 2
+  }
+}

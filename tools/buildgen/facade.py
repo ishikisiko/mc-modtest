@@ -25,11 +25,18 @@ from .style import Style
 
 DENSITY_P = {"high": 0.9, "medium": 0.6, "low": 0.3}
 
-FACADE_KIND = {
-    "main_volume": {"front": ("front_facade", "high"),
+MAIN_FACADE_KIND = {"front": ("front_facade", "high"),
                     "back": ("back_facade", "low"),
                     "west": ("side_facade", "medium"),
-                    "east": ("side_facade", "medium")},
+                    "east": ("side_facade", "medium")}
+
+FACADE_KIND = {
+    "main_volume": MAIN_FACADE_KIND,
+    "great_hall_volume": MAIN_FACADE_KIND,
+    "tower_volume": {"front": ("tower_facade", "medium"),
+                     "back": ("tower_facade", "low"),
+                     "west": ("tower_facade", "medium"),
+                     "east": ("tower_facade", "medium")},
     "side_wing": {"front": ("side_wing_facade", "medium"),
                   "back": ("side_wing_facade", "low"),
                   "west": ("side_wing_facade", "medium"),
@@ -68,7 +75,7 @@ def _occlusions(graph: MassingGraph, vol: Node, wall: str) -> List[Tuple[int, in
             out.append((max(vol.x0, other.x0), min(vol.x1, other.x1)))
         elif wall == "front" and other.z1 == vol.z0 - 1:
             out.append((max(vol.x0, other.x0), min(vol.x1, other.x1)))
-    stair = graph.meta.get("stairwell")
+    stair = vol.meta.get("stairwell") or graph.meta.get("stairwells", {}).get(vol.id) or graph.meta.get("stairwell")
     if stair and stair.get("volume") == vol.id:
         if wall == "east" and stair["x1"] >= vol.x1 - 2:
             out.append((stair["z0"], stair["z1"]))

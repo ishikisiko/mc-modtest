@@ -60,12 +60,72 @@ SCALE_TIERS = {
         "footprints": [(9, 5), (11, 5), (11, 7)],
         "min_volumes": 1,
     },
+    "tavern": {
+        "footprints": [(15, 11), (17, 11), (17, 13)],
+        "min_volumes": 1,
+    },
+    "lord_manor": {
+        "footprints": [(17, 13), (19, 13), (19, 15)],
+        "min_volumes": 2,
+    },
+    "cultivation_house": {
+        "footprints": [(9, 7), (11, 9), (13, 9)],
+        "min_volumes": 1,
+    },
+    "cultivation_shop": {
+        "footprints": [(9, 7), (11, 9), (13, 9)],
+        "min_volumes": 1,
+    },
+    "cultivation_inn": {
+        "footprints": [(15, 11), (17, 11), (17, 13)],
+        "min_volumes": 1,
+    },
+    "cultivation_market": {
+        "footprints": [(11, 9), (13, 9), (13, 11)],
+        "min_volumes": 1,
+    },
+    "town_shrine": {
+        "footprints": [(17, 13), (19, 13), (19, 15)],
+        "min_volumes": 2,
+    },
+    "sect_gate": {
+        "footprints": [(13, 7), (15, 7)],
+        "min_volumes": 1,
+    },
+    "sect_main_hall": {
+        "footprints": [(19, 15), (21, 15), (23, 17)],
+        "min_volumes": 1,
+    },
+    "scripture_pavilion": {
+        "footprints": [(13, 11), (15, 11)],
+        "min_volumes": 1,
+    },
+    "alchemy_room": {
+        "footprints": [(13, 11), (15, 11)],
+        "min_volumes": 1,
+    },
+    "disciple_quarters": {
+        "footprints": [(15, 11), (17, 11)],
+        "min_volumes": 1,
+    },
 }
 
 ARCHETYPES = ("small_house", "medium_house", "blacksmith",
               "small_shop", "medium_shop", "big_house")
 CHINESE_ARCHETYPES = ("main_hall", "side_wing", "front_row", "gate_house")
+CIVIC_ARCHETYPES = ("tavern", "lord_manor")
+CULTIVATION_TOWN_ARCHETYPES = (
+    "cultivation_house", "cultivation_shop", "cultivation_inn",
+    "cultivation_market", "town_shrine",
+)
+CULTIVATION_SECT_ARCHETYPES = (
+    "sect_gate", "sect_main_hall", "scripture_pavilion",
+    "alchemy_room", "disciple_quarters",
+)
 NEW_ARCHETYPE_COUNTS = {"small_shop": 5, "medium_shop": 5, "big_house": 5}
+NEW_ARCHETYPE_COUNTS.update({archetype: 3 for archetype in CULTIVATION_TOWN_ARCHETYPES})
+NEW_ARCHETYPE_COUNTS.update({archetype: 2 for archetype in CULTIVATION_SECT_ARCHETYPES})
+CIVIC_ARCHETYPE_COUNTS = {"tavern": 5, "lord_manor": 3}
 
 # scale tier used for each gallery seed index (1-based), per archetype
 TIER_PLAN = {
@@ -78,6 +138,16 @@ TIER_PLAN = {
     "small_shop": {i: f"small_shop_v{i}" for i in range(1, 6)},
     "medium_shop": {i: f"medium_shop_v{i}" for i in range(1, 6)},
     "big_house": {i: f"big_house_v{i}" for i in range(1, 6)},
+    "cultivation_house": {i: f"cultivation_house_v{i}" for i in range(1, 4)},
+    "cultivation_shop": {i: f"cultivation_shop_v{i}" for i in range(1, 4)},
+    "cultivation_inn": {i: f"cultivation_inn_v{i}" for i in range(1, 4)},
+    "cultivation_market": {i: f"cultivation_market_v{i}" for i in range(1, 4)},
+    "town_shrine": {i: f"town_shrine_v{i}" for i in range(1, 4)},
+    "sect_gate": {i: f"sect_gate_v{i}" for i in range(1, 3)},
+    "sect_main_hall": {i: f"sect_main_hall_v{i}" for i in range(1, 3)},
+    "scripture_pavilion": {i: f"scripture_pavilion_v{i}" for i in range(1, 3)},
+    "alchemy_room": {i: f"alchemy_room_v{i}" for i in range(1, 3)},
+    "disciple_quarters": {i: f"disciple_quarters_v{i}" for i in range(1, 3)},
 }
 
 SHOP_VARIANTS: Dict[str, List[dict]] = {
@@ -118,6 +188,28 @@ BIG_HOUSE_VARIANTS = [
      "wing": "east"},
     {"stories": 3, "footprint": (13, 11), "roof_axis": "x", "overhang": 1,
      "wing": "west"},
+]
+
+TAVERN_VARIANTS: List[dict] = [
+    {"footprint": (15, 11), "mezzanine": "west", "stable": True,
+     "roof_axis": "x", "overhang": 1, "door_shift": 2},
+    {"footprint": (17, 11), "mezzanine": "east", "stable": False,
+     "roof_axis": "x", "overhang": 0, "door_shift": -2},
+    {"footprint": (17, 13), "mezzanine": "west", "stable": True,
+     "roof_axis": "z", "overhang": 1, "door_shift": 0},
+    {"footprint": (15, 11), "mezzanine": "east", "stable": True,
+     "roof_axis": "x", "overhang": 1, "door_shift": -1},
+    {"footprint": (17, 13), "mezzanine": "west", "stable": False,
+     "roof_axis": "z", "overhang": 0, "door_shift": 1},
+]
+
+LORD_MANOR_VARIANTS: List[dict] = [
+    {"footprint": (17, 13), "tower_side": "east", "tower_stories_over_main": 1,
+     "tower_footprint": (5, 5), "wing": None, "roof_axis": "x", "overhang": 1},
+    {"footprint": (19, 13), "tower_side": "west", "tower_stories_over_main": 2,
+     "tower_footprint": (5, 7), "wing": "east", "roof_axis": "x", "overhang": 1},
+    {"footprint": (19, 15), "tower_side": "east", "tower_stories_over_main": 2,
+     "tower_footprint": (7, 5), "wing": "west", "roof_axis": "z", "overhang": 0},
 ]
 
 
@@ -177,48 +269,114 @@ def _main_volume(graph: MassingGraph, style: Style, rng: random.Random,
 
 def _door(graph: MassingGraph, main: Node, rng: random.Random,
           avoid: Tuple[int, int] = None) -> int:
-    """Pick the front door x; off-center on purpose, away from corners."""
+    """Pick the front door x; off-center unless the volume asks to center it."""
     lo, hi = main.x0 + 2, main.x1 - 2
     center = (lo + hi) // 2
-    options = [x for x in range(lo, hi + 1) if abs(x - center) <= 2]
-    if avoid:
-        options = [x for x in options if not (avoid[0] <= x <= avoid[1])] or options
-    door_x = rng.choice(options)
-    graph.meta["door"] = {"volume": "main", "wall": "front", "x": door_x}
+    if main.meta.get("door_centered"):
+        door_x = center
+    else:
+        options = [x for x in range(lo, hi + 1) if abs(x - center) <= 2]
+        if avoid:
+            options = [x for x in options if not (avoid[0] <= x <= avoid[1])] or options
+        door_x = rng.choice(options)
+    graph.meta["door"] = {"volume": main.id, "wall": "front", "x": door_x}
     return door_x
 
 
-def _reserve_stairwell(graph: MassingGraph, main: Node, door_x: int) -> dict:
-    stories = main.meta.get("stories", 1)
+def _reserve_stairwell(graph: MassingGraph, vol: Node,
+                       door_x: Optional[int] = None,
+                       preferred_side: Optional[str] = None) -> dict:
+    stories = vol.meta.get("stories", 1)
     if stories <= 1:
         return {}
-    story_wall_h = main.meta.get("story_wall_h", main.meta["wall_h"])
-    interior_z0 = main.z0 + 1
-    interior_z1 = main.z1 - 1
+    story_wall_h = vol.meta.get("story_wall_h", vol.meta["wall_h"])
+    interior_z0 = vol.z0 + 1
+    interior_z1 = vol.z1 - 1
     landing_z = interior_z1
-    z1 = max(interior_z0 + 2, landing_z - 1)
+    z1 = max(interior_z0, landing_z - 1)
     run = min(story_wall_h, z1 - interior_z0 + 1)
-    z0 = max(main.z0 + 1, z1 - run + 1)
-    west = (main.x0 + 1, main.x0 + 2)
-    east = (main.x1 - 2, main.x1 - 1)
+    z0 = max(vol.z0 + 1, z1 - run + 1)
+    west = (vol.x0 + 1, min(vol.x0 + 2, vol.x1 - 1), "west")
+    east = (max(vol.x1 - 2, vol.x0 + 1), vol.x1 - 1, "east")
     choices = [west, east]
-    clear = [c for c in choices if not (c[0] - 1 <= door_x <= c[1] + 1)]
-    choices = clear or choices
-    x0, x1 = max(choices, key=lambda c: min(abs(door_x - c[0]), abs(door_x - c[1])))
-    stair = {"volume": main.id, "x0": x0, "x1": x1, "z0": z0, "z1": z1,
+    if preferred_side in ("west", "east"):
+        choices = [c for c in choices if c[2] == preferred_side] or choices
+    if door_x is not None:
+        clear = [c for c in choices if not (c[0] - 1 <= door_x <= c[1] + 1)]
+        choices = clear or choices
+        x0, x1, _ = max(choices, key=lambda c: min(abs(door_x - c[0]), abs(door_x - c[1])))
+    else:
+        x0, x1, _ = choices[0]
+    stair = {"volume": vol.id, "x0": x0, "x1": x1, "z0": z0, "z1": z1,
              "landing_z": landing_z,
              "direction": "south", "stories": stories, "story_wall_h": story_wall_h}
-    graph.meta["stairwell"] = stair
-    main.meta["stairwell"] = stair
+    graph.meta.setdefault("stairwells", {})[vol.id] = stair
+    if vol.id == "main":
+        graph.meta["stairwell"] = stair
+    vol.meta["stairwell"] = stair
     return stair
 
 
 def reserved_stair_footprint(graph: MassingGraph,
                              volume_id: str = "main") -> Optional[dict]:
+    stairwells = graph.meta.get("stairwells", {})
+    stair = stairwells.get(volume_id)
+    if stair:
+        return stair
     stair = graph.meta.get("stairwell")
     if stair and stair.get("volume") == volume_id:
         return stair
     return None
+
+
+def _mezzanine_meta(main: Node, covers: str, depth: int) -> dict:
+    meta = {"covers": covers, "depth": depth, "y_offset": 0}
+    main.meta["mezzanine"] = meta
+    main.meta["mezzanine_story"] = 1
+    main.meta.setdefault("story_meta", {})["1"] = {"mezzanine_story": True}
+    return meta
+
+
+def _tower_volume(graph: MassingGraph, main: Node, side: str,
+                  stories_over_main: int, footprint: Tuple[int, int]) -> Node:
+    main_stories = main.meta.get("stories", 1)
+    stories = main_stories + stories_over_main
+    story_wall_h = main.meta.get("story_wall_h", 4)
+    fh = main.meta["foundation_h"]
+    total_wall_h = stories * story_wall_h
+    tw, td = footprint
+    if side == "west":
+        origin = (main.x0 - tw, 0, main.z0 + max(1, (main.size[2] - td) // 2))
+        attached_side = "east"
+        roof_axis = "z"
+    elif side == "east":
+        origin = (main.x1 + 1, 0, main.z0 + max(1, (main.size[2] - td) // 2))
+        attached_side = "west"
+        roof_axis = "z"
+    elif side == "back":
+        origin = (main.x0 + max(1, (main.size[0] - tw) // 2), 0, main.z1 + 1)
+        attached_side = "front"
+        roof_axis = "x"
+    else:
+        origin = (main.x0 + max(1, (main.size[0] - tw) // 2), 0, main.z0 - td)
+        attached_side = "back"
+        roof_axis = "x"
+    tower = Node(
+        id="tower", type="tower_volume", origin=origin,
+        size=(tw, fh + total_wall_h, td), attach_to=main.id, side=side,
+        priority=20, tags=["STRUCTURE"],
+        meta={
+            "foundation_h": fh,
+            "wall_h": total_wall_h,
+            "stories": stories,
+            "story_wall_h": story_wall_h,
+            "wall_type": main.meta["wall_type"],
+            "belfry": True,
+            "roof": {"type": "gable_roof", "ridge_axis": roof_axis,
+                     "overhang": 1, "attached_side": attached_side},
+        })
+    graph.add(tower)
+    return tower
 
 
 def _porch(graph: MassingGraph, main: Node, door_x: int, rng: random.Random) -> Node:
@@ -271,12 +429,16 @@ def _path_patch(graph: MassingGraph, main: Node, door_x: int,
     return node
 
 
-def _zone(graph: MassingGraph, vol: Node, kind: str, region: Tuple[int, int, int, int]) -> Node:
+def _zone(graph: MassingGraph, vol: Node, kind: str,
+          region: Tuple[int, int, int, int], y: Optional[int] = None,
+          suffix: Optional[str] = None) -> Node:
     fh = vol.meta.get("foundation_h", 1)
     x0, z0, x1, z1 = region
+    zone_id = f"zone_{kind}_{vol.id}" if suffix is None else f"zone_{kind}_{vol.id}_{suffix}"
     node = Node(
-        id=f"zone_{kind}_{vol.id}", type="interior_zone",
-        origin=(x0, fh, z0), size=(x1 - x0 + 1, 2, z1 - z0 + 1),
+        id=zone_id, type="interior_zone",
+        origin=(x0, y if y is not None else fh, z0),
+        size=(x1 - x0 + 1, 2, z1 - z0 + 1),
         attach_to=vol.id, priority=60, tags=["INTERIOR"],
         meta={"kind": kind})
     graph.add(node)
@@ -577,6 +739,139 @@ def build_big_house(style: Style, rng: random.Random, tier: str) -> MassingGraph
     return graph
 
 
+def _half_plane_regions(main: Node, covers: str, depth: int) -> Tuple[Tuple[int, int, int, int], Tuple[int, int, int, int]]:
+    ix0, ix1 = main.x0 + 1, main.x1 - 1
+    iz0, iz1 = main.z0 + 1, main.z1 - 1
+    if covers == "west":
+        covered = (ix0, iz0, min(ix1, main.x0 + depth), iz1)
+        open_region = (min(ix1, main.x0 + depth) + 1, iz0, ix1, iz1)
+    else:
+        covered = (max(ix0, main.x1 - depth), iz0, ix1, iz1)
+        open_region = (ix0, iz0, max(ix0, main.x1 - depth) - 1, iz1)
+    if open_region[0] > open_region[2]:
+        mid = (ix0 + ix1) // 2
+        covered = (ix0, iz0, mid, iz1) if covers == "west" else (mid + 1, iz0, ix1, iz1)
+        open_region = (mid + 1, iz0, ix1, iz1) if covers == "west" else (ix0, iz0, mid, iz1)
+    return covered, open_region
+
+
+def build_tavern(style: Style, rng: random.Random, tier: str) -> MassingGraph:
+    vindex = variant_index(tier)
+    variant = TAVERN_VARIANTS[(vindex - 1) % len(TAVERN_VARIANTS)]
+    graph = MassingGraph(meta={"archetype": "tavern", "scale_tier": tier,
+                               "variant_index": vindex,
+                               "civic_family": True})
+    fh = 1
+    story_wall_h = 5
+    main = _main_volume(
+        graph, style, rng, "tavern", story_wall_h, fh,
+        stories=2, story_wall_h=story_wall_h,
+        footprint=variant["footprint"], roof_axis=variant["roof_axis"],
+        roof_overhang=variant["overhang"])
+    main.type = "great_hall_volume"
+    main.meta["wall_type"] = "timber_frame_wall"
+    main.meta["entry_signage"] = True
+
+    covers = variant["mezzanine"]
+    depth = max(4, main.size[0] // 2)
+    _mezzanine_meta(main, covers, depth)
+    center = (main.x0 + 2 + main.x1 - 2) // 2
+    door_x = max(main.x0 + 2, min(center + variant.get("door_shift", 0), main.x1 - 2))
+    graph.meta["door"] = {"volume": main.id, "wall": "front", "x": door_x}
+    preferred_stair = "east" if covers == "west" else "west"
+    _reserve_stairwell(graph, main, door_x, preferred_side=preferred_stair)
+    _path_patch(graph, main, door_x, rng, main.z0)
+    _chimney(graph, main, rng, side="west" if covers == "east" else "east")
+
+    covered, open_region = _half_plane_regions(main, covers, depth)
+    upper_y = fh + story_wall_h + 1
+    _zone(graph, main, "tavern_hall", open_region, suffix="ground")
+    _zone(graph, main, "tavern_inn", covered, y=upper_y, suffix="mezzanine")
+
+    if variant.get("stable"):
+        sw = 5
+        sd = max(6, main.size[2] - 3)
+        side = "west" if covers == "west" else "east"
+        sx0 = main.x0 - sw if side == "west" else main.x1 + 1
+        sz0 = main.z0 + 2
+        stable = Node(
+            id="stable_annex", type="shed", origin=(sx0, 0, sz0),
+            size=(sw, fh + 3, sd), attach_to="main", side=side,
+            priority=20, tags=["STRUCTURE", "DETAIL"],
+            meta={"foundation_h": fh, "wall_h": 3, "open": True,
+                  "stable": True, "hay_floor": True,
+                  "roof": {"type": "lean_to_roof", "low_side": side,
+                           "attached_side": "east" if side == "west" else "west"}})
+        if _free_spot(graph, stable, margin=0):
+            graph.add(stable)
+            _zone(graph, stable, "stable",
+                  (stable.x0 + 1, stable.z0 + 1, stable.x1 - 1, stable.z1 - 1),
+                  suffix="annex")
+    _decoration_patches(graph, main, rng, 3,
+                        ["barrel_cluster", "lantern_post", "fence_patch", "woodpile"])
+    return graph
+
+
+def build_lord_manor(style: Style, rng: random.Random, tier: str) -> MassingGraph:
+    vindex = variant_index(tier)
+    variant = LORD_MANOR_VARIANTS[(vindex - 1) % len(LORD_MANOR_VARIANTS)]
+    graph = MassingGraph(meta={"archetype": "lord_manor", "scale_tier": tier,
+                               "variant_index": vindex,
+                               "civic_family": True})
+    fh = 1
+    story_wall_h = 4
+    main = _main_volume(
+        graph, style, rng, "lord_manor", story_wall_h, fh,
+        stories=2, story_wall_h=story_wall_h,
+        footprint=variant["footprint"], roof_axis=variant["roof_axis"],
+        roof_overhang=variant["overhang"])
+    main.meta["wall_type"] = "timber_frame_wall"
+    main.meta["door_centered"] = True
+    main.meta["entry_heraldry"] = True
+    door_x = _door(graph, main, rng)
+    _reserve_stairwell(graph, main, door_x)
+    _path_patch(graph, main, door_x, rng, main.z0)
+
+    tower = _tower_volume(
+        graph, main, variant["tower_side"], variant["tower_stories_over_main"],
+        variant["tower_footprint"])
+    _reserve_stairwell(graph, tower, preferred_side="west")
+
+    wing_side = variant.get("wing")
+    if wing_side:
+        ow = 4
+        bw = max(7, main.size[2] - 4)
+        wx0 = main.x0 - ow if wing_side == "west" else main.x1 + 1
+        wing = Node(
+            id="side_wing", type="side_wing", origin=(wx0, 0, main.z0 + 2),
+            size=(ow, fh + story_wall_h, bw), attach_to="main", side=wing_side,
+            priority=20, tags=["STRUCTURE"],
+            meta={
+                "foundation_h": fh, "wall_h": story_wall_h,
+                "wall_type": main.meta["wall_type"],
+                "roof": {"type": "gable_roof", "ridge_axis": "z", "overhang": 1,
+                         "attached_side": "east" if wing_side == "west" else "west"},
+            })
+        if _free_spot(graph, wing, margin=0):
+            graph.add(wing)
+            _zone(graph, wing, "storage",
+                  (wing.x0 + 1, wing.z0 + 1, wing.x1 - 1, wing.z1 - 1))
+
+    ix0, ix1 = main.x0 + 1, main.x1 - 1
+    iz0, iz1 = main.z0 + 1, main.z1 - 1
+    split = (ix0 + ix1) // 2
+    upper_y = fh + story_wall_h + 1
+    _zone(graph, main, "town_foyer", (ix0, iz0, ix1, iz1), suffix="ground")
+    _zone(graph, main, "town_chamber", (ix0, iz0, split, iz1),
+          y=upper_y, suffix="upper")
+    quarters = _zone(graph, main, "living", (split + 1, iz0, ix1, iz1),
+                     y=upper_y, suffix="quarters")
+    quarters.meta["private_quarters"] = True
+    _decoration_patches(graph, main, rng, 3,
+                        ["lantern_post", "fence_patch", "small_path_patch", "woodpile"])
+    return graph
+
+
 def build_small_shop(style: Style, rng: random.Random, tier: str) -> MassingGraph:
     return build_shop(style, rng, tier)
 
@@ -688,6 +983,200 @@ def build_gate_house(style: Style, rng: random.Random, tier: str) -> MassingGrap
     return graph
 
 
+def _retag_graph(graph: MassingGraph, archetype: str, tier: str,
+                 style_family: str) -> MassingGraph:
+    graph.meta["archetype"] = archetype
+    graph.meta["scale_tier"] = tier
+    graph.meta["style_family"] = style_family
+    return graph
+
+
+def build_cultivation_house(style: Style, rng: random.Random, tier: str) -> MassingGraph:
+    vindex = variant_index(tier)
+    if vindex == 1:
+        graph = build_small_house(style, rng, "small")
+    else:
+        graph = build_medium_house(style, rng, "medium")
+    return _retag_graph(graph, "cultivation_house", tier, "cultivation_town")
+
+
+def build_cultivation_shop(style: Style, rng: random.Random, tier: str) -> MassingGraph:
+    vindex = variant_index(tier)
+    source_tier = f"small_shop_v{vindex}" if vindex < 3 else "medium_shop_v1"
+    graph = build_shop(style, rng, source_tier)
+    return _retag_graph(graph, "cultivation_shop", tier, "cultivation_town")
+
+
+def build_cultivation_inn(style: Style, rng: random.Random, tier: str) -> MassingGraph:
+    vindex = variant_index(tier)
+    graph = build_tavern(style, rng, f"tavern_v{vindex}")
+    return _retag_graph(graph, "cultivation_inn", tier, "cultivation_town")
+
+
+def build_cultivation_market(style: Style, rng: random.Random, tier: str) -> MassingGraph:
+    vindex = variant_index(tier)
+    source_tier = f"medium_shop_v{min(vindex + 1, len(SHOP_VARIANTS['medium_shop']))}"
+    graph = build_shop(style, rng, source_tier)
+    return _retag_graph(graph, "cultivation_market", tier, "cultivation_town")
+
+
+def build_town_shrine(style: Style, rng: random.Random, tier: str) -> MassingGraph:
+    vindex = variant_index(tier)
+    graph = build_lord_manor(style, rng, f"lord_manor_v{vindex}")
+    return _retag_graph(graph, "town_shrine", tier, "cultivation_town")
+
+
+def _sect_graph(archetype: str, tier: str) -> MassingGraph:
+    return MassingGraph(meta={
+        "archetype": archetype,
+        "scale_tier": tier,
+        "style_family": "cultivation_sect",
+    })
+
+
+def _set_roof(vol: Node, roof_type: str, axis: str = "x", overhang: int = 1) -> None:
+    vol.meta["roof"] = {
+        "type": roof_type,
+        "ridge_axis": axis,
+        "overhang": overhang,
+    }
+
+
+def _sect_deco(graph: MassingGraph, motif: str, origin: Tuple[int, int, int],
+               size: Tuple[int, int, int]) -> Node:
+    index = len(graph.by_type("decoration_patch"))
+    node = Node(
+        id=f"sect_deco_{motif}_{index}",
+        type="decoration_patch",
+        origin=origin,
+        size=size,
+        attach_to="main",
+        priority=70,
+        tags=["DETAIL"],
+        meta={"motif": motif},
+    )
+    graph.add(node)
+    return node
+
+
+def build_sect_gate(style: Style, rng: random.Random, tier: str) -> MassingGraph:
+    graph = _sect_graph("sect_gate", tier)
+    fh = 1
+    wall_h = 5
+    main = _main_volume(
+        graph, style, rng, "sect_gate", wall_h, fh,
+        footprint=rng.choice(SCALE_TIERS["sect_gate"]["footprints"]),
+        roof_axis="x", roof_overhang=1)
+    main.meta["wall_type"] = "white_plaster_timber_wall"
+    _set_roof(main, "tiered_eave_roof", "x", 1)
+    main.meta["door_centered"] = True
+    door_x = _door(graph, main, rng)
+    _path_patch(graph, main, door_x, rng, main.z0)
+    _zone(graph, main, "storage", (main.x0 + 1, main.z0 + 1, main.x1 - 1, main.z1 - 1))
+    _sect_deco(graph, "moon_gate", (main.x0 + 3, 0, main.z0 - 2), (5, 5, 1))
+    _sect_deco(graph, "cloud_rail", (main.x0 + 2, 1, main.z1 + 1), (5, 2, 1))
+    return graph
+
+
+def build_sect_main_hall(style: Style, rng: random.Random, tier: str) -> MassingGraph:
+    graph = _sect_graph("sect_main_hall", tier)
+    fh = 2
+    story_wall_h = 5
+    main = _main_volume(
+        graph, style, rng, "sect_main_hall", story_wall_h, fh,
+        stories=2, story_wall_h=story_wall_h,
+        footprint=rng.choice(SCALE_TIERS["sect_main_hall"]["footprints"]),
+        roof_axis="x", roof_overhang=1)
+    main.meta["wall_type"] = "white_plaster_timber_wall"
+    _set_roof(main, "tiered_eave_roof", "x", 1)
+    main.meta["door_centered"] = True
+    door_x = _door(graph, main, rng)
+    _reserve_stairwell(graph, main, door_x, preferred_side="east")
+    _path_patch(graph, main, door_x, rng, main.z0)
+    ix0, ix1 = main.x0 + 1, main.x1 - 1
+    iz0, iz1 = main.z0 + 1, main.z1 - 1
+    split = (ix0 + ix1) // 2
+    _zone(graph, main, "work", (ix0, iz0, split, iz1), suffix="ritual")
+    _zone(graph, main, "living", (split + 1, iz0, ix1, iz1), y=fh + story_wall_h + 1,
+          suffix="upper")
+    _sect_deco(graph, "spirit_array", ((main.x0 + main.x1) // 2 - 2, 0, main.z0 - 7), (5, 1, 5))
+    _sect_deco(graph, "incense_altar", ((main.x0 + main.x1) // 2 - 1, 0, main.z0 - 2), (3, 2, 1))
+    return graph
+
+
+def build_scripture_pavilion(style: Style, rng: random.Random, tier: str) -> MassingGraph:
+    graph = _sect_graph("scripture_pavilion", tier)
+    fh = 1
+    story_wall_h = 4
+    main = _main_volume(
+        graph, style, rng, "scripture_pavilion", story_wall_h, fh,
+        stories=3, story_wall_h=story_wall_h,
+        footprint=rng.choice(SCALE_TIERS["scripture_pavilion"]["footprints"]),
+        roof_axis="x", roof_overhang=1)
+    main.type = "tower_volume"
+    main.meta["wall_type"] = "white_plaster_timber_wall"
+    _set_roof(main, "tiered_eave_roof", "x", 1)
+    main.meta["door_centered"] = True
+    door_x = _door(graph, main, rng)
+    _reserve_stairwell(graph, main, door_x, preferred_side="west")
+    _path_patch(graph, main, door_x, rng, main.z0)
+    ix0, ix1 = main.x0 + 1, main.x1 - 1
+    iz0, iz1 = main.z0 + 1, main.z1 - 1
+    _zone(graph, main, "work", (ix0, iz0, ix1, iz1), suffix="reading")
+    _zone(graph, main, "storage", (ix0, iz1 - 2, ix1, iz1), y=fh + story_wall_h + 1,
+          suffix="stacks")
+    _sect_deco(graph, "cloud_rail", (main.x0 + 2, 1, main.z1 + 1), (5, 2, 1))
+    return graph
+
+
+def build_alchemy_room(style: Style, rng: random.Random, tier: str) -> MassingGraph:
+    graph = _sect_graph("alchemy_room", tier)
+    fh = 1
+    wall_h = 5
+    main = _main_volume(
+        graph, style, rng, "alchemy_room", wall_h, fh,
+        footprint=rng.choice(SCALE_TIERS["alchemy_room"]["footprints"]),
+        roof_axis="x", roof_overhang=1)
+    main.meta["wall_type"] = "mixed_stone_wood_wall"
+    _set_roof(main, "gable_roof", "x", 1)
+    door_x = _door(graph, main, rng)
+    _path_patch(graph, main, door_x, rng, main.z0)
+    _chimney(graph, main, rng, side=rng.choice(["west", "east"]))
+    ix0, ix1 = main.x0 + 1, main.x1 - 1
+    iz0, iz1 = main.z0 + 1, main.z1 - 1
+    split = (ix0 + ix1) // 2
+    _zone(graph, main, "forge", (ix0, iz0, split, iz1))
+    _zone(graph, main, "storage", (split + 1, iz0, ix1, iz1))
+    _sect_deco(graph, "incense_altar", (main.x0 + 2, 0, main.z0 - 2), (3, 2, 1))
+    return graph
+
+
+def build_disciple_quarters(style: Style, rng: random.Random, tier: str) -> MassingGraph:
+    graph = _sect_graph("disciple_quarters", tier)
+    fh = 1
+    story_wall_h = 4
+    main = _main_volume(
+        graph, style, rng, "disciple_quarters", story_wall_h, fh,
+        stories=2, story_wall_h=story_wall_h,
+        footprint=rng.choice(SCALE_TIERS["disciple_quarters"]["footprints"]),
+        roof_axis="x", roof_overhang=1)
+    main.meta["wall_type"] = "timber_frame_wall"
+    _set_roof(main, "gable_roof", "x", 1)
+    door_x = _door(graph, main, rng)
+    _reserve_stairwell(graph, main, door_x)
+    _path_patch(graph, main, door_x, rng, main.z0)
+    ix0, ix1 = main.x0 + 1, main.x1 - 1
+    iz0, iz1 = main.z0 + 1, main.z1 - 1
+    split = (ix0 + ix1) // 2
+    quarters = _zone(graph, main, "living", (ix0, iz0, split, iz1), suffix="lower")
+    quarters.meta["private_quarters"] = True
+    upper = _zone(graph, main, "living", (split + 1, iz0, ix1, iz1),
+                  y=fh + story_wall_h + 1, suffix="upper")
+    upper.meta["private_quarters"] = True
+    _sect_deco(graph, "cloud_rail", (main.x0 + 2, 1, main.z1 + 1), (5, 2, 1))
+    return graph
+
+
 BUILDERS = {
     "small_house": build_small_house,
     "medium_house": build_medium_house,
@@ -695,16 +1184,34 @@ BUILDERS = {
     "small_shop": build_small_shop,
     "medium_shop": build_medium_shop,
     "big_house": build_big_house,
+    "tavern": build_tavern,
+    "lord_manor": build_lord_manor,
     "main_hall": build_main_hall,
     "side_wing": build_side_wing,
     "front_row": build_front_row,
     "gate_house": build_gate_house,
+    "cultivation_house": build_cultivation_house,
+    "cultivation_shop": build_cultivation_shop,
+    "cultivation_inn": build_cultivation_inn,
+    "cultivation_market": build_cultivation_market,
+    "town_shrine": build_town_shrine,
+    "sect_gate": build_sect_gate,
+    "sect_main_hall": build_sect_main_hall,
+    "scripture_pavilion": build_scripture_pavilion,
+    "alchemy_room": build_alchemy_room,
+    "disciple_quarters": build_disciple_quarters,
 }
 
 
-def build_massing(archetype: str, style: Style, rng: random.Random, tier: str) -> MassingGraph:
+def build_massing(archetype: str, style: Style, rng: random.Random, tier: str,
+                  group_id: Optional[str] = None) -> MassingGraph:
+    if group_id:
+        from .groups import validate_group_archetype
+        validate_group_archetype(group_id, style.style_id, archetype)
     graph = BUILDERS[archetype](style, rng, tier)
     graph.meta["style_id"] = style.style_id
+    if group_id:
+        graph.meta["group_id"] = group_id
     # tier composition guarantee
     min_volumes = SCALE_TIERS[tier_base(tier)]["min_volumes"]
     n_vol = len(graph.volumes())

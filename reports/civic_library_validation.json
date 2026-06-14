@@ -1,0 +1,295 @@
+{
+  "passed": true,
+  "expected": [
+    "tavern_001",
+    "tavern_002",
+    "tavern_003",
+    "tavern_004",
+    "tavern_005",
+    "lord_manor_001",
+    "lord_manor_002",
+    "lord_manor_003"
+  ],
+  "total": 8,
+  "errors": [],
+  "results": [
+    {
+      "path": "tavern_001.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        21,
+        21,
+        18
+      ],
+      "palette_count": 41,
+      "block_count": 1232,
+      "roof_block_count": 295,
+      "top_layer_counts": {
+        "18": 18,
+        "19": 2,
+        "20": 2
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 5,
+        "minecraft:brewing_stand": 2,
+        "minecraft:crafting_table": 1,
+        "minecraft:furnace": 1,
+        "minecraft:green_bed": 2,
+        "minecraft:oak_log": 217,
+        "minecraft:oak_planks": 306,
+        "minecraft:spruce_planks": 42,
+        "minecraft:spruce_slab": 126,
+        "minecraft:spruce_stairs": 210,
+        "minecraft:stripped_oak_log": 14,
+        "minecraft:stripped_oak_wood": 110,
+        "minecraft:yellow_bed": 2
+      }
+    },
+    {
+      "path": "tavern_002.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        23,
+        20,
+        16
+      ],
+      "palette_count": 37,
+      "block_count": 1129,
+      "roof_block_count": 208,
+      "top_layer_counts": {
+        "17": 19,
+        "18": 2,
+        "19": 2
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 5,
+        "minecraft:brewing_stand": 1,
+        "minecraft:crafting_table": 1,
+        "minecraft:furnace": 1,
+        "minecraft:green_bed": 2,
+        "minecraft:oak_log": 220,
+        "minecraft:oak_planks": 307,
+        "minecraft:spruce_planks": 38,
+        "minecraft:spruce_slab": 93,
+        "minecraft:spruce_stairs": 177,
+        "minecraft:stripped_oak_log": 16,
+        "minecraft:stripped_oak_wood": 90,
+        "minecraft:white_bed": 2,
+        "minecraft:yellow_bed": 2
+      }
+    },
+    {
+      "path": "tavern_003.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        25,
+        22,
+        18
+      ],
+      "palette_count": 47,
+      "block_count": 1579,
+      "roof_block_count": 371,
+      "top_layer_counts": {
+        "19": 38,
+        "20": 34,
+        "21": 17
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 7,
+        "minecraft:brewing_stand": 2,
+        "minecraft:crafting_table": 1,
+        "minecraft:furnace": 1,
+        "minecraft:green_bed": 2,
+        "minecraft:oak_log": 259,
+        "minecraft:oak_planks": 374,
+        "minecraft:spruce_planks": 79,
+        "minecraft:spruce_slab": 159,
+        "minecraft:spruce_stairs": 263,
+        "minecraft:stripped_oak_log": 16,
+        "minecraft:stripped_oak_wood": 161,
+        "minecraft:white_bed": 2,
+        "minecraft:yellow_bed": 2
+      }
+    },
+    {
+      "path": "tavern_004.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        23,
+        21,
+        18
+      ],
+      "palette_count": 42,
+      "block_count": 1243,
+      "roof_block_count": 303,
+      "top_layer_counts": {
+        "18": 19,
+        "19": 2,
+        "20": 2
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 3,
+        "minecraft:brewing_stand": 1,
+        "minecraft:crafting_table": 1,
+        "minecraft:furnace": 1,
+        "minecraft:oak_log": 215,
+        "minecraft:oak_planks": 301,
+        "minecraft:red_bed": 2,
+        "minecraft:spruce_planks": 51,
+        "minecraft:spruce_slab": 122,
+        "minecraft:spruce_stairs": 209,
+        "minecraft:stripped_oak_log": 15,
+        "minecraft:stripped_oak_wood": 104
+      }
+    },
+    {
+      "path": "tavern_005.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        21,
+        21,
+        20
+      ],
+      "palette_count": 38,
+      "block_count": 1336,
+      "roof_block_count": 269,
+      "top_layer_counts": {
+        "18": 34,
+        "19": 30,
+        "20": 15
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 5,
+        "minecraft:blue_bed": 2,
+        "minecraft:brewing_stand": 2,
+        "minecraft:crafting_table": 1,
+        "minecraft:furnace": 1,
+        "minecraft:green_bed": 2,
+        "minecraft:oak_log": 230,
+        "minecraft:oak_planks": 338,
+        "minecraft:spruce_planks": 61,
+        "minecraft:spruce_slab": 111,
+        "minecraft:spruce_stairs": 215,
+        "minecraft:stripped_oak_log": 22,
+        "minecraft:stripped_oak_wood": 159,
+        "minecraft:yellow_bed": 2
+      }
+    },
+    {
+      "path": "lord_manor_001.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        26,
+        18,
+        16
+      ],
+      "palette_count": 41,
+      "block_count": 1572,
+      "roof_block_count": 368,
+      "top_layer_counts": {
+        "15": 63,
+        "16": 54,
+        "17": 19
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 1,
+        "minecraft:bell": 2,
+        "minecraft:blue_wall_banner": 1,
+        "minecraft:crafting_table": 2,
+        "minecraft:furnace": 1,
+        "minecraft:green_bed": 2,
+        "minecraft:lectern": 1,
+        "minecraft:oak_log": 217,
+        "minecraft:oak_planks": 570,
+        "minecraft:spruce_planks": 62,
+        "minecraft:spruce_slab": 12,
+        "minecraft:spruce_stairs": 314,
+        "minecraft:stripped_oak_log": 58,
+        "minecraft:stripped_oak_wood": 159,
+        "minecraft:yellow_wall_banner": 1
+      }
+    },
+    {
+      "path": "lord_manor_002.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        30,
+        21,
+        20
+      ],
+      "palette_count": 45,
+      "block_count": 2063,
+      "roof_block_count": 413,
+      "top_layer_counts": {
+        "18": 31,
+        "19": 23,
+        "20": 18
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 3,
+        "minecraft:bell": 2,
+        "minecraft:blue_wall_banner": 1,
+        "minecraft:crafting_table": 2,
+        "minecraft:furnace": 1,
+        "minecraft:lectern": 1,
+        "minecraft:oak_log": 321,
+        "minecraft:oak_planks": 732,
+        "minecraft:red_wall_banner": 1,
+        "minecraft:spruce_planks": 75,
+        "minecraft:spruce_stairs": 406,
+        "minecraft:stripped_oak_log": 61,
+        "minecraft:stripped_oak_wood": 223,
+        "minecraft:yellow_bed": 2
+      }
+    },
+    {
+      "path": "lord_manor_003.nbt",
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "size": [
+        32,
+        22,
+        20
+      ],
+      "palette_count": 38,
+      "block_count": 2215,
+      "roof_block_count": 379,
+      "top_layer_counts": {
+        "19": 37,
+        "20": 19,
+        "21": 14
+      },
+      "key_state_counts": {
+        "minecraft:barrel": 2,
+        "minecraft:bell": 2,
+        "minecraft:crafting_table": 2,
+        "minecraft:furnace": 1,
+        "minecraft:green_wall_banner": 2,
+        "minecraft:lectern": 1,
+        "minecraft:oak_log": 400,
+        "minecraft:oak_planks": 776,
+        "minecraft:spruce_planks": 111,
+        "minecraft:spruce_slab": 19,
+        "minecraft:spruce_stairs": 386,
+        "minecraft:stripped_oak_log": 3,
+        "minecraft:stripped_oak_wood": 273,
+        "minecraft:white_bed": 2
+      }
+    }
+  ]
+}

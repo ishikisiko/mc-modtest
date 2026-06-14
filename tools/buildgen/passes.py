@@ -1,8 +1,9 @@
 """Pass pipeline + protection mechanism.
 
 Pass order (priorities in grid.PRIORITY):
-    massing_pass -> structure_pass -> floor_slab_pass -> stair_pass ->
-    facade_detail_pass -> roof_pass -> roof_cleanup_pass ->
+    massing_pass -> structure_pass -> mezzanine_floor_pass ->
+    floor_slab_pass -> stair_pass -> facade_detail_pass -> roof_pass ->
+    roof_cleanup_pass ->
     material_variation_pass -> interior_furnishing_pass ->
     exterior_decoration_pass -> quality_check_pass -> resource_export_pass
 
@@ -34,6 +35,7 @@ class BuildContext:
     scale_tier: str
     seed: int
     rng: random.Random
+    group_id: Optional[str] = None
     graph: Optional[MassingGraph] = None
     grid: BlockGrid = field(default_factory=BlockGrid)
     door_info: Optional[dict] = None
@@ -46,7 +48,8 @@ class BuildContext:
 
 
 def massing_pass(ctx: BuildContext) -> None:
-    ctx.graph = build_massing(ctx.archetype, ctx.style, ctx.rng, ctx.scale_tier)
+    ctx.graph = build_massing(ctx.archetype, ctx.style, ctx.rng, ctx.scale_tier,
+                              ctx.group_id)
     ctx.passes_run.append("massing_pass")
 
 
@@ -82,11 +85,20 @@ def structure_pass(ctx: BuildContext) -> None:
         ops.chimney(grid, style, node)
     # interior connections between attached closed volumes and into side sheds
     for vol in graph.volumes():
-        if vol.attach_to and vol.type in ("side_wing", "rear_shed"):
+        if vol.attach_to and vol.type in ("side_wing", "rear_shed", "tower_volume"):
             _carve_connection(ctx, vol)
         elif vol.type == "shed" and vol.meta.get("open") and vol.side in ("west", "east"):
             _carve_connection(ctx, vol)
     ctx.passes_run.append("structure_pass")
+
+
+def mezzanine_floor_pass(ctx: BuildContext) -> None:
+    graph = ctx.graph
+    for vol in graph.volumes():
+        mezzanine = vol.meta.get("mezzanine")
+        if mezzanine:
+            ops.mezzanine_floor(ctx.grid, ctx.style, vol, mezzanine)
+    ctx.passes_run.append("mezzanine_floor_pass")
 
 
 def floor_slab_pass(ctx: BuildContext) -> None:
@@ -98,7 +110,15 @@ def floor_slab_pass(ctx: BuildContext) -> None:
         fh = vol.meta["foundation_h"]
         story_wall_h = vol.meta.get("story_wall_h", vol.meta["wall_h"])
         opening = reserved_stair_footprint(graph, vol.id)
+        mezzanine_story = vol.meta.get("mezzanine_story")
+        mezzanine_stories = set(vol.meta.get("mezzanine_stories", []))
+        if mezzanine_story is True:
+            mezzanine_stories.add(1)
+        elif isinstance(mezzanine_story, int):
+            mezzanine_stories.add(mezzanine_story)
         for story in range(1, stories):
+            if story in mezzanine_stories:
+                continue
             ops.floor_slab(ctx.grid, ctx.style, vol, fh + story * story_wall_h,
                            opening)
     ctx.passes_run.append("floor_slab_pass")
@@ -134,6 +154,16 @@ def facade_detail_pass(ctx: BuildContext) -> None:
     if door_vol.meta.get("storefront"):
         ops.storefront(grid, style, rng, door_vol, door["wall"], door["x"],
                        door_vol.meta["storefront"])
+    marker_y = min(
+        door_vol.meta["foundation_h"] + 3,
+        door_vol.meta["foundation_h"] + door_vol.meta["wall_h"] - 1,
+    )
+    if door_vol.meta.get("entry_signage"):
+        ops.wall_hanging(grid, style, rng, door_vol, door["wall"], door["x"],
+                         marker_y, "SIGNAGE", "_wall_sign", outside=True)
+    if door_vol.meta.get("entry_heraldry"):
+        ops.wall_hanging(grid, style, rng, door_vol, door["wall"], door["x"],
+                         marker_y, "HERALDRY", "_wall_banner", outside=True)
     for plan in ctx.wall_plans:
         vol = graph.get(plan.volume_id)
         for along, ostyle in plan.windows:
@@ -146,24 +176,21 @@ def facade_detail_pass(ctx: BuildContext) -> None:
 def roof_pass(ctx: BuildContext) -> None:
     grid, style, graph, rng = ctx.grid, ctx.style, ctx.graph, ctx.rng
     main = graph.get("main")
-    wings = graph.by_type("side_wing")
-    roof = main.meta["roof"]
-    if roof["type"] == "cross_gable_roof" and wings:
-        ctx.roof_info.append(ops.cross_gable_roof(grid, style, rng, main, wings[0]))
-    else:
-        ctx.roof_info.append(ops.gable_roof(grid, style, rng, main,
-                                            roof.get("ridge_axis", "x"),
-                                            roof.get("overhang", 1)))
+    roofed = set()
+
+    def apply_roof(vol: Node) -> None:
+        roof = vol.meta.get("roof")
+        if not roof:
+            return
+        info = ops.roof_handler(roof["type"])(grid, style, rng, vol, graph)
+        ctx.roof_info.append(info)
+        roofed.update(info.get("roofed_volume_ids", [vol.id]))
+
+    apply_roof(main)
     for vol in graph.volumes():
-        if vol.id == "main" or vol.type == "side_wing":
+        if vol.id in roofed:
             continue
-        vroof = vol.meta.get("roof")
-        if not vroof:
-            continue
-        parent = ctx.graph.get(vol.attach_to) if vol.attach_to else main
-        high_y = parent.meta["foundation_h"] + parent.meta["wall_h"]
-        ctx.roof_info.append(ops.lean_to_roof(grid, style, vol,
-                                              vroof["low_side"], high_y))
+        apply_roof(vol)
     ctx.passes_run.append("roof_pass")
 
 
@@ -307,6 +334,9 @@ def interior_furnishing_pass(ctx: BuildContext) -> None:
         vol = graph.get(zone.attach_to)
         ctx.interior_function_blocks += ops.interior_zone(
             grid, style, rng, vol, zone, door_cells)
+    for vol in graph.by_type("tower_volume"):
+        if vol.meta.get("belfry") and ops.belfry_bell(grid, style, vol):
+            ctx.interior_function_blocks += 1
     ctx.passes_run.append("interior_furnishing_pass")
 
 
@@ -316,27 +346,29 @@ def exterior_decoration_pass(ctx: BuildContext) -> None:
         for vol in graph.volumes():
             if vol.meta.get("open"):
                 continue
-            ops.chinese_timber_brackets(grid, style, rng, vol)
+            ops.place_motif("timber_bracket", grid, style, rng, vol)
         ctx.decoration_motifs.append("timber_bracket")
     for node in graph.by_type("porch"):
         main = graph.get(node.attach_to)
-        ops.porch(grid, style, rng, node, main)
-        ctx.decoration_motifs.append("small_porch")
+        if ops.place_motif("small_porch", grid, style, rng, node, main):
+            ctx.decoration_motifs.append("small_porch")
     for node in graph.by_type("path_patch", "courtyard_patch"):
-        ops.ground_patch(grid, style, rng, node)
+        ops.place_motif("ground_patch", grid, style, rng, node)
         ctx.decoration_motifs.append(
             "small_path_patch" if node.type == "path_patch" else "courtyard")
     for node in graph.by_type("decoration_patch"):
         if ops.exterior_decoration_patch(grid, style, rng, node):
             ctx.decoration_motifs.append(node.meta["motif"])
     if graph.by_type("chimney"):
-        ctx.decoration_motifs.append("side_chimney")
+        if ops.place_motif("side_chimney", grid, style, rng, graph.by_type("chimney")[0]):
+            ctx.decoration_motifs.append("side_chimney")
     ctx.passes_run.append("exterior_decoration_pass")
 
 
 PIPELINE = [
     massing_pass,
     structure_pass,
+    mezzanine_floor_pass,
     floor_slab_pass,
     stair_pass,
     facade_detail_pass,
@@ -349,9 +381,9 @@ PIPELINE = [
 
 
 def generate_building(style: Style, archetype: str, scale_tier: str,
-                      seed: int) -> BuildContext:
+                      seed: int, group_id: Optional[str] = None) -> BuildContext:
     ctx = BuildContext(style=style, archetype=archetype, scale_tier=scale_tier,
-                       seed=seed, rng=random.Random(seed))
+                       seed=seed, rng=random.Random(seed), group_id=group_id)
     for pass_fn in PIPELINE:
         pass_fn(ctx)
     return ctx

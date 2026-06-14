@@ -13,8 +13,8 @@
         18,
         46
       ],
-      "block_count": 6513,
-      "palette_count": 41
+      "block_count": 6534,
+      "palette_count": 44
     },
     {
       "name": "chinese_courtyard_002",
@@ -25,8 +25,8 @@
         19,
         47
       ],
-      "block_count": 6861,
-      "palette_count": 40
+      "block_count": 6907,
+      "palette_count": 44
     },
     {
       "name": "chinese_courtyard_003",
@@ -37,8 +37,8 @@
         18,
         48
       ],
-      "block_count": 6525,
-      "palette_count": 40
+      "block_count": 6556,
+      "palette_count": 44
     },
     {
       "name": "chinese_courtyard_004",
@@ -49,8 +49,8 @@
         18,
         46
       ],
-      "block_count": 6335,
-      "palette_count": 40
+      "block_count": 6363,
+      "palette_count": 44
     },
     {
       "name": "chinese_courtyard_005",
@@ -61,8 +61,8 @@
         18,
         48
       ],
-      "block_count": 5976,
-      "palette_count": 40
+      "block_count": 5993,
+      "palette_count": 44
     },
     {
       "name": "chinese_courtyard_006",
@@ -73,8 +73,8 @@
         19,
         48
       ],
-      "block_count": 6863,
-      "palette_count": 38
+      "block_count": 6903,
+      "palette_count": 41
     }
   ]
 }

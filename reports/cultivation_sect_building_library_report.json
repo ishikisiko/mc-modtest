@@ -1,0 +1,2332 @@
+{
+  "style_id": "cultivation_sect",
+  "group_id": "cultivation_sect",
+  "requested": 10,
+  "generated": 10,
+  "passed": 10,
+  "failed": 0,
+  "rejected_attempts": 1,
+  "gallery_function": "src/main/resources/data/myvillage/function/gallery/cultivation_sect.mcfunction",
+  "reports": [
+    {
+      "structure_id": "cultivation_sect/sect_gate_001",
+      "style_id": "cultivation_sect",
+      "archetype": "sect_gate",
+      "scale_tier": "sect_gate_v1",
+      "seed": 20260713,
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "scores": {
+        "style_score": 100,
+        "facade_score": 100,
+        "roof_score": 90,
+        "interior_score": 64,
+        "material_balance_score": 81,
+        "silhouette_score": 55
+      },
+      "stats": {
+        "volumes": 1,
+        "window_cells": 12,
+        "function_blocks": 2,
+        "decorations": [
+          "small_path_patch",
+          "moon_gate",
+          "cloud_rail"
+        ],
+        "worst_flat_run": 4,
+        "stone_fraction": 0.093
+      },
+      "attempt": 1,
+      "export": {
+        "size": [
+          17,
+          12,
+          11
+        ],
+        "block_count": 910,
+        "palette_count": 28,
+        "path": "src/main/resources/data/myvillage/structure/sect_gate_001.nbt"
+      },
+      "massing_graph": {
+        "meta": {
+          "archetype": "sect_gate",
+          "scale_tier": "sect_gate_v1",
+          "style_family": "cultivation_sect",
+          "door": {
+            "volume": "main",
+            "wall": "front",
+            "x": 7
+          },
+          "style_id": "cultivation_sect",
+          "group_id": "cultivation_sect",
+          "opening_style": "window_with_trapdoor_frame"
+        },
+        "nodes": [
+          {
+            "id": "main",
+            "type": "main_volume",
+            "origin": [
+              0,
+              0,
+              0
+            ],
+            "size": [
+              15,
+              6,
+              7
+            ],
+            "orientation": "front",
+            "priority": 20,
+            "tags": [
+              "STRUCTURE"
+            ],
+            "meta": {
+              "foundation_h": 1,
+              "wall_h": 5,
+              "wall_type": "white_plaster_timber_wall",
+              "roof": {
+                "type": "tiered_eave_roof",
+                "ridge_axis": "x",
+                "overhang": 1
+              },
+              "door_centered": true
+            }
+          },
+          {
+            "id": "path_front",
+            "type": "path_patch",
+            "origin": [
+              6,
+              0,
+              -3
+            ],
+            "size": [
+              2,
+              1,
+              3
+            ],
+            "orientation": "front",
+            "priority": 70,
+            "tags": [
+              "DETAIL",
+              "GROUND"
+            ],
+            "attach_to": "main",
+            "side": "front",
+            "meta": {
+              "door_x": 7,
+              "step_z": -1,
+              "step_y": 0,
+              "entry_z0": -1,
+              "entry_z1": -1
+            }
+          },
+          {
+            "id": "zone_storage_main",
+            "type": "interior_zone",
+            "origin": [
+              1,
+              1,
+              1
+            ],
+            "size": [
+              13,
+              2,
+              5
+            ],
+            "orientation": "front",
+            "priority": 60,
+            "tags": [
+              "INTERIOR"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "kind": "storage"
+            }
+          },
+          {
+            "id": "sect_deco_moon_gate_0",
+            "type": "decoration_patch",
+            "origin": [
+              3,
+              0,
+              -2
+            ],
+            "size": [
+              5,
+              5,
+              1
+            ],
+            "orientation": "front",
+            "priority": 70,
+            "tags": [
+              "DETAIL"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "motif": "moon_gate"
+            }
+          },
+          {
+            "id": "sect_deco_cloud_rail_1",
+            "type": "decoration_patch",
+            "origin": [
+              2,
+              1,
+              7
+            ],
+            "size": [
+              5,
+              2,
+              1
+            ],
+            "orientation": "front",
+            "priority": 70,
+            "tags": [
+              "DETAIL"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "motif": "cloud_rail"
+            }
+          }
+        ]
+      },
+      "passes_run": [
+        "massing_pass",
+        "structure_pass",
+        "mezzanine_floor_pass",
+        "floor_slab_pass",
+        "stair_pass",
+        "facade_detail_pass",
+        "roof_pass",
+        "roof_cleanup_pass",
+        "material_variation_pass",
+        "interior_furnishing_pass",
+        "exterior_decoration_pass",
+        "quality_check_pass",
+        "resource_export_pass"
+      ]
+    },
+    {
+      "structure_id": "cultivation_sect/sect_gate_002",
+      "style_id": "cultivation_sect",
+      "archetype": "sect_gate",
+      "scale_tier": "sect_gate_v2",
+      "seed": 20268733,
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "scores": {
+        "style_score": 100,
+        "facade_score": 100,
+        "roof_score": 90,
+        "interior_score": 64,
+        "material_balance_score": 81,
+        "silhouette_score": 55
+      },
+      "stats": {
+        "volumes": 1,
+        "window_cells": 5,
+        "function_blocks": 2,
+        "decorations": [
+          "small_path_patch",
+          "moon_gate",
+          "cloud_rail"
+        ],
+        "worst_flat_run": 4,
+        "stone_fraction": 0.09
+      },
+      "attempt": 2,
+      "export": {
+        "size": [
+          15,
+          12,
+          10
+        ],
+        "block_count": 791,
+        "palette_count": 26,
+        "path": "src/main/resources/data/myvillage/structure/sect_gate_002.nbt"
+      },
+      "massing_graph": {
+        "meta": {
+          "archetype": "sect_gate",
+          "scale_tier": "sect_gate_v2",
+          "style_family": "cultivation_sect",
+          "door": {
+            "volume": "main",
+            "wall": "front",
+            "x": 6
+          },
+          "style_id": "cultivation_sect",
+          "group_id": "cultivation_sect",
+          "opening_style": "window_with_trapdoor_frame"
+        },
+        "nodes": [
+          {
+            "id": "main",
+            "type": "main_volume",
+            "origin": [
+              0,
+              0,
+              0
+            ],
+            "size": [
+              13,
+              6,
+              7
+            ],
+            "orientation": "front",
+            "priority": 20,
+            "tags": [
+              "STRUCTURE"
+            ],
+            "meta": {
+              "foundation_h": 1,
+              "wall_h": 5,
+              "wall_type": "white_plaster_timber_wall",
+              "roof": {
+                "type": "tiered_eave_roof",
+                "ridge_axis": "x",
+                "overhang": 1
+              },
+              "door_centered": true
+            }
+          },
+          {
+            "id": "path_front",
+            "type": "path_patch",
+            "origin": [
+              5,
+              0,
+              -2
+            ],
+            "size": [
+              3,
+              1,
+              2
+            ],
+            "orientation": "front",
+            "priority": 70,
+            "tags": [
+              "DETAIL",
+              "GROUND"
+            ],
+            "attach_to": "main",
+            "side": "front",
+            "meta": {
+              "door_x": 6,
+              "step_z": -1,
+              "step_y": 0,
+              "entry_z0": -1,
+              "entry_z1": -1
+            }
+          },
+          {
+            "id": "zone_storage_main",
+            "type": "interior_zone",
+            "origin": [
+              1,
+              1,
+              1
+            ],
+            "size": [
+              11,
+              2,
+              5
+            ],
+            "orientation": "front",
+            "priority": 60,
+            "tags": [
+              "INTERIOR"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "kind": "storage"
+            }
+          },
+          {
+            "id": "sect_deco_moon_gate_0",
+            "type": "decoration_patch",
+            "origin": [
+              3,
+              0,
+              -2
+            ],
+            "size": [
+              5,
+              5,
+              1
+            ],
+            "orientation": "front",
+            "priority": 70,
+            "tags": [
+              "DETAIL"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "motif": "moon_gate"
+            }
+          },
+          {
+            "id": "sect_deco_cloud_rail_1",
+            "type": "decoration_patch",
+            "origin": [
+              2,
+              1,
+              7
+            ],
+            "size": [
+              5,
+              2,
+              1
+            ],
+            "orientation": "front",
+            "priority": 70,
+            "tags": [
+              "DETAIL"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "motif": "cloud_rail"
+            }
+          }
+        ]
+      },
+      "passes_run": [
+        "massing_pass",
+        "structure_pass",
+        "mezzanine_floor_pass",
+        "floor_slab_pass",
+        "stair_pass",
+        "facade_detail_pass",
+        "roof_pass",
+        "roof_cleanup_pass",
+        "material_variation_pass",
+        "interior_furnishing_pass",
+        "exterior_decoration_pass",
+        "quality_check_pass",
+        "resource_export_pass"
+      ]
+    },
+    {
+      "structure_id": "cultivation_sect/sect_main_hall_001",
+      "style_id": "cultivation_sect",
+      "archetype": "sect_main_hall",
+      "scale_tier": "sect_main_hall_v1",
+      "seed": 20360713,
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "scores": {
+        "style_score": 100,
+        "facade_score": 100,
+        "roof_score": 90,
+        "interior_score": 100,
+        "material_balance_score": 76,
+        "silhouette_score": 55
+      },
+      "stats": {
+        "volumes": 1,
+        "window_cells": 30,
+        "function_blocks": 5,
+        "decorations": [
+          "small_path_patch",
+          "spirit_array",
+          "incense_altar"
+        ],
+        "worst_flat_run": 4,
+        "stone_fraction": 0.05
+      },
+      "attempt": 1,
+      "export": {
+        "size": [
+          23,
+          26,
+          23
+        ],
+        "block_count": 4647,
+        "palette_count": 33,
+        "path": "src/main/resources/data/myvillage/structure/sect_main_hall_001.nbt"
+      },
+      "massing_graph": {
+        "meta": {
+          "archetype": "sect_main_hall",
+          "scale_tier": "sect_main_hall_v1",
+          "style_family": "cultivation_sect",
+          "door": {
+            "volume": "main",
+            "wall": "front",
+            "x": 10
+          },
+          "stairwells": {
+            "main": {
+              "volume": "main",
+              "x0": 18,
+              "x1": 19,
+              "z0": 8,
+              "z1": 12,
+              "landing_z": 13,
+              "direction": "south",
+              "stories": 2,
+              "story_wall_h": 5
+            }
+          },
+          "stairwell": {
+            "volume": "main",
+            "x0": 18,
+            "x1": 19,
+            "z0": 8,
+            "z1": 12,
+            "landing_z": 13,
+            "direction": "south",
+            "stories": 2,
+            "story_wall_h": 5
+          },
+          "style_id": "cultivation_sect",
+          "group_id": "cultivation_sect",
+          "opening_style": "window_with_trapdoor_frame"
+        },
+        "nodes": [
+          {
+            "id": "main",
+            "type": "main_volume",
+            "origin": [
+              0,
+              0,
+              0
+            ],
+            "size": [
+              21,
+              12,
+              15
+            ],
+            "orientation": "front",
+            "priority": 20,
+            "tags": [
+              "STRUCTURE"
+            ],
+            "meta": {
+              "foundation_h": 2,
+              "wall_h": 10,
+              "wall_type": "white_plaster_timber_wall",
+              "roof": {
+                "type": "tiered_eave_roof",
+                "ridge_axis": "x",
+                "overhang": 1
+              },
+              "stories": 2,
+              "story_wall_h": 5,
+              "door_centered": true,
+              "stairwell": {
+                "volume": "main",
+                "x0": 18,
+                "x1": 19,
+                "z0": 8,
+                "z1": 12,
+                "landing_z": 13,
+                "direction": "south",
+                "stories": 2,
+                "story_wall_h": 5
+              }
+            }
+          },
+          {
+            "id": "path_front",
+            "type": "path_patch",
+            "origin": [
+              9,
+              0,
+              -3
+            ],
+            "size": [
+              3,
+              1,
+              3
+            ],
+            "orientation": "front",
+            "priority": 70,
+            "tags": [
+              "DETAIL",
+              "GROUND"
+            ],
+            "attach_to": "main",
+            "side": "front",
+            "meta": {
+              "door_x": 10,
+              "step_z": -1,
+              "step_y": 1,
+              "entry_z0": -1,
+              "entry_z1": -1
+            }
+          },
+          {
+            "id": "zone_work_main_ritual",
+            "type": "interior_zone",
+            "origin": [
+              1,
+              2,
+              1
+            ],
+            "size": [
+              10,
+              2,
+              13
+            ],
+            "orientation": "front",
+            "priority": 60,
+            "tags": [
+              "INTERIOR"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "kind": "work"
+            }
+          },
+          {
+            "id": "zone_living_main_upper",
+            "type": "interior_zone",
+            "origin": [
+              11,
+              8,
+              1
+            ],
+            "size": [
+              9,
+              2,
+              13
+            ],
+            "orientation": "front",
+            "priority": 60,
+            "tags": [
+              "INTERIOR"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "kind": "living"
+            }
+          },
+          {
+            "id": "sect_deco_spirit_array_0",
+            "type": "decoration_patch",
+            "origin": [
+              8,
+              0,
+              -7
+            ],
+            "size": [
+              5,
+              1,
+              5
+            ],
+            "orientation": "front",
+            "priority": 70,
+            "tags": [
+              "DETAIL"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "motif": "spirit_array"
+            }
+          },
+          {
+            "id": "sect_deco_incense_altar_1",
+            "type": "decoration_patch",
+            "origin": [
+              9,
+              0,
+              -2
+            ],
+            "size": [
+              3,
+              2,
+              1
+            ],
+            "orientation": "front",
+            "priority": 70,
+            "tags": [
+              "DETAIL"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "motif": "incense_altar"
+            }
+          }
+        ]
+      },
+      "passes_run": [
+        "massing_pass",
+        "structure_pass",
+        "mezzanine_floor_pass",
+        "floor_slab_pass",
+        "stair_pass",
+        "facade_detail_pass",
+        "roof_pass",
+        "roof_cleanup_pass",
+        "material_variation_pass",
+        "interior_furnishing_pass",
+        "exterior_decoration_pass",
+        "quality_check_pass",
+        "resource_export_pass"
+      ]
+    },
+    {
+      "structure_id": "cultivation_sect/sect_main_hall_002",
+      "style_id": "cultivation_sect",
+      "archetype": "sect_main_hall",
+      "scale_tier": "sect_main_hall_v2",
+      "seed": 20360814,
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "scores": {
+        "style_score": 100,
+        "facade_score": 100,
+        "roof_score": 90,
+        "interior_score": 100,
+        "material_balance_score": 76,
+        "silhouette_score": 55
+      },
+      "stats": {
+        "volumes": 1,
+        "window_cells": 22,
+        "function_blocks": 5,
+        "decorations": [
+          "small_path_patch",
+          "spirit_array",
+          "incense_altar"
+        ],
+        "worst_flat_run": 4,
+        "stone_fraction": 0.047
+      },
+      "attempt": 1,
+      "export": {
+        "size": [
+          21,
+          26,
+          23
+        ],
+        "block_count": 4215,
+        "palette_count": 31,
+        "path": "src/main/resources/data/myvillage/structure/sect_main_hall_002.nbt"
+      },
+      "massing_graph": {
+        "meta": {
+          "archetype": "sect_main_hall",
+          "scale_tier": "sect_main_hall_v2",
+          "style_family": "cultivation_sect",
+          "door": {
+            "volume": "main",
+            "wall": "front",
+            "x": 9
+          },
+          "stairwells": {
+            "main": {
+              "volume": "main",
+              "x0": 16,
+              "x1": 17,
+              "z0": 8,
+              "z1": 12,
+              "landing_z": 13,
+              "direction": "south",
+              "stories": 2,
+              "story_wall_h": 5
+            }
+          },
+          "stairwell": {
+            "volume": "main",
+            "x0": 16,
+            "x1": 17,
+            "z0": 8,
+            "z1": 12,
+            "landing_z": 13,
+            "direction": "south",
+            "stories": 2,
+            "story_wall_h": 5
+          },
+          "style_id": "cultivation_sect",
+          "group_id": "cultivation_sect",
+          "opening_style": "window_with_trapdoor_frame"
+        },
+        "nodes": [
+          {
+            "id": "main",
+            "type": "main_volume",
+            "origin": [
+              0,
+              0,
+              0
+            ],
+            "size": [
+              19,
+              12,
+              15
+            ],
+            "orientation": "front",
+            "priority": 20,
+            "tags": [
+              "STRUCTURE"
+            ],
+            "meta": {
+              "foundation_h": 2,
+              "wall_h": 10,
+              "wall_type": "white_plaster_timber_wall",
+              "roof": {
+                "type": "tiered_eave_roof",
+                "ridge_axis": "x",
+                "overhang": 1
+              },
+              "stories": 2,
+              "story_wall_h": 5,
+              "door_centered": true,
+              "stairwell": {
+                "volume": "main",
+                "x0": 16,
+                "x1": 17,
+                "z0": 8,
+                "z1": 12,
+                "landing_z": 13,
+                "direction": "south",
+                "stories": 2,
+                "story_wall_h": 5
+              }
+            }
+          },
+          {
+            "id": "path_front",
+            "type": "path_patch",
+            "origin": [
+              8,
+              0,
+              -3
+            ],
+            "size": [
+              2,
+              1,
+              3
+            ],
+            "orientation": "front",
+            "priority": 70,
+            "tags": [
+              "DETAIL",
+              "GROUND"
+            ],
+            "attach_to": "main",
+            "side": "front",
+            "meta": {
+              "door_x": 9,
+              "step_z": -1,
+              "step_y": 1,
+              "entry_z0": -1,
+              "entry_z1": -1
+            }
+          },
+          {
+            "id": "zone_work_main_ritual",
+            "type": "interior_zone",
+            "origin": [
+              1,
+              2,
+              1
+            ],
+            "size": [
+              9,
+              2,
+              13
+            ],
+            "orientation": "front",
+            "priority": 60,
+            "tags": [
+              "INTERIOR"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "kind": "work"
+            }
+          },
+          {
+            "id": "zone_living_main_upper",
+            "type": "interior_zone",
+            "origin": [
+              10,
+              8,
+              1
+            ],
+            "size": [
+              8,
+              2,
+              13
+            ],
+            "orientation": "front",
+            "priority": 60,
+            "tags": [
+              "INTERIOR"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "kind": "living"
+            }
+          },
+          {
+            "id": "sect_deco_spirit_array_0",
+            "type": "decoration_patch",
+            "origin": [
+              7,
+              0,
+              -7
+            ],
+            "size": [
+              5,
+              1,
+              5
+            ],
+            "orientation": "front",
+            "priority": 70,
+            "tags": [
+              "DETAIL"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "motif": "spirit_array"
+            }
+          },
+          {
+            "id": "sect_deco_incense_altar_1",
+            "type": "decoration_patch",
+            "origin": [
+              8,
+              0,
+              -2
+            ],
+            "size": [
+              3,
+              2,
+              1
+            ],
+            "orientation": "front",
+            "priority": 70,
+            "tags": [
+              "DETAIL"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "motif": "incense_altar"
+            }
+          }
+        ]
+      },
+      "passes_run": [
+        "massing_pass",
+        "structure_pass",
+        "mezzanine_floor_pass",
+        "floor_slab_pass",
+        "stair_pass",
+        "facade_detail_pass",
+        "roof_pass",
+        "roof_cleanup_pass",
+        "material_variation_pass",
+        "interior_furnishing_pass",
+        "exterior_decoration_pass",
+        "quality_check_pass",
+        "resource_export_pass"
+      ]
+    },
+    {
+      "structure_id": "cultivation_sect/scripture_pavilion_001",
+      "style_id": "cultivation_sect",
+      "archetype": "scripture_pavilion",
+      "scale_tier": "scripture_pavilion_v1",
+      "seed": 20460713,
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "scores": {
+        "style_score": 100,
+        "facade_score": 100,
+        "roof_score": 90,
+        "interior_score": 88,
+        "material_balance_score": 75,
+        "silhouette_score": 55
+      },
+      "stats": {
+        "volumes": 1,
+        "window_cells": 24,
+        "function_blocks": 4,
+        "decorations": [
+          "small_path_patch",
+          "cloud_rail"
+        ],
+        "worst_flat_run": 4,
+        "stone_fraction": 0.042
+      },
+      "attempt": 1,
+      "export": {
+        "size": [
+          15,
+          24,
+          14
+        ],
+        "block_count": 2281,
+        "palette_count": 28,
+        "path": "src/main/resources/data/myvillage/structure/scripture_pavilion_001.nbt"
+      },
+      "massing_graph": {
+        "meta": {
+          "archetype": "scripture_pavilion",
+          "scale_tier": "scripture_pavilion_v1",
+          "style_family": "cultivation_sect",
+          "door": {
+            "volume": "main",
+            "wall": "front",
+            "x": 6
+          },
+          "stairwells": {
+            "main": {
+              "volume": "main",
+              "x0": 1,
+              "x1": 2,
+              "z0": 5,
+              "z1": 8,
+              "landing_z": 9,
+              "direction": "south",
+              "stories": 3,
+              "story_wall_h": 4
+            }
+          },
+          "stairwell": {
+            "volume": "main",
+            "x0": 1,
+            "x1": 2,
+            "z0": 5,
+            "z1": 8,
+            "landing_z": 9,
+            "direction": "south",
+            "stories": 3,
+            "story_wall_h": 4
+          },
+          "style_id": "cultivation_sect",
+          "group_id": "cultivation_sect",
+          "opening_style": "window_with_trapdoor_frame"
+        },
+        "nodes": [
+          {
+            "id": "main",
+            "type": "tower_volume",
+            "origin": [
+              0,
+              0,
+              0
+            ],
+            "size": [
+              13,
+              13,
+              11
+            ],
+            "orientation": "front",
+            "priority": 20,
+            "tags": [
+              "STRUCTURE"
+            ],
+            "meta": {
+              "foundation_h": 1,
+              "wall_h": 12,
+              "wall_type": "white_plaster_timber_wall",
+              "roof": {
+                "type": "tiered_eave_roof",
+                "ridge_axis": "x",
+                "overhang": 1
+              },
+              "stories": 3,
+              "story_wall_h": 4,
+              "door_centered": true,
+              "stairwell": {
+                "volume": "main",
+                "x0": 1,
+                "x1": 2,
+                "z0": 5,
+                "z1": 8,
+                "landing_z": 9,
+                "direction": "south",
+                "stories": 3,
+                "story_wall_h": 4
+              }
+            }
+          },
+          {
+            "id": "path_front",
+            "type": "path_patch",
+            "origin": [
+              5,
+              0,
+              -2
+            ],
+            "size": [
+              2,
+              1,
+              2
+            ],
+            "orientation": "front",
+            "priority": 70,
+            "tags": [
+              "DETAIL",
+              "GROUND"
+            ],
+            "attach_to": "main",
+            "side": "front",
+            "meta": {
+              "door_x": 6,
+              "step_z": -1,
+              "step_y": 0,
+              "entry_z0": -1,
+              "entry_z1": -1
+            }
+          },
+          {
+            "id": "zone_work_main_reading",
+            "type": "interior_zone",
+            "origin": [
+              1,
+              1,
+              1
+            ],
+            "size": [
+              11,
+              2,
+              9
+            ],
+            "orientation": "front",
+            "priority": 60,
+            "tags": [
+              "INTERIOR"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "kind": "work"
+            }
+          },
+          {
+            "id": "zone_storage_main_stacks",
+            "type": "interior_zone",
+            "origin": [
+              1,
+              6,
+              7
+            ],
+            "size": [
+              11,
+              2,
+              3
+            ],
+            "orientation": "front",
+            "priority": 60,
+            "tags": [
+              "INTERIOR"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "kind": "storage"
+            }
+          },
+          {
+            "id": "sect_deco_cloud_rail_0",
+            "type": "decoration_patch",
+            "origin": [
+              2,
+              1,
+              11
+            ],
+            "size": [
+              5,
+              2,
+              1
+            ],
+            "orientation": "front",
+            "priority": 70,
+            "tags": [
+              "DETAIL"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "motif": "cloud_rail"
+            }
+          }
+        ]
+      },
+      "passes_run": [
+        "massing_pass",
+        "structure_pass",
+        "mezzanine_floor_pass",
+        "floor_slab_pass",
+        "stair_pass",
+        "facade_detail_pass",
+        "roof_pass",
+        "roof_cleanup_pass",
+        "material_variation_pass",
+        "interior_furnishing_pass",
+        "exterior_decoration_pass",
+        "quality_check_pass",
+        "resource_export_pass"
+      ]
+    },
+    {
+      "structure_id": "cultivation_sect/scripture_pavilion_002",
+      "style_id": "cultivation_sect",
+      "archetype": "scripture_pavilion",
+      "scale_tier": "scripture_pavilion_v2",
+      "seed": 20460814,
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "scores": {
+        "style_score": 100,
+        "facade_score": 100,
+        "roof_score": 90,
+        "interior_score": 76,
+        "material_balance_score": 75,
+        "silhouette_score": 55
+      },
+      "stats": {
+        "volumes": 1,
+        "window_cells": 39,
+        "function_blocks": 3,
+        "decorations": [
+          "small_path_patch",
+          "cloud_rail"
+        ],
+        "worst_flat_run": 4,
+        "stone_fraction": 0.044
+      },
+      "attempt": 1,
+      "export": {
+        "size": [
+          15,
+          24,
+          15
+        ],
+        "block_count": 2305,
+        "palette_count": 31,
+        "path": "src/main/resources/data/myvillage/structure/scripture_pavilion_002.nbt"
+      },
+      "massing_graph": {
+        "meta": {
+          "archetype": "scripture_pavilion",
+          "scale_tier": "scripture_pavilion_v2",
+          "style_family": "cultivation_sect",
+          "door": {
+            "volume": "main",
+            "wall": "front",
+            "x": 6
+          },
+          "stairwells": {
+            "main": {
+              "volume": "main",
+              "x0": 1,
+              "x1": 2,
+              "z0": 5,
+              "z1": 8,
+              "landing_z": 9,
+              "direction": "south",
+              "stories": 3,
+              "story_wall_h": 4
+            }
+          },
+          "stairwell": {
+            "volume": "main",
+            "x0": 1,
+            "x1": 2,
+            "z0": 5,
+            "z1": 8,
+            "landing_z": 9,
+            "direction": "south",
+            "stories": 3,
+            "story_wall_h": 4
+          },
+          "style_id": "cultivation_sect",
+          "group_id": "cultivation_sect",
+          "opening_style": "window_with_trapdoor_frame"
+        },
+        "nodes": [
+          {
+            "id": "main",
+            "type": "tower_volume",
+            "origin": [
+              0,
+              0,
+              0
+            ],
+            "size": [
+              13,
+              13,
+              11
+            ],
+            "orientation": "front",
+            "priority": 20,
+            "tags": [
+              "STRUCTURE"
+            ],
+            "meta": {
+              "foundation_h": 1,
+              "wall_h": 12,
+              "wall_type": "white_plaster_timber_wall",
+              "roof": {
+                "type": "tiered_eave_roof",
+                "ridge_axis": "x",
+                "overhang": 1
+              },
+              "stories": 3,
+              "story_wall_h": 4,
+              "door_centered": true,
+              "stairwell": {
+                "volume": "main",
+                "x0": 1,
+                "x1": 2,
+                "z0": 5,
+                "z1": 8,
+                "landing_z": 9,
+                "direction": "south",
+                "stories": 3,
+                "story_wall_h": 4
+              }
+            }
+          },
+          {
+            "id": "path_front",
+            "type": "path_patch",
+            "origin": [
+              5,
+              0,
+              -3
+            ],
+            "size": [
+              2,
+              1,
+              3
+            ],
+            "orientation": "front",
+            "priority": 70,
+            "tags": [
+              "DETAIL",
+              "GROUND"
+            ],
+            "attach_to": "main",
+            "side": "front",
+            "meta": {
+              "door_x": 6,
+              "step_z": -1,
+              "step_y": 0,
+              "entry_z0": -1,
+              "entry_z1": -1
+            }
+          },
+          {
+            "id": "zone_work_main_reading",
+            "type": "interior_zone",
+            "origin": [
+              1,
+              1,
+              1
+            ],
+            "size": [
+              11,
+              2,
+              9
+            ],
+            "orientation": "front",
+            "priority": 60,
+            "tags": [
+              "INTERIOR"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "kind": "work"
+            }
+          },
+          {
+            "id": "zone_storage_main_stacks",
+            "type": "interior_zone",
+            "origin": [
+              1,
+              6,
+              7
+            ],
+            "size": [
+              11,
+              2,
+              3
+            ],
+            "orientation": "front",
+            "priority": 60,
+            "tags": [
+              "INTERIOR"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "kind": "storage"
+            }
+          },
+          {
+            "id": "sect_deco_cloud_rail_0",
+            "type": "decoration_patch",
+            "origin": [
+              2,
+              1,
+              11
+            ],
+            "size": [
+              5,
+              2,
+              1
+            ],
+            "orientation": "front",
+            "priority": 70,
+            "tags": [
+              "DETAIL"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "motif": "cloud_rail"
+            }
+          }
+        ]
+      },
+      "passes_run": [
+        "massing_pass",
+        "structure_pass",
+        "mezzanine_floor_pass",
+        "floor_slab_pass",
+        "stair_pass",
+        "facade_detail_pass",
+        "roof_pass",
+        "roof_cleanup_pass",
+        "material_variation_pass",
+        "interior_furnishing_pass",
+        "exterior_decoration_pass",
+        "quality_check_pass",
+        "resource_export_pass"
+      ]
+    },
+    {
+      "structure_id": "cultivation_sect/alchemy_room_001",
+      "style_id": "cultivation_sect",
+      "archetype": "alchemy_room",
+      "scale_tier": "alchemy_room_v1",
+      "seed": 20560713,
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "scores": {
+        "style_score": 100,
+        "facade_score": 100,
+        "roof_score": 90,
+        "interior_score": 88,
+        "material_balance_score": 81,
+        "silhouette_score": 65
+      },
+      "stats": {
+        "volumes": 1,
+        "window_cells": 16,
+        "function_blocks": 4,
+        "decorations": [
+          "small_path_patch",
+          "incense_altar",
+          "side_chimney"
+        ],
+        "worst_flat_run": 4,
+        "stone_fraction": 0.092
+      },
+      "attempt": 1,
+      "export": {
+        "size": [
+          17,
+          16,
+          15
+        ],
+        "block_count": 1385,
+        "palette_count": 31,
+        "path": "src/main/resources/data/myvillage/structure/alchemy_room_001.nbt"
+      },
+      "massing_graph": {
+        "meta": {
+          "archetype": "alchemy_room",
+          "scale_tier": "alchemy_room_v1",
+          "style_family": "cultivation_sect",
+          "door": {
+            "volume": "main",
+            "wall": "front",
+            "x": 5
+          },
+          "style_id": "cultivation_sect",
+          "group_id": "cultivation_sect",
+          "opening_style": "window_with_trapdoor_frame"
+        },
+        "nodes": [
+          {
+            "id": "main",
+            "type": "main_volume",
+            "origin": [
+              0,
+              0,
+              0
+            ],
+            "size": [
+              15,
+              6,
+              11
+            ],
+            "orientation": "front",
+            "priority": 20,
+            "tags": [
+              "STRUCTURE"
+            ],
+            "meta": {
+              "foundation_h": 1,
+              "wall_h": 5,
+              "wall_type": "mixed_stone_wood_wall",
+              "roof": {
+                "type": "gable_roof",
+                "ridge_axis": "x",
+                "overhang": 1
+              }
+            }
+          },
+          {
+            "id": "path_front",
+            "type": "path_patch",
+            "origin": [
+              4,
+              0,
+              -3
+            ],
+            "size": [
+              3,
+              1,
+              3
+            ],
+            "orientation": "front",
+            "priority": 70,
+            "tags": [
+              "DETAIL",
+              "GROUND"
+            ],
+            "attach_to": "main",
+            "side": "front",
+            "meta": {
+              "door_x": 5,
+              "step_z": -1,
+              "step_y": 0,
+              "entry_z0": -1,
+              "entry_z1": -1
+            }
+          },
+          {
+            "id": "chimney",
+            "type": "chimney",
+            "origin": [
+              -1,
+              0,
+              5
+            ],
+            "size": [
+              1,
+              15,
+              2
+            ],
+            "orientation": "front",
+            "priority": 20,
+            "tags": [
+              "STRUCTURE",
+              "DETAIL",
+              "PROTECTED"
+            ],
+            "attach_to": "main",
+            "side": "west"
+          },
+          {
+            "id": "zone_forge_main",
+            "type": "interior_zone",
+            "origin": [
+              1,
+              1,
+              1
+            ],
+            "size": [
+              7,
+              2,
+              9
+            ],
+            "orientation": "front",
+            "priority": 60,
+            "tags": [
+              "INTERIOR"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "kind": "forge"
+            }
+          },
+          {
+            "id": "zone_storage_main",
+            "type": "interior_zone",
+            "origin": [
+              8,
+              1,
+              1
+            ],
+            "size": [
+              6,
+              2,
+              9
+            ],
+            "orientation": "front",
+            "priority": 60,
+            "tags": [
+              "INTERIOR"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "kind": "storage"
+            }
+          },
+          {
+            "id": "sect_deco_incense_altar_0",
+            "type": "decoration_patch",
+            "origin": [
+              2,
+              0,
+              -2
+            ],
+            "size": [
+              3,
+              2,
+              1
+            ],
+            "orientation": "front",
+            "priority": 70,
+            "tags": [
+              "DETAIL"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "motif": "incense_altar"
+            }
+          }
+        ]
+      },
+      "passes_run": [
+        "massing_pass",
+        "structure_pass",
+        "mezzanine_floor_pass",
+        "floor_slab_pass",
+        "stair_pass",
+        "facade_detail_pass",
+        "roof_pass",
+        "roof_cleanup_pass",
+        "material_variation_pass",
+        "interior_furnishing_pass",
+        "exterior_decoration_pass",
+        "quality_check_pass",
+        "resource_export_pass"
+      ]
+    },
+    {
+      "structure_id": "cultivation_sect/alchemy_room_002",
+      "style_id": "cultivation_sect",
+      "archetype": "alchemy_room",
+      "scale_tier": "alchemy_room_v2",
+      "seed": 20560814,
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "scores": {
+        "style_score": 100,
+        "facade_score": 100,
+        "roof_score": 90,
+        "interior_score": 100,
+        "material_balance_score": 81,
+        "silhouette_score": 65
+      },
+      "stats": {
+        "volumes": 1,
+        "window_cells": 8,
+        "function_blocks": 5,
+        "decorations": [
+          "small_path_patch",
+          "incense_altar",
+          "side_chimney"
+        ],
+        "worst_flat_run": 4,
+        "stone_fraction": 0.089
+      },
+      "attempt": 1,
+      "export": {
+        "size": [
+          17,
+          16,
+          14
+        ],
+        "block_count": 1369,
+        "palette_count": 28,
+        "path": "src/main/resources/data/myvillage/structure/alchemy_room_002.nbt"
+      },
+      "massing_graph": {
+        "meta": {
+          "archetype": "alchemy_room",
+          "scale_tier": "alchemy_room_v2",
+          "style_family": "cultivation_sect",
+          "door": {
+            "volume": "main",
+            "wall": "front",
+            "x": 9
+          },
+          "style_id": "cultivation_sect",
+          "group_id": "cultivation_sect",
+          "opening_style": "window_with_trapdoor_frame"
+        },
+        "nodes": [
+          {
+            "id": "main",
+            "type": "main_volume",
+            "origin": [
+              0,
+              0,
+              0
+            ],
+            "size": [
+              15,
+              6,
+              11
+            ],
+            "orientation": "front",
+            "priority": 20,
+            "tags": [
+              "STRUCTURE"
+            ],
+            "meta": {
+              "foundation_h": 1,
+              "wall_h": 5,
+              "wall_type": "mixed_stone_wood_wall",
+              "roof": {
+                "type": "gable_roof",
+                "ridge_axis": "x",
+                "overhang": 1
+              }
+            }
+          },
+          {
+            "id": "path_front",
+            "type": "path_patch",
+            "origin": [
+              8,
+              0,
+              -2
+            ],
+            "size": [
+              3,
+              1,
+              2
+            ],
+            "orientation": "front",
+            "priority": 70,
+            "tags": [
+              "DETAIL",
+              "GROUND"
+            ],
+            "attach_to": "main",
+            "side": "front",
+            "meta": {
+              "door_x": 9,
+              "step_z": -1,
+              "step_y": 0,
+              "entry_z0": -1,
+              "entry_z1": -1
+            }
+          },
+          {
+            "id": "chimney",
+            "type": "chimney",
+            "origin": [
+              -1,
+              0,
+              4
+            ],
+            "size": [
+              1,
+              15,
+              2
+            ],
+            "orientation": "front",
+            "priority": 20,
+            "tags": [
+              "STRUCTURE",
+              "DETAIL",
+              "PROTECTED"
+            ],
+            "attach_to": "main",
+            "side": "west"
+          },
+          {
+            "id": "zone_forge_main",
+            "type": "interior_zone",
+            "origin": [
+              1,
+              1,
+              1
+            ],
+            "size": [
+              7,
+              2,
+              9
+            ],
+            "orientation": "front",
+            "priority": 60,
+            "tags": [
+              "INTERIOR"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "kind": "forge"
+            }
+          },
+          {
+            "id": "zone_storage_main",
+            "type": "interior_zone",
+            "origin": [
+              8,
+              1,
+              1
+            ],
+            "size": [
+              6,
+              2,
+              9
+            ],
+            "orientation": "front",
+            "priority": 60,
+            "tags": [
+              "INTERIOR"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "kind": "storage"
+            }
+          },
+          {
+            "id": "sect_deco_incense_altar_0",
+            "type": "decoration_patch",
+            "origin": [
+              2,
+              0,
+              -2
+            ],
+            "size": [
+              3,
+              2,
+              1
+            ],
+            "orientation": "front",
+            "priority": 70,
+            "tags": [
+              "DETAIL"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "motif": "incense_altar"
+            }
+          }
+        ]
+      },
+      "passes_run": [
+        "massing_pass",
+        "structure_pass",
+        "mezzanine_floor_pass",
+        "floor_slab_pass",
+        "stair_pass",
+        "facade_detail_pass",
+        "roof_pass",
+        "roof_cleanup_pass",
+        "material_variation_pass",
+        "interior_furnishing_pass",
+        "exterior_decoration_pass",
+        "quality_check_pass",
+        "resource_export_pass"
+      ]
+    },
+    {
+      "structure_id": "cultivation_sect/disciple_quarters_001",
+      "style_id": "cultivation_sect",
+      "archetype": "disciple_quarters",
+      "scale_tier": "disciple_quarters_v1",
+      "seed": 20660713,
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "scores": {
+        "style_score": 100,
+        "facade_score": 100,
+        "roof_score": 90,
+        "interior_score": 100,
+        "material_balance_score": 78,
+        "silhouette_score": 55
+      },
+      "stats": {
+        "volumes": 1,
+        "window_cells": 20,
+        "function_blocks": 8,
+        "decorations": [
+          "small_path_patch",
+          "cloud_rail"
+        ],
+        "worst_flat_run": 4,
+        "stone_fraction": 0.064
+      },
+      "attempt": 1,
+      "export": {
+        "size": [
+          19,
+          17,
+          14
+        ],
+        "block_count": 2083,
+        "palette_count": 33,
+        "path": "src/main/resources/data/myvillage/structure/disciple_quarters_001.nbt"
+      },
+      "massing_graph": {
+        "meta": {
+          "archetype": "disciple_quarters",
+          "scale_tier": "disciple_quarters_v1",
+          "style_family": "cultivation_sect",
+          "door": {
+            "volume": "main",
+            "wall": "front",
+            "x": 8
+          },
+          "stairwells": {
+            "main": {
+              "volume": "main",
+              "x0": 1,
+              "x1": 2,
+              "z0": 5,
+              "z1": 8,
+              "landing_z": 9,
+              "direction": "south",
+              "stories": 2,
+              "story_wall_h": 4
+            }
+          },
+          "stairwell": {
+            "volume": "main",
+            "x0": 1,
+            "x1": 2,
+            "z0": 5,
+            "z1": 8,
+            "landing_z": 9,
+            "direction": "south",
+            "stories": 2,
+            "story_wall_h": 4
+          },
+          "style_id": "cultivation_sect",
+          "group_id": "cultivation_sect",
+          "opening_style": "window_with_trapdoor_frame"
+        },
+        "nodes": [
+          {
+            "id": "main",
+            "type": "main_volume",
+            "origin": [
+              0,
+              0,
+              0
+            ],
+            "size": [
+              17,
+              9,
+              11
+            ],
+            "orientation": "front",
+            "priority": 20,
+            "tags": [
+              "STRUCTURE"
+            ],
+            "meta": {
+              "foundation_h": 1,
+              "wall_h": 8,
+              "wall_type": "timber_frame_wall",
+              "roof": {
+                "type": "gable_roof",
+                "ridge_axis": "x",
+                "overhang": 1
+              },
+              "stories": 2,
+              "story_wall_h": 4,
+              "stairwell": {
+                "volume": "main",
+                "x0": 1,
+                "x1": 2,
+                "z0": 5,
+                "z1": 8,
+                "landing_z": 9,
+                "direction": "south",
+                "stories": 2,
+                "story_wall_h": 4
+              }
+            }
+          },
+          {
+            "id": "path_front",
+            "type": "path_patch",
+            "origin": [
+              7,
+              0,
+              -2
+            ],
+            "size": [
+              2,
+              1,
+              2
+            ],
+            "orientation": "front",
+            "priority": 70,
+            "tags": [
+              "DETAIL",
+              "GROUND"
+            ],
+            "attach_to": "main",
+            "side": "front",
+            "meta": {
+              "door_x": 8,
+              "step_z": -1,
+              "step_y": 0,
+              "entry_z0": -1,
+              "entry_z1": -1
+            }
+          },
+          {
+            "id": "zone_living_main_lower",
+            "type": "interior_zone",
+            "origin": [
+              1,
+              1,
+              1
+            ],
+            "size": [
+              8,
+              2,
+              9
+            ],
+            "orientation": "front",
+            "priority": 60,
+            "tags": [
+              "INTERIOR"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "kind": "living",
+              "private_quarters": true
+            }
+          },
+          {
+            "id": "zone_living_main_upper",
+            "type": "interior_zone",
+            "origin": [
+              9,
+              6,
+              1
+            ],
+            "size": [
+              7,
+              2,
+              9
+            ],
+            "orientation": "front",
+            "priority": 60,
+            "tags": [
+              "INTERIOR"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "kind": "living",
+              "private_quarters": true
+            }
+          },
+          {
+            "id": "sect_deco_cloud_rail_0",
+            "type": "decoration_patch",
+            "origin": [
+              2,
+              1,
+              11
+            ],
+            "size": [
+              5,
+              2,
+              1
+            ],
+            "orientation": "front",
+            "priority": 70,
+            "tags": [
+              "DETAIL"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "motif": "cloud_rail"
+            }
+          }
+        ]
+      },
+      "passes_run": [
+        "massing_pass",
+        "structure_pass",
+        "mezzanine_floor_pass",
+        "floor_slab_pass",
+        "stair_pass",
+        "facade_detail_pass",
+        "roof_pass",
+        "roof_cleanup_pass",
+        "material_variation_pass",
+        "interior_furnishing_pass",
+        "exterior_decoration_pass",
+        "quality_check_pass",
+        "resource_export_pass"
+      ]
+    },
+    {
+      "structure_id": "cultivation_sect/disciple_quarters_002",
+      "style_id": "cultivation_sect",
+      "archetype": "disciple_quarters",
+      "scale_tier": "disciple_quarters_v2",
+      "seed": 20660814,
+      "passed": true,
+      "errors": [],
+      "warnings": [],
+      "scores": {
+        "style_score": 100,
+        "facade_score": 100,
+        "roof_score": 90,
+        "interior_score": 100,
+        "material_balance_score": 78,
+        "silhouette_score": 55
+      },
+      "stats": {
+        "volumes": 1,
+        "window_cells": 26,
+        "function_blocks": 8,
+        "decorations": [
+          "small_path_patch",
+          "cloud_rail"
+        ],
+        "worst_flat_run": 4,
+        "stone_fraction": 0.064
+      },
+      "attempt": 1,
+      "export": {
+        "size": [
+          19,
+          17,
+          14
+        ],
+        "block_count": 2089,
+        "palette_count": 38,
+        "path": "src/main/resources/data/myvillage/structure/disciple_quarters_002.nbt"
+      },
+      "massing_graph": {
+        "meta": {
+          "archetype": "disciple_quarters",
+          "scale_tier": "disciple_quarters_v2",
+          "style_family": "cultivation_sect",
+          "door": {
+            "volume": "main",
+            "wall": "front",
+            "x": 6
+          },
+          "stairwells": {
+            "main": {
+              "volume": "main",
+              "x0": 14,
+              "x1": 15,
+              "z0": 5,
+              "z1": 8,
+              "landing_z": 9,
+              "direction": "south",
+              "stories": 2,
+              "story_wall_h": 4
+            }
+          },
+          "stairwell": {
+            "volume": "main",
+            "x0": 14,
+            "x1": 15,
+            "z0": 5,
+            "z1": 8,
+            "landing_z": 9,
+            "direction": "south",
+            "stories": 2,
+            "story_wall_h": 4
+          },
+          "style_id": "cultivation_sect",
+          "group_id": "cultivation_sect",
+          "opening_style": "window_with_trapdoor_frame"
+        },
+        "nodes": [
+          {
+            "id": "main",
+            "type": "main_volume",
+            "origin": [
+              0,
+              0,
+              0
+            ],
+            "size": [
+              17,
+              9,
+              11
+            ],
+            "orientation": "front",
+            "priority": 20,
+            "tags": [
+              "STRUCTURE"
+            ],
+            "meta": {
+              "foundation_h": 1,
+              "wall_h": 8,
+              "wall_type": "timber_frame_wall",
+              "roof": {
+                "type": "gable_roof",
+                "ridge_axis": "x",
+                "overhang": 1
+              },
+              "stories": 2,
+              "story_wall_h": 4,
+              "stairwell": {
+                "volume": "main",
+                "x0": 14,
+                "x1": 15,
+                "z0": 5,
+                "z1": 8,
+                "landing_z": 9,
+                "direction": "south",
+                "stories": 2,
+                "story_wall_h": 4
+              }
+            }
+          },
+          {
+            "id": "path_front",
+            "type": "path_patch",
+            "origin": [
+              5,
+              0,
+              -2
+            ],
+            "size": [
+              3,
+              1,
+              2
+            ],
+            "orientation": "front",
+            "priority": 70,
+            "tags": [
+              "DETAIL",
+              "GROUND"
+            ],
+            "attach_to": "main",
+            "side": "front",
+            "meta": {
+              "door_x": 6,
+              "step_z": -1,
+              "step_y": 0,
+              "entry_z0": -1,
+              "entry_z1": -1
+            }
+          },
+          {
+            "id": "zone_living_main_lower",
+            "type": "interior_zone",
+            "origin": [
+              1,
+              1,
+              1
+            ],
+            "size": [
+              8,
+              2,
+              9
+            ],
+            "orientation": "front",
+            "priority": 60,
+            "tags": [
+              "INTERIOR"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "kind": "living",
+              "private_quarters": true
+            }
+          },
+          {
+            "id": "zone_living_main_upper",
+            "type": "interior_zone",
+            "origin": [
+              9,
+              6,
+              1
+            ],
+            "size": [
+              7,
+              2,
+              9
+            ],
+            "orientation": "front",
+            "priority": 60,
+            "tags": [
+              "INTERIOR"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "kind": "living",
+              "private_quarters": true
+            }
+          },
+          {
+            "id": "sect_deco_cloud_rail_0",
+            "type": "decoration_patch",
+            "origin": [
+              2,
+              1,
+              11
+            ],
+            "size": [
+              5,
+              2,
+              1
+            ],
+            "orientation": "front",
+            "priority": 70,
+            "tags": [
+              "DETAIL"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "motif": "cloud_rail"
+            }
+          }
+        ]
+      },
+      "passes_run": [
+        "massing_pass",
+        "structure_pass",
+        "mezzanine_floor_pass",
+        "floor_slab_pass",
+        "stair_pass",
+        "facade_detail_pass",
+        "roof_pass",
+        "roof_cleanup_pass",
+        "material_variation_pass",
+        "interior_furnishing_pass",
+        "exterior_decoration_pass",
+        "quality_check_pass",
+        "resource_export_pass"
+      ]
+    }
+  ]
+}

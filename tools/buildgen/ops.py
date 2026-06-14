@@ -14,17 +14,67 @@ Facing conventions follow docs/blockstate_notes.md (visually verified):
 from __future__ import annotations
 
 import random
-from typing import Dict, Iterable, List, Optional, Tuple
+from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple
 
 from .grid import AIR, BlockGrid, PRIORITY
 from .massing import INWARD_FACING, OUTWARD_FACING, Node, WALL_OUTWARD
 from .style import Style
 
 Pos = Tuple[int, int, int]
+RoofHandler = Callable[[BlockGrid, Style, random.Random, Node, Optional[Any]], dict]
+MotifHandler = Callable[[BlockGrid, Style, random.Random, Node, Optional[Node]], bool]
 
 DIR_VEC = {"north": (0, -1), "south": (0, 1), "west": (-1, 0), "east": (1, 0)}
 OPPOSITE = {"north": "south", "south": "north", "west": "east", "east": "west",
             "front": "back", "back": "front"}
+
+ROOF_REGISTRY: Dict[str, RoofHandler] = {}
+MOTIF_REGISTRY: Dict[str, MotifHandler] = {}
+
+
+def register_roof(name: str, handler: RoofHandler) -> None:
+    ROOF_REGISTRY[name] = handler
+
+
+def register_motif(name: str, handler: MotifHandler) -> None:
+    MOTIF_REGISTRY[name] = handler
+
+
+def roof_handler(name: str) -> RoofHandler:
+    try:
+        return ROOF_REGISTRY[name]
+    except KeyError:
+        raise ValueError(f"unregistered roof type {name!r}") from None
+
+
+def motif_handler(name: str) -> MotifHandler:
+    try:
+        return MOTIF_REGISTRY[name]
+    except KeyError:
+        raise ValueError(f"unregistered motif {name!r}") from None
+
+
+def place_motif(name: str, grid: BlockGrid, style: Style, rng: random.Random,
+                node: Node, related: Optional[Node] = None) -> bool:
+    return motif_handler(name)(grid, style, rng, node, related)
+
+
+def validate_style_vocabulary(style: Style) -> None:
+    unknown_roofs = sorted(set(style.allowed_roof_types) - set(ROOF_REGISTRY))
+    unknown_motifs = sorted(set(style.allowed_motifs) - set(MOTIF_REGISTRY))
+    errors = []
+    if unknown_roofs:
+        errors.append(f"allowed_roof_types={unknown_roofs}")
+    if unknown_motifs:
+        errors.append(f"allowed_motifs={unknown_motifs}")
+    if errors:
+        raise ValueError(
+            f"style {style.style_id!r} references unregistered form names: "
+            + "; ".join(errors))
+
+
+def _block_id(state: str) -> str:
+    return state.split("[", 1)[0]
 
 
 def _species(state: str) -> str:
@@ -357,6 +407,11 @@ def stairwell(grid: BlockGrid, style: Style, vol: Node, opening: dict) -> None:
                 for y in (boundary_y, boundary_y + 1):
                     grid.set((x, y, z), AIR, ["AIR_CARVE", "PROTECTED"],
                              PRIORITY["OPENING"], force=True)
+        landing_z = opening.get("landing_z", opening["z1"] + 1)
+        for x in range(opening["x0"], opening["x1"] + 1):
+            grid.set((x, boundary_y + 1, landing_z), AIR,
+                     ["AIR_CARVE", "PROTECTED"], PRIORITY["OPENING"],
+                     force=True)
         for step, z in enumerate(z_values[:story_wall_h]):
             grid.set((stair_x, base_y + step, z),
                      stair_state(style, facing), ["STRUCTURE", "INTERIOR"],
@@ -495,6 +550,116 @@ def lean_to_roof(grid: BlockGrid, style: Style, vol: Node, low_side: str,
             "low_y": low_y}
 
 
+def _with_roofed_ids(info: dict, *volume_ids: str) -> dict:
+    info["roofed_volume_ids"] = list(volume_ids)
+    return info
+
+
+def _with_roof_type(info: dict, roof_type: str) -> dict:
+    info["roof_type"] = roof_type
+    return info
+
+
+def _gable_roof_handler(grid: BlockGrid, style: Style, rng: random.Random,
+                        vol: Node, graph: Optional[Any] = None) -> dict:
+    roof = vol.meta.get("roof", {})
+    return _with_roofed_ids(
+        _with_roof_type(gable_roof(
+            grid, style, rng, vol,
+            roof.get("ridge_axis", "x"),
+            roof.get("overhang", 1),
+            attached_side=roof.get("attached_side")),
+            roof.get("grade", "gable_roof")),
+        vol.id)
+
+
+def _chinese_roof_grade_handler(grid: BlockGrid, style: Style, rng: random.Random,
+                                vol: Node, graph: Optional[Any] = None) -> dict:
+    roof = vol.meta.get("roof", {})
+    grade = roof.get("grade", roof.get("type"))
+    overhang = roof.get("overhang", 1)
+    if grade == "悬山":
+        overhang = max(overhang, 2)
+    return _with_roofed_ids(
+        _with_roof_type(gable_roof(
+            grid, style, rng, vol,
+            roof.get("ridge_axis", "x"),
+            overhang,
+            attached_side=roof.get("attached_side")), str(grade)),
+        vol.id)
+
+
+def _cross_gable_roof_handler(grid: BlockGrid, style: Style, rng: random.Random,
+                              vol: Node, graph: Optional[Any] = None) -> dict:
+    wings = graph.by_type("side_wing") if graph is not None else []
+    if not wings:
+        return _gable_roof_handler(grid, style, rng, vol, graph)
+    info = _with_roof_type(cross_gable_roof(grid, style, rng, vol, wings[0]),
+                           "cross_gable_roof")
+    return _with_roofed_ids(info, vol.id, wings[0].id)
+
+
+def _lean_to_roof_handler(grid: BlockGrid, style: Style, rng: random.Random,
+                          vol: Node, graph: Optional[Any] = None) -> dict:
+    if graph is None:
+        raise ValueError(f"lean_to_roof for volume {vol.id!r} requires graph context")
+    roof = vol.meta.get("roof", {})
+    parent = graph.get(vol.attach_to) if vol.attach_to else graph.get("main")
+    high_y = parent.meta["foundation_h"] + parent.meta["wall_h"]
+    return _with_roofed_ids(
+        _with_roof_type(lean_to_roof(grid, style, vol, roof["low_side"], high_y),
+                        "lean_to_roof"),
+        vol.id)
+
+
+def _tiered_eave_roof_handler(grid: BlockGrid, style: Style, rng: random.Random,
+                              vol: Node, graph: Optional[Any] = None) -> dict:
+    roof = vol.meta.get("roof", {})
+    ridge_axis = roof.get("ridge_axis", "x")
+    overhang = max(1, roof.get("overhang", 1))
+    if vol.size[0] < 9 or vol.size[2] < 9:
+        info = _gable_roof_handler(grid, style, rng, vol, graph)
+        info["roof_type"] = "tiered_eave_roof"
+        info["tier_count"] = 1
+        info["fallback"] = "single_eave"
+        return info
+
+    lower = gable_roof(
+        grid, style, rng, vol, ridge_axis, overhang,
+        attached_side=roof.get("attached_side"))
+    inset = 2
+    upper_w = max(3, vol.size[0] - inset * 2)
+    upper_d = max(3, vol.size[2] - inset * 2)
+    upper_wall_top = max(lower["peak_y"] - 1,
+                         vol.meta["foundation_h"] + vol.meta["wall_h"])
+    upper = Node(
+        id=f"{vol.id}_upper_eave",
+        type="roof_tier",
+        origin=(vol.x0 + inset, vol.y0, vol.z0 + inset),
+        size=(upper_w, upper_wall_top + 1, upper_d),
+        attach_to=vol.id,
+        priority=vol.priority,
+        tags=list(vol.tags),
+        meta={
+            "foundation_h": vol.meta["foundation_h"],
+            "wall_h": upper_wall_top - vol.meta["foundation_h"] + 1,
+            "roof": {
+                "type": "gable_roof",
+                "ridge_axis": ridge_axis,
+                "overhang": 0,
+            },
+        },
+    )
+    upper_info = gable_roof(grid, style, rng, upper, ridge_axis, 0)
+    return _with_roofed_ids({
+        "gable_cells": lower["gable_cells"] + upper_info["gable_cells"],
+        "roof_cells": lower["roof_cells"] + upper_info["roof_cells"],
+        "peak_y": max(lower["peak_y"], upper_info["peak_y"]),
+        "roof_type": "tiered_eave_roof",
+        "tier_count": 2,
+    }, vol.id)
+
+
 # ---------------------------------------------------------------------------
 # attachments & details
 # ---------------------------------------------------------------------------
@@ -565,36 +730,128 @@ def chinese_timber_brackets(grid: BlockGrid, style: Style, rng: random.Random,
                          ["DETAIL"], p, "DETAIL_WOOD")
 
 
+def _slot_choice(style: Style, rng: random.Random, slot: str,
+                 contains: str, default: Optional[str] = None) -> Optional[str]:
+    options = style.slot_options(slot, contains) if hasattr(style, "slot_options") else []
+    if options:
+        return rng.choice(options)
+    return default
+
+
+def wall_hanging(grid: BlockGrid, style: Style, rng: random.Random, vol: Node,
+                 wall: str, along: int, y: int, slot: str, contains: str,
+                 outside: bool = False) -> bool:
+    base = _slot_choice(style, rng, slot, contains)
+    if not base:
+        return False
+    facing = OUTWARD_FACING[wall] if outside else INWARD_FACING[wall]
+    state = f"{_block_id(base)}[facing={facing}]"
+    if "sign" in base:
+        state = f"{_block_id(base)}[facing={facing},waterlogged=false]"
+    pos = wall_pos(vol, wall, along, y, depth_offset=1 if outside else -1)
+    if not outside:
+        pos = wall_pos(vol, wall, along, y, depth_offset=-1)
+    return grid.set(pos, state, ["DETAIL", "PROTECTED"], PRIORITY["DETAIL"], slot)
+
+
+def mezzanine_floor(grid: BlockGrid, style: Style, vol: Node,
+                    mezzanine_meta: dict) -> None:
+    if vol.meta.get("stories", 1) <= 1:
+        return
+    story_wall_h = vol.meta.get("story_wall_h", vol.meta["wall_h"])
+    floor_y = vol.meta["foundation_h"] + story_wall_h + mezzanine_meta.get("y_offset", 0)
+    depth = mezzanine_meta.get("depth", max(1, (vol.size[0] - 2) // 2))
+    ix0, ix1 = vol.x0 + 1, vol.x1 - 1
+    if mezzanine_meta.get("covers") == "east":
+        x0, x1 = max(ix0, vol.x1 - depth), ix1
+    else:
+        x0, x1 = ix0, min(ix1, vol.x0 + depth)
+    slab = slab_state(style, "top", "DETAIL_WOOD")
+    for x in range(x0, x1 + 1):
+        for z in range(vol.z0 + 1, vol.z1):
+            grid.set((x, floor_y, z), slab, ["STRUCTURE", "INTERIOR", "PROTECTED"],
+                     PRIORITY["STRUCTURE"], "DETAIL_WOOD")
+
+
+def tavern_bar_counter(grid: BlockGrid, style: Style, vol: Node,
+                       rng: random.Random) -> int:
+    y = vol.meta.get("foundation_h", 1)
+    z = vol.z0 + 2
+    x0 = vol.x0 + 3
+    x1 = vol.x1 - 3
+    if x1 < x0:
+        return 0
+    placed = 0
+    for x in range(x0, x1 + 1):
+        conn = []
+        if x > x0:
+            conn.append("west")
+        if x < x1:
+            conn.append("east")
+        if grid.is_empty((x, y, z)):
+            grid.set((x, y, z), fence_state(style, conn), ["INTERIOR", "DETAIL"],
+                     PRIORITY["INTERIOR"], "DETAIL_WOOD")
+            placed += 1
+        top = (x, y + 1, z)
+        if grid.is_empty(top):
+            grid.set(top, slab_state(style, "bottom", "DETAIL_WOOD"),
+                     ["INTERIOR", "DETAIL"], PRIORITY["INTERIOR"], "DETAIL_WOOD")
+    return placed
+
+
+def _bell_state(style: Style, facing: str, attachment: str = "floor") -> str:
+    base = style.slot_entry("INTERIOR_CIVIC", "bell", "minecraft:bell")
+    return f"{_block_id(base)}[attachment={attachment},facing={facing},powered=false]"
+
+
+def belfry_bell(grid: BlockGrid, style: Style, vol: Node) -> bool:
+    x = (vol.x0 + vol.x1) // 2
+    z = (vol.z0 + vol.z1) // 2
+    wall_top = vol.meta["foundation_h"] + vol.meta["wall_h"] - 1
+    for y in range(wall_top + 3, vol.meta["foundation_h"] - 1, -1):
+        if grid.is_empty((x, y, z)):
+            return grid.set((x, y, z), _bell_state(style, "north", "ceiling"),
+                            ["INTERIOR", "DETAIL", "PROTECTED"],
+                            PRIORITY["INTERIOR"], "INTERIOR_CIVIC")
+    return False
+
+
 def interior_zone(grid: BlockGrid, style: Style, rng: random.Random, vol: Node,
                   zone: Node, door_cells: List[Pos]) -> int:
     """Furnish one interior zone; returns count of function blocks placed."""
     kind = zone.meta["kind"]
-    fh = vol.meta.get("foundation_h", 1)
+    fy = zone.y0
     p = PRIORITY["INTERIOR"]
     placed = 0
 
-    def spots_along_walls() -> List[Tuple[Pos, str]]:
+    def in_zone(pos: Pos) -> bool:
+        return zone.x0 <= pos[0] <= zone.x1 and zone.z0 <= pos[2] <= zone.z1
+
+    def near_door(pos: Pos) -> bool:
+        return any(abs(pos[0] - d[0]) + abs(pos[2] - d[2]) <= 1 and abs(pos[1] - d[1]) <= 1
+                   for d in door_cells)
+
+    def spots_along_walls(y: Optional[int] = None) -> List[Tuple[Pos, str, str]]:
+        base_y = fy if y is None else y
         out = []
         for x in range(zone.x0, zone.x1 + 1):
             for z in range(zone.z0, zone.z1 + 1):
-                pos = (x, fh, z)
-                if not grid.is_empty(pos):
-                    continue
-                if any(abs(pos[0] - d[0]) + abs(pos[2] - d[2]) <= 1 for d in door_cells):
+                pos = (x, base_y, z)
+                if not grid.is_empty(pos) or near_door(pos):
                     continue
                 for wname, (ox, oz) in WALL_OUTWARD.items():
-                    npos = (x + ox, fh, z + oz)
+                    npos = (x + ox, base_y, z + oz)
                     ncell = grid.get(npos)
                     if ncell and not ncell.is_air and "STRUCTURE" in ncell.tags:
-                        out.append((pos, INWARD_FACING[wname]))
+                        out.append((pos, INWARD_FACING[wname], wname))
                         break
         rng.shuffle(out)
         return out
 
-    def put(state: str, slot: str, n: int = 1) -> int:
+    def put(state: str, slot: str, n: int = 1, y: Optional[int] = None) -> int:
         nonlocal placed
         done = 0
-        for pos, facing in spots_along_walls():
+        for pos, facing, _ in spots_along_walls(y):
             if done >= n:
                 break
             st = state.replace("{facing}", facing)
@@ -603,16 +860,74 @@ def interior_zone(grid: BlockGrid, style: Style, rng: random.Random, vol: Node,
                 done += 1
         return done
 
+    def put_wall_item(slot: str, contains: str, n: int = 1) -> int:
+        nonlocal placed
+        done = 0
+        for pos, facing, _ in spots_along_walls(fy + 1):
+            if done >= n:
+                break
+            base = _slot_choice(style, rng, slot, contains)
+            if not base:
+                break
+            state = f"{_block_id(base)}[facing={facing}]"
+            if "sign" in base:
+                state = f"{_block_id(base)}[facing={facing},waterlogged=false]"
+            if grid.set(pos, state, ["INTERIOR", "DETAIL", "PROTECTED"], p, slot):
+                placed += 1
+                done += 1
+        return done
+
+    def put_beds(n: int) -> List[Tuple[Pos, str]]:
+        nonlocal placed
+        beds: List[Tuple[Pos, str]] = []
+        for head, facing, wall in spots_along_walls():
+            if len(beds) >= n:
+                break
+            dx, dz = DIR_VEC[facing]
+            foot = (head[0] + dx, head[1], head[2] + dz)
+            wall_dx, wall_dz = DIR_VEC[OUTWARD_FACING[wall]]
+            wall_cell = grid.get((head[0] + wall_dx, head[1] + 1, head[2] + wall_dz))
+            if wall_cell and "glass" in wall_cell.state:
+                continue
+            if not in_zone(foot) or not grid.is_empty(foot) or near_door(foot):
+                continue
+            base = _slot_choice(style, rng, "FURNITURE", "_bed", "minecraft:red_bed")
+            block = _block_id(base)
+            head_state = f"{block}[facing={facing},occupied=false,part=head]"
+            foot_state = f"{block}[facing={facing},occupied=false,part=foot]"
+            ok_head = grid.set(head, head_state, ["INTERIOR", "PROTECTED"], p, "FURNITURE")
+            ok_foot = grid.set(foot, foot_state, ["INTERIOR", "PROTECTED"], p, "FURNITURE")
+            if ok_head and ok_foot:
+                placed += 2
+                beds.append((foot, facing))
+        return beds
+
+    def put_chest_at(pos: Pos, facing: str) -> bool:
+        nonlocal placed
+        if not in_zone(pos) or not grid.is_empty(pos) or near_door(pos):
+            return False
+        chest = style.slot_entry("FURNITURE", "chest", "minecraft:chest")
+        state = f"{_block_id(chest)}[facing={facing},type=single,waterlogged=false]"
+        if grid.set(pos, state, ["INTERIOR", "PROTECTED"], p, "FURNITURE"):
+            placed += 1
+            return True
+        return False
+
     crafting = style.slot_entry("INTERIOR_WORK", "crafting")
     furnace = style.slot_entry("INTERIOR_WORK", "furnace")
     smithing = style.slot_entry("INTERIOR_WORK", "smithing")
     barrel = style.slot_entry("INTERIOR_STORAGE", "barrel")
-
     furnace_tpl = f"{furnace}[facing={{facing}},lit=false]"
+
     if kind == "living":
         put(crafting, "INTERIOR_WORK")
         put(furnace_tpl, "INTERIOR_WORK")
         put(f"{barrel}[facing=up,open=false]", "INTERIOR_STORAGE")
+        if zone.meta.get("private_quarters"):
+            beds = put_beds(1)
+            for foot, facing in beds[:1]:
+                dx, dz = DIR_VEC[facing]
+                put_chest_at((foot[0] + dx, foot[1], foot[2] + dz), facing)
     elif kind == "work":
         put(crafting, "INTERIOR_WORK")
         put(smithing, "INTERIOR_WORK")
@@ -625,60 +940,250 @@ def interior_zone(grid: BlockGrid, style: Style, rng: random.Random, vol: Node,
     elif kind == "smithy":
         put("minecraft:anvil[facing=north]", "INTERIOR_WORK")
         put(f"{barrel}[facing=up,open=false]", "INTERIOR_STORAGE")
+    elif kind == "tavern_hall":
+        placed += tavern_bar_counter(grid, style, vol, rng)
+        brewing = style.slot_entry("INTERIOR_CIVIC", "brewing_stand",
+                                   "minecraft:brewing_stand[has_bottle_0=false,has_bottle_1=false,has_bottle_2=false]")
+        put(brewing, "INTERIOR_CIVIC", n=rng.choice([1, 2]))
+        put(f"{barrel}[facing=up,open=false]", "INTERIOR_STORAGE", n=rng.choice([3, 4]))
+        put(furnace_tpl, "INTERIOR_WORK")
+        put(style.slot_entry("INTERIOR_CIVIC", "cauldron", "minecraft:cauldron"),
+            "INTERIOR_CIVIC")
+    elif kind == "tavern_inn":
+        beds = put_beds(rng.choice([1, 2, 3]))
+        for foot, facing in beds[:1]:
+            dx, dz = DIR_VEC[facing]
+            if not put_chest_at((foot[0] + dx, foot[1], foot[2] + dz), facing):
+                put_chest_at(foot, facing)
+        put(crafting, "INTERIOR_WORK")
+    elif kind == "town_chamber":
+        lectern = style.slot_entry("INTERIOR_CIVIC", "lectern", "minecraft:lectern")
+        put(f"{_block_id(lectern)}[facing={{facing}},has_book=false,powered=false]",
+            "INTERIOR_CIVIC")
+        put(style.slot_entry("INTERIOR_CIVIC", "bookshelf", "minecraft:bookshelf"),
+            "INTERIOR_CIVIC", n=2)
+        put(crafting, "INTERIOR_WORK")
+    elif kind == "town_foyer":
+        put(_bell_state(style, "{facing}", "floor"), "INTERIOR_CIVIC")
+        put(style.slot_entry("INTERIOR_CIVIC", "cauldron", "minecraft:cauldron"),
+            "INTERIOR_CIVIC")
+        put_wall_item("HERALDRY", "_wall_banner")
+    elif kind == "stable":
+        for x in range(zone.x0, zone.x1 + 1):
+            for z in range(zone.z0, zone.z1 + 1):
+                grid.set((x, fy - 1, z), "minecraft:hay_block[axis=y]",
+                         ["INTERIOR", "GROUND"], p, None)
+        gate_x = (zone.x0 + zone.x1) // 2
+        gate = f"minecraft:{_species(style.primary('FRAME_WOOD'))}_fence_gate[facing=north,in_wall=false,open=false,powered=false]"
+        if grid.set((gate_x, fy, vol.z0), gate, ["INTERIOR", "DETAIL"], p, "DETAIL_WOOD"):
+            placed += 1
+        # Keep stable dry by default: old behavior left an optional water trough.
+        # If a trough is desired again, re-enable this block behind a feature flag.
     # ceiling lantern for living-ish zones
-    if kind in ("living", "work", "forge"):
-        cy = fh + vol.meta.get("wall_h", 3) - 1
+    if kind in ("living", "work", "forge", "tavern_hall", "town_chamber"):
+        story_wall_h = vol.meta.get("story_wall_h", vol.meta.get("wall_h", 3))
+        cy = min(fy + story_wall_h - 1, vol.meta.get("foundation_h", 1) + vol.meta.get("wall_h", 3) - 1)
         cpos = ((zone.x0 + zone.x1) // 2, cy, (zone.z0 + zone.z1) // 2)
         if grid.is_empty(cpos):
             grid.set(cpos, lantern_state(style, hanging=True),
                      ["INTERIOR", "DETAIL"], p, "LIGHTING")
     return placed
 
-
 def exterior_decoration_patch(grid: BlockGrid, style: Style, rng: random.Random,
                               node: Node) -> bool:
     """Place one decoration motif on empty ground; returns success."""
-    motif = node.meta["motif"]
+    return place_motif(node.meta["motif"], grid, style, rng, node)
+
+
+def _woodpile_motif(grid: BlockGrid, style: Style, rng: random.Random,
+                    node: Node, related: Optional[Node] = None) -> bool:
     p = PRIORITY["DETAIL"]
     x0, z0 = node.x0, node.z0
     ok = False
-    if motif == "woodpile":
-        log = log_state(style, "x")
-        for dx, dy, dz in ((0, 0, 0), (1, 0, 0), (0, 0, 1), (1, 0, 1), (0, 1, 0), (1, 1, 0)):
-            pos = (x0 + dx, dy, z0 + dz)
-            if grid.is_empty(pos) and (dy == 0 or not grid.is_empty((pos[0], 0, pos[2]))):
-                ok |= grid.set(pos, log, ["DETAIL"], p, "FRAME_WOOD")
-    elif motif == "barrel_cluster":
-        barrel = style.slot_entry("INTERIOR_STORAGE", "barrel")
-        n = rng.choice([2, 3])
-        offsets = [(0, 0, 0), (1, 0, 0), (0, 0, 1), (0, 1, 0)][:n]
-        for dx, dy, dz in offsets:
-            pos = (x0 + dx, dy, z0 + dz)
-            if grid.is_empty(pos) and (dy == 0 or not grid.is_empty((pos[0], 0, pos[2]))):
-                facing = "up" if dy == 0 else "up"
-                ok |= grid.set(pos, f"{barrel}[facing={facing},open=false]",
-                               ["DETAIL"], p, "INTERIOR_STORAGE")
-    elif motif == "fence_patch":
-        for i, (dx, dz, conn) in enumerate(
-                [(0, 0, ("east",)), (1, 0, ("east", "west")), (2, 0, ("west",))]):
+    log = log_state(style, "x")
+    for dx, dy, dz in ((0, 0, 0), (1, 0, 0), (0, 0, 1),
+                       (1, 0, 1), (0, 1, 0), (1, 1, 0)):
+        pos = (x0 + dx, dy, z0 + dz)
+        if grid.is_empty(pos) and (dy == 0 or not grid.is_empty((pos[0], 0, pos[2]))):
+            ok |= grid.set(pos, log, ["DETAIL"], p, "FRAME_WOOD")
+    return ok
+
+
+def _barrel_cluster_motif(grid: BlockGrid, style: Style, rng: random.Random,
+                          node: Node, related: Optional[Node] = None) -> bool:
+    p = PRIORITY["DETAIL"]
+    x0, z0 = node.x0, node.z0
+    ok = False
+    barrel = style.slot_entry("INTERIOR_STORAGE", "barrel")
+    n = rng.choice([2, 3])
+    offsets = [(0, 0, 0), (1, 0, 0), (0, 0, 1), (0, 1, 0)][:n]
+    for dx, dy, dz in offsets:
+        pos = (x0 + dx, dy, z0 + dz)
+        if grid.is_empty(pos) and (dy == 0 or not grid.is_empty((pos[0], 0, pos[2]))):
+            facing = "up" if dy == 0 else "up"
+            ok |= grid.set(pos, f"{barrel}[facing={facing},open=false]",
+                           ["DETAIL"], p, "INTERIOR_STORAGE")
+    return ok
+
+
+def _fence_patch_motif(grid: BlockGrid, style: Style, rng: random.Random,
+                       node: Node, related: Optional[Node] = None) -> bool:
+    p = PRIORITY["DETAIL"]
+    x0, z0 = node.x0, node.z0
+    ok = False
+    for i, (dx, dz, conn) in enumerate(
+            [(0, 0, ("east",)), (1, 0, ("east", "west")), (2, 0, ("west",))]):
+        pos = (x0 + dx, 0, z0 + dz)
+        if grid.is_empty(pos):
+            ok |= grid.set(pos, fence_state(style, conn), ["DETAIL"], p,
+                           "DETAIL_WOOD")
+    return ok
+
+
+def _lantern_post_motif(grid: BlockGrid, style: Style, rng: random.Random,
+                        node: Node, related: Optional[Node] = None) -> bool:
+    p = PRIORITY["DETAIL"]
+    x0, z0 = node.x0, node.z0
+    if grid.is_empty((x0, 0, z0)) and grid.is_empty((x0, 1, z0)):
+        grid.set((x0, 0, z0), fence_state(style), ["DETAIL"], p, "DETAIL_WOOD")
+        grid.set((x0, 1, z0), fence_state(style), ["DETAIL"], p, "DETAIL_WOOD")
+        return grid.set((x0, 2, z0), lantern_state(style, hanging=False),
+                        ["DETAIL"], p, "LIGHTING")
+    return False
+
+
+def _small_path_patch_motif(grid: BlockGrid, style: Style, rng: random.Random,
+                            node: Node, related: Optional[Node] = None) -> bool:
+    p = PRIORITY["DETAIL"]
+    x0, z0 = node.x0, node.z0
+    ok = False
+    for dx in range(2):
+        for dz in range(2):
             pos = (x0 + dx, 0, z0 + dz)
             if grid.is_empty(pos):
-                ok |= grid.set(pos, fence_state(style, conn), ["DETAIL"], p,
-                               "DETAIL_WOOD")
-    elif motif == "lantern_post":
-        if grid.is_empty((x0, 0, z0)) and grid.is_empty((x0, 1, z0)):
-            grid.set((x0, 0, z0), fence_state(style), ["DETAIL"], p, "DETAIL_WOOD")
-            grid.set((x0, 1, z0), fence_state(style), ["DETAIL"], p, "DETAIL_WOOD")
-            ok = grid.set((x0, 2, z0), lantern_state(style, hanging=False),
-                          ["DETAIL"], p, "LIGHTING")
-    elif motif == "small_path_patch":
-        for dx in range(2):
-            for dz in range(2):
-                pos = (x0 + dx, 0, z0 + dz)
-                if grid.is_empty(pos):
-                    ok |= grid.set(pos, rng.choice(style.material_slots["GROUND_PATH"]),
-                                   ["DETAIL", "GROUND"], p, "GROUND_PATH")
+                ok |= grid.set(pos, rng.choice(style.material_slots["GROUND_PATH"]),
+                               ["DETAIL", "GROUND"], p, "GROUND_PATH")
     return ok
+
+
+def _ground_patch_motif(grid: BlockGrid, style: Style, rng: random.Random,
+                        node: Node, related: Optional[Node] = None) -> bool:
+    ground_patch(grid, style, rng, node)
+    return True
+
+
+def _moon_gate_motif(grid: BlockGrid, style: Style, rng: random.Random,
+                     node: Node, related: Optional[Node] = None) -> bool:
+    p = PRIORITY["OPENING"]
+    frame = style.slot_entry("DETAIL_WOOD", "_trapdoor", style.primary("BASE_STONE"))
+    wall = node.meta.get("wall", "front")
+    radius = int(node.meta.get("radius", 2))
+    cy = node.meta.get("y", 2)
+    if related is not None:
+        center = node.meta.get("along")
+        if center is None:
+            center = (wall_info(related, wall)[2][0] + wall_info(related, wall)[2][1]) // 2
+        for dx in range(-radius, radius + 1):
+            for dy in range(-radius, radius + 1):
+                dist = dx * dx + dy * dy
+                pos = wall_pos(related, wall, center + dx, cy + dy)
+                if dist <= radius * radius:
+                    grid.set(pos, AIR, ["OPENING", "AIR_CARVE", "PROTECTED"], p, force=True)
+                elif dist <= (radius + 1) * (radius + 1):
+                    grid.set(pos, frame, ["DETAIL", "OPENING"], p, "DETAIL_WOOD")
+        return True
+    x0, y0, z0 = node.x0, node.y0, node.z0
+    ok = False
+    for dx in range(-radius - 1, radius + 2):
+        for dy in range(-radius - 1, radius + 2):
+            dist = dx * dx + dy * dy
+            pos = (x0 + radius + 1 + dx, y0 + radius + 1 + dy, z0)
+            if dist <= radius * radius:
+                grid.set(pos, AIR, ["OPENING", "AIR_CARVE", "PROTECTED"], p, force=True)
+            elif dist <= (radius + 1) * (radius + 1):
+                ok |= grid.set(pos, frame, ["DETAIL", "OPENING"], p, "DETAIL_WOOD")
+    return ok
+
+
+def _spirit_array_motif(grid: BlockGrid, style: Style, rng: random.Random,
+                        node: Node, related: Optional[Node] = None) -> bool:
+    crystal = (
+        style.optional_slot_entry("SPIRIT_CRYSTAL", "amethyst")
+        or style.optional_slot_entry("SPIRIT_CRYSTAL", "quartz")
+    )
+    metal = style.optional_slot_entry("RITUAL_METAL", "copper", crystal)
+    if not crystal:
+        return False
+    p = PRIORITY["DETAIL"]
+    cx, cy, cz = node.x0 + 2, node.y0, node.z0 + 2
+    ok = False
+    glyph = {
+        (0, 0), (1, 0), (-1, 0), (0, 1), (0, -1),
+        (2, 0), (-2, 0), (0, 2), (0, -2),
+        (1, 1), (1, -1), (-1, 1), (-1, -1),
+    }
+    for dx, dz in glyph:
+        state = crystal if abs(dx) == abs(dz) or (dx, dz) == (0, 0) else metal
+        ok |= grid.set((cx + dx, cy, cz + dz), state,
+                       ["DETAIL", "GROUND"], p, "SPIRIT_CRYSTAL")
+    return ok
+
+
+def _incense_altar_motif(grid: BlockGrid, style: Style, rng: random.Random,
+                         node: Node, related: Optional[Node] = None) -> bool:
+    ritual = style.optional_slot_entry("RITUAL_METAL", "copper")
+    if not ritual:
+        return False
+    p = PRIORITY["DETAIL"]
+    base = style.primary("BASE_STONE")
+    detail = style.primary("DETAIL_WOOD")
+    x0, y0, z0 = node.x0, node.y0, node.z0
+    ok = False
+    for dx in range(3):
+        ok |= grid.set((x0 + dx, y0, z0), base, ["DETAIL"], p, "BASE_STONE")
+    ok |= grid.set((x0 + 1, y0 + 1, z0), ritual, ["DETAIL"], p, "RITUAL_METAL")
+    for dx in (0, 2):
+        ok |= grid.set((x0 + dx, y0 + 1, z0), detail, ["DETAIL"], p, "DETAIL_WOOD")
+    return ok
+
+
+def _cloud_rail_motif(grid: BlockGrid, style: Style, rng: random.Random,
+                      node: Node, related: Optional[Node] = None) -> bool:
+    p = PRIORITY["DETAIL"]
+    x0, y0, z0 = node.x0, node.y0, node.z0
+    ok = False
+    for dx in range(5):
+        conn = []
+        if dx > 0:
+            conn.append("west")
+        if dx < 4:
+            conn.append("east")
+        ok |= grid.set((x0 + dx, y0, z0), fence_state(style, conn),
+                       ["DETAIL"], p, "DETAIL_WOOD")
+        if dx % 2 == 0:
+            ok |= grid.set((x0 + dx, y0 + 1, z0),
+                           slab_state(style, "bottom", "DETAIL_WOOD"),
+                           ["DETAIL"], p, "DETAIL_WOOD")
+    return ok
+
+
+def _small_porch_motif(grid: BlockGrid, style: Style, rng: random.Random,
+                       node: Node, related: Optional[Node] = None) -> bool:
+    if related is None:
+        raise ValueError(f"small_porch motif for node {node.id!r} requires parent volume")
+    porch(grid, style, rng, node, related)
+    return True
+
+
+def _timber_bracket_motif(grid: BlockGrid, style: Style, rng: random.Random,
+                          node: Node, related: Optional[Node] = None) -> bool:
+    chinese_timber_brackets(grid, style, rng, node)
+    return True
+
+
+def _already_placed_motif(grid: BlockGrid, style: Style, rng: random.Random,
+                          node: Node, related: Optional[Node] = None) -> bool:
+    return True
 
 
 def ground_patch(grid: BlockGrid, style: Style, rng: random.Random,
@@ -712,3 +1217,28 @@ def open_shed(grid: BlockGrid, style: Style, rng: random.Random, vol: Node,
             grid.set((x, 0, z), stone if rng.random() < 0.7
                      else style.primary("BASE_STONE"),
                      ["STRUCTURE", "GROUND"], p, "BASE_STONE")
+
+
+register_roof("gable_roof", _gable_roof_handler)
+register_roof("cross_gable_roof", _cross_gable_roof_handler)
+register_roof("lean_to_roof", _lean_to_roof_handler)
+register_roof("tiered_eave_roof", _tiered_eave_roof_handler)
+for _grade in ("硬山", "悬山", "歇山"):
+    register_roof(_grade, _chinese_roof_grade_handler)
+
+register_motif("woodpile", _woodpile_motif)
+register_motif("barrel_cluster", _barrel_cluster_motif)
+register_motif("fence_patch", _fence_patch_motif)
+register_motif("lantern_post", _lantern_post_motif)
+register_motif("small_path_patch", _small_path_patch_motif)
+register_motif("small_porch", _small_porch_motif)
+register_motif("ground_patch", _ground_patch_motif)
+register_motif("stone_path", _ground_patch_motif)
+register_motif("courtyard", _ground_patch_motif)
+register_motif("timber_bracket", _timber_bracket_motif)
+register_motif("moon_gate", _moon_gate_motif)
+register_motif("spirit_array", _spirit_array_motif)
+register_motif("incense_altar", _incense_altar_motif)
+register_motif("cloud_rail", _cloud_rail_motif)
+for _motif in ("side_chimney", "courtyard_gate", "water_feature", "planting_bed"):
+    register_motif(_motif, _already_placed_motif)

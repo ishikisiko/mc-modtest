@@ -1,0 +1,147 @@
+{
+  "style_id": "cultivation_sect",
+  "material_slots": {
+    "BASE_STONE": [
+      "minecraft:polished_andesite",
+      "minecraft:quartz_block",
+      "minecraft:calcite"
+    ],
+    "WALL_MAIN": [
+      "minecraft:calcite",
+      "minecraft:quartz_block",
+      "minecraft:polished_diorite"
+    ],
+    "FRAME_WOOD": [
+      "minecraft:dark_oak_log",
+      "minecraft:stripped_dark_oak_log"
+    ],
+    "ROOF_DARK": [
+      "minecraft:dark_prismarine_stairs",
+      "minecraft:dark_prismarine_slab",
+      "minecraft:dark_oak_planks"
+    ],
+    "DETAIL_WOOD": [
+      "minecraft:dark_oak_trapdoor",
+      "minecraft:dark_oak_fence",
+      "minecraft:dark_oak_slab",
+      "minecraft:spruce_trapdoor",
+      "minecraft:spruce_fence"
+    ],
+    "LIGHTING": [
+      "minecraft:lantern",
+      "minecraft:sea_lantern",
+      "minecraft:end_rod"
+    ],
+    "GROUND_PATH": [
+      "minecraft:polished_andesite",
+      "minecraft:smooth_quartz",
+      "minecraft:gravel"
+    ],
+    "INTERIOR_WORK": [
+      "minecraft:crafting_table",
+      "minecraft:furnace",
+      "minecraft:smithing_table"
+    ],
+    "INTERIOR_STORAGE": [
+      "minecraft:barrel"
+    ],
+    "INTERIOR_CIVIC": [
+      "minecraft:lectern[facing=north,has_book=false,powered=false]",
+      "minecraft:bookshelf",
+      "minecraft:bell[attachment=ceiling,facing=north,powered=false]",
+      "minecraft:brewing_stand[has_bottle_0=false,has_bottle_1=false,has_bottle_2=false]",
+      "minecraft:cauldron"
+    ],
+    "FURNITURE": [
+      "minecraft:white_bed",
+      "minecraft:green_bed",
+      "minecraft:chest"
+    ],
+    "SIGNAGE": [
+      "minecraft:dark_oak_sign",
+      "minecraft:dark_oak_wall_sign"
+    ],
+    "HERALDRY": [
+      "minecraft:white_banner",
+      "minecraft:green_banner",
+      "minecraft:white_wall_banner",
+      "minecraft:green_wall_banner"
+    ],
+    "SPIRIT_CRYSTAL": [
+      "minecraft:amethyst_block",
+      "minecraft:quartz_block"
+    ],
+    "RITUAL_METAL": [
+      "minecraft:oxidized_copper",
+      "minecraft:cut_oxidized_copper",
+      "minecraft:gold_block"
+    ]
+  },
+  "variation_rate": {
+    "BASE_STONE": 0.12,
+    "WALL_MAIN": 0.06
+  },
+  "allowed_roof_types": [
+    "gable_roof",
+    "cross_gable_roof",
+    "lean_to_roof",
+    "tiered_eave_roof"
+  ],
+  "allowed_wall_types": [
+    "white_plaster_timber_wall",
+    "timber_frame_wall",
+    "mixed_stone_wood_wall"
+  ],
+  "allowed_opening_styles": [
+    "single_door_with_frame",
+    "window_with_trapdoor_frame",
+    "window_with_slab_sill",
+    "small_high_window"
+  ],
+  "allowed_motifs": [
+    "small_porch",
+    "side_chimney",
+    "woodpile",
+    "barrel_cluster",
+    "fence_patch",
+    "lantern_post",
+    "small_path_patch",
+    "moon_gate",
+    "spirit_array",
+    "incense_altar",
+    "cloud_rail"
+  ],
+  "forbidden_blocks": [
+    "concrete",
+    "warped_",
+    "crimson_",
+    "netherite",
+    "spawner",
+    "command_block",
+    "shulker",
+    "jukebox",
+    "beacon"
+  ],
+  "proportions": {
+    "wall_height": [
+      4,
+      6
+    ],
+    "roof_height_ratio": [
+      0.45,
+      0.85
+    ],
+    "foundation_height": [
+      1,
+      2
+    ],
+    "roof_overhang": [
+      1,
+      2
+    ],
+    "max_flat_wall_width": 5,
+    "window_min_count": 2,
+    "interior_required_function_blocks": 2,
+    "exterior_required_decoration_count": 1
+  }
+}
