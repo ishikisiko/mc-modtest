@@ -1,5 +1,8 @@
 package com.example.myvillage;
 
+import com.example.myvillage.town.TownGenerator;
+import com.example.myvillage.town.ModBlockFallback;
+import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.neoforged.fml.common.Mod;
@@ -49,6 +52,7 @@ public final class MyVillageMod {
     public MyVillageMod() {
         LOGGER.info("MyVillage resource mod loaded");
         NeoForge.EVENT_BUS.addListener(this::registerCommands);
+        NeoForge.EVENT_BUS.addListener(ModBlockFallback::onServerStarted);
     }
 
     private void registerCommands(RegisterCommandsEvent event) {
@@ -62,6 +66,14 @@ public final class MyVillageMod {
                                                 StringArgumentType.getString(ctx, "structure_id")))))
                         .then(Commands.literal("list")
                                 .executes(ctx -> listStructures(ctx.getSource())))
+                        .then(Commands.literal("town")
+                                .executes(ctx -> TownGenerator.generate(
+                                        ctx.getSource(),
+                                        TownGenerator.seedFromSource(ctx.getSource())))
+                                .then(Commands.argument("seed", LongArgumentType.longArg())
+                                        .executes(ctx -> TownGenerator.generate(
+                                                ctx.getSource(),
+                                                LongArgumentType.getLong(ctx, "seed")))))
                         .then(Commands.literal("gallery")
                                 .executes(ctx -> placeGallery(ctx.getSource(), GalleryScope.ALL))
                                 .then(Commands.literal("original")
@@ -139,14 +151,15 @@ public final class MyVillageMod {
 
     private int placeStructure(CommandSourceStack source, ResourceLocation structureId, BlockPos origin) {
         ServerLevel level = source.getLevel();
-        Optional<StructureTemplate> template = level.getStructureManager().get(structureId);
-        if (template.isEmpty()) {
+        Optional<ModBlockFallback.LoadedTemplate> loadedTemplate = ModBlockFallback.loadTemplate(level, structureId);
+        if (loadedTemplate.isEmpty()) {
             source.sendFailure(Component.literal("Missing structure template: " + structureId));
             return 0;
         }
 
+        StructureTemplate template = loadedTemplate.get().template();
         BlockPos placementOrigin = origin.offset(0, placementYOffset(structureId), 0);
-        boolean placed = template.get().placeInWorld(
+        boolean placed = template.placeInWorld(
                 level,
                 placementOrigin,
                 placementOrigin,
@@ -158,9 +171,11 @@ public final class MyVillageMod {
             return 0;
         }
 
+        int substitutions = loadedTemplate.get().substitutions();
         source.sendSuccess(
                 () -> Component.literal("Placed " + structureId + " at "
-                        + placementOrigin.getX() + " " + placementOrigin.getY() + " " + placementOrigin.getZ()),
+                        + placementOrigin.getX() + " " + placementOrigin.getY() + " " + placementOrigin.getZ()
+                        + (substitutions > 0 ? " fallback_substitutions=" + substitutions : "")),
                 false);
         return 1;
     }

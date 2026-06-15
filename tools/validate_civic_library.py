@@ -12,6 +12,7 @@ from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+from buildgen.modset import load_modset
 from validate_generated_structures import validate_file
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -59,7 +60,10 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--structure-dir", default=str(RES / "structure"))
     parser.add_argument("--report", default=str(OUT_REPORT))
+    parser.add_argument("--profile", default="full", choices=("vanilla", "full"),
+                        help="modset profile: 'vanilla' forbids all mod ids, 'full' allows confirmed catalog ids")
     args = parser.parse_args()
+    modset = load_modset(args.profile)
 
     structure_dir = Path(args.structure_dir)
     if not structure_dir.is_absolute():
@@ -76,7 +80,7 @@ def main() -> int:
             result = {"path": f"{name}.nbt", "passed": False,
                       "errors": ["missing_file"], "warnings": []}
         else:
-            result = validate_file(path, structure_dir)
+            result = validate_file(path, structure_dir, modset)
         results.append(result)
         if not result["passed"]:
             errors.extend(f"{result['path']}: {message}" for message in result["errors"])

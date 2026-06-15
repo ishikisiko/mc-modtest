@@ -2,8 +2,9 @@
 
 This repository builds a NeoForge 1.21.1 mod jar containing generated
 `myvillage` structure templates. The current validation target is the Mod
-resource layer: structures must be packed in the jar and placeable in game via
-debug commands, without enabling worldgen.
+resource layer plus an on-demand runtime town command: structures must be packed
+in the jar and placeable in game via debug commands, and `/myvillage town
+[seed]` must build a terrain-aware living town in loaded chunks.
 
 The long-term project goal is broader than a simple village generator. The
 current structure library is an early resource-validation layer for a future
@@ -70,8 +71,21 @@ src/main/resources/data/myvillage/structure/cultivation_sect_001.nbt ... cultiva
 ```
 
 The Gradle build also runs this batch generator before packing resources, so
-v0.5 jars are expected to contain individual buildings, compound structures,
-and civic/cultivation structures.
+v0.7 jars are expected to contain individual buildings, compound structures,
+and civic/cultivation structures used by the runtime town command.
+
+The current generator data is populated for the full external-mod profile.
+When those staged mods are installed, generated market stalls, sect-gate decor,
+ritual anchors, lighting, furniture, and canopy/eave details may use confirmed
+ids from Ars Nouveau, Farmer's Delight, Fetzi's Displays, Macaw's Furniture,
+Macaw's Windows, and Supplementaries. The Python style loader still supports a
+vanilla namespace profile for regression checks; every populated slot keeps a
+trailing `minecraft:` fallback.
+The batch generator also exports
+`src/main/resources/data/myvillage/mod_block_fallbacks.json` from those slot
+lists. Runtime `/myvillage place` and `/myvillage town` template placement use
+that map so worlds without the optional decor mods place vanilla fallbacks
+rather than air holes.
 
 ## Generate Chinese Courtyard Compounds
 
@@ -122,9 +136,12 @@ Run the NBT-level integrity checks after generation:
 
 ```bash
 python3 tools/validate_generated_structures.py src/main/resources/data/myvillage/structure
+python3 tools/validate_mod_block_fallbacks.py
 python3 tools/validate_compound_library.py --count 6
 python3 tools/validate_compound_library.py --group cultivation_town --count 6
 python3 tools/validate_civic_library.py
+python3 tools/validate_town_generation.py
+python3 tools/validate_runtime_town_plan.py
 python3 tools/check_style_policy.py
 python3 tools/check_cultivation_forms.py
 ```
@@ -149,6 +166,7 @@ in-game check.
 python3 tools/preview_structure.py src/main/resources/data/myvillage/structure/small_house_001.nbt
 python3 tools/preview_structure.py examples/buildings/small_house_01.json   # DSL source form
 python3 tools/preview_structure.py --all                                    # every .nbt
+python3 tools/generate_town_plan_preview.py --count 3                       # town plan PNG/HTML previews
 python3 tools/preview_structure.py --viewer-only src/main/resources/data/myvillage/structure/cultivation_sect_001.nbt
 python3 tools/preview_structure.py --no-viewer --all                        # PNGs only
 python3 -m http.server 8765 --bind 127.0.0.1 --directory out/preview         # serve previews for review
@@ -187,7 +205,7 @@ jar tf build/libs/*.jar | grep "data/myvillage/structure"
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.5.1.jar
+build/libs/myvillage-0.7.0-fix2.jar
 ```
 
 ## Versioning And Changelog
@@ -216,15 +234,20 @@ command documentation:
 ```bash
 python3 tools/generate_all_structures.py --mc-version 1.21.1 --output src/main/resources/data/myvillage/structure
 python3 tools/validate_generated_structures.py src/main/resources/data/myvillage/structure
+python3 tools/validate_mod_block_fallbacks.py
 python3 tools/validate_compound_library.py --count 6
 python3 tools/validate_compound_library.py --group cultivation_town --count 6
 python3 tools/validate_civic_library.py
+python3 tools/validate_town_generation.py
+python3 tools/validate_runtime_town_plan.py
 python3 tools/check_style_policy.py
 python3 tools/check_cultivation_forms.py
 python3 tools/preview_structure.py --all
+python3 tools/generate_town_plan_preview.py --count 3
 python3 -m http.server 8765 --bind 127.0.0.1 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.5.1.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.7.0-fix2.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.7.0-fix2.jar | grep "data/myvillage/mod_block_fallbacks.json"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -241,14 +264,28 @@ Create or open a flat test world with commands enabled.
 
 ## Available Commands
 
-The v0.5 mod registers debug commands for structure validation only; no worldgen
-is registered.
+The v0.7 mod registers debug commands for structure validation and the
+on-demand living-town generator. Passive worldgen is not registered.
 
 List loaded templates:
 
 ```mcfunction
 /myvillage list
 ```
+
+Generate a living cultivation town around the player in currently loaded chunks:
+
+```mcfunction
+/myvillage town
+/myvillage town 20260618
+```
+
+The optional seed makes generation deterministic for the same seed and site.
+The command refuses footprints that extend into unloaded chunks and reports the
+town extent. Parcels above the slope limit are skipped and reported in the
+completion message. If the optional decor mods are absent, authored mod blocks
+in template palettes are substituted with generated vanilla fallbacks before the
+template loads.
 
 Place the smoke-test structure at the player position:
 
@@ -286,6 +323,9 @@ directly, place generated structures with the same offset:
 /place template myvillage:cultivation_town_001 ~ ~-1 ~
 /place template myvillage:cultivation_sect_001 ~ ~-1 ~
 ```
+
+When `/myvillage place` substitutes optional-mod palette entries because a decor
+mod is not loaded, the success line includes `fallback_substitutions=<count>`.
 
 Place all loaded `myvillage` blueprints in a grouped gallery with 128-block
 spacing:
@@ -338,6 +378,8 @@ Quality Check        tools/buildgen/quality.py      entrance, windows, interior,
 Resource Export      tools/buildgen/export.py       structure NBT + gallery/place mcfunctions
 Compound Graph       tools/buildgen/compound.py     Chinese one-courtyard, cultivation town block, and cultivation sect parcel layouts
 Civic Generator      tools/generate_civic_library.py tavern_001..005 + lord_manor_001..003
+Town Planner         tools/buildgen/town.py         deterministic enclosure/spine/parcels/negative-space model + validation
+Town Realizer        src/main/java/.../town/        /myvillage town runtime site-fit, frontage, street-room, and tissue placement
 ```
 
 Important properties:
@@ -345,13 +387,19 @@ Important properties:
 - Materials resolve through abstract slots such as `BASE_STONE`, `WALL_MAIN`,
   `FRAME_WOOD`, `ROOF_DARK`, `DETAIL_WOOD`, `INTERIOR_WORK`,
   `INTERIOR_STORAGE`, `INTERIOR_CIVIC`, `FURNITURE`, `SIGNAGE`, and
-  `HERALDRY`. Cultivation sect styles may also define `SPIRIT_CRYSTAL` and
-  `RITUAL_METAL`; mortal styles may omit them.
+  `HERALDRY`. External-mod decor uses semantic slots such as `ROOF_TILE`,
+  `PAPER_LANTERN`, `RITUAL_ANCHOR`, and `MARKET_FITTINGS`; each populated list
+  keeps a final `minecraft:` fallback. Cultivation sect styles may also define
+  `SPIRIT_CRYSTAL` and `RITUAL_METAL`; mortal styles may omit them.
+- Families with non-vanilla blockstate grammar are oriented through the
+  buildgen orientation adapter. Vanilla stairs/slabs and Supplementaries
+  awnings are registered families; unregistered families fail loudly.
 - Supported roof handlers are registered in `tools/buildgen/ops.py`. Current
   names include `gable_roof`, `cross_gable_roof`, `lean_to_roof`, Chinese
   roof-grade aliases, and `tiered_eave_roof`.
 - Decoration motifs are also registered in `tools/buildgen/ops.py`; cultivation
-  forms include `moon_gate`, `spirit_array`, `incense_altar`, and `cloud_rail`.
+  forms include `moon_gate`, `spirit_array`, `incense_altar`, `cloud_rail`, and
+  `sect_gate_paifang`. Market styles may also enable `market_stall`.
 - Add new settlement families through `tools/buildgen/groups.py`, and add new
   roof or motif forms by registering a handler before listing the form in a
   style's `allowed_roof_types` or `allowed_motifs`.
@@ -363,11 +411,14 @@ Important properties:
   and the `main_hall`, `side_wing`, `front_row`, and `gate_house` sub-building
   builders. These are composed by `CompoundGraph`, not emitted by the default
   medieval building-library generator.
-- Cultivation town generation uses `cultivation_town.json` with compact
-  courtyard-street blocks (`cultivation_town_001...006`) composed from the
-  mortal-town archetype roster. Cultivation sect generation uses
+- Cultivation town generation uses `cultivation_town.json` with the runtime
+  town-generation layout. Existing compact courtyard-street blocks
+  (`cultivation_town_001...006`) remain generated as reusable review/parts
+  outputs composed from the mortal-town archetype roster. Cultivation sect generation uses
   `cultivation_sect.json` with standalone sect archetypes plus a terraced axial
   compound layout.
+- Town building graphs expose frontage metadata (`side`, `facing`, and opening
+  cells) and optional importance-tier hints used by the town planner/realizer.
 - Chinese courtyard water and gravel/path cells are authored as
   terrain-replacement cells one layer below the structure origin. Planting stays
   on the plant layer, and bamboo is sampled around water with supporting dirt
@@ -402,16 +453,19 @@ Included:
 - test_house_03.nbt Mod resource smoke test
 - /myvillage place <structure_id>
 - /myvillage list
+- /myvillage town [seed]
 - /myvillage gallery
 - /myvillage gallery original
 - /myvillage gallery cultivation
+- generated optional-mod runtime fallback map and fallback coverage validation
 - NBT integrity validation for roof/top-layer/function-block/signature checks
+- deterministic town-plan validation and top-down town-plan previews
 ```
 
 Not included:
 
 ```text
-- worldgen
+- passive/natural worldgen
 - jigsaw/template pool/structure_set generation
 - biome placement
 - entities, villagers, loot tables, or complex block entity NBT
@@ -443,8 +497,9 @@ roof generation logic. Pay special attention to:
 ```
 
 The automated validators check the mechanical parts of this list, but final
-acceptance still needs a v0.5 mod jar plus in-game visual inspection with
-`/myvillage list`, `/myvillage place chinese_courtyard_001`,
+acceptance still needs a v0.7 mod jar plus in-game visual inspection with
+`/myvillage list`, `/myvillage town 20260618`,
+`/myvillage place chinese_courtyard_001`,
 `/myvillage place tavern_001`, `/myvillage place lord_manor_001`, and
 `/myvillage place cultivation_town_001`,
 `/myvillage place cultivation_sect_001`, `/myvillage gallery`,

@@ -83,6 +83,20 @@
           "roof_grade": "悬山",
           "style_id": "chinese_courtyard",
           "group_id": "chinese_courtyard",
+          "frontage": {
+            "side": "back",
+            "facing": "south",
+            "volume": "main",
+            "kind": "entry",
+            "opening_cells": [
+              [
+                8,
+                12
+              ]
+            ],
+            "opening_width": 1,
+            "source": "largest_open_side"
+          },
           "opening_style": "window_with_slab_sill"
         },
         "nodes": [
@@ -259,6 +273,20 @@
           "roof_grade": "歇山",
           "style_id": "chinese_courtyard",
           "group_id": "chinese_courtyard",
+          "frontage": {
+            "side": "west",
+            "facing": "west",
+            "volume": "main",
+            "kind": "entry",
+            "opening_cells": [
+              [
+                0,
+                8
+              ]
+            ],
+            "opening_width": 1,
+            "source": "largest_open_side"
+          },
           "opening_style": "window_with_trapdoor_frame"
         },
         "nodes": [
@@ -422,6 +450,20 @@
           "roof_grade": "硬山",
           "style_id": "chinese_courtyard",
           "group_id": "chinese_courtyard",
+          "frontage": {
+            "side": "back",
+            "facing": "south",
+            "volume": "main",
+            "kind": "entry",
+            "opening_cells": [
+              [
+                9,
+                6
+              ]
+            ],
+            "opening_width": 1,
+            "source": "largest_open_side"
+          },
           "opening_style": "window_with_trapdoor_frame"
         },
         "nodes": [
@@ -1997,6 +2039,20 @@
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
                 "group_id": "chinese_courtyard",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      5,
+                      4
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   14,
@@ -2590,6 +2646,20 @@
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
                 "group_id": "chinese_courtyard",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      8,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   11,
@@ -3530,6 +3600,20 @@
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
                 "group_id": "chinese_courtyard",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      8,
+                      10
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   11,
@@ -4187,6 +4271,20 @@
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
                 "group_id": "chinese_courtyard",
+                "frontage": {
+                  "side": "west",
+                  "facing": "west",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      0,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   3,
@@ -4895,6 +4993,20 @@
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
                 "group_id": "chinese_courtyard",
+                "frontage": {
+                  "side": "west",
+                  "facing": "west",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      0,
+                      7
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   27,
@@ -6714,6 +6826,20 @@
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
                 "group_id": "chinese_courtyard",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      4,
+                      4
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   19,
@@ -7307,6 +7433,20 @@
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
                 "group_id": "chinese_courtyard",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      8,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   15,
@@ -8383,6 +8523,20 @@
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
                 "group_id": "chinese_courtyard",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      8,
+                      12
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   15,
@@ -8984,6 +9138,20 @@
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
                 "group_id": "chinese_courtyard",
+                "frontage": {
+                  "side": "west",
+                  "facing": "west",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      0,
+                      7
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   3,
@@ -9628,6 +9796,20 @@
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
                 "group_id": "chinese_courtyard",
+                "frontage": {
+                  "side": "west",
+                  "facing": "west",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      0,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   37,
@@ -11435,6 +11617,20 @@
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
                 "group_id": "chinese_courtyard",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      5,
+                      4
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   18,
@@ -11972,6 +12168,20 @@
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
                 "group_id": "chinese_courtyard",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      7,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   16,
@@ -12912,6 +13122,20 @@
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
                 "group_id": "chinese_courtyard",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      8,
+                      10
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   15,
@@ -13569,6 +13793,20 @@
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
                 "group_id": "chinese_courtyard",
+                "frontage": {
+                  "side": "west",
+                  "facing": "west",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      0,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   3,
@@ -14213,6 +14451,20 @@
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
                 "group_id": "chinese_courtyard",
+                "frontage": {
+                  "side": "west",
+                  "facing": "west",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      0,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   37,
@@ -15928,6 +16180,20 @@
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
                 "group_id": "chinese_courtyard",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      4,
+                      4
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   15,
@@ -16577,6 +16843,20 @@
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
                 "group_id": "chinese_courtyard",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      9,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   10,
@@ -17517,6 +17797,20 @@
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
                 "group_id": "chinese_courtyard",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      8,
+                      10
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   11,
@@ -18118,6 +18412,20 @@
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
                 "group_id": "chinese_courtyard",
+                "frontage": {
+                  "side": "west",
+                  "facing": "west",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      0,
+                      7
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   3,
@@ -18706,6 +19014,20 @@
                 "roof_grade": "悬山",
                 "style_id": "chinese_courtyard",
                 "group_id": "chinese_courtyard",
+                "frontage": {
+                  "side": "west",
+                  "facing": "west",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      0,
+                      7
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   29,
@@ -20397,6 +20719,20 @@
                 "roof_grade": "歇山",
                 "style_id": "chinese_courtyard",
                 "group_id": "chinese_courtyard",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      5,
+                      4
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   16,
@@ -20990,6 +21326,20 @@
                 "roof_grade": "歇山",
                 "style_id": "chinese_courtyard",
                 "group_id": "chinese_courtyard",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      8,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   13,
@@ -21842,6 +22192,20 @@
                 "roof_grade": "歇山",
                 "style_id": "chinese_courtyard",
                 "group_id": "chinese_courtyard",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      7,
+                      10
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   14,
@@ -22443,6 +22807,20 @@
                 "roof_grade": "歇山",
                 "style_id": "chinese_courtyard",
                 "group_id": "chinese_courtyard",
+                "frontage": {
+                  "side": "west",
+                  "facing": "west",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      0,
+                      7
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   3,
@@ -23151,6 +23529,20 @@
                 "roof_grade": "歇山",
                 "style_id": "chinese_courtyard",
                 "group_id": "chinese_courtyard",
+                "frontage": {
+                  "side": "west",
+                  "facing": "west",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      0,
+                      7
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   31,
@@ -24942,6 +25334,20 @@
                 "roof_grade": "硬山",
                 "style_id": "chinese_courtyard",
                 "group_id": "chinese_courtyard",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      5,
+                      4
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   18,
@@ -25591,6 +25997,20 @@
                 "roof_grade": "硬山",
                 "style_id": "chinese_courtyard",
                 "group_id": "chinese_courtyard",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      9,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   14,
@@ -26667,6 +27087,20 @@
                 "roof_grade": "硬山",
                 "style_id": "chinese_courtyard",
                 "group_id": "chinese_courtyard",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      8,
+                      12
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   15,
@@ -27388,6 +27822,20 @@
                 "roof_grade": "硬山",
                 "style_id": "chinese_courtyard",
                 "group_id": "chinese_courtyard",
+                "frontage": {
+                  "side": "west",
+                  "facing": "west",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      0,
+                      7
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   3,
@@ -27976,6 +28424,20 @@
                 "roof_grade": "硬山",
                 "style_id": "chinese_courtyard",
                 "group_id": "chinese_courtyard",
+                "frontage": {
+                  "side": "west",
+                  "facing": "west",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      0,
+                      7
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   37,

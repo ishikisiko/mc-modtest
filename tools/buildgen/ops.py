@@ -18,6 +18,7 @@ from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple
 
 from .grid import AIR, BlockGrid, PRIORITY
 from .massing import INWARD_FACING, OUTWARD_FACING, Node, WALL_OUTWARD
+from .orientation import orient_block
 from .style import Style
 
 Pos = Tuple[int, int, int]
@@ -87,12 +88,38 @@ def _species(state: str) -> str:
 
 def stair_state(style: Style, facing: str, half: str = "bottom") -> str:
     base = style.slot_entry("ROOF_DARK", "_stairs")
-    return f"{base}[facing={facing},half={half},shape=straight,waterlogged=false]"
+    return orient_block("vanilla_stairs", _block_id(base), "stair",
+                        facing=facing, half=half)
 
 
 def slab_state(style: Style, kind: str = "bottom", slot: str = "ROOF_DARK") -> str:
     base = style.slot_entry(slot, "_slab")
-    return f"{base}[type={kind},waterlogged=false]"
+    return orient_block("vanilla_slab", _block_id(base), "slab", kind=kind)
+
+
+def awning_state(style: Style, facing: str, vertical: str = "bottom",
+                 slot: str = "ROOF_TILE") -> Optional[str]:
+    base = style.optional_slot_entry(slot, "awning")
+    if not base:
+        return None
+    return orient_block("supplementaries:awning", _block_id(base), "eave",
+                        facing=facing, vertical=vertical, slanted=True)
+
+
+def canopy_roof_state(style: Style, facing: str,
+                      allow_attached: bool = True) -> Tuple[str, str]:
+    awning = awning_state(style, facing) if allow_attached else None
+    if awning:
+        return awning, "ROOF_TILE"
+    base = style.optional_slot_entry("ROOF_TILE", "_stairs")
+    if base:
+        return (orient_block("vanilla_stairs", _block_id(base), "canopy",
+                             facing=facing), "ROOF_TILE")
+    base = style.optional_slot_entry("ROOF_TILE", "_slab")
+    if base:
+        return (orient_block("vanilla_slab", _block_id(base), "canopy",
+                             kind="bottom"), "ROOF_TILE")
+    return stair_state(style, facing), "ROOF_DARK"
 
 
 def trapdoor_state(style: Style, facing: str, rng: random.Random,
@@ -738,6 +765,17 @@ def _slot_choice(style: Style, rng: random.Random, slot: str,
     return default
 
 
+def _optional_slot_block(style: Style, slot: str, contains: Iterable[str],
+                         default: Optional[str] = None) -> Optional[str]:
+    for needle in contains:
+        state = style.optional_slot_entry(slot, needle)
+        if state:
+            return _block_id(state)
+    if default is not None:
+        return _block_id(default)
+    return None
+
+
 def wall_hanging(grid: BlockGrid, style: Style, rng: random.Random, vol: Node,
                  wall: str, along: int, y: int, slot: str, contains: str,
                  outside: bool = False) -> bool:
@@ -1112,6 +1150,7 @@ def _spirit_array_motif(grid: BlockGrid, style: Style, rng: random.Random,
         or style.optional_slot_entry("SPIRIT_CRYSTAL", "quartz")
     )
     metal = style.optional_slot_entry("RITUAL_METAL", "copper", crystal)
+    anchor = style.optional_slot_entry("RITUAL_ANCHOR", ":", crystal)
     if not crystal:
         return False
     p = PRIORITY["DETAIL"]
@@ -1123,27 +1162,142 @@ def _spirit_array_motif(grid: BlockGrid, style: Style, rng: random.Random,
         (1, 1), (1, -1), (-1, 1), (-1, -1),
     }
     for dx, dz in glyph:
-        state = crystal if abs(dx) == abs(dz) or (dx, dz) == (0, 0) else metal
+        if (dx, dz) == (0, 0):
+            state = anchor
+            slot = "RITUAL_ANCHOR"
+        elif abs(dx) == abs(dz):
+            state = crystal
+            slot = "SPIRIT_CRYSTAL"
+        else:
+            state = metal
+            slot = "RITUAL_METAL"
         ok |= grid.set((cx + dx, cy, cz + dz), state,
-                       ["DETAIL", "GROUND"], p, "SPIRIT_CRYSTAL")
+                       ["DETAIL", "GROUND"], p, slot)
     return ok
 
 
 def _incense_altar_motif(grid: BlockGrid, style: Style, rng: random.Random,
                          node: Node, related: Optional[Node] = None) -> bool:
-    ritual = style.optional_slot_entry("RITUAL_METAL", "copper")
+    ritual = style.optional_slot_entry(
+        "RITUAL_ANCHOR", ":",
+        style.optional_slot_entry("RITUAL_METAL", "copper"))
     if not ritual:
         return False
     p = PRIORITY["DETAIL"]
     base = style.primary("BASE_STONE")
-    detail = style.primary("DETAIL_WOOD")
+    detail = (
+        style.optional_slot_entry("DETAIL_WOOD", "_trapdoor")
+        or style.slot_entry("DETAIL_WOOD", "_slab")
+    )
     x0, y0, z0 = node.x0, node.y0, node.z0
     ok = False
     for dx in range(3):
         ok |= grid.set((x0 + dx, y0, z0), base, ["DETAIL"], p, "BASE_STONE")
-    ok |= grid.set((x0 + 1, y0 + 1, z0), ritual, ["DETAIL"], p, "RITUAL_METAL")
+    ok |= grid.set((x0 + 1, y0 + 1, z0), ritual, ["DETAIL"], p, "RITUAL_ANCHOR")
     for dx in (0, 2):
         ok |= grid.set((x0 + dx, y0 + 1, z0), detail, ["DETAIL"], p, "DETAIL_WOOD")
+    return ok
+
+
+def _market_stall_motif(grid: BlockGrid, style: Style, rng: random.Random,
+                        node: Node, related: Optional[Node] = None) -> bool:
+    p = PRIORITY["DETAIL"]
+    x0, y0, z0 = node.x0, node.y0, node.z0
+    facing = str(node.meta.get("facing", "south"))
+    counter = _optional_slot_block(
+        style, "MARKET_FITTINGS", ("cabinet", "counter", "barrel"))
+    display = _optional_slot_block(
+        style, "MARKET_FITTINGS", ("crate", "basket", "jar", "rack", "shelf"),
+        counter)
+    accent = _optional_slot_block(
+        style, "MARKET_FITTINGS", ("cutting_board", "skillet", "stove", "holder"),
+        display)
+    canopy, canopy_slot = canopy_roof_state(style, facing)
+    post = fence_state(style)
+    canopy_support = style.slot_entry("ROOF_DARK", "_planks",
+                                      style.primary("BASE_STONE"))
+    support_dx, support_dz = DIR_VEC[OPPOSITE[facing]]
+    ok = False
+    for dx in (0, 1):
+        if counter:
+            ok |= grid.set((x0 + dx, y0, z0), counter, ["DETAIL"], p,
+                           "MARKET_FITTINGS")
+        goods = display if dx == 0 else accent
+        if goods:
+            ok |= grid.set((x0 + dx, y0 + 1, z0), goods,
+                           ["DETAIL"], p, "MARKET_FITTINGS")
+        ok |= grid.set((x0 + dx, y0, z0 + 1), post, ["DETAIL"], p,
+                       "DETAIL_WOOD")
+        ok |= grid.set((x0 + dx, y0 + 1, z0 + 1), post, ["DETAIL"], p,
+                       "DETAIL_WOOD")
+    canopy_positions: List[Pos]
+    if facing == "north":
+        canopy_positions = [(x0, y0 + 2, z0), (x0 + 1, y0 + 2, z0)]
+    elif facing == "south":
+        canopy_positions = [(x0, y0 + 2, z0 + 1), (x0 + 1, y0 + 2, z0 + 1)]
+    elif facing == "west":
+        canopy_positions = [(x0, y0 + 2, z0), (x0, y0 + 2, z0 + 1)]
+    else:
+        canopy_positions = [(x0 + 1, y0 + 2, z0), (x0 + 1, y0 + 2, z0 + 1)]
+    support_positions = {
+        (x + support_dx, y, z + support_dz) for x, y, z in canopy_positions
+    }
+    for sx, sy, sz in sorted(support_positions):
+        if grid.is_empty((sx, sy - 2, sz)):
+            ok |= grid.set((sx, sy - 2, sz), post, ["DETAIL"], p,
+                           "DETAIL_WOOD")
+        if grid.is_empty((sx, sy - 1, sz)):
+            ok |= grid.set((sx, sy - 1, sz), post, ["DETAIL"], p,
+                           "DETAIL_WOOD")
+        ok |= grid.set((sx, sy, sz), canopy_support, ["DETAIL"], p,
+                       "ROOF_DARK")
+    for pos in canopy_positions:
+        ok |= grid.set(pos, canopy, ["DETAIL", "ROOF"], p, canopy_slot)
+    return ok
+
+
+def _sect_gate_paifang_motif(grid: BlockGrid, style: Style, rng: random.Random,
+                             node: Node, related: Optional[Node] = None) -> bool:
+    p = PRIORITY["DETAIL"]
+    x0, y0, z0 = node.x0, node.y0, node.z0
+    facing = str(node.meta.get("facing", "south"))
+    trim = _optional_slot_block(
+        style, "MARKET_FITTINGS",
+        ("pedestal", "rack_a", "rack", "basket", "barrel", "shelf", "holder"))
+    sign = (
+        style.optional_slot_entry("SIGNAGE", "_wall_sign")
+        or style.optional_slot_entry("SIGNAGE", "_sign")
+    )
+    post = log_state(style, "y")
+    beam = slab_state(style, "bottom", "DETAIL_WOOD")
+    backing = style.slot_entry("DETAIL_WOOD", "_planks",
+                               style.primary("FRAME_WOOD"))
+    support_dx, support_dz = DIR_VEC[OPPOSITE[facing]]
+    ok = False
+    for dx in (0, 4):
+        for dy in range(4):
+            ok |= grid.set((x0 + dx, y0 + dy, z0), post,
+                           ["DETAIL"], p, "FRAME_WOOD")
+    for dx in range(5):
+        ok |= grid.set((x0 + dx, y0 + 4, z0), beam,
+                       ["DETAIL"], p, "DETAIL_WOOD")
+    for dx in (1, 2, 3):
+        for dy in (1, 2, 3):
+            support_pos = (x0 + dx + support_dx, y0 + dy, z0 + support_dz)
+            if grid.is_empty(support_pos):
+                ok |= grid.set(support_pos, backing, ["DETAIL"], p,
+                               "DETAIL_WOOD")
+    if sign:
+        block = _block_id(sign)
+        sign_state = block
+        if "wall_sign" in block:
+            sign_state = f"{block}[facing={facing},waterlogged=false]"
+        ok |= grid.set((x0 + 2, y0 + 2, z0), sign_state,
+                       ["DETAIL"], p, "SIGNAGE")
+    if trim:
+        for dx in (1, 3):
+            ok |= grid.set((x0 + dx, y0 + 1, z0), trim,
+                           ["DETAIL"], p, "MARKET_FITTINGS")
     return ok
 
 
@@ -1240,5 +1394,7 @@ register_motif("moon_gate", _moon_gate_motif)
 register_motif("spirit_array", _spirit_array_motif)
 register_motif("incense_altar", _incense_altar_motif)
 register_motif("cloud_rail", _cloud_rail_motif)
+register_motif("market_stall", _market_stall_motif)
+register_motif("sect_gate_paifang", _sect_gate_paifang_motif)
 for _motif in ("side_chimney", "courtyard_gate", "water_feature", "planting_bed"):
     register_motif(_motif, _already_placed_motif)

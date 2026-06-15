@@ -1,6 +1,7 @@
 {
   "style_id": "chinese_courtyard",
   "group_id": "chinese_courtyard",
+  "profile": "full",
   "passed": true,
   "errors": [],
   "total": 6,

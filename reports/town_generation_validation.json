@@ -1,0 +1,153 @@
+{
+  "passed": true,
+  "errors": [],
+  "results": [
+    {
+      "seed": 20260618,
+      "plan": {
+        "passed": true,
+        "errors": [],
+        "stats": {
+          "parcel_count": 9,
+          "gate_count": 2,
+          "street_cells": 721,
+          "negative_spaces": 3,
+          "dominant_landmarks": 1
+        }
+      },
+      "realized": {
+        "passed": true,
+        "errors": [],
+        "plan": {
+          "passed": true,
+          "errors": [],
+          "stats": {
+            "parcel_count": 9,
+            "gate_count": 2,
+            "street_cells": 721,
+            "negative_spaces": 3,
+            "dominant_landmarks": 1
+          }
+        }
+      },
+      "budget": {
+        "wall_blocks": 1130,
+        "road_blocks": 721,
+        "parcel_budget": 6689,
+        "prop_budget": 145,
+        "total_budget": 8685,
+        "bounded": true
+      }
+    },
+    {
+      "seed": 20260719,
+      "plan": {
+        "passed": true,
+        "errors": [],
+        "stats": {
+          "parcel_count": 9,
+          "gate_count": 2,
+          "street_cells": 721,
+          "negative_spaces": 3,
+          "dominant_landmarks": 1
+        }
+      },
+      "realized": {
+        "passed": true,
+        "errors": [],
+        "plan": {
+          "passed": true,
+          "errors": [],
+          "stats": {
+            "parcel_count": 9,
+            "gate_count": 2,
+            "street_cells": 721,
+            "negative_spaces": 3,
+            "dominant_landmarks": 1
+          }
+        }
+      },
+      "budget": {
+        "wall_blocks": 1130,
+        "road_blocks": 721,
+        "parcel_budget": 6689,
+        "prop_budget": 145,
+        "total_budget": 8685,
+        "bounded": true
+      }
+    },
+    {
+      "seed": 20260820,
+      "plan": {
+        "passed": true,
+        "errors": [],
+        "stats": {
+          "parcel_count": 9,
+          "gate_count": 2,
+          "street_cells": 721,
+          "negative_spaces": 3,
+          "dominant_landmarks": 1
+        }
+      },
+      "realized": {
+        "passed": true,
+        "errors": [],
+        "plan": {
+          "passed": true,
+          "errors": [],
+          "stats": {
+            "parcel_count": 9,
+            "gate_count": 2,
+            "street_cells": 721,
+            "negative_spaces": 3,
+            "dominant_landmarks": 1
+          }
+        }
+      },
+      "budget": {
+        "wall_blocks": 1130,
+        "road_blocks": 721,
+        "parcel_budget": 6689,
+        "prop_budget": 145,
+        "total_budget": 8685,
+        "bounded": true
+      }
+    }
+  ],
+  "sloped_site": {
+    "passed": true,
+    "errors": [],
+    "plan": {
+      "passed": true,
+      "errors": [],
+      "stats": {
+        "parcel_count": 9,
+        "gate_count": 2,
+        "street_cells": 721,
+        "negative_spaces": 3,
+        "dominant_landmarks": 1
+      }
+    }
+  },
+  "broken_plan": {
+    "passed": false,
+    "errors": [
+      "perimeter_not_boundary: missing=[(4, 55)] extra=[]"
+    ],
+    "stats": {
+      "parcel_count": 9,
+      "gate_count": 2,
+      "street_cells": 721,
+      "negative_spaces": 3,
+      "dominant_landmarks": 1
+    }
+  },
+  "oversize_budget": {
+    "wall_blocks": 2490,
+    "road_blocks": 1657,
+    "parcel_budget": 6689,
+    "prop_budget": 145,
+    "total_budget": 10981,
+    "bounded": false
+  }
+}

@@ -22,7 +22,7 @@ from buildgen import export
 from buildgen.archetypes import CIVIC_ARCHETYPES, CIVIC_ARCHETYPE_COUNTS
 from buildgen.passes import generate_building
 from buildgen.quality import quality_check
-from buildgen.style import load_style
+from buildgen.style import load_style, modset_namespaces
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REPORT_PATH = os.path.join(PROJECT_ROOT, "reports", "civic_library_report.json")
@@ -33,9 +33,11 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--style", default="medieval_village")
     parser.add_argument("--base-seed", type=int, default=20260615)
+    parser.add_argument("--profile", default="full", choices=("vanilla", "full"),
+                        help="modset profile: 'full' keeps mod ids, 'vanilla' drops them to fallbacks")
     args = parser.parse_args()
 
-    style = load_style(args.style)
+    style = load_style(args.style, modset_namespaces(args.profile))
     entries = []
     reports = []
     failed_attempts = 0

@@ -57,13 +57,14 @@ The generated building library SHALL write one gallery mcfunction per style or s
 - **THEN** the exporter SHALL write a matching `src/main/resources/data/myvillage/function/gallery/<group_id>.mcfunction`
 - **AND** it SHALL write `src/main/resources/data/myvillage/function/place/<name>.mcfunction` for each generated cultivation structure.
 
-### Requirement: The v0.5 mod exposes debug commands for manual acceptance
-The NeoForge mod SHALL expose debug commands for staged manual acceptance: `/myvillage list`, `/myvillage place <structure_id>`, `/myvillage gallery`, `/myvillage gallery original`, and `/myvillage gallery cultivation`. Command documentation SHALL be prepared with the mod artifact before asking for manual visual acceptance.
+### Requirement: The v0.6 mod exposes debug commands for manual acceptance
+The NeoForge mod SHALL expose debug commands for staged manual acceptance: `/myvillage list`, `/myvillage town [seed]`, `/myvillage place <structure_id>`, `/myvillage gallery`, `/myvillage gallery original`, and `/myvillage gallery cultivation`. Command documentation SHALL be prepared with the mod artifact before asking for manual visual acceptance.
 
 #### Scenario: A reviewer prepares for in-game acceptance
-- **WHEN** the v0.5 mod jar is built for review
+- **WHEN** the v0.6 mod jar is built for review
 - **THEN** the README SHALL list the available `/myvillage` debug commands
 - **AND** `/myvillage list` SHALL report loaded `myvillage` structure templates
+- **AND** `/myvillage town [seed]` SHALL build an on-demand living town in loaded chunks
 - **AND** `/myvillage place <structure_id>` SHALL place a named template at the player
 - **AND** `/myvillage gallery` SHALL place loaded templates with spacing suitable for compound structures
 - **AND** `/myvillage gallery original` SHALL place only non-cultivation template groups
@@ -120,7 +121,7 @@ Before a staged manual acceptance pass, contributors SHALL prepare both the buil
 
 #### Scenario: A staged manual acceptance pass is requested
 - **WHEN** generated structures are ready for visual review
-- **THEN** the repository SHOULD have a current v0.5 mod jar build path documented
+- **THEN** the repository SHOULD have a current v0.6 mod jar build path documented
 - **AND** README and AGENTS guidance SHALL identify the available debug commands
 - **AND** relevant specs SHALL state that command documentation is part of acceptance prep, not an optional afterthought.
 

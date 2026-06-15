@@ -20,6 +20,9 @@
       "minecraft:dark_oak_planks"
     ],
     "DETAIL_WOOD": [
+      "mcwwindows:dark_oak_louvered_shutter",
+      "mcwwindows:spruce_louvered_shutter",
+      "mcwwindows:dark_oak_curtain_rod",
       "minecraft:dark_oak_trapdoor",
       "minecraft:spruce_trapdoor",
       "minecraft:dark_oak_fence",
@@ -27,6 +30,10 @@
       "minecraft:dark_oak_slab"
     ],
     "LIGHTING": [
+      "ars_nouveau:source_lamp",
+      "supplementaries:stone_lamp",
+      "supplementaries:blackstone_lamp",
+      "supplementaries:rope_chandelier",
       "minecraft:lantern",
       "minecraft:torch"
     ],
@@ -60,12 +67,21 @@
       "minecraft:flower_pot"
     ],
     "FURNITURE": [
+      "mcwfurnitures:dark_oak_table",
+      "mcwfurnitures:dark_oak_chair",
+      "mcwfurnitures:dark_oak_counter",
+      "mcwfurnitures:dark_oak_drawer",
+      "mcwfurnitures:spruce_table",
+      "mcwfurnitures:spruce_chair",
       "minecraft:red_bed",
       "minecraft:white_bed",
       "minecraft:green_bed",
       "minecraft:chest"
     ],
     "SIGNAGE": [
+      "farmersdelight:brown_canvas_wall_sign",
+      "farmersdelight:green_canvas_wall_sign",
+      "farmersdelight:hanging_canvas_sign",
       "minecraft:dark_oak_sign",
       "minecraft:dark_oak_wall_sign",
       "minecraft:spruce_sign",
@@ -78,6 +94,46 @@
       "minecraft:green_wall_banner",
       "minecraft:white_wall_banner",
       "minecraft:brown_wall_banner"
+    ],
+    "ROOF_TILE": [
+      "supplementaries:awning_green",
+      "supplementaries:awning_yellow",
+      "supplementaries:stone_tile_stairs",
+      "supplementaries:stone_tile_slab",
+      "supplementaries:blackstone_tile_stairs",
+      "supplementaries:blackstone_tile_slab",
+      "minecraft:brick_stairs"
+    ],
+    "PAPER_LANTERN": [
+      "ars_nouveau:sconce",
+      "ars_nouveau:sourcestone_sconce",
+      "ars_nouveau:source_lamp",
+      "supplementaries:candle_holder_green",
+      "supplementaries:candle_holder_yellow",
+      "minecraft:lantern"
+    ],
+    "RITUAL_ANCHOR": [
+      "ars_nouveau:brazier_relay",
+      "ars_nouveau:arcane_pedestal",
+      "ars_nouveau:arcane_core",
+      "ars_nouveau:agronomic_sourcelink",
+      "ars_nouveau:alchemical_sourcelink",
+      "minecraft:cauldron"
+    ],
+    "MARKET_FITTINGS": [
+      "farmersdelight:dark_oak_cabinet",
+      "farmersdelight:bamboo_basket",
+      "farmersdelight:wooden_basket",
+      "farmersdelight:cabbage_crate",
+      "farmersdelight:tomato_crate",
+      "farmersdelight:cutting_board",
+      "farmersdelight:skillet",
+      "supplementaries:item_shelf",
+      "supplementaries:jar",
+      "supplementaries:lunch_basket",
+      "fetzisdisplays:dark_oak_vertical_rack_a",
+      "fetzisdisplays:spruce_horizontal_wall_holder",
+      "minecraft:barrel"
     ]
   },
   "variation_rate": {
@@ -107,7 +163,8 @@
     "barrel_cluster",
     "fence_patch",
     "lantern_post",
-    "small_path_patch"
+    "small_path_patch",
+    "market_stall"
   ],
   "forbidden_blocks": [
     "quartz",

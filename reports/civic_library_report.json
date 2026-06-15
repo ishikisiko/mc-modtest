@@ -87,6 +87,20 @@
           "decoration_count": 3,
           "style_id": "medieval_village",
           "group_id": "civic",
+          "frontage": {
+            "side": "back",
+            "facing": "south",
+            "volume": "main",
+            "kind": "entry",
+            "opening_cells": [
+              [
+                7,
+                10
+              ]
+            ],
+            "opening_width": 1,
+            "source": "largest_open_side"
+          },
           "opening_style": "window_with_slab_sill"
         },
         "nodes": [
@@ -319,7 +333,8 @@
             ],
             "attach_to": "main",
             "meta": {
-              "motif": "barrel_cluster"
+              "motif": "barrel_cluster",
+              "facing": "north"
             }
           },
           {
@@ -342,7 +357,8 @@
             ],
             "attach_to": "main",
             "meta": {
-              "motif": "woodpile"
+              "motif": "woodpile",
+              "facing": "south"
             }
           },
           {
@@ -365,7 +381,8 @@
             ],
             "attach_to": "main",
             "meta": {
-              "motif": "lantern_post"
+              "motif": "lantern_post",
+              "facing": "south"
             }
           }
         ]
@@ -466,6 +483,20 @@
           "decoration_count": 3,
           "style_id": "medieval_village",
           "group_id": "civic",
+          "frontage": {
+            "side": "back",
+            "facing": "south",
+            "volume": "main",
+            "kind": "entry",
+            "opening_cells": [
+              [
+                8,
+                10
+              ]
+            ],
+            "opening_width": 1,
+            "source": "largest_open_side"
+          },
           "opening_style": "window_with_slab_sill"
         },
         "nodes": [
@@ -641,7 +672,8 @@
             ],
             "attach_to": "main",
             "meta": {
-              "motif": "woodpile"
+              "motif": "woodpile",
+              "facing": "east"
             }
           },
           {
@@ -664,7 +696,8 @@
             ],
             "attach_to": "main",
             "meta": {
-              "motif": "fence_patch"
+              "motif": "fence_patch",
+              "facing": "south"
             }
           },
           {
@@ -687,7 +720,8 @@
             ],
             "attach_to": "main",
             "meta": {
-              "motif": "barrel_cluster"
+              "motif": "barrel_cluster",
+              "facing": "west"
             }
           }
         ]
@@ -788,6 +822,20 @@
           "decoration_count": 3,
           "style_id": "medieval_village",
           "group_id": "civic",
+          "frontage": {
+            "side": "back",
+            "facing": "south",
+            "volume": "main",
+            "kind": "entry",
+            "opening_cells": [
+              [
+                8,
+                12
+              ]
+            ],
+            "opening_width": 1,
+            "source": "largest_open_side"
+          },
           "opening_style": "window_with_trapdoor_frame"
         },
         "nodes": [
@@ -1020,7 +1068,8 @@
             ],
             "attach_to": "main",
             "meta": {
-              "motif": "lantern_post"
+              "motif": "lantern_post",
+              "facing": "north"
             }
           },
           {
@@ -1043,7 +1092,8 @@
             ],
             "attach_to": "main",
             "meta": {
-              "motif": "woodpile"
+              "motif": "woodpile",
+              "facing": "east"
             }
           },
           {
@@ -1066,7 +1116,8 @@
             ],
             "attach_to": "main",
             "meta": {
-              "motif": "barrel_cluster"
+              "motif": "barrel_cluster",
+              "facing": "east"
             }
           }
         ]
@@ -1167,6 +1218,20 @@
           "decoration_count": 3,
           "style_id": "medieval_village",
           "group_id": "civic",
+          "frontage": {
+            "side": "back",
+            "facing": "south",
+            "volume": "main",
+            "kind": "entry",
+            "opening_cells": [
+              [
+                7,
+                10
+              ]
+            ],
+            "opening_width": 1,
+            "source": "largest_open_side"
+          },
           "opening_style": "window_with_trapdoor_frame"
         },
         "nodes": [
@@ -1399,7 +1464,8 @@
             ],
             "attach_to": "main",
             "meta": {
-              "motif": "woodpile"
+              "motif": "woodpile",
+              "facing": "south"
             }
           },
           {
@@ -1422,7 +1488,8 @@
             ],
             "attach_to": "main",
             "meta": {
-              "motif": "lantern_post"
+              "motif": "lantern_post",
+              "facing": "west"
             }
           },
           {
@@ -1445,7 +1512,8 @@
             ],
             "attach_to": "main",
             "meta": {
-              "motif": "fence_patch"
+              "motif": "fence_patch",
+              "facing": "north"
             }
           }
         ]
@@ -1546,6 +1614,20 @@
           "decoration_count": 3,
           "style_id": "medieval_village",
           "group_id": "civic",
+          "frontage": {
+            "side": "back",
+            "facing": "south",
+            "volume": "main",
+            "kind": "entry",
+            "opening_cells": [
+              [
+                8,
+                12
+              ]
+            ],
+            "opening_width": 1,
+            "source": "largest_open_side"
+          },
           "opening_style": "window_with_slab_sill"
         },
         "nodes": [
@@ -1721,7 +1803,8 @@
             ],
             "attach_to": "main",
             "meta": {
-              "motif": "fence_patch"
+              "motif": "fence_patch",
+              "facing": "west"
             }
           },
           {
@@ -1744,7 +1827,8 @@
             ],
             "attach_to": "main",
             "meta": {
-              "motif": "barrel_cluster"
+              "motif": "barrel_cluster",
+              "facing": "north"
             }
           },
           {
@@ -1767,7 +1851,8 @@
             ],
             "attach_to": "main",
             "meta": {
-              "motif": "woodpile"
+              "motif": "woodpile",
+              "facing": "south"
             }
           }
         ]
@@ -1878,6 +1963,20 @@
           "decoration_count": 3,
           "style_id": "medieval_village",
           "group_id": "civic",
+          "frontage": {
+            "side": "back",
+            "facing": "south",
+            "volume": "main",
+            "kind": "entry",
+            "opening_cells": [
+              [
+                8,
+                12
+              ]
+            ],
+            "opening_width": 1,
+            "source": "largest_open_side"
+          },
           "opening_style": "window_with_slab_sill"
         },
         "nodes": [
@@ -2090,7 +2189,8 @@
             ],
             "attach_to": "main",
             "meta": {
-              "motif": "lantern_post"
+              "motif": "lantern_post",
+              "facing": "west"
             }
           },
           {
@@ -2113,7 +2213,8 @@
             ],
             "attach_to": "main",
             "meta": {
-              "motif": "small_path_patch"
+              "motif": "small_path_patch",
+              "facing": "east"
             }
           },
           {
@@ -2136,7 +2237,8 @@
             ],
             "attach_to": "main",
             "meta": {
-              "motif": "fence_patch"
+              "motif": "fence_patch",
+              "facing": "west"
             }
           }
         ]
@@ -2247,6 +2349,20 @@
           "decoration_count": 3,
           "style_id": "medieval_village",
           "group_id": "civic",
+          "frontage": {
+            "side": "back",
+            "facing": "south",
+            "volume": "main",
+            "kind": "entry",
+            "opening_cells": [
+              [
+                9,
+                12
+              ]
+            ],
+            "opening_width": 1,
+            "source": "largest_open_side"
+          },
           "opening_style": "window_with_trapdoor_frame"
         },
         "nodes": [
@@ -2514,7 +2630,8 @@
             ],
             "attach_to": "main",
             "meta": {
-              "motif": "fence_patch"
+              "motif": "fence_patch",
+              "facing": "west"
             }
           },
           {
@@ -2537,7 +2654,8 @@
             ],
             "attach_to": "main",
             "meta": {
-              "motif": "woodpile"
+              "motif": "woodpile",
+              "facing": "south"
             }
           },
           {
@@ -2560,7 +2678,8 @@
             ],
             "attach_to": "main",
             "meta": {
-              "motif": "small_path_patch"
+              "motif": "small_path_patch",
+              "facing": "north"
             }
           }
         ]
@@ -2671,6 +2790,20 @@
           "decoration_count": 3,
           "style_id": "medieval_village",
           "group_id": "civic",
+          "frontage": {
+            "side": "back",
+            "facing": "south",
+            "volume": "main",
+            "kind": "entry",
+            "opening_cells": [
+              [
+                9,
+                14
+              ]
+            ],
+            "opening_width": 1,
+            "source": "largest_open_side"
+          },
           "opening_style": "window_with_slab_sill"
         },
         "nodes": [
@@ -2938,7 +3071,8 @@
             ],
             "attach_to": "main",
             "meta": {
-              "motif": "woodpile"
+              "motif": "woodpile",
+              "facing": "east"
             }
           },
           {
@@ -2961,7 +3095,8 @@
             ],
             "attach_to": "main",
             "meta": {
-              "motif": "fence_patch"
+              "motif": "fence_patch",
+              "facing": "north"
             }
           },
           {
@@ -2984,7 +3119,8 @@
             ],
             "attach_to": "main",
             "meta": {
-              "motif": "small_path_patch"
+              "motif": "small_path_patch",
+              "facing": "east"
             }
           }
         ]

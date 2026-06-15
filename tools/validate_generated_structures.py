@@ -15,6 +15,7 @@ REPO_ROOT = SCRIPT_DIR.parent
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
+from buildgen.modset import load_modset  # noqa: E402
 from buildgen.nbtread import read_gzipped_nbt, state_string  # noqa: E402
 
 ROOF_MARKERS = ("_stairs", "_slab", "spruce_planks", "dark_oak_planks")
@@ -25,6 +26,18 @@ SHOP_FUNCTION_BLOCKS = ("crafting_table", "barrel")
 CIVIC_TAVERN_MARKERS = ("brewing_stand", "barrel")
 CIVIC_MANOR_MARKERS = ("bell", "lectern")
 MULTISTORY_NAMES = ("medium_shop", "big_house", "tavern", "lord_manor")
+DIRECTION_VECTORS = {
+    "north": (0, 0, -1),
+    "south": (0, 0, 1),
+    "west": (-1, 0, 0),
+    "east": (1, 0, 0),
+}
+OPPOSITE = {
+    "north": "south",
+    "south": "north",
+    "west": "east",
+    "east": "west",
+}
 
 
 def is_air(state: str) -> bool:
@@ -37,6 +50,58 @@ def is_roof_like(state: str) -> bool:
 
 def has_marker(states: Iterable[str], markers: tuple[str, ...]) -> bool:
     return any(any(marker in state for marker in markers) for state in states)
+
+
+def block_id(state: str) -> str:
+    return state.split("[", 1)[0]
+
+
+def prop_value(state: str, prop: str) -> str | None:
+    if "[" not in state:
+        return None
+    props = state.split("[", 1)[1].rstrip("]")
+    for part in props.split(","):
+        key, _, value = part.partition("=")
+        if key == prop:
+            return value
+    return None
+
+
+def has_solid_support(by_pos: dict[tuple[int, int, int], str],
+                      pos: tuple[int, int, int],
+                      direction: str) -> bool:
+    dx, dy, dz = DIRECTION_VECTORS[direction]
+    state = by_pos.get((pos[0] + dx, pos[1] + dy, pos[2] + dz), "minecraft:air")
+    base = block_id(state)
+    return base != "minecraft:air" and not any(
+        marker in base for marker in ("wall_sign", "wall_banner", "wall_holder", "awning")
+    )
+
+
+def validate_attached_block_support(name: str, palette: list[str],
+                                    blocks: list[dict]) -> list[str]:
+    errors: list[str] = []
+    by_pos = {
+        tuple(block["pos"]): palette[block["state"]]
+        for block in blocks
+        if block["state"] < len(palette)
+    }
+    for pos, state in by_pos.items():
+        base = block_id(state)
+        if (
+            "wall_sign" not in base
+            and "wall_banner" not in base
+            and "supplementaries:awning" not in base
+        ):
+            continue
+        facing = prop_value(state, "facing")
+        support_direction = OPPOSITE.get(str(facing))
+        if not support_direction:
+            errors.append(f"{name}: attached block missing facing at {pos}: {state}")
+            continue
+        if not has_solid_support(by_pos, pos, support_direction):
+            errors.append(f"{name}: attached block lacks support at {pos}: {state}")
+    return errors
 
 
 def validate_gable_heuristic(name: str, palette: list[str], blocks: list[dict]) -> list[str]:
@@ -77,7 +142,7 @@ def validate_gable_heuristic(name: str, palette: list[str], blocks: list[dict]) 
     return errors
 
 
-def validate_file(path: Path, root_dir: Path) -> dict:
+def validate_file(path: Path, root_dir: Path, modset=None) -> dict:
     rel = path.relative_to(root_dir).as_posix()
     errors: list[str] = []
     warnings: list[str] = []
@@ -88,6 +153,8 @@ def validate_file(path: Path, root_dir: Path) -> dict:
         return {"path": rel, "passed": False, "errors": [f"nbt_parse: {exc}"], "warnings": []}
 
     palette = [state_string(entry) for entry in root.get("palette", [])]
+    if modset is not None:
+        errors.extend(modset.palette_block_errors(palette))
     blocks = root.get("blocks", [])
     if not palette:
         errors.append("palette_empty")
@@ -172,6 +239,7 @@ def validate_file(path: Path, root_dir: Path) -> dict:
             errors.append("multi_story_stair_opening_missing")
 
     errors.extend(validate_gable_heuristic(rel, palette, non_air_blocks))
+    errors.extend(validate_attached_block_support(rel, palette, non_air_blocks))
 
     by_y = Counter(block["pos"][1] for block in non_air_blocks)
     state_counts = block_state_counts
@@ -196,7 +264,10 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("structure_dir", help="Directory containing generated .nbt structure files")
     parser.add_argument("--report", default="reports/generated_structure_validation.json")
+    parser.add_argument("--profile", default="full", choices=("vanilla", "full"),
+                        help="modset profile: 'vanilla' forbids all mod ids, 'full' allows confirmed catalog ids")
     args = parser.parse_args()
+    modset = load_modset(args.profile)
 
     structure_dir = (REPO_ROOT / args.structure_dir).resolve() if not Path(args.structure_dir).is_absolute() else Path(args.structure_dir)
     report_path = (REPO_ROOT / args.report).resolve() if not Path(args.report).is_absolute() else Path(args.report)
@@ -209,7 +280,7 @@ def main() -> int:
         files = sorted(structure_dir.rglob("*.nbt"))
         if not files:
             errors.append("no_structure_files")
-        results = [validate_file(path, structure_dir) for path in files]
+        results = [validate_file(path, structure_dir, modset) for path in files]
 
     failed = [result for result in results if not result["passed"]]
     errors.extend(f"{result['path']}: {message}" for result in failed for message in result["errors"])
@@ -268,6 +339,7 @@ def main() -> int:
 
     report = {
         "structure_dir": str(structure_dir.relative_to(REPO_ROOT)),
+        "profile": args.profile,
         "passed": not errors,
         "file_count": len(results),
         "category_counts": dict(sorted(by_category.items())),

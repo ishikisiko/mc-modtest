@@ -7,7 +7,7 @@ This spec captures settlement groups as the family-level binding between style p
 ## Requirements
 
 ### Requirement: Settlement groups bind style, roster, and layout
-The generator SHALL define a settlement-group layer above the style profile. Each group SHALL bind a `style_id`, an archetype roster, and a layout strategy into one named family. The generator SHALL ship two groups: `cultivation_town` (mortal, courtyard-street block layout) and `cultivation_sect` (immortal, terraced axial compound layout).
+The generator SHALL define a settlement-group layer above the style profile. Each group SHALL bind a `style_id`, an archetype roster, and a layout strategy into one named family. The generator SHALL ship two cultivation groups: `cultivation_town` (mortal, town-generation layout) and `cultivation_sect` (immortal, terraced axial compound layout).
 
 #### Scenario: A group resolves its bindings
 - **WHEN** the generator selects the `cultivation_sect` group
@@ -15,11 +15,20 @@ The generator SHALL define a settlement-group layer above the style profile. Eac
 - **AND** it SHALL restrict archetype selection to the sect roster
 - **AND** it SHALL use the sect terraced/axial layout strategy.
 
-#### Scenario: A town group uses the courtyard-street layout
+#### Scenario: A town group uses the town-generation layout
 - **WHEN** the generator selects the `cultivation_town` group
 - **THEN** it SHALL resolve the `cultivation_town` style profile
 - **AND** it SHALL restrict archetype selection to the town roster
-- **AND** it SHALL use the `courtyard_street_block` layout rather than the standalone building layout.
+- **AND** it SHALL use the town-generation layout rather than the standalone building layout or a single exported block
+- **AND** courtyard-street blocks MAY still be generated as internal parcel/review forms.
+
+### Requirement: A settlement group supports an optional soft functional brief
+A settlement group SHALL be allowed to declare a soft functional brief. The town planner SHALL treat any declared brief as guidance and SHALL NOT treat it as a hard constraint that must be satisfied.
+
+#### Scenario: The town group carries a soft brief
+- **WHEN** the `cultivation_town` group declares a functional brief
+- **THEN** the planner SHALL bias the town toward the declared functions
+- **AND** generation SHALL still succeed when the brief cannot be fully satisfied on the site.
 
 ### Requirement: Group rosters do not force archetype sharing
 Each settlement group SHALL declare its own archetype roster. A group's roster MAY be disjoint from another group's roster. The generator SHALL NOT require town archetypes such as houses and shops and sect archetypes such as halls and towers to share massing logic.

@@ -28,7 +28,7 @@ from buildgen.compound import (sample_compound_library, sample_sect_compound_lib
 from buildgen.compound import generate_subbuilding
 from buildgen.groups import get_group
 from buildgen.quality import quality_check
-from buildgen.style import load_style
+from buildgen.style import load_style, modset_namespaces
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REPORT_PATH = os.path.join(PROJECT_ROOT, "reports", "compound_library_report.json")
@@ -69,6 +69,8 @@ def main() -> int:
     parser.add_argument("--base-seed", type=int, default=20260614)
     parser.add_argument("--report", default=None,
                         help="optional report path; cultivation groups default to a group-specific report")
+    parser.add_argument("--profile", default="full", choices=("vanilla", "full"),
+                        help="modset profile: 'full' keeps mod ids, 'vanilla' drops them to fallbacks")
     args = parser.parse_args()
 
     group = get_group(args.group)
@@ -78,7 +80,7 @@ def main() -> int:
     elif args.style != group.style_id:
         parser.error(
             f"group {args.group!r} requires --style {group.style_id!r}, got {args.style!r}")
-    style = load_style(style_id)
+    style = load_style(style_id, modset_namespaces(args.profile))
     report_path = args.report
     if report_path is None:
         if args.group == "chinese_courtyard":
@@ -130,7 +132,7 @@ def main() -> int:
         print(f"gallery: {summary['gallery_function']}")
         return 0
 
-    if group.layout_strategy == "courtyard_street_block":
+    if group.layout_strategy in ("courtyard_street_block", "town_generation"):
         compounds = sample_town_block_library(
             args.count, args.base_seed, style, group.archetype_roster)
         entries = []

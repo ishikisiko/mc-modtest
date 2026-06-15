@@ -59,7 +59,7 @@ def generate_test_house(mc_version: str, output_dir: Path) -> Path:
     return target
 
 
-def generate_building_library(style: str, count: int, base_seed: int) -> None:
+def generate_building_library(style: str, count: int, base_seed: int, profile: str) -> None:
     cmd = [
         sys.executable,
         str(SCRIPT_DIR / "generate_building_library.py"),
@@ -69,11 +69,13 @@ def generate_building_library(style: str, count: int, base_seed: int) -> None:
         str(count),
         "--base-seed",
         str(base_seed),
+        "--profile",
+        profile,
     ]
     subprocess.run(cmd, cwd=REPO_ROOT, check=True)
 
 
-def generate_compound_library(count: int, base_seed: int) -> None:
+def generate_compound_library(count: int, base_seed: int, profile: str) -> None:
     cmd = [
         sys.executable,
         str(SCRIPT_DIR / "generate_compound_library.py"),
@@ -81,11 +83,13 @@ def generate_compound_library(count: int, base_seed: int) -> None:
         str(count),
         "--base-seed",
         str(base_seed),
+        "--profile",
+        profile,
     ]
     subprocess.run(cmd, cwd=REPO_ROOT, check=True)
 
 
-def generate_civic_library(style: str, base_seed: int) -> None:
+def generate_civic_library(style: str, base_seed: int, profile: str) -> None:
     cmd = [
         sys.executable,
         str(SCRIPT_DIR / "generate_civic_library.py"),
@@ -93,11 +97,13 @@ def generate_civic_library(style: str, base_seed: int) -> None:
         style,
         "--base-seed",
         str(base_seed),
+        "--profile",
+        profile,
     ]
     subprocess.run(cmd, cwd=REPO_ROOT, check=True)
 
 
-def generate_group_building_library(group: str, count: int, base_seed: int) -> None:
+def generate_group_building_library(group: str, count: int, base_seed: int, profile: str) -> None:
     cmd = [
         sys.executable,
         str(SCRIPT_DIR / "generate_building_library.py"),
@@ -107,11 +113,13 @@ def generate_group_building_library(group: str, count: int, base_seed: int) -> N
         str(count),
         "--base-seed",
         str(base_seed),
+        "--profile",
+        profile,
     ]
     subprocess.run(cmd, cwd=REPO_ROOT, check=True)
 
 
-def generate_group_compound_library(group: str, count: int, base_seed: int) -> None:
+def generate_group_compound_library(group: str, count: int, base_seed: int, profile: str) -> None:
     cmd = [
         sys.executable,
         str(SCRIPT_DIR / "generate_compound_library.py"),
@@ -121,6 +129,16 @@ def generate_group_compound_library(group: str, count: int, base_seed: int) -> N
         str(count),
         "--base-seed",
         str(base_seed),
+        "--profile",
+        profile,
+    ]
+    subprocess.run(cmd, cwd=REPO_ROOT, check=True)
+
+
+def generate_mod_block_fallbacks() -> None:
+    cmd = [
+        sys.executable,
+        str(SCRIPT_DIR / "generate_mod_block_fallbacks.py"),
     ]
     subprocess.run(cmd, cwd=REPO_ROOT, check=True)
 
@@ -140,6 +158,8 @@ def main() -> int:
     parser.add_argument("--mc-version", default=SUPPORTED_MC_VERSION)
     parser.add_argument("--output", default=str(DEFAULT_OUTPUT))
     parser.add_argument("--style", default="medieval_village")
+    parser.add_argument("--profile", default="full", choices=("vanilla", "full"),
+                        help="modset profile passed to every sub-generator")
     parser.add_argument("--count", type=int, default=10)
     parser.add_argument("--base-seed", type=int, default=20260612)
     parser.add_argument("--compound-count", type=int, default=6)
@@ -161,18 +181,20 @@ def main() -> int:
         clean_nbt_tree(output_dir)
         clean_generated_functions()
         test_house = generate_test_house(args.mc_version, output_dir)
-        generate_building_library(args.style, args.count, args.base_seed)
-        generate_compound_library(args.compound_count, args.compound_base_seed)
-        generate_civic_library(args.style, args.civic_base_seed)
+        generate_building_library(args.style, args.count, args.base_seed, args.profile)
+        generate_compound_library(args.compound_count, args.compound_base_seed, args.profile)
+        generate_civic_library(args.style, args.civic_base_seed, args.profile)
         generate_group_compound_library(
             "cultivation_town", args.cultivation_town_count,
-            args.cultivation_town_base_seed)
+            args.cultivation_town_base_seed, args.profile)
         generate_group_building_library(
             "cultivation_sect", args.cultivation_sect_count,
-            args.cultivation_sect_base_seed)
+            args.cultivation_sect_base_seed, args.profile)
         generate_group_compound_library(
             "cultivation_sect", args.cultivation_sect_compound_count,
-            args.cultivation_sect_compound_base_seed)
+            args.cultivation_sect_compound_base_seed, args.profile)
+        if args.profile == "full":
+            generate_mod_block_fallbacks()
         copy_default_output(output_dir)
     except (OSError, ValueError, ValidationError, subprocess.CalledProcessError) as exc:
         print(f"GENERATION FAILED: {exc}", file=sys.stderr)

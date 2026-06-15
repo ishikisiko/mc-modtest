@@ -37,7 +37,13 @@ def sect_style() -> Style:
         "allowed_roof_types": ["gable_roof", "tiered_eave_roof"],
         "allowed_wall_types": ["white_plaster_timber_wall"],
         "allowed_opening_styles": ["single_door_with_frame"],
-        "allowed_motifs": ["moon_gate", "spirit_array", "incense_altar", "cloud_rail"],
+        "allowed_motifs": [
+            "moon_gate",
+            "spirit_array",
+            "incense_altar",
+            "cloud_rail",
+            "sect_gate_paifang",
+        ],
         "forbidden_blocks": [],
         "proportions": {
             "max_flat_wall_width": 999,
@@ -87,6 +93,9 @@ def main() -> int:
         "spirit_array": Node("spirit_array", "decoration_patch", (0, 0, 0), (5, 1, 5)),
         "incense_altar": Node("incense_altar", "decoration_patch", (0, 0, 0), (3, 2, 1)),
         "cloud_rail": Node("cloud_rail", "decoration_patch", (0, 0, 0), (5, 2, 1)),
+        "sect_gate_paifang": Node(
+            "sect_gate_paifang", "decoration_patch", (0, 0, 0), (5, 5, 1),
+            meta={"facing": "north"}),
     }
     for motif, node in motif_nodes.items():
         if not ops.place_motif(motif, BlockGrid(), style, random.Random(42), node):

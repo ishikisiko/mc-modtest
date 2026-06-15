@@ -17,6 +17,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from buildgen.nbtread import read_gzipped_nbt, state_string
 from buildgen.groups import get_group
+from buildgen.modset import load_modset
 from buildgen.style import load_style
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -27,7 +28,8 @@ OUT_REPORT = os.path.join(PROJECT_ROOT, "reports", "compound_library_validation.
 DATA_VERSION = 3955
 
 
-def validate_nbt(name: str, style, max_size: int = 64) -> dict:
+def validate_nbt(name: str, style, modset, max_size: int = 64,
+                 require_landscape_features: bool = True) -> dict:
     path = os.path.join(RES, "structure", f"{name}.nbt")
     errors = []
     if not os.path.isfile(path):
@@ -48,26 +50,28 @@ def validate_nbt(name: str, style, max_size: int = 64) -> dict:
     forbidden = sorted({s for s in palette if style.is_forbidden(s)})
     if forbidden:
         errors.append(f"forbidden_blocks: {forbidden}")
+    errors.extend(modset.palette_block_errors(palette))
     if not any("_stairs" in s or "_slab" in s for s in palette):
         errors.append("no_roof_blocks")
-    if not any(s == "minecraft:water" or s.startswith("minecraft:water[") for s in palette):
-        errors.append("missing_water_feature")
     planting = ("moss_block", "azalea_leaves", "flowering_azalea_leaves", "bamboo")
-    if not any(any(p in s for p in planting) for s in palette):
-        errors.append("missing_planting")
     by_pos = {tuple(block["pos"]): palette[block["state"]] for block in blocks}
-    for pos, state in by_pos.items():
-        if state == "minecraft:water" or state.startswith("minecraft:water["):
-            if pos[1] != 0:
-                errors.append(f"water_not_ground_layer: {state} at {pos}")
-    for pos, state in by_pos.items():
-        if not any(p in state for p in planting):
-            continue
-        if "bamboo" in state:
-            if pos[1] < 1:
-                errors.append(f"bamboo_not_plant_layer: {state} at {pos}")
-        elif pos[1] != 1:
-            errors.append(f"planting_not_plant_layer: {state} at {pos}")
+    if require_landscape_features:
+        if not any(s == "minecraft:water" or s.startswith("minecraft:water[") for s in palette):
+            errors.append("missing_water_feature")
+        if not any(any(p in s for p in planting) for s in palette):
+            errors.append("missing_planting")
+        for pos, state in by_pos.items():
+            if state == "minecraft:water" or state.startswith("minecraft:water["):
+                if pos[1] != 0:
+                    errors.append(f"water_not_ground_layer: {state} at {pos}")
+        for pos, state in by_pos.items():
+            if not any(p in state for p in planting):
+                continue
+            if "bamboo" in state:
+                if pos[1] < 1:
+                    errors.append(f"bamboo_not_plant_layer: {state} at {pos}")
+            elif pos[1] != 1:
+                errors.append(f"planting_not_plant_layer: {state} at {pos}")
     return {
         "name": name,
         "passed": not errors,
@@ -102,12 +106,57 @@ def validate_functions(style_id: str, names: list) -> list:
     return errors
 
 
+def _frontage_errors(compound: dict) -> list:
+    errors = []
+    for slot in compound.get("compound_graph", {}).get("building_slots", []):
+        graph = slot.get("massing_graph", {})
+        meta = graph.get("meta", {})
+        frontage = meta.get("frontage")
+        if not frontage:
+            errors.append(f"missing_frontage: {slot.get('id')}")
+            continue
+        side = frontage.get("side")
+        if side not in ("front", "back", "west", "east"):
+            errors.append(f"bad_frontage_side: {slot.get('id')}: {side!r}")
+            continue
+        cells = [tuple(c) for c in frontage.get("opening_cells", [])]
+        if not cells:
+            errors.append(f"missing_frontage_opening: {slot.get('id')}")
+            continue
+        main = None
+        for node in graph.get("nodes", []):
+            if node.get("id") == frontage.get("volume", "main"):
+                main = node
+                break
+        if main is None:
+            errors.append(f"frontage_volume_missing: {slot.get('id')}: {frontage.get('volume')}")
+            continue
+        ox, _oy, oz = main["origin"]
+        sx, _sy, sz = main["size"]
+        x0, x1 = ox, ox + sx - 1
+        z0, z1 = oz, oz + sz - 1
+        for x, z in cells:
+            on_side = (
+                (side == "front" and z == z0 and x0 <= x <= x1) or
+                (side == "back" and z == z1 and x0 <= x <= x1) or
+                (side == "west" and x == x0 and z0 <= z <= z1) or
+                (side == "east" and x == x1 and z0 <= z <= z1)
+            )
+            if not on_side:
+                errors.append(
+                    f"frontage_opening_off_side: {slot.get('id')}: {side} {sorted(cells)[:4]}")
+                break
+    return errors
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--style", default=None)
     parser.add_argument("--group", default="chinese_courtyard")
     parser.add_argument("--report", default=None)
     parser.add_argument("--count", type=int, default=6)
+    parser.add_argument("--profile", default="full", choices=("vanilla", "full"),
+                        help="modset profile: 'vanilla' forbids all mod ids, 'full' allows confirmed catalog ids")
     args = parser.parse_args()
 
     group = get_group(args.group)
@@ -125,6 +174,7 @@ def main() -> int:
         PROJECT_ROOT, "reports", f"{args.group}_compound_library_validation.json")
 
     style = load_style(style_id)
+    modset = load_modset(args.profile)
     errors = []
     if not os.path.isfile(report_path):
         errors.append(f"missing_report: {report_path}")
@@ -135,7 +185,7 @@ def main() -> int:
     compounds = data.get("compounds", [])
     if len(compounds) < args.count:
         errors.append(f"too_few_compounds: {len(compounds)} < {args.count}")
-    if group.layout_strategy == "courtyard_street_block":
+    if group.layout_strategy in ("courtyard_street_block", "town_generation"):
         variant_fields = (
             "rows", "courtyards_per_row", "street_width",
             "lane", "corner_frontage", "courtyard_size")
@@ -147,15 +197,28 @@ def main() -> int:
         tuple(c.get("variant", {}).get(k) for k in variant_fields)
         for c in compounds
     }
-    if len(variant_keys) < args.count:
-        errors.append(f"too_few_distinct_variants: {len(variant_keys)} < {args.count}")
+    min_distinct_variants = (
+        1 if group.layout_strategy == "sect_terraced_axial_compound"
+        else args.count
+    )
+    if len(variant_keys) < min_distinct_variants:
+        errors.append(
+            f"too_few_distinct_variants: {len(variant_keys)} < {min_distinct_variants}")
     for c in compounds:
         if not c.get("passed"):
             errors.append(f"compound_report_failed: {c.get('name')}: {c.get('errors')}")
+        if args.group == "cultivation_town":
+            for err in _frontage_errors(c):
+                errors.append(f"{c.get('name')}: {err}")
 
     names = [c.get("name") for c in compounds if c.get("name")]
-    max_size = 128 if group.layout_strategy == "courtyard_street_block" else 64
-    nbt_results = [validate_nbt(name, style, max_size=max_size) for name in names]
+    max_size = 128 if group.layout_strategy in ("courtyard_street_block", "town_generation") else 64
+    require_landscape_features = group.layout_strategy != "sect_terraced_axial_compound"
+    nbt_results = [
+        validate_nbt(name, style, modset, max_size=max_size,
+                     require_landscape_features=require_landscape_features)
+        for name in names
+    ]
     fn_errors = validate_functions(style_id, names)
     failed_nbt = [r for r in nbt_results if not r["passed"]]
     if failed_nbt:
@@ -173,6 +236,7 @@ def main() -> int:
     summary = {
         "style_id": style_id,
         "group_id": args.group,
+        "profile": args.profile,
         "passed": not errors,
         "errors": errors,
         "total": len(nbt_results),

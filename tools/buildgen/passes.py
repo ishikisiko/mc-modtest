@@ -36,6 +36,7 @@ class BuildContext:
     seed: int
     rng: random.Random
     group_id: Optional[str] = None
+    importance_tier: Optional[int] = None
     graph: Optional[MassingGraph] = None
     grid: BlockGrid = field(default_factory=BlockGrid)
     door_info: Optional[dict] = None
@@ -49,7 +50,7 @@ class BuildContext:
 
 def massing_pass(ctx: BuildContext) -> None:
     ctx.graph = build_massing(ctx.archetype, ctx.style, ctx.rng, ctx.scale_tier,
-                              ctx.group_id)
+                              ctx.group_id, ctx.importance_tier)
     ctx.passes_run.append("massing_pass")
 
 
@@ -381,9 +382,11 @@ PIPELINE = [
 
 
 def generate_building(style: Style, archetype: str, scale_tier: str,
-                      seed: int, group_id: Optional[str] = None) -> BuildContext:
+                      seed: int, group_id: Optional[str] = None,
+                      importance_tier: Optional[int] = None) -> BuildContext:
     ctx = BuildContext(style=style, archetype=archetype, scale_tier=scale_tier,
-                       seed=seed, rng=random.Random(seed), group_id=group_id)
+                       seed=seed, rng=random.Random(seed), group_id=group_id,
+                       importance_tier=importance_tier)
     for pass_fn in PIPELINE:
         pass_fn(ctx)
     return ctx

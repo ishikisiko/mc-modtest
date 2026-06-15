@@ -16,7 +16,7 @@ from __future__ import annotations
 import random
 from typing import Dict, List, Optional, Tuple
 
-from .massing import MassingGraph, Node
+from .massing import MassingGraph, Node, OUTWARD_FACING
 from .style import Style
 
 SCALE_TIERS = {
@@ -227,6 +227,137 @@ def roof_peak_y(wall_top: int, span: int, overhang: int) -> int:
     """Highest roof y for a gable over `span` blocks with symmetric overhang."""
     total = span + 2 * overhang
     return wall_top + 1 + (total - 1) // 2
+
+
+FRONTAGE_SIDES = ("front", "back", "west", "east")
+IMPORTANCE_TIERS = (0, 1, 2, 3)
+IMPORTANCE_HINTS = {
+    0: {"height": "low", "roof_grade": "plain"},
+    1: {"height": "base", "roof_grade": "standard"},
+    2: {"height": "tall", "roof_grade": "fine"},
+    3: {"height": "dominant", "roof_grade": "landmark"},
+}
+
+
+def clamp_importance_tier(importance_tier: int) -> int:
+    return max(min(int(importance_tier), max(IMPORTANCE_TIERS)), min(IMPORTANCE_TIERS))
+
+
+def _side_span(vol: Node, side: str) -> int:
+    if side in ("front", "back"):
+        return vol.size[0]
+    if side in ("west", "east"):
+        return vol.size[2]
+    raise ValueError(f"unknown frontage side {side!r}")
+
+
+def _attached_occlusion(parent: Node, child: Node, side: str) -> int:
+    if child.attach_to != parent.id or child.side != side:
+        return 0
+    if side in ("front", "back"):
+        lo = max(parent.x0, child.x0)
+        hi = min(parent.x1, child.x1)
+    else:
+        lo = max(parent.z0, child.z0)
+        hi = min(parent.z1, child.z1)
+    return max(0, hi - lo + 1)
+
+
+def _largest_open_side(graph: MassingGraph, vol: Node) -> str:
+    """Choose the longest side not occupied by an attached volume."""
+    scores = {}
+    for side in FRONTAGE_SIDES:
+        blocked = sum(_attached_occlusion(vol, other, side) for other in graph.nodes)
+        scores[side] = max(0, _side_span(vol, side) - blocked)
+    return max(FRONTAGE_SIDES, key=lambda side: (scores[side], -FRONTAGE_SIDES.index(side)))
+
+
+def _opening_cells(vol: Node, side: str, along: int, width: int = 1) -> List[List[int]]:
+    width = max(1, int(width))
+    half = width // 2
+    cells: List[List[int]] = []
+    if side in ("front", "back"):
+        x0 = max(vol.x0 + 1, along - half)
+        x1 = min(vol.x1 - 1, x0 + width - 1)
+        x0 = max(vol.x0 + 1, x1 - width + 1)
+        z = vol.z0 if side == "front" else vol.z1
+        cells = [[x, z] for x in range(x0, x1 + 1)]
+    else:
+        z0 = max(vol.z0 + 1, along - half)
+        z1 = min(vol.z1 - 1, z0 + width - 1)
+        z0 = max(vol.z0 + 1, z1 - width + 1)
+        x = vol.x0 if side == "west" else vol.x1
+        cells = [[x, z] for z in range(z0, z1 + 1)]
+    return cells
+
+
+def _ensure_frontage(graph: MassingGraph, declared: Optional[dict] = None) -> None:
+    """Attach the town-frontage contract to graph metadata.
+
+    The vanilla structure NBT has no custom metadata channel, so reports and
+    town-planner sidecars consume this graph-level metadata.
+    """
+    if graph.meta.get("frontage"):
+        return
+    main = graph.get("main")
+    door = graph.meta.get("door", {})
+    side = (declared or {}).get("side") or _largest_open_side(graph, main)
+    if side not in FRONTAGE_SIDES:
+        raise ValueError(f"unknown declared frontage side {side!r}")
+    source = "declared" if declared else "largest_open_side"
+    door_vol = graph.get(door.get("volume", "main")) if door else main
+    door_on_side = door and door.get("volume", "main") == door_vol.id and door.get("wall") == side
+    if side in ("front", "back"):
+        along = int(door.get("x", (main.x0 + main.x1) // 2)) if door_on_side else (main.x0 + main.x1) // 2
+    else:
+        along = (main.z0 + main.z1) // 2
+    storefront = door_vol.meta.get("storefront", {}) if door_on_side else {}
+    opening_width = int((declared or {}).get("width") or storefront.get("width") or 1)
+    graph.meta["frontage"] = {
+        "side": side,
+        "facing": OUTWARD_FACING[side],
+        "volume": main.id,
+        "kind": "shopfront" if storefront else "entry",
+        "opening_cells": _opening_cells(main, side, along, opening_width),
+        "opening_width": opening_width,
+        "source": source,
+    }
+
+
+def _apply_importance(graph: MassingGraph, style: Style, importance_tier: Optional[int]) -> None:
+    if importance_tier is None:
+        return
+    tier = clamp_importance_tier(importance_tier)
+    hint = dict(IMPORTANCE_HINTS[tier])
+    graph.meta["importance"] = {
+        "tier": tier,
+        "height_hint": hint["height"],
+        "roof_grade_hint": hint["roof_grade"],
+        "dominant_landmark": tier == max(IMPORTANCE_TIERS),
+    }
+
+    main = graph.get("main")
+    desired_stories = 1
+    if tier == 2:
+        desired_stories = 2
+    elif tier >= 3:
+        desired_stories = 3
+    current_stories = int(main.meta.get("stories", 1))
+    if desired_stories > current_stories:
+        story_wall_h = int(main.meta.get("story_wall_h", main.meta["wall_h"]))
+        fh = int(main.meta.get("foundation_h", 1))
+        main.meta["stories"] = desired_stories
+        main.meta["story_wall_h"] = story_wall_h
+        main.meta["wall_h"] = desired_stories * story_wall_h
+        main.size = (main.size[0], fh + main.meta["wall_h"], main.size[2])
+
+    roof = main.meta.get("roof")
+    if roof:
+        if tier >= 2:
+            roof["overhang"] = max(int(roof.get("overhang", 0)), 1)
+        if tier >= 3:
+            roof["grade"] = style.allowed_roof_types[-1]
+            roof["landmark"] = True
 
 
 def _rects_overlap(a: Node, b: Node, margin: int = 0) -> bool:
@@ -462,11 +593,19 @@ def _decoration_patches(graph: MassingGraph, main: Node, rng: random.Random,
         if placed >= count:
             break
         motif = pool[placed % len(pool)]
+        if cz < main.z0:
+            facing = "north"
+        elif cz > main.z1:
+            facing = "south"
+        elif cx < main.x0:
+            facing = "west"
+        else:
+            facing = "east"
         node = Node(
             id=f"deco_{placed}", type="decoration_patch",
             origin=(cx, 0, cz), size=(2, 2, 2),
             attach_to="main", priority=70, tags=["DETAIL"],
-            meta={"motif": motif})
+            meta={"motif": motif, "facing": facing})
         if _free_spot(graph, node, margin=0):
             graph.add(node)
             placed += 1
@@ -684,8 +823,10 @@ def build_shop(style: Style, rng: random.Random, tier: str) -> MassingGraph:
     if stories > 1:
         _zone(graph, main, "living", (ix0, iz0 + 1, ix1, iz1))
 
-    _decoration_patches(graph, main, rng, 2,
-                        ["barrel_cluster", "lantern_post", "fence_patch"])
+    shop_motifs = ["barrel_cluster", "lantern_post", "fence_patch"]
+    if "market_stall" in style.allowed_motifs and style.has_external_blocks():
+        shop_motifs = ["market_stall", "barrel_cluster"]
+    _decoration_patches(graph, main, rng, 2, shop_motifs)
     return graph
 
 
@@ -1074,6 +1215,10 @@ def build_sect_gate(style: Style, rng: random.Random, tier: str) -> MassingGraph
     _path_patch(graph, main, door_x, rng, main.z0)
     _zone(graph, main, "storage", (main.x0 + 1, main.z0 + 1, main.x1 - 1, main.z1 - 1))
     _sect_deco(graph, "moon_gate", (main.x0 + 3, 0, main.z0 - 2), (5, 5, 1))
+    if "sect_gate_paifang" in style.allowed_motifs and style.has_external_blocks():
+        paifang = _sect_deco(graph, "sect_gate_paifang",
+                             (main.x0 + 2, 0, main.z0 - 4), (5, 5, 1))
+        paifang.meta["facing"] = "north"
     _sect_deco(graph, "cloud_rail", (main.x0 + 2, 1, main.z1 + 1), (5, 2, 1))
     return graph
 
@@ -1204,7 +1349,8 @@ BUILDERS = {
 
 
 def build_massing(archetype: str, style: Style, rng: random.Random, tier: str,
-                  group_id: Optional[str] = None) -> MassingGraph:
+                  group_id: Optional[str] = None,
+                  importance_tier: Optional[int] = None) -> MassingGraph:
     if group_id:
         from .groups import validate_group_archetype
         validate_group_archetype(group_id, style.style_id, archetype)
@@ -1212,6 +1358,8 @@ def build_massing(archetype: str, style: Style, rng: random.Random, tier: str,
     graph.meta["style_id"] = style.style_id
     if group_id:
         graph.meta["group_id"] = group_id
+    _apply_importance(graph, style, importance_tier)
+    _ensure_frontage(graph)
     # tier composition guarantee
     min_volumes = SCALE_TIERS[tier_base(tier)]["min_volumes"]
     n_vol = len(graph.volumes())

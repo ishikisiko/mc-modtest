@@ -20,11 +20,16 @@
       "minecraft:dark_oak_planks"
     ],
     "DETAIL_WOOD": [
+      "mcwwindows:dark_oak_louvered_shutter",
+      "mcwwindows:dark_oak_curtain_rod",
       "minecraft:dark_oak_trapdoor",
       "minecraft:dark_oak_fence",
       "minecraft:dark_oak_slab"
     ],
     "LIGHTING": [
+      "ars_nouveau:source_lamp",
+      "supplementaries:stone_lamp",
+      "supplementaries:rope_chandelier",
       "minecraft:lantern",
       "minecraft:torch"
     ],
@@ -48,6 +53,50 @@
       "minecraft:moss_block",
       "minecraft:azalea_leaves",
       "minecraft:flowering_azalea_leaves"
+    ],
+    "FURNITURE": [
+      "mcwfurnitures:dark_oak_table",
+      "mcwfurnitures:dark_oak_chair",
+      "mcwfurnitures:dark_oak_counter",
+      "mcwfurnitures:dark_oak_drawer",
+      "minecraft:chest"
+    ],
+    "ROOF_TILE": [
+      "supplementaries:awning_red",
+      "supplementaries:awning_white",
+      "supplementaries:stone_tile_stairs",
+      "supplementaries:stone_tile_slab",
+      "supplementaries:blackstone_tile_stairs",
+      "supplementaries:blackstone_tile_slab",
+      "minecraft:dark_oak_stairs"
+    ],
+    "PAPER_LANTERN": [
+      "ars_nouveau:sconce",
+      "ars_nouveau:sourcestone_sconce",
+      "ars_nouveau:source_lamp",
+      "supplementaries:candle_holder_red",
+      "supplementaries:candle_holder_white",
+      "minecraft:lantern"
+    ],
+    "RITUAL_ANCHOR": [
+      "ars_nouveau:brazier_relay",
+      "ars_nouveau:arcane_pedestal",
+      "ars_nouveau:arcane_core",
+      "ars_nouveau:agronomic_sourcelink",
+      "ars_nouveau:alchemical_sourcelink",
+      "minecraft:cauldron"
+    ],
+    "MARKET_FITTINGS": [
+      "farmersdelight:dark_oak_cabinet",
+      "farmersdelight:bamboo_basket",
+      "farmersdelight:wooden_basket",
+      "farmersdelight:cabbage_crate",
+      "farmersdelight:tomato_crate",
+      "farmersdelight:cutting_board",
+      "supplementaries:item_shelf",
+      "supplementaries:jar",
+      "fetzisdisplays:dark_oak_vertical_rack_a",
+      "minecraft:barrel"
     ]
   },
   "variation_rate": {
@@ -76,7 +125,8 @@
     "water_feature",
     "planting_bed",
     "timber_bracket",
-    "lantern_post"
+    "lantern_post",
+    "market_stall"
   ],
   "forbidden_blocks": [
     "minecraft:spruce_",

@@ -23,11 +23,21 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 if SCRIPT_DIR not in sys.path:
     sys.path.insert(0, SCRIPT_DIR)
 
+from buildgen.modset import load_modset  # noqa: E402
 from json_to_nbt import iter_box, iter_line, parse_block_state, validate_pos, validate_size  # noqa: E402
 
 
 class ValidationError(Exception):
     pass
+
+
+# Set by main() before validation; None means vanilla-only (legacy behavior).
+_ACTIVE_MODSET = None
+
+
+def set_active_modset(modset) -> None:
+    global _ACTIVE_MODSET
+    _ACTIVE_MODSET = modset
 
 
 SUPPORTED_MC_VERSION = "1.21.1"
@@ -53,12 +63,19 @@ def load_block_registry() -> set[str]:
 def validate_block_id(state_text: str, context: str) -> None:
     name, _props = parse_block_state(state_text)
     namespace, _, bare = name.partition(":")
-    if namespace != "minecraft":
+    if namespace == "minecraft":
+        if bare not in load_block_registry():
+            raise ValidationError(f"{context}: block {name!r} does not exist in Minecraft {SUPPORTED_MC_VERSION}")
+        return
+    modset = _ACTIVE_MODSET
+    if modset is None or namespace not in modset.namespaces:
         raise ValidationError(
-            f"{context}: block {name!r} is not in the minecraft namespace; only vanilla 1.21.1 blocks can be validated"
+            f"{context}: block {name!r} is outside the minecraft namespace and the active modset profile does not permit it"
         )
-    if bare not in load_block_registry():
-        raise ValidationError(f"{context}: block {name!r} does not exist in Minecraft {SUPPORTED_MC_VERSION}")
+    if name not in modset.mod_block_ids:
+        raise ValidationError(
+            f"{context}: block {name!r} is not in the mod block catalog for the active profile"
+        )
 
 
 def _validate_anchor(anchor: Any, size: List[int], context: str) -> None:
@@ -295,7 +312,10 @@ def main() -> int:
         default=SUPPORTED_MC_VERSION,
         help=f"Target Minecraft version (only {SUPPORTED_MC_VERSION} is supported)",
     )
+    parser.add_argument("--profile", default="full", choices=("vanilla", "full"),
+                        help="modset profile: 'vanilla' rejects all mod ids, 'full' allows confirmed catalog ids")
     args = parser.parse_args()
+    set_active_modset(load_modset(args.profile))
 
     if args.mc_version != SUPPORTED_MC_VERSION:
         print(

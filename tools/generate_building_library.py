@@ -30,7 +30,7 @@ from buildgen.archetypes import ARCHETYPES, NEW_ARCHETYPE_COUNTS, TIER_PLAN
 from buildgen.groups import get_group
 from buildgen.passes import generate_building
 from buildgen.quality import quality_check
-from buildgen.style import load_style
+from buildgen.style import load_style, modset_namespaces
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REPORT_PATH = os.path.join(PROJECT_ROOT, "reports", "building_library_report.json")
@@ -47,6 +47,8 @@ def main() -> int:
     parser.add_argument("--count", type=int, default=10,
                         help="buildings per archetype (default 10)")
     parser.add_argument("--base-seed", type=int, default=20260612)
+    parser.add_argument("--profile", default="full", choices=("vanilla", "full"),
+                        help="modset profile: 'full' keeps mod ids, 'vanilla' drops them to fallbacks")
     args = parser.parse_args()
 
     style_id = args.style
@@ -61,7 +63,7 @@ def main() -> int:
                 f"group {group_id!r} requires --style {group.style_id!r}, got {args.style!r}")
         archetypes = group.archetype_roster
 
-    style = load_style(style_id)
+    style = load_style(style_id, modset_namespaces(args.profile))
     report_path = args.report
     if report_path is None:
         report_name = f"{group_id}_building_library_report.json" if group_id else "building_library_report.json"

@@ -4,11 +4,12 @@ license = "MIT"
 
 [[mods]]
 modId = "myvillage"
-version = "0.5.1"
+version = "0.7.0-fix2"
 displayName = "MyVillage"
 description = '''
 Resource-validation mod shipping myvillage structure templates, debug commands,
-and generated placement functions for staged manual acceptance.
+generated placement functions, and an on-demand runtime town command for
+staged manual acceptance.
 '''
 
 [[dependencies.myvillage]]
@@ -23,4 +24,46 @@ modId = "minecraft"
 type = "required"
 versionRange = "[1.21.1]"
 ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.myvillage]]
+modId = "ars_nouveau"
+type = "optional"
+versionRange = "[0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.myvillage]]
+modId = "farmersdelight"
+type = "optional"
+versionRange = "[0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.myvillage]]
+modId = "supplementaries"
+type = "optional"
+versionRange = "[0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.myvillage]]
+modId = "fetzisdisplays"
+type = "optional"
+versionRange = "[0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.myvillage]]
+modId = "mcwfurnitures"
+type = "optional"
+versionRange = "[0,)"
+ordering = "AFTER"
+side = "BOTH"
+
+[[dependencies.myvillage]]
+modId = "mcwwindows"
+type = "optional"
+versionRange = "[0,)"
+ordering = "AFTER"
 side = "BOTH"

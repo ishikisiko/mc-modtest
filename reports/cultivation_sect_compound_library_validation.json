@@ -1,0 +1,34 @@
+{
+  "style_id": "cultivation_sect",
+  "group_id": "cultivation_sect",
+  "profile": "full",
+  "passed": true,
+  "errors": [],
+  "total": 2,
+  "nbt_results": [
+    {
+      "name": "cultivation_sect_001",
+      "passed": true,
+      "errors": [],
+      "size": [
+        59,
+        29,
+        62
+      ],
+      "block_count": 13257,
+      "palette_count": 51
+    },
+    {
+      "name": "cultivation_sect_002",
+      "passed": true,
+      "errors": [],
+      "size": [
+        59,
+        29,
+        62
+      ],
+      "block_count": 14094,
+      "palette_count": 51
+    }
+  ]
+}

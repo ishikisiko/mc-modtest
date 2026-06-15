@@ -42,10 +42,10 @@
         "size": [
           59,
           29,
-          61
+          62
         ],
-        "block_count": 13232,
-        "palette_count": 47,
+        "block_count": 13257,
+        "palette_count": 51,
         "path": "src/main/resources/data/myvillage/structure/cultivation_sect_001.nbt"
       },
       "compound_graph": {
@@ -13665,6 +13665,20 @@
                 },
                 "style_id": "cultivation_sect",
                 "group_id": "cultivation_sect",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      6,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   25,
@@ -13779,7 +13793,31 @@
                   }
                 },
                 {
-                  "id": "sect_deco_cloud_rail_1",
+                  "id": "sect_deco_sect_gate_paifang_1",
+                  "type": "decoration_patch",
+                  "origin": [
+                    2,
+                    0,
+                    -4
+                  ],
+                  "size": [
+                    5,
+                    5,
+                    1
+                  ],
+                  "orientation": "front",
+                  "priority": 70,
+                  "tags": [
+                    "DETAIL"
+                  ],
+                  "attach_to": "main",
+                  "meta": {
+                    "motif": "sect_gate_paifang",
+                    "facing": "north"
+                  }
+                },
+                {
+                  "id": "sect_deco_cloud_rail_2",
                   "type": "decoration_patch",
                   "origin": [
                     2,
@@ -13827,6 +13865,7 @@
                 "decorations": [
                   "small_path_patch",
                   "moon_gate",
+                  "sect_gate_paifang",
                   "cloud_rail"
                 ],
                 "worst_flat_run": 4,
@@ -14540,6 +14579,20 @@
                 },
                 "style_id": "cultivation_sect",
                 "group_id": "cultivation_sect",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      7,
+                      10
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   6,
@@ -15316,6 +15369,20 @@
                 },
                 "style_id": "cultivation_sect",
                 "group_id": "cultivation_sect",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      6,
+                      10
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   44,
@@ -16125,6 +16192,20 @@
                 },
                 "style_id": "cultivation_sect",
                 "group_id": "cultivation_sect",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      6,
+                      10
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   25,
@@ -17492,6 +17573,20 @@
                 },
                 "style_id": "cultivation_sect",
                 "group_id": "cultivation_sect",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      9,
+                      14
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   22,
@@ -17750,10 +17845,10 @@
         "size": [
           59,
           29,
-          60
+          62
         ],
-        "block_count": 14069,
-        "palette_count": 47,
+        "block_count": 14094,
+        "palette_count": 51,
         "path": "src/main/resources/data/myvillage/structure/cultivation_sect_002.nbt"
       },
       "compound_graph": {
@@ -31429,6 +31524,20 @@
                 },
                 "style_id": "cultivation_sect",
                 "group_id": "cultivation_sect",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      7,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   24,
@@ -31543,7 +31652,31 @@
                   }
                 },
                 {
-                  "id": "sect_deco_cloud_rail_1",
+                  "id": "sect_deco_sect_gate_paifang_1",
+                  "type": "decoration_patch",
+                  "origin": [
+                    2,
+                    0,
+                    -4
+                  ],
+                  "size": [
+                    5,
+                    5,
+                    1
+                  ],
+                  "orientation": "front",
+                  "priority": 70,
+                  "tags": [
+                    "DETAIL"
+                  ],
+                  "attach_to": "main",
+                  "meta": {
+                    "motif": "sect_gate_paifang",
+                    "facing": "north"
+                  }
+                },
+                {
+                  "id": "sect_deco_cloud_rail_2",
                   "type": "decoration_patch",
                   "origin": [
                     2,
@@ -31591,6 +31724,7 @@
                 "decorations": [
                   "small_path_patch",
                   "moon_gate",
+                  "sect_gate_paifang",
                   "cloud_rail"
                 ],
                 "worst_flat_run": 4,
@@ -32392,6 +32526,20 @@
                 },
                 "style_id": "cultivation_sect",
                 "group_id": "cultivation_sect",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      8,
+                      10
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   6,
@@ -33256,6 +33404,20 @@
                 },
                 "style_id": "cultivation_sect",
                 "group_id": "cultivation_sect",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      7,
+                      10
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   42,
@@ -34153,6 +34315,20 @@
                 },
                 "style_id": "cultivation_sect",
                 "group_id": "cultivation_sect",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      7,
+                      10
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   24,
@@ -35520,6 +35696,20 @@
                 },
                 "style_id": "cultivation_sect",
                 "group_id": "cultivation_sect",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      9,
+                      14
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   22,

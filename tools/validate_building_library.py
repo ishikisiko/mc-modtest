@@ -27,6 +27,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from buildgen.archetypes import ARCHETYPES, NEW_ARCHETYPE_COUNTS
+from buildgen.modset import load_modset
 from buildgen.nbtread import read_gzipped_nbt, state_string
 from buildgen.style import load_style
 
@@ -48,7 +49,7 @@ def load_registry() -> set:
     return {b if ":" in b else f"minecraft:{b}" for b in ids}
 
 
-def validate_structure(path: str, style, registry: set,
+def validate_structure(path: str, style, registry: set, modset,
                        expect_multistory: bool = False) -> dict:
     errors, warnings = [], []
     name = os.path.splitext(os.path.basename(path))[0]
@@ -74,10 +75,12 @@ def validate_structure(path: str, style, registry: set,
     forbidden = sorted({s for s in palette if style.is_forbidden(s)})
     if forbidden:
         errors.append(f"forbidden_blocks: {forbidden}")
-    unknown = sorted({s.split("[", 1)[0] for s in palette
-                      if s.split("[", 1)[0] not in registry})
+    unknown = sorted({block for s in palette
+                      for block in [s.split("[", 1)[0]]
+                      if block.startswith("minecraft:") and block not in registry})
     if unknown:
         errors.append(f"unknown_block_ids: {unknown}")
+    errors.extend(modset.palette_block_errors(palette))
 
     if not any("_door" in s for s in palette):
         errors.append("no_entrance: no door in palette")
@@ -150,10 +153,13 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--style", default="medieval_village")
     parser.add_argument("--count", type=int, default=10)
+    parser.add_argument("--profile", default="full", choices=("vanilla", "full"),
+                        help="modset profile: 'vanilla' forbids all mod ids, 'full' allows confirmed catalog ids")
     args = parser.parse_args()
 
     style = load_style(args.style)
     registry = load_registry()
+    modset = load_modset(args.profile)
     struct_dir = os.path.join(RES, "structure")
 
     results = []
@@ -169,7 +175,8 @@ def main() -> int:
                                 "errors": ["missing_file"], "warnings": []})
                 continue
             results.append(validate_structure(
-                path, style, registry, archetype in MULTISTORY_ARCHETYPES))
+                path, style, registry, modset,
+                archetype in MULTISTORY_ARCHETYPES))
 
     fn_errors = validate_functions(args.style, names)
 
@@ -184,7 +191,8 @@ def main() -> int:
     for e in fn_errors:
         print(f"FAIL functions: {e}")
 
-    report = {"style_id": args.style, "total": len(results), "passed": passed,
+    report = {"style_id": args.style, "profile": args.profile,
+              "total": len(results), "passed": passed,
               "failed": len(failed), "function_errors": fn_errors,
               "results": results}
     out = os.path.join(PROJECT_ROOT, "reports",

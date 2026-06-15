@@ -18,7 +18,13 @@ FUNCTION_BLOCKS = (
 PASSABLE_FOOT = ("_stairs", "_slab", "coarse_dirt", "gravel", "cobblestone",
                  "carpet", "_pressure_plate")
 CULTIVATION_ROOF_FORMS = {"tiered_eave_roof"}
-CULTIVATION_MOTIFS = {"moon_gate", "spirit_array", "incense_altar", "cloud_rail"}
+CULTIVATION_MOTIFS = {
+    "moon_gate",
+    "spirit_array",
+    "incense_altar",
+    "cloud_rail",
+    "sect_gate_paifang",
+}
 
 
 def _clamp(v: float) -> int:

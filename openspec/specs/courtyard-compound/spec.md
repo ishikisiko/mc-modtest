@@ -56,17 +56,17 @@ Compound variation SHALL be produced by independent variant axes combined per se
 - **THEN** it SHALL emit six compound instances
 - **AND** the instances SHALL differ in at least one variant axis from one another.
 
-### Requirement: Compound resources are part of v0.5 mod acceptance prep
-The Chinese courtyard compound library, cultivation town block library, and cultivation sect compound library SHALL be generated, validated, packed into the v0.5 mod jar, and documented in the available command list before staged manual acceptance.
+### Requirement: Compound resources are part of v0.6 mod acceptance prep
+The Chinese courtyard compound library, cultivation town block library, and cultivation sect compound library SHALL be generated, validated, packed into the v0.6 mod jar, and documented in the available command list before staged manual acceptance.
 
 #### Scenario: A courtyard compound is prepared for visual review
-- **WHEN** a staged manual acceptance pass is requested for v0.5
+- **WHEN** a staged manual acceptance pass is requested for v0.6
 - **THEN** `chinese_courtyard_001.nbt` through `chinese_courtyard_006.nbt` SHALL be present under `src/main/resources/data/myvillage/structure/`
 - **AND** the command documentation SHALL include `/myvillage list`, `/myvillage place chinese_courtyard_001`, `/myvillage gallery`, and `/myvillage gallery original`
 - **AND** the reviewer SHOULD place at least one compound in game to inspect axial layout, perimeter and gate, landscape, corridors, and the two-story main hall.
 
 #### Scenario: A cultivation sect compound is prepared for visual review
-- **WHEN** a staged manual acceptance pass is requested for v0.5
+- **WHEN** a staged manual acceptance pass is requested for v0.6
 - **THEN** `cultivation_sect_001.nbt` through `cultivation_sect_002.nbt` SHALL be present under `src/main/resources/data/myvillage/structure/`
 - **AND** the command documentation SHALL include `/myvillage place cultivation_sect_001` and `/myvillage gallery cultivation`
 - **AND** the reviewer SHOULD place at least one sect compound in game to inspect the terraced axis, gate, side buildings, circulation, and principal hall.
@@ -99,7 +99,7 @@ The compound layer SHALL provide a `courtyard_street_block` layout strategy that
 - **AND** each gate SHALL be reachable from the street network.
 
 #### Scenario: A cultivation town block is prepared for visual review
-- **WHEN** a staged manual acceptance pass is requested for v0.5
+- **WHEN** a staged manual acceptance pass is requested for v0.6
 - **THEN** `cultivation_town_001.nbt` through `cultivation_town_006.nbt` SHALL be present under `src/main/resources/data/myvillage/structure/`
 - **AND** the command documentation SHALL include `/myvillage place cultivation_town_001` and `/myvillage gallery cultivation`
 - **AND** the reviewer SHOULD place at least one town block in game to inspect continuous frontage, party walls, street and lane traversability, and gate orientation.

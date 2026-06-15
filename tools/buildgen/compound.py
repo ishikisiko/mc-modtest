@@ -217,9 +217,11 @@ def _apply_roof_grade(ctx: BuildContext, roof_grade: str) -> None:
 
 def generate_subbuilding(style: Style, archetype: str, seed: int,
                          roof_grade: Optional[str],
-                         group_id: Optional[str] = None) -> BuildContext:
+                         group_id: Optional[str] = None,
+                         importance_tier: Optional[int] = None) -> BuildContext:
     ctx = BuildContext(style=style, archetype=archetype, scale_tier=archetype,
-                       seed=seed, rng=random.Random(seed), group_id=group_id)
+                       seed=seed, rng=random.Random(seed), group_id=group_id,
+                       importance_tier=importance_tier)
     for pass_fn in PIPELINE:
         pass_fn(ctx)
         if roof_grade and pass_fn.__name__ == "massing_pass":

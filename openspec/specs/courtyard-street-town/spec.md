@@ -46,19 +46,20 @@ Town-block variation SHALL be produced by independent variant axes combined per 
 - **THEN** it SHALL emit multiple town-block instances
 - **AND** each instance SHALL differ from the others in at least one variant axis.
 
-### Requirement: The town group uses the courtyard-street layout
-The `cultivation_town` settlement group SHALL bind to the `courtyard_street_block` layout strategy, drawing courtyard buildings from its existing archetype roster, and SHALL NOT use the `standalone_library` layout.
+### Requirement: The town group keeps courtyard-street blocks as reusable parts
+The `cultivation_town` settlement group SHALL bind to the runtime `town_generation` layout strategy, while the `courtyard_street_block` layout MAY remain generated as a reusable parcel/review form drawing courtyard buildings from the town archetype roster. It SHALL NOT use the `standalone_library` layout.
 
-#### Scenario: The town group is bound to street tiling
+#### Scenario: The town group exposes street tiling as a parcel form
 - **WHEN** the `cultivation_town` group's layout strategy is resolved
-- **THEN** it SHALL be `courtyard_street_block`
+- **THEN** its primary layout strategy SHALL be `town_generation`
+- **AND** its reusable parcel form MAY be `courtyard_street_block`
 - **AND** the courtyards SHALL draw buildings only from the `cultivation_town` archetype roster.
 
-### Requirement: Town-block resources are part of v0.5 mod acceptance prep
-The `cultivation_town` courtyard-street library SHALL be generated, validated, packed into the v0.5 mod jar, and documented in the available command list before staged manual acceptance.
+### Requirement: Town-block resources are part of v0.6 mod acceptance prep
+The `cultivation_town` courtyard-street library SHALL remain generated, validated, packed into the v0.6 mod jar, and documented in the available command list before staged manual acceptance.
 
 #### Scenario: A town block is prepared for visual review
-- **WHEN** a staged manual acceptance pass is requested for v0.5
+- **WHEN** a staged manual acceptance pass is requested for v0.6
 - **THEN** `cultivation_town_001.nbt` onward SHALL be present under `src/main/resources/data/myvillage/structure/`
-- **AND** the command documentation SHALL include `/myvillage place cultivation_town_001` and `/myvillage gallery cultivation_town`
+- **AND** the command documentation SHALL include `/myvillage place cultivation_town_001` and `/myvillage gallery cultivation`
 - **AND** the reviewer SHOULD place at least one town block in game to inspect continuous frontage, shared party walls, street and lane traversability, and gate orientation.

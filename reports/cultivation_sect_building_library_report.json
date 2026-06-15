@@ -32,6 +32,7 @@
         "decorations": [
           "small_path_patch",
           "moon_gate",
+          "sect_gate_paifang",
           "cloud_rail"
         ],
         "worst_flat_run": 4,
@@ -42,10 +43,10 @@
         "size": [
           17,
           12,
-          11
+          12
         ],
-        "block_count": 910,
-        "palette_count": 28,
+        "block_count": 935,
+        "palette_count": 31,
         "path": "src/main/resources/data/myvillage/structure/sect_gate_001.nbt"
       },
       "massing_graph": {
@@ -60,6 +61,20 @@
           },
           "style_id": "cultivation_sect",
           "group_id": "cultivation_sect",
+          "frontage": {
+            "side": "back",
+            "facing": "south",
+            "volume": "main",
+            "kind": "entry",
+            "opening_cells": [
+              [
+                7,
+                6
+              ]
+            ],
+            "opening_width": 1,
+            "source": "largest_open_side"
+          },
           "opening_style": "window_with_trapdoor_frame"
         },
         "nodes": [
@@ -169,7 +184,31 @@
             }
           },
           {
-            "id": "sect_deco_cloud_rail_1",
+            "id": "sect_deco_sect_gate_paifang_1",
+            "type": "decoration_patch",
+            "origin": [
+              2,
+              0,
+              -4
+            ],
+            "size": [
+              5,
+              5,
+              1
+            ],
+            "orientation": "front",
+            "priority": 70,
+            "tags": [
+              "DETAIL"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "motif": "sect_gate_paifang",
+              "facing": "north"
+            }
+          },
+          {
+            "id": "sect_deco_cloud_rail_2",
             "type": "decoration_patch",
             "origin": [
               2,
@@ -233,6 +272,7 @@
         "decorations": [
           "small_path_patch",
           "moon_gate",
+          "sect_gate_paifang",
           "cloud_rail"
         ],
         "worst_flat_run": 4,
@@ -243,10 +283,10 @@
         "size": [
           15,
           12,
-          10
+          12
         ],
-        "block_count": 791,
-        "palette_count": 26,
+        "block_count": 816,
+        "palette_count": 29,
         "path": "src/main/resources/data/myvillage/structure/sect_gate_002.nbt"
       },
       "massing_graph": {
@@ -261,6 +301,20 @@
           },
           "style_id": "cultivation_sect",
           "group_id": "cultivation_sect",
+          "frontage": {
+            "side": "back",
+            "facing": "south",
+            "volume": "main",
+            "kind": "entry",
+            "opening_cells": [
+              [
+                6,
+                6
+              ]
+            ],
+            "opening_width": 1,
+            "source": "largest_open_side"
+          },
           "opening_style": "window_with_trapdoor_frame"
         },
         "nodes": [
@@ -370,7 +424,31 @@
             }
           },
           {
-            "id": "sect_deco_cloud_rail_1",
+            "id": "sect_deco_sect_gate_paifang_1",
+            "type": "decoration_patch",
+            "origin": [
+              2,
+              0,
+              -4
+            ],
+            "size": [
+              5,
+              5,
+              1
+            ],
+            "orientation": "front",
+            "priority": 70,
+            "tags": [
+              "DETAIL"
+            ],
+            "attach_to": "main",
+            "meta": {
+              "motif": "sect_gate_paifang",
+              "facing": "north"
+            }
+          },
+          {
+            "id": "sect_deco_cloud_rail_2",
             "type": "decoration_patch",
             "origin": [
               2,
@@ -447,7 +525,7 @@
           23
         ],
         "block_count": 4647,
-        "palette_count": 33,
+        "palette_count": 34,
         "path": "src/main/resources/data/myvillage/structure/sect_main_hall_001.nbt"
       },
       "massing_graph": {
@@ -486,6 +564,20 @@
           },
           "style_id": "cultivation_sect",
           "group_id": "cultivation_sect",
+          "frontage": {
+            "side": "back",
+            "facing": "south",
+            "volume": "main",
+            "kind": "entry",
+            "opening_cells": [
+              [
+                10,
+                14
+              ]
+            ],
+            "opening_width": 1,
+            "source": "largest_open_side"
+          },
           "opening_style": "window_with_trapdoor_frame"
         },
         "nodes": [
@@ -708,7 +800,7 @@
           23
         ],
         "block_count": 4215,
-        "palette_count": 31,
+        "palette_count": 32,
         "path": "src/main/resources/data/myvillage/structure/sect_main_hall_002.nbt"
       },
       "massing_graph": {
@@ -747,6 +839,20 @@
           },
           "style_id": "cultivation_sect",
           "group_id": "cultivation_sect",
+          "frontage": {
+            "side": "back",
+            "facing": "south",
+            "volume": "main",
+            "kind": "entry",
+            "opening_cells": [
+              [
+                9,
+                14
+              ]
+            ],
+            "opening_width": 1,
+            "source": "largest_open_side"
+          },
           "opening_style": "window_with_trapdoor_frame"
         },
         "nodes": [
@@ -1007,6 +1113,20 @@
           },
           "style_id": "cultivation_sect",
           "group_id": "cultivation_sect",
+          "frontage": {
+            "side": "back",
+            "facing": "south",
+            "volume": "main",
+            "kind": "entry",
+            "opening_cells": [
+              [
+                6,
+                10
+              ]
+            ],
+            "opening_width": 1,
+            "source": "largest_open_side"
+          },
           "opening_style": "window_with_trapdoor_frame"
         },
         "nodes": [
@@ -1244,6 +1364,20 @@
           },
           "style_id": "cultivation_sect",
           "group_id": "cultivation_sect",
+          "frontage": {
+            "side": "back",
+            "facing": "south",
+            "volume": "main",
+            "kind": "entry",
+            "opening_cells": [
+              [
+                6,
+                10
+              ]
+            ],
+            "opening_width": 1,
+            "source": "largest_open_side"
+          },
           "opening_style": "window_with_trapdoor_frame"
         },
         "nodes": [
@@ -1458,6 +1592,20 @@
           },
           "style_id": "cultivation_sect",
           "group_id": "cultivation_sect",
+          "frontage": {
+            "side": "back",
+            "facing": "south",
+            "volume": "main",
+            "kind": "entry",
+            "opening_cells": [
+              [
+                7,
+                10
+              ]
+            ],
+            "opening_width": 1,
+            "source": "largest_open_side"
+          },
           "opening_style": "window_with_trapdoor_frame"
         },
         "nodes": [
@@ -1681,6 +1829,20 @@
           },
           "style_id": "cultivation_sect",
           "group_id": "cultivation_sect",
+          "frontage": {
+            "side": "back",
+            "facing": "south",
+            "volume": "main",
+            "kind": "entry",
+            "opening_cells": [
+              [
+                7,
+                10
+              ]
+            ],
+            "opening_width": 1,
+            "source": "largest_open_side"
+          },
           "opening_style": "window_with_trapdoor_frame"
         },
         "nodes": [
@@ -1927,6 +2089,20 @@
           },
           "style_id": "cultivation_sect",
           "group_id": "cultivation_sect",
+          "frontage": {
+            "side": "back",
+            "facing": "south",
+            "volume": "main",
+            "kind": "entry",
+            "opening_cells": [
+              [
+                8,
+                10
+              ]
+            ],
+            "opening_width": 1,
+            "source": "largest_open_side"
+          },
           "opening_style": "window_with_trapdoor_frame"
         },
         "nodes": [
@@ -2165,6 +2341,20 @@
           },
           "style_id": "cultivation_sect",
           "group_id": "cultivation_sect",
+          "frontage": {
+            "side": "back",
+            "facing": "south",
+            "volume": "main",
+            "kind": "entry",
+            "opening_cells": [
+              [
+                8,
+                10
+              ]
+            ],
+            "opening_width": 1,
+            "source": "largest_open_side"
+          },
           "opening_style": "window_with_trapdoor_frame"
         },
         "nodes": [

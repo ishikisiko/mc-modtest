@@ -39,8 +39,8 @@
           15,
           36
         ],
-        "block_count": 8020,
-        "palette_count": 53,
+        "block_count": 8034,
+        "palette_count": 56,
         "path": "src/main/resources/data/myvillage/structure/cultivation_town_001.nbt"
       },
       "compound_graph": {
@@ -3762,7 +3762,21 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
-                "opening_style": "window_with_slab_sill",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      6,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
+                "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   11,
                   0,
@@ -3941,7 +3955,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "barrel_cluster",
+                    "facing": "south"
                   }
                 },
                 {
@@ -3964,7 +3979,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "market_stall",
+                    "facing": "south"
                   }
                 }
               ]
@@ -4487,6 +4503,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      6,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   2,
@@ -4666,7 +4696,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "barrel_cluster",
+                    "facing": "west"
                   }
                 },
                 {
@@ -4689,7 +4720,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "market_stall",
+                    "facing": "south"
                   }
                 }
               ]
@@ -5212,7 +5244,21 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
-                "opening_style": "window_with_trapdoor_frame",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      6,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
+                "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   20,
                   0,
@@ -5391,7 +5437,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "market_stall",
+                    "facing": "south"
                   }
                 },
                 {
@@ -5414,7 +5461,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "barrel_cluster",
+                    "facing": "north"
                   }
                 }
               ]
@@ -5840,6 +5888,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      5,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   12,
@@ -6025,7 +6087,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "barrel_cluster",
+                    "facing": "south"
                   }
                 },
                 {
@@ -6048,7 +6111,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "fence_patch",
+                    "facing": "south"
                   }
                 }
               ]
@@ -6475,6 +6539,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      5,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   2,
@@ -6637,7 +6715,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "woodpile"
+                    "motif": "woodpile",
+                    "facing": "south"
                   }
                 },
                 {
@@ -6660,7 +6739,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "fence_patch",
+                    "facing": "east"
                   }
                 }
               ]
@@ -7183,6 +7263,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      6,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   20,
@@ -7362,7 +7456,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "market_stall",
+                    "facing": "north"
                   }
                 },
                 {
@@ -7385,7 +7480,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "barrel_cluster",
+                    "facing": "north"
                   }
                 }
               ]
@@ -7490,8 +7586,8 @@
           18,
           38
         ],
-        "block_count": 11735,
-        "palette_count": 63,
+        "block_count": 11784,
+        "palette_count": 65,
         "path": "src/main/resources/data/myvillage/structure/cultivation_town_002.nbt"
       },
       "compound_graph": {
@@ -13797,7 +13893,21 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
-                "opening_style": "window_with_slab_sill",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      6,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
+                "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   11,
                   0,
@@ -13976,7 +14086,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "market_stall",
+                    "facing": "north"
                   }
                 },
                 {
@@ -13999,7 +14110,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "barrel_cluster",
+                    "facing": "west"
                   }
                 }
               ]
@@ -14282,6 +14394,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      4,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   2,
@@ -14425,7 +14551,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "market_stall",
+                    "facing": "west"
                   }
                 },
                 {
@@ -14448,7 +14575,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "barrel_cluster",
+                    "facing": "north"
                   }
                 }
               ]
@@ -14730,6 +14858,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      4,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   24,
@@ -14915,7 +15057,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "woodpile"
+                    "motif": "woodpile",
+                    "facing": "east"
                   }
                 },
                 {
@@ -14938,7 +15081,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "barrel_cluster",
+                    "facing": "south"
                   }
                 }
               ]
@@ -15989,6 +16133,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      8,
+                      12
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   6,
@@ -16211,7 +16369,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "lantern_post",
+                    "facing": "east"
                   }
                 },
                 {
@@ -16234,7 +16393,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "small_path_patch"
+                    "motif": "small_path_patch",
+                    "facing": "east"
                   }
                 },
                 {
@@ -16257,7 +16417,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "woodpile"
+                    "motif": "woodpile",
+                    "facing": "west"
                   }
                 }
               ]
@@ -16540,6 +16701,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      4,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   2,
@@ -16683,7 +16858,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "market_stall",
+                    "facing": "south"
                   }
                 },
                 {
@@ -16706,7 +16882,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "barrel_cluster",
+                    "facing": "east"
                   }
                 }
               ]
@@ -16989,7 +17166,21 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
-                "opening_style": "window_with_trapdoor_frame",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      4,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
+                "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   24,
                   0,
@@ -17132,7 +17323,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "market_stall",
+                    "facing": "west"
                   }
                 },
                 {
@@ -17155,7 +17347,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "barrel_cluster",
+                    "facing": "south"
                   }
                 }
               ]
@@ -17678,6 +17871,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      6,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   11,
@@ -17857,7 +18064,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "barrel_cluster",
+                    "facing": "south"
                   }
                 },
                 {
@@ -17880,7 +18088,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "market_stall",
+                    "facing": "north"
                   }
                 }
               ]
@@ -18163,6 +18372,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      4,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   2,
@@ -18306,7 +18529,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "barrel_cluster",
+                    "facing": "south"
                   }
                 },
                 {
@@ -18329,7 +18553,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "market_stall",
+                    "facing": "east"
                   }
                 }
               ]
@@ -18852,7 +19077,21 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
-                "opening_style": "window_with_trapdoor_frame",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      6,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
+                "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   20,
                   0,
@@ -19031,7 +19270,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "market_stall",
+                    "facing": "west"
                   }
                 },
                 {
@@ -19054,7 +19294,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "barrel_cluster",
+                    "facing": "south"
                   }
                 }
               ]
@@ -19180,12 +19421,12 @@
       "name": "cultivation_town_003",
       "export": {
         "size": [
-          108,
+          109,
           15,
           36
         ],
-        "block_count": 10030,
-        "palette_count": 52,
+        "block_count": 10053,
+        "palette_count": 57,
         "path": "src/main/resources/data/myvillage/structure/cultivation_town_003.nbt"
       },
       "compound_graph": {
@@ -26113,6 +26354,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      6,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   11,
@@ -26292,7 +26547,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "barrel_cluster",
+                    "facing": "south"
                   }
                 },
                 {
@@ -26315,7 +26571,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "market_stall",
+                    "facing": "north"
                   }
                 }
               ]
@@ -26597,6 +26854,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      4,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   2,
@@ -26782,7 +27053,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "barrel_cluster",
+                    "facing": "west"
                   }
                 },
                 {
@@ -26805,7 +27077,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "fence_patch",
+                    "facing": "east"
                   }
                 }
               ]
@@ -27088,6 +27361,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      4,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   24,
@@ -27231,7 +27518,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "market_stall",
+                    "facing": "east"
                   }
                 },
                 {
@@ -27254,7 +27542,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "barrel_cluster",
+                    "facing": "west"
                   }
                 }
               ]
@@ -27777,6 +28066,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      6,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   11,
@@ -27956,7 +28259,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "barrel_cluster",
+                    "facing": "west"
                   }
                 },
                 {
@@ -27979,7 +28283,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "market_stall",
+                    "facing": "south"
                   }
                 }
               ]
@@ -28405,6 +28710,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      5,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   2,
@@ -28590,7 +28909,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "lantern_post",
+                    "facing": "east"
                   }
                 },
                 {
@@ -28613,7 +28933,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "fence_patch",
+                    "facing": "west"
                   }
                 }
               ]
@@ -28896,6 +29217,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      4,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   24,
@@ -29039,7 +29374,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "market_stall",
+                    "facing": "south"
                   }
                 },
                 {
@@ -29062,7 +29398,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "barrel_cluster",
+                    "facing": "west"
                   }
                 }
               ]
@@ -29585,7 +29922,21 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
-                "opening_style": "window_with_trapdoor_frame",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      6,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
+                "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   11,
                   0,
@@ -29764,7 +30115,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "market_stall",
+                    "facing": "north"
                   }
                 },
                 {
@@ -29787,7 +30139,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "barrel_cluster",
+                    "facing": "east"
                   }
                 }
               ]
@@ -30070,7 +30423,21 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
-                "opening_style": "window_with_trapdoor_frame",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      4,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
+                "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   2,
                   0,
@@ -30213,7 +30580,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "market_stall",
+                    "facing": "east"
                   }
                 },
                 {
@@ -30236,7 +30604,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "barrel_cluster",
+                    "facing": "north"
                   }
                 }
               ]
@@ -30519,6 +30888,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      4,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   24,
@@ -30662,7 +31045,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "barrel_cluster",
+                    "facing": "east"
                   }
                 },
                 {
@@ -30685,7 +31069,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "market_stall",
+                    "facing": "south"
                   }
                 }
               ]
@@ -30811,12 +31196,12 @@
       "name": "cultivation_town_004",
       "export": {
         "size": [
-          70,
+          71,
           21,
           71
         ],
-        "block_count": 14514,
-        "palette_count": 62,
+        "block_count": 14564,
+        "palette_count": 69,
         "path": "src/main/resources/data/myvillage/structure/cultivation_town_004.nbt"
       },
       "compound_graph": {
@@ -37356,6 +37741,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      4,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   13,
@@ -37499,7 +37898,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "barrel_cluster",
+                    "facing": "west"
                   }
                 },
                 {
@@ -37522,7 +37922,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "market_stall",
+                    "facing": "east"
                   }
                 }
               ]
@@ -37804,6 +38205,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      4,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   2,
@@ -37989,7 +38404,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "woodpile"
+                    "motif": "woodpile",
+                    "facing": "west"
                   }
                 },
                 {
@@ -38012,7 +38428,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "fence_patch",
+                    "facing": "south"
                   }
                 }
               ]
@@ -38535,7 +38952,21 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
-                "opening_style": "window_with_trapdoor_frame",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      6,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
+                "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   20,
                   0,
@@ -38714,7 +39145,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "market_stall",
+                    "facing": "east"
                   }
                 },
                 {
@@ -38737,7 +39169,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "barrel_cluster",
+                    "facing": "north"
                   }
                 }
               ]
@@ -39163,6 +39596,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      5,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   12,
@@ -39348,7 +39795,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "lantern_post",
+                    "facing": "south"
                   }
                 },
                 {
@@ -39371,7 +39819,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "woodpile"
+                    "motif": "woodpile",
+                    "facing": "north"
                   }
                 }
               ]
@@ -39654,6 +40103,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      4,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   2,
@@ -39797,7 +40260,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "market_stall",
+                    "facing": "south"
                   }
                 },
                 {
@@ -39820,7 +40284,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "barrel_cluster",
+                    "facing": "west"
                   }
                 }
               ]
@@ -40343,6 +40808,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      6,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   20,
@@ -40522,7 +41001,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "barrel_cluster",
+                    "facing": "east"
                   }
                 },
                 {
@@ -40545,7 +41025,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "market_stall",
+                    "facing": "west"
                   }
                 }
               ]
@@ -41068,6 +41549,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      6,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   11,
@@ -41247,7 +41742,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "market_stall",
+                    "facing": "north"
                   }
                 },
                 {
@@ -41270,7 +41766,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "barrel_cluster",
+                    "facing": "east"
                   }
                 }
               ]
@@ -41553,6 +42050,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      4,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   2,
@@ -41715,7 +42226,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "lantern_post",
+                    "facing": "east"
                   }
                 },
                 {
@@ -41738,7 +42250,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "fence_patch",
+                    "facing": "west"
                   }
                 }
               ]
@@ -42021,6 +42534,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      4,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   24,
@@ -42164,7 +42691,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "market_stall",
+                    "facing": "south"
                   }
                 },
                 {
@@ -42187,7 +42715,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "barrel_cluster",
+                    "facing": "north"
                   }
                 }
               ]
@@ -43063,6 +43592,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      7,
+                      10
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   12,
@@ -43305,7 +43848,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "fence_patch",
+                    "facing": "east"
                   }
                 },
                 {
@@ -43328,7 +43872,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "woodpile"
+                    "motif": "woodpile",
+                    "facing": "south"
                   }
                 },
                 {
@@ -43351,7 +43896,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "barrel_cluster",
+                    "facing": "east"
                   }
                 }
               ]
@@ -43874,7 +44420,21 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
-                "opening_style": "window_with_slab_sill",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      6,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
+                "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   2,
                   0,
@@ -44053,7 +44613,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "market_stall",
+                    "facing": "east"
                   }
                 },
                 {
@@ -44076,7 +44637,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "barrel_cluster",
+                    "facing": "south"
                   }
                 }
               ]
@@ -44358,6 +44920,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      4,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   24,
@@ -44543,7 +45119,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "barrel_cluster",
+                    "facing": "west"
                   }
                 },
                 {
@@ -44566,7 +45143,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "fence_patch",
+                    "facing": "south"
                   }
                 }
               ]
@@ -44717,12 +45295,12 @@
       "name": "cultivation_town_005",
       "export": {
         "size": [
-          72,
+          71,
           15,
           68
         ],
-        "block_count": 15631,
-        "palette_count": 51,
+        "block_count": 15686,
+        "palette_count": 54,
         "path": "src/main/resources/data/myvillage/structure/cultivation_town_005.nbt"
       },
       "compound_graph": {
@@ -50332,6 +50910,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      6,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   11,
@@ -50511,7 +51103,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "barrel_cluster",
+                    "facing": "north"
                   }
                 },
                 {
@@ -50534,7 +51127,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "market_stall",
+                    "facing": "north"
                   }
                 }
               ]
@@ -50817,6 +51411,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      4,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   2,
@@ -50960,7 +51568,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "barrel_cluster",
+                    "facing": "west"
                   }
                 },
                 {
@@ -50983,7 +51592,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "market_stall",
+                    "facing": "north"
                   }
                 }
               ]
@@ -51506,7 +52116,21 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
-                "opening_style": "window_with_trapdoor_frame",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      6,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
+                "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   20,
                   0,
@@ -51685,7 +52309,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "barrel_cluster",
+                    "facing": "west"
                   }
                 },
                 {
@@ -51708,7 +52333,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "market_stall",
+                    "facing": "west"
                   }
                 }
               ]
@@ -52231,6 +52857,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      6,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   11,
@@ -52410,7 +53050,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "barrel_cluster",
+                    "facing": "north"
                   }
                 },
                 {
@@ -52433,7 +53074,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "market_stall",
+                    "facing": "south"
                   }
                 }
               ]
@@ -52956,6 +53598,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      6,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   2,
@@ -53135,7 +53791,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "market_stall",
+                    "facing": "west"
                   }
                 },
                 {
@@ -53158,7 +53815,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "barrel_cluster",
+                    "facing": "west"
                   }
                 }
               ]
@@ -53681,6 +54339,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      6,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   20,
@@ -53860,7 +54532,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "barrel_cluster",
+                    "facing": "north"
                   }
                 },
                 {
@@ -53883,7 +54556,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "market_stall",
+                    "facing": "east"
                   }
                 }
               ]
@@ -54406,6 +55080,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      6,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   11,
@@ -54585,7 +55273,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "market_stall",
+                    "facing": "east"
                   }
                 },
                 {
@@ -54608,7 +55297,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "barrel_cluster",
+                    "facing": "north"
                   }
                 }
               ]
@@ -54891,6 +55581,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      4,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   2,
@@ -55034,7 +55738,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "market_stall",
+                    "facing": "west"
                   }
                 },
                 {
@@ -55057,7 +55762,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "barrel_cluster",
+                    "facing": "east"
                   }
                 }
               ]
@@ -55580,7 +56286,21 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
-                "opening_style": "window_with_slab_sill",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      6,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
+                "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   20,
                   0,
@@ -55759,7 +56479,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "barrel_cluster",
+                    "facing": "north"
                   }
                 },
                 {
@@ -55782,7 +56503,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "market_stall",
+                    "facing": "west"
                   }
                 }
               ]
@@ -56305,6 +57027,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      6,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   11,
@@ -56484,7 +57220,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "barrel_cluster",
+                    "facing": "west"
                   }
                 },
                 {
@@ -56507,7 +57244,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "market_stall",
+                    "facing": "south"
                   }
                 }
               ]
@@ -56790,7 +57528,21 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
-                "opening_style": "window_with_trapdoor_frame",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      4,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
+                "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   2,
                   0,
@@ -56933,7 +57685,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "market_stall",
+                    "facing": "west"
                   }
                 },
                 {
@@ -56956,7 +57709,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "barrel_cluster",
+                    "facing": "south"
                   }
                 }
               ]
@@ -57479,6 +58233,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      6,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   20,
@@ -57658,7 +58426,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "market_stall",
+                    "facing": "north"
                   }
                 },
                 {
@@ -57681,7 +58450,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "barrel_cluster",
+                    "facing": "east"
                   }
                 }
               ]
@@ -57832,12 +58602,12 @@
       "name": "cultivation_town_006",
       "export": {
         "size": [
-          72,
+          71,
           15,
           69
         ],
-        "block_count": 12143,
-        "palette_count": 53,
+        "block_count": 12172,
+        "palette_count": 58,
         "path": "src/main/resources/data/myvillage/structure/cultivation_town_006.nbt"
       },
       "compound_graph": {
@@ -63850,6 +64620,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      4,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   13,
@@ -64012,7 +64796,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "barrel_cluster",
+                    "facing": "east"
                   }
                 },
                 {
@@ -64035,7 +64820,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "lantern_post",
+                    "facing": "west"
                   }
                 }
               ]
@@ -64461,6 +65247,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      5,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   2,
@@ -64646,7 +65446,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "woodpile"
+                    "motif": "woodpile",
+                    "facing": "west"
                   }
                 },
                 {
@@ -64669,7 +65470,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "fence_patch",
+                    "facing": "west"
                   }
                 }
               ]
@@ -65192,6 +65994,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      6,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   20,
@@ -65371,7 +66187,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "barrel_cluster",
+                    "facing": "west"
                   }
                 },
                 {
@@ -65394,7 +66211,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "market_stall",
+                    "facing": "north"
                   }
                 }
               ]
@@ -65917,6 +66735,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      6,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   11,
@@ -66096,7 +66928,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "market_stall",
+                    "facing": "north"
                   }
                 },
                 {
@@ -66119,7 +66952,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "barrel_cluster",
+                    "facing": "east"
                   }
                 }
               ]
@@ -66402,6 +67236,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      4,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   2,
@@ -66545,7 +67393,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "barrel_cluster",
+                    "facing": "east"
                   }
                 },
                 {
@@ -66568,7 +67417,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "market_stall",
+                    "facing": "south"
                   }
                 }
               ]
@@ -66851,7 +67701,21 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
-                "opening_style": "window_with_slab_sill",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      4,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
+                "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   24,
                   0,
@@ -66994,7 +67858,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "market_stall",
+                    "facing": "south"
                   }
                 },
                 {
@@ -67017,7 +67882,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "barrel_cluster",
+                    "facing": "south"
                   }
                 }
               ]
@@ -67540,6 +68406,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      6,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   11,
@@ -67719,7 +68599,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "barrel_cluster",
+                    "facing": "north"
                   }
                 },
                 {
@@ -67742,7 +68623,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "market_stall",
+                    "facing": "north"
                   }
                 }
               ]
@@ -68024,6 +68906,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      4,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   2,
@@ -68209,7 +69105,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "lantern_post",
+                    "facing": "east"
                   }
                 },
                 {
@@ -68232,7 +69129,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "barrel_cluster",
+                    "facing": "west"
                   }
                 }
               ]
@@ -68515,6 +69413,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      4,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   24,
@@ -68658,7 +69570,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "market_stall",
+                    "facing": "north"
                   }
                 },
                 {
@@ -68681,7 +69594,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "barrel_cluster",
+                    "facing": "south"
                   }
                 }
               ]
@@ -68964,6 +69878,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      4,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   13,
@@ -69107,7 +70035,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "barrel_cluster",
+                    "facing": "west"
                   }
                 },
                 {
@@ -69130,7 +70059,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "market_stall",
+                    "facing": "west"
                   }
                 }
               ]
@@ -69412,6 +70342,20 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      4,
+                      6
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
                 "opening_style": "window_with_trapdoor_frame",
                 "compound_offset": [
                   2,
@@ -69597,7 +70541,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "lantern_post",
+                    "facing": "east"
                   }
                 },
                 {
@@ -69620,7 +70565,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "barrel_cluster"
+                    "motif": "barrel_cluster",
+                    "facing": "west"
                   }
                 }
               ]
@@ -70143,7 +71089,21 @@
                 "style_family": "cultivation_town",
                 "style_id": "cultivation_town",
                 "group_id": "cultivation_town",
-                "opening_style": "window_with_trapdoor_frame",
+                "frontage": {
+                  "side": "back",
+                  "facing": "south",
+                  "volume": "main",
+                  "kind": "entry",
+                  "opening_cells": [
+                    [
+                      6,
+                      8
+                    ]
+                  ],
+                  "opening_width": 1,
+                  "source": "largest_open_side"
+                },
+                "opening_style": "window_with_slab_sill",
                 "compound_offset": [
                   20,
                   0,
@@ -70322,7 +71282,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "fence_patch"
+                    "motif": "barrel_cluster",
+                    "facing": "east"
                   }
                 },
                 {
@@ -70345,7 +71306,8 @@
                   ],
                   "attach_to": "main",
                   "meta": {
-                    "motif": "lantern_post"
+                    "motif": "market_stall",
+                    "facing": "west"
                   }
                 }
               ]

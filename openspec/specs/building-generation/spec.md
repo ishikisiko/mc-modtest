@@ -27,8 +27,24 @@ Building archetypes SHALL construct a `MassingGraph` made of semantic nodes and 
 - **THEN** the massing graph SHALL include a main volume, a front door definition, interior zones, a path patch, exterior decoration patches, and either a chimney or alternate window-detail metadata
 - **AND** block placement SHALL occur in later passes.
 
+### Requirement: Building parts expose town-frontage metadata
+Generated town building graphs SHALL expose which side faces the town street and where the shopfront or entry opening is located, so street-room and lived-in-tissue layers can attach to the correct face. When a part does not declare frontage, the largest open side SHALL be used as the default front.
+
+#### Scenario: A part declares its street frontage
+- **WHEN** a building part is generated for town use
+- **THEN** it SHALL record its street-facing side and the cells of its shopfront or entry opening
+- **AND** a part with no declared frontage SHALL default its front to its largest open side.
+
+### Requirement: An importance tier drives massing and roof-grade selection
+Town building selection SHALL accept an optional importance tier that biases massing height and roof grade, where a higher tier yields taller massing and a higher roof grade. The town's dominant landmark SHALL be selected at the top tier.
+
+#### Scenario: Importance biases the building
+- **WHEN** a town parcel requests a building at a given importance tier
+- **THEN** a higher tier SHALL bias selection toward taller massing and a higher roof grade
+- **AND** the dominant-landmark parcel SHALL request the top importance tier.
+
 ### Requirement: Supported archetypes and tiers are explicit
-The current default generated building-library archetypes SHALL be `small_house`, `medium_house`, `blacksmith`, `small_shop`, `medium_shop`, and `big_house`. The current default scale tiers SHALL include `small`, `medium`, `large_lite`, shop variant tiers, and big-house variant tiers. Chinese courtyard sub-building archetypes `main_hall`, `side_wing`, `front_row`, and `gate_house` SHALL be available to the compound generator rather than emitted by the default medieval building-library loop. Civic archetypes `tavern` and `lord_manor` SHALL be available to the civic library generator rather than emitted by the default medieval building-library loop. Cultivation town archetypes SHALL be available to the `cultivation_town` courtyard-street block generator, and cultivation sect archetypes SHALL be emitted only by the `cultivation_sect` group.
+The current default generated building-library archetypes SHALL be `small_house`, `medium_house`, `blacksmith`, `small_shop`, `medium_shop`, and `big_house`. The current default scale tiers SHALL include `small`, `medium`, `large_lite`, shop variant tiers, and big-house variant tiers. Chinese courtyard sub-building archetypes `main_hall`, `side_wing`, `front_row`, and `gate_house` SHALL be available to the compound generator rather than emitted by the default medieval building-library loop. Civic archetypes `tavern` and `lord_manor` SHALL be available to the civic library generator rather than emitted by the default medieval building-library loop. Cultivation town archetypes SHALL be available to the `cultivation_town` town-generation system and reusable courtyard-street block parts, and cultivation sect archetypes SHALL be emitted only by the `cultivation_sect` group.
 
 #### Scenario: The building library is generated with count 10
 - **WHEN** the library generator emits ten entries per archetype
@@ -52,8 +68,8 @@ The current default generated building-library archetypes SHALL be `small_house`
 - **AND** the medieval building-library loop SHALL NOT emit civic archetypes
 - **AND** the compound generator SHALL NOT emit civic archetypes.
 
-#### Scenario: A cultivation town archetype is generated inside a town block
-- **WHEN** the courtyard-street block generator requests `cultivation_house`, `cultivation_shop`, `cultivation_inn`, `cultivation_market`, or `town_shrine` under the `cultivation_town` group
+#### Scenario: A cultivation town archetype is generated for town use
+- **WHEN** the town-generation system or courtyard-street block part generator requests `cultivation_house`, `cultivation_shop`, `cultivation_inn`, `cultivation_market`, or `town_shrine` under the `cultivation_town` group
 - **THEN** the building pipeline SHALL use the `cultivation_town` style profile
 - **AND** the sect-roster archetypes SHALL NOT be emitted by the town group.
 
