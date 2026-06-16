@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "bindings": {
+    "cultivation_shop": [
+      {
+        "frame": "town_shop_wood_3w",
+        "orientation": "horizontal",
+        "mount": "wall",
+        "inscription_pool": [
+          {"bucket": "3w", "id": "za_huo_pu"}
+        ]
+      }
+    ],
+    "cultivation_market": [
+      {
+        "frame": "town_notice_board_3w",
+        "orientation": "horizontal",
+        "mount": "wall",
+        "inscription_pool": [
+          {"bucket": "3w", "id": "za_huo_pu"}
+        ]
+      }
+    ],
+    "cultivation_inn": [
+      {
+        "frame": "town_inn_lacquered_4w",
+        "orientation": "vertical",
+        "mount": "hanging",
+        "inscription_pool": [
+          {"bucket": "4h", "id": "yuan_yang_lou"}
+        ]
+      }
+    ],
+    "scripture_pavilion": [
+      {
+        "frame": "sect_scripture_ornate_4w",
+        "orientation": "horizontal",
+        "mount": "wall",
+        "inscription_pool": [
+          {"bucket": "4w", "id": "zang_jing_ge"}
+        ]
+      }
+    ],
+    "treasure_pavilion": [
+      {
+        "frame": "sect_treasure_gilded_5w_2h",
+        "orientation": "horizontal",
+        "mount": "wall",
+        "inscription_pool": [
+          {"bucket": "5w_2h", "id": "lin_lang_ge"}
+        ]
+      }
+    ],
+    "sect_gate": [
+      {
+        "frame": "sect_treasure_gilded_5w_2h",
+        "orientation": "horizontal",
+        "mount": "hanging",
+        "inscription_pool": [
+          {"bucket": "5w_2h", "id": "lin_lang_ge"}
+        ]
+      }
+    ],
+    "paifang": [
+      {
+        "frame": "sect_treasure_gilded_5w_2h",
+        "orientation": "horizontal",
+        "mount": "hanging",
+        "inscription_pool": [
+          {"bucket": "5w_2h", "id": "lin_lang_ge"}
+        ]
+      }
+    ],
+    "tavern": [
+      {
+        "frame": "tavern_signboard_4w",
+        "orientation": "horizontal",
+        "mount": "hanging",
+        "inscription_pool": [
+          {"bucket": "4w", "id": "tavern_inn"}
+        ]
+      }
+    ],
+    "lord_manor": [
+      {
+        "frame": "lord_manor_heraldry_5w",
+        "orientation": "horizontal",
+        "mount": "wall",
+        "inscription_pool": [
+          {"bucket": "5w_1h", "id": "lord_manor_house"}
+        ]
+      }
+    ]
+  }
+}

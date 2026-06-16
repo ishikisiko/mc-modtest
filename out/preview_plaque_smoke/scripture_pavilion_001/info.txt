@@ -1,0 +1,7 @@
+source: src/main/resources/data/myvillage/structure/scripture_pavilion_001.nbt
+size (x,y,z): 17, 21, 19
+voxels total: 2882  non-air: 1577
+entities: 1
+unique block bases: 25
+outputs:
+  out/preview_plaque_smoke/scripture_pavilion_001/viewer.html

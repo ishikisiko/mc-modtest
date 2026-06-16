@@ -26,6 +26,24 @@ SHOP_FUNCTION_BLOCKS = ("crafting_table", "barrel")
 CIVIC_TAVERN_MARKERS = ("brewing_stand", "barrel")
 CIVIC_MANOR_MARKERS = ("bell", "lectern")
 MULTISTORY_NAMES = ("medium_shop", "big_house", "tavern", "lord_manor")
+PLAQUE_BLOCK_IDS = {
+    "myvillage:wall_plaque",
+    "myvillage:wall_plaque_vertical",
+    "myvillage:hanging_plaque",
+    "myvillage:hanging_plaque_vertical",
+}
+PLAQUE_COL_ORDERS = {
+    2: ["left", "right"],
+    3: ["left", "center", "right"],
+    4: ["left", "inner_left", "inner_right", "right"],
+    5: ["left", "inner_left", "center", "inner_right", "right"],
+}
+PLAQUE_REQUIRED_PREFIXES = (
+    "scripture_pavilion_",
+    "treasure_pavilion_",
+    "sect_gate_",
+    "paifang_",
+)
 DIRECTION_VECTORS = {
     "north": (0, 0, -1),
     "south": (0, 0, 1),
@@ -104,6 +122,79 @@ def validate_attached_block_support(name: str, palette: list[str],
     return errors
 
 
+def inscription_entities(entities: list[dict]) -> list[str]:
+    variants: list[str] = []
+    for entity in entities:
+        nbt = entity.get("nbt", {})
+        if not isinstance(nbt, dict):
+            continue
+        if nbt.get("id") != "minecraft:painting":
+            continue
+        variant = str(nbt.get("variant", ""))
+        if variant.startswith("myvillage:inscription/"):
+            variants.append(variant)
+    return variants
+
+
+def _visual_left_uses_positive_tangent(facing: str) -> bool:
+    return facing in ("north", "east")
+
+
+def _plaque_tangent_coord(pos: tuple[int, int, int], facing: str) -> int:
+    return pos[0] if facing in ("north", "south") else pos[2]
+
+
+def _plaque_normal_coord(pos: tuple[int, int, int], facing: str) -> int:
+    return pos[2] if facing in ("north", "south") else pos[0]
+
+
+def validate_wall_plaque_visual_order(name: str, palette: list[str],
+                                      blocks: list[dict]) -> list[str]:
+    errors: list[str] = []
+    grouped: dict[tuple[str, str, str, int, int], list[tuple[int, str, tuple[int, int, int]]]] = defaultdict(list)
+    for block in blocks:
+        state = palette[block["state"]]
+        if block_id(state) != "myvillage:wall_plaque":
+            continue
+        facing = prop_value(state, "facing")
+        frame = prop_value(state, "frame")
+        row = prop_value(state, "row")
+        col = prop_value(state, "col")
+        if not facing or not frame or not row or not col:
+            errors.append(f"{name}: plaque_visual_order: missing_props at {block['pos']}: {state}")
+            continue
+        pos = tuple(block["pos"])
+        grouped[(facing, frame, row, pos[1], _plaque_normal_coord(pos, facing))].append(
+            (_plaque_tangent_coord(pos, facing), col, pos)
+        )
+
+    for (facing, frame, row, _y, _normal), entries in grouped.items():
+        entries = sorted(entries)
+        component: list[tuple[int, str, tuple[int, int, int]]] = []
+        previous_coord: int | None = None
+        for entry in entries + [(10**9, "", (0, 0, 0))]:
+            coord = entry[0]
+            if component and previous_coord is not None and coord != previous_coord + 1:
+                order = sorted(
+                    component,
+                    key=lambda item: item[0],
+                    reverse=_visual_left_uses_positive_tangent(facing),
+                )
+                cols = [item[1] for item in order]
+                expected = PLAQUE_COL_ORDERS.get(len(order))
+                if expected is not None and cols != expected:
+                    positions = [item[2] for item in order]
+                    errors.append(
+                        f"{name}: plaque_visual_order: frame={frame} row={row} "
+                        f"facing={facing} cols={cols} expected={expected} positions={positions}"
+                    )
+                component = []
+            if entry[1]:
+                component.append(entry)
+            previous_coord = coord
+    return errors
+
+
 def validate_gable_heuristic(name: str, palette: list[str], blocks: list[dict]) -> list[str]:
     errors: list[str] = []
     by_pos = {tuple(block["pos"]): palette[block["state"]] for block in blocks}
@@ -156,6 +247,7 @@ def validate_file(path: Path, root_dir: Path, modset=None) -> dict:
     if modset is not None:
         errors.extend(modset.palette_block_errors(palette))
     blocks = root.get("blocks", [])
+    entities = root.get("entities", [])
     if not palette:
         errors.append("palette_empty")
     if not blocks:
@@ -166,6 +258,7 @@ def validate_file(path: Path, root_dir: Path, modset=None) -> dict:
         errors.append(f"bad_size: {size}")
 
     non_air_blocks = [block for block in blocks if block["state"] < len(palette) and not is_air(palette[block["state"]])]
+    by_pos = {tuple(block["pos"]): palette[block["state"]] for block in non_air_blocks}
     states_present = {palette[block["state"]] for block in non_air_blocks}
     roof_blocks = [block for block in non_air_blocks if is_roof_like(palette[block["state"]]) and block["pos"][1] >= max(1, size[1] // 2)]
     top_layers = set(range(max(0, size[1] - 3), size[1])) if len(size) == 3 else set()
@@ -182,6 +275,11 @@ def validate_file(path: Path, root_dir: Path, modset=None) -> dict:
 
     building_name = Path(rel).stem
     block_state_counts = Counter(palette[block["state"]].split("[", 1)[0] for block in non_air_blocks)
+    for variant in inscription_entities(entities):
+        errors.append(f"plaque_signature: unexpected_inscription_painting_entity {variant}")
+    if building_name.startswith(PLAQUE_REQUIRED_PREFIXES):
+        if not any(state.split("[", 1)[0] in PLAQUE_BLOCK_IDS for state in states_present):
+            errors.append("plaque_signature: missing_plaque_block")
     if building_name.startswith("tavern_"):
         barrel_count = sum(count for state, count in block_state_counts.items() if "barrel" in state)
         has_brewing = has_marker(states_present, ("brewing_stand",))
@@ -240,6 +338,7 @@ def validate_file(path: Path, root_dir: Path, modset=None) -> dict:
 
     errors.extend(validate_gable_heuristic(rel, palette, non_air_blocks))
     errors.extend(validate_attached_block_support(rel, palette, non_air_blocks))
+    errors.extend(validate_wall_plaque_visual_order(rel, palette, non_air_blocks))
 
     by_y = Counter(block["pos"][1] for block in non_air_blocks)
     state_counts = block_state_counts
@@ -251,6 +350,7 @@ def validate_file(path: Path, root_dir: Path, modset=None) -> dict:
         "size": size,
         "palette_count": len(palette),
         "block_count": len(non_air_blocks),
+        "entity_count": len(entities),
         "roof_block_count": len(roof_blocks),
         "top_layer_counts": {str(y): by_y.get(y, 0) for y in sorted(top_layers)},
         "key_state_counts": {

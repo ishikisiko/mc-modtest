@@ -9,9 +9,11 @@ the game, so layout, massing, and roof shapes can be eyeballed quickly. Produces
   - viewer.html interactive previews, plus index.html when multiple viewers are
     generated in one run
 
-This is a coarse voxel-color preview, NOT textured rendering. It catches layout,
-massing, roof form, and fenestration errors; blockstate detail (door facing,
-trapdoor open/closed) still needs an in-game /place template check.
+This is primarily a coarse voxel-color preview. Plaque block textures are
+resolved from shipped models, and legacy inscription paintings are overlaid
+when present so signage can be checked before opening a Minecraft client; other
+blockstate detail such as door facing or trapdoor open/closed still needs an
+in-game /place template check.
 
 Input may be either:
   - a Minecraft structure .nbt file (the artifact loaded by /place template), or
@@ -35,6 +37,7 @@ import shutil
 import struct
 import sys
 import zlib
+from pathlib import Path
 from typing import Dict, Iterable, List, NamedTuple, Sequence, Tuple
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -43,6 +46,7 @@ if SCRIPT_DIR not in sys.path:
     sys.path.insert(0, SCRIPT_DIR)
 
 from buildgen.nbtread import read_gzipped_nbt, state_string  # noqa: E402
+from buildgen.gen_plaque_assets import read_png_rgba  # noqa: E402
 from json_to_nbt import expand_structure  # noqa: E402
 
 BLOCK_COLORS_PATH = os.path.join(SCRIPT_DIR, "block_colors.json")
@@ -51,7 +55,27 @@ WEB_ASSET_DIR = os.path.join(SCRIPT_DIR, "web")
 
 RGBA = Tuple[int, int, int, int]
 Voxels = Dict[Tuple[int, int, int], str]
+Entities = List[dict]
 AIR_BASES = {"minecraft:air", "minecraft:cave_air", "minecraft:void_air"}
+PLAQUE_BLOCK_IDS = {
+    "myvillage:wall_plaque",
+    "myvillage:wall_plaque_vertical",
+    "myvillage:hanging_plaque",
+    "myvillage:hanging_plaque_vertical",
+}
+FACING_FROM_2D = {0: "south", 1: "west", 2: "north", 3: "east"}
+FACING_NORMAL = {
+    "north": (0.0, 0.0, -1.0),
+    "south": (0.0, 0.0, 1.0),
+    "west": (-1.0, 0.0, 0.0),
+    "east": (1.0, 0.0, 0.0),
+}
+FACING_COUNTERCLOCKWISE = {
+    "north": (-1.0, 0.0),
+    "south": (1.0, 0.0),
+    "west": (0.0, 1.0),
+    "east": (0.0, -1.0),
+}
 
 
 class RenderResult(NamedTuple):
@@ -130,7 +154,7 @@ def resolve_color(state: str, colors: Dict[str, Tuple[int, int, int]]) -> Tuple[
     return (180, 80, 200)
 
 
-def read_nbt_voxels(path: str) -> Tuple[List[int], Voxels]:
+def read_nbt_voxels(path: str) -> Tuple[List[int], Voxels, Entities]:
     _, root = read_gzipped_nbt(path)
     size = [int(v) for v in root["size"]]
     palette = [state_string(p) for p in root["palette"]]
@@ -138,24 +162,256 @@ def read_nbt_voxels(path: str) -> Tuple[List[int], Voxels]:
     for entry in root["blocks"]:
         pos = tuple(int(v) for v in entry["pos"])
         voxels[pos] = palette[int(entry["state"])]
-    return size, voxels
+    return size, voxels, list(root.get("entities", []))
 
 
-def read_json_voxels(path: str) -> Tuple[List[int], Voxels]:
+def read_json_voxels(path: str) -> Tuple[List[int], Voxels, Entities]:
     with open(path, "r", encoding="utf-8") as f:
         data = json.load(f)
     size, _overwritten, blocks, _states = expand_structure(data)
     voxels: Voxels = {pos: state for pos, state in blocks.items()}
-    return list(size), voxels
+    return list(size), voxels, list(data.get("entities", []))
 
 
-def read_voxels(path: str) -> Tuple[List[int], Voxels]:
+def read_voxels(path: str) -> Tuple[List[int], Voxels, Entities]:
     ext = os.path.splitext(path)[1].lower()
     if ext == ".nbt":
         return read_nbt_voxels(path)
     if ext == ".json":
         return read_json_voxels(path)
     raise ValueError(f"unsupported input extension {ext!r} for {path!r}")
+
+
+def state_props(state: str) -> Dict[str, str]:
+    if "[" not in state:
+        return {}
+    raw = state.split("[", 1)[1].rstrip("]")
+    props: Dict[str, str] = {}
+    for part in raw.split(","):
+        key, _, value = part.partition("=")
+        if key:
+            props[key] = value
+    return props
+
+
+def _resource_path(ref: str, kind: str) -> str:
+    namespace, path = ref.split(":", 1)
+    if kind == "model":
+        return os.path.join(REPO_ROOT, "src", "main", "resources", "assets", namespace, "models", f"{path}.json")
+    if kind == "texture":
+        return os.path.join(REPO_ROOT, "src", "main", "resources", "assets", namespace, "textures", f"{path}.png")
+    raise ValueError(kind)
+
+
+def _copy_preview_texture(out_dir: str, source: str) -> str:
+    asset_dir = os.path.join(os.path.dirname(out_dir), "_assets", "textures")
+    os.makedirs(asset_dir, exist_ok=True)
+    rel_name = os.path.relpath(source, os.path.join(REPO_ROOT, "src", "main", "resources", "assets")).replace(os.sep, "__")
+    target = os.path.join(asset_dir, rel_name)
+    if not os.path.exists(target) or os.path.getmtime(source) > os.path.getmtime(target):
+        shutil.copy2(source, target)
+    return os.path.relpath(target, out_dir).replace(os.sep, "/")
+
+
+def _copy_preview_texture_uv(out_dir: str, source: str, uv: list[float] | None) -> str:
+    if not uv or uv == [0, 0, 16, 16]:
+        return _copy_preview_texture(out_dir, source)
+    src_w, src_h, rgba = read_png_rgba(Path(source))
+    u0, v0, u1, v1 = uv
+    x0 = max(0, min(src_w, int(round(min(u0, u1) / 16.0 * src_w))))
+    x1 = max(0, min(src_w, int(round(max(u0, u1) / 16.0 * src_w))))
+    y0 = max(0, min(src_h, int(round(min(v0, v1) / 16.0 * src_h))))
+    y1 = max(0, min(src_h, int(round(max(v0, v1) / 16.0 * src_h))))
+    if x1 <= x0 or y1 <= y0:
+        return _copy_preview_texture(out_dir, source)
+
+    crop_w = x1 - x0
+    crop_h = y1 - y0
+    crop = bytearray(crop_w * crop_h * 4)
+    for y in range(crop_h):
+        src_i = ((y0 + y) * src_w + x0) * 4
+        dst_i = y * crop_w * 4
+        crop[dst_i:dst_i + crop_w * 4] = rgba[src_i:src_i + crop_w * 4]
+
+    asset_dir = os.path.join(os.path.dirname(out_dir), "_assets", "textures")
+    os.makedirs(asset_dir, exist_ok=True)
+    rel_name = os.path.relpath(source, os.path.join(REPO_ROOT, "src", "main", "resources", "assets")).replace(os.sep, "__")
+    uv_key = "_".join(str(int(round(value * 1000))) for value in uv)
+    target = os.path.join(asset_dir, f"{rel_name}__uv_{uv_key}.png")
+    if not os.path.exists(target) or os.path.getmtime(source) > os.path.getmtime(target):
+        write_rgba_png(target, crop_w, crop_h, bytes(crop))
+    return os.path.relpath(target, out_dir).replace(os.sep, "/")
+
+
+def _placeholder_texture(out_dir: str) -> str:
+    path = os.path.join(os.path.dirname(out_dir), "_assets", "textures", "missing_inscription_asset.png")
+    if not os.path.exists(path):
+        canvas = Canvas(16, 16)
+        canvas.fill_rect(0, 0, 16, 16, (146, 45, 80, 255))
+        for i in range(16):
+            canvas.set(i, i, (255, 220, 235, 255))
+            canvas.set(15 - i, i, (255, 220, 235, 255))
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        canvas.write_png(path)
+    return os.path.relpath(path, out_dir).replace(os.sep, "/")
+
+
+def _face_center(pos: Tuple[int, int, int], facing: str, width: float = 1.0,
+                 height: float = 1.0) -> List[float]:
+    x, y, z = pos
+    nx, _ny, nz = FACING_NORMAL.get(facing, FACING_NORMAL["north"])
+    cx = x + 0.5 + nx * 0.515
+    cy = y + height / 2.0
+    cz = z + 0.5 + nz * 0.515
+    return [cx, cy, cz]
+
+
+def _plaque_texture_for_state(state: str) -> tuple[str, list[float] | None] | None:
+    base = state_base(state)
+    if base not in PLAQUE_BLOCK_IDS:
+        return None
+    props = state_props(state)
+    block_name = base.split(":", 1)[1]
+    key = (
+        f"facing={props.get('facing', 'north')},"
+        f"frame={props.get('frame', 'town_shop_wood_3w')},"
+        f"row={props.get('row', 'single')},"
+        f"col={props.get('col', 'center')}"
+    )
+    blockstate_path = os.path.join(REPO_ROOT, "src", "main", "resources", "assets", "myvillage", "blockstates", f"{block_name}.json")
+    with open(blockstate_path, "r", encoding="utf-8") as f:
+        blockstate = json.load(f)
+    variant = blockstate.get("variants", {}).get(key)
+    if not variant:
+        return None
+    model_ref = variant["model"]
+    with open(_resource_path(model_ref, "model"), "r", encoding="utf-8") as f:
+        model = json.load(f)
+    texture_ref = model.get("textures", {}).get("plaque")
+    if not texture_ref:
+        return None
+    uv = None
+    for element in model.get("elements", []):
+        face = element.get("faces", {}).get("north")
+        if face and face.get("texture") == "#plaque":
+            uv = face.get("uv")
+            break
+    return _resource_path(texture_ref, "texture"), uv
+
+
+def _painting_variant_size_and_texture(variant: str) -> tuple[int, int, str]:
+    namespace, path = variant.split(":", 1)
+    data_path = os.path.join(REPO_ROOT, "src", "main", "resources", "data", namespace, "painting_variant", f"{path}.json")
+    with open(data_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    texture_ref = data["asset_id"]
+    texture_path = _resource_path(texture_ref, "texture")
+    if not os.path.exists(texture_path):
+        texture_namespace, texture_id = texture_ref.split(":", 1)
+        texture_path = os.path.join(
+            REPO_ROOT,
+            "src",
+            "main",
+            "resources",
+            "assets",
+            texture_namespace,
+            "textures",
+            "painting",
+            f"{texture_id}.png",
+        )
+    if not os.path.exists(texture_path):
+        texture_namespace, texture_id = texture_ref.split(":", 1)
+        texture_path = os.path.join(
+            REPO_ROOT,
+            "src",
+            "main",
+            "resources",
+            "assets",
+            texture_namespace,
+            "textures",
+            "entity",
+            f"{texture_id}.png",
+        )
+    return int(data["width"]), int(data["height"]), texture_path
+
+
+def _painting_center_from_anchor(entity: dict, nbt: dict, facing: str,
+                                 width: int, height: int) -> list[float]:
+    raw_pos = entity.get("pos", [0.0, 0.0, 0.0])
+    anchor = [
+        int(nbt.get("TileX", math.floor(float(raw_pos[0])))),
+        int(nbt.get("TileY", math.floor(float(raw_pos[1])))),
+        int(nbt.get("TileZ", math.floor(float(raw_pos[2])))),
+    ]
+    nx, _ny, nz = FACING_NORMAL.get(facing, FACING_NORMAL["north"])
+    tx, tz = FACING_COUNTERCLOCKWISE.get(facing, FACING_COUNTERCLOCKWISE["north"])
+    tangent_offset = 0.5 if width % 2 == 0 else 0.0
+    vertical_offset = 0.5 if height % 2 == 0 else 0.0
+    return [
+        anchor[0] + 0.5 - nx * 0.46875 + tx * tangent_offset,
+        anchor[1] + 0.5 + vertical_offset,
+        anchor[2] + 0.5 - nz * 0.46875 + tz * tangent_offset,
+    ]
+
+
+def build_texture_overlays(voxels: Voxels, entities: Entities, out_dir: str) -> tuple[list[dict], list[str]]:
+    overlays: list[dict] = []
+    flags: list[str] = []
+    plaque_count = 0
+    inscription_count = 0
+
+    for pos, state in sorted(voxels.items()):
+        if state_base(state) not in PLAQUE_BLOCK_IDS:
+            continue
+        plaque_count += 1
+        props = state_props(state)
+        facing = props.get("facing", "north")
+        resolved = _plaque_texture_for_state(state)
+        if not resolved:
+            continue
+        texture_path, uv = resolved
+        if not texture_path or not os.path.exists(texture_path):
+            continue
+        overlays.append({
+            "kind": "plaque",
+            "center": _face_center(pos, facing),
+            "width": 1,
+            "height": 1,
+            "facing": facing,
+            "texture": _copy_preview_texture_uv(out_dir, texture_path, uv),
+        })
+
+    for entity in entities:
+        nbt = entity.get("nbt", {})
+        if not isinstance(nbt, dict) or nbt.get("id") != "minecraft:painting":
+            continue
+        variant = str(nbt.get("variant", ""))
+        if not variant.startswith("myvillage:inscription/"):
+            continue
+        inscription_count += 1
+        facing = FACING_FROM_2D.get(int(nbt.get("facing", 2)), "north")
+        try:
+            width, height, texture_path = _painting_variant_size_and_texture(variant)
+            if not os.path.exists(texture_path):
+                raise FileNotFoundError(texture_path)
+            texture_href = _copy_preview_texture(out_dir, texture_path)
+        except Exception:
+            width, height = 1, 1
+            texture_href = _placeholder_texture(out_dir)
+            if "missing_inscription_asset" not in flags:
+                flags.append("missing_inscription_asset")
+        center = _painting_center_from_anchor(entity, nbt, facing, width, height)
+        overlays.append({
+            "kind": "inscription",
+            "center": center,
+            "width": width,
+            "height": height,
+            "facing": facing,
+            "texture": texture_href,
+            "variant": variant,
+        })
+
+    return overlays, flags
 
 
 class Canvas:
@@ -808,6 +1064,36 @@ VIEWER_TEMPLATE = """<!doctype html>
       mesh.instanceColor.setUsage(THREE.DynamicDrawUsage);
       scene.add(mesh);
 
+      const textureLoader = new THREE.TextureLoader();
+      const overlayGroup = new THREE.Group();
+      scene.add(overlayGroup);
+
+      function addOverlay(overlay) {
+        const texture = textureLoader.load(overlay.texture);
+        texture.encoding = THREE.sRGBEncoding;
+        const overlayMaterial = new THREE.MeshBasicMaterial({
+          map: texture,
+          transparent: true,
+          alphaTest: 0.02,
+          side: THREE.DoubleSide,
+          toneMapped: false
+        });
+        const overlayGeometry = new THREE.PlaneGeometry(overlay.width, overlay.height);
+        const overlayMesh = new THREE.Mesh(overlayGeometry, overlayMaterial);
+        const p = overlay.center;
+        overlayMesh.position.set(p[0] - center[0], p[1] - center[1], p[2] - center[2]);
+        if (overlay.facing === "north") {
+          overlayMesh.rotation.y = Math.PI;
+        } else if (overlay.facing === "east") {
+          overlayMesh.rotation.y = Math.PI / 2;
+        } else if (overlay.facing === "west") {
+          overlayMesh.rotation.y = -Math.PI / 2;
+        }
+        overlayGroup.add(overlayMesh);
+      }
+
+      (payload.overlays || []).forEach(addOverlay);
+
       const dummy = new THREE.Object3D();
       window.__previewDebug = { camera: camera, controls: controls, mesh: mesh };
 
@@ -916,7 +1202,7 @@ VIEWER_TEMPLATE = """<!doctype html>
 """
 
 
-def build_viewer_payload(size: List[int], voxels: Voxels) -> Dict[str, object]:
+def build_viewer_payload(size: List[int], voxels: Voxels, overlays: list[dict]) -> Dict[str, object]:
     non_air = [((x, y, z), state) for (x, y, z), state in voxels.items() if not is_air_state(state)]
     non_air.sort(key=lambda item: (item[0][1], item[0][2], item[0][0]))
 
@@ -945,6 +1231,7 @@ def build_viewer_payload(size: List[int], voxels: Voxels) -> Dict[str, object]:
         "blockBase": per_voxel_base,
         "y": per_voxel_y,
         "blockBases": block_bases,
+        "overlays": overlays,
     }
 
 
@@ -960,9 +1247,10 @@ def _web_asset_src(out_dir: str, filename: str) -> str:
     return os.path.relpath(target, out_dir).replace(os.sep, "/")
 
 
-def render_interactive_html(size: List[int], voxels: Voxels, out_dir: str,
+def render_interactive_html(size: List[int], voxels: Voxels, entities: Entities, out_dir: str,
                             source: str = "", name: str = "") -> str:
-    payload = build_viewer_payload(size, voxels)
+    overlays, _flags = build_texture_overlays(voxels, entities, out_dir)
+    payload = build_viewer_payload(size, voxels, overlays)
     payload["source"] = source
     payload["name"] = name or "Structure Preview"
     payload_json = json.dumps(payload, separators=(",", ":"))
@@ -1121,14 +1409,20 @@ def render_preview_index(out_root: str, results: Sequence[RenderResult]) -> str:
 
 
 def write_info(path: str, source: str, size: List[int], voxels: Voxels,
-               outputs: Iterable[str]) -> None:
+               entities: Entities, flags: Iterable[str], outputs: Iterable[str]) -> None:
     non_air = sum(1 for s in voxels.values() if not is_air_state(s))
     bases = sorted({state_base(s) for s in voxels.values() if not is_air_state(s)})
     with open(path, "w", encoding="utf-8") as f:
         f.write(f"source: {source}\n")
         f.write(f"size (x,y,z): {size[0]}, {size[1]}, {size[2]}\n")
         f.write(f"voxels total: {len(voxels)}  non-air: {non_air}\n")
+        f.write(f"entities: {len(entities)}\n")
         f.write(f"unique block bases: {len(bases)}\n")
+        flags = list(flags)
+        if flags:
+            f.write("flags:\n")
+            for flag in flags:
+                f.write(f"  {flag}\n")
         f.write("outputs:\n")
         for o in outputs:
             f.write(f"  {os.path.relpath(o, REPO_ROOT)}\n")
@@ -1138,7 +1432,7 @@ _COLORS: Dict[str, Tuple[int, int, int]] = {}
 
 
 def render_one(path: str, out_root: str, args: argparse.Namespace) -> RenderResult:
-    size, voxels = read_voxels(path)
+    size, voxels, entities = read_voxels(path)
     stem = os.path.splitext(os.path.basename(path))[0]
     out_dir = os.path.join(out_root, stem)
     if not voxels:
@@ -1146,6 +1440,7 @@ def render_one(path: str, out_root: str, args: argparse.Namespace) -> RenderResu
         return RenderResult(1, path, stem, out_dir, "")
     os.makedirs(out_dir, exist_ok=True)
     outputs: List[str] = []
+    _overlays, flags = build_texture_overlays(voxels, entities, out_dir)
     viewer_path = ""
     if not args.iso_only and not args.viewer_only:
         outputs += render_slices(size, voxels, out_dir, args.scale, args.contact_only, args.max_px)
@@ -1155,10 +1450,10 @@ def render_one(path: str, out_root: str, args: argparse.Namespace) -> RenderResu
         legend_png, legend_txt = render_legend(voxels, out_dir)
         outputs += [legend_png, legend_txt]
     if not args.no_viewer and not args.iso_only and not args.slices_only:
-        viewer_path = render_interactive_html(size, voxels, out_dir, os.path.relpath(path, REPO_ROOT), stem)
+        viewer_path = render_interactive_html(size, voxels, entities, out_dir, os.path.relpath(path, REPO_ROOT), stem)
         outputs.append(viewer_path)
     info_path = os.path.join(out_dir, "info.txt")
-    write_info(info_path, os.path.relpath(path, REPO_ROOT), size, voxels, outputs)
+    write_info(info_path, os.path.relpath(path, REPO_ROOT), size, voxels, entities, flags, outputs)
     outputs.append(info_path)
     print(f"rendered {os.path.relpath(path, REPO_ROOT)} -> {os.path.relpath(out_dir, REPO_ROOT)}/ "
           f"({size[0]}x{size[1]}x{size[2]}, {len(voxels)} voxels)")
@@ -1225,7 +1520,7 @@ def main() -> int:
     index_path = render_preview_index(out_root, results)
     if index_path:
         print(f"preview index: {os.path.relpath(index_path, REPO_ROOT)}")
-        print(f"serve preview: python3 -m http.server 8765 --bind 127.0.0.1 --directory {os.path.relpath(out_root, REPO_ROOT)}")
+        print(f"serve preview: python3 -m http.server 8765 --bind 0.0.0.0 --directory {os.path.relpath(out_root, REPO_ROOT)}")
     print(f"done: {len(inputs)} structure(s) -> {os.path.relpath(out_root, REPO_ROOT)}/")
     return rc
 

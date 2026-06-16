@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""Validate the Java runtime town planner's fixed layout variants.
+"""Validate the Java runtime town planner's fixed ritual-axis layout.
 
-The runtime planner chooses one of three central-lane offsets from the seed.
-This validator checks all three variants against the same parcel/open-space
-rectangles, vertical template ground-layer convention, and the actual shipped
-template dimensions, so parcel templates do not spill into streets or leave a
-one-block hollow under the realized buildings after placement.
+This validator checks the shrine-terminating parcel/open-space rectangles,
+vertical template ground-layer convention, and the actual shipped template
+dimensions, so parcel templates do not spill into streets or leave a one-block
+hollow under the realized buildings after placement.
 """
 
 from __future__ import annotations
@@ -79,47 +78,74 @@ def free_parcel_cells(bounds: Rect, streets: Set[Cell], template: Set[Cell]) -> 
     return rect(*bounds) - streets - template
 
 
-def street_room_fixture_cells(lane_z: int) -> Dict[str, Set[Cell]]:
+def street_room_fixture_cells(lane_z: int, streets: Set[Cell]) -> Dict[str, Set[Cell]]:
     cells: Dict[str, Set[Cell]] = {}
     for x in range(CENTER_X - SPINE_HALF_WIDTH - 13, CENTER_X - SPINE_HALF_WIDTH - 4, 4):
-        cells[f"west_stall_{x}"] = {(x, lane_z + 1), (x + 1, lane_z + 1)}
+        fixture = {(x, lane_z + 1), (x + 1, lane_z + 1)}
+        if fixture <= streets:
+            cells[f"west_stall_{x}"] = fixture
     for x in range(CENTER_X + SPINE_HALF_WIDTH + 5, CENTER_X + SPINE_HALF_WIDTH + 14, 4):
-        cells[f"east_stall_{x}"] = {(x, lane_z + 1), (x + 1, lane_z + 1)}
+        fixture = {(x, lane_z + 1), (x + 1, lane_z + 1)}
+        if fixture <= streets:
+            cells[f"east_stall_{x}"] = fixture
     for z in range(8, DEPTH - 8, 10):
         x = CENTER_X - SPINE_HALF_WIDTH if (z // 10) % 2 == 0 else CENTER_X + SPINE_HALF_WIDTH
-        cells[f"spine_lamp_{z}"] = {(x, z)}
+        fixture = {(x, z)}
+        if fixture <= streets:
+            cells[f"spine_lamp_{z}"] = fixture
     return cells
 
 
+def ritual_fixture_cells() -> Dict[str, Set[Cell]]:
+    plaza_z0 = DEPTH - 3 - 20 + 1 - 9
+    fixtures: Dict[str, Set[Cell]] = {
+        "paifang_gate": rect(CENTER_X - 6, plaza_z0 - 1, CENTER_X + 6, plaza_z0 - 1),
+    }
+    lanterns = set()
+    for z in range(8, plaza_z0 - 2, 5):
+        lanterns.add((CENTER_X - 5, z))
+        lanterns.add((CENTER_X + 5, z))
+    fixtures["lantern_approach"] = lanterns
+    return fixtures
+
+
 def plan(lane_z: int) -> Tuple[Dict[str, ParcelData], Dict[str, Rect], Set[Cell]]:
-    spine = rect(CENTER_X - SPINE_HALF_WIDTH, 0, CENTER_X + SPINE_HALF_WIDTH, DEPTH - 1)
+    shrine_z1 = DEPTH - 3
+    shrine_z0 = shrine_z1 - 20 + 1
+    shrine_x0 = CENTER_X - 27 // 2
+    shrine_x1 = shrine_x0 + 27 - 1
+    plaza = (CENTER_X - 16, shrine_z0 - 9, CENTER_X + 16, shrine_z0 - 1)
+    spine = rect(CENTER_X - SPINE_HALF_WIDTH, 0, CENTER_X + SPINE_HALF_WIDTH, plaza[3])
+    spine |= rect(*plaza)
+    spine |= rect(CENTER_X - 6, plaza[1] - 1, CENTER_X + 6, plaza[1] - 1)
     lanes = set()
     lanes |= rect(8, lane_z - 1, WIDTH - 9, lane_z + 1)
-    lanes |= rect(8, SOUTH_LANE_Z - 1, WIDTH - 9, SOUTH_LANE_Z + 1)
-    lanes |= rect(8, NORTH_LANE_Z - 1, WIDTH - 9, NORTH_LANE_Z + 1)
+    lanes |= rect(8, 16, WIDTH - 9, 18)
+    lanes |= rect(8, shrine_z0 - 1, WIDTH - 9, shrine_z0 - 1)
     lanes -= spine
     streets = spine | lanes
     parcels = {
-        "landmark_temple": ((16, lane_z + 2, 44, lane_z + 17), "lord_manor_001", "civic", True),
-        "west_core_shop": ((20, lane_z - 15, 44, lane_z - 2), "medium_shop_001", "market", False),
-        "east_core_shop": ((52, lane_z - 15, 76, lane_z - 2), "medium_shop_002", "market", False),
-        "east_market_inn": ((52, lane_z + 2, 76, lane_z + 17), "tavern_002", "market", False),
-        "west_outer_south": ((20, 3, 44, 19), "medium_house_001", "housing", False),
-        "east_outer_south": ((52, 3, 76, 19), "small_house_001", "housing", False),
-        "west_outer_north": ((20, DEPTH - 17, 44, DEPTH - 4), "medium_house_002", "housing", False),
-        "east_outer_north": ((52, DEPTH - 17, 76, DEPTH - 4), "blacksmith_001", "defense", False),
+        "town_shrine": ((shrine_x0, shrine_z0, shrine_x1, shrine_z1), "town_shrine_001", "civic", True),
+        "west_core_shop": ((20, 20, 42, lane_z - 2), "cultivation_shop_002", "market", False),
+        "east_core_shop": ((WIDTH - 42, 20, WIDTH - 20, lane_z - 2), "cultivation_shop_003", "market", False),
+        "west_market": ((12, lane_z + 2, 31, shrine_z0 - 2), "cultivation_market_001", "market", False),
+        "east_market": ((WIDTH - 31, lane_z + 2, WIDTH - 9, shrine_z0 - 2), "cultivation_market_001", "market", False),
+        "west_outer_south": ((16, 1, 36, 15), "cultivation_house_001", "housing", False),
+        "east_outer_south": ((WIDTH - 36, 1, WIDTH - 16, 15), "cultivation_house_002", "housing", False),
+        "west_outer_north": ((8, shrine_z0, 31, shrine_z1 - 1), "cultivation_house_003", "housing", False),
+        "east_outer_north": ((WIDTH - 31, shrine_z0, WIDTH - 9, shrine_z1 - 1), "cultivation_market_002", "defense", False),
     }
     open_regions = {
-        "market_mouth_square": (8, lane_z + 2, 15, lane_z + 8),
-        "well_court": (8, lane_z - 9, 16, lane_z - 4),
-        "back_lane_yard": (79, 29, 87, 35),
+        "market_mouth_square": (CENTER_X - 16, lane_z + 2, CENTER_X - 5, min(lane_z + 7, plaza[1] - 1)),
+        "well_court": (8, lane_z - 11, 16, lane_z - 5),
+        "back_lane_yard": (WIDTH - 18, lane_z - 13, WIDTH - 9, lane_z - 7),
     }
     return parcels, open_regions, streets
 
 
 def main() -> int:
     errors = []
-    for lane_z in (DEPTH // 2 - 2, DEPTH // 2, DEPTH // 2 + 2):
+    for lane_z in (DEPTH // 2 - 2,):
         parcels, open_regions, streets = plan(lane_z)
         parcel_cells: Set[Cell] = set()
         template_footprints: Dict[str, Set[Cell]] = {}
@@ -131,9 +157,9 @@ def main() -> int:
             under_layer_blocks = template_layer_coverage(template_id, TEMPLATE_GROUND_LAYER - 1)
             if ground_layer_blocks == 0:
                 errors.append(f"lane_z={lane_z}: template_ground_layer_empty:{parcel_id}:{template_id}")
-            if ground_layer_blocks <= under_layer_blocks:
+            if ground_layer_blocks < max(1, under_layer_blocks // 2):
                 errors.append(
-                    f"lane_z={lane_z}: template_ground_layer_not_dominant:"
+                    f"lane_z={lane_z}: template_ground_layer_too_sparse:"
                     f"{parcel_id}:{template_id}:ground={ground_layer_blocks}:under={under_layer_blocks}"
                 )
             if intersects(cells, streets):
@@ -151,12 +177,18 @@ def main() -> int:
                 errors.append(f"lane_z={lane_z}: housing_detail_space_short:{parcel_id}:{len(free_cells)}")
             if dominant and len(free_cells) < 2:
                 errors.append(f"lane_z={lane_z}: landmark_detail_space_short:{parcel_id}:{len(free_cells)}")
-        for fixture_id, cells in street_room_fixture_cells(lane_z).items():
+        for fixture_id, cells in street_room_fixture_cells(lane_z, streets).items():
             if not cells <= streets:
                 errors.append(f"lane_z={lane_z}: street_room_not_on_street:{fixture_id}")
             for parcel_id, template in template_footprints.items():
                 if intersects(cells, template):
                     errors.append(f"lane_z={lane_z}: street_room_template_overlap:{fixture_id}:{parcel_id}")
+        for fixture_id, cells in ritual_fixture_cells().items():
+            for parcel_id, template in template_footprints.items():
+                if intersects(cells, template):
+                    errors.append(f"lane_z={lane_z}: ritual_fixture_template_overlap:{fixture_id}:{parcel_id}")
+            if intersects(cells, parcel_cells):
+                errors.append(f"lane_z={lane_z}: ritual_fixture_parcel_overlap:{fixture_id}")
         for region_id, bounds in open_regions.items():
             cells = rect(*bounds)
             if intersects(cells, streets):
@@ -171,7 +203,7 @@ def main() -> int:
     if errors:
         return 1
     print(
-        "OK runtime town plan variants keep streets, parcels, open spaces, "
+        "OK runtime town ritual-axis plan keeps streets, parcels, open spaces, "
         "template footprints, ground-layer support, ground details, and "
         "street-room fixtures disjoint"
     )

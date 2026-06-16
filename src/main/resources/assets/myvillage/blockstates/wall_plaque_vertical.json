@@ -1,0 +1,480 @@
+{
+  "variants": {
+    "facing=north,frame=town_shop_wood_3w,row=top,col=single": {
+      "model": "myvillage:block/plaque/wall/town_shop_wood_3w/top"
+    },
+    "facing=east,frame=town_shop_wood_3w,row=top,col=single": {
+      "model": "myvillage:block/plaque/wall/town_shop_wood_3w/top",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,frame=town_shop_wood_3w,row=top,col=single": {
+      "model": "myvillage:block/plaque/wall/town_shop_wood_3w/top",
+      "y": 180
+    },
+    "facing=west,frame=town_shop_wood_3w,row=top,col=single": {
+      "model": "myvillage:block/plaque/wall/town_shop_wood_3w/top",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,frame=town_shop_wood_3w,row=middle,col=single": {
+      "model": "myvillage:block/plaque/wall/town_shop_wood_3w/middle"
+    },
+    "facing=east,frame=town_shop_wood_3w,row=middle,col=single": {
+      "model": "myvillage:block/plaque/wall/town_shop_wood_3w/middle",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,frame=town_shop_wood_3w,row=middle,col=single": {
+      "model": "myvillage:block/plaque/wall/town_shop_wood_3w/middle",
+      "y": 180
+    },
+    "facing=west,frame=town_shop_wood_3w,row=middle,col=single": {
+      "model": "myvillage:block/plaque/wall/town_shop_wood_3w/middle",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,frame=town_shop_wood_3w,row=bottom,col=single": {
+      "model": "myvillage:block/plaque/wall/town_shop_wood_3w/bottom"
+    },
+    "facing=east,frame=town_shop_wood_3w,row=bottom,col=single": {
+      "model": "myvillage:block/plaque/wall/town_shop_wood_3w/bottom",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,frame=town_shop_wood_3w,row=bottom,col=single": {
+      "model": "myvillage:block/plaque/wall/town_shop_wood_3w/bottom",
+      "y": 180
+    },
+    "facing=west,frame=town_shop_wood_3w,row=bottom,col=single": {
+      "model": "myvillage:block/plaque/wall/town_shop_wood_3w/bottom",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,frame=town_inn_lacquered_4w,row=top,col=single": {
+      "model": "myvillage:block/plaque/wall/town_inn_lacquered_4w/top"
+    },
+    "facing=east,frame=town_inn_lacquered_4w,row=top,col=single": {
+      "model": "myvillage:block/plaque/wall/town_inn_lacquered_4w/top",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,frame=town_inn_lacquered_4w,row=top,col=single": {
+      "model": "myvillage:block/plaque/wall/town_inn_lacquered_4w/top",
+      "y": 180
+    },
+    "facing=west,frame=town_inn_lacquered_4w,row=top,col=single": {
+      "model": "myvillage:block/plaque/wall/town_inn_lacquered_4w/top",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,frame=town_inn_lacquered_4w,row=upper_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/town_inn_lacquered_4w/upper_middle"
+    },
+    "facing=east,frame=town_inn_lacquered_4w,row=upper_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/town_inn_lacquered_4w/upper_middle",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,frame=town_inn_lacquered_4w,row=upper_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/town_inn_lacquered_4w/upper_middle",
+      "y": 180
+    },
+    "facing=west,frame=town_inn_lacquered_4w,row=upper_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/town_inn_lacquered_4w/upper_middle",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,frame=town_inn_lacquered_4w,row=lower_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/town_inn_lacquered_4w/lower_middle"
+    },
+    "facing=east,frame=town_inn_lacquered_4w,row=lower_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/town_inn_lacquered_4w/lower_middle",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,frame=town_inn_lacquered_4w,row=lower_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/town_inn_lacquered_4w/lower_middle",
+      "y": 180
+    },
+    "facing=west,frame=town_inn_lacquered_4w,row=lower_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/town_inn_lacquered_4w/lower_middle",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,frame=town_inn_lacquered_4w,row=bottom,col=single": {
+      "model": "myvillage:block/plaque/wall/town_inn_lacquered_4w/bottom"
+    },
+    "facing=east,frame=town_inn_lacquered_4w,row=bottom,col=single": {
+      "model": "myvillage:block/plaque/wall/town_inn_lacquered_4w/bottom",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,frame=town_inn_lacquered_4w,row=bottom,col=single": {
+      "model": "myvillage:block/plaque/wall/town_inn_lacquered_4w/bottom",
+      "y": 180
+    },
+    "facing=west,frame=town_inn_lacquered_4w,row=bottom,col=single": {
+      "model": "myvillage:block/plaque/wall/town_inn_lacquered_4w/bottom",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,frame=town_inn_lacquered_4w,row=middle,col=single": {
+      "model": "myvillage:block/plaque/wall/town_inn_lacquered_4w/lower_middle"
+    },
+    "facing=east,frame=town_inn_lacquered_4w,row=middle,col=single": {
+      "model": "myvillage:block/plaque/wall/town_inn_lacquered_4w/lower_middle",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,frame=town_inn_lacquered_4w,row=middle,col=single": {
+      "model": "myvillage:block/plaque/wall/town_inn_lacquered_4w/lower_middle",
+      "y": 180
+    },
+    "facing=west,frame=town_inn_lacquered_4w,row=middle,col=single": {
+      "model": "myvillage:block/plaque/wall/town_inn_lacquered_4w/lower_middle",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,frame=tavern_signboard_4w,row=top,col=single": {
+      "model": "myvillage:block/plaque/wall/tavern_signboard_4w/top"
+    },
+    "facing=east,frame=tavern_signboard_4w,row=top,col=single": {
+      "model": "myvillage:block/plaque/wall/tavern_signboard_4w/top",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,frame=tavern_signboard_4w,row=top,col=single": {
+      "model": "myvillage:block/plaque/wall/tavern_signboard_4w/top",
+      "y": 180
+    },
+    "facing=west,frame=tavern_signboard_4w,row=top,col=single": {
+      "model": "myvillage:block/plaque/wall/tavern_signboard_4w/top",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,frame=tavern_signboard_4w,row=upper_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/tavern_signboard_4w/upper_middle"
+    },
+    "facing=east,frame=tavern_signboard_4w,row=upper_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/tavern_signboard_4w/upper_middle",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,frame=tavern_signboard_4w,row=upper_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/tavern_signboard_4w/upper_middle",
+      "y": 180
+    },
+    "facing=west,frame=tavern_signboard_4w,row=upper_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/tavern_signboard_4w/upper_middle",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,frame=tavern_signboard_4w,row=lower_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/tavern_signboard_4w/lower_middle"
+    },
+    "facing=east,frame=tavern_signboard_4w,row=lower_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/tavern_signboard_4w/lower_middle",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,frame=tavern_signboard_4w,row=lower_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/tavern_signboard_4w/lower_middle",
+      "y": 180
+    },
+    "facing=west,frame=tavern_signboard_4w,row=lower_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/tavern_signboard_4w/lower_middle",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,frame=tavern_signboard_4w,row=bottom,col=single": {
+      "model": "myvillage:block/plaque/wall/tavern_signboard_4w/bottom"
+    },
+    "facing=east,frame=tavern_signboard_4w,row=bottom,col=single": {
+      "model": "myvillage:block/plaque/wall/tavern_signboard_4w/bottom",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,frame=tavern_signboard_4w,row=bottom,col=single": {
+      "model": "myvillage:block/plaque/wall/tavern_signboard_4w/bottom",
+      "y": 180
+    },
+    "facing=west,frame=tavern_signboard_4w,row=bottom,col=single": {
+      "model": "myvillage:block/plaque/wall/tavern_signboard_4w/bottom",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,frame=tavern_signboard_4w,row=middle,col=single": {
+      "model": "myvillage:block/plaque/wall/tavern_signboard_4w/lower_middle"
+    },
+    "facing=east,frame=tavern_signboard_4w,row=middle,col=single": {
+      "model": "myvillage:block/plaque/wall/tavern_signboard_4w/lower_middle",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,frame=tavern_signboard_4w,row=middle,col=single": {
+      "model": "myvillage:block/plaque/wall/tavern_signboard_4w/lower_middle",
+      "y": 180
+    },
+    "facing=west,frame=tavern_signboard_4w,row=middle,col=single": {
+      "model": "myvillage:block/plaque/wall/tavern_signboard_4w/lower_middle",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,frame=sect_simple_pine_4w,row=top,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_simple_pine_4w/top"
+    },
+    "facing=east,frame=sect_simple_pine_4w,row=top,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_simple_pine_4w/top",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,frame=sect_simple_pine_4w,row=top,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_simple_pine_4w/top",
+      "y": 180
+    },
+    "facing=west,frame=sect_simple_pine_4w,row=top,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_simple_pine_4w/top",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,frame=sect_simple_pine_4w,row=upper_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_simple_pine_4w/upper_middle"
+    },
+    "facing=east,frame=sect_simple_pine_4w,row=upper_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_simple_pine_4w/upper_middle",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,frame=sect_simple_pine_4w,row=upper_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_simple_pine_4w/upper_middle",
+      "y": 180
+    },
+    "facing=west,frame=sect_simple_pine_4w,row=upper_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_simple_pine_4w/upper_middle",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,frame=sect_simple_pine_4w,row=lower_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_simple_pine_4w/lower_middle"
+    },
+    "facing=east,frame=sect_simple_pine_4w,row=lower_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_simple_pine_4w/lower_middle",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,frame=sect_simple_pine_4w,row=lower_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_simple_pine_4w/lower_middle",
+      "y": 180
+    },
+    "facing=west,frame=sect_simple_pine_4w,row=lower_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_simple_pine_4w/lower_middle",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,frame=sect_simple_pine_4w,row=bottom,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_simple_pine_4w/bottom"
+    },
+    "facing=east,frame=sect_simple_pine_4w,row=bottom,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_simple_pine_4w/bottom",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,frame=sect_simple_pine_4w,row=bottom,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_simple_pine_4w/bottom",
+      "y": 180
+    },
+    "facing=west,frame=sect_simple_pine_4w,row=bottom,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_simple_pine_4w/bottom",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,frame=sect_simple_pine_4w,row=middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_simple_pine_4w/lower_middle"
+    },
+    "facing=east,frame=sect_simple_pine_4w,row=middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_simple_pine_4w/lower_middle",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,frame=sect_simple_pine_4w,row=middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_simple_pine_4w/lower_middle",
+      "y": 180
+    },
+    "facing=west,frame=sect_simple_pine_4w,row=middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_simple_pine_4w/lower_middle",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,frame=sect_scripture_ornate_4w,row=top,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_scripture_ornate_4w/top"
+    },
+    "facing=east,frame=sect_scripture_ornate_4w,row=top,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_scripture_ornate_4w/top",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,frame=sect_scripture_ornate_4w,row=top,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_scripture_ornate_4w/top",
+      "y": 180
+    },
+    "facing=west,frame=sect_scripture_ornate_4w,row=top,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_scripture_ornate_4w/top",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,frame=sect_scripture_ornate_4w,row=upper_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_scripture_ornate_4w/upper_middle"
+    },
+    "facing=east,frame=sect_scripture_ornate_4w,row=upper_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_scripture_ornate_4w/upper_middle",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,frame=sect_scripture_ornate_4w,row=upper_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_scripture_ornate_4w/upper_middle",
+      "y": 180
+    },
+    "facing=west,frame=sect_scripture_ornate_4w,row=upper_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_scripture_ornate_4w/upper_middle",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,frame=sect_scripture_ornate_4w,row=lower_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_scripture_ornate_4w/lower_middle"
+    },
+    "facing=east,frame=sect_scripture_ornate_4w,row=lower_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_scripture_ornate_4w/lower_middle",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,frame=sect_scripture_ornate_4w,row=lower_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_scripture_ornate_4w/lower_middle",
+      "y": 180
+    },
+    "facing=west,frame=sect_scripture_ornate_4w,row=lower_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_scripture_ornate_4w/lower_middle",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,frame=sect_scripture_ornate_4w,row=bottom,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_scripture_ornate_4w/bottom"
+    },
+    "facing=east,frame=sect_scripture_ornate_4w,row=bottom,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_scripture_ornate_4w/bottom",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,frame=sect_scripture_ornate_4w,row=bottom,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_scripture_ornate_4w/bottom",
+      "y": 180
+    },
+    "facing=west,frame=sect_scripture_ornate_4w,row=bottom,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_scripture_ornate_4w/bottom",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,frame=sect_scripture_ornate_4w,row=middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_scripture_ornate_4w/lower_middle"
+    },
+    "facing=east,frame=sect_scripture_ornate_4w,row=middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_scripture_ornate_4w/lower_middle",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,frame=sect_scripture_ornate_4w,row=middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_scripture_ornate_4w/lower_middle",
+      "y": 180
+    },
+    "facing=west,frame=sect_scripture_ornate_4w,row=middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_scripture_ornate_4w/lower_middle",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,frame=sect_treasure_gilded_5w_2h,row=top,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_treasure_gilded_5w_2h/top"
+    },
+    "facing=east,frame=sect_treasure_gilded_5w_2h,row=top,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_treasure_gilded_5w_2h/top",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,frame=sect_treasure_gilded_5w_2h,row=top,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_treasure_gilded_5w_2h/top",
+      "y": 180
+    },
+    "facing=west,frame=sect_treasure_gilded_5w_2h,row=top,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_treasure_gilded_5w_2h/top",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,frame=sect_treasure_gilded_5w_2h,row=upper_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_treasure_gilded_5w_2h/upper_middle"
+    },
+    "facing=east,frame=sect_treasure_gilded_5w_2h,row=upper_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_treasure_gilded_5w_2h/upper_middle",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,frame=sect_treasure_gilded_5w_2h,row=upper_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_treasure_gilded_5w_2h/upper_middle",
+      "y": 180
+    },
+    "facing=west,frame=sect_treasure_gilded_5w_2h,row=upper_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_treasure_gilded_5w_2h/upper_middle",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,frame=sect_treasure_gilded_5w_2h,row=middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_treasure_gilded_5w_2h/middle"
+    },
+    "facing=east,frame=sect_treasure_gilded_5w_2h,row=middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_treasure_gilded_5w_2h/middle",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,frame=sect_treasure_gilded_5w_2h,row=middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_treasure_gilded_5w_2h/middle",
+      "y": 180
+    },
+    "facing=west,frame=sect_treasure_gilded_5w_2h,row=middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_treasure_gilded_5w_2h/middle",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,frame=sect_treasure_gilded_5w_2h,row=lower_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_treasure_gilded_5w_2h/lower_middle"
+    },
+    "facing=east,frame=sect_treasure_gilded_5w_2h,row=lower_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_treasure_gilded_5w_2h/lower_middle",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,frame=sect_treasure_gilded_5w_2h,row=lower_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_treasure_gilded_5w_2h/lower_middle",
+      "y": 180
+    },
+    "facing=west,frame=sect_treasure_gilded_5w_2h,row=lower_middle,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_treasure_gilded_5w_2h/lower_middle",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,frame=sect_treasure_gilded_5w_2h,row=bottom,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_treasure_gilded_5w_2h/bottom"
+    },
+    "facing=east,frame=sect_treasure_gilded_5w_2h,row=bottom,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_treasure_gilded_5w_2h/bottom",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,frame=sect_treasure_gilded_5w_2h,row=bottom,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_treasure_gilded_5w_2h/bottom",
+      "y": 180
+    },
+    "facing=west,frame=sect_treasure_gilded_5w_2h,row=bottom,col=single": {
+      "model": "myvillage:block/plaque/wall/sect_treasure_gilded_5w_2h/bottom",
+      "y": 270,
+      "uvlock": true
+    }
+  }
+}

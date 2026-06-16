@@ -1,0 +1,1450 @@
+{
+  "manifest": "tools/buildgen/plaque_frames.json",
+  "asset_count": 150,
+  "assets": [
+    {
+      "preset": "town_shop_wood_3w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "horizontal_full",
+      "role": "full_plaque_texture",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_shop_wood_3w/horizontal_full.png"
+    },
+    {
+      "preset": "town_shop_wood_3w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "single_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_shop_wood_3w/single_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_shop_wood_3w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/town_shop_wood_3w/single_left.json"
+    },
+    {
+      "preset": "town_shop_wood_3w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "single_center",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_shop_wood_3w/single_center.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_shop_wood_3w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/town_shop_wood_3w/single_center.json"
+    },
+    {
+      "preset": "town_shop_wood_3w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "single_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_shop_wood_3w/single_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_shop_wood_3w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/town_shop_wood_3w/single_right.json"
+    },
+    {
+      "preset": "town_shop_wood_3w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "horizontal_full",
+      "role": "full_plaque_texture",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_shop_wood_3w/horizontal_full.png"
+    },
+    {
+      "preset": "town_shop_wood_3w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "single_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_shop_wood_3w/single_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_shop_wood_3w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/town_shop_wood_3w/single_left.json"
+    },
+    {
+      "preset": "town_shop_wood_3w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "single_center",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_shop_wood_3w/single_center.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_shop_wood_3w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/town_shop_wood_3w/single_center.json"
+    },
+    {
+      "preset": "town_shop_wood_3w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "single_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_shop_wood_3w/single_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_shop_wood_3w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/town_shop_wood_3w/single_right.json"
+    },
+    {
+      "preset": "town_shop_wood_3w",
+      "mount": "wall",
+      "orientation": "vertical",
+      "part": "vertical_full",
+      "role": "full_plaque_texture",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_shop_wood_3w/vertical_full.png"
+    },
+    {
+      "preset": "town_shop_wood_3w",
+      "mount": "wall",
+      "orientation": "vertical",
+      "part": "top",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_shop_wood_3w/top.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_shop_wood_3w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/town_shop_wood_3w/top.json"
+    },
+    {
+      "preset": "town_shop_wood_3w",
+      "mount": "wall",
+      "orientation": "vertical",
+      "part": "middle",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_shop_wood_3w/middle.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_shop_wood_3w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/town_shop_wood_3w/middle.json"
+    },
+    {
+      "preset": "town_shop_wood_3w",
+      "mount": "wall",
+      "orientation": "vertical",
+      "part": "bottom",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_shop_wood_3w/bottom.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_shop_wood_3w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/town_shop_wood_3w/bottom.json"
+    },
+    {
+      "preset": "town_shop_wood_3w",
+      "mount": "hanging",
+      "orientation": "vertical",
+      "part": "vertical_full",
+      "role": "full_plaque_texture",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_shop_wood_3w/vertical_full.png"
+    },
+    {
+      "preset": "town_shop_wood_3w",
+      "mount": "hanging",
+      "orientation": "vertical",
+      "part": "top",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_shop_wood_3w/top.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_shop_wood_3w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/town_shop_wood_3w/top.json"
+    },
+    {
+      "preset": "town_shop_wood_3w",
+      "mount": "hanging",
+      "orientation": "vertical",
+      "part": "middle",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_shop_wood_3w/middle.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_shop_wood_3w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/town_shop_wood_3w/middle.json"
+    },
+    {
+      "preset": "town_shop_wood_3w",
+      "mount": "hanging",
+      "orientation": "vertical",
+      "part": "bottom",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_shop_wood_3w/bottom.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_shop_wood_3w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/town_shop_wood_3w/bottom.json"
+    },
+    {
+      "preset": "town_inn_lacquered_4w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "horizontal_full",
+      "role": "full_plaque_texture",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_inn_lacquered_4w/horizontal_full.png"
+    },
+    {
+      "preset": "town_inn_lacquered_4w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "single_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_inn_lacquered_4w/single_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_inn_lacquered_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/town_inn_lacquered_4w/single_left.json"
+    },
+    {
+      "preset": "town_inn_lacquered_4w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "single_inner_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_inn_lacquered_4w/single_inner_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_inn_lacquered_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/town_inn_lacquered_4w/single_inner_left.json"
+    },
+    {
+      "preset": "town_inn_lacquered_4w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "single_inner_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_inn_lacquered_4w/single_inner_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_inn_lacquered_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/town_inn_lacquered_4w/single_inner_right.json"
+    },
+    {
+      "preset": "town_inn_lacquered_4w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "single_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_inn_lacquered_4w/single_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_inn_lacquered_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/town_inn_lacquered_4w/single_right.json"
+    },
+    {
+      "preset": "town_inn_lacquered_4w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "horizontal_full",
+      "role": "full_plaque_texture",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_inn_lacquered_4w/horizontal_full.png"
+    },
+    {
+      "preset": "town_inn_lacquered_4w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "single_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_inn_lacquered_4w/single_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_inn_lacquered_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/town_inn_lacquered_4w/single_left.json"
+    },
+    {
+      "preset": "town_inn_lacquered_4w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "single_inner_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_inn_lacquered_4w/single_inner_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_inn_lacquered_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/town_inn_lacquered_4w/single_inner_left.json"
+    },
+    {
+      "preset": "town_inn_lacquered_4w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "single_inner_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_inn_lacquered_4w/single_inner_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_inn_lacquered_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/town_inn_lacquered_4w/single_inner_right.json"
+    },
+    {
+      "preset": "town_inn_lacquered_4w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "single_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_inn_lacquered_4w/single_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_inn_lacquered_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/town_inn_lacquered_4w/single_right.json"
+    },
+    {
+      "preset": "town_inn_lacquered_4w",
+      "mount": "wall",
+      "orientation": "vertical",
+      "part": "vertical_full",
+      "role": "full_plaque_texture",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_inn_lacquered_4w/vertical_full.png"
+    },
+    {
+      "preset": "town_inn_lacquered_4w",
+      "mount": "wall",
+      "orientation": "vertical",
+      "part": "top",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_inn_lacquered_4w/top.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_inn_lacquered_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/town_inn_lacquered_4w/top.json"
+    },
+    {
+      "preset": "town_inn_lacquered_4w",
+      "mount": "wall",
+      "orientation": "vertical",
+      "part": "upper_middle",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_inn_lacquered_4w/upper_middle.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_inn_lacquered_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/town_inn_lacquered_4w/upper_middle.json"
+    },
+    {
+      "preset": "town_inn_lacquered_4w",
+      "mount": "wall",
+      "orientation": "vertical",
+      "part": "lower_middle",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_inn_lacquered_4w/lower_middle.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_inn_lacquered_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/town_inn_lacquered_4w/lower_middle.json"
+    },
+    {
+      "preset": "town_inn_lacquered_4w",
+      "mount": "wall",
+      "orientation": "vertical",
+      "part": "bottom",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_inn_lacquered_4w/bottom.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_inn_lacquered_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/town_inn_lacquered_4w/bottom.json"
+    },
+    {
+      "preset": "town_inn_lacquered_4w",
+      "mount": "hanging",
+      "orientation": "vertical",
+      "part": "vertical_full",
+      "role": "full_plaque_texture",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_inn_lacquered_4w/vertical_full.png"
+    },
+    {
+      "preset": "town_inn_lacquered_4w",
+      "mount": "hanging",
+      "orientation": "vertical",
+      "part": "top",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_inn_lacquered_4w/top.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_inn_lacquered_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/town_inn_lacquered_4w/top.json"
+    },
+    {
+      "preset": "town_inn_lacquered_4w",
+      "mount": "hanging",
+      "orientation": "vertical",
+      "part": "upper_middle",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_inn_lacquered_4w/upper_middle.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_inn_lacquered_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/town_inn_lacquered_4w/upper_middle.json"
+    },
+    {
+      "preset": "town_inn_lacquered_4w",
+      "mount": "hanging",
+      "orientation": "vertical",
+      "part": "lower_middle",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_inn_lacquered_4w/lower_middle.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_inn_lacquered_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/town_inn_lacquered_4w/lower_middle.json"
+    },
+    {
+      "preset": "town_inn_lacquered_4w",
+      "mount": "hanging",
+      "orientation": "vertical",
+      "part": "bottom",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_inn_lacquered_4w/bottom.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_inn_lacquered_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/town_inn_lacquered_4w/bottom.json"
+    },
+    {
+      "preset": "town_notice_board_3w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "horizontal_full",
+      "role": "full_plaque_texture",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_notice_board_3w/horizontal_full.png"
+    },
+    {
+      "preset": "town_notice_board_3w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "single_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_notice_board_3w/single_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_notice_board_3w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/town_notice_board_3w/single_left.json"
+    },
+    {
+      "preset": "town_notice_board_3w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "single_center",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_notice_board_3w/single_center.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_notice_board_3w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/town_notice_board_3w/single_center.json"
+    },
+    {
+      "preset": "town_notice_board_3w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "single_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_notice_board_3w/single_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_notice_board_3w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/town_notice_board_3w/single_right.json"
+    },
+    {
+      "preset": "town_notice_board_3w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "horizontal_full",
+      "role": "full_plaque_texture",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_notice_board_3w/horizontal_full.png"
+    },
+    {
+      "preset": "town_notice_board_3w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "single_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_notice_board_3w/single_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_notice_board_3w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/town_notice_board_3w/single_left.json"
+    },
+    {
+      "preset": "town_notice_board_3w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "single_center",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_notice_board_3w/single_center.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_notice_board_3w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/town_notice_board_3w/single_center.json"
+    },
+    {
+      "preset": "town_notice_board_3w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "single_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_notice_board_3w/single_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_notice_board_3w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/town_notice_board_3w/single_right.json"
+    },
+    {
+      "preset": "tavern_signboard_4w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "horizontal_full",
+      "role": "full_plaque_texture",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/tavern_signboard_4w/horizontal_full.png"
+    },
+    {
+      "preset": "tavern_signboard_4w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "single_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/tavern_signboard_4w/single_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/tavern_signboard_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/tavern_signboard_4w/single_left.json"
+    },
+    {
+      "preset": "tavern_signboard_4w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "single_inner_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/tavern_signboard_4w/single_inner_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/tavern_signboard_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/tavern_signboard_4w/single_inner_left.json"
+    },
+    {
+      "preset": "tavern_signboard_4w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "single_inner_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/tavern_signboard_4w/single_inner_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/tavern_signboard_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/tavern_signboard_4w/single_inner_right.json"
+    },
+    {
+      "preset": "tavern_signboard_4w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "single_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/tavern_signboard_4w/single_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/tavern_signboard_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/tavern_signboard_4w/single_right.json"
+    },
+    {
+      "preset": "tavern_signboard_4w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "horizontal_full",
+      "role": "full_plaque_texture",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/tavern_signboard_4w/horizontal_full.png"
+    },
+    {
+      "preset": "tavern_signboard_4w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "single_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/tavern_signboard_4w/single_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/tavern_signboard_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/tavern_signboard_4w/single_left.json"
+    },
+    {
+      "preset": "tavern_signboard_4w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "single_inner_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/tavern_signboard_4w/single_inner_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/tavern_signboard_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/tavern_signboard_4w/single_inner_left.json"
+    },
+    {
+      "preset": "tavern_signboard_4w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "single_inner_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/tavern_signboard_4w/single_inner_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/tavern_signboard_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/tavern_signboard_4w/single_inner_right.json"
+    },
+    {
+      "preset": "tavern_signboard_4w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "single_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/tavern_signboard_4w/single_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/tavern_signboard_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/tavern_signboard_4w/single_right.json"
+    },
+    {
+      "preset": "tavern_signboard_4w",
+      "mount": "wall",
+      "orientation": "vertical",
+      "part": "vertical_full",
+      "role": "full_plaque_texture",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/tavern_signboard_4w/vertical_full.png"
+    },
+    {
+      "preset": "tavern_signboard_4w",
+      "mount": "wall",
+      "orientation": "vertical",
+      "part": "top",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/tavern_signboard_4w/top.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/tavern_signboard_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/tavern_signboard_4w/top.json"
+    },
+    {
+      "preset": "tavern_signboard_4w",
+      "mount": "wall",
+      "orientation": "vertical",
+      "part": "upper_middle",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/tavern_signboard_4w/upper_middle.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/tavern_signboard_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/tavern_signboard_4w/upper_middle.json"
+    },
+    {
+      "preset": "tavern_signboard_4w",
+      "mount": "wall",
+      "orientation": "vertical",
+      "part": "lower_middle",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/tavern_signboard_4w/lower_middle.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/tavern_signboard_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/tavern_signboard_4w/lower_middle.json"
+    },
+    {
+      "preset": "tavern_signboard_4w",
+      "mount": "wall",
+      "orientation": "vertical",
+      "part": "bottom",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/tavern_signboard_4w/bottom.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/tavern_signboard_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/tavern_signboard_4w/bottom.json"
+    },
+    {
+      "preset": "tavern_signboard_4w",
+      "mount": "hanging",
+      "orientation": "vertical",
+      "part": "vertical_full",
+      "role": "full_plaque_texture",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/tavern_signboard_4w/vertical_full.png"
+    },
+    {
+      "preset": "tavern_signboard_4w",
+      "mount": "hanging",
+      "orientation": "vertical",
+      "part": "top",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/tavern_signboard_4w/top.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/tavern_signboard_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/tavern_signboard_4w/top.json"
+    },
+    {
+      "preset": "tavern_signboard_4w",
+      "mount": "hanging",
+      "orientation": "vertical",
+      "part": "upper_middle",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/tavern_signboard_4w/upper_middle.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/tavern_signboard_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/tavern_signboard_4w/upper_middle.json"
+    },
+    {
+      "preset": "tavern_signboard_4w",
+      "mount": "hanging",
+      "orientation": "vertical",
+      "part": "lower_middle",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/tavern_signboard_4w/lower_middle.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/tavern_signboard_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/tavern_signboard_4w/lower_middle.json"
+    },
+    {
+      "preset": "tavern_signboard_4w",
+      "mount": "hanging",
+      "orientation": "vertical",
+      "part": "bottom",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/tavern_signboard_4w/bottom.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/tavern_signboard_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/tavern_signboard_4w/bottom.json"
+    },
+    {
+      "preset": "sect_simple_pine_4w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "horizontal_full",
+      "role": "full_plaque_texture",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_simple_pine_4w/horizontal_full.png"
+    },
+    {
+      "preset": "sect_simple_pine_4w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "single_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_simple_pine_4w/single_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_simple_pine_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/sect_simple_pine_4w/single_left.json"
+    },
+    {
+      "preset": "sect_simple_pine_4w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "single_inner_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_simple_pine_4w/single_inner_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_simple_pine_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/sect_simple_pine_4w/single_inner_left.json"
+    },
+    {
+      "preset": "sect_simple_pine_4w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "single_inner_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_simple_pine_4w/single_inner_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_simple_pine_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/sect_simple_pine_4w/single_inner_right.json"
+    },
+    {
+      "preset": "sect_simple_pine_4w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "single_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_simple_pine_4w/single_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_simple_pine_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/sect_simple_pine_4w/single_right.json"
+    },
+    {
+      "preset": "sect_simple_pine_4w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "horizontal_full",
+      "role": "full_plaque_texture",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_simple_pine_4w/horizontal_full.png"
+    },
+    {
+      "preset": "sect_simple_pine_4w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "single_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_simple_pine_4w/single_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_simple_pine_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/sect_simple_pine_4w/single_left.json"
+    },
+    {
+      "preset": "sect_simple_pine_4w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "single_inner_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_simple_pine_4w/single_inner_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_simple_pine_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/sect_simple_pine_4w/single_inner_left.json"
+    },
+    {
+      "preset": "sect_simple_pine_4w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "single_inner_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_simple_pine_4w/single_inner_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_simple_pine_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/sect_simple_pine_4w/single_inner_right.json"
+    },
+    {
+      "preset": "sect_simple_pine_4w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "single_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_simple_pine_4w/single_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_simple_pine_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/sect_simple_pine_4w/single_right.json"
+    },
+    {
+      "preset": "sect_simple_pine_4w",
+      "mount": "wall",
+      "orientation": "vertical",
+      "part": "vertical_full",
+      "role": "full_plaque_texture",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_simple_pine_4w/vertical_full.png"
+    },
+    {
+      "preset": "sect_simple_pine_4w",
+      "mount": "wall",
+      "orientation": "vertical",
+      "part": "top",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_simple_pine_4w/top.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_simple_pine_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/sect_simple_pine_4w/top.json"
+    },
+    {
+      "preset": "sect_simple_pine_4w",
+      "mount": "wall",
+      "orientation": "vertical",
+      "part": "upper_middle",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_simple_pine_4w/upper_middle.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_simple_pine_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/sect_simple_pine_4w/upper_middle.json"
+    },
+    {
+      "preset": "sect_simple_pine_4w",
+      "mount": "wall",
+      "orientation": "vertical",
+      "part": "lower_middle",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_simple_pine_4w/lower_middle.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_simple_pine_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/sect_simple_pine_4w/lower_middle.json"
+    },
+    {
+      "preset": "sect_simple_pine_4w",
+      "mount": "wall",
+      "orientation": "vertical",
+      "part": "bottom",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_simple_pine_4w/bottom.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_simple_pine_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/sect_simple_pine_4w/bottom.json"
+    },
+    {
+      "preset": "sect_simple_pine_4w",
+      "mount": "hanging",
+      "orientation": "vertical",
+      "part": "vertical_full",
+      "role": "full_plaque_texture",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_simple_pine_4w/vertical_full.png"
+    },
+    {
+      "preset": "sect_simple_pine_4w",
+      "mount": "hanging",
+      "orientation": "vertical",
+      "part": "top",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_simple_pine_4w/top.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_simple_pine_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/sect_simple_pine_4w/top.json"
+    },
+    {
+      "preset": "sect_simple_pine_4w",
+      "mount": "hanging",
+      "orientation": "vertical",
+      "part": "upper_middle",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_simple_pine_4w/upper_middle.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_simple_pine_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/sect_simple_pine_4w/upper_middle.json"
+    },
+    {
+      "preset": "sect_simple_pine_4w",
+      "mount": "hanging",
+      "orientation": "vertical",
+      "part": "lower_middle",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_simple_pine_4w/lower_middle.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_simple_pine_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/sect_simple_pine_4w/lower_middle.json"
+    },
+    {
+      "preset": "sect_simple_pine_4w",
+      "mount": "hanging",
+      "orientation": "vertical",
+      "part": "bottom",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_simple_pine_4w/bottom.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_simple_pine_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/sect_simple_pine_4w/bottom.json"
+    },
+    {
+      "preset": "sect_scripture_ornate_4w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "horizontal_full",
+      "role": "full_plaque_texture",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_scripture_ornate_4w/horizontal_full.png"
+    },
+    {
+      "preset": "sect_scripture_ornate_4w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "single_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_scripture_ornate_4w/single_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_scripture_ornate_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/sect_scripture_ornate_4w/single_left.json"
+    },
+    {
+      "preset": "sect_scripture_ornate_4w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "single_inner_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_scripture_ornate_4w/single_inner_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_scripture_ornate_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/sect_scripture_ornate_4w/single_inner_left.json"
+    },
+    {
+      "preset": "sect_scripture_ornate_4w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "single_inner_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_scripture_ornate_4w/single_inner_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_scripture_ornate_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/sect_scripture_ornate_4w/single_inner_right.json"
+    },
+    {
+      "preset": "sect_scripture_ornate_4w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "single_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_scripture_ornate_4w/single_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_scripture_ornate_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/sect_scripture_ornate_4w/single_right.json"
+    },
+    {
+      "preset": "sect_scripture_ornate_4w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "horizontal_full",
+      "role": "full_plaque_texture",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_scripture_ornate_4w/horizontal_full.png"
+    },
+    {
+      "preset": "sect_scripture_ornate_4w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "single_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_scripture_ornate_4w/single_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_scripture_ornate_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/sect_scripture_ornate_4w/single_left.json"
+    },
+    {
+      "preset": "sect_scripture_ornate_4w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "single_inner_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_scripture_ornate_4w/single_inner_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_scripture_ornate_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/sect_scripture_ornate_4w/single_inner_left.json"
+    },
+    {
+      "preset": "sect_scripture_ornate_4w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "single_inner_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_scripture_ornate_4w/single_inner_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_scripture_ornate_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/sect_scripture_ornate_4w/single_inner_right.json"
+    },
+    {
+      "preset": "sect_scripture_ornate_4w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "single_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_scripture_ornate_4w/single_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_scripture_ornate_4w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/sect_scripture_ornate_4w/single_right.json"
+    },
+    {
+      "preset": "sect_scripture_ornate_4w",
+      "mount": "wall",
+      "orientation": "vertical",
+      "part": "vertical_full",
+      "role": "full_plaque_texture",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_scripture_ornate_4w/vertical_full.png"
+    },
+    {
+      "preset": "sect_scripture_ornate_4w",
+      "mount": "wall",
+      "orientation": "vertical",
+      "part": "top",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_scripture_ornate_4w/top.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_scripture_ornate_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/sect_scripture_ornate_4w/top.json"
+    },
+    {
+      "preset": "sect_scripture_ornate_4w",
+      "mount": "wall",
+      "orientation": "vertical",
+      "part": "upper_middle",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_scripture_ornate_4w/upper_middle.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_scripture_ornate_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/sect_scripture_ornate_4w/upper_middle.json"
+    },
+    {
+      "preset": "sect_scripture_ornate_4w",
+      "mount": "wall",
+      "orientation": "vertical",
+      "part": "lower_middle",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_scripture_ornate_4w/lower_middle.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_scripture_ornate_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/sect_scripture_ornate_4w/lower_middle.json"
+    },
+    {
+      "preset": "sect_scripture_ornate_4w",
+      "mount": "wall",
+      "orientation": "vertical",
+      "part": "bottom",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_scripture_ornate_4w/bottom.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_scripture_ornate_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/sect_scripture_ornate_4w/bottom.json"
+    },
+    {
+      "preset": "sect_scripture_ornate_4w",
+      "mount": "hanging",
+      "orientation": "vertical",
+      "part": "vertical_full",
+      "role": "full_plaque_texture",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_scripture_ornate_4w/vertical_full.png"
+    },
+    {
+      "preset": "sect_scripture_ornate_4w",
+      "mount": "hanging",
+      "orientation": "vertical",
+      "part": "top",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_scripture_ornate_4w/top.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_scripture_ornate_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/sect_scripture_ornate_4w/top.json"
+    },
+    {
+      "preset": "sect_scripture_ornate_4w",
+      "mount": "hanging",
+      "orientation": "vertical",
+      "part": "upper_middle",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_scripture_ornate_4w/upper_middle.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_scripture_ornate_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/sect_scripture_ornate_4w/upper_middle.json"
+    },
+    {
+      "preset": "sect_scripture_ornate_4w",
+      "mount": "hanging",
+      "orientation": "vertical",
+      "part": "lower_middle",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_scripture_ornate_4w/lower_middle.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_scripture_ornate_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/sect_scripture_ornate_4w/lower_middle.json"
+    },
+    {
+      "preset": "sect_scripture_ornate_4w",
+      "mount": "hanging",
+      "orientation": "vertical",
+      "part": "bottom",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_scripture_ornate_4w/bottom.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_scripture_ornate_4w/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/sect_scripture_ornate_4w/bottom.json"
+    },
+    {
+      "preset": "lord_manor_heraldry_5w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "horizontal_full",
+      "role": "full_plaque_texture",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/lord_manor_heraldry_5w/horizontal_full.png"
+    },
+    {
+      "preset": "lord_manor_heraldry_5w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "single_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/lord_manor_heraldry_5w/single_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/lord_manor_heraldry_5w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/lord_manor_heraldry_5w/single_left.json"
+    },
+    {
+      "preset": "lord_manor_heraldry_5w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "single_inner_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/lord_manor_heraldry_5w/single_inner_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/lord_manor_heraldry_5w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/lord_manor_heraldry_5w/single_inner_left.json"
+    },
+    {
+      "preset": "lord_manor_heraldry_5w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "single_center",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/lord_manor_heraldry_5w/single_center.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/lord_manor_heraldry_5w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/lord_manor_heraldry_5w/single_center.json"
+    },
+    {
+      "preset": "lord_manor_heraldry_5w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "single_inner_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/lord_manor_heraldry_5w/single_inner_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/lord_manor_heraldry_5w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/lord_manor_heraldry_5w/single_inner_right.json"
+    },
+    {
+      "preset": "lord_manor_heraldry_5w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "single_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/lord_manor_heraldry_5w/single_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/lord_manor_heraldry_5w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/lord_manor_heraldry_5w/single_right.json"
+    },
+    {
+      "preset": "lord_manor_heraldry_5w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "horizontal_full",
+      "role": "full_plaque_texture",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/lord_manor_heraldry_5w/horizontal_full.png"
+    },
+    {
+      "preset": "lord_manor_heraldry_5w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "single_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/lord_manor_heraldry_5w/single_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/lord_manor_heraldry_5w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/lord_manor_heraldry_5w/single_left.json"
+    },
+    {
+      "preset": "lord_manor_heraldry_5w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "single_inner_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/lord_manor_heraldry_5w/single_inner_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/lord_manor_heraldry_5w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/lord_manor_heraldry_5w/single_inner_left.json"
+    },
+    {
+      "preset": "lord_manor_heraldry_5w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "single_center",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/lord_manor_heraldry_5w/single_center.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/lord_manor_heraldry_5w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/lord_manor_heraldry_5w/single_center.json"
+    },
+    {
+      "preset": "lord_manor_heraldry_5w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "single_inner_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/lord_manor_heraldry_5w/single_inner_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/lord_manor_heraldry_5w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/lord_manor_heraldry_5w/single_inner_right.json"
+    },
+    {
+      "preset": "lord_manor_heraldry_5w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "single_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/lord_manor_heraldry_5w/single_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/lord_manor_heraldry_5w/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/lord_manor_heraldry_5w/single_right.json"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "horizontal_full",
+      "role": "full_plaque_texture",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/horizontal_full.png"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "top_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/top_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/sect_treasure_gilded_5w_2h/top_left.json"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "top_inner_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/top_inner_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/sect_treasure_gilded_5w_2h/top_inner_left.json"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "top_center",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/top_center.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/sect_treasure_gilded_5w_2h/top_center.json"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "top_inner_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/top_inner_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/sect_treasure_gilded_5w_2h/top_inner_right.json"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "top_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/top_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/sect_treasure_gilded_5w_2h/top_right.json"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "bottom_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/bottom_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/sect_treasure_gilded_5w_2h/bottom_left.json"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "bottom_inner_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/bottom_inner_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/sect_treasure_gilded_5w_2h/bottom_inner_left.json"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "bottom_center",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/bottom_center.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/sect_treasure_gilded_5w_2h/bottom_center.json"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "bottom_inner_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/bottom_inner_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/sect_treasure_gilded_5w_2h/bottom_inner_right.json"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "part": "bottom_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/bottom_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/sect_treasure_gilded_5w_2h/bottom_right.json"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "horizontal_full",
+      "role": "full_plaque_texture",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/horizontal_full.png"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "top_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/top_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/sect_treasure_gilded_5w_2h/top_left.json"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "top_inner_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/top_inner_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/sect_treasure_gilded_5w_2h/top_inner_left.json"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "top_center",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/top_center.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/sect_treasure_gilded_5w_2h/top_center.json"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "top_inner_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/top_inner_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/sect_treasure_gilded_5w_2h/top_inner_right.json"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "top_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/top_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/sect_treasure_gilded_5w_2h/top_right.json"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "bottom_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/bottom_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/sect_treasure_gilded_5w_2h/bottom_left.json"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "bottom_inner_left",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/bottom_inner_left.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/sect_treasure_gilded_5w_2h/bottom_inner_left.json"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "bottom_center",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/bottom_center.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/sect_treasure_gilded_5w_2h/bottom_center.json"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "bottom_inner_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/bottom_inner_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/sect_treasure_gilded_5w_2h/bottom_inner_right.json"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "part": "bottom_right",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/bottom_right.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/horizontal_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/sect_treasure_gilded_5w_2h/bottom_right.json"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "wall",
+      "orientation": "vertical",
+      "part": "vertical_full",
+      "role": "full_plaque_texture",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/vertical_full.png"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "wall",
+      "orientation": "vertical",
+      "part": "top",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/top.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/sect_treasure_gilded_5w_2h/top.json"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "wall",
+      "orientation": "vertical",
+      "part": "upper_middle",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/upper_middle.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/sect_treasure_gilded_5w_2h/upper_middle.json"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "wall",
+      "orientation": "vertical",
+      "part": "middle",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/middle.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/sect_treasure_gilded_5w_2h/middle.json"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "wall",
+      "orientation": "vertical",
+      "part": "lower_middle",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/lower_middle.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/sect_treasure_gilded_5w_2h/lower_middle.json"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "wall",
+      "orientation": "vertical",
+      "part": "bottom",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/bottom.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/wall/sect_treasure_gilded_5w_2h/bottom.json"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "hanging",
+      "orientation": "vertical",
+      "part": "vertical_full",
+      "role": "full_plaque_texture",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/vertical_full.png"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "hanging",
+      "orientation": "vertical",
+      "part": "top",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/top.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/sect_treasure_gilded_5w_2h/top.json"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "hanging",
+      "orientation": "vertical",
+      "part": "upper_middle",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/upper_middle.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/sect_treasure_gilded_5w_2h/upper_middle.json"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "hanging",
+      "orientation": "vertical",
+      "part": "middle",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/middle.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/sect_treasure_gilded_5w_2h/middle.json"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "hanging",
+      "orientation": "vertical",
+      "part": "lower_middle",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/lower_middle.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/sect_treasure_gilded_5w_2h/lower_middle.json"
+    },
+    {
+      "preset": "sect_treasure_gilded_5w_2h",
+      "mount": "hanging",
+      "orientation": "vertical",
+      "part": "bottom",
+      "role": "edge_texture_and_model",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/bottom.png",
+      "plaque_texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/vertical_full.png",
+      "model": "src/main/resources/assets/myvillage/models/block/plaque/hanging/sect_treasure_gilded_5w_2h/bottom.json"
+    }
+  ]
+}

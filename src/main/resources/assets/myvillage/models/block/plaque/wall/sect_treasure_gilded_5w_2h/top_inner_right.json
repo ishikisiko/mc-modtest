@@ -1,0 +1,78 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "myvillage:block/plaque/wall/sect_treasure_gilded_5w_2h/top_inner_right",
+    "plaque": "myvillage:block/plaque/wall/sect_treasure_gilded_5w_2h/horizontal_full",
+    "edge": "myvillage:block/plaque/wall/sect_treasure_gilded_5w_2h/top_inner_right"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        15
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#plaque",
+          "uv": [
+            9.6,
+            0.0,
+            12.8,
+            8.0
+          ]
+        },
+        "south": {
+          "texture": "#plaque",
+          "uv": [
+            12.8,
+            0.0,
+            9.6,
+            8.0
+          ]
+        },
+        "up": {
+          "texture": "#edge",
+          "uv": [
+            0,
+            0,
+            16,
+            1
+          ]
+        },
+        "down": {
+          "texture": "#edge",
+          "uv": [
+            0,
+            15,
+            16,
+            16
+          ]
+        },
+        "east": {
+          "texture": "#edge",
+          "uv": [
+            15,
+            0,
+            16,
+            16
+          ]
+        },
+        "west": {
+          "texture": "#edge",
+          "uv": [
+            0,
+            0,
+            1,
+            16
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -71,7 +71,7 @@ The NeoForge mod SHALL expose debug commands for staged manual acceptance: `/myv
 - **AND** `/myvillage gallery cultivation` SHALL place only cultivation template groups.
 
 ### Requirement: Canonical mod generation includes smoke test and libraries
-The canonical mod generation entrypoint SHALL generate `test_house_03.nbt` from the hand-authored Structure JSON DSL, the generated building library, the generated Chinese courtyard compound library, the generated civic library, the cultivation town block library, the cultivation sect building library, and the cultivation sect compound library into `src/main/resources/data/myvillage/structure/`.
+The canonical mod generation entrypoint SHALL generate `test_house_03.nbt` from the hand-authored Structure JSON DSL, the generated building library, the generated Chinese courtyard compound library, the generated civic library, the cultivation town building library, the cultivation town block library, the cultivation sect building library, and the cultivation sect compound library into `src/main/resources/data/myvillage/structure/`.
 
 #### Scenario: `generate_all_structures.py` runs with default arguments
 - **WHEN** generation succeeds
@@ -79,7 +79,9 @@ The canonical mod generation entrypoint SHALL generate `test_house_03.nbt` from 
 - **AND** it SHALL contain generated `small_house`, `medium_house`, `blacksmith`, shop, and big-house library NBTs
 - **AND** it SHALL contain `main_hall_review.nbt`, `side_wing_review.nbt`, `front_row_review.nbt`, and six `chinese_courtyard_*.nbt` compound structures
 - **AND** it SHALL contain `tavern_001.nbt` through `tavern_005.nbt` and `lord_manor_001.nbt` through `lord_manor_003.nbt`
-- **AND** it SHALL contain `cultivation_town_001.nbt` through `cultivation_town_006.nbt`, standalone sect structures, and `cultivation_sect_001.nbt` through `cultivation_sect_002.nbt`.
+- **AND** it SHALL contain standalone cultivation town structures including `town_shrine_001.nbt`
+- **AND** it SHALL contain `cultivation_town_001.nbt` through `cultivation_town_006.nbt`, standalone sect structures, and `cultivation_sect_001.nbt` through `cultivation_sect_002.nbt`
+- **AND** it SHALL emit sect compound placement metadata under `src/main/resources/data/myvillage/settlement_meta/`.
 
 ### Requirement: Civic structures appear in the grouped gallery
 The `/myvillage gallery` and `/myvillage gallery original` commands SHALL include civic structures in a dedicated civic column, distinct from the housing, shop, blacksmith, Chinese courtyard, cultivation, and test columns. The civic column SHALL be ordered by archetype (`tavern` before `lord_manor`) and by variant index within each archetype.

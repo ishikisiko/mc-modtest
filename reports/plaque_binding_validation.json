@@ -1,0 +1,222 @@
+{
+  "bindings": "src/main/resources/data/myvillage/plaque_bindings.json",
+  "passed": true,
+  "binding_count": 9,
+  "archetype_count": 9,
+  "bindings_by_archetype": {
+    "cultivation_inn": [
+      {
+        "frame": "town_inn_lacquered_4w",
+        "orientation": "vertical",
+        "mount": "hanging",
+        "bucket": "4h",
+        "inscription": "myvillage:inscription/4h/yuan_yang_lou",
+        "width": 1,
+        "height": 4
+      }
+    ],
+    "cultivation_market": [
+      {
+        "frame": "town_notice_board_3w",
+        "orientation": "horizontal",
+        "mount": "wall",
+        "bucket": "3w",
+        "inscription": "myvillage:inscription/3w/za_huo_pu",
+        "width": 3,
+        "height": 1
+      }
+    ],
+    "cultivation_shop": [
+      {
+        "frame": "town_shop_wood_3w",
+        "orientation": "horizontal",
+        "mount": "wall",
+        "bucket": "3w",
+        "inscription": "myvillage:inscription/3w/za_huo_pu",
+        "width": 3,
+        "height": 1
+      }
+    ],
+    "lord_manor": [
+      {
+        "frame": "lord_manor_heraldry_5w",
+        "orientation": "horizontal",
+        "mount": "wall",
+        "bucket": "5w_1h",
+        "inscription": "myvillage:inscription/5w_1h/lord_manor_house",
+        "width": 5,
+        "height": 1
+      }
+    ],
+    "paifang": [
+      {
+        "frame": "sect_treasure_gilded_5w_2h",
+        "orientation": "horizontal",
+        "mount": "hanging",
+        "bucket": "5w_2h",
+        "inscription": "myvillage:inscription/5w_2h/lin_lang_ge",
+        "width": 5,
+        "height": 2
+      }
+    ],
+    "scripture_pavilion": [
+      {
+        "frame": "sect_scripture_ornate_4w",
+        "orientation": "horizontal",
+        "mount": "wall",
+        "bucket": "4w",
+        "inscription": "myvillage:inscription/4w/zang_jing_ge",
+        "width": 4,
+        "height": 1
+      }
+    ],
+    "sect_gate": [
+      {
+        "frame": "sect_treasure_gilded_5w_2h",
+        "orientation": "horizontal",
+        "mount": "hanging",
+        "bucket": "5w_2h",
+        "inscription": "myvillage:inscription/5w_2h/lin_lang_ge",
+        "width": 5,
+        "height": 2
+      }
+    ],
+    "tavern": [
+      {
+        "frame": "tavern_signboard_4w",
+        "orientation": "horizontal",
+        "mount": "hanging",
+        "bucket": "4w",
+        "inscription": "myvillage:inscription/4w/tavern_inn",
+        "width": 4,
+        "height": 1
+      }
+    ],
+    "treasure_pavilion": [
+      {
+        "frame": "sect_treasure_gilded_5w_2h",
+        "orientation": "horizontal",
+        "mount": "wall",
+        "bucket": "5w_2h",
+        "inscription": "myvillage:inscription/5w_2h/lin_lang_ge",
+        "width": 5,
+        "height": 2
+      }
+    ]
+  },
+  "texture_checks": [
+    {
+      "frame": "town_inn_lacquered_4w",
+      "mount": "hanging",
+      "orientation": "vertical",
+      "inscription": "myvillage:inscription/4h/yuan_yang_lou",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/town_inn_lacquered_4w/vertical_full.png",
+      "texture_size": [
+        64,
+        256
+      ],
+      "changed_pixels": 2129,
+      "coverage": 0.1299,
+      "errors": []
+    },
+    {
+      "frame": "town_notice_board_3w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "inscription": "myvillage:inscription/3w/za_huo_pu",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_notice_board_3w/horizontal_full.png",
+      "texture_size": [
+        96,
+        32
+      ],
+      "changed_pixels": 520,
+      "coverage": 0.1693,
+      "errors": []
+    },
+    {
+      "frame": "town_shop_wood_3w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "inscription": "myvillage:inscription/3w/za_huo_pu",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/town_shop_wood_3w/horizontal_full.png",
+      "texture_size": [
+        96,
+        32
+      ],
+      "changed_pixels": 530,
+      "coverage": 0.1725,
+      "errors": []
+    },
+    {
+      "frame": "lord_manor_heraldry_5w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "inscription": "myvillage:inscription/5w_1h/lord_manor_house",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/lord_manor_heraldry_5w/horizontal_full.png",
+      "texture_size": [
+        320,
+        64
+      ],
+      "changed_pixels": 2059,
+      "coverage": 0.1005,
+      "errors": []
+    },
+    {
+      "frame": "sect_treasure_gilded_5w_2h",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "inscription": "myvillage:inscription/5w_2h/lin_lang_ge",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/sect_treasure_gilded_5w_2h/horizontal_full.png",
+      "texture_size": [
+        640,
+        256
+      ],
+      "changed_pixels": 14570,
+      "coverage": 0.0889,
+      "errors": []
+    },
+    {
+      "frame": "sect_scripture_ornate_4w",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "inscription": "myvillage:inscription/4w/zang_jing_ge",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_scripture_ornate_4w/horizontal_full.png",
+      "texture_size": [
+        256,
+        64
+      ],
+      "changed_pixels": 1942,
+      "coverage": 0.1185,
+      "errors": []
+    },
+    {
+      "frame": "tavern_signboard_4w",
+      "mount": "hanging",
+      "orientation": "horizontal",
+      "inscription": "myvillage:inscription/4w/tavern_inn",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/hanging/tavern_signboard_4w/horizontal_full.png",
+      "texture_size": [
+        128,
+        32
+      ],
+      "changed_pixels": 372,
+      "coverage": 0.0908,
+      "errors": []
+    },
+    {
+      "frame": "sect_treasure_gilded_5w_2h",
+      "mount": "wall",
+      "orientation": "horizontal",
+      "inscription": "myvillage:inscription/5w_2h/lin_lang_ge",
+      "texture": "src/main/resources/assets/myvillage/textures/block/plaque/wall/sect_treasure_gilded_5w_2h/horizontal_full.png",
+      "texture_size": [
+        640,
+        256
+      ],
+      "changed_pixels": 14570,
+      "coverage": 0.0889,
+      "errors": []
+    }
+  ],
+  "errors": []
+}

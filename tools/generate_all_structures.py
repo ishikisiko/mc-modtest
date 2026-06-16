@@ -21,6 +21,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 REPO_ROOT = SCRIPT_DIR.parent
 DEFAULT_OUTPUT = REPO_ROOT / "src" / "main" / "resources" / "data" / "myvillage" / "structure"
 DEFAULT_FUNCTIONS = REPO_ROOT / "src" / "main" / "resources" / "data" / "myvillage" / "function"
+DEFAULT_SETTLEMENT_META = REPO_ROOT / "src" / "main" / "resources" / "data" / "myvillage" / "settlement_meta"
 
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
@@ -46,6 +47,13 @@ def clean_generated_functions() -> None:
             continue
         for path in sorted(folder.glob("*.mcfunction")):
             path.unlink()
+
+
+def clean_settlement_metadata() -> None:
+    if not DEFAULT_SETTLEMENT_META.is_dir():
+        return
+    for path in sorted(DEFAULT_SETTLEMENT_META.glob("*.json")):
+        path.unlink()
 
 
 def generate_test_house(mc_version: str, output_dir: Path) -> Path:
@@ -165,6 +173,8 @@ def main() -> int:
     parser.add_argument("--compound-count", type=int, default=6)
     parser.add_argument("--compound-base-seed", type=int, default=20260614)
     parser.add_argument("--civic-base-seed", type=int, default=20260615)
+    parser.add_argument("--cultivation-town-building-count", type=int, default=3)
+    parser.add_argument("--cultivation-town-building-base-seed", type=int, default=20260613)
     parser.add_argument("--cultivation-town-count", type=int, default=6)
     parser.add_argument("--cultivation-town-base-seed", type=int, default=20260617)
     parser.add_argument("--cultivation-sect-count", type=int, default=2)
@@ -180,10 +190,14 @@ def main() -> int:
     try:
         clean_nbt_tree(output_dir)
         clean_generated_functions()
+        clean_settlement_metadata()
         test_house = generate_test_house(args.mc_version, output_dir)
         generate_building_library(args.style, args.count, args.base_seed, args.profile)
         generate_compound_library(args.compound_count, args.compound_base_seed, args.profile)
         generate_civic_library(args.style, args.civic_base_seed, args.profile)
+        generate_group_building_library(
+            "cultivation_town", args.cultivation_town_building_count,
+            args.cultivation_town_building_base_seed, args.profile)
         generate_group_compound_library(
             "cultivation_town", args.cultivation_town_count,
             args.cultivation_town_base_seed, args.profile)

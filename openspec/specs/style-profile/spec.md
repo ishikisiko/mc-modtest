@@ -32,6 +32,26 @@ Build operations SHALL use style material slots rather than hardcoding concrete 
 - **THEN** it SHOULD resolve them through the `ROOF_DARK` slot
 - **AND** it SHOULD preserve the final full Minecraft blockstate string.
 
+### Requirement: Plaque bindings dispatch independently of the SIGNAGE slot
+A style profile's plaque placement SHALL be driven by `data/myvillage/plaque_bindings.json`, not by the `SIGNAGE` material slot. When a plaque binding exists for an archetype, the build-gen facade-detail pass SHALL invoke the plaque placement op (`place_wall_plaque` or `place_hanging_plaque` with the binding's `frame`, `orientation`, `mount`, and `inscription`) instead of `ops.wall_hanging` with the `SIGNAGE` slot. When no plaque binding exists for the archetype, the existing `SIGNAGE` slot dispatch SHALL run unchanged.
+
+#### Scenario: A doorway has a plaque binding
+- **WHEN** the facade-detail pass runs for an archetype with `entry_signage=true`
+- **AND** `plaque_bindings.json` has an entry for that archetype
+- **THEN** the pass SHALL invoke the plaque placement op
+- **AND** the `SIGNAGE` slot SHALL NOT be consulted for that doorway.
+
+#### Scenario: A doorway has no plaque binding
+- **WHEN** the facade-detail pass runs for an archetype with `entry_signage=true`
+- **AND** `plaque_bindings.json` has no entry for that archetype
+- **THEN** the pass SHALL invoke `ops.wall_hanging` against the `SIGNAGE` slot as before
+- **AND** a `wall_sign` (or modded canvas sign under the full profile) SHALL be placed.
+
+#### Scenario: A plaque binding references an unknown frame
+- **WHEN** `plaque_bindings.json` references a frame preset that is not in the curated catalog
+- **THEN** style-profile validation SHALL fail with `unknown_frame_preset`
+- **AND** the offending entry SHALL be named in the report.
+
 ### Requirement: Forbidden style blocks are quality-gated
 Generated building quality checks SHALL reject generated buildings containing blockstates whose block id matches a fragment listed in the active style profile's `forbidden_blocks`.
 
@@ -160,21 +180,47 @@ Each material slot list in every style profile SHALL end with a guaranteed `mine
 - **THEN** the fallback-convention check SHALL flag that slot
 - **AND** the violation SHALL identify the style id and slot name.
 
-### Requirement: Style profile schema recognizes mod-target decoration slots
-The style profile schema SHALL recognize additional optional material slots `ROOF_TILE`, `PAPER_LANTERN`, `RITUAL_ANCHOR`, and `MARKET_FITTINGS` alongside the existing slots. In this change these slots are declared with only their vanilla fallback entry (no mod ids yet). A style profile MAY omit any of these slots, in which case generators referencing the missing slot SHALL skip placement of that slot's blocks, consistent with existing optional-slot handling.
+### Requirement: Style profile schema recognizes mod-target and cultivation-form slots
+The style profile schema SHALL recognize additional optional material slots `ROOF_TILE`, `PAPER_LANTERN`, `RITUAL_ANCHOR`, `MARKET_FITTINGS`, `COLUMN`, `PLATFORM_STONE`, `RIDGE_ORNAMENT`, and `BALUSTRADE` alongside the existing slots. A style profile MAY omit any of these slots, in which case generators referencing the missing slot SHALL skip placement of that slot's optional blocks, consistent with existing optional-slot handling.
 
 #### Scenario: A style declares the new decoration slots with vanilla fallbacks
 - **WHEN** a style profile that defines the new slots is loaded
-- **THEN** `ROOF_TILE`, `PAPER_LANTERN`, `RITUAL_ANCHOR`, and `MARKET_FITTINGS` SHALL each be present
+- **THEN** each populated new slot SHALL be present
 - **AND** each SHALL contain at least one trailing `minecraft:` fallback entry
 - **AND** generation under the `vanilla` profile SHALL place only those vanilla fallbacks.
+
+#### Scenario: The cultivation sect style defines form slots
+- **WHEN** the `cultivation_sect` style is loaded
+- **THEN** the profile SHALL include `COLUMN`, `PLATFORM_STONE`, `RIDGE_ORNAMENT`, and `BALUSTRADE`
+- **AND** each slot's last entry SHALL be a `minecraft:` fallback.
+
+#### Scenario: The vanilla profile resolves form slots to fallbacks
+- **WHEN** a cultivation style is loaded with `available_namespaces = {"minecraft"}` and a build resolves a form slot
+- **THEN** the slot SHALL resolve to its trailing vanilla fallback
+- **AND** no resolution SHALL return air.
 
 #### Scenario: A style omits a new decoration slot
 - **WHEN** a style profile does not define `RITUAL_ANCHOR` and a generator requests it
 - **THEN** placement using that optional slot SHALL be skipped rather than failing style loading.
 
+### Requirement: Cultivation styles list cultivation forms and exclude Western domestic motifs
+The `cultivation_town` and `cultivation_sect` style profiles SHALL list the cultivation roof forms applicable to them (`sweeping_eave_roof`, `hip_roof`, `pyramidal_roof`, and `tiered_eave_roof` for the sect) in `allowed_roof_types`, and SHALL NOT list the Western domestic motifs `woodpile`, `barrel_cluster`, `fence_patch`, `side_chimney`, or `small_porch` in `allowed_motifs`.
+
+#### Scenario: The sect style allows sweeping eaves and excludes Western motifs
+- **WHEN** the `cultivation_sect` style is loaded
+- **THEN** `allowed_roof_types` SHALL include `sweeping_eave_roof`
+- **AND** `allowed_motifs` SHALL NOT include `woodpile`, `barrel_cluster`, `fence_patch`, `side_chimney`, or `small_porch`.
+
+### Requirement: Cultivation proportions favor deep eaves and a tall platform
+The cultivation style `proportions` SHALL specify a deep roof overhang and a raised platform so that generated halls read with a horizontal, deep-eave silhouette: a roof overhang of at least 2 admissible on hall-class volumes, a platform/foundation height of at least 2 admissible, and a roof-height ratio centered near one-half.
+
+#### Scenario: Sect proportions specify a deep overhang and platform
+- **WHEN** the `cultivation_sect` style proportions are read
+- **THEN** `roof_overhang` SHALL admit at least 2
+- **AND** `foundation_height` (platform) SHALL admit at least 2.
+
 ### Requirement: Slots are populated with mod ids per design-intent role
-Style profiles SHALL populate material slots with confirmed external-mod block ids drawn from `exmod/mod_block_catalog.json`, placed at the **front** of the matching slot list so they are preferred when active, while the trailing `minecraft:` fallback required by the existing fallback convention is preserved. Mod ids SHALL be assigned to slots according to their design-intent role: `ROOF_TILE`, `PAPER_LANTERN`, `RITUAL_ANCHOR`, and `MARKET_FITTINGS`, plus the existing `FURNITURE`, `LIGHTING`, and wall/window-related slots.
+Style profiles SHALL populate material slots with confirmed external-mod block ids drawn from `exmod/mod_block_catalog.json`, placed at the **front** of the matching slot list so they are preferred when active, while the trailing `minecraft:` fallback required by the existing fallback convention is preserved. Mod ids SHALL be assigned to slots according to their design-intent role: `ROOF_TILE`, `PAPER_LANTERN`, `RITUAL_ANCHOR`, `MARKET_FITTINGS`, `COLUMN`, `PLATFORM_STONE`, `RIDGE_ORNAMENT`, and `BALUSTRADE`, plus the existing `FURNITURE`, `LIGHTING`, and wall/window-related slots.
 
 #### Scenario: A populated slot prefers a mod id under the full profile
 - **WHEN** a style with a populated slot is loaded under the `full` profile and a build operation resolves that slot's primary entry

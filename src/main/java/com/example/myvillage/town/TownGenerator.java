@@ -79,6 +79,7 @@ public final class TownGenerator {
         placePerimeter(level, plan, stats);
         realizeParcels(level, plan, templateRandom, stats);
         placeStreetNetwork(level, plan, stats);
+        placeRitualAxisFixtures(level, plan, stats);
         placeFrontages(level, plan, stats);
         furnishStreetRooms(level, plan, stats);
         dressNegativeSpaces(level, plan, stats);
@@ -117,48 +118,64 @@ public final class TownGenerator {
     }
 
     private static TownPlan plan(long seed, BlockPos base) {
-        Random rng = new Random(mixSeed(seed, base));
-        int laneZ = DEPTH / 2 + List.of(-2, 0, 2).get(rng.nextInt(3));
-        int southLaneZ = 21;
-        int northLaneZ = DEPTH - 19;
+        int laneZ = DEPTH / 2 - 2;
+        int shrineWidth = 27;
+        int shrineDepth = 20;
+        int shrineX0 = CENTER_X - shrineWidth / 2;
+        int shrineX1 = shrineX0 + shrineWidth - 1;
+        int shrineZ1 = DEPTH - 3;
+        int shrineZ0 = shrineZ1 - shrineDepth + 1;
+        Rect plaza = new Rect(CENTER_X - 16, shrineZ0 - 9, CENTER_X + 16, shrineZ0 - 1);
+        Set<Cell> paifang = rect(CENTER_X - 6, plaza.z0 - 1, CENTER_X + 6, plaza.z0 - 1);
+        Set<Cell> lanterns = new HashSet<>();
+        for (int z = 8; z < plaza.z0 - 2; z += 5) {
+            lanterns.add(new Cell(CENTER_X - 5, z));
+            lanterns.add(new Cell(CENTER_X + 5, z));
+        }
         List<Gate> gates = List.of(
-                new Gate("south_gate", "south", rect(CENTER_X - 2, 0, CENTER_X + 2, 0)),
-                new Gate("north_gate", "north", rect(CENTER_X - 2, DEPTH - 1, CENTER_X + 2, DEPTH - 1)));
+                new Gate("south_gate", "south", rect(CENTER_X - 2, 0, CENTER_X + 2, 0)));
         Set<Cell> perimeter = boundary();
         Set<Cell> wall = new HashSet<>(perimeter);
         for (Gate gate : gates) {
             wall.removeAll(gate.cells());
         }
-        Set<Cell> spine = rect(CENTER_X - SPINE_HALF_WIDTH, 0, CENTER_X + SPINE_HALF_WIDTH, DEPTH - 1);
+        Set<Cell> spine = rect(CENTER_X - SPINE_HALF_WIDTH, 0, CENTER_X + SPINE_HALF_WIDTH, plaza.z1);
+        spine.addAll(plaza.cells());
+        spine.addAll(paifang);
         Set<Cell> lanes = new HashSet<>();
         lanes.addAll(rect(8, laneZ - 1, WIDTH - 9, laneZ + 1));
-        lanes.addAll(rect(8, southLaneZ - 1, WIDTH - 9, southLaneZ + 1));
-        lanes.addAll(rect(8, northLaneZ - 1, WIDTH - 9, northLaneZ + 1));
+        lanes.addAll(rect(8, 16, WIDTH - 9, 18));
+        lanes.addAll(rect(8, shrineZ0 - 1, WIDTH - 9, shrineZ0 - 1));
         lanes.removeAll(spine);
 
         List<Parcel> parcels = new ArrayList<>();
-        parcels.add(new Parcel("landmark_temple", "civic", new Rect(16, laneZ + 2, 44, laneZ + 17),
-                3, true, "lord_manor_001"));
-        parcels.add(new Parcel("west_core_shop", "market", new Rect(20, laneZ - 15, 44, laneZ - 2),
-                2, false, "medium_shop_001"));
-        parcels.add(new Parcel("east_core_shop", "market", new Rect(52, laneZ - 15, 76, laneZ - 2),
-                2, false, "medium_shop_002"));
-        parcels.add(new Parcel("east_market_inn", "market", new Rect(52, laneZ + 2, 76, laneZ + 17),
-                2, false, "tavern_002"));
-        parcels.add(new Parcel("west_outer_south", "housing", new Rect(20, 3, 44, 19),
-                1, false, "medium_house_001"));
-        parcels.add(new Parcel("east_outer_south", "housing", new Rect(52, 3, 76, 19),
-                1, false, "small_house_001"));
-        parcels.add(new Parcel("west_outer_north", "housing", new Rect(20, DEPTH - 17, 44, DEPTH - 4),
-                1, false, "medium_house_002"));
-        parcels.add(new Parcel("east_outer_north", "defense", new Rect(52, DEPTH - 17, 76, DEPTH - 4),
-                1, false, "blacksmith_001"));
+        parcels.add(new Parcel("town_shrine", "civic", new Rect(shrineX0, shrineZ0, shrineX1, shrineZ1),
+                3, true, "town_shrine_001"));
+        parcels.add(new Parcel("west_core_shop", "market", new Rect(20, 20, 42, laneZ - 2),
+                2, false, "cultivation_shop_002"));
+        parcels.add(new Parcel("east_core_shop", "market", new Rect(WIDTH - 42, 20, WIDTH - 20, laneZ - 2),
+                2, false, "cultivation_shop_003"));
+        parcels.add(new Parcel("west_market", "market", new Rect(12, laneZ + 2, 31, shrineZ0 - 2),
+                2, false, "cultivation_market_001"));
+        parcels.add(new Parcel("east_market", "market", new Rect(WIDTH - 31, laneZ + 2, WIDTH - 9, shrineZ0 - 2),
+                2, false, "cultivation_market_001"));
+        parcels.add(new Parcel("west_outer_south", "housing", new Rect(16, 1, 36, 15),
+                1, false, "cultivation_house_001"));
+        parcels.add(new Parcel("east_outer_south", "housing", new Rect(WIDTH - 36, 1, WIDTH - 16, 15),
+                1, false, "cultivation_house_002"));
+        parcels.add(new Parcel("west_outer_north", "housing", new Rect(8, shrineZ0, 31, shrineZ1 - 1),
+                1, false, "cultivation_house_003"));
+        parcels.add(new Parcel("east_outer_north", "defense", new Rect(WIDTH - 31, shrineZ0, WIDTH - 9, shrineZ1 - 1),
+                1, false, "cultivation_market_002"));
 
         List<OpenRegion> openRegions = List.of(
-                new OpenRegion("market_mouth_square", "market_square", new Rect(8, laneZ + 2, 15, laneZ + 8), 3),
-                new OpenRegion("well_court", "well_plaza", new Rect(8, laneZ - 9, 16, laneZ - 4), 2),
-                new OpenRegion("back_lane_yard", "domestic_yard", new Rect(79, 29, 87, 35), 1));
-        return new TownPlan(base, perimeter, wall, gates, spine, lanes, parcels, openRegions);
+                new OpenRegion("market_mouth_square", "market_square",
+                        new Rect(CENTER_X - 16, laneZ + 2, CENTER_X - 5, Math.min(laneZ + 7, plaza.z0 - 1)), 3),
+                new OpenRegion("well_court", "well_plaza", new Rect(8, laneZ - 11, 16, laneZ - 5), 2),
+                new OpenRegion("back_lane_yard", "domestic_yard",
+                        new Rect(WIDTH - 18, laneZ - 13, WIDTH - 9, laneZ - 7), 1));
+        RitualAxis ritualAxis = new RitualAxis("south_gate", "town_shrine", plaza, paifang, lanterns);
+        return new TownPlan(base, perimeter, wall, gates, spine, lanes, parcels, openRegions, ritualAxis);
     }
 
     private static List<String> validatePlan(TownPlan plan) {
@@ -174,6 +191,32 @@ public final class TownGenerator {
         long landmarks = plan.parcels.stream().filter(Parcel::dominant).count();
         if (landmarks != 1) {
             errors.add("dominant_landmark_count:" + landmarks);
+        }
+        Optional<Parcel> shrine = plan.parcels.stream().filter(p -> p.id.equals("town_shrine")).findFirst();
+        if (shrine.isEmpty()) {
+            errors.add("missing_town_shrine_anchor");
+        } else {
+            Parcel shrineParcel = shrine.get();
+            if (!shrineParcel.dominant || shrineParcel.importance != 3) {
+                errors.add("town_shrine_not_dominant_top_tier");
+            }
+            if (!plan.ritualAxis.terminusParcel.equals("town_shrine")) {
+                errors.add("ritual_axis_wrong_terminus:" + plan.ritualAxis.terminusParcel);
+            }
+            Set<Cell> shrineFront = rect(
+                    shrineParcel.bounds.x0,
+                    shrineParcel.bounds.z0 - 1,
+                    shrineParcel.bounds.x1,
+                    shrineParcel.bounds.z0 - 1);
+            if (disjoint(shrineFront, plan.ritualAxis.plaza.cells())) {
+                errors.add("town_shrine_not_fronted_by_plaza");
+            }
+        }
+        if (!plan.spine.containsAll(plan.ritualAxis.paifang)) {
+            errors.add("paifang_not_on_axis");
+        }
+        if (plan.ritualAxis.lanterns.size() < 4) {
+            errors.add("lantern_approach_too_sparse");
         }
         Set<Cell> streets = plan.streetCells();
         Set<Cell> parcelCells = new HashSet<>();
@@ -278,6 +321,42 @@ public final class TownGenerator {
             clearHeadroom(level, pos.above(), stats);
         }
         placeStepHints(level, plan, stats);
+    }
+
+    private static void placeRitualAxisFixtures(ServerLevel level, TownPlan plan, BuildStats stats) {
+        Rect plaza = plan.ritualAxis.plaza;
+        for (Cell cell : plaza.cells()) {
+            BlockPos pos = surfacePos(level, plan.base, cell.x, cell.z);
+            place(level, pos, Blocks.SMOOTH_STONE.defaultBlockState(), stats);
+            clearHeadroom(level, pos.above(), stats);
+        }
+        int paifangZ = plan.ritualAxis.paifang.stream()
+                .map(c -> c.z)
+                .findFirst()
+                .orElse(plaza.z0 - 1);
+        int minX = plan.ritualAxis.paifang.stream()
+                .map(c -> c.x)
+                .min(Integer::compareTo)
+                .orElse(CENTER_X - 6);
+        int maxX = plan.ritualAxis.paifang.stream()
+                .map(c -> c.x)
+                .max(Integer::compareTo)
+                .orElse(CENTER_X + 6);
+        for (int x = minX; x <= maxX; x++) {
+            BlockPos ground = surfacePos(level, plan.base, x, paifangZ);
+            place(level, ground, Blocks.POLISHED_ANDESITE.defaultBlockState(), stats);
+            if (x == minX || x == maxX || x == CENTER_X) {
+                for (int y = 1; y <= 5; y++) {
+                    place(level, ground.above(y), Blocks.DARK_OAK_LOG.defaultBlockState(), stats);
+                }
+            }
+            if (x >= minX + 1 && x <= maxX - 1) {
+                place(level, ground.above(5), Blocks.DARK_OAK_SLAB.defaultBlockState(), stats);
+            }
+        }
+        for (Cell lantern : plan.ritualAxis.lanterns) {
+            placeLampPost(level, surfacePos(level, plan.base, lantern.x, lantern.z), stats);
+        }
     }
 
     private static void placeStepHints(ServerLevel level, TownPlan plan, BuildStats stats) {
@@ -670,12 +749,16 @@ public final class TownGenerator {
     private record OpenRegion(String id, String kind, Rect bounds, int densityRank) {
     }
 
+    private record RitualAxis(String fromGate, String terminusParcel, Rect plaza,
+                              Set<Cell> paifang, Set<Cell> lanterns) {
+    }
+
     private record TerrainFit(int baseY, int slope) {
     }
 
     private record TownPlan(BlockPos base, Set<Cell> perimeter, Set<Cell> wall, List<Gate> gates,
                             Set<Cell> spine, Set<Cell> lanes, List<Parcel> parcels,
-                            List<OpenRegion> openRegions) {
+                            List<OpenRegion> openRegions, RitualAxis ritualAxis) {
         Set<Cell> streetCells() {
             Set<Cell> out = new HashSet<>(spine);
             out.addAll(lanes);

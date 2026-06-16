@@ -30,8 +30,8 @@ REPORT_PATH = REPO_ROOT / "reports" / "town_generation_validation.json"
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--seeds", default="20260618,20260719,20260820")
-    parser.add_argument("--width", type=int, default=64)
-    parser.add_argument("--depth", type=int, default=56)
+    parser.add_argument("--width", type=int, default=96)
+    parser.add_argument("--depth", type=int, default=80)
     args = parser.parse_args()
 
     group = get_group("cultivation_town")

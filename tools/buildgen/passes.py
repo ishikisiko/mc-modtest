@@ -23,6 +23,7 @@ from .archetypes import build_massing, reserved_stair_footprint
 from .facade import plan_building_facades
 from .grid import AIR, BlockGrid, PRIORITY
 from .massing import MassingGraph, Node
+from .plaque_bindings import binding_for
 from .style import Style
 
 Pos = Tuple[int, int, int]
@@ -90,6 +91,8 @@ def structure_pass(ctx: BuildContext) -> None:
             _carve_connection(ctx, vol)
         elif vol.type == "shed" and vol.meta.get("open") and vol.side in ("west", "east"):
             _carve_connection(ctx, vol)
+    for node in graph.by_type("platform"):
+        ops.raised_platform(grid, style, node)
     ctx.passes_run.append("structure_pass")
 
 
@@ -160,8 +163,20 @@ def facade_detail_pass(ctx: BuildContext) -> None:
         door_vol.meta["foundation_h"] + door_vol.meta["wall_h"] - 1,
     )
     if door_vol.meta.get("entry_signage"):
-        ops.wall_hanging(grid, style, rng, door_vol, door["wall"], door["x"],
-                         marker_y, "SIGNAGE", "_wall_sign", outside=True)
+        binding = binding_for(ctx.archetype, rng)
+        if binding:
+            if binding.mount == "hanging":
+                anchor = ops.plaque_wall_anchor(door_vol, door["wall"], door["x"],
+                                                marker_y, binding)
+                ops.place_hanging_plaque(
+                    grid, style, rng, door_vol, anchor,
+                    ops.OUTWARD_FACING[door["wall"]], binding)
+            else:
+                ops.place_wall_plaque(grid, style, rng, door_vol, door["wall"],
+                                      door["x"], marker_y, binding)
+        else:
+            ops.wall_hanging(grid, style, rng, door_vol, door["wall"], door["x"],
+                             marker_y, "SIGNAGE", "_wall_sign", outside=True)
     if door_vol.meta.get("entry_heraldry"):
         ops.wall_hanging(grid, style, rng, door_vol, door["wall"], door["x"],
                          marker_y, "HERALDRY", "_wall_banner", outside=True)
@@ -172,6 +187,13 @@ def facade_detail_pass(ctx: BuildContext) -> None:
                                                along, opening_style=ostyle,
                                                y_base=plan.y_base)
     ctx.passes_run.append("facade_detail_pass")
+
+
+def pagoda_shape_pass(ctx: BuildContext) -> None:
+    for vol in ctx.graph.volumes():
+        if vol.meta.get("story_insets"):
+            ops.pagoda_story_insets(ctx.grid, ctx.style, vol)
+    ctx.passes_run.append("pagoda_shape_pass")
 
 
 def roof_pass(ctx: BuildContext) -> None:
@@ -360,6 +382,14 @@ def exterior_decoration_pass(ctx: BuildContext) -> None:
     for node in graph.by_type("decoration_patch"):
         if ops.exterior_decoration_patch(grid, style, rng, node):
             ctx.decoration_motifs.append(node.meta["motif"])
+    for node in graph.by_type("mountain_gate"):
+        ops.mountain_gate_detail(grid, style, rng, node, graph.get(node.attach_to))
+    for node in graph.by_type("colonnade"):
+        ops.colonnade(grid, style, rng, node, graph.get(node.attach_to))
+    for node in graph.by_type("balustrade"):
+        ops.balustrade(grid, style, node)
+    for node in graph.by_type("alchemy_furnace"):
+        ops.alchemy_furnace(grid, style, node)
     if graph.by_type("chimney"):
         if ops.place_motif("side_chimney", grid, style, rng, graph.by_type("chimney")[0]):
             ctx.decoration_motifs.append("side_chimney")
@@ -373,6 +403,7 @@ PIPELINE = [
     floor_slab_pass,
     stair_pass,
     facade_detail_pass,
+    pagoda_shape_pass,
     roof_pass,
     roof_cleanup_pass,
     material_variation_pass,

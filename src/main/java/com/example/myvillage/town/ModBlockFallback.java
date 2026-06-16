@@ -7,6 +7,7 @@ import com.google.gson.JsonParser;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.arguments.blocks.BlockStateParser;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -23,6 +24,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.decoration.PaintingVariant;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import org.slf4j.Logger;
@@ -44,11 +46,14 @@ public final class ModBlockFallback {
             ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID, "mod_block_fallbacks.json");
     private static final FileToIdConverter STRUCTURE_FILES = new FileToIdConverter("structure", ".nbt");
     private static final String DEFAULT_LAST_RESORT_STATE = "minecraft:cobblestone";
+    private static final ResourceLocation DEFAULT_PAINTING_VARIANT =
+            ResourceLocation.withDefaultNamespace("kebab");
 
     private static Map<ResourceLocation, BlockState> fallbackStates = Map.of();
     private static BlockState defaultLastResort = Blocks.COBBLESTONE.defaultBlockState();
     private static boolean loaded;
     private static boolean parseFailureLogged;
+    private static boolean paintingFallbackLogged;
 
     private ModBlockFallback() {
     }
@@ -73,7 +78,7 @@ public final class ModBlockFallback {
         }
 
         CompoundTag patched = raw.get().copy();
-        int substitutions = patchPalettes(patched);
+        int substitutions = patchStructure(level.getServer(), patched);
         StructureTemplate template = level.getStructureManager().readStructure(patched);
         return Optional.of(new LoadedTemplate(template, substitutions));
     }
@@ -159,6 +164,12 @@ public final class ModBlockFallback {
         }
     }
 
+    private static int patchStructure(MinecraftServer server, CompoundTag tag) {
+        int substitutions = patchPalettes(tag);
+        substitutions += patchPaintingEntities(server, tag);
+        return substitutions;
+    }
+
     private static int patchPalettes(CompoundTag tag) {
         int substitutions = 0;
         if (tag.contains("palette", Tag.TAG_LIST)) {
@@ -171,6 +182,48 @@ public final class ModBlockFallback {
             }
         }
         return substitutions;
+    }
+
+    private static int patchPaintingEntities(MinecraftServer server, CompoundTag tag) {
+        if (!tag.contains("entities", Tag.TAG_LIST)) {
+            return 0;
+        }
+        Registry<PaintingVariant> registry = server.registryAccess().registryOrThrow(Registries.PAINTING_VARIANT);
+        boolean hasDefault = registry.containsKey(DEFAULT_PAINTING_VARIANT);
+        ListTag entities = tag.getList("entities", Tag.TAG_COMPOUND);
+        int substitutions = 0;
+        for (int i = 0; i < entities.size(); i++) {
+            CompoundTag entry = entities.getCompound(i);
+            if (!entry.contains("nbt", Tag.TAG_COMPOUND)) {
+                continue;
+            }
+            CompoundTag nbt = entry.getCompound("nbt");
+            if (!"minecraft:painting".equals(nbt.getString("id"))) {
+                continue;
+            }
+            ResourceLocation variant = ResourceLocation.tryParse(nbt.getString("variant"));
+            if (variant != null && registry.containsKey(variant)) {
+                continue;
+            }
+            if (hasDefault) {
+                nbt.putString("variant", DEFAULT_PAINTING_VARIANT.toString());
+            } else {
+                entities.remove(i);
+                i--;
+            }
+            substitutions++;
+            logPaintingFallbackOnce(variant);
+        }
+        return substitutions;
+    }
+
+    private static void logPaintingFallbackOnce(ResourceLocation variant) {
+        if (!paintingFallbackLogged) {
+            paintingFallbackLogged = true;
+            LOGGER.warn(
+                    "Missing painting variant {} in a myvillage structure; applying painting fallback/removal",
+                    variant == null ? "<invalid>" : variant);
+        }
     }
 
     private static int patchPalette(ListTag palette) {

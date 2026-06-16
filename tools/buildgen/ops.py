@@ -14,8 +14,10 @@ Facing conventions follow docs/blockstate_notes.md (visually verified):
 from __future__ import annotations
 
 import random
+import warnings
 from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple
 
+from . import plaque_bindings
 from .grid import AIR, BlockGrid, PRIORITY
 from .massing import INWARD_FACING, OUTWARD_FACING, Node, WALL_OUTWARD
 from .orientation import orient_block
@@ -28,7 +30,6 @@ MotifHandler = Callable[[BlockGrid, Style, random.Random, Node, Optional[Node]],
 DIR_VEC = {"north": (0, -1), "south": (0, 1), "west": (-1, 0), "east": (1, 0)}
 OPPOSITE = {"north": "south", "south": "north", "west": "east", "east": "west",
             "front": "back", "back": "front"}
-
 ROOF_REGISTRY: Dict[str, RoofHandler] = {}
 MOTIF_REGISTRY: Dict[str, MotifHandler] = {}
 
@@ -120,6 +121,80 @@ def canopy_roof_state(style: Style, facing: str,
         return (orient_block("vanilla_slab", _block_id(base), "canopy",
                              kind="bottom"), "ROOF_TILE")
     return stair_state(style, facing), "ROOF_DARK"
+
+
+def roof_stair_state(style: Style, facing: str,
+                     half: str = "bottom") -> Tuple[str, str]:
+    base = style.optional_slot_entry("ROOF_TILE", "_stairs")
+    if base:
+        return (orient_block("vanilla_stairs", _block_id(base), "roof_tile",
+                             facing=facing, half=half), "ROOF_TILE")
+    return stair_state(style, facing, half), "ROOF_DARK"
+
+
+def roof_slab_state(style: Style, kind: str = "bottom") -> Tuple[str, str]:
+    base = style.optional_slot_entry("ROOF_TILE", "_slab")
+    if base:
+        return (orient_block("vanilla_slab", _block_id(base), "roof_tile",
+                             kind=kind), "ROOF_TILE")
+    return slab_state(style, kind), "ROOF_DARK"
+
+
+def _column_state(style: Style) -> Tuple[Optional[str], Optional[str]]:
+    if not style.has_slot("COLUMN"):
+        return None, None
+    state = style.primary("COLUMN")
+    block = _block_id(state)
+    if "[" not in state and (block.endswith("_log") or block.endswith("_wood")
+                             or block.endswith("_pillar")):
+        state = f"{block}[axis=y]"
+    return state, "COLUMN"
+
+
+def _balustrade_state(style: Style) -> Tuple[Optional[str], Optional[str]]:
+    if not style.has_slot("BALUSTRADE"):
+        return None, None
+    return style.primary("BALUSTRADE"), "BALUSTRADE"
+
+
+def _platform_state(style: Style) -> Tuple[str, str]:
+    if style.has_slot("PLATFORM_STONE"):
+        return style.primary("PLATFORM_STONE"), "PLATFORM_STONE"
+    return style.primary("BASE_STONE"), "BASE_STONE"
+
+
+def _platform_stair_state(style: Style, facing: str) -> Tuple[str, str]:
+    base = style.optional_slot_entry("PLATFORM_STONE", "_stairs")
+    if base:
+        return (orient_block("vanilla_stairs", _block_id(base), "platform",
+                             facing=facing), "PLATFORM_STONE")
+    base = style.material_slots["PLATFORM_STONE"][-1] if style.has_slot("PLATFORM_STONE") else None
+    derived = {
+        "minecraft:stone_bricks": "minecraft:stone_brick_stairs",
+        "minecraft:polished_andesite": "minecraft:polished_andesite_stairs",
+        "minecraft:quartz_block": "minecraft:quartz_stairs",
+    }
+    if base:
+        block = _block_id(base)
+        block = derived.get(block)
+        if block:
+            return (orient_block("vanilla_stairs", block, "platform",
+                                 facing=facing), "PLATFORM_STONE")
+    base = style.optional_slot_entry("BASE_STONE", "_stairs")
+    if base:
+        return (orient_block("vanilla_stairs", _block_id(base), "platform",
+                             facing=facing), "BASE_STONE")
+    return stair_state(style, facing), "ROOF_DARK"
+
+
+def _ornament_state(style: Style) -> Tuple[Optional[str], Optional[str]]:
+    if not style.has_slot("RIDGE_ORNAMENT"):
+        return None, None
+    state = style.primary("RIDGE_ORNAMENT")
+    block = _block_id(state)
+    if "[" not in state and block.endswith("lantern"):
+        state = f"{block}[hanging=false,waterlogged=false]"
+    return state, "RIDGE_ORNAMENT"
 
 
 def trapdoor_state(style: Style, facing: str, rng: random.Random,
@@ -577,6 +652,246 @@ def lean_to_roof(grid: BlockGrid, style: Style, vol: Node, low_side: str,
             "low_y": low_y}
 
 
+def _roof_bounds(vol: Node, overhang: int) -> Tuple[int, int, int, int]:
+    inset = max(0, int(vol.meta.get("roof", {}).get("footprint_inset", 0)))
+    x0 = min(vol.x0 + inset, vol.x1)
+    x1 = max(x0, vol.x1 - inset)
+    z0 = min(vol.z0 + inset, vol.z1)
+    z1 = max(z0, vol.z1 - inset)
+    return x0 - overhang, x1 + overhang, z0 - overhang, z1 + overhang
+
+
+def _place_ridge_ornaments(grid: BlockGrid, style: Style,
+                           ridge_cells: List[Pos]) -> List[Pos]:
+    state, slot = _ornament_state(style)
+    if not state or not ridge_cells:
+        return []
+    p = PRIORITY["DETAIL"]
+    if len(ridge_cells) == 1:
+        targets = [(ridge_cells[0][0], ridge_cells[0][1] + 1, ridge_cells[0][2])]
+    else:
+        ordered = sorted(ridge_cells)
+        targets = [
+            (ordered[0][0], ordered[0][1] + 1, ordered[0][2]),
+            (ordered[-1][0], ordered[-1][1] + 1, ordered[-1][2]),
+        ]
+        center = ordered[len(ordered) // 2]
+        targets.append((center[0], center[1] + 1, center[2]))
+    placed: List[Pos] = []
+    for pos in targets:
+        if grid.set(pos, state, ["DETAIL", "ROOF", "PROTECTED"], p, slot):
+            placed.append(pos)
+    return placed
+
+
+def _add_upturned_corners(grid: BlockGrid, style: Style, ridge_axis: str,
+                          bounds: Tuple[int, int, int, int],
+                          base_y: int) -> List[Pos]:
+    x0, x1, z0, z1 = bounds
+    slab, slab_slot = roof_slab_state(style, "top")
+    corner_stairs: List[Pos] = []
+    p = PRIORITY["ROOF"]
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            x_edge = x0 if sx < 0 else x1
+            z_edge = z0 if sz < 0 else z1
+            facing = "south" if sz < 0 else "north"
+            if ridge_axis == "z":
+                facing = "east" if sx < 0 else "west"
+            stair, stair_slot = roof_stair_state(style, facing, half="top")
+            candidates = [
+                ((x_edge, base_y + 1, z_edge), stair, stair_slot),
+                ((x_edge + sx, base_y + 1, z_edge), slab, slab_slot),
+                ((x_edge + sx, base_y + 1, z_edge + sz), slab, slab_slot),
+                ((x_edge + sx, base_y + 2, z_edge + sz), slab, slab_slot),
+            ]
+            for pos, state, slot in candidates:
+                if grid.set(pos, state, ["ROOF", "DETAIL"], p, slot):
+                    corner_stairs.append(pos)
+    return corner_stairs
+
+
+def sweeping_eave_roof(grid: BlockGrid, style: Style, rng: random.Random,
+                       vol: Node, ridge_axis: str, overhang: int,
+                       attached_side: Optional[str] = None) -> dict:
+    """Ridged roof with deep eaves and block-built upturned corners."""
+    del rng  # deterministic geometry
+    overhang = max(2, int(overhang))
+    fh = vol.meta["foundation_h"]
+    wall_top = fh + vol.meta["wall_h"] - 1
+    p = PRIORITY["ROOF"]
+    gable_cells: List[Pos] = []
+    roof_cells: List[Pos] = []
+    ridge_cells: List[Pos] = []
+    gable_state = style.alternates("WALL_MAIN")[0] if style.alternates("WALL_MAIN") \
+        else style.primary("WALL_MAIN")
+    planks = style.slot_entry("ROOF_DARK", "_planks")
+    x0, x1, z0, z1 = _roof_bounds(vol, overhang)
+    if ridge_axis == "x":
+        lo_edge, hi_edge = z0, z1
+        span_lo, span_hi = x0, x1
+        lo_face, hi_face = "south", "north"
+        gable_walls = ("west", "east")
+    else:
+        lo_edge, hi_edge = x0, x1
+        span_lo, span_hi = z0, z1
+        lo_face, hi_face = "east", "west"
+        gable_walls = ("front", "back")
+
+    lo, hi = lo_edge, hi_edge
+    if attached_side == ("north" if ridge_axis == "x" else "west"):
+        lo = lo_edge + overhang
+    if attached_side == ("south" if ridge_axis == "x" else "east"):
+        hi = hi_edge - overhang
+
+    def put_row(coord: int, y: int, state: str, slot: str,
+                protect: bool = False) -> None:
+        tags = ["ROOF"] + (["PROTECTED"] if protect else [])
+        for a in range(span_lo, span_hi + 1):
+            pos = (a, y, coord) if ridge_axis == "x" else (coord, y, a)
+            if grid.set(pos, state, tags, p, slot):
+                roof_cells.append(pos)
+                if protect:
+                    ridge_cells.append(pos)
+
+    y = wall_top + 1
+    base_y = y
+    while lo < hi:
+        lo_state, lo_slot = roof_stair_state(style, lo_face)
+        hi_state, hi_slot = roof_stair_state(style, hi_face)
+        put_row(lo, y, lo_state, lo_slot)
+        put_row(hi, y, hi_state, hi_slot)
+        lo += 1
+        hi -= 1
+        y += 1
+    if lo == hi:
+        put_row(lo, y, planks, "ROOF_DARK", protect=True)
+        ridge_y = y
+    else:
+        ridge_y = y - 1
+        mid = (lo + hi) // 2
+        for a in range(span_lo, span_hi + 1):
+            ridge_cells.append((a, ridge_y, mid) if ridge_axis == "x" else (mid, ridge_y, a))
+
+    if ridge_axis == "x":
+        lo2, hi2 = vol.z0, vol.z1
+    else:
+        lo2, hi2 = vol.x0, vol.x1
+    yy = wall_top + 1
+    while lo2 <= hi2:
+        for wallname in gable_walls:
+            _axisname, fixed, _, _ = wall_info(vol, wallname)
+            for c in range(lo2, hi2 + 1):
+                pos = (fixed, yy, c) if ridge_axis == "x" else (c, yy, fixed)
+                if grid.is_empty(pos):
+                    if grid.set(pos, gable_state, ["FACADE", "ROOF"], p, "WALL_MAIN"):
+                        gable_cells.append(pos)
+        lo2 += 1
+        hi2 -= 1
+        yy += 1
+        if yy > ridge_y:
+            break
+
+    corners = _add_upturned_corners(grid, style, ridge_axis, (x0, x1, z0, z1), base_y)
+    ornaments = _place_ridge_ornaments(grid, style, ridge_cells)
+    return {
+        "gable_cells": gable_cells,
+        "roof_cells": roof_cells + corners + ornaments,
+        "peak_y": ridge_y,
+        "upturned_corners": corners,
+        "ridge_ornaments": ornaments,
+        "overhang": overhang,
+    }
+
+
+def _ring_roof(grid: BlockGrid, style: Style,
+               bounds: Tuple[int, int, int, int], start_y: int,
+               crown: bool = False) -> dict:
+    x0, x1, z0, z1 = bounds
+    p = PRIORITY["ROOF"]
+    roof_cells: List[Pos] = []
+    ridge_cells: List[Pos] = []
+    y = start_y
+    while x0 <= x1 and z0 <= z1:
+        if x0 == x1 and z0 == z1:
+            pos = (x0, y, z0)
+            grid.set(pos, style.slot_entry("ROOF_DARK", "_planks"),
+                     ["ROOF", "PROTECTED"], p, "ROOF_DARK")
+            roof_cells.append(pos)
+            ridge_cells.append(pos)
+            break
+        if x0 == x1:
+            for z in range(z0, z1 + 1):
+                pos = (x0, y, z)
+                grid.set(pos, style.slot_entry("ROOF_DARK", "_planks"),
+                         ["ROOF", "PROTECTED"], p, "ROOF_DARK")
+                roof_cells.append(pos)
+                ridge_cells.append(pos)
+            break
+        if z0 == z1:
+            for x in range(x0, x1 + 1):
+                pos = (x, y, z0)
+                grid.set(pos, style.slot_entry("ROOF_DARK", "_planks"),
+                         ["ROOF", "PROTECTED"], p, "ROOF_DARK")
+                roof_cells.append(pos)
+                ridge_cells.append(pos)
+            break
+        north, north_slot = roof_stair_state(style, "south")
+        south, south_slot = roof_stair_state(style, "north")
+        west, west_slot = roof_stair_state(style, "east")
+        east, east_slot = roof_stair_state(style, "west")
+        for x in range(x0, x1 + 1):
+            for pos, state, slot in (
+                    ((x, y, z0), north, north_slot),
+                    ((x, y, z1), south, south_slot)):
+                if grid.set(pos, state, ["ROOF"], p, slot):
+                    roof_cells.append(pos)
+        for z in range(z0 + 1, z1):
+            for pos, state, slot in (
+                    ((x0, y, z), west, west_slot),
+                    ((x1, y, z), east, east_slot)):
+                if grid.set(pos, state, ["ROOF"], p, slot):
+                    roof_cells.append(pos)
+        x0 += 1
+        x1 -= 1
+        z0 += 1
+        z1 -= 1
+        y += 1
+    ornaments = _place_ridge_ornaments(grid, style, ridge_cells)
+    if crown and ridge_cells and not ornaments:
+        ornaments = _place_ridge_ornaments(grid, style, ridge_cells[:1])
+    return {
+        "roof_cells": roof_cells + ornaments,
+        "gable_cells": [],
+        "peak_y": y,
+        "ridge_cells": ridge_cells,
+        "ridge_ornaments": ornaments,
+    }
+
+
+def hip_roof(grid: BlockGrid, style: Style, rng: random.Random, vol: Node,
+             overhang: int) -> dict:
+    del rng
+    wall_top = vol.meta["foundation_h"] + vol.meta["wall_h"] - 1
+    return _ring_roof(grid, style, _roof_bounds(vol, max(1, int(overhang))),
+                      wall_top + 1)
+
+
+def pyramidal_roof(grid: BlockGrid, style: Style, rng: random.Random,
+                   vol: Node, overhang: int) -> dict:
+    del rng
+    wall_top = vol.meta["foundation_h"] + vol.meta["wall_h"] - 1
+    x0, x1, z0, z1 = _roof_bounds(vol, max(1, int(overhang)))
+    side = min(x1 - x0 + 1, z1 - z0 + 1)
+    if side % 2 == 0:
+        side -= 1
+    cx = (x0 + x1) // 2
+    cz = (z0 + z1) // 2
+    half = max(1, side // 2)
+    square = (cx - half, cx + half, cz - half, cz + half)
+    return _ring_roof(grid, style, square, wall_top + 1, crown=True)
+
+
 def _with_roofed_ids(info: dict, *volume_ids: str) -> dict:
     info["roofed_volume_ids"] = list(volume_ids)
     return info
@@ -639,19 +954,48 @@ def _lean_to_roof_handler(grid: BlockGrid, style: Style, rng: random.Random,
         vol.id)
 
 
+def _sweeping_eave_roof_handler(grid: BlockGrid, style: Style, rng: random.Random,
+                                vol: Node, graph: Optional[Any] = None) -> dict:
+    roof = vol.meta.get("roof", {})
+    info = sweeping_eave_roof(
+        grid, style, rng, vol,
+        roof.get("ridge_axis", "x"),
+        roof.get("overhang", 2),
+        attached_side=roof.get("attached_side"))
+    return _with_roofed_ids(_with_roof_type(info, "sweeping_eave_roof"), vol.id)
+
+
+def _hip_roof_handler(grid: BlockGrid, style: Style, rng: random.Random,
+                      vol: Node, graph: Optional[Any] = None) -> dict:
+    roof = vol.meta.get("roof", {})
+    info = hip_roof(grid, style, rng, vol, roof.get("overhang", 1))
+    return _with_roofed_ids(_with_roof_type(info, "hip_roof"), vol.id)
+
+
+def _pyramidal_roof_handler(grid: BlockGrid, style: Style, rng: random.Random,
+                            vol: Node, graph: Optional[Any] = None) -> dict:
+    roof = vol.meta.get("roof", {})
+    info = pyramidal_roof(grid, style, rng, vol, roof.get("overhang", 1))
+    info["finial"] = bool(info.get("ridge_ornaments"))
+    return _with_roofed_ids(_with_roof_type(info, "pyramidal_roof"), vol.id)
+
+
 def _tiered_eave_roof_handler(grid: BlockGrid, style: Style, rng: random.Random,
                               vol: Node, graph: Optional[Any] = None) -> dict:
     roof = vol.meta.get("roof", {})
     ridge_axis = roof.get("ridge_axis", "x")
-    overhang = max(1, roof.get("overhang", 1))
+    overhang = max(2, roof.get("overhang", 2))
     if vol.size[0] < 9 or vol.size[2] < 9:
-        info = _gable_roof_handler(grid, style, rng, vol, graph)
+        info = sweeping_eave_roof(
+            grid, style, rng, vol, ridge_axis, overhang,
+            attached_side=roof.get("attached_side"))
         info["roof_type"] = "tiered_eave_roof"
         info["tier_count"] = 1
         info["fallback"] = "single_eave"
+        info["roofed_volume_ids"] = [vol.id]
         return info
 
-    lower = gable_roof(
+    lower = sweeping_eave_roof(
         grid, style, rng, vol, ridge_axis, overhang,
         attached_side=roof.get("attached_side"))
     inset = 2
@@ -671,19 +1015,21 @@ def _tiered_eave_roof_handler(grid: BlockGrid, style: Style, rng: random.Random,
             "foundation_h": vol.meta["foundation_h"],
             "wall_h": upper_wall_top - vol.meta["foundation_h"] + 1,
             "roof": {
-                "type": "gable_roof",
+                "type": "sweeping_eave_roof",
                 "ridge_axis": ridge_axis,
-                "overhang": 0,
+                "overhang": 1,
             },
         },
     )
-    upper_info = gable_roof(grid, style, rng, upper, ridge_axis, 0)
+    upper_info = sweeping_eave_roof(grid, style, rng, upper, ridge_axis, 1)
     return _with_roofed_ids({
         "gable_cells": lower["gable_cells"] + upper_info["gable_cells"],
         "roof_cells": lower["roof_cells"] + upper_info["roof_cells"],
         "peak_y": max(lower["peak_y"], upper_info["peak_y"]),
         "roof_type": "tiered_eave_roof",
         "tier_count": 2,
+        "upturned_corners": lower.get("upturned_corners", []) + upper_info.get("upturned_corners", []),
+        "ridge_ornaments": lower.get("ridge_ornaments", []) + upper_info.get("ridge_ornaments", []),
     }, vol.id)
 
 
@@ -757,6 +1103,220 @@ def chinese_timber_brackets(grid: BlockGrid, style: Style, rng: random.Random,
                          ["DETAIL"], p, "DETAIL_WOOD")
 
 
+def raised_platform(grid: BlockGrid, style: Style, node: Node) -> None:
+    block, slot = _platform_state(style)
+    height = max(1, int(node.meta.get("height", node.size[1])))
+    p = PRIORITY["FOUNDATION"]
+    for x in range(node.x0, node.x1 + 1):
+        for z in range(node.z0, node.z1 + 1):
+            for y in range(0, height):
+                grid.set((x, y, z), block, ["FOUNDATION", "STRUCTURE", "GROUND"],
+                         p, slot)
+    door_x = node.meta.get("door_x")
+    if door_x is None:
+        return
+    facing = node.meta.get("facing", "south")
+    stair, stair_slot = _platform_stair_state(style, facing)
+    z0 = node.z0 - 1
+    for dx in (-1, 0, 1):
+        grid.set((door_x + dx, height - 1, z0), stair,
+                 ["DETAIL", "GROUND", "PROTECTED"], PRIORITY["DETAIL"], stair_slot,
+                 force=True)
+        if height > 1:
+            grid.set((door_x + dx, height - 2, z0 - 1), stair,
+                     ["DETAIL", "GROUND", "PROTECTED"], PRIORITY["DETAIL"],
+                     stair_slot, force=True)
+
+
+def dougong_brackets(grid: BlockGrid, style: Style, rng: random.Random,
+                     vol: Node, sides: Iterable[str]) -> int:
+    del rng
+    column, column_slot = _column_state(style)
+    bracket = style.slot_entry("DETAIL_WOOD", "_slab")
+    wall_top = vol.meta["foundation_h"] + vol.meta["wall_h"] - 1
+    p = PRIORITY["DETAIL"]
+    placed = 0
+    for wall in sides:
+        axis, _fixed, (a0, a1), _outward = wall_info(vol, wall)
+        step = 3
+        for along in range(a0 + 2, a1 - 1, step):
+            cap_axis = "x" if axis == "x" else "z"
+            head = wall_pos(vol, wall, along, wall_top, depth_offset=1)
+            outer = wall_pos(vol, wall, along, wall_top, depth_offset=2)
+            upper = wall_pos(vol, wall, along, wall_top + 1, depth_offset=2)
+            if column:
+                grid.set(head, column, ["DETAIL", "STRUCTURE"], p, column_slot)
+            for pos in (head, outer, upper):
+                if grid.set(pos, bracket, ["DETAIL"], p, "DETAIL_WOOD"):
+                    placed += 1
+            for side in (-1, 1):
+                arm = wall_pos(vol, wall, along + side, wall_top, depth_offset=1)
+                if grid.set(arm, slab_state(style, "bottom", "DETAIL_WOOD"),
+                            ["DETAIL"], p, "DETAIL_WOOD"):
+                    placed += 1
+            if column and cap_axis:
+                grid.set(wall_pos(vol, wall, along, wall_top - 1, depth_offset=1),
+                         column, ["DETAIL", "STRUCTURE"], p, column_slot)
+    return placed
+
+
+def colonnade(grid: BlockGrid, style: Style, rng: random.Random,
+              node: Node, vol: Node) -> None:
+    column, slot = _column_state(style)
+    if not column:
+        return
+    sides = tuple(node.meta.get("sides", ("front",)))
+    start_y = max(0, int(node.meta.get("base_y", vol.meta.get("foundation_h", 1) - 1)))
+    wall_top = vol.meta["foundation_h"] + vol.meta["wall_h"] - 1
+    door = node.meta.get("door_x")
+    p = PRIORITY["DETAIL"]
+    for wall in sides:
+        _axis, _fixed, (a0, a1), _outward = wall_info(vol, wall)
+        positions = list(range(a0 + 1, a1, 3))
+        for corner in (a0 + 1, a1 - 1):
+            if a0 < corner < a1 and corner not in positions:
+                positions.append(corner)
+        for along in sorted(set(positions)):
+            if wall == "front" and door is not None and abs(along - int(door)) <= 1:
+                continue
+            for y in range(start_y, wall_top + 1):
+                grid.set(wall_pos(vol, wall, along, y, depth_offset=2),
+                         column, ["DETAIL", "STRUCTURE"], p, slot)
+    dougong_brackets(grid, style, rng, vol, sides)
+
+
+def balustrade(grid: BlockGrid, style: Style, node: Node) -> None:
+    rail, slot = _balustrade_state(style)
+    if not rail:
+        return
+    y = node.y0
+    gap_wall = node.meta.get("gap_wall")
+    gap_center = node.meta.get("gap_center")
+    p = PRIORITY["DETAIL"]
+    for x in range(node.x0, node.x1 + 1):
+        for z, wall in ((node.z0, "front"), (node.z1, "back")):
+            if wall == gap_wall and gap_center is not None and abs(x - int(gap_center)) <= 1:
+                continue
+            grid.set((x, y, z), rail, ["DETAIL", "STRUCTURE"], p, slot)
+    for z in range(node.z0 + 1, node.z1):
+        for x, wall in ((node.x0, "west"), (node.x1, "east")):
+            if wall == gap_wall and gap_center is not None and abs(z - int(gap_center)) <= 1:
+                continue
+            grid.set((x, y, z), rail, ["DETAIL", "STRUCTURE"], p, slot)
+
+
+def pagoda_story_insets(grid: BlockGrid, style: Style, vol: Node) -> None:
+    insets = list(vol.meta.get("story_insets", []))
+    stories = int(vol.meta.get("stories", 1))
+    if stories <= 1 or len(insets) < stories:
+        return
+    fh = vol.meta["foundation_h"]
+    story_wall_h = vol.meta.get("story_wall_h", vol.meta["wall_h"])
+    wall = style.primary("WALL_MAIN")
+    frame = log_state(style, "y")
+    p_structure = PRIORITY["FACADE"]
+    p_roof = PRIORITY["ROOF"]
+    for story in range(1, stories):
+        inset = max(0, int(insets[story]))
+        prev_inset = max(0, int(insets[story - 1]))
+        y0 = fh + story * story_wall_h
+        y1 = min(fh + (story + 1) * story_wall_h - 1,
+                 fh + vol.meta["wall_h"] - 1)
+        # Eave band at the story break on the wider lower footprint.
+        bx0, bx1 = vol.x0 + prev_inset - 1, vol.x1 - prev_inset + 1
+        bz0, bz1 = vol.z0 + prev_inset - 1, vol.z1 - prev_inset + 1
+        slab, slab_slot = roof_slab_state(style, "bottom")
+        for x in range(bx0, bx1 + 1):
+            grid.set((x, y0, bz0), slab, ["ROOF", "DETAIL"], p_roof, slab_slot)
+            grid.set((x, y0, bz1), slab, ["ROOF", "DETAIL"], p_roof, slab_slot)
+        for z in range(bz0 + 1, bz1):
+            grid.set((bx0, y0, z), slab, ["ROOF", "DETAIL"], p_roof, slab_slot)
+            grid.set((bx1, y0, z), slab, ["ROOF", "DETAIL"], p_roof, slab_slot)
+        nx0, nx1 = vol.x0 + inset, vol.x1 - inset
+        nz0, nz1 = vol.z0 + inset, vol.z1 - inset
+        for x in range(vol.x0, vol.x1 + 1):
+            for z in range(vol.z0, vol.z1 + 1):
+                outside_inset = x < nx0 or x > nx1 or z < nz0 or z > nz1
+                if not outside_inset:
+                    continue
+                for y in range(y0 + 1, y1 + 1):
+                    grid.set((x, y, z), AIR, ["AIR_CARVE"], PRIORITY["AIR_CARVE"],
+                             force=True)
+        for y in range(y0 + 1, y1 + 1):
+            for x in range(nx0, nx1 + 1):
+                grid.set((x, y, nz0), wall, ["FACADE", "STRUCTURE"],
+                         p_structure, "WALL_MAIN")
+                grid.set((x, y, nz1), wall, ["FACADE", "STRUCTURE"],
+                         p_structure, "WALL_MAIN")
+            for z in range(nz0, nz1 + 1):
+                grid.set((nx0, y, z), wall, ["FACADE", "STRUCTURE"],
+                         p_structure, "WALL_MAIN")
+                grid.set((nx1, y, z), wall, ["FACADE", "STRUCTURE"],
+                         p_structure, "WALL_MAIN")
+            for pos in ((nx0, y, nz0), (nx0, y, nz1), (nx1, y, nz0), (nx1, y, nz1)):
+                grid.set(pos, frame, ["FACADE", "STRUCTURE"], p_structure,
+                         "FRAME_WOOD")
+
+
+def mountain_gate_detail(grid: BlockGrid, style: Style, rng: random.Random,
+                         node: Node, vol: Node) -> None:
+    del node
+    column, column_slot = _column_state(style)
+    if not column:
+        column = log_state(style, "y")
+        column_slot = "FRAME_WOOD"
+    fh = vol.meta["foundation_h"]
+    wall_top = fh + vol.meta["wall_h"] - 1
+    center = (vol.x0 + vol.x1) // 2
+    p = PRIORITY["DETAIL"]
+    pillar_xs = [vol.x0 + 1, center - 3, center + 3, vol.x1 - 1]
+    for px in sorted(set(pillar_xs)):
+        for depth in (1, 2):
+            for y in range(fh - 1, wall_top + 1):
+                grid.set(wall_pos(vol, "front", px, y, depth_offset=depth),
+                         column, ["DETAIL", "STRUCTURE"], p, column_slot)
+    for along in range(vol.x0 + 1, vol.x1):
+        for y in range(fh + 1, min(wall_top, fh + 3) + 1):
+            if abs(along - center) <= 1 or abs(along - (center - 5)) <= 1 or abs(along - (center + 5)) <= 1:
+                grid.set(wall_pos(vol, "front", along, y), AIR,
+                         ["AIR_CARVE", "PROTECTED"], PRIORITY["OPENING"])
+    beam = log_state(style, "x", rng)
+    for zoff in (1, 2):
+        for along in range(vol.x0 + 1, vol.x1):
+            grid.set(wall_pos(vol, "front", along, wall_top, depth_offset=zoff),
+                     beam, ["DETAIL", "STRUCTURE"], p, "FRAME_WOOD")
+
+
+def alchemy_furnace(grid: BlockGrid, style: Style, node: Node) -> None:
+    anchor = style.optional_slot_entry(
+        "RITUAL_ANCHOR", ":",
+        style.slot_entry("INTERIOR_CIVIC", "cauldron", "minecraft:cauldron"))
+    metal = style.optional_slot_entry(
+        "RITUAL_METAL", "copper",
+        style.slot_entry("BASE_STONE", "stone", style.primary("BASE_STONE")))
+    crystal = (
+        style.optional_slot_entry("SPIRIT_CRYSTAL", "amethyst")
+        or style.optional_slot_entry("LIGHTING", "lamp")
+        or style.slot_entry("LIGHTING", "lantern", "minecraft:lantern[hanging=false,waterlogged=false]")
+    )
+    x0, y0, z0 = node.x0, node.y0, node.z0
+    p = PRIORITY["INTERIOR"]
+    for dx in range(3):
+        for dz in range(3):
+            slot = "RITUAL_METAL" if style.has_slot("RITUAL_METAL") else "BASE_STONE"
+            grid.set((x0 + dx, y0, z0 + dz), metal,
+                     ["INTERIOR", "DETAIL", "PROTECTED"], p, slot)
+    grid.set((x0 + 1, y0 + 1, z0 + 1), anchor,
+             ["INTERIOR", "DETAIL", "PROTECTED"], p, "RITUAL_ANCHOR")
+    for dx, dz in ((0, 0), (0, 2), (2, 0), (2, 2)):
+        grid.set((x0 + dx, y0 + 1, z0 + dz), metal,
+                 ["INTERIOR", "DETAIL", "PROTECTED"], p,
+                 "RITUAL_METAL" if style.has_slot("RITUAL_METAL") else "BASE_STONE")
+    grid.set((x0 + 1, y0 + 2, z0 + 1), crystal,
+             ["INTERIOR", "DETAIL", "PROTECTED"], p,
+             "SPIRIT_CRYSTAL" if style.has_slot("SPIRIT_CRYSTAL") else "LIGHTING")
+
+
 def _slot_choice(style: Style, rng: random.Random, slot: str,
                  contains: str, default: Optional[str] = None) -> Optional[str]:
     options = style.slot_options(slot, contains) if hasattr(style, "slot_options") else []
@@ -790,6 +1350,150 @@ def wall_hanging(grid: BlockGrid, style: Style, rng: random.Random, vol: Node,
     if not outside:
         pos = wall_pos(vol, wall, along, y, depth_offset=-1)
     return grid.set(pos, state, ["DETAIL", "PROTECTED"], PRIORITY["DETAIL"], slot)
+
+
+def _tangent_vec(facing: str) -> tuple[int, int]:
+    return (1, 0) if facing in ("north", "south") else (0, 1)
+
+
+def _offset_xz(pos: Pos, facing: str, tangent_offset: int = 0,
+               normal_offset: int = 0, y_offset: int = 0) -> Pos:
+    tx, tz = _tangent_vec(facing)
+    nx, nz = DIR_VEC[facing]
+    return (
+        pos[0] + tx * tangent_offset + nx * normal_offset,
+        pos[1] + y_offset,
+        pos[2] + tz * tangent_offset + nz * normal_offset,
+    )
+
+
+def _col_for_index(index: int, width: int) -> str:
+    if width <= 1:
+        return "single"
+    values = {
+        2: ["left", "right"],
+        3: ["left", "center", "right"],
+        4: ["left", "inner_left", "inner_right", "right"],
+        5: ["left", "inner_left", "center", "inner_right", "right"],
+    }.get(width)
+    if values is None:
+        raise ValueError(f"unsupported plaque width {width}")
+    return values[index]
+
+
+def _row_for_y(y_index: int, height: int) -> str:
+    if height <= 1:
+        return "single"
+    bottom_to_top = {
+        2: ["bottom", "top"],
+        3: ["bottom", "middle", "top"],
+        4: ["bottom", "lower_middle", "upper_middle", "top"],
+        5: ["bottom", "lower_middle", "middle", "upper_middle", "top"],
+    }.get(height)
+    if bottom_to_top is None:
+        raise ValueError(f"unsupported plaque height {height}")
+    return bottom_to_top[y_index]
+
+
+def _plaque_state(binding: plaque_bindings.Binding, facing: str,
+                  row: str, col: str) -> str:
+    return (
+        f"{binding.block_id}[facing={facing},frame={binding.frame},"
+        f"row={row},col={col}]"
+    )
+
+
+def _visual_left_uses_positive_tangent(facing: str) -> bool:
+    # For a viewer standing outside the facade, north/east-facing plaques have
+    # their visual left side at +x/+z; south/west-facing plaques are the inverse.
+    return facing in ("north", "east")
+
+
+def _place_plaque(grid: BlockGrid, center_pos: Pos, facing: str,
+                  binding: plaque_bindings.Binding, chains: bool) -> bool:
+    p = PRIORITY["DETAIL"]
+    width = binding.width
+    height = binding.height
+    placed: list[Pos] = []
+    ok = False
+
+    if binding.orientation == "vertical":
+        for y_index in range(height):
+            row = _row_for_y(y_index, height)
+            pos = _offset_xz(center_pos, facing, 0, 0, y_index)
+            ok |= grid.set(pos, _plaque_state(binding, facing, row, "single"),
+                           ["DETAIL", "PROTECTED"], p, "SIGNAGE")
+            placed.append(pos)
+    else:
+        start_offset = -(width // 2)
+        reverse_wall_order = (
+            binding.mount == "wall"
+            and _visual_left_uses_positive_tangent(facing)
+        )
+        for x_index in range(width):
+            offset_index = width - 1 - x_index if reverse_wall_order else x_index
+            tangent_offset = start_offset + offset_index
+            col = _col_for_index(x_index, width)
+            for y_index in range(height):
+                row = _row_for_y(y_index, height)
+                pos = _offset_xz(center_pos, facing, tangent_offset, 0, y_index)
+                ok |= grid.set(pos, _plaque_state(binding, facing, row, col),
+                               ["DETAIL", "PROTECTED"], p, "SIGNAGE")
+                placed.append(pos)
+
+    if chains:
+        chain = "minecraft:chain[axis=y,waterlogged=false]"
+        if binding.orientation == "vertical":
+            chain_positions = [_offset_xz(center_pos, facing, 0, 0, height)]
+        else:
+            offsets = [-(width // 2), -(width // 2) + width - 1]
+            if width >= 5:
+                offsets.append(0)
+            chain_positions = [_offset_xz(center_pos, facing, offset, 0, height)
+                               for offset in sorted(set(offsets))]
+        for pos in chain_positions:
+            ok |= grid.set(pos, chain, ["DETAIL"], p, "SIGNAGE")
+
+    return ok
+
+
+def _side_along_for_vertical(vol: Node, wall: str, along: int,
+                             plaque_height: int) -> int:
+    _axis, _fixed, (lo, hi), _outward = wall_info(vol, wall)
+    del plaque_height
+    right = along + 2
+    left = along - 2
+    if right <= hi - 1:
+        return right
+    if left >= lo + 1:
+        return left
+    return max(lo + 1, min(hi - 1, along))
+
+
+def plaque_wall_anchor(vol: Node, wall: str, along: int, y: int,
+                       binding: plaque_bindings.Binding) -> Pos:
+    if binding.orientation == "vertical":
+        side_along = _side_along_for_vertical(vol, wall, along, binding.height)
+        base_y = max(vol.meta.get("foundation_h", 1) + 1, y - binding.height + 1)
+        return wall_pos(vol, wall, side_along, base_y, depth_offset=1)
+    return wall_pos(vol, wall, along, y, depth_offset=1)
+
+
+def place_wall_plaque(grid: BlockGrid, style: Style, rng: random.Random,
+                      vol: Node, wall: str, along: int, y: int,
+                      binding: plaque_bindings.Binding) -> bool:
+    del style, rng
+    facing = OUTWARD_FACING[wall]
+    anchor = plaque_wall_anchor(vol, wall, along, y, binding)
+    return _place_plaque(grid, anchor, facing, binding, chains=False)
+
+
+def place_hanging_plaque(grid: BlockGrid, style: Style, rng: random.Random,
+                         vol: Optional[Node], anchor_pos: Pos, facing: str,
+                         binding: plaque_bindings.Binding) -> bool:
+    del style, rng, vol
+    anchor = anchor_pos
+    return _place_plaque(grid, anchor, facing, binding, chains=True)
 
 
 def mezzanine_floor(grid: BlockGrid, style: Style, vol: Node,
@@ -1264,10 +1968,6 @@ def _sect_gate_paifang_motif(grid: BlockGrid, style: Style, rng: random.Random,
     trim = _optional_slot_block(
         style, "MARKET_FITTINGS",
         ("pedestal", "rack_a", "rack", "basket", "barrel", "shelf", "holder"))
-    sign = (
-        style.optional_slot_entry("SIGNAGE", "_wall_sign")
-        or style.optional_slot_entry("SIGNAGE", "_sign")
-    )
     post = log_state(style, "y")
     beam = slab_state(style, "bottom", "DETAIL_WOOD")
     backing = style.slot_entry("DETAIL_WOOD", "_planks",
@@ -1287,13 +1987,15 @@ def _sect_gate_paifang_motif(grid: BlockGrid, style: Style, rng: random.Random,
             if grid.is_empty(support_pos):
                 ok |= grid.set(support_pos, backing, ["DETAIL"], p,
                                "DETAIL_WOOD")
-    if sign:
-        block = _block_id(sign)
-        sign_state = block
-        if "wall_sign" in block:
-            sign_state = f"{block}[facing={facing},waterlogged=false]"
-        ok |= grid.set((x0 + 2, y0 + 2, z0), sign_state,
-                       ["DETAIL"], p, "SIGNAGE")
+    binding = plaque_bindings.binding_for("sect_gate", rng)
+    if binding:
+        anchor = (x0 + 2, y0 + 2, z0)
+        if binding.mount == "hanging":
+            ok |= place_hanging_plaque(grid, style, rng, related, anchor, facing, binding)
+        else:
+            ok |= _place_plaque(grid, anchor, facing, binding, chains=False)
+    else:
+        warnings.warn("sect_gate_paifang motif skipped central tablet: no plaque binding for sect_gate")
     if trim:
         for dx in (1, 3):
             ok |= grid.set((x0 + dx, y0 + 1, z0), trim,
@@ -1376,6 +2078,9 @@ def open_shed(grid: BlockGrid, style: Style, rng: random.Random, vol: Node,
 register_roof("gable_roof", _gable_roof_handler)
 register_roof("cross_gable_roof", _cross_gable_roof_handler)
 register_roof("lean_to_roof", _lean_to_roof_handler)
+register_roof("sweeping_eave_roof", _sweeping_eave_roof_handler)
+register_roof("hip_roof", _hip_roof_handler)
+register_roof("pyramidal_roof", _pyramidal_roof_handler)
 register_roof("tiered_eave_roof", _tiered_eave_roof_handler)
 for _grade in ("硬山", "悬山", "歇山"):
     register_roof(_grade, _chinese_roof_grade_handler)

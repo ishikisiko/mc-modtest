@@ -1,0 +1,78 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "myvillage:block/plaque/hanging/town_shop_wood_3w/middle",
+    "plaque": "myvillage:block/plaque/hanging/town_shop_wood_3w/vertical_full",
+    "edge": "myvillage:block/plaque/hanging/town_shop_wood_3w/middle"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        7
+      ],
+      "to": [
+        16,
+        16,
+        9
+      ],
+      "faces": {
+        "north": {
+          "texture": "#plaque",
+          "uv": [
+            0.0,
+            5.3333,
+            16.0,
+            10.6667
+          ]
+        },
+        "south": {
+          "texture": "#plaque",
+          "uv": [
+            16.0,
+            5.3333,
+            0.0,
+            10.6667
+          ]
+        },
+        "up": {
+          "texture": "#edge",
+          "uv": [
+            0,
+            0,
+            16,
+            1
+          ]
+        },
+        "down": {
+          "texture": "#edge",
+          "uv": [
+            0,
+            15,
+            16,
+            16
+          ]
+        },
+        "east": {
+          "texture": "#edge",
+          "uv": [
+            15,
+            0,
+            16,
+            16
+          ]
+        },
+        "west": {
+          "texture": "#edge",
+          "uv": [
+            0,
+            0,
+            1,
+            16
+          ]
+        }
+      }
+    }
+  ]
+}

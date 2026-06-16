@@ -20,8 +20,8 @@ MAX_IMPORTANCE_TIER = 3
 
 @dataclass(frozen=True)
 class TownSite:
-    width: int = 64
-    depth: int = 56
+    width: int = 96
+    depth: int = 80
     base_y: int = 64
     max_slope: int = 5
 
@@ -47,6 +47,7 @@ class TownParcel:
     roof_grade_hint: str
     height_hint: str
     dominant_landmark: bool = False
+    template_id: str = ""
 
     @property
     def cells(self) -> Set[Cell2]:
@@ -83,6 +84,7 @@ class TownPlan:
     parcels: List[TownParcel]
     negative_spaces: List[NegativeSpace]
     soft_brief: Dict[str, int] = field(default_factory=dict)
+    ritual_axis: Dict[str, object] = field(default_factory=dict)
 
     @property
     def street_cells(self) -> Set[Cell2]:
@@ -129,6 +131,7 @@ class TownPlan:
                 for region in self.negative_spaces
             ],
             "soft_brief": dict(self.soft_brief),
+            "ritual_axis": self.ritual_axis,
         }
 
 
@@ -171,7 +174,7 @@ def _role_sequence(rng: random.Random, soft_brief: Dict[str, int]) -> List[str]:
 def generate_town_plan(seed: int, site: Optional[TownSite] = None,
                        soft_brief: Optional[Dict[str, int]] = None) -> TownPlan:
     site = site or TownSite()
-    if site.width < 44 or site.depth < 40:
+    if site.width < 72 or site.depth < 64:
         raise ValueError(f"site too small for default town: {site.width}x{site.depth}")
 
     rng = random.Random(seed)
@@ -180,62 +183,74 @@ def generate_town_plan(seed: int, site: Optional[TownSite] = None,
     cx = site.width // 2
     gate_half = 2
     south_gate_cells = tuple((x, 0) for x in range(cx - gate_half, cx + gate_half + 1))
-    north_gate_cells = tuple((x, site.depth - 1) for x in range(cx - gate_half, cx + gate_half + 1))
     gates = [
         TownGate("south_gate", "south", south_gate_cells),
-        TownGate("north_gate", "north", north_gate_cells),
     ]
-    gate_cells = set(south_gate_cells) | set(north_gate_cells)
+    gate_cells = set(south_gate_cells)
     wall_cells = perimeter - gate_cells
 
-    spine_width = 5
-    spine = {
-        (x, z)
-        for x in range(cx - spine_width // 2, cx + spine_width // 2 + 1)
-        for z in range(0, site.depth)
-    }
-    lane_z = site.depth // 2 + rng.choice((-2, 0, 2))
+    shrine_w = 27
+    shrine_d = 20
+    shrine_x0 = cx - shrine_w // 2
+    shrine_x1 = shrine_x0 + shrine_w - 1
+    shrine_z1 = site.depth - 3
+    shrine_z0 = shrine_z1 - shrine_d + 1
+    plaza = (cx - 16, shrine_z0 - 9, cx + 16, shrine_z0 - 1)
+    paifang_cells = tuple((x, plaza[1] - 1) for x in range(cx - 6, cx + 7))
+    lantern_cells = tuple(
+        cell
+        for z in range(8, plaza[1] - 2, 5)
+        for cell in ((cx - 5, z), (cx + 5, z))
+    )
+
+    spine_half = 3
+    spine = _rect(cx - spine_half, 0, cx + spine_half, plaza[3])
+    spine |= _rect(*plaza)
+    spine |= set(paifang_cells)
+
+    lane_z = site.depth // 2 - 2
     lane_cells = {
         (x, z)
-        for x in range(5, site.width - 5)
+        for x in range(8, site.width - 8)
         for z in range(lane_z - 1, lane_z + 2)
     } - spine
-    for cross_z in (11, site.depth - 11):
-        lane_cells |= {
-            (x, z)
-            for x in range(5, site.width - 5)
-            for z in range(cross_z - 1, cross_z + 2)
-        } - spine
+    lane_cells |= {
+        (x, z)
+        for x in range(8, site.width - 8)
+        for z in range(16, 19)
+    } - spine
+    lane_cells |= {
+        (x, shrine_z0 - 1)
+        for x in range(8, site.width - 8)
+    } - spine
 
     role_pool = _role_sequence(rng, soft_brief)
     parcels: List[TownParcel] = []
-    landmark_bounds = (cx - 11, lane_z + 2, cx - 3, lane_z + 10)
     height, roof = _importance_hint(MAX_IMPORTANCE_TIER)
     parcels.append(TownParcel(
-        "landmark_temple",
+        "town_shrine",
         "civic",
-        landmark_bounds,
+        (shrine_x0, shrine_z0, shrine_x1, shrine_z1),
         MAX_IMPORTANCE_TIER,
         site.base_y,
         roof,
         height,
         dominant_landmark=True,
+        template_id="town_shrine_001",
     ))
 
     side_specs = [
-        ("west_core", 6, lane_z - 9, 18, lane_z - 2, 2),
-        ("east_core", site.width - 19, lane_z - 9, site.width - 7, lane_z - 2, 2),
-        ("west_market", 6, lane_z + 2, 18, lane_z + 10, 2),
-        ("east_market", site.width - 19, lane_z + 2, site.width - 7, lane_z + 10, 2),
-        ("west_outer_south", 6, 5, 18, 9, 1),
-        ("east_outer_south", site.width - 19, 5, site.width - 7, 9, 1),
-        ("west_outer_north", 6, site.depth - 9, 18, site.depth - 5, 1),
-        ("east_outer_north", site.width - 19, site.depth - 9, site.width - 7, site.depth - 5, 1),
+        ("west_core_shop", 20, 20, 42, lane_z - 2, 2, "market", "cultivation_shop_002"),
+        ("east_core_shop", site.width - 42, 20, site.width - 20, lane_z - 2, 2, "market", "cultivation_shop_003"),
+        ("west_market", 12, lane_z + 2, 31, shrine_z0 - 2, 2, "market", "cultivation_market_001"),
+        ("east_market", site.width - 31, lane_z + 2, site.width - 9, shrine_z0 - 2, 2, "market", "cultivation_market_001"),
+        ("west_outer_south", 16, 1, 36, 15, 1, "housing", "cultivation_house_001"),
+        ("east_outer_south", site.width - 36, 1, site.width - 16, 15, 1, "housing", "cultivation_house_002"),
+        ("west_outer_north", 8, shrine_z0, 31, shrine_z1 - 1, 1, "housing", "cultivation_house_003"),
+        ("east_outer_north", site.width - 31, shrine_z0, site.width - 9, shrine_z1 - 1, 1, "defense", "cultivation_market_002"),
     ]
-    for idx, (pid, x0, z0, x1, z1, tier) in enumerate(side_specs):
-        role = role_pool[idx % len(role_pool)]
-        if "market" in pid:
-            role = "market"
+    for idx, (pid, x0, z0, x1, z1, tier, default_role, template_id) in enumerate(side_specs):
+        role = default_role or role_pool[idx % len(role_pool)]
         height, roof = _importance_hint(tier)
         parcels.append(TownParcel(
             pid,
@@ -245,16 +260,27 @@ def generate_town_plan(seed: int, site: Optional[TownSite] = None,
             site.base_y,
             roof,
             height,
+            template_id=template_id,
         ))
 
     negative_spaces = [
         NegativeSpace("market_mouth_square", "market_square",
-                      (cx + 4, lane_z + 2, cx + 11, lane_z + 8), 3),
+                      (cx - 16, lane_z + 2, cx - 5, min(lane_z + 7, plaza[1] - 1)), 3),
         NegativeSpace("well_court", "well_plaza",
-                      (cx - 12, lane_z - 8, cx - 5, lane_z - 3), 2),
+                      (8, lane_z - 11, 16, lane_z - 5), 2),
         NegativeSpace("back_lane_yard", "domestic_yard",
-                      (cx + 6, 16, cx + 12, 21), 1),
+                      (site.width - 18, lane_z - 13, site.width - 9, lane_z - 7), 1),
     ]
+    ritual_axis = {
+        "kind": "cultivation_town_ritual_axis",
+        "from_gate": "south_gate",
+        "terminus_parcel": "town_shrine",
+        "plaza_bounds": list(plaza),
+        "paifang_gate_cells": _cells_to_json(paifang_cells),
+        "lantern_cells": _cells_to_json(lantern_cells),
+        "axis_center_x": cx,
+        "approach_z_range": [0, plaza[3]],
+    }
 
     return TownPlan(
         seed=seed,
@@ -267,6 +293,7 @@ def generate_town_plan(seed: int, site: Optional[TownSite] = None,
         parcels=parcels,
         negative_spaces=negative_spaces,
         soft_brief=soft_brief,
+        ritual_axis=ritual_axis,
     )
 
 
@@ -312,17 +339,38 @@ def validate_town_plan(plan: TownPlan) -> dict:
         errors.append(f"dominant_landmark_count: {len(landmarks)}")
     elif landmarks[0].importance_tier != MAX_IMPORTANCE_TIER:
         errors.append("dominant_landmark_not_top_tier")
+    elif landmarks[0].id != "town_shrine":
+        errors.append(f"dominant_landmark_not_town_shrine: {landmarks[0].id}")
     for parcel in plan.parcels:
         if parcel.importance_tier < 0 or parcel.importance_tier > MAX_IMPORTANCE_TIER:
             errors.append(f"bad_importance_tier: {parcel.id}: {parcel.importance_tier}")
 
-    core = (plan.site.width // 2, plan.site.depth // 2)
-    ordered = sorted(plan.parcels, key=lambda p: abs(p.center[0] - core[0]) + abs(p.center[1] - core[1]))
-    max_seen = MAX_IMPORTANCE_TIER
-    for parcel in ordered:
-        if parcel.importance_tier > max_seen:
-            errors.append(f"importance_increases_outward: {parcel.id}")
-        max_seen = min(max_seen, parcel.importance_tier)
+    axis = plan.ritual_axis
+    if not axis:
+        errors.append("missing_ritual_axis")
+    else:
+        if axis.get("terminus_parcel") != "town_shrine":
+            errors.append(f"ritual_axis_wrong_terminus: {axis.get('terminus_parcel')}")
+        shrine = next((p for p in plan.parcels if p.id == "town_shrine"), None)
+        plaza_bounds = axis.get("plaza_bounds", [])
+        if shrine is None:
+            errors.append("ritual_axis_missing_town_shrine_parcel")
+        elif len(plaza_bounds) == 4:
+            plaza_cells = _rect(*plaza_bounds)
+            shrine_front = _rect(shrine.bounds[0], shrine.bounds[1] - 1,
+                                 shrine.bounds[2], shrine.bounds[1] - 1)
+            if not (shrine_front & plaza_cells):
+                errors.append("town_shrine_not_fronted_by_plaza")
+            if not (plaza_cells & plan.spine):
+                errors.append("ritual_plaza_not_on_axis_spine")
+        else:
+            errors.append(f"bad_ritual_plaza_bounds: {plaza_bounds}")
+        paifang = {tuple(c) for c in axis.get("paifang_gate_cells", [])}
+        if not paifang or not paifang <= plan.spine:
+            errors.append("paifang_gate_not_on_axis")
+        lanterns = {tuple(c) for c in axis.get("lantern_cells", [])}
+        if len(lanterns) < 4:
+            errors.append("lantern_approach_too_sparse")
 
     all_plan_cells = plan.perimeter | plan.street_cells | plan.parcel_cells | plan.negative_cells
     outside = sorted(c for c in all_plan_cells if not plan.site.contains(c))

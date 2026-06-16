@@ -125,6 +125,22 @@
       "fetzisdisplays:dark_oak_vertical_rack_a",
       "fetzisdisplays:dark_oak_vertical_wall_holder",
       "minecraft:barrel"
+    ],
+    "COLUMN": [
+      "supplementaries:blackstone_tile_wall",
+      "minecraft:quartz_pillar[axis=y]"
+    ],
+    "PLATFORM_STONE": [
+      "supplementaries:blackstone_tile",
+      "minecraft:polished_andesite"
+    ],
+    "RIDGE_ORNAMENT": [
+      "supplementaries:lapis_bricks_wall",
+      "minecraft:sea_lantern"
+    ],
+    "BALUSTRADE": [
+      "supplementaries:ash_bricks_wall",
+      "minecraft:polished_blackstone_wall"
     ]
   },
   "variation_rate": {
@@ -132,9 +148,9 @@
     "WALL_MAIN": 0.06
   },
   "allowed_roof_types": [
-    "gable_roof",
-    "cross_gable_roof",
-    "lean_to_roof",
+    "sweeping_eave_roof",
+    "hip_roof",
+    "pyramidal_roof",
     "tiered_eave_roof"
   ],
   "allowed_wall_types": [
@@ -149,11 +165,6 @@
     "small_high_window"
   ],
   "allowed_motifs": [
-    "small_porch",
-    "side_chimney",
-    "woodpile",
-    "barrel_cluster",
-    "fence_patch",
     "lantern_post",
     "small_path_patch",
     "moon_gate",
@@ -180,15 +191,15 @@
     ],
     "roof_height_ratio": [
       0.45,
-      0.85
+      0.55
     ],
     "foundation_height": [
-      1,
-      2
+      2,
+      3
     ],
     "roof_overhang": [
-      1,
-      2
+      2,
+      3
     ],
     "max_flat_wall_width": 5,
     "window_min_count": 2,

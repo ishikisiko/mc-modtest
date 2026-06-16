@@ -1,0 +1,46 @@
+Plaque frame asset checklist
+============================
+
+Frame edge part PNGs are 16x16. Full plaque PNGs may be higher resolution and are mapped across multipart models with UV windows.
+Inspect each mount/preset group for readable full-face calligraphy, edge continuity, and hanging hardware.
+
+- town_shop_wood_3w (Town Shop Wood 3W)
+  material: weathered oak with rubbed dark stain
+  edge: plain raised rail with hand-cut bevels
+  corners: small square peg caps
+  hanging: iron eyelets and short chain loops
+- town_inn_lacquered_4w (Town Inn Lacquered 4W)
+  material: red-brown lacquer over smooth wood
+  edge: rounded lacquer rail with darker underside
+  corners: brass pin clusters
+  hanging: dark brass eyelets
+- town_notice_board_3w (Town Notice Board 3W)
+  material: rough pine board with paper-tack scars
+  edge: flat plank frame with uneven nail heads
+  corners: black nail plates
+  hanging: simple iron straps
+- tavern_signboard_4w (Tavern Signboard 4W)
+  material: dark oak with warm brass strapping
+  edge: thick outer rail and inset inner lip
+  corners: diagonal brass corner brackets
+  hanging: paired blackened chain rings
+- sect_simple_pine_4w (Sect Simple Pine 4W)
+  material: pale pine with restrained ink wash
+  edge: thin cloud-profile rail
+  corners: inked cloud curls
+  hanging: wrapped cord loops
+- sect_scripture_ornate_4w (Sect Scripture Ornate 4W)
+  material: dark lacquer with jade-green inlay
+  edge: stepped rail with inner bead
+  corners: jade cloud-corner plates
+  hanging: green-bronze rings
+- lord_manor_heraldry_5w (Lord Manor Heraldry 5W)
+  material: polished walnut with enamel heraldic bosses
+  edge: wide double rail with mitered corners
+  corners: shield-like enamel plates
+  hanging: heavy brass lugs
+- sect_treasure_gilded_5w_2h (Sect Treasure Gilded 5W 2H)
+  material: black lacquer and gilded relief
+  edge: monumental stepped frame with raised gilt rim
+  corners: gilded cloud-and-pearl bosses
+  hanging: three heavy ring mounts for 5w spans

@@ -1,0 +1,151 @@
+{
+  "structure": "cultivation_sect_002",
+  "layout_strategy": "sect_terraced_axial_compound",
+  "siting_context": {
+    "mountain_slope": "south_to_north_ascent",
+    "cliff_back": {
+      "edge": "north",
+      "z": 94,
+      "principal_hall_slot": "sect_main_hall"
+    },
+    "water_front": {
+      "edge": "south",
+      "cells": [
+        [
+          5,
+          2
+        ],
+        [
+          20,
+          12
+        ],
+        [
+          56,
+          2
+        ],
+        [
+          71,
+          12
+        ]
+      ]
+    },
+    "cloud_sea": {
+      "edge": "east",
+      "void": "east_cloud_gap",
+      "cantilever_slot": "east_cantilever_overlook"
+    }
+  },
+  "terraces": [
+    {
+      "id": "foot_terrace",
+      "level": 0,
+      "relative_y": 0,
+      "bounds": [
+        3,
+        1,
+        73,
+        18
+      ],
+      "courtyard": [
+        22,
+        8,
+        54,
+        17
+      ]
+    },
+    {
+      "id": "disciple_terrace",
+      "level": 1,
+      "relative_y": 2,
+      "bounds": [
+        6,
+        19,
+        70,
+        38
+      ],
+      "courtyard": [
+        27,
+        23,
+        50,
+        35
+      ]
+    },
+    {
+      "id": "alchemy_terrace",
+      "level": 2,
+      "relative_y": 4,
+      "bounds": [
+        9,
+        39,
+        67,
+        57
+      ],
+      "courtyard": [
+        20,
+        42,
+        51,
+        55
+      ]
+    },
+    {
+      "id": "summit_terrace",
+      "level": 3,
+      "relative_y": 6,
+      "bounds": [
+        12,
+        58,
+        58,
+        93
+      ],
+      "courtyard": [
+        20,
+        63,
+        56,
+        76
+      ]
+    }
+  ],
+  "terrace_levels": {
+    "sect_gate": 0,
+    "disciple_quarters": 1,
+    "alchemy_room": 2,
+    "scripture_pavilion": 3,
+    "sect_main_hall": 3
+  },
+  "importance_tiers": {
+    "sect_gate": 0,
+    "disciple_quarters": 1,
+    "alchemy_room": 1,
+    "scripture_pavilion": 3,
+    "sect_main_hall": 3
+  },
+  "hierarchy": [
+    "sect_gate",
+    "disciple_quarters",
+    "alchemy_room",
+    "scripture_pavilion",
+    "sect_main_hall"
+  ],
+  "links": [
+    {
+      "id": "covered_gallery_scripture_hall",
+      "kind": "covered_gallery",
+      "endpoints": [
+        "scripture_pavilion",
+        "sect_main_hall"
+      ],
+      "relative_y": 6,
+      "over": null
+    },
+    {
+      "id": "flying_bridge_scripture_overlook",
+      "kind": "flying_bridge",
+      "endpoints": [
+        "scripture_pavilion",
+        "east_cantilever_overlook"
+      ],
+      "relative_y": 7,
+      "over": "east_cloud_gap"
+    }
+  ]
+}

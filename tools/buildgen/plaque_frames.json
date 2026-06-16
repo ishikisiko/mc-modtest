@@ -1,0 +1,162 @@
+{
+  "version": 1,
+  "pixel_policy": {
+    "frame_px": 16,
+    "inscription_min_px_per_block": 32,
+    "inscription_max_px_per_block": 128
+  },
+  "presets": [
+    {
+      "id": "town_shop_wood_3w",
+      "display_name": "Town Shop Wood 3W",
+      "tier": "town",
+      "horizontal_size": [3, 1],
+      "vertical_size": [1, 3],
+      "interior_bucket": "3w",
+      "vertical_interior_bucket": "3h",
+      "material": "weathered oak with rubbed dark stain",
+      "edge_profile": "plain raised rail with hand-cut bevels",
+      "corner_ornament": "small square peg caps",
+      "hanging_hardware": "iron eyelets and short chain loops",
+      "palette": {
+        "base": [103, 62, 33],
+        "trim": [155, 106, 58],
+        "accent": [65, 38, 25],
+        "shadow": [42, 25, 18]
+      }
+    },
+    {
+      "id": "town_inn_lacquered_4w",
+      "display_name": "Town Inn Lacquered 4W",
+      "tier": "town",
+      "horizontal_size": [4, 1],
+      "vertical_size": [1, 4],
+      "interior_bucket": "4w",
+      "vertical_interior_bucket": "4h",
+      "material": "red-brown lacquer over smooth wood",
+      "edge_profile": "rounded lacquer rail with darker underside",
+      "corner_ornament": "brass pin clusters",
+      "hanging_hardware": "dark brass eyelets",
+      "palette": {
+        "base": [122, 42, 31],
+        "trim": [186, 82, 47],
+        "accent": [217, 165, 68],
+        "shadow": [55, 19, 18]
+      }
+    },
+    {
+      "id": "town_notice_board_3w",
+      "display_name": "Town Notice Board 3W",
+      "tier": "town",
+      "horizontal_size": [3, 1],
+      "vertical_size": null,
+      "interior_bucket": "3w",
+      "vertical_interior_bucket": null,
+      "material": "rough pine board with paper-tack scars",
+      "edge_profile": "flat plank frame with uneven nail heads",
+      "corner_ornament": "black nail plates",
+      "hanging_hardware": "simple iron straps",
+      "palette": {
+        "base": [135, 92, 47],
+        "trim": [181, 134, 77],
+        "accent": [41, 42, 39],
+        "shadow": [70, 45, 27]
+      }
+    },
+    {
+      "id": "tavern_signboard_4w",
+      "display_name": "Tavern Signboard 4W",
+      "tier": "civic",
+      "horizontal_size": [4, 1],
+      "vertical_size": [1, 4],
+      "interior_bucket": "4w",
+      "vertical_interior_bucket": "4h",
+      "material": "dark oak with warm brass strapping",
+      "edge_profile": "thick outer rail and inset inner lip",
+      "corner_ornament": "diagonal brass corner brackets",
+      "hanging_hardware": "paired blackened chain rings",
+      "palette": {
+        "base": [75, 46, 31],
+        "trim": [141, 82, 42],
+        "accent": [196, 139, 52],
+        "shadow": [31, 22, 18]
+      }
+    },
+    {
+      "id": "sect_simple_pine_4w",
+      "display_name": "Sect Simple Pine 4W",
+      "tier": "sect",
+      "horizontal_size": [4, 1],
+      "vertical_size": [1, 4],
+      "interior_bucket": "4w",
+      "vertical_interior_bucket": "4h",
+      "material": "pale pine with restrained ink wash",
+      "edge_profile": "thin cloud-profile rail",
+      "corner_ornament": "inked cloud curls",
+      "hanging_hardware": "wrapped cord loops",
+      "palette": {
+        "base": [159, 125, 71],
+        "trim": [211, 178, 112],
+        "accent": [82, 98, 82],
+        "shadow": [67, 56, 39]
+      }
+    },
+    {
+      "id": "sect_scripture_ornate_4w",
+      "display_name": "Sect Scripture Ornate 4W",
+      "tier": "sect",
+      "horizontal_size": [4, 1],
+      "vertical_size": [1, 4],
+      "interior_bucket": "4w",
+      "vertical_interior_bucket": "4h",
+      "material": "dark lacquer with jade-green inlay",
+      "edge_profile": "stepped rail with inner bead",
+      "corner_ornament": "jade cloud-corner plates",
+      "hanging_hardware": "green-bronze rings",
+      "palette": {
+        "base": [48, 54, 46],
+        "trim": [86, 111, 85],
+        "accent": [196, 171, 89],
+        "shadow": [18, 24, 22]
+      }
+    },
+    {
+      "id": "lord_manor_heraldry_5w",
+      "display_name": "Lord Manor Heraldry 5W",
+      "tier": "civic",
+      "horizontal_size": [5, 1],
+      "vertical_size": null,
+      "interior_bucket": "5w_1h",
+      "vertical_interior_bucket": null,
+      "material": "polished walnut with enamel heraldic bosses",
+      "edge_profile": "wide double rail with mitered corners",
+      "corner_ornament": "shield-like enamel plates",
+      "hanging_hardware": "heavy brass lugs",
+      "palette": {
+        "base": [85, 44, 29],
+        "trim": [151, 89, 48],
+        "accent": [200, 176, 86],
+        "shadow": [34, 20, 17]
+      }
+    },
+    {
+      "id": "sect_treasure_gilded_5w_2h",
+      "display_name": "Sect Treasure Gilded 5W 2H",
+      "tier": "sect",
+      "horizontal_size": [5, 2],
+      "vertical_size": [1, 5],
+      "interior_bucket": "5w_2h",
+      "vertical_interior_bucket": "5h",
+      "material": "black lacquer and gilded relief",
+      "edge_profile": "monumental stepped frame with raised gilt rim",
+      "corner_ornament": "gilded cloud-and-pearl bosses",
+      "hanging_hardware": "three heavy ring mounts for 5w spans",
+      "palette": {
+        "base": [35, 28, 25],
+        "trim": [170, 124, 38],
+        "accent": [232, 193, 76],
+        "shadow": [12, 11, 10]
+      }
+    }
+  ]
+}

@@ -45,8 +45,9 @@
           21,
           18
         ],
-        "block_count": 2312,
-        "palette_count": 41,
+        "block_count": 2317,
+        "entity_count": 0,
+        "palette_count": 45,
         "path": "src/main/resources/data/myvillage/structure/tavern_001.nbt"
       },
       "massing_graph": {
@@ -394,6 +395,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -441,8 +443,9 @@
           20,
           16
         ],
-        "block_count": 2373,
-        "palette_count": 37,
+        "block_count": 2378,
+        "entity_count": 0,
+        "palette_count": 41,
         "path": "src/main/resources/data/myvillage/structure/tavern_002.nbt"
       },
       "massing_graph": {
@@ -733,6 +736,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -780,8 +784,9 @@
           22,
           18
         ],
-        "block_count": 3107,
-        "palette_count": 47,
+        "block_count": 3112,
+        "entity_count": 0,
+        "palette_count": 51,
         "path": "src/main/resources/data/myvillage/structure/tavern_003.nbt"
       },
       "massing_graph": {
@@ -1129,6 +1134,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -1176,8 +1182,9 @@
           21,
           18
         ],
-        "block_count": 2327,
-        "palette_count": 42,
+        "block_count": 2332,
+        "entity_count": 0,
+        "palette_count": 46,
         "path": "src/main/resources/data/myvillage/structure/tavern_004.nbt"
       },
       "massing_graph": {
@@ -1525,6 +1532,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -1572,8 +1580,9 @@
           21,
           20
         ],
-        "block_count": 2865,
-        "palette_count": 38,
+        "block_count": 2870,
+        "entity_count": 0,
+        "palette_count": 42,
         "path": "src/main/resources/data/myvillage/structure/tavern_005.nbt"
       },
       "massing_graph": {
@@ -1864,6 +1873,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -1910,8 +1920,9 @@
           18,
           16
         ],
-        "block_count": 2823,
-        "palette_count": 41,
+        "block_count": 2827,
+        "entity_count": 0,
+        "palette_count": 45,
         "path": "src/main/resources/data/myvillage/structure/lord_manor_001.nbt"
       },
       "massing_graph": {
@@ -2010,6 +2021,7 @@
               "stories": 2,
               "story_wall_h": 4,
               "door_centered": true,
+              "entry_signage": true,
               "entry_heraldry": true,
               "stairwell": {
                 "volume": "main",
@@ -2250,6 +2262,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -2296,8 +2309,9 @@
           21,
           20
         ],
-        "block_count": 3644,
-        "palette_count": 45,
+        "block_count": 3648,
+        "entity_count": 0,
+        "palette_count": 50,
         "path": "src/main/resources/data/myvillage/structure/lord_manor_002.nbt"
       },
       "massing_graph": {
@@ -2396,6 +2410,7 @@
               "stories": 2,
               "story_wall_h": 4,
               "door_centered": true,
+              "entry_signage": true,
               "entry_heraldry": true,
               "stairwell": {
                 "volume": "main",
@@ -2691,6 +2706,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -2737,8 +2753,9 @@
           22,
           20
         ],
-        "block_count": 4041,
-        "palette_count": 38,
+        "block_count": 4045,
+        "entity_count": 0,
+        "palette_count": 42,
         "path": "src/main/resources/data/myvillage/structure/lord_manor_003.nbt"
       },
       "massing_graph": {
@@ -2837,6 +2854,7 @@
               "stories": 2,
               "story_wall_h": 4,
               "door_centered": true,
+              "entry_signage": true,
               "entry_heraldry": true,
               "stairwell": {
                 "volume": "main",
@@ -3132,6 +3150,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",

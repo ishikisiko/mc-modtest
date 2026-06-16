@@ -100,7 +100,29 @@ def main() -> int:
             if not report["passed"]:
                 raise RuntimeError(f"{name} failed sect compound validation: {report['errors']}")
             _, info = export.write_structure_nbt(compound.grid, style.style_id, name)
+            metadata = {
+                "structure": name,
+                "layout_strategy": compound.meta.get("layout_strategy"),
+                "siting_context": compound.meta.get("siting_context", {}),
+                "terraces": compound.meta.get("terraces", []),
+                "terrace_levels": compound.meta.get("terrace_levels", {}),
+                "importance_tiers": compound.meta.get("importance_tiers", {}),
+                "hierarchy": compound.meta.get("hierarchy", []),
+                "links": [
+                    {
+                        "id": node.id,
+                        "kind": node.meta.get("kind"),
+                        "endpoints": node.meta.get("endpoints", []),
+                        "relative_y": node.meta.get("relative_y"),
+                        "over": node.meta.get("over"),
+                    }
+                    for node in compound.parcel_nodes
+                    if node.type == "link"
+                ],
+            }
+            meta_path = export.write_settlement_metadata(name, metadata)
             export.write_place_function(style.style_id, name)
+            info["settlement_metadata"] = os.path.relpath(meta_path, PROJECT_ROOT)
             report["name"] = name
             report["export"] = info
             report["compound_graph"] = compound.to_dict()

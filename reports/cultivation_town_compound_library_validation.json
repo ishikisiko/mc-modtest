@@ -11,36 +11,36 @@
       "passed": true,
       "errors": [],
       "size": [
-        70,
-        15,
-        36
+        71,
+        16,
+        38
       ],
-      "block_count": 8034,
-      "palette_count": 56
+      "block_count": 9495,
+      "palette_count": 59
     },
     {
       "name": "cultivation_town_002",
       "passed": true,
       "errors": [],
       "size": [
-        104,
-        18,
-        38
+        71,
+        15,
+        36
       ],
-      "block_count": 11784,
-      "palette_count": 65
+      "block_count": 8570,
+      "palette_count": 63
     },
     {
       "name": "cultivation_town_003",
       "passed": true,
       "errors": [],
       "size": [
-        109,
-        15,
+        105,
+        16,
         36
       ],
-      "block_count": 10053,
-      "palette_count": 57
+      "block_count": 13621,
+      "palette_count": 67
     },
     {
       "name": "cultivation_town_004",
@@ -48,23 +48,23 @@
       "errors": [],
       "size": [
         71,
-        21,
-        71
+        16,
+        69
       ],
-      "block_count": 14564,
-      "palette_count": 69
+      "block_count": 18131,
+      "palette_count": 63
     },
     {
       "name": "cultivation_town_005",
       "passed": true,
       "errors": [],
       "size": [
-        71,
-        15,
-        68
+        105,
+        16,
+        38
       ],
-      "block_count": 15686,
-      "palette_count": 54
+      "block_count": 13388,
+      "palette_count": 64
     },
     {
       "name": "cultivation_town_006",
@@ -72,11 +72,11 @@
       "errors": [],
       "size": [
         71,
-        15,
-        69
+        16,
+        38
       ],
-      "block_count": 12172,
-      "palette_count": 58
+      "block_count": 9414,
+      "palette_count": 63
     }
   ]
 }

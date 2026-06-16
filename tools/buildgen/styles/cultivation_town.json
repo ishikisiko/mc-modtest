@@ -134,6 +134,22 @@
       "fetzisdisplays:dark_oak_vertical_rack_a",
       "fetzisdisplays:spruce_horizontal_wall_holder",
       "minecraft:barrel"
+    ],
+    "COLUMN": [
+      "supplementaries:pedestal",
+      "minecraft:stripped_dark_oak_log"
+    ],
+    "PLATFORM_STONE": [
+      "supplementaries:stone_tile",
+      "minecraft:stone_bricks"
+    ],
+    "RIDGE_ORNAMENT": [
+      "supplementaries:ash_bricks_wall",
+      "minecraft:stone_brick_wall"
+    ],
+    "BALUSTRADE": [
+      "supplementaries:stone_tile_wall",
+      "minecraft:stone_brick_wall"
     ]
   },
   "variation_rate": {
@@ -141,9 +157,10 @@
     "WALL_MAIN": 0.08
   },
   "allowed_roof_types": [
-    "gable_roof",
-    "cross_gable_roof",
-    "lean_to_roof"
+    "sweeping_eave_roof",
+    "hip_roof",
+    "pyramidal_roof",
+    "tiered_eave_roof"
   ],
   "allowed_wall_types": [
     "stone_lower_wall",
@@ -157,14 +174,11 @@
     "small_high_window"
   ],
   "allowed_motifs": [
-    "small_porch",
-    "side_chimney",
-    "woodpile",
-    "barrel_cluster",
-    "fence_patch",
     "lantern_post",
     "small_path_patch",
-    "market_stall"
+    "market_stall",
+    "spirit_array",
+    "incense_altar"
   ],
   "forbidden_blocks": [
     "quartz",
@@ -194,16 +208,16 @@
       5
     ],
     "roof_height_ratio": [
-      0.35,
-      0.65
+      0.45,
+      0.55
     ],
     "foundation_height": [
-      1,
-      2
+      2,
+      3
     ],
     "roof_overhang": [
-      0,
-      1
+      2,
+      3
     ],
     "max_flat_wall_width": 4,
     "window_min_count": 2,

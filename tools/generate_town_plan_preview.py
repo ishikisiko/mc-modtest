@@ -157,8 +157,8 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--seed", type=int, default=20260618)
     parser.add_argument("--count", type=int, default=3)
-    parser.add_argument("--width", type=int, default=64)
-    parser.add_argument("--depth", type=int, default=56)
+    parser.add_argument("--width", type=int, default=96)
+    parser.add_argument("--depth", type=int, default=80)
     parser.add_argument("--out", default=str(REPO_ROOT / "out" / "preview"))
     args = parser.parse_args()
 

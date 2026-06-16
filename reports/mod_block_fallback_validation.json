@@ -3,17 +3,23 @@
   "fallback_map": "src/main/resources/data/myvillage/mod_block_fallbacks.json",
   "profile": "full",
   "passed": true,
-  "used_mod_block_count": 8,
-  "fallback_entry_count": 51,
+  "used_mod_block_count": 14,
+  "fallback_entry_count": 57,
   "used_mod_blocks": [
     "ars_nouveau:brazier_relay",
-    "farmersdelight:brown_canvas_wall_sign",
     "farmersdelight:cabbage_crate",
     "farmersdelight:cutting_board",
     "farmersdelight:dark_oak_cabinet",
-    "farmersdelight:green_canvas_wall_sign",
+    "supplementaries:ash_bricks_wall",
     "supplementaries:awning_green",
-    "supplementaries:pedestal"
+    "supplementaries:blackstone_tile",
+    "supplementaries:blackstone_tile_wall",
+    "supplementaries:lapis_bricks_wall",
+    "supplementaries:pedestal",
+    "supplementaries:stone_tile",
+    "supplementaries:stone_tile_slab",
+    "supplementaries:stone_tile_stairs",
+    "supplementaries:stone_tile_wall"
   ],
   "missing_fallbacks": [],
   "errors": []

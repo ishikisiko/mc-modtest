@@ -33,8 +33,18 @@ def sect_style() -> Style:
             "INTERIOR_STORAGE": ["minecraft:barrel"],
             "SPIRIT_CRYSTAL": ["minecraft:amethyst_block"],
             "RITUAL_METAL": ["minecraft:oxidized_copper"],
+            "RITUAL_ANCHOR": ["minecraft:cauldron"],
+            "COLUMN": ["minecraft:quartz_pillar[axis=y]"],
+            "PLATFORM_STONE": ["minecraft:polished_andesite"],
+            "RIDGE_ORNAMENT": ["minecraft:sea_lantern"],
+            "BALUSTRADE": ["minecraft:polished_blackstone_wall"],
         },
-        "allowed_roof_types": ["gable_roof", "tiered_eave_roof"],
+        "allowed_roof_types": [
+            "sweeping_eave_roof",
+            "hip_roof",
+            "pyramidal_roof",
+            "tiered_eave_roof",
+        ],
         "allowed_wall_types": ["white_plaster_timber_wall"],
         "allowed_opening_styles": ["single_door_with_frame"],
         "allowed_motifs": [
@@ -77,10 +87,28 @@ def invoked_forms(ctx) -> set[str]:
 def main() -> int:
     style = sect_style()
     rng = random.Random(42)
+    sweeping = ops.roof_handler("sweeping_eave_roof")(
+        BlockGrid(), style, rng, volume((11, 5, 11)), None)
+    if len(sweeping.get("upturned_corners", [])) < 4:
+        print(f"FAIL sweeping_eave_roof missing upturned corners: {sweeping}")
+        return 1
+    hip = ops.roof_handler("hip_roof")(
+        BlockGrid(), style, random.Random(42), volume((11, 5, 9)), None)
+    if not hip.get("roof_cells") or hip.get("gable_cells"):
+        print(f"FAIL hip_roof did not produce four-sided roof cells: {hip}")
+        return 1
+    pyramid = ops.roof_handler("pyramidal_roof")(
+        BlockGrid(), style, random.Random(42), volume((11, 5, 11)), None)
+    if not pyramid.get("ridge_ornaments"):
+        print(f"FAIL pyramidal_roof did not place a finial: {pyramid}")
+        return 1
     large_info = ops.roof_handler("tiered_eave_roof")(
         BlockGrid(), style, rng, volume((11, 5, 11)), None)
     if large_info.get("tier_count") < 2:
         print(f"FAIL tiered_eave_roof did not produce two tiers: {large_info}")
+        return 1
+    if len(large_info.get("upturned_corners", [])) < 8:
+        print(f"FAIL tiered_eave_roof tiers are not sweeping eaves: {large_info}")
         return 1
     small_info = ops.roof_handler("tiered_eave_roof")(
         BlockGrid(), style, random.Random(42), volume((7, 5, 7)), None)
@@ -104,10 +132,11 @@ def main() -> int:
 
     medieval = load_style("medieval_village")
     medieval_ctx = generate_building(medieval, "small_house", "small", 20260713)
+    civic_ctx = generate_building(medieval, "tavern", "tavern_v1", 20260715, group_id="civic")
     chinese = load_style("chinese_courtyard")
     chinese_ctx = generate_subbuilding(chinese, "main_hall", 20261614, "硬山",
                                        "chinese_courtyard")
-    for label, ctx in (("medieval", medieval_ctx), ("chinese", chinese_ctx)):
+    for label, ctx in (("medieval", medieval_ctx), ("civic", civic_ctx), ("chinese", chinese_ctx)):
         forms = invoked_forms(ctx)
         if forms:
             print(f"FAIL {label} invoked cultivation forms: {sorted(forms)}")

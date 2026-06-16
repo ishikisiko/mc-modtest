@@ -12,7 +12,8 @@ Write rule: a PROTECTED cell is never overwritten by a normal write.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, FrozenSet, Iterable, Iterator, Optional, Tuple
+from copy import deepcopy
+from typing import Dict, FrozenSet, Iterable, Iterator, List, Optional, Tuple
 
 Pos = Tuple[int, int, int]
 
@@ -56,6 +57,7 @@ class Cell:
 class BlockGrid:
     def __init__(self) -> None:
         self.cells: Dict[Pos, Cell] = {}
+        self.entities: List[dict] = []
 
     def set(self, pos: Pos, state: str, tags: Iterable[str], priority: int,
             slot: Optional[str] = None, force: bool = False) -> bool:
@@ -97,6 +99,32 @@ class BlockGrid:
     def iter_cells(self) -> Iterator[Tuple[Pos, Cell]]:
         return iter(self.cells.items())
 
+    @staticmethod
+    def _shift_entity(entity: dict, dx: int, dy: int, dz: int) -> None:
+        pos = entity.get("pos")
+        if isinstance(pos, list) and len(pos) == 3:
+            pos[0] = float(pos[0]) + dx
+            pos[1] = float(pos[1]) + dy
+            pos[2] = float(pos[2]) + dz
+        block_pos = entity.get("blockPos")
+        if isinstance(block_pos, list) and len(block_pos) == 3:
+            block_pos[0] = int(block_pos[0]) + dx
+            block_pos[1] = int(block_pos[1]) + dy
+            block_pos[2] = int(block_pos[2]) + dz
+        nbt = entity.get("nbt")
+        if isinstance(nbt, dict):
+            for key, delta in (("TileX", dx), ("TileY", dy), ("TileZ", dz)):
+                if key in nbt:
+                    nbt[key] = int(nbt[key]) + delta
+
+    def add_entity(self, entity: dict, offset: Pos = (0, 0, 0)) -> None:
+        """Attach a structure entity emitted beside the block palette."""
+        copied = deepcopy(entity)
+        dx, dy, dz = offset
+        if dx or dy or dz:
+            self._shift_entity(copied, dx, dy, dz)
+        self.entities.append(copied)
+
     def bounds(self) -> Tuple[Pos, Pos]:
         if not self.cells:
             return (0, 0, 0), (0, 0, 0)
@@ -107,6 +135,8 @@ class BlockGrid:
 
     def shift(self, dx: int, dy: int, dz: int) -> None:
         self.cells = {(x + dx, y + dy, z + dz): c for (x, y, z), c in self.cells.items()}
+        for entity in self.entities:
+            self._shift_entity(entity, dx, dy, dz)
 
     def normalized(self) -> Tuple[int, int, int]:
         """Shift so min corner is (0,0,0); returns structure size."""

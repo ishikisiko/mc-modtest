@@ -84,6 +84,24 @@ The current default generated building-library archetypes SHALL be `small_house`
 - **AND** `medium_shop` SHALL produce at least five 2-story variants
 - **AND** `big_house` SHALL produce at least five variants each with 2 or 3 stories.
 
+### Requirement: Cultivation archetypes use cultivation massing grammar
+Cultivation town and sect archetypes SHALL build directly from cultivation-specific massing elements rather than delegating to Western domestic builders. The grammar SHALL include raised platforms, entry colonnades with dougong brackets, galleried balconies, tapering pagoda story insets, a built three-bay mountain gate, and an alchemy furnace feature. Cultivation builds SHALL omit Western domestic tells such as chimneys, porch nodes, woodpile motifs, barrel-cluster motifs, and fence-patch motifs.
+
+#### Scenario: A cultivation town house is generated
+- **WHEN** `cultivation_house` is generated
+- **THEN** it SHALL include a raised platform and a sweeping or hip cultivation roof
+- **AND** it SHALL NOT call the `small_house`, `medium_house`, shop, tavern, or lord-manor builders for its massing.
+
+#### Scenario: A sect scripture pavilion is generated
+- **WHEN** `scripture_pavilion` is generated
+- **THEN** its stories SHALL inset as they rise
+- **AND** its crown SHALL use `pyramidal_roof`.
+
+#### Scenario: An alchemy room is generated
+- **WHEN** `alchemy_room` is generated
+- **THEN** it SHALL include an alchemy furnace feature
+- **AND** it SHALL NOT include a chimney node.
+
 ### Requirement: Shop archetype family
 The generator SHALL support a shop archetype family, classified as a functional/commercial archetype family that serves town generation by providing commercial buildings distinct from housing. The family SHALL provide two tiers: `small_shop` as a 1-story compact storefront and `medium_shop` as a 2-story ground-floor storefront with upstairs living. The `medium_shop` SHALL use the multi-story massing capability. A shop node MAY carry an optional `industry` meta field; generation output SHALL NOT depend on that field until industry-specific behavior is introduced.
 
@@ -186,3 +204,31 @@ Facade planning SHALL split walls into post-bounded bays, keep openings away fro
 - **WHEN** a window candidate is selected
 - **THEN** its along-wall coordinate SHALL be at least two cells away from both wall ends
 - **AND** it SHALL NOT overlap the door bay, a post position, or an occluded interval.
+
+### Requirement: Plaque placement integrates with entry-detail and paifang passes
+The facade-detail pass SHALL consult `plaque_bindings.json` for any archetype before placing doorway signage, and the paifang motif pass SHALL do the same before placing the central tablet. Plaque placement SHALL honor the building's facade orientation and the binding's declared `mount` (wall-mounted plaques sit on the wall above the door or beside it; hanging plaques hang from the lintel or from a paifang crossbeam with chains). Horizontal wall-mounted plaques SHALL assign `col` parts in exterior-view order so inscriptions read in source-PNG order from the building front, including north- and east-facing facades where visual left differs from increasing world coordinate order.
+
+#### Scenario: A shop doorway receives a horizontal wall plaque
+- **WHEN** the facade-detail pass runs for a `cultivation_shop` archetype with a `plaque_bindings.json` entry specifying `orientation=horizontal, mount=wall`
+- **THEN** a horizontal `myvillage:wall_plaque` SHALL be placed above the doorway
+- **AND** its blockstate-resolved plaque textures SHALL contain the bound inscription.
+
+#### Scenario: A north-facing manor plaque reads in source order
+- **WHEN** the facade-detail pass places a horizontal wall plaque on a north-facing `lord_manor` facade
+- **THEN** the leftmost part as seen by a player outside the facade SHALL use `col=left`
+- **AND** the rightmost part as seen by that player SHALL use `col=right`.
+
+#### Scenario: An inn doorway receives a vertical hanging plaque
+- **WHEN** the facade-detail pass runs for a `cultivation_inn` archetype with a binding specifying `orientation=vertical, mount=hanging`
+- **THEN** a vertical `myvillage:hanging_plaque_vertical` SHALL be placed beside the doorway
+- **AND** vanilla `minecraft:chain[axis=y]` SHALL be placed above it.
+
+#### Scenario: A scripture pavilion receives a 5w×2h 大字 plaque
+- **WHEN** the facade-detail pass runs for a `scripture_pavilion` archetype with a binding specifying `frame=sect_treasure_gilded_5w_2h`
+- **THEN** a 5w×2h `myvillage:wall_plaque` SHALL be placed using the 2D multipart `row × col` geometry
+- **AND** the `5w_2h` bucket inscription SHALL be baked into the shared full plaque texture sampled by the placed plaque part models.
+
+#### Scenario: A paifang central tablet uses a hanging plaque
+- **WHEN** the paifang motif runs for a sect compound with a binding specifying `mount=hanging`
+- **THEN** a `myvillage:hanging_plaque` SHALL be placed centered on the paifang crossbeam
+- **AND** vanilla chains SHALL be placed from the crossbeam down to the plaque's top edge.

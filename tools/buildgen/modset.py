@@ -22,6 +22,8 @@ from .style import (
     modset_namespaces,
 )
 
+SELF_NAMESPACE = "myvillage"
+
 
 def modset_block_ids(profile: str, catalog_path: Optional[str] = None) -> Set[str]:
     """Legal external-mod block ids for a profile (excludes the minecraft namespace)."""
@@ -59,7 +61,7 @@ class ModsetProfile:
         for state in palette:
             block = _block_id(state)
             namespace = _namespace(state)
-            if namespace == VANILLA_NAMESPACE:
+            if namespace in (VANILLA_NAMESPACE, SELF_NAMESPACE):
                 continue
             if namespace not in self.namespaces:
                 forbidden.add(block)

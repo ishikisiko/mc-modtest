@@ -43,6 +43,7 @@
           17
         ],
         "block_count": 2549,
+        "entity_count": 0,
         "palette_count": 27,
         "path": "src/main/resources/data/myvillage/structure/main_hall_review.nbt"
       },
@@ -257,6 +258,7 @@
           21
         ],
         "block_count": 872,
+        "entity_count": 0,
         "palette_count": 29,
         "path": "src/main/resources/data/myvillage/structure/side_wing_review.nbt"
       },
@@ -434,6 +436,7 @@
           12
         ],
         "block_count": 1074,
+        "entity_count": 0,
         "palette_count": 27,
         "path": "src/main/resources/data/myvillage/structure/front_row_review.nbt"
       },
@@ -608,6 +611,7 @@
           46
         ],
         "block_count": 6534,
+        "entity_count": 0,
         "palette_count": 44,
         "path": "src/main/resources/data/myvillage/structure/chinese_courtyard_001.nbt"
       },
@@ -5195,6 +5199,7 @@
           47
         ],
         "block_count": 6907,
+        "entity_count": 0,
         "palette_count": 44,
         "path": "src/main/resources/data/myvillage/structure/chinese_courtyard_002.nbt"
       },
@@ -9998,6 +10003,7 @@
           48
         ],
         "block_count": 6556,
+        "entity_count": 0,
         "palette_count": 44,
         "path": "src/main/resources/data/myvillage/structure/chinese_courtyard_003.nbt"
       },
@@ -14653,6 +14659,7 @@
           46
         ],
         "block_count": 6363,
+        "entity_count": 0,
         "palette_count": 44,
         "path": "src/main/resources/data/myvillage/structure/chinese_courtyard_004.nbt"
       },
@@ -19216,6 +19223,7 @@
           48
         ],
         "block_count": 5993,
+        "entity_count": 0,
         "palette_count": 44,
         "path": "src/main/resources/data/myvillage/structure/chinese_courtyard_005.nbt"
       },
@@ -23731,6 +23739,7 @@
           48
         ],
         "block_count": 6903,
+        "entity_count": 0,
         "palette_count": 41,
         "path": "src/main/resources/data/myvillage/structure/chinese_courtyard_006.nbt"
       },

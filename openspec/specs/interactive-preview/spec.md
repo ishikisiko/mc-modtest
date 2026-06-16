@@ -64,9 +64,25 @@ The viewer SHALL provide a movable cross-section control that hides all voxels p
 - **WHEN** a cross-section is active
 - **THEN** the user can still orbit, zoom, and pan to inspect the exposed cut from any angle
 
+### Requirement: Plaque and inscription overlays
+
+The preview viewer SHALL render shipped `myvillage` plaque block textures, including baked inscription pixels, as flat textured overlays on top of the coarse voxel model. When a plaque model references a shared full plaque texture, the viewer SHALL apply the model's UV window so each multipart block shows only its own region of that full texture. Legacy `minecraft:painting` entities whose variants reference `myvillage:inscription/...` MAY also be rendered for old structures, but current shipped structures SHALL NOT depend on them.
+
+#### Scenario: Render a plaque-bearing structure
+
+- **WHEN** the preview tool renders a structure containing `myvillage:wall_plaque`, `myvillage:wall_plaque_vertical`, `myvillage:hanging_plaque`, or `myvillage:hanging_plaque_vertical`
+- **THEN** the viewer payload SHALL include overlay planes using the blockstate-resolved plaque texture PNGs and model UV windows
+- **AND** baked inscription pixels SHALL come from the shared full plaque texture region selected by each plaque part model.
+
+#### Scenario: A referenced inscription PNG is missing
+
+- **WHEN** a painting entity references a `myvillage:inscription/...` variant whose PNG asset cannot be found
+- **THEN** the per-structure preview report SHALL include a `missing_inscription_asset` flag
+- **AND** the viewer SHALL render a visible placeholder overlay in place of the missing inscription.
+
 ### Requirement: Additive, non-breaking output
 
-Adding the viewer SHALL NOT alter or remove the existing PNG outputs (per-Y slices, contact sheet, isometric overview, legend). The viewer MUST remain a coarse voxel-color preview; it MUST NOT claim to represent blockstate detail such as door facing, stair direction, or trapdoor open/closed state.
+Adding the viewer SHALL NOT alter or remove the existing PNG outputs (per-Y slices, contact sheet, isometric overview, legend). The viewer MUST remain primarily a coarse voxel-color preview, with textured plaque and inscription overlays as the current exception; it MUST NOT claim to represent blockstate detail such as door facing, stair direction, or trapdoor open/closed state.
 
 #### Scenario: Existing PNG outputs unchanged
 

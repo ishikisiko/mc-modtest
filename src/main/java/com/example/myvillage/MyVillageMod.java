@@ -1,13 +1,16 @@
 package com.example.myvillage;
 
+import com.example.myvillage.block.ModBlocks;
 import com.example.myvillage.town.TownGenerator;
 import com.example.myvillage.town.ModBlockFallback;
 import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
@@ -49,10 +52,16 @@ public final class MyVillageMod {
             "other");
     private static final Logger LOGGER = LoggerFactory.getLogger(MyVillageMod.class);
 
-    public MyVillageMod() {
+    public MyVillageMod(IEventBus modEventBus) {
         LOGGER.info("MyVillage resource mod loaded");
+        ModBlocks.register(modEventBus);
         NeoForge.EVENT_BUS.addListener(this::registerCommands);
-        NeoForge.EVENT_BUS.addListener(ModBlockFallback::onServerStarted);
+        NeoForge.EVENT_BUS.addListener(this::onServerStarted);
+    }
+
+    private void onServerStarted(ServerStartedEvent event) {
+        ModBlocks.verifyRegistered();
+        ModBlockFallback.onServerStarted(event);
     }
 
     private void registerCommands(RegisterCommandsEvent event) {

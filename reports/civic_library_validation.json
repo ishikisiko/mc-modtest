@@ -23,8 +23,9 @@
         21,
         18
       ],
-      "palette_count": 41,
-      "block_count": 1232,
+      "palette_count": 45,
+      "block_count": 1237,
+      "entity_count": 0,
       "roof_block_count": 295,
       "top_layer_counts": {
         "18": 18,
@@ -57,8 +58,9 @@
         20,
         16
       ],
-      "palette_count": 37,
-      "block_count": 1129,
+      "palette_count": 41,
+      "block_count": 1134,
+      "entity_count": 0,
       "roof_block_count": 208,
       "top_layer_counts": {
         "17": 19,
@@ -92,8 +94,9 @@
         22,
         18
       ],
-      "palette_count": 47,
-      "block_count": 1579,
+      "palette_count": 51,
+      "block_count": 1584,
+      "entity_count": 0,
       "roof_block_count": 371,
       "top_layer_counts": {
         "19": 38,
@@ -127,8 +130,9 @@
         21,
         18
       ],
-      "palette_count": 42,
-      "block_count": 1243,
+      "palette_count": 46,
+      "block_count": 1248,
+      "entity_count": 0,
       "roof_block_count": 303,
       "top_layer_counts": {
         "18": 19,
@@ -160,8 +164,9 @@
         21,
         20
       ],
-      "palette_count": 38,
-      "block_count": 1336,
+      "palette_count": 42,
+      "block_count": 1341,
+      "entity_count": 0,
       "roof_block_count": 269,
       "top_layer_counts": {
         "18": 34,
@@ -195,8 +200,9 @@
         18,
         16
       ],
-      "palette_count": 41,
-      "block_count": 1572,
+      "palette_count": 45,
+      "block_count": 1576,
+      "entity_count": 0,
       "roof_block_count": 368,
       "top_layer_counts": {
         "15": 63,
@@ -206,7 +212,6 @@
       "key_state_counts": {
         "minecraft:barrel": 1,
         "minecraft:bell": 2,
-        "minecraft:blue_wall_banner": 1,
         "minecraft:crafting_table": 2,
         "minecraft:furnace": 1,
         "minecraft:green_bed": 2,
@@ -231,9 +236,10 @@
         21,
         20
       ],
-      "palette_count": 45,
-      "block_count": 2063,
-      "roof_block_count": 413,
+      "palette_count": 50,
+      "block_count": 2067,
+      "entity_count": 0,
+      "roof_block_count": 419,
       "top_layer_counts": {
         "18": 31,
         "19": 23,
@@ -242,18 +248,17 @@
       "key_state_counts": {
         "minecraft:barrel": 3,
         "minecraft:bell": 2,
-        "minecraft:blue_wall_banner": 1,
+        "minecraft:black_wall_banner": 1,
         "minecraft:crafting_table": 2,
         "minecraft:furnace": 1,
         "minecraft:lectern": 1,
         "minecraft:oak_log": 321,
         "minecraft:oak_planks": 732,
-        "minecraft:red_wall_banner": 1,
-        "minecraft:spruce_planks": 75,
+        "minecraft:spruce_planks": 83,
         "minecraft:spruce_stairs": 406,
         "minecraft:stripped_oak_log": 61,
-        "minecraft:stripped_oak_wood": 223,
-        "minecraft:yellow_bed": 2
+        "minecraft:stripped_oak_wood": 215,
+        "minecraft:white_bed": 2
       }
     },
     {
@@ -266,9 +271,10 @@
         22,
         20
       ],
-      "palette_count": 38,
-      "block_count": 2215,
-      "roof_block_count": 379,
+      "palette_count": 42,
+      "block_count": 2219,
+      "entity_count": 0,
+      "roof_block_count": 378,
       "top_layer_counts": {
         "19": 37,
         "20": 19,
@@ -277,18 +283,18 @@
       "key_state_counts": {
         "minecraft:barrel": 2,
         "minecraft:bell": 2,
+        "minecraft:black_wall_banner": 1,
         "minecraft:crafting_table": 2,
         "minecraft:furnace": 1,
-        "minecraft:green_wall_banner": 2,
         "minecraft:lectern": 1,
         "minecraft:oak_log": 400,
-        "minecraft:oak_planks": 776,
-        "minecraft:spruce_planks": 111,
+        "minecraft:oak_planks": 774,
+        "minecraft:red_bed": 2,
+        "minecraft:spruce_planks": 109,
         "minecraft:spruce_slab": 19,
         "minecraft:spruce_stairs": 386,
         "minecraft:stripped_oak_log": 3,
-        "minecraft:stripped_oak_wood": 273,
-        "minecraft:white_bed": 2
+        "minecraft:stripped_oak_wood": 277
       }
     }
   ]

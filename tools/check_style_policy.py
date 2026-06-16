@@ -10,6 +10,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from buildgen.grid import AIR, BlockGrid, PRIORITY  # noqa: E402
+from buildgen.modset import SELF_NAMESPACE  # noqa: E402
 from buildgen.massing import MassingGraph, Node  # noqa: E402
 from buildgen.passes import BuildContext  # noqa: E402
 from buildgen.quality import quality_check  # noqa: E402
@@ -90,6 +91,7 @@ def main() -> int:
     assert sect.has_slot("SPIRIT_CRYSTAL")
     assert town.optional_slot_entry("SPIRIT_CRYSTAL", "amethyst") is None
     assert sect.optional_slot_entry("SPIRIT_CRYSTAL", "amethyst") == "minecraft:amethyst_block"
+    assert not town.is_forbidden(f"{SELF_NAMESPACE}:wall_plaque[facing=north,frame=town_shop_wood_3w,row=single,col=center]")
 
     town_report = quality_check(probe_context(town, "minecraft:quartz_block"), "cultivation_town/policy_probe")
     sect_report = quality_check(probe_context(sect, "minecraft:quartz_block"), "cultivation_sect/policy_probe")

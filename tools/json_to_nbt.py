@@ -59,6 +59,14 @@ def Int(value: int) -> Tag:
     return Tag(TAG_INT, int(value))
 
 
+def Byte(value: int) -> Tag:
+    return Tag(TAG_BYTE, int(value))
+
+
+def Double(value: float) -> Tag:
+    return Tag(TAG_DOUBLE, float(value))
+
+
 def String(value: str) -> Tag:
     return Tag(TAG_STRING, str(value))
 
@@ -94,6 +102,10 @@ def _write_named_tag(out, name: str, tag: Tag) -> None:
 def _write_payload(out, tag: Tag) -> None:
     if tag.tag_id == TAG_INT:
         out.write(struct.pack(">i", tag.value))
+    elif tag.tag_id == TAG_BYTE:
+        out.write(struct.pack(">b", tag.value))
+    elif tag.tag_id == TAG_DOUBLE:
+        out.write(struct.pack(">d", tag.value))
     elif tag.tag_id == TAG_STRING:
         _write_utf(out, tag.value)
     elif tag.tag_id == TAG_LIST:
@@ -172,6 +184,47 @@ def palette_state_to_tag(state_text: str) -> Tag:
     if props:
         state["Properties"] = Compound(OrderedDict((k, String(v)) for k, v in props.items()))
     return Compound(state)
+
+
+def _nbt_scalar_to_tag(key: str, value: Any) -> Tag:
+    if isinstance(value, bool):
+        return Byte(1 if value else 0)
+    if isinstance(value, int):
+        return Byte(value) if key == "facing" else Int(value)
+    if isinstance(value, float):
+        return Double(value)
+    return String(str(value))
+
+
+def _nbt_value_to_tag(key: str, value: Any) -> Tag:
+    if isinstance(value, dict):
+        return Compound(OrderedDict((str(k), _nbt_value_to_tag(str(k), v)) for k, v in value.items()))
+    if isinstance(value, list):
+        if not value:
+            return ListTag(TAG_END, [])
+        if all(isinstance(v, int) and not isinstance(v, bool) for v in value):
+            return ListTag(TAG_INT, [Int(v) for v in value])
+        if all(isinstance(v, (int, float)) and not isinstance(v, bool) for v in value):
+            return ListTag(TAG_DOUBLE, [Double(float(v)) for v in value])
+        return ListTag(TAG_STRING, [String(str(v)) for v in value])
+    return _nbt_scalar_to_tag(key, value)
+
+
+def entity_to_tag(entity: Mapping[str, Any]) -> Tag:
+    pos = entity.get("pos")
+    block_pos = entity.get("blockPos")
+    nbt = entity.get("nbt")
+    if not isinstance(pos, list) or len(pos) != 3:
+        raise ValueError(f"entity pos must be [x,y,z], got {pos!r}")
+    if not isinstance(block_pos, list) or len(block_pos) != 3:
+        raise ValueError(f"entity blockPos must be [x,y,z], got {block_pos!r}")
+    if not isinstance(nbt, dict):
+        raise ValueError(f"entity nbt must be an object, got {nbt!r}")
+    return Compound(OrderedDict([
+        ("pos", ListTag(TAG_DOUBLE, [Double(float(pos[0])), Double(float(pos[1])), Double(float(pos[2]))])),
+        ("blockPos", ListTag(TAG_INT, [Int(int(block_pos[0])), Int(int(block_pos[1])), Int(int(block_pos[2]))])),
+        ("nbt", Compound(OrderedDict((str(k), _nbt_value_to_tag(str(k), v)) for k, v in nbt.items()))),
+    ]))
 
 
 def resolve_state(state: str, palette_aliases: Mapping[str, str]) -> str:
@@ -384,13 +437,20 @@ def structure_json_to_root_nbt(
             ("state", Int(unique_states[state_text])),
         ])))
 
+    entities_raw = data.get("entities", [])
+    if entities_raw is None:
+        entities_raw = []
+    if not isinstance(entities_raw, list):
+        raise ValueError("entities must be a list")
+    entity_tags = [entity_to_tag(entity) for entity in entities_raw]
+
     root = Compound(OrderedDict([
         ("DataVersion", Int(data_version)),
         ("author", String(str(data.get("author", "json_to_nbt.py")))),
         ("size", ListTag(TAG_INT, [Int(size[0]), Int(size[1]), Int(size[2])])),
         ("palette", ListTag(TAG_COMPOUND, palette_tags)),
         ("blocks", ListTag(TAG_COMPOUND, block_tags)),
-        ("entities", ListTag(TAG_COMPOUND, [])),
+        ("entities", ListTag(TAG_COMPOUND, entity_tags)),
     ]))
     return root
 

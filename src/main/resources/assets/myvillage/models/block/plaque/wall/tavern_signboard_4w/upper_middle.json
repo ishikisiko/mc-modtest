@@ -1,0 +1,78 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "myvillage:block/plaque/wall/tavern_signboard_4w/upper_middle",
+    "plaque": "myvillage:block/plaque/wall/tavern_signboard_4w/vertical_full",
+    "edge": "myvillage:block/plaque/wall/tavern_signboard_4w/upper_middle"
+  },
+  "elements": [
+    {
+      "from": [
+        0,
+        0,
+        15
+      ],
+      "to": [
+        16,
+        16,
+        16
+      ],
+      "faces": {
+        "north": {
+          "texture": "#plaque",
+          "uv": [
+            0.0,
+            4.0,
+            16.0,
+            8.0
+          ]
+        },
+        "south": {
+          "texture": "#plaque",
+          "uv": [
+            16.0,
+            4.0,
+            0.0,
+            8.0
+          ]
+        },
+        "up": {
+          "texture": "#edge",
+          "uv": [
+            0,
+            0,
+            16,
+            1
+          ]
+        },
+        "down": {
+          "texture": "#edge",
+          "uv": [
+            0,
+            15,
+            16,
+            16
+          ]
+        },
+        "east": {
+          "texture": "#edge",
+          "uv": [
+            15,
+            0,
+            16,
+            16
+          ]
+        },
+        "west": {
+          "texture": "#edge",
+          "uv": [
+            0,
+            0,
+            1,
+            16
+          ]
+        }
+      }
+    }
+  ]
+}

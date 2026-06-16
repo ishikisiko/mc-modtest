@@ -47,6 +47,7 @@
           16
         ],
         "block_count": 545,
+        "entity_count": 0,
         "palette_count": 27,
         "path": "src/main/resources/data/myvillage/structure/small_house_001.nbt"
       },
@@ -287,6 +288,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -335,6 +337,7 @@
           15
         ],
         "block_count": 606,
+        "entity_count": 0,
         "palette_count": 29,
         "path": "src/main/resources/data/myvillage/structure/small_house_002.nbt"
       },
@@ -575,6 +578,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -623,6 +627,7 @@
           14
         ],
         "block_count": 544,
+        "entity_count": 0,
         "palette_count": 26,
         "path": "src/main/resources/data/myvillage/structure/small_house_003.nbt"
       },
@@ -863,6 +868,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -910,6 +916,7 @@
           17
         ],
         "block_count": 752,
+        "entity_count": 0,
         "palette_count": 25,
         "path": "src/main/resources/data/myvillage/structure/small_house_004.nbt"
       },
@@ -1128,6 +1135,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -1176,6 +1184,7 @@
           14
         ],
         "block_count": 423,
+        "entity_count": 0,
         "palette_count": 31,
         "path": "src/main/resources/data/myvillage/structure/small_house_005.nbt"
       },
@@ -1416,6 +1425,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -1463,6 +1473,7 @@
           15
         ],
         "block_count": 691,
+        "entity_count": 0,
         "palette_count": 26,
         "path": "src/main/resources/data/myvillage/structure/small_house_006.nbt"
       },
@@ -1681,6 +1692,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -1729,6 +1741,7 @@
           14
         ],
         "block_count": 543,
+        "entity_count": 0,
         "palette_count": 28,
         "path": "src/main/resources/data/myvillage/structure/small_house_007.nbt"
       },
@@ -1969,6 +1982,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -2017,6 +2031,7 @@
           14
         ],
         "block_count": 804,
+        "entity_count": 0,
         "palette_count": 30,
         "path": "src/main/resources/data/myvillage/structure/small_house_008.nbt"
       },
@@ -2257,6 +2272,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -2304,6 +2320,7 @@
           14
         ],
         "block_count": 463,
+        "entity_count": 0,
         "palette_count": 29,
         "path": "src/main/resources/data/myvillage/structure/small_house_009.nbt"
       },
@@ -2522,6 +2539,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -2570,6 +2588,7 @@
           13
         ],
         "block_count": 479,
+        "entity_count": 0,
         "palette_count": 24,
         "path": "src/main/resources/data/myvillage/structure/small_house_010.nbt"
       },
@@ -2810,6 +2829,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -2858,6 +2878,7 @@
           17
         ],
         "block_count": 1014,
+        "entity_count": 0,
         "palette_count": 32,
         "path": "src/main/resources/data/myvillage/structure/medium_house_001.nbt"
       },
@@ -3153,6 +3174,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -3201,6 +3223,7 @@
           14
         ],
         "block_count": 996,
+        "entity_count": 0,
         "palette_count": 29,
         "path": "src/main/resources/data/myvillage/structure/medium_house_002.nbt"
       },
@@ -3496,6 +3519,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -3544,6 +3568,7 @@
           15
         ],
         "block_count": 1087,
+        "entity_count": 0,
         "palette_count": 38,
         "path": "src/main/resources/data/myvillage/structure/medium_house_003.nbt"
       },
@@ -3839,6 +3864,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -3887,6 +3913,7 @@
           17
         ],
         "block_count": 995,
+        "entity_count": 0,
         "palette_count": 31,
         "path": "src/main/resources/data/myvillage/structure/medium_house_004.nbt"
       },
@@ -4182,6 +4209,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -4230,6 +4258,7 @@
           16
         ],
         "block_count": 1277,
+        "entity_count": 0,
         "palette_count": 28,
         "path": "src/main/resources/data/myvillage/structure/medium_house_005.nbt"
       },
@@ -4525,6 +4554,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -4573,6 +4603,7 @@
           15
         ],
         "block_count": 968,
+        "entity_count": 0,
         "palette_count": 35,
         "path": "src/main/resources/data/myvillage/structure/medium_house_006.nbt"
       },
@@ -4868,6 +4899,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -4916,6 +4948,7 @@
           17
         ],
         "block_count": 1131,
+        "entity_count": 0,
         "palette_count": 32,
         "path": "src/main/resources/data/myvillage/structure/medium_house_007.nbt"
       },
@@ -5211,6 +5244,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -5260,6 +5294,7 @@
           18
         ],
         "block_count": 1523,
+        "entity_count": 0,
         "palette_count": 30,
         "path": "src/main/resources/data/myvillage/structure/medium_house_008.nbt"
       },
@@ -5629,6 +5664,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -5678,6 +5714,7 @@
           18
         ],
         "block_count": 1396,
+        "entity_count": 0,
         "palette_count": 31,
         "path": "src/main/resources/data/myvillage/structure/medium_house_009.nbt"
       },
@@ -6047,6 +6084,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -6096,6 +6134,7 @@
           17
         ],
         "block_count": 1518,
+        "entity_count": 0,
         "palette_count": 36,
         "path": "src/main/resources/data/myvillage/structure/medium_house_010.nbt"
       },
@@ -6465,6 +6504,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -6512,6 +6552,7 @@
           12
         ],
         "block_count": 497,
+        "entity_count": 0,
         "palette_count": 31,
         "path": "src/main/resources/data/myvillage/structure/blacksmith_001.nbt"
       },
@@ -6782,6 +6823,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -6829,6 +6871,7 @@
           14
         ],
         "block_count": 499,
+        "entity_count": 0,
         "palette_count": 26,
         "path": "src/main/resources/data/myvillage/structure/blacksmith_002.nbt"
       },
@@ -7099,6 +7142,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -7147,6 +7191,7 @@
           16
         ],
         "block_count": 868,
+        "entity_count": 0,
         "palette_count": 27,
         "path": "src/main/resources/data/myvillage/structure/blacksmith_003.nbt"
       },
@@ -7443,6 +7488,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -7491,6 +7537,7 @@
           14
         ],
         "block_count": 876,
+        "entity_count": 0,
         "palette_count": 27,
         "path": "src/main/resources/data/myvillage/structure/blacksmith_004.nbt"
       },
@@ -7787,6 +7834,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -7835,6 +7883,7 @@
           15
         ],
         "block_count": 866,
+        "entity_count": 0,
         "palette_count": 29,
         "path": "src/main/resources/data/myvillage/structure/blacksmith_005.nbt"
       },
@@ -8131,6 +8180,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -8179,6 +8229,7 @@
           16
         ],
         "block_count": 884,
+        "entity_count": 0,
         "palette_count": 30,
         "path": "src/main/resources/data/myvillage/structure/blacksmith_006.nbt"
       },
@@ -8475,6 +8526,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -8523,6 +8575,7 @@
           15
         ],
         "block_count": 865,
+        "entity_count": 0,
         "palette_count": 30,
         "path": "src/main/resources/data/myvillage/structure/blacksmith_007.nbt"
       },
@@ -8819,6 +8872,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -8867,6 +8921,7 @@
           15
         ],
         "block_count": 1002,
+        "entity_count": 0,
         "palette_count": 27,
         "path": "src/main/resources/data/myvillage/structure/blacksmith_008.nbt"
       },
@@ -9163,6 +9218,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -9211,6 +9267,7 @@
           18
         ],
         "block_count": 1100,
+        "entity_count": 0,
         "palette_count": 31,
         "path": "src/main/resources/data/myvillage/structure/blacksmith_009.nbt"
       },
@@ -9560,6 +9617,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -9608,6 +9666,7 @@
           19
         ],
         "block_count": 1430,
+        "entity_count": 0,
         "palette_count": 33,
         "path": "src/main/resources/data/myvillage/structure/blacksmith_010.nbt"
       },
@@ -9957,6 +10016,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -10003,6 +10063,7 @@
           11
         ],
         "block_count": 494,
+        "entity_count": 0,
         "palette_count": 32,
         "path": "src/main/resources/data/myvillage/structure/small_shop_001.nbt"
       },
@@ -10202,6 +10263,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -10248,6 +10310,7 @@
           11
         ],
         "block_count": 517,
+        "entity_count": 0,
         "palette_count": 28,
         "path": "src/main/resources/data/myvillage/structure/small_shop_002.nbt"
       },
@@ -10447,6 +10510,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -10493,6 +10557,7 @@
           13
         ],
         "block_count": 622,
+        "entity_count": 0,
         "palette_count": 28,
         "path": "src/main/resources/data/myvillage/structure/small_shop_003.nbt"
       },
@@ -10692,6 +10757,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -10738,6 +10804,7 @@
           13
         ],
         "block_count": 746,
+        "entity_count": 0,
         "palette_count": 29,
         "path": "src/main/resources/data/myvillage/structure/small_shop_004.nbt"
       },
@@ -10937,6 +11004,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -10983,6 +11051,7 @@
           12
         ],
         "block_count": 611,
+        "entity_count": 0,
         "palette_count": 32,
         "path": "src/main/resources/data/myvillage/structure/small_shop_005.nbt"
       },
@@ -11182,6 +11251,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -11228,6 +11298,7 @@
           13
         ],
         "block_count": 1146,
+        "entity_count": 0,
         "palette_count": 28,
         "path": "src/main/resources/data/myvillage/structure/medium_shop_001.nbt"
       },
@@ -11487,6 +11558,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -11533,6 +11605,7 @@
           13
         ],
         "block_count": 1249,
+        "entity_count": 0,
         "palette_count": 29,
         "path": "src/main/resources/data/myvillage/structure/medium_shop_002.nbt"
       },
@@ -11792,6 +11865,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -11838,6 +11912,7 @@
           15
         ],
         "block_count": 1402,
+        "entity_count": 0,
         "palette_count": 35,
         "path": "src/main/resources/data/myvillage/structure/medium_shop_003.nbt"
       },
@@ -12097,6 +12172,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -12145,6 +12221,7 @@
           16
         ],
         "block_count": 1620,
+        "entity_count": 0,
         "palette_count": 31,
         "path": "src/main/resources/data/myvillage/structure/medium_shop_004.nbt"
       },
@@ -12404,6 +12481,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -12450,6 +12528,7 @@
           12
         ],
         "block_count": 1422,
+        "entity_count": 0,
         "palette_count": 30,
         "path": "src/main/resources/data/myvillage/structure/medium_shop_005.nbt"
       },
@@ -12709,6 +12788,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -12758,6 +12838,7 @@
           18
         ],
         "block_count": 1411,
+        "entity_count": 0,
         "palette_count": 31,
         "path": "src/main/resources/data/myvillage/structure/big_house_001.nbt"
       },
@@ -13083,6 +13164,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -13132,6 +13214,7 @@
           19
         ],
         "block_count": 2089,
+        "entity_count": 0,
         "palette_count": 32,
         "path": "src/main/resources/data/myvillage/structure/big_house_002.nbt"
       },
@@ -13512,6 +13595,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -13561,6 +13645,7 @@
           15
         ],
         "block_count": 1614,
+        "entity_count": 0,
         "palette_count": 30,
         "path": "src/main/resources/data/myvillage/structure/big_house_003.nbt"
       },
@@ -13886,6 +13971,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -13935,6 +14021,7 @@
           20
         ],
         "block_count": 2256,
+        "entity_count": 0,
         "palette_count": 31,
         "path": "src/main/resources/data/myvillage/structure/big_house_004.nbt"
       },
@@ -14315,6 +14402,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",
@@ -14364,6 +14452,7 @@
           20
         ],
         "block_count": 2474,
+        "entity_count": 0,
         "palette_count": 34,
         "path": "src/main/resources/data/myvillage/structure/big_house_005.nbt"
       },
@@ -14744,6 +14833,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
         "material_variation_pass",

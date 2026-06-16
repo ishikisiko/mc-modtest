@@ -248,6 +248,8 @@ def _translate_context(compound: CompoundGraph, slot_id: str, ctx: BuildContext,
     for (x, y, z), cell in list(ctx.grid.iter_cells()):
         compound.grid.set((x + dx, y + dy, z + dz), cell.state, cell.tags,
                           cell.priority, cell.slot)
+    for entity in ctx.grid.entities:
+        compound.grid.add_entity(entity, (dx, dy, dz))
 
     footprint: Set[Cell2] = set()
     for vol in ctx.graph.volumes():
@@ -341,11 +343,12 @@ def _bfs(start: Cell2, goal: Cell2, lot_w: int, lot_d: int,
 
 def _put_cells(compound: CompoundGraph, node_id: str, node_type: str,
                cells: Set[Cell2], state: str, tags: List[str],
-               y: int = 0, height: int = 1, slot: Optional[str] = None) -> None:
+               y: int = 0, height: int = 1, slot: Optional[str] = None,
+               meta: Optional[dict] = None) -> None:
     for x, z in cells:
         for yy in range(y, y + height):
             compound.grid.set((x, yy, z), state, tags, PRIORITY["DETAIL"], slot)
-    compound.parcel_nodes.append(ParcelNode(node_id, node_type, cells))
+    compound.parcel_nodes.append(ParcelNode(node_id, node_type, cells, meta or {}))
 
 
 def _clear_cells(compound: CompoundGraph, cells: Set[Cell2],
@@ -735,6 +738,8 @@ def _copy_compound_into(parent: CompoundGraph, child: CompoundGraph,
     for (x, y, z), cell in list(child.grid.iter_cells()):
         parent.grid.set((x + dx, y, z + dz), cell.state, cell.tags,
                         cell.priority, cell.slot)
+    for entity in child.grid.entities:
+        parent.grid.add_entity(entity, (dx, 0, dz))
     for node in child.parcel_nodes:
         cells = _shift_cells(node.cells, dx, dz)
         if node.type == "perimeter_wall":
@@ -888,32 +893,184 @@ def generate_town_block(seed: int, style: Optional[Style] = None,
     return compound
 
 
+def _slot_bounds(slot: BuildingSlot) -> Tuple[int, int, int, int]:
+    return (
+        min(x for x, _ in slot.footprint),
+        min(z for _, z in slot.footprint),
+        max(x for x, _ in slot.footprint),
+        max(z for _, z in slot.footprint),
+    )
+
+
+def _mark_sect_slot(slot: BuildingSlot, level: int, importance_tier: int,
+                    role: str) -> None:
+    slot.graph.meta["terrace_level"] = level
+    slot.graph.meta["importance_tier"] = importance_tier
+    slot.graph.meta["compound_role"] = role
+
+
+def _place_terrace(compound: CompoundGraph, style: Style, node_id: str,
+                   level: int, base_y: int,
+                   bounds: Tuple[int, int, int, int]) -> Set[Cell2]:
+    cells = _rect(*bounds)
+    state = style.primary("BASE_STONE")
+    for x, z in cells:
+        for y in range(-1, base_y):
+            compound.grid.set((x, y, z), state, ["STRUCTURE", "GROUND"],
+                              PRIORITY["STRUCTURE"], "BASE_STONE")
+    compound.parcel_nodes.append(
+        ParcelNode(node_id, "terrace", cells, {
+            "level": level,
+            "relative_y": base_y,
+            "bounds": list(bounds),
+        }))
+    return cells
+
+
+def _place_sect_courtyard(compound: CompoundGraph, style: Style, level: int,
+                          base_y: int, bounds: Tuple[int, int, int, int]) -> Set[Cell2]:
+    blocked = compound.building_cells() | compound.node_cells("circulation", "link")
+    cells = _bounded(_rect(*bounds), compound.lot_size[0], compound.lot_size[1], blocked)
+    for x, z in cells:
+        compound.grid.set((x, base_y - 1, z), style.primary("GROUND_PATH"),
+                          ["DETAIL", "GROUND"], PRIORITY["DETAIL"],
+                          "GROUND_PATH")
+    compound.parcel_nodes.append(
+        ParcelNode(f"courtyard_level_{level}", "courtyard", cells, {
+            "level": level,
+            "relative_y": base_y,
+            "bounds": list(bounds),
+        }))
+    return cells
+
+
+def _place_monumental_stair(compound: CompoundGraph, style: Style, node_id: str,
+                            from_level: int, to_level: int,
+                            from_y: int, to_y: int,
+                            cells: Set[Cell2]) -> None:
+    if to_level != from_level + 1:
+        raise ValueError(f"stairway must connect adjacent levels: {from_level}->{to_level}")
+    z0 = min(z for _, z in cells)
+    z1 = max(z for _, z in cells)
+    span = max(1, z1 - z0)
+    slab = style.slot_entry("ROOF_DARK", "_slab")
+    for x, z in sorted(cells):
+        t = (z - z0) / span
+        y = round(from_y + (to_y - from_y) * t) - 1
+        compound.grid.set((x, y, z), slab, ["DETAIL", "GROUND"],
+                          PRIORITY["DETAIL"], "ROOF_DARK")
+        if x in (min(px for px, _ in cells), max(px for px, _ in cells)):
+            compound.grid.set((x, y + 1, z), style.primary("BASE_STONE"),
+                              ["STRUCTURE"], PRIORITY["STRUCTURE"], "BASE_STONE")
+    compound.parcel_nodes.append(
+        ParcelNode(node_id, "circulation", cells, {
+            "kind": "monumental_stair",
+            "from_level": from_level,
+            "to_level": to_level,
+            "from_relative_y": from_y,
+            "to_relative_y": to_y,
+        }))
+
+
+def _place_sect_link(compound: CompoundGraph, style: Style, node_id: str,
+                     kind: str, endpoints: Tuple[str, str],
+                     cells: Set[Cell2], base_y: int,
+                     over: Optional[str] = None) -> None:
+    floor = style.primary("GROUND_PATH")
+    roof = style.slot_entry("ROOF_DARK", "_slab")
+    rail = style.optional_slot_entry("DETAIL_WOOD", "fence",
+                                     style.primary("FRAME_WOOD"))
+    xs = [x for x, _ in cells]
+    zs = [z for _, z in cells]
+    min_x, max_x = min(xs), max(xs)
+    min_z, max_z = min(zs), max(zs)
+    for index, (x, z) in enumerate(sorted(cells)):
+        compound.grid.set((x, base_y, z), floor, ["DETAIL", "GROUND"],
+                          PRIORITY["DETAIL"], "GROUND_PATH")
+        edge = x in (min_x, max_x) if max_x - min_x < max_z - min_z else z in (min_z, max_z)
+        if kind == "covered_gallery":
+            if index % 3 == 0:
+                compound.grid.set((x, base_y + 1, z), rail, ["STRUCTURE"],
+                                  PRIORITY["STRUCTURE"], "DETAIL_WOOD")
+                compound.grid.set((x, base_y + 2, z), rail, ["STRUCTURE"],
+                                  PRIORITY["STRUCTURE"], "DETAIL_WOOD")
+            compound.grid.set((x, base_y + 3, z), roof, ["ROOF"],
+                              PRIORITY["ROOF"], "ROOF_DARK")
+        elif edge or index % 4 == 0:
+            compound.grid.set((x, base_y + 1, z), rail, ["STRUCTURE"],
+                              PRIORITY["STRUCTURE"], "DETAIL_WOOD")
+    meta = {
+        "kind": kind,
+        "endpoints": list(endpoints),
+        "circulation": True,
+        "structural": True,
+        "relative_y": base_y,
+    }
+    if over:
+        meta["over"] = over
+    compound.parcel_nodes.append(ParcelNode(node_id, "link", cells, meta))
+
+
 def generate_sect_compound(seed: int, style: Optional[Style] = None) -> CompoundGraph:
     style = style or load_style("cultivation_sect")
     variant = CompoundVariant(
-        courtyard_size="sect_terraced",
-        water_form="spirit_court",
-        planting_layout="mountain_edges",
+        courtyard_size="sect_mountain_four_level",
+        water_form="water_front_cloud_sea",
+        planting_layout="mountain_cliff_edges",
         roof_grade="tiered_eave_roof",
         gate_style="moon_gate_axis",
         symmetry="axial",
     )
-    lot_w, lot_d = (63, 63)
+    lot_w, lot_d = (77, 96)
     axis = lot_w // 2
-    compound = CompoundGraph(style.style_id, seed, variant, (lot_w, lot_d), axis,
-                             meta={"layout_strategy": "sect_terraced_axial_compound"})
+    terrace_defs = [
+        {"id": "foot_terrace", "level": 0, "relative_y": 0,
+         "bounds": (3, 1, lot_w - 4, 18), "courtyard": (22, 8, 54, 17)},
+        {"id": "disciple_terrace", "level": 1, "relative_y": 2,
+         "bounds": (6, 19, lot_w - 7, 38), "courtyard": (27, 23, 50, 35)},
+        {"id": "alchemy_terrace", "level": 2, "relative_y": 4,
+         "bounds": (9, 39, lot_w - 10, 57), "courtyard": (20, 42, 51, 55)},
+        {"id": "summit_terrace", "level": 3, "relative_y": 6,
+         "bounds": (12, 58, lot_w - 19, lot_d - 3), "courtyard": (20, 63, 56, 76)},
+    ]
+    siting_context = {
+        "mountain_slope": "south_to_north_ascent",
+        "cliff_back": {"edge": "north", "z": lot_d - 2},
+        "water_front": {"edge": "south", "cells": [[5, 2], [20, 12], [lot_w - 21, 2], [lot_w - 6, 12]]},
+        "cloud_sea": {"edge": "east", "void": "east_cloud_gap"},
+    }
+    compound = CompoundGraph(
+        style.style_id,
+        seed,
+        variant,
+        (lot_w, lot_d),
+        axis,
+        meta={
+            "layout_strategy": "sect_terraced_axial_compound",
+            "level_count": len(terrace_defs),
+            "terraces": [
+                {**t, "bounds": list(t["bounds"]), "courtyard": list(t["courtyard"])}
+                for t in terrace_defs
+            ],
+            "siting_context": siting_context,
+        },
+    )
+
+    for terrace in terrace_defs:
+        _place_terrace(compound, style, terrace["id"], terrace["level"],
+                       terrace["relative_y"], terrace["bounds"])
 
     slot_seed = seed * 1009
     gate_ctx = generate_subbuilding(style, "sect_gate", slot_seed + 1, None,
-                                    "cultivation_sect")
+                                    "cultivation_sect", importance_tier=0)
     quarters_ctx = generate_subbuilding(style, "disciple_quarters", slot_seed + 2, None,
-                                        "cultivation_sect")
+                                        "cultivation_sect", importance_tier=1)
     alchemy_ctx = generate_subbuilding(style, "alchemy_room", slot_seed + 3, None,
-                                       "cultivation_sect")
+                                       "cultivation_sect", importance_tier=1)
     scripture_ctx = generate_subbuilding(style, "scripture_pavilion", slot_seed + 4, None,
-                                         "cultivation_sect")
+                                         "cultivation_sect", importance_tier=3)
     main_ctx = generate_subbuilding(style, "sect_main_hall", slot_seed + 5, None,
-                                    "cultivation_sect")
+                                    "cultivation_sect", importance_tier=3)
 
     gate = gate_ctx.graph.get("main")
     quarters = quarters_ctx.graph.get("main")
@@ -921,40 +1078,130 @@ def generate_sect_compound(seed: int, style: Optional[Style] = None) -> Compound
     scripture = scripture_ctx.graph.get("main")
     main = main_ctx.graph.get("main")
 
-    lower_platform = _rect(2, 1, lot_w - 3, 29)
-    upper_platform = _rect(8, 30, lot_w - 9, lot_d - 3)
-    platform_state = style.primary("BASE_STONE")
-    _put_cells(compound, "lower_terrace", "terrace", lower_platform,
-               platform_state, ["STRUCTURE", "GROUND"], y=-1, slot="BASE_STONE")
-    _put_cells(compound, "upper_terrace", "terrace", upper_platform,
-               platform_state, ["STRUCTURE", "GROUND"], y=0, slot="BASE_STONE")
-
     gate_slot = _translate_context(
         compound, "sect_gate", gate_ctx,
-        (axis - gate.size[0] // 2, 0, 3))
+        (axis - gate.size[0] // 2, 0, 5))
     quarters_slot = _translate_context(
         compound, "disciple_quarters", quarters_ctx,
-        (6, 0, 20))
+        (8, 2, 23))
     alchemy_slot = _translate_context(
         compound, "alchemy_room", alchemy_ctx,
-        (lot_w - 6 - alchemy.size[0], 0, 21))
+        (lot_w - 10 - alchemy.size[0], 4, 43))
     scripture_slot = _translate_context(
         compound, "scripture_pavilion", scripture_ctx,
-        (axis - scripture.size[0] // 2, 1, 34))
+        (axis - scripture.size[0] // 2, 6, 62))
     main_slot = _translate_context(
         compound, "sect_main_hall", main_ctx,
-        (axis - main.size[0] // 2, 2, lot_d - main.size[2] - 4))
+        (axis - main.size[0] // 2, 6, 77))
 
-    path_cells = {(axis, z) for z in range(1, min(z for _, z in main_slot.footprint))}
-    path_cells |= {(axis - 1, z) for z in range(6, min(z for _, z in main_slot.footprint))}
-    path_cells |= {(axis + 1, z) for z in range(6, min(z for _, z in main_slot.footprint))}
-    _put_cells(compound, "central_axis_path", "path", path_cells,
-               style.primary("GROUND_PATH"), ["DETAIL", "GROUND"], y=-1,
-               slot="GROUND_PATH")
-    stair_cells = {(axis + dx, z) for dx in (-1, 0, 1) for z in (29, 30, 31)}
-    _put_cells(compound, "terrace_steps", "circulation", stair_cells,
-               style.slot_entry("ROOF_DARK", "_slab"), ["DETAIL", "GROUND"],
-               y=0, slot="ROOF_DARK")
+    slot_levels = {
+        gate_slot.id: 0,
+        quarters_slot.id: 1,
+        alchemy_slot.id: 2,
+        scripture_slot.id: 3,
+        main_slot.id: 3,
+    }
+    importance_tiers = {
+        gate_slot.id: 0,
+        quarters_slot.id: 1,
+        alchemy_slot.id: 1,
+        scripture_slot.id: 3,
+        main_slot.id: 3,
+    }
+    _mark_sect_slot(gate_slot, 0, 0, "mountain_gate")
+    _mark_sect_slot(quarters_slot, 1, 1, "disciple_court")
+    _mark_sect_slot(alchemy_slot, 2, 1, "alchemy_court")
+    _mark_sect_slot(scripture_slot, 3, 3, "summit_pagoda")
+    _mark_sect_slot(main_slot, 3, 3, "principal_hall")
+
+    summit_front = min(z for _, z in main_slot.footprint)
+    path_cells = {(axis, z) for z in range(1, summit_front)}
+    path_cells |= {(axis - 1, z) for z in range(7, summit_front)}
+    path_cells |= {(axis + 1, z) for z in range(7, summit_front)}
+    for x, z in sorted(path_cells):
+        base_y = 0
+        for terrace in terrace_defs:
+            _x0, z0, _x1, z1 = terrace["bounds"]
+            if z0 <= z <= z1:
+                base_y = terrace["relative_y"]
+        compound.grid.set((x, base_y - 1, z), style.primary("GROUND_PATH"),
+                          ["DETAIL", "GROUND"], PRIORITY["DETAIL"],
+                          "GROUND_PATH")
+    compound.parcel_nodes.append(
+        ParcelNode("central_axis_path", "path", path_cells, {
+            "kind": "ritual_axis",
+            "from": "sect_gate",
+            "to": "sect_main_hall",
+        }))
+
+    stair_specs = [
+        ("stair_level_0_1", 0, 1, 0, 2, 16, 20),
+        ("stair_level_1_2", 1, 2, 2, 4, 36, 40),
+        ("stair_level_2_3", 2, 3, 4, 6, 56, 61),
+    ]
+    for node_id, from_level, to_level, from_y, to_y, z0, z1 in stair_specs:
+        stair_cells = {(axis + dx, z) for dx in (-2, -1, 0, 1, 2)
+                       for z in range(z0, z1 + 1)}
+        _place_monumental_stair(compound, style, node_id, from_level, to_level,
+                                from_y, to_y, stair_cells)
+
+    cloud_gap = _rect(lot_w - 18, 66, lot_w - 14, 72)
+    for x, z in sorted(cloud_gap):
+        compound.grid.set((x, 3, z), "minecraft:white_stained_glass",
+                          ["DETAIL"], PRIORITY["DETAIL"], "WATER")
+    compound.parcel_nodes.append(
+        ParcelNode("east_cloud_gap", "cloud_sea", cloud_gap, {
+            "kind": "cloud_sea_gap",
+            "level": 3,
+            "relative_y": 3,
+        }))
+    overlook = _rect(lot_w - 13, 65, lot_w - 5, 72)
+    _put_cells(compound, "east_cantilever_overlook", "cantilever_terrace",
+               overlook, style.primary("BASE_STONE"), ["STRUCTURE", "GROUND"],
+               y=5, slot="BASE_STONE", meta={
+                   "level": 3,
+                   "relative_y": 6,
+                   "cantilevered": True,
+                   "over": "east_cloud_gap",
+               })
+
+    gallery_z = max(z for _, z in scripture_slot.footprint) + 1
+    gallery_cells = {(axis + dx, gallery_z) for dx in (-1, 0, 1)}
+    gallery_cells |= {(axis + dx, gallery_z + 1) for dx in (-1, 0, 1)}
+    _place_sect_link(compound, style, "covered_gallery_scripture_hall",
+                     "covered_gallery", (scripture_slot.id, main_slot.id),
+                     gallery_cells, 6)
+
+    scripture_east = max(x for x, _ in scripture_slot.footprint) + 1
+    bridge_z = (min(z for _, z in scripture_slot.footprint) +
+                max(z for _, z in scripture_slot.footprint)) // 2
+    bridge_cells = {(x, bridge_z) for x in range(scripture_east, lot_w - 12)}
+    bridge_cells |= {(x, bridge_z + 1) for x in range(scripture_east, lot_w - 12)}
+    _place_sect_link(compound, style, "flying_bridge_scripture_overlook",
+                     "flying_bridge", (scripture_slot.id, "east_cantilever_overlook"),
+                     bridge_cells, 7, over="east_cloud_gap")
+
+    water_front = (_rect(5, 2, 20, 12) |
+                   _rect(lot_w - 21, 2, lot_w - 6, 12))
+    _clear_cells(compound, water_front, y0=-1, y1=0)
+    _put_cells(compound, "water_front", "water_feature", water_front,
+               "minecraft:water", ["DETAIL", "GROUND"], y=-1,
+               slot="WATER", meta={"siting": "water_front", "level": 0})
+    planting = (_rect(3, 14, 9, 18) | _rect(lot_w - 10, 14, lot_w - 4, 18) |
+                _rect(12, lot_d - 10, 17, lot_d - 3))
+    plant_states = ("minecraft:moss_block", "minecraft:azalea_leaves",
+                    "minecraft:flowering_azalea_leaves")
+    for i, (x, z) in enumerate(sorted(planting)):
+        compound.grid.set((x, 0, z), plant_states[i % len(plant_states)],
+                          ["DETAIL", "GROUND"], PRIORITY["DETAIL"], "PLANTING")
+    compound.parcel_nodes.append(
+        ParcelNode("mountain_edge_planting", "planting", planting,
+                   {"siting": "mountain_edges"}))
+
+    for terrace in terrace_defs:
+        courtyard_cells = _place_sect_courtyard(
+            compound, style, terrace["level"], terrace["relative_y"], terrace["courtyard"])
+        terrace["courtyard_cells"] = len(courtyard_cells)
 
     compound.meta["hierarchy"] = [
         gate_slot.id,
@@ -963,13 +1210,11 @@ def generate_sect_compound(seed: int, style: Optional[Style] = None) -> Compound
         scripture_slot.id,
         main_slot.id,
     ]
-    compound.meta["terrace_levels"] = {
-        gate_slot.id: 0,
-        quarters_slot.id: 0,
-        alchemy_slot.id: 0,
-        scripture_slot.id: 1,
-        main_slot.id: 2,
-    }
+    compound.meta["terrace_levels"] = slot_levels
+    compound.meta["importance_tiers"] = importance_tiers
+    compound.meta["summit_slots"] = [scripture_slot.id, main_slot.id]
+    compound.meta["siting_context"]["cliff_back"]["principal_hall_slot"] = main_slot.id
+    compound.meta["siting_context"]["cloud_sea"]["cantilever_slot"] = "east_cantilever_overlook"
     return compound
 
 
@@ -1242,11 +1487,22 @@ def validate_town_block(compound: CompoundGraph) -> dict:
     }
 
 
+def _cells_touch(a: Set[Cell2], b: Set[Cell2]) -> bool:
+    if a & b:
+        return True
+    for x, z in a:
+        if ((x + 1, z) in b or (x - 1, z) in b or
+                (x, z + 1) in b or (x, z - 1) in b):
+            return True
+    return False
+
+
 def validate_sect_compound(compound: CompoundGraph) -> dict:
     errors: List[str] = []
     lot_w, lot_d = compound.lot_size
     axis = compound.axis_x
     slot_ids = {s.id for s in compound.building_slots}
+    slots = {slot.id: slot for slot in compound.building_slots}
     required = {
         "sect_gate", "disciple_quarters", "alchemy_room",
         "scripture_pavilion", "sect_main_hall",
@@ -1254,12 +1510,17 @@ def validate_sect_compound(compound: CompoundGraph) -> dict:
     missing = sorted(required - slot_ids)
     if missing:
         errors.append(f"missing_slots: {missing}")
+    if compound.meta.get("layout_strategy") != "sect_terraced_axial_compound":
+        errors.append(f"bad_layout_strategy: {compound.meta.get('layout_strategy')}")
     outside = [
         (x, z) for x, z in compound.building_cells()
         if not (0 < x < lot_w - 1 and 0 < z < lot_d - 1)
     ]
     if outside:
         errors.append(f"building_outside_perimeter: {outside[:8]}")
+    landscape = compound.node_cells("water_feature", "planting")
+    if compound.building_cells() & landscape:
+        errors.append(f"building_landscape_overlap: {sorted(compound.building_cells() & landscape)[:8]}")
     path = compound.node_cells("path")
     circulation = compound.node_cells("circulation")
     if not path or (axis, 1) not in path:
@@ -1267,13 +1528,102 @@ def validate_sect_compound(compound: CompoundGraph) -> dict:
     if not circulation:
         errors.append("missing_terrace_circulation")
     if not missing:
-        slots = {slot.id: slot for slot in compound.building_slots}
         gate_z = min(z for _, z in slots["sect_gate"].footprint)
         scripture_z = min(z for _, z in slots["scripture_pavilion"].footprint)
         hall_z = min(z for _, z in slots["sect_main_hall"].footprint)
         if not gate_z < scripture_z < hall_z:
             errors.append(
                 f"hierarchy_not_axial: gate={gate_z} scripture={scripture_z} hall={hall_z}")
+        hall_goal = (axis, min(z for _, z in slots["sect_main_hall"].footprint) - 1)
+        if hall_goal not in path:
+            errors.append(f"axis_path_does_not_reach_summit: {hall_goal}")
+
+    terrace_nodes = [n for n in compound.parcel_nodes if n.type == "terrace"]
+    terrace_levels = compound.meta.get("terrace_levels", {})
+    level_defs = compound.meta.get("terraces", [])
+    levels = sorted({int(t.get("level")) for t in level_defs if "level" in t})
+    if len(levels) < 3:
+        errors.append(f"too_few_terrace_levels: {levels}")
+    if levels and levels != list(range(levels[0], levels[-1] + 1)):
+        errors.append(f"non_contiguous_terrace_levels: {levels}")
+    if len(terrace_nodes) < len(levels):
+        errors.append(f"missing_terrace_nodes: {len(terrace_nodes)} < {len(levels)}")
+    for level in levels:
+        level_slots = [slot_id for slot_id, slot_level in terrace_levels.items()
+                       if int(slot_level) == level]
+        if not level_slots:
+            errors.append(f"terrace_level_has_no_slots: {level}")
+        courtyard = [n for n in compound.parcel_nodes
+                     if n.type == "courtyard" and n.meta.get("level") == level]
+        if not courtyard:
+            errors.append(f"terrace_level_missing_courtyard: {level}")
+
+    stairways = [
+        n for n in compound.parcel_nodes
+        if n.type == "circulation" and n.meta.get("kind") == "monumental_stair"
+    ]
+    stair_pairs = {
+        (int(n.meta.get("from_level")), int(n.meta.get("to_level")))
+        for n in stairways
+        if "from_level" in n.meta and "to_level" in n.meta
+    }
+    for lower, upper in zip(levels, levels[1:]):
+        if (lower, upper) not in stair_pairs:
+            errors.append(f"missing_interlevel_stair: {lower}->{upper}")
+
+    siting = compound.meta.get("siting_context", {})
+    for key in ("mountain_slope", "cliff_back", "water_front", "cloud_sea"):
+        if key not in siting:
+            errors.append(f"missing_siting_context: {key}")
+    if not missing and siting.get("cliff_back"):
+        hall_back = max(z for _, z in slots["sect_main_hall"].footprint)
+        cliff_z = int(siting.get("cliff_back", {}).get("z", lot_d - 2))
+        if hall_back < cliff_z - 5:
+            errors.append(f"principal_hall_not_against_cliff: hall_back={hall_back} cliff={cliff_z}")
+
+    importance = compound.meta.get("importance_tiers", {})
+    if importance:
+        for lower, upper in zip(levels, levels[1:]):
+            lower_tiers = [int(importance[s]) for s, lvl in terrace_levels.items()
+                           if int(lvl) == lower and s in importance]
+            upper_tiers = [int(importance[s]) for s, lvl in terrace_levels.items()
+                           if int(lvl) == upper and s in importance]
+            if lower_tiers and upper_tiers and min(upper_tiers) < max(lower_tiers):
+                errors.append(f"importance_not_graded_by_level: {lower}->{upper}")
+        top = max(importance.values()) if importance else None
+        for summit in ("sect_main_hall", "scripture_pavilion"):
+            if importance.get(summit) != top:
+                errors.append(f"summit_slot_not_top_tier: {summit}")
+    else:
+        errors.append("missing_importance_tiers")
+
+    node_ids = {node.id for node in compound.parcel_nodes}
+    link_nodes = [n for n in compound.parcel_nodes if n.type == "link"]
+    link_kinds = {n.meta.get("kind") for n in link_nodes}
+    for required_kind in ("covered_gallery", "flying_bridge"):
+        if required_kind not in link_kinds:
+            errors.append(f"missing_link_kind: {required_kind}")
+    endpoint_cells: Dict[str, Set[Cell2]] = {slot.id: slot.footprint for slot in compound.building_slots}
+    endpoint_cells.update({node.id: node.cells for node in compound.parcel_nodes})
+    for node in link_nodes:
+        endpoints = node.meta.get("endpoints", [])
+        if len(endpoints) != 2:
+            errors.append(f"link_bad_endpoint_count: {node.id}: {endpoints}")
+            continue
+        for endpoint in endpoints:
+            if endpoint not in slot_ids and endpoint not in node_ids:
+                errors.append(f"link_unknown_endpoint: {node.id}: {endpoint}")
+                continue
+            if not _cells_touch(node.cells, endpoint_cells.get(endpoint, set())):
+                errors.append(f"link_endpoint_not_connected: {node.id}: {endpoint}")
+        if not node.meta.get("circulation") or not node.meta.get("structural"):
+            errors.append(f"link_not_structural_circulation: {node.id}")
+        if node.meta.get("kind") == "flying_bridge":
+            crosses_axis = any(x == axis for x, _ in node.cells)
+            spans_gap = bool(node.meta.get("over"))
+            if not crosses_axis and not spans_gap:
+                errors.append(f"flying_bridge_spans_nothing: {node.id}")
+
     failed_quality = [
         s.id for s in compound.building_slots
         if s.quality is not None and not s.quality.get("passed")
@@ -1290,7 +1640,10 @@ def validate_sect_compound(compound: CompoundGraph) -> dict:
             "building_slots": len(compound.building_slots),
             "path_cells": len(path),
             "circulation_cells": len(circulation),
-            "terrace_levels": compound.meta.get("terrace_levels", {}),
+            "terrace_levels": terrace_levels,
+            "terrace_level_count": len(levels),
+            "link_count": len(link_nodes),
+            "siting_context": siting,
         },
     }
 

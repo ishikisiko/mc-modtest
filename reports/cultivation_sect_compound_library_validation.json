@@ -11,24 +11,24 @@
       "passed": true,
       "errors": [],
       "size": [
-        59,
-        29,
-        62
+        71,
+        43,
+        94
       ],
-      "block_count": 13257,
-      "palette_count": 51
+      "block_count": 39058,
+      "palette_count": 82
     },
     {
       "name": "cultivation_sect_002",
       "passed": true,
       "errors": [],
       "size": [
-        59,
-        29,
-        62
+        71,
+        43,
+        94
       ],
-      "block_count": 14094,
-      "palette_count": 51
+      "block_count": 40523,
+      "palette_count": 85
     }
   ]
 }

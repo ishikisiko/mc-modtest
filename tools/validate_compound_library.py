@@ -149,6 +149,36 @@ def _frontage_errors(compound: dict) -> list:
     return errors
 
 
+def _sect_metadata_errors(name: str, compound: dict) -> list:
+    errors = []
+    path = os.path.join(RES, "settlement_meta", f"{name}.json")
+    if not os.path.isfile(path):
+        return [f"missing_settlement_metadata: {name}"]
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = json.load(f)
+    except Exception as exc:
+        return [f"bad_settlement_metadata_json: {name}: {exc}"]
+    graph_meta = compound.get("compound_graph", {}).get("meta", {})
+    if data.get("structure") != name:
+        errors.append(f"metadata_structure_mismatch: {name}: {data.get('structure')}")
+    if data.get("layout_strategy") != "sect_terraced_axial_compound":
+        errors.append(f"metadata_bad_layout_strategy: {name}: {data.get('layout_strategy')}")
+    siting = data.get("siting_context", {})
+    for key in ("mountain_slope", "cliff_back", "water_front", "cloud_sea"):
+        if key not in siting:
+            errors.append(f"metadata_missing_siting_context: {name}: {key}")
+    terraces = data.get("terraces", [])
+    if len(terraces) < 3:
+        errors.append(f"metadata_too_few_terraces: {name}: {len(terraces)}")
+    levels = data.get("terrace_levels", {})
+    if levels != graph_meta.get("terrace_levels", {}):
+        errors.append(f"metadata_terrace_levels_mismatch: {name}")
+    if not data.get("links"):
+        errors.append(f"metadata_missing_links: {name}")
+    return errors
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--style", default=None)
@@ -210,9 +240,13 @@ def main() -> int:
         if args.group == "cultivation_town":
             for err in _frontage_errors(c):
                 errors.append(f"{c.get('name')}: {err}")
+        if args.group == "cultivation_sect" and c.get("name"):
+            for err in _sect_metadata_errors(c["name"], c):
+                errors.append(err)
 
     names = [c.get("name") for c in compounds if c.get("name")]
-    max_size = 128 if group.layout_strategy in ("courtyard_street_block", "town_generation") else 64
+    max_size = 128 if group.layout_strategy in (
+        "courtyard_street_block", "town_generation", "sect_terraced_axial_compound") else 64
     require_landscape_features = group.layout_strategy != "sect_terraced_axial_compound"
     nbt_results = [
         validate_nbt(name, style, modset, max_size=max_size,

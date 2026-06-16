@@ -17,13 +17,26 @@ FUNCTION_BLOCKS = (
 )
 PASSABLE_FOOT = ("_stairs", "_slab", "coarse_dirt", "gravel", "cobblestone",
                  "carpet", "_pressure_plate")
-CULTIVATION_ROOF_FORMS = {"tiered_eave_roof"}
+CULTIVATION_ROOF_FORMS = {
+    "sweeping_eave_roof",
+    "hip_roof",
+    "pyramidal_roof",
+    "tiered_eave_roof",
+}
 CULTIVATION_MOTIFS = {
     "moon_gate",
     "spirit_array",
     "incense_altar",
     "cloud_rail",
     "sect_gate_paifang",
+}
+CULTIVATION_FAMILIES = {"cultivation_town", "cultivation_sect"}
+WESTERN_DOMESTIC_MOTIFS = {
+    "small_porch",
+    "side_chimney",
+    "woodpile",
+    "barrel_cluster",
+    "fence_patch",
 }
 
 
@@ -106,6 +119,14 @@ def quality_check(ctx: BuildContext, structure_id: str) -> dict:
                 and not info.get("fallback")
                 and info.get("tier_count", 0) < 2):
             errors.append("tiered_eave_roof_missing_upper_tier")
+        if (info.get("roof_type") in {"sweeping_eave_roof", "tiered_eave_roof"}
+                and not info.get("fallback")
+                and not info.get("upturned_corners")):
+            errors.append(f"{info.get('roof_type')}_missing_upturned_corners")
+        if (info.get("roof_type") == "pyramidal_roof"
+                and style.has_slot("RIDGE_ORNAMENT")
+                and not info.get("ridge_ornaments")):
+            errors.append("pyramidal_roof_missing_finial")
 
     # 6. entrance clear
     if ctx.door_info:
@@ -247,8 +268,32 @@ def quality_check(ctx: BuildContext, structure_id: str) -> dict:
         set(ctx.decoration_motifs) & CULTIVATION_MOTIFS - set(style.allowed_motifs))
     if disallowed_cultivation_motifs:
         errors.append(f"cultivation_motif_not_allowed: {disallowed_cultivation_motifs}")
+    is_cultivation = (
+        graph.meta.get("cultivation_form")
+        or graph.meta.get("style_family") in CULTIVATION_FAMILIES
+    )
+    if is_cultivation:
+        western_nodes = [node.id for node in graph.by_type("chimney", "porch")]
+        if western_nodes:
+            errors.append(f"cultivation_western_nodes_present: {western_nodes}")
+        western_motifs = sorted(set(ctx.decoration_motifs) & WESTERN_DOMESTIC_MOTIFS)
+        if western_motifs:
+            errors.append(f"cultivation_western_motifs_present: {western_motifs}")
+        if graph.meta.get("requires_platform_colonnade"):
+            if not graph.by_type("platform"):
+                errors.append("cultivation_platform_missing")
+            if not graph.by_type("colonnade"):
+                errors.append("cultivation_colonnade_missing")
+        if graph.meta.get("requires_pagoda_insets"):
+            insets = list(graph.meta.get("pagoda_story_insets", []))
+            if len(insets) < 2 or any(b <= a for a, b in zip(insets, insets[1:])):
+                errors.append(f"pagoda_story_insets_invalid: {insets}")
+            pagoda_roofs = {info.get("roof_type") for info in ctx.roof_info}
+            if "pyramidal_roof" not in pagoda_roofs:
+                errors.append("pagoda_crown_not_pyramidal")
+
     legacy_styles = {"medieval_village", "chinese_courtyard"}
-    if style.style_id in legacy_styles:
+    if style.style_id in legacy_styles or ctx.group_id == "civic":
         invoked_cultivation = sorted(
             (invoked_roofs & CULTIVATION_ROOF_FORMS) |
             (set(ctx.decoration_motifs) & CULTIVATION_MOTIFS))

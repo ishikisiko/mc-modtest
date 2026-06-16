@@ -7,11 +7,15 @@ This spec captures the current validation baseline. It is temporary and mutable;
 ## Requirements
 
 ### Requirement: Structure JSON validation checks schema, bounds, metadata, and modset-aware block ids
-The Structure JSON validator SHALL check JSON shape, size and coordinate bounds, palette resolution, supported operations, metadata rules, and block id existence relative to the active modset profile. Under the `vanilla` profile only Minecraft `1.21.1` vanilla block ids are accepted. Under the `full` profile a non-`minecraft` block id is accepted when its namespace is in the catalog's confirmed mod set and the id exists in `exmod/mod_block_catalog.json`; vanilla `minecraft` id existence is still checked against the `1.21.1` registry.
+The Structure JSON validator SHALL check JSON shape, size and coordinate bounds, palette resolution, supported operations, metadata rules, and block id existence relative to the active modset profile. Under the `vanilla` profile only Minecraft `1.21.1` vanilla block ids and the project-owned `myvillage` self-namespace are accepted. Under the `full` profile a non-`minecraft` block id is accepted when its namespace is `myvillage` or when its namespace is in the catalog's confirmed mod set and the id exists in `exmod/mod_block_catalog.json`; vanilla `minecraft` id existence is still checked against the `1.21.1` registry.
 
-#### Scenario: A non-vanilla block id is referenced under the vanilla profile
-- **WHEN** Structure JSON validation runs under the `vanilla` profile and sees a blockstate outside the `minecraft` namespace
-- **THEN** validation SHALL fail because the `vanilla` profile permits only vanilla Minecraft `1.21.1` blocks.
+#### Scenario: An external mod block id is referenced under the vanilla profile
+- **WHEN** Structure JSON validation runs under the `vanilla` profile and sees a blockstate outside the `minecraft` and `myvillage` namespaces
+- **THEN** validation SHALL fail because the `vanilla` profile permits only vanilla Minecraft `1.21.1` blocks plus shipped `myvillage` resources.
+
+#### Scenario: A shipped myvillage block id is referenced under either profile
+- **WHEN** Structure JSON validation runs under the `vanilla` or `full` profile and sees a `myvillage:` blockstate
+- **THEN** validation SHALL accept the id as a shipped self-namespace resource.
 
 #### Scenario: A confirmed mod block id is referenced under the full profile
 - **WHEN** Structure JSON validation runs under the `full` profile and sees a non-`minecraft` blockstate
@@ -39,17 +43,22 @@ Quality warnings and scores SHALL be diagnostic unless they are represented as h
 - **AND** the building MAY still pass if there are no hard errors.
 
 ### Requirement: Exported building library validation checks actual mod resources
-The building library resource validator SHALL validate exported NBT and mcfunction files from the mod resources tree, not in-memory generation state. Block-id legality SHALL be evaluated against the active modset profile: vanilla `minecraft` ids are checked against the `1.21.1` registry, while non-`minecraft` ids are accepted only under a profile whose active namespaces include theirs and only when the id exists in the catalog.
+The building library resource validator SHALL validate exported NBT and mcfunction files from the mod resources tree, not in-memory generation state. Block-id legality SHALL be evaluated against the active modset profile: vanilla `minecraft` ids are checked against the `1.21.1` registry, `myvillage` ids are accepted as shipped self-namespace resources, and external non-`minecraft` ids are accepted only under a profile whose active namespaces include theirs and only when the id exists in the catalog.
 
 #### Scenario: A generated NBT file is missing
 - **WHEN** the validator expects `small_house_001.nbt`
 - **AND** the file is absent from `src/main/resources/data/myvillage/structure/`
 - **THEN** validation SHALL fail with `missing_file`.
 
-#### Scenario: A mod id appears under the vanilla profile
+#### Scenario: An external mod id appears under the vanilla profile
 - **WHEN** the building library validator runs under the `vanilla` profile
-- **AND** a structure palette contains a non-`minecraft` block id
+- **AND** a structure palette contains a non-`minecraft`, non-`myvillage` block id
 - **THEN** validation SHALL fail with `forbidden_mod_blocks` naming the offending id.
+
+#### Scenario: A myvillage plaque id appears under the vanilla profile
+- **WHEN** the building library validator runs under the `vanilla` profile
+- **AND** a structure palette contains `myvillage:wall_plaque`, `myvillage:wall_plaque_vertical`, `myvillage:hanging_plaque`, or `myvillage:hanging_plaque_vertical`
+- **THEN** validation SHALL accept the id because the mod ships the corresponding block registration and assets.
 
 #### Scenario: A confirmed mod id appears under the full profile
 - **WHEN** the building library validator runs under the `full` profile
@@ -76,12 +85,44 @@ The generated-structure NBT validator SHALL check parseability, non-empty palett
 - **THEN** validation SHALL fail with `forbidden_mod_blocks`.
 
 ### Requirement: Optional-mod fallback validation covers shipped palettes
-The runtime fallback-map validator SHALL check every non-`minecraft` block id appearing in shipped structure palettes has an entry in `src/main/resources/data/myvillage/mod_block_fallbacks.json`, and each mapped value SHALL be a syntactically valid non-air `minecraft:` block state whose block id exists in the Minecraft `1.21.1` reference list.
+The runtime fallback-map validator SHALL check every external non-`minecraft` block id appearing in shipped structure palettes has an entry in `src/main/resources/data/myvillage/mod_block_fallbacks.json`, and each mapped value SHALL be a syntactically valid non-air `minecraft:` block state whose block id exists in the Minecraft `1.21.1` reference list. The `myvillage:` self-namespace SHALL NOT require fallback entries.
 
 #### Scenario: A shipped palette contains an optional mod id
 - **WHEN** `tools/validate_mod_block_fallbacks.py` scans shipped structure NBT files
 - **THEN** every catalog-approved mod block id found in `palette` or `palettes` SHALL have a generated runtime fallback
 - **AND** validation SHALL fail if the fallback is missing, non-vanilla, air, or references an unknown vanilla block id.
+
+#### Scenario: A shipped palette contains a myvillage plaque id
+- **WHEN** `tools/validate_mod_block_fallbacks.py` scans shipped structure NBT files
+- **AND** a palette contains a `myvillage:` plaque block id
+- **THEN** validation SHALL accept the id without requiring a fallback entry.
+
+### Requirement: Plaque binding validation covers inscription data
+The plaque binding validator SHALL check `src/main/resources/data/myvillage/plaque_bindings.json` against the plaque frame manifest, painting variant JSON files, inscription PNG assets, generated full plaque block textures, and model UV-windowed plaque part outputs.
+
+#### Scenario: Plaque bindings are validated
+- **WHEN** `tools/validate_plaque_bindings.py` runs
+- **THEN** every binding SHALL reference an existing frame preset
+- **AND** each inscription pool entry SHALL reference an existing `painting_variant` JSON and PNG whose bucket is compatible with the frame geometry
+- **AND** the generated full plaque texture for each bound frame/mount/orientation SHALL include visible inscription pixels without overfilling the plaque face
+- **AND** invalid mounts, unknown frame presets, missing inscriptions, bucket mismatches, invisible baked inscriptions, and overfilled baked inscriptions SHALL fail validation.
+
+#### Scenario: A baked full plaque texture has invisible or overfilled inscription pixels
+- **WHEN** `tools/validate_plaque_bindings.py` compares a generated full plaque texture with the no-inscription full frame texture for a bound frame/mount/orientation
+- **AND** the changed inscription pixel coverage is too small or too large
+- **THEN** validation SHALL fail with `plaque_inscription_not_visible` or `plaque_inscription_overfilled`.
+
+### Requirement: Generated NBT validation checks wall plaque visual order
+The generated-structure NBT validator SHALL inspect horizontal `myvillage:wall_plaque` multipart runs and confirm their `col` values match exterior-view left-to-right order for the plaque's `facing`. The check SHALL account for north/east facades where visual left is the higher tangent coordinate, so wall-mounted inscriptions do not render in reverse order in game.
+
+#### Scenario: A north-facing wall plaque has reversed columns
+- **WHEN** generated-structure validation checks a horizontal `myvillage:wall_plaque` run with `facing=north`
+- **AND** the viewer-visible left-to-right column sequence is `right, inner_right, center, inner_left, left`
+- **THEN** validation SHALL fail with `plaque_visual_order`.
+
+#### Scenario: A wall plaque is in exterior-view order
+- **WHEN** generated-structure validation checks a horizontal wall plaque run whose viewer-visible columns are `left, inner_left, center, inner_right, right`
+- **THEN** validation SHALL accept the plaque order.
 
 ### Requirement: Visual review remains outside full automation
 Automated validation SHALL NOT be treated as complete visual acceptance. In-game placement via `/myvillage gallery`, `/myvillage gallery original`, `/myvillage gallery cultivation`, or `/place template` remains the review path for visual issues such as roof holes, gable appearance, stair/slab facing, and layout readability.
@@ -98,10 +139,11 @@ Staged manual acceptance SHALL start from a prepared mod artifact and command li
 - **WHEN** a reviewer is asked to inspect generated structures in game
 - **THEN** a current mod jar build path SHALL be available or documented
 - **AND** the README command list SHALL include `/myvillage list`, `/myvillage town [seed]`, `/myvillage place <structure_id>`, `/myvillage gallery`, `/myvillage gallery original`, and `/myvillage gallery cultivation`
+- **AND** the acceptance prep SHOULD include `python3 tools/validate_plaque_bindings.py` when plaque-bearing resources are present
 - **AND** the offline preview prep SHOULD include `python3 tools/preview_structure.py --all`, producing static PNG previews and per-structure `viewer.html` files under `out/preview/`
 - **AND** town preview prep SHOULD include `python3 tools/generate_town_plan_preview.py --count 3`, producing top-down plan PNG/HTML previews under `out/preview/town_plan_*`
 - **AND** when more than one `viewer.html` is produced, the preview prep SHALL produce an aggregate `out/preview/index.html` review entry point
-- **AND** the acceptance handoff SHALL include a running local HTTP server rooted at `out/preview/` and report the exact review URL, such as `http://127.0.0.1:8765/index.html`
+- **AND** the acceptance handoff SHALL include a running public HTTP server rooted at `out/preview/`, bound with `python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview`, and report `http://43.156.135.198:8765/index.html` while this host keeps that public IP
 - **AND** the preview HTTP server SHALL remain running for reviewer acceptance until the reviewer explicitly says it can be closed, or until the related OpenSpec change is being archived
 - **AND** the changelog SHALL identify the version or fix label under review
 - **AND** the reviewer SHOULD first run `/myvillage list` to confirm the expected templates are loaded before placing individual structures.
@@ -117,10 +159,10 @@ The town-generation validator SHALL check seeded town plans, a sloped-site case,
 
 #### Scenario: Runtime town layout variants are validated
 - **WHEN** `tools/validate_runtime_town_plan.py` succeeds
-- **THEN** every runtime central-lane offset SHALL keep parcel bounds, negative space, and placed template footprints disjoint from streets
+- **THEN** the runtime shrine-axis plan SHALL keep parcel bounds, negative space, and placed template footprints disjoint from streets
 - **AND** every parcel SHALL remain reachable from the street network
 - **AND** smoke/light ground-detail candidates and street-room furniture candidates SHALL stay off template footprints
-- **AND** shipped runtime templates SHALL have a populated ground layer above their sparse terrain-replacement layer.
+- **AND** shipped runtime templates SHALL have a populated ground layer and sufficient terrain-replacement support.
 
 ### Requirement: Compound validation checks generated resources
 The compound library validator SHALL validate generated courtyard and town-block report data and exported mod resources, including NBT files and generated place/gallery functions. It SHALL enforce modset-aware block-id legality for non-`minecraft` ids under the active profile.
@@ -136,6 +178,12 @@ The compound library validator SHALL validate generated courtyard and town-block
 - **THEN** six distinct town-block structures SHALL be validated
 - **AND** the validator SHALL confirm exported NBTs include compound landscape markers such as water and planting
 - **AND** generated `place/cultivation_town_*.mcfunction` and `gallery/cultivation_town.mcfunction` files SHALL exist.
+
+#### Scenario: The cultivation sect compound library is validated
+- **WHEN** `tools/validate_compound_library.py --group cultivation_sect --count 2` succeeds
+- **THEN** two distinct sect compound structures SHALL be validated
+- **AND** generated `place/cultivation_sect_*.mcfunction` and `gallery/cultivation_sect.mcfunction` files SHALL exist
+- **AND** matching `settlement_meta/cultivation_sect_*.json` files SHALL expose siting context, terrace levels, and link metadata.
 
 #### Scenario: A cultivation town block is validated under the vanilla profile
 - **WHEN** `tools/validate_compound_library.py --group cultivation_town --profile vanilla` runs against output that contains mod ids
@@ -197,5 +245,5 @@ Cultivation style policy and form vocabulary regression checks SHALL be invocabl
 
 #### Scenario: Cultivation forms are checked
 - **WHEN** `tools/check_cultivation_forms.py` succeeds
-- **THEN** the registered cultivation forms SHALL be exercisable by cultivation generation
+- **THEN** the registered cultivation roof forms, ridge ornaments, and motifs SHALL be exercisable by cultivation generation
 - **AND** legacy medieval and Chinese samples SHALL not invoke cultivation-only forms.

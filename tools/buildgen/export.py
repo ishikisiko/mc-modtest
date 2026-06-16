@@ -7,6 +7,7 @@ the mod resources tree.
 
 from __future__ import annotations
 
+import json
 import os
 import sys
 from typing import Dict, List, Tuple
@@ -66,6 +67,7 @@ def grid_to_structure_data(grid: BlockGrid) -> dict:
     blocks = [{"pos": [x, y, z], "state": cell.state}
               for (x, y, z), cell in sorted(grid.iter_cells())]
     return {"size": list(size), "blocks": blocks,
+            "entities": grid.entities,
             "author": "generate_building_library.py"}
 
 
@@ -78,10 +80,20 @@ def write_structure_nbt(grid: BlockGrid, style_id: str, name: str) -> Tuple[str,
     info = {
         "size": data["size"],
         "block_count": len(root.value["blocks"].value),
+        "entity_count": len(root.value["entities"].value),
         "palette_count": len(root.value["palette"].value),
         "path": os.path.relpath(path, PROJECT_ROOT),
     }
     return path, info
+
+
+def write_settlement_metadata(name: str, metadata: dict) -> str:
+    out = os.path.join(RESOURCES, "settlement_meta", f"{name}.json")
+    os.makedirs(os.path.dirname(out), exist_ok=True)
+    with open(out, "w", encoding="utf-8") as f:
+        json.dump(metadata, f, indent=2, ensure_ascii=False)
+        f.write("\n")
+    return out
 
 
 def write_gallery_function(style_id: str, entries: List[dict],

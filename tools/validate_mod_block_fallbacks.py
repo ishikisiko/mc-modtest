@@ -19,7 +19,7 @@ BLOCKS_121 = REPO_ROOT / "docs" / "ai-kb" / "references" / "blocks_121.json"
 if str(SCRIPT_DIR) not in sys.path:
     sys.path.insert(0, str(SCRIPT_DIR))
 
-from buildgen.modset import load_modset  # noqa: E402
+from buildgen.modset import SELF_NAMESPACE, load_modset  # noqa: E402
 from buildgen.nbtread import read_gzipped_nbt, state_string  # noqa: E402
 from buildgen.style import VANILLA_NAMESPACE, _block_id, _namespace  # noqa: E402
 from json_to_nbt import parse_block_state  # noqa: E402
@@ -54,7 +54,7 @@ def shipped_mod_blocks(structure_dir: Path, profile: str) -> tuple[set[str], lis
             errors.append(f"{rel}: {message}")
         for state in palette:
             block = _block_id(state)
-            if _namespace(block) != VANILLA_NAMESPACE:
+            if _namespace(block) not in (VANILLA_NAMESPACE, SELF_NAMESPACE):
                 blocks.add(block)
     return blocks, errors
 

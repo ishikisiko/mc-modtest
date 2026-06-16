@@ -9,8 +9,8 @@
         "errors": [],
         "stats": {
           "parcel_count": 9,
-          "gate_count": 2,
-          "street_cells": 721,
+          "gate_count": 1,
+          "street_cells": 1131,
           "negative_spaces": 3,
           "dominant_landmarks": 1
         }
@@ -23,19 +23,19 @@
           "errors": [],
           "stats": {
             "parcel_count": 9,
-            "gate_count": 2,
-            "street_cells": 721,
+            "gate_count": 1,
+            "street_cells": 1131,
             "negative_spaces": 3,
             "dominant_landmarks": 1
           }
         }
       },
       "budget": {
-        "wall_blocks": 1130,
-        "road_blocks": 721,
-        "parcel_budget": 6689,
-        "prop_budget": 145,
-        "total_budget": 8685,
+        "wall_blocks": 1715,
+        "road_blocks": 1131,
+        "parcel_budget": 30218,
+        "prop_budget": 174,
+        "total_budget": 33238,
         "bounded": true
       }
     },
@@ -46,8 +46,8 @@
         "errors": [],
         "stats": {
           "parcel_count": 9,
-          "gate_count": 2,
-          "street_cells": 721,
+          "gate_count": 1,
+          "street_cells": 1131,
           "negative_spaces": 3,
           "dominant_landmarks": 1
         }
@@ -60,19 +60,19 @@
           "errors": [],
           "stats": {
             "parcel_count": 9,
-            "gate_count": 2,
-            "street_cells": 721,
+            "gate_count": 1,
+            "street_cells": 1131,
             "negative_spaces": 3,
             "dominant_landmarks": 1
           }
         }
       },
       "budget": {
-        "wall_blocks": 1130,
-        "road_blocks": 721,
-        "parcel_budget": 6689,
-        "prop_budget": 145,
-        "total_budget": 8685,
+        "wall_blocks": 1715,
+        "road_blocks": 1131,
+        "parcel_budget": 30218,
+        "prop_budget": 174,
+        "total_budget": 33238,
         "bounded": true
       }
     },
@@ -83,8 +83,8 @@
         "errors": [],
         "stats": {
           "parcel_count": 9,
-          "gate_count": 2,
-          "street_cells": 721,
+          "gate_count": 1,
+          "street_cells": 1131,
           "negative_spaces": 3,
           "dominant_landmarks": 1
         }
@@ -97,19 +97,19 @@
           "errors": [],
           "stats": {
             "parcel_count": 9,
-            "gate_count": 2,
-            "street_cells": 721,
+            "gate_count": 1,
+            "street_cells": 1131,
             "negative_spaces": 3,
             "dominant_landmarks": 1
           }
         }
       },
       "budget": {
-        "wall_blocks": 1130,
-        "road_blocks": 721,
-        "parcel_budget": 6689,
-        "prop_budget": 145,
-        "total_budget": 8685,
+        "wall_blocks": 1715,
+        "road_blocks": 1131,
+        "parcel_budget": 30218,
+        "prop_budget": 174,
+        "total_budget": 33238,
         "bounded": true
       }
     }
@@ -122,8 +122,8 @@
       "errors": [],
       "stats": {
         "parcel_count": 9,
-        "gate_count": 2,
-        "street_cells": 721,
+        "gate_count": 1,
+        "street_cells": 1131,
         "negative_spaces": 3,
         "dominant_landmarks": 1
       }
@@ -132,22 +132,22 @@
   "broken_plan": {
     "passed": false,
     "errors": [
-      "perimeter_not_boundary: missing=[(4, 55)] extra=[]"
+      "perimeter_not_boundary: missing=[(30, 0)] extra=[]"
     ],
     "stats": {
       "parcel_count": 9,
-      "gate_count": 2,
-      "street_cells": 721,
+      "gate_count": 1,
+      "street_cells": 1131,
       "negative_spaces": 3,
       "dominant_landmarks": 1
     }
   },
   "oversize_budget": {
-    "wall_blocks": 2490,
-    "road_blocks": 1657,
-    "parcel_budget": 6689,
-    "prop_budget": 145,
-    "total_budget": 10981,
+    "wall_blocks": 2515,
+    "road_blocks": 1691,
+    "parcel_budget": 49442,
+    "prop_budget": 174,
+    "total_budget": 53822,
     "bounded": false
   }
 }

@@ -1,0 +1,35 @@
+## Why
+
+The mod currently uses vanilla `wall_sign` / `standing_sign` (and external-mod canvas signs via the `SIGNAGE` slot) as 牌匾 — single-block, OCR-styled planks that read poorly as Chinese plaques, especially on the 5-wide paifang crossbeam where a single sign sits alone in the middle. Real 匾额 are 3–5 blocks wide (sometimes 2 tall for 大字), carry calligraphic inscriptions, and range in visual register from rustic town shop signs to ornate gilded sect pavilion tablets. The vanilla sign cannot express any of this — its size, mount options, and inscription rendering are all wrong for the role.
+
+## What Changes
+
+- **Four new multipart plaque blocks**, registered as separate ids so each has a clean blockstate: `myvillage:wall_plaque` (horizontal wall-mounted), `myvillage:wall_plaque_vertical` (vertical wall-mounted), `myvillage:hanging_plaque` (horizontal hanging), `myvillage:hanging_plaque_vertical` (vertical hanging — 招幌 / 酒幌). Horizontal plaque block supports 2D multipart (`row` × `col`) for 大字 formats up to 5w×2h. Vertical plaque blocks support up to 1w×5h (no vertical 大字).
+- **Eight curated frame presets** spanning three register tiers (town / civic / sect) × three size classes: `town_shop_wood_3w`, `town_inn_lacquered_4w`, `town_notice_board_3w`, `tavern_signboard_4w`, `sect_simple_pine_4w`, `sect_scripture_ornate_4w`, `lord_manor_heraldry_5w`, `sect_treasure_gilded_5w_2h`. Each preset is a distinct visual style (frame edge, ornamentation, material, mounting hardware). Horizontal versions exist for all eight; vertical versions exist for the six presets where vertical mounting reads correctly (notice board and lord-manor heraldry are horizontal-only).
+- **Image-based calligraphy inscription library** via the 1.21+ `painting_variant` data registry. Each inscription is one PNG + one JSON, organized by orientation × size bucket (`3w`, `4w`, `5w_1h`, `5w_2h`, `3h`, `4h`, `5h`). Inscriptions are HD (32–128 px per block of width, artist's choice — 32 for town-tier, 64 for civic/sect, 128 for grand-sect 大字); frame multipart textures stay at native 16×16 for visual consistency with surrounding blocks. Drop-in extensible — modpacks and resource packs can add inscriptions without touching code or blockstate.
+- **Data-driven archetype → plaque binding** via a new `data/myvillage/plaque_bindings.json`. Each archetype declares an ordered pool of `(frame, orientation, size, mount, inscription_pool)` tuples; the generator picks deterministically by seed. Adding new plaque combinations is one JSON entry.
+- **Generator integration**: `ops.wall_hanging` doorway signage and the paifang motif's central sign are replaced by plaque placement ops when a binding exists for the archetype. Hanging variants automatically place vanilla `minecraft:chain[axis=y]` above the top edge for visual continuity; the block does not structurally require chains (players can swap or remove them, leaving room for future modded hanging hardware).
+- **Validator self-namespace exemption**: under the `vanilla` profile, `myvillage:` ids are exempt from the foreign-namespace prohibition (the prohibition targets external mods; the mod's own namespace is always resolvable at runtime since the mod ships the assets). Plaque-required archetypes (scripture pavilion, treasure pavilion, sect gate) gain plaque signature rules.
+- **Self-contained asset directory**: the change creates `src/main/resources/assets/myvillage/` (currently absent) for block models, blockstates, textures, painting textures, and lang entries.
+
+## Capabilities
+
+### New Capabilities
+- `plaque-block-family`: Four multipart plaque blocks (horizontal/vertical × wall/hanging), the 8-preset frame catalog, and the 2D multipart (`row` × `col`) geometry for horizontal 大字 formats. Covers block registration, part decomposition, mount variants, and chain integration for hanging variants.
+- `inscription-image-library`: Data-driven image-based calligraphy library via `painting_variant`, organized by orientation × size bucket, drop-in extensible without code changes. Covers the asset/datum format, the resolution policy (HD for inscriptions, native for frames), and the bucket compatibility rules.
+
+### Modified Capabilities
+- `style-profile`: The `SIGNAGE` slot semantics change — when a plaque binding exists for the archetype, the plaque op is invoked instead of the wall-hanging sign op. The vanilla/external-mod sign list remains for non-plaque signage.
+- `mod-decor-motif`: The paifang (牌坊) motif resolves its central tablet through the plaque block family + inscription library, not through the `SIGNAGE` slot's `wall_sign`.
+- `building-generation`: Shop, civic (`tavern`/`lord_manor`), and cultivation (`scripture_pavilion`/`treasure_pavilion`/sect gate) archetypes integrate plaque placement into their entry-detail and paifang passes.
+- `validation`: Under the `vanilla` profile, `myvillage:` ids are exempt from the foreign-namespace prohibition (self-namespace). Plaque-required archetypes gain plaque signature rules.
+- `interactive-preview`: The preview tool renders plaque blocks and painting inscriptions so generated structures containing plaques can be visually triaged offline.
+
+## Impact
+
+- **New Java code**: first-time `DeferredRegister.Blocks` registration (4 blocks) plus models, blockstates, and lang entries. Adds an `assets/myvillage/` directory previously absent. No custom entity renderer is needed — vanilla `Painting` rendering consumes `painting_variant` data.
+- **Generator pipeline**: `tools/buildgen/ops.py` gains plaque placement ops (`place_wall_plaque`, `place_hanging_plaque`, with frame/inscription/mount parameters). `tools/buildgen/passes.py` doorway signage dispatch reroutes to plaque ops when a binding exists.
+- **Validator**: `tools/validate_generated_structures.py`, `tools/validate_mod_block_fallbacks.py`, and `tools/check_style_policy.py` updated for the `myvillage:` self-namespace exemption and plaque signature rules.
+- **Data resources**: new `data/myvillage/plaque_bindings.json`, new `data/myvillage/painting_variant/inscription/...` files, and baked block plaque textures generated from the inscription PNGs. Regenerated structure NBTs contain plaque blockstates only for inscriptions; they do not contain inscription painting entity NBT. The v1 starter set of seven calligraphy PNGs is pre-produced and delivered in `calligraphy_signs.zip` at the repo root, pending landing under `src/main/resources/assets/myvillage/textures/painting/inscription/<bucket>/`. The `scripture_pavilion` archetype reuses the `zang_jing_ge` inscription (the name is the 1:1 translation of "scripture pavilion"), so no separate scripture-pavilion PNG is needed.
+- **`ModBlockFallback`**: structure NBT serializes custom plaque blockstates. The optional painting-variant fallback path remains defensive for legacy structures, but shipped structures should not need it for plaque inscriptions.
+- **Asset pipeline**: `tools/preview_structure.py` and `tools/generate_all_structures.py` need awareness of the new blocks and the painting variant registry.
