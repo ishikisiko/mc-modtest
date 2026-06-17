@@ -6,8 +6,11 @@ design; hard failures gate export.
 
 from __future__ import annotations
 
+import hashlib
+import os
 from typing import Dict, List, Optional, Tuple
 
+from .archetypes import variant_index
 from .grid import AIR
 from .massing import WALL_OUTWARD
 from .ops import wall_info
@@ -24,7 +27,23 @@ CULTIVATION_ROOF_FORMS = {
     "hip_roof",
     "pyramidal_roof",
     "tiered_eave_roof",
+    "pagoda",
+    "pavilion",
+    "bell_drum_tower",
 }
+# Vertical-landmark roof forms (pagoda / pavilion / bell_drum_tower) built from
+# the existing terrace + tiered_eave_roof vocabulary; the civic-core skyline
+# rule requires at least one of these in the core district.
+VERTICAL_LANDMARK_ROOF_FORMS = {
+    "pagoda",
+    "pavilion",
+    "bell_drum_tower",
+}
+# Roof forms derived from the tiered flying-eave massing, so they must carry a
+# non-fallback upper tier and upturned corners like tiered_eave_roof itself.
+TIERED_DERIVATIVE_FORMS = {"tiered_eave_roof", "pagoda", "bell_drum_tower"}
+SWEEPING_DERIVATIVE_FORMS = {"sweeping_eave_roof", "pavilion", "tiered_eave_roof",
+                             "pagoda", "bell_drum_tower"}
 CULTIVATION_MOTIFS = {
     "moon_gate",
     "spirit_array",
@@ -129,11 +148,11 @@ def quality_check(ctx: BuildContext, structure_id: str) -> dict:
     if unknown_roof_forms:
         errors.append(f"roof_form_not_allowed: {unknown_roof_forms}")
     for info in ctx.roof_info:
-        if (info.get("roof_type") == "tiered_eave_roof"
+        if (info.get("roof_type") in TIERED_DERIVATIVE_FORMS
                 and not info.get("fallback")
                 and info.get("tier_count", 0) < 2):
-            errors.append("tiered_eave_roof_missing_upper_tier")
-        if (info.get("roof_type") in {"sweeping_eave_roof", "tiered_eave_roof"}
+            errors.append(f"{info.get('roof_type')}_missing_upper_tier")
+        if (info.get("roof_type") in SWEEPING_DERIVATIVE_FORMS
                 and not info.get("fallback")
                 and not info.get("upturned_corners")):
             errors.append(f"{info.get('roof_type')}_missing_upturned_corners")
@@ -141,6 +160,10 @@ def quality_check(ctx: BuildContext, structure_id: str) -> dict:
                 and style.has_slot("RIDGE_ORNAMENT")
                 and not info.get("ridge_ornaments")):
             errors.append("pyramidal_roof_missing_finial")
+        if info.get("roof_type") == "pagoda" and not info.get("spire_cells"):
+            errors.append("pagoda_missing_spire")
+        if info.get("roof_type") == "bell_drum_tower" and not info.get("belfry_bell"):
+            errors.append("bell_drum_tower_missing_bell")
 
     # 6. entrance clear
     if ctx.door_info:
@@ -363,7 +386,19 @@ def quality_check(ctx: BuildContext, structure_id: str) -> dict:
 
     # ---- scores -------------------------------------------------------
     n_volumes = len(graph.volumes())
-    silhouette = 55 + 15 * (n_volumes - 1) + (10 if graph.by_type("chimney") else 0)
+    # Tall cultivation landmarks (pagoda / pavilion / bell_drum_tower) and tall
+    # rooflines raise the silhouette so the civic-core skyline reads above the
+    # surrounding roofline rather than scoring flat next to a single-storey shed.
+    vertical_landmark_bonus = sum(
+        12 for info in ctx.roof_info if info.get("vertical_landmark"))
+    tallest_wall = max(
+        (v.meta.get("foundation_h", 0) + v.meta.get("wall_h", 0)
+         for v in graph.volumes()),
+        default=0)
+    height_bonus = max(0, int(tallest_wall) - 8)
+    silhouette = (55 + 15 * (n_volumes - 1)
+                  + (10 if graph.by_type("chimney") else 0)
+                  + vertical_landmark_bonus + height_bonus)
     scores = {
         "style_score": _clamp(100 - 40 * len(forbidden) -
                               (15 if not (0.02 <= stone_frac <= 0.7) else 0)),
@@ -435,4 +470,111 @@ def quality_check(ctx: BuildContext, structure_id: str) -> dict:
             "worst_flat_run": worst_run,
             "stone_fraction": round(stone_frac, 3),
         },
+    }
+
+
+# ---- cultivation variant distinctness gate -------------------------------
+# Cross-variant aggregation over a generated report set. Verifies the four
+# small/medium cultivation-town archetypes ship deliberately distinct 形制
+# (高低/长宽/胖瘦/后院) rather than re-rolls of one footprint. See the openspec
+# capability `cultivation-variant-differentiation`: per-archetype silhouette
+# spread SHALL be >= 30 and no two shipped variant NBTs SHALL be byte-identical.
+
+CULTIVATION_VARIANT_GATE_ARCHETYPES = (
+    "cultivation_house",
+    "cultivation_shop",
+    "cultivation_market",
+    "cultivation_inn",
+)
+CULTIVATION_VARIANT_MIN_SPREAD = 30
+
+
+def _nbt_sha256(path: str) -> Optional[str]:
+    try:
+        with open(path, "rb") as f:
+            return hashlib.sha256(f.read()).hexdigest()
+    except OSError:
+        return None
+
+
+def cultivation_variant_distinctness(reports: List[dict], structure_dir: str) -> dict:
+    """Aggregate the cultivation-town variant distinctness gate over a report set.
+
+    Groups the four gated archetypes by variant index (parsed off the
+    ``scale_tier`` ``_vN`` suffix). For each archetype records the per-variant
+    ``silhouette_score`` and the sha256 of the exported ``.nbt``, computes the
+    silhouette spread (max - min), and flags byte-identical variant pairs.
+
+    ``structure_dir`` is the mod structure resource directory used to locate the
+    exported ``<name>.nbt`` files; ``name`` is derived from each report's
+    ``structure_id`` (the segment after the ``/``).
+
+    Returns a dict with:
+
+    - ``archetypes``: ``{archetype: {str(vindex): {name, silhouette, nbt_sha256}}}``
+    - ``spreads``: ``{archetype: int}`` (max silhouette - min silhouette)
+    - ``byte_identical_pairs``: list of ``{archetype, variants, names}``
+    - ``errors``: one descriptive string per failed spread or byte-identity,
+      naming the offending archetype/variants
+    - ``min_spread``: the gate threshold (CULTIVATION_VARIANT_MIN_SPREAD)
+    - ``passed``: ``True`` iff no spread or byte-identity error
+    """
+    by_arch: Dict[str, Dict[int, dict]] = {}
+    for r in reports:
+        arch = r.get("archetype")
+        if arch not in CULTIVATION_VARIANT_GATE_ARCHETYPES:
+            continue
+        score = r.get("scores", {}).get("silhouette_score")
+        if score is None:
+            continue
+        tier = str(r.get("scale_tier", ""))
+        vi = variant_index(tier)
+        sid = str(r.get("structure_id", ""))
+        name = sid.split("/", 1)[-1] if "/" in sid else sid
+        nbt_path = os.path.join(structure_dir, f"{name}.nbt")
+        by_arch.setdefault(arch, {})[vi] = {
+            "name": name,
+            "silhouette": int(score),
+            "nbt_sha256": _nbt_sha256(nbt_path),
+        }
+
+    spreads: Dict[str, int] = {}
+    byte_pairs: List[dict] = []
+    errors: List[str] = []
+    for arch in CULTIVATION_VARIANT_GATE_ARCHETYPES:
+        variants = by_arch.get(arch)
+        if not variants:
+            continue
+        scores = [v["silhouette"] for v in variants.values()]
+        spread = max(scores) - min(scores) if scores else 0
+        spreads[arch] = spread
+        if spread < CULTIVATION_VARIANT_MIN_SPREAD:
+            per_variant = ", ".join(
+                f"v{vi}={v['silhouette']}" for vi, v in sorted(variants.items()))
+            errors.append(
+                f"cultivation_variant_spread_too_low: {arch} spread={spread} "
+                f"< {CULTIVATION_VARIANT_MIN_SPREAD} ({per_variant})")
+        items = sorted(variants.items())
+        for i in range(len(items)):
+            for j in range(i + 1, len(items)):
+                vi_lo, a = items[i]
+                vi_hi, b = items[j]
+                if a.get("nbt_sha256") and a["nbt_sha256"] == b["nbt_sha256"]:
+                    byte_pairs.append({
+                        "archetype": arch,
+                        "variants": [vi_lo, vi_hi],
+                        "names": [a["name"], b["name"]],
+                    })
+                    errors.append(
+                        f"cultivation_variants_byte_identical: {arch} "
+                        f"v{vi_lo}({a['name']}) == v{vi_hi}({b['name']})")
+
+    return {
+        "archetypes": {a: {str(vi): data for vi, data in sorted(v.items())}
+                       for a, v in by_arch.items()},
+        "spreads": spreads,
+        "byte_identical_pairs": byte_pairs,
+        "min_spread": CULTIVATION_VARIANT_MIN_SPREAD,
+        "errors": errors,
+        "passed": not errors,
     }

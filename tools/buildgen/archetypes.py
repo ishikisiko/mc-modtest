@@ -14,6 +14,7 @@ Scale tiers decide composition, not uniform scaling:
 from __future__ import annotations
 
 import random
+from dataclasses import dataclass, field
 from typing import Dict, List, Optional, Tuple
 
 from .massing import MassingGraph, Node, OUTWARD_FACING
@@ -88,6 +89,18 @@ SCALE_TIERS = {
         "footprints": [(17, 13), (19, 13), (19, 15)],
         "min_volumes": 1,
     },
+    "pagoda": {
+        "footprints": [(13, 13), (15, 15)],
+        "min_volumes": 1,
+    },
+    "pavilion": {
+        "footprints": [(15, 13), (17, 13)],
+        "min_volumes": 1,
+    },
+    "bell_drum_tower": {
+        "footprints": [(13, 13), (13, 15)],
+        "min_volumes": 1,
+    },
     "sect_gate": {
         "footprints": [(15, 9), (17, 9)],
         "min_volumes": 1,
@@ -117,6 +130,7 @@ CIVIC_ARCHETYPES = ("tavern", "lord_manor")
 CULTIVATION_TOWN_ARCHETYPES = (
     "cultivation_house", "cultivation_shop", "cultivation_inn",
     "cultivation_market", "town_shrine",
+    "pagoda", "pavilion", "bell_drum_tower",
 )
 CULTIVATION_SECT_ARCHETYPES = (
     "sect_gate", "sect_main_hall", "scripture_pavilion",
@@ -143,6 +157,9 @@ TIER_PLAN = {
     "cultivation_inn": {i: f"cultivation_inn_v{i}" for i in range(1, 4)},
     "cultivation_market": {i: f"cultivation_market_v{i}" for i in range(1, 4)},
     "town_shrine": {i: f"town_shrine_v{i}" for i in range(1, 4)},
+    "pagoda": {i: f"pagoda_v{i}" for i in range(1, 4)},
+    "pavilion": {i: f"pavilion_v{i}" for i in range(1, 4)},
+    "bell_drum_tower": {i: f"bell_drum_tower_v{i}" for i in range(1, 4)},
     "sect_gate": {i: f"sect_gate_v{i}" for i in range(1, 3)},
     "sect_main_hall": {i: f"sect_main_hall_v{i}" for i in range(1, 3)},
     "scripture_pavilion": {i: f"scripture_pavilion_v{i}" for i in range(1, 3)},
@@ -211,6 +228,153 @@ LORD_MANOR_VARIANTS: List[dict] = [
     {"footprint": (19, 15), "tower_side": "east", "tower_stories_over_main": 2,
      "tower_footprint": (7, 5), "wing": "west", "roof_axis": "z", "overhang": 0},
 ]
+
+
+# ---------------------------------------------------------------------------
+# Cultivation town variant templates (deterministic 形制 ladder)
+#
+# Each town archetype's three variants (`_v1/_v2/_v3`) are explicit massing
+# templates selected by variant_index, not random rolls. The backbone is a
+# 1 -> 2 -> 3 silhouette-volume ladder (each ancillary `side_wing`/`rear_shed`
+# is worth +15 silhouette), and each rung also shifts footprint, platform
+# height (fh), wall height, and ridge axis so variants differ on >=2 axes.
+# The walled rear courtyard (`courtyard`) is a plan-level element only and is
+# NOT a silhouette volume, so templates that use it always pair it with a
+# rear_shed. See openspec/changes/differentiate-cultivation-variants/design.md.
+# ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class CultivationAncillary:
+    """One attached massing element selected by a cultivation template.
+
+    kind:
+      "side_wing" - 厢房/摊廊: sticks out `out` cells on `side` (west/east),
+                    breadth along z derived from main depth (or `breadth`).
+      "rear_shed" - 后罩房/作坊: attaches to the back, `out` deep, `breadth` wide.
+      "courtyard" - 后院: walled rear courtyard (plan element, no roof volume).
+    """
+    kind: str
+    side: str = "west"
+    out: int = 5
+    breadth: int = 0
+    wall_h: int = 3
+    zone: str = "storage"
+
+
+@dataclass(frozen=True)
+class CultivationTemplate:
+    footprint: Tuple[int, int]
+    fh: int
+    wall_h: int
+    ridge_axis: str
+    roof_type: str
+    stories: int = 1
+    story_wall_h: Optional[int] = None
+    roof_overhang: int = 2
+    ancillaries: Tuple[CultivationAncillary, ...] = ()
+
+
+# variant_index -> CultivationTemplate, per town archetype.
+CULTIVATION_TEMPLATES: Dict[str, Dict[int, CultivationTemplate]] = {
+    "cultivation_house": {
+        # v1 单进平房: low single volume
+        1: CultivationTemplate(
+            footprint=(11, 9), fh=1, wall_h=3, ridge_axis="x",
+            roof_type="sweeping_eave_roof"),
+        # v2 带厢房: taller + one 厢房 (cross-gable double ridge)
+        2: CultivationTemplate(
+            footprint=(13, 9), fh=2, wall_h=4, ridge_axis="x",
+            roof_type="sweeping_eave_roof",
+            ancillaries=(
+                CultivationAncillary("side_wing", side="west", out=5, zone="living"),
+            )),
+        # v3 三合后院: 东西厢房 ×2 + walled 后院, hip roof
+        3: CultivationTemplate(
+            footprint=(13, 11), fh=2, wall_h=4, ridge_axis="x",
+            roof_type="hip_roof",
+            ancillaries=(
+                CultivationAncillary("side_wing", side="west", out=5, zone="living"),
+                CultivationAncillary("side_wing", side="east", out=5, zone="storage"),
+                CultivationAncillary("courtyard", side="back"),
+            )),
+    },
+    "cultivation_shop": {
+        # v1 单开间窄店: narrow & deep, transverse ridge (瘦高山墙脸)
+        1: CultivationTemplate(
+            footprint=(9, 11), fh=1, wall_h=4, ridge_axis="z",
+            roof_type="sweeping_eave_roof"),
+        # v2 双开间带廊: wider + 摊廊 side_wing, eave-front
+        2: CultivationTemplate(
+            footprint=(13, 9), fh=2, wall_h=4, ridge_axis="x",
+            roof_type="sweeping_eave_roof",
+            ancillaries=(
+                CultivationAncillary("side_wing", side="east", out=4, zone="work"),
+            )),
+        # v3 前店后坊: 后罩房(作坊) + side store + walled 后院
+        3: CultivationTemplate(
+            footprint=(13, 9), fh=2, wall_h=4, ridge_axis="x",
+            roof_type="sweeping_eave_roof",
+            ancillaries=(
+                CultivationAncillary("rear_shed", side="back", out=4, breadth=7,
+                                     zone="work"),
+                CultivationAncillary("side_wing", side="east", out=4, zone="storage"),
+                CultivationAncillary("courtyard", side="back"),
+            )),
+    },
+    "cultivation_market": {
+        # v1 单棚市: single open-front shed
+        1: CultivationTemplate(
+            footprint=(13, 9), fh=1, wall_h=4, ridge_axis="x",
+            roof_type="sweeping_eave_roof"),
+        # v2 L 形摊廊: + 摊廊 side_wing
+        2: CultivationTemplate(
+            footprint=(13, 11), fh=1, wall_h=4, ridge_axis="x",
+            roof_type="sweeping_eave_roof",
+            ancillaries=(
+                CultivationAncillary("side_wing", side="west", out=5, zone="work"),
+            )),
+        # v3 回廊内院: 东西摊廊 ×2 around an inner court
+        3: CultivationTemplate(
+            footprint=(15, 11), fh=2, wall_h=4, ridge_axis="x",
+            roof_type="hip_roof",
+            ancillaries=(
+                CultivationAncillary("side_wing", side="west", out=5, zone="work"),
+                CultivationAncillary("side_wing", side="east", out=5, zone="storage"),
+            )),
+    },
+    "cultivation_inn": {
+        # v1 阔面客栈: wide two-story hall
+        1: CultivationTemplate(
+            footprint=(17, 13), fh=2, wall_h=8, ridge_axis="x",
+            roof_type="hip_roof", stories=2, story_wall_h=4),
+        # v2 高台重檐: raised platform + 重檐 (tiered eave) + 厢房
+        2: CultivationTemplate(
+            footprint=(17, 13), fh=3, wall_h=8, ridge_axis="x",
+            roof_type="tiered_eave_roof", stories=2, story_wall_h=4,
+            ancillaries=(
+                CultivationAncillary("side_wing", side="west", out=5, wall_h=4,
+                                     zone="living"),
+            )),
+        # v3 后院客栈: 后罩客房 rear_shed + 马厩 side_wing + walled 后院
+        3: CultivationTemplate(
+            footprint=(17, 11), fh=2, wall_h=8, ridge_axis="x",
+            roof_type="hip_roof", stories=2, story_wall_h=4,
+            ancillaries=(
+                CultivationAncillary("rear_shed", side="back", out=4, breadth=9,
+                                     wall_h=4, zone="living"),
+                CultivationAncillary("side_wing", side="east", out=5, wall_h=4,
+                                     zone="storage"),
+                CultivationAncillary("courtyard", side="back"),
+            )),
+    },
+}
+
+
+def cultivation_template(archetype: str, tier: str) -> CultivationTemplate:
+    """Resolve the deterministic variant template for a cultivation archetype."""
+    table = CULTIVATION_TEMPLATES[archetype]
+    vindex = variant_index(tier)
+    return table.get(vindex, table[max(table)])
 
 
 def tier_base(tier: str) -> str:
@@ -1222,7 +1386,10 @@ def _cultivation_main(graph: MassingGraph, style: Style, rng: random.Random,
 
 def _cultivation_platform(graph: MassingGraph, main: Node, door_x: int,
                           pad: int = 2, height: Optional[int] = None) -> Node:
-    height = height if height is not None else max(2, int(main.meta["foundation_h"]))
+    # The 台基 apron must not rise above the building's own foundation, or it
+    # would cap the interior floor (zone y0 == foundation_h) with platform
+    # stone and block furniture. Clamp to the foundation height.
+    height = height if height is not None else max(1, int(main.meta["foundation_h"]))
     node = Node(
         id=f"{main.id}_platform",
         type="platform",
@@ -1305,6 +1472,100 @@ def _cultivation_deco(graph: MassingGraph, motif: str,
     return node
 
 
+def _cultivation_side_wing(graph: MassingGraph, main: Node, anc: "CultivationAncillary",
+                           index: int, wall_type: str) -> Node:
+    """厢房/摊廊: a subordinate volume on the west/east side carrying its own
+    transverse sweeping eave (双脊 read), reusing the build_medium_house side
+    attachment but staying within the cultivation roof-form grammar."""
+    fh = main.meta["foundation_h"]
+    out = anc.out
+    breadth = anc.breadth or max(5, main.size[2] - 2)
+    breadth = min(breadth, main.size[2])
+    wx0 = main.x0 - out if anc.side == "west" else main.x1 + 1
+    wz0 = main.z0 + max(0, (main.size[2] - breadth) // 2)
+    wing = Node(
+        id=f"side_wing_{index}", type="side_wing", origin=(wx0, 0, wz0),
+        size=(out, fh + anc.wall_h, breadth), attach_to="main", side=anc.side,
+        priority=20, tags=["STRUCTURE"],
+        meta={
+            "foundation_h": fh, "wall_h": anc.wall_h, "wall_type": wall_type,
+            "roof": {"type": "sweeping_eave_roof", "ridge_axis": "z", "overhang": 1,
+                     "attached_side": "east" if anc.side == "west" else "west"},
+        })
+    graph.add(wing)
+    _zone(graph, wing, anc.zone,
+          (wing.x0 + 1, wing.z0 + 1, wing.x1 - 1, wing.z1 - 1))
+    return wing
+
+
+def _cultivation_rear_shed(graph: MassingGraph, main: Node, anc: "CultivationAncillary",
+                           index: int, wall_type: str) -> Node:
+    """后罩房/作坊: an enclosed annex across the back, reusing the
+    build_medium_house rear_shed attachment but carrying its own low sweeping
+    eave (ridge along x) to stay within the cultivation roof-form grammar."""
+    fh = main.meta["foundation_h"]
+    width = anc.breadth or max(5, main.size[0] - 2)
+    width = min(width, main.size[0])
+    depth = anc.out
+    sx0 = main.x0 + max(0, (main.size[0] - width) // 2)
+    shed = Node(
+        id=f"rear_shed_{index}", type="rear_shed",
+        origin=(sx0, 0, main.z1 + 1),
+        size=(width, fh + anc.wall_h, depth), attach_to="main", side="back",
+        priority=20, tags=["STRUCTURE"],
+        meta={"foundation_h": fh, "wall_h": anc.wall_h, "wall_type": wall_type,
+              "open": False,
+              "roof": {"type": "sweeping_eave_roof", "ridge_axis": "x",
+                       "overhang": 1, "attached_side": "back"}})
+    graph.add(shed)
+    _zone(graph, shed, anc.zone,
+          (shed.x0 + 1, shed.z0 + 1, shed.x1 - 1, shed.z1 - 1))
+    return shed
+
+
+def _cultivation_courtyard(graph: MassingGraph, main: Node, depth: int = 5) -> Node:
+    """后院: a walled rear courtyard (院墙 ring + courtyard ground patch) behind
+    the deepest back element. A plan-level element only -- it adds no silhouette
+    volume, so callers pair it with a rear_shed. The 院墙 wall ring is rendered
+    by ops.courtyard_enclosure; the floor reuses the courtyard_patch ground op."""
+    back_z = main.z1
+    for shed in graph.by_type("rear_shed"):
+        back_z = max(back_z, shed.z1)
+    # span the main footprint width, inset one cell from each side
+    cx0 = main.x0 + 1
+    width = max(5, main.size[0] - 2)
+    cz0 = back_z + 1
+    gate_x = cx0 + width // 2
+    patch = Node(
+        id="rear_courtyard", type="courtyard_patch",
+        origin=(cx0, 0, cz0), size=(width, 2, depth),
+        attach_to="main", priority=70, tags=["DETAIL", "GROUND"])
+    graph.add(patch)
+    enclosure = Node(
+        id="rear_courtyard_wall", type="courtyard_enclosure",
+        origin=(cx0, 0, cz0), size=(width, 2, depth),
+        attach_to="main", priority=68, tags=["DETAIL", "STRUCTURE"],
+        meta={"gate_wall": "front", "gate_center": gate_x, "height": 2})
+    graph.add(enclosure)
+    graph.meta["has_rear_courtyard"] = True
+    return enclosure
+
+
+def _apply_cultivation_ancillaries(graph: MassingGraph, main: Node,
+                                   template: "CultivationTemplate",
+                                   wall_type: str) -> None:
+    """Materialise a template's ordered ancillary volumes / 后院 onto the graph."""
+    for index, anc in enumerate(template.ancillaries):
+        if anc.kind == "side_wing":
+            _cultivation_side_wing(graph, main, anc, index, wall_type)
+        elif anc.kind == "rear_shed":
+            _cultivation_rear_shed(graph, main, anc, index, wall_type)
+        elif anc.kind == "courtyard":
+            _cultivation_courtyard(graph, main)
+        else:
+            raise ValueError(f"unknown cultivation ancillary kind {anc.kind!r}")
+
+
 def _alchemy_furnace_node(graph: MassingGraph, main: Node) -> Node:
     cx = (main.x0 + main.x1) // 2 - 1
     cz = (main.z0 + main.z1) // 2 - 1
@@ -1324,13 +1585,14 @@ def _alchemy_furnace_node(graph: MassingGraph, main: Node) -> Node:
 
 def build_cultivation_house(style: Style, rng: random.Random, tier: str) -> MassingGraph:
     graph = _town_cultivation_graph("cultivation_house", tier)
-    vindex = variant_index(tier)
-    roof = "hip_roof" if vindex == 3 else "sweeping_eave_roof"
+    tmpl = cultivation_template("cultivation_house", tier)
+    wall_type = "white_plaster_timber_wall"
     main = _cultivation_main(
-        graph, style, rng, "cultivation_house", wall_h=4, fh=2,
-        footprint=rng.choice(SCALE_TIERS["cultivation_house"]["footprints"]),
-        roof_type=roof, roof_axis="x", roof_overhang=2,
-        wall_type="white_plaster_timber_wall")
+        graph, style, rng, "cultivation_house",
+        wall_h=tmpl.wall_h, fh=tmpl.fh,
+        footprint=tmpl.footprint,
+        roof_type=tmpl.roof_type, roof_axis=tmpl.ridge_axis,
+        roof_overhang=tmpl.roof_overhang, wall_type=wall_type)
     main.meta["door_centered"] = True
     door_x = _door(graph, main, rng)
     _cultivation_platform(graph, main, door_x, pad=1)
@@ -1341,17 +1603,21 @@ def build_cultivation_house(style: Style, rng: random.Random, tier: str) -> Mass
     split = (ix0 + ix1) // 2
     _zone(graph, main, "living", (ix0, iz0, split, iz1))
     _zone(graph, main, "storage", (split + 1, iz0, ix1, iz1))
-    _cultivation_deco(graph, "lantern_post", (main.x1 + 2, 0, main.z0 + 1), (1, 3, 1))
+    _apply_cultivation_ancillaries(graph, main, tmpl, wall_type)
+    _cultivation_deco(graph, "lantern_post", (main.x1 - 1, 0, main.z0 - 2), (1, 3, 1))
     return graph
 
 
 def build_cultivation_shop(style: Style, rng: random.Random, tier: str) -> MassingGraph:
     graph = _town_cultivation_graph("cultivation_shop", tier)
+    tmpl = cultivation_template("cultivation_shop", tier)
+    wall_type = "mixed_stone_wood_wall"
     main = _cultivation_main(
-        graph, style, rng, "cultivation_shop", wall_h=4, fh=2,
-        footprint=rng.choice(SCALE_TIERS["cultivation_shop"]["footprints"]),
-        roof_type="sweeping_eave_roof", roof_axis="x", roof_overhang=2,
-        wall_type="mixed_stone_wood_wall")
+        graph, style, rng, "cultivation_shop",
+        wall_h=tmpl.wall_h, fh=tmpl.fh,
+        footprint=tmpl.footprint,
+        roof_type=tmpl.roof_type, roof_axis=tmpl.ridge_axis,
+        roof_overhang=tmpl.roof_overhang, wall_type=wall_type)
     main.meta["door_centered"] = True
     main.meta["storefront"] = {"width": min(7, main.size[0] - 4), "signage": "beam"}
     main.meta["entry_signage"] = True
@@ -1363,18 +1629,22 @@ def build_cultivation_shop(style: Style, rng: random.Random, tier: str) -> Massi
     iz0, iz1 = main.z0 + 1, main.z1 - 1
     _zone(graph, main, "work", (ix0, iz0, (ix0 + ix1) // 2, iz1))
     _zone(graph, main, "storage", ((ix0 + ix1) // 2 + 1, iz0, ix1, iz1))
+    _apply_cultivation_ancillaries(graph, main, tmpl, wall_type)
     _cultivation_deco(graph, "market_stall", (main.x0 + 2, 0, main.z0 - 5), (2, 3, 2), "north")
     return graph
 
 
 def build_cultivation_inn(style: Style, rng: random.Random, tier: str) -> MassingGraph:
     graph = _town_cultivation_graph("cultivation_inn", tier)
+    tmpl = cultivation_template("cultivation_inn", tier)
+    wall_type = "white_plaster_timber_wall"
     main = _cultivation_main(
-        graph, style, rng, "cultivation_inn", wall_h=4, fh=2,
-        stories=2, story_wall_h=4,
-        footprint=rng.choice(SCALE_TIERS["cultivation_inn"]["footprints"]),
-        roof_type="hip_roof", roof_axis="x", roof_overhang=2,
-        wall_type="white_plaster_timber_wall")
+        graph, style, rng, "cultivation_inn",
+        wall_h=tmpl.wall_h, fh=tmpl.fh,
+        stories=tmpl.stories, story_wall_h=tmpl.story_wall_h,
+        footprint=tmpl.footprint,
+        roof_type=tmpl.roof_type, roof_axis=tmpl.ridge_axis,
+        roof_overhang=tmpl.roof_overhang, wall_type=wall_type)
     main.meta["door_centered"] = True
     main.meta["entry_signage"] = True
     door_x = _door(graph, main, rng)
@@ -1392,17 +1662,21 @@ def build_cultivation_inn(style: Style, rng: random.Random, tier: str) -> Massin
                   y=main.meta["foundation_h"] + main.meta["story_wall_h"] + 1,
                   suffix="upper")
     upper.meta["private_quarters"] = True
-    _cultivation_deco(graph, "lantern_post", (main.x0 - 3, 0, main.z0 + 2), (1, 3, 1))
+    _apply_cultivation_ancillaries(graph, main, tmpl, wall_type)
+    _cultivation_deco(graph, "lantern_post", (main.x1 - 1, 0, main.z0 - 3), (1, 3, 1))
     return graph
 
 
 def build_cultivation_market(style: Style, rng: random.Random, tier: str) -> MassingGraph:
     graph = _town_cultivation_graph("cultivation_market", tier)
+    tmpl = cultivation_template("cultivation_market", tier)
+    wall_type = "mixed_stone_wood_wall"
     main = _cultivation_main(
-        graph, style, rng, "cultivation_market", wall_h=4, fh=2,
-        footprint=rng.choice(SCALE_TIERS["cultivation_market"]["footprints"]),
-        roof_type="sweeping_eave_roof", roof_axis="x", roof_overhang=2,
-        wall_type="mixed_stone_wood_wall")
+        graph, style, rng, "cultivation_market",
+        wall_h=tmpl.wall_h, fh=tmpl.fh,
+        footprint=tmpl.footprint,
+        roof_type=tmpl.roof_type, roof_axis=tmpl.ridge_axis,
+        roof_overhang=tmpl.roof_overhang, wall_type=wall_type)
     main.meta["door_centered"] = True
     main.meta["storefront"] = {"width": min(9, main.size[0] - 4), "signage": "beam"}
     main.meta["entry_signage"] = True
@@ -1414,6 +1688,7 @@ def build_cultivation_market(style: Style, rng: random.Random, tier: str) -> Mas
     iz0, iz1 = main.z0 + 1, main.z1 - 1
     _zone(graph, main, "work", (ix0, iz0, (ix0 + ix1) // 2, iz1))
     _zone(graph, main, "storage", ((ix0 + ix1) // 2 + 1, iz0, ix1, iz1))
+    _apply_cultivation_ancillaries(graph, main, tmpl, wall_type)
     _cultivation_deco(graph, "market_stall", (main.x0 + 1, 0, main.z0 - 5), (2, 3, 2), "north")
     _cultivation_deco(graph, "market_stall", (main.x1 - 2, 0, main.z0 - 5), (2, 3, 2), "north")
     return graph
@@ -1444,6 +1719,114 @@ def build_town_shrine(style: Style, rng: random.Random, tier: str) -> MassingGra
           suffix="upper")
     _cultivation_deco(graph, "incense_altar", ((main.x0 + main.x1) // 2 - 1, 0, main.z0 - 3), (3, 2, 1))
     _cultivation_deco(graph, "spirit_array", ((main.x0 + main.x1) // 2 - 2, 0, main.z0 - 8), (5, 1, 5))
+    return graph
+
+
+def build_pagoda(style: Style, rng: random.Random, tier: str) -> MassingGraph:
+    """Tall cultivation pagoda landmark (塔): a 3-storey stepped tower crowned by
+    the registered ``pagoda`` roof form (tiered flying eaves + finial spire)."""
+    graph = _town_cultivation_graph("pagoda", tier)
+    graph.meta["requires_platform_colonnade"] = True
+    graph.meta["vertical_landmark"] = True
+    fh = 2
+    story_wall_h = 4
+    main = _cultivation_main(
+        graph, style, rng, "pagoda", story_wall_h, fh,
+        stories=3, story_wall_h=story_wall_h,
+        footprint=rng.choice(SCALE_TIERS["pagoda"]["footprints"]),
+        roof_type="pagoda", roof_axis="x", roof_overhang=2,
+        wall_type="white_plaster_timber_wall")
+    main.type = "tower_volume"
+    main.meta["story_insets"] = [0, 1, 2]
+    main.meta["roof"]["footprint_inset"] = 2
+    main.meta["roof"]["spire_height"] = 4
+    graph.meta["pagoda_story_insets"] = [0, 1, 2]
+    main.meta["door_centered"] = True
+    main.meta["entry_heraldry"] = True
+    door_x = _door(graph, main, rng)
+    _reserve_stairwell(graph, main, door_x, preferred_side="west")
+    _cultivation_platform(graph, main, door_x, pad=2)
+    _cultivation_colonnade(graph, main, door_x, sides=("front", "back"))
+    _cultivation_balustrade(graph, main)
+    _cultivation_path(graph, main, door_x, rng)
+    ix0, ix1 = main.x0 + 1, main.x1 - 1
+    iz0, iz1 = main.z0 + 1, main.z1 - 1
+    _zone(graph, main, "work", (ix0, iz0, ix1, iz1), suffix="meditation")
+    upper = _zone(graph, main, "living", (ix0, iz0, ix1, iz1),
+                  y=fh + story_wall_h + 1, suffix="relics")
+    upper.meta["private_quarters"] = True
+    _cultivation_deco(graph, "incense_altar",
+                      ((main.x0 + main.x1) // 2 - 1, 0, main.z0 - 3), (3, 2, 1))
+    return graph
+
+
+def build_pavilion(style: Style, rng: random.Random, tier: str) -> MassingGraph:
+    """Cultivation pavilion landmark (楼阁): a 2-storey viewing hall crowned by
+    the registered ``pavilion`` roof form (wide sweeping eave)."""
+    graph = _town_cultivation_graph("pavilion", tier)
+    graph.meta["requires_platform_colonnade"] = True
+    graph.meta["vertical_landmark"] = True
+    fh = 2
+    story_wall_h = 4
+    main = _cultivation_main(
+        graph, style, rng, "pavilion", story_wall_h, fh,
+        stories=2, story_wall_h=story_wall_h,
+        footprint=rng.choice(SCALE_TIERS["pavilion"]["footprints"]),
+        roof_type="pavilion", roof_axis="x", roof_overhang=3,
+        wall_type="white_plaster_timber_wall")
+    main.meta["door_centered"] = True
+    main.meta["entry_signage"] = True
+    door_x = _door(graph, main, rng)
+    _reserve_stairwell(graph, main, door_x, preferred_side="east")
+    _cultivation_platform(graph, main, door_x, pad=2)
+    _cultivation_colonnade(graph, main, door_x, sides=("front", "back"))
+    _cultivation_balustrade(graph, main)
+    _cultivation_path(graph, main, door_x, rng)
+    ix0, ix1 = main.x0 + 1, main.x1 - 1
+    iz0, iz1 = main.z0 + 1, main.z1 - 1
+    _zone(graph, main, "living", (ix0, iz0, ix1, iz1), suffix="hall")
+    upper = _zone(graph, main, "living", (ix0, iz0, ix1, iz1),
+                  y=fh + story_wall_h + 1, suffix="view")
+    upper.meta["private_quarters"] = True
+    _cultivation_deco(graph, "lantern_post", (main.x1 + 2, 0, main.z0 + 1), (1, 3, 1))
+    return graph
+
+
+def build_bell_drum_tower(style: Style, rng: random.Random, tier: str) -> MassingGraph:
+    """Cultivation bell/drum tower landmark (钟鼓楼): a 3-storey tower crowned by
+    the registered ``bell_drum_tower`` roof form (tiered eaves + belfry bell)."""
+    graph = _town_cultivation_graph("bell_drum_tower", tier)
+    graph.meta["requires_platform_colonnade"] = True
+    graph.meta["vertical_landmark"] = True
+    fh = 2
+    story_wall_h = 4
+    main = _cultivation_main(
+        graph, style, rng, "bell_drum_tower", story_wall_h, fh,
+        stories=3, story_wall_h=story_wall_h,
+        footprint=rng.choice(SCALE_TIERS["bell_drum_tower"]["footprints"]),
+        roof_type="bell_drum_tower", roof_axis="x", roof_overhang=2,
+        wall_type="white_plaster_timber_wall")
+    main.type = "tower_volume"
+    main.meta["story_insets"] = [0, 1, 1]
+    main.meta["roof"]["footprint_inset"] = 1
+    main.meta["belfry"] = True
+    graph.meta["pagoda_story_insets"] = [0, 1, 1]
+    main.meta["door_centered"] = True
+    door_x = _door(graph, main, rng)
+    _reserve_stairwell(graph, main, door_x, preferred_side="west")
+    _cultivation_platform(graph, main, door_x, pad=2)
+    _cultivation_colonnade(graph, main, door_x, sides=("front", "back"))
+    _cultivation_balustrade(graph, main)
+    _cultivation_path(graph, main, door_x, rng)
+    ix0, ix1 = main.x0 + 1, main.x1 - 1
+    iz0, iz1 = main.z0 + 1, main.z1 - 1
+    _zone(graph, main, "work", (ix0, iz0, ix1, iz1), suffix="chime")
+    upper = _zone(graph, main, "living", (ix0, iz0, ix1, iz1),
+                  y=fh + story_wall_h + 1, suffix="watch")
+    upper.meta["private_quarters"] = True
+    _cultivation_deco(graph, "lantern_post", (main.x1 + 2, 0, main.z0 + 1), (1, 3, 1))
+    _cultivation_deco(graph, "incense_altar",
+                      ((main.x0 + main.x1) // 2 - 1, 0, main.z0 - 3), (3, 2, 1))
     return graph
 
 
@@ -1632,6 +2015,9 @@ BUILDERS = {
     "cultivation_inn": build_cultivation_inn,
     "cultivation_market": build_cultivation_market,
     "town_shrine": build_town_shrine,
+    "pagoda": build_pagoda,
+    "pavilion": build_pavilion,
+    "bell_drum_tower": build_bell_drum_tower,
     "sect_gate": build_sect_gate,
     "sect_main_hall": build_sect_main_hall,
     "scripture_pavilion": build_scripture_pavilion,

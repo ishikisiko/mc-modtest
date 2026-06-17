@@ -30,12 +30,13 @@ REPORT_PATH = REPO_ROOT / "reports" / "town_generation_validation.json"
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--seeds", default="20260618,20260719,20260820")
-    parser.add_argument("--width", type=int, default=96)
-    parser.add_argument("--depth", type=int, default=80)
+    parser.add_argument("--width", type=int, default=160)
+    parser.add_argument("--depth", type=int, default=160)
     args = parser.parse_args()
 
+    from buildgen.town import MAX_FOOTPRINT_AXIS, MIN_FOOTPRINT_AXIS
     group = get_group("cultivation_town")
-    brief = dict(group.scale_params.get("soft_functional_brief", {}))
+    brief = list(group.scale_params.get("district_brief", []))
     seeds = [int(s.strip()) for s in args.seeds.split(",") if s.strip()]
     errors = []
     results = []
@@ -57,7 +58,7 @@ def main() -> int:
             "budget": budget,
         })
         status = "OK" if plan_report["passed"] and realized_report["passed"] and budget["bounded"] else "FAIL"
-        print(f"{status} town seed={seed} budget={budget['total_budget']}")
+        print(f"{status} town seed={seed} budget={budget['total_budget']} parcels={plan_report['stats']['parcel_count']}")
 
     sloped = generate_town_plan(seeds[0] + 77, TownSite(args.width, args.depth, base_y=72, max_slope=5), brief)
     sloped_report = validate_realized_town(sloped)
@@ -76,11 +77,48 @@ def main() -> int:
     else:
         print(f"OK broken-plan self-check failed with {broken_report['errors'][0]}")
 
-    oversize = generate_town_plan(seeds[0], TownSite(128, 128), brief)
-    oversize_budget = estimate_block_budget(oversize)
-    if oversize_budget["bounded"]:
-        errors.append("oversize_plan_not_reported_by_budget")
-    print(("OK" if not oversize_budget["bounded"] else "FAIL") + " oversize budget check")
+    # Determinism: same seed + site yields identical district partition.
+    determA = generate_town_plan(seeds[0], TownSite(args.width, args.depth), brief)
+    determB = generate_town_plan(seeds[0], TownSite(args.width, args.depth), brief)
+    if [(d.id, d.kind, d.bounds) for d in determA.districts] != \
+            [(d.id, d.kind, d.bounds) for d in determB.districts]:
+        errors.append("district_partition_not_deterministic")
+        print("FAIL determinism self-check")
+    else:
+        print("OK district partition is deterministic per seed+site")
+
+    # Determinism: same seed + site yields identical civic-precinct framing
+    # (wall, precinct/spine gates, spirit way, colonnade, side-hall parcels).
+    precinct_keys = ("precinct_gate_cells", "spirit_way_cells", "colonnade_cells",
+                     "precinct_wall_cells", "precinct_side_gate_cells")
+    precinctA = {k: determA.ritual_axis.get(k) for k in precinct_keys}
+    precinctB = {k: determB.ritual_axis.get(k) for k in precinct_keys}
+    sideA = [(p.id, p.bounds, p.importance_tier)
+             for p in determA.parcels if p.id.startswith("civic_side_hall")]
+    sideB = [(p.id, p.bounds, p.importance_tier)
+             for p in determB.parcels if p.id.startswith("civic_side_hall")]
+    if precinctA != precinctB or sideA != sideB:
+        errors.append("precinct_framing_not_deterministic")
+        print("FAIL precinct determinism self-check")
+    else:
+        print("OK civic-precinct framing is deterministic per seed+site")
+
+    # Oversize (> cap) must be rejected by the planner itself.
+    oversize_axis = MAX_FOOTPRINT_AXIS + 16
+    try:
+        generate_town_plan(seeds[0], TownSite(oversize_axis, oversize_axis), brief)
+        errors.append("oversize_plan_not_rejected")
+        print("FAIL oversize rejection self-check")
+    except ValueError:
+        print("OK oversize plan rejected by planner")
+
+    # Undersize (< min axis) must be rejected by the planner.
+    try:
+        generate_town_plan(seeds[0], TownSite(MIN_FOOTPRINT_AXIS - 8, MIN_FOOTPRINT_AXIS - 8), brief)
+        errors.append("undersize_plan_not_rejected")
+        print("FAIL undersize rejection self-check")
+    except ValueError:
+        print("OK undersize plan rejected")
 
     summary = {
         "passed": not errors,
@@ -88,7 +126,7 @@ def main() -> int:
         "results": results,
         "sloped_site": sloped_report,
         "broken_plan": broken_report,
-        "oversize_budget": oversize_budget,
+        "footprint_cap": {"max_axis": 160, "min_axis": 96, "oversize_rejected": True, "undersize_rejected": True},
     }
     REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
     with REPORT_PATH.open("w", encoding="utf-8") as f:

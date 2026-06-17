@@ -133,6 +133,24 @@ def main() -> int:
         print(f"FAIL tiered_eave_roof did not fallback on a small footprint: {small_info}")
         return 1
 
+    # Vertical-landmark forms resolve through the registry from the existing
+    # terrace + tiered_eave_roof vocabulary (no string-prefix dispatch).
+    pagoda_info = ops.roof_handler("pagoda")(
+        BlockGrid(), style, rng, volume((11, 5, 11)), None)
+    if pagoda_info.get("roof_type") != "pagoda" or not pagoda_info.get("spire_cells"):
+        print(f"FAIL pagoda form did not place a finial spire: {pagoda_info}")
+        return 1
+    pavilion_info = ops.roof_handler("pavilion")(
+        BlockGrid(), style, rng, volume((11, 5, 11)), None)
+    if pavilion_info.get("roof_type") != "pavilion" or not pavilion_info.get("upturned_corners"):
+        print(f"FAIL pavilion form missing sweeping upturned corners: {pavilion_info}")
+        return 1
+    tower_info = ops.roof_handler("bell_drum_tower")(
+        BlockGrid(), style, rng, volume((11, 5, 11)), None)
+    if tower_info.get("roof_type") != "bell_drum_tower" or not tower_info.get("belfry_bell"):
+        print(f"FAIL bell_drum_tower form did not crown a belfry bell: {tower_info}")
+        return 1
+
     motif_nodes = {
         "moon_gate": Node("moon_gate", "decoration_patch", (0, 0, 0), (5, 5, 1)),
         "spirit_array": Node("spirit_array", "decoration_patch", (0, 0, 0), (5, 1, 5)),

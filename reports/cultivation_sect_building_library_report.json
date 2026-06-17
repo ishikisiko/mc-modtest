@@ -7,6 +7,7 @@
   "failed": 0,
   "rejected_attempts": 0,
   "gallery_function": "src/main/resources/data/myvillage/function/gallery/cultivation_sect.mcfunction",
+  "variant_distinctness": null,
   "reports": [
     {
       "structure_id": "cultivation_sect/sect_gate_001",
@@ -319,14 +320,14 @@
         "style_score": 100,
         "facade_score": 100,
         "roof_score": 85,
-        "interior_score": 88,
+        "interior_score": 76,
         "material_balance_score": 78,
         "silhouette_score": 55
       },
       "stats": {
         "volumes": 1,
         "window_cells": 9,
-        "function_blocks": 4,
+        "function_blocks": 3,
         "decorations": [
           "small_path_patch",
           "cloud_rail"
@@ -343,7 +344,7 @@
         ],
         "block_count": 2277,
         "entity_count": 0,
-        "palette_count": 50,
+        "palette_count": 51,
         "path": "src/main/resources/data/myvillage/structure/sect_gate_002.nbt"
       },
       "massing_graph": {
@@ -619,7 +620,7 @@
         "roof_score": 90,
         "interior_score": 100,
         "material_balance_score": 75,
-        "silhouette_score": 55
+        "silhouette_score": 60
       },
       "stats": {
         "volumes": 1,
@@ -956,7 +957,7 @@
         "roof_score": 90,
         "interior_score": 100,
         "material_balance_score": 75,
-        "silhouette_score": 55
+        "silhouette_score": 60
       },
       "stats": {
         "volumes": 1,
@@ -1293,7 +1294,7 @@
         "roof_score": 90,
         "interior_score": 76,
         "material_balance_score": 78,
-        "silhouette_score": 55
+        "silhouette_score": 61
       },
       "stats": {
         "volumes": 1,
@@ -1644,7 +1645,7 @@
         "roof_score": 90,
         "interior_score": 88,
         "material_balance_score": 78,
-        "silhouette_score": 55
+        "silhouette_score": 61
       },
       "stats": {
         "volumes": 1,
@@ -2589,7 +2590,7 @@
         "roof_score": 85,
         "interior_score": 100,
         "material_balance_score": 77,
-        "silhouette_score": 55
+        "silhouette_score": 57
       },
       "stats": {
         "volumes": 1,
@@ -2928,7 +2929,7 @@
         "roof_score": 85,
         "interior_score": 100,
         "material_balance_score": 77,
-        "silhouette_score": 55
+        "silhouette_score": 57
       },
       "stats": {
         "volumes": 1,

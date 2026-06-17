@@ -17,6 +17,141 @@ All notable project changes should be recorded here when a version is prepared.
 
 ## Unreleased
 
+## 0.11.0
+
+### Added
+
+- **Sect worldgen with derived mountain** (`add-sect-worldgen`). A custom
+  worldgen `myvillage:sect` `Structure` (`SectStructure` + `StructureType` +
+  `SectStructurePiece`, registered through `SectStructures`) sites cultivation
+  sects during chunk generation — rare, biome-gated to a high-relief biome tag
+  (`data/myvillage/tags/worldgen/biome/has_sect.json`), spaced as a regional
+  landmark (`worldgen/structure_set/sect.json`), world-seed reproducible, and
+  baked into chunks with no force-load and no build pop-in. The structure is
+  locatable via `/locate structure myvillage:sect`. The "no worldgen is
+  registered" note is removed.
+- **反推山形 mountain derivation.** Rather than search for matching natural
+  terrain, the generator derives the mountain from the compound's exported
+  terrace profile: terrace elevations as the skeleton, seed-driven value noise
+  for the inter-terrace and outer slopes, an outer blend skirt grading the
+  man-made relief into the natural heightmap (no cut-off seam), a sheer
+  cliff-back face behind the summit, a placed translucent cloud-sea (云海面)
+  sheet with feathered edges + powder-snow wisps between the gate and disciple
+  terraces, and a solitary peak (孤峰) raised under the detached-spire feature.
+  Implemented in `SectMountain.java` and mirrored/validated offline by
+  `tools/buildgen/sect_mountain.py`.
+- **Shared realizer + force-generate command.** The `SectGenerator` realizer is
+  refactored onto a `SectSink` so the same plan + geometry serve both the
+  on-the-spot `/myvillage sect [seed]` command (unchanged, rests on the live
+  surface) and worldgen (rests on the derived mountain, clamped per chunk).
+  `/myvillage sect worldgen [seed] [variant]` force-generates a worldgen-style
+  sect and can force one of the three detached-spire variants (or `none`).
+- **Validation + preview.** `validate_sect_generation.py` adds worldgen checks
+  (biome gating, minimum separation, blend-skirt seam, terraces at planned
+  elevations, cliff-back, cloud-sea, deterministic spire, mountain parity
+  constants, feature presence survey) into `reports/sect_generation_validation.json`;
+  `generate_sect_plan_preview.py` adds a top-down derived-mountain heightfield
+  preview (`mountain.png` / `mountain.json`) to each sect plan viewer.
+
+## 0.10.0
+
+### Added
+
+- **Terraced cultivation sect compound** (`sect-compound`). A deterministic
+  terraced axial sect-compound planner (`tools/buildgen/sect.py`) and a
+  structurally-equivalent runtime realizer
+  (`src/main/java/com/example/myvillage/sect/SectGenerator.java`) compose an
+  ordered terrace stack ascending a single fall-line ritual axis from the
+  mountain gate (山门) on the lowest terrace to the cliff-backed principal hall
+  (主殿) on the summit. The default skeleton is five terraces
+  (gate / disciple / assembly / scripture / summit), parametric on terrace
+  count (4–6), rise, depth, width taper, axis-stair width, and cliff-back
+  height. Slot importance grades with terrace level — the principal hall and
+  scripture pagoda hold the top tiers — and flanking volumes (disciple rows,
+  paired pagodas, flanking bell/drum towers) mirror about the axis and are
+  joined by covered galleries (廊) recorded as circulation links with both
+  endpoints. Each terrace meets the next through a retaining face and an
+  on-axis stair flight. The new `/myvillage sect [seed]` command builds the
+  compound against terrain, force-loading the footprint, carving and retaining
+  each terrace so platforms step the slope with no floating or buried slabs,
+  routing palette ids through the mod-fallback resolver, and reporting any
+  extent it cannot build.
+- **Detached-spire flying-bridge feature** (`sect-flying-bridge`). The sect
+  compound ships an optional detached-spire feature as three deterministic
+  form variants (differing on detached volume, bridge span/shape, and spire
+  offset/bearing), selected per seed (or absent). When present, a detached
+  volume sits on its outcrop reachable only by a flying bridge (飞桥) recorded
+  with both endpoints on the compound and the detached volume.
+- **Sect terrace-profile export (反推山形 contract)**. The planner exports the
+  terrace skeleton and geometry parameters (per-terrace elevation/bounds, rise,
+  depth, taper, axis-stair width, cliff-back height) as explicit outputs for
+  the planned sect worldgen change to derive the man-made mountain from the
+  same parameters.
+- **Sect validation + preview**. `tools/validate_sect_generation.py` asserts
+  the plan invariants (ascending axis, importance grading, gallery/bridge
+  endpoint anchoring, variant distinctness, reproducibility), template fit
+  against the shipped `.nbt`, and Python/Java planner parity, emitting
+  `reports/sect_generation_validation.json`. `tools/generate_sect_plan_preview.py`
+  renders top-down sect-plan previews into the preview aggregate.
+
+## 0.9.0
+
+### Added
+
+- **Districted cultivation town plan** (`town-districts`). The runtime
+  `/myvillage town` realizer now produces a ~160×160 修仙坊市 partitioned into
+  named districts (gate/market/residential/civic_core/fringe), each carrying
+  its own density, storey band, material register, and archetype roster from
+  the `cultivation_town` group's `district_brief`. The ritual axis (plaza /
+  paifang / lantern approach) is expressed inside the civic core rather than
+  spanning the whole town. The footprint is force-loaded via chunk tickets so
+  the town generates in one command.
+- **Street frontage with party-wall rows** (`street-frontage`). Market and
+  residential parcels align to the street wall and share gable walls with
+  neighbors (沿街连排 / 共墙铺面), producing continuous row frontages and
+  intentional narrow alleys (窄巷) instead of centered-lot plinths.
+- **Vertical landmark archetypes** (`vertical-landmark`). `pagoda` (塔),
+  `pavilion` (楼阁), and `bell_drum_tower` (钟鼓楼) archetypes composed from
+  the existing terrace + tiered flying-eave vocabulary and registered as
+  roof forms in the form registry. A skyline rule requires the civic core to
+  carry at least three above-threshold tall volumes, with at least one being
+  a vertical landmark, so the core silhouette rises above the surrounding
+  roofline. The `silhouette_score` heuristic now rewards tall rooflines and
+  vertical-landmark bonuses.
+- **Cultivation street life** (`cultivation-street-life`). The town realizer
+  replaces the prior placeholder vanilla furniture (campfire / oak fence /
+  white wool / podzol) with a cultivation-themed vocabulary: 幌子 shop
+  banners, 药圃/灵田 tending beds and crop rows, 炼丹炉 alchemy furnaces,
+  法器摊 artifact stalls (profile-gated `fetzisdisplays` racks), and 阵纹
+  formation floor patterns in the civic plaza. Villager inhabitants and
+  occasional 灵狐 spirit foxes populate the districts at scale.
+- **Profile-gated runtime decor.** Runtime-placed decor fixtures resolve
+  through `ModBlockFallback.resolveBlockState()`, so external mod blocks
+  (`fetzisdisplays`) are used when loaded and fall back to vanilla barrels
+  when absent, mirroring the same modset catalog the Python generators use.
+
+### Changed
+
+- **`cultivation_town` group roster now includes vertical-landmark archetypes**
+  (`pagoda`/`pavilion`/`bell_drum_tower`). The `civic_core` district brief
+  draws them; the static `cultivation_town_NNN` compound library is reclassified
+  as district-fill courtyard tissue — the roster filter in `compound.py`
+  restricts the small-block generator to the courtyard-compatible subset.
+- **Town footprint raised to 160×160.** `MAX_FOOTPRINT_AXIS` lifted from 96 to
+  160 in both Python planner and Java realizer; the `loaded()` hard gate replaced
+  with chunk-ticket forced loading released in a `finally` block.
+- **`validate_town_plan` / `validate_runtime_town_plan` extended.** District
+  partition, core-outranks-fringe hierarchy, skyline relief, and frontage
+  sparsity invariants are asserted; the validator now checks every structure
+  template fits its parcel with a non-empty ground layer.
+- **`quality.py` silhouette score enhanced.** Vertical-landmark roof forms and
+  tall roofline heights contribute to the silhouette heuristic so the building
+  report reflects the civic core's vertical relief.
+- **`check_cultivation_forms.py` extended with vertical-landmark smoke tests.**
+  The three new roof forms (pagoda/pavilion/bell_drum_tower) are resolved
+  through the form registry and checked for spire finials, upturned corners,
+  and belfry bells.
+
 ## 0.8.1-fix2
 
 ### Fixed

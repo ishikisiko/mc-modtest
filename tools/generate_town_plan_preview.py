@@ -33,6 +33,13 @@ COLORS: Dict[str, RGBA] = {
     "parcel2": (153, 108, 82, 255),
     "landmark": (135, 68, 66, 255),
     "negative": (79, 134, 113, 255),
+    # Civic-precinct framing (drawn over the core so the walled compound,
+    # spirit way, colonnade, and precinct gate read in the top-down preview).
+    "precinct_wall": (60, 58, 54, 255),
+    "colonnade": (120, 96, 64, 255),
+    "spirit_way": (200, 178, 110, 255),
+    "precinct_gate": (196, 142, 60, 255),
+    "side_gate": (110, 110, 118, 255),
 }
 
 
@@ -85,6 +92,14 @@ def render_plan_png(plan: TownPlan, path: Path, scale: int = 8) -> None:
         else:
             color = COLORS[f"parcel{min(parcel.importance_tier, 2)}"]
         paint(parcel.cells, color)
+    # Civic-precinct framing: wall, colonnade, spirit way, precinct + side gates.
+    axis = plan.ritual_axis or {}
+    paint({tuple(c) for c in axis.get("colonnade_cells", [])}, COLORS["colonnade"])
+    paint({tuple(c) for c in axis.get("spirit_way_cells", [])}, COLORS["spirit_way"])
+    paint({tuple(c) for c in axis.get("precinct_wall_cells", [])}, COLORS["precinct_wall"])
+    paint({tuple(c) for c in axis.get("side_gate_cells", []) + axis.get("precinct_side_gate_cells", [])},
+          COLORS["side_gate"])
+    paint({tuple(c) for c in axis.get("precinct_gate_cells", [])}, COLORS["precinct_gate"])
     write_png(path, width, height, bytes(buf))
 
 
@@ -118,6 +133,10 @@ li {{ margin: 0.25em 0; }}
 <div><span class="swatch" style="background:#8e7c5c"></span>lane</div>
 <div><span class="swatch" style="background:#874442"></span>dominant landmark</div>
 <div><span class="swatch" style="background:#4f8671"></span>negative space</div>
+<div><span class="swatch" style="background:#3c3a36"></span>precinct wall</div>
+<div><span class="swatch" style="background:#786040"></span>colonnade</div>
+<div><span class="swatch" style="background:#c8b26e"></span>spirit way</div>
+<div><span class="swatch" style="background:#c48e3c"></span>precinct gate</div>
 </div>
 <h2>Parcels</h2>
 <ul>{roles}</ul>
@@ -132,6 +151,31 @@ li {{ margin: 0.25em 0; }}
 
 def write_index(out_root: Path) -> Path:
     viewers = sorted(p for p in out_root.glob("*/viewer.html"))
+    index = out_root / "index.html"
+    index.parent.mkdir(parents=True, exist_ok=True)
+
+    # Prefer the categorized index shared with preview_structure.py over a flat
+    # list, scanning every existing preview (structures + town plans) so that
+    # regenerating town plans never flattens the structure categories. Town
+    # plans classify into the "other" family. Fall back to a flat list only if
+    # the shared renderer is unavailable or declines (<= 1 viewer).
+    try:
+        from preview_structure import RenderResult, render_preview_index
+        structure_dir = REPO_ROOT / "src" / "main" / "resources" / "data" / "myvillage" / "structure"
+        results = []
+        for v in viewers:
+            stem = v.parent.name
+            nbt = structure_dir / f"{stem}.nbt"
+            source = str(nbt if nbt.exists() else v)
+            results.append(RenderResult(0, source, stem, str(v.parent), str(v)))
+        # render_preview_index writes out_root/index.html itself and returns its
+        # path (or "" when it declines for <= 1 viewer).
+        written = render_preview_index(str(out_root), results)
+        if written:
+            return Path(written)
+    except Exception:
+        pass
+
     links = "\n".join(
         f'<li><a href="{html.escape(str(v.relative_to(out_root)))}">{html.escape(v.parent.name)}</a></li>'
         for v in viewers
@@ -147,8 +191,6 @@ def write_index(out_root: Path) -> Path:
 </body>
 </html>
 """
-    index = out_root / "index.html"
-    index.parent.mkdir(parents=True, exist_ok=True)
     index.write_text(page, encoding="utf-8")
     return index
 
@@ -157,13 +199,13 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--seed", type=int, default=20260618)
     parser.add_argument("--count", type=int, default=3)
-    parser.add_argument("--width", type=int, default=96)
-    parser.add_argument("--depth", type=int, default=80)
+    parser.add_argument("--width", type=int, default=160)
+    parser.add_argument("--depth", type=int, default=160)
     parser.add_argument("--out", default=str(REPO_ROOT / "out" / "preview"))
     args = parser.parse_args()
 
     group = get_group("cultivation_town")
-    brief = dict(group.scale_params.get("soft_functional_brief", {}))
+    brief = list(group.scale_params.get("district_brief", []))
     out_root = Path(args.out)
     site = TownSite(width=args.width, depth=args.depth)
     for index in range(args.count):
@@ -177,6 +219,9 @@ def main() -> int:
         print(f"OK town_plan_{seed}: {viewer.relative_to(REPO_ROOT)}")
     index = write_index(out_root)
     print(f"index: {index.relative_to(REPO_ROOT)}")
+    # Re-run structure preview index to merge categories (town_plan entries)
+    # are picked up by preview_structure.py --all "other" family.
+    print("hint: run preview_structure.py --all to merge index categories")
     return 0
 
 

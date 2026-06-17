@@ -454,6 +454,9 @@ def exterior_decoration_pass(ctx: BuildContext) -> None:
         main = graph.get(node.attach_to)
         if ops.place_motif("small_porch", grid, style, rng, node, main):
             ctx.decoration_motifs.append("small_porch")
+    for node in graph.by_type("courtyard_enclosure"):
+        ops.courtyard_enclosure(grid, style, node)
+        ctx.decoration_motifs.append("courtyard_enclosure")
     for node in graph.by_type("path_patch", "courtyard_patch"):
         ops.place_motif("ground_patch", grid, style, rng, node)
         ctx.decoration_motifs.append(

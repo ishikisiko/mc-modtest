@@ -231,7 +231,7 @@ jar tf build/libs/*.jar | grep "assets/myvillage/textures/painting/inscription"
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.8.1-fix2.jar
+build/libs/myvillage-0.11.0.jar
 ```
 
 ## Versioning And Changelog
@@ -274,12 +274,12 @@ python3 tools/preview_structure.py --all
 python3 tools/generate_town_plan_preview.py --count 3
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.8.1-fix2.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.8.1-fix2.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.8.1-fix2.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.8.1-fix2.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.8.1-fix2.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.8.1-fix2.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.11.0.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.11.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.11.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.11.0.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.11.0.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.11.0.jar | grep "assets/myvillage/textures/painting/inscription"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -296,8 +296,12 @@ Create or open a flat test world with commands enabled.
 
 ## Available Commands
 
-The v0.8 mod registers debug commands for structure validation and the
-on-demand living-town generator. Passive worldgen is not registered.
+The v0.11 mod registers debug commands for structure validation, the
+on-demand living-town generator, and the terraced sect-compound generator, plus
+a custom worldgen `myvillage:sect` structure that sites cultivation sects into
+the world on their own (rare, biome-gated to high-relief biomes, world-seed
+reproducible) and is locatable via `/locate structure myvillage:sect`. Town
+worldgen is still not registered (a later change).
 
 List loaded templates:
 
@@ -305,7 +309,7 @@ List loaded templates:
 /myvillage list
 ```
 
-Generate a living cultivation town around the player in currently loaded chunks:
+Generate a living cultivation town around the player:
 
 ```mcfunction
 /myvillage town
@@ -313,11 +317,69 @@ Generate a living cultivation town around the player in currently loaded chunks:
 ```
 
 The optional seed makes generation deterministic for the same seed and site.
-The command refuses footprints that extend into unloaded chunks and reports the
-town extent. Parcels above the slope limit are skipped and reported in the
+The town is a districted ~160×160 修仙坊市 (gate / market / residential / civic
+core / fringe districts), force-loaded via chunk tickets so the whole footprint
+generates in one command; regions that cannot be force-loaded are reported
+rather than silently skipped. The civic core carries the ritual axis (plaza /
+paifang gate / lantern approach) and a skyline of vertical landmarks
+(`pagoda`, `pavilion`, `bell_drum_tower`) flanking the dominant `town_shrine`.
+Market and residential parcels form continuous street-frontage row shops with
+party walls and narrow alleys. Cultivation street life (幌子 banners,
+药圃/灵田 spirit-field beds, 炼丹炉 alchemy furnaces, 法器摊 artifact stalls,
+阵纹 formation floors) and villager/spirit-fox inhabitants are placed across
+districts. Parcels above the slope limit are skipped and reported in the
 completion message. If the optional decor mods are absent, authored mod blocks
-in template palettes are substituted with generated vanilla fallbacks before the
-template loads.
+in template palettes and runtime decor fixtures are substituted with generated
+vanilla fallbacks.
+
+Generate a terraced cultivation sect compound ascending away from the player:
+
+```mcfunction
+/myvillage sect
+/myvillage sect 20260618
+```
+
+Force-generate a worldgen-style sect (with its derived mountain) at the player,
+for review/testing, optionally selecting the detached-spire variant:
+
+```mcfunction
+/myvillage sect worldgen
+/myvillage sect worldgen 20260618
+/myvillage sect worldgen 20260618 pavilion_short_straight_east
+```
+
+`worldgen` builds the same compound resting on a mountain **derived from the
+terrace profile** (反推山形): the terraces are fixed first, then the slopes
+beneath/between them are noise-filled, an outer blend skirt grades the man-made
+relief into the surrounding terrain (no cut-off edge), a sheer cliff face backs
+the summit, a translucent cloud-sea (云海面) sheet floats between the gate and
+disciple terraces, and — when the feature is present — a solitary peak (孤峰)
+rises under the detached volume reachable only across the flying bridge. The
+optional third argument forces one of the three detached-spire variants
+(`pavilion_short_straight_east`, `pagoda_long_arched_west`,
+`disciple_medium_angled_north`) or `none`; omitting it falls back to the
+per-seed selection. In natural worldgen the same structure is sited
+automatically and bakes into chunks (no force-load, no build pop-in); find one
+with `/locate structure myvillage:sect`.
+
+The sect is a terraced axial 宗门 compound (gate / disciple / assembly /
+scripture / summit terraces, count parametric 4–6) ascending a single fall-line
+ritual axis from the mountain gate (山门) to the cliff-backed principal hall
+(主殿). Slot importance grades with terrace level — the principal hall and
+scripture pagoda hold the top tiers; flanking volumes (disciple-quarter rows,
+paired pagodas, flanking bell/drum towers) mirror about the axis and are joined
+by covered galleries (廊); each terrace meets the next through a retaining face
+and an on-axis stair flight. The optional detached-spire flying-bridge (飞桥)
+feature is selected per seed (one of three deterministic variants, or absent):
+a detached volume sits on its outcrop reachable only by the flying bridge. The
+footprint is force-loaded via chunk tickets; terraces are carved and retained
+against the terrain so platforms step the slope with no floating or buried
+slabs, and palette ids route through the mod-fallback resolver. The same seed
+rebuilds the same compound. The exported terrace profile (elevations/bounds,
+rise/depth/taper, axis-stair width, cliff-back height) is the contract the sect
+worldgen consumes to derive the mountain (反推山形); the on-the-spot
+`/myvillage sect [seed]` build is unchanged (it rests on the live surface, no
+derived mountain).
 
 Place the smoke-test structure at the player position:
 
@@ -336,8 +398,11 @@ Place a generated building directly:
 /myvillage place chinese_courtyard_001
 /myvillage place tavern_001
 /myvillage place lord_manor_001
-/myvillage place cultivation_town_001
+/myvillage place cultivation_town_001   # courtyard district-fill fragment (not the canonical town — use /myvillage town)
 /myvillage place cultivation_inn_001
+/myvillage place pagoda_001
+/myvillage place pavilion_001
+/myvillage place bell_drum_tower_001
 /myvillage place sect_gate_001
 /myvillage place scripture_pavilion_001
 /myvillage place cultivation_sect_001
@@ -345,8 +410,8 @@ Place a generated building directly:
 
 Plaque-bearing generated structures place shipped `myvillage` plaque blocks with
 the bound inscription baked directly into the block textures. Notable review targets include
-`tavern_001`, `lord_manor_001`, `cultivation_inn_001`, `sect_gate_001`, and
-`scripture_pavilion_001`.
+`tavern_001`, `lord_manor_001`, `cultivation_inn_001`, `pagoda_001`, `pavilion_001`,
+`bell_drum_tower_001`, `sect_gate_001`, and `scripture_pavilion_001`.
 
 For generated structures other than `test_*`, `/myvillage place` applies a
 one-block downward Y offset before placement. This lets terrain-replacement
@@ -461,22 +526,35 @@ Important properties:
   builders. These are composed by `CompoundGraph`, not emitted by the default
   medieval building-library generator.
 - Cultivation town generation uses `cultivation_town.json` with the runtime
-  town-generation layout. The runtime town has a central ritual axis from the
-  south gate to a `town_shrine` terminus, fronted by a plaza, paifang gate, and
-  lantern-lined approach. Existing compact courtyard-street blocks
-  (`cultivation_town_001...006`) remain generated as reusable review/parts
-  outputs composed from the mortal-town archetype roster. Standalone
-  cultivation-town buildings (`cultivation_house`, shops, inn, market, and
-  `town_shrine`) are also generated because the runtime town places those
-  templates directly. Cultivation town and
-  sect buildings use cultivation massing grammar directly: raised platforms,
-  entry colonnades with dougong brackets, sweeping/hip/pyramidal/tiered roofs,
-  pavilion balconies, a pagoda scripture pavilion, a built three-bay mountain
-  gate, and a furnace feature for alchemy rooms. Cultivation sect generation
-  uses `cultivation_sect.json` with standalone sect archetypes plus a terraced
-  axial mountain-compound layout: four stacked terrace courtyards, monumental
-  stairways, summit hall/pagoda hierarchy, a water/cliff/cloud siting context,
-  and structural covered-gallery/flying-bridge link nodes.
+  town-generation layout. The runtime `/myvillage town` realizer produces a
+  districted ~160×160 修仙坊市: named districts (坊门区 gate / 市肆区 market /
+  民居坊 residential / 礼制核心 civic core / 边缘区 fringe), each carrying its
+  own density, storey band, and material register from the group's `district_brief`.
+  The ritual axis (plaza / paifang gate / lantern approach) is expressed inside
+  the civic core, with the `town_shrine` as the sole dominant landmark. Market
+  and residential parcels carry street frontage (party-wall row shops, shared
+  gables, intentional narrow alleys) instead of centered-in-lot plinths. A
+  skyline rule guarantees the civic core rises above the surrounding roofline
+  through vertical-landmark archetypes — `pagoda` (塔), `pavilion` (楼阁), and
+  `bell_drum_tower` (钟鼓楼) — built from the existing terrace + flying-eave
+  vocabulary and placed flanking the shrine. The footprint is force-loaded via
+  chunk tickets so the whole town generates in one command.
+- The static `cultivation_town_NNN` compound library is **district fill tissue**,
+  not a standalone town: it supplies courtyard street-block material the
+  residential and market districts draw from. `/myvillage place cultivation_town_001`
+  remains available for placing a single courtyard fragment for review, but it is
+  no longer the canonical cultivation town — `/myvillage town` is. Standalone
+  cultivation-town buildings (`cultivation_house`, shops, inn, market,
+  `town_shrine`, and the `pagoda`/`pavilion`/`bell_drum_tower` landmarks) are also
+  generated because the runtime town places those templates directly. Cultivation
+  town and sect buildings use cultivation massing grammar directly: raised
+  platforms, entry colonnades with dougong brackets, sweeping/hip/pyramidal/tiered
+  roofs, pagoda finial spires, belfry bells, pavilion balconies, a built three-bay
+  mountain gate, and a furnace feature for alchemy rooms. Cultivation sect
+  generation uses `cultivation_sect.json` with standalone sect archetypes plus a
+  terraced axial mountain-compound layout: four stacked terrace courtyards,
+  monumental stairways, summit hall/pagoda hierarchy, a water/cliff/cloud siting
+  context, and structural covered-gallery/flying-bridge link nodes.
 - Town building graphs expose frontage metadata (`side`, `facing`, and opening
   cells) and optional importance-tier hints used by the town planner/realizer.
 - Chinese courtyard water and gravel/path cells are authored as
@@ -506,11 +584,11 @@ Included:
 - 45 medieval_village building-library structures
 - 6 generated Chinese courtyard compound structures
 - 8 generated civic structures (`tavern_001..005`, `lord_manor_001..003`)
-- 6 generated cultivation town block structures
-- 15 generated standalone cultivation town structures
+- 6 generated cultivation town block structures (district fill tissue)
+- 24 generated standalone cultivation town structures (incl. `pagoda`/`pavilion`/`bell_drum_tower` landmarks)
 - 10 generated standalone cultivation sect structures
 - 2 generated cultivation sect compound structures
-- 96 generated NBT structures in the default batch, including `test_house_03.nbt`
+- 105 generated NBT structures in the default batch, including `test_house_03.nbt`
 - sect compound placement metadata under `data/myvillage/settlement_meta/`
 - test_house_03.nbt Mod resource smoke test
 - /myvillage place <structure_id>
@@ -559,12 +637,15 @@ roof generation logic. Pay special attention to:
 ```
 
 The automated validators check the mechanical parts of this list, but final
-acceptance still needs a v0.8 mod jar plus in-game visual inspection with
+acceptance still needs a v0.9 mod jar plus in-game visual inspection with
 `/myvillage list`, `/myvillage town 20260618`,
 `/myvillage place chinese_courtyard_001`,
-`/myvillage place tavern_001`, `/myvillage place lord_manor_001`, and
-`/myvillage place cultivation_town_001`,
-`/myvillage place cultivation_inn_001`, `/myvillage place sect_gate_001`,
+`/myvillage place tavern_001`, `/myvillage place lord_manor_001`,
+`/myvillage place cultivation_town_001` (courtyard fragment),
+`/myvillage place cultivation_inn_001`,
+`/myvillage place pagoda_001`, `/myvillage place pavilion_001`,
+`/myvillage place bell_drum_tower_001`,
+`/myvillage place sect_gate_001`,
 `/myvillage place scripture_pavilion_001`,
 `/myvillage place cultivation_sect_001`, `/myvillage gallery`,
 `/myvillage gallery original`, and `/myvillage gallery cultivation`.

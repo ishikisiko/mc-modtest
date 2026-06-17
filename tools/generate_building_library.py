@@ -29,11 +29,13 @@ from buildgen import export
 from buildgen.archetypes import ARCHETYPES, NEW_ARCHETYPE_COUNTS, TIER_PLAN
 from buildgen.groups import get_group
 from buildgen.passes import generate_building
-from buildgen.quality import quality_check
+from buildgen.quality import cultivation_variant_distinctness, quality_check
 from buildgen.style import load_style, modset_namespaces
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 REPORT_PATH = os.path.join(PROJECT_ROOT, "reports", "building_library_report.json")
+STRUCTURE_DIR = os.path.join(
+    PROJECT_ROOT, "src", "main", "resources", "data", "myvillage", "structure")
 MAX_ATTEMPTS = 8
 
 
@@ -116,6 +118,17 @@ def main() -> int:
     gallery_path = export.write_gallery_function(style_id, entries)
 
     passed = sum(1 for r in reports if r["passed"])
+    # Variant distinctness gate for the cultivation-town small/medium archetypes
+    # (per-archetype silhouette spread >= 30, no byte-identical variant pair).
+    # Runs post-export so the .nbt hashes exist; a failure fails this build.
+    variant_distinctness = None
+    distinctness_ok = True
+    if group_id == "cultivation_town":
+        variant_distinctness = cultivation_variant_distinctness(reports, STRUCTURE_DIR)
+        distinctness_ok = variant_distinctness["passed"]
+        if not distinctness_ok:
+            for err in variant_distinctness["errors"]:
+                print(f"FAIL {err}")
     summary = {
         "style_id": style_id,
         "group_id": group_id,
@@ -125,6 +138,7 @@ def main() -> int:
         "failed": len(reports) - passed,
         "rejected_attempts": failed_attempts,
         "gallery_function": os.path.relpath(gallery_path, PROJECT_ROOT),
+        "variant_distinctness": variant_distinctness,
         "reports": reports,
     }
     os.makedirs(os.path.dirname(report_path), exist_ok=True)
@@ -134,7 +148,14 @@ def main() -> int:
           f"({failed_attempts} rejected attempts)")
     print(f"report: {os.path.relpath(report_path, PROJECT_ROOT)}")
     print(f"gallery: {summary['gallery_function']}")
-    return 0 if len(entries) == summary["requested"] else 1
+    if variant_distinctness is not None:
+        gate = "PASS" if distinctness_ok else "FAIL"
+        spreads = ", ".join(f"{a}={s}" for a, s in
+                            sorted(variant_distinctness["spreads"].items()))
+        print(f"variant distinctness {gate} (spread>="
+              f"{variant_distinctness['min_spread']}: {spreads})")
+    built_ok = len(entries) == summary["requested"]
+    return 0 if (built_ok and distinctness_ok) else 1
 
 
 if __name__ == "__main__":

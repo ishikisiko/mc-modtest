@@ -1260,6 +1260,91 @@ def _tiered_eave_roof_handler(grid: BlockGrid, style: Style, rng: random.Random,
     }, vol.id)
 
 
+def _pagoda_roof_handler(grid: BlockGrid, style: Style, rng: random.Random,
+                         vol: Node, graph: Optional[Any] = None) -> dict:
+    """Pagoda crown: tiered flying-eave massing topped by a finial spire.
+
+    Composed entirely from the existing ``tiered_eave_roof`` + ridge-ornament
+    vocabulary (no bespoke geometry): the body reuses the two-tier sweeping
+    eave, and the crown is a FRAME_WOOD post stack capped by a RIDGE_ORNAMENT
+    finial above the peak. Registered as the ``pagoda`` form.
+    """
+    roof = vol.meta.get("roof", {})
+    base = _tiered_eave_roof_handler(grid, style, rng, vol, graph)
+    peak_y = int(base.get("peak_y", vol.meta["foundation_h"] + vol.meta["wall_h"]))
+    cx = (vol.x0 + vol.x1) // 2
+    cz = (vol.z0 + vol.z1) // 2
+    p_detail = PRIORITY["DETAIL"]
+    spire_height = max(2, int(roof.get("spire_height", 4)))
+    post = log_state(style, "y")
+    spire_cells: List[Pos] = []
+    for dy in range(1, spire_height + 1):
+        pos = (cx, peak_y + dy, cz)
+        if grid.set(pos, post, ["DETAIL", "ROOF", "PROTECTED"], p_detail, "FRAME_WOOD"):
+            spire_cells.append(pos)
+    ornament_state, ornament_slot = _ornament_state(style)
+    finial_cells: List[Pos] = []
+    if ornament_state:
+        cap = (cx, peak_y + spire_height + 1, cz)
+        if grid.set(cap, ornament_state, ["DETAIL", "ROOF", "PROTECTED"],
+                    p_detail, ornament_slot):
+            finial_cells.append(cap)
+    base["roof_type"] = "pagoda"
+    base["spire_cells"] = spire_cells + finial_cells
+    base["roof_cells"] = base.get("roof_cells", []) + spire_cells + finial_cells
+    base["peak_y"] = peak_y + spire_height + (1 if finial_cells else 0)
+    base["vertical_landmark"] = True
+    return _with_roofed_ids(base, vol.id)
+
+
+def _pavilion_roof_handler(grid: BlockGrid, style: Style, rng: random.Random,
+                           vol: Node, graph: Optional[Any] = None) -> dict:
+    """Pavilion roof: a single wide sweeping eave with a balustrade-style crown.
+
+    Composed from the existing ``sweeping_eave_roof`` vocabulary with a
+    generous overhang so the roofline reads as a viewing pavilion; ridge
+    ornaments cap the line. Registered as the ``pavilion`` form.
+    """
+    roof = vol.meta.get("roof", {})
+    overhang = max(3, int(roof.get("overhang", 3)))
+    info = sweeping_eave_roof(
+        grid, style, rng, vol,
+        roof.get("ridge_axis", "x"), overhang,
+        attached_side=roof.get("attached_side"))
+    info["roof_type"] = "pavilion"
+    info["vertical_landmark"] = True
+    return _with_roofed_ids(info, vol.id)
+
+
+def _bell_drum_tower_roof_handler(grid: BlockGrid, style: Style, rng: random.Random,
+                                  vol: Node, graph: Optional[Any] = None) -> dict:
+    """Bell/drum tower roof: tiered flying eaves crowned by a belfry bell.
+
+    Composed from the existing ``tiered_eave_roof`` vocabulary plus an
+    INTERIOR_CIVIC bell marker placed at the crown. Registered as the
+    ``bell_drum_tower`` form.
+    """
+    base = _tiered_eave_roof_handler(grid, style, rng, vol, graph)
+    peak_y = int(base.get("peak_y", vol.meta["foundation_h"] + vol.meta["wall_h"]))
+    cx = (vol.x0 + vol.x1) // 2
+    cz = (vol.z0 + vol.z1) // 2
+    bell = _bell_state(style, "north", "ceiling")
+    bell_cells: List[Pos] = []
+    for dy in (2, 3, 4, 5):
+        pos = (cx, peak_y + dy, cz)
+        if grid.is_empty(pos):
+            if grid.set(pos, bell, ["INTERIOR", "DETAIL", "ROOF", "PROTECTED"],
+                        PRIORITY["DETAIL"], "INTERIOR_CIVIC"):
+                bell_cells.append(pos)
+                break
+    base["roof_type"] = "bell_drum_tower"
+    base["belfry_bell"] = bool(bell_cells)
+    base["roof_cells"] = base.get("roof_cells", []) + bell_cells
+    base["peak_y"] = peak_y + (bell_cells[-1][1] - peak_y if bell_cells else 0)
+    base["vertical_landmark"] = True
+    return _with_roofed_ids(base, vol.id)
+
+
 # ---------------------------------------------------------------------------
 # attachments & details
 # ---------------------------------------------------------------------------
@@ -1430,6 +1515,44 @@ def balustrade(grid: BlockGrid, style: Style, node: Node) -> None:
             if wall == gap_wall and gap_center is not None and abs(z - int(gap_center)) <= 1:
                 continue
             grid.set((x, y, z), rail, ["DETAIL", "STRUCTURE"], p, slot)
+
+
+def courtyard_enclosure(grid: BlockGrid, style: Style, node: Node) -> None:
+    """院墙: a low enclosing wall ring around a rear courtyard ground patch,
+    leaving a single one-cell gate opening on the entry-adjacent side.
+
+    Honours the cultivation grammar's "omit Western domestic tells" rule by
+    construction: the wall body resolves through PLATFORM_STONE (BASE_STONE
+    fallback) and the coping through BALUSTRADE / RIDGE_ORNAMENT -- stone/tile
+    wall slots only, never fence-post or woodpile features."""
+    wall, slot = _platform_state(style)
+    cap, cap_slot = _balustrade_state(style)
+    if not cap:
+        cap, cap_slot = _ornament_state(style)
+    height = max(1, int(node.meta.get("height", 2)))
+    gate_wall = node.meta.get("gate_wall", "front")
+    gate_center = node.meta.get("gate_center")
+    p = PRIORITY["STRUCTURE"]
+    pd = PRIORITY["DETAIL"]
+
+    def is_gate(wall_name: str, along: int) -> bool:
+        return (wall_name == gate_wall and gate_center is not None
+                and along == int(gate_center))
+
+    def post(x: int, z: int) -> None:
+        for y in range(0, height):
+            grid.set((x, y, z), wall, ["STRUCTURE", "GROUND"], p, slot)
+        if cap:
+            grid.set((x, height, z), cap, ["DETAIL", "STRUCTURE"], pd, cap_slot)
+
+    for x in range(node.x0, node.x1 + 1):
+        for z, wname in ((node.z0, "front"), (node.z1, "back")):
+            if not is_gate(wname, x):
+                post(x, z)
+    for z in range(node.z0 + 1, node.z1):
+        for x, wname in ((node.x0, "west"), (node.x1, "east")):
+            if not is_gate(wname, z):
+                post(x, z)
 
 
 def pagoda_story_insets(grid: BlockGrid, style: Style, vol: Node) -> None:
@@ -1769,7 +1892,7 @@ def tavern_bar_counter(grid: BlockGrid, style: Style, vol: Node,
 
 
 def _bell_state(style: Style, facing: str, attachment: str = "floor") -> str:
-    base = style.slot_entry("INTERIOR_CIVIC", "bell", "minecraft:bell")
+    base = style.optional_slot_entry("INTERIOR_CIVIC", "bell") or "minecraft:bell"
     return f"{_block_id(base)}[attachment={attachment},facing={facing},powered=false]"
 
 
@@ -2319,6 +2442,9 @@ register_roof("sweeping_eave_roof", _sweeping_eave_roof_handler)
 register_roof("hip_roof", _hip_roof_handler)
 register_roof("pyramidal_roof", _pyramidal_roof_handler)
 register_roof("tiered_eave_roof", _tiered_eave_roof_handler)
+register_roof("pagoda", _pagoda_roof_handler)
+register_roof("pavilion", _pavilion_roof_handler)
+register_roof("bell_drum_tower", _bell_drum_tower_roof_handler)
 for _grade in ("硬山", "悬山", "歇山"):
     register_roof(_grade, _chinese_roof_grade_handler)
 

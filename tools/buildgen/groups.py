@@ -74,18 +74,62 @@ GROUPS: Dict[str, SettlementGroup] = {
             "cultivation_inn",
             "cultivation_market",
             "town_shrine",
+            "pagoda",
+            "pavilion",
+            "bell_drum_tower",
         ),
         layout_strategy="town_generation",
         scale_params={
             "gallery_group": "cultivation_town",
             "compound_count": 6,
             "parcel_form": "courtyard_street_block",
-            "soft_functional_brief": {
-                "housing": 8,
-                "market": 4,
-                "civic": 1,
-                "defense": 2,
-            },
+            # Mid-size fair footprint cap consumed by the town planner.
+            "footprint": {"width": 160, "depth": 160},
+            # District brief replaces the flat soft_functional_brief. The planner
+            # consumes it generically by ``kind`` (gate/market/residential/
+            # civic_core/fringe); generation passes MUST NOT branch on style_id
+            # or district-name strings. ``density`` is the target frontage-module
+            # count for the district (geometry may cap it). ``storey_band`` is the
+            # [min, max] building storeys. ``archetypes`` bind the roster the
+            # district draws fill from; the static cultivation_town_NNN compound
+            # library supplies additional courtyard tissue, not a standalone town.
+            "district_brief": [
+                {
+                    "kind": "gate",
+                    "density": 2,
+                    "storey_band": [1, 1],
+                    "material_register": "timber_lantern_gate",
+                    "archetypes": ["cultivation_house", "cultivation_shop"],
+                },
+                {
+                    "kind": "market",
+                    "density": 5,
+                    "storey_band": [1, 2],
+                    "material_register": "timber_painted_market",
+                    "archetypes": ["cultivation_shop", "cultivation_market"],
+                },
+                {
+                    "kind": "residential",
+                    "density": 5,
+                    "storey_band": [1, 2],
+                    "material_register": "timber_plain_house",
+                    "archetypes": ["cultivation_house"],
+                },
+                {
+                    "kind": "civic_core",
+                    "density": 3,
+                    "storey_band": [2, 3],
+                    "material_register": "timber_ceremonial",
+                    "archetypes": ["town_shrine", "cultivation_inn", "cultivation_shop", "pagoda", "pavilion", "bell_drum_tower"],
+                },
+                {
+                    "kind": "fringe",
+                    "density": 1,
+                    "storey_band": [1, 1],
+                    "material_register": "field_stone_fringe",
+                    "archetypes": ["cultivation_house"],
+                },
+            ],
         },
         classifications={
             "cultivation_house": "housing",
@@ -93,6 +137,9 @@ GROUPS: Dict[str, SettlementGroup] = {
             "cultivation_inn": "functional",
             "cultivation_market": "infrastructure",
             "town_shrine": "civic",
+            "pagoda": "civic",
+            "pavilion": "civic",
+            "bell_drum_tower": "civic",
         },
     ),
     "cultivation_sect": SettlementGroup(

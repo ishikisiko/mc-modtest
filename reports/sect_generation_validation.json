@@ -1,0 +1,113 @@
+{
+  "passed": true,
+  "errors": [],
+  "results": [
+    {
+      "seed": 20260618,
+      "plan": {
+        "passed": true,
+        "errors": [],
+        "stats": {
+          "terrace_count": 5,
+          "slot_count": 11,
+          "gallery_count": 6,
+          "retaining_count": 4,
+          "axis_stair_count": 4,
+          "feature_present": true,
+          "feature_variant": "disciple_medium_angled_north",
+          "axis_cells": 860
+        }
+      },
+      "template_fit": {
+        "passed": true
+      }
+    },
+    {
+      "seed": 20260719,
+      "plan": {
+        "passed": true,
+        "errors": [],
+        "stats": {
+          "terrace_count": 5,
+          "slot_count": 11,
+          "gallery_count": 6,
+          "retaining_count": 4,
+          "axis_stair_count": 4,
+          "feature_present": false,
+          "feature_variant": null,
+          "axis_cells": 860
+        }
+      },
+      "template_fit": {
+        "passed": true
+      }
+    },
+    {
+      "seed": 20260820,
+      "plan": {
+        "passed": true,
+        "errors": [],
+        "stats": {
+          "terrace_count": 5,
+          "slot_count": 11,
+          "gallery_count": 6,
+          "retaining_count": 4,
+          "axis_stair_count": 4,
+          "feature_present": true,
+          "feature_variant": "pavilion_short_straight_east",
+          "axis_cells": 860
+        }
+      },
+      "template_fit": {
+        "passed": true
+      }
+    }
+  ],
+  "feature_variants": {
+    "names": [
+      "pavilion_short_straight_east",
+      "pagoda_long_arched_west",
+      "disciple_medium_angled_north"
+    ]
+  },
+  "parity_constants": {
+    "TERRACE_COUNT": 5,
+    "TERRACE_RISE": 8,
+    "TERRACE_DEPTH": 28,
+    "TERRACE_WIDTH": 58,
+    "SUMMIT_TAPER": 4,
+    "AXIS_STAIR_W": 5,
+    "CLIFF_BACK_HEIGHT": 12,
+    "Z_MARGIN": 4,
+    "MIN_TERRACE_COUNT": 4,
+    "MAX_TERRACE_COUNT": 6
+  },
+  "feature_sweep_coverage": [
+    "None",
+    "disciple_medium_angled_north",
+    "pagoda_long_arched_west",
+    "pavilion_short_straight_east"
+  ],
+  "worldgen": {
+    "data_passed": true,
+    "mountain_passed": true,
+    "mountain_parity": {
+      "SKIRT_RADIUS": 24,
+      "OUTER_SLOPE": 1,
+      "NOISE_AMP_INTER": 3,
+      "NOISE_AMP_OUTER": 5,
+      "SEAM_SLOPE_LIMIT": 6,
+      "SPIRE_GAP": 3
+    },
+    "survey": {
+      "seeds": 32,
+      "feature_present": 24,
+      "feature_present_rate": 0.75,
+      "feature_variant_counts": {
+        "pavilion_short_straight_east": 8,
+        "pagoda_long_arched_west": 8,
+        "disciple_medium_angled_north": 8
+      }
+    }
+  }
+}

@@ -29,6 +29,7 @@ Example:
 from __future__ import annotations
 
 import argparse
+import glob
 import html
 import json
 import math
@@ -1770,6 +1771,16 @@ def main() -> int:
         except Exception as exc:
             rc = 1
             print(f"FAIL {path}: {exc}", file=sys.stderr)
+    # Fold in previews produced by other tools (e.g. town-plan dumps) that live
+    # under out_root but are not rendered here, so the categorized index stays a
+    # superset regardless of which tool runs last.
+    rendered_dirs = {r.out_dir for r in results if r.viewer_path}
+    for viewer in sorted(glob.glob(os.path.join(out_root, "*", "viewer.html"))):
+        out_dir = os.path.dirname(viewer)
+        if out_dir in rendered_dirs:
+            continue
+        stem = os.path.basename(out_dir)
+        results.append(RenderResult(0, viewer, stem, out_dir, viewer))
     index_path = render_preview_index(out_root, results)
     if index_path:
         print(f"preview index: {os.path.relpath(index_path, REPO_ROOT)}")

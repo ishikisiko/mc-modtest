@@ -160,7 +160,10 @@
     "sweeping_eave_roof",
     "hip_roof",
     "pyramidal_roof",
-    "tiered_eave_roof"
+    "tiered_eave_roof",
+    "pagoda",
+    "pavilion",
+    "bell_drum_tower"
   ],
   "allowed_wall_types": [
     "stone_lower_wall",

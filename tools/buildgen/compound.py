@@ -572,11 +572,12 @@ def _small_courtyard_variant(seed: int, size: str) -> CompoundVariant:
 
 
 def _town_roster(roster: Sequence[str]) -> Tuple[str, ...]:
-    values = tuple(roster) or DEFAULT_TOWN_ROSTER
-    unknown = [a for a in values if a not in DEFAULT_TOWN_ROSTER]
-    if unknown:
-        raise ValueError(f"small courtyard roster contains unsupported archetypes: {unknown}")
-    return values
+    # The cultivation_town group roster now also contains civic-core vertical
+    # landmarks (pagoda/pavilion/bell_drum_tower); those are skyline elements,
+    # not courtyard street-block tissue, so filter the roster down to the
+    # courtyard-compatible archetypes the small-block generator understands.
+    values = tuple(a for a in (roster or ()) if a in DEFAULT_TOWN_ROSTER)
+    return values or DEFAULT_TOWN_ROSTER
 
 
 def _select_courtyard_archetypes(seed: int, roster: Sequence[str],

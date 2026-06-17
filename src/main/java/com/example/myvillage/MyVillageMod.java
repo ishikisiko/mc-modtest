@@ -1,6 +1,8 @@
 package com.example.myvillage;
 
 import com.example.myvillage.block.ModBlocks;
+import com.example.myvillage.sect.SectGenerator;
+import com.example.myvillage.sect.SectStructures;
 import com.example.myvillage.town.TownGenerator;
 import com.example.myvillage.town.ModBlockFallback;
 import com.mojang.brigadier.arguments.LongArgumentType;
@@ -33,7 +35,12 @@ import java.util.Optional;
 
 /**
  * Ships myvillage structure NBTs as datapack resources and exposes small
- * debug commands for in-game NeoForge validation. No worldgen is registered.
+ * debug commands for in-game NeoForge validation. Registers the cultivation
+ * sect as a custom worldgen {@link SectStructures#SECT structure} — a rare,
+ * biome-gated landmark whose mountain is derived from the compound's terrace
+ * profile (反推山形) and baked into chunks; locatable via
+ * {@code /locate structure myvillage:sect} and force-generatable via
+ * {@code /myvillage sect worldgen [seed] [variant]}.
  */
 @Mod(MyVillageMod.MOD_ID)
 public final class MyVillageMod {
@@ -55,6 +62,7 @@ public final class MyVillageMod {
     public MyVillageMod(IEventBus modEventBus) {
         LOGGER.info("MyVillage resource mod loaded");
         ModBlocks.register(modEventBus);
+        SectStructures.register(modEventBus);
         NeoForge.EVENT_BUS.addListener(this::registerCommands);
         NeoForge.EVENT_BUS.addListener(this::onServerStarted);
     }
@@ -83,6 +91,27 @@ public final class MyVillageMod {
                                         .executes(ctx -> TownGenerator.generate(
                                                 ctx.getSource(),
                                                 LongArgumentType.getLong(ctx, "seed")))))
+                        .then(Commands.literal("sect")
+                                .executes(ctx -> SectGenerator.generate(
+                                        ctx.getSource(),
+                                        SectGenerator.seedFromSource(ctx.getSource())))
+                                .then(Commands.argument("seed", LongArgumentType.longArg())
+                                        .executes(ctx -> SectGenerator.generate(
+                                                ctx.getSource(),
+                                                LongArgumentType.getLong(ctx, "seed"))))
+                                .then(Commands.literal("worldgen")
+                                        .executes(ctx -> SectGenerator.generateForced(
+                                                ctx.getSource(),
+                                                SectGenerator.seedFromSource(ctx.getSource()), null))
+                                        .then(Commands.argument("seed", LongArgumentType.longArg())
+                                                .executes(ctx -> SectGenerator.generateForced(
+                                                        ctx.getSource(),
+                                                        LongArgumentType.getLong(ctx, "seed"), null))
+                                                .then(Commands.argument("variant", StringArgumentType.string())
+                                                        .executes(ctx -> SectGenerator.generateForced(
+                                                                ctx.getSource(),
+                                                                LongArgumentType.getLong(ctx, "seed"),
+                                                                StringArgumentType.getString(ctx, "variant")))))))
                         .then(Commands.literal("gallery")
                                 .executes(ctx -> placeGallery(ctx.getSource(), GalleryScope.ALL))
                                 .then(Commands.literal("original")
