@@ -44,7 +44,7 @@ Town building selection SHALL accept an optional importance tier that biases mas
 - **AND** the dominant-landmark parcel SHALL request the top importance tier.
 
 ### Requirement: Supported archetypes and tiers are explicit
-The current default generated building-library archetypes SHALL be `small_house`, `medium_house`, `blacksmith`, `small_shop`, `medium_shop`, and `big_house`. The current default scale tiers SHALL include `small`, `medium`, `large_lite`, shop variant tiers, and big-house variant tiers. Chinese courtyard sub-building archetypes `main_hall`, `side_wing`, `front_row`, and `gate_house` SHALL be available to the compound generator rather than emitted by the default medieval building-library loop. Civic archetypes `tavern` and `lord_manor` SHALL be available to the civic library generator rather than emitted by the default medieval building-library loop. Cultivation town archetypes SHALL be available to the `cultivation_town` town-generation system and reusable courtyard-street block parts, and cultivation sect archetypes SHALL be emitted only by the `cultivation_sect` group.
+The current default generated building-library archetypes SHALL be `small_house`, `medium_house`, `blacksmith`, `small_shop`, `medium_shop`, and `big_house`. The current default scale tiers SHALL include `small`, `medium`, `large_lite`, shop variant tiers, and big-house variant tiers. Chinese courtyard sub-building archetypes `main_hall`, `side_wing`, `front_row`, and `gate_house` SHALL be available to the compound generator rather than emitted by the default medieval building-library loop. Civic archetypes `tavern` and `lord_manor` SHALL be available to the civic library generator rather than emitted by the default medieval building-library loop. Cultivation town archetypes SHALL be available to the `cultivation_town` town-generation system and reusable courtyard-street block parts, and cultivation sect archetypes SHALL be emitted only by the `cultivation_sect` group. The cultivation-specific massing of these archetypes (raised platforms, colonnades, pagoda story insets, the built three-bay mountain gate, the alchemy furnace, and the omission of Western domestic tells) is specified by the cultivation-massing-grammar capability and is not restated here.
 
 #### Scenario: The building library is generated with count 10
 - **WHEN** the library generator emits ten entries per archetype
@@ -83,24 +83,6 @@ The current default generated building-library archetypes SHALL be `small_house`
 - **THEN** `small_shop` SHALL produce at least five 1-story variants
 - **AND** `medium_shop` SHALL produce at least five 2-story variants
 - **AND** `big_house` SHALL produce at least five variants each with 2 or 3 stories.
-
-### Requirement: Cultivation archetypes use cultivation massing grammar
-Cultivation town and sect archetypes SHALL build directly from cultivation-specific massing elements rather than delegating to Western domestic builders. The grammar SHALL include raised platforms, entry colonnades with dougong brackets, galleried balconies, tapering pagoda story insets, a built three-bay mountain gate, and an alchemy furnace feature. Cultivation builds SHALL omit Western domestic tells such as chimneys, porch nodes, woodpile motifs, barrel-cluster motifs, and fence-patch motifs.
-
-#### Scenario: A cultivation town house is generated
-- **WHEN** `cultivation_house` is generated
-- **THEN** it SHALL include a raised platform and a sweeping or hip cultivation roof
-- **AND** it SHALL NOT call the `small_house`, `medium_house`, shop, tavern, or lord-manor builders for its massing.
-
-#### Scenario: A sect scripture pavilion is generated
-- **WHEN** `scripture_pavilion` is generated
-- **THEN** its stories SHALL inset as they rise
-- **AND** its crown SHALL use `pyramidal_roof`.
-
-#### Scenario: An alchemy room is generated
-- **WHEN** `alchemy_room` is generated
-- **THEN** it SHALL include an alchemy furnace feature
-- **AND** it SHALL NOT include a chimney node.
 
 ### Requirement: Shop archetype family
 The generator SHALL support a shop archetype family, classified as a functional/commercial archetype family that serves town generation by providing commercial buildings distinct from housing. The family SHALL provide two tiers: `small_shop` as a 1-story compact storefront and `medium_shop` as a 2-story ground-floor storefront with upstairs living. The `medium_shop` SHALL use the multi-story massing capability. A shop node MAY carry an optional `industry` meta field; generation output SHALL NOT depend on that field until industry-specific behavior is introduced.
@@ -166,12 +148,21 @@ Generated building massing coordinates SHALL treat low z as the front, high z as
 - **AND** the corresponding outward direction SHALL be north.
 
 ### Requirement: Protected cells survive later normal writes
-The block grid SHALL treat cells tagged `PROTECTED` as non-overwritable by normal writes unless the write explicitly forces replacement.
+A `PROTECTED` cell SHALL NOT be overwritten by a later normal write. Because the grid enforces only `PROTECTED` and otherwise lets the last writer win, a pass that adds interior furnishing, an inter-volume connection, or a chimney SHALL NOT write into a cell that lies in another volume's wall plane; it SHALL decline the write or route around the occupied wall rather than rely on pass priority.
 
 #### Scenario: A later detail pass writes into a protected window
 - **WHEN** a normal grid write targets an existing protected window cell
 - **THEN** the grid write SHALL return false
 - **AND** the protected window blockstate SHALL remain unchanged.
+
+#### Scenario: A door op cannot remove a protected entry step
+- **WHEN** a later pass attempts to overwrite a `PROTECTED` entry-step cell
+- **THEN** the write SHALL be refused unless it is explicitly forced.
+
+#### Scenario: A chimney abuts an attached wing wall
+- **WHEN** a chimney column would fall on a cell occupied by an abutting `side_wing` or shed wall
+- **THEN** the chimney SHALL NOT force-overwrite that wall's facade cell
+- **AND** it SHALL offset around the wing or re-seal the wall so material stays continuous.
 
 ### Requirement: The pass order is stable
 The current core pass order SHALL be `massing_pass`, `structure_pass`, `mezzanine_floor_pass`, `floor_slab_pass`, `stair_pass`, `facade_detail_pass`, `roof_pass`, `roof_cleanup_pass`, `material_variation_pass`, `interior_furnishing_pass`, and `exterior_decoration_pass`. `mezzanine_floor_pass` SHALL run after `structure_pass` and before `floor_slab_pass`, and SHALL be a no-op for volumes without mezzanine metadata. `floor_slab_pass` and `stair_pass` SHALL run after `mezzanine_floor_pass` and before `facade_detail_pass`, and SHALL be no-ops for single-story volumes. `floor_slab_pass` SHALL skip stories flagged `mezzanine_story` because the mezzanine pass already placed their floor.
@@ -198,12 +189,46 @@ The current core pass order SHALL be `massing_pass`, `structure_pass`, `mezzanin
 - **AND** `floor_slab_pass` SHALL still place full slabs for any non-mezzanine story boundaries.
 
 ### Requirement: Facade planning avoids flat, corner-opening walls
-Facade planning SHALL split walls into post-bounded bays, keep openings away from building corners, avoid occluded attached-wall intervals, and guarantee at least the style profile's minimum planned window count where possible.
+Facade planning SHALL split walls into post-bounded bays, keep openings away from building corners, avoid occluded attached-wall intervals, and guarantee at least the style profile's minimum planned window count where possible. Every wall tall enough to carry it SHALL retain a stone plinth of at least one row, and an inter-volume connection opening SHALL be carved only on a real (non-open) wall and clear of the parent wall's post, window, and door columns.
 
 #### Scenario: A facade plan places a window
 - **WHEN** a window candidate is selected
 - **THEN** its along-wall coordinate SHALL be at least two cells away from both wall ends
 - **AND** it SHALL NOT overlap the door bay, a post position, or an occluded interval.
+
+#### Scenario: A short wing keeps its stone plinth
+- **WHEN** `wall_frame` builds a wall whose height can carry a plinth
+- **THEN** at least one stone plinth row SHALL be placed at its base.
+
+#### Scenario: A connection opening avoids a timber post
+- **WHEN** an inter-volume connection is carved into a parent wall
+- **THEN** the opening SHALL be placed clear of the parent wall's post, window, and door columns, re-sealing any post column it must cross
+- **AND** no connection SHALL be carved into an open shed that has no wall.
+
+### Requirement: Side walls are fully enclosed and free of stray blocks
+A generated building's side walls SHALL be complete and structurally coherent. Every cell of a closed volume's wall plane, from the foundation top to the roofline directly above it, SHALL be a non-air block unless it is a planned opening (door, window, or inter-volume connection). No interior furnishing or other block belonging to one volume SHALL be placed in the exterior wall plane of a different volume.
+
+#### Scenario: A gable end wall is enclosed up to the ridge
+- **WHEN** a gabled volume is roofed
+- **THEN** the gable plane SHALL be filled to the true ridge height with no apex gap
+- **AND** any cell whose only roof block is a stair SHALL be backed by a full block in the wall plane.
+
+#### Scenario: A blacksmith's smithy furniture stays inside its own shed
+- **WHEN** the smithy interior zone is furnished beside the main building
+- **THEN** anvils, barrels, and furnaces SHALL mount only on the smithy shed's own wall surfaces
+- **AND** they SHALL NOT be placed against the main building's exterior side wall.
+
+### Requirement: Gable infill uses a style-appropriate material
+The gable triangle SHALL be filled from a style-declared gable material, defaulting to the volume's primary `WALL_MAIN` material when the style declares no dedicated gable slot. The generator SHALL NOT hardcode the dark roof plank as gable infill, and a gable cell SHALL be tagged with the material slot it actually holds.
+
+#### Scenario: A stone-walled style produces a solid gable
+- **WHEN** a `cultivation_sect`, `chinese_courtyard`, or `cultivation_town` building is gabled and the style declares no gable-infill slot
+- **THEN** the gable SHALL be filled with the `WALL_MAIN` material
+- **AND** it SHALL NOT contain dark roof planks scattered through the wall.
+
+#### Scenario: A style opts into timber-infill gables
+- **WHEN** a style declares a dedicated gable-infill material
+- **THEN** the gable SHALL use that material, and the cell's recorded slot SHALL match the material placed.
 
 ### Requirement: Plaque placement integrates with entry-detail and paifang passes
 The facade-detail pass SHALL consult `plaque_bindings.json` for any archetype before placing doorway signage, and the paifang motif pass SHALL do the same before placing the central tablet. Plaque placement SHALL honor the building's facade orientation and the binding's declared `mount` (wall-mounted plaques sit on the wall above the door or beside it; hanging plaques hang from the lintel or from a paifang crossbeam with chains). Horizontal wall-mounted plaques SHALL assign `col` parts in exterior-view order so inscriptions read in source-PNG order from the building front, including north- and east-facing facades where visual left differs from increasing world coordinate order.

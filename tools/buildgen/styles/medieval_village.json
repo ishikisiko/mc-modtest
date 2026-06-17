@@ -19,6 +19,9 @@
       "minecraft:spruce_slab",
       "minecraft:spruce_planks"
     ],
+    "GABLE_INFILL": [
+      "minecraft:spruce_planks"
+    ],
     "DETAIL_WOOD": [
       "minecraft:oak_trapdoor",
       "minecraft:spruce_trapdoor",

@@ -328,6 +328,9 @@ def wall_frame(grid: BlockGrid, style: Style, rng: random.Random, vol: Node,
                   "timber_frame_wall": 1,
                   "white_plaster_timber_wall": 1}[wall_type]
     stone_rows = min(stone_rows, vol.meta["wall_h"] - 2)
+    if vol.meta["wall_h"] >= 3:
+        # every wall tall enough to carry a plinth keeps at least one stone row
+        stone_rows = max(1, stone_rows)
     stone = style.primary("BASE_STONE")
     planks = style.primary("WALL_MAIN")
     tags = ["FACADE", "STRUCTURE"]
@@ -524,6 +527,18 @@ def stairwell(grid: BlockGrid, style: Style, vol: Node, opening: dict) -> None:
 # roofs
 # ---------------------------------------------------------------------------
 
+def gable_infill(style: Style) -> Tuple[str, str]:
+    """Resolve the gable-triangle infill material and the slot it belongs to.
+
+    Styles that opt into a timber-infill look declare a dedicated GABLE_INFILL
+    slot; otherwise the gable is filled with the volume's primary WALL_MAIN so
+    stone-walled styles get a solid wall-coloured gable (no dark roof planks).
+    """
+    if style.has_slot("GABLE_INFILL"):
+        return style.primary("GABLE_INFILL"), "GABLE_INFILL"
+    return style.primary("WALL_MAIN"), "WALL_MAIN"
+
+
 def gable_roof(grid: BlockGrid, style: Style, rng: random.Random, vol: Node,
                ridge_axis: str, overhang: int,
                attached_side: Optional[str] = None) -> dict:
@@ -536,8 +551,7 @@ def gable_roof(grid: BlockGrid, style: Style, rng: random.Random, vol: Node,
     p = PRIORITY["ROOF"]
     gable_cells: List[Pos] = []
     roof_cells: List[Pos] = []
-    gable_state = style.alternates("WALL_MAIN")[0] if style.alternates("WALL_MAIN") \
-        else style.primary("WALL_MAIN")
+    gable_state, gable_slot = gable_infill(style)
     planks = style.slot_entry("ROOF_DARK", "_planks")
 
     if ridge_axis == "x":
@@ -581,27 +595,48 @@ def gable_roof(grid: BlockGrid, style: Style, rng: random.Random, vol: Node,
     else:         # even span: the two top stair rows meet back to back
         ridge_y = y - 1
 
-    # gable triangles, flush with the end walls
-    if ridge_axis == "x":
-        lo2, hi2 = vol.z0, vol.z1
-    else:
-        lo2, hi2 = vol.x0, vol.x1
-    yy = wall_top + 1
-    while lo2 <= hi2:
-        for wallname in gable_walls:
-            axisname, fixed, _, _ = wall_info(vol, wallname)
-            for c in range(lo2, hi2 + 1):
-                pos = (fixed, yy, c) if ridge_axis == "x" else (c, yy, fixed)
-                # never punch through the roof slope rows themselves
+    # Gable end-wall infill, flush with the end walls. Each end-wall column is
+    # sealed from wall_top+1 up to the roof skin directly above it (the slope
+    # cell or ridge), so the fill tracks the true roofline for every column:
+    # no apex gap at the centre, no edge gap where an overhung slope arrives
+    # late, and no see-through air cells along the roofline.
+    for wallname in gable_walls:
+        _, fixed, (a0, a1), _ = wall_info(vol, wallname)
+        for c in range(a0, a1 + 1):
+            roof_y = None
+            for y in range(wall_top + 1, ridge_y + 1):
+                pos = (fixed, y, c) if ridge_axis == "x" else (c, y, fixed)
+                rc = grid.get(pos)
+                if rc and "ROOF" in rc.tags and "FACADE" not in rc.tags:
+                    roof_y = y
+                    break
+            if roof_y is None:
+                roof_y = ridge_y
+            for y in range(wall_top + 1, roof_y):
+                pos = (fixed, y, c) if ridge_axis == "x" else (c, y, fixed)
                 if grid.is_empty(pos):
-                    state = gable_state if rng.random() < 0.6 else planks
-                    if grid.set(pos, state, ["FACADE", "ROOF"], p, "WALL_MAIN"):
+                    if grid.set(pos, gable_state, ["FACADE", "ROOF"], p,
+                                gable_slot):
                         gable_cells.append(pos)
-        lo2 += 1
-        hi2 -= 1
-        yy += 1
-        if yy > ridge_y:
-            break
+
+    # Back any gable-plane cell that only carries a roof stair with a full
+    # gable block one step inboard, so the end wall has no see-through
+    # half-block gaps along the roofline. Record both cells for quality checks.
+    for wallname in gable_walls:
+        _, fixed, (a0, a1), outward = wall_info(vol, wallname)
+        ox, oz = WALL_OUTWARD[wallname]
+        inboard = (-ox, -oz)  # one step toward the volume interior
+        for c in range(a0, a1 + 1):
+            for yy in range(wall_top + 1, ridge_y + 1):
+                pos = (fixed, yy, c) if ridge_axis == "x" else (c, yy, fixed)
+                sc = grid.get(pos)
+                if sc and "ROOF" in sc.tags and "_stairs" in sc.state:
+                    back = (pos[0] + inboard[0], yy, pos[2] + inboard[1])
+                    if grid.is_empty(back):
+                        if grid.set(back, gable_state, ["FACADE", "ROOF"], p,
+                                    gable_slot):
+                            gable_cells.append(back)
+                    gable_cells.append(pos)
     return {"gable_cells": gable_cells, "roof_cells": roof_cells, "peak_y": ridge_y}
 
 
@@ -684,41 +719,103 @@ def _place_ridge_ornaments(grid: BlockGrid, style: Style,
     return placed
 
 
-def _add_upturned_corners(grid: BlockGrid, style: Style, ridge_axis: str,
-                          bounds: Tuple[int, int, int, int],
-                          base_y: int) -> List[Pos]:
+def _eave_corner_lift(along: int, span_lo: int, span_hi: int,
+                      max_lift: int) -> int:
+    """Eave height lift at one position along the ridge span.
+
+    Returns 0 at the span centre and grows to ``max_lift`` at both gable ends
+    along a concave (swooping) curve, so the eave line droops in the middle and
+    lifts toward the corners (飞檐翘角).
+    """
+    span = span_hi - span_lo
+    if span <= 0 or max_lift <= 0:
+        return 0
+    t = (along - span_lo) / span
+    d = min(t, 1.0 - t) * 2.0      # 1 at centre, 0 at both ends
+    curve = 1.0 - d * d            # 0 at centre, 1 at both ends
+    return int(round(max_lift * curve))
+
+
+def _place_eave_corners(grid: BlockGrid, style: Style, ridge_axis: str,
+                        bounds: Tuple[int, int, int, int], span_lo: int,
+                        span_hi: int, base: int, max_lift: int,
+                        min_run: int) -> List[Pos]:
+    """Crisp upturned finial plus an outward wing at each eave corner."""
     x0, x1, z0, z1 = bounds
-    slab, slab_slot = roof_slab_state(style, "top")
-    corner_stairs: List[Pos] = []
     p = PRIORITY["ROOF"]
+    placed: List[Pos] = []
+    lift_cap = max(0, min_run - 1)
+    if ridge_axis == "x":
+        perp_edges = [(z0, "south"), (z1, "north")]
+    else:
+        perp_edges = [(x0, "east"), (x1, "west")]
+    slab, slab_slot = roof_slab_state(style, "top")
     for sx in (-1, 1):
-        for sz in (-1, 1):
-            x_edge = x0 if sx < 0 else x1
-            z_edge = z0 if sz < 0 else z1
-            facing = "south" if sz < 0 else "north"
-            if ridge_axis == "z":
-                facing = "east" if sx < 0 else "west"
+        along_edge = span_lo if sx < 0 else span_hi
+        lift = min(_eave_corner_lift(along_edge, span_lo, span_hi, max_lift),
+                   lift_cap)
+        eave_y = base + lift
+        for perp_edge, facing in perp_edges:
             stair, stair_slot = roof_stair_state(style, facing, half="top")
-            candidates = [
-                ((x_edge, base_y + 1, z_edge), stair, stair_slot),
-                ((x_edge + sx, base_y + 1, z_edge), slab, slab_slot),
-                ((x_edge + sx, base_y + 1, z_edge + sz), slab, slab_slot),
-                ((x_edge + sx, base_y + 2, z_edge + sz), slab, slab_slot),
-            ]
-            for pos, state, slot in candidates:
-                if grid.set(pos, state, ["ROOF", "DETAIL"], p, slot):
-                    corner_stairs.append(pos)
-    return corner_stairs
+            cap = ((along_edge, eave_y + 1, perp_edge) if ridge_axis == "x"
+                   else (perp_edge, eave_y + 1, along_edge))
+            if grid.set(cap, stair, ["ROOF", "DETAIL"], p, stair_slot):
+                placed.append(cap)
+            sz = -1 if perp_edge in (z0, x0) else 1
+            wing_perp = perp_edge + sz
+            wing = ((along_edge, eave_y + 1, wing_perp) if ridge_axis == "x"
+                    else (wing_perp, eave_y + 1, along_edge))
+            if grid.set(wing, slab, ["ROOF", "DETAIL"], p, slab_slot):
+                placed.append(wing)
+    return placed
+
+
+def _add_eave_brackets(grid: BlockGrid, style: Style, vol: Node,
+                       ridge_axis: str, wall_top: int) -> List[Pos]:
+    """Dougong / 额枋 bracket course under the eave, slot-resolved (DETAIL_WOOD).
+
+    Skipped entirely when the style has no `_fence` in `DETAIL_WOOD`, so mortal
+    styles are unaffected.
+    """
+    fence = style.optional_slot_entry("DETAIL_WOOD", "_fence")
+    if not fence:
+        return []
+    p = PRIORITY["DETAIL"]
+    placed: List[Pos] = []
+    if ridge_axis == "x":
+        perps = [vol.z0 - 1, vol.z1 + 1]
+        span = range(vol.x0 + 1, vol.x1)
+    else:
+        perps = [vol.x0 - 1, vol.x1 + 1]
+        span = range(vol.z0 + 1, vol.z1)
+    for perp in perps:
+        for i, along in enumerate(span):
+            if i % 2:
+                continue
+            pos = ((along, wall_top, perp) if ridge_axis == "x"
+                   else (perp, wall_top, along))
+            if grid.set(pos, fence, ["DETAIL", "ROOF"], p, "DETAIL_WOOD"):
+                placed.append(pos)
+    return placed
 
 
 def sweeping_eave_roof(grid: BlockGrid, style: Style, rng: random.Random,
                        vol: Node, ridge_axis: str, overhang: int,
                        attached_side: Optional[str] = None) -> dict:
-    """Ridged roof with deep eaves and block-built upturned corners."""
+    """Ridged roof with a curved 举折 cross-section and upturned corner sweep.
+
+    Two axes of curvature, both built from stair geometry alone:
+      * cross-section (perpendicular to the ridge): each eave side rises through
+        a flat eave run (举折) before climbing one block per row toward the ridge;
+      * along the ridge span: the eave line lifts toward the gable ends
+        (`_eave_corner_lift`), so the eave droops in the middle and swoops up at
+        the corners (飞檐翘角). The ridge itself stays level.
+    """
     del rng  # deterministic geometry
     overhang = max(2, int(overhang))
     fh = vol.meta["foundation_h"]
     wall_top = fh + vol.meta["wall_h"] - 1
+    base = wall_top + 1
     p = PRIORITY["ROOF"]
     gable_cells: List[Pos] = []
     roof_cells: List[Pos] = []
@@ -727,6 +824,7 @@ def sweeping_eave_roof(grid: BlockGrid, style: Style, rng: random.Random,
         else style.primary("WALL_MAIN")
     planks = style.slot_entry("ROOF_DARK", "_planks")
     x0, x1, z0, z1 = _roof_bounds(vol, overhang)
+
     if ridge_axis == "x":
         lo_edge, hi_edge = z0, z1
         span_lo, span_hi = x0, x1
@@ -744,55 +842,113 @@ def sweeping_eave_roof(grid: BlockGrid, style: Style, rng: random.Random,
     if attached_side == ("south" if ridge_axis == "x" else "east"):
         hi = hi_edge - overhang
 
-    def put_row(coord: int, y: int, state: str, slot: str,
-                protect: bool = False) -> None:
+    ridge_coord = (lo + hi) // 2
+    run_lo = ridge_coord - lo
+    run_hi = hi - ridge_coord
+    min_run = min(run_lo, run_hi)
+    ridge_y = base + max(0, min_run)
+    max_lift = min(3, max(2, (span_hi - span_lo) // 6))
+    lift_cap = max(0, min_run - 1)
+
+    lo_stair, lo_slot = roof_stair_state(style, lo_face)
+    hi_stair, hi_slot = roof_stair_state(style, hi_face)
+
+    def put_cell(along: int, perp: int, y: int, state: str, slot: str,
+                 protect: bool = False) -> bool:
+        pos = (along, y, perp) if ridge_axis == "x" else (perp, y, along)
         tags = ["ROOF"] + (["PROTECTED"] if protect else [])
-        for a in range(span_lo, span_hi + 1):
-            pos = (a, y, coord) if ridge_axis == "x" else (coord, y, a)
-            if grid.set(pos, state, tags, p, slot):
-                roof_cells.append(pos)
-                if protect:
-                    ridge_cells.append(pos)
+        if grid.set(pos, state, tags, p, slot):
+            roof_cells.append(pos)
+            if protect:
+                ridge_cells.append(pos)
+            return True
+        return False
 
-    y = wall_top + 1
-    base_y = y
-    while lo < hi:
-        lo_state, lo_slot = roof_stair_state(style, lo_face)
-        hi_state, hi_slot = roof_stair_state(style, hi_face)
-        put_row(lo, y, lo_state, lo_slot)
-        put_row(hi, y, hi_state, hi_slot)
-        lo += 1
-        hi -= 1
-        y += 1
-    if lo == hi:
-        put_row(lo, y, planks, "ROOF_DARK", protect=True)
-        ridge_y = y
-    else:
-        ridge_y = y - 1
-        mid = (lo + hi) // 2
-        for a in range(span_lo, span_hi + 1):
-            ridge_cells.append((a, ridge_y, mid) if ridge_axis == "x" else (mid, ridge_y, a))
+    # Curved eave surface, built per span column so the eave can lift at corners.
+    for along in range(span_lo, span_hi + 1):
+        lift = min(_eave_corner_lift(along, span_lo, span_hi, max_lift), lift_cap)
+        eave_y = base + lift
+        rise = max(0, min_run - lift)          # climbing rows on the short side
+        # LO side: perpendicular coord walks from the eave (lo) toward the ridge.
+        flat_lo = run_lo - rise
+        for k in range(run_lo):
+            perp = lo + k
+            y = eave_y + max(0, k - flat_lo)
+            put_cell(along, perp, y, lo_stair, lo_slot)
+        # HI side: perpendicular coord walks from the eave (hi) toward the ridge.
+        flat_hi = run_hi - rise
+        for k in range(run_hi):
+            perp = hi - k
+            y = eave_y + max(0, k - flat_hi)
+            put_cell(along, perp, y, hi_stair, hi_slot)
 
+    # Level ridge cap, shared by both eaves.
+    for along in range(span_lo, span_hi + 1):
+        put_cell(along, ridge_coord, ridge_y, planks, "ROOF_DARK", protect=True)
+
+    # Gable-end triangle infill on the short walls, driven per-column up to
+    # the roof skin directly above each column (the same column-scan fix as
+    # gable_roof) so the edge gaps where a rising slope arrives late and the
+    # apex gap are both sealed.
+    gable_wall_spans = {}
     if ridge_axis == "x":
-        lo2, hi2 = vol.z0, vol.z1
-    else:
-        lo2, hi2 = vol.x0, vol.x1
-    yy = wall_top + 1
-    while lo2 <= hi2:
         for wallname in gable_walls:
-            _axisname, fixed, _, _ = wall_info(vol, wallname)
-            for c in range(lo2, hi2 + 1):
-                pos = (fixed, yy, c) if ridge_axis == "x" else (c, yy, fixed)
+            _ax, _fx, (a0, a1), _ = wall_info(vol, wallname)
+            gable_wall_spans[wallname] = (a0, a1)
+    else:
+        for wallname in gable_walls:
+            _ax, _fx, (a0, a1), _ = wall_info(vol, wallname)
+            gable_wall_spans[wallname] = (a0, a1)
+    for wallname, (a0, a1) in gable_wall_spans.items():
+        _ax, fixed, _, _ = wall_info(vol, wallname)
+        for c in range(a0, a1 + 1):
+            roof_y = None
+            for y in range(wall_top + 1, ridge_y + 6):
+                pos = (fixed, y, c) if ridge_axis == "x" else (c, y, fixed)
+                rc = grid.get(pos)
+                if rc and "ROOF" in rc.tags and "FACADE" not in rc.tags:
+                    roof_y = y
+                    break
+            if roof_y is None:
+                continue
+            for y in range(wall_top + 1, roof_y):
+                pos = (fixed, y, c) if ridge_axis == "x" else (c, y, fixed)
                 if grid.is_empty(pos):
                     if grid.set(pos, gable_state, ["FACADE", "ROOF"], p, "WALL_MAIN"):
                         gable_cells.append(pos)
-        lo2 += 1
-        hi2 -= 1
-        yy += 1
-        if yy > ridge_y:
-            break
 
-    corners = _add_upturned_corners(grid, style, ridge_axis, (x0, x1, z0, z1), base_y)
+    # Seal the eave (side) walls where the upturned corner sweep leaves a
+    # vertical gap between the wall top and the lifted eave. Each side-wall
+    # column is filled from wall_top+1 up to the first roof-skin cell above
+    # (the lower-eave line), so the single-tier side wall is fully enclosed
+    # under the curved eave. Tiered roofs may still show a gap between the
+    # lower and upper eaves on the side walls; that requires the tiered-roof
+    # handler to close the upper gap explicitly.
+    eave_walls = tuple(w for w in ("front", "back", "west", "east")
+                       if w not in gable_walls)
+    for wallname in eave_walls:
+        _axisname, fixed, (a0, a1), _ = wall_info(vol, wallname)
+        axis_is_x = (wallname in ("front", "back"))
+        for along in range(a0, a1 + 1):
+            roof_y = None
+            for y in range(wall_top + 1, ridge_y + 8):
+                pos = (along, y, fixed) if axis_is_x else (fixed, y, along)
+                rc = grid.get(pos)
+                if rc and "ROOF" in rc.tags and "FACADE" not in rc.tags:
+                    roof_y = y
+                    break
+            if roof_y is None:
+                continue
+            for y in range(wall_top + 1, roof_y):
+                pos = (along, y, fixed) if axis_is_x else (fixed, y, along)
+                if grid.is_empty(pos):
+                    if grid.set(pos, gable_state, ["FACADE", "STRUCTURE"], p,
+                                "WALL_MAIN"):
+                        gable_cells.append(pos)
+
+    corners = _place_eave_corners(grid, style, ridge_axis, (x0, x1, z0, z1),
+                                  span_lo, span_hi, base, max_lift, min_run)
+    brackets = _add_eave_brackets(grid, style, vol, ridge_axis, wall_top)
     ornaments = _place_ridge_ornaments(grid, style, ridge_cells)
     return {
         "gable_cells": gable_cells,
@@ -800,6 +956,7 @@ def sweeping_eave_roof(grid: BlockGrid, style: Style, rng: random.Random,
         "peak_y": ridge_y,
         "upturned_corners": corners,
         "ridge_ornaments": ornaments,
+        "eave_brackets": brackets,
         "overhang": overhang,
     }
 
@@ -1022,9 +1179,79 @@ def _tiered_eave_roof_handler(grid: BlockGrid, style: Style, rng: random.Random,
         },
     )
     upper_info = sweeping_eave_roof(grid, style, rng, upper, ridge_axis, 1)
+
+    # Enclose the eave (side) walls between the lower roof and the upper tier.
+    # This vertical plane is the upper story's wall, so it is built from
+    # WALL_MAIN to read as a continuation of the building's stone wall rather
+    # than a flat slab of dark roof material (which otherwise looked like a
+    # redundant coloured "wall" on the eave faces). Only the short fascia band
+    # tucked directly under the projecting upper eave (below) stays ROOF_DARK.
+    eave_walls = ("front", "back") if ridge_axis == "x" else ("west", "east")
+    wall_state = style.primary("WALL_MAIN")
+    soffit_state = style.slot_entry("ROOF_DARK", "_slab", style.primary("WALL_MAIN"))
+    p_soffit = PRIORITY["ROOF"]
+    main_fh = vol.meta["foundation_h"]
+    main_wall_top = main_fh + vol.meta["wall_h"] - 1
+    soffit_top = upper_wall_top + 1
+    soffit_cells: List[Pos] = []
+    for wallname in eave_walls:
+        _ax, fixed, (a0, a1), _ = wall_info(vol, wallname)
+        axis_is_x = (wallname in ("front", "back"))
+        for along in range(a0, a1 + 1):
+            lower_eave_y = None
+            for y in range(main_wall_top + 1, soffit_top + 1):
+                pos = (along, y, fixed) if axis_is_x else (fixed, y, along)
+                rc = grid.get(pos)
+                if rc and "ROOF" in rc.tags and "FACADE" not in rc.tags:
+                    lower_eave_y = y
+                    break
+            if lower_eave_y is None:
+                continue
+            for y in range(lower_eave_y, soffit_top):
+                pos = (along, y, fixed) if axis_is_x else (fixed, y, along)
+                if grid.is_empty(pos):
+                    if grid.set(pos, wall_state, ["ROOF"], p_soffit,
+                                "WALL_MAIN", force=True):
+                        soffit_cells.append(pos)
+
+    # Also seal the upper eave overhang gap on the eave walls: the space
+    # between the upper eave line and where the upper roof's slope begins
+    # to project onto the eave wall. Fill a short run above the upper eave
+    # so the visible side-wall air just above the upper eave is closed,
+    # but stop well short of the upper peak so the eave does not appear to
+    # fly up to the roof.
+    overhang_top = upper_wall_top + 3
+    overhang_cells: List[Pos] = []
+    for wallname in eave_walls:
+        _ax, fixed, (a0, a1), _ = wall_info(vol, wallname)
+        axis_is_x = (wallname in ("front", "back"))
+        for along in range(a0, a1 + 1):
+            for y in range(soffit_top, overhang_top):
+                pos = (along, y, fixed) if axis_is_x else (fixed, y, along)
+                if grid.is_empty(pos):
+                    if grid.set(pos, soffit_state, ["ROOF"], p_soffit,
+                                "ROOF_DARK", force=True):
+                        overhang_cells.append(pos)
+
+    # Floor for the upper tier (walkable terrace on top of the lower roof),
+    # spanning the upper tier's inset footprint at the lower roof's ridge
+    # level, so the upper tier has a solid terrace surface.
+    upper_floor_cells: List[Pos] = []
+    p_floor = PRIORITY["STRUCTURE"]
+    inset = 2
+    floor_y = upper_wall_top
+    for x in range(vol.x0 + inset, vol.x1 - inset + 1):
+        for z in range(vol.z0 + inset, vol.z1 - inset + 1):
+            grid.set((x, floor_y, z), style.primary("WALL_MAIN"),
+                     ["STRUCTURE", "INTERIOR"], p_floor, "WALL_MAIN",
+                     force=True)
+            upper_floor_cells.append((x, floor_y, z))
+
     return _with_roofed_ids({
-        "gable_cells": lower["gable_cells"] + upper_info["gable_cells"],
-        "roof_cells": lower["roof_cells"] + upper_info["roof_cells"],
+        "gable_cells": lower["gable_cells"] + upper_info["gable_cells"]
+                       + soffit_cells + upper_floor_cells,
+        "roof_cells": lower["roof_cells"] + upper_info["roof_cells"]
+                      + soffit_cells,
         "peak_y": max(lower["peak_y"], upper_info["peak_y"]),
         "roof_type": "tiered_eave_roof",
         "tier_count": 2,
@@ -1565,9 +1792,18 @@ def interior_zone(grid: BlockGrid, style: Style, rng: random.Random, vol: Node,
     fy = zone.y0
     p = PRIORITY["INTERIOR"]
     placed = 0
+    # Owning volume bounds: furniture may mount only on a wall cell that
+    # belongs to this same volume, never on a neighbour volume's exterior wall
+    # (e.g. a blacksmith shed butted against the main building).
+    vol_fh = vol.meta["foundation_h"]
+    vol_wt = vol_fh + vol.meta["wall_h"] - 1
 
     def in_zone(pos: Pos) -> bool:
         return zone.x0 <= pos[0] <= zone.x1 and zone.z0 <= pos[2] <= zone.z1
+
+    def owns_wall(pos: Pos) -> bool:
+        return (vol.x0 <= pos[0] <= vol.x1 and vol.z0 <= pos[2] <= vol.z1
+                and vol_fh <= pos[1] <= vol_wt)
 
     def near_door(pos: Pos) -> bool:
         return any(abs(pos[0] - d[0]) + abs(pos[2] - d[2]) <= 1 and abs(pos[1] - d[1]) <= 1
@@ -1584,7 +1820,8 @@ def interior_zone(grid: BlockGrid, style: Style, rng: random.Random, vol: Node,
                 for wname, (ox, oz) in WALL_OUTWARD.items():
                     npos = (x + ox, base_y, z + oz)
                     ncell = grid.get(npos)
-                    if ncell and not ncell.is_air and "STRUCTURE" in ncell.tags:
+                    if (ncell and not ncell.is_air and "STRUCTURE" in ncell.tags
+                            and owns_wall(npos)):
                         out.append((pos, INWARD_FACING[wname], wname))
                         break
         rng.shuffle(out)

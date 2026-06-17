@@ -6,9 +6,11 @@ design; hard failures gate export.
 
 from __future__ import annotations
 
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 from .grid import AIR
+from .massing import WALL_OUTWARD
+from .ops import wall_info
 from .passes import BuildContext
 
 FUNCTION_BLOCKS = (
@@ -31,6 +33,17 @@ CULTIVATION_MOTIFS = {
     "sect_gate_paifang",
 }
 CULTIVATION_FAMILIES = {"cultivation_town", "cultivation_sect"}
+# Roofs that produce a triangular gable end wall which must be enclosed up to
+# the ridge. Hip/sweeping/pyramidal/tiered/lean-to roofs have their own eave
+# semantics (handled by the roof form + roof_cleanup_pass) and are intentionally
+# excluded from the plane-enclosure check.
+GABLE_FAMILY_ROOFS = {
+    "gable_roof",
+    "cross_gable_roof",
+    "硬山",
+    "悬山",
+    "歇山",
+}
 WESTERN_DOMESTIC_MOTIFS = {
     "small_porch",
     "side_chimney",
@@ -89,6 +102,7 @@ def quality_check(ctx: BuildContext, structure_id: str) -> dict:
                     pos = (i, y, o) if axis == "x" else (o, y, i)
                     cell = grid.get(pos)
                     countable = (cell is not None and "FACADE" in cell.tags and
+                                 "ROOF" not in cell.tags and
                                  "[" not in cell.state and not cell.is_air)
                     if countable and cell.state == run_state:
                         run_len += 1
@@ -246,6 +260,106 @@ def quality_check(ctx: BuildContext, structure_id: str) -> dict:
     complex_be = sorted({c.state for _, c in states if "spawner" in c.state})
     if complex_be:
         errors.append(f"complex_block_entity: {complex_be}")
+
+    # 14. side-wall plane enclosure: every closed-volume wall cell from the
+    # foundation top up to the roofline directly above it SHALL be non-air
+    # unless it is a planned OPENING. Catches apex gaps, eave/connection
+    # holes, and any other unplanned gap in the wall skin. The roofline is the
+    # first *roof-skin* cell (ROOF without FACADE) directly above, so gable
+    # infill (FACADE+ROOF, part of the wall enclosure) is scanned through and
+    # an apex gap above it is still caught, while a neighbour volume's higher
+    # roof does not extend this wall's required enclosure.
+    peak_max = max((info.get("peak_y", 0) for info in ctx.roof_info), default=0)
+    vols = graph.volumes()
+    open_side_holes = 0
+    sample_side_hole: Optional[Tuple[int, int, int]] = None
+    for vol in vols:
+        if vol.meta.get("open"):
+            continue
+        # Only gable-family roofs carry a gable end wall whose enclosure this
+        # check guards; other roof forms have their own eave/hip handling.
+        if vol.meta.get("roof", {}).get("type") not in GABLE_FAMILY_ROOFS:
+            continue
+        fh = vol.meta["foundation_h"]
+        wall_top = fh + vol.meta["wall_h"] - 1
+        scan_cap = max(peak_max, wall_top) + 2
+        for wall in ("front", "back", "west", "east"):
+            axis, fixed, (a0, a1), _ = wall_info(vol, wall)
+            for along in range(a0, a1 + 1):
+                # roofline = first roof-skin cell above the wall body
+                roof_y = None
+                topmost_roof = None
+                for y in range(fh, scan_cap + 1):
+                    pos = (along, y, fixed) if axis == "x" else (fixed, y, along)
+                    rcell = grid.get(pos)
+                    if rcell and "ROOF" in rcell.tags:
+                        topmost_roof = y
+                        if "FACADE" not in rcell.tags:
+                            roof_y = y
+                            break
+                if roof_y is None:
+                    roof_y = topmost_roof  # fallback: no roof skin, use any roof
+                if roof_y is None:
+                    continue
+                for y in range(fh, roof_y):
+                    pos = (along, y, fixed) if axis == "x" else (fixed, y, along)
+                    hcell = grid.get(pos)
+                    if hcell is None or hcell.is_air:
+                        if hcell is not None and "OPENING" in hcell.tags:
+                            continue
+                        open_side_holes += 1
+                        if sample_side_hole is None:
+                            sample_side_hole = pos
+    if open_side_holes:
+        errors.append(f"open_side_wall: {open_side_holes} unplanned holes "
+                      f"(e.g. {sample_side_hole})")
+
+    # 15. stray exterior block: no INTERIOR/PROTECTED non-OPENING block SHALL
+    # sit cardinally adjacent to a *different* volume's exterior wall. Catches
+    # interior furniture (anvil/barrel/furnace) mounted against a neighbour's
+    # wall skin, e.g. the blacksmith smithy leak.
+    wall_cell_owner: Dict[Tuple[int, int, int], str] = {}
+    for vol in vols:
+        if vol.meta.get("open"):
+            continue
+        fh = vol.meta["foundation_h"]
+        wall_top = fh + vol.meta["wall_h"] - 1
+        for wall in ("front", "back", "west", "east"):
+            axis, fixed, (a0, a1), _ = wall_info(vol, wall)
+            for along in range(a0, a1 + 1):
+                for y in range(fh, wall_top + 1):
+                    pos = (along, y, fixed) if axis == "x" else (fixed, y, along)
+                    wall_cell_owner.setdefault(pos, vol.id)
+    furniture_on_wall: List[Tuple[int, int, int]] = []
+    for pos, cell in states:
+        if cell.is_air or "INTERIOR" not in cell.tags or "OPENING" in cell.tags:
+            continue
+        if "STRUCTURE" in cell.tags:
+            continue  # interior floors/slabs belong to their own volume
+        px, py, pz = pos
+        against_neighbour = False
+        for ox, oz in WALL_OUTWARD.values():
+            npos = (px + ox, py, pz + oz)
+            owner_id = wall_cell_owner.get(npos)
+            if owner_id is None:
+                continue
+            # is `pos` enclosed by a different volume than the wall owner?
+            for vol in vols:
+                if vol.id == owner_id:
+                    continue
+                vfh = vol.meta["foundation_h"]
+                vwt = vfh + vol.meta["wall_h"] - 1
+                if (vol.x0 <= px <= vol.x1 and vol.z0 <= pz <= vol.z1
+                        and vfh <= py <= vwt):
+                    against_neighbour = True
+                    break
+            if against_neighbour:
+                break
+        if against_neighbour:
+            furniture_on_wall.append(pos)
+    if furniture_on_wall:
+        errors.append(f"furniture_on_wall: {len(furniture_on_wall)} blocks "
+                      f"against a neighbour wall (e.g. {furniture_on_wall[0]})")
 
     # ---- scores -------------------------------------------------------
     n_volumes = len(graph.volumes())

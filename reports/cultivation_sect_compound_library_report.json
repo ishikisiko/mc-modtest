@@ -80,9 +80,9 @@
           43,
           94
         ],
-        "block_count": 39058,
+        "block_count": 39868,
         "entity_count": 0,
-        "palette_count": 82,
+        "palette_count": 84,
         "path": "src/main/resources/data/myvillage/structure/cultivation_sect_001.nbt",
         "settlement_metadata": "src/main/resources/data/myvillage/settlement_meta/cultivation_sect_001.json"
       },
@@ -31702,9 +31702,9 @@
               "scores": {
                 "style_score": 100,
                 "facade_score": 100,
-                "roof_score": 90,
+                "roof_score": 85,
                 "interior_score": 88,
-                "material_balance_score": 80,
+                "material_balance_score": 79,
                 "silhouette_score": 55
               },
               "stats": {
@@ -31716,7 +31716,7 @@
                   "cloud_rail"
                 ],
                 "worst_flat_run": 4,
-                "stone_fraction": 0.086
+                "stone_fraction": 0.071
               }
             }
           },
@@ -32697,7 +32697,7 @@
               "scores": {
                 "style_score": 100,
                 "facade_score": 100,
-                "roof_score": 90,
+                "roof_score": 85,
                 "interior_score": 100,
                 "material_balance_score": 77,
                 "silhouette_score": 55
@@ -32711,7 +32711,7 @@
                   "cloud_rail"
                 ],
                 "worst_flat_run": 4,
-                "stone_fraction": 0.059
+                "stone_fraction": 0.056
               }
             }
           },
@@ -34287,11 +34287,11 @@
                 "stairwells": {
                   "main": {
                     "volume": "main",
-                    "x0": 1,
-                    "x1": 2,
-                    "z0": 7,
-                    "z1": 10,
-                    "landing_z": 11,
+                    "x0": 3,
+                    "x1": 4,
+                    "z0": 5,
+                    "z1": 8,
+                    "landing_z": 9,
                     "direction": "south",
                     "stories": 3,
                     "story_wall_h": 4
@@ -34299,11 +34299,11 @@
                 },
                 "stairwell": {
                   "volume": "main",
-                  "x0": 1,
-                  "x1": 2,
-                  "z0": 7,
-                  "z1": 10,
-                  "landing_z": 11,
+                  "x0": 3,
+                  "x1": 4,
+                  "z0": 5,
+                  "z1": 8,
+                  "landing_z": 9,
                   "direction": "south",
                   "stories": 3,
                   "story_wall_h": 4
@@ -34385,11 +34385,11 @@
                     "entry_signage": true,
                     "stairwell": {
                       "volume": "main",
-                      "x0": 1,
-                      "x1": 2,
-                      "z0": 7,
-                      "z1": 10,
-                      "landing_z": 11,
+                      "x0": 3,
+                      "x1": 4,
+                      "z0": 5,
+                      "z1": 8,
+                      "landing_z": 9,
                       "direction": "south",
                       "stories": 3,
                       "story_wall_h": 4
@@ -34588,20 +34588,20 @@
                 "style_score": 100,
                 "facade_score": 100,
                 "roof_score": 90,
-                "interior_score": 88,
+                "interior_score": 76,
                 "material_balance_score": 78,
                 "silhouette_score": 55
               },
               "stats": {
                 "volumes": 1,
-                "window_cells": 6,
-                "function_blocks": 4,
+                "window_cells": 10,
+                "function_blocks": 3,
                 "decorations": [
                   "small_path_patch",
                   "cloud_rail"
                 ],
                 "worst_flat_run": 4,
-                "stone_fraction": 0.065
+                "stone_fraction": 0.064
               }
             }
           },
@@ -36076,7 +36076,7 @@
                   "incense_altar"
                 ],
                 "worst_flat_run": 4,
-                "stone_fraction": 0.034
+                "stone_fraction": 0.031
               }
             }
           }
@@ -36287,9 +36287,9 @@
           43,
           94
         ],
-        "block_count": 40523,
+        "block_count": 41369,
         "entity_count": 0,
-        "palette_count": 85,
+        "palette_count": 82,
         "path": "src/main/resources/data/myvillage/structure/cultivation_sect_002.nbt",
         "settlement_metadata": "src/main/resources/data/myvillage/settlement_meta/cultivation_sect_002.json"
       },
@@ -67741,21 +67741,21 @@
               "scores": {
                 "style_score": 100,
                 "facade_score": 100,
-                "roof_score": 90,
-                "interior_score": 88,
-                "material_balance_score": 81,
+                "roof_score": 85,
+                "interior_score": 76,
+                "material_balance_score": 79,
                 "silhouette_score": 55
               },
               "stats": {
                 "volumes": 1,
                 "window_cells": 16,
-                "function_blocks": 4,
+                "function_blocks": 3,
                 "decorations": [
                   "small_path_patch",
                   "cloud_rail"
                 ],
                 "worst_flat_run": 4,
-                "stone_fraction": 0.088
+                "stone_fraction": 0.071
               }
             }
           },
@@ -68824,7 +68824,7 @@
               "scores": {
                 "style_score": 100,
                 "facade_score": 100,
-                "roof_score": 90,
+                "roof_score": 85,
                 "interior_score": 100,
                 "material_balance_score": 77,
                 "silhouette_score": 55
@@ -68832,13 +68832,13 @@
               "stats": {
                 "volumes": 1,
                 "window_cells": 40,
-                "function_blocks": 8,
+                "function_blocks": 7,
                 "decorations": [
                   "small_path_patch",
                   "cloud_rail"
                 ],
                 "worst_flat_run": 4,
-                "stone_fraction": 0.062
+                "stone_fraction": 0.058
               }
             }
           },
@@ -70726,11 +70726,11 @@
                 "stairwells": {
                   "main": {
                     "volume": "main",
-                    "x0": 1,
-                    "x1": 2,
-                    "z0": 9,
-                    "z1": 12,
-                    "landing_z": 13,
+                    "x0": 3,
+                    "x1": 4,
+                    "z0": 7,
+                    "z1": 10,
+                    "landing_z": 11,
                     "direction": "south",
                     "stories": 3,
                     "story_wall_h": 4
@@ -70738,11 +70738,11 @@
                 },
                 "stairwell": {
                   "volume": "main",
-                  "x0": 1,
-                  "x1": 2,
-                  "z0": 9,
-                  "z1": 12,
-                  "landing_z": 13,
+                  "x0": 3,
+                  "x1": 4,
+                  "z0": 7,
+                  "z1": 10,
+                  "landing_z": 11,
                   "direction": "south",
                   "stories": 3,
                   "story_wall_h": 4
@@ -70824,11 +70824,11 @@
                     "entry_signage": true,
                     "stairwell": {
                       "volume": "main",
-                      "x0": 1,
-                      "x1": 2,
-                      "z0": 9,
-                      "z1": 12,
-                      "landing_z": 13,
+                      "x0": 3,
+                      "x1": 4,
+                      "z0": 7,
+                      "z1": 10,
+                      "landing_z": 11,
                       "direction": "south",
                       "stories": 3,
                       "story_wall_h": 4
@@ -72515,7 +72515,7 @@
                   "incense_altar"
                 ],
                 "worst_flat_run": 4,
-                "stone_fraction": 0.034
+                "stone_fraction": 0.031
               }
             }
           }

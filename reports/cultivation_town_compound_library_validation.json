@@ -11,35 +11,35 @@
       "passed": true,
       "errors": [],
       "size": [
-        71,
+        69,
         16,
         38
       ],
-      "block_count": 9495,
-      "palette_count": 59
+      "block_count": 9616,
+      "palette_count": 60
     },
     {
       "name": "cultivation_town_002",
       "passed": true,
       "errors": [],
       "size": [
-        71,
+        69,
         15,
         36
       ],
-      "block_count": 8570,
-      "palette_count": 63
+      "block_count": 8674,
+      "palette_count": 64
     },
     {
       "name": "cultivation_town_003",
       "passed": true,
       "errors": [],
       "size": [
-        105,
+        103,
         16,
         36
       ],
-      "block_count": 13621,
+      "block_count": 13805,
       "palette_count": 67
     },
     {
@@ -47,23 +47,23 @@
       "passed": true,
       "errors": [],
       "size": [
-        71,
+        69,
         16,
         69
       ],
-      "block_count": 18131,
-      "palette_count": 63
+      "block_count": 18377,
+      "palette_count": 65
     },
     {
       "name": "cultivation_town_005",
       "passed": true,
       "errors": [],
       "size": [
-        105,
+        103,
         16,
         38
       ],
-      "block_count": 13388,
+      "block_count": 13562,
       "palette_count": 64
     },
     {
@@ -71,12 +71,12 @@
       "passed": true,
       "errors": [],
       "size": [
-        71,
+        69,
         16,
         38
       ],
-      "block_count": 9414,
-      "palette_count": 63
+      "block_count": 9557,
+      "palette_count": 64
     }
   ]
 }

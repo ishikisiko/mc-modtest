@@ -47,6 +47,7 @@ if SCRIPT_DIR not in sys.path:
 
 from buildgen.nbtread import read_gzipped_nbt, state_string  # noqa: E402
 from buildgen.gen_plaque_assets import read_png_rgba  # noqa: E402
+from buildgen.groups import GROUPS  # noqa: E402
 from json_to_nbt import expand_structure  # noqa: E402
 
 BLOCK_COLORS_PATH = os.path.join(SCRIPT_DIR, "block_colors.json")
@@ -1264,20 +1265,109 @@ def render_interactive_html(size: List[int], voxels: Voxels, entities: Entities,
     return path
 
 
+_CULTIVATION_GROUP_IDS = {"cultivation_town", "cultivation_sect"}
+_REVIEW_SUFFIX = "_review"
+
+
+def _preview_family_prefixes() -> Dict[str, List[str]]:
+    """Derive family -> sorted prefix list (longest first) from buildgen.groups.
+
+    Each settlement group contributes its group id (for compound-named files
+    like chinese_courtyard_NNN / cultivation_town_NNN) plus every archetype in
+    its roster. Cultivation groups feed the cultivation family; all others feed
+    the original family. Longer prefixes are tried first so sect_main_hall is
+    matched before any shorter overlapping prefix.
+    """
+    families: Dict[str, List[str]] = {"original": [], "cultivation": []}
+    for group_id, group in GROUPS.items():
+        family = "cultivation" if group_id in _CULTIVATION_GROUP_IDS else "original"
+        bucket = families[family]
+        for name in (group_id, *group.archetype_roster):
+            if name not in bucket:
+                bucket.append(name)
+    for family in families:
+        families[family].sort(key=len, reverse=True)
+    return families
+
+
+_PREVIEW_FAMILY_PREFIXES: Dict[str, List[str]] = _preview_family_prefixes()
+
+
+def classify_preview_stem(stem: str) -> Tuple[str, str]:
+    """Classify a preview stem into (family, archetype).
+
+    family is one of "original", "cultivation", "other". archetype is the
+    matched prefix used as the name-based sub-category. A trailing ``_review``
+    or ``_<digits>`` suffix is tolerated: ``_review`` is stripped first, then
+    the stem must equal a known prefix or start with ``<prefix>_``. Stems that
+    start with ``test_`` or ``town_plan_`` fall back to the "other" family.
+    """
+    candidate = stem
+    if candidate.endswith(_REVIEW_SUFFIX):
+        candidate = candidate[: -len(_REVIEW_SUFFIX)]
+    if candidate.startswith("test_") or candidate.startswith("town_plan_"):
+        return "other", stem
+    for family in ("cultivation", "original"):
+        for prefix in _PREVIEW_FAMILY_PREFIXES[family]:
+            if candidate == prefix or candidate.startswith(prefix + "_"):
+                return family, prefix
+    return "other", stem
+
+
 def render_preview_index(out_root: str, results: Sequence[RenderResult]) -> str:
     viewers = [result for result in results if result.viewer_path]
     if len(viewers) <= 1:
         return ""
 
     first_href = os.path.relpath(viewers[0].viewer_path, out_root).replace(os.sep, "/")
-    rows: List[str] = []
+
+    # Group viewers into family -> archetype -> [results]. Families follow the
+    # two settlement-group superfamilies (original vs cultivation) sourced from
+    # tools/buildgen/groups.py; the archetype is the matched prefix (group id or
+    # archetype roster entry) and is used as the name-based sub-category.
+    family_order = ("original", "cultivation", "other")
+    family_labels = {
+        "original": "原始 / Original",
+        "cultivation": "修仙 / Cultivation",
+        "other": "其他 / Other",
+    }
+    tree: Dict[str, Dict[str, List[RenderResult]]] = {f: {} for f in family_order}
     for result in viewers:
-        href = os.path.relpath(result.viewer_path, out_root).replace(os.sep, "/")
-        label = html.escape(result.stem)
-        source = html.escape(os.path.relpath(result.source, REPO_ROOT))
-        rows.append(
-            f'<button class="item" type="button" data-src="{html.escape(href, quote=True)}">'
-            f'<span class="name">{label}</span><span class="source">{source}</span></button>'
+        family, archetype = classify_preview_stem(result.stem)
+        tree[family].setdefault(archetype, []).append(result)
+
+    family_blocks: List[str] = []
+    total_count = 0
+    for family in family_order:
+        groups = tree[family]
+        if not groups:
+            continue
+        family_count = sum(len(items) for items in groups.values())
+        total_count += family_count
+        group_blocks: List[str] = []
+        for archetype in sorted(groups):
+            items = groups[archetype]
+            item_buttons: List[str] = []
+            for result in items:
+                href = os.path.relpath(result.viewer_path, out_root).replace(os.sep, "/")
+                label = html.escape(result.stem)
+                source = html.escape(os.path.relpath(result.source, REPO_ROOT))
+                item_buttons.append(
+                    f'<button class="item" type="button" data-src="{html.escape(href, quote=True)}" '
+                    f'data-name="{label.lower()}">'
+                    f'<span class="name">{label}</span><span class="source">{source}</span></button>'
+                )
+            group_blocks.append(
+                f'<details class="group" data-archetype="{html.escape(archetype, quote=True)}" open>'
+                f'<summary><span class="toggle"></span><span class="group-name">{html.escape(archetype)}</span>'
+                f'<span class="badge">{len(items)}</span></summary>'
+                f'<div class="items">{"".join(item_buttons)}</div></details>'
+            )
+        family_blocks.append(
+            f'<details class="family" data-family="{family}" open>'
+            f'<summary><span class="toggle"></span><span class="family-name">{html.escape(family_labels[family])}</span>'
+            f'<span class="badge">{family_count}</span></summary>'
+            f'<div class="groups">{"".join(group_blocks)}</div></details>'
         )
 
     html_text = f"""<!doctype html>
@@ -1292,13 +1382,15 @@ def render_preview_index(out_root: str, results: Sequence[RenderResult]) -> str:
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background: #121417;
       color: #eef2f3;
+      --accent: #7aa2c7;
+      --accent-strong: #9fc0dd;
     }}
     * {{ box-sizing: border-box; }}
     body {{
       margin: 0;
       min-height: 100vh;
       display: grid;
-      grid-template-columns: minmax(260px, 340px) 1fr;
+      grid-template-columns: minmax(280px, 360px) 1fr;
       background: #121417;
     }}
     aside {{
@@ -1306,28 +1398,145 @@ def render_preview_index(out_root: str, results: Sequence[RenderResult]) -> str:
       background: #181c20;
       overflow: auto;
       padding: 16px;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
     }}
     h1 {{
-      margin: 0 0 12px;
+      margin: 0 0 6px;
       font-size: 18px;
       font-weight: 650;
       letter-spacing: 0;
     }}
     .count {{
-      margin: 0 0 16px;
+      margin: 0 0 12px;
       color: #aab4bd;
       font-size: 13px;
     }}
-    .list {{
+    .filter {{
+      width: 100%;
+      margin: 0 0 12px;
+      padding: 7px 9px;
+      border: 1px solid #39424b;
+      border-radius: 6px;
+      background: #20262c;
+      color: inherit;
+      font: inherit;
+    }}
+    .filter:focus {{
+      outline: none;
+      border-color: var(--accent);
+    }}
+    .tree {{
       display: grid;
+      gap: 10px;
+      align-content: start;
+    }}
+    details {{
+      min-width: 0;
+    }}
+    details > summary {{
+      list-style: none;
+      cursor: pointer;
+      user-select: none;
+    }}
+    details > summary::-webkit-details-marker {{
+      display: none;
+    }}
+    summary {{
+      display: flex;
+      align-items: center;
       gap: 8px;
+      padding: 7px 9px;
+      border: 1px solid #39424b;
+      border-radius: 6px;
+      background: #20262c;
+    }}
+    summary:hover {{
+      border-color: #4d5a66;
+    }}
+    .toggle {{
+      position: relative;
+      width: 10px;
+      height: 10px;
+      flex: 0 0 auto;
+      color: #9da8b1;
+    }}
+    .toggle::before {{
+      content: "";
+      position: absolute;
+      left: 1px;
+      top: 4px;
+      width: 6px;
+      height: 2px;
+      background: currentColor;
+    }}
+    .toggle::after {{
+      content: "";
+      position: absolute;
+      left: 4px;
+      top: 1px;
+      width: 2px;
+      height: 6px;
+      background: currentColor;
+      transition: transform 0.12s ease;
+    }}
+    details[open] > summary .toggle::after {{
+      transform: rotate(90deg);
+      transform-origin: 1px 1px;
+    }}
+    .family > summary {{
+      background: #1d242b;
+      border-color: #3b4651;
+    }}
+    .family-name {{
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+    }}
+    .group-name {{
+      font-size: 13px;
+      font-weight: 600;
+      color: #cdd6dd;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      overflow-wrap: anywhere;
+    }}
+    .badge {{
+      margin-left: auto;
+      min-width: 24px;
+      padding: 1px 7px;
+      border-radius: 999px;
+      background: #2c3742;
+      color: #c6d0d8;
+      font-size: 11px;
+      font-weight: 600;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+    }}
+    .family .badge {{
+      background: #34465a;
+      color: #e6eef5;
+    }}
+    .groups {{
+      display: grid;
+      gap: 7px;
+      padding: 8px 0 0 10px;
+      border-left: 1px dashed #333c45;
+      margin: 6px 0 0 4px;
+    }}
+    .items {{
+      display: grid;
+      gap: 6px;
+      padding: 7px 0 2px 12px;
+      border-left: 1px dashed #2a323b;
+      margin: 6px 0 2px 6px;
     }}
     .item {{
       width: 100%;
-      min-height: 58px;
+      min-height: 50px;
       border: 1px solid #39424b;
       border-radius: 6px;
-      padding: 9px 10px;
+      padding: 7px 10px;
       background: #20262c;
       color: inherit;
       text-align: left;
@@ -1335,21 +1544,27 @@ def render_preview_index(out_root: str, results: Sequence[RenderResult]) -> str:
     }}
     .item:hover,
     .item.active {{
-      border-color: #7aa2c7;
+      border-color: var(--accent);
       background: #26313b;
+    }}
+    .item.active {{
+      box-shadow: inset 2px 0 0 var(--accent-strong);
     }}
     .name {{
       display: block;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 650;
       overflow-wrap: anywhere;
     }}
     .source {{
       display: block;
-      margin-top: 4px;
+      margin-top: 3px;
       color: #9da8b1;
-      font-size: 12px;
+      font-size: 11px;
       overflow-wrap: anywhere;
+    }}
+    .hidden {{
+      display: none !important;
     }}
     main {{
       min-width: 0;
@@ -1368,12 +1583,12 @@ def render_preview_index(out_root: str, results: Sequence[RenderResult]) -> str:
         grid-template-rows: auto 1fr;
       }}
       aside {{
-        max-height: 42vh;
+        max-height: 46vh;
         border-right: 0;
         border-bottom: 1px solid #303840;
       }}
       iframe {{
-        height: 58vh;
+        height: 54vh;
       }}
     }}
   </style>
@@ -1381,9 +1596,10 @@ def render_preview_index(out_root: str, results: Sequence[RenderResult]) -> str:
 <body>
   <aside>
     <h1>Preview Index</h1>
-    <p class="count">{len(viewers)} interactive structure previews</p>
-    <div class="list">
-      {"".join(rows)}
+    <p class="count">{total_count} interactive structure previews across {sum(1 for f in family_order if tree[f])} categories</p>
+    <input id="filter" class="filter" type="search" placeholder="Filter by name (e.g. blacksmith, cultivation_house)..." autocomplete="off">
+    <div class="tree">
+      {"".join(family_blocks)}
     </div>
   </aside>
   <main>
@@ -1391,13 +1607,50 @@ def render_preview_index(out_root: str, results: Sequence[RenderResult]) -> str:
   </main>
   <script>
     const frame = document.getElementById("viewer");
+    const filter = document.getElementById("filter");
     const items = Array.from(document.querySelectorAll(".item"));
+    const families = Array.from(document.querySelectorAll(".family"));
+    const groups = Array.from(document.querySelectorAll(".group"));
+
     function select(item) {{
       items.forEach((candidate) => candidate.classList.toggle("active", candidate === item));
       frame.src = item.dataset.src;
+      if (!item.isConnected) return;
+      // expand ancestors so the active item stays visible
+      let node = item.parentElement;
+      while (node && node !== document.body) {{
+        if (node.tagName === "DETAILS") node.open = true;
+        node = node.parentElement;
+      }}
     }}
     items.forEach((item) => item.addEventListener("click", () => select(item)));
-    if (items.length) select(items[0]);
+
+    function applyFilter() {{
+      const q = filter.value.trim().toLowerCase();
+      if (!q) {{
+        items.forEach((item) => item.classList.remove("hidden"));
+        groups.forEach((g) => g.classList.remove("hidden"));
+        families.forEach((f) => f.classList.remove("hidden"));
+        return;
+      }}
+      items.forEach((item) => {{
+        item.classList.toggle("hidden", !item.dataset.name.includes(q));
+      }});
+      groups.forEach((group) => {{
+        const anyVisible = group.querySelectorAll(".item:not(.hidden)").length > 0;
+        group.classList.toggle("hidden", !anyVisible);
+        if (anyVisible) group.open = true;
+      }});
+      families.forEach((family) => {{
+        const anyVisible = family.querySelectorAll(".group:not(.hidden)").length > 0;
+        family.classList.toggle("hidden", !anyVisible);
+        if (anyVisible) family.open = true;
+      }});
+    }}
+    filter.addEventListener("input", applyFilter);
+
+    const initial = items.find((item) => !item.classList.contains("hidden")) || items[0];
+    if (initial) select(initial);
   </script>
 </body>
 </html>

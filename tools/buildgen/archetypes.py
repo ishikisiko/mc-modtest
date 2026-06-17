@@ -421,14 +421,20 @@ def _reserve_stairwell(graph: MassingGraph, vol: Node,
     if stories <= 1:
         return {}
     story_wall_h = vol.meta.get("story_wall_h", vol.meta["wall_h"])
-    interior_z0 = vol.z0 + 1
-    interior_z1 = vol.z1 - 1
+    # Pagoda stories step inward by their story inset, so the shaft must clear
+    # the deepest inset; otherwise the upper-story perimeter walls land on the
+    # stair shaft and the protected stair void leaves holes in the outer shell.
+    margin = max(vol.meta.get("story_insets", [0]) or [0])
+    interior_z0 = vol.z0 + 1 + margin
+    interior_z1 = vol.z1 - 1 - margin
     landing_z = interior_z1
     z1 = max(interior_z0, landing_z - 1)
     run = min(story_wall_h, z1 - interior_z0 + 1)
-    z0 = max(vol.z0 + 1, z1 - run + 1)
-    west = (vol.x0 + 1, min(vol.x0 + 2, vol.x1 - 1), "west")
-    east = (max(vol.x1 - 2, vol.x0 + 1), vol.x1 - 1, "east")
+    z0 = max(vol.z0 + 1 + margin, z1 - run + 1)
+    west = (vol.x0 + 1 + margin, min(vol.x0 + 2 + margin, vol.x1 - 1 - margin),
+            "west")
+    east = (max(vol.x1 - 2 - margin, vol.x0 + 1 + margin), vol.x1 - 1 - margin,
+            "east")
     choices = [west, east]
     if preferred_side in ("west", "east"):
         choices = [c for c in choices if c[2] == preferred_side] or choices
@@ -529,12 +535,48 @@ def _chimney(graph: MassingGraph, main: Node, rng: random.Random,
     wall_top = fh + wall_h - 1
     peak = roof_peak_y(wall_top, main.size[2], main.meta["roof"]["overhang"])
     side = side or rng.choice(["west", "east"])
-    cx = main.x0 - 1 if side == "west" else main.x1 + 1
     cz = main.z0 + main.size[2] // 2 - 1 + rng.choice([-1, 0, 1])
     cz = max(main.z0 + 1, min(cz, main.z1 - 2))
+
+    def wall_clash(cx: int) -> bool:
+        """True if column cx sits on another closed volume's wall plane."""
+        for other in graph.volumes():
+            if other.id in (main.id, node_id):
+                continue
+            if other.meta.get("open"):
+                continue
+            if cx not in (other.x0, other.x1):
+                continue
+            if not (other.z0 <= cz <= other.z1 or other.z0 <= cz + 1 <= other.z1):
+                continue
+            return True
+        return False
+
+    # Place the chimney on the chosen side; if that wall is occupied by an
+    # abutting volume, flip to the opposite side, then offset outward as a
+    # last resort. The chimney never force-overwrites another volume's wall.
+    chosen_side = side
+    chosen_cx = None
+    for cand_side in (side, "west" if side == "east" else "east"):
+        base_cx = main.x0 - 1 if cand_side == "west" else main.x1 + 1
+        outward = -1 if cand_side == "west" else 1
+        cx = base_cx
+        ok = False
+        for _ in range(3):
+            if not wall_clash(cx):
+                ok = True
+                break
+            cx += outward
+        if ok:
+            chosen_side = cand_side
+            chosen_cx = cx
+            break
+    if chosen_cx is None:
+        chosen_cx = main.x0 - 1 if chosen_side == "west" else main.x1 + 1
+    cx = chosen_cx
     chimney = Node(
         id=node_id, type="chimney", origin=(cx, 0, cz),
-        size=(1, peak + 3, 2), attach_to="main", side=side,
+        size=(1, peak + 3, 2), attach_to="main", side=chosen_side,
         priority=20, tags=["STRUCTURE", "DETAIL", "PROTECTED"])
     graph.add(chimney)
     return chimney
@@ -767,7 +809,7 @@ def build_blacksmith(style: Style, rng: random.Random, tier: str) -> MassingGrap
         _zone(graph, main, "forge", (ix1 - 2, iz0, ix1, iz1))
         _zone(graph, main, "storage", (ix0, iz0, ix0 + 1, iz1))
     _zone(graph, work, "smithy",
-          (work.x0, work.z0, work.x1, work.z1))
+          (work.x0 + 1, work.z0 + 1, work.x1 - 1, work.z1 - 1))
 
     if tier == "large_lite":
         sd = 3

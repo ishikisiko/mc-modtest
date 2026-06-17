@@ -35,13 +35,13 @@
       "name": "cultivation_town_001",
       "export": {
         "size": [
-          71,
+          69,
           16,
           38
         ],
-        "block_count": 9495,
+        "block_count": 9616,
         "entity_count": 0,
-        "palette_count": 59,
+        "palette_count": 60,
         "path": "src/main/resources/data/myvillage/structure/cultivation_town_001.nbt"
       },
       "compound_graph": {
@@ -8196,13 +8196,13 @@
       "name": "cultivation_town_002",
       "export": {
         "size": [
-          71,
+          69,
           15,
           36
         ],
-        "block_count": 8570,
+        "block_count": 8674,
         "entity_count": 0,
-        "palette_count": 63,
+        "palette_count": 64,
         "path": "src/main/resources/data/myvillage/structure/cultivation_town_002.nbt"
       },
       "compound_graph": {
@@ -15613,11 +15613,11 @@
       "name": "cultivation_town_003",
       "export": {
         "size": [
-          105,
+          103,
           16,
           36
         ],
-        "block_count": 13621,
+        "block_count": 13805,
         "entity_count": 0,
         "palette_count": 67,
         "path": "src/main/resources/data/myvillage/structure/cultivation_town_003.nbt"
@@ -26873,13 +26873,13 @@
       "name": "cultivation_town_004",
       "export": {
         "size": [
-          71,
+          69,
           16,
           69
         ],
-        "block_count": 18131,
+        "block_count": 18377,
         "entity_count": 0,
-        "palette_count": 63,
+        "palette_count": 65,
         "path": "src/main/resources/data/myvillage/structure/cultivation_town_004.nbt"
       },
       "compound_graph": {
@@ -40722,11 +40722,11 @@
       "name": "cultivation_town_005",
       "export": {
         "size": [
-          105,
+          103,
           16,
           38
         ],
-        "block_count": 13388,
+        "block_count": 13562,
         "entity_count": 0,
         "palette_count": 64,
         "path": "src/main/resources/data/myvillage/structure/cultivation_town_005.nbt"
@@ -52425,13 +52425,13 @@
       "name": "cultivation_town_006",
       "export": {
         "size": [
-          71,
+          69,
           16,
           38
         ],
-        "block_count": 9414,
+        "block_count": 9557,
         "entity_count": 0,
-        "palette_count": 63,
+        "palette_count": 64,
         "path": "src/main/resources/data/myvillage/structure/cultivation_town_006.nbt"
       },
       "compound_graph": {

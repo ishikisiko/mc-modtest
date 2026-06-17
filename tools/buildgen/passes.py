@@ -56,22 +56,88 @@ def massing_pass(ctx: BuildContext) -> None:
 
 
 def _carve_connection(ctx: BuildContext, vol: Node) -> None:
-    """Protected 1x2 opening through the shared wall(s) to the parent."""
-    parent = ctx.graph.get(vol.attach_to)
+    """Protected 1x2 opening through the shared wall(s) to the parent.
+
+    Open sheds (no wall) are skipped. The opening column is nudged off the
+    parent wall's post / window / door columns (consulting the facade plan),
+    and any post column the opening must cross is re-sealed beside it.
+    """
+    if vol.meta.get("open"):
+        return  # open sheds have no wall to carve
+    grid, graph = ctx.grid, ctx.graph
+    parent = graph.get(vol.attach_to)
     fh = parent.meta["foundation_h"]
-    if vol.side in ("west", "east"):
-        planes = ((parent.x0 if vol.side == "west" else parent.x1),
-                  (vol.x1 if vol.side == "west" else vol.x0))
-        zmid = (max(parent.z0, vol.z0) + min(parent.z1, vol.z1)) // 2
-        cells = [(px, y, zmid) for px in set(planes) for y in (fh, fh + 1)]
+    parent_wall = vol.side  # the parent wall that faces this attached volume
+    _, _, (pa0, pa1), _ = ops.wall_info(parent, parent_wall)
+    if parent_wall in ("front", "back"):
+        va0, va1 = vol.x0, vol.x1
     else:
-        planes = ((parent.z1 if vol.side == "back" else parent.z0),
-                  (vol.z0 if vol.side == "back" else vol.z1))
-        xmid = (max(parent.x0, vol.x0) + min(parent.x1, vol.x1)) // 2
-        cells = [(xmid, y, pz) for pz in set(planes) for y in (fh, fh + 1)]
+        va0, va1 = vol.z0, vol.z1
+    lo = max(pa0, va0)
+    hi = min(pa1, va1)
+    if hi < lo:
+        return
+
+    # Columns the parent facade plan already reserves (posts, windows, door).
+    reserved = {pa0, pa1}  # corners are always structural
+    door_along = None
+    for plan in ctx.wall_plans:
+        if plan.volume_id == parent.id and plan.wall == parent_wall:
+            reserved.update(plan.post_positions)
+            reserved.update(w for w, _ in plan.windows)
+            if plan.door_along is not None:
+                door_along = plan.door_along
+            break
+    if door_along is not None:
+        reserved.update((door_along - 1, door_along, door_along + 1))
+
+    # Pick the shared-span midpoint, then nudge to the nearest conflict-free
+    # column that keeps the opening clear of posts/windows/door.
+    mid = (lo + hi) // 2
+    chosen = None
+    for delta in (0, 1, -1, 2, -2, 3, -3):
+        cand = mid + delta
+        if lo < cand < hi and cand not in reserved:
+            chosen = cand
+            break
+    if chosen is None:
+        chosen = mid  # span too tight; re-seal the post we must cross below
+    crossed_post = chosen in reserved
+
+    if parent_wall in ("west", "east"):
+        planes = (parent.x0 if parent_wall == "west" else parent.x1,
+                  (vol.x1 if parent_wall == "west" else vol.x0))
+        cells = [(px, y, chosen) for px in set(planes) for y in (fh, fh + 1)]
+        post_axis = "z"
+    else:
+        planes = (parent.z1 if parent_wall == "back" else parent.z0,
+                  (vol.z0 if parent_wall == "back" else vol.z1))
+        cells = [(chosen, y, pz) for pz in set(planes) for y in (fh, fh + 1)]
+        post_axis = "x"
     for pos in cells:
-        ctx.grid.set(pos, AIR, ["OPENING", "AIR_CARVE", "PROTECTED"],
-                     PRIORITY["OPENING"], force=True)
+        grid.set(pos, AIR, ["OPENING", "AIR_CARVE", "PROTECTED"],
+                 PRIORITY["OPENING"], force=True)
+
+    # Re-seal a post column the opening had to cross, placing a fresh timber
+    # post beside the opening so the facade rhythm is not gutted.
+    if crossed_post:
+        style = ctx.style
+        log = ops.log_state(style, "y")
+        seal_cols = [c for c in (chosen - 1, chosen + 1)
+                     if lo < c < hi and c not in reserved]
+        for px in set(planes):
+            for c in seal_cols[:1]:
+                pos = (px, fh, chosen) if parent_wall in ("west", "east") \
+                    else (chosen, fh, px)
+                # place replacement post on the chosen side column
+                rep = (c, fh, pos[2]) if parent_wall in ("west", "east") \
+                    else (pos[0], fh, c)
+                wall_top = parent.meta["foundation_h"] + parent.meta["wall_h"] - 1
+                for y in range(fh, wall_top + 1):
+                    rp = (rep[0], y, rep[2])
+                    if grid.get(rp) is None or grid.get(rp).is_air:
+                        grid.set(rp, log, ["FACADE", "STRUCTURE"],
+                                 PRIORITY["FACADE"], "FRAME_WOOD")
 
 
 def structure_pass(ctx: BuildContext) -> None:
@@ -85,12 +151,6 @@ def structure_pass(ctx: BuildContext) -> None:
             ops.clear_inside(grid, vol)
     for node in graph.by_type("chimney"):
         ops.chimney(grid, style, node)
-    # interior connections between attached closed volumes and into side sheds
-    for vol in graph.volumes():
-        if vol.attach_to and vol.type in ("side_wing", "rear_shed", "tower_volume"):
-            _carve_connection(ctx, vol)
-        elif vol.type == "shed" and vol.meta.get("open") and vol.side in ("west", "east"):
-            _carve_connection(ctx, vol)
     for node in graph.by_type("platform"):
         ops.raised_platform(grid, style, node)
     ctx.passes_run.append("structure_pass")
@@ -189,6 +249,20 @@ def facade_detail_pass(ctx: BuildContext) -> None:
     ctx.passes_run.append("facade_detail_pass")
 
 
+def connection_carve_pass(ctx: BuildContext) -> None:
+    """Carve inter-volume connections after facades are planned.
+
+    Runs after facade_detail_pass so the openings can be nudged off the
+    parent wall's post / window / door columns.
+    """
+    for vol in ctx.graph.volumes():
+        if not vol.attach_to:
+            continue
+        if vol.type in ("side_wing", "rear_shed", "tower_volume", "shed"):
+            _carve_connection(ctx, vol)
+    ctx.passes_run.append("connection_carve_pass")
+
+
 def pagoda_shape_pass(ctx: BuildContext) -> None:
     for vol in ctx.graph.volumes():
         if vol.meta.get("story_insets"):
@@ -220,13 +294,12 @@ def roof_pass(ctx: BuildContext) -> None:
 def roof_cleanup_pass(ctx: BuildContext) -> None:
     """Re-seal gable cells lost to collisions; close lean-to side gaps."""
     grid, style, graph = ctx.grid, ctx.style, ctx.graph
-    gable_state = style.alternates("WALL_MAIN")[0] if style.alternates("WALL_MAIN") \
-        else style.primary("WALL_MAIN")
+    gable_state, gable_slot = ops.gable_infill(style)
     for info in ctx.roof_info:
         for pos in info["gable_cells"]:
             if grid.is_empty(pos):
                 grid.set(pos, gable_state, ["FACADE", "ROOF"],
-                         PRIORITY["ROOF"], "WALL_MAIN")
+                         PRIORITY["ROOF"], gable_slot)
     # close any remaining vertical gap between a closed wall and the first
     # roof cell above it, including gable/cross-gable volumes.
     for vol in graph.volumes():
@@ -299,7 +372,13 @@ def roof_cleanup_pass(ctx: BuildContext) -> None:
 
 
 def material_variation_pass(ctx: BuildContext) -> None:
-    """Speckle slot materials and break up any same-state flat run > max."""
+    """Speckle slot materials and break up any same-state flat run > max.
+
+    The dominant side-wall noise sources (smithy furniture leak, dark-plank
+    gable mix) are fixed at their source; the speckle is retained at full
+    strength because it is also what keeps long plank runs under the flat-wall
+    limit, and clamping it on side/back facades regresses `flat_wall`.
+    """
     grid, style, rng = ctx.grid, ctx.style, ctx.rng
     max_flat = style.prop("max_flat_wall_width")
     # random speckle
@@ -403,6 +482,7 @@ PIPELINE = [
     floor_slab_pass,
     stair_pass,
     facade_detail_pass,
+    connection_carve_pass,
     pagoda_shape_pass,
     roof_pass,
     roof_cleanup_pass,

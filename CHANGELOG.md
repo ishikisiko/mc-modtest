@@ -17,6 +17,84 @@ All notable project changes should be recorded here when a version is prepared.
 
 ## Unreleased
 
+## 0.8.1-fix2
+
+### Fixed
+
+- Closed the corner holes in the upper stories of pagoda buildings
+  (`scripture_pavilion`). The stairwell was reserved flush against the volume
+  edge, but pagoda story insets step the upper-floor perimeter walls inward
+  onto that shaft; the stair's protected void then blocked the inset wall from
+  sealing, leaving open corners on the 2nd and 3rd floors. `_reserve_stairwell`
+  now offsets the shaft inward by the deepest story inset so it stays inside
+  the most-inset footprint and the outer shell closes on every story. Visible
+  in `cultivation_sect_001` (summit pagoda) and standalone `scripture_pavilion`.
+
+## 0.8.1-fix1
+
+### Fixed
+
+- Closed side-wall holes on gabled buildings: `gable_roof()` now fills each
+  gable-end column from the eave up to the true roof skin directly above it
+  (climbing to the real `ridge_y`), and backs any cell carrying only a roof
+  stair with a full gable block one step inboard. Apex gaps, edge gaps where
+  an overhung slope arrived late, and see-through half-block roofline cells
+  are gone.
+- Stopped interior furniture mounting on a neighbour volume's exterior wall:
+  the blacksmith `smithy` zone is now inset like `forge`/`storage`, and
+  `spots_along_walls()` only mounts on a wall cell belonging to the zone's own
+  volume. Leaked anvils/barrels/furnaces against the main wall are eliminated.
+- Replaced the gable-triangle 60/40 dark-roof-plank mix with a style-declared
+  gable infill: stone styles (`cultivation_sect`, `chinese_courtyard`,
+  `cultivation_town`) get a solid `WALL_MAIN` gable with no scattered dark
+  planks; `medieval_village` opts into a timber-infill look via a new optional
+  `GABLE_INFILL` slot. Each gable cell is tagged with the slot it holds.
+- Connection openings are now carved only on real (non-open) walls and clear of
+  the parent facade's post/window/door columns (re-sealing any crossed post),
+  via a new post-facade `connection_carve_pass`. Chimney placement offsets or
+  flips around an abutting `side_wing`/shed instead of force-overwriting its
+  facade/structure wall cells. Small wings/sheds now always keep a one-row
+  stone plinth (`wall_frame` floors `stone_rows` at 1 for `wall_h >= 3`).
+
+### Added
+
+- Two build-quality hard-error checks that gate export: `open_side_wall`
+  (every closed gable-family volume's wall plane must be enclosed from the
+  foundation top to its roofline, modulo planned openings) and
+  `furniture_on_wall` (no `INTERIOR`/`PROTECTED` non-opening block may sit
+  against a different volume's exterior wall). These inspect the actual wall
+  plane, not just cells a roof op recorded.
+- Optional `GABLE_INFILL` material slot (registered in
+  `OPTIONAL_MATERIAL_SLOTS`).
+
+### Changed
+
+- `flat_wall` counting now excludes roof-skin (gable-infill) facade cells so
+  the new solid gable is not flagged as a flat run.
+
+### Deferred
+
+- Opposite-wall post-layout sharing and side/back speckle clamping were
+  evaluated and dropped: both destabilized byte-stable output without offsetting
+  payoff, per the change's §6 "drop if it destabilizes" clause.
+
+## 0.8.1
+
+### Added
+
+- Rebuilt the cultivation `sweeping_eave_roof` silhouette as a real flying-eave
+  (飞檐翘角) curve instead of a straight gable with corner bumps. The eave line
+  now droops at mid-span and swoops up toward each gable end via a per-column
+  corner-lift heightfield, and each eave side runs through a flat eave band
+  (举折) before climbing to a level ridge. `tiered_eave_roof` inherits the curve
+  on every tier. All geometry stays stair/slab-only; no new mod is required.
+- Added a slot-resolved dougong / 额枋 bracket course (`DETAIL_WOOD` `_fence`)
+  set under the deep eaves of sweeping-eave roofs; styles without the slot skip
+  it, so mortal roofs are unchanged.
+- Strengthened `tools/check_cultivation_forms.py` to assert the eave actually
+  lifts at the corner and that eave brackets are placed, locking the curve
+  against regression.
+
 ## 0.8.0-fix5
 
 ### Fixed

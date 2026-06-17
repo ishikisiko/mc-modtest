@@ -20,30 +20,30 @@
       "scores": {
         "style_score": 100,
         "facade_score": 100,
-        "roof_score": 90,
-        "interior_score": 88,
-        "material_balance_score": 81,
+        "roof_score": 85,
+        "interior_score": 100,
+        "material_balance_score": 80,
         "silhouette_score": 55
       },
       "stats": {
         "volumes": 1,
         "window_cells": 8,
-        "function_blocks": 4,
+        "function_blocks": 5,
         "decorations": [
           "small_path_patch",
           "lantern_post"
         ],
         "worst_flat_run": 3,
-        "stone_fraction": 0.091
+        "stone_fraction": 0.085
       },
       "attempt": 1,
       "export": {
         "size": [
-          17,
+          15,
           14,
           15
         ],
-        "block_count": 1030,
+        "block_count": 1047,
         "entity_count": 0,
         "palette_count": 34,
         "path": "src/main/resources/data/myvillage/structure/cultivation_house_001.nbt"
@@ -271,6 +271,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "connection_carve_pass",
         "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
@@ -293,9 +294,9 @@
       "scores": {
         "style_score": 100,
         "facade_score": 94,
-        "roof_score": 90,
+        "roof_score": 85,
         "interior_score": 100,
-        "material_balance_score": 81,
+        "material_balance_score": 80,
         "silhouette_score": 55
       },
       "stats": {
@@ -307,16 +308,16 @@
           "lantern_post"
         ],
         "worst_flat_run": 3,
-        "stone_fraction": 0.091
+        "stone_fraction": 0.085
       },
       "attempt": 1,
       "export": {
         "size": [
-          17,
+          15,
           14,
           15
         ],
-        "block_count": 1035,
+        "block_count": 1052,
         "entity_count": 0,
         "palette_count": 35,
         "path": "src/main/resources/data/myvillage/structure/cultivation_house_002.nbt"
@@ -544,6 +545,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "connection_carve_pass",
         "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
@@ -817,6 +819,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "connection_carve_pass",
         "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
@@ -841,7 +844,7 @@
         "facade_score": 100,
         "roof_score": 90,
         "interior_score": 88,
-        "material_balance_score": 82,
+        "material_balance_score": 81,
         "silhouette_score": 55
       },
       "stats": {
@@ -853,18 +856,18 @@
           "market_stall"
         ],
         "worst_flat_run": 3,
-        "stone_fraction": 0.096
+        "stone_fraction": 0.089
       },
       "attempt": 1,
       "export": {
         "size": [
-          19,
+          17,
           15,
           19
         ],
-        "block_count": 1420,
+        "block_count": 1443,
         "entity_count": 0,
-        "palette_count": 39,
+        "palette_count": 41,
         "path": "src/main/resources/data/myvillage/structure/cultivation_shop_001.nbt"
       },
       "massing_graph": {
@@ -1096,6 +1099,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "connection_carve_pass",
         "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
@@ -1132,18 +1136,18 @@
           "market_stall"
         ],
         "worst_flat_run": 3,
-        "stone_fraction": 0.094
+        "stone_fraction": 0.088
       },
       "attempt": 1,
       "export": {
         "size": [
-          19,
+          17,
           14,
           17
         ],
-        "block_count": 1200,
+        "block_count": 1219,
         "entity_count": 0,
-        "palette_count": 40,
+        "palette_count": 42,
         "path": "src/main/resources/data/myvillage/structure/cultivation_shop_002.nbt"
       },
       "massing_graph": {
@@ -1375,6 +1379,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "connection_carve_pass",
         "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
@@ -1397,32 +1402,32 @@
       "scores": {
         "style_score": 100,
         "facade_score": 100,
-        "roof_score": 90,
-        "interior_score": 76,
+        "roof_score": 85,
+        "interior_score": 88,
         "material_balance_score": 81,
         "silhouette_score": 55
       },
       "stats": {
         "volumes": 1,
         "window_cells": 11,
-        "function_blocks": 3,
+        "function_blocks": 4,
         "decorations": [
           "small_path_patch",
           "market_stall"
         ],
         "worst_flat_run": 3,
-        "stone_fraction": 0.096
+        "stone_fraction": 0.089
       },
       "attempt": 1,
       "export": {
         "size": [
-          17,
+          15,
           14,
           17
         ],
-        "block_count": 1036,
+        "block_count": 1053,
         "entity_count": 0,
-        "palette_count": 40,
+        "palette_count": 41,
         "path": "src/main/resources/data/myvillage/structure/cultivation_shop_003.nbt"
       },
       "massing_graph": {
@@ -1654,6 +1659,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "connection_carve_pass",
         "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
@@ -2016,6 +2022,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "connection_carve_pass",
         "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
@@ -2378,6 +2385,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "connection_carve_pass",
         "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
@@ -2740,6 +2748,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "connection_carve_pass",
         "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
@@ -2763,32 +2772,32 @@
         "style_score": 100,
         "facade_score": 100,
         "roof_score": 90,
-        "interior_score": 76,
-        "material_balance_score": 81,
+        "interior_score": 88,
+        "material_balance_score": 80,
         "silhouette_score": 55
       },
       "stats": {
         "volumes": 1,
         "window_cells": 18,
-        "function_blocks": 3,
+        "function_blocks": 4,
         "decorations": [
           "small_path_patch",
           "market_stall",
           "market_stall"
         ],
         "worst_flat_run": 3,
-        "stone_fraction": 0.091
+        "stone_fraction": 0.085
       },
       "attempt": 1,
       "export": {
         "size": [
-          19,
+          17,
           14,
           17
         ],
-        "block_count": 1315,
+        "block_count": 1333,
         "entity_count": 0,
-        "palette_count": 39,
+        "palette_count": 41,
         "path": "src/main/resources/data/myvillage/structure/cultivation_market_001.nbt"
       },
       "massing_graph": {
@@ -3044,6 +3053,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "connection_carve_pass",
         "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
@@ -3068,7 +3078,7 @@
         "facade_score": 100,
         "roof_score": 90,
         "interior_score": 88,
-        "material_balance_score": 82,
+        "material_balance_score": 81,
         "silhouette_score": 55
       },
       "stats": {
@@ -3081,16 +3091,16 @@
           "market_stall"
         ],
         "worst_flat_run": 3,
-        "stone_fraction": 0.096
+        "stone_fraction": 0.089
       },
       "attempt": 1,
       "export": {
         "size": [
-          19,
+          17,
           15,
           19
         ],
-        "block_count": 1544,
+        "block_count": 1566,
         "entity_count": 0,
         "palette_count": 41,
         "path": "src/main/resources/data/myvillage/structure/cultivation_market_002.nbt"
@@ -3348,6 +3358,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "connection_carve_pass",
         "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
@@ -3372,7 +3383,7 @@
         "facade_score": 100,
         "roof_score": 90,
         "interior_score": 76,
-        "material_balance_score": 81,
+        "material_balance_score": 80,
         "silhouette_score": 55
       },
       "stats": {
@@ -3385,18 +3396,18 @@
           "market_stall"
         ],
         "worst_flat_run": 3,
-        "stone_fraction": 0.092
+        "stone_fraction": 0.086
       },
       "attempt": 1,
       "export": {
         "size": [
-          19,
+          17,
           15,
           19
         ],
-        "block_count": 1546,
+        "block_count": 1568,
         "entity_count": 0,
-        "palette_count": 41,
+        "palette_count": 42,
         "path": "src/main/resources/data/myvillage/structure/cultivation_market_003.nbt"
       },
       "massing_graph": {
@@ -3652,6 +3663,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "connection_carve_pass",
         "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
@@ -3688,18 +3700,18 @@
           "incense_altar"
         ],
         "worst_flat_run": 3,
-        "stone_fraction": 0.045
+        "stone_fraction": 0.04
       },
       "attempt": 1,
       "export": {
         "size": [
-          25,
+          23,
           28,
           20
         ],
-        "block_count": 4353,
+        "block_count": 4818,
         "entity_count": 0,
-        "palette_count": 34,
+        "palette_count": 36,
         "path": "src/main/resources/data/myvillage/structure/town_shrine_001.nbt"
       },
       "massing_graph": {
@@ -3988,6 +4000,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "connection_carve_pass",
         "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
@@ -4024,18 +4037,18 @@
           "incense_altar"
         ],
         "worst_flat_run": 3,
-        "stone_fraction": 0.046
+        "stone_fraction": 0.041
       },
       "attempt": 1,
       "export": {
         "size": [
-          23,
+          21,
           28,
           20
         ],
-        "block_count": 3965,
+        "block_count": 4362,
         "entity_count": 0,
-        "palette_count": 40,
+        "palette_count": 42,
         "path": "src/main/resources/data/myvillage/structure/town_shrine_002.nbt"
       },
       "massing_graph": {
@@ -4324,6 +4337,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "connection_carve_pass",
         "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",
@@ -4360,18 +4374,18 @@
           "incense_altar"
         ],
         "worst_flat_run": 3,
-        "stone_fraction": 0.046
+        "stone_fraction": 0.041
       },
       "attempt": 1,
       "export": {
         "size": [
-          23,
+          21,
           28,
           20
         ],
-        "block_count": 3931,
+        "block_count": 4328,
         "entity_count": 0,
-        "palette_count": 36,
+        "palette_count": 37,
         "path": "src/main/resources/data/myvillage/structure/town_shrine_003.nbt"
       },
       "massing_graph": {
@@ -4660,6 +4674,7 @@
         "floor_slab_pass",
         "stair_pass",
         "facade_detail_pass",
+        "connection_carve_pass",
         "pagoda_shape_pass",
         "roof_pass",
         "roof_cleanup_pass",

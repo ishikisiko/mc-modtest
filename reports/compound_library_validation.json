@@ -15,7 +15,7 @@
         18,
         46
       ],
-      "block_count": 6534,
+      "block_count": 6611,
       "palette_count": 44
     },
     {
@@ -27,7 +27,7 @@
         19,
         47
       ],
-      "block_count": 6907,
+      "block_count": 6985,
       "palette_count": 44
     },
     {
@@ -39,7 +39,7 @@
         18,
         48
       ],
-      "block_count": 6556,
+      "block_count": 6630,
       "palette_count": 44
     },
     {
@@ -51,7 +51,7 @@
         18,
         46
       ],
-      "block_count": 6363,
+      "block_count": 6437,
       "palette_count": 44
     },
     {
@@ -63,8 +63,8 @@
         18,
         48
       ],
-      "block_count": 5993,
-      "palette_count": 44
+      "block_count": 6015,
+      "palette_count": 43
     },
     {
       "name": "chinese_courtyard_006",
@@ -75,8 +75,8 @@
         19,
         48
       ],
-      "block_count": 6903,
-      "palette_count": 41
+      "block_count": 6939,
+      "palette_count": 42
     }
   ]
 }

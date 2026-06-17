@@ -103,7 +103,8 @@ def _in_occlusion(along: int, occlusions, pad: int = 0) -> bool:
 def plan_wall(graph: MassingGraph, style: Style, rng: random.Random, vol: Node,
               wall: str, facade: str, density: str,
               door_along: Optional[int], opening_style: str,
-              story_index: int = 0, y_base: Optional[int] = None) -> WallPlan:
+              story_index: int = 0, y_base: Optional[int] = None,
+              post_positions: Optional[List[int]] = None) -> WallPlan:
     plan = WallPlan(vol.id, wall, facade, density, door_along=door_along,
                     story_index=story_index, y_base=y_base)
     if wall in ("front", "back"):

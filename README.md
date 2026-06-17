@@ -231,7 +231,7 @@ jar tf build/libs/*.jar | grep "assets/myvillage/textures/painting/inscription"
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.8.0-fix5.jar
+build/libs/myvillage-0.8.1-fix2.jar
 ```
 
 ## Versioning And Changelog
@@ -274,12 +274,12 @@ python3 tools/preview_structure.py --all
 python3 tools/generate_town_plan_preview.py --count 3
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.8.0-fix5.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.8.0-fix5.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.8.0-fix5.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.8.0-fix5.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.8.0-fix5.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.8.0-fix5.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.8.1-fix2.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.8.1-fix2.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.8.1-fix2.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.8.1-fix2.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.8.1-fix2.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.8.1-fix2.jar | grep "assets/myvillage/textures/painting/inscription"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -439,9 +439,13 @@ Important properties:
   names include `gable_roof`, `cross_gable_roof`, `lean_to_roof`, Chinese
   roof-grade aliases, `sweeping_eave_roof`, `hip_roof`, `pyramidal_roof`, and
   `tiered_eave_roof`.
-- Cultivation eave curvature is generated from stair/slab geometry with raised
-  corners and deep overhangs. It does not require an Asian-decor curved-roof mod;
-  optional mod blocks only skin the slot-resolved materials when present.
+- Cultivation eave curvature is a real flying-eave (飞檐翘角) silhouette built
+  from stair/slab geometry: the eave line droops at mid-span and swoops up
+  toward each gable end, each eave side runs through a flat eave band (举折)
+  before climbing to a level ridge, and the corners carry an upturned finial
+  with an outward wing. A slot-resolved dougong/额枋 bracket course (`DETAIL_WOOD`
+  `_fence`) sits under the deep overhangs. It does not require an Asian-decor
+  curved-roof mod; optional mod blocks only skin the slot-resolved materials.
 - Decoration motifs are also registered in `tools/buildgen/ops.py`; cultivation
   forms include `moon_gate`, `spirit_array`, `incense_altar`, `cloud_rail`, and
   `sect_gate_paifang`. Market styles may also enable `market_stall`.

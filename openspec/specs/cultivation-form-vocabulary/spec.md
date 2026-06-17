@@ -7,12 +7,14 @@ This spec captures the cultivation-only roof, opening, and motif forms shared by
 ## Requirements
 
 ### Requirement: Sweeping, hip, pyramidal, and tiered cultivation roof forms
-The generator SHALL provide cultivation roof types `sweeping_eave_roof`, `hip_roof`, `pyramidal_roof`, and `tiered_eave_roof`, each registered in the roof registry and resolving blocks through style material slots. `sweeping_eave_roof` SHALL produce deep overhangs with raised upturned corners built from stair/slab geometry. `hip_roof` SHALL slope inward on four sides. `pyramidal_roof` SHALL converge to a finialed crown. `tiered_eave_roof` SHALL stack sweeping eave tiers rather than straight gables.
+The generator SHALL provide cultivation roof types `sweeping_eave_roof`, `hip_roof`, `pyramidal_roof`, and `tiered_eave_roof`, each registered in the roof registry and resolving blocks through style material slots. `sweeping_eave_roof` SHALL produce a real flying-eave (飞檐翘角) silhouette built from stair/slab geometry: the eave line SHALL droop at mid-span and lift toward both gable ends (a per-column corner-lift heightfield), each eave side SHALL pass through a flat eave band (举折) before climbing to a level ridge, and the four corners SHALL carry an upturned finial plus an outward wing. `hip_roof` SHALL slope inward on four sides. `pyramidal_roof` SHALL converge to a finialed crown. `tiered_eave_roof` SHALL stack sweeping-eave tiers (each tier carrying the flying-eave curve) rather than straight gables.
 
-#### Scenario: A hall builds upturned sweeping eaves
+#### Scenario: A hall builds a curved sweeping eave
 - **WHEN** a cultivation volume names `sweeping_eave_roof`
 - **THEN** the eave SHALL overhang the wall plane by the style overhang proportion
+- **AND** the eave line SHALL be lower at mid-span than at the gable ends (corner lift)
 - **AND** corner cells SHALL step up and out from the eave line to produce an upturned-corner silhouette
+- **AND** a dougong/额枋 bracket course SHALL be placed under the eave when the style supplies `DETAIL_WOOD`
 - **AND** roof blocks SHALL resolve through the style's `ROOF_DARK` / `ROOF_TILE` slots.
 
 #### Scenario: Small sweeping-eave footprint falls back gracefully

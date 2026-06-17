@@ -87,10 +87,27 @@ def invoked_forms(ctx) -> set[str]:
 def main() -> int:
     style = sect_style()
     rng = random.Random(42)
+    sweep_grid = BlockGrid()
     sweeping = ops.roof_handler("sweeping_eave_roof")(
-        BlockGrid(), style, rng, volume((11, 5, 11)), None)
+        sweep_grid, style, rng, volume((11, 5, 11)), None)
     if len(sweeping.get("upturned_corners", [])) < 4:
         print(f"FAIL sweeping_eave_roof missing upturned corners: {sweeping}")
+        return 1
+    if not sweeping.get("eave_brackets"):
+        print(f"FAIL sweeping_eave_roof placed no dougong eave brackets: {sweeping}")
+        return 1
+    # The eave line must actually swoop: corner eave rises above the mid eave.
+    sv = volume((11, 5, 11))
+    sx0, sx1, sz0, _sz1 = ops._roof_bounds(sv, 2)
+
+    def eave_top(x: int) -> int:
+        ys = [y for y in range(0, 40)
+              if (cell := sweep_grid.get((x, y, sz0))) and not cell.is_air]
+        return max(ys) if ys else -1
+
+    if eave_top(sx0) <= eave_top((sx0 + sx1) // 2):
+        print(f"FAIL sweeping_eave_roof eave does not lift at the corner "
+              f"(corner={eave_top(sx0)} mid={eave_top((sx0 + sx1) // 2)})")
         return 1
     hip = ops.roof_handler("hip_roof")(
         BlockGrid(), style, random.Random(42), volume((11, 5, 9)), None)

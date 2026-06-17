@@ -33,7 +33,7 @@
           "small_path_patch"
         ],
         "worst_flat_run": 3,
-        "stone_fraction": 0.059
+        "stone_fraction": 0.057
       },
       "attempt": 1,
       "export": {
@@ -42,7 +42,7 @@
           19,
           17
         ],
-        "block_count": 2549,
+        "block_count": 2575,
         "entity_count": 0,
         "palette_count": 27,
         "path": "src/main/resources/data/myvillage/structure/main_hall_review.nbt"
@@ -235,14 +235,14 @@
         "style_score": 100,
         "facade_score": 100,
         "roof_score": 90,
-        "interior_score": 88,
+        "interior_score": 100,
         "material_balance_score": 84,
         "silhouette_score": 55
       },
       "stats": {
         "volumes": 1,
         "window_cells": 14,
-        "function_blocks": 4,
+        "function_blocks": 5,
         "decorations": [
           "timber_bracket",
           "small_path_patch"
@@ -426,7 +426,7 @@
           "small_path_patch"
         ],
         "worst_flat_run": 3,
-        "stone_fraction": 0.103
+        "stone_fraction": 0.098
       },
       "attempt": 1,
       "export": {
@@ -435,9 +435,9 @@
           12,
           12
         ],
-        "block_count": 1074,
+        "block_count": 1088,
         "entity_count": 0,
-        "palette_count": 27,
+        "palette_count": 25,
         "path": "src/main/resources/data/myvillage/structure/front_row_review.nbt"
       },
       "massing_graph": {
@@ -610,7 +610,7 @@
           18,
           46
         ],
-        "block_count": 6534,
+        "block_count": 6611,
         "entity_count": 0,
         "palette_count": 44,
         "path": "src/main/resources/data/myvillage/structure/chinese_courtyard_001.nbt"
@@ -2793,7 +2793,7 @@
                 "facade_score": 100,
                 "roof_score": 90,
                 "interior_score": 88,
-                "material_balance_score": 82,
+                "material_balance_score": 81,
                 "silhouette_score": 55
               },
               "stats": {
@@ -2805,7 +2805,7 @@
                   "small_path_patch"
                 ],
                 "worst_flat_run": 3,
-                "stone_fraction": 0.101
+                "stone_fraction": 0.096
               }
             }
           },
@@ -3772,7 +3772,7 @@
                   "small_path_patch"
                 ],
                 "worst_flat_run": 3,
-                "stone_fraction": 0.06
+                "stone_fraction": 0.058
               }
             }
           },
@@ -4418,7 +4418,7 @@
                 "facade_score": 100,
                 "roof_score": 90,
                 "interior_score": 88,
-                "material_balance_score": 83,
+                "material_balance_score": 82,
                 "silhouette_score": 55
               },
               "stats": {
@@ -4430,7 +4430,7 @@
                   "small_path_patch"
                 ],
                 "worst_flat_run": 3,
-                "stone_fraction": 0.108
+                "stone_fraction": 0.103
               }
             }
           },
@@ -5140,7 +5140,7 @@
                 "facade_score": 100,
                 "roof_score": 90,
                 "interior_score": 100,
-                "material_balance_score": 82,
+                "material_balance_score": 81,
                 "silhouette_score": 55
               },
               "stats": {
@@ -5152,7 +5152,7 @@
                   "small_path_patch"
                 ],
                 "worst_flat_run": 3,
-                "stone_fraction": 0.097
+                "stone_fraction": 0.091
               }
             }
           }
@@ -5198,7 +5198,7 @@
           19,
           47
         ],
-        "block_count": 6907,
+        "block_count": 6985,
         "entity_count": 0,
         "palette_count": 44,
         "path": "src/main/resources/data/myvillage/structure/chinese_courtyard_002.nbt"
@@ -7581,7 +7581,7 @@
                 "facade_score": 100,
                 "roof_score": 90,
                 "interior_score": 76,
-                "material_balance_score": 82,
+                "material_balance_score": 81,
                 "silhouette_score": 55
               },
               "stats": {
@@ -7593,7 +7593,7 @@
                   "small_path_patch"
                 ],
                 "worst_flat_run": 3,
-                "stone_fraction": 0.101
+                "stone_fraction": 0.096
               }
             }
           },
@@ -8695,8 +8695,8 @@
                   "timber_bracket",
                   "small_path_patch"
                 ],
-                "worst_flat_run": 4,
-                "stone_fraction": 0.058
+                "worst_flat_run": 3,
+                "stone_fraction": 0.055
               }
             }
           },
@@ -9285,20 +9285,20 @@
                 "style_score": 100,
                 "facade_score": 100,
                 "roof_score": 90,
-                "interior_score": 100,
-                "material_balance_score": 82,
+                "interior_score": 88,
+                "material_balance_score": 81,
                 "silhouette_score": 55
               },
               "stats": {
                 "volumes": 1,
                 "window_cells": 15,
-                "function_blocks": 5,
+                "function_blocks": 4,
                 "decorations": [
                   "timber_bracket",
                   "small_path_patch"
                 ],
                 "worst_flat_run": 3,
-                "stone_fraction": 0.098
+                "stone_fraction": 0.093
               }
             }
           },
@@ -9943,20 +9943,20 @@
                 "style_score": 100,
                 "facade_score": 100,
                 "roof_score": 90,
-                "interior_score": 88,
-                "material_balance_score": 82,
+                "interior_score": 100,
+                "material_balance_score": 81,
                 "silhouette_score": 55
               },
               "stats": {
                 "volumes": 1,
                 "window_cells": 12,
-                "function_blocks": 4,
+                "function_blocks": 5,
                 "decorations": [
                   "timber_bracket",
                   "small_path_patch"
                 ],
                 "worst_flat_run": 3,
-                "stone_fraction": 0.101
+                "stone_fraction": 0.096
               }
             }
           }
@@ -10002,7 +10002,7 @@
           18,
           48
         ],
-        "block_count": 6556,
+        "block_count": 6630,
         "entity_count": 0,
         "palette_count": 44,
         "path": "src/main/resources/data/myvillage/structure/chinese_courtyard_003.nbt"
@@ -12317,7 +12317,7 @@
                 "facade_score": 100,
                 "roof_score": 90,
                 "interior_score": 88,
-                "material_balance_score": 82,
+                "material_balance_score": 81,
                 "silhouette_score": 55
               },
               "stats": {
@@ -12329,7 +12329,7 @@
                   "small_path_patch"
                 ],
                 "worst_flat_run": 3,
-                "stone_fraction": 0.098
+                "stone_fraction": 0.093
               }
             }
           },
@@ -13296,7 +13296,7 @@
                   "small_path_patch"
                 ],
                 "worst_flat_run": 3,
-                "stone_fraction": 0.06
+                "stone_fraction": 0.058
               }
             }
           },
@@ -13941,20 +13941,20 @@
                 "style_score": 100,
                 "facade_score": 100,
                 "roof_score": 90,
-                "interior_score": 88,
-                "material_balance_score": 83,
+                "interior_score": 100,
+                "material_balance_score": 82,
                 "silhouette_score": 55
               },
               "stats": {
                 "volumes": 1,
                 "window_cells": 8,
-                "function_blocks": 4,
+                "function_blocks": 5,
                 "decorations": [
                   "timber_bracket",
                   "small_path_patch"
                 ],
                 "worst_flat_run": 3,
-                "stone_fraction": 0.104
+                "stone_fraction": 0.099
               }
             }
           },
@@ -14599,20 +14599,20 @@
                 "style_score": 100,
                 "facade_score": 100,
                 "roof_score": 90,
-                "interior_score": 88,
-                "material_balance_score": 83,
+                "interior_score": 100,
+                "material_balance_score": 82,
                 "silhouette_score": 55
               },
               "stats": {
                 "volumes": 1,
                 "window_cells": 8,
-                "function_blocks": 4,
+                "function_blocks": 5,
                 "decorations": [
                   "timber_bracket",
                   "small_path_patch"
                 ],
                 "worst_flat_run": 3,
-                "stone_fraction": 0.104
+                "stone_fraction": 0.099
               }
             }
           }
@@ -14658,7 +14658,7 @@
           18,
           46
         ],
-        "block_count": 6363,
+        "block_count": 6437,
         "entity_count": 0,
         "palette_count": 44,
         "path": "src/main/resources/data/myvillage/structure/chinese_courtyard_004.nbt"
@@ -16993,7 +16993,7 @@
                 "facade_score": 100,
                 "roof_score": 90,
                 "interior_score": 88,
-                "material_balance_score": 83,
+                "material_balance_score": 82,
                 "silhouette_score": 55
               },
               "stats": {
@@ -17005,7 +17005,7 @@
                   "small_path_patch"
                 ],
                 "worst_flat_run": 3,
-                "stone_fraction": 0.106
+                "stone_fraction": 0.101
               }
             }
           },
@@ -17972,7 +17972,7 @@
                   "small_path_patch"
                 ],
                 "worst_flat_run": 3,
-                "stone_fraction": 0.06
+                "stone_fraction": 0.058
               }
             }
           },
@@ -18561,20 +18561,20 @@
                 "style_score": 100,
                 "facade_score": 100,
                 "roof_score": 90,
-                "interior_score": 88,
+                "interior_score": 100,
                 "material_balance_score": 82,
                 "silhouette_score": 55
               },
               "stats": {
                 "volumes": 1,
                 "window_cells": 12,
-                "function_blocks": 4,
+                "function_blocks": 5,
                 "decorations": [
                   "timber_bracket",
                   "small_path_patch"
                 ],
                 "worst_flat_run": 3,
-                "stone_fraction": 0.102
+                "stone_fraction": 0.097
               }
             }
           },
@@ -19163,20 +19163,20 @@
                 "style_score": 100,
                 "facade_score": 100,
                 "roof_score": 90,
-                "interior_score": 88,
+                "interior_score": 100,
                 "material_balance_score": 82,
                 "silhouette_score": 55
               },
               "stats": {
                 "volumes": 1,
                 "window_cells": 12,
-                "function_blocks": 4,
+                "function_blocks": 5,
                 "decorations": [
                   "timber_bracket",
                   "small_path_patch"
                 ],
                 "worst_flat_run": 3,
-                "stone_fraction": 0.102
+                "stone_fraction": 0.097
               }
             }
           }
@@ -19222,9 +19222,9 @@
           18,
           48
         ],
-        "block_count": 5993,
+        "block_count": 6015,
         "entity_count": 0,
-        "palette_count": 44,
+        "palette_count": 43,
         "path": "src/main/resources/data/myvillage/structure/chinese_courtyard_005.nbt"
       },
       "compound_graph": {
@@ -22368,7 +22368,7 @@
                   "small_path_patch"
                 ],
                 "worst_flat_run": 3,
-                "stone_fraction": 0.061
+                "stone_fraction": 0.058
               }
             }
           },
@@ -23738,9 +23738,9 @@
           19,
           48
         ],
-        "block_count": 6903,
+        "block_count": 6939,
         "entity_count": 0,
-        "palette_count": 41,
+        "palette_count": 42,
         "path": "src/main/resources/data/myvillage/structure/chinese_courtyard_006.nbt"
       },
       "compound_graph": {
@@ -27263,8 +27263,8 @@
                   "timber_bracket",
                   "small_path_patch"
                 ],
-                "worst_flat_run": 4,
-                "stone_fraction": 0.058
+                "worst_flat_run": 3,
+                "stone_fraction": 0.055
               }
             }
           },
@@ -27973,14 +27973,14 @@
                 "style_score": 100,
                 "facade_score": 100,
                 "roof_score": 90,
-                "interior_score": 100,
+                "interior_score": 88,
                 "material_balance_score": 83,
                 "silhouette_score": 55
               },
               "stats": {
                 "volumes": 1,
                 "window_cells": 14,
-                "function_blocks": 5,
+                "function_blocks": 4,
                 "decorations": [
                   "timber_bracket",
                   "small_path_patch"
