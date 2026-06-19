@@ -39,6 +39,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 public final class ModBlockFallback {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModBlockFallback.class);
@@ -50,6 +51,16 @@ public final class ModBlockFallback {
             ResourceLocation.withDefaultNamespace("kebab");
 
     private static Map<ResourceLocation, BlockState> fallbackStates = Map.of();
+    /**
+     * Parsed-template cache so repeated worldgen lookups of the same structure
+     * (a sect's slots are read once per overlapping chunk) reuse the parse +
+     * fallback patch instead of re-reading and re-patching NBT every call.
+     * Cleared on {@link #load} (server start / datapack reload). Read concurrently
+     * by worldgen threads; a parsed {@link StructureTemplate} is read-only during
+     * placement, so sharing it is safe.
+     */
+    private static final Map<ResourceLocation, Optional<LoadedTemplate>> templateCache =
+            new ConcurrentHashMap<>();
     private static BlockState defaultLastResort = Blocks.COBBLESTONE.defaultBlockState();
     private static boolean loaded;
     private static boolean parseFailureLogged;
@@ -66,12 +77,17 @@ public final class ModBlockFallback {
         HolderLookup<Block> blockLookup = server.registryAccess().lookupOrThrow(Registries.BLOCK);
         defaultLastResort = parseFallbackState(DEFAULT_LAST_RESORT_STATE, blockLookup);
         fallbackStates = loadFallbackStates(server.getResourceManager(), blockLookup);
+        templateCache.clear();
         loaded = true;
         LOGGER.info("Loaded {} myvillage optional-mod block fallbacks", fallbackStates.size());
     }
 
     public static Optional<LoadedTemplate> loadTemplate(ServerLevel level, ResourceLocation id) {
         ensureLoaded(level.getServer());
+        return templateCache.computeIfAbsent(id, key -> parseTemplate(level, key));
+    }
+
+    private static Optional<LoadedTemplate> parseTemplate(ServerLevel level, ResourceLocation id) {
         Optional<CompoundTag> raw = loadStructureTag(level.getServer().getResourceManager(), id);
         if (raw.isEmpty()) {
             return level.getStructureManager().get(id).map(template -> new LoadedTemplate(template, 0));

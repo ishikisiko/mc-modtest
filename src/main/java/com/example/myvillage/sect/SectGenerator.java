@@ -220,16 +220,19 @@ public final class SectGenerator {
         int maxZ = m.coreZ1() + MOUNTAIN_MARGIN;
         BlockState stone = Blocks.STONE.defaultBlockState();
         BlockState air = Blocks.AIR.defaultBlockState();
-        for (int x = minX; x <= maxX; x++) {
-            for (int z = minZ; z <= maxZ; z++) {
+        Clip clip = sink.clip();
+        int bx = plan.base.getX();
+        int bz = plan.base.getZ();
+        for (int x = clipLo(minX, clip.x0(), bx); x <= clipHi(maxX, clip.x1(), bx); x++) {
+            for (int z = clipLo(minZ, clip.z0(), bz); z <= clipHi(maxZ, clip.z1(), bz); z++) {
                 int top = m.height(x, z);
                 int nat = m.naturalAt(x, z);
                 for (int y = Math.min(nat, top); y <= top; y++) {
-                    place(sink, plan.base.offset(x, y, z), stone, stats);
+                    place(sink, at(plan.base, x, y, z), stone, stats);
                 }
                 // clear terrain that would bury the derived silhouette
                 for (int y = top + 1; y <= nat; y++) {
-                    place(sink, plan.base.offset(x, y, z), air, stats);
+                    place(sink, at(plan.base, x, y, z), air, stats);
                 }
             }
         }
@@ -251,9 +254,12 @@ public final class SectGenerator {
         }
         BlockState cloud = Blocks.WHITE_STAINED_GLASS.defaultBlockState();
         BlockState wisp = Blocks.POWDER_SNOW.defaultBlockState();
-        for (int x = m.coreX0(); x <= m.coreX1(); x++) {
+        Clip clip = sink.clip();
+        int bx = plan.base.getX();
+        int bz = plan.base.getZ();
+        for (int x = clipLo(m.coreX0(), clip.x0(), bx); x <= clipHi(m.coreX1(), clip.x1(), bx); x++) {
             int edge = Math.min(x - m.coreX0(), m.coreX1() - x);
-            for (int z = z0; z <= z1; z++) {
+            for (int z = clipLo(z0, clip.z0(), bz); z <= clipHi(z1, clip.z1(), bz); z++) {
                 if (m.height(x, z) >= y) {
                     continue;  // only float cloud over open air below the terraces
                 }
@@ -263,9 +269,9 @@ public final class SectGenerator {
                     continue;
                 }
                 if (zEdge == 0 && m.featherNoise(x, z, 3) > 1) {
-                    place(sink, plan.base.offset(x, y, z), wisp, stats);
+                    place(sink, at(plan.base, x, y, z), wisp, stats);
                 } else {
-                    place(sink, plan.base.offset(x, y, z), cloud, stats);
+                    place(sink, at(plan.base, x, y, z), cloud, stats);
                 }
             }
         }
@@ -739,21 +745,24 @@ public final class SectGenerator {
      * slope with no sub-footprint air gap (no floating or buried terraces).
      */
     private static void carveTerraces(SectSink sink, SectPlan plan, BuildStats stats) {
+        Clip clip = sink.clip();
+        int bx = plan.base.getX();
+        int bz = plan.base.getZ();
         for (Terrace terrace : plan.terraces) {
             int floorY = terrace.elevation - 1;
-            for (int x = terrace.bounds.x0; x <= terrace.bounds.x2(); x++) {
-                for (int z = terrace.bounds.z0; z <= terrace.bounds.z1; z++) {
+            for (int x = clipLo(terrace.bounds.x0, clip.x0(), bx); x <= clipHi(terrace.bounds.x2(), clip.x1(), bx); x++) {
+                for (int z = clipLo(terrace.bounds.z0, clip.z0(), bz); z <= clipHi(terrace.bounds.z1, clip.z1(), bz); z++) {
                     int natural = surfaceY(sink, plan.base, x, z);
                     // platform surface
-                    place(sink, plan.base.offset(x, floorY, z), Blocks.STONE_BRICKS.defaultBlockState(), stats);
+                    place(sink, at(plan.base, x, floorY, z), Blocks.STONE_BRICKS.defaultBlockState(), stats);
                     // fill down to natural ground so no air gap beneath the platform
                     for (int y = floorY - 1; y >= natural && y > floorY - 40; y--) {
-                        place(sink, plan.base.offset(x, y, z), Blocks.STONE_BRICKS.defaultBlockState(), stats);
+                        place(sink, at(plan.base, x, y, z), Blocks.STONE_BRICKS.defaultBlockState(), stats);
                     }
                     // carve headroom above (terrace reads as an open platform)
                     int topClear = Math.max(floorY + 4, natural + 1);
                     for (int y = floorY + 1; y <= topClear; y++) {
-                        place(sink, plan.base.offset(x, y, z), Blocks.AIR.defaultBlockState(), stats);
+                        place(sink, at(plan.base, x, y, z), Blocks.AIR.defaultBlockState(), stats);
                     }
                 }
             }
@@ -761,36 +770,47 @@ public final class SectGenerator {
     }
 
     private static void placeAxisStairs(SectSink sink, SectPlan plan, BuildStats stats) {
+        Clip clip = sink.clip();
+        int bx = plan.base.getX();
+        int bz = plan.base.getZ();
         for (AxisStair stair : plan.stairs) {
             Terrace lower = plan.terraces.get(stair.lower);
             int rows = stair.bounds.z1 - stair.bounds.z0 + 1;
             for (int zi = 0; zi < rows; zi++) {
                 int z = stair.bounds.z0 + zi;
+                if (bz + z < clip.z0() || bz + z > clip.z1()) {
+                    continue;
+                }
                 int stepY = lower.elevation + zi;   // each row rises one block toward the summit
-                for (int x = stair.bounds.x0; x <= stair.bounds.x2(); x++) {
-                    BlockPos at = plan.base.offset(x, stepY - 1, z);
+                for (int x = clipLo(stair.bounds.x0, clip.x0(), bx); x <= clipHi(stair.bounds.x2(), clip.x1(), bx); x++) {
+                    BlockPos stairPos = at(plan.base, x, stepY - 1, z);
                     BlockState stairState = Blocks.STONE_BRICK_STAIRS.defaultBlockState()
                             .setValue(StairBlock.FACING, Direction.NORTH)
                             .setValue(StairBlock.HALF, Half.BOTTOM);
-                    place(sink, at, stairState, stats);
-                    place(sink, at.above(), Blocks.AIR.defaultBlockState(), stats);
-                    place(sink, at.above(2), Blocks.AIR.defaultBlockState(), stats);
+                    place(sink, stairPos, stairState, stats);
+                    place(sink, stairPos.above(), Blocks.AIR.defaultBlockState(), stats);
+                    place(sink, stairPos.above(2), Blocks.AIR.defaultBlockState(), stats);
                 }
             }
         }
     }
 
     private static void placeRetainingFaces(SectSink sink, SectPlan plan, BuildStats stats) {
+        Clip clip = sink.clip();
+        int bx = plan.base.getX();
+        int bz = plan.base.getZ();
         for (RetainingFace r : plan.retaining) {
             Rect bounds = r.bounds;
-            for (int z = bounds.z0; z <= bounds.z1; z++) {
+            int innerMin = stairInnerMin(r, plan);
+            int innerMax = stairInnerMax(r, plan);
+            for (int z = clipLo(bounds.z0, clip.z0(), bz); z <= clipHi(bounds.z1, clip.z1(), bz); z++) {
                 for (int h = 0; h < r.height; h++) {
                     int y = plan.terraces.get(r.upper).elevation - 1 - h;
-                    for (int x = bounds.x0; x <= stairInnerMin(r, plan); x++) {
-                        place(sink, plan.base.offset(x, y, z), Blocks.STONE_BRICK_WALL.defaultBlockState(), stats);
+                    for (int x = clipLo(bounds.x0, clip.x0(), bx); x <= clipHi(innerMin, clip.x1(), bx); x++) {
+                        place(sink, at(plan.base, x, y, z), Blocks.STONE_BRICK_WALL.defaultBlockState(), stats);
                     }
-                    for (int x = stairInnerMax(r, plan); x <= bounds.x2(); x++) {
-                        place(sink, plan.base.offset(x, y, z), Blocks.STONE_BRICK_WALL.defaultBlockState(), stats);
+                    for (int x = clipLo(innerMax, clip.x0(), bx); x <= clipHi(bounds.x2(), clip.x1(), bx); x++) {
+                        place(sink, at(plan.base, x, y, z), Blocks.STONE_BRICK_WALL.defaultBlockState(), stats);
                     }
                 }
             }
@@ -816,21 +836,34 @@ public final class SectGenerator {
         Terrace summit = plan.terraces.get(plan.terraces.size() - 1);
         int backZ = summit.bounds.z1;
         int baseY = summit.elevation;
+        Clip clip = sink.clip();
+        int bx = plan.base.getX();
+        int bz = plan.base.getZ();
+        boolean faceInClip = bz + backZ >= clip.z0() && bz + backZ <= clip.z1();
+        boolean fillInClip = bz + backZ + 1 >= clip.z0() && bz + backZ + 1 <= clip.z1();
+        if (!faceInClip && !fillInClip) {
+            return;
+        }
         // sheer stone face rising behind the summit's cliff-back edge
-        for (int x = summit.bounds.x0; x <= summit.bounds.x2(); x++) {
-            for (int h = 0; h < CLIFF_BACK_HEIGHT; h++) {
-                place(sink, plan.base.offset(x, baseY + h, backZ),
-                        Blocks.STONE.defaultBlockState(), stats);
+        for (int x = clipLo(summit.bounds.x0, clip.x0(), bx); x <= clipHi(summit.bounds.x2(), clip.x1(), bx); x++) {
+            if (faceInClip) {
+                for (int h = 0; h < CLIFF_BACK_HEIGHT; h++) {
+                    place(sink, at(plan.base, x, baseY + h, backZ),
+                            Blocks.STONE.defaultBlockState(), stats);
+                }
             }
             // back the cliff with solid ground so the principal hall backs rock, not air
-            int natural = surfaceY(sink, plan.base, x, backZ + 1);
-            for (int y = baseY; y < natural; y++) {
-                place(sink, plan.base.offset(x, y, backZ + 1), Blocks.STONE.defaultBlockState(), stats);
+            if (fillInClip) {
+                int natural = surfaceY(sink, plan.base, x, backZ + 1);
+                for (int y = baseY; y < natural; y++) {
+                    place(sink, at(plan.base, x, y, backZ + 1), Blocks.STONE.defaultBlockState(), stats);
+                }
             }
         }
     }
 
     private static void realizeSlots(SectSink sink, SectPlan plan, RandomSource random, long seed, BuildStats stats) {
+        Clip clip = sink.clip();
         for (Slot slot : plan.slots) {
             Terrace terrace = findTerrace(plan, slot.terraceIndex);
             ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID, slot.templateId);
@@ -846,12 +879,21 @@ public final class SectGenerator {
             int td = size.getZ();
             int originX = slot.bounds.x0;
             int originZ = slot.bounds.z0;
+            // skip a building whose footprint lies wholly outside this chunk's
+            // slice (worldgen) so we don't clear/place out-of-region volume; an
+            // UNBOUNDED clip (command path) never skips.
+            if (!clipHitsLocal(clip, plan.base, originX, originZ, originX + tw - 1, originZ + td - 1)) {
+                continue;
+            }
             int floorY = terrace.elevation;
             BlockPos origin = new BlockPos(plan.base.getX() + originX, floorY - 1 - TEMPLATE_GROUND_LAYER,
                     plan.base.getZ() + originZ);
             // clear air above the platform so the template places cleanly
             clearVolume(sink, origin.above(), tw, size.getY() + 2, td, stats);
-            boolean placed = sink.placeTemplate(template, origin, random);
+            // seed placement from the stable sect site + this slot's origin (not
+            // the chunk) so a building straddling a chunk seam rolls the same
+            // variant/orientation in both halves.
+            boolean placed = sink.placeTemplate(template, origin, slotRandom(seed, originX, originZ));
             if (placed) {
                 stats.placedSlots++;
                 stats.fallbackSubstitutions += loaded.get().substitutions();
@@ -867,15 +909,27 @@ public final class SectGenerator {
      * endpoints: floor + side posts + slab roof, leaving walking headroom.
      */
     private static void placeCoveredGalleries(SectSink sink, SectPlan plan, BuildStats stats) {
+        Clip clip = sink.clip();
+        int bx = plan.base.getX();
+        int bz = plan.base.getZ();
         for (GalleryLink g : plan.galleries) {
             if (!g.kind.equals("covered_gallery")) continue;
             Terrace terrace = findTerrace(plan, g.terraceIndices[0]);
             if (terrace == null) continue;
             int floorY = terrace.elevation - 1;
+            if (!clipHitsLocal(clip, plan.base,
+                    Math.min(g.fromCell.x, g.toCell.x), Math.min(g.fromCell.z, g.toCell.z),
+                    Math.max(g.fromCell.x, g.toCell.x), Math.max(g.fromCell.z, g.toCell.z))) {
+                continue;
+            }
             List<Cell> line = bresenham(g.fromCell, g.toCell);
             for (int i = 0; i < line.size(); i++) {
                 Cell c = line.get(i);
-                BlockPos ground = plan.base.offset(c.x, floorY, c.z);
+                if (bx + c.x < clip.x0() || bx + c.x > clip.x1()
+                        || bz + c.z < clip.z0() || bz + c.z > clip.z1()) {
+                    continue;
+                }
+                BlockPos ground = at(plan.base, c.x, floorY, c.z);
                 place(sink, ground, Blocks.STONE_BRICKS.defaultBlockState(), stats);
                 place(sink, ground.above(), Blocks.AIR.defaultBlockState(), stats);
                 place(sink, ground.above(2), Blocks.AIR.defaultBlockState(), stats);
@@ -897,27 +951,39 @@ public final class SectGenerator {
     private static void realizeFeature(SectSink sink, SectPlan plan, RandomSource random, long seed, BuildStats stats) {
         if (plan.feature == null) return;
         FlyingBridgeFeature f = plan.feature;
+        Clip clip = sink.clip();
+        int bx = plan.base.getX();
+        int bz = plan.base.getZ();
         ResourceLocation id = ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID, f.detachedTemplate);
         Optional<ModBlockFallback.LoadedTemplate> loaded = sink.loadTemplate(id);
         if (loaded.isPresent()) {
             StructureTemplate template = loaded.get().template();
             int anchorX = f.detachedBounds.x0;
             int anchorZ = f.detachedBounds.z0;
-            int surface = surfaceY(sink, plan.base, anchorX, anchorZ);
-            BlockPos origin = new BlockPos(plan.base.getX() + anchorX, surface - 1,
-                    plan.base.getZ() + anchorZ);
-            clearVolume(sink, origin.above(), template.getSize().getX(),
-                    template.getSize().getY() + 2, template.getSize().getZ(), stats);
-            sink.placeTemplate(template, origin, random);
-            stats.placedSlots++;
-            stats.fallbackSubstitutions += loaded.get().substitutions();
+            int tw = template.getSize().getX();
+            int td = template.getSize().getZ();
+            if (clipHitsLocal(clip, plan.base, anchorX, anchorZ, anchorX + tw - 1, anchorZ + td - 1)) {
+                int surface = surfaceY(sink, plan.base, anchorX, anchorZ);
+                BlockPos origin = new BlockPos(plan.base.getX() + anchorX, surface - 1,
+                        plan.base.getZ() + anchorZ);
+                clearVolume(sink, origin.above(), tw, template.getSize().getY() + 2, td, stats);
+                sink.placeTemplate(template, origin, slotRandom(seed, anchorX, anchorZ));
+                stats.placedSlots++;
+                stats.fallbackSubstitutions += loaded.get().substitutions();
+            }
         }
         // flying bridge deck between endpoints, riding above the gap
         Terrace summit = plan.terraces.get(plan.terraces.size() - 1);
         int deckY = summit.elevation + 1;
         List<Cell> span = bresenham(f.bridge.fromCell, f.bridge.toCell);
         for (Cell c : span) {
-            BlockPos deck = plan.base.offset(c.x, deckY, c.z);
+            // deck writes the column plus its east/west neighbour (c.x ± 1);
+            // skip cells whose ±1 x-span and z fall outside the chunk slice.
+            if (bx + c.x + 1 < clip.x0() || bx + c.x - 1 > clip.x1()
+                    || bz + c.z < clip.z0() || bz + c.z > clip.z1()) {
+                continue;
+            }
+            BlockPos deck = at(plan.base, c.x, deckY, c.z);
             place(sink, deck, Blocks.DARK_OAK_PLANKS.defaultBlockState(), stats);
             place(sink, deck.above(), Blocks.AIR.defaultBlockState(), stats);
             place(sink, deck.below(), Blocks.OAK_FENCE.defaultBlockState(), stats);
@@ -967,6 +1033,26 @@ public final class SectGenerator {
         return sink.surfaceY(base.getX() + localX, base.getZ() + localZ);
     }
 
+    // --- clip helpers: tighten a local-coord loop range to the sink clip ------
+    // The loop variable is local (relative to base); the clip is world-space.
+    // Math is done in long so an UNBOUNDED clip (Integer.MIN/MAX) can't overflow.
+
+    /** Lower local bound: max(loopLocalLo, clipWorldLo - base). */
+    private static int clipLo(int loopLocalLo, int clipWorldLo, int baseWorld) {
+        return (int) Math.max(loopLocalLo, (long) clipWorldLo - baseWorld);
+    }
+
+    /** Upper local bound: min(loopLocalHi, clipWorldHi - base). */
+    private static int clipHi(int loopLocalHi, int clipWorldHi, int baseWorld) {
+        return (int) Math.min(loopLocalHi, (long) clipWorldHi - baseWorld);
+    }
+
+    /** Whether a local-coord rect intersects the clip (world-space). */
+    private static boolean clipHitsLocal(Clip clip, BlockPos base, int lx0, int lz0, int lx1, int lz1) {
+        return clip.intersects(base.getX() + lx0, base.getZ() + lz0,
+                base.getX() + lx1, base.getZ() + lz1);
+    }
+
     private static void clearVolume(SectSink sink, BlockPos origin, int width, int height, int depth, BuildStats stats) {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
@@ -975,6 +1061,31 @@ public final class SectGenerator {
                 }
             }
         }
+    }
+
+    /**
+     * Deterministic per-volume placement RNG derived from the sect seed and the
+     * volume's stable local origin, so the same volume rolls the same template
+     * processors/orientation regardless of which chunk's pass places it.
+     */
+    private static RandomSource slotRandom(long seed, int localX, int localZ) {
+        long mixed = seed
+                ^ ((long) localX * 0x9E3779B97F4A7C15L)
+                ^ ((long) localZ * 0xC2B2AE3D27D4EB4FL);
+        return RandomSource.create(mixed);
+    }
+
+    /**
+     * Block position at a local (x, z) offset from the compound base but an
+     * <em>absolute</em> world Y. Terrace elevations and {@link SectMountain}
+     * heights are already absolute (they are compared against the absolute
+     * natural surface), so they must NOT be fed through {@link BlockPos#offset}
+     * — that would add {@code base.getY()} a second time and float the terrain a
+     * full base-height above the buildings (which {@code realizeSlots} already
+     * places at the absolute Y).
+     */
+    private static BlockPos at(BlockPos base, int localX, int worldY, int localZ) {
+        return new BlockPos(base.getX() + localX, worldY, base.getZ() + localZ);
     }
 
     private static void place(SectSink sink, BlockPos pos, BlockState state, BuildStats stats) {
@@ -1016,6 +1127,12 @@ public final class SectGenerator {
         }
 
         @Override
+        public Clip clip() {
+            // Command path builds the whole compound in a single pass.
+            return Clip.UNBOUNDED;
+        }
+
+        @Override
         public int surfaceY(int worldX, int worldZ) {
             if (mountain != null) {
                 return mountain.height(worldX - base.getX(), worldZ - base.getZ());
@@ -1035,6 +1152,21 @@ public final class SectGenerator {
     }
 
     // --- records ------------------------------------------------------------
+
+    /**
+     * Inclusive world-space x/z clip the realizer restricts its iteration to.
+     * {@link #UNBOUNDED} covers the whole world (command path, one pass); the
+     * worldgen path supplies the current chunk's column area.
+     */
+    record Clip(int x0, int z0, int x1, int z1) {
+        static final Clip UNBOUNDED =
+                new Clip(Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE);
+
+        /** Whether the world-space rect [wx0,wx1]×[wz0,wz1] intersects this clip. */
+        boolean intersects(int wx0, int wz0, int wx1, int wz1) {
+            return wx1 >= x0 && wx0 <= x1 && wz1 >= z0 && wz0 <= z1;
+        }
+    }
 
     private record Cell(int x, int z) {
     }

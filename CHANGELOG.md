@@ -4,18 +4,58 @@ All notable project changes should be recorded here when a version is prepared.
 
 ## Versioning Rules
 
-- Large feature additions bump the middle version component and reset the patch
-  component: `0.x.y` -> `0.(x+1).0`.
-- Small feature additions bump the patch component: `0.x.y` -> `0.x.(y+1)`.
-- Single verified fixes keep the base version and add an ordered fix suffix:
-  `0.x.y-fix1`, `0.x.y-fix2`, and so on.
-- A fix suffix should only be added after the fix passes the relevant
-  validation or build step.
-- Any version change must update `gradle.properties`,
-  `src/main/resources/META-INF/neoforge.mods.toml`, README jar-name examples,
-  and this changelog in the same change.
+The authoritative version-bump rule (increments and the files that must move
+together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
 ## Unreleased
+
+## 0.11.0-fix2
+
+### Changed
+
+- **Documentation knowledge-base maintenance** (`add-docs-kb-governance`). Added a
+  knowledge-base entry map at `docs/ai-kb/INDEX.md` and linked it from `README.md`
+  and `AGENTS.md`; cross-linked the worldgen / validation / blueprint-schema doc and
+  spec pairs with see-also references; corrected the README "Current Scope" lists so
+  shipped sect worldgen is listed as included and no longer excluded; split the two
+  oversized `AGENTS.md` conventions (settlement composition into sect/worldgen/town
+  sub-items, acceptance command checklist moved into `docs/ai-kb/09_validation_checklist.md`);
+  made the version-bump rule single-source in `openspec/config.yaml`, referenced from
+  `AGENTS.md` and this changelog. Documentation-only; no code or asset changes.
+
+## 0.11.0-fix1
+
+### Fixed
+
+- **Worldgen sect no longer stalls chunk loading on approach**
+  (`fix-sect-worldgen-chunk-stall`). The single `SectStructurePiece` spans
+  ~8×15 chunks, and `postProcess` re-ran the *entire* mountain + compound build
+  for every overlapping chunk — relying on the sink to merely discard
+  out-of-chunk writes — so each of ~120 chunks redundantly performed tens of
+  thousands of `getBaseHeight` samples plus re-parsed every slot template's NBT.
+  The worldgen thread pool saturated and the feature-stage dependency front
+  could no longer advance, freezing chunk loading server-wide as a player
+  approached (before the sect was even visible, and through `/tp`). The realizer
+  now clips its iteration (not just its writes) to a `SectSink.clip()` — the
+  current chunk's column area in worldgen, unbounded for the on-the-spot
+  command — so each chunk does work proportional only to its own slice; total
+  work drops from O(footprint × overlapping-chunks) to O(footprint). Parsed
+  templates are cached in `ModBlockFallback` (cleared on reload) instead of
+  re-read per chunk, and per-volume placement RNG is derived from the stable
+  sect site + volume origin (not the chunk) so a building straddling a chunk
+  seam rolls the same variant/orientation in both halves. Siting, biome gating,
+  separation, `/locate`, the `/myvillage sect` command, and the derived-mountain
+  geometry are unchanged (Python/Java parity still validated).
+- **Worldgen sect terrain no longer floats above the compound.** Exposed once the
+  stall fix let the worldgen path complete: the mountain/terrace passes placed via
+  `base.offset(x, absoluteY, z)`, double-adding `base.getY()`, so the derived
+  terrain (mountain, terraces, stairs, retaining faces, cliff-back, galleries,
+  cloud-sea, flying-bridge deck) baked ~a base-height above the buildings, which
+  `realizeSlots` placed at the correct absolute Y — the terrain and the sect were
+  "not unified." A `SectGenerator.at(base, localX, worldY, localZ)` helper now
+  places all terrain passes at the absolute Y directly, so terrain and buildings
+  share one elevation frame. The on-the-spot `/myvillage sect` command shares the
+  realizer and benefits from the same fix.
 
 ## 0.11.0
 

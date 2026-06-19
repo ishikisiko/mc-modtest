@@ -80,7 +80,10 @@ public final class SectStructurePiece extends StructurePiece {
                 (x, z) -> chunkGenerator.getBaseHeight(base.getX() + x, base.getZ() + z,
                         Heightmap.Types.WORLD_SURFACE_WG, level, randomState));
         SectGenerator.BuildStats stats = new SectGenerator.BuildStats();
-        RandomSource templateRandom = RandomSource.create(siteSeed ^ box.minX() * 0x9E3779B9L ^ box.minZ());
+        // Stable across chunks: per-volume placement RNG is now derived from the
+        // site + volume origin inside the realizer, so this top-level random must
+        // not depend on the current chunk's box.
+        RandomSource templateRandom = RandomSource.create(siteSeed);
         WorldGenSink sink = new WorldGenSink(level, box, base, mountain);
         SectGenerator.writeMountain(sink, plan, mountain, stats);
         SectGenerator.placeCloudSea(sink, plan, mountain, siteSeed, stats);
@@ -105,9 +108,19 @@ public final class SectStructurePiece extends StructurePiece {
 
         @Override
         public void set(BlockPos at, BlockState state) {
+            // Safety net: the realizer already clips its iteration to clip(),
+            // this just drops any cell written one step beyond the chunk slice
+            // (supplied by the neighbouring chunk's pass).
             if (box.isInside(at)) {
                 level.setBlock(at, state, Block.UPDATE_CLIENTS);
             }
+        }
+
+        @Override
+        public SectGenerator.Clip clip() {
+            // Restrict the realizer to this chunk's column area so each pass does
+            // work proportional to one chunk, not the whole sect footprint.
+            return new SectGenerator.Clip(box.minX(), box.minZ(), box.maxX(), box.maxZ());
         }
 
         @Override

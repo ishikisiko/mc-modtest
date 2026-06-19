@@ -12,6 +12,9 @@ town-generation system with multiple settlement categories, varied housing
 types, functional buildings, roads and town pieces, and possible NPC-related
 systems when the data and runtime pipeline are ready.
 
+> **Knowledge base:** start at [docs/ai-kb/INDEX.md](docs/ai-kb/INDEX.md) — it maps the
+> `docs/ai-kb/` technical notes and the `openspec/specs/` capability index.
+
 ## Resource Path
 
 Use the singular Minecraft/NeoForge structure resource directory:
@@ -231,7 +234,7 @@ jar tf build/libs/*.jar | grep "assets/myvillage/textures/painting/inscription"
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.11.0.jar
+build/libs/myvillage-0.11.0-fix2.jar
 ```
 
 ## Versioning And Changelog
@@ -274,12 +277,12 @@ python3 tools/preview_structure.py --all
 python3 tools/generate_town_plan_preview.py --count 3
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.11.0.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.11.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.11.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.11.0.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.11.0.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.11.0.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.11.0-fix2.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.11.0-fix2.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.11.0-fix2.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.11.0-fix2.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.11.0-fix2.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.11.0-fix2.jar | grep "assets/myvillage/textures/painting/inscription"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -594,21 +597,23 @@ Included:
 - /myvillage place <structure_id>
 - /myvillage list
 - /myvillage town [seed]
+- /myvillage sect [seed]
+- /myvillage sect worldgen [seed] [variant]
 - /myvillage gallery
 - /myvillage gallery original
 - /myvillage gallery cultivation
+- a custom `myvillage:sect` worldgen Structure: sects are sited during world generation, biome-gated by `tags/worldgen/biome/has_sect`, spaced by `worldgen/structure_set/sect`, and `/locate`-able, resting on a mountain derived from the terrace profile (反推山形)
 - generated optional-mod runtime fallback map and fallback coverage validation
 - NBT integrity validation for roof/top-layer/function-block/signature checks
-- deterministic town-plan validation and top-down town-plan previews
+- deterministic town-plan and sect-plan/sect-generation validation with top-down previews
 ```
 
 Not included:
 
 ```text
-- passive/natural worldgen
-- jigsaw/template pool/structure_set generation
-- biome placement
-- entities, villagers, loot tables, or complex block entity NBT
+- passive/natural *town* worldgen (towns remain command-built via `/myvillage town`; only sects are sited during world generation)
+- jigsaw / template-pool generation (the sect structure is a hand-written `Structure`, not a jigsaw template pool)
+- loot tables or complex authored block-entity NBT
 ```
 
 Future direction:

@@ -19,6 +19,20 @@ import java.util.Optional;
 interface SectSink {
     void set(BlockPos pos, BlockState state);
 
+    /**
+     * Inclusive world-space x/z region the realizer may write to. The realizer
+     * tightens its loop bounds to this clip so each call does work proportional
+     * only to the clip, not the whole sect footprint. The command sink returns
+     * {@link SectGenerator.Clip#UNBOUNDED} (build the whole compound in one
+     * pass); the worldgen sink returns the current chunk's column area so a
+     * chunk does only its own slice. {@link #set} still filters per cell as a
+     * safety net, so cells written one step beyond the clip are dropped here and
+     * supplied by the neighbouring chunk's pass.
+     */
+    default SectGenerator.Clip clip() {
+        return SectGenerator.Clip.UNBOUNDED;
+    }
+
     /** Surface Y the realizer should rest on, at absolute world (x, z). */
     int surfaceY(int worldX, int worldZ);
 

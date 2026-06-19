@@ -27,3 +27,9 @@ A blueprint is a JSON document describing a structure using coordinates, block i
 - A block entry uses either `palette` or `block`.
 - Blockstates are stored as an object in `state`.
 
+## See also
+
+- Spec: [blueprint-v1](../../openspec/specs/blueprint-v1/spec.md) — the normative blueprint contract.
+- Spec: [structure-json-dsl](../../openspec/specs/structure-json-dsl/spec.md) — the structure JSON DSL.
+- Index: [Knowledge Base Map](INDEX.md).
+

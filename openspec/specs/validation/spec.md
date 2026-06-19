@@ -4,6 +4,8 @@
 
 This spec captures the current validation baseline. It is temporary and mutable; proposed changes to hard gates, warnings, or acceptance criteria should be discussed with the project owner first.
 
+See also (narrative + acceptance checklist): [docs/ai-kb/09_validation_checklist.md](../../../docs/ai-kb/09_validation_checklist.md).
+
 ## Requirements
 
 ### Requirement: Structure JSON validation checks schema, bounds, metadata, and modset-aware block ids

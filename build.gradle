@@ -14,6 +14,14 @@ java {
 
 neoForge {
     version = project.neo_version
+    runs {
+        configureEach {
+            modSource project.sourceSets.main
+        }
+        server {
+            server()
+        }
+    }
 }
 
 def pythonExecutable = providers.environmentVariable('PYTHON').orElse('python3')

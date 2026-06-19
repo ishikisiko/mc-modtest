@@ -4,6 +4,8 @@
 
 This spec captures the current simple blueprint validator baseline. It is temporary and mutable; proposed changes to blueprint semantics or conversion should be discussed with the project owner first.
 
+See also (narrative): [docs/ai-kb/02_blueprint_schema.md](../../../docs/ai-kb/02_blueprint_schema.md).
+
 ## Requirements
 
 ### Requirement: Blueprint v1 is a simple coordinate-block schema
