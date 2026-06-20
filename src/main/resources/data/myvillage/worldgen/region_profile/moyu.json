@@ -1,0 +1,9 @@
+{
+  "id": "moyu",
+  "display_name": "魔域",
+  "tier": 16,
+  "qi": [5, 7],
+  "danger": [8, 10],
+  "role": "walled",
+  "admitted_subjects": []
+}

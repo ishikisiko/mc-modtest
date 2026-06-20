@@ -1,0 +1,35 @@
+{
+  "id": "myvillage:region_topology",
+  "display_name": "修仙界区域格局规则",
+  "region_count": [5, 7],
+  "tier_range": [1, 20],
+  "tier_step": 5,
+  "separator_palette": ["特殊山脉", "特殊海洋"],
+  "embedding": {
+    "anchor_placement": "center",
+    "peripheral_ring_radius": 1.0,
+    "walled_ring_radius": 1.4,
+    "peripheral_nearest_peers": 2
+  },
+  "edge_rules": {
+    "non_tree_edge_lian_chance": 0.5,
+    "walled_gate_chance": 0.7
+  },
+  "role_rules": {
+    "anchor": {
+      "count": 1,
+      "placement": "center",
+      "tier": "top",
+      "join_spanning_tree": true
+    },
+    "peripheral": {
+      "join_spanning_tree": true
+    },
+    "walled": {
+      "join_spanning_tree": false,
+      "max_pass_edges": 1,
+      "pass_label": "关隘"
+    }
+  },
+  "catalog": "data/myvillage/worldgen/region_profile"
+}

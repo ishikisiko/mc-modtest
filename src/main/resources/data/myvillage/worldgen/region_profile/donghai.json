@@ -1,0 +1,9 @@
+{
+  "id": "donghai",
+  "display_name": "东海",
+  "tier": 9,
+  "qi": [3, 5],
+  "danger": [3, 6],
+  "role": "peripheral",
+  "admitted_subjects": ["sect"]
+}

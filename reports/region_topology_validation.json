@@ -1,0 +1,275 @@
+{
+  "ruleset": "myvillage:region_topology",
+  "tier_step": 5,
+  "region_count_range": [
+    5,
+    7
+  ],
+  "tier_range": [
+    1,
+    20
+  ],
+  "separator_palette": [
+    "特殊山脉",
+    "特殊海洋"
+  ],
+  "seeds": [
+    20260620,
+    20260721,
+    20260822,
+    20260923,
+    20261024,
+    20261125
+  ],
+  "count_distribution": {
+    "5": 1,
+    "6": 3,
+    "7": 2
+  },
+  "tier_spread": {
+    "min": 11,
+    "max": 20
+  },
+  "separators_observed": [
+    "特殊山脉",
+    "特殊海洋"
+  ],
+  "walled_region_presence": {
+    "seeds_with_walled": 6,
+    "seeds_total": 6
+  },
+  "connectivity": {
+    "all_non_walled_reachable": true
+  },
+  "determinism": {
+    "passed": true,
+    "details": []
+  },
+  "deliberate_breaks": [
+    {
+      "break": "region_count",
+      "passed_before": true,
+      "caught": true,
+      "named_correctly": true,
+      "errors": [
+        "region_count: 4 outside [5, 7]",
+        "anchor_count: expected exactly 1 anchor, found 0"
+      ]
+    },
+    {
+      "break": "anchor_count",
+      "passed_before": true,
+      "caught": true,
+      "named_correctly": true,
+      "errors": [
+        "anchor_count: expected exactly 1 anchor, found 0"
+      ]
+    },
+    {
+      "break": "anchor_centered",
+      "passed_before": true,
+      "caught": true,
+      "named_correctly": true,
+      "errors": [
+        "anchor_centered: anchor zhongzhou at (1.0, 1.0), expected (0.0, 0.0)"
+      ]
+    },
+    {
+      "break": "anchor_top_tier",
+      "passed_before": true,
+      "caught": true,
+      "named_correctly": true,
+      "errors": [
+        "anchor_top_tier: anchor tier 20 != graph top 21"
+      ]
+    },
+    {
+      "break": "tier_step",
+      "passed_before": true,
+      "caught": true,
+      "named_correctly": true,
+      "errors": [
+        "tier_step: 连 edge beiyuan--ximo |Δtier|=6 > N=5",
+        "tier_step: 连 edge nanjiang--ximo |Δtier|=6 > N=5",
+        "tier_step: 连 edge ximo--zhongzhou |Δtier|=11 > N=5"
+      ]
+    },
+    {
+      "break": "connectivity",
+      "passed_before": true,
+      "caught": true,
+      "named_correctly": true,
+      "errors": [
+        "connectivity: non-walled regions unreachable from anchor: ['beiyuan']"
+      ]
+    },
+    {
+      "break": "separator_palette",
+      "passed_before": true,
+      "caught": true,
+      "named_correctly": true,
+      "errors": [
+        "separator_palette: 隔 edge beiyuan--donghai separator '虚空裂隙' not in ['特殊山脉', '特殊海洋']"
+      ]
+    },
+    {
+      "break": "walled_pass_count",
+      "passed_before": true,
+      "caught": true,
+      "named_correctly": true,
+      "errors": [
+        "walled_pass_count: walled moyu has 2 连 edges (> 1 关隘)"
+      ]
+    }
+  ],
+  "unsatisfiable_ruleset": {
+    "reported": true,
+    "message": "catalog must declare exactly one anchor region, found 0"
+  },
+  "per_seed": [
+    {
+      "seed": 20260620,
+      "report": {
+        "passed": true,
+        "errors": [],
+        "stats": {
+          "count": 7,
+          "anchor": "zhongzhou",
+          "anchor_tier": 20,
+          "top_tier": 20,
+          "min_tier": 11,
+          "max_tier": 20,
+          "non_walled_reachable": true,
+          "walled_count": 1,
+          "walled_with_pass": 1,
+          "lian_edges": 8,
+          "ge_edges": 4,
+          "separators_used": [
+            "特殊山脉",
+            "特殊海洋"
+          ]
+        }
+      }
+    },
+    {
+      "seed": 20260721,
+      "report": {
+        "passed": true,
+        "errors": [],
+        "stats": {
+          "count": 5,
+          "anchor": "zhongzhou",
+          "anchor_tier": 20,
+          "top_tier": 20,
+          "min_tier": 14,
+          "max_tier": 20,
+          "non_walled_reachable": true,
+          "walled_count": 1,
+          "walled_with_pass": 0,
+          "lian_edges": 4,
+          "ge_edges": 5,
+          "separators_used": [
+            "特殊山脉",
+            "特殊海洋"
+          ]
+        }
+      }
+    },
+    {
+      "seed": 20260822,
+      "report": {
+        "passed": true,
+        "errors": [],
+        "stats": {
+          "count": 7,
+          "anchor": "zhongzhou",
+          "anchor_tier": 20,
+          "top_tier": 20,
+          "min_tier": 13,
+          "max_tier": 20,
+          "non_walled_reachable": true,
+          "walled_count": 1,
+          "walled_with_pass": 0,
+          "lian_edges": 6,
+          "ge_edges": 7,
+          "separators_used": [
+            "特殊山脉",
+            "特殊海洋"
+          ]
+        }
+      }
+    },
+    {
+      "seed": 20260923,
+      "report": {
+        "passed": true,
+        "errors": [],
+        "stats": {
+          "count": 6,
+          "anchor": "zhongzhou",
+          "anchor_tier": 20,
+          "top_tier": 20,
+          "min_tier": 12,
+          "max_tier": 20,
+          "non_walled_reachable": true,
+          "walled_count": 1,
+          "walled_with_pass": 0,
+          "lian_edges": 5,
+          "ge_edges": 6,
+          "separators_used": [
+            "特殊山脉",
+            "特殊海洋"
+          ]
+        }
+      }
+    },
+    {
+      "seed": 20261024,
+      "report": {
+        "passed": true,
+        "errors": [],
+        "stats": {
+          "count": 6,
+          "anchor": "zhongzhou",
+          "anchor_tier": 20,
+          "top_tier": 20,
+          "min_tier": 15,
+          "max_tier": 20,
+          "non_walled_reachable": true,
+          "walled_count": 1,
+          "walled_with_pass": 1,
+          "lian_edges": 8,
+          "ge_edges": 3,
+          "separators_used": [
+            "特殊山脉",
+            "特殊海洋"
+          ]
+        }
+      }
+    },
+    {
+      "seed": 20261125,
+      "report": {
+        "passed": true,
+        "errors": [],
+        "stats": {
+          "count": 6,
+          "anchor": "zhongzhou",
+          "anchor_tier": 20,
+          "top_tier": 20,
+          "min_tier": 16,
+          "max_tier": 20,
+          "non_walled_reachable": true,
+          "walled_count": 1,
+          "walled_with_pass": 0,
+          "lian_edges": 6,
+          "ge_edges": 5,
+          "separators_used": [
+            "特殊山脉",
+            "特殊海洋"
+          ]
+        }
+      }
+    }
+  ]
+}

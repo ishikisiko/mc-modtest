@@ -37,8 +37,8 @@ Then build previews and the mod jar:
 
 ```text
 python3 tools/preview_structure.py --all          # offline PNGs + per-structure viewer.html
-python3 tools/generate_town_plan_preview.py --count 3   # top-down town-plan PNG/HTML under out/preview/town_plan_*
-python3 tools/generate_sect_plan_preview.py --count 3   # top-down sect-plan PNG/HTML under out/preview/sect_plan_*
+python3 tools/generate_town_plan_preview.py --count 6   # top-down town-plan PNG/HTML under out/preview/town_plan_s* (default covers all 6 wall families)
+python3 tools/generate_sect_plan_preview.py --count 6   # top-down sect-plan PNG/HTML under out/preview/sect_plan_s* (default covers all 3 detached-spire variants + absent)
 ./gradlew build
 ```
 

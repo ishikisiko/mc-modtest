@@ -50,22 +50,64 @@ import java.util.Set;
 public final class TownGenerator {
     static final int WIDTH = 160;
     static final int DEPTH = 160;
-    static final int CENTER_X = WIDTH / 2;
+    static final int CENTER_X = WIDTH / 2; // base/reference center only
     static final int SPINE_HALF_WIDTH = 3;
-    static final int SPINE_X0 = CENTER_X - SPINE_HALF_WIDTH;
-    static final int SPINE_X1 = CENTER_X + SPINE_HALF_WIDTH;
     static final int MAX_SLOPE = 5;
     static final int MAX_FOOTPRINT_AXIS = 160;
     static final int TEMPLATE_GROUND_LAYER = 0;
     static final int BLOCK_FLAGS = Block.UPDATE_CLIENTS;
     static final int INTERIOR_LANE_WIDTH = 2;
 
-    // Cross-lane z-bands (inclusive), mirrored from town.py.
-    static final int LANE_S_Z0 = 16, LANE_S_Z1 = 18;
-    static final int LANE_M_Z0 = 60, LANE_M_Z1 = 62;
-    static final int LANE_N_Z0 = 108, LANE_N_Z1 = 110;
+    static final int CENTER_X_JITTER = 4;
+    static final int LANE_JITTER = 2;
+    static final int DISTRICT_WIDTH_JITTER = 3;
+    static final String[] PERIMETER_FAMILIES = {
+            "square", "circle", "oval", "dshape", "octagon", "trapezoid"};
+    static final String[] PERIMETER_MODIFIERS = {"none", "barbican", "bastion"};
+    static final int GATE_RUN_HALF = 8, GATE_BAND_DEPTH = 2, CIRCLE_MARGIN = 1;
+    static final int OVAL_RX_MIN = 60, OVAL_RX_MAX = 74;
+    static final int OVAL_RZ_MIN = 50, OVAL_RZ_MAX = 64;
+    static final int OCTAGON_K = 44, TRAPEZOID_SLANT = 12;
+    static final int BARBICAN_OFFSET = 9, BARBICAN_WIDTH = 8, BARBICAN_DEPTH = 6;
+    static final int BASTION_HALF_W = 10, BASTION_DEPTH = 8;
 
     private TownGenerator() {
+    }
+
+    /** Package-visible parity surface used by the JUnit Python⇄Java fixture. */
+    static Map<String, Object> paritySnapshot(long seed) {
+        TownPlan plan = plan(seed, BlockPos.ZERO);
+        int[][] bands = laneBands(seed);
+        ShapeSelection shape = new ShapeSelection(plan.shapeFamily, plan.shapeModifier);
+        Rect protectedCore = new Rect(plan.centerX - 36, bands[2][1] + 1,
+                plan.centerX + 36, DEPTH - 2);
+        Map<String, Object> out = new java.util.LinkedHashMap<>();
+        out.put("seed", seed);
+        out.put("family", plan.shapeFamily);
+        out.put("modifier", plan.shapeModifier);
+        out.put("center_x", plan.centerX);
+        out.put("lanes", List.of(
+                List.of(bands[0][0], bands[0][1]),
+                List.of(bands[1][0], bands[1][1]),
+                List.of(bands[2][0], bands[2][1])));
+        out.put("perimeter_cells", plan.perimeter.size());
+        out.put("interior_cells", perimeterInterior(seed, shape, protectedCore).size());
+        out.put("district_widths", plan.districts.stream()
+                .map(d -> d.bounds.width()).toList());
+        out.put("district_cells", plan.districts.stream()
+                .map(d -> d.cells.size()).toList());
+        out.put("validation_errors", validatePlan(plan));
+        return out;
+    }
+
+    /** Explicit integer-curve sweep hook (circle/oval risk mitigation). */
+    static List<Integer> curveCounts(long seed, String family) {
+        Set<Cell> interior = familyInterior(seed, family);
+        ShapeSelection shape = new ShapeSelection(family, "none");
+        int cx = centerX(seed);
+        int[][] bands = laneBands(seed);
+        Rect protectedCore = new Rect(cx - 36, bands[2][1] + 1, cx + 36, DEPTH - 2);
+        return List.of(interior.size(), boundary(seed, shape, protectedCore).size());
     }
 
     public static long seedFromSource(CommandSourceStack source) throws CommandSyntaxException {
@@ -180,8 +222,17 @@ public final class TownGenerator {
     // --- plan ---------------------------------------------------------------
 
     private static TownPlan plan(long seed, BlockPos base) {
-        Set<Cell> perimeter = boundary();
-        Set<Cell> southGate = rect(CENTER_X - 2, 0, CENTER_X + 2, 0);
+        int centerX = centerX(seed);
+        int spineX0 = centerX - SPINE_HALF_WIDTH;
+        int spineX1 = centerX + SPINE_HALF_WIDTH;
+        int[][] laneBands = laneBands(seed);
+        int[] laneS = laneBands[0], laneM = laneBands[1], laneN = laneBands[2];
+        Map<String, Integer> widthJitter = districtWidthJitters(seed);
+        ShapeSelection shape = selectPerimeterShape(seed);
+        Rect protectedCore = new Rect(centerX - 36, laneN[1] + 1, centerX + 36, DEPTH - 2);
+        Set<Cell> interior = perimeterInterior(seed, shape, protectedCore);
+        Set<Cell> perimeter = boundary(seed, shape, protectedCore);
+        Set<Cell> southGate = rect(centerX - 2, 0, centerX + 2, 0);
         List<Gate> gates = List.of(new Gate("south_gate", "south", southGate));
         Set<Cell> wall = new HashSet<>(perimeter);
         wall.removeAll(southGate);
@@ -191,44 +242,55 @@ public final class TownGenerator {
         // fits with one cell of margin; mirrors town.py shrine_d == 21.
         int shrineWidth = 23;
         int shrineDepth = 21;
-        int shrineX0 = CENTER_X - shrineWidth / 2 - 1;
+        int shrineX0 = centerX - shrineWidth / 2 - 1;
         int shrineX1 = shrineX0 + shrineWidth + 1;
         int shrineZ1 = DEPTH - 2;
         int shrineZ0 = shrineZ1 - shrineDepth;
         Rect shrineParcel = new Rect(shrineX0, shrineZ0, shrineX1, shrineZ1);
-        Rect plaza = new Rect(CENTER_X - 16, shrineZ0 - 9, CENTER_X + 16, shrineZ0 - 1);
-        Set<Cell> paifang = rect(CENTER_X - 6, plaza.z0 - 1, CENTER_X + 6, plaza.z0 - 1);
+        Rect plaza = new Rect(centerX - 16, shrineZ0 - 9, centerX + 16, shrineZ0 - 1);
+        Set<Cell> paifang = rect(centerX - 6, plaza.z0 - 1, centerX + 6, plaza.z0 - 1);
         Set<Cell> lanterns = new HashSet<>();
-        for (int z = LANE_N_Z1 + 2; z < plaza.z0 - 1; z += 5) {
-            lanterns.add(new Cell(CENTER_X - 5, z));
-            lanterns.add(new Cell(CENTER_X + 5, z));
+        for (int z = laneN[1] + 2; z < plaza.z0 - 1; z += 5) {
+            lanterns.add(new Cell(centerX - 5, z));
+            lanterns.add(new Cell(centerX + 5, z));
         }
 
-        Set<Cell> spine = rect(SPINE_X0, 0, SPINE_X1, plaza.z1);
+        Set<Cell> spine = rect(spineX0, 0, spineX1, plaza.z1);
         spine.addAll(plaza.cells());
         spine.addAll(paifang);
         Set<Cell> lanes = new HashSet<>();
-        for (int[] lane : new int[][]{{LANE_S_Z0, LANE_S_Z1}, {LANE_M_Z0, LANE_M_Z1}, {LANE_N_Z0, LANE_N_Z1}}) {
+        for (int[] lane : laneBands) {
             lanes.addAll(rect(8, lane[0], WIDTH - 9, lane[1]));
         }
         lanes.removeAll(spine);
+        spine.retainAll(interior);
+        lanes.retainAll(interior);
         Set<Cell> streets = new HashSet<>(spine);
         streets.addAll(lanes);
 
         // Districts (mirror town.py _layout). [kind, x0, z0, x1, z1, density, sMin, sMax, material, roster...]
-        Rect westCivic = new Rect(CENTER_X - 33, plaza.z0 - 10, plaza.x0 - 1, plaza.z1);
-        Rect eastCivic = new Rect(plaza.x1 + 1, plaza.z0 - 10, CENTER_X + 33, plaza.z1);
+        Rect westCivic = new Rect(centerX - 33, plaza.z0 - 10, plaza.x0 - 1, plaza.z1);
+        Rect eastCivic = new Rect(plaza.x1 + 1, plaza.z0 - 10, centerX + 33, plaza.z1);
         List<District> districts = new ArrayList<>();
-        districts.add(district("gate", CENTER_X - 24, 1, CENTER_X + 24, LANE_S_Z0 - 1));
-        districts.add(district("residential", 8, 1, CENTER_X - 25, LANE_S_Z0 - 1));
-        districts.add(district("residential", CENTER_X + 25, 1, WIDTH - 9, LANE_S_Z0 - 1));
-        districts.add(district("market", 8, LANE_S_Z1 + 1, SPINE_X0 - 1, LANE_M_Z0 - 1));
-        districts.add(district("market", SPINE_X1 + 1, LANE_S_Z1 + 1, WIDTH - 9, LANE_M_Z0 - 1));
-        districts.add(district("residential", 8, LANE_M_Z1 + 1, SPINE_X0 - 1, LANE_N_Z0 - 1));
-        districts.add(district("residential", SPINE_X1 + 1, LANE_M_Z1 + 1, WIDTH - 9, LANE_N_Z0 - 1));
-        districts.add(district("civic_core", CENTER_X - 36, LANE_N_Z1 + 1, CENTER_X + 36, DEPTH - 2));
-        districts.add(district("fringe", 8, LANE_N_Z1 + 1, CENTER_X - 37, DEPTH - 2));
-        districts.add(district("fringe", CENTER_X + 37, LANE_N_Z1 + 1, WIDTH - 9, DEPTH - 2));
+        districts.add(district("gate", centerX - 24, 1, centerX + 24, laneS[0] - 1));
+        districts.add(district("residential", 8 - widthJitter.get("south_res_w"), 1, centerX - 25, laneS[0] - 1));
+        districts.add(district("residential", centerX + 25, 1, WIDTH - 9 + widthJitter.get("south_res_e"), laneS[0] - 1));
+        districts.add(district("market", 8 - widthJitter.get("market_w"), laneS[1] + 1, spineX0 - 1, laneM[0] - 1));
+        districts.add(district("market", spineX1 + 1, laneS[1] + 1, WIDTH - 9 + widthJitter.get("market_e"), laneM[0] - 1));
+        districts.add(district("residential", 8 - widthJitter.get("mid_res_w"), laneM[1] + 1, spineX0 - 1, laneN[0] - 1));
+        districts.add(district("residential", spineX1 + 1, laneM[1] + 1, WIDTH - 9 + widthJitter.get("mid_res_e"), laneN[0] - 1));
+        districts.add(district("civic_core", centerX - 36, laneN[1] + 1, centerX + 36, DEPTH - 2));
+        districts.add(district("fringe", 8 - widthJitter.get("fringe_w"), laneN[1] + 1, centerX - 37, DEPTH - 2));
+        districts.add(district("fringe", centerX + 37, laneN[1] + 1, WIDTH - 9 + widthJitter.get("fringe_e"), DEPTH - 2));
+        if (!shape.family.equals("square") || !shape.modifier.equals("none")) {
+            for (int i = 0; i < districts.size(); i++) {
+                District d = districts.get(i);
+                if (d.kind.equals("civic_core")) continue;
+                Set<Cell> clipped = new HashSet<>(d.bounds.cells());
+                clipped.retainAll(interior);
+                if (!clipped.equals(d.cells)) districts.set(i, d.withCells(clipped));
+            }
+        }
 
         List<Parcel> parcels = new ArrayList<>();
         List<OpenRegion> openRegions = new ArrayList<>();
@@ -270,22 +332,31 @@ public final class TownGenerator {
 
         int[] idx = new int[]{100};
         for (District d : districts) {
-            subdivideDistrict(d, streets, westCivic, eastCivic, parcels, alleys, openRegions, idx, seed, lanes);
+            subdivideDistrict(d, streets, westCivic, eastCivic, parcels, alleys,
+                    openRegions, idx, seed, lanes, spineX0, spineX1);
         }
 
         // Fringe spirit-field negative spaces (灵田/药圃).
         for (District d : districts) {
             if (!d.kind.equals("fringe")) continue;
-            openRegions.add(new OpenRegion("spirit_field_" + d.bounds.x0 + "_" + d.bounds.z0, "spirit_field",
-                    new Rect(d.bounds.x0 + 1, d.bounds.z0 + 6, d.bounds.x1 - 1, d.bounds.z1 - 1), 0));
+            Rect field = new Rect(d.bounds.x0 + 1, d.bounds.z0 + 6,
+                    d.bounds.x1 - 1, d.bounds.z1 - 1);
+            Set<Cell> fieldCells = new HashSet<>(field.cells());
+            fieldCells.retainAll(d.cells);
+            openRegions.add(new OpenRegion(
+                    "spirit_field_" + d.bounds.x0 + "_" + d.bounds.z0,
+                    "spirit_field", field, 0, fieldCells));
         }
 
         Precinct precinct = buildPrecinct(core, spine, plaza, paifang, lanterns,
                 westCivic, eastCivic, shrineParcel, pagodaParcel, towerParcel,
-                parcels, streets);
+                parcels, streets, centerX, spineX0, spineX1);
 
         RitualAxis ritualAxis = new RitualAxis("south_gate", "town_shrine", plaza, paifang, lanterns);
-        return new TownPlan(base, perimeter, wall, gates, spine, lanes, parcels, openRegions, alleys, districts, ritualAxis, precinct);
+        return new TownPlan(seed, base, perimeter, wall, gates, spine, lanes, parcels,
+                openRegions, alleys, districts, ritualAxis, precinct,
+                shape.family, shape.modifier, centerX, spineX0, spineX1,
+                laneS[1]);
     }
 
     /**
@@ -299,13 +370,14 @@ public final class TownGenerator {
                                           Set<Cell> paifang, Set<Cell> lanterns,
                                           Rect westCivic, Rect eastCivic, Rect shrineParcel,
                                           Rect pagodaParcel, Rect towerParcel,
-                                          List<Parcel> parcels, Set<Cell> streets) {
+                                          List<Parcel> parcels, Set<Cell> streets,
+                                          int centerX, int spineX0, int spineX1) {
         int coreX0 = core.bounds.x0, coreZ0 = core.bounds.z0;
         int coreX1 = core.bounds.x1, coreZ1 = core.bounds.z1;
 
         // Precinct gate: paifang-style run on the spine at the core's
         // gate-facing edge (z-min). Stays spine (passable); the wall opens here.
-        Set<Cell> precinctGate = rect(SPINE_X0, coreZ0, SPINE_X1, coreZ0);
+        Set<Cell> precinctGate = rect(spineX0, coreZ0, spineX1, coreZ0);
 
         // Spirit-way band: flanking statue/stele cells along the spine, every
         // other row, masked off the spine walking width and the lantern cells.
@@ -314,7 +386,7 @@ public final class TownGenerator {
         int spiritZ1 = plaza.z0 - 1;
         for (int z = spiritZ0; z <= spiritZ1; z++) {
             if ((z - spiritZ0) % 2 != 0) continue;
-            for (int fx : new int[]{CENTER_X - 5, CENTER_X + 5}) {
+            for (int fx : new int[]{centerX - 5, centerX + 5}) {
                 Cell c = new Cell(fx, z);
                 if (spine.contains(c) || lanterns.contains(c)) continue;
                 spiritWay.add(c);
@@ -395,13 +467,14 @@ public final class TownGenerator {
             case "civic_core" -> { density = 3; sMin = 2; sMax = 3; material = "timber_ceremonial"; rosterHead = "cultivation_shop"; }
             default -> { density = 1; sMin = 1; sMax = 1; material = "field_stone_fringe"; rosterHead = "cultivation_house"; }
         }
-        return new District(kind, new Rect(x0, z0, x1, z1), density, sMin, sMax, material, rosterHead);
+        Rect bounds = new Rect(x0, z0, x1, z1);
+        return new District(kind, bounds, bounds.cells(), density, sMin, sMax, material, rosterHead);
     }
 
     private static void subdivideDistrict(
             District d, Set<Cell> streets, Rect westCivic, Rect eastCivic,
             List<Parcel> parcels, List<OpenRegion> alleys, List<OpenRegion> openRegions, int[] idx,
-            long seed, Set<Cell> lanes) {
+            long seed, Set<Cell> lanes, int spineX0, int spineX1) {
         Rect b = d.bounds;
         switch (d.kind) {
             case "civic_core" -> {
@@ -410,8 +483,8 @@ public final class TownGenerator {
                 return;
             }
             case "gate" -> {
-                addGateParcel(d, new Rect(b.x0, b.z0, SPINE_X0 - 1, b.z1), "E", parcels, idx);
-                addGateParcel(d, new Rect(SPINE_X1 + 1, b.z0, b.x1, b.z1), "W", parcels, idx);
+                addGateParcel(d, new Rect(b.x0, b.z0, spineX0 - 1, b.z1), "E", parcels, idx);
+                addGateParcel(d, new Rect(spineX1 + 1, b.z0, b.x1, b.z1), "W", parcels, idx);
                 return;
             }
             case "fringe" -> {
@@ -567,6 +640,7 @@ public final class TownGenerator {
 
     private static void addGateParcel(District d, Rect bounds, String edge, List<Parcel> parcels, int[] idx) {
         if (bounds.x1 < bounds.x0) return;
+        if (!d.cells.containsAll(bounds.cells())) return;
         String tpl = variantThatFits("cultivation_house", bounds.x1 - bounds.x0 + 1, bounds.z1 - bounds.z0 + 1);
         parcels.add(new Parcel("parcel_gate_" + idx[0], "housing", bounds, d.storeyMin, false, tpl,
                 d.kind, d.material, d.storeyMin, edge));
@@ -592,25 +666,23 @@ public final class TownGenerator {
                 idx[0]++;
                 break;
             }
-            int variantIdx = (int) Math.floorMod(
-                    seed ^ (i * 341873128712L) ^ (d.kind.hashCode() * 132897987541L), variants.length);
-            String chosenVariant = variants[variantIdx];
-            int segWidth = templateWidth(chosenVariant);
-            if (segWidth > remaining) {
-                for (String v : variants) {
-                    int w = templateWidth(v);
-                    if (w <= remaining && w < segWidth) {
-                        chosenVariant = v;
-                        segWidth = w;
-                    }
-                }
-                if (segWidth > remaining) {
-                    Rect bounds = parcelBounds(side, i, alongEnd, bandLo, bandHi);
-                    alleys.add(new OpenRegion("alley_" + d.kind + "_" + idx[0], "alley", bounds, 0));
-                    idx[0]++;
-                    break;
-                }
+            int reserve = Math.max(0, 2 - run) * minWidth;
+            List<String> fitting = new ArrayList<>();
+            for (String variant : variants) {
+                int width = templateWidth(variant);
+                if (width > remaining || width > remaining - reserve) continue;
+                Rect candidate = parcelBounds(side, i, i + width - 1, bandLo, bandHi);
+                if (d.cells.containsAll(candidate.cells())) fitting.add(variant);
             }
+            if (fitting.isEmpty()) {
+                i++;
+                continue;
+            }
+            int variantIdx = TownHash.range64(seed,
+                    "frontage_variant:" + d.id() + ":" + side + ":" + i,
+                    0, fitting.size() - 1);
+            String chosenVariant = fitting.get(variantIdx);
+            int segWidth = templateWidth(chosenVariant);
             int segEnd = i + segWidth - 1;
             Rect bounds = parcelBounds(side, i, segEnd, bandLo, bandHi);
             int storey = storeyWithin(d, parcelCounter);
@@ -761,7 +833,11 @@ public final class TownGenerator {
 
     private static List<String> validatePlan(TownPlan plan) {
         List<String> errors = new ArrayList<>();
-        if (!plan.perimeter.equals(boundary())) {
+        ShapeSelection shape = new ShapeSelection(plan.shapeFamily, plan.shapeModifier);
+        int[][] bands = laneBands(plan.seed());
+        Rect protectedCore = new Rect(plan.centerX - 36, bands[2][1] + 1,
+                plan.centerX + 36, DEPTH - 2);
+        if (!plan.perimeter.equals(boundary(plan.seed(), shape, protectedCore))) {
             errors.add("perimeter_not_closed");
         }
         for (Gate gate : plan.gates) {
@@ -790,9 +866,17 @@ public final class TownGenerator {
             }
         }
         Set<Cell> streets = plan.streetCells();
+        Set<Cell> shapeInterior = perimeterInterior(plan.seed, shape, protectedCore);
         Set<Cell> parcelCells = new HashSet<>();
         for (Parcel parcel : plan.parcels) {
             Set<Cell> cells = parcel.bounds.cells();
+            boolean inDistrict = plan.districts.stream()
+                    .filter(d -> d.kind.equals(parcel.districtKind))
+                    .anyMatch(d -> d.cells.containsAll(cells));
+            if (!inDistrict) errors.add("parcel_outside_district:" + parcel.id);
+            if (!shapeInterior.containsAll(cells)) {
+                errors.add("parcel_outside_perimeter:" + parcel.id);
+            }
             if (!parcelCells.addAll(cells)) {
                 errors.add("parcel_overlap:" + parcel.id);
             }
@@ -804,7 +888,7 @@ public final class TownGenerator {
             }
         }
         for (OpenRegion region : plan.openRegions) {
-            Set<Cell> cells = region.bounds.cells();
+            Set<Cell> cells = region.cells;
             if (!disjoint(cells, streets)) {
                 errors.add("negative_space_street_overlap:" + region.id);
             }
@@ -813,7 +897,7 @@ public final class TownGenerator {
             }
         }
         for (OpenRegion alley : plan.alleys) {
-            Set<Cell> cells = alley.bounds.cells();
+            Set<Cell> cells = alley.cells;
             if (!disjoint(cells, parcelCells)) {
                 errors.add("alley_parcel_overlap:" + alley.id);
             }
@@ -821,7 +905,7 @@ public final class TownGenerator {
                 errors.add("alley_street_overlap:" + alley.id);
             }
         }
-        Set<Cell> reachable = reachableFrom(new Cell(CENTER_X, DEPTH / 2), streets);
+        Set<Cell> reachable = reachableFrom(new Cell(plan.centerX, DEPTH / 2), streets);
         if (!reachable.containsAll(streets)) {
             errors.add("street_network_disconnected");
         }
@@ -880,7 +964,7 @@ public final class TownGenerator {
         // fringe separation: wall on each shared core<->fringe lateral edge
         Set<Cell> fringeCells = new HashSet<>();
         for (District d : plan.districts) {
-            if (d.kind.equals("fringe")) fringeCells.addAll(d.bounds.cells());
+            if (d.kind.equals("fringe")) fringeCells.addAll(d.cells);
         }
         Set<Cell> sharedWest = new HashSet<>();
         Set<Cell> sharedEast = new HashSet<>();
@@ -1194,7 +1278,7 @@ public final class TownGenerator {
     private static void furnishStreetRooms(ServerLevel level, TownPlan plan, BuildStats stats) {
         Set<Cell> streets = plan.streetCells();
         for (int x = 8; x <= WIDTH - 9; x += 9) {
-            Cell spot = new Cell(x, LANE_S_Z1 + 1);
+            Cell spot = new Cell(x, plan.laneSouthZ1 + 1);
             if (!streets.contains(spot)) continue;
             BlockPos ground = surfacePos(level, plan.base, spot.x, spot.z);
             if ((x / 9) % 2 == 0) {
@@ -1214,7 +1298,7 @@ public final class TownGenerator {
         for (OpenRegion region : plan.openRegions) {
             Rect b = region.bounds;
             if (region.kind.equals("spirit_field")) {
-                dressSpiritField(level, plan.base, b, stats);
+                dressSpiritField(level, plan.base, region.cells, b, stats);
             } else if (region.kind.equals("courtyard_yard")) {
                 dressCourtyardYard(level, plan, region, stats);
             }
@@ -1302,10 +1386,12 @@ public final class TownGenerator {
     }
 
     /** 药圃/灵田 spirit-field: tended crop rows + moss + water channels. */
-    private static void dressSpiritField(ServerLevel level, BlockPos base, Rect b, BuildStats stats) {
+    private static void dressSpiritField(ServerLevel level, BlockPos base, Set<Cell> cells,
+                                         Rect b, BuildStats stats) {
         for (int x = b.x0; x <= b.x1; x++) {
             boolean channel = (x - b.x0) % 4 == 0;
             for (int z = b.z0; z <= b.z1; z++) {
+                if (!cells.contains(new Cell(x, z))) continue;
                 BlockPos pos = surfacePos(level, base, x, z);
                 if (channel) {
                     place(level, pos, Blocks.WATER.defaultBlockState(), stats);
@@ -1339,7 +1425,7 @@ public final class TownGenerator {
         Set<Cell> allFootprints = new HashSet<>();
         for (Set<Cell> fp : stats.parcelTemplateFootprints.values()) allFootprints.addAll(fp);
 
-        for (Cell cell : b.cells()) {
+        for (Cell cell : region.cells) {
             boolean onEdge = cell.x == b.x0 || cell.x == b.x1 || cell.z == b.z0 || cell.z == b.z1;
             if (!onEdge) continue;
             if (streets.contains(cell)) continue;
@@ -1350,7 +1436,7 @@ public final class TownGenerator {
         Set<Cell> blocked = new HashSet<>(streets);
         blocked.addAll(allFootprints);
         List<Cell> free = new ArrayList<>();
-        for (Cell cell : b.cells()) {
+        for (Cell cell : region.cells) {
             if (!blocked.contains(cell) && cell.x > b.x0 && cell.x < b.x1 && cell.z > b.z0 && cell.z < b.z1) {
                 free.add(cell);
             }
@@ -1413,14 +1499,15 @@ public final class TownGenerator {
         int zRange = Math.max(1, maxZ - minZ);
 
         for (Cell cell : spine) {
-            if (cell.x != SPINE_X0 && cell.x != SPINE_X1) continue;
+            if (cell.x != plan.spineX0 && cell.x != plan.spineX1) continue;
             int distToPlaza = Math.abs(cell.z - plazaZ0);
             float falloff = 1.0f - Math.min(1.0f, (float) distToPlaza / (float) zRange);
             int spacing = Math.max(3, (int) (10 - 6 * falloff));
             if ((cell.x + cell.z) % spacing != 0) continue;
 
             BlockPos ground = surfacePos(level, plan.base, cell.x, cell.z);
-            if (!plan.streetCells().contains(new Cell(cell.x + (cell.x == SPINE_X0 ? -1 : 1), cell.z))) continue;
+            if (!plan.streetCells().contains(new Cell(
+                    cell.x + (cell.x == plan.spineX0 ? -1 : 1), cell.z))) continue;
             placeSpineProp(level, ground, (cell.x * 31 + cell.z * 17) % 4, stats);
         }
     }
@@ -1611,13 +1698,111 @@ public final class TownGenerator {
         stats.blocksPlaced++;
     }
 
-    private static Set<Cell> boundary() {
-        Set<Cell> cells = new HashSet<>();
-        cells.addAll(rect(0, 0, WIDTH - 1, 0));
-        cells.addAll(rect(0, DEPTH - 1, WIDTH - 1, DEPTH - 1));
-        cells.addAll(rect(0, 0, 0, DEPTH - 1));
-        cells.addAll(rect(WIDTH - 1, 0, WIDTH - 1, DEPTH - 1));
-        return cells;
+    private static int centerX(long seed) {
+        return WIDTH / 2 + TownHash.range64(seed, "cx", -CENTER_X_JITTER, CENTER_X_JITTER);
+    }
+
+    private static int[][] laneBands(long seed) {
+        int south = TownHash.range64(seed, "lane_s", 0, LANE_JITTER);
+        int middle = TownHash.range64(seed, "lane_m", -LANE_JITTER, LANE_JITTER);
+        int north = TownHash.range64(seed, "lane_n", -LANE_JITTER, LANE_JITTER);
+        return new int[][]{{16 + south, 18 + south},
+                {60 + middle, 62 + middle}, {108 + north, 110 + north}};
+    }
+
+    private static Map<String, Integer> districtWidthJitters(long seed) {
+        Map<String, Integer> out = new java.util.LinkedHashMap<>();
+        for (String key : new String[]{"south_res_w", "south_res_e", "market_w", "market_e",
+                "mid_res_w", "mid_res_e", "fringe_w", "fringe_e"}) {
+            out.put(key, TownHash.range64(seed, "district_width_" + key,
+                    -DISTRICT_WIDTH_JITTER, DISTRICT_WIDTH_JITTER));
+        }
+        return out;
+    }
+
+    private static ShapeSelection selectPerimeterShape(long seed) {
+        return new ShapeSelection(TownHash.pick(seed, "family", PERIMETER_FAMILIES),
+                TownHash.pick(seed, "modifier", PERIMETER_MODIFIERS));
+    }
+
+    private static Set<Cell> gateBand(int cx) {
+        return rect(Math.max(0, cx - GATE_RUN_HALF), 0,
+                Math.min(WIDTH - 1, cx + GATE_RUN_HALF), GATE_BAND_DEPTH);
+    }
+
+    private static Set<Cell> familyInterior(long seed, String family) {
+        Set<Cell> out = new HashSet<>();
+        int cx = WIDTH / 2, cz = DEPTH / 2;
+        if (family.equals("square")) return rect(0, 0, WIDTH - 1, DEPTH - 1);
+        if (family.equals("circle")) {
+            int r = Math.min(WIDTH, DEPTH) / 2 - CIRCLE_MARGIN;
+            long r2 = (long) r * r;
+            for (int x = Math.max(0, cx-r); x <= Math.min(WIDTH-1, cx+r); x++)
+                for (int z = Math.max(0, cz-r); z <= Math.min(DEPTH-1, cz+r); z++)
+                    if ((long)(x-cx)*(x-cx) + (long)(z-cz)*(z-cz) <= r2) out.add(new Cell(x,z));
+            out.addAll(gateBand(cx));
+        } else if (family.equals("oval")) {
+            int rx = TownHash.range64(seed, "oval_rx", OVAL_RX_MIN, OVAL_RX_MAX);
+            int rz = TownHash.range64(seed, "oval_rz", OVAL_RZ_MIN, OVAL_RZ_MAX);
+            cz = rz + 1;
+            long rx2=(long)rx*rx, rz2=(long)rz*rz, rhs=rx2*rz2;
+            for (int x=Math.max(0,cx-rx); x<=Math.min(WIDTH-1,cx+rx); x++)
+                for (int z=Math.max(0,cz-rz); z<=Math.min(DEPTH-1,cz+rz); z++)
+                    if (rz2*(long)(x-cx)*(x-cx)+rx2*(long)(z-cz)*(z-cz)<=rhs) out.add(new Cell(x,z));
+            out.addAll(gateBand(cx));
+        } else if (family.equals("dshape")) {
+            int r=WIDTH/2-CIRCLE_MARGIN, mid=DEPTH/2; long r2=(long)r*r;
+            out.addAll(rect(0,0,WIDTH-1,mid));
+            for(int x=Math.max(0,cx-r);x<=Math.min(WIDTH-1,cx+r);x++)
+                for(int z=mid;z<=Math.min(DEPTH-1,mid+r);z++)
+                    if((long)(x-cx)*(x-cx)+(long)(z-mid)*(z-mid)<=r2) out.add(new Cell(x,z));
+        } else if (family.equals("octagon")) {
+            out.addAll(rect(0,0,WIDTH-1,DEPTH-1));
+            for(int x=0;x<OCTAGON_K;x++) for(int z=0;z<OCTAGON_K;z++) if(x+z<OCTAGON_K) {
+                out.remove(new Cell(x,z)); out.remove(new Cell(WIDTH-1-x,z));
+                out.remove(new Cell(x,DEPTH-1-z)); out.remove(new Cell(WIDTH-1-x,DEPTH-1-z));
+            }
+        } else if (family.equals("trapezoid")) {
+            out.addAll(rect(0,0,WIDTH-1,DEPTH-1));
+            for(int z=0;z<DEPTH;z++) for(int x=0;x<(TRAPEZOID_SLANT*z)/Math.max(1,DEPTH-1);x++) {
+                out.remove(new Cell(x,z)); out.remove(new Cell(WIDTH-1-x,z));
+            }
+        }
+        return out;
+    }
+
+    private static Set<Cell> modifierBitten(String modifier) {
+        Set<Cell> out = new HashSet<>(); int cx=WIDTH/2;
+        if (modifier.equals("barbican")) {
+            int x0=cx+BARBICAN_OFFSET, x1=Math.min(WIDTH-1,x0+BARBICAN_WIDTH-1);
+            out.addAll(rect(x0,0,x1,BARBICAN_DEPTH));
+        } else if (modifier.equals("bastion")) {
+            int z0=DEPTH/2-BASTION_HALF_W,z1=DEPTH/2+BASTION_HALF_W;
+            out.addAll(rect(0,z0,BASTION_DEPTH-1,z1));
+            out.addAll(rect(WIDTH-BASTION_DEPTH,z0,WIDTH-1,z1));
+        }
+        return out;
+    }
+
+    private static Set<Cell> perimeterInterior(long seed, ShapeSelection shape, Rect protectedCore) {
+        Set<Cell> interior = familyInterior(seed, shape.family);
+        interior.removeAll(modifierBitten(shape.modifier));
+        interior.addAll(protectedCore.cells());
+        return interior;
+    }
+
+    private static Set<Cell> boundary(long seed, ShapeSelection shape, Rect protectedCore) {
+        Set<Cell> interior = perimeterInterior(seed, shape, protectedCore);
+        Set<Cell> perimeter = new HashSet<>();
+        for (Cell c : interior) {
+            if (!interior.contains(new Cell(c.x + 1, c.z))
+                    || !interior.contains(new Cell(c.x - 1, c.z))
+                    || !interior.contains(new Cell(c.x, c.z + 1))
+                    || !interior.contains(new Cell(c.x, c.z - 1))) {
+                perimeter.add(c);
+            }
+        }
+        return perimeter;
     }
 
     private static Set<Cell> rect(int x0, int z0, int x1, int z1) {
@@ -1697,8 +1882,15 @@ public final class TownGenerator {
     private record Gate(String id, String side, Set<Cell> cells) {
     }
 
-    private record District(String kind, Rect bounds, int density, int storeyMin, int storeyMax,
-                            String material, String rosterHead) {
+    private record District(String kind, Rect bounds, Set<Cell> cells, int density,
+                            int storeyMin, int storeyMax, String material, String rosterHead) {
+        District withCells(Set<Cell> replacement) {
+            return new District(kind, bounds, Set.copyOf(replacement), density,
+                    storeyMin, storeyMax, material, rosterHead);
+        }
+        String id() {
+            return kind + "_" + bounds.x0 + "_" + bounds.z0 + "_" + bounds.x1 + "_" + bounds.z1;
+        }
     }
 
     private record Parcel(String id, String role, Rect bounds, int importance, boolean dominant,
@@ -1706,7 +1898,11 @@ public final class TownGenerator {
                           int storeyHint, String frontageEdge) {
     }
 
-    private record OpenRegion(String id, String kind, Rect bounds, int densityRank) {
+    private record OpenRegion(String id, String kind, Rect bounds, int densityRank,
+                              Set<Cell> cells) {
+        OpenRegion(String id, String kind, Rect bounds, int densityRank) {
+            this(id, kind, bounds, densityRank, bounds.cells());
+        }
     }
 
     private record RitualAxis(String fromGate, String terminusParcel, Rect plaza,
@@ -1720,10 +1916,15 @@ public final class TownGenerator {
     private record TerrainFit(int baseY, int slope) {
     }
 
-    private record TownPlan(BlockPos base, Set<Cell> perimeter, Set<Cell> wall, List<Gate> gates,
+    private record ShapeSelection(String family, String modifier) {
+    }
+
+    private record TownPlan(long seed, BlockPos base, Set<Cell> perimeter, Set<Cell> wall, List<Gate> gates,
                             Set<Cell> spine, Set<Cell> lanes, List<Parcel> parcels,
                             List<OpenRegion> openRegions, List<OpenRegion> alleys,
-                            List<District> districts, RitualAxis ritualAxis, Precinct precinct) {
+                            List<District> districts, RitualAxis ritualAxis, Precinct precinct,
+                            String shapeFamily, String shapeModifier, int centerX,
+                            int spineX0, int spineX1, int laneSouthZ1) {
         Set<Cell> streetCells() {
             Set<Cell> out = new HashSet<>(spine);
             out.addAll(lanes);

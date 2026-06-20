@@ -12,11 +12,37 @@ java {
     }
 }
 
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testImplementation 'com.google.code.gson:gson:2.10.1'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+// Geometry parity tests load TownGenerator itself; inherit the mod runtime so
+// its Minecraft/NeoForge types are resolvable under plain JUnit.
+configurations.testRuntimeClasspath.extendsFrom(configurations.runtimeClasspath)
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
 neoForge {
     version = project.neo_version
+    // moddev-gradle 2.0.141 registers mod sources via a top-level `mods {}`
+    // block (the older `runs { configureEach { modSource ... } }` DSL was
+    // removed; RunModel has no modSource in this version).
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+        }
+    }
     runs {
         configureEach {
-            modSource project.sourceSets.main
+            // all runs load the mod declared above
         }
         server {
             server()

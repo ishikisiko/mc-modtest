@@ -30,7 +30,12 @@ from buildgen.sect_mountain import (  # noqa: E402
     derive_mountain,
     flat_natural,
 )
-from generate_town_plan_preview import write_png, write_index  # noqa: E402
+from generate_town_plan_preview import (  # noqa: E402
+    DEFAULT_SEED,
+    purge_old_plan_previews,
+    write_png,
+    write_index,
+)
 
 RGBA = Tuple[int, int, int, int]
 
@@ -234,7 +239,7 @@ def write_viewer(plan, out_dir: Path, mountain=None) -> Path:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Sect compound {plan.seed}</title>
+<title>Sect compound s{plan.seed} (seed={plan.seed})</title>
 <style>
 body {{ margin: 0; font-family: system-ui, sans-serif; background: #ebe6da; color: #252525; }}
 main {{ max-width: 980px; margin: 0 auto; padding: 24px; }}
@@ -247,7 +252,7 @@ h2 {{ margin-top: 1.4em; }}
 </head>
 <body>
 <main>
-<h1>Sect compound {plan.seed}</h1>
+<h1>Sect compound s{plan.seed} (seed={plan.seed})</h1>
 <img src="plan.png" alt="Top-down generated sect compound plan">
 <div class="legend">
 <div><span class="swatch" style="background:#49708b"></span>ritual axis (山门→主殿)</div>
@@ -280,19 +285,34 @@ h2 {{ margin-top: 1.4em; }}
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--seed", type=int, default=20260618)
-    parser.add_argument("--count", type=int, default=3)
+    parser.add_argument("--seed", type=int, default=DEFAULT_SEED,
+                        help=f"base seed (default {DEFAULT_SEED}); the generated dir names "
+                             "carry an `s` prefix so the seed never collides with real dates "
+                             "in the listing. The default base is a sentinel picked so the "
+                             "default --count 6 run hits every detached-spire variant "
+                             "(pavilion_short_straight_east / pagoda_long_arched_west / "
+                             "disciple_medium_angled_north) plus the absent-feature case.")
+    parser.add_argument("--count", type=int, default=6,
+                        help="number of plans to render (default 6 — the default base seed "
+                             "covers every detached-spire variant + the absent case in 6 "
+                             "steps; pass --count 3 to mirror the older compact preview set)")
     parser.add_argument("--out", default=str(REPO_ROOT / "out" / "preview"))
+    parser.add_argument("--keep-existing", action="store_true",
+                        help="skip the cleanup of previous sect_plan_s* dumps in --out")
     args = parser.parse_args()
 
     out_root = Path(args.out)
+    if not args.keep_existing:
+        purged = purge_old_plan_previews(out_root, "sect_plan")
+        if purged:
+            print(f"purged {purged} previous sect_plan_* dump(s) under {out_root}")
     # pick seeds that exhibit present, absent, and each feature variant
     seeds = []
     for index in range(args.count):
         seeds.append(args.seed + index * 101)
     for seed in seeds:
         plan = generate_sect_plan(seed)
-        out_dir = out_root / f"sect_plan_{seed}"
+        out_dir = out_root / f"sect_plan_s{seed}"
         out_dir.mkdir(parents=True, exist_ok=True)
         (out_dir / "plan.json").write_text(
             json.dumps(plan.to_dict(), indent=2, ensure_ascii=False), encoding="utf-8")
@@ -311,7 +331,7 @@ def main() -> int:
         }, indent=2, ensure_ascii=False), encoding="utf-8")
         render_mountain_png(plan, mountain, plan.site.base_y, out_dir / "mountain.png")
         viewer = write_viewer(plan, out_dir, mountain)
-        print(f"OK sect_plan_{seed}: {viewer.relative_to(REPO_ROOT)} "
+        print(f"OK sect_plan_s{seed}: {viewer.relative_to(REPO_ROOT)} "
               f"feature={plan.feature.variant if plan.feature else 'none'} "
               f"cloud_y={mountain.cloud_sea_y}")
     index_path = write_index(out_root)

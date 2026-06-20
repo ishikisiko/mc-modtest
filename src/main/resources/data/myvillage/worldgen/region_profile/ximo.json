@@ -1,0 +1,9 @@
+{
+  "id": "ximo",
+  "display_name": "西漠",
+  "tier": 8,
+  "qi": [2, 4],
+  "danger": [5, 8],
+  "role": "peripheral",
+  "admitted_subjects": ["sect"]
+}

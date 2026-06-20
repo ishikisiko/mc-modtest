@@ -1,0 +1,9 @@
+{
+  "id": "zhongzhou",
+  "display_name": "中州",
+  "tier": 18,
+  "qi": [7, 9],
+  "danger": [3, 6],
+  "role": "anchor",
+  "admitted_subjects": ["sect"]
+}

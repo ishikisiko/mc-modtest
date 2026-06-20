@@ -1,0 +1,23 @@
+{
+  "probe_seeds": [20260618, 20260719, 20260820, 20260921, 20261022],
+  "floors": {
+    "perimeter_jaccard": 0.25,
+    "silhouette_descriptor": 0.015
+  },
+  "baseline_0_12_0": {
+    "implementation": "HEAD before town-shape-vocabulary used one square perimeter for every seed",
+    "minimum_perimeter_jaccard": 0.0,
+    "minimum_silhouette_descriptor": 0.0,
+    "passes": false
+  },
+  "post_change": {
+    "minimum_pair": [20260820, 20260921],
+    "minimum_perimeter_jaccard": 0.292096,
+    "minimum_silhouette_descriptor": 0.016214,
+    "passes": true
+  },
+  "descriptor": {
+    "components": ["perimeter_bbox_aspect", "corner_cell_fraction", "curve_cell_fraction"],
+    "distance": "L1"
+  }
+}

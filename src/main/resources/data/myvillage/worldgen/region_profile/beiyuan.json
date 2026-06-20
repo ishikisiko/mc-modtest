@@ -1,0 +1,9 @@
+{
+  "id": "beiyuan",
+  "display_name": "北原",
+  "tier": 11,
+  "qi": [4, 6],
+  "danger": [3, 6],
+  "role": "peripheral",
+  "admitted_subjects": ["sect"]
+}

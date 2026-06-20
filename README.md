@@ -159,6 +159,7 @@ python3 tools/validate_town_generation.py
 python3 tools/validate_runtime_town_plan.py
 python3 tools/check_style_policy.py
 python3 tools/check_cultivation_forms.py
+python3 tools/validate_region_topology.py
 ```
 
 The validator checks that files exist, palettes and blocks are non-empty, roof
@@ -178,6 +179,40 @@ frame preset and inscription asset. Generated structures must not contain
 used at runtime because they can fail vanilla hanging-entity survival checks
 and drop as painting items.
 
+## Region Topology (Offline Layer)
+
+The region (洲/域) layer is the macro geography the mod was missing — a
+per-seed region graph of 5–7 洲 with a single 中州 `anchor` at the center,
+rule-governed 连 (passable) / 隔 (separated) relations, a tier gradient, and a
+sealed 魔域-style `walled` region. It is the top of the OTG stack
+(WorldConfig region rules + a constrained-random FromImage-like geography),
+delivered **offline-first**: data drives generation and validation before any
+runtime chunk-gen. The authored catalog and ruleset ship as JSON under
+`src/main/resources/data/myvillage/worldgen/`; a canonical example graph ships
+at `worldgen/region_topology_example.json`. See
+[`docs/ai-kb/13_region_topology.md`](docs/ai-kb/13_region_topology.md).
+
+```bash
+# Emit the region graph for a seed as JSON (constructive, seed-deterministic):
+python3 tools/generate_region_topology.py 20260620
+python3 tools/generate_region_topology.py 20260620 --out reports/rt.json
+python3 tools/generate_region_topology.py 20260620 --check-determinism
+
+# Validate structural invariants + determinism + deliberate breaks, and write
+# the multi-seed survey to reports/region_topology_validation.json:
+python3 tools/validate_region_topology.py
+
+# Render per-seed SVG + ASCII previews under out/preview/region_topology_s*/:
+python3 tools/generate_region_topology_preview.py --count 6
+```
+
+The graph lists regions (tier/role/position) and a typed edge list: `连` edges
+are passable; `隔` edges carry a separator (`特殊山脉` or `特殊海洋`); a
+`walled` region's single retained `连` edge is marked `关隘`. This layer adds
+**no in-game command and no runtime worldgen yet** — there is no `/myvillage`
+entry for it this change. Turning the typed edges into actual relief (山脉/海洋
+ranges) and placing subjects into regions is the deferred next change.
+
 ## Preview Structures Offline
 
 Render structures to offline PNG and HTML previews without launching the game,
@@ -191,7 +226,7 @@ or trapdoor open/close still needs an in-game check.
 python3 tools/preview_structure.py src/main/resources/data/myvillage/structure/small_house_001.nbt
 python3 tools/preview_structure.py examples/buildings/small_house_01.json   # DSL source form
 python3 tools/preview_structure.py --all                                    # every .nbt
-python3 tools/generate_town_plan_preview.py --count 3                       # town plan PNG/HTML previews
+python3 tools/generate_town_plan_preview.py --count 6                       # town plan PNG/HTML previews (default covers all 6 wall families)
 python3 tools/preview_structure.py --viewer-only src/main/resources/data/myvillage/structure/cultivation_sect_001.nbt
 python3 tools/preview_structure.py --no-viewer --all                        # PNGs only
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview           # serve public previews for review
@@ -234,7 +269,7 @@ jar tf build/libs/*.jar | grep "assets/myvillage/textures/painting/inscription"
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.11.0-fix2.jar
+build/libs/myvillage-0.14.0.jar
 ```
 
 ## Versioning And Changelog
@@ -273,16 +308,19 @@ python3 tools/validate_town_generation.py
 python3 tools/validate_runtime_town_plan.py
 python3 tools/check_style_policy.py
 python3 tools/check_cultivation_forms.py
+python3 tools/validate_region_topology.py
 python3 tools/preview_structure.py --all
-python3 tools/generate_town_plan_preview.py --count 3
+python3 tools/generate_town_plan_preview.py --count 6    # default covers all 6 wall families
+python3 tools/generate_sect_plan_preview.py --count 6    # default covers all 3 detached-spire variants + absent
+python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 graph previews
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.11.0-fix2.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.11.0-fix2.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.11.0-fix2.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.11.0-fix2.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.11.0-fix2.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.11.0-fix2.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.14.0.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.14.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.14.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.14.0.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.14.0.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.14.0.jar | grep "assets/myvillage/textures/painting/inscription"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -320,6 +358,10 @@ Generate a living cultivation town around the player:
 ```
 
 The optional seed makes generation deterministic for the same seed and site.
+It selects both the perimeter silhouette (square, 天圆 circle, oval, 半月
+D-shape, octagon, or trapezoid, optionally with a barbican/bastion) and a
+bounded orthogonal internal grid. Family review seeds include `4` (square), `5`
+(circle), `2` (oval), `1` (D-shape), `11` (octagon), and `13` (trapezoid).
 The town is a districted ~160×160 修仙坊市 (gate / market / residential / civic
 core / fringe districts), force-loaded via chunk tickets so the whole footprint
 generates in one command; regions that cannot be force-loaded are reported

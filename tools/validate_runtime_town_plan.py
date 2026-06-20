@@ -21,7 +21,9 @@ It replaces the previous hardcoded 96x80 nine-parcel ritual-axis layout check.
 from __future__ import annotations
 
 import copy
+import json
 import sys
+from itertools import combinations
 from pathlib import Path
 from typing import Dict, Set, Tuple
 
@@ -51,6 +53,8 @@ STRUCTURE_DIR = REPO_ROOT / "src" / "main" / "resources" / "data" / "myvillage" 
 
 REQUIRED_KINDS = ("gate", "market", "residential", "civic_core", "fringe")
 DEFAULT_SEED = 20260618
+PROBE_SEEDS = (20260618, 20260719, 20260820, 20260921, 20261022)
+DISTINCTNESS_REPORT = REPO_ROOT / "reports" / "town_distinctness_calibration.json"
 
 
 def rect(x0: int, z0: int, x1: int, z1: int) -> Set[Cell]:
@@ -160,14 +164,74 @@ def validate_determinism(seed: int, site: TownSite, brief: list) -> list:
     errors = []
     a = generate_town_plan(seed, site, brief)
     b = generate_town_plan(seed, site, brief)
-    ka = [(d.kind, d.bounds) for d in a.districts]
-    kb = [(d.kind, d.bounds) for d in b.districts]
+    ka = [(d.kind, d.bounds, d.cells_override) for d in a.districts]
+    kb = [(d.kind, d.bounds, d.cells_override) for d in b.districts]
     if ka != kb:
         errors.append("district_partition_not_deterministic")
     pa = [(p.id, p.bounds, p.template_id) for p in a.parcels]
     pb = [(p.id, p.bounds, p.template_id) for p in b.parcels]
     if pa != pb:
         errors.append("parcel_layout_not_deterministic")
+    if a.shape_id != b.shape_id:
+        errors.append("shape_id_not_deterministic")
+    if a.perimeter != b.perimeter:
+        errors.append("perimeter_not_deterministic")
+    return errors
+
+
+def perimeter_jaccard_distance(a: Set[Cell], b: Set[Cell]) -> float:
+    """Cell-set Jaccard distance (0 identical, 1 disjoint)."""
+    union = a | b
+    return 0.0 if not union else 1.0 - (len(a & b) / len(union))
+
+
+def silhouette_descriptor(perimeter: Set[Cell]) -> Tuple[float, float, float]:
+    """Return bbox aspect, corner fraction, and raster-curve fraction."""
+    if not perimeter:
+        return (0.0, 0.0, 0.0)
+    xs = [x for x, _z in perimeter]
+    zs = [z for _x, z in perimeter]
+    x0, x1, z0, z1 = min(xs), max(xs), min(zs), max(zs)
+    width, depth = x1 - x0 + 1, z1 - z0 + 1
+    x_lo, x_hi = x0 + width // 4, x1 - width // 4
+    z_lo, z_hi = z0 + depth // 4, z1 - depth // 4
+    corners = sum(
+        1 for x, z in perimeter
+        if (x < x_lo or x > x_hi) and (z < z_lo or z > z_hi))
+    curves = 0
+    for x, z in perimeter:
+        horizontal = int((x - 1, z) in perimeter) + int((x + 1, z) in perimeter)
+        vertical = int((x, z - 1) in perimeter) + int((x, z + 1) in perimeter)
+        if horizontal < 2 and vertical < 2:
+            curves += 1
+    count = len(perimeter)
+    return (width / depth, corners / count, curves / count)
+
+
+def silhouette_distance(a: Set[Cell], b: Set[Cell]) -> float:
+    return sum(abs(x - y) for x, y in zip(
+        silhouette_descriptor(a), silhouette_descriptor(b)))
+
+
+def validate_distinctness(plans: Dict[int, object]) -> list:
+    """Fail on any colliding probe pair and name its missed metric."""
+    errors = []
+    calibration = json.loads(DISTINCTNESS_REPORT.read_text(encoding="utf-8"))
+    jaccard_floor = float(calibration["floors"]["perimeter_jaccard"])
+    descriptor_floor = float(calibration["floors"]["silhouette_descriptor"])
+    for seed_a, seed_b in combinations(PROBE_SEEDS, 2):
+        a, b = plans[seed_a].perimeter, plans[seed_b].perimeter
+        jaccard = perimeter_jaccard_distance(a, b)
+        descriptor = silhouette_distance(a, b)
+        pair = f"{seed_a},{seed_b}"
+        if jaccard < jaccard_floor:
+            errors.append(
+                f"distinctness_pair={pair}:perimeter_jaccard="
+                f"{jaccard:.6f}<{jaccard_floor:.6f}")
+        if descriptor < descriptor_floor:
+            errors.append(
+                f"distinctness_pair={pair}:silhouette_descriptor="
+                f"{descriptor:.6f}<{descriptor_floor:.6f}")
     return errors
 
 
@@ -175,37 +239,105 @@ def validate_parity_constants() -> list:
     """Confirm the Python planner geometry matches TownGenerator.java.
 
     The ``expected`` map mirrors the Java realizer's static final constants and
-    its civic-precinct derivation for the default 160x160 footprint. If either
-    side changes, update both and this map together.
+    its civic-precinct + perimeter-vocabulary derivation for the default
+    160x160 footprint. If either side changes, update both and this map together.
     """
     expected = {
-        "WIDTH": 160,
+        "BARBICAN_DEPTH": 6,
+        "BARBICAN_OFFSET": 9,
+        "BARBICAN_WIDTH": 8,
+        "BASE_CENTER_X": 80,
+        "BASTION_DEPTH": 8,
+        "BASTION_HALF_W": 10,
+        "CENTER_X": 82,
+        "CENTER_X_JITTER": 4,
+        "CIRCLE_MARGIN": 1,
+        "COLONNADE_CELLS": 146,
+        "COLONNADE_SLIVER_WIDTH": 2,
+        "CORE_BOUNDS": [46, 111, 118, 158],
         "DEPTH": 160,
-        "CENTER_X": 80,
-        "SPINE_HALF_WIDTH": 3,
-        "LANE_S": [16, 18],
+        "DISTRICT_WIDTH_JITTER": 3,
+        "FRINGE_CELL_COUNT_SQUARE": 3552,
+        "GATE_BAND_DEPTH": 2,
+        "GATE_RUN_HALF": 8,
+        "GRID_REFERENCE_SEED": 20260618,
+        "INTERIOR_CELLS_CIRCLE": 19794,
+        "INTERIOR_CELLS_DSHAPE": 22853,
+        "INTERIOR_CELLS_OCTAGON": 21643,
+        "INTERIOR_CELLS_OVAL": 14401,
+        "INTERIOR_CELLS_SQUARE": 25600,
+        "INTERIOR_CELLS_TRAPEZOID": 23836,
+        "LANDMARK_D": 21,
+        "LANDMARK_W": 19,
+        "LANE_JITTER": 2,
         "LANE_M": [60, 62],
         "LANE_N": [108, 110],
-        "SHRINE_W": 23,
-        "SHRINE_D": 21,
-        "LANDMARK_W": 19,
-        "LANDMARK_D": 21,
-        "CORE_BOUNDS": [44, 111, 116, 158],
-        "PLAZA": [64, 128, 96, 136],
-        "SIDE_HALL_WIDTH": 11,
-        "SIDE_HALL_PARCELS": 2,
-        "COLONNADE_SLIVER_WIDTH": 2,
-        "PRECINCT_WALL_CELLS": 156,
-        "COLONNADE_CELLS": 146,
-        "SPIRIT_WAY_CELLS": 12,
+        "LANE_S": [17, 19],
+        "MODIFIER_BITTEN_CELLS_BARBICAN": 56,
+        "MODIFIER_BITTEN_CELLS_BASTION": 336,
+        "MODIFIER_BITTEN_CELLS_NONE": 0,
+        "OCTAGON_K": 44,
+        "OVAL_RX_MAX": 74,
+        "OVAL_RX_MIN": 60,
+        "OVAL_RX_REF": 63,
+        "OVAL_RZ_MAX": 64,
+        "OVAL_RZ_MIN": 50,
+        "OVAL_RZ_REF": 55,
+        "PERIMETER_CELLS_CIRCLE": 462,
+        "PERIMETER_CELLS_DSHAPE": 558,
+        "PERIMETER_CELLS_OCTAGON": 462,
+        "PERIMETER_CELLS_OVAL": 528,
+        "PERIMETER_CELLS_SQUARE": 636,
+        "PERIMETER_CELLS_TRAPEZOID": 612,
+        "PERIMETER_FAMILIES": ["square", "circle", "oval", "dshape", "octagon", "trapezoid"],
+        "PERIMETER_MODIFIERS": ["none", "barbican", "bastion"],
+        "PERIMETER_REFERENCE_SEED": 20260618,
+        "PLAZA": [66, 128, 98, 136],
         "PRECINCT_GATE_CELLS": 7,
+        "PRECINCT_WALL_CELLS": 156,
+        "SHRINE_D": 21,
+        "SHRINE_W": 23,
         "SIDE_GATE_CELLS": 4,
+        "SIDE_HALL_PARCELS": 2,
+        "SIDE_HALL_WIDTH": 11,
+        "SPINE_HALF_WIDTH": 3,
+        "SPIRIT_WAY_CELLS": 12,
+        "TRAPEZOID_SLANT": 12,
+        "WIDTH": 160,
     }
     errors = []
     py = parity_constants()
     for key, value in expected.items():
         if py.get(key) != value:
             errors.append(f"parity_constant_mismatch:{key}:python={py.get(key)}!=java={value}")
+    # The same fixture is consumed by TownGeometryParityTest, making this a
+    # two-sided contract: Python validates every probe row here; Java validates
+    # the identical rows in JUnit (including circle/oval sweeps).
+    geometry_fixture = json.loads((
+        REPO_ROOT / "src/test/resources/town_geometry_parity.json"
+    ).read_text(encoding="utf-8"))
+    for row in geometry_fixture["snapshots"]:
+        seed = int(row["seed"])
+        snap = parity_constants(seed)
+        checks = {
+            "family": snap["SELECTED_FAMILY"],
+            "modifier": snap["SELECTED_MODIFIERS"][0],
+            "center_x": snap["CENTER_X"],
+            "lanes": [snap["LANE_S"], snap["LANE_M"], snap["LANE_N"]],
+            "perimeter_cells": snap["SELECTED_PERIMETER_CELLS"],
+            "interior_cells": snap["SELECTED_INTERIOR_CELLS"],
+            "district_widths": [
+                snap[next(k for k in snap if k.startswith(f"DISTRICT_WIDTH_{i}_"))]
+                for i in range(10)],
+            "district_cells": [
+                snap[next(k for k in snap if k.startswith(f"DISTRICT_CELL_COUNT_{i}_"))]
+                for i in range(10)],
+        }
+        for key, actual in checks.items():
+            if actual != row[key]:
+                errors.append(
+                    f"parity_probe_mismatch:seed={seed}:{key}:"
+                    f"python={actual}!=fixture={row[key]}")
     return errors
 
 
@@ -222,9 +354,11 @@ def main() -> int:
     if width < MIN_FOOTPRINT_AXIS or depth < MIN_FOOTPRINT_AXIS:
         errors.append(f"footprint_below_min:{width}x{depth}<{MIN_FOOTPRINT_AXIS}")
 
-    for seed in (DEFAULT_SEED, DEFAULT_SEED + 101, DEFAULT_SEED + 202):
+    probe_plans = {}
+    for seed in PROBE_SEEDS:
         site = TownSite(width, depth)
         plan = generate_town_plan(seed, site, brief)
+        probe_plans[seed] = plan
         plan_report = validate_town_plan(plan)
         realized_report = validate_realized_town(plan)
         for err in plan_report["errors"]:
@@ -233,6 +367,8 @@ def main() -> int:
             errors.append(f"seed={seed}:realized:{err}")
         errors.extend(f"seed={seed}:{e}" for e in validate_district_partition(plan))
         errors.extend(f"seed={seed}:{e}" for e in validate_template_fit(plan))
+
+    errors.extend(validate_distinctness(probe_plans))
 
     # determinism on the canonical seed
     errors.extend(validate_determinism(DEFAULT_SEED, TownSite(width, depth), brief))

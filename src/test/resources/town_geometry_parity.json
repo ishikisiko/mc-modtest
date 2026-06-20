@@ -1,0 +1,416 @@
+{
+  "snapshots": [
+    {
+      "seed": 20260618,
+      "family": "square",
+      "modifier": "barbican",
+      "center_x": 82,
+      "lanes": [
+        [
+          17,
+          19
+        ],
+        [
+          60,
+          62
+        ],
+        [
+          108,
+          110
+        ]
+      ],
+      "perimeter_cells": 648,
+      "interior_cells": 25544,
+      "district_widths": [
+        49,
+        51,
+        45,
+        69,
+        64,
+        74,
+        67,
+        73,
+        41,
+        33
+      ],
+      "district_cells": [
+        736,
+        816,
+        720,
+        2760,
+        2560,
+        3330,
+        3015,
+        3504,
+        1968,
+        1584
+      ]
+    },
+    {
+      "seed": 20260719,
+      "family": "trapezoid",
+      "modifier": "bastion",
+      "center_x": 78,
+      "lanes": [
+        [
+          18,
+          20
+        ],
+        [
+          61,
+          63
+        ],
+        [
+          110,
+          112
+        ]
+      ],
+      "perimeter_cells": 618,
+      "interior_cells": 23732,
+      "district_widths": [
+        49,
+        43,
+        46,
+        68,
+        73,
+        64,
+        67,
+        73,
+        31,
+        34
+      ],
+      "district_cells": [
+        833,
+        731,
+        782,
+        2720,
+        2920,
+        2944,
+        3082,
+        3358,
+        1426,
+        1564
+      ]
+    },
+    {
+      "seed": 20260820,
+      "family": "circle",
+      "modifier": "barbican",
+      "center_x": 83,
+      "lanes": [
+        [
+          18,
+          20
+        ],
+        [
+          58,
+          60
+        ],
+        [
+          110,
+          112
+        ]
+      ],
+      "perimeter_cells": 469,
+      "interior_cells": 19761,
+      "district_widths": [
+        49,
+        53,
+        47,
+        71,
+        63,
+        71,
+        63,
+        73,
+        42,
+        30
+      ],
+      "district_cells": [
+        718,
+        209,
+        134,
+        2409,
+        2161,
+        3479,
+        3087,
+        3358,
+        930,
+        699
+      ]
+    },
+    {
+      "seed": 20260921,
+      "family": "circle",
+      "modifier": "bastion",
+      "center_x": 82,
+      "lanes": [
+        [
+          16,
+          18
+        ],
+        [
+          59,
+          61
+        ],
+        [
+          106,
+          108
+        ]
+      ],
+      "perimeter_cells": 484,
+      "interior_cells": 19519,
+      "district_widths": [
+        49,
+        48,
+        48,
+        68,
+        65,
+        72,
+        64,
+        73,
+        41,
+        35
+      ],
+      "district_cells": [
+        657,
+        147,
+        105,
+        2513,
+        2368,
+        3147,
+        2816,
+        3650,
+        1045,
+        879
+      ]
+    },
+    {
+      "seed": 20261022,
+      "family": "oval",
+      "modifier": "none",
+      "center_x": 79,
+      "lanes": [
+        [
+          17,
+          19
+        ],
+        [
+          60,
+          62
+        ],
+        [
+          108,
+          110
+        ]
+      ],
+      "perimeter_cells": 461,
+      "interior_cells": 16775,
+      "district_widths": [
+        49,
+        49,
+        49,
+        67,
+        69,
+        68,
+        70,
+        73,
+        34,
+        36
+      ],
+      "district_cells": [
+        708,
+        141,
+        165,
+        2409,
+        2489,
+        2765,
+        2855,
+        3504,
+        42,
+        58
+      ]
+    }
+  ],
+  "curves": [
+    {
+      "seed": 20260618,
+      "family": "square",
+      "interior_cells": 25600,
+      "perimeter_cells": 636
+    },
+    {
+      "seed": 20260618,
+      "family": "circle",
+      "interior_cells": 19610,
+      "perimeter_cells": 462
+    },
+    {
+      "seed": 20260618,
+      "family": "oval",
+      "interior_cells": 10898,
+      "perimeter_cells": 528
+    },
+    {
+      "seed": 20260618,
+      "family": "dshape",
+      "interior_cells": 22669,
+      "perimeter_cells": 558
+    },
+    {
+      "seed": 20260618,
+      "family": "octagon",
+      "interior_cells": 21640,
+      "perimeter_cells": 462
+    },
+    {
+      "seed": 20260618,
+      "family": "trapezoid",
+      "interior_cells": 23836,
+      "perimeter_cells": 612
+    },
+    {
+      "seed": 20260719,
+      "family": "square",
+      "interior_cells": 25600,
+      "perimeter_cells": 636
+    },
+    {
+      "seed": 20260719,
+      "family": "circle",
+      "interior_cells": 19610,
+      "perimeter_cells": 462
+    },
+    {
+      "seed": 20260719,
+      "family": "oval",
+      "interior_cells": 12802,
+      "perimeter_cells": 468
+    },
+    {
+      "seed": 20260719,
+      "family": "dshape",
+      "interior_cells": 22669,
+      "perimeter_cells": 558
+    },
+    {
+      "seed": 20260719,
+      "family": "octagon",
+      "interior_cells": 21640,
+      "perimeter_cells": 461
+    },
+    {
+      "seed": 20260719,
+      "family": "trapezoid",
+      "interior_cells": 23836,
+      "perimeter_cells": 612
+    },
+    {
+      "seed": 20260820,
+      "family": "square",
+      "interior_cells": 25600,
+      "perimeter_cells": 636
+    },
+    {
+      "seed": 20260820,
+      "family": "circle",
+      "interior_cells": 19610,
+      "perimeter_cells": 461
+    },
+    {
+      "seed": 20260820,
+      "family": "oval",
+      "interior_cells": 11004,
+      "perimeter_cells": 572
+    },
+    {
+      "seed": 20260820,
+      "family": "dshape",
+      "interior_cells": 22669,
+      "perimeter_cells": 557
+    },
+    {
+      "seed": 20260820,
+      "family": "octagon",
+      "interior_cells": 21640,
+      "perimeter_cells": 463
+    },
+    {
+      "seed": 20260820,
+      "family": "trapezoid",
+      "interior_cells": 23836,
+      "perimeter_cells": 612
+    },
+    {
+      "seed": 20260921,
+      "family": "square",
+      "interior_cells": 25600,
+      "perimeter_cells": 636
+    },
+    {
+      "seed": 20260921,
+      "family": "circle",
+      "interior_cells": 19610,
+      "perimeter_cells": 462
+    },
+    {
+      "seed": 20260921,
+      "family": "oval",
+      "interior_cells": 10268,
+      "perimeter_cells": 568
+    },
+    {
+      "seed": 20260921,
+      "family": "dshape",
+      "interior_cells": 22669,
+      "perimeter_cells": 558
+    },
+    {
+      "seed": 20260921,
+      "family": "octagon",
+      "interior_cells": 21640,
+      "perimeter_cells": 462
+    },
+    {
+      "seed": 20260921,
+      "family": "trapezoid",
+      "interior_cells": 23836,
+      "perimeter_cells": 612
+    },
+    {
+      "seed": 20261022,
+      "family": "square",
+      "interior_cells": 25600,
+      "perimeter_cells": 636
+    },
+    {
+      "seed": 20261022,
+      "family": "circle",
+      "interior_cells": 19610,
+      "perimeter_cells": 461
+    },
+    {
+      "seed": 20261022,
+      "family": "oval",
+      "interior_cells": 14264,
+      "perimeter_cells": 461
+    },
+    {
+      "seed": 20261022,
+      "family": "dshape",
+      "interior_cells": 22669,
+      "perimeter_cells": 557
+    },
+    {
+      "seed": 20261022,
+      "family": "octagon",
+      "interior_cells": 21640,
+      "perimeter_cells": 460
+    },
+    {
+      "seed": 20261022,
+      "family": "trapezoid",
+      "interior_cells": 23836,
+      "perimeter_cells": 612
+    }
+  ]
+}

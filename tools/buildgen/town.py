@@ -18,9 +18,11 @@ from __future__ import annotations
 import json
 import random
 from collections import deque
-from dataclasses import asdict, dataclass, field
+from dataclasses import asdict, dataclass, field, replace
 from pathlib import Path
 from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Set, Tuple
+
+from . import town_curves, town_hash  # sibling buildgen modules
 
 Cell2 = Tuple[int, int]
 Rect = Tuple[int, int, int, int]  # x0, z0, x1, z1 (inclusive)
@@ -34,6 +36,47 @@ BLOCK_BUDGET_CEILING = 140_000   # reviewable upper bound for a mid-size fair
 INTERIOR_LANE_WIDTH = 2
 
 MAX_IMPORTANCE_TIER = 3
+
+# Seed-driven grid jitter bounds (design D4). These keep every district
+# rectangular, the spine intersecting the south gate, and the civic_core clear
+# of the precinct wall. Exported through parity_constants so the Java realizer
+# hardcodes the same bounds and derives per-seed values via TownHash.
+CENTER_X_JITTER = 4        # cx ∈ [w//2 − 4, w//2 + 4]
+LANE_JITTER = 2            # each cross-lane z-band shifts by ±2
+DISTRICT_WIDTH_JITTER = 3  # residential inner edges shift by ±3
+DEFAULT_GRID_SEED = 20260618  # reference seed for parity_constants() layout
+
+# --- Perimeter shape vocabulary (design D1, D2) ---------------------------
+# The town wall is selected from a composable family + modifier set. A seed
+# picks a base family from PERIMETER_FAMILIES and a modifier from
+# PERIMETER_MODIFIERS independently via the shared town_hash module. Each base
+# family is a pure integer-arithmetic function of (site, seed, family_id);
+# each modifier composes by set algebra over the bitten-cells set. Every
+# perimeter stays a single closed loop and seats the south gate on a straight
+# run (curvy families union a fixed gate_band on the south edge). See
+# docs/ai-kb/12_town_shape_vocabulary.md.
+PERIMETER_FAMILIES: Tuple[str, ...] = (
+    "square", "circle", "oval", "dshape", "octagon", "trapezoid")
+PERIMETER_MODIFIERS: Tuple[str, ...] = ("none", "barbican", "bastion")
+PERIMETER_DEFAULT_FAMILY = "square"
+
+# Curvy-family parameters (mirrored by TownGenerator.java; the perimeter-cell
+# counts in parity_constants() catch any drift).
+OVAL_RX_MIN = 60
+OVAL_RX_MAX = 74
+OVAL_RZ_MIN = 50
+OVAL_RZ_MAX = 64
+OCTAGON_K = 44              # chamfer leg for the true-45° octagon (>= 40)
+TRAPEZOID_SLANT = 12        # east/west edges slant inward by this many cells
+
+# Modifier geometry (bit-algebra; touches the site boundary so the perimeter
+# stays a single closed loop, and excludes the gate x-range so the south gate
+# stays on its straight run).
+BARBICAN_OFFSET = 9         # x-offset east of cx where the barbican bay starts
+BARBICAN_WIDTH = 8
+BARBICAN_DEPTH = 6
+BASTION_HALF_W = 10         # north-center bastion indent half-width
+BASTION_DEPTH = 8
 
 # Importance tier contributed by each district kind. The planner never branches
 # on style_id or district-name strings; it maps the generic ``kind`` token that
@@ -139,6 +182,10 @@ class TownDistrict:
     storey_band: Tuple[int, int]
     material_register: str
     archetype_roster: Tuple[str, ...]
+    # Optional explicit shape (e.g. a chamfered fringe). When empty, ``cells``
+    # falls back to the bounding rect; ``bounds`` is always the axis-aligned
+    # bounding box used for spatial queries and the civic-precinct derivation.
+    cells_override: Tuple[Cell2, ...] = ()
 
     @property
     def importance_tier(self) -> int:
@@ -146,6 +193,8 @@ class TownDistrict:
 
     @property
     def cells(self) -> Set[Cell2]:
+        if self.cells_override:
+            return set(self.cells_override)
         return _rect(*self.bounds)
 
 
@@ -202,9 +251,15 @@ class NegativeSpace:
     density_rank: int
     district_kind: str = ""
     archetype: str = ""
+    # Optional explicit shape (e.g. a triangular moat). When empty, ``cells``
+    # falls back to the bounding rect; the Java realizer mirrors only rect
+    # regions, so non-rect negative space is a Python/preview nicety.
+    cells_override: Tuple[Cell2, ...] = ()
 
     @property
     def cells(self) -> Set[Cell2]:
+        if self.cells_override:
+            return set(self.cells_override)
         return _rect(*self.bounds)
 
 
@@ -223,6 +278,9 @@ class TownPlan:
     alleys: List[NegativeSpace] = field(default_factory=list)
     district_brief: List[Dict[str, object]] = field(default_factory=list)
     ritual_axis: Dict[str, object] = field(default_factory=dict)
+    shape_family: str = PERIMETER_DEFAULT_FAMILY
+    shape_modifiers: Tuple[str, ...] = ("none",)
+    shape_id: str = PERIMETER_DEFAULT_FAMILY
 
     @property
     def street_cells(self) -> Set[Cell2]:
@@ -260,6 +318,9 @@ class TownPlan:
         return {
             "seed": self.seed,
             "site": asdict(self.site),
+            "shape_id": self.shape_id,
+            "shape_family": self.shape_family,
+            "shape_modifiers": list(self.shape_modifiers),
             "perimeter": _cells_to_json(self.perimeter),
             "wall_cells": _cells_to_json(self.wall_cells),
             "gates": [
@@ -276,14 +337,8 @@ class TownPlan:
                 }
                 for parcel in self.parcels
             ],
-            "negative_spaces": [
-                {**asdict(region), "cells": _cells_to_json(region.cells)}
-                for region in self.negative_spaces
-            ],
-            "alleys": [
-                {**asdict(region), "cells": _cells_to_json(region.cells)}
-                for region in self.alleys
-            ],
+            "negative_spaces": [_negative_to_dict(r) for r in self.negative_spaces],
+            "alleys": [_negative_to_dict(r) for r in self.alleys],
             "district_brief": list(self.district_brief),
             "ritual_axis": self.ritual_axis,
         }
@@ -302,12 +357,200 @@ def _cells_to_json(cells: Iterable[Cell2]) -> List[List[int]]:
     return [[x, z] for x, z in sorted(cells)]
 
 
-def _boundary(site: TownSite) -> Set[Cell2]:
-    cells = {(x, 0) for x in range(site.width)}
-    cells |= {(x, site.depth - 1) for x in range(site.width)}
-    cells |= {(0, z) for z in range(site.depth)}
-    cells |= {(site.width - 1, z) for z in range(site.depth)}
-    return cells
+def _negative_to_dict(region: NegativeSpace) -> dict:
+    # Serialize explicitly so the optional ``cells_override`` field (a tuple of
+    # pairs, possibly non-rectangular like a moat triangle) is not leaked into
+    # the JSON output alongside the resolved ``cells``.
+    return {
+        "id": region.id,
+        "kind": region.kind,
+        "bounds": list(region.bounds),
+        "density_rank": region.density_rank,
+        "district_kind": region.district_kind,
+        "archetype": region.archetype,
+        "cells": _cells_to_json(region.cells),
+    }
+
+
+def _family_interior(site: TownSite, seed: int, family_id: str) -> Set[Cell2]:
+    """Interior cell set of a base family, clipped to the site square.
+
+    Pure integer arithmetic for every family (design D2). Curvy families union
+    the fixed south gate_band so the south gate seats on a straight run.
+    """
+    w, d = site.width, site.depth
+    cx, cz = w // 2, d // 2
+    if family_id == "circle":
+        r = min(w, d) // 2 - town_curves.CIRCLE_MARGIN
+        return town_curves.circle_interior(w, d, cx, cz, r)
+    if family_id == "oval":
+        rx = town_hash.range64(seed, "oval_rx", OVAL_RX_MIN, OVAL_RX_MAX)
+        rz = town_hash.range64(seed, "oval_rz", OVAL_RZ_MIN, OVAL_RZ_MAX)
+        # Seat the ellipse against the south gate instead of centering a short
+        # rz around mid-site (which would leave the gate band as a detached
+        # island). ``rz + 1`` makes the curve begin at z=1, adjacent to the
+        # fixed gate band, while its north lobe overlaps the protected core.
+        return town_curves.ellipse_interior(w, d, cx, rz + 1, rx, rz)
+    if family_id == "dshape":
+        return town_curves.dshape_interior(w, d, cx)
+    if family_id == "octagon":
+        return town_curves.octagon_interior(w, d, OCTAGON_K)
+    if family_id == "trapezoid":
+        return town_curves.trapezoid_interior(w, d, TRAPEZOID_SLANT)
+    # square (and any unknown id) -> full site rectangle
+    return {(x, z) for x in range(w) for z in range(d)}
+
+
+def _modifier_bitten(
+    site: TownSite, seed: int, modifier_id: str
+) -> Set[Cell2]:
+    """Cells a modifier removes from the site square (design D1 set algebra).
+
+    Every modifier bite touches the site boundary so the perimeter stays a
+    single closed loop, and avoids the gate x-range so the south gate stays on
+    its straight segment. Returns ``{}`` for ``none`` (and unknown ids).
+    """
+    if modifier_id == "none":
+        return set()
+    w, d = site.width, site.depth
+    cx = w // 2
+    bitten: Set[Cell2] = set()
+    if modifier_id == "barbican":
+        # Recessed bay on the south wall, east of the gate band.
+        x0 = max(0, cx + BARBICAN_OFFSET)
+        x1 = min(w - 1, x0 + BARBICAN_WIDTH - 1)
+        for x in range(x0, x1 + 1):
+            for z in range(0, BARBICAN_DEPTH + 1):
+                bitten.add((x, z))
+    elif modifier_id == "bastion":
+        # Rectangular notches on the east and west edge midpoints (a stepped
+        # lateral silhouette). Sited at z~cz so it never overlaps the civic_core
+        # AABB (z >= 111) or the south gate band; touches x=0 / x=w-1 so the
+        # perimeter stays a single closed loop.
+        cz = d // 2
+        z0_b = max(0, cz - BASTION_HALF_W)
+        z1_b = min(d - 1, cz + BASTION_HALF_W)
+        for x in range(0, BASTION_DEPTH):
+            for z in range(z0_b, z1_b + 1):
+                bitten.add((x, z))                         # west notch
+                bitten.add((w - 1 - x, z))                 # east notch
+    return bitten
+
+
+def shape_bitten(
+    site: TownSite,
+    seed: int,
+    family_id: str,
+    modifiers: Sequence[str],
+    protected_rect: Optional[Rect] = None,
+) -> Set[Cell2]:
+    """Bitten cells = (site square − family interior) ∪ every modifier bite.
+
+    Any cell inside ``protected_rect`` (the civic_core AABB) is never bitten, so
+    the un-clipped rectangular civic precinct stays fully inside the wall even
+    for inscribed-circle families whose disk would otherwise clip its corners.
+    """
+    site_cells = {(x, z) for x in range(site.width) for z in range(site.depth)}
+    interior = _family_interior(site, seed, family_id)
+    bitten = site_cells - interior
+    for mod in modifiers:
+        bitten |= _modifier_bitten(site, seed, mod)
+    if protected_rect is not None:
+        px0, pz0, px1, pz1 = protected_rect
+        protected = _rect(px0, pz0, px1, pz1)
+        bitten -= protected
+    return bitten
+
+
+def _civic_core_aabb(site: TownSite, seed: int = 0) -> Rect:
+    """The civic_core AABB the layout emits (parity-coupled, seed-driven).
+
+    The perimeter masks every bite against this rect so the rectangular civic
+    precinct — whose bounds derive from the seed-driven cx + lane_n + core
+    half-width — stays fully inside the wall for every vocabulary entry. The
+    formula mirrors ``_layout`` exactly so Python and Java agree cell-for-cell.
+    """
+    cx = _center_x(site, seed)
+    _, _, lane_n = _lane_bands(seed)
+    return (cx - 36, lane_n[1] + 1, cx + 36, site.depth - 2)
+
+
+def select_perimeter_shape(seed: int) -> Tuple[str, Tuple[str, ...]]:
+    """Deterministic (family, modifiers) selection via town_hash (design D1/D3).
+
+    Family and modifier are picked independently. ``square`` remains in the
+    family roster so it is selected ~1/6 of the time (recognizable variant).
+    Returns ``(family_id, (modifier_id,))`` — exactly one modifier per plan,
+    which may be ``none``.
+    """
+    family = town_hash.pick(seed, "family", PERIMETER_FAMILIES)
+    modifier = town_hash.pick(seed, "modifier", PERIMETER_MODIFIERS)
+    return family, (modifier,)
+
+
+def shape_id_str(family_id: str, modifiers: Sequence[str]) -> str:
+    """Display id: ``"family"`` or ``"family+mod1+mod2"`` (``none`` omitted)."""
+    mods = [m for m in modifiers if m and m != "none"]
+    return family_id if not mods else family_id + "+" + "+".join(mods)
+
+
+def _perimeter_interior(
+    site: TownSite,
+    seed: int,
+    family_id: str,
+    modifiers: Sequence[str],
+    protected_rect: Optional[Rect] = None,
+) -> Set[Cell2]:
+    """Interior cell set of the composed shape = site square − bitten cells."""
+    site_cells = {(x, z) for x in range(site.width) for z in range(site.depth)}
+    return site_cells - shape_bitten(site, seed, family_id, modifiers, protected_rect)
+
+
+def _boundary(
+    site: TownSite,
+    family_id: str = PERIMETER_DEFAULT_FAMILY,
+    modifiers: Sequence[str] = ("none",),
+    seed: int = 0,
+    protected_rect: Optional[Rect] = None,
+) -> Set[Cell2]:
+    """The town wall: the cell-boundary of the composed perimeter interior.
+
+    For ``square`` (no bites) this is exactly the site's outer ring. For the
+    vocabulary families it is the single closed boundary of (site minus bitten
+    cells), which never leaves the site. The south-gate segment stays straight
+    because curvy families union the gate_band and modifier bites avoid the
+    gate x-range. ``protected_rect`` (civic_core AABB) is never bitten so the
+    rectangular precinct stays inside the wall.
+    """
+    w, d = site.width, site.depth
+    bitten = shape_bitten(site, seed, family_id, modifiers, protected_rect)
+    if not bitten:
+        cells = {(x, 0) for x in range(w)}
+        cells |= {(x, d - 1) for x in range(w)}
+        cells |= {(0, z) for z in range(d)}
+        cells |= {(w - 1, z) for z in range(d)}
+        return cells
+    interior = {(x, z) for x in range(w) for z in range(d)
+                if (x, z) not in bitten}
+    perimeter: Set[Cell2] = set()
+    for x, z in interior:
+        if ((x + 1, z) not in interior
+                or (x - 1, z) not in interior
+                or (x, z + 1) not in interior
+                or (x, z - 1) not in interior):
+            perimeter.add((x, z))
+    return perimeter
+
+
+def _fringe_cells_override(district: TownDistrict, family_id: str) -> Tuple[Cell2, ...]:
+    """Optional non-rectangular cell set for a fringe district.
+
+    Stage α (wall-only vocabulary): all districts stay rectangular regardless of
+    the perimeter family, so the wall↔district gap is reserved moat negative
+    space (kept inward of the perimeter). The general clip-to-shape for outer
+    districts lands in stage β (task 5). Returns ``()`` (rectangular) for now.
+    """
+    return ()
 
 
 def _importance_hint(tier: int) -> Tuple[str, str]:
@@ -329,6 +572,45 @@ def _brief_index(brief: Sequence[Mapping[str, object]]) -> Dict[str, Dict[str, o
 
 
 # --- district + street layout ---------------------------------------------
+
+
+def _lane_bands(seed: int) -> Tuple[Tuple[int, int], Tuple[int, int], Tuple[int, int]]:
+    """The three cross-lane z-bands as a pure function of seed (design D4).
+
+    Each band is a 3-wide run jittered by ±LANE_JITTER. The south lane's lower
+    bound is constrained to ``[base, base + LANE_JITTER]`` (never below base)
+    because the gate district's depth is ``lane_s[0] − 1`` and must stay >= the
+    15-deep gate-house template — a downward jitter would shrink it below fit.
+    Centralized so the planner, the civic_core AABB derivation, and the parity
+    export all agree.
+    """
+    def band(base_lo: int, tag: str, lo_jitter: int = -LANE_JITTER) -> Tuple[int, int]:
+        j = town_hash.range64(seed, tag, lo_jitter, LANE_JITTER)
+        return (base_lo + j, base_lo + 2 + j)
+    return band(16, "lane_s", 0), band(60, "lane_m"), band(108, "lane_n")
+
+
+def _center_x(site: TownSite, seed: int) -> int:
+    """Seed-driven spine centerline (cx = w//2 ± CENTER_X_JITTER)."""
+    return site.width // 2 + town_hash.range64(seed, "cx", -CENTER_X_JITTER, CENTER_X_JITTER)
+
+
+def _district_width_jitters(seed: int) -> Dict[str, int]:
+    """Independent bounded width offsets for every paired outer district.
+
+    The semantic ids are stable across sites (unlike the coordinate-bearing
+    ``TownDistrict.id``), which makes them suitable town-hash tags and parity
+    keys. Positive values widen the named west/east pair toward the site edge;
+    the central street/spine edges remain fixed and therefore cannot be cut.
+    """
+    return {
+        key: town_hash.range64(
+            seed, f"district_width_{key}",
+            -DISTRICT_WIDTH_JITTER, DISTRICT_WIDTH_JITTER)
+        for key in (
+            "south_res_w", "south_res_e", "market_w", "market_e",
+            "mid_res_w", "mid_res_e", "fringe_w", "fringe_e")
+    }
 
 
 @dataclass(frozen=True)
@@ -360,12 +642,19 @@ class _Layout:
     precinct_side_gate_cells: Set[Cell2] = field(default_factory=set)
 
 
-def _layout(site: TownSite, brief_by_kind: Dict[str, Dict[str, object]]) -> _Layout:
+def _layout(
+    site: TownSite,
+    brief_by_kind: Dict[str, Dict[str, object]],
+    seed: int = DEFAULT_GRID_SEED,
+) -> _Layout:
     """Partition the footprint into districts and the street network.
 
-    District rectangles are a fixed property of the ``town_generation`` layout
-    strategy (parameterized by site size); the planner fills them generically
-    using the district brief keyed by ``kind``.
+    District rectangles are parameterized by site size and seed. The seed
+    drives bounded grid jitter (design D4) via ``town_hash``: the spine
+    centerline ``cx``, the three cross-lane z-bands, and the residential inner
+    edges each move within tight bounds that keep every district rectangular,
+    the spine intersecting the south gate, and the civic_core clear of the
+    precinct wall. The grid stays strictly orthogonal.
     """
     w, d = site.width, site.depth
     if w < MIN_FOOTPRINT_AXIS or d < MIN_FOOTPRINT_AXIS:
@@ -377,14 +666,18 @@ def _layout(site: TownSite, brief_by_kind: Dict[str, Dict[str, object]]) -> _Lay
             f"site exceeds footprint cap: {w}x{d} "
             f"(maximum {MAX_FOOTPRINT_AXIS}x{MAX_FOOTPRINT_AXIS})")
 
-    cx = w // 2
+    # Seed-driven grid jitter (design D4). Bounds keep the spine intersecting
+    # the south gate, districts rectangular, and the civic_core clear of the
+    # precinct wall.
+    cx = _center_x(site, seed)
     spine_half = 3
     spine_x0, spine_x1 = cx - spine_half, cx + spine_half
 
-    # z-bands separated by 3-wide cross lanes.
-    lane_s = (16, 18)
-    lane_m = (60, 62)
-    lane_n = (108, 110)
+    # z-bands separated by 3-wide cross lanes, each jittered by ±LANE_JITTER.
+    lane_s, lane_m, lane_n = _lane_bands(seed)
+    # Each paired outer district gets an independent width offset. Only the
+    # edge away from the spine moves, so no district can sever the axis.
+    width_jitter = _district_width_jitters(seed)
 
     def b(kind: str, x0: int, z0: int, x1: int, z1: int) -> TownDistrict:
         entry = brief_by_kind.get(kind, {})
@@ -406,15 +699,23 @@ def _layout(site: TownSite, brief_by_kind: Dict[str, Dict[str, object]]) -> _Lay
 
     districts: List[TownDistrict] = [
         b("gate", cx - 24, 1, cx + 24, lane_s[0] - 1),
-        b("residential", 8, 1, cx - 25, lane_s[0] - 1),
-        b("residential", cx + 25, 1, w - 9, lane_s[0] - 1),
-        b("market", 8, lane_s[1] + 1, spine_x0 - 1, lane_m[0] - 1),
-        b("market", spine_x1 + 1, lane_s[1] + 1, w - 9, lane_m[0] - 1),
-        b("residential", 8, lane_m[1] + 1, spine_x0 - 1, lane_n[0] - 1),
-        b("residential", spine_x1 + 1, lane_m[1] + 1, w - 9, lane_n[0] - 1),
+        b("residential", 8 - width_jitter["south_res_w"], 1,
+          cx - 25, lane_s[0] - 1),
+        b("residential", cx + 25, 1,
+          w - 9 + width_jitter["south_res_e"], lane_s[0] - 1),
+        b("market", 8 - width_jitter["market_w"], lane_s[1] + 1,
+          spine_x0 - 1, lane_m[0] - 1),
+        b("market", spine_x1 + 1, lane_s[1] + 1,
+          w - 9 + width_jitter["market_e"], lane_m[0] - 1),
+        b("residential", 8 - width_jitter["mid_res_w"], lane_m[1] + 1,
+          spine_x0 - 1, lane_n[0] - 1),
+        b("residential", spine_x1 + 1, lane_m[1] + 1,
+          w - 9 + width_jitter["mid_res_e"], lane_n[0] - 1),
         b("civic_core", cx - 36, lane_n[1] + 1, cx + 36, d - 2),
-        b("fringe", 8, lane_n[1] + 1, cx - 37, d - 2),
-        b("fringe", cx + 37, lane_n[1] + 1, w - 9, d - 2),
+        b("fringe", 8 - width_jitter["fringe_w"], lane_n[1] + 1,
+          cx - 37, d - 2),
+        b("fringe", cx + 37, lane_n[1] + 1,
+          w - 9 + width_jitter["fringe_e"], d - 2),
     ]
 
     # Ritual axis, expressed entirely inside the civic_core band. The shrine is
@@ -559,24 +860,75 @@ def _layout(site: TownSite, brief_by_kind: Dict[str, Dict[str, object]]) -> _Lay
     )
 
 
-def parity_constants() -> Dict[str, object]:
+def parity_constants(
+    seed: int = DEFAULT_GRID_SEED,
+    family_id: Optional[str] = None,
+    modifiers: Optional[Sequence[str]] = None,
+) -> Dict[str, object]:
     """Geometry shared with ``TownGenerator.java`` for a Python/Java parity check.
 
-    Computed from the default-site ``_layout`` so it stays in lock-step with the
-    planner; the runtime validator compares these against the Java-hardcoded
-    values to catch drift. Covers both the ritual-axis layout constants and the
-    civic-precinct framing (gate / spirit way / colonnade / wall / side halls).
+    Computed from the default-site ``_layout`` at a fixed reference seed so it
+    stays in lock-step with the planner; the runtime validator compares these
+    against the Java-hardcoded values to catch drift. Covers the seed-driven
+    grid jitter bounds (Java hardcodes the bounds and derives per-seed values
+    via TownHash), the reference-seed ritual-axis + civic-precinct geometry,
+    and the perimeter-vocabulary family/modifier cell counts.
     """
-    ly = _layout(TownSite(), {})
+    site = TownSite()
+    reference_seed = seed
+    ly = _layout(site, {}, reference_seed)
     core = next(d for d in ly.districts if d.kind == "civic_core")
-    return {
+    fringes = [d for d in ly.districts if d.kind == "fringe"]
+    protected_rect = _civic_core_aabb(site, reference_seed)
+    selected_family, selected_modifiers = select_perimeter_shape(reference_seed)
+    if family_id is not None:
+        selected_family = family_id
+    if modifiers is not None:
+        selected_modifiers = tuple(modifiers)
+    selected_interior = _perimeter_interior(
+        site, reference_seed, selected_family, selected_modifiers, protected_rect)
+    selected_perimeter = _boundary(
+        site, selected_family, selected_modifiers, reference_seed, protected_rect)
+
+    def _fringe_cells_rect(d: TownDistrict) -> Set[Cell2]:
+        ov = _fringe_cells_override(d, "square")
+        return set(ov) if ov else _rect(*d.bounds)
+
+    # Per-family perimeter + interior cell counts. square/circle/dshape/octagon/
+    # trapezoid are seed-independent; oval is seed-derived, so its radii are
+    # exported alongside the reference-seed counts.
+    family_cells: Dict[str, Dict[str, int]] = {}
+    for fam in PERIMETER_FAMILIES:
+        mods = ("none",)
+        perim = _boundary(site, fam, mods, reference_seed, protected_rect)
+        interior = _perimeter_interior(site, reference_seed, fam, mods, protected_rect)
+        family_cells[fam] = {"perimeter": len(perim), "interior": len(interior)}
+
+    oval_rx = town_hash.range64(reference_seed, "oval_rx", OVAL_RX_MIN, OVAL_RX_MAX)
+    oval_rz = town_hash.range64(reference_seed, "oval_rz", OVAL_RZ_MIN, OVAL_RZ_MAX)
+
+    # Per-modifier bitten-cell counts at the reference seed on a square base.
+    modifier_cells: Dict[str, int] = {}
+    for mod in PERIMETER_MODIFIERS:
+        modifier_cells[mod] = len(_modifier_bitten(site, reference_seed, mod))
+
+    out: Dict[str, object] = {
         "WIDTH": DEFAULT_FOOTPRINT_W,
         "DEPTH": DEFAULT_FOOTPRINT_D,
-        "CENTER_X": DEFAULT_FOOTPRINT_W // 2,
+        "BASE_CENTER_X": DEFAULT_FOOTPRINT_W // 2,
+        "CENTER_X_JITTER": CENTER_X_JITTER,
+        "LANE_JITTER": LANE_JITTER,
+        "DISTRICT_WIDTH_JITTER": DISTRICT_WIDTH_JITTER,
+        "GRID_REFERENCE_SEED": reference_seed,
+        "SELECTED_FAMILY": selected_family,
+        "SELECTED_MODIFIERS": list(selected_modifiers),
+        "SELECTED_PERIMETER_CELLS": len(selected_perimeter),
+        "SELECTED_INTERIOR_CELLS": len(selected_interior),
+        "CENTER_X": _center_x(site, reference_seed),
         "SPINE_HALF_WIDTH": 3,
-        "LANE_S": [16, 18],
-        "LANE_M": [60, 62],
-        "LANE_N": [108, 110],
+        "LANE_S": list(_lane_bands(reference_seed)[0]),
+        "LANE_M": list(_lane_bands(reference_seed)[1]),
+        "LANE_N": list(_lane_bands(reference_seed)[2]),
         "SHRINE_W": 23,
         "SHRINE_D": 21,
         "LANDMARK_W": 19,
@@ -586,12 +938,49 @@ def parity_constants() -> Dict[str, object]:
         "SIDE_HALL_WIDTH": 11,
         "SIDE_HALL_PARCELS": 2,
         "COLONNADE_SLIVER_WIDTH": 2,
+        "PERIMETER_FAMILIES": list(PERIMETER_FAMILIES),
+        "PERIMETER_MODIFIERS": list(PERIMETER_MODIFIERS),
+        "PERIMETER_REFERENCE_SEED": reference_seed,  # vocabulary cell counts use this seed
+        "GATE_RUN_HALF": town_curves.GATE_RUN_HALF,
+        "GATE_BAND_DEPTH": town_curves.GATE_BAND_DEPTH,
+        "CIRCLE_MARGIN": town_curves.CIRCLE_MARGIN,
+        "OVAL_RX_MIN": OVAL_RX_MIN,
+        "OVAL_RX_MAX": OVAL_RX_MAX,
+        "OVAL_RZ_MIN": OVAL_RZ_MIN,
+        "OVAL_RZ_MAX": OVAL_RZ_MAX,
+        "OVAL_RX_REF": oval_rx,
+        "OVAL_RZ_REF": oval_rz,
+        "OCTAGON_K": OCTAGON_K,
+        "TRAPEZOID_SLANT": TRAPEZOID_SLANT,
+        "BARBICAN_OFFSET": BARBICAN_OFFSET,
+        "BARBICAN_WIDTH": BARBICAN_WIDTH,
+        "BARBICAN_DEPTH": BARBICAN_DEPTH,
+        "BASTION_HALF_W": BASTION_HALF_W,
+        "BASTION_DEPTH": BASTION_DEPTH,
+        "FRINGE_CELL_COUNT_SQUARE": sum(len(_fringe_cells_rect(d)) for d in fringes),
         "PRECINCT_WALL_CELLS": len(ly.precinct_wall_cells),
         "COLONNADE_CELLS": len(ly.colonnade_west_cells) + len(ly.colonnade_east_cells),
         "SPIRIT_WAY_CELLS": len(ly.spirit_way_band),
         "PRECINCT_GATE_CELLS": len(ly.precinct_gate_cells),
         "SIDE_GATE_CELLS": len(ly.precinct_side_gate_cells),
     }
+    width_jitter = _district_width_jitters(reference_seed)
+    for key, value in width_jitter.items():
+        out[f"DISTRICT_WIDTH_JITTER_{key.upper()}"] = value
+    for index, district in enumerate(ly.districts):
+        x0, _z0, x1, _z1 = district.bounds
+        out[f"DISTRICT_WIDTH_{index}_{district.kind.upper()}"] = x1 - x0 + 1
+        rect_cells = _rect(*district.bounds)
+        clipped = (rect_cells & selected_interior
+                   if district.kind != "civic_core" else rect_cells)
+        out[f"DISTRICT_CELL_COUNT_{index}_{district.kind.upper()}"] = len(clipped)
+        out[f"DISTRICT_CLIPPED_{index}_{district.kind.upper()}"] = clipped != rect_cells
+    for fam, counts in family_cells.items():
+        out[f"PERIMETER_CELLS_{fam.upper()}"] = counts["perimeter"]
+        out[f"INTERIOR_CELLS_{fam.upper()}"] = counts["interior"]
+    for mod, count in modifier_cells.items():
+        out[f"MODIFIER_BITTEN_CELLS_{mod.upper()}"] = count
+    return out
 
 
 # --- parcel subdivision ----------------------------------------------------
@@ -720,33 +1109,29 @@ def _subdivide_frontage(
             idx += 1
             break
 
-        variant_idx_val = (seed ^ (i * 341873128712) ^ (hash(kind) * 132897987541)) % len(variants)
-        chosen_variant = variants[variant_idx_val]
-        seg_width = TEMPLATE_FOOTPRINT.get(chosen_variant, (15, 15))[0]
-
-        if seg_width > remaining:
-            for v in variants:
-                w = TEMPLATE_FOOTPRINT.get(v, (15, 15))[0]
-                if w <= remaining and w < seg_width:
-                    chosen_variant = v
-                    seg_width = w
-            if seg_width > remaining:
-                if side in ("N", "S"):
-                    bounds = (i, band_lo, along_end, band_hi)
-                else:
-                    bounds = (band_lo, i, band_hi, along_end)
-                alleys.append(NegativeSpace(
-                    id=f"alley_{kind}_{idx}", kind="alley", bounds=bounds,
-                    density_rank=0, district_kind=kind, archetype=base_archetype))
-                idx += 1
-                break
+        # Boundary-aware retry/shift path. At a clipped curve, advance to the
+        # first coordinate where a complete minimum footprint fits instead of
+        # consuming a phantom segment and leaving a thin emitted fragment.
+        fitting: List[Tuple[str, int, Rect]] = []
+        reserve = max(0, 2 - run) * min_width  # preserve room for a 3-house row
+        for variant in variants:
+            width = TEMPLATE_FOOTPRINT.get(variant, (15, 15))[0]
+            if width > remaining or width > remaining - reserve:
+                continue
+            end = i + width - 1
+            candidate = ((i, band_lo, end, band_hi) if side in ("N", "S")
+                         else (band_lo, i, band_hi, end))
+            if _parcel_fits(district, candidate):
+                fitting.append((variant, width, candidate))
+        if not fitting:
+            i += 1
+            continue
+        choice = town_hash.range64(
+            seed, f"frontage_variant:{district.id}:{side}:{i}",
+            0, len(fitting) - 1)
+        chosen_variant, seg_width, bounds = fitting[choice]
 
         seg_end = i + seg_width - 1
-        if side in ("N", "S"):
-            bounds = (i, band_lo, seg_end, band_hi)
-        else:
-            bounds = (band_lo, i, band_hi, seg_end)
-
         parcels.append(_make_parcel(
             f"parcel_{kind}_{idx}", district, bounds, side, chosen_variant,
             _storey_for(district, rng, parcel_counter), base_y, rng))
@@ -768,6 +1153,20 @@ def _subdivide_frontage(
             run = 0
 
     return idx
+
+
+def _parcel_fits(district: TownDistrict, bounds: Rect) -> bool:
+    """A parcel's rect must lie wholly within the district's cell set.
+
+    For the default rectangular districts this is always true. When a district
+    is non-rectangular (e.g. a chamfered fringe), parcels crossing the cut
+    cells are rejected so no parcel spills outside its district. Parcel-bearing
+    districts are currently unstepped, so this guard is forward-looking and a
+    no-op for the shipped plans.
+    """
+    if not district.cells_override:
+        return True
+    return _rect(*bounds) <= set(district.cells_override)
 
 
 def _make_parcel(
@@ -886,16 +1285,21 @@ def _subdivide_district(
 
     if kind == "gate":
         # Two gate-approach parcels split around the spine (so neither overlaps
-        # the street), each fronting the spine.
+        # the street), each fronting the spine. Skip a parcel that would cross
+        # a clipped district edge (curve corners) so no gate parcel spills
+        # outside the wall.
         for gi, (gx0, gx1, edge) in enumerate(
             ((x0, layout.spine_x0 - 1, "E"),
              (layout.spine_x1 + 1, x1, "W"))
         ):
             if gx1 < gx0:
                 continue
+            bounds = (gx0, z0, gx1, z1)
+            if not _parcel_fits(district, bounds):
+                continue
             tpl = _variant_that_fits("cultivation_house", rng, gx1 - gx0 + 1, z1 - z0 + 1)
             parcels.append(_make_parcel(
-                f"parcel_gate_{idx}", district, (gx0, z0, gx1, z1), edge,
+                f"parcel_gate_{idx}", district, bounds, edge,
                 tpl, district.storey_band[0], base_y, rng))
             idx += 1
         return parcels, alleys, negatives, idx
@@ -1079,12 +1483,20 @@ def generate_town_plan(
         district_brief = []
 
     brief_by_kind = _brief_index(district_brief)
-    layout = _layout(site, brief_by_kind)
+    layout = _layout(site, brief_by_kind, seed)
 
     rng = random.Random(seed)
-    perimeter = _boundary(site)
+    shape_family, shape_modifiers = select_perimeter_shape(seed)
+    shape_id = shape_id_str(shape_family, shape_modifiers)
+    # The civic_core AABB is never bitten so the rectangular precinct (whose
+    # bounds derive from cx/lane_n/core-half-width) stays fully inside the wall
+    # for every vocabulary entry, including inscribed-circle families.
+    protected_rect = _civic_core_aabb(site, seed)
+    perimeter = _boundary(site, shape_family, shape_modifiers, seed, protected_rect)
+    shape_interior = _perimeter_interior(
+        site, seed, shape_family, shape_modifiers, protected_rect)
     w, d = site.width, site.depth
-    cx = w // 2
+    cx = _center_x(site, seed)
     south_gate_cells = tuple((x, 0) for x in range(cx - 2, cx + 3))
     gates = [TownGate("south_gate", "south", south_gate_cells)]
     gate_cells = set(south_gate_cells)
@@ -1094,8 +1506,47 @@ def generate_town_plan(
     alleys: List[NegativeSpace] = []
     negative_spaces: List[NegativeSpace] = []
 
+    # Deformed-wall moat: the cells bitten out of the site square (corner
+    # triangles / curve corners / wall notches) become a named negative-space
+    # region so the preview can dress them and the validator accounts for them.
+    # They are exterior to the wall, so after clip-to-shape they never overlap
+    # parcels or streets.
+    bitten = shape_bitten(site, seed, shape_family, shape_modifiers, protected_rect)
+    if bitten:
+        bx0 = min(c[0] for c in bitten)
+        bz0 = min(c[1] for c in bitten)
+        bx1 = max(c[0] for c in bitten)
+        bz1 = max(c[1] for c in bitten)
+        negative_spaces.append(NegativeSpace(
+            id="wall_moat", kind="moat",
+            bounds=(bx0, bz0, bx1, bz1), density_rank=0,
+            cells_override=tuple(sorted(bitten))))
+
+    # Clip-to-shape (Lever B, design D5): whenever the composed shape bites any
+    # cells (a non-square family OR a modifier on any base), every outer district
+    # (gate / market / residential / fringe) whose AABB reaches the perimeter
+    # curve gets cells = AABB ∩ perimeter_interior so its parcels follow the
+    # curve. The civic_core stays rectangular (cells = AABB) because the
+    # civic-precinct derivation is coupled to core.bounds; the protected_rect
+    # above guarantees it sits fully inside the wall.
+    # The normative outer set is market/residential/fringe. Gate is clipped as
+    # well when a modifier bites into its AABB, otherwise a barbican/bastion
+    # moat can overlap a gate-house parcel near the south wall.
+    outer_kinds = ("gate", "market", "residential", "fringe")
+    clip_outer = bool(bitten)
+    districts_out: List[TownDistrict] = []
+    for dist in layout.districts:
+        rect_cells = _rect(*dist.bounds)
+        clipped_cells = rect_cells & shape_interior
+        if (clip_outer and dist.kind in outer_kinds
+                and clipped_cells != rect_cells):
+            districts_out.append(replace(
+                dist, cells_override=tuple(sorted(clipped_cells))))
+        else:
+            districts_out.append(dist)
+
     # Civic core shrine first (dominant landmark, sole top tier).
-    core = next(dist for dist in layout.districts if dist.kind == "civic_core")
+    core = next(dist for dist in districts_out if dist.kind == "civic_core")
     shrine_tpl = "town_shrine_001"
     shrine_parcel = _make_parcel(
         "town_shrine", core, layout.shrine_parcel, "", shrine_tpl,
@@ -1103,25 +1554,41 @@ def generate_town_plan(
         importance=MAX_IMPORTANCE_TIER, dominant=True, role="civic")
     parcels.append(shrine_parcel)
 
-    # Subdivide every district. The civic_core also gets auxiliary halls.
+    # Subdivide every (clipped) district. The civic_core also gets auxiliary
+    # halls. Streets are clipped to the perimeter interior so cross-lane ends
+    # that would exit the wall are trimmed; the spine<->gate<->core connection
+    # is preserved because the spine runs through the cx column (always inside
+    # the gate band and the disk). ``_parcel_fits`` rejects any parcel that
+    # would cross a clipped district edge.
     idx = 100
-    streets = set(layout.spine) | set(layout.lanes)
+    raw_streets = (set(layout.spine) | set(layout.lanes)) & shape_interior
+    streets = set(raw_streets)
     interior_lanes: Set[Cell2] = set()
-    for district in layout.districts:
+    for district in districts_out:
         sub_parcels, sub_alleys, sub_negatives, idx = _subdivide_district(
             district, layout, streets, rng, site.base_y, idx, seed, interior_lanes)
         parcels.extend(sub_parcels)
         alleys.extend(sub_alleys)
         negative_spaces.extend(sub_negatives)
+    # Trim interior lanes to the wall as well, then finalize the street set.
+    interior_lanes &= shape_interior
+    streets = (set(layout.spine) | set(layout.lanes) | interior_lanes) & shape_interior
 
-    # Fringe spirit-field negative spaces (灵田 / 药圃).
-    for district in layout.districts:
+    # Fringe spirit-field negative spaces (灵田 / 药圃), confined to each fringe
+    # district's clipped cells so the field stays inside the wall.
+    for district in districts_out:
         if district.kind != "fringe":
             continue
+        d_cells = district.cells
         fx0, fz0, fx1, fz1 = district.bounds
+        field_bounds = (max(fx0, fx0 + 1), max(fz0, fz0 + 6),
+                        min(fx1, fx1 - 1), min(fz1, fz1 - 1))
+        field_cells = (_rect(*field_bounds) & d_cells) if district.cells_override \
+            else _rect(*field_bounds)
         negative_spaces.append(NegativeSpace(
             id=f"spirit_field_{district.id}", kind="spirit_field",
-            bounds=(fx0 + 1, fz0 + 6, fx1 - 1, fz1 - 1), density_rank=0))
+            bounds=field_bounds, density_rank=0,
+            cells_override=tuple(sorted(field_cells))))
 
     # Civic-precinct reserved structures (wall / colonnade / spirit way) are
     # masked against the final parcel + street set so nothing overlaps. The
@@ -1166,14 +1633,17 @@ def generate_town_plan(
         perimeter=perimeter,
         wall_cells=wall_cells,
         gates=gates,
-        spine=set(layout.spine),
-        lane_cells=set(layout.lanes) | interior_lanes,
+        spine=set(layout.spine) & shape_interior,
+        lane_cells=(set(layout.lanes) | interior_lanes) & shape_interior,
         parcels=parcels,
         negative_spaces=negative_spaces,
-        districts=list(layout.districts),
+        districts=districts_out,
         alleys=alleys,
         district_brief=[dict(e) for e in district_brief],
         ritual_axis=ritual_axis,
+        shape_family=shape_family,
+        shape_modifiers=shape_modifiers,
+        shape_id=shape_id,
     )
 
 
@@ -1187,6 +1657,69 @@ def _reachable(start: Cell2, cells: Set[Cell2]) -> Set[Cell2]:
                 seen.add(nxt)
                 q.append(nxt)
     return seen
+
+
+def _count_closed_loops(perimeter: Set[Cell2]) -> int:
+    """Number of 8-connected components in the perimeter cell set.
+
+    A single closed boundary reads as exactly one component. 8-connectivity is
+    used (not 4) because a rasterized curve has diagonal pinch points where
+    consecutive boundary cells touch only diagonally; those are still a single
+    visual loop. A bite fully enclosed by interior (a hole) introduces a second
+    inner boundary component, which 8-connectivity still distinguishes from the
+    outer loop.
+    """
+    remaining = set(perimeter)
+    loops = 0
+    while remaining:
+        start = next(iter(remaining))
+        comp = _reachable8(start, remaining)
+        remaining -= comp
+        loops += 1
+    return loops
+
+
+def _reachable8(start: Cell2, cells: Set[Cell2]) -> Set[Cell2]:
+    """8-connected (king-move) flood fill."""
+    q = deque([start])
+    seen = {start}
+    while q:
+        x, z = q.popleft()
+        for dx in (-1, 0, 1):
+            for dz in (-1, 0, 1):
+                if dx == 0 and dz == 0:
+                    continue
+                nxt = (x + dx, z + dz)
+                if nxt in cells and nxt not in seen:
+                    seen.add(nxt)
+                    q.append(nxt)
+    return seen
+
+
+def _gate_on_straight_run(gate_cells: Iterable[Cell2], perimeter: Set[Cell2]) -> bool:
+    """The gate cells SHALL be collinear (a straight horizontal/vertical run)."""
+    cells = list(gate_cells)
+    if not cells:
+        return False
+    xs = {c[0] for c in cells}
+    zs = {c[1] for c in cells}
+    on_straight = len(xs) == 1 or len(zs) == 1
+    if not on_straight:
+        return False
+    # The wall must actually continue the straight line through the gate (no
+    # curve pinches within the footprint): at least one perimeter cell abuts the
+    # run along the straight axis on each side.
+    if len(zs) == 1:
+        z = next(iter(zs))
+        x_lo, x_hi = min(xs), max(xs)
+        has_west = (x_lo - 1, z) in perimeter
+        has_east = (x_hi + 1, z) in perimeter
+    else:
+        x = next(iter(xs))
+        z_lo, z_hi = min(zs), max(zs)
+        has_west = (x, z_lo - 1) in perimeter
+        has_east = (x, z_hi + 1) in perimeter
+    return has_west or has_east
 
 
 def _parcel_border(parcel: TownParcel) -> Set[Cell2]:
@@ -1204,17 +1737,29 @@ def _adjacent(cell: Cell2, cells: Set[Cell2]) -> bool:
 
 def validate_town_plan(plan: TownPlan) -> dict:
     errors: List[str] = []
-    expected_boundary = _boundary(plan.site)
+    protected_rect = _civic_core_aabb(plan.site, plan.seed)
+    expected_boundary = _boundary(
+        plan.site, plan.shape_family, plan.shape_modifiers, plan.seed,
+        protected_rect)
     if plan.perimeter != expected_boundary:
         missing = sorted(expected_boundary - plan.perimeter)[:8]
         extra = sorted(plan.perimeter - expected_boundary)[:8]
         errors.append(f"perimeter_not_boundary: missing={missing} extra={extra}")
+    # The perimeter SHALL be exactly one closed loop (spec: town-plan). A bite
+    # fully enclosed by interior (a hole) would yield a second loop; the flood
+    # fill below catches it.
+    loops = _count_closed_loops(plan.perimeter)
+    if loops != 1:
+        errors.append(f"perimeter_not_single_loop: loops={loops}")
     if not plan.gates:
         errors.append("missing_gate")
     for gate in plan.gates:
         off_wall = [cell for cell in gate.cells if cell not in plan.perimeter]
         if off_wall:
             errors.append(f"gate_off_perimeter: {gate.id}: {off_wall[:8]}")
+        # The gate SHALL seat on a straight perimeter run (spec: town-plan).
+        if gate.cells and not _gate_on_straight_run(gate.cells, plan.perimeter):
+            errors.append(f"gate_not_on_straight_run: {gate.id}")
 
     # District partition invariants.
     kinds_present = {d.kind for d in plan.districts}
@@ -1298,15 +1843,33 @@ def validate_town_plan(plan: TownPlan) -> dict:
     if outside_site:
         errors.append(f"plan_outside_site: {outside_site[:8]}")
 
-    # spine connectivity to gate and core
+    # spine connectivity to gate and core (spec: grid bounds preserve the
+    # spine-to-gate invariant — spine centerline intersects the south gate's
+    # straight segment, extends unbroken to the civic core, and no district
+    # bound severs it).
     if not plan.spine:
         errors.append("missing_spine")
     else:
         gate_cells = {cell for gate in plan.gates for cell in gate.cells}
         if not (gate_cells & plan.spine):
             errors.append("spine_not_connected_to_gate")
-        if not (plan.spine & {c for d in cores for c in district_cell_map.get(d.id, set())}):
+        center_x = _center_x(plan.site, plan.seed)
+        centerline = {(center_x, z) for z in range(plan.site.depth)}
+        if not (gate_cells & centerline):
+            errors.append("spine_centerline_misses_south_gate")
+        core_cells: Set[Cell2] = set()
+        for d in cores:
+            core_cells |= district_cell_map.get(d.id, set())
+        if not (plan.spine & core_cells):
             errors.append("spine_not_connected_to_civic_core")
+        # The spine SHALL extend unbroken from a gate to the civic core: a
+        # 4-connected flood fill of the spine starting at the gate must reach
+        # a core cell. A district bound severing the spine fails this.
+        spine_start = next(iter(gate_cells & plan.spine), None)
+        if spine_start is not None and core_cells:
+            reach = _reachable(spine_start, plan.spine)
+            if not (reach & core_cells):
+                errors.append("spine_severed_from_civic_core")
 
     # single dominant landmark = shrine, top tier
     landmarks = [p for p in plan.parcels if p.dominant_landmark]

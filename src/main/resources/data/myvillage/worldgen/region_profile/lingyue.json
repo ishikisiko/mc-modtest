@@ -1,0 +1,9 @@
+{
+  "id": "lingyue",
+  "display_name": "灵岳",
+  "tier": 14,
+  "qi": [6, 8],
+  "danger": [4, 7],
+  "role": "peripheral",
+  "admitted_subjects": ["sect"]
+}

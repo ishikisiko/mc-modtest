@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import html
 import os
+import shutil
 import struct
 import sys
 import zlib
@@ -19,6 +20,28 @@ if str(SCRIPT_DIR) not in sys.path:
 
 from buildgen.groups import get_group  # noqa: E402
 from buildgen.town import TownPlan, TownSite, generate_town_plan, write_plan_json  # noqa: E402
+
+DEFAULT_SEED = 123  # sentinel: +101*6 lands each step on a distinct wall family,
+                       # so the default --count 6 run covers all six
+                       # (octagon, trapezoid, circle, square, dshape, oval)
+
+
+def purge_old_plan_previews(out_root: Path, prefix: str) -> int:
+    """Remove previous ``<prefix>_*`` plan dumps under ``out_root``.
+
+    Keeps the preview tree from accumulating stale ad-hoc runs (different
+    ``--seed`` values, partial failures, etc.) so each generator invocation
+    leaves a clean canonical set behind it.
+    """
+    removed = 0
+    if not out_root.is_dir():
+        return 0
+    for child in out_root.iterdir():
+        if child.is_dir() and (child.name == prefix or child.name.startswith(prefix + "_")):
+            shutil.rmtree(child)
+            removed += 1
+    return removed
+
 
 RGBA = Tuple[int, int, int, int]
 
@@ -112,7 +135,7 @@ def write_viewer(plan: TownPlan, out_dir: Path) -> Path:
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Town plan {plan.seed}</title>
+<title>Town plan s{plan.seed} (seed={plan.seed})</title>
 <style>
 body {{ margin: 0; font-family: system-ui, sans-serif; background: #eee8db; color: #252525; }}
 main {{ max-width: 980px; margin: 0 auto; padding: 24px; }}
@@ -124,7 +147,7 @@ li {{ margin: 0.25em 0; }}
 </head>
 <body>
 <main>
-<h1>Town plan {plan.seed}</h1>
+<h1>Town plan s{plan.seed} (seed={plan.seed})</h1>
 <img src="plan.png" alt="Top-down generated town plan">
 <div class="legend">
 <div><span class="swatch" style="background:#56534e"></span>wall</div>
@@ -197,26 +220,41 @@ def write_index(out_root: Path) -> Path:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--seed", type=int, default=20260618)
-    parser.add_argument("--count", type=int, default=3)
+    parser.add_argument("--seed", type=int, default=DEFAULT_SEED,
+                        help=f"base seed (default {DEFAULT_SEED}); the generated dir names "
+                             "carry an `s` prefix so the seed never collides with real dates "
+                             "in the listing. The default base is a sentinel picked so that "
+                             "`--count 6` covers all six perimeter wall families "
+                             "(octagon/trapezoid/circle/square/dshape/oval); smaller --count "
+                             "values only show the leading prefix of that sequence.")
+    parser.add_argument("--count", type=int, default=6,
+                        help="number of plans to render (default 6 — the default base seed "
+                             "covers every wall family in 6 steps; pass --count 3 to mirror "
+                             "the older compact preview set)")
     parser.add_argument("--width", type=int, default=160)
     parser.add_argument("--depth", type=int, default=160)
     parser.add_argument("--out", default=str(REPO_ROOT / "out" / "preview"))
+    parser.add_argument("--keep-existing", action="store_true",
+                        help="skip the cleanup of previous town_plan_s* dumps in --out")
     args = parser.parse_args()
 
     group = get_group("cultivation_town")
     brief = list(group.scale_params.get("district_brief", []))
     out_root = Path(args.out)
+    if not args.keep_existing:
+        purged = purge_old_plan_previews(out_root, "town_plan")
+        if purged:
+            print(f"purged {purged} previous town_plan_* dump(s) under {out_root}")
     site = TownSite(width=args.width, depth=args.depth)
     for index in range(args.count):
         seed = args.seed + index * 101
         plan = generate_town_plan(seed, site, brief)
-        out_dir = out_root / f"town_plan_{seed}"
+        out_dir = out_root / f"town_plan_s{seed}"
         out_dir.mkdir(parents=True, exist_ok=True)
         write_plan_json(plan, out_dir / "plan.json")
         render_plan_png(plan, out_dir / "plan.png")
         viewer = write_viewer(plan, out_dir)
-        print(f"OK town_plan_{seed}: {viewer.relative_to(REPO_ROOT)}")
+        print(f"OK town_plan_s{seed}: {viewer.relative_to(REPO_ROOT)}")
     index = write_index(out_root)
     print(f"index: {index.relative_to(REPO_ROOT)}")
     # Re-run structure preview index to merge categories (town_plan entries)

@@ -1,0 +1,9 @@
+{
+  "id": "nanjiang",
+  "display_name": "南疆",
+  "tier": 10,
+  "qi": [4, 6],
+  "danger": [5, 8],
+  "role": "peripheral",
+  "admitted_subjects": ["sect"]
+}

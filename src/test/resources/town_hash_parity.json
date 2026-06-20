@@ -1,0 +1,1382 @@
+{
+  "generator": "tools/buildgen/tests/generate_town_hash_fixture.py",
+  "note": "Bit-identical Python/Java parity vectors for town_hash.",
+  "hash_cases": [
+    {
+      "seed": 20260618,
+      "tag": "cx",
+      "hash": 4802784554671629351
+    },
+    {
+      "seed": 20260618,
+      "tag": "lane_s",
+      "hash": 16006373903733690736
+    },
+    {
+      "seed": 20260618,
+      "tag": "lane_m",
+      "hash": 6026793001778528677
+    },
+    {
+      "seed": 20260618,
+      "tag": "lane_n",
+      "hash": 12253743446840686697
+    },
+    {
+      "seed": 20260618,
+      "tag": "family",
+      "hash": 1614153132301397052
+    },
+    {
+      "seed": 20260618,
+      "tag": "modifier",
+      "hash": 2286327375383979094
+    },
+    {
+      "seed": 20260618,
+      "tag": "market",
+      "hash": 6025056862751268740
+    },
+    {
+      "seed": 20260618,
+      "tag": "residential",
+      "hash": 11118203701719569947
+    },
+    {
+      "seed": 20260618,
+      "tag": "fringe",
+      "hash": 14995799375419710156
+    },
+    {
+      "seed": 20260618,
+      "tag": "circle_rx",
+      "hash": 10433156638710426785
+    },
+    {
+      "seed": 20260719,
+      "tag": "cx",
+      "hash": 11462394410165953235
+    },
+    {
+      "seed": 20260719,
+      "tag": "lane_s",
+      "hash": 6255610688228754593
+    },
+    {
+      "seed": 20260719,
+      "tag": "lane_m",
+      "hash": 5213243199649109243
+    },
+    {
+      "seed": 20260719,
+      "tag": "lane_n",
+      "hash": 11939858530934562139
+    },
+    {
+      "seed": 20260719,
+      "tag": "family",
+      "hash": 14279410859223149423
+    },
+    {
+      "seed": 20260719,
+      "tag": "modifier",
+      "hash": 12305518323121789388
+    },
+    {
+      "seed": 20260719,
+      "tag": "market",
+      "hash": 844346043763314619
+    },
+    {
+      "seed": 20260719,
+      "tag": "residential",
+      "hash": 4174353002299547601
+    },
+    {
+      "seed": 20260719,
+      "tag": "fringe",
+      "hash": 13173428631950269129
+    },
+    {
+      "seed": 20260719,
+      "tag": "circle_rx",
+      "hash": 13559967446200033147
+    },
+    {
+      "seed": 20260820,
+      "tag": "cx",
+      "hash": 12403481926938871057
+    },
+    {
+      "seed": 20260820,
+      "tag": "lane_s",
+      "hash": 4992103229313827945
+    },
+    {
+      "seed": 20260820,
+      "tag": "lane_m",
+      "hash": 6540206348069480315
+    },
+    {
+      "seed": 20260820,
+      "tag": "lane_n",
+      "hash": 10116327335365319779
+    },
+    {
+      "seed": 20260820,
+      "tag": "family",
+      "hash": 8313636800486050921
+    },
+    {
+      "seed": 20260820,
+      "tag": "modifier",
+      "hash": 2537365700046922927
+    },
+    {
+      "seed": 20260820,
+      "tag": "market",
+      "hash": 5951959037244507655
+    },
+    {
+      "seed": 20260820,
+      "tag": "residential",
+      "hash": 7451305282238890774
+    },
+    {
+      "seed": 20260820,
+      "tag": "fringe",
+      "hash": 6175007715116661769
+    },
+    {
+      "seed": 20260820,
+      "tag": "circle_rx",
+      "hash": 9814234428711549807
+    },
+    {
+      "seed": 20260921,
+      "tag": "cx",
+      "hash": 17325401272767491820
+    },
+    {
+      "seed": 20260921,
+      "tag": "lane_s",
+      "hash": 7399871392377325002
+    },
+    {
+      "seed": 20260921,
+      "tag": "lane_m",
+      "hash": 17612863340974534981
+    },
+    {
+      "seed": 20260921,
+      "tag": "lane_n",
+      "hash": 13786262807732460835
+    },
+    {
+      "seed": 20260921,
+      "tag": "family",
+      "hash": 5991723670628007937
+    },
+    {
+      "seed": 20260921,
+      "tag": "modifier",
+      "hash": 11273448513335077148
+    },
+    {
+      "seed": 20260921,
+      "tag": "market",
+      "hash": 17458858772881602040
+    },
+    {
+      "seed": 20260921,
+      "tag": "residential",
+      "hash": 6767452539911740606
+    },
+    {
+      "seed": 20260921,
+      "tag": "fringe",
+      "hash": 1514975581775039743
+    },
+    {
+      "seed": 20260921,
+      "tag": "circle_rx",
+      "hash": 4245936722802457993
+    },
+    {
+      "seed": 20261022,
+      "tag": "cx",
+      "hash": 9845363177713918092
+    },
+    {
+      "seed": 20261022,
+      "tag": "lane_s",
+      "hash": 4026180673176843532
+    },
+    {
+      "seed": 20261022,
+      "tag": "lane_m",
+      "hash": 4830210658303672637
+    },
+    {
+      "seed": 20261022,
+      "tag": "lane_n",
+      "hash": 258048740647579997
+    },
+    {
+      "seed": 20261022,
+      "tag": "family",
+      "hash": 7424204512012979948
+    },
+    {
+      "seed": 20261022,
+      "tag": "modifier",
+      "hash": 7692706048641515586
+    },
+    {
+      "seed": 20261022,
+      "tag": "market",
+      "hash": 15934281903570024966
+    },
+    {
+      "seed": 20261022,
+      "tag": "residential",
+      "hash": 7871881431496535188
+    },
+    {
+      "seed": 20261022,
+      "tag": "fringe",
+      "hash": 2181315957392808912
+    },
+    {
+      "seed": 20261022,
+      "tag": "circle_rx",
+      "hash": 7496049076841125203
+    },
+    {
+      "seed": 20261123,
+      "tag": "cx",
+      "hash": 5525389285973905280
+    },
+    {
+      "seed": 20261123,
+      "tag": "lane_s",
+      "hash": 7268055197798152939
+    },
+    {
+      "seed": 20261123,
+      "tag": "lane_m",
+      "hash": 1368389999995587586
+    },
+    {
+      "seed": 20261123,
+      "tag": "lane_n",
+      "hash": 13230415694276117403
+    },
+    {
+      "seed": 20261123,
+      "tag": "family",
+      "hash": 17768359205153139102
+    },
+    {
+      "seed": 20261123,
+      "tag": "modifier",
+      "hash": 17876420895766265712
+    },
+    {
+      "seed": 20261123,
+      "tag": "market",
+      "hash": 13368920002850783327
+    },
+    {
+      "seed": 20261123,
+      "tag": "residential",
+      "hash": 16841331958511938465
+    },
+    {
+      "seed": 20261123,
+      "tag": "fringe",
+      "hash": 13629625442000007057
+    },
+    {
+      "seed": 20261123,
+      "tag": "circle_rx",
+      "hash": 13196797106773945393
+    },
+    {
+      "seed": 20261224,
+      "tag": "cx",
+      "hash": 13219476539846582903
+    },
+    {
+      "seed": 20261224,
+      "tag": "lane_s",
+      "hash": 9974552838476032385
+    },
+    {
+      "seed": 20261224,
+      "tag": "lane_m",
+      "hash": 13017816842431953437
+    },
+    {
+      "seed": 20261224,
+      "tag": "lane_n",
+      "hash": 17680561058730554345
+    },
+    {
+      "seed": 20261224,
+      "tag": "family",
+      "hash": 14180317703149072154
+    },
+    {
+      "seed": 20261224,
+      "tag": "modifier",
+      "hash": 2975781440132368059
+    },
+    {
+      "seed": 20261224,
+      "tag": "market",
+      "hash": 14993332221458445963
+    },
+    {
+      "seed": 20261224,
+      "tag": "residential",
+      "hash": 6719064801306854798
+    },
+    {
+      "seed": 20261224,
+      "tag": "fringe",
+      "hash": 1358924100234292573
+    },
+    {
+      "seed": 20261224,
+      "tag": "circle_rx",
+      "hash": 14484172593495558026
+    },
+    {
+      "seed": 20261325,
+      "tag": "cx",
+      "hash": 17173037479348926106
+    },
+    {
+      "seed": 20261325,
+      "tag": "lane_s",
+      "hash": 13148605109039486
+    },
+    {
+      "seed": 20261325,
+      "tag": "lane_m",
+      "hash": 5975462852372764235
+    },
+    {
+      "seed": 20261325,
+      "tag": "lane_n",
+      "hash": 18107743307439773825
+    },
+    {
+      "seed": 20261325,
+      "tag": "family",
+      "hash": 3086196836597976542
+    },
+    {
+      "seed": 20261325,
+      "tag": "modifier",
+      "hash": 8004113401236338996
+    },
+    {
+      "seed": 20261325,
+      "tag": "market",
+      "hash": 2118176353051367052
+    },
+    {
+      "seed": 20261325,
+      "tag": "residential",
+      "hash": 2762739623416326877
+    },
+    {
+      "seed": 20261325,
+      "tag": "fringe",
+      "hash": 788962451258878975
+    },
+    {
+      "seed": 20261325,
+      "tag": "circle_rx",
+      "hash": 13915181209885699464
+    },
+    {
+      "seed": 20261426,
+      "tag": "cx",
+      "hash": 15371770261733853341
+    },
+    {
+      "seed": 20261426,
+      "tag": "lane_s",
+      "hash": 18369286597697717022
+    },
+    {
+      "seed": 20261426,
+      "tag": "lane_m",
+      "hash": 6617547173008314684
+    },
+    {
+      "seed": 20261426,
+      "tag": "lane_n",
+      "hash": 11589037021978898685
+    },
+    {
+      "seed": 20261426,
+      "tag": "family",
+      "hash": 15619441128484033987
+    },
+    {
+      "seed": 20261426,
+      "tag": "modifier",
+      "hash": 2457985960945325454
+    },
+    {
+      "seed": 20261426,
+      "tag": "market",
+      "hash": 12795555101067318253
+    },
+    {
+      "seed": 20261426,
+      "tag": "residential",
+      "hash": 8625036247767849564
+    },
+    {
+      "seed": 20261426,
+      "tag": "fringe",
+      "hash": 8554300913822590755
+    },
+    {
+      "seed": 20261426,
+      "tag": "circle_rx",
+      "hash": 647889689313560869
+    },
+    {
+      "seed": 20261527,
+      "tag": "cx",
+      "hash": 16668161452691597607
+    },
+    {
+      "seed": 20261527,
+      "tag": "lane_s",
+      "hash": 7057529724157948776
+    },
+    {
+      "seed": 20261527,
+      "tag": "lane_m",
+      "hash": 2739178452130244856
+    },
+    {
+      "seed": 20261527,
+      "tag": "lane_n",
+      "hash": 7515474856847358304
+    },
+    {
+      "seed": 20261527,
+      "tag": "family",
+      "hash": 3101682576679552435
+    },
+    {
+      "seed": 20261527,
+      "tag": "modifier",
+      "hash": 10752516330291726822
+    },
+    {
+      "seed": 20261527,
+      "tag": "market",
+      "hash": 3447505695434902386
+    },
+    {
+      "seed": 20261527,
+      "tag": "residential",
+      "hash": 12700519582982380658
+    },
+    {
+      "seed": 20261527,
+      "tag": "fringe",
+      "hash": 13724086710935758421
+    },
+    {
+      "seed": 20261527,
+      "tag": "circle_rx",
+      "hash": 18239396795282928149
+    },
+    {
+      "seed": 0,
+      "tag": "cx",
+      "hash": 2031742368466173423
+    },
+    {
+      "seed": 0,
+      "tag": "lane_s",
+      "hash": 10803513601696129599
+    },
+    {
+      "seed": 0,
+      "tag": "lane_m",
+      "hash": 11267875873954202227
+    },
+    {
+      "seed": 0,
+      "tag": "lane_n",
+      "hash": 13964265742204954977
+    },
+    {
+      "seed": 0,
+      "tag": "family",
+      "hash": 16736287580512001830
+    },
+    {
+      "seed": 0,
+      "tag": "modifier",
+      "hash": 14782005486512222532
+    },
+    {
+      "seed": 0,
+      "tag": "market",
+      "hash": 9686580127752782718
+    },
+    {
+      "seed": 0,
+      "tag": "residential",
+      "hash": 15797032925690303991
+    },
+    {
+      "seed": 0,
+      "tag": "fringe",
+      "hash": 5663207953286181427
+    },
+    {
+      "seed": 0,
+      "tag": "circle_rx",
+      "hash": 17936511984619118022
+    },
+    {
+      "seed": 1,
+      "tag": "cx",
+      "hash": 2465727622775175524
+    },
+    {
+      "seed": 1,
+      "tag": "lane_s",
+      "hash": 3605342044321586559
+    },
+    {
+      "seed": 1,
+      "tag": "lane_m",
+      "hash": 12451111756154875252
+    },
+    {
+      "seed": 1,
+      "tag": "lane_n",
+      "hash": 14270005712327343162
+    },
+    {
+      "seed": 1,
+      "tag": "family",
+      "hash": 17111051065935603279
+    },
+    {
+      "seed": 1,
+      "tag": "modifier",
+      "hash": 17619034317752253032
+    },
+    {
+      "seed": 1,
+      "tag": "market",
+      "hash": 986319635021812477
+    },
+    {
+      "seed": 1,
+      "tag": "residential",
+      "hash": 17984645683911949686
+    },
+    {
+      "seed": 1,
+      "tag": "fringe",
+      "hash": 8895562835197500454
+    },
+    {
+      "seed": 1,
+      "tag": "circle_rx",
+      "hash": 4760565486643533462
+    },
+    {
+      "seed": 42,
+      "tag": "cx",
+      "hash": 1462829724530974096
+    },
+    {
+      "seed": 42,
+      "tag": "lane_s",
+      "hash": 13772179216382227338
+    },
+    {
+      "seed": 42,
+      "tag": "lane_m",
+      "hash": 9136957077347544739
+    },
+    {
+      "seed": 42,
+      "tag": "lane_n",
+      "hash": 10844892996794665662
+    },
+    {
+      "seed": 42,
+      "tag": "family",
+      "hash": 14830437659741453203
+    },
+    {
+      "seed": 42,
+      "tag": "modifier",
+      "hash": 11787856706097558700
+    },
+    {
+      "seed": 42,
+      "tag": "market",
+      "hash": 16512361706431872931
+    },
+    {
+      "seed": 42,
+      "tag": "residential",
+      "hash": 6137487219530107768
+    },
+    {
+      "seed": 42,
+      "tag": "fringe",
+      "hash": 17992182642315775822
+    },
+    {
+      "seed": 42,
+      "tag": "circle_rx",
+      "hash": 9484272654082006811
+    },
+    {
+      "seed": 9223372036854775808,
+      "tag": "cx",
+      "hash": 12572609846607883256
+    },
+    {
+      "seed": 9223372036854775808,
+      "tag": "lane_s",
+      "hash": 3942759951253461485
+    },
+    {
+      "seed": 9223372036854775808,
+      "tag": "lane_m",
+      "hash": 16256144686518546702
+    },
+    {
+      "seed": 9223372036854775808,
+      "tag": "lane_n",
+      "hash": 13335773347155618771
+    },
+    {
+      "seed": 9223372036854775808,
+      "tag": "family",
+      "hash": 12591911183911617279
+    },
+    {
+      "seed": 9223372036854775808,
+      "tag": "modifier",
+      "hash": 9951894357351279077
+    },
+    {
+      "seed": 9223372036854775808,
+      "tag": "market",
+      "hash": 10238593918191597800
+    },
+    {
+      "seed": 9223372036854775808,
+      "tag": "residential",
+      "hash": 1925168327526459372
+    },
+    {
+      "seed": 9223372036854775808,
+      "tag": "fringe",
+      "hash": 13440107157617954330
+    },
+    {
+      "seed": 9223372036854775808,
+      "tag": "circle_rx",
+      "hash": 14362107921206065142
+    }
+  ],
+  "range_cases": [
+    {
+      "seed": 20260618,
+      "tag": "cx",
+      "lo": -4,
+      "hi": 4,
+      "value": 2
+    },
+    {
+      "seed": 20260618,
+      "tag": "lane_s",
+      "lo": -2,
+      "hi": 2,
+      "value": -1
+    },
+    {
+      "seed": 20260618,
+      "tag": "market",
+      "lo": -3,
+      "hi": 3,
+      "value": 3
+    },
+    {
+      "seed": 20260618,
+      "tag": "circle_rx",
+      "lo": 40,
+      "hi": 70,
+      "value": 41
+    },
+    {
+      "seed": 20260618,
+      "tag": "octagon_k",
+      "lo": 40,
+      "hi": 60,
+      "value": 40
+    },
+    {
+      "seed": 20260719,
+      "tag": "cx",
+      "lo": -4,
+      "hi": 4,
+      "value": -2
+    },
+    {
+      "seed": 20260719,
+      "tag": "lane_s",
+      "lo": -2,
+      "hi": 2,
+      "value": 1
+    },
+    {
+      "seed": 20260719,
+      "tag": "market",
+      "lo": -3,
+      "hi": 3,
+      "value": -1
+    },
+    {
+      "seed": 20260719,
+      "tag": "circle_rx",
+      "lo": 40,
+      "hi": 70,
+      "value": 56
+    },
+    {
+      "seed": 20260719,
+      "tag": "octagon_k",
+      "lo": 40,
+      "hi": 60,
+      "value": 45
+    },
+    {
+      "seed": 20260820,
+      "tag": "cx",
+      "lo": -4,
+      "hi": 4,
+      "value": 3
+    },
+    {
+      "seed": 20260820,
+      "tag": "lane_s",
+      "lo": -2,
+      "hi": 2,
+      "value": -2
+    },
+    {
+      "seed": 20260820,
+      "tag": "market",
+      "lo": -3,
+      "hi": 3,
+      "value": 1
+    },
+    {
+      "seed": 20260820,
+      "tag": "circle_rx",
+      "lo": 40,
+      "hi": 70,
+      "value": 48
+    },
+    {
+      "seed": 20260820,
+      "tag": "octagon_k",
+      "lo": 40,
+      "hi": 60,
+      "value": 56
+    },
+    {
+      "seed": 20260921,
+      "tag": "cx",
+      "lo": -4,
+      "hi": 4,
+      "value": 2
+    },
+    {
+      "seed": 20260921,
+      "tag": "lane_s",
+      "lo": -2,
+      "hi": 2,
+      "value": 0
+    },
+    {
+      "seed": 20260921,
+      "tag": "market",
+      "lo": -3,
+      "hi": 3,
+      "value": 3
+    },
+    {
+      "seed": 20260921,
+      "tag": "circle_rx",
+      "lo": 40,
+      "hi": 70,
+      "value": 42
+    },
+    {
+      "seed": 20260921,
+      "tag": "octagon_k",
+      "lo": 40,
+      "hi": 60,
+      "value": 44
+    },
+    {
+      "seed": 20261022,
+      "tag": "cx",
+      "lo": -4,
+      "hi": 4,
+      "value": -1
+    },
+    {
+      "seed": 20261022,
+      "tag": "lane_s",
+      "lo": -2,
+      "hi": 2,
+      "value": 0
+    },
+    {
+      "seed": 20261022,
+      "tag": "market",
+      "lo": -3,
+      "hi": 3,
+      "value": 3
+    },
+    {
+      "seed": 20261022,
+      "tag": "circle_rx",
+      "lo": 40,
+      "hi": 70,
+      "value": 53
+    },
+    {
+      "seed": 20261022,
+      "tag": "octagon_k",
+      "lo": 40,
+      "hi": 60,
+      "value": 59
+    },
+    {
+      "seed": 20261123,
+      "tag": "cx",
+      "lo": -4,
+      "hi": 4,
+      "value": 1
+    },
+    {
+      "seed": 20261123,
+      "tag": "lane_s",
+      "lo": -2,
+      "hi": 2,
+      "value": 2
+    },
+    {
+      "seed": 20261123,
+      "tag": "market",
+      "lo": -3,
+      "hi": 3,
+      "value": 2
+    },
+    {
+      "seed": 20261123,
+      "tag": "circle_rx",
+      "lo": 40,
+      "hi": 70,
+      "value": 60
+    },
+    {
+      "seed": 20261123,
+      "tag": "octagon_k",
+      "lo": 40,
+      "hi": 60,
+      "value": 49
+    },
+    {
+      "seed": 20261224,
+      "tag": "cx",
+      "lo": -4,
+      "hi": 4,
+      "value": 1
+    },
+    {
+      "seed": 20261224,
+      "tag": "lane_s",
+      "lo": -2,
+      "hi": 2,
+      "value": -2
+    },
+    {
+      "seed": 20261224,
+      "tag": "market",
+      "lo": -3,
+      "hi": 3,
+      "value": 0
+    },
+    {
+      "seed": 20261224,
+      "tag": "circle_rx",
+      "lo": 40,
+      "hi": 70,
+      "value": 48
+    },
+    {
+      "seed": 20261224,
+      "tag": "octagon_k",
+      "lo": 40,
+      "hi": 60,
+      "value": 45
+    },
+    {
+      "seed": 20261325,
+      "tag": "cx",
+      "lo": -4,
+      "hi": 4,
+      "value": 3
+    },
+    {
+      "seed": 20261325,
+      "tag": "lane_s",
+      "lo": -2,
+      "hi": 2,
+      "value": -1
+    },
+    {
+      "seed": 20261325,
+      "tag": "market",
+      "lo": -3,
+      "hi": 3,
+      "value": 0
+    },
+    {
+      "seed": 20261325,
+      "tag": "circle_rx",
+      "lo": 40,
+      "hi": 70,
+      "value": 57
+    },
+    {
+      "seed": 20261325,
+      "tag": "octagon_k",
+      "lo": 40,
+      "hi": 60,
+      "value": 40
+    },
+    {
+      "seed": 20261426,
+      "tag": "cx",
+      "lo": -4,
+      "hi": 4,
+      "value": 1
+    },
+    {
+      "seed": 20261426,
+      "tag": "lane_s",
+      "lo": -2,
+      "hi": 2,
+      "value": 0
+    },
+    {
+      "seed": 20261426,
+      "tag": "market",
+      "lo": -3,
+      "hi": 3,
+      "value": -1
+    },
+    {
+      "seed": 20261426,
+      "tag": "circle_rx",
+      "lo": 40,
+      "hi": 70,
+      "value": 69
+    },
+    {
+      "seed": 20261426,
+      "tag": "octagon_k",
+      "lo": 40,
+      "hi": 60,
+      "value": 46
+    },
+    {
+      "seed": 20261527,
+      "tag": "cx",
+      "lo": -4,
+      "hi": 4,
+      "value": 2
+    },
+    {
+      "seed": 20261527,
+      "tag": "lane_s",
+      "lo": -2,
+      "hi": 2,
+      "value": -1
+    },
+    {
+      "seed": 20261527,
+      "tag": "market",
+      "lo": -3,
+      "hi": 3,
+      "value": 2
+    },
+    {
+      "seed": 20261527,
+      "tag": "circle_rx",
+      "lo": 40,
+      "hi": 70,
+      "value": 48
+    },
+    {
+      "seed": 20261527,
+      "tag": "octagon_k",
+      "lo": 40,
+      "hi": 60,
+      "value": 55
+    },
+    {
+      "seed": 0,
+      "tag": "cx",
+      "lo": -4,
+      "hi": 4,
+      "value": -4
+    },
+    {
+      "seed": 0,
+      "tag": "lane_s",
+      "lo": -2,
+      "hi": 2,
+      "value": 2
+    },
+    {
+      "seed": 0,
+      "tag": "market",
+      "lo": -3,
+      "hi": 3,
+      "value": -1
+    },
+    {
+      "seed": 0,
+      "tag": "circle_rx",
+      "lo": 40,
+      "hi": 70,
+      "value": 55
+    },
+    {
+      "seed": 0,
+      "tag": "octagon_k",
+      "lo": 40,
+      "hi": 60,
+      "value": 45
+    },
+    {
+      "seed": 1,
+      "tag": "cx",
+      "lo": -4,
+      "hi": 4,
+      "value": 1
+    },
+    {
+      "seed": 1,
+      "tag": "lane_s",
+      "lo": -2,
+      "hi": 2,
+      "value": 2
+    },
+    {
+      "seed": 1,
+      "tag": "market",
+      "lo": -3,
+      "hi": 3,
+      "value": -2
+    },
+    {
+      "seed": 1,
+      "tag": "circle_rx",
+      "lo": 40,
+      "hi": 70,
+      "value": 47
+    },
+    {
+      "seed": 1,
+      "tag": "octagon_k",
+      "lo": 40,
+      "hi": 60,
+      "value": 47
+    },
+    {
+      "seed": 42,
+      "tag": "cx",
+      "lo": -4,
+      "hi": 4,
+      "value": 3
+    },
+    {
+      "seed": 42,
+      "tag": "lane_s",
+      "lo": -2,
+      "hi": 2,
+      "value": 1
+    },
+    {
+      "seed": 42,
+      "tag": "market",
+      "lo": -3,
+      "hi": 3,
+      "value": 3
+    },
+    {
+      "seed": 42,
+      "tag": "circle_rx",
+      "lo": 40,
+      "hi": 70,
+      "value": 58
+    },
+    {
+      "seed": 42,
+      "tag": "octagon_k",
+      "lo": 40,
+      "hi": 60,
+      "value": 47
+    },
+    {
+      "seed": 9223372036854775808,
+      "tag": "cx",
+      "lo": -4,
+      "hi": 4,
+      "value": 1
+    },
+    {
+      "seed": 9223372036854775808,
+      "tag": "lane_s",
+      "lo": -2,
+      "hi": 2,
+      "value": -2
+    },
+    {
+      "seed": 9223372036854775808,
+      "tag": "market",
+      "lo": -3,
+      "hi": 3,
+      "value": -1
+    },
+    {
+      "seed": 9223372036854775808,
+      "tag": "circle_rx",
+      "lo": 40,
+      "hi": 70,
+      "value": 43
+    },
+    {
+      "seed": 9223372036854775808,
+      "tag": "octagon_k",
+      "lo": 40,
+      "hi": 60,
+      "value": 58
+    }
+  ],
+  "pick_cases": [
+    {
+      "seed": 20260618,
+      "tag": "family",
+      "options": [
+        "square",
+        "circle",
+        "oval",
+        "dshape",
+        "octagon",
+        "trapezoid"
+      ],
+      "index": 0
+    },
+    {
+      "seed": 20260719,
+      "tag": "family",
+      "options": [
+        "square",
+        "circle",
+        "oval",
+        "dshape",
+        "octagon",
+        "trapezoid"
+      ],
+      "index": 5
+    },
+    {
+      "seed": 20260820,
+      "tag": "family",
+      "options": [
+        "square",
+        "circle",
+        "oval",
+        "dshape",
+        "octagon",
+        "trapezoid"
+      ],
+      "index": 1
+    },
+    {
+      "seed": 20260921,
+      "tag": "family",
+      "options": [
+        "square",
+        "circle",
+        "oval",
+        "dshape",
+        "octagon",
+        "trapezoid"
+      ],
+      "index": 1
+    },
+    {
+      "seed": 20261022,
+      "tag": "family",
+      "options": [
+        "square",
+        "circle",
+        "oval",
+        "dshape",
+        "octagon",
+        "trapezoid"
+      ],
+      "index": 2
+    },
+    {
+      "seed": 20261123,
+      "tag": "family",
+      "options": [
+        "square",
+        "circle",
+        "oval",
+        "dshape",
+        "octagon",
+        "trapezoid"
+      ],
+      "index": 0
+    },
+    {
+      "seed": 20261224,
+      "tag": "family",
+      "options": [
+        "square",
+        "circle",
+        "oval",
+        "dshape",
+        "octagon",
+        "trapezoid"
+      ],
+      "index": 2
+    },
+    {
+      "seed": 20261325,
+      "tag": "family",
+      "options": [
+        "square",
+        "circle",
+        "oval",
+        "dshape",
+        "octagon",
+        "trapezoid"
+      ],
+      "index": 2
+    },
+    {
+      "seed": 20261426,
+      "tag": "family",
+      "options": [
+        "square",
+        "circle",
+        "oval",
+        "dshape",
+        "octagon",
+        "trapezoid"
+      ],
+      "index": 1
+    },
+    {
+      "seed": 20261527,
+      "tag": "family",
+      "options": [
+        "square",
+        "circle",
+        "oval",
+        "dshape",
+        "octagon",
+        "trapezoid"
+      ],
+      "index": 1
+    },
+    {
+      "seed": 0,
+      "tag": "family",
+      "options": [
+        "square",
+        "circle",
+        "oval",
+        "dshape",
+        "octagon",
+        "trapezoid"
+      ],
+      "index": 4
+    },
+    {
+      "seed": 1,
+      "tag": "family",
+      "options": [
+        "square",
+        "circle",
+        "oval",
+        "dshape",
+        "octagon",
+        "trapezoid"
+      ],
+      "index": 3
+    },
+    {
+      "seed": 42,
+      "tag": "family",
+      "options": [
+        "square",
+        "circle",
+        "oval",
+        "dshape",
+        "octagon",
+        "trapezoid"
+      ],
+      "index": 1
+    },
+    {
+      "seed": 9223372036854775808,
+      "tag": "family",
+      "options": [
+        "square",
+        "circle",
+        "oval",
+        "dshape",
+        "octagon",
+        "trapezoid"
+      ],
+      "index": 3
+    }
+  ]
+}

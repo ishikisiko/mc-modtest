@@ -9,6 +9,71 @@ together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
 ## Unreleased
 
+## 0.14.0
+
+### Changed
+
+- **Region topology (洲/域) layer — offline-first** (`add-region-topology`).
+  Added the macro layer the mod was missing: a per-seed region graph of 5–7 洲
+  with a single centered 中州 `anchor`, rule-governed 连 (passable) / 隔
+  (separated) relations, a tier gradient under `tier_step N = 5`, and a sealed
+  魔域-style `walled` region (all 隔 except ≤1 关隘). Topology is authored as a
+  ruleset (count range, tier range/step, separator palette `{特殊山脉, 特殊海洋}`,
+  role rules) while geometry is randomized per seed; generation is constructive
+  (a 连 spanning tree + outward tier assignment make connectivity and the
+  tier-step hold by construction), so it is seed-deterministic and never
+  re-rolls. New data under `worldgen/region_profile/` + `worldgen/region_topology.json`
+  (+ a shipped `region_topology_example.json`), and new `tools/buildgen/region_topology.py`
+  (single shared source), `tools/generate_region_topology.py`,
+  `tools/validate_region_topology.py`, and
+  `tools/generate_region_topology_preview.py` (SVG + ASCII previews wired into
+  the aggregate). Added `docs/ai-kb/13_region_topology.md`. This layer is
+  offline-only — **no runtime worldgen, no in-game command** this change; a
+  later change consumes the typed edge list for terrain relief.
+
+## 0.13.0
+
+### Changed
+
+- **Town shape vocabulary and seed-driven grid** (`town-shape-vocabulary`).
+  `/myvillage town [seed]` now selects independently from square, 天圆 circle,
+  oval, 半月 D-shape, true octagon, and trapezoid wall families plus optional
+  barbican/bastion modifiers. The spine, three cross-lanes, and outer district
+  widths vary within bounded orthogonal ranges. Outer district cell sets clip
+  to the perimeter curve while the civic core remains rectangular. Python and
+  Java share `town_hash`, a five-seed parity fixture, integer circle/ellipse
+  sweeps, and a calibrated pairwise distinctness gate. Added
+  `docs/ai-kb/12_town_shape_vocabulary.md` and updated command examples.
+
+## 0.12.0
+
+### Changed
+
+- **Town shape is no longer a hard square** (`town-shape-irregularity`). The
+  runtime cultivation town (`/myvillage town`) wall is now a deterministic,
+  seed-derived variant (`square` / `chamfer` / `indent`) selected from a fixed
+  set, with geometry a pure function of (site, shape id) so the Java realizer
+  mirrors it from the id alone (no shared RNG). All deformation is inward-only,
+  confined to the empty east/west margin and corner triangles, so the south-gate
+  segment, the street grid, and every district are untouched; the bitten cells
+  are emitted as a `moat` negative space. `TownDistrict` now carries an
+  authoritative `cells` set (with `bounds` kept as the AABB), subdivision is
+  cell-set-aware (`_parcel_fits`), and the `chamfer` shape also chamfers the two
+  fringe districts' exterior corners (the only safe non-rectangular districts —
+  parcel-bearing and civic-core districts stay rectangular because the
+  civic-precinct derivation is coupled to `core.bounds`). Python⇄Java parity
+  gains perimeter-variant and fringe cell-count descriptors. No command-surface
+  change; `/myvillage town [seed]` behaves the same. See
+  `docs/ai-kb/11_town_shape_irregularity.md`.
+
+### Fixed
+
+- **Build configuration** (`build.gradle`). The `net.neoforged.moddev` 2.0.141
+  plugin removed the `runs { configureEach { modSource ... } }` DSL —
+  `RunModel` has no `modSource` in this version, so `./gradlew compileJava`
+  failed at evaluation time. Source registration now uses the top-level
+  `neoForge { mods { "${mod_id}" { sourceSet sourceSets.main } } }` block.
+
 ## 0.11.0-fix2
 
 ### Changed
