@@ -137,7 +137,7 @@ def main() -> int:
         "passed": passed,
         "failed": len(reports) - passed,
         "rejected_attempts": failed_attempts,
-        "gallery_function": os.path.relpath(gallery_path, PROJECT_ROOT),
+        "gallery_function": export.repo_relpath(gallery_path),
         "variant_distinctness": variant_distinctness,
         "reports": reports,
     }
@@ -146,7 +146,7 @@ def main() -> int:
         json.dump(summary, f, indent=2)
     print(f"\ngenerated {len(entries)}/{summary['requested']} buildings "
           f"({failed_attempts} rejected attempts)")
-    print(f"report: {os.path.relpath(report_path, PROJECT_ROOT)}")
+    print(f"report: {export.repo_relpath(report_path)}")
     print(f"gallery: {summary['gallery_function']}")
     if variant_distinctness is not None:
         gate = "PASS" if distinctness_ok else "FAIL"

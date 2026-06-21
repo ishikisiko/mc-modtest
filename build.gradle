@@ -50,7 +50,11 @@ neoForge {
     }
 }
 
-def pythonExecutable = providers.environmentVariable('PYTHON').orElse('python3')
+import org.gradle.internal.os.OperatingSystem
+
+def pythonExecutable = providers.environmentVariable('PYTHON').orElse(
+    OperatingSystem.current().isWindows() ? 'python' : 'python3'
+)
 
 // Generate the structure resources that are packed into the NeoForge mod jar.
 tasks.register('generateAllStructures', Exec) {

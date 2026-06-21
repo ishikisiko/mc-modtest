@@ -86,14 +86,14 @@ def main() -> int:
         "passed": passed,
         "failed": len(reports) - passed,
         "rejected_attempts": failed_attempts,
-        "gallery_function": os.path.relpath(gallery_path, PROJECT_ROOT),
+        "gallery_function": export.repo_relpath(gallery_path),
         "reports": reports,
     }
     os.makedirs(os.path.dirname(REPORT_PATH), exist_ok=True)
     with open(REPORT_PATH, "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2)
     print(f"\ngenerated {len(entries)}/{requested} civic structures ({failed_attempts} rejected attempts)")
-    print(f"report: {os.path.relpath(REPORT_PATH, PROJECT_ROOT)}")
+    print(f"report: {export.repo_relpath(REPORT_PATH)}")
     print(f"gallery: {summary['gallery_function']}")
     return 0 if len(entries) == requested else 1
 

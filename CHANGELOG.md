@@ -9,6 +9,17 @@ together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
 ## Unreleased
 
+### Fixed
+
+- **Cross-platform build and report determinism.** `build.gradle` now selects
+  the Python interpreter per OS (`python` on Windows, `python3` elsewhere),
+  falling back to the `PYTHON` environment variable when set, so `gradlew build`
+  works out of the box on Windows without the Microsoft Store `python3` stub
+  breaking the resource-generation task. Generator/validator/preview tools now
+  emit repo-relative paths as POSIX strings (forward slashes) via
+  `tools/buildgen/export.py::repo_relpath`, so committed JSON reports and
+  human-facing output are byte-identical across Linux and Windows.
+
 ## 0.15.0
 
 ### Changed

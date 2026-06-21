@@ -123,7 +123,7 @@ def main() -> int:
             }
             meta_path = export.write_settlement_metadata(name, metadata)
             export.write_place_function(style.style_id, name)
-            info["settlement_metadata"] = os.path.relpath(meta_path, PROJECT_ROOT)
+            info["settlement_metadata"] = export.repo_relpath(meta_path)
             report["name"] = name
             report["export"] = info
             report["compound_graph"] = compound.to_dict()
@@ -143,7 +143,7 @@ def main() -> int:
             "passed": True,
             "errors": [],
             "distinct_variants": len(compound_reports),
-            "gallery_function": os.path.relpath(gallery_path, PROJECT_ROOT),
+            "gallery_function": export.repo_relpath(gallery_path),
             "standalone_reports": [],
             "compounds": compound_reports,
         }
@@ -151,7 +151,7 @@ def main() -> int:
         with open(report_path, "w", encoding="utf-8") as f:
             json.dump(summary, f, indent=2, ensure_ascii=False)
         print(f"\ngenerated {len(compound_reports)}/{args.count} sect compounds")
-        print(f"report: {os.path.relpath(report_path, PROJECT_ROOT)}")
+        print(f"report: {export.repo_relpath(report_path)}")
         print(f"gallery: {summary['gallery_function']}")
         return 0
 
@@ -187,7 +187,7 @@ def main() -> int:
             "passed": library_report["passed"],
             "errors": library_report["errors"],
             "distinct_variants": library_report["distinct_variants"],
-            "gallery_function": os.path.relpath(gallery_path, PROJECT_ROOT),
+            "gallery_function": export.repo_relpath(gallery_path),
             "standalone_reports": [],
             "compounds": compound_reports,
         }
@@ -195,7 +195,7 @@ def main() -> int:
         with open(report_path, "w", encoding="utf-8") as f:
             json.dump(summary, f, indent=2, ensure_ascii=False)
         print(f"\ngenerated {len(compound_reports)}/{args.count} town blocks")
-        print(f"report: {os.path.relpath(report_path, PROJECT_ROOT)}")
+        print(f"report: {export.repo_relpath(report_path)}")
         print(f"gallery: {summary['gallery_function']}")
         return 0 if summary["passed"] else 1
 
@@ -242,7 +242,7 @@ def main() -> int:
         "silhouette_spread": library_report["silhouette_spread"],
         "min_silhouette_spread": library_report["min_silhouette_spread"],
         "nbt_sha256": library_report["nbt_sha256"],
-        "gallery_function": os.path.relpath(gallery_path, PROJECT_ROOT),
+        "gallery_function": export.repo_relpath(gallery_path),
         "standalone_reports": standalone_reports,
         "compounds": compound_reports,
     }
@@ -250,7 +250,7 @@ def main() -> int:
     with open(report_path, "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2, ensure_ascii=False)
     print(f"\ngenerated {len(compound_reports)}/{args.count} compounds")
-    print(f"report: {os.path.relpath(report_path, PROJECT_ROOT)}")
+    print(f"report: {export.repo_relpath(report_path)}")
     print(f"gallery: {summary['gallery_function']}")
     return 0 if summary["passed"] else 1
 

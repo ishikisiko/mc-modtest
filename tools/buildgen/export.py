@@ -26,6 +26,19 @@ MOD_ID = "myvillage"
 RESOURCES = os.path.join(PROJECT_ROOT, "src", "main", "resources", "data", MOD_ID)
 
 
+def repo_relpath(path: str, root: str = PROJECT_ROOT) -> str:
+    """Repo-relative path as a POSIX string (forward slashes) for stable
+    cross-platform JSON reports and human-facing output.
+
+    os.path.relpath yields native separators ("\\" on Windows, "/" elsewhere),
+    which makes committed reports flip between platforms. Using POSIX here
+    keeps generated reports and CLI prints byte-identical across Linux/Windows.
+    The caller never feeds these strings back to open(); when something does
+    need a real disk path it keeps the original Path/str.
+    """
+    return os.path.relpath(path, root).replace(os.sep, "/")
+
+
 def gallery_group(archetype: str, name: str = "", group_id: str = "") -> str:
     if group_id:
         group = get_group(group_id)
@@ -82,7 +95,7 @@ def write_structure_nbt(grid: BlockGrid, style_id: str, name: str) -> Tuple[str,
         "block_count": len(root.value["blocks"].value),
         "entity_count": len(root.value["entities"].value),
         "palette_count": len(root.value["palette"].value),
-        "path": os.path.relpath(path, PROJECT_ROOT),
+        "path": repo_relpath(path),
     }
     return path, info
 

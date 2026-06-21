@@ -27,6 +27,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from buildgen.archetypes import ARCHETYPES, NEW_ARCHETYPE_COUNTS
+from buildgen import export
 from buildgen.modset import load_modset
 from buildgen.nbtread import read_gzipped_nbt, state_string
 from buildgen.style import load_style
@@ -204,7 +205,7 @@ def main() -> int:
     ok = passed == len(results) and not fn_errors
     print(f"\n{passed}/{len(results)} structures passed, "
           f"{len(fn_errors)} function errors")
-    print(f"report: {os.path.relpath(out, PROJECT_ROOT)}")
+    print(f"report: {export.repo_relpath(out)}")
     return 0 if ok else 1
 
 

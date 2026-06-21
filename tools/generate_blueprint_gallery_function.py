@@ -145,7 +145,7 @@ def main():
         size = read_structure_size(nbt_path)
         buildings.append({
             "structure_name": f"{NAMESPACE}:{name}",
-            "source_nbt": os.path.relpath(nbt_path, ROOT),
+            "source_nbt": os.path.relpath(nbt_path, ROOT).replace(os.sep, "/"),
             "size": list(size) if size else None,
             "offset_x": ox,
             "offset_y": 0,
@@ -160,8 +160,8 @@ def main():
 
     os.makedirs(os.path.dirname(MANIFEST_PATH), exist_ok=True)
     manifest = {
-        "function_file": os.path.relpath(FUNCTION_PATH, ROOT),
-        "datapack_dir": os.path.relpath(DATAPACK_DIR, ROOT),
+        "function_file": os.path.relpath(FUNCTION_PATH, ROOT).replace(os.sep, "/"),
+        "datapack_dir": os.path.relpath(DATAPACK_DIR, ROOT).replace(os.sep, "/"),
         "spacing": args.spacing,
         "axis": args.axis,
         "building_count": len(buildings),
@@ -172,7 +172,7 @@ def main():
 
     print(f"buildings: {len(buildings)}")
     print(f"function:  {manifest['function_file']}")
-    print(f"manifest:  {os.path.relpath(MANIFEST_PATH, ROOT)}")
+    print(f"manifest:  {os.path.relpath(MANIFEST_PATH, ROOT).replace(os.sep, '/')}")
     for b in buildings:
         print(f"  {b['structure_name']} -> ~{b['offset_x']} ~ ~{b['offset_z']} (size={b['size']})")
     return 0

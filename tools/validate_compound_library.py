@@ -17,6 +17,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from buildgen.nbtread import read_gzipped_nbt, state_string
+from buildgen import export
 from buildgen.groups import get_group
 from buildgen.modset import load_modset
 from buildgen.style import load_style, modset_namespaces
@@ -307,7 +308,7 @@ def main() -> int:
     with open(out_report, "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2, ensure_ascii=False)
     print(f"\n{len(nbt_results) - len(failed_nbt)}/{len(nbt_results)} compound structures passed")
-    print(f"report: {os.path.relpath(out_report, PROJECT_ROOT)}")
+    print(f"report: {export.repo_relpath(out_report)}")
     return 0 if summary["passed"] else 1
 
 

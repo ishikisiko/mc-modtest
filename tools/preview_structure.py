@@ -1352,7 +1352,7 @@ def render_preview_index(out_root: str, results: Sequence[RenderResult]) -> str:
             for result in items:
                 href = os.path.relpath(result.viewer_path, out_root).replace(os.sep, "/")
                 label = html.escape(result.stem)
-                source = html.escape(os.path.relpath(result.source, REPO_ROOT))
+                source = html.escape(os.path.relpath(result.source, REPO_ROOT).replace(os.sep, "/"))
                 item_buttons.append(
                     f'<button class="item" type="button" data-src="{html.escape(href, quote=True)}" '
                     f'data-name="{label.lower()}">'
@@ -1679,7 +1679,7 @@ def write_info(path: str, source: str, size: List[int], voxels: Voxels,
                 f.write(f"  {flag}\n")
         f.write("outputs:\n")
         for o in outputs:
-            f.write(f"  {os.path.relpath(o, REPO_ROOT)}\n")
+            f.write(f"  {os.path.relpath(o, REPO_ROOT).replace(os.sep, '/')}\n")
 
 
 _COLORS: Dict[str, Tuple[int, int, int]] = {}
@@ -1704,12 +1704,12 @@ def render_one(path: str, out_root: str, args: argparse.Namespace) -> RenderResu
         legend_png, legend_txt = render_legend(voxels, out_dir)
         outputs += [legend_png, legend_txt]
     if not args.no_viewer and not args.iso_only and not args.slices_only:
-        viewer_path = render_interactive_html(size, voxels, entities, out_dir, os.path.relpath(path, REPO_ROOT), stem)
+        viewer_path = render_interactive_html(size, voxels, entities, out_dir, os.path.relpath(path, REPO_ROOT).replace(os.sep, "/"), stem)
         outputs.append(viewer_path)
     info_path = os.path.join(out_dir, "info.txt")
-    write_info(info_path, os.path.relpath(path, REPO_ROOT), size, voxels, entities, flags, outputs)
+    write_info(info_path, os.path.relpath(path, REPO_ROOT).replace(os.sep, "/"), size, voxels, entities, flags, outputs)
     outputs.append(info_path)
-    print(f"rendered {os.path.relpath(path, REPO_ROOT)} -> {os.path.relpath(out_dir, REPO_ROOT)}/ "
+    print(f"rendered {os.path.relpath(path, REPO_ROOT).replace(os.sep, '/')} -> {os.path.relpath(out_dir, REPO_ROOT).replace(os.sep, '/')}/ "
           f"({size[0]}x{size[1]}x{size[2]}, {len(voxels)} voxels)")
     return RenderResult(0, path, stem, out_dir, viewer_path)
 
@@ -1783,9 +1783,9 @@ def main() -> int:
         results.append(RenderResult(0, viewer, stem, out_dir, viewer))
     index_path = render_preview_index(out_root, results)
     if index_path:
-        print(f"preview index: {os.path.relpath(index_path, REPO_ROOT)}")
-        print(f"serve preview: python3 -m http.server 8765 --bind 0.0.0.0 --directory {os.path.relpath(out_root, REPO_ROOT)}")
-    print(f"done: {len(inputs)} structure(s) -> {os.path.relpath(out_root, REPO_ROOT)}/")
+        print(f"preview index: {os.path.relpath(index_path, REPO_ROOT).replace(os.sep, '/')}")
+        print(f"serve preview: python3 -m http.server 8765 --bind 0.0.0.0 --directory {os.path.relpath(out_root, REPO_ROOT).replace(os.sep, '/')}")
+    print(f"done: {len(inputs)} structure(s) -> {os.path.relpath(out_root, REPO_ROOT).replace(os.sep, '/')}/")
     return rc
 
 

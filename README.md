@@ -269,7 +269,12 @@ auto-reduces static PNG scale so large compounds stay bounded.
 
 ## Build The Mod
 
-Requires JDK 21.
+Requires JDK 21. The build also runs the Python structure generator
+(`tools/generate_all_structures.py`); Gradle calls `python` on Windows and
+`python3` elsewhere by default. If your environment maps Python differently,
+override it with the `PYTHON` environment variable, e.g.
+`PYTHON=python3.11 ./gradlew build` (Linux/macOS) or
+`set PYTHON=py && gradlew.bat build` (Windows cmd).
 
 ```bash
 ./gradlew build

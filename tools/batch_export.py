@@ -122,7 +122,7 @@ def main() -> int:
         f.write("\n")
 
     print(f"\nexported: {len(structures)}, failed: {len(failures)}")
-    print(f"report: {os.path.relpath(report_path, args.root)}")
+    print(f"report: {os.path.relpath(report_path, args.root).replace(os.sep, '/')}")
     return 1 if failures else 0
 
 
