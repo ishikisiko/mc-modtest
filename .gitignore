@@ -10,3 +10,11 @@ __pycache__/
 exmod/
 server/
 logs/
+
+# Library/validation reports are deterministic generator/validator outputs.
+# Regenerate locally as needed (see docs/ai-kb/09_validation_checklist.md);
+# they are not committed baseline fixtures. The two !-prefixed files below
+# are hand-curated inputs / historical snapshots that MUST stay tracked.
+reports/*
+!reports/town_distinctness_calibration.json
+!reports/cultivation_style_baseline_hashes.txt

@@ -175,7 +175,7 @@ lot ~35×47        lot ~50×75                    lot ~60×100
 | Deferred item | Current state |
 |---|---|
 | `jin_count` master axis abstraction | Not implemented; `generate_compound` is hard-coded to one outer + one main yard (E.1 baseline) |
-| 二进 compound (前院 + 主院 + 后院 + 后罩房) | Not implemented; the follow-up adds a `back_chamber` parcel node to the `jin_count` z-band sequence |
+| 二进 compound (前院 + 主院 + 后院 + 后罩房) | Not implemented; the follow-up adds a `back_chamber` parcel node to the `jin_count` z-band sequence. **Ground + path caveat:** `fix-courtyard-ground-walkability` shipped a one-pass `_place_yard_ground` + multi-source-BFS path network that assumes a single main-yard plinth band; a multi-jin follow-up must re-derive the `ground_kind` and natural-surface-y per yard band (each 进 has its own plinth + inner-gate band), and the endpoint registry must seed from each 进's 垂花门 passage. Reuse `_multi_source_bfs` as-is; re-derive `_place_yard_ground` / `_collect_path_endpoints` / `_place_plinth_stairs` per band. |
 | 三进 compound + 花园 (打破正交轴) | Not implemented; first non-rect `CompoundGraph` region — needs `garden_rockery` / `garden_pavilion` parcel nodes and a free-curve pond |
 | 假山 (3D blob rockery) as a first-class capability | Not implemented; may warrant a new `garden-rockery` spec rather than a parcel-node add |
 | Side 跨院 paths | Not implemented (original proposal's deferral) |

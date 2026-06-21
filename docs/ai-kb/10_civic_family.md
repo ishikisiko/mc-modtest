@@ -28,6 +28,42 @@ the gate flanks to the 正房/月台. The six deterministic templates vary
 `layout_type`, `main_orientation`, `main_bays`, `roof_grade`, `platform_tier`,
 and `gate_type`; water and planting remain minor seeded axes.
 
-See also: [courtyard-compound](../../openspec/specs/courtyard-compound/spec.md),
+## Ground + path layer
+
+The courtyard floor is no longer a single gravel strip floating over air. Two
+data-driven passes (`tools/buildgen/compound.py`) rebuild the ground and the
+walkable network:
+
+- **Ground layer** (`_place_yard_ground`, courtyard-ground-layer spec): every
+  non-building parcel cell gets a solid block at its natural surface y
+  (`y = -1` in the outer yard and inner-gate band; `y = plinth_h - 1` on the
+  main-yard plinth). Each cell is classified 露天 `open_sky` (default — outer
+  yard reads as `grass_block`, main yard reads as paver) or 屋檐下 `under_eave`
+  (covered-gallery cells, moon-platform cells, and the 1-cell Chebyshev ring
+  around each building footprint — reads as `stone_bricks`). The block comes
+  from the style's `GROUND_YARD_OPEN` / `GROUND_YARD_UNDER_EAVE` slots; both
+  resolve to vanilla `minecraft:` ids under `--profile vanilla`.
+- **Path network** (`_route_complete_path`, courtyard-path-network spec): a
+  multi-source BFS seeds from every door-front, every water feature / fish jar
+  (snapped to one walkable approach cell per node), one entry per planting bed,
+  the moon-platform apron, and the street-gate entry cell. The reached cells
+  form one connected walkable surface written as `GROUND_PATH` at the same y as
+  the ground tile, with `PROTECTED` so material variation never re-colors it.
+  Path cells never overwrite a door-front (the building's own step owns that
+  cell).
+- **Plinth transition** (`_place_plinth_stairs`): where a path cell at
+  `y = plinth_h - 1` is 4-adjacent to a path cell at `y = -1`, a single
+  `stone_brick_stairs[facing=<toward plinth>, half=bottom]` replaces the outer
+  path cell so the player steps up without jumping. Small-courtyard units (no
+  plinth) skip this pass.
+
+`validate_compound` / `validate_small_courtyard` enforce the five new error
+codes — `endpoint_unreachable`, `ground_layer_hole`, `ground_kind_mismatch`,
+`plinth_edge_missing_stair`, `path_overlaps_building_door` — and the library
+report carries `ground_cells`, `endpoint_count`, and `stair_cells` stats.
+
+See also: [courtyard-ground-layer](../../openspec/changes/fix-courtyard-ground-walkability/specs/courtyard-ground-layer/spec.md),
+[courtyard-path-network](../../openspec/changes/fix-courtyard-ground-walkability/specs/courtyard-path-network/spec.md),
+[courtyard-compound](../../openspec/specs/courtyard-compound/spec.md),
 [chinese-vernacular-roof-vocabulary](../../openspec/changes/rebuild-chinese-courtyard/specs/chinese-vernacular-roof-vocabulary/spec.md),
 and [style-profile](../../openspec/specs/style-profile/spec.md).

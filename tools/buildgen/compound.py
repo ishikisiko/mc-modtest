@@ -12,7 +12,7 @@ import os
 import random
 from collections import deque
 from dataclasses import dataclass, field
-from typing import Dict, Iterable, List, Optional, Sequence, Set, Tuple
+from typing import Dict, Iterable, List, Literal, Optional, Sequence, Set, Tuple
 
 from .grid import AIR, BlockGrid, PRIORITY
 from .massing import MassingGraph
@@ -22,6 +22,8 @@ from .style import Style, load_style
 
 Cell2 = Tuple[int, int]
 Pos = Tuple[int, int, int]
+
+GroundKind = Literal["open_sky", "under_eave", "interior"]
 
 
 COURTYARD_SIZE = {
@@ -164,6 +166,25 @@ class ParcelNode:
             "meta": self.meta,
         }
 
+    def to_summary_dict(self) -> dict:
+        # Compact form for library reports: the per-cell `cells` list has no
+        # downstream consumer (validators read NBT, not the report graph), so
+        # collapse it to a count + bounding box. Use to_dict() if you need the
+        # full coordinate list.
+        xs = [c[0] for c in self.cells]
+        zs = [c[1] for c in self.cells]
+        if xs and zs:
+            bbox = [min(xs), min(zs), max(xs), max(zs)]
+        else:
+            bbox = None
+        return {
+            "id": self.id,
+            "type": self.type,
+            "cell_count": len(self.cells),
+            "bbox": bbox,
+            "meta": self.meta,
+        }
+
 
 @dataclass
 class BuildingSlot:
@@ -173,6 +194,7 @@ class BuildingSlot:
     graph: MassingGraph
     footprint: Set[Cell2]
     quality: Optional[dict] = None
+    door_info: Optional[dict] = None
 
     def to_dict(self) -> dict:
         return {
@@ -182,6 +204,29 @@ class BuildingSlot:
             "footprint": [list(c) for c in sorted(self.footprint)],
             "massing_graph": self.graph.to_dict(),
             "quality": self.quality,
+            "door_info": self.door_info,
+        }
+
+    def to_summary_dict(self) -> dict:
+        # Compact form for library reports: drop the per-cell `footprint` list
+        # (no consumer) but keep the full `massing_graph`, since the compound
+        # validator reads `massing_graph.meta.frontage` and node origins/sizes
+        # from the cultivation_town report.
+        xs = [c[0] for c in self.footprint]
+        zs = [c[1] for c in self.footprint]
+        if xs and zs:
+            bbox = [min(xs), min(zs), max(xs), max(zs)]
+        else:
+            bbox = None
+        return {
+            "id": self.id,
+            "archetype": self.archetype,
+            "origin": list(self.origin),
+            "footprint_count": len(self.footprint),
+            "footprint_bbox": bbox,
+            "massing_graph": self.graph.to_summary_dict(),
+            "quality": self.quality,
+            "door_info": self.door_info,
         }
 
 
@@ -219,6 +264,23 @@ class CompoundGraph:
             "axis_x": self.axis_x,
             "parcel_nodes": [n.to_dict() for n in self.parcel_nodes],
             "building_slots": [s.to_dict() for s in self.building_slots],
+            "meta": self.meta,
+        }
+
+    def to_summary_dict(self) -> dict:
+        # Compact form for the library report JSON: same top-level shape as
+        # to_dict(), but per-cell coordinate lists (parcel cells, building
+        # footprints) are folded into counts + bounding boxes. `meta` stays
+        # full because cultivation_sect validation reads meta.terrace_levels
+        # and town meta carries the small `courtyards[]` list.
+        return {
+            "style_id": self.style_id,
+            "seed": self.seed,
+            "variant": self.variant.to_dict(),
+            "lot_size": list(self.lot_size),
+            "axis_x": self.axis_x,
+            "parcel_nodes": [n.to_summary_dict() for n in self.parcel_nodes],
+            "building_slots": [s.to_summary_dict() for s in self.building_slots],
             "meta": self.meta,
         }
 
@@ -352,8 +414,19 @@ def _translate_context(compound: CompoundGraph, slot_id: str, ctx: BuildContext,
         "alchemy_room", "disciple_quarters",
     ):
         quality = quality_check(ctx, f"{compound.style_id}/{slot_id}")
+    # Propagate the per-building door front (courtyard-path-network endpoint)
+    # into compound-grid coordinates so the path router can stop one cell short
+    # of each door. door_info["front"] is a 3-tuple in ctx-local coords.
+    door_info: Optional[dict] = None
+    if ctx.door_info is not None:
+        front = ctx.door_info.get("front")
+        if isinstance(front, tuple) and len(front) == 3:
+            shifted_front = (front[0] + dx, front[1] + dy, front[2] + dz)
+            door_info = {**ctx.door_info, "front": shifted_front}
+        else:
+            door_info = dict(ctx.door_info)
     slot = BuildingSlot(slot_id, ctx.archetype, main_origin, shifted_graph,
-                        footprint, quality)
+                        footprint, quality, door_info)
     compound.building_slots.append(slot)
     return slot
 
@@ -549,33 +622,168 @@ def _place_landscape(compound: CompoundGraph, style: Style,
 def _route_circulation(compound: CompoundGraph, style: Style,
                        main_slot: BuildingSlot, west_slot: BuildingSlot,
                        east_slot: BuildingSlot) -> None:
+    """Small-courtyard circulation router.
+
+    Refactored by fix-courtyard-ground-walkability (task 2.6) to delegate to the
+    shared ``_multi_source_bfs``. Kept for any caller that still passes the
+    explicit (main, west, east) slots; the canonical small-courtyard flow now
+    calls ``_route_complete_path`` directly (task 2.7). Endpoints fall back to
+    each slot's footprint center (small-courtyard builds don't always populate
+    door_info) plus the gate entry, water, and planting nodes.
+    """
     lot_w, lot_d = compound.lot_size
     axis = compound.axis_x
     gate_side = compound.meta.get("gate_side", "south")
+
+    endpoints: List[Cell2] = []
+    wall = next((n for n in compound.parcel_nodes if n.type == "perimeter_wall"),
+                None)
+    if wall is not None:
+        opening = wall.meta.get("gate_opening")
+        if opening:
+            x0, _z0, x1, _z1 = opening
+            gate_axis = (x0 + x1) // 2
+            z_in = 1 if gate_side == "south" else lot_d - 2
+            if 0 < gate_axis < lot_w - 1:
+                endpoints.append((gate_axis, z_in))
+    for slot in (main_slot, west_slot, east_slot):
+        if slot.footprint:
+            xs = [x for x, _ in slot.footprint]
+            zs = [z for _, z in slot.footprint]
+            endpoints.append(((min(xs) + max(xs)) // 2,
+                              (min(zs) + max(zs)) // 2))
+    endpoints.extend(sorted(compound.node_cells("water_feature")))
+    endpoints.extend(sorted(compound.node_cells("planting")))
+
     blocked = (compound.building_cells() |
                compound.node_cells("water_feature", "planting", "perimeter_wall"))
-    if gate_side == "north":
-        gate_entry = (axis, lot_d - 2)
-        main_approach_z = max(z for _, z in main_slot.footprint) + 1
-    else:
-        gate_entry = (axis, 1)
-        main_approach_z = min(z for _, z in main_slot.footprint) - 1
-    central = set(_bfs(gate_entry, (axis, main_approach_z), lot_w, lot_d, blocked))
-    _put_cells(compound, "central_path", "path", central,
+    blocked = {c for c in blocked if 0 < c[0] < lot_w - 1 and 0 < c[1] < lot_d - 1}
+    dist = _multi_source_bfs(endpoints, blocked, lot_w, lot_d)
+    path = set(dist.keys())
+    _put_cells(compound, "central_path", "path", path,
                style.primary("GROUND_PATH"), ["DETAIL", "GROUND"], y=-1,
                slot="GROUND_PATH")
 
-    corridor_cells: Set[Cell2] = set()
-    west_start = (max(x for x, _ in west_slot.footprint) + 1,
-                  (min(z for _, z in west_slot.footprint) + max(z for _, z in west_slot.footprint)) // 2)
-    east_start = (min(x for x, _ in east_slot.footprint) - 1,
-                  (min(z for _, z in east_slot.footprint) + max(z for _, z in east_slot.footprint)) // 2)
-    for start, goal in ((west_start, (axis - 2, main_approach_z)),
-                        (east_start, (axis + 2, main_approach_z))):
-        corridor_cells.update(_bfs(start, goal, lot_w, lot_d, blocked | central))
-    _put_cells(compound, "side_corridors", "corridor", corridor_cells,
-               style.primary("GROUND_PATH"), ["DETAIL", "GROUND"], y=-1,
-               slot="GROUND_PATH")
+
+# ---------------------------------------------------------------------------
+# Ground + path layer (courtyard-ground-layer / courtyard-path-network specs).
+# One-jin `generate_compound` and small-courtyard `generate_small_courtyard`
+# share these passes. The ground layer fills every non-building parcel cell with
+# a solid block classified as 露天 (open_sky) or 屋檐下 (under_eave); the path
+# layer then overlays a multi-source-BFS walkable network connecting every door
+# and landscape feature, with a single stairs block bridging the plinth edge.
+# ---------------------------------------------------------------------------
+
+
+def _lot_interior_cells(compound: CompoundGraph) -> Set[Cell2]:
+    """Cells strictly inside the perimeter (1 ≤ x ≤ lot_w-2, 1 ≤ z ≤ lot_d-2)."""
+    lot_w, lot_d = compound.lot_size
+    return {(x, z) for x in range(1, lot_w - 1) for z in range(1, lot_d - 1)}
+
+
+def _cell_band(compound: CompoundGraph, cell: Cell2) -> str:
+    """Which yard band a cell sits in: outer_yard / inner_gate / main_yard.
+
+    Falls back to ``outer_yard`` for compounds that never published band tuples
+    (e.g. the small-courtyard unit, which has no plinth so the band only matters
+    for natural-surface-y selection there)."""
+    z = cell[1]
+    oy = compound.meta.get("outer_yard_band")
+    ig = compound.meta.get("inner_gate_band")
+    my = compound.meta.get("main_yard_band")
+    if oy and ig and my:
+        oy0, oy1 = oy
+        ig0, ig1 = ig
+        my0, my1 = my
+        if oy0 <= z <= oy1:
+            return "outer_yard"
+        if ig0 <= z <= ig1:
+            return "inner_gate"
+        if my0 <= z <= my1:
+            return "main_yard"
+    return "outer_yard"
+
+
+def _natural_surface_y(compound: CompoundGraph, cell: Cell2) -> int:
+    """Compound-grid y of the cell's walkable surface.
+
+    ``-1`` everywhere except the main-yard plinth (where the player walks on top
+    of the plinth, so the surface is ``plinth_h - 1``).
+    """
+    plinth_h = compound.meta.get("plinth_height", 0)
+    if plinth_h > 0 and _cell_band(compound, cell) == "main_yard":
+        return plinth_h - 1
+    return -1
+
+
+def _chebyshev_ring(footprint: Set[Cell2]) -> Set[Cell2]:
+    """1-cell-wide Chebyshev ring around a footprint, excluding the footprint."""
+    ring: Set[Cell2] = set()
+    for fx, fz in footprint:
+        for dx in (-1, 0, 1):
+            for dz in (-1, 0, 1):
+                if dx == 0 and dz == 0:
+                    continue
+                cell = (fx + dx, fz + dz)
+                if cell not in footprint:
+                    ring.add(cell)
+    return ring
+
+
+def _derive_ground_kinds(compound: CompoundGraph) -> Dict[Cell2, str]:
+    """Derive a ``ground_kind`` for every lot-interior parcel cell.
+
+    Rule (courtyard-ground-layer spec):
+      1. default ``open_sky``;
+      2. ``covered_gallery.cells`` ∪ ``moon_platform.cells`` → ``under_eave``;
+      3. the 1-cell Chebyshev ring around every ``BuildingSlot.footprint`` →
+         ``under_eave``;
+      4. cells inside a building footprint are tagged ``interior`` so the yard
+         fill skips them (the building pass owns those cells).
+    """
+    kinds: Dict[Cell2, str] = {cell: "open_sky" for cell in _lot_interior_cells(compound)}
+    under_eave_sources = compound.node_cells("covered_gallery", "moon_platform")
+    for cell in under_eave_sources:
+        if cell in kinds:
+            kinds[cell] = "under_eave"
+    for slot in compound.building_slots:
+        ring = _chebyshev_ring(slot.footprint)
+        for cell in ring:
+            if cell in kinds and kinds[cell] != "interior":
+                kinds[cell] = "under_eave"
+        for cell in slot.footprint & kinds.keys():
+            kinds[cell] = "interior"
+    return kinds
+
+
+def _place_yard_ground(compound: CompoundGraph, style: Style) -> None:
+    """Yard-fill pass: solid ground at every non-building parcel cell.
+
+    ``open_sky`` cells resolve through ``GROUND_YARD_OPEN``; ``under_eave`` cells
+    through ``GROUND_YARD_UNDER_EAVE``. The path pass (run afterwards) overwrites
+    the ground tile along the routed path at the same y. Water / planting / tree
+    cells are left for their own passes to own.
+    """
+    skip = (compound.building_cells() |
+            compound.node_cells("water_feature", "water_jar", "planting",
+                                "courtyard_tree"))
+    kinds = _derive_ground_kinds(compound)
+    open_block = style.primary("GROUND_YARD_OPEN")
+    eave_block = style.primary("GROUND_YARD_UNDER_EAVE")
+    written: Set[Cell2] = set()
+    for cell in _lot_interior_cells(compound):
+        if cell in skip:
+            continue
+        kind = kinds.get(cell, "open_sky")
+        state = eave_block if kind == "under_eave" else open_block
+        y = _natural_surface_y(compound, cell)
+        compound.grid.set((cell[0], y, cell[1]), state, ["DETAIL", "GROUND"],
+                          PRIORITY["DETAIL"], "GROUND_YARD")
+        written.add(cell)
+    compound.parcel_nodes.append(
+        ParcelNode("yard_ground", "yard_ground", written, {
+            "open_block": open_block, "eave_block": eave_block,
+        }))
 
 
 # ---------------------------------------------------------------------------
@@ -980,33 +1188,288 @@ def _dress_main_yard(compound: CompoundGraph, style: Style, bands: dict) -> None
             ParcelNode("water_jar", "water_jar", jar, {"kind": "fish_jar"}))
 
 
-def _route_central_path(compound: CompoundGraph, style: Style,
-                        bands: dict) -> None:
-    """中轴路: street gate → around the 影壁 → through the 垂花门 passage →
-    up to the main-hall 月台. Galleries and the moon platform are walkable, so
-    they are not obstacles."""
-    lot_w, lot_d = compound.lot_size
-    axis = compound.axis_x
-    plinth_h = compound.meta.get("plinth_height", 0)
-    hall_front = compound.meta["hall_front_z"]
+def _path_blocked_cells(compound: CompoundGraph) -> Set[Cell2]:
+    """Cells the multi-source BFS treats as walls.
 
+    Per the courtyard-path-network spec: building footprints (except the door
+    front cells themselves, which the BFS stops one cell short of), water /
+    planting / tree landscape cells, the perimeter wall, the 影壁, and the
+    垂花门's solid flanks (its central passage stays open).
+    """
+    lot_w, lot_d = compound.lot_size
+    door_fronts: Set[Cell2] = set()
+    for slot in compound.building_slots:
+        if slot.door_info and isinstance(slot.door_info.get("front"), tuple):
+            fx, _fy, fz = slot.door_info["front"]
+            door_fronts.add((fx, fz))
     blocked = (compound.building_cells() |
                compound.node_cells("perimeter_wall", "screen_wall",
                                    "water_feature", "planting", "water_jar",
                                    "courtyard_tree"))
+    # Door-front cells themselves must stay walkable so the BFS can stop one
+    # cell short of the door; the path pass later drops them from the write set
+    # (so the building's own step block owns the door cell).
+    blocked -= door_fronts
     # The 垂花门 solid flanks block, but its central passage stays open.
     inner_gate = next((n for n in compound.parcel_nodes
                        if n.type == "inner_gate"), None)
     if inner_gate:
         passage = {tuple(c) for c in inner_gate.meta.get("passage", [])}
         blocked |= (inner_gate.cells - passage)
+    return {c for c in blocked if 0 < c[0] < lot_w - 1 and 0 < c[1] < lot_d - 1}
 
-    start = (axis, 1)
-    goal = (axis, hall_front - 1)
-    path = set(_bfs(start, goal, lot_w, lot_d, blocked))
-    _put_cells(compound, "central_path", "path", path,
-               style.primary("GROUND_PATH"), ["DETAIL", "GROUND"],
-               y=plinth_h - 1 if plinth_h else -1, slot="GROUND_PATH")
+
+def _collect_path_endpoints(compound: CompoundGraph) -> List[Cell2]:
+    """Endpoint registry for the multi-source BFS (courtyard-path-network spec).
+
+    Sources:
+      - perimeter_wall gate opening → first cell one z-step inside the yard;
+      - every BuildingSlot with ``door_info`` → the door-front cell (2D);
+      - every ``water_feature`` / ``water_jar`` node → its single best adjacent
+        walkable cell (water itself is blocked; the path stops one cell short,
+        matching the planting rule; one endpoint per node, not per cell, so a
+        multi-cell pool produces one approach point);
+      - one cell per ``planting`` node adjacent to the planting boundary
+        (highest open-neighbour count, deterministic ``(x, z)`` tie-break);
+      - the front-most ``moon_platform`` cell (closest to the gate).
+
+    Layout-agnostic: a small-courtyard without a moon platform simply has no
+    moon-platform endpoint; the endpoint set reflects what *this* compound has.
+    """
+    lot_w, lot_d = compound.lot_size
+    gate_side = compound.meta.get("gate_side", "south")
+    wall = next((n for n in compound.parcel_nodes if n.type == "perimeter_wall"),
+                None)
+    endpoints: List[Cell2] = []
+    if wall is not None:
+        opening = wall.meta.get("gate_opening")
+        if opening:
+            x0, z0, x1, z1 = opening
+            axis = (x0 + x1) // 2
+            z_in = z0 + (1 if gate_side == "south" else -1)
+            if 0 < axis < lot_w - 1 and 0 < z_in < lot_d - 1:
+                endpoints.append((axis, z_in))
+
+    blocked_base = _path_blocked_cells(compound)
+
+    for slot in compound.building_slots:
+        if slot.door_info and isinstance(slot.door_info.get("front"), tuple):
+            fx, _fy, fz = slot.door_info["front"]
+            if 0 < fx < lot_w - 1 and 0 < fz < lot_d - 1:
+                endpoints.append((fx, fz))
+
+    # Water / jar nodes are themselves blocked (the player cannot walk on
+    # water). One endpoint per node, snapped to the single best adjacent
+    # walkable cell across all the node's cells — so a multi-cell pool produces
+    # one approach endpoint, not one per cell (per-cell endpoints can land in
+    # unreachable pockets walled off by the pool itself). The path stops one
+    # cell short of the feature, matching the planting rule.
+    for kind in ("water_feature", "water_jar"):
+        for node in compound.parcel_nodes:
+            if node.type != kind or not node.cells:
+                continue
+            boundary: Set[Cell2] = set()
+            for px, pz in node.cells:
+                for nx, nz in ((px + 1, pz), (px - 1, pz), (px, pz + 1), (px, pz - 1)):
+                    cand = (nx, nz)
+                    if cand in node.cells:
+                        continue
+                    if not (0 < nx < lot_w - 1 and 0 < nz < lot_d - 1):
+                        continue
+                    if cand in blocked_base:
+                        continue
+                    boundary.add(cand)
+            if boundary:
+                best = sorted(boundary, key=lambda c: (
+                    -sum(1 for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1))
+                         if (c[0] + dx, c[1] + dz) not in blocked_base
+                         and (c[0] + dx, c[1] + dz) not in node.cells), c))[0]
+                endpoints.append(best)
+            else:
+                # No walkable neighbour: surface the first node cell so the
+                # validator's endpoint_unreachable reports it rather than
+                # silently dropping the endpoint.
+                endpoints.append(sorted(node.cells)[0])
+
+    for node in compound.parcel_nodes:
+        if node.type != "planting" or not node.cells:
+            continue
+        # Pick one boundary cell per planting node — the adjacent cell with the
+        # most open 4-neighbours. Deterministic (x, z) tie-break (spec).
+        boundary = set()
+        for px, pz in node.cells:
+            for nx, nz in ((px + 1, pz), (px - 1, pz), (px, pz + 1), (px, pz - 1)):
+                cand = (nx, nz)
+                if cand in node.cells:
+                    continue
+                if not (0 < nx < lot_w - 1 and 0 < nz < lot_d - 1):
+                    continue
+                if cand in blocked_base:
+                    continue
+                boundary.add(cand)
+        if boundary:
+            best = sorted(boundary, key=lambda c: (
+                -sum(1 for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1))
+                     if (c[0] + dx, c[1] + dz) not in blocked_base
+                     and (c[0] + dx, c[1] + dz) not in node.cells), c))[0]
+            endpoints.append(best)
+
+    moon_nodes = [n for n in compound.parcel_nodes if n.type == "moon_platform"
+                  and n.cells]
+    if moon_nodes:
+        moon = moon_nodes[0].cells
+        if gate_side == "north":
+            moon_cell = max(moon, key=lambda c: c[1])
+        else:
+            moon_cell = min(moon, key=lambda c: c[1])
+        if (0 < moon_cell[0] < lot_w - 1 and 0 < moon_cell[1] < lot_d - 1):
+            endpoints.append(moon_cell)
+
+    # De-duplicate while preserving a stable order.
+    seen: Set[Cell2] = set()
+    unique: List[Cell2] = []
+    for cell in endpoints:
+        if cell not in seen:
+            seen.add(cell)
+            unique.append(cell)
+    return unique
+
+
+def _multi_source_bfs(endpoints: Sequence[Cell2], blocked: Set[Cell2],
+                      lot_w: int, lot_d: int) -> Dict[Cell2, int]:
+    """Multi-source BFS from every endpoint simultaneously.
+
+    Returns a ``dict`` mapping every reached cell to its distance from the
+    nearest endpoint. Cells in ``blocked`` are excluded (left unreached). All
+    endpoints start at distance 0. The BFS is bounded to the lot interior.
+    """
+    dist: Dict[Cell2, int] = {}
+    q: deque = deque()
+    for cell in endpoints:
+        if not (1 <= cell[0] <= lot_w - 2 and 1 <= cell[1] <= lot_d - 2):
+            continue
+        if cell in blocked:
+            continue
+        if cell not in dist:
+            dist[cell] = 0
+            q.append(cell)
+    while q:
+        x, z = q.popleft()
+        d = dist[(x, z)]
+        for nx, nz in ((x + 1, z), (x - 1, z), (x, z + 1), (x, z - 1)):
+            if not (1 <= nx <= lot_w - 2 and 1 <= nz <= lot_d - 2):
+                continue
+            if (nx, nz) in blocked or (nx, nz) in dist:
+                continue
+            dist[(nx, nz)] = d + 1
+            q.append((nx, nz))
+    return dist
+
+
+def _door_front_cells(compound: CompoundGraph) -> Set[Cell2]:
+    fronts: Set[Cell2] = set()
+    for slot in compound.building_slots:
+        if slot.door_info and isinstance(slot.door_info.get("front"), tuple):
+            fx, _fy, fz = slot.door_info["front"]
+            fronts.add((fx, fz))
+    return fronts
+
+
+def _route_complete_path(compound: CompoundGraph, style: Style) -> None:
+    """Multi-source BFS path network (courtyard-path-network spec).
+
+    Collects endpoints, runs the BFS, asserts every endpoint is reached (raises
+    ``ValueError`` on an unreachable endpoint — preserved fast-fail behavior),
+    then writes the path block at every reached cell at its natural surface y.
+    Door-front cells are dropped from the write set so the building's own step
+    block owns the door cell.
+    """
+    lot_w, lot_d = compound.lot_size
+    endpoints = _collect_path_endpoints(compound)
+    blocked = _path_blocked_cells(compound)
+    dist = _multi_source_bfs(endpoints, blocked, lot_w, lot_d)
+    for cell in endpoints:
+        if cell not in dist:
+            raise ValueError(f"endpoint_unreachable: {cell}")
+
+    door_fronts = _door_front_cells(compound)
+    path_block = style.primary("GROUND_PATH")
+    written: Set[Cell2] = set()
+    for cell in dist:
+        if cell in door_fronts:
+            continue
+        y = _natural_surface_y(compound, cell)
+        compound.grid.set((cell[0], y, cell[1]), path_block,
+                          ["DETAIL", "GROUND", "PROTECTED"], PRIORITY["DETAIL"],
+                          "GROUND_PATH", force=True)
+        written.add(cell)
+    compound.parcel_nodes.append(
+        ParcelNode("path_network", "path", written, {
+            "endpoint_count": len(endpoints),
+            "endpoint_cells": [list(c) for c in endpoints],
+            "reached_cell_count": len(dist),
+            "algorithm": "multi_source_bfs",
+        }))
+
+
+_STAIR_FACING_FROM_DELTA = {
+    (0, 1): "north",   # stair rises from south (low) to north (high plinth)
+    (0, -1): "south",
+    (1, 0): "west",
+    (-1, 0): "east",
+}
+
+
+def _place_plinth_stairs(compound: CompoundGraph, style: Style) -> None:
+    """Bridge the main-yard plinth boundary with a single stairs block.
+
+    For every pair of 4-neighbour path cells ``(outer, plinth)`` where ``outer``
+    sits at ``y = -1`` and ``plinth`` sits at ``y = plinth_h - 1``, write a
+    ``stone_brick_stairs[facing=<toward plinth>, half=bottom]`` at the boundary
+    (outer) cell, replacing the path block. The facing rises from the lower
+    (outer) cell toward the higher (plinth) cell. No-op when the compound has no
+    plinth (small-courtyard or ``platform_tier = "none"``).
+    """
+    plinth_h = compound.meta.get("plinth_height", 0)
+    if plinth_h <= 0:
+        return
+    path_nodes = [n for n in compound.parcel_nodes
+                  if n.type == "path" and n.meta.get("algorithm") == "multi_source_bfs"]
+    if not path_nodes:
+        return
+    path_cells = set().union(*(n.cells for n in path_nodes))
+    outer_y = -1
+    # Use the PLATFORM_STONE stairs entry as the stair material (vanilla-clean).
+    stair_state = style.slot_entry("PLATFORM_STONE", "_stairs",
+                                   default=f"minecraft:stone_brick_stairs"
+                                           f"[facing=north,half=bottom]")
+    stair_cells: Set[Cell2] = set()
+    for (x, z) in list(path_cells):
+        if _natural_surface_y(compound, (x, z)) != outer_y:
+            continue
+        for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            nbr = (x + dx, z + dz)
+            if nbr not in path_cells:
+                continue
+            if _natural_surface_y(compound, nbr) != plinth_h - 1:
+                continue
+            facing = _STAIR_FACING_FROM_DELTA.get((dx, dz))
+            if facing is None:
+                continue
+            base = stair_state.split("[", 1)[0]
+            compound.grid.set((x, outer_y, z),
+                              f"{base}[facing={facing},half=bottom]",
+                              ["DETAIL", "STRUCTURE"], PRIORITY["STRUCTURE"],
+                              "PLATFORM_STONE", force=True)
+            stair_cells.add((x, z))
+            break
+    if stair_cells:
+        compound.parcel_nodes.append(
+            ParcelNode("plinth_stairs", "plinth_stairs", stair_cells, {
+                "plinth_height": plinth_h,
+                "stair_count": len(stair_cells),
+            }))
+
 
 
 def generate_compound(seed: int, style: Optional[Style] = None,
@@ -1051,7 +1514,9 @@ def generate_compound(seed: int, style: Optional[Style] = None,
     _layout_main_yard(compound, style, bands, contexts)
     _place_covered_galleries(compound, style, bands)
     _dress_main_yard(compound, style, bands)
-    _route_central_path(compound, style, bands)
+    _place_yard_ground(compound, style)
+    _route_complete_path(compound, style)
+    _place_plinth_stairs(compound, style)
     return compound
 
 
@@ -1198,7 +1663,8 @@ def generate_small_courtyard(seed: int, style: Optional[Style] = None,
             ParcelNode("tianjing", "tianjing", tianjing, {"bounds": list(courtyard)}))
         try:
             _place_landscape(compound, style, courtyard)
-            _route_circulation(compound, style, focal_slot, west_slot, east_slot)
+            _place_yard_ground(compound, style)
+            _route_complete_path(compound, style)
         except ValueError as exc:
             last_error = str(exc)
             continue
@@ -1798,13 +2264,84 @@ def validate_compound(compound: CompoundGraph) -> dict:
     if not path:
         errors.append("missing_central_path")
     else:
-        main = next(s for s in compound.building_slots if s.id == "main_hall")
-        if gate_side == "south":
-            entry, goal = (axis, 1), (axis, min(z for _, z in main.footprint) - 1)
-        else:
-            entry, goal = (axis, lot_d - 2), (axis, max(z for _, z in main.footprint) + 1)
-        if entry not in path or goal not in path:
-            errors.append("gate_to_hall_path_not_connected")
+        # courtyard-path-network invariants (replaces the old gate→hall check).
+        endpoints = _collect_path_endpoints(compound)
+        blocked = _path_blocked_cells(compound)
+        dist = _multi_source_bfs(endpoints, blocked, lot_w, lot_d)
+        for cell in endpoints:
+            if cell not in dist:
+                errors.append(f"endpoint_unreachable: {cell}")
+        # Path must not be written on any building door-front cell (the door's
+        # own step block owns that cell).
+        door_fronts = _door_front_cells(compound)
+        path_nodes = [n for n in compound.parcel_nodes
+                      if n.type == "path"
+                      and n.meta.get("algorithm") == "multi_source_bfs"]
+        path_written = set().union(*(n.cells for n in path_nodes)) if path_nodes else path
+        door_overlap = sorted(path_written & door_fronts)
+        if door_overlap:
+            errors.append(f"path_overlaps_building_door: {door_overlap[:8]}")
+
+    # courtyard-ground-layer invariants.
+    plinth_h = compound.meta.get("plinth_height", 0)
+    ground_kinds = _derive_ground_kinds(compound)
+    skip_ground = (buildings |
+                   compound.node_cells("water_feature", "water_jar", "planting",
+                                       "courtyard_tree"))
+    holes: List[Cell2] = []
+    kind_mismatches: List[str] = []
+    open_primary = _style_ground_primary(compound, "GROUND_YARD_OPEN")
+    eave_primary = _style_ground_primary(compound, "GROUND_YARD_UNDER_EAVE")
+    for cell in _lot_interior_cells(compound):
+        if cell in skip_ground:
+            continue
+        y = _natural_surface_y(compound, cell)
+        cell_state = compound.grid.state_at((cell[0], y, cell[1]))
+        if cell_state == AIR or not cell_state:
+            holes.append(cell)
+            continue
+        kind = ground_kinds.get(cell, "open_sky")
+        if kind == "interior":
+            continue
+        # ground_kind_mismatch: an under-eave cell must not carry the open-sky
+        # block (grass) and vice-versa. The path overlay (GROUND_PATH) and
+        # stairs are allowed to overwrite the ground tile, so only flag a
+        # mismatch when the cell's block matches the *other* kind's primary.
+        if open_primary and eave_primary:
+            if kind == "under_eave" and cell_state == open_primary:
+                kind_mismatches.append(f"{cell}:under_eave_has_open_block")
+            elif kind == "open_sky" and cell_state == eave_primary:
+                kind_mismatches.append(f"{cell}:open_sky_has_eave_block")
+    if holes:
+        errors.append(f"ground_layer_hole: {holes[:8]}")
+    if kind_mismatches:
+        errors.append(f"ground_kind_mismatch: {kind_mismatches[:8]}")
+
+    # Plinth-edge stair invariant (one-jin compounds only — small-courtyard has
+    # no plinth). Every path cell at y = plinth_h - 1 with a 4-neighbour path
+    # cell at y = -1 must have a stair block bridging the boundary.
+    if plinth_h > 0:
+        path_nodes = [n for n in compound.parcel_nodes
+                      if n.type == "path"
+                      and n.meta.get("algorithm") == "multi_source_bfs"]
+        path_written = set().union(*(n.cells for n in path_nodes)) if path_nodes else set()
+        stair_cells = compound.node_cells("plinth_stairs")
+        missing_stairs: List[Cell2] = []
+        for cell in path_written:
+            if _natural_surface_y(compound, cell) != plinth_h - 1:
+                continue
+            for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+                nbr = (cell[0] + dx, cell[1] + dz)
+                if nbr not in path_written:
+                    continue
+                if _natural_surface_y(compound, nbr) != -1:
+                    continue
+                # The stair sits on the outer (-1) side of the boundary.
+                if nbr not in stair_cells:
+                    missing_stairs.append(nbr)
+                break
+        if missing_stairs:
+            errors.append(f"plinth_edge_missing_stair: {sorted(set(missing_stairs))[:8]}")
 
     slot_ids = {s.id for s in compound.building_slots}
     required = {"west_side_wing", "east_side_wing", "main_hall"}
@@ -1821,6 +2358,9 @@ def validate_compound(compound: CompoundGraph) -> dict:
     if failed_quality:
         errors.append(f"subbuilding_quality_failed: {failed_quality}")
 
+    ground_cells = len(_lot_interior_cells(compound) - skip_ground)
+    endpoint_count = len(_collect_path_endpoints(compound))
+    stair_count = len(compound.node_cells("plinth_stairs"))
     return {
         "seed": compound.seed,
         "variant": compound.variant.to_dict(),
@@ -1833,9 +2373,28 @@ def validate_compound(compound: CompoundGraph) -> dict:
             "moon_cells": len(moon),
             "tree_cells": len(tree),
             "path_cells": len(path),
+            "ground_cells": ground_cells,
+            "endpoint_count": endpoint_count,
+            "stair_cells": stair_count,
             "silhouette_score": compound_silhouette_score(compound),
         },
     }
+
+
+def _style_ground_primary(compound: CompoundGraph, slot: str) -> Optional[str]:
+    """Look up a style slot's primary block without re-loading the style.
+
+    The compound graph doesn't carry the Style object, so resolve lazily from
+    the style JSON. Returns ``None`` if the slot is absent (older compounds).
+    """
+    try:
+        style = load_style(compound.style_id)
+    except FileNotFoundError:
+        return None
+    entries = style.material_slots.get(slot)
+    if not entries:
+        return None
+    return entries[0]
 
 
 def compound_silhouette_score(compound: CompoundGraph) -> int:
@@ -1927,13 +2486,38 @@ def validate_small_courtyard(compound: CompoundGraph) -> dict:
             f"small_courtyard_not_compact: {lot_w * lot_d} >= {one_courtyard_area}")
     if not path:
         errors.append("missing_central_path")
-    if not corridors:
-        errors.append("missing_side_corridors")
+    # The legacy side-corridor requirement is satisfied by the multi-source BFS
+    # path network reaching every wing; small-courtyard no longer emits a
+    # separate ``corridor`` parcel node. Keep the corridor-overlap check for any
+    # legacy caller that still emits one.
+    if corridors and corridors & landscape:
+        errors.append("corridor_overlaps_landscape")
     if path & landscape:
         errors.append("path_overlaps_landscape")
-    if corridors & landscape:
-        errors.append("corridor_overlaps_landscape")
 
+    # courtyard-ground-layer + courtyard-path-network invariants (small-courtyard
+    # has no plinth, so the plinth-stair check is skipped per task 3.2).
+    endpoints = _collect_path_endpoints(compound)
+    blocked = _path_blocked_cells(compound)
+    dist = _multi_source_bfs(endpoints, blocked, lot_w, lot_d)
+    for cell in endpoints:
+        if cell not in dist:
+            errors.append(f"endpoint_unreachable: {cell}")
+    skip_ground = (buildings |
+                   compound.node_cells("water_feature", "water_jar", "planting",
+                                       "courtyard_tree"))
+    holes: List[Cell2] = []
+    for cell in _lot_interior_cells(compound):
+        if cell in skip_ground:
+            continue
+        y = _natural_surface_y(compound, cell)
+        if compound.grid.state_at((cell[0], y, cell[1])) == AIR:
+            holes.append(cell)
+    if holes:
+        errors.append(f"ground_layer_hole: {holes[:8]}")
+
+    ground_cells = len(_lot_interior_cells(compound) - skip_ground)
+    endpoint_count = len(endpoints)
     return {
         "seed": compound.seed,
         "variant": compound.variant.to_dict(),
@@ -1947,6 +2531,8 @@ def validate_small_courtyard(compound: CompoundGraph) -> dict:
             "planting_cells": len(compound.node_cells("planting")),
             "path_cells": len(path),
             "corridor_cells": len(corridors),
+            "ground_cells": ground_cells,
+            "endpoint_count": endpoint_count,
         },
     }
 
@@ -2343,6 +2929,24 @@ def validate_compound_library(compounds: List[CompoundGraph],
     failed = [r for r in results if not r["passed"]]
     if failed:
         errors.append(f"failed_compounds: {[r['seed'] for r in failed]}")
+    # courtyard-ground-layer / courtyard-path-network acceptance (task 3.3):
+    # every shipped compound reports non-empty ground + endpoint stats and the
+    # new error codes (endpoint_unreachable / ground_layer_hole /
+    # ground_kind_mismatch / plinth_edge_missing_stair /
+    # path_overlaps_building_door) do not fire.
+    new_error_prefixes = (
+        "endpoint_unreachable", "ground_layer_hole", "ground_kind_mismatch",
+        "plinth_edge_missing_stair", "path_overlaps_building_door")
+    for r in results:
+        stats = r.get("stats", {})
+        if not stats.get("ground_cells"):
+            errors.append(f"empty_ground_cells: {r['seed']}")
+        if not stats.get("endpoint_count"):
+            errors.append(f"empty_endpoint_count: {r['seed']}")
+        for err in r.get("errors", []):
+            if any(err.startswith(p) for p in new_error_prefixes):
+                errors.append(f"compound_{r['seed']}: {err}")
+                break
     return {
         "passed": not errors,
         "errors": errors,

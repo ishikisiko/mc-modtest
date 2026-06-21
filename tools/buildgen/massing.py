@@ -72,6 +72,24 @@ class Node:
             d["meta"] = {k: v for k, v in self.meta.items() if not k.startswith("_")}
         return d
 
+    def to_summary_dict(self) -> dict:
+        # Compact form for library reports: structural fields only, node `meta`
+        # (which can carry large roof/storefront coordinate plans) is dropped.
+        # The compound validator reads only id/origin/size from nodes.
+        d = {
+            "id": self.id,
+            "type": self.type,
+            "origin": list(self.origin),
+            "size": list(self.size),
+            "orientation": self.orientation,
+            "tags": list(self.tags),
+        }
+        if self.attach_to:
+            d["attach_to"] = self.attach_to
+        if self.side:
+            d["side"] = self.side
+        return d
+
 
 VOLUME_TYPES = {
     "main_volume",
@@ -108,3 +126,18 @@ class MassingGraph:
 
     def to_dict(self) -> dict:
         return {"meta": self.meta, "nodes": [n.to_dict() for n in self.nodes]}
+
+    def to_summary_dict(self) -> dict:
+        # Compact form for library reports. `meta` is kept in full because the
+        # compound validator reads `meta.frontage` (including its opening_cells)
+        # from the cultivation_town report. Only the volume nodes are kept,
+        # because the validator's frontage side-bounds check resolves the
+        # `frontage.volume` node (always a volume node, set in
+        # archetypes._ensure_frontage) by id and reads its origin/size; the
+        # interior zone/path/colonnade detail nodes carry no info any reader
+        # uses from the report.
+        return {
+            "meta": self.meta,
+            "nodes": [n.to_summary_dict() for n in self.nodes
+                      if n.type in VOLUME_TYPES],
+        }

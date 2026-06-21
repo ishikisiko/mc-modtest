@@ -42,6 +42,13 @@
       "minecraft:coarse_dirt",
       "minecraft:stone_bricks"
     ],
+    "GROUND_YARD_OPEN": [
+      "minecraft:coarse_dirt",
+      "minecraft:dirt"
+    ],
+    "GROUND_YARD_UNDER_EAVE": [
+      "minecraft:stone_bricks"
+    ],
     "WATER": [
       "minecraft:water"
     ],

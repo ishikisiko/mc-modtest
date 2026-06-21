@@ -11,6 +11,22 @@ together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
 ### Fixed
 
+- **Courtyard ground + path layer rebuilt** (`fix-courtyard-ground-walkability`).
+  The shipped `chinese_courtyard_NNN.nbt` files were structurally correct 一进
+  plans but practically unwalkable: the yard floor was AIR outside a 1-cell
+  gravel strip (the player fell through), the path stopped at the 正房 leaving
+  厢房 / 倒座 / 井 / 鱼缸 / 种植 unreachable, and the plinth edge was a 2-block
+  jump. Two new data-driven passes fix all three: `_place_yard_ground` fills
+  every non-building cell with 露天 `grass_block` / 屋檐下 `stone_bricks`
+  (courtyard-ground-layer spec), `_route_complete_path` runs a multi-source BFS
+  from every door + water + planting + moon-platform endpoint to write one
+  connected `GROUND_PATH` network (courtyard-path-network spec), and
+  `_place_plinth_stairs` drops a single `stone_brick_stairs` at each plinth
+  boundary. The same fix applies to the embedded small-courtyards in
+  `cultivation_town_NNN.nbt`. **Breaking (NBT regeneration):** the 6
+  `chinese_courtyard_*` and 6 `cultivation_town_*` NBTs regenerate with new
+  content (same filenames); `cultivation_sect_*` and `medieval_*` stay
+  byte-stable. No `/myvillage` command-surface change.
 - **Cross-platform build and report determinism.** `build.gradle` now selects
   the Python interpreter per OS (`python` on Windows, `python3` elsewhere),
   falling back to the `PYTHON` environment variable when set, so `gradlew build`
@@ -19,6 +35,30 @@ together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
   emit repo-relative paths as POSIX strings (forward slashes) via
   `tools/buildgen/export.py::repo_relpath`, so committed JSON reports and
   human-facing output are byte-identical across Linux and Windows.
+- **Library reports slimmed** (`slim-library-reports`, 0.15.0-fix2). The
+  `reports/*_library_report.json` files had grown to tens of thousands of lines
+  (largest: `cultivation_town_compound_library_report.json` at 164 269 lines /
+  3.2 MB) because each generator serialized the full compound/massing graph,
+  including per-cell coordinate lists (`parcel_nodes[].cells`,
+  `building_slots[].footprint`) that no validator or runtime ever reads. The
+  generators now emit a compact `to_summary_dict()` form (cells/footprints
+  folded into counts + bounding boxes; non-volume massing nodes and node `meta`
+  dropped; `meta.frontage` and `meta.terrace_levels` kept because the
+  validators read them). All `*_library_report.json` shrink 59–96% (e.g.
+  `cultivation_town_compound` 164 269 → 8 469 lines, `compound` 126 048 → 6 094,
+  `cultivation_sect_compound` 72 775 → 2 561). **No `.nbt`, mcfunction, or
+  gameplay change** — the in-memory `to_dict()` and generation logic are
+  untouched, and regenerated NBTs are byte-identical to the pre-edit state.
+- **`reports/` now git-ignored as generated output.** All library/validation
+  reports under `reports/` are deterministic generator/validator outputs, so
+  `.gitignore` now excludes `reports/*` and the 20 previously-committed report
+  files were `git rm --cached`'d (kept on disk; regenerate locally with the
+  `tools/` generators). Two files stay tracked via `!`-exceptions because the
+  build cannot re-derive them: `reports/town_distinctness_calibration.json`
+  (tuning floors read by `validate_runtime_town_plan.py`) and
+  `reports/cultivation_style_baseline_hashes.txt` (a pre-migration historical
+  hash snapshot). No build behavior changes — the generators and validators
+  continue to read/write the files on disk exactly as before.
 
 ## 0.15.0
 

@@ -48,6 +48,13 @@
       "minecraft:stone_bricks",
       "minecraft:coarse_dirt"
     ],
+    "GROUND_YARD_OPEN": [
+      "minecraft:grass_block"
+    ],
+    "GROUND_YARD_UNDER_EAVE": [
+      "minecraft:stone_bricks",
+      "minecraft:polished_andesite"
+    ],
     "INTERIOR_WORK": [
       "minecraft:crafting_table",
       "minecraft:furnace",

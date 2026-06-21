@@ -109,6 +109,15 @@ The six `chinese_courtyard_NNN` templates are rebuilt 一进 compounds: an outer
 yard with 影壁, one 垂花门 into the raised main yard, returning 抄手游廊, and a
 正房 fronted by 月台. Their filenames and `/myvillage place` commands are
 unchanged, but v0.15.0 regenerates their footprints, silhouettes, and interiors.
+v0.15.0-fix1 rebuilds the courtyard **ground + path layer** (`courtyard-ground-layer`
+/ `courtyard-path-network` specs): the yard floor is now solid (露天 grass /
+屋檐下 stone_bricks) and a multi-source-BFS path connects every door, water
+feature, planting bed, and the moon platform, with a single stairs block at the
+plinth edge — the courtyards are walkable end-to-end.
+v0.15.0-fix2 slims the `reports/*_library_report.json` files: the generators
+now emit a compact graph summary (per-cell lists folded into counts + bbox)
+instead of the full `to_dict()` payload, cutting the largest report from
+164k to 8k lines with no `.nbt` or gameplay change.
 Run the final full-profile generation after a vanilla-profile proof to restore
 the shipped artifact profile.
 
@@ -292,7 +301,7 @@ jar tf build/libs/*.jar | grep "assets/myvillage/textures/painting/inscription"
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.15.0.jar
+build/libs/myvillage-0.15.0-fix2.jar
 ```
 
 ## Versioning And Changelog
@@ -338,12 +347,12 @@ python3 tools/generate_sect_plan_preview.py --count 6    # default covers all 3 
 python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 graph previews
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.15.0.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.15.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.15.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.15.0.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.15.0.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.15.0.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.15.0-fix2.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.15.0-fix2.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.15.0-fix2.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.15.0-fix2.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.15.0-fix2.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.15.0-fix2.jar | grep "assets/myvillage/textures/painting/inscription"
 ```
 
 Use the command list below as the acceptance script. Update this README,

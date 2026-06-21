@@ -69,7 +69,7 @@ def main() -> int:
             export.write_place_function(args.style, name)
             ctx.passes_run.append("resource_export_pass")
             report["export"] = info
-            report["massing_graph"] = ctx.graph.to_dict()
+            report["massing_graph"] = ctx.graph.to_summary_dict()
             report["passes_run"] = ctx.passes_run
             reports.append(report)
             entries.append({"name": name, "archetype": archetype,

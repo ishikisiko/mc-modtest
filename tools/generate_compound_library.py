@@ -56,7 +56,7 @@ def generate_standalone_reviews(style, base_seed: int) -> list:
         _, info = export.write_structure_nbt(ctx.grid, style.style_id, name)
         export.write_place_function(style.style_id, name)
         report["export"] = info
-        report["massing_graph"] = ctx.graph.to_dict()
+        report["massing_graph"] = ctx.graph.to_summary_dict()
         reports.append(report)
         print(f"OK {name:24s} size={info['size']} blocks={info['block_count']} seed={report['seed']}")
     return reports
@@ -126,7 +126,7 @@ def main() -> int:
             info["settlement_metadata"] = export.repo_relpath(meta_path)
             report["name"] = name
             report["export"] = info
-            report["compound_graph"] = compound.to_dict()
+            report["compound_graph"] = compound.to_summary_dict()
             compound_reports.append(report)
             entries.append({"name": name, "archetype": "cultivation_sect",
                             "scale_tier": "sect_terraced",
@@ -169,7 +169,7 @@ def main() -> int:
             export.write_place_function(style.style_id, name)
             report["name"] = name
             report["export"] = info
-            report["compound_graph"] = compound.to_dict()
+            report["compound_graph"] = compound.to_summary_dict()
             compound_reports.append(report)
             entries.append({"name": name, "archetype": args.group,
                             "scale_tier": f"{compound.variant.rows}x{compound.variant.courtyards_per_row}",
@@ -215,7 +215,7 @@ def main() -> int:
         export.write_place_function(style.style_id, name)
         report["name"] = name
         report["export"] = info
-        report["compound_graph"] = compound.to_dict()
+        report["compound_graph"] = compound.to_summary_dict()
         compound_reports.append(report)
         entries.append({"name": name, "archetype": "chinese_courtyard",
                         "scale_tier": compound.variant.courtyard_size,
