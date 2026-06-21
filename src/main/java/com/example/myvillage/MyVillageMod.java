@@ -1,6 +1,8 @@
 package com.example.myvillage;
 
 import com.example.myvillage.block.ModBlocks;
+import com.example.myvillage.region.runtime.RegionCommands;
+import com.example.myvillage.region.runtime.RegionRuntimeService;
 import com.example.myvillage.sect.SectGenerator;
 import com.example.myvillage.sect.SectStructures;
 import com.example.myvillage.town.TownGenerator;
@@ -13,6 +15,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
@@ -65,6 +68,8 @@ public final class MyVillageMod {
         SectStructures.register(modEventBus);
         NeoForge.EVENT_BUS.addListener(this::registerCommands);
         NeoForge.EVENT_BUS.addListener(this::onServerStarted);
+        NeoForge.EVENT_BUS.addListener(RegionRuntimeService::onServerStarted);
+        NeoForge.EVENT_BUS.addListener(RegionRuntimeService::onServerStopping);
     }
 
     private void onServerStarted(ServerStartedEvent event) {
@@ -117,7 +122,12 @@ public final class MyVillageMod {
                                 .then(Commands.literal("original")
                                         .executes(ctx -> placeGallery(ctx.getSource(), GalleryScope.ORIGINAL)))
                                 .then(Commands.literal("cultivation")
-                                        .executes(ctx -> placeGallery(ctx.getSource(), GalleryScope.CULTIVATION)))));
+                                        .executes(ctx -> placeGallery(ctx.getSource(), GalleryScope.CULTIVATION))))
+                        .then(Commands.literal("spawn")
+                                .then(Commands.literal("info")
+                                        .executes(ctx -> RegionCommands.spawnInfo(ctx.getSource())))
+                                .then(Commands.literal("recompute")
+                                        .executes(ctx -> RegionCommands.spawnRecompute(ctx.getSource())))));
     }
 
     private int placeNamedStructure(CommandSourceStack source, String rawId) throws CommandSyntaxException {

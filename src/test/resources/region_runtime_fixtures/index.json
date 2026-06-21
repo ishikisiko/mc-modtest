@@ -1,0 +1,41 @@
+{
+  "cases": [
+    {
+      "case": "min_count",
+      "file": "seed_1.json",
+      "seed": 1,
+      "spawn_region": "donghai"
+    },
+    {
+      "case": "max_count",
+      "file": "seed_3.json",
+      "seed": 3,
+      "spawn_region": "nanjiang"
+    },
+    {
+      "case": "tier_tie",
+      "file": "seed_4.json",
+      "seed": 4,
+      "spawn_region": "donghai"
+    },
+    {
+      "case": "walled_low",
+      "file": "seed_2.json",
+      "seed": 2,
+      "spawn_region": "lingyue"
+    },
+    {
+      "case": "shipped",
+      "file": "seed_20260620.json",
+      "seed": 20260620,
+      "spawn_region": "beiyuan"
+    }
+  ],
+  "generator": "tools/buildgen/tests/generate_region_runtime_fixtures.py",
+  "note": "Python⇄Java parity fixtures for the region runtime. Each seed_*.json holds the canonical graph + spawn binding; the Java port must reproduce both byte-identically.",
+  "placement": {
+    "radius_graph_outer": 1.45,
+    "radius_world": 4000,
+    "scale": 2758.6206896551726
+  }
+}

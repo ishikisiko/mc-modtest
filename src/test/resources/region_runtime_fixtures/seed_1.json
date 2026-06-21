@@ -1,0 +1,191 @@
+{
+  "case": "min_count",
+  "graph": {
+    "count": 5,
+    "edges": [
+      {
+        "from": "donghai",
+        "to": "lingyue",
+        "type": "连"
+      },
+      {
+        "from": "donghai",
+        "separator": "特殊海洋",
+        "to": "moyu",
+        "type": "隔"
+      },
+      {
+        "from": "donghai",
+        "to": "ximo",
+        "type": "连"
+      },
+      {
+        "from": "donghai",
+        "to": "zhongzhou",
+        "type": "连"
+      },
+      {
+        "from": "lingyue",
+        "pass": "关隘",
+        "to": "moyu",
+        "type": "连"
+      },
+      {
+        "from": "lingyue",
+        "separator": "特殊山脉",
+        "to": "ximo",
+        "type": "隔"
+      },
+      {
+        "from": "lingyue",
+        "to": "zhongzhou",
+        "type": "连"
+      },
+      {
+        "from": "moyu",
+        "separator": "特殊山脉",
+        "to": "zhongzhou",
+        "type": "隔"
+      },
+      {
+        "from": "ximo",
+        "to": "zhongzhou",
+        "type": "连"
+      }
+    ],
+    "regions": [
+      {
+        "admitted_subjects": [
+          "sect"
+        ],
+        "danger": [
+          3,
+          6
+        ],
+        "display_name": "东海",
+        "id": "donghai",
+        "nominal_tier": 9,
+        "position": [
+          1.029,
+          0.0
+        ],
+        "qi": [
+          3,
+          5
+        ],
+        "role": "peripheral",
+        "tier": 15
+      },
+      {
+        "admitted_subjects": [
+          "sect"
+        ],
+        "danger": [
+          4,
+          7
+        ],
+        "display_name": "灵岳",
+        "id": "lingyue",
+        "nominal_tier": 14,
+        "position": [
+          -0.4995,
+          0.8652
+        ],
+        "qi": [
+          6,
+          8
+        ],
+        "role": "peripheral",
+        "tier": 17
+      },
+      {
+        "admitted_subjects": [],
+        "danger": [
+          8,
+          10
+        ],
+        "display_name": "魔域",
+        "id": "moyu",
+        "nominal_tier": 16,
+        "position": [
+          0.6835,
+          1.1839
+        ],
+        "qi": [
+          5,
+          7
+        ],
+        "role": "walled",
+        "tier": 16
+      },
+      {
+        "admitted_subjects": [
+          "sect"
+        ],
+        "danger": [
+          5,
+          8
+        ],
+        "display_name": "西漠",
+        "id": "ximo",
+        "nominal_tier": 8,
+        "position": [
+          -0.508,
+          -0.8799
+        ],
+        "qi": [
+          2,
+          4
+        ],
+        "role": "peripheral",
+        "tier": 19
+      },
+      {
+        "admitted_subjects": [
+          "sect"
+        ],
+        "danger": [
+          3,
+          6
+        ],
+        "display_name": "中州",
+        "id": "zhongzhou",
+        "nominal_tier": 18,
+        "position": [
+          0.0,
+          0.0
+        ],
+        "qi": [
+          7,
+          9
+        ],
+        "role": "anchor",
+        "tier": 20
+      }
+    ],
+    "ruleset": "myvillage:region_topology",
+    "seed": 1,
+    "tier_range": [
+      1,
+      20
+    ],
+    "tier_step": 5
+  },
+  "placement": {
+    "radius_graph_outer": 1.45,
+    "radius_world": 4000,
+    "scale": 2758.6206896551726
+  },
+  "seed": 1,
+  "spawn": {
+    "graph_center": [
+      1.029,
+      0.0
+    ],
+    "region_id": "donghai",
+    "world_block": [
+      2839,
+      0
+    ]
+  }
+}

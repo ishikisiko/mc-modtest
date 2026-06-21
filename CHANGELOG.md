@@ -9,6 +9,41 @@ together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
 ## Unreleased
 
+## 0.15.0
+
+### Changed
+
+- **Region runtime binding (洲/域 runtime)** (`add-region-runtime-binding`).
+  The macro layer's offline-only era ends: a passive runtime companion now
+  consumes the per-seed region graph in-game. The anchor (中州) center is placed
+  at the world origin with all 洲 within an anchor-centered ~4000-block radius
+  (pure coordinate transform — `SCALE = RADIUS_WORLD(4000) /
+  RADIUS_GRAPH_OUTER(1.45 = 1.4 walled ring + 0.05 max embed jitter)`, no
+  rotation, no world writes). World spawn is bound **once** per world,
+  deterministically from the seed, to the lowest-tier eligible non-walled
+  region (sort key `(assigned_tier ASC, distance_from_anchor DESC,
+  qi_midpoint ASC, id ASC)`) with a safe-surface spiral search; existing
+  custom/admin spawns are preserved on first load (`SavedData`-gated), and
+  `/myvillage spawn recompute` (admin) forces an override. A server-side query
+  API exposes `region_at(x, z)`, `current_region`, `current_rung`, and
+  `next_rung_regions`, where the rung ladder is the ascending distinct tiers
+  among non-walled regions and `next_rung_regions` returns a **set** at tier
+  ties (灵岳 + 西漠 both at 18) — a branch point the deferred 正道/魔道
+  alignment system will resolve. `/myvillage spawn info` (player) prints the
+  spawn region/block and the caller's region/rung/next-rung set. The runtime is
+  passive: it reads the world seed, caches the graph, answers queries, and calls
+  `setDefaultSpawnPos` exactly once — it overrides no biome, hooks no chunk-gen,
+  and writes nothing beyond spawn metadata; the offline `region-topology`
+  generator's contract is unchanged. The region RNG + generator are ported to
+  Java (`com.example.myvillage.region.runtime`) bit-identical to
+  `tools/buildgen/region_topology.py`, enforced by golden fixtures under
+  `src/test/resources/region_runtime_fixtures/` (regenerate via
+  `tools/buildgen/tests/generate_region_runtime_fixtures.py`). Downstream
+  consumers (compass/map indicator, alignment tie resolution, mobility gating,
+  runtime subject placement, 隔-edge terrain relief, region extents) remain
+  deferred. See `docs/ai-kb/13_region_topology.md` and the
+  `region-runtime-binding` spec.
+
 ## 0.14.0
 
 ### Changed

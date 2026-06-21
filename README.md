@@ -208,10 +208,19 @@ python3 tools/generate_region_topology_preview.py --count 6
 
 The graph lists regions (tier/role/position) and a typed edge list: `连` edges
 are passable; `隔` edges carry a separator (`特殊山脉` or `特殊海洋`); a
-`walled` region's single retained `连` edge is marked `关隘`. This layer adds
-**no in-game command and no runtime worldgen yet** — there is no `/myvillage`
-entry for it this change. Turning the typed edges into actual relief (山脉/海洋
-ranges) and placing subjects into regions is the deferred next change.
+`walled` region's single retained `连` edge is marked `关隘`. The offline
+generator remains the single source of truth and writes no world blocks. As of
+`add-region-runtime-binding`, a **runtime companion** places the per-seed graph
+into the world (中州 at the world origin, all 洲 within a ~4000-block radius),
+binds world spawn deterministically to the lowest-tier eligible region, and
+exposes a `region_at` / `current_rung` / `next_rung_regions` query API for
+downstream consumers (compass / map / alignment / mobility — all still
+deferred). The runtime is passive: it reads the world seed and answers queries;
+it overrides no biome, hooks no chunk-gen, and writes nothing beyond the
+one-time `setDefaultSpawnPos`. See `/myvillage spawn info|recompute` below and
+[`docs/ai-kb/13_region_topology.md`](docs/ai-kb/13_region_topology.md). Turning
+the typed edges into actual relief (山脉/海洋 ranges) and placing subjects into
+regions remains the deferred next change.
 
 ## Preview Structures Offline
 
@@ -269,7 +278,7 @@ jar tf build/libs/*.jar | grep "assets/myvillage/textures/painting/inscription"
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.14.0.jar
+build/libs/myvillage-0.15.0.jar
 ```
 
 ## Versioning And Changelog
@@ -315,12 +324,12 @@ python3 tools/generate_sect_plan_preview.py --count 6    # default covers all 3 
 python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 graph previews
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.14.0.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.14.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.14.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.14.0.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.14.0.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.14.0.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.15.0.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.15.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.15.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.15.0.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.15.0.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.15.0.jar | grep "assets/myvillage/textures/painting/inscription"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -512,6 +521,22 @@ Generated datapack functions are also available after resource generation:
 /function myvillage:place/cultivation_town_001
 /function myvillage:place/cultivation_sect_001
 ```
+
+Query the region runtime (passive — reads the per-seed region graph, overrides
+no biome, writes nothing beyond the one-time world spawn):
+
+```mcfunction
+/myvillage spawn info
+/myvillage spawn recompute
+```
+
+`/myvillage spawn info` (player-only) prints the computed spawn region and
+bound spawn block, plus the caller's current region / tier rung / next-rung
+region set. `/myvillage spawn recompute` (admin, permission 2) forces a spawn
+recompute for the current world and calls `setDefaultSpawnPos`, **overriding
+any existing spawn** — the documented admin-override path. The automatic
+world-load binding otherwise runs once per world and preserves any existing
+custom (admin-set) spawn rather than clobbering it.
 
 ## Generation Architecture
 

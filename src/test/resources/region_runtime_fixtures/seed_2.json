@@ -1,0 +1,193 @@
+{
+  "case": "walled_low",
+  "graph": {
+    "count": 5,
+    "edges": [
+      {
+        "from": "beiyuan",
+        "separator": "特殊山脉",
+        "to": "donghuang",
+        "type": "隔"
+      },
+      {
+        "from": "beiyuan",
+        "separator": "特殊海洋",
+        "to": "lingyue",
+        "type": "隔"
+      },
+      {
+        "from": "beiyuan",
+        "separator": "特殊海洋",
+        "to": "moyu",
+        "type": "隔"
+      },
+      {
+        "from": "beiyuan",
+        "to": "zhongzhou",
+        "type": "连"
+      },
+      {
+        "from": "donghuang",
+        "separator": "特殊山脉",
+        "to": "lingyue",
+        "type": "隔"
+      },
+      {
+        "from": "donghuang",
+        "separator": "特殊山脉",
+        "to": "moyu",
+        "type": "隔"
+      },
+      {
+        "from": "donghuang",
+        "to": "zhongzhou",
+        "type": "连"
+      },
+      {
+        "from": "lingyue",
+        "to": "zhongzhou",
+        "type": "连"
+      },
+      {
+        "from": "moyu",
+        "separator": "特殊海洋",
+        "to": "zhongzhou",
+        "type": "隔"
+      }
+    ],
+    "regions": [
+      {
+        "admitted_subjects": [
+          "sect"
+        ],
+        "danger": [
+          3,
+          6
+        ],
+        "display_name": "北原",
+        "id": "beiyuan",
+        "nominal_tier": 11,
+        "position": [
+          1.044,
+          0.0
+        ],
+        "qi": [
+          4,
+          6
+        ],
+        "role": "peripheral",
+        "tier": 16
+      },
+      {
+        "admitted_subjects": [
+          "sect"
+        ],
+        "danger": [
+          4,
+          7
+        ],
+        "display_name": "东荒",
+        "id": "donghuang",
+        "nominal_tier": 12,
+        "position": [
+          -0.5035,
+          0.8721
+        ],
+        "qi": [
+          3,
+          5
+        ],
+        "role": "peripheral",
+        "tier": 19
+      },
+      {
+        "admitted_subjects": [
+          "sect"
+        ],
+        "danger": [
+          4,
+          7
+        ],
+        "display_name": "灵岳",
+        "id": "lingyue",
+        "nominal_tier": 14,
+        "position": [
+          -0.5175,
+          -0.8963
+        ],
+        "qi": [
+          6,
+          8
+        ],
+        "role": "peripheral",
+        "tier": 15
+      },
+      {
+        "admitted_subjects": [],
+        "danger": [
+          8,
+          10
+        ],
+        "display_name": "魔域",
+        "id": "moyu",
+        "nominal_tier": 16,
+        "position": [
+          0.692,
+          1.1986
+        ],
+        "qi": [
+          5,
+          7
+        ],
+        "role": "walled",
+        "tier": 14
+      },
+      {
+        "admitted_subjects": [
+          "sect"
+        ],
+        "danger": [
+          3,
+          6
+        ],
+        "display_name": "中州",
+        "id": "zhongzhou",
+        "nominal_tier": 18,
+        "position": [
+          0.0,
+          0.0
+        ],
+        "qi": [
+          7,
+          9
+        ],
+        "role": "anchor",
+        "tier": 20
+      }
+    ],
+    "ruleset": "myvillage:region_topology",
+    "seed": 2,
+    "tier_range": [
+      1,
+      20
+    ],
+    "tier_step": 5
+  },
+  "placement": {
+    "radius_graph_outer": 1.45,
+    "radius_world": 4000,
+    "scale": 2758.6206896551726
+  },
+  "seed": 2,
+  "spawn": {
+    "graph_center": [
+      -0.5175,
+      -0.8963
+    ],
+    "region_id": "lingyue",
+    "world_block": [
+      -1428,
+      -2473
+    ]
+  }
+}

@@ -24,7 +24,7 @@ When a doc here and a spec cover the same topic they carry **see-also** links to
 | 10 | [Civic Family Vocabulary](10_civic_family.md) | Civic structure family (`tavern`, `lord_manor`). |
 | 11 | [Town Shape Irregularity](11_town_shape_irregularity.md) | Design note: de-square the town via wall deformation (A) and/or district de-gridding (B). |
 | 12 | [Town Shape Vocabulary](12_town_shape_vocabulary.md) | Implemented wall families, seed-driven grid jitter, and clip-to-shape districts; see-also `town-plan`, `town-districts`, and note 11. |
-| 13 | [Region Topology](13_region_topology.md) | Offline-first 洲/域 layer: region-profile catalog + constrained-random topology generator (连/隔 edges, tier-step, walled 魔域); OTG WorldConfig/FromImage mapping; see-also `07_neoforge_worldgen.md` and the `region-profile` / `region-topology` specs. |
+| 13 | [Region Topology](13_region_topology.md) | 洲/域 layer: offline-first region-profile catalog + constrained-random topology generator (连/隔 edges, tier-step, walled 魔域), plus the runtime-binding companion that places the graph into the world (中州 at origin), binds spawn to the lowest-tier eligible region, and exposes the `region_at` / `current_rung` / `next_rung_regions` query API; OTG WorldConfig/FromImage mapping; see-also `07_neoforge_worldgen.md` and the `region-profile` / `region-topology` / `region-runtime-binding` specs. |
 
 Topic notes: [Plaque Frame Brief](plaque-frame-brief.md), [Plaque Inscription Style](plaque-inscription-style.md). Reference material under [`references/`](references/), [`style_guides/`](style_guides/), [`examples/`](examples/).
 
