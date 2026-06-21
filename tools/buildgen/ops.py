@@ -1072,22 +1072,6 @@ def _gable_roof_handler(grid: BlockGrid, style: Style, rng: random.Random,
         vol.id)
 
 
-def _chinese_roof_grade_handler(grid: BlockGrid, style: Style, rng: random.Random,
-                                vol: Node, graph: Optional[Any] = None) -> dict:
-    roof = vol.meta.get("roof", {})
-    grade = roof.get("grade", roof.get("type"))
-    overhang = roof.get("overhang", 1)
-    if grade == "悬山":
-        overhang = max(overhang, 2)
-    return _with_roofed_ids(
-        _with_roof_type(gable_roof(
-            grid, style, rng, vol,
-            roof.get("ridge_axis", "x"),
-            overhang,
-            attached_side=roof.get("attached_side")), str(grade)),
-        vol.id)
-
-
 def _cross_gable_roof_handler(grid: BlockGrid, style: Style, rng: random.Random,
                               vol: Node, graph: Optional[Any] = None) -> dict:
     wings = graph.by_type("side_wing") if graph is not None else []
@@ -1343,6 +1327,308 @@ def _bell_drum_tower_roof_handler(grid: BlockGrid, style: Style, rng: random.Ran
     base["peak_y"] = peak_y + (bell_cells[-1][1] - peak_y if bell_cells else 0)
     base["vertical_landmark"] = True
     return _with_roofed_ids(base, vol.id)
+
+
+# ---------------------------------------------------------------------------
+# Chinese vernacular (民居) roof vocabulary
+#
+# Four real forms, each a thin handler over one shared geometry helper
+# (`_chinese_gable_planes`) plus, for 歇山, a hip-skirt helper. The handlers do
+# NOT string-match among themselves: each calls the shared helper with its own
+# overhang / crown parameters. These are the vernacular counterparts to the
+# cultivation monumental forms (`sweeping_eave_roof` etc.): smaller overhang,
+# plain rafter feet, no举折 curve, no required platform.
+# ---------------------------------------------------------------------------
+
+def _chinese_gable_planes(grid: BlockGrid, style: Style, vol: Node,
+                          ridge_axis: str, gable_overhang: int,
+                          eave_overhang: int, *, rounded: bool = False,
+                          seal_gables: bool = True) -> dict:
+    """Stair gable roof with independently controlled gable-end and eave overhang.
+
+    硬山 passes ``gable_overhang=0`` (flush gable, modest eave); 悬山 passes a
+    positive ``gable_overhang`` (roof overhangs the gable wall). ``rounded``
+    crowns the ridge with top slabs instead of a peak plank (卷棚 — no ridge
+    block). Returns the same {gable_cells, roof_cells, peak_y, ...} contract as
+    ``gable_roof`` so the quality passes can re-verify enclosure.
+    """
+    fh = vol.meta["foundation_h"]
+    wall_top = fh + vol.meta["wall_h"] - 1
+    p = PRIORITY["ROOF"]
+    gable_cells: List[Pos] = []
+    roof_cells: List[Pos] = []
+    ridge_cells: List[Pos] = []
+    gable_state, gable_slot = gable_infill(style)
+    planks = style.slot_entry("ROOF_DARK", "_planks")
+
+    if ridge_axis == "x":
+        lo_edge, hi_edge = vol.z0, vol.z1
+        span_lo, span_hi = vol.x0 - gable_overhang, vol.x1 + gable_overhang
+        lo_face, hi_face = "south", "north"
+        gable_walls = ("west", "east")
+    else:
+        lo_edge, hi_edge = vol.x0, vol.x1
+        span_lo, span_hi = vol.z0 - gable_overhang, vol.z1 + gable_overhang
+        lo_face, hi_face = "east", "west"
+        gable_walls = ("front", "back")
+
+    lo = lo_edge - eave_overhang
+    hi = hi_edge + eave_overhang
+
+    def put_row(coord: int, y: int, state: str, protect: bool = False) -> None:
+        tags = ["ROOF"] + (["PROTECTED"] if protect else [])
+        for a in range(span_lo, span_hi + 1):
+            pos = (a, y, coord) if ridge_axis == "x" else (coord, y, a)
+            if grid.set(pos, state, tags, p, "ROOF_DARK"):
+                roof_cells.append(pos)
+                if protect:
+                    ridge_cells.append(pos)
+
+    y = wall_top + 1
+    crown_gap = 1 if rounded else 0
+    while hi - lo > crown_gap:
+        put_row(lo, y, stair_state(style, lo_face))
+        put_row(hi, y, stair_state(style, hi_face))
+        lo += 1
+        hi -= 1
+        y += 1
+    if rounded:
+        # 卷棚: no ridge plank. Cap the central one or two columns with top
+        # slabs so the two slopes roll over a smooth crown.
+        crown = slab_state(style, "top")
+        for coord in sorted({lo, hi}):
+            put_row(coord, y, crown, protect=True)
+        ridge_y = y
+    elif lo == hi:        # odd span: solid ridge line, protected
+        put_row(lo, y, planks, protect=True)
+        ridge_y = y
+    else:                 # even span: the two top stair rows meet back to back
+        ridge_y = y - 1
+
+    if seal_gables:
+        # Gable end-wall infill, flush with the end walls, driven per-column up
+        # to the roof skin directly above each column (the same column-scan as
+        # gable_roof: no apex gap, no edge gap, no see-through air).
+        for wallname in gable_walls:
+            _, fixed, (a0, a1), _ = wall_info(vol, wallname)
+            for c in range(a0, a1 + 1):
+                roof_y = None
+                for yy in range(wall_top + 1, ridge_y + 1):
+                    pos = (fixed, yy, c) if ridge_axis == "x" else (c, yy, fixed)
+                    rc = grid.get(pos)
+                    if rc and "ROOF" in rc.tags and "FACADE" not in rc.tags:
+                        roof_y = yy
+                        break
+                if roof_y is None:
+                    roof_y = ridge_y
+                for yy in range(wall_top + 1, roof_y):
+                    pos = (fixed, yy, c) if ridge_axis == "x" else (c, yy, fixed)
+                    if grid.is_empty(pos):
+                        if grid.set(pos, gable_state, ["FACADE", "ROOF"], p,
+                                    gable_slot):
+                            gable_cells.append(pos)
+        # Back any gable-plane stair with a full block one step inboard so the
+        # end wall has no see-through half-block gaps along the roofline.
+        for wallname in gable_walls:
+            _, fixed, (a0, a1), _ = wall_info(vol, wallname)
+            ox, oz = WALL_OUTWARD[wallname]
+            inboard = (-ox, -oz)
+            for c in range(a0, a1 + 1):
+                for yy in range(wall_top + 1, ridge_y + 1):
+                    pos = (fixed, yy, c) if ridge_axis == "x" else (c, yy, fixed)
+                    sc = grid.get(pos)
+                    if sc and "ROOF" in sc.tags and "_stairs" in sc.state:
+                        back = (pos[0] + inboard[0], yy, pos[2] + inboard[1])
+                        if grid.is_empty(back):
+                            if grid.set(back, gable_state, ["FACADE", "ROOF"], p,
+                                        gable_slot):
+                                gable_cells.append(back)
+                        gable_cells.append(pos)
+    return {"gable_cells": gable_cells, "roof_cells": roof_cells,
+            "ridge_cells": ridge_cells, "peak_y": ridge_y}
+
+
+def _chinese_hip_skirt(grid: BlockGrid, style: Style, vol: Node,
+                       steps: int, eave_overhang: int) -> dict:
+    """45° 抱厦 skirt: ``steps`` hipped stair rings wrapping all four sides,
+    rising from the eave. Returns the inner rectangle the upper gable sits on,
+    the skirt-top y (where the 围脊 lands), and the placed cells."""
+    fh = vol.meta["foundation_h"]
+    wall_top = fh + vol.meta["wall_h"] - 1
+    p = PRIORITY["ROOF"]
+    roof_cells: List[Pos] = []
+    x0, x1 = vol.x0 - eave_overhang, vol.x1 + eave_overhang
+    z0, z1 = vol.z0 - eave_overhang, vol.z1 + eave_overhang
+    y = wall_top + 1
+    north, north_slot = roof_stair_state(style, "south")
+    south, south_slot = roof_stair_state(style, "north")
+    west, west_slot = roof_stair_state(style, "east")
+    east, east_slot = roof_stair_state(style, "west")
+    for _ in range(max(1, steps)):
+        if x0 > x1 or z0 > z1:
+            break
+        for x in range(x0, x1 + 1):
+            for pos, state, slot in (((x, y, z0), north, north_slot),
+                                     ((x, y, z1), south, south_slot)):
+                if grid.set(pos, state, ["ROOF"], p, slot):
+                    roof_cells.append(pos)
+        for z in range(z0 + 1, z1):
+            for pos, state, slot in (((x0, y, z), west, west_slot),
+                                     ((x1, y, z), east, east_slot)):
+                if grid.set(pos, state, ["ROOF"], p, slot):
+                    roof_cells.append(pos)
+        x0 += 1
+        x1 -= 1
+        z0 += 1
+        z1 -= 1
+        y += 1
+    return {"roof_cells": roof_cells, "inner_bounds": (x0, x1, z0, z1),
+            "skirt_top_y": y}
+
+
+def _chinese_flush_gable_handler(grid: BlockGrid, style: Style,
+                                 rng: random.Random, vol: Node,
+                                 graph: Optional[Any] = None) -> dict:
+    """硬山: gable flush with the side walls (no overhang past the gable end)."""
+    del rng
+    roof = vol.meta.get("roof", {})
+    info = _chinese_gable_planes(grid, style, vol, roof.get("ridge_axis", "x"),
+                                 gable_overhang=0,
+                                 eave_overhang=max(1, roof.get("overhang", 1)))
+    return _with_roofed_ids(_with_roof_type(info, "chinese_flush_gable"), vol.id)
+
+
+def _chinese_overhang_gable_handler(grid: BlockGrid, style: Style,
+                                    rng: random.Random, vol: Node,
+                                    graph: Optional[Any] = None) -> dict:
+    """悬山: roof overhangs past the gable wall on both gable ends."""
+    del rng
+    roof = vol.meta.get("roof", {})
+    gov = max(1, roof.get("gable_overhang", roof.get("overhang", 2)))
+    info = _chinese_gable_planes(grid, style, vol, roof.get("ridge_axis", "x"),
+                                 gable_overhang=gov,
+                                 eave_overhang=max(1, roof.get("overhang", 1)))
+    return _with_roofed_ids(_with_roof_type(info, "chinese_overhang_gable"),
+                            vol.id)
+
+
+def _chinese_half_hip_handler(grid: BlockGrid, style: Style, rng: random.Random,
+                              vol: Node, graph: Optional[Any] = None) -> dict:
+    """歇山: upper 悬山 gable over the gable wall + lower 45° 抱厦 skirt + 围脊."""
+    del rng
+    roof = vol.meta.get("roof", {})
+    ridge_axis = roof.get("ridge_axis", "x")
+    eave = max(1, roof.get("overhang", 1))
+    steps = 2 if min(vol.size[0], vol.size[2]) >= 9 else 1
+    skirt = _chinese_hip_skirt(grid, style, vol, steps, eave)
+    ix0, ix1, iz0, iz1 = skirt["inner_bounds"]
+    skirt_top = skirt["skirt_top_y"]
+    p = PRIORITY["ROOF"]
+    gable_cells: List[Pos] = []
+    roof_cells = list(skirt["roof_cells"])
+
+    if ix0 > ix1 or iz0 > iz1:
+        # Footprint too small for a skirt + gable; fall back to a closed hip.
+        info = _ring_roof(grid, style, (vol.x0 - eave, vol.x1 + eave,
+                                        vol.z0 - eave, vol.z1 + eave),
+                          wall_top_plus_one(vol))
+        info["roof_cells"] = roof_cells + info["roof_cells"]
+        return _with_roofed_ids(_with_roof_type(info, "chinese_half_hip"), vol.id)
+
+    # Upper gable sits on the inner rectangle, raised to the skirt top. Build it
+    # as a sub-volume whose wall_top equals the skirt top so the shared gable
+    # helper drops the slopes from there.
+    inner_wall_h = skirt_top - vol.meta["foundation_h"]
+    upper = Node(
+        id=f"{vol.id}_upper_gable", type="roof_tier",
+        origin=(ix0, vol.y0, iz0),
+        size=(ix1 - ix0 + 1, skirt_top - vol.y0, iz1 - iz0 + 1),
+        attach_to=vol.id, priority=vol.priority, tags=list(vol.tags),
+        meta={"foundation_h": vol.meta["foundation_h"], "wall_h": inner_wall_h},
+    )
+    upper_info = _chinese_gable_planes(grid, style, upper, ridge_axis,
+                                       gable_overhang=1, eave_overhang=1)
+    roof_cells += upper_info["roof_cells"]
+    gable_cells += upper_info["gable_cells"]
+
+    # 围脊: a ridge-tile course along the inner perimeter where the skirt meets
+    # the upper gable wall, sealing the gable-to-skirt seam.
+    weiji = style.slot_entry("ROOF_DARK", "_slab")
+    for x in range(ix0, ix1 + 1):
+        for z in (iz0, iz1):
+            pos = (x, skirt_top, z)
+            if grid.set(pos, weiji, ["ROOF", "PROTECTED"], p, "ROOF_DARK"):
+                roof_cells.append(pos)
+    for z in range(iz0 + 1, iz1):
+        for x in (ix0, ix1):
+            pos = (x, skirt_top, z)
+            if grid.set(pos, weiji, ["ROOF", "PROTECTED"], p, "ROOF_DARK"):
+                roof_cells.append(pos)
+
+    # Close any gap on the inner perimeter wall between the skirt top and the
+    # upper roof skin (gable-to-skirt seam closure — the half-hip roof-hole
+    # defect class from the side-wall-cleanup lesson).
+    gable_state, gable_slot = gable_infill(style)
+    peak_y = upper_info["peak_y"]
+    for x in range(ix0, ix1 + 1):
+        for z in (iz0, iz1):
+            _seal_seam_column(grid, (x, z), skirt_top, peak_y, gable_state,
+                              gable_slot, p, gable_cells)
+    for z in range(iz0 + 1, iz1):
+        for x in (ix0, ix1):
+            _seal_seam_column(grid, (x, z), skirt_top, peak_y, gable_state,
+                              gable_slot, p, gable_cells)
+
+    seam_columns = ({(x, z) for x in range(ix0, ix1 + 1) for z in (iz0, iz1)} |
+                    {(x, z) for z in range(iz0 + 1, iz1) for x in (ix0, ix1)})
+    seam_cells: List[Pos] = []
+    for x, z in sorted(seam_columns):
+        roof_y = next((y for y in range(skirt_top, peak_y + 2)
+                       if (grid.get((x, y, z)) is not None
+                           and "ROOF" in grid.get((x, y, z)).tags
+                           and "FACADE" not in grid.get((x, y, z)).tags)), None)
+        if roof_y is not None:
+            seam_cells.extend((x, y, z) for y in range(skirt_top, roof_y + 1))
+
+    info = {"gable_cells": gable_cells, "roof_cells": roof_cells,
+            "peak_y": peak_y, "skirt_top_y": skirt_top,
+            "seam_cells": seam_cells}
+    return _with_roofed_ids(_with_roof_type(info, "chinese_half_hip"), vol.id)
+
+
+def _chinese_round_ridge_handler(grid: BlockGrid, style: Style,
+                                 rng: random.Random, vol: Node,
+                                 graph: Optional[Any] = None) -> dict:
+    """卷棚: no main ridge block — the two slopes roll over a slab crown."""
+    del rng
+    roof = vol.meta.get("roof", {})
+    info = _chinese_gable_planes(grid, style, vol, roof.get("ridge_axis", "x"),
+                                 gable_overhang=max(0, roof.get("overhang", 1) - 1),
+                                 eave_overhang=max(1, roof.get("overhang", 1)),
+                                 rounded=True)
+    return _with_roofed_ids(_with_roof_type(info, "chinese_round_ridge"), vol.id)
+
+
+def wall_top_plus_one(vol: Node) -> int:
+    return vol.meta["foundation_h"] + vol.meta["wall_h"]
+
+
+def _seal_seam_column(grid: BlockGrid, cell: Tuple[int, int], y_lo: int,
+                      y_hi: int, state: str, slot: str, p: int,
+                      sink: List[Pos]) -> None:
+    x, z = cell
+    roof_y = None
+    for y in range(y_lo, y_hi + 2):
+        rc = grid.get((x, y, z))
+        if rc and "ROOF" in rc.tags and "FACADE" not in rc.tags:
+            roof_y = y
+            break
+    if roof_y is None:
+        return
+    for y in range(y_lo, roof_y):
+        if grid.is_empty((x, y, z)):
+            if grid.set((x, y, z), state, ["FACADE", "ROOF"], p, slot):
+                sink.append((x, y, z))
 
 
 # ---------------------------------------------------------------------------
@@ -2445,8 +2731,10 @@ register_roof("tiered_eave_roof", _tiered_eave_roof_handler)
 register_roof("pagoda", _pagoda_roof_handler)
 register_roof("pavilion", _pavilion_roof_handler)
 register_roof("bell_drum_tower", _bell_drum_tower_roof_handler)
-for _grade in ("硬山", "悬山", "歇山"):
-    register_roof(_grade, _chinese_roof_grade_handler)
+register_roof("chinese_flush_gable", _chinese_flush_gable_handler)
+register_roof("chinese_overhang_gable", _chinese_overhang_gable_handler)
+register_roof("chinese_half_hip", _chinese_half_hip_handler)
+register_roof("chinese_round_ridge", _chinese_round_ridge_handler)
 
 register_motif("woodpile", _woodpile_motif)
 register_motif("barrel_cluster", _barrel_cluster_motif)

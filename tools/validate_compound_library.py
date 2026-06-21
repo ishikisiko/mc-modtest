@@ -8,6 +8,7 @@ then verifies that the exported NBT and place/gallery functions exist and parse.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -18,7 +19,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from buildgen.nbtread import read_gzipped_nbt, state_string
 from buildgen.groups import get_group
 from buildgen.modset import load_modset
-from buildgen.style import load_style
+from buildgen.style import load_style, modset_namespaces
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MOD_ID = "myvillage"
@@ -203,7 +204,7 @@ def main() -> int:
     out_report = OUT_REPORT if args.group == "chinese_courtyard" else os.path.join(
         PROJECT_ROOT, "reports", f"{args.group}_compound_library_validation.json")
 
-    style = load_style(style_id)
+    style = load_style(style_id, modset_namespaces(args.profile))
     modset = load_modset(args.profile)
     errors = []
     if not os.path.isfile(report_path):
@@ -215,14 +216,24 @@ def main() -> int:
     compounds = data.get("compounds", [])
     if len(compounds) < args.count:
         errors.append(f"too_few_compounds: {len(compounds)} < {args.count}")
+    if args.group == "chinese_courtyard":
+        scores = data.get("silhouette_scores", [])
+        spread = max(scores) - min(scores) if scores else 0
+        if spread < 15:
+            errors.append(f"compound_silhouette_spread_too_low: {spread} < 15")
+        for slot in ("PLATFORM_STONE", "COLUMN"):
+            values = style.material_slots.get(slot, [])
+            if (not values or any(v == "minecraft:air" or
+                                  not v.startswith("minecraft:") for v in values)):
+                errors.append(f"non_vanilla_or_empty_slot: {slot}: {values}")
     if group.layout_strategy in ("courtyard_street_block", "town_generation"):
         variant_fields = (
             "rows", "courtyards_per_row", "street_width",
             "lane", "corner_frontage", "courtyard_size")
     else:
         variant_fields = (
-            "courtyard_size", "water_form", "planting_layout",
-            "roof_grade", "gate_style", "symmetry")
+            "courtyard_size", "roof_grade", "gate_type", "layout_type",
+            "main_orientation", "main_bays", "platform_tier")
     variant_keys = {
         tuple(c.get("variant", {}).get(k) for k in variant_fields)
         for c in compounds
@@ -253,6 +264,19 @@ def main() -> int:
                      require_landscape_features=require_landscape_features)
         for name in names
     ]
+    nbt_hashes = []
+    for name in names:
+        path = os.path.join(RES, "structure", f"{name}.nbt")
+        try:
+            with open(path, "rb") as handle:
+                nbt_hashes.append(hashlib.sha256(handle.read()).hexdigest())
+        except OSError:
+            nbt_hashes.append("")
+    if args.group == "chinese_courtyard":
+        duplicates = {value for value in nbt_hashes
+                      if value and nbt_hashes.count(value) > 1}
+        if duplicates:
+            errors.append(f"byte_identical_compounds: {len(duplicates)} duplicate hashes")
     fn_errors = validate_functions(style_id, names)
     failed_nbt = [r for r in nbt_results if not r["passed"]]
     if failed_nbt:
@@ -275,6 +299,9 @@ def main() -> int:
         "errors": errors,
         "total": len(nbt_results),
         "nbt_results": nbt_results,
+        "silhouette_scores": data.get("silhouette_scores", []),
+        "silhouette_spread": data.get("silhouette_spread"),
+        "nbt_sha256": nbt_hashes,
     }
     os.makedirs(os.path.dirname(out_report), exist_ok=True)
     with open(out_report, "w", encoding="utf-8") as f:

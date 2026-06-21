@@ -101,7 +101,16 @@ library:
 ```bash
 python3 tools/generate_compound_library.py --count 6
 python3 tools/validate_compound_library.py --count 6
+python3 tools/generate_compound_library.py --count 6 --profile vanilla
+python3 tools/validate_compound_library.py --count 6 --profile vanilla
 ```
+
+The six `chinese_courtyard_NNN` templates are rebuilt 一进 compounds: an outer
+yard with 影壁, one 垂花门 into the raised main yard, returning 抄手游廊, and a
+正房 fronted by 月台. Their filenames and `/myvillage place` commands are
+unchanged, but v0.15.0 regenerates their footprints, silhouettes, and interiors.
+Run the final full-profile generation after a vanilla-profile proof to restore
+the shipped artifact profile.
 
 Expected compound output:
 

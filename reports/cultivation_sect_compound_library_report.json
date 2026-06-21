@@ -16,8 +16,12 @@
         "water_form": "water_front_cloud_sea",
         "planting_layout": "mountain_cliff_edges",
         "roof_grade": "tiered_eave_roof",
-        "gate_style": "moon_gate_axis",
-        "symmetry": "axial"
+        "gate_type": "moon_gate_axis",
+        "symmetry": "axial",
+        "layout_type": "standard",
+        "main_orientation": "south",
+        "main_bays": 5,
+        "platform_tier": "stone_2"
       },
       "passed": true,
       "errors": [],
@@ -94,8 +98,12 @@
           "water_form": "water_front_cloud_sea",
           "planting_layout": "mountain_cliff_edges",
           "roof_grade": "tiered_eave_roof",
-          "gate_style": "moon_gate_axis",
-          "symmetry": "axial"
+          "gate_type": "moon_gate_axis",
+          "symmetry": "axial",
+          "layout_type": "standard",
+          "main_orientation": "south",
+          "main_bays": 5,
+          "platform_tier": "stone_2"
         },
         "lot_size": [
           77,
@@ -36223,8 +36231,12 @@
         "water_form": "water_front_cloud_sea",
         "planting_layout": "mountain_cliff_edges",
         "roof_grade": "tiered_eave_roof",
-        "gate_style": "moon_gate_axis",
-        "symmetry": "axial"
+        "gate_type": "moon_gate_axis",
+        "symmetry": "axial",
+        "layout_type": "standard",
+        "main_orientation": "south",
+        "main_bays": 5,
+        "platform_tier": "stone_2"
       },
       "passed": true,
       "errors": [],
@@ -36301,8 +36313,12 @@
           "water_form": "water_front_cloud_sea",
           "planting_layout": "mountain_cliff_edges",
           "roof_grade": "tiered_eave_roof",
-          "gate_style": "moon_gate_axis",
-          "symmetry": "axial"
+          "gate_type": "moon_gate_axis",
+          "symmetry": "axial",
+          "layout_type": "standard",
+          "main_orientation": "south",
+          "main_bays": 5,
+          "platform_tier": "stone_2"
         },
         "lot_size": [
           77,

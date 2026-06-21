@@ -78,5 +78,15 @@
       "block_count": 14481,
       "palette_count": 71
     }
+  ],
+  "silhouette_scores": [],
+  "silhouette_spread": null,
+  "nbt_sha256": [
+    "8c9e07ba333ff2e145a0358cf7fef4ea5a703cea9dae419c3bc41b485f9f1f94",
+    "203bbcd313ad615ef324cbdc814291d649d2f996eb6a90e8ba771939ae1580f8",
+    "cd003593800fa06c05385476a6623dad297626f6839c3e128e773462c1e5e0f1",
+    "310bf8aef0666d8c68218af95edecad616d28affc77a0f66a7b7e73c9bda9de9",
+    "091782b0f326dacbaab53f4e3740f36d485c228798ffc9e74279b8af78555680",
+    "41e06f92b9acb6c4e6043ff027b001b479022c4a71efbe0f346cc8f0cf536df3"
   ]
 }

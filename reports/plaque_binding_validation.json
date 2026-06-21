@@ -1,8 +1,8 @@
 {
   "bindings": "src/main/resources/data/myvillage/plaque_bindings.json",
   "passed": true,
-  "binding_count": 9,
-  "archetype_count": 9,
+  "binding_count": 10,
+  "archetype_count": 10,
   "bindings_by_archetype": {
     "cultivation_inn": [
       {
@@ -38,6 +38,17 @@
       }
     ],
     "lord_manor": [
+      {
+        "frame": "lord_manor_heraldry_5w",
+        "orientation": "horizontal",
+        "mount": "wall",
+        "bucket": "5w_1h",
+        "inscription": "myvillage:inscription/5w_1h/lord_manor_house",
+        "width": 5,
+        "height": 1
+      }
+    ],
+    "main_hall": [
       {
         "frame": "lord_manor_heraldry_5w",
         "orientation": "horizontal",

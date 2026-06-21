@@ -1236,48 +1236,106 @@ def _chinese_graph(archetype: str, tier: str) -> MassingGraph:
     })
 
 
-def _apply_chinese_roof(main: Node, roof_grade: str, axis: str = "x") -> None:
-    overhang = {"硬山": 1, "悬山": 2, "歇山": 1}.get(roof_grade, 1)
-    main.meta["roof"] = {
-        "type": "gable_roof",
-        "ridge_axis": axis,
-        "overhang": overhang,
-        "grade": roof_grade,
-    }
+# Vernacular bay (开间) naming, outward from the central 明间.
+CHINESE_BAY_NAMES = ("明间", "次间", "梢间", "尽间")
 
 
-def _chinese_zones(graph: MassingGraph, main: Node, kinds: Tuple[str, ...]) -> None:
+def _set_chinese_roof(main: Node, form: str, axis: str = "x") -> None:
+    """Route a Chinese sub-building's roof through the form registry by name.
+
+    ``form`` is one of the four registered vernacular forms; the variant-level
+    ``roof_grade`` (compound.CHINESE_ROOF_FORMS) overrides this later via
+    ``_apply_roof_grade``. No string-prefix dispatch: the form name IS the
+    registry key consumed by ``passes.roof_pass``.
+    """
+    roof = {"type": form, "ridge_axis": axis, "overhang": 1, "grade": form}
+    if form == "chinese_overhang_gable":
+        roof["gable_overhang"] = 2
+    main.meta["roof"] = roof
+
+
+def _chinese_bay_count(span: int) -> int:
+    """开间 count from the facade span — 3 / 5 / 7, always odd."""
+    if span >= 15:
+        return 7
+    if span >= 11:
+        return 5
+    return 3
+
+
+def _chinese_bay_zones(graph: MassingGraph, main: Node, center_kind: str,
+                       flank_kind: str, axis: str = "x",
+                       bays: Optional[int] = None,
+                       y: Optional[int] = None) -> int:
+    """Lay the 3/5/7-bay interior zone pattern (明间 / 次间 / 梢间 / 尽间).
+
+    The bays are placed as furnishing zones inside the single open volume (not a
+    separately-traversable timber frame); the central 明间 carries the principal
+    function, flanking bays the subordinate one. ``axis`` follows the ridge so
+    the bays run along the facade.
+    """
     ix0, ix1 = main.x0 + 1, main.x1 - 1
     iz0, iz1 = main.z0 + 1, main.z1 - 1
-    if len(kinds) == 1:
-        _zone(graph, main, kinds[0], (ix0, iz0, ix1, iz1))
-        return
-    split = (ix0 + ix1) // 2
-    _zone(graph, main, kinds[0], (ix0, iz0, split, iz1))
-    _zone(graph, main, kinds[1], (split + 1, iz0, ix1, iz1))
+    lo, hi = (ix0, ix1) if axis == "x" else (iz0, iz1)
+    span = hi - lo + 1
+    if bays is None:
+        bays = _chinese_bay_count(span)
+    bays = max(1, min(bays, span))
+    edges = [lo + round(i * span / bays) for i in range(bays + 1)]
+    mid = bays // 2
+    for i in range(bays):
+        b0, b1 = edges[i], edges[i + 1] - 1
+        if b1 < b0:
+            continue
+        dist = abs(i - mid)
+        kind = center_kind if dist == 0 else flank_kind
+        name = CHINESE_BAY_NAMES[min(dist, len(CHINESE_BAY_NAMES) - 1)]
+        region = (b0, iz0, b1, iz1) if axis == "x" else (ix0, b0, ix1, b1)
+        zone = _zone(graph, main, kind, region, y=y, suffix=f"bay{i}")
+        zone.meta["bay_name"] = name
+    graph.meta["bay_count"] = bays
+    return bays
 
 
-def build_main_hall(style: Style, rng: random.Random, tier: str) -> MassingGraph:
+# 开间 (main_bays) -> main-hall footprint (width, depth). The width widens with
+# the bay count so the silhouette reads the requested 形制; odd widths keep a
+# clean central 明间 and ridge line.
+MAIN_HALL_BAY_FOOTPRINT = {3: (13, 11), 5: (15, 11), 7: (17, 13)}
+
+
+def build_main_hall(style: Style, rng: random.Random, tier: str,
+                    overrides: Optional[dict] = None) -> MassingGraph:
     graph = _chinese_graph("main_hall", tier)
-    fh = 1
+    fh = 2  # 台基: a 2-tall stone plinth raises the principal hall
     story_wall_h = 4
     roof_grade = rng.choice(style.allowed_roof_types)
+    bays = (overrides or {}).get("main_bays")
+    if bays in MAIN_HALL_BAY_FOOTPRINT:
+        footprint = MAIN_HALL_BAY_FOOTPRINT[bays]
+    else:
+        footprint = rng.choice(SCALE_TIERS["main_hall"]["footprints"])
+        bays = None
     main = _main_volume(
         graph, style, rng, "main_hall", story_wall_h, fh,
         stories=2, story_wall_h=story_wall_h,
-        footprint=rng.choice(SCALE_TIERS["main_hall"]["footprints"]),
+        footprint=footprint,
         roof_axis="x", roof_overhang=1)
     main.meta["wall_type"] = "white_plaster_timber_wall"
-    _apply_chinese_roof(main, roof_grade, axis="x")
+    main.meta["door_centered"] = True
+    main.meta["entry_signage"] = True  # central-bay 匾 (see plaque_bindings.json)
+    _set_chinese_roof(main, roof_grade, axis="x")
     door_x = _door(graph, main, rng)
     _reserve_stairwell(graph, main, door_x)
+    _cultivation_platform(graph, main, door_x, pad=2, height=fh)
+    _cultivation_colonnade(graph, main, door_x, sides=("front",))
     _path_patch(graph, main, door_x, rng, main.z0)
-    _chinese_zones(graph, main, ("living", "work"))
+    _chinese_bay_zones(graph, main, "work", "living", axis="x", bays=bays)
     graph.meta["roof_grade"] = roof_grade
     return graph
 
 
-def build_side_wing(style: Style, rng: random.Random, tier: str) -> MassingGraph:
+def build_side_wing(style: Style, rng: random.Random, tier: str,
+                    overrides: Optional[dict] = None) -> MassingGraph:
     graph = _chinese_graph("side_wing", tier)
     fh = 1
     wall_h = 4
@@ -1287,15 +1345,18 @@ def build_side_wing(style: Style, rng: random.Random, tier: str) -> MassingGraph
         footprint=rng.choice(SCALE_TIERS["side_wing"]["footprints"]),
         roof_axis="z", roof_overhang=1)
     main.meta["wall_type"] = "white_plaster_timber_wall"
-    _apply_chinese_roof(main, roof_grade, axis="z")
+    _set_chinese_roof(main, roof_grade, axis="z")
     door_x = _door(graph, main, rng)
+    _cultivation_platform(graph, main, door_x, pad=1, height=fh)
+    _cultivation_colonnade(graph, main, door_x, sides=("front",))
     _path_patch(graph, main, door_x, rng, main.z0)
-    _chinese_zones(graph, main, ("living", "storage"))
+    _chinese_bay_zones(graph, main, "living", "storage", axis="z")
     graph.meta["roof_grade"] = roof_grade
     return graph
 
 
-def build_front_row(style: Style, rng: random.Random, tier: str) -> MassingGraph:
+def build_front_row(style: Style, rng: random.Random, tier: str,
+                    overrides: Optional[dict] = None) -> MassingGraph:
     graph = _chinese_graph("front_row", tier)
     fh = 1
     wall_h = 4
@@ -1305,15 +1366,18 @@ def build_front_row(style: Style, rng: random.Random, tier: str) -> MassingGraph
         footprint=rng.choice(SCALE_TIERS["front_row"]["footprints"]),
         roof_axis="x", roof_overhang=1)
     main.meta["wall_type"] = "white_plaster_timber_wall"
-    _apply_chinese_roof(main, roof_grade, axis="x")
+    _set_chinese_roof(main, roof_grade, axis="x")
     door_x = _door(graph, main, rng)
+    _cultivation_platform(graph, main, door_x, pad=1, height=fh)
+    _cultivation_colonnade(graph, main, door_x, sides=("front",))
     _path_patch(graph, main, door_x, rng, main.z0)
-    _chinese_zones(graph, main, ("work", "storage"))
+    _chinese_bay_zones(graph, main, "work", "storage", axis="x")
     graph.meta["roof_grade"] = roof_grade
     return graph
 
 
-def build_gate_house(style: Style, rng: random.Random, tier: str) -> MassingGraph:
+def build_gate_house(style: Style, rng: random.Random, tier: str,
+                     overrides: Optional[dict] = None) -> MassingGraph:
     graph = _chinese_graph("gate_house", tier)
     fh = 1
     wall_h = 4
@@ -1323,10 +1387,13 @@ def build_gate_house(style: Style, rng: random.Random, tier: str) -> MassingGrap
         footprint=rng.choice(SCALE_TIERS["gate_house"]["footprints"]),
         roof_axis="x", roof_overhang=1)
     main.meta["wall_type"] = "white_plaster_timber_wall"
-    _apply_chinese_roof(main, roof_grade, axis="x")
+    main.meta["door_centered"] = True
+    _set_chinese_roof(main, roof_grade, axis="x")
     door_x = _door(graph, main, rng)
+    _cultivation_platform(graph, main, door_x, pad=1, height=fh)
+    _cultivation_colonnade(graph, main, door_x, sides=("front",))
     _path_patch(graph, main, door_x, rng, main.z0)
-    _chinese_zones(graph, main, ("storage",))
+    _chinese_bay_zones(graph, main, "storage", "storage", axis="x")
     graph.meta["roof_grade"] = roof_grade
     return graph
 
@@ -2028,11 +2095,15 @@ BUILDERS = {
 
 def build_massing(archetype: str, style: Style, rng: random.Random, tier: str,
                   group_id: Optional[str] = None,
-                  importance_tier: Optional[int] = None) -> MassingGraph:
+                  importance_tier: Optional[int] = None,
+                  overrides: Optional[dict] = None) -> MassingGraph:
     if group_id:
         from .groups import validate_group_archetype
         validate_group_archetype(group_id, style.style_id, archetype)
-    graph = BUILDERS[archetype](style, rng, tier)
+    if overrides and archetype in CHINESE_ARCHETYPES:
+        graph = BUILDERS[archetype](style, rng, tier, overrides=overrides)
+    else:
+        graph = BUILDERS[archetype](style, rng, tier)
     graph.meta["style_id"] = style.style_id
     if group_id:
         graph.meta["group_id"] = group_id

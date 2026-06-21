@@ -59,9 +59,11 @@ CULTIVATION_FAMILIES = {"cultivation_town", "cultivation_sect"}
 GABLE_FAMILY_ROOFS = {
     "gable_roof",
     "cross_gable_roof",
-    "硬山",
-    "悬山",
-    "歇山",
+    # Vernacular Chinese forms with a triangular gable end wall to enclose.
+    # 歇山 (chinese_half_hip) and 卷棚 (chinese_round_ridge) carry their own
+    # skirt/curved eave semantics and self-seal, so they are excluded here.
+    "chinese_flush_gable",
+    "chinese_overhang_gable",
 }
 WESTERN_DOMESTIC_MOTIFS = {
     "small_porch",
@@ -143,11 +145,19 @@ def quality_check(ctx: BuildContext, structure_id: str) -> dict:
     if open_gables:
         errors.append(f"open_gable: {open_gables} unsealed gable cells")
     invoked_roofs = {info.get("roof_type") for info in ctx.roof_info if info.get("roof_type")}
-    unknown_roof_forms = sorted(invoked_roofs - set(style.allowed_roof_types) -
-                                {"硬山", "悬山", "歇山"})
+    unknown_roof_forms = sorted(invoked_roofs - set(style.allowed_roof_types))
     if unknown_roof_forms:
         errors.append(f"roof_form_not_allowed: {unknown_roof_forms}")
     for info in ctx.roof_info:
+        if info.get("roof_type") == "chinese_half_hip":
+            open_seam = [pos for pos in info.get("seam_cells", [])
+                         if grid.is_empty(pos)]
+            if not info.get("seam_cells"):
+                errors.append("chinese_half_hip_missing_seam_contract")
+            elif open_seam:
+                errors.append(
+                    f"chinese_half_hip_open_seam: {len(open_seam)} cells "
+                    f"(e.g. {open_seam[0]})")
         if (info.get("roof_type") in TIERED_DERIVATIVE_FORMS
                 and not info.get("fallback")
                 and info.get("tier_count", 0) < 2):

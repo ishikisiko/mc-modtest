@@ -672,28 +672,29 @@
       "errors": [],
       "warnings": [],
       "size": [
-        39,
-        18,
-        46
+        47,
+        22,
+        47
       ],
-      "palette_count": 44,
-      "block_count": 4524,
+      "palette_count": 58,
+      "block_count": 9131,
       "entity_count": 0,
-      "roof_block_count": 702,
+      "roof_block_count": 652,
       "top_layer_counts": {
-        "15": 48,
-        "16": 44,
-        "17": 21
+        "19": 36,
+        "20": 32,
+        "21": 15
       },
       "key_state_counts": {
-        "minecraft:barrel": 9,
-        "minecraft:crafting_table": 5,
-        "minecraft:dark_oak_log": 530,
-        "minecraft:dark_oak_planks": 97,
-        "minecraft:dark_oak_slab": 178,
-        "minecraft:dark_oak_stairs": 1042,
-        "minecraft:furnace": 3,
-        "minecraft:stripped_dark_oak_log": 70
+        "minecraft:barrel": 32,
+        "minecraft:crafting_table": 8,
+        "minecraft:dark_oak_log": 421,
+        "minecraft:dark_oak_planks": 68,
+        "minecraft:dark_oak_slab": 422,
+        "minecraft:dark_oak_stairs": 759,
+        "minecraft:furnace": 6,
+        "minecraft:stripped_dark_oak_log": 242,
+        "supplementaries:stone_tile_stairs": 304
       }
     },
     {
@@ -702,28 +703,29 @@
       "errors": [],
       "warnings": [],
       "size": [
-        47,
-        19,
-        47
+        39,
+        21,
+        46
       ],
-      "palette_count": 44,
-      "block_count": 4766,
+      "palette_count": 56,
+      "block_count": 6026,
       "entity_count": 0,
-      "roof_block_count": 701,
+      "roof_block_count": 580,
       "top_layer_counts": {
-        "16": 48,
-        "17": 44,
-        "18": 21
+        "18": 32,
+        "19": 28,
+        "20": 13
       },
       "key_state_counts": {
-        "minecraft:barrel": 8,
+        "minecraft:barrel": 19,
         "minecraft:crafting_table": 5,
-        "minecraft:dark_oak_log": 559,
-        "minecraft:dark_oak_planks": 95,
-        "minecraft:dark_oak_slab": 181,
-        "minecraft:dark_oak_stairs": 1038,
-        "minecraft:furnace": 3,
-        "minecraft:stripped_dark_oak_log": 56
+        "minecraft:dark_oak_log": 342,
+        "minecraft:dark_oak_planks": 45,
+        "minecraft:dark_oak_slab": 297,
+        "minecraft:dark_oak_stairs": 563,
+        "minecraft:furnace": 4,
+        "minecraft:stripped_dark_oak_log": 154,
+        "supplementaries:stone_tile_stairs": 240
       }
     },
     {
@@ -732,28 +734,28 @@
       "errors": [],
       "warnings": [],
       "size": [
-        47,
-        18,
-        48
+        43,
+        20,
+        47
       ],
-      "palette_count": 44,
-      "block_count": 4616,
+      "palette_count": 53,
+      "block_count": 7105,
       "entity_count": 0,
-      "roof_block_count": 665,
+      "roof_block_count": 440,
       "top_layer_counts": {
-        "15": 48,
-        "16": 44,
-        "17": 21
+        "17": 40,
+        "18": 36,
+        "19": 17
       },
       "key_state_counts": {
-        "minecraft:barrel": 11,
-        "minecraft:crafting_table": 5,
-        "minecraft:dark_oak_log": 558,
-        "minecraft:dark_oak_planks": 97,
-        "minecraft:dark_oak_slab": 182,
-        "minecraft:dark_oak_stairs": 1008,
-        "minecraft:furnace": 3,
-        "minecraft:stripped_dark_oak_log": 45
+        "minecraft:barrel": 30,
+        "minecraft:crafting_table": 8,
+        "minecraft:dark_oak_log": 455,
+        "minecraft:dark_oak_planks": 72,
+        "minecraft:dark_oak_slab": 238,
+        "minecraft:dark_oak_stairs": 838,
+        "minecraft:furnace": 6,
+        "minecraft:stripped_dark_oak_log": 193
       }
     },
     {
@@ -763,27 +765,26 @@
       "warnings": [],
       "size": [
         39,
-        18,
-        46
+        20,
+        45
       ],
-      "palette_count": 44,
-      "block_count": 4427,
+      "palette_count": 50,
+      "block_count": 6356,
       "entity_count": 0,
-      "roof_block_count": 659,
+      "roof_block_count": 354,
       "top_layer_counts": {
-        "15": 48,
-        "16": 44,
-        "17": 21
+        "17": 32,
+        "18": 28,
+        "19": 13
       },
       "key_state_counts": {
-        "minecraft:barrel": 10,
+        "minecraft:barrel": 22,
         "minecraft:crafting_table": 5,
-        "minecraft:dark_oak_log": 532,
-        "minecraft:dark_oak_planks": 95,
-        "minecraft:dark_oak_slab": 190,
-        "minecraft:dark_oak_stairs": 992,
-        "minecraft:furnace": 3,
-        "minecraft:stripped_dark_oak_log": 51
+        "minecraft:dark_oak_log": 350,
+        "minecraft:dark_oak_slab": 267,
+        "minecraft:dark_oak_stairs": 610,
+        "minecraft:furnace": 4,
+        "minecraft:stripped_dark_oak_log": 166
       }
     },
     {
@@ -792,28 +793,28 @@
       "errors": [],
       "warnings": [],
       "size": [
-        43,
-        18,
-        48
+        47,
+        22,
+        47
       ],
-      "palette_count": 43,
-      "block_count": 4094,
+      "palette_count": 51,
+      "block_count": 9109,
       "entity_count": 0,
-      "roof_block_count": 491,
+      "roof_block_count": 500,
       "top_layer_counts": {
-        "15": 44,
-        "16": 40,
-        "17": 19
+        "19": 44,
+        "20": 40,
+        "21": 19
       },
       "key_state_counts": {
-        "minecraft:barrel": 8,
-        "minecraft:crafting_table": 5,
-        "minecraft:dark_oak_log": 494,
-        "minecraft:dark_oak_planks": 85,
-        "minecraft:dark_oak_slab": 184,
-        "minecraft:dark_oak_stairs": 803,
-        "minecraft:furnace": 3,
-        "minecraft:stripped_dark_oak_log": 97
+        "minecraft:barrel": 32,
+        "minecraft:crafting_table": 10,
+        "minecraft:dark_oak_log": 513,
+        "minecraft:dark_oak_planks": 78,
+        "minecraft:dark_oak_slab": 273,
+        "minecraft:dark_oak_stairs": 920,
+        "minecraft:furnace": 8,
+        "minecraft:stripped_dark_oak_log": 199
       }
     },
     {
@@ -822,28 +823,28 @@
       "errors": [],
       "warnings": [],
       "size": [
-        47,
-        19,
-        48
+        43,
+        20,
+        47
       ],
-      "palette_count": 42,
-      "block_count": 4617,
+      "palette_count": 47,
+      "block_count": 6153,
       "entity_count": 0,
-      "roof_block_count": 601,
+      "roof_block_count": 334,
       "top_layer_counts": {
-        "16": 48,
-        "17": 44,
-        "18": 21
+        "17": 32,
+        "18": 28,
+        "19": 13
       },
       "key_state_counts": {
-        "minecraft:barrel": 9,
+        "minecraft:barrel": 18,
         "minecraft:crafting_table": 5,
-        "minecraft:dark_oak_log": 557,
-        "minecraft:dark_oak_planks": 91,
-        "minecraft:dark_oak_slab": 186,
-        "minecraft:dark_oak_stairs": 929,
-        "minecraft:furnace": 3,
-        "minecraft:stripped_dark_oak_log": 71
+        "minecraft:dark_oak_log": 307,
+        "minecraft:dark_oak_planks": 43,
+        "minecraft:dark_oak_slab": 226,
+        "minecraft:dark_oak_stairs": 588,
+        "minecraft:furnace": 4,
+        "minecraft:stripped_dark_oak_log": 193
       }
     },
     {
@@ -1586,26 +1587,26 @@
       "errors": [],
       "warnings": [],
       "size": [
-        23,
-        12,
-        12
+        21,
+        11,
+        11
       ],
-      "palette_count": 25,
-      "block_count": 745,
+      "palette_count": 29,
+      "block_count": 726,
       "entity_count": 0,
-      "roof_block_count": 253,
+      "roof_block_count": 196,
       "top_layer_counts": {
-        "9": 52,
-        "10": 48,
-        "11": 23
+        "8": 44,
+        "9": 40,
+        "10": 19
       },
       "key_state_counts": {
-        "minecraft:barrel": 2,
+        "minecraft:barrel": 9,
         "minecraft:crafting_table": 1,
         "minecraft:dark_oak_log": 102,
-        "minecraft:dark_oak_planks": 23,
-        "minecraft:dark_oak_stairs": 232,
-        "minecraft:stripped_dark_oak_log": 19
+        "minecraft:dark_oak_slab": 44,
+        "minecraft:dark_oak_stairs": 155,
+        "minecraft:stripped_dark_oak_log": 53
       }
     },
     {
@@ -1722,27 +1723,27 @@
       "warnings": [],
       "size": [
         21,
-        19,
-        17
+        18,
+        19
       ],
-      "palette_count": 27,
-      "block_count": 1416,
+      "palette_count": 38,
+      "block_count": 1883,
       "entity_count": 0,
-      "roof_block_count": 357,
+      "roof_block_count": 310,
       "top_layer_counts": {
-        "16": 48,
-        "17": 44,
-        "18": 21
+        "15": 44,
+        "16": 40,
+        "17": 19
       },
       "key_state_counts": {
-        "minecraft:barrel": 1,
-        "minecraft:crafting_table": 2,
-        "minecraft:dark_oak_log": 196,
-        "minecraft:dark_oak_planks": 21,
-        "minecraft:dark_oak_slab": 10,
-        "minecraft:dark_oak_stairs": 342,
-        "minecraft:furnace": 1,
-        "minecraft:stripped_dark_oak_log": 17
+        "minecraft:barrel": 6,
+        "minecraft:crafting_table": 7,
+        "minecraft:dark_oak_log": 195,
+        "minecraft:dark_oak_planks": 19,
+        "minecraft:dark_oak_slab": 25,
+        "minecraft:dark_oak_stairs": 275,
+        "minecraft:furnace": 6,
+        "minecraft:stripped_dark_oak_log": 67
       }
     },
     {
@@ -2637,27 +2638,29 @@
       "errors": [],
       "warnings": [],
       "size": [
-        9,
         11,
-        21
+        13,
+        18
       ],
-      "palette_count": 29,
-      "block_count": 568,
+      "palette_count": 34,
+      "block_count": 737,
       "entity_count": 0,
-      "roof_block_count": 171,
+      "roof_block_count": 269,
       "top_layer_counts": {
-        "8": 44,
-        "9": 40,
-        "10": 19
+        "10": 36,
+        "11": 32,
+        "12": 15
       },
       "key_state_counts": {
-        "minecraft:barrel": 3,
+        "minecraft:barrel": 7,
         "minecraft:crafting_table": 1,
-        "minecraft:dark_oak_log": 86,
-        "minecraft:dark_oak_planks": 19,
-        "minecraft:dark_oak_stairs": 154,
+        "minecraft:dark_oak_log": 91,
+        "minecraft:dark_oak_planks": 15,
+        "minecraft:dark_oak_slab": 50,
+        "minecraft:dark_oak_stairs": 122,
         "minecraft:furnace": 1,
-        "minecraft:stripped_dark_oak_log": 25
+        "minecraft:stripped_dark_oak_log": 39,
+        "supplementaries:stone_tile_stairs": 96
       }
     },
     {

@@ -12,3 +12,22 @@ default medieval building library and the Chinese courtyard compound loop.
 
 Civic interiors resolve role blocks through `INTERIOR_CIVIC`, `FURNITURE`,
 `SIGNAGE`, and `HERALDRY` slots in `medieval_village.json`.
+
+## Courtyard family rebuild
+
+The `chinese_courtyard` family is a separate vernacular compound library. Its
+built form uses four registry-backed roofs: `chinese_flush_gable` (硬山),
+`chinese_overhang_gable` (悬山), `chinese_half_hip` (歇山), and
+`chinese_round_ridge` (卷棚). Sub-buildings share the cultivation massing
+grammar's `PLATFORM_STONE` 台基 and standoff `COLUMN` 檐廊 slots, populated by
+vanilla-only materials in this style.
+
+The shipped 一进 plan has an outer yard and raised main yard separated by one
+垂花门. A street-side 影壁 blocks the axial sightline; two 抄手游廊 return from
+the gate flanks to the 正房/月台. The six deterministic templates vary
+`layout_type`, `main_orientation`, `main_bays`, `roof_grade`, `platform_tier`,
+and `gate_type`; water and planting remain minor seeded axes.
+
+See also: [courtyard-compound](../../openspec/specs/courtyard-compound/spec.md),
+[chinese-vernacular-roof-vocabulary](../../openspec/changes/rebuild-chinese-courtyard/specs/chinese-vernacular-roof-vocabulary/spec.md),
+and [style-profile](../../openspec/specs/style-profile/spec.md).

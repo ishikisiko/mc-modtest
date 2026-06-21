@@ -38,6 +38,7 @@ class BuildContext:
     rng: random.Random
     group_id: Optional[str] = None
     importance_tier: Optional[int] = None
+    form_overrides: dict = field(default_factory=dict)
     graph: Optional[MassingGraph] = None
     grid: BlockGrid = field(default_factory=BlockGrid)
     door_info: Optional[dict] = None
@@ -51,7 +52,8 @@ class BuildContext:
 
 def massing_pass(ctx: BuildContext) -> None:
     ctx.graph = build_massing(ctx.archetype, ctx.style, ctx.rng, ctx.scale_tier,
-                              ctx.group_id, ctx.importance_tier)
+                              ctx.group_id, ctx.importance_tier,
+                              ctx.form_overrides or None)
     ctx.passes_run.append("massing_pass")
 
 

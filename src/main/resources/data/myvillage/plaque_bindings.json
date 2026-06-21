@@ -1,6 +1,16 @@
 {
   "version": 1,
   "bindings": {
+    "main_hall": [
+      {
+        "frame": "lord_manor_heraldry_5w",
+        "orientation": "horizontal",
+        "mount": "wall",
+        "inscription_pool": [
+          {"bucket": "5w_1h", "id": "lord_manor_house"}
+        ]
+      }
+    ],
     "cultivation_shop": [
       {
         "frame": "town_shop_wood_3w",

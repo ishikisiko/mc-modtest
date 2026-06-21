@@ -13,6 +13,16 @@ together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
 ### Changed
 
+- **Chinese courtyard library rebuilt as 一进四合院**
+  (`rebuild-chinese-courtyard`). Replaced the shared manor-like shell with real
+  硬山/悬山/歇山/卷棚 registry forms, 台基, 檐廊, and 3/5/7-bay hierarchy. The
+  parcel plan now separates outer and main yards with 影壁, one 垂花门, two
+  returning 抄手游廊, and a 月台. Six deterministic templates vary plan and
+  roofline, with full/vanilla validation and legacy-family byte-stability
+  guards. **Breaking:** `chinese_courtyard_001..006.nbt` retain their resource
+  names but have regenerated footprints, silhouettes, and interiors; existing
+  placed blocks are unaffected, while future placements use the rebuilt NBTs.
+
 - **Region runtime binding (洲/域 runtime)** (`add-region-runtime-binding`).
   The macro layer's offline-only era ends: a passive runtime companion now
   consumes the per-seed region graph in-game. The anchor (中州) center is placed

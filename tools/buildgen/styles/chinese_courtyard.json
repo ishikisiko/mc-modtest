@@ -6,6 +6,16 @@
       "minecraft:andesite",
       "minecraft:polished_andesite"
     ],
+    "PLATFORM_STONE": [
+      "minecraft:stone_bricks",
+      "minecraft:polished_andesite",
+      "minecraft:smooth_stone"
+    ],
+    "COLUMN": [
+      "minecraft:stripped_dark_oak_log",
+      "minecraft:dark_oak_log",
+      "minecraft:oak_fence"
+    ],
     "WALL_MAIN": [
       "minecraft:calcite",
       "minecraft:diorite"
@@ -104,9 +114,10 @@
     "WALL_MAIN": 0.08
   },
   "allowed_roof_types": [
-    "硬山",
-    "悬山",
-    "歇山"
+    "chinese_flush_gable",
+    "chinese_overhang_gable",
+    "chinese_half_hip",
+    "chinese_round_ridge"
   ],
   "allowed_wall_types": [
     "white_plaster_timber_wall",
@@ -157,9 +168,10 @@
   ],
   "proportions": {
     "wall_height": [3, 5],
-    "roof_height_ratio": [0.4, 0.75],
-    "foundation_height": [1, 1],
-    "roof_overhang": [1, 1],
+    "roof_height_ratio": [0.4, 0.55],
+    "foundation_height": [1, 2],
+    "platform_height": [0, 3],
+    "roof_overhang": [1, 2],
     "max_flat_wall_width": 4,
     "window_min_count": 2,
     "interior_required_function_blocks": 2,

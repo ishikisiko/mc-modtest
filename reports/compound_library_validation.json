@@ -11,36 +11,36 @@
       "passed": true,
       "errors": [],
       "size": [
-        39,
-        18,
-        46
+        47,
+        22,
+        47
       ],
-      "block_count": 6611,
-      "palette_count": 44
+      "block_count": 10920,
+      "palette_count": 58
     },
     {
       "name": "chinese_courtyard_002",
       "passed": true,
       "errors": [],
       "size": [
-        47,
-        19,
-        47
+        39,
+        21,
+        46
       ],
-      "block_count": 6985,
-      "palette_count": 44
+      "block_count": 7365,
+      "palette_count": 56
     },
     {
       "name": "chinese_courtyard_003",
       "passed": true,
       "errors": [],
       "size": [
-        47,
-        18,
-        48
+        43,
+        20,
+        47
       ],
-      "block_count": 6630,
-      "palette_count": 44
+      "block_count": 8793,
+      "palette_count": 53
     },
     {
       "name": "chinese_courtyard_004",
@@ -48,35 +48,52 @@
       "errors": [],
       "size": [
         39,
-        18,
-        46
+        20,
+        45
       ],
-      "block_count": 6437,
-      "palette_count": 44
+      "block_count": 7667,
+      "palette_count": 50
     },
     {
       "name": "chinese_courtyard_005",
       "passed": true,
       "errors": [],
       "size": [
-        43,
-        18,
-        48
+        47,
+        22,
+        47
       ],
-      "block_count": 6015,
-      "palette_count": 43
+      "block_count": 11161,
+      "palette_count": 51
     },
     {
       "name": "chinese_courtyard_006",
       "passed": true,
       "errors": [],
       "size": [
-        47,
-        19,
-        48
+        43,
+        20,
+        47
       ],
-      "block_count": 6939,
-      "palette_count": 42
+      "block_count": 7383,
+      "palette_count": 47
     }
+  ],
+  "silhouette_scores": [
+    94,
+    78,
+    90,
+    76,
+    98,
+    76
+  ],
+  "silhouette_spread": 22,
+  "nbt_sha256": [
+    "32416594144d84f819201653493d91d0ce0973f31030935315b4551efb7c4fe5",
+    "9c1d94f684f2860eae7a89361c17a019d2980697e338099f503a4f58bbd1bf48",
+    "d7ee1f8210864493d3e8147c9598422d795cf1423c0d26147cbd5df7f914a5cd",
+    "6090d8f1c641526109f6e6f9b1ec750758d6af05ca9795423d99717f98248b10",
+    "bdc310cb76cd748f340550c9c401f75f73a14716bdd92c53212693b44fb85b90",
+    "fa63507db5ff634ee37a0ac5bded3e2e6b0edfc71e3f39bf6a15a71ca142358f"
   ]
 }

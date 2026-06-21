@@ -14,6 +14,7 @@ Outputs:
 from __future__ import annotations
 
 import argparse
+from copy import deepcopy
 import json
 import os
 import sys
@@ -208,7 +209,9 @@ def main() -> int:
         report = validate_compound(compound)
         if not report["passed"]:
             raise RuntimeError(f"{name} failed compound validation: {report['errors']}")
-        _, info = export.write_structure_nbt(compound.grid, style.style_id, name)
+        # Export normalizes its grid in place; keep the parcel graph in world
+        # coordinates for the whole-library structural acceptance pass below.
+        _, info = export.write_structure_nbt(deepcopy(compound.grid), style.style_id, name)
         export.write_place_function(style.style_id, name)
         report["name"] = name
         report["export"] = info
@@ -222,7 +225,12 @@ def main() -> int:
 
     gallery_path = export.write_gallery_function(style.style_id, entries,
                                                  spacing_x=56, spacing_z=60)
-    library_report = validate_compound_library(compounds, min_distinct=args.count)
+    structure_names = [entry["name"] for entry in entries]
+    structure_dir = os.path.join(PROJECT_ROOT, "src", "main", "resources",
+                                 "data", "myvillage", "structure")
+    library_report = validate_compound_library(
+        compounds, min_distinct=args.count, structure_dir=structure_dir,
+        structure_names=structure_names)
     summary = {
         "style_id": style.style_id,
         "requested": args.count,
@@ -230,6 +238,10 @@ def main() -> int:
         "passed": library_report["passed"],
         "errors": library_report["errors"],
         "distinct_variants": library_report["distinct_variants"],
+        "silhouette_scores": library_report["silhouette_scores"],
+        "silhouette_spread": library_report["silhouette_spread"],
+        "min_silhouette_spread": library_report["min_silhouette_spread"],
+        "nbt_sha256": library_report["nbt_sha256"],
         "gallery_function": os.path.relpath(gallery_path, PROJECT_ROOT),
         "standalone_reports": standalone_reports,
         "compounds": compound_reports,

@@ -1,0 +1,151 @@
+{
+  "note": "Step-0 baseline before rebuild-chinese-courtyard form rebuild (task 1.1)",
+  "nbt_sha256": {
+    "chinese_courtyard_001.nbt": "f2aebb388c372094c834de707c2c549ea8005ecb3ba436587d806c2b159aa48a",
+    "chinese_courtyard_002.nbt": "20a510a9ce4c717d7abf3b17db2ff537484654b81abc4ba641235924e6fbce44",
+    "chinese_courtyard_003.nbt": "6a5f280eeabb0d84d0b8ddbf442090812a8436742a9b8e3d688d20a8b3091407",
+    "chinese_courtyard_004.nbt": "32f63c99e17d4b54156f25953649b7fe6917b1947564834e8024ba15da3dfd95",
+    "chinese_courtyard_005.nbt": "7741dde407d37a6088a7804a45d811a7a41f9817b0ee7837b8eef5d125d01e04",
+    "chinese_courtyard_006.nbt": "3a343fc433ff4582038f9a6c544864a8cc7007544f31c31d02907feeb44b7aed"
+  },
+  "compounds": [
+    {
+      "name": "chinese_courtyard_001",
+      "seed": 20260614,
+      "variant": {
+        "courtyard_size": "small",
+        "water_form": "well",
+        "planting_layout": "corner_beds",
+        "roof_grade": "悬山",
+        "gate_style": "double_eave_gate",
+        "symmetry": "mild_asymmetry"
+      },
+      "stats": {
+        "lot_size": [
+          39,
+          45
+        ],
+        "building_slots": 5,
+        "water_cells": 9,
+        "planting_cells": 40,
+        "path_cells": 48,
+        "corridor_cells": 23
+      }
+    },
+    {
+      "name": "chinese_courtyard_002",
+      "seed": 20260816,
+      "variant": {
+        "courtyard_size": "large",
+        "water_form": "channel",
+        "planting_layout": "side_beds",
+        "roof_grade": "悬山",
+        "gate_style": "lantern_gate",
+        "symmetry": "mild_asymmetry"
+      },
+      "stats": {
+        "lot_size": [
+          47,
+          47
+        ],
+        "building_slots": 5,
+        "water_cells": 34,
+        "planting_cells": 41,
+        "path_cells": 48,
+        "corridor_cells": 37
+      }
+    },
+    {
+      "name": "chinese_courtyard_003",
+      "seed": 20260917,
+      "variant": {
+        "courtyard_size": "large",
+        "water_form": "pool",
+        "planting_layout": "asymmetric_beds",
+        "roof_grade": "悬山",
+        "gate_style": "lantern_gate",
+        "symmetry": "strict_mirror"
+      },
+      "stats": {
+        "lot_size": [
+          47,
+          47
+        ],
+        "building_slots": 5,
+        "water_cells": 25,
+        "planting_cells": 36,
+        "path_cells": 48,
+        "corridor_cells": 38
+      }
+    },
+    {
+      "name": "chinese_courtyard_004",
+      "seed": 20261018,
+      "variant": {
+        "courtyard_size": "small",
+        "water_form": "channel",
+        "planting_layout": "corner_beds",
+        "roof_grade": "悬山",
+        "gate_style": "double_eave_gate",
+        "symmetry": "strict_mirror"
+      },
+      "stats": {
+        "lot_size": [
+          39,
+          45
+        ],
+        "building_slots": 5,
+        "water_cells": 34,
+        "planting_cells": 42,
+        "path_cells": 50,
+        "corridor_cells": 28
+      }
+    },
+    {
+      "name": "chinese_courtyard_005",
+      "seed": 20261119,
+      "variant": {
+        "courtyard_size": "medium",
+        "water_form": "well",
+        "planting_layout": "asymmetric_beds",
+        "roof_grade": "歇山",
+        "gate_style": "double_eave_gate",
+        "symmetry": "mild_asymmetry"
+      },
+      "stats": {
+        "lot_size": [
+          43,
+          47
+        ],
+        "building_slots": 5,
+        "water_cells": 9,
+        "planting_cells": 33,
+        "path_cells": 50,
+        "corridor_cells": 34
+      }
+    },
+    {
+      "name": "chinese_courtyard_006",
+      "seed": 20261220,
+      "variant": {
+        "courtyard_size": "large",
+        "water_form": "pool",
+        "planting_layout": "asymmetric_beds",
+        "roof_grade": "硬山",
+        "gate_style": "lantern_gate",
+        "symmetry": "mild_asymmetry"
+      },
+      "stats": {
+        "lot_size": [
+          47,
+          47
+        ],
+        "building_slots": 5,
+        "water_cells": 25,
+        "planting_cells": 36,
+        "path_cells": 50,
+        "corridor_cells": 32
+      }
+    }
+  ]
+}
