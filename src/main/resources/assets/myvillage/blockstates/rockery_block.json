@@ -1,0 +1,1948 @@
+{
+  "variants": {
+    "facing=north,moss_level=none,variant=peak_01": {
+      "model": "myvillage:block/rockery_block/peak_01"
+    },
+    "facing=east,moss_level=none,variant=peak_01": {
+      "model": "myvillage:block/rockery_block/peak_01",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=peak_01": {
+      "model": "myvillage:block/rockery_block/peak_01",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=peak_01": {
+      "model": "myvillage:block/rockery_block/peak_01",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=peak_01": {
+      "model": "myvillage:block/rockery_block/peak_01"
+    },
+    "facing=east,moss_level=light,variant=peak_01": {
+      "model": "myvillage:block/rockery_block/peak_01",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=peak_01": {
+      "model": "myvillage:block/rockery_block/peak_01",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=peak_01": {
+      "model": "myvillage:block/rockery_block/peak_01",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=peak_01": {
+      "model": "myvillage:block/rockery_block/peak_01"
+    },
+    "facing=east,moss_level=heavy,variant=peak_01": {
+      "model": "myvillage:block/rockery_block/peak_01",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=peak_01": {
+      "model": "myvillage:block/rockery_block/peak_01",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=peak_01": {
+      "model": "myvillage:block/rockery_block/peak_01",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=peak_02": {
+      "model": "myvillage:block/rockery_block/peak_02"
+    },
+    "facing=east,moss_level=none,variant=peak_02": {
+      "model": "myvillage:block/rockery_block/peak_02",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=peak_02": {
+      "model": "myvillage:block/rockery_block/peak_02",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=peak_02": {
+      "model": "myvillage:block/rockery_block/peak_02",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=peak_02": {
+      "model": "myvillage:block/rockery_block/peak_02"
+    },
+    "facing=east,moss_level=light,variant=peak_02": {
+      "model": "myvillage:block/rockery_block/peak_02",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=peak_02": {
+      "model": "myvillage:block/rockery_block/peak_02",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=peak_02": {
+      "model": "myvillage:block/rockery_block/peak_02",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=peak_02": {
+      "model": "myvillage:block/rockery_block/peak_02"
+    },
+    "facing=east,moss_level=heavy,variant=peak_02": {
+      "model": "myvillage:block/rockery_block/peak_02",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=peak_02": {
+      "model": "myvillage:block/rockery_block/peak_02",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=peak_02": {
+      "model": "myvillage:block/rockery_block/peak_02",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=peak_03": {
+      "model": "myvillage:block/rockery_block/peak_03"
+    },
+    "facing=east,moss_level=none,variant=peak_03": {
+      "model": "myvillage:block/rockery_block/peak_03",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=peak_03": {
+      "model": "myvillage:block/rockery_block/peak_03",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=peak_03": {
+      "model": "myvillage:block/rockery_block/peak_03",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=peak_03": {
+      "model": "myvillage:block/rockery_block/peak_03"
+    },
+    "facing=east,moss_level=light,variant=peak_03": {
+      "model": "myvillage:block/rockery_block/peak_03",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=peak_03": {
+      "model": "myvillage:block/rockery_block/peak_03",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=peak_03": {
+      "model": "myvillage:block/rockery_block/peak_03",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=peak_03": {
+      "model": "myvillage:block/rockery_block/peak_03"
+    },
+    "facing=east,moss_level=heavy,variant=peak_03": {
+      "model": "myvillage:block/rockery_block/peak_03",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=peak_03": {
+      "model": "myvillage:block/rockery_block/peak_03",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=peak_03": {
+      "model": "myvillage:block/rockery_block/peak_03",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=peak_04": {
+      "model": "myvillage:block/rockery_block/peak_04"
+    },
+    "facing=east,moss_level=none,variant=peak_04": {
+      "model": "myvillage:block/rockery_block/peak_04",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=peak_04": {
+      "model": "myvillage:block/rockery_block/peak_04",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=peak_04": {
+      "model": "myvillage:block/rockery_block/peak_04",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=peak_04": {
+      "model": "myvillage:block/rockery_block/peak_04"
+    },
+    "facing=east,moss_level=light,variant=peak_04": {
+      "model": "myvillage:block/rockery_block/peak_04",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=peak_04": {
+      "model": "myvillage:block/rockery_block/peak_04",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=peak_04": {
+      "model": "myvillage:block/rockery_block/peak_04",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=peak_04": {
+      "model": "myvillage:block/rockery_block/peak_04"
+    },
+    "facing=east,moss_level=heavy,variant=peak_04": {
+      "model": "myvillage:block/rockery_block/peak_04",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=peak_04": {
+      "model": "myvillage:block/rockery_block/peak_04",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=peak_04": {
+      "model": "myvillage:block/rockery_block/peak_04",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=peak_05": {
+      "model": "myvillage:block/rockery_block/peak_05"
+    },
+    "facing=east,moss_level=none,variant=peak_05": {
+      "model": "myvillage:block/rockery_block/peak_05",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=peak_05": {
+      "model": "myvillage:block/rockery_block/peak_05",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=peak_05": {
+      "model": "myvillage:block/rockery_block/peak_05",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=peak_05": {
+      "model": "myvillage:block/rockery_block/peak_05"
+    },
+    "facing=east,moss_level=light,variant=peak_05": {
+      "model": "myvillage:block/rockery_block/peak_05",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=peak_05": {
+      "model": "myvillage:block/rockery_block/peak_05",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=peak_05": {
+      "model": "myvillage:block/rockery_block/peak_05",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=peak_05": {
+      "model": "myvillage:block/rockery_block/peak_05"
+    },
+    "facing=east,moss_level=heavy,variant=peak_05": {
+      "model": "myvillage:block/rockery_block/peak_05",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=peak_05": {
+      "model": "myvillage:block/rockery_block/peak_05",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=peak_05": {
+      "model": "myvillage:block/rockery_block/peak_05",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=peak_06": {
+      "model": "myvillage:block/rockery_block/peak_06"
+    },
+    "facing=east,moss_level=none,variant=peak_06": {
+      "model": "myvillage:block/rockery_block/peak_06",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=peak_06": {
+      "model": "myvillage:block/rockery_block/peak_06",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=peak_06": {
+      "model": "myvillage:block/rockery_block/peak_06",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=peak_06": {
+      "model": "myvillage:block/rockery_block/peak_06"
+    },
+    "facing=east,moss_level=light,variant=peak_06": {
+      "model": "myvillage:block/rockery_block/peak_06",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=peak_06": {
+      "model": "myvillage:block/rockery_block/peak_06",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=peak_06": {
+      "model": "myvillage:block/rockery_block/peak_06",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=peak_06": {
+      "model": "myvillage:block/rockery_block/peak_06"
+    },
+    "facing=east,moss_level=heavy,variant=peak_06": {
+      "model": "myvillage:block/rockery_block/peak_06",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=peak_06": {
+      "model": "myvillage:block/rockery_block/peak_06",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=peak_06": {
+      "model": "myvillage:block/rockery_block/peak_06",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=peak_07": {
+      "model": "myvillage:block/rockery_block/peak_07"
+    },
+    "facing=east,moss_level=none,variant=peak_07": {
+      "model": "myvillage:block/rockery_block/peak_07",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=peak_07": {
+      "model": "myvillage:block/rockery_block/peak_07",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=peak_07": {
+      "model": "myvillage:block/rockery_block/peak_07",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=peak_07": {
+      "model": "myvillage:block/rockery_block/peak_07"
+    },
+    "facing=east,moss_level=light,variant=peak_07": {
+      "model": "myvillage:block/rockery_block/peak_07",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=peak_07": {
+      "model": "myvillage:block/rockery_block/peak_07",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=peak_07": {
+      "model": "myvillage:block/rockery_block/peak_07",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=peak_07": {
+      "model": "myvillage:block/rockery_block/peak_07"
+    },
+    "facing=east,moss_level=heavy,variant=peak_07": {
+      "model": "myvillage:block/rockery_block/peak_07",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=peak_07": {
+      "model": "myvillage:block/rockery_block/peak_07",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=peak_07": {
+      "model": "myvillage:block/rockery_block/peak_07",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=peak_08": {
+      "model": "myvillage:block/rockery_block/peak_08"
+    },
+    "facing=east,moss_level=none,variant=peak_08": {
+      "model": "myvillage:block/rockery_block/peak_08",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=peak_08": {
+      "model": "myvillage:block/rockery_block/peak_08",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=peak_08": {
+      "model": "myvillage:block/rockery_block/peak_08",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=peak_08": {
+      "model": "myvillage:block/rockery_block/peak_08"
+    },
+    "facing=east,moss_level=light,variant=peak_08": {
+      "model": "myvillage:block/rockery_block/peak_08",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=peak_08": {
+      "model": "myvillage:block/rockery_block/peak_08",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=peak_08": {
+      "model": "myvillage:block/rockery_block/peak_08",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=peak_08": {
+      "model": "myvillage:block/rockery_block/peak_08"
+    },
+    "facing=east,moss_level=heavy,variant=peak_08": {
+      "model": "myvillage:block/rockery_block/peak_08",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=peak_08": {
+      "model": "myvillage:block/rockery_block/peak_08",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=peak_08": {
+      "model": "myvillage:block/rockery_block/peak_08",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=peak_09": {
+      "model": "myvillage:block/rockery_block/peak_09"
+    },
+    "facing=east,moss_level=none,variant=peak_09": {
+      "model": "myvillage:block/rockery_block/peak_09",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=peak_09": {
+      "model": "myvillage:block/rockery_block/peak_09",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=peak_09": {
+      "model": "myvillage:block/rockery_block/peak_09",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=peak_09": {
+      "model": "myvillage:block/rockery_block/peak_09"
+    },
+    "facing=east,moss_level=light,variant=peak_09": {
+      "model": "myvillage:block/rockery_block/peak_09",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=peak_09": {
+      "model": "myvillage:block/rockery_block/peak_09",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=peak_09": {
+      "model": "myvillage:block/rockery_block/peak_09",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=peak_09": {
+      "model": "myvillage:block/rockery_block/peak_09"
+    },
+    "facing=east,moss_level=heavy,variant=peak_09": {
+      "model": "myvillage:block/rockery_block/peak_09",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=peak_09": {
+      "model": "myvillage:block/rockery_block/peak_09",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=peak_09": {
+      "model": "myvillage:block/rockery_block/peak_09",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=slope_01": {
+      "model": "myvillage:block/rockery_block/slope_01"
+    },
+    "facing=east,moss_level=none,variant=slope_01": {
+      "model": "myvillage:block/rockery_block/slope_01",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=slope_01": {
+      "model": "myvillage:block/rockery_block/slope_01",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=slope_01": {
+      "model": "myvillage:block/rockery_block/slope_01",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=slope_01": {
+      "model": "myvillage:block/rockery_block/slope_01"
+    },
+    "facing=east,moss_level=light,variant=slope_01": {
+      "model": "myvillage:block/rockery_block/slope_01",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=slope_01": {
+      "model": "myvillage:block/rockery_block/slope_01",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=slope_01": {
+      "model": "myvillage:block/rockery_block/slope_01",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=slope_01": {
+      "model": "myvillage:block/rockery_block/slope_01"
+    },
+    "facing=east,moss_level=heavy,variant=slope_01": {
+      "model": "myvillage:block/rockery_block/slope_01",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=slope_01": {
+      "model": "myvillage:block/rockery_block/slope_01",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=slope_01": {
+      "model": "myvillage:block/rockery_block/slope_01",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=slope_02": {
+      "model": "myvillage:block/rockery_block/slope_02"
+    },
+    "facing=east,moss_level=none,variant=slope_02": {
+      "model": "myvillage:block/rockery_block/slope_02",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=slope_02": {
+      "model": "myvillage:block/rockery_block/slope_02",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=slope_02": {
+      "model": "myvillage:block/rockery_block/slope_02",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=slope_02": {
+      "model": "myvillage:block/rockery_block/slope_02"
+    },
+    "facing=east,moss_level=light,variant=slope_02": {
+      "model": "myvillage:block/rockery_block/slope_02",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=slope_02": {
+      "model": "myvillage:block/rockery_block/slope_02",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=slope_02": {
+      "model": "myvillage:block/rockery_block/slope_02",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=slope_02": {
+      "model": "myvillage:block/rockery_block/slope_02"
+    },
+    "facing=east,moss_level=heavy,variant=slope_02": {
+      "model": "myvillage:block/rockery_block/slope_02",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=slope_02": {
+      "model": "myvillage:block/rockery_block/slope_02",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=slope_02": {
+      "model": "myvillage:block/rockery_block/slope_02",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=slope_03": {
+      "model": "myvillage:block/rockery_block/slope_03"
+    },
+    "facing=east,moss_level=none,variant=slope_03": {
+      "model": "myvillage:block/rockery_block/slope_03",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=slope_03": {
+      "model": "myvillage:block/rockery_block/slope_03",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=slope_03": {
+      "model": "myvillage:block/rockery_block/slope_03",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=slope_03": {
+      "model": "myvillage:block/rockery_block/slope_03"
+    },
+    "facing=east,moss_level=light,variant=slope_03": {
+      "model": "myvillage:block/rockery_block/slope_03",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=slope_03": {
+      "model": "myvillage:block/rockery_block/slope_03",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=slope_03": {
+      "model": "myvillage:block/rockery_block/slope_03",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=slope_03": {
+      "model": "myvillage:block/rockery_block/slope_03"
+    },
+    "facing=east,moss_level=heavy,variant=slope_03": {
+      "model": "myvillage:block/rockery_block/slope_03",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=slope_03": {
+      "model": "myvillage:block/rockery_block/slope_03",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=slope_03": {
+      "model": "myvillage:block/rockery_block/slope_03",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=slope_04": {
+      "model": "myvillage:block/rockery_block/slope_04"
+    },
+    "facing=east,moss_level=none,variant=slope_04": {
+      "model": "myvillage:block/rockery_block/slope_04",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=slope_04": {
+      "model": "myvillage:block/rockery_block/slope_04",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=slope_04": {
+      "model": "myvillage:block/rockery_block/slope_04",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=slope_04": {
+      "model": "myvillage:block/rockery_block/slope_04"
+    },
+    "facing=east,moss_level=light,variant=slope_04": {
+      "model": "myvillage:block/rockery_block/slope_04",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=slope_04": {
+      "model": "myvillage:block/rockery_block/slope_04",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=slope_04": {
+      "model": "myvillage:block/rockery_block/slope_04",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=slope_04": {
+      "model": "myvillage:block/rockery_block/slope_04"
+    },
+    "facing=east,moss_level=heavy,variant=slope_04": {
+      "model": "myvillage:block/rockery_block/slope_04",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=slope_04": {
+      "model": "myvillage:block/rockery_block/slope_04",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=slope_04": {
+      "model": "myvillage:block/rockery_block/slope_04",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=slope_05": {
+      "model": "myvillage:block/rockery_block/slope_05"
+    },
+    "facing=east,moss_level=none,variant=slope_05": {
+      "model": "myvillage:block/rockery_block/slope_05",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=slope_05": {
+      "model": "myvillage:block/rockery_block/slope_05",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=slope_05": {
+      "model": "myvillage:block/rockery_block/slope_05",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=slope_05": {
+      "model": "myvillage:block/rockery_block/slope_05"
+    },
+    "facing=east,moss_level=light,variant=slope_05": {
+      "model": "myvillage:block/rockery_block/slope_05",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=slope_05": {
+      "model": "myvillage:block/rockery_block/slope_05",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=slope_05": {
+      "model": "myvillage:block/rockery_block/slope_05",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=slope_05": {
+      "model": "myvillage:block/rockery_block/slope_05"
+    },
+    "facing=east,moss_level=heavy,variant=slope_05": {
+      "model": "myvillage:block/rockery_block/slope_05",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=slope_05": {
+      "model": "myvillage:block/rockery_block/slope_05",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=slope_05": {
+      "model": "myvillage:block/rockery_block/slope_05",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=slope_06": {
+      "model": "myvillage:block/rockery_block/slope_06"
+    },
+    "facing=east,moss_level=none,variant=slope_06": {
+      "model": "myvillage:block/rockery_block/slope_06",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=slope_06": {
+      "model": "myvillage:block/rockery_block/slope_06",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=slope_06": {
+      "model": "myvillage:block/rockery_block/slope_06",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=slope_06": {
+      "model": "myvillage:block/rockery_block/slope_06"
+    },
+    "facing=east,moss_level=light,variant=slope_06": {
+      "model": "myvillage:block/rockery_block/slope_06",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=slope_06": {
+      "model": "myvillage:block/rockery_block/slope_06",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=slope_06": {
+      "model": "myvillage:block/rockery_block/slope_06",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=slope_06": {
+      "model": "myvillage:block/rockery_block/slope_06"
+    },
+    "facing=east,moss_level=heavy,variant=slope_06": {
+      "model": "myvillage:block/rockery_block/slope_06",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=slope_06": {
+      "model": "myvillage:block/rockery_block/slope_06",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=slope_06": {
+      "model": "myvillage:block/rockery_block/slope_06",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=slope_07": {
+      "model": "myvillage:block/rockery_block/slope_07"
+    },
+    "facing=east,moss_level=none,variant=slope_07": {
+      "model": "myvillage:block/rockery_block/slope_07",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=slope_07": {
+      "model": "myvillage:block/rockery_block/slope_07",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=slope_07": {
+      "model": "myvillage:block/rockery_block/slope_07",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=slope_07": {
+      "model": "myvillage:block/rockery_block/slope_07"
+    },
+    "facing=east,moss_level=light,variant=slope_07": {
+      "model": "myvillage:block/rockery_block/slope_07",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=slope_07": {
+      "model": "myvillage:block/rockery_block/slope_07",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=slope_07": {
+      "model": "myvillage:block/rockery_block/slope_07",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=slope_07": {
+      "model": "myvillage:block/rockery_block/slope_07"
+    },
+    "facing=east,moss_level=heavy,variant=slope_07": {
+      "model": "myvillage:block/rockery_block/slope_07",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=slope_07": {
+      "model": "myvillage:block/rockery_block/slope_07",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=slope_07": {
+      "model": "myvillage:block/rockery_block/slope_07",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=slope_08": {
+      "model": "myvillage:block/rockery_block/slope_08"
+    },
+    "facing=east,moss_level=none,variant=slope_08": {
+      "model": "myvillage:block/rockery_block/slope_08",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=slope_08": {
+      "model": "myvillage:block/rockery_block/slope_08",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=slope_08": {
+      "model": "myvillage:block/rockery_block/slope_08",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=slope_08": {
+      "model": "myvillage:block/rockery_block/slope_08"
+    },
+    "facing=east,moss_level=light,variant=slope_08": {
+      "model": "myvillage:block/rockery_block/slope_08",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=slope_08": {
+      "model": "myvillage:block/rockery_block/slope_08",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=slope_08": {
+      "model": "myvillage:block/rockery_block/slope_08",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=slope_08": {
+      "model": "myvillage:block/rockery_block/slope_08"
+    },
+    "facing=east,moss_level=heavy,variant=slope_08": {
+      "model": "myvillage:block/rockery_block/slope_08",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=slope_08": {
+      "model": "myvillage:block/rockery_block/slope_08",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=slope_08": {
+      "model": "myvillage:block/rockery_block/slope_08",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=slope_09": {
+      "model": "myvillage:block/rockery_block/slope_09"
+    },
+    "facing=east,moss_level=none,variant=slope_09": {
+      "model": "myvillage:block/rockery_block/slope_09",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=slope_09": {
+      "model": "myvillage:block/rockery_block/slope_09",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=slope_09": {
+      "model": "myvillage:block/rockery_block/slope_09",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=slope_09": {
+      "model": "myvillage:block/rockery_block/slope_09"
+    },
+    "facing=east,moss_level=light,variant=slope_09": {
+      "model": "myvillage:block/rockery_block/slope_09",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=slope_09": {
+      "model": "myvillage:block/rockery_block/slope_09",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=slope_09": {
+      "model": "myvillage:block/rockery_block/slope_09",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=slope_09": {
+      "model": "myvillage:block/rockery_block/slope_09"
+    },
+    "facing=east,moss_level=heavy,variant=slope_09": {
+      "model": "myvillage:block/rockery_block/slope_09",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=slope_09": {
+      "model": "myvillage:block/rockery_block/slope_09",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=slope_09": {
+      "model": "myvillage:block/rockery_block/slope_09",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=base_01": {
+      "model": "myvillage:block/rockery_block/base_01"
+    },
+    "facing=east,moss_level=none,variant=base_01": {
+      "model": "myvillage:block/rockery_block/base_01",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=base_01": {
+      "model": "myvillage:block/rockery_block/base_01",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=base_01": {
+      "model": "myvillage:block/rockery_block/base_01",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=base_01": {
+      "model": "myvillage:block/rockery_block/base_01"
+    },
+    "facing=east,moss_level=light,variant=base_01": {
+      "model": "myvillage:block/rockery_block/base_01",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=base_01": {
+      "model": "myvillage:block/rockery_block/base_01",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=base_01": {
+      "model": "myvillage:block/rockery_block/base_01",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=base_01": {
+      "model": "myvillage:block/rockery_block/base_01"
+    },
+    "facing=east,moss_level=heavy,variant=base_01": {
+      "model": "myvillage:block/rockery_block/base_01",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=base_01": {
+      "model": "myvillage:block/rockery_block/base_01",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=base_01": {
+      "model": "myvillage:block/rockery_block/base_01",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=base_02": {
+      "model": "myvillage:block/rockery_block/base_02"
+    },
+    "facing=east,moss_level=none,variant=base_02": {
+      "model": "myvillage:block/rockery_block/base_02",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=base_02": {
+      "model": "myvillage:block/rockery_block/base_02",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=base_02": {
+      "model": "myvillage:block/rockery_block/base_02",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=base_02": {
+      "model": "myvillage:block/rockery_block/base_02"
+    },
+    "facing=east,moss_level=light,variant=base_02": {
+      "model": "myvillage:block/rockery_block/base_02",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=base_02": {
+      "model": "myvillage:block/rockery_block/base_02",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=base_02": {
+      "model": "myvillage:block/rockery_block/base_02",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=base_02": {
+      "model": "myvillage:block/rockery_block/base_02"
+    },
+    "facing=east,moss_level=heavy,variant=base_02": {
+      "model": "myvillage:block/rockery_block/base_02",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=base_02": {
+      "model": "myvillage:block/rockery_block/base_02",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=base_02": {
+      "model": "myvillage:block/rockery_block/base_02",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=base_03": {
+      "model": "myvillage:block/rockery_block/base_03"
+    },
+    "facing=east,moss_level=none,variant=base_03": {
+      "model": "myvillage:block/rockery_block/base_03",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=base_03": {
+      "model": "myvillage:block/rockery_block/base_03",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=base_03": {
+      "model": "myvillage:block/rockery_block/base_03",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=base_03": {
+      "model": "myvillage:block/rockery_block/base_03"
+    },
+    "facing=east,moss_level=light,variant=base_03": {
+      "model": "myvillage:block/rockery_block/base_03",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=base_03": {
+      "model": "myvillage:block/rockery_block/base_03",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=base_03": {
+      "model": "myvillage:block/rockery_block/base_03",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=base_03": {
+      "model": "myvillage:block/rockery_block/base_03"
+    },
+    "facing=east,moss_level=heavy,variant=base_03": {
+      "model": "myvillage:block/rockery_block/base_03",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=base_03": {
+      "model": "myvillage:block/rockery_block/base_03",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=base_03": {
+      "model": "myvillage:block/rockery_block/base_03",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=base_04": {
+      "model": "myvillage:block/rockery_block/base_04"
+    },
+    "facing=east,moss_level=none,variant=base_04": {
+      "model": "myvillage:block/rockery_block/base_04",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=base_04": {
+      "model": "myvillage:block/rockery_block/base_04",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=base_04": {
+      "model": "myvillage:block/rockery_block/base_04",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=base_04": {
+      "model": "myvillage:block/rockery_block/base_04"
+    },
+    "facing=east,moss_level=light,variant=base_04": {
+      "model": "myvillage:block/rockery_block/base_04",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=base_04": {
+      "model": "myvillage:block/rockery_block/base_04",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=base_04": {
+      "model": "myvillage:block/rockery_block/base_04",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=base_04": {
+      "model": "myvillage:block/rockery_block/base_04"
+    },
+    "facing=east,moss_level=heavy,variant=base_04": {
+      "model": "myvillage:block/rockery_block/base_04",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=base_04": {
+      "model": "myvillage:block/rockery_block/base_04",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=base_04": {
+      "model": "myvillage:block/rockery_block/base_04",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=base_05": {
+      "model": "myvillage:block/rockery_block/base_05"
+    },
+    "facing=east,moss_level=none,variant=base_05": {
+      "model": "myvillage:block/rockery_block/base_05",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=base_05": {
+      "model": "myvillage:block/rockery_block/base_05",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=base_05": {
+      "model": "myvillage:block/rockery_block/base_05",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=base_05": {
+      "model": "myvillage:block/rockery_block/base_05"
+    },
+    "facing=east,moss_level=light,variant=base_05": {
+      "model": "myvillage:block/rockery_block/base_05",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=base_05": {
+      "model": "myvillage:block/rockery_block/base_05",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=base_05": {
+      "model": "myvillage:block/rockery_block/base_05",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=base_05": {
+      "model": "myvillage:block/rockery_block/base_05"
+    },
+    "facing=east,moss_level=heavy,variant=base_05": {
+      "model": "myvillage:block/rockery_block/base_05",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=base_05": {
+      "model": "myvillage:block/rockery_block/base_05",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=base_05": {
+      "model": "myvillage:block/rockery_block/base_05",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=base_06": {
+      "model": "myvillage:block/rockery_block/base_06"
+    },
+    "facing=east,moss_level=none,variant=base_06": {
+      "model": "myvillage:block/rockery_block/base_06",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=base_06": {
+      "model": "myvillage:block/rockery_block/base_06",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=base_06": {
+      "model": "myvillage:block/rockery_block/base_06",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=base_06": {
+      "model": "myvillage:block/rockery_block/base_06"
+    },
+    "facing=east,moss_level=light,variant=base_06": {
+      "model": "myvillage:block/rockery_block/base_06",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=base_06": {
+      "model": "myvillage:block/rockery_block/base_06",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=base_06": {
+      "model": "myvillage:block/rockery_block/base_06",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=base_06": {
+      "model": "myvillage:block/rockery_block/base_06"
+    },
+    "facing=east,moss_level=heavy,variant=base_06": {
+      "model": "myvillage:block/rockery_block/base_06",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=base_06": {
+      "model": "myvillage:block/rockery_block/base_06",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=base_06": {
+      "model": "myvillage:block/rockery_block/base_06",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=base_07": {
+      "model": "myvillage:block/rockery_block/base_07"
+    },
+    "facing=east,moss_level=none,variant=base_07": {
+      "model": "myvillage:block/rockery_block/base_07",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=base_07": {
+      "model": "myvillage:block/rockery_block/base_07",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=base_07": {
+      "model": "myvillage:block/rockery_block/base_07",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=base_07": {
+      "model": "myvillage:block/rockery_block/base_07"
+    },
+    "facing=east,moss_level=light,variant=base_07": {
+      "model": "myvillage:block/rockery_block/base_07",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=base_07": {
+      "model": "myvillage:block/rockery_block/base_07",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=base_07": {
+      "model": "myvillage:block/rockery_block/base_07",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=base_07": {
+      "model": "myvillage:block/rockery_block/base_07"
+    },
+    "facing=east,moss_level=heavy,variant=base_07": {
+      "model": "myvillage:block/rockery_block/base_07",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=base_07": {
+      "model": "myvillage:block/rockery_block/base_07",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=base_07": {
+      "model": "myvillage:block/rockery_block/base_07",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=corner_01": {
+      "model": "myvillage:block/rockery_block/corner_01"
+    },
+    "facing=east,moss_level=none,variant=corner_01": {
+      "model": "myvillage:block/rockery_block/corner_01",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=corner_01": {
+      "model": "myvillage:block/rockery_block/corner_01",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=corner_01": {
+      "model": "myvillage:block/rockery_block/corner_01",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=corner_01": {
+      "model": "myvillage:block/rockery_block/corner_01"
+    },
+    "facing=east,moss_level=light,variant=corner_01": {
+      "model": "myvillage:block/rockery_block/corner_01",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=corner_01": {
+      "model": "myvillage:block/rockery_block/corner_01",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=corner_01": {
+      "model": "myvillage:block/rockery_block/corner_01",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=corner_01": {
+      "model": "myvillage:block/rockery_block/corner_01"
+    },
+    "facing=east,moss_level=heavy,variant=corner_01": {
+      "model": "myvillage:block/rockery_block/corner_01",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=corner_01": {
+      "model": "myvillage:block/rockery_block/corner_01",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=corner_01": {
+      "model": "myvillage:block/rockery_block/corner_01",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=corner_02": {
+      "model": "myvillage:block/rockery_block/corner_02"
+    },
+    "facing=east,moss_level=none,variant=corner_02": {
+      "model": "myvillage:block/rockery_block/corner_02",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=corner_02": {
+      "model": "myvillage:block/rockery_block/corner_02",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=corner_02": {
+      "model": "myvillage:block/rockery_block/corner_02",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=corner_02": {
+      "model": "myvillage:block/rockery_block/corner_02"
+    },
+    "facing=east,moss_level=light,variant=corner_02": {
+      "model": "myvillage:block/rockery_block/corner_02",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=corner_02": {
+      "model": "myvillage:block/rockery_block/corner_02",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=corner_02": {
+      "model": "myvillage:block/rockery_block/corner_02",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=corner_02": {
+      "model": "myvillage:block/rockery_block/corner_02"
+    },
+    "facing=east,moss_level=heavy,variant=corner_02": {
+      "model": "myvillage:block/rockery_block/corner_02",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=corner_02": {
+      "model": "myvillage:block/rockery_block/corner_02",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=corner_02": {
+      "model": "myvillage:block/rockery_block/corner_02",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=corner_03": {
+      "model": "myvillage:block/rockery_block/corner_03"
+    },
+    "facing=east,moss_level=none,variant=corner_03": {
+      "model": "myvillage:block/rockery_block/corner_03",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=corner_03": {
+      "model": "myvillage:block/rockery_block/corner_03",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=corner_03": {
+      "model": "myvillage:block/rockery_block/corner_03",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=corner_03": {
+      "model": "myvillage:block/rockery_block/corner_03"
+    },
+    "facing=east,moss_level=light,variant=corner_03": {
+      "model": "myvillage:block/rockery_block/corner_03",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=corner_03": {
+      "model": "myvillage:block/rockery_block/corner_03",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=corner_03": {
+      "model": "myvillage:block/rockery_block/corner_03",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=corner_03": {
+      "model": "myvillage:block/rockery_block/corner_03"
+    },
+    "facing=east,moss_level=heavy,variant=corner_03": {
+      "model": "myvillage:block/rockery_block/corner_03",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=corner_03": {
+      "model": "myvillage:block/rockery_block/corner_03",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=corner_03": {
+      "model": "myvillage:block/rockery_block/corner_03",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=corner_04": {
+      "model": "myvillage:block/rockery_block/corner_04"
+    },
+    "facing=east,moss_level=none,variant=corner_04": {
+      "model": "myvillage:block/rockery_block/corner_04",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=corner_04": {
+      "model": "myvillage:block/rockery_block/corner_04",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=corner_04": {
+      "model": "myvillage:block/rockery_block/corner_04",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=corner_04": {
+      "model": "myvillage:block/rockery_block/corner_04"
+    },
+    "facing=east,moss_level=light,variant=corner_04": {
+      "model": "myvillage:block/rockery_block/corner_04",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=corner_04": {
+      "model": "myvillage:block/rockery_block/corner_04",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=corner_04": {
+      "model": "myvillage:block/rockery_block/corner_04",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=corner_04": {
+      "model": "myvillage:block/rockery_block/corner_04"
+    },
+    "facing=east,moss_level=heavy,variant=corner_04": {
+      "model": "myvillage:block/rockery_block/corner_04",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=corner_04": {
+      "model": "myvillage:block/rockery_block/corner_04",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=corner_04": {
+      "model": "myvillage:block/rockery_block/corner_04",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=corner_05": {
+      "model": "myvillage:block/rockery_block/corner_05"
+    },
+    "facing=east,moss_level=none,variant=corner_05": {
+      "model": "myvillage:block/rockery_block/corner_05",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=corner_05": {
+      "model": "myvillage:block/rockery_block/corner_05",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=corner_05": {
+      "model": "myvillage:block/rockery_block/corner_05",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=corner_05": {
+      "model": "myvillage:block/rockery_block/corner_05"
+    },
+    "facing=east,moss_level=light,variant=corner_05": {
+      "model": "myvillage:block/rockery_block/corner_05",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=corner_05": {
+      "model": "myvillage:block/rockery_block/corner_05",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=corner_05": {
+      "model": "myvillage:block/rockery_block/corner_05",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=corner_05": {
+      "model": "myvillage:block/rockery_block/corner_05"
+    },
+    "facing=east,moss_level=heavy,variant=corner_05": {
+      "model": "myvillage:block/rockery_block/corner_05",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=corner_05": {
+      "model": "myvillage:block/rockery_block/corner_05",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=corner_05": {
+      "model": "myvillage:block/rockery_block/corner_05",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=standalone_01": {
+      "model": "myvillage:block/rockery_block/standalone_01"
+    },
+    "facing=east,moss_level=none,variant=standalone_01": {
+      "model": "myvillage:block/rockery_block/standalone_01",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=standalone_01": {
+      "model": "myvillage:block/rockery_block/standalone_01",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=standalone_01": {
+      "model": "myvillage:block/rockery_block/standalone_01",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=standalone_01": {
+      "model": "myvillage:block/rockery_block/standalone_01"
+    },
+    "facing=east,moss_level=light,variant=standalone_01": {
+      "model": "myvillage:block/rockery_block/standalone_01",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=standalone_01": {
+      "model": "myvillage:block/rockery_block/standalone_01",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=standalone_01": {
+      "model": "myvillage:block/rockery_block/standalone_01",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=standalone_01": {
+      "model": "myvillage:block/rockery_block/standalone_01"
+    },
+    "facing=east,moss_level=heavy,variant=standalone_01": {
+      "model": "myvillage:block/rockery_block/standalone_01",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=standalone_01": {
+      "model": "myvillage:block/rockery_block/standalone_01",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=standalone_01": {
+      "model": "myvillage:block/rockery_block/standalone_01",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=standalone_02": {
+      "model": "myvillage:block/rockery_block/standalone_02"
+    },
+    "facing=east,moss_level=none,variant=standalone_02": {
+      "model": "myvillage:block/rockery_block/standalone_02",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=standalone_02": {
+      "model": "myvillage:block/rockery_block/standalone_02",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=standalone_02": {
+      "model": "myvillage:block/rockery_block/standalone_02",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=standalone_02": {
+      "model": "myvillage:block/rockery_block/standalone_02"
+    },
+    "facing=east,moss_level=light,variant=standalone_02": {
+      "model": "myvillage:block/rockery_block/standalone_02",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=standalone_02": {
+      "model": "myvillage:block/rockery_block/standalone_02",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=standalone_02": {
+      "model": "myvillage:block/rockery_block/standalone_02",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=standalone_02": {
+      "model": "myvillage:block/rockery_block/standalone_02"
+    },
+    "facing=east,moss_level=heavy,variant=standalone_02": {
+      "model": "myvillage:block/rockery_block/standalone_02",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=standalone_02": {
+      "model": "myvillage:block/rockery_block/standalone_02",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=standalone_02": {
+      "model": "myvillage:block/rockery_block/standalone_02",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=standalone_03": {
+      "model": "myvillage:block/rockery_block/standalone_03"
+    },
+    "facing=east,moss_level=none,variant=standalone_03": {
+      "model": "myvillage:block/rockery_block/standalone_03",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=standalone_03": {
+      "model": "myvillage:block/rockery_block/standalone_03",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=standalone_03": {
+      "model": "myvillage:block/rockery_block/standalone_03",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=standalone_03": {
+      "model": "myvillage:block/rockery_block/standalone_03"
+    },
+    "facing=east,moss_level=light,variant=standalone_03": {
+      "model": "myvillage:block/rockery_block/standalone_03",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=standalone_03": {
+      "model": "myvillage:block/rockery_block/standalone_03",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=standalone_03": {
+      "model": "myvillage:block/rockery_block/standalone_03",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=standalone_03": {
+      "model": "myvillage:block/rockery_block/standalone_03"
+    },
+    "facing=east,moss_level=heavy,variant=standalone_03": {
+      "model": "myvillage:block/rockery_block/standalone_03",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=standalone_03": {
+      "model": "myvillage:block/rockery_block/standalone_03",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=standalone_03": {
+      "model": "myvillage:block/rockery_block/standalone_03",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=standalone_04": {
+      "model": "myvillage:block/rockery_block/standalone_04"
+    },
+    "facing=east,moss_level=none,variant=standalone_04": {
+      "model": "myvillage:block/rockery_block/standalone_04",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=standalone_04": {
+      "model": "myvillage:block/rockery_block/standalone_04",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=standalone_04": {
+      "model": "myvillage:block/rockery_block/standalone_04",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=standalone_04": {
+      "model": "myvillage:block/rockery_block/standalone_04"
+    },
+    "facing=east,moss_level=light,variant=standalone_04": {
+      "model": "myvillage:block/rockery_block/standalone_04",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=standalone_04": {
+      "model": "myvillage:block/rockery_block/standalone_04",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=standalone_04": {
+      "model": "myvillage:block/rockery_block/standalone_04",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=standalone_04": {
+      "model": "myvillage:block/rockery_block/standalone_04"
+    },
+    "facing=east,moss_level=heavy,variant=standalone_04": {
+      "model": "myvillage:block/rockery_block/standalone_04",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=standalone_04": {
+      "model": "myvillage:block/rockery_block/standalone_04",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=standalone_04": {
+      "model": "myvillage:block/rockery_block/standalone_04",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=standalone_05": {
+      "model": "myvillage:block/rockery_block/standalone_05"
+    },
+    "facing=east,moss_level=none,variant=standalone_05": {
+      "model": "myvillage:block/rockery_block/standalone_05",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=standalone_05": {
+      "model": "myvillage:block/rockery_block/standalone_05",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=standalone_05": {
+      "model": "myvillage:block/rockery_block/standalone_05",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=standalone_05": {
+      "model": "myvillage:block/rockery_block/standalone_05"
+    },
+    "facing=east,moss_level=light,variant=standalone_05": {
+      "model": "myvillage:block/rockery_block/standalone_05",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=standalone_05": {
+      "model": "myvillage:block/rockery_block/standalone_05",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=standalone_05": {
+      "model": "myvillage:block/rockery_block/standalone_05",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=standalone_05": {
+      "model": "myvillage:block/rockery_block/standalone_05"
+    },
+    "facing=east,moss_level=heavy,variant=standalone_05": {
+      "model": "myvillage:block/rockery_block/standalone_05",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=standalone_05": {
+      "model": "myvillage:block/rockery_block/standalone_05",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=standalone_05": {
+      "model": "myvillage:block/rockery_block/standalone_05",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=none,variant=standalone_06": {
+      "model": "myvillage:block/rockery_block/standalone_06"
+    },
+    "facing=east,moss_level=none,variant=standalone_06": {
+      "model": "myvillage:block/rockery_block/standalone_06",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=none,variant=standalone_06": {
+      "model": "myvillage:block/rockery_block/standalone_06",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=none,variant=standalone_06": {
+      "model": "myvillage:block/rockery_block/standalone_06",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=light,variant=standalone_06": {
+      "model": "myvillage:block/rockery_block/standalone_06"
+    },
+    "facing=east,moss_level=light,variant=standalone_06": {
+      "model": "myvillage:block/rockery_block/standalone_06",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=light,variant=standalone_06": {
+      "model": "myvillage:block/rockery_block/standalone_06",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=light,variant=standalone_06": {
+      "model": "myvillage:block/rockery_block/standalone_06",
+      "y": 270,
+      "uvlock": true
+    },
+    "facing=north,moss_level=heavy,variant=standalone_06": {
+      "model": "myvillage:block/rockery_block/standalone_06"
+    },
+    "facing=east,moss_level=heavy,variant=standalone_06": {
+      "model": "myvillage:block/rockery_block/standalone_06",
+      "y": 90,
+      "uvlock": true
+    },
+    "facing=south,moss_level=heavy,variant=standalone_06": {
+      "model": "myvillage:block/rockery_block/standalone_06",
+      "y": 180,
+      "uvlock": true
+    },
+    "facing=west,moss_level=heavy,variant=standalone_06": {
+      "model": "myvillage:block/rockery_block/standalone_06",
+      "y": 270,
+      "uvlock": true
+    }
+  }
+}

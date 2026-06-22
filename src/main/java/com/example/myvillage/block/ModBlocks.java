@@ -26,11 +26,17 @@ public final class ModBlocks {
     public static final DeferredBlock<PlaqueBlock> HANGING_PLAQUE_VERTICAL =
             BLOCKS.registerBlock("hanging_plaque_vertical", PlaqueBlock::new, plaqueProperties());
 
+    // 假山 (rockery) — first instance of the mod-decor-block-family protocol
+    // (mod-owned sub-block-precision decorative block, no Chisels & Bits dep).
+    public static final DeferredBlock<RockeryBlock> ROCKERY_BLOCK =
+            BLOCKS.registerBlock("rockery_block", RockeryBlock::new, rockeryProperties());
+
     private static final List<String> BLOCK_IDS = List.of(
             "wall_plaque",
             "wall_plaque_vertical",
             "hanging_plaque",
-            "hanging_plaque_vertical");
+            "hanging_plaque_vertical",
+            "rockery_block");
 
     private ModBlocks() {
     }
@@ -43,15 +49,23 @@ public final class ModBlocks {
         for (String id : BLOCK_IDS) {
             ResourceLocation key = ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID, id);
             if (!BuiltInRegistries.BLOCK.containsKey(key)) {
-                throw new IllegalStateException("Missing registered MyVillage plaque block: " + key);
+                throw new IllegalStateException("Missing registered MyVillage block: " + key);
             }
         }
-        LOGGER.info("Verified {} MyVillage plaque blocks in BuiltInRegistries.BLOCK", BLOCK_IDS.size());
+        LOGGER.info("Verified {} MyVillage blocks in BuiltInRegistries.BLOCK", BLOCK_IDS.size());
     }
 
     private static BlockBehaviour.Properties plaqueProperties() {
         return BlockBehaviour.Properties.of()
                 .strength(0.8F)
+                .noOcclusion();
+    }
+
+    private static BlockBehaviour.Properties rockeryProperties() {
+        // Stone-class: slow to mine, occludes (the sub-block model is non-cube so
+        // noOcclusion is not needed — the VoxelShape table governs light/cull).
+        return BlockBehaviour.Properties.of()
+                .strength(1.5F)
                 .noOcclusion();
     }
 }

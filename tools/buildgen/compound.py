@@ -787,6 +787,274 @@ def _place_yard_ground(compound: CompoundGraph, style: Style) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Garden parcel renderers (garden-rockery runtime side). These realize the
+# 假山 / 水池 / 亭 / 汀步 parcels for a 江南大宅 花园 band (the chinese_mansion
+# family, task 6). Each renderer is a standalone function the mansion's 花园
+# layout will call with a bbox; they are NOT wired into chinese_courtyard (which
+# has no garden). The parcel machinery (ParcelNode + grid.set) matches the
+# existing landscape renderers (_place_landscape / _put_cells).
+# ---------------------------------------------------------------------------
+
+
+def _rockery_block_state(variant: str, facing: str, moss: str) -> str:
+    """Blockstate string for a placed rockery_block (mod-decor-block-family)."""
+    return (f"myvillage:rockery_block[variant={variant},facing={facing},"
+            f"moss_level={moss}]")
+
+
+def place_garden_rockery(compound: CompoundGraph, bbox: Tuple[int, int, int, int],
+                         seed: int, facing: str = "north") -> ParcelNode:
+    """garden_rockery parcel renderer (task 5.2).
+
+    Calls :func:`tools.buildgen.rockery.derive_rockery` to assign each cell in
+    ``bbox`` a variant + moss_level by the heightfield, then writes a
+    ``myvillage:rockery_block`` at each cell's standable y (the natural surface
+    y, so the rockery rests on the garden ground). Returns the ParcelNode
+    describing the placed rockery (cells + the role/variant manifest in meta).
+    """
+    from .rockery import derive_rockery, RockeryParams  # local import (avoid cycle)
+    placement = derive_rockery(seed, bbox, RockeryParams())
+    cells: Set[Cell2] = set()
+    written: List[List] = []
+    for (x, z), (variant, moss) in placement.items():
+        y = _natural_surface_y(compound, (x, z))
+        compound.grid.set((x, y, z), _rockery_block_state(variant, facing, moss),
+                          ["DETAIL", "STRUCTURE"], PRIORITY["DETAIL"], "ROCKERY_STONE")
+        cells.add((x, z))
+        written.append([x, z, variant, moss])
+    node = ParcelNode("garden_rockery", "garden_rockery", cells, {
+        "bbox": list(bbox),
+        "facing": facing,
+        "placement": written,
+        "cell_count": len(cells),
+    })
+    compound.parcel_nodes.append(node)
+    return node
+
+
+def _freeform_pond(compound: CompoundGraph, bbox: Tuple[int, int, int, int],
+                   seed: int) -> Set[Cell2]:
+    """garden_pond freeform shoreline (task 5.3).
+
+    2D value-noise binalization over the bbox: each cell evaluates a
+    deterministic noise; cells above a threshold are water, below are shore.
+    Isolated 1-2 cell pockets are filled (water→land, land→water) so there are
+    no unreachable islands or odd puddles. Returns the set of water cells (the
+    renderer writes ``minecraft:water`` at y=-1 inside the shoreline).
+    """
+    try:
+        from .sect_mountain import _hash2, _noise
+    except ImportError:  # pragma: no cover
+        from sect_mountain import _hash2, _noise
+    x0, z0, x1, z1 = bbox
+    lot_w, lot_d = compound.lot_size
+    # Binalize: noise in [-2, 2]; water iff noise >= 0 (roughly half the bbox,
+    # shoreline-tuned by the radial bias below).
+    raw: Set[Cell2] = set()
+    for x in range(x0, x1 + 1):
+        for z in range(z0, z1 + 1):
+            if not (1 <= x < lot_w - 1 and 1 <= z < lot_d - 1):
+                continue
+            # radial bias toward the bbox center: center cells more likely water,
+            # edge cells more likely shore, so the pond reads as a body not a
+            # checkerboard.
+            cx = (x0 + x1) / 2
+            cz = (z0 + z1) / 2
+            dx = abs(x - cx) / max(1, (x1 - x0) / 2)
+            dz = abs(z - cz) / max(1, (z1 - z0) / 2)
+            dist = max(dx, dz)
+            n = _noise(seed, x, z, 2)
+            if n >= int(-2 + 2 * dist):  # center: threshold -2 (almost always water); edge: 0
+                raw.add((x, z))
+    # Fill isolated 1-2 cell pockets (water→land, land→water).
+    raw = _fill_isolated_pockets(raw, bbox, lot_w, lot_d, pocket_size=2)
+    return raw
+
+
+def _fill_isolated_pockets(water: Set[Cell2], bbox: Tuple[int, int, int, int],
+                           lot_w: int, lot_d: int, pocket_size: int) -> Set[Cell2]:
+    """Fill 1-N cell isolated pockets (spec: water pocket → land, land → water).
+
+    A pocket is a connected component (4-neighbor) of water-or-land cells that
+    is fully surrounded by the opposite kind and has ≤ ``pocket_size`` cells.
+    """
+    x0, z0, x1, z1 = bbox
+    all_cells = {(x, z) for x in range(x0, x1 + 1) for z in range(z0, z1 + 1)
+                 if 1 <= x < lot_w - 1 and 1 <= z < lot_d - 1}
+
+    def neighbors(c: Cell2) -> List[Cell2]:
+        x, z = c
+        return [(nx, nz) for nx, nz in ((x+1, z), (x-1, z), (x, z+1), (x, z-1))
+                if (nx, nz) in all_cells]
+
+    def flood(start: Cell2, kind: Set[Cell2]) -> Tuple[Set[Cell2], bool]:
+        """Flood-fill the component of ``start`` in ``kind``; return (component,
+        touches_boundary). touches_boundary=True means the component reaches the
+        bbox edge (so it's open, not an isolated pocket)."""
+        comp = {start}
+        stack = [start]
+        edge = False
+        while stack:
+            c = stack.pop()
+            for nb in neighbors(c):
+                if nb in kind and nb not in comp:
+                    comp.add(nb)
+                    stack.append(nb)
+                # touching a non-bbox cell means we reached the outside → open
+            if c[0] <= x0 or c[0] >= x1 or c[1] <= z0 or c[1] >= z1:
+                edge = True
+        return comp, edge
+
+    out = set(water)
+    land = all_cells - water
+    # Check water pockets (small water components not touching the bbox edge).
+    visited_w: Set[Cell2] = set()
+    for c in sorted(water):
+        if c in visited_w:
+            continue
+        comp, edge = flood(c, water)
+        visited_w |= comp
+        if not edge and len(comp) <= pocket_size:
+            out -= comp  # water pocket → land
+    # Check land pockets (small land components surrounded by water).
+    visited_l: Set[Cell2] = set()
+    for c in sorted(land):
+        if c in visited_l:
+            continue
+        comp, edge = flood(c, land)
+        visited_l |= comp
+        if not edge and len(comp) <= pocket_size:
+            out |= comp  # land pocket → water
+    return out
+
+
+def place_garden_pond(compound: CompoundGraph, bbox: Tuple[int, int, int, int],
+                      seed: int, rockery_node: Optional[ParcelNode] = None,
+                      facing: str = "north") -> Tuple[ParcelNode, Set[Cell2]]:
+    """garden_pond parcel renderer (task 5.4).
+
+    Writes ``minecraft:water`` at y=-1 inside the freeform shoreline, plus a
+    ParcelNode. 山脚入水 composition: if a ``rockery_node`` is provided, its
+    base-role cells that meet the pond boundary are re-placed as base variants
+    on top of the water at y=0+ (the rockery base rests in the water, reading
+    as 山脚入水 — the water stays at y=-1 below).
+    """
+    from .rockery import derive_rockery, RockeryParams, ROLE_BASE
+    water = _freeform_pond(compound, bbox, seed)
+    blocked = (compound.building_cells() |
+               compound.node_cells("perimeter_wall", "screen_wall", "planting",
+                                   "water_jar", "courtyard_tree", "inner_gate"))
+    water &= {c for c in water if c not in blocked}
+    for x, z in water:
+        # Clear any ground/path blocks then write water at y=-1.
+        compound.grid.set((x, -1, z), "minecraft:water",
+                          ["DETAIL", "GROUND"], PRIORITY["DETAIL"], "WATER", force=True)
+        compound.grid.set((x, 0, z), AIR, ["AIR_CARVE"],
+                          PRIORITY["AIR_CARVE"], force=True)
+    node = ParcelNode("garden_pond", "garden_pond", set(water), {
+        "bbox": list(bbox),
+        "water_cell_count": len(water),
+    })
+    compound.parcel_nodes.append(node)
+    # 山脚入水: where the rockery's base-role footprint meets the pond boundary,
+    # place base variants on top of the water (y=0+).
+    if rockery_node is not None:
+        placement = {tuple([m[0], m[1]]): (m[2], m[3])
+                     for m in rockery_node.meta.get("placement", [])}
+        shore_ring = _chebyshev_ring(water) & {c for c in _lot_interior_cells(compound)}
+        for cell in shore_ring:
+            if cell in placement:
+                variant, moss = placement[cell]
+                # Only base-role variants sit in the water (slope/peak stay on land).
+                if variant.startswith("base_"):
+                    x, z = cell
+                    compound.grid.set((x, 0, z),
+                                      _rockery_block_state(variant, facing, moss),
+                                      ["DETAIL", "STRUCTURE"], PRIORITY["DETAIL"],
+                                      "ROCKERY_STONE", force=True)
+    return node, water
+
+
+def place_garden_pavilion(compound: CompoundGraph, center: Cell2, size: int,
+                          base_y: int, style: Style,
+                          roof_grade: str = "chinese_round_ridge") -> ParcelNode:
+    """garden_pavilion parcel renderer (task 5.5).
+
+    A small open-sided 亭: 4 standoff columns at the COLUMN slot (one per
+    corner of a ``size``×``size`` plan), a ``chinese_round_ridge`` (卷棚) roof
+    slab capping the columns, no walls. Supports standalone-on-ground
+    (``base_y`` = ground surface) and on-rockery-peak (``base_y`` = the
+    rockery's standable top). Reuses the cultivation pavilion geometry pattern
+    (4 columns + open eave) per the garden-rockery spec.
+    """
+    cx, cz = center
+    half = size // 2
+    column = style.primary("COLUMN")
+    roof = style.slot_entry("ROOF_DARK", "_slab")
+    cap = style.slot_entry("ROOF_DARK", "_stairs")
+    cells: Set[Cell2] = set()
+    corners = [(cx - half, cz - half), (cx + half, cz - half),
+               (cx - half, cz + half), (cx + half, cz + half)]
+    # 4 standoff columns, 3 tall (eave height), carrying the roof.
+    for (x, z) in corners:
+        for y in range(base_y + 1, base_y + 4):
+            compound.grid.set((x, y, z), column, ["DETAIL", "STRUCTURE"],
+                              PRIORITY["DETAIL"], "COLUMN")
+        cells.add((x, z))
+    # Roof slab (chinese_round_ridge 卷棚 reads as a slab cap on 4 columns).
+    for x in range(cx - half, cx + half + 1):
+        for z in range(cz - half, cz + half + 1):
+            compound.grid.set((x, base_y + 4, z), roof, ["DETAIL", "ROOF"],
+                              PRIORITY["DETAIL"], "ROOF_DARK")
+            cells.add((x, z))
+    # Ridge cap running across the center (the 卷棚 ridge).
+    ridge_axis = "x" if size >= 3 else "x"
+    for x in range(cx - half, cx + half + 1):
+        compound.grid.set((x, base_y + 5, cz), cap, ["DETAIL", "ROOF"],
+                          PRIORITY["DETAIL"], "ROOF_DARK")
+    node = ParcelNode("garden_pavilion", "garden_pavilion", cells, {
+        "center": list(center),
+        "size": size,
+        "base_y": base_y,
+        "roof_grade": roof_grade,
+        "ridge_axis": ridge_axis,
+        "open_sided": True,
+        "columns": [list(c) for c in corners],
+    })
+    compound.parcel_nodes.append(node)
+    return node
+
+
+def place_stepping_stones(compound: CompoundGraph, shore_a: Cell2, shore_b: Cell2,
+                          seed: int, facing: str = "north") -> ParcelNode:
+    """汀步 (stepping stones) across a garden_pond (task 5.6).
+
+    Places ``myvillage:rockery_block[variant=standalone]`` cells at standable y
+    connecting two shore points, so the pond is voxel-walkable as a path across
+    the water. Reuses :func:`rockery.derive_stepping_stones` for the path +
+    variant assignment.
+    """
+    from .rockery import derive_stepping_stones
+    placement = derive_stepping_stones(seed, shore_a, shore_b)
+    cells: Set[Cell2] = set()
+    for (x, z), (variant, moss) in placement.items():
+        y = _natural_surface_y(compound, (x, z))
+        # 汀步 sit at the water surface (y=0) so the player auto-steps across.
+        compound.grid.set((x, 0, z), _rockery_block_state(variant, facing, moss),
+                          ["DETAIL", "STRUCTURE"], PRIORITY["DETAIL"],
+                          "ROCKERY_STONE", force=True)
+        cells.add((x, z))
+    node = ParcelNode("garden_stepping_stones", "garden_stepping_stones", cells, {
+        "shore_a": list(shore_a),
+        "shore_b": list(shore_b),
+        "facing": facing,
+        "cell_count": len(cells),
+    })
+    compound.parcel_nodes.append(node)
+    return node
+
+
+# ---------------------------------------------------------------------------
 # 一进四合院 layout (Step 2). The compound is built in a canonical south frame
 # (street gate at z=0, the axis running inward toward higher z). The lot splits
 # into an outer yard (外院), a 垂花门 (inner gate) band, and a main yard (主院),
@@ -896,22 +1164,68 @@ def _add_chinese_perimeter(compound: CompoundGraph, style: Style) -> None:
         }))
 
 
-def _free_screen_axis(axis: int, z: int) -> Set[Cell2]:
-    return {(x, z) for x in range(axis - 2, axis + 3)}
+def _screen_panel_cells(axis: int, z: int, side: str, width: int = 2) -> Set[Cell2]:
+    """Off-axis 照壁 / 影壁 panel cells.
+
+    The screen wall stands to one side of the central axis (江南 照壁侧立 form,
+    per design D2), never on it. ``side`` ∈ {"east", "west"} picks which flank;
+    ``width`` (1-2) is the panel's cell span. The panel sits immediately
+    adjacent to the axis (``axis ± 1`` .. ``axis ± width``) so an oblique
+    sightline from the gate still intersects it, but the central-axis column
+    stays open for the 3D voxel-walkability STANDABLE rule.
+    """
+    if side == "east":
+        return {(axis + 1 + i, z) for i in range(width)}
+    return {(axis - 1 - i, z) for i in range(width)}
+
+
+def _front_row_origin_x(axis: int, front_w: int, lot_w: int,
+                        alley_side: str) -> int:
+    """X-origin for the 倒座 (front_row) footprint that leaves a 1-2 cell alley
+    on ``alley_side`` between the footprint and the perimeter wall.
+
+    The footprint is pushed OFF the central axis toward the side opposite the
+    alley, so the alley column (1-2 cells wide along the perimeter wall) is the
+    off-axis circulation route from the gate area to the 仪门 area. The
+    footprint never crosses the central axis (it stays entirely on the
+    non-alley side), so the axis column itself also stays walkable.
+    """
+    # Keep a 2-cell alley against the perimeter wall on the chosen side; the
+    # footprint is pushed toward the opposite half. The perimeter wall sits at
+    # x=0 / x=lot_w-1, so the interior edge is x=1 / x=lot_w-2.
+    alley_w = 2
+    if alley_side == "east":
+        # Footprint occupies the west half: origin so its east edge stops
+        # short of (or at) the axis, leaving the east half + alley open.
+        return axis - front_w
+    # alley_side == "west": footprint occupies the east half, west half + alley open.
+    return axis + 1
 
 
 def _layout_outer_yard(compound: CompoundGraph, style: Style, bands: dict,
                        contexts: Dict[str, BuildContext]) -> None:
-    """影壁 (screen wall) on the axis inside the gate + 倒座 (front_row) along
-    the south wall (omitted for 三合院)."""
+    """照壁/影壁 (screen wall) standing OFF-axis inside the gate + 倒座
+    (front_row) along the south wall with a side alley (omitted for 三合院).
+
+    Per design D2 + the `courtyard-voxel-walkability` fix, the screen wall is
+    placed to one side of the central axis (照壁侧立), blocking the sightline to
+    the 垂花门 / main hall WITHOUT sealing the axis — the previous on-axis 影壁
+    was the root cause of the player-facing "堵住" complaint. ``meta.form``
+    distinguishes 北京 jingbi vs 江南 zhaobi where the form differs; both
+    families now ship the side-standing form.
+    """
     lot_w, lot_d = compound.lot_size
     axis = compound.axis_x
     oy0, oy1 = bands["outer_yard_band"]
 
-    # 影壁: free-standing screen wall facing the gate, on the central axis,
-    # blocking the sightline to the 垂花门 / main hall.
+    # 影壁 / 照壁: free-standing screen wall facing the gate, standing OFF the
+    # central axis. Side (east/west) is seed-decided so the layout reads as
+    # intentional asymmetry, not a fixed offset.
+    screen_rng = random.Random(compound.seed + 707)
+    screen_side = screen_rng.choice(("east", "west"))
+    screen_width = screen_rng.choice((1, 2))
     screen_z = oy0 + 1
-    screen_cells = _free_screen_axis(axis, screen_z)
+    screen_cells = _screen_panel_cells(axis, screen_z, screen_side, screen_width)
     base = style.primary("PLATFORM_STONE")
     wall_main = style.primary("WALL_MAIN")
     cap = style.slot_entry("ROOF_DARK", "_stairs")
@@ -925,16 +1239,25 @@ def _layout_outer_yard(compound: CompoundGraph, style: Style, bands: dict,
                           "ROOF_DARK")
     compound.parcel_nodes.append(
         ParcelNode("screen_wall", "screen_wall", screen_cells, {
-            "height": 6, "on_axis": True, "facing_gate": True}))
+            "height": 6, "on_axis": False, "facing_gate": True,
+            "form": "zhaobi", "side": screen_side, "width": screen_width}))
 
     # 倒座 (front_row): a set-back outer-yard range facing the gate. Only the
     # `standard` plan carries it — 三合院 omits it (wings extend forward to close
     # the U), and the 目字 (mu) plan's narrow outer band has no room for it.
+    #
+    # The 倒座 MUST leave a 1-2 cell side alley between its footprint and the
+    # perimeter wall on at least one side (the opposite side of the 照壁) so
+    # off-axis circulation from the gate to the 仪门 stays open — without this
+    # the central axis is the only route and the off-axis 照壁 panel would
+    # force a dead-end detour.
     if compound.variant.layout_type == "standard":
         front_ctx = contexts["front_row"]
         front = front_ctx.graph.get("main")
+        alley_side = "west" if screen_side == "east" else "east"
+        alley_x = _front_row_origin_x(axis, front.size[0], lot_w, alley_side)
         _translate_context(compound, "front_row", front_ctx,
-                           (axis - front.size[0] // 2, 0, oy0 + 4))
+                           (alley_x, 0, oy0 + 4))
 
 
 def _layout_inner_gate(compound: CompoundGraph, style: Style,
@@ -949,7 +1272,12 @@ def _layout_inner_gate(compound: CompoundGraph, style: Style,
     roof = style.slot_entry("ROOF_DARK", "_slab")
 
     cells: Set[Cell2] = set()
-    passage = {(axis, z) for z in range(ig0, ig1 + 1)}
+    # 垂花门 passage: at least 3 cells wide (axis-1, axis, axis+1) for every
+    # z in the inner-gate band, so off-axis circulation from the 倒座 side alley
+    # routes through the gate without forcing the central axis. The previous
+    # axis-only passage was a single point of failure for the path router.
+    passage = {(x, z) for x in (axis - 1, axis, axis + 1)
+               for z in range(ig0, ig1 + 1)}
     for x in range(axis - 2, axis + 3):
         for z in range(ig0, ig1 + 1):
             cells.add((x, z))
@@ -1216,7 +1544,39 @@ def _path_blocked_cells(compound: CompoundGraph) -> Set[Cell2]:
     if inner_gate:
         passage = {tuple(c) for c in inner_gate.meta.get("passage", [])}
         blocked |= (inner_gate.cells - passage)
+    # 3D-aware blocking (courtyard-voxel-walkability): a lot-interior cell
+    # whose body or head space above its natural surface is already occupied
+    # by a SOLID STRUCTURE/ROOF/COLUMN block (e.g. a main-hall porch column
+    # standing on the 月台, or a covered-gallery column) is NOT walkable in
+    # voxel space, so the 2D path BFS must route around it — otherwise the
+    # path is written under a column the player can never stand under, and the
+    # voxel validator flags ``voxel_blocked_by_solid``. Ground/DETAIL cells
+    # (the yard ground + path layers themselves) never block; only STRUCTURE /
+    # ROOF / COLUMN do. Door-front cells stay walkable (the BFS needs to reach
+    # them as endpoints; the write pass drops them).
+    solid_blocked = _solid_obstructed_path_cells(compound)
+    blocked |= solid_blocked
+    blocked -= door_fronts
     return {c for c in blocked if 0 < c[0] < lot_w - 1 and 0 < c[1] < lot_d - 1}
+
+
+def _solid_obstructed_path_cells(compound: CompoundGraph) -> Set[Cell2]:
+    """Lot-interior cells with NO standable y in their column — the 2D path
+    BFS must route around them (courtyard-voxel-walkability: a path written on
+    a cell the player can never stand on is a real ``voxel_blocked_by_solid``
+    defect). Uses :func:`_standable_ys` so a cell whose body+head clearance is
+    clear at SOME y (e.g. a 月台 cell where the player stands on top of the
+    platform, not at the buried natural surface) stays walkable; only a column
+    fully sealed by STRUCTURE/ROOF/COLUMN blocks (a porch-column plinth, a
+    column-base under a low eave) is treated as a wall."""
+    lot_w, lot_d = compound.lot_size
+    out: Set[Cell2] = set()
+    for x in range(1, lot_w - 1):
+        for z in range(1, lot_d - 1):
+            if _standable_ys(compound, x, z):
+                continue
+            out.add((x, z))
+    return out
 
 
 def _collect_path_endpoints(compound: CompoundGraph) -> List[Cell2]:
@@ -1420,15 +1780,238 @@ _STAIR_FACING_FROM_DELTA = {
 }
 
 
-def _place_plinth_stairs(compound: CompoundGraph, style: Style) -> None:
-    """Bridge the main-yard plinth boundary with a single stairs block.
+# --- Voxel-walkability helpers (courtyard-voxel-walkability spec) -------------
+#
+# A 3D replacement for the 2D-cell multi-source BFS reachability check. A real
+# Minecraft player walks in voxel space: a cell is STANDABLE iff the block below
+# is SOLID (foot support) and the body + head blocks are NON-SOLID, and two
+# STANDABLE cells are STEP-ADJACENT iff they are 4-neighbours in (x, z) with a
+# y-difference <= 1 (auto-step up 1, free-fall any). The 2D check passed
+# compounds the player experienced as "堵住" (blocked); this 3D check catches
+# those — see the design doc's 影壁封轴 + 3-block-cliff analysis.
 
-    For every pair of 4-neighbour path cells ``(outer, plinth)`` where ``outer``
-    sits at ``y = -1`` and ``plinth`` sits at ``y = plinth_h - 1``, write a
-    ``stone_brick_stairs[facing=<toward plinth>, half=bottom]`` at the boundary
-    (outer) cell, replacing the path block. The facing rises from the lower
-    (outer) cell toward the higher (plinth) cell. No-op when the compound has no
-    plinth (small-courtyard or ``platform_tier = "none"``).
+# Block ids (no [props]) that are NON-SOLID: the player body/head passes
+# through them. Carries the vanilla passable decorations listed in the spec.
+# Anything not in this set is SOLID (stairs, slabs, walls, columns, plaques,
+# rockery blocks, leaves when persistent, etc.).
+NON_SOLID_STATES: Set[str] = {
+    "minecraft:air",
+    "minecraft:water",
+    "minecraft:lava",
+    "minecraft:torch",
+    "minecraft:soul_torch",
+    "minecraft:wall_torch",
+    "minecraft:soul_wall_torch",
+    "minecraft:redstone_torch",
+    "minecraft:redstone_wall_torch",
+    "minecraft:oak_sign",
+    "minecraft:spruce_sign",
+    "minecraft:birch_sign",
+    "minecraft:jungle_sign",
+    "minecraft:acacia_sign",
+    "minecraft:dark_oak_sign",
+    "minecraft:mangrove_sign",
+    "minecraft:cherry_sign",
+    "minecraft:bamboo_sign",
+    "minecraft:crimson_sign",
+    "minecraft:warped_sign",
+    "minecraft:oak_wall_sign",
+    "minecraft:spruce_wall_sign",
+    "minecraft:birch_wall_sign",
+    "minecraft:jungle_wall_sign",
+    "minecraft:acacia_wall_sign",
+    "minecraft:dark_oak_wall_sign",
+    "minecraft:mangrove_wall_sign",
+    "minecraft:cherry_wall_sign",
+    "minecraft:bamboo_wall_sign",
+    "minecraft:crimson_wall_sign",
+    "minecraft:warped_wall_sign",
+    "minecraft:stone_button",
+    "minecraft:oak_button",
+    "minecraft:spruce_button",
+    "minecraft:birch_button",
+    "minecraft:jungle_button",
+    "minecraft:acacia_button",
+    "minecraft:dark_oak_button",
+    "minecraft:mangrove_button",
+    "minecraft:cherry_button",
+    "minecraft:bamboo_button",
+    "minecraft:crimson_button",
+    "minecraft:warped_button",
+    "minecraft:polished_blackstone_button",
+    "minecraft:lever",
+    "minecraft:rail",
+    "minecraft:powered_rail",
+    "minecraft:detector_rail",
+    "minecraft:activator_rail",
+    "minecraft:white_carpet",
+    "minecraft:orange_carpet",
+    "minecraft:magenta_carpet",
+    "minecraft:light_blue_carpet",
+    "minecraft:yellow_carpet",
+    "minecraft:lime_carpet",
+    "minecraft:pink_carpet",
+    "minecraft:gray_carpet",
+    "minecraft:light_gray_carpet",
+    "minecraft:cyan_carpet",
+    "minecraft:purple_carpet",
+    "minecraft:blue_carpet",
+    "minecraft:brown_carpet",
+    "minecraft:green_carpet",
+    "minecraft:red_carpet",
+    "minecraft:black_carpet",
+    "minecraft:moss_carpet",
+    "minecraft:dandelion",
+    "minecraft:poppy",
+    "minecraft:blue_orchid",
+    "minecraft:allium",
+    "minecraft:azure_bluet",
+    "minecraft:red_tulip",
+    "minecraft:orange_tulip",
+    "minecraft:white_tulip",
+    "minecraft:pink_tulip",
+    "minecraft:oxeye_daisy",
+    "minecraft:cornflower",
+    "minecraft:lily_of_the_valley",
+    "minecraft:wither_rose",
+    "minecraft:torchflower",
+    "minecraft:oak_sapling",
+    "minecraft:spruce_sapling",
+    "minecraft:birch_sapling",
+    "minecraft:jungle_sapling",
+    "minecraft:acacia_sapling",
+    "minecraft:dark_oak_sapling",
+    "minecraft:cherry_sapling",
+    "minecraft:mangrove_propagule",
+    "minecraft:bamboo_sapling",
+    "minecraft:grass",
+    "minecraft:tall_grass",
+    "minecraft:fern",
+    "minecraft:large_fern",
+    "minecraft:vine",
+    "minecraft:glow_lichen",
+    "minecraft:dead_bush",
+    "minecraft:lantern",
+    "minecraft:soul_lantern",
+    "minecraft:beetroots",
+    "minecraft:carrots",
+    "minecraft:potatoes",
+    "minecraft:wheat",
+    "minecraft:melon_stem",
+    "minecraft:pumpkin_stem",
+    "minecraft:torchflower_crop",
+    "minecraft:pitcher_crop",
+    "minecraft:sweet_berry_bush",
+    "minecraft:cobweb",
+    "minecraft:snow",
+    "minecraft:lily_pad",
+    "minecraft:brown_mushroom",
+    "minecraft:red_mushroom",
+    "minecraft:small_dripleaf",
+    "minecraft:big_dripleaf_stem",
+    "minecraft:hanging_roots",
+    "minecraft:spore_blossom",
+    "minecraft:azalea",
+    "minecraft:flowering_azalea",
+    "minecraft:mangrove_roots",
+}
+
+
+def is_solid(state: str) -> bool:
+    """True iff a full-state string reads as a SOLID voxel.
+
+    SOLID means "provides foot support / blocks body+head clearance". Anything
+    not in :data:`NON_SOLID_STATES` is SOLID — including stairs, slabs, walls,
+    fences, columns, plaques, leaves (when persistent), and the mod's own
+    decorative blocks. The block id is the part before any ``[props]``.
+    """
+    if not state:
+        return False
+    block_id = state.split("[", 1)[0]
+    return block_id not in NON_SOLID_STATES
+
+
+def _standable_ys(compound: CompoundGraph, x: int, z: int,
+                  y_lo: int = -3, y_hi: int = 12) -> List[int]:
+    """Every y in ``[y_lo, y_hi]`` where the autostep STANDABLE rule holds.
+
+    A cell ``(x, y, z)`` is STANDABLE iff the block at ``y-1`` is SOLID (foot
+    support) and the blocks at ``y`` and ``y+1`` are NON-SOLID (body + head
+    clearance). Returns the standable y-values in ascending order.
+    """
+    out: List[int] = []
+    for y in range(y_lo, y_hi + 1):
+        if not is_solid(compound.grid.state_at((x, y - 1, z))):
+            continue
+        if is_solid(compound.grid.state_at((x, y, z))):
+            continue
+        if is_solid(compound.grid.state_at((x, y + 1, z))):
+            continue
+        out.append(y)
+    return out
+
+
+def _voxel_walk_bfs(compound: CompoundGraph, start_xyz: Pos,
+                    lot_w: int, lot_d: int) -> Set[Pos]:
+    """3D STEP-ADJACENT BFS over STANDABLE cells, bounded by the lot interior.
+
+    From the gate-entry STANDABLE cell, visit every STANDABLE cell reachable by
+    4-neighbour (x, z) steps where ``|y_a - y_b| <= 1`` (auto-step up 1,
+    free-fall any distance). The visited set is the 3D reachability answer the
+    validator checks door-fronts and landscape endpoints against.
+    """
+    if start_xyz is None:
+        return set()
+    visited: Set[Pos] = {start_xyz}
+    q: deque = deque([start_xyz])
+    while q:
+        x, y, z = q.popleft()
+        for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            nx, nz = x + dx, z + dz
+            if not (1 <= nx <= lot_w - 2 and 1 <= nz <= lot_d - 2):
+                continue
+            for ny in _standable_ys(compound, nx, nz):
+                if abs(ny - y) > 1:
+                    # Auto-step allows a +1 rise and any fall; a >1 rise from
+                    # the current cell is unreachable in one step, but a fall
+                    # of any size is fine. BFS exploration is symmetric in the
+                    # STEP-ADJACENT relation (|Δy| <= 1), so gate on |Δy| here.
+                    continue
+                if (nx, ny, nz) in visited:
+                    continue
+                visited.add((nx, ny, nz))
+                q.append((nx, ny, nz))
+    return visited
+
+
+def _gate_entry_standable(compound: CompoundGraph) -> Optional[Pos]:
+    """Lowest STANDABLE cell in column ``(axis_x, z=1)`` — just inside the gate.
+
+    ``z=1`` is the first interior row behind a south-facing gate (and the last
+    but-one row for a north-facing gate; we normalise to the near-interior row
+    on the gate side). Returns ``None`` when no STANDABLE cell exists in the
+    column (the validator treats this as an unrecoverable entry defect).
+    """
+    lot_w, lot_d = compound.lot_size
+    gate_side = compound.meta.get("gate_side", "south")
+    z_entry = 1 if gate_side == "south" else lot_d - 2
+    ys = _standable_ys(compound, compound.axis_x, z_entry)
+    if not ys:
+        return None
+    return (compound.axis_x, ys[0], z_entry)
+
+
+def _place_band_transition_stairs(compound: CompoundGraph, style: Style) -> None:
+    """Bridge every ``|Δy| ≥ 2`` boundary between adjacent path cells (design D4).
+
+    Generalises the former axis-only ``_place_plinth_stairs``: walk every pair
+    of 4-neighbour path cells and, where the natural surface y differs by ``≥
+    2``, place ``N = |Δy|`` ascending ``stone_brick_stairs[facing=<uphill>,
+    half=bottom]`` blocks bridging the gap. Pairs where either cell is in a
+    building footprint or is a ``door_info["front"]`` cell are skipped (the
+    building's own step block owns the door cell; a stair inside a footprint
+    would collide with the structure). No-op for compounds without a plinth or
+    without a multi-source-BFS path network (e.g. ``platform_tier = "none"``).
     """
     plinth_h = compound.meta.get("plinth_height", 0)
     if plinth_h <= 0:
@@ -1438,37 +2021,179 @@ def _place_plinth_stairs(compound: CompoundGraph, style: Style) -> None:
     if not path_nodes:
         return
     path_cells = set().union(*(n.cells for n in path_nodes))
-    outer_y = -1
+    if not path_cells:
+        return
+    building = compound.building_cells()
+    door_fronts = _door_front_cells(compound)
+    # Skip any path cell whose column would put a stair inside a footprint or
+    # on a door-front cell. Both endpoints of a candidate pair must be clear.
+    forbidden = building | door_fronts
     # Use the PLATFORM_STONE stairs entry as the stair material (vanilla-clean).
     stair_state = style.slot_entry("PLATFORM_STONE", "_stairs",
                                    default=f"minecraft:stone_brick_stairs"
                                            f"[facing=north,half=bottom]")
+    stair_base = stair_state.split("[", 1)[0]
     stair_cells: Set[Cell2] = set()
     for (x, z) in list(path_cells):
-        if _natural_surface_y(compound, (x, z)) != outer_y:
+        if (x, z) in forbidden:
             continue
+        y_a = _natural_surface_y(compound, (x, z))
         for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1)):
             nbr = (x + dx, z + dz)
-            if nbr not in path_cells:
+            if nbr not in path_cells or nbr in forbidden:
                 continue
-            if _natural_surface_y(compound, nbr) != plinth_h - 1:
+            y_b = _natural_surface_y(compound, nbr)
+            dy = y_b - y_a
+            if abs(dy) < 2:
                 continue
             facing = _STAIR_FACING_FROM_DELTA.get((dx, dz))
             if facing is None:
                 continue
-            base = stair_state.split("[", 1)[0]
-            compound.grid.set((x, outer_y, z),
-                              f"{base}[facing={facing},half=bottom]",
-                              ["DETAIL", "STRUCTURE"], PRIORITY["STRUCTURE"],
-                              "PLATFORM_STONE", force=True)
-            stair_cells.add((x, z))
+            # The lower cell carries the stair(s); the facing rises toward the
+            # higher cell. Place N = |Δy| ascending bottom-half stairs so the
+            # player auto-steps from y_low to y_high. Stairs stack at y_low,
+            # y_low+1, ... on the lower cell's column — vanilla stair collision
+            # handles the step-up read.
+            if dy > 0:
+                low_x, low_z, low_y = x, z, y_a
+            else:
+                low_x, low_z, low_y = nbr[0], nbr[1], y_b
+            for step in range(abs(dy)):
+                compound.grid.set((low_x, low_y + step, low_z),
+                                  f"{stair_base}[facing={facing},half=bottom]",
+                                  ["DETAIL", "STRUCTURE"], PRIORITY["STRUCTURE"],
+                                  "PLATFORM_STONE", force=True)
+            stair_cells.add((low_x, low_z))
             break
     if stair_cells:
         compound.parcel_nodes.append(
             ParcelNode("plinth_stairs", "plinth_stairs", stair_cells, {
                 "plinth_height": plinth_h,
                 "stair_count": len(stair_cells),
+                "algorithm": "band_transition",
             }))
+
+
+# Back-compat alias for any caller (test/probe) that referenced the old name.
+_place_plinth_stairs = _place_band_transition_stairs
+
+
+def _voxel_walk_check(compound: CompoundGraph) -> Tuple[List[str], dict]:
+    """Run the 3D voxel-walkability checks (courtyard-voxel-walkability spec).
+
+    Returns ``(errors, stats)``. The checks are:
+
+      - **door reachability**: every ``BuildingSlot`` whose ``door_info`` is
+        populated must have at least one STANDABLE y in the door-front column
+        that is in the BFS visited set — else ``voxel_unreachable_door:<arch>``.
+      - **endpoint reachability**: every landscape endpoint (water / jar /
+        planting / moon platform) must have a STANDABLE adjacent cell in the
+        visited set — else ``voxel_unreachable_endpoint:<cell>``.
+      - **step cliff**: no two 4-adjacent path cells with ``|Δy| ≥ 2`` may lack
+        a ``stone_brick_stairs`` bridge — else ``voxel_step_cliff:<a>-><b>``.
+      - **solid blockage**: no path cell may have a SOLID block in its body or
+        head plane above the standable y — else ``voxel_blocked_by_solid:<cell>``.
+
+    The ``stats`` dict carries the ``voxel_reachability`` triple (visited,
+    unreachable, cliff) reported in the library validation report.
+    """
+    errors: List[str] = []
+    lot_w, lot_d = compound.lot_size
+    # 1) Run the 3D BFS from the gate-entry STANDABLE column. When the entry
+    #    column has no standable y at all, every downstream check fails loudly
+    #    via a single root error instead of a flood of unreachable_* codes.
+    start = _gate_entry_standable(compound)
+    if start is None:
+        errors.append("voxel_unreachable_entry:no_standable_at_gate")
+        visited: Set[Pos] = set()
+    else:
+        visited = _voxel_walk_bfs(compound, start, lot_w, lot_d)
+
+    # Columns reached by the BFS (collapse the visited 3D set to (x, z)).
+    visited_cols: Set[Cell2] = {(x, z) for (x, _, z) in visited}
+
+    # 2) Door reachability — for every door_info front column, at least one
+    #    STANDABLE y must be in the visited set.
+    for slot in compound.building_slots:
+        if not (slot.door_info and isinstance(slot.door_info.get("front"), tuple)):
+            continue
+        fx, _fy, fz = slot.door_info["front"]
+        if not (0 < fx < lot_w - 1 and 0 < fz < lot_d - 1):
+            continue
+        if any((fx, y, fz) in visited for y in _standable_ys(compound, fx, fz)):
+            continue
+        errors.append(f"voxel_unreachable_door:{slot.archetype}:{(fx, fz)}")
+
+    # 3) Landscape endpoint reachability — reuses the 2D endpoint registry so
+    #    "which cells count as an endpoint" stays defined in one place. An
+    #    endpoint is reachable iff at least one STANDABLE y in its column is in
+    #    the visited set (it was a BFS source in the 2D world; in 3D it must
+    #    also be standable-reachable).
+    unreachable_endpoints: List[Cell2] = []
+    for cell in _collect_path_endpoints(compound):
+        cx, cz = cell
+        if any((cx, y, cz) in visited for y in _standable_ys(compound, cx, cz)):
+            continue
+        unreachable_endpoints.append(cell)
+    for cell in unreachable_endpoints:
+        errors.append(f"voxel_unreachable_endpoint:{cell}")
+
+    # 4) Step-cliff — every 4-adjacent path-cell pair with |Δy| ≥ 2 must have a
+    #    stair block bridging it. Reuses the plinth_stairs parcel node written
+    #    by _place_band_transition_stairs.
+    path_nodes = [n for n in compound.parcel_nodes
+                  if n.type == "path" and n.meta.get("algorithm") == "multi_source_bfs"]
+    path_cells = set().union(*(n.cells for n in path_nodes)) if path_nodes else set()
+    stair_cells = compound.node_cells("plinth_stairs")
+    door_fronts = _door_front_cells(compound)
+    building = compound.building_cells()
+    cliff_count = 0
+    seen_cliffs: Set[Tuple[Cell2, Cell2]] = set()
+    for cell in path_cells:
+        if cell in building or cell in door_fronts:
+            continue
+        y_a = _natural_surface_y(compound, cell)
+        for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            nbr = (cell[0] + dx, cell[1] + dz)
+            if nbr not in path_cells or nbr in building or nbr in door_fronts:
+                continue
+            y_b = _natural_surface_y(compound, nbr)
+            if abs(y_b - y_a) < 2:
+                continue
+            # Canonical ordered pair so each cliff is reported once.
+            pair = tuple(sorted((cell, nbr)))
+            if pair in seen_cliffs:
+                continue
+            low = cell if y_a < y_b else nbr
+            if low in stair_cells:
+                continue
+            seen_cliffs.add(pair)
+            cliff_count += 1
+            errors.append(f"voxel_step_cliff:{cell}->{nbr}")
+
+    # 5) Solid blockage — every path cell must have at least one STANDABLE y in
+    #    its column (foot support SOLID, body + head NON-SOLID). A path cell
+    #    with no standable y is a real "堵住" defect: a STRUCTURE/ROOF/COLUMN
+    #    block occupies every potential body/head clearance in the column. Note
+    #    this is column-level, not "the exact surface_y must be clear": a path
+    #    cell whose gravel sits one block low but is walkable one block up (e.g.
+    #    under a deep eave) is fine; only a column with zero standable ys is a
+    #    defect.
+    for cell in path_cells:
+        if cell in building or cell in door_fronts:
+            continue
+        if _standable_ys(compound, cell[0], cell[1]):
+            continue
+        errors.append(f"voxel_blocked_by_solid:{cell}")
+
+    stats = {
+        "voxel_reachability": {
+            "visited": len(visited),
+            "unreachable": len(unreachable_endpoints),
+            "cliff": cliff_count,
+        },
+    }
+    return errors, stats
 
 
 
@@ -1516,7 +2241,7 @@ def generate_compound(seed: int, style: Optional[Style] = None,
     _dress_main_yard(compound, style, bands)
     _place_yard_ground(compound, style)
     _route_complete_path(compound, style)
-    _place_plinth_stairs(compound, style)
+    _place_band_transition_stairs(compound, style)
     return compound
 
 
@@ -2213,12 +2938,16 @@ def validate_compound(compound: CompoundGraph) -> dict:
     elif openings != [(x, gate_z) for x in range(openings[0][0], openings[-1][0] + 1)]:
         errors.append(f"multiple_gate_openings: {openings}")
 
-    # Two-yard split invariants (the 一进 definition).
+    # Two-yard split invariants (the 一进 definition). The screen wall stands
+    # OFF the central axis (照壁侧立 form, per design D2 + the
+    # courtyard-voxel-walkability fix): the old on-axis 影壁 sealed the axis
+    # and was the root "堵住" defect. The validator now enforces the inverse —
+    # no screen-wall cell may lie on the axis.
     outer_band = compound.meta.get("outer_yard_band")
     if not screen:
         errors.append("missing_screen_wall")
-    elif not any(x == axis for x, _ in screen):
-        errors.append("screen_wall_off_axis")
+    elif any(x == axis for x, _ in screen):
+        errors.append("screen_wall_on_axis")
     elif (outer_band and
           not all(outer_band[0] <= z <= outer_band[1] for _, z in screen)):
         errors.append("screen_wall_not_inside_street_gate")
@@ -2358,26 +3087,35 @@ def validate_compound(compound: CompoundGraph) -> dict:
     if failed_quality:
         errors.append(f"subbuilding_quality_failed: {failed_quality}")
 
+    # 3D voxel-walkability checks (courtyard-voxel-walkability spec). These
+    # replace the implicit assumption behind the 2D multi-source BFS — that a
+    # 2D-reached cell is walkable in 3D — with an actual standable + auto-step
+    # probe. Any voxel_* error here is a real "堵住" defect the 2D check missed.
+    voxel_errors, voxel_stats = _voxel_walk_check(compound)
+    errors.extend(voxel_errors)
+
     ground_cells = len(_lot_interior_cells(compound) - skip_ground)
     endpoint_count = len(_collect_path_endpoints(compound))
     stair_count = len(compound.node_cells("plinth_stairs"))
+    stats = {
+        "lot_size": list(compound.lot_size),
+        "building_slots": len(compound.building_slots),
+        "gallery_cells": len(gallery_cells),
+        "moon_cells": len(moon),
+        "tree_cells": len(tree),
+        "path_cells": len(path),
+        "ground_cells": ground_cells,
+        "endpoint_count": endpoint_count,
+        "stair_cells": stair_count,
+        "silhouette_score": compound_silhouette_score(compound),
+    }
+    stats.update(voxel_stats)
     return {
         "seed": compound.seed,
         "variant": compound.variant.to_dict(),
         "passed": not errors,
         "errors": errors,
-        "stats": {
-            "lot_size": list(compound.lot_size),
-            "building_slots": len(compound.building_slots),
-            "gallery_cells": len(gallery_cells),
-            "moon_cells": len(moon),
-            "tree_cells": len(tree),
-            "path_cells": len(path),
-            "ground_cells": ground_cells,
-            "endpoint_count": endpoint_count,
-            "stair_cells": stair_count,
-            "silhouette_score": compound_silhouette_score(compound),
-        },
+        "stats": stats,
     }
 
 
@@ -2518,22 +3256,32 @@ def validate_small_courtyard(compound: CompoundGraph) -> dict:
 
     ground_cells = len(_lot_interior_cells(compound) - skip_ground)
     endpoint_count = len(endpoints)
+
+    # 3D voxel-walkability checks (courtyard-voxel-walkability spec). Small-
+    # courtyard has no plinth, so _natural_surface_y is -1 everywhere and the
+    # voxel_step_cliff branch never fires — the door / endpoint / solid-blockage
+    # checks are the ones that matter here.
+    voxel_errors, voxel_stats = _voxel_walk_check(compound)
+    errors.extend(voxel_errors)
+
+    stats = {
+        "lot_size": list(compound.lot_size),
+        "building_slots": len(compound.building_slots),
+        "tianjing_cells": len(tianjing),
+        "water_cells": len(compound.node_cells("water_feature")),
+        "planting_cells": len(compound.node_cells("planting")),
+        "path_cells": len(path),
+        "corridor_cells": len(corridors),
+        "ground_cells": ground_cells,
+        "endpoint_count": endpoint_count,
+    }
+    stats.update(voxel_stats)
     return {
         "seed": compound.seed,
         "variant": compound.variant.to_dict(),
         "passed": not errors,
         "errors": errors,
-        "stats": {
-            "lot_size": list(compound.lot_size),
-            "building_slots": len(compound.building_slots),
-            "tianjing_cells": len(tianjing),
-            "water_cells": len(compound.node_cells("water_feature")),
-            "planting_cells": len(compound.node_cells("planting")),
-            "path_cells": len(path),
-            "corridor_cells": len(corridors),
-            "ground_cells": ground_cells,
-            "endpoint_count": endpoint_count,
-        },
+        "stats": stats,
     }
 
 
