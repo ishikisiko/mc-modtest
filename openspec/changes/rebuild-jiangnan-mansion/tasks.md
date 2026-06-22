@@ -46,43 +46,43 @@
 
 ## 6. `chinese_mansion` 3-进 layout (`chinese-mansion-compound` spec)
 
-- [ ] 6.1 In `tools/buildgen/compound.py`, generalize `_compute_yard_bands(layout_type, lot_d)` to `_compute_yard_bands(jin_count, layout_type, lot_d)` returning the ordered z-bands for `jin_count ∈ {1, 3, 4}` (1 = current behavior; 3 = shipped; 4 = sketch). The band sequence for `jin_count=3`: 前院 → 仪门 → 主院 → 二门 → 后院 → 花园.
-- [ ] 6.2 Add `_layout_front_yard`, `_layout_main_yard_mansion`, `_layout_back_yard`, `_layout_garden` functions (parallel to `_layout_outer_yard` / `_layout_main_yard`) for the 江南 parcel vocabulary.
-- [ ] 6.3 Implement `open_hall` archetype: front facade resolves through `FACADE_OPEN` slot (columns + open eave, no full-height front wall). Add `FACADE_OPEN` to `chinese_mansion.json` style profile.
-- [ ] 6.4 Implement `tower_house` archetype: `stories=2`, reuses `multi-story-massing` (floor slab + stairwell + per-story facade band). Place off-axis in 后院. `tower_count ∈ {1, 2}` per variant.
-- [ ] 6.5 Add `select_mansion_variant(seed)` deterministic template table (6 rows). Variant axes: `jin_count=3`, `gate_form`, `garden_scale`, `tower_count`, `roof_grade`, `open_hall_bays`.
-- [ ] 6.6 In `tools/buildgen/groups.py`, add `chinese_mansion` group binding the new style profile, archetype roster (`main_hall` / `open_hall` / `side_wing` / `flower_hall` / `front_row` / `tower_house` / `garden_pavilion`), layout strategy, scale parameters.
-- [ ] 6.7 Create `tools/buildgen/styles/chinese_mansion.json` with `FACADE_OPEN`, `GARDEN_PATH`, `ROCKERY_STONE`, `GARDEN_PAVEMENT`, `POND_STONE` slots (vanilla-clean fallbacks; the `myvillage:` decor ids are exempt).
+- [x] 6.1 In `tools/buildgen/compound.py`, generalize `_compute_yard_bands(layout_type, lot_d)` to `_compute_yard_bands(jin_count, layout_type, lot_d)` returning the ordered z-bands for `jin_count ∈ {1, 3, 4}` (1 = current behavior; 3 = shipped; 4 = sketch). The band sequence for `jin_count=3`: 前院 → 仪门 → 主院 → 二门 → 后院 → 花园.
+- [x] 6.2 Add `_layout_front_yard`, `_layout_main_yard_mansion`, `_layout_back_yard`, `_layout_garden` functions (parallel to `_layout_outer_yard` / `_layout_main_yard`) for the 江南 parcel vocabulary.
+- [x] 6.3 Implement `open_hall` archetype: front facade resolves through `FACADE_OPEN` slot (columns + open eave, no full-height front wall). Add `FACADE_OPEN` to `chinese_mansion.json` style profile.
+- [x] 6.4 Implement `tower_house` archetype: `stories=2`, reuses `multi-story-massing` (floor slab + stairwell + per-story facade band). Place off-axis in 后院. `tower_count ∈ {1, 2}` per variant.
+- [x] 6.5 Add `select_mansion_variant(seed)` deterministic template table (6 rows). Variant axes: `jin_count=3`, `gate_form`, `garden_scale`, `tower_count`, `roof_grade`, `open_hall_bays`.
+- [x] 6.6 In `tools/buildgen/groups.py`, add `chinese_mansion` group binding the new style profile, archetype roster (`main_hall` / `open_hall` / `side_wing` / `flower_hall` / `front_row` / `tower_house` / `garden_pavilion`), layout strategy, scale parameters.
+- [x] 6.7 Create `tools/buildgen/styles/chinese_mansion.json` with `FACADE_OPEN`, `GARDEN_PATH`, `ROCKERY_STONE`, `GARDEN_PAVEMENT`, `POND_STONE` slots (vanilla-clean fallbacks; the `myvillage:` decor ids are exempt).
 
 ## 7. 照壁 off-axis + 倒座 side alley + 仪门 multi-cell for `chinese_mansion` (shared with task 2)
 
-- [ ] 7.1 Ensure the 照壁 off-axis placement (task 2.1) works for both `chinese_courtyard` and `chinese_mansion`. Add `meta.form` to distinguish 北京 (jingbi) vs 江南 (zhaobi) where the form differs.
-- [ ] 7.2 Ensure the 倒座 side alley (task 2.2) applies to `chinese_mansion`'s 前院 倒座.
-- [ ] 7.3 Ensure the inner gates (仪门, 二门) in `chinese_mansion` open ≥ 3 cells (task 2.3 generalization).
+- [x] 7.1 Ensure the 照壁 off-axis placement (task 2.1) works for both `chinese_courtyard` and `chinese_mansion`. Add `meta.form` to distinguish 北京 (jingbi) vs 江南 (zhaobi) where the form differs.
+- [x] 7.2 Ensure the 倒座 side alley (task 2.2) applies to `chinese_mansion`'s 前院 倒座.
+- [x] 7.3 Ensure the inner gates (仪门, 二门) in `chinese_mansion` open ≥ 3 cells (task 2.3 generalization).
 
 ## 8. Library generation + reports
 
-- [ ] 8.1 Generate `src/main/resources/data/myvillage/structure/chinese_mansion_001..006.nbt` (3-进 江南大宅, 6 visibly distinct variants).
-- [ ] 8.2 Regenerate `reports/compound_library_report.json` and `reports/compound_library_validation.json` with `chinese_mansion` entries (path_cells, ground_cells, endpoint_count, stair_cells, voxel_reachability stats) and updated `chinese_courtyard` entries.
-- [ ] 8.3 Add the `chinese_mansion` silhouette-score acceptance rule: 6 NBTs differ on silhouette_score ≥ 15.
+- [x] 8.1 Generate `src/main/resources/data/myvillage/structure/chinese_mansion_001..006.nbt` (3-进 江南大宅, 6 visibly distinct variants).
+- [x] 8.2 Regenerate `reports/compound_library_report.json` and `reports/compound_library_validation.json` with `chinese_mansion` entries (path_cells, ground_cells, endpoint_count, stair_cells, voxel_reachability stats) and updated `chinese_courtyard` entries.
+- [x] 8.3 Add the `chinese_mansion` silhouette-score acceptance rule: 6 NBTs differ on silhouette_score ≥ 15.
 
 ## 9. Specs and docs
 
-- [ ] 9.1 New specs (in this change's `specs/`): `chinese-mansion-compound`, `mod-decor-block-family`, `garden-rockery`, `courtyard-voxel-walkability`, `huipai-tianjing-mansion`. (Already drafted.)
-- [ ] 9.2 Delta `openspec/specs/courtyard-compound/spec.md`: update the "Chinese one-courtyard axial layout" requirement to note 照壁侧立 / 倒座 side alley / 垂花门 multi-cell passage (inherited from the voxel-walkability fix).
-- [ ] 9.3 Delta `openspec/specs/multi-story-massing/spec.md`: note that `tower_house` (绣楼 / 藏书楼) is a new archetype consuming `stories=2`.
-- [ ] 9.4 Delta `openspec/specs/cultivation-form-vocabulary/spec.md`: note `chinese_round_ridge` (卷棚) is now also used for `garden_pavilion`.
-- [ ] 9.5 Delta `openspec/specs/validation/spec.md`: add `chinese_mansion` library entry + voxel-walkability error codes.
-- [ ] 9.6 Delta `openspec/specs/style-profile/spec.md`: note `chinese_mansion` profile's new slots (`FACADE_OPEN`, `GARDEN_PATH`, `ROCKERY_STONE`, `GARDEN_PAVEMENT`, `POND_STONE`).
-- [ ] 9.7 Update `docs/ai-kb/10_civic_family.md`: add a 江南大宅 section + a "mod decor blocks" subsection (pointing to `mod-decor-block-family`).
-- [ ] 9.8 Update `docs/ai-kb/14_deferred_roadmap.md`: §E.2 marked ✅ partially realized (3-进 shipped; 4-进 still deferred); §E.3 added for 徽派天井大屋 design retention; §E note that `courtyard-voxel-walkability` covers the ground+path per-jin caveat.
-- [ ] 9.9 Update `AGENTS.md`: paragraph on the `chinese_mansion` family and the mod-decor-block protocol; note voxel-walkability validator replaces the 2D graph check.
-- [ ] 9.10 Update `README.md`: add `/myvillage place chinese_mansion_001..006` and `/function myvillage:gallery/chinese_mansion` to the command list.
+- [x] 9.1 New specs (in this change's `specs/`): `chinese-mansion-compound`, `mod-decor-block-family`, `garden-rockery`, `courtyard-voxel-walkability`, `huipai-tianjing-mansion`. (Already drafted.)
+- [x] 9.2 Delta `openspec/specs/courtyard-compound/spec.md`: update the "Chinese one-courtyard axial layout" requirement to note 照壁侧立 / 倒座 side alley / 垂花门 multi-cell passage (inherited from the voxel-walkability fix).
+- [x] 9.3 Delta `openspec/specs/multi-story-massing/spec.md`: note that `tower_house` (绣楼 / 藏书楼) is a new archetype consuming `stories=2`.
+- [x] 9.4 Delta `openspec/specs/cultivation-form-vocabulary/spec.md`: note `chinese_round_ridge` (卷棚) is now also used for `garden_pavilion`.
+- [x] 9.5 Delta `openspec/specs/validation/spec.md`: add `chinese_mansion` library entry + voxel-walkability error codes.
+- [x] 9.6 Delta `openspec/specs/style-profile/spec.md`: note `chinese_mansion` profile's new slots (`FACADE_OPEN`, `GARDEN_PATH`, `ROCKERY_STONE`, `GARDEN_PAVEMENT`, `POND_STONE`).
+- [x] 9.7 Update `docs/ai-kb/10_civic_family.md`: add a 江南大宅 section + a "mod decor blocks" subsection (pointing to `mod-decor-block-family`).
+- [x] 9.8 Update `docs/ai-kb/14_deferred_roadmap.md`: §E.2 marked ✅ partially realized (3-进 shipped; 4-进 still deferred); §E.3 added for 徽派天井大屋 design retention; §E note that `courtyard-voxel-walkability` covers the ground+path per-jin caveat.
+- [x] 9.9 Update `AGENTS.md`: paragraph on the `chinese_mansion` family and the mod-decor-block protocol; note voxel-walkability validator replaces the 2D graph check.
+- [x] 9.10 Update `README.md`: add `/myvillage place chinese_mansion_001..006` and `/function myvillage:gallery/chinese_mansion` to the command list.
 
 ## 10. Version bump + acceptance
 
-- [ ] 10.1 Bump the mod version per `openspec/config.yaml` `rules.tasks` — large-feature bump `0.15.0 → 0.16.0` (new family + new capability class + breaking NBT regeneration + new mod block), updating `gradle.properties`, `src/main/resources/META-INF/neoforge.mods.toml`, README jar-name examples, and `CHANGELOG.md` together. Note the `chinese_courtyard_*` regeneration and the new `chinese_mansion_*` library in `CHANGELOG.md`.
-- [ ] 10.2 Run the validation checklist from `docs/ai-kb/09_validation_checklist.md`: generate, validate (incl. voxel-walkability on all compound families), preview (regenerate `out/preview/chinese_courtyard_*` + new `out/preview/chinese_mansion_*` + aggregate `out/preview/index.html`), build the jar.
+- [x] 10.1 Bump the mod version per `openspec/config.yaml` `rules.tasks` — large-feature bump `0.15.0 → 0.16.0` (new family + new capability class + breaking NBT regeneration + new mod block), updating `gradle.properties`, `src/main/resources/META-INF/neoforge.mods.toml`, README jar-name examples, and `CHANGELOG.md` together. Note the `chinese_courtyard_*` regeneration and the new `chinese_mansion_*` library in `CHANGELOG.md`.
+- [x] 10.2 Run the validation checklist from `docs/ai-kb/09_validation_checklist.md`: generate, validate (incl. voxel-walkability on all compound families), preview (regenerate `out/preview/chinese_courtyard_*` + new `out/preview/chinese_mansion_*` + aggregate `out/preview/index.html`), build the jar.
 - [ ] 10.3 Staged manual acceptance: place ≥2 `chinese_mansion_*` NBTs in-game and confirm (a) the entry sequence reads 江南 (照壁侧立 + 敞厅 + 楼阁 + 山水花园), (b) the player walks end-to-end from gate to 正房 to 楼阁 second story to 假山 mid-mountain to 水池 shore — no 影壁封轴, no 3-block cliffs, no dead ends, (c) 假山 variants render with sub-block detail (皱褶 / 孔洞), (d) 水池 has an irregular shoreline, (e) the 6 NBTs visibly differ on plan / roofline / 花园 scale. Capture screenshots; serve the preview aggregate over HTTP per `AGENTS.md` and report the host URL.
 - [ ] 10.4 Staged manual acceptance: place ≥1 regenerated `chinese_courtyard_*` NBT in-game and confirm the 影壁封轴 defect is gone (player walks from gate past the side-standing 照壁 into the main yard without detour-through-column). Capture screenshots.
 - [ ] 10.5 Staged manual acceptance: place a `chinese_mansion_*` with `garden_scale=large` and confirm the 假山 is partially climbable (player can stand on `slope` / `base` variant tops via autostep), the 汀步 crosses the pond, and the 亭 on the rockery peak is reachable. Capture screenshots.

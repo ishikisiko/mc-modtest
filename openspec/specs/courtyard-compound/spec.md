@@ -23,10 +23,16 @@ A Chinese courtyard compound SHALL be laid out along a central axis as two yards
 - **AND** exactly one 垂花门 parcel node SHALL be placed between the two yard bands
 - **AND** the outer yard band SHALL be closer to the street gate than the main yard band.
 
-#### Scenario: The 影壁 blocks the direct sightline
+#### Scenario: The 照壁 stands off-axis (照壁侧立 form)
 - **WHEN** the outer yard is generated
-- **THEN** a 影壁 parcel node SHALL be placed inside the street gate, between the gate and the 垂花门
-- **AND** the 影壁 cells SHALL lie on the central axis so a sightline from the street gate to the main hall SHALL intersect the 影壁.
+- **THEN** a 照壁 parcel node SHALL be placed inside the street gate, between the gate and the 垂花门
+- **AND** the 照壁 cells SHALL NOT lie on the central axis (照壁侧立: off-axis to avoid blocking the central path while still blocking the oblique sightline)
+- **AND** `meta.form` SHALL be `"jingbi"` for the 北京四合院 style or `"zhaobi"` for the 江南 style.
+
+#### Scenario: The 倒座 leaves a side alley
+- **WHEN** the outer yard contains a `front_row` (倒座) building
+- **THEN** the `front_row` footprint SHALL leave a walkable alley of at least 1 cell between itself and the perimeter wall on at least one side (east or west)
+- **AND** the alley SHALL connect the gate area to the 垂花门 area without requiring the player to pass through the 倒座.
 
 #### Scenario: The main hall carries a 月台
 - **WHEN** the main yard is generated
@@ -43,6 +49,11 @@ A Chinese courtyard compound SHALL be laid out along a central axis as two yards
 - **WHEN** the perimeter wall is generated
 - **THEN** the wall SHALL have a single gate opening where the street-facing gate meets the central axis
 - **AND** the 垂花门 SHALL be a separate structure inside the perimeter, not the same gate as the street gate.
+
+#### Scenario: The 垂花门 passage is at least 3 cells wide
+- **WHEN** the 垂花门 (inner gate) is placed
+- **THEN** the gate's `passage` meta SHALL contain at least 3 cells: `axis_x - 1`, `axis_x`, `axis_x + 1` for each z in the gate band
+- **AND** each passage cell SHALL be voxel-walkable from both adjacent yards per the courtyard-voxel-walkability spec.
 
 ### Requirement: Water and planting are structural layout elements
 Water and planting SHALL occupy parcel cells and participate in layout. Corridors and the central path SHALL route around water and planting rather than overlapping them, and building footprints SHALL NOT overlap water or planting cells.

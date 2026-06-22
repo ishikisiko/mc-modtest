@@ -181,6 +181,8 @@ def main() -> int:
     parser.add_argument("--cultivation-sect-base-seed", type=int, default=20260612)
     parser.add_argument("--cultivation-sect-compound-count", type=int, default=2)
     parser.add_argument("--cultivation-sect-compound-base-seed", type=int, default=20260616)
+    parser.add_argument("--mansion-count", type=int, default=6)
+    parser.add_argument("--mansion-base-seed", type=int, default=20260618)
     args = parser.parse_args()
 
     if args.mc_version != SUPPORTED_MC_VERSION:
@@ -207,6 +209,9 @@ def main() -> int:
         generate_group_compound_library(
             "cultivation_sect", args.cultivation_sect_compound_count,
             args.cultivation_sect_compound_base_seed, args.profile)
+        generate_group_compound_library(
+            "chinese_mansion", args.mansion_count,
+            args.mansion_base_seed, args.profile)
         if args.profile == "full":
             generate_mod_block_fallbacks()
         copy_default_output(output_dir)

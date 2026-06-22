@@ -58,6 +58,14 @@ Cultivation roof and colonnade details SHALL include optional ridge/crown orname
 - **THEN** repeating dougong bracket sets SHALL be placed under the eave
 - **AND** bracket and column blocks SHALL resolve through style slots.
 
+### Requirement: Chinese roof types used outside cultivation buildings
+Chinese roof types registered in `cultivation-form-vocabulary` MAY also be applied to non-cultivation sub-buildings within a `chinese_mansion` compound. Specifically `chinese_round_ridge` (卷棚顶) SHALL also be used for `garden_pavilion` 亭 structures, whose small 4-column footprint is well-suited to the simple curved ridge. A `garden_pavilion` using `chinese_round_ridge` SHALL still route blocks through style `ROOF_DARK` / `ROOF_TILE` slots.
+
+#### Scenario: A garden pavilion uses chinese_round_ridge
+- **WHEN** a `garden_pavilion` is placed in the 花园 and its seed selects `chinese_round_ridge`
+- **THEN** the pavilion roof SHALL use the round-ridge (卷棚) geometry
+- **AND** roof blocks SHALL resolve through the mansion style's `ROOF_DARK` / `ROOF_TILE` slots.
+
 ### Requirement: Moon gate opening form
 The generator SHALL provide a `moon_gate` opening/motif that produces a round (圆洞) wall opening framed by style detail materials.
 

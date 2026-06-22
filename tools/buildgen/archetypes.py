@@ -61,6 +61,18 @@ SCALE_TIERS = {
         "footprints": [(9, 5), (11, 5), (11, 7)],
         "min_volumes": 1,
     },
+    "open_hall": {
+        "footprints": [(15, 11), (17, 11), (17, 13)],
+        "min_volumes": 1,
+    },
+    "tower_house": {
+        "footprints": [(9, 11), (11, 11), (11, 13)],
+        "min_volumes": 1,
+    },
+    "flower_hall": {
+        "footprints": [(11, 9), (13, 9), (13, 11)],
+        "min_volumes": 1,
+    },
     "tavern": {
         "footprints": [(15, 11), (17, 11), (17, 13)],
         "min_volumes": 1,
@@ -126,6 +138,10 @@ SCALE_TIERS = {
 ARCHETYPES = ("small_house", "medium_house", "blacksmith",
               "small_shop", "medium_shop", "big_house")
 CHINESE_ARCHETYPES = ("main_hall", "side_wing", "front_row", "gate_house")
+MANSION_ARCHETYPES = (
+    "main_hall", "open_hall", "side_wing", "flower_hall",
+    "front_row", "tower_house", "garden_pavilion",
+)
 CIVIC_ARCHETYPES = ("tavern", "lord_manor")
 CULTIVATION_TOWN_ARCHETYPES = (
     "cultivation_house", "cultivation_shop", "cultivation_inn",
@@ -1398,6 +1414,97 @@ def build_gate_house(style: Style, rng: random.Random, tier: str,
     return graph
 
 
+def build_open_hall(style: Style, rng: random.Random, tier: str,
+                    overrides: Optional[dict] = None) -> MassingGraph:
+    """敞厅 (open hall): front facade open — columns + eave, no full-height wall.
+
+    Marks ``open_fronted=True`` and ``facade_slot="FACADE_OPEN"`` on the main
+    volume so the compound layout pass can strip the front wall row and replace
+    it with standoff columns via the FACADE_OPEN style slot.
+    """
+    graph = _chinese_graph("open_hall", tier)
+    fh = 1
+    story_wall_h = 4
+    roof_grade = rng.choice(style.allowed_roof_types)
+    bays = (overrides or {}).get("open_hall_bays")
+    if bays in MAIN_HALL_BAY_FOOTPRINT:
+        footprint = MAIN_HALL_BAY_FOOTPRINT[bays]
+    else:
+        footprint = rng.choice(SCALE_TIERS["open_hall"]["footprints"])
+        bays = None
+    main = _main_volume(
+        graph, style, rng, "open_hall", story_wall_h, fh,
+        stories=1, story_wall_h=story_wall_h,
+        footprint=footprint, roof_axis="x", roof_overhang=1)
+    main.meta["wall_type"] = "white_plaster_timber_wall"
+    main.meta["door_centered"] = True
+    main.meta["open_fronted"] = True
+    main.meta["facade_slot"] = "FACADE_OPEN"
+    main.meta["entry_signage"] = True
+    _set_chinese_roof(main, roof_grade, axis="x")
+    door_x = _door(graph, main, rng)
+    _cultivation_platform(graph, main, door_x, pad=1, height=fh)
+    _cultivation_colonnade(graph, main, door_x, sides=("front",))
+    _path_patch(graph, main, door_x, rng, main.z0)
+    _chinese_bay_zones(graph, main, "work", "living", axis="x", bays=bays)
+    graph.meta["roof_grade"] = roof_grade
+    graph.meta["open_fronted"] = True
+    return graph
+
+
+def build_tower_house(style: Style, rng: random.Random, tier: str,
+                      overrides: Optional[dict] = None) -> MassingGraph:
+    """绣楼 / 藏书楼 (tower house): 2-story off-axis rear building.
+
+    Reuses ``multi-story-massing``: stories=2 + floor slab + stairwell per
+    the ``_reserve_stairwell`` helper. The footprint is narrower than
+    main_hall so it fits off-axis in the 后院.
+    """
+    graph = _chinese_graph("tower_house", tier)
+    fh = 1
+    story_wall_h = 4
+    roof_grade = rng.choice(style.allowed_roof_types)
+    footprint = rng.choice(SCALE_TIERS["tower_house"]["footprints"])
+    main = _main_volume(
+        graph, style, rng, "tower_house", story_wall_h, fh,
+        stories=2, story_wall_h=story_wall_h,
+        footprint=footprint, roof_axis="z", roof_overhang=1)
+    main.meta["wall_type"] = "white_plaster_timber_wall"
+    main.meta["off_axis"] = True
+    _set_chinese_roof(main, roof_grade, axis="z")
+    door_x = _door(graph, main, rng)
+    _reserve_stairwell(graph, main, door_x)
+    _cultivation_platform(graph, main, door_x, pad=1, height=fh)
+    _cultivation_colonnade(graph, main, door_x, sides=("front",))
+    _path_patch(graph, main, door_x, rng, main.z0)
+    _chinese_bay_zones(graph, main, "living", "storage", axis="z")
+    graph.meta["roof_grade"] = roof_grade
+    graph.meta["stories"] = 2
+    return graph
+
+
+def build_flower_hall(style: Style, rng: random.Random, tier: str,
+                      overrides: Optional[dict] = None) -> MassingGraph:
+    """花厅 (flower hall): smaller secondary hall for garden-side entertaining."""
+    graph = _chinese_graph("flower_hall", tier)
+    fh = 1
+    wall_h = 4
+    roof_grade = rng.choice(style.allowed_roof_types)
+    main = _main_volume(
+        graph, style, rng, "flower_hall", wall_h, fh,
+        footprint=rng.choice(SCALE_TIERS["flower_hall"]["footprints"]),
+        roof_axis="x", roof_overhang=1)
+    main.meta["wall_type"] = "white_plaster_timber_wall"
+    _set_chinese_roof(main, roof_grade, axis="x")
+    door_x = _door(graph, main, rng)
+    _cultivation_platform(graph, main, door_x, pad=1, height=fh)
+    _cultivation_colonnade(graph, main, door_x, sides=("front",))
+    _path_patch(graph, main, door_x, rng, main.z0)
+    _chinese_bay_zones(graph, main, "work", "living", axis="x")
+    graph.meta["roof_grade"] = roof_grade
+    return graph
+
+
 def _retag_graph(graph: MassingGraph, archetype: str, tier: str,
                  style_family: str) -> MassingGraph:
     graph.meta["archetype"] = archetype
@@ -2077,6 +2184,9 @@ BUILDERS = {
     "side_wing": build_side_wing,
     "front_row": build_front_row,
     "gate_house": build_gate_house,
+    "open_hall": build_open_hall,
+    "tower_house": build_tower_house,
+    "flower_hall": build_flower_hall,
     "cultivation_house": build_cultivation_house,
     "cultivation_shop": build_cultivation_shop,
     "cultivation_inn": build_cultivation_inn,
@@ -2100,7 +2210,8 @@ def build_massing(archetype: str, style: Style, rng: random.Random, tier: str,
     if group_id:
         from .groups import validate_group_archetype
         validate_group_archetype(group_id, style.style_id, archetype)
-    if overrides and archetype in CHINESE_ARCHETYPES:
+    _overrideable = CHINESE_ARCHETYPES + ("open_hall", "tower_house", "flower_hall")
+    if overrides and archetype in _overrideable:
         graph = BUILDERS[archetype](style, rng, tier, overrides=overrides)
     else:
         graph = BUILDERS[archetype](style, rng, tier)

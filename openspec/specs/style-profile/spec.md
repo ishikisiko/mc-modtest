@@ -77,6 +77,21 @@ Material variation SHALL NOT modify cells tagged as `PROTECTED`.
 ### Requirement: Style profile schema includes civic and furniture slots
 The style profile schema SHALL recognize additional material slots `INTERIOR_CIVIC`, `FURNITURE`, `SIGNAGE`, `HERALDRY`, `SPIRIT_CRYSTAL`, and `RITUAL_METAL` alongside the existing `BASE_STONE`, `WALL_MAIN`, `FRAME_WOOD`, `ROOF_DARK`, `DETAIL_WOOD`, `LIGHTING`, `GROUND_PATH`, `INTERIOR_WORK`, and `INTERIOR_STORAGE` slots. A style profile MAY omit any of these slots, in which case generators referencing the missing slot SHALL skip placement of that slot's blocks.
 
+### Requirement: The `chinese_mansion` style profile introduces garden and open-facade slots
+The `chinese_mansion` style profile (`tools/buildgen/styles/chinese_mansion.json`) SHALL define the following additional slots beyond the base Chinese courtyard vocabulary:
+- `FACADE_OPEN`: materials for the 敞厅 `open_hall` archetype's open eave columns (columns + open eave, no full-height front wall)
+- `GARDEN_PATH`: materials for 花园 path cells (distinct from main-yard `GROUND_PATH` to allow finer gravel/moss textures)
+- `ROCKERY_STONE`: materials for 假山 cells (primary: `myvillage:rockery_block`; vanilla fallbacks: `minecraft:stone`, `minecraft:andesite`)
+- `GARDEN_PAVEMENT`: materials for 花园 paved area (gravel + stone_bricks mix)
+- `POND_STONE`: materials for 水池 shoreline cells (primary: `myvillage:rockery_block`; vanilla fallbacks: `minecraft:mossy_stone_bricks`, `minecraft:stone`)
+
+A style profile that defines `myvillage:rockery_block` in any slot SHALL include a runtime fallback entry in `src/main/resources/data/myvillage/mod_block_fallbacks.json`. The `myvillage:` self-namespace exempts it from mod-catalog confirmation.
+
+#### Scenario: The mansion style profile is loaded
+- **WHEN** the generator loads style id `chinese_mansion`
+- **THEN** `material_slots` SHALL include `FACADE_OPEN`, `GARDEN_PATH`, `ROCKERY_STONE`, `GARDEN_PAVEMENT`, and `POND_STONE`
+- **AND** `allowed_roof_types` SHALL include `chinese_flush_gable`, `chinese_overhang_gable`, `chinese_half_hip`, and `chinese_round_ridge`.
+
 #### Scenario: The medieval village style defines civic slots
 - **WHEN** the `medieval_village` style is loaded
 - **THEN** the profile SHALL include `INTERIOR_CIVIC` containing at least `brewing_stand`, `lectern`, `bell`, `bookshelf`, and `cauldron`

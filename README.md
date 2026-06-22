@@ -114,10 +114,12 @@ v0.15.0-fix1 rebuilds the courtyard **ground + path layer** (`courtyard-ground-l
 屋檐下 stone_bricks) and a multi-source-BFS path connects every door, water
 feature, planting bed, and the moon platform, with a single stairs block at the
 plinth edge — the courtyards are walkable end-to-end.
-v0.15.0-fix2 slims the `reports/*_library_report.json` files: the generators
-now emit a compact graph summary (per-cell lists folded into counts + bbox)
-instead of the full `to_dict()` payload, cutting the largest report from
-164k to 8k lines with no `.nbt` or gameplay change.
+v0.16.0 ships the **3-进 江南大宅 (`chinese_mansion`)** family: six new NBTs
+`chinese_mansion_001..006.nbt`, a `garden_rockery` / `garden_pond` / 亭 garden
+layer, the `open_hall` and `tower_house` archetypes, the `myvillage:rockery_block`
+self-namespace block, and the voxel-walkability 3D BFS validator for all compound
+families. Also regenerates `chinese_courtyard_001..006.nbt` with 照壁侧立
+off-axis screen wall and ≥3-cell 垂花门 passage.
 Run the final full-profile generation after a vanilla-profile proof to restore
 the shipped artifact profile.
 
@@ -301,7 +303,7 @@ jar tf build/libs/*.jar | grep "assets/myvillage/textures/painting/inscription"
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.15.0-fix2.jar
+build/libs/myvillage-0.16.0.jar
 ```
 
 ## Versioning And Changelog
@@ -347,12 +349,12 @@ python3 tools/generate_sect_plan_preview.py --count 6    # default covers all 3 
 python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 graph previews
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.15.0-fix2.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.15.0-fix2.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.15.0-fix2.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.15.0-fix2.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.15.0-fix2.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.15.0-fix2.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.16.0.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.16.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.16.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.16.0.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.16.0.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.16.0.jar | grep "assets/myvillage/textures/painting/inscription"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -473,6 +475,12 @@ Place a generated building directly:
 /myvillage place medium_shop_001
 /myvillage place big_house_001
 /myvillage place chinese_courtyard_001
+/myvillage place chinese_mansion_001
+/myvillage place chinese_mansion_002
+/myvillage place chinese_mansion_003
+/myvillage place chinese_mansion_004
+/myvillage place chinese_mansion_005
+/myvillage place chinese_mansion_006
 /myvillage place tavern_001
 /myvillage place lord_manor_001
 /myvillage place cultivation_town_001   # courtyard district-fill fragment (not the canonical town — use /myvillage town)
@@ -499,6 +507,7 @@ directly, place generated structures with the same offset:
 ```mcfunction
 /place template myvillage:small_house_001 ~ ~-1 ~
 /place template myvillage:chinese_courtyard_001 ~ ~-1 ~
+/place template myvillage:chinese_mansion_001 ~ ~-1 ~
 /place template myvillage:tavern_001 ~ ~-1 ~
 /place template myvillage:lord_manor_001 ~ ~-1 ~
 /place template myvillage:cultivation_town_001 ~ ~-1 ~
@@ -535,10 +544,12 @@ Generated datapack functions are also available after resource generation:
 ```mcfunction
 /function myvillage:gallery/medieval_village
 /function myvillage:gallery/chinese_courtyard
+/function myvillage:gallery/chinese_mansion
 /function myvillage:gallery/civic
 /function myvillage:gallery/cultivation_town
 /function myvillage:gallery/cultivation_sect
 /function myvillage:place/chinese_courtyard_001
+/function myvillage:place/chinese_mansion_001
 /function myvillage:place/tavern_001
 /function myvillage:place/lord_manor_001
 /function myvillage:place/cultivation_town_001

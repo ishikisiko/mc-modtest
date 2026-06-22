@@ -134,6 +134,34 @@ The generated-structure NBT validator SHALL inspect horizontal `myvillage:wall_p
 - **WHEN** generated-structure validation checks a horizontal wall plaque run whose viewer-visible columns are `left, inner_left, center, inner_right, right`
 - **THEN** validation SHALL accept the plaque order.
 
+### Requirement: The `chinese_mansion` library is validated as a 6-NBT group with spread ≥ 15
+The generation pipeline SHALL produce 6 `chinese_mansion_001..006.nbt` files validated by `validate_mansion`. The compound library check SHALL confirm: (a) 6 distinct variant keys (no two identical), (b) silhouette score spread (raw, uncapped, with `tower_count * 5` roofline bonus) ≥ 15 across the 6 NBTs. Mansion validation uses `validate_mansion`, not `validate_compound`.
+
+#### Scenario: chinese_mansion library is generated
+- **WHEN** `generate_compound_library.py --group chinese_mansion --count 6` is run
+- **THEN** it SHALL produce 6 NBT files, a gallery function, and a report at `reports/chinese_mansion_compound_library_report.json`
+- **AND** the report SHALL record `passed: true`, `distinct_variants: 6`, and `silhouette_spread >= 15`.
+
+### Requirement: Voxel-walkability validation gates compound exports
+Compound validators (for `chinese_courtyard`, `chinese_mansion`, etc.) SHALL include a voxel-walkability check that performs a 3D BFS from the gate-entry standable column and confirms all door positions and path endpoints are reachable. The following error codes are defined:
+- `voxel_unreachable_door:<archetype>`: a building's front door position is not reachable from the gate entry
+- `voxel_unreachable_endpoint:<x,z>`: a path endpoint cell (moon platform, inner gate, etc.) is not reachable
+- `voxel_step_cliff:<a>-><b>`: two adjacent path cells have an absolute y-difference ≥ 2 that is not bridged by a stair
+- `voxel_blocked_by_solid:<x,z>`: a path cell's standable y does not exist (the cell is fully blocked)
+
+A stat entry `voxel_reachability` SHALL be included in the validation report, recording: `visited` (cells reached), `unreachable` (count), `cliff_count`.
+
+#### Scenario: A compound path endpoint is blocked by a colonnade column
+- **WHEN** validate_compound or validate_mansion runs voxel_walk_bfs
+- **AND** a colonnade column has been placed over a path endpoint cell making its standable_y much higher than its neighbors
+- **THEN** the validator SHALL emit `voxel_unreachable_endpoint:<x,z>` for that cell
+- **AND** the compound SHALL fail validation until the endpoint is relocated or the column is removed.
+
+#### Scenario: All compound doors and endpoints are reachable
+- **WHEN** the voxel BFS completes for a valid compound
+- **THEN** no `voxel_unreachable_*` or `voxel_step_cliff_*` errors SHALL be emitted
+- **AND** `voxel_reachability.unreachable` SHALL be 0.
+
 ### Requirement: Visual review remains outside full automation
 Automated validation SHALL NOT be treated as complete visual acceptance. In-game placement via `/myvillage gallery`, `/myvillage gallery original`, `/myvillage gallery cultivation`, or `/place template` remains the review path for visual issues such as roof holes, gable appearance, stair/slab facing, and layout readability.
 

@@ -25,7 +25,9 @@ from buildgen import export
 from buildgen.compound import (sample_compound_library, sample_sect_compound_library,
                                sample_town_block_library, validate_compound,
                                validate_compound_library, validate_sect_compound,
-                               validate_town_block, validate_town_block_library)
+                               validate_town_block, validate_town_block_library,
+                               generate_mansion, validate_mansion,
+                               compound_silhouette_score)
 from buildgen.compound import generate_subbuilding
 from buildgen.groups import get_group
 from buildgen.quality import quality_check
@@ -154,6 +156,65 @@ def main() -> int:
         print(f"report: {export.repo_relpath(report_path)}")
         print(f"gallery: {summary['gallery_function']}")
         return 0
+
+    if group.layout_strategy == "mansion_compound":
+        compounds = [generate_mansion(args.base_seed + i) for i in range(args.count)]
+        entries = []
+        compound_reports = []
+        for index, compound in enumerate(compounds, start=1):
+            name = f"chinese_mansion_{index:03d}"
+            report = validate_mansion(compound)
+            if not report["passed"]:
+                raise RuntimeError(f"{name} failed mansion validation: {report['errors']}")
+            _, info = export.write_structure_nbt(deepcopy(compound.grid), style.style_id, name)
+            export.write_place_function(style.style_id, name)
+            report["name"] = name
+            report["export"] = info
+            report["compound_graph"] = compound.to_summary_dict()
+            compound_reports.append(report)
+            entries.append({"name": name, "archetype": "chinese_mansion",
+                            "scale_tier": compound.variant.courtyard_size,
+                            "size": info["size"],
+                            "group_id": "chinese_mansion"})
+            print(f"OK {name:24s} variant={compound.variant.key()} "
+                  f"size={info['size']} blocks={info['block_count']}")
+        gallery_path = export.write_gallery_function(style.style_id, entries,
+                                                     spacing_x=64, spacing_z=80)
+        # Use raw (uncapped) silhouette scores for spread; mansion compounds
+        # with multiple towers hit the 100 cap making capped spread too narrow.
+        # tower_count * 5 adds a visible-roofline bonus: 绣楼 pair ≠ single 楼阁.
+        def _raw_score(c):
+            (_, y0, _), (_, y1, _) = c.grid.bounds()
+            h = y1 - min(0, y0) + 1
+            return (h * 2 + len(c.building_slots) * 10
+                    + c.variant.main_bays * 2 + c.variant.tower_count * 5)
+        silhouette_scores = [compound_silhouette_score(c) for c in compounds]
+        raw_scores = [_raw_score(c) for c in compounds]
+        score_spread = max(raw_scores) - min(raw_scores)
+        min_spread = 15
+        passed = score_spread >= min_spread
+        summary = {
+            "style_id": style.style_id,
+            "group_id": args.group,
+            "requested": args.count,
+            "generated": len(compound_reports),
+            "passed": passed,
+            "errors": [] if passed else [f"silhouette_spread_too_low: {score_spread} < {min_spread}"],
+            "distinct_variants": len(set(c.variant.key() for c in compounds)),
+            "silhouette_scores": silhouette_scores,
+            "silhouette_spread": score_spread,
+            "min_silhouette_spread": min_spread,
+            "gallery_function": export.repo_relpath(gallery_path),
+            "standalone_reports": [],
+            "compounds": compound_reports,
+        }
+        os.makedirs(os.path.dirname(report_path), exist_ok=True)
+        with open(report_path, "w", encoding="utf-8") as f:
+            json.dump(summary, f, indent=2, ensure_ascii=False)
+        print(f"\ngenerated {len(compound_reports)}/{args.count} mansion compounds")
+        print(f"report: {export.repo_relpath(report_path)}")
+        print(f"gallery: {summary['gallery_function']}")
+        return 0 if passed else 1
 
     if group.layout_strategy in ("courtyard_street_block", "town_generation"):
         compounds = sample_town_block_library(

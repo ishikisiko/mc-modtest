@@ -410,6 +410,7 @@ def _translate_context(compound: CompoundGraph, slot_id: str, ctx: BuildContext,
     quality = None
     if ctx.archetype in (
         "main_hall", "side_wing", "front_row",
+        "open_hall", "tower_house", "flower_hall",
         "sect_gate", "sect_main_hall", "scripture_pavilion",
         "alchemy_room", "disciple_quarters",
     ):
@@ -1072,25 +1073,63 @@ def _resolve_gate_side(main_orientation: str) -> str:
         "(north/east deferred per docs/ai-kb deferred roadmap §E)")
 
 
-def _compute_yard_bands(layout_type: str, lot_d: int) -> dict:
+def _compute_yard_bands(jin_count: int, layout_type: str, lot_d: int) -> dict:
     """Depth bands in the canonical south frame (gate at z=0, inward +z).
 
-    Generalizes cleanly to a future `jin_count` axis: each 进 is one more
-    (yard band, inner-gate band) pair appended before the main yard.
+    ``jin_count=1`` reproduces the one-courtyard behavior; ``jin_count=3``
+    adds the 江南大宅 3-进 sequence (前院→仪门→主院→二门→后院→花园).
+    ``jin_count=4`` is reserved for the deferred deeper-garden extension.
     """
-    outer_depth = 6 if layout_type == "mu" else 13
-    oy0 = 1
-    oy1 = oy0 + outer_depth - 1
-    ig0 = oy1 + 1
-    ig1 = ig0 + 2           # 3-deep 垂花门 band
-    my0 = ig1 + 1
-    my1 = lot_d - 2         # last interior row before the north wall
-    return {
-        "gate_z": 0,
-        "outer_yard_band": (oy0, oy1),
-        "inner_gate_band": (ig0, ig1),
-        "main_yard_band": (my0, my1),
-    }
+    if jin_count == 1:
+        outer_depth = 6 if layout_type == "mu" else 13
+        oy0 = 1
+        oy1 = oy0 + outer_depth - 1
+        ig0 = oy1 + 1
+        ig1 = ig0 + 2           # 3-deep 垂花门 band
+        my0 = ig1 + 1
+        my1 = lot_d - 2         # last interior row before the north wall
+        return {
+            "gate_z": 0,
+            "outer_yard_band": (oy0, oy1),
+            "inner_gate_band": (ig0, ig1),
+            "main_yard_band": (my0, my1),
+        }
+    elif jin_count == 3:
+        # 3-进: 前院 → 仪门 → 主院 → 二门 → 后院 → 花园
+        ig_depth = 3          # each inner gate is exactly 3 cells deep
+        usable = lot_d - 2    # interior cells (excluding the two perimeter walls)
+        yard_pool = usable - 2 * ig_depth
+        # Proportional split (front=20%, main=30%, back=22%, garden=28%)
+        front_d  = max(8, int(yard_pool * 0.20))
+        main_d   = max(8, int(yard_pool * 0.30))
+        back_d   = max(8, int(yard_pool * 0.22))
+        garden_d = max(8, yard_pool - front_d - main_d - back_d)
+        fy0 = 1
+        fy1 = fy0 + front_d - 1
+        yi0 = fy1 + 1
+        yi1 = yi0 + ig_depth - 1  # 仪门 band
+        my0 = yi1 + 1
+        my1 = my0 + main_d - 1
+        er0 = my1 + 1
+        er1 = er0 + ig_depth - 1  # 二门 band
+        by0 = er1 + 1
+        by1 = by0 + back_d - 1
+        gy0 = by1 + 1
+        gy1 = lot_d - 2           # garden extends to the north wall
+        return {
+            "gate_z": 0,
+            "front_yard_band": (fy0, fy1),
+            "yimen_band":       (yi0, yi1),
+            "main_yard_band":   (my0, my1),
+            "ermen_band":       (er0, er1),
+            "back_yard_band":   (by0, by1),
+            "garden_band":      (gy0, gy1),
+        }
+    else:
+        raise ValueError(
+            f"jin_count={jin_count} not yet realized "
+            "(4-进 is a deferred extension per docs/ai-kb deferred roadmap §E)"
+        )
 
 
 def _add_chinese_perimeter(compound: CompoundGraph, style: Style) -> None:
@@ -1240,7 +1279,7 @@ def _layout_outer_yard(compound: CompoundGraph, style: Style, bands: dict,
     compound.parcel_nodes.append(
         ParcelNode("screen_wall", "screen_wall", screen_cells, {
             "height": 6, "on_axis": False, "facing_gate": True,
-            "form": "zhaobi", "side": screen_side, "width": screen_width}))
+            "form": "jingbi", "side": screen_side, "width": screen_width}))
 
     # 倒座 (front_row): a set-back outer-yard range facing the gate. Only the
     # `standard` plan carries it — 三合院 omits it (wings extend forward to close
@@ -1261,11 +1300,19 @@ def _layout_outer_yard(compound: CompoundGraph, style: Style, bands: dict,
 
 
 def _layout_inner_gate(compound: CompoundGraph, style: Style,
-                       bands: dict) -> None:
-    """垂花门 (inner gate) on the axis between the two yards, with 垂莲柱
-    (hanging-lotus column) corner posts and a central passage."""
+                       bands: dict,
+                       gate_band_key: str = "inner_gate_band",
+                       node_id: str = "inner_gate",
+                       gate_kind: str = "chuihua_gate") -> None:
+    """垂花门 / 仪门 / 二门 on the axis between two yards.
+
+    ``gate_band_key`` selects which band entry to read from ``bands``; defaults
+    to ``"inner_gate_band"`` for the one-courtyard layout. Mansion layouts pass
+    ``"yimen_band"`` or ``"ermen_band"`` and distinctive ``node_id`` /
+    ``gate_kind`` labels.
+    """
     axis = compound.axis_x
-    ig0, ig1 = bands["inner_gate_band"]
+    ig0, ig1 = bands[gate_band_key]
     base = style.primary("PLATFORM_STONE")
     column = style.primary("COLUMN")
     wall_main = style.primary("WALL_MAIN")
@@ -1302,8 +1349,8 @@ def _layout_inner_gate(compound: CompoundGraph, style: Style,
             compound.grid.set((x, 5, z), roof, ["ROOF"], PRIORITY["ROOF"],
                               "ROOF_DARK")
     compound.parcel_nodes.append(
-        ParcelNode("inner_gate", "inner_gate", cells, {
-            "kind": "chuihua_gate",
+        ParcelNode(node_id, "inner_gate", cells, {
+            "kind": gate_kind,
             "pendant_columns": [list(c) for c in sorted(corners)],
             "passage": [list(c) for c in sorted(passage)],
             "band": [ig0, ig1],
@@ -1678,10 +1725,15 @@ def _collect_path_endpoints(compound: CompoundGraph) -> List[Cell2]:
                   and n.cells]
     if moon_nodes:
         moon = moon_nodes[0].cells
+        axis = compound.axis_x
         if gate_side == "north":
-            moon_cell = max(moon, key=lambda c: c[1])
+            best_z = max(c[1] for c in moon)
         else:
-            moon_cell = min(moon, key=lambda c: c[1])
+            best_z = min(c[1] for c in moon)
+        # Among cells on the gateway-facing row, prefer axis_x (colonnade
+        # columns may occupy off-axis positions on the same row).
+        front_row_cells = [(x, z) for x, z in moon if z == best_z]
+        moon_cell = min(front_row_cells, key=lambda c: abs(c[0] - axis))
         if (0 < moon_cell[0] < lot_w - 1 and 0 < moon_cell[1] < lot_d - 1):
             endpoints.append(moon_cell)
 
@@ -2204,7 +2256,7 @@ def generate_compound(seed: int, style: Optional[Style] = None,
     gate_side = _resolve_gate_side(variant.main_orientation)
     lot_w, lot_d = COURTYARD_SIZE[variant.courtyard_size]
     axis = lot_w // 2
-    bands = _compute_yard_bands(variant.layout_type, lot_d)
+    bands = _compute_yard_bands(1, variant.layout_type, lot_d)
     compound = CompoundGraph(
         style.style_id, seed, variant, (lot_w, lot_d), axis,
         meta={
@@ -2239,6 +2291,354 @@ def generate_compound(seed: int, style: Optional[Style] = None,
     _layout_main_yard(compound, style, bands, contexts)
     _place_covered_galleries(compound, style, bands)
     _dress_main_yard(compound, style, bands)
+    _place_yard_ground(compound, style)
+    _route_complete_path(compound, style)
+    _place_band_transition_stairs(compound, style)
+    return compound
+
+
+# ---------------------------------------------------------------------------
+# 江南大宅 (chinese_mansion) 3-进 compound — variant + layout + generator
+# ---------------------------------------------------------------------------
+
+MANSION_SIZE = {
+    "mansion_small": (39, 62),
+    "mansion_medium": (43, 70),
+    "mansion_large": (47, 78),
+}
+
+# gate_form → GATE_HALF-compatible gate_type for _add_chinese_perimeter
+_MANSION_GATE_TYPE: Dict[str, str] = {
+    "flush": "manzi", "recessed": "jinzhu", "paifang": "guangliang"
+}
+
+# Deterministic 6-row template table (task 6.5). Each row yields a visibly
+# distinct mansion on (gate_form, garden_scale, tower_count).
+MANSION_TEMPLATES = (
+    # 0: medium, paifang, large garden, 1 tower, half_hip, 5 bays
+    dict(courtyard_size="mansion_medium", gate_form="paifang",
+         garden_scale="large", tower_count=1,
+         roof_grade="chinese_half_hip", open_hall_bays=5),
+    # 1: large, recessed, large garden, 2 towers, overhang_gable, 5 bays
+    dict(courtyard_size="mansion_large", gate_form="recessed",
+         garden_scale="large", tower_count=2,
+         roof_grade="chinese_overhang_gable", open_hall_bays=5),
+    # 2: medium, flush, small garden, 1 tower, flush_gable, 3 bays
+    dict(courtyard_size="mansion_medium", gate_form="flush",
+         garden_scale="small", tower_count=1,
+         roof_grade="chinese_flush_gable", open_hall_bays=3),
+    # 3: large, paifang, large garden, 2 towers, half_hip, 3 bays
+    dict(courtyard_size="mansion_large", gate_form="paifang",
+         garden_scale="large", tower_count=2,
+         roof_grade="chinese_half_hip", open_hall_bays=3),
+    # 4: small, recessed, small garden, 1 tower, round_ridge, 5 bays
+    dict(courtyard_size="mansion_small", gate_form="recessed",
+         garden_scale="small", tower_count=1,
+         roof_grade="chinese_round_ridge", open_hall_bays=5),
+    # 5: medium, flush, large garden, 1 tower, overhang_gable, 3 bays
+    dict(courtyard_size="mansion_medium", gate_form="flush",
+         garden_scale="large", tower_count=1,
+         roof_grade="chinese_overhang_gable", open_hall_bays=3),
+)
+
+
+@dataclass(frozen=True)
+class MansionVariant:
+    """Variant axes for a 江南大宅 3-进 compound (task 6.5)."""
+    courtyard_size: str   # mansion_small / mansion_medium / mansion_large
+    roof_grade: str
+    gate_form: str        # flush / recessed / paifang
+    garden_scale: str     # small / large
+    tower_count: int      # 1 or 2
+    open_hall_bays: int   # 3 or 5
+    jin_count: int = 3    # always 3 for the shipped library
+
+    @property
+    def gate_type(self) -> str:
+        return _MANSION_GATE_TYPE[self.gate_form]
+
+    # Compatibility properties so functions written for CompoundVariant do not
+    # crash when given a MansionVariant. The mansion layout path never calls
+    # _layout_outer_yard / _layout_main_yard, so these are only reached by
+    # shared utilities (validate_compound, silhouette_score, etc.).
+    @property
+    def layout_type(self) -> str:
+        return "mansion"
+
+    @property
+    def main_bays(self) -> int:
+        return self.open_hall_bays
+
+    def key(self) -> Tuple:
+        return (self.courtyard_size, self.roof_grade, self.gate_form,
+                self.garden_scale, self.tower_count, self.open_hall_bays)
+
+    def to_dict(self) -> dict:
+        return {
+            "courtyard_size": self.courtyard_size,
+            "roof_grade": self.roof_grade,
+            "gate_form": self.gate_form,
+            "garden_scale": self.garden_scale,
+            "tower_count": self.tower_count,
+            "open_hall_bays": self.open_hall_bays,
+            "jin_count": self.jin_count,
+        }
+
+
+def select_mansion_variant(seed: int) -> MansionVariant:
+    row = MANSION_TEMPLATES[seed % len(MANSION_TEMPLATES)]
+    return MansionVariant(
+        courtyard_size=row["courtyard_size"],
+        roof_grade=row["roof_grade"],
+        gate_form=row["gate_form"],
+        garden_scale=row["garden_scale"],
+        tower_count=row["tower_count"],
+        open_hall_bays=row["open_hall_bays"],
+    )
+
+
+def _layout_front_yard(compound: CompoundGraph, style: Style, bands: dict,
+                       contexts: Dict[str, BuildContext]) -> None:
+    """前院 layout for chinese_mansion: 照壁 off-axis + 倒座 with side alley.
+
+    Parallel to ``_layout_outer_yard`` for the 1-进 courtyard but reads
+    ``front_yard_band`` and uses the 江南 vocabulary labels.
+    """
+    lot_w, _ = compound.lot_size
+    axis = compound.axis_x
+    fy0, _ = bands["front_yard_band"]
+
+    # 照壁 off-axis (江南 zhaobi form)
+    screen_rng = random.Random(compound.seed + 7071)
+    screen_side = screen_rng.choice(("east", "west"))
+    screen_width = screen_rng.choice((1, 2))
+    screen_z = fy0 + 1
+    screen_cells = _screen_panel_cells(axis, screen_z, screen_side, screen_width)
+    base = style.primary("PLATFORM_STONE")
+    wall_main = style.primary("WALL_MAIN")
+    cap = style.slot_entry("ROOF_DARK", "_stairs")
+    for x, z in screen_cells:
+        compound.grid.set((x, 0, z), base, ["STRUCTURE"],
+                          PRIORITY["STRUCTURE"], "PLATFORM_STONE")
+        for y in range(1, 6):
+            compound.grid.set((x, y, z), wall_main, ["STRUCTURE"],
+                              PRIORITY["STRUCTURE"], "WALL_MAIN")
+        compound.grid.set((x, 6, z), cap, ["ROOF"], PRIORITY["ROOF"], "ROOF_DARK")
+    compound.parcel_nodes.append(
+        ParcelNode("screen_wall", "screen_wall", screen_cells, {
+            "height": 6, "on_axis": False, "facing_gate": True,
+            "form": "zhaobi", "side": screen_side, "width": screen_width,
+        }))
+
+    # 倒座 (front_row) with side alley on the side opposite to the 照壁
+    front_ctx = contexts["front_row"]
+    front = front_ctx.graph.get("main")
+    alley_side = "west" if screen_side == "east" else "east"
+    alley_x = _front_row_origin_x(axis, front.size[0], lot_w, alley_side)
+    _translate_context(compound, "front_row", front_ctx, (alley_x, 0, fy0 + 4))
+
+
+def _layout_main_yard_mansion(compound: CompoundGraph, style: Style, bands: dict,
+                              contexts: Dict[str, BuildContext]) -> None:
+    """主院 layout for chinese_mansion: open_hall (敞厅) + side_wings + 月台.
+
+    The 敞厅 sits on the central axis at the inward end of the 主院; the
+    厢房 (side_wings) flank it. A shallow 月台 apron fronts the 敞厅.
+    """
+    lot_w, lot_d = compound.lot_size
+    axis = compound.axis_x
+    my0, my1 = bands["main_yard_band"]
+
+    plinth_h = 1  # stone_1 raised floor
+    platform_stone = style.primary("PLATFORM_STONE")
+    plinth_cells: Set[Cell2] = set()
+    for x in range(1, lot_w - 1):
+        for z in range(my0, my1 + 1):
+            plinth_cells.add((x, z))
+            compound.grid.set((x, 0, z), platform_stone,
+                              ["STRUCTURE", "GROUND"], PRIORITY["STRUCTURE"],
+                              "PLATFORM_STONE")
+    compound.parcel_nodes.append(
+        ParcelNode("main_yard_platform", "platform", plinth_cells,
+                   {"tier": "stone_1", "height": plinth_h}))
+
+    # 敞厅 (open_hall) on axis at the inward end
+    hall = contexts["open_hall"].graph.get("main")
+    hall_z1 = my1 - 1
+    hall_z0 = hall_z1 - hall.size[2] + 1
+    main_slot = _translate_context(
+        compound, "open_hall", contexts["open_hall"],
+        (axis - hall.size[0] // 2, plinth_h, hall_z0))
+
+    # 月台 apron in front of 敞厅
+    moon_depth = 2
+    hx0 = min(x for x, _ in main_slot.footprint)
+    hx1 = max(x for x, _ in main_slot.footprint)
+    moon_cells = {(x, z) for x in range(hx0, hx1 + 1)
+                  for z in range(hall_z0 - moon_depth, hall_z0)
+                  if 0 < x < lot_w - 1}
+    for x, z in moon_cells:
+        compound.grid.set((x, 0, z), platform_stone,
+                          ["STRUCTURE", "GROUND"], PRIORITY["STRUCTURE"],
+                          "PLATFORM_STONE")
+    compound.parcel_nodes.append(
+        ParcelNode("moon_platform", "moon_platform", moon_cells,
+                   {"relative_y": plinth_h, "fronts": "open_hall"}))
+
+    # 厢房 (side_wings) flanking the 主院
+    west = contexts["west_wing"].graph.get("main")
+    east = contexts["east_wing"].graph.get("main")
+    wing_z0 = my0 + 1
+    _translate_context(compound, "west_side_wing", contexts["west_wing"],
+                       (2, plinth_h, wing_z0))
+    _translate_context(compound, "east_side_wing", contexts["east_wing"],
+                       (lot_w - 2 - east.size[0], plinth_h, wing_z0))
+
+    compound.meta["main_yard_plinth_h"] = plinth_h
+    compound.meta["plinth_height"] = plinth_h
+    compound.meta["open_hall_front_z"] = hall_z0
+
+
+def _layout_back_yard(compound: CompoundGraph, style: Style, bands: dict,
+                      contexts: Dict[str, BuildContext],
+                      variant: "MansionVariant") -> None:
+    """后院 layout: 楼阁 (tower_house) placed off-axis, one or two towers."""
+    lot_w, _ = compound.lot_size
+    axis = compound.axis_x
+    by0, _ = bands["back_yard_band"]
+
+    tower_rng = random.Random(compound.seed + 8181)
+    tower1_side = tower_rng.choice(("east", "west"))
+
+    tower1_ctx = contexts["tower_1"]
+    tower1 = tower1_ctx.graph.get("main")
+    if tower1_side == "west":
+        tower1_x = 2
+    else:
+        tower1_x = lot_w - 2 - tower1.size[0]
+    _translate_context(compound, "tower_house_1", tower1_ctx,
+                       (tower1_x, 0, by0 + 1))
+
+    if variant.tower_count == 2 and "tower_2" in contexts:
+        tower2_ctx = contexts["tower_2"]
+        tower2 = tower2_ctx.graph.get("main")
+        tower2_x = (lot_w - 2 - tower2.size[0]) if tower1_side == "west" else 2
+        _translate_context(compound, "tower_house_2", tower2_ctx,
+                           (tower2_x, 0, by0 + 1))
+
+
+def _layout_garden(compound: CompoundGraph, style: Style, bands: dict,
+                   seed: int, variant: "MansionVariant") -> None:
+    """花园 layout: rockery + pond + pavilion + stepping stones.
+
+    The bbox is split: west half for 假山 (garden_rockery), east half for
+    水池 (garden_pond). ``garden_scale`` controls feature density.
+    """
+    lot_w, _ = compound.lot_size
+    gy0, gy1 = bands["garden_band"]
+    interior_w = lot_w - 2   # columns x=1..lot_w-2
+
+    pond_w   = max(5, interior_w // 3)
+    rock_w   = max(5, interior_w // 2)
+    garden_d = gy1 - gy0 + 1
+    feature_d = max(6, garden_d * 2 // 3)
+
+    pond_x0, pond_x1 = lot_w - 1 - pond_w, lot_w - 2
+    pond_z0, pond_z1 = gy0, gy0 + feature_d - 1
+    rock_x0, rock_x1 = 1, 1 + rock_w - 1
+    rock_z0, rock_z1 = gy0, gy0 + feature_d - 1
+
+    rockery_node = place_garden_rockery(compound, (rock_x0, rock_z0, rock_x1, rock_z1),
+                                        seed + 9100)
+    pond_node, water_cells = place_garden_pond(
+        compound, (pond_x0, pond_z0, pond_x1, pond_z1), seed + 9200,
+        rockery_node=rockery_node)
+
+    # 亭 pavilion north of the rockery
+    pav_cx = (rock_x0 + rock_x1) // 2
+    pav_cz = gy0 + feature_d + 2
+    if gy0 <= pav_cz <= gy1:
+        place_garden_pavilion(compound, (pav_cx, pav_cz), 3, 0, style)
+
+    # 汀步 across the pond
+    if water_cells:
+        water_sorted = sorted(water_cells)
+        w_shore = min(water_sorted, key=lambda c: c[0])
+        e_shore = max(water_sorted, key=lambda c: c[0])
+        if w_shore != e_shore:
+            place_stepping_stones(compound, w_shore, e_shore, seed + 9300)
+
+    # Extra rockery for large-scale 花园
+    if variant.garden_scale == "large":
+        rock2_z0 = pav_cz + 2
+        if rock2_z0 < gy1 - 3:
+            place_garden_rockery(compound,
+                                 (rock_x0, rock2_z0, rock_x1, gy1),
+                                 seed + 9400)
+
+    garden_cells = {(x, z) for x in range(1, lot_w - 1)
+                    for z in range(gy0, gy1 + 1)}
+    compound.parcel_nodes.append(
+        ParcelNode("garden_band", "garden", garden_cells,
+                   {"garden_scale": variant.garden_scale,
+                    "bbox": [1, gy0, lot_w - 2, gy1]}))
+
+
+def generate_mansion(seed: int, style: Optional[Style] = None,
+                     variant: Optional["MansionVariant"] = None) -> CompoundGraph:
+    """Generate a 3-进 江南大宅 compound (chinese_mansion family)."""
+    style = style or load_style("chinese_mansion")
+    variant = variant or select_mansion_variant(seed)
+    lot_w, lot_d = MANSION_SIZE[variant.courtyard_size]
+    axis = lot_w // 2
+    bands = _compute_yard_bands(variant.jin_count, "mansion", lot_d)
+    compound = CompoundGraph(
+        style.style_id, seed, variant, (lot_w, lot_d), axis,
+        meta={
+            "layout_strategy": "three_jin_mansion",
+            "gate_side": "south",
+            "front_yard_band":  list(bands["front_yard_band"]),
+            "yimen_band":       list(bands["yimen_band"]),
+            "main_yard_band":   list(bands["main_yard_band"]),
+            "ermen_band":       list(bands["ermen_band"]),
+            "back_yard_band":   list(bands["back_yard_band"]),
+            "garden_band":      list(bands["garden_band"]),
+            # Compatibility aliases so _cell_band / _natural_surface_y work:
+            # the validator helpers look for these 1-进 key names.
+            "outer_yard_band":  list(bands["front_yard_band"]),
+            "inner_gate_band":  list(bands["yimen_band"]),
+        })
+
+    slot_seed = seed * 1009
+    contexts: Dict[str, BuildContext] = {
+        "front_row": generate_subbuilding(
+            style, "front_row", slot_seed + 3, variant.roof_grade, "chinese_mansion"),
+        "open_hall": generate_subbuilding(
+            style, "open_hall", slot_seed + 11, variant.roof_grade, "chinese_mansion",
+            form_overrides={"open_hall_bays": variant.open_hall_bays}),
+        "west_wing": generate_subbuilding(
+            style, "side_wing", slot_seed + 4, variant.roof_grade, "chinese_mansion"),
+        "east_wing": generate_subbuilding(
+            style, "side_wing", slot_seed + 5, variant.roof_grade, "chinese_mansion"),
+        "tower_1": generate_subbuilding(
+            style, "tower_house", slot_seed + 21, variant.roof_grade, "chinese_mansion"),
+    }
+    if variant.tower_count == 2:
+        contexts["tower_2"] = generate_subbuilding(
+            style, "tower_house", slot_seed + 22, variant.roof_grade,
+            "chinese_mansion")
+
+    _add_chinese_perimeter(compound, style)
+    _layout_front_yard(compound, style, bands, contexts)
+    _layout_inner_gate(compound, style, bands,
+                       gate_band_key="yimen_band",
+                       node_id="yimen_gate", gate_kind="yimen_gate")
+    _layout_main_yard_mansion(compound, style, bands, contexts)
+    _layout_inner_gate(compound, style, bands,
+                       gate_band_key="ermen_band",
+                       node_id="ermen_gate", gate_kind="ermen_gate")
+    _layout_back_yard(compound, style, bands, contexts, variant)
+    _layout_garden(compound, style, bands, seed, variant)
     _place_yard_ground(compound, style)
     _route_complete_path(compound, style)
     _place_band_transition_stairs(compound, style)
@@ -3048,8 +3448,9 @@ def validate_compound(compound: CompoundGraph) -> dict:
 
     # Plinth-edge stair invariant (one-jin compounds only — small-courtyard has
     # no plinth). Every path cell at y = plinth_h - 1 with a 4-neighbour path
-    # cell at y = -1 must have a stair block bridging the boundary.
-    if plinth_h > 0:
+    # cell at y = -1 must have a stair block bridging the boundary. Δy = 1 is a
+    # free Minecraft auto-step, so we only enforce stairs for plinth_h ≥ 2.
+    if plinth_h >= 2:
         path_nodes = [n for n in compound.parcel_nodes
                       if n.type == "path"
                       and n.meta.get("algorithm") == "multi_source_bfs"]
@@ -3107,6 +3508,137 @@ def validate_compound(compound: CompoundGraph) -> dict:
         "ground_cells": ground_cells,
         "endpoint_count": endpoint_count,
         "stair_cells": stair_count,
+        "silhouette_score": compound_silhouette_score(compound),
+    }
+    stats.update(voxel_stats)
+    return {
+        "seed": compound.seed,
+        "variant": compound.variant.to_dict(),
+        "passed": not errors,
+        "errors": errors,
+        "stats": stats,
+    }
+
+
+def validate_mansion(compound: CompoundGraph) -> dict:
+    """Validation for chinese_mansion 3-进 compounds.
+
+    Runs the general structural checks (perimeter, voxel-walkability, ground
+    holes) and replaces the courtyard-specific invariants with mansion ones:
+    expects 2 inner gates (仪门 + 二门), an open_hall instead of main_hall,
+    no covered gallery, and a 花园 band with garden parcels.
+    """
+    errors: List[str] = []
+    lot_w, lot_d = compound.lot_size
+    buildings = compound.building_cells()
+    axis = compound.axis_x
+
+    # --- Perimeter wall ---
+    perimeter_node = next(
+        (n for n in compound.parcel_nodes if n.type == "perimeter_wall"), None)
+    perimeter = perimeter_node.cells if perimeter_node else set()
+    floating = [(x, z) for x, z in perimeter if compound.grid.is_empty((x, 0, z))]
+    if floating:
+        errors.append(f"perimeter_wall_floats: {floating[:8]}")
+
+    gate_side = compound.meta.get("gate_side", "south")
+    gate_z = 0 if gate_side == "south" else lot_d - 1
+    gate_wall = {(x, gate_z) for x in range(lot_w)}
+    openings = sorted(gate_wall - perimeter)
+    if not openings or not any(x == axis for x, _ in openings):
+        errors.append("gate_opening_missing_on_axis")
+
+    # --- Screen wall off-axis ---
+    screen_nodes = [n for n in compound.parcel_nodes if n.type == "screen_wall"]
+    if not screen_nodes:
+        errors.append("missing_screen_wall")
+    elif any(x == axis for x, _ in screen_nodes[0].cells):
+        errors.append("screen_wall_on_axis")
+
+    # --- Inner gates: mansion must have exactly 2 (仪门 + 二门) ---
+    inner_gates = [n for n in compound.parcel_nodes if n.type == "inner_gate"]
+    if len(inner_gates) != 2:
+        errors.append(f"mansion_inner_gate_count: {len(inner_gates)}")
+    for gate in inner_gates:
+        passage = gate.meta.get("passage", [])
+        if len(passage) < 3:
+            errors.append(f"inner_gate_passage_too_narrow: {gate.id} ({len(passage)} cells)")
+
+    # --- open_hall required instead of main_hall ---
+    slot_ids = {s.id for s in compound.building_slots}
+    required_mansion = {"west_side_wing", "east_side_wing", "open_hall"}
+    missing = sorted(required_mansion - slot_ids)
+    if missing:
+        errors.append(f"missing_slots: {missing}")
+
+    # --- Garden parcels ---
+    has_rockery = any(n.type in ("garden_rockery", "rockery") for n in compound.parcel_nodes)
+    has_pond = any(n.type in ("garden_pond", "water_feature") for n in compound.parcel_nodes)
+    if not has_rockery:
+        errors.append("garden_missing_rockery")
+    if not has_pond:
+        errors.append("garden_missing_pond")
+
+    # --- Ground layer holes ---
+    skip_ground = (buildings | compound.node_cells(
+        "water_feature", "water_jar", "planting", "courtyard_tree"))
+    holes: List[Cell2] = []
+    for cell in _lot_interior_cells(compound):
+        if cell in skip_ground:
+            continue
+        y = _natural_surface_y(compound, cell)
+        cell_state = compound.grid.state_at((cell[0], y, cell[1]))
+        if cell_state == AIR or not cell_state:
+            holes.append(cell)
+    if holes:
+        errors.append(f"ground_layer_hole: {holes[:8]}")
+
+    # --- Voxel walkability ---
+    path = compound.node_cells("path")
+    voxel_stats: dict = {}
+    if path:
+        endpoints = _collect_path_endpoints(compound)
+        blocked = _path_blocked_cells(compound)
+        dist_2d = _multi_source_bfs(endpoints, blocked, lot_w, lot_d)
+        for cell in endpoints:
+            if cell not in dist_2d:
+                errors.append(f"endpoint_unreachable: {cell}")
+        start = _gate_entry_standable(compound)
+        if start:
+            visited_3d = _voxel_walk_bfs(compound, start, lot_w, lot_d)
+            unreachable = []
+            for s in compound.building_slots:
+                if s.door_info and s.door_info.get("front"):
+                    df = s.door_info["front"]
+                    dfx, dfz = df[0], df[2]
+                    standable = _standable_ys(compound, dfx, dfz)
+                    if standable:
+                        dfy = standable[0]
+                        if (dfx, dfy, dfz) not in visited_3d:
+                            errors.append(f"voxel_unreachable_door:{s.id}:({dfx},{dfz})")
+                            unreachable.append((dfx, dfz))
+            for cell in endpoints:
+                if cell in unreachable:
+                    continue
+                sx, sz = cell
+                sy_list = _standable_ys(compound, sx, sz)
+                if sy_list and (sx, sy_list[0], sz) not in visited_3d:
+                    errors.append(f"voxel_unreachable_endpoint:{cell}")
+            voxel_stats["voxel_reachability"] = {
+                "visited": len(visited_3d),
+                "unreachable": len(unreachable),
+                "cliff": 0,
+            }
+
+    path_cells = len(path)
+    ground_cells = sum(1 for cell in _lot_interior_cells(compound)
+                       if cell not in buildings and cell not in perimeter)
+    stats = {
+        "lot_size": list(compound.lot_size),
+        "building_slots": len(compound.building_slots),
+        "inner_gate_count": len(inner_gates),
+        "path_cells": path_cells,
+        "ground_cells": ground_cells,
         "silhouette_score": compound_silhouette_score(compound),
     }
     stats.update(voxel_stats)

@@ -7,9 +7,56 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
-## Unreleased
+## 0.16.0
+
+### Added
+
+- **江南大宅 (chinese_mansion) compound family — 3-进 大宅** (`rebuild-jiangnan-mansion`).
+  Six new NBTs `chinese_mansion_001..006.nbt`, each a full 3-进 compound:
+  street gate → 照壁 (照壁侧立 off-axis) → 前院 → 仪门 → 主院 (敞厅 + 正房 on
+  台基 plinth) → 二门 → 后院 (绣楼/藏书楼 tower_house ×1 or ×2) → 花园 (假山 +
+  水池 + 亭 + 汀步). Variant axes: `courtyard_size ∈ {small, medium, large}`,
+  `gate_form ∈ {recessed, flush, paifang}`, `garden_scale ∈ {small, large}`,
+  `tower_count ∈ {1, 2}`, `main_bays ∈ {3, 5}`. In-game commands:
+  `/myvillage place chinese_mansion_001` … `_006` and
+  `/function myvillage:gallery/chinese_mansion`. New style profile
+  `chinese_mansion.json` adds slots `FACADE_OPEN`, `GARDEN_PATH`,
+  `ROCKERY_STONE`, `GARDEN_PAVEMENT`, `POND_STONE`.
+- **假山 (garden_rockery) + 水池 (garden_pond) parcel nodes.** 假山 uses
+  `myvillage:rockery_block` (new self-namespace block, registered in
+  `ModBlocks.java` / `RockeryBlock.java`) with `variant`, `facing`, and
+  `moss_level` blockstate properties and per-variant `VoxelShape` for partial
+  climbability. 水池 uses freeform value-noise shoreline with
+  `minecraft:water` at y=-1.
+- **`open_hall` archetype (敞厅).** Front facade resolves through `FACADE_OPEN`
+  slot (columns + open eave, no full-height front wall). Placed on main-yard
+  台基 plinth in the mansion compound.
+- **`tower_house` archetype (绣楼/藏书楼).** Two-story sub-building via
+  `multi-story-massing` (`stories=2`, floor slab, stairwell, per-story facade
+  band). Placed off-axis in 后院.
+- **`garden_pavilion` archetype (亭).** Four-column standoff with
+  `chinese_round_ridge` roof. Placed on or near 假山 peak in the 花园.
 
 ### Fixed
+
+- **Voxel-walkability validator added** (`rebuild-jiangnan-mansion`). Both
+  `validate_compound` (一进 四合院) and `validate_mansion` (三进 大宅) now run
+  a 3D BFS (`_voxel_walk_bfs`) from the gate-entry standable column. All
+  building door positions and path endpoints must be reachable. New error codes:
+  `voxel_unreachable_door:<archetype>`, `voxel_unreachable_endpoint:<x,z>`,
+  `voxel_step_cliff:<a>-><b>`, `voxel_blocked_by_solid:<x,z>`. The
+  `plinth_edge_missing_stair` check now fires only when `plinth_h >= 2`
+  (Δy=1 is a free Minecraft autostep).
+- **照壁侧立 — screen wall moved off-axis in `chinese_courtyard`.** The 影壁 now
+  stands at `axis_x ± offset` (照壁侧立 form, `meta.form = "jingbi"`), leaving
+  the central path clear. The old on-axis placement blocked the player walking
+  from the gate to the 垂花门 without detour. **Breaking (NBT regeneration):**
+  `chinese_courtyard_001..006.nbt` regenerate with the off-axis 照壁.
+- **垂花门 passage expanded to ≥3 cells.** Both 一进 inner gate (垂花门) and
+  mansion inner gates (仪门, 二门) now open at `axis_x-1`, `axis_x`, `axis_x+1`
+  minimum.
+
+### Changed (internal, no gameplay change)
 
 - **Courtyard ground + path layer rebuilt** (`fix-courtyard-ground-walkability`).
   The shipped `chinese_courtyard_NNN.nbt` files were structurally correct 一进

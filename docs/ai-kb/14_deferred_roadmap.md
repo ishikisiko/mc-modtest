@@ -154,36 +154,51 @@ main-yard split with 影壁 + 垂花门 + 抄手游廊 + 月台; new plan-level 
 axes (`layout_type` / `main_orientation` / `main_bays` / `platform_tier` /
 `gate_type`). See the change's proposal + design for full scope.
 
-### E.2 — Multi-进 compounds (still deferred)
+### E.2 — Multi-进 compounds (✅ partially realized; 4-进 still deferred)
 
-**Source:** original proposal + `rebuild-chinese-courtyard` exploration.
+**Status:** ✅ **3-进 realized** by change `rebuild-jiangnan-mansion` (2026-06).
+The 江南大宅 `chinese_mansion` family implements `jin_count=3` as a distinct
+compound family (`generate_mansion` / `validate_mansion`) with its own band
+vocabulary: 前院 → 仪门 → 主院 → 二门 → 后院 → 花园. The `_compute_yard_bands`
+function now accepts `jin_count ∈ {1, 3}` and returns the ordered z-band list.
 
-The `rebuild-chinese-courtyard` design intentionally scopes the `CompoundGraph`
-z-band split (`outer_yard_band` / `main_yard_band`) so a follow-up can extend it
-to `jin_count ∈ {1, 2, 3}` via `(jin_count, lot_d) → list of z-bands` without
-redesigning the data model. Sketches captured during that exploration:
+The **ground + path per-jin caveat** described in this section is now covered by
+the `courtyard-voxel-walkability` spec: `_voxel_walk_bfs` BFS handles multi-band
+traversal without requiring a per-band rewrite of `_place_yard_ground`; the 3D
+BFS simply reaches across band boundaries following standable geometry. The
+validator (`validate_mansion`) seeds the BFS from the gate and checks all yard
+endpoints and door positions.
 
-```
-一进 (E.1)        二进 (deferred)               三进 (deferred)
-                                                                
-外院 + 主院       前院 + 主院 + 后院            前院 + 主院 + 后院 + 花园
-1 垂花门          1 垂花门 + 后门               2 垂花门 + 后门
-倒座 / 厢 / 正    + 后罩房 (女眷/储物)           + 假山/亭/曲折游廊/水
-lot ~35×47        lot ~50×75                    lot ~60×100
-```
+**Still deferred:**
 
 | Deferred item | Current state |
 |---|---|
-| `jin_count` master axis abstraction | Not implemented; `generate_compound` is hard-coded to one outer + one main yard (E.1 baseline) |
-| 二进 compound (前院 + 主院 + 后院 + 后罩房) | Not implemented; the follow-up adds a `back_chamber` parcel node to the `jin_count` z-band sequence. **Ground + path caveat:** `fix-courtyard-ground-walkability` shipped a one-pass `_place_yard_ground` + multi-source-BFS path network that assumes a single main-yard plinth band; a multi-jin follow-up must re-derive the `ground_kind` and natural-surface-y per yard band (each 进 has its own plinth + inner-gate band), and the endpoint registry must seed from each 进's 垂花门 passage. Reuse `_multi_source_bfs` as-is; re-derive `_place_yard_ground` / `_collect_path_endpoints` / `_place_plinth_stairs` per band. |
-| 三进 compound + 花园 (打破正交轴) | Not implemented; first non-rect `CompoundGraph` region — needs `garden_rockery` / `garden_pavilion` parcel nodes and a free-curve pond |
-| 假山 (3D blob rockery) as a first-class capability | Not implemented; may warrant a new `garden-rockery` spec rather than a parcel-node add |
+| 二进 compound (前院 + 主院 + 后院 + 后罩房, 北京四合院 scale) | Not implemented; `chinese_mansion` is 江南大宅, not 北京二进 — different social context and lot scale |
+| 4-进 compound (大型府邸 / 多路跨院) | Not implemented; `_compute_yard_bands` has a sketch for `jin_count=4` but no layout functions |
 | Side 跨院 paths | Not implemented (original proposal's deferral) |
-| NPC systems | Not implemented; `README.md` still lists "possible NPC/villager-related behavior once runtime and data support exist" under Future direction |
-| Cross-family: small-courtyard town unit inherits from the rebuilt 一进 | Not decided; the small-courtyard may stay simplified on purpose (街面建筑 less formal than a 府邸) |
+| NPC systems | Not implemented; `README.md` still lists "possible NPC/villager-related behavior" under Future direction |
+| Cross-family: small-courtyard town unit inherits from the rebuilt 一进 | Not decided; the small-courtyard may stay simplified |
 
-See-also specs: `courtyard-compound`, `chinese-vernacular-roof-vocabulary`
-(after E.1 archives).
+See-also specs: `courtyard-compound`, `chinese-mansion-compound`,
+`courtyard-voxel-walkability`.
+
+### E.3 — 徽派天井大屋 (huipai-tianjing-mansion) design retained
+
+**Source:** `rebuild-jiangnan-mansion` change's `specs/huipai-tianjing-mansion/`
+(designed but not yet implemented).
+
+The 徽派天井 layout (马头墙 + 天井院 + 内向围合, no outer perimeter wall, deep
+overhanging eaves closing the sky gap) was designed as a second `chinese_mansion`
+variant during the `rebuild-jiangnan-mansion` change but deferred to keep the
+scope bounded. The spec is retained in the change's `specs/` directory.
+
+| Deferred item | Current state |
+|---|---|
+| 天井 (interior lightwell replacing main-yard open sky) | Not implemented; current `chinese_mansion` uses an open main-yard |
+| 马头墙 (stepped gable parapet) form | Not implemented; existing `chinese_flush_gable` uses a flat gable — 马头墙 requires a per-step stair outline |
+| 内向 gate (no street-facing gate decoration) | Not implemented |
+
+See-also spec: `huipai-tianjing-mansion` in `openspec/changes/rebuild-jiangnan-mansion/specs/`.
 
 ## F. Tooling / visual small deferrals
 

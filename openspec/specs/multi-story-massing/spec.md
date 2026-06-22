@@ -82,6 +82,19 @@ A massing graph MAY include a `tower_volume` node attached to a main volume. A t
 - **AND** the tower stairwell SHALL NOT overlap the main volume's stairwell
 - **AND** `stair_pass` SHALL place tower stairs independently from main-volume stairs.
 
+### Requirement: The `tower_house` archetype uses `stories=2` for 绣楼 / 藏书楼
+The `tower_house` archetype (绣楼 / 藏书楼) SHALL be a 2-story sub-building embedded in a `chinese_mansion` compound. It SHALL consume the `multi-story-massing` pipeline with `stories=2`, one `floor_slab_pass`, and one stairwell per the requirements above. It SHALL be placed off-axis in the 后院 yard. A compound variant with `tower_count=2` SHALL place two tower_house buildings symmetrically about the compound axis in the 后院.
+
+#### Scenario: A mansion places a tower_house
+- **WHEN** a `chinese_mansion` compound with `tower_count=1` is generated
+- **THEN** the 后院 SHALL contain exactly one `tower_house` building slot with `stories=2`
+- **AND** `validate_mansion` SHALL confirm stairwell walkability from story 1 to story 2.
+
+#### Scenario: A mansion with two towers places them symmetrically
+- **WHEN** a `chinese_mansion` compound with `tower_count=2` is generated
+- **THEN** the 后院 SHALL contain exactly two `tower_house` building slots, both with `stories=2`
+- **AND** both SHALL be placed symmetrically about the compound axis.
+
 ### Requirement: Tower belfry carries the civic bell marker
 A `tower_volume` MAY carry `belfry = True` meta. When present, the interior furnishing pass SHALL place a `minecraft:bell` block hanging under the tower roof at the top story, centered under the ridge.
 
