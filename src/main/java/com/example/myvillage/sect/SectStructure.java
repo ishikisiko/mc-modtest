@@ -47,6 +47,6 @@ public class SectStructure extends Structure {
 
     @Override
     public StructureType<?> type() {
-        return SectStructures.SECT;
+        return SectStructures.SECT.get();
     }
 }
