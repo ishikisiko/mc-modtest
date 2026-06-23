@@ -7,6 +7,29 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.16.0-fix2
+
+### Fixed
+
+- **中式宅邸院子地板被沙砾铺满**：`_route_complete_path` 原本把多源 BFS
+  的整个可达集合都铺成 `GROUND_PATH`（gravel），覆盖了
+  `_place_yard_ground` 写的露天草地 (`GROUND_YARD_OPEN`) 与屋檐下石砖
+  (`GROUND_YARD_UNDER_EAVE`)。改为只铺**最短路径骨架**——以街门入口为
+  单一源点的 BFS 前驱树，对每个 endpoint（各门/水井/花圃/月台）沿前驱
+  回溯到街门，取并集。骨架外的格子保留其地面材质，院子恢复以草地为主、
+  gravel 路径为辅的自然形态。
+  - 复核：多源 predecessor 树不可用作骨架——所有 endpoint 都是源点，相邻
+    endpoint 互相回溯，骨架退化为不相连的零散点，既不穿过台基 (plinth)
+    边界也不放台阶，导致主院门 `voxel_unreachable_door`。必须用街门入口
+    单源，骨架才会从外院穿过 plinth 到达主院门，台阶生成器
+    (`_place_band_transition_stairs`) 才能在边界放 `stone_brick_stairs`。
+  - 影响：`chinese_courtyard_*`、`chinese_mansion_*`、`cultivation_town_*`
+    （内嵌小庭院）NBT 重新生成；`cultivation_sect_*` 与 `medieval_*` 不受
+    影响（字节稳定，回归测试 `test_chinese_courtyard_regression.py` 47 个
+    NBT 哈希不变）。
+  - spec：`courtyard-path-network/spec.md` 同步——多源 BFS 现仅用于
+    `endpoint_unreachable` 可达性校验，骨架改由街门入口单源 BFS 产生。
+
 ## 0.16.0-fix1
 
 ### Fixed

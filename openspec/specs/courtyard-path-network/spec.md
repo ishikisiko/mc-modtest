@@ -36,9 +36,9 @@ The endpoint collection is layout-agnostic: a small-courtyard unit without a moo
 - **WHEN** a courtyard compound places a `planting` parcel node
 - **THEN** exactly one cell adjacent to the planting's `cells` SHALL be in the path endpoint set.
 
-### Requirement: Multi-source BFS produces a connected path tree
+### Requirement: Reachability is verified by multi-source BFS
 
-The compound layer SHALL run a multi-source BFS starting from every endpoint simultaneously. The BFS SHALL expand 4-neighbor cells, treating the following cells as `blocked`:
+The compound layer SHALL run a multi-source BFS starting from every endpoint simultaneously, purely to verify reachability (this BFS does NOT drive path paving). The BFS SHALL expand 4-neighbor cells, treating the following cells as `blocked`:
 - All cells in `BuildingSlot.footprint` for every slot, except the cell `door_info["front"]` itself (so the BFS can stop one cell short of the door).
 - All cells in `water_feature.cells`, `water_jar.cells`, `planting.cells`, `courtyard_tree.cells`.
 - All cells in `perimeter_wall.cells`, except the gate-opening cells.
@@ -46,15 +46,21 @@ The compound layer SHALL run a multi-source BFS starting from every endpoint sim
 
 The BFS SHALL be run on the lot interior `(1 ≤ x ≤ lot_w - 2, 1 ≤ z ≤ lot_d - 2)`. The result SHALL be a `dict[Cell2, int]` mapping every reached cell to its distance from the nearest endpoint. Every endpoint SHALL be reached (otherwise the validator fails with `endpoint_unreachable:<cell>`).
 
+### Requirement: Path backbone is a single-source shortest-path tree from the street gate
+
+The path **backbone** SHALL be a shortest-path tree rooted at the street-gate entry cell (the first endpoint — the perimeter-wall gate opening, one cell inside the yard). The compound layer SHALL run a single-source BFS from that root (over the same `blocked` set as the reachability BFS) producing a predecessor map `pred`, then trace each endpoint back to the root along `pred`. The union of those per-endpoint paths is the backbone — a connected tree that necessarily crosses any plinth boundary (because the gate sits in the outer yard and main-yard goals sit on the plinth).
+
+Only backbone cells are paved as the path — the remaining BFS-reached cells keep their `_place_yard_ground` tile (open-yard grass / under-eave stone), so the yard is not flooded with the path block. A multi-source predecessor tree is NOT used for the backbone: with every endpoint a source, adjacent endpoints trace back to each other and the tree degenerates into disconnected clumps that never cross the plinth, leaving main-yard doors unreachable.
+
 #### Scenario: Every endpoint is reached
 
-- **WHEN** the multi-source BFS runs
+- **WHEN** the multi-source reachability BFS runs
 - **THEN** every endpoint SHALL have a finite distance in the result.
 
 #### Scenario: The path network is connected
 
-- **WHEN** the multi-source BFS runs
-- **THEN** for every pair of endpoints `(a, b)`, there SHALL exist a sequence of 4-neighbor cells from `a` to `b` where every intermediate cell is reached by the BFS.
+- **WHEN** the single-source backbone BFS runs
+- **THEN** for every pair of endpoints `(a, b)`, there SHALL exist a sequence of 4-neighbor cells from `a` to `b` where every intermediate cell is on the backbone (i.e. on some endpoint's predecessor-traced path back to the street-gate root).
 
 ### Requirement: Path block is written at the natural surface y
 
@@ -67,13 +73,19 @@ The path block SHALL resolve through the style's `GROUND_PATH` slot. The block S
 
 #### Scenario: An outer-yard path cell is gravel at y = -1
 
-- **WHEN** the multi-source BFS reaches an outer-yard cell `(x, z)`
+- **WHEN** an outer-yard cell `(x, z)` lies on the backbone (some endpoint's predecessor-traced path)
 - **THEN** the path pass SHALL write the style's `GROUND_PATH` primary block at compound `(x, -1, z)`.
 
 #### Scenario: A main-yard path cell is gravel on the plinth top
 
-- **WHEN** the multi-source BFS reaches a main-yard cell `(x, z)` and the variant has `platform_tier = "stone_2"` (so `plinth_h = 2`)
+- **WHEN** a main-yard cell `(x, z)` lies on the backbone and the variant has `platform_tier = "stone_2"` (so `plinth_h = 2`)
 - **THEN** the path pass SHALL write the style's `GROUND_PATH` primary block at compound `(x, 1, z)`.
+
+#### Scenario: An off-backbone yard cell keeps its ground tile
+
+- **WHEN** a BFS-reached yard cell `(x, z)` is NOT on the backbone
+- **THEN** the path pass SHALL NOT write the path block at `(x, y, z)`
+- **AND** the cell SHALL keep the ground tile written by `_place_yard_ground` (`GROUND_YARD_OPEN` for open-sky cells, `GROUND_YARD_UNDER_EAVE` for under-eave cells).
 
 ### Requirement: Plinth boundary is bridged by a single stair
 

@@ -1754,6 +1754,11 @@ def _multi_source_bfs(endpoints: Sequence[Cell2], blocked: Set[Cell2],
     Returns a ``dict`` mapping every reached cell to its distance from the
     nearest endpoint. Cells in ``blocked`` are excluded (left unreached). All
     endpoints start at distance 0. The BFS is bounded to the lot interior.
+
+    Used only by the validators' ``endpoint_unreachable`` invariant: every
+    endpoint must be reachable in the 2D cell graph. It does NOT drive path
+    paving — :func:`_route_complete_path` paves a single-source backbone from
+    the street-gate entry (see :func:`_single_source_bfs_pred`).
     """
     dist: Dict[Cell2, int] = {}
     q: deque = deque()
@@ -1787,27 +1792,100 @@ def _door_front_cells(compound: CompoundGraph) -> Set[Cell2]:
     return fronts
 
 
-def _route_complete_path(compound: CompoundGraph, style: Style) -> None:
-    """Multi-source BFS path network (courtyard-path-network spec).
+def _single_source_bfs_pred(root: Cell2, blocked: Set[Cell2],
+                            lot_w: int, lot_d: int
+                            ) -> Dict[Cell2, Optional[Cell2]]:
+    """Single-source BFS from ``root``, returning the predecessor map.
 
-    Collects endpoints, runs the BFS, asserts every endpoint is reached (raises
-    ``ValueError`` on an unreachable endpoint — preserved fast-fail behavior),
-    then writes the path block at every reached cell at its natural surface y.
-    Door-front cells are dropped from the write set so the building's own step
-    block owns the door cell.
+    ``pred`` maps every reached cell to the cell it was first reached from (its
+    parent in the shortest-path tree rooted at ``root``). The root itself has
+    ``pred == None``. This is the tree the backbone tracer walks: from any
+    reached cell, following ``pred`` returns to ``root`` along a shortest path,
+    and because ``root`` is the single street-gate entry, those per-endpoint
+    paths actually traverse the yard and cross the plinth boundary — unlike the
+    multi-source predecessor map, whose sources sit next to each other and
+    degenerate into a handful of disconnected cells.
+    """
+    pred: Dict[Cell2, Optional[Cell2]] = {root: None}
+    q: deque = deque([root])
+    while q:
+        x, z = q.popleft()
+        for nx, nz in ((x + 1, z), (x - 1, z), (x, z + 1), (x, z - 1)):
+            if not (1 <= nx <= lot_w - 2 and 1 <= nz <= lot_d - 2):
+                continue
+            if (nx, nz) in blocked or (nx, nz) in pred:
+                continue
+            pred[(nx, nz)] = (x, z)
+            q.append((nx, nz))
+    return pred
+
+
+def _trace_backbone(endpoints: Sequence[Cell2],
+                    pred: Dict[Cell2, Optional[Cell2]]) -> Set[Cell2]:
+    """Shortest-path backbone from the street gate to every endpoint.
+
+    For each endpoint, follow ``pred`` back to the root (the cell whose
+    ``pred is None``). The union of those per-endpoint paths is a connected
+    shortest-path tree rooted at the street-gate entry — the cells that actually
+    get paved as the path. This replaces the older "pave every BFS-reached cell"
+    behaviour, which flooded the whole yard with gravel and buried the
+    ``GROUND_YARD_OPEN`` grass.
+    """
+    backbone: Set[Cell2] = set()
+    for endpoint in endpoints:
+        if endpoint not in pred:
+            continue
+        cell: Optional[Cell2] = endpoint
+        # Guard against a malformed pred cycle (should not happen for a BFS
+        # tree) so this can never loop forever.
+        guard = 0
+        while cell is not None:
+            backbone.add(cell)
+            nxt = pred.get(cell)
+            if nxt == cell:
+                break
+            cell = nxt
+            guard += 1
+            if guard > len(pred) + 2:
+                break
+    return backbone
+
+
+def _route_complete_path(compound: CompoundGraph, style: Style) -> None:
+    """Path network (courtyard-path-network spec).
+
+    Collects endpoints, asserts every endpoint is reachable from the street-gate
+    entry via a single-source BFS (raises ``ValueError`` on an unreachable
+    endpoint — preserved fast-fail behavior), then writes the path block along
+    the **shortest-path backbone** (the union of per-endpoint predecessor-traced
+    paths back to the street gate) at each cell's natural surface y. Only the
+    backbone is paved, so the open-yard grass / under-eave stone of
+    :func:`_place_yard_ground` survives off the path. Because the backbone is
+    rooted at the gate entry, it necessarily crosses the plinth boundary, so the
+    band-transition stair pass still bridges the main-yard plinth. Door-front
+    cells are dropped from the write set so the building's own step block owns
+    the door cell.
     """
     lot_w, lot_d = compound.lot_size
     endpoints = _collect_path_endpoints(compound)
     blocked = _path_blocked_cells(compound)
-    dist = _multi_source_bfs(endpoints, blocked, lot_w, lot_d)
+    # Multi-source reachability is still reported (reached_cell_count) for the
+    # validator's endpoint_unreachable invariant and the library report.
+    reached = _multi_source_bfs(endpoints, blocked, lot_w, lot_d)
     for cell in endpoints:
-        if cell not in dist:
+        if cell not in reached:
             raise ValueError(f"endpoint_unreachable: {cell}")
 
+    # The street-gate entry is the first endpoint (perimeter-wall gate opening,
+    # one cell inside the yard). The backbone is the shortest-path tree rooted
+    # there — every endpoint traces back to it, crossing any plinth boundary.
+    gate_entry = endpoints[0]
+    pred = _single_source_bfs_pred(gate_entry, blocked, lot_w, lot_d)
+    backbone = _trace_backbone(endpoints, pred)
     door_fronts = _door_front_cells(compound)
     path_block = style.primary("GROUND_PATH")
     written: Set[Cell2] = set()
-    for cell in dist:
+    for cell in backbone:
         if cell in door_fronts:
             continue
         y = _natural_surface_y(compound, cell)
@@ -1819,7 +1897,8 @@ def _route_complete_path(compound: CompoundGraph, style: Style) -> None:
         ParcelNode("path_network", "path", written, {
             "endpoint_count": len(endpoints),
             "endpoint_cells": [list(c) for c in endpoints],
-            "reached_cell_count": len(dist),
+            "reached_cell_count": len(reached),
+            "backbone_cell_count": len(backbone),
             "algorithm": "multi_source_bfs",
         }))
 
