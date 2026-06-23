@@ -38,13 +38,13 @@ public final class SectStructurePiece extends StructurePiece {
     private final long siteSeed;
 
     SectStructurePiece(BlockPos base, long siteSeed) {
-        super(SectStructures.SECT_PIECE.get(), 0, footprintBox(base));
+        super(SectStructures.SECT_PIECE, 0, footprintBox(base));
         this.base = base;
         this.siteSeed = siteSeed;
     }
 
     public SectStructurePiece(CompoundTag tag) {
-        super(SectStructures.SECT_PIECE.get(), tag);
+        super(SectStructures.SECT_PIECE, tag);
         this.base = new BlockPos(tag.getInt("bx"), tag.getInt("by"), tag.getInt("bz"));
         this.siteSeed = tag.getLong("seed");
     }

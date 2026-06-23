@@ -1,37 +1,37 @@
 package com.example.myvillage.sect;
 
 import com.example.myvillage.MyVillageMod;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.neoforged.bus.api.IEventBus;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
 
 /**
  * Registers the sect {@link StructureType} and its {@link StructurePieceType}.
- * The structure/structure_set/placement and the high-relief biome tag live in
- * {@code data/myvillage/worldgen/} + {@code data/myvillage/tags/worldgen/biome/};
- * registering the type here is what makes {@code myvillage:sect} a real worldgen
- * structure (and so locatable via {@code /locate structure myvillage:sect}).
+ * Direct Registry.register() is used instead of DeferredRegister to guarantee
+ * registration happens at mod-constructor time (registries are unfrozen then),
+ * avoiding any RegisterEvent ordering issues.
  */
 public final class SectStructures {
-    public static final DeferredRegister<StructureType<?>> STRUCTURE_TYPES =
-            DeferredRegister.create(Registries.STRUCTURE_TYPE, MyVillageMod.MOD_ID);
-    public static final DeferredRegister<StructurePieceType> PIECE_TYPES =
-            DeferredRegister.create(Registries.STRUCTURE_PIECE, MyVillageMod.MOD_ID);
+    public static final StructureType<SectStructure> SECT =
+            Registry.register(
+                    BuiltInRegistries.STRUCTURE_TYPE,
+                    ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID, "sect"),
+                    () -> SectStructure.CODEC);
 
-    public static final DeferredHolder<StructureType<?>, StructureType<SectStructure>> SECT =
-            STRUCTURE_TYPES.register("sect", () -> () -> SectStructure.CODEC);
-
-    public static final DeferredHolder<StructurePieceType, StructurePieceType> SECT_PIECE =
-            PIECE_TYPES.register("sect", () -> (StructurePieceType.ContextlessType) SectStructurePiece::new);
+    public static final StructurePieceType SECT_PIECE =
+            Registry.register(
+                    BuiltInRegistries.STRUCTURE_PIECE,
+                    ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID, "sect"),
+                    (StructurePieceType.ContextlessType) SectStructurePiece::new);
 
     private SectStructures() {
     }
 
     public static void register(IEventBus modEventBus) {
-        STRUCTURE_TYPES.register(modEventBus);
-        PIECE_TYPES.register(modEventBus);
+        // Static fields above are initialized here (class load triggers registration).
+        // No event-bus subscription needed; direct registration is already done.
     }
 }

@@ -7,6 +7,15 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.16.0-fix1
+
+### Fixed
+
+- **服务器启动崩溃 → 所有指令不可用**：将 `SectStructures` 的 `StructureType` /
+  `StructurePieceType` 注册从 `DeferredRegister`（依赖 `RegisterEvent` 时序）改为
+  直接 `Registry.register()`（在 mod 构造函数执行期间、注册表解冻后立即写入
+  `BuiltInRegistries`），消除 `Unknown registry key: myvillage:sect` 崩溃。
+
 ## 0.16.0
 
 ### Added
