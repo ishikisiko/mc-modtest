@@ -26,6 +26,7 @@ SHOP_FUNCTION_BLOCKS = ("crafting_table", "barrel")
 CIVIC_TAVERN_MARKERS = ("brewing_stand", "barrel")
 CIVIC_MANOR_MARKERS = ("bell", "lectern")
 MULTISTORY_NAMES = ("medium_shop", "big_house", "tavern", "lord_manor")
+ROOF_OPTIONAL_NAMES = {"hero_rockery"}
 PLAQUE_BLOCK_IDS = {
     "myvillage:wall_plaque",
     "myvillage:wall_plaque_vertical",
@@ -260,20 +261,20 @@ def validate_file(path: Path, root_dir: Path, modset=None) -> dict:
     non_air_blocks = [block for block in blocks if block["state"] < len(palette) and not is_air(palette[block["state"]])]
     by_pos = {tuple(block["pos"]): palette[block["state"]] for block in non_air_blocks}
     states_present = {palette[block["state"]] for block in non_air_blocks}
+    building_name = Path(rel).stem
     roof_blocks = [block for block in non_air_blocks if is_roof_like(palette[block["state"]]) and block["pos"][1] >= max(1, size[1] // 2)]
     top_layers = set(range(max(0, size[1] - 3), size[1])) if len(size) == 3 else set()
     top_non_air = [block for block in non_air_blocks if block["pos"][1] in top_layers]
 
     if not non_air_blocks:
         errors.append("non_air_blocks_empty")
-    if not roof_blocks:
+    if not roof_blocks and building_name not in ROOF_OPTIONAL_NAMES:
         errors.append("roof_blocks_missing")
     if not top_non_air:
         errors.append("top_layers_empty")
     if not has_marker(states_present, KEY_BLOCK_MARKERS):
         errors.append("key_building_blocks_missing")
 
-    building_name = Path(rel).stem
     block_state_counts = Counter(palette[block["state"]].split("[", 1)[0] for block in non_air_blocks)
     for variant in inscription_entities(entities):
         errors.append(f"plaque_signature: unexpected_inscription_painting_entity {variant}")

@@ -38,9 +38,22 @@ def iter_palette_states(root: dict) -> Iterable[str]:
             yield state_string(entry)
 
 
-def shipped_mod_blocks(structure_dir: Path, profile: str) -> tuple[set[str], list[str]]:
+def shipped_mod_blocks(structure_dir: Path, profile: str) -> tuple[set[str], set[str], set[str], list[str]]:
+    """Scan shipped structures for non-vanilla palette ids.
+
+    Returns ``(external_blocks, self_blocks, hero_variants, errors)``:
+
+    - ``external_blocks`` — third-party mod block ids (need a fallback);
+    - ``self_blocks`` — ``myvillage:`` self-namespace block ids (the mod ships
+      these natively, so they are fallback-exempt under both profiles);
+    - ``hero_variants`` — the ``hero_taihu_*`` ``rockery_block`` variant values
+      seen, so the hero 假山 cluster's acceptance is explicit (add-hero-rockery
+      task 4.4).
+    """
     modset = load_modset(profile)
     blocks: set[str] = set()
+    self_blocks: set[str] = set()
+    hero_variants: set[str] = set()
     errors: list[str] = []
     for path in sorted(structure_dir.rglob("*.nbt")):
         rel = path.relative_to(structure_dir).as_posix()
@@ -54,9 +67,17 @@ def shipped_mod_blocks(structure_dir: Path, profile: str) -> tuple[set[str], lis
             errors.append(f"{rel}: {message}")
         for state in palette:
             block = _block_id(state)
-            if _namespace(block) not in (VANILLA_NAMESPACE, SELF_NAMESPACE):
+            namespace = _namespace(block)
+            if namespace == SELF_NAMESPACE:
+                self_blocks.add(block)
+                if block == f"{SELF_NAMESPACE}:rockery_block":
+                    _, props = parse_block_state(state)
+                    variant = props.get("variant", "")
+                    if variant.startswith("hero_taihu_"):
+                        hero_variants.add(variant)
+            elif namespace != VANILLA_NAMESPACE:
                 blocks.add(block)
-    return blocks, errors
+    return blocks, self_blocks, hero_variants, errors
 
 
 def validate_fallback_value(block: str, fallback: object, vanilla_blocks: set[str]) -> list[str]:
@@ -93,8 +114,11 @@ def main() -> int:
     if not structure_dir.is_dir():
         errors.append(f"missing_structure_dir: {structure_dir}")
         used_mod_blocks: set[str] = set()
+        self_blocks: set[str] = set()
+        hero_variants: set[str] = set()
     else:
-        used_mod_blocks, palette_errors = shipped_mod_blocks(structure_dir, args.profile)
+        used_mod_blocks, self_blocks, hero_variants, palette_errors = shipped_mod_blocks(
+            structure_dir, args.profile)
         errors.extend(palette_errors)
 
     try:
@@ -106,6 +130,17 @@ def main() -> int:
     if not isinstance(fallback_map, dict):
         fallback_map = {}
         errors.append("fallback_map_not_object")
+
+    # The self-namespace decor (rockery_block hero variants + rockery_cascade,
+    # plaques) ships natively, so it must be accepted — fallback-exempt — under
+    # BOTH modset profiles (add-hero-rockery task 4.4). Probe the modset directly
+    # so the invariant is guarded regardless of which profile's NBTs are scanned.
+    self_decor_states = sorted(self_blocks) + [
+        f"{SELF_NAMESPACE}:rockery_block[variant={v}]" for v in sorted(hero_variants)]
+    for probe_profile in ("full", "vanilla"):
+        rejected = load_modset(probe_profile).palette_block_errors(self_decor_states)
+        if rejected:
+            errors.append(f"self_decor_rejected_under_{probe_profile}: {rejected}")
 
     vanilla_blocks = load_vanilla_blocks()
     missing = sorted(block for block in used_mod_blocks if block not in fallback_map)
@@ -124,6 +159,11 @@ def main() -> int:
         "fallback_entry_count": len(fallback_map),
         "used_mod_blocks": sorted(used_mod_blocks),
         "missing_fallbacks": missing,
+        # Self-namespace decor (fallback-exempt): the mod ships these natively
+        # under both profiles. hero_variant_count makes the hero 假山 cluster's
+        # acceptance explicit (add-hero-rockery task 4.4).
+        "self_namespace_blocks": sorted(self_blocks),
+        "hero_variant_count": len(hero_variants),
         "errors": errors,
     }
     report_path.parent.mkdir(parents=True, exist_ok=True)
@@ -131,6 +171,8 @@ def main() -> int:
 
     print(f"validated mod block fallbacks: {len(used_mod_blocks)} used mod block ids")
     print(f"fallback entries: {len(fallback_map)}")
+    print(f"self-namespace decor (fallback-exempt): {len(self_blocks)} block ids, "
+          f"{len(hero_variants)} hero_taihu variants")
     print(f"report: {report_path.relative_to(REPO_ROOT)}")
     if errors:
         for error in errors:

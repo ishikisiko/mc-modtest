@@ -31,12 +31,18 @@ public final class ModBlocks {
     public static final DeferredBlock<RockeryBlock> ROCKERY_BLOCK =
             BLOCKS.registerBlock("rockery_block", RockeryBlock::new, rockeryProperties());
 
+    // 细瀑 (rockery cascade) — translucent water-textured trickle for the hero
+    // 假山's visible 泉水细瀑 (add-hero-rockery task 2.6). Passable, visual-only.
+    public static final DeferredBlock<RockeryCascadeBlock> ROCKERY_CASCADE =
+            BLOCKS.registerBlock("rockery_cascade", RockeryCascadeBlock::new, cascadeProperties());
+
     private static final List<String> BLOCK_IDS = List.of(
             "wall_plaque",
             "wall_plaque_vertical",
             "hanging_plaque",
             "hanging_plaque_vertical",
-            "rockery_block");
+            "rockery_block",
+            "rockery_cascade");
 
     private ModBlocks() {
     }
@@ -67,5 +73,15 @@ public final class ModBlocks {
         return BlockBehaviour.Properties.of()
                 .strength(1.5F)
                 .noOcclusion();
+    }
+
+    private static BlockBehaviour.Properties cascadeProperties() {
+        // Visual-only trickle: passable (no collision), non-occluding, trivially
+        // breakable, no loot (it is a structure-placed decoration, not an item).
+        return BlockBehaviour.Properties.of()
+                .noCollission()
+                .noOcclusion()
+                .strength(0.1F)
+                .noLootTable();
     }
 }

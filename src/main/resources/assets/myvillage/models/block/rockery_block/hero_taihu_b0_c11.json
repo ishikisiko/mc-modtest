@@ -1,0 +1,74 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "myvillage:block/rockery_block/swatch_stone",
+    "stone": "myvillage:block/rockery_block/swatch_stone",
+    "mossy": "myvillage:block/rockery_block/swatch_mossy"
+  },
+  "elements": [
+    {
+      "from": [
+        0.0,
+        5.0,
+        0.0
+      ],
+      "to": [
+        16.0,
+        16.0,
+        16.0
+      ],
+      "faces": {
+        "north": {
+          "texture": "#stone"
+        },
+        "south": {
+          "texture": "#stone"
+        },
+        "east": {
+          "texture": "#stone"
+        },
+        "west": {
+          "texture": "#stone"
+        },
+        "up": {
+          "texture": "#stone"
+        },
+        "down": {
+          "texture": "#stone"
+        }
+      }
+    },
+    {
+      "from": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "to": [
+        16.0,
+        5.0,
+        16.0
+      ],
+      "faces": {
+        "north": {
+          "texture": "#mossy"
+        },
+        "south": {
+          "texture": "#mossy"
+        },
+        "east": {
+          "texture": "#mossy"
+        },
+        "west": {
+          "texture": "#mossy"
+        },
+        "up": {
+          "texture": "#mossy"
+        },
+        "down": {
+          "texture": "#mossy"
+        }
+      }
+    }
+  ]
+}

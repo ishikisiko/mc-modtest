@@ -144,3 +144,79 @@ A future extension SHALL add a `蹬道` (climbing-path) variant that places `sto
 - **FUTURE: WHEN** a future change adds the 蹬道 variant and a rockery is generated with the climbing-path option
 - **FUTURE: THEN** `stone_brick_stairs` SHALL ascend the rockery surface from `base` to `peak`
 - **FUTURE: AND** the peak's top SHALL become standable.
+
+### Requirement: A hero 假山 is ingested from a micro-voxel JSON
+
+The offline tool (`tools/buildgen/rockery_models.py`) SHALL parse the named hero
+rockery source at `docs/rockery_compressed.json`: a 48×48×48 micro-cube field
+(3×3×3 full blocks, 1 micro-cube = 1/16 block) encoded as RLE rows per y-layer,
+with palette values `a`=air, `s`=stone, `m`=mossy stone, `w`=water, `g`=grass,
+`t`=oak log, and `l`=oak leaves.
+
+#### Scenario: The micro-grid decodes and slices losslessly
+
+- **WHEN** the hero JSON is parsed
+- **THEN** every layer row SHALL expand to exactly 48 cells
+- **AND** every non-air micro-cube SHALL map to exactly one full-block cell using
+  `(x//16, y//16, z//16)` and one cell-local coordinate using
+  `(x%16, y%16, z%16)`
+- **AND** fully-air cells SHALL be dropped.
+
+### Requirement: Each hero rock cell bakes one isolated variant
+
+For every full-block cell containing `s` or `m`, the tool SHALL bake one
+`hero_taihu_*` `rockery_block` variant. Hero variants SHALL be registered for
+models, blockstates, and collision lookup but SHALL be excluded from the generic
+role-sampling catalog, so the generic `peak`/`slope`/`base`/`corner`/
+`standalone` counts remain unchanged.
+
+#### Scenario: Stone and moss preserve the source material masks
+
+- **WHEN** a hero cell contains stone and mossy-stone micro-cubes
+- **THEN** the two masks SHALL be greedy-merged separately and use the shared
+  `swatch_stone` and `swatch_mossy` textures respectively
+- **AND** the combined mask SHALL drive the matching `VoxelShape`.
+
+### Requirement: The hero 假山 is a stacked 3×3×3 cluster
+
+For a parcel tagged `hero=taihu`, `place_garden_rockery` SHALL stamp the baked
+cells at their full-block `(dx,dy,dz)` coordinates instead of invoking the
+generic 2D heightfield path.
+
+#### Scenario: The mass stacks and supports the summit 亭
+
+- **WHEN** the hero cluster is placed
+- **THEN** `myvillage:rockery_block` SHALL occupy at least three distinct Y layers
+- **AND** the top rock cell SHALL expose a flat standable face
+- **AND** the garden pavilion SHALL be placeable on that summit
+- **AND** mansion voxel-walkability validation SHALL report no `voxel_*` errors.
+
+### Requirement: Hero foliage and water use real mechanism-appropriate blocks
+
+Grass and tree materials SHALL be emitted as real vanilla blocks rather than
+rock model elements. The foot pool SHALL use contained
+`minecraft:water` source blocks; rock cells meeting water and the summit outlet
+SHALL use `waterlogged=true`; the visible thin trickle SHALL use the passable,
+non-fluid `myvillage:rockery_cascade` block. No flowing-water (`level>0`) block
+SHALL be baked into the placement.
+
+#### Scenario: The standalone specimen is self-contained
+
+- **WHEN** `/myvillage place hero_rockery` is used
+- **THEN** the structure SHALL contain its own sealed source-water basin
+- **AND** its by=0 rock cells meeting the basin SHALL be waterlogged
+- **AND** the summit foliage SHALL use real grass/tree blocks
+- **AND** `rockery_cascade` SHALL occupy air cells only and have an empty
+  collision shape.
+
+### Requirement: Hero realization is deterministic and byte-stable
+
+The fixed hero JSON SHALL introduce no per-seed noise. Regenerating the specimen
+SHALL produce identical model assets and an identical placement record, guarded
+by a committed SHA fixture.
+
+#### Scenario: Regeneration matches the fixture
+
+- **WHEN** the hero generator runs twice against the same source JSON
+- **THEN** both placement hashes and hero-asset rollup hashes SHALL be identical
+- **AND** they SHALL match the committed hero-rockery baseline fixture.

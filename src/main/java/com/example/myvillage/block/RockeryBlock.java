@@ -4,19 +4,26 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import javax.annotation.Nullable;
 
 /**
  * 假山 (rockery) — first instance of the {@code mod-decor-block-family}
@@ -37,18 +44,22 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  * the generator rewrites this file's {@code Variant} enum + {@code shapeFor}
  * switch from {@code VARIANT_CATALOG}. Do not hand-edit those two regions.
  */
-public class RockeryBlock extends Block {
+public class RockeryBlock extends Block implements SimpleWaterloggedBlock {
     public static final MapCodec<RockeryBlock> CODEC = simpleCodec(RockeryBlock::new);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final EnumProperty<Variant> VARIANT = EnumProperty.create("variant", Variant.class);
     public static final EnumProperty<MossLevel> MOSS_LEVEL = EnumProperty.create("moss_level", MossLevel.class);
+    // 山脚入水: a rockery cell standing in the foot 水池 is waterlogged so water
+    // renders through the model's gaps (add-hero-rockery Decision 6 / task 2.5).
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public RockeryBlock(BlockBehaviour.Properties properties) {
         super(properties);
         registerDefaultState(stateDefinition.any()
                 .setValue(FACING, Direction.NORTH)
                 .setValue(VARIANT, Variant.STANDALONE_01)
-                .setValue(MOSS_LEVEL, MossLevel.NONE));
+                .setValue(MOSS_LEVEL, MossLevel.NONE)
+                .setValue(WATERLOGGED, Boolean.FALSE));
     }
 
     @Override
@@ -58,7 +69,30 @@ public class RockeryBlock extends Block {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, VARIANT, MOSS_LEVEL);
+        builder.add(FACING, VARIANT, MOSS_LEVEL, WATERLOGGED);
+    }
+
+    @Override
+    protected FluidState getFluidState(BlockState state) {
+        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
+    }
+
+    @Override
+    @Nullable
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        FluidState fluid = context.getLevel().getFluidState(context.getClickedPos());
+        return defaultBlockState()
+                .setValue(FACING, context.getHorizontalDirection().getOpposite())
+                .setValue(WATERLOGGED, fluid.getType() == Fluids.WATER);
+    }
+
+    @Override
+    protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState,
+                                     LevelAccessor level, BlockPos currentPos, BlockPos neighborPos) {
+        if (state.getValue(WATERLOGGED)) {
+            level.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+        }
+        return super.updateShape(state, direction, neighborState, level, currentPos, neighborPos);
     }
 
     /**
@@ -106,6 +140,26 @@ public class RockeryBlock extends Block {
             case STANDALONE_04: return Shapes.or(Shapes.create(0.375f, 0.0f, 0.375f, 0.4375f, 0.375f, 0.4375f), Shapes.create(0.375f, 0.0f, 0.625f, 0.625f, 0.125f, 0.6875f), Shapes.create(0.4375f, 0.0f, 0.4375f, 0.6875f, 0.25f, 0.625f), Shapes.create(0.5f, 0.0f, 0.375f, 0.625f, 0.25f, 0.4375f), Shapes.create(0.375f, 0.125f, 0.625f, 0.4375f, 0.25f, 0.6875f), Shapes.create(0.5f, 0.125f, 0.625f, 0.625f, 0.25f, 0.6875f), Shapes.create(0.4375f, 0.1875f, 0.625f, 0.5f, 0.25f, 0.6875f), Shapes.create(0.4375f, 0.25f, 0.4375f, 0.625f, 0.4375f, 0.625f), Shapes.create(0.5625f, 0.25f, 0.375f, 0.625f, 0.375f, 0.4375f), Shapes.create(0.625f, 0.25f, 0.5f, 0.6875f, 0.3125f, 0.5625f), Shapes.create(0.4375f, 0.4375f, 0.5625f, 0.5625f, 0.5f, 0.625f), Shapes.create(0.5f, 0.4375f, 0.5f, 0.625f, 0.5625f, 0.5625f), Shapes.create(0.5625f, 0.4375f, 0.4375f, 0.625f, 0.5625f, 0.5f), Shapes.create(0.5f, 0.5f, 0.5625f, 0.5625f, 0.5625f, 0.625f), Shapes.create(0.5f, 0.5625f, 0.5f, 0.5625f, 0.75f, 0.5625f));
             case STANDALONE_05: return Shapes.or(Shapes.create(0.375f, 0.0f, 0.375f, 0.4375f, 0.125f, 0.6875f), Shapes.create(0.4375f, 0.0f, 0.4375f, 0.625f, 0.4375f, 0.625f), Shapes.create(0.5f, 0.0f, 0.625f, 0.6875f, 0.3125f, 0.6875f), Shapes.create(0.5625f, 0.0f, 0.375f, 0.625f, 0.375f, 0.4375f), Shapes.create(0.625f, 0.0f, 0.4375f, 0.6875f, 0.25f, 0.5f), Shapes.create(0.625f, 0.0f, 0.5625f, 0.6875f, 0.375f, 0.625f), Shapes.create(0.375f, 0.125f, 0.4375f, 0.4375f, 0.25f, 0.6875f), Shapes.create(0.375f, 0.1875f, 0.375f, 0.4375f, 0.3125f, 0.4375f), Shapes.create(0.375f, 0.25f, 0.4375f, 0.4375f, 0.3125f, 0.625f), Shapes.create(0.375f, 0.3125f, 0.4375f, 0.4375f, 0.375f, 0.5f), Shapes.create(0.625f, 0.3125f, 0.625f, 0.6875f, 0.375f, 0.6875f), Shapes.create(0.4375f, 0.4375f, 0.4375f, 0.5f, 0.5f, 0.625f), Shapes.create(0.5f, 0.4375f, 0.5f, 0.5625f, 0.5625f, 0.625f), Shapes.create(0.5625f, 0.4375f, 0.4375f, 0.625f, 0.5f, 0.5f), Shapes.create(0.5f, 0.5625f, 0.5f, 0.5625f, 0.75f, 0.5625f));
             case STANDALONE_06: return Shapes.or(Shapes.create(0.375f, 0.0f, 0.4375f, 0.625f, 0.125f, 0.625f), Shapes.create(0.4375f, 0.0f, 0.625f, 0.5625f, 0.3125f, 0.6875f), Shapes.create(0.5f, 0.0f, 0.375f, 0.6875f, 0.25f, 0.4375f), Shapes.create(0.625f, 0.0f, 0.5625f, 0.6875f, 0.3125f, 0.625f), Shapes.create(0.375f, 0.125f, 0.4375f, 0.4375f, 0.25f, 0.625f), Shapes.create(0.4375f, 0.125f, 0.4375f, 0.625f, 0.4375f, 0.5f), Shapes.create(0.4375f, 0.125f, 0.5625f, 0.625f, 0.4375f, 0.625f), Shapes.create(0.5625f, 0.125f, 0.5f, 0.625f, 0.4375f, 0.5625f), Shapes.create(0.4375f, 0.1875f, 0.5f, 0.5625f, 0.5f, 0.5625f), Shapes.create(0.375f, 0.25f, 0.5625f, 0.4375f, 0.375f, 0.625f), Shapes.create(0.5625f, 0.25f, 0.375f, 0.6875f, 0.3125f, 0.4375f), Shapes.create(0.4375f, 0.3125f, 0.625f, 0.5f, 0.375f, 0.6875f), Shapes.create(0.5625f, 0.3125f, 0.375f, 0.625f, 0.375f, 0.4375f), Shapes.create(0.4375f, 0.4375f, 0.4375f, 0.5625f, 0.5625f, 0.5f), Shapes.create(0.4375f, 0.4375f, 0.5625f, 0.5625f, 0.5625f, 0.625f), Shapes.create(0.5f, 0.5f, 0.5f, 0.5625f, 0.75f, 0.5625f));
+            case HERO_TAIHU_B0_C00: return Shapes.or(Shapes.create(0.0f, 0.0f, 0.8125f, 1.0f, 0.0625f, 1.0f), Shapes.create(0.0625f, 0.0f, 0.6875f, 1.0f, 0.0625f, 0.8125f), Shapes.create(0.125f, 0.0f, 0.5625f, 1.0f, 0.0625f, 0.6875f), Shapes.create(0.1875f, 0.0f, 0.375f, 1.0f, 0.0625f, 0.5625f), Shapes.create(0.25f, 0.0f, 0.3125f, 1.0f, 0.0625f, 0.375f), Shapes.create(0.3125f, 0.0f, 0.25f, 1.0f, 0.0625f, 0.3125f), Shapes.create(0.6875f, 0.0f, 0.1875f, 1.0f, 0.0625f, 0.25f), Shapes.create(0.75f, 0.0f, 0.125f, 1.0f, 0.0625f, 0.1875f), Shapes.create(0.125f, 0.0625f, 0.875f, 1.0f, 0.375f, 1.0f), Shapes.create(0.1875f, 0.0625f, 0.75f, 1.0f, 0.375f, 0.875f), Shapes.create(0.25f, 0.0625f, 0.625f, 1.0f, 0.375f, 0.75f), Shapes.create(0.3125f, 0.0625f, 0.5f, 1.0f, 0.375f, 0.625f), Shapes.create(0.375f, 0.0625f, 0.4375f, 1.0f, 0.375f, 0.5f), Shapes.create(0.9375f, 0.0625f, 0.375f, 1.0f, 0.375f, 0.4375f), Shapes.create(0.3125f, 0.375f, 0.875f, 0.4375f, 0.6875f, 1.0f), Shapes.create(0.4375f, 0.375f, 0.9375f, 0.5f, 0.6875f, 1.0f), Shapes.create(0.5f, 0.375f, 0.6875f, 1.0f, 0.6875f, 0.75f), Shapes.create(0.5625f, 0.375f, 0.5625f, 0.75f, 0.6875f, 0.6875f), Shapes.create(0.5625f, 0.375f, 0.75f, 1.0f, 0.6875f, 0.8125f), Shapes.create(0.6875f, 0.375f, 0.8125f, 1.0f, 0.6875f, 1.0f), Shapes.create(0.75f, 0.375f, 0.625f, 1.0f, 0.6875f, 0.6875f), Shapes.create(0.8125f, 0.6875f, 0.875f, 1.0f, 1.0f, 1.0f), Shapes.create(0.875f, 0.6875f, 0.8125f, 1.0f, 1.0f, 0.875f));
+            case HERO_TAIHU_B0_C01: return Shapes.or(Shapes.create(0.0f, 0.0f, 0.0f, 1.0f, 0.0625f, 0.75f), Shapes.create(0.0625f, 0.0f, 0.75f, 1.0f, 0.0625f, 0.875f), Shapes.create(0.125f, 0.0f, 0.875f, 1.0f, 0.0625f, 1.0f), Shapes.create(0.0625f, 0.0625f, 0.125f, 1.0f, 0.375f, 0.6875f), Shapes.create(0.125f, 0.0625f, 0.0f, 1.0f, 0.375f, 0.125f), Shapes.create(0.125f, 0.0625f, 0.6875f, 1.0f, 0.375f, 0.75f), Shapes.create(0.1875f, 0.0625f, 0.75f, 1.0f, 0.375f, 0.8125f), Shapes.create(0.25f, 0.0625f, 0.8125f, 1.0f, 0.375f, 0.875f), Shapes.create(0.3125f, 0.0625f, 0.875f, 1.0f, 0.375f, 1.0f), Shapes.create(0.25f, 0.375f, 0.5f, 1.0f, 0.6875f, 0.6875f), Shapes.create(0.3125f, 0.375f, 0.0f, 0.5f, 0.6875f, 0.125f), Shapes.create(0.3125f, 0.375f, 0.4375f, 1.0f, 0.6875f, 0.5f), Shapes.create(0.3125f, 0.375f, 0.6875f, 1.0f, 0.6875f, 0.75f), Shapes.create(0.375f, 0.375f, 0.125f, 1.0f, 0.6875f, 0.1875f), Shapes.create(0.375f, 0.375f, 0.375f, 1.0f, 0.6875f, 0.4375f), Shapes.create(0.4375f, 0.375f, 0.1875f, 1.0f, 0.6875f, 0.375f), Shapes.create(0.4375f, 0.375f, 0.75f, 1.0f, 0.6875f, 0.8125f), Shapes.create(0.5f, 0.375f, 0.0625f, 1.0f, 0.6875f, 0.125f), Shapes.create(0.5f, 0.375f, 0.8125f, 1.0f, 0.6875f, 0.875f), Shapes.create(0.5625f, 0.375f, 0.875f, 1.0f, 0.6875f, 1.0f), Shapes.create(0.6875f, 0.375f, 0.0f, 1.0f, 0.6875f, 0.0625f), Shapes.create(0.6875f, 0.6875f, 0.25f, 1.0f, 1.0f, 0.75f), Shapes.create(0.75f, 0.6875f, 0.125f, 1.0f, 1.0f, 0.25f), Shapes.create(0.75f, 0.6875f, 0.75f, 1.0f, 1.0f, 1.0f), Shapes.create(0.8125f, 0.6875f, 0.0f, 1.0f, 1.0f, 0.125f));
+            case HERO_TAIHU_B0_C02: return Shapes.or(Shapes.create(0.0f, 0.0f, 0.125f, 1.0f, 0.0625f, 0.25f), Shapes.create(0.0625f, 0.0f, 0.0f, 1.0f, 0.0625f, 0.125f), Shapes.create(0.0625f, 0.0f, 0.25f, 1.0f, 0.0625f, 0.375f), Shapes.create(0.125f, 0.0f, 0.375f, 1.0f, 0.0625f, 0.4375f), Shapes.create(0.1875f, 0.0f, 0.4375f, 1.0f, 0.0625f, 0.5f), Shapes.create(0.1875f, 0.0f, 0.6875f, 0.4375f, 0.0625f, 0.875f), Shapes.create(0.25f, 0.0f, 0.5f, 1.0f, 0.0625f, 0.6875f), Shapes.create(0.4375f, 0.0f, 0.6875f, 1.0f, 0.0625f, 0.8125f), Shapes.create(0.75f, 0.0f, 0.8125f, 1.0f, 0.0625f, 0.875f), Shapes.create(0.875f, 0.0f, 0.875f, 1.0f, 0.0625f, 0.9375f), Shapes.create(0.3125f, 0.0625f, 0.0f, 1.0f, 0.375f, 0.1875f), Shapes.create(0.375f, 0.0625f, 0.1875f, 1.0f, 0.375f, 0.375f), Shapes.create(0.4375f, 0.0625f, 0.375f, 1.0f, 0.375f, 0.5625f), Shapes.create(0.5f, 0.0625f, 0.5625f, 1.0f, 0.375f, 0.625f), Shapes.create(0.6875f, 0.0625f, 0.625f, 1.0f, 0.375f, 0.6875f), Shapes.create(0.8125f, 0.0625f, 0.6875f, 1.0f, 0.375f, 0.75f), Shapes.create(0.875f, 0.0625f, 0.75f, 1.0f, 0.375f, 0.8125f), Shapes.create(0.5f, 0.375f, 0.0f, 1.0f, 0.6875f, 0.3125f), Shapes.create(0.5625f, 0.375f, 0.3125f, 1.0f, 0.6875f, 0.4375f), Shapes.create(0.625f, 0.375f, 0.4375f, 1.0f, 0.6875f, 0.5f), Shapes.create(0.75f, 0.375f, 0.5f, 1.0f, 0.6875f, 0.5625f), Shapes.create(0.8125f, 0.375f, 0.5625f, 1.0f, 0.6875f, 0.625f), Shapes.create(0.6875f, 0.6875f, 0.0625f, 1.0f, 1.0f, 0.3125f), Shapes.create(0.75f, 0.6875f, 0.0f, 1.0f, 1.0f, 0.0625f), Shapes.create(0.75f, 0.6875f, 0.3125f, 1.0f, 1.0f, 0.375f), Shapes.create(0.875f, 0.6875f, 0.375f, 1.0f, 1.0f, 0.4375f));
+            case HERO_TAIHU_B1_C00: return Shapes.or(Shapes.create(0.9375f, 0.0f, 0.9375f, 1.0f, 0.3125f, 1.0f));
+            case HERO_TAIHU_B1_C01: return Shapes.or(Shapes.create(0.8125f, 0.0f, 0.1875f, 1.0f, 0.3125f, 0.5f), Shapes.create(0.875f, 0.0f, 0.0625f, 1.0f, 0.3125f, 0.1875f), Shapes.create(0.875f, 0.0f, 0.5f, 1.0f, 0.3125f, 0.9375f), Shapes.create(0.9375f, 0.0f, 0.0f, 1.0f, 0.3125f, 0.0625f), Shapes.create(0.9375f, 0.0f, 0.9375f, 1.0f, 0.3125f, 1.0f), Shapes.create(0.9375f, 0.3125f, 0.1875f, 1.0f, 0.625f, 0.4375f));
+            case HERO_TAIHU_B1_C02: return Shapes.or(Shapes.create(0.9375f, 0.0f, 0.0f, 1.0f, 0.3125f, 0.125f));
+            case HERO_TAIHU_B0_C10: return Shapes.or(Shapes.create(0.0f, 0.0f, 0.0625f, 0.5625f, 0.0625f, 1.0f), Shapes.create(0.125f, 0.0f, 0.0f, 0.4375f, 0.0625f, 0.0625f), Shapes.create(0.5625f, 0.0f, 0.125f, 1.0f, 0.0625f, 1.0f), Shapes.create(0.625f, 0.0f, 0.0625f, 1.0f, 0.0625f, 0.125f), Shapes.create(0.75f, 0.0f, 0.0f, 1.0f, 0.0625f, 0.0625f), Shapes.create(0.0f, 0.0625f, 0.375f, 1.0f, 0.375f, 1.0f), Shapes.create(0.0625f, 0.0625f, 0.3125f, 0.875f, 0.375f, 0.375f), Shapes.create(0.25f, 0.0625f, 0.25f, 0.5f, 0.375f, 0.3125f), Shapes.create(0.0f, 0.375f, 0.5625f, 1.0f, 0.6875f, 1.0f), Shapes.create(0.125f, 0.375f, 0.5f, 1.0f, 0.6875f, 0.5625f), Shapes.create(0.25f, 0.375f, 0.4375f, 1.0f, 0.6875f, 0.5f), Shapes.create(0.0f, 0.6875f, 0.75f, 1.0f, 1.0f, 1.0f), Shapes.create(0.125f, 0.6875f, 0.6875f, 1.0f, 1.0f, 0.75f), Shapes.create(0.25f, 0.6875f, 0.625f, 1.0f, 1.0f, 0.6875f), Shapes.create(0.375f, 0.6875f, 0.5625f, 1.0f, 1.0f, 0.625f));
+            case HERO_TAIHU_B0_C11: return Shapes.or(Shapes.create(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f));
+            case HERO_TAIHU_B0_C12: return Shapes.or(Shapes.create(0.0f, 0.0f, 0.0f, 0.625f, 0.0625f, 0.9375f), Shapes.create(0.625f, 0.0f, 0.0f, 1.0f, 0.0625f, 0.875f), Shapes.create(0.0f, 0.0625f, 0.0f, 0.125f, 0.375f, 0.8125f), Shapes.create(0.125f, 0.0625f, 0.0f, 0.25f, 0.6875f, 0.625f), Shapes.create(0.125f, 0.0625f, 0.75f, 0.1875f, 0.375f, 0.8125f), Shapes.create(0.25f, 0.0625f, 0.0f, 0.75f, 0.3125f, 0.5625f), Shapes.create(0.4375f, 0.0625f, 0.5625f, 0.625f, 0.3125f, 0.625f), Shapes.create(0.75f, 0.0625f, 0.0f, 1.0f, 0.375f, 0.5f), Shapes.create(0.875f, 0.0625f, 0.5f, 1.0f, 0.375f, 0.5625f), Shapes.create(0.25f, 0.3125f, 0.0f, 0.4375f, 0.6875f, 0.5625f), Shapes.create(0.4375f, 0.3125f, 0.0f, 0.75f, 0.625f, 0.5f), Shapes.create(0.625f, 0.3125f, 0.5f, 0.75f, 0.6875f, 0.5625f), Shapes.create(0.0f, 0.375f, 0.0f, 0.125f, 0.6875f, 0.625f), Shapes.create(0.75f, 0.375f, 0.0f, 0.8125f, 0.6875f, 0.5f), Shapes.create(0.8125f, 0.375f, 0.0f, 0.875f, 0.6875f, 0.4375f), Shapes.create(0.875f, 0.375f, 0.0f, 1.0f, 0.6875f, 0.375f), Shapes.create(0.4375f, 0.625f, 0.0f, 0.75f, 0.9375f, 0.3125f), Shapes.create(0.625f, 0.625f, 0.3125f, 0.75f, 0.6875f, 0.5f), Shapes.create(0.0f, 0.6875f, 0.0f, 0.4375f, 1.0f, 0.4375f), Shapes.create(0.625f, 0.6875f, 0.3125f, 0.6875f, 1.0f, 0.4375f), Shapes.create(0.6875f, 0.6875f, 0.3125f, 0.8125f, 1.0f, 0.375f), Shapes.create(0.75f, 0.6875f, 0.0f, 0.875f, 1.0f, 0.3125f), Shapes.create(0.875f, 0.6875f, 0.0f, 1.0f, 1.0f, 0.25f), Shapes.create(0.4375f, 0.9375f, 0.0f, 0.75f, 1.0f, 0.1875f), Shapes.create(0.625f, 0.9375f, 0.1875f, 0.75f, 1.0f, 0.3125f));
+            case HERO_TAIHU_B1_C10: return Shapes.or(Shapes.create(0.0f, 0.0f, 0.875f, 1.0f, 0.3125f, 1.0f), Shapes.create(0.1875f, 0.0f, 0.8125f, 1.0f, 0.3125f, 0.875f), Shapes.create(0.3125f, 0.0f, 0.75f, 1.0f, 0.3125f, 0.8125f), Shapes.create(0.4375f, 0.0f, 0.6875f, 0.9375f, 0.3125f, 0.75f), Shapes.create(0.6875f, 0.0f, 0.625f, 0.875f, 0.3125f, 0.6875f), Shapes.create(0.1875f, 0.3125f, 0.9375f, 0.8125f, 0.625f, 1.0f), Shapes.create(0.3125f, 0.3125f, 0.875f, 0.75f, 0.625f, 0.9375f), Shapes.create(0.5625f, 0.3125f, 0.8125f, 0.6875f, 0.625f, 0.875f));
+            case HERO_TAIHU_B1_C11: return Shapes.or(Shapes.create(0.0f, 0.0f, 0.0f, 1.0f, 0.3125f, 1.0f), Shapes.create(0.0f, 0.3125f, 0.125f, 1.0f, 0.625f, 0.6875f), Shapes.create(0.0625f, 0.3125f, 0.0625f, 1.0f, 0.625f, 0.125f), Shapes.create(0.0625f, 0.3125f, 0.6875f, 1.0f, 0.5625f, 1.0f), Shapes.create(0.125f, 0.3125f, 0.0f, 0.875f, 0.625f, 0.0625f), Shapes.create(0.0625f, 0.5625f, 0.6875f, 0.4375f, 0.625f, 1.0f), Shapes.create(0.4375f, 0.5625f, 0.6875f, 1.0f, 0.9375f, 0.9375f), Shapes.create(0.625f, 0.5625f, 0.9375f, 1.0f, 0.625f, 1.0f), Shapes.create(0.125f, 0.625f, 0.1875f, 0.9375f, 0.9375f, 0.5f), Shapes.create(0.1875f, 0.625f, 0.125f, 0.875f, 0.9375f, 0.1875f), Shapes.create(0.1875f, 0.625f, 0.5f, 0.4375f, 0.9375f, 0.9375f), Shapes.create(0.25f, 0.625f, 0.9375f, 0.9375f, 0.9375f, 1.0f), Shapes.create(0.3125f, 0.625f, 0.0625f, 0.75f, 0.9375f, 0.125f), Shapes.create(0.4375f, 0.625f, 0.5f, 1.0f, 1.0f, 0.6875f), Shapes.create(0.5f, 0.625f, 0.0f, 0.625f, 0.9375f, 0.0625f), Shapes.create(0.9375f, 0.625f, 0.25f, 1.0f, 0.9375f, 0.5f), Shapes.create(0.1875f, 0.9375f, 0.1875f, 0.875f, 1.0f, 0.5f), Shapes.create(0.25f, 0.9375f, 0.5f, 0.4375f, 1.0f, 0.875f), Shapes.create(0.3125f, 0.9375f, 0.125f, 0.6875f, 1.0f, 0.1875f), Shapes.create(0.3125f, 0.9375f, 0.875f, 0.9375f, 1.0f, 0.9375f), Shapes.create(0.4375f, 0.9375f, 0.6875f, 1.0f, 1.0f, 0.875f), Shapes.create(0.4375f, 0.9375f, 0.9375f, 0.75f, 1.0f, 1.0f), Shapes.create(0.875f, 0.9375f, 0.3125f, 0.9375f, 1.0f, 0.5f), Shapes.create(0.9375f, 0.9375f, 0.375f, 1.0f, 1.0f, 0.5f));
+            case HERO_TAIHU_B1_C12: return Shapes.or(Shapes.create(0.0f, 0.0f, 0.0f, 1.0f, 0.25f, 0.125f), Shapes.create(0.0625f, 0.0f, 0.125f, 0.875f, 0.25f, 0.1875f), Shapes.create(0.125f, 0.0f, 0.1875f, 0.4375f, 0.3125f, 0.25f), Shapes.create(0.375f, 0.0f, 0.25f, 0.4375f, 0.3125f, 0.3125f), Shapes.create(0.625f, 0.0f, 0.1875f, 0.6875f, 0.3125f, 0.3125f), Shapes.create(0.6875f, 0.0f, 0.1875f, 0.8125f, 0.3125f, 0.25f), Shapes.create(0.0f, 0.25f, 0.0f, 0.4375f, 0.3125f, 0.125f), Shapes.create(0.0625f, 0.25f, 0.125f, 0.4375f, 0.3125f, 0.1875f), Shapes.create(0.4375f, 0.25f, 0.0f, 1.0f, 0.5625f, 0.0625f), Shapes.create(0.625f, 0.25f, 0.0625f, 0.875f, 0.3125f, 0.1875f), Shapes.create(0.875f, 0.25f, 0.0625f, 1.0f, 0.3125f, 0.125f), Shapes.create(0.125f, 0.3125f, 0.0f, 0.4375f, 0.625f, 0.0625f), Shapes.create(0.25f, 0.3125f, 0.0625f, 0.4375f, 0.625f, 0.125f), Shapes.create(0.625f, 0.3125f, 0.0625f, 0.6875f, 0.625f, 0.1875f), Shapes.create(0.6875f, 0.3125f, 0.0625f, 0.8125f, 0.625f, 0.125f), Shapes.create(0.625f, 0.5625f, 0.0f, 1.0f, 0.625f, 0.0625f), Shapes.create(0.4375f, 0.625f, 0.0f, 0.6875f, 0.9375f, 0.0625f));
+            case HERO_TAIHU_B2_C11: return Shapes.or(Shapes.create(0.1875f, 0.0f, 0.1875f, 0.875f, 0.5f, 0.5f), Shapes.create(0.25f, 0.0f, 0.5f, 1.0f, 0.5f, 0.875f), Shapes.create(0.3125f, 0.0f, 0.125f, 0.6875f, 0.5f, 0.1875f), Shapes.create(0.3125f, 0.0f, 0.875f, 0.9375f, 0.5f, 0.9375f), Shapes.create(0.4375f, 0.0f, 0.9375f, 0.75f, 0.5f, 1.0f), Shapes.create(0.875f, 0.0f, 0.3125f, 0.9375f, 0.5f, 0.5f), Shapes.create(0.9375f, 0.0f, 0.375f, 1.0f, 0.5f, 0.5f));
+            case HERO_TAIHU_B0_C20: return Shapes.or(Shapes.create(0.0f, 0.0f, 0.0f, 0.0625f, 0.0625f, 1.0f), Shapes.create(0.0625f, 0.0f, 0.0625f, 0.125f, 0.0625f, 1.0f), Shapes.create(0.125f, 0.0f, 0.125f, 0.6875f, 0.0625f, 1.0f), Shapes.create(0.3125f, 0.0f, 0.0625f, 0.625f, 0.0625f, 0.125f), Shapes.create(0.4375f, 0.0f, 0.0f, 0.5f, 0.0625f, 0.0625f), Shapes.create(0.6875f, 0.0f, 0.1875f, 0.75f, 0.0625f, 1.0f), Shapes.create(0.75f, 0.0f, 0.25f, 0.8125f, 0.0625f, 1.0f), Shapes.create(0.8125f, 0.0f, 0.5625f, 0.875f, 0.0625f, 1.0f), Shapes.create(0.875f, 0.0f, 0.75f, 0.9375f, 0.0625f, 1.0f), Shapes.create(0.9375f, 0.0f, 0.9375f, 1.0f, 0.0625f, 1.0f), Shapes.create(0.0f, 0.0625f, 0.3125f, 0.5625f, 0.375f, 1.0f), Shapes.create(0.3125f, 0.0625f, 0.25f, 0.625f, 0.375f, 0.3125f), Shapes.create(0.4375f, 0.0625f, 0.1875f, 0.5625f, 0.375f, 0.25f), Shapes.create(0.5625f, 0.0625f, 0.3125f, 0.625f, 0.375f, 0.5625f), Shapes.create(0.5625f, 0.0625f, 0.6875f, 0.625f, 0.375f, 1.0f), Shapes.create(0.625f, 0.0625f, 0.375f, 0.6875f, 0.375f, 0.4375f), Shapes.create(0.625f, 0.0625f, 0.75f, 0.6875f, 0.375f, 1.0f), Shapes.create(0.6875f, 0.0625f, 0.8125f, 0.75f, 0.375f, 1.0f), Shapes.create(0.75f, 0.0625f, 0.875f, 0.8125f, 0.375f, 1.0f), Shapes.create(0.0f, 0.375f, 0.4375f, 0.0625f, 0.6875f, 1.0f), Shapes.create(0.0625f, 0.375f, 0.5f, 0.3125f, 0.6875f, 1.0f), Shapes.create(0.3125f, 0.375f, 0.5625f, 0.375f, 0.6875f, 1.0f), Shapes.create(0.375f, 0.375f, 0.6875f, 0.4375f, 0.6875f, 1.0f), Shapes.create(0.4375f, 0.375f, 0.8125f, 0.5625f, 0.6875f, 1.0f), Shapes.create(0.5625f, 0.375f, 0.875f, 0.625f, 0.6875f, 1.0f), Shapes.create(0.0f, 0.6875f, 0.5625f, 0.0625f, 1.0f, 1.0f), Shapes.create(0.0625f, 0.6875f, 0.625f, 0.1875f, 1.0f, 1.0f), Shapes.create(0.1875f, 0.6875f, 0.8125f, 0.25f, 1.0f, 0.875f), Shapes.create(0.1875f, 0.6875f, 0.9375f, 0.25f, 1.0f, 1.0f));
+            case HERO_TAIHU_B0_C21: return Shapes.or(Shapes.create(0.0f, 0.0f, 0.0f, 0.9375f, 0.0625f, 1.0f), Shapes.create(0.9375f, 0.0f, 0.0f, 1.0f, 0.0625f, 0.4375f), Shapes.create(0.9375f, 0.0f, 0.75f, 1.0f, 0.0625f, 0.875f), Shapes.create(0.0f, 0.0625f, 0.0f, 0.8125f, 0.375f, 1.0f), Shapes.create(0.8125f, 0.0625f, 0.0625f, 0.875f, 0.375f, 0.4375f), Shapes.create(0.8125f, 0.0625f, 0.75f, 0.875f, 0.375f, 0.9375f), Shapes.create(0.0f, 0.375f, 0.0f, 0.5f, 0.6875f, 1.0f), Shapes.create(0.5f, 0.375f, 0.0f, 0.5625f, 0.6875f, 0.9375f), Shapes.create(0.5625f, 0.375f, 0.0f, 0.625f, 0.6875f, 0.875f), Shapes.create(0.625f, 0.375f, 0.0f, 0.6875f, 0.6875f, 0.0625f), Shapes.create(0.625f, 0.375f, 0.3125f, 0.6875f, 0.6875f, 0.8125f), Shapes.create(0.0f, 0.6875f, 0.0f, 0.3125f, 1.0f, 1.0f), Shapes.create(0.3125f, 0.6875f, 0.0625f, 0.375f, 1.0f, 1.0f), Shapes.create(0.375f, 0.6875f, 0.1875f, 0.4375f, 1.0f, 0.9375f), Shapes.create(0.4375f, 0.6875f, 0.375f, 0.5f, 1.0f, 0.8125f), Shapes.create(0.5f, 0.6875f, 0.4375f, 0.5625f, 1.0f, 0.75f));
+            case HERO_TAIHU_B0_C22: return Shapes.or(Shapes.create(0.0f, 0.0f, 0.0f, 0.1875f, 0.0625f, 0.875f), Shapes.create(0.1875f, 0.0f, 0.0f, 0.3125f, 0.0625f, 0.8125f), Shapes.create(0.3125f, 0.0f, 0.0f, 0.375f, 0.0625f, 0.75f), Shapes.create(0.375f, 0.0f, 0.0f, 0.4375f, 0.0625f, 0.625f), Shapes.create(0.4375f, 0.0f, 0.0f, 0.5f, 0.0625f, 0.5f), Shapes.create(0.5f, 0.0f, 0.0f, 0.5625f, 0.0625f, 0.4375f), Shapes.create(0.5625f, 0.0f, 0.0f, 0.6875f, 0.0625f, 0.375f), Shapes.create(0.6875f, 0.0f, 0.0f, 0.75f, 0.0625f, 0.3125f), Shapes.create(0.75f, 0.0f, 0.0f, 0.8125f, 0.0625f, 0.25f), Shapes.create(0.8125f, 0.0f, 0.0f, 0.875f, 0.0625f, 0.1875f), Shapes.create(0.875f, 0.0f, 0.0f, 0.9375f, 0.0625f, 0.0625f), Shapes.create(0.0f, 0.0625f, 0.0f, 0.25f, 0.375f, 0.5625f), Shapes.create(0.0625f, 0.0625f, 0.5625f, 0.1875f, 0.375f, 0.625f), Shapes.create(0.25f, 0.0625f, 0.0f, 0.3125f, 0.375f, 0.5f), Shapes.create(0.3125f, 0.0625f, 0.0f, 0.375f, 0.375f, 0.4375f), Shapes.create(0.375f, 0.0625f, 0.0f, 0.4375f, 0.375f, 0.375f), Shapes.create(0.4375f, 0.0625f, 0.0f, 0.5f, 0.375f, 0.3125f), Shapes.create(0.5f, 0.0625f, 0.0f, 0.5625f, 0.375f, 0.25f), Shapes.create(0.5625f, 0.0625f, 0.0f, 0.625f, 0.375f, 0.1875f), Shapes.create(0.625f, 0.0625f, 0.0f, 0.6875f, 0.375f, 0.125f), Shapes.create(0.6875f, 0.0625f, 0.0f, 0.75f, 0.375f, 0.0625f), Shapes.create(0.0f, 0.375f, 0.0f, 0.125f, 0.6875f, 0.375f), Shapes.create(0.125f, 0.375f, 0.0f, 0.1875f, 0.6875f, 0.3125f), Shapes.create(0.1875f, 0.375f, 0.0f, 0.3125f, 0.6875f, 0.25f), Shapes.create(0.3125f, 0.375f, 0.0f, 0.375f, 0.6875f, 0.1875f), Shapes.create(0.375f, 0.375f, 0.0f, 0.4375f, 0.6875f, 0.125f), Shapes.create(0.4375f, 0.375f, 0.0f, 0.5f, 0.6875f, 0.0625f), Shapes.create(0.0f, 0.6875f, 0.0f, 0.0625f, 1.0f, 0.25f), Shapes.create(0.0625f, 0.6875f, 0.0f, 0.1875f, 1.0f, 0.1875f), Shapes.create(0.1875f, 0.6875f, 0.0f, 0.25f, 1.0f, 0.125f), Shapes.create(0.25f, 0.6875f, 0.0f, 0.375f, 1.0f, 0.0625f));
+            case HERO_TAIHU_B1_C20: return Shapes.or(Shapes.create(0.0f, 0.0f, 0.9375f, 0.0625f, 0.3125f, 1.0f));
+            case HERO_TAIHU_B1_C21: return Shapes.or(Shapes.create(0.0f, 0.0f, 0.0f, 0.125f, 0.3125f, 1.0f), Shapes.create(0.125f, 0.0f, 0.125f, 0.1875f, 0.3125f, 1.0f), Shapes.create(0.1875f, 0.0f, 0.1875f, 0.25f, 0.3125f, 1.0f), Shapes.create(0.25f, 0.0f, 0.25f, 0.3125f, 0.3125f, 1.0f), Shapes.create(0.3125f, 0.0f, 0.375f, 0.375f, 0.3125f, 0.875f), Shapes.create(0.375f, 0.0f, 0.5f, 0.4375f, 0.3125f, 0.75f), Shapes.create(0.0f, 0.3125f, 0.125f, 0.0625f, 0.625f, 1.0f), Shapes.create(0.0625f, 0.3125f, 0.1875f, 0.125f, 0.625f, 1.0f), Shapes.create(0.125f, 0.3125f, 0.3125f, 0.1875f, 0.625f, 0.9375f), Shapes.create(0.1875f, 0.3125f, 0.375f, 0.25f, 0.625f, 0.875f), Shapes.create(0.25f, 0.3125f, 0.5f, 0.3125f, 0.625f, 0.8125f), Shapes.create(0.0f, 0.625f, 0.375f, 0.0625f, 0.9375f, 0.875f), Shapes.create(0.0625f, 0.625f, 0.4375f, 0.125f, 0.9375f, 0.8125f), Shapes.create(0.125f, 0.625f, 0.5f, 0.1875f, 0.9375f, 0.6875f), Shapes.create(0.0f, 0.9375f, 0.5f, 0.0625f, 1.0f, 0.75f));
+            case HERO_TAIHU_B1_C22: return Shapes.or(Shapes.create(0.0f, 0.0f, 0.0f, 0.125f, 0.3125f, 0.125f), Shapes.create(0.125f, 0.0f, 0.0f, 0.1875f, 0.3125f, 0.0625f), Shapes.create(0.0f, 0.3125f, 0.0f, 0.0625f, 0.625f, 0.0625f));
+            case HERO_TAIHU_B2_C21: return Shapes.or(Shapes.create(0.0f, 0.0f, 0.5f, 0.0625f, 0.5f, 0.75f));
         }
     }
 
@@ -184,7 +238,27 @@ public class RockeryBlock extends Block {
         STANDALONE_03("standalone_03"),
         STANDALONE_04("standalone_04"),
         STANDALONE_05("standalone_05"),
-        STANDALONE_06("standalone_06");
+        STANDALONE_06("standalone_06"),
+        HERO_TAIHU_B0_C00("hero_taihu_b0_c00"),
+        HERO_TAIHU_B0_C01("hero_taihu_b0_c01"),
+        HERO_TAIHU_B0_C02("hero_taihu_b0_c02"),
+        HERO_TAIHU_B1_C00("hero_taihu_b1_c00"),
+        HERO_TAIHU_B1_C01("hero_taihu_b1_c01"),
+        HERO_TAIHU_B1_C02("hero_taihu_b1_c02"),
+        HERO_TAIHU_B0_C10("hero_taihu_b0_c10"),
+        HERO_TAIHU_B0_C11("hero_taihu_b0_c11"),
+        HERO_TAIHU_B0_C12("hero_taihu_b0_c12"),
+        HERO_TAIHU_B1_C10("hero_taihu_b1_c10"),
+        HERO_TAIHU_B1_C11("hero_taihu_b1_c11"),
+        HERO_TAIHU_B1_C12("hero_taihu_b1_c12"),
+        HERO_TAIHU_B2_C11("hero_taihu_b2_c11"),
+        HERO_TAIHU_B0_C20("hero_taihu_b0_c20"),
+        HERO_TAIHU_B0_C21("hero_taihu_b0_c21"),
+        HERO_TAIHU_B0_C22("hero_taihu_b0_c22"),
+        HERO_TAIHU_B1_C20("hero_taihu_b1_c20"),
+        HERO_TAIHU_B1_C21("hero_taihu_b1_c21"),
+        HERO_TAIHU_B1_C22("hero_taihu_b1_c22"),
+        HERO_TAIHU_B2_C21("hero_taihu_b2_c21");
         private final String name;
 
         Variant(String name) {

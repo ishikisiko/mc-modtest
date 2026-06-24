@@ -764,6 +764,11 @@ def _place_yard_ground(compound: CompoundGraph, style: Style) -> None:
     through ``GROUND_YARD_UNDER_EAVE``. The path pass (run afterwards) overwrites
     the ground tile along the routed path at the same y. Water / planting / tree
     cells are left for their own passes to own.
+
+    In the 江南大宅, this pass runs BEFORE ``_layout_garden`` so the garden
+    features (假山 foot / 水池) stamp their own y=-1 surface on top of the yard
+    ground; that keeps the ground layer hole-free under the rockery's air gaps
+    while letting the hero foot row and pool survive (add-hero-rockery task 4.1).
     """
     skip = (compound.building_cells() |
             compound.node_cells("water_feature", "water_jar", "planting",
@@ -797,14 +802,111 @@ def _place_yard_ground(compound: CompoundGraph, style: Style) -> None:
 # ---------------------------------------------------------------------------
 
 
-def _rockery_block_state(variant: str, facing: str, moss: str) -> str:
-    """Blockstate string for a placed rockery_block (mod-decor-block-family)."""
+def _rockery_block_state(variant: str, facing: str, moss: str,
+                         waterlogged: bool = False) -> str:
+    """Blockstate string for a placed rockery_block (mod-decor-block-family).
+
+    Includes the ``waterlogged`` property (add-hero-rockery task 2.5); defaults
+    to ``false`` for the generic heightfield placements.
+    """
+    wl = "true" if waterlogged else "false"
     return (f"myvillage:rockery_block[variant={variant},facing={facing},"
-            f"moss_level={moss}]")
+            f"moss_level={moss},waterlogged={wl}]")
+
+
+def place_hero_rockery(compound: CompoundGraph, origin: Cell2, seed: int,
+                       facing: str = "north") -> ParcelNode:
+    """Hero 假山 cluster renderer (add-hero-rockery tasks 3.3/3.4).
+
+    Stamps the 19-cell stacked cluster + foliage/water dressing produced by
+    :func:`rockery.derive_hero_rockery` at ``origin`` (cluster's -x/-z corner),
+    resting the foot on the parcel ground surface. Fixes the spike-field bug
+    (the cells stack 3 tall instead of scattering) and exposes a standable summit
+    in the node meta for a possible 亭. Determinism: the source JSON is fixed.
+    """
+    from .rockery import derive_hero_rockery  # local import (avoid cycle)
+    plan = derive_hero_rockery()
+    ox, oz = origin
+    base_y = _natural_surface_y(compound, (ox + 1, oz + 1))
+    cells: Set[Cell2] = set()
+    written: List[List] = []
+    for (dx, dy, dz), (variant, moss, f, wl) in sorted(plan.cells.items()):
+        x, y, z = ox + dx, base_y + dy, oz + dz
+        compound.grid.set((x, y, z), _rockery_block_state(variant, f, moss, wl),
+                          ["DETAIL", "STRUCTURE"], PRIORITY["DETAIL"], "ROCKERY_STONE",
+                          force=True)
+        cells.add((x, z))
+        written.append([x, z, variant, moss, dy, wl])
+    for (dx, dy, dz), state in plan.dressing:
+        x, y, z = ox + dx, base_y + dy, oz + dz
+        is_water = state.startswith("minecraft:water")
+        tags = ["DETAIL", "GROUND"] if is_water else ["DETAIL", "STRUCTURE"]
+        slot = "WATER" if is_water else (
+            "ROCKERY_STONE" if state.startswith("myvillage:rockery_cascade") else "PLANTING")
+        compound.grid.set((x, y, z), state, tags, PRIORITY["DETAIL"], slot, force=True)
+        if is_water:
+            # Carve the cell above the surface pool to air so the water shows
+            # (the yard-ground pass may have filled it); the 细瀑 ribbon is placed
+            # afterwards in the dressing order and reclaims its own cells.
+            compound.grid.set((x, y + 1, z), AIR, ["AIR_CARVE"],
+                              PRIORITY["AIR_CARVE"], force=True)
+        cells.add((x, z))
+    sx, sy, sz = plan.summit
+    node = ParcelNode("garden_rockery", "garden_rockery", cells, {
+        "bbox": [ox, oz, ox + plan.footprint[0] - 1, oz + plan.footprint[1] - 1],
+        "facing": facing,
+        "hero": "taihu",
+        "summit": [ox + sx, base_y + sy, oz + sz],
+        "placement": written,
+        "cell_count": len(cells),
+    })
+    compound.parcel_nodes.append(node)
+    return node
+
+
+def generate_hero_rockery_fragment(seed: int = 0x4A1A5A) -> CompoundGraph:
+    """Self-contained hero 假山 review fragment (add-hero-rockery task 4.0).
+
+    Builds a minimal :class:`CompoundGraph` carrying nothing but the hero
+    cluster + its foliage/water dressing on a small contained ground+basin slab,
+    so ``/myvillage place hero_rockery`` stamps a standalone specimen that holds
+    its 山脚水池 without an external ``garden_pond``. The slab is a 2-cell-thick
+    foundation (stone floor + grass surface) over the footprint plus a 2-cell
+    margin; the foot pool is a 1-deep pocket carved into the surface layer, so
+    its four sides and floor are solid and the water sources cannot spill.
+
+    Deterministic: the source sculpt is fixed, so the fragment is byte-stable.
+    """
+    variant = CompoundVariant(
+        courtyard_size="garden_fragment", water_form="rockery_pool",
+        planting_layout="single", roof_grade="none", gate_type="none")
+    compound = CompoundGraph(style_id="chinese_courtyard", seed=seed,
+                             variant=variant, lot_size=(7, 8), axis_x=3)
+    from .rockery import derive_hero_rockery  # local import (avoid cycle)
+    plan = derive_hero_rockery()
+    width, depth = plan.footprint
+    # Ground+basin slab: a stone foundation at y=-2 and a grass surface at y=-1
+    # over the footprint (x 0..width-1, z 0..depth) plus a 2-cell margin. The
+    # hero foot and the surface pool both rest at y=-1; place_hero_rockery stamps
+    # the rock (force) and the pool (force + carve the cell above to air) on top,
+    # so the surrounding grass at y=-1 forms the basin walls and the stone at y=-2
+    # the floor — the pool is fully contained without an external garden_pond.
+    margin = 2
+    foundation = "minecraft:stone"
+    surface = "minecraft:grass_block"
+    for x in range(-margin, width + margin):
+        for z in range(-margin, depth + 1 + margin):
+            compound.grid.set((x, -2, z), foundation, ["FOUNDATION"],
+                              PRIORITY["FOUNDATION"], "GROUND_YARD")
+            compound.grid.set((x, -1, z), surface, ["DETAIL", "GROUND"],
+                              PRIORITY["DETAIL"], "GROUND_YARD")
+    place_hero_rockery(compound, (0, 0), seed)
+    return compound
 
 
 def place_garden_rockery(compound: CompoundGraph, bbox: Tuple[int, int, int, int],
-                         seed: int, facing: str = "north") -> ParcelNode:
+                         seed: int, facing: str = "north",
+                         hero: Optional[str] = None) -> ParcelNode:
     """garden_rockery parcel renderer (task 5.2).
 
     Calls :func:`tools.buildgen.rockery.derive_rockery` to assign each cell in
@@ -812,7 +914,14 @@ def place_garden_rockery(compound: CompoundGraph, bbox: Tuple[int, int, int, int
     ``myvillage:rockery_block`` at each cell's standable y (the natural surface
     y, so the rockery rests on the garden ground). Returns the ParcelNode
     describing the placed rockery (cells + the role/variant manifest in meta).
+
+    When ``hero == "taihu"`` the parcel is instead realized as the hand-sculpted
+    hero 假山 cluster (add-hero-rockery task 3.4), rooted at the bbox's -x/-z
+    corner — the cluster is a fixed 3×3×3 sculpt, so the bbox only supplies the
+    origin, not the footprint.
     """
+    if hero == "taihu":
+        return place_hero_rockery(compound, (bbox[0], bbox[1]), seed, facing)
     from .rockery import derive_rockery, RockeryParams  # local import (avoid cycle)
     placement = derive_rockery(seed, bbox, RockeryParams())
     cells: Set[Cell2] = set()
@@ -2627,13 +2736,18 @@ def _layout_garden(compound: CompoundGraph, style: Style, bands: dict,
     rock_x0, rock_x1 = 1, 1 + rock_w - 1
     rock_z0, rock_z1 = gy0, gy0 + feature_d - 1
 
+    # Main 假山: the hand-sculpted hero cluster (add-hero-rockery), rooted at the
+    # rock bbox's -x/-z corner. Fixes the spike-field bug (stacks 3 tall).
     rockery_node = place_garden_rockery(compound, (rock_x0, rock_z0, rock_x1, rock_z1),
-                                        seed + 9100)
+                                        seed + 9100, hero="taihu")
     pond_node, water_cells = place_garden_pond(
         compound, (pond_x0, pond_z0, pond_x1, pond_z1), seed + 9200,
         rockery_node=rockery_node)
 
-    # 亭 pavilion north of the rockery
+    # 亭 pavilion beside (north of) the rockery. The hero summit carries a 小树
+    # (faithful to the sculpt), so the 亭 stays at ground level rather than on the
+    # peak; the standable summit offset is still exported in the rockery node meta
+    # for any consumer that wants 亭-on-peak with a tree-less variant (task 3.5).
     pav_cx = (rock_x0 + rock_x1) // 2
     pav_cz = gy0 + feature_d + 2
     if gy0 <= pav_cz <= gy1:
@@ -2717,8 +2831,10 @@ def generate_mansion(seed: int, style: Optional[Style] = None,
                        gate_band_key="ermen_band",
                        node_id="ermen_gate", gate_kind="ermen_gate")
     _layout_back_yard(compound, style, bands, contexts, variant)
-    _layout_garden(compound, style, bands, seed, variant)
+    # Yard ground BEFORE the garden so the 假山 foot row / 水池 surface stamp on
+    # top of (not get clobbered by) the y=-1 ground fill (add-hero-rockery 4.1).
     _place_yard_ground(compound, style)
+    _layout_garden(compound, style, bands, seed, variant)
     _route_complete_path(compound, style)
     _place_band_transition_stairs(compound, style)
     return compound

@@ -7,6 +7,47 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.16.2
+
+### Changed
+
+- **重塑 hero 太湖石假山的形态与水景**：`docs/rockery_compressed.json` 改由
+  参数化生成器 `tools/buildgen/gen_hero_rockery_sculpt.py` 重新雕刻，按参考图
+  `docs/mt.png` 做成层叠收分的太湖石（石为主、青苔点缀），并配合泉自山体内
+  涌出、沿台阶跌落的细瀑与嵌入山脚、与山体相连的水池。新增离线微体素预览工具
+  `tools/buildgen/preview_voxel_field.py`（直接渲染 48³ 体素，便于在不进游戏时
+  比对参考图）。
+
+### Fixed
+
+- **修复假山被流水淹没的问题**：原 hero 路径把山顶出水口与山脚 cell 设为
+  `waterlogged=true`，而含水方块本身是会向相邻空气扩散的水源，导致水流如
+  “蓝色帐篷”般盖住整座假山并溢成护城河。改为完全不使用 waterlog；可见水景仅由
+  封闭水池（source）+ 非流体 `rockery_cascade` 细瀑构成，泉眼由烘焙进岩体模型的
+  石窟表现，确定性且不再泛滥。
+- hero cell 数由 19 增至 20；六个 `chinese_mansion_001..006.nbt` 与独立
+  `hero_rockery` 片段已重新生成并通过结构 / voxel-walkability / fallback 校验，
+  字节稳定基线同步刷新。
+
+## 0.16.1
+
+### Added
+
+- **Hero 太湖石假山 (`add-hero-rockery`)**：将
+  `docs/rockery_compressed.json` 的 48³ 微体素雕塑切成 19 个可堆叠的
+  `rockery_block` cell，形成一座 3×3×3 实体假山；石/苔材质按微体素分别
+  烘焙，并增加真实水池、水浸山脚与峰顶出水口、无碰撞细瀑
+  `myvillage:rockery_cascade`、峰顶草木和可站立亭基。
+- 新增独立验收结构与命令 `/myvillage place hero_rockery`；六个
+  `chinese_mansion_001..006.nbt` 已重新生成并通过 3D voxel-walkability
+  校验。
+
+### Fixed
+
+- 修复江南大宅假山由二维 heightfield 每格仅放一个 block，导致整体呈现为
+  1–2 格高“尖刺阵列”而非山体的问题。通用 codebook 假山路径保持不变，
+  hero 路径改为固定、字节稳定的三维堆叠 cluster。
+
 ## 0.16.0-fix2
 
 ### Fixed

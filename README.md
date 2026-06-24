@@ -120,6 +120,14 @@ layer, the `open_hall` and `tower_house` archetypes, the `myvillage:rockery_bloc
 self-namespace block, and the voxel-walkability 3D BFS validator for all compound
 families. Also regenerates `chinese_courtyard_001..006.nbt` with 照壁侧立
 off-axis screen wall and ≥3-cell 垂花门 passage.
+v0.16.2 re-sculpts the mansion garden's named hero 假山: a layered, 收分 太湖石
+(stone-dominant with moss accents, per `docs/mt.png`) procedurally authored by
+`tools/buildgen/gen_hero_rockery_sculpt.py`, with a spring that issues from a
+grotto inside the rock and cascades down the terraces into a pool embedded in the
+foot. It also fixes the v0.16.1 flood: `waterlogged` rock (a spreading water
+source) is dropped entirely — visible water is a contained pool + non-fluid
+`rockery_cascade` only. Review it directly with `/myvillage place hero_rockery`;
+preview the 48³ sculpt offline with `tools/buildgen/preview_voxel_field.py`.
 Run the final full-profile generation after a vanilla-profile proof to restore
 the shipped artifact profile.
 
@@ -303,7 +311,7 @@ jar tf build/libs/*.jar | grep "assets/myvillage/textures/painting/inscription"
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.16.0-fix2.jar
+build/libs/myvillage-0.16.2.jar
 ```
 
 ## Versioning And Changelog
@@ -349,12 +357,12 @@ python3 tools/generate_sect_plan_preview.py --count 6    # default covers all 3 
 python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 graph previews
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.16.0-fix2.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.16.0-fix2.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.16.0-fix2.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.16.0-fix2.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.16.0-fix2.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.16.0-fix2.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.16.2.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.16.2.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.16.2.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.16.2.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.16.2.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.16.2.jar | grep "assets/myvillage/textures/painting/inscription"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -481,6 +489,7 @@ Place a generated building directly:
 /myvillage place chinese_mansion_004
 /myvillage place chinese_mansion_005
 /myvillage place chinese_mansion_006
+/myvillage place hero_rockery
 /myvillage place tavern_001
 /myvillage place lord_manor_001
 /myvillage place cultivation_town_001   # courtyard district-fill fragment (not the canonical town — use /myvillage town)

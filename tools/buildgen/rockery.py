@@ -205,6 +205,94 @@ def derive_stepping_stones(seed: int, shore_a: Cell2, shore_b: Cell2,
     return out
 
 
+Cell3 = Tuple[int, int, int]
+
+
+@dataclass(frozen=True)
+class HeroRockeryPlacement:
+    """Realization record for the hero 假山 (add-hero-rockery Section 3).
+
+    ``cells`` maps a cluster-local offset ``(dx, dy, dz)`` (dy = full-block layer)
+    to ``(variant_id, moss_level, facing, waterlogged)`` — one stacked
+    ``rockery_block`` per non-empty rock cell. ``dressing`` is an ordered list of
+    ``(offset, block_state)`` for the non-rock vanilla blocks (foot 水池, 细瀑,
+    草帽顶, 小树). ``summit`` is the standable top offset (for a possible 亭).
+    All offsets are relative to the cluster origin; the placer adds the parcel
+    origin + base_y. Deterministic: the source JSON is the only input.
+    """
+    cells: Dict[Cell3, Tuple[str, str, str, bool]]
+    dressing: List[Tuple[Cell3, str]]
+    footprint: Tuple[int, int]   # (width, depth) in blocks
+    height: int                  # blocks tall
+    summit: Cell3                # standable summit offset
+
+
+# Non-rock dressing block states (Decision 6). Sources only — no flowing water.
+_OAK_LEAVES = "minecraft:oak_leaves[persistent=true,waterlogged=false]"
+_OAK_LOG = "minecraft:oak_log[axis=y]"
+
+
+def derive_hero_rockery() -> HeroRockeryPlacement:
+    """Build the hero 假山 cluster + dressing from the sculpt JSON (task 3.1).
+
+    Ingests ``docs/rockery_compressed.json`` via
+    :func:`rockery_models.from_voxel_json`, stacks the 19 baked rock cells into a
+    3×3×3 cluster, waterlogs the +z foot row (山脚入水) and the cap (峰顶出水口,
+    realized by waterlogging rather than a flood-prone free source), and emits the
+    foliage + water dressing per design Decision 6.
+    """
+    try:
+        from . import rockery_models as rm
+    except ImportError:  # pragma: no cover - direct-run mode
+        import rockery_models as rm  # type: ignore
+    rm.from_voxel_json()
+
+    cells: Dict[Cell3, Tuple[str, str, str, bool]] = {}
+    bxs: List[int] = []
+    bys: List[int] = []
+    bzs: List[int] = []
+    for vid, (bx, by, bz) in rm.HERO_CELL.items():
+        bxs.append(bx); bys.append(by); bzs.append(bz)
+        # NO waterlogging. A waterlogged rockery_block carries a water SOURCE
+        # (getFluidState), and a source spreads into adjacent open air — on the
+        # exposed cluster that floods cascading water over the whole 假山 (the
+        # old 山顶出水口/山脚入水 produced the "blue tent" flood). Visible water is
+        # placed only as a contained pond + non-fluid cascade blocks below; the
+        # spring reads from the grotto carved into the baked rock model itself.
+        cells[(bx, by, bz)] = (vid, rm.HERO_MOSS[vid], "north", False)
+    width = max(bxs) + 1
+    height = max(bys) + 1
+    depth = max(bzs) + 1
+
+    dressing: List[Tuple[Cell3, str]] = []
+    # 山脚水池: a surface-level pool in front (+z) of the foot — water at the foot
+    # y (dy=0), matching the garden_pond pattern so the pool reads as a body at
+    # ground level (and so the mansion's ground-layer validator sees water, not a
+    # hole). Sources only; the consumer carves the cell above to air so it shows.
+    for bx in range(width):
+        dressing.append(((bx, 0, depth), "minecraft:water"))
+    # 细瀑: a translucent (non-fluid) rockery_cascade curtain down the front-center
+    # face (dy=1..height-1), falling from the grotto spring carved into the rock
+    # model into the foot pool. Non-fluid -> no flow, no flooding.
+    for dy in range(1, height):
+        dressing.append(((1, dy, depth), "myvillage:rockery_cascade"))
+    # 草帽顶 + 小树: a grassy cap and a small oak on the summit center.
+    dressing.append(((1, height, 1), "minecraft:grass_block"))
+    dressing.append(((1, height + 1, 1), _OAK_LOG))
+    dressing.append(((1, height + 2, 1), _OAK_LOG))
+    for off in ((1, height + 3, 1), (0, height + 2, 1), (2, height + 2, 1),
+                (1, height + 2, 0), (1, height + 2, 2)):
+        dressing.append((off, _OAK_LEAVES))
+
+    return HeroRockeryPlacement(
+        cells=cells,
+        dressing=dressing,
+        footprint=(width, depth),
+        height=height,
+        summit=(1, height, 1),
+    )
+
+
 def validate_rockery_placement(placement: Dict[Cell2, RockeryAssignment]) -> List[str]:
     """Sanity-check a derived placement (returns error strings; empty = OK).
 

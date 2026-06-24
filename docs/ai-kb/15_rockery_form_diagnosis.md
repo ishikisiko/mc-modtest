@@ -1,8 +1,42 @@
 # 假山 Form Diagnosis
 
-Factual record of why shipped 假山 (rockery) "看不出形态" (no readable form), and
-the agreed rebuild direction. See-also the `garden-rockery` spec
+Factual record of why the original 假山 (rockery) "看不出形态" (no readable
+form), and how the defect was resolved. See-also the `garden-rockery` spec
 (`openspec/changes/rebuild-jiangnan-mansion/specs/garden-rockery/spec.md`).
+
+## Revised in 0.16.2 (re-sculpt + flood fix)
+
+The first hero sculpt (a hand-authored crude cone) read as a featureless grey
+dome **and** drowned itself in water: the placement set the summit outlet and the
+山脚 cells `waterlogged=true`, but a waterlogged block carries a *water source*
+(`getFluidState`), and a source spreads into adjacent open air — on the exposed
+cluster it cascaded flowing water over the whole 假山 (a translucent "blue tent")
+and spilled into a surrounding moat, hiding the rock. Two fixes shipped together:
+
+- **Form** — `docs/rockery_compressed.json` is now procedurally authored by
+  `tools/buildgen/gen_hero_rockery_sculpt.py` to match the reference `docs/mt.png`:
+  a layered 收分 太湖石 (stone-dominant, moss accents) with a spring that issues
+  from a grotto carved *inside* the rock and cascades down the terraces into a
+  pool embedded in the foot. Iterate offline with the new 48³ micro-voxel
+  previewer `tools/buildgen/preview_voxel_field.py` (the block-level
+  `preview_structure.py` cannot show sub-block detail).
+- **Water** — `derive_hero_rockery` drops `waterlogged` entirely. Visible water is
+  a contained pool (sources only, walled) + the non-fluid `rockery_cascade`
+  curtain; the spring reads from the baked grotto geometry. No flow, no flooding.
+  Cell count went 19 → 20; assets/structures/baseline-hashes regenerated.
+
+## Resolved by `add-hero-rockery`
+
+The shipped mansion garden now uses the fixed micro-voxel sculpt at
+`docs/rockery_compressed.json`: a 48×48×48 field sliced into 19 non-empty
+`rockery_block` cells and stamped as one stacked 3×3×3 cluster. Stone and moss
+remain visible at 1/16-block resolution through separately baked material
+masks; real blocks provide the summit foliage, contained source-water pool,
+waterlogged rock foot/outlet, and passable `myvillage:rockery_cascade`.
+
+The standalone `/myvillage place hero_rockery` review fragment carries the same
+self-contained cluster. The generic heightfield/codebook path remains available
+for non-hero specimens and is intentionally unchanged.
 
 ## Symptom
 
@@ -46,10 +80,11 @@ top`), implying the 假山 was meant to be a climbable mass with a flat standabl
 summit. The shipped spike field has no such summit, so the 亭 is placed at
 ground (`base_y=0`) instead — another unmet original intent.
 
-## Agreed rebuild direction (实体石山 + rockery 点缀, "path 1")
+## Superseded tentative direction (实体石山 + rockery 点缀, "path 1")
 
-Rebuild `derive_rockery` to emit a **3D voxel fill** `{(x,y,z): block_state}`
-over the bbox rather than a 2D `{cell: variant}` map:
+Before the reference sculpt arrived, the tentative direction was to rebuild
+`derive_rockery` as a vanilla-block **3D voxel fill**
+`{(x,y,z): block_state}` over the bbox:
 
 - **Mountain body** — vanilla stone / andesite / cobblestone stacked in
   tapering layers (收分) so the mass reads as a real mountain, ~5 blocks tall
@@ -64,15 +99,15 @@ over the bbox rather than a 2D `{cell: variant}` map:
   few `base`/`standalone` accents at the foot. The 16×16×16 sub-cell precision
   still earns its place on these accents, but no longer carries the whole mass.
 
-Material palette, hole distribution, and silhouette profile are pending a
-reference image from the user before implementation begins.
+`add-hero-rockery` superseded this direction for the named hero specimen. The
+3×3×3 sculpt's value is its sub-block silhouette, so downsampling it to vanilla
+full blocks would discard the authored form. A future generic large-bbox
+rockery may still use this strategy.
 
-## Why this is recorded, not implemented
+## Historical implementation context
 
-This is an explore-mode finding (architecture-level defect in a shipped feature
-of an in-progress change `rebuild-jiangnan-mansion`, 56/59 tasks). The rebuild
-touches `rockery.py` (2D→3D), `compound.py` (`place_garden_rockery` consumer
-+ voxel-walkability), the `garden-rockery` spec, and regenerates the mansion
-NBTs — a non-trivial change that warrants its own proposal once the reference
-image nails down the visual contract. The 地面 (gravel-flood) fix shipped in the
-same session (`0.16.0-fix2`) is unrelated to this finding.
+This diagnosis originated during `rebuild-jiangnan-mansion`. The later
+`add-hero-rockery` change supplied the missing visual contract as a hand-sculpted
+micro-voxel source and implemented the dedicated hero path without replacing
+the generic codebook generator. The 地面 (gravel-flood) fix shipped in
+`0.16.0-fix2` remains unrelated.

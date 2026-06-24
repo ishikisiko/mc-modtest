@@ -29,6 +29,7 @@ the whole asset tree + the Java table snippet.
 from __future__ import annotations
 
 import json
+import re
 import struct
 import zlib
 from dataclasses import dataclass, field
@@ -71,10 +72,10 @@ ROLE_PROFILES: Dict[str, dict] = {
 @dataclass(frozen=True)
 class Variant:
     variant_id: str
-    role: str
+    role: Optional[str]       # one of ROLES, or None for a sculpt-baked hero cell
     seed: int
-    hero: bool = False        # the 5 hand-tuned hero variants (visual anchors)
-    hero_name: Optional[str] = None  # 主峰 / 副峰 / 孤赏石 / 池畔石 / 门道石
+    hero: bool = False        # visual-anchor (role anchors) OR a hero-sculpt cell
+    hero_name: Optional[str] = None  # 主峰 / 副峰 / 孤赏石 / 池畔石 / 门道石 / cell tag
 
 
 # The shipped catalog: ~36 variants across 5 roles + 5 hero anchors.
@@ -121,6 +122,152 @@ def _build_catalog() -> List[Variant]:
 
 VARIANT_CATALOG: List[Variant] = _build_catalog()
 VARIANT_BY_ID: Dict[str, Variant] = {v.variant_id: v for v in VARIANT_CATALOG}
+
+
+# ---------------------------------------------------------------------------
+# hero JSON ingest + slicing (add-hero-rockery tasks 1.1-1.4)
+#
+# A hand-sculpted hero 假山 is authored at 1/16 resolution in a 48x48x48
+# micro-cube grid (= 3x3x3 full blocks) — docs/rockery_compressed.json. Because
+# one full block = 16x16x16 micro-cubes = exactly one rockery_block voxel field,
+# the sculpt slices straight into <=27 cells the model baker already eats. This
+# section parses the RLE grid, slices it into full-block cells, and splits each
+# cell into a rock mask (s/m -> solid[x][y][z], the baker's format) plus a
+# dressing list (w/g/t/l, realized as vanilla blocks per design Decision 6).
+# ---------------------------------------------------------------------------
+
+AIR_CHAR = "a"
+ROCK_CHARS = frozenset({"s", "m"})        # stone, mossy stone -> baked rock model
+DRESSING_CHARS = frozenset({"w", "g", "t", "l"})  # water, grass, oak log, leaves
+
+# One micro-cube row encodes "<count><palette-char>" runs (e.g. "20a9w19a").
+_RLE_RUN = re.compile(r"(\d+)([a-z])")
+
+CellCoord = Tuple[int, int, int]   # full-block cell (bx, by, bz)
+LocalCoord = Tuple[int, int, int]  # cell-local micro coord (lx, ly, lz), each 0..15
+
+
+@dataclass(frozen=True)
+class HeroVoxelField:
+    """Decoded 48x48x48 micro-cube field (task 1.1).
+
+    ``cells`` holds only the non-air micro-cubes keyed by absolute
+    ``(x, y, z)`` (x = position in row, y = layer, z = row index), matching the
+    baker's ``solid[x][y][z]`` axis convention.
+    """
+    size: Tuple[int, int, int]
+    palette: Dict[str, str]
+    cells: Dict[CellCoord, str]
+
+
+def _decode_rle_row(row: str, width: int) -> List[str]:
+    """Expand one RLE row to ``width`` palette chars (task 1.1)."""
+    out: List[str] = []
+    for count, ch in _RLE_RUN.findall(row):
+        out.extend([ch] * int(count))
+    if len(out) != width:
+        raise ValueError(f"RLE row {row!r} decoded to {len(out)} cells, expected {width}")
+    return out
+
+
+def decode_hero_json(path) -> HeroVoxelField:
+    """Parse a hero rockery JSON into a dense non-air micro-cube field (task 1.1).
+
+    Validates ``size == [48, 48, 48]`` and that every layer has 48 rows each
+    decoding to exactly 48 cells (lossless RLE round-trip).
+    """
+    data = json.loads(Path(path).read_text())
+    size = tuple(data["size"])
+    if size != (48, 48, 48):
+        raise ValueError(f"hero rockery size {size} != (48, 48, 48)")
+    sx, _sy, sz = size
+    cells: Dict[CellCoord, str] = {}
+    for layer in data["layers"]:
+        y = layer["y"]
+        rows = layer["rows"]
+        if len(rows) != sz:
+            raise ValueError(f"layer y={y} has {len(rows)} rows, expected {sz}")
+        for z, row in enumerate(rows):
+            for x, ch in enumerate(_decode_rle_row(row, sx)):
+                if ch != AIR_CHAR:
+                    cells[(x, y, z)] = ch
+    return HeroVoxelField(size=size, palette=data["palette"], cells=cells)
+
+
+def slice_cells(field: HeroVoxelField) -> Dict[CellCoord, Dict[LocalCoord, str]]:
+    """Bucket each non-air micro-cube into its full-block cell (task 1.2).
+
+    Returns ``{(bx, by, bz): {(lx, ly, lz): char}}`` with cell-local coords.
+    Fully-air cells are absent (only non-air micro-cubes are stored).
+    """
+    out: Dict[CellCoord, Dict[LocalCoord, str]] = {}
+    for (x, y, z), ch in field.cells.items():
+        cell = (x // GRID, y // GRID, z // GRID)
+        local = (x % GRID, y % GRID, z % GRID)
+        out.setdefault(cell, {})[local] = ch
+    return out
+
+
+def cell_material_mask(cell: Dict[LocalCoord, str],
+                       chars: frozenset) -> List[List[List[bool]]]:
+    """16x16x16 ``solid[x][y][z]`` mask for the given palette chars in one cell."""
+    solid = [[[False] * GRID for _ in range(GRID)] for _ in range(GRID)]
+    for (lx, ly, lz), ch in cell.items():
+        if ch in chars:
+            solid[lx][ly][lz] = True
+    return solid
+
+
+def cell_rock_mask(cell: Dict[LocalCoord, str]) -> List[List[List[bool]]]:
+    """16x16x16 ``solid[x][y][z]`` rock mask (s/m combined) for one cell (task 1.3).
+
+    Same axis convention and shape as :func:`derive_variant_voxels`, so the
+    existing greedy-merge / VoxelShape baker consumes it unchanged. The model is
+    baked from the per-material (`s` vs `m`) split instead (Decision 2 / 色块),
+    but collision is material-agnostic and uses this combined mask.
+    """
+    return cell_material_mask(cell, ROCK_CHARS)
+
+
+def cell_dressing(cell: Dict[LocalCoord, str]) -> List[Tuple[str, LocalCoord]]:
+    """Non-rock micro-cubes (w/g/t/l) for one cell, deterministically ordered
+    (task 1.3). These are realized as vanilla blocks, never baked into the rock
+    model (design Decision 6 / the 'dressing pass' requirement)."""
+    return sorted(((ch, pos) for pos, ch in cell.items() if ch in DRESSING_CHARS),
+                  key=lambda t: (t[1][1], t[1][2], t[1][0], t[0]))
+
+
+def cell_moss_level(cell: Dict[LocalCoord, str]) -> str:
+    """Per-cell ``moss_level`` by majority of mossy (m) vs stone (s) (task 1.4).
+
+    The source's moss is vertically banded (mossy waterline -> stone body), so a
+    per-cell majority preserves the 青苔脚 -> 石身 gradient without needing
+    multi-texture-per-element models (design Decision 2).
+    """
+    m = sum(1 for ch in cell.values() if ch == "m")
+    s = sum(1 for ch in cell.values() if ch == "s")
+    if m + s == 0:
+        return "none"
+    frac = m / (m + s)
+    if frac >= 0.6:
+        return "heavy"
+    if frac <= 0.3:
+        return "none"
+    return "light"
+
+
+# Hero-variant registry, populated by :func:`from_voxel_json` (task 2.1). Kept
+# SEPARATE from ``VARIANT_CATALOG`` so ``rockery.py``'s role-sampling (which
+# filters ``VARIANT_CATALOG`` by ``v.role``) never selects a hero cell — hero
+# variants carry ``role=None`` and are excluded by construction (Decision 3 /
+# task 2.2). The asset writers iterate ``VARIANT_CATALOG + HERO_CATALOG``.
+HERO_CATALOG: List[Variant] = []
+HERO_VOXELS: Dict[str, List[List[List[bool]]]] = {}   # variant_id -> combined s+m mask (VoxelShape)
+HERO_STONE: Dict[str, List[List[List[bool]]]] = {}    # variant_id -> s mask (swatch_stone)
+HERO_MOSSY: Dict[str, List[List[List[bool]]]] = {}    # variant_id -> m mask (swatch_mossy)
+HERO_MOSS: Dict[str, str] = {}                         # variant_id -> moss_level (cosmetically inert)
+HERO_DRESSING: Dict[str, List[Tuple[str, LocalCoord]]] = {}  # -> dressing list
+HERO_CELL: Dict[str, CellCoord] = {}                  # variant_id -> (bx,by,bz)
 
 
 # ---------------------------------------------------------------------------
@@ -204,6 +351,10 @@ def derive_variant_voxels(variant_id: str) -> List[List[List[bool]]]:
     for peak/standalone roles (太湖石-class 孔洞). Deterministic given the
     variant id (which pins role + seed).
     """
+    # Hero-sculpt cells are not procedurally derived — their 16³ rock mask was
+    # sliced from the source JSON (task 1.3) and cached by from_voxel_json().
+    if variant_id in HERO_VOXELS:
+        return HERO_VOXELS[variant_id]
     if variant_id not in VARIANT_BY_ID:
         raise KeyError(f"unknown rockery variant {variant_id!r}")
     v = VARIANT_BY_ID[variant_id]
@@ -368,6 +519,50 @@ def voxels_to_model_json(solid: List[List[List[bool]]], variant_id: str) -> dict
     }
 
 
+# Flat color swatches (色块) for the per-voxel hero material split (Decision 2).
+SWATCH_STONE_TINT: Tuple[int, int, int] = (124, 124, 130)  # taihu grey
+SWATCH_MOSSY_TINT: Tuple[int, int, int] = (96, 116, 72)    # mossy green
+SWATCH_STONE_TEX = "myvillage:block/rockery_block/swatch_stone"
+SWATCH_MOSSY_TEX = "myvillage:block/rockery_block/swatch_mossy"
+
+
+def _elements_for(solid: List[List[List[bool]]], tex_ref: str) -> List[dict]:
+    out: List[dict] = []
+    for b in greedy_merge(solid):
+        fx, tx = _sub_to_vanilla(b.x0, b.x1)
+        fy, ty = _sub_to_vanilla(b.y0, b.y1)
+        fz, tz = _sub_to_vanilla(b.z0, b.z1)
+        out.append({
+            "from": [fx, fy, fz],
+            "to": [tx, ty, tz],
+            "faces": {f: {"texture": tex_ref} for f in
+                      ("north", "south", "east", "west", "up", "down")},
+        })
+    return out
+
+
+def voxels_to_model_json_multimat(stone: List[List[List[bool]]],
+                                  mossy: List[List[List[bool]]],
+                                  variant_id: str) -> dict:
+    """Model JSON for a hero cell with per-voxel material 色块 (Decision 2).
+
+    Stone (`s`) and mossy (`m`) voxels are greedy-merged separately and textured
+    with two flat color swatches, so the 青苔脚 → 石身 banding renders within the
+    block straight from the 48³ data. Each material merges to ≤ 32 boxes
+    independently; hero cells are single-material-dominant so the total stays low.
+    """
+    elements = _elements_for(stone, "#stone") + _elements_for(mossy, "#mossy")
+    return {
+        "parent": "minecraft:block/block",
+        "textures": {
+            "particle": SWATCH_STONE_TEX,
+            "stone": SWATCH_STONE_TEX,
+            "mossy": SWATCH_MOSSY_TEX,
+        },
+        "elements": elements,
+    }
+
+
 # ---------------------------------------------------------------------------
 # VoxelShape Java (task 4.3)
 # ---------------------------------------------------------------------------
@@ -434,6 +629,8 @@ ROLE_BASE_TINT: Dict[str, Tuple[int, int, int]] = {
     ROLE_CORNER: (128, 128, 128),     # neutral
     ROLE_STANDALONE: (118, 120, 124), # pale taihu stone
 }
+# Hero-sculpt cells have no role; render them in a neutral taihu-stone grey.
+HERO_BASE_TINT: Tuple[int, int, int] = (120, 122, 126)
 MOSS_TINT = {  # blended toward these per moss level
     "none": (0, 0, 0),       # no shift
     "light": (40, 60, 30),   # slight green
@@ -465,7 +662,7 @@ def voxels_to_texture_png(solid: List[List[List[bool]]], variant_id: str,
     not hand-painted art.
     """
     v = VARIANT_BY_ID[variant_id]
-    base = ROLE_BASE_TINT[role]
+    base = ROLE_BASE_TINT.get(role, HERO_BASE_TINT) if role else HERO_BASE_TINT
     moss = MOSS_TINT[moss_level]
     # footprint silhouette at y=0 layer
     top_y = 0
@@ -523,33 +720,68 @@ def write_blockstate(variants: List[Variant]) -> int:
         model = f"myvillage:block/rockery_block/{v.variant_id}"
         for moss in MOSS_LEVELS:
             for facing, rot in FACING_ROTATION.items():
-                key = f"facing={facing},moss_level={moss},variant={v.variant_id}"
-                entry = {"model": model}
-                if rot:
-                    entry["y"] = rot
-                    entry["uvlock"] = True
-                entries[key] = entry
+                for wl in ("false", "true"):
+                    # Property order MUST be alphabetical (facing, moss_level,
+                    # variant, waterlogged); the model is identical for both
+                    # waterlogged values — water renders as a fluid, not in the
+                    # block model (add-hero-rockery task 2.5).
+                    key = (f"facing={facing},moss_level={moss},"
+                           f"variant={v.variant_id},waterlogged={wl}")
+                    entry = {"model": model}
+                    if rot:
+                        entry["y"] = rot
+                        entry["uvlock"] = True
+                    entries[key] = entry
     BLOCKSTATE_PATH.parent.mkdir(parents=True, exist_ok=True)
     BLOCKSTATE_PATH.write_text(
         json.dumps({"variants": entries}, indent=2) + "\n", encoding="utf-8")
     return len(entries)
 
 
-def write_models(voxel_cache: Dict[str, List[List[List[bool]]]]) -> int:
+def _swatch_png(rgb: Tuple[int, int, int], grain_seed: int) -> bytes:
+    """16x16 flat color swatch (色块) with light deterministic grain."""
+    rgba = bytearray()
+    for px in range(16):
+        for pz in range(16):
+            g = _noise(grain_seed, px, pz, 12)  # ±12 grain
+            rgba += bytes([max(0, min(255, rgb[0] + g)),
+                           max(0, min(255, rgb[1] + g)),
+                           max(0, min(255, rgb[2] + g)), 255])
+    return _png_bytes(16, 16, bytes(rgba))
+
+
+def write_swatches() -> int:
+    """Write the two shared 色块 PNGs the hero models reference (Decision 2)."""
+    TEXTURE_DIR.mkdir(parents=True, exist_ok=True)
+    (TEXTURE_DIR / "swatch_stone.png").write_bytes(_swatch_png(SWATCH_STONE_TINT, 0x57A1))
+    (TEXTURE_DIR / "swatch_mossy.png").write_bytes(_swatch_png(SWATCH_MOSSY_TINT, 0x70551))
+    return 2
+
+
+def write_models(voxel_cache: Dict[str, List[List[List[bool]]]],
+                 variants: Optional[List[Variant]] = None) -> int:
     MODEL_DIR.mkdir(parents=True, exist_ok=True)
     count = 0
-    for v in VARIANT_CATALOG:
-        model = voxels_to_model_json(voxel_cache[v.variant_id], v.variant_id)
+    for v in (variants if variants is not None else VARIANT_CATALOG):
+        if v.variant_id in HERO_STONE:
+            # Hero cell: per-voxel material 色块 (Decision 2).
+            model = voxels_to_model_json_multimat(
+                HERO_STONE[v.variant_id], HERO_MOSSY[v.variant_id], v.variant_id)
+        else:
+            model = voxels_to_model_json(voxel_cache[v.variant_id], v.variant_id)
         (MODEL_DIR / f"{v.variant_id}.json").write_text(
             json.dumps(model, indent=2) + "\n", encoding="utf-8")
         count += 1
     return count
 
 
-def write_textures(voxel_cache: Dict[str, List[List[List[bool]]]]) -> int:
+def write_textures(voxel_cache: Dict[str, List[List[List[bool]]]],
+                   variants: Optional[List[Variant]] = None) -> int:
     TEXTURE_DIR.mkdir(parents=True, exist_ok=True)
     count = 0
-    for v in VARIANT_CATALOG:
+    for v in (variants if variants is not None else VARIANT_CATALOG):
+        if v.role is None:
+            continue  # hero cells use the shared swatches, not per-moss noise PNGs
         for moss in MOSS_LEVELS:
             png = voxels_to_texture_png(
                 voxel_cache[v.variant_id], v.variant_id, v.role, moss)
@@ -558,7 +790,8 @@ def write_textures(voxel_cache: Dict[str, List[List[List[bool]]]]) -> int:
     return count
 
 
-def write_java_snippet(voxel_cache: Dict[str, List[List[bool]]]) -> None:
+def write_java_snippet(voxel_cache: Dict[str, List[List[bool]]],
+                       variants: Optional[List[Variant]] = None) -> None:
     """Write the Java VoxelShape table snippet to reports/ for task 4.8.
 
     Emits one ``case VARIANT_ID: return <shape-expr>;`` line per variant,
@@ -571,7 +804,7 @@ def write_java_snippet(voxel_cache: Dict[str, List[List[bool]]]) -> None:
     lines.append("// Paste into RockeryBlock.shapeFor(Variant) (task 4.8).")
     lines.append("switch (variant) {")
     lines.append("    default: return Shapes.block();  // fallback (should not happen)")
-    for v in VARIANT_CATALOG:
+    for v in (variants if variants is not None else VARIANT_CATALOG):
         shape_expr = voxels_to_voxelshape_java(voxel_cache[v.variant_id], v.variant_id)
         lines.append(f"    case {v.variant_id.upper()}: return {shape_expr};")
     lines.append("}")
@@ -590,19 +823,26 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import javax.annotation.Nullable;
 
 /**
  * 假山 (rockery) — first instance of the {@code mod-decor-block-family}
@@ -623,18 +863,22 @@ import net.minecraft.world.phys.shapes.VoxelShape;
  * the generator rewrites this file's {@code Variant} enum + {@code shapeFor}
  * switch from {@code VARIANT_CATALOG}. Do not hand-edit those two regions.
  */
-public class RockeryBlock extends Block {
+public class RockeryBlock extends Block implements SimpleWaterloggedBlock {
     public static final MapCodec<RockeryBlock> CODEC = simpleCodec(RockeryBlock::new);
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final EnumProperty<Variant> VARIANT = EnumProperty.create("variant", Variant.class);
     public static final EnumProperty<MossLevel> MOSS_LEVEL = EnumProperty.create("moss_level", MossLevel.class);
+    // 山脚入水: a rockery cell standing in the foot 水池 is waterlogged so water
+    // renders through the model's gaps (add-hero-rockery Decision 6 / task 2.5).
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public RockeryBlock(BlockBehaviour.Properties properties) {
         super(properties);
         registerDefaultState(stateDefinition.any()
                 .setValue(FACING, Direction.NORTH)
                 .setValue(VARIANT, Variant.STANDALONE_01)
-                .setValue(MOSS_LEVEL, MossLevel.NONE));
+                .setValue(MOSS_LEVEL, MossLevel.NONE)
+                .setValue(WATERLOGGED, Boolean.FALSE));
     }
 
     @Override
@@ -644,7 +888,30 @@ public class RockeryBlock extends Block {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, VARIANT, MOSS_LEVEL);
+        builder.add(FACING, VARIANT, MOSS_LEVEL, WATERLOGGED);
+    }
+
+    @Override
+    protected FluidState getFluidState(BlockState state) {
+        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
+    }
+
+    @Override
+    @Nullable
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        FluidState fluid = context.getLevel().getFluidState(context.getClickedPos());
+        return defaultBlockState()
+                .setValue(FACING, context.getHorizontalDirection().getOpposite())
+                .setValue(WATERLOGGED, fluid.getType() == Fluids.WATER);
+    }
+
+    @Override
+    protected BlockState updateShape(BlockState state, Direction direction, BlockState neighborState,
+                                     LevelAccessor level, BlockPos currentPos, BlockPos neighborPos) {
+        if (state.getValue(WATERLOGGED)) {
+            level.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+        }
+        return super.updateShape(state, direction, neighborState, level, currentPos, neighborPos);
     }
 
     /**
@@ -733,24 +1000,27 @@ __VARIANT_ENUM__
 '''
 
 
-def write_rockery_block_java(voxel_cache: Dict[str, List[List[bool]]]) -> None:
+def write_rockery_block_java(voxel_cache: Dict[str, List[List[bool]]],
+                             variants: Optional[List[Variant]] = None) -> None:
     """Rewrite RockeryBlock.java with the full Variant enum + shapeFor switch
-    generated from VARIANT_CATALOG (task 4.8). Only the two AUTO-GENERATED
-    regions are rewritten; the rest of the class (properties, getShape,
-    rotate/mirror, MossLevel enum) is the hand-authored template above."""
+    generated from the variant list (task 4.8 / add-hero-rockery task 2.4). Only
+    the two AUTO-GENERATED regions are rewritten; the rest of the class
+    (properties, getShape, rotate/mirror, MossLevel enum) is the hand-authored
+    template above."""
+    variants = variants if variants is not None else VARIANT_CATALOG
     # Variant enum body: one line per variant, indented 8 spaces. The last
     # constant terminates the enum-list with ';' (Java requires it before the
     # body); the rest carry ','.
     enum_lines: List[str] = []
-    for i, v in enumerate(VARIANT_CATALOG):
-        sep = ";" if i == len(VARIANT_CATALOG) - 1 else ","
+    for i, v in enumerate(variants):
+        sep = ";" if i == len(variants) - 1 else ","
         enum_lines.append(f'        {v.variant_id.upper()}("{v.variant_id}"){sep}')
     enum_body = "\n".join(enum_lines)
 
     # shapeFor switch body: indented 8 spaces (one level inside the method).
     switch_lines: List[str] = ["        switch (variant) {",
                                "            default: return Shapes.block();"]
-    for v in VARIANT_CATALOG:
+    for v in variants:
         shape_expr = voxels_to_voxelshape_java(voxel_cache[v.variant_id], v.variant_id)
         switch_lines.append(f"            case {v.variant_id.upper()}: return {shape_expr};")
     switch_lines.append("        }")
@@ -763,32 +1033,83 @@ def write_rockery_block_java(voxel_cache: Dict[str, List[List[bool]]]) -> None:
     ROCKERY_BLOCK_JAVA.write_text(src, encoding="utf-8")
 
 
+HERO_JSON_PATH = REPO_ROOT / "docs" / "rockery_compressed.json"
+
+
+def from_voxel_json(json_path=None) -> List[Variant]:
+    """Ingest a hero rockery JSON and register one baked variant per non-empty
+    rock cell (add-hero-rockery task 2.1).
+
+    Slices the 48³ micro-grid (Section 1), bakes each cell's 16³ rock mask into
+    a ``role=None`` hero variant, and records the cell's ``moss_level`` +
+    dressing + coords for the placement pass (Section 3). Populates the module
+    ``HERO_*`` registries and returns the hero variant list. Re-running clears
+    and rebuilds, so the result is deterministic for a fixed JSON.
+    """
+    path = Path(json_path) if json_path is not None else HERO_JSON_PATH
+    cells = slice_cells(decode_hero_json(path))
+    for reg in (HERO_VOXELS, HERO_STONE, HERO_MOSSY, HERO_MOSS, HERO_DRESSING, HERO_CELL):
+        reg.clear()
+    HERO_CATALOG.clear()
+    for (bx, by, bz) in sorted(cells):
+        chars = cells[(bx, by, bz)]
+        mask = cell_rock_mask(chars)
+        if not any(mask[x][y][z] for x in range(GRID)
+                   for y in range(GRID) for z in range(GRID)):
+            continue  # dressing-only cell (no rock to bake)
+        vid = f"hero_taihu_b{by}_c{bx}{bz}"
+        seed = _hash2(0x4A1A5A, bx * 53 + by * 7, bz * 101 + by)
+        v = Variant(vid, None, seed, hero=True, hero_name=f"假山-{bx}{by}{bz}")
+        HERO_CATALOG.append(v)
+        HERO_VOXELS[vid] = mask
+        HERO_STONE[vid] = cell_material_mask(chars, frozenset({"s"}))
+        HERO_MOSSY[vid] = cell_material_mask(chars, frozenset({"m"}))
+        HERO_MOSS[vid] = cell_moss_level(chars)
+        HERO_DRESSING[vid] = cell_dressing(chars)
+        HERO_CELL[vid] = (bx, by, bz)
+        VARIANT_BY_ID[vid] = v  # additive: generic ids untouched, hero now looked up
+    return list(HERO_CATALOG)
+
+
 def main() -> int:
+    # 0) ingest the hero sculpt and merge its baked cells into the working set.
+    #    VARIANT_CATALOG (generic) stays the role-sampling pool for rockery.py;
+    #    the asset writers emit both generic + hero variants.
+    from_voxel_json()
+    all_variants = VARIANT_CATALOG + HERO_CATALOG
     # 1) derive all voxel fields once (cached; the model + VoxelShape + texture
     #    generators all read the same field so geometry/collision/textures agree)
     voxel_cache: Dict[str, List[List[List[bool]]]] = {
-        v.variant_id: derive_variant_voxels(v.variant_id) for v in VARIANT_CATALOG
+        v.variant_id: derive_variant_voxels(v.variant_id) for v in all_variants
     }
-    # 2) task 4.4 verification: standability contract
+    # 2) task 4.4 verification: standability contract (generic roles only; hero
+    #    cells carry arbitrary sculpt geometry not bound by the role contract)
     standability_errors: List[str] = []
-    for v in VARIANT_CATALOG:
+    for v in all_variants:
+        if v.role is None:
+            continue
         standable = has_standable_top(voxel_cache[v.variant_id])
         expected = ROLE_PROFILES[v.role]["standable"]
         if standable != expected:
             standability_errors.append(
                 f"{v.variant_id} ({v.role}): standable={standable} expected={expected}")
-    # 3) write assets
-    n_bs = write_blockstate(VARIANT_CATALOG)
-    n_models = write_models(voxel_cache)
-    n_textures = write_textures(voxel_cache)
-    write_java_snippet(voxel_cache)
-    write_rockery_block_java(voxel_cache)
+    # 3) write assets (generic + hero)
+    n_bs = write_blockstate(all_variants)
+    n_models = write_models(voxel_cache, all_variants)
+    n_textures = write_textures(voxel_cache, all_variants)
+    n_swatches = write_swatches()
+    # remove any stale per-moss PNGs from hero cells (they use swatches now)
+    for stale in TEXTURE_DIR.glob("hero_taihu_*.png"):
+        stale.unlink()
+    write_java_snippet(voxel_cache, all_variants)
+    write_rockery_block_java(voxel_cache, all_variants)
     # 4) report
     role_counts = {r: sum(1 for v in VARIANT_CATALOG if v.role == r) for r in ROLES}
-    print(f"catalog: {len(VARIANT_CATALOG)} variants (per-role: {role_counts})")
+    print(f"catalog: {len(VARIANT_CATALOG)} generic + {len(HERO_CATALOG)} hero "
+          f"= {len(all_variants)} variants (per-role: {role_counts})")
     print(f"blockstate: {n_bs} entries -> {BLOCKSTATE_PATH.relative_to(REPO_ROOT)}")
     print(f"models: {n_models} -> {MODEL_DIR.relative_to(REPO_ROOT)}/")
-    print(f"textures: {n_textures} -> {TEXTURE_DIR.relative_to(REPO_ROOT)}/")
+    print(f"textures: {n_textures} (+{n_swatches} 色块 swatches) -> {TEXTURE_DIR.relative_to(REPO_ROOT)}/")
     print(f"java snippet: {JAVA_SNIPPET_PATH.relative_to(REPO_ROOT)}")
     print(f"java block class: {ROCKERY_BLOCK_JAVA.relative_to(REPO_ROOT)}")
     if standability_errors:

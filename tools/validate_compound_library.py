@@ -56,11 +56,12 @@ def validate_nbt(name: str, style, modset, max_size: int = 64,
     if not any("_stairs" in s or "_slab" in s for s in palette):
         errors.append("no_roof_blocks")
     planting = ("moss_block", "azalea_leaves", "flowering_azalea_leaves", "bamboo")
+    planting_presence = planting + ("oak_leaves", "oak_sapling", "grass_block")
     by_pos = {tuple(block["pos"]): palette[block["state"]] for block in blocks}
     if require_landscape_features:
         if not any(s == "minecraft:water" or s.startswith("minecraft:water[") for s in palette):
             errors.append("missing_water_feature")
-        if not any(any(p in s for p in planting) for s in palette):
+        if not any(any(p in s for p in planting_presence) for s in palette):
             errors.append("missing_planting")
         for pos, state in by_pos.items():
             if state == "minecraft:water" or state.startswith("minecraft:water["):
@@ -227,7 +228,12 @@ def main() -> int:
             if (not values or any(v == "minecraft:air" or
                                   not v.startswith("minecraft:") for v in values)):
                 errors.append(f"non_vanilla_or_empty_slot: {slot}: {values}")
-    if group.layout_strategy in ("courtyard_street_block", "town_generation"):
+    if args.group == "chinese_courtyard":
+        variant_fields = (
+            "courtyard_size", "water_form", "planting_layout", "roof_grade",
+            "gate_type", "symmetry", "gallery_type", "gate_side",
+            "main_hall_bays", "platform_tier")
+    elif group.layout_strategy in ("courtyard_street_block", "town_generation"):
         variant_fields = (
             "rows", "courtyards_per_row", "street_width",
             "lane", "corner_frontage", "courtyard_size")
@@ -258,7 +264,8 @@ def main() -> int:
 
     names = [c.get("name") for c in compounds if c.get("name")]
     max_size = 128 if group.layout_strategy in (
-        "courtyard_street_block", "town_generation", "sect_terraced_axial_compound") else 64
+        "courtyard_street_block", "town_generation", "sect_terraced_axial_compound",
+        "mansion_compound") else 64
     require_landscape_features = group.layout_strategy != "sect_terraced_axial_compound"
     nbt_results = [
         validate_nbt(name, style, modset, max_size=max_size,

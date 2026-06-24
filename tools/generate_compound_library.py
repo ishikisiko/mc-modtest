@@ -27,6 +27,7 @@ from buildgen.compound import (sample_compound_library, sample_sect_compound_lib
                                validate_compound_library, validate_sect_compound,
                                validate_town_block, validate_town_block_library,
                                generate_mansion, validate_mansion,
+                               generate_hero_rockery_fragment,
                                compound_silhouette_score)
 from buildgen.compound import generate_subbuilding
 from buildgen.groups import get_group
@@ -158,6 +159,14 @@ def main() -> int:
         return 0
 
     if group.layout_strategy == "mansion_compound":
+        # Standalone hero 假山 review fragment (add-hero-rockery task 4.0): a
+        # self-contained specimen + basin, stamped via /myvillage place hero_rockery.
+        fragment = generate_hero_rockery_fragment()
+        _, frag_info = export.write_structure_nbt(deepcopy(fragment.grid),
+                                                  style.style_id, "hero_rockery")
+        export.write_place_function(style.style_id, "hero_rockery")
+        print(f"OK {'hero_rockery':24s} size={frag_info['size']} "
+              f"blocks={frag_info['block_count']}")
         compounds = [generate_mansion(args.base_seed + i) for i in range(args.count)]
         entries = []
         compound_reports = []
