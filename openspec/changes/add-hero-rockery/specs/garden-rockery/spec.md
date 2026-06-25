@@ -76,27 +76,28 @@ its full-block `(dx, dy, dz)`), NOT as a 2D surface heightfield.
 - **AND** voxel-walkability validation SHALL report no `voxel_*` errors for the
   garden parcel.
 
-### Requirement: Non-rock materials are realized as a dressing pass, not baked into rock
+### Requirement: Summit vegetation preserves the micro-voxel scale
 
-Grass (`g`) and tree (`t`/`l`) micro-cubes SHALL NOT be baked into the rock
-models; they SHALL be emitted as real vanilla block placements layered onto the
-baked rock mass. Water (`w`) SHALL be realized by the water scheme below, never
-as flowing-water blocks baked into the placement and never inside a
-`rockery_block` model element.
+Grass (`g`) and tree (`t`/`l`) micro-cubes SHALL be baked as visual-only
+material masks in the summit hero model rather than expanded into full
+Minecraft blocks. They SHALL NOT contribute to the rock-derived collision
+shape.
 
-#### Scenario: Foliage becomes real blocks
+#### Scenario: The summit tree reads as a miniature bonsai
 
-- **WHEN** the hero dressing manifest is applied
-- **THEN** the 草帽顶 SHALL be a real grass/moss block on the summit
-- **AND** the 小树 SHALL be a real oak sapling or hand-placed tiny oak on the summit
-- **AND** no `g`/`t`/`l` micro-cube SHALL appear inside a `rockery_block` model element.
+- **WHEN** the hero model is generated
+- **THEN** the summit tree SHALL fit inside the source 16³ summit cell
+- **AND** it SHALL contain a leaning trunk, visible branches and asymmetric
+  layered foliage pads
+- **AND** the placement manifest SHALL contain no full-block grass, log, leaves
+  or sapling replacements for the summit vegetation.
 
 ### Requirement: Water is realized by mechanism-appropriate parts (no voxel-shaped fluid)
 
-Minecraft fluids cannot be voxel-shaped, so each water feature SHALL use the
-mechanism that fits it: real source blocks for swimmable water, waterlogging for
-rock-meets-water, and a baked translucent block for the one visible sub-block
-trickle. No flowing-water (`level>0`) block SHALL be baked into the placement.
+Minecraft fluids cannot be voxel-shaped, so the sealed foot pool SHALL use real
+source blocks while the sculpted grotto/cascade/embedded pool SHALL use the
+source `w` micro-voxel mask as non-fluid translucent model geometry. No
+flowing-water (`level>0`) block SHALL be baked into the placement.
 
 #### Scenario: The foot pool is a contained real water source
 
@@ -106,20 +107,17 @@ trickle. No flowing-water (`level>0`) block SHALL be baked into the placement.
 - **AND** the basin SHALL hold water without relying on an external `garden_pond`
 - **AND** no baked flowing-water block SHALL appear in the placement.
 
-#### Scenario: 山脚入水 is expressed by waterlogging
+#### Scenario: The visible water follows the mountain surface
 
-- **WHEN** a by=0 rock cell sits within the foot basin
-- **THEN** that `rockery_block` SHALL be `waterlogged=true`
-- **AND** `rockery_block` SHALL implement `SimpleWaterloggedBlock` so water renders
-  through the rock model's gaps.
-
-#### Scenario: The visible trickle is a baked translucent block, not a fluid
-
-- **WHEN** the 细瀑 (visible trickle) between the summit outlet and the pool is placed
-- **THEN** it SHALL be `myvillage:rockery_cascade`, a translucent water-textured
-  block with an empty (passable) `VoxelShape`
-- **AND** it SHALL occupy AIR cells only (never co-located with rock in one cell)
-- **AND** the encased internal conduit voxels SHALL be omitted.
+- **WHEN** the hero models are generated
+- **THEN** every source `w` micro-cube SHALL be represented by water-textured,
+  tinted, non-colliding model geometry in its hero cell
+- **AND** the first visible cascade segment SHALL connect to rock at the grotto
+  mouth instead of beginning in exterior air
+- **AND** successive water-bearing cells SHALL form a continuous route from the
+  internal grotto to the embedded foot pool
+- **AND** the placement SHALL contain no fixed exterior
+  `myvillage:rockery_cascade` column and no waterlogged hero cells.
 
 ### Requirement: Hero realization is deterministic and byte-stable
 

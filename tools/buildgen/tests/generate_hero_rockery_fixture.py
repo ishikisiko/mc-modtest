@@ -40,8 +40,8 @@ _HEADER = """\
 # (export.grid_to_structure_data(...)['blocks'], JSON-canonicalized).
 fragment_placement  {fragment}
 
-# Rollup SHA-256 over the hero-specific generated assets (19 hero_taihu_*.json
-# models + swatch_stone/swatch_mossy PNGs + rockery_cascade blockstate/model),
+# Rollup SHA-256 over the hero-specific generated assets (hero_taihu_*.json
+# models + swatch_stone/swatch_mossy PNGs + legacy cascade blockstate/model),
 # sorted by repo-relative path, each contributing path\\0sha256(bytes).
 hero_assets         {assets}
 """

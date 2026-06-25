@@ -25,6 +25,21 @@ and spilled into a surrounding moat, hiding the rock. Two fixes shipped together
   curtain; the spring reads from the baked grotto geometry. No flow, no flooding.
   Cell count went 19 → 20; assets/structures/baseline-hashes regenerated.
 
+## Revised in 0.16.2-fix1 (micro tree + connected spring)
+
+Acceptance review found that the source's tiny summit tree had been expanded
+into ordinary grass/log/leaves blocks and that the `rockery_cascade` curtain was
+placed at a fixed full-block Z coordinate outside the receding mountain face.
+
+- `g`/`t`/`l` are now visual-only material masks inside the summit hero model.
+  The procedural source sculpts a half-block-scale leaning bonsai with branches
+  and layered foliage pads; collision remains rock-only.
+- `w` is now a tinted translucent material mask in each water-bearing hero
+  model. The source generator guarantees one 6-neighbour-connected water path
+  from the internal grotto, over the stepped face, into the embedded foot pool.
+  The fixed external cascade column is no longer placed; real fluid is confined
+  to the sealed full-block pool adjoining the rock foot.
+
 ## Resolved by `add-hero-rockery`
 
 The shipped mansion garden now uses the fixed micro-voxel sculpt at

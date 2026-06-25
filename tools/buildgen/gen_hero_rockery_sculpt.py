@@ -139,33 +139,7 @@ def _carve_waterfall_and_pond(field, heights) -> None:
     chan = range(CX - 1, CX + 2)               # 3-wide cascade
     outlet_y, pond_top = 25, 3                  # spring mouth; rock stays solid above
 
-    # 1) cascade channel that hugs the terraced face from the pond up to the mouth
-    prev = {x: None for x in chan}
-    for y in range(outlet_y, pond_top - 1, -1):
-        for x in chan:
-            fz = _front_face_z(heights, x, y)
-            if fz is None:
-                continue
-            field.pop((x, y, fz), None)        # open the channel to view
-            pf = prev[x] if prev[x] is not None else fz
-            for z in range(min(pf, fz) - 1, fz):   # water sheets over each step
-                field[(x, y, z)] = "w"
-            prev[x] = fz
-
-    # 2) spring grotto: a dark pocket carved BACK under a solid rock roof at the
-    #    mouth, so the source clearly comes from inside the mountain (泉眼/水帘洞)
-    for x in chan:
-        fz = _front_face_z(heights, x, outlet_y)
-        if fz is None:
-            continue
-        for z in range(fz - 3, fz + 1):
-            field.pop((x, outlet_y, z), None)  # hollow the grotto mouth
-        field[(x, outlet_y - 1, fz - 3)] = "s"  # grotto floor (deep, in shadow)
-        field[(x, outlet_y - 1, fz - 2)] = "s"
-        field[(x, outlet_y, fz - 3)] = "w"      # spring welling from inside
-        field[(x, outlet_y, fz - 2)] = "w"
-
-    # 3) foot pond: a shallow basin EMBEDDED in the low front foot of the rock,
+    # 1) foot pond: a shallow basin EMBEDDED in the low front foot of the rock,
     #    rimmed by the rising rock (= connected to 山体) and pulled inward so it
     #    does not protrude onto the flat apron. Fed by the lower fall.
     front_z = _front_face_z(heights, CX, 1)     # foot front at the center column
@@ -185,6 +159,35 @@ def _carve_waterfall_and_pond(field, heights) -> None:
             field[(x, 1, z)] = "w"
             field[(x, 2, z)] = "w"             # surface (2 deep, flush)
 
+    # 2) cascade channel that hugs the receding terraced face. At each lower
+    #    step, fill the horizontal ledge between the previous and current face,
+    #    producing one 6-neighbour-connected water route instead of detached
+    #    full-block curtains floating outside the mountain.
+    prev = {x: None for x in chan}
+    for y in range(outlet_y, pond_top - 1, -1):
+        for x in chan:
+            fz = _front_face_z(heights, x, y)
+            if fz is None:
+                continue
+            pf = prev[x] if prev[x] is not None else fz
+            for z in range(min(pf, fz), max(pf, fz) + 1):
+                field.pop((x, y, z), None)
+                field[(x, y, z)] = "w"
+            prev[x] = fz
+
+    # 3) spring grotto: tunnel back from the face and fill the tunnel through to
+    #    the first cascade voxel. The water therefore visibly begins inside the
+    #    mountain and is topologically connected to the fall below.
+    for x in chan:
+        fz = _front_face_z(heights, x, outlet_y)
+        if fz is None:
+            continue
+        for z in range(fz - 3, fz + 1):
+            field.pop((x, outlet_y, z), None)
+            field[(x, outlet_y, z)] = "w"
+        field[(x, outlet_y - 1, fz - 3)] = "s"  # dark grotto floor
+        field[(x, outlet_y - 1, fz - 2)] = "s"
+
 
 def _plant_summit_tree(field, heights) -> None:
     h_peak = max(heights.values())
@@ -194,26 +197,58 @@ def _plant_summit_tree(field, heights) -> None:
             h = heights.get((x, z), -1)
             if h >= h_peak - TERRACE_RISE:
                 field[(x, h + 1, z)] = "g"
-    # leaning trunk
-    base = h_peak + 1
-    trunk: List[Tuple[int, int, int]] = []
-    for i in range(7):
-        tx = CX + (i // 3)            # lean toward +x
-        ty = base + i
-        tz = CZ
-        field[(tx, ty, tz)] = "t"
-        trunk.append((tx, ty, tz))
-    # canopy blob around the upper trunk
-    top = trunk[-1]
-    for dx in range(-3, 4):
-        for dy in range(-2, 3):
-            for dz in range(-3, 4):
-                if abs(dx) + abs(dy) + abs(dz) <= 4:
-                    p = (top[0] + dx, top[1] + dy, top[2] + dz)
-                    if 0 <= p[0] < N and 0 <= p[1] < N and 0 <= p[2] < N:
-                        field.setdefault(p, "l")
-    for p in trunk:                  # keep trunk visible through canopy
-        field[p] = "t"
+    # Miniature bonsai, entirely inside the summit's 16³ full-block cell.
+    # The old dressing pass expanded this into ordinary full blocks; this
+    # source geometry is now baked directly, so silhouette matters.
+    base_y = h_peak + 1
+    trunk_centres = [
+        (21, base_y, 23), (21, base_y + 1, 23),
+        (22, base_y + 2, 23), (22, base_y + 3, 23),
+        (23, base_y + 4, 23), (24, base_y + 5, 23),
+        (25, base_y + 6, 23),
+    ]
+    trunk: set[Tuple[int, int, int]] = set()
+    for tx, ty, tz in trunk_centres:
+        # Two-micro-voxel trunk gives the tiny tree a readable stroke while
+        # retaining its half-block overall scale.
+        for ox, oz in ((0, 0), (1, 0), (0, 1)):
+            p = (tx + ox, ty, tz + oz)
+            if p[1] < N:
+                trunk.add(p)
+
+    # Two lateral branches break the lollipop silhouette.
+    for x in range(18, 24):
+        trunk.add((x, base_y + 3, 23))
+    for x in range(24, 29):
+        trunk.add((x, base_y + 5, 23))
+    for z in range(20, 24):
+        trunk.add((23, base_y + 4, z))
+
+    leaves: set[Tuple[int, int, int]] = set()
+
+    def foliage_pad(cx: int, cy: int, cz: int, rx: int, rz: int) -> None:
+        """Flat, irregular 云片 canopy pad rather than a spherical leaf blob."""
+        for dx in range(-rx, rx + 1):
+            for dz in range(-rz, rz + 1):
+                if (dx * dx) / max(1, rx * rx) + (dz * dz) / max(1, rz * rz) > 1.0:
+                    continue
+                if _hash01(cx + dx, cz + dz, SEED + cy) < 0.16:
+                    continue
+                leaves.add((cx + dx, cy, cz + dz))
+                if abs(dx) + abs(dz) <= max(1, (rx + rz) // 2):
+                    leaves.add((cx + dx, min(N - 1, cy + 1), cz + dz))
+
+    foliage_pad(19, base_y + 4, 23, 3, 3)  # low left pad
+    foliage_pad(27, base_y + 6, 23, 4, 3)  # dominant leaning crown
+    foliage_pad(23, base_y + 5, 19, 3, 2)  # rear counterweight
+    foliage_pad(25, base_y + 7, 24, 2, 2)  # sparse crown tip
+
+    for p in leaves:
+        if all(0 <= c < N for c in p):
+            field.setdefault(p, "l")
+    for p in trunk:                  # keep trunk/branches visible through pads
+        if all(0 <= c < N for c in p):
+            field[p] = "t"
 
 
 def encode_rle(field: Dict[Tuple[int, int, int], str]) -> dict:

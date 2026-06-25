@@ -32,6 +32,8 @@ if str(_TOOLS_DIR) not in sys.path:
 
 from buildgen import export  # noqa: E402
 from buildgen.compound import generate_hero_rockery_fragment  # noqa: E402
+from buildgen.rockery import derive_hero_rockery  # noqa: E402
+from buildgen import rockery_models as rm  # noqa: E402
 
 _REPO_ROOT = _TOOLS_DIR.parent
 _RES = _REPO_ROOT / "src" / "main" / "resources"
@@ -110,6 +112,90 @@ def test_hero_assets_match_baseline() -> None:
     _assert(got == baseline["hero_assets"],
             f"hero asset drift: {got} != {baseline['hero_assets']} "
             "(regenerate with generate_hero_rockery_fixture.py if intended)")
+
+
+def test_summit_vegetation_stays_micro_scaled() -> None:
+    field = rm.decode_hero_json(rm.HERO_JSON_PATH)
+    vegetation = {p: ch for p, ch in field.cells.items() if ch in {"g", "t", "l"}}
+    _assert(vegetation, "hero sculpt has no summit vegetation")
+    _assert(all((x // 16, y // 16, z // 16) == (1, 2, 1)
+                for (x, y, z) in vegetation),
+            "summit vegetation escapes its single micro-model cell")
+    wood = [p for p, ch in vegetation.items() if ch == "t"]
+    leaves = [p for p, ch in vegetation.items() if ch == "l"]
+    _assert(max(x for x, _y, _z in wood) - min(x for x, _y, _z in wood) >= 8,
+            "bonsai trunk/branches do not have a readable lateral spread")
+    _assert(len({y for _x, y, _z in leaves}) >= 4,
+            "bonsai foliage lacks layered canopy pads")
+
+    plan = derive_hero_rockery()
+    forbidden = ("oak_", "grass_block", "sapling", "rockery_cascade")
+    _assert(all(not any(token in state for token in forbidden)
+                for _offset, state in plan.dressing),
+            "full-block tree/grass or external cascade remains in dressing")
+
+
+def test_water_is_one_mountain_fed_micro_path() -> None:
+    field = rm.decode_hero_json(rm.HERO_JSON_PATH)
+    water = {p for p, ch in field.cells.items() if ch == "w"}
+    _assert(water, "hero sculpt has no water")
+
+    remaining = set(water)
+    start = remaining.pop()
+    reached = {start}
+    queue = [start]
+    while queue:
+        p = queue.pop()
+        for axis in range(3):
+            for delta in (-1, 1):
+                n = list(p)
+                n[axis] += delta
+                neighbor = tuple(n)
+                if neighbor in remaining:
+                    remaining.remove(neighbor)
+                    reached.add(neighbor)
+                    queue.append(neighbor)
+    _assert(len(reached) == len(water),
+            f"water is split into disconnected components ({len(reached)}/{len(water)})")
+    _assert(min(y for _x, y, _z in water) <= 2
+            and max(y for _x, y, _z in water) >= 25,
+            "water path does not span grotto to foot pool")
+
+    top_y = max(y for _x, y, _z in water)
+    rock = {p for p, ch in field.cells.items() if ch in {"s", "m"}}
+    top_water = [p for p in water if p[1] == top_y]
+    _assert(any(any(tuple(p[i] + (d if i == axis else 0) for i in range(3)) in rock
+                    for axis in range(3) for d in (-1, 1))
+                for p in top_water),
+            "grotto source is not adjacent to the mountain body")
+
+    rm.from_voxel_json()
+    water_cells = {(x // 16, y // 16, z // 16) for x, y, z in water}
+    _assert(water_cells <= set(rm.HERO_CELL.values()),
+            "a source-water cell has no generated hero model")
+
+
+def test_generated_models_carry_foliage_and_water_materials() -> None:
+    model_dir = _RES / "assets/myvillage/models/block/rockery_block"
+    summit = json.loads((model_dir / "hero_taihu_b2_c11.json").read_text())
+    summit_refs = {next(iter(e["faces"].values()))["texture"]
+                   for e in summit["elements"]}
+    _assert({"#grass", "#wood", "#leaves"} <= summit_refs,
+            f"summit model misses micro vegetation materials: {summit_refs}")
+    _assert(summit.get("render_type") == "minecraft:cutout",
+            "summit foliage model is not rendered in the cutout pass")
+
+    water_models = []
+    for path in sorted(model_dir.glob("hero_taihu_*.json")):
+        model = json.loads(path.read_text())
+        refs = {next(iter(e["faces"].values()))["texture"]
+                for e in model["elements"]}
+        if "#water" in refs:
+            water_models.append(model)
+    _assert(len(water_models) >= 3, "grotto/cascade/pool water masks were not baked")
+    _assert(all(m.get("render_type") == "minecraft:translucent"
+                for m in water_models),
+            "water-bearing hero models are not translucent")
 
 
 def main() -> int:

@@ -7,6 +7,20 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.16.2-fix1
+
+### Fixed
+
+- **山顶树恢复微缩比例**：不再用完整草方块、原木和树叶替代源雕塑；`g/t/l`
+  微体素现在直接烘焙进峰顶 hero 模型，形成带倾斜树干、横枝和不对称云片树冠的
+  半格高盆景。碰撞仍只取岩石，不影响峰顶通行。
+- **泉水真正从山里流出**：移除固定在山体外侧的 `rockery_cascade` 方块列，
+  改为将源雕塑的 `w` 微体素作为带水色的透明模型几何烘焙。生成器保证泉洞、
+  贴岩阶流和山脚内池构成一个六向连通水体；真实流体仅保留在封闭山脚水池，
+  不会扩散淹山。
+- 重生成独立 `hero_rockery` 与六座 `chinese_mansion_*`，更新字节稳定基线；
+  新增微缩植被、连续水路、无整方块树及无外置瀑布的回归断言。
+
 ## 0.16.2
 
 ### Changed

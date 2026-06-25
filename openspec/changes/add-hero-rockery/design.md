@@ -190,3 +190,20 @@ change's architecture (micro-voxel `rockery_block` cluster + dressing):
   emits no waterlogged cells; visible water is a contained pool (sources only) +
   the non-fluid `rockery_cascade` curtain, and the spring reads from the baked
   grotto geometry. Cell count 19 → 20; assets/structures/baseline hashes refreshed.
+
+## Revision — miniature summit tree + source-faithful water
+
+Acceptance review found two remaining scale/continuity defects: the summit tree
+was replaced by full Minecraft blocks, and the decorative cascade was stamped
+at a fixed full-block coordinate outside the receding mountain face.
+
+- **Tree/grass** — `g`/`t`/`l` are now baked as separate visual-only material
+  masks in the summit hero cell. The source sculpt uses a leaning bonsai trunk,
+  visible lateral branches and asymmetric cloud-like foliage pads. These masks
+  do not contribute to `VoxelShape`, so summit walkability remains rock-driven.
+- **Water** — `w` is now baked as a visual-only animated/tinted material mask in
+  every water-bearing hero cell. The source field itself supplies the continuous
+  grotto → stepped rock face → embedded foot-pool geometry. Water-bearing hero
+  models render in the translucent pass; opaque rock textures remain opaque
+  within that pass. The fixed external `rockery_cascade` column is no longer
+  placed. Real fluid remains limited to the sealed full-block foot pool.

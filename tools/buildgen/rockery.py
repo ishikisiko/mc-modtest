@@ -227,11 +227,6 @@ class HeroRockeryPlacement:
     summit: Cell3                # standable summit offset
 
 
-# Non-rock dressing block states (Decision 6). Sources only — no flowing water.
-_OAK_LEAVES = "minecraft:oak_leaves[persistent=true,waterlogged=false]"
-_OAK_LOG = "minecraft:oak_log[axis=y]"
-
-
 def derive_hero_rockery() -> HeroRockeryPlacement:
     """Build the hero 假山 cluster + dressing from the sculpt JSON (task 3.1).
 
@@ -271,18 +266,8 @@ def derive_hero_rockery() -> HeroRockeryPlacement:
     # hole). Sources only; the consumer carves the cell above to air so it shows.
     for bx in range(width):
         dressing.append(((bx, 0, depth), "minecraft:water"))
-    # 细瀑: a translucent (non-fluid) rockery_cascade curtain down the front-center
-    # face (dy=1..height-1), falling from the grotto spring carved into the rock
-    # model into the foot pool. Non-fluid -> no flow, no flooding.
-    for dy in range(1, height):
-        dressing.append(((1, dy, depth), "myvillage:rockery_cascade"))
-    # 草帽顶 + 小树: a grassy cap and a small oak on the summit center.
-    dressing.append(((1, height, 1), "minecraft:grass_block"))
-    dressing.append(((1, height + 1, 1), _OAK_LOG))
-    dressing.append(((1, height + 2, 1), _OAK_LOG))
-    for off in ((1, height + 3, 1), (0, height + 2, 1), (2, height + 2, 1),
-                (1, height + 2, 0), (1, height + 2, 2)):
-        dressing.append((off, _OAK_LEAVES))
+    # The source w/g/t/l masks are baked into hero cell models at 1/16 scale.
+    # Only the sealed full-block foot pool remains as placement dressing.
 
     return HeroRockeryPlacement(
         cells=cells,

@@ -3,7 +3,11 @@
   "textures": {
     "particle": "myvillage:block/rockery_block/swatch_stone",
     "stone": "myvillage:block/rockery_block/swatch_stone",
-    "mossy": "myvillage:block/rockery_block/swatch_mossy"
+    "mossy": "myvillage:block/rockery_block/swatch_mossy",
+    "grass": "minecraft:block/moss_block",
+    "wood": "minecraft:block/oak_log",
+    "leaves": "minecraft:block/oak_leaves",
+    "water": "minecraft:block/water_still"
   },
   "elements": [
     {

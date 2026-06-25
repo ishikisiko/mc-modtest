@@ -191,23 +191,27 @@ generic 2D heightfield path.
 - **AND** the garden pavilion SHALL be placeable on that summit
 - **AND** mansion voxel-walkability validation SHALL report no `voxel_*` errors.
 
-### Requirement: Hero foliage and water use real mechanism-appropriate blocks
+### Requirement: Hero vegetation and sculpted water preserve micro scale
 
-Grass and tree materials SHALL be emitted as real vanilla blocks rather than
-rock model elements. The foot pool SHALL use contained
-`minecraft:water` source blocks; rock cells meeting water and the summit outlet
-SHALL use `waterlogged=true`; the visible thin trickle SHALL use the passable,
-non-fluid `myvillage:rockery_cascade` block. No flowing-water (`level>0`) block
-SHALL be baked into the placement.
+Grass, trunk and leaf materials SHALL be baked as visual-only material masks in
+the summit hero model, remain inside its 16³ cell, and SHALL NOT contribute to
+the rock-derived collision shape. The tree SHALL read as a miniature leaning
+bonsai with visible branches and asymmetric layered foliage pads.
+
+The sealed foot pool SHALL use contained `minecraft:water` source blocks. The
+grotto, stepped cascade and embedded rock-foot pool SHALL use the source `w`
+micro-voxel mask as tinted, translucent, non-fluid model geometry. No
+flowing-water (`level>0`) block SHALL be baked into the placement.
 
 #### Scenario: The standalone specimen is self-contained
 
 - **WHEN** `/myvillage place hero_rockery` is used
 - **THEN** the structure SHALL contain its own sealed source-water basin
-- **AND** its by=0 rock cells meeting the basin SHALL be waterlogged
-- **AND** the summit foliage SHALL use real grass/tree blocks
-- **AND** `rockery_cascade` SHALL occupy air cells only and have an empty
-  collision shape.
+- **AND** its hero cells SHALL all have `waterlogged=false`
+- **AND** the placement SHALL contain no full-block summit grass/tree dressing
+- **AND** the placement SHALL contain no fixed exterior `rockery_cascade` column
+- **AND** the source water masks SHALL form one continuous route from the
+  mountain-interior grotto to the embedded foot pool.
 
 ### Requirement: Hero realization is deterministic and byte-stable
 

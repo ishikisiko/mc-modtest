@@ -16,9 +16,9 @@
 
 # Canonical SHA-256 of the standalone hero_rockery fragment block list
 # (export.grid_to_structure_data(...)['blocks'], JSON-canonicalized).
-fragment_placement  18558f550b944b4ee5677b6b080477a25b3145895775ac1f4340ce86ea325475
+fragment_placement  8bea5ea3dc6e42db4062bcd860109392dce1cae4fadf053af4677ce17ee7e50e
 
-# Rollup SHA-256 over the hero-specific generated assets (19 hero_taihu_*.json
-# models + swatch_stone/swatch_mossy PNGs + rockery_cascade blockstate/model),
+# Rollup SHA-256 over the hero-specific generated assets (hero_taihu_*.json
+# models + swatch_stone/swatch_mossy PNGs + legacy cascade blockstate/model),
 # sorted by repo-relative path, each contributing path\0sha256(bytes).
-hero_assets         2fec0d4d0303e4e9558d9c2bbcc7ffbfe6e58f4c99bbe8fa2708437c73fc3ee9
+hero_assets         81101b7f6b394d91f1448da1d2d6a068498628faf2d8a91cd3f8fedab0afba1e

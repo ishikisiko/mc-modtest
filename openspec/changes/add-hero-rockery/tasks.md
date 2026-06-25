@@ -106,3 +106,25 @@
 - [x] 5.4 Update `README.md` / `CHANGELOG.md` for the new command and bump the
       small-feature version to `0.16.1`, updating all four version-owned files
       involved (follow `openspec/config.yaml` `rules.tasks`).
+
+## 6. Acceptance fix — miniature tree + mountain-fed water
+
+- [x] 6.1 Re-sculpt the summit tree as a sub-block bonsai: a leaning trunk,
+      visible branch structure, and asymmetric layered foliage pads, all kept
+      inside the hero summit cell.
+- [x] 6.2 Extend hero-cell baking with separate `g`/`t`/`l` material masks and
+      render those masks with moss/wood/leaves textures while keeping collision
+      derived from rock only. Remove the full-block grass/log/leaves dressing.
+- [x] 6.3 Extend hero-cell baking with the source `w` mask, render water-bearing
+      hero cells in the translucent pass with water tint, and remove the fixed
+      outside-the-mountain `rockery_cascade` column. Keep only the contained
+      real source-water foot pool.
+- [x] 6.4 Add regression assertions that the placement contains no full-block
+      summit tree and no cascade column, while generated hero models contain
+      miniature foliage and a continuous grotto-to-foot water path.
+- [x] 6.5 Regenerate the sculpt, hero models, Java shapes, standalone/mansion
+      structures and byte-stability fixture; run focused tests, mansion
+      validation and the mod build.
+- [x] 6.6 Update the knowledge-base note, owning garden-rockery spec, README and
+      changelog with the accepted visual correction; bump all version-owned
+      files together to `0.16.2-fix1`.

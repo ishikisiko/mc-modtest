@@ -128,6 +128,12 @@ foot. It also fixes the v0.16.1 flood: `waterlogged` rock (a spreading water
 source) is dropped entirely — visible water is a contained pool + non-fluid
 `rockery_cascade` only. Review it directly with `/myvillage place hero_rockery`;
 preview the 48³ sculpt offline with `tools/buildgen/preview_voxel_field.py`.
+v0.16.2-fix1 keeps the summit tree at the same 1/16 scale as the rockery: it is
+now a baked leaning bonsai with visible branches and layered foliage instead of
+ordinary full blocks. The spring's micro-water is also baked from one connected
+grotto-to-pool path that follows the terraced rock face; the fixed exterior
+`rockery_cascade` column is no longer placed. Real water remains sealed in the
+山脚 pool.
 Run the final full-profile generation after a vanilla-profile proof to restore
 the shipped artifact profile.
 
@@ -311,7 +317,7 @@ jar tf build/libs/*.jar | grep "assets/myvillage/textures/painting/inscription"
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.16.2.jar
+build/libs/myvillage-0.16.2-fix1.jar
 ```
 
 ## Versioning And Changelog
@@ -357,12 +363,12 @@ python3 tools/generate_sect_plan_preview.py --count 6    # default covers all 3 
 python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 graph previews
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.16.2.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.16.2.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.16.2.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.16.2.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.16.2.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.16.2.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.16.2-fix1.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.16.2-fix1.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.16.2-fix1.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.16.2-fix1.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.16.2-fix1.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.16.2-fix1.jar | grep "assets/myvillage/textures/painting/inscription"
 ```
 
 Use the command list below as the acceptance script. Update this README,

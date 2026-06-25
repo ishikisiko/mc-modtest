@@ -266,8 +266,12 @@ HERO_VOXELS: Dict[str, List[List[List[bool]]]] = {}   # variant_id -> combined s
 HERO_STONE: Dict[str, List[List[List[bool]]]] = {}    # variant_id -> s mask (swatch_stone)
 HERO_MOSSY: Dict[str, List[List[List[bool]]]] = {}    # variant_id -> m mask (swatch_mossy)
 HERO_MOSS: Dict[str, str] = {}                         # variant_id -> moss_level (cosmetically inert)
-HERO_DRESSING: Dict[str, List[Tuple[str, LocalCoord]]] = {}  # -> dressing list
+HERO_DRESSING: Dict[str, List[Tuple[str, LocalCoord]]] = {}  # source non-rock voxels
 HERO_CELL: Dict[str, CellCoord] = {}                  # variant_id -> (bx,by,bz)
+HERO_WATER: Dict[str, List[List[List[bool]]]] = {}    # visual-only w mask
+HERO_GRASS: Dict[str, List[List[List[bool]]]] = {}    # visual-only g mask
+HERO_WOOD: Dict[str, List[List[List[bool]]]] = {}     # visual-only t mask
+HERO_LEAVES: Dict[str, List[List[List[bool]]]] = {}   # visual-only l mask
 
 
 # ---------------------------------------------------------------------------
@@ -526,24 +530,36 @@ SWATCH_STONE_TEX = "myvillage:block/rockery_block/swatch_stone"
 SWATCH_MOSSY_TEX = "myvillage:block/rockery_block/swatch_mossy"
 
 
-def _elements_for(solid: List[List[List[bool]]], tex_ref: str) -> List[dict]:
+def _elements_for(solid: List[List[List[bool]]], tex_ref: str,
+                  tintindex: Optional[int] = None,
+                  shade: bool = True) -> List[dict]:
     out: List[dict] = []
     for b in greedy_merge(solid):
         fx, tx = _sub_to_vanilla(b.x0, b.x1)
         fy, ty = _sub_to_vanilla(b.y0, b.y1)
         fz, tz = _sub_to_vanilla(b.z0, b.z1)
-        out.append({
+        face = {"texture": tex_ref}
+        if tintindex is not None:
+            face["tintindex"] = tintindex
+        element = {
             "from": [fx, fy, fz],
             "to": [tx, ty, tz],
-            "faces": {f: {"texture": tex_ref} for f in
+            "faces": {f: dict(face) for f in
                       ("north", "south", "east", "west", "up", "down")},
-        })
+        }
+        if not shade:
+            element["shade"] = False
+        out.append(element)
     return out
 
 
 def voxels_to_model_json_multimat(stone: List[List[List[bool]]],
                                   mossy: List[List[List[bool]]],
-                                  variant_id: str) -> dict:
+                                  variant_id: str,
+                                  water: Optional[List[List[List[bool]]]] = None,
+                                  grass: Optional[List[List[List[bool]]]] = None,
+                                  wood: Optional[List[List[List[bool]]]] = None,
+                                  leaves: Optional[List[List[List[bool]]]] = None) -> dict:
     """Model JSON for a hero cell with per-voxel material 色块 (Decision 2).
 
     Stone (`s`) and mossy (`m`) voxels are greedy-merged separately and textured
@@ -551,16 +567,38 @@ def voxels_to_model_json_multimat(stone: List[List[List[bool]]],
     block straight from the 48³ data. Each material merges to ≤ 32 boxes
     independently; hero cells are single-material-dominant so the total stays low.
     """
-    elements = _elements_for(stone, "#stone") + _elements_for(mossy, "#mossy")
-    return {
+    water = water or [[[False] * GRID for _ in range(GRID)] for _ in range(GRID)]
+    grass = grass or [[[False] * GRID for _ in range(GRID)] for _ in range(GRID)]
+    wood = wood or [[[False] * GRID for _ in range(GRID)] for _ in range(GRID)]
+    leaves = leaves or [[[False] * GRID for _ in range(GRID)] for _ in range(GRID)]
+    elements = (
+        _elements_for(stone, "#stone")
+        + _elements_for(mossy, "#mossy")
+        + _elements_for(grass, "#grass")
+        + _elements_for(wood, "#wood")
+        + _elements_for(leaves, "#leaves", tintindex=1)
+        + _elements_for(water, "#water", tintindex=0, shade=False)
+    )
+    model = {
         "parent": "minecraft:block/block",
         "textures": {
             "particle": SWATCH_STONE_TEX,
             "stone": SWATCH_STONE_TEX,
             "mossy": SWATCH_MOSSY_TEX,
+            "grass": "minecraft:block/moss_block",
+            "wood": "minecraft:block/oak_log",
+            "leaves": "minecraft:block/oak_leaves",
+            "water": "minecraft:block/water_still",
         },
         "elements": elements,
     }
+    if any(water[x][y][z] for x in range(GRID)
+           for y in range(GRID) for z in range(GRID)):
+        model["render_type"] = "minecraft:translucent"
+    elif any(leaves[x][y][z] for x in range(GRID)
+             for y in range(GRID) for z in range(GRID)):
+        model["render_type"] = "minecraft:cutout"
+    return model
 
 
 # ---------------------------------------------------------------------------
@@ -766,7 +804,9 @@ def write_models(voxel_cache: Dict[str, List[List[List[bool]]]],
         if v.variant_id in HERO_STONE:
             # Hero cell: per-voxel material 色块 (Decision 2).
             model = voxels_to_model_json_multimat(
-                HERO_STONE[v.variant_id], HERO_MOSSY[v.variant_id], v.variant_id)
+                HERO_STONE[v.variant_id], HERO_MOSSY[v.variant_id], v.variant_id,
+                HERO_WATER[v.variant_id], HERO_GRASS[v.variant_id],
+                HERO_WOOD[v.variant_id], HERO_LEAVES[v.variant_id])
         else:
             model = voxels_to_model_json(voxel_cache[v.variant_id], v.variant_id)
         (MODEL_DIR / f"{v.variant_id}.json").write_text(
@@ -1048,7 +1088,8 @@ def from_voxel_json(json_path=None) -> List[Variant]:
     """
     path = Path(json_path) if json_path is not None else HERO_JSON_PATH
     cells = slice_cells(decode_hero_json(path))
-    for reg in (HERO_VOXELS, HERO_STONE, HERO_MOSSY, HERO_MOSS, HERO_DRESSING, HERO_CELL):
+    for reg in (HERO_VOXELS, HERO_STONE, HERO_MOSSY, HERO_MOSS, HERO_DRESSING,
+                HERO_CELL, HERO_WATER, HERO_GRASS, HERO_WOOD, HERO_LEAVES):
         reg.clear()
     HERO_CATALOG.clear()
     for (bx, by, bz) in sorted(cells):
@@ -1067,6 +1108,10 @@ def from_voxel_json(json_path=None) -> List[Variant]:
         HERO_MOSS[vid] = cell_moss_level(chars)
         HERO_DRESSING[vid] = cell_dressing(chars)
         HERO_CELL[vid] = (bx, by, bz)
+        HERO_WATER[vid] = cell_material_mask(chars, frozenset({"w"}))
+        HERO_GRASS[vid] = cell_material_mask(chars, frozenset({"g"}))
+        HERO_WOOD[vid] = cell_material_mask(chars, frozenset({"t"}))
+        HERO_LEAVES[vid] = cell_material_mask(chars, frozenset({"l"}))
         VARIANT_BY_ID[vid] = v  # additive: generic ids untouched, hero now looked up
     return list(HERO_CATALOG)
 

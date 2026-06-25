@@ -3,7 +3,11 @@
   "textures": {
     "particle": "myvillage:block/rockery_block/swatch_stone",
     "stone": "myvillage:block/rockery_block/swatch_stone",
-    "mossy": "myvillage:block/rockery_block/swatch_mossy"
+    "mossy": "myvillage:block/rockery_block/swatch_mossy",
+    "grass": "minecraft:block/moss_block",
+    "wood": "minecraft:block/oak_log",
+    "leaves": "minecraft:block/oak_leaves",
+    "water": "minecraft:block/water_still"
   },
   "elements": [
     {
@@ -1381,6 +1385,46 @@
           "texture": "#mossy"
         }
       }
+    },
+    {
+      "from": [
+        7.0,
+        9.0,
+        15.0
+      ],
+      "to": [
+        10.0,
+        10.0,
+        16.0
+      ],
+      "faces": {
+        "north": {
+          "texture": "#water",
+          "tintindex": 0
+        },
+        "south": {
+          "texture": "#water",
+          "tintindex": 0
+        },
+        "east": {
+          "texture": "#water",
+          "tintindex": 0
+        },
+        "west": {
+          "texture": "#water",
+          "tintindex": 0
+        },
+        "up": {
+          "texture": "#water",
+          "tintindex": 0
+        },
+        "down": {
+          "texture": "#water",
+          "tintindex": 0
+        }
+      },
+      "shade": false
     }
-  ]
+  ],
+  "render_type": "minecraft:translucent"
 }

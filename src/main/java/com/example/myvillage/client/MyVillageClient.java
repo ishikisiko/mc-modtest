@@ -11,12 +11,9 @@ import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 /**
  * Client-only setup for MyVillage decor blocks (add-hero-rockery task 2.6).
  *
- * <p>Registers a {@code BlockColor} for {@link ModBlocks#ROCKERY_CASCADE} so its
- * grayscale {@code water_still} texture (referenced with {@code tintindex: 0} in
- * the model) renders blue, matching the biome's water tint where a position is
- * available and falling back to vanilla's default water color otherwise. The
- * block's translucent render type is declared in the model JSON, so no Java
- * render-type registration is needed.
+ * <p>Registers model tint handlers for decorative water and the hero
+ * {@link ModBlocks#ROCKERY_BLOCK}. Hero models use tint index 0 for their baked
+ * micro-water and tint index 1 for miniature oak foliage.
  */
 @EventBusSubscriber(modid = MyVillageMod.MOD_ID, value = Dist.CLIENT)
 public final class MyVillageClient {
@@ -34,5 +31,17 @@ public final class MyVillageClient {
                                 ? BiomeColors.getAverageWaterColor(level, pos)
                                 : DEFAULT_WATER,
                 ModBlocks.ROCKERY_CASCADE.get());
+        event.register(
+                (state, level, pos, tintIndex) -> {
+                    if (tintIndex == 1) {
+                        return (level != null && pos != null)
+                                ? BiomeColors.getAverageFoliageColor(level, pos)
+                                : 0x48B518;
+                    }
+                    return (level != null && pos != null)
+                            ? BiomeColors.getAverageWaterColor(level, pos)
+                            : DEFAULT_WATER;
+                },
+                ModBlocks.ROCKERY_BLOCK.get());
     }
 }
