@@ -959,9 +959,25 @@ public class RockeryBlock extends Block implements SimpleWaterloggedBlock {
      * {@code tools/buildgen/rockery_models.py} (task 4.8) from the same voxel
      * fields that produce the model JSONs — do not hand-edit. Each variant's
      * shape is a union of merged AABBs (≤ 32) expressed in sub-cell fractions.
+     *
+     * <p>The shape table is built once at class init into {@link #SHAPE_CACHE}
+     * (an {@link EnumMap}), because {@code Shapes.or(...)} of the per-variant
+     * AABB list is a costly slice-bitmask merge. {@code getShape} /
+     * {@code getCollisionShape} are hot paths (called per-frame for the block
+     * outline and per-tick for entity collision while a player stands on or
+     * mines a rockery), so rebuilding the union on every call caused noticeable
+     * stutter when breaking/standing on a rockery block. The cache makes every
+     * lookup an O(1) {@code EnumMap} get after class init.
      */
+    private static final java.util.EnumMap<Variant, VoxelShape> SHAPE_CACHE;
+    static {
+        SHAPE_CACHE = new java.util.EnumMap<>(Variant.class);
+__SHAPE_CACHE_INIT__
+    }
+
     protected static VoxelShape shapeFor(Variant variant) {
-__SHAPE_SWITCH__
+        VoxelShape cached = SHAPE_CACHE.get(variant);
+        return cached != null ? cached : Shapes.block();
     }
 
     @Override
@@ -1057,18 +1073,19 @@ def write_rockery_block_java(voxel_cache: Dict[str, List[List[bool]]],
         enum_lines.append(f'        {v.variant_id.upper()}("{v.variant_id}"){sep}')
     enum_body = "\n".join(enum_lines)
 
-    # shapeFor switch body: indented 8 spaces (one level inside the method).
-    switch_lines: List[str] = ["        switch (variant) {",
-                               "            default: return Shapes.block();"]
+    # shapeFor cache init body: indented 8 spaces (one level inside the static
+    # block). Each line precomputes the per-variant Shapes.or(...) union ONCE at
+    # class init and stores it in the EnumMap, so the hot-path shapeFor() is an
+    # O(1) lookup instead of redoing the slice-bitmask merge every call.
+    init_lines: List[str] = []
     for v in variants:
         shape_expr = voxels_to_voxelshape_java(voxel_cache[v.variant_id], v.variant_id)
-        switch_lines.append(f"            case {v.variant_id.upper()}: return {shape_expr};")
-    switch_lines.append("        }")
-    switch_body = "\n".join(switch_lines)
+        init_lines.append(f"        SHAPE_CACHE.put(Variant.{v.variant_id.upper()}, {shape_expr});")
+    switch_body = "\n".join(init_lines)
 
     src = (_ROCKERY_BLOCK_TEMPLATE
            .replace("__VARIANT_ENUM__", enum_body)
-           .replace("__SHAPE_SWITCH__", switch_body))
+           .replace("__SHAPE_CACHE_INIT__", switch_body))
     ROCKERY_BLOCK_JAVA.parent.mkdir(parents=True, exist_ok=True)
     ROCKERY_BLOCK_JAVA.write_text(src, encoding="utf-8")
 

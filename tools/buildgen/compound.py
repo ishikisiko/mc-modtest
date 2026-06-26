@@ -815,7 +815,8 @@ def _rockery_block_state(variant: str, facing: str, moss: str,
 
 
 def place_hero_rockery(compound: CompoundGraph, origin: Cell2, seed: int,
-                       facing: str = "north") -> ParcelNode:
+                       facing: str = "north",
+                       base_y: Optional[int] = None) -> ParcelNode:
     """Hero 假山 cluster renderer (add-hero-rockery tasks 3.3/3.4).
 
     Stamps the 19-cell stacked cluster + foliage/water dressing produced by
@@ -823,11 +824,15 @@ def place_hero_rockery(compound: CompoundGraph, origin: Cell2, seed: int,
     resting the foot on the parcel ground surface. Fixes the spike-field bug
     (the cells stack 3 tall instead of scattering) and exposes a standable summit
     in the node meta for a possible 亭. Determinism: the source JSON is fixed.
+
+    ``base_y`` overrides the natural surface y — used for 水心假山 (island
+    rockery) where the base must sit at y=0 (above the y=-1 pond water) so the
+    cluster rises from the pond as an island instead of sinking into the water.
     """
     from .rockery import derive_hero_rockery  # local import (avoid cycle)
     plan = derive_hero_rockery()
     ox, oz = origin
-    base_y = _natural_surface_y(compound, (ox + 1, oz + 1))
+    base_y = _natural_surface_y(compound, (ox + 1, oz + 1)) if base_y is None else base_y
     cells: Set[Cell2] = set()
     written: List[List] = []
     for (dx, dy, dz), (variant, moss, f, wl) in sorted(plan.cells.items()):
@@ -838,8 +843,16 @@ def place_hero_rockery(compound: CompoundGraph, origin: Cell2, seed: int,
         cells.add((x, z))
         written.append([x, z, variant, moss, dy, wl])
     for (dx, dy, dz), state in plan.dressing:
-        x, y, z = ox + dx, base_y + dy, oz + dz
         is_water = state.startswith("minecraft:water")
+        # When the rockery sits as a 水心假山 (island, base_y >= 0), skip its own
+        # 山脚水池 dressing: that pool was meant to read as the rockery's ground-
+        # level foot bath on dry land, but on an island the surrounding pond
+        # already supplies the water, and the dressing would place 3 water
+        # sources at y=0 — one block ABOVE the pond's y=-1 surface — reading as
+        # floating high water ("高于地面的水") off the island's +z edge.
+        if is_water and base_y is not None and base_y >= 0:
+            continue
+        x, y, z = ox + dx, base_y + dy, oz + dz
         tags = ["DETAIL", "GROUND"] if is_water else ["DETAIL", "STRUCTURE"]
         slot = "WATER" if is_water else (
             "ROCKERY_STONE" if state.startswith("myvillage:rockery_cascade") else "PLANTING")
@@ -906,7 +919,8 @@ def generate_hero_rockery_fragment(seed: int = 0x4A1A5A) -> CompoundGraph:
 
 def place_garden_rockery(compound: CompoundGraph, bbox: Tuple[int, int, int, int],
                          seed: int, facing: str = "north",
-                         hero: Optional[str] = None) -> ParcelNode:
+                         hero: Optional[str] = None,
+                         base_y: Optional[int] = None) -> ParcelNode:
     """garden_rockery parcel renderer (task 5.2).
 
     Calls :func:`tools.buildgen.rockery.derive_rockery` to assign each cell in
@@ -921,7 +935,8 @@ def place_garden_rockery(compound: CompoundGraph, bbox: Tuple[int, int, int, int
     origin, not the footprint.
     """
     if hero == "taihu":
-        return place_hero_rockery(compound, (bbox[0], bbox[1]), seed, facing)
+        return place_hero_rockery(compound, (bbox[0], bbox[1]), seed, facing,
+                                  base_y=base_y)
     from .rockery import derive_rockery, RockeryParams  # local import (avoid cycle)
     placement = derive_rockery(seed, bbox, RockeryParams())
     cells: Set[Cell2] = set()
@@ -1054,6 +1069,12 @@ def place_garden_pond(compound: CompoundGraph, bbox: Tuple[int, int, int, int],
     blocked = (compound.building_cells() |
                compound.node_cells("perimeter_wall", "screen_wall", "planting",
                                    "water_jar", "courtyard_tree", "inner_gate"))
+    # 水心假山 (island rockery): if a hero rockery sits in the pond, exclude its
+    # footprint from the water so it rises from the pond as an island instead of
+    # being carved away by the AIR_CARVE below. Generic (land-based) rockeries
+    # have no cells in the pond bbox, so this is a no-op for the old composition.
+    if rockery_node is not None:
+        blocked |= set(rockery_node.cells)
     water &= {c for c in water if c not in blocked}
     for x, z in water:
         # Clear any ground/path blocks then write water at y=-1.
@@ -1082,6 +1103,33 @@ def place_garden_pond(compound: CompoundGraph, bbox: Tuple[int, int, int, int],
                                       _rockery_block_state(variant, facing, moss),
                                       ["DETAIL", "STRUCTURE"], PRIORITY["DETAIL"],
                                       "ROCKERY_STONE", force=True)
+
+    # 睡莲 (lily pads) on the pond surface — a sparse, deterministic scattering of
+    # minecraft:lily_pad at y=0 (sitting on the water surface one block above the
+    # y=-1 water source). Vanilla lily pads are flat non-solid blocks, so they
+    # neither block the pond's walkability check nor obscure the island 假山.
+    # Density is ~1 lily pad per 6 water cells, capped so small ponds still get a
+    # handful; they avoid the rockery footprint and the immediate shore ring (so
+    # the water edge stays clean and the 亭 approach is not obscured).
+    if water:
+        import random as _rng
+        rnd = _rng.Random(seed ^ 0x4C494C59)
+        shore = _chebyshev_ring(water)
+        candidates = [c for c in water if c not in shore]
+        if rockery_node is not None:
+            rock_cells = set(rockery_node.cells)
+            candidates = [c for c in candidates if c not in rock_cells]
+        # Also skip cells directly adjacent to the rockery so pads don't hug the
+        # island base (keeps a clear water moat around the 假山).
+        if rockery_node is not None:
+            rock_ring = _chebyshev_ring(rock_cells)
+            candidates = [c for c in candidates if c not in rock_ring]
+        rnd.shuffle(candidates)
+        target = max(3, len(water) // 6)
+        for (x, z) in candidates[:target]:
+            compound.grid.set((x, 0, z), "minecraft:lily_pad",
+                              ["DETAIL", "GROUND"], PRIORITY["DETAIL"],
+                              "POND_PLANTING", force=True)
     return node, water
 
 
@@ -1139,20 +1187,29 @@ def place_stepping_stones(compound: CompoundGraph, shore_a: Cell2, shore_b: Cell
                           seed: int, facing: str = "north") -> ParcelNode:
     """汀步 (stepping stones) across a garden_pond (task 5.6).
 
-    Places ``myvillage:rockery_block[variant=standalone]`` cells at standable y
-    connecting two shore points, so the pond is voxel-walkable as a path across
-    the water. Reuses :func:`rockery.derive_stepping_stones` for the path +
-    variant assignment.
+    Places flat ``minecraft:stone`` cells at standable y connecting two shore
+    points, so the pond is voxel-walkable as a path across the water. Reuses
+    :func:`rockery.derive_stepping_stones` for the path geometry (which cell is
+    a step) but renders each step as a plain vanilla stone, NOT a
+    ``rockery_block``: each ``rockery_block[variant=standalone]`` renders as an
+    independent mini-mountain, so a path of them read in-game as a row of
+    stone-textured spikes ("一列小尖刺") instead of flat 汀步. Moss is applied
+    deterministically so some steps read as weathered (mossy_cobblestone) for
+    variety, but the silhouette stays a flat, low, walkable stone.
     """
     from .rockery import derive_stepping_stones
     placement = derive_stepping_stones(seed, shore_a, shore_b)
     cells: Set[Cell2] = set()
     for (x, z), (variant, moss) in placement.items():
-        y = _natural_surface_y(compound, (x, z))
         # 汀步 sit at the water surface (y=0) so the player auto-steps across.
-        compound.grid.set((x, 0, z), _rockery_block_state(variant, facing, moss),
+        # Use mossy_cobblestone for 'heavy'/'light' moss picks (weathered steps),
+        # plain stone otherwise — both are flat vanilla full blocks, walkable,
+        # and read as 汀步 rather than as mini-mountains.
+        block = ("minecraft:mossy_cobblestone" if moss in ("light", "heavy")
+                 else "minecraft:stone")
+        compound.grid.set((x, 0, z), block,
                           ["DETAIL", "STRUCTURE"], PRIORITY["DETAIL"],
-                          "ROCKERY_STONE", force=True)
+                          "POND_STONE", force=True)
         cells.add((x, z))
     node = ParcelNode("garden_stepping_stones", "garden_stepping_stones", cells, {
         "shore_a": list(shore_a),
@@ -2736,10 +2793,21 @@ def _layout_garden(compound: CompoundGraph, style: Style, bands: dict,
     rock_x0, rock_x1 = 1, 1 + rock_w - 1
     rock_z0, rock_z1 = gy0, gy0 + feature_d - 1
 
-    # Main 假山: the hand-sculpted hero cluster (add-hero-rockery), rooted at the
-    # rock bbox's -x/-z corner. Fixes the spike-field bug (stacks 3 tall).
-    rockery_node = place_garden_rockery(compound, (rock_x0, rock_z0, rock_x1, rock_z1),
-                                        seed + 9100, hero="taihu")
+    # Main 假山: the hand-sculpted hero cluster (add-hero-rockery), a fixed 3×3×3
+    # sculpt. Placed as a 水心假山 (island rockery) — its base sits in the middle
+    # of the pond so it rises from the water as an island, rather than on the
+    # dry west band. Fixes the spike-field bug (stacks 3 tall). The pond excludes
+    # the rockery footprint (see place_garden_pond), so the rockery cells survive
+    # as an island while water fills the rest of the pond bbox.
+    hero_base = 3  # hero_taihu sculpt footprint is 3×3
+    pond_cx = (pond_x0 + pond_x1) // 2
+    pond_cz = (pond_z0 + pond_z1) // 2
+    island_x0 = pond_cx - hero_base // 2
+    island_z0 = pond_cz - hero_base // 2
+    rockery_node = place_garden_rockery(compound,
+                                        (island_x0, island_z0,
+                                         island_x0 + hero_base - 1, island_z0 + hero_base - 1),
+                                        seed + 9100, hero="taihu", base_y=0)
     pond_node, water_cells = place_garden_pond(
         compound, (pond_x0, pond_z0, pond_x1, pond_z1), seed + 9200,
         rockery_node=rockery_node)
@@ -2753,21 +2821,25 @@ def _layout_garden(compound: CompoundGraph, style: Style, bands: dict,
     if gy0 <= pav_cz <= gy1:
         place_garden_pavilion(compound, (pav_cx, pav_cz), 3, 0, style)
 
-    # 汀步 across the pond
-    if water_cells:
-        water_sorted = sorted(water_cells)
-        w_shore = min(water_sorted, key=lambda c: c[0])
-        e_shore = max(water_sorted, key=lambda c: c[0])
-        if w_shore != e_shore:
-            place_stepping_stones(compound, w_shore, e_shore, seed + 9300)
+    # NOTE: the 汀步 (stepping stones) across the pond were removed. They had
+    # previously been rendered as myvillage:rockery_block[variant=standalone] —
+    # each block reads in-game as an independent mini-mountain, so a path of
+    # them read as a row of stone-textured spikes. They were later switched to
+    # flat minecraft:stone / mossy_cobblestone, but that left an unrelated row of
+    # mossy stones cutting across the pond which read as clutter rather than
+    # water. With the 假山 now sited as a 水心假山 (island in the pond), the pond
+    # is a pure water feature; players reach the 亭 from the garden shore, not
+    # across the pond, so the stepping path is not needed for walkability.
 
-    # Extra rockery for large-scale 花园
-    if variant.garden_scale == "large":
-        rock2_z0 = pav_cz + 2
-        if rock2_z0 < gy1 - 3:
-            place_garden_rockery(compound,
-                                 (rock_x0, rock2_z0, rock_x1, gy1),
-                                 seed + 9400)
+    # NOTE: the previous "extra rockery for large-scale 花园" block scattered a
+    # row of generic standalone rockery_blocks east of the 亭. Each such block
+    # renders as an independent mini-mountain (Minecraft block models do not fuse
+    # across cells), so it read in-game as a row of stone-textured spikes
+    # ("一列小尖刺") rather than a second 假山. The hero 假山 above is the intended
+    # mountain; the scattered row was removed so the garden shows one readable
+    # 大假山 instead of a spike field. If a second rockery is wanted later it must
+    # also go through place_hero_rockery (a self-contained stacked sculpt), not
+    # the generic heightfield scatter.
 
     garden_cells = {(x, z) for x in range(1, lot_w - 1)
                     for z in range(gy0, gy1 + 1)}

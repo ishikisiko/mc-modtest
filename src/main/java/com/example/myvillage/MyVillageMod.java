@@ -1,6 +1,7 @@
 package com.example.myvillage;
 
 import com.example.myvillage.block.ModBlocks;
+import com.example.myvillage.item.ModItems;
 import com.example.myvillage.region.runtime.RegionCommands;
 import com.example.myvillage.region.runtime.RegionRuntimeService;
 import com.example.myvillage.sect.SectGenerator;
@@ -65,6 +66,7 @@ public final class MyVillageMod {
     public MyVillageMod(IEventBus modEventBus) {
         LOGGER.info("MyVillage resource mod loaded");
         ModBlocks.register(modEventBus);
+        ModItems.register(modEventBus);
         SectStructures.register(modEventBus);
         NeoForge.EVENT_BUS.addListener(this::registerCommands);
         NeoForge.EVENT_BUS.addListener(this::onServerStarted);
