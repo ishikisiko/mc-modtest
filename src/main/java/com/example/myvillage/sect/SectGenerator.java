@@ -290,6 +290,35 @@ public final class SectGenerator {
     }
 
     static SectPlan plan(long seed, BlockPos base, String featureOverride) {
+        // plan() is a pure function of (seed, base, featureOverride), yet worldgen
+        // rebuilds it for every chunk of a site (~120× per site) because each
+        // postProcess is independent. Memo the common no-override case in a single
+        // volatile entry: within a site the same (seed, base) stays hot; switching
+        // sites evicts once. The force-generate command path (non-null override) is
+        // rare/manual and bypasses the cache so an override can't leak into a
+        // later worldgen call. Safe under parallel chunk-gen threads: reads are a
+        // volatile load + identity compare; a same-site race computes the identical
+        // immutable plan twice and one write wins, a cross-site race just evicts
+        // (the loser recomputes on its next call).
+        if (featureOverride == null) {
+            PlanCacheEntry hit = PLAN_CACHE;
+            if (hit != null && hit.seed == seed && hit.base.equals(base)) {
+                return hit.plan;
+            }
+        }
+        SectPlan result = computePlan(seed, base, featureOverride);
+        if (featureOverride == null) {
+            PLAN_CACHE = new PlanCacheEntry(seed, base, result);
+        }
+        return result;
+    }
+
+    private record PlanCacheEntry(long seed, BlockPos base, SectPlan plan) {
+    }
+
+    private static volatile PlanCacheEntry PLAN_CACHE;
+
+    private static SectPlan computePlan(long seed, BlockPos base, String featureOverride) {
         int count = TERRACE_COUNT;
         String[] names = skeletonNames(count);
         int axisHalf = AXIS_STAIR_W / 2;

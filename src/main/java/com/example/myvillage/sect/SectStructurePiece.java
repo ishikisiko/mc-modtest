@@ -20,6 +20,10 @@ import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
 import java.util.Optional;
 
 /**
@@ -34,6 +38,8 @@ import java.util.Optional;
  * the same silhouette.
  */
 public final class SectStructurePiece extends StructurePiece {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SectStructurePiece.class);
+
     private final BlockPos base;
     private final long siteSeed;
 
@@ -74,11 +80,26 @@ public final class SectStructurePiece extends StructurePiece {
     public void postProcess(WorldGenLevel level, StructureManager structureManager,
                             ChunkGenerator chunkGenerator, RandomSource random, BoundingBox box,
                             ChunkPos chunkPos, BlockPos pos) {
+        long t0 = System.nanoTime();
         RandomState randomState = level.getLevel().getChunkSource().randomState();
         SectGenerator.SectPlan plan = SectGenerator.plan(siteSeed, base);
-        SectMountain mountain = SectGenerator.buildMountain(siteSeed, plan,
-                (x, z) -> chunkGenerator.getBaseHeight(base.getX() + x, base.getZ() + z,
+
+        // One postProcess re-queries the same column from several passes
+        // (writeMountain samples it via naturalAt, then carveTerraces /
+        // placeCliffBack / realizeSlots via surfaceY -> mountain.height/​naturalAt);
+        // getBaseHeight is the expensive vanilla noise sampler, so memo it for
+        // this chunk. Scope is a single postProcess (a few hundred columns),
+        // used and discarded — no cross-chunk leak, no invalidation, and because
+        // getBaseHeight is deterministic the memo cannot change the silhouette.
+        HashMap<Long, Integer> natMemo = new HashMap<>();
+        int bx = base.getX();
+        int bz = base.getZ();
+        SectMountain.NaturalHeight natural = (x, z) -> natMemo.computeIfAbsent(
+                (((long) x) << 32) | (z & 0xFFFFFFFFL),
+                k -> chunkGenerator.getBaseHeight(bx + x, bz + z,
                         Heightmap.Types.WORLD_SURFACE_WG, level, randomState));
+        SectMountain mountain = SectGenerator.buildMountain(siteSeed, plan, natural);
+        long tPlan = System.nanoTime();
         SectGenerator.BuildStats stats = new SectGenerator.BuildStats();
         // Stable across chunks: per-volume placement RNG is now derived from the
         // site + volume origin inside the realizer, so this top-level random must
@@ -86,8 +107,22 @@ public final class SectStructurePiece extends StructurePiece {
         RandomSource templateRandom = RandomSource.create(siteSeed);
         WorldGenSink sink = new WorldGenSink(level, box, base, mountain);
         SectGenerator.writeMountain(sink, plan, mountain, stats);
+        long tMountain = System.nanoTime();
         SectGenerator.placeCloudSea(sink, plan, mountain, siteSeed, stats);
+        long tCloud = System.nanoTime();
         SectGenerator.realizeCompound(sink, plan, templateRandom, siteSeed, stats);
+        long tCompound = System.nanoTime();
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Sect postProcess chunk={} site={} natural_queries={} phases μs "
+                            + "plan={} mountain={} cloud={} compound={} total={}",
+                    chunkPos, siteSeed, natMemo.size(),
+                    us(tPlan, t0), us(tMountain, tPlan), us(tCloud, tMountain),
+                    us(tCompound, tCloud), us(tCompound, t0));
+        }
+    }
+
+    private static long us(long endNanos, long startNanos) {
+        return Math.round((endNanos - startNanos) / 1_000.0);
     }
 
     /** Writes to a {@link WorldGenLevel}, clamped to the current chunk region. */
