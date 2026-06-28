@@ -135,12 +135,61 @@ The generated-structure NBT validator SHALL inspect horizontal `myvillage:wall_p
 - **THEN** validation SHALL accept the plaque order.
 
 ### Requirement: The `chinese_mansion` library is validated as a 6-NBT group with spread ≥ 15
-The generation pipeline SHALL produce 6 `chinese_mansion_001..006.nbt` files validated by `validate_mansion`. The compound library check SHALL confirm: (a) 6 distinct variant keys (no two identical), (b) silhouette score spread (raw, uncapped, with `tower_count * 5` roofline bonus) ≥ 15 across the 6 NBTs. Mansion validation uses `validate_mansion`, not `validate_compound`.
+The generation pipeline SHALL produce 6 `chinese_mansion_001..006.nbt` files validated by `validate_mansion`. The compound library check SHALL confirm: (a) 6 distinct variant keys (no two identical), (b) silhouette score spread (raw, uncapped, with `tower_count * 5` roofline bonus) ≥ 15 across the 6 NBTs, (c) every NBT passes the enclosure-model invariants (gate_house present, form-rule facings, every door on path). Mansion validation uses `validate_mansion`, not `validate_compound`.
 
 #### Scenario: chinese_mansion library is generated
 - **WHEN** `generate_compound_library.py --group chinese_mansion --count 6` is run
 - **THEN** it SHALL produce 6 NBT files, a gallery function, and a report at `reports/chinese_mansion_compound_library_report.json`
-- **AND** the report SHALL record `passed: true`, `distinct_variants: 6`, and `silhouette_spread >= 15`.
+- **AND** the report SHALL record `passed: true`, `distinct_variants: 6`, `silhouette_spread >= 15`, and `door_reachable_rate: 1.0` for every NBT
+- **AND** every NBT SHALL have a `facing_per_slot` map matching the form rule.
+
+### Requirement: Mansion validation enforces enclosure-model invariants
+
+`validate_mansion` SHALL, for `chinese_mansion` compounds, enforce the enclosure-
+model invariants in addition to the grid-only checks it already performs
+(perimeter floats, ground-layer holes, voxel-walkability, silhouette). The
+enclosure invariants SHALL be:
+
+- A `gate_house` building slot is present and its footprint straddles the south
+  perimeter line (the entrance is a through-building, per `mansion-gate-house`).
+- Every `building_slots` entry's facing (recorded in its slot meta) matches its
+  role's form-rule facing per `building-orientation-variants` (正房→south,
+  倒座→north, 西厢→east, 东厢→west, gate_house→inward).
+- Every door-cell (`door_info["front"]`) is on a path cell (path-as-input
+  guarantee, per `compound-enclosure-planning`).
+- The 进 sequence is well-formed: 仪门 borders 前院 and 主院; 二门 borders 主院 and
+  后院 — verified by derived-yard adjacency, NOT by z-band tuple comparison.
+
+`validate_mansion` SHALL NOT use z-band tuple comparison (`meta["outer_yard_band"]`
+etc.) to assert any enclosure invariant. The band-coupled checks SHALL remain in
+`validate_compound` for the `chinese_courtyard` family (unchanged this turn).
+
+#### Scenario: A mansion with a hole-in-the-wall gate fails validation
+
+- **WHEN** `validate_mansion` runs on a compound whose south entrance is a carved
+  air hole rather than a `gate_house`
+- **THEN** validation SHALL fail with a `gate_house_missing` error.
+
+#### Scenario: A mansion with a south-facing 倒座 fails validation
+
+- **WHEN** `validate_mansion` runs on a compound whose `front_row` slot records
+  `facing=south` (door onto the street)
+- **THEN** validation SHALL fail with an `enclosure_facing_violation:front_row`
+  error.
+
+#### Scenario: A mansion with an unreachable door fails validation
+
+- **WHEN** `validate_mansion` runs on a compound where some `door_info["front"]`
+  cell is not on a path cell
+- **THEN** validation SHALL fail with a `door_off_path:<slot_id>` error.
+
+#### Scenario: A well-formed mansion passes all enclosure invariants
+
+- **WHEN** `validate_mansion` runs on a realized enclosure-plan mansion
+- **THEN** no `gate_house_missing`, `enclosure_facing_violation`,
+  `door_off_path`, or `voxel_*` error SHALL fire
+- **AND** the report SHALL record a `facing_per_slot` map and a
+  `door_reachable_rate` of 1.0.
 
 ### Requirement: Voxel-walkability validation gates compound exports
 Compound validators (for `chinese_courtyard`, `chinese_mansion`, etc.) SHALL include a voxel-walkability check that performs a 3D BFS from the gate-entry standable column and confirms all door positions and path endpoints are reachable. The following error codes are defined:

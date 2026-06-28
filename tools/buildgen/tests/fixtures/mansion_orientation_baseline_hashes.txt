@@ -1,0 +1,21 @@
+# Orientation byte-stability baseline for rebuild-mansion-enclosure-plan (task 6.2)
+#
+# The orientation mechanism (task 1) added a `wall` argument to `_door` and a
+# `facing` form-override threaded through the build chain. `facing=south`
+# (the default) MUST reproduce the pre-change output byte-for-byte, proving the
+# parameter is purely additive (proposal §1.2 regression guard).
+#
+# These SHA-256 hashes were captured at the pre-change revision (d948124^) over
+# the canonical default-south sub-building grids and verified byte-identical to
+# the current tree. Config: seed=20260618, roof_grade=chinese_round_ridge,
+# group_id=None (archetype-level isolation, so the comparison is independent of
+# the mansion roster — gate_house was wired into that roster by this change).
+#
+# Regenerate / re-verify with:
+#   python3 tools/buildgen/tests/test_mansion_orientation_regression.py
+#
+gate_house 9cac41ecb2f9b2f830e284a4d6ac7fc5701e1a8e0e9370c3a090977c51b7b09d
+front_row e334a0ad1e8a828a08031d92247a188985fdf49d808a7f1e31f39d22af42357c
+open_hall db5a3ba3e3a91eff088ea576bade5c11b54712b30e56b4649d9ee6de617937e6
+side_wing 84618b60b71d1a918140dcd485f4a0d987631123efea36377aed7b1fb33028b2
+tower_house ec248c84d52630d4a85e0886f7c90426c290f0060450f9cec60a2b38bd287322

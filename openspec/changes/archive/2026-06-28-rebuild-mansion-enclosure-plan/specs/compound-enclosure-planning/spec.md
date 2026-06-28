@@ -10,7 +10,7 @@ This capability is realized for `chinese_mansion` by the
 `rebuild-mansion-enclosure-plan` change. Propagation to `chinese_courtyard` and
 `small_courtyard` is a deferred follow-up (see `docs/ai-kb/14_deferred_roadmap.md`).
 
-## Requirements
+## ADDED Requirements
 
 ### Requirement: A compound layout is a placement manifest, not a band-slice
 

@@ -1434,9 +1434,14 @@ def build_gate_house(style: Style, rng: random.Random, tier: str,
     fh = 1
     wall_h = 4
     roof_grade = rng.choice(style.allowed_roof_types)
+    fp_override = (overrides or {}).get("footprint")
+    if isinstance(fp_override, tuple) and len(fp_override) == 2:
+        footprint = fp_override
+    else:
+        footprint = rng.choice(SCALE_TIERS["gate_house"]["footprints"])
     main = _main_volume(
         graph, style, rng, "gate_house", wall_h, fh,
-        footprint=rng.choice(SCALE_TIERS["gate_house"]["footprints"]),
+        footprint=footprint,
         roof_axis="x", roof_overhang=1)
     main.meta["wall_type"] = "white_plaster_timber_wall"
     main.meta["door_centered"] = True

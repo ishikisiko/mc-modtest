@@ -14,12 +14,7 @@ entrance).
 
 ## MODIFIED Requirements
 
-### Requirement: ~~A 江南大宅 is a multi-进 z-band sequence on a central axis~~ → A 江南大宅 is a multi-进 enclosure sequence on a central axis
-
-> **Supersedes** the `rebuild-jiangnan-mansion` requirement "A 江南大宅 is a
-> multi-进 z-band sequence on a central axis". The `jin_count` axis and the
-> canonical 进 sequence are retained; the z-band-slice mechanism is replaced by
-> the enclosure model.
+### Requirement: A 江南大宅 is a multi-进 enclosure sequence on a central axis
 
 A `chinese_mansion` compound SHALL be laid out along a central axis as an
 ordered sequence of 进 (yards), each realized as the **enclosed negative space**
@@ -28,6 +23,11 @@ of buildings placed against the perimeter with form-rule facings (per
 inner gates, ending in a 花园 band. The number of 进 SHALL be controlled by
 `CompoundVariant.jin_count ∈ {3, 4}`; the shipped library SHALL use `jin_count=3`.
 The 花园 band SHALL open directly off the 后院 with no inner gate between them.
+
+> **Supersedes** the `rebuild-jiangnan-mansion` requirement "A 江南大宅 is a
+> multi-进 z-band sequence on a central axis". The `jin_count` axis and the
+> canonical 进 sequence are retained; the z-band-slice mechanism is replaced by
+> the enclosure model.
 
 **REMOVED** (from the superseded requirement): the z-band-depth requirements
 ("each yard band SHALL be at least 8 cells deep", "each inner gate band SHALL be
@@ -42,11 +42,7 @@ not a pre-cut band parameter. The 3-cell inner-gate passage width is retained
 - **AND** each 进 SHALL be the enclosed negative space of its facing-buildings
 - **AND** no z-band tuple comparison SHALL be used to assert the sequence.
 
-### Requirement: ~~The 照壁 stands off-axis~~ → The 照壁 stands off-axis inside the 前院 enclosure (retained, re-anchored)
-
-> **Retained** from `rebuild-jiangnan-mansion`; the 照壁 placement is re-anchored
-> to the enclosure model: it stands off-axis inside the 前院 (the negative space
-> enclosed by the gate_house + 倒座), not at a band-relative z-offset.
+### Requirement: The 照壁 stands off-axis inside the 前院 enclosure
 
 A `chinese_mansion` compound SHALL place a 照壁 (screen wall) parcel node **off
 the central axis**, inside the 前院 enclosure, such that the sightline from the
@@ -54,6 +50,10 @@ gate-house passage to the 主院 axis is blocked at an oblique angle. The 照壁
 SHALL NOT occupy any cell on the central axis. The 照壁 SHALL be a free-standing
 panel (1-2 cells wide, 5-6 cells tall) with a cap ridge, distinct from the
 perimeter wall.
+
+> **Retained** from `rebuild-jiangnan-mansion`; the 照壁 placement is re-anchored
+> to the enclosure model: it stands off-axis inside the 前院 (the negative space
+> enclosed by the gate_house + 倒座), not at a band-relative z-offset.
 
 #### Scenario: The 照壁 never blocks the central axis
 

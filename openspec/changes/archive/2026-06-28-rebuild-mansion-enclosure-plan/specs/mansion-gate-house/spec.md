@@ -5,7 +5,7 @@ previously-used "carve a hole in the perimeter wall" gate. The gate-house is a
 real building volume with a 门楼 roof, 门框, and a passage the player walks
 through — producing the gate feel that the hole-in-the-wall could not.
 
-## Requirements
+## ADDED Requirements
 
 ### Requirement: The south entrance is a gate_house sub-building straddling the perimeter
 
@@ -52,10 +52,11 @@ NOT leak to the outside except via the gate_house.
 
 ### Requirement: gate_type selects the gate_house footprint and roof grade
 
-The `gate_type` (manzi / jinzhu / guangliang, derived from the variant's
-`gate_form`) SHALL select the gate_house footprint (from `SCALE_TIERS["gate_house"]`)
-and roof grade, rather than selecting the width of a carved hole. The gate_house
-SHALL be centered on the axis regardless of gate_type.
+The `gate_type` SHALL select the gate_house footprint and roof grade. The
+`gate_type` values (manzi / jinzhu / guangliang, derived from the variant's
+`gate_form`) SHALL resolve to `SCALE_TIERS["gate_house"]` footprints rather than
+selecting the width of a carved hole. The gate_house SHALL be centered on the
+axis regardless of gate_type.
 
 #### Scenario: A guangliang (广亮门) gate uses the largest footprint
 

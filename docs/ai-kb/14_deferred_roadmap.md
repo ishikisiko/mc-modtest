@@ -200,6 +200,27 @@ scope bounded. The spec is retained in the change's `specs/` directory.
 
 See-also spec: `huipai-tianjing-mansion` in `openspec/changes/rebuild-jiangnan-mansion/specs/`.
 
+### E.4 — Propagate enclosure + orientation skeleton to courtyard families
+
+**Source:** `rebuild-mansion-enclosure-plan` proposal/design/tasks.
+
+The enclosure-planning skeleton is realized for `chinese_mansion` only:
+buildings are placed as form-rule-facing masses, yards are derived as enclosed
+negative space, the south entrance is a through-building, and every door-front
+is a path endpoint. The simpler `chinese_courtyard` and embedded
+`small_courtyard` families deliberately keep the older band-coupled planner in
+that change so the mansion rewrite can be proven first.
+
+| Deferred item | Current state |
+|---|---|
+| Apply door-wall facing variants to `chinese_courtyard` 正房 / 倒座 / 厢房 roles | Not implemented; 一进 courtyard still uses the legacy planner |
+| Replace carved gate / band placement with enclosure-derived yard planning for `chinese_courtyard` | Not implemented |
+| Propagate the same skeleton to `small_courtyard` embedded in cultivation town tissue | Not implemented |
+
+See-also specs: `compound-enclosure-planning`,
+`building-orientation-variants`, `mansion-gate-house`,
+`courtyard-compound`.
+
 ## F. Tooling / visual small deferrals
 
 Low-leverage but tracked. Each came from a design doc's "Open Questions" or

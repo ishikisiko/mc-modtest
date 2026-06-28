@@ -60,17 +60,17 @@ etc.) to assert any enclosure invariant. The band-coupled checks SHALL remain in
 
 ### Requirement: The `chinese_mansion` library is validated as a 6-NBT group with spread ≥ 15
 
-> **Modified** from baseline: the mansion library check now also asserts the
-> enclosure invariants per slot across all 6 NBTs, and records the new
-> `facing_per_slot` / `door_reachable_rate` stats. The silhouette-spread ≥ 15
-> rule and the 6-distinct-variant rule are unchanged.
-
 The generation pipeline SHALL produce 6 `chinese_mansion_001..006.nbt` files
 validated by `validate_mansion`. The compound library check SHALL confirm:
 (a) 6 distinct variant keys, (b) silhouette score spread ≥ 15, (c) every NBT
 passes the enclosure-model invariants (gate_house present, form-rule facings,
-every door on path). Mansion validation uses `validate_mansion`, not
+every door on path). Mansion validation SHALL use `validate_mansion`, not
 `validate_compound`.
+
+> **Modified** from baseline: the mansion library check now also asserts the
+> enclosure invariants per slot across all 6 NBTs, and records the new
+> `facing_per_slot` / `door_reachable_rate` stats. The silhouette-spread ≥ 15
+> rule and the 6-distinct-variant rule are unchanged.
 
 #### Scenario: chinese_mansion library is generated under the enclosure model
 

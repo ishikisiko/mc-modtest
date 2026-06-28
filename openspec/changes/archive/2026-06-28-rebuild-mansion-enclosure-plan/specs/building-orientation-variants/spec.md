@@ -8,7 +8,7 @@ volume, footprint, and roof ridge are unchanged because they are already
 geometrically correct for the slot; only the door wall is relocated to the
 yard-facing side.
 
-## Requirements
+## ADDED Requirements
 
 ### Requirement: A sub-building carries a facing that selects its door wall
 
@@ -78,7 +78,7 @@ SHALL always face north.
 
 ### Requirement: The 敞厅 open facade is exempt from the door-wall rule
 
-The 敞厅 (`open_hall`) resolves its yard-side through the `FACADE_OPEN` slot
+The 敞厅 (`open_hall`) SHALL resolve its yard-side through the `FACADE_OPEN` slot
 (columns + open eave, no full-height front wall) per `cultivation-form-vocabulary`.
 Because the 敞厅 has no front wall, the door-wall selection SHALL be skipped for
 it; its `door_info` SHALL be the open-front center. The 敞厅's facing SHALL still

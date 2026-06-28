@@ -7,6 +7,32 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.17.0
+
+### Added
+
+- **江南大宅 enclosure-planning skeleton** (`rebuild-mansion-enclosure-plan`):
+  `chinese_mansion_001..006.nbt` now use a building-enclosure model instead of
+  fixed z-band placement. The south entrance is a real `gate_house`
+  through-building, not a carved wall hole; each mansion role gets a form-rule
+  door wall (倒座 north, 厢房 inward, 敞厅 south, 楼阁 north), and every
+  door-front is routed into the gravel backbone from the gate-house inner
+  opening.
+- Added regression coverage for the orientation mechanism, gate-house
+  perimeter sealing, derived-yard contiguity, inner-gate adjacency, and
+  non-mansion byte stability.
+
+### Changed
+
+- Regenerated the six shipped `chinese_mansion_*` structures under the full
+  profile. `chinese_courtyard_*`, embedded small courtyards, cultivation town,
+  cultivation sect, and medieval structures remain on their existing planners;
+  propagating the enclosure skeleton to those courtyard families is tracked as
+  follow-up work.
+- `validate_mansion` reports `facing_per_slot` and `door_reachable_rate` and
+  enforces gate-house presence, role-facing invariants, door-on-path, and
+  derived-yard adjacency in addition to the preserved grid and voxel checks.
+
 ## 0.16.2-fix1
 
 ### Fixed
