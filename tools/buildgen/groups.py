@@ -151,6 +151,7 @@ GROUPS: Dict[str, SettlementGroup] = {
             "side_wing",
             "flower_hall",
             "front_row",
+            "gate_house",
             "tower_house",
             "garden_pavilion",
         ),

@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 import os
 import random
+import zlib
 from collections import deque
 from dataclasses import dataclass, field
 from typing import Dict, Iterable, List, Literal, Optional, Sequence, Set, Tuple
@@ -770,7 +771,12 @@ def _place_yard_ground(compound: CompoundGraph, style: Style) -> None:
     ground; that keeps the ground layer hole-free under the rockery's air gaps
     while letting the hero foot row and pool survive (add-hero-rockery task 4.1).
     """
-    skip = (compound.building_cells() |
+    buildings = compound.building_cells()
+    # Platform cells under a building footprint belong to the building (its own
+    # ground); only the open-plinth cells are owned by the platform node, so the
+    # yard-ground pass skips those but still fills the rest.
+    platform_open = compound.node_cells("platform") - buildings
+    skip = (buildings | platform_open |
             compound.node_cells("water_feature", "water_jar", "planting",
                                 "courtyard_tree"))
     kinds = _derive_ground_kinds(compound)
@@ -1298,16 +1304,31 @@ def _compute_yard_bands(jin_count: int, layout_type: str, lot_d: int) -> dict:
         )
 
 
-def _add_chinese_perimeter(compound: CompoundGraph, style: Style) -> None:
+def _add_chinese_perimeter(compound: CompoundGraph, style: Style,
+                           gate_house_gap: Optional[Tuple[int, int]] = None) -> None:
     """Walled perimeter with a cap ridge, 墙垛 corner/interval piers, and
     optional 漏窗 cutouts. Built from y=0 up so it never floats over a raised
-    main-yard platform."""
+    main-yard platform.
+
+    ``gate_house_gap`` (x0, x1): when set (mansion enclosure path), the south
+    wall is gapped across [x0, x1] so the gate_house through-building fills that
+    span — its own side walls seal the gap. When None (courtyard path), the
+    classic carved-air gate opening on the axis is used instead.
+    """
     lot_w, lot_d = compound.lot_size
     axis = compound.axis_x
     gate_side = compound.meta.get("gate_side", "south")
-    gate_half = GATE_HALF[compound.variant.gate_type]
     gate_z = 0 if gate_side == "south" else lot_d - 1
-    gate = {(x, gate_z) for x in range(axis - gate_half, axis + gate_half + 1)}
+
+    if gate_house_gap is not None:
+        # Mansion: gap the south wall for the gate_house; the gate_house's own
+        # side walls close the span, so the perimeter stays sealed except through
+        # the gate_house passage (mansion-gate-house spec).
+        gx0, gx1 = gate_house_gap
+        gate = {(x, gate_z) for x in range(gx0, gx1 + 1)}
+    else:
+        gate_half = GATE_HALF[compound.variant.gate_type]
+        gate = {(x, gate_z) for x in range(axis - gate_half, axis + gate_half + 1)}
 
     wall_cells: Set[Cell2] = set()
     for x in range(lot_w):
@@ -1814,7 +1835,15 @@ def _collect_path_endpoints(compound: CompoundGraph) -> List[Cell2]:
     wall = next((n for n in compound.parcel_nodes if n.type == "perimeter_wall"),
                 None)
     endpoints: List[Cell2] = []
-    if wall is not None:
+    # Mansion enclosure path: the entrance is a gate_house through-building, so
+    # the path starts at the gate_house's INNER opening (recorded in meta), not
+    # at the carved-wall z0+1 cell (which sits inside the gate_house volume).
+    gate_inner_z = compound.meta.get("gate_inner_z")
+    if wall is not None and gate_inner_z is not None:
+        axis = compound.axis_x
+        if 0 < axis < lot_w - 1 and 0 < gate_inner_z < lot_d - 1:
+            endpoints.append((axis, gate_inner_z))
+    elif wall is not None:
         opening = wall.meta.get("gate_opening")
         if opening:
             x0, z0, x1, z1 = opening
@@ -2291,7 +2320,14 @@ def _gate_entry_standable(compound: CompoundGraph) -> Optional[Pos]:
     """
     lot_w, lot_d = compound.lot_size
     gate_side = compound.meta.get("gate_side", "south")
-    z_entry = 1 if gate_side == "south" else lot_d - 2
+    # Mansion enclosure: the entrance is a gate_house through-building, so the
+    # standable entry column is the gate_house's inner opening (gate_inner_z),
+    # not z=1 (which sits inside the gate_house volume). Courtyard path keeps z=1.
+    gate_inner_z = compound.meta.get("gate_inner_z")
+    if gate_inner_z is not None:
+        z_entry = gate_inner_z
+    else:
+        z_entry = 1 if gate_side == "south" else lot_d - 2
     ys = _standable_ys(compound, compound.axis_x, z_entry)
     if not ys:
         return None
@@ -2642,6 +2678,313 @@ def select_mansion_variant(seed: int) -> MansionVariant:
     )
 
 
+# ---------------------------------------------------------------------------
+# Enclosure-planning model (rebuild-mansion-enclosure-plan)
+#
+# Replaces the z-band-slice + magic-coordinate layout (_layout_front_yard /
+# _layout_main_yard_mansion / _layout_back_yard) with: place oriented buildings
+# against their anchor walls per the form rule, derive yards as enclosed
+# negative space, route the path as a planning input. See the
+# `compound-enclosure-planning` + `building-orientation-variants` +
+# `mansion-gate-house` specs.
+# ---------------------------------------------------------------------------
+
+@dataclass(frozen=True)
+class _EnclosurePlacement:
+    """One building placement in the mansion enclosure manifest."""
+    role: str            # human label
+    archetype: str       # generate_subbuilding archetype key
+    facing: str          # south/north/east/west — form-rule door direction
+    anchor: str          # perimeter wall it backs onto (south/north/east/west)
+    slot_id: str         # BuildingSlot id
+    x0: int              # lot coords of the main-volume origin (SW corner)
+    z0: int
+    plinth_h: int = 0    # y origin (sits on the plinth)
+    extra_overrides: Tuple = ()  # additional (key, value) form_overrides pairs
+
+
+def _mansion_yard_depths(lot_d: int, garden_scale: str
+                         ) -> Tuple[int, int, int, int]:
+    """Proportional 进 depth split (front, main, back, garden) for a lot depth.
+
+    Shares: front 1.0 / main 1.8 (ceremonial core, largest) / back 1.1 /
+    garden 1.3 (1.8 for large). A 大宅 reads as 大 because its yards are spacious,
+    not because it has more doors. The fixed budget (gate_house + 2 inner gates
+    + one building band) is subtracted first, the rest distributed by share.
+    """
+    gate_depth = 3
+    building_band = 13  # a yard must clear its tallest building (~tower/open_hall)
+    fixed = 5 + 2 * gate_depth  # gate_house gd=5 + 2 inner gates
+    yard_pool = lot_d - 2 - fixed - building_band
+    garden_share = 1.8 if garden_scale == "large" else 1.3
+    shares = {"front": 1.0, "main": 1.8, "back": 1.1, "garden": garden_share}
+    total = sum(shares.values())
+    front_d = max(6, int(yard_pool * shares["front"] / total))
+    main_d = max(10, int(yard_pool * shares["main"] / total))
+    back_d = max(15, int(yard_pool * shares["back"] / total))  # clear tower (13)
+    garden_d = max(6, yard_pool - front_d - main_d - back_d)
+    return front_d, main_d, back_d, garden_d
+
+
+def _plan_mansion_enclosure(variant: "MansionVariant", lot_w: int, lot_d: int,
+                            axis: int) -> Tuple[List[_EnclosurePlacement], List[Tuple[str, int]], int]:
+    """Produce the placement manifest + inner-gate z-rows for a mansion variant.
+
+    Returns (placements, [(gate_role, z), ...], gate_house_inner_z). Each
+    placement binds an archetype + the form-rule facing + an anchor wall + a
+    concrete (x0, z0) origin. Yards are derived later by _derive_mansion_yards.
+
+    Form rule (building-orientation-variants): 正房/open_hall south; 倒座 north;
+    西厢 east; 东厢 west; gate_house inward (north, toward 前院); 楼阁 south
+    (toward its enclosing 后院).
+    """
+    front_d, main_d, back_d, _ = _mansion_yard_depths(lot_d, variant.garden_scale)
+    gate_depth = 3
+
+    placements: List[_EnclosurePlacement] = []
+
+    # --- 前院: gate_house (through-building) + 倒座 (beside it, door→yard) ---
+    # gate_house spans z=0..4 (gd=5), centered on axis, faces north (inward).
+    gw, gd = 11, 5
+    placements.append(_EnclosurePlacement(
+        role="gate_house", archetype="gate_house", facing="north",
+        anchor="south", slot_id="gate_house",
+        x0=axis - gw // 2, z0=0))
+    gate_inner_z = gd  # path starts at the gate_house north opening
+
+    # 倒座: south wall line beside the gate_house, door north (→前院). Leave a
+    # 1-cell alley to the perimeter AND a 1-cell clear corridor beside the
+    # gate_house so the gate_house's north passage opens onto walkable yard,
+    # not onto the 倒座 footprint (front_row overlapping the gate_house's inner
+    # door was leaving the door voxel-unreachable). Place on the side with more
+    # room and pick the largest standard footprint (15/17/19 wide) that fits.
+    fw_full, fd = 17, 7
+    gate_west = axis - gw // 2
+    gate_east = gate_west + gw
+    # Reserve a 1-cell corridor immediately west/east of the gate_house.
+    avail_west = gate_west - 2 - 1   # -2 perimeter, -1 corridor
+    avail_east = (lot_w - 1) - gate_east - 1 - 1
+    from .archetypes import SCALE_TIERS  # local import (avoid cycle)
+    front_fps = SCALE_TIERS["front_row"]["footprints"]  # [(15,7),(17,7),(19,7)]
+    west_fp = next((fp for fp in sorted(front_fps, reverse=True)
+                    if fp[0] <= avail_west), None)
+    east_fp = next((fp for fp in sorted(front_fps, reverse=True)
+                    if fp[0] <= avail_east), None)
+    if west_fp and (not east_fp or west_fp[0] >= east_fp[0]):
+        fp, fx = west_fp, gate_west - 1 - west_fp[0]
+    elif east_fp:
+        fp, fx = east_fp, gate_east + 2
+    else:
+        # No standard footprint fits (very narrow lot): skip 倒座 rather than
+        # overlap the gate_house passage. The validator does not require it.
+        fp, fx = None, None
+    if fp is not None:
+        placements.append(_EnclosurePlacement(
+            role="front_row", archetype="front_row", facing="north",
+            anchor="south", slot_id="front_row",
+            x0=fx, z0=0, extra_overrides=(("footprint", fp),)))
+
+    # 仪门 between 前院 and 主院
+    yimen_z = gd + front_d + gate_depth - 1
+
+    # --- 主院: open_hall (north end, south-facing) + 厢 (east/west, inward) ---
+    plinth_h = 1
+    my0 = yimen_z + 1
+    my1 = my0 + main_d - 1
+    from .archetypes import MAIN_HALL_BAY_FOOTPRINT
+    hw, hd = MAIN_HALL_BAY_FOOTPRINT.get(variant.open_hall_bays, (15, 11))
+    hall_z1 = my1
+    hall_z0 = hall_z1 - hd + 1
+    placements.append(_EnclosurePlacement(
+        role="open_hall", archetype="open_hall", facing="south",
+        anchor="north", slot_id="open_hall",
+        x0=axis - hw // 2, z0=hall_z0, plinth_h=plinth_h))
+
+    ww, wd = 7, 15
+    wing_z0 = my0 + 2
+    wing_d = min(wd, max(5, my1 - 1 - wing_z0))
+    placements.append(_EnclosurePlacement(
+        role="west_wing", archetype="side_wing", facing="east",
+        anchor="west", slot_id="west_side_wing",
+        x0=1, z0=wing_z0, plinth_h=plinth_h))
+    placements.append(_EnclosurePlacement(
+        role="east_wing", archetype="side_wing", facing="west",
+        anchor="east", slot_id="east_side_wing",
+        x0=lot_w - 1 - ww, z0=wing_z0, plinth_h=plinth_h))
+
+    # 二门 between 主院 and 后院
+    ermen_z = my1 + gate_depth
+
+    # --- 后院: 楼阁 off-axis (beside the axis, not against the wall) ---
+    # 楼阁 sits at the south edge of the 后院 (just north of the 二门); its yard
+    # space is to its NORTH, so it faces north (door→北) — facing south would
+    # throw its porch colonnade back across the 二门 into the 主院 plinth
+    # (voxel/ground-layer conflict). tower_house is a 2-story mass; a south door
+    # would also read as turning its back on the 后院 it belongs to.
+    tw, td = 11, 13
+    t1_x = axis - 1 - tw
+    t2_x = axis + 2
+    tz0 = ermen_z + 1
+    placements.append(_EnclosurePlacement(
+        role="tower_house_1", archetype="tower_house", facing="north",
+        anchor="south", slot_id="tower_house_1",
+        x0=t1_x, z0=tz0))
+    if variant.tower_count == 2:
+        placements.append(_EnclosurePlacement(
+            role="tower_house_2", archetype="tower_house", facing="north",
+            anchor="south", slot_id="tower_house_2",
+            x0=t2_x, z0=tz0))
+
+    gates = [("yimen", yimen_z), ("ermen", ermen_z)]
+    return placements, gates, gate_inner_z
+
+
+def _derive_mansion_yards(compound: CompoundGraph, placements: List[_EnclosurePlacement],
+                          gates: List[Tuple[str, int]], lot_w: int, lot_d: int
+                          ) -> Dict[str, Set[Cell2]]:
+    """Derive each 进 as the enclosed negative space of its facing-buildings.
+
+    A 进's cells are the interior cells not under any building footprint,
+    partitioned by the inner-gate z-rows. This replaces the pre-cut z-band
+    model: the yard IS the space the buildings enclose.
+    """
+    building_cells = set()
+    for p in placements:
+        # approximate footprint from the placement origin + a nominal size; the
+        # real footprint comes from the realized BuildingSlot, but for yard
+        # derivation the placement bounding box suffices.
+        building_cells.add((p.x0, p.z0))
+    # Use the realized building slots for accuracy (called after realization).
+    occupied = compound.building_cells() | compound.node_cells(
+        "perimeter_wall", "inner_gate", "screen_wall")
+    interior = {(x, z) for x in range(1, lot_w - 1) for z in range(1, lot_d - 1)
+                if (x, z) not in occupied}
+    # Partition by inner-gate z-rows.
+    gate_zs = sorted(z for _, z in gates)
+    yards: Dict[str, Set[Cell2]] = {}
+    if gate_zs:
+        yards["front_yard"] = {c for c in interior if c[1] < gate_zs[0]}
+        if len(gate_zs) >= 2:
+            yards["main_yard"] = {c for c in interior if gate_zs[0] < c[1] < gate_zs[1]}
+            yards["back_yard"] = {c for c in interior if c[1] > gate_zs[1]}
+        else:
+            yards["main_yard"] = {c for c in interior if c[1] > gate_zs[0]}
+    else:
+        yards["main_yard"] = interior
+    return yards
+
+
+def _realize_mansion_enclosure(compound: CompoundGraph, style: Style,
+                               variant: "MansionVariant",
+                               placements: List[_EnclosurePlacement],
+                               gates: List[Tuple[str, int]],
+                               gate_inner_z: int) -> Dict[str, Set[Cell2]]:
+    """Realize the enclosure manifest: build + place each oriented building,
+    place the gate_house through-building, inner gates, 照壁, and 主院 plinth.
+
+    Each building is built with its form-rule facing via form_overrides, so its
+    door lands on the yard-facing wall (building-orientation-variants). Returns
+    the realized manifest for downstream yard/path derivation.
+    """
+    lot_w, lot_d = compound.lot_size
+    axis = compound.axis_x
+    slot_seed = compound.seed * 1009
+
+    def _build_and_place(p: "_EnclosurePlacement") -> None:
+        overrides = {"facing": p.facing}
+        if p.archetype == "open_hall":
+            overrides["open_hall_bays"] = variant.open_hall_bays
+        overrides.update(dict(p.extra_overrides))
+        # Stable per-slot seed offset: Python's hash() is randomized across
+        # process runs (PYTHONHASHSEED), so derive the offset from zlib.crc32
+        # — otherwise the same mansion regenerates with a different sub-building
+        # layout each run (and a different plinth-edge detail placement, which
+        # left ground_layer_hole cells at the band boundary).
+        slot_off = zlib.crc32(p.slot_id.encode("utf-8")) % 1000
+        ctx = generate_subbuilding(
+            style, p.archetype, slot_seed + slot_off,
+            variant.roof_grade, "chinese_mansion", form_overrides=overrides)
+        _translate_context(compound, p.slot_id, ctx, (p.x0, p.plinth_h, p.z0))
+
+    # Place the south-wall buildings (gate_house + 倒座/front_row) first so we
+    # can measure the real south-line depth before deriving gate_inner_z. Both
+    # sit on z=0 but their realized depths differ by tier (gate_house 5 or 7;
+    # front_row 7), and gate_inner_z must clear whichever extends furthest north
+    # — otherwise the (axis, gate_inner_z) entry cell lands inside front_row's
+    # footprint and the path router reports endpoint_unreachable there.
+    south_archetypes = ("gate_house", "front_row")
+    south_places = [p for p in placements if p.archetype in south_archetypes]
+    for p in south_places:
+        _build_and_place(p)
+    gate_inner_z = 0
+    for p in south_places:
+        slot = next((s for s in compound.building_slots if s.id == p.slot_id), None)
+        if slot is None or not slot.footprint:
+            continue
+        z1 = max(z for _, z in slot.footprint)
+        gate_inner_z = max(gate_inner_z, z1 + 1)
+
+    # Place the remaining buildings.
+    for p in placements:
+        if p.archetype in south_archetypes:
+            continue
+        _build_and_place(p)
+
+    # --- 主院 plinth (台基): fill solidly under the 主院 band so buildings sit
+    # on a raised stone floor and the perimeter never floats. ---
+    plinth_h = 1
+    platform_stone = style.primary("PLATFORM_STONE")
+    gate_zs = sorted(z for _, z in gates)
+    if len(gate_zs) >= 2:
+        my0, my1 = gate_zs[0] + 1, gate_zs[1] - 1
+        plinth_cells: Set[Cell2] = set()
+        for x in range(1, lot_w - 1):
+            for z in range(my0, my1 + 1):
+                plinth_cells.add((x, z))
+                compound.grid.set((x, 0, z), platform_stone,
+                                  ["STRUCTURE", "GROUND"], PRIORITY["STRUCTURE"],
+                                  "PLATFORM_STONE")
+        compound.parcel_nodes.append(
+            ParcelNode("main_yard_platform", "platform", plinth_cells,
+                       {"tier": "stone_1", "height": plinth_h}))
+        compound.meta["plinth_height"] = plinth_h
+
+    # --- 照壁 off-axis inside 前院 (江南 zhaobi form) ---
+    screen_rng = random.Random(compound.seed + 7071)
+    screen_side = screen_rng.choice(("east", "west"))
+    screen_width = screen_rng.choice((1, 2))
+    screen_z = gate_inner_z + 1
+    screen_cells = _screen_panel_cells(axis, screen_z, screen_side, screen_width)
+    base = style.primary("PLATFORM_STONE")
+    wall_main = style.primary("WALL_MAIN")
+    cap = style.slot_entry("ROOF_DARK", "_stairs")
+    for x, z in screen_cells:
+        compound.grid.set((x, 0, z), base, ["STRUCTURE"],
+                          PRIORITY["STRUCTURE"], "PLATFORM_STONE")
+        for y in range(1, 6):
+            compound.grid.set((x, y, z), wall_main, ["STRUCTURE"],
+                              PRIORITY["STRUCTURE"], "WALL_MAIN")
+        compound.grid.set((x, 6, z), cap, ["ROOF"], PRIORITY["ROOF"], "ROOF_DARK")
+    compound.parcel_nodes.append(
+        ParcelNode("screen_wall", "screen_wall", screen_cells, {
+            "height": 6, "on_axis": False, "facing_gate": True,
+            "form": "zhaobi", "side": screen_side, "width": screen_width}))
+
+    # --- Inner gates (仪门 / 二门) as roofed-wall passages at the 进 boundaries ---
+    for role, z in gates:
+        _layout_inner_gate(compound, style,
+                           {"inner_gate_band": (z, z)},
+                           node_id=f"{role}_gate", gate_kind=f"{role}_gate")
+
+    # Record the gate_house inner opening for the path router.
+    compound.meta["gate_inner_z"] = gate_inner_z
+    # Compatibility aliases so _cell_band / _natural_surface_y resolve a surface y
+    # (the validator helpers look for these 1-进 key names).
+    compound.meta["outer_yard_band"] = [1, gate_zs[0] - 1] if gate_zs else [1, lot_d - 2]
+    compound.meta["inner_gate_band"] = [gate_zs[0], gate_zs[0]] if gate_zs else [1, 1]
+    return {"gate_zs": gate_zs, "gate_inner_z": gate_inner_z}
+
+
 def _layout_front_yard(compound: CompoundGraph, style: Style, bands: dict,
                        contexts: Dict[str, BuildContext]) -> None:
     """前院 layout for chinese_mansion: 照壁 off-axis + 倒座 with side alley.
@@ -2851,62 +3194,54 @@ def _layout_garden(compound: CompoundGraph, style: Style, bands: dict,
 
 def generate_mansion(seed: int, style: Optional[Style] = None,
                      variant: Optional["MansionVariant"] = None) -> CompoundGraph:
-    """Generate a 3-进 江南大宅 compound (chinese_mansion family)."""
+    """Generate a 3-进 江南大宅 via the enclosure-planning model.
+
+    Replaces the z-band-slice layout (rebuild-mansion-enclosure-plan): the
+    placement manifest is planned first (oriented buildings against anchor walls
+    per the form rule), then realized (buildings + gate_house through-building +
+    inner gates + 照壁 + 主院 plinth), then ground/garden/path are layered on.
+    """
     style = style or load_style("chinese_mansion")
     variant = variant or select_mansion_variant(seed)
     lot_w, lot_d = MANSION_SIZE[variant.courtyard_size]
     axis = lot_w // 2
-    bands = _compute_yard_bands(variant.jin_count, "mansion", lot_d)
+
+    # 1) Plan the enclosure manifest (form-rule facings + anchor walls + origins).
+    placements, gates, gate_inner_z = _plan_mansion_enclosure(variant, lot_w, lot_d, axis)
+    gate_zs = sorted(z for _, z in gates)
+
     compound = CompoundGraph(
         style.style_id, seed, variant, (lot_w, lot_d), axis,
         meta={
-            "layout_strategy": "three_jin_mansion",
+            "layout_strategy": "mansion_enclosure",
             "gate_side": "south",
-            "front_yard_band":  list(bands["front_yard_band"]),
-            "yimen_band":       list(bands["yimen_band"]),
-            "main_yard_band":   list(bands["main_yard_band"]),
-            "ermen_band":       list(bands["ermen_band"]),
-            "back_yard_band":   list(bands["back_yard_band"]),
-            "garden_band":      list(bands["garden_band"]),
-            # Compatibility aliases so _cell_band / _natural_surface_y work:
-            # the validator helpers look for these 1-进 key names.
-            "outer_yard_band":  list(bands["front_yard_band"]),
-            "inner_gate_band":  list(bands["yimen_band"]),
+            "front_yard_band": [1, gate_zs[0] - 1] if gate_zs else [1, lot_d - 2],
+            "yimen_band": [gate_zs[0], gate_zs[0]] if gate_zs else [1, 1],
+            "main_yard_band": [gate_zs[0] + 1, gate_zs[1] - 1] if len(gate_zs) >= 2 else [1, lot_d - 2],
+            "ermen_band": [gate_zs[1], gate_zs[1]] if len(gate_zs) >= 2 else [1, 1],
+            "back_yard_band": [gate_zs[1] + 1, lot_d - 2] if len(gate_zs) >= 2 else [1, lot_d - 2],
+            "garden_band": [gate_zs[1] + 1, lot_d - 2] if len(gate_zs) >= 2 else [1, lot_d - 2],
+            "outer_yard_band": [1, gate_zs[0] - 1] if gate_zs else [1, lot_d - 2],
+            "inner_gate_band": [gate_zs[0], gate_zs[0]] if gate_zs else [1, 1],
         })
 
-    slot_seed = seed * 1009
-    contexts: Dict[str, BuildContext] = {
-        "front_row": generate_subbuilding(
-            style, "front_row", slot_seed + 3, variant.roof_grade, "chinese_mansion"),
-        "open_hall": generate_subbuilding(
-            style, "open_hall", slot_seed + 11, variant.roof_grade, "chinese_mansion",
-            form_overrides={"open_hall_bays": variant.open_hall_bays}),
-        "west_wing": generate_subbuilding(
-            style, "side_wing", slot_seed + 4, variant.roof_grade, "chinese_mansion"),
-        "east_wing": generate_subbuilding(
-            style, "side_wing", slot_seed + 5, variant.roof_grade, "chinese_mansion"),
-        "tower_1": generate_subbuilding(
-            style, "tower_house", slot_seed + 21, variant.roof_grade, "chinese_mansion"),
-    }
-    if variant.tower_count == 2:
-        contexts["tower_2"] = generate_subbuilding(
-            style, "tower_house", slot_seed + 22, variant.roof_grade,
-            "chinese_mansion")
+    # 2) Perimeter wall, gapped around the gate_house (Task 2.2). The gate_house
+    #    placement is the first manifest entry; its x-extent becomes the gap.
+    gh = next(p for p in placements if p.archetype == "gate_house")
+    _add_chinese_perimeter(compound, style,
+                           gate_house_gap=(gh.x0, gh.x0 + 11 - 1))
 
-    _add_chinese_perimeter(compound, style)
-    _layout_front_yard(compound, style, bands, contexts)
-    _layout_inner_gate(compound, style, bands,
-                       gate_band_key="yimen_band",
-                       node_id="yimen_gate", gate_kind="yimen_gate")
-    _layout_main_yard_mansion(compound, style, bands, contexts)
-    _layout_inner_gate(compound, style, bands,
-                       gate_band_key="ermen_band",
-                       node_id="ermen_gate", gate_kind="ermen_gate")
-    _layout_back_yard(compound, style, bands, contexts, variant)
-    # Yard ground BEFORE the garden so the 假山 foot row / 水池 surface stamp on
-    # top of (not get clobbered by) the y=-1 ground fill (add-hero-rockery 4.1).
+    # 3) Realize the manifest: oriented buildings + gate_house + inner gates +
+    #    照壁 + 主院 plinth. facing flows through form_overrides per placement.
+    _realize_mansion_enclosure(compound, style, variant, placements, gates, gate_inner_z)
+
+    # 4) Layer ground + garden + path + transition stairs on the realized layout.
+    #    Ground before garden so the 假山 foot / 水池 surface stamp on top of the
+    #    y=-1 fill; path last so it routes through the realized yard space and
+    #    treats every door-cell as a mandatory endpoint (path-as-input, D4).
     _place_yard_ground(compound, style)
-    _layout_garden(compound, style, bands, seed, variant)
+    bands_for_garden = {"garden_band": compound.meta["garden_band"]}
+    _layout_garden(compound, style, bands_for_garden, seed, variant)
     _route_complete_path(compound, style)
     _place_band_transition_stairs(compound, style)
     return compound

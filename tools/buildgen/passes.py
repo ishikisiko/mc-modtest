@@ -216,9 +216,9 @@ def facade_detail_pass(ctx: BuildContext) -> None:
                        vol.meta.get("wall_type", "mixed_stone_wood_wall"))
     door = graph.meta["door"]
     door_vol = graph.get(door["volume"])
-    ctx.door_info = ops.doorway(grid, style, rng, door_vol, door["wall"], door["x"])
+    ctx.door_info = ops.doorway(grid, style, rng, door_vol, door["wall"], door["along"])
     if door_vol.meta.get("storefront"):
-        ops.storefront(grid, style, rng, door_vol, door["wall"], door["x"],
+        ops.storefront(grid, style, rng, door_vol, door["wall"], door["along"],
                        door_vol.meta["storefront"])
     marker_y = min(
         door_vol.meta["foundation_h"] + 3,
@@ -228,19 +228,19 @@ def facade_detail_pass(ctx: BuildContext) -> None:
         binding = binding_for(ctx.archetype, rng)
         if binding:
             if binding.mount == "hanging":
-                anchor = ops.plaque_wall_anchor(door_vol, door["wall"], door["x"],
+                anchor = ops.plaque_wall_anchor(door_vol, door["wall"], door["along"],
                                                 marker_y, binding)
                 ops.place_hanging_plaque(
                     grid, style, rng, door_vol, anchor,
                     ops.OUTWARD_FACING[door["wall"]], binding)
             else:
                 ops.place_wall_plaque(grid, style, rng, door_vol, door["wall"],
-                                      door["x"], marker_y, binding)
+                                      door["along"], marker_y, binding)
         else:
-            ops.wall_hanging(grid, style, rng, door_vol, door["wall"], door["x"],
+            ops.wall_hanging(grid, style, rng, door_vol, door["wall"], door["along"],
                              marker_y, "SIGNAGE", "_wall_sign", outside=True)
     if door_vol.meta.get("entry_heraldry"):
-        ops.wall_hanging(grid, style, rng, door_vol, door["wall"], door["x"],
+        ops.wall_hanging(grid, style, rng, door_vol, door["wall"], door["along"],
                          marker_y, "HERALDRY", "_wall_banner", outside=True)
     for plan in ctx.wall_plans:
         vol = graph.get(plan.volume_id)
@@ -429,10 +429,12 @@ def interior_furnishing_pass(ctx: BuildContext) -> None:
                    ctx.door_info["front"][2])] if ctx.door_info else []
     # also keep the cell just inside the door free
     if ctx.door_info:
-        dx, dy, dz = ctx.door_info["front"]
+        dy = ctx.door_info["front"][1]
         door = graph.meta["door"]
         vol = graph.get(door["volume"])
-        inside = (door["x"], dy, vol.z0 + 1)
+        # one cell inward from the door wall (wall_pos depth_offset=-1); works
+        # for any door wall, not just front (building-orientation-variants).
+        inside = ops.wall_pos(vol, door["wall"], door["along"], dy, depth_offset=-1)
         door_cells.append(inside)
     for zone in graph.by_type("interior_zone"):
         vol = graph.get(zone.attach_to)

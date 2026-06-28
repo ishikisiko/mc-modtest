@@ -169,7 +169,7 @@ def plan_building_facades(graph: MassingGraph, style: Style,
             if wall == attached:
                 continue
             facade, density = kinds[wall]
-            door_along = door["x"] if (vol.id == door["volume"] and
+            door_along = door["along"] if (vol.id == door["volume"] and
                                        wall == door["wall"]) else None
             plans.append(plan_wall(graph, style, rng, vol, wall, facade,
                                    density, door_along, opening_style))

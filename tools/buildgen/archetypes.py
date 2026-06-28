@@ -142,6 +142,12 @@ MANSION_ARCHETYPES = (
     "main_hall", "open_hall", "side_wing", "flower_hall",
     "front_row", "tower_house", "garden_pavilion",
 )
+
+# World-facing direction → the wall that carries the door (building-orientation-
+# variants). south = front (low-z, the default); north = back; east/west map to
+# themselves. A courtyard building's facing is chosen by its role in the form
+# rule (正房→south, 倒座→north, 西厢→east, 东厢→west) so its door faces its yard.
+FACING_TO_WALL = {"south": "front", "north": "back", "east": "east", "west": "west"}
 CIVIC_ARCHETYPES = ("tavern", "lord_manor")
 CULTIVATION_TOWN_ARCHETYPES = (
     "cultivation_house", "cultivation_shop", "cultivation_inn",
@@ -579,19 +585,30 @@ def _main_volume(graph: MassingGraph, style: Style, rng: random.Random,
 
 
 def _door(graph: MassingGraph, main: Node, rng: random.Random,
-          avoid: Tuple[int, int] = None) -> int:
-    """Pick the front door x; off-center unless the volume asks to center it."""
-    lo, hi = main.x0 + 2, main.x1 - 2
+          avoid: Tuple[int, int] = None, wall: str = "front") -> int:
+    """Pick the door position along ``wall``; off-center unless centered.
+
+    ``wall`` selects which wall carries the door (front/back = along x;
+    west/east = along z). This is the door-wall relocation that lets a
+    courtyard building face its yard (倒座→north, 西厢→east, 东厢→west)
+    without rotating the volume — per ``building-orientation-variants``.
+    The position is recorded in ``graph.meta["door"]`` as ``along`` so
+    ``ops.doorway`` (which already accepts any wall) reads it uniformly.
+    """
+    if wall in ("front", "back"):
+        lo, hi = main.x0 + 2, main.x1 - 2
+    else:  # west / east — door runs along the z axis
+        lo, hi = main.z0 + 2, main.z1 - 2
     center = (lo + hi) // 2
     if main.meta.get("door_centered"):
-        door_x = center
+        along = center
     else:
-        options = [x for x in range(lo, hi + 1) if abs(x - center) <= 2]
+        options = [a for a in range(lo, hi + 1) if abs(a - center) <= 2]
         if avoid:
-            options = [x for x in options if not (avoid[0] <= x <= avoid[1])] or options
-        door_x = rng.choice(options)
-    graph.meta["door"] = {"volume": main.id, "wall": "front", "x": door_x}
-    return door_x
+            options = [a for a in options if not (avoid[0] <= a <= avoid[1])] or options
+        along = rng.choice(options)
+    graph.meta["door"] = {"volume": main.id, "wall": wall, "along": along}
+    return along
 
 
 def _reserve_stairwell(graph: MassingGraph, vol: Node,
@@ -1033,7 +1050,7 @@ def build_shop(style: Style, rng: random.Random, tier: str) -> MassingGraph:
     requested = center + variant["entrance_shift"]
     avoid = None
     door_x = max(main.x0 + 2, min(requested, main.x1 - 2))
-    graph.meta["door"] = {"volume": "main", "wall": "front", "x": door_x}
+    graph.meta["door"] = {"volume": "main", "wall": "front", "along": door_x}
     _reserve_stairwell(graph, main, door_x)
     _path_patch(graph, main, door_x, rng, main.z0)
 
@@ -1140,7 +1157,7 @@ def build_tavern(style: Style, rng: random.Random, tier: str) -> MassingGraph:
     _mezzanine_meta(main, covers, depth)
     center = (main.x0 + 2 + main.x1 - 2) // 2
     door_x = max(main.x0 + 2, min(center + variant.get("door_shift", 0), main.x1 - 2))
-    graph.meta["door"] = {"volume": main.id, "wall": "front", "x": door_x}
+    graph.meta["door"] = {"volume": main.id, "wall": "front", "along": door_x}
     preferred_stair = "east" if covers == "west" else "west"
     _reserve_stairwell(graph, main, door_x, preferred_side=preferred_stair)
     _path_patch(graph, main, door_x, rng, main.z0)
@@ -1362,12 +1379,16 @@ def build_side_wing(style: Style, rng: random.Random, tier: str,
         roof_axis="z", roof_overhang=1)
     main.meta["wall_type"] = "white_plaster_timber_wall"
     _set_chinese_roof(main, roof_grade, axis="z")
-    door_x = _door(graph, main, rng)
-    _cultivation_platform(graph, main, door_x, pad=1, height=fh)
-    _cultivation_colonnade(graph, main, door_x, sides=("front",))
-    _path_patch(graph, main, door_x, rng, main.z0)
+    facing = (overrides or {}).get("facing", "south")
+    wall = FACING_TO_WALL.get(facing, "front")
+    door_along = _door(graph, main, rng, wall=wall)
+    _cultivation_platform(graph, main, door_along, pad=1, height=fh)
+    if wall == "front":
+        _cultivation_colonnade(graph, main, door_along, sides=("front",))
+        _path_patch(graph, main, door_along, rng, main.z0)
     _chinese_bay_zones(graph, main, "living", "storage", axis="z")
     graph.meta["roof_grade"] = roof_grade
+    graph.meta["facing"] = facing
     return graph
 
 
@@ -1377,18 +1398,33 @@ def build_front_row(style: Style, rng: random.Random, tier: str,
     fh = 1
     wall_h = 4
     roof_grade = rng.choice(style.allowed_roof_types)
+    # The mansion enclosure planner may pass an explicit (w, d) footprint so the
+    # 倒座 fits the available south-wall span beside the gate_house without
+    # overlapping the gate_house's inner passage (building-orientation-variants).
+    fp_override = (overrides or {}).get("footprint")
+    if isinstance(fp_override, tuple) and len(fp_override) == 2:
+        footprint = fp_override
+    else:
+        footprint = rng.choice(SCALE_TIERS["front_row"]["footprints"])
     main = _main_volume(
         graph, style, rng, "front_row", wall_h, fh,
-        footprint=rng.choice(SCALE_TIERS["front_row"]["footprints"]),
+        footprint=footprint,
         roof_axis="x", roof_overhang=1)
     main.meta["wall_type"] = "white_plaster_timber_wall"
     _set_chinese_roof(main, roof_grade, axis="x")
-    door_x = _door(graph, main, rng)
-    _cultivation_platform(graph, main, door_x, pad=1, height=fh)
-    _cultivation_colonnade(graph, main, door_x, sides=("front",))
-    _path_patch(graph, main, door_x, rng, main.z0)
+    facing = (overrides or {}).get("facing", "south")
+    wall = FACING_TO_WALL.get(facing, "front")
+    door_along = _door(graph, main, rng, wall=wall)
+    _cultivation_platform(graph, main, door_along, pad=1, height=fh)
+    # The colonnade/path_patch are south-front porch decor; only meaningful when
+    # the door faces south. A north-facing 倒座 has its door on the back wall, so
+    # these front-side decorations are omitted (building-orientation-variants).
+    if wall == "front":
+        _cultivation_colonnade(graph, main, door_along, sides=("front",))
+        _path_patch(graph, main, door_along, rng, main.z0)
     _chinese_bay_zones(graph, main, "work", "storage", axis="x")
     graph.meta["roof_grade"] = roof_grade
+    graph.meta["facing"] = facing
     return graph
 
 
@@ -1405,12 +1441,16 @@ def build_gate_house(style: Style, rng: random.Random, tier: str,
     main.meta["wall_type"] = "white_plaster_timber_wall"
     main.meta["door_centered"] = True
     _set_chinese_roof(main, roof_grade, axis="x")
-    door_x = _door(graph, main, rng)
-    _cultivation_platform(graph, main, door_x, pad=1, height=fh)
-    _cultivation_colonnade(graph, main, door_x, sides=("front",))
-    _path_patch(graph, main, door_x, rng, main.z0)
+    facing = (overrides or {}).get("facing", "south")
+    wall = FACING_TO_WALL.get(facing, "front")
+    door_along = _door(graph, main, rng, wall=wall)
+    _cultivation_platform(graph, main, door_along, pad=1, height=fh)
+    if wall == "front":
+        _cultivation_colonnade(graph, main, door_along, sides=("front",))
+        _path_patch(graph, main, door_along, rng, main.z0)
     _chinese_bay_zones(graph, main, "storage", "storage", axis="x")
     graph.meta["roof_grade"] = roof_grade
+    graph.meta["facing"] = facing
     return graph
 
 
@@ -1472,14 +1512,18 @@ def build_tower_house(style: Style, rng: random.Random, tier: str,
     main.meta["wall_type"] = "white_plaster_timber_wall"
     main.meta["off_axis"] = True
     _set_chinese_roof(main, roof_grade, axis="z")
-    door_x = _door(graph, main, rng)
-    _reserve_stairwell(graph, main, door_x)
-    _cultivation_platform(graph, main, door_x, pad=1, height=fh)
-    _cultivation_colonnade(graph, main, door_x, sides=("front",))
-    _path_patch(graph, main, door_x, rng, main.z0)
+    facing = (overrides or {}).get("facing", "south")
+    wall = FACING_TO_WALL.get(facing, "front")
+    door_along = _door(graph, main, rng, wall=wall)
+    _reserve_stairwell(graph, main, door_along)
+    _cultivation_platform(graph, main, door_along, pad=1, height=fh)
+    if wall == "front":
+        _cultivation_colonnade(graph, main, door_along, sides=("front",))
+        _path_patch(graph, main, door_along, rng, main.z0)
     _chinese_bay_zones(graph, main, "living", "storage", axis="z")
     graph.meta["roof_grade"] = roof_grade
     graph.meta["stories"] = 2
+    graph.meta["facing"] = facing
     return graph
 
 
