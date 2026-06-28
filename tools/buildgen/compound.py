@@ -735,36 +735,89 @@ def _chebyshev_ring(footprint: Set[Cell2]) -> Set[Cell2]:
 def _derive_ground_kinds(compound: CompoundGraph) -> Dict[Cell2, str]:
     """Derive a ``ground_kind`` for every lot-interior parcel cell.
 
-    Rule (courtyard-ground-layer spec):
+    Rule (courtyard-ground-layer + path-surface-zoning specs):
       1. default ``open_sky``;
-      2. ``covered_gallery.cells`` ∪ ``moon_platform.cells`` → ``under_eave``;
-      3. the 1-cell Chebyshev ring around every ``BuildingSlot.footprint`` →
-         ``under_eave``;
-      4. cells inside a building footprint are tagged ``interior`` so the yard
+      2. ``covered_gallery.cells`` → ``gallery`` (path-surface-zoning 廊道 zone);
+      3. ``moon_platform.cells`` → ``under_eave``;
+      4. the 1-cell Chebyshev ring around every ``BuildingSlot.footprint`` →
+         ``heart`` (path-surface-zoning 天井/院心 zone);
+      5. cells inside a building footprint are tagged ``interior`` so the yard
          fill skips them (the building pass owns those cells).
+
+    The ``under_eave`` kind is the residual eave classification (e.g. a
+    ``moon_platform`` not promoted to a finer zone). ``gallery`` and ``heart``
+    are the finer zones the surface-zoning model promotes from the old unified
+    ``under_eave``; their union is byte-identical to the pre-zoning
+    ``under_eave`` set when the style resolves them to the same block, and the
+    resolve step (:func:`_ground_zone_slot`) falls back to
+    ``GROUND_YARD_UNDER_EAVE`` for any style that lacks a finer slot.
     """
     kinds: Dict[Cell2, str] = {cell: "open_sky" for cell in _lot_interior_cells(compound)}
-    under_eave_sources = compound.node_cells("covered_gallery", "moon_platform")
-    for cell in under_eave_sources:
+    gallery_cells = compound.node_cells("covered_gallery")
+    for cell in gallery_cells:
+        if cell in kinds:
+            kinds[cell] = "gallery"
+    moon_cells = compound.node_cells("moon_platform")
+    for cell in moon_cells:
         if cell in kinds:
             kinds[cell] = "under_eave"
     for slot in compound.building_slots:
         ring = _chebyshev_ring(slot.footprint)
         for cell in ring:
-            if cell in kinds and kinds[cell] != "interior":
-                kinds[cell] = "under_eave"
+            if cell in kinds and kinds[cell] not in ("interior", "gallery"):
+                kinds[cell] = "heart"
         for cell in slot.footprint & kinds.keys():
             kinds[cell] = "interior"
+    # Service alley (path-surface-zoning 夹道 zone): the 2-cell strip between a
+    # south-anchored 倒座/front_row footprint and the perimeter wall. Recorded
+    # explicitly by the front-row placement as an ``alley`` parcel node; if
+    # absent the alley zone is simply empty (small-courtyard / no front-row).
+    for cell in compound.node_cells("alley"):
+        if cell in kinds and kinds[cell] not in ("interior",):
+            kinds[cell] = "alley"
     return kinds
+
+
+def _ground_zone_slot(style: Style, kind: str) -> str:
+    """Resolve a ground ``kind`` to its surface-zone slot's primary block.
+
+    The surface-zoning model (path-surface-zoning spec) maps four ground zones
+    to four style slots: ``gallery`` → ``PATH_GALLERY``, ``heart`` →
+    ``GROUND_YARD_HEART``, ``alley`` → ``PATH_ALLEY``, ``under_eave`` →
+    ``GROUND_YARD_UNDER_EAVE`` (residual eave). ``open_sky`` →
+    ``GROUND_YARD_OPEN``.
+
+    Each finer zone falls back to ``GROUND_YARD_UNDER_EAVE`` when the style
+    lacks the finer slot, so styles that did not adopt the surface-zoning slots
+    (e.g. a style that only carries ``GROUND_YARD_OPEN`` /
+    ``GROUND_YARD_UNDER_EAVE``) regenerate byte-identical to the pre-zoning
+    behaviour.
+    """
+    if kind == "gallery":
+        if style.has_slot("PATH_GALLERY"):
+            return style.primary("PATH_GALLERY")
+        return style.primary("GROUND_YARD_UNDER_EAVE")
+    if kind == "heart":
+        if style.has_slot("GROUND_YARD_HEART"):
+            return style.primary("GROUND_YARD_HEART")
+        return style.primary("GROUND_YARD_UNDER_EAVE")
+    if kind == "alley":
+        if style.has_slot("PATH_ALLEY"):
+            return style.primary("PATH_ALLEY")
+        return style.primary("GROUND_YARD_UNDER_EAVE")
+    if kind == "under_eave":
+        return style.primary("GROUND_YARD_UNDER_EAVE")
+    return style.primary("GROUND_YARD_OPEN")
 
 
 def _place_yard_ground(compound: CompoundGraph, style: Style) -> None:
     """Yard-fill pass: solid ground at every non-building parcel cell.
 
-    ``open_sky`` cells resolve through ``GROUND_YARD_OPEN``; ``under_eave`` cells
-    through ``GROUND_YARD_UNDER_EAVE``. The path pass (run afterwards) overwrites
-    the ground tile along the routed path at the same y. Water / planting / tree
-    cells are left for their own passes to own.
+    ``open_sky`` cells resolve through ``GROUND_YARD_OPEN``; the eave-classified
+    cells (``gallery`` / ``heart`` / ``alley`` / residual ``under_eave``) resolve
+    through their surface-zone slots via :func:`_ground_zone_slot`. The path pass
+    (run afterwards) overwrites the ground tile along the routed path at the same
+    y. Water / planting / tree cells are left for their own passes to own.
 
     In the 江南大宅, this pass runs BEFORE ``_layout_garden`` so the garden
     features (假山 foot / 水池) stamp their own y=-1 surface on top of the yard
@@ -790,7 +843,10 @@ def _place_yard_ground(compound: CompoundGraph, style: Style) -> None:
         if cell in skip:
             continue
         kind = kinds.get(cell, "open_sky")
-        state = eave_block if kind == "under_eave" else open_block
+        if kind == "open_sky":
+            state = open_block
+        else:
+            state = _ground_zone_slot(style, kind)
         y = _natural_surface_y(compound, cell)
         compound.grid.set((cell[0], y, cell[1]), state, ["DETAIL", "GROUND"],
                           PRIORITY["DETAIL"], "GROUND_YARD")
@@ -1190,6 +1246,69 @@ def place_garden_pavilion(compound: CompoundGraph, center: Cell2, size: int,
     })
     compound.parcel_nodes.append(node)
     return node
+
+
+def place_moon_gate_screen(compound: CompoundGraph, style: Style,
+                           axis: int, wall_z: int, x_lo: int, x_hi: int,
+                           height: int = 6, gate_radius: int = 2
+                           ) -> Tuple[ParcelNode, Cell2]:
+    """月洞门 garden screen wall + passage (path-surface-zoning task 2.2/2.3).
+
+    Builds a free-standing screen wall spanning ``[x_lo, x_hi]`` at row ``wall_z``
+    (the boundary between 后院 and 花园), with a 圆洞门 (moon gate) — a circular
+    opening carved at the central axis — so the player passes *through* a real
+    hole into the garden. The wall is a base + plaster stack + ridge cap, matching
+    the 照壁 / perimeter wall register. The opening is the ``moon_gate`` motif
+    (radius cells of AIR ringed by a DETAIL_WOOD frame) carved around the axis so
+    the sightline through the gate frames the garden.
+
+    Returns ``(screen_node, passage_inner_cell)`` where ``passage_inner_cell`` is
+    the first 花园-side cell through the gate (one cell south of the wall, on the
+    axis) — this is the tour route's first waypoint (the material boundary per
+    design D6: cells before the wall are formal PATH_FORMAL, cells after are tour
+    PATH_TOUR).
+    """
+    base = style.primary("PLATFORM_STONE")
+    wall_main = style.primary("WALL_MAIN")
+    cap = style.slot_entry("ROOF_DARK", "_stairs")
+    frame = style.slot_entry("DETAIL_WOOD", "_trapdoor", base)
+    cells: Set[Cell2] = set()
+    for x in range(x_lo, x_hi + 1):
+        compound.grid.set((x, 0, wall_z), base, ["STRUCTURE"],
+                          PRIORITY["STRUCTURE"], "PLATFORM_STONE")
+        for y in range(1, height + 1):
+            compound.grid.set((x, y, wall_z), wall_main, ["STRUCTURE"],
+                              PRIORITY["STRUCTURE"], "WALL_MAIN")
+        compound.grid.set((x, height, wall_z), cap, ["ROOF"], PRIORITY["ROOF"],
+                          "ROOF_DARK")
+        cells.add((x, wall_z))
+    # Carve the 圆洞门: a vertical circle of AIR centred on the axis, ringed by a
+    # DETAIL_WOOD frame (the moon_gate motif). radius=2 → a 5-wide, 5-tall circle
+    # the player walks through at floor level.
+    cy_center = height // 2
+    for dx in range(-gate_radius - 1, gate_radius + 2):
+        for dy in range(-gate_radius - 1, gate_radius + 2):
+            dist = dx * dx + dy * dy
+            gx, gy = axis + dx, cy_center + dy
+            if not (x_lo <= gx <= x_hi and 0 < gy < height):
+                continue
+            if dist <= gate_radius * gate_radius:
+                compound.grid.set((gx, gy, wall_z), AIR,
+                                  ["OPENING", "AIR_CARVE", "PROTECTED"],
+                                  PRIORITY["OPENING"], force=True)
+            elif dist <= (gate_radius + 1) * (gate_radius + 1):
+                compound.grid.set((gx, gy, wall_z), frame, ["DETAIL", "OPENING"],
+                                  PRIORITY["OPENING"], "DETAIL_WOOD")
+    node = ParcelNode("moon_gate_passage", "moon_gate_passage", cells, {
+        "wall_z": wall_z, "axis_x": axis, "radius": gate_radius,
+        "height": height, "form": "moon_gate",
+        "passage": [[axis, wall_z]],
+    })
+    compound.parcel_nodes.append(node)
+    # The 花园 sits at higher z (south frame: deeper z = further in). The passage
+    # inner cell is one step into the garden from the wall.
+    passage_inner = (axis, wall_z + 1)
+    return node, passage_inner
 
 
 def place_stepping_stones(compound: CompoundGraph, shore_a: Cell2, shore_b: Cell2,
@@ -2081,7 +2200,14 @@ def _route_complete_path(compound: CompoundGraph, style: Style) -> None:
     pred = _single_source_bfs_pred(gate_entry, blocked, lot_w, lot_d)
     backbone = _trace_backbone(endpoints, pred)
     door_fronts = _door_front_cells(compound)
-    path_block = style.primary("GROUND_PATH")
+    # Formal backbone resolves through PATH_FORMAL (path-surface-zoning spec,
+    # 中轴通途 / 规整青石路), falling back to GROUND_PATH when the style did not
+    # adopt the surface-zoning slots — byte-stable for styles that only carry
+    # GROUND_PATH (e.g. cultivation_sect / medieval, which do not run this pass
+    # but share the style machinery).
+    path_block = (style.primary("PATH_FORMAL")
+                  if style.has_slot("PATH_FORMAL")
+                  else style.primary("GROUND_PATH"))
     written: Set[Cell2] = set()
     for cell in backbone:
         if cell in door_fronts:
@@ -2089,7 +2215,7 @@ def _route_complete_path(compound: CompoundGraph, style: Style) -> None:
         y = _natural_surface_y(compound, cell)
         compound.grid.set((cell[0], y, cell[1]), path_block,
                           ["DETAIL", "GROUND", "PROTECTED"], PRIORITY["DETAIL"],
-                          "GROUND_PATH", force=True)
+                          "PATH_FORMAL", force=True)
         written.add(cell)
     compound.parcel_nodes.append(
         ParcelNode("path_network", "path", written, {
@@ -2099,6 +2225,198 @@ def _route_complete_path(compound: CompoundGraph, style: Style) -> None:
             "backbone_cell_count": len(backbone),
             "algorithm": "multi_source_bfs",
         }))
+
+
+def _collect_tour_waypoints(compound: CompoundGraph, start_cell: Cell2
+                            ) -> List[Cell2]:
+    """Scenic waypoints for the tour route (path-surface-zoning task 2.1).
+
+    Each waypoint is a **free, dry, standable** lot-interior cell adjacent to a
+    garden feature — the path approaches the feature from dry land, never
+    stepping onto water or the rockery island (the 水心假山 sits in the pond and is
+    approached by viewing it across the water, not walking onto it). The waypoint
+    sequence is rockery view-point → pond shore → 亭, anchored at ``start_cell``
+    (the 月洞门 passage inner cell — the material boundary per design D6), so the
+    formal/tour cell intersection is empty by construction.
+
+    A feature that is absent, or whose adjacent dry cells are all blocked, yields
+    no waypoint for it; the function returns at least ``[start_cell]``.
+    """
+    lot_w, lot_d = compound.lot_size
+    blocked = _path_blocked_cells(compound)
+    # The mansion's garden features (garden_pond / garden_rockery / garden_pavilion)
+    # are NOT in ``_path_blocked_cells`` (the formal path never enters the garden),
+    # so a tour waypoint must treat them as obstacles too — a dry waypoint cannot
+    # sit on a pond cell or a rockery cell.
+    obstacles = compound.node_cells("garden_rockery", "garden_pond",
+                                    "garden_pavilion")
+    forbidden = blocked | obstacles
+    waypoints: List[Cell2] = [start_cell]
+
+    def _is_free(cell: Cell2) -> bool:
+        x, z = cell
+        if not (1 <= x <= lot_w - 2 and 1 <= z <= lot_d - 2):
+            return False
+        return cell not in forbidden
+
+    # Reachable set from start over free (non-forbidden) cells. A waypoint on the
+    # far side of the pond (e.g. an island rockery's dry ring) is NOT reachable by
+    # walking, so it is excluded — the island is viewed from across the water.
+    reachable: Set[Cell2] = set()
+    if _is_free(start_cell):
+        reachable = {start_cell}
+        rq: deque = deque([start_cell])
+        while rq:
+            x, z = rq.popleft()
+            for nx, nz in ((x + 1, z), (x - 1, z), (x, z + 1), (x, z - 1)):
+                if (nx, nz) in reachable or not _is_free((nx, nz)):
+                    continue
+                reachable.add((nx, nz))
+                rq.append((nx, nz))
+
+    def _dry_ring(feature_cells: Set[Cell2]) -> Set[Cell2]:
+        """The 4-neighbour dry cells around a feature's footprint."""
+        ring: Set[Cell2] = set()
+        for (fx, fz) in feature_cells:
+            for nx, nz in ((fx + 1, fz), (fx - 1, fz), (fx, fz + 1), (fx, fz - 1)):
+                if (nx, nz) not in feature_cells:
+                    ring.add((nx, nz))
+        return {c for c in ring if _is_free(c)}
+
+    def _nearest(seed: Cell2, candidates: Set[Cell2]) -> Optional[Cell2]:
+        if not candidates:
+            return None
+        return min(candidates,
+                   key=lambda c: (abs(c[0] - seed[0]) + abs(c[1] - seed[1]), c))
+
+    # Rockery view-point: a dry, reachable cell adjacent to the rockery's south
+    # face (the side facing the entrance). The rockery is often a 水心假山 (island),
+    # so its dry ring is unreachable — in that case the rockery is viewed from
+    # across the pond shore, and this waypoint is skipped.
+    rockery = next((n for n in compound.parcel_nodes
+                    if n.type == "garden_rockery"), None)
+    if rockery is not None:
+        dry = _dry_ring(rockery.cells) & reachable
+        south_dry = {c for c in dry if all(c[1] <= rz for _, rz in rockery.cells)}
+        pick = _nearest(start_cell, south_dry) or _nearest(start_cell, dry)
+        if pick is not None:
+            waypoints.append(pick)
+
+    # Pond shore: the dry, reachable cell adjacent to the pond nearest the
+    # previous waypoint.
+    pond = next((n for n in compound.parcel_nodes
+                 if n.type == "garden_pond"), None)
+    if pond is not None and pond.cells:
+        dry = _dry_ring(pond.cells) & reachable
+        pick = _nearest(waypoints[-1], dry)
+        if pick is not None:
+            waypoints.append(pick)
+
+    # 亭 (pavilion): a dry, reachable cell adjacent to the pavilion, approached
+    # from the previous waypoint.
+    pavilion = next((n for n in compound.parcel_nodes
+                     if n.type == "garden_pavilion"), None)
+    if pavilion is not None and pavilion.cells:
+        dry = _dry_ring(pavilion.cells) & reachable
+        pick = _nearest(waypoints[-1], dry)
+        if pick is not None:
+            waypoints.append(pick)
+
+    # De-duplicate consecutive waypoints (a feature whose dry ring collapses to
+    # the same cell as the prior waypoint would otherwise add a zero-length leg).
+    unique: List[Cell2] = []
+    for w in waypoints:
+        if not unique or unique[-1] != w:
+            unique.append(w)
+    return unique
+
+
+def _route_tour_path(compound: CompoundGraph, style: Style,
+                     start_cell: Cell2) -> Optional[Set[Cell2]]:
+    """Tour route: a waypoint polyline of single-source shortest-path segments
+    (path-surface-zoning task 2.1, design D4).
+
+    Routes a polyline through the scenic waypoints (see
+    :func:`_collect_tour_waypoints`), where each segment between consecutive
+    waypoints is a single-source shortest-path tree over the same ``blocked`` set
+    as the formal BFS, plus an obstacle set (the rockery + pond + pavilion cells)
+    that forces any segment that would otherwise cut straight through a feature
+    to route around it. The tour is a separate path set from the formal backbone:
+    it is written through ``PATH_TOUR`` (mossy stone bricks) and the material
+    boundary lives at the 月洞门 passage (design D6).
+
+    Returns the set of tour cells (or ``None`` if the style has no ``PATH_TOUR``
+    slot / the compound has no garden features to wind through). Each segment is
+    a connected single-source tree so :func:`validate_mansion` can assert
+    per-segment connectivity.
+    """
+    if not style.has_slot("PATH_TOUR"):
+        return None
+    lot_w, lot_d = compound.lot_size
+    waypoints = _collect_tour_waypoints(compound, start_cell)
+    if len(waypoints) < 2:
+        return None
+    # Obstacle set: the garden features the tour must wind around (not cut
+    # through). Buildings are already blocked by _path_blocked_cells.
+    base_blocked = _path_blocked_cells(compound)
+    obstacles = set()
+    for ftype in ("garden_rockery", "garden_pond", "garden_pavilion"):
+        obstacles |= compound.node_cells(ftype)
+    blocked = base_blocked | obstacles
+    # Route each consecutive segment as a single-source shortest path.
+    tour_cells: Set[Cell2] = set()
+    for src, dst in zip(waypoints, waypoints[1:]):
+        if src == dst:
+            continue
+        # The source waypoint itself may sit on an obstacle cell (e.g. a shore
+        # cell adjacent to water); temporarily un-block the endpoints so the BFS
+        # can start/end there.
+        seg_blocked = blocked - {src, dst}
+        pred = _single_source_bfs_pred(src, seg_blocked, lot_w, lot_d)
+        if dst not in pred:
+            # Fall back to the base blocked set (no obstacles) so the segment
+            # still connects even if the obstacle set over-tightened routing.
+            pred = _single_source_bfs_pred(src, base_blocked - {src, dst},
+                                           lot_w, lot_d)
+            if dst not in pred:
+                continue
+        cell: Optional[Cell2] = dst
+        guard = 0
+        while cell is not None:
+            tour_cells.add(cell)
+            nxt = pred.get(cell)
+            if nxt == cell:
+                break
+            cell = nxt
+            guard += 1
+            if guard > len(pred) + 2:
+                break
+    # Write the tour overlay through PATH_TOUR. Drop any cell already on the
+    # formal backbone (the formal/tour intersection must be empty per design D6)
+    # and any door-front cell (the building owns its door step).
+    formal = compound.node_cells("path")
+    door_fronts = _door_front_cells(compound)
+    tour_block = style.primary("PATH_TOUR")
+    written: Set[Cell2] = set()
+    for cell in tour_cells:
+        if cell in formal or cell in door_fronts:
+            continue
+        if cell in obstacles:
+            continue
+        y = _natural_surface_y(compound, cell)
+        compound.grid.set((cell[0], y, cell[1]), tour_block,
+                          ["DETAIL", "GROUND", "PROTECTED"], PRIORITY["DETAIL"],
+                          "PATH_TOUR", force=True)
+        written.add(cell)
+    if written:
+        compound.parcel_nodes.append(
+            ParcelNode("tour_path", "tour_path", written, {
+                "waypoints": [list(c) for c in waypoints],
+                "segment_count": max(0, len(waypoints) - 1),
+                "cell_count": len(written),
+                "algorithm": "waypoint_polyline",
+            }))
+    return written
 
 
 _STAIR_FACING_FROM_DELTA = {
@@ -2794,6 +3112,38 @@ def _plan_mansion_enclosure(variant: "MansionVariant", lot_w: int, lot_d: int,
             anchor="south", slot_id="front_row",
             x0=fx, z0=0, extra_overrides=(("footprint", fp),)))
 
+    # 仆役房/厨房 (service_house): a small plain building on the OPPOSITE south-
+    # wall side from the 倒座, when that side has room (path-surface-zoning task
+    # 3.2). It is the 生活 route's endpoint; its door faces north (→前院 alley) so
+    # the formal/service BFS reaches it through the alley. Skipped when the lot is
+    # too narrow for a 9-wide service_house without overlapping the gate_house or
+    # the 倒座. (Only placed in the mansion; the courtyard/small-courtyard families
+    # never call this planner.)
+    svc_w = 9
+    svc_fp = (svc_w, 7)
+    if fp is not None and fx <= gate_west - 1:
+        # 倒座 is on the WEST; service_house on the EAST (between gate_house and
+        # the east perimeter), if it fits with a 1-cell corridor to the gate_house.
+        svc_x = gate_east + 1
+        svc_room = (lot_w - 1) - svc_x - 1
+    elif fp is not None:
+        # 倒座 is on the EAST; service_house on the WEST.
+        svc_x = 1
+        svc_room = (gate_west - 1) - svc_x - 1
+    else:
+        # No 倒座 placed: service_house on whichever side has more room.
+        if avail_west >= svc_w:
+            svc_x, svc_room = 1, avail_west
+        elif avail_east >= svc_w:
+            svc_x, svc_room = gate_east + 1, avail_east
+        else:
+            svc_x, svc_room = None, 0
+    if svc_x is not None and svc_room >= svc_w:
+        placements.append(_EnclosurePlacement(
+            role="service_house", archetype="service_house", facing="north",
+            anchor="south", slot_id="service_house",
+            x0=svc_x, z0=0, extra_overrides=(("footprint", svc_fp),)))
+
     # 仪门 between 前院 and 主院
     yimen_z = gd + front_d + gate_depth - 1
 
@@ -2922,7 +3272,7 @@ def _realize_mansion_enclosure(compound: CompoundGraph, style: Style,
     # front_row 7), and gate_inner_z must clear whichever extends furthest north
     # — otherwise the (axis, gate_inner_z) entry cell lands inside front_row's
     # footprint and the path router reports endpoint_unreachable there.
-    south_archetypes = ("gate_house", "front_row")
+    south_archetypes = ("gate_house", "front_row", "service_house")
     south_places = [p for p in placements if p.archetype in south_archetypes]
     for p in south_places:
         _build_and_place(p)
@@ -2939,6 +3289,36 @@ def _realize_mansion_enclosure(compound: CompoundGraph, style: Style,
         if p.archetype in south_archetypes:
             continue
         _build_and_place(p)
+
+    # --- 夹道 (service alley): the off-axis circulation strip between the
+    # south-wall buildings (倒座 / 仆役房) and the perimeter wall
+    # (path-surface-zoning task 3.3). Recorded as an ``alley`` parcel node so
+    # _derive_ground_kinds resolves it to PATH_ALLEY (brick) and the service_house
+    # door reaches the formal path through it. The alley is the 2-cell-wide strip
+    # along the east/west perimeter, south of the 仪门, that is not a building
+    # footprint — the off-axis route from the gate area to the service door.
+    south_fp: Set[Cell2] = set()
+    for p in placements:
+        if p.archetype in south_archetypes:
+            slot = next((s for s in compound.building_slots
+                         if s.id == p.slot_id), None)
+            if slot is not None:
+                south_fp |= slot.footprint
+    yimen_z = gates[0][1] if gates else gate_inner_z
+    alley_cells: Set[Cell2] = set()
+    for side_x in (1, lot_w - 2):
+        for z in range(1, yimen_z):
+            for dx in (0, 1) if side_x == 1 else (0, -1):
+                cell = (side_x + dx, z)
+                if cell in south_fp or not (1 <= cell[0] <= lot_w - 2):
+                    continue
+                alley_cells.add(cell)
+    if alley_cells:
+        compound.parcel_nodes.append(
+            ParcelNode("service_alley", "alley", alley_cells, {
+                "side": "east" if any(x > axis for x, _ in alley_cells) else "west",
+                "cell_count": len(alley_cells),
+            }))
 
     # --- 主院 plinth (台基): fill solidly under the 主院 band so buildings sit
     # on a raised stone floor and the perimeter never floats. ---
@@ -3194,6 +3574,38 @@ def _layout_garden(compound: CompoundGraph, style: Style, bands: dict,
     # also go through place_hero_rockery (a self-contained stacked sculpt), not
     # the generic heightfield scatter.
 
+    # 水边廊 (shoreside gallery): a covered_gallery parcel running along the
+    # pond's near-edge (entrance-side) shore (path-surface-zoning task 3.1). It
+    # reuses the covered_gallery parcel type so its floor resolves through
+    # PATH_GALLERY and it reads as a roofed walkway; it is a tour-route waypoint.
+    # Placed on the dry cells adjacent to the pond's entrance-side (low-z) edge,
+    # one cell deep, so the player strolls the gallery with the water to one side.
+    shore: Set[Cell2] = set()
+    for (wx, wz) in water_cells:
+        for nx, nz in ((wx + 1, wz), (wx - 1, wz), (wx, wz + 1), (wx, wz - 1)):
+            cand = (nx, nz)
+            if cand in water_cells or cand in pond_node.cells:
+                continue
+            if not (1 <= nx <= lot_w - 2 and gy0 <= nz <= gy1):
+                continue
+            # Near-edge shore only (entrance side: z within the first half of the
+            # pond's z-range), so the gallery lines the approach, not the far bank.
+            if nz > pond_z0 + (pond_z1 - pond_z0) // 2:
+                continue
+            shore.add(cand)
+    if shore:
+        gallery_floor = style.primary("PATH_GALLERY")
+        for (sx, sz) in shore:
+            y = _natural_surface_y(compound, (sx, sz))
+            compound.grid.set((sx, y, sz), gallery_floor,
+                              ["DETAIL", "GROUND", "PROTECTED"], PRIORITY["DETAIL"],
+                              "PATH_GALLERY", force=True)
+        compound.parcel_nodes.append(
+            ParcelNode("waterside_gallery", "covered_gallery", shore, {
+                "form": "shoreside", "along": "pond_near_shore",
+                "floor_slot": "PATH_GALLERY",
+            }))
+
     garden_cells = {(x, z) for x in range(1, lot_w - 1)
                     for z in range(gy0, gy1 + 1)}
     compound.parcel_nodes.append(
@@ -3254,6 +3666,17 @@ def generate_mansion(seed: int, style: Optional[Style] = None,
     bands_for_garden = {"garden_band": compound.meta["garden_band"]}
     _layout_garden(compound, style, bands_for_garden, seed, variant)
     _route_complete_path(compound, style)
+    # 4b) 月洞门 passage + tour route (path-surface-zoning task 2.3/2.4). The
+    #     screen wall sits at the near edge of the 花园 band (the 后院↔花园
+    #     boundary), with a 圆洞门 opening on the axis; the tour route then winds
+    #     from the passage inner cell through the garden waypoints. Placed after
+    #     _route_complete_path so the formal backbone is established and the tour
+    #     can assert it shares no cell with the formal route (design D6).
+    garden_z0, _garden_z1 = compound.meta["garden_band"]
+    lot_w_m, _lot_d_m = compound.lot_size
+    passage_node, passage_inner = place_moon_gate_screen(
+        compound, style, axis, garden_z0, 1, lot_w_m - 2)
+    _route_tour_path(compound, style, passage_inner)
     _place_band_transition_stairs(compound, style)
     return compound
 

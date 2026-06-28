@@ -154,6 +154,7 @@ GROUPS: Dict[str, SettlementGroup] = {
             "gate_house",
             "tower_house",
             "garden_pavilion",
+            "service_house",
         ),
         layout_strategy="mansion_compound",
         scale_params={"gallery_group": "chinese_mansion", "compound_count": 6},
@@ -165,6 +166,7 @@ GROUPS: Dict[str, SettlementGroup] = {
             "front_row": "functional",
             "tower_house": "housing",
             "garden_pavilion": "civic",
+            "service_house": "functional",
         },
     ),
     "cultivation_sect": SettlementGroup(

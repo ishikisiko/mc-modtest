@@ -55,6 +55,33 @@
       "minecraft:stone_bricks",
       "minecraft:polished_andesite"
     ],
+    "GROUND_YARD_HEART": [
+      "minecraft:stone_bricks",
+      "minecraft:polished_andesite"
+    ],
+    "PATH_FORMAL": [
+      "minecraft:smooth_stone",
+      "minecraft:stone_bricks",
+      "minecraft:gravel"
+    ],
+    "PATH_GALLERY": [
+      "minecraft:oak_planks",
+      "minecraft:stone_bricks",
+      "minecraft:dark_oak_planks"
+    ],
+    "PATH_ALLEY": [
+      "minecraft:stone_bricks",
+      "minecraft:polished_andesite"
+    ],
+    "PATH_TOUR": [
+      "minecraft:mossy_stone_bricks",
+      "minecraft:stone_bricks"
+    ],
+    "PATH_WATERSIDE": [
+      "minecraft:stone_brick_stairs",
+      "minecraft:oak_slab",
+      "minecraft:spruce_slab"
+    ],
     "INTERIOR_WORK": [
       "minecraft:crafting_table",
       "minecraft:furnace",

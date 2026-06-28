@@ -57,6 +57,10 @@ SCALE_TIERS = {
         "footprints": [(15, 7), (17, 7), (19, 7)],
         "min_volumes": 1,
     },
+    "service_house": {
+        "footprints": [(9, 7), (11, 7)],
+        "min_volumes": 1,
+    },
     "gate_house": {
         "footprints": [(9, 5), (11, 5), (11, 7)],
         "min_volumes": 1,
@@ -1428,6 +1432,42 @@ def build_front_row(style: Style, rng: random.Random, tier: str,
     return graph
 
 
+def build_service_house(style: Style, rng: random.Random, tier: str,
+                        overrides: Optional[dict] = None) -> MassingGraph:
+    """仆役房/厨房/仓库 (service house): a small plain back-of-house building
+    (path-surface-zoning task 3.2).
+
+    Reuses the Chinese sub-building machinery (white-plaster wall, dark-oak roof)
+    but at the smallest, plainest scale: a 9×7 single-volume footprint, a single
+    door facing its yard (the 倒座 side alley), and ``work``+``storage`` bays
+    (kitchen + 仓库). No colonnade, no decoration tier — it is the 生活 route's
+    endpoint, deliberately subordinate to the formal 前院 buildings.
+    """
+    graph = _chinese_graph("service_house", tier)
+    fh = 1
+    wall_h = 3
+    roof_grade = rng.choice(style.allowed_roof_types)
+    fp_override = (overrides or {}).get("footprint")
+    if isinstance(fp_override, tuple) and len(fp_override) == 2:
+        footprint = fp_override
+    else:
+        footprint = (9, 7)
+    main = _main_volume(
+        graph, style, rng, "service_house", wall_h, fh,
+        footprint=footprint,
+        roof_axis="x", roof_overhang=1)
+    main.meta["wall_type"] = "white_plaster_timber_wall"
+    _set_chinese_roof(main, roof_grade, axis="x")
+    facing = (overrides or {}).get("facing", "north")
+    wall = FACING_TO_WALL.get(facing, "front")
+    door_along = _door(graph, main, rng, wall=wall)
+    _cultivation_platform(graph, main, door_along, pad=1, height=fh)
+    _chinese_bay_zones(graph, main, "work", "storage", axis="x")
+    graph.meta["roof_grade"] = roof_grade
+    graph.meta["facing"] = facing
+    return graph
+
+
 def build_gate_house(style: Style, rng: random.Random, tier: str,
                      overrides: Optional[dict] = None) -> MassingGraph:
     graph = _chinese_graph("gate_house", tier)
@@ -2233,6 +2273,7 @@ BUILDERS = {
     "side_wing": build_side_wing,
     "front_row": build_front_row,
     "gate_house": build_gate_house,
+    "service_house": build_service_house,
     "open_hall": build_open_hall,
     "tower_house": build_tower_house,
     "flower_hall": build_flower_hall,
