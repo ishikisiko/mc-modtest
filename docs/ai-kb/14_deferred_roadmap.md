@@ -198,7 +198,7 @@ scope bounded. The spec is retained in the change's `specs/` directory.
 | 马头墙 (stepped gable parapet) form | Not implemented; existing `chinese_flush_gable` uses a flat gable — 马头墙 requires a per-step stair outline |
 | 内向 gate (no street-facing gate decoration) | Not implemented |
 
-See-also spec: `huipai-tianjing-mansion` in `openspec/changes/rebuild-jiangnan-mansion/specs/`.
+See-also spec: [`huipai-tianjing-mansion`](../../openspec/specs/huipai-tianjing-mansion/spec.md) in `openspec/specs/` (retained there as design-only, all requirements `FUTURE:`-prefixed per `spec-baseline-governance`'s "current limitation is documented" allowance).
 
 ### E.4 — Propagate enclosure + orientation skeleton to courtyard families
 
@@ -218,7 +218,7 @@ that change so the mansion rewrite can be proven first.
 | Propagate the same skeleton to `small_courtyard` embedded in cultivation town tissue | Not implemented |
 
 See-also specs: `compound-enclosure-planning`,
-`building-orientation-variants`, `mansion-gate-house`,
+`building-orientation-variants`,
 `courtyard-compound`.
 
 ## F. Tooling / visual small deferrals

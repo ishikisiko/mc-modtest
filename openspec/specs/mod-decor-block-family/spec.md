@@ -20,12 +20,21 @@ The mod SHALL register each decor class as its own block id under the `myvillage
 
 Every decor class SHALL expose three blockstate properties: `variant` (class-specific catalog, see per-class spec), `facing ∈ {north, south, east, west}` (vanilla horizontal facing), and `moss_level ∈ {none, light, heavy}` (weathering/aging). The `facing` property SHALL rotate the model via vanilla model x/y rotation (the model itself is authored in one canonical orientation). The `moss_level` property SHALL select a texture overlay (moss_none, moss_light, moss_heavy) applied to the variant's base textures.
 
+A decor class MAY additionally expose the vanilla `waterlogged` property when its placement contacts water (e.g. `myvillage:rockery_block` reads as 山脚入水 / 汀步 across a pond). The `waterlogged` property is optional per class; a class that does not need it SHALL omit it. When present, generators SHALL place the block with the correct `waterlogged` value at water-adjacent cells.
+
 #### Scenario: A decor block has all three properties
 
 - **WHEN** a `myvillage:rockery_block` is placed with `variant=peak_03, facing=east, moss_level=heavy`
 - **THEN** the blockstate SHALL be valid for `myvillage:rockery_block`
 - **AND** the rendered model SHALL be the `peak_03` model rotated to face east
 - **AND** the heavy-moss texture overlay SHALL be applied to the base stone textures.
+
+#### Scenario: A waterlogged decor class exposes a fourth property
+
+- **WHEN** a `myvillage:rockery_block` base cell is placed at a pond boundary where the underlying cell is water
+- **THEN** the blockstate SHALL carry `waterlogged=true` (a fourth property beyond `variant × facing × moss_level`)
+- **AND** the blockstate SHALL remain valid for `myvillage:rockery_block`
+- **AND** a non-water-contact decor class (e.g. a future `myvillage:garden_lattice`) SHALL NOT expose `waterlogged`.
 
 #### Scenario: A class that does not use moss still exposes the property
 

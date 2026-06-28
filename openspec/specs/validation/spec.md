@@ -151,18 +151,19 @@ model invariants in addition to the grid-only checks it already performs
 enclosure invariants SHALL be:
 
 - A `gate_house` building slot is present and its footprint straddles the south
-  perimeter line (the entrance is a through-building, per `mansion-gate-house`).
+  perimeter line (the entrance is a through-building, per the gate-house
+  requirement of `chinese-mansion-compound`).
 - Every `building_slots` entry's facing (recorded in its slot meta) matches its
   role's form-rule facing per `building-orientation-variants` (正房→south,
-  倒座→north, 西厢→east, 东厢→west, gate_house→inward).
+  倒座→north, 西厢→east, 东厢→west, gate_house→inward, 楼阁→north).
 - Every door-cell (`door_info["front"]`) is on a path cell (path-as-input
   guarantee, per `compound-enclosure-planning`).
 - The 进 sequence is well-formed: 仪门 borders 前院 and 主院; 二门 borders 主院 and
   后院 — verified by derived-yard adjacency, NOT by z-band tuple comparison.
 
 `validate_mansion` SHALL NOT use z-band tuple comparison (`meta["outer_yard_band"]`
-etc.) to assert any enclosure invariant. The band-coupled checks SHALL remain in
-`validate_compound` for the `chinese_courtyard` family (unchanged this turn).
+etc.) to assert any enclosure invariant. The band-coupled checks remain in
+`validate_compound` for the `chinese_courtyard` family.
 
 #### Scenario: A mansion with a hole-in-the-wall gate fails validation
 

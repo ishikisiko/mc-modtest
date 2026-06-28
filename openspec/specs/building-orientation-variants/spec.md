@@ -8,6 +8,13 @@ volume, footprint, and roof ridge are unchanged because they are already
 geometrically correct for the slot; only the door wall is relocated to the
 yard-facing side.
 
+> **Companion spec:** this spec and `compound-enclosure-planning` are the two
+> halves of the `rebuild-mansion-enclosure-plan` change — the former defines the
+> form-rule facing each placement carries, the latter defines the placement
+> manifest + derived yards that consume those facings. They are tightly coupled:
+> editing the form-rule facing table here SHALL prompt a consistency check of
+> the placement descriptions in `compound-enclosure-planning`.
+
 ## Requirements
 
 ### Requirement: A sub-building carries a facing that selects its door wall
@@ -63,7 +70,12 @@ form rule, not by the variant template table:
 | 西厢 | `side_wing` (west slot) | east |
 | 东厢 | `side_wing` (east slot) | west |
 | 门屋 | `gate_house` | inward (north, toward 前院) |
-| 楼阁 | `tower_house` | toward its enclosing yard |
+| 楼阁 | `tower_house` | north (楼阁坐南朝北，门开后院北侧院落空间) |
+
+The 楼阁 faces north, not south: it sits at the south edge of the 后院 with its
+yard space to the north, so a north door opens onto the 后院. A south door would
+throw the porch colonnade back across the 二门 into the 主院 plinth (a
+voxel/ground-layer conflict) and would read as turning its back on the 后院.
 
 The variant template table (`gate_form`, `garden_scale`, `tower_count`,
 `roof_grade`, `open_hall_bays`, `courtyard_size`) SHALL NOT include a facing
@@ -75,6 +87,13 @@ SHALL always face north.
 - **WHEN** any `chinese_mansion` variant is generated with any seed
 - **THEN** the 倒座's facing SHALL be north
 - **AND** no template row SHALL be able to produce a south-facing 倒座.
+
+#### Scenario: The 楼阁 facing is north, opening onto the 后院
+
+- **WHEN** any `chinese_mansion` variant is generated with any seed
+- **THEN** the `tower_house`'s facing SHALL be north
+- **AND** its door SHALL open onto the 后院 (the yard space north of the tower)
+- **AND** no template row SHALL be able to produce a south-facing 楼阁.
 
 ### Requirement: The 敞厅 open facade is exempt from the door-wall rule
 

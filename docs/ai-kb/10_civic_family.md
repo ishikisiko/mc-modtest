@@ -158,7 +158,6 @@ for the registration scaffolding.
 See also: [chinese-mansion-compound](../../openspec/changes/rebuild-mansion-enclosure-plan/specs/chinese-mansion-compound/spec.md),
 [compound-enclosure-planning](../../openspec/changes/rebuild-mansion-enclosure-plan/specs/compound-enclosure-planning/spec.md),
 [building-orientation-variants](../../openspec/changes/rebuild-mansion-enclosure-plan/specs/building-orientation-variants/spec.md),
-[mansion-gate-house](../../openspec/changes/rebuild-mansion-enclosure-plan/specs/mansion-gate-house/spec.md),
 [garden-rockery](../../openspec/changes/rebuild-jiangnan-mansion/specs/garden-rockery/),
 [courtyard-voxel-walkability](../../openspec/changes/rebuild-jiangnan-mansion/specs/courtyard-voxel-walkability/),
 and [validation](../../openspec/specs/validation/spec.md).

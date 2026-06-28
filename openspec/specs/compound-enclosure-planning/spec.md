@@ -10,6 +10,13 @@ This capability is realized for `chinese_mansion` by the
 `rebuild-mansion-enclosure-plan` change. Propagation to `chinese_courtyard` and
 `small_courtyard` is a deferred follow-up (see `docs/ai-kb/14_deferred_roadmap.md`).
 
+> **Companion spec:** this spec and `building-orientation-variants` are the two
+> halves of the `rebuild-mansion-enclosure-plan` change — the former defines the
+> placement manifest + derived yards, the latter defines the form-rule facing
+> each placement carries. They are tightly coupled: editing one SHALL prompt a
+> consistency check of the other (e.g. the form-rule facing table in
+> `building-orientation-variants` is consumed by every placement in this spec).
+
 ## Requirements
 
 ### Requirement: A compound layout is a placement manifest, not a band-slice
@@ -18,15 +25,18 @@ A compound layout SHALL be produced by a planner that emits an ordered
 **placement manifest**: a list of placements, each binding an archetype, a
 facing, an anchor wall (the perimeter wall the building backs onto), an offset
 along that wall, and an importance tier. The planner SHALL NOT compute building
-positions from pre-cut z-band tuples or hard-coded band-relative coordinates
-(`oy0 + N`, `lot_d - N`, etc.). The same manifest SHALL deterministically realize
-to the same grid for a given `(seed, variant)`.
+positions from hard-coded band-relative coordinates (`oy0 + N`, `lot_d - N`,
+etc.). The planner MAY derive placement coordinates from yard-depth parameters
+that are themselves derived from the variant's 进 count and lot depth; what
+matters is that the manifest is the contract between planner and realization,
+and that the same manifest deterministically realizes to the same grid for a
+given `(seed, variant)`.
 
-#### Scenario: The manifest encodes the form rule, not coordinates
+#### Scenario: The manifest encodes the form rule, not hard-coded coordinates
 
 - **WHEN** the planner produces a manifest for a `chinese_mansion` variant
 - **THEN** every placement SHALL specify `(archetype, facing, anchor_wall, offset_along_wall)`
-- **AND** no placement SHALL be derived from a z-band tuple or a hard-coded coordinate offset
+- **AND** no placement SHALL be derived from a hard-coded coordinate offset (`oy0 + N`, `lot_d - N`)
 - **AND** realizing the same manifest twice SHALL yield byte-identical grids.
 
 ### Requirement: Yards are derived as enclosed negative space
@@ -52,21 +62,28 @@ A 3-进 mansion SHALL realize the ordered sequence 前院 → 仪门 → 主院 
 后院 → 花园, where each yard is the enclosed space of its facing-buildings and
 each inner gate sits at the adjacency boundary between two consecutive yards.
 The 进 ordering SHALL be validated by derived-yard adjacency, not by z-band
-tuple comparison.
+tuple comparison at validation time.
+
+> Note: the *planner* MAY compute inner-gate z-rows from yard-depth parameters
+> internally (the planner turns the form rule into concrete coordinates); the
+> contract here is that the *validator* asserts the 进 sequence via the derived
+> enclosed-space adjacency rather than by reading a stored z-band tuple. The
+> planner's internal use of z-rows is an implementation detail, not a violation.
 
 #### Scenario: 仪门 sits between the 前院 and 主院 yards
 
 - **WHEN** the realized layout is examined
 - **THEN** the 仪门 SHALL border the 前院 enclosed space on one side and the 主院
   enclosed space on the other
-- **AND** no z-band tuple comparison SHALL be used to assert this.
+- **AND** no z-band tuple comparison SHALL be used at validation time to assert this.
 
 ### Requirement: Every building is placed against its anchor wall with the form-rule facing
 
 Each placement SHALL bind the building to the perimeter wall dictated by its
 role in the form rule: 正房/open_hall anchor north; 倒座/front_row and the
-gate_house anchor south; 西厢 anchors west; 东厢 anchors east; 楼阁 anchors north
-with an off-axis offset. The facing SHALL be the form-rule facing (per
+gate_house anchor south; 西厢 anchors west; 东厢 anchors east; 楼阁 anchors south
+(it sits at the south edge of the 后院, off-axis, with its yard space to the
+north). The facing SHALL be the form-rule facing (per
 `building-orientation-variants`): the door wall faces the yard the building
 encloses.
 

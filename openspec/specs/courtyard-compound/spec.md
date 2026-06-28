@@ -15,7 +15,7 @@ The generator SHALL represent a courtyard compound as a `CompoundGraph` that own
 - **AND** each building slot SHALL contain a generated sub-building produced by the per-building pipeline.
 
 ### Requirement: Chinese one-courtyard axial layout
-A Chinese courtyard compound SHALL be laid out along a central axis as two yards separated by exactly one inner gate (垂花门): an outer yard (外院) on the street side and a main yard (主院) on the inward side. The outer yard SHALL contain a 影壁 (screen wall) inside the street gate blocking the direct sightline to the main yard, and MAY contain `front_row` (倒座) buildings. The main yard SHALL contain exactly two `side_wing` buildings (east and west), a `main_hall` on the central axis at the inward end, and a 月台 (moon platform) apron between the main hall and the yard. All buildings and yards SHALL be enclosed by a four-sided `perimeter_wall`. A compound SHALL NOT have more than one 垂花门 (multi-进 layouts are out of scope for this requirement; the `jin_count` master axis is deferred per `docs/ai-kb/14_deferred_roadmap.md` §E).
+A Chinese courtyard compound SHALL be laid out along a central axis as two yards separated by exactly one inner gate (垂花门): an outer yard (外院) on the street side and a main yard (主院) on the inward side. The outer yard SHALL contain a 影壁 (screen wall) inside the street gate blocking the direct sightline to the main yard, and MAY contain `front_row` (倒座) buildings. The main yard SHALL contain exactly two `side_wing` buildings (east and west), a `main_hall` on the central axis at the inward end, and a 月台 (moon platform) apron between the main hall and the yard. All buildings and yards SHALL be enclosed by a four-sided `perimeter_wall`. The single-进 `chinese_courtyard` family SHALL have exactly one 垂花门; multi-进 forms are a separate compound family realized by `chinese-mansion-compound` (3-进 江南大宅), not a `jin_count` axis on this family.
 
 #### Scenario: The two yards are placed with one inner gate between them
 - **WHEN** the one-courtyard layout is generated with `layout_type="standard"`
@@ -82,32 +82,15 @@ A compound SHALL place 抄手游廊 (covered galleries) connecting the 垂花门
 - **AND** the galleries SHALL remain traversable from the 垂花门 to the main hall.
 
 ### Requirement: Ground path connects every door and landscape feature
-The compound layer SHALL place a connected path network that reaches every reachable goal in the compound, including every door, every water feature, every planting bed, and the moon platform apron. The path network SHALL be produced by a multi-source BFS whose endpoint set is defined by the `courtyard-path-network` spec. The path SHALL be written on top of the ground layer defined by the `courtyard-ground-layer` spec. The path SHALL route around water and planting cells, SHALL NOT overlap building door cells, and SHALL bridge the main-yard plinth boundary with a single stairs block as specified by `courtyard-path-network`. The reachability and hole-free invariants are validated by `validate_compound` and `validate_small_courtyard`.
+The compound layer SHALL place a connected ground path network that reaches every reachable goal (every door, every water feature, every planting bed, and the moon platform apron). The endpoint set, the single-source backbone paving, the plinth-boundary stair bridging, the door-overlap prohibition, and the hole-free invariant are all defined normatively by `courtyard-path-network` and `courtyard-ground-layer`; this requirement exists only to bind those specs to the compound layer and is not restated here. Reachability and hole-free invariants are validated by `validate_compound` and `validate_small_courtyard`.
 
-The previous "corridor" terminology (a `covered_gallery` parcel node connecting 垂花门 to main hall) is unchanged — covered galleries are a roofed structure, not a ground path, and remain a separate concept. The `抄手游廊` covered-gallery geometry is governed by the requirement above (`Corridors connect wings along the courtyard`); the walkable ground path is governed by this requirement and the `courtyard-path-network` spec.
+The "corridor" terminology (a `covered_gallery` parcel node connecting 垂花门 to main hall) is unchanged — covered galleries are a roofed structure, not a ground path, and remain a separate concept. The `抄手游廊` covered-gallery geometry is governed by the requirement above (`Corridors connect wings along the courtyard`); the walkable ground path is governed by `courtyard-path-network`.
 
-#### Scenario: The path network reaches every door
+#### Scenario: The path network is connected and reaches every goal
 
 - **WHEN** a courtyard compound is generated
-- **THEN** every `BuildingSlot`'s `door_info["front"]` cell SHALL be in the path endpoint set
-- **AND** the multi-source BFS SHALL reach every endpoint
-- **AND** the path SHALL be a single connected component.
-
-#### Scenario: The path network reaches landscape features
-
-- **WHEN** a courtyard compound places a `water_feature` (well), `water_jar` (fish jar), or `planting` parcel node
-- **THEN** the path network SHALL include an endpoint for each
-- **AND** the multi-source BFS SHALL reach every endpoint.
-
-#### Scenario: The path network does not overlap doors
-
-- **WHEN** the path block is written
-- **THEN** no path cell SHALL overlap any `BuildingSlot`'s `door_info["front"]` cell.
-
-#### Scenario: The path bridges the plinth boundary
-
-- **WHEN** the main yard sits on a raised plinth and the path enters the main yard
-- **THEN** a `minecraft:stone_brick_stairs` block SHALL be placed at the boundary cell as specified by the `courtyard-path-network` spec.
+- **THEN** the path network SHALL satisfy the `courtyard-path-network` endpoint, backbone, and bridge invariants
+- **AND** `validate_compound` / `validate_small_courtyard` SHALL report no `endpoint_unreachable`, `ground_layer_hole`, or `path_overlaps_building_door` error.
 
 ### Requirement: Compound variants are combinatorial
 Compound variation SHALL be produced by variant axes combined via a deterministic template table (one row per shipped NBT). The variant axes SHALL include `layout_type` (`standard` / `three-sided` (三合院, no `front_row`) / `mu` (目字, narrow outer-yard band)), `main_orientation` (`south` / `east` / `north`), `main_bays` (`3` / `5` / `7`), `roof_grade` (one of the four `chinese_*` forms), `platform_tier` (`none` / `stone_2` / `xumi_3`), `gate_type` (`guangliang` / `manzi` / `jinzhu`), plus the minor axes `water_form` and `planting_layout`. The template table SHALL be hand-authored so that each shipped NBT lands on a visibly distinct combination of `layout_type`, `main_bays`, and `roof_grade`; the minor axes MAY be RNG-derived.
@@ -145,7 +128,7 @@ The Chinese courtyard compound library, cultivation town building/block librarie
 - **AND** the reviewer SHOULD place at least one sect compound in game to inspect the mountain terraces, gate, per-level courtyards, monumental stairs, covered-gallery/flying-bridge links, siting context, and summit hall/pagoda.
 
 ### Requirement: Small-courtyard unit layout
-The compound layer SHALL provide a small-courtyard unit layout that produces a compact walled `CompoundGraph` reusing the existing parcel machinery and per-building pass pipeline. A small courtyard SHALL enclose two to four roster buildings around a single small 天井 with a four-sided `perimeter_wall` broken by exactly one gate, at a footprint smaller than the one-진 `chinese_courtyard` layout.
+The compound layer SHALL provide a small-courtyard unit layout that produces a compact walled `CompoundGraph` reusing the existing parcel machinery and per-building pass pipeline. A small courtyard SHALL enclose two to four roster buildings around a single small 天井 with a four-sided `perimeter_wall` broken by exactly one gate, at a footprint smaller than the one-进 `chinese_courtyard` layout.
 
 #### Scenario: A small courtyard is generated
 - **WHEN** a small-courtyard unit is generated for a seed
@@ -154,7 +137,7 @@ The compound layer SHALL provide a small-courtyard unit layout that produces a c
 - **AND** its `perimeter_wall` SHALL have exactly one gate opening.
 
 #### Scenario: The small courtyard is more compact than the one-courtyard layout
-- **WHEN** a small-courtyard unit and a one-진 `chinese_courtyard` compound are generated
+- **WHEN** a small-courtyard unit and a one-进 `chinese_courtyard` compound are generated
 - **THEN** the small courtyard's lot footprint SHALL be smaller than the one-courtyard layout's lot footprint.
 
 #### Scenario: Small-courtyard buildings respect landscape and walls
