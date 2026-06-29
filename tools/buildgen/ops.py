@@ -1394,11 +1394,14 @@ def _chinese_gable_planes(grid: BlockGrid, style: Style, vol: Node,
         y += 1
     if rounded:
         # 卷棚: no ridge plank. Cap the central one or two columns with top
-        # slabs so the two slopes roll over a smooth crown.
+        # slabs so the two slopes roll over a smooth crown.  The loop above
+        # leaves y one past the final stair row, so the crown goes at y-1 to
+        # sit flush with the stairs below (no floating gap).
         crown = slab_state(style, "top")
+        crown_y = y - 1
         for coord in sorted({lo, hi}):
-            put_row(coord, y, crown, protect=True)
-        ridge_y = y
+            put_row(coord, crown_y, crown, protect=True)
+        ridge_y = crown_y
     elif lo == hi:        # odd span: solid ridge line, protected
         put_row(lo, y, planks, protect=True)
         ridge_y = y
