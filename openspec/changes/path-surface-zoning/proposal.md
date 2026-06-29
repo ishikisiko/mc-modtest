@@ -32,11 +32,32 @@ routes, and the gap is structural, not cosmetic:
    cell as an independent mini-mountain — "一列小尖刺". The 亭-reachable crossing
    the user wants ("水边石阶与小桥") needs a different block (a flat slab bridge),
    not a restoration of the spike row.
+5. **The 水边廊 is a fake building.** The `waterside_gallery` parcel (Arc 3)
+   registers as a `covered_gallery` and its comment claims it "reads as a roofed
+   walkway" — but the code only `grid.set`s one `PATH_GALLERY` floor block per
+   shore cell (`_layout_garden` ≈ `compound.py:3607-3613`). There is **no column,
+   no roof, no balustrade**. The mansion 主院 likewise has no 抄手游廊 at all
+   (only the 1-进 `chinese_courtyard` has them, via `_place_covered_galleries`). A
+   "廊" that is a single floor tile is not a building; surface-zoning the floor
+   from gravel to oak_planks does not make it one.
+6. **The 后院 and 花园 share one z-interval, so the 绣楼 sits inside the garden.**
+   `generate_mansion` defines both `back_yard_band` and `garden_band` as
+   `[ermen_z+1, lot_d-2]` — identical (`compound.py:3723-3724`). The
+   `_mansion_yard_depths` split (`back_d` / `garden_d`) is computed but **never
+   used**. The 绣楼 (`tower_house`, depth 13, placed at `ermen_z+1`) therefore
+   extends the full depth of what should be its own 后院 straight into the garden
+   band, overlapping the 假山 / 水池 / 亭; with a single tower it is also pinned
+   to the west (`t1_x = axis-1-tw`) so the layout reads as off-center. The 主院
+   台基 is meanwhile full-width solid PLATFORM_STONE across the whole yard, so the
+   主院 reads as an empty stone slab.
 
 **Root cause, single sentence:** the path layer is a *material-agnostic, shape-
 agnostic overlay* — it neither classifies the surface a cell belongs to (so six
 kinds collapse to one) nor varies its geometry (so it cannot wind), and the
-routes that would give it meaning point at spatial nodes that were never built.
+routes that would give it meaning point at spatial nodes that were either never
+built (Arc 3) or built as floor-only placeholders (Arc 5); meanwhile the
+enclosure planner never separated 后院 from 花园, so the 绣楼 has nowhere lawful
+to stand (Arc 6).
 
 ## What Changes
 
@@ -45,7 +66,9 @@ no rewrite of the planning model — plus the three spatial termini that make th
 routes real. Scope: `chinese_mansion`, `chinese_courtyard`, and embedded
 `small_courtyard`, each realizing the vocabulary subset it has space for.
 
-The four defects map to four arcs:
+The six defects map to six arcs. Arcs 1–4 are the surface-zoning core; Arcs 5–6
+(elevated in scope after the user's in-game review) make the garden's "廊" real
+buildings and give the 绣楼 a lawful 后院 to stand in.
 
 ### Arc 1 — Surface zoning: material is a property of the zone, not the route
 
@@ -107,6 +130,60 @@ the water surface y) crossing to the 亭/island. A slab is a flat, walkable,
 water-surface block — it reads as a plank bridge, where `rockery_block` read as
 spikes. The deleted 汀步 are **not** restored.
 
+### Arc 5 — 连廊建筑化: a 廊 is floor + columns + roof + balustrade, not a floor tile
+
+Solve "the 水边廊 is a fake building". The current `waterside_gallery` only lays
+one `PATH_GALLERY` floor block per shore cell. Arc 5 upgrades it (and adds the
+missing 主院 抄手游廊) to a real covered gallery via one shared renderer:
+
+- **New `BALUSTRADE` slot** in `chinese_mansion.json` (`minecraft:dark_oak_fence`
+  / `minecraft:spruce_fence`, vanilla-clean). Registered in
+  `OPTIONAL_MATERIAL_SLOTS` already, so no linter change.
+- **New `_place_covered_gallery_3d()` renderer** in `compound.py` — a shared
+  primitive that, per gallery cell, writes: a `PATH_GALLERY` floor (preserving
+  the surface-zone material), a `COLUMN` post every other cell (2 tall, reused
+  from `_place_covered_galleries`), a `BALUSTRADE` fence row on the open side
+  (密排, reused from `ops.balustrade`), and a **single-slope roof**
+  (`ROOF_DARK` stairs tilted low-toward-water / high-toward-yard) capping the
+  columns.
+- **Upgrade 水边廊**: the pond-shore `waterside_gallery` calls
+  `_place_covered_gallery_3d()` with the open/balustrade side facing the water.
+  Parcel type stays `covered_gallery` (the tour-route + 4-adjacent-to-water
+  invariants stay).
+- **Add 主院 抄手游廊** (mansion-only): east + west galleries tying the 仪门
+  flanks to the 敞厅 flanks along the 主院 edges (reusing the 抄手 return geometry
+  from `_place_covered_galleries`), balustrade facing the yard. Skipped on a
+  variant whose 主院 is too narrow (not mandatory).
+
+The 三件套 geometry (floor + column + roof) and the fence-rail pattern already
+exist in `compound.py` (`_place_covered_galleries` ≈ `:1737`,
+`_place_sect_link` ≈ `:4178`) — Arc 5 factors them into one 3D renderer rather
+than re-inventing. No new external-mod id; `BALUSTRADE` resolves to vanilla
+fences under both profiles.
+
+### Arc 6 — 房屋布局修复: give the 绣楼 a 后院 and the 主院 some grass
+
+Solve "后院 = 花园, 绣楼 sits in the garden, 主院 is a stone slab". The
+enclosure planner computed a depth split but never applied it; Arc 6 applies it:
+
+- **Separate 后院 from 花园.** `generate_mansion` calls
+  `_mansion_yard_depths(lot_d, garden_scale)` and uses `back_d` to cut the
+  bands: `back_yard_band = [ermen_z+1, ermen_z+back_d]`,
+  `garden_band = [ermen_z+back_d+1, lot_d-2]`. The 月洞门 screen wall (the
+  后院↔花园 boundary) moves to `garden_band[0]`.
+- **Constrain the 绣楼 to the 后院.** `_plan_mansion_enclosure` requires
+  `tower_house` north edge (`tz0 + td - 1`) `< garden_band[0]`, so the 绣楼
+  stays in its own 后院. A single tower keeps its off-axis placement (a common
+  江南 form) but is no longer pinned hard-west when symmetry has room.
+- **Shrink the 主院 台基.** The plinth stops full-width-filling the 主院; it
+  covers only the 敞厅 + 厢房 + 抄手游廊 footprints (±1-cell skirt). The 主院
+  heart becomes `GROUND_YARD_OPEN` grass (resolved by `_place_yard_ground`), so
+  the 主院 reads as 草+砖结合 rather than an empty stone slab.
+
+The 中轴主骨 is preserved (门屋 → 前院 → 仪门 → 主院 → 二门 → 后院 → 花园); only
+the 后院/花园 split, the 绣楼 bounds, and the 台基 footprint change. The 花园
+itself stays free-form (苏州园林-style asymmetry) per the user's direction.
+
 ### Why zone-owned material, not route-owned
 
 The original framing ("a slot per route") produced an unresolvable conflict: is
@@ -154,15 +231,21 @@ model is layout-agnostic.
   the tour route is a separate waypoint-polyline whose segments are each
   single-source trees.
 - `chinese-mansion-compound`: the 花园 gains the 月洞门 passage (material
-  boundary + tour start), the 水边廊 (shoreside gallery variant), and — when the
-  lot has room — the 仆役房 along the 夹道. The garden pond crossing becomes the
-  slab bridge. No change to the enclosure sequence itself.
+  boundary + tour start), the 水边廊 (now a real covered gallery, Arc 5), and —
+  when the lot has room — the 仆役房 along the 夹道. The garden pond crossing
+  becomes the slab bridge. **The enclosure sequence is repaired (Arc 6):** the
+  后院 and 花园 bands are split by the previously-unused `back_d` depth, the
+  绣楼 is constrained to the 后院 (no longer overlaps the 花园), the 主院 台基
+  shrinks to the building footprints so the 主院 heart is grass, and the 主院
+  gains 抄手游廊 (east + west, Arc 5).
 - `validation`: `validate_mansion` / `validate_compound` gain zone-material
   assertions (the four ground zones and three path routes resolve to their
   declared slots), a tour-connectivity check (every tour waypoint segment is a
   connected single-source tree), and a bridge-span check (the slab bridge
-  reaches both shores). The existing voxel-walkability and ground-hole checks
-  are preserved.
+  reaches both shores). `validate_mansion` also gains two layout guards (Arc 6):
+  `back_yard_garden_overlap` (the 后院/花园 bands do not share a z-interval) and
+  `tower_overlaps_garden` (no 绣楼 footprint cell coincides with a 花园 feature
+  cell). The existing voxel-walkability and ground-hole checks are preserved.
 
 ## Impact
 
@@ -173,19 +256,32 @@ model is layout-agnostic.
     waypoint router + obstacle fallback for the tour overlay; a new
     `PATH_WATERSIDE` stairs+bridge writer; new `moon_gate_passage` parcel
     renderer; shoreside `covered_gallery` placement; `service_house` archetype
-    wiring into the endpoint collector.
+    wiring into the endpoint collector. **(Arc 5)** a new
+    `_place_covered_gallery_3d()` renderer (floor + columns + single-slope roof
+    + balustrade) shared by the 水边廊 and the new 主院 抄手游廊; the
+    `waterside_gallery` upgrade and the 主院 gallery placement. **(Arc 6)**
+    `generate_mansion` applies `_mansion_yard_depths.back_d` to split
+    `back_yard_band` / `garden_band`; `_plan_mansion_enclosure` constrains the
+    绣楼 to the 后院 and relaxes the hard-west single-tower pin;
+    `_realize_mansion_enclosure` shrinks the 主院 台基 to the building footprints
+    (院心 → grass).
   - `tools/buildgen/archetypes.py` — the `service_house` archetype (plain, small,
     reuses sub-building machinery).
   - `tools/buildgen/styles/chinese_mansion.json`, `chinese_courtyard.json` — six
-    new slots (`PATH_FORMAL`, `GROUND_YARD_HEART`, `PATH_GALLERY`, `PATH_ALLEY`,
-    `PATH_TOUR`, `PATH_WATERSIDE`), vanilla-clean entries.
+    new surface slots (`PATH_FORMAL`, `GROUND_YARD_HEART`, `PATH_GALLERY`,
+    `PATH_ALLEY`, `PATH_TOUR`, `PATH_WATERSIDE`), vanilla-clean entries; plus
+    (Arc 5) the `BALUSTRADE` slot in `chinese_mansion.json` only.
 - **Code (preserved, untouched):**
   - `generate_subbuilding`, the `passes.PIPELINE`, `ops.py` roof/wall/door
     renderers, `rockery.py`/hero sculpt, `_voxel_walk_bfs`, `export.py` NBT
-    writer (grid-only), sect/town generators.
+    writer (grid-only), sect/town generators. The 1-进 `_place_covered_galleries`
+    is untouched (Arc 5 reuses its geometry via a shared renderer, not by
+    editing it).
 - **Structures:**
   - `chinese_mansion_001..006.nbt` regenerate with the six-zone surface layer +
-    月洞门 + 水边廊 + 仆役房 + slab bridge.
+    月洞门 + 水边廊 (real 3D gallery, Arc 5) + 主院 抄手游廊 (Arc 5) + 仆役房 +
+    slab bridge + the repaired 后院/花园/绣楼 layout and the grass 主院 heart
+    (Arc 6).
   - `chinese_courtyard_*` regenerate with the four-zone ground + formal/heart
     path subset.
   - `cultivation_town_*` (embedded `small_courtyard`) regenerate with the

@@ -7,6 +7,55 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.18.0
+
+### Added
+
+- **江南大宅/庭院 路径表面分区** (`path-surface-zoning`): the courtyard/mansion
+  ground + path layer is now a two-axis surface model so the path reads as
+  **three routes with six surfaces** instead of one flat gravel stripe.
+  - Material follows the **zone** (six zones → six style slots): the formal
+    axis is 青石 (`PATH_FORMAL` / `smooth_stone`), the 天井/院心 ring is 灰砖
+    (`GROUND_YARD_HEART`), 廊下 is 木石 (`PATH_GALLERY` / `oak_planks`), 夹道 is
+    砖 (`PATH_ALLEY`), the garden tour is 苔石 (`PATH_TOUR` /
+    `mossy_stone_bricks`), and the waterside edge is 石阶 + 木板桥
+    (`PATH_WATERSIDE`).
+  - Shape follows the **route**: the formal/service backbone keeps the
+    single-source shortest-path tree (`PATH_FORMAL`); the garden tour is a
+    winding waypoint polyline (假山南 → nearest pond shore → 亭) via
+    `_route_tour_path`, each segment a single-source shortest path with an
+    obstacle set forcing any segment that would cut through the rockery/pond
+    to route around it.
+  - Three new path termini make the routes real: the `moon_gate_passage`
+    (月洞门 穿墙通道 through the garden screen wall, the formal↔tour material
+    boundary), the 水边廊 (shoreside `covered_gallery` variant along the pond
+    shore), and the `service_house` archetype (仆役房 along the 倒座 夹道, a
+    mandatory path endpoint).
+  - The cross-pond 汀步 spike-row (deleted `rockery_block` cells) is replaced
+    by a flat slab bridge (`oak_slab`/`spruce_slab`) spanning the pond's
+    narrowest crossing to the 亭/island — the spike problem was the block, not
+    the crossing.
+  - Each family realizes only the zones it has space for: `chinese_mansion`
+    gets the full vocabulary; `chinese_courtyard` gets formal + heart + gallery
+    + alley; embedded `small_courtyard` (in `cultivation_town`) gets formal +
+    heart. Styles that did not adopt the slots (`cultivation_town.json`,
+    `cultivation_sect.json`) fall back to the legacy ground/path tiles and
+    regenerate byte-identical.
+- New `validate_mansion` checks: `surface_zone_material:<zone>:<cell>` (each
+  cell's block matches its zone's slot primary), `tour_segment_disconnected`
+  (every tour waypoint segment is a connected single-source tree), and
+  `waterside_bridge_incomplete` (the slab bridge spans both shores). Added
+  `docs/ai-kb/16_path_surface_zoning.md`.
+
+### Changed
+
+- Regenerated `chinese_mansion_001..006.nbt` (Stage 4: the slab-bridge
+  `PATH_WATERSIDE` writer + the three new validators). `chinese_courtyard_*`
+  and embedded `cultivation_town_*` regenerate with the four-zone ground +
+  formal/heart path subset. `cultivation_sect_*` and `medieval_*` stay
+  byte-identical (byte-stability guard extended in
+  `tools/buildgen/tests/test_chinese_courtyard_regression.py`).
+
 ## 0.17.0
 
 ### Added

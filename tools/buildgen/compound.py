@@ -1248,6 +1248,116 @@ def place_garden_pavilion(compound: CompoundGraph, center: Cell2, size: int,
     return node
 
 
+def _place_covered_gallery_3d(compound: "CompoundGraph", style: "Style",
+                              cells: Set[Cell2], base_y: int,
+                              open_side: Optional[str],
+                              post_side: Optional[str] = None,
+                              roof_form: str = "single_slope") -> None:
+    """3D covered-gallery renderer (path-surface-zoning Arc 5).
+
+    A 廊 is a real building, not a floor tile. The gallery footprint is treated
+    as a strip with two long edges: the **open side** (facing water/yard) gets a
+    密排 `BALUSTRADE` railing just outside it, and the **post side** (facing the
+    building/wall) carries the `COLUMN` posts so the posts do not block the
+    walkway in front of doors. Per gallery cell this writes four layers:
+
+    - a `PATH_GALLERY` floor (the surface-zone material is preserved);
+    - a `COLUMN` post every other cell along the **post-side** column line, 2
+      tall (reused from ``_place_covered_galleries``);
+    - a `BALUSTRADE` fence row 密排 on the **open-side** edge (reused from
+      ``ops.balustrade``);
+    - a single-slope `ROOF_DARK` roof capping the columns, low toward the open
+      side.
+
+    Shared by the 水边廊 (pond-shore gallery, open side = water) and the mansion
+    主院 抄手游廊 (open side = yard, post side = the wing wall). The walkway
+    column between the post line and the railing stays clear of doors because the
+    posts hug the building edge, not the walkway.
+
+    Parameters
+    ----------
+    cells:
+        The gallery footprint (2D x,z cells).
+    base_y:
+        The floor y.
+    open_side:
+        Which long edge faces open space ("north"/"south"/"east"/"west"); the
+        balustrade lines that edge and the roof slopes down toward it. ``None``
+        balustrades both long edges.
+    post_side:
+        Which long edge carries the column posts (defaults to the side opposite
+        ``open_side``). The posts hug this edge so the walkway clears doors.
+    roof_form:
+        ``"single_slope"`` (default) writes a single-slope ROOF_DARK stairs roof,
+        low toward ``open_side``.
+    """
+    column = style.primary("COLUMN")
+    # BALUSTRADE is an OPTIONAL slot; fall back to a DETAIL_WOOD fence so a
+    # style without BALUSTRADE still gets a railing (mansion defines BALUSTRADE).
+    rail = (style.primary("BALUSTRADE") if style.has_slot("BALUSTRADE")
+            else style.slot_entry("DETAIL_WOOD", "fence", "minecraft:oak_fence"))
+    roof_stairs = style.slot_entry("ROOF_DARK", "_stairs", "minecraft:dark_oak_stairs")
+    roof_y = base_y + 3
+    column_top = base_y + 2  # columns are 2 tall: base_y+1 .. base_y+2
+
+    delta = {"north": (0, -1), "south": (0, 1), "east": (1, 0), "west": (-1, 0)}
+    opp = {"north": "south", "south": "north", "east": "west", "west": "east"}
+    if post_side is None:
+        post_side = opp[open_side] if open_side else None
+
+    # Classify each gallery cell by which "column line" it is on relative to the
+    # post side. Posts go on the SECOND column from the post side (one cell in
+    # from the building edge), NOT the boundary column — the boundary column is
+    # the door-front walkway that must stay clear (a wing's door opens onto it),
+    # so posts must not stand there.
+    def _is_post_line(x: int, z: int) -> bool:
+        if post_side is None:
+            return False
+        dx, dz = delta[post_side]
+        # One step toward post_side must still be in the gallery (this cell is
+        # the second column in), AND two steps out must leave it (this is the
+        # innermost column that still "faces" the building).
+        one_in = (x + dx, z + dz)
+        if one_in not in cells:
+            return False  # boundary column — door walkway, keep clear
+        return (one_in[0] + dx, one_in[1] + dz) not in cells
+
+    # Stairs face the low/open side (step descends toward open_side).
+    stairs_facing = open_side or "north"
+
+    ordered = sorted(cells)
+    for run_idx, (x, z) in enumerate(ordered):
+        # Floor (PATH_GALLERY — surface-zone material preserved).
+        compound.grid.set((x, base_y, z), style.primary("PATH_GALLERY"),
+                          ["DETAIL", "GROUND", "PROTECTED"], PRIORITY["DETAIL"],
+                          "PATH_GALLERY", force=True)
+        # Column posts on the post-side line only, every other cell along the run.
+        if _is_post_line(x, z) and run_idx % 2 == 0:
+            for y in range(base_y + 1, column_top + 1):
+                compound.grid.set((x, y, z), column, ["DETAIL", "STRUCTURE"],
+                                  PRIORITY["DETAIL"], "COLUMN")
+        # Single-slope roof: a bottom-half stairs descending toward open_side.
+        compound.grid.set((x, roof_y, z),
+                          f"{roof_stairs}[facing={stairs_facing},half=bottom]",
+                          ["DETAIL", "ROOF"], PRIORITY["DETAIL"], "ROOF_DARK")
+
+    # Balustrade on the open edge(s): the cell just outside the gallery on the
+    # open side, 密排 single-row at column-top height (a railing, not a wall).
+    edges: Set[Cell2] = set()
+    sides = (open_side,) if open_side else (
+        ("north", "south") if (max(z for _, z in cells) - min(z for _, z in cells))
+        >= (max(x for x, _ in cells) - min(x for x, _ in cells)) else ("east", "west"))
+    for side in sides:
+        dx, dz = delta[side]
+        for (x, z) in cells:
+            edge = (x + dx, z + dz)
+            if edge not in cells:
+                edges.add(edge)
+    for (x, z) in edges:
+        compound.grid.set((x, column_top, z), rail,
+                          ["DETAIL", "PROTECTED"], PRIORITY["DETAIL"], "BALUSTRADE")
+
+
 def place_moon_gate_screen(compound: CompoundGraph, style: Style,
                            axis: int, wall_z: int, x_lo: int, x_hi: int,
                            height: int = 6, gate_radius: int = 2
@@ -2357,7 +2467,13 @@ def _route_tour_path(compound: CompoundGraph, style: Style,
     if len(waypoints) < 2:
         return None
     # Obstacle set: the garden features the tour must wind around (not cut
-    # through). Buildings are already blocked by _path_blocked_cells.
+    # through). Buildings are already blocked by _path_blocked_cells. The formal
+    # backbone is NOT added to the blocked set here: routing around it would
+    # fragment the tour path where the formal path pins the garden edge. Instead
+    # the formal/tour cell sets are kept disjoint by dropping formal-overlap cells
+    # from the *write* set (the formal block wins there), while the full tour cell
+    # set — including the overlap cells — stays recorded so the tour path remains
+    # a single connected polyline.
     base_blocked = _path_blocked_cells(compound)
     obstacles = set()
     for ftype in ("garden_rockery", "garden_pond", "garden_pavilion"):
@@ -2391,17 +2507,20 @@ def _route_tour_path(compound: CompoundGraph, style: Style,
             guard += 1
             if guard > len(pred) + 2:
                 break
-    # Write the tour overlay through PATH_TOUR. Drop any cell already on the
-    # formal backbone (the formal/tour intersection must be empty per design D6)
-    # and any door-front cell (the building owns its door step).
+    # Write the tour overlay through PATH_TOUR. Drop formal-overlap /
+    # door-front / obstacle cells from the *write* set (the formal block wins on
+    # its backbone; the building owns its door step; obstacles are features the
+    # path winds around), but keep the FULL tour cell set recorded on the parcel
+    # so the tour path stays a single connected polyline for the validator's
+    # segment-connectivity check. The formal/tour WRITE overlap is thus empty by
+    # construction; the recorded set carries the (overlap) bridge cells that make
+    # the polyline continuous.
     formal = compound.node_cells("path")
     door_fronts = _door_front_cells(compound)
     tour_block = style.primary("PATH_TOUR")
     written: Set[Cell2] = set()
     for cell in tour_cells:
-        if cell in formal or cell in door_fronts:
-            continue
-        if cell in obstacles:
+        if cell in formal or cell in door_fronts or cell in obstacles:
             continue
         y = _natural_surface_y(compound, cell)
         compound.grid.set((cell[0], y, cell[1]), tour_block,
@@ -2410,10 +2529,12 @@ def _route_tour_path(compound: CompoundGraph, style: Style,
         written.add(cell)
     if written:
         compound.parcel_nodes.append(
-            ParcelNode("tour_path", "tour_path", written, {
+            ParcelNode("tour_path", "tour_path", tour_cells, {
                 "waypoints": [list(c) for c in waypoints],
                 "segment_count": max(0, len(waypoints) - 1),
-                "cell_count": len(written),
+                "cell_count": len(tour_cells),
+                "written_count": len(written),
+                "written_cells": [list(c) for c in sorted(written)],
                 "algorithm": "waypoint_polyline",
             }))
     return written
@@ -2585,14 +2706,27 @@ def _standable_ys(compound: CompoundGraph, x: int, z: int,
     A cell ``(x, y, z)`` is STANDABLE iff the block at ``y-1`` is SOLID (foot
     support) and the blocks at ``y`` and ``y+1`` are NON-SOLID (body + head
     clearance). Returns the standable y-values in ascending order.
+
+    For walkability a door is treated as NON-SOLID (a door is a passage, not a
+    wall — the player opens and walks through it), so the formal path can pass
+    through a building's doorway. This is walkability-only; the global
+    :func:`is_solid` (used by wall/ground checks) still treats doors as solid.
     """
+    def _walk_solid(state: Optional[str]) -> bool:
+        if not state:
+            return False
+        bid = state.split("[", 1)[0]
+        if bid.endswith("_door"):
+            return False
+        return is_solid(state)
+
     out: List[int] = []
     for y in range(y_lo, y_hi + 1):
-        if not is_solid(compound.grid.state_at((x, y - 1, z))):
+        if not _walk_solid(compound.grid.state_at((x, y - 1, z))):
             continue
-        if is_solid(compound.grid.state_at((x, y, z))):
+        if _walk_solid(compound.grid.state_at((x, y, z))):
             continue
-        if is_solid(compound.grid.state_at((x, y + 1, z))):
+        if _walk_solid(compound.grid.state_at((x, y + 1, z))):
             continue
         out.append(y)
     return out
@@ -2904,9 +3038,9 @@ def generate_compound(seed: int, style: Optional[Style] = None,
 # ---------------------------------------------------------------------------
 
 MANSION_SIZE = {
-    "mansion_small": (39, 62),
-    "mansion_medium": (43, 70),
-    "mansion_large": (47, 78),
+    "mansion_small": (49, 64),
+    "mansion_medium": (53, 72),
+    "mansion_large": (57, 80),
 }
 
 # gate_form → GATE_HALF-compatible gate_type for _add_chinese_perimeter
@@ -3181,19 +3315,40 @@ def _plan_mansion_enclosure(variant: "MansionVariant", lot_w: int, lot_d: int,
     # throw its porch colonnade back across the 二门 into the 主院 plinth
     # (voxel/ground-layer conflict). tower_house is a 2-story mass; a south door
     # would also read as turning its back on the 后院 it belongs to.
+    #
+    # Arc 6: bound the tower to the 后院. The garden band starts at
+    # ermen_z + back_d + 1 (generate_mansion), so the tower's north edge
+    # (tz0 + td - 1) must stay strictly south of it — clamp td so a tight back_d
+    # never lets the tower spill into the 花园 (the back_yard_garden_overlap /
+    # tower_overlaps_garden validators enforce this). A single tower is off-axis
+    # (a 江南 form) but its side is chosen deterministically per variant rather
+    # than hard-pinned west, so the mansion roster reads as varied not lopsided.
+    garden_z0 = ermen_z + back_d + 1
     tw, td = 11, 13
-    t1_x = axis - 1 - tw
-    t2_x = axis + 2
+    max_td = max(5, garden_z0 - (ermen_z + 1))   # north edge < garden_z0
+    td = min(td, max_td)
     tz0 = ermen_z + 1
-    placements.append(_EnclosurePlacement(
-        role="tower_house_1", archetype="tower_house", facing="north",
-        anchor="south", slot_id="tower_house_1",
-        x0=t1_x, z0=tz0))
+    t_west_x = axis - 1 - tw
+    t_east_x = axis + 2
     if variant.tower_count == 2:
+        # Symmetric pair straddling the axis.
+        placements.append(_EnclosurePlacement(
+            role="tower_house_1", archetype="tower_house", facing="north",
+            anchor="south", slot_id="tower_house_1",
+            x0=t_west_x, z0=tz0))
         placements.append(_EnclosurePlacement(
             role="tower_house_2", archetype="tower_house", facing="north",
             anchor="south", slot_id="tower_house_2",
-            x0=t2_x, z0=tz0))
+            x0=t_east_x, z0=tz0))
+    else:
+        # Single tower off-axis; side is deterministic per variant key (crc32,
+        # not hash(), which is randomized across runs — see _realize slot seed).
+        side_west = (zlib.crc32(repr(variant.key()).encode("utf-8")) & 1) == 0
+        t_x = t_west_x if side_west else t_east_x
+        placements.append(_EnclosurePlacement(
+            role="tower_house_1", archetype="tower_house", facing="north",
+            anchor="south", slot_id="tower_house_1",
+            x0=t_x, z0=tz0))
 
     gates = [("yimen", yimen_z), ("ermen", ermen_z)]
     return placements, gates, gate_inner_z
@@ -3320,20 +3475,52 @@ def _realize_mansion_enclosure(compound: CompoundGraph, style: Style,
                 "cell_count": len(alley_cells),
             }))
 
-    # --- 主院 plinth (台基): fill solidly under the 主院 band so buildings sit
-    # on a raised stone floor and the perimeter never floats. ---
+    # --- 主院 plinth (台基): raised stone floor under the 主院 buildings only.
+    # Arc 6: previously this full-width-filled the whole 主院 band (a solid stone
+    # slab that read as empty). Now it covers only the 主院 building footprints
+    # (敞厅 + 厢房) + a ±1-cell skirt + the 抄手游廊 strip, so the 主院 heart
+    # falls through to _place_yard_ground → GROUND_YARD_OPEN grass (草+砖结合).
     plinth_h = 1
     platform_stone = style.primary("PLATFORM_STONE")
     gate_zs = sorted(z for _, z in gates)
     if len(gate_zs) >= 2:
         my0, my1 = gate_zs[0] + 1, gate_zs[1] - 1
-        plinth_cells: Set[Cell2] = set()
-        for x in range(1, lot_w - 1):
+        # Seed the plinth with the 主院 building footprints (open_hall + wings).
+        main_archetypes = ("open_hall", "side_wing")
+        plinth_seed: Set[Cell2] = set()
+        for slot in compound.building_slots:
+            if slot.archetype in main_archetypes:
+                plinth_seed |= set(slot.footprint)
+        # +1-cell skirt around the buildings (a plinth apron), clamped to the
+        # 主院 band + interior.
+        skirt: Set[Cell2] = set()
+        for (x, z) in plinth_seed:
+            for dx in (-1, 0, 1):
+                for dz in (-1, 0, 1):
+                    c = (x + dx, z + dz)
+                    if 1 <= c[0] <= lot_w - 2 and my0 <= c[1] <= my1:
+                        skirt.add(c)
+        # Reserve the 抄手游廊 strips (east + west edges of the 主院) so the
+        # galleries sit on plinth too. _layout_main_yard_galleries computes the
+        # exact cells later; here we just widen the plinth to the clear edge
+        # strips between the wings and the perimeter so the gallery base is stone.
+        wing_xs = sorted({x for slot in compound.building_slots
+                          if slot.archetype == "side_wing" for x, _ in slot.footprint})
+        if wing_xs:
+            west_wing_max = max(x for x in wing_xs if x < axis)
+            east_wing_min = min(x for x in wing_xs if x > axis)
             for z in range(my0, my1 + 1):
-                plinth_cells.add((x, z))
-                compound.grid.set((x, 0, z), platform_stone,
-                                  ["STRUCTURE", "GROUND"], PRIORITY["STRUCTURE"],
-                                  "PLATFORM_STONE")
+                for x in range(1, west_wing_max + 2):       # west gallery strip
+                    if 1 <= x <= lot_w - 2:
+                        skirt.add((x, z))
+                for x in range(east_wing_min - 1, lot_w - 1):  # east gallery strip
+                    if 1 <= x <= lot_w - 2:
+                        skirt.add((x, z))
+        plinth_cells = skirt
+        for (x, z) in plinth_cells:
+            compound.grid.set((x, 0, z), platform_stone,
+                              ["STRUCTURE", "GROUND"], PRIORITY["STRUCTURE"],
+                              "PLATFORM_STONE")
         compound.parcel_nodes.append(
             ParcelNode("main_yard_platform", "platform", plinth_cells,
                        {"tier": "stone_1", "height": plinth_h}))
@@ -3373,6 +3560,67 @@ def _realize_mansion_enclosure(compound: CompoundGraph, style: Style,
     compound.meta["outer_yard_band"] = [1, gate_zs[0] - 1] if gate_zs else [1, lot_d - 2]
     compound.meta["inner_gate_band"] = [gate_zs[0], gate_zs[0]] if gate_zs else [1, 1]
     return {"gate_zs": gate_zs, "gate_inner_z": gate_inner_z}
+
+
+def _layout_main_yard_galleries(compound: CompoundGraph, style: Style) -> None:
+    """主院 抄手游廊 (mansion-only, Arc 5).
+
+    The mansion 主院 previously had no 抄手游廊 (only the 1-进 ``chinese_courtyard``
+    has them via ``_place_covered_galleries``). This adds east + west galleries
+    tying the 仪门 flanks to the 敞厅 flanks along the 主院 edges, rendered as
+    real 3D covered galleries (columns + single-slope roof + yard-side
+    balustrade) via ``_place_covered_gallery_3d``. A side is skipped when the
+    clear strip between its 厢房 and the perimeter is too narrow (< 3 wide) or
+    would collide with a building footprint — the gallery is optional.
+    """
+    lot_w, _ = compound.lot_size
+    axis = compound.axis_x
+    plinth_h = compound.meta.get("plinth_height", 0)
+    my0, my1 = compound.meta["main_yard_band"]
+
+    wings = [s for s in compound.building_slots if s.archetype == "side_wing"]
+    hall = next((s for s in compound.building_slots if s.archetype == "open_hall"), None)
+    if not wings or hall is None:
+        return  # nothing to tie the galleries to
+    building_cells = compound.building_cells()
+
+    for side in ("west", "east"):
+        wing = next((s for s in wings
+                     if (side == "west") == (max(x for x, _ in s.footprint) < axis)), None)
+        if wing is None:
+            continue
+        # The gallery runs along the inner edge of this wing (the 主院 side).
+        if side == "west":
+            inner_x = max(x for x, _ in wing.footprint) + 1
+            step = 1
+        else:
+            inner_x = min(x for x, _ in wing.footprint) - 1
+            step = -1
+        # 3-wide gallery strip just inside the wing.
+        xs = [inner_x + step * d for d in range(3)]
+        xs = [x for x in xs if 0 < x < lot_w - 1]
+        if len(xs) < 2:
+            continue
+        cells: Set[Cell2] = set()
+        for x in xs:
+            for z in range(my0 + 1, my1):
+                if (x, z) in building_cells:
+                    continue
+                cells.add((x, z))
+        if len(cells) < 4:
+            continue
+        # Balustrade faces the yard (open side away from the wing); posts line
+        # the wing side so they hug the wall and do not block the wing's doors.
+        yard_side = "east" if side == "west" else "west"
+        wing_side = "west" if side == "west" else "east"
+        _place_covered_gallery_3d(compound, style, cells, plinth_h,
+                                  open_side=yard_side, post_side=wing_side)
+        compound.parcel_nodes.append(
+            ParcelNode(f"{side}_gallery", "covered_gallery", cells, {
+                "side": side, "relative_y": plinth_h, "rendered_as": "3d_covered_gallery",
+                "endpoints": ["inner_gate", "open_hall"], "circulation": True,
+                "balustrade_side": yard_side,
+            }))
 
 
 def _layout_front_yard(compound: CompoundGraph, style: Style, bands: dict,
@@ -3575,11 +3823,10 @@ def _layout_garden(compound: CompoundGraph, style: Style, bands: dict,
     # the generic heightfield scatter.
 
     # 水边廊 (shoreside gallery): a covered_gallery parcel running along the
-    # pond's near-edge (entrance-side) shore (path-surface-zoning task 3.1). It
-    # reuses the covered_gallery parcel type so its floor resolves through
-    # PATH_GALLERY and it reads as a roofed walkway; it is a tour-route waypoint.
-    # Placed on the dry cells adjacent to the pond's entrance-side (low-z) edge,
-    # one cell deep, so the player strolls the gallery with the water to one side.
+    # pond's FAR-edge (the bank away from the entrance / 月洞门 approach), so the
+    # gallery stands clear of the rockery island and the entry-side scenery
+    # rather than crowding them. It reuses the covered_gallery parcel type so its
+    # floor resolves through PATH_GALLERY; it is a tour-route waypoint.
     shore: Set[Cell2] = set()
     for (wx, wz) in water_cells:
         for nx, nz in ((wx + 1, wz), (wx - 1, wz), (wx, wz + 1), (wx, wz - 1)):
@@ -3588,22 +3835,103 @@ def _layout_garden(compound: CompoundGraph, style: Style, bands: dict,
                 continue
             if not (1 <= nx <= lot_w - 2 and gy0 <= nz <= gy1):
                 continue
-            # Near-edge shore only (entrance side: z within the first half of the
-            # pond's z-range), so the gallery lines the approach, not the far bank.
-            if nz > pond_z0 + (pond_z1 - pond_z0) // 2:
+            # Far-edge shore only (away from the entrance: z in the SECOND half of
+            # the pond's z-range), so the gallery lines the far bank, not the
+            # near approach where it would tangle with the rockery / 月洞门 view.
+            if nz < pond_z0 + (pond_z1 - pond_z0) // 2:
                 continue
             shore.add(cand)
     if shore:
-        gallery_floor = style.primary("PATH_GALLERY")
+        # 水边廊 is a real 3D covered gallery (Arc 5). Infer the dominant
+        # water-side direction across the shore strip (the side most shore cells
+        # have open water on), then render it through _place_covered_gallery_3d so
+        # it gains columns + a single-slope roof + a water-side balustrade.
+        _delta = {"north": (0, -1), "south": (0, 1), "east": (1, 0), "west": (-1, 0)}
+        water_set = set(water_cells)
+        side_hits = {s: 0 for s in _delta}
         for (sx, sz) in shore:
-            y = _natural_surface_y(compound, (sx, sz))
-            compound.grid.set((sx, y, sz), gallery_floor,
-                              ["DETAIL", "GROUND", "PROTECTED"], PRIORITY["DETAIL"],
-                              "PATH_GALLERY", force=True)
+            for side, (dx, dz) in _delta.items():
+                if (sx + dx, sz + dz) in water_set:
+                    side_hits[side] += 1
+        water_side = max(side_hits, key=side_hits.get) if any(side_hits.values()) else "south"
+        base_y = min(_natural_surface_y(compound, c) for c in shore)
+        # 水边廊: open side faces the water (balustrade there); posts line the
+        # yard side. No building to hug, so posts default to the opposite edge.
+        _place_covered_gallery_3d(compound, style, shore, base_y,
+                                  open_side=water_side)
         compound.parcel_nodes.append(
             ParcelNode("waterside_gallery", "covered_gallery", shore, {
-                "form": "shoreside", "along": "pond_near_shore",
-                "floor_slot": "PATH_GALLERY",
+                "form": "shoreside", "along": "pond_far_shore",
+                "floor_slot": "PATH_GALLERY", "water_side": water_side,
+                "rendered_as": "3d_covered_gallery",
+            }))
+
+    # 水边石阶与小桥 (PATH_WATERSIDE): a stairs + slab bridge spanning the pond's
+    # narrowest crossing to the 水心假山 (island rockery) (path-surface-zoning task
+    # 4.1). The rockery is an island in the pond, so the bridge is the only dry
+    # approach to it. The bridge is a row of oak/spruce slabs at the water surface
+    # y (flat, walkable — reads as a plank bridge, unlike the deleted stepping-
+    # stone rockery_blocks that read as a spike row); the descent to the waterline
+    # is a stone_brick_stairs on each shore. No rockery_block cells are written.
+    bridge_cells: Set[Cell2] = set()
+    if rockery_node is not None and rockery_node.cells:
+        # Find the narrowest water crossing: the row (constant z) with the fewest
+        # water cells between a dry shore cell and the rockery island.
+        island = set(rockery_node.cells)
+        water = set(water_cells)
+        best_span: Optional[List[Cell2]] = None
+        best_len = 1 << 30
+        island_zs = sorted({z for _, z in island})
+        # Walk a horizontal (constant-z) bridge from the rockery's nearest edge
+        # outward toward a dry shore cell, across water.
+        for iz in (min(island_zs), max(island_zs)):
+            for (ix, _iz) in ((x, z) for (x, z) in island if z == iz):
+                for step in (1, -1):
+                    span: List[Cell2] = []
+                    cx = ix + step
+                    while 1 <= cx <= lot_w - 2:
+                        if (cx, iz) in island:
+                            break
+                        if (cx, iz) in water:
+                            span.append((cx, iz))
+                            cx += step
+                            continue
+                        # Dry shore reached — this span is a valid crossing.
+                        if span and len(span) < best_len:
+                            best_len = len(span)
+                            best_span = list(span)
+                            best_span.append((cx, iz))  # shore anchor
+                        break
+        if best_span:
+            water_y = -1  # pond water surface y (garden ground is at y=-1)
+            slab = style.slot_entry("PATH_WATERSIDE", "_slab",
+                                    "minecraft:oak_slab")
+            stair_base = style.slot_entry("PATH_WATERSIDE", "_stairs",
+                                          "minecraft:stone_brick_stairs")
+            stair_base = stair_base.split("[", 1)[0]
+            for (bx, bz) in best_span:
+                if (bx, bz) in water:
+                    # Slab at the water surface — flat walkable plank.
+                    compound.grid.set((bx, water_y, bz), slab,
+                                      ["DETAIL", "GROUND", "PROTECTED"],
+                                      PRIORITY["DETAIL"], "PATH_WATERSIDE",
+                                      force=True)
+                    bridge_cells.add((bx, bz))
+                else:
+                    # Shore anchor: a stone_brick_stairs descending to the
+                    # waterline (the step down onto the bridge).
+                    compound.grid.set((bx, water_y, bz),
+                                      f"{stair_base}[facing=north,half=bottom]",
+                                      ["DETAIL", "GROUND", "PROTECTED"],
+                                      PRIORITY["DETAIL"], "PATH_WATERSIDE",
+                                      force=True)
+                    bridge_cells.add((bx, bz))
+    if bridge_cells:
+        compound.parcel_nodes.append(
+            ParcelNode("waterside_bridge", "waterside_bridge", bridge_cells, {
+                "span_count": len(bridge_cells),
+                "floor_slot": "PATH_WATERSIDE",
+                "form": "slab_bridge",
             }))
 
     garden_cells = {(x, z) for x in range(1, lot_w - 1)
@@ -3632,6 +3960,21 @@ def generate_mansion(seed: int, style: Optional[Style] = None,
     placements, gates, gate_inner_z = _plan_mansion_enclosure(variant, lot_w, lot_d, axis)
     gate_zs = sorted(z for _, z in gates)
 
+    # 后院/花园 split (Arc 6): previously both bands were [ermen_z+1, lot_d-2]
+    # (identical), so the 绣楼 sat the full depth of its would-be 后院 straight
+    # into the 花园. Apply the already-computed back_d so the 后院 (绣楼 home) and
+    # the 花园 (garden features) get distinct z-intervals, separated by the
+    # 月洞门 screen wall at garden_band[0].
+    _front_d, _main_d, back_d, _garden_d = _mansion_yard_depths(
+        lot_d, variant.garden_scale)
+    if len(gate_zs) >= 2:
+        ermen_z = gate_zs[1]
+        back_yard_band = [ermen_z + 1, ermen_z + back_d]
+        garden_band = [ermen_z + back_d + 1, lot_d - 2]
+    else:
+        back_yard_band = [1, lot_d - 2]
+        garden_band = [1, lot_d - 2]
+
     compound = CompoundGraph(
         style.style_id, seed, variant, (lot_w, lot_d), axis,
         meta={
@@ -3641,8 +3984,8 @@ def generate_mansion(seed: int, style: Optional[Style] = None,
             "yimen_band": [gate_zs[0], gate_zs[0]] if gate_zs else [1, 1],
             "main_yard_band": [gate_zs[0] + 1, gate_zs[1] - 1] if len(gate_zs) >= 2 else [1, lot_d - 2],
             "ermen_band": [gate_zs[1], gate_zs[1]] if len(gate_zs) >= 2 else [1, 1],
-            "back_yard_band": [gate_zs[1] + 1, lot_d - 2] if len(gate_zs) >= 2 else [1, lot_d - 2],
-            "garden_band": [gate_zs[1] + 1, lot_d - 2] if len(gate_zs) >= 2 else [1, lot_d - 2],
+            "back_yard_band": back_yard_band,
+            "garden_band": garden_band,
             "outer_yard_band": [1, gate_zs[0] - 1] if gate_zs else [1, lot_d - 2],
             "inner_gate_band": [gate_zs[0], gate_zs[0]] if gate_zs else [1, 1],
         })
@@ -3657,6 +4000,10 @@ def generate_mansion(seed: int, style: Optional[Style] = None,
     # 3) Realize the manifest: oriented buildings + gate_house + inner gates +
     #    照壁 + 主院 plinth. facing flows through form_overrides per placement.
     _realize_mansion_enclosure(compound, style, variant, placements, gates, gate_inner_z)
+    # 3b) 主院 抄手游廊 (Arc 5): east + west 3D galleries tying the 仪门 flanks
+    #     to the 敞厅 flanks. Placed after the buildings + plinth so the gallery
+    #     base sits on PLATFORM_STONE and clears the realized footprints.
+    _layout_main_yard_galleries(compound, style)
 
     # 4) Layer ground + garden + path + transition stairs on the realized layout.
     #    Ground before garden so the 假山 foot / 水池 surface stamp on top of the
@@ -4574,6 +4921,180 @@ MANSION_FORM_FACING = {
 WALL_TO_FACING = {"front": "south", "back": "north", "east": "east", "west": "west"}
 
 
+def _check_surface_zone_materials(compound: CompoundGraph) -> List[str]:
+    """surface_zone_material assertion (path-surface-zoning task 4.2).
+
+    Classifies each non-building ground/path cell into one of the surface zones
+    and checks the resolved block id against the zone's declared slot primary.
+    A cell whose block does not match its zone's slot primary fails with
+    ``surface_zone_material:<zone>:<cell>``. This is a spot-check on the zone
+    model; it samples cells (not an exhaustive scan) to keep the validator fast,
+    and it only fires when the style carries the relevant slot.
+    """
+    errors: List[str] = []
+    try:
+        style = load_style(compound.style_id)
+    except FileNotFoundError:
+        return errors
+    if not style.has_slot("GROUND_YARD_OPEN"):
+        return errors
+    kinds = _derive_ground_kinds(compound)
+    zone_slot = {
+        "open_sky": "GROUND_YARD_OPEN",
+        "heart": "GROUND_YARD_HEART",
+        "gallery": "PATH_GALLERY",
+        "alley": "PATH_ALLEY",
+        "under_eave": "GROUND_YARD_UNDER_EAVE",
+    }
+    zone_primaries: Dict[str, str] = {}
+    for zone, slot in zone_slot.items():
+        if style.has_slot(slot):
+            zone_primaries[zone] = style.primary(slot)
+    # The path overlays (PATH_FORMAL / PATH_TOUR / PATH_WATERSIDE) take priority
+    # over the ground zone at their cells — a formal-backbone cell on grass is
+    # not a mismatch because the path overlay (PATH_FORMAL) owns that cell. The
+    # GROUND_PATH slot's blocks are also overlays (a building's porch/colonnade/
+    # path-patch decoration may stamp a GROUND_PATH block on a heart-ring cell),
+    # so they are skipped too.
+    path_overlay_slots = ("PATH_FORMAL", "PATH_TOUR", "PATH_WATERSIDE",
+                          "GROUND_PATH")
+    path_overlay_blocks: Set[str] = set()
+    for slot in path_overlay_slots:
+        if style.has_slot(slot):
+            for entry in style.material_slots[slot]:
+                path_overlay_blocks.add(entry.split("[", 1)[0])
+    buildings = compound.building_cells()
+    # Cells covered by a non-ground overlay must be skipped: the surface-zone
+    # model places the base ground tile per zone, then water / planting /
+    # rockery / pavilion / gallery / tour-path / waterside-bridge layers stamp
+    # their own block on top. Those cells are NOT a zone mismatch — their block
+    # is owned by the overlay, not the ground zone.
+    overlay_nodes = ("water_feature", "water_jar", "planting", "courtyard_tree",
+                     "garden_rockery", "garden_pond", "garden_pavilion",
+                     "covered_gallery", "tour_path", "waterside_bridge",
+                     "moon_platform", "platform")
+    overlay_cells = compound.node_cells(*overlay_nodes)
+    checked = 0
+    for cell in _lot_interior_cells(compound):
+        if checked >= 200:  # spot-check cap
+            break
+        if cell in buildings or cell in overlay_cells:
+            continue
+        kind = kinds.get(cell, "open_sky")
+        expected = zone_primaries.get(kind)
+        if expected is None:
+            continue
+        y = _natural_surface_y(compound, cell)
+        state = compound.grid.state_at((cell[0], y, cell[1]))
+        if not state or state == AIR:
+            continue  # ground-layer-hole check owns this case
+        block_id = state.split("[", 1)[0]
+        # Allow the formal-path overlay (PATH_FORMAL) block to sit on any ground
+        # zone — the formal backbone owns those cells, not the ground zone.
+        if block_id in path_overlay_blocks:
+            checked += 1
+            continue
+        # Skip cells whose block is neither the expected ground zone primary nor
+        # any known ground/path material: these are building overhangs (a roof
+        # stair/slab from ROOF_DARK dripping past a building footprint onto an
+        # open-sky cell, or a column/balustrade post). They are not a ground-zone
+        # defect — the cell is shadowed by a structure above, not mis-zoned.
+        known_ground = set(zone_primaries.values()) | path_overlay_blocks
+        if block_id not in known_ground:
+            continue
+        if block_id != expected:
+            errors.append(f"surface_zone_material:{zone_slot[kind]}:{cell}")
+            checked += 1
+            continue
+        checked += 1
+    return errors
+
+
+def _check_tour_segment_connectivity(compound: CompoundGraph) -> List[str]:
+    """tour_segment_disconnected assertion (path-surface-zoning task 4.3).
+
+    Verifies each tour-route waypoint-to-waypoint segment is a connected
+    single-source tree: every cell on the segment is 4-neighbor-connected to the
+    segment's source waypoint. A disconnected segment fails with
+    ``tour_segment_disconnected:<from>-><to>``. A no-op for compounds without a
+    tour route (small-courtyard / garden-less courtyard).
+    """
+    errors: List[str] = []
+    tour_nodes = [n for n in compound.parcel_nodes if n.type == "tour_path"]
+    if not tour_nodes:
+        return errors  # no garden → no tour route
+    waypoints = [tuple(w) for w in tour_nodes[0].meta.get("waypoints", [])]
+    if len(waypoints) < 2:
+        return errors
+    cells = tour_nodes[0].cells
+    cell_set = set(cells)
+    for src, dst in zip(waypoints, waypoints[1:]):
+        if src == dst:
+            continue
+        # Both endpoints must be tour cells (the segment connects them).
+        if src not in cell_set or dst not in cell_set:
+            errors.append(f"tour_segment_disconnected:{src}->{dst}")
+            continue
+        # 4-neighbour BFS from src within the tour cell set; dst must be reached.
+        seen = {src}
+        q: deque = deque([src])
+        reached_dst = False
+        while q:
+            x, z = q.popleft()
+            if (x, z) == dst:
+                reached_dst = True
+                break
+            for nx, nz in ((x + 1, z), (x - 1, z), (x, z + 1), (x, z - 1)):
+                if (nx, nz) in cell_set and (nx, nz) not in seen:
+                    seen.add((nx, nz))
+                    q.append((nx, nz))
+        if not reached_dst:
+            errors.append(f"tour_segment_disconnected:{src}->{dst}")
+    return errors
+
+
+def _check_waterside_bridge_span(compound: CompoundGraph) -> List[str]:
+    """waterside_bridge_incomplete assertion (path-surface-zoning task 4.4).
+
+    Verifies the PATH_WATERSIDE slab bridge spans the pond from one shore to the
+    other (or to the 亭/island rockery): the first bridge cell must be
+    4-adjacent to a non-water shore cell, and the last must be adjacent to the
+    opposite shore or the rockery island. A bridge that does not reach both ends
+    fails with ``waterside_bridge_incomplete:<first|last>``. A no-op for compounds
+    without a waterside_bridge (e.g. a garden-less courtyard).
+    """
+    errors: List[str] = []
+    bridge_nodes = [n for n in compound.parcel_nodes if n.type == "waterside_bridge"]
+    if not bridge_nodes:
+        return errors
+    bridge = bridge_nodes[0]
+    if not bridge.cells:
+        errors.append("waterside_bridge_incomplete:empty")
+        return errors
+    water = compound.node_cells("garden_pond", "water_feature")
+    rockery = compound.node_cells("garden_rockery")
+    cells_sorted = sorted(bridge.cells)
+
+    def _adjacent_anchor(cell: Cell2) -> bool:
+        x, z = cell
+        for nx, nz in ((x + 1, z), (x - 1, z), (x, z + 1), (x, z - 1)):
+            nbr = (nx, nz)
+            if nbr in bridge.cells:
+                continue
+            # An anchor is a non-water cell (dry shore) or the rockery island.
+            if nbr in rockery:
+                return True
+            if nbr not in water and nbr not in bridge.cells:
+                return True
+        return False
+
+    if not _adjacent_anchor(cells_sorted[0]):
+        errors.append("waterside_bridge_incomplete:first")
+    if not _adjacent_anchor(cells_sorted[-1]):
+        errors.append("waterside_bridge_incomplete:last")
+    return errors
+
+
 def validate_mansion(compound: CompoundGraph) -> dict:
     """Validation for chinese_mansion 3-进 compounds.
 
@@ -4753,6 +5274,32 @@ def validate_mansion(compound: CompoundGraph) -> dict:
     if ermen is None or not (_gate_borders(ermen, main_yard)
                              and _gate_borders(ermen, back_yard)):
         errors.append("jin_sequence_violation:ermen")
+
+    # --- Surface-zone invariants (path-surface-zoning tasks 4.2/4.3/4.4) -------
+    surface_errors = _check_surface_zone_materials(compound)
+    errors.extend(surface_errors)
+    errors.extend(_check_tour_segment_connectivity(compound))
+    errors.extend(_check_waterside_bridge_span(compound))
+
+    # --- Layout invariants (Arc 6: 后院/花园 split + 绣楼 bounds) ---------------
+    # back_yard_band and garden_band must NOT share a z-interval (the v0.16-v0.17
+    # bug had them identical, so the 绣楼 sat inside the 花园).
+    back_band = compound.meta.get("back_yard_band")
+    garden_band = compound.meta.get("garden_band")
+    if (back_band and garden_band
+            and back_band[1] >= garden_band[0]):
+        errors.append(f"back_yard_garden_overlap: back={back_band} garden={garden_band}")
+    # No 绣楼 (tower_house) footprint cell may coincide with a 花园 feature cell.
+    tower_cells = set()
+    for s in compound.building_slots:
+        if s.archetype == "tower_house":
+            tower_cells |= set(s.footprint)
+    garden_feature_cells = compound.node_cells(
+        "garden_rockery", "garden_pond", "garden_pavilion", "waterside_bridge")
+    tower_garden_overlap = tower_cells & garden_feature_cells
+    if tower_garden_overlap:
+        errors.append(
+            f"tower_overlaps_garden: {sorted(tower_garden_overlap)[:8]}")
 
     path_cells = len(path)
     ground_cells = sum(1 for cell in _lot_interior_cells(compound)

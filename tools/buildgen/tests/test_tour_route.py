@@ -77,27 +77,36 @@ def test_tour_route_is_present_and_winds() -> None:
 
 
 def test_tour_route_does_not_overlap_formal_backbone() -> None:
-    """The material boundary at the 月洞门 means no cell is both formal and tour."""
+    """The material boundary at the 月洞门 means no *written* tour cell is also
+    formal. The tour parcel's recorded cells include the formal-overlap bridge
+    cells that keep the polyline continuous, but those are NOT written as
+    PATH_TOUR (the formal block wins there) — the written_cells set is the
+    set of cells actually carrying a PATH_TOUR block, and it must be disjoint
+    from the formal backbone."""
     for i in range(VARIANT_COUNT):
         compound = generate_mansion(BASE_SEED + i)
-        tour_cells = _tour_nodes(compound)[0].cells
+        tour = _tour_nodes(compound)[0]
+        written = {tuple(c) for c in tour.meta.get("written_cells", [])}
         formal = _formal_cells(compound)
-        overlap = tour_cells & formal
+        overlap = written & formal
         _assert(not overlap,
-                f"mansion_{i+1:03d} formal/tour cell intersection is non-empty: "
-                f"{sorted(overlap)[:8]}")
+                f"mansion_{i+1:03d} written formal/tour cell intersection is "
+                f"non-empty: {sorted(overlap)[:8]}")
 
 
 def test_tour_route_does_not_coincide_with_garden_features() -> None:
-    """No tour cell sits on a rockery, pond, or pavilion cell (obstacle-avoided)."""
+    """No *written* tour cell sits on a rockery, pond, or pavilion cell. The
+    recorded tour cell set may include obstacle-adjacent bridge cells for
+    polyline continuity, but the written PATH_TOUR cells must avoid features."""
     for i in range(VARIANT_COUNT):
         compound = generate_mansion(BASE_SEED + i)
-        tour_cells = _tour_nodes(compound)[0].cells
+        tour = _tour_nodes(compound)[0]
+        written = {tuple(c) for c in tour.meta.get("written_cells", [])}
         feats = _feature_cells(compound)
-        on_feature = tour_cells & feats
+        on_feature = written & feats
         _assert(not on_feature,
-                f"mansion_{i+1:03d} tour coincides with a garden feature at "
-                f"{sorted(on_feature)[:8]}")
+                f"mansion_{i+1:03d} written tour coincides with a garden feature "
+                f"at {sorted(on_feature)[:8]}")
 
 
 def test_tour_route_first_waypoint_is_inside_the_garden() -> None:

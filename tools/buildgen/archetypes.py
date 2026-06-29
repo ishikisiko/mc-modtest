@@ -1528,8 +1528,12 @@ def build_open_hall(style: Style, rng: random.Random, tier: str,
     main.meta["entry_signage"] = True
     _set_chinese_roof(main, roof_grade, axis="x")
     door_x = _door(graph, main, rng)
+    # 敞厅 is fully open front+back (亭式大厅): standoff columns on BOTH long
+    # sides, so the front+back walls become open colonnades and the formal path
+    # passes straight through (the door block on the front wall is superseded by
+    # the colonnade's open eave). door_x stays as the colonnade alignment anchor.
     _cultivation_platform(graph, main, door_x, pad=1, height=fh)
-    _cultivation_colonnade(graph, main, door_x, sides=("front",))
+    _cultivation_colonnade(graph, main, door_x, sides=("front", "back"))
     _path_patch(graph, main, door_x, rng, main.z0)
     _chinese_bay_zones(graph, main, "work", "living", axis="x", bays=bays)
     graph.meta["roof_grade"] = roof_grade

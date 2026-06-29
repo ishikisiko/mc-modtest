@@ -31,6 +31,23 @@ Three constraints from the codebase shape everything below:
    a *straight* line between two points. This is correct for the formal axis
    (礼制要求直) but **fundamentally cannot produce the "曲" (winding) of a 苔石
    曲径** — winding is the deliberate absence of shortest-path.
+4. **The 水边廊 is a floor-only placeholder (discovered in the in-game review).**
+   `_layout_garden` registers `waterside_gallery` as a `covered_gallery` parcel
+   whose comment says it "reads as a roofed walkway", but the code only lays one
+   `PATH_GALLERY` floor block per shore cell (`compound.py` ≈ `:3607-3613`). No
+   column, no roof, no balustrade. The mansion 主院 has no 抄手游廊 at all. A
+   surface-zone change that turns gravel into oak_planks on that one floor tile
+   does not make it a 廊 — the user's review was explicit that this change must
+   also build the real 3D gallery. (Arc 5, elevated after review.)
+5. **The 后院 and 花园 share one z-interval (discovered in the in-game review).**
+   `generate_mansion` defines both bands as `[ermen_z+1, lot_d-2]`
+   (`compound.py:3723-3724`); the `_mansion_yard_depths` `back_d`/`garden_d`
+   split is computed but unused. So the 绣楼 (`tower_house`, depth 13, placed at
+   `ermen_z+1`) sits the full depth of its would-be 后院 straight into the 花园
+   band, overlapping 假山/水池/亭, and a single tower is pinned hard-west
+   (`t1_x = axis-1-tw`). The 主院 台基 is meanwhile full-width solid
+   PLATFORM_STONE. The mansion has read as broken since v0.16. (Arc 6, elevated
+   after review.)
 
 ## Goals / Non-Goals
 
@@ -49,6 +66,13 @@ Three constraints from the codebase shape everything below:
   garden pond and reach the 亭.
 - All three compound families covered: `chinese_mansion`, `chinese_courtyard`,
   embedded `small_courtyard` — each with its vocabulary subset.
+- **(Arc 5)** The 水边廊 is a real 3D covered gallery (floor + columns +
+  single-slope roof + water-side balustrade), and the mansion 主院 gains 抄手游廊
+  — both via one shared `_place_covered_gallery_3d()` renderer. A 廊 is no longer
+  a single floor tile.
+- **(Arc 6)** The 绣楼 stands in its own 后院, separated from the 花园 by the
+  `back_d` depth split; the 主院 台基 shrinks to the building footprints so the
+  主院 heart is grass. The 中轴主骨 is preserved; the 花园 stays free-form.
 
 **Non-Goals (deferred)**
 
@@ -392,6 +416,105 @@ continuous with the stone-brick courtyard register).
 **Rationale.** Respect the existing style ban; pick the unbanned, on-register
 alternative.
 
+### D11: 连廊建筑化 — a 廊 is a 3D renderer, not a floor tile (Arc 5)
+
+**Choice.** Factor the existing gallery geometry into one shared
+`_place_covered_gallery_3d(compound, style, cells, base_y, water_side,
+roof_form="single_slope")` renderer, and route both the 水边廊 upgrade and the
+new 主院 抄手游廊 through it. Per gallery cell it writes four layers:
+
+- **Floor** — `PATH_GALLERY` (the surface-zone material is preserved; the 廊 zone
+  still resolves to oak_planks).
+- **Columns** — `COLUMN` (stripped_dark_oak_log), one post every other cell,
+  2 tall (`base_y+1` .. `base_y+2`). Reused verbatim from
+  `_place_covered_galleries` (`compound.py:1783-1786`).
+- **Balustrade** — a new `BALUSTRADE` slot (`minecraft:dark_oak_fence` /
+  `minecraft:spruce_fence`), 密排 single-row on the open side (the side
+  `water_side` points at). The 密排 pattern is reused from
+  `ops.balustrade` (`ops.py:1786`); the slot is `style.primary("BALUSTRADE")`.
+- **Roof** — a **single-slope** roof: `ROOF_DARK` stairs tilted low toward the
+  open/water side (`base_y+3`) and high toward the yard (`base_y+4`), so it
+  drains away from the buildings and reads as a lean-to 水廊 rather than a flat
+  slab. (The 亭's `chinese_round_ridge` slab cap is the flat-roof precedent we
+  are deliberately *not* copying for the gallery — a gallery wants a slope.)
+
+The `waterside_gallery` parcel keeps its `covered_gallery` type and its
+4-adjacent-to-water invariant (locked by `test_path_termini`); only the rendered
+geometry changes from "one floor block" to the four-layer renderer. The 主院
+抄手游廊 is mansion-only and optional (skipped on a variant whose 主院 is too
+narrow for a 3-wide gallery clear of the 厢房).
+
+**Slot:** `BALUSTRADE` is added to `chinese_mansion.json` only (not courtyard —
+it has no 3D gallery). It is already in `OPTIONAL_MATERIAL_SLOTS`
+(`style.py:29`), so `check_style_policy` stays green with no code change.
+Vanilla-clean.
+
+**Alternatives considered**
+
+- *Keep the gallery as a floor tile, ship Arc 1-4 only.* Rejected by the user's
+  in-game review: a 水边廊 that is one oak_planks block "完全不对". The surface
+  zoning is correct but the building is absent.
+- *Reuse `ops.balustrade` directly.* Rejected: it targets a massing-graph
+  `Node`, not a compound parcel. Arc 5 copies its 密排 *pattern* into the
+  compound-grid renderer, keeping one rendering path per layer.
+- *Flat slab roof (like the 亭).* Rejected: a flat cap reads as a lid, not a
+  水廊; the single-slope reads as a real lean-to gallery roof.
+- *Add the 抄手游廊 to courtyard too.* Rejected: courtyard already has
+  `_place_covered_galleries` (correct); Arc 5 only adds the mansion 主院 gallery,
+  which is currently absent.
+
+**Rationale.** The geometry already exists in `compound.py`; Arc 5 factors it
+into one renderer rather than re-inventing, and upgrades the fake 水边廊 to a
+real building. Single-slope + fence balustrade reads as a 江南 水廊; vanilla-only.
+
+### D12: 房屋布局修复 — split 后院/花园 by back_d, bound the 绣楼, shrink the 台基 (Arc 6)
+
+**Choice.** Apply the already-computed `_mansion_yard_depths` split to the
+enclosure bands and the 绣楼 bounds:
+
+- **Bands.** `generate_mansion` calls `_mansion_yard_depths(lot_d,
+  variant.garden_scale)` and cuts `back_yard_band = [ermen_z+1, ermen_z+back_d]`
+  / `garden_band = [ermen_z+back_d+1, lot_d-2]`. The 月洞门 screen wall (the
+  后院↔花园 material boundary) moves to `garden_band[0]`. `_layout_garden` and
+  `place_moon_gate_screen` key off `garden_band[0]` relative-ly, so the garden
+  features shift north as a block — placement stays valid while `garden_d ≥ 6`
+  (verified: medium lot garden_d ≈ 15).
+- **绣楼 bounds.** `_plan_mansion_enclosure` requires `tz0 + td - 1 <
+  garden_band[0]` so the 绣楼 stays in the 后院. `back_d ≥ 15`, `td = 13` → ≥1
+  cell clearance. A single tower keeps its off-axis placement (a common 江南
+  form) but the hard-west pin (`t1_x = axis-1-tw`) is relaxed so the tower can
+  center or mirror when the 后院 has room.
+- **台基 shrink.** `_realize_mansion_enclosure` stops full-width-filling the
+  主院; the plinth covers only the 敞厅 + 厢房 + 抄手游廊 footprints (±1-cell
+  skirt). The 主院 heart falls through to `_place_yard_ground`, which resolves it
+  to `GROUND_YARD_OPEN` grass — so the 主院 reads as 草+砖结合, not an empty
+  stone slab.
+
+**Guards.** `validate_mansion` adds `back_yard_garden_overlap`
+(`back_yard_band[1] < garden_band[0]`) and `tower_overlaps_garden` (no 绣楼
+footprint cell coincides with a 花园 feature cell). Both prevent the regression
+from recurring.
+
+**Layout principle (confirmed with the user).** 中轴主骨 (门屋 → 前院 → 仪门 →
+主院 → 二门 → 后院 → 花园) with the 花园 free-form (苏州园林-style asymmetry);
+the 绣楼 just needs its own 后院, not symmetry. Only the 后院/花园 split, the
+绣楼 bounds, and the 台基 footprint change — the building roster, facings, and
+the 中轴 itself are untouched.
+
+**Alternatives considered**
+
+- *Roll back to the pre-`rebuild-mansion-enclosure-plan` z-band layout.*
+  Rejected: the enclosure model is the intended direction; the bug is that
+  `back_d` was computed but unused, not that the model is wrong.
+- *Force the single tower to center.* Rejected by the user: an off-axis 绣楼 is
+  a valid 江南 form; the requirement is only that it leaves the 花园.
+- *Leave the 台基 full-width.* Rejected: the 主院 reads as an empty stone slab;
+  the user's "院心留草" direction is explicit.
+
+**Rationale.** The depth split already exists; applying it is a localized
+fix that gives the 绣楼 a lawful home and the 主院 a heart, without touching the
+enclosure model's design.
+
 ## Risks / Trade-offs
 
 - **[Tour waypoint routing may produce a path that overlaps the formal backbone
@@ -434,6 +557,32 @@ alternative.
   `cultivation_town.json` each gain slots. **Mitigation:** slots are cheap
   (list of block ids); the `tools/check_style_policy.py` linter catches
   undefined-slot references. Acceptance: linter green.
+- **[Arc 5: the 抄手游廊 may not fit a narrow 主院]** → A 3-wide gallery along the
+  主院 edge could collide with a 厢房 footprint on a small `courtyard_size`.
+  **Mitigation:** the gallery is optional per side; if the clear strip between
+  the 厢房 and the 内门/敞厅 flank is < 3 wide, that side is skipped (not
+  mandatory). Acceptance: the mansion still validates; voxel-walkability is the
+  backstop.
+- **[Arc 6: 台基 shrink may leave door cells unsupported or punch holes]** →
+  Shrinking the plinth to the building footprints means 主院 heart cells are no
+  longer PLATFORM_STONE; `_place_yard_ground` must cover them (grass) at y=0, and
+  door/path cells must remain walkable. **Mitigation:** `_place_yard_ground`
+  already runs on every non-building parcel cell and resolves open_sky → grass;
+  the existing `ground_layer_hole` + voxel-walkability checks catch any gap.
+  Acceptance: no `ground_layer_hole` / `voxel_*` error after the shrink.
+- **[Arc 6: garden_d shrinks after the back_d split, the 亭 may not place]** →
+  `pav_cz = gy0 + feature_d + 2`; a small garden_d could push `pav_cz > gy1` and
+  the 亭 is silently dropped (no error, just absent). **Mitigation:** verified
+  medium/large lots give garden_d ≈ 15 (亭 places); small lots keep garden_d ≥ 6
+  and the 亭 may drop — acceptable (the 亭 has no mandatory check). Acceptance:
+  at least the medium/large variants place the 亭; the small variant still
+  validates.
+- **[Arc 6: the relaxed single-tower pin could re-introduce overlap on edge
+  lots]** → Loosening the hard-west pin lets the tower center, but a careless
+  center could still touch a 花园 feature if back_d is tight. **Mitigation:** the
+  `tower_overlaps_garden` + `back_yard_garden_overlap` validators (D12) are the
+  hard gate; the placement change is bounded by `tz0+td-1 < garden_band[0]`
+  regardless of x.
 
 ## Migration Plan
 

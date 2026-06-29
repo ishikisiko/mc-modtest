@@ -160,6 +160,10 @@
       "myvillage:rockery_block",
       "minecraft:mossy_stone_bricks",
       "minecraft:stone"
+    ],
+    "BALUSTRADE": [
+      "minecraft:dark_oak_fence",
+      "minecraft:spruce_fence"
     ]
   },
   "variation_rate": {

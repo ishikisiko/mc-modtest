@@ -106,6 +106,76 @@ def test_waterside_gallery_is_a_covered_gallery_parcel() -> None:
                 f"expected 'covered_gallery'")
 
 
+def test_waterside_gallery_is_a_real_3d_building() -> None:
+    """Arc 5: the 水边廊 is a real covered gallery — floor + COLUMN posts +
+    ROOF_DARK roof + BALUSTRADE railing — not a single floor tile."""
+    for i in range(VARIANT_COUNT):
+        compound = generate_mansion(BASE_SEED + i)
+        wg = next(n for n in compound.parcel_nodes if n.id == "waterside_gallery")
+        base_y = min(__column_surface_y(compound, c) for c in wg.cells)
+        slots_in_col = set()
+        for (x, z) in wg.cells:
+            for y in range(base_y, base_y + 5):
+                cell = compound.grid.get((x, y, z))
+                if cell is not None and getattr(cell, "slot", None):
+                    slots_in_col.add(cell.slot)
+        # Floor (PATH_GALLERY) + columns (COLUMN) + roof (ROOF_DARK) are mandatory;
+        # balustrade (BALUSTRADE) sits on the open edge just outside the gallery.
+        _assert("PATH_GALLERY" in slots_in_col,
+                f"mansion_{i+1:03d} 水边廊 has no PATH_GALLERY floor")
+        _assert("COLUMN" in slots_in_col,
+                f"mansion_{i+1:03d} 水边廊 has no COLUMN posts (not a 3D gallery)")
+        _assert("ROOF_DARK" in slots_in_col,
+                f"mansion_{i+1:03d} 水边廊 has no ROOF_DARK roof (not a 3D gallery)")
+        # Balustrade on the open edge.
+        open_side = wg.meta.get("water_side")
+        delta = {"north": (0, -1), "south": (0, 1), "east": (1, 0), "west": (-1, 0)}
+        if open_side in delta:
+            dx, dz = delta[open_side]
+            rail_found = False
+            for (x, z) in wg.cells:
+                edge = (x + dx, z + dz)
+                if edge in wg.cells:
+                    continue
+                cell = compound.grid.get((edge[0], base_y + 2, edge[1]))
+                if cell is not None and cell.slot == "BALUSTRADE":
+                    rail_found = True
+                    break
+            _assert(rail_found,
+                    f"mansion_{i+1:03d} 水边廊 has no BALUSTRADE on its open edge")
+
+
+def test_mansion_main_yard_has_returning_galleries() -> None:
+    """Arc 5: the mansion 主院 gains east + west 抄手游廊 (3D covered galleries)."""
+    for i in range(VARIANT_COUNT):
+        compound = generate_mansion(BASE_SEED + i)
+        galleries = [n for n in compound.parcel_nodes
+                     if n.type == "covered_gallery" and n.id.endswith("_gallery")
+                     and n.id in ("west_gallery", "east_gallery")]
+        _assert(len(galleries) >= 1,
+                f"mansion_{i+1:03d} 主院 has no 抄手游廊 (expected ≥1, got {len(galleries)})")
+
+
+def test_tower_house_does_not_overlap_the_garden() -> None:
+    """Arc 6: the 绣楼 stands in its own 后院 — no footprint cell coincides with a
+    花园 feature cell, and the 后院/花园 bands do not share a z-interval."""
+    for i in range(VARIANT_COUNT):
+        compound = generate_mansion(BASE_SEED + i)
+        report = validate_mansion(compound)
+        overlap_errs = [e for e in report["errors"]
+                        if e.startswith("tower_overlaps_garden")
+                        or e.startswith("back_yard_garden_overlap")]
+        _assert(not overlap_errs,
+                f"mansion_{i+1:03d} layout overlap: {overlap_errs}")
+
+
+def __column_surface_y(compound, cell):
+    """Local helper: the standable surface y of a column (mirrors
+    _natural_surface_y without importing the private name per-cell)."""
+    from buildgen.compound import _natural_surface_y
+    return _natural_surface_y(compound, cell)
+
+
 def test_mansion_still_validates() -> None:
     for i in range(VARIANT_COUNT):
         compound = generate_mansion(BASE_SEED + i)

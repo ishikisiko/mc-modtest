@@ -140,6 +140,17 @@ through-building instead of a wall hole, mansion buildings use form-rule
 door-wall facings so their doors face their yards, and the gravel path is routed
 from the gate-house inner opening to every door-front. Command names are
 unchanged: `/myvillage place chinese_mansion_001` ... `_006`.
+v0.18.0 **surface-zones** the courtyard/mansion ground + path layer so the path
+reads as **three routes with six surfaces** instead of one flat gravel stripe:
+the formal axis (青石 `PATH_FORMAL`), the winding garden tour (苔石 `PATH_TOUR`,
+a waypoint polyline 假山→水岸→亭), and the waterside stairs + slab bridge
+(`PATH_WATERSIDE`); the ground splits into 天井 心 (`GROUND_YARD_HEART`), 廊下
+(`PATH_GALLERY`), and 夹道 (`PATH_ALLEY`) around the open grass. The mansion
+garden gains the 月洞门 穿墙通道 (the formal↔tour material boundary), the 水边廊
+along the pond shore, and a 仆役房 along the 倒座 夹道; the cross-pond 汀步
+spike-row is replaced by a flat slab bridge. `/myvillage place` ids are
+unchanged — only the surface materials and the garden routing change.
+See [`docs/ai-kb/16_path_surface_zoning.md`](docs/ai-kb/16_path_surface_zoning.md).
 Run the final full-profile generation after a vanilla-profile proof to restore
 the shipped artifact profile.
 
@@ -323,7 +334,7 @@ jar tf build/libs/*.jar | grep "assets/myvillage/textures/painting/inscription"
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.17.0.jar
+build/libs/myvillage-0.18.0.jar
 ```
 
 ## Versioning And Changelog
@@ -369,12 +380,12 @@ python3 tools/generate_sect_plan_preview.py --count 6    # default covers all 3 
 python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 graph previews
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.17.0.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.17.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.17.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.17.0.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.17.0.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.17.0.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.18.0.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.18.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.18.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.18.0.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.18.0.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.18.0.jar | grep "assets/myvillage/textures/painting/inscription"
 ```
 
 Use the command list below as the acceptance script. Update this README,
