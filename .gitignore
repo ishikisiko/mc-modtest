@@ -20,3 +20,10 @@ logs/
 reports/*
 !reports/town_distinctness_calibration.json
 !reports/cultivation_style_baseline_hashes.txt
+
+# Chunky path-traced renderer artifacts (ChunkyLauncher home, downloaded core
+# jars, MC textures, scenes, dumps). See docs/ai-kb/18_chunky_path_traced_render.md.
+# Kept locally as a cache; regenerate via the launcher as needed.
+chunky-render/
+chunky.json
+chunky-launcher.json
