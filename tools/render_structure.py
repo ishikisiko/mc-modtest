@@ -1,0 +1,1148 @@
+#!/usr/bin/env python3
+"""Target-based Chunky camera solver + headless renderer.
+
+Scans a Minecraft save's region files for a placed structure's bounding box,
+derives the bbox center, generates four cardinal views (front/back/left/right),
+computes Chunky ``camera.position`` / ``camera.orientation`` (yaw/pitch/roll in
+**radians**) via a look-at solver derived from Chunky's own matrix conventions,
+writes a pristine ``scene.json`` per view, drives ``ChunkyLauncher.jar`` to
+render + snapshot each one, and finally runs a framing-fail detector over each
+PNG (mean luminance near sky color + too few non-sky pixels => framing failed).
+
+No more hand-tuning yaw/pitch by trial and error.
+
+The camera math is derived from se.llbit.chunky 2.4.6 bytecode
+(Matrix3.rotX/rotY + Camera.updateTransform + PinholeProjector.apply): the
+default center view ray is +Z, transformed by
+``rotY(yaw+pi/2) * rotX(pi/2-pitch) * rotZ(roll)``, which simplifies to the
+forward direction
+
+    d = ( cos(yaw)*sin(pitch), -cos(pitch), -sin(yaw)*sin(pitch) )
+
+Solving d = normalize(target - camera) for yaw, pitch gives
+
+    pitch = acos(-f.y)
+    yaw   = atan2(-f.z, f.x)
+
+(see docs/ai-kb/18_chunky_path_traced_render.md for the full derivation).
+
+Usage:
+    python tools/render_structure.py \
+        --world run-acceptance/chunky_stage1_world \
+        --launcher chunky-render/ChunkyLauncher.jar \
+        --chunky-home chunky-render \
+        --anchor 0 79 192 \
+        --tag-prefix small_house \
+        --views front back left right \
+        --out chunky-render/renders
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import math
+import shutil
+import struct
+import subprocess
+import sys
+import tempfile
+import zlib
+from pathlib import Path
+from typing import Any, Iterable
+
+# Reuse the repo's own minimal NBT primitives so this tool adds no new
+# runtime dependency. nbtread lives in tools/buildgen/.
+sys.path.insert(0, str(Path(__file__).resolve().parent / "buildgen"))
+import nbtread  # noqa: E402
+
+ROOT = Path(__file__).resolve().parents[1]
+
+# ---------------------------------------------------------------------------
+# Region (.mca) reader — self-contained, builds on nbtread's NBT decoder.
+# ---------------------------------------------------------------------------
+
+SECTOR_BYTES = 4096
+CHUNK_SECTIONS_PER_CHUNK = 24  # 1.21: y=-64..319 in 16 sections of 16 = 24
+
+
+def _read_region_chunks(mca: Path) -> dict[tuple[int, int], dict[str, Any]]:
+    """Return {(lx, lz): chunk_nbt} for every present chunk in one region file.
+
+    lx/lz are chunk coords LOCAL to the region (0..31). The caller converts to
+    absolute chunk coords from the region file name.
+    """
+    raw = mca.read_bytes()
+    if len(raw) < 2 * SECTOR_BYTES:
+        return {}
+    chunks: dict[tuple[int, int], dict[str, Any]] = {}
+    for i in range(1024):
+        off_bytes = raw[i * 4 : i * 4 + 3]
+        sectors = raw[i * 4 + 3]
+        if sectors == 0:
+            continue
+        offset = (off_bytes[0] << 16) | (off_bytes[1] << 8) | off_bytes[2]
+        start = offset * SECTOR_BYTES
+        length = struct.unpack(">I", raw[start : start + 4])[0]
+        scheme = raw[start + 4]
+        data = raw[start + 5 : start + 4 + length]
+        if scheme == 2:  # zlib
+            try:
+                data = zlib.decompress(data)
+            except zlib.error:
+                continue
+        elif scheme == 1:  # gzip
+            import gzip
+
+            try:
+                data = gzip.decompress(data)
+            except OSError:
+                continue
+        else:
+            continue
+        # NBT payload starts at byte 0: root tag id, root name, then compound.
+        (tag_id,) = struct.unpack(">B", data[0:1])
+        if tag_id != nbtread.TAG_COMPOUND:
+            continue
+        f = _BytesReader(data)
+        f.read(1)  # root tag id
+        nbtread._read_utf(f)  # root name (discard)
+        chunk = nbtread._read_payload(f, nbtread.TAG_COMPOUND)
+        lz = i // 32
+        lx = i % 32
+        chunks[(lx, lz)] = chunk
+    return chunks
+
+
+class _BytesReader:
+    """file-like wrapper over a bytes buffer, for nbtread._read_payload."""
+
+    def __init__(self, data: bytes) -> None:
+        self._b = data
+        self._p = 0
+
+    def read(self, n: int) -> bytes:
+        v = self._b[self._p : self._p + n]
+        self._p += len(v)
+        return v
+
+
+# ---------------------------------------------------------------------------
+# Block bbox scan over the whole save (all region files).
+# ---------------------------------------------------------------------------
+
+# Blocks that are part of the natural world, not a placed structure. A
+# structure bbox is the AABB of all blocks whose palette name is NOT in this
+# terrain set and NOT air. This is a NATURAL-GENERATION allowlist: anything a
+# placed structure uses (planks, stairs, doors, fences, glass, crafted bricks,
+# furniture, etc.) is intentionally absent so that built structures cluster.
+TERRAIN = {
+    "minecraft:air",
+    "minecraft:cave_air",
+    "minecraft:void_air",
+    "minecraft:stone",
+    "minecraft:dirt",
+    "minecraft:grass_block",
+    "minecraft:coarse_dirt",
+    "minecraft:podzol",
+    "minecraft:mycelium",
+    "minecraft:mud",
+    "minecraft:gravel",
+    "minecraft:sand",
+    "minecraft:red_sand",
+    "minecraft:sandstone",
+    "minecraft:red_sandstone",
+    "minecraft:water",
+    "minecraft:lava",
+    "minecraft:bedrock",
+    "minecraft:clay",
+    "minecraft:snow_block",
+    "minecraft:snow",
+    "minecraft:ice",
+    "minecraft:packed_ice",
+    "minecraft:blue_ice",
+    "minecraft:frosted_ice",
+    # vegetation (natural)
+    "minecraft:grass",
+    "minecraft:tall_grass",
+    "minecraft:fern",
+    "minecraft:large_fern",
+    "minecraft:seagrass",
+    "minecraft:tall_seagrass",
+    "minecraft:kelp",
+    "minecraft:kelp_plant",
+    "minecraft:lily_pad",
+    "minecraft:dead_bush",
+    "minecraft:cactus",
+    "minecraft:bamboo",
+    "minecraft:sugar_cane",
+    # leaves + logs (trees / natural vegetation, NOT built)
+    "minecraft:oak_leaves",
+    "minecraft:dark_oak_leaves",
+    "minecraft:birch_leaves",
+    "minecraft:spruce_leaves",
+    "minecraft:jungle_leaves",
+    "minecraft:acacia_leaves",
+    "minecraft:mangrove_leaves",
+    "minecraft:cherry_leaves",
+    "minecraft:azalea_leaves",
+    "minecraft:flowering_azalea_leaves",
+    "minecraft:oak_log",
+    "minecraft:dark_oak_log",
+    "minecraft:birch_log",
+    "minecraft:spruce_log",
+    "minecraft:jungle_log",
+    "minecraft:acacia_log",
+    "minecraft:mangrove_log",
+    "minecraft:cherry_log",
+    "minecraft:oak_wood",
+    "minecraft:spruce_wood",
+    "minecraft:birch_wood",
+    "minecraft:stripped_spruce_wood",
+    "minecraft:stripped_oak_wood",
+    # mushrooms / flowers / natural decor
+    "minecraft:poppy",
+    "minecraft:dandelion",
+    "minecraft:allium",
+    "minecraft:azure_bluet",
+    "minecraft:red_tulip",
+    "minecraft:orange_tulip",
+    "minecraft:white_tulip",
+    "minecraft:pink_tulip",
+    "minecraft:oxeye_daisy",
+    "minecraft:cornflower",
+    "minecraft:lily_of_the_valley",
+    "minecraft:sunflower",
+    "minecraft:lilac",
+    "minecraft:rose_bush",
+    "minecraft:peony",
+    "minecraft:red_mushroom",
+    "minecraft:brown_mushroom",
+    "minecraft:red_mushroom_block",
+    "minecraft:brown_mushroom_block",
+    "minecraft:mushroom_stem",
+    "minecraft:small_amethyst_bud",
+    "minecraft:medium_amethyst_bud",
+    "minecraft:large_amethyst_bud",
+    "minecraft:amethyst_cluster",
+    "minecraft:budding_amethyst",
+    # cave / raw stone variants
+    "minecraft:granite",
+    "minecraft:diorite",
+    "minecraft:andesite",
+    "minecraft:deepslate",
+    "minecraft:tuff",
+    "minecraft:calcite",
+    "minecraft:dripstone_block",
+    "minecraft:pointed_dripstone",
+    "minecraft:moss_block",
+    "minecraft:smooth_basalt",
+    "minecraft:basalt",
+    "minecraft:obsidian",
+    "minecraft:crying_obsidian",
+    "minecraft:netherrack",
+    "minecraft:end_stone",
+    "minecraft:terracotta",
+    "minecraft:glowstone",
+    # ores (raw ground, all variants incl. deepslate)
+    "minecraft:coal_ore",
+    "minecraft:iron_ore",
+    "minecraft:copper_ore",
+    "minecraft:gold_ore",
+    "minecraft:redstone_ore",
+    "minecraft:lapis_ore",
+    "minecraft:diamond_ore",
+    "minecraft:emerald_ore",
+    "minecraft:deepslate_coal_ore",
+    "minecraft:deepslate_iron_ore",
+    "minecraft:deepslate_copper_ore",
+    "minecraft:deepslate_gold_ore",
+    "minecraft:deepslate_redstone_ore",
+    "minecraft:deepslate_lapis_ore",
+    "minecraft:deepslate_diamond_ore",
+    "minecraft:deepslate_emerald_ore",
+    "minecraft:nether_gold_ore",
+    "minecraft:nether_quartz_ore",
+    "minecraft:ancient_debris",
+    "minecraft:raw_iron_block",
+    "minecraft:raw_copper_block",
+    "minecraft:raw_gold_block",
+}
+
+
+def _section_block_index(sec: dict[str, Any]) -> tuple[int, list[str]] | None:
+    """Decode a chunk section's block_states into (bits, palette_names).
+
+    Returns None for empty sections. palette_names are the resolved block ids;
+    air/unknown entries are kept (the caller filters).
+    """
+    bs = sec.get("block_states")
+    if not isinstance(bs, dict):
+        return None
+    pal = bs.get("palette")
+    if not isinstance(pal, list) or not pal:
+        return None
+    names: list[str] = []
+    for entry in pal:
+        if isinstance(entry, dict):
+            names.append(str(entry.get("Name", "minecraft:air")))
+        else:
+            names.append("minecraft:air")
+    return (0, names)
+
+
+def _iter_section_blocks(
+    sec: dict[str, Any], sx: int, sy: int, sz: int
+) -> Iterable[tuple[int, int, int, str]]:
+    """Yield (world_x, world_y, world_z, block_name) for each non-skipped block
+    in a 16x16x16 section. Only yields blocks whose palette entry is a structure
+    block (not in TERRAIN)."""
+    decoded = _section_block_index(sec)
+    if decoded is None:
+        return
+    _, names = decoded
+    bs = sec["block_states"]
+    data = bs.get("data")
+    # Resolve the palette index per block.
+    if data is None:
+        # uniform section — single palette entry fills the whole section
+        name = names[0] if names else "minecraft:air"
+        if name in TERRAIN:
+            return
+        for y in range(16):
+            for z in range(16):
+                for x in range(16):
+                    yield (sx + x, sy + y, sz + z, name)
+        return
+    if len(names) <= 1:
+        bits = 4
+    else:
+        bits = max(4, math.ceil(math.log2(len(names))))
+    per_long = 64 // bits
+    mask = (1 << bits) - 1
+    block_i = 0
+    for L in data:
+        u = L & ((1 << 64) - 1)  # Java long is signed -> unsigned
+        for k in range(per_long):
+            if block_i >= 4096:
+                return
+            idx = (u >> (k * bits)) & mask
+            name = names[idx] if idx < len(names) else "minecraft:air"
+            if name not in TERRAIN:
+                # block index -> (x, y, z): x varies fastest, then z, then y
+                by = block_i // 256
+                bz = (block_i // 16) % 16
+                bx = block_i % 16
+                yield (sx + bx, sy + by, sz + bz, name)
+            block_i += 1
+
+
+def scan_structure_bbox(
+    world_dir: Path,
+    *,
+    anchor: tuple[int, int, int] | None = None,
+    tag_prefix: str | None = None,
+    search_radius: int = 48,
+) -> dict[str, Any]:
+    """Scan the save's region files and return the bbox of the structure at
+    ``anchor``.
+
+    Two modes:
+
+    - **Anchored (recommended):** only non-terrain blocks within
+      ``search_radius`` blocks of ``anchor`` (3D box, not sphere) are counted,
+      and their AABB is returned directly. No clustering, so neighboring
+      structures outside the radius never contaminate the bbox. This is what
+      you want for "render the one building I just placed at X Y Z".
+    - **Unanchored:** every non-terrain block in the save is clustered on a
+      coarse 16-block grid and the densest cluster wins. Slow and noisy on a
+      world that contains many structures; keep it as a fallback.
+
+    In both modes 'structure block' = palette name not in TERRAIN (natural
+    generation) and not air.
+    """
+    region_dir = world_dir / "region"
+    if not region_dir.is_dir():
+        raise FileNotFoundError(f"no region/ dir under {world_dir}")
+
+    all_blocks: list[tuple[int, int, int]] = []
+    block_names: dict[str, int] = {}
+
+    # When anchored, narrow the (x,z) chunk range and y section range to the
+    # search box so we skip 99% of the world and never pull in faraway
+    # structures.
+    if anchor is not None:
+        ax, ay, az = anchor
+        r = search_radius
+        cx0, cx1 = (ax - r) // 16, (ax + r) // 16
+        cz0, cz1 = (az - r) // 16, (az + r) // 16
+        sec0 = (ay - r) // 16
+        sec1 = (ay + r) // 16
+
+        def _in_box(bx: int, by: int, bz: int) -> bool:
+            return (
+                ax - r <= bx <= ax + r
+                and ay - r <= by <= ay + r
+                and az - r <= bz <= az + r
+            )
+
+    region_files = sorted(region_dir.glob("r.*.*.mca"))
+    for mca in region_files:
+        # filename r.<x>.<z>.mca -> stem r.<x>.<z> -> ['r', '<x>', '<z>']
+        parts = mca.stem.split(".")
+        if len(parts) != 3:
+            continue
+        try:
+            rx, rz = int(parts[1]), int(parts[2])
+        except ValueError:
+            continue
+
+        if anchor is not None:
+            # region covers chunks [rx*32, rx*32+31]; skip if it can't overlap
+            if (
+                rx * 32 + 31 < cx0
+                or rx * 32 > cx1
+                or rz * 32 + 31 < cz0
+                or rz * 32 > cz1
+            ):
+                continue
+
+        chunks = _read_region_chunks(mca)
+        for (lx, lz), chunk in chunks.items():
+            cx = rx * 32 + lx
+            cz = rz * 32 + lz
+            if anchor is not None and (cx < cx0 or cx > cx1 or cz < cz0 or cz > cz1):
+                continue
+            sections = chunk.get("sections")
+            if not isinstance(sections, list):
+                continue
+            for sec in sections:
+                if not isinstance(sec, dict) or "Y" not in sec:
+                    continue
+                yv = sec["Y"]
+                sy = yv if isinstance(yv, int) else yv.value
+                if anchor is not None and (sy < sec0 or sy > sec1):
+                    continue
+                for bx, by, bz, name in _iter_section_blocks(
+                    sec, cx * 16, sy * 16, cz * 16
+                ):
+                    if anchor is not None and not _in_box(bx, by, bz):
+                        continue
+                    all_blocks.append((bx, by, bz))
+                    block_names[name] = block_names.get(name, 0) + 1
+
+    if not all_blocks:
+        raise RuntimeError(
+            f"no structure blocks found under {region_dir} "
+            f"(scanned {len(region_files)} region files; "
+            f"anchor={anchor} search_radius={search_radius})"
+        )
+
+    if anchor is not None:
+        # Anchored mode: AABB of everything in the box. Done.
+        xs = [p[0] for p in all_blocks]
+        ys = [p[1] for p in all_blocks]
+        zs = [p[2] for p in all_blocks]
+        best = all_blocks
+    else:
+        # Unanchored: cluster on a coarse 16-block grid, take the densest.
+        def cell(p: tuple[int, int, int]) -> tuple[int, int, int]:
+            return (p[0] >> 4, p[1] >> 4, p[2] >> 4)
+
+        clusters: dict[tuple[int, int, int], list[tuple[int, int, int]]] = {}
+        for p in all_blocks:
+            clusters.setdefault(cell(p), []).append(p)
+        cells = list(clusters)
+        parent = {c: c for c in cells}
+
+        def find(c: tuple[int, int, int]) -> tuple[int, int, int]:
+            while parent[c] != c:
+                parent[c] = parent[parent[c]]
+                c = parent[c]
+            return c
+
+        def union(a: tuple[int, int, int], b: tuple[int, int, int]) -> None:
+            ra, rb = find(a), find(b)
+            if ra != rb:
+                parent[ra] = rb
+
+        for c in cells:
+            for dx, dy, dz in (
+                (1, 0, 0),
+                (0, 1, 0),
+                (0, 0, 1),
+                (1, 1, 0),
+                (1, 0, 1),
+                (0, 1, 1),
+                (1, 1, 1),
+            ):
+                nb = (c[0] + dx, c[1] + dy, c[2] + dz)
+                if nb in parent:
+                    union(c, nb)
+        grouped: dict[tuple[int, int, int], list[tuple[int, int, int]]] = {}
+        for c in cells:
+            grouped.setdefault(find(c), []).extend(clusters[c])
+        best = max(grouped.values(), key=len)
+        xs = [p[0] for p in best]
+        ys = [p[1] for p in best]
+        zs = [p[2] for p in best]
+
+    bbox = {
+        "min": [min(xs), min(ys), min(zs)],
+        "max": [max(xs), max(ys), max(zs)],
+        "size": [max(xs) - min(xs) + 1, max(ys) - min(ys) + 1, max(zs) - min(zs) + 1],
+        "center": [
+            (min(xs) + max(xs)) / 2.0,
+            (min(ys) + max(ys)) / 2.0,
+            (min(zs) + max(zs)) / 2.0,
+        ],
+        "block_count": len(best),
+        "top_blocks": sorted(block_names.items(), key=lambda kv: -kv[1])[:12],
+    }
+    return bbox
+
+
+# ---------------------------------------------------------------------------
+# Camera solver — look-at, derived from Chunky 2.4.6 matrix conventions.
+# ---------------------------------------------------------------------------
+
+
+def solve_camera(
+    target: tuple[float, float, float],
+    *,
+    azimuth_deg: float,
+    distance: float,
+    height_above: float,
+) -> dict[str, Any]:
+    """Place a camera at distance/height offset from target along azimuth, and
+    solve yaw/pitch so the center view ray points at target.
+
+    azimuth_deg: compass direction the CAMERA sits at, measured clockwise from
+    +Z (south) in world space. 0 = south of target (camera at +Z), 90 = west
+    (camera at -X), 180 = north (camera at -Z), 270 = east (camera at +X).
+    """
+    az = math.radians(azimuth_deg)
+    tx, ty, tz = target
+    # Camera sits 'distance' horizontally and 'height_above' vertically up.
+    cam_x = tx - math.sin(az) * distance
+    cam_y = ty + height_above
+    cam_z = tz + math.cos(az) * distance
+
+    # Forward = target - camera, normalized.
+    fx, fy, fz = tx - cam_x, ty - cam_y, tz - cam_z
+    fl = math.sqrt(fx * fx + fy * fy + fz * fz)
+    fx, fy, fz = fx / fl, fy / fl, fz / fl
+
+    # From d = (cos(yaw)*sin(pitch), -cos(pitch), -sin(yaw)*sin(pitch)):
+    #   cos(pitch) = -fy  =>  pitch = acos(-fy)
+    #   yaw = atan2(-fz, fx)
+    pitch = math.acos(max(-1.0, min(1.0, -fy)))
+    yaw = math.atan2(-fz, fx)
+    return {
+        "position": [cam_x, cam_y, cam_z],
+        "target": [tx, ty, tz],
+        "orientation": {"roll": 0.0, "pitch": pitch, "yaw": yaw},
+        "pitch_deg": math.degrees(pitch),
+        "yaw_deg": math.degrees(yaw),
+        "forward": [fx, fy, fz],
+        "distance": fl,
+    }
+
+
+# Azimuth for each named view (where the camera sits, clockwise from +Z/south).
+VIEW_AZIMUTH = {
+    "front": 0.0,    # camera south of target, looking north (-Z)
+    "right": 90.0,   # camera west of target (-X side), looking east (+X)
+    "back": 180.0,   # camera north of target, looking south (+Z)
+    "left": 270.0,   # camera east of target (+X side), looking west (-X)
+}
+
+
+# ---------------------------------------------------------------------------
+# Scene writer (pristine template, always carries `world`).
+# ---------------------------------------------------------------------------
+
+
+def write_scene(
+    scene_path: Path,
+    *,
+    world_dir: Path,
+    dimension: int,
+    chunk_list: list[list[int]],
+    camera: dict[str, Any],
+    width: int,
+    height: int,
+    target_spp: int,
+) -> None:
+    pos = camera["position"]
+    ori = camera["orientation"]
+    scene = {
+        "sdfVersion": 9,
+        "name": scene_path.parent.name,
+        "world": str(world_dir).replace("\\", "/"),
+        "dimension": dimension,
+        "width": width,
+        "height": height,
+        "spp": 0,
+        "sppTarget": target_spp,
+        "rayDepth": 8,
+        "pathTrace": True,
+        "dumpFrequency": target_spp,  # save dump once at the end
+        "saveSnapshots": True,  # Chunky writes snapshots/snap.png each dump
+        "postprocess": "GAMMA",
+        "outputMode": "PNG",
+        "exposure": 1.0,
+        "emittersEnabled": False,
+        "sunEnabled": True,
+        "stillWater": False,
+        "biomeColorsEnabled": True,
+        "transparentSky": False,
+        "fogDensity": 0.0,
+        "skyFogDensity": 1.0,
+        "renderActors": False,
+        "waterWorldEnabled": False,
+        "waterWorldHeight": 63.0,
+        "yClipMin": -64,
+        "yClipMax": 320,
+        "yMin": -64,
+        "yMax": 320,
+        "chunkList": chunk_list,
+        "camera": {
+            "name": "camera 1",
+            "projectionMode": "PINHOLE",
+            "fov": 70.0,
+            "dof": "Infinity",
+            "focalOffset": 2.0,
+            "shift": {"x": 0.0, "y": 0.0},
+            "position": {"x": pos[0], "y": pos[1], "z": pos[2]},
+            "orientation": {
+                "roll": ori["roll"],
+                "pitch": ori["pitch"],
+                "yaw": ori["yaw"],
+            },
+        },
+        "sun": {
+            "altitude": 45.0,
+            "azimuth": 135.0,
+            "intensity": 1.3,
+            "color": {"red": 1.0, "green": 1.0, "blue": 1.0},
+            "drawTexture": True,
+        },
+        "sky": {
+            "skyYaw": 0.0,
+            "skyMirrored": True,
+            "skyLight": 1.0,
+            "mode": "SIMULATED",
+            "horizonOffset": 0.0,
+            "cloudsEnabled": False,
+            "cloudSize": 64.0,
+            "color": [0.0, 0.0, 0.0],
+            "simulatedSky": "Preetham",
+            "skyCacheResolution": 128,
+            "gradient": [
+                {"rgb": "0BABC7", "pos": 0.0},
+                {"rgb": "75AAFF", "pos": 1.0},
+            ],
+        },
+        "cameraPresets": {},
+        "materials": {},
+    }
+    scene_path.write_text(json.dumps(scene, indent=2), encoding="utf-8")
+
+
+def chunks_around_bbox(bbox: dict[str, Any], pad: int = 2) -> list[list[int]]:
+    """Chunk coords covering the bbox footprint + a margin."""
+    x0, _, z0 = bbox["min"]
+    x1, _, z1 = bbox["max"]
+    cx0 = (x0 - pad) // 16
+    cx1 = (x1 + pad) // 16
+    cz0 = (z0 - pad) // 16
+    cz1 = (z1 + pad) // 16
+    return [[cx, cz] for cx in range(cx0, cx1 + 1) for cz in range(cz0, cz1 + 1)]
+
+
+def chunks_for_view(
+    bbox: dict[str, Any], camera_pos: list[float], *, pad: int = 1
+) -> list[list[int]]:
+    """Chunk coords covering BOTH the bbox footprint and the camera position,
+    plus the line of sight between them. Chunky only renders loaded chunks, so
+    if the camera sits outside the chunkList it renders empty sky even with a
+    correct look-at. This unions the bbox box and the camera box so the camera
+    always has ground under its sightline to the target."""
+    x0b, _, z0b = bbox["min"]
+    x1b, _, z1b = bbox["max"]
+    cam_x, _, cam_z = camera_pos
+    xs = [x0b, x1b, int(cam_x)]
+    zs = [z0b, z1b, int(cam_z)]
+    cx0 = (min(xs) - pad) // 16
+    cx1 = (max(xs) + pad) // 16
+    cz0 = (min(zs) - pad) // 16
+    cz1 = (max(zs) + pad) // 16
+    return [[cx, cz] for cx in range(cx0, cx1 + 1) for cz in range(cz0, cz1 + 1)]
+
+
+# ---------------------------------------------------------------------------
+# Chunky launcher driver.
+# ---------------------------------------------------------------------------
+
+
+def run_chunky(
+    launcher_jar: Path,
+    chunky_home: Path,
+    scene_dir: Path,
+    args: list[str],
+) -> tuple[int, str]:
+    cmd = [
+        "java",
+        f"-Dchunky.home={chunky_home}",
+        "-jar",
+        str(launcher_jar),
+        "-scene-dir",
+        str(scene_dir),
+        *args,
+    ]
+    # Chunky prints progress with non-UTF8 box-drawing bytes on Windows console;
+    # decode leniently so subprocess.run doesn't crash mid-capture.
+    proc = subprocess.run(
+        cmd,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    return proc.returncode, (proc.stdout or "") + (proc.stderr or "")
+
+
+def render_scene(
+    launcher_jar: Path,
+    chunky_home: Path,
+    scene_dir: Path,
+    scene_name: str,
+    target_spp: int,
+    threads: int,
+) -> str:
+    """Fresh render: force + reload chunks (scene carries `world`), then write
+    a PNG via the separate ``-snapshot`` command (which reads the render dump
+    the render step persisted). Returns log text."""
+    # Drop any stale dump/octree from a prior run so this render starts clean
+    # (otherwise Chunky resumes the old SPP and the snapshot shows old framing).
+    for stale in ("*.dump", "*.dump.backup", "*.octree2", "*.json.backup"):
+        for p in scene_dir.glob(stale):
+            p.unlink(missing_ok=True)
+    rc, log = run_chunky(
+        launcher_jar,
+        chunky_home,
+        scene_dir,
+        [
+            "-render",
+            scene_name,
+            "-f",
+            "-reload-chunks",
+            "-target",
+            str(target_spp),
+            "-threads",
+            str(threads),
+        ],
+    )
+    if rc != 0:
+        raise RuntimeError(f"chunky -render {scene_name} exited {rc}\n{log[-2000:]}")
+    # Chunky rewrites the scene after render with the `world` field removed, so
+    # the standalone -snapshot command (which reloads the scene) can't load the
+    # dump. Rely on the in-render auto-snapshot that saveSnapshots:true writes
+    # to <scene_dir>/snapshots/<*>-<spp>.png instead.
+    png = scene_dir / f"{scene_name}.png"
+    produced = latest_snapshot(scene_dir)
+    if produced is not None:
+        shutil.move(str(produced), str(png))
+    if png.is_file():
+        return log
+    # Fallback: try -snapshot anyway in case this Chunky version persists a
+    # usable dump.
+    rc2, log2 = run_chunky(
+        launcher_jar,
+        chunky_home,
+        scene_dir,
+        ["-snapshot", scene_name, str(png)],
+    )
+    if rc2 != 0 or not png.is_file():
+        raise RuntimeError(
+            f"chunky -snapshot {scene_name} exited {rc2}\n{log2[-2000:]}"
+        )
+    return log + log2
+
+
+def latest_snapshot(scene_dir: Path) -> Path | None:
+    """Newest PNG under <scene_dir>/snapshots/, or None. (Kept for the fallback
+    path where Chunky writes auto-snapshots instead of a dump.)"""
+    snap_dir = scene_dir / "snapshots"
+    if not snap_dir.is_dir():
+        return None
+    pngs = sorted(snap_dir.glob("*.png"), key=lambda p: p.stat().st_mtime)
+    return pngs[-1] if pngs else None
+
+
+# ---------------------------------------------------------------------------
+# Framing-fail detector.
+# ---------------------------------------------------------------------------
+
+# Sky gradient top/bottom from the default SIMULATED Preetham sky in scenes.
+SKY_TOP = (0x0B, 0xAB, 0xC7)
+SKY_BOTTOM = (0x75, 0xAA, 0xFF)
+
+
+def _luma(rgb: tuple[int, int, int]) -> float:
+    return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2]
+
+
+def assess_png(png: Path) -> dict[str, Any]:
+    """Read a PNG with stdlib only (no PIL) and score framing.
+
+    Decodes 8-bit RGB/RGBA PNGs via zlib + manual filter un-filtering, which is
+    enough for Chunky's output. Returns mean luminance, non-sky pixel ratio,
+    and a framing_ok boolean.
+    """
+    raw = png.read_bytes()
+    if raw[:8] != b"\x89PNG\r\n\x1a\n":
+        return {"error": "not a PNG", "framing_ok": False}
+    pos = 8
+    width = height = bit_depth = color_type = 0
+    idat = bytearray()
+    while pos < len(raw):
+        (length,) = struct.unpack(">I", raw[pos : pos + 4])
+        ctype = raw[pos + 4 : pos + 8]
+        body = raw[pos + 8 : pos + 8 + length]
+        if ctype == b"IHDR":
+            (width,) = struct.unpack(">I", body[0:4])
+            (height,) = struct.unpack(">I", body[4:8])
+            bit_depth = body[8]
+            color_type = body[9]
+        elif ctype == b"IDAT":
+            idat.extend(body)
+        elif ctype == b"IEND":
+            break
+        pos += 12 + length
+    if bit_depth != 8:
+        return {"error": f"unsupported bit depth {bit_depth}", "framing_ok": False}
+    channels = {2: 3, 6: 4, 0: 1, 4: 2}.get(color_type, 3)
+    decompressed = zlib.decompress(bytes(idat))
+    stride = width * channels
+    # Undo per-row filters.
+    prev = bytearray(stride)
+    pixels = bytearray()
+    prev_row = bytearray(stride)
+    rp = 0
+    for _y in range(height):
+        filt = decompressed[rp]
+        rp += 1
+        row = bytearray(decompressed[rp : rp + stride])
+        rp += stride
+        if filt == 0:  # None
+            pass
+        elif filt == 1:  # Sub
+            for i in range(channels, stride):
+                row[i] = (row[i] + row[i - channels]) & 0xFF
+        elif filt == 2:  # Up
+            for i in range(stride):
+                row[i] = (row[i] + prev_row[i]) & 0xFF
+        elif filt == 3:  # Average
+            for i in range(stride):
+                a = row[i - channels] if i >= channels else 0
+                row[i] = (row[i] + ((a + prev_row[i]) // 2)) & 0xFF
+        elif filt == 4:  # Paeth
+            for i in range(stride):
+                a = row[i - channels] if i >= channels else 0
+                b = prev_row[i]
+                c = prev_row[i - channels] if i >= channels else 0
+                p = a + b - c
+                pa, pb, pc = abs(p - a), abs(p - b), abs(p - c)
+                if pa <= pb and pa <= pc:
+                    pr = a
+                elif pb <= pc:
+                    pr = b
+                else:
+                    pr = c
+                row[i] = (row[i] + pr) & 0xFF
+        pixels.extend(row)
+        prev_row = row
+
+    # Robust framing detection via a luminance histogram, independent of sky
+    # *color* (Chunky's Preetham sky is greyish, the gradient mode is cyan, so a
+    # color test is unreliable). Build a 256-bin luma histogram, find the sky
+    # band = the brightest populated mode, then count how many pixels sit well
+    # below it. A correctly-framed scene is bimodal: dark content (terrain,
+    # structure) + bright sky. A framing FAIL is almost-all-sky.
+    hist = [0] * 256
+    lum_sum = 0.0
+    total = width * height
+    for y in range(height):
+        for x in range(width):
+            i = (y * width + x) * channels
+            r, g, b = pixels[i], pixels[i + 1], pixels[i + 2]
+            lum = int(_luma((r, g, b)))
+            lum = 0 if lum < 0 else 255 if lum > 255 else lum
+            hist[lum] += 1
+            lum_sum += lum
+    mean_lum = lum_sum / total if total else 0.0
+
+    # Sky band = the luma value of the brightest 25% of pixels (the sky is the
+    # brightest large region in an outdoor Chunky render).
+    cum = 0
+    sky_threshold = 255
+    for lv in range(255, -1, -1):
+        cum += hist[lv]
+        if cum >= total * 0.25:
+            sky_threshold = lv
+            break
+    # Content pixels = those clearly darker than the sky band.
+    content_cut = max(0, sky_threshold - 40)
+    content_count = sum(hist[:content_cut])
+    non_sky_ratio = content_count / total if total else 0.0
+    sky_count = total - content_count
+    # Luminance variance: a real scene (terrain + structure + sky) has high
+    # spread; an empty all-sky frame is nearly uniform. Use stdev as a second
+    # framing signal that doesn't depend on guessing the sky color.
+    var_sum = 0.0
+    for lv in range(256):
+        var_sum += hist[lv] * (lv - mean_lum) ** 2
+    lum_stdev = math.sqrt(var_sum / total) if total else 0.0
+    # Framing is OK when there's real content: enough dark pixels AND enough
+    # luminance spread. (Empty-sky fails have ~0 dark pixels and low stdev.)
+    framing_ok = non_sky_ratio >= 0.10 and lum_stdev >= 15.0
+    return {
+        "width": width,
+        "height": height,
+        "mean_luminance": round(mean_lum, 2),
+        "non_sky_pixel_ratio": round(non_sky_ratio, 4),
+        "sky_pixel_ratio": round(sky_count / total if total else 0.0, 4),
+        "luminance_stdev": round(lum_stdev, 2),
+        "framing_ok": framing_ok,
+    }
+
+
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
+
+
+def parse_args(argv: list[str]) -> argparse.Namespace:
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument(
+        "--world", required=True, help="Save root dir (contains level.dat)."
+    )
+    p.add_argument(
+        "--launcher",
+        default="chunky-render/ChunkyLauncher.jar",
+        help="Path to ChunkyLauncher.jar.",
+    )
+    p.add_argument(
+        "--chunky-home",
+        default="chunky-render",
+        help="chunky.home dir (holds lib/ + resources/).",
+    )
+    p.add_argument(
+        "--dimension", type=int, default=0, help="World dimension (0=overworld)."
+    )
+    p.add_argument(
+        "--anchor",
+        nargs=3,
+        type=int,
+        metavar=("X", "Y", "Z"),
+        default=None,
+        help="Approx structure origin (e.g. the placeat coords). Selects the "
+        "nearest structure-block cluster.",
+    )
+    p.add_argument(
+        "--tag-prefix",
+        default=None,
+        help="Advisory: only informational (palette names don't carry tags in "
+        "1.21). Kept for future use.",
+    )
+    p.add_argument(
+        "--search-radius",
+        type=int,
+        default=64,
+        help="Block radius around the anchor considered for the cluster.",
+    )
+    p.add_argument(
+        "--views",
+        nargs="+",
+        default=["front", "right", "back", "left"],
+        choices=["front", "right", "back", "left"],
+    )
+    p.add_argument(
+        "--distance",
+        type=float,
+        default=None,
+        help="Camera horizontal distance from target. Default = 1.6x max bbox dim.",
+    )
+    p.add_argument(
+        "--height",
+        type=float,
+        default=None,
+        help="Camera height above target center. Default = 0.5x bbox height + 4.",
+    )
+    p.add_argument("--width", type=int, default=640)
+    p.add_argument("--height-px", dest="height_px", type=int, default=480)
+    p.add_argument("--spp", type=int, default=20)
+    p.add_argument("--threads", type=int, default=6)
+    p.add_argument(
+        "--out",
+        default="chunky-render/renders",
+        help="Output dir (scene dirs + PNGs + a manifest json).",
+    )
+    p.add_argument(
+        "--proxy",
+        default=None,
+        help="Optional host:port for JAVA_TOOL_OPTIONS proxy (set if rerunning setup).",
+    )
+    return p.parse_args(argv)
+
+
+def main(argv: list[str]) -> int:
+    args = parse_args(argv)
+    world_dir = (ROOT / args.world).resolve()
+    launcher = (ROOT / args.launcher).resolve()
+    home = (ROOT / args.chunky_home).resolve()
+    out_dir = (ROOT / args.out).resolve()
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    if not launcher.is_file():
+        print(f"ERROR: launcher jar not found: {launcher}", file=sys.stderr)
+        return 2
+
+    print(f"[scan] scanning {world_dir / 'region'} for structure bbox ...")
+    bbox = scan_structure_bbox(
+        world_dir,
+        anchor=tuple(args.anchor) if args.anchor else None,
+        tag_prefix=args.tag_prefix,
+        search_radius=args.search_radius,
+    )
+    target = tuple(bbox["center"])
+    print(
+        f"[scan] bbox min={bbox['min']} max={bbox['max']} "
+        f"size={bbox['size']} blocks={bbox['block_count']}"
+    )
+    print(f"[scan] target center = ({target[0]:.1f}, {target[1]:.1f}, {target[2]:.1f})")
+    print(f"[scan] top blocks: {bbox['top_blocks'][:6]}")
+
+    chunk_list = chunks_around_bbox(bbox, pad=2)
+    print(f"[scan] chunkList ({len(chunk_list)} chunks): {chunk_list}")
+
+    # Default camera distance/height scaled to the bbox so framing adapts.
+    max_dim = max(bbox["size"])
+    distance = args.distance if args.distance is not None else max_dim * 1.6 + 8
+    height = (
+        args.height
+        if args.height is not None
+        else bbox["size"][1] * 0.5 + 4.0
+    )
+    print(f"[cam] distance={distance:.1f} height_above={height:.1f}")
+
+    manifest: dict[str, Any] = {
+        "schema_version": 1,
+        "world": str(world_dir),
+        "anchor": args.anchor,
+        "bbox": bbox,
+        "target_center": list(target),
+        "chunk_list": chunk_list,
+        "distance": distance,
+        "height_above": height,
+        "views": [],
+    }
+
+    overall_ok = True
+    for view in args.views:
+        az = VIEW_AZIMUTH[view]
+        cam = solve_camera(
+            target, azimuth_deg=az, distance=distance, height_above=height
+        )
+        scene_name = f"view_{view}"
+        # Each view gets its OWN scene directory so its snapshots/, dump and
+        # octree never collide with another view's (Chunky writes auto-snapshots
+        # to <scene_dir>/snapshots/, shared across scenes otherwise).
+        view_dir = out_dir / scene_name
+        if view_dir.exists():
+            shutil.rmtree(view_dir)
+        view_dir.mkdir(parents=True)
+        scene_path = view_dir / f"{scene_name}.json"
+        # Per-view chunkList: the structure's footprint + a margin so the
+        # whole building is loaded regardless of camera placement.
+        view_chunk_list = chunks_around_bbox(bbox, pad=2)
+        write_scene(
+            scene_path,
+            world_dir=world_dir,
+            dimension=args.dimension,
+            chunk_list=view_chunk_list,
+            camera=cam,
+            width=args.width,
+            height=args.height_px,
+            target_spp=args.spp,
+        )
+        print(
+            f"[render] {view} az={az:.0f} -> "
+            f"pos=({cam['position'][0]:.1f},{cam['position'][1]:.1f},{cam['position'][2]:.1f}) "
+            f"yaw={cam['yaw_deg']:.1f}deg/{cam['orientation']['yaw']:.4f}rad "
+            f"pitch={cam['pitch_deg']:.1f}deg/{cam['orientation']['pitch']:.4f}rad "
+            f"chunks={len(view_chunk_list)}"
+        )
+        log = render_scene(
+            launcher, home, view_dir, scene_name, args.spp, args.threads
+        )
+        png = view_dir / f"{scene_name}.png"
+        if not png.is_file():
+            entry = {
+                "view": view,
+                "azimuth_deg": az,
+                "camera": cam,
+                "png": str(png.relative_to(ROOT)),
+                "error": "PNG not produced",
+                "framing_ok": False,
+            }
+            manifest["views"].append(entry)
+            overall_ok = False
+            print(f"[render] {view}: PNG MISSING")
+            continue
+        assessment = assess_png(png)
+        entry = {
+            "view": view,
+            "azimuth_deg": az,
+            "camera": {
+                "position": cam["position"],
+                "target": cam["target"],
+                "yaw_deg": round(cam["yaw_deg"], 3),
+                "pitch_deg": round(cam["pitch_deg"], 3),
+                "yaw_rad": round(cam["orientation"]["yaw"], 6),
+                "pitch_rad": round(cam["orientation"]["pitch"], 6),
+                "roll_rad": 0.0,
+                "forward": [round(v, 4) for v in cam["forward"]],
+                "distance": round(cam["distance"], 2),
+            },
+            "chunk_list": view_chunk_list,
+            "png": str(png.relative_to(ROOT)),
+            "assessment": assessment,
+            "framing_ok": assessment.get("framing_ok", False),
+        }
+        manifest["views"].append(entry)
+        status = "OK" if assessment.get("framing_ok") else "FRAMING FAILED"
+        if not assessment.get("framing_ok"):
+            overall_ok = False
+        print(
+            f"[render] {view}: {status} "
+            f"mean_lum={assessment.get('mean_luminance')} "
+            f"non_sky={assessment.get('non_sky_pixel_ratio')} "
+            f"-> {png.relative_to(ROOT)}"
+        )
+
+    manifest["overall_framing_ok"] = overall_ok
+    manifest_path = out_dir / "render_manifest.json"
+    manifest_path.write_text(
+        json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
+    print(f"[done] manifest -> {manifest_path.relative_to(ROOT)}")
+    print(f"[done] overall framing {'OK' if overall_ok else 'FAILED'}")
+    return 0 if overall_ok else 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))
