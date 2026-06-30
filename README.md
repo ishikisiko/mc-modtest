@@ -289,6 +289,7 @@ python3 tools/preview_structure.py --all                                    # ev
 python3 tools/generate_town_plan_preview.py --count 6                       # town plan PNG/HTML previews (default covers all 6 wall families)
 python3 tools/preview_structure.py --viewer-only src/main/resources/data/myvillage/structure/cultivation_sect_001.nbt
 python3 tools/preview_structure.py --no-viewer --all                        # PNGs only
+python3 tools/write_visual_acceptance_report.py                             # report representative preview/Chunky visual targets
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview           # serve public previews for review
 ```
 
@@ -304,9 +305,13 @@ For acceptance handoff, serve `out/preview/` with a public HTTP server bound to
 `0.0.0.0:8765` and report `http://43.156.135.198:8765/index.html` while this
 host keeps that public IP, so review starts from an opened preview surface
 instead of a file list. Keep the preview server running until the reviewer says
-it can be closed, or until the related OpenSpec change is being archived. Add
-new block colors to `tools/block_colors.json`; unknown blocks render magenta and
-should be reported there. `--max-px` (default 2048)
+it can be closed, or until the related OpenSpec change is being archived.
+`tools/write_visual_acceptance_report.py` writes
+`reports/visual_acceptance_report.json` and `.md` after preview and Chunky prep,
+listing the representative PNGs and in-game Chunky targets that must be opened
+before claiming visual verification. Add new block colors to
+`tools/block_colors.json`; unknown blocks render magenta and should be reported
+there. `--max-px` (default 2048)
 auto-reduces static PNG scale so large compounds stay bounded.
 
 ## Build The Mod
@@ -378,6 +383,7 @@ python3 tools/preview_structure.py --all
 python3 tools/generate_town_plan_preview.py --count 6    # default covers all 6 wall families
 python3 tools/generate_sect_plan_preview.py --count 6    # default covers all 3 detached-spire variants + absent
 python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 graph previews
+python3 tools/write_visual_acceptance_report.py
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
 jar tf build/libs/myvillage-0.18.1.jar | grep "data/myvillage/structure"
@@ -597,6 +603,7 @@ python3 tools/run_chunky_acceptance.py --stage 1   # Chunky/RCON/server lifecycl
 python3 tools/run_chunky_acceptance.py --stage 2   # plus myvillage ...at command smoke
 python3 tools/run_chunky_acceptance.py --stage 3   # plus full optional-mod preflight + cases
 python3 tools/run_chunky_acceptance.py --stage 4   # plus locate myvillage:sect + bounded Chunky
+python3 tools/write_visual_acceptance_report.py    # visual handoff checklist from previews + Chunky report
 ```
 
 Stage 3 extracts `exmod/mod_jars.zip` into the isolated profile and verifies
@@ -605,6 +612,9 @@ server starts. The local staged zip must include all dependency jars required by
 those mods, for example `architectury` for Fetzi's Displays.
 Stage 4 runs only after Stage 3 passes; it locates a natural `myvillage:sect`
 and runs a small bounded Chunky task around that site.
+The visual report does not judge aesthetics automatically; it records the
+representative preview PNGs and generated-world coordinates that the agent and
+reviewer must inspect before visual acceptance is claimed.
 
 Generated datapack functions are also available after resource generation:
 

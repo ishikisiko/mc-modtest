@@ -26,6 +26,9 @@ together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
   jar dependencies from `exmod/mod_jars.zip` before full-modset startup. The
   full run writes `reports/chunky_acceptance_report.json`; Chunky remains an
   acceptance-only jar and is not packaged into MyVillage.
+- Visual acceptance prep now has `tools/write_visual_acceptance_report.py`,
+  which links representative offline preview PNGs with the latest Chunky command
+  and worldgen targets in `reports/visual_acceptance_report.json/.md`.
 - `validate_generated_structures.py` treats the standalone `hero_rockery` review
   fragment as a non-building landscape specimen for key-building-block checks.
 

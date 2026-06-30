@@ -73,3 +73,17 @@ chunky progress
 If `/locate` cannot find a sect, the stage records `sect_not_located` and skips
 the Chunky task. The radius is deliberately small and does not sweep the
 4000-block region-runtime radius.
+
+After the requested Chunky stage passes, run:
+
+```bash
+python3 tools/write_visual_acceptance_report.py
+```
+
+The visual report joins `out/preview/index.html` with the latest
+`reports/chunky_acceptance_report.json` command and worldgen targets, then writes
+`reports/visual_acceptance_report.json` and
+`reports/visual_acceptance_report.md`. The report is a checklist for inspection:
+it confirms representative preview PNGs and Chunky coordinates are present, but
+it does not replace opening those PNGs or inspecting the generated world in a
+Minecraft client.

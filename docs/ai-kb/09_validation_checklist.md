@@ -64,6 +64,20 @@ state, or records `sect_not_located` when no sect is found.
 This report supplements the offline validators and preview server; it does not
 replace visual review.
 
+Visual review handoff after previews and any Chunky run:
+
+```text
+python3 tools/write_visual_acceptance_report.py
+```
+
+This writes `reports/visual_acceptance_report.json` and
+`reports/visual_acceptance_report.md`. The report verifies that
+`out/preview/index.html`, representative isometric/contact-sheet PNGs, plan
+previews, and the latest Chunky command targets are present. It is an inspection
+checklist, not an image classifier: before reporting that visual verification was
+performed, the agent must open representative PNGs from the report and summarize
+what was checked. In-game final appearance review still belongs to the reviewer.
+
 - When more than one viewer is generated, ensure the aggregate `out/preview/index.html`
   exists — it is the review entry point.
 - Serve the previews for review:

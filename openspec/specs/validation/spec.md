@@ -220,6 +220,27 @@ Automated validation SHALL NOT be treated as complete visual acceptance. In-game
 - **THEN** the generated structures SHALL be considered mechanically valid
 - **AND** final visual acceptance SHOULD still include in-game review for appearance-sensitive changes and `/myvillage town` town-scale review.
 
+### Requirement: Visual acceptance has a reportable inspection handoff
+Visual acceptance prep SHALL produce a reportable handoff that links the offline preview surface to any latest Chunky acceptance targets. The handoff SHALL verify that representative preview files are present, SHALL list concrete images for agent inspection, and SHALL list in-game command/worldgen coordinates from the Chunky report when available. The handoff SHALL NOT claim to classify visual quality automatically.
+
+#### Scenario: Visual acceptance report is generated after preview prep
+- **WHEN** `python3 tools/write_visual_acceptance_report.py` is run after preview generation
+- **THEN** it SHALL write `reports/visual_acceptance_report.json`
+- **AND** it SHALL write `reports/visual_acceptance_report.md`
+- **AND** it SHALL verify that `out/preview/index.html` exists
+- **AND** it SHALL verify representative structure preview PNGs and plan preview assets for review.
+
+#### Scenario: Visual acceptance report follows Chunky acceptance
+- **WHEN** the visual acceptance report is generated after `reports/chunky_acceptance_report.json` exists
+- **THEN** it SHALL include the Chunky stage statuses
+- **AND** it SHALL include MyVillage command targets driven by RCON
+- **AND** it SHALL include the located natural `myvillage:sect` coordinate and bounded Chunky region when Stage 4 ran.
+
+#### Scenario: Agent claims visual verification
+- **WHEN** the agent reports that visual verification was performed
+- **THEN** the agent SHALL have opened representative preview PNGs listed in `reports/visual_acceptance_report.md`
+- **AND** the response SHALL distinguish file/report inspection from final in-game appearance acceptance.
+
 ### Requirement: Manual acceptance has documented preparation
 Staged manual acceptance SHALL start from a prepared mod artifact and command list. The acceptance handoff SHALL NOT rely only on generated NBT files or validator reports.
 
@@ -231,6 +252,7 @@ Staged manual acceptance SHALL start from a prepared mod artifact and command li
 - **AND** the offline preview prep SHOULD include `python3 tools/preview_structure.py --all`, producing static PNG previews and per-structure `viewer.html` files under `out/preview/`
 - **AND** town preview prep SHOULD include `python3 tools/generate_town_plan_preview.py --count 6`, producing top-down plan PNG/HTML previews under `out/preview/town_plan_s*` (the default base seed covers all six perimeter wall families in six `+101` increments: `octagon/trapezoid/circle/square/dshape/oval`)
 - **AND** when more than one `viewer.html` is produced, the preview prep SHALL produce an aggregate `out/preview/index.html` review entry point
+- **AND** the acceptance handoff SHOULD include `python3 tools/write_visual_acceptance_report.py`, producing `reports/visual_acceptance_report.json` and `reports/visual_acceptance_report.md`
 - **AND** the acceptance handoff SHALL include a running public HTTP server rooted at `out/preview/`, bound with `python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview`, and report `http://43.156.135.198:8765/index.html` while this host keeps that public IP
 - **AND** the preview HTTP server SHALL remain running for reviewer acceptance until the reviewer explicitly says it can be closed, or until the related OpenSpec change is being archived
 - **AND** the changelog SHALL identify the version or fix label under review
