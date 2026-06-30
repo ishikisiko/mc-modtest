@@ -1,6 +1,7 @@
 .gradle/
 build/
 run/
+run-acceptance/
 out/
 __pycache__/
 *.pyc

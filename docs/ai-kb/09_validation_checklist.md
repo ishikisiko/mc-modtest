@@ -42,6 +42,19 @@ python3 tools/generate_sect_plan_preview.py --count 6   # top-down sect-plan PNG
 ./gradlew build
 ```
 
+Optional in-game automation with Chunky:
+
+```text
+python3 tools/run_chunky_acceptance.py --stage 1   # isolated server + Chunky + RCON lifecycle
+python3 tools/run_chunky_acceptance.py --stage 2   # Stage 1 plus RCON myvillage ...at smoke
+```
+
+Stage 1 must pass before later Chunky stages are trusted. Stage 2 records
+`myvillage list`, `placeat`, `galleryat cultivation`, `townat`, `sectat`, and
+`sectat worldgen` command responses in `reports/chunky_acceptance_report.json`.
+This report supplements the offline validators and preview server; it does not
+replace visual review.
+
 - When more than one viewer is generated, ensure the aggregate `out/preview/index.html`
   exists — it is the review entry point.
 - Serve the previews for review:

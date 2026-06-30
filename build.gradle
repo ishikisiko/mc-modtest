@@ -47,6 +47,11 @@ neoForge {
         server {
             server()
         }
+        acceptanceServer {
+            server()
+            gameDirectory = project.file('run-acceptance')
+            ideName = 'Acceptance Server'
+        }
     }
 }
 

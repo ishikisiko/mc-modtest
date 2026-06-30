@@ -17,6 +17,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
+import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
@@ -88,6 +89,13 @@ public final class MyVillageMod {
                                         .executes(ctx -> placeNamedStructure(
                                                 ctx.getSource(),
                                                 StringArgumentType.getString(ctx, "structure_id")))))
+                        .then(Commands.literal("placeat")
+                                .then(Commands.argument("structure_id", StringArgumentType.string())
+                                        .then(Commands.argument("pos", BlockPosArgument.blockPos())
+                                                .executes(ctx -> placeNamedStructureAt(
+                                                        ctx.getSource(),
+                                                        StringArgumentType.getString(ctx, "structure_id"),
+                                                        BlockPosArgument.getBlockPos(ctx, "pos"))))))
                         .then(Commands.literal("list")
                                 .executes(ctx -> listStructures(ctx.getSource())))
                         .then(Commands.literal("town")
@@ -98,6 +106,13 @@ public final class MyVillageMod {
                                         .executes(ctx -> TownGenerator.generate(
                                                 ctx.getSource(),
                                                 LongArgumentType.getLong(ctx, "seed")))))
+                        .then(Commands.literal("townat")
+                                .then(Commands.argument("seed", LongArgumentType.longArg())
+                                        .then(Commands.argument("pos", BlockPosArgument.blockPos())
+                                                .executes(ctx -> TownGenerator.generateAt(
+                                                        ctx.getSource(),
+                                                        LongArgumentType.getLong(ctx, "seed"),
+                                                        BlockPosArgument.getBlockPos(ctx, "pos"))))))
                         .then(Commands.literal("sect")
                                 .executes(ctx -> SectGenerator.generate(
                                         ctx.getSource(),
@@ -119,12 +134,47 @@ public final class MyVillageMod {
                                                                 ctx.getSource(),
                                                                 LongArgumentType.getLong(ctx, "seed"),
                                                                 StringArgumentType.getString(ctx, "variant")))))))
+                        .then(Commands.literal("sectat")
+                                .then(Commands.argument("seed", LongArgumentType.longArg())
+                                        .then(Commands.argument("pos", BlockPosArgument.blockPos())
+                                                .executes(ctx -> SectGenerator.generateAt(
+                                                        ctx.getSource(),
+                                                        LongArgumentType.getLong(ctx, "seed"),
+                                                        BlockPosArgument.getBlockPos(ctx, "pos")))))
+                                .then(Commands.literal("worldgen")
+                                        .then(Commands.argument("seed", LongArgumentType.longArg())
+                                                .then(Commands.argument("variant", StringArgumentType.string())
+                                                        .then(Commands.argument("pos", BlockPosArgument.blockPos())
+                                                                .executes(ctx -> SectGenerator.generateForcedAt(
+                                                                        ctx.getSource(),
+                                                                        LongArgumentType.getLong(ctx, "seed"),
+                                                                        StringArgumentType.getString(ctx, "variant"),
+                                                                        BlockPosArgument.getBlockPos(ctx, "pos"))))))))
                         .then(Commands.literal("gallery")
                                 .executes(ctx -> placeGallery(ctx.getSource(), GalleryScope.ALL))
                                 .then(Commands.literal("original")
                                         .executes(ctx -> placeGallery(ctx.getSource(), GalleryScope.ORIGINAL)))
                                 .then(Commands.literal("cultivation")
                                         .executes(ctx -> placeGallery(ctx.getSource(), GalleryScope.CULTIVATION))))
+                        .then(Commands.literal("galleryat")
+                                .then(Commands.literal("all")
+                                        .then(Commands.argument("pos", BlockPosArgument.blockPos())
+                                                .executes(ctx -> placeGalleryAt(
+                                                        ctx.getSource(),
+                                                        GalleryScope.ALL,
+                                                        BlockPosArgument.getBlockPos(ctx, "pos")))))
+                                .then(Commands.literal("original")
+                                        .then(Commands.argument("pos", BlockPosArgument.blockPos())
+                                                .executes(ctx -> placeGalleryAt(
+                                                        ctx.getSource(),
+                                                        GalleryScope.ORIGINAL,
+                                                        BlockPosArgument.getBlockPos(ctx, "pos")))))
+                                .then(Commands.literal("cultivation")
+                                        .then(Commands.argument("pos", BlockPosArgument.blockPos())
+                                                .executes(ctx -> placeGalleryAt(
+                                                        ctx.getSource(),
+                                                        GalleryScope.CULTIVATION,
+                                                        BlockPosArgument.getBlockPos(ctx, "pos"))))))
                         .then(Commands.literal("spawn")
                                 .then(Commands.literal("info")
                                         .executes(ctx -> RegionCommands.spawnInfo(ctx.getSource())))
@@ -133,17 +183,26 @@ public final class MyVillageMod {
     }
 
     private int placeNamedStructure(CommandSourceStack source, String rawId) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        return placeNamedStructureAt(source, rawId, player.blockPosition());
+    }
+
+    private int placeNamedStructureAt(CommandSourceStack source, String rawId, BlockPos origin) {
         ResourceLocation structureId = parseStructureId(rawId);
         if (structureId == null) {
             source.sendFailure(Component.literal("Invalid myvillage structure id: " + rawId));
             return 0;
         }
 
-        ServerPlayer player = source.getPlayerOrException();
-        return placeStructure(source, structureId, player.blockPosition());
+        return placeStructure(source, structureId, origin);
     }
 
     private int placeGallery(CommandSourceStack source, GalleryScope scope) throws CommandSyntaxException {
+        ServerPlayer player = source.getPlayerOrException();
+        return placeGalleryAt(source, scope, player.blockPosition());
+    }
+
+    private int placeGalleryAt(CommandSourceStack source, GalleryScope scope, BlockPos origin) {
         ServerLevel level = source.getLevel();
         List<ResourceLocation> structures = myvillageStructures(level);
 
@@ -152,8 +211,6 @@ public final class MyVillageMod {
             return 0;
         }
 
-        ServerPlayer player = source.getPlayerOrException();
-        BlockPos origin = player.blockPosition();
         int placed = 0;
         Map<String, List<ResourceLocation>> columns = groupedGalleryStructures(structures, scope);
         if (columns.isEmpty()) {

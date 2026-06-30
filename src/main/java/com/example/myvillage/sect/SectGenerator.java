@@ -84,7 +84,13 @@ public final class SectGenerator {
 
     /** On-the-spot build: rests the compound on the live world surface. */
     public static int generate(CommandSourceStack source, long seed) throws CommandSyntaxException {
-        return build(source, seed, null, false);
+        ServerPlayer player = source.getPlayerOrException();
+        return generateAt(source, seed, player.blockPosition());
+    }
+
+    /** On-the-spot build at an explicit anchor; rests the compound on the live world surface. */
+    public static int generateAt(CommandSourceStack source, long seed, BlockPos anchor) {
+        return buildAt(source, seed, null, false, anchor);
     }
 
     /**
@@ -94,14 +100,19 @@ public final class SectGenerator {
      */
     public static int generateForced(CommandSourceStack source, long seed, String featureOverride)
             throws CommandSyntaxException {
-        return build(source, seed, featureOverride, true);
+        ServerPlayer player = source.getPlayerOrException();
+        return generateForcedAt(source, seed, featureOverride, player.blockPosition());
     }
 
-    private static int build(CommandSourceStack source, long seed, String featureOverride,
-                             boolean worldgenStyle) throws CommandSyntaxException {
-        ServerPlayer player = source.getPlayerOrException();
+    public static int generateForcedAt(CommandSourceStack source, long seed, String featureOverride,
+                                       BlockPos anchor) {
+        return buildAt(source, seed, featureOverride, true, anchor);
+    }
+
+    private static int buildAt(CommandSourceStack source, long seed, String featureOverride,
+                               boolean worldgenStyle, BlockPos anchor) {
         ServerLevel level = source.getLevel();
-        BlockPos base = player.blockPosition().offset(-SITE_WIDTH / 2, 0, -SITE_DEPTH / 2);
+        BlockPos base = anchor.offset(-SITE_WIDTH / 2, 0, -SITE_DEPTH / 2);
 
         SectPlan plan = plan(seed, base, featureOverride);
         List<String> validationErrors = validatePlan(plan);

@@ -119,8 +119,12 @@ public final class TownGenerator {
 
     public static int generate(CommandSourceStack source, long seed) throws CommandSyntaxException {
         ServerPlayer player = source.getPlayerOrException();
+        return generateAt(source, seed, player.blockPosition());
+    }
+
+    public static int generateAt(CommandSourceStack source, long seed, BlockPos anchor) {
         ServerLevel level = source.getLevel();
-        BlockPos base = player.blockPosition().offset(-WIDTH / 2, 0, -DEPTH / 2);
+        BlockPos base = anchor.offset(-WIDTH / 2, 0, -DEPTH / 2);
         if (WIDTH > MAX_FOOTPRINT_AXIS || DEPTH > MAX_FOOTPRINT_AXIS) {
             source.sendFailure(Component.literal(
                     "Town footprint " + WIDTH + "x" + DEPTH + " exceeds max " + MAX_FOOTPRINT_AXIS));

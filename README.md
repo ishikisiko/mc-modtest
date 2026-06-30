@@ -420,9 +420,13 @@ Generate a living cultivation town around the player:
 ```mcfunction
 /myvillage town
 /myvillage town 20260618
+/myvillage townat 20260618 512 80 0
 ```
 
 The optional seed makes generation deterministic for the same seed and site.
+`townat` is the RCON/console-safe coordinate form; it uses the same planner and
+realizer as `/myvillage town <seed>` but anchors at the explicit block position
+instead of requiring a player.
 It selects both the perimeter silhouette (square, 天圆 circle, oval, 半月
 D-shape, octagon, or trapezoid, optionally with a barbican/bastion) and a
 bounded orthogonal internal grid. Family review seeds include `4` (square), `5`
@@ -447,6 +451,7 @@ Generate a terraced cultivation sect compound ascending away from the player:
 ```mcfunction
 /myvillage sect
 /myvillage sect 20260618
+/myvillage sectat 20260618 -512 80 0
 ```
 
 Force-generate a worldgen-style sect (with its derived mountain) at the player,
@@ -456,6 +461,8 @@ for review/testing, optionally selecting the detached-spire variant:
 /myvillage sect worldgen
 /myvillage sect worldgen 20260618
 /myvillage sect worldgen 20260618 pavilion_short_straight_east
+/myvillage sectat worldgen 20260618 none -512 80 512
+/myvillage sectat worldgen 20260618 pavilion_short_straight_east -512 80 512
 ```
 
 `worldgen` builds the same compound resting on a mountain **derived from the
@@ -471,6 +478,8 @@ optional third argument forces one of the three detached-spire variants
 per-seed selection. In natural worldgen the same structure is sited
 automatically and bakes into chunks (no force-load, no build pop-in); find one
 with `/locate structure myvillage:sect`.
+`sectat` and `sectat worldgen` are the coordinate-addressable RCON/console forms
+and do not require a `ServerPlayer`.
 
 The sect is a terraced axial 宗门 compound (gate / disciple / assembly /
 scripture / summit terraces, count parametric 4–6) ascending a single fall-line
@@ -495,12 +504,14 @@ Place the smoke-test structure at the player position:
 
 ```mcfunction
 /myvillage place test_house_03
+/myvillage placeat test_house_03 0 80 0
 ```
 
 Place a generated building directly:
 
 ```mcfunction
 /myvillage place small_house_001
+/myvillage placeat small_house_001 0 80 0
 /myvillage place medium_house_001
 /myvillage place blacksmith_001
 /myvillage place medium_shop_001
@@ -548,12 +559,16 @@ directly, place generated structures with the same offset:
 
 When `/myvillage place` substitutes optional-mod palette entries because a decor
 mod is not loaded, the success line includes `fallback_substitutions=<count>`.
+The coordinate form `/myvillage placeat <structure_id> <x> <y> <z>` applies the
+same one-block Y offset for generated non-test structures and uses the same
+runtime fallback resolver.
 
 Place all loaded `myvillage` blueprints in a grouped gallery with 128-block
 spacing:
 
 ```mcfunction
 /myvillage gallery
+/myvillage galleryat all 0 80 0
 ```
 
 Place only the original non-cultivation structures, or only the cultivation
@@ -562,6 +577,8 @@ structures, in the same grouped gallery layout:
 ```mcfunction
 /myvillage gallery original
 /myvillage gallery cultivation
+/myvillage galleryat original 0 80 0
+/myvillage galleryat cultivation 0 80 0
 ```
 
 The full gallery is arranged as columns by broad type: houses, shops,
@@ -570,6 +587,15 @@ cultivation sect, Chinese review sub-buildings, tests, and other templates.
 The `original` gallery keeps the non-cultivation columns, while the
 `cultivation` gallery keeps the cultivation town and cultivation sect columns.
 It is intended for side-by-side visual comparison across sizes and archetypes.
+The `galleryat` variants keep the same grouping, filtering, ordering, spacing,
+and fallback behavior but can be driven from RCON or the server console.
+
+Staged Chunky/RCON automation:
+
+```bash
+python3 tools/run_chunky_acceptance.py --stage 1   # Chunky/RCON/server lifecycle
+python3 tools/run_chunky_acceptance.py --stage 2   # plus myvillage ...at command smoke
+```
 
 Generated datapack functions are also available after resource generation:
 
@@ -728,13 +754,18 @@ Included:
 - sect compound placement metadata under `data/myvillage/settlement_meta/`
 - test_house_03.nbt Mod resource smoke test
 - /myvillage place <structure_id>
+- /myvillage placeat <structure_id> <x> <y> <z>
 - /myvillage list
 - /myvillage town [seed]
+- /myvillage townat <seed> <x> <y> <z>
 - /myvillage sect [seed]
 - /myvillage sect worldgen [seed] [variant]
+- /myvillage sectat <seed> <x> <y> <z>
+- /myvillage sectat worldgen <seed> <variant|none> <x> <y> <z>
 - /myvillage gallery
 - /myvillage gallery original
 - /myvillage gallery cultivation
+- /myvillage galleryat <all|original|cultivation> <x> <y> <z>
 - a custom `myvillage:sect` worldgen Structure: sects are sited during world generation, biome-gated by `tags/worldgen/biome/has_sect`, spaced by `worldgen/structure_set/sect`, and `/locate`-able, resting on a mountain derived from the terrace profile (反推山形)
 - generated optional-mod runtime fallback map and fallback coverage validation
 - NBT integrity validation for roof/top-layer/function-block/signature checks
