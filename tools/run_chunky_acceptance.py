@@ -527,8 +527,11 @@ def expect_response(stage: dict[str, Any], command: str, response: str, expected
 def start_acceptance_server() -> tuple[subprocess.Popen[str], Any, Path]:
     stdout_path = PROFILE_DIR / "acceptance-server-stdout.log"
     stdout_handle = stdout_path.open("w", encoding="utf-8")
+    # Windows cannot exec the POSIX `gradlew` shell script directly; use the
+    # `.bat` wrapper there. On POSIX the `.bat` does not exist, so keep `./gradlew`.
+    gradlew_cmd = "gradlew.bat" if sys.platform == "win32" else "./gradlew"
     process = subprocess.Popen(
-        ["./gradlew", "--no-daemon", "runAcceptanceServer"],
+        [gradlew_cmd, "--no-daemon", "runAcceptanceServer"],
         cwd=ROOT,
         stdout=stdout_handle,
         stderr=subprocess.STDOUT,
