@@ -27,6 +27,7 @@ CIVIC_TAVERN_MARKERS = ("brewing_stand", "barrel")
 CIVIC_MANOR_MARKERS = ("bell", "lectern")
 MULTISTORY_NAMES = ("medium_shop", "big_house", "tavern", "lord_manor")
 ROOF_OPTIONAL_NAMES = {"hero_rockery"}
+KEY_BLOCK_OPTIONAL_NAMES = {"hero_rockery"}
 PLAQUE_BLOCK_IDS = {
     "myvillage:wall_plaque",
     "myvillage:wall_plaque_vertical",
@@ -272,7 +273,7 @@ def validate_file(path: Path, root_dir: Path, modset=None) -> dict:
         errors.append("roof_blocks_missing")
     if not top_non_air:
         errors.append("top_layers_empty")
-    if not has_marker(states_present, KEY_BLOCK_MARKERS):
+    if not has_marker(states_present, KEY_BLOCK_MARKERS) and building_name not in KEY_BLOCK_OPTIONAL_NAMES:
         errors.append("key_building_blocks_missing")
 
     block_state_counts = Counter(palette[block["state"]].split("[", 1)[0] for block in non_air_blocks)

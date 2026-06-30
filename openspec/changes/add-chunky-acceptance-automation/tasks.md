@@ -28,20 +28,20 @@
 
 ## 4. Stage 3: Full optional-mod acceptance
 
-- [ ] 4.1 Extend the profile builder to extract `exmod/mod_jars.zip` into the acceptance profile's `mods/` directory for full-modset runs.
-- [ ] 4.2 Verify the extracted full optional-mod jars include the confirmed runtime mods and support dependencies: Ars Nouveau, Farmer's Delight, Supplementaries, Fetzi's Displays, Macaw's Furniture, Macaw's Windows, Moonlight, Curios, and GeckoLib.
-- [ ] 4.3 Add startup diagnostics that fail Stage 3 clearly when an optional mod or support dependency is missing or incompatible.
-- [ ] 4.4 Add Stage 3 command cases that place a static gallery, a town, and a worldgen-style sect in the full optional-mod server.
-- [ ] 4.5 Add report fields that confirm full-modset mode, extracted jar filenames, and whether optional-mod registry startup completed.
-- [ ] 4.6 Run Stage 1 + Stage 2 + Stage 3 and confirm authored optional-mod blocks remain registry-present in the full server path.
+- [x] 4.1 Extend the profile builder to extract `exmod/mod_jars.zip` into the acceptance profile's `mods/` directory for full-modset runs.
+- [x] 4.2 Verify the extracted full optional-mod jars include the confirmed runtime mods and support dependencies: Ars Nouveau, Farmer's Delight, Supplementaries, Fetzi's Displays, Macaw's Furniture, Macaw's Windows, Moonlight, Curios, and GeckoLib.
+- [x] 4.3 Add startup diagnostics that fail Stage 3 clearly when an optional mod or support dependency is missing or incompatible.
+- [x] 4.4 Add Stage 3 command cases that place a static gallery, a town, and a worldgen-style sect in the full optional-mod server.
+- [x] 4.5 Add report fields that confirm full-modset mode, extracted jar filenames, and whether optional-mod registry startup completed.
+- [x] 4.6 Run Stage 1 + Stage 2 + Stage 3 and confirm authored optional-mod blocks remain registry-present in the full server path.
 
 ## 5. Stage 4: Natural sect worldgen with Chunky
 
-- [ ] 5.1 Add an acceptance command step that runs `/locate structure myvillage:sect` and parses the located coordinate or records `sect_not_located`.
-- [ ] 5.2 Add a bounded Chunky generation task centered on the located sect site; keep the radius small enough for routine acceptance and do not sweep the 4000-block region-runtime radius.
-- [ ] 5.3 Parse logs and command responses for chunk-generation errors, crashes, stalls, and timeout state during the natural sect worldgen pass.
-- [ ] 5.4 Record the located coordinate, Chunky center/radius, completion state, and log summary in `reports/chunky_acceptance_report.json`.
-- [ ] 5.5 Run Stage 4 after Stage 3 passes and confirm it is skipped or failed with a clear reason when no sect is locatable.
+- [x] 5.1 Add an acceptance command step that runs `/locate structure myvillage:sect` and parses the located coordinate or records `sect_not_located`.
+- [x] 5.2 Add a bounded Chunky generation task centered on the located sect site; keep the radius small enough for routine acceptance and do not sweep the 4000-block region-runtime radius.
+- [x] 5.3 Parse logs and command responses for chunk-generation errors, crashes, stalls, and timeout state during the natural sect worldgen pass.
+- [x] 5.4 Record the located coordinate, Chunky center/radius, completion state, and log summary in `reports/chunky_acceptance_report.json`.
+- [x] 5.5 Run Stage 4 after Stage 3 passes and confirm it is skipped or failed with a clear reason when no sect is locatable.
 
 ## 6. Documentation and acceptance checklist
 
@@ -54,7 +54,7 @@
 ## 7. Validation, build, and release metadata
 
 - [x] 7.1 Run OpenSpec validation/status checks for `add-chunky-acceptance-automation` and fix any proposal/spec/task format issues.
-- [ ] 7.2 Run the existing automated validation suite relevant to command and generator changes: `./gradlew test`, Python validators, and the acceptance checklist items that are practical for the change.
-- [ ] 7.3 Build the mod jar and confirm Chunky is not packaged into the MyVillage jar and is not declared as a MyVillage dependency.
-- [ ] 7.4 Run the final staged Chunky acceptance flow through the requested stages and attach/report `reports/chunky_acceptance_report.json`.
-- [ ] 7.5 Bump the mod version as a feature change and update the four required files together per `openspec/config.yaml`: `gradle.properties`, `src/main/resources/META-INF/neoforge.mods.toml`, README jar-name examples, and `CHANGELOG.md`.
+- [x] 7.2 Run the existing automated validation suite relevant to command and generator changes: `./gradlew test`, Python validators, and the acceptance checklist items that are practical for the change.
+- [x] 7.3 Build the mod jar and confirm Chunky is not packaged into the MyVillage jar and is not declared as a MyVillage dependency.
+- [x] 7.4 Run the final staged Chunky acceptance flow through the requested stages and attach/report `reports/chunky_acceptance_report.json`.
+- [x] 7.5 Bump the mod version as a feature change and update the four required files together per `openspec/config.yaml`: `gradle.properties`, `src/main/resources/META-INF/neoforge.mods.toml`, README jar-name examples, and `CHANGELOG.md`.

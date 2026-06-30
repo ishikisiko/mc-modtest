@@ -334,7 +334,7 @@ jar tf build/libs/*.jar | grep "assets/myvillage/textures/painting/inscription"
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.18.0.jar
+build/libs/myvillage-0.18.1.jar
 ```
 
 ## Versioning And Changelog
@@ -380,12 +380,12 @@ python3 tools/generate_sect_plan_preview.py --count 6    # default covers all 3 
 python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 graph previews
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.18.0.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.18.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.18.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.18.0.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.18.0.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.18.0.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.18.1.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.18.1.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.18.1.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.18.1.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.18.1.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.18.1.jar | grep "assets/myvillage/textures/painting/inscription"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -595,7 +595,16 @@ Staged Chunky/RCON automation:
 ```bash
 python3 tools/run_chunky_acceptance.py --stage 1   # Chunky/RCON/server lifecycle
 python3 tools/run_chunky_acceptance.py --stage 2   # plus myvillage ...at command smoke
+python3 tools/run_chunky_acceptance.py --stage 3   # plus full optional-mod preflight + cases
+python3 tools/run_chunky_acceptance.py --stage 4   # plus locate myvillage:sect + bounded Chunky
 ```
+
+Stage 3 extracts `exmod/mod_jars.zip` into the isolated profile and verifies
+both the expected optional mod ids and mandatory jar dependencies before the
+server starts. The local staged zip must include all dependency jars required by
+those mods, for example `architectury` for Fetzi's Displays.
+Stage 4 runs only after Stage 3 passes; it locates a natural `myvillage:sect`
+and runs a small bounded Chunky task around that site.
 
 Generated datapack functions are also available after resource generation:
 

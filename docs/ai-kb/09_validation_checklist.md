@@ -47,11 +47,20 @@ Optional in-game automation with Chunky:
 ```text
 python3 tools/run_chunky_acceptance.py --stage 1   # isolated server + Chunky + RCON lifecycle
 python3 tools/run_chunky_acceptance.py --stage 2   # Stage 1 plus RCON myvillage ...at smoke
+python3 tools/run_chunky_acceptance.py --stage 3   # Stage 2 plus full optional-mod preflight/cases
+python3 tools/run_chunky_acceptance.py --stage 4   # Stage 3 plus locate natural sect + bounded Chunky
 ```
 
 Stage 1 must pass before later Chunky stages are trusted. Stage 2 records
 `myvillage list`, `placeat`, `galleryat cultivation`, `townat`, `sectat`, and
 `sectat worldgen` command responses in `reports/chunky_acceptance_report.json`.
+Stage 3 extracts `exmod/mod_jars.zip`, verifies the expected full optional-mod
+ids and mandatory jar dependencies, then runs gallery/town/worldgen-sect cases
+only if that preflight passes. Missing dependency jars, such as `architectury`
+for Fetzi's Displays, fail before server startup and are recorded in the report.
+Stage 4 runs only after Stage 3 passes; it records the `/locate structure
+myvillage:sect` response, the selected Chunky center/radius, and completion
+state, or records `sect_not_located` when no sect is found.
 This report supplements the offline validators and preview server; it does not
 replace visual review.
 

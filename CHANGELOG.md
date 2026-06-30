@@ -7,6 +7,28 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.18.1
+
+### Added
+
+- **Chunky acceptance automation** (`add-chunky-acceptance-automation`):
+  staged in-game acceptance now covers the isolated server + Chunky + RCON
+  lifecycle, coordinate-addressable `/myvillage ...at` command smoke, full
+  optional-mod server startup/cases, and natural `myvillage:sect` worldgen via
+  `/locate structure` plus bounded Chunky generation.
+- Added RCON/console-safe coordinate commands:
+  `/myvillage placeat`, `/myvillage galleryat`, `/myvillage townat`,
+  `/myvillage sectat`, and `/myvillage sectat worldgen`.
+
+### Changed
+
+- The acceptance script now verifies staged optional-mod jar ids and mandatory
+  jar dependencies from `exmod/mod_jars.zip` before full-modset startup. The
+  full run writes `reports/chunky_acceptance_report.json`; Chunky remains an
+  acceptance-only jar and is not packaged into MyVillage.
+- `validate_generated_structures.py` treats the standalone `hero_rockery` review
+  fragment as a non-building landscape specimen for key-building-block checks.
+
 ## 0.18.0
 
 ### Added
