@@ -1,6 +1,6 @@
 # Chunky Path-Traced Rendering (Headless)
 
-> **Status:** pipeline verified end-to-end on 2026-06-30 (PNG produced); camera framing not yet solved. This doc is the authoritative record of the correct headless render pipeline plus the open camera-framing issue, so the next session can resume without re-discovering it.
+> **Status:** pipeline verified end-to-end on 2026-07-01 with `tools/render_structure.py` producing upright four-view PNGs from the Stage 2 acceptance world. The renderer can now load world chunks, solve camera yaw/pitch/roll, render, snapshot, and emit a manifest without manual camera tuning.
 >
 > See-also [17_chunky_acceptance.md](17_chunky_acceptance.md) (the *block-pregen* Chunky acceptance flow — a different tool that happens to share the name), and the `chunky-acceptance-automation` change spec.
 
@@ -45,7 +45,7 @@ java -Dchunky.home="E:\Code\mc-modtest\chunky-render" -jar ChunkyLauncher.jar ^
     -snapshot test_house "E:\Code\mc-modtest\chunky-render\test_house.png"
 ```
 
-`-Dchunky.home` **must be absolute** — CMD `%CD%` inside a `cd /d` chain can resolve to the repo root and scatter `lib/` + `resources/` + `chunky-launcher.json` there (we hit this; it pollutes the repo root). The `-scene-dir` flag is also mandatory because the launcher does not honor `chunky.home` for scene discovery the way the docs imply.
+`-Dchunky.home` **must be absolute** — CMD `%CD%` inside a `cd /d` chain can resolve to the repo root and scatter `lib/` + `resources/` + `chunky-launcher.json` there (we hit this; it pollutes the repo root). The `-scene-dir` flag is still needed for initial scene lookup, but Chunky 2.4.6 later resolves save/dump/snapshot paths through `PersistentSettings.getSceneDirectory()`, so `tools/render_structure.py` also writes `chunky-render/chunky.json` with `"sceneDirectory": "<out>"` before rendering.
 
 ## scene.json — correct field names (verified by decompiling Scene.class)
 
@@ -55,8 +55,7 @@ These are the **authoritative** field names from the 2.4.6 constant pool / `java
 |---|---|---|
 | `sdfVersion` | int | **Must be `9`** (Scene.SDF_VERSION). Missing → "Old scene version detected!" and the scene may not load. |
 | `name` | string | Must equal the scene directory name. |
-| `world` | string | **`world`, not `worldPath`.** Absolute path to the **save root** (the dir containing `level.dat`), NOT `region/`. Chunky appends `/region` itself. |
-| `dimension` | int | 0 = overworld. (`dimension`, not `worldDimension`.) |
+| `world` | object | **`world`, not `worldPath`.** Shape is `{ "path": "<absolute save root>", "dimension": 0 }`; the save root contains `level.dat`, not `region/`. Chunky appends `/region` itself. A bare string is ignored by `Scene.fromJson()` and causes `no world found for scene`. |
 | `chunkList` | array of `[x, z]` | **Chunk** coords (block // 16), not block coords. |
 | `camera` | object | See format below. |
 | `sppTarget` / `width` / `height` | int | `sppTarget` (not `targetSpp`) is what Chunky writes back. |
@@ -69,21 +68,24 @@ These are the **authoritative** field names from the 2.4.6 constant pool / `java
   "projectionMode": "PINHOLE",
   "fov": 70.0,
   "position":    { "x": 6.0, "y": 88.0, "z": 170.0 },
-  "orientation": { "roll": 0.0, "pitch": 0.0, "yaw": 3.141592653589793 }
+  "orientation": { "roll": 3.141592653589793, "pitch": 0.0, "yaw": 3.141592653589793 }
 }
 ```
 
 - `position` / `orientation` are **nested objects**, not the flat arrays/`pitch`,`yaw` siblings the older docs show.
 - `yaw`/`pitch`/`roll` are **radians**, not degrees.
+- `tools/render_structure.py` uses `roll=π`; this keeps the center ray fixed but flips Chunky's pinhole image Y so world-up reads as image-up in generated PNGs.
 - If you hand-write a flat `camera` block, Chunky silently resets position to (0,0,0) on save → you render empty sky. This bit us repeatedly.
 
 ## Known traps (all hit during verification)
 
-1. **`world` field is erased after first load.** Once Chunky successfully loads chunks it writes the scene back with `world` removed. If you then delete the `.octree2` and re-render, it fails with "no world found" because the field is gone. **Mitigation:** keep `world` in a pristine template scene.json, and after the first successful load **do not delete the octree** — only change camera and re-render (camera changes do not require chunk reload).
-2. **`-reload-chunks` needs the `world` field** — so it only works on a freshly-written scene, never on one Chunky has already rewritten.
-3. **Renderer ≠ block-pregen.** `run_chunky_acceptance.py` Stage 1-4 output is JSON only; it will never produce a PNG regardless of arguments.
-4. **Two-pass:** `-render` writes the `.dump`; `-snapshot` reads the dump and writes the PNG. Both are needed.
-5. **`-f` (force)** is required or headless render silently skips scenes it thinks are already at target SPP.
+1. **`world` field is an object and is erased after first load.** Once Chunky successfully loads chunks it writes the scene back with `world` removed. If you then delete the `.octree2` and re-render, it fails with "no world found" because the field is gone. **Mitigation:** keep a pristine template scene.json with `world: {path, dimension}` and rewrite it before a fresh `-reload-chunks` render.
+2. **`-scene-dir` is not enough for dumps/snapshots.** `SynchronousSceneManager.resolveSceneDirectory(sceneName)` uses `PersistentSettings.getSceneDirectory()`, not only the CLI `-scene-dir`. Set `chunky.home/chunky.json` key `sceneDirectory` to the output root, and use native layout `<out>/<scene_name>/<scene_name>.json`.
+3. **`-reload-chunks` needs the `world` object** — so it only works on a freshly-written scene, never on one Chunky has already rewritten.
+4. **Renderer ≠ block-pregen.** `run_chunky_acceptance.py` Stage 1-4 output is JSON only; it will never produce a PNG regardless of arguments.
+5. **Two-pass/fallback:** `-render` may write an auto-snapshot under `<scene>/snapshots/`; otherwise `-snapshot` reads the dump and writes the PNG. `tools/render_structure.py` tries auto-snapshot first, then restores the pristine scene JSON and runs `-snapshot`.
+6. **`-f` (force)** is required or headless render silently skips scenes it thinks are already at target SPP.
+7. **Bbox-only `chunkList` clips the world.** Chunky renders unloaded chunks as empty background. `tools/render_structure.py` now builds a per-view chunk rectangle covering the structure bbox, camera position, line of sight, and `--chunk-pad` margin (default 4), so four-view shots include surrounding terrain.
 
 ## Verification record (2026-06-30)
 
@@ -92,13 +94,36 @@ These are the **authoritative** field names from the 2.4.6 constant pool / `java
 - A path-traced PNG **was produced** (`chunky-render/test_house.png`, ~12-17 KB, "Saved snapshot" confirmed in launcher log) — the renderer pipeline is functional.
 - **The PNG was empty sky.** Root cause: camera framing. Building blocks are in the octree, but none of the yaw values tried (0, π/2, -2.55, π) put the house in frame. The exact `yaw`/`pitch` sign convention for `orientation` was not nailed down before stopping.
 
+## Verification record (2026-07-01)
+
+Final command:
+
+```bash
+python3 tools/render_structure.py \
+  --world run-acceptance/chunky_stage1_world \
+  --anchor 0 79 192 \
+  --search-radius 24 \
+  --launcher chunky-render/ChunkyLauncher.jar \
+  --chunky-home chunky-render \
+  --views front right back left \
+  --spp 5 \
+  --threads 6 \
+  --out chunky-render/renders_four_upright
+```
+
+Result:
+
+- Scanned bbox: `[-19,63,178]..[12,91,213]`, size `32x29x36`, `309` structure blocks.
+- Chunky loaded per-view chunk rectangles (28 chunks per view for this fixture) after `world` was changed to `{path, dimension}` and `chunky.json.sceneDirectory` was pointed at `chunky-render/renders_four_upright`.
+- PNGs produced: `chunky-render/renders_four_upright/view_{front,right,back,left}/view_*.png` (git-ignored).
+- Manifest produced: `chunky-render/renders_four_upright/render_manifest.json`; `overall_framing_ok: true`.
+- Local visual inspection confirmed all four rendered images contain the placed house, are upright (`roll=π`), and no longer show the earlier bbox-only empty-background clipping.
+- PNG assessment added an edge metric (`edge_mean`, `strong_edge_ratio`) so a smooth sky gradient no longer passes just because luminance stdev is high.
+
 ## Open work (next session)
 
-1. **Solve camera framing.** Two reliable paths were identified but not executed:
-   - **(a) Sweep yaw:** with octree intact, render snapshots at yaw ∈ {0, π/2, π, -π/2}, pitch ∈ {0, ±π/8}. One frame must contain the house; read the convention off the hit and compute framing from there.
-   - **(b) Java API:** compile a small program against `chunky-core-2.4.6.jar` calling `Scene.loadChunks(world, chunks)` + `camera.setView(yaw, pitch, roll)` + `RenderManager`, bypassing JSON parsing entirely. Sketched in the chat history; unverified.
-2. **Wrap as a tool.** Once framing is solved, encapsulate as `tools/render_structure.py` — input: structure id + placement → place in an isolated world → write scene.json from a pristine template → render → snapshot → emit PNG path. Then optionally a Stage 5 in `run_chunky_acceptance.py`.
-3. **Decide naming.** The existing `run_chunky_acceptance.py` is really "block-pregen acceptance"; the path-tracer is a separate concern. Consider renaming or at least documenting the split prominently (this doc is that documentation).
+1. **Optional acceptance integration.** Add a separate renderer report link only after deciding how it should relate to `tools/write_visual_acceptance_report.py`. Keep it distinct from `tools/run_chunky_acceptance.py`, which remains the block-pregen/RCON acceptance flow.
+2. **Higher quality review renders.** Low-SPP (`--spp 5`) is enough for automation smoke checks. Manual visual review should use a higher SPP once the camera target/world fixture is final.
 
 ## Cleanup note
 

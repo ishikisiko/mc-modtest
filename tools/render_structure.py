@@ -2,7 +2,7 @@
 """Target-based Chunky camera solver + headless renderer.
 
 Scans a Minecraft save's region files for a placed structure's bounding box,
-derives the bbox center, generates four cardinal views (front/back/left/right),
+derives the bbox center, generates one or more named views,
 computes Chunky ``camera.position`` / ``camera.orientation`` (yaw/pitch/roll in
 **radians**) via a look-at solver derived from Chunky's own matrix conventions,
 writes a pristine ``scene.json`` per view, drives ``ChunkyLauncher.jar`` to
@@ -33,7 +33,7 @@ Usage:
         --chunky-home chunky-render \
         --anchor 0 79 192 \
         --tag-prefix small_house \
-        --views front back left right \
+        --views front right back left \
         --out chunky-render/renders
 """
 
@@ -42,11 +42,11 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import shutil
 import struct
 import subprocess
 import sys
-import tempfile
 import zlib
 from pathlib import Path
 from typing import Any, Iterable
@@ -57,6 +57,14 @@ sys.path.insert(0, str(Path(__file__).resolve().parent / "buildgen"))
 import nbtread  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
+
+
+def display_path(path: Path) -> str:
+    """Prefer repo-relative paths in output, but allow absolute external dirs."""
+    try:
+        return str(path.resolve().relative_to(ROOT))
+    except ValueError:
+        return str(path)
 
 # ---------------------------------------------------------------------------
 # Region (.mca) reader — self-contained, builds on nbtread's NBT decoder.
@@ -538,12 +546,17 @@ def solve_camera(
     #   yaw = atan2(-fz, fx)
     pitch = math.acos(max(-1.0, min(1.0, -fy)))
     yaw = math.atan2(-fz, fx)
+    # Chunky's pinhole projector uses image Y in the opposite screen-up sense
+    # expected by these generated PNG reviews. A 180-degree roll keeps the
+    # center ray fixed while making world-up read as image-up.
+    roll = math.pi
     return {
         "position": [cam_x, cam_y, cam_z],
         "target": [tx, ty, tz],
-        "orientation": {"roll": 0.0, "pitch": pitch, "yaw": yaw},
+        "orientation": {"roll": roll, "pitch": pitch, "yaw": yaw},
         "pitch_deg": math.degrees(pitch),
         "yaw_deg": math.degrees(yaw),
+        "roll_deg": math.degrees(roll),
         "forward": [fx, fy, fz],
         "distance": fl,
     }
@@ -579,8 +592,10 @@ def write_scene(
     scene = {
         "sdfVersion": 9,
         "name": scene_path.parent.name,
-        "world": str(world_dir).replace("\\", "/"),
-        "dimension": dimension,
+        "world": {
+            "path": str(world_dir).replace("\\", "/"),
+            "dimension": dimension,
+        },
         "width": width,
         "height": height,
         "spp": 0,
@@ -691,7 +706,13 @@ def run_chunky(
     chunky_home: Path,
     scene_dir: Path,
     args: list[str],
+    *,
+    world_dir: Path | None = None,
+    proxy: str | None = None,
 ) -> tuple[int, str]:
+    chunky_args = [*args]
+    if world_dir is not None:
+        chunky_args.append(str(world_dir))
     cmd = [
         "java",
         f"-Dchunky.home={chunky_home}",
@@ -699,10 +720,20 @@ def run_chunky(
         str(launcher_jar),
         "-scene-dir",
         str(scene_dir),
-        *args,
+        *chunky_args,
     ]
     # Chunky prints progress with non-UTF8 box-drawing bytes on Windows console;
     # decode leniently so subprocess.run doesn't crash mid-capture.
+    env = None
+    if proxy:
+        host, _, port = proxy.partition(":")
+        if not host or not port:
+            raise ValueError("--proxy must be host:port")
+        env = dict(os.environ)
+        env["JAVA_TOOL_OPTIONS"] = (
+            f"-Dhttp.proxyHost={host} -Dhttp.proxyPort={port} "
+            f"-Dhttps.proxyHost={host} -Dhttps.proxyPort={port}"
+        )
     proc = subprocess.run(
         cmd,
         stdout=subprocess.PIPE,
@@ -710,30 +741,95 @@ def run_chunky(
         text=True,
         encoding="utf-8",
         errors="replace",
+        env=env,
     )
     return proc.returncode, (proc.stdout or "") + (proc.stderr or "")
+
+
+STALE_SCENE_PATTERNS = ("*.dump", "*.dump.backup", "*.octree2", "*.json.backup")
+
+
+def clean_scene_cache(scene_dir: Path) -> list[str]:
+    """Remove Chunky per-scene state that can make a render reuse old framing."""
+    removed: list[str] = []
+    for stale in STALE_SCENE_PATTERNS:
+        for p in scene_dir.glob(stale):
+            if p.is_file():
+                p.unlink(missing_ok=True)
+                removed.append(p.name)
+    snap_dir = scene_dir / "snapshots"
+    if snap_dir.exists():
+        shutil.rmtree(snap_dir)
+        removed.append("snapshots/")
+    return removed
+
+
+def sync_chunky_scene_directory(chunky_home: Path, scene_root: Path) -> dict[str, Any]:
+    """Make PersistentSettings.resolveSceneDirectory use this run's scene root.
+
+    Chunky 2.4.6 honors ``-scene-dir`` for initial scene lookup, but later save,
+    dump, and snapshot paths call PersistentSettings.getSceneDirectory().
+    Updating chunky.json keeps those paths in the requested output tree.
+    """
+    settings_path = chunky_home / "chunky.json"
+    try:
+        settings = json.loads(settings_path.read_text(encoding="utf-8"))
+        if not isinstance(settings, dict):
+            settings = {}
+    except (FileNotFoundError, json.JSONDecodeError):
+        settings = {}
+    previous = settings.get("sceneDirectory")
+    settings["sceneDirectory"] = str(scene_root)
+    settings_path.parent.mkdir(parents=True, exist_ok=True)
+    settings_path.write_text(json.dumps(settings, indent=2), encoding="utf-8")
+    return {
+        "settings_path": str(settings_path),
+        "previous_sceneDirectory": previous,
+        "sceneDirectory": str(scene_root),
+    }
+
+
+def _write_log(path: Path, text: str) -> None:
+    path.write_text(text, encoding="utf-8", errors="replace")
 
 
 def render_scene(
     launcher_jar: Path,
     chunky_home: Path,
-    scene_dir: Path,
+    scene_root: Path,
+    scene_path: Path,
     scene_name: str,
+    world_dir: Path,
     target_spp: int,
     threads: int,
-) -> str:
+    *,
+    proxy: str | None = None,
+) -> dict[str, Any]:
     """Fresh render: force + reload chunks (scene carries `world`), then write
     a PNG via the separate ``-snapshot`` command (which reads the render dump
-    the render step persisted). Returns log text."""
-    # Drop any stale dump/octree from a prior run so this render starts clean
-    # (otherwise Chunky resumes the old SPP and the snapshot shows old framing).
-    for stale in ("*.dump", "*.dump.backup", "*.octree2", "*.json.backup"):
-        for p in scene_dir.glob(stale):
-            p.unlink(missing_ok=True)
+    the render step persisted). Returns a manifest-ready result dict."""
+    scene_dir = scene_path.parent
+    png = scene_dir / f"{scene_name}.png"
+    result: dict[str, Any] = {
+        "scene_root": str(scene_root),
+        "scene_dir": str(scene_dir),
+        "scene_json": str(scene_path),
+        "png_path": str(png),
+        "render_returncode": None,
+        "snapshot_returncode": None,
+        "auto_snapshot_path": None,
+        "png_exists": False,
+        "png_size_bytes": 0,
+        "cache_removed": [],
+        "logs": {},
+        "error": None,
+    }
+    pristine_scene_json = scene_path.read_text(encoding="utf-8")
+    result["cache_removed"] = clean_scene_cache(scene_dir)
     rc, log = run_chunky(
         launcher_jar,
         chunky_home,
-        scene_dir,
+        scene_root,
         [
             "-render",
             scene_name,
@@ -744,32 +840,50 @@ def render_scene(
             "-threads",
             str(threads),
         ],
+        world_dir=world_dir,
+        proxy=proxy,
     )
+    render_log = scene_dir / f"{scene_name}.render.log"
+    _write_log(render_log, log)
+    result["render_returncode"] = rc
+    result["logs"]["render"] = str(render_log)
     if rc != 0:
-        raise RuntimeError(f"chunky -render {scene_name} exited {rc}\n{log[-2000:]}")
+        result["error"] = f"chunky -render {scene_name} exited {rc}"
+        return result
+
     # Chunky rewrites the scene after render with the `world` field removed, so
-    # the standalone -snapshot command (which reloads the scene) can't load the
-    # dump. Rely on the in-render auto-snapshot that saveSnapshots:true writes
-    # to <scene_dir>/snapshots/<*>-<spp>.png instead.
-    png = scene_dir / f"{scene_name}.png"
+    # prefer the in-render auto-snapshot that saveSnapshots:true writes to
+    # <scene_dir>/snapshots/<*>-<spp>.png.
     produced = latest_snapshot(scene_dir)
     if produced is not None:
+        result["auto_snapshot_path"] = str(produced)
         shutil.move(str(produced), str(png))
     if png.is_file():
-        return log
-    # Fallback: try -snapshot anyway in case this Chunky version persists a
-    # usable dump.
+        result["png_exists"] = True
+        result["png_size_bytes"] = png.stat().st_size
+        return result
+
+    # Fallback: restore the pristine scene JSON, including the `world` field,
+    # before a new launcher process tries to load the scene and read the dump.
+    scene_path.write_text(pristine_scene_json, encoding="utf-8")
     rc2, log2 = run_chunky(
         launcher_jar,
         chunky_home,
-        scene_dir,
+        scene_root,
         ["-snapshot", scene_name, str(png)],
+        world_dir=world_dir,
+        proxy=proxy,
     )
+    snapshot_log = scene_dir / f"{scene_name}.snapshot.log"
+    _write_log(snapshot_log, log2)
+    result["snapshot_returncode"] = rc2
+    result["logs"]["snapshot"] = str(snapshot_log)
     if rc2 != 0 or not png.is_file():
-        raise RuntimeError(
-            f"chunky -snapshot {scene_name} exited {rc2}\n{log2[-2000:]}"
-        )
-    return log + log2
+        result["error"] = f"chunky -snapshot {scene_name} exited {rc2}"
+        return result
+    result["png_exists"] = True
+    result["png_size_bytes"] = png.stat().st_size
+    return result
 
 
 def latest_snapshot(scene_dir: Path) -> Path | None:
@@ -875,6 +989,7 @@ def assess_png(png: Path) -> dict[str, Any]:
     hist = [0] * 256
     lum_sum = 0.0
     total = width * height
+    lumas: list[int] = []
     for y in range(height):
         for x in range(width):
             i = (y * width + x) * channels
@@ -883,6 +998,7 @@ def assess_png(png: Path) -> dict[str, Any]:
             lum = 0 if lum < 0 else 255 if lum > 255 else lum
             hist[lum] += 1
             lum_sum += lum
+            lumas.append(lum)
     mean_lum = lum_sum / total if total else 0.0
 
     # Sky band = the luma value of the brightest 25% of pixels (the sky is the
@@ -906,16 +1022,46 @@ def assess_png(png: Path) -> dict[str, Any]:
     for lv in range(256):
         var_sum += hist[lv] * (lv - mean_lum) ** 2
     lum_stdev = math.sqrt(var_sum / total) if total else 0.0
+    edge_sum = 0
+    edge_count = 0
+    strong_edges = 0
+    for y in range(height):
+        row = y * width
+        for x in range(width):
+            lum = lumas[row + x]
+            if x:
+                diff = abs(lum - lumas[row + x - 1])
+                edge_sum += diff
+                edge_count += 1
+                if diff >= 12:
+                    strong_edges += 1
+            if y:
+                diff = abs(lum - lumas[row + x - width])
+                edge_sum += diff
+                edge_count += 1
+                if diff >= 12:
+                    strong_edges += 1
+    edge_mean = edge_sum / edge_count if edge_count else 0.0
+    strong_edge_ratio = strong_edges / edge_count if edge_count else 0.0
     # Framing is OK when there's real content: enough dark pixels AND enough
-    # luminance spread. (Empty-sky fails have ~0 dark pixels and low stdev.)
-    framing_ok = non_sky_ratio >= 0.10 and lum_stdev >= 15.0
+    # luminance spread/edges. Smooth sky gradients can have high stdev, so an
+    # edge signal is required to reject false positives.
+    framing_ok = (
+        non_sky_ratio >= 0.10
+        and lum_stdev >= 15.0
+        and (edge_mean >= 3.0 or strong_edge_ratio >= 0.015)
+    )
     return {
         "width": width,
         "height": height,
+        "mean_lum": round(mean_lum, 2),
         "mean_luminance": round(mean_lum, 2),
         "non_sky_pixel_ratio": round(non_sky_ratio, 4),
         "sky_pixel_ratio": round(sky_count / total if total else 0.0, 4),
+        "lum_stdev": round(lum_stdev, 2),
         "luminance_stdev": round(lum_stdev, 2),
+        "edge_mean": round(edge_mean, 3),
+        "strong_edge_ratio": round(strong_edge_ratio, 4),
         "framing_ok": framing_ok,
     }
 
@@ -969,6 +1115,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         nargs="+",
         default=["front", "right", "back", "left"],
         choices=["front", "right", "back", "left"],
+        help="Views to render. Default renders all four cardinal views.",
     )
     p.add_argument(
         "--distance",
@@ -986,6 +1133,15 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     p.add_argument("--height-px", dest="height_px", type=int, default=480)
     p.add_argument("--spp", type=int, default=20)
     p.add_argument("--threads", type=int, default=6)
+    p.add_argument(
+        "--chunk-pad",
+        type=int,
+        default=4,
+        help=(
+            "Extra chunks around the bbox-to-camera rectangle for each view. "
+            "Higher values reduce empty-background clipping at the cost of render time."
+        ),
+    )
     p.add_argument(
         "--out",
         default="chunky-render/renders",
@@ -1010,6 +1166,13 @@ def main(argv: list[str]) -> int:
     if not launcher.is_file():
         print(f"ERROR: launcher jar not found: {launcher}", file=sys.stderr)
         return 2
+
+    settings_update = sync_chunky_scene_directory(home, out_dir)
+    print(
+        "[chunky] sceneDirectory -> "
+        f"{settings_update['sceneDirectory']} "
+        f"(was {settings_update['previous_sceneDirectory']})"
+    )
 
     print(f"[scan] scanning {world_dir / 'region'} for structure bbox ...")
     bbox = scan_structure_bbox(
@@ -1042,12 +1205,22 @@ def main(argv: list[str]) -> int:
     manifest: dict[str, Any] = {
         "schema_version": 1,
         "world": str(world_dir),
+        "launcher": str(launcher),
+        "chunky_home": str(home),
+        "dimension": args.dimension,
+        "out_dir": str(out_dir),
         "anchor": args.anchor,
         "bbox": bbox,
         "target_center": list(target),
         "chunk_list": chunk_list,
         "distance": distance,
         "height_above": height,
+        "width": args.width,
+        "height_px": args.height_px,
+        "spp": args.spp,
+        "threads": args.threads,
+        "chunk_pad": args.chunk_pad,
+        "chunky_settings": settings_update,
         "views": [],
     }
 
@@ -1062,13 +1235,15 @@ def main(argv: list[str]) -> int:
         # octree never collide with another view's (Chunky writes auto-snapshots
         # to <scene_dir>/snapshots/, shared across scenes otherwise).
         view_dir = out_dir / scene_name
+        view_dir_recreated = view_dir.exists()
         if view_dir.exists():
             shutil.rmtree(view_dir)
         view_dir.mkdir(parents=True)
         scene_path = view_dir / f"{scene_name}.json"
-        # Per-view chunkList: the structure's footprint + a margin so the
-        # whole building is loaded regardless of camera placement.
-        view_chunk_list = chunks_around_bbox(bbox, pad=2)
+        # Per-view chunkList: the structure footprint, camera position, line of
+        # sight, and an environment margin. Chunky renders unloaded chunks as
+        # empty background, so bbox-only chunks make valid shots look clipped.
+        view_chunk_list = chunks_for_view(bbox, cam["position"], pad=args.chunk_pad)
         write_scene(
             scene_path,
             world_dir=world_dir,
@@ -1086,40 +1261,66 @@ def main(argv: list[str]) -> int:
             f"pitch={cam['pitch_deg']:.1f}deg/{cam['orientation']['pitch']:.4f}rad "
             f"chunks={len(view_chunk_list)}"
         )
-        log = render_scene(
-            launcher, home, view_dir, scene_name, args.spp, args.threads
+        render_result = render_scene(
+            launcher,
+            home,
+            out_dir,
+            scene_path,
+            scene_name,
+            world_dir,
+            args.spp,
+            args.threads,
+            proxy=args.proxy,
         )
-        png = view_dir / f"{scene_name}.png"
+        png = Path(render_result["png_path"])
+        camera_summary = {
+            "position": cam["position"],
+            "target": cam["target"],
+            "yaw_deg": round(cam["yaw_deg"], 3),
+            "pitch_deg": round(cam["pitch_deg"], 3),
+            "roll_deg": round(cam["roll_deg"], 3),
+            "yaw_rad": round(cam["orientation"]["yaw"], 6),
+            "pitch_rad": round(cam["orientation"]["pitch"], 6),
+            "roll_rad": round(cam["orientation"]["roll"], 6),
+            "forward": [round(v, 4) for v in cam["forward"]],
+            "distance": round(cam["distance"], 2),
+        }
         if not png.is_file():
             entry = {
                 "view": view,
                 "azimuth_deg": az,
-                "camera": cam,
-                "png": str(png.relative_to(ROOT)),
-                "error": "PNG not produced",
+                "scene_dir": str(view_dir),
+                "scene_json": str(scene_path),
+                "view_dir_recreated": view_dir_recreated,
+                "camera": camera_summary,
+                "chunk_list": view_chunk_list,
+                "render": render_result,
+                "png": display_path(png),
+                "png_exists": False,
+                "png_size_bytes": 0,
+                "error": render_result.get("error") or "PNG not produced",
                 "framing_ok": False,
             }
             manifest["views"].append(entry)
             overall_ok = False
-            print(f"[render] {view}: PNG MISSING")
+            print(
+                f"[render] {view}: PNG MISSING "
+                f"error={entry['error']} logs={render_result.get('logs')}"
+            )
             continue
         assessment = assess_png(png)
         entry = {
             "view": view,
             "azimuth_deg": az,
-            "camera": {
-                "position": cam["position"],
-                "target": cam["target"],
-                "yaw_deg": round(cam["yaw_deg"], 3),
-                "pitch_deg": round(cam["pitch_deg"], 3),
-                "yaw_rad": round(cam["orientation"]["yaw"], 6),
-                "pitch_rad": round(cam["orientation"]["pitch"], 6),
-                "roll_rad": 0.0,
-                "forward": [round(v, 4) for v in cam["forward"]],
-                "distance": round(cam["distance"], 2),
-            },
+            "scene_dir": str(view_dir),
+            "scene_json": str(scene_path),
+            "view_dir_recreated": view_dir_recreated,
+            "camera": camera_summary,
             "chunk_list": view_chunk_list,
-            "png": str(png.relative_to(ROOT)),
+            "render": render_result,
+            "png": display_path(png),
+            "png_exists": True,
+            "png_size_bytes": png.stat().st_size,
             "assessment": assessment,
             "framing_ok": assessment.get("framing_ok", False),
         }
@@ -1131,7 +1332,7 @@ def main(argv: list[str]) -> int:
             f"[render] {view}: {status} "
             f"mean_lum={assessment.get('mean_luminance')} "
             f"non_sky={assessment.get('non_sky_pixel_ratio')} "
-            f"-> {png.relative_to(ROOT)}"
+            f"-> {display_path(png)}"
         )
 
     manifest["overall_framing_ok"] = overall_ok
@@ -1139,7 +1340,7 @@ def main(argv: list[str]) -> int:
     manifest_path.write_text(
         json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8"
     )
-    print(f"[done] manifest -> {manifest_path.relative_to(ROOT)}")
+    print(f"[done] manifest -> {display_path(manifest_path)}")
     print(f"[done] overall framing {'OK' if overall_ok else 'FAILED'}")
     return 0 if overall_ok else 1
 
