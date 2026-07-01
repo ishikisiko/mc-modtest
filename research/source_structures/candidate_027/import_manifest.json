@@ -1,0 +1,11 @@
+{
+  "id": "candidate_027",
+  "category": "house",
+  "title": "AdamRaichu's Structures",
+  "source_url": "https://modrinth.com/datapack/adamraichu-structures",
+  "license": "MIT License",
+  "usage_decision": "local_research",
+  "total_recommendation": "medium",
+  "manifest": "research/source_structures/candidate_027/import_manifest.json",
+  "note": "Minimal manifest reconstructed from index.json; full inspection/import still required before use."
+}

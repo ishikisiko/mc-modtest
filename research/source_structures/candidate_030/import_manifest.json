@@ -1,0 +1,11 @@
+{
+  "id": "candidate_030",
+  "category": "reference_material",
+  "title": "GrabCraft Medieval Small House 2 (or Blacksmith)",
+  "source_url": "https://www.grabcraft.com/minecraft-medieval-blacksmith",
+  "license": "Proprietary / no redistribution",
+  "usage_decision": "local_research",
+  "total_recommendation": "weak",
+  "manifest": "research/source_structures/candidate_030/import_manifest.json",
+  "note": "Minimal manifest reconstructed from index.json; full inspection/import still required before use."
+}

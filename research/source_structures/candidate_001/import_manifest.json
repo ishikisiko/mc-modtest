@@ -1,0 +1,11 @@
+{
+  "id": "candidate_001",
+  "category": "house",
+  "title": "Large Survival House",
+  "source_url": "https://github.com/zephiowl/litematica-schematics",
+  "license": "MIT License",
+  "usage_decision": "local_research",
+  "total_recommendation": "strong",
+  "manifest": "research/source_structures/candidate_001/import_manifest.json",
+  "note": "Minimal manifest reconstructed from index.json; full inspection/import still required before use."
+}

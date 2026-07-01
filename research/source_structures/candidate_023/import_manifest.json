@@ -1,0 +1,11 @@
+{
+  "id": "candidate_023",
+  "category": "house",
+  "title": "Villages Revamped (Datapack)",
+  "source_url": "https://modrinth.com/datapack/villages-revamped",
+  "license": "All Rights Reserved",
+  "usage_decision": "local_research",
+  "total_recommendation": "weak",
+  "manifest": "research/source_structures/candidate_023/import_manifest.json",
+  "note": "Minimal manifest reconstructed from index.json; full inspection/import still required before use."
+}

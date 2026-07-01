@@ -1,0 +1,11 @@
+{
+  "id": "candidate_015",
+  "category": "house",
+  "title": "Medieval House Variation Collection",
+  "source_url": "https://www.planetminecraft.com/project/big-medieval-house-3-variation-collection/",
+  "license": "CC BY‑NC‑SA 4.0",
+  "usage_decision": "local_research",
+  "total_recommendation": "medium",
+  "manifest": "research/source_structures/candidate_015/import_manifest.json",
+  "note": "Minimal manifest reconstructed from index.json; full inspection/import still required before use."
+}

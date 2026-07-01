@@ -1,0 +1,11 @@
+{
+  "id": "candidate_024",
+  "category": "house",
+  "title": "Better Villages (Datapack)",
+  "source_url": "https://modrinth.com/datapack/better-villages-datapack",
+  "license": "All Rights Reserved",
+  "usage_decision": "local_research",
+  "total_recommendation": "weak",
+  "manifest": "research/source_structures/candidate_024/import_manifest.json",
+  "note": "Minimal manifest reconstructed from index.json; full inspection/import still required before use."
+}

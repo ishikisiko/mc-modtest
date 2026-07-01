@@ -1,0 +1,11 @@
+{
+  "id": "candidate_014",
+  "category": "house",
+  "title": "Medieval House With Tower (video tutorial)",
+  "source_url": "https://www.planetminecraft.com/project/minecraft-medieval-house-with-a-tower/",
+  "license": "unknown",
+  "usage_decision": "local_research",
+  "total_recommendation": "weak",
+  "manifest": "research/source_structures/candidate_014/import_manifest.json",
+  "note": "Minimal manifest reconstructed from index.json; full inspection/import still required before use."
+}

@@ -1,0 +1,11 @@
+{
+  "id": "candidate_016",
+  "category": "reference_material",
+  "title": "Jiangnan Courtyard Tutorial (Bilibili)",
+  "source_url": "https://www.bilibili.com/video/BV19k4y1C7Z2/",
+  "license": "No license / Unauthorized reproduction prohibited",
+  "usage_decision": "local_research",
+  "total_recommendation": "weak",
+  "manifest": "research/source_structures/candidate_016/import_manifest.json",
+  "note": "Minimal manifest reconstructed from index.json; full inspection/import still required before use."
+}

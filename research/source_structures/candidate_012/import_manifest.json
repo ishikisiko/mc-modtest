@@ -1,0 +1,11 @@
+{
+  "id": "candidate_012",
+  "category": "house",
+  "title": "Simple Forest House",
+  "source_url": "https://www.planetminecraft.com/project/a-simple-forest-house/",
+  "license": "CC BY‑NC 3.0",
+  "usage_decision": "local_research",
+  "total_recommendation": "weak",
+  "manifest": "research/source_structures/candidate_012/import_manifest.json",
+  "note": "Minimal manifest reconstructed from index.json; full inspection/import still required before use."
+}

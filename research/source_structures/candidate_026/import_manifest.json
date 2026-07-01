@@ -1,0 +1,11 @@
+{
+  "id": "candidate_026",
+  "category": "house",
+  "title": "Supplementary Villages",
+  "source_url": "https://modrinth.com/datapack/supplementary-villages",
+  "license": "MIT License",
+  "usage_decision": "local_research",
+  "total_recommendation": "medium",
+  "manifest": "research/source_structures/candidate_026/import_manifest.json",
+  "note": "Minimal manifest reconstructed from index.json; full inspection/import still required before use."
+}

@@ -1,0 +1,11 @@
+{
+  "id": "candidate_013",
+  "category": "house",
+  "title": "A‑Frame House (Winter)",
+  "source_url": "https://www.planetminecraft.com/project/a-frame-house-winter/",
+  "license": "CC BY‑NC‑ND 3.0",
+  "usage_decision": "local_research",
+  "total_recommendation": "low",
+  "manifest": "research/source_structures/candidate_013/import_manifest.json",
+  "note": "Minimal manifest reconstructed from index.json; full inspection/import still required before use."
+}

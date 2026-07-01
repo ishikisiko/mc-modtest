@@ -1,0 +1,11 @@
+{
+  "id": "candidate_019",
+  "category": "reference_material",
+  "title": "Covered Bridge / Gallery Bridge (Bilibili)",
+  "source_url": "https://www.bilibili.com/video/BV1w84y1c7Pd/",
+  "license": "unknown",
+  "usage_decision": "local_research",
+  "total_recommendation": "weak",
+  "manifest": "research/source_structures/candidate_019/import_manifest.json",
+  "note": "Minimal manifest reconstructed from index.json; full inspection/import still required before use."
+}

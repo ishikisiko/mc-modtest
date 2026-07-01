@@ -1,0 +1,11 @@
+{
+  "id": "candidate_020",
+  "category": "reference_material",
+  "title": "Cliffside Temple / Mountain Gate (Bilibili)",
+  "source_url": "https://www.bilibili.com/video/BV1Px4y1J7cZ/",
+  "license": "unknown",
+  "usage_decision": "local_research",
+  "total_recommendation": "weak",
+  "manifest": "research/source_structures/candidate_020/import_manifest.json",
+  "note": "Minimal manifest reconstructed from index.json; full inspection/import still required before use."
+}

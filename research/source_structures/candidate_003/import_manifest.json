@@ -1,0 +1,11 @@
+{
+  "id": "candidate_003",
+  "category": "jiangnan_component",
+  "title": "Hui‑style Chinese Village House",
+  "source_url": "https://modrinth.com/datapack/more-chinese-structures",
+  "license": "MIT License",
+  "usage_decision": "local_research",
+  "total_recommendation": "strong",
+  "manifest": "research/source_structures/candidate_003/import_manifest.json",
+  "note": "Minimal manifest reconstructed from index.json; full inspection/import still required before use."
+}

@@ -1,0 +1,11 @@
+{
+  "id": "candidate_011",
+  "category": "house",
+  "title": "Cozy Retro‑istic Home",
+  "source_url": "https://www.planetminecraft.com/project/cozy-retro-istic-home-use-in-your-own-town-city-map/",
+  "license": "CC BY‑SA 4.0",
+  "usage_decision": "local_research",
+  "total_recommendation": "medium",
+  "manifest": "research/source_structures/candidate_011/import_manifest.json",
+  "note": "Minimal manifest reconstructed from index.json; full inspection/import still required before use."
+}

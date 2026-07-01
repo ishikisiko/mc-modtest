@@ -1,0 +1,309 @@
+{
+  "generated_at": "2026-07-01",
+  "total_candidates": 30,
+  "counts": {
+    "local_research": 30
+  },
+  "candidates": [
+    {
+      "id": "candidate_001",
+      "category": "house",
+      "title": "Large Survival House",
+      "source_url": "https://github.com/zephiowl/litematica-schematics",
+      "license": "MIT License",
+      "usage_decision": "local_research",
+      "total_recommendation": "strong",
+      "manifest": "research/source_structures/candidate_001/import_manifest.json"
+    },
+    {
+      "id": "candidate_002",
+      "category": "house",
+      "title": "Terminal House (NeoForge example)",
+      "source_url": "https://github.com/ishikisiko/forge-1.21-51.0.33-mdk",
+      "license": "MIT License",
+      "usage_decision": "local_research",
+      "total_recommendation": "medium",
+      "manifest": "research/source_structures/candidate_002/import_manifest.json"
+    },
+    {
+      "id": "candidate_003",
+      "category": "jiangnan_component",
+      "title": "Hui‑style Chinese Village House",
+      "source_url": "https://modrinth.com/datapack/more-chinese-structures",
+      "license": "MIT License",
+      "usage_decision": "local_research",
+      "total_recommendation": "strong",
+      "manifest": "research/source_structures/candidate_003/import_manifest.json"
+    },
+    {
+      "id": "candidate_004",
+      "category": "jiangnan_component",
+      "title": "Yaodong Earth Shelter House",
+      "source_url": "https://modrinth.com/datapack/more-chinese-structures",
+      "license": "MIT License",
+      "usage_decision": "local_research",
+      "total_recommendation": "strong",
+      "manifest": "research/source_structures/candidate_004/import_manifest.json"
+    },
+    {
+      "id": "candidate_005",
+      "category": "jiangnan_component",
+      "title": "Ganlan Stilted House",
+      "source_url": "https://modrinth.com/datapack/more-chinese-structures",
+      "license": "MIT License",
+      "usage_decision": "local_research",
+      "total_recommendation": "strong",
+      "manifest": "research/source_structures/candidate_005/import_manifest.json"
+    },
+    {
+      "id": "candidate_006",
+      "category": "sect_component",
+      "title": "Chinese Pagoda Tower",
+      "source_url": "https://modrinth.com/datapack/more-chinese-structures",
+      "license": "MIT License",
+      "usage_decision": "local_research",
+      "total_recommendation": "strong",
+      "manifest": "research/source_structures/candidate_006/import_manifest.json"
+    },
+    {
+      "id": "candidate_007",
+      "category": "sect_component",
+      "title": "Chinese Castle/Fortress",
+      "source_url": "https://modrinth.com/datapack/more-chinese-structures",
+      "license": "MIT License",
+      "usage_decision": "local_research",
+      "total_recommendation": "medium",
+      "manifest": "research/source_structures/candidate_007/import_manifest.json"
+    },
+    {
+      "id": "candidate_008",
+      "category": "sect_component",
+      "title": "Sky Palace",
+      "source_url": "https://modrinth.com/datapack/more-chinese-structures",
+      "license": "MIT License",
+      "usage_decision": "local_research",
+      "total_recommendation": "medium",
+      "manifest": "research/source_structures/candidate_008/import_manifest.json"
+    },
+    {
+      "id": "candidate_009",
+      "category": "sect_component",
+      "title": "Leshan‑style Buddha Statue Temple",
+      "source_url": "https://modrinth.com/datapack/more-chinese-structures",
+      "license": "MIT License",
+      "usage_decision": "local_research",
+      "total_recommendation": "medium",
+      "manifest": "research/source_structures/candidate_009/import_manifest.json"
+    },
+    {
+      "id": "candidate_010",
+      "category": "sect_component",
+      "title": "Traditional Chinese Temple (assorted)",
+      "source_url": "https://modrinth.com/datapack/more-chinese-structures",
+      "license": "MIT License",
+      "usage_decision": "local_research",
+      "total_recommendation": "strong",
+      "manifest": "research/source_structures/candidate_010/import_manifest.json"
+    },
+    {
+      "id": "candidate_011",
+      "category": "house",
+      "title": "Cozy Retro‑istic Home",
+      "source_url": "https://www.planetminecraft.com/project/cozy-retro-istic-home-use-in-your-own-town-city-map/",
+      "license": "CC BY‑SA 4.0",
+      "usage_decision": "local_research",
+      "total_recommendation": "medium",
+      "manifest": "research/source_structures/candidate_011/import_manifest.json"
+    },
+    {
+      "id": "candidate_012",
+      "category": "house",
+      "title": "Simple Forest House",
+      "source_url": "https://www.planetminecraft.com/project/a-simple-forest-house/",
+      "license": "CC BY‑NC 3.0",
+      "usage_decision": "local_research",
+      "total_recommendation": "weak",
+      "manifest": "research/source_structures/candidate_012/import_manifest.json"
+    },
+    {
+      "id": "candidate_013",
+      "category": "house",
+      "title": "A‑Frame House (Winter)",
+      "source_url": "https://www.planetminecraft.com/project/a-frame-house-winter/",
+      "license": "CC BY‑NC‑ND 3.0",
+      "usage_decision": "local_research",
+      "total_recommendation": "low",
+      "manifest": "research/source_structures/candidate_013/import_manifest.json"
+    },
+    {
+      "id": "candidate_014",
+      "category": "house",
+      "title": "Medieval House With Tower (video tutorial)",
+      "source_url": "https://www.planetminecraft.com/project/minecraft-medieval-house-with-a-tower/",
+      "license": "unknown",
+      "usage_decision": "local_research",
+      "total_recommendation": "weak",
+      "manifest": "research/source_structures/candidate_014/import_manifest.json"
+    },
+    {
+      "id": "candidate_015",
+      "category": "house",
+      "title": "Medieval House Variation Collection",
+      "source_url": "https://www.planetminecraft.com/project/big-medieval-house-3-variation-collection/",
+      "license": "CC BY‑NC‑SA 4.0",
+      "usage_decision": "local_research",
+      "total_recommendation": "medium",
+      "manifest": "research/source_structures/candidate_015/import_manifest.json"
+    },
+    {
+      "id": "candidate_016",
+      "category": "reference_material",
+      "title": "Jiangnan Courtyard Tutorial (Bilibili)",
+      "source_url": "https://www.bilibili.com/video/BV19k4y1C7Z2/",
+      "license": "No license / Unauthorized reproduction prohibited",
+      "usage_decision": "local_research",
+      "total_recommendation": "weak",
+      "manifest": "research/source_structures/candidate_016/import_manifest.json"
+    },
+    {
+      "id": "candidate_017",
+      "category": "reference_material",
+      "title": "Chinese Pavilion Tutorial (Bilibili)",
+      "source_url": "https://www.bilibili.com/video/BV1Fx4y1s7MP/",
+      "license": "unknown",
+      "usage_decision": "local_research",
+      "total_recommendation": "weak",
+      "manifest": "research/source_structures/candidate_017/import_manifest.json"
+    },
+    {
+      "id": "candidate_018",
+      "category": "reference_material",
+      "title": "Moon Gate and Wall Segment (Bilibili)",
+      "source_url": "https://www.bilibili.com/video/BV1Yx4y1q7HG/",
+      "license": "unknown",
+      "usage_decision": "local_research",
+      "total_recommendation": "weak",
+      "manifest": "research/source_structures/candidate_018/import_manifest.json"
+    },
+    {
+      "id": "candidate_019",
+      "category": "reference_material",
+      "title": "Covered Bridge / Gallery Bridge (Bilibili)",
+      "source_url": "https://www.bilibili.com/video/BV1w84y1c7Pd/",
+      "license": "unknown",
+      "usage_decision": "local_research",
+      "total_recommendation": "weak",
+      "manifest": "research/source_structures/candidate_019/import_manifest.json"
+    },
+    {
+      "id": "candidate_020",
+      "category": "reference_material",
+      "title": "Cliffside Temple / Mountain Gate (Bilibili)",
+      "source_url": "https://www.bilibili.com/video/BV1Px4y1J7cZ/",
+      "license": "unknown",
+      "usage_decision": "local_research",
+      "total_recommendation": "weak",
+      "manifest": "research/source_structures/candidate_020/import_manifest.json"
+    },
+    {
+      "id": "candidate_021",
+      "category": "sect_component",
+      "title": "Ancient Structures: Chinese (Datapack)",
+      "source_url": "https://modrinth.com/datapack/ancient-structures-chinese-dp",
+      "license": "GPL‑3.0-only",
+      "usage_decision": "local_research",
+      "total_recommendation": "weak",
+      "manifest": "research/source_structures/candidate_021/import_manifest.json"
+    },
+    {
+      "id": "candidate_022",
+      "category": "sect_component",
+      "title": "ZhengSZ's Wonderland (Blue Orchid)",
+      "source_url": "https://modrinth.com/datapack/zhengsz-wonderland",
+      "license": "All Rights Reserved",
+      "usage_decision": "local_research",
+      "total_recommendation": "low",
+      "manifest": "research/source_structures/candidate_022/import_manifest.json"
+    },
+    {
+      "id": "candidate_023",
+      "category": "house",
+      "title": "Villages Revamped (Datapack)",
+      "source_url": "https://modrinth.com/datapack/villages-revamped",
+      "license": "All Rights Reserved",
+      "usage_decision": "local_research",
+      "total_recommendation": "weak",
+      "manifest": "research/source_structures/candidate_023/import_manifest.json"
+    },
+    {
+      "id": "candidate_024",
+      "category": "house",
+      "title": "Better Villages (Datapack)",
+      "source_url": "https://modrinth.com/datapack/better-villages-datapack",
+      "license": "All Rights Reserved",
+      "usage_decision": "local_research",
+      "total_recommendation": "weak",
+      "manifest": "research/source_structures/candidate_024/import_manifest.json"
+    },
+    {
+      "id": "candidate_025",
+      "category": "house",
+      "title": "Epic Structures: Villages",
+      "source_url": "https://modrinth.com/datapack/epic-structures-villages",
+      "license": "All Rights Reserved",
+      "usage_decision": "local_research",
+      "total_recommendation": "low",
+      "manifest": "research/source_structures/candidate_025/import_manifest.json"
+    },
+    {
+      "id": "candidate_026",
+      "category": "house",
+      "title": "Supplementary Villages",
+      "source_url": "https://modrinth.com/datapack/supplementary-villages",
+      "license": "MIT License",
+      "usage_decision": "local_research",
+      "total_recommendation": "medium",
+      "manifest": "research/source_structures/candidate_026/import_manifest.json"
+    },
+    {
+      "id": "candidate_027",
+      "category": "house",
+      "title": "AdamRaichu's Structures",
+      "source_url": "https://modrinth.com/datapack/adamraichu-structures",
+      "license": "MIT License",
+      "usage_decision": "local_research",
+      "total_recommendation": "medium",
+      "manifest": "research/source_structures/candidate_027/import_manifest.json"
+    },
+    {
+      "id": "candidate_028",
+      "category": "house",
+      "title": "Mega Survival House (Rebuild)",
+      "source_url": "https://www.planetminecraft.com/project/mega-survival-house-rebuild-litematica/",
+      "license": "unknown",
+      "usage_decision": "local_research",
+      "total_recommendation": "weak",
+      "manifest": "research/source_structures/candidate_028/import_manifest.json"
+    },
+    {
+      "id": "candidate_029",
+      "category": "reference_material",
+      "title": "GrabCraft Medieval Small House 1",
+      "source_url": "https://www.grabcraft.com/minecraft-medieval-small-unfurnished-house-1",
+      "license": "Proprietary / no redistribution",
+      "usage_decision": "local_research",
+      "total_recommendation": "weak",
+      "manifest": "research/source_structures/candidate_029/import_manifest.json"
+    },
+    {
+      "id": "candidate_030",
+      "category": "reference_material",
+      "title": "GrabCraft Medieval Small House 2 (or Blacksmith)",
+      "source_url": "https://www.grabcraft.com/minecraft-medieval-blacksmith",
+      "license": "Proprietary / no redistribution",
+      "usage_decision": "local_research",
+      "total_recommendation": "weak",
+      "manifest": "research/source_structures/candidate_030/import_manifest.json"
+    }
+  ]
+}

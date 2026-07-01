@@ -1,0 +1,11 @@
+{
+  "id": "candidate_028",
+  "category": "house",
+  "title": "Mega Survival House (Rebuild)",
+  "source_url": "https://www.planetminecraft.com/project/mega-survival-house-rebuild-litematica/",
+  "license": "unknown",
+  "usage_decision": "local_research",
+  "total_recommendation": "weak",
+  "manifest": "research/source_structures/candidate_028/import_manifest.json",
+  "note": "Minimal manifest reconstructed from index.json; full inspection/import still required before use."
+}

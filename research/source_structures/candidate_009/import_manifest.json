@@ -1,0 +1,11 @@
+{
+  "id": "candidate_009",
+  "category": "sect_component",
+  "title": "Leshan‑style Buddha Statue Temple",
+  "source_url": "https://modrinth.com/datapack/more-chinese-structures",
+  "license": "MIT License",
+  "usage_decision": "local_research",
+  "total_recommendation": "medium",
+  "manifest": "research/source_structures/candidate_009/import_manifest.json",
+  "note": "Minimal manifest reconstructed from index.json; full inspection/import still required before use."
+}

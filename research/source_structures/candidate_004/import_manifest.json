@@ -1,0 +1,11 @@
+{
+  "id": "candidate_004",
+  "category": "jiangnan_component",
+  "title": "Yaodong Earth Shelter House",
+  "source_url": "https://modrinth.com/datapack/more-chinese-structures",
+  "license": "MIT License",
+  "usage_decision": "local_research",
+  "total_recommendation": "strong",
+  "manifest": "research/source_structures/candidate_004/import_manifest.json",
+  "note": "Minimal manifest reconstructed from index.json; full inspection/import still required before use."
+}
