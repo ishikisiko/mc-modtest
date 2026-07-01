@@ -31,6 +31,10 @@ together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
   and worldgen targets in `reports/visual_acceptance_report.json/.md`.
 - `validate_generated_structures.py` treats the standalone `hero_rockery` review
   fragment as a non-building landscape specimen for key-building-block checks.
+- Completed the final `path-surface-zoning` mansion review repairs: 水边廊 and
+  主院 抄手游廊 now render as 3D galleries with floors, columns, balustrades, and
+  roofs; 后院 and 花园 are separate bands, the 绣楼 stays in 后院, and the 主院
+  heart remains grass.
 
 ## 0.18.0
 

@@ -42,12 +42,12 @@
 > re-run against those final NBTs. The checkbox state below reflects the
 > Arc 1-4 pass and is reset to pending.
 
-- [ ] 5.1 Land the regenerated structures into `src/main/resources/data/myvillage/structure/` and pack into the mod jar.
-- [ ] 5.2 Update `AGENTS.md`: replace the path-block paragraph with the six-zone surface model; note the tour waypoint router and the 月洞门 material boundary; note the 3D 连廊 renderer and the 后院/花园 split (Arc 5/6).
-- [ ] 5.3 Add a `docs/ai-kb/` note "Path surface zoning" (list it in `docs/ai-kb/INDEX.md`, with see-also links to `courtyard-ground-layer`, `courtyard-path-network`, and the new `path-surface-zoning` spec). Cover the 连廊建筑化 + layout-fix arcs.
-- [ ] 5.4 Update `README.md` command/usage instructions if any `/myvillage` surface changes are user-visible (the `/place` ids are unchanged; add a note that paths now read as three routes with six surfaces, the 水边廊/抄手游廊 are real 3D galleries, and the 绣楼 sits in its own 后院).
-- [ ] 5.5 Bump the mod version (large feature) and update the four files together per `openspec/config.yaml` `rules.tasks`: `gradle.properties`, `src/main/resources/META-INF/neoforge.mods.toml`, `README.md` jar-name examples, `CHANGELOG.md`.
-- [ ] 5.6 Staged manual acceptance: generate the aggregate preview `out/preview/index.html`, serve `out/preview/` over HTTP, report the host address as the review URL, and place ≥2 NBTs per family in-game for the user's "feels right" review (重点复核: 水边廊有柱有顶有栏, 主院抄手游廊, 绣楼在后院不在花园, 主院院心是草).
+- [x] 5.1 Land the regenerated structures into `src/main/resources/data/myvillage/structure/` and pack into the mod jar.
+- [x] 5.2 Update `AGENTS.md`: replace the path-block paragraph with the six-zone surface model; note the tour waypoint router and the 月洞门 material boundary; note the 3D 连廊 renderer and the 后院/花园 split (Arc 5/6).
+- [x] 5.3 Add a `docs/ai-kb/` note "Path surface zoning" (list it in `docs/ai-kb/INDEX.md`, with see-also links to `courtyard-ground-layer`, `courtyard-path-network`, and the new `path-surface-zoning` spec). Cover the 连廊建筑化 + layout-fix arcs.
+- [x] 5.4 Update `README.md` command/usage instructions if any `/myvillage` surface changes are user-visible (the `/place` ids are unchanged; add a note that paths now read as three routes with six surfaces, the 水边廊/抄手游廊 are real 3D galleries, and the 绣楼 sits in its own 后院).
+- [x] 5.5 Bump the mod version (large feature) and update the four files together per `openspec/config.yaml` `rules.tasks`: `gradle.properties`, `src/main/resources/META-INF/neoforge.mods.toml`, `README.md` jar-name examples, `CHANGELOG.md`.
+- [x] 5.6 Staged manual acceptance: generate the aggregate preview `out/preview/index.html`, serve `out/preview/` over HTTP, report the host address as the review URL, and place ≥2 NBTs per family in-game for the user's "feels right" review (重点复核: 水边廊有柱有顶有栏, 主院抄手游廊, 绣楼在后院不在花园, 主院院心是草).
 
 ## 6. 连廊建筑化 + 房屋布局修复 (Arc 5 + Arc 6 — elevated after in-game review)
 

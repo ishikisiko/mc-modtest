@@ -1,6 +1,7 @@
 # Path Surface Zoning
 
-Implemented in 0.18.0 by change `path-surface-zoning`.
+Implemented in 0.18.0 by change `path-surface-zoning`, with the final
+gallery/layout repairs documented in 0.18.1.
 
 The courtyard/mansion ground + path layer is a **two-axis surface-zoning
 model**. Before this change the whole path was one flat `GROUND_PATH` gravel
@@ -86,6 +87,21 @@ water-surface block — it reads as a plank bridge. The deleted 汀步
 `rockery_block` spike-row ("一列小尖刺") is **not** restored; the spike problem
 was the block choice, not the crossing geometry.
 
+## 3D galleries and mansion layout repair
+
+The mansion 水边廊 and 主院 抄手游廊 are real 3D galleries, not floor-only
+surface cells. `_place_covered_gallery_3d()` writes a `PATH_GALLERY` floor,
+2-high `COLUMN` posts, a `BALUSTRADE` fence row on the open side, and a
+single-slope `ROOF_DARK` roof. The 水边廊 keeps the `covered_gallery` parcel type
+and follows the pond shore; the 主院 galleries tie the inner-gate flanks to the
+open-hall flanks when there is enough clear width.
+
+The mansion back-yard bug was fixed in the same final pass. `generate_mansion`
+uses `_mansion_yard_depths()` to split 后院 and 花园 into separate z-bands, moves
+the garden screen wall/月洞门 to `garden_band[0]`, constrains `tower_house`
+(绣楼/藏书楼) to the 后院, and shrinks the 主院 platform to the building/gallery
+footprints so the 主院 heart falls through to `GROUND_YARD_OPEN` grass.
+
 ## Validation
 
 `validate_mansion` adds three checks on top of the voxel-walkability suite:
@@ -97,6 +113,8 @@ was the block choice, not the crossing geometry.
   connected single-source tree; no-op for compounds without a garden.
 - `waterside_bridge_incomplete:<first|last>` — the slab bridge spans both
   shores / 亭-island.
+- `back_yard_garden_overlap` and `tower_overlaps_garden` — the 后院/花园 bands
+  stay separated and no `tower_house` footprint overlaps 花园 feature cells.
 
 ## See also
 
