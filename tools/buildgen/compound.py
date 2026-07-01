@@ -1173,9 +1173,9 @@ def place_garden_pond(compound: CompoundGraph, bbox: Tuple[int, int, int, int],
     # minecraft:lily_pad at y=0 (sitting on the water surface one block above the
     # y=-1 water source). Vanilla lily pads are flat non-solid blocks, so they
     # neither block the pond's walkability check nor obscure the island 假山.
-    # Density is ~1 lily pad per 6 water cells, capped so small ponds still get a
-    # handful; they avoid the rockery footprint and the immediate shore ring (so
-    # the water edge stays clean and the 亭 approach is not obscured).
+    # Density is intentionally low and capped; they avoid the rockery footprint
+    # and the immediate shore ring so the water edge stays clean. Later passes
+    # prune them around the bridge/gallery clear lanes.
     if water:
         import random as _rng
         rnd = _rng.Random(seed ^ 0x4C494C59)
@@ -1190,12 +1190,20 @@ def place_garden_pond(compound: CompoundGraph, bbox: Tuple[int, int, int, int],
             rock_ring = _chebyshev_ring(rock_cells)
             candidates = [c for c in candidates if c not in rock_ring]
         rnd.shuffle(candidates)
-        target = max(3, len(water) // 6)
+        target = min(12, max(2, len(water) // 10))
         for (x, z) in candidates[:target]:
             compound.grid.set((x, 0, z), "minecraft:lily_pad",
                               ["DETAIL", "GROUND"], PRIORITY["DETAIL"],
                               "POND_PLANTING", force=True)
     return node, water
+
+
+def _clear_lily_pads(compound: CompoundGraph, cells: Set[Cell2]) -> None:
+    """Remove surface lily pads from reserved bridge/gallery water lanes."""
+    for x, z in cells:
+        if compound.grid.state_at((x, 0, z)).split("[", 1)[0] == "minecraft:lily_pad":
+            compound.grid.set((x, 0, z), AIR, ["AIR_CARVE"],
+                              PRIORITY["AIR_CARVE"], force=True)
 
 
 def place_garden_pavilion(compound: CompoundGraph, center: Cell2, size: int,
@@ -1252,6 +1260,7 @@ def _place_covered_gallery_3d(compound: "CompoundGraph", style: "Style",
                               cells: Set[Cell2], base_y: int,
                               open_side: Optional[str],
                               post_side: Optional[str] = None,
+                              rail_on_footprint: bool = False,
                               roof_form: str = "single_slope") -> None:
     """3D covered-gallery renderer (path-surface-zoning Arc 5).
 
@@ -1326,23 +1335,28 @@ def _place_covered_gallery_3d(compound: "CompoundGraph", style: "Style",
     stairs_facing = open_side or "north"
 
     ordered = sorted(cells)
-    for run_idx, (x, z) in enumerate(ordered):
+    post_idx = 0
+    for _run_idx, (x, z) in enumerate(ordered):
         # Floor (PATH_GALLERY — surface-zone material preserved).
         compound.grid.set((x, base_y, z), style.primary("PATH_GALLERY"),
                           ["DETAIL", "GROUND", "PROTECTED"], PRIORITY["DETAIL"],
                           "PATH_GALLERY", force=True)
         # Column posts on the post-side line only, every other cell along the run.
-        if _is_post_line(x, z) and run_idx % 2 == 0:
-            for y in range(base_y + 1, column_top + 1):
-                compound.grid.set((x, y, z), column, ["DETAIL", "STRUCTURE"],
-                                  PRIORITY["DETAIL"], "COLUMN")
+        if _is_post_line(x, z):
+            if post_idx % 2 == 0:
+                for y in range(base_y + 1, column_top + 1):
+                    compound.grid.set((x, y, z), column, ["DETAIL", "STRUCTURE"],
+                                      PRIORITY["DETAIL"], "COLUMN")
+            post_idx += 1
         # Single-slope roof: a bottom-half stairs descending toward open_side.
         compound.grid.set((x, roof_y, z),
                           f"{roof_stairs}[facing={stairs_facing},half=bottom]",
                           ["DETAIL", "ROOF"], PRIORITY["DETAIL"], "ROOF_DARK")
 
-    # Balustrade on the open edge(s): the cell just outside the gallery on the
-    # open side, 密排 single-row at column-top height (a railing, not a wall).
+    # Balustrade on the open edge(s). Main-yard galleries keep the rail just
+    # outside the footprint so the walkway stays clear. Waterside galleries set
+    # rail_on_footprint=True so the rail is supported by gallery floor instead
+    # of floating over pond water.
     edges: Set[Cell2] = set()
     sides = (open_side,) if open_side else (
         ("north", "south") if (max(z for _, z in cells) - min(z for _, z in cells))
@@ -1352,9 +1366,9 @@ def _place_covered_gallery_3d(compound: "CompoundGraph", style: "Style",
         for (x, z) in cells:
             edge = (x + dx, z + dz)
             if edge not in cells:
-                edges.add(edge)
+                edges.add((x, z) if rail_on_footprint else edge)
     for (x, z) in edges:
-        compound.grid.set((x, column_top, z), rail,
+        compound.grid.set((x, base_y + 1, z), rail,
                           ["DETAIL", "PROTECTED"], PRIORITY["DETAIL"], "BALUSTRADE")
 
 
@@ -3753,6 +3767,97 @@ def _layout_back_yard(compound: CompoundGraph, style: Style, bands: dict,
                            (tower2_x, 0, by0 + 1))
 
 
+def _select_waterside_gallery_run(lot_w: int, gy0: int, gy1: int,
+                                  water: Set[Cell2],
+                                  blocked: Set[Cell2],
+                                  preferred_side: str = "north",
+                                  max_len: int = 7
+                                  ) -> Tuple[Set[Cell2], Optional[str], Set[Cell2]]:
+    """Pick one short, straight, two-cell-deep gallery run along the pond.
+
+    The freeform pond shoreline is noisy by design; directly turning every dry
+    shore cell into a 3D gallery makes a ragged roof/column cloud. The gallery is
+    therefore a composed architectural element: one straight run on a clean bank,
+    with a water-edge row plus one dry row behind it.
+    """
+    if not water:
+        return set(), None, set()
+
+    delta = {"north": (0, -1), "south": (0, 1), "east": (1, 0), "west": (-1, 0)}
+    side_order = [preferred_side] + [s for s in ("north", "south", "east", "west")
+                                    if s != preferred_side]
+    pond_cx = sum(x for x, _ in water) / len(water)
+    pond_cz = sum(z for _, z in water) / len(water)
+    best: Optional[Tuple[Tuple[float, ...], str, List[Cell2], Set[Cell2]]] = None
+
+    def _in_garden(cell: Cell2) -> bool:
+        x, z = cell
+        return 1 <= x <= lot_w - 2 and gy0 <= z <= gy1
+
+    def _dry(cell: Cell2) -> bool:
+        return _in_garden(cell) and cell not in water and cell not in blocked
+
+    for rank, side in enumerate(side_order):
+        dx, dz = delta[side]
+        front_cells: Set[Cell2] = set()
+        back_for: Dict[Cell2, Cell2] = {}
+        for wx, wz in water:
+            front = (wx - dx, wz - dz)
+            back = (front[0] - dx, front[1] - dz)
+            if not (_dry(front) and _dry(back)):
+                continue
+            # The front row must really face open water on the selected side.
+            if (front[0] + dx, front[1] + dz) not in water:
+                continue
+            front_cells.add(front)
+            back_for[front] = back
+
+        groups: Dict[int, List[int]] = {}
+        if side in ("north", "south"):
+            for x, z in front_cells:
+                groups.setdefault(z, []).append(x)
+        else:
+            for x, z in front_cells:
+                groups.setdefault(x, []).append(z)
+
+        for fixed, values in groups.items():
+            values = sorted(values)
+            runs: List[List[int]] = []
+            current: List[int] = []
+            for value in values:
+                if current and value != current[-1] + 1:
+                    runs.append(current)
+                    current = []
+                current.append(value)
+            if current:
+                runs.append(current)
+
+            for run in runs:
+                if len(run) < 3:
+                    continue
+                run_len = min(max_len, len(run))
+                windows = [run[i:i + run_len] for i in range(0, len(run) - run_len + 1)]
+                for window in windows:
+                    if side in ("north", "south"):
+                        front_run = [(v, fixed) for v in window]
+                        center = (sum(window) / len(window), fixed)
+                    else:
+                        front_run = [(fixed, v) for v in window]
+                        center = (fixed, sum(window) / len(window))
+                    strip = set(front_run) | {back_for[c] for c in front_run}
+                    if strip & blocked or strip & water:
+                        continue
+                    center_dist = abs(center[0] - pond_cx) + abs(center[1] - pond_cz)
+                    score = (rank, -len(front_run), center_dist)
+                    if best is None or score < best[0]:
+                        best = (score, side, front_run, strip)
+
+    if best is None:
+        return set(), None, set()
+    _, side, front_run, strip = best
+    return strip, side, set(front_run)
+
+
 def _layout_garden(compound: CompoundGraph, style: Style, bands: dict,
                    seed: int, variant: "MansionVariant") -> None:
     """花园 layout: rockery + pond + pavilion + stepping stones.
@@ -3822,50 +3927,6 @@ def _layout_garden(compound: CompoundGraph, style: Style, bands: dict,
     # also go through place_hero_rockery (a self-contained stacked sculpt), not
     # the generic heightfield scatter.
 
-    # 水边廊 (shoreside gallery): a covered_gallery parcel running along the
-    # pond's FAR-edge (the bank away from the entrance / 月洞门 approach), so the
-    # gallery stands clear of the rockery island and the entry-side scenery
-    # rather than crowding them. It reuses the covered_gallery parcel type so its
-    # floor resolves through PATH_GALLERY; it is a tour-route waypoint.
-    shore: Set[Cell2] = set()
-    for (wx, wz) in water_cells:
-        for nx, nz in ((wx + 1, wz), (wx - 1, wz), (wx, wz + 1), (wx, wz - 1)):
-            cand = (nx, nz)
-            if cand in water_cells or cand in pond_node.cells:
-                continue
-            if not (1 <= nx <= lot_w - 2 and gy0 <= nz <= gy1):
-                continue
-            # Far-edge shore only (away from the entrance: z in the SECOND half of
-            # the pond's z-range), so the gallery lines the far bank, not the
-            # near approach where it would tangle with the rockery / 月洞门 view.
-            if nz < pond_z0 + (pond_z1 - pond_z0) // 2:
-                continue
-            shore.add(cand)
-    if shore:
-        # 水边廊 is a real 3D covered gallery (Arc 5). Infer the dominant
-        # water-side direction across the shore strip (the side most shore cells
-        # have open water on), then render it through _place_covered_gallery_3d so
-        # it gains columns + a single-slope roof + a water-side balustrade.
-        _delta = {"north": (0, -1), "south": (0, 1), "east": (1, 0), "west": (-1, 0)}
-        water_set = set(water_cells)
-        side_hits = {s: 0 for s in _delta}
-        for (sx, sz) in shore:
-            for side, (dx, dz) in _delta.items():
-                if (sx + dx, sz + dz) in water_set:
-                    side_hits[side] += 1
-        water_side = max(side_hits, key=side_hits.get) if any(side_hits.values()) else "south"
-        base_y = min(_natural_surface_y(compound, c) for c in shore)
-        # 水边廊: open side faces the water (balustrade there); posts line the
-        # yard side. No building to hug, so posts default to the opposite edge.
-        _place_covered_gallery_3d(compound, style, shore, base_y,
-                                  open_side=water_side)
-        compound.parcel_nodes.append(
-            ParcelNode("waterside_gallery", "covered_gallery", shore, {
-                "form": "shoreside", "along": "pond_far_shore",
-                "floor_slot": "PATH_GALLERY", "water_side": water_side,
-                "rendered_as": "3d_covered_gallery",
-            }))
-
     # 水边石阶与小桥 (PATH_WATERSIDE): a stairs + slab bridge spanning the pond's
     # narrowest crossing to the 水心假山 (island rockery) (path-surface-zoning task
     # 4.1). The rockery is an island in the pond, so the bridge is the only dry
@@ -3927,11 +3988,47 @@ def _layout_garden(compound: CompoundGraph, style: Style, bands: dict,
                                       force=True)
                     bridge_cells.add((bx, bz))
     if bridge_cells:
+        bridge_clear = bridge_cells | (_chebyshev_ring(bridge_cells) & set(water_cells))
+        _clear_lily_pads(compound, bridge_clear)
         compound.parcel_nodes.append(
             ParcelNode("waterside_bridge", "waterside_bridge", bridge_cells, {
                 "span_count": len(bridge_cells),
                 "floor_slot": "PATH_WATERSIDE",
                 "form": "slab_bridge",
+            }))
+
+    # 水边廊 (shoreside gallery): a short, straight covered_gallery run on one
+    # clean bank. Earlier versions converted every dry noise-shore cell into a
+    # 3D gallery, which made ragged roof/column clutter and even caught the
+    # rockery island as "shore". Keep the freeform pond, but make the gallery a
+    # composed architectural strip.
+    gallery_blocked = (
+        set(rockery_node.cells if rockery_node is not None else set())
+        | _chebyshev_ring(set(rockery_node.cells if rockery_node is not None else set()))
+        | compound.building_cells()
+        | compound.node_cells("perimeter_wall", "screen_wall", "garden_pavilion")
+        | bridge_cells
+        | _chebyshev_ring(bridge_cells)
+    )
+    shore, water_side, water_edge = _select_waterside_gallery_run(
+        lot_w, gy0, gy1, set(water_cells), gallery_blocked,
+        preferred_side="north", max_len=7)
+    if shore and water_side:
+        base_y = min(_natural_surface_y(compound, c) for c in shore)
+        # For a two-cell-deep waterside strip, using the water side as the
+        # post-side places posts on the dry back row; the front row stays open
+        # to the pond with a supported low railing.
+        _place_covered_gallery_3d(compound, style, shore, base_y,
+                                  open_side=water_side, post_side=water_side,
+                                  rail_on_footprint=True)
+        clear = water_edge | (_chebyshev_ring(water_edge) & set(water_cells))
+        _clear_lily_pads(compound, clear)
+        compound.parcel_nodes.append(
+            ParcelNode("waterside_gallery", "covered_gallery", shore, {
+                "form": "shoreside", "along": "pond_straight_shore",
+                "floor_slot": "PATH_GALLERY", "water_side": water_side,
+                "water_edge_cells": [list(c) for c in sorted(water_edge)],
+                "rendered_as": "3d_covered_gallery",
             }))
 
     garden_cells = {(x, z) for x in range(1, lot_w - 1)
@@ -5095,6 +5192,67 @@ def _check_waterside_bridge_span(compound: CompoundGraph) -> List[str]:
     return errors
 
 
+def _check_waterside_visual_composition(compound: CompoundGraph) -> List[str]:
+    """Low-angle clutter guard for the mansion pond composition.
+
+    Structural checks can pass while the pond reads as a single tangled mass of
+    roof, posts, planks, lily pads, and rockery. This keeps the water, bridge,
+    rockery island, and 水边廊 as separate readable elements.
+    """
+    errors: List[str] = []
+    water = compound.node_cells("garden_pond", "water_feature")
+    if not water:
+        return errors
+    rockery = compound.node_cells("garden_rockery")
+    bridge = compound.node_cells("waterside_bridge")
+    galleries = [n for n in compound.parcel_nodes if n.id == "waterside_gallery"]
+    if not galleries:
+        errors.append("waterside_gallery_clutter:missing")
+        return errors
+    if len(galleries) != 1:
+        errors.append(f"waterside_gallery_clutter:count:{len(galleries)}")
+
+    for gallery in galleries:
+        cells = set(gallery.cells)
+        if cells & water:
+            errors.append(f"waterside_gallery_clutter:overlaps_water:{sorted(cells & water)[:4]}")
+        if cells & rockery:
+            errors.append(f"waterside_gallery_clutter:overlaps_rockery:{sorted(cells & rockery)[:4]}")
+        if cells & bridge:
+            errors.append(f"waterside_gallery_clutter:overlaps_bridge:{sorted(cells & bridge)[:4]}")
+        if not (6 <= len(cells) <= 14):
+            errors.append(f"waterside_gallery_clutter:size:{len(cells)}")
+        if cells:
+            xs = [x for x, _ in cells]
+            zs = [z for _, z in cells]
+            width = max(xs) - min(xs) + 1
+            depth = max(zs) - min(zs) + 1
+            if min(width, depth) != 2 or width * depth != len(cells):
+                errors.append(f"waterside_gallery_clutter:not_straight:{sorted(cells)[:8]}")
+        water_edge = {tuple(c) for c in gallery.meta.get("water_edge_cells", [])}
+        if not water_edge or not water_edge <= cells:
+            errors.append("waterside_gallery_clutter:missing_water_edge")
+        for gx, gz in sorted(water_edge):
+            nbrs = {(gx + 1, gz), (gx - 1, gz), (gx, gz + 1), (gx, gz - 1)}
+            if not (nbrs & water):
+                errors.append(f"waterside_gallery_clutter:not_shore:{(gx, gz)}")
+
+    clear_lanes = set(bridge)
+    for gallery in galleries:
+        water_edge = {tuple(c) for c in gallery.meta.get("water_edge_cells", [])}
+        clear_lanes |= water_edge
+        clear_lanes |= _chebyshev_ring(water_edge) & water
+    if bridge:
+        clear_lanes |= _chebyshev_ring(bridge) & water
+    for pos, cell in compound.grid.iter_cells():
+        if cell.state.split("[", 1)[0] != "minecraft:lily_pad":
+            continue
+        lily = (pos[0], pos[2])
+        if lily in clear_lanes:
+            errors.append(f"pond_lily_clutter:{lily}")
+    return errors
+
+
 def validate_mansion(compound: CompoundGraph) -> dict:
     """Validation for chinese_mansion 3-进 compounds.
 
@@ -5275,11 +5433,12 @@ def validate_mansion(compound: CompoundGraph) -> dict:
                              and _gate_borders(ermen, back_yard)):
         errors.append("jin_sequence_violation:ermen")
 
-    # --- Surface-zone invariants (path-surface-zoning tasks 4.2/4.3/4.4) -------
+    # --- Surface-zone invariants (path-surface-zoning tasks 4.2/4.3/4.4/7.3) ---
     surface_errors = _check_surface_zone_materials(compound)
     errors.extend(surface_errors)
     errors.extend(_check_tour_segment_connectivity(compound))
     errors.extend(_check_waterside_bridge_span(compound))
+    errors.extend(_check_waterside_visual_composition(compound))
 
     # --- Layout invariants (Arc 6: 后院/花园 split + 绣楼 bounds) ---------------
     # back_yard_band and garden_band must NOT share a z-interval (the v0.16-v0.17

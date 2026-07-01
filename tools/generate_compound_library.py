@@ -167,7 +167,7 @@ def main() -> int:
         export.write_place_function(style.style_id, "hero_rockery")
         print(f"OK {'hero_rockery':24s} size={frag_info['size']} "
               f"blocks={frag_info['block_count']}")
-        compounds = [generate_mansion(args.base_seed + i) for i in range(args.count)]
+        compounds = [generate_mansion(args.base_seed + i, style) for i in range(args.count)]
         entries = []
         compound_reports = []
         for index, compound in enumerate(compounds, start=1):

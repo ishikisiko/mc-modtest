@@ -2,9 +2,9 @@
 
 The 生活 route's endpoint is a ``service_house`` sub-building placed along the
 倒座 side alley; its ``door_info["front"]`` is a mandatory path endpoint, so the
-formal/service BFS reaches it. The 游赏 route's 水边廊 is a shoreside
-``covered_gallery`` whose cells line the pond's near shore and resolve through
-``PATH_GALLERY``.
+formal/service BFS reaches it. The 游赏 route's 水边廊 is a short, straight
+shoreside ``covered_gallery`` whose water-edge row lines the pond and resolves
+through ``PATH_GALLERY``.
 
 Run from the repository root:
     python3 tools/buildgen/tests/test_path_termini.py
@@ -80,8 +80,8 @@ def test_every_mansion_has_a_shoreside_gallery() -> None:
                 f"mansion_{i+1:03d} expected one waterside_gallery, got {len(wg)}")
 
 
-def test_waterside_gallery_cells_are_adjacent_to_the_pond() -> None:
-    """Every 水边廊 cell must be 4-adjacent to a pond water cell."""
+def test_waterside_gallery_water_edge_is_adjacent_to_the_pond() -> None:
+    """The 水边廊 water-edge row must be 4-adjacent to pond water."""
     for i in range(VARIANT_COUNT):
         compound = generate_mansion(BASE_SEED + i)
         wg = next(n for n in compound.parcel_nodes if n.id == "waterside_gallery")
@@ -89,11 +89,42 @@ def test_waterside_gallery_cells_are_adjacent_to_the_pond() -> None:
                      if n.type == "garden_pond"), None)
         _assert(pond is not None, f"mansion_{i+1:03d} has no garden_pond")
         water = pond.cells
-        for (gx, gz) in wg.cells:
+        water_edge = {tuple(c) for c in wg.meta.get("water_edge_cells", [])}
+        _assert(water_edge,
+                f"mansion_{i+1:03d} 水边廊 has no recorded water-edge row")
+        _assert(water_edge <= wg.cells,
+                f"mansion_{i+1:03d} 水边廊 water-edge cells are outside footprint")
+        for (gx, gz) in water_edge:
             nbrs = {(gx + 1, gz), (gx - 1, gz), (gx, gz + 1), (gx, gz - 1)}
             _assert(nbrs & water,
-                    f"mansion_{i+1:03d} 水边廊 cell {(gx, gz)} is not adjacent to "
+                    f"mansion_{i+1:03d} 水边廊 edge cell {(gx, gz)} is not adjacent to "
                     f"the pond")
+
+
+def test_waterside_gallery_is_short_straight_strip() -> None:
+    """Visual guard: the 水边廊 is a composed short run, not the whole noisy shore."""
+    for i in range(VARIANT_COUNT):
+        compound = generate_mansion(BASE_SEED + i)
+        wg = next(n for n in compound.parcel_nodes if n.id == "waterside_gallery")
+        pond = next(n for n in compound.parcel_nodes if n.type == "garden_pond")
+        rockery = next(n for n in compound.parcel_nodes if n.type == "garden_rockery")
+        bridge = next(n for n in compound.parcel_nodes if n.type == "waterside_bridge")
+        cells = set(wg.cells)
+        _assert(6 <= len(cells) <= 14,
+                f"mansion_{i+1:03d} 水边廊 has cluttered size {len(cells)}")
+        xs = [x for x, _ in cells]
+        zs = [z for _, z in cells]
+        width = max(xs) - min(xs) + 1
+        depth = max(zs) - min(zs) + 1
+        _assert(min(width, depth) == 2 and width * depth == len(cells),
+                f"mansion_{i+1:03d} 水边廊 is not a straight 2-cell-deep strip: "
+                f"{sorted(cells)}")
+        _assert(not (cells & pond.cells),
+                f"mansion_{i+1:03d} 水边廊 overlaps pond water")
+        _assert(not (cells & rockery.cells),
+                f"mansion_{i+1:03d} 水边廊 overlaps the rockery island")
+        _assert(not (cells & bridge.cells),
+                f"mansion_{i+1:03d} 水边廊 overlaps the bridge")
 
 
 def test_waterside_gallery_is_a_covered_gallery_parcel() -> None:
@@ -127,22 +158,45 @@ def test_waterside_gallery_is_a_real_3d_building() -> None:
                 f"mansion_{i+1:03d} 水边廊 has no COLUMN posts (not a 3D gallery)")
         _assert("ROOF_DARK" in slots_in_col,
                 f"mansion_{i+1:03d} 水边廊 has no ROOF_DARK roof (not a 3D gallery)")
-        # Balustrade on the open edge.
+        # Balustrade on the open edge, supported by the gallery floor for the
+        # waterside case (not floating outside over water).
         open_side = wg.meta.get("water_side")
         delta = {"north": (0, -1), "south": (0, 1), "east": (1, 0), "west": (-1, 0)}
         if open_side in delta:
             dx, dz = delta[open_side]
             rail_found = False
             for (x, z) in wg.cells:
-                edge = (x + dx, z + dz)
-                if edge in wg.cells:
+                if (x + dx, z + dz) in wg.cells:
                     continue
-                cell = compound.grid.get((edge[0], base_y + 2, edge[1]))
+                cell = compound.grid.get((x, base_y + 1, z))
                 if cell is not None and cell.slot == "BALUSTRADE":
                     rail_found = True
                     break
             _assert(rail_found,
-                    f"mansion_{i+1:03d} 水边廊 has no BALUSTRADE on its open edge")
+                    f"mansion_{i+1:03d} 水边廊 has no supported BALUSTRADE on its open edge")
+
+
+def test_waterside_bridge_and_gallery_clear_lanes_have_no_lily_pads() -> None:
+    """The pond keeps clear water around the bridge and 水边廊 view edge."""
+    from buildgen.compound import _chebyshev_ring
+    for i in range(VARIANT_COUNT):
+        compound = generate_mansion(BASE_SEED + i)
+        pond = next(n for n in compound.parcel_nodes if n.type == "garden_pond")
+        wg = next(n for n in compound.parcel_nodes if n.id == "waterside_gallery")
+        bridge = next(n for n in compound.parcel_nodes if n.type == "waterside_bridge")
+        water_edge = {tuple(c) for c in wg.meta.get("water_edge_cells", [])}
+        clear = set(bridge.cells) | water_edge
+        clear |= _chebyshev_ring(bridge.cells) & pond.cells
+        clear |= _chebyshev_ring(water_edge) & pond.cells
+        lilies = {
+            (pos[0], pos[2])
+            for pos, cell in compound.grid.iter_cells()
+            if cell.state.startswith("minecraft:lily_pad")
+        }
+        clutter = lilies & clear
+        _assert(not clutter,
+                f"mansion_{i+1:03d} lily pads clutter bridge/gallery clear lanes: "
+                f"{sorted(clutter)}")
 
 
 def test_mansion_main_yard_has_returning_galleries() -> None:

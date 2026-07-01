@@ -147,16 +147,27 @@ wall cells so the opening reads as a 圆洞门.
 ### Requirement: The 水边廊 is a shoreside covered-gallery placement variant
 
 The 水边廊 SHALL reuse the existing `covered_gallery` parcel geometry, placed
-along the pond shore (a placement rule), not a new parcel type. Its floor SHALL
+as one short, straight, two-cell-deep run along a clean pond shore (a placement
+rule), not a new parcel type and not the whole freeform/noise shoreline. Its
+water-edge row SHALL be 4-adjacent to pond water; its full footprint SHALL NOT
+overlap pond water, the rockery island, or the waterside bridge. Its floor SHALL
 resolve through `PATH_GALLERY` (wood-stone mix). It SHALL be a waypoint or
 endpoint of the tour route.
 
 #### Scenario: A shoreside gallery reuses covered_gallery geometry
 
 - **WHEN** the 水边廊 is placed
-- **THEN** it SHALL be a `covered_gallery` parcel whose cells lie along the pond
-  shore
+- **THEN** it SHALL be a `covered_gallery` parcel whose water-edge row lies along
+  the pond shore
+- **AND** its footprint SHALL be a short straight two-cell-deep strip
 - **AND** its floor SHALL resolve to `PATH_GALLERY`.
+
+#### Scenario: A shoreside gallery does not consume the pond composition
+
+- **WHEN** the 水边廊, pond, island rockery, and waterside bridge are generated
+- **THEN** the 水边廊 footprint SHALL NOT overlap pond water, the island rockery,
+  or the bridge
+- **AND** the gallery SHALL NOT be generated from every freeform shoreline cell.
 
 ### Requirement: The 仆役房 is a service-house archetype on the 夹道
 
@@ -180,7 +191,8 @@ the waterline, followed by a slab bridge (`oak_slab` or `spruce_slab` at the
 water surface y) crossing the pond to the 亭 or island rockery. The deleted
 stepping-stone path (`myvillage:rockery_block` cells) SHALL NOT be restored. The
 slab bridge SHALL span the pond's narrowest water crossing between the
-亭/island and the shore, reaching both shores.
+亭/island and the shore, reaching both shores. Lily pads SHALL be sparse and
+SHALL NOT occupy the bridge cells or the bridge/gallery clear-water lanes.
 
 #### Scenario: The waterside crossing uses slabs, not rockery blocks
 
@@ -195,6 +207,13 @@ slab bridge SHALL span the pond's narrowest water crossing between the
 - **THEN** the first bridge cell SHALL be adjacent to a shore cell
 - **AND** the last bridge cell SHALL be adjacent to the opposite shore or the
   亭/island.
+
+#### Scenario: Bridge and gallery clear lanes remain readable water
+
+- **WHEN** lily pads are scattered on the pond
+- **THEN** no lily pad SHALL occupy a bridge cell
+- **AND** no lily pad SHALL occupy the clear-water lane adjacent to the waterside
+  bridge or 水边廊 water-edge row.
 
 ### Requirement: Each compound family realizes only the zones it has space for
 

@@ -61,3 +61,11 @@
 - [x] 6.8 Add two layout guards to `validate_mansion`: `back_yard_garden_overlap` (`back_yard_band[1] < garden_band[0]`) and `tower_overlaps_garden` (no `tower_house` footprint cell coincides with a 花园 feature cell).
 - [x] 6.9 Update `test_path_termini.py`: assert the 水边廊 has columns + roof + balustrade blocks (not just a floor). Extend the byte-stability guard to keep `cultivation_sect_*` / `medieval_*` unchanged while `chinese_mansion_*` regenerates.
 - [x] 6.10 Regenerate `chinese_mansion_001..006.nbt` (`--profile full`, then `--profile vanilla` proof); run `validate_mansion` + byte-stability + the two new layout guards green. Confirm the 绣楼 sits in the 后院 (not the 花园), the 主院 heart is grass, and the 水边廊/抄手游廊 are 3D.
+
+## 7. 水岸低视角视觉修复 (Arc 7 — elevated after Chunky / first-person review)
+
+- [x] 7.1 Replace the ragged freeform-shore 水边廊 placement with one short, straight, two-cell-deep covered-gallery run; exclude pond water, the rockery island, the bridge, and their clearance rings from gallery placement.
+- [x] 7.2 Lower visual clutter in `_place_covered_gallery_3d`: waterside balustrades are supported on the gallery edge instead of floating over water, and post cadence is counted on the post line so short galleries still get columns.
+- [x] 7.3 Reduce pond surface clutter: cap lily-pad density and clear lily pads from bridge/gallery clear-water lanes.
+- [x] 7.4 Add validator/test guards for the low-angle failure mode: `waterside_gallery_clutter:*` and `pond_lily_clutter:*`, plus path-termini regression checks that the gallery is a short straight strip and does not overlap water/rockery/bridge.
+- [x] 7.5 Regenerate `chinese_mansion_001..006.nbt`, run mansion/tour/path validator coverage, refresh visual preview / Chunky acceptance artifacts, and inspect the updated water-garden PNGs before re-reporting visual acceptance.

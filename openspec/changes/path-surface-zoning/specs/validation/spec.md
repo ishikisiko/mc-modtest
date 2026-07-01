@@ -84,3 +84,36 @@ garden has no pond crossing (no 亭/island on the water) SHALL skip the check.
 - **WHEN** a validator inspects a slab bridge whose last cell is not adjacent to
   the opposite shore or the 亭/island
 - **THEN** the validator SHALL fail with `waterside_bridge_incomplete:last`.
+
+### Requirement: Mansion validator guards against cluttered waterside composition
+
+`validate_mansion` SHALL verify that the pond, island rockery, waterside bridge,
+and 水边廊 remain visually separated. The 水边廊 SHALL be exactly one short,
+straight, two-cell-deep `covered_gallery` footprint; it SHALL NOT overlap pond
+water, the island rockery, or the bridge; and its recorded water-edge row SHALL
+be 4-adjacent to pond water. A violation SHALL fail with
+`waterside_gallery_clutter:<reason>`.
+
+`validate_mansion` SHALL also verify that lily pads do not occupy the
+bridge/gallery clear-water lanes. A violation SHALL fail with
+`pond_lily_clutter:<cell>`.
+
+#### Scenario: A ragged all-shore gallery fails
+
+- **WHEN** the 水边廊 footprint is not a short straight two-cell-deep strip
+- **THEN** the validator SHALL fail with
+  `waterside_gallery_clutter:not_straight` or
+  `waterside_gallery_clutter:size:<count>`.
+
+#### Scenario: A gallery overlapping the island or bridge fails
+
+- **WHEN** the 水边廊 footprint overlaps the island rockery or waterside bridge
+- **THEN** the validator SHALL fail with
+  `waterside_gallery_clutter:overlaps_rockery:<cells>` or
+  `waterside_gallery_clutter:overlaps_bridge:<cells>`.
+
+#### Scenario: Lily pads in the clear-water lane fail
+
+- **WHEN** a lily pad lies on a bridge cell or in the clear-water lane adjacent
+  to the bridge or 水边廊 water-edge row
+- **THEN** the validator SHALL fail with `pond_lily_clutter:<cell>`.

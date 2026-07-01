@@ -5,10 +5,12 @@
 The 花园 band SHALL span the full interior lot width (excluding the perimeter
 wall) and SHALL contain at least one of each: `garden_pond`, `garden_rockery`,
 `garden_pavilion`, plus a `PATH_TOUR` 曲径 connecting the 月洞门 passage to each
-feature. A 水边廊 (shoreside `covered_gallery` variant) SHALL line the pond
-shore, and a `PATH_WATERSIDE` stairs + slab bridge SHALL cross the pond to the
-亭 or island rockery. The 花园 SHALL NOT contain full enclosed buildings (亭 are
-open-sided, per `garden-rockery`).
+feature. A 水边廊 (shoreside `covered_gallery` variant) SHALL line one clean
+pond-shore run as a short straight two-cell-deep gallery, and a `PATH_WATERSIDE`
+stairs + slab bridge SHALL cross the pond to the 亭 or island rockery. The
+水边廊 SHALL NOT overlap the pond water, the island rockery, or the bridge, and
+SHALL NOT consume the whole freeform shoreline. The 花园 SHALL NOT contain full
+enclosed buildings (亭 are open-sided, per `garden-rockery`).
 
 The tour route through the 花园 SHALL be a waypoint polyline (not a
 shortest-path tree), routed from the `moon_gate_passage` through the rockery
@@ -21,10 +23,18 @@ rockery/pond.
 - **WHEN** the 花园 band is generated with `garden_scale ∈ {small, large}`
 - **THEN** the band SHALL contain at least one `garden_pond`, one
   `garden_rockery`, and one `garden_pavilion`
-- **AND** a shoreside `covered_gallery` (水边廊) SHALL line the pond shore
+- **AND** a shoreside `covered_gallery` (水边廊) SHALL line one short straight
+  pond-shore run
 - **AND** a `PATH_WATERSIDE` slab bridge SHALL cross the pond to the 亭/island
 - **AND** a `PATH_TOUR` 曲径 SHALL connect the 月洞门 passage to each feature per
   `courtyard-voxel-walkability`.
+
+#### Scenario: The pond composition stays visually separated
+
+- **WHEN** the 水边廊, pond, island rockery, and waterside bridge are generated
+- **THEN** the 水边廊 footprint SHALL NOT overlap pond water, the island rockery,
+  or the bridge
+- **AND** bridge/gallery clear-water lanes SHALL contain no lily pads.
 
 #### Scenario: The 花园 tour route winds through scenic waypoints
 

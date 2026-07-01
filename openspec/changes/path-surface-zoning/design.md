@@ -515,6 +515,43 @@ the 中轴 itself are untouched.
 fix that gives the 绣楼 a lawful home and the 主院 a heart, without touching the
 enclosure model's design.
 
+### D13: 水岸低视角修复 — 水边廊 is one composed run, not the whole noisy shore (Arc 7)
+
+**Choice.** The Chunky/first-person review exposed a visual failure that the
+structural checks missed: the freeform pond shoreline was being converted almost
+cell-for-cell into a 3D 水边廊, so roof stairs, posts, railings, bridge slabs,
+lily pads, and the island 假山 collapsed into one low-angle mass. The fix is to
+keep the pond freeform but make the gallery architectural:
+
+- Select exactly one short, straight, two-cell-deep gallery run on a clean bank
+  (water-edge row + one dry back row), capped at 7 water-edge cells.
+- Exclude pond water, the island rockery, the bridge, and their clearance rings
+  from gallery placement.
+- Place waterside balustrades on the gallery edge itself (supported by the
+  gallery floor), while main-yard gallery balustrades stay outside the footprint
+  so door-front walkways remain clear.
+- Count post cadence along the post line, not the whole footprint, so a short
+  3×2 water gallery still gets columns.
+- Reduce lily-pad density and clear lily pads from the bridge/gallery visual
+  lanes.
+
+**Alternatives considered**
+
+- *Keep all freeform-shore cells as gallery cells.* Rejected: this is the exact
+  clutter failure seen in review. A noisy pond edge is good for water, not for a
+  roofed building footprint.
+- *Delete the 水边廊.* Rejected: the route vocabulary needs a real waterside
+  stop; the problem is placement scope, not the concept.
+- *Make the gallery one cell deep only.* Rejected: a one-cell strip cannot carry
+  a readable post line, railing, and walkable floor without blocking itself. A
+  two-cell strip is the smallest stable gallery footprint.
+
+**Guards.** `validate_mansion` now fails `waterside_gallery_clutter:*` when the
+gallery is missing, oversized, not a straight two-cell-deep strip, not shore
+adjacent, or overlaps water/rockery/bridge. It fails `pond_lily_clutter:<cell>`
+when lily pads enter the bridge/gallery clear-water lanes. `test_path_termini.py`
+locks the same invariants for the six shipped mansion seeds.
+
 ## Risks / Trade-offs
 
 - **[Tour waypoint routing may produce a path that overlaps the formal backbone

@@ -37,6 +37,7 @@ Stage 2 then runs:
 ```text
 myvillage list
 myvillage placeat small_house_001 0 80 192
+myvillage placeat chinese_mansion_001 128 180 192
 myvillage galleryat cultivation 256 80 192
 myvillage townat 20260618 1024 80 192
 myvillage sectat 20260618 -1024 80 192

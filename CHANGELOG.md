@@ -35,6 +35,11 @@ together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
   主院 抄手游廊 now render as 3D galleries with floors, columns, balustrades, and
   roofs; 后院 and 花园 are separate bands, the 绣楼 stays in 后院, and the 主院
   heart remains grass.
+- Tightened the waterside mansion garden after low-angle visual review: 水边廊 is
+  now one short straight run instead of the whole noisy shoreline, avoids the
+  pond/rockery/bridge, and bridge/gallery clear-water lanes are kept free of
+  lily-pad clutter. `validate_mansion` now reports
+  `waterside_gallery_clutter:*` and `pond_lily_clutter:*` for regressions.
 
 ## 0.18.0
 

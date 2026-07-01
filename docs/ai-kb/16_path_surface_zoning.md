@@ -1,7 +1,7 @@
 # Path Surface Zoning
 
 Implemented in 0.18.0 by change `path-surface-zoning`, with the final
-gallery/layout repairs documented in 0.18.1.
+gallery/layout and waterside visual repairs documented in 0.18.1.
 
 The courtyard/mansion ground + path layer is a **two-axis surface-zoning
 model**. Before this change the whole path was one flat `GROUND_PATH` gravel
@@ -85,7 +85,8 @@ the passage, so the formal/tour cell intersection is empty by construction.
 pond's narrowest crossing to the 亭/island. A slab is a flat, walkable,
 water-surface block — it reads as a plank bridge. The deleted 汀步
 `rockery_block` spike-row ("一列小尖刺") is **not** restored; the spike problem
-was the block choice, not the crossing geometry.
+was the block choice, not the crossing geometry. Lily pads are intentionally
+sparse and cleared from the bridge/gallery clear-water lanes.
 
 ## 3D galleries and mansion layout repair
 
@@ -93,7 +94,9 @@ The mansion 水边廊 and 主院 抄手游廊 are real 3D galleries, not floor-o
 surface cells. `_place_covered_gallery_3d()` writes a `PATH_GALLERY` floor,
 2-high `COLUMN` posts, a `BALUSTRADE` fence row on the open side, and a
 single-slope `ROOF_DARK` roof. The 水边廊 keeps the `covered_gallery` parcel type
-and follows the pond shore; the 主院 galleries tie the inner-gate flanks to the
+but is **one short straight two-cell-deep run** on a clean pond bank, not every
+freeform shoreline cell. It must not overlap pond water, the island rockery, or
+the waterside bridge; the 主院 galleries tie the inner-gate flanks to the
 open-hall flanks when there is enough clear width.
 
 The mansion back-yard bug was fixed in the same final pass. `generate_mansion`
@@ -113,6 +116,9 @@ footprints so the 主院 heart falls through to `GROUND_YARD_OPEN` grass.
   connected single-source tree; no-op for compounds without a garden.
 - `waterside_bridge_incomplete:<first|last>` — the slab bridge spans both
   shores / 亭-island.
+- `waterside_gallery_clutter:*` and `pond_lily_clutter:<cell>` — the 水边廊 is
+  one short straight strip, does not overlap water/rockery/bridge, and the
+  bridge/gallery clear-water lanes stay free of lily pads.
 - `back_yard_garden_overlap` and `tower_overlaps_garden` — the 后院/花园 bands
   stay separated and no `tower_house` footprint overlaps 花园 feature cells.
 

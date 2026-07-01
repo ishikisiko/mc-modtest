@@ -644,6 +644,7 @@ def run_stage2_commands(args: argparse.Namespace, report: dict[str, Any], rcon: 
     command_cases = [
         ("myvillage list", "Loaded myvillage structures"),
         ("myvillage placeat small_house_001 0 80 192", "Placed myvillage:small_house_001"),
+        ("myvillage placeat chinese_mansion_001 128 180 192", "Placed myvillage:chinese_mansion_001"),
         ("myvillage galleryat cultivation 256 80 192", "Placed myvillage cultivation gallery"),
         (f"myvillage townat {args.myvillage_seed} 1024 80 192", "Generated living town"),
         (f"myvillage sectat {args.myvillage_seed} -1024 80 192", "Generated sect compound"),
