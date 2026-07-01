@@ -31,7 +31,9 @@ from one angle or one elevation. Use `--view-plan height-sweep` for a heavier
 low/mid/high pass from each side, or use `--view-plan cardinal` / explicit
 `--views front right back left` when the old four-view behavior is enough. The
 manifest records the concrete `view_spec`, camera position, distance, and
-height for every PNG.
+height for every PNG. When at least two PNGs are produced, the renderer also
+writes a labeled `contact_sheet.png` by default and records it in the manifest;
+use `--no-contact-sheet` only for narrow diagnostics.
 
 ## Verified pipeline (renderer, headless, Windows)
 
@@ -132,7 +134,7 @@ Result:
 - Scanned bbox: `[-19,63,178]..[12,91,213]`, size `32x29x36`, `309` structure blocks.
 - Chunky loaded per-view chunk rectangles after `world` was changed to `{path, dimension}` and `chunky.json.sceneDirectory` was pointed at `chunky-render/renders_survey`.
 - PNGs produced under `chunky-render/renders_survey/view_*/view_*.png` (git-ignored).
-- Manifest produced: `chunky-render/renders_survey/render_manifest.json`; `overall_framing_ok: true`.
+- Manifest produced: `chunky-render/renders_survey/render_manifest.json`; multi-view runs also produce `contact_sheet.png`; `overall_framing_ok: true`.
 - Local visual inspection confirmed the survey images contain the placed house, are upright (`roll=π`), and no longer show the earlier bbox-only empty-background clipping.
 - PNG assessment added an edge metric (`edge_mean`, `strong_edge_ratio`) so a smooth sky gradient no longer passes just because luminance stdev is high.
 

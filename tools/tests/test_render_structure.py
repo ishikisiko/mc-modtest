@@ -118,6 +118,48 @@ class RenderStructureTests(unittest.TestCase):
             self.assertFalse(assessment["framing_ok"])
             self.assertLess(assessment["edge_mean"], 3.0)
 
+    def test_write_contact_sheet_for_height_sweep_views(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            entries = []
+            for idx, view in enumerate(
+                ("front_low", "front_mid", "front_high", "right_low")
+            ):
+                png = tmp_path / f"{view}.png"
+                self.write_rgb_png(
+                    png,
+                    40,
+                    20,
+                    lambda x, y, n=idx: (
+                        30 + n * 30 + x,
+                        60 + y,
+                        90 + n * 20,
+                    ),
+                )
+                entries.append(
+                    {
+                        "view": view,
+                        "render": {"png_path": str(png)},
+                        "png_exists": True,
+                    }
+                )
+
+            sheet = tmp_path / "contact_sheet.png"
+            meta = render_structure.write_contact_sheet(
+                entries,
+                sheet,
+                view_plan="height-sweep",
+                cell_width=120,
+            )
+            assessment = render_structure.assess_png(sheet)
+
+            self.assertTrue(sheet.is_file())
+            self.assertTrue(meta["generated"])
+            self.assertEqual(meta["columns"], 3)
+            self.assertEqual(meta["rows"], 2)
+            self.assertEqual(assessment["width"], 360)
+            self.assertEqual(assessment["height"], 120)
+
     def assertTupleAlmostEqual(
         self, actual: tuple[float, ...], expected: tuple[float, ...]
     ) -> None:

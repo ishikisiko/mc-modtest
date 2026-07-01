@@ -6,8 +6,9 @@ derives the bbox center, generates one or more named views,
 computes Chunky ``camera.position`` / ``camera.orientation`` (yaw/pitch/roll in
 **radians**) via a look-at solver derived from Chunky's own matrix conventions,
 writes a pristine ``scene.json`` per view, drives ``ChunkyLauncher.jar`` to
-render + snapshot each one, and finally runs a framing-fail detector over each
-PNG (mean luminance near sky color + too few non-sky pixels => framing failed).
+render + snapshot each one, writes a multi-view ``contact_sheet.png``, and
+finally runs a framing-fail detector over each PNG (mean luminance near sky
+color + too few non-sky pixels => framing failed).
 
 No more hand-tuning yaw/pitch by trial and error.
 
@@ -39,7 +40,8 @@ By default the tool renders a survey plan: four mid-height cardinal views plus
 four high diagonal views. Use ``--view-plan cardinal`` or explicit ``--views
 front right back left`` for the old four-view behavior, and
 ``--view-plan height-sweep`` when layout review needs low/mid/high passes from
-each side.
+each side. A contact sheet is written by default when at least two PNGs are
+rendered; use ``--no-contact-sheet`` to skip it.
 """
 
 from __future__ import annotations
@@ -988,35 +990,31 @@ def latest_snapshot(scene_dir: Path) -> Path | None:
 
 
 # ---------------------------------------------------------------------------
-# Framing-fail detector.
+# Minimal PNG helpers (stdlib only; no Pillow/ImageMagick dependency).
 # ---------------------------------------------------------------------------
 
-# Sky gradient top/bottom from the default SIMULATED Preetham sky in scenes.
-SKY_TOP = (0x0B, 0xAB, 0xC7)
-SKY_BOTTOM = (0x75, 0xAA, 0xFF)
 
+def _decode_png_rgb(png: Path) -> tuple[int, int, bytearray]:
+    """Decode an 8-bit PNG into RGB bytes.
 
-def _luma(rgb: tuple[int, int, int]) -> float:
-    return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2]
-
-
-def assess_png(png: Path) -> dict[str, Any]:
-    """Read a PNG with stdlib only (no PIL) and score framing.
-
-    Decodes 8-bit RGB/RGBA PNGs via zlib + manual filter un-filtering, which is
-    enough for Chunky's output. Returns mean luminance, non-sky pixel ratio,
-    and a framing_ok boolean.
+    This covers Chunky's RGB/RGBA PNGs and the small RGB fixtures in tests. It
+    also accepts grayscale PNGs so diagnostics can fail with useful metadata
+    instead of depending on optional imaging libraries.
     """
     raw = png.read_bytes()
     if raw[:8] != b"\x89PNG\r\n\x1a\n":
-        return {"error": "not a PNG", "framing_ok": False}
+        raise ValueError("not a PNG")
     pos = 8
     width = height = bit_depth = color_type = 0
     idat = bytearray()
     while pos < len(raw):
+        if pos + 8 > len(raw):
+            raise ValueError("truncated PNG chunk header")
         (length,) = struct.unpack(">I", raw[pos : pos + 4])
         ctype = raw[pos + 4 : pos + 8]
         body = raw[pos + 8 : pos + 8 + length]
+        if len(body) != length:
+            raise ValueError("truncated PNG chunk body")
         if ctype == b"IHDR":
             (width,) = struct.unpack(">I", body[0:4])
             (height,) = struct.unpack(">I", body[4:8])
@@ -1027,20 +1025,29 @@ def assess_png(png: Path) -> dict[str, Any]:
         elif ctype == b"IEND":
             break
         pos += 12 + length
+
     if bit_depth != 8:
-        return {"error": f"unsupported bit depth {bit_depth}", "framing_ok": False}
-    channels = {2: 3, 6: 4, 0: 1, 4: 2}.get(color_type, 3)
+        raise ValueError(f"unsupported bit depth {bit_depth}")
+    channels_by_type = {0: 1, 2: 3, 4: 2, 6: 4}
+    channels = channels_by_type.get(color_type)
+    if channels is None:
+        raise ValueError(f"unsupported PNG color type {color_type}")
+    if width <= 0 or height <= 0:
+        raise ValueError("invalid PNG dimensions")
+
     decompressed = zlib.decompress(bytes(idat))
     stride = width * channels
-    # Undo per-row filters.
-    prev = bytearray(stride)
-    pixels = bytearray()
     prev_row = bytearray(stride)
+    rgb = bytearray(width * height * 3)
     rp = 0
-    for _y in range(height):
+    for y in range(height):
+        if rp >= len(decompressed):
+            raise ValueError("truncated PNG scanline")
         filt = decompressed[rp]
         rp += 1
         row = bytearray(decompressed[rp : rp + stride])
+        if len(row) != stride:
+            raise ValueError("truncated PNG row")
         rp += stride
         if filt == 0:  # None
             pass
@@ -1068,8 +1075,291 @@ def assess_png(png: Path) -> dict[str, Any]:
                 else:
                     pr = c
                 row[i] = (row[i] + pr) & 0xFF
-        pixels.extend(row)
+        else:
+            raise ValueError(f"unsupported PNG filter {filt}")
+
+        for x in range(width):
+            src = x * channels
+            dst = (y * width + x) * 3
+            if color_type in (0, 4):
+                g = row[src]
+                rgb[dst : dst + 3] = bytes((g, g, g))
+            else:
+                rgb[dst : dst + 3] = row[src : src + 3]
         prev_row = row
+
+    return width, height, rgb
+
+
+def _png_chunk(kind: bytes, payload: bytes) -> bytes:
+    crc = zlib.crc32(kind)
+    crc = zlib.crc32(payload, crc) & 0xFFFFFFFF
+    return (
+        struct.pack(">I", len(payload))
+        + kind
+        + payload
+        + struct.pack(">I", crc)
+    )
+
+
+def _write_rgb_png(path: Path, width: int, height: int, rgb: bytes | bytearray) -> None:
+    if len(rgb) != width * height * 3:
+        raise ValueError("RGB buffer size does not match dimensions")
+    rows = bytearray()
+    stride = width * 3
+    for y in range(height):
+        rows.append(0)  # filter type 0
+        start = y * stride
+        rows.extend(rgb[start : start + stride])
+    ihdr = struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0)
+    path.write_bytes(
+        b"\x89PNG\r\n\x1a\n"
+        + _png_chunk(b"IHDR", ihdr)
+        + _png_chunk(b"IDAT", zlib.compress(bytes(rows)))
+        + _png_chunk(b"IEND", b"")
+    )
+
+
+def _resize_rgb_nearest(
+    src_w: int,
+    src_h: int,
+    pixels: bytearray,
+    dst_w: int,
+    dst_h: int,
+) -> bytearray:
+    out = bytearray(dst_w * dst_h * 3)
+    for y in range(dst_h):
+        sy = min(src_h - 1, y * src_h // dst_h)
+        src_row = sy * src_w * 3
+        dst_row = y * dst_w * 3
+        for x in range(dst_w):
+            sx = min(src_w - 1, x * src_w // dst_w)
+            src = src_row + sx * 3
+            dst = dst_row + x * 3
+            out[dst : dst + 3] = pixels[src : src + 3]
+    return out
+
+
+CONTACT_SHEET_FONT = {
+    "A": ("01110", "10001", "10001", "11111", "10001", "10001", "10001"),
+    "B": ("11110", "10001", "10001", "11110", "10001", "10001", "11110"),
+    "C": ("01111", "10000", "10000", "10000", "10000", "10000", "01111"),
+    "D": ("11110", "10001", "10001", "10001", "10001", "10001", "11110"),
+    "E": ("11111", "10000", "10000", "11110", "10000", "10000", "11111"),
+    "F": ("11111", "10000", "10000", "11110", "10000", "10000", "10000"),
+    "G": ("01111", "10000", "10000", "10011", "10001", "10001", "01111"),
+    "H": ("10001", "10001", "10001", "11111", "10001", "10001", "10001"),
+    "I": ("11111", "00100", "00100", "00100", "00100", "00100", "11111"),
+    "K": ("10001", "10010", "10100", "11000", "10100", "10010", "10001"),
+    "L": ("10000", "10000", "10000", "10000", "10000", "10000", "11111"),
+    "M": ("10001", "11011", "10101", "10101", "10001", "10001", "10001"),
+    "N": ("10001", "11001", "10101", "10011", "10001", "10001", "10001"),
+    "O": ("01110", "10001", "10001", "10001", "10001", "10001", "01110"),
+    "R": ("11110", "10001", "10001", "11110", "10100", "10010", "10001"),
+    "S": ("01111", "10000", "10000", "01110", "00001", "00001", "11110"),
+    "T": ("11111", "00100", "00100", "00100", "00100", "00100", "00100"),
+    "U": ("10001", "10001", "10001", "10001", "10001", "10001", "01110"),
+    "V": ("10001", "10001", "10001", "10001", "10001", "01010", "00100"),
+    "W": ("10001", "10001", "10001", "10101", "10101", "10101", "01010"),
+    "0": ("01110", "10001", "10011", "10101", "11001", "10001", "01110"),
+    "1": ("00100", "01100", "00100", "00100", "00100", "00100", "01110"),
+    "2": ("01110", "10001", "00001", "00010", "00100", "01000", "11111"),
+    "3": ("11110", "00001", "00001", "01110", "00001", "00001", "11110"),
+    "4": ("00010", "00110", "01010", "10010", "11111", "00010", "00010"),
+    "5": ("11111", "10000", "10000", "11110", "00001", "00001", "11110"),
+    "6": ("01110", "10000", "10000", "11110", "10001", "10001", "01110"),
+    "7": ("11111", "00001", "00010", "00100", "01000", "01000", "01000"),
+    "8": ("01110", "10001", "10001", "01110", "10001", "10001", "01110"),
+    "9": ("01110", "10001", "10001", "01111", "00001", "00001", "01110"),
+    "?": ("01110", "10001", "00001", "00010", "00100", "00000", "00100"),
+}
+
+
+def _draw_rect(
+    pixels: bytearray,
+    width: int,
+    height: int,
+    x0: int,
+    y0: int,
+    x1: int,
+    y1: int,
+    color: tuple[int, int, int],
+) -> None:
+    x0 = max(0, x0)
+    y0 = max(0, y0)
+    x1 = min(width, x1)
+    y1 = min(height, y1)
+    for y in range(y0, y1):
+        row = y * width * 3
+        for x in range(x0, x1):
+            i = row + x * 3
+            pixels[i : i + 3] = bytes(color)
+
+
+def _text_size(text: str, scale: int) -> tuple[int, int]:
+    chars = len(text)
+    return (chars * 6 * scale - scale if chars else 0, 7 * scale)
+
+
+def _draw_label(
+    pixels: bytearray,
+    width: int,
+    height: int,
+    x: int,
+    y: int,
+    text: str,
+    *,
+    scale: int,
+) -> None:
+    label = text.upper().replace("_", " ")
+    tw, th = _text_size(label, scale)
+    _draw_rect(pixels, width, height, x - 4, y - 4, x + tw + 4, y + th + 4, (32, 32, 32))
+    cx = x
+    for ch in label:
+        if ch == " ":
+            cx += 6 * scale
+            continue
+        glyph = CONTACT_SHEET_FONT.get(ch, CONTACT_SHEET_FONT["?"])
+        for gy, row in enumerate(glyph):
+            for gx, bit in enumerate(row):
+                if bit != "1":
+                    continue
+                _draw_rect(
+                    pixels,
+                    width,
+                    height,
+                    cx + gx * scale,
+                    y + gy * scale,
+                    cx + (gx + 1) * scale,
+                    y + (gy + 1) * scale,
+                    (245, 245, 245),
+                )
+        cx += 6 * scale
+
+
+def contact_sheet_columns(view_count: int, view_plan: str, columns: int | None) -> int:
+    if columns is not None:
+        return max(1, min(columns, max(1, view_count)))
+    if view_count <= 1:
+        return 1
+    if view_plan == "height-sweep":
+        return min(3, view_count)
+    if view_plan in {"survey", "cardinal"}:
+        return min(4, view_count)
+    return min(4, math.ceil(math.sqrt(view_count)))
+
+
+def write_contact_sheet(
+    views: list[dict[str, Any]],
+    out_path: Path,
+    *,
+    view_plan: str,
+    cell_width: int = 480,
+    columns: int | None = None,
+) -> dict[str, Any]:
+    """Write a labeled contact sheet for rendered view entries."""
+    if len(views) < 2:
+        return {"generated": False, "reason": "fewer than two PNGs"}
+    cell_width = max(80, cell_width)
+    cols = contact_sheet_columns(len(views), view_plan, columns)
+    rows = math.ceil(len(views) / cols)
+    thumbs: list[dict[str, Any]] = []
+    cell_height = 1
+    for entry in views:
+        png_path = Path(str(entry["render"]["png_path"]))
+        src_w, src_h, pixels = _decode_png_rgb(png_path)
+        thumb_w = cell_width
+        thumb_h = max(1, round(src_h * (thumb_w / src_w)))
+        thumb = _resize_rgb_nearest(src_w, src_h, pixels, thumb_w, thumb_h)
+        thumbs.append(
+            {
+                "view": entry["view"],
+                "png": str(png_path),
+                "width": thumb_w,
+                "height": thumb_h,
+                "pixels": thumb,
+            }
+        )
+        cell_height = max(cell_height, thumb_h)
+
+    sheet_w = cols * cell_width
+    sheet_h = rows * cell_height
+    bg = bytes((28, 28, 28))
+    sheet = bytearray(bg * (sheet_w * sheet_h))
+    label_scale = max(1, min(3, cell_width // 160))
+    cells: list[dict[str, Any]] = []
+    for idx, thumb in enumerate(thumbs):
+        col = idx % cols
+        row = idx // cols
+        x0 = col * cell_width
+        y0 = row * cell_height
+        tw = int(thumb["width"])
+        th = int(thumb["height"])
+        tp = thumb["pixels"]
+        for y in range(th):
+            src = y * tw * 3
+            dst = ((y0 + y) * sheet_w + x0) * 3
+            sheet[dst : dst + tw * 3] = tp[src : src + tw * 3]
+        _draw_label(
+            sheet,
+            sheet_w,
+            sheet_h,
+            x0 + 10,
+            y0 + 10,
+            str(thumb["view"]),
+            scale=label_scale,
+        )
+        cells.append(
+            {
+                "view": thumb["view"],
+                "png": display_path(Path(str(thumb["png"]))),
+                "row": row,
+                "column": col,
+                "x": x0,
+                "y": y0,
+                "width": tw,
+                "height": th,
+            }
+        )
+
+    _write_rgb_png(out_path, sheet_w, sheet_h, sheet)
+    return {
+        "generated": True,
+        "path": display_path(out_path),
+        "width": sheet_w,
+        "height": sheet_h,
+        "columns": cols,
+        "rows": rows,
+        "cell_width": cell_width,
+        "cell_height": cell_height,
+        "cells": cells,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Framing-fail detector.
+# ---------------------------------------------------------------------------
+
+# Sky gradient top/bottom from the default SIMULATED Preetham sky in scenes.
+SKY_TOP = (0x0B, 0xAB, 0xC7)
+SKY_BOTTOM = (0x75, 0xAA, 0xFF)
+
+
+def _luma(rgb: tuple[int, int, int]) -> float:
+    return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2]
+
+
+def assess_png(png: Path) -> dict[str, Any]:
+    """Read a PNG with stdlib only (no PIL) and score framing.
+
+    Decodes 8-bit RGB/RGBA PNGs via zlib + manual filter un-filtering, which is
+    enough for Chunky's output. Returns mean luminance, non-sky pixel ratio,
+    and a framing_ok boolean.
+    """
+    try:
+        width, height, pixels = _decode_png_rgb(png)
+    except (OSError, ValueError, zlib.error, struct.error) as exc:
+        return {"error": str(exc), "framing_ok": False}
 
     # Robust framing detection via a luminance histogram, independent of sky
     # *color* (Chunky's Preetham sky is greyish, the gradient mode is cyan, so a
@@ -1083,7 +1373,7 @@ def assess_png(png: Path) -> dict[str, Any]:
     lumas: list[int] = []
     for y in range(height):
         for x in range(width):
-            i = (y * width + x) * channels
+            i = (y * width + x) * 3
             r, g, b = pixels[i], pixels[i + 1], pixels[i + 2]
             lum = int(_luma((r, g, b)))
             lum = 0 if lum < 0 else 255 if lum > 255 else lum
@@ -1250,6 +1540,28 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         "--out",
         default="chunky-render/renders",
         help="Output dir (scene dirs + PNGs + a manifest json).",
+    )
+    p.add_argument(
+        "--no-contact-sheet",
+        dest="contact_sheet",
+        action="store_false",
+        help="Skip the default multi-view contact_sheet.png artifact.",
+    )
+    p.set_defaults(contact_sheet=True)
+    p.add_argument(
+        "--contact-sheet-cell-width",
+        type=int,
+        default=480,
+        help="Thumbnail width for contact_sheet.png cells.",
+    )
+    p.add_argument(
+        "--contact-sheet-columns",
+        type=int,
+        default=None,
+        help=(
+            "Override contact_sheet.png column count. Default follows the "
+            "view plan: height-sweep=3, survey/cardinal=4."
+        ),
     )
     p.add_argument(
         "--proxy",
@@ -1463,14 +1775,56 @@ def main(argv: list[str]) -> int:
             f"-> {display_path(png)}"
         )
 
-    manifest["overall_framing_ok"] = overall_ok
+    overall_framing_ok = overall_ok
+    workflow_ok = overall_framing_ok
+    manifest["contact_sheet"] = {
+        "enabled": args.contact_sheet,
+        "generated": False,
+    }
+    if args.contact_sheet:
+        successful_views = [
+            entry
+            for entry in manifest["views"]
+            if entry.get("png_exists") and Path(str(entry["render"]["png_path"])).is_file()
+        ]
+        if len(successful_views) >= 2:
+            contact_sheet_path = out_dir / "contact_sheet.png"
+            try:
+                manifest["contact_sheet"] = {
+                    "enabled": True,
+                    **write_contact_sheet(
+                        successful_views,
+                        contact_sheet_path,
+                        view_plan=plan_name,
+                        cell_width=args.contact_sheet_cell_width,
+                        columns=args.contact_sheet_columns,
+                    ),
+                }
+                print(f"[done] contact sheet -> {display_path(contact_sheet_path)}")
+            except (OSError, ValueError, zlib.error, struct.error) as exc:
+                manifest["contact_sheet"] = {
+                    "enabled": True,
+                    "generated": False,
+                    "error": str(exc),
+                }
+                workflow_ok = False
+                print(f"[done] contact sheet FAILED: {exc}", file=sys.stderr)
+        else:
+            manifest["contact_sheet"] = {
+                "enabled": True,
+                "generated": False,
+                "reason": "fewer than two successful PNGs",
+            }
+
+    manifest["overall_framing_ok"] = overall_framing_ok
+    manifest["overall_ok"] = workflow_ok
     manifest_path = out_dir / "render_manifest.json"
     manifest_path.write_text(
         json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8"
     )
     print(f"[done] manifest -> {display_path(manifest_path)}")
-    print(f"[done] overall framing {'OK' if overall_ok else 'FAILED'}")
-    return 0 if overall_ok else 1
+    print(f"[done] overall framing {'OK' if overall_framing_ok else 'FAILED'}")
+    return 0 if workflow_ok else 1
 
 
 if __name__ == "__main__":

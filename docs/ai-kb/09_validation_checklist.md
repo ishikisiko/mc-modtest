@@ -74,7 +74,8 @@ inspection or a future dedicated renderer compatibility path. For ordinary
 layout/framing review, `tools/render_structure.py` defaults to the multi-camera
 `--view-plan survey` (mid-height cardinal views plus high diagonal views); use
 `--view-plan height-sweep` when the review depends on comparing low, mid, and
-high camera elevations.
+high camera elevations. Multi-view renderer runs write a manifest-linked
+`contact_sheet.png` by default for quick angle/height comparison.
 
 Visual review handoff after previews and any Chunky run:
 

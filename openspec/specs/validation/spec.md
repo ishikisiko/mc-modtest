@@ -229,7 +229,8 @@ Automated validation SHALL NOT be treated as complete visual acceptance. In-game
 - **WHEN** `tools/render_structure.py` is used to produce Chunky renderer PNGs for ordinary placed-world layout or framing review
 - **THEN** the default renderer run SHALL produce a multi-camera view plan rather than a single-angle image
 - **AND** the default view plan SHALL include both cardinal directions and higher diagonal camera elevations
-- **AND** the renderer SHALL provide a documented height-sweep option for low, mid, and high camera comparisons.
+- **AND** the renderer SHALL provide a documented height-sweep option for low, mid, and high camera comparisons
+- **AND** multi-view renderer runs SHALL write a manifest-linked contact sheet for quick angle comparison by default.
 
 ### Requirement: Visual acceptance has a reportable inspection handoff
 Visual acceptance prep SHALL produce a reportable handoff that links the offline preview surface to any latest Chunky acceptance targets. The handoff SHALL verify that representative preview files are present, SHALL list concrete images for agent inspection, and SHALL list in-game command/worldgen coordinates from the Chunky report when available. The handoff SHALL NOT claim to classify visual quality automatically.

@@ -325,7 +325,9 @@ ordinary layout review, `tools/render_structure.py` defaults to
 `--view-plan survey`, which renders four mid-height cardinal views plus four
 high diagonal views. Use `--view-plan height-sweep` for low/mid/high passes
 from each side, or `--view-plan cardinal` / explicit `--views front right back
-left` for the old four-view behavior.
+left` for the old four-view behavior. Multi-view runs also write
+`contact_sheet.png` by default; pass `--no-contact-sheet` only for narrow
+diagnostics.
 
 ## Build The Mod
 
@@ -633,7 +635,8 @@ acceptance evidence; custom blocks currently require client-side inspection.
 When using the headless renderer for ordinary placed-world review, keep the
 default multi-camera `--view-plan survey` unless a narrower diagnostic view is
 intentional; use `--view-plan height-sweep` when angle/height could affect the
-layout judgment.
+layout judgment. The renderer writes a manifest-linked `contact_sheet.png` by
+default for quick multi-angle comparison.
 
 Generated datapack functions are also available after resource generation:
 
