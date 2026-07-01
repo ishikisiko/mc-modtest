@@ -14,6 +14,22 @@ The mod SHALL expose `/myvillage town [seed]`, planning and building a complete 
 - **THEN** the mod SHALL force-load the planned footprint and build a town with enclosure, gates, a main-street spine, districts, street-aligned frontage, vertical core landmarks, and lived-in tissue
 - **AND** if a region of the footprint cannot be force-loaded or built, the command SHALL report that extent rather than fail silently.
 
+### Requirement: A coordinate command builds a town at an explicit site
+The mod SHALL expose `/myvillage townat <seed> <x> <y> <z>`, planning and building the same districted town as `/myvillage town <seed>` but anchored at the explicit coordinate instead of the executing player's position. The command SHALL use the same terrain fitting, footprint force-loading, runtime fallback resolution, reporting, and deterministic seed-and-site behavior as the player-position command.
+
+#### Scenario: RCON builds a town without a player
+- **WHEN** an operator runs `/myvillage townat 20260618 512 80 0` from RCON or the server console
+- **THEN** the mod SHALL build a districted cultivation town at that explicit site
+- **AND** the command SHALL not require a `ServerPlayer`.
+
+#### Scenario: Coordinate town mirrors player-command behavior
+- **WHEN** `/myvillage townat <seed> <x> <y> <z>` and `/myvillage town <seed>` are run with equivalent anchor positions and terrain
+- **THEN** both commands SHALL produce the same town plan, force-load the same footprint, and report the same placed/skipped/fallback-substitution counts.
+
+#### Scenario: Coordinate town is deterministic by seed and site
+- **WHEN** `/myvillage townat <seed> <x> <y> <z>` is run twice on equivalent terrain
+- **THEN** the two generated towns SHALL be identical.
+
 ### Requirement: Parcels meet the ground via bounded site-fit
 Each realized parcel SHALL meet terrain through a plinth, steps, or retaining course, and parcels above the configured slope limit SHALL be skipped rather than force-flattened. For frontage-district parcels, placement SHALL align the building's street-facing wall to the parcel frontage edge and butt adjacent buildings at shared gable walls; for all parcels, placement SHALL align the template ground layer to the parcel surface and provide continuous footprint support so buildings do not float over a one-block hollow.
 

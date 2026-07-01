@@ -1,6 +1,6 @@
 # Chunky Acceptance Automation
 
-See-also specs: [`chunky-acceptance-automation`](../../openspec/changes/add-chunky-acceptance-automation/specs/chunky-acceptance-automation/spec.md), [`validation`](../../openspec/changes/add-chunky-acceptance-automation/specs/validation/spec.md).
+See-also specs: [`chunky-acceptance-automation`](../../openspec/specs/chunky-acceptance-automation/spec.md), [`validation`](../../openspec/specs/validation/spec.md).
 
 Stages 1 through 4 are implemented. Stage 1 verifies the server lifecycle, Chunky installation, RCON command channel, bounded chunk generation, save, stop, and report writing. Stage 2 runs the coordinate-addressable MyVillage commands from RCON after Stage 1 passes. Stage 3 extracts the full optional-mod jar set, verifies expected mod ids plus mandatory jar dependencies, and then runs full-mod gallery/town/worldgen-sect cases if the preflight passes. Stage 4 locates a natural `myvillage:sect` and runs a bounded Chunky task around that site after Stage 3 passes.
 
