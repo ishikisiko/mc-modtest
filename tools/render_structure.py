@@ -33,8 +33,13 @@ Usage:
         --chunky-home chunky-render \
         --anchor 0 79 192 \
         --tag-prefix small_house \
-        --views front right back left \
         --out chunky-render/renders
+
+By default the tool renders a survey plan: four mid-height cardinal views plus
+four high diagonal views. Use ``--view-plan cardinal`` or explicit ``--views
+front right back left`` for the old four-view behavior, and
+``--view-plan height-sweep`` when layout review needs low/mid/high passes from
+each side.
 """
 
 from __future__ import annotations
@@ -569,6 +574,92 @@ VIEW_AZIMUTH = {
     "back": 180.0,   # camera north of target, looking south (+Z)
     "left": 270.0,   # camera east of target (+X side), looking west (-X)
 }
+
+
+def _view_spec(
+    name: str,
+    azimuth_deg: float,
+    *,
+    distance_factor: float = 1.0,
+    height_factor: float = 1.0,
+    height_band: str = "mid",
+) -> dict[str, Any]:
+    return {
+        "name": name,
+        "azimuth_deg": azimuth_deg,
+        "distance_factor": distance_factor,
+        "height_factor": height_factor,
+        "height_band": height_band,
+    }
+
+
+# Camera-position names use Minecraft world-space X/Z compass directions:
+# south = +Z, north = -Z, east = +X, west = -X. Diagonal names describe where
+# the camera sits, not the direction it looks.
+VIEW_PLANS: dict[str, list[dict[str, Any]]] = {
+    "cardinal": [
+        _view_spec("front", VIEW_AZIMUTH["front"]),
+        _view_spec("right", VIEW_AZIMUTH["right"]),
+        _view_spec("back", VIEW_AZIMUTH["back"]),
+        _view_spec("left", VIEW_AZIMUTH["left"]),
+    ],
+    "survey": [
+        _view_spec("front_mid", VIEW_AZIMUTH["front"]),
+        _view_spec("right_mid", VIEW_AZIMUTH["right"]),
+        _view_spec("back_mid", VIEW_AZIMUTH["back"]),
+        _view_spec("left_mid", VIEW_AZIMUTH["left"]),
+        _view_spec("southwest_high", 45.0, distance_factor=1.15, height_factor=1.55, height_band="high"),
+        _view_spec("northwest_high", 135.0, distance_factor=1.15, height_factor=1.55, height_band="high"),
+        _view_spec("northeast_high", 225.0, distance_factor=1.15, height_factor=1.55, height_band="high"),
+        _view_spec("southeast_high", 315.0, distance_factor=1.15, height_factor=1.55, height_band="high"),
+    ],
+    "height-sweep": [
+        _view_spec("front_low", VIEW_AZIMUTH["front"], distance_factor=0.9, height_factor=0.65, height_band="low"),
+        _view_spec("front_mid", VIEW_AZIMUTH["front"]),
+        _view_spec("front_high", VIEW_AZIMUTH["front"], distance_factor=1.15, height_factor=1.55, height_band="high"),
+        _view_spec("right_low", VIEW_AZIMUTH["right"], distance_factor=0.9, height_factor=0.65, height_band="low"),
+        _view_spec("right_mid", VIEW_AZIMUTH["right"]),
+        _view_spec("right_high", VIEW_AZIMUTH["right"], distance_factor=1.15, height_factor=1.55, height_band="high"),
+        _view_spec("back_low", VIEW_AZIMUTH["back"], distance_factor=0.9, height_factor=0.65, height_band="low"),
+        _view_spec("back_mid", VIEW_AZIMUTH["back"]),
+        _view_spec("back_high", VIEW_AZIMUTH["back"], distance_factor=1.15, height_factor=1.55, height_band="high"),
+        _view_spec("left_low", VIEW_AZIMUTH["left"], distance_factor=0.9, height_factor=0.65, height_band="low"),
+        _view_spec("left_mid", VIEW_AZIMUTH["left"]),
+        _view_spec("left_high", VIEW_AZIMUTH["left"], distance_factor=1.15, height_factor=1.55, height_band="high"),
+    ],
+}
+
+
+def resolve_view_specs(
+    *,
+    view_plan: str,
+    views: list[str] | None,
+    base_distance: float,
+    base_height: float,
+) -> list[dict[str, Any]]:
+    """Return render view specs with concrete camera distance and height.
+
+    Explicit ``--views`` preserves the old single-height behavior. Otherwise a
+    named view plan can vary azimuth, distance, and height in one run.
+    """
+    if views:
+        plan = [
+            _view_spec(view, VIEW_AZIMUTH[view], height_band="custom")
+            for view in views
+        ]
+    else:
+        try:
+            plan = VIEW_PLANS[view_plan]
+        except KeyError as exc:
+            raise ValueError(f"unknown view plan: {view_plan}") from exc
+
+    resolved: list[dict[str, Any]] = []
+    for spec in plan:
+        entry = dict(spec)
+        entry["distance"] = base_distance * float(spec["distance_factor"])
+        entry["height_above"] = base_height * float(spec["height_factor"])
+        resolved.append(entry)
+    return resolved
 
 
 # ---------------------------------------------------------------------------
@@ -1113,9 +1204,22 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     p.add_argument(
         "--views",
         nargs="+",
-        default=["front", "right", "back", "left"],
+        default=None,
         choices=["front", "right", "back", "left"],
-        help="Views to render. Default renders all four cardinal views.",
+        help=(
+            "Legacy explicit views to render at one height. Overrides "
+            "--view-plan when supplied."
+        ),
+    )
+    p.add_argument(
+        "--view-plan",
+        choices=sorted(VIEW_PLANS),
+        default="survey",
+        help=(
+            "Named camera plan used when --views is not supplied. Default "
+            "'survey' renders four mid-height cardinal views plus four high "
+            "diagonal views; 'height-sweep' renders low/mid/high from each side."
+        ),
     )
     p.add_argument(
         "--distance",
@@ -1200,7 +1304,17 @@ def main(argv: list[str]) -> int:
         if args.height is not None
         else bbox["size"][1] * 0.5 + 4.0
     )
-    print(f"[cam] distance={distance:.1f} height_above={height:.1f}")
+    view_specs = resolve_view_specs(
+        view_plan=args.view_plan,
+        views=args.views,
+        base_distance=distance,
+        base_height=height,
+    )
+    plan_name = "custom-views" if args.views else args.view_plan
+    print(
+        f"[cam] base_distance={distance:.1f} base_height_above={height:.1f} "
+        f"view_plan={plan_name} views={len(view_specs)}"
+    )
 
     manifest: dict[str, Any] = {
         "schema_version": 1,
@@ -1213,6 +1327,11 @@ def main(argv: list[str]) -> int:
         "bbox": bbox,
         "target_center": list(target),
         "chunk_list": chunk_list,
+        "view_plan": plan_name,
+        "base_distance": distance,
+        "base_height_above": height,
+        # Kept for older manifest readers; per-view entries record the concrete
+        # values used by multi-height plans.
         "distance": distance,
         "height_above": height,
         "width": args.width,
@@ -1225,10 +1344,16 @@ def main(argv: list[str]) -> int:
     }
 
     overall_ok = True
-    for view in args.views:
-        az = VIEW_AZIMUTH[view]
+    for view_spec in view_specs:
+        view = str(view_spec["name"])
+        az = float(view_spec["azimuth_deg"])
+        view_distance = float(view_spec["distance"])
+        view_height = float(view_spec["height_above"])
         cam = solve_camera(
-            target, azimuth_deg=az, distance=distance, height_above=height
+            target,
+            azimuth_deg=az,
+            distance=view_distance,
+            height_above=view_height,
         )
         scene_name = f"view_{view}"
         # Each view gets its OWN scene directory so its snapshots/, dump and
@@ -1257,6 +1382,7 @@ def main(argv: list[str]) -> int:
         print(
             f"[render] {view} az={az:.0f} -> "
             f"pos=({cam['position'][0]:.1f},{cam['position'][1]:.1f},{cam['position'][2]:.1f}) "
+            f"distance={view_distance:.1f} height={view_height:.1f} "
             f"yaw={cam['yaw_deg']:.1f}deg/{cam['orientation']['yaw']:.4f}rad "
             f"pitch={cam['pitch_deg']:.1f}deg/{cam['orientation']['pitch']:.4f}rad "
             f"chunks={len(view_chunk_list)}"
@@ -1292,6 +1418,7 @@ def main(argv: list[str]) -> int:
                 "scene_dir": str(view_dir),
                 "scene_json": str(scene_path),
                 "view_dir_recreated": view_dir_recreated,
+                "view_spec": view_spec,
                 "camera": camera_summary,
                 "chunk_list": view_chunk_list,
                 "render": render_result,
@@ -1315,6 +1442,7 @@ def main(argv: list[str]) -> int:
             "scene_dir": str(view_dir),
             "scene_json": str(scene_path),
             "view_dir_recreated": view_dir_recreated,
+            "view_spec": view_spec,
             "camera": camera_summary,
             "chunk_list": view_chunk_list,
             "render": render_result,

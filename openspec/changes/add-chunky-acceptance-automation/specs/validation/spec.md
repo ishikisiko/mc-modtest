@@ -29,3 +29,16 @@ Passing Chunky acceptance SHALL mean that the configured server, Chunky pre-gene
 - **WHEN** every requested Chunky acceptance stage passes
 - **THEN** the generated world SHALL be considered prepared for in-game visual review
 - **AND** final appearance-sensitive acceptance SHALL still require reviewer inspection.
+
+#### Scenario: Custom myvillage block appearance is reviewed
+
+- **WHEN** a change needs visual acceptance of a custom `myvillage:` block such as `myvillage:rockery_block`
+- **THEN** headless Chunky renderer PNGs SHALL NOT be used as the sole visual acceptance evidence
+- **AND** the handoff SHALL require Minecraft client inspection or a future explicitly documented custom-block renderer compatibility path.
+
+#### Scenario: Headless renderer images are used for layout review
+
+- **WHEN** `tools/render_structure.py` is used to produce Chunky renderer PNGs for ordinary placed-world layout or framing review
+- **THEN** the default renderer run SHALL produce a multi-camera view plan rather than a single-angle image
+- **AND** the default view plan SHALL include both cardinal directions and higher diagonal camera elevations
+- **AND** the renderer SHALL provide a documented height-sweep option for low, mid, and high camera comparisons.

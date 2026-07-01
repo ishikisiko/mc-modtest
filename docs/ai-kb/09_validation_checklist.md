@@ -64,6 +64,18 @@ state, or records `sect_not_located` when no sect is found.
 This report supplements the offline validators and preview server; it does not
 replace visual review.
 
+Chunky path-traced renderer PNGs, when produced separately via
+`tools/render_structure.py`, are currently limited to ordinary block appearance
+checks. Do not use them as visual acceptance evidence for custom `myvillage:`
+blocks such as `myvillage:rockery_block`: as of 2026-07-01 Chunky 2.4.6 renders
+that block as an unknown-block placeholder even when the MyVillage jar is passed
+as a texture pack. Custom-block appearance still requires Minecraft client
+inspection or a future dedicated renderer compatibility path. For ordinary
+layout/framing review, `tools/render_structure.py` defaults to the multi-camera
+`--view-plan survey` (mid-height cardinal views plus high diagonal views); use
+`--view-plan height-sweep` when the review depends on comparing low, mid, and
+high camera elevations.
+
 Visual review handoff after previews and any Chunky run:
 
 ```text

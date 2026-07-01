@@ -72,6 +72,33 @@ class RenderStructureTests(unittest.TestCase):
         self.assertIn([2, 12], chunks)
         self.assertIn([-2, 11], chunks)
 
+    def test_default_survey_plan_has_cardinal_and_high_diagonal_views(self) -> None:
+        specs = render_structure.resolve_view_specs(
+            view_plan="survey",
+            views=None,
+            base_distance=40.0,
+            base_height=10.0,
+        )
+
+        self.assertEqual(len(specs), 8)
+        self.assertIn("front_mid", [spec["name"] for spec in specs])
+        self.assertIn("southeast_high", [spec["name"] for spec in specs])
+        self.assertGreater(
+            max(spec["height_above"] for spec in specs),
+            min(spec["height_above"] for spec in specs),
+        )
+
+    def test_explicit_views_override_view_plan(self) -> None:
+        specs = render_structure.resolve_view_specs(
+            view_plan="height-sweep",
+            views=["front", "left"],
+            base_distance=40.0,
+            base_height=10.0,
+        )
+
+        self.assertEqual([spec["name"] for spec in specs], ["front", "left"])
+        self.assertEqual([spec["height_above"] for spec in specs], [10.0, 10.0])
+
     def test_assess_png_rejects_smooth_sky_gradient(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             png = Path(tmp) / "smooth_sky.png"

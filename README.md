@@ -289,6 +289,7 @@ python3 tools/preview_structure.py --all                                    # ev
 python3 tools/generate_town_plan_preview.py --count 6                       # town plan PNG/HTML previews (default covers all 6 wall families)
 python3 tools/preview_structure.py --viewer-only src/main/resources/data/myvillage/structure/cultivation_sect_001.nbt
 python3 tools/preview_structure.py --no-viewer --all                        # PNGs only
+python3 tools/render_structure.py --world run-acceptance/chunky_stage1_world --anchor 0 79 192 --spp 10   # Chunky path-traced survey PNGs from a placed-world target
 python3 tools/write_visual_acceptance_report.py                             # report representative preview/Chunky visual targets
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview           # serve public previews for review
 ```
@@ -313,6 +314,18 @@ before claiming visual verification. Add new block colors to
 `tools/block_colors.json`; unknown blocks render magenta and should be reported
 there. `--max-px` (default 2048)
 auto-reduces static PNG scale so large compounds stay bounded.
+
+The separate headless Chunky path-tracing renderer is not currently a custom
+`myvillage:` block acceptance path. It can render placed worlds for ordinary
+blocks, but `myvillage:rockery_block` has been observed to render as Chunky's
+unknown-block placeholder even with the MyVillage jar supplied through
+`-texture`. Review custom block appearance, including `hero_rockery`, in a
+Minecraft client until a dedicated renderer compatibility path exists. For
+ordinary layout review, `tools/render_structure.py` defaults to
+`--view-plan survey`, which renders four mid-height cardinal views plus four
+high diagonal views. Use `--view-plan height-sweep` for low/mid/high passes
+from each side, or `--view-plan cardinal` / explicit `--views front right back
+left` for the old four-view behavior.
 
 ## Build The Mod
 
@@ -615,6 +628,12 @@ and runs a small bounded Chunky task around that site.
 The visual report does not judge aesthetics automatically; it records the
 representative preview PNGs and generated-world coordinates that the agent and
 reviewer must inspect before visual acceptance is claimed.
+Do not count headless Chunky renderer images as custom `myvillage:` block visual
+acceptance evidence; custom blocks currently require client-side inspection.
+When using the headless renderer for ordinary placed-world review, keep the
+default multi-camera `--view-plan survey` unless a narrower diagnostic view is
+intentional; use `--view-plan height-sweep` when angle/height could affect the
+layout judgment.
 
 Generated datapack functions are also available after resource generation:
 

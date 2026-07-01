@@ -1,6 +1,6 @@
 # Chunky Path-Traced Rendering (Headless)
 
-> **Status:** pipeline verified end-to-end on 2026-07-01 with `tools/render_structure.py` producing upright four-view PNGs from the Stage 2 acceptance world. The renderer can now load world chunks, solve camera yaw/pitch/roll, render, snapshot, and emit a manifest without manual camera tuning.
+> **Status:** pipeline verified end-to-end on 2026-07-01 with `tools/render_structure.py` producing upright multi-view PNGs from the Stage 2 acceptance world. The renderer can load world chunks, solve camera yaw/pitch/roll, render, snapshot, and emit a manifest without manual camera tuning for ordinary Minecraft blocks. It is **not** currently a custom `myvillage:` block visual-acceptance path: `myvillage:rockery_block` renders as Chunky's unknown-block placeholder even when the MyVillage jar is passed via `-texture`.
 >
 > See-also [17_chunky_acceptance.md](17_chunky_acceptance.md) (the *block-pregen* Chunky acceptance flow — a different tool that happens to share the name), and the `chunky-acceptance-automation` change spec.
 
@@ -16,6 +16,22 @@
 | Used by this repo's acceptance? | ❌ Not yet | ✅ `tools/run_chunky_acceptance.py` (Stages 1-4) |
 
 The existing `tools/run_chunky_acceptance.py` **uses the block-pregen mod**, so its Stages 1-4 only prove "chunks load without crashing" — they produce **no visual evidence**. To get a path-traced PNG of a placed structure, you must run the **renderer** (this doc), not the block-pregen acceptance flow.
+
+## Camera plans in `tools/render_structure.py`
+
+`tools/render_structure.py` defaults to `--view-plan survey`, not a single
+camera. The survey plan writes eight PNGs:
+
+- four mid-height cardinal views: `front_mid`, `right_mid`, `back_mid`, `left_mid`;
+- four higher diagonal views: `southwest_high`, `northwest_high`,
+  `northeast_high`, `southeast_high`.
+
+This is deliberate: layout and landscape review should not infer design issues
+from one angle or one elevation. Use `--view-plan height-sweep` for a heavier
+low/mid/high pass from each side, or use `--view-plan cardinal` / explicit
+`--views front right back left` when the old four-view behavior is enough. The
+manifest records the concrete `view_spec`, camera position, distance, and
+height for every PNG.
 
 ## Verified pipeline (renderer, headless, Windows)
 
@@ -85,7 +101,8 @@ These are the **authoritative** field names from the 2.4.6 constant pool / `java
 4. **Renderer ≠ block-pregen.** `run_chunky_acceptance.py` Stage 1-4 output is JSON only; it will never produce a PNG regardless of arguments.
 5. **Two-pass/fallback:** `-render` may write an auto-snapshot under `<scene>/snapshots/`; otherwise `-snapshot` reads the dump and writes the PNG. `tools/render_structure.py` tries auto-snapshot first, then restores the pristine scene JSON and runs `-snapshot`.
 6. **`-f` (force)** is required or headless render silently skips scenes it thinks are already at target SPP.
-7. **Bbox-only `chunkList` clips the world.** Chunky renders unloaded chunks as empty background. `tools/render_structure.py` now builds a per-view chunk rectangle covering the structure bbox, camera position, line of sight, and `--chunk-pad` margin (default 4), so four-view shots include surrounding terrain.
+7. **Bbox-only `chunkList` clips the world.** Chunky renders unloaded chunks as empty background. `tools/render_structure.py` now builds a per-view chunk rectangle covering the structure bbox, camera position, line of sight, and `--chunk-pad` margin (default 4), so multi-view shots include surrounding terrain.
+8. **Custom `myvillage:` blocks are not visually accepted through this renderer yet.** A 2026-07-01 `hero_rockery` test proved that the world contains the expected `myvillage:rockery_block` cells, but Chunky 2.4.6 rendered them as purple/black unknown-block placeholders. Passing `build/libs/myvillage-0.18.1.jar` through `-texture` did not fix block-model resolution. Until a dedicated Chunky model/plugin/resource solution exists, use Minecraft client inspection for custom block appearance and treat renderer output only as block-presence evidence.
 
 ## Verification record (2026-06-30)
 
@@ -105,25 +122,56 @@ python3 tools/render_structure.py \
   --search-radius 24 \
   --launcher chunky-render/ChunkyLauncher.jar \
   --chunky-home chunky-render \
-  --views front right back left \
   --spp 5 \
   --threads 6 \
-  --out chunky-render/renders_four_upright
+  --out chunky-render/renders_survey
 ```
 
 Result:
 
 - Scanned bbox: `[-19,63,178]..[12,91,213]`, size `32x29x36`, `309` structure blocks.
-- Chunky loaded per-view chunk rectangles (28 chunks per view for this fixture) after `world` was changed to `{path, dimension}` and `chunky.json.sceneDirectory` was pointed at `chunky-render/renders_four_upright`.
-- PNGs produced: `chunky-render/renders_four_upright/view_{front,right,back,left}/view_*.png` (git-ignored).
-- Manifest produced: `chunky-render/renders_four_upright/render_manifest.json`; `overall_framing_ok: true`.
-- Local visual inspection confirmed all four rendered images contain the placed house, are upright (`roll=π`), and no longer show the earlier bbox-only empty-background clipping.
+- Chunky loaded per-view chunk rectangles after `world` was changed to `{path, dimension}` and `chunky.json.sceneDirectory` was pointed at `chunky-render/renders_survey`.
+- PNGs produced under `chunky-render/renders_survey/view_*/view_*.png` (git-ignored).
+- Manifest produced: `chunky-render/renders_survey/render_manifest.json`; `overall_framing_ok: true`.
+- Local visual inspection confirmed the survey images contain the placed house, are upright (`roll=π`), and no longer show the earlier bbox-only empty-background clipping.
 - PNG assessment added an edge metric (`edge_mean`, `strong_edge_ratio`) so a smooth sky gradient no longer passes just because luminance stdev is high.
+
+## Custom-block limitation record (2026-07-01)
+
+Requested target: render the standalone `hero_rockery` review fragment to see the
+actual 假山 form. The server-side placement path worked:
+
+```text
+myvillage placeat hero_rockery 0 140 -512
+```
+
+The saved-world scan around that high-air fixture found a clean target bbox:
+`[2,140,-510]..[4,142,-508]`, size `3x3x3`, `20` blocks, all
+`myvillage:rockery_block`.
+
+Chunky renderer outputs were written under
+`chunky-render/hero_rockery_sky_spp10/`. They show the fixture and platform, but
+the rockery blocks render as purple/black question-mark unknown-block geometry,
+not as the mod's baked 太湖石 models. A follow-up one-view render with:
+
+```text
+-texture build/libs/myvillage-0.18.1.jar
+```
+
+wrote `chunky-render/hero_rockery_sky_texture_test/front_texture.png` and showed
+the same placeholder geometry. This rules out camera framing and basic texture
+pack presence as the primary issue; the unresolved gap is Chunky's handling of
+the mod-owned custom block id/model. For now, do **not** use Chunky renderer
+images as acceptance evidence for custom `myvillage:` block appearance.
 
 ## Open work (next session)
 
 1. **Optional acceptance integration.** Add a separate renderer report link only after deciding how it should relate to `tools/write_visual_acceptance_report.py`. Keep it distinct from `tools/run_chunky_acceptance.py`, which remains the block-pregen/RCON acceptance flow.
 2. **Higher quality review renders.** Low-SPP (`--spp 5`) is enough for automation smoke checks. Manual visual review should use a higher SPP once the camera target/world fixture is final.
+3. **Deferred custom-block renderer support.** If custom block visual acceptance
+   is needed later, investigate a Chunky-side model/plugin workflow or a
+   deliberate vanilla proxy scene. Do not fold that into routine acceptance until
+   it renders `myvillage:rockery_block` without unknown-block placeholders.
 
 ## Cleanup note
 
