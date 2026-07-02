@@ -5,7 +5,9 @@
 The 花园 band SHALL span the full interior lot width (excluding the perimeter
 wall) and SHALL contain at least one of each: `garden_pond`, `garden_rockery`,
 `garden_pavilion`, plus a `PATH_TOUR` 曲径 connecting the 月洞门 passage to each
-feature. A 水边廊 (shoreside `covered_gallery` variant) SHALL line one clean
+feature. The `garden_pavilion` SHALL sit on a dry pond bank with its footprint
+4-adjacent to pond water so it reads as a 水亭 rather than a detached garden
+building. A 水边廊 (shoreside `covered_gallery` variant) SHALL line one clean
 pond-shore run as a short straight two-cell-deep gallery, and a `PATH_WATERSIDE`
 stairs + slab bridge SHALL cross the pond to the 亭 or island rockery. The
 水边廊 SHALL NOT overlap the pond water, the island rockery, or the bridge, and
@@ -28,6 +30,15 @@ rockery/pond.
 - **AND** a `PATH_WATERSIDE` slab bridge SHALL cross the pond to the 亭/island
 - **AND** a `PATH_TOUR` 曲径 SHALL connect the 月洞门 passage to each feature per
   `courtyard-voxel-walkability`.
+
+#### Scenario: The pavilion reads as a water pavilion
+
+- **WHEN** the `garden_pavilion` is placed
+- **THEN** every pavilion footprint cell SHALL be dry
+- **AND** at least one pavilion footprint cell SHALL be 4-adjacent to
+  `garden_pond` water
+- **AND** the pavilion SHALL NOT be placed on the far side of the garden lawn
+  without a direct pond edge.
 
 #### Scenario: The pond composition stays visually separated
 

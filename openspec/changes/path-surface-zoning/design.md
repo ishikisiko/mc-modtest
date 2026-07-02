@@ -552,6 +552,33 @@ adjacent, or overlaps water/rockery/bridge. It fails `pond_lily_clutter:<cell>`
 when lily pads enter the bridge/gallery clear-water lanes. `test_path_termini.py`
 locks the same invariants for the six shipped mansion seeds.
 
+### D14: 水亭定位修复 — the pavilion must sit on a pond bank (Arc 8)
+
+**Choice.** Focused water-court review showed the previous visual evidence was
+not just compressed or poorly angled: `garden_pavilion` could be placed at the
+far west end of the garden while the pond/rockery/bridge composition lived on
+the east side. The cause was stale placement math: after the rockery moved into
+the pond as an island, the pavilion still used the old west-rockery band.
+
+The fix is to select the pavilion from dry 3x3 pond-bank candidates:
+
+- Candidate footprint must be inside the garden band and dry.
+- Candidate footprint must avoid pond water, the island rockery, perimeter wall,
+  screen wall, existing buildings, and other blocked cells.
+- At least one footprint cell must be 4-adjacent to pond water.
+- Prefer the west pond bank so the pavilion faces across the water instead of
+  hiding behind the north waterside gallery or perimeter wall.
+
+**Rendering guard.** `tools/render_structure.py` now accepts `--target X Y Z` so
+focused review can aim the camera at the water pavilion / pond center. The bbox
+scan still selects chunks and reports framing diagnostics, but the look-at point
+is no longer forced to the whole cluster center.
+
+**Guards.** `validate_mansion` fails
+`garden_pavilion_detached_from_pond:*` when the pavilion is missing, overlaps
+water, or has no footprint cell 4-adjacent to pond water. `test_path_termini.py`
+locks this for all six shipped mansion seeds.
+
 ## Risks / Trade-offs
 
 - **[Tour waypoint routing may produce a path that overlaps the formal backbone

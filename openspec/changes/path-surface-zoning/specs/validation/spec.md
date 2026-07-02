@@ -98,6 +98,11 @@ be 4-adjacent to pond water. A violation SHALL fail with
 bridge/gallery clear-water lanes. A violation SHALL fail with
 `pond_lily_clutter:<cell>`.
 
+`validate_mansion` SHALL also verify that the `garden_pavilion` is a waterside
+pavilion: its footprint SHALL be dry and at least one footprint cell SHALL be
+4-adjacent to pond water. A detached or missing pavilion SHALL fail with
+`garden_pavilion_detached_from_pond:<reason>`.
+
 #### Scenario: A ragged all-shore gallery fails
 
 - **WHEN** the 水边廊 footprint is not a short straight two-cell-deep strip
@@ -117,3 +122,9 @@ bridge/gallery clear-water lanes. A violation SHALL fail with
 - **WHEN** a lily pad lies on a bridge cell or in the clear-water lane adjacent
   to the bridge or 水边廊 water-edge row
 - **THEN** the validator SHALL fail with `pond_lily_clutter:<cell>`.
+
+#### Scenario: A detached garden pavilion fails
+
+- **WHEN** the `garden_pavilion` footprint is not 4-adjacent to pond water
+- **THEN** the validator SHALL fail with
+  `garden_pavilion_detached_from_pond:<center>`.

@@ -88,3 +88,9 @@ The visual report joins `out/preview/index.html` with the latest
 it confirms representative preview PNGs and Chunky coordinates are present, but
 it does not replace opening those PNGs or inspecting the generated world in a
 Minecraft client.
+
+For focused internal-subject review, do not rely on the scanned bbox center
+alone. `tools/render_structure.py --target X Y Z` keeps the anchor/bbox scan for
+chunk loading but aims the camera at an explicit look-at point. Use it for
+subjects such as the mansion 水亭/池面 where the whole-cluster center can frame a
+wall, roof, or unrelated garden mass instead of the actual focal feature.

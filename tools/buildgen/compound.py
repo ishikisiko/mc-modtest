@@ -2426,22 +2426,27 @@ def _collect_tour_waypoints(compound: CompoundGraph, start_cell: Cell2
         if pick is not None:
             waypoints.append(pick)
 
+    pavilion = next((n for n in compound.parcel_nodes
+                     if n.type == "garden_pavilion"), None)
+    pavilion_dry = (_dry_ring(pavilion.cells) & reachable
+                    if pavilion is not None and pavilion.cells else set())
+
     # Pond shore: the dry, reachable cell adjacent to the pond nearest the
-    # previous waypoint.
+    # previous waypoint. Prefer a shore cell that is not also the pavilion's
+    # approach cell; once the pavilion is correctly waterside, those rings can
+    # touch, and picking the same cell degenerates the tour into a straight line.
     pond = next((n for n in compound.parcel_nodes
                  if n.type == "garden_pond"), None)
     if pond is not None and pond.cells:
         dry = _dry_ring(pond.cells) & reachable
-        pick = _nearest(waypoints[-1], dry)
+        pick = _nearest(waypoints[-1], dry - pavilion_dry) or _nearest(waypoints[-1], dry)
         if pick is not None:
             waypoints.append(pick)
 
     # 亭 (pavilion): a dry, reachable cell adjacent to the pavilion, approached
     # from the previous waypoint.
-    pavilion = next((n for n in compound.parcel_nodes
-                     if n.type == "garden_pavilion"), None)
     if pavilion is not None and pavilion.cells:
-        dry = _dry_ring(pavilion.cells) & reachable
+        dry = pavilion_dry
         pick = _nearest(waypoints[-1], dry)
         if pick is not None:
             waypoints.append(pick)
@@ -3858,6 +3863,75 @@ def _select_waterside_gallery_run(lot_w: int, gy0: int, gy1: int,
     return strip, side, set(front_run)
 
 
+def _select_waterside_pavilion_center(lot_w: int, gy0: int, gy1: int,
+                                      water: Set[Cell2], blocked: Set[Cell2],
+                                      size: int = 3) -> Optional[Cell2]:
+    """Select a dry 亭 footprint that reads as waterside.
+
+    The rockery was moved into the pond, but the old pavilion placement still
+    used the leftover west-rockery band. That could put the pavilion on the far
+    side of the garden from the pond. A water pavilion must sit on a dry bank
+    with at least one footprint cell 4-adjacent to pond water.
+    """
+    if not water:
+        return None
+    half = size // 2
+    pond_x0 = min(x for x, _ in water)
+    pond_x1 = max(x for x, _ in water)
+    pond_z0 = min(z for _, z in water)
+    pond_z1 = max(z for _, z in water)
+    pond_cx = (pond_x0 + pond_x1) / 2.0
+    pond_cz = (pond_z0 + pond_z1) / 2.0
+    best: Optional[Tuple[Tuple[float, ...], Cell2]] = None
+
+    for cx in range(1 + half, lot_w - 1 - half):
+        for cz in range(gy0 + half, gy1 - half + 1):
+            cells = {
+                (x, z)
+                for x in range(cx - half, cx + half + 1)
+                for z in range(cz - half, cz + half + 1)
+            }
+            if cells & water or cells & blocked:
+                continue
+            edge_count = 0
+            for x, z in cells:
+                nbrs = {(x + 1, z), (x - 1, z), (x, z + 1), (x, z - 1)}
+                if nbrs & water:
+                    edge_count += 1
+            if edge_count == 0:
+                continue
+
+            x0 = min(x for x, _ in cells)
+            x1 = max(x for x, _ in cells)
+            z0 = min(z for _, z in cells)
+            z1 = max(z for _, z in cells)
+            # Prefer the west bank so the pavilion faces across the pond
+            # instead of hiding behind the north gallery or the perimeter wall.
+            if x1 < pond_x0:
+                side_rank = 0
+            elif z0 > pond_z1:
+                side_rank = 1
+            elif z1 < pond_z0:
+                side_rank = 2
+            elif x0 > pond_x1:
+                side_rank = 3
+            else:
+                side_rank = 4
+            center_dist = abs(cx - pond_cx) + abs(cz - pond_cz)
+            score = (
+                float(side_rank),
+                float(-edge_count),
+                float(center_dist),
+                float(abs(cz - pond_cz)),
+                float(abs(cx - pond_cx)),
+                float(cz),
+                float(cx),
+            )
+            if best is None or score < best[0]:
+                best = (score, (cx, cz))
+    return best[1] if best is not None else None
+
+
 def _layout_garden(compound: CompoundGraph, style: Style, bands: dict,
                    seed: int, variant: "MansionVariant") -> None:
     """花园 layout: rockery + pond + pavilion + stepping stones.
@@ -3870,14 +3944,11 @@ def _layout_garden(compound: CompoundGraph, style: Style, bands: dict,
     interior_w = lot_w - 2   # columns x=1..lot_w-2
 
     pond_w   = max(5, interior_w // 3)
-    rock_w   = max(5, interior_w // 2)
     garden_d = gy1 - gy0 + 1
     feature_d = max(6, garden_d * 2 // 3)
 
     pond_x0, pond_x1 = lot_w - 1 - pond_w, lot_w - 2
     pond_z0, pond_z1 = gy0, gy0 + feature_d - 1
-    rock_x0, rock_x1 = 1, 1 + rock_w - 1
-    rock_z0, rock_z1 = gy0, gy0 + feature_d - 1
 
     # Main 假山: the hand-sculpted hero cluster (add-hero-rockery), a fixed 3×3×3
     # sculpt. Placed as a 水心假山 (island rockery) — its base sits in the middle
@@ -3898,14 +3969,20 @@ def _layout_garden(compound: CompoundGraph, style: Style, bands: dict,
         compound, (pond_x0, pond_z0, pond_x1, pond_z1), seed + 9200,
         rockery_node=rockery_node)
 
-    # 亭 pavilion beside (north of) the rockery. The hero summit carries a 小树
-    # (faithful to the sculpt), so the 亭 stays at ground level rather than on the
-    # peak; the standable summit offset is still exported in the rockery node meta
-    # for any consumer that wants 亭-on-peak with a tree-less variant (task 3.5).
-    pav_cx = (rock_x0 + rock_x1) // 2
-    pav_cz = gy0 + feature_d + 2
-    if gy0 <= pav_cz <= gy1:
-        place_garden_pavilion(compound, (pav_cx, pav_cz), 3, 0, style)
+    # 亭 pavilion: place it on a dry bank of the pond, not in the leftover west
+    # rockery band. The previous position could be 20+ cells from the pond, so
+    # low-angle review saw "a pavilion somewhere in the garden" instead of a
+    # readable 水亭. The hero summit still carries a 小树, so the 亭 stays at
+    # ground level.
+    pavilion_blocked = (
+        set(rockery_node.cells if rockery_node is not None else set())
+        | compound.building_cells()
+        | compound.node_cells("perimeter_wall", "screen_wall")
+    )
+    pavilion_center = _select_waterside_pavilion_center(
+        lot_w, gy0, gy1, set(water_cells), pavilion_blocked, size=3)
+    if pavilion_center is not None:
+        place_garden_pavilion(compound, pavilion_center, 3, 0, style)
 
     # NOTE: the 汀步 (stepping stones) across the pond were removed. They had
     # previously been rendered as myvillage:rockery_block[variant=standalone] —
@@ -5205,6 +5282,22 @@ def _check_waterside_visual_composition(compound: CompoundGraph) -> List[str]:
         return errors
     rockery = compound.node_cells("garden_rockery")
     bridge = compound.node_cells("waterside_bridge")
+    pavilions = [n for n in compound.parcel_nodes if n.type == "garden_pavilion"]
+    if not pavilions:
+        errors.append("garden_pavilion_detached_from_pond:missing")
+    for pavilion in pavilions:
+        cells = set(pavilion.cells)
+        if cells & water:
+            errors.append(f"garden_pavilion_detached_from_pond:overlaps_water:{sorted(cells & water)[:4]}")
+            continue
+        touches_water = any(
+            (x + dx, z + dz) in water
+            for x, z in cells
+            for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1))
+        )
+        if not touches_water:
+            errors.append(
+                f"garden_pavilion_detached_from_pond:{pavilion.meta.get('center')}")
     galleries = [n for n in compound.parcel_nodes if n.id == "waterside_gallery"]
     if not galleries:
         errors.append("waterside_gallery_clutter:missing")

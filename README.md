@@ -147,7 +147,8 @@ a waypoint polyline 假山→水岸→亭), and the waterside stairs + slab brid
 (`PATH_WATERSIDE`); the ground splits into 天井 心 (`GROUND_YARD_HEART`), 廊下
 (`PATH_GALLERY`), and 夹道 (`PATH_ALLEY`) around the open grass. The mansion
 garden gains the 月洞门 穿墙通道 (the formal↔tour material boundary), the 水边廊
-as one short straight run on a clean pond bank, and a 仆役房 along the 倒座 夹道;
+as one short straight run on a clean pond bank, a dry-bank 水亭 that directly
+touches the pond edge, and a 仆役房 along the 倒座 夹道;
 the cross-pond 汀步 spike-row is replaced by a flat slab bridge, with sparse
 lily pads kept out of the bridge/gallery clear-water lanes. The 水边廊 and
 mansion 主院 抄手游廊 are now real 3D galleries with floor, columns, balustrade,
@@ -296,6 +297,7 @@ python3 tools/generate_town_plan_preview.py --count 6                       # to
 python3 tools/preview_structure.py --viewer-only src/main/resources/data/myvillage/structure/cultivation_sect_001.nbt
 python3 tools/preview_structure.py --no-viewer --all                        # PNGs only
 python3 tools/render_structure.py --world run-acceptance/chunky_stage1_world --anchor 0 79 192 --spp 10   # Chunky path-traced survey PNGs from a placed-world target
+python3 tools/render_structure.py --world run-acceptance/chunky_stage1_world --anchor 152 179 247 --target 156 181.5 248 --views right left --spp 10   # focused look-at for internal subjects such as a water court
 python3 tools/write_visual_acceptance_report.py                             # report representative preview/Chunky visual targets
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview           # serve public previews for review
 ```
@@ -331,7 +333,10 @@ ordinary layout review, `tools/render_structure.py` defaults to
 `--view-plan survey`, which renders four mid-height cardinal views plus four
 high diagonal views. Use `--view-plan height-sweep` for low/mid/high passes
 from each side, or `--view-plan cardinal` / explicit `--views front right back
-left` for the old four-view behavior. Multi-view runs also write
+left` for the old four-view behavior. Use `--target X Y Z` when the focal
+subject is internal to a larger structure (for example the mansion 水亭/池面),
+so the camera looks at that feature instead of the scanned bbox center.
+Multi-view runs also write
 `contact_sheet.png` by default; pass `--no-contact-sheet` only for narrow
 diagnostics.
 

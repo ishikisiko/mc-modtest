@@ -101,6 +101,29 @@ def test_waterside_gallery_water_edge_is_adjacent_to_the_pond() -> None:
                     f"the pond")
 
 
+def test_garden_pavilion_is_a_waterside_pavilion() -> None:
+    """The garden 亭 must sit on a pond bank, not across the garden lawn."""
+    for i in range(VARIANT_COUNT):
+        compound = generate_mansion(BASE_SEED + i)
+        pavilion = next((n for n in compound.parcel_nodes
+                         if n.type == "garden_pavilion"), None)
+        pond = next((n for n in compound.parcel_nodes
+                     if n.type == "garden_pond"), None)
+        _assert(pavilion is not None,
+                f"mansion_{i+1:03d} has no garden_pavilion")
+        _assert(pond is not None,
+                f"mansion_{i+1:03d} has no garden_pond")
+        touches_water = any(
+            (x + dx, z + dz) in pond.cells
+            for x, z in pavilion.cells
+            for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1))
+        )
+        _assert(touches_water,
+                f"mansion_{i+1:03d} garden_pavilion center "
+                f"{pavilion.meta.get('center')} is detached from pond "
+                f"{pond.meta.get('bbox')}")
+
+
 def test_waterside_gallery_is_short_straight_strip() -> None:
     """Visual guard: the 水边廊 is a composed short run, not the whole noisy shore."""
     for i in range(VARIANT_COUNT):

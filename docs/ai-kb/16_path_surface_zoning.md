@@ -82,7 +82,9 @@ the passage, so the formal/tour cell intersection is empty by construction.
 
 `PATH_WATERSIDE` writes `stone_brick_stairs` descending to the waterline, then a
 **slab bridge** (`oak_slab`/`spruce_slab` at the water surface y) spanning the
-pond's narrowest crossing to the 亭/island. A slab is a flat, walkable,
+pond's narrowest crossing to the 亭/island. The `garden_pavilion` is selected
+from dry pond-bank candidates and must have a footprint cell 4-adjacent to pond
+water, so it reads as a 水亭 rather than a detached garden building. A slab is a flat, walkable,
 water-surface block — it reads as a plank bridge. The deleted 汀步
 `rockery_block` spike-row ("一列小尖刺") is **not** restored; the spike problem
 was the block choice, not the crossing geometry. Lily pads are intentionally
@@ -119,6 +121,8 @@ footprints so the 主院 heart falls through to `GROUND_YARD_OPEN` grass.
 - `waterside_gallery_clutter:*` and `pond_lily_clutter:<cell>` — the 水边廊 is
   one short straight strip, does not overlap water/rockery/bridge, and the
   bridge/gallery clear-water lanes stay free of lily pads.
+- `garden_pavilion_detached_from_pond:*` — the 亭 remains a dry pond-bank
+  pavilion with direct water adjacency.
 - `back_yard_garden_overlap` and `tower_overlaps_garden` — the 后院/花园 bands
   stay separated and no `tower_house` footprint overlaps 花园 feature cells.
 

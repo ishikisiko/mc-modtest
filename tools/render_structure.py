@@ -1492,6 +1492,17 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         help="Block radius around the anchor considered for the cluster.",
     )
     p.add_argument(
+        "--target",
+        nargs=3,
+        type=float,
+        metavar=("X", "Y", "Z"),
+        default=None,
+        help=(
+            "Optional explicit camera look-at point. The scanned bbox is still "
+            "used for chunk loading and framing diagnostics."
+        ),
+    )
+    p.add_argument(
         "--views",
         nargs="+",
         default=None,
@@ -1597,12 +1608,13 @@ def main(argv: list[str]) -> int:
         tag_prefix=args.tag_prefix,
         search_radius=args.search_radius,
     )
-    target = tuple(bbox["center"])
+    target = tuple(args.target) if args.target else tuple(bbox["center"])
     print(
         f"[scan] bbox min={bbox['min']} max={bbox['max']} "
         f"size={bbox['size']} blocks={bbox['block_count']}"
     )
-    print(f"[scan] target center = ({target[0]:.1f}, {target[1]:.1f}, {target[2]:.1f})")
+    target_label = "override target" if args.target else "target center"
+    print(f"[scan] {target_label} = ({target[0]:.1f}, {target[1]:.1f}, {target[2]:.1f})")
     print(f"[scan] top blocks: {bbox['top_blocks'][:6]}")
 
     chunk_list = chunks_around_bbox(bbox, pad=2)
@@ -1638,6 +1650,7 @@ def main(argv: list[str]) -> int:
         "anchor": args.anchor,
         "bbox": bbox,
         "target_center": list(target),
+        "target_override": list(args.target) if args.target else None,
         "chunk_list": chunk_list,
         "view_plan": plan_name,
         "base_distance": distance,

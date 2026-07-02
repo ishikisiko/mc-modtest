@@ -69,3 +69,11 @@
 - [x] 7.3 Reduce pond surface clutter: cap lily-pad density and clear lily pads from bridge/gallery clear-water lanes.
 - [x] 7.4 Add validator/test guards for the low-angle failure mode: `waterside_gallery_clutter:*` and `pond_lily_clutter:*`, plus path-termini regression checks that the gallery is a short straight strip and does not overlap water/rockery/bridge.
 - [x] 7.5 Regenerate `chinese_mansion_001..006.nbt`, run mansion/tour/path validator coverage, refresh visual preview / Chunky acceptance artifacts, and inspect the updated water-garden PNGs before re-reporting visual acceptance.
+
+## 8. 水亭主体视角与定位修复 (Arc 8 — elevated after focused water-court review)
+
+- [x] 8.1 Add an explicit `--target X Y Z` look-at override to `tools/render_structure.py` so focused visual review can aim at the water pavilion / pond center instead of the scanned bbox center.
+- [x] 8.2 Replace the old west-band `garden_pavilion` placement with a dry pond-bank selector: the pavilion footprint must be 4-adjacent to pond water and avoid water, rockery, walls, and buildings.
+- [x] 8.3 Add validator/test guards for the detached-pavilion failure mode: `garden_pavilion_detached_from_pond:*` plus a path-termini regression over all six mansion seeds.
+- [x] 8.4 Regenerate `chinese_mansion_001..006.nbt` under full and vanilla proof profiles; rerun mansion/tour/path/render-tool validation.
+- [x] 8.5 Re-render focused water-pavilion Chunky PNGs with explicit `--target`, inspect the original images, refresh visual acceptance output, then report the corrected conclusion.

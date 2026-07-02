@@ -40,6 +40,12 @@ together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
   pond/rockery/bridge, and bridge/gallery clear-water lanes are kept free of
   lily-pad clutter. `validate_mansion` now reports
   `waterside_gallery_clutter:*` and `pond_lily_clutter:*` for regressions.
+- Fixed the focused 水亭 composition: `garden_pavilion` now chooses a dry
+  pond-bank footprint adjacent to pond water instead of the stale west-band
+  placement, and `validate_mansion` reports
+  `garden_pavilion_detached_from_pond:*` if it drifts away again.
+- Added `tools/render_structure.py --target X Y Z` for focused Chunky look-at
+  renders when the scanned bbox center is not the visual subject.
 
 ## 0.18.0
 
