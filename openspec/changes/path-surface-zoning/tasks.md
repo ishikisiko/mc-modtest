@@ -77,3 +77,9 @@
 - [x] 8.3 Add validator/test guards for the detached-pavilion failure mode: `garden_pavilion_detached_from_pond:*` plus a path-termini regression over all six mansion seeds.
 - [x] 8.4 Regenerate `chinese_mansion_001..006.nbt` under full and vanilla proof profiles; rerun mansion/tour/path/render-tool validation.
 - [x] 8.5 Re-render focused water-pavilion Chunky PNGs with explicit `--target`, inspect the original images, refresh visual acceptance output, then report the corrected conclusion.
+
+## 9. 水亭屋顶默认楼梯块修复 (Arc 9 — elevated after focused water-court review)
+
+- [x] 9.1 Replace the `garden_pavilion` raw stair ridge cap with a low two-step slab roof so the roof no longer renders as a floating "briefs" shape.
+- [x] 9.2 Add a path-termini regression that rejects raw default stair caps around the water-pavilion roof.
+- [x] 9.3 Regenerate `chinese_mansion_001..006.nbt`, rerun mansion/tour/path validation, rebuild the jar, re-place the mansion in Chunky Stage 2, and inspect the focused water-pavilion PNGs before reporting acceptance.

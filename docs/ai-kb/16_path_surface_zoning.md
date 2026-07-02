@@ -84,7 +84,9 @@ the passage, so the formal/tour cell intersection is empty by construction.
 **slab bridge** (`oak_slab`/`spruce_slab` at the water surface y) spanning the
 pond's narrowest crossing to the 亭/island. The `garden_pavilion` is selected
 from dry pond-bank candidates and must have a footprint cell 4-adjacent to pond
-water, so it reads as a 水亭 rather than a detached garden building. A slab is a flat, walkable,
+water, so it reads as a 水亭 rather than a detached garden building. Its roof is
+a low two-step slab cap (5x5 eave layer + 3x3 upper layer), not a raw stair
+ridge cap, so it does not produce a floating default-stair artifact. A slab is a flat, walkable,
 water-surface block — it reads as a plank bridge. The deleted 汀步
 `rockery_block` spike-row ("一列小尖刺") is **not** restored; the spike problem
 was the block choice, not the crossing geometry. Lily pads are intentionally

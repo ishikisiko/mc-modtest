@@ -46,6 +46,9 @@ together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
   `garden_pavilion_detached_from_pond:*` if it drifts away again.
 - Added `tools/render_structure.py --target X Y Z` for focused Chunky look-at
   renders when the scanned bbox center is not the visual subject.
+- Replaced the water pavilion's raw stair ridge cap with a low two-step slab
+  roof so focused low-angle renders no longer show a floating default-stair
+  artifact above the 亭.
 
 ## 0.18.0
 

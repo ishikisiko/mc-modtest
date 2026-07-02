@@ -124,6 +124,36 @@ def test_garden_pavilion_is_a_waterside_pavilion() -> None:
                 f"{pond.meta.get('bbox')}")
 
 
+def test_garden_pavilion_roof_has_no_default_stair_cap() -> None:
+    """The water pavilion roof must not use raw default stairs as a floating cap."""
+    for i in range(VARIANT_COUNT):
+        compound = generate_mansion(BASE_SEED + i)
+        pavilion = next((n for n in compound.parcel_nodes
+                         if n.type == "garden_pavilion"), None)
+        _assert(pavilion is not None,
+                f"mansion_{i+1:03d} has no garden_pavilion")
+        cx, cz = pavilion.meta["center"]
+        base_y = pavilion.meta["base_y"]
+        roof_cells = 0
+        raw_stairs = []
+        for x in range(cx - 2, cx + 3):
+            for z in range(cz - 2, cz + 3):
+                for y in (base_y + 4, base_y + 5):
+                    cell = compound.grid.get((x, y, z))
+                    if cell is None or cell.slot != "ROOF_DARK":
+                        continue
+                    roof_cells += 1
+                    state = cell.state
+                    if state.endswith("_stairs") and "[" not in state:
+                        raw_stairs.append((x, y, z, state))
+        _assert(roof_cells >= 25,
+                f"mansion_{i+1:03d} garden_pavilion roof is too sparse: "
+                f"{roof_cells} roof cells")
+        _assert(not raw_stairs,
+                f"mansion_{i+1:03d} garden_pavilion has raw stair roof cap: "
+                f"{raw_stairs[:4]}")
+
+
 def test_waterside_gallery_is_short_straight_strip() -> None:
     """Visual guard: the 水边廊 is a composed short run, not the whole noisy shore."""
     for i in range(VARIANT_COUNT):

@@ -1212,8 +1212,8 @@ def place_garden_pavilion(compound: CompoundGraph, center: Cell2, size: int,
     """garden_pavilion parcel renderer (task 5.5).
 
     A small open-sided 亭: 4 standoff columns at the COLUMN slot (one per
-    corner of a ``size``×``size`` plan), a ``chinese_round_ridge`` (卷棚) roof
-    slab capping the columns, no walls. Supports standalone-on-ground
+    corner of a ``size``×``size`` plan), a low stepped slab roof capping the
+    columns, no walls. Supports standalone-on-ground
     (``base_y`` = ground surface) and on-rockery-peak (``base_y`` = the
     rockery's standable top). Reuses the cultivation pavilion geometry pattern
     (4 columns + open eave) per the garden-rockery spec.
@@ -1222,7 +1222,6 @@ def place_garden_pavilion(compound: CompoundGraph, center: Cell2, size: int,
     half = size // 2
     column = style.primary("COLUMN")
     roof = style.slot_entry("ROOF_DARK", "_slab")
-    cap = style.slot_entry("ROOF_DARK", "_stairs")
     cells: Set[Cell2] = set()
     corners = [(cx - half, cz - half), (cx + half, cz - half),
                (cx - half, cz + half), (cx + half, cz + half)]
@@ -1232,17 +1231,23 @@ def place_garden_pavilion(compound: CompoundGraph, center: Cell2, size: int,
             compound.grid.set((x, y, z), column, ["DETAIL", "STRUCTURE"],
                               PRIORITY["DETAIL"], "COLUMN")
         cells.add((x, z))
-    # Roof slab (chinese_round_ridge 卷棚 reads as a slab cap on 4 columns).
+    # Footprint cells remain the dry walkable pavilion footprint. The roof may
+    # overhang the pond bank, but the parcel footprint should not.
     for x in range(cx - half, cx + half + 1):
         for z in range(cz - half, cz + half + 1):
+            cells.add((x, z))
+    # Low two-step slab roof. The previous raw stair ridge had no facing/shape
+    # properties and rendered as a detached "briefs" shape over the pavilion.
+    eave = half + 1
+    for x in range(cx - eave, cx + eave + 1):
+        for z in range(cz - eave, cz + eave + 1):
             compound.grid.set((x, base_y + 4, z), roof, ["DETAIL", "ROOF"],
                               PRIORITY["DETAIL"], "ROOF_DARK")
-            cells.add((x, z))
-    # Ridge cap running across the center (the 卷棚 ridge).
-    ridge_axis = "x" if size >= 3 else "x"
     for x in range(cx - half, cx + half + 1):
-        compound.grid.set((x, base_y + 5, cz), cap, ["DETAIL", "ROOF"],
-                          PRIORITY["DETAIL"], "ROOF_DARK")
+        for z in range(cz - half, cz + half + 1):
+            compound.grid.set((x, base_y + 5, z), roof, ["DETAIL", "ROOF"],
+                              PRIORITY["DETAIL"], "ROOF_DARK")
+    ridge_axis = "x" if size >= 3 else "x"
     node = ParcelNode("garden_pavilion", "garden_pavilion", cells, {
         "center": list(center),
         "size": size,

@@ -7,7 +7,9 @@ wall) and SHALL contain at least one of each: `garden_pond`, `garden_rockery`,
 `garden_pavilion`, plus a `PATH_TOUR` 曲径 connecting the 月洞门 passage to each
 feature. The `garden_pavilion` SHALL sit on a dry pond bank with its footprint
 4-adjacent to pond water so it reads as a 水亭 rather than a detached garden
-building. A 水边廊 (shoreside `covered_gallery` variant) SHALL line one clean
+building. The `garden_pavilion` roof SHALL be a contiguous low roof cap
+supported by its columns and SHALL NOT use raw/default stair blocks as a
+floating ridge cap. A 水边廊 (shoreside `covered_gallery` variant) SHALL line one clean
 pond-shore run as a short straight two-cell-deep gallery, and a `PATH_WATERSIDE`
 stairs + slab bridge SHALL cross the pond to the 亭 or island rockery. The
 水边廊 SHALL NOT overlap the pond water, the island rockery, or the bridge, and
@@ -39,6 +41,13 @@ rockery/pond.
   `garden_pond` water
 - **AND** the pavilion SHALL NOT be placed on the far side of the garden lawn
   without a direct pond edge.
+
+#### Scenario: The pavilion roof is not a floating default-stair cap
+
+- **WHEN** the `garden_pavilion` roof is placed
+- **THEN** the roof SHALL form a contiguous cap over the pavilion columns
+- **AND** no raw/default stair state SHALL be used as a detached ridge cap above
+  the pavilion.
 
 #### Scenario: The pond composition stays visually separated
 

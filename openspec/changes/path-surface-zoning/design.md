@@ -579,6 +579,26 @@ is no longer forced to the whole cluster center.
 water, or has no footprint cell 4-adjacent to pond water. `test_path_termini.py`
 locks this for all six shipped mansion seeds.
 
+### D15: 水亭屋顶修复 — no raw default stair ridge cap (Arc 9)
+
+**Choice.** Focused water-court review also exposed a roof-form artifact on the
+newly visible water pavilion: the pavilion used three raw `ROOF_DARK` stair
+blocks at `base_y + 5` as a ridge cap. Those stairs carried no explicit facing
+or shape properties, and at low angle they read as a detached "briefs" shape
+hovering above the亭.
+
+The fix is to remove that raw stair ridge and render the pavilion roof as a
+low two-step slab cap:
+
+- A 5x5 lower slab layer gives the 3x3 pavilion a one-cell eave overhang.
+- A 3x3 upper slab layer sits over the supported footprint.
+- The parcel footprint remains the dry 3x3 pavilion footprint; roof overhangs
+  do not turn pond/water cells into pavilion cells.
+
+**Guards.** `test_path_termini.py` rejects any raw default stair state around
+the `garden_pavilion` roof and asserts the roof has a non-sparse cap over the
+columns.
+
 ## Risks / Trade-offs
 
 - **[Tour waypoint routing may produce a path that overlaps the formal backbone

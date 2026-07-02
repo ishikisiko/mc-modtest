@@ -148,7 +148,7 @@ a waypoint polyline 假山→水岸→亭), and the waterside stairs + slab brid
 (`PATH_GALLERY`), and 夹道 (`PATH_ALLEY`) around the open grass. The mansion
 garden gains the 月洞门 穿墙通道 (the formal↔tour material boundary), the 水边廊
 as one short straight run on a clean pond bank, a dry-bank 水亭 that directly
-touches the pond edge, and a 仆役房 along the 倒座 夹道;
+touches the pond edge with a low two-step slab roof, and a 仆役房 along the 倒座 夹道;
 the cross-pond 汀步 spike-row is replaced by a flat slab bridge, with sparse
 lily pads kept out of the bridge/gallery clear-water lanes. The 水边廊 and
 mansion 主院 抄手游廊 are now real 3D galleries with floor, columns, balustrade,
