@@ -49,6 +49,10 @@ together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 - Replaced the water pavilion's raw stair ridge cap with a low two-step slab
   roof so focused low-angle renders no longer show a floating default-stair
   artifact above the 亭.
+- Lightened the pond closeup wood forms after visual review: the 水亭 now uses
+  fence posts with a thin explicit stair eave and one center cap, and the short
+  水边廊 uses compact posts with roof limited to the post line so it stays open
+  instead of reading as a 3x2 shed.
 
 ## 0.18.0
 

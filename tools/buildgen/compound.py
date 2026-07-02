@@ -1211,21 +1211,27 @@ def place_garden_pavilion(compound: CompoundGraph, center: Cell2, size: int,
                           roof_grade: str = "chinese_round_ridge") -> ParcelNode:
     """garden_pavilion parcel renderer (task 5.5).
 
-    A small open-sided 亭: 4 standoff columns at the COLUMN slot (one per
-    corner of a ``size``×``size`` plan), a low stepped slab roof capping the
-    columns, no walls. Supports standalone-on-ground
+    A small open-sided 亭: 4 light standoff columns (one per corner of a
+    ``size``×``size`` plan), a thin slab roof capping the columns, no walls.
+    Supports standalone-on-ground
     (``base_y`` = ground surface) and on-rockery-peak (``base_y`` = the
     rockery's standable top). Reuses the cultivation pavilion geometry pattern
     (4 columns + open eave) per the garden-rockery spec.
     """
     cx, cz = center
     half = size // 2
-    column = style.primary("COLUMN")
-    roof = style.slot_entry("ROOF_DARK", "_slab")
+    column = style.slot_entry(
+        "DETAIL_WOOD", "_fence",
+        style.slot_entry("COLUMN", "_fence", style.primary("COLUMN")),
+    )
+    roof_slab = style.slot_entry("ROOF_DARK", "_slab")
+    roof_stairs = style.slot_entry("ROOF_DARK", "_stairs", "minecraft:dark_oak_stairs")
     cells: Set[Cell2] = set()
     corners = [(cx - half, cz - half), (cx + half, cz - half),
                (cx - half, cz + half), (cx + half, cz + half)]
-    # 4 standoff columns, 3 tall (eave height), carrying the roof.
+    # 4 standoff columns, 3 tall (eave height), carrying the roof. Fence posts
+    # keep the small water pavilion from reading as a squat log shed in low
+    # visual review.
     for (x, z) in corners:
         for y in range(base_y + 1, base_y + 4):
             compound.grid.set((x, y, z), column, ["DETAIL", "STRUCTURE"],
@@ -1236,17 +1242,30 @@ def place_garden_pavilion(compound: CompoundGraph, center: Cell2, size: int,
     for x in range(cx - half, cx + half + 1):
         for z in range(cz - half, cz + half + 1):
             cells.add((x, z))
-    # Low two-step slab roof. The previous raw stair ridge had no facing/shape
-    # properties and rendered as a detached "briefs" shape over the pavilion.
+    # Thin sloped-eave roof. The previous raw stair ridge had no facing/shape
+    # properties and rendered as a detached "briefs" shape over the pavilion;
+    # the later flat 5x5 slab cap fixed that artifact but still read like a
+    # wooden platform in pond closeups. Keep the full 5x5 eave footprint, but
+    # make the outer edge a real sloped stair eave and reduce the upper cap to
+    # a single center tile.
     eave = half + 1
     for x in range(cx - eave, cx + eave + 1):
         for z in range(cz - eave, cz + eave + 1):
-            compound.grid.set((x, base_y + 4, z), roof, ["DETAIL", "ROOF"],
+            facing = None
+            if z == cz - eave:
+                facing = "north"
+            elif z == cz + eave:
+                facing = "south"
+            elif x == cx - eave:
+                facing = "west"
+            elif x == cx + eave:
+                facing = "east"
+            state = (f"{roof_stairs}[facing={facing},half=bottom]"
+                     if facing else roof_slab)
+            compound.grid.set((x, base_y + 4, z), state, ["DETAIL", "ROOF"],
                               PRIORITY["DETAIL"], "ROOF_DARK")
-    for x in range(cx - half, cx + half + 1):
-        for z in range(cz - half, cz + half + 1):
-            compound.grid.set((x, base_y + 5, z), roof, ["DETAIL", "ROOF"],
-                              PRIORITY["DETAIL"], "ROOF_DARK")
+    compound.grid.set((cx, base_y + 5, cz), roof_slab, ["DETAIL", "ROOF"],
+                      PRIORITY["DETAIL"], "ROOF_DARK")
     ridge_axis = "x" if size >= 3 else "x"
     node = ParcelNode("garden_pavilion", "garden_pavilion", cells, {
         "center": list(center),
@@ -1255,6 +1274,7 @@ def place_garden_pavilion(compound: CompoundGraph, center: Cell2, size: int,
         "roof_grade": roof_grade,
         "ridge_axis": ridge_axis,
         "open_sided": True,
+        "roof_form": "thin_slab_eave",
         "columns": [list(c) for c in corners],
     })
     compound.parcel_nodes.append(node)
@@ -1266,6 +1286,8 @@ def _place_covered_gallery_3d(compound: "CompoundGraph", style: "Style",
                               open_side: Optional[str],
                               post_side: Optional[str] = None,
                               rail_on_footprint: bool = False,
+                              roof_on_post_line_only: bool = False,
+                              light_posts: bool = False,
                               roof_form: str = "single_slope") -> None:
     """3D covered-gallery renderer (path-surface-zoning Arc 5).
 
@@ -1304,13 +1326,26 @@ def _place_covered_gallery_3d(compound: "CompoundGraph", style: "Style",
     roof_form:
         ``"single_slope"`` (default) writes a single-slope ROOF_DARK stairs roof,
         low toward ``open_side``.
+    roof_on_post_line_only:
+        For very short waterside galleries, write the roof only on the post
+        line so the strip reads as an open 廊, not a closed 3x2 wooden shed.
+    light_posts:
+        Use fence posts instead of full log columns for compact waterside
+        galleries, whose short footprint otherwise reads as a tiny wooden shed.
     """
-    column = style.primary("COLUMN")
+    if light_posts:
+        column = style.slot_entry(
+            "DETAIL_WOOD", "_fence",
+            style.slot_entry("COLUMN", "_fence", style.primary("COLUMN")),
+        )
+    else:
+        column = style.primary("COLUMN")
     # BALUSTRADE is an OPTIONAL slot; fall back to a DETAIL_WOOD fence so a
     # style without BALUSTRADE still gets a railing (mansion defines BALUSTRADE).
     rail = (style.primary("BALUSTRADE") if style.has_slot("BALUSTRADE")
             else style.slot_entry("DETAIL_WOOD", "fence", "minecraft:oak_fence"))
     roof_stairs = style.slot_entry("ROOF_DARK", "_stairs", "minecraft:dark_oak_stairs")
+    roof_slab = style.slot_entry("ROOF_DARK", "_slab", "minecraft:dark_oak_slab")
     roof_y = base_y + 3
     column_top = base_y + 2  # columns are 2 tall: base_y+1 .. base_y+2
 
@@ -1347,16 +1382,22 @@ def _place_covered_gallery_3d(compound: "CompoundGraph", style: "Style",
                           ["DETAIL", "GROUND", "PROTECTED"], PRIORITY["DETAIL"],
                           "PATH_GALLERY", force=True)
         # Column posts on the post-side line only, every other cell along the run.
-        if _is_post_line(x, z):
+        is_post_line = _is_post_line(x, z)
+        if is_post_line:
             if post_idx % 2 == 0:
                 for y in range(base_y + 1, column_top + 1):
                     compound.grid.set((x, y, z), column, ["DETAIL", "STRUCTURE"],
                                       PRIORITY["DETAIL"], "COLUMN")
             post_idx += 1
         # Single-slope roof: a bottom-half stairs descending toward open_side.
-        compound.grid.set((x, roof_y, z),
-                          f"{roof_stairs}[facing={stairs_facing},half=bottom]",
-                          ["DETAIL", "ROOF"], PRIORITY["DETAIL"], "ROOF_DARK")
+        if roof_on_post_line_only:
+            if is_post_line:
+                compound.grid.set((x, roof_y, z), roof_slab,
+                                  ["DETAIL", "ROOF"], PRIORITY["DETAIL"], "ROOF_DARK")
+        else:
+            compound.grid.set((x, roof_y, z),
+                              f"{roof_stairs}[facing={stairs_facing},half=bottom]",
+                              ["DETAIL", "ROOF"], PRIORITY["DETAIL"], "ROOF_DARK")
 
     # Balustrade on the open edge(s). Main-yard galleries keep the rail just
     # outside the footprint so the walkway stays clear. Waterside galleries set
@@ -4102,7 +4143,9 @@ def _layout_garden(compound: CompoundGraph, style: Style, bands: dict,
         # to the pond with a supported low railing.
         _place_covered_gallery_3d(compound, style, shore, base_y,
                                   open_side=water_side, post_side=water_side,
-                                  rail_on_footprint=True)
+                                  rail_on_footprint=True,
+                                  roof_on_post_line_only=True,
+                                  light_posts=True)
         clear = water_edge | (_chebyshev_ring(water_edge) & set(water_cells))
         _clear_lily_pads(compound, clear)
         compound.parcel_nodes.append(

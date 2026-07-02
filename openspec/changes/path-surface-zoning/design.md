@@ -588,16 +588,37 @@ or shape properties, and at low angle they read as a detached "briefs" shape
 hovering above the亭.
 
 The fix is to remove that raw stair ridge and render the pavilion roof as a
-low two-step slab cap:
+thin slab eave cap:
 
 - A 5x5 lower slab layer gives the 3x3 pavilion a one-cell eave overhang.
-- A 3x3 upper slab layer sits over the supported footprint.
+- A single center slab sits above the eave as the only upper cap.
 - The parcel footprint remains the dry 3x3 pavilion footprint; roof overhangs
   do not turn pond/water cells into pavilion cells.
 
 **Guards.** `test_path_termini.py` rejects any raw default stair state around
 the `garden_pavilion` roof and asserts the roof has a non-sparse cap over the
-columns.
+columns without a bulky upper slab mass.
+
+### D16: 水庭木构比例修复 — 亭要轻，廊要开 (Arc 10)
+
+**Choice.** The pond closeup showed two wooden forms still read too heavy after
+the structural fixes: the pond-bank 亭 looked like a square wooden lid on log
+posts, and the very short 水边廊 read as a 3x2 closed shed. The route nodes are
+still correct, so the fix is proportion, not deletion.
+
+- **Water pavilion:** keep the dry 3x3 pond-bank footprint and 5x5 eave, but
+  use fence posts for the four supports, render the eave edge with explicitly
+  faced stair blocks, and reduce the upper roof to one center slab. This
+  preserves the open 亭 while avoiding the previous box-lid mass.
+- **Waterside gallery:** keep the validated short, straight, two-cell-deep
+  footprint, because forcing it longer would overlap pond/bridge/rockery
+  clearance. Render the roof only on the post line for waterside galleries; the
+  water-edge row remains an open floor + railing edge, so the form reads as a
+  廊 rather than a closed wooden shed.
+
+**Guards.** `test_path_termini.py` now asserts the water pavilion uses fence
+posts and only one upper roof cell, and that the 水边廊 uses compact fence posts
+with a roof that does not cover the entire two-cell-deep footprint.
 
 ## Risks / Trade-offs
 

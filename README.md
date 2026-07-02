@@ -148,11 +148,11 @@ a waypoint polyline 假山→水岸→亭), and the waterside stairs + slab brid
 (`PATH_GALLERY`), and 夹道 (`PATH_ALLEY`) around the open grass. The mansion
 garden gains the 月洞门 穿墙通道 (the formal↔tour material boundary), the 水边廊
 as one short straight run on a clean pond bank, a dry-bank 水亭 that directly
-touches the pond edge with a low two-step slab roof, and a 仆役房 along the 倒座 夹道;
+touches the pond edge with fence posts and a thin sloped-eave roof, and a 仆役房 along the 倒座 夹道;
 the cross-pond 汀步 spike-row is replaced by a flat slab bridge, with sparse
 lily pads kept out of the bridge/gallery clear-water lanes. The 水边廊 and
 mansion 主院 抄手游廊 are now real 3D galleries with floor, columns, balustrade,
-and roof;
+and roof, with the short 水边廊 using compact posts and kept open rather than shed-like;
 the 绣楼 sits in its own 后院 instead of the 花园, and the 主院 heart remains
 grass rather than a full-width stone platform. `/myvillage place` ids are
 unchanged — only the surface materials, gallery realization, and garden routing

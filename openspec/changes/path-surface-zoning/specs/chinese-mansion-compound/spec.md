@@ -7,14 +7,16 @@ wall) and SHALL contain at least one of each: `garden_pond`, `garden_rockery`,
 `garden_pavilion`, plus a `PATH_TOUR` 曲径 connecting the 月洞门 passage to each
 feature. The `garden_pavilion` SHALL sit on a dry pond bank with its footprint
 4-adjacent to pond water so it reads as a 水亭 rather than a detached garden
-building. The `garden_pavilion` roof SHALL be a contiguous low roof cap
-supported by its columns and SHALL NOT use raw/default stair blocks as a
-floating ridge cap. A 水边廊 (shoreside `covered_gallery` variant) SHALL line one clean
-pond-shore run as a short straight two-cell-deep gallery, and a `PATH_WATERSIDE`
-stairs + slab bridge SHALL cross the pond to the 亭 or island rockery. The
-水边廊 SHALL NOT overlap the pond water, the island rockery, or the bridge, and
-SHALL NOT consume the whole freeform shoreline. The 花园 SHALL NOT contain full
-enclosed buildings (亭 are open-sided, per `garden-rockery`).
+building. The `garden_pavilion` roof SHALL be a contiguous thin sloped-eave
+roof cap supported by light posts and SHALL NOT use raw/default stair blocks as
+a floating ridge cap or a bulky upper slab mass. A 水边廊 (shoreside
+`covered_gallery` variant) SHALL line one clean pond-shore run as a short
+straight two-cell-deep gallery, and a `PATH_WATERSIDE` stairs + slab bridge
+SHALL cross the pond to the 亭 or island rockery. The 水边廊 SHALL NOT overlap
+the pond water, the island rockery, or the bridge, SHALL NOT consume the whole
+freeform shoreline, and its waterside roof SHALL NOT cover the whole two-cell
+footprint as a closed wooden shed. The 花园 SHALL NOT contain full enclosed
+buildings (亭 are open-sided, per `garden-rockery`).
 
 The tour route through the 花园 SHALL be a waypoint polyline (not a
 shortest-path tree), routed from the `moon_gate_passage` through the rockery
@@ -47,7 +49,15 @@ rockery/pond.
 - **WHEN** the `garden_pavilion` roof is placed
 - **THEN** the roof SHALL form a contiguous cap over the pavilion columns
 - **AND** no raw/default stair state SHALL be used as a detached ridge cap above
-  the pavilion.
+  the pavilion
+- **AND** the upper cap SHALL be smaller than the lower eave layer so the roof
+  does not read as a heavy wooden box.
+
+#### Scenario: The waterside gallery remains open rather than shed-like
+
+- **WHEN** the 水边廊 is rendered on a short two-cell-deep footprint
+- **THEN** it SHALL still have a roof and balustrade
+- **AND** the roof SHALL NOT cover every footprint cell.
 
 #### Scenario: The pond composition stays visually separated
 

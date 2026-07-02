@@ -85,8 +85,8 @@ the passage, so the formal/tour cell intersection is empty by construction.
 pond's narrowest crossing to the 亭/island. The `garden_pavilion` is selected
 from dry pond-bank candidates and must have a footprint cell 4-adjacent to pond
 water, so it reads as a 水亭 rather than a detached garden building. Its roof is
-a low two-step slab cap (5x5 eave layer + 3x3 upper layer), not a raw stair
-ridge cap, so it does not produce a floating default-stair artifact. A slab is a flat, walkable,
+a thin sloped-eave cap (5x5 explicit stair eave + one center upper slab) on
+fence posts, not a raw stair ridge cap or bulky upper slab mass. A slab is a flat, walkable,
 water-surface block — it reads as a plank bridge. The deleted 汀步
 `rockery_block` spike-row ("一列小尖刺") is **not** restored; the spike problem
 was the block choice, not the crossing geometry. Lily pads are intentionally
@@ -99,9 +99,13 @@ surface cells. `_place_covered_gallery_3d()` writes a `PATH_GALLERY` floor,
 2-high `COLUMN` posts, a `BALUSTRADE` fence row on the open side, and a
 single-slope `ROOF_DARK` roof. The 水边廊 keeps the `covered_gallery` parcel type
 but is **one short straight two-cell-deep run** on a clean pond bank, not every
-freeform shoreline cell. It must not overlap pond water, the island rockery, or
-the waterside bridge; the 主院 galleries tie the inner-gate flanks to the
-open-hall flanks when there is enough clear width.
+freeform shoreline cell. Because this run can be as short as 3x2 cells, the
+waterside form uses compact fence posts and writes the roof only on the post
+line, leaving the water-edge row open with railing so it reads as 廊 rather than
+a closed wooden shed. It must not
+overlap pond water, the island rockery, or the waterside bridge; the 主院
+galleries tie the inner-gate flanks to the open-hall flanks when there is enough
+clear width.
 
 The mansion back-yard bug was fixed in the same final pass. `generate_mansion`
 uses `_mansion_yard_depths()` to split 后院 and 花园 into separate z-bands, moves

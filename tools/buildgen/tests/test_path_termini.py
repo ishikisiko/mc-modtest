@@ -135,6 +135,7 @@ def test_garden_pavilion_roof_has_no_default_stair_cap() -> None:
         cx, cz = pavilion.meta["center"]
         base_y = pavilion.meta["base_y"]
         roof_cells = 0
+        upper_roof_cells = 0
         raw_stairs = []
         for x in range(cx - 2, cx + 3):
             for z in range(cz - 2, cz + 3):
@@ -143,15 +144,29 @@ def test_garden_pavilion_roof_has_no_default_stair_cap() -> None:
                     if cell is None or cell.slot != "ROOF_DARK":
                         continue
                     roof_cells += 1
+                    if y == base_y + 5:
+                        upper_roof_cells += 1
                     state = cell.state
                     if state.endswith("_stairs") and "[" not in state:
                         raw_stairs.append((x, y, z, state))
         _assert(roof_cells >= 25,
                 f"mansion_{i+1:03d} garden_pavilion roof is too sparse: "
                 f"{roof_cells} roof cells")
+        _assert(upper_roof_cells == 1,
+                f"mansion_{i+1:03d} garden_pavilion upper roof is too bulky: "
+                f"{upper_roof_cells} cells")
         _assert(not raw_stairs,
                 f"mansion_{i+1:03d} garden_pavilion has raw stair roof cap: "
                 f"{raw_stairs[:4]}")
+        for x, z in pavilion.meta["columns"]:
+            for y in range(base_y + 1, base_y + 4):
+                cell = compound.grid.get((x, y, z))
+                _assert(cell is not None and cell.slot == "COLUMN",
+                        f"mansion_{i+1:03d} garden_pavilion missing column at "
+                        f"{(x, y, z)}")
+                _assert("_fence" in cell.state,
+                        f"mansion_{i+1:03d} garden_pavilion column is too bulky: "
+                        f"{(x, y, z, cell.state)}")
 
 
 def test_waterside_gallery_is_short_straight_strip() -> None:
@@ -198,19 +213,31 @@ def test_waterside_gallery_is_a_real_3d_building() -> None:
         wg = next(n for n in compound.parcel_nodes if n.id == "waterside_gallery")
         base_y = min(__column_surface_y(compound, c) for c in wg.cells)
         slots_in_col = set()
+        roof_cells = []
+        column_states = []
         for (x, z) in wg.cells:
             for y in range(base_y, base_y + 5):
                 cell = compound.grid.get((x, y, z))
                 if cell is not None and getattr(cell, "slot", None):
                     slots_in_col.add(cell.slot)
+                    if cell.slot == "ROOF_DARK":
+                        roof_cells.append((x, y, z))
+                    if cell.slot == "COLUMN":
+                        column_states.append(cell.state)
         # Floor (PATH_GALLERY) + columns (COLUMN) + roof (ROOF_DARK) are mandatory;
         # balustrade (BALUSTRADE) sits on the open edge just outside the gallery.
         _assert("PATH_GALLERY" in slots_in_col,
                 f"mansion_{i+1:03d} 水边廊 has no PATH_GALLERY floor")
         _assert("COLUMN" in slots_in_col,
                 f"mansion_{i+1:03d} 水边廊 has no COLUMN posts (not a 3D gallery)")
+        _assert(column_states and all("_fence" in state for state in column_states),
+                f"mansion_{i+1:03d} 水边廊 compact posts are too bulky: "
+                f"{column_states}")
         _assert("ROOF_DARK" in slots_in_col,
                 f"mansion_{i+1:03d} 水边廊 has no ROOF_DARK roof (not a 3D gallery)")
+        _assert(0 < len(roof_cells) < len(wg.cells),
+                f"mansion_{i+1:03d} 水边廊 roof covers the whole footprint "
+                f"like a wooden shed: roof={roof_cells}, footprint={sorted(wg.cells)}")
         # Balustrade on the open edge, supported by the gallery floor for the
         # waterside case (not floating outside over water).
         open_side = wg.meta.get("water_side")

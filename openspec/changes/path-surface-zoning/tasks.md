@@ -83,3 +83,9 @@
 - [x] 9.1 Replace the `garden_pavilion` raw stair ridge cap with a low two-step slab roof so the roof no longer renders as a floating "briefs" shape.
 - [x] 9.2 Add a path-termini regression that rejects raw default stair caps around the water-pavilion roof.
 - [x] 9.3 Regenerate `chinese_mansion_001..006.nbt`, rerun mansion/tour/path validation, rebuild the jar, re-place the mansion in Chunky Stage 2, and inspect the focused water-pavilion PNGs before reporting acceptance.
+
+## 10. 水庭木构比例修复 (Arc 10 — elevated after pond closeup review)
+
+- [x] 10.1 Lighten the `garden_pavilion`: replace bulky log posts with fence posts, use a 5x5 explicit stair eave, and shrink the upper cap to a single center slab.
+- [x] 10.2 Lighten the short 水边廊: keep its two-cell-deep footprint, but render the waterside roof only on the post line so it reads as an open 廊 rather than a closed 3x2 wooden shed.
+- [x] 10.3 Regenerate `chinese_mansion_001..006.nbt`, rerun mansion/tour/path validation, rebuild the jar, re-place the mansion in Chunky Stage 2, and inspect a refreshed water-pond Chunky PNG before reporting acceptance.
