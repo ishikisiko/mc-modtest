@@ -146,13 +146,14 @@ the formal axis (青石 `PATH_FORMAL`), the winding garden tour (苔石 `PATH_TO
 a waypoint polyline 假山→水岸→亭), and the waterside stairs + slab bridge
 (`PATH_WATERSIDE`); the ground splits into 天井 心 (`GROUND_YARD_HEART`), 廊下
 (`PATH_GALLERY`), and 夹道 (`PATH_ALLEY`) around the open grass. The mansion
-garden gains the 月洞门 穿墙通道 (the formal↔tour material boundary), the 水边廊
-as one short straight run on a clean pond bank, a dry-bank 水亭 that directly
-touches the pond edge with fence posts and a thin sloped-eave roof, and a 仆役房 along the 倒座 夹道;
+garden gains the 月洞门 穿墙通道 (the formal↔tour material boundary), a dry-bank
+reference-style 水亭 that directly touches the pond edge with a raised stone
+base, dark wooden deck, heavy timber posts, lanterns, broad double eaves, and
+stone roof ornaments, and a 仆役房 along the 倒座 夹道;
 the cross-pond 汀步 spike-row is replaced by a flat slab bridge, with sparse
-lily pads kept out of the bridge/gallery clear-water lanes. The 水边廊 and
-mansion 主院 抄手游廊 are now real 3D galleries with floor, columns, balustrade,
-and roof, with the short 水边廊 using compact posts and kept open rather than shed-like;
+lily pads kept out of the bridge clear-water lane. The separate pond-side
+水边廊/shed was removed after reference-image review; the mansion 主院 抄手游廊
+remains a real 3D gallery with floor, columns, balustrade, and roof;
 the 绣楼 sits in its own 后院 instead of the 花园, and the 主院 heart remains
 grass rather than a full-width stone platform. `/myvillage place` ids are
 unchanged — only the surface materials, gallery realization, and garden routing
@@ -365,7 +366,7 @@ jar tf build/libs/*.jar | grep "assets/myvillage/textures/painting/inscription"
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.18.1.jar
+build/libs/myvillage-0.18.2.jar
 ```
 
 ## Versioning And Changelog
@@ -412,12 +413,12 @@ python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 
 python3 tools/write_visual_acceptance_report.py
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.18.1.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.18.1.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.18.1.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.18.1.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.18.1.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.18.1.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.18.2.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.18.2.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.18.2.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.18.2.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.18.2.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.18.2.jar | grep "assets/myvillage/textures/painting/inscription"
 ```
 
 Use the command list below as the acceptance script. Update this README,

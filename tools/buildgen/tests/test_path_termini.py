@@ -1,10 +1,10 @@
-"""Regression tests for the path termini: 仆役房 + 水边廊 (path-surface-zoning task 3).
+"""Regression tests for the path termini and water-garden visual composition.
 
 The 生活 route's endpoint is a ``service_house`` sub-building placed along the
 倒座 side alley; its ``door_info["front"]`` is a mandatory path endpoint, so the
-formal/service BFS reaches it. The 游赏 route's 水边廊 is a short, straight
-shoreside ``covered_gallery`` whose water-edge row lines the pond and resolves
-through ``PATH_GALLERY``.
+formal/service BFS reaches it. Arc 11 removes the separate waterside shed and
+turns the garden pavilion into a near-replica of the supplied heavy scenic
+pavilion reference.
 
 Run from the repository root:
     python3 tools/buildgen/tests/test_path_termini.py
@@ -72,33 +72,12 @@ def test_service_house_sits_on_the_south_wall_band() -> None:
                 f"the front-yard band (yimen~{yimen_z})")
 
 
-def test_every_mansion_has_a_shoreside_gallery() -> None:
+def test_every_mansion_has_no_separate_waterside_shed() -> None:
     for i in range(VARIANT_COUNT):
         compound = generate_mansion(BASE_SEED + i)
         wg = [n for n in compound.parcel_nodes if n.id == "waterside_gallery"]
-        _assert(len(wg) == 1,
-                f"mansion_{i+1:03d} expected one waterside_gallery, got {len(wg)}")
-
-
-def test_waterside_gallery_water_edge_is_adjacent_to_the_pond() -> None:
-    """The 水边廊 water-edge row must be 4-adjacent to pond water."""
-    for i in range(VARIANT_COUNT):
-        compound = generate_mansion(BASE_SEED + i)
-        wg = next(n for n in compound.parcel_nodes if n.id == "waterside_gallery")
-        pond = next((n for n in compound.parcel_nodes
-                     if n.type == "garden_pond"), None)
-        _assert(pond is not None, f"mansion_{i+1:03d} has no garden_pond")
-        water = pond.cells
-        water_edge = {tuple(c) for c in wg.meta.get("water_edge_cells", [])}
-        _assert(water_edge,
-                f"mansion_{i+1:03d} 水边廊 has no recorded water-edge row")
-        _assert(water_edge <= wg.cells,
-                f"mansion_{i+1:03d} 水边廊 water-edge cells are outside footprint")
-        for (gx, gz) in water_edge:
-            nbrs = {(gx + 1, gz), (gx - 1, gz), (gx, gz + 1), (gx, gz - 1)}
-            _assert(nbrs & water,
-                    f"mansion_{i+1:03d} 水边廊 edge cell {(gx, gz)} is not adjacent to "
-                    f"the pond")
+        _assert(not wg,
+                f"mansion_{i+1:03d} still has a separate waterside shed: {wg}")
 
 
 def test_garden_pavilion_is_a_waterside_pavilion() -> None:
@@ -122,10 +101,67 @@ def test_garden_pavilion_is_a_waterside_pavilion() -> None:
                 f"mansion_{i+1:03d} garden_pavilion center "
                 f"{pavilion.meta.get('center')} is detached from pond "
                 f"{pond.meta.get('bbox')}")
+        pond_z1 = pond.meta.get("bbox", [0, 0, 0, 0])[3]
+        pavilion_z0 = min(z for _, z in pavilion.cells)
+        _assert(pavilion_z0 > pond_z1,
+                f"mansion_{i+1:03d} garden_pavilion is not on the dry south bank: "
+                f"pavilion_z0={pavilion_z0}, pond_z1={pond_z1}")
+        _assert(pavilion.meta.get("water_side") == "north",
+                f"mansion_{i+1:03d} garden_pavilion water side is not north: "
+                f"{pavilion.meta.get('water_side')}")
+        _assert(pavilion.meta.get("entry_side") == "south",
+                f"mansion_{i+1:03d} garden_pavilion entry side is not south: "
+                f"{pavilion.meta.get('entry_side')}")
+        lot_w, _lot_d = compound.lot_size
+        center_x = int(pavilion.meta["center"][0])
+        _assert(abs(center_x - lot_w // 2) <= 2,
+                f"mansion_{i+1:03d} garden_pavilion is still an edge-corner object: "
+                f"center_x={center_x}, axis={lot_w // 2}")
+        opening = pavilion.meta.get("scenic_opening", {})
+        _assert(opening.get("side") == "south",
+                f"mansion_{i+1:03d} garden_pavilion has no south scenic opening")
+        z = int(opening.get("boundary_z", -1))
+        x0 = int(opening.get("x0", 0))
+        x1 = int(opening.get("x1", -1))
+        blocked = [
+            (x, y, z)
+            for x in range(x0, x1 + 1)
+            for y in range(0, 8)
+            if not compound.grid.is_empty((x, y, z))
+        ]
+        _assert(not blocked,
+                f"mansion_{i+1:03d} garden_pavilion scenic opening is blocked: "
+                f"{blocked[:6]}")
+        side_blocked = [
+            (x, y, z)
+            for x, z in (tuple(c) for c in opening.get("side_cells", []))
+            for y in range(0, 8)
+            if not compound.grid.is_empty((x, y, z))
+        ]
+        _assert(not side_blocked,
+                f"mansion_{i+1:03d} garden_pavilion side scenic opening is blocked: "
+                f"{side_blocked[:6]}")
+        backdrop = pavilion.meta.get("backdrop_opening", {})
+        _assert(backdrop,
+                f"mansion_{i+1:03d} garden_pavilion has no water backdrop opening")
+        bz = int(backdrop.get("wall_z", -1))
+        bx0 = int(backdrop.get("x0", 0))
+        bx1 = int(backdrop.get("x1", -1))
+        backdrop_blocked = [
+            (x, y, bz)
+            for x in range(bx0, bx1 + 1)
+            for y in range(0, 8)
+            if not compound.grid.is_empty((x, y, bz))
+        ]
+        _assert(not backdrop_blocked,
+                f"mansion_{i+1:03d} garden_pavilion backdrop opening is blocked: "
+                f"{backdrop_blocked[:6]}")
 
 
-def test_garden_pavilion_roof_has_no_default_stair_cap() -> None:
-    """The water pavilion roof must not use raw default stairs as a floating cap."""
+def test_garden_pavilion_replicates_reference_pavilion_parts() -> None:
+    """Arc 11: the water pavilion follows the supplied reference image:
+    raised stone base, wooden deck, heavy log posts, railings, lattice/bracket
+    details, hanging lanterns, double eaves, and grey stone roof ornaments."""
     for i in range(VARIANT_COUNT):
         compound = generate_mansion(BASE_SEED + i)
         pavilion = next((n for n in compound.parcel_nodes
@@ -134,140 +170,140 @@ def test_garden_pavilion_roof_has_no_default_stair_cap() -> None:
                 f"mansion_{i+1:03d} has no garden_pavilion")
         cx, cz = pavilion.meta["center"]
         base_y = pavilion.meta["base_y"]
-        roof_cells = 0
+        lower_half = pavilion.meta["lower_eave_half"]
+        upper_half = pavilion.meta["upper_eave_half"]
+        lower_eave_y = pavilion.meta.get("lower_eave_y", base_y + 5)
+        upper_eave_y = pavilion.meta.get("upper_eave_y", base_y + 6)
+        roof_layer_ys = {
+            int(layer["y"])
+            for layer in pavilion.meta.get("roof_layers", [])
+            if "y" in layer
+        } or {base_y + 5, base_y + 6, base_y + 7}
+        lower_roof_cells = 0
         upper_roof_cells = 0
         raw_stairs = []
-        for x in range(cx - 2, cx + 3):
-            for z in range(cz - 2, cz + 3):
-                for y in (base_y + 4, base_y + 5):
+        for x in range(cx - lower_half, cx + lower_half + 1):
+            for z in range(cz - lower_half, cz + lower_half + 1):
+                for y in roof_layer_ys:
                     cell = compound.grid.get((x, y, z))
                     if cell is None or cell.slot != "ROOF_DARK":
                         continue
-                    roof_cells += 1
-                    if y == base_y + 5:
+                    if y == lower_eave_y:
+                        lower_roof_cells += 1
+                    if y == upper_eave_y:
                         upper_roof_cells += 1
                     state = cell.state
                     if state.endswith("_stairs") and "[" not in state:
                         raw_stairs.append((x, y, z, state))
-        _assert(roof_cells >= 25,
-                f"mansion_{i+1:03d} garden_pavilion roof is too sparse: "
-                f"{roof_cells} roof cells")
-        _assert(upper_roof_cells == 1,
-                f"mansion_{i+1:03d} garden_pavilion upper roof is too bulky: "
-                f"{upper_roof_cells} cells")
+        _assert(pavilion.meta.get("roof_form") == "reference_heavy_double_eave",
+                f"mansion_{i+1:03d} garden_pavilion is not reference roof form: "
+                f"{pavilion.meta.get('roof_form')}")
+        _assert(pavilion.meta.get("size") >= 9,
+                f"mansion_{i+1:03d} garden_pavilion is too small: "
+                f"{pavilion.meta.get('size')}")
+        _assert(len(pavilion.meta.get("roof_layers", [])) >= 4,
+                f"mansion_{i+1:03d} garden_pavilion roof is not layered enough")
+        _assert(lower_roof_cells >= (2 * lower_half + 1) ** 2,
+                f"mansion_{i+1:03d} garden_pavilion lower eave is incomplete: "
+                f"{lower_roof_cells}")
+        _assert(upper_roof_cells >= (2 * upper_half + 1) ** 2,
+                f"mansion_{i+1:03d} garden_pavilion upper eave is incomplete: "
+                f"{upper_roof_cells}")
         _assert(not raw_stairs,
                 f"mansion_{i+1:03d} garden_pavilion has raw stair roof cap: "
                 f"{raw_stairs[:4]}")
         for x, z in pavilion.meta["columns"]:
-            for y in range(base_y + 1, base_y + 4):
+            for y in range(base_y + 1,
+                           int(pavilion.meta.get("column_top_y", base_y + 4)) + 1):
                 cell = compound.grid.get((x, y, z))
                 _assert(cell is not None and cell.slot == "COLUMN",
                         f"mansion_{i+1:03d} garden_pavilion missing column at "
                         f"{(x, y, z)}")
-                _assert("_fence" in cell.state,
-                        f"mansion_{i+1:03d} garden_pavilion column is too bulky: "
+                _assert("_fence" not in cell.state,
+                        f"mansion_{i+1:03d} garden_pavilion column is too light: "
                         f"{(x, y, z, cell.state)}")
+        _assert(len(pavilion.meta.get("lanterns", [])) >= 5,
+                f"mansion_{i+1:03d} garden_pavilion missing hanging lanterns")
+        _assert(len(pavilion.meta.get("visible_lamps", [])) >= 4,
+                f"mansion_{i+1:03d} garden_pavilion missing visible hanging lanterns")
+        for pos in pavilion.meta.get("visible_lamps", []):
+            cell = compound.grid.get(tuple(pos))
+            _assert(cell is not None and cell.state.startswith("minecraft:lantern["),
+                    f"mansion_{i+1:03d} garden_pavilion visible lamp is not a lantern: "
+                    f"{pos}")
+        _assert(len(pavilion.meta.get("lantern_cages", [])) >= 16,
+                f"mansion_{i+1:03d} garden_pavilion missing framed lantern cages")
+        for pos in pavilion.meta.get("lantern_cages", []):
+            cell = compound.grid.get(tuple(pos))
+            _assert(cell is not None and ("oak_" in cell.state or "trapdoor" in cell.state),
+                    f"mansion_{i+1:03d} garden_pavilion lantern cage is not light wood: "
+                    f"{pos}")
+        _assert(len(pavilion.meta.get("base_lanterns", [])) >= 4,
+                f"mansion_{i+1:03d} garden_pavilion missing base lanterns")
+        _assert(len(pavilion.meta.get("bracket_details", [])) >= 16,
+                f"mansion_{i+1:03d} garden_pavilion missing visible brackets")
+        visible_light_wood = 0
+        for pos in pavilion.meta.get("bracket_details", []):
+            cell = compound.grid.get(tuple(pos))
+            if cell is not None and ("oak_" in cell.state or "stripped_oak" in cell.state):
+                visible_light_wood += 1
+        _assert(visible_light_wood >= 12,
+                f"mansion_{i+1:03d} garden_pavilion brackets are too dark")
+        _assert(len(pavilion.meta.get("ridge_ornaments", [])) >= 5,
+                f"mansion_{i+1:03d} garden_pavilion missing stone roof ornaments")
+        for ox, oy, oz in pavilion.meta.get("ridge_ornaments", []):
+            below = compound.grid.get((ox, oy - 1, oz))
+            _assert(below is not None and below.state != "minecraft:air",
+                    f"mansion_{i+1:03d} garden_pavilion floating roof ornament "
+                    f"{(ox, oy, oz)}")
+        platform_half = pavilion.meta["platform_half"]
+        deck_cells = 0
+        stone_cells = 0
+        for x in range(cx - platform_half, cx + platform_half + 1):
+            for z in range(cz - platform_half, cz + platform_half + 1):
+                support = compound.grid.get((x, base_y - 1, z))
+                top = compound.grid.get((x, base_y, z))
+                if support is not None and support.slot == "PLATFORM_STONE":
+                    stone_cells += 1
+                if top is not None and top.slot == "PATH_GALLERY":
+                    deck_cells += 1
+        _assert(stone_cells >= (2 * platform_half + 1) ** 2,
+                f"mansion_{i+1:03d} garden_pavilion has incomplete stone base")
+        _assert(deck_cells >= 40,
+                f"mansion_{i+1:03d} garden_pavilion has too little wood deck")
 
 
-def test_waterside_gallery_is_short_straight_strip() -> None:
-    """Visual guard: the 水边廊 is a composed short run, not the whole noisy shore."""
+def test_garden_pavilion_has_reference_landscape_context() -> None:
+    """The reference image is not a bare wall courtyard: it has water beside the
+    pavilion, bamboo, flowers/grass, and a soft path in the foreground."""
     for i in range(VARIANT_COUNT):
         compound = generate_mansion(BASE_SEED + i)
-        wg = next(n for n in compound.parcel_nodes if n.id == "waterside_gallery")
-        pond = next(n for n in compound.parcel_nodes if n.type == "garden_pond")
-        rockery = next(n for n in compound.parcel_nodes if n.type == "garden_rockery")
-        bridge = next(n for n in compound.parcel_nodes if n.type == "waterside_bridge")
-        cells = set(wg.cells)
-        _assert(6 <= len(cells) <= 14,
-                f"mansion_{i+1:03d} 水边廊 has cluttered size {len(cells)}")
-        xs = [x for x, _ in cells]
-        zs = [z for _, z in cells]
-        width = max(xs) - min(xs) + 1
-        depth = max(zs) - min(zs) + 1
-        _assert(min(width, depth) == 2 and width * depth == len(cells),
-                f"mansion_{i+1:03d} 水边廊 is not a straight 2-cell-deep strip: "
-                f"{sorted(cells)}")
-        _assert(not (cells & pond.cells),
-                f"mansion_{i+1:03d} 水边廊 overlaps pond water")
-        _assert(not (cells & rockery.cells),
-                f"mansion_{i+1:03d} 水边廊 overlaps the rockery island")
-        _assert(not (cells & bridge.cells),
-                f"mansion_{i+1:03d} 水边廊 overlaps the bridge")
+        pavilion = next((n for n in compound.parcel_nodes
+                         if n.type == "garden_pavilion"), None)
+        _assert(pavilion is not None,
+                f"mansion_{i+1:03d} has no garden_pavilion")
+        landscape = pavilion.meta.get("reference_landscape", {})
+        _assert(len(landscape.get("side_water", [])) >= 12,
+                f"mansion_{i+1:03d} missing visible side water")
+        _assert(len(landscape.get("flowers", [])) >= 12,
+                f"mansion_{i+1:03d} missing foreground flowers/grass")
+        _assert(len(landscape.get("bamboo", [])) >= 4,
+                f"mansion_{i+1:03d} missing bamboo cluster")
+        _assert(len(landscape.get("path_cells", [])) >= 8,
+                f"mansion_{i+1:03d} missing foreground path cells")
+        _assert(len(landscape.get("green_backdrop", [])) >= 10,
+                f"mansion_{i+1:03d} missing green backdrop")
 
 
-def test_waterside_gallery_is_a_covered_gallery_parcel() -> None:
-    """The 水边廊 reuses the covered_gallery parcel type (PATH_GALLERY floor)."""
-    for i in range(VARIANT_COUNT):
-        compound = generate_mansion(BASE_SEED + i)
-        wg = next(n for n in compound.parcel_nodes if n.id == "waterside_gallery")
-        _assert(wg.type == "covered_gallery",
-                f"mansion_{i+1:03d} waterside_gallery type is {wg.type!r}, "
-                f"expected 'covered_gallery'")
-
-
-def test_waterside_gallery_is_a_real_3d_building() -> None:
-    """Arc 5: the 水边廊 is a real covered gallery — floor + COLUMN posts +
-    ROOF_DARK roof + BALUSTRADE railing — not a single floor tile."""
-    for i in range(VARIANT_COUNT):
-        compound = generate_mansion(BASE_SEED + i)
-        wg = next(n for n in compound.parcel_nodes if n.id == "waterside_gallery")
-        base_y = min(__column_surface_y(compound, c) for c in wg.cells)
-        slots_in_col = set()
-        roof_cells = []
-        column_states = []
-        for (x, z) in wg.cells:
-            for y in range(base_y, base_y + 5):
-                cell = compound.grid.get((x, y, z))
-                if cell is not None and getattr(cell, "slot", None):
-                    slots_in_col.add(cell.slot)
-                    if cell.slot == "ROOF_DARK":
-                        roof_cells.append((x, y, z))
-                    if cell.slot == "COLUMN":
-                        column_states.append(cell.state)
-        # Floor (PATH_GALLERY) + columns (COLUMN) + roof (ROOF_DARK) are mandatory;
-        # balustrade (BALUSTRADE) sits on the open edge just outside the gallery.
-        _assert("PATH_GALLERY" in slots_in_col,
-                f"mansion_{i+1:03d} 水边廊 has no PATH_GALLERY floor")
-        _assert("COLUMN" in slots_in_col,
-                f"mansion_{i+1:03d} 水边廊 has no COLUMN posts (not a 3D gallery)")
-        _assert(column_states and all("_fence" in state for state in column_states),
-                f"mansion_{i+1:03d} 水边廊 compact posts are too bulky: "
-                f"{column_states}")
-        _assert("ROOF_DARK" in slots_in_col,
-                f"mansion_{i+1:03d} 水边廊 has no ROOF_DARK roof (not a 3D gallery)")
-        _assert(0 < len(roof_cells) < len(wg.cells),
-                f"mansion_{i+1:03d} 水边廊 roof covers the whole footprint "
-                f"like a wooden shed: roof={roof_cells}, footprint={sorted(wg.cells)}")
-        # Balustrade on the open edge, supported by the gallery floor for the
-        # waterside case (not floating outside over water).
-        open_side = wg.meta.get("water_side")
-        delta = {"north": (0, -1), "south": (0, 1), "east": (1, 0), "west": (-1, 0)}
-        if open_side in delta:
-            dx, dz = delta[open_side]
-            rail_found = False
-            for (x, z) in wg.cells:
-                if (x + dx, z + dz) in wg.cells:
-                    continue
-                cell = compound.grid.get((x, base_y + 1, z))
-                if cell is not None and cell.slot == "BALUSTRADE":
-                    rail_found = True
-                    break
-            _assert(rail_found,
-                    f"mansion_{i+1:03d} 水边廊 has no supported BALUSTRADE on its open edge")
-
-
-def test_waterside_bridge_and_gallery_clear_lanes_have_no_lily_pads() -> None:
-    """The pond keeps clear water around the bridge and 水边廊 view edge."""
+def test_waterside_bridge_clear_lane_has_no_lily_pads() -> None:
+    """The pond keeps clear water around the bridge after the shed is removed."""
     from buildgen.compound import _chebyshev_ring
     for i in range(VARIANT_COUNT):
         compound = generate_mansion(BASE_SEED + i)
         pond = next(n for n in compound.parcel_nodes if n.type == "garden_pond")
-        wg = next(n for n in compound.parcel_nodes if n.id == "waterside_gallery")
         bridge = next(n for n in compound.parcel_nodes if n.type == "waterside_bridge")
-        water_edge = {tuple(c) for c in wg.meta.get("water_edge_cells", [])}
-        clear = set(bridge.cells) | water_edge
+        clear = set(bridge.cells)
         clear |= _chebyshev_ring(bridge.cells) & pond.cells
-        clear |= _chebyshev_ring(water_edge) & pond.cells
         lilies = {
             (pos[0], pos[2])
             for pos, cell in compound.grid.iter_cells()
@@ -275,7 +311,7 @@ def test_waterside_bridge_and_gallery_clear_lanes_have_no_lily_pads() -> None:
         }
         clutter = lilies & clear
         _assert(not clutter,
-                f"mansion_{i+1:03d} lily pads clutter bridge/gallery clear lanes: "
+                f"mansion_{i+1:03d} lily pads clutter bridge clear lane: "
                 f"{sorted(clutter)}")
 
 
@@ -301,13 +337,6 @@ def test_tower_house_does_not_overlap_the_garden() -> None:
                         or e.startswith("back_yard_garden_overlap")]
         _assert(not overlap_errs,
                 f"mansion_{i+1:03d} layout overlap: {overlap_errs}")
-
-
-def __column_surface_y(compound, cell):
-    """Local helper: the standable surface y of a column (mirrors
-    _natural_surface_y without importing the private name per-cell)."""
-    from buildgen.compound import _natural_surface_y
-    return _natural_surface_y(compound, cell)
 
 
 def test_mansion_still_validates() -> None:

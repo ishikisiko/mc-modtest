@@ -84,28 +84,26 @@ the passage, so the formal/tour cell intersection is empty by construction.
 **slab bridge** (`oak_slab`/`spruce_slab` at the water surface y) spanning the
 pond's narrowest crossing to the 亭/island. The `garden_pavilion` is selected
 from dry pond-bank candidates and must have a footprint cell 4-adjacent to pond
-water, so it reads as a 水亭 rather than a detached garden building. Its roof is
-a thin sloped-eave cap (5x5 explicit stair eave + one center upper slab) on
-fence posts, not a raw stair ridge cap or bulky upper slab mass. A slab is a flat, walkable,
-water-surface block — it reads as a plank bridge. The deleted 汀步
+water, so it reads as a 水亭 rather than a detached garden building. After the
+reference-image review, the pavilion deliberately follows the supplied heavy
+scenic pavilion vocabulary: 7x7 raised stone plinth, dark wooden deck, thick
+timber posts, railings, trapdoor/lattice bracket details, hanging lanterns,
+11x11 lower dark-oak eave, 7x7 raised upper eave, and grey stone roof
+ornaments. A slab is a flat, walkable, water-surface block — it reads as a plank bridge. The deleted 汀步
 `rockery_block` spike-row ("一列小尖刺") is **not** restored; the spike problem
 was the block choice, not the crossing geometry. Lily pads are intentionally
-sparse and cleared from the bridge/gallery clear-water lanes.
+sparse and cleared from the bridge clear-water lanes.
 
 ## 3D galleries and mansion layout repair
 
-The mansion 水边廊 and 主院 抄手游廊 are real 3D galleries, not floor-only
-surface cells. `_place_covered_gallery_3d()` writes a `PATH_GALLERY` floor,
-2-high `COLUMN` posts, a `BALUSTRADE` fence row on the open side, and a
-single-slope `ROOF_DARK` roof. The 水边廊 keeps the `covered_gallery` parcel type
-but is **one short straight two-cell-deep run** on a clean pond bank, not every
-freeform shoreline cell. Because this run can be as short as 3x2 cells, the
-waterside form uses compact fence posts and writes the roof only on the post
-line, leaving the water-edge row open with railing so it reads as 廊 rather than
-a closed wooden shed. It must not
-overlap pond water, the island rockery, or the waterside bridge; the 主院
-galleries tie the inner-gate flanks to the open-hall flanks when there is enough
-clear width.
+The mansion 主院 抄手游廊 remains a real 3D gallery, not a floor-only surface cell.
+`_place_covered_gallery_3d()` writes a `PATH_GALLERY` floor, 2-high `COLUMN`
+posts, a `BALUSTRADE` fence row on the open side, and a single-slope
+`ROOF_DARK` roof. The separate pond-side 水边廊/shed was removed in Arc 11 after
+reference-image review because it read as a meaningless right-side wooden shed;
+the waterside composition is now the heavy reference pavilion plus the slab
+bridge/stone water edge. The 主院 galleries tie the inner-gate flanks to the
+open-hall flanks when there is enough clear width.
 
 The mansion back-yard bug was fixed in the same final pass. `generate_mansion`
 uses `_mansion_yard_depths()` to split 后院 and 花园 into separate z-bands, moves
@@ -124,11 +122,13 @@ footprints so the 主院 heart falls through to `GROUND_YARD_OPEN` grass.
   connected single-source tree; no-op for compounds without a garden.
 - `waterside_bridge_incomplete:<first|last>` — the slab bridge spans both
   shores / 亭-island.
-- `waterside_gallery_clutter:*` and `pond_lily_clutter:<cell>` — the 水边廊 is
-  one short straight strip, does not overlap water/rockery/bridge, and the
-  bridge/gallery clear-water lanes stay free of lily pads.
-- `garden_pavilion_detached_from_pond:*` — the 亭 remains a dry pond-bank
-  pavilion with direct water adjacency.
+- `waterside_gallery_clutter:*` and `pond_lily_clutter:<cell>` — no separate
+  pond-side `waterside_gallery` shed is allowed, and the bridge clear-water lane
+  stays free of lily pads.
+- `garden_pavilion_detached_from_pond:*` /
+  `garden_pavilion_reference_mismatch:*` — the 亭 remains a dry pond-bank
+  pavilion with direct water adjacency and the required reference-pavilion
+  parts.
 - `back_yard_garden_overlap` and `tower_overlaps_garden` — the 后院/花园 bands
   stay separated and no `tower_house` footprint overlaps 花园 feature cells.
 

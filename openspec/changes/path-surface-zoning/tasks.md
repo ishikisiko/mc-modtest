@@ -89,3 +89,9 @@
 - [x] 10.1 Lighten the `garden_pavilion`: replace bulky log posts with fence posts, use a 5x5 explicit stair eave, and shrink the upper cap to a single center slab.
 - [x] 10.2 Lighten the short 水边廊: keep its two-cell-deep footprint, but render the waterside roof only on the post line so it reads as an open 廊 rather than a closed 3x2 wooden shed.
 - [x] 10.3 Regenerate `chinese_mansion_001..006.nbt`, rerun mansion/tour/path validation, rebuild the jar, re-place the mansion in Chunky Stage 2, and inspect a refreshed water-pond Chunky PNG before reporting acceptance.
+
+## 11. 参考亭复刻与棚子删除 (Arc 11 — elevated after reference-image review)
+
+- [x] 11.1 Replace the Arc 10 light pavilion with a reference-image-inspired heavy scenic pavilion: raised stone base, dark wooden deck, thick timber posts, railings, trapdoor/lattice bracket band, hanging lanterns, double dark-oak eaves, and grey stone roof ornaments.
+- [x] 11.2 Remove the separate right-side `waterside_gallery` shed from the pond composition; keep waterside semantics on the bridge/stone edge and the pavilion, not on an extra roofed strip.
+- [x] 11.3 Regenerate `chinese_mansion_001..006.nbt`, rerun mansion/tour/path/style validation, rebuild the jar, and perform this round's final visual acceptance with either browser 3D preview or Chunky.

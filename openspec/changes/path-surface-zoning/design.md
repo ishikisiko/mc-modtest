@@ -620,6 +620,57 @@ still correct, so the fix is proportion, not deletion.
 posts and only one upper roof cell, and that the 水边廊 uses compact fence posts
 with a roof that does not cover the entire two-cell-deep footprint.
 
+### D17: 参考亭复刻 — heavy pavilion wins over the light-pavilion compromise (Arc 11)
+
+**Choice.** After seeing the Arc 10 result, the user supplied a specific
+Minecraft pavilion reference and explicitly rejected a scaled-down or
+agent-interpreted substitute. Arc 11 therefore supersedes the Arc 10 visual
+direction for the pond-side `garden_pavilion`: the target is a near-replica of
+the reference pavilion's structure vocabulary, not a lighter Jiangnan abstract
+亭.
+
+The implemented reference vocabulary is:
+
+- a 9x9 dry pond-bank stone plinth with a y=-1 foundation and y=0 stone
+  perimeter, fixing the previous one-block floating read;
+- a dark wooden deck inside the stone perimeter;
+- four thick timber posts, not fence posts;
+- perimeter railings with an approach-side opening;
+- trapdoor/lattice bracket details below the eave;
+- hanging lanterns below the broad roof;
+- an 11x11 lower dark-oak eave, 7x7 raised upper eave, 3x3 top cap, and grey
+  stone roof ornaments at the four roof corners plus the roof center.
+
+**Waterside gallery deletion.** The separate right-side `waterside_gallery`
+previously had a route rationale, but visually it read as a meaningless shed
+beside the pond. Arc 11 removes that parcel from the garden composition. The
+waterside route remains represented by the stone/slab bridge and the
+pond-adjacent pavilion; no new dock/platform is introduced.
+
+**Placement guard.** Because the reference pavilion is larger, the selector must
+center the pond/pavilion composition on the mansion axis, reserve a south-bank
+approach in front of the pond, and keep the full 11x11 roof clearance, not just
+a footprint touching water. This prevents the lower eave from colliding with
+the moon-gate screen wall and avoids the previous visual failures where the
+pavilion read as squeezed into a west-side wall corridor or an east-wall corner.
+The perimeter behind the approach, the side sightlines, and the moon-gate screen
+behind the water are carved down to ground-level scenic openings around the
+pavilion frontage/backdrop, because the supplied reference is an open waterside
+view, not a pavilion seen through full-height mansion walls or over low wall
+bases.
+
+**Guards.** `test_path_termini.py` asserts there is no `waterside_gallery`
+parcel, and verifies the reference pavilion parts: size >= 7, raised stone
+base, wooden deck, heavy non-fence columns, double eaves, lanterns, stone roof
+ornaments, the south-bank / north-water orientation, centered placement, and
+the cleared frontage/side/backdrop scenic openings. It also verifies the
+reference image context: visible side water, foreground flowers/grass, a soft
+stone/dirt path, a bamboo cluster, and a green water-backdrop screen that keeps
+focused Chunky review from reading the pavilion against mansion buildings.
+`validate_mansion` rejects a
+missing/underspecified reference pavilion, a blocked scenic opening/backdrop,
+missing reference-landscape context, or any reintroduced waterside shed.
+
 ## Risks / Trade-offs
 
 - **[Tour waypoint routing may produce a path that overlaps the formal backbone

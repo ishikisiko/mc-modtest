@@ -161,6 +161,19 @@
       "minecraft:mossy_stone_bricks",
       "minecraft:stone"
     ],
+    "RIDGE_ORNAMENT": [
+      "minecraft:stone_brick_wall",
+      "minecraft:stone_bricks"
+    ],
+    "PAVILION_LIGHT_WOOD": [
+      "minecraft:oak_trapdoor",
+      "minecraft:oak_fence",
+      "minecraft:oak_slab",
+      "minecraft:stripped_oak_log"
+    ],
+    "PAVILION_LAMP": [
+      "minecraft:lantern"
+    ],
     "BALUSTRADE": [
       "minecraft:dark_oak_fence",
       "minecraft:spruce_fence"

@@ -7,6 +7,15 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.18.2
+
+### Changed
+
+- Prepared the accepted `path-surface-zoning` water-court pass as 0.18.2:
+  regenerated the six Jiangnan mansion NBTs with the reference-style 水亭,
+  removed the separate pond-side shed, kept the new visual validators/docs
+  current, and rebuilt the packaged jar.
+
 ## 0.18.1
 
 ### Added
@@ -31,6 +40,11 @@ together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
   and worldgen targets in `reports/visual_acceptance_report.json/.md`.
 - `validate_generated_structures.py` treats the standalone `hero_rockery` review
   fragment as a non-building landscape specimen for key-building-block checks.
+- Replaced the pond-side water pavilion with a reference-image-style heavy
+  scenic pavilion: raised stone base, dark wooden deck, heavy timber posts,
+  railings, lattice/trapdoor bracket details, hanging lanterns, broad dark-oak
+  double eaves, and grey stone roof ornaments; removed the separate right-side
+  pond `waterside_gallery` shed.
 - Completed the final `path-surface-zoning` mansion review repairs: 水边廊 and
   主院 抄手游廊 now render as 3D galleries with floors, columns, balustrades, and
   roofs; 后院 and 花园 are separate bands, the 绣楼 stays in 后院, and the 主院

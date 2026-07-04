@@ -1208,65 +1208,374 @@ def _clear_lily_pads(compound: CompoundGraph, cells: Set[Cell2]) -> None:
 
 def place_garden_pavilion(compound: CompoundGraph, center: Cell2, size: int,
                           base_y: int, style: Style,
-                          roof_grade: str = "chinese_round_ridge") -> ParcelNode:
+                          roof_grade: str = "chinese_round_ridge",
+                          water_side: Optional[str] = None) -> ParcelNode:
     """garden_pavilion parcel renderer (task 5.5).
 
-    A small open-sided 亭: 4 light standoff columns (one per corner of a
-    ``size``×``size`` plan), a thin slab roof capping the columns, no walls.
-    Supports standalone-on-ground
-    (``base_y`` = ground surface) and on-rockery-peak (``base_y`` = the
-    rockery's standable top). Reuses the cultivation pavilion geometry pattern
-    (4 columns + open eave) per the garden-rockery spec.
+    Reference-image pavilion (Arc 11): raised stone plinth, wooden deck, heavy
+    dark-oak double eaves, thick timber posts, railings, lattice brackets,
+    lanterns, and stone roof ornaments. This deliberately supersedes the Arc 10
+    "light water pavilion" variant because the user requested a near-replica of
+    the supplied heavy scenic pavilion.
     """
     cx, cz = center
     half = size // 2
-    column = style.slot_entry(
-        "DETAIL_WOOD", "_fence",
-        style.slot_entry("COLUMN", "_fence", style.primary("COLUMN")),
-    )
-    roof_slab = style.slot_entry("ROOF_DARK", "_slab")
+    platform_half = max(3, half)
+    column_half = max(2, platform_half - 1)
+    lower_eave = platform_half + 1
+    upper_eave = max(3, platform_half - 1)
+    column_top_y = base_y + 8
+    beam_y = column_top_y
+    lattice_ys = (base_y + 6, base_y + 7)
+    lantern_y = base_y + 5
+    lower_eave_y = base_y + 10
+    lower_slope_y = base_y + 11
+    upper_eave_y = base_y + 12
+    upper_slope_y = base_y + 13
+    roof_cap_y = base_y + 14
+    finial_y = base_y + 15
+    column = style.primary("COLUMN")
+    frame = style.primary("FRAME_WOOD") if style.has_slot("FRAME_WOOD") else column
+    roof_slab = style.slot_entry("ROOF_DARK", "_slab", "minecraft:dark_oak_slab")
     roof_stairs = style.slot_entry("ROOF_DARK", "_stairs", "minecraft:dark_oak_stairs")
+    roof_planks = style.slot_entry("ROOF_DARK", "_planks", "minecraft:dark_oak_planks")
+    deck = style.slot_entry("PATH_GALLERY", "dark_oak_planks",
+                            style.slot_entry("ROOF_DARK", "_planks",
+                                             "minecraft:dark_oak_planks"))
+    stone = style.primary("PLATFORM_STONE")
+    light_wood_slot = "PAVILION_LIGHT_WOOD"
+    rail = (style.slot_entry(light_wood_slot, "_fence", "minecraft:oak_fence")
+            if style.has_slot(light_wood_slot)
+            else (style.primary("BALUSTRADE") if style.has_slot("BALUSTRADE")
+                  else style.slot_entry("DETAIL_WOOD", "_fence", "minecraft:dark_oak_fence")))
+    lattice = (style.slot_entry(light_wood_slot, "_trapdoor", "minecraft:oak_trapdoor")
+               if style.has_slot(light_wood_slot)
+               else style.slot_entry("DETAIL_WOOD", "_trapdoor",
+                                     "minecraft:dark_oak_trapdoor"))
+    lattice_base = lattice.split("[", 1)[0]
+    bracket_log = (style.slot_entry(light_wood_slot, "stripped_oak_log",
+                                    "minecraft:stripped_oak_log")
+                   if style.has_slot(light_wood_slot)
+                   else "minecraft:stripped_oak_log")
+    bracket_slab = (style.slot_entry(light_wood_slot, "_slab", "minecraft:oak_slab")
+                    if style.has_slot(light_wood_slot)
+                    else "minecraft:oak_slab")
+    lantern = "minecraft:lantern[hanging=true,waterlogged=false]"
+    standing_lantern = "minecraft:lantern[hanging=false,waterlogged=false]"
+    visible_lamp = (style.slot_entry("PAVILION_LAMP", "lantern",
+                                     "minecraft:lantern")
+                    if style.has_slot("PAVILION_LAMP")
+                    else "minecraft:shroomlight")
+    if visible_lamp == "minecraft:lantern":
+        visible_lamp = "minecraft:lantern[hanging=true,waterlogged=false]"
+    ridge = (style.slot_entry("RIDGE_ORNAMENT", "stone_bricks",
+                              "minecraft:stone_bricks")
+             if style.has_slot("RIDGE_ORNAMENT")
+             else "minecraft:stone_bricks")
+    ridge_wall = (style.slot_entry("RIDGE_ORNAMENT", "_wall",
+                                   "minecraft:stone_brick_wall")
+                  if style.has_slot("RIDGE_ORNAMENT")
+                  else "minecraft:stone_brick_wall")
     cells: Set[Cell2] = set()
-    corners = [(cx - half, cz - half), (cx + half, cz - half),
-               (cx - half, cz + half), (cx + half, cz + half)]
-    # 4 standoff columns, 3 tall (eave height), carrying the roof. Fence posts
-    # keep the small water pavilion from reading as a squat log shed in low
-    # visual review.
-    for (x, z) in corners:
-        for y in range(base_y + 1, base_y + 4):
-            compound.grid.set((x, y, z), column, ["DETAIL", "STRUCTURE"],
-                              PRIORITY["DETAIL"], "COLUMN")
-        cells.add((x, z))
-    # Footprint cells remain the dry walkable pavilion footprint. The roof may
-    # overhang the pond bank, but the parcel footprint should not.
-    for x in range(cx - half, cx + half + 1):
-        for z in range(cz - half, cz + half + 1):
+    corners = [(cx - column_half, cz - column_half), (cx + column_half, cz - column_half),
+               (cx - column_half, cz + column_half), (cx + column_half, cz + column_half)]
+
+    def _axis_log(state: str, axis: str) -> str:
+        block = state.split("[", 1)[0]
+        return f"{block}[axis={axis}]" if block.endswith("_log") else state
+
+    def _edge_facing(x: int, z: int, radius: int) -> Optional[str]:
+        if z == cz - radius:
+            return "north"
+        if z == cz + radius:
+            return "south"
+        if x == cx - radius:
+            return "west"
+        if x == cx + radius:
+            return "east"
+        return None
+
+    def _open_trapdoor(facing: str) -> str:
+        if not lattice_base.endswith("_trapdoor"):
+            return lattice
+        return (f"{lattice_base}[facing={facing},half=top,open=true,"
+                "powered=false,waterlogged=false]")
+
+    def _set_if_empty(pos: Pos, state: str, slot: str) -> bool:
+        if not compound.grid.is_empty(pos):
+            return False
+        return compound.grid.set(pos, state, ["DETAIL"], PRIORITY["DETAIL"], slot)
+
+    opp = {"north": "south", "south": "north", "east": "west", "west": "east"}
+    entry_side = opp.get(water_side or "east", "west")
+
+    # Stone plinth: y=-1 foundation ties the pavilion into the pond bank; y=0
+    # top surface is a stone perimeter with a dark wooden deck inside, matching
+    # the reference image's stone base + wooden floor. This also removes the old
+    # one-block floating read where columns started above bare grass/water.
+    for x in range(cx - platform_half, cx + platform_half + 1):
+        for z in range(cz - platform_half, cz + platform_half + 1):
             cells.add((x, z))
-    # Thin sloped-eave roof. The previous raw stair ridge had no facing/shape
-    # properties and rendered as a detached "briefs" shape over the pavilion;
-    # the later flat 5x5 slab cap fixed that artifact but still read like a
-    # wooden platform in pond closeups. Keep the full 5x5 eave footprint, but
-    # make the outer edge a real sloped stair eave and reduce the upper cap to
-    # a single center tile.
-    eave = half + 1
-    for x in range(cx - eave, cx + eave + 1):
-        for z in range(cz - eave, cz + eave + 1):
-            facing = None
-            if z == cz - eave:
-                facing = "north"
-            elif z == cz + eave:
-                facing = "south"
-            elif x == cx - eave:
-                facing = "west"
-            elif x == cx + eave:
-                facing = "east"
+            compound.grid.set((x, base_y - 1, z), stone,
+                              ["STRUCTURE", "GROUND", "PROTECTED"],
+                              PRIORITY["STRUCTURE"], "PLATFORM_STONE", force=True)
+            if abs(x - cx) == platform_half or abs(z - cz) == platform_half:
+                compound.grid.set((x, base_y, z), stone,
+                                  ["STRUCTURE", "GROUND", "PROTECTED"],
+                                  PRIORITY["STRUCTURE"], "PLATFORM_STONE", force=True)
+            else:
+                compound.grid.set((x, base_y, z), deck,
+                                  ["DETAIL", "GROUND", "PROTECTED"],
+                                  PRIORITY["DETAIL"], "PATH_GALLERY", force=True)
+
+    # Broad entry steps on the dry approach side. They are outside the footprint
+    # so the pavilion keeps a square stone platform while reading like the reference
+    # with a front stair.
+    side_delta = {"north": (0, -1), "south": (0, 1), "east": (1, 0), "west": (-1, 0)}
+    dx, dz = side_delta[entry_side]
+    stair_base = "minecraft:stone_brick_stairs"
+    if entry_side in ("north", "south"):
+        for sx in range(cx - 2, cx + 3):
+            sz = cz + dz * (platform_half + 1)
+            compound.grid.set((sx, base_y, sz),
+                              f"{stair_base}[facing={entry_side},half=bottom]",
+                              ["DETAIL", "GROUND", "PROTECTED"],
+                              PRIORITY["DETAIL"], "PLATFORM_STONE", force=True)
+    else:
+        sx = cx + dx * (platform_half + 1)
+        for sz in range(cz - 2, cz + 3):
+            compound.grid.set((sx, base_y, sz),
+                              f"{stair_base}[facing={entry_side},half=bottom]",
+                              ["DETAIL", "GROUND", "PROTECTED"],
+                              PRIORITY["DETAIL"], "PLATFORM_STONE", force=True)
+
+    # Four heavy timber posts, not fence posts. They rise high enough that the
+    # roof reads like the reference pavilion's elevated heavy frame rather than
+    # a low shed sitting on a deck.
+    for (x, z) in corners:
+        for y in range(base_y + 1, column_top_y + 1):
+            compound.grid.set((x, y, z), _axis_log(column, "y"),
+                              ["DETAIL", "STRUCTURE"], PRIORITY["DETAIL"],
+                              "COLUMN")
+
+    # Railings around the deck with a 3-block opening on the entry side.
+    for x in range(cx - column_half + 1, cx + column_half):
+        for z, side in ((cz - column_half, "north"), (cz + column_half, "south")):
+            if side == entry_side and abs(x - cx) <= 1:
+                continue
+            compound.grid.set((x, base_y + 1, z), rail,
+                              ["DETAIL", "PROTECTED"], PRIORITY["DETAIL"],
+                              "BALUSTRADE")
+    for z in range(cz - column_half + 1, cz + column_half):
+        for x, side in ((cx - column_half, "west"), (cx + column_half, "east")):
+            if side == entry_side and abs(z - cz) <= 1:
+                continue
+            compound.grid.set((x, base_y + 1, z), rail,
+                              ["DETAIL", "PROTECTED"], PRIORITY["DETAIL"],
+                              "BALUSTRADE")
+    base_lantern_cells: List[Tuple[int, int, int]] = []
+    for lx, lz in ((cx - platform_half, cz - platform_half),
+                   (cx + platform_half, cz - platform_half),
+                   (cx - platform_half, cz + platform_half),
+                   (cx + platform_half, cz + platform_half)):
+        compound.grid.set((lx, base_y + 1, lz), standing_lantern,
+                          ["DETAIL"], PRIORITY["DETAIL"], "LIGHTING")
+        base_lantern_cells.append((lx, base_y + 1, lz))
+
+    # Beam course and trapdoor lattice/dougong band below the eave.
+    for x in range(cx - column_half, cx + column_half + 1):
+        compound.grid.set((x, beam_y, cz - column_half),
+                          _axis_log(frame, "x"), ["DETAIL", "STRUCTURE"],
+                          PRIORITY["DETAIL"], "FRAME_WOOD")
+        compound.grid.set((x, beam_y, cz + column_half),
+                          _axis_log(frame, "x"), ["DETAIL", "STRUCTURE"],
+                          PRIORITY["DETAIL"], "FRAME_WOOD")
+    for z in range(cz - column_half, cz + column_half + 1):
+        compound.grid.set((cx - column_half, beam_y, z),
+                          _axis_log(frame, "z"), ["DETAIL", "STRUCTURE"],
+                          PRIORITY["DETAIL"], "FRAME_WOOD")
+        compound.grid.set((cx + column_half, beam_y, z),
+                          _axis_log(frame, "z"), ["DETAIL", "STRUCTURE"],
+                          PRIORITY["DETAIL"], "FRAME_WOOD")
+    for (x, z) in corners:
+        compound.grid.set((x, beam_y, z), _axis_log(column, "y"),
+                          ["DETAIL", "STRUCTURE"], PRIORITY["DETAIL"],
+                          "COLUMN")
+    lattice_cells: List[Tuple[int, int, int]] = []
+    for y in lattice_ys:
+        for x in range(cx - column_half + 1, cx + column_half):
+            for z, facing in ((cz - column_half - 1, "north"),
+                              (cz + column_half + 1, "south")):
+                compound.grid.set((x, y, z), _open_trapdoor(facing),
+                                  ["DETAIL"], PRIORITY["DETAIL"], "DETAIL_WOOD")
+                lattice_cells.append((x, y, z))
+        for z in range(cz - column_half + 1, cz + column_half):
+            for x, facing in ((cx - column_half - 1, "west"),
+                              (cx + column_half + 1, "east")):
+                compound.grid.set((x, y, z), _open_trapdoor(facing),
+                                  ["DETAIL"], PRIORITY["DETAIL"], "DETAIL_WOOD")
+                lattice_cells.append((x, y, z))
+    bracket_cells: List[Tuple[int, int, int]] = []
+    for x, z, axis in ((cx - column_half, cz - column_half - 1, "z"),
+                       (cx + column_half, cz - column_half - 1, "z"),
+                       (cx - column_half, cz + column_half + 1, "z"),
+                       (cx + column_half, cz + column_half + 1, "z"),
+                       (cx - column_half - 1, cz - column_half, "x"),
+                       (cx - column_half - 1, cz + column_half, "x"),
+                       (cx + column_half + 1, cz - column_half, "x"),
+                       (cx + column_half + 1, cz + column_half, "x")):
+        compound.grid.set((x, beam_y - 1, z), _axis_log(bracket_log, axis),
+                          ["DETAIL", "STRUCTURE"], PRIORITY["DETAIL"],
+                          "DETAIL_WOOD")
+        bracket_cells.append((x, beam_y - 1, z))
+    for x in range(cx - column_half, cx + column_half + 1):
+        for z in (cz - column_half - 1, cz + column_half + 1):
+            compound.grid.set((x, beam_y - 2, z), bracket_slab,
+                              ["DETAIL"], PRIORITY["DETAIL"], "DETAIL_WOOD")
+            bracket_cells.append((x, beam_y - 2, z))
+    for z in range(cz - column_half, cz + column_half + 1):
+        for x in (cx - column_half - 1, cx + column_half + 1):
+            compound.grid.set((x, beam_y - 2, z), bracket_slab,
+                              ["DETAIL"], PRIORITY["DETAIL"], "DETAIL_WOOD")
+            bracket_cells.append((x, beam_y - 2, z))
+    # A dark fascia line under the raised eave keeps the now-taller roof from
+    # reading as detached. Only selected bracket blocks are light; a continuous
+    # pale strip looked unlike the reference's dark timber eave.
+    for x in range(cx - lower_eave + 1, cx + lower_eave):
+        for z in (cz - lower_eave, cz + lower_eave):
+            state = bracket_slab if x in (cx - column_half, cx, cx + column_half) else roof_slab
+            compound.grid.set((x, lower_eave_y - 1, z), state,
+                              ["DETAIL"], PRIORITY["DETAIL"], "DETAIL_WOOD")
+            if state == bracket_slab:
+                bracket_cells.append((x, lower_eave_y - 1, z))
+    for z in range(cz - lower_eave + 1, cz + lower_eave):
+        for x in (cx - lower_eave, cx + lower_eave):
+            state = bracket_slab if z in (cz - column_half, cz, cz + column_half) else roof_slab
+            compound.grid.set((x, lower_eave_y - 1, z), state,
+                              ["DETAIL"], PRIORITY["DETAIL"], "DETAIL_WOOD")
+            if state == bracket_slab:
+                bracket_cells.append((x, lower_eave_y - 1, z))
+
+    # Hanging lanterns under the broad eave, matching the reference's lit
+    # corners and center glow without depending on external lighting mods.
+    lantern_cells: List[Tuple[int, int, int]] = []
+    visible_lamp_cells: List[Tuple[int, int, int]] = []
+    lantern_cage_cells: List[Tuple[int, int, int]] = []
+    lantern_offset = lower_eave - 1
+    lantern_positions = [
+        (cx - lantern_offset, cz - lantern_offset),
+        (cx + lantern_offset, cz - lantern_offset),
+        (cx - lantern_offset, cz + lantern_offset),
+        (cx + lantern_offset, cz + lantern_offset),
+        (cx - lantern_offset, cz),
+        (cx + lantern_offset, cz),
+        (cx, cz - lantern_offset),
+        (cx, cz + lantern_offset),
+        (cx, cz),
+        # Lower, closer facade lamps that match the reference image's visible
+        # hanging lanterns between the posts.
+        (cx - column_half, cz - column_half - 1),
+        (cx + column_half, cz - column_half - 1),
+        (cx - column_half, cz + column_half + 1),
+        (cx + column_half, cz + column_half + 1),
+        (cx - column_half - 1, cz - column_half),
+        (cx - column_half - 1, cz + column_half),
+        (cx + column_half + 1, cz - column_half),
+        (cx + column_half + 1, cz + column_half),
+    ]
+    for index, (lx, lz) in enumerate(lantern_positions):
+        ly = lantern_y - 1 if index >= 9 else lantern_y
+        compound.grid.set((lx, ly + 1, lz), "minecraft:chain[axis=y]",
+                          ["DETAIL"], PRIORITY["DETAIL"], "LIGHTING")
+        if index >= 9:
+            compound.grid.set((lx, ly, lz), visible_lamp,
+                              ["DETAIL"], PRIORITY["DETAIL"], "LIGHTING")
+            visible_lamp_cells.append((lx, ly, lz))
+            # The reference lamps are not bare points; they hang inside pale
+            # wood square cages. Add four open trapdoor faces around each low
+            # facade lantern, only where they do not collide with posts.
+            for dx2, dz2, facing in ((1, 0, "west"), (-1, 0, "east"),
+                                     (0, 1, "north"), (0, -1, "south")):
+                pos = (lx + dx2, ly, lz + dz2)
+                if _set_if_empty(pos, _open_trapdoor(facing), "DETAIL_WOOD"):
+                    lantern_cage_cells.append(pos)
+            if _set_if_empty((lx, ly - 1, lz), bracket_slab, "DETAIL_WOOD"):
+                lantern_cage_cells.append((lx, ly - 1, lz))
+        else:
+            compound.grid.set((lx, ly, lz), lantern,
+                              ["DETAIL"], PRIORITY["DETAIL"], "LIGHTING")
+            lantern_cells.append((lx, ly, lz))
+
+    # Heavy double-eave dark roof: broad lower eave, a visible rising roof
+    # course, a smaller upper eave, a second rising course, roof cap, and grey
+    # stone ornaments at both eave tiers plus the center finial.
+    roof_layers: List[Tuple[str, int, int]] = [
+        ("lower_eave", lower_eave, lower_eave_y),
+        ("lower_slope", lower_eave - 1, lower_slope_y),
+        ("upper_eave", upper_eave, upper_eave_y),
+        ("upper_slope", max(1, upper_eave - 1), upper_slope_y),
+    ]
+    for layer_name, radius, y in roof_layers:
+        for x in range(cx - radius, cx + radius + 1):
+            for z in range(cz - radius, cz + radius + 1):
+                facing = _edge_facing(x, z, radius)
+                if facing:
+                    state = f"{roof_stairs}[facing={facing},half=bottom]"
+                elif layer_name.endswith("eave"):
+                    state = roof_slab
+                else:
+                    state = roof_planks
+                compound.grid.set((x, y, z), state, ["DETAIL", "ROOF"],
+                                  PRIORITY["DETAIL"], "ROOF_DARK")
+    corner_tips: List[Tuple[int, int, int]] = []
+    for sx in (-1, 1):
+        for sz in (-1, 1):
+            ox = cx + sx * lower_eave
+            oz = cz + sz * lower_eave
+            facing = "west" if sx < 0 else "east"
+            compound.grid.set((ox, lower_slope_y, oz),
+                              f"{roof_stairs}[facing={facing},half=bottom]",
+                              ["DETAIL", "ROOF"], PRIORITY["DETAIL"],
+                              "ROOF_DARK")
+            # One-block arms tie the raised corner back into each eave edge so
+            # the grey cap reads supported rather than floating.
+            for ax, az, face in ((-sx, 0, "north" if sz < 0 else "south"),
+                                 (0, -sz, facing)):
+                tx, tz = ox + ax, oz + az
+                compound.grid.set((tx, lower_slope_y, tz),
+                                  f"{roof_stairs}[facing={face},half=bottom]",
+                                  ["DETAIL", "ROOF"], PRIORITY["DETAIL"],
+                                  "ROOF_DARK")
+                corner_tips.append((tx, lower_slope_y, tz))
+            corner_tips.append((ox, lower_slope_y, oz))
+    for x in range(cx - 2, cx + 3):
+        for z in range(cz - 2, cz + 3):
+            facing = _edge_facing(x, z, 2)
             state = (f"{roof_stairs}[facing={facing},half=bottom]"
                      if facing else roof_slab)
-            compound.grid.set((x, base_y + 4, z), state, ["DETAIL", "ROOF"],
-                              PRIORITY["DETAIL"], "ROOF_DARK")
-    compound.grid.set((cx, base_y + 5, cz), roof_slab, ["DETAIL", "ROOF"],
-                      PRIORITY["DETAIL"], "ROOF_DARK")
-    ridge_axis = "x" if size >= 3 else "x"
+            compound.grid.set((x, roof_cap_y, z), state,
+                              ["DETAIL", "ROOF"], PRIORITY["DETAIL"],
+                              "ROOF_DARK")
+    ornament_cells: List[Tuple[int, int, int]] = []
+    ornament_targets = [
+        (cx - lower_eave, lower_slope_y + 1, cz - lower_eave),
+        (cx + lower_eave, lower_slope_y + 1, cz - lower_eave),
+        (cx - lower_eave, lower_slope_y + 1, cz + lower_eave),
+        (cx + lower_eave, lower_slope_y + 1, cz + lower_eave),
+        (cx - upper_eave, upper_eave_y + 1, cz - upper_eave),
+        (cx + upper_eave, upper_eave_y + 1, cz - upper_eave),
+        (cx - upper_eave, upper_eave_y + 1, cz + upper_eave),
+        (cx + upper_eave, upper_eave_y + 1, cz + upper_eave),
+        (cx, finial_y, cz),
+        (cx, finial_y + 1, cz),
+    ]
+    for index, (ox, oy, oz) in enumerate(ornament_targets):
+        state = ridge_wall if index == len(ornament_targets) - 1 else ridge
+        compound.grid.set((ox, oy, oz), state,
+                          ["DETAIL", "ROOF"], PRIORITY["DETAIL"],
+                          "RIDGE_ORNAMENT")
+        ornament_cells.append((ox, oy, oz))
+    ridge_axis = "x"
     node = ParcelNode("garden_pavilion", "garden_pavilion", cells, {
         "center": list(center),
         "size": size,
@@ -1274,11 +1583,277 @@ def place_garden_pavilion(compound: CompoundGraph, center: Cell2, size: int,
         "roof_grade": roof_grade,
         "ridge_axis": ridge_axis,
         "open_sided": True,
-        "roof_form": "thin_slab_eave",
+        "roof_form": "reference_heavy_double_eave",
+        "reference": "raised_stone_base_heavy_dark_oak_pavilion",
         "columns": [list(c) for c in corners],
+        "platform_half": platform_half,
+        "lower_eave_half": lower_eave,
+        "upper_eave_half": upper_eave,
+        "column_top_y": column_top_y,
+        "lower_eave_y": lower_eave_y,
+        "upper_eave_y": upper_eave_y,
+        "roof_layers": [
+            {"name": name, "radius": radius, "y": y}
+            for name, radius, y in roof_layers
+        ],
+        "finial_y": finial_y,
+        "entry_side": entry_side,
+        "water_side": water_side,
+        "lanterns": [list(c) for c in lantern_cells],
+        "visible_lamps": [list(c) for c in visible_lamp_cells],
+        "lantern_cages": [list(c) for c in lantern_cage_cells],
+        "base_lanterns": [list(c) for c in base_lantern_cells],
+        "lattice_details": [list(c) for c in lattice_cells],
+        "bracket_details": [list(c) for c in bracket_cells],
+        "ridge_ornaments": [list(c) for c in ornament_cells],
+        "corner_tips": [list(c) for c in corner_tips],
     })
     compound.parcel_nodes.append(node)
     return node
+
+
+def _open_garden_pavilion_sightline(compound: CompoundGraph, style: Style,
+                                    pavilion: ParcelNode) -> None:
+    """Carve a high scenic opening behind the pavilion's approach side.
+
+    The reference pavilion is photographed as a freestanding waterside structure,
+    not through a full-height mansion perimeter wall. Keep the wall's stone base
+    for enclosure bookkeeping, but remove the tall wall/cap blocks across the
+    pavilion frontage so low visual review sees the pavilion body and steps.
+    """
+    entry_side = pavilion.meta.get("entry_side")
+    if entry_side != "south":
+        return
+    lot_w, lot_d = compound.lot_size
+    center = pavilion.meta.get("center", [0, 0])
+    if len(center) != 2:
+        return
+    cx = int(center[0])
+    z = lot_d - 1
+    # The reference is an open freestanding pavilion, not a view through a
+    # narrow wall slot. Open the whole garden frontage into a low scenic base so
+    # the pavilion body and steps can be reviewed without wall clutter.
+    x0 = 1
+    x1 = lot_w - 2
+    opening_cells = []
+    for x in range(x0, x1 + 1):
+        for y in range(0, 8):
+            compound.grid.carve_air((x, y, z))
+        opening_cells.append((x, z))
+    side_cells = []
+    pavilion_z0 = min(pz for _, pz in pavilion.cells)
+    pavilion_z1 = max(pz for _, pz in pavilion.cells)
+    garden_band = compound.meta.get("garden_band", [pavilion_z0, pavilion_z1])
+    side_z0 = max(1, int(garden_band[0]))
+    side_z1 = min(lot_d - 2, int(garden_band[1]))
+    for sx in (0, lot_w - 1):
+        for sz in range(side_z0, side_z1 + 1):
+            for y in range(0, 8):
+                compound.grid.carve_air((sx, y, sz))
+            side_cells.append((sx, sz))
+    for node in compound.parcel_nodes:
+        if node.type == "perimeter_wall":
+            node.cells.difference_update(opening_cells)
+            node.cells.difference_update(side_cells)
+    pavilion.meta["scenic_opening"] = {
+        "side": entry_side,
+        "boundary_z": z,
+        "x0": x0,
+        "x1": x1,
+        "side_z0": side_z0,
+        "side_z1": side_z1,
+        "cleared_y": [0, 7],
+        "cells": [list(c) for c in opening_cells],
+        "side_cells": [list(c) for c in side_cells],
+    }
+
+
+def _open_reference_pavilion_backdrop(compound: CompoundGraph, style: Style) -> None:
+    """Open the moon-gate screen behind the pond as a scenic water backdrop."""
+    pavilion = next((n for n in compound.parcel_nodes
+                     if n.type == "garden_pavilion"), None)
+    pond = next((n for n in compound.parcel_nodes
+                 if n.type == "garden_pond"), None)
+    moon_gate = next((n for n in compound.parcel_nodes
+                      if n.type == "moon_gate_passage"), None)
+    if pavilion is None or pond is None or moon_gate is None:
+        return
+    lot_w, _lot_d = compound.lot_size
+    wall_z = int(moon_gate.meta.get("wall_z", -1))
+    x0 = 1
+    x1 = lot_w - 2
+    cells = []
+    for x in range(x0, x1 + 1):
+        for y in range(0, 8):
+            compound.grid.carve_air((x, y, wall_z))
+        cells.append((x, wall_z))
+    pavilion.meta["backdrop_opening"] = {
+        "wall_z": wall_z,
+        "x0": x0,
+        "x1": x1,
+        "cleared_y": [0, 7],
+        "cells": [list(c) for c in cells],
+    }
+
+
+def _place_reference_pavilion_landscape(compound: CompoundGraph, style: Style,
+                                        seed: int) -> None:
+    """Add the reference image's waterside landscape cues around the pavilion.
+
+    This is deliberately tied to the Arc 11 reference pavilion: visible side
+    water, a soft garden path in front, flowers/grass at the base, and a bamboo
+    cluster on the left. It is placed after path routing so it cannot force
+    circulation failures; all cells avoid existing path and feature footprints.
+    """
+    pavilion = next((n for n in compound.parcel_nodes
+                     if n.type == "garden_pavilion"), None)
+    pond = next((n for n in compound.parcel_nodes
+                 if n.type == "garden_pond"), None)
+    if pavilion is None or pond is None:
+        return
+    lot_w, lot_d = compound.lot_size
+    rng = random.Random(seed ^ 0x54494E47)
+    pav_x0 = min(x for x, _ in pavilion.cells)
+    pav_x1 = max(x for x, _ in pavilion.cells)
+    pav_z0 = min(z for _, z in pavilion.cells)
+    pav_z1 = max(z for _, z in pavilion.cells)
+    pond_bbox = pond.meta.get("bbox", [pav_x0, pav_z0, pav_x1, pav_z0])
+    pond_z0 = int(pond_bbox[1])
+    pond_z1 = int(pond_bbox[3])
+    bridge_cells = compound.node_cells("waterside_bridge")
+    protected = (
+        set(pavilion.cells)
+        | compound.node_cells("garden_pond", "garden_rockery",
+                              "waterside_bridge", "path")
+        | _chebyshev_ring(bridge_cells)
+        | compound.building_cells()
+    )
+
+    def _can_decorate(cell: Cell2) -> bool:
+        x, z = cell
+        return (1 <= x <= lot_w - 2 and 1 <= z <= lot_d - 2
+                and cell not in protected)
+
+    water_cells: Set[Cell2] = set()
+    for x0, x1 in ((pav_x0 - 5, pav_x0 - 2), (pav_x1 + 2, pav_x1 + 5)):
+        for x in range(max(1, x0), min(lot_w - 2, x1) + 1):
+            for z in range(pond_z0, min(lot_d - 2, pav_z1) + 1):
+                if _can_decorate((x, z)):
+                    water_cells.add((x, z))
+    if water_cells:
+        _clear_cells(compound, water_cells, y0=-1, y1=1)
+        water = style.primary("WATER")
+        for x, z in sorted(water_cells):
+            compound.grid.set((x, -1, z), water,
+                              ["DETAIL", "GROUND"], PRIORITY["DETAIL"],
+                              "WATER", force=True)
+        compound.parcel_nodes.append(
+            ParcelNode("reference_pavilion_side_water", "water_feature",
+                       water_cells, {"role": "reference_pavilion_side_water"}))
+        protected |= water_cells
+
+    path_cells: Set[Cell2] = set()
+    for dz, half_width in ((1, 3), (2, 4), (3, 5)):
+        z = pav_z1 + dz
+        for x in range(pav_x0 - half_width, pav_x1 + half_width + 1):
+            if _can_decorate((x, z)) and (x + z + seed) % 3 != 0:
+                path_cells.add((x, z))
+    for x, z in sorted(path_cells):
+        state = "minecraft:dirt_path" if (x + z) % 2 else "minecraft:smooth_stone"
+        compound.grid.set((x, -1, z), state,
+                          ["DETAIL", "GROUND", "PROTECTED"],
+                          PRIORITY["DETAIL"], "PATH_TOUR", force=True)
+    protected |= path_cells
+
+    flower_states = [
+        "minecraft:poppy",
+        "minecraft:dandelion",
+        "minecraft:allium",
+        "minecraft:azure_bluet",
+        "minecraft:grass",
+    ]
+    planting_cells: Set[Cell2] = set()
+    candidates: List[Cell2] = []
+    for x in range(pav_x0 - 7, pav_x1 + 8):
+        for z in range(pav_z1 + 1, min(lot_d - 2, pav_z1 + 7) + 1):
+            if _can_decorate((x, z)) and (x, z) not in path_cells:
+                candidates.append((x, z))
+    rng.shuffle(candidates)
+    for idx, (x, z) in enumerate(candidates[:28]):
+        state = flower_states[idx % len(flower_states)]
+        compound.grid.set((x, 0, z), state,
+                          ["DETAIL"], PRIORITY["DETAIL"], "PLANTING",
+                          force=True)
+        planting_cells.add((x, z))
+    protected |= planting_cells
+
+    bamboo_cells: Set[Cell2] = set()
+    bamboo_x0 = max(1, pav_x0 - 12)
+    bamboo_x1 = max(1, pav_x0 - 7)
+    for x in range(bamboo_x0, bamboo_x1 + 1):
+        for z in range(max(1, pond_z0 - 1), min(lot_d - 2, pav_z1 + 2) + 1):
+            if not _can_decorate((x, z)) or (x + z + seed) % 4 != 0:
+                continue
+            compound.grid.set((x, -1, z), "minecraft:dirt",
+                              ["DETAIL", "GROUND"], PRIORITY["DETAIL"],
+                              "PLANTING", force=True)
+            height = 3 + ((x * 17 + z + seed) % 3)
+            for y in range(height):
+                leaves = "large" if y == height - 1 else ("small" if y == height - 2 else "none")
+                stage = 1 if y == height - 1 else 0
+                compound.grid.set(
+                    (x, y, z),
+                    f"minecraft:bamboo[age=0,leaves={leaves},stage={stage}]",
+                    ["DETAIL"], PRIORITY["DETAIL"], "PLANTING", force=True)
+            bamboo_cells.add((x, z))
+    if planting_cells or bamboo_cells:
+        compound.parcel_nodes.append(
+            ParcelNode("reference_pavilion_landscape", "planting",
+                       planting_cells | bamboo_cells, {
+                           "flowers": [list(c) for c in sorted(planting_cells)],
+                           "bamboo": [list(c) for c in sorted(bamboo_cells)],
+                           "path_cells": [list(c) for c in sorted(path_cells)],
+                       }))
+    backdrop_cells: Set[Cell2] = set()
+    backdrop_x0 = max(1, pav_x0 - 9)
+    backdrop_x1 = min(lot_w - 2, pav_x1 + 9)
+    for x in range(backdrop_x0, backdrop_x1 + 1):
+        for z in range(max(1, pond_z0 - 1), pond_z0 + 1):
+            if not _can_decorate((x, z)) or (x, z) in path_cells:
+                continue
+            # Keep a narrow central gap so the moon-gate/tour path still reads,
+            # but screen the side buildings with greenery like the reference
+            # landscape background.
+            if abs(x - (lot_w // 2)) <= 1 and z == pond_z0 - 1:
+                continue
+            if (x + 2 * z + seed) % 5 in (0, 1):
+                compound.grid.set((x, -1, z), "minecraft:dirt",
+                                  ["DETAIL", "GROUND"], PRIORITY["DETAIL"],
+                                  "PLANTING", force=True)
+                height = 4 + ((x + z + seed) % 2)
+                for y in range(height):
+                    leaves = "large" if y == height - 1 else ("small" if y == height - 2 else "none")
+                    stage = 1 if y == height - 1 else 0
+                    compound.grid.set(
+                        (x, y, z),
+                        f"minecraft:bamboo[age=0,leaves={leaves},stage={stage}]",
+                        ["DETAIL"], PRIORITY["DETAIL"], "PLANTING", force=True)
+                backdrop_cells.add((x, z))
+    if backdrop_cells:
+        compound.parcel_nodes.append(
+            ParcelNode("reference_pavilion_green_backdrop", "planting",
+                       backdrop_cells, {
+                           "role": "screen_mansion_background",
+                           "cells": [list(c) for c in sorted(backdrop_cells)],
+                       }))
+    if pavilion is not None:
+        pavilion.meta["reference_landscape"] = {
+            "side_water": [list(c) for c in sorted(water_cells)],
+            "flowers": [list(c) for c in sorted(planting_cells)],
+            "bamboo": [list(c) for c in sorted(bamboo_cells)],
+            "path_cells": [list(c) for c in sorted(path_cells)],
+            "green_backdrop": [list(c) for c in sorted(backdrop_cells)],
+        }
 
 
 def _place_covered_gallery_3d(compound: "CompoundGraph", style: "Style",
@@ -2485,7 +3060,9 @@ def _collect_tour_waypoints(compound: CompoundGraph, start_cell: Cell2
                  if n.type == "garden_pond"), None)
     if pond is not None and pond.cells:
         dry = _dry_ring(pond.cells) & reachable
-        pick = _nearest(waypoints[-1], dry - pavilion_dry) or _nearest(waypoints[-1], dry)
+        current = waypoints[-1]
+        pick = (_nearest(current, dry - pavilion_dry - {current})
+                or _nearest(current, dry - {current}))
         if pick is not None:
             waypoints.append(pick)
 
@@ -2493,7 +3070,22 @@ def _collect_tour_waypoints(compound: CompoundGraph, start_cell: Cell2
     # from the previous waypoint.
     if pavilion is not None and pavilion.cells:
         dry = pavilion_dry
-        pick = _nearest(waypoints[-1], dry)
+        entry_side = pavilion.meta.get("entry_side", "south")
+        px0 = min(x for x, _ in pavilion.cells)
+        px1 = max(x for x, _ in pavilion.cells)
+        pz0 = min(z for _, z in pavilion.cells)
+        pz1 = max(z for _, z in pavilion.cells)
+        if entry_side == "south":
+            entry_dry = {c for c in dry if c[1] == pz1 + 1 and px0 <= c[0] <= px1}
+        elif entry_side == "north":
+            entry_dry = {c for c in dry if c[1] == pz0 - 1 and px0 <= c[0] <= px1}
+        elif entry_side == "east":
+            entry_dry = {c for c in dry if c[0] == px1 + 1 and pz0 <= c[1] <= pz1}
+        else:
+            entry_dry = {c for c in dry if c[0] == px0 - 1 and pz0 <= c[1] <= pz1}
+        center = pavilion.meta.get("center", [px0, pz0])
+        center_seed = (int(center[0]), int(center[1]))
+        pick = _nearest(center_seed, entry_dry) or _nearest(waypoints[-1], dry - {waypoints[-1]})
         if pick is not None:
             waypoints.append(pick)
 
@@ -3911,7 +4503,8 @@ def _select_waterside_gallery_run(lot_w: int, gy0: int, gy1: int,
 
 def _select_waterside_pavilion_center(lot_w: int, gy0: int, gy1: int,
                                       water: Set[Cell2], blocked: Set[Cell2],
-                                      size: int = 3) -> Optional[Cell2]:
+                                      size: int = 3,
+                                      clearance: int = 0) -> Optional[Cell2]:
     """Select a dry 亭 footprint that reads as waterside.
 
     The rockery was moved into the pond, but the old pavilion placement still
@@ -3939,6 +4532,17 @@ def _select_waterside_pavilion_center(lot_w: int, gy0: int, gy1: int,
             }
             if cells & water or cells & blocked:
                 continue
+            if clearance > 0:
+                clear_cells = {
+                    (x, z)
+                    for x in range(cx - clearance, cx + clearance + 1)
+                    for z in range(cz - clearance, cz + clearance + 1)
+                }
+                if (cx - clearance < 1 or cx + clearance > lot_w - 2
+                        or cz - clearance <= gy0 or cz + clearance > gy1):
+                    continue
+                if clear_cells & blocked:
+                    continue
             edge_count = 0
             for x, z in cells:
                 nbrs = {(x + 1, z), (x - 1, z), (x, z + 1), (x, z - 1)}
@@ -3951,11 +4555,12 @@ def _select_waterside_pavilion_center(lot_w: int, gy0: int, gy1: int,
             x1 = max(x for x, _ in cells)
             z0 = min(z for _, z in cells)
             z1 = max(z for _, z in cells)
-            # Prefer the west bank so the pavilion faces across the pond
-            # instead of hiding behind the north gallery or the perimeter wall.
-            if x1 < pond_x0:
+            # Prefer the south bank: it gives the pavilion a front approach with
+            # water behind it, matching the supplied reference image and avoiding
+            # the previous west-bank corridor read.
+            if z0 > pond_z1:
                 side_rank = 0
-            elif z0 > pond_z1:
+            elif x1 < pond_x0:
                 side_rank = 1
             elif z1 < pond_z0:
                 side_rank = 2
@@ -3963,9 +4568,11 @@ def _select_waterside_pavilion_center(lot_w: int, gy0: int, gy1: int,
                 side_rank = 3
             else:
                 side_rank = 4
+            axis_dist = abs(cx - lot_w // 2)
             center_dist = abs(cx - pond_cx) + abs(cz - pond_cz)
             score = (
                 float(side_rank),
+                float(axis_dist),
                 float(-edge_count),
                 float(center_dist),
                 float(abs(cz - pond_cz)),
@@ -3989,12 +4596,30 @@ def _layout_garden(compound: CompoundGraph, style: Style, bands: dict,
     gy0, gy1 = bands["garden_band"]
     interior_w = lot_w - 2   # columns x=1..lot_w-2
 
+    pavilion_size = 9
+    pavilion_half = pavilion_size // 2
     pond_w   = max(5, interior_w // 3)
     garden_d = gy1 - gy0 + 1
-    feature_d = max(6, garden_d * 2 // 3)
+    # Reserve a full pavilion footprint on the south bank. The previous pond
+    # filled the garden depth first, forcing the reference亭 onto the west bank
+    # where Chunky views read it as squeezed between walls and side roofs. The
+    # reference image is a front-facing waterside pavilion: dry approach in
+    # front, water behind. Keep the pond readable, but leave the 9-cell pavilion
+    # footprint plus a short dry approach before the perimeter wall.
+    feature_d = max(5, min(garden_d * 2 // 3,
+                           garden_d - (pavilion_size + 3)))
 
-    pond_x0, pond_x1 = lot_w - 1 - pond_w, lot_w - 2
-    pond_z0, pond_z1 = gy0, gy0 + feature_d - 1
+    # Arc 11 reference view: the pond/pavilion composition must read as the
+    # garden focus, not as an east-wall corner object. Center the water court on
+    # the mansion axis so the south-bank pavilion presents the same front-facing
+    # square silhouette as the reference image.
+    pond_x0 = max(1, min(lot_w - pond_w - 1, lot_w // 2 - pond_w // 2))
+    pond_x1 = pond_x0 + pond_w - 1
+    # Leave a dry cell band immediately inside the moon gate. If the centered
+    # pond starts at gy0, the tour route's first waypoint (axis, gy0 + 1) lands
+    # in water and the garden walk disappears for small variants.
+    pond_z0 = gy0 + 2
+    pond_z1 = pond_z0 + feature_d - 1
 
     # Main 假山: the hand-sculpted hero cluster (add-hero-rockery), a fixed 3×3×3
     # sculpt. Placed as a 水心假山 (island rockery) — its base sits in the middle
@@ -4024,11 +4649,32 @@ def _layout_garden(compound: CompoundGraph, style: Style, bands: dict,
         set(rockery_node.cells if rockery_node is not None else set())
         | compound.building_cells()
         | compound.node_cells("perimeter_wall", "screen_wall")
+        | {(x, gy0) for x in range(1, lot_w - 1)}
     )
     pavilion_center = _select_waterside_pavilion_center(
-        lot_w, gy0, gy1, set(water_cells), pavilion_blocked, size=3)
+        lot_w, gy0, gy1, set(water_cells), pavilion_blocked,
+        size=pavilion_size, clearance=pavilion_half)
     if pavilion_center is not None:
-        place_garden_pavilion(compound, pavilion_center, 3, 0, style)
+        ph = pavilion_size // 2
+        pavilion_cells = {
+            (x, z)
+            for x in range(pavilion_center[0] - ph, pavilion_center[0] + ph + 1)
+            for z in range(pavilion_center[1] - ph, pavilion_center[1] + ph + 1)
+        }
+        side_delta = {"north": (0, -1), "south": (0, 1),
+                      "east": (1, 0), "west": (-1, 0)}
+        side_score: Dict[str, int] = {}
+        for side, (dx, dz) in side_delta.items():
+            side_score[side] = sum(
+                1
+                for x, z in pavilion_cells
+                if (x + dx, z + dz) in water_cells
+            )
+        water_side = max(side_score, key=side_score.get)
+        pavilion_node = place_garden_pavilion(compound, pavilion_center,
+                                              pavilion_size, 0, style,
+                                              water_side=water_side)
+        _open_garden_pavilion_sightline(compound, style, pavilion_node)
 
     # NOTE: the 汀步 (stepping stones) across the pond were removed. They had
     # previously been rendered as myvillage:rockery_block[variant=standalone] —
@@ -4120,41 +4766,11 @@ def _layout_garden(compound: CompoundGraph, style: Style, bands: dict,
                 "form": "slab_bridge",
             }))
 
-    # 水边廊 (shoreside gallery): a short, straight covered_gallery run on one
-    # clean bank. Earlier versions converted every dry noise-shore cell into a
-    # 3D gallery, which made ragged roof/column clutter and even caught the
-    # rockery island as "shore". Keep the freeform pond, but make the gallery a
-    # composed architectural strip.
-    gallery_blocked = (
-        set(rockery_node.cells if rockery_node is not None else set())
-        | _chebyshev_ring(set(rockery_node.cells if rockery_node is not None else set()))
-        | compound.building_cells()
-        | compound.node_cells("perimeter_wall", "screen_wall", "garden_pavilion")
-        | bridge_cells
-        | _chebyshev_ring(bridge_cells)
-    )
-    shore, water_side, water_edge = _select_waterside_gallery_run(
-        lot_w, gy0, gy1, set(water_cells), gallery_blocked,
-        preferred_side="north", max_len=7)
-    if shore and water_side:
-        base_y = min(_natural_surface_y(compound, c) for c in shore)
-        # For a two-cell-deep waterside strip, using the water side as the
-        # post-side places posts on the dry back row; the front row stays open
-        # to the pond with a supported low railing.
-        _place_covered_gallery_3d(compound, style, shore, base_y,
-                                  open_side=water_side, post_side=water_side,
-                                  rail_on_footprint=True,
-                                  roof_on_post_line_only=True,
-                                  light_posts=True)
-        clear = water_edge | (_chebyshev_ring(water_edge) & set(water_cells))
-        _clear_lily_pads(compound, clear)
-        compound.parcel_nodes.append(
-            ParcelNode("waterside_gallery", "covered_gallery", shore, {
-                "form": "shoreside", "along": "pond_straight_shore",
-                "floor_slot": "PATH_GALLERY", "water_side": water_side,
-                "water_edge_cells": [list(c) for c in sorted(water_edge)],
-                "rendered_as": "3d_covered_gallery",
-            }))
+    # Arc 11: remove the separate right-side waterside shed. The supplied
+    # reference is a single freestanding scenic pavilion; the short
+    # waterside_gallery previously read as a meaningless wooden棚子 beside the
+    # pond. Waterside semantics stay on the bridge/stone edge and pavilion, not
+    # on an extra roofed strip.
 
     garden_cells = {(x, z) for x in range(1, lot_w - 1)
                     for z in range(gy0, gy1 + 1)}
@@ -4245,7 +4861,9 @@ def generate_mansion(seed: int, style: Optional[Style] = None,
     lot_w_m, _lot_d_m = compound.lot_size
     passage_node, passage_inner = place_moon_gate_screen(
         compound, style, axis, garden_z0, 1, lot_w_m - 2)
+    _open_reference_pavilion_backdrop(compound, style)
     _route_tour_path(compound, style, passage_inner)
+    _place_reference_pavilion_landscape(compound, style, seed)
     _place_band_transition_stairs(compound, style)
     return compound
 
@@ -5322,7 +5940,7 @@ def _check_waterside_visual_composition(compound: CompoundGraph) -> List[str]:
 
     Structural checks can pass while the pond reads as a single tangled mass of
     roof, posts, planks, lily pads, and rockery. This keeps the water, bridge,
-    rockery island, and 水边廊 as separate readable elements.
+    rockery island, and reference pavilion readable as separate elements.
     """
     errors: List[str] = []
     water = compound.node_cells("garden_pond", "water_feature")
@@ -5346,43 +5964,133 @@ def _check_waterside_visual_composition(compound: CompoundGraph) -> List[str]:
         if not touches_water:
             errors.append(
                 f"garden_pavilion_detached_from_pond:{pavilion.meta.get('center')}")
+        if pavilion.meta.get("roof_form") != "reference_heavy_double_eave":
+            errors.append(
+                f"garden_pavilion_reference_mismatch:roof_form:{pavilion.meta.get('roof_form')}")
+        if int(pavilion.meta.get("size", 0)) < 9:
+            errors.append(
+                f"garden_pavilion_reference_mismatch:size:{pavilion.meta.get('size')}")
+        center_meta = pavilion.meta.get("center", [0, 0])
+        if len(center_meta) == 2:
+            center_x = int(center_meta[0])
+            lot_w, _lot_d = compound.lot_size
+            if abs(center_x - lot_w // 2) > 2:
+                errors.append(
+                    f"garden_pavilion_reference_mismatch:off_axis:{center_x}")
+        base_y = int(pavilion.meta.get("base_y", 0))
+        column_top_y = int(pavilion.meta.get("column_top_y", base_y + 4))
+        column_states: List[str] = []
+        for col in pavilion.meta.get("columns", []):
+            if len(col) != 2:
+                continue
+            x, z = int(col[0]), int(col[1])
+            for y in range(base_y + 1, column_top_y + 1):
+                cell = compound.grid.get((x, y, z))
+                if cell is not None and cell.slot == "COLUMN":
+                    column_states.append(cell.state)
+        if len(column_states) < 20 or any("_fence" in s for s in column_states):
+            errors.append("garden_pavilion_reference_mismatch:heavy_columns")
+        if len(pavilion.meta.get("lanterns", [])) < 5:
+            errors.append("garden_pavilion_reference_mismatch:lanterns")
+        if len(pavilion.meta.get("visible_lamps", [])) < 4:
+            errors.append("garden_pavilion_reference_mismatch:visible_lamps")
+        if len(pavilion.meta.get("base_lanterns", [])) < 4:
+            errors.append("garden_pavilion_reference_mismatch:base_lanterns")
+        if len(pavilion.meta.get("bracket_details", [])) < 16:
+            errors.append("garden_pavilion_reference_mismatch:brackets")
+        if len(pavilion.meta.get("ridge_ornaments", [])) < 5:
+            errors.append("garden_pavilion_reference_mismatch:ridge_ornaments")
+        for ornament in pavilion.meta.get("ridge_ornaments", []):
+            if len(ornament) != 3:
+                continue
+            ox, oy, oz = (int(ornament[0]), int(ornament[1]), int(ornament[2]))
+            below = compound.grid.get((ox, oy - 1, oz))
+            if below is None or below.state == AIR:
+                errors.append("garden_pavilion_reference_mismatch:floating_ridge_ornament")
+                break
+        lower_half = int(pavilion.meta.get("lower_eave_half", 0))
+        upper_half = int(pavilion.meta.get("upper_eave_half", 0))
+        lower_eave_y = int(pavilion.meta.get("lower_eave_y", base_y + 5))
+        upper_eave_y = int(pavilion.meta.get("upper_eave_y", base_y + 6))
+        cx, cz = pavilion.meta.get("center", [0, 0])
+        lower_roof = 0
+        upper_roof = 0
+        if lower_half and upper_half:
+            for x in range(int(cx) - lower_half, int(cx) + lower_half + 1):
+                for z in range(int(cz) - lower_half, int(cz) + lower_half + 1):
+                    cell = compound.grid.get((x, lower_eave_y, z))
+                    if cell is not None and cell.slot == "ROOF_DARK":
+                        lower_roof += 1
+            for x in range(int(cx) - upper_half, int(cx) + upper_half + 1):
+                for z in range(int(cz) - upper_half, int(cz) + upper_half + 1):
+                    cell = compound.grid.get((x, upper_eave_y, z))
+                    if cell is not None and cell.slot == "ROOF_DARK":
+                        upper_roof += 1
+            if lower_roof < (2 * lower_half + 1) ** 2:
+                errors.append("garden_pavilion_reference_mismatch:lower_eave")
+            if upper_roof < (2 * upper_half + 1) ** 2:
+                errors.append("garden_pavilion_reference_mismatch:upper_eave")
+        opening = pavilion.meta.get("scenic_opening", {})
+        if opening:
+            z = int(opening.get("boundary_z", -1))
+            x0 = int(opening.get("x0", 0))
+            x1 = int(opening.get("x1", -1))
+            blocked = [
+                (x, y, z)
+                for x in range(x0, x1 + 1)
+                for y in range(0, 8)
+                if not compound.grid.is_empty((x, y, z))
+            ]
+            if blocked:
+                errors.append(
+                    f"garden_pavilion_reference_mismatch:blocked_scenic_opening:{blocked[:4]}")
+            side_blocked = [
+                (int(cell[0]), y, int(cell[1]))
+                for cell in opening.get("side_cells", [])
+                if len(cell) == 2
+                for y in range(0, 8)
+                if not compound.grid.is_empty((int(cell[0]), y, int(cell[1])))
+            ]
+            if side_blocked:
+                errors.append(
+                    f"garden_pavilion_reference_mismatch:blocked_side_scenic_opening:{side_blocked[:4]}")
+        else:
+            errors.append("garden_pavilion_reference_mismatch:missing_scenic_opening")
+        backdrop = pavilion.meta.get("backdrop_opening", {})
+        if backdrop:
+            wall_z = int(backdrop.get("wall_z", -1))
+            bx0 = int(backdrop.get("x0", 0))
+            bx1 = int(backdrop.get("x1", -1))
+            backdrop_blocked = [
+                (x, y, wall_z)
+                for x in range(bx0, bx1 + 1)
+                for y in range(0, 8)
+                if not compound.grid.is_empty((x, y, wall_z))
+            ]
+            if backdrop_blocked:
+                errors.append(
+                    f"garden_pavilion_reference_mismatch:blocked_backdrop_opening:{backdrop_blocked[:4]}")
+        else:
+            errors.append("garden_pavilion_reference_mismatch:missing_backdrop_opening")
+        landscape = pavilion.meta.get("reference_landscape", {})
+        if landscape:
+            if len(landscape.get("side_water", [])) < 12:
+                errors.append("garden_pavilion_reference_mismatch:side_water_landscape")
+            if len(landscape.get("flowers", [])) < 12:
+                errors.append("garden_pavilion_reference_mismatch:flower_landscape")
+            if len(landscape.get("bamboo", [])) < 4:
+                errors.append("garden_pavilion_reference_mismatch:bamboo_landscape")
+            if len(landscape.get("path_cells", [])) < 8:
+                errors.append("garden_pavilion_reference_mismatch:path_landscape")
+            if len(landscape.get("green_backdrop", [])) < 10:
+                errors.append("garden_pavilion_reference_mismatch:green_backdrop")
+        else:
+            errors.append("garden_pavilion_reference_mismatch:missing_reference_landscape")
     galleries = [n for n in compound.parcel_nodes if n.id == "waterside_gallery"]
-    if not galleries:
-        errors.append("waterside_gallery_clutter:missing")
-        return errors
-    if len(galleries) != 1:
-        errors.append(f"waterside_gallery_clutter:count:{len(galleries)}")
-
-    for gallery in galleries:
-        cells = set(gallery.cells)
-        if cells & water:
-            errors.append(f"waterside_gallery_clutter:overlaps_water:{sorted(cells & water)[:4]}")
-        if cells & rockery:
-            errors.append(f"waterside_gallery_clutter:overlaps_rockery:{sorted(cells & rockery)[:4]}")
-        if cells & bridge:
-            errors.append(f"waterside_gallery_clutter:overlaps_bridge:{sorted(cells & bridge)[:4]}")
-        if not (6 <= len(cells) <= 14):
-            errors.append(f"waterside_gallery_clutter:size:{len(cells)}")
-        if cells:
-            xs = [x for x, _ in cells]
-            zs = [z for _, z in cells]
-            width = max(xs) - min(xs) + 1
-            depth = max(zs) - min(zs) + 1
-            if min(width, depth) != 2 or width * depth != len(cells):
-                errors.append(f"waterside_gallery_clutter:not_straight:{sorted(cells)[:8]}")
-        water_edge = {tuple(c) for c in gallery.meta.get("water_edge_cells", [])}
-        if not water_edge or not water_edge <= cells:
-            errors.append("waterside_gallery_clutter:missing_water_edge")
-        for gx, gz in sorted(water_edge):
-            nbrs = {(gx + 1, gz), (gx - 1, gz), (gx, gz + 1), (gx, gz - 1)}
-            if not (nbrs & water):
-                errors.append(f"waterside_gallery_clutter:not_shore:{(gx, gz)}")
+    if galleries:
+        errors.append(f"waterside_gallery_clutter:unexpected:{len(galleries)}")
 
     clear_lanes = set(bridge)
-    for gallery in galleries:
-        water_edge = {tuple(c) for c in gallery.meta.get("water_edge_cells", [])}
-        clear_lanes |= water_edge
-        clear_lanes |= _chebyshev_ring(water_edge) & water
     if bridge:
         clear_lanes |= _chebyshev_ring(bridge) & water
     for pos, cell in compound.grid.iter_cells():

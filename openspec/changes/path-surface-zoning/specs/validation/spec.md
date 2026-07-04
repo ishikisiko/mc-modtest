@@ -88,40 +88,55 @@ garden has no pond crossing (no 亭/island on the water) SHALL skip the check.
 ### Requirement: Mansion validator guards against cluttered waterside composition
 
 `validate_mansion` SHALL verify that the pond, island rockery, waterside bridge,
-and 水边廊 remain visually separated. The 水边廊 SHALL be exactly one short,
-straight, two-cell-deep `covered_gallery` footprint; it SHALL NOT overlap pond
-water, the island rockery, or the bridge; and its recorded water-edge row SHALL
-be 4-adjacent to pond water. A violation SHALL fail with
-`waterside_gallery_clutter:<reason>`.
+and reference-style `garden_pavilion` remain visually separated. A separate
+pond-side `waterside_gallery` / 水边廊 shed SHALL NOT be present. A violation
+SHALL fail with `waterside_gallery_clutter:<reason>`.
 
 `validate_mansion` SHALL also verify that lily pads do not occupy the
-bridge/gallery clear-water lanes. A violation SHALL fail with
-`pond_lily_clutter:<cell>`.
+bridge clear-water lane. A violation SHALL fail with `pond_lily_clutter:<cell>`.
 
 `validate_mansion` SHALL also verify that the `garden_pavilion` is a waterside
 pavilion: its footprint SHALL be dry and at least one footprint cell SHALL be
 4-adjacent to pond water. A detached or missing pavilion SHALL fail with
 `garden_pavilion_detached_from_pond:<reason>`.
 
-#### Scenario: A ragged all-shore gallery fails
+`validate_mansion` SHALL also verify that the `garden_pavilion` carries the
+reference-pavilion parts: raised stone base, wood deck, heavy non-fence columns,
+double eaves, lanterns, and stone roof ornaments. A mismatch SHALL fail with
+`garden_pavilion_reference_mismatch:<reason>`.
 
-- **WHEN** the 水边廊 footprint is not a short straight two-cell-deep strip
+`validate_mansion` SHALL also verify that the reference pavilion is not an
+edge-corner object and is not visually boxed in: its center x SHALL be near the
+mansion axis, its frontage/side scenic openings SHALL be clear, and its
+moon-gate-screen water backdrop opening SHALL be clear from y=0 through y=7. A
+blocked or missing opening SHALL fail with
+`garden_pavilion_reference_mismatch:<reason>`.
+
+`validate_mansion` SHALL also verify that the reference pavilion scene carries
+the supplied image's landscape context: visible side water, foreground
+flowers/grass, a soft approach path, bamboo, and a green backdrop. A missing
+landscape component SHALL fail with
+`garden_pavilion_reference_mismatch:<reason>`.
+
+#### Scenario: A reintroduced waterside shed fails
+
+- **WHEN** a parcel with id `waterside_gallery` is present in the pond
+  composition
 - **THEN** the validator SHALL fail with
-  `waterside_gallery_clutter:not_straight` or
-  `waterside_gallery_clutter:size:<count>`.
-
-#### Scenario: A gallery overlapping the island or bridge fails
-
-- **WHEN** the 水边廊 footprint overlaps the island rockery or waterside bridge
-- **THEN** the validator SHALL fail with
-  `waterside_gallery_clutter:overlaps_rockery:<cells>` or
-  `waterside_gallery_clutter:overlaps_bridge:<cells>`.
+  `waterside_gallery_clutter:unexpected:<count>`.
 
 #### Scenario: Lily pads in the clear-water lane fail
 
 - **WHEN** a lily pad lies on a bridge cell or in the clear-water lane adjacent
-  to the bridge or 水边廊 water-edge row
+  to the bridge
 - **THEN** the validator SHALL fail with `pond_lily_clutter:<cell>`.
+
+#### Scenario: An underspecified reference pavilion fails
+
+- **WHEN** the garden pavilion is missing a heavy-column, lantern, double-eave,
+  stone-base, or roof-ornament requirement
+- **THEN** the validator SHALL fail with
+  `garden_pavilion_reference_mismatch:<reason>`.
 
 #### Scenario: A detached garden pavilion fails
 

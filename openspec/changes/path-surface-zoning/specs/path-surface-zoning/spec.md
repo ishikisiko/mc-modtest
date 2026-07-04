@@ -144,30 +144,19 @@ wall cells so the opening reads as a 圆洞门.
 - **THEN** the passage cells SHALL be voxel-walkable per `courtyard-voxel-walkability`
 - **AND** the surrounding wall cells SHALL carry the `moon_gate` motif.
 
-### Requirement: The 水边廊 is a shoreside covered-gallery placement variant
+### Requirement: The pond composition has no separate waterside shed
 
-The 水边廊 SHALL reuse the existing `covered_gallery` parcel geometry, placed
-as one short, straight, two-cell-deep run along a clean pond shore (a placement
-rule), not a new parcel type and not the whole freeform/noise shoreline. Its
-water-edge row SHALL be 4-adjacent to pond water; its full footprint SHALL NOT
-overlap pond water, the rockery island, or the waterside bridge. Its floor SHALL
-resolve through `PATH_GALLERY` (wood-stone mix). It SHALL be a waypoint or
-endpoint of the tour route.
+The garden pond composition SHALL NOT generate a separate right-side
+`waterside_gallery` / 水边廊 shed. Waterside semantics SHALL be expressed by the
+`PATH_WATERSIDE` stone/slab bridge, the pond edge, and the pond-adjacent
+reference-style `garden_pavilion`; not by an extra roofed strip on the shore.
 
-#### Scenario: A shoreside gallery reuses covered_gallery geometry
+#### Scenario: No shoreside shed is generated
 
-- **WHEN** the 水边廊 is placed
-- **THEN** it SHALL be a `covered_gallery` parcel whose water-edge row lies along
-  the pond shore
-- **AND** its footprint SHALL be a short straight two-cell-deep strip
-- **AND** its floor SHALL resolve to `PATH_GALLERY`.
-
-#### Scenario: A shoreside gallery does not consume the pond composition
-
-- **WHEN** the 水边廊, pond, island rockery, and waterside bridge are generated
-- **THEN** the 水边廊 footprint SHALL NOT overlap pond water, the island rockery,
-  or the bridge
-- **AND** the gallery SHALL NOT be generated from every freeform shoreline cell.
+- **WHEN** the garden pond, island rockery, waterside bridge, and
+  `garden_pavilion` are generated
+- **THEN** there SHALL be no parcel with id `waterside_gallery`
+- **AND** no covered-gallery footprint SHALL be placed on the pond shore.
 
 ### Requirement: The 仆役房 is a service-house archetype on the 夹道
 
@@ -192,7 +181,7 @@ water surface y) crossing the pond to the 亭 or island rockery. The deleted
 stepping-stone path (`myvillage:rockery_block` cells) SHALL NOT be restored. The
 slab bridge SHALL span the pond's narrowest water crossing between the
 亭/island and the shore, reaching both shores. Lily pads SHALL be sparse and
-SHALL NOT occupy the bridge cells or the bridge/gallery clear-water lanes.
+SHALL NOT occupy the bridge cells or the bridge clear-water lane.
 
 #### Scenario: The waterside crossing uses slabs, not rockery blocks
 

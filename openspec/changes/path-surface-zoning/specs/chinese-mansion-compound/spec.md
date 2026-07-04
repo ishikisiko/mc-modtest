@@ -7,16 +7,27 @@ wall) and SHALL contain at least one of each: `garden_pond`, `garden_rockery`,
 `garden_pavilion`, plus a `PATH_TOUR` 曲径 connecting the 月洞门 passage to each
 feature. The `garden_pavilion` SHALL sit on a dry pond bank with its footprint
 4-adjacent to pond water so it reads as a 水亭 rather than a detached garden
-building. The `garden_pavilion` roof SHALL be a contiguous thin sloped-eave
-roof cap supported by light posts and SHALL NOT use raw/default stair blocks as
-a floating ridge cap or a bulky upper slab mass. A 水边廊 (shoreside
-`covered_gallery` variant) SHALL line one clean pond-shore run as a short
-straight two-cell-deep gallery, and a `PATH_WATERSIDE` stairs + slab bridge
-SHALL cross the pond to the 亭 or island rockery. The 水边廊 SHALL NOT overlap
-the pond water, the island rockery, or the bridge, SHALL NOT consume the whole
-freeform shoreline, and its waterside roof SHALL NOT cover the whole two-cell
-footprint as a closed wooden shed. The 花园 SHALL NOT contain full enclosed
-buildings (亭 are open-sided, per `garden-rockery`).
+building. When the garden depth allows it, the pond/pavilion composition SHALL
+be centered on the mansion axis and the pavilion SHALL sit on the dry south bank
+with a south-facing approach and pond water behind it, rather than being
+squeezed into the west-side wall corridor or an east-wall corner. The back
+perimeter behind that approach, the side sightlines, and the moon-gate screen
+behind the water SHALL be opened down to ground level around the pavilion
+frontage/backdrop so the reference pavilion is not visually reviewed through a
+full-height wall corridor, over a low wall, or against a blank wall.
+The `garden_pavilion` SHALL replicate the supplied heavy scenic
+pavilion reference as closely as the generator allows: raised stone base,
+wooden deck, thick timber posts, railings, trapdoor/lattice bracket details,
+hanging lanterns, broad dark-oak double eaves, and grey stone roof ornaments.
+The pavilion setting SHALL include the reference image's visible landscape cues:
+side water beside the platform, foreground flowers/grass, a soft stone/dirt
+approach path, a bamboo cluster, and a green backdrop behind the water.
+The `garden_pavilion` SHALL NOT float above the pond bank and SHALL NOT revert
+to fence-post/light-eave proportions. The separate right-side 水边廊 / shed
+(`waterside_gallery`) SHALL NOT be generated in the pond composition. A
+`PATH_WATERSIDE` stairs + slab bridge SHALL cross the pond to the 亭 or island
+rockery. The 花园 SHALL NOT contain full enclosed buildings (亭 are open-sided,
+per `garden-rockery`).
 
 The tour route through the 花园 SHALL be a waypoint polyline (not a
 shortest-path tree), routed from the `moon_gate_passage` through the rockery
@@ -24,13 +35,12 @@ south face, the nearest pond shore, and the 亭, with each segment a shortest
 path and obstacle-avoidance forcing any straight segment to curve around the
 rockery/pond.
 
-#### Scenario: The 花园 has pond + rockery + pavilion + waterside gallery
+#### Scenario: The 花园 has pond + rockery + reference pavilion, without a shed
 
 - **WHEN** the 花园 band is generated with `garden_scale ∈ {small, large}`
 - **THEN** the band SHALL contain at least one `garden_pond`, one
   `garden_rockery`, and one `garden_pavilion`
-- **AND** a shoreside `covered_gallery` (水边廊) SHALL line one short straight
-  pond-shore run
+- **AND** no `waterside_gallery` shed SHALL be generated beside the pond
 - **AND** a `PATH_WATERSIDE` slab bridge SHALL cross the pond to the 亭/island
 - **AND** a `PATH_TOUR` 曲径 SHALL connect the 月洞门 passage to each feature per
   `courtyard-voxel-walkability`.
@@ -44,27 +54,39 @@ rockery/pond.
 - **AND** the pavilion SHALL NOT be placed on the far side of the garden lawn
   without a direct pond edge.
 
-#### Scenario: The pavilion roof is not a floating default-stair cap
+#### Scenario: The pavilion has a front approach and pond behind it
+
+- **WHEN** the garden band can fit a 9x9 pavilion south of the pond
+- **THEN** the pavilion SHALL be placed on the dry south bank
+- **AND** its entry side SHALL face south
+- **AND** its water side SHALL face north
+- **AND** its center x SHALL be within two cells of the mansion axis
+- **AND** the perimeter cells across the pavilion frontage SHALL be clear from
+  y=0 through y=7
+- **AND** the side perimeter cells beside the pavilion SHALL also be clear from
+  y=0 through y=7
+- **AND** the moon-gate screen cells across the water backdrop SHALL be clear
+  from y=0 through y=7.
+
+#### Scenario: The pavilion replicates the supplied heavy scenic pavilion
 
 - **WHEN** the `garden_pavilion` roof is placed
-- **THEN** the roof SHALL form a contiguous cap over the pavilion columns
-- **AND** no raw/default stair state SHALL be used as a detached ridge cap above
-  the pavilion
-- **AND** the upper cap SHALL be smaller than the lower eave layer so the roof
-  does not read as a heavy wooden box.
-
-#### Scenario: The waterside gallery remains open rather than shed-like
-
-- **WHEN** the 水边廊 is rendered on a short two-cell-deep footprint
-- **THEN** it SHALL still have a roof and balustrade
-- **AND** the roof SHALL NOT cover every footprint cell.
+- **THEN** it SHALL have a raised stone base and wood deck under the columns
+- **AND** it SHALL use heavy non-fence timber columns
+- **AND** it SHALL have railings, trapdoor/lattice bracket details, and hanging
+  lanterns
+- **AND** it SHALL have a broad lower dark-oak eave, a smaller raised upper
+  eave, and grey stone roof ornaments
+- **AND** the surrounding setting SHALL include visible side water, foreground
+  flowers/grass, an approach path, bamboo, and a green backdrop.
 
 #### Scenario: The pond composition stays visually separated
 
-- **WHEN** the 水边廊, pond, island rockery, and waterside bridge are generated
-- **THEN** the 水边廊 footprint SHALL NOT overlap pond water, the island rockery,
-  or the bridge
-- **AND** bridge/gallery clear-water lanes SHALL contain no lily pads.
+- **WHEN** the pavilion, pond, island rockery, and waterside bridge are generated
+- **THEN** the pavilion footprint SHALL NOT overlap pond water or the island
+  rockery
+- **AND** bridge clear-water lanes SHALL contain no lily pads
+- **AND** no separate waterside shed SHALL be present.
 
 #### Scenario: The 花园 tour route winds through scenic waypoints
 

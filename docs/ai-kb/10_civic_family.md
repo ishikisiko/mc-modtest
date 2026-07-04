@@ -30,42 +30,33 @@ and `gate_type`; water and planting remain minor seeded axes.
 
 ## Ground + path layer
 
-The courtyard floor is no longer a single gravel strip floating over air. Two
-data-driven passes (`tools/buildgen/compound.py`) rebuild the ground and the
-walkable network:
+The courtyard and mansion floor use the two-axis surface-zoning model documented
+in [16_path_surface_zoning.md](16_path_surface_zoning.md). Material belongs to
+the space zone, while route shape belongs to the path planner:
 
-- **Ground layer** (`_place_yard_ground`, courtyard-ground-layer spec): every
-  non-building parcel cell gets a solid block at its natural surface y
-  (`y = -1` in the outer yard and inner-gate band; `y = plinth_h - 1` on the
-  main-yard plinth). Each cell is classified 露天 `open_sky` (default — outer
-  yard reads as `grass_block`, main yard reads as paver) or 屋檐下 `under_eave`
-  (covered-gallery cells, moon-platform cells, and the 1-cell Chebyshev ring
-  around each building footprint — reads as `stone_bricks`). The block comes
-  from the style's `GROUND_YARD_OPEN` / `GROUND_YARD_UNDER_EAVE` slots; both
-  resolve to vanilla `minecraft:` ids under `--profile vanilla`.
-- **Path network** (`_route_complete_path`, courtyard-path-network spec): a
-  multi-source BFS seeds from every door-front, every water feature / fish jar
-  (snapped to one walkable approach cell per node), one entry per planting bed,
-  the moon-platform apron, and the street-gate entry cell. The reached cells
-  form one connected walkable surface written as `GROUND_PATH` at the same y as
-  the ground tile, with `PROTECTED` so material variation never re-colors it.
-  Path cells never overwrite a door-front (the building's own step owns that
-  cell).
-- **Plinth transition** (`_place_plinth_stairs`): where a path cell at
-  `y = plinth_h - 1` is 4-adjacent to a path cell at `y = -1`, a single
-  `stone_brick_stairs[facing=<toward plinth>, half=bottom]` replaces the outer
-  path cell so the player steps up without jumping. Small-courtyard units (no
-  plinth) skip this pass.
+- formal axis, yard heart, galleries, alleys, garden tour, and waterside edges
+  resolve through separate style slots such as `PATH_FORMAL`,
+  `GROUND_YARD_HEART`, `PATH_GALLERY`, `PATH_ALLEY`, `PATH_TOUR`, and
+  `PATH_WATERSIDE`;
+- formal/service paths are routed from the gate with single-source predecessor
+  trees; the garden tour is a waypoint polyline; multi-source BFS is retained
+  only for endpoint reachability checks;
+- plinth-boundary stairs are required only when `plinth_h >= 2`, since a
+  one-block Minecraft height difference is a free autostep;
+- styles that do not carry the finer surface-zone slots fall back to
+  `GROUND_YARD_UNDER_EAVE`, preserving byte-stability for families outside the
+  surface-zone rollout.
 
-`validate_compound` / `validate_small_courtyard` enforce the five new error
-codes — `endpoint_unreachable`, `ground_layer_hole`, `ground_kind_mismatch`,
-`plinth_edge_missing_stair`, `path_overlaps_building_door` — and the library
-report carries `ground_cells`, `endpoint_count`, and `stair_cells` stats.
+`validate_compound`, `validate_small_courtyard`, and `validate_mansion` enforce
+ground/path holes, material kind mismatches, plinth stair gaps, building-door
+overlaps, voxel reachability, and the path-surface-zoning-specific mansion
+checks.
 
-See also: [courtyard-ground-layer](../../openspec/changes/fix-courtyard-ground-walkability/specs/courtyard-ground-layer/spec.md),
-[courtyard-path-network](../../openspec/changes/fix-courtyard-ground-walkability/specs/courtyard-path-network/spec.md),
+See also: [courtyard-ground-layer](../../openspec/specs/courtyard-ground-layer/spec.md),
+[courtyard-path-network](../../openspec/specs/courtyard-path-network/spec.md),
+[path-surface-zoning](../../openspec/specs/path-surface-zoning/spec.md),
 [courtyard-compound](../../openspec/specs/courtyard-compound/spec.md),
-[chinese-vernacular-roof-vocabulary](../../openspec/changes/rebuild-chinese-courtyard/specs/chinese-vernacular-roof-vocabulary/spec.md),
+[chinese-vernacular-roof-vocabulary](../../openspec/specs/chinese-vernacular-roof-vocabulary/spec.md),
 and [style-profile](../../openspec/specs/style-profile/spec.md).
 
 ## 江南大宅 (chinese_mansion) compound family
@@ -112,18 +103,21 @@ all combinations; 6 seeds hit all 6 templates.
   its footprint, and the perimeter wall gap exactly matches its side walls
 - `tower_house`: 绣楼 / 藏书楼; `stories=2` via multi-story-massing; off-axis
   in 后院 with the door facing its yard
-- `garden_pavilion`: 亭; `chinese_round_ridge` roof; 4-column standoff; placed
-  on or near 假山 peak
+- `garden_pavilion`: 亭; `chinese_round_ridge` vocabulary where applicable;
+  placed as a pond-adjacent dry-bank 水亭 in the surface-zoned mansion garden
 
 **Garden elements:** `garden_rockery` (假山: `myvillage:rockery_block` with
-variant/moss; 5 roles: peak/slope/base/corner/standalone), `garden_pond` (水池:
-freeform noise shoreline, `minecraft:water` at y=-1), `garden_pavilion` 亭,
-汀步 stepping stones across the pond.
+variant/moss), `garden_pond` (水池: freeform noise shoreline, `minecraft:water`
+at y=-1), `moon_gate_passage` (月洞门穿墙通道 and tour-route material boundary),
+`garden_pavilion` 亭, and the `PATH_WATERSIDE` crossing: stone-brick stairs down
+to the waterline plus a slab bridge to the 亭/island. The deleted
+`rockery_block` spike-row stepping-stone crossing is not restored.
 
 **Style profile:** `tools/buildgen/styles/chinese_mansion.json` — adds
-`FACADE_OPEN`, `GARDEN_PATH`, `ROCKERY_STONE`, `GARDEN_PAVEMENT`, `POND_STONE`
-slots beyond the base courtyard vocabulary. Primary `GROUND_PATH` is `gravel`
-(not `stone_bricks`, which is reserved for `GROUND_YARD_UNDER_EAVE`).
+surface-zone slots (`PATH_FORMAL`, `GROUND_YARD_HEART`, `PATH_GALLERY`,
+`PATH_ALLEY`, `PATH_TOUR`, `PATH_WATERSIDE`) plus mansion/garden slots such as
+`FACADE_OPEN`, `GARDEN_PATH`, `ROCKERY_STONE`, `GARDEN_PAVEMENT`, and
+`POND_STONE`.
 
 **Validation:** `validate_mansion` (not `validate_compound`). Checks: gate-house
 presence and south-perimeter straddling, form-rule facings per slot, every
@@ -150,14 +144,14 @@ old 2D graph reachability check for both `chinese_courtyard` and
 
 **Mod decor blocks:** The `myvillage:rockery_block` is a self-namespace block
 shipped with the mod (not an external mod dependency). It is exempt from
-`mod_block_fallbacks.json` under the `myvillage:` self-namespace rule. Under
-`--profile vanilla` it resolves to `minecraft:stone` via the style slot fallback
-chain. See [mod-decor-block-family](../../openspec/changes/rebuild-jiangnan-mansion/specs/mod-decor-block-family/)
+`mod_block_fallbacks.json` under the `myvillage:` self-namespace rule and is
+legal under both `vanilla` and `full` modset profiles. See
+[mod-decor-block-family](../../openspec/specs/mod-decor-block-family/spec.md)
 for the registration scaffolding.
 
-See also: [chinese-mansion-compound](../../openspec/changes/rebuild-mansion-enclosure-plan/specs/chinese-mansion-compound/spec.md),
-[compound-enclosure-planning](../../openspec/changes/rebuild-mansion-enclosure-plan/specs/compound-enclosure-planning/spec.md),
-[building-orientation-variants](../../openspec/changes/rebuild-mansion-enclosure-plan/specs/building-orientation-variants/spec.md),
-[garden-rockery](../../openspec/changes/rebuild-jiangnan-mansion/specs/garden-rockery/),
-[courtyard-voxel-walkability](../../openspec/changes/rebuild-jiangnan-mansion/specs/courtyard-voxel-walkability/),
+See also: [chinese-mansion-compound](../../openspec/specs/chinese-mansion-compound/spec.md),
+[compound-enclosure-planning](../../openspec/specs/compound-enclosure-planning/spec.md),
+[building-orientation-variants](../../openspec/specs/building-orientation-variants/spec.md),
+[garden-rockery](../../openspec/specs/garden-rockery/spec.md),
+[courtyard-voxel-walkability](../../openspec/specs/courtyard-voxel-walkability/spec.md),
 and [validation](../../openspec/specs/validation/spec.md).

@@ -12,6 +12,26 @@
 - Blockstate values are strings.
 - Exported structures can be loaded by the target tool or game version.
 
+## Generated report artifacts
+
+Files under `reports/` are deterministic generator/validator outputs and are
+ignored by default. Regenerate them locally with the validation commands below.
+The two tracked exceptions are hand-curated inputs or historical snapshots:
+`reports/town_distinctness_calibration.json` and
+`reports/cultivation_style_baseline_hashes.txt`.
+
+The `reports/*_library_report.json` files store compound/building graphs in
+summary form. Per-cell lists such as `parcel_nodes[].cells` and
+`building_slots[].footprint` are folded into `*_count` plus `bbox`; non-volume
+massing nodes and node `meta` are dropped. Validator-read report fields are
+preserved: `building_slots[].massing_graph.meta.frontage` for cultivation town,
+`meta.terrace_levels` for cultivation sect, and the volume node's `origin` /
+`size`.
+
+This summary shape does not alter in-memory `to_dict()` data or generated `.nbt`
+output. If a task needs the full per-cell graph, inspect `to_dict()` in code or
+read the `.nbt` instead of expecting generated reports to carry the full graph.
+
 ## Acceptance / preview command checklist
 
 Run before asking for staged manual (visual) review. Prepare both the buildable
