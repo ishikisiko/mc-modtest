@@ -34,9 +34,21 @@
         }
       }
     },
+    "artifact_index": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["task_id", "agent", "status", "artifacts"],
+        "properties": {
+          "task_id": {"type": "string"},
+          "agent": {"type": "string"},
+          "status": {"type": "string"},
+          "artifacts": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
     "visual": {"type": "object"},
     "defect_index": {"type": "object"},
     "human_verdict": {"type": "string"}
   }
 }
-

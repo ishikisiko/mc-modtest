@@ -46,6 +46,14 @@ The compound layer SHALL run a multi-source BFS starting from every endpoint sim
 
 The BFS SHALL be run on the lot interior `(1 ≤ x ≤ lot_w - 2, 1 ≤ z ≤ lot_d - 2)`. The result SHALL be a `dict[Cell2, int]` mapping every reached cell to its distance from the nearest endpoint. Every endpoint SHALL be reached (otherwise the validator fails with `endpoint_unreachable:<cell>`).
 
+#### Scenario: Reachability BFS reaches every endpoint
+
+- **WHEN** the multi-source reachability BFS is run for a courtyard compound
+- **THEN** every path endpoint SHALL have a finite distance in the reachability
+  result
+- **AND** validation SHALL fail with `endpoint_unreachable:<cell>` for any
+  endpoint not reached.
+
 ### Requirement: Path backbone is a single-source shortest-path tree from the street gate
 
 The path **backbone** SHALL be a shortest-path tree rooted at the street-gate entry cell (the first endpoint — the perimeter-wall gate opening, one cell inside the yard). The compound layer SHALL run a single-source BFS from that root (over the same `blocked` set as the reachability BFS) producing a predecessor map `pred`, then trace each endpoint back to the root along `pred`. The union of those per-endpoint paths is the backbone — a connected tree that necessarily crosses any plinth boundary (because the gate sits in the outer yard and main-yard goals sit on the plinth).

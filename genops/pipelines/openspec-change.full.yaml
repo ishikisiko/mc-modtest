@@ -1,0 +1,97 @@
+id: openspec-change.full
+kind: governance-pipeline
+version: 1
+
+goal:
+  summary: "通过 CRAFT 前门创建、修订或继续 OpenSpec change"
+  player_facing_result: "OpenSpec proposal/design/spec/tasks 带有清晰的 worker 归属、证据和后续决策"
+
+constraints:
+  no_distributed_services: true
+  artifact_first: true
+  frontdoor_required: true
+  blocks_runtime_and_release_edits: true
+
+protected_invariants:
+  - id: openspec-remains-contract
+    rule: "OpenSpec defines capability behavior; this pipeline governs how artifacts are authored."
+  - id: proposal-before-implementation
+    rule: "Do not edit generator/runtime/release paths from this pipeline; hand off to an implementation or release pipeline."
+  - id: traceable-worker-ownership
+    rule: "Each changed artifact must be attributed to a task id and worker role."
+
+tasks:
+  - id: intake-goal
+    agent: context-cartographer
+    goal: "Restate owner intent, constraints, likely affected areas, and whether the work is CRAFT-required."
+    outputs:
+      - "context/goal_summary.md"
+      - "task_result.json"
+      - "evidence.json"
+
+  - id: map-current
+    agent: context-cartographer
+    depends_on: [intake-goal]
+    goal: "Inspect current OpenSpec changes, relevant specs, KB docs, and repo status before authoring."
+    outputs:
+      - "context/openspec_status.json"
+      - "context/spec_map.md"
+      - "task_result.json"
+      - "evidence.json"
+
+  - id: check-existing-changes
+    agent: spec-guardian
+    depends_on: [map-current]
+    goal: "Decide whether to create a new change, revise an existing change, split scope, or pause due to conflict."
+    outputs:
+      - "artifacts/spec_impact.json"
+      - "task_result.json"
+      - "evidence.json"
+
+  - id: plan-capabilities
+    agent: pipeline-architect
+    depends_on: [check-existing-changes]
+    goal: "Plan capability names, non-goals, affected specs, acceptance gates, and downstream implementation route."
+    outputs:
+      - "artifacts/openspec_change_plan.json"
+      - "task_result.json"
+      - "evidence.json"
+
+  - id: write-openspec-artifacts
+    agent: docs-steward
+    depends_on: [plan-capabilities]
+    goal: "Write or update proposal, design, delta specs, and tasks within the planned OpenSpec scope."
+    allowed_files:
+      - "openspec/changes/**"
+      - "docs/ai-kb/**"
+    forbidden_files:
+      - "tools/buildgen/**"
+      - "src/main/**"
+      - "src/main/resources/data/myvillage/structure/*.nbt"
+      - "gradle.properties"
+      - "src/main/resources/META-INF/neoforge.mods.toml"
+      - "CHANGELOG.md"
+      - "README.md"
+      - "build.gradle"
+    outputs:
+      - "patch.diff"
+      - "task_result.json"
+      - "evidence.json"
+
+  - id: review-frontdoor-evidence
+    agent: regression-steward
+    depends_on: [write-openspec-artifacts]
+    goal: "Check that protected artifact writes are represented by task evidence and summarize remaining gates or verdicts."
+    outputs:
+      - "artifacts/frontdoor_review.md"
+      - "task_result.json"
+      - "evidence.json"
+
+human_review:
+  required: false
+
+final_outputs:
+  - "run_manifest.json"
+  - "final_summary.md"
+  - "tasks/write-openspec-artifacts/task_result.json"
+  - "tasks/review-frontdoor-evidence/evidence.json"

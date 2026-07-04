@@ -8,3 +8,6 @@ For sect work, preserve seed determinism, chunk-sliced worldgen, command/worldge
 shared realization, single absolute Y handling, and no force-loading in
 worldgen.
 
+For `openspec-change.full`, own scope planning: capability names, non-goals,
+allowed artifact roots, implementation-vs-proposal boundaries, acceptance
+gates, and whether a later implementation pipeline is required.

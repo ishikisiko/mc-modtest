@@ -25,6 +25,12 @@ runs the local manager tools, and reports the run id, task status, evidence, and
 next decision. The CLI is a backend implementation detail, not the normal user
 interface.
 
+CRAFT-required work now has to enter through GenOps before protected artifacts
+are edited. That includes explicit CRAFT/GenOps requests, OpenSpec proposal or
+apply work, visual/aesthetic structure changes, subagent or parallel work,
+release/version/build handoff, and acceptance handoff. Trivial read-only checks
+remain direct.
+
 Example owner messages:
 
 ```text
@@ -38,6 +44,12 @@ service is added. Runs still write task contracts, prompts, patch-guard reports,
 gate evidence, and a final manifest under `reports/agent_runs/<run_id>/`. See
 [`docs/ai-kb/19_genops.md`](docs/ai-kb/19_genops.md) and
 [`openspec/specs/genops/spec.md`](openspec/specs/genops/spec.md).
+
+OpenSpec proposal/design/spec/task authoring uses
+`genops/pipelines/openspec-change.full.yaml`. Protected-path provenance can be
+checked with `tools/genops/check_frontdoor.py`; CRAFT-required summaries should
+include the run id, pipeline, worker/task ownership, artifacts, gates, human
+verdict state, and next decision.
 
 GenOps worker roles are also registered as project-scoped Codex custom
 subagents under `.codex/agents/` (for example
@@ -396,7 +408,7 @@ jar tf build/libs/*.jar | grep "assets/myvillage/textures/painting/inscription"
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.18.2.jar
+build/libs/myvillage-0.18.3.jar
 ```
 
 ## Versioning And Changelog
@@ -443,12 +455,12 @@ python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 
 python3 tools/write_visual_acceptance_report.py
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.18.2.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.18.2.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.18.2.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.18.2.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.18.2.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.18.2.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.18.3.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.18.3.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.18.3.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.18.3.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.18.3.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.18.3.jar | grep "assets/myvillage/textures/painting/inscription"
 ```
 
 Use the command list below as the acceptance script. Update this README,

@@ -18,6 +18,12 @@ runs the backend tools.
 跑完整回归并准备人工视觉验收。
 ```
 
+CRAFT-required work must enter through this interface before protected files are
+edited. CRAFT-required work includes explicit CRAFT/GenOps requests, new
+OpenSpec changes, OpenSpec apply/implementation, visual or aesthetic structure
+changes, subagent/parallel work, release/version/build handoff, and
+acceptance/visual-review handoff. Direct read-only checks remain exempt.
+
 ## Backend Run
 
 ```bash
@@ -31,6 +37,18 @@ materialized without changing files. Use `--executor manual` to generate
 per-task prompts for an external coding agent or human patch workflow. Add
 `--run-gates` only when the Commander wants the declared validation/build
 commands to run. The owner should not need to type these commands in normal use.
+
+OpenSpec proposal/design/spec/task work uses its own front-door pipeline:
+
+```bash
+python3 tools/genops/run_pipeline.py genops/pipelines/openspec-change.full.yaml \
+  --goal "创建或更新某个 OpenSpec change" \
+  --run-id 20260705-openspec-change-example
+```
+
+The pre-existing `add-visual-reference-structure-pipeline` change was authored
+before this route existed. It must be re-entered through
+`openspec-change.full` before implementation continues.
 
 ## Codex Custom Subagents
 
@@ -58,9 +76,16 @@ write sets.
 - `genops/schemas/*.json` documents the artifact contracts.
 - `genops/rubrics/`, `genops/defects/`, `genops/style_bibles/`, and
   `genops/golden/` capture visual/aesthetic control data.
+- `tools/genops/check_frontdoor.py` checks protected changed files against a
+  GenOps run manifest and per-task artifact evidence.
 - `reports/agent_runs/<run_id>/` is deterministic evidence and remains ignored
   with the rest of `reports/`.
 
 GenOps complements OpenSpec: OpenSpec defines project capability behavior;
 GenOps defines who may change what, which gates block the change, and where
 review evidence lands.
+
+For CRAFT-required handoff, Commander summaries should report `run_id`,
+`pipeline`, worker/task ownership, changed artifacts, gates, human verdict
+state, and the next decision. Task success alone is not visual or human
+acceptance.

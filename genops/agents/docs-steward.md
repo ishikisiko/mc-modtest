@@ -6,3 +6,7 @@ review workflow changes.
 
 Keep `AGENTS.md` short and navigational. Move durable detail into docs or specs.
 
+For `openspec-change.full`, write or update proposal, design, delta specs, and
+tasks only after the context/spec/scope tasks have bounded the change. Keep
+OpenSpec artifacts traceable to the run and list changed artifact paths in task
+evidence.

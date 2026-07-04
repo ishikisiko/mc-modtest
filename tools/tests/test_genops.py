@@ -1,4 +1,5 @@
 import json
+import tempfile
 import tomllib
 import unittest
 from pathlib import Path
@@ -8,7 +9,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT))
 
-from tools.genops import commander, patch_guard, pipeline_loader, task_graph  # noqa: E402
+from tools.genops import check_frontdoor, commander, patch_guard, pipeline_loader, task_graph  # noqa: E402
 from tools.genops.models import TaskSpec  # noqa: E402
 from tools.genops.run_pipeline import main as run_pipeline_main  # noqa: E402
 
@@ -81,7 +82,85 @@ class GenOpsTests(unittest.TestCase):
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
         self.assertEqual(manifest["pipeline"], "visual-acceptance.full")
         self.assertEqual(manifest["status"], "human_review_pending")
+        self.assertIn("artifact_index", manifest)
         self.assertTrue(manifest["tasks"])
+
+    def _write_frontdoor_manifest(self, root: Path, agent: str, artifacts: list[str]) -> Path:
+        run_dir = root / "reports" / "agent_runs" / "frontdoor-test"
+        run_dir.mkdir(parents=True)
+        manifest = {
+            "run_id": "frontdoor-test",
+            "pipeline": "test.full",
+            "status": "pass",
+            "goal": "test",
+            "tasks": [{"id": "task-a", "agent": agent, "status": "pass", "gates": []}],
+            "artifact_index": [
+                {
+                    "task_id": "task-a",
+                    "agent": agent,
+                    "status": "pass",
+                    "artifacts": artifacts,
+                }
+            ],
+            "visual": {},
+            "defect_index": {},
+            "human_verdict": "pending",
+        }
+        path = run_dir / "run_manifest.json"
+        path.write_text(json.dumps(manifest), encoding="utf-8")
+        return path
+
+    def test_frontdoor_accepts_matching_generator_provenance(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            manifest = self._write_frontdoor_manifest(root, "generator-engineer", ["tools/buildgen/sect.py"])
+            protected = check_frontdoor.inspect_paths(root, ["tools/buildgen/sect.py"])
+            owners = check_frontdoor.load_ownership(root, manifest)
+            result = check_frontdoor.validate(protected, owners, allow_bootstrap=False, manifest=manifest)
+            self.assertEqual(result["status"], "pass")
+            self.assertEqual(result["accepted"][0]["task_id"], "task-a")
+
+    def test_frontdoor_reports_missing_provenance(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            protected = check_frontdoor.inspect_paths(root, ["docs/ai-kb/19_genops.md"])
+            result = check_frontdoor.validate(protected, [], allow_bootstrap=False, manifest=None)
+            self.assertEqual(result["status"], "fail")
+            self.assertEqual(result["findings"][0]["reason"], "missing_provenance")
+
+    def test_frontdoor_rejects_mismatched_release_worker(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            manifest = self._write_frontdoor_manifest(root, "docs-steward", ["gradle.properties"])
+            protected = check_frontdoor.inspect_paths(root, ["gradle.properties"])
+            owners = check_frontdoor.load_ownership(root, manifest)
+            result = check_frontdoor.validate(protected, owners, allow_bootstrap=False, manifest=manifest)
+            self.assertEqual(result["status"], "fail")
+            self.assertEqual(result["findings"][0]["reason"], "mismatched_worker_ownership")
+
+    def test_frontdoor_accepts_release_steward_for_version_files(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            manifest = self._write_frontdoor_manifest(root, "release-steward", ["gradle.properties"])
+            protected = check_frontdoor.inspect_paths(root, ["gradle.properties"])
+            owners = check_frontdoor.load_ownership(root, manifest)
+            result = check_frontdoor.validate(protected, owners, allow_bootstrap=False, manifest=manifest)
+            self.assertEqual(result["status"], "pass")
+
+    def test_frontdoor_bootstrap_exception_is_narrow(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            protected = check_frontdoor.inspect_paths(
+                root,
+                [
+                    "openspec/changes/enforce-craft-frontdoor-governance/proposal.md",
+                    "openspec/changes/add-visual-reference-structure-pipeline/proposal.md",
+                ],
+            )
+            result = check_frontdoor.validate(protected, [], allow_bootstrap=True, manifest=None)
+            self.assertEqual(result["status"], "fail")
+            self.assertEqual(result["accepted"][0]["reason"], "bootstrap_exception")
+            self.assertEqual(result["findings"][0]["reason"], "missing_provenance")
 
 
 if __name__ == "__main__":

@@ -31,6 +31,39 @@ The owner talks to the Commander Agent:
 The Commander Agent decides which backend tools to run, which pipeline applies,
 which worker owns the next task, and what evidence must be returned.
 
+## Front-door Governance
+
+CRAFT is the required front door for high-impact project work. The Commander
+must create or continue a GenOps run before editing protected artifacts when the
+owner intent is CRAFT-required:
+
+- explicit CRAFT or GenOps requests
+- new OpenSpec change or proposal authoring
+- OpenSpec apply or implementation work
+- visual or aesthetic structure changes
+- multi-worker, subagent, or parallel work
+- release, version, jar, build handoff
+- acceptance or visual-review handoff
+
+Trivial read-only checks, status lookups, and direct answers can stay outside
+CRAFT as long as they do not modify protected files. OpenSpec remains the
+capability contract; CRAFT governs the process route into those artifacts.
+
+Protected work must be traceable to a run id, pipeline, task id, worker role,
+changed artifacts, gate state, and any required human verdict. The local
+front-door checker is `tools/genops/check_frontdoor.py`.
+
+One bootstrap exception exists: the planning artifacts under
+`openspec/changes/enforce-craft-frontdoor-governance/**` were allowed to exist
+before `openspec-change.full` because this change creates that missing front
+door. The exception closes once `openspec-change.full` and the checker land; it
+does not authorize implementation code, generated resources, release metadata,
+or any later OpenSpec proposal bypass.
+
+The pre-existing `add-visual-reference-structure-pipeline` change was created
+before this governance existed. It must be re-entered through
+`openspec-change.full` before implementation continues.
+
 ## Actors
 
 ### Owner
@@ -112,6 +145,7 @@ Pipelines are the executable process contracts:
 ```text
 genops/pipelines/building-library.full.yaml
 genops/pipelines/compound-library.full.yaml
+genops/pipelines/openspec-change.full.yaml
 genops/pipelines/mansion-visual.full.yaml
 genops/pipelines/release.full.yaml
 genops/pipelines/sect-worldgen.full.yaml
@@ -133,6 +167,10 @@ human review requirements
 
 The Commander chooses the pipeline from the owner's goal. The owner should not
 normally choose this by file path.
+
+`openspec-change.full` owns OpenSpec proposal/design/spec/task authoring and
+review. It is the route for new changes, proposal updates, and apply planning
+before protected artifacts are modified.
 
 ## Run Lifecycle
 
@@ -181,6 +219,18 @@ artifacts/
 `reports/agent_runs/` is ignored with generated reports by default. It is
 evidence, not source.
 
+For CRAFT-required work, the Commander summary must include:
+
+```text
+run_id
+pipeline
+worker/task ownership
+artifacts produced or changed
+gates run/skipped/failed
+human verdict state
+next decision
+```
+
 ## Safety Gates
 
 CRAFT relies on layered controls:
@@ -202,6 +252,8 @@ Important boundaries:
 
 - Generated NBT resources are not hand-edited.
 - Release/version files belong to `release-steward`.
+- OpenSpec proposal/spec/task artifacts are written through
+  `openspec-change.full`, not as unscoped Commander edits.
 - Visual evidence does not equal visual acceptance.
 - Minecraft client review is still required for custom `myvillage:` block
   appearance when offline renderers cannot prove it.
@@ -274,4 +326,3 @@ openspec/specs/genops/spec.md
 tools/genops/run_pipeline.py
 tools/genops/commander.py
 ```
-

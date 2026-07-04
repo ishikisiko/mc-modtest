@@ -7,6 +7,23 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.18.3
+
+### Added
+
+- Added CRAFT front-door governance for high-impact project work:
+  `openspec-change.full` now routes OpenSpec proposal/change authoring through
+  GenOps task ownership, and `tools/genops/check_frontdoor.py` checks protected
+  changed paths against run evidence.
+
+### Changed
+
+- GenOps run manifests and summaries now expose per-task artifact indexes so
+  Commander handoffs can report run id, pipeline, worker/task ownership,
+  artifacts, gates, human verdict state, and next decision.
+- Documented that the pre-existing `add-visual-reference-structure-pipeline`
+  proposal must be re-entered through CRAFT before implementation continues.
+
 ## 0.18.2
 
 ### Changed

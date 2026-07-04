@@ -40,6 +40,40 @@ def classify_mode(goal: str, defaults: dict[str, str]) -> str:
     return defaults.get("unclear_scope", "planning_first")
 
 
+def is_craft_required(goal: str) -> bool:
+    text = goal.lower()
+    cues = (
+        "craft",
+        "genops",
+        "openspec",
+        "proposal",
+        "change",
+        "apply",
+        "subagent",
+        "parallel",
+        "jar",
+        "build",
+        "release",
+        "changelog",
+        "acceptance",
+        "visual review",
+        "提案",
+        "变更",
+        "立项",
+        "实现",
+        "视觉",
+        "审美",
+        "预览",
+        "验收",
+        "发布",
+        "版本",
+        "构建",
+        "子代理",
+        "并行",
+    )
+    return any(cue in text for cue in cues)
+
+
 def recommend(goal: str, config_path: Path = CONFIG) -> dict[str, Any]:
     config = load_mapping(config_path)
     routes = config.get("intent_routing", {})
@@ -59,6 +93,8 @@ def recommend(goal: str, config_path: Path = CONFIG) -> dict[str, Any]:
         "intent": intent,
         "pipeline": pipeline,
         "mode": classify_mode(goal, config.get("default_modes", {})),
+        "craft_required": is_craft_required(goal),
+        "frontdoor_summary_fields": config.get("craft_required_summary_fields", []),
         "owner_interface": "natural_language_conversation",
         "commander_note": "Owner should not need to type this command; Commander runs tools and reports artifacts.",
     }
@@ -79,4 +115,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
