@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://myvillage.local/genops/visual_review.schema.json",
+  "title": "GenOps Visual Review",
+  "type": "object",
+  "required": ["target", "candidate_set"],
+  "properties": {
+    "target": {"type": "string"},
+    "candidate_set": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "renders", "defects", "human_verdict"],
+        "properties": {
+          "id": {"type": "string"},
+          "renders": {"type": "object", "additionalProperties": {"type": "string"}},
+          "ai_scores": {"type": "object", "additionalProperties": {"type": "number"}},
+          "defects": {"type": "array", "items": {"type": "string"}},
+          "fix_rules": {"type": "array", "items": {"type": "string"}},
+          "human_verdict": {"enum": ["pending", "accept", "reject"]}
+        }
+      }
+    }
+  }
+}
+

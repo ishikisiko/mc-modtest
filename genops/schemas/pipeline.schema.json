@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://myvillage.local/genops/pipeline.schema.json",
+  "title": "GenOps Pipeline",
+  "type": "object",
+  "required": ["id", "tasks"],
+  "properties": {
+    "id": {"type": "string"},
+    "kind": {"type": "string"},
+    "version": {"type": "integer", "minimum": 1},
+    "scope": {"type": "object"},
+    "goal": {
+      "oneOf": [
+        {"type": "string"},
+        {
+          "type": "object",
+          "properties": {
+            "summary": {"type": "string"},
+            "player_facing_result": {"type": "string"}
+          }
+        }
+      ]
+    },
+    "constraints": {"type": "object"},
+    "protected_invariants": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "rule"],
+        "properties": {
+          "id": {"type": "string"},
+          "rule": {"type": "string"}
+        }
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"$ref": "task.schema.json"}
+    },
+    "human_review": {
+      "type": "object",
+      "properties": {
+        "required": {"type": "boolean"},
+        "artifact_index": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "final_outputs": {"type": "array", "items": {"type": "string"}}
+  }
+}
+

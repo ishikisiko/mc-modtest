@@ -14,6 +14,36 @@ systems when the data and runtime pipeline are ready.
 
 > **Knowledge base:** start at [docs/ai-kb/INDEX.md](docs/ai-kb/INDEX.md) — it maps the
 > `docs/ai-kb/` technical notes and the `openspec/specs/` capability index.
+> **CRAFT orchestration:** start at [CRAFT.md](CRAFT.md) for the Commander,
+> GenOps pipelines, project Codex subagents, evidence, and review gates.
+
+## GenOps Orchestration
+
+Generator work is routed through a Commander Agent conversation. The project
+owner describes intent in natural language; the Commander chooses the pipeline,
+runs the local manager tools, and reports the run id, task status, evidence, and
+next decision. The CLI is a backend implementation detail, not the normal user
+interface.
+
+Example owner messages:
+
+```text
+用 GenOps 规划一下宗门远景剪影怎么改，先别动代码。
+继续上次 run，把 patch-python-preview 做了。
+跑完整回归并准备人工视觉验收。
+```
+
+The Commander uses `tools/genops/run_pipeline.py` when useful; no distributed
+service is added. Runs still write task contracts, prompts, patch-guard reports,
+gate evidence, and a final manifest under `reports/agent_runs/<run_id>/`. See
+[`docs/ai-kb/19_genops.md`](docs/ai-kb/19_genops.md) and
+[`openspec/specs/genops/spec.md`](openspec/specs/genops/spec.md).
+
+GenOps worker roles are also registered as project-scoped Codex custom
+subagents under `.codex/agents/` (for example
+`genops-generator-engineer`, `genops-validator-engineer`, and
+`genops-visual-reviewer`). They are spawned only when the owner explicitly asks
+for subagents or parallel agent work.
 
 ## Resource Path
 

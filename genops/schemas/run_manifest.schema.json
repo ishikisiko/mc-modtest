@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://myvillage.local/genops/run_manifest.schema.json",
+  "title": "GenOps Run Manifest",
+  "type": "object",
+  "required": ["run_id", "pipeline", "status", "goal", "tasks"],
+  "properties": {
+    "run_id": {"type": "string"},
+    "pipeline": {"type": "string"},
+    "pipeline_file": {"type": "string"},
+    "repo_ref": {"type": "object"},
+    "status": {
+      "enum": [
+        "pass",
+        "manual_ready",
+        "human_review_pending",
+        "accepted",
+        "failed",
+        "rejected_by_human"
+      ]
+    },
+    "goal": {"type": "string"},
+    "generated_at": {"type": "string"},
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "agent", "status"],
+        "properties": {
+          "id": {"type": "string"},
+          "agent": {"type": "string"},
+          "status": {"type": "string"},
+          "gates": {"type": "array"}
+        }
+      }
+    },
+    "visual": {"type": "object"},
+    "defect_index": {"type": "object"},
+    "human_verdict": {"type": "string"}
+  }
+}
+

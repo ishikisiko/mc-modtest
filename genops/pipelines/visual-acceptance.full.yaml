@@ -1,0 +1,49 @@
+id: visual-acceptance.full
+kind: acceptance-pipeline
+version: 1
+
+goal:
+  summary: "生成离线视觉验收证据、报告入口和人工 verdict 所需材料"
+  player_facing_result: "评审者从统一 preview/report 入口检查代表性结构和计划图"
+
+constraints:
+  no_distributed_services: true
+  artifact_first: true
+  require_human_visual_verdict: true
+
+tasks:
+  - id: preview-structures
+    agent: visual-reviewer
+    generated_outputs_allowed: true
+    gates:
+      - "python3 tools/preview_structure.py --all"
+      - "python3 tools/generate_town_plan_preview.py --count 6"
+      - "python3 tools/generate_sect_plan_preview.py --count 6"
+      - "python3 tools/generate_region_topology_preview.py --count 6"
+
+  - id: write-report
+    agent: visual-reviewer
+    depends_on: [preview-structures]
+    generated_outputs_allowed: true
+    gates:
+      - "python3 tools/write_visual_acceptance_report.py"
+    outputs:
+      - "reports/visual_acceptance_report.json"
+      - "reports/visual_acceptance_report.md"
+
+  - id: aesthetic-review
+    agent: aesthetic-critic
+    depends_on: [write-report]
+    inputs:
+      - "genops/rubrics/house.rubric.yaml"
+      - "genops/rubrics/mansion.rubric.yaml"
+      - "genops/rubrics/sect.rubric.yaml"
+      - "genops/rubrics/town.rubric.yaml"
+      - "genops/defects/defect_dictionary.yaml"
+
+human_review:
+  required: true
+  artifact_index:
+    - "out/preview/index.html"
+    - "reports/visual_acceptance_report.md"
+

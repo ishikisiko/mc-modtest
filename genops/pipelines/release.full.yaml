@@ -1,0 +1,51 @@
+id: release.full
+kind: release-pipeline
+version: 1
+
+goal:
+  summary: "准备可发布 jar、同步版本和 changelog，并记录回归证据"
+  player_facing_result: "README 中的 jar 名、mod metadata、changelog 和实际构建产物一致"
+
+constraints:
+  no_distributed_services: true
+  artifact_first: true
+  require_clean_git: true
+
+tasks:
+  - id: map-current
+    agent: context-cartographer
+    outputs: [context/code_map.md, context/spec_map.md]
+
+  - id: release-docs
+    agent: release-steward
+    depends_on: [map-current]
+    allowed_files:
+      - "gradle.properties"
+      - "src/main/resources/META-INF/neoforge.mods.toml"
+      - "README.md"
+      - "CHANGELOG.md"
+      - "openspec/config.yaml"
+    outputs: [patch.diff, task_result.json, evidence.json]
+
+  - id: regression
+    agent: regression-steward
+    depends_on: [release-docs]
+    gates:
+      - "python3 tools/generate_all_structures.py --mc-version 1.21.1 --output src/main/resources/data/myvillage/structure"
+      - "python3 tools/validate_generated_structures.py src/main/resources/data/myvillage/structure"
+      - "python3 tools/validate_mod_block_fallbacks.py"
+      - "python3 tools/validate_plaque_bindings.py"
+      - "python3 tools/validate_compound_library.py --count 6"
+      - "python3 tools/validate_compound_library.py --group cultivation_town --count 6"
+      - "python3 tools/validate_compound_library.py --group cultivation_sect --count 2"
+      - "python3 tools/validate_civic_library.py"
+      - "python3 tools/validate_town_generation.py"
+      - "python3 tools/validate_runtime_town_plan.py"
+      - "python3 tools/validate_sect_generation.py"
+      - "python3 tools/check_style_policy.py"
+      - "python3 tools/check_cultivation_forms.py"
+      - "./gradlew build"
+
+human_review:
+  required: false
+

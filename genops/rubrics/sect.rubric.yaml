@@ -1,0 +1,53 @@
+id: sect
+version: 1
+
+dimensions:
+  far_silhouette:
+    weight: 1.4
+    question: "远景是否一眼读出山中宗门，而不是村庄/平台/石堆？"
+    score_1: "平、散、主殿不可读"
+    score_3: "有中轴和主殿，但轮廓一般"
+    score_5: "山门、半山、主殿、侧峰/塔形成清楚层级"
+
+  terrain_integration:
+    weight: 1.3
+    question: "山体是否自然承托宗门？"
+    score_1: "硬切平台，像停车场"
+    score_3: "能承托建筑，但边缘机械"
+    score_5: "台地、崖壁、skirt、材质分层自然"
+
+  ceremonial_axis:
+    weight: 1.2
+    question: "登山路径是否有仪式感？"
+    score_1: "只是楼梯连接平台"
+    score_3: "有中轴，但停顿节点不足"
+    score_5: "山门、阶、云海、藏经/炼丹、主殿逐级展开"
+
+  main_hall_dominance:
+    weight: 1.2
+    question: "主殿是否压轴？"
+    score_1: "主殿和侧建筑无主次"
+    score_3: "主殿略强"
+    score_5: "主殿位置、高度、背景绝壁都形成终点"
+
+  asymmetry_and_wonder:
+    weight: 1.0
+    question: "是否有仙气和非对称惊喜？"
+    score_1: "完全镜像、机械"
+    score_3: "有少量变化"
+    score_5: "飞桥/孤峰/侧塔/崖边亭形成记忆点"
+
+  style_fit:
+    weight: 1.0
+    question: "是否符合 cultivation_sect 风格？"
+    score_1: "像普通村庄或西式城堡"
+    score_3: "大体是东方宗门"
+    score_5: "山门、廊、塔、主殿、云海、材质整体统一"
+
+blocking_defects:
+  - floating_base
+  - chunk_seam_break
+  - missing_main_hall
+  - inaccessible_axis
+  - worldgen_force_load_regression
+

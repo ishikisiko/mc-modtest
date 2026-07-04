@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://myvillage.local/genops/generator_contract.schema.json",
+  "title": "GenOps Generator Contract",
+  "type": "object",
+  "required": ["generator", "target_contract"],
+  "properties": {
+    "generator": {"type": "string"},
+    "target_contract": {
+      "type": "object",
+      "properties": {
+        "must_preserve": {"type": "array", "items": {"type": "string"}},
+        "may_change": {"type": "array", "items": {"type": "string"}},
+        "must_not_change": {"type": "array", "items": {"type": "string"}},
+        "gates": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}
+

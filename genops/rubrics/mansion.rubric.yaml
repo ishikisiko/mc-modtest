@@ -1,0 +1,34 @@
+id: mansion
+version: 1
+
+dimensions:
+  courtyard_sequence:
+    weight: 1.3
+    question: "门、主院、后院、花园是否形成清楚序列？"
+    score_1: "像并排房子"
+    score_3: "有院落但节点弱"
+    score_5: "进深、门界、庭院和后花园层层展开"
+  garden_focus:
+    weight: 1.2
+    question: "假山、水、亭、月洞门是否有主次和视线？"
+    score_1: "杂物散铺"
+    score_3: "有焦点但路线一般"
+    score_5: "焦点、游线、边界和水岸关系清楚"
+  walkability:
+    weight: 1.3
+    question: "所有门前、园路、桥/台阶是否可达？"
+    score_1: "路线断"
+    score_3: "主线可达"
+    score_5: "主线、夹道、游线都可走且材料分区可读"
+  style_fit:
+    weight: 1.0
+    question: "是否像江南大宅而不是普通合院？"
+    score_1: "风格混乱"
+    score_3: "大体成立"
+    score_5: "门厅、廊、园、楼、亭统一"
+
+blocking_defects:
+  - inaccessible_axis
+  - garden_clutter
+  - missing_gate_house
+

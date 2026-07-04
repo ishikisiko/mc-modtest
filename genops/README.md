@@ -1,0 +1,66 @@
+# MyVillage GenOps
+
+GenOps is the repo-local, artifact-first orchestration layer for generator work.
+It does not add a service, queue, or second repository. A single manager reads a
+pipeline contract, prepares atomic role tasks, writes prompts/evidence under
+`reports/agent_runs/<run_id>/`, checks patch scope, optionally runs gates, and
+records the final run manifest.
+
+## Owner Interface
+
+The normal interface is a natural-language conversation with the Commander
+Agent. The owner should state intent and decisions; the Commander chooses and
+runs the backend tools.
+
+```text
+用 GenOps 规划一下宗门远景剪影怎么改，先别动代码。
+继续上次 run，把 patch-python-preview 做了。
+跑完整回归并准备人工视觉验收。
+```
+
+## Backend Run
+
+```bash
+python3 tools/genops/run_pipeline.py genops/pipelines/sect-worldgen.full.yaml \
+  --goal "提升宗门山体自然度和远景剪影" \
+  --run-id 20260705-sect-worldgen-aesthetic
+```
+
+The default executor is `no_op`: it verifies that the pipeline can be planned and
+materialized without changing files. Use `--executor manual` to generate
+per-task prompts for an external coding agent or human patch workflow. Add
+`--run-gates` only when the Commander wants the declared validation/build
+commands to run. The owner should not need to type these commands in normal use.
+
+## Codex Custom Subagents
+
+Project-scoped Codex custom agents live under `.codex/agents/`. GenOps maps
+pipeline role names to those custom agent names in `genops/subagents.yaml`.
+
+Examples:
+
+- `generator-engineer` -> `genops-generator-engineer`
+- `java-worldgen-engineer` -> `genops-java-worldgen-engineer`
+- `validator-engineer` -> `genops-validator-engineer`
+- `visual-reviewer` -> `genops-visual-reviewer`
+
+The Commander should spawn them only when the owner explicitly asks for
+subagents or parallel agent work, and implementation workers must have disjoint
+write sets.
+
+## Contract
+
+- `genops/pipelines/*.yaml` declares the task DAG, role, file scope, and gates.
+- `genops/commander.yaml` defines natural-language intent routing.
+- `genops/subagents.yaml` maps GenOps roles to project Codex custom agents.
+- `genops/agents/commander.md` defines the user-facing Commander role.
+- `genops/agents/*.md` defines role boundaries for prompt generation.
+- `genops/schemas/*.json` documents the artifact contracts.
+- `genops/rubrics/`, `genops/defects/`, `genops/style_bibles/`, and
+  `genops/golden/` capture visual/aesthetic control data.
+- `reports/agent_runs/<run_id>/` is deterministic evidence and remains ignored
+  with the rest of `reports/`.
+
+GenOps complements OpenSpec: OpenSpec defines project capability behavior;
+GenOps defines who may change what, which gates block the change, and where
+review evidence lands.

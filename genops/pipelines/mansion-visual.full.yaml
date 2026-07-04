@@ -1,0 +1,72 @@
+id: mansion-visual.full
+kind: generator-pipeline
+version: 1
+
+goal:
+  summary: "围绕江南大宅园林、动线、围合和视觉证据做审美闭环"
+  player_facing_result: "大宅花园、主院、月洞门、水亭、假山和路径层次更像一个整体"
+
+constraints:
+  no_distributed_services: true
+  artifact_first: true
+  require_human_visual_verdict: true
+
+tasks:
+  - id: map-current
+    agent: context-cartographer
+    outputs: [context/code_map.md, context/spec_map.md]
+
+  - id: define-contract
+    agent: pipeline-architect
+    depends_on: [map-current]
+    outputs: [artifacts/generator_contracts/mansion_visual_contract.json]
+
+  - id: patch-generator
+    agent: generator-engineer
+    depends_on: [define-contract]
+    allowed_files:
+      - "tools/buildgen/**"
+      - "tools/generate_compound_library.py"
+      - "tools/preview_structure.py"
+    forbidden_files:
+      - "src/main/resources/data/myvillage/structure/*.nbt"
+      - "gradle.properties"
+      - "CHANGELOG.md"
+
+  - id: patch-validators
+    agent: validator-engineer
+    depends_on: [patch-generator]
+    allowed_files:
+      - "tools/validate_compound_library.py"
+      - "tools/buildgen/tests/**"
+      - "tools/buildgen/probes/**"
+    gates:
+      - "python3 tools/validate_compound_library.py --count 6"
+
+  - id: visual-evidence
+    agent: visual-reviewer
+    depends_on: [patch-validators]
+    generated_outputs_allowed: true
+    gates:
+      - "python3 tools/preview_structure.py src/main/resources/data/myvillage/structure/chinese_mansion_001.nbt"
+      - "python3 tools/write_visual_acceptance_report.py"
+
+  - id: aesthetic-review
+    agent: aesthetic-critic
+    depends_on: [visual-evidence]
+    inputs:
+      - "genops/rubrics/mansion.rubric.yaml"
+      - "genops/defects/defect_dictionary.yaml"
+      - "genops/style_bibles/chinese_mansion.yaml"
+
+  - id: docs-sync
+    agent: docs-steward
+    depends_on: [aesthetic-review]
+    allowed_files: ["README.md", "docs/ai-kb/**", "openspec/specs/**", "genops/**"]
+
+human_review:
+  required: true
+  artifact_index:
+    - "out/preview/chinese_mansion_001/isometric.png"
+    - "reports/visual_acceptance_report.md"
+

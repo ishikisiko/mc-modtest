@@ -1,0 +1,23 @@
+version: 1
+
+codex_project_agents_dir: ".codex/agents"
+
+custom_agents:
+  manager: "genops-manager"
+  context-cartographer: "genops-context-cartographer"
+  spec-guardian: "genops-spec-guardian"
+  pipeline-architect: "genops-pipeline-architect"
+  generator-engineer: "genops-generator-engineer"
+  java-worldgen-engineer: "genops-java-worldgen-engineer"
+  validator-engineer: "genops-validator-engineer"
+  visual-reviewer: "genops-visual-reviewer"
+  aesthetic-critic: "genops-aesthetic-critic"
+  docs-steward: "genops-docs-steward"
+  regression-steward: "genops-regression-steward"
+  release-steward: "genops-release-steward"
+
+notes:
+  - "The Commander Agent remains the main user-facing conversation role, not a spawned worker by default."
+  - "Spawn these Codex custom agents only when the owner explicitly asks for subagents or parallel agent work."
+  - "Use disjoint write sets for parallel implementation workers."
+

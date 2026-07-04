@@ -1,0 +1,20 @@
+id: mansion_golden
+version: 1
+
+current_golden:
+  candidate_id: "chinese_mansion_001"
+  source: "src/main/resources/data/myvillage/structure/chinese_mansion_001.nbt"
+  accepted_in_run: "manual-or-agent-run-id"
+  human_reason: "三进序列、花园焦点、水亭/假山/路径层次可作为后续比较基线。"
+
+comparison_rules:
+  new_candidate_must_not_be_worse_on:
+    - courtyard_sequence
+    - garden_focus
+    - walkability
+    - style_fit
+
+rejected_examples:
+  - candidate_id: "mansion_candidate_flat_plaza"
+    reason: "主院被整片硬铺吞掉"
+

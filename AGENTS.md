@@ -18,6 +18,7 @@ Spend time on thinking; you do not need to use the commentary channel to report 
 - Add/recalibrate regions through JSON under `src/main/resources/data/myvillage/worldgen/` plus `tools/buildgen/region_topology.py`; runtime region binding is passive, and `next_rung_regions` stays a set at tier ties.
 - For visual/aesthetic structure changes, inspect current preview/reference evidence and give a critical design judgment before editing generators.
 - Version/changelog mechanics are single-sourced in `openspec/config.yaml` (`rules.tasks`); reference that rule rather than restating it.
+- GenOps orchestration lives in `genops/` and `tools/genops/`; user-facing use is natural-language Commander conversation, while CLI commands are backend tools the agent runs itself.
 - Before manual visual review, run the acceptance checklist, build the artifact when practical, update command docs, generate the visual acceptance report, inspect representative PNGs, and serve `out/preview/` over HTTP until review ends.
 - Chunky automation is a staged handoff, not visual acceptance. Headless Chunky renderer PNGs cannot prove custom `myvillage:` block appearance until a dedicated compatibility path exists.
 - When commands or acceptance prep steps change, update `README.md`, this `AGENTS.md`, and relevant `openspec/specs/` documents together.
@@ -28,6 +29,7 @@ Spend time on thinking; you do not need to use the commentary channel to report 
 
 - KB/governance: `docs/ai-kb/INDEX.md`, `openspec/specs/docs-knowledge-base/spec.md`.
 - Reports/acceptance: `docs/ai-kb/09_validation_checklist.md`, `openspec/specs/validation/spec.md`.
+- GenOps/CRAFT: `CRAFT.md`, `docs/ai-kb/19_genops.md`, `openspec/specs/genops/spec.md`, `genops/README.md`.
 - Resources/commands: `openspec/specs/resource-export/spec.md`.
 - Groups/style/modset/forms: `settlement-group`, `style-profile`, `modset-profile`, `form-registry`, `chinese-vernacular-roof-vocabulary`, `cultivation-form-vocabulary`.
 - Region runtime: `docs/ai-kb/13_region_topology.md`, `region-profile`, `region-topology`, `region-runtime-binding`.

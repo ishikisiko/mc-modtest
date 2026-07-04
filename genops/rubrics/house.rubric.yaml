@@ -1,0 +1,28 @@
+id: house
+version: 1
+
+dimensions:
+  readable_mass:
+    weight: 1.2
+    question: "体量是否清楚，不像单调方盒？"
+    score_1: "一个平直盒子"
+    score_3: "有门窗和屋顶变化"
+    score_5: "主次体量、屋檐、细部节奏完整"
+  roof_resolution:
+    weight: 1.2
+    question: "屋顶是否闭合、轻重合适、没有山墙漏洞？"
+    score_1: "开洞或压头明显"
+    score_3: "基本闭合但厚重"
+    score_5: "闭合、支撑、坡度、檐口都成立"
+  inhabited_detail:
+    weight: 1.0
+    question: "室内/外是否有生活功能块和入口暗示？"
+    score_1: "空壳"
+    score_3: "有基础家具/功能块"
+    score_5: "入口、采光、功能、装饰形成可居住感"
+
+blocking_defects:
+  - open_gable
+  - missing_entrance
+  - forbidden_block
+

@@ -1,0 +1,20 @@
+id: cultivation_town
+version: 1
+
+identity:
+  one_sentence: "修仙坊市：城门入市、市场街面、居住坊巷、核心神殿和修真生活细节并存。"
+
+must_have:
+  - "gate / market / residential / civic core / fringe district 可读"
+  - "市场沿街界面连续，有摊位和招牌"
+  - "civic core 有仪式轴线和竖向地标"
+  - "可选 mod 缺失时使用 vanilla fallback"
+
+should_have:
+  - "街宽、巷道、广场尺度有差异"
+  - "灵田、丹炉、法器摊等修真生活细节"
+
+must_not_have:
+  - "只有均匀网格和重复住宅"
+  - "可选 mod 缺失造成空气洞"
+

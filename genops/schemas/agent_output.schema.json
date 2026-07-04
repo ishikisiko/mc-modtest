@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://myvillage.local/genops/agent_output.schema.json",
+  "title": "GenOps Agent Output",
+  "type": "object",
+  "required": ["task_id", "status", "summary", "changed_files"],
+  "properties": {
+    "task_id": {"type": "string"},
+    "agent": {"type": "string"},
+    "status": {
+      "enum": ["pass", "manual_ready", "blocked", "fail", "skipped"]
+    },
+    "summary": {"type": "string"},
+    "changed_files": {"type": "array", "items": {"type": "string"}},
+    "declared_invariants_preserved": {"type": "array", "items": {"type": "string"}},
+    "commands_run": {"type": "array", "items": {"type": "string"}},
+    "new_defects_addressed": {"type": "array", "items": {"type": "string"}},
+    "risks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "risk": {"type": "string"},
+          "owner": {"type": "string"}
+        }
+      }
+    },
+    "gate_results": {"type": "array"}
+  }
+}
+

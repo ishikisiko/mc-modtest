@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://myvillage.local/genops/human_verdict.schema.json",
+  "title": "GenOps Human Verdict",
+  "type": "object",
+  "required": ["target", "verdict", "human_note"],
+  "properties": {
+    "target": {"type": "string"},
+    "verdict": {"enum": ["accept", "reject"]},
+    "human_note": {"type": "string"},
+    "accepted_defects": {"type": "array", "items": {"type": "string"}},
+    "blocking_defects": {"type": "array", "items": {"type": "string"}}
+  }
+}
+

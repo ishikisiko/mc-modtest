@@ -1,0 +1,100 @@
+version: 1
+
+defects:
+  flat_box:
+    label: "方盒子"
+    severity_default: warning
+    applies_to: [house, mansion, sect, town]
+    detectable_by: [voxel, visual]
+    fix_patterns:
+      - "add side volume"
+      - "break roofline"
+      - "add porch, chimney, tower, or wing"
+
+  roof_too_heavy:
+    label: "屋顶压头"
+    severity_default: warning
+    applies_to: [house, mansion]
+    detectable_by: [voxel, visual]
+    fix_patterns:
+      - "reduce eave overhang"
+      - "lower roof thickness"
+      - "add wall height or visible supports"
+
+  open_gable:
+    label: "山墙未封"
+    severity_default: error
+    applies_to: [house, mansion]
+    detectable_by: [voxel]
+    fix_patterns:
+      - "seal gable cells"
+      - "add roof cleanup pass"
+
+  weak_entrance:
+    label: "入口弱"
+    severity_default: warning
+    applies_to: [house, mansion, sect, town]
+    detectable_by: [voxel, visual]
+    fix_patterns:
+      - "add threshold"
+      - "add path connection"
+      - "add porch or gate frame"
+
+  terrace_parking_lot:
+    label: "台地像停车场"
+    severity_default: warning
+    applies_to: [sect]
+    detectable_by: [voxel, visual, plan]
+    fix_patterns:
+      - "perturb terrace edges outside the central axis"
+      - "vary surface materials"
+      - "add retaining asymmetry"
+
+  over_symmetric:
+    label: "过度镜像"
+    severity_default: warning
+    applies_to: [sect, mansion, town]
+    detectable_by: [visual, plan]
+    fix_patterns:
+      - "add side landmark"
+      - "shift one flank building"
+      - "vary garden, terrace, or district node"
+
+  weak_silhouette:
+    label: "远景剪影弱"
+    severity_default: warning
+    applies_to: [house, mansion, sect, town]
+    detectable_by: [visual, voxel]
+    fix_patterns:
+      - "increase main mass dominance"
+      - "add vertical landmark"
+      - "break flat roofline"
+
+  garden_clutter:
+    label: "园林杂乱"
+    severity_default: warning
+    applies_to: [mansion]
+    detectable_by: [visual, voxel]
+    fix_patterns:
+      - "clear visual lane"
+      - "cluster plants around focal point"
+      - "reduce uniform lily or rock distribution"
+
+  chunk_seam_break:
+    label: "区块接缝破坏"
+    severity_default: error
+    applies_to: [sect, town]
+    detectable_by: [validator, worldgen]
+    fix_patterns:
+      - "make random choices independent of the active chunk"
+      - "clip writes without changing the global plan"
+
+  inaccessible_axis:
+    label: "中轴不可达"
+    severity_default: error
+    applies_to: [sect, mansion, town]
+    detectable_by: [validator, voxel]
+    fix_patterns:
+      - "connect every ceremonial node to the route graph"
+      - "add stairs/slabs at elevation transitions"
+

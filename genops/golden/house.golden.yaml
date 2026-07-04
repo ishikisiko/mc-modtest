@@ -1,0 +1,19 @@
+id: house_golden
+version: 1
+
+current_golden:
+  candidate_id: "small_house_001"
+  source: "src/main/resources/data/myvillage/structure/small_house_001.nbt"
+  accepted_in_run: "manual-or-agent-run-id"
+  human_reason: "早期建筑库基本体量、屋顶闭合、入口和功能块验证基线。"
+
+comparison_rules:
+  new_candidate_must_not_be_worse_on:
+    - readable_mass
+    - roof_resolution
+    - inhabited_detail
+
+rejected_examples:
+  - candidate_id: "house_candidate_open_gable"
+    reason: "技术链路通过但山墙未封，不可接受"
+

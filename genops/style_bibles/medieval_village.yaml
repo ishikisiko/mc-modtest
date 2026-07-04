@@ -1,0 +1,21 @@
+id: medieval_village
+version: 1
+
+identity:
+  one_sentence: "早期中世纪村镇建筑库：小屋、商铺、铁匠等清楚分工，强调可读门窗、屋顶和生活功能块。"
+
+must_have:
+  - "房屋入口可见且可达"
+  - "屋顶闭合，不留山墙漏洞"
+  - "室内包含角色需要的功能块"
+  - "结构导出到 myvillage singular structure 目录"
+
+should_have:
+  - "屋顶、烟囱、窗、门框打破方盒"
+  - "商铺、铁匠、住宅之间轮廓和室内有差异"
+
+must_not_have:
+  - "空壳建筑"
+  - "无命名空间方块"
+  - "硬编码可选 mod id"
+

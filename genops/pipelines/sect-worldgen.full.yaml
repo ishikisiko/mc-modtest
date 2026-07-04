@@ -1,0 +1,163 @@
+id: sect-worldgen.full
+kind: generator-pipeline
+version: 1
+
+scope:
+  repo: ishikisiko/mc-modtest
+  default_branch: main
+  mode: patch
+
+goal:
+  summary: "提升 cultivation sect worldgen 的山体、台地、远景剪影和视觉验收闭环"
+  player_facing_result: "自然生成的宗门更像山中地标，远景更可读，登山路径更有仪式感"
+
+constraints:
+  no_distributed_services: true
+  artifact_first: true
+  no_background_work: true
+  require_human_visual_verdict: true
+
+protected_invariants:
+  - id: resource-path
+    rule: "NBT structures stay under src/main/resources/data/myvillage/structure/"
+  - id: seed-determinism
+    rule: "same world seed + same site yields same sect"
+  - id: chunk-sliced-worldgen
+    rule: "worldgen path must not force-load chunks"
+  - id: single-y-frame
+    rule: "terrace elevation and mountain height remain absolute Y; do not add base.y twice"
+  - id: command-worldgen-shared-realizer
+    rule: "command and worldgen continue sharing SectGenerator plan/realizer through SectSink"
+
+tasks:
+  - id: map-current
+    agent: context-cartographer
+    outputs:
+      - context/code_map.md
+      - context/spec_map.md
+      - context/impact_files.json
+
+  - id: define-contract
+    agent: pipeline-architect
+    depends_on: [map-current]
+    outputs:
+      - artifacts/generator_contracts/sect_worldgen_contract.json
+
+  - id: check-spec-impact
+    agent: spec-guardian
+    depends_on: [define-contract]
+    outputs:
+      - artifacts/spec_impact.json
+
+  - id: patch-python-preview
+    agent: generator-engineer
+    depends_on: [check-spec-impact]
+    allowed_files:
+      - "tools/buildgen/**"
+      - "tools/generate_sect_plan_preview.py"
+      - "tools/preview_structure.py"
+      - "tools/render_structure.py"
+    forbidden_files:
+      - "gradle.properties"
+      - "CHANGELOG.md"
+      - "src/main/resources/data/myvillage/structure/*.nbt"
+    outputs:
+      - patch.diff
+      - task_result.json
+      - evidence.json
+
+  - id: patch-java-worldgen
+    agent: java-worldgen-engineer
+    depends_on: [check-spec-impact]
+    allowed_files:
+      - "src/main/java/com/example/myvillage/sect/**"
+    forbidden_files:
+      - "gradle.properties"
+      - "CHANGELOG.md"
+      - "src/main/resources/data/myvillage/structure/*.nbt"
+    outputs:
+      - patch.diff
+      - task_result.json
+      - evidence.json
+
+  - id: patch-validators
+    agent: validator-engineer
+    depends_on: [patch-python-preview, patch-java-worldgen]
+    allowed_files:
+      - "tools/validate_*.py"
+      - "tools/check_*.py"
+      - "tools/buildgen/quality.py"
+      - "tools/buildgen/tests/**"
+    gates:
+      - "python3 tools/validate_sect_generation.py"
+      - "python3 tools/validate_compound_library.py --group cultivation_sect --count 2"
+    outputs:
+      - patch.diff
+      - task_result.json
+      - evidence.json
+
+  - id: visual-evidence
+    agent: visual-reviewer
+    depends_on: [patch-validators]
+    generated_outputs_allowed: true
+    gates:
+      - "python3 tools/generate_sect_plan_preview.py --count 6"
+      - "python3 tools/write_visual_acceptance_report.py"
+    outputs:
+      - "reports/visual_acceptance_report.json"
+      - "reports/visual_acceptance_report.md"
+
+  - id: aesthetic-review
+    agent: aesthetic-critic
+    depends_on: [visual-evidence]
+    inputs:
+      - "genops/rubrics/sect.rubric.yaml"
+      - "genops/defects/defect_dictionary.yaml"
+      - "reports/visual_acceptance_report.json"
+    outputs:
+      - "reports/agent_runs/${run_id}/visual/reviews/sect_review.json"
+
+  - id: docs-sync
+    agent: docs-steward
+    depends_on: [aesthetic-review]
+    allowed_files:
+      - "README.md"
+      - "AGENTS.md"
+      - "docs/ai-kb/**"
+      - "openspec/specs/**"
+      - "genops/**"
+    outputs:
+      - patch.diff
+      - task_result.json
+      - evidence.json
+
+  - id: regression
+    agent: regression-steward
+    depends_on: [docs-sync]
+    gates:
+      - "python3 tools/generate_all_structures.py --mc-version 1.21.1 --output src/main/resources/data/myvillage/structure"
+      - "python3 tools/validate_generated_structures.py src/main/resources/data/myvillage/structure"
+      - "python3 tools/validate_mod_block_fallbacks.py"
+      - "python3 tools/validate_plaque_bindings.py"
+      - "python3 tools/validate_compound_library.py --count 6"
+      - "python3 tools/validate_compound_library.py --group cultivation_town --count 6"
+      - "python3 tools/validate_compound_library.py --group cultivation_sect --count 2"
+      - "python3 tools/validate_civic_library.py"
+      - "python3 tools/validate_town_generation.py"
+      - "python3 tools/validate_runtime_town_plan.py"
+      - "python3 tools/validate_sect_generation.py"
+      - "python3 tools/check_style_policy.py"
+      - "python3 tools/check_cultivation_forms.py"
+      - "./gradlew build"
+
+human_review:
+  required: true
+  artifact_index:
+    - "out/preview/index.html"
+    - "reports/visual_acceptance_report.md"
+    - "reports/agent_runs/${run_id}/visual/reviews/sect_review.json"
+
+final_outputs:
+  - "reports/agent_runs/${run_id}/run_manifest.json"
+  - "reports/agent_runs/${run_id}/final_summary.md"
+

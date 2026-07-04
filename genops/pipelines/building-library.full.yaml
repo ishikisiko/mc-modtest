@@ -1,0 +1,80 @@
+id: building-library.full
+kind: generator-pipeline
+version: 1
+
+goal:
+  summary: "维护单体建筑库的体量、立面、屋顶、室内和导出质量"
+  player_facing_result: "建筑库候选更稳定、更有风格差异，并持续通过资源验证"
+
+constraints:
+  no_distributed_services: true
+  artifact_first: true
+  no_background_work: true
+
+tasks:
+  - id: map-current
+    agent: context-cartographer
+    outputs: [context/code_map.md, context/spec_map.md]
+
+  - id: define-contract
+    agent: pipeline-architect
+    depends_on: [map-current]
+    outputs: [artifacts/generator_contracts/building_library_contract.json]
+
+  - id: patch-generator
+    agent: generator-engineer
+    depends_on: [define-contract]
+    allowed_files:
+      - "tools/buildgen/**"
+      - "tools/generate_building_library.py"
+      - "tools/generate_all_structures.py"
+    forbidden_files:
+      - "gradle.properties"
+      - "CHANGELOG.md"
+      - "src/main/resources/data/myvillage/structure/*.nbt"
+    outputs: [patch.diff, task_result.json, evidence.json]
+
+  - id: patch-validators
+    agent: validator-engineer
+    depends_on: [patch-generator]
+    allowed_files:
+      - "tools/validate_building_library.py"
+      - "tools/validate_generated_structures.py"
+      - "tools/check_style_policy.py"
+      - "tools/check_cultivation_forms.py"
+      - "tools/buildgen/quality.py"
+      - "tools/buildgen/tests/**"
+    gates:
+      - "python3 tools/validate_building_library.py --count 10"
+      - "python3 tools/validate_generated_structures.py src/main/resources/data/myvillage/structure"
+
+  - id: visual-evidence
+    agent: visual-reviewer
+    depends_on: [patch-validators]
+    generated_outputs_allowed: true
+    gates:
+      - "python3 tools/preview_structure.py --all"
+      - "python3 tools/write_visual_acceptance_report.py"
+
+  - id: docs-sync
+    agent: docs-steward
+    depends_on: [visual-evidence]
+    allowed_files:
+      - "README.md"
+      - "docs/ai-kb/**"
+      - "openspec/specs/**"
+      - "genops/**"
+
+  - id: regression
+    agent: regression-steward
+    depends_on: [docs-sync]
+    gates:
+      - "python3 tools/generate_all_structures.py --mc-version 1.21.1 --output src/main/resources/data/myvillage/structure"
+      - "python3 tools/validate_generated_structures.py src/main/resources/data/myvillage/structure"
+      - "python3 tools/check_style_policy.py"
+      - "python3 tools/check_cultivation_forms.py"
+      - "./gradlew build"
+
+human_review:
+  required: true
+

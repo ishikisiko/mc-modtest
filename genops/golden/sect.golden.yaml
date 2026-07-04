@@ -1,0 +1,27 @@
+id: sect_golden
+version: 1
+
+current_golden:
+  candidate_id: "cultivation_sect_001"
+  source: "src/main/resources/data/myvillage/structure/cultivation_sect_001.nbt"
+  accepted_in_run: "manual-or-agent-run-id"
+  human_reason: "主殿和中轴可读，飞桥/云海提供宗门气质，chunk worldgen 不变量通过。"
+
+comparison_rules:
+  new_candidate_must_not_be_worse_on:
+    - far_silhouette
+    - terrain_integration
+    - main_hall_dominance
+    - chunk_safety
+    - style_fit
+
+allowed_regression_if_improved:
+  - dimension: "asymmetry_and_wonder"
+    may_tradeoff_against: "slight material noise"
+
+rejected_examples:
+  - candidate_id: "sect_candidate_bad_parking_lot"
+    reason: "台地太直，像多层停车场"
+  - candidate_id: "sect_candidate_flat_summit"
+    reason: "主殿远景不可读"
+

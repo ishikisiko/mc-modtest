@@ -1,0 +1,82 @@
+id: compound-library.full
+kind: generator-pipeline
+version: 1
+
+goal:
+  summary: "维护 courtyard、mansion、town、sect compound 的图结构、路径和体素可达性"
+  player_facing_result: "复合结构候选保持可走、可读、有层级，并能稳定导出"
+
+constraints:
+  no_distributed_services: true
+  artifact_first: true
+  no_background_work: true
+
+tasks:
+  - id: map-current
+    agent: context-cartographer
+    outputs: [context/code_map.md, context/spec_map.md]
+
+  - id: define-contract
+    agent: pipeline-architect
+    depends_on: [map-current]
+    outputs: [artifacts/generator_contracts/compound_library_contract.json]
+
+  - id: patch-generator
+    agent: generator-engineer
+    depends_on: [define-contract]
+    allowed_files:
+      - "tools/buildgen/**"
+      - "tools/generate_compound_library.py"
+      - "tools/generate_all_structures.py"
+    forbidden_files:
+      - "gradle.properties"
+      - "CHANGELOG.md"
+      - "src/main/resources/data/myvillage/structure/*.nbt"
+
+  - id: patch-validators
+    agent: validator-engineer
+    depends_on: [patch-generator]
+    allowed_files:
+      - "tools/validate_compound_library.py"
+      - "tools/buildgen/tests/**"
+      - "tools/buildgen/probes/**"
+    gates:
+      - "python3 tools/validate_compound_library.py --count 6"
+      - "python3 tools/validate_compound_library.py --group cultivation_town --count 6"
+      - "python3 tools/validate_compound_library.py --group cultivation_sect --count 2"
+
+  - id: visual-evidence
+    agent: visual-reviewer
+    depends_on: [patch-validators]
+    generated_outputs_allowed: true
+    gates:
+      - "python3 tools/preview_structure.py --all"
+      - "python3 tools/write_visual_acceptance_report.py"
+
+  - id: aesthetic-review
+    agent: aesthetic-critic
+    depends_on: [visual-evidence]
+    inputs:
+      - "genops/rubrics/mansion.rubric.yaml"
+      - "genops/rubrics/sect.rubric.yaml"
+      - "genops/defects/defect_dictionary.yaml"
+
+  - id: docs-sync
+    agent: docs-steward
+    depends_on: [aesthetic-review]
+    allowed_files: ["README.md", "docs/ai-kb/**", "openspec/specs/**", "genops/**"]
+
+  - id: regression
+    agent: regression-steward
+    depends_on: [docs-sync]
+    gates:
+      - "python3 tools/generate_all_structures.py --mc-version 1.21.1 --output src/main/resources/data/myvillage/structure"
+      - "python3 tools/validate_generated_structures.py src/main/resources/data/myvillage/structure"
+      - "python3 tools/validate_compound_library.py --count 6"
+      - "python3 tools/validate_compound_library.py --group cultivation_town --count 6"
+      - "python3 tools/validate_compound_library.py --group cultivation_sect --count 2"
+      - "./gradlew build"
+
+human_review:
+  required: true
+

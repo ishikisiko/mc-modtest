@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://myvillage.local/genops/defect_report.schema.json",
+  "title": "GenOps Defect Report",
+  "type": "object",
+  "required": ["target", "defects"],
+  "properties": {
+    "target": {"type": "string"},
+    "defects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "severity"],
+        "properties": {
+          "id": {"type": "string"},
+          "severity": {"enum": ["info", "warning", "error", "blocking"]},
+          "evidence": {"type": "array", "items": {"type": "string"}},
+          "fix_patterns": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    },
+    "summary": {"type": "string"}
+  }
+}
+

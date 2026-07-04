@@ -1,0 +1,37 @@
+id: cultivation_sect
+version: 1
+
+identity:
+  one_sentence: "山中修真宗门：中轴登山、云海隔层、主殿压轴、侧峰/飞桥制造仙气。"
+
+must_have:
+  - "山门是玩家进入宗门的第一识别点"
+  - "至少 5 层语义层级：gate / disciple / assembly / scripture / summit"
+  - "主殿位于最高或最重要位置"
+  - "山体承托台地，不允许建筑漂浮"
+  - "世界生成和命令生成共享 plan + realizer"
+
+should_have:
+  - "非矩形台地边缘"
+  - "一个 off-axis landmark"
+  - "飞桥或孤峰变体"
+  - "云海或雾面作为空间分隔"
+  - "台阶途中有停顿节点"
+
+must_not_have:
+  - "全平台矩形停车场感"
+  - "西式烟囱/porch 污染 cultivation 风格"
+  - "chunk seam 上模板随机不一致"
+  - "worldgen 路径 setChunkForced"
+
+composition:
+  axis:
+    role: "ceremonial spine"
+    allow_breaking: false
+  flanks:
+    role: "support hierarchy and asymmetry"
+    allow_offset: true
+  summit:
+    role: "terminal focus"
+    must_dominate: true
+

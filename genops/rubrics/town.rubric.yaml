@@ -1,0 +1,28 @@
+id: town
+version: 1
+
+dimensions:
+  district_legibility:
+    weight: 1.3
+    question: "市场、居住、核心、边缘是否可读？"
+    score_1: "只有格子"
+    score_3: "分区存在但边界弱"
+    score_5: "分区、路网、地标和街面连续"
+  street_room:
+    weight: 1.2
+    question: "街道是否有街墙、入口、摊位和生活感？"
+    score_1: "空广场/空路"
+    score_3: "有基础沿街界面"
+    score_5: "街墙、巷、摊、灯、招牌形成可逛空间"
+  silhouette:
+    weight: 1.0
+    question: "远景是否有墙形、核心和竖向地标？"
+    score_1: "平"
+    score_3: "有少量地标"
+    score_5: "轮廓、门、塔/殿、边界层级清楚"
+
+blocking_defects:
+  - missing_civic_core
+  - inaccessible_axis
+  - chunk_seam_break
+

@@ -1,0 +1,50 @@
+version: 1
+
+principle: "Owner talks to the Commander Agent in natural language; Commander runs local tools."
+
+owner_interface:
+  primary: natural_language_conversation
+  not_primary:
+    - "owner manually typing GenOps CLI commands"
+    - "owner choosing low-level task ids before the commander has mapped the goal"
+  commander_responsibilities:
+    - "infer the pipeline from the stated goal"
+    - "choose planning, implementation, visual review, regression, or release mode"
+    - "run tools/genops/run_pipeline.py when useful"
+    - "execute task work directly when the owner asks to proceed"
+    - "summarize evidence and ask only for real product/aesthetic decisions"
+
+intent_routing:
+  sect:
+    pipeline: "genops/pipelines/sect-worldgen.full.yaml"
+    cues: ["宗门", "sect", "山体", "远景", "剪影", "登山", "飞桥", "云海"]
+  mansion:
+    pipeline: "genops/pipelines/mansion-visual.full.yaml"
+    cues: ["大宅", "江南", "花园", "月洞门", "水亭", "假山", "后院"]
+  compound:
+    pipeline: "genops/pipelines/compound-library.full.yaml"
+    cues: ["院落", "compound", "复合结构", "路径", "可达", "围合"]
+  building:
+    pipeline: "genops/pipelines/building-library.full.yaml"
+    cues: ["单体", "建筑库", "屋顶", "门窗", "室内", "house", "building"]
+  visual_acceptance:
+    pipeline: "genops/pipelines/visual-acceptance.full.yaml"
+    cues: ["视觉验收", "预览", "截图", "PNG", "报告", "人工验收"]
+  release:
+    pipeline: "genops/pipelines/release.full.yaml"
+    cues: ["发布", "版本", "changelog", "jar", "release"]
+
+default_modes:
+  visual_or_aesthetic_goal: "alignment_first"
+  mechanical_bug_or_failing_gate: "implementation_first"
+  unclear_scope: "planning_first"
+  final_acceptance: "run_gates_then_handoff"
+
+owner_examples:
+  - owner: "用 GenOps 规划一下宗门远景剪影怎么改，先别动代码。"
+    commander_action: "run planning pass on sect-worldgen.full, inspect artifacts, summarize proposed tasks"
+  - owner: "继续上次 run，把 generator 那个任务做了。"
+    commander_action: "open the run manifest/task contract, implement the scoped task, run relevant gates"
+  - owner: "大宅花园不接受，太散。"
+    commander_action: "record/restate verdict, route to mansion-visual, produce a critique before generator edits"
+
