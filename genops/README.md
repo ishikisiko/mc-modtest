@@ -99,6 +99,8 @@ write sets.
   `genops/golden/` capture visual/aesthetic control data.
 - `tools/genops/check_frontdoor.py` checks protected changed files against a
   GenOps run manifest and per-task artifact evidence.
+- `tools/genops/state_store.py` maintains the optional rebuildable SQLite
+  operational index at `.genops/state.sqlite`.
 - `reports/agent_runs/<run_id>/` is deterministic evidence and remains ignored
   with the rest of `reports/`.
 
@@ -110,3 +112,21 @@ For CRAFT-required handoff, Commander summaries should report `run_id`,
 `pipeline`, worker/task ownership, changed artifacts, gates, human verdict
 state, and the next decision. Task success alone is not visual or human
 acceptance.
+
+## Local State Index
+
+The state store is a local cache for Commander continuity, not a source of
+truth. Delete `.genops/state.sqlite` whenever needed and rebuild it from run
+evidence:
+
+```bash
+python3 tools/genops/state_store.py rebuild
+python3 tools/genops/state_store.py current
+python3 tools/genops/state_store.py pending-decisions
+python3 tools/genops/state_store.py closeout-ready
+python3 tools/genops/state_store.py artifact-owner genops/commander.yaml
+```
+
+Use it to answer owner-facing questions such as "continue the previous intent",
+"what needs my decision", and "which run touched this artifact". Keep the JSON
+files under `reports/agent_runs/**` as audit truth.

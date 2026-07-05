@@ -41,10 +41,19 @@ tasks:
 
   - id: check-existing-changes
     agent: spec-guardian
-    depends_on: [map-current]
+    depends_on: [explore-scope]
     goal: "Decide whether to create a new change, revise an existing change, split scope, or pause due to conflict."
     outputs:
       - "artifacts/spec_impact.json"
+      - "task_result.json"
+      - "evidence.json"
+
+  - id: explore-scope
+    agent: spec-guardian
+    depends_on: [map-current]
+    goal: "Explore OpenSpec status, related specs, active changes, conflicts, and scope boundaries as CRAFT-internal evidence; do not expose OpenSpec skill or CLI names as the owner-facing entry point."
+    outputs:
+      - "artifacts/openspec_exploration.md"
       - "task_result.json"
       - "evidence.json"
 
@@ -87,6 +96,15 @@ tasks:
       - "task_result.json"
       - "evidence.json"
 
+  - id: closeout-readiness
+    agent: regression-steward
+    depends_on: [review-frontdoor-evidence]
+    goal: "Decide whether a human verdict prompt is required and whether the change is eligible for Commander-owned auto-archive; record blockers instead of asking the owner to initiate archive."
+    outputs:
+      - "artifacts/closeout_readiness.json"
+      - "task_result.json"
+      - "evidence.json"
+
 human_review:
   required: false
 
@@ -95,3 +113,4 @@ final_outputs:
   - "final_summary.md"
   - "tasks/write-openspec-artifacts/task_result.json"
   - "tasks/review-frontdoor-evidence/evidence.json"
+  - "tasks/closeout-readiness/evidence.json"

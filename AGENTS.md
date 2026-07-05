@@ -19,6 +19,7 @@ Spend time on thinking; you do not need to use the commentary channel to report 
 - For visual/aesthetic structure changes, inspect current preview/reference evidence and give a critical design judgment before editing generators.
 - Version/changelog mechanics are single-sourced in `openspec/config.yaml` (`rules.tasks`); reference that rule rather than restating it.
 - GenOps orchestration lives in `genops/` and `tools/genops/`; user-facing use is natural-language Commander conversation, while CLI commands are backend tools the agent runs itself.
+- For CRAFT-required work, do not expose OpenSpec skills or CLI commands as the front door; create/continue a CRAFT run, ask for required verdicts, auto-archive green changes, and surface Commander summaries unless audit detail is requested.
 - Before manual visual review, run the acceptance checklist, build the artifact when practical, update command docs, generate the visual acceptance report, inspect representative PNGs, and serve `out/preview/` over HTTP until review ends.
 - Chunky automation is a staged handoff, not visual acceptance. Headless Chunky renderer PNGs cannot prove custom `myvillage:` block appearance until a dedicated compatibility path exists.
 - When commands or acceptance prep steps change, update `README.md`, this `AGENTS.md`, and relevant `openspec/specs/` documents together.

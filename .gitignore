@@ -10,6 +10,7 @@ __pycache__/
 !.codex/config.toml
 !.codex/agents/
 !.codex/agents/*.toml
+.genops/
 .opencode/
 .zcode
 exmod/

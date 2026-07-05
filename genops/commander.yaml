@@ -7,6 +7,7 @@ owner_interface:
   not_primary:
     - "owner manually typing GenOps CLI commands"
     - "owner choosing low-level task ids before the commander has mapped the goal"
+    - "owner-facing OpenSpec skill names or CLI commands as the first workflow step"
   commander_responsibilities:
     - "infer the pipeline from the stated goal"
     - "classify whether the request is CRAFT-required before protected edits"
@@ -15,6 +16,89 @@ owner_interface:
     - "execute task work directly when the owner asks to proceed"
     - "run tools/genops/check_frontdoor.py for protected-path provenance checks"
     - "summarize run evidence and ask only for real product/aesthetic decisions"
+
+visibility_policy:
+  owner_visible:
+    - "run_id"
+    - "phase"
+    - "pipeline"
+    - "role_outcomes"
+    - "artifacts"
+    - "gates"
+    - "human_verdict"
+    - "risk_stops"
+    - "next_decision"
+  backend_evidence:
+    - "OpenSpec skill names"
+    - "OpenSpec CLI commands"
+    - "spec file discovery"
+    - "validator/build commands"
+    - "pipeline YAML paths"
+    - "worker prompts and logs"
+  expose_backend_when:
+    - "owner asks for audit detail"
+    - "a backend failure is the decision blocker"
+
+subagent_execution_policy:
+  consequential_role_work_prefers_subagent: true
+  commander_self_execution_allowed_for:
+    - "lightweight read-only status checks"
+    - "manifest summarization"
+    - "subagent bridge unavailable"
+  self_execution_evidence_field: "commander_self_executed"
+  consequential_role_work:
+    - "OpenSpec artifact impact or authoring"
+    - "design judgment"
+    - "generator or runtime code edits"
+    - "generated resource edits"
+    - "validation or build gates"
+    - "release metadata"
+    - "human verdict handoff"
+
+auto_progression:
+  default_after_owner_accepts_direction: "continue_until_stop_condition"
+  stop_conditions:
+    - "unresolved scope conflict"
+    - "multiple valid aesthetic or product directions requiring owner judgment"
+    - "required visual verdict"
+    - "release/version/changelog approval"
+    - "destructive or broad generated-resource rewrite"
+    - "protected behavior boundary change outside accepted scope"
+    - "failing gate"
+    - "missing evidence"
+
+human_verdict_policy:
+  prompt_when_required: true
+  prompt_owner_for_pending_verdict: true
+  prompt_shape: "Ask whether the prepared evidence is OK, rejected, or accepted with changes."
+  no_silent_acceptance: true
+  verdicts:
+    - "accept"
+    - "reject"
+    - "accept_with_changes"
+
+archive_policy:
+  default: "auto_archive_when_green"
+  owner_initiated_archive_required: false
+  action_owner: "commander"
+  eligible_when:
+    - "all planning artifacts are complete"
+    - "all tasks are complete"
+    - "strict change validation passes"
+    - "front-door evidence is present for protected paths"
+    - "required human verdict is recorded or not required"
+    - "no closeout stop condition is present"
+  stop_conditions:
+    - "human verdict required but pending"
+    - "release/version/changelog approval required"
+    - "failed validation, build, or front-door gate"
+    - "missing run evidence"
+    - "implementation not landed"
+    - "dirty unrelated protected paths"
+    - "spec baseline conflict"
+  post_archive_gates:
+    - "validate affected specs"
+    - "report archive path in Commander summary"
 
 craft_required_intents:
   - "explicit CRAFT or GenOps request"

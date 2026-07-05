@@ -31,6 +31,13 @@ The owner talks to the Commander Agent:
 The Commander Agent decides which backend tools to run, which pipeline applies,
 which worker owns the next task, and what evidence must be returned.
 
+For CRAFT-required work, the owner-facing control plane is always CRAFT
+Commander state: run id, phase, pipeline, role outcomes, gates, verdicts, risk
+stops, and next decision. OpenSpec skills, OpenSpec CLI commands, pipeline YAML
+paths, validators, prompts, and logs are backend evidence. The Commander may
+summarize those details when the owner asks for audit detail or when a backend
+failure is the blocker, but they are not the front door.
+
 ## Front-door Governance
 
 CRAFT is the required front door for high-impact project work. The Commander
@@ -48,6 +55,11 @@ owner intent is CRAFT-required:
 Trivial read-only checks, status lookups, and direct answers can stay outside
 CRAFT as long as they do not modify protected files. OpenSpec remains the
 capability contract; CRAFT governs the process route into those artifacts.
+
+OpenSpec exploration is therefore a run-internal role task. The
+`openspec-change.full` pipeline maps current state, explores scope and conflicts
+through `spec-guardian`, then lets downstream tasks write proposal/design/spec
+artifacts only after that CRAFT evidence exists.
 
 Protected work must be traceable to a run id, pipeline, task id, worker role,
 changed artifacts, gate state, and any required human verdict. The local
@@ -117,6 +129,12 @@ Workers are not spawned automatically. The Commander may spawn them only when
 the owner explicitly asks for subagents or parallel agent work, or when the
 current task clearly benefits from a delegated worker and the conversation has
 authorized that style of work.
+
+For CRAFT-required work, role boundaries are still mandatory even when a task is
+not delegated. Consequential role work must use the mapped Codex custom subagent
+when available and practical. Lightweight read-only checks may be
+Commander self-executed, but the task evidence must mark that self-execution
+instead of pretending a worker boundary existed.
 
 ## Worker Roles
 
@@ -188,6 +206,29 @@ Owner intent
   -> Manager finalizes run manifest
 ```
 
+After the owner accepts a direction or asks CRAFT to proceed, the Commander may
+continue through authoring, implementation, validation, and handoff without
+asking for a second command at every phase. It must stop for unresolved scope
+conflict, multiple valid aesthetic/product directions, missing visual verdict,
+release/version/changelog approval, destructive generated-resource rewrites,
+behavior changes outside accepted scope, failing gates, or missing evidence.
+
+When a stop is only a required human verdict, the Commander asks the owner
+directly whether the prepared evidence is OK, rejected, or accepted with
+changes. The owner should not have to discover that a verdict is needed.
+
+Archive is a Commander-owned closeout action. Once all artifacts and tasks are
+complete, validation and front-door evidence are green, required verdicts are
+recorded or not required, and no closeout stop condition remains, the Commander
+archives the OpenSpec change and validates the affected baseline specs without
+waiting for the owner to issue an archive command.
+
+CRAFT may maintain a rebuildable local SQLite index at `.genops/state.sqlite` to
+answer continuity questions such as "continue the previous intent", "what needs
+my decision", "which change is closeout-ready", or "who touched this artifact".
+That database is an operational cache only. OpenSpec specs, repo files, and
+`reports/agent_runs/**` remain the truth; the index can be deleted and rebuilt.
+
 ## Evidence Layout
 
 Each run writes deterministic evidence under:
@@ -218,6 +259,15 @@ artifacts/
 
 `reports/agent_runs/` is ignored with generated reports by default. It is
 evidence, not source.
+
+The optional local state index lives outside the evidence tree:
+
+```text
+.genops/state.sqlite
+```
+
+It is ignored by git and rebuilt from run manifests, task results, evidence
+files, OpenSpec active/archive state, and mirrored decision artifacts.
 
 For CRAFT-required work, the Commander summary must include:
 

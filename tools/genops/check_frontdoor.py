@@ -22,6 +22,7 @@ PROTECTED_PATTERNS: list[tuple[str, str]] = [
     ("openspec/specs/**", "openspec"),
     ("docs/ai-kb/**", "docs"),
     ("genops/**", "genops"),
+    ("tools/genops/**", "genops"),
     ("tools/buildgen/**", "generator"),
     ("src/main/resources/data/myvillage/structure/*.nbt", "generated-structure"),
     ("src/main/**", "runtime"),
@@ -34,7 +35,7 @@ PROTECTED_PATTERNS: list[tuple[str, str]] = [
 ]
 
 ROLE_ALLOWLIST: dict[str, set[str]] = {
-    "openspec": {"docs-steward", "spec-guardian"},
+    "openspec": {"docs-steward", "spec-guardian", "regression-steward"},
     "docs": {"docs-steward", "release-steward", "spec-guardian"},
     "genops": {"manager", "pipeline-architect", "docs-steward", "regression-steward"},
     "generator": {"generator-engineer"},

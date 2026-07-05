@@ -14,6 +14,13 @@ language, not by manually typing GenOps CLI commands. The Commander Agent choose
 the pipeline, run mode, task scope, and validation path, then runs local tools
 itself and reports the evidence.
 
+For CRAFT-required work, the owner-facing workflow is CRAFT state: run id,
+phase, pipeline, role outcomes, changed artifacts, gates, human verdict, risk
+stops, and next decision. OpenSpec skill names, OpenSpec CLI commands, pipeline
+YAML paths, validator commands, prompts, and logs are backend evidence. The
+Commander exposes them only when the owner asks for audit detail or when a
+backend failure is the decision blocker.
+
 Good owner messages:
 
 ```text
@@ -42,6 +49,11 @@ continue a run before modifying protected artifacts when the owner asks for:
 Direct read-only checks remain exempt. For example, checking `git status`,
 listing active OpenSpec changes, or answering a narrow factual question does not
 need a run unless the task proceeds to protected edits.
+
+OpenSpec exploration is not a separate owner-facing entry point. New or
+continued OpenSpec work enters through `openspec-change.full`, where the
+`spec-guardian` role explores scope, related specs, active changes, conflicts,
+and stop conditions as run evidence before artifact writing proceeds.
 
 Protected paths include OpenSpec artifacts, GenOps configuration, KB docs,
 generator and runtime code, generated structure resources, release metadata,
@@ -102,6 +114,13 @@ owner explicitly asks for subagents or parallel agent work. For write-heavy
 parallel work, the Commander must assign disjoint file ownership to avoid
 conflicts.
 
+For consequential CRAFT role work, the Commander must use the mapped custom
+subagent when available and practical. Consequential work includes OpenSpec
+artifact impact, design judgment, code/resource edits, validation, release
+metadata, and human verdict handoff. Lightweight read-only checks may be
+Commander self-executed, but task evidence should mark that fact rather than
+implying a worker was spawned.
+
 ## Backend planning pass
 
 OpenSpec proposal/design/spec/task authoring uses the dedicated front-door
@@ -129,6 +148,45 @@ agent to fill each task directory with a real patch and result. Use
 `--run-gates` only when the declared validation/build commands should actually
 execute. These are backend controls for the Commander, not instructions the
 owner is expected to type.
+
+After the owner accepts a direction or asks CRAFT to proceed, the Commander may
+auto-progress through authoring, implementation, validation, and handoff until a
+stop condition appears. Stop conditions include unresolved scope conflict,
+multiple valid aesthetic/product directions, required visual verdict,
+release/version/changelog approval, destructive generated-resource rewrites,
+behavior changes outside accepted scope, failing gates, or missing evidence.
+
+If the only blocker is a required human verdict, the Commander asks the owner
+whether the prepared evidence is OK, rejected, or accepted with changes. The
+owner is not expected to infer that a verdict is needed from backend evidence.
+
+Archive is part of CRAFT closeout, not an owner-initiated second command. When a
+change has complete artifacts and tasks, passing validation, matching
+front-door evidence, no pending required verdict, and no closeout stop
+condition, the Commander archives it and validates the affected baseline specs
+before reporting the closeout summary.
+
+## Local state index
+
+GenOps may maintain a rebuildable SQLite operational index at
+`.genops/state.sqlite`. It is local cache, not source of truth. The index helps
+the Commander answer continuity questions quickly: current intent, pending
+decisions, closeout-ready changes, failed tasks, gate history, and artifact
+ownership.
+
+Backend commands:
+
+```bash
+python3 tools/genops/state_store.py init
+python3 tools/genops/state_store.py rebuild
+python3 tools/genops/state_store.py current
+python3 tools/genops/state_store.py pending-decisions
+python3 tools/genops/state_store.py closeout-ready
+python3 tools/genops/state_store.py artifact-owner genops/commander.yaml
+```
+
+The database can be deleted and rebuilt from `reports/agent_runs/**`, OpenSpec
+active/archive state, and decision artifacts mirrored under run evidence.
 
 ## Evidence shape
 
