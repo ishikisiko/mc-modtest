@@ -14,7 +14,7 @@ runs the backend tools.
 
 ```text
 用 GenOps 规划一下宗门远景剪影怎么改，先别动代码。
-继续上次 run，把 patch-python-preview 做了。
+继续上次工作，把已确认的实现方向做完。
 跑完整回归并准备人工视觉验收。
 ```
 
@@ -23,6 +23,13 @@ edited. CRAFT-required work includes explicit CRAFT/GenOps requests, new
 OpenSpec changes, OpenSpec apply/implementation, visual or aesthetic structure
 changes, subagent/parallel work, release/version/build handoff, and
 acceptance/visual-review handoff. Direct read-only checks remain exempt.
+
+The default owner surface is decision-only: confirm the need, scope/depth,
+implementation direction, aesthetic/product verdict, and release-sensitive
+approval when needed. Change names, run ids, pipelines, task ids, worker
+routing, validation commands, archive, and evidence bookkeeping are Commander
+responsibilities unless the owner asks for audit detail or a backend failure
+blocks a decision.
 
 ## Backend Run
 
@@ -79,7 +86,9 @@ pipeline role names to those custom agent names in `genops/subagents.yaml`.
 Examples:
 
 - `generator-engineer` -> `genops-generator-engineer`
+- `java-runtime-engineer` -> `genops-java-runtime-engineer`
 - `java-worldgen-engineer` -> `genops-java-worldgen-engineer`
+- `resource-asset-steward` -> `genops-resource-asset-steward`
 - `validator-engineer` -> `genops-validator-engineer`
 - `visual-reviewer` -> `genops-visual-reviewer`
 
@@ -108,10 +117,16 @@ GenOps complements OpenSpec: OpenSpec defines project capability behavior;
 GenOps defines who may change what, which gates block the change, and where
 review evidence lands.
 
-For CRAFT-required handoff, Commander summaries should report `run_id`,
-`pipeline`, worker/task ownership, changed artifacts, gates, human verdict
-state, and the next decision. Task success alone is not visual or human
-acceptance.
+Mod item work uses `.codex/skills/mod-item-creation/SKILL.md` plus
+`genops/pipelines/mod-item.full.yaml`. The skill classifies item kind and
+requires an Item Contract; the pipeline splits Java registration, resources,
+visual review, validation, docs, and regression into role-owned tasks.
+
+For CRAFT-required handoff, default Commander summaries should report
+goal/status, what changed or will change, validation state, risk or blocker,
+human decision needed, and the next action. Run ids, pipeline names,
+worker/task ownership, changed artifacts, and raw gate details remain audit
+evidence. Task success alone is not visual or human acceptance.
 
 ## Local State Index
 

@@ -1,0 +1,132 @@
+{
+  "style_id": "chinese_huipai_mansion",
+  "material_slots": {
+    "BASE_STONE": [
+      "minecraft:stone_bricks",
+      "minecraft:polished_andesite"
+    ],
+    "PLATFORM_STONE": [
+      "minecraft:stone_bricks",
+      "minecraft:smooth_stone"
+    ],
+    "COLUMN": [
+      "minecraft:stripped_dark_oak_log",
+      "minecraft:dark_oak_log"
+    ],
+    "WALL_MAIN": [
+      "minecraft:calcite",
+      "minecraft:diorite"
+    ],
+    "FRAME_WOOD": [
+      "minecraft:dark_oak_log",
+      "minecraft:stripped_dark_oak_log"
+    ],
+    "ROOF_DARK": [
+      "minecraft:dark_oak_stairs",
+      "minecraft:dark_oak_slab",
+      "minecraft:dark_oak_planks"
+    ],
+    "DETAIL_WOOD": [
+      "minecraft:dark_oak_trapdoor",
+      "minecraft:dark_oak_fence",
+      "minecraft:dark_oak_slab"
+    ],
+    "LIGHTING": [
+      "minecraft:torch"
+    ],
+    "GROUND_PATH": [
+      "minecraft:stone_bricks",
+      "minecraft:polished_andesite"
+    ],
+    "GROUND_YARD_OPEN": [
+      "minecraft:stone_bricks",
+      "minecraft:polished_andesite"
+    ],
+    "GROUND_YARD_UNDER_EAVE": [
+      "minecraft:stone_bricks",
+      "minecraft:smooth_stone"
+    ],
+    "GROUND_YARD_HEART": [
+      "minecraft:stone_bricks",
+      "minecraft:polished_andesite"
+    ],
+    "PATH_FORMAL": [
+      "minecraft:smooth_stone",
+      "minecraft:stone_bricks"
+    ],
+    "PATH_ALLEY": [
+      "minecraft:stone_bricks",
+      "minecraft:polished_andesite"
+    ],
+    "FURNITURE": [
+      "minecraft:barrel",
+      "minecraft:chest"
+    ],
+    "RIDGE_ORNAMENT": [
+      "minecraft:stone_brick_wall",
+      "minecraft:stone_bricks"
+    ],
+    "GABLE_INFILL": [
+      "minecraft:calcite",
+      "minecraft:diorite"
+    ]
+  },
+  "variation_rate": {
+    "WALL_MAIN": 0.06,
+    "GROUND_PATH": 0.08
+  },
+  "allowed_roof_types": [
+    "chinese_flush_gable",
+    "chinese_overhang_gable"
+  ],
+  "allowed_wall_types": [
+    "white_plaster_closed_wall",
+    "timber_framed_hall_wall",
+    "stone_lower_wall"
+  ],
+  "allowed_opening_styles": [
+    "closed_facade_single_entry",
+    "small_high_window"
+  ],
+  "allowed_motifs": [
+    "stepped_gable_wall",
+    "closed_facade_entry",
+    "stone_path",
+    "timber_bracket"
+  ],
+  "forbidden_blocks": [
+    "minecraft:spruce_",
+    "minecraft:birch_",
+    "minecraft:acacia_",
+    "minecraft:jungle_",
+    "minecraft:mangrove_",
+    "minecraft:cobblestone",
+    "minecraft:mossy_cobblestone",
+    "terracotta",
+    "quartz",
+    "concrete",
+    "warped_",
+    "crimson_",
+    "iron_block",
+    "copper",
+    "gold_block",
+    "netherite",
+    "sign",
+    "spawner",
+    "command_block",
+    "shulker",
+    "banner",
+    "bed",
+    "jukebox",
+    "beacon"
+  ],
+  "proportions": {
+    "wall_height": [5, 6],
+    "roof_height_ratio": [0.45, 0.6],
+    "bay_width": [4, 5],
+    "eave_overhang": [1, 1],
+    "door_height": [2, 3],
+    "window_frequency": [0.0, 0.12],
+    "courtyard_ratio": [0.12, 0.18]
+  }
+}

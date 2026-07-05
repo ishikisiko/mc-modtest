@@ -41,6 +41,11 @@ public final class ModItems {
             ITEMS.registerItem("rockery_block",
                     props -> new BlockItem(ModBlocks.ROCKERY_BLOCK.get(), props));
 
+    /** Simple placeable block item used as a smoke target for the item pipeline. */
+    public static final DeferredItem<BlockItem> TEST_ITEM_BLOCK_ITEM =
+            ITEMS.registerItem("test_item_block",
+                    props -> new BlockItem(ModBlocks.TEST_ITEM_BLOCK.get(), props));
+
     /**
      * The {@code myvillage:main} creative tab. Icon + content is the rockery
      * item; the tab groups all hand-placeable myvillage blocks together.
@@ -51,6 +56,7 @@ public final class ModItems {
                     .icon(() -> new ItemStack(ROCKERY_BLOCK_ITEM.get()))
                     .displayItems((params, output) -> {
                         output.accept(ROCKERY_BLOCK_ITEM.get());
+                        output.accept(TEST_ITEM_BLOCK_ITEM.get());
                     })
                     .build());
 

@@ -19,7 +19,7 @@ Spend time on thinking; you do not need to use the commentary channel to report 
 - For visual/aesthetic structure changes, inspect current preview/reference evidence and give a critical design judgment before editing generators.
 - Version/changelog mechanics are single-sourced in `openspec/config.yaml` (`rules.tasks`); reference that rule rather than restating it.
 - GenOps orchestration lives in `genops/` and `tools/genops/`; user-facing use is natural-language Commander conversation, while CLI commands are backend tools the agent runs itself.
-- For CRAFT-required work, do not expose OpenSpec skills or CLI commands as the front door; create/continue a CRAFT run, ask for required verdicts, auto-archive green changes, and surface Commander summaries unless audit detail is requested.
+- For CRAFT-required work, keep the owner interface decision-only: confirm need, scope/depth, direction, and verdicts; the Commander owns change names, run ids, pipelines, task ids, worker routing, checks, and archive unless audit detail or a backend failure is requested.
 - Before manual visual review, run the acceptance checklist, build the artifact when practical, update command docs, generate the visual acceptance report, inspect representative PNGs, and serve `out/preview/` over HTTP until review ends.
 - Chunky automation is a staged handoff, not visual acceptance. Headless Chunky renderer PNGs cannot prove custom `myvillage:` block appearance until a dedicated compatibility path exists.
 - When commands or acceptance prep steps change, update `README.md`, this `AGENTS.md`, and relevant `openspec/specs/` documents together.
@@ -32,10 +32,12 @@ Spend time on thinking; you do not need to use the commentary channel to report 
 - Reports/acceptance: `docs/ai-kb/09_validation_checklist.md`, `openspec/specs/validation/spec.md`.
 - GenOps/CRAFT: `CRAFT.md`, `docs/ai-kb/19_genops.md`, `openspec/specs/genops/spec.md`, `genops/README.md`.
 - Resources/commands: `openspec/specs/resource-export/spec.md`.
+- Mod items: `docs/ai-kb/22_mod_item_creation.md`, `mod-item-pipeline`, `.codex/skills/mod-item-creation/SKILL.md`.
 - Groups/style/modset/forms: `settlement-group`, `style-profile`, `modset-profile`, `form-registry`, `chinese-vernacular-roof-vocabulary`, `cultivation-form-vocabulary`.
 - Region runtime: `docs/ai-kb/13_region_topology.md`, `region-profile`, `region-topology`, `region-runtime-binding`.
 - Courtyard/mansion surfaces: `docs/ai-kb/16_path_surface_zoning.md`, `courtyard-ground-layer`, `courtyard-path-network`, `path-surface-zoning`, `courtyard-voxel-walkability`.
 - Jiangnan mansion: `docs/ai-kb/10_civic_family.md`, `chinese-mansion-compound`, `compound-enclosure-planning`, `building-orientation-variants`.
+- Hui reference slice: `docs/ai-kb/21_huipai_reference_slice.md`, `huipai-tianjing-mansion`, `form-registry`, `settlement-group`, `validation`.
 - `myvillage:` decor/rockery: `docs/ai-kb/15_rockery_form_diagnosis.md`, `mod-decor-block-family`, `garden-rockery`.
 - Cultivation settlements: `sect-compound-layout`, `sect-compound-realization`, `sect-worldgen-structure`, `sect-mountain-derivation`, `town-plan`, `town-districts`, `town-realization`, `settlement-group`.
 - Rendering/handoff: `docs/ai-kb/17_chunky_acceptance.md`, `docs/ai-kb/18_chunky_path_traced_render.md`, `chunky-acceptance-automation`, `interactive-preview`.

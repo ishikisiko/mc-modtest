@@ -72,6 +72,20 @@ Each decor class SHALL register its block via `DeferredRegister.Blocks` in `ModB
 - **THEN** the Java `VoxelShape` table SHALL be regenerated from the same voxel fields that produced the model JSONs
 - **AND** the model and the VoxelShape SHALL agree on which sub-cells are solid.
 
+### Requirement: Hand-placeable decor blocks support creative pick-block
+
+A decor block that exposes a `BlockItem` SHALL return that item from creative
+pick-block (`getCloneItemStack`). Visual-only helper blocks that intentionally
+have no item may keep the default empty result, but a player-placeable decor
+surface SHALL be obtainable by middle-clicking the placed block in creative mode.
+
+#### Scenario: Rockery pick-block returns the rockery item
+
+- **WHEN** a player in creative mode middle-clicks a placed `myvillage:rockery_block`
+- **THEN** the clone stack SHALL be `myvillage:rockery_block`
+- **AND** the returned stack SHALL NOT depend on the placed `variant`, `facing`,
+  `moss_level`, or `waterlogged` values.
+
 ### Requirement: The `myvillage:` self-namespace is profile-exempt
 
 Every decor block under the `myvillage:` namespace SHALL be legal under both `vanilla` and `full` modset profiles. The validator SHALL NOT require a `minecraft:` fallback for `myvillage:` decor ids, because the mod ships the assets and the player who installs the mod has the block registered. The `--profile vanilla` flag SHALL still resolve decor block ids normally (no substitution), unlike external-mod ids which are dropped to `minecraft:` fallbacks under `vanilla`.
@@ -97,3 +111,11 @@ The following decor classes are tracked as future extensions of this protocol. E
 - `myvillage:ridge_ornament` — 屋脊吻兽 (ridge-terminal ornaments).
 
 These are NOT validated by any current validator and SHALL NOT be implemented in the `rebuild-jiangnan-mansion` change.
+
+#### Scenario: Future decor classes stay out of current implementation
+
+- **WHEN** the current decor-block contract is validated
+- **THEN** only `myvillage:rockery_block` SHALL be required as an implemented
+  decor class
+- **AND** future ids such as `myvillage:pond_stone` SHALL remain non-requirements
+  until their own changes add them.

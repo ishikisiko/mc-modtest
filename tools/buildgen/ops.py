@@ -2755,5 +2755,12 @@ register_motif("incense_altar", _incense_altar_motif)
 register_motif("cloud_rail", _cloud_rail_motif)
 register_motif("market_stall", _market_stall_motif)
 register_motif("sect_gate_paifang", _sect_gate_paifang_motif)
-for _motif in ("side_chimney", "courtyard_gate", "water_feature", "planting_bed"):
+for _motif in (
+    "side_chimney",
+    "courtyard_gate",
+    "water_feature",
+    "planting_bed",
+    "stepped_gable_wall",
+    "closed_facade_entry",
+):
     register_motif(_motif, _already_placed_motif)

@@ -169,6 +169,26 @@ GROUPS: Dict[str, SettlementGroup] = {
             "service_house": "functional",
         },
     ),
+    "chinese_huipai_mansion": SettlementGroup(
+        group_id="chinese_huipai_mansion",
+        style_id="chinese_huipai_mansion",
+        archetype_roster=(
+            "huipai_entry_hall",
+            "huipai_family_hall",
+            "huipai_rear_hall",
+        ),
+        layout_strategy="huipai_tianjing_reference_slice",
+        scale_params={
+            "gallery_group": "chinese_huipai_mansion",
+            "compound_count": 2,
+            "reference_candidate": "candidate_003",
+        },
+        classifications={
+            "huipai_entry_hall": "infrastructure",
+            "huipai_family_hall": "civic",
+            "huipai_rear_hall": "housing",
+        },
+    ),
     "cultivation_sect": SettlementGroup(
         group_id="cultivation_sect",
         style_id="cultivation_sect",

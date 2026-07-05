@@ -21,9 +21,9 @@ systems when the data and runtime pipeline are ready.
 
 Generator work is routed through a Commander Agent conversation. The project
 owner describes intent in natural language; the Commander chooses the pipeline,
-runs the local manager tools, and reports the run id, task status, evidence, and
-next decision. The CLI is a backend implementation detail, not the normal user
-interface.
+runs the local manager tools, and reports goal status, validation state, risks,
+and the next real decision. Run ids, task ids, raw gates, and evidence paths are
+available for audit, but they are not the normal user interface.
 
 CRAFT-required work now has to enter through GenOps before protected artifacts
 are edited. That includes explicit CRAFT/GenOps requests, OpenSpec proposal or
@@ -35,7 +35,7 @@ Example owner messages:
 
 ```text
 用 GenOps 规划一下宗门远景剪影怎么改，先别动代码。
-继续上次 run，把 patch-python-preview 做了。
+继续上次工作，把已确认的实现方向做完。
 跑完整回归并准备人工视觉验收。
 ```
 
@@ -47,9 +47,14 @@ gate evidence, and a final manifest under `reports/agent_runs/<run_id>/`. See
 
 OpenSpec proposal/design/spec/task authoring uses
 `genops/pipelines/openspec-change.full.yaml`. Protected-path provenance can be
-checked with `tools/genops/check_frontdoor.py`; CRAFT-required summaries should
-include the run id, pipeline, worker/task ownership, artifacts, gates, human
-verdict state, and next decision.
+checked with `tools/genops/check_frontdoor.py`; those backend details are
+Commander-owned unless audit detail is requested or a backend failure blocks a
+decision.
+
+Mod item creation is also CRAFT-routed. The repo-local
+`.codex/skills/mod-item-creation` skill creates the Item Contract and routes
+work through `genops/pipelines/mod-item.full.yaml`, separating Java registration,
+resources, visual review, validation, docs, and regression evidence.
 
 GenOps worker roles are also registered as project-scoped Codex custom
 subagents under `.codex/agents/` (for example
@@ -145,6 +150,8 @@ python3 tools/generate_compound_library.py --count 6
 python3 tools/validate_compound_library.py --count 6
 python3 tools/generate_compound_library.py --count 6 --profile vanilla
 python3 tools/validate_compound_library.py --count 6 --profile vanilla
+python3 tools/generate_compound_library.py --group chinese_huipai_mansion --count 2 --base-seed 20260619
+python3 tools/validate_compound_library.py --group chinese_huipai_mansion --count 2
 ```
 
 The six `chinese_courtyard_NNN` templates are rebuilt 一进 compounds: an outer
@@ -203,6 +210,16 @@ change.
 See [`docs/ai-kb/16_path_surface_zoning.md`](docs/ai-kb/16_path_surface_zoning.md).
 Run the final full-profile generation after a vanilla-profile proof to restore
 the shipped artifact profile.
+v0.19.0 adds the first external-reference-driven original output:
+`chinese_huipai_mansion_001..002`, derived from the `candidate_003` Hui-style
+breakdown as generator grammar only. It keeps the source as `local_research`
+provenance and implements the narrow recognizable slice: closed white street
+facade, dark roof, stepped 马头墙 cue, and 门堂 → 天井一 → 享堂 → 天井二 → 寝堂
+sequence with paired 厢房/side-wing enclosure around the sky-wells, an expanded
+`47x76` / `43x72` review-lot footprint, clear spacing between the three-in
+sequence elements, larger and taller hall / side-wing massing, and no 江南 garden
+parcel. Visual acceptance
+still requires reviewer verdict after preview.
 
 Expected compound output:
 
@@ -211,8 +228,11 @@ src/main/resources/data/myvillage/structure/main_hall_review.nbt
 src/main/resources/data/myvillage/structure/side_wing_review.nbt
 src/main/resources/data/myvillage/structure/front_row_review.nbt
 src/main/resources/data/myvillage/structure/chinese_courtyard_001.nbt ... chinese_courtyard_006.nbt
+src/main/resources/data/myvillage/structure/chinese_huipai_mansion_001.nbt ... chinese_huipai_mansion_002.nbt
 src/main/resources/data/myvillage/function/gallery/chinese_courtyard.mcfunction
+src/main/resources/data/myvillage/function/gallery/chinese_huipai_mansion.mcfunction
 src/main/resources/data/myvillage/function/place/chinese_courtyard_001.mcfunction ... chinese_courtyard_006.mcfunction
+src/main/resources/data/myvillage/function/place/chinese_huipai_mansion_001.mcfunction ... chinese_huipai_mansion_002.mcfunction
 ```
 
 The compound exporter currently uses single structure NBT files. The one-court
@@ -255,6 +275,8 @@ python3 tools/validate_plaque_bindings.py
 python3 tools/validate_compound_library.py --count 6
 python3 tools/validate_compound_library.py --group cultivation_town --count 6
 python3 tools/validate_compound_library.py --group cultivation_sect --count 2
+python3 tools/validate_compound_library.py --group chinese_huipai_mansion --count 2
+python3 tools/buildgen/tests/test_huipai_reference_slice.py
 python3 tools/validate_civic_library.py
 python3 tools/validate_town_generation.py
 python3 tools/validate_runtime_town_plan.py
@@ -408,7 +430,7 @@ jar tf build/libs/*.jar | grep "assets/myvillage/textures/painting/inscription"
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.18.4.jar
+build/libs/myvillage-0.19.0.jar
 ```
 
 ## Versioning And Changelog
@@ -455,12 +477,12 @@ python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 
 python3 tools/write_visual_acceptance_report.py
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.18.4.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.18.4.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.18.4.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.18.4.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.18.4.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.18.4.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.19.0.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.19.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.19.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.19.0.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.19.0.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.19.0.jar | grep "assets/myvillage/textures/painting/inscription"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -598,6 +620,8 @@ Place a generated building directly:
 /myvillage place chinese_mansion_004
 /myvillage place chinese_mansion_005
 /myvillage place chinese_mansion_006
+/myvillage place chinese_huipai_mansion_001
+/myvillage place chinese_huipai_mansion_002
 /myvillage place hero_rockery
 /myvillage place tavern_001
 /myvillage place lord_manor_001
@@ -626,6 +650,7 @@ directly, place generated structures with the same offset:
 /place template myvillage:small_house_001 ~ ~-1 ~
 /place template myvillage:chinese_courtyard_001 ~ ~-1 ~
 /place template myvillage:chinese_mansion_001 ~ ~-1 ~
+/place template myvillage:chinese_huipai_mansion_001 ~ ~-1 ~
 /place template myvillage:tavern_001 ~ ~-1 ~
 /place template myvillage:lord_manor_001 ~ ~-1 ~
 /place template myvillage:cultivation_town_001 ~ ~-1 ~
@@ -700,11 +725,13 @@ Generated datapack functions are also available after resource generation:
 /function myvillage:gallery/medieval_village
 /function myvillage:gallery/chinese_courtyard
 /function myvillage:gallery/chinese_mansion
+/function myvillage:gallery/chinese_huipai_mansion
 /function myvillage:gallery/civic
 /function myvillage:gallery/cultivation_town
 /function myvillage:gallery/cultivation_sect
 /function myvillage:place/chinese_courtyard_001
 /function myvillage:place/chinese_mansion_001
+/function myvillage:place/chinese_huipai_mansion_001
 /function myvillage:place/tavern_001
 /function myvillage:place/lord_manor_001
 /function myvillage:place/cultivation_town_001

@@ -14,18 +14,25 @@ language, not by manually typing GenOps CLI commands. The Commander Agent choose
 the pipeline, run mode, task scope, and validation path, then runs local tools
 itself and reports the evidence.
 
-For CRAFT-required work, the owner-facing workflow is CRAFT state: run id,
-phase, pipeline, role outcomes, changed artifacts, gates, human verdict, risk
-stops, and next decision. OpenSpec skill names, OpenSpec CLI commands, pipeline
-YAML paths, validator commands, prompts, and logs are backend evidence. The
-Commander exposes them only when the owner asks for audit detail or when a
-backend failure is the decision blocker.
+For CRAFT-required work, the owner-facing workflow is Commander conversation:
+goal status, scope or direction, validation state, risk stops, human verdict,
+and next decision. Run ids, pipeline names, role outcomes, changed artifacts,
+gates, OpenSpec skill names, OpenSpec CLI commands, pipeline YAML paths,
+validator commands, prompts, and logs are backend evidence. The Commander
+exposes them only when the owner asks for audit detail or when a backend failure
+is the decision blocker.
+
+The default owner interface is narrower than the audit record: confirm the
+need, choose scope/depth or direction when there are real alternatives, give
+aesthetic/product verdicts, and approve release-sensitive choices when needed.
+The Commander owns change names, run ids, pipelines, task ids, worker routing,
+checks, archive, and evidence bookkeeping.
 
 Good owner messages:
 
 ```text
 用 GenOps 规划一下宗门远景剪影怎么改，先别动代码。
-继续上次 run，把 generator 那个任务做了。
+继续上次工作，把已确认的实现方向做完。
 大宅花园不接受，太散；记录 verdict 后继续改。
 跑完整回归并准备人工视觉验收。
 ```
@@ -107,6 +114,8 @@ genops-validator-engineer
 genops-visual-reviewer
 genops-aesthetic-critic
 genops-regression-steward
+genops-java-runtime-engineer
+genops-resource-asset-steward
 ```
 
 They are not spawned automatically. The Commander Agent uses them only when the
@@ -131,6 +140,19 @@ python3 tools/genops/run_pipeline.py genops/pipelines/openspec-change.full.yaml 
   --goal "创建或更新某个 OpenSpec change" \
   --run-id 20260705-example-openspec-change
 ```
+
+Mod item work has its own skill-backed route:
+
+```bash
+python3 tools/genops/run_pipeline.py genops/pipelines/mod-item.full.yaml \
+  --goal "创建或修订一个 myvillage mod 物品" \
+  --run-id 20260705-mod-item-example
+```
+
+The owner should still speak naturally; the command is backend evidence. The
+route starts from `.codex/skills/mod-item-creation/SKILL.md` and an Item
+Contract, then splits Java registration, resource assets, validation, docs, and
+regression across atomic roles.
 
 When the Commander Agent decides that a planning pass is useful, it runs the
 manager with the default `no_op` executor. That materializes the run manifest,
@@ -213,8 +235,11 @@ Files under `reports/agent_runs/` are deterministic run evidence and are ignored
 with the rest of `reports/` by default.
 
 For CRAFT-required work, the final summary must separate task status from human
-verdict state and include `run_id`, `pipeline`, worker/task ownership,
-artifacts, gates, `human_verdict`, and the next decision.
+verdict state. The default owner-facing summary should include goal/status,
+what changed or will change, validation state, risk or blocker, any human
+decision needed, and the next action. Run id, pipeline, worker/task ownership,
+artifacts, gates, and raw verdict records remain available as audit evidence
+when requested or when a backend failure blocks the decision.
 
 ## Acceptance boundary
 

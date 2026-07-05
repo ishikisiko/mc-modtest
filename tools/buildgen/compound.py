@@ -4868,6 +4868,696 @@ def generate_mansion(seed: int, style: Optional[Style] = None,
     return compound
 
 
+HUIPAI_TIANJING_SEQUENCE = (
+    "mentang",
+    "tianjing_1",
+    "xiangtang",
+    "tianjing_2",
+    "qintang",
+)
+HUIPAI_SEQUENCE_LABELS = {
+    "mentang": "门堂",
+    "tianjing_1": "天井一",
+    "xiangtang": "享堂",
+    "tianjing_2": "天井二",
+    "qintang": "寝堂",
+}
+HUIPAI_GARDEN_DRIFT_TYPES = {
+    "garden",
+    "garden_band",
+    "garden_pond",
+    "garden_pavilion",
+    "garden_rockery",
+    "rockery",
+    "water_feature",
+}
+
+
+def _huipai_state(style: Style, slot: str, contains: Optional[str] = None,
+                  default: Optional[str] = None) -> str:
+    if contains is None:
+        return style.primary(slot)
+    return style.slot_entry(slot, contains, default or style.primary(slot))
+
+
+def _huipai_ground(compound: CompoundGraph, style: Style) -> None:
+    lot_w, lot_d = compound.lot_size
+    for x in range(lot_w):
+        for z in range(lot_d):
+            edge = x in (0, lot_w - 1) or z in (0, lot_d - 1)
+            slot = "BASE_STONE" if edge else "GROUND_YARD_OPEN"
+            compound.grid.set((x, -1, z), style.primary(slot),
+                              ["GROUND"], PRIORITY["FOUNDATION"], slot)
+
+
+def _huipai_perimeter(compound: CompoundGraph, style: Style) -> None:
+    lot_w, lot_d = compound.lot_size
+    axis = compound.axis_x
+    gate = {(x, 0) for x in range(axis - 1, axis + 2)}
+    wall_cells: Set[Cell2] = set()
+    wall = style.primary("WALL_MAIN")
+    base = style.primary("BASE_STONE")
+    cap = _huipai_state(style, "ROOF_DARK", "_slab", "minecraft:dark_oak_slab")
+    frame = style.primary("FRAME_WOOD")
+    for x in range(lot_w):
+        for z in (0, lot_d - 1):
+            if (x, z) not in gate:
+                wall_cells.add((x, z))
+    for z in range(lot_d):
+        wall_cells.add((0, z))
+        wall_cells.add((lot_w - 1, z))
+    for x, z in sorted(wall_cells):
+        compound.grid.set((x, 0, z), base, ["STRUCTURE"],
+                          PRIORITY["STRUCTURE"], "BASE_STONE")
+        for y in range(1, 6):
+            compound.grid.set((x, y, z), wall, ["STRUCTURE", "FACADE"],
+                              PRIORITY["FACADE"], "WALL_MAIN")
+        compound.grid.set((x, 6, z), cap, ["ROOF"],
+                          PRIORITY["ROOF"], "ROOF_DARK")
+    for x, z in sorted(gate):
+        compound.grid.set((x, 0, z), style.primary("PATH_FORMAL"),
+                          ["GROUND", "DETAIL"], PRIORITY["DETAIL"],
+                          "PATH_FORMAL")
+
+    for x in (axis - 2, axis + 2):
+        for y in range(1, 5):
+            compound.grid.set((x, y, 0), frame, ["STRUCTURE", "FACADE"],
+                              PRIORITY["FACADE"], "FRAME_WOOD")
+    for x in range(axis - 2, axis + 3):
+        compound.grid.set((x, 4, 0), frame, ["STRUCTURE", "FACADE"],
+                          PRIORITY["FACADE"], "FRAME_WOOD")
+    compound.grid.set(
+        (axis, 1, 0),
+        "minecraft:dark_oak_door[facing=south,half=lower,hinge=left,open=false,powered=false]",
+        ["FACADE", "OPENING"], PRIORITY["OPENING"], "FRAME_WOOD")
+    compound.grid.set(
+        (axis, 2, 0),
+        "minecraft:dark_oak_door[facing=south,half=upper,hinge=left,open=false,powered=false]",
+        ["FACADE", "OPENING"], PRIORITY["OPENING"], "FRAME_WOOD")
+
+    compound.parcel_nodes.append(
+        ParcelNode("perimeter_wall", "perimeter_wall", wall_cells, {
+            "gate_opening": [axis - 1, 0, axis + 1, 0],
+            "gate_side": "south",
+            "wall_height": 5,
+        }))
+    compound.parcel_nodes.append(
+        ParcelNode("closed_facade", "facade",
+                   {(x, 0) for x in range(1, lot_w - 1)}, {
+                       "motif": "closed_facade_entry",
+                       "primary_entries": 1,
+                       "entry_axis": axis,
+                       "street_side": "south",
+                       "solid_wall_ratio": round((lot_w - 5) / max(1, lot_w - 2), 2),
+                   }))
+
+
+def _huipai_place_hall(compound: CompoundGraph, style: Style, node_id: str,
+                       x0: int, z0: int, x1: int, z1: int,
+                       open_south: bool, open_north: bool,
+                       wall_height: int = 4) -> None:
+    axis = compound.axis_x
+    cells = _rect(x0, z0, x1, z1)
+    wall = style.primary("WALL_MAIN")
+    floor = style.primary("GROUND_YARD_UNDER_EAVE")
+    frame = style.primary("FRAME_WOOD")
+    for x, z in sorted(cells):
+        compound.grid.set((x, 0, z), floor, ["STRUCTURE", "GROUND"],
+                          PRIORITY["STRUCTURE"], "GROUND_YARD_UNDER_EAVE")
+        boundary = x in (x0, x1) or z in (z0, z1)
+        if not boundary:
+            continue
+        open_front = z == z0 and open_south and axis - 1 <= x <= axis + 1
+        open_back = z == z1 and open_north and axis - 1 <= x <= axis + 1
+        open_height = min(3, wall_height - 1)
+        for y in range(1, wall_height + 1):
+            if (open_front or open_back) and y <= open_height:
+                compound.grid.set((x, y, z), AIR, ["AIR_CARVE"],
+                                  PRIORITY["AIR_CARVE"], force=True)
+                continue
+            compound.grid.set((x, y, z), wall, ["STRUCTURE"],
+                              PRIORITY["STRUCTURE"], "WALL_MAIN")
+
+    for x, z in ((x0, z0), (x1, z0), (x0, z1), (x1, z1),
+                 (axis - 3, z0), (axis + 3, z0), (axis - 3, z1), (axis + 3, z1)):
+        if x0 <= x <= x1 and z0 <= z <= z1:
+            for y in range(1, wall_height + 1):
+                compound.grid.set((x, y, z), frame, ["STRUCTURE"],
+                                  PRIORITY["STRUCTURE"], "FRAME_WOOD")
+
+    label = HUIPAI_SEQUENCE_LABELS[node_id]
+    compound.parcel_nodes.append(
+        ParcelNode(node_id, "hall", cells, {
+            "sequence_role": node_id,
+            "label": label,
+            "axis": axis,
+            "wall_height": wall_height,
+            "footprint_size": [x1 - x0 + 1, z1 - z0 + 1],
+        }))
+
+
+def _huipai_place_roof(compound: CompoundGraph, style: Style,
+                       x0: int, z0: int, x1: int, z1: int,
+                       roof_base_y: int = 5,
+                       max_layers: int = 4) -> Set[Cell2]:
+    eave_x0, eave_x1 = x0 - 1, x1 + 1
+    eave_z0, eave_z1 = z0 - 1, z1 + 1
+    roof_slab = _huipai_state(style, "ROOF_DARK", "_slab", "minecraft:dark_oak_slab")
+    stair = _huipai_state(style, "ROOF_DARK", "_stairs", "minecraft:dark_oak_stairs").split("[", 1)[0]
+    cells: Set[Cell2] = set()
+    ridge_x = (eave_x0 + eave_x1) // 2
+    max_y = roof_base_y
+    for x in range(eave_x0, eave_x1 + 1):
+        dist_to_edge = min(x - eave_x0, eave_x1 - x)
+        layer = min(max_layers, max(0, dist_to_edge // 2))
+        y = roof_base_y + layer
+        max_y = max(max_y, y)
+        if x < ridge_x:
+            state = f"{stair}[facing=east,half=bottom,shape=straight,waterlogged=false]"
+        elif x > ridge_x:
+            state = f"{stair}[facing=west,half=bottom,shape=straight,waterlogged=false]"
+        else:
+            state = roof_slab
+        for z in range(eave_z0, eave_z1 + 1):
+            compound.grid.set((x, y, z), state, ["ROOF"],
+                              PRIORITY["ROOF"], "ROOF_DARK")
+            cells.add((x, z))
+    for z in range(eave_z0, eave_z1 + 1):
+        compound.grid.set((ridge_x, max_y + 1, z), roof_slab, ["ROOF"],
+                          PRIORITY["ROOF"], "RIDGE_ORNAMENT")
+    return cells
+
+
+def _huipai_place_side_wing(compound: CompoundGraph, style: Style,
+                            node_id: str, x0: int, z0: int,
+                            x1: int, z1: int, inner_side: str,
+                            wall_height: int = 4) -> Set[Cell2]:
+    cells = _rect(x0, z0, x1, z1)
+    wall = style.primary("WALL_MAIN")
+    floor = style.primary("GROUND_YARD_UNDER_EAVE")
+    frame = style.primary("FRAME_WOOD")
+    door_z = (z0 + z1) // 2
+    inner_x = x1 if inner_side == "east" else x0
+    for x, z in sorted(cells):
+        compound.grid.set((x, 0, z), floor, ["STRUCTURE", "GROUND"],
+                          PRIORITY["STRUCTURE"], "GROUND_YARD_UNDER_EAVE")
+        boundary = x in (x0, x1) or z in (z0, z1)
+        if not boundary:
+            continue
+        opens_to_court = x == inner_x and door_z - 1 <= z <= door_z + 1
+        open_height = min(3, wall_height - 1)
+        for y in range(1, wall_height + 1):
+            if opens_to_court and y <= open_height:
+                compound.grid.set((x, y, z), AIR, ["AIR_CARVE"],
+                                  PRIORITY["AIR_CARVE"], force=True)
+                continue
+            compound.grid.set((x, y, z), wall, ["STRUCTURE"],
+                              PRIORITY["STRUCTURE"], "WALL_MAIN")
+
+    for x, z in ((x0, z0), (x1, z0), (x0, z1), (x1, z1),
+                 (inner_x, door_z - 2), (inner_x, door_z + 2)):
+        if x0 <= x <= x1 and z0 <= z <= z1:
+            for y in range(1, wall_height + 1):
+                compound.grid.set((x, y, z), frame, ["STRUCTURE"],
+                                  PRIORITY["STRUCTURE"], "FRAME_WOOD")
+
+    compound.parcel_nodes.append(
+        ParcelNode(node_id, "side_wing", cells, {
+            "role": "xiangfang",
+            "faces_courtyard_side": inner_side,
+            "door_to_tianjing": [inner_x, door_z],
+            "wall_height": wall_height,
+            "footprint_size": [x1 - x0 + 1, z1 - z0 + 1],
+        }))
+    _huipai_place_roof(compound, style, x0, z0, x1, z1,
+                       roof_base_y=wall_height + 1, max_layers=4)
+    return cells
+
+
+def _huipai_place_tianjing_cloister(compound: CompoundGraph, style: Style,
+                                    node_id: str, x0: int, z0: int,
+                                    x1: int, z1: int) -> Set[Cell2]:
+    cells = (
+        _rect(x0 - 1, z0 - 1, x1 + 1, z0 - 1)
+        | _rect(x0 - 1, z1 + 1, x1 + 1, z1 + 1)
+        | _rect(x0 - 1, z0, x0 - 1, z1)
+        | _rect(x1 + 1, z0, x1 + 1, z1)
+    )
+    floor = style.primary("GROUND_YARD_UNDER_EAVE")
+    frame = style.primary("FRAME_WOOD")
+    roof_slab = _huipai_state(style, "ROOF_DARK", "_slab", "minecraft:dark_oak_slab")
+    for x, z in sorted(cells):
+        compound.grid.set((x, 0, z), floor, ["GROUND", "DETAIL", "PROTECTED"],
+                          PRIORITY["DETAIL"], "GROUND_YARD_UNDER_EAVE", force=True)
+        if (x + z) % 3 == 0:
+            for y in range(1, 4):
+                compound.grid.set((x, y, z), frame, ["DETAIL"],
+                                  PRIORITY["DETAIL"], "FRAME_WOOD")
+        compound.grid.set((x, 4, z), roof_slab, ["DETAIL", "ROOF"],
+                          PRIORITY["DETAIL"], "ROOF_DARK")
+    compound.parcel_nodes.append(
+        ParcelNode(node_id, "cloister", cells, {
+            "wraps": "tianjing",
+            "keeps_center_open_sky": True,
+        }))
+    return cells
+
+
+def _huipai_place_side_wings(compound: CompoundGraph, style: Style,
+                             hall_x0: int, hall_x1: int,
+                             tianjing_bands: Sequence[Tuple[str, int, int, int, int]]) -> None:
+    lot_w, _ = compound.lot_size
+    enclosure_cells: Set[Cell2] = set()
+    enclosed = 0
+    for idx, (_tj_id, tx0, tz0, tx1, tz1) in enumerate(tianjing_bands, start=1):
+        wing_width = 8
+        west_x1 = tx0 - 2
+        west_x0 = max(2, west_x1 - wing_width + 1)
+        east_x0 = tx1 + 2
+        east_x1 = min(lot_w - 3, east_x0 + wing_width - 1)
+        z0, z1 = tz0 - 2, tz1 + 3
+        west = _huipai_place_side_wing(
+            compound, style, f"west_xiangfang_{idx}",
+            west_x0, z0, west_x1, z1, "east", wall_height=5)
+        east = _huipai_place_side_wing(
+            compound, style, f"east_xiangfang_{idx}",
+            east_x0, z0, east_x1, z1, "west", wall_height=5)
+        cloister = _huipai_place_tianjing_cloister(
+            compound, style, f"tianjing_cloister_{idx}", tx0, tz0, tx1, tz1)
+        enclosure_cells |= west | east | cloister
+        enclosed += 1
+    compound.parcel_nodes.append(
+        ParcelNode("side_wing_enclosure", "enclosure", enclosure_cells, {
+            "wing_pairs": len(tianjing_bands),
+            "side_wing_count": len(tianjing_bands) * 2,
+            "enclosed_tianjing_count": enclosed,
+            "role": "flanking_xiangfang_and_cloister",
+        }))
+
+
+def _huipai_place_stepped_gables(compound: CompoundGraph, style: Style,
+                                 hall_bands: Sequence[Tuple[int, int, int, int]]) -> None:
+    wall = style.primary("GABLE_INFILL")
+    cap = _huipai_state(style, "ROOF_DARK", "_slab", "minecraft:dark_oak_slab")
+    gable_cells: Set[Cell2] = set()
+    max_stage = 0
+    visual_thickness = 2
+    return_depth = 4
+    for x0, z0, x1, z1 in hall_bands:
+        for gable_z in (z0 - 1, z1 + 1):
+            interior_z = z0 if gable_z < z0 else z1
+            return_step = 1 if gable_z < z0 else -1
+            x_start, x_end = x0 - 1, x1 + 1
+            mid_x = (x_start + x_end) // 2
+            for x in range(x_start, x_end + 1):
+                center_dist = abs(x - mid_x)
+                if center_dist <= 1:
+                    stage = 4
+                elif center_dist <= 4:
+                    stage = 3
+                elif center_dist <= 7:
+                    stage = 2
+                else:
+                    stage = 1
+                max_stage = max(max_stage, stage)
+                cap_y = 11 + stage
+                for wall_z in (gable_z, interior_z):
+                    for y in range(7, cap_y):
+                        compound.grid.set((x, y, wall_z), wall, ["STRUCTURE"],
+                                          PRIORITY["STRUCTURE"], "GABLE_INFILL")
+                    compound.grid.set((x, cap_y, wall_z), cap, ["ROOF"],
+                                      PRIORITY["ROOF"], "ROOF_DARK")
+                    gable_cells.add((x, wall_z))
+
+            for return_x in (x_start, x_end):
+                for dz in range(return_depth):
+                    rz = interior_z + return_step * dz
+                    if not 0 <= rz < compound.lot_size[1]:
+                        continue
+                    cap_y = 12
+                    for y in range(7, cap_y):
+                        compound.grid.set((return_x, y, rz), wall, ["STRUCTURE"],
+                                          PRIORITY["STRUCTURE"], "GABLE_INFILL")
+                    compound.grid.set((return_x, cap_y, rz), cap, ["ROOF"],
+                                      PRIORITY["ROOF"], "ROOF_DARK")
+                    gable_cells.add((return_x, rz))
+    compound.parcel_nodes.append(
+        ParcelNode("stepped_gable_wall", "motif", gable_cells, {
+            "motif": "stepped_gable_wall",
+            "stage_count": max_stage,
+            "rises_above_roof_edge": True,
+            "visual_thickness": visual_thickness,
+            "dark_cap": True,
+            "short_returns": True,
+            "return_depth": return_depth,
+        }))
+
+
+def _huipai_place_tianjing(compound: CompoundGraph, style: Style,
+                           node_id: str, x0: int, z0: int,
+                           x1: int, z1: int) -> None:
+    cells = _rect(x0, z0, x1, z1)
+    floor = style.primary("GROUND_YARD_HEART")
+    border = style.primary("PATH_FORMAL")
+    curb = style.primary("BASE_STONE")
+    frame = style.primary("FRAME_WOOD")
+    for x, z in sorted(cells):
+        state = border if x in (x0, x1) or z in (z0, z1) else floor
+        slot = "PATH_FORMAL" if state == border else "GROUND_YARD_HEART"
+        compound.grid.set((x, 0, z), state, ["GROUND", "DETAIL"],
+                          PRIORITY["DETAIL"], slot)
+        if x in (x0, x1) or z in (z0, z1):
+            compound.grid.set((x, 1, z), curb, ["DETAIL"],
+                              PRIORITY["DETAIL"], "BASE_STONE")
+    compound.grid.set(((x0 + x1) // 2, 0, (z0 + z1) // 2),
+                      style.primary("GROUND_YARD_HEART"),
+                      ["GROUND", "DETAIL", "PROTECTED"],
+                      PRIORITY["DETAIL"], "GROUND_YARD_HEART", force=True)
+    for x, z in ((x0, z0), (x1, z0), (x0, z1), (x1, z1)):
+        for y in range(1, 4):
+            compound.grid.set((x, y, z), frame, ["DETAIL"],
+                              PRIORITY["DETAIL"], "FRAME_WOOD")
+    compound.parcel_nodes.append(
+        ParcelNode(node_id, "tianjing", cells, {
+            "sequence_role": node_id,
+            "label": HUIPAI_SEQUENCE_LABELS[node_id],
+            "open_sky": True,
+            "max_footprint_dimension": max(x1 - x0 + 1, z1 - z0 + 1),
+            "roofwater_intent": "si_shui_gui_tang",
+        }))
+
+
+def _huipai_formal_path(compound: CompoundGraph, style: Style,
+                        z0: int, z1: int) -> None:
+    axis = compound.axis_x
+    path = {(axis, z) for z in range(z0, z1 + 1)}
+    for x, z in sorted(path):
+        compound.grid.set((x, 0, z), style.primary("PATH_FORMAL"),
+                          ["GROUND", "DETAIL"], PRIORITY["DETAIL"], "PATH_FORMAL")
+    compound.parcel_nodes.append(
+        ParcelNode("central_sequence_path", "path", path, {
+            "connects": list(HUIPAI_TIANJING_SEQUENCE),
+            "form": "straight_axial_sequence",
+        }))
+
+
+def generate_huipai_mansion(seed: int, style: Optional[Style] = None) -> CompoundGraph:
+    """Generate the first original Hui-style 天井 reference slice.
+
+    The source candidate is used only as visual grammar. The generated structure
+    is intentionally narrow: closed facade, small sky-wells, hall sequence, and
+    stepped gable cues, but not the full future Hui-style planner.
+    """
+    style = style or load_style("chinese_huipai_mansion")
+    wide = bool(seed % 2)
+    lot_w, lot_d = (47, 76) if wide else (43, 72)
+    axis = lot_w // 2
+    hall_half = 11 if wide else 10
+    hall_x0, hall_x1 = axis - hall_half, axis + hall_half
+    if wide:
+        hall_bands = [
+            (hall_x0, 4, hall_x1, 15),
+            (hall_x0, 33, hall_x1, 46),
+            (hall_x0, 63, hall_x1, 74),
+        ]
+    else:
+        hall_bands = [
+            (hall_x0, 4, hall_x1, 15),
+            (hall_x0, 31, hall_x1, 43),
+            (hall_x0, 59, hall_x1, 70),
+        ]
+    variant = CompoundVariant(
+        courtyard_size="huipai_reference_slice",
+        water_form="none",
+        planting_layout="none",
+        roof_grade="chinese_flush_gable",
+        gate_type="closed_facade_entry",
+        symmetry="strict_mirror",
+        layout_type="tianjing_sequence",
+        main_orientation="south",
+        main_bays=5 if wide else 3,
+        platform_tier="stone_2",
+    )
+    compound = CompoundGraph(
+        style.style_id, seed, variant, (lot_w, lot_d), axis,
+        meta={
+            "layout_strategy": "huipai_tianjing_reference_slice",
+            "reference_candidate": "candidate_003",
+            "source_usage_decision": "local_research",
+            "original_generated": True,
+            "copied_source_assets": False,
+            "partial_implementation": True,
+            "requires_owner_visual_verdict": True,
+            "tianjing_sequence": list(HUIPAI_TIANJING_SEQUENCE),
+            "tianjing_sequence_labels": [HUIPAI_SEQUENCE_LABELS[k] for k in HUIPAI_TIANJING_SEQUENCE],
+            "no_garden": True,
+            "closed_facade": {"primary_entries": 1, "street_side": "south"},
+            "stepped_gable_wall": {"stage_count": 3},
+            "side_wing_enclosure": {"wing_pairs": 2, "enclosed_tianjing_count": 2},
+            "footprint_mode": "expanded_review_lot",
+            "roofwater_intent": "si_shui_gui_tang",
+        })
+
+    _huipai_ground(compound, style)
+    _huipai_perimeter(compound, style)
+    _huipai_place_hall(compound, style, "mentang", *hall_bands[0],
+                       open_south=True, open_north=True, wall_height=6)
+    _huipai_place_hall(compound, style, "xiangtang", *hall_bands[1],
+                       open_south=True, open_north=True, wall_height=6)
+    _huipai_place_hall(compound, style, "qintang", *hall_bands[2],
+                       open_south=True, open_north=False, wall_height=6)
+    _huipai_formal_path(compound, style, 1, lot_d - 2)
+    tianjing_bands = [
+        ("tianjing_1", axis - 2, 22, axis + 2, 26),
+        ("tianjing_2", axis - 2, 53, axis + 2, 57),
+    ] if wide else [
+        ("tianjing_1", axis - 2, 21, axis + 2, 25),
+        ("tianjing_2", axis - 2, 49, axis + 2, 53),
+    ]
+    _huipai_place_side_wings(compound, style, hall_x0, hall_x1, tianjing_bands)
+    for node_id, x0, z0, x1, z1 in tianjing_bands:
+        _huipai_place_tianjing(compound, style, node_id, x0, z0, x1, z1)
+    for band in hall_bands:
+        _huipai_place_roof(compound, style, *band,
+                           roof_base_y=7, max_layers=6)
+    _huipai_place_stepped_gables(compound, style, hall_bands)
+    return compound
+
+
+def validate_huipai_mansion(compound: CompoundGraph) -> dict:
+    errors: List[str] = []
+    nodes = {node.id: node for node in compound.parcel_nodes}
+
+    if compound.meta.get("layout_strategy") != "huipai_tianjing_reference_slice":
+        errors.append("huipai_layout_strategy_missing")
+    if compound.meta.get("reference_candidate") != "candidate_003":
+        errors.append("huipai_reference_candidate_missing")
+    if compound.meta.get("source_usage_decision") != "local_research":
+        errors.append("huipai_reference_usage_decision_missing")
+    if compound.meta.get("original_generated") is not True:
+        errors.append("huipai_original_generated_missing")
+    if compound.meta.get("copied_source_assets") is not False:
+        errors.append("huipai_source_asset_copy_forbidden")
+
+    sequence = list(compound.meta.get("tianjing_sequence", []))
+    if sequence != list(HUIPAI_TIANJING_SEQUENCE):
+        missing = [role for role in HUIPAI_TIANJING_SEQUENCE if role not in sequence]
+        errors.append(f"huipai_sequence_missing:{missing or sequence}")
+
+    required_nodes = set(HUIPAI_TIANJING_SEQUENCE) | {
+        "closed_facade",
+        "stepped_gable_wall",
+        "perimeter_wall",
+        "side_wing_enclosure",
+    }
+    missing_nodes = sorted(required_nodes - set(nodes))
+    if missing_nodes:
+        errors.append(f"huipai_nodes_missing:{missing_nodes}")
+
+    hall_dims: Dict[str, List[int]] = {}
+    hall_areas: List[int] = []
+    for node_id in ("mentang", "xiangtang", "qintang"):
+        node = nodes.get(node_id)
+        if node is None or not node.cells:
+            continue
+        xs = [x for x, _ in node.cells]
+        zs = [z for _, z in node.cells]
+        dims = [max(xs) - min(xs) + 1, max(zs) - min(zs) + 1]
+        hall_dims[node_id] = dims
+        hall_areas.append(dims[0] * dims[1])
+    min_hall_area = min(hall_areas) if hall_areas else None
+    if min_hall_area is None or min_hall_area < 250:
+        errors.append(f"huipai_hall_mass_too_small:{min_hall_area}")
+
+    tianjing_dims: Dict[str, List[int]] = {}
+    for node_id in ("tianjing_1", "tianjing_2"):
+        node = nodes.get(node_id)
+        if node is None or not node.cells:
+            errors.append(f"huipai_tianjing_missing:{node_id}")
+            continue
+        xs = [x for x, _ in node.cells]
+        zs = [z for _, z in node.cells]
+        dims = [max(xs) - min(xs) + 1, max(zs) - min(zs) + 1]
+        tianjing_dims[node_id] = dims
+        if max(dims) > 6:
+            errors.append(f"huipai_tianjing_too_large:{node_id}:{dims}")
+
+    sequence_gaps: List[int] = []
+    for before_id, after_id in zip(HUIPAI_TIANJING_SEQUENCE, HUIPAI_TIANJING_SEQUENCE[1:]):
+        before = nodes.get(before_id)
+        after = nodes.get(after_id)
+        if before is None or after is None or not before.cells or not after.cells:
+            continue
+        before_z1 = max(z for _, z in before.cells)
+        after_z0 = min(z for _, z in after.cells)
+        sequence_gaps.append(after_z0 - before_z1 - 1)
+    min_sequence_gap = min(sequence_gaps) if sequence_gaps else None
+    if min_sequence_gap is None or min_sequence_gap < 3:
+        errors.append(f"huipai_sequence_gap_too_tight:{min_sequence_gap}")
+
+    drift = sorted(
+        node.id for node in compound.parcel_nodes
+        if node.type in HUIPAI_GARDEN_DRIFT_TYPES or node.id in HUIPAI_GARDEN_DRIFT_TYPES
+    )
+    if drift:
+        errors.append(f"huipai_garden_drift:{drift}")
+    if compound.meta.get("no_garden") is not True:
+        errors.append("huipai_no_garden_flag_missing")
+
+    facade = nodes.get("closed_facade")
+    facade_entries = facade.meta.get("primary_entries") if facade else None
+    if facade_entries != 1:
+        errors.append(f"huipai_closed_facade_entry_count:{facade_entries}")
+
+    gable = nodes.get("stepped_gable_wall")
+    gable_stages = gable.meta.get("stage_count") if gable else None
+    if not isinstance(gable_stages, int) or gable_stages < 2:
+        errors.append(f"huipai_stepped_gable_stage_count:{gable_stages}")
+    gable_visual_thickness = gable.meta.get("visual_thickness") if gable else None
+    gable_dark_cap = gable.meta.get("dark_cap") if gable else None
+    gable_short_returns = gable.meta.get("short_returns") if gable else None
+    if not isinstance(gable_visual_thickness, int) or gable_visual_thickness < 2:
+        errors.append(f"huipai_stepped_gable_too_thin:{gable_visual_thickness}")
+    if gable_dark_cap is not True:
+        errors.append("huipai_stepped_gable_dark_cap_missing")
+    if gable_short_returns is not True:
+        errors.append("huipai_stepped_gable_returns_missing")
+
+    side_wings = [node for node in compound.parcel_nodes if node.type == "side_wing"]
+    max_side_wing_width = 0
+    min_side_wing_width: Optional[int] = None
+    for wing in side_wings:
+        if not wing.cells:
+            continue
+        xs = [x for x, _ in wing.cells]
+        width = max(xs) - min(xs) + 1
+        max_side_wing_width = max(max_side_wing_width, width)
+        min_side_wing_width = width if min_side_wing_width is None else min(min_side_wing_width, width)
+    enclosure = nodes.get("side_wing_enclosure")
+    wing_pairs = enclosure.meta.get("wing_pairs") if enclosure else None
+    enclosed_tianjing_count = 0
+    for node_id, dims in tianjing_dims.items():
+        node = nodes.get(node_id)
+        if node is None:
+            continue
+        txs = [x for x, _ in node.cells]
+        tzs = [z for _, z in node.cells]
+        tx0, tx1 = min(txs), max(txs)
+        tz0, tz1 = min(tzs), max(tzs)
+
+        def overlaps_z(wing: ParcelNode) -> bool:
+            wzs = [z for _, z in wing.cells]
+            return bool(wzs) and max(wzs) >= tz0 and min(wzs) <= tz1
+
+        west = any(max(x for x, _ in wing.cells) < tx0 and overlaps_z(wing)
+                   for wing in side_wings if wing.cells)
+        east = any(min(x for x, _ in wing.cells) > tx1 and overlaps_z(wing)
+                   for wing in side_wings if wing.cells)
+        if west and east:
+            enclosed_tianjing_count += 1
+    if len(side_wings) < 4:
+        errors.append(f"huipai_side_wing_count:{len(side_wings)}")
+    if not isinstance(wing_pairs, int) or wing_pairs < 2:
+        errors.append(f"huipai_side_wing_pair_count:{wing_pairs}")
+    if enclosed_tianjing_count < 2:
+        errors.append(f"huipai_tianjing_not_flanked:{enclosed_tianjing_count}")
+    if max_side_wing_width > 8:
+        errors.append(f"huipai_side_wing_overfilled:{max_side_wing_width}")
+    if min_side_wing_width is None or min_side_wing_width < 8:
+        errors.append(f"huipai_side_wing_mass_too_small:{min_side_wing_width}")
+
+    if compound.grid.is_empty((compound.axis_x, 0, 0)):
+        errors.append("huipai_primary_entry_floor_missing")
+
+    non_air_positions = [
+        pos for pos, cell in compound.grid.iter_cells()
+        if not cell.is_air
+    ]
+    if non_air_positions:
+        min_y = min(y for _x, y, _z in non_air_positions)
+        max_y = max(y for _x, y, _z in non_air_positions)
+        structure_height = max_y - min_y + 1
+    else:
+        structure_height = 0
+    if structure_height < 16:
+        errors.append(f"huipai_height_too_low:{structure_height}")
+
+    stats = {
+        "sequence": sequence,
+        "hall_dims": hall_dims,
+        "min_hall_area": min_hall_area,
+        "tianjing_dims": tianjing_dims,
+        "closed_facade_entries": facade_entries,
+        "stepped_gable_stages": gable_stages,
+        "stepped_gable_visual_thickness": gable_visual_thickness,
+        "stepped_gable_dark_cap": gable_dark_cap,
+        "stepped_gable_short_returns": gable_short_returns,
+        "garden_nodes": drift,
+        "sequence_gaps": sequence_gaps,
+        "min_sequence_gap": min_sequence_gap,
+        "side_wing_count": len(side_wings),
+        "side_wing_pairs": wing_pairs,
+        "enclosed_tianjing_count": enclosed_tianjing_count,
+        "max_side_wing_width": max_side_wing_width,
+        "min_side_wing_width": min_side_wing_width,
+        "structure_height": structure_height,
+        "lot_size": list(compound.lot_size),
+        "footprint_mode": compound.meta.get("footprint_mode"),
+        "reference_candidate": compound.meta.get("reference_candidate"),
+        "original_generated": compound.meta.get("original_generated"),
+        "partial_implementation": compound.meta.get("partial_implementation"),
+        "requires_owner_visual_verdict": compound.meta.get("requires_owner_visual_verdict"),
+    }
+    return {
+        "passed": not errors,
+        "errors": errors,
+        "stats": stats,
+        "reference_candidate": compound.meta.get("reference_candidate"),
+        "original_generated": compound.meta.get("original_generated"),
+        "copied_source_assets": compound.meta.get("copied_source_assets"),
+        "partial_implementation": compound.meta.get("partial_implementation"),
+        "requires_owner_visual_verdict": compound.meta.get("requires_owner_visual_verdict"),
+    }
+
+
+def sample_huipai_mansion_library(count: int = 2, base_seed: int = 20260619,
+                                  style: Optional[Style] = None) -> List[CompoundGraph]:
+    style = style or load_style("chinese_huipai_mansion")
+    compounds: List[CompoundGraph] = []
+    attempt = 0
+    max_attempts = max(8, count * 4)
+    while len(compounds) < count and attempt < max_attempts:
+        compound = generate_huipai_mansion(base_seed + attempt, style)
+        report = validate_huipai_mansion(compound)
+        if report["passed"]:
+            compounds.append(compound)
+        attempt += 1
+    if len(compounds) < count:
+        raise RuntimeError(
+            f"could only generate {len(compounds)}/{count} valid Hui-style compounds")
+    return compounds
+
+
 def _small_courtyard_variant(seed: int, size: str) -> CompoundVariant:
     rng = random.Random(seed)
     return CompoundVariant(

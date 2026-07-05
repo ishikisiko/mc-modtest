@@ -20,7 +20,9 @@ Agent runs and summarizes.
 - **WHEN** the owner says "用 GenOps 规划一下宗门远景剪影怎么改，先别动代码"
 - **THEN** the Commander Agent SHALL infer the sect-worldgen pipeline
 - **AND** it SHALL run the local manager tools itself when needed
-- **AND** it SHALL report the run id, manifest path, task summary, and next decision instead of asking the owner to type the command.
+- **AND** it SHALL report the goal status, proposed direction, decision needed,
+  and next action instead of asking the owner to type the command or choose
+  backend identifiers.
 
 #### Scenario: The owner asks to continue a previous run
 - **WHEN** the owner refers to a run id or says to continue the previous GenOps run
@@ -67,6 +69,15 @@ outputs are allowed.
 #### Scenario: A pipeline has human review enabled
 - **WHEN** all tasks pass and `human_review.required` is true
 - **THEN** the run manifest status SHALL be `human_review_pending` unless an explicit human verdict is supplied.
+
+#### Scenario: A mod item pipeline is available
+- **WHEN** a pipeline task graph is loaded for `genops/pipelines/mod-item.full.yaml`
+- **THEN** it SHALL declare separate tasks for item contract planning, Java
+  runtime registration, resource assets, visual review, validation, docs, and
+  regression.
+- **AND** it SHALL allow simple block-item resources such as blockstate, block
+  model, block texture, item model, and lang entries to be owned by the resource
+  asset task.
 
 ### Requirement: Patch guard blocks out-of-scope and protected files
 The patch guard SHALL reject a task patch when any changed file is outside the
@@ -200,26 +211,41 @@ pending SHALL NOT be summarized as accepted.
 
 ### Requirement: CRAFT Commander is the visible control plane for governed work
 
-For CRAFT-required work, the GenOps Commander SHALL present CRAFT run state as
-the owner-facing workflow. Backend OpenSpec skills, OpenSpec CLI commands,
-spec-file discovery steps, validator commands, and pipeline YAML paths SHALL be
-treated as backend evidence unless the owner explicitly asks for audit detail.
+For CRAFT-required work, the GenOps Commander SHALL present a decision-oriented
+owner interface by default. The owner-facing surface SHALL ask only for real
+product decisions: confirming need, scope/depth, implementation direction,
+aesthetic or product verdict, and release-sensitive approval when required.
+
+Change names, run ids, task ids, worker routing, backend OpenSpec skills,
+OpenSpec CLI commands, spec-file discovery steps, validator commands, pipeline
+YAML paths, prompts, and logs SHALL be treated as Commander-owned backend
+evidence unless the owner explicitly asks for audit detail or a backend failure
+is the decision blocker.
 
 #### Scenario: OpenSpec exploration is not announced as the front door
 
 - **WHEN** the owner asks to explore, author, or continue an OpenSpec-backed
   change through CRAFT
 - **THEN** the Commander SHALL create or continue a CRAFT run
-- **AND** it SHALL report the run id, phase, pipeline, role outcomes, risk
-  stops, and next decision
+- **AND** it SHALL report the goal status, scope or direction, risk stops, and
+  next decision needed
 - **AND** it SHALL NOT present an OpenSpec skill or OpenSpec CLI command as the
   owner-facing entry point.
+
+#### Scenario: Backend routing is Commander-owned
+
+- **WHEN** the Commander has enough owner intent to choose a route
+- **THEN** it SHALL NOT ask the owner to choose a change name, run id, pipeline
+  YAML path, task id, worker role, validator command, or archive command
+- **AND** it SHALL proceed through the governed backend route until a real
+  owner decision or stop condition appears.
 
 #### Scenario: Owner asks for audit detail
 
 - **WHEN** the owner asks what backend checks or commands were used
-- **THEN** the Commander MAY summarize OpenSpec commands, spec paths, prompts,
-  and logs from the run evidence.
+- **THEN** the Commander MAY summarize run ids, pipeline names, OpenSpec
+  commands, spec paths, prompts, validator commands, gate logs, and worker
+  evidence from the run evidence.
 
 ### Requirement: OpenSpec exploration is a run-internal role task
 
@@ -322,8 +348,9 @@ GenOps SHALL provide a Commander-routed pipeline for visual-reference structure
 decomposition. When the owner asks in natural language to use CRAFT/GenOps to
 拆解, analyze, or route a visual building reference, the Commander Agent SHALL
 infer the reference-decomposition pipeline, run local manager tooling when
-useful, and report the run id, manifest path, breakdown artifact paths, and next
-decision.
+useful, and report the reference decision summary, current verdict state, and
+next owner decision. Run ids, manifest paths, and breakdown artifact paths SHALL
+remain audit evidence unless requested or blocking.
 
 #### Scenario: Owner asks CRAFT to decompose a reference building
 

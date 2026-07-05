@@ -7,6 +7,21 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.19.0
+
+### Added
+
+- Added the first external-reference-driven generated structure slice:
+  `chinese_huipai_mansion_001..002`, derived from the `candidate_003`
+  Hui-style breakdown as original generator output rather than copied source
+  assets. The slice adds a dedicated settlement group/style profile, closed
+  facade + stepped 马头墙 registry vocabulary, deterministic validation for the
+  门堂 → 天井一 → 享堂 → 天井二 → 寝堂 sequence plus paired side-wing enclosure,
+  an expanded review-lot footprint with clear inter-building gaps and scaled-up
+  hall/side-wing/height massing, sample NBT/place/gallery resources, focused
+  tests, KB/README command docs, and report provenance that keeps the
+  implementation partial until owner visual verdict.
+
 ## 0.18.4
 
 ### Added

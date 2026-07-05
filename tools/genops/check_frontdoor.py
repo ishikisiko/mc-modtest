@@ -18,6 +18,8 @@ ROOT = Path(__file__).resolve().parents[2]
 BOOTSTRAP_CHANGE = "openspec/changes/enforce-craft-frontdoor-governance"
 
 PROTECTED_PATTERNS: list[tuple[str, str]] = [
+    (".codex/agents/**", "genops"),
+    (".codex/skills/**", "skills"),
     ("openspec/changes/**", "openspec"),
     ("openspec/specs/**", "openspec"),
     ("docs/ai-kb/**", "docs"),
@@ -38,9 +40,10 @@ ROLE_ALLOWLIST: dict[str, set[str]] = {
     "openspec": {"docs-steward", "spec-guardian", "regression-steward"},
     "docs": {"docs-steward", "release-steward", "spec-guardian"},
     "genops": {"manager", "pipeline-architect", "docs-steward", "regression-steward"},
+    "skills": {"pipeline-architect", "docs-steward", "spec-guardian"},
     "generator": {"generator-engineer"},
     "generated-structure": {"generator-engineer", "regression-steward"},
-    "runtime": {"java-worldgen-engineer"},
+    "runtime": {"java-worldgen-engineer", "java-runtime-engineer", "resource-asset-steward"},
     "release": {"release-steward"},
 }
 

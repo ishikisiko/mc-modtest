@@ -33,14 +33,17 @@ Trivial read-only status checks and narrow factual answers can remain direct.
 4. Select the most relevant pipeline and whether the first pass is planning,
    implementation, visual evidence, regression, or release.
 5. Run the needed `tools/genops/*` commands directly.
-6. Report the run id, manifest path, pipeline, worker/task ownership, changed
-   artifacts, gate status, human verdict state, and next decision.
+6. Report goal status, what changed or will change, validation state, risk or
+   blocker, human decision needed, and next action. Keep run ids, manifest
+   paths, pipeline names, worker/task ownership, changed artifacts, and raw gate
+   status as audit detail unless the owner asks or a backend failure blocks the
+   decision.
 7. Ask for a human visual verdict only when the artifact is genuinely ready for
    owner judgment.
 
 Good owner messages:
 
 - "用 GenOps 规划一下宗门远景剪影怎么改，先别动代码。"
-- "继续上次 run，把 patch-python-preview 做了。"
+- "继续上次工作，把已确认的实现方向做完。"
 - "这版大宅花园我不接受，按 verdict 记录后继续改。"
 - "跑完整回归并准备人工视觉验收。"

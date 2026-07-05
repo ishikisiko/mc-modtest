@@ -28,6 +28,7 @@ STRUCTURE_SAMPLES = [
     ("small_house_001", "baseline medieval house"),
     ("chinese_courtyard_001", "one-entry courtyard compound"),
     ("chinese_mansion_001", "Jiangnan mansion compound"),
+    ("chinese_huipai_mansion_001", "Hui-style Tianjing reference slice"),
     ("cultivation_town_001", "static cultivation town block"),
     ("cultivation_sect_001", "terraced sect compound template"),
     ("hero_rockery", "standalone rockery review specimen"),

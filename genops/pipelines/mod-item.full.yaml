@@ -1,0 +1,170 @@
+id: mod-item.full
+kind: runtime-resource-pipeline
+version: 1
+
+goal:
+  summary: "通过 CRAFT 创建、暴露或修订 MyVillage NeoForge mod 物品"
+  player_facing_result: "物品注册、资源、贴图、创造栏、文档和验收状态按 Item Contract 原子化完成"
+
+constraints:
+  no_distributed_services: true
+  artifact_first: true
+  frontdoor_required: true
+  skill_backed: ".codex/skills/mod-item-creation/SKILL.md"
+  no_generator_script_first: true
+
+protected_invariants:
+  - id: item-contract-before-edits
+    rule: "Every item change must classify kind and record the registration/resource/validation contract before Java or resource edits."
+  - id: assets-are-first-class
+    rule: "Item model, texture, lang, recipe/tag, and jar resource evidence are tracked as explicit task outputs, not as incidental files."
+  - id: type-routing-boundaries
+    rule: "Plain items, block items, decor block items, and functional items must not be collapsed into one unscoped patch."
+  - id: verdict-separated-from-task-status
+    rule: "New visual item assets may pass task gates while still requiring a human visual verdict."
+
+tasks:
+  - id: map-current-item-surface
+    agent: context-cartographer
+    goal: "Inspect current ModItems/ModBlocks registration, assets/data/lang resources, related specs, and existing CRAFT runs before authoring."
+    outputs:
+      - "context/item_surface_map.md"
+      - "task_result.json"
+      - "evidence.json"
+
+  - id: classify-item-contract
+    agent: pipeline-architect
+    depends_on: [map-current-item-surface]
+    goal: "Classify item kind and write a concise Item Contract covering id, display name, creative tab, Java owner, assets, data resources, behavior, acceptance, and non-goals."
+    inputs:
+      - ".codex/skills/mod-item-creation/references/item-contract.md"
+      - "genops/schemas/item_contract.schema.json"
+    outputs:
+      - "artifacts/item_contract.json"
+      - "task_result.json"
+      - "evidence.json"
+
+  - id: check-spec-impact
+    agent: spec-guardian
+    depends_on: [classify-item-contract]
+    goal: "Decide whether existing specs cover the item; require an OpenSpec change before functional behavior, new block/decor families, or changed resource contracts."
+    outputs:
+      - "artifacts/spec_impact.json"
+      - "task_result.json"
+      - "evidence.json"
+
+  - id: patch-java-registration
+    agent: java-runtime-engineer
+    depends_on: [check-spec-impact]
+    goal: "Apply scoped Java item/block/runtime registration or behavior changes from the Item Contract."
+    allowed_files:
+      - "src/main/java/com/example/myvillage/item/**"
+      - "src/main/java/com/example/myvillage/block/**"
+      - "src/main/java/com/example/myvillage/MyVillageMod.java"
+    forbidden_files:
+      - "tools/buildgen/**"
+      - "src/main/resources/data/myvillage/structure/*.nbt"
+      - "gradle.properties"
+      - "src/main/resources/META-INF/neoforge.mods.toml"
+      - "CHANGELOG.md"
+    outputs:
+      - "patch.diff"
+      - "task_result.json"
+      - "evidence.json"
+
+  - id: patch-resource-assets
+    agent: resource-asset-steward
+    depends_on: [check-spec-impact]
+    goal: "Apply scoped client/data resource changes from the Item Contract: item model, texture, lang, recipe, and tags."
+    allowed_files:
+      - "src/main/resources/assets/myvillage/models/item/**"
+      - "src/main/resources/assets/myvillage/models/block/**"
+      - "src/main/resources/assets/myvillage/textures/item/**"
+      - "src/main/resources/assets/myvillage/textures/block/**"
+      - "src/main/resources/assets/myvillage/blockstates/**"
+      - "src/main/resources/assets/myvillage/lang/en_us.json"
+      - "src/main/resources/data/myvillage/recipe/**"
+      - "src/main/resources/data/myvillage/tags/item/**"
+      - "src/main/resources/data/minecraft/tags/item/**"
+    forbidden_files:
+      - "src/main/java/**"
+      - "src/main/resources/data/myvillage/structure/*.nbt"
+      - "gradle.properties"
+      - "src/main/resources/META-INF/neoforge.mods.toml"
+      - "CHANGELOG.md"
+    outputs:
+      - "patch.diff"
+      - "task_result.json"
+      - "evidence.json"
+
+  - id: visual-asset-review
+    agent: visual-reviewer
+    depends_on: [patch-resource-assets]
+    goal: "Check item PNG dimensions, model texture references, jar packaging expectations, and human verdict state for new or changed visible assets."
+    outputs:
+      - "artifacts/item_visual_review.json"
+      - "task_result.json"
+      - "evidence.json"
+
+  - id: patch-item-validation
+    agent: validator-engineer
+    depends_on: [patch-java-registration, patch-resource-assets]
+    goal: "Add or run focused integrity checks for item registration/resource completeness without weakening existing validators."
+    allowed_files:
+      - "tools/validate_*.py"
+      - "tools/check_*.py"
+      - "tools/tests/**"
+      - "src/test/**"
+    outputs:
+      - "patch.diff"
+      - "task_result.json"
+      - "evidence.json"
+
+  - id: docs-sync
+    agent: docs-steward
+    depends_on: [visual-asset-review, patch-item-validation]
+    goal: "Sync README, KB, OpenSpec, CRAFT/GenOps docs, and short AGENTS probes only when item-facing behavior or acceptance commands change; otherwise record docs-sync no-op."
+    allowed_files:
+      - "README.md"
+      - "docs/ai-kb/**"
+      - "openspec/specs/**"
+      - "openspec/changes/**"
+      - "CRAFT.md"
+      - "AGENTS.md"
+      - "genops/**"
+      - ".codex/skills/**"
+    forbidden_files:
+      - "src/main/java/**"
+      - "src/main/resources/**"
+      - "gradle.properties"
+      - "src/main/resources/META-INF/neoforge.mods.toml"
+      - "CHANGELOG.md"
+    outputs:
+      - "patch.diff"
+      - "task_result.json"
+      - "evidence.json"
+
+  - id: regression
+    agent: regression-steward
+    depends_on: [docs-sync]
+    goal: "Run item-appropriate gates and summarize jar/resource evidence plus any pending visual or gameplay verdict."
+    gates:
+      - "python3 tools/validate_mod_items.py"
+      - "./gradlew build"
+    outputs:
+      - "artifacts/regression_summary.md"
+      - "task_result.json"
+      - "evidence.json"
+
+human_review:
+  required: true
+  artifact_index:
+    - "artifacts/item_contract.json"
+    - "artifacts/item_visual_review.json"
+
+final_outputs:
+  - "run_manifest.json"
+  - "final_summary.md"
+  - "tasks/classify-item-contract/task_result.json"
+  - "tasks/visual-asset-review/evidence.json"
+  - "tasks/regression/evidence.json"

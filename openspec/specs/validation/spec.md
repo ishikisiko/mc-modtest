@@ -117,6 +117,22 @@ The plaque binding validator SHALL check `src/main/resources/data/myvillage/plaq
 - **AND** the generated full plaque texture for each bound frame/mount/orientation SHALL include visible inscription pixels without overfilling the plaque face
 - **AND** invalid mounts, unknown frame presets, missing inscriptions, bucket mismatches, invisible baked inscriptions, and overfilled baked inscriptions SHALL fail validation.
 
+### Requirement: Mod item validation checks registration and client resources
+The mod item validator SHALL check registered `myvillage:` items have item model
+resources, lang entries, referenced `myvillage:` textures, and blockstate
+resources when the item is a `BlockItem`.
+
+#### Scenario: A registered item lacks a model
+- **WHEN** `tools/validate_mod_items.py` scans `ModItems.java`
+- **AND** an item registered through `DeferredRegister.Items` lacks
+  `assets/myvillage/models/item/<id>.json`
+- **THEN** validation SHALL fail with `missing_item_model`.
+
+#### Scenario: A block item lacks block resources
+- **WHEN** `tools/validate_mod_items.py` scans a `BlockItem`
+- **THEN** the matching block id SHALL be registered in `ModBlocks.java`
+- **AND** `assets/myvillage/blockstates/<id>.json` SHALL exist.
+
 #### Scenario: A baked full plaque texture has invisible or overfilled inscription pixels
 - **WHEN** `tools/validate_plaque_bindings.py` compares a generated full plaque texture with the no-inscription full frame texture for a bound frame/mount/orientation
 - **AND** the changed inscription pixel coverage is too small or too large
@@ -285,6 +301,7 @@ Staged manual acceptance SHALL start from a prepared mod artifact and command li
 - **THEN** a current mod jar build path SHALL be available or documented
 - **AND** the README command list SHALL include `/myvillage list`, `/myvillage town [seed]`, `/myvillage place <structure_id>`, `/myvillage gallery`, `/myvillage gallery original`, and `/myvillage gallery cultivation`
 - **AND** the acceptance prep SHOULD include `python3 tools/validate_plaque_bindings.py` when plaque-bearing resources are present
+- **AND** the acceptance prep SHOULD include `python3 tools/validate_compound_library.py --group chinese_huipai_mansion --count 2` when Hui-style reference slice resources are present
 - **AND** the offline preview prep SHOULD include `python3 tools/preview_structure.py --all`, producing static PNG previews and per-structure `viewer.html` files under `out/preview/`
 - **AND** town preview prep SHOULD include `python3 tools/generate_town_plan_preview.py --count 6`, producing top-down plan PNG/HTML previews under `out/preview/town_plan_s*` (the default base seed covers all six perimeter wall families in six `+101` increments: `octagon/trapezoid/circle/square/dshape/oval`)
 - **AND** when more than one `viewer.html` is produced, the preview prep SHALL produce an aggregate `out/preview/index.html` review entry point
@@ -330,6 +347,13 @@ The compound library validator SHALL validate generated courtyard and town-block
 - **THEN** two distinct sect compound structures SHALL be validated
 - **AND** generated `place/cultivation_sect_*.mcfunction` and `gallery/cultivation_sect.mcfunction` files SHALL exist
 - **AND** matching `settlement_meta/cultivation_sect_*.json` files SHALL expose siting context, terrace levels, and link metadata.
+
+#### Scenario: The Hui-style reference slice library is validated
+- **WHEN** `tools/validate_compound_library.py --group chinese_huipai_mansion --count 2` succeeds
+- **THEN** two distinct Hui-style reference slice structures SHALL be validated
+- **AND** generated `place/chinese_huipai_mansion_*.mcfunction` and `gallery/chinese_huipai_mansion.mcfunction` files SHALL exist
+- **AND** the report SHALL preserve `candidate_003` provenance as `local_research`
+- **AND** validation SHALL confirm the Tianjing sequence, closed facade, stepped gable cue, no-garden constraint, and original-generated source status.
 
 #### Scenario: A cultivation town block is validated under the vanilla profile
 - **WHEN** `tools/validate_compound_library.py --group cultivation_town --profile vanilla` runs against output that contains mod ids

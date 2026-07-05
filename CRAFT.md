@@ -23,7 +23,7 @@ The owner talks to the Commander Agent:
 
 ```text
 用 GenOps 规划一下宗门远景剪影怎么改，先别动代码。
-继续上次 run，把 generator 那个任务做了。
+继续上次工作，把已确认的实现方向做完。
 大宅花园不接受，太散；记录 verdict 后继续改。
 跑完整回归并准备人工视觉验收。
 ```
@@ -31,12 +31,17 @@ The owner talks to the Commander Agent:
 The Commander Agent decides which backend tools to run, which pipeline applies,
 which worker owns the next task, and what evidence must be returned.
 
-For CRAFT-required work, the owner-facing control plane is always CRAFT
-Commander state: run id, phase, pipeline, role outcomes, gates, verdicts, risk
-stops, and next decision. OpenSpec skills, OpenSpec CLI commands, pipeline YAML
-paths, validators, prompts, and logs are backend evidence. The Commander may
-summarize those details when the owner asks for audit detail or when a backend
-failure is the blocker, but they are not the front door.
+For CRAFT-required work, the owner-facing surface is decision-only by default:
+confirm the need, scope/depth, implementation direction, aesthetic/product
+verdict, release approval when needed, and the next owner decision. The
+Commander owns change names, run ids, pipelines, task ids, worker routing,
+validation commands, archive, and evidence bookkeeping.
+
+OpenSpec skills, OpenSpec CLI commands, pipeline YAML paths, run ids, task ids,
+validators, prompts, logs, and worker mechanics are backend evidence. The
+Commander may summarize those details when the owner asks for audit detail or
+when a backend failure is the decision blocker, but they are not the normal
+conversation surface.
 
 ## Front-door Governance
 
@@ -65,6 +70,9 @@ Protected work must be traceable to a run id, pipeline, task id, worker role,
 changed artifacts, gate state, and any required human verdict. The local
 front-door checker is `tools/genops/check_frontdoor.py`.
 
+That traceability is mandatory internal evidence, not a list of choices the
+owner must manage.
+
 One bootstrap exception exists: the planning artifacts under
 `openspec/changes/enforce-craft-frontdoor-governance/**` were allowed to exist
 before `openspec-change.full` because this change creates that missing front
@@ -88,8 +96,8 @@ commands unless they explicitly want to debug the backend.
 
 The Commander is the user-facing controller. It reads the owner's natural
 language, pushes back when the goal is vague or aesthetically risky, chooses a
-pipeline, runs local GenOps tools, and reports the run id, manifest path, task
-state, evidence, and next decision.
+pipeline, runs local GenOps tools, and reports only the product-level status,
+risk, validation result, and decision needed unless audit detail is requested.
 
 Configuration:
 
@@ -145,7 +153,9 @@ instead of pretending a worker boundary existed.
 | `spec-guardian` | `genops-spec-guardian` | OpenSpec and KB impact checks |
 | `pipeline-architect` | `genops-pipeline-architect` | Generator contracts and invariants |
 | `generator-engineer` | `genops-generator-engineer` | Python generators and preview scripts |
+| `java-runtime-engineer` | `genops-java-runtime-engineer` | Java item/block/runtime registration |
 | `java-worldgen-engineer` | `genops-java-worldgen-engineer` | Java runtime/worldgen implementation |
+| `resource-asset-steward` | `genops-resource-asset-steward` | Client/data resources, models, textures, lang, recipes, tags |
 | `validator-engineer` | `genops-validator-engineer` | Validators, quality checks, tests |
 | `visual-reviewer` | `genops-visual-reviewer` | Preview artifacts and visual reports |
 | `aesthetic-critic` | `genops-aesthetic-critic` | Rubric scoring and defect critique |
@@ -163,6 +173,7 @@ Pipelines are the executable process contracts:
 ```text
 genops/pipelines/building-library.full.yaml
 genops/pipelines/compound-library.full.yaml
+genops/pipelines/mod-item.full.yaml
 genops/pipelines/openspec-change.full.yaml
 genops/pipelines/mansion-visual.full.yaml
 genops/pipelines/release.full.yaml
@@ -269,17 +280,20 @@ The optional local state index lives outside the evidence tree:
 It is ignored by git and rebuilt from run manifests, task results, evidence
 files, OpenSpec active/archive state, and mirrored decision artifacts.
 
-For CRAFT-required work, the Commander summary must include:
+For CRAFT-required work, the default Commander summary should include:
 
 ```text
-run_id
-pipeline
-worker/task ownership
-artifacts produced or changed
-gates run/skipped/failed
-human verdict state
+goal/status
+what changed or will change
+validation state
+risk or blocker
+human decision needed
 next decision
 ```
+
+Run id, pipeline, worker/task ownership, changed artifacts, and gate logs remain
+available as audit evidence, but the Commander should not make the owner manage
+them in the normal flow.
 
 ## Safety Gates
 

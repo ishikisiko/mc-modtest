@@ -17,17 +17,47 @@ owner_interface:
     - "run tools/genops/check_frontdoor.py for protected-path provenance checks"
     - "summarize run evidence and ask only for real product/aesthetic decisions"
 
+owner_decision_interface:
+  default_surface: "decision_only"
+  owner_decides:
+    - "need and non-goals"
+    - "scope or depth when there are real alternatives"
+    - "implementation direction when trade-offs matter"
+    - "aesthetic or product verdict"
+    - "release-sensitive approval when required"
+  commander_owns:
+    - "change names"
+    - "run ids"
+    - "pipeline selection"
+    - "task ids"
+    - "worker routing"
+    - "validation command selection"
+    - "archive and closeout mechanics"
+    - "evidence bookkeeping"
+  default_summary:
+    - "goal_status"
+    - "what_changed_or_will_change"
+    - "validation_state"
+    - "risk_or_blocker"
+    - "human_decision_needed"
+    - "next_action"
+
 visibility_policy:
   owner_visible:
+    - "goal_status"
+    - "scope_or_direction"
+    - "validation_state"
+    - "risk_stops"
+    - "human_verdict"
+    - "next_decision"
+  audit_available:
     - "run_id"
     - "phase"
     - "pipeline"
     - "role_outcomes"
     - "artifacts"
     - "gates"
-    - "human_verdict"
-    - "risk_stops"
-    - "next_decision"
+    - "worker_task_ownership"
   backend_evidence:
     - "OpenSpec skill names"
     - "OpenSpec CLI commands"
@@ -108,6 +138,7 @@ craft_required_intents:
   - "multi-worker, subagent, or parallel work"
   - "release, version, jar, build handoff"
   - "acceptance or visual-review handoff"
+  - "mod item creation or item resource work"
 
 frontdoor_exempt_intents:
   - "trivial read-only status checks"
@@ -115,6 +146,14 @@ frontdoor_exempt_intents:
   - "small command output relays with no protected file edits"
 
 craft_required_summary_fields:
+  - goal_status
+  - what_changed_or_will_change
+  - validation_state
+  - risk_or_blocker
+  - human_decision_needed
+  - next_action
+
+craft_required_audit_fields:
   - run_id
   - pipeline
   - worker_task_ownership
@@ -139,6 +178,9 @@ intent_routing:
   building:
     pipeline: "genops/pipelines/building-library.full.yaml"
     cues: ["单体", "建筑", "示例建筑", "拆解", "建筑库", "屋顶", "门窗", "室内", "house", "building"]
+  mod_item:
+    pipeline: "genops/pipelines/mod-item.full.yaml"
+    cues: ["mod item", "item", "物品", "创造栏", "creative tab", "贴图", "模型", "item model", "recipe", "配方", "lang", "语言", "BlockItem", "DeferredRegister.Items"]
   reference_decomposition:
     pipeline: "genops/pipelines/reference-decomposition.full.yaml"
     cues: ["视觉参考", "参考建筑", "分解", "拆解参考", "Reference Breakdown", "source_structures", "candidate_003", "candidate_", "reference decomposition", "breakdown card", "徽派参考", "马头墙参考", "宝塔参考", "月洞门参考"]
@@ -158,8 +200,8 @@ default_modes:
 owner_examples:
   - owner: "用 GenOps 规划一下宗门远景剪影怎么改，先别动代码。"
     commander_action: "run planning pass on sect-worldgen.full, inspect artifacts, summarize proposed tasks"
-  - owner: "继续上次 run，把 generator 那个任务做了。"
-    commander_action: "open the run manifest/task contract, implement the scoped task, run relevant gates"
+  - owner: "继续上次工作，把已确认的实现方向做完。"
+    commander_action: "resume the governed intent, implement the scoped task, run relevant gates"
   - owner: "大宅花园不接受，太散。"
     commander_action: "record/restate verdict, route to mansion-visual, produce a critique before generator edits"
   - owner: "创建一个 OpenSpec 提案来拆解视觉参考图到建筑结构。"

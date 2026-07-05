@@ -57,6 +57,11 @@ The generated building library SHALL write one gallery mcfunction per style or s
 - **THEN** the exporter SHALL write a matching `src/main/resources/data/myvillage/function/gallery/<group_id>.mcfunction`
 - **AND** it SHALL write `src/main/resources/data/myvillage/function/place/<name>.mcfunction` for each generated cultivation structure.
 
+#### Scenario: A Hui-style reference group gallery is exported
+- **WHEN** the `chinese_huipai_mansion` group is generated
+- **THEN** the exporter SHALL write `src/main/resources/data/myvillage/function/gallery/chinese_huipai_mansion.mcfunction`
+- **AND** it SHALL write `src/main/resources/data/myvillage/function/place/chinese_huipai_mansion_*.mcfunction` for each generated Hui-style structure.
+
 ### Requirement: The mod exposes debug commands for manual acceptance
 The NeoForge mod SHALL expose debug commands for staged manual acceptance: `/myvillage list`, `/myvillage town [seed]`, `/myvillage place <structure_id>`, `/myvillage gallery`, `/myvillage gallery original`, and `/myvillage gallery cultivation`. Command documentation SHALL be prepared with the mod artifact before asking for manual visual acceptance.
 
@@ -92,7 +97,7 @@ The NeoForge mod SHALL expose coordinate-addressable debug commands for staged a
 - **THEN** placement SHALL route the template through the same runtime mod-fallback resolver used by the existing player-position commands.
 
 ### Requirement: Canonical mod generation includes smoke test and libraries
-The canonical mod generation entrypoint SHALL generate `test_house_03.nbt` from the hand-authored Structure JSON DSL, the generated building library, the generated Chinese courtyard compound library, the generated civic library, the cultivation town building library, the cultivation town block library, the cultivation sect building library, and the cultivation sect compound library into `src/main/resources/data/myvillage/structure/`.
+The canonical mod generation entrypoint SHALL generate `test_house_03.nbt` from the hand-authored Structure JSON DSL, the generated building library, the generated Chinese courtyard compound library, the generated civic library, the cultivation town building library, the cultivation town block library, the cultivation sect building library, the cultivation sect compound library, and the Hui-style reference slice library into `src/main/resources/data/myvillage/structure/`.
 
 #### Scenario: `generate_all_structures.py` runs with default arguments
 - **WHEN** generation succeeds
@@ -102,6 +107,7 @@ The canonical mod generation entrypoint SHALL generate `test_house_03.nbt` from 
 - **AND** it SHALL contain `tavern_001.nbt` through `tavern_005.nbt` and `lord_manor_001.nbt` through `lord_manor_003.nbt`
 - **AND** it SHALL contain standalone cultivation town structures including `town_shrine_001.nbt`
 - **AND** it SHALL contain `cultivation_town_001.nbt` through `cultivation_town_006.nbt`, standalone sect structures, and `cultivation_sect_001.nbt` through `cultivation_sect_002.nbt`
+- **AND** it SHALL contain `chinese_huipai_mansion_001.nbt` through `chinese_huipai_mansion_002.nbt`
 - **AND** it SHALL emit sect compound placement metadata under `src/main/resources/data/myvillage/settlement_meta/`.
 
 ### Requirement: Civic structures appear in the grouped gallery

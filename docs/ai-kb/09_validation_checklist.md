@@ -40,11 +40,14 @@ artifact and up-to-date command docs. Generate and validate:
 ```text
 python3 tools/generate_all_structures.py
 python3 tools/validate_generated_structures.py src/main/resources/data/myvillage/structure
+python3 tools/validate_mod_items.py
 python3 tools/validate_mod_block_fallbacks.py
 python3 tools/validate_plaque_bindings.py
 python3 tools/validate_compound_library.py --count 6
 python3 tools/validate_compound_library.py --group cultivation_town --count 6
 python3 tools/validate_compound_library.py --group cultivation_sect --count 2
+python3 tools/validate_compound_library.py --group chinese_huipai_mansion --count 2
+python3 tools/buildgen/tests/test_huipai_reference_slice.py
 python3 tools/validate_civic_library.py
 python3 tools/validate_town_generation.py
 python3 tools/validate_runtime_town_plan.py

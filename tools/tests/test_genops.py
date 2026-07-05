@@ -22,6 +22,19 @@ class GenOpsTests(unittest.TestCase):
             self.assertEqual(len(ordered), len(pipeline.tasks))
             self.assertEqual({task.id for task in ordered}, {task.id for task in pipeline.tasks})
 
+    def test_item_contract_schema_has_required_fields(self) -> None:
+        schema = json.loads((ROOT / "genops" / "schemas" / "item_contract.schema.json").read_text(encoding="utf-8"))
+        required = set(schema["required"])
+        self.assertIn("item_id", required)
+        self.assertIn("kind", required)
+        self.assertIn("client_assets", required)
+        self.assertIn("blockstate", schema["properties"]["client_assets"]["properties"])
+        self.assertIn("block_model", schema["properties"]["client_assets"]["properties"])
+        self.assertEqual(
+            set(schema["properties"]["kind"]["enum"]),
+            {"plain_item", "block_item", "decor_block_item", "functional_item"},
+        )
+
     def test_patch_guard_blocks_out_of_scope_and_release_files(self) -> None:
         task = TaskSpec.from_dict(
             {
@@ -53,6 +66,28 @@ class GenOpsTests(unittest.TestCase):
         self.assertEqual(recommendation["intent"], "sect")
         self.assertEqual(recommendation["pipeline"], "genops/pipelines/sect-worldgen.full.yaml")
         self.assertEqual(recommendation["owner_interface"], "natural_language_conversation")
+        self.assertEqual(
+            recommendation["owner_decision_interface"]["default_surface"],
+            "decision_only",
+        )
+
+    def test_commander_routes_mod_item_goal(self) -> None:
+        recommendation = commander.recommend("用 CRAFT 创建一个新的 myvillage 物品，包含创造栏、贴图和模型")
+        self.assertEqual(recommendation["intent"], "mod_item")
+        self.assertEqual(recommendation["pipeline"], "genops/pipelines/mod-item.full.yaml")
+        self.assertTrue(recommendation["craft_required"])
+        self.assertEqual(recommendation["owner_interface"], "natural_language_conversation")
+
+    def test_commander_default_surface_hides_backend_routing(self) -> None:
+        recommendation = commander.recommend("用 CRAFT 拆解 candidate_003 这个徽派参考建筑")
+        owner_visible = set(recommendation["visibility_policy"]["owner_visible"])
+        audit_available = set(recommendation["visibility_policy"]["audit_available"])
+        self.assertNotIn("run_id", owner_visible)
+        self.assertNotIn("pipeline", owner_visible)
+        self.assertIn("human_decision_needed", set(recommendation["frontdoor_summary_fields"]))
+        self.assertIn("run_id", audit_available)
+        self.assertIn("pipeline", audit_available)
+        self.assertIn("change names", recommendation["owner_decision_interface"]["commander_owns"])
 
     def test_codex_custom_agents_exist_for_genops_workers(self) -> None:
         subagents = pipeline_loader.load_mapping(ROOT / "genops" / "subagents.yaml")
@@ -143,6 +178,34 @@ class GenOpsTests(unittest.TestCase):
             root = Path(tmp)
             manifest = self._write_frontdoor_manifest(root, "release-steward", ["gradle.properties"])
             protected = check_frontdoor.inspect_paths(root, ["gradle.properties"])
+            owners = check_frontdoor.load_ownership(root, manifest)
+            result = check_frontdoor.validate(protected, owners, allow_bootstrap=False, manifest=manifest)
+            self.assertEqual(result["status"], "pass")
+
+    def test_frontdoor_accepts_item_runtime_and_skill_roles(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            manifest = self._write_frontdoor_manifest(
+                root,
+                "java-runtime-engineer",
+                ["src/main/java/com/example/myvillage/item/ModItems.java"],
+            )
+            protected = check_frontdoor.inspect_paths(
+                root,
+                ["src/main/java/com/example/myvillage/item/ModItems.java"],
+            )
+            owners = check_frontdoor.load_ownership(root, manifest)
+            result = check_frontdoor.validate(protected, owners, allow_bootstrap=False, manifest=manifest)
+            self.assertEqual(result["status"], "pass")
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            manifest = self._write_frontdoor_manifest(
+                root,
+                "docs-steward",
+                [".codex/skills/mod-item-creation/SKILL.md"],
+            )
+            protected = check_frontdoor.inspect_paths(root, [".codex/skills/mod-item-creation/SKILL.md"])
             owners = check_frontdoor.load_ownership(root, manifest)
             result = check_frontdoor.validate(protected, owners, allow_bootstrap=False, manifest=manifest)
             self.assertEqual(result["status"], "pass")

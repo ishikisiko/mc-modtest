@@ -242,7 +242,8 @@ def main() -> int:
             "courtyard_size", "roof_grade", "gate_type", "layout_type",
             "main_orientation", "main_bays", "platform_tier")
     variant_keys = {
-        tuple(c.get("variant", {}).get(k) for k in variant_fields)
+        tuple((c.get("variant") or c.get("compound_graph", {}).get("variant", {})).get(k)
+              for k in variant_fields)
         for c in compounds
     }
     min_distinct_variants = (
@@ -255,6 +256,52 @@ def main() -> int:
     for c in compounds:
         if not c.get("passed"):
             errors.append(f"compound_report_failed: {c.get('name')}: {c.get('errors')}")
+        if group.layout_strategy == "huipai_tianjing_reference_slice":
+            stats = c.get("stats", {})
+            if data.get("reference_candidate") != "candidate_003":
+                errors.append("huipai_reference_candidate_missing")
+            if data.get("source_usage_decision") != "local_research":
+                errors.append("huipai_source_usage_decision_missing")
+            if data.get("original_generated") is not True:
+                errors.append("huipai_original_generated_missing")
+            if data.get("copied_source_assets") is not False:
+                errors.append("huipai_copied_source_assets_forbidden")
+            sequence = stats.get("sequence", [])
+            if sequence != ["mentang", "tianjing_1", "xiangtang", "tianjing_2", "qintang"]:
+                errors.append(f"{c.get('name')}: huipai_sequence_missing:{sequence}")
+            if int(stats.get("min_sequence_gap") or 0) < 3:
+                errors.append(f"{c.get('name')}: huipai_sequence_gap_too_tight")
+            if int(stats.get("min_hall_area") or 0) < 250:
+                errors.append(f"{c.get('name')}: huipai_hall_mass_too_small")
+            if int(stats.get("structure_height") or 0) < 16:
+                errors.append(f"{c.get('name')}: huipai_height_too_low")
+            if stats.get("closed_facade_entries") != 1:
+                errors.append(f"{c.get('name')}: huipai_closed_facade_entry_count")
+            if int(stats.get("stepped_gable_stages") or 0) < 2:
+                errors.append(f"{c.get('name')}: huipai_stepped_gable_stage_count")
+            if int(stats.get("stepped_gable_visual_thickness") or 0) < 2:
+                errors.append(f"{c.get('name')}: huipai_stepped_gable_too_thin")
+            if stats.get("stepped_gable_dark_cap") is not True:
+                errors.append(f"{c.get('name')}: huipai_stepped_gable_dark_cap_missing")
+            if stats.get("stepped_gable_short_returns") is not True:
+                errors.append(f"{c.get('name')}: huipai_stepped_gable_returns_missing")
+            if int(stats.get("side_wing_count") or 0) < 4:
+                errors.append(f"{c.get('name')}: huipai_side_wing_count")
+            if int(stats.get("side_wing_pairs") or 0) < 2:
+                errors.append(f"{c.get('name')}: huipai_side_wing_pair_count")
+            if int(stats.get("enclosed_tianjing_count") or 0) < 2:
+                errors.append(f"{c.get('name')}: huipai_tianjing_not_flanked")
+            if int(stats.get("max_side_wing_width") or 99) > 8:
+                errors.append(f"{c.get('name')}: huipai_side_wing_overfilled")
+            if int(stats.get("min_side_wing_width") or 0) < 8:
+                errors.append(f"{c.get('name')}: huipai_side_wing_mass_too_small")
+            if stats.get("footprint_mode") != "expanded_review_lot":
+                errors.append(f"{c.get('name')}: huipai_footprint_mode_missing")
+            if stats.get("garden_nodes"):
+                errors.append(f"{c.get('name')}: huipai_garden_drift:{stats.get('garden_nodes')}")
+            for node_id, dims in stats.get("tianjing_dims", {}).items():
+                if max(dims or [99]) > 6:
+                    errors.append(f"{c.get('name')}: huipai_tianjing_too_large:{node_id}:{dims}")
         if args.group == "cultivation_town":
             for err in _frontage_errors(c):
                 errors.append(f"{c.get('name')}: {err}")
@@ -265,8 +312,11 @@ def main() -> int:
     names = [c.get("name") for c in compounds if c.get("name")]
     max_size = 128 if group.layout_strategy in (
         "courtyard_street_block", "town_generation", "sect_terraced_axial_compound",
-        "mansion_compound") else 64
-    require_landscape_features = group.layout_strategy != "sect_terraced_axial_compound"
+        "mansion_compound", "huipai_tianjing_reference_slice") else 64
+    require_landscape_features = group.layout_strategy not in (
+        "sect_terraced_axial_compound",
+        "huipai_tianjing_reference_slice",
+    )
     nbt_results = [
         validate_nbt(name, style, modset, max_size=max_size,
                      require_landscape_features=require_landscape_features)

@@ -1,0 +1,124 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://myvillage.local/genops/item_contract.schema.json",
+  "title": "MyVillage Mod Item Contract",
+  "type": "object",
+  "required": [
+    "item_id",
+    "kind",
+    "display_name",
+    "owner_facing_goal",
+    "creative_tab",
+    "java_registration",
+    "client_assets",
+    "data_resources",
+    "behavior",
+    "acceptance",
+    "non_goals"
+  ],
+  "properties": {
+    "item_id": {
+      "type": "string",
+      "pattern": "^myvillage:[a-z0-9_./-]+$"
+    },
+    "kind": {
+      "type": "string",
+      "enum": ["plain_item", "block_item", "decor_block_item", "functional_item"]
+    },
+    "display_name": {
+      "type": "object",
+      "required": ["en_us"],
+      "properties": {
+        "en_us": {"type": "string", "minLength": 1},
+        "zh_design_name": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "owner_facing_goal": {"type": "string", "minLength": 1},
+    "creative_tab": {
+      "type": "object",
+      "required": ["visibility"],
+      "properties": {
+        "visibility": {"type": "string", "enum": ["visible", "hidden"]},
+        "tab_id": {"type": "string"},
+        "ordering": {"type": "string"},
+        "hidden_reason": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "java_registration": {
+      "type": "object",
+      "required": ["owner_file"],
+      "properties": {
+        "owner_file": {"type": "string"},
+        "block_owner_file": {"type": "string"},
+        "deferred_holder": {"type": "string"},
+        "properties": {"type": "string"},
+        "block_item_for": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "client_assets": {
+      "type": "object",
+      "required": ["lang_key", "model", "textures"],
+      "properties": {
+        "lang_key": {"type": "string"},
+        "model": {"type": "string"},
+        "textures": {"type": "array", "items": {"type": "string"}},
+        "blockstate": {"type": "string"},
+        "block_model": {"type": "string"},
+        "visual_verdict": {
+          "type": "string",
+          "enum": ["not_required", "pending", "accepted", "rejected", "accepted_with_changes"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "data_resources": {
+      "type": "object",
+      "properties": {
+        "recipes": {"type": "array", "items": {"type": "string"}},
+        "tags": {"type": "array", "items": {"type": "string"}},
+        "loot_or_advancement_hooks": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    },
+    "behavior": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": {"type": "string", "enum": ["none", "functional"]},
+        "server_client_boundary": {"type": "string"},
+        "interaction": {"type": "string"},
+        "cooldown_or_durability": {"type": "string"},
+        "data_components": {"type": "array", "items": {"type": "string"}},
+        "tests": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    },
+    "acceptance": {
+      "type": "object",
+      "required": ["commands", "gates", "jar_checks"],
+      "properties": {
+        "commands": {"type": "array", "items": {"type": "string"}},
+        "gates": {"type": "array", "items": {"type": "string"}},
+        "jar_checks": {"type": "array", "items": {"type": "string"}},
+        "human_verdict": {
+          "type": "string",
+          "enum": ["not_required", "pending", "accepted", "rejected", "accepted_with_changes"]
+        }
+      },
+      "additionalProperties": false
+    },
+    "docs": {
+      "type": "object",
+      "properties": {
+        "sync_required": {"type": "boolean"},
+        "no_op_reason": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "non_goals": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": false
+}

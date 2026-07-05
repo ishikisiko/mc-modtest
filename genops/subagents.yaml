@@ -8,7 +8,9 @@ custom_agents:
   spec-guardian: "genops-spec-guardian"
   pipeline-architect: "genops-pipeline-architect"
   generator-engineer: "genops-generator-engineer"
+  java-runtime-engineer: "genops-java-runtime-engineer"
   java-worldgen-engineer: "genops-java-worldgen-engineer"
+  resource-asset-steward: "genops-resource-asset-steward"
   validator-engineer: "genops-validator-engineer"
   visual-reviewer: "genops-visual-reviewer"
   aesthetic-critic: "genops-aesthetic-critic"
@@ -20,4 +22,3 @@ notes:
   - "The Commander Agent remains the main user-facing conversation role, not a spawned worker by default."
   - "Spawn these Codex custom agents only when the owner explicitly asks for subagents or parallel agent work."
   - "Use disjoint write sets for parallel implementation workers."
-

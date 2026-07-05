@@ -52,6 +52,8 @@ def is_craft_required(goal: str) -> bool:
         "subagent",
         "parallel",
         "jar",
+        "item",
+        "mod item",
         "build",
         "release",
         "changelog",
@@ -68,6 +70,11 @@ def is_craft_required(goal: str) -> bool:
         "发布",
         "版本",
         "构建",
+        "物品",
+        "创造栏",
+        "贴图",
+        "模型",
+        "配方",
         "子代理",
         "并行",
     )
@@ -95,13 +102,15 @@ def recommend(goal: str, config_path: Path = CONFIG) -> dict[str, Any]:
         "mode": classify_mode(goal, config.get("default_modes", {})),
         "craft_required": is_craft_required(goal),
         "frontdoor_summary_fields": config.get("craft_required_summary_fields", []),
+        "audit_fields": config.get("craft_required_audit_fields", []),
+        "owner_decision_interface": config.get("owner_decision_interface", {}),
         "visibility_policy": config.get("visibility_policy", {}),
         "subagent_execution_policy": config.get("subagent_execution_policy", {}),
         "auto_progression": config.get("auto_progression", {}),
         "human_verdict_policy": config.get("human_verdict_policy", {}),
         "archive_policy": config.get("archive_policy", {}),
         "owner_interface": "natural_language_conversation",
-        "commander_note": "Owner should not need to type this command; Commander runs tools and reports artifacts.",
+        "commander_note": "Owner decides need, depth, direction, and verdicts; Commander owns backend routing, evidence, and closeout.",
     }
 
 
