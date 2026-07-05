@@ -1,0 +1,115 @@
+id: reference-decomposition.full
+kind: planning-pipeline
+version: 1
+
+goal:
+  summary: "把一个视觉参考/本地研究候选分解为 Reference Breakdown Contract，明确四桶路由与人工 verdict"
+  player_facing_result: "一份带 source_facts、observations、四桶分类、downstream_route 与 verdict_state 的分解卡"
+
+constraints:
+  no_distributed_services: true
+  artifact_first: true
+  frontdoor_required: true
+  blocks_runtime_and_release_edits: true
+
+protected_invariants:
+  - id: source-facts-preserved
+    rule: "Decomposition SHALL NOT upgrade or downgrade the candidate's recorded usage_decision."
+  - id: four-buckets-required
+    rule: "Every breakdown card SHALL carry direct_component, atomic_component, generative_grammar, and calibration_only, even when some are empty lists."
+  - id: downstream-route-for-actionable
+    rule: "Every non-empty direct/atomic/grammar entry SHALL carry a non-empty downstream_route."
+  - id: calibration-not-an-asset
+    rule: "calibration_only entries SHALL NOT declare a downstream_route; they calibrate a visual question only."
+  - id: planning-not-implementation
+    rule: "Decomposition outputs route downstream work; they do not implement it. Generator, NBT, Java, and version files are out of scope."
+  - id: verdict-separated-from-task-status
+    rule: "verdict_state is recorded separately from task pass/fail status and remains pending until an explicit human verdict."
+
+tasks:
+  - id: intake-reference
+    agent: context-cartographer
+    goal: "Restate the candidate id, the reference material available, the source facts (license, source_url, usage_decision, attribution), and whether the request is CRAFT-required."
+    outputs:
+      - "context/goal_summary.md"
+      - "context/source_facts.json"
+      - "task_result.json"
+      - "evidence.json"
+
+  - id: draft-observations
+    agent: context-cartographer
+    depends_on: [intake-reference]
+    goal: "Collect raw observed cues with evidence pointers before any classification. Do not propose routes yet."
+    outputs:
+      - "artifacts/observations.json"
+      - "task_result.json"
+      - "evidence.json"
+
+  - id: classify-buckets
+    agent: pipeline-architect
+    depends_on: [draft-observations]
+    goal: "Classify each observation into direct_component, atomic_component, generative_grammar, or calibration_only with rationale. Each actionable entry needs a downstream_route. Multiple buckets per observation are allowed only with distinct routes and rationales."
+    outputs:
+      - "artifacts/bucket_classification.json"
+      - "task_result.json"
+      - "evidence.json"
+
+  - id: check-openspec-routes
+    agent: spec-guardian
+    depends_on: [classify-buckets]
+    goal: "Verify each downstream_route points to a real OpenSpec capability, GenOps pipeline, buildgen form registry, compound planner, prefab library, validator, or visual review task. Flag any route that would require a new OpenSpec change."
+    outputs:
+      - "artifacts/route_review.json"
+      - "task_result.json"
+      - "evidence.json"
+
+  - id: write-breakdown-card
+    agent: docs-steward
+    depends_on: [check-openspec-routes]
+    goal: "Write the Reference Breakdown Contract card at research/source_structures/<candidate>/breakdown.json with source_facts preserved verbatim, four buckets, downstream routes, and verdict_state=pending."
+    allowed_files:
+      - "research/source_structures/**"
+    forbidden_files:
+      - "tools/buildgen/**"
+      - "src/main/**"
+      - "src/main/resources/data/myvillage/structure/*.nbt"
+      - "gradle.properties"
+      - "src/main/resources/META-INF/neoforge.mods.toml"
+      - "CHANGELOG.md"
+      - "README.md"
+      - "build.gradle"
+    outputs:
+      - "patch.diff"
+      - "task_result.json"
+      - "evidence.json"
+    gates:
+      - "python3 tools/check_reference_breakdown.py"
+
+  - id: visual-evidence-pointers
+    agent: visual-reviewer
+    depends_on: [write-breakdown-card]
+    goal: "Confirm that each observation has an evidence pointer to source material and that no breakdown entry claims visual acceptance. The decomposition is planning evidence only."
+    outputs:
+      - "artifacts/visual_evidence_review.json"
+      - "task_result.json"
+      - "evidence.json"
+
+  - id: record-verdict-state
+    agent: regression-steward
+    depends_on: [visual-evidence-pointers]
+    goal: "Summarize the run, confirm verdict_state is pending, and identify the next decision the owner must make. Do not auto-accept the breakdown."
+    outputs:
+      - "artifacts/verdict_summary.md"
+      - "task_result.json"
+      - "evidence.json"
+
+human_review:
+  required: true
+  artifact_index:
+    - "research/source_structures/<candidate>/breakdown.json"
+
+final_outputs:
+  - "run_manifest.json"
+  - "final_summary.md"
+  - "tasks/write-breakdown-card/task_result.json"
+  - "tasks/record-verdict-state/evidence.json"

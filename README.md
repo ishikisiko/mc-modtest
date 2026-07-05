@@ -408,7 +408,7 @@ jar tf build/libs/*.jar | grep "assets/myvillage/textures/painting/inscription"
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.18.3.jar
+build/libs/myvillage-0.18.4.jar
 ```
 
 ## Versioning And Changelog
@@ -455,12 +455,12 @@ python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 
 python3 tools/write_visual_acceptance_report.py
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.18.3.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.18.3.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.18.3.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.18.3.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.18.3.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.18.3.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.18.4.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.18.4.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.18.4.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.18.4.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.18.4.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.18.4.jar | grep "assets/myvillage/textures/painting/inscription"
 ```
 
 Use the command list below as the acceptance script. Update this README,

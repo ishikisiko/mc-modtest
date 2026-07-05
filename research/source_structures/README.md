@@ -6,6 +6,28 @@
 
 许可证、来源 URL 和署名文件仍保留在每个候选目录中。这些字段是来源事实和后续追溯信息，不再作为当前本地研究阶段的分流标签。
 
+## How candidates become project work
+
+候选**不应**直接进入 generator 编辑或 NBT 导入。它们先进视觉参考分解工作流
+（visual-reference structure pipeline），产出一份 Reference Breakdown
+Contract，把每个观察到的特征路由到下列四类桶之一，再决定是否触发后续
+OpenSpec 变更或 generator 工作：
+
+- `direct_component` — 可复用、边界的 prefab / NBT 候选
+- `atomic_component` — 小型可复用形式（马头墙、门墙、桥、月洞门等）
+- `generative_grammar` — planner / layout / routing / 比例规则
+- `calibration_only` — 仅作视觉判断参考，不变成资产或规则
+
+工作流契约与四桶语义见
+[docs/ai-kb/20_visual_reference_structure_pipeline.md](../../docs/ai-kb/20_visual_reference_structure_pipeline.md)
+和 `visual-reference-structure-pipeline` capability 规约。一份分解卡在
+owner 给出人工 verdict 之前永远是 `pending` 状态；分解本身是 planning
+evidence，不等于视觉验收。
+
+分解卡按 candidate 归档为
+`research/source_structures/<candidate>/breakdown.json`。当前唯一工作样例是
+`candidate_003/breakdown.json`（徽派民居），它定义了"完整"分解的标准。
+
 ## Candidate Counts
 
 | decision | count |

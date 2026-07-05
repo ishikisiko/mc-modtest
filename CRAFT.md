@@ -292,6 +292,18 @@ Final acceptance prep:
 跑完整回归，生成视觉验收报告，准备我人工看图。
 ```
 
+Visual-reference decomposition (planning, not implementation):
+
+```text
+用 CRAFT 拆解 candidate_003 这个徽派参考建筑，先别动 generator。
+```
+
+This routes to the visual-reference decomposition workflow described in
+`docs/ai-kb/20_visual_reference_structure_pipeline.md`. The owner should not
+need to choose the pipeline YAML path or task ids. The decomposition output is
+planning evidence: it routes downstream work, it does not implement it, and it
+does not replace human visual verdict.
+
 ## Non-goals
 
 CRAFT is not:

@@ -1,0 +1,98 @@
+{
+  "candidate_id": "candidate_003",
+  "source_facts": {
+    "id": "candidate_003",
+    "title": "Hui\u2011style Chinese Village House",
+    "source_url": "https://modrinth.com/datapack/more-chinese-structures",
+    "license": "MIT License",
+    "usage_decision": "local_research",
+    "attribution_path": "research/source_structures/candidate_003/attribution.md"
+  },
+  "observations": [
+    {
+      "cue": "\u9a6c\u5934\u5899 \u2014 stepped gable perimeter wall rising above the roof line in 2-3 stages",
+      "evidence_pointer": "research/source_structures/candidate_003/screenshots/screenshot_url.txt",
+      "note": "Per attribution.md the source is a third-party datapack; observation is architectural language only, not a copy of geometry."
+    },
+    {
+      "cue": "white wall + dark tile two-tone (\u767d\u5899\u9ed1\u74e6)",
+      "evidence_pointer": "research/source_structures/candidate_003/screenshots/screenshot_url.txt",
+      "note": "High-contrast palette typical of Huizhou vernacular; useful for material palette calibration."
+    },
+    {
+      "cue": "closed, inward-facing street facade with few or no windows",
+      "evidence_pointer": "research/source_structures/candidate_003/screenshots/screenshot_url.txt",
+      "note": "The street side reads as a high solid wall; the only opening is the entry door."
+    },
+    {
+      "cue": "\u5802\u2014\u4e95\u2014\u5802 vertical hall sequence with small sky-wells (\u5929\u4e95) between halls",
+      "evidence_pointer": "research/source_structures/candidate_003/screenshots/screenshot_url.txt",
+      "note": "Consistent with the form captured in the huipai-tianjing-mansion spec."
+    },
+    {
+      "cue": "inward-pitched roofs collecting rainwater toward the \u5929\u4e95 (\u56db\u6c34\u5f52\u5802)",
+      "evidence_pointer": "research/source_structures/candidate_003/screenshots/screenshot_url.txt",
+      "note": "Roofwater collection is a load-bearing form cue, not just decoration."
+    },
+    {
+      "cue": "overall silhouette is closed / vertical / fortress-like, contrasted with Jiangnan open / horizontal",
+      "evidence_pointer": "research/source_structures/candidate_003/screenshots/screenshot_url.txt",
+      "note": "This contrast is the load-bearing aesthetic differentiator vs chinese_mansion."
+    }
+  ],
+  "direct_component": [
+    {
+      "cue": "full candidate_003 structure as a bounded NBT prefab",
+      "rationale": "REJECTED as a direct component. The candidate is a third-party datapack structure (local_research only); the project does not redistribute third-party .nbt. A direct prefab route would require a separate clean-room rebuild and license review, neither of which is in scope for this decomposition.",
+      "downstream_route": "no_direct_component: this cue is intentionally not routed. A future rebuild-huipai-mansion change would author original .nbt assets instead.",
+      "review_needed": "Owner verdict on whether any part of the reference may ever be treated as a direct component. Default: no."
+    }
+  ],
+  "atomic_component": [
+    {
+      "cue": "\u9a6c\u5934\u5899 stepped gable motif (2-3 stage阶梯式封火墙)",
+      "rationale": "The stepped gable is a small reusable perimeter-wall operation that can be authored as an original form in the project's vocabulary, not a copy of the source geometry. It is the strongest atomic-component candidate.",
+      "downstream_route": "form-registry + chinese-vernacular-roof-vocabulary: add a stepped-gable motif operation; reuse for any future Huizhou-style perimeter wall.",
+      "review_needed": "Visual review of step count, stage height, and ridge cap form before the motif enters the form registry."
+    },
+    {
+      "cue": "single entry door + high solid side wall (closed-facade primitive)",
+      "rationale": "A bounded wall-with-entry operation that captures the closed-street-facade behavior without copying the source building.",
+      "downstream_route": "form-registry: candidate 'closed-facade-with-entry' motif for reuse across Huizhou and any future inward-facing compound family.",
+      "review_needed": "Proportion review: wall height vs door height, door placement relative to compound axis."
+    }
+  ],
+  "generative_grammar": [
+    {
+      "cue": "\u5802\u2014\u4e95\u2014\u5802 vertical sequence (\u95e8\u5802 \u2192 \u5929\u4e95\u4e00 \u2192 \u4eab\u5802 \u2192 \u5929\u4e95\u4e8c \u2192 \u5bdd\u5802)",
+      "rationale": "This is the load-bearing plan rule: a vertical sequence of halls separated by small sky-wells, NOT a horizontal yard sequence. It generalizes into a planner/layout rule that any future Huizhou compound would instantiate.",
+      "downstream_route": "future rebuild-huipai-mansion OpenSpec change + compound planner; see huipai-tianjing-mansion spec (FUTURE) for the canonical \u95e8\u5802\u2192\u5929\u4e95\u4e00\u2192\u4eab\u5802\u2192\u5929\u4e95\u4e8c\u2192\u5bdd\u5802 sequence.",
+      "review_needed": "Layout validator + visual acceptance of the generated \u5802\u2014\u4e95 rhythm before any Huizhou compound family ships."
+    },
+    {
+      "cue": "\u56db\u6c34\u5f52\u5802 inward roof-pitch rule (roofs pitch toward the \u5929\u4e95)",
+      "rationale": "A roof-orientation grammar rule: the planner pitches 堂 and 廊庑 roofs inward toward the enclosed sky-well, not outward. This rule is generative; it does not copy any specific source roof.",
+      "downstream_route": "chinese-mansion-compound / future rebuild-huipai-mansion: roof-pitch planner rule + courtyard-ground-layer interaction for \u5929\u4e95 drain.",
+      "review_needed": "Visual review that the generated roofwater actually drains into the \u5929\u4e95 collection point, not away from it."
+    },
+    {
+      "cue": "closed-inward-vertical massing envelope (no \u82b1\u56ed parcel; the \u5929\u4e95 IS the outdoor space)",
+      "rationale": "A massing/proportion rule that explicitly contrasts with the Jiangnan open-horizontal envelope. Drives how the planner allocates parcel types.",
+      "downstream_route": "cultivation-massing-grammar / future rebuild-huipai-mansion: enforce has_garden:false default and vertical stacking.",
+      "review_needed": "Rubric review that the generated massing reads as closed/vertical/fortress-like, not open/bright/water-garden-like."
+    }
+  ],
+  "calibration_only": [
+    {
+      "cue": "white wall + dark tile two-tone (\u767d\u5899\u9ed1\u74e6) palette",
+      "visual_question": "Does the generated Huizhou compound read as high-contrast white-wall / dark-tile, or does it drift toward the warmer Jiangnan palette?",
+      "review_needed": "Palette calibration against genops/style_bibles/chinese_mansion.yaml once any Huizhou asset exists."
+    },
+    {
+      "cue": "overall silhouette proportion (closed / vertical / fortress-like)",
+      "visual_question": "At the same lot size, does the generated Huizhou silhouette read as taller-and-narrower than the Jiangnan equivalent?",
+      "review_needed": "Silhouette calibration in genops/rubrics/mansion.rubric.yaml; no asset or rule output, only a visual judgment reference."
+    }
+  ],
+  "verdict_state": "pending"
+}

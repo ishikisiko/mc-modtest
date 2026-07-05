@@ -55,6 +55,9 @@ intent_routing:
   building:
     pipeline: "genops/pipelines/building-library.full.yaml"
     cues: ["单体", "建筑", "示例建筑", "拆解", "建筑库", "屋顶", "门窗", "室内", "house", "building"]
+  reference_decomposition:
+    pipeline: "genops/pipelines/reference-decomposition.full.yaml"
+    cues: ["视觉参考", "参考建筑", "分解", "拆解参考", "Reference Breakdown", "source_structures", "candidate_003", "candidate_", "reference decomposition", "breakdown card", "徽派参考", "马头墙参考", "宝塔参考", "月洞门参考"]
   visual_acceptance:
     pipeline: "genops/pipelines/visual-acceptance.full.yaml"
     cues: ["视觉验收", "预览", "截图", "PNG", "报告", "人工验收"]
@@ -77,3 +80,5 @@ owner_examples:
     commander_action: "record/restate verdict, route to mansion-visual, produce a critique before generator edits"
   - owner: "创建一个 OpenSpec 提案来拆解视觉参考图到建筑结构。"
     commander_action: "route to openspec-change.full, create a run, then write proposal/design/spec/tasks through scoped worker evidence"
+  - owner: "用 CRAFT 拆解 candidate_003 这个徽派参考建筑。"
+    commander_action: "route to reference-decomposition.full, run planning pass, write breakdown card with four buckets, leave verdict pending"

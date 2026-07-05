@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://myvillage.local/reference_breakdown.schema.json",
+  "title": "Reference Breakdown Contract",
+  "description": "Decomposition card produced by the visual-reference structure pipeline. See docs/ai-kb/20_visual_reference_structure_pipeline.md and the visual-reference-structure-pipeline capability spec.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "candidate_id",
+    "source_facts",
+    "observations",
+    "direct_component",
+    "atomic_component",
+    "generative_grammar",
+    "calibration_only",
+    "verdict_state"
+  ],
+  "properties": {
+    "candidate_id": {
+      "type": "string",
+      "description": "The candidate id under research/source_structures/<candidate_id>/."
+    },
+    "source_facts": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Source facts preserved verbatim from the candidate manifest. The breakdown SHALL NOT upgrade or downgrade usage_decision.",
+      "required": [
+        "id",
+        "title",
+        "source_url",
+        "license",
+        "usage_decision",
+        "attribution_path"
+      ],
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "source_url": { "type": "string" },
+        "license": { "type": "string" },
+        "usage_decision": { "type": "string" },
+        "attribution_path": { "type": "string" }
+      }
+    },
+    "observations": {
+      "type": "array",
+      "description": "Raw observed cues before classification. Each observation carries an evidence pointer back to the source material.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["cue", "evidence_pointer", "note"],
+        "properties": {
+          "cue": { "type": "string" },
+          "evidence_pointer": { "type": "string" },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "direct_component": {
+      "type": "array",
+      "description": "Reusable bounded prefab or NBT candidate. Each non-empty entry SHALL carry a downstream_route.",
+      "items": { "$ref": "#/$defs/actionable_entry" }
+    },
+    "atomic_component": {
+      "type": "array",
+      "description": "Small reusable form/motif/roof/wall/bridge/gate operation. Each non-empty entry SHALL carry a downstream_route.",
+      "items": { "$ref": "#/$defs/actionable_entry" }
+    },
+    "generative_grammar": {
+      "type": "array",
+      "description": "Planner/layout/routing/proportion rule. Each non-empty entry SHALL carry a downstream_route.",
+      "items": { "$ref": "#/$defs/actionable_entry" }
+    },
+    "calibration_only": {
+      "type": "array",
+      "description": "Visual judgment reference, not an asset or rule. Entries carry a visual_question and SHALL NOT declare a prefab/form/planner route.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["cue", "visual_question", "review_needed"],
+        "properties": {
+          "cue": { "type": "string" },
+          "visual_question": { "type": "string" },
+          "review_needed": { "type": "string" }
+        }
+      }
+    },
+    "verdict_state": {
+      "type": "string",
+      "enum": ["pending", "accepted", "rejected", "accepted_with_changes"],
+      "description": "Human verdict, recorded separately from task pass/fail status."
+    }
+  },
+  "$defs": {
+    "actionable_entry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["cue", "rationale", "downstream_route", "review_needed"],
+      "properties": {
+        "cue": { "type": "string" },
+        "rationale": { "type": "string" },
+        "downstream_route": { "type": "string" },
+        "review_needed": { "type": "string" }
+      }
+    }
+  }
+}

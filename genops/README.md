@@ -50,6 +50,27 @@ The pre-existing `add-visual-reference-structure-pipeline` change was authored
 before this route existed. It must be re-entered through
 `openspec-change.full` before implementation continues.
 
+## Visual-Reference Decomposition
+
+Visual references under `research/source_structures/` are decomposed into a
+Reference Breakdown Contract before any generator, NBT, Java, or version edit.
+The contract classifies each observed cue into `direct_component`,
+`atomic_component`, `generative_grammar`, and `calibration_only` buckets with
+explicit downstream routes, and records a pending human verdict. See
+`docs/ai-kb/20_visual_reference_structure_pipeline.md` and the
+`visual-reference-structure-pipeline` capability for the workflow contract.
+
+```bash
+python3 tools/genops/run_pipeline.py genops/pipelines/reference-decomposition.full.yaml \
+  --goal "用 CRAFT 拆解 candidate_003 徽派参考建筑" \
+  --run-id 20260705-reference-decomposition-candidate-003
+```
+
+The pipeline's `human_review.required: true` reflects that decomposition is
+planning evidence, not visual acceptance — a run ends as `human_review_pending`
+until the owner records a verdict. The decomposition output routes downstream
+work; it does not implement it.
+
 ## Codex Custom Subagents
 
 Project-scoped Codex custom agents live under `.codex/agents/`. GenOps maps

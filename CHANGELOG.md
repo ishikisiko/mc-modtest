@@ -7,6 +7,24 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.18.4
+
+### Added
+
+- Added the visual-reference structure pipeline
+  (`add-visual-reference-structure-pipeline`): a CRAFT-routed middle layer that
+  decomposes a visual reference or `research/source_structures/` candidate into
+  a Reference Breakdown Contract with four typed buckets
+  (`direct_component`, `atomic_component`, `generative_grammar`,
+  `calibration_only`), explicit downstream routes, source-fact preservation,
+  and a pending human verdict. Shipped the KB note
+  (`docs/ai-kb/20_visual_reference_structure_pipeline.md`), the contract JSON
+  schema, the `candidate_003` Hui-style worked-example breakdown card, the
+  lightweight validator (`tools/check_reference_breakdown.py`), and the
+  dedicated `genops/pipelines/reference-decomposition.full.yaml` pipeline with
+  Commander routing cues. Decomposition is planning evidence; it routes
+  downstream work and does not implement it.
+
 ## 0.18.3
 
 ### Added
