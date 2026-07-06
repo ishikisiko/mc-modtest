@@ -8,16 +8,16 @@ This spec defines the 3D voxel-walkability check that replaces the 2D-cell multi
 
 ### Requirement: Voxel walkability uses the standard Minecraft autostep rule
 
-A cell `(x, y, z)` is STANDABLE iff:
+The voxel-walkability validator SHALL classify a cell `(x, y, z)` as STANDABLE iff:
 - The block at `(x, y-1, z)` is SOLID (provides foot support).
 - The block at `(x, y, z)` is NON-SOLID (body space clear).
 - The block at `(x, y+1, z)` is NON-SOLID (head space clear).
 
-Two STANDABLE cells `(x_a, y_a, z_a)` and `(x_b, y_b, z_b)` are STEP-ADJACENT iff:
+The validator SHALL classify two STANDABLE cells `(x_a, y_a, z_a)` and `(x_b, y_b, z_b)` as STEP-ADJACENT iff:
 - They are 4-neighbors in (x, z) (`|x_a - x_b| + |z_a - z_b| == 1`).
 - The y-difference `|y_a - y_b| ≤ 1` (autostep up 1, free-fall any).
 
-A SOLID block is any block that is not in the vanilla passable set (`minecraft:air`, `minecraft:water`, `minecraft:lava`, and passable decorations: torches, signs, buttons, levers, rails, carpets, flowers, saplings, tall grass, vines, lanterns — see implementation's NON_SOLID set). All other blocks (stone, wood, stairs, slabs, leaves (when persistent), walls, fences, columns, plaques, rockery blocks) are SOLID.
+The validator SHALL treat any block outside the vanilla passable set (`minecraft:air`, `minecraft:water`, `minecraft:lava`, and passable decorations: torches, signs, buttons, levers, rails, carpets, flowers, saplings, tall grass, vines, lanterns — see implementation's NON_SOLID set) as SOLID. All other blocks (stone, wood, stairs, slabs, leaves (when persistent), walls, fences, columns, plaques, rockery blocks) are SOLID.
 
 #### Scenario: A path cell on solid ground is STANDABLE
 

@@ -12,10 +12,11 @@ owner_interface:
     - "infer the pipeline from the stated goal"
     - "classify whether the request is CRAFT-required before protected edits"
     - "choose planning, implementation, visual review, regression, or release mode"
-    - "run tools/genops/run_pipeline.py when useful"
+    - "run tools/genops/run_pipeline.py when useful, including its embedded front-door check"
+    - "run tools/genops/validate_pipelines.py when pipeline governance changes"
     - "execute task work directly when the owner asks to proceed"
     - "run tools/genops/check_frontdoor.py for protected-path provenance checks"
-    - "summarize run evidence and ask only for real product/aesthetic decisions"
+    - "summarize owner-facing state and keep complete audit evidence available"
 
 owner_decision_interface:
   default_surface: "decision_only"
@@ -36,28 +37,29 @@ owner_decision_interface:
     - "evidence bookkeeping"
   default_summary:
     - "goal_status"
-    - "what_changed_or_will_change"
+    - "scope_or_direction"
     - "validation_state"
     - "risk_or_blocker"
     - "human_decision_needed"
-    - "next_action"
+    - "next_decision"
 
 visibility_policy:
   owner_visible:
     - "goal_status"
     - "scope_or_direction"
     - "validation_state"
-    - "risk_stops"
-    - "human_verdict"
+    - "risk_or_blocker"
+    - "human_decision_needed"
     - "next_decision"
   audit_available:
     - "run_id"
-    - "phase"
     - "pipeline"
-    - "role_outcomes"
+    - "task_id"
+    - "worker_ownership"
     - "artifacts"
     - "gates"
-    - "worker_task_ownership"
+    - "raw_logs"
+    - "manifest_path"
   backend_evidence:
     - "OpenSpec skill names"
     - "OpenSpec CLI commands"
@@ -87,6 +89,29 @@ subagent_execution_policy:
 
 auto_progression:
   default_after_owner_accepts_direction: "continue_until_stop_condition"
+  implementation: "tools/genops/commander.py"
+  state_machine_states:
+    - "intake"
+    - "planning"
+    - "ready_for_direction"
+    - "implementation"
+    - "validation"
+    - "human_review_pending"
+    - "accepted"
+    - "rejected"
+    - "accepted_with_changes"
+    - "closeout_ready"
+    - "archived"
+  state_machine_commands:
+    - "classify"
+    - "start-run"
+    - "continue-current"
+    - "status"
+    - "next-decision"
+    - "record-verdict"
+    - "closeout"
+    - "summary"
+  stop_condition_source: "tools/genops/commander.py STOP_RULES"
   stop_conditions:
     - "unresolved scope conflict"
     - "multiple valid aesthetic or product directions requiring owner judgment"
@@ -103,9 +128,13 @@ human_verdict_policy:
   prompt_shape: "Ask whether the prepared evidence is OK, rejected, or accepted with changes."
   no_silent_acceptance: true
   verdicts:
+    - "pending"
     - "accept"
     - "reject"
     - "accept_with_changes"
+    - "not_required"
+    - "pause"
+    - "reopen_discussion"
 
 archive_policy:
   default: "auto_archive_when_green"
@@ -115,7 +144,8 @@ archive_policy:
     - "all planning artifacts are complete"
     - "all tasks are complete"
     - "strict change validation passes"
-    - "front-door evidence is present for protected paths"
+    - "front-door evidence is present and passing for protected paths"
+    - "closeout evidence is present"
     - "required human verdict is recorded or not required"
     - "no closeout stop condition is present"
   stop_conditions:
@@ -147,20 +177,21 @@ frontdoor_exempt_intents:
 
 craft_required_summary_fields:
   - goal_status
-  - what_changed_or_will_change
+  - scope_or_direction
   - validation_state
   - risk_or_blocker
   - human_decision_needed
-  - next_action
+  - next_decision
 
 craft_required_audit_fields:
   - run_id
   - pipeline
-  - worker_task_ownership
+  - task_id
+  - worker_ownership
   - artifacts
   - gates
-  - human_verdict
-  - next_decision
+  - raw_logs
+  - manifest_path
 
 intent_routing:
   openspec_change:

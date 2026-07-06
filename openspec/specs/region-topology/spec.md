@@ -1,3 +1,11 @@
+# Region Topology
+
+## Purpose
+
+This spec defines the offline region-topology generator that embeds configured region profiles into a deterministic connected graph. The topology establishes anchor placement, tier relationships, passable/separated edges, walled-region behavior, and reviewable graph output without writing world blocks.
+
+## Requirements
+
 ### Requirement: A region graph of 5–7 regions is generated per seed with a single centered anchor
 
 The region-topology generator SHALL produce a region graph for a given world seed containing between 5 and 7 regions inclusive, with exactly one `anchor` region placed at the map center and the remaining regions embedded around it. The same seed SHALL always produce the same graph. Generation SHALL be constructive: it SHALL NOT discard a candidate graph and regenerate it globally (no re-roll, no global backtracking).

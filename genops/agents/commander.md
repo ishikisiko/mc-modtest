@@ -32,14 +32,23 @@ Trivial read-only status checks and narrow factual answers can remain direct.
 3. Decide whether the request is CRAFT-required or direct-read-only.
 4. Select the most relevant pipeline and whether the first pass is planning,
    implementation, visual evidence, regression, or release.
-5. Run the needed `tools/genops/*` commands directly.
-6. Report goal status, what changed or will change, validation state, risk or
-   blocker, human decision needed, and next action. Keep run ids, manifest
-   paths, pipeline names, worker/task ownership, changed artifacts, and raw gate
-   status as audit detail unless the owner asks or a backend failure blocks the
-   decision.
-7. Ask for a human visual verdict only when the artifact is genuinely ready for
+5. Use `tools/genops/commander.py` as the backend state machine when continuity
+   matters: `classify`, `start-run`, `continue-current`, `status`,
+   `next-decision`, `record-verdict`, `closeout`, and `summary`.
+6. Run the needed `tools/genops/*` commands directly.
+7. Report `goal_status`, `scope_or_direction`, `validation_state`,
+   `risk_or_blocker`, `human_decision_needed`, and `next_decision`. Keep run
+   ids, pipeline names, task ids, worker ownership, artifacts, gates, raw logs,
+   and manifest paths as audit detail unless the owner asks or a backend failure
+   blocks the decision.
+8. Ask for a human visual verdict only when the artifact is genuinely ready for
    owner judgment.
+
+The Commander state chain is `intake`, `planning`, `ready_for_direction`,
+`implementation`, `validation`, `human_review_pending`, `accepted`, `rejected`,
+`accepted_with_changes`, `closeout_ready`, and `archived`. Stop conditions are
+checked by `tools/genops/commander.py`; do not rely on YAML text alone when
+deciding whether to advance.
 
 Good owner messages:
 

@@ -1,8 +1,8 @@
 """Local GenOps executor backends.
 
-These backends do not spawn autonomous agents. They create the contract,
-prompt, empty patch, and structured evidence that an external coding agent or
-human can fill in later.
+The no-op and manual backends do not spawn autonomous agents. They create the
+contract, prompt, empty patch, and structured evidence that an external coding
+agent or human can fill in later.
 """
 
 from __future__ import annotations
@@ -67,12 +67,15 @@ def execute(
     patch_path = task_dir / "patch.diff"
     write_text(patch_path, "")
 
-    status = "pass" if executor == "no_op" else "manual_ready"
-    summary = (
-        "No-op executor prepared artifacts without changing files."
-        if executor == "no_op"
-        else "Manual executor prepared prompt and awaits an external patch/result."
-    )
+    if executor == "no_op":
+        status = "plan_materialized"
+        summary = "No-op executor materialized task contracts without completing task work."
+    elif executor == "manual":
+        status = "manual_ready"
+        summary = "Manual executor prepared prompt and awaits an external patch/result."
+    else:
+        status = "blocked"
+        summary = f"{executor} executor is not wired in this local runner yet."
     result = {
         "task_id": task.id,
         "agent": task.agent,

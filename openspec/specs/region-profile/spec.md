@@ -1,3 +1,11 @@
+# Region Profile
+
+## Purpose
+
+This spec defines the offline region-profile catalog used by the cultivation region topology layer. Region profiles describe each region's identity, tier, environment pressure, placement role, and admitted worldgen subjects before runtime binding consumes the generated topology.
+
+## Requirements
+
 ### Requirement: A region profile defines a region's identity, tier, environment, role, and admitted subjects
 
 The region-profile data model SHALL describe each region (洲) with a stable id, a display name, an integer tier within a configured range, a qi range, a danger range, a placement role drawn from `anchor` / `peripheral` / `walled`, and the set of worldgen subjects the region admits. The tier SHALL be the ordinal the topology layer uses for its tier-step rule; qi and danger SHALL be ranges the region exposes to downstream consumers.

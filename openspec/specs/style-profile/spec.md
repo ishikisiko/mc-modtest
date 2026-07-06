@@ -77,6 +77,11 @@ Material variation SHALL NOT modify cells tagged as `PROTECTED`.
 ### Requirement: Style profile schema includes civic and furniture slots
 The style profile schema SHALL recognize additional material slots `INTERIOR_CIVIC`, `FURNITURE`, `SIGNAGE`, `HERALDRY`, `SPIRIT_CRYSTAL`, and `RITUAL_METAL` alongside the existing `BASE_STONE`, `WALL_MAIN`, `FRAME_WOOD`, `ROOF_DARK`, `DETAIL_WOOD`, `LIGHTING`, `GROUND_PATH`, `INTERIOR_WORK`, and `INTERIOR_STORAGE` slots. A style profile MAY omit any of these slots, in which case generators referencing the missing slot SHALL skip placement of that slot's blocks.
 
+#### Scenario: Missing optional civic slot is skipped
+- **WHEN** a style profile omits `INTERIOR_CIVIC`, `FURNITURE`, `SIGNAGE`, `HERALDRY`, `SPIRIT_CRYSTAL`, or `RITUAL_METAL`
+- **THEN** style loading SHALL still succeed
+- **AND** generator operations that request the missing slot SHALL skip placement for that slot rather than substituting a hardcoded block.
+
 ### Requirement: The `chinese_mansion` style profile introduces garden and open-facade slots
 The `chinese_mansion` style profile (`tools/buildgen/styles/chinese_mansion.json`) SHALL define the following additional slots beyond the base Chinese courtyard vocabulary:
 - `FACADE_OPEN`: materials for the 敞厅 `open_hall` archetype's open eave columns (columns + open eave, no full-height front wall)

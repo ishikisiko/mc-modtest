@@ -22,6 +22,29 @@ ARTIFACT_KEYS = {
     "protected_artifacts",
 }
 
+VERDICTS = {
+    "pending",
+    "accept",
+    "reject",
+    "accept_with_changes",
+    "not_required",
+    "pause",
+    "reopen_discussion",
+}
+
+VERDICT_ALIASES = {
+    "accepted": "accept",
+    "rejected": "reject",
+    "not_required_nonvisual_auto_archive": "not_required",
+}
+
+
+def normalize_human_verdict(value: str | None) -> str:
+    if not value:
+        return "pending"
+    normalized = VERDICT_ALIASES.get(str(value), str(value))
+    return normalized if normalized in VERDICTS else "pending"
+
 
 def create_run_dir(root: Path, run_id: str) -> Path:
     return ensure_dir(root / "reports" / "agent_runs" / run_id)
@@ -97,17 +120,33 @@ def write_final_manifest(
     defects: dict[str, Any],
     human_verdict: str | None,
 ) -> dict[str, Any]:
+    verdict = normalize_human_verdict(human_verdict)
+    visual_verdict = normalize_human_verdict(visual.get("latest_human_verdict"))
+    if verdict == "pending" and visual_verdict != "pending":
+        verdict = visual_verdict
     failed = [task for task in task_records if task["status"] == "fail"]
+    blocked = [task for task in task_records if task["status"] == "blocked"]
     manual = [task for task in task_records if task["status"] == "manual_ready"]
+    planned = [task for task in task_records if task["status"] == "plan_materialized"]
     if failed:
         status = "failed"
-    elif human_verdict == "reject":
-        status = "rejected_by_human"
-    elif human_verdict == "accept":
-        status = "accepted"
+    elif blocked:
+        status = "blocked"
     elif manual:
         status = "manual_ready"
-    elif pipeline.human_review_required:
+    elif planned:
+        status = "planning_ready"
+    elif verdict == "reject":
+        status = "rejected_by_human"
+    elif verdict == "pause":
+        status = "paused"
+    elif verdict == "reopen_discussion":
+        status = "discussion_reopened"
+    elif verdict == "accept":
+        status = "accepted"
+    elif verdict == "accept_with_changes":
+        status = "accepted_with_changes"
+    elif pipeline.human_review_required and verdict == "pending":
         status = "human_review_pending"
     else:
         status = "pass"
@@ -125,7 +164,7 @@ def write_final_manifest(
         "artifact_index": artifact_index,
         "visual": visual,
         "defect_index": defects,
-        "human_verdict": human_verdict or "pending",
+        "human_verdict": verdict,
     }
     write_json(run_dir / "run_manifest.json", manifest)
     return manifest
@@ -155,6 +194,12 @@ def write_final_summary(run_dir: Path, manifest: dict[str, Any]) -> None:
         )
     lines.extend(
         [
+            "",
+            "## Front Door",
+            "",
+            f"- Status: `{manifest.get('frontdoor', {}).get('status', 'not_run')}`",
+            f"- Protected paths: {len(manifest.get('frontdoor', {}).get('protected_paths', []))}",
+            f"- Findings: {len(manifest.get('frontdoor', {}).get('findings', []))}",
             "",
             "## Visual",
             "",

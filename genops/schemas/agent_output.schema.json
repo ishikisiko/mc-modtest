@@ -8,7 +8,7 @@
     "task_id": {"type": "string"},
     "agent": {"type": "string"},
     "status": {
-      "enum": ["pass", "manual_ready", "blocked", "fail", "skipped"]
+      "enum": ["plan_materialized", "pass", "manual_ready", "blocked", "fail", "skipped"]
     },
     "summary": {"type": "string"},
     "changed_files": {"type": "array", "items": {"type": "string"}},
@@ -28,4 +28,3 @@
     "gate_results": {"type": "array"}
   }
 }
-

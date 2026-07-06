@@ -20,8 +20,9 @@ Agent runs and summarizes.
 - **WHEN** the owner says "用 GenOps 规划一下宗门远景剪影怎么改，先别动代码"
 - **THEN** the Commander Agent SHALL infer the sect-worldgen pipeline
 - **AND** it SHALL run the local manager tools itself when needed
-- **AND** it SHALL report the goal status, proposed direction, decision needed,
-  and next action instead of asking the owner to type the command or choose
+- **AND** it SHALL report `goal_status`, `scope_or_direction`,
+  `validation_state`, `risk_or_blocker`, `human_decision_needed`, and
+  `next_decision` instead of asking the owner to type the command or choose
   backend identifiers.
 
 #### Scenario: The owner asks to continue a previous run
@@ -62,13 +63,46 @@ task. Tasks SHALL declare an agent role and MAY declare dependencies,
 `allowed_files`, `forbidden_files`, outputs, inputs, gates, and whether generated
 outputs are allowed.
 
+GenOps SHALL provide `tools/genops/validate_pipelines.py` as a compile-time
+governance validator for all pipeline YAML files. The validator SHALL fail on
+unknown roles, write/patch tasks without `allowed_files`, human-review pipelines
+without review `artifact_index`, required validation/visual/regression tasks
+without gate commands, OpenSpec governance pipelines that allow runtime,
+release, or generated resource files, release files owned by non-release roles,
+visual/aesthetic pipelines without human review, and tasks that omit
+`task_result.json` or `evidence.json` outputs.
+
 #### Scenario: A task depends on an unknown task
 - **WHEN** the GenOps manager loads a pipeline whose task references an unknown dependency
 - **THEN** loading SHALL fail before any task artifacts are written.
 
+#### Scenario: Pipeline governance is compiled
+- **WHEN** `python3 tools/genops/validate_pipelines.py` is run
+- **THEN** every `genops/pipelines/*.yaml` file SHALL be checked for governance
+  invariants
+- **AND** any violation SHALL return a non-zero exit code before the pipeline is
+  used as CRAFT evidence.
+
 #### Scenario: A pipeline has human review enabled
 - **WHEN** all tasks pass and `human_review.required` is true
 - **THEN** the run manifest status SHALL be `human_review_pending` unless an explicit human verdict is supplied.
+
+#### Scenario: No-op planning is not task completion
+- **WHEN** a pipeline is run with the `no_op` executor
+- **THEN** each materialized task SHALL report `plan_materialized`
+- **AND** the run manifest SHALL report `planning_ready`
+- **AND** the Commander SHALL NOT treat those tasks as completed implementation
+  work.
+
+#### Scenario: Manual executor awaits work
+- **WHEN** a pipeline is run with the `manual` executor
+- **THEN** each prepared task SHALL report `manual_ready`
+- **AND** the run manifest SHALL report `manual_ready`.
+
+#### Scenario: Real execution owns completion states
+- **WHEN** a real or delegated worker executes a task
+- **THEN** the task SHALL report `pass`, `fail`, or `blocked`
+- **AND** no planning-only executor SHALL report `pass`.
 
 #### Scenario: A mod item pipeline is available
 - **WHEN** a pipeline task graph is loaded for `genops/pipelines/mod-item.full.yaml`
@@ -114,10 +148,22 @@ Visual-review tasks SHALL generate or index evidence for inspection. Aesthetic
 critic tasks MAY score candidates and emit defect/fix-rule JSON, but they SHALL
 NOT be treated as the final visual acceptance gate.
 
+When a pipeline includes an `aesthetic-review` task, the GenOps manager SHALL
+write a structured review JSON under the run evidence tree. The review SHALL
+include `candidate`, numeric `scores`, `blocking_defects`, `fix_rules`, and
+`human_verdict_state=pending`.
+
 #### Scenario: Visual artifacts exist but no verdict is recorded
 - **WHEN** a visual pipeline passes task and gate checks
 - **AND** no human verdict is supplied
 - **THEN** the final manifest SHALL remain `human_review_pending`.
+
+#### Scenario: Aesthetic review emits structured evidence
+- **WHEN** a pipeline with an `aesthetic-review` task is materialized or run
+- **THEN** the run evidence SHALL include a review JSON with scores, blocking
+  defects, fix rules, and pending human-verdict state
+- **AND** the final manifest SHALL index that review as visual evidence without
+  treating it as human acceptance.
 
 ### Requirement: Release metadata is owned by release-steward
 Pipelines that modify release/version metadata SHALL route those changes through
@@ -172,6 +218,15 @@ paths against GenOps run evidence. The checker SHALL support an explicit
 `run_id` or equivalent evidence reference and SHALL report missing or mismatched
 provenance for protected changes.
 
+`tools/genops/run_pipeline.py` SHALL run the front-door checker before the final
+manifest/summary are treated as complete. For run-owned protected artifacts, the
+checker SHALL require a matching manifest artifact entry, an allowed worker role,
+and consistency between the task `changed_files`, patch-guard changed files, and
+the git changed-file set when those details are available. Protected categories
+SHALL distinguish Java runtime, client resources, data resources, generated NBT,
+release metadata, generator code, GenOps files, docs, and OpenSpec artifacts
+instead of treating all `src/main/**` files as one category.
+
 #### Scenario: Protected docs change has no evidence
 - **WHEN** the checker inspects a diff that changes `docs/ai-kb/**`
 - **AND** no matching run evidence is provided
@@ -183,6 +238,19 @@ provenance for protected changes.
 - **AND** the supplied run evidence records a `release-steward` task owning
   those paths
 - **THEN** it SHALL accept the release provenance.
+
+#### Scenario: Pipeline embeds front-door result
+- **WHEN** a GenOps run writes its final manifest
+- **THEN** the manifest SHALL include a `frontdoor` result
+- **AND** a failing front-door result SHALL block the run from reporting a green
+  final status.
+
+#### Scenario: Protected source categories are granular
+- **WHEN** the checker inspects `src/main/java/**`
+- **THEN** it SHALL classify that path as Java runtime work rather than using a
+  broad `src/main/**` category.
+- **AND** client assets and data resources SHALL have separate protected
+  categories and role allow-lists.
 
 ### Requirement: GenOps run evidence indexes touched artifacts
 For CRAFT-required work, GenOps run evidence SHALL index the artifacts produced
@@ -200,6 +268,15 @@ ownership.
 GenOps summaries for CRAFT-required work SHALL distinguish task pass/fail status
 from human verdict state. A run whose tasks pass but whose human review is
 pending SHALL NOT be summarized as accepted.
+
+A run whose tasks are only `plan_materialized` SHALL NOT be summarized as
+passed, accepted, or completed.
+
+The default owner-facing summary SHALL contain `goal_status`,
+`scope_or_direction`, `validation_state`, `risk_or_blocker`,
+`human_decision_needed`, and `next_decision`. Run ids, pipelines, task ids,
+worker ownership, artifacts, gates, raw logs, and manifest paths SHALL remain
+audit detail rather than default owner operation entry points.
 
 #### Scenario: Tasks pass but verdict is pending
 - **WHEN** a CRAFT-required run finishes all tasks
@@ -222,13 +299,19 @@ YAML paths, prompts, and logs SHALL be treated as Commander-owned backend
 evidence unless the owner explicitly asks for audit detail or a backend failure
 is the decision blocker.
 
+The owner-facing summary SHALL use `goal_status`, `scope_or_direction`,
+`validation_state`, `risk_or_blocker`, `human_decision_needed`, and
+`next_decision`. Audit detail SHALL retain `run_id`, `pipeline`, `task_id`,
+worker ownership, artifacts, gates, raw logs, and manifest path.
+
 #### Scenario: OpenSpec exploration is not announced as the front door
 
 - **WHEN** the owner asks to explore, author, or continue an OpenSpec-backed
   change through CRAFT
 - **THEN** the Commander SHALL create or continue a CRAFT run
-- **AND** it SHALL report the goal status, scope or direction, risk stops, and
-  next decision needed
+- **AND** it SHALL report `goal_status`, `scope_or_direction`,
+  `validation_state`, `risk_or_blocker`, `human_decision_needed`, and
+  `next_decision`
 - **AND** it SHALL NOT present an OpenSpec skill or OpenSpec CLI command as the
   owner-facing entry point.
 
@@ -243,9 +326,9 @@ is the decision blocker.
 #### Scenario: Owner asks for audit detail
 
 - **WHEN** the owner asks what backend checks or commands were used
-- **THEN** the Commander MAY summarize run ids, pipeline names, OpenSpec
-  commands, spec paths, prompts, validator commands, gate logs, and worker
-  evidence from the run evidence.
+- **THEN** the Commander MAY summarize run ids, pipeline names, task ids,
+  worker ownership, artifacts, gates, raw logs, and manifest paths from the run
+  evidence.
 
 ### Requirement: OpenSpec exploration is a run-internal role task
 
@@ -349,8 +432,9 @@ decomposition. When the owner asks in natural language to use CRAFT/GenOps to
 拆解, analyze, or route a visual building reference, the Commander Agent SHALL
 infer the reference-decomposition pipeline, run local manager tooling when
 useful, and report the reference decision summary, current verdict state, and
-next owner decision. Run ids, manifest paths, and breakdown artifact paths SHALL
-remain audit evidence unless requested or blocking.
+next owner decision. Run ids, pipelines, task ids, worker ownership, artifacts,
+gates, raw logs, manifest paths, and breakdown artifact paths SHALL remain
+audit evidence unless requested or blocking.
 
 #### Scenario: Owner asks CRAFT to decompose a reference building
 
@@ -428,17 +512,69 @@ GenOps SHALL expose local state-store queries for current intent, pending decisi
 - **THEN** the state store SHALL return indexed run, task, role, and artifact
   ownership records when available.
 
+### Requirement: Commander provides a state-machine backend
+
+The GenOps Commander SHALL expose a deterministic backend state machine through
+`tools/genops/commander.py`. The backend SHALL support `classify`, `start-run`,
+`continue-current`, `status`, `next-decision`, `record-verdict`, `closeout`, and
+`summary` actions. The state machine SHALL persist current intent, run linkage,
+decisions, and closeout state through the GenOps state store.
+
+The minimum Commander states SHALL include `intake`, `planning`,
+`ready_for_direction`, `implementation`, `validation`, `human_review_pending`,
+`accepted`, `rejected`, `accepted_with_changes`, `closeout_ready`, and
+`archived`.
+
+#### Scenario: Commander starts and indexes a governed run
+
+- **WHEN** the Commander starts a CRAFT-required run
+- **THEN** it SHALL classify the owner goal
+- **AND** it SHALL run or materialize the selected GenOps pipeline
+- **AND** it SHALL index the run manifest into the state store
+- **AND** it SHALL persist the current Commander state.
+
+#### Scenario: Commander reports the next decision
+
+- **WHEN** the owner-facing surface asks what decision is needed
+- **THEN** the Commander SHALL derive the answer from the persisted state,
+  current run evidence, verdict records, and executable stop-condition checks.
+
+### Requirement: Stop conditions are executable Commander rules
+
+CRAFT stop conditions SHALL be represented in Commander code, not only in
+configuration text. The Commander SHALL evaluate missing evidence, failing
+gates, reported blockers, required human verdicts, release approval, and
+direction-required stops before advancing state.
+
+#### Scenario: Failing gate blocks advancement
+
+- **WHEN** the current run manifest or task evidence reports a failing gate
+- **THEN** `continue-current` SHALL keep the Commander state blocked
+- **AND** `next-decision` SHALL ask for the gate failure to be fixed before
+  continuing.
+
+#### Scenario: Pending visual verdict blocks advancement
+
+- **WHEN** the current run requires human review
+- **AND** no owner verdict has been recorded
+- **THEN** the Commander SHALL stop at `human_review_pending`
+- **AND** `next-decision` SHALL ask for `accept`, `reject`, or
+  `accept_with_changes`.
+
 ### Requirement: Recorded decisions are recoverable from run evidence
 
-When the Commander records an owner decision through the state store and a run id is available, GenOps SHALL mirror that decision into the run evidence tree so the decision can be recovered by a future rebuild.
+When the Commander records an owner decision through the state store and a run id is available, GenOps SHALL mirror that decision into the run evidence tree so the decision can be recovered by a future rebuild. The decision SHALL update the indexed run verdict and run status used by pending-decision queries.
+
+The supported verdict values SHALL be `pending`, `accept`, `reject`,
+`accept_with_changes`, `not_required`, `pause`, and `reopen_discussion`.
 
 #### Scenario: Decision is recorded for a run
 
-- **WHEN** the Commander records an `accept`, `reject`, `accept_with_changes`,
-  `reopen_discussion`, or `pause` decision with a run id
+- **WHEN** the Commander records any supported verdict decision with a run id
 - **THEN** the state store SHALL write the decision to SQLite
 - **AND** it SHALL write a JSON decision artifact under that run's evidence
-  directory.
+- **AND** it SHALL update the indexed run's `human_verdict` and status so
+  `pending-decisions` no longer reports a resolved human-review run.
 
 ### Requirement: Closeout readiness remains gate-aware
 
@@ -450,3 +586,13 @@ The GenOps state store SHALL NOT mark a completed active OpenSpec change as arch
 - **AND** the state store has no matching CRAFT closeout evidence
 - **THEN** the closeout index SHALL record a blocker rather than marking the
   change archive-ready.
+
+#### Scenario: Completed change has archive-ready evidence
+
+- **WHEN** an active OpenSpec change has all tasks complete
+- **AND** a matching GenOps run has closeout evidence
+- **AND** the run's front-door result is `pass`
+- **AND** validation passed
+- **AND** the rebuilt verdict state is `accept`, `accept_with_changes`, or
+  `not_required`
+- **THEN** the closeout index SHALL mark `archive_ready=1`.

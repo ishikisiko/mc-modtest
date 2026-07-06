@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import sqlite3
 import subprocess
 import sys
@@ -22,6 +23,29 @@ from tools.genops.artifact_writer import ensure_dir, write_json
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_DB = ".genops/state.sqlite"
 SCHEMA_VERSION = "1"
+VERDICTS = {
+    "pending",
+    "accept",
+    "reject",
+    "accept_with_changes",
+    "not_required",
+    "pause",
+    "reopen_discussion",
+}
+
+OK_VERDICTS = {"accept", "accept_with_changes", "not_required"}
+VALIDATION_OK_STATUSES = {"pass", "accepted", "accepted_with_changes"}
+CLOSEOUT_EVIDENCE_NAMES = {
+    "closeout_readiness.json",
+    "closeout_report.md",
+    "closeout_summary.md",
+}
+
+VERDICT_ALIASES = {
+    "accepted": "accept",
+    "rejected": "reject",
+    "not_required_nonvisual_auto_archive": "not_required",
+}
 
 
 def utc_now() -> str:
@@ -31,6 +55,45 @@ def utc_now() -> str:
 def stable_id(*parts: str) -> str:
     raw = "\0".join(parts)
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()[:24]
+
+
+def normalize_verdict(value: Any) -> str:
+    normalized = VERDICT_ALIASES.get(str(value or "pending"), str(value or "pending"))
+    return normalized if normalized in VERDICTS else "pending"
+
+
+def run_status_after_decision(current_status: str, verdict: str) -> str:
+    verdict = normalize_verdict(verdict)
+    if verdict == "accept":
+        return "accepted"
+    if verdict == "reject":
+        return "rejected_by_human"
+    if verdict == "accept_with_changes":
+        return "accepted_with_changes"
+    if verdict == "pause":
+        return "paused"
+    if verdict == "reopen_discussion":
+        return "discussion_reopened"
+    if verdict == "not_required":
+        return "pass" if current_status == "human_review_pending" else current_status
+    return current_status
+
+
+def intent_phase_after_decision(current_phase: str, verdict: str) -> tuple[str, str]:
+    verdict = normalize_verdict(verdict)
+    if verdict == "accept":
+        return "accepted", "active"
+    if verdict == "reject":
+        return "rejected", "blocked"
+    if verdict == "accept_with_changes":
+        return "accepted_with_changes", "active"
+    if verdict == "not_required":
+        return "closeout_ready", "active"
+    if verdict == "pause":
+        return current_phase or "planning", "blocked"
+    if verdict == "reopen_discussion":
+        return "planning", "active"
+    return current_phase, "active"
 
 
 def db_path(root: Path, value: str | None) -> Path:
@@ -163,10 +226,13 @@ def init_schema(conn: sqlite3.Connection) -> None:
 
 
 def clear_index(conn: sqlite3.Connection) -> None:
+    # Decisions are not durable SQLite-only state; rebuild derives them from
+    # reports/agent_runs/*/artifacts/decisions/*.json.
     for table in (
         "intents",
         "runs",
         "tasks",
+        "decisions",
         "artifacts",
         "gates",
         "closeout",
@@ -285,14 +351,23 @@ def upsert_intent_for_run(conn: sqlite3.Connection, manifest: dict[str, Any]) ->
     intent_id = stable_id("run", run_id)
     now = str(manifest.get("generated_at") or utc_now())
     run_status = str(manifest.get("status") or "unknown")
-    human_verdict = str(manifest.get("human_verdict") or "pending")
-    if run_status in {"failed", "rejected_by_human"}:
+    human_verdict = normalize_verdict(manifest.get("human_verdict"))
+    if run_status in {"failed", "blocked", "rejected_by_human"}:
         status = "blocked"
         phase = "closeout"
-    elif run_status in {"human_review_pending", "manual_ready", "accepted"} and human_verdict == "pending":
+    elif run_status in {"planning_ready", "dry_run_ready"}:
         status = "active"
-        phase = "review" if run_status == "human_review_pending" else "closeout"
-    elif run_status in {"pass", "success", "completed"}:
+        phase = "planning"
+    elif run_status == "manual_ready":
+        status = "active"
+        phase = "implementation"
+    elif run_status == "human_review_pending" and human_verdict == "pending":
+        status = "active"
+        phase = "review"
+    elif run_status in {"paused", "discussion_reopened"}:
+        status = "blocked" if run_status == "paused" else "active"
+        phase = "planning"
+    elif run_status in {"pass", "success", "completed", "accepted", "accepted_with_changes"}:
         status = "completed"
         phase = "closed"
     else:
@@ -347,7 +422,7 @@ def index_run(conn: sqlite3.Connection, root: Path, run_id: str) -> dict[str, An
             str(manifest.get("status") or "unknown"),
             str(manifest.get("goal") or ""),
             normalize_path(manifest_path, root),
-            str(manifest.get("human_verdict") or "pending"),
+            normalize_verdict(manifest.get("human_verdict")),
             generated_at,
             generated_at,
         ),
@@ -396,19 +471,29 @@ def index_run(conn: sqlite3.Connection, root: Path, run_id: str) -> dict[str, An
 
     index_decision_artifacts(conn, root, run_dir, intent_id)
     conn.commit()
-    return {"run_id": run_id, "tasks": len(manifest.get("tasks", [])), "manifest_path": normalize_path(manifest_path, root)}
+    return {
+        "run_id": run_id,
+        "intent_id": intent_id,
+        "tasks": len(manifest.get("tasks", [])),
+        "manifest_path": normalize_path(manifest_path, root),
+    }
 
 
 def index_decision_artifacts(conn: sqlite3.Connection, root: Path, run_dir: Path, fallback_intent_id: str) -> None:
     decisions_dir = run_dir / "artifacts" / "decisions"
     if not decisions_dir.exists():
         return
+    payloads: list[tuple[str, Path, dict[str, Any]]] = []
     for path in sorted(decisions_dir.glob("*.json")):
         payload = read_json(path)
+        if isinstance(payload, dict):
+            payloads.append((str(payload.get("created_at") or ""), path, payload))
+    for _, path, payload in sorted(payloads, key=lambda item: (item[0], item[1].name)):
         decision_id = str(payload.get("decision_id") or path.stem)
         intent_id = str(payload.get("intent_id") or fallback_intent_id)
         run_id = payload.get("run_id")
         created_at = str(payload.get("created_at") or utc_now())
+        kind = normalize_verdict(payload.get("kind"))
         conn.execute(
             """
             INSERT OR REPLACE INTO decisions(decision_id, intent_id, run_id, kind, summary, created_at)
@@ -418,7 +503,7 @@ def index_decision_artifacts(conn: sqlite3.Connection, root: Path, run_dir: Path
                 decision_id,
                 intent_id,
                 str(run_id) if run_id else None,
-                str(payload.get("kind") or "unknown"),
+                kind,
                 str(payload.get("summary") or ""),
                 created_at,
             ),
@@ -430,6 +515,7 @@ def index_decision_artifacts(conn: sqlite3.Connection, root: Path, run_dir: Path
             """,
             (intent_id, str(run_id) if run_id else None, None, "decision_recorded", json.dumps(payload, ensure_ascii=False), created_at),
         )
+        apply_decision_state(conn, intent_id, str(run_id) if run_id else None, kind)
 
 
 def iter_run_ids(root: Path) -> Iterable[str]:
@@ -451,8 +537,112 @@ def run_openspec_list(root: Path) -> list[dict[str, Any]]:
     return changes if isinstance(changes, list) else []
 
 
+def manifest_artifact_paths(manifest: dict[str, Any]) -> list[str]:
+    paths: set[str] = set()
+    for item in manifest.get("artifact_index", []):
+        if not isinstance(item, dict):
+            continue
+        for raw_path in item.get("artifacts", []):
+            if raw_path:
+                value = str(raw_path).replace("\\", "/")
+                while value.startswith("./"):
+                    value = value[2:]
+                paths.add(value.rstrip("/"))
+    return sorted(paths)
+
+
+def change_names_from_manifest(manifest: dict[str, Any]) -> set[str]:
+    names: set[str] = set()
+    for key in ("change_name", "change"):
+        value = manifest.get(key)
+        if isinstance(value, str) and value:
+            names.add(value)
+    for path in manifest_artifact_paths(manifest):
+        match = re.match(r"openspec/changes/(?!archive/)([^/]+)/", path)
+        if match:
+            names.add(match.group(1))
+    return names
+
+
+def manifest_has_closeout_evidence(manifest: dict[str, Any], run_dir: Path) -> bool:
+    for path in manifest_artifact_paths(manifest):
+        if Path(path).name in CLOSEOUT_EVIDENCE_NAMES or "/closeout" in f"/{path}":
+            return True
+    for path in (
+        run_dir / "artifacts" / "closeout_readiness.json",
+        run_dir / "artifacts" / "closeout_report.md",
+        run_dir / "artifacts" / "closeout_summary.md",
+    ):
+        if path.exists():
+            return True
+    return False
+
+
+def manifest_frontdoor_passed(manifest: dict[str, Any]) -> bool:
+    frontdoor = manifest.get("frontdoor")
+    return isinstance(frontdoor, dict) and frontdoor.get("status") == "pass"
+
+
+def manifest_validation_passed(manifest: dict[str, Any], indexed_status: str) -> bool:
+    if indexed_status not in VALIDATION_OK_STATUSES:
+        return False
+    for task in manifest.get("tasks", []):
+        if not isinstance(task, dict):
+            continue
+        if str(task.get("status") or "") != "pass":
+            return False
+        for gate in task.get("gates", []) or []:
+            if isinstance(gate, dict) and str(gate.get("status") or "") in {"fail", "blocked"}:
+                return False
+    return True
+
+
+def run_closeout_state(conn: sqlite3.Connection, root: Path, run_id: str) -> dict[str, Any] | None:
+    run_dir = root / "reports" / "agent_runs" / run_id
+    manifest_path = run_dir / "run_manifest.json"
+    if not manifest_path.exists():
+        return None
+    manifest = read_json(manifest_path)
+    row = conn.execute(
+        "SELECT intent_id, status, human_verdict FROM runs WHERE run_id = ?",
+        (run_id,),
+    ).fetchone()
+    indexed_status = str(row["status"]) if row is not None else str(manifest.get("status") or "")
+    verdict = normalize_verdict(row["human_verdict"] if row is not None else manifest.get("human_verdict"))
+    blockers: list[str] = []
+    if not manifest_has_closeout_evidence(manifest, run_dir):
+        blockers.append("needs_craft_closeout_evidence")
+    if not manifest_frontdoor_passed(manifest):
+        blockers.append("frontdoor_not_passed")
+    if verdict not in OK_VERDICTS:
+        blockers.append("verdict_not_ok")
+    if not manifest_validation_passed(manifest, indexed_status):
+        blockers.append("validation_not_passed")
+    return {
+        "run_id": run_id,
+        "intent_id": str(row["intent_id"]) if row is not None and row["intent_id"] else None,
+        "change_names": change_names_from_manifest(manifest),
+        "blockers": blockers,
+        "generated_at": str(manifest.get("generated_at") or ""),
+    }
+
+
+def closeout_candidates_by_change(conn: sqlite3.Connection, root: Path) -> dict[str, list[dict[str, Any]]]:
+    candidates: dict[str, list[dict[str, Any]]] = {}
+    for run_id in iter_run_ids(root):
+        state = run_closeout_state(conn, root, run_id)
+        if state is None:
+            continue
+        for change_name in state["change_names"]:
+            candidates.setdefault(change_name, []).append(state)
+    for states in candidates.values():
+        states.sort(key=lambda item: item["generated_at"], reverse=True)
+    return candidates
+
+
 def index_closeout(conn: sqlite3.Connection, root: Path) -> None:
     now = utc_now()
+    candidates = closeout_candidates_by_change(conn, root)
     for change in run_openspec_list(root):
         if not isinstance(change, dict):
             continue
@@ -461,14 +651,25 @@ def index_closeout(conn: sqlite3.Connection, root: Path) -> None:
             continue
         complete = change.get("completedTasks") == change.get("totalTasks") and change.get("status") == "complete"
         blockers = [] if complete else ["tasks_incomplete"]
+        intent_id = None
+        run_id = None
         if complete:
-            blockers.append("needs_craft_closeout_evidence")
+            matching = candidates.get(name, [])
+            ready = next((candidate for candidate in matching if not candidate["blockers"]), None)
+            selected = ready or (matching[0] if matching else None)
+            if selected:
+                intent_id = selected["intent_id"]
+                run_id = selected["run_id"]
+                blockers.extend(selected["blockers"])
+            else:
+                blockers.append("needs_craft_closeout_evidence")
+        archive_ready = 1 if complete and not blockers else 0
         conn.execute(
             """
             INSERT OR REPLACE INTO closeout(change_name, intent_id, run_id, archive_ready, archived, archive_path, blockers_json, updated_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
-            (name, None, None, 0, 0, None, json.dumps(blockers, ensure_ascii=False), now),
+            (name, intent_id, run_id, archive_ready, 0, None, json.dumps(blockers, ensure_ascii=False), now),
         )
 
     archive_root = root / "openspec" / "changes" / "archive"
@@ -536,8 +737,8 @@ def cmd_pending_decisions(conn: sqlite3.Connection, args: argparse.Namespace) ->
         """
         SELECT r.run_id, r.intent_id, r.pipeline, r.status, r.goal, r.human_verdict
         FROM runs r
-        WHERE r.status = 'human_review_pending'
-           OR (r.human_verdict = 'pending' AND r.status IN ('manual_ready', 'accepted'))
+        WHERE (r.status = 'human_review_pending' AND r.human_verdict = 'pending')
+           OR r.human_verdict IN ('pause', 'reopen_discussion')
         ORDER BY r.updated_at DESC
         """
     ).fetchall()
@@ -571,15 +772,24 @@ def cmd_artifact_owner(conn: sqlite3.Connection, args: argparse.Namespace, root:
     print_result(rows_to_dicts(rows), args.json)
 
 
-def cmd_record_decision(conn: sqlite3.Connection, args: argparse.Namespace, root: Path) -> None:
+def record_decision(
+    conn: sqlite3.Connection,
+    root: Path,
+    intent_id: str,
+    run_id: str | None,
+    kind: str,
+    summary: str,
+    decision_id: str | None = None,
+) -> dict[str, Any]:
     created_at = utc_now()
-    decision_id = args.decision_id or stable_id(args.intent, args.kind, args.summary, created_at)
+    kind = normalize_verdict(kind)
+    decision_id = decision_id or stable_id(intent_id, kind, summary, created_at)
     payload = {
         "decision_id": decision_id,
-        "intent_id": args.intent,
-        "run_id": args.run_id,
-        "kind": args.kind,
-        "summary": args.summary,
+        "intent_id": intent_id,
+        "run_id": run_id,
+        "kind": kind,
+        "summary": summary,
         "created_at": created_at,
     }
     conn.execute(
@@ -587,19 +797,60 @@ def cmd_record_decision(conn: sqlite3.Connection, args: argparse.Namespace, root
         INSERT OR REPLACE INTO decisions(decision_id, intent_id, run_id, kind, summary, created_at)
         VALUES (?, ?, ?, ?, ?, ?)
         """,
-        (decision_id, args.intent, args.run_id, args.kind, args.summary, created_at),
+        (decision_id, intent_id, run_id, kind, summary, created_at),
     )
     conn.execute(
         """
         INSERT INTO events(intent_id, run_id, task_id, event_type, payload_json, created_at)
         VALUES (?, ?, ?, ?, ?, ?)
         """,
-        (args.intent, args.run_id, None, "decision_recorded", json.dumps(payload, ensure_ascii=False), created_at),
+        (intent_id, run_id, None, "decision_recorded", json.dumps(payload, ensure_ascii=False), created_at),
     )
-    if args.run_id:
-        out_dir = ensure_dir(root / "reports" / "agent_runs" / args.run_id / "artifacts" / "decisions")
+    if run_id:
+        out_dir = ensure_dir(root / "reports" / "agent_runs" / run_id / "artifacts" / "decisions")
         write_json(out_dir / f"{decision_id}.json", payload)
+    apply_decision_state(conn, intent_id, run_id, kind)
     conn.commit()
+    return payload
+
+
+def apply_decision_state(conn: sqlite3.Connection, intent_id: str, run_id: str | None, kind: str) -> None:
+    verdict = normalize_verdict(kind)
+    if run_id:
+        row = conn.execute("SELECT status FROM runs WHERE run_id = ?", (run_id,)).fetchone()
+        if row is not None:
+            next_status = run_status_after_decision(str(row["status"]), verdict)
+            conn.execute(
+                """
+                UPDATE runs
+                SET human_verdict = ?, status = ?, updated_at = ?
+                WHERE run_id = ?
+                """,
+                (verdict, next_status, utc_now(), run_id),
+            )
+    intent = conn.execute("SELECT phase FROM intents WHERE intent_id = ?", (intent_id,)).fetchone()
+    if intent is not None:
+        phase, status = intent_phase_after_decision(str(intent["phase"]), verdict)
+        conn.execute(
+            """
+            UPDATE intents
+            SET phase = ?, status = ?, updated_at = ?
+            WHERE intent_id = ?
+            """,
+            (phase, status, utc_now(), intent_id),
+        )
+
+
+def cmd_record_decision(conn: sqlite3.Connection, args: argparse.Namespace, root: Path) -> None:
+    payload = record_decision(
+        conn=conn,
+        root=root,
+        intent_id=args.intent,
+        run_id=args.run_id,
+        kind=args.kind,
+        summary=args.summary,
+        decision_id=args.decision_id,
+    )
     print_result(payload, args.json)
 
 
@@ -623,7 +874,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     record = subparsers.add_parser("record-decision")
     record.add_argument("--intent", required=True)
     record.add_argument("--run-id")
-    record.add_argument("--kind", required=True, choices=["accept", "reject", "accept_with_changes", "reopen_discussion", "pause"])
+    record.add_argument("--kind", required=True, choices=sorted(VERDICTS))
     record.add_argument("--summary", required=True)
     record.add_argument("--decision-id")
 
@@ -633,8 +884,31 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
+def normalize_global_args(argv: list[str]) -> list[str]:
+    prefix: list[str] = []
+    rest: list[str] = []
+    value_options = {"--root", "--db"}
+    value_prefixes = ("--root=", "--db=")
+    index = 0
+    while index < len(argv):
+        item = argv[index]
+        if item == "--json":
+            prefix.append(item)
+            index += 1
+        elif item in value_options and index + 1 < len(argv):
+            prefix.extend([item, argv[index + 1]])
+            index += 2
+        elif item.startswith(value_prefixes):
+            prefix.append(item)
+            index += 1
+        else:
+            rest.append(item)
+            index += 1
+    return prefix + rest
+
+
 def main(argv: list[str] | None = None) -> int:
-    args = parse_args(argv or sys.argv[1:])
+    args = parse_args(normalize_global_args(list(argv or sys.argv[1:])))
     root = args.root.resolve()
     conn = connect(root, args.db)
     init_schema(conn)

@@ -26,11 +26,15 @@ PROTECTED_PATTERNS: list[tuple[str, str]] = [
     ("genops/**", "genops"),
     ("tools/genops/**", "genops"),
     ("tools/buildgen/**", "generator"),
-    ("src/main/resources/data/myvillage/structure/*.nbt", "generated-structure"),
-    ("src/main/**", "runtime"),
     ("gradle.properties", "release"),
     ("src/main/resources/META-INF/neoforge.mods.toml", "release"),
     ("CHANGELOG.md", "release"),
+    ("src/main/resources/data/myvillage/structure/*.nbt", "generated-structure"),
+    ("src/main/java/**", "runtime-java"),
+    ("src/main/resources/assets/**", "client-resource"),
+    ("src/main/resources/data/**", "data-resource"),
+    ("src/main/resources/*.mcmeta", "resource-metadata"),
+    ("src/main/resources/META-INF/**", "resource-metadata"),
     ("README.md", "docs"),
     ("CRAFT.md", "docs"),
     ("AGENTS.md", "docs"),
@@ -43,7 +47,10 @@ ROLE_ALLOWLIST: dict[str, set[str]] = {
     "skills": {"pipeline-architect", "docs-steward", "spec-guardian"},
     "generator": {"generator-engineer"},
     "generated-structure": {"generator-engineer", "regression-steward"},
-    "runtime": {"java-worldgen-engineer", "java-runtime-engineer", "resource-asset-steward"},
+    "runtime-java": {"java-worldgen-engineer", "java-runtime-engineer"},
+    "client-resource": {"resource-asset-steward"},
+    "data-resource": {"resource-asset-steward", "java-worldgen-engineer"},
+    "resource-metadata": {"java-runtime-engineer", "release-steward", "resource-asset-steward"},
     "release": {"release-steward"},
 }
 
@@ -67,6 +74,23 @@ class Ownership:
     agent: str
     pipeline: str
     artifacts: set[str] = field(default_factory=set)
+    manifest_artifacts: set[str] = field(default_factory=set)
+    changed_files: set[str] = field(default_factory=set)
+    patch_guard_changed_files: set[str] = field(default_factory=set)
+
+
+ARTIFACT_KEYS = {
+    "artifacts",
+    "artifact_paths",
+    "changed_artifacts",
+    "created_files",
+    "modified_files",
+    "outputs",
+    "protected_artifacts",
+}
+
+TASK_CHANGED_KEYS = {"changed_files", "created_files", "modified_files"}
+PATCH_GUARD_CHANGED_KEYS = {"changed_files"}
 
 
 def normalize_path(path: str | Path, root: Path = ROOT) -> str:
@@ -123,7 +147,7 @@ def git_status_paths(root: Path) -> list[str]:
 
 
 def inspect_paths(root: Path, explicit_paths: list[str] | None) -> list[ProtectedPath]:
-    paths = [normalize_path(path, root) for path in explicit_paths] if explicit_paths else git_status_paths(root)
+    paths = [normalize_path(path, root) for path in explicit_paths] if explicit_paths is not None else git_status_paths(root)
     protected: list[ProtectedPath] = []
     for path in paths:
         match = protected_match(path, root)
@@ -164,6 +188,35 @@ def artifact_strings(value: Any, root: Path = ROOT) -> set[str]:
     return artifacts
 
 
+def strings_from_keys(value: Any, keys: set[str]) -> Iterable[str]:
+    if isinstance(value, dict):
+        for key, item in value.items():
+            if key in keys:
+                yield from strings_from(item)
+            elif isinstance(item, (dict, list)):
+                yield from strings_from_keys(item, keys)
+    elif isinstance(value, list):
+        for item in value:
+            yield from strings_from_keys(item, keys)
+
+
+def protected_strings_from_keys(value: Any, keys: set[str], root: Path = ROOT) -> set[str]:
+    artifacts: set[str] = set()
+    for string in strings_from_keys(value, keys):
+        normalized = normalize_path(string, root)
+        if protected_match(normalized, root) is not None:
+            artifacts.add(normalized)
+    return artifacts
+
+
+def manifest_artifact_paths(data: dict[str, Any], root: Path = ROOT) -> list[str]:
+    paths: set[str] = set()
+    for item in data.get("artifact_index", []):
+        if isinstance(item, dict):
+            paths.update(protected_strings_from_keys(item, {"artifacts"}, root))
+    return sorted(paths)
+
+
 def load_ownership(root: Path, manifest: Path) -> list[Ownership]:
     data = load_json(manifest)
     run_dir = manifest.parent
@@ -184,7 +237,7 @@ def load_ownership(root: Path, manifest: Path) -> list[Ownership]:
         if not task_id or not agent:
             continue
         owner = entry(task_id, agent)
-        owner.artifacts.update(artifact_strings(task, root))
+        owner.artifacts.update(protected_strings_from_keys(task, ARTIFACT_KEYS | TASK_CHANGED_KEYS, root))
 
     for item in data.get("artifact_index", []):
         if not isinstance(item, dict):
@@ -194,7 +247,9 @@ def load_ownership(root: Path, manifest: Path) -> list[Ownership]:
         if not task_id or not agent:
             continue
         owner = entry(task_id, agent)
-        owner.artifacts.update(artifact_strings(item, root))
+        artifacts = protected_strings_from_keys(item, {"artifacts"}, root)
+        owner.manifest_artifacts.update(artifacts)
+        owner.artifacts.update(artifacts)
 
     for task_dir in sorted((run_dir / "tasks").glob("*")) if (run_dir / "tasks").exists() else []:
         if not task_dir.is_dir():
@@ -214,7 +269,11 @@ def load_ownership(root: Path, manifest: Path) -> list[Ownership]:
             if not agent:
                 continue
             owner = entry(task_id, agent)
-            owner.artifacts.update(artifact_strings(payload, root))
+            owner.artifacts.update(protected_strings_from_keys(payload, ARTIFACT_KEYS, root))
+            if filename == "task_result.json":
+                owner.changed_files.update(protected_strings_from_keys(payload, TASK_CHANGED_KEYS, root))
+            elif filename == "patch_guard.json":
+                owner.patch_guard_changed_files.update(protected_strings_from_keys(payload, PATCH_GUARD_CHANGED_KEYS, root))
 
     return list(ownership.values())
 
@@ -228,7 +287,38 @@ def artifact_matches_path(artifact: str, path: str, root: Path = ROOT) -> bool:
 
 
 def matching_owners(path: ProtectedPath, ownership: list[Ownership]) -> list[Ownership]:
-    return [owner for owner in ownership if any(artifact_matches_path(artifact, path.path) for artifact in owner.artifacts)]
+    return [
+        owner
+        for owner in ownership
+        if any(artifact_matches_path(artifact, path.path) for artifact in owner.manifest_artifacts)
+    ]
+
+
+def missing_consistency_findings(path: ProtectedPath, owner: Ownership) -> list[dict[str, str]]:
+    findings: list[dict[str, str]] = []
+    if owner.changed_files and not any(artifact_matches_path(item, path.path) for item in owner.changed_files):
+        findings.append(
+            {
+                "path": path.path,
+                "reason": "missing_task_changed_file",
+                "category": path.category,
+                "task_id": owner.task_id,
+                "agent": owner.agent,
+            }
+        )
+    if owner.patch_guard_changed_files and not any(
+        artifact_matches_path(item, path.path) for item in owner.patch_guard_changed_files
+    ):
+        findings.append(
+            {
+                "path": path.path,
+                "reason": "missing_patch_guard_changed_file",
+                "category": path.category,
+                "task_id": owner.task_id,
+                "agent": owner.agent,
+            }
+        )
+    return findings
 
 
 def allowed_roles(path: ProtectedPath) -> set[str]:
@@ -292,7 +382,19 @@ def validate(
             )
             continue
 
-        owner = valid[0]
+        consistency_findings: list[dict[str, str]] = []
+        consistent: list[Ownership] = []
+        for candidate in valid:
+            missing = missing_consistency_findings(protected, candidate)
+            if missing:
+                consistency_findings.extend(missing)
+            else:
+                consistent.append(candidate)
+        if not consistent:
+            findings.extend(consistency_findings)
+            continue
+
+        owner = consistent[0]
         accepted.append(
             {
                 "path": protected.path,
@@ -310,6 +412,28 @@ def validate(
         "accepted": accepted,
         "findings": findings,
     }
+
+
+def run_check(
+    root: Path,
+    manifest: Path | None,
+    paths: list[str] | None = None,
+    allow_bootstrap: bool = False,
+) -> dict[str, Any]:
+    protected = inspect_paths(root, paths)
+    ownership: list[Ownership] = []
+    manifest_for_validation: Path | None = None
+    if manifest is not None and manifest.exists():
+        ownership = load_ownership(root, manifest)
+        manifest_for_validation = manifest
+    elif manifest is not None:
+        return {
+            "status": "fail",
+            "protected_paths": [item.path for item in protected],
+            "accepted": [],
+            "findings": [{"path": str(manifest), "reason": "manifest_not_found"}],
+        }
+    return validate(protected, ownership, allow_bootstrap, manifest_for_validation)
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:

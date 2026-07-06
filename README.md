@@ -21,9 +21,11 @@ systems when the data and runtime pipeline are ready.
 
 Generator work is routed through a Commander Agent conversation. The project
 owner describes intent in natural language; the Commander chooses the pipeline,
-runs the local manager tools, and reports goal status, validation state, risks,
-and the next real decision. Run ids, task ids, raw gates, and evidence paths are
-available for audit, but they are not the normal user interface.
+runs the local manager tools, and reports `goal_status`,
+`scope_or_direction`, `validation_state`, `risk_or_blocker`,
+`human_decision_needed`, and `next_decision`. Run ids, pipelines, task ids,
+worker ownership, artifacts, gates, raw logs, and manifest paths are available
+for audit, but they are not the normal user interface.
 
 CRAFT-required work now has to enter through GenOps before protected artifacts
 are edited. That includes explicit CRAFT/GenOps requests, OpenSpec proposal or
@@ -41,15 +43,32 @@ Example owner messages:
 
 The Commander uses `tools/genops/run_pipeline.py` when useful; no distributed
 service is added. Runs still write task contracts, prompts, patch-guard reports,
-gate evidence, and a final manifest under `reports/agent_runs/<run_id>/`. See
+gate evidence, structured aesthetic reviews when applicable, an embedded
+front-door check result, and a final manifest under `reports/agent_runs/<run_id>/`. See
 [`docs/ai-kb/19_genops.md`](docs/ai-kb/19_genops.md) and
 [`openspec/specs/genops/spec.md`](openspec/specs/genops/spec.md).
 
 OpenSpec proposal/design/spec/task authoring uses
 `genops/pipelines/openspec-change.full.yaml`. Protected-path provenance can be
-checked with `tools/genops/check_frontdoor.py`; those backend details are
+checked with `tools/genops/check_frontdoor.py`; `run_pipeline.py` runs the same
+check for run-owned protected artifacts before reporting a green final status.
+Protected categories distinguish Java runtime, client resources, data resources,
+generated NBT, release metadata, generator code, GenOps, docs, and OpenSpec
+paths instead of using a broad `src/main/**` bucket. Those backend details are
 Commander-owned unless audit detail is requested or a backend failure blocks a
 decision.
+
+Pipeline YAML governance is checked by `tools/genops/validate_pipelines.py`.
+That validator turns role/scope/review/gate/release-output mistakes into a
+non-zero compile step instead of soft convention drift.
+
+The Commander backend is stateful: `tools/genops/commander.py` supports
+`classify`, `start-run`, `continue-current`, `status`, `next-decision`,
+`record-verdict`, `closeout`, and `summary`, backed by the rebuildable
+`.genops/state.sqlite` index. Stop conditions are evaluated in code before the
+state machine advances. Rebuild derives verdict state from mirrored decision
+artifacts, and `closeout-ready` requires closeout evidence, front-door pass,
+validation pass, and an OK verdict.
 
 Mod item creation is also CRAFT-routed. The repo-local
 `.codex/skills/mod-item-creation` skill creates the Item Contract and routes

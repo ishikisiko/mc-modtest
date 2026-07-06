@@ -6,10 +6,9 @@
   "required": ["target", "verdict", "human_note"],
   "properties": {
     "target": {"type": "string"},
-    "verdict": {"enum": ["accept", "reject"]},
+    "verdict": {"enum": ["pending", "accept", "reject", "accept_with_changes", "not_required", "pause", "reopen_discussion"]},
     "human_note": {"type": "string"},
     "accepted_defects": {"type": "array", "items": {"type": "string"}},
     "blocking_defects": {"type": "array", "items": {"type": "string"}}
   }
 }
-

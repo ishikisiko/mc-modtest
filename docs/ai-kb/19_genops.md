@@ -15,12 +15,12 @@ the pipeline, run mode, task scope, and validation path, then runs local tools
 itself and reports the evidence.
 
 For CRAFT-required work, the owner-facing workflow is Commander conversation:
-goal status, scope or direction, validation state, risk stops, human verdict,
-and next decision. Run ids, pipeline names, role outcomes, changed artifacts,
-gates, OpenSpec skill names, OpenSpec CLI commands, pipeline YAML paths,
-validator commands, prompts, and logs are backend evidence. The Commander
-exposes them only when the owner asks for audit detail or when a backend failure
-is the decision blocker.
+`goal_status`, `scope_or_direction`, `validation_state`, `risk_or_blocker`,
+`human_decision_needed`, and `next_decision`. Run ids, pipeline names, task ids,
+worker ownership, artifacts, gates, raw logs, manifest paths, OpenSpec skill
+names, OpenSpec CLI commands, pipeline YAML paths, validator commands, and
+prompts are backend evidence. The Commander exposes them only when the owner
+asks for audit detail or when a backend failure is the decision blocker.
 
 The default owner interface is narrower than the audit record: confirm the
 need, choose scope/depth or direction when there are real alternatives, give
@@ -63,8 +63,9 @@ continued OpenSpec work enters through `openspec-change.full`, where the
 and stop conditions as run evidence before artifact writing proceeds.
 
 Protected paths include OpenSpec artifacts, GenOps configuration, KB docs,
-generator and runtime code, generated structure resources, release metadata,
-and user-facing command/build docs. The local guard is:
+generator code, Java runtime code, client/data resources, generated structure
+resources, release metadata, and user-facing command/build docs. The local
+guard is:
 
 ```bash
 python3 tools/genops/check_frontdoor.py --run-id <run_id>
@@ -72,6 +73,9 @@ python3 tools/genops/check_frontdoor.py --run-id <run_id>
 
 The checker is a review guardrail, not cryptographic proof. It compares changed
 protected paths with GenOps task evidence so bypasses become visible.
+`run_pipeline.py` embeds the checker result into the final manifest for
+run-owned protected artifacts and blocks a green final status if provenance,
+role ownership, or task/patch/git changed-file consistency fails.
 
 The only bootstrap exception is the planning artifact set for
 `enforce-craft-frontdoor-governance`. The older
@@ -94,12 +98,17 @@ The only bootstrap exception is the planning artifact set for
 - `genops/rubrics/*.yaml`, `genops/defects/defect_dictionary.yaml`,
   `genops/style_bibles/*.yaml`, and `genops/golden/*.yaml` hold aesthetic and
   regression-control data.
-- `tools/genops/commander.py` is an optional deterministic routing helper for the
-  Commander Agent.
+- `tools/genops/commander.py` is the deterministic Commander state machine:
+  it classifies goals, starts/indexes runs, continues current intent, reports
+  status/summary/next decision, records verdicts, and closes out.
 - `tools/genops/run_pipeline.py` is the local manager entry point that the
-  Commander Agent may run.
+  Commander Agent may run; final manifests include the front-door check result.
 - `tools/genops/check_frontdoor.py` checks protected changed files against
-  GenOps run evidence.
+  GenOps run evidence and uses granular path categories rather than a broad
+  `src/main/**` bucket.
+- `tools/genops/validate_pipelines.py` compiles pipeline governance rules:
+  roles, write scopes, human-review artifacts, required gates, release
+  ownership, OpenSpec boundaries, visual review, and task evidence outputs.
 
 ## Project Codex subagents
 
@@ -157,7 +166,9 @@ regression across atomic roles.
 When the Commander Agent decides that a planning pass is useful, it runs the
 manager with the default `no_op` executor. That materializes the run manifest,
 task contracts, prompts, patch guard results, and evidence without modifying
-project files or running expensive gates:
+project files or running expensive gates. No-op tasks are recorded as
+`plan_materialized`, and the run manifest reports `planning_ready`; this is not
+task completion.
 
 ```bash
 python3 tools/genops/run_pipeline.py genops/pipelines/sect-worldgen.full.yaml \
@@ -166,10 +177,11 @@ python3 tools/genops/run_pipeline.py genops/pipelines/sect-worldgen.full.yaml \
 ```
 
 Use `--executor manual` when the next step is for a human or external coding
-agent to fill each task directory with a real patch and result. Use
-`--run-gates` only when the declared validation/build commands should actually
-execute. These are backend controls for the Commander, not instructions the
-owner is expected to type.
+agent to fill each task directory with a real patch and result; those tasks are
+`manual_ready`. Real or delegated execution is the only route that may report
+task `pass`/`fail`/`blocked`. Use `--run-gates` only when the declared
+validation/build commands should actually execute. These are backend controls
+for the Commander, not instructions the owner is expected to type.
 
 After the owner accepts a direction or asks CRAFT to proceed, the Commander may
 auto-progress through authoring, implementation, validation, and handoff until a
@@ -199,16 +211,35 @@ ownership.
 Backend commands:
 
 ```bash
+python3 tools/genops/commander.py classify "用 CRAFT 规划某个目标"
+python3 tools/genops/commander.py start-run "用 CRAFT 规划某个目标"
+python3 tools/genops/commander.py continue-current
+python3 tools/genops/commander.py status
+python3 tools/genops/commander.py next-decision
+python3 tools/genops/commander.py record-verdict accept --summary "证据通过"
+python3 tools/genops/commander.py closeout
+python3 tools/genops/commander.py summary
 python3 tools/genops/state_store.py init
 python3 tools/genops/state_store.py rebuild
 python3 tools/genops/state_store.py current
 python3 tools/genops/state_store.py pending-decisions
 python3 tools/genops/state_store.py closeout-ready
 python3 tools/genops/state_store.py artifact-owner genops/commander.yaml
+python3 tools/genops/validate_pipelines.py
 ```
 
 The database can be deleted and rebuilt from `reports/agent_runs/**`, OpenSpec
 active/archive state, and decision artifacts mirrored under run evidence.
+The Commander state machine uses these same tables; stop conditions such as
+missing evidence, failing gates, reported blockers, pending human verdict,
+release approval, and direction-required pauses are evaluated in code before
+state advances. Verdict values are normalized to `pending`, `accept`, `reject`,
+`accept_with_changes`, `not_required`, `pause`, and `reopen_discussion`; a
+recorded decision updates indexed run state so `pending-decisions` does not
+keep reporting a resolved verdict.
+`closeout-ready` is set only when a completed active OpenSpec change has
+matching closeout evidence, front-door pass, OK verdict (`accept`,
+`accept_with_changes`, or `not_required`), and validation pass.
 
 ## Evidence shape
 
@@ -235,16 +266,20 @@ Files under `reports/agent_runs/` are deterministic run evidence and are ignored
 with the rest of `reports/` by default.
 
 For CRAFT-required work, the final summary must separate task status from human
-verdict state. The default owner-facing summary should include goal/status,
-what changed or will change, validation state, risk or blocker, any human
-decision needed, and the next action. Run id, pipeline, worker/task ownership,
-artifacts, gates, and raw verdict records remain available as audit evidence
-when requested or when a backend failure blocks the decision.
+verdict state. The default owner-facing summary should include `goal_status`,
+`scope_or_direction`, `validation_state`, `risk_or_blocker`,
+`human_decision_needed`, and `next_decision`. Run id, pipeline, task id, worker
+ownership, artifacts, gates, raw logs, manifest path, and raw verdict records
+remain available as audit evidence when requested or when a backend failure
+blocks the decision.
 
 ## Acceptance boundary
 
-GenOps can prepare visual reports and route aesthetic defects into rubrics, but
-it does not replace human visual acceptance. Pipelines with
+GenOps can prepare visual reports and write deterministic aesthetic review JSON
+from rubric dimensions, defect dictionaries, and the visual acceptance report,
+but it does not replace human visual acceptance. Each `aesthetic-review` task
+emits `candidate`, numeric `scores`, `blocking_defects`, `fix_rules`, and
+`human_verdict_state: pending`. Pipelines with
 `human_review.required: true` end as `human_review_pending` unless an explicit
 human verdict is recorded. Minecraft client review is still required for final
 appearance of custom `myvillage:` blocks when the existing visual checklist says

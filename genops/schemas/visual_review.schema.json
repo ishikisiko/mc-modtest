@@ -1,26 +1,21 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://myvillage.local/genops/visual_review.schema.json",
-  "title": "GenOps Visual Review",
+  "title": "GenOps Aesthetic Review",
   "type": "object",
-  "required": ["target", "candidate_set"],
+  "required": ["candidate", "scores", "blocking_defects", "fix_rules", "human_verdict_state"],
   "properties": {
-    "target": {"type": "string"},
-    "candidate_set": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["id", "renders", "defects", "human_verdict"],
-        "properties": {
-          "id": {"type": "string"},
-          "renders": {"type": "object", "additionalProperties": {"type": "string"}},
-          "ai_scores": {"type": "object", "additionalProperties": {"type": "number"}},
-          "defects": {"type": "array", "items": {"type": "string"}},
-          "fix_rules": {"type": "array", "items": {"type": "string"}},
-          "human_verdict": {"enum": ["pending", "accept", "reject"]}
-        }
-      }
-    }
+    "candidate": {"type": "string"},
+    "scores": {
+      "type": "object",
+      "additionalProperties": {"type": "number"}
+    },
+    "blocking_defects": {"type": "array", "items": {"type": "string"}},
+    "fix_rules": {"type": "array", "items": {"type": "string"}},
+    "human_verdict_state": {
+      "enum": ["pending", "accept", "reject", "accept_with_changes", "not_required", "pause", "reopen_discussion"]
+    },
+    "rubrics": {"type": "array", "items": {"type": "string"}},
+    "source_visual_report": {"type": "object"}
   }
 }
-

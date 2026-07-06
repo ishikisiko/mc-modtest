@@ -20,6 +20,10 @@ tasks:
       - "python3 tools/generate_town_plan_preview.py --count 6"
       - "python3 tools/generate_sect_plan_preview.py --count 6"
       - "python3 tools/generate_region_topology_preview.py --count 6"
+    outputs:
+      - "out/preview/index.html"
+      - "task_result.json"
+      - "evidence.json"
 
   - id: write-report
     agent: visual-reviewer
@@ -30,6 +34,8 @@ tasks:
     outputs:
       - "reports/visual_acceptance_report.json"
       - "reports/visual_acceptance_report.md"
+      - "task_result.json"
+      - "evidence.json"
 
   - id: aesthetic-review
     agent: aesthetic-critic
@@ -40,10 +46,14 @@ tasks:
       - "genops/rubrics/sect.rubric.yaml"
       - "genops/rubrics/town.rubric.yaml"
       - "genops/defects/defect_dictionary.yaml"
+    outputs:
+      - "reports/agent_runs/${run_id}/visual/reviews/visual_acceptance_review.json"
+      - "task_result.json"
+      - "evidence.json"
 
 human_review:
   required: true
   artifact_index:
     - "out/preview/index.html"
     - "reports/visual_acceptance_report.md"
-
+    - "reports/agent_runs/${run_id}/visual/reviews/visual_acceptance_review.json"

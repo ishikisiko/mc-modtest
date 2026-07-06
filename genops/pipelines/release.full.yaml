@@ -14,7 +14,7 @@ constraints:
 tasks:
   - id: map-current
     agent: context-cartographer
-    outputs: [context/code_map.md, context/spec_map.md]
+    outputs: [context/code_map.md, context/spec_map.md, task_result.json, evidence.json]
 
   - id: release-docs
     agent: release-steward
@@ -46,6 +46,10 @@ tasks:
       - "python3 tools/check_style_policy.py"
       - "python3 tools/check_cultivation_forms.py"
       - "./gradlew build"
+    outputs:
+      - "artifacts/regression_summary.md"
+      - "task_result.json"
+      - "evidence.json"
 
 human_review:
   required: false

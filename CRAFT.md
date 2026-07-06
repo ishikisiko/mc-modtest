@@ -37,11 +37,51 @@ verdict, release approval when needed, and the next owner decision. The
 Commander owns change names, run ids, pipelines, task ids, worker routing,
 validation commands, archive, and evidence bookkeeping.
 
+The default owner-facing summary has exactly this shape:
+
+```text
+goal_status
+scope_or_direction
+validation_state
+risk_or_blocker
+human_decision_needed
+next_decision
+```
+
 OpenSpec skills, OpenSpec CLI commands, pipeline YAML paths, run ids, task ids,
 validators, prompts, logs, and worker mechanics are backend evidence. The
 Commander may summarize those details when the owner asks for audit detail or
 when a backend failure is the decision blocker, but they are not the normal
 conversation surface.
+
+The audit detail stays complete and traceable:
+
+```text
+run_id
+pipeline
+task_id
+worker ownership
+artifacts
+gates
+raw logs
+manifest path
+```
+
+`tools/genops/commander.py` is the deterministic backend state machine behind
+that conversation. Its backend actions are:
+
+```text
+classify
+start-run
+continue-current
+status
+next-decision
+record-verdict
+closeout
+summary
+```
+
+Those are Commander tools, not owner chores.
 
 ## Front-door Governance
 
@@ -67,8 +107,15 @@ through `spec-guardian`, then lets downstream tasks write proposal/design/spec
 artifacts only after that CRAFT evidence exists.
 
 Protected work must be traceable to a run id, pipeline, task id, worker role,
-changed artifacts, gate state, and any required human verdict. The local
-front-door checker is `tools/genops/check_frontdoor.py`.
+changed artifacts, gate state, raw logs, manifest path, and any required human
+verdict. The local front-door checker is `tools/genops/check_frontdoor.py`.
+`run_pipeline.py` writes that check into the final manifest for run-owned
+protected artifacts, and it keeps Java runtime, client resources, data
+resources, generated NBT, release metadata, generator code, GenOps, docs, and
+OpenSpec paths as separate ownership categories.
+`tools/genops/validate_pipelines.py` compiles those governance expectations so
+pipeline role, scope, gate, review, release, and task-output mistakes fail
+before becoming run evidence.
 
 That traceability is mandatory internal evidence, not a list of choices the
 owner must manage.
@@ -96,8 +143,9 @@ commands unless they explicitly want to debug the backend.
 
 The Commander is the user-facing controller. It reads the owner's natural
 language, pushes back when the goal is vague or aesthetically risky, chooses a
-pipeline, runs local GenOps tools, and reports only the product-level status,
-risk, validation result, and decision needed unless audit detail is requested.
+pipeline, runs local GenOps tools, and reports only goal status, scope or
+direction, validation state, risk or blocker, human decision needed, and next
+decision unless audit detail is requested.
 
 Configuration:
 
@@ -206,15 +254,22 @@ before protected artifacts are modified.
 ```text
 Owner intent
   -> Commander interprets and challenges if needed
+  -> Commander records `intake`
   -> Commander selects pipeline and run mode
+  -> Commander advances through `planning` and `ready_for_direction`
   -> Manager writes task graph and task contracts
+  -> Commander enters `implementation`
   -> Worker task is executed locally or delegated to a Codex custom subagent
   -> PatchGuard checks file scope
+  -> Commander enters `validation`
   -> Gates run when appropriate
   -> Visual evidence is generated when needed
   -> Aesthetic critique records defects and fix rules
-  -> Owner gives human verdict when visual acceptance is required
+  -> Commander stops at `human_review_pending` when visual acceptance is required
+  -> Owner gives `accepted`, `rejected`, or `accepted_with_changes`
+  -> Commander reaches `closeout_ready`
   -> Manager finalizes run manifest
+  -> Commander closes as `archived`
 ```
 
 After the owner accepts a direction or asks CRAFT to proceed, the Commander may
@@ -223,10 +278,18 @@ asking for a second command at every phase. It must stop for unresolved scope
 conflict, multiple valid aesthetic/product directions, missing visual verdict,
 release/version/changelog approval, destructive generated-resource rewrites,
 behavior changes outside accepted scope, failing gates, or missing evidence.
+Those stop conditions are executable rules in `tools/genops/commander.py`, with
+`genops/commander.yaml` documenting the policy rather than being the only
+enforcement point.
 
 When a stop is only a required human verdict, the Commander asks the owner
 directly whether the prepared evidence is OK, rejected, or accepted with
 changes. The owner should not have to discover that a verdict is needed.
+The normalized verdict model is `pending`, `accept`, `reject`,
+`accept_with_changes`, `not_required`, `pause`, and `reopen_discussion`.
+For visual or aesthetic work, `aesthetic-review` writes structured review JSON
+with scores, blocking defects, fix rules, and pending human-verdict state; it is
+evidence for the owner decision, not the decision itself.
 
 Archive is a Commander-owned closeout action. Once all artifacts and tasks are
 complete, validation and front-door evidence are green, required verdicts are
@@ -279,21 +342,23 @@ The optional local state index lives outside the evidence tree:
 
 It is ignored by git and rebuilt from run manifests, task results, evidence
 files, OpenSpec active/archive state, and mirrored decision artifacts.
+`closeout-ready` is indexed only when closeout evidence, front-door pass,
+validation pass, and an OK verdict are all present.
 
 For CRAFT-required work, the default Commander summary should include:
 
 ```text
-goal/status
-what changed or will change
-validation state
-risk or blocker
-human decision needed
-next decision
+goal_status
+scope_or_direction
+validation_state
+risk_or_blocker
+human_decision_needed
+next_decision
 ```
 
-Run id, pipeline, worker/task ownership, changed artifacts, and gate logs remain
-available as audit evidence, but the Commander should not make the owner manage
-them in the normal flow.
+Run id, pipeline, task id, worker ownership, artifacts, gates, raw logs, and
+manifest path remain available as audit evidence, but the Commander should not
+make the owner manage them in the normal flow.
 
 ## Safety Gates
 

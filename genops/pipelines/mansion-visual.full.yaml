@@ -14,12 +14,12 @@ constraints:
 tasks:
   - id: map-current
     agent: context-cartographer
-    outputs: [context/code_map.md, context/spec_map.md]
+    outputs: [context/code_map.md, context/spec_map.md, task_result.json, evidence.json]
 
   - id: define-contract
     agent: pipeline-architect
     depends_on: [map-current]
-    outputs: [artifacts/generator_contracts/mansion_visual_contract.json]
+    outputs: [artifacts/generator_contracts/mansion_visual_contract.json, task_result.json, evidence.json]
 
   - id: patch-generator
     agent: generator-engineer
@@ -32,6 +32,10 @@ tasks:
       - "src/main/resources/data/myvillage/structure/*.nbt"
       - "gradle.properties"
       - "CHANGELOG.md"
+    outputs:
+      - "patch.diff"
+      - "task_result.json"
+      - "evidence.json"
 
   - id: patch-validators
     agent: validator-engineer
@@ -42,6 +46,10 @@ tasks:
       - "tools/buildgen/probes/**"
     gates:
       - "python3 tools/validate_compound_library.py --count 6"
+    outputs:
+      - "patch.diff"
+      - "task_result.json"
+      - "evidence.json"
 
   - id: visual-evidence
     agent: visual-reviewer
@@ -50,6 +58,11 @@ tasks:
     gates:
       - "python3 tools/preview_structure.py src/main/resources/data/myvillage/structure/chinese_mansion_001.nbt"
       - "python3 tools/write_visual_acceptance_report.py"
+    outputs:
+      - "reports/visual_acceptance_report.json"
+      - "reports/visual_acceptance_report.md"
+      - "task_result.json"
+      - "evidence.json"
 
   - id: aesthetic-review
     agent: aesthetic-critic
@@ -58,15 +71,20 @@ tasks:
       - "genops/rubrics/mansion.rubric.yaml"
       - "genops/defects/defect_dictionary.yaml"
       - "genops/style_bibles/chinese_mansion.yaml"
+    outputs:
+      - "reports/agent_runs/${run_id}/visual/reviews/mansion_review.json"
+      - "task_result.json"
+      - "evidence.json"
 
   - id: docs-sync
     agent: docs-steward
     depends_on: [aesthetic-review]
     allowed_files: ["README.md", "docs/ai-kb/**", "openspec/specs/**", "genops/**"]
+    outputs: [patch.diff, task_result.json, evidence.json]
 
 human_review:
   required: true
   artifact_index:
     - "out/preview/chinese_mansion_001/isometric.png"
     - "reports/visual_acceptance_report.md"
-
+    - "reports/agent_runs/${run_id}/visual/reviews/mansion_review.json"

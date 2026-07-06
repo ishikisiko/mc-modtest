@@ -36,18 +36,24 @@ tasks:
       - context/code_map.md
       - context/spec_map.md
       - context/impact_files.json
+      - task_result.json
+      - evidence.json
 
   - id: define-contract
     agent: pipeline-architect
     depends_on: [map-current]
     outputs:
       - artifacts/generator_contracts/sect_worldgen_contract.json
+      - task_result.json
+      - evidence.json
 
   - id: check-spec-impact
     agent: spec-guardian
     depends_on: [define-contract]
     outputs:
       - artifacts/spec_impact.json
+      - task_result.json
+      - evidence.json
 
   - id: patch-python-preview
     agent: generator-engineer
@@ -106,6 +112,8 @@ tasks:
     outputs:
       - "reports/visual_acceptance_report.json"
       - "reports/visual_acceptance_report.md"
+      - "task_result.json"
+      - "evidence.json"
 
   - id: aesthetic-review
     agent: aesthetic-critic
@@ -116,6 +124,8 @@ tasks:
       - "reports/visual_acceptance_report.json"
     outputs:
       - "reports/agent_runs/${run_id}/visual/reviews/sect_review.json"
+      - "task_result.json"
+      - "evidence.json"
 
   - id: docs-sync
     agent: docs-steward
@@ -149,6 +159,10 @@ tasks:
       - "python3 tools/check_style_policy.py"
       - "python3 tools/check_cultivation_forms.py"
       - "./gradlew build"
+    outputs:
+      - "artifacts/regression_summary.md"
+      - "task_result.json"
+      - "evidence.json"
 
 human_review:
   required: true
@@ -160,4 +174,3 @@ human_review:
 final_outputs:
   - "reports/agent_runs/${run_id}/run_manifest.json"
   - "reports/agent_runs/${run_id}/final_summary.md"
-

@@ -13,7 +13,7 @@ from typing import Any
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from tools.genops import agent_executor, context_builder, defect_indexer, gate_runner, git_guard
+from tools.genops import agent_executor, check_frontdoor, context_builder, defect_indexer, gate_runner, git_guard
 from tools.genops import patch_guard, pipeline_loader, report_writer, task_graph, visual_indexer
 from tools.genops.artifact_writer import ensure_dir, write_json
 
@@ -32,10 +32,14 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("pipeline", type=Path, help="Path to genops/pipelines/*.yaml")
     parser.add_argument("--goal", default="", help="Run-specific goal text")
     parser.add_argument("--run-id", default="", help="Stable report directory id")
-    parser.add_argument("--executor", choices=["no_op", "manual"], default="no_op")
+    parser.add_argument("--executor", choices=["no_op", "manual", "real", "subagent"], default="no_op")
     parser.add_argument("--run-gates", action="store_true", help="Actually run task gate commands")
     parser.add_argument("--require-clean", action="store_true", help="Fail before execution if git status is dirty")
-    parser.add_argument("--human-verdict", choices=["accept", "reject", "pending"], default="pending")
+    parser.add_argument(
+        "--human-verdict",
+        choices=["pending", "accept", "reject", "accept_with_changes", "not_required", "pause", "reopen_discussion"],
+        default="pending",
+    )
     parser.add_argument("--root", type=Path, default=ROOT)
     return parser.parse_args(argv)
 
@@ -43,6 +47,31 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 def task_blocked(task: Any, task_records: list[dict[str, Any]]) -> bool:
     by_id = {record["id"]: record for record in task_records}
     return any(by_id.get(dep, {}).get("status") in {"fail", "blocked"} for dep in task.depends_on)
+
+
+def apply_frontdoor_check(root: Path, run_dir: Path, manifest: dict[str, Any]) -> dict[str, Any]:
+    manifest_path = run_dir / "run_manifest.json"
+    protected_artifacts = check_frontdoor.manifest_artifact_paths(manifest, root)
+    result = check_frontdoor.run_check(root, manifest_path, paths=protected_artifacts)
+    if protected_artifacts:
+        try:
+            git_changed = check_frontdoor.git_status_paths(root)
+        except RuntimeError:
+            git_changed = []
+        for protected_path in result["protected_paths"]:
+            if not any(check_frontdoor.artifact_matches_path(protected_path, changed, root) for changed in git_changed):
+                result["findings"].append(
+                    {
+                        "path": protected_path,
+                        "reason": "missing_git_changed_file",
+                    }
+                )
+        result["status"] = "pass" if not result["findings"] else "fail"
+    manifest["frontdoor"] = result
+    if result["status"] == "fail" and manifest["status"] not in {"failed", "blocked", "rejected_by_human"}:
+        manifest["status"] = "blocked"
+    write_json(manifest_path, manifest)
+    return manifest
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -103,9 +132,10 @@ def main(argv: list[str] | None = None) -> int:
         if status == "fail":
             break
 
-    visual = visual_indexer.collect(root, run_dir)
     defects = defect_indexer.collect(root)
-    human_verdict = None if args.human_verdict == "pending" else args.human_verdict
+    aesthetic_reviews = defect_indexer.write_aesthetic_reviews(root, run_dir, pipeline)
+    defects["aesthetic_reviews"] = aesthetic_reviews
+    visual = visual_indexer.collect(root, run_dir)
     manifest = report_writer.write_final_manifest(
         root=root,
         run_dir=run_dir,
@@ -116,14 +146,14 @@ def main(argv: list[str] | None = None) -> int:
         task_records=task_records,
         visual=visual,
         defects=defects,
-        human_verdict=human_verdict,
+        human_verdict=args.human_verdict,
     )
+    manifest = apply_frontdoor_check(root, run_dir, manifest)
     report_writer.write_final_summary(run_dir, manifest)
     print(f"GenOps run {run_id}: {manifest['status']}")
     print(f"Manifest: {run_dir.relative_to(root) / 'run_manifest.json'}")
-    return 1 if manifest["status"] in {"failed", "rejected_by_human"} else 0
+    return 1 if manifest["status"] in {"failed", "blocked", "rejected_by_human"} else 0
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

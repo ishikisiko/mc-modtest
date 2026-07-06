@@ -14,12 +14,12 @@ constraints:
 tasks:
   - id: map-current
     agent: context-cartographer
-    outputs: [context/code_map.md, context/spec_map.md]
+    outputs: [context/code_map.md, context/spec_map.md, task_result.json, evidence.json]
 
   - id: define-contract
     agent: pipeline-architect
     depends_on: [map-current]
-    outputs: [artifacts/generator_contracts/building_library_contract.json]
+    outputs: [artifacts/generator_contracts/building_library_contract.json, task_result.json, evidence.json]
 
   - id: patch-generator
     agent: generator-engineer
@@ -47,6 +47,10 @@ tasks:
     gates:
       - "python3 tools/validate_building_library.py --count 10"
       - "python3 tools/validate_generated_structures.py src/main/resources/data/myvillage/structure"
+    outputs:
+      - "patch.diff"
+      - "task_result.json"
+      - "evidence.json"
 
   - id: visual-evidence
     agent: visual-reviewer
@@ -55,6 +59,11 @@ tasks:
     gates:
       - "python3 tools/preview_structure.py --all"
       - "python3 tools/write_visual_acceptance_report.py"
+    outputs:
+      - "reports/visual_acceptance_report.json"
+      - "reports/visual_acceptance_report.md"
+      - "task_result.json"
+      - "evidence.json"
 
   - id: docs-sync
     agent: docs-steward
@@ -64,6 +73,10 @@ tasks:
       - "docs/ai-kb/**"
       - "openspec/specs/**"
       - "genops/**"
+    outputs:
+      - "patch.diff"
+      - "task_result.json"
+      - "evidence.json"
 
   - id: regression
     agent: regression-steward
@@ -74,7 +87,13 @@ tasks:
       - "python3 tools/check_style_policy.py"
       - "python3 tools/check_cultivation_forms.py"
       - "./gradlew build"
+    outputs:
+      - "artifacts/regression_summary.md"
+      - "task_result.json"
+      - "evidence.json"
 
 human_review:
   required: true
-
+  artifact_index:
+    - "out/preview/index.html"
+    - "reports/visual_acceptance_report.md"

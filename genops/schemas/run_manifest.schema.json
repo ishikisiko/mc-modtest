@@ -12,9 +12,15 @@
     "status": {
       "enum": [
         "pass",
+        "planning_ready",
+        "dry_run_ready",
         "manual_ready",
         "human_review_pending",
         "accepted",
+        "accepted_with_changes",
+        "paused",
+        "discussion_reopened",
+        "blocked",
         "failed",
         "rejected_by_human"
       ]
@@ -49,6 +55,17 @@
     },
     "visual": {"type": "object"},
     "defect_index": {"type": "object"},
-    "human_verdict": {"type": "string"}
+    "frontdoor": {
+      "type": "object",
+      "properties": {
+        "status": {"enum": ["pass", "fail"]},
+        "protected_paths": {"type": "array", "items": {"type": "string"}},
+        "accepted": {"type": "array", "items": {"type": "object"}},
+        "findings": {"type": "array", "items": {"type": "object"}}
+      }
+    },
+    "human_verdict": {
+      "enum": ["pending", "accept", "reject", "accept_with_changes", "not_required", "pause", "reopen_discussion"]
+    }
   }
 }

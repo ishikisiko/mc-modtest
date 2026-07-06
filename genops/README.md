@@ -40,8 +40,11 @@ python3 tools/genops/run_pipeline.py genops/pipelines/sect-worldgen.full.yaml \
 ```
 
 The default executor is `no_op`: it verifies that the pipeline can be planned and
-materialized without changing files. Use `--executor manual` to generate
-per-task prompts for an external coding agent or human patch workflow. Add
+materialized without changing files. No-op tasks are `plan_materialized`, and
+the manifest is `planning_ready`; neither means task completion. Use
+`--executor manual` to generate per-task prompts for an external coding agent or
+human patch workflow; those tasks are `manual_ready`. Real or delegated
+execution is the path that may report task `pass`/`fail`/`blocked`. Add
 `--run-gates` only when the Commander wants the declared validation/build
 commands to run. The owner should not need to type these commands in normal use.
 
@@ -56,6 +59,44 @@ python3 tools/genops/run_pipeline.py genops/pipelines/openspec-change.full.yaml 
 The pre-existing `add-visual-reference-structure-pipeline` change was authored
 before this route existed. It must be re-entered through
 `openspec-change.full` before implementation continues.
+
+## Commander State Machine
+
+`tools/genops/commander.py` is now the deterministic backend for Commander
+continuity. It still supports the legacy route-helper call:
+
+```bash
+python3 tools/genops/commander.py "用 CRAFT 规划宗门远景"
+```
+
+It also supports explicit backend actions:
+
+```bash
+python3 tools/genops/commander.py classify "用 CRAFT 规划宗门远景"
+python3 tools/genops/commander.py start-run "用 CRAFT 规划宗门远景"
+python3 tools/genops/commander.py continue-current
+python3 tools/genops/commander.py status
+python3 tools/genops/commander.py next-decision
+python3 tools/genops/commander.py record-verdict accept --summary "证据通过"
+python3 tools/genops/commander.py closeout
+python3 tools/genops/commander.py summary
+```
+
+The state chain is `intake -> planning -> ready_for_direction ->
+implementation -> validation -> human_review_pending -> accepted/rejected/
+accepted_with_changes -> closeout_ready -> archived`. The Commander persists
+intent, run linkage, decisions, and closeout state through
+`tools/genops/state_store.py`.
+
+The unified verdict model is `pending`, `accept`, `reject`,
+`accept_with_changes`, `not_required`, `pause`, and `reopen_discussion`.
+`record-verdict`/`record-decision` updates the indexed run verdict and status,
+so pending-decision queries stop showing resolved runs.
+
+Stop conditions are enforced in code before state advances. The minimum coded
+stops are missing evidence, failing gates, reported blockers, required human
+verdicts, release approval, and direction-required pauses. YAML documents the
+policy; it is not the only enforcement point.
 
 ## Visual-Reference Decomposition
 
@@ -107,7 +148,15 @@ write sets.
 - `genops/rubrics/`, `genops/defects/`, `genops/style_bibles/`, and
   `genops/golden/` capture visual/aesthetic control data.
 - `tools/genops/check_frontdoor.py` checks protected changed files against a
-  GenOps run manifest and per-task artifact evidence.
+  GenOps run manifest and per-task artifact evidence. `run_pipeline.py`
+  embeds this check for run-owned protected artifacts before writing a green
+  final status, using granular categories for Java runtime, client resources,
+  data resources, generated NBT, release metadata, generator code, GenOps,
+  docs, and OpenSpec paths.
+- `tools/genops/validate_pipelines.py` treats governance conventions as
+  compile-time errors across all pipeline YAML files.
+- `tools/genops/commander.py` maintains the Commander state machine and uses
+  the state store for current intent, verdict, closeout, and summary state.
 - `tools/genops/state_store.py` maintains the optional rebuildable SQLite
   operational index at `.genops/state.sqlite`.
 - `reports/agent_runs/<run_id>/` is deterministic evidence and remains ignored
@@ -123,10 +172,15 @@ requires an Item Contract; the pipeline splits Java registration, resources,
 visual review, validation, docs, and regression into role-owned tasks.
 
 For CRAFT-required handoff, default Commander summaries should report
-goal/status, what changed or will change, validation state, risk or blocker,
-human decision needed, and the next action. Run ids, pipeline names,
-worker/task ownership, changed artifacts, and raw gate details remain audit
+`goal_status`, `scope_or_direction`, `validation_state`, `risk_or_blocker`,
+`human_decision_needed`, and `next_decision`. Run ids, pipeline names, task ids,
+worker ownership, artifacts, gates, raw logs, and manifest paths remain audit
 evidence. Task success alone is not visual or human acceptance.
+
+`aesthetic-review` tasks now emit structured review JSON under
+`reports/agent_runs/<run_id>/visual/reviews/`. The file records the candidate,
+rubric scores, blocking defects, fix rules, and `human_verdict_state: pending`;
+it is review evidence, not the human verdict.
 
 ## Local State Index
 
@@ -144,4 +198,6 @@ python3 tools/genops/state_store.py artifact-owner genops/commander.yaml
 
 Use it to answer owner-facing questions such as "continue the previous intent",
 "what needs my decision", and "which run touched this artifact". Keep the JSON
-files under `reports/agent_runs/**` as audit truth.
+files under `reports/agent_runs/**` as audit truth. Rebuild clears indexed
+decisions and rehydrates them from mirrored decision artifacts; closeout-ready
+requires closeout evidence, front-door pass, validation pass, and an OK verdict.
