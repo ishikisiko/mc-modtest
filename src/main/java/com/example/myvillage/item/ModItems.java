@@ -55,6 +55,10 @@ public final class ModItems {
                             0xF1C58F,
                             props));
 
+    public static final DeferredItem<RideableFlyingSwordItem> RIDEABLE_FLYING_SWORD =
+            ITEMS.registerItem("rideable_flying_sword",
+                    props -> new RideableFlyingSwordItem(props.stacksTo(1)));
+
     /**
      * The {@code myvillage:main} creative tab. Icon + content is the rockery
      * item; the tab groups all hand-placeable myvillage blocks together.
@@ -67,6 +71,7 @@ public final class ModItems {
                         output.accept(ROCKERY_BLOCK_ITEM.get());
                         output.accept(TEST_ITEM_BLOCK_ITEM.get());
                         output.accept(SIMPLE_FOX_SPAWN_EGG.get());
+                        output.accept(RIDEABLE_FLYING_SWORD.get());
                     })
                     .build());
 

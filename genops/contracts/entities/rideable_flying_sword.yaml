@@ -1,0 +1,132 @@
+schema_version: 1
+contract_kind: non_living_rideable_vehicle
+
+schema_status:
+  applicability: not_applicable
+  reason: >-
+    The available custom-entity schema requires LivingEntity attributes, AI,
+    bones, and animations. Recording those for a plain Entity vehicle would be
+    false, so this vehicle contract and the OpenSpec capability are authoritative.
+
+identity:
+  entity_id: myvillage:rideable_flying_sword
+  item_id: myvillage:rideable_flying_sword
+  java_class: com.example.myvillage.entity.RideableFlyingSwordEntity
+  base_class: net.minecraft.world.entity.Entity
+  category: misc
+  saveable: false
+  natural_spawn: false
+
+physical:
+  dimensions: [1.4, 0.25]
+  gravity: false
+  no_physics: false
+  block_collision: required
+  orientation:
+    pitch_degrees: 0
+    roll_degrees: 0
+    yaw_source: server-known horizontal yaw of the owner passenger
+
+ownership_and_passengers:
+  owner_key: server-owned player UUID stored on the entity
+  maximum_passengers: 1
+  accepted_passenger: bound owner player only
+  uniqueness: at most one loaded sword per owner across all server levels
+  binding_source: server state only
+  persistence: transient and not transferred across dimensions
+  item_toggle:
+    no_existing_sword: spawn below player, bind, and mount
+    existing_sword: discard every loaded owned sword and do not spawn a replacement
+
+input_protocol:
+  payload: FlyingSwordInputPayload
+  direction: client_to_server
+  fields:
+    flags:
+      - forward
+      - backward
+      - left
+      - right
+      - ascend
+      - descend
+  forbidden_fields:
+    - position
+    - velocity
+    - entity_id
+    - owner_uuid
+    - yaw
+    - pitch
+  server_validation:
+    - execute on the server game thread
+    - derive the sender and current vehicle from payload context
+    - require a living bound owner riding the same-level sword
+    - reject unknown bits and expire stale input to neutral
+    - store intent only and never apply client-provided motion
+
+server_movement:
+  authority: server_only
+  controls:
+    W: forward
+    S: backward
+    A: left
+    D: right
+    Space: ascend
+    Shift: descend
+  integration:
+    - derive heading from the server-known passenger yaw
+    - normalize diagonal input and cap horizontal and vertical speed
+    - accelerate on input and apply drag on neutral axes
+    - call move with MoverType.SELF for normal block collision
+    - keep noGravity true, noPhysics false, pitch zero, and roll zero
+    - clear the passenger fall distance each server tick
+    - do not expose the player as getControllingPassenger, preventing vanilla client vehicle-coordinate packets
+
+lifecycle_cleanup:
+  discard_when:
+    - owner is dead, removed, or offline
+    - owner and sword are in different dimensions
+    - owner exceeds the bounded cleanup distance
+    - item reuse explicitly recalls the sword
+  cleanup_invariants:
+    - no per-tick broad world or entity scan
+    - item use and lifecycle events may scan loaded server entities
+    - no saved sword may return after chunk unload or restart
+
+rendering:
+  route: vanilla_item_model
+  renderer_class: com.example.myvillage.client.entity.RideableFlyingSwordRenderer
+  item_model: myvillage:rideable_flying_sword
+  texture: myvillage:item/rideable_flying_sword
+  geckolib: false
+  animation: static
+
+side_safety:
+  common_must_not_import:
+    - net.minecraft.client
+    - com.example.myvillage.client
+  dedicated_server_gate: ./gradlew runAcceptanceServer
+
+acceptance:
+  automated:
+    - openspec validate add-rideable-flying-sword --type change --strict
+    - python3 tools/validate_mod_items.py
+    - ./gradlew test
+    - ./gradlew build
+    - ./gradlew runAcceptanceServer
+  manual:
+    - summon and automatic mounting
+    - all six controls and Shift without dismount
+    - hover, gradual slowdown, collision, yaw, and horizontal rendering
+    - one passenger, owner-only control, recall, and every cleanup condition
+    - multiplayer observer sees stable server-driven movement
+  human_verdict: pending
+
+non_goals:
+  - combat
+  - targeting
+  - energy and levels
+  - special moves
+  - multiple passengers
+  - cross-dimension retention
+  - persistent save
+  - GeckoLib or complex animation

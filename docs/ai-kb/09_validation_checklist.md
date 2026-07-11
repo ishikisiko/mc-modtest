@@ -42,6 +42,7 @@ python3 tools/generate_all_structures.py
 python3 tools/validate_generated_structures.py src/main/resources/data/myvillage/structure
 python3 tools/validate_mod_items.py
 python3 tools/validate_custom_entities.py
+python3 tools/validate_rideable_flying_sword.py
 python3 tools/validate_mod_block_fallbacks.py
 python3 tools/validate_plaque_bindings.py
 python3 tools/validate_compound_library.py --count 6
@@ -68,6 +69,32 @@ python3 tools/generate_town_plan_preview.py --count 6   # top-down town-plan PNG
 python3 tools/generate_sect_plan_preview.py --count 6   # top-down sect-plan PNG/HTML under out/preview/sect_plan_s* (default covers all 3 detached-spire variants + absent)
 ./gradlew build
 ```
+
+For the rideable flying sword, also run the dedicated-server gate:
+
+```text
+python3 tools/validate_rideable_flying_sword.py
+./gradlew test
+./gradlew build
+./gradlew runAcceptanceServer
+```
+
+`runAcceptanceServer` proves registration and common/client separation only.
+Before accepting the gameplay or appearance, verify in a real client/server
+session:
+
+- `/give @s myvillage:rideable_flying_sword`, first-use spawn/mount, and
+  second-use recall without a replacement or duplicate.
+- W/S forward/backward, A/D strafe, Space ascent, and Shift descent without
+  vanilla dismount.
+- Neutral hover and gradual slowdown, solid-block collision, horizontal yaw
+  following, and rider fall-distance reset.
+- Owner-only single-passenger control and multiplayer observation of
+  server-driven motion.
+- Cleanup after owner death, logout, dimension change, and more than 64 blocks
+  of separation, plus `noSave()` removal across unload/reload.
+- Horizontal item-model scale, orientation, texture readability, and absence of
+  missing-model fallback.
 
 Optional in-game automation with Chunky:
 
@@ -131,4 +158,5 @@ what was checked. In-game final appearance review still belongs to the reviewer.
 ## See also
 
 - Spec: [validation](../../openspec/specs/validation/spec.md) — the normative validation requirements.
+- Flying sword: [Rideable Flying Sword](27_rideable_flying_sword.md) and its [change spec](../../openspec/changes/add-rideable-flying-sword/specs/rideable-flying-sword/spec.md).
 - Index: [Knowledge Base Map](INDEX.md).

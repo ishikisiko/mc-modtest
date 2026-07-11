@@ -476,12 +476,14 @@ jar tf build/libs/*.jar | grep "data/myvillage/painting_variant/inscription"
 jar tf build/libs/*.jar | grep "assets/myvillage/textures/painting/inscription"
 jar tf build/libs/*.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
 jar tf build/libs/*.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
+jar tf build/libs/*.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
+jar tf build/libs/*.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
 ```
 
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.21.0.jar
+build/libs/myvillage-0.22.0.jar
 ```
 
 ## Versioning And Changelog
@@ -511,6 +513,7 @@ command documentation:
 python3 tools/generate_all_structures.py --mc-version 1.21.1 --output src/main/resources/data/myvillage/structure
 python3 tools/validate_generated_structures.py src/main/resources/data/myvillage/structure
 python3 tools/validate_custom_entities.py
+python3 tools/validate_rideable_flying_sword.py
 python3 tools/validate_mod_block_fallbacks.py
 python3 tools/validate_plaque_bindings.py
 python3 tools/validate_compound_library.py --count 6
@@ -534,14 +537,16 @@ python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 
 python3 tools/write_visual_acceptance_report.py
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.21.0.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.21.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.21.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.21.0.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.21.0.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.21.0.jar | grep "assets/myvillage/textures/painting/inscription"
-jar tf build/libs/myvillage-0.21.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
-jar tf build/libs/myvillage-0.21.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
+jar tf build/libs/myvillage-0.22.0.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.22.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.22.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.22.0.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.22.0.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.22.0.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.22.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
+jar tf build/libs/myvillage-0.22.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
+jar tf build/libs/myvillage-0.22.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
+jar tf build/libs/myvillage-0.22.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -575,6 +580,58 @@ must use a recorded seed and taiga-family biome, then note observation time and
 group size; a successful codec/server boot does not prove frequency. Inspect
 front, both sides, back, three-quarter, idle, walk, sit, sleep, crouch, pounce,
 hurt, and death before recording the human visual verdict.
+
+## Rideable Flying Sword Smoke Test
+
+Give the functional item to the current player:
+
+```mcfunction
+/give @s myvillage:rideable_flying_sword
+```
+
+Hold it and right-click once to create the sword below the player and mount it.
+Right-click again to recall and remove the owned sword; that second use does not
+create a replacement. Each player can own one loaded sword and the sword accepts
+only its bound owner as its single passenger. Summoning needs enough block-clear
+space for the sword's hitbox; a confined placement fails without leaving a sword.
+
+Controls while mounted:
+
+```text
+W / S       forward / backward
+A / D       left / right
+Space       ascend
+Shift       descend
+```
+
+The client sends one bounded six-key bitset. It does not send coordinates,
+rotation, velocity, speed, owner identity, or an entity id. The server derives
+the sword from the sender's current vehicle, validates the owner/passenger
+relationship, expires stale input, and computes yaw, acceleration, drag, speed
+limits, and collision-aware movement.
+
+The entity stores the owner UUID, while the player's persistent data indexes the
+current sword UUID. Explicit recall clears that index and discards every loaded
+owner match; ordinary removal clears the index only when it still names that
+sword. The sword is registered with `noSave()` and is discarded on owner death,
+logout, dimension change, or separation beyond 64 blocks; it is not retained
+across chunk unload, world reload, or server restart.
+
+Automated preparation:
+
+```bash
+python3 tools/validate_rideable_flying_sword.py
+./gradlew test
+./gradlew build
+./gradlew runAcceptanceServer
+```
+
+Dedicated-server startup checks payload/entity registration and common/client
+separation, not riding quality. In a real client, manually verify all six
+controls, Shift descent without dismount, neutral hover and gradual slowdown,
+solid-block collision, horizontal view-following orientation, fall-distance
+reset, recall/singleton behavior, every cleanup condition, multiplayer
+authority, and item-model scale/readability before recording acceptance.
 
 ## Available Commands
 
@@ -981,6 +1038,7 @@ Included:
 - a custom `myvillage:sect` worldgen Structure: sects are sited during world generation, biome-gated by `tags/worldgen/biome/has_sect`, spaced by `worldgen/structure_set/sect`, and `/locate`-able, resting on a mountain derived from the terrace profile (反推山形)
 - generated optional-mod runtime fallback map and fallback coverage validation
 - `myvillage:simple_fox`: vanilla-model custom entity, spawn egg, empty first-pass loot table, and low-weight taiga natural spawning
+- `myvillage:rideable_flying_sword`: transient, one-player, server-authoritative flying-sword vehicle and creative-tab item
 - NBT integrity validation for roof/top-layer/function-block/signature checks
 - deterministic town-plan and sect-plan/sect-generation validation with top-down previews
 ```

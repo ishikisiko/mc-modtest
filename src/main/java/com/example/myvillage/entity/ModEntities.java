@@ -25,6 +25,17 @@ public final class ModEntities {
                     .immuneTo(Blocks.SWEET_BERRY_BUSH)
                     .build(id.toString()));
 
+    public static final DeferredHolder<EntityType<?>, EntityType<RideableFlyingSwordEntity>> RIDEABLE_FLYING_SWORD =
+            ENTITY_TYPES.register("rideable_flying_sword", id -> EntityType.Builder
+                    .of(RideableFlyingSwordEntity::new, MobCategory.MISC)
+                    .noSave()
+                    .noSummon()
+                    .sized(1.4F, 0.25F)
+                    .passengerAttachments(new Vec3(0.0, 0.25, 0.0))
+                    .clientTrackingRange(10)
+                    .updateInterval(1)
+                    .build(id.toString()));
+
     private ModEntities() {
     }
 

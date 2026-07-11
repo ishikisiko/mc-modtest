@@ -2,6 +2,7 @@ package com.example.myvillage.client;
 
 import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.block.ModBlocks;
+import com.example.myvillage.client.entity.RideableFlyingSwordRenderer;
 import com.example.myvillage.client.entity.SimpleFoxRenderer;
 import com.example.myvillage.entity.ModEntities;
 import net.minecraft.client.renderer.BiomeColors;
@@ -29,6 +30,9 @@ public final class MyVillageClient {
     @SubscribeEvent
     static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
         event.registerEntityRenderer(ModEntities.SIMPLE_FOX.get(), SimpleFoxRenderer::new);
+        event.registerEntityRenderer(
+                ModEntities.RIDEABLE_FLYING_SWORD.get(),
+                RideableFlyingSwordRenderer::new);
     }
 
     @SubscribeEvent

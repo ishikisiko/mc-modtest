@@ -1,4 +1,6 @@
 {
+  "entity.myvillage.rideable_flying_sword": "飞剑",
   "entity.myvillage.simple_fox": "简易狐狸",
+  "item.myvillage.rideable_flying_sword": "可骑乘飞剑",
   "item.myvillage.simple_fox_spawn_egg": "简易狐狸生成蛋"
 }

@@ -1,0 +1,80 @@
+{
+  "item_id": "myvillage:rideable_flying_sword",
+  "kind": "functional_item",
+  "display_name": {
+    "en_us": "Rideable Flying Sword",
+    "zh_design_name": "可骑乘飞剑"
+  },
+  "owner_facing_goal": "右键切换一把归当前玩家唯一拥有、由服务端权威驾驶的基础飞剑载具。",
+  "creative_tab": {
+    "visibility": "visible",
+    "tab_id": "myvillage:main",
+    "ordering": "append"
+  },
+  "java_registration": {
+    "owner_file": "src/main/java/com/example/myvillage/item/ModItems.java",
+    "deferred_holder": "ModItems.RIDEABLE_FLYING_SWORD",
+    "properties": "new Item.Properties().stacksTo(1)"
+  },
+  "client_assets": {
+    "lang_key": "item.myvillage.rideable_flying_sword",
+    "model": "src/main/resources/assets/myvillage/models/item/rideable_flying_sword.json",
+    "textures": [
+      "src/main/resources/assets/myvillage/textures/item/rideable_flying_sword.png"
+    ],
+    "visual_verdict": "pending"
+  },
+  "data_resources": {
+    "recipes": [],
+    "tags": [],
+    "loot_or_advancement_hooks": []
+  },
+  "behavior": {
+    "type": "functional",
+    "server_client_boundary": "Item use, ownership, spawning, mounting, movement, collision, and cleanup run on the logical server. The client sends only a six-key bitset; it sends no position, velocity, entity id, owner id, or look values.",
+    "interaction": "Use with no owned sword spawns below the player and mounts them. Use with an owned sword discards it and does not spawn a replacement.",
+    "cooldown_or_durability": "No cooldown or durability in v1; max stack size is one.",
+    "data_components": [],
+    "tests": [
+      "payload exposes only six control flags",
+      "server accepts input only from the bound current passenger",
+      "stale input expires to neutral",
+      "second use recalls without duplicating",
+      "common code imports no client classes"
+    ]
+  },
+  "acceptance": {
+    "commands": [
+      "/give @s myvillage:rideable_flying_sword",
+      "right-click to summon and mount; right-click again to recall",
+      "verify W/S, A/D, Space, and Shift while riding"
+    ],
+    "gates": [
+      "openspec validate add-rideable-flying-sword --type change --strict",
+      "python3 tools/validate_mod_items.py",
+      "./gradlew test",
+      "./gradlew build",
+      "./gradlew runAcceptanceServer"
+    ],
+    "jar_checks": [
+      "assets/myvillage/models/item/rideable_flying_sword.json",
+      "assets/myvillage/textures/item/rideable_flying_sword.png",
+      "English and Chinese item translation keys"
+    ],
+    "human_verdict": "pending"
+  },
+  "docs": {
+    "sync_required": true
+  },
+  "non_goals": [
+    "combat damage",
+    "automatic target acquisition",
+    "spiritual-energy consumption",
+    "levels",
+    "special moves",
+    "multiple passengers",
+    "cross-dimension retention",
+    "GeckoLib",
+    "recipe or survival progression"
+  ]
+}

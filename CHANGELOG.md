@@ -7,6 +7,20 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.22.0
+
+### Added
+
+- Added `myvillage:rideable_flying_sword` as a stack-size-one functional item
+  and transient one-player vehicle. Right-click toggles server-owned summon,
+  mounting, and recall; W/S, A/D, Space, and Shift send only a six-bit input
+  intent while the server computes bounded collision-aware flight, hover drag,
+  yaw, fall safety, singleton ownership, and lifecycle cleanup.
+- Added a client-only vanilla item-model renderer, English/Chinese names, a
+  `32x32` placeholder texture, focused protocol/resource validation, usage
+  documentation, and dedicated-server startup coverage. In-game control,
+  multiplayer, collision, cleanup, and appearance review remain pending.
+
 ## 0.21.0
 
 ### Added

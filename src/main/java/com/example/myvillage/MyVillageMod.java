@@ -2,7 +2,9 @@ package com.example.myvillage;
 
 import com.example.myvillage.block.ModBlocks;
 import com.example.myvillage.entity.ModEntities;
+import com.example.myvillage.entity.RideableFlyingSwordEntity;
 import com.example.myvillage.item.ModItems;
+import com.example.myvillage.network.ModPayloads;
 import com.example.myvillage.region.runtime.RegionCommands;
 import com.example.myvillage.region.runtime.RegionRuntimeService;
 import com.example.myvillage.sect.SectGenerator;
@@ -16,6 +18,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
@@ -70,11 +73,26 @@ public final class MyVillageMod {
         ModEntities.register(modEventBus);
         ModBlocks.register(modEventBus);
         ModItems.register(modEventBus);
+        ModPayloads.register(modEventBus);
         SectStructures.register(modEventBus);
         NeoForge.EVENT_BUS.addListener(this::registerCommands);
         NeoForge.EVENT_BUS.addListener(this::onServerStarted);
         NeoForge.EVENT_BUS.addListener(RegionRuntimeService::onServerStarted);
         NeoForge.EVENT_BUS.addListener(RegionRuntimeService::onServerStopping);
+        NeoForge.EVENT_BUS.addListener(this::onPlayerLoggedOut);
+        NeoForge.EVENT_BUS.addListener(this::onPlayerChangedDimension);
+    }
+
+    private void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            RideableFlyingSwordEntity.recallOwned(player);
+        }
+    }
+
+    private void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            RideableFlyingSwordEntity.recallOwned(player);
+        }
     }
 
     private void onServerStarted(ServerStartedEvent event) {
