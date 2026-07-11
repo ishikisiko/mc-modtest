@@ -394,6 +394,84 @@ def quality_check(ctx: BuildContext, structure_id: str) -> dict:
         errors.append(f"furniture_on_wall: {len(furniture_on_wall)} blocks "
                       f"against a neighbour wall (e.g. {furniture_on_wall[0]})")
 
+    pagoda_stats: dict = {}
+    if ctx.archetype == "pagoda":
+        main = graph.get("main")
+        stories = int(main.meta.get("stories", 1))
+        insets = [int(value) for value in main.meta.get("story_insets", [])]
+        eave_levels = [int(value) for value in
+                       main.meta.get("pagoda_eave_levels", [])]
+        eave_cells = int(main.meta.get("pagoda_eave_cell_count", 0))
+        lifted_corners = int(main.meta.get("pagoda_lifted_corner_count", 0))
+        brackets = int(main.meta.get("pagoda_bracket_count", 0))
+        pagoda_roofs = [info for info in ctx.roof_info
+                        if info.get("roof_type") == "pagoda"]
+        crown_type = pagoda_roofs[0].get("crown_type") if pagoda_roofs else None
+        spire_cells = pagoda_roofs[0].get("spire_cells", []) if pagoda_roofs else []
+        (gx0, gy0, gz0), (gx1, gy1, gz1) = grid.bounds()
+        width = max(gx1 - gx0 + 1, gz1 - gz0 + 1)
+        height = gy1 - gy0 + 1
+        ratio = height / max(1, width)
+        inset_reductions = sum(b > a for a, b in zip(insets, insets[1:]))
+
+        if stories < 5:
+            errors.append(f"pagoda_storeys_too_few: {stories} < 5")
+        if len(insets) != stories or any(b < a for a, b in zip(insets, insets[1:])):
+            errors.append(f"pagoda_story_insets_invalid: {insets}")
+        elif inset_reductions < 2:
+            errors.append(
+                f"pagoda_taper_reductions_too_few: {inset_reductions} < 2")
+        if len(eave_levels) != max(0, stories - 1):
+            errors.append(
+                f"pagoda_eave_levels_missing: {len(eave_levels)} != {stories - 1}")
+        if eave_cells < max(1, stories - 1) * 40:
+            errors.append(
+                f"pagoda_eave_cells_too_few: {eave_cells} < {(stories - 1) * 40}")
+        if lifted_corners < max(1, stories - 1) * 4:
+            errors.append(
+                f"pagoda_lifted_corners_too_few: {lifted_corners} "
+                f"< {(stories - 1) * 4}")
+        if brackets < max(1, stories - 1) * 8:
+            errors.append(
+                f"pagoda_brackets_too_few: {brackets} < {(stories - 1) * 8}")
+        if crown_type != "pyramidal_roof":
+            errors.append(f"pagoda_crown_not_pyramidal: {crown_type}")
+        if not spire_cells:
+            errors.append("pagoda_finial_missing")
+        if min(main.size[0], main.size[2]) < 15:
+            errors.append(f"pagoda_body_too_small: {main.size[0]}x{main.size[2]}")
+        if graph.meta.get("pagoda_reference_candidate") != "candidate_006":
+            errors.append("pagoda_reference_candidate_missing")
+        if graph.meta.get("pagoda_reference_usage") != "calibration_only":
+            errors.append("pagoda_reference_usage_not_calibration_only")
+        if not graph.meta.get("original_generated"):
+            errors.append("pagoda_original_generated_missing")
+        if graph.meta.get("copied_source_assets"):
+            errors.append("pagoda_copied_source_assets_present")
+
+        pagoda_stats = {
+            "pagoda_profile": str(graph.meta.get("pagoda_profile", "")),
+            "pagoda_stories": stories,
+            "pagoda_story_insets": insets,
+            "pagoda_inset_reductions": inset_reductions,
+            "pagoda_eave_levels": eave_levels,
+            "pagoda_eave_cells": eave_cells,
+            "pagoda_lifted_corners": lifted_corners,
+            "pagoda_brackets": brackets,
+            "pagoda_upper_windows": int(
+                main.meta.get("pagoda_upper_window_count", 0)),
+            "pagoda_crown_type": crown_type,
+            "pagoda_finial_cells": len(spire_cells),
+            "pagoda_height": height,
+            "pagoda_max_span": width,
+            "pagoda_height_width_ratio": round(ratio, 3),
+            "pagoda_reference_candidate": graph.meta.get(
+                "pagoda_reference_candidate"),
+            "pagoda_reference_usage": graph.meta.get("pagoda_reference_usage"),
+            "original_generated": bool(graph.meta.get("original_generated")),
+            "copied_source_assets": bool(graph.meta.get("copied_source_assets")),
+        }
+
     # ---- scores -------------------------------------------------------
     n_volumes = len(graph.volumes())
     # Tall cultivation landmarks (pagoda / pavilion / bell_drum_tower) and tall
@@ -479,6 +557,7 @@ def quality_check(ctx: BuildContext, structure_id: str) -> dict:
             "decorations": ctx.decoration_motifs,
             "worst_flat_run": worst_run,
             "stone_fraction": round(stone_frac, 3),
+            **pagoda_stats,
         },
     }
 
@@ -585,6 +664,82 @@ def cultivation_variant_distinctness(reports: List[dict], structure_dir: str) ->
         "spreads": spreads,
         "byte_identical_pairs": byte_pairs,
         "min_spread": CULTIVATION_VARIANT_MIN_SPREAD,
+        "errors": errors,
+        "passed": not errors,
+    }
+
+
+PAGODA_VARIANT_MIN_HEIGHT_SPREAD = 8
+PAGODA_VARIANT_MIN_MAX_RATIO = 2.0
+
+
+def pagoda_variant_distinctness(reports: List[dict], structure_dir: str) -> dict:
+    variants: Dict[int, dict] = {}
+    for report in reports:
+        if report.get("archetype") != "pagoda":
+            continue
+        vi = variant_index(str(report.get("scale_tier", "")))
+        sid = str(report.get("structure_id", ""))
+        name = sid.split("/", 1)[-1] if "/" in sid else sid
+        stats = report.get("stats", {})
+        export = report.get("export", {})
+        size = export.get("size", [])
+        height = int(size[1]) if len(size) == 3 else int(
+            stats.get("pagoda_height", 0))
+        variants[vi] = {
+            "name": name,
+            "profile": str(stats.get("pagoda_profile", "")),
+            "stories": int(stats.get("pagoda_stories", 0)),
+            "height": height,
+            "max_span": int(stats.get("pagoda_max_span", 0)),
+            "height_width_ratio": float(
+                stats.get("pagoda_height_width_ratio", 0.0)),
+            "nbt_sha256": _nbt_sha256(
+                os.path.join(structure_dir, f"{name}.nbt")),
+        }
+
+    errors: List[str] = []
+    if len(variants) != 3:
+        errors.append(f"pagoda_variant_count: {len(variants)} != 3")
+
+    profile_to_variants: Dict[str, List[int]] = {}
+    hash_to_variants: Dict[str, List[int]] = {}
+    for vi, data in variants.items():
+        profile_to_variants.setdefault(data["profile"], []).append(vi)
+        if data["nbt_sha256"]:
+            hash_to_variants.setdefault(data["nbt_sha256"], []).append(vi)
+        else:
+            errors.append(f"pagoda_nbt_hash_missing: variant={vi}")
+    duplicate_profiles = [sorted(items) for key, items in profile_to_variants.items()
+                          if key and len(items) > 1]
+    duplicate_hashes = [sorted(items) for items in hash_to_variants.values()
+                        if len(items) > 1]
+    for items in duplicate_profiles:
+        errors.append(f"pagoda_profile_duplicate: variants={items}")
+    for items in duplicate_hashes:
+        errors.append(f"pagoda_nbt_byte_identical: variants={items}")
+
+    heights = [data["height"] for data in variants.values()]
+    height_spread = max(heights) - min(heights) if heights else 0
+    max_ratio = max((data["height_width_ratio"] for data in variants.values()),
+                    default=0.0)
+    if height_spread < PAGODA_VARIANT_MIN_HEIGHT_SPREAD:
+        errors.append(
+            f"pagoda_height_spread_too_low: {height_spread} "
+            f"< {PAGODA_VARIANT_MIN_HEIGHT_SPREAD}")
+    if max_ratio < PAGODA_VARIANT_MIN_MAX_RATIO:
+        errors.append(
+            f"pagoda_height_width_ratio_too_low: {max_ratio:.3f} "
+            f"< {PAGODA_VARIANT_MIN_MAX_RATIO:.3f}")
+
+    return {
+        "variants": {str(vi): data for vi, data in sorted(variants.items())},
+        "profile_duplicate_pairs": duplicate_profiles,
+        "byte_identical_pairs": duplicate_hashes,
+        "height_spread": height_spread,
+        "min_height_spread": PAGODA_VARIANT_MIN_HEIGHT_SPREAD,
+        "max_height_width_ratio": round(max_ratio, 3),
+        "min_max_height_width_ratio": PAGODA_VARIANT_MIN_MAX_RATIO,
         "errors": errors,
         "passed": not errors,
     }

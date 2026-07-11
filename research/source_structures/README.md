@@ -25,8 +25,14 @@ owner 给出人工 verdict 之前永远是 `pending` 状态；分解本身是 pl
 evidence，不等于视觉验收。
 
 分解卡按 candidate 归档为
-`research/source_structures/<candidate>/breakdown.json`。当前唯一工作样例是
-`candidate_003/breakdown.json`（徽派民居），它定义了"完整"分解的标准。
+`research/source_structures/<candidate>/breakdown.json`。`candidate_003`
+（徽派民居）定义了完整四桶分解的标准，`candidate_005`（干栏式民居）记录了
+聚落语法到原创生成切片的路线，`candidate_004`（窑洞）则记录了第一次
+外部 NBT 隔离审计与清洗预览可行性检查。
+
+`candidate_004` 的原始和清洗后 NBT 均只存在于被忽略的 `out/` 下；本目录
+只跟踪来源事实、审计摘要、清洗规则、哈希清单和人工判断证据。研究清洗样本
+不得进入 `src/main/resources`，也不得被解释为已经获得发布、视觉或玩法验收。
 
 ## Candidate Counts
 

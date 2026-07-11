@@ -1,0 +1,126 @@
+{
+  "candidate_id": "candidate_005",
+  "source_facts": {
+    "id": "candidate_005",
+    "title": "Ganlan Stilted House",
+    "source_url": "https://modrinth.com/datapack/more-chinese-structures",
+    "license": "MIT License",
+    "usage_decision": "local_research",
+    "attribution_path": "research/source_structures/candidate_005/attribution.md"
+  },
+  "observations": [
+    {
+      "cue": "raised timber living floor on a regular stilt-post grid",
+      "evidence_pointer": "research/source_structures/candidate_005/source_url.txt; upstream path data/mcs/structure/village/ganlan/buildings/ganlan_house_1.nbt; local preview out/preview/candidate_005_source/buildings/ganlan_house_1/isometric.png",
+      "note": "The useful form cue is the separation between occupied floor and wet/uneven ground, not the copied post coordinates."
+    },
+    {
+      "cue": "bamboo / wood palette with light wall panels, fence rails, trapdoors, and open porches",
+      "evidence_pointer": "research/source_structures/candidate_005/source_url.txt; upstream paths data/mcs/structure/village/ganlan/buildings/ganlan_house_2.nbt and ganlan_house_3.nbt",
+      "note": "Palette inspection shows bamboo, oak, jungle, spruce, lantern, and trapdoor families; this reads warmer and more permeable than the white-wall Huipai slice."
+    },
+    {
+      "cue": "deep overhanging gable roofs covering both indoor room and raised deck",
+      "evidence_pointer": "research/source_structures/candidate_005/source_url.txt; local previews out/preview/candidate_005_source/buildings/ganlan_house_2/isometric.png and out/preview/candidate_005_source/buildings/ganlan_temple/isometric.png",
+      "note": "The roof mass is broad relative to the wall core, making shelter and rain response the dominant silhouette."
+    },
+    {
+      "cue": "terrain-matching village paths plus water / pond decor around the raised houses",
+      "evidence_pointer": "research/source_structures/candidate_005/source_url.txt; upstream paths data/mcs/worldgen/template_pool/village/ganlan/streets.json and data/mcs/structure/village/ganlan/decor/ganlan_pond.nbt",
+      "note": "The source village grammar points toward a wet, jungle, or waterside settlement fabric rather than an isolated house prefab."
+    },
+    {
+      "cue": "small-to-medium house roster with shrine and temple anchors",
+      "evidence_pointer": "research/source_structures/candidate_005/source_url.txt; upstream path data/mcs/worldgen/template_pool/village/ganlan/buildings.json",
+      "note": "The candidate is better understood as a settlement sub-family with size tiers, not a single hero building."
+    },
+    {
+      "cue": "southern jungle siting with houses over water and lush surroundings",
+      "evidence_pointer": "research/source_structures/candidate_005/screenshots/screenshot_url.txt; upstream path data/mcs/worldgen/structure/village_ganlan.json; upstream advancement description",
+      "note": "The source binds the village to jungle-like terrain and describes stilt houses over water, which should become siting grammar before geometry."
+    }
+  ],
+  "direct_component": [
+    {
+      "cue": "upstream Ganlan house, street, temple, shrine, and decor NBT files as shipped project prefabs",
+      "rationale": "REJECTED for this decomposition pass. The source is MIT, but candidate_005 is still recorded as local_research, and a direct copy would import third-party geometry, jigsaw blocks, namespace assumptions, and a whole village pool before the project has a prefab quarantine policy.",
+      "downstream_route": "no_direct_component: keep the upstream NBTs as inspection-only evidence. A future prefab-import OpenSpec change would need isolated staging, attribution, jigsaw/entity/block audit, palette normalization, preview evidence, and owner verdict before any direct asset route is allowed.",
+      "review_needed": "Owner decision on whether this project should ever accept direct third-party prefab imports. Default: no direct copy; rebuild original Ganlan forms instead."
+    }
+  ],
+  "atomic_component": [
+    {
+      "cue": "stilt-post support grid under a raised floor",
+      "rationale": "A reusable form operation can place posts from the living-floor underside down to water or terrain, giving Ganlan buildings their load-bearing identity without copying any source footprint.",
+      "downstream_route": "form-registry + building-generation: add a raised-floor stilt support motif usable by a future ganlan_stilted_house family and any waterside / mountain settlement variant.",
+      "review_needed": "Visual review that post spacing reads structural and that posts touch terrain or water cleanly instead of making the house look like it floats."
+    },
+    {
+      "cue": "raised veranda / porch edge with fence or trapdoor rail",
+      "rationale": "The porch rail and deck edge are small bounded motifs that can be authored as original operations around a generated footprint.",
+      "downstream_route": "form-registry + street-frontage: add a raised-veranda edge motif with optional water-facing porch and entry stair.",
+      "review_needed": "Check human-scale access, rail height, and whether the porch connects to paths without one-block gaps."
+    },
+    {
+      "cue": "broad rain-shelter gable roof with deep eaves",
+      "rationale": "The roof form is not just decoration; the overhang protects the raised deck and should be parameterized as eave depth relative to wall core.",
+      "downstream_route": "chinese-vernacular-roof-vocabulary + form-registry: add a deep-eave timber/bamboo gable variant for southern wet-climate houses.",
+      "review_needed": "Compare eave depth against small and medium house sizes so the roof reads protective but not oversized."
+    },
+    {
+      "cue": "pond, pile, lantern, and lush small-decor clusters around raised houses",
+      "rationale": "These are better treated as motif families around water and posts than as copied micro-prefabs.",
+      "downstream_route": "mod-decor-motif + courtyard-ground-layer / path-surface-zoning: add wet-ground and stilt-village decor motifs that can be scattered by generated settlement rules.",
+      "review_needed": "Confirm decor density supports a humid southern setting without cluttering path clearance or stilt access."
+    }
+  ],
+  "generative_grammar": [
+    {
+      "cue": "terrain- and water-adaptive raised-floor building slot",
+      "rationale": "The core planner rule is to lift the occupied floor above wet or uneven ground, then derive post lengths from local terrain / water height. This is a generator rule, not a prefab shape.",
+      "downstream_route": "future ganlan-stilted-house OpenSpec change + building-generation + town-realization: implement raised_floor_y, post_to_ground, entry_stair, and underside-clearance parameters.",
+      "review_needed": "Validator should check that the floor is elevated, posts reach support surfaces, stairs connect to the settlement path, and the underside remains mostly open."
+    },
+    {
+      "cue": "stilt-village path fabric connecting raised houses, shrine, temple, and wet decor",
+      "rationale": "The source uses a jigsaw village roster with terrain-matching streets; the project should translate this into a settlement fabric where paths and decks negotiate height differences and water edges.",
+      "downstream_route": "settlement-group + town-plan + street-room: add a future ganlan village / waterside cluster grammar with raised entries, boardwalk-like connectors, shrine/temple anchors, and wet-ground decor zones.",
+      "review_needed": "Plan-level review that houses form a readable village instead of independent huts, and that routes remain walkable across height changes."
+    },
+    {
+      "cue": "southern jungle / water-edge siting constraint",
+      "rationale": "The Ganlan value is partly siting: lush, damp, water-adjacent terrain. Without this context the same geometry becomes generic wooden huts.",
+      "downstream_route": "region-profile + region-topology + region-runtime-binding: define a southern / humid / waterside settlement placement rule before exposing the family broadly.",
+      "review_needed": "Worldgen review that placement favors water, jungle-like vegetation, or terrace edges without fighting existing region topology."
+    },
+    {
+      "cue": "size-tiered roster: small house, medium house, shrine, temple",
+      "rationale": "Candidate_005 should feed a family roster with importance tiers rather than one structure id. Houses, shrine, and temple can share stilt grammar while varying footprint and roof height.",
+      "downstream_route": "settlement-group + building-generation + validation: define a ganlan_stilted_house style group with residential, shrine, and temple archetypes plus scale-specific validators.",
+      "review_needed": "Acceptance should compare small/medium/anchor silhouettes so the family has variation without losing the raised-stilt identity."
+    }
+  ],
+  "calibration_only": [
+    {
+      "cue": "underside openness below the living floor",
+      "visual_question": "Does the generated building clearly read as a stilt house with usable air / water space below, or merely as a normal house lifted on a blocky pedestal?",
+      "review_needed": "Use offline previews and in-game inspection from low oblique angles; reject if the underside is filled, invisible, or disconnected from support posts."
+    },
+    {
+      "cue": "humid southern atmosphere",
+      "visual_question": "Does the generated settlement feel water-adjacent and lush without becoming a swamp ruin or a generic jungle village?",
+      "review_needed": "Review path, pond, plant, and decor density together; this is a style calibration question, not an asset route."
+    },
+    {
+      "cue": "warm bamboo / wood palette distinct from Huipai white-wall and Jiangnan garden palettes",
+      "visual_question": "Does the palette read as timber / bamboo stilt architecture rather than Huipai white plaster or Jiangnan mansion masonry?",
+      "review_needed": "Compare previews against chinese_huipai_mansion and chinese_mansion examples before final acceptance."
+    },
+    {
+      "cue": "roof-to-body proportion",
+      "visual_question": "Does the roof protect the deck and walls while preserving a light raised-house silhouette, or does it overpower the small living volume?",
+      "review_needed": "Check at least one small and one medium generated variant; avoid using the source roof dimensions mechanically."
+    }
+  ],
+  "verdict_state": "pending"
+}

@@ -29,7 +29,8 @@ from buildgen import export
 from buildgen.archetypes import ARCHETYPES, NEW_ARCHETYPE_COUNTS, TIER_PLAN
 from buildgen.groups import get_group
 from buildgen.passes import generate_building
-from buildgen.quality import cultivation_variant_distinctness, quality_check
+from buildgen.quality import (cultivation_variant_distinctness,
+                              pagoda_variant_distinctness, quality_check)
 from buildgen.style import load_style, modset_namespaces
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -122,12 +123,19 @@ def main() -> int:
     # (per-archetype silhouette spread >= 30, no byte-identical variant pair).
     # Runs post-export so the .nbt hashes exist; a failure fails this build.
     variant_distinctness = None
+    pagoda_distinctness = None
     distinctness_ok = True
+    pagoda_distinctness_ok = True
     if group_id == "cultivation_town":
         variant_distinctness = cultivation_variant_distinctness(reports, STRUCTURE_DIR)
         distinctness_ok = variant_distinctness["passed"]
         if not distinctness_ok:
             for err in variant_distinctness["errors"]:
+                print(f"FAIL {err}")
+        pagoda_distinctness = pagoda_variant_distinctness(reports, STRUCTURE_DIR)
+        pagoda_distinctness_ok = pagoda_distinctness["passed"]
+        if not pagoda_distinctness_ok:
+            for err in pagoda_distinctness["errors"]:
                 print(f"FAIL {err}")
     summary = {
         "style_id": style_id,
@@ -139,6 +147,7 @@ def main() -> int:
         "rejected_attempts": failed_attempts,
         "gallery_function": export.repo_relpath(gallery_path),
         "variant_distinctness": variant_distinctness,
+        "pagoda_variant_distinctness": pagoda_distinctness,
         "reports": reports,
     }
     os.makedirs(os.path.dirname(report_path), exist_ok=True)
@@ -154,8 +163,14 @@ def main() -> int:
                             sorted(variant_distinctness["spreads"].items()))
         print(f"variant distinctness {gate} (spread>="
               f"{variant_distinctness['min_spread']}: {spreads})")
+    if pagoda_distinctness is not None:
+        gate = "PASS" if pagoda_distinctness_ok else "FAIL"
+        print(
+            f"pagoda distinctness {gate} "
+            f"(height spread={pagoda_distinctness['height_spread']}, "
+            f"max ratio={pagoda_distinctness['max_height_width_ratio']})")
     built_ok = len(entries) == summary["requested"]
-    return 0 if (built_ok and distinctness_ok) else 1
+    return 0 if (built_ok and distinctness_ok and pagoda_distinctness_ok) else 1
 
 
 if __name__ == "__main__":

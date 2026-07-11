@@ -1,0 +1,305 @@
+{
+  "schema_version": 1,
+  "candidate_id": "candidate_004",
+  "audit_state": "audited",
+  "source": {
+    "project": "Silicon23/MoreChineseStructures",
+    "project_url": "https://github.com/Silicon23/MoreChineseStructures",
+    "source_url": "https://modrinth.com/datapack/more-chinese-structures",
+    "revision": "3da53915cd7658b5085f5926ff0205ebd30ee9d9",
+    "revision_date": "2024-12-28T17:04:06+08:00",
+    "license": "MIT License",
+    "license_sha256": "3590d7a0833507da41eb86565d8786c22dc64f9bc6113f8cddae61275caa44c5",
+    "pack_format": 48,
+    "declared_minecraft_version": "1.21",
+    "source_root": "data/mcs/structure/village/grotto/buildings"
+  },
+  "metadata_findings": [
+    "The local manifest category jiangnan_component conflicts with the source's northern/badlands Yaodong intent and should be corrected only in a separate metadata-maintenance pass.",
+    "The pinned shallow checkout identifies the exact revision audited here; this report does not claim that revision is the current upstream head.",
+    "The source is a mud-brick and stone-brick vaulted badlands interpretation, not sufficient evidence for a canonical exposed-yellow-earth Yaodong vocabulary."
+  ],
+  "method": {
+    "kind": "static_read_only",
+    "executed_minecraft_content": false,
+    "parser": "tools/buildgen/nbtread.py",
+    "limitations": [
+      "The existing minimal reader is not a hardened untrusted-input parser and has no explicit compressed-size, nesting-depth, or list-length limits.",
+      "NBT tag types are not preserved by the reader, so raw round-trip rewriting is not supported.",
+      "This audit inventories known structure fields but does not establish release compatibility or permission beyond the recorded source facts."
+    ]
+  },
+  "target": {
+    "minecraft_version": "1.21.1",
+    "data_version": 3955,
+    "source_data_version": 3953,
+    "datafixer_exercised": false,
+    "target_ready": false,
+    "blocker": "A DataVersion integer rewrite is not a DataFixer migration."
+  },
+  "summary": {
+    "files": 5,
+    "all_palette_namespaces": [
+      "minecraft"
+    ],
+    "files_with_entities": 3,
+    "total_entities": 19,
+    "total_block_entity_payloads": 197,
+    "total_jigsaw_blocks": 38,
+    "total_loot_table_payloads": 49,
+    "total_inventory_payloads": 112,
+    "inventory_payload_note": "inventory_payloads counts block/entity NBT objects carrying an Items key; it does not imply each list contains a non-empty item stack.",
+    "recommendation": "Use yaodong_1.nbt for one sanitize-for-preview sample because it has no entities and the smallest block-entity payload count. Keep every raw and sanitized binary outside tracked research and shipped resource paths."
+  },
+  "files": [
+    {
+      "path": "data/mcs/structure/village/grotto/buildings/yaodong_1.nbt",
+      "quarantine_path": "out/import_quarantine/candidate_004/raw/yaodong_1.nbt",
+      "sha256": "02c9211678dd530c9f8e068a18b448a77816b26ec6e960e68077be64b10925e2",
+      "risk": "medium",
+      "data_version": 3953,
+      "size": [24, 17, 23],
+      "palette_count": 96,
+      "block_entries": 5209,
+      "non_air_blocks": 1332,
+      "entities": 0,
+      "entity_types": {},
+      "block_entity_payloads": 31,
+      "block_entity_types": {
+        "minecraft:barrel": 12,
+        "minecraft:bed": 4,
+        "minecraft:campfire": 3,
+        "minecraft:chest": 4,
+        "minecraft:jigsaw": 7,
+        "minecraft:lectern": 1
+      },
+      "jigsaw_blocks": 7,
+      "loot_table_payloads": 6,
+      "loot_tables": {
+        "minecraft:chests/end_city_treasure": 1,
+        "minecraft:chests/shipwreck_supply": 3,
+        "minecraft:chests/village/village_plains_house": 2
+      },
+      "inventory_payloads": 19,
+      "external_identifier_occurrences": 11,
+      "platform_metadata": {
+        "paper_block_payloads": 3,
+        "paper_entity_payloads": 0,
+        "bukkit_block_payloads": 0,
+        "bukkit_entity_payloads": 0,
+        "actual_item_stack_nodes": 0
+      },
+      "external_identifiers": [
+        "mcs:bottom",
+        "mcs:building_entrance",
+        "mcs:village/grotto/decor"
+      ]
+    },
+    {
+      "path": "data/mcs/structure/village/grotto/buildings/yaodong_2.nbt",
+      "sha256": "4a9d76e86fea5b5ccb03203a1dcc8075d0037d6ebc9a4bca52203a21d99c6853",
+      "risk": "high",
+      "data_version": 3953,
+      "size": [20, 17, 20],
+      "palette_count": 80,
+      "block_entries": 3638,
+      "non_air_blocks": 1044,
+      "entities": 7,
+      "entity_types": {
+        "minecraft:armor_stand": 1,
+        "minecraft:item": 1,
+        "minecraft:item_frame": 1,
+        "minecraft:painting": 4
+      },
+      "block_entity_payloads": 32,
+      "block_entity_types": {
+        "minecraft:barrel": 14,
+        "minecraft:bed": 2,
+        "minecraft:blast_furnace": 1,
+        "minecraft:brewing_stand": 1,
+        "minecraft:campfire": 1,
+        "minecraft:chest": 1,
+        "minecraft:chiseled_bookshelf": 2,
+        "minecraft:decorated_pot": 2,
+        "minecraft:furnace": 1,
+        "minecraft:hopper": 1,
+        "minecraft:jigsaw": 6
+      },
+      "jigsaw_blocks": 6,
+      "loot_table_payloads": 9,
+      "loot_tables": {
+        "minecraft:chests/end_city_treasure": 1,
+        "minecraft:chests/village/village_fisher": 3,
+        "minecraft:chests/village/village_shepherd": 4,
+        "minecraft:chests/village/village_temple": 1
+      },
+      "inventory_payloads": 22,
+      "external_identifier_occurrences": 11,
+      "platform_metadata": {
+        "paper_block_payloads": 3,
+        "paper_entity_payloads": 7,
+        "bukkit_block_payloads": 0,
+        "bukkit_entity_payloads": 7,
+        "actual_item_stack_nodes": 6
+      },
+      "external_identifiers": [
+        "mcs:bottom",
+        "mcs:building_entrance",
+        "mcs:village/grotto/decor"
+      ]
+    },
+    {
+      "path": "data/mcs/structure/village/grotto/buildings/yaodong_3.nbt",
+      "sha256": "db85fc63f56d8e40b57e2914fb3cd34e01c9264edf53355ceb25dc735719a8d8",
+      "risk": "high",
+      "data_version": 3953,
+      "size": [20, 17, 21],
+      "palette_count": 89,
+      "block_entries": 3736,
+      "non_air_blocks": 1130,
+      "entities": 5,
+      "entity_types": {
+        "minecraft:armor_stand": 1,
+        "minecraft:item_frame": 2,
+        "minecraft:painting": 2
+      },
+      "block_entity_payloads": 38,
+      "block_entity_types": {
+        "minecraft:barrel": 14,
+        "minecraft:bed": 6,
+        "minecraft:blast_furnace": 1,
+        "minecraft:brewing_stand": 1,
+        "minecraft:campfire": 1,
+        "minecraft:chest": 1,
+        "minecraft:chiseled_bookshelf": 2,
+        "minecraft:decorated_pot": 2,
+        "minecraft:furnace": 1,
+        "minecraft:hopper": 1,
+        "minecraft:jigsaw": 8
+      },
+      "jigsaw_blocks": 8,
+      "loot_table_payloads": 9,
+      "loot_tables": {
+        "minecraft:chests/end_city_treasure": 1,
+        "minecraft:chests/village/village_plains_house": 8
+      },
+      "inventory_payloads": 22,
+      "external_identifier_occurrences": 11,
+      "platform_metadata": {
+        "paper_block_payloads": 3,
+        "paper_entity_payloads": 5,
+        "bukkit_block_payloads": 0,
+        "bukkit_entity_payloads": 5,
+        "actual_item_stack_nodes": 6
+      },
+      "external_identifiers": [
+        "mcs:bottom",
+        "mcs:building_entrance",
+        "mcs:village/grotto/decor"
+      ]
+    },
+    {
+      "path": "data/mcs/structure/village/grotto/buildings/yaodong_4.nbt",
+      "sha256": "2943373b2dd7337e35b6c35d315493871e1cd42253b0b2edde0da57439491fae",
+      "risk": "high",
+      "data_version": 3953,
+      "size": [23, 17, 33],
+      "palette_count": 138,
+      "block_entries": 8083,
+      "non_air_blocks": 2186,
+      "entities": 7,
+      "entity_types": {
+        "minecraft:armor_stand": 1,
+        "minecraft:painting": 6
+      },
+      "block_entity_payloads": 61,
+      "block_entity_types": {
+        "minecraft:barrel": 14,
+        "minecraft:bed": 8,
+        "minecraft:beehive": 3,
+        "minecraft:bell": 1,
+        "minecraft:chest": 17,
+        "minecraft:chiseled_bookshelf": 2,
+        "minecraft:decorated_pot": 1,
+        "minecraft:furnace": 1,
+        "minecraft:jigsaw": 10,
+        "minecraft:lectern": 1,
+        "minecraft:sign": 2,
+        "minecraft:skull": 1
+      },
+      "jigsaw_blocks": 10,
+      "loot_table_payloads": 19,
+      "loot_tables": {
+        "minecraft:chests/end_city_treasure": 1,
+        "minecraft:chests/shipwreck_treasure": 2,
+        "minecraft:chests/village/village_armorer": 4,
+        "minecraft:chests/village/village_plains_house": 6,
+        "minecraft:chests/village/village_savanna_house": 4,
+        "minecraft:chests/village/village_weaponsmith": 2
+      },
+      "inventory_payloads": 34,
+      "external_identifier_occurrences": 14,
+      "platform_metadata": {
+        "paper_block_payloads": 1,
+        "paper_entity_payloads": 7,
+        "bukkit_block_payloads": 3,
+        "bukkit_entity_payloads": 7,
+        "actual_item_stack_nodes": 18
+      },
+      "external_identifiers": [
+        "mcs:bottom",
+        "mcs:streets",
+        "mcs:village/grotto/decor"
+      ]
+    },
+    {
+      "path": "data/mcs/structure/village/grotto/buildings/yaodong_5.nbt",
+      "sha256": "f44022ebb4c03c912839caf3165c8e373ebe44a943689ed450ff3649e405987a",
+      "risk": "medium_high",
+      "data_version": 3953,
+      "size": [23, 17, 23],
+      "palette_count": 87,
+      "block_entries": 4777,
+      "non_air_blocks": 1151,
+      "entities": 0,
+      "entity_types": {},
+      "block_entity_payloads": 35,
+      "block_entity_types": {
+        "minecraft:barrel": 10,
+        "minecraft:bed": 2,
+        "minecraft:beehive": 1,
+        "minecraft:bell": 1,
+        "minecraft:brewing_stand": 1,
+        "minecraft:campfire": 1,
+        "minecraft:chest": 1,
+        "minecraft:decorated_pot": 4,
+        "minecraft:enchanting_table": 1,
+        "minecraft:jigsaw": 7,
+        "minecraft:sign": 4,
+        "minecraft:smoker": 2
+      },
+      "jigsaw_blocks": 7,
+      "loot_table_payloads": 6,
+      "loot_tables": {
+        "minecraft:chests/end_city_treasure": 1,
+        "minecraft:chests/village/village_plains_house": 3,
+        "minecraft:chests/village/village_savana_house": 2
+      },
+      "inventory_payloads": 15,
+      "external_identifier_occurrences": 14,
+      "platform_metadata": {
+        "paper_block_payloads": 3,
+        "paper_entity_payloads": 0,
+        "bukkit_block_payloads": 1,
+        "bukkit_entity_payloads": 0,
+        "actual_item_stack_nodes": 0
+      },
+      "external_identifiers": [
+        "mcs:bottom",
+        "mcs:streets",
+        "mcs:village/grotto/decor"
+      ]
+    }
+  ],
+  "human_verdict_state": "accepted_with_changes"
+}

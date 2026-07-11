@@ -171,6 +171,8 @@ python3 tools/generate_compound_library.py --count 6 --profile vanilla
 python3 tools/validate_compound_library.py --count 6 --profile vanilla
 python3 tools/generate_compound_library.py --group chinese_huipai_mansion --count 2 --base-seed 20260619
 python3 tools/validate_compound_library.py --group chinese_huipai_mansion --count 2
+python3 tools/generate_compound_library.py --group ganlan_stilted_house --count 2 --base-seed 20260708
+python3 tools/validate_compound_library.py --group ganlan_stilted_house --count 2
 ```
 
 The six `chinese_courtyard_NNN` templates are rebuilt 一进 compounds: an outer
@@ -239,6 +241,29 @@ sequence with paired 厢房/side-wing enclosure around the sky-wells, an expande
 sequence elements, larger and taller hall / side-wing massing, and no 江南 garden
 parcel. Visual acceptance
 still requires reviewer verdict after preview.
+v0.19.1 adds the second external-reference-driven original output:
+`ganlan_stilted_house_001..002`, derived from the `candidate_005` Ganlan /
+干栏式 breakdown as generator grammar only. It keeps the source as
+`local_research` provenance and implements the narrow recognizable slice:
+humid fully elevated bamboo/wood living floor, bay-aligned support posts and
+underfloor tie beams down to the ground/water plane, mostly open underside,
+framed permeable walls, an offset stair leading across a raised veranda, a
+lower rain canopy beneath the main gable, and water passing below part of the
+floor. It is a generated
+sample family for review, not a copied Ganlan village, jigsaw pool, or runtime
+worldgen integration. The owner accepted this narrow visual slice on
+2026-07-11 after preview and automated validation; that verdict does not imply
+broader Ganlan village or worldgen acceptance.
+v0.20.0 rebuilds the existing `pagoda_001..003` landmarks instead of adding a
+new building family. The three deterministic profiles now use five, five, and
+seven occupied storeys; body footprints from `15x15` to `19x19`; stepped inset
+schedules; a projecting bracketed eave at every storey boundary; framed upper
+openings; first-storey colonnades; pyramidal crowns; and taller finials. The
+compact `19x37x21` resource remains the fixed town-core pagoda, while the broad
+`27x46x29` and slender `23x56x25` variants provide larger standalone/sect
+landmarks. Python and Java footprint mirrors contain all three. The ids and
+commands are unchanged, `candidate_006` is calibration-only provenance, and
+final appearance still requires the new owner visual verdict.
 
 Expected compound output:
 
@@ -248,10 +273,13 @@ src/main/resources/data/myvillage/structure/side_wing_review.nbt
 src/main/resources/data/myvillage/structure/front_row_review.nbt
 src/main/resources/data/myvillage/structure/chinese_courtyard_001.nbt ... chinese_courtyard_006.nbt
 src/main/resources/data/myvillage/structure/chinese_huipai_mansion_001.nbt ... chinese_huipai_mansion_002.nbt
+src/main/resources/data/myvillage/structure/ganlan_stilted_house_001.nbt ... ganlan_stilted_house_002.nbt
 src/main/resources/data/myvillage/function/gallery/chinese_courtyard.mcfunction
 src/main/resources/data/myvillage/function/gallery/chinese_huipai_mansion.mcfunction
+src/main/resources/data/myvillage/function/gallery/ganlan_stilted_house.mcfunction
 src/main/resources/data/myvillage/function/place/chinese_courtyard_001.mcfunction ... chinese_courtyard_006.mcfunction
 src/main/resources/data/myvillage/function/place/chinese_huipai_mansion_001.mcfunction ... chinese_huipai_mansion_002.mcfunction
+src/main/resources/data/myvillage/function/place/ganlan_stilted_house_001.mcfunction ... ganlan_stilted_house_002.mcfunction
 ```
 
 The compound exporter currently uses single structure NBT files. The one-court
@@ -296,6 +324,8 @@ python3 tools/validate_compound_library.py --group cultivation_town --count 6
 python3 tools/validate_compound_library.py --group cultivation_sect --count 2
 python3 tools/validate_compound_library.py --group chinese_huipai_mansion --count 2
 python3 tools/buildgen/tests/test_huipai_reference_slice.py
+python3 tools/validate_compound_library.py --group ganlan_stilted_house --count 2
+python3 tools/buildgen/tests/test_ganlan_stilted_house.py
 python3 tools/validate_civic_library.py
 python3 tools/validate_town_generation.py
 python3 tools/validate_runtime_town_plan.py
@@ -449,7 +479,7 @@ jar tf build/libs/*.jar | grep "assets/myvillage/textures/painting/inscription"
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.19.0.jar
+build/libs/myvillage-0.20.0.jar
 ```
 
 ## Versioning And Changelog
@@ -483,6 +513,11 @@ python3 tools/validate_plaque_bindings.py
 python3 tools/validate_compound_library.py --count 6
 python3 tools/validate_compound_library.py --group cultivation_town --count 6
 python3 tools/validate_compound_library.py --group cultivation_sect --count 2
+python3 tools/validate_compound_library.py --group chinese_huipai_mansion --count 2
+python3 tools/validate_compound_library.py --group ganlan_stilted_house --count 2
+python3 tools/buildgen/tests/test_huipai_reference_slice.py
+python3 tools/buildgen/tests/test_ganlan_stilted_house.py
+python3 tools/buildgen/tests/test_pagoda_landmark.py
 python3 tools/validate_civic_library.py
 python3 tools/validate_town_generation.py
 python3 tools/validate_runtime_town_plan.py
@@ -496,12 +531,12 @@ python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 
 python3 tools/write_visual_acceptance_report.py
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.19.0.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.19.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.19.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.19.0.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.19.0.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.19.0.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.20.0.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.20.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.20.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.20.0.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.20.0.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.20.0.jar | grep "assets/myvillage/textures/painting/inscription"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -641,6 +676,8 @@ Place a generated building directly:
 /myvillage place chinese_mansion_006
 /myvillage place chinese_huipai_mansion_001
 /myvillage place chinese_huipai_mansion_002
+/myvillage place ganlan_stilted_house_001
+/myvillage place ganlan_stilted_house_002
 /myvillage place hero_rockery
 /myvillage place tavern_001
 /myvillage place lord_manor_001
@@ -670,6 +707,7 @@ directly, place generated structures with the same offset:
 /place template myvillage:chinese_courtyard_001 ~ ~-1 ~
 /place template myvillage:chinese_mansion_001 ~ ~-1 ~
 /place template myvillage:chinese_huipai_mansion_001 ~ ~-1 ~
+/place template myvillage:ganlan_stilted_house_001 ~ ~-1 ~
 /place template myvillage:tavern_001 ~ ~-1 ~
 /place template myvillage:lord_manor_001 ~ ~-1 ~
 /place template myvillage:cultivation_town_001 ~ ~-1 ~
@@ -745,12 +783,14 @@ Generated datapack functions are also available after resource generation:
 /function myvillage:gallery/chinese_courtyard
 /function myvillage:gallery/chinese_mansion
 /function myvillage:gallery/chinese_huipai_mansion
+/function myvillage:gallery/ganlan_stilted_house
 /function myvillage:gallery/civic
 /function myvillage:gallery/cultivation_town
 /function myvillage:gallery/cultivation_sect
 /function myvillage:place/chinese_courtyard_001
 /function myvillage:place/chinese_mansion_001
 /function myvillage:place/chinese_huipai_mansion_001
+/function myvillage:place/ganlan_stilted_house_001
 /function myvillage:place/tavern_001
 /function myvillage:place/lord_manor_001
 /function myvillage:place/cultivation_town_001
@@ -842,8 +882,12 @@ Important properties:
   skyline rule guarantees the civic core rises above the surrounding roofline
   through vertical-landmark archetypes — `pagoda` (塔), `pavilion` (楼阁), and
   `bell_drum_tower` (钟鼓楼) — built from the existing terrace + flying-eave
-  vocabulary and placed flanking the shrine. The footprint is force-loaded via
-  chunk tickets so the whole town generates in one command.
+  vocabulary and placed flanking the shrine. Pagodas use deterministic
+  five/five/seven-storey profiles with stepped taper, one bracketed eave per
+  occupied level, a pyramidal crown, and profile-specific finial height; the
+  compact profile stays in the fixed civic-core parcel while larger profiles
+  are available to roomy parcels and sect placements. The footprint is
+  force-loaded via chunk tickets so the whole town generates in one command.
 - The static `cultivation_town_NNN` compound library is **district fill tissue**,
   not a standalone town: it supplies courtyard street-block material the
   residential and market districts draw from. `/myvillage place cultivation_town_001`
@@ -955,7 +999,8 @@ acceptance still needs a v0.9 mod jar plus in-game visual inspection with
 `/myvillage place tavern_001`, `/myvillage place lord_manor_001`,
 `/myvillage place cultivation_town_001` (courtyard fragment),
 `/myvillage place cultivation_inn_001`,
-`/myvillage place pagoda_001`, `/myvillage place pavilion_001`,
+`/myvillage place pagoda_001`, `/myvillage place pagoda_002`,
+`/myvillage place pagoda_003`, `/myvillage place pavilion_001`,
 `/myvillage place bell_drum_tower_001`,
 `/myvillage place sect_gate_001`,
 `/myvillage place scripture_pavilion_001`,

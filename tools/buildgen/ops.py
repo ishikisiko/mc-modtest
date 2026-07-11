@@ -1246,16 +1246,31 @@ def _tiered_eave_roof_handler(grid: BlockGrid, style: Style, rng: random.Random,
 
 def _pagoda_roof_handler(grid: BlockGrid, style: Style, rng: random.Random,
                          vol: Node, graph: Optional[Any] = None) -> dict:
-    """Pagoda crown: tiered flying-eave massing topped by a finial spire.
-
-    Composed entirely from the existing ``tiered_eave_roof`` + ridge-ornament
-    vocabulary (no bespoke geometry): the body reuses the two-tier sweeping
-    eave, and the crown is a FRAME_WOOD post stack capped by a RIDGE_ORNAMENT
-    finial above the peak. Registered as the ``pagoda`` form.
-    """
+    """Pagoda crown: a pyramidal top-storey roof plus a tall finial."""
+    del rng, graph
     roof = vol.meta.get("roof", {})
-    base = _tiered_eave_roof_handler(grid, style, rng, vol, graph)
-    peak_y = int(base.get("peak_y", vol.meta["foundation_h"] + vol.meta["wall_h"]))
+    top_inset = max(0, int(roof.get("footprint_inset", 0)))
+    overhang = max(2, int(roof.get("crown_overhang", roof.get("overhang", 2))))
+    wall_top = vol.meta["foundation_h"] + vol.meta["wall_h"] - 1
+    crown_bounds = (
+        vol.x0 + top_inset - overhang,
+        vol.x1 - top_inset + overhang,
+        vol.z0 + top_inset - overhang,
+        vol.z1 - top_inset + overhang,
+    )
+    base = _ring_roof(grid, style, crown_bounds, wall_top + 1, crown=True)
+    crown_slab, crown_slot = roof_slab_state(style, "top")
+    crown_corners: List[Pos] = []
+    for x, z in (
+            (crown_bounds[0], crown_bounds[2]),
+            (crown_bounds[0], crown_bounds[3]),
+            (crown_bounds[1], crown_bounds[2]),
+            (crown_bounds[1], crown_bounds[3])):
+        pos = (x, wall_top + 2, z)
+        if grid.set(pos, crown_slab, ["ROOF", "DETAIL"], PRIORITY["ROOF"],
+                    crown_slot):
+            crown_corners.append(pos)
+    peak_y = int(base.get("peak_y", wall_top + 1))
     cx = (vol.x0 + vol.x1) // 2
     cz = (vol.z0 + vol.z1) // 2
     p_detail = PRIORITY["DETAIL"]
@@ -1273,9 +1288,18 @@ def _pagoda_roof_handler(grid: BlockGrid, style: Style, rng: random.Random,
         if grid.set(cap, ornament_state, ["DETAIL", "ROOF", "PROTECTED"],
                     p_detail, ornament_slot):
             finial_cells.append(cap)
+    story_corners = list(vol.meta.get("pagoda_lifted_corners", []))
     base["roof_type"] = "pagoda"
+    base["crown_type"] = "pyramidal_roof"
+    base["crown_bounds"] = list(crown_bounds)
+    base["tier_count"] = int(vol.meta.get("stories", 1))
+    base["story_eave_levels"] = list(vol.meta.get("pagoda_eave_levels", []))
+    base["story_eave_cell_count"] = int(
+        vol.meta.get("pagoda_eave_cell_count", 0))
     base["spire_cells"] = spire_cells + finial_cells
-    base["roof_cells"] = base.get("roof_cells", []) + spire_cells + finial_cells
+    base["roof_cells"] = (
+        base.get("roof_cells", []) + crown_corners + spire_cells + finial_cells)
+    base["upturned_corners"] = story_corners + crown_corners
     base["peak_y"] = peak_y + spire_height + (1 if finial_cells else 0)
     base["vertical_landmark"] = True
     return _with_roofed_ids(base, vol.id)
@@ -1730,11 +1754,13 @@ def raised_platform(grid: BlockGrid, style: Style, node: Node) -> None:
 
 
 def dougong_brackets(grid: BlockGrid, style: Style, rng: random.Random,
-                     vol: Node, sides: Iterable[str]) -> int:
+                     vol: Node, sides: Iterable[str],
+                     top_y: Optional[int] = None) -> int:
     del rng
     column, column_slot = _column_state(style)
     bracket = style.slot_entry("DETAIL_WOOD", "_slab")
-    wall_top = vol.meta["foundation_h"] + vol.meta["wall_h"] - 1
+    wall_top = (int(top_y) if top_y is not None else
+                vol.meta["foundation_h"] + vol.meta["wall_h"] - 1)
     p = PRIORITY["DETAIL"]
     placed = 0
     for wall in sides:
@@ -1768,7 +1794,8 @@ def colonnade(grid: BlockGrid, style: Style, rng: random.Random,
         return
     sides = tuple(node.meta.get("sides", ("front",)))
     start_y = max(0, int(node.meta.get("base_y", vol.meta.get("foundation_h", 1) - 1)))
-    wall_top = vol.meta["foundation_h"] + vol.meta["wall_h"] - 1
+    wall_top = int(node.meta.get(
+        "top_y", vol.meta["foundation_h"] + vol.meta["wall_h"] - 1))
     door = node.meta.get("door_x")
     p = PRIORITY["DETAIL"]
     for wall in sides:
@@ -1783,7 +1810,7 @@ def colonnade(grid: BlockGrid, style: Style, rng: random.Random,
             for y in range(start_y, wall_top + 1):
                 grid.set(wall_pos(vol, wall, along, y, depth_offset=2),
                          column, ["DETAIL", "STRUCTURE"], p, slot)
-    dougong_brackets(grid, style, rng, vol, sides)
+    dougong_brackets(grid, style, rng, vol, sides, top_y=wall_top)
 
 
 def balustrade(grid: BlockGrid, style: Style, node: Node) -> None:
@@ -1844,6 +1871,115 @@ def courtyard_enclosure(grid: BlockGrid, style: Style, node: Node) -> None:
                 post(x, z)
 
 
+def _pagoda_eave_band(grid: BlockGrid, style: Style,
+                      bounds: Tuple[int, int, int, int], y: int,
+                      projection: int) -> Tuple[List[Pos], List[Pos], List[Pos]]:
+    """Emit a shallow two-band skirt between occupied pagoda storeys."""
+    x0, x1, z0, z1 = bounds
+    projection = max(2, int(projection))
+    ox0, ox1 = x0 - projection, x1 + projection
+    oz0, oz1 = z0 - projection, z1 + projection
+    slab, slab_slot = roof_slab_state(style, "bottom")
+    p_roof = PRIORITY["ROOF"]
+    cells: List[Pos] = []
+
+    for x in range(ox0, ox1 + 1):
+        for pos in ((x, y, oz0), (x, y, oz1)):
+            if grid.set(pos, slab, ["ROOF", "DETAIL"], p_roof, slab_slot):
+                cells.append(pos)
+    for z in range(oz0 + 1, oz1):
+        for pos in ((ox0, y, z), (ox1, y, z)):
+            if grid.set(pos, slab, ["ROOF", "DETAIL"], p_roof, slab_slot):
+                cells.append(pos)
+
+    ix0, ix1 = ox0 + 1, ox1 - 1
+    iz0, iz1 = oz0 + 1, oz1 - 1
+    north, north_slot = roof_stair_state(style, "south")
+    south, south_slot = roof_stair_state(style, "north")
+    west, west_slot = roof_stair_state(style, "east")
+    east, east_slot = roof_stair_state(style, "west")
+    for x in range(ix0, ix1 + 1):
+        for pos, state, slot in (
+                ((x, y + 1, iz0), north, north_slot),
+                ((x, y + 1, iz1), south, south_slot)):
+            if grid.set(pos, state, ["ROOF", "DETAIL"], p_roof, slot):
+                cells.append(pos)
+    for z in range(iz0 + 1, iz1):
+        for pos, state, slot in (
+                ((ix0, y + 1, z), west, west_slot),
+                ((ix1, y + 1, z), east, east_slot)):
+            if grid.set(pos, state, ["ROOF", "DETAIL"], p_roof, slot):
+                cells.append(pos)
+
+    corner_slab, corner_slot = roof_slab_state(style, "top")
+    corners: List[Pos] = []
+    for x, z in ((ox0, oz0), (ox0, oz1), (ox1, oz0), (ox1, oz1)):
+        pos = (x, y + 1, z)
+        if grid.set(pos, corner_slab, ["ROOF", "DETAIL"], p_roof,
+                    corner_slot):
+            corners.append(pos)
+            cells.append(pos)
+
+    bracket = fence_state(style)
+    brackets: List[Pos] = []
+    bay = max(3, (max(x1 - x0, z1 - z0) + 1) // 4)
+    for x in range(x0 + 1, x1, bay):
+        for pos in ((x, y - 1, z0 - 1), (x, y - 1, z1 + 1)):
+            if grid.set(pos, bracket, ["DETAIL", "STRUCTURE"],
+                        PRIORITY["DETAIL"], "DETAIL_WOOD"):
+                brackets.append(pos)
+    for z in range(z0 + 1, z1, bay):
+        for pos in ((x0 - 1, y - 1, z), (x1 + 1, y - 1, z)):
+            if grid.set(pos, bracket, ["DETAIL", "STRUCTURE"],
+                        PRIORITY["DETAIL"], "DETAIL_WOOD"):
+                brackets.append(pos)
+    return cells, corners, brackets
+
+
+def _pagoda_upper_openings(grid: BlockGrid, style: Style,
+                           bounds: Tuple[int, int, int, int],
+                           y0: int, y1: int) -> int:
+    x0, x1, z0, z1 = bounds
+    if y1 - y0 < 2:
+        return 0
+    cy0 = y0 + 1
+    cy1 = min(y1, y0 + 2)
+    cx = (x0 + x1) // 2
+    cz = (z0 + z1) // 2
+    frame_y0 = y0 + 1
+    glass_count = 0
+    p_open = PRIORITY["OPENING"]
+    p_frame = PRIORITY["FACADE"]
+    frame_y = log_state(style, "y")
+    frame_x = log_state(style, "x")
+    frame_z = log_state(style, "z")
+
+    for fixed_z in (z0, z1):
+        for y in range(cy0, cy1 + 1):
+            if grid.set((cx, y, fixed_z), "minecraft:glass",
+                        ["OPENING", "FACADE"], p_open):
+                glass_count += 1
+        for x in (cx - 1, cx + 1):
+            for y in range(frame_y0, y1 + 1):
+                grid.set((x, y, fixed_z), frame_y, ["FACADE", "STRUCTURE"],
+                         p_frame, "FRAME_WOOD")
+        grid.set((cx, y1, fixed_z), frame_x, ["FACADE", "STRUCTURE"],
+                 p_frame, "FRAME_WOOD")
+
+    for fixed_x in (x0, x1):
+        for y in range(cy0, cy1 + 1):
+            if grid.set((fixed_x, y, cz), "minecraft:glass",
+                        ["OPENING", "FACADE"], p_open):
+                glass_count += 1
+        for z in (cz - 1, cz + 1):
+            for y in range(frame_y0, y1 + 1):
+                grid.set((fixed_x, y, z), frame_y, ["FACADE", "STRUCTURE"],
+                         p_frame, "FRAME_WOOD")
+        grid.set((fixed_x, y1, cz), frame_z, ["FACADE", "STRUCTURE"],
+                 p_frame, "FRAME_WOOD")
+    return glass_count
+
+
 def pagoda_story_insets(grid: BlockGrid, style: Style, vol: Node) -> None:
     insets = list(vol.meta.get("story_insets", []))
     stories = int(vol.meta.get("stories", 1))
@@ -1854,23 +1990,27 @@ def pagoda_story_insets(grid: BlockGrid, style: Style, vol: Node) -> None:
     wall = style.primary("WALL_MAIN")
     frame = log_state(style, "y")
     p_structure = PRIORITY["FACADE"]
-    p_roof = PRIORITY["ROOF"]
+    eave_projection = max(2, int(vol.meta.get("pagoda_eave_projection", 2)))
+    eave_levels: List[int] = []
+    eave_cells: List[Pos] = []
+    lifted_corners: List[Pos] = []
+    bracket_cells: List[Pos] = []
+    upper_window_count = 0
     for story in range(1, stories):
         inset = max(0, int(insets[story]))
         prev_inset = max(0, int(insets[story - 1]))
         y0 = fh + story * story_wall_h
         y1 = min(fh + (story + 1) * story_wall_h - 1,
                  fh + vol.meta["wall_h"] - 1)
-        # Eave band at the story break on the wider lower footprint.
-        bx0, bx1 = vol.x0 + prev_inset - 1, vol.x1 - prev_inset + 1
-        bz0, bz1 = vol.z0 + prev_inset - 1, vol.z1 - prev_inset + 1
-        slab, slab_slot = roof_slab_state(style, "bottom")
-        for x in range(bx0, bx1 + 1):
-            grid.set((x, y0, bz0), slab, ["ROOF", "DETAIL"], p_roof, slab_slot)
-            grid.set((x, y0, bz1), slab, ["ROOF", "DETAIL"], p_roof, slab_slot)
-        for z in range(bz0 + 1, bz1):
-            grid.set((bx0, y0, z), slab, ["ROOF", "DETAIL"], p_roof, slab_slot)
-            grid.set((bx1, y0, z), slab, ["ROOF", "DETAIL"], p_roof, slab_slot)
+        lower_bounds = (
+            vol.x0 + prev_inset, vol.x1 - prev_inset,
+            vol.z0 + prev_inset, vol.z1 - prev_inset)
+        band, corners, brackets = _pagoda_eave_band(
+            grid, style, lower_bounds, y0, eave_projection)
+        eave_levels.append(y0)
+        eave_cells.extend(band)
+        lifted_corners.extend(corners)
+        bracket_cells.extend(brackets)
         nx0, nx1 = vol.x0 + inset, vol.x1 - inset
         nz0, nz1 = vol.z0 + inset, vol.z1 - inset
         for x in range(vol.x0, vol.x1 + 1):
@@ -1895,6 +2035,15 @@ def pagoda_story_insets(grid: BlockGrid, style: Style, vol: Node) -> None:
             for pos in ((nx0, y, nz0), (nx0, y, nz1), (nx1, y, nz0), (nx1, y, nz1)):
                 grid.set(pos, frame, ["FACADE", "STRUCTURE"], p_structure,
                          "FRAME_WOOD")
+        upper_window_count += _pagoda_upper_openings(
+            grid, style, (nx0, nx1, nz0, nz1), y0, y1)
+
+    vol.meta["pagoda_eave_levels"] = eave_levels
+    vol.meta["pagoda_eave_cell_count"] = len(set(eave_cells))
+    vol.meta["pagoda_lifted_corners"] = lifted_corners
+    vol.meta["pagoda_lifted_corner_count"] = len(set(lifted_corners))
+    vol.meta["pagoda_bracket_count"] = len(set(bracket_cells))
+    vol.meta["pagoda_upper_window_count"] = upper_window_count
 
 
 def mountain_gate_detail(grid: BlockGrid, style: Style, rng: random.Random,
@@ -2762,5 +2911,11 @@ for _motif in (
     "planting_bed",
     "stepped_gable_wall",
     "closed_facade_entry",
+    "stilt_support_grid",
+    "underfloor_tie_beams",
+    "raised_veranda_edge",
+    "veranda_rain_canopy",
+    "deep_eave_gable",
+    "wet_ground_patch",
 ):
     register_motif(_motif, _already_placed_motif)

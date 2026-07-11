@@ -300,6 +300,46 @@ class CultivationTemplate:
     ancillaries: Tuple[CultivationAncillary, ...] = ()
 
 
+@dataclass(frozen=True)
+class PagodaProfile:
+    footprint: Tuple[int, int]
+    foundation_h: int
+    stories: int
+    story_wall_h: int
+    story_insets: Tuple[int, ...]
+    eave_projection: int
+    platform_pad: int
+    crown_overhang: int
+    spire_height: int
+
+    def signature(self) -> str:
+        inset_key = "-".join(str(value) for value in self.story_insets)
+        return (
+            f"{self.footprint[0]}x{self.footprint[1]}:"
+            f"{self.stories}x{self.story_wall_h}:"
+            f"{inset_key}:e{self.eave_projection}:"
+            f"c{self.crown_overhang}:s{self.spire_height}"
+        )
+
+
+# Deliberately distinct landmark profiles. These remain keyed by the existing
+# pagoda_v1..v3 tiers so resource ids and planner selection do not change.
+PAGODA_PROFILES: Dict[int, PagodaProfile] = {
+    1: PagodaProfile(
+        footprint=(15, 15), foundation_h=3, stories=5, story_wall_h=4,
+        story_insets=(0, 0, 1, 1, 2), eave_projection=2,
+        platform_pad=2, crown_overhang=2, spire_height=5),
+    2: PagodaProfile(
+        footprint=(19, 19), foundation_h=4, stories=5, story_wall_h=5,
+        story_insets=(0, 0, 1, 2, 3), eave_projection=3,
+        platform_pad=4, crown_overhang=3, spire_height=6),
+    3: PagodaProfile(
+        footprint=(17, 17), foundation_h=4, stories=7, story_wall_h=5,
+        story_insets=(0, 0, 1, 1, 2, 2, 3), eave_projection=2,
+        platform_pad=3, crown_overhang=2, spire_height=8),
+}
+
+
 # variant_index -> CultivationTemplate, per town archetype.
 CULTIVATION_TEMPLATES: Dict[str, Dict[int, CultivationTemplate]] = {
     "cultivation_house": {
@@ -1673,7 +1713,8 @@ def _cultivation_platform(graph: MassingGraph, main: Node, door_x: int,
 
 
 def _cultivation_colonnade(graph: MassingGraph, main: Node, door_x: int,
-                           sides: Tuple[str, ...] = ("front",)) -> Node:
+                           sides: Tuple[str, ...] = ("front",),
+                           top_y: Optional[int] = None) -> Node:
     node = Node(
         id=f"{main.id}_colonnade",
         type="colonnade",
@@ -1686,6 +1727,7 @@ def _cultivation_colonnade(graph: MassingGraph, main: Node, door_x: int,
             "sides": list(sides),
             "door_x": door_x,
             "base_y": max(0, main.meta["foundation_h"] - 1),
+            **({"top_y": int(top_y)} if top_y is not None else {}),
         },
     )
     graph.add(node)
@@ -1990,30 +2032,43 @@ def build_town_shrine(style: Style, rng: random.Random, tier: str) -> MassingGra
 
 
 def build_pagoda(style: Style, rng: random.Random, tier: str) -> MassingGraph:
-    """Tall cultivation pagoda landmark (塔): a 3-storey stepped tower crowned by
-    the registered ``pagoda`` roof form (tiered flying eaves + finial spire)."""
+    """Large cultivation pagoda landmark with independent storey eaves."""
     graph = _town_cultivation_graph("pagoda", tier)
     graph.meta["requires_platform_colonnade"] = True
     graph.meta["vertical_landmark"] = True
-    fh = 2
-    story_wall_h = 4
+    graph.meta["requires_pagoda_landmark"] = True
+    profile = PAGODA_PROFILES.get(
+        variant_index(tier), PAGODA_PROFILES[max(PAGODA_PROFILES)])
+    fh = profile.foundation_h
+    story_wall_h = profile.story_wall_h
     main = _cultivation_main(
         graph, style, rng, "pagoda", story_wall_h, fh,
-        stories=3, story_wall_h=story_wall_h,
-        footprint=rng.choice(SCALE_TIERS["pagoda"]["footprints"]),
-        roof_type="pagoda", roof_axis="x", roof_overhang=2,
+        stories=profile.stories, story_wall_h=story_wall_h,
+        footprint=profile.footprint,
+        roof_type="pagoda", roof_axis="x",
+        roof_overhang=profile.crown_overhang,
         wall_type="white_plaster_timber_wall")
     main.type = "tower_volume"
-    main.meta["story_insets"] = [0, 1, 2]
-    main.meta["roof"]["footprint_inset"] = 2
-    main.meta["roof"]["spire_height"] = 4
-    graph.meta["pagoda_story_insets"] = [0, 1, 2]
+    main.meta["story_insets"] = list(profile.story_insets)
+    main.meta["pagoda_eave_projection"] = profile.eave_projection
+    main.meta["roof"]["footprint_inset"] = profile.story_insets[-1]
+    main.meta["roof"]["spire_height"] = profile.spire_height
+    main.meta["roof"]["crown_overhang"] = profile.crown_overhang
+    graph.meta["pagoda_story_insets"] = list(profile.story_insets)
+    graph.meta["pagoda_profile"] = profile.signature()
+    graph.meta["pagoda_reference_candidate"] = "candidate_006"
+    graph.meta["pagoda_reference_usage"] = "calibration_only"
+    graph.meta["original_generated"] = True
+    graph.meta["copied_source_assets"] = False
     main.meta["door_centered"] = True
     main.meta["entry_heraldry"] = True
     door_x = _door(graph, main, rng)
     _reserve_stairwell(graph, main, door_x, preferred_side="west")
-    _cultivation_platform(graph, main, door_x, pad=2)
-    _cultivation_colonnade(graph, main, door_x, sides=("front", "back"))
+    _cultivation_platform(
+        graph, main, door_x, pad=profile.platform_pad, height=fh)
+    _cultivation_colonnade(
+        graph, main, door_x, sides=("front", "back"),
+        top_y=fh + story_wall_h - 1)
     _cultivation_balustrade(graph, main)
     _cultivation_path(graph, main, door_x, rng)
     ix0, ix1 = main.x0 + 1, main.x1 - 1

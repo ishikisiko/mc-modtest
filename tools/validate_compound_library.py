@@ -302,6 +302,28 @@ def main() -> int:
             for node_id, dims in stats.get("tianjing_dims", {}).items():
                 if max(dims or [99]) > 6:
                     errors.append(f"{c.get('name')}: huipai_tianjing_too_large:{node_id}:{dims}")
+        if group.layout_strategy == "ganlan_stilted_reference_slice":
+            stats = c.get("stats", {})
+            if data.get("reference_candidate") != "candidate_005":
+                errors.append("ganlan_reference_candidate_missing")
+            if data.get("source_usage_decision") != "local_research":
+                errors.append("ganlan_source_usage_decision_missing")
+            if data.get("original_generated") is not True:
+                errors.append("ganlan_original_generated_missing")
+            if data.get("copied_source_assets") is not False:
+                errors.append("ganlan_copied_source_assets_forbidden")
+            if int(stats.get("height_above_support") or 0) < 2:
+                errors.append(f"{c.get('name')}: ganlan_raised_floor_too_low")
+            if int(stats.get("support_post_count") or 0) < 6:
+                errors.append(f"{c.get('name')}: ganlan_too_few_support_posts")
+            if stats.get("unsupported_posts"):
+                errors.append(f"{c.get('name')}: ganlan_support_posts_not_connected")
+            if float(stats.get("underside_open_ratio") or 0.0) < 0.65:
+                errors.append(f"{c.get('name')}: ganlan_underside_too_filled")
+            if int(stats.get("veranda_cells") or 0) < 20:
+                errors.append(f"{c.get('name')}: ganlan_veranda_too_small")
+            if int(stats.get("roof_overhang") or 0) < 2:
+                errors.append(f"{c.get('name')}: ganlan_deep_eave_missing")
         if args.group == "cultivation_town":
             for err in _frontage_errors(c):
                 errors.append(f"{c.get('name')}: {err}")

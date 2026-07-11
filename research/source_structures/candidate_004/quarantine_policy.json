@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "policy_id": "candidate_004-sanitize-for-preview-v1",
+  "scope": "research_only",
+  "output_state": "sanitized_for_preview",
+  "rules": {
+    "source_binary": "immutable and stored only under ignored out/",
+    "entities": "drop_all",
+    "block_entity_payloads": "strip_all",
+    "jigsaw": "validate final_state; replace with non-structure-void final_state; omit structure_void entries",
+    "command_blocks": "replace_with_air_and_report",
+    "structure_blocks": "replace_with_air_and_report",
+    "spawners": "replace_with_air_and_report",
+    "loot_tables": "strip_with_block_entity_payload",
+    "inventories": "strip_with_block_entity_payload",
+    "palette_namespaces": "require minecraft-only for this sample",
+    "data_version": "preserve_source_value; never claim a header rewrite is DataFixer migration",
+    "unknown_nbt": "drop only in restricted geometry re-emit and report the loss",
+    "shipping": "forbidden"
+  }
+}

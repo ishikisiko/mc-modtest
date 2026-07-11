@@ -358,7 +358,9 @@ public final class SectGenerator {
             if (onAxisSpec != null) onAxisSpan = onAxisXSpan(terrace, onAxisSpec.archetype);
             for (SlotSpec spec : specs) {
                 Rect bounds = slotBounds(terrace, spec, axisHalf, onAxisSpan);
-                String template = templateFor(spec.archetype, seed, terrace.index);
+                String template = spec.archetype.equals("pagoda") && spec.role.startsWith("flank")
+                        ? "pagoda_001"
+                        : templateFor(spec.archetype, seed, terrace.index);
                 slots.add(new Slot(
                         "slot_" + terrace.name + "_" + spec.role + "_" + terrace.index,
                         terrace.index, terrace.name, spec.role, spec.archetype, template,
@@ -658,8 +660,10 @@ public final class SectGenerator {
             case "scripture_pavilion", "scripture_pavilion_001", "scripture_pavilion_002" -> new int[]{17, 19};
             case "alchemy_room", "alchemy_room_001", "alchemy_room_002" -> new int[]{19, 17};
             case "disciple_quarters", "disciple_quarters_001", "disciple_quarters_002" -> new int[]{21, 18};
-            case "pagoda", "pagoda_001" -> new int[]{17, 19};
-            case "pagoda_002", "pagoda_003" -> new int[]{19, 21};
+            case "pagoda" -> new int[]{27, 29};
+            case "pagoda_001" -> new int[]{19, 21};
+            case "pagoda_002" -> new int[]{27, 29};
+            case "pagoda_003" -> new int[]{23, 25};
             case "pavilion", "pavilion_001", "pavilion_003" -> new int[]{23, 21};
             case "pavilion_002" -> new int[]{21, 21};
             case "bell_drum_tower", "bell_drum_tower_001", "bell_drum_tower_003" -> new int[]{17, 19};

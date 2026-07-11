@@ -92,10 +92,10 @@ TEMPLATE_FOOTPRINT: Dict[str, Tuple[int, int]] = {
     "disciple_quarters": (21, 18),
     "disciple_quarters_001": (21, 18),
     "disciple_quarters_002": (21, 18),
-    "pagoda": (17, 19),
-    "pagoda_001": (17, 19),
-    "pagoda_002": (19, 21),
-    "pagoda_003": (19, 21),
+    "pagoda": (27, 29),
+    "pagoda_001": (19, 21),
+    "pagoda_002": (27, 29),
+    "pagoda_003": (23, 25),
     "pavilion": (23, 21),
     "pavilion_001": (23, 21),
     "pavilion_002": (21, 21),
@@ -604,7 +604,15 @@ def generate_sect_plan(
             on_axis_span = _on_axis_x_span(terrace, on_axis_spec.archetype)
         for spec in specs:
             bounds = _slot_bounds(terrace, spec, axis_half, on_axis_span)
-            template = _template_for(spec.archetype, seed, terrace.index)
+            # Paired scripture-terrace flanks have 19 cells beside the on-axis
+            # pavilion, so they intentionally use the compact pagoda profile.
+            # Larger profiles remain eligible for detached-spire features and
+            # direct placement, where their full footprint is available.
+            template = (
+                "pagoda_001"
+                if spec.archetype == "pagoda" and spec.role.startswith("flank")
+                else _template_for(spec.archetype, seed, terrace.index)
+            )
             slots.append(Slot(
                 id=f"slot_{terrace.name}_{spec.role}_{terrace.index}",
                 terrace_index=terrace.index,

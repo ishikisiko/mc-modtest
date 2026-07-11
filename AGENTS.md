@@ -38,6 +38,8 @@ Spend time on thinking; you do not need to use the commentary channel to report 
 - Courtyard/mansion surfaces: `docs/ai-kb/16_path_surface_zoning.md`, `courtyard-ground-layer`, `courtyard-path-network`, `path-surface-zoning`, `courtyard-voxel-walkability`.
 - Jiangnan mansion: `docs/ai-kb/10_civic_family.md`, `chinese-mansion-compound`, `compound-enclosure-planning`, `building-orientation-variants`.
 - Hui reference slice: `docs/ai-kb/21_huipai_reference_slice.md`, `huipai-tianjing-mansion`, `form-registry`, `settlement-group`, `validation`.
+- Ganlan reference slice: `docs/ai-kb/23_ganlan_reference_slice.md`, `add-ganlan-stilted-house`, `form-registry`, `settlement-group`, `resource-export`, `validation`.
+- Pagoda landmark: `docs/ai-kb/24_pagoda_landmark_rebuild.md`, `rebuild-pagoda-landmark`, `vertical-landmark`, `cultivation-massing-grammar`, `validation`.
 - `myvillage:` decor/rockery: `docs/ai-kb/15_rockery_form_diagnosis.md`, `mod-decor-block-family`, `garden-rockery`.
 - Cultivation settlements: `sect-compound-layout`, `sect-compound-realization`, `sect-worldgen-structure`, `sect-mountain-derivation`, `town-plan`, `town-districts`, `town-realization`, `settlement-group`.
 - Rendering/handoff: `docs/ai-kb/17_chunky_acceptance.md`, `docs/ai-kb/18_chunky_path_traced_render.md`, `chunky-acceptance-automation`, `interactive-preview`.

@@ -115,10 +115,10 @@ TEMPLATE_FOOTPRINT: Dict[str, Tuple[int, int]] = {
     "cultivation_inn_003": (27, 24),
     "town_shrine": (23, 22),
     "town_shrine_001": (23, 22),
-    "pagoda": (17, 19),
-    "pagoda_001": (17, 19),
-    "pagoda_002": (19, 21),
-    "pagoda_003": (19, 21),
+    "pagoda": (27, 29),
+    "pagoda_001": (19, 21),
+    "pagoda_002": (27, 29),
+    "pagoda_003": (23, 25),
     "pavilion": (23, 21),
     "pavilion_001": (23, 21),
     "pavilion_002": (23, 21),
@@ -749,9 +749,8 @@ def _layout(
 
     # Vertical landmarks (pagoda + bell/drum tower) flank the shrine inside the
     # civic core so the skyline rises above the surrounding roofline. Generous
-    # parcels fit the 17-19 wide / 19-21 deep landmark templates with margin.
-    # landmark_d sizes the parcel depth to the deepest shipped landmark template
-    # (bell_drum_tower at depth 21); keep it in sync with the regenerated .nbt.
+    # The fixed west landmark uses the compact pagoda_001 (19x21); larger
+    # pagoda profiles remain available to roomy generated parcels and sects.
     landmark_w = 19
     landmark_d = 21
     landmark_w0 = shrine_x0 - 3 - landmark_w

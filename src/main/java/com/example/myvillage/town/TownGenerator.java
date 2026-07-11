@@ -307,9 +307,9 @@ public final class TownGenerator {
         // Vertical landmarks (pagoda + bell/drum tower) flank the shrine inside
         // the civic core so the skyline rises above the surrounding roofline.
         int landmarkW = 19;
-        int landmarkD = 21; // mirrors town.py landmark_d so the parcel fits the 21-deep templates
+        int landmarkD = 21; // compact pagoda_001; larger variants use roomy parcels
         int landmarkZ0 = shrineZ0;
-        int landmarkZ1 = Math.min(DEPTH - 2, shrineZ0 + landmarkD - 1);
+        int landmarkZ1 = Math.min(DEPTH - 2, landmarkZ0 + landmarkD - 1);
         Rect pagodaParcel = new Rect(shrineX0 - 3 - landmarkW, landmarkZ0, shrineX0 - 3, landmarkZ1);
         Rect towerParcel = new Rect(shrineX1 + 3, landmarkZ0, shrineX1 + 3 + landmarkW, landmarkZ1);
         parcels.add(new Parcel("pagoda_west", "civic", pagodaParcel, core.storeyMax, false, "pagoda_001",
@@ -821,8 +821,10 @@ public final class TownGenerator {
             case "cultivation_inn", "cultivation_inn_001", "cultivation_inn_002" -> new int[]{22, 19};
             case "cultivation_inn_003" -> new int[]{22, 17};
             case "town_shrine", "town_shrine_001" -> new int[]{23, 20};
-            case "pagoda", "pagoda_001", "pagoda_003" -> new int[]{17, 19};
-            case "pagoda_002" -> new int[]{19, 21};
+            case "pagoda" -> new int[]{27, 29};
+            case "pagoda_001" -> new int[]{19, 21};
+            case "pagoda_002" -> new int[]{27, 29};
+            case "pagoda_003" -> new int[]{23, 25};
             case "pavilion", "pavilion_001", "pavilion_003" -> new int[]{23, 21};
             case "pavilion_002" -> new int[]{21, 21};
             case "bell_drum_tower", "bell_drum_tower_001", "bell_drum_tower_003" -> new int[]{17, 19};

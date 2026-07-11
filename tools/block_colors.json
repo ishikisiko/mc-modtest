@@ -74,6 +74,8 @@
   "minecraft:cherry_planks": [200, 150, 150],
   "minecraft:bamboo_planks": [170, 165, 80],
   "minecraft:bamboo_mosaic": [180, 170, 95],
+  "minecraft:bamboo_block": [154, 150, 68],
+  "minecraft:stripped_bamboo_block": [184, 170, 82],
 
   "minecraft:oak_log": [102, 82, 50],
   "minecraft:oak_wood": [102, 82, 50],
@@ -125,6 +127,7 @@
   "minecraft:acacia_fence": [160, 90, 50],
   "minecraft:dark_oak_fence": [70, 50, 30],
   "minecraft:mangrove_fence": [130, 50, 50],
+  "minecraft:bamboo_fence": [170, 165, 80],
   "minecraft:oak_fence_gate": [162, 131, 78],
   "minecraft:spruce_fence_gate": [124, 86, 50],
   "minecraft:dark_oak_fence_gate": [70, 50, 30],
@@ -137,6 +140,7 @@
   "minecraft:dark_oak_door": [70, 50, 30],
   "minecraft:mangrove_door": [130, 50, 50],
   "minecraft:cherry_door": [200, 150, 150],
+  "minecraft:bamboo_door": [170, 165, 80],
   "minecraft:iron_door": [200, 200, 200],
 
   "minecraft:oak_trapdoor": [150, 118, 68],
@@ -146,6 +150,7 @@
   "minecraft:acacia_trapdoor": [150, 84, 46],
   "minecraft:dark_oak_trapdoor": [62, 44, 26],
   "minecraft:mangrove_trapdoor": [120, 46, 46],
+  "minecraft:bamboo_trapdoor": [165, 158, 76],
   "minecraft:iron_trapdoor": [200, 200, 200],
 
   "minecraft:oak_sign": [162, 131, 78],

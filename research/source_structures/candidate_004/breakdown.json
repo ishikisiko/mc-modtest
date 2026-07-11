@@ -1,0 +1,114 @@
+{
+  "candidate_id": "candidate_004",
+  "source_facts": {
+    "id": "candidate_004",
+    "title": "Yaodong Earth Shelter House",
+    "source_url": "https://modrinth.com/datapack/more-chinese-structures",
+    "license": "MIT License",
+    "usage_decision": "local_research",
+    "attribution_path": "research/source_structures/candidate_004/attribution.md"
+  },
+  "observations": [
+    {
+      "cue": "sunken rectangular courtyards surrounded by below-grade rooms and a heavy perimeter rim",
+      "evidence_pointer": "upstream commit 3da53915cd7658b5085f5926ff0205ebd30ee9d9, data/mcs/structure/village/grotto/buildings/yaodong_1.nbt..yaodong_5.nbt; out/preview/candidate_004_source/yaodong_1/slices_contact.png",
+      "note": "The central open-to-sky void and surrounding earth mass are the load-bearing Yaodong cues; the useful rule is not the copied room coordinates."
+    },
+    {
+      "cue": "each house is authored as a terrain-buried piece rather than a conventional above-grade shell",
+      "evidence_pointer": "upstream commit 3da53915cd7658b5085f5926ff0205ebd30ee9d9, data/mcs/worldgen/template_pool/village/grotto/buildings.json and data/mcs/worldgen/structure/grotto.json",
+      "note": "Every building pool entry declares terrain_adaptation=bury, while the village start uses surface projection and beard_thin terrain adaptation."
+    },
+    {
+      "cue": "five related house pieces vary between compact square courts and a larger multi-arm household",
+      "evidence_pointer": "research/source_structures/candidate_004/import_audit.json; out/preview/candidate_004_source/yaodong_1/isometric.png through yaodong_5/isometric.png",
+      "note": "The roster spans 20-24 blocks wide, 20-33 blocks deep, and 17 blocks high, so the candidate is a settlement family rather than one hero prefab."
+    },
+    {
+      "cue": "earth, mud-brick, stone-brick, planted roof, and timber furnishing layers distinguish the occupied void from the surrounding soil",
+      "evidence_pointer": "research/source_structures/candidate_004/import_audit.json; out/preview/candidate_004_source/yaodong_1/legend.txt",
+      "note": "The source is a badlands-oriented brick-vault interpretation, not evidence for a canonical exposed-yellow-earth Yaodong. Its material contrast may calibrate shelter readability, but its exact palette is not a project requirement."
+    },
+    {
+      "cue": "terrain-matching streets, a central well, and small decor pools connect buried households into a village fabric",
+      "evidence_pointer": "upstream commit 3da53915cd7658b5085f5926ff0205ebd30ee9d9, data/mcs/worldgen/template_pool/village/grotto/center.json, streets.json, decor.json, and well_bottom.json",
+      "note": "The source value extends beyond a single structure: access, drainage, and shared open space must work at settlement scale."
+    },
+    {
+      "cue": "the source NBTs mix geometry with jigsaw connectors, loot, inventories, block-entity payloads, and optional entities",
+      "evidence_pointer": "research/source_structures/candidate_004/import_audit.json",
+      "note": "This coupling makes a raw prefab copy unsafe even though every palette block is in the minecraft namespace."
+    }
+  ],
+  "direct_component": [
+    {
+      "cue": "yaodong_1.nbt as the lowest-risk bounded prefab candidate",
+      "rationale": "The piece has no entities and is visually self-contained, but it still carries seven jigsaws, 31 block-entity payloads, 19 inventory payloads, six loot-table payloads, source DataVersion 3953, and upstream gameplay semantics. It is suitable only for an isolated sanitize-for-preview feasibility pass.",
+      "downstream_route": "future external-structure-quarantine OpenSpec capability and dedicated CRAFT pipeline; keep raw and sanitized binaries under ignored out/ only, require static audit, deterministic transformation ledger, paired previews, and owner feasibility verdict before any later shipping proposal",
+      "review_needed": "Owner must decide whether the cleaned geometry is valuable enough to justify a separate import/shipping change. This pending decision is not permission to place the NBT under src/main/resources."
+    },
+    {
+      "cue": "the complete upstream Grotto village pools as a directly imported settlement",
+      "rationale": "REJECTED for this pass. The village pool includes buildings, streets, decor, wells, jigsaw namespace dependencies, entities, and loot behavior; importing it would be a worldgen and gameplay transplant rather than a bounded building study.",
+      "downstream_route": "no_direct_component: retain the complete village only as inspection evidence; any future Yaodong settlement must enter through a separate region, settlement-group, worldgen, attribution, and gameplay design change",
+      "review_needed": "Do not reconsider the whole-village copy until the single-piece quarantine policy, DataVersion migration path, and owner prefab policy are resolved."
+    }
+  ],
+  "atomic_component": [
+    {
+      "cue": "sunken-court retaining rim with a descending entry throat",
+      "rationale": "The rim, stair/descent, and courtyard threshold form a bounded original operation that can establish the above-grade-to-below-grade transition without copying the source footprint.",
+      "downstream_route": "form-registry + future yaodong-earth-shelter capability: add a sunken-court rim/descent operation with walkability and head-clearance validation",
+      "review_needed": "Section and in-game review must confirm the descent reads as an inhabited entrance rather than a mine shaft or defensive pit."
+    },
+    {
+      "cue": "earth-shell room cell opening onto the sunken court",
+      "rationale": "A repeatable room bay can be authored from an original arch/threshold, earth roof, and interior-depth grammar while varying width and occupation.",
+      "downstream_route": "building-generation + form-registry: define an earth-shelter room-bay motif reusable around one or more sunken courts",
+      "review_needed": "Check arch proportions, daylight depth, ceiling thickness, and whether the room remains legible from the courtyard."
+    }
+  ],
+  "generative_grammar": [
+    {
+      "cue": "terrain-embedded building slot with occupied floor below the surrounding surface",
+      "rationale": "The essential planner rule is to reserve an excavation volume, set courtyard and room floors below grade, preserve an earth roof at terrain level, and connect the entrance back to a walkable surface route.",
+      "downstream_route": "future yaodong-earth-shelter capability + building-generation + validation: define surface_y, courtyard_depth, earth_cover, retaining_thickness, entrance_rise, drainage, and excavation-clearance invariants",
+      "review_needed": "Terrain integration must be tested on flat and sloped Loess-like sites; exposed cut faces, flooded courts, floating roofs, and blocked stairs must fail."
+    },
+    {
+      "cue": "cluster grammar with terrain-matching streets, central well, decor nodes, and buried houses",
+      "rationale": "A Yaodong settlement needs surface paths that reveal and connect otherwise low-silhouette homes; the shared court/well/street system carries more identity than an isolated buried box.",
+      "downstream_route": "settlement-group + town-plan + town-realization + region-profile: add a future northern/Loess settlement fabric only after a single earth-shelter piece is accepted",
+      "review_needed": "Plan review must prove that entrances remain discoverable, routes do not cross excavation voids, and the settlement reads as inhabited from surface level."
+    },
+    {
+      "cue": "compact, medium, and expanded household variants share one buried-court language",
+      "rationale": "The five source pieces suggest variation by court size, room-arm count, occupation, and entry position rather than unrelated silhouettes.",
+      "downstream_route": "future yaodong-earth-shelter + settlement-group: define scale tiers and household-role parameters with deterministic variant selection",
+      "review_needed": "Compare at least three generated tiers; reject variants that lose the sunken court or become ordinary flat-roof houses."
+    }
+  ],
+  "calibration_only": [
+    {
+      "cue": "inhabited earth dwelling rather than bunker, quarry, or open pit",
+      "visual_question": "Do the courtyard, entrances, windows, furnishings, and roof edge make habitation obvious from both surface and courtyard viewpoints?",
+      "review_needed": "Use low surface, courtyard-eye, and section views; the current top-down isometric preview alone is insufficient."
+    },
+    {
+      "cue": "terrain seam and earth-cover continuity",
+      "visual_question": "Does the structure merge into surrounding terrain without a rectangular soil pedestal, exposed void edge, or pasted-on green lid?",
+      "review_needed": "Review against at least one flat and one sloped terrain placement; offline isolated NBT previews cannot settle this question."
+    },
+    {
+      "cue": "sunken-court daylight and entry readability",
+      "visual_question": "Can a player immediately find the descent and understand the courtyard-to-room circulation, or does the mass read as a closed square hole?",
+      "review_needed": "Inspect the interactive layer viewer and later perform an in-game walkability pass before accepting any Yaodong implementation."
+    },
+    {
+      "cue": "muted earth/stone/timber regional palette",
+      "visual_question": "Can a future palette distinguish a northern earth-shelter settlement without mistaking this source's mud/stone brick vaults for the only authentic Yaodong material language?",
+      "review_needed": "Calibrate palette against broader architectural references after geometry is legible; do not treat this source block list as a canonical Yaodong palette specification."
+    }
+  ],
+  "verdict_state": "accepted_with_changes"
+}

@@ -48,6 +48,9 @@ python3 tools/validate_compound_library.py --group cultivation_town --count 6
 python3 tools/validate_compound_library.py --group cultivation_sect --count 2
 python3 tools/validate_compound_library.py --group chinese_huipai_mansion --count 2
 python3 tools/buildgen/tests/test_huipai_reference_slice.py
+python3 tools/validate_compound_library.py --group ganlan_stilted_house --count 2
+python3 tools/buildgen/tests/test_ganlan_stilted_house.py
+python3 tools/buildgen/tests/test_pagoda_landmark.py
 python3 tools/validate_civic_library.py
 python3 tools/validate_town_generation.py
 python3 tools/validate_runtime_town_plan.py

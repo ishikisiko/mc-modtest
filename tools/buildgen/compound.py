@@ -5558,6 +5558,614 @@ def sample_huipai_mansion_library(count: int = 2, base_seed: int = 20260619,
     return compounds
 
 
+def _ganlan_state(style: Style, slot: str, contains: Optional[str] = None,
+                  default: Optional[str] = None) -> str:
+    if contains is None:
+        return style.primary(slot)
+    return style.optional_slot_entry(slot, contains, default) or style.primary(slot)
+
+
+def _ganlan_axis_state(state: str, axis: str = "y") -> str:
+    block = state.split("[", 1)[0]
+    if "[" in state:
+        return state
+    if block.endswith(("_log", "_wood", "_block")):
+        return f"{block}[axis={axis}]"
+    return state
+
+
+def _ganlan_stair_state(block: str, facing: str) -> str:
+    base = block.split("[", 1)[0]
+    return f"{base}[facing={facing},half=bottom,shape=straight,waterlogged=false]"
+
+
+def _ganlan_trapdoor_state(block: str, facing: str) -> str:
+    base = block.split("[", 1)[0]
+    return f"{base}[facing={facing},half=top,open=true,powered=false,waterlogged=false]"
+
+
+def _ganlan_variant(seed: int) -> CompoundVariant:
+    wide = bool(seed % 2)
+    return CompoundVariant(
+        courtyard_size="ganlan_medium" if wide else "ganlan_small",
+        water_form="wet_edge_pond" if wide else "wet_ground_patch",
+        planting_layout="lush_edges",
+        roof_grade="layered_deep_eave_gable",
+        gate_type="offset_stair_veranda_entry",
+        symmetry="mild_asymmetry",
+        layout_type="raised_floor_stilt_house",
+        main_orientation="south",
+        main_bays=5 if wide else 3,
+        platform_tier="stilt_posts",
+    )
+
+
+def _ganlan_bay_positions(x0: int, x1: int, bays: int) -> List[int]:
+    return sorted({round(x0 + (x1 - x0) * index / bays)
+                   for index in range(bays + 1)})
+
+
+def _ganlan_ground(compound: CompoundGraph, style: Style,
+                   water_cells: Set[Cell2], floor_cells: Set[Cell2]) -> Set[Cell2]:
+    lot_w, lot_d = compound.lot_size
+    ground_cells = _rect(0, 0, lot_w - 1, lot_d - 1)
+    ground = style.primary("GROUND_YARD_OPEN")
+    path = style.primary("PATH_FORMAL")
+    water = _ganlan_state(style, "WATER", default="minecraft:water")
+    for x, z in ground_cells:
+        state = water if (x, z) in water_cells else ground
+        slot = "WATER" if (x, z) in water_cells else "GROUND_YARD_OPEN"
+        compound.grid.set((x, -1, z), state, ["GROUND", "DETAIL"],
+                          PRIORITY["DETAIL"], slot)
+    stair_axis = int(compound.meta["entry_stair_center_x"])
+    for z in range(0, compound.meta["floor_z0"]):
+        for x in range(stair_axis - 1, stair_axis + 2):
+            compound.grid.set((x, 0, z), path, ["GROUND", "DETAIL"],
+                              PRIORITY["DETAIL"], "PATH_FORMAL")
+    compound.parcel_nodes.append(
+        ParcelNode("wet_ground_context", "wet_ground", ground_cells, {
+            "water_cells": len(water_cells),
+            "water_cells_under_floor": len(water_cells & floor_cells),
+            "support_plane_y": compound.meta["support_plane_y"],
+            "siting": "humid_waterside_fully_elevated",
+        }))
+    return ground_cells
+
+
+def _ganlan_place_floor_and_posts(compound: CompoundGraph, style: Style,
+                                  floor_cells: Set[Cell2],
+                                  veranda_cells: Set[Cell2],
+                                  body: Tuple[int, int, int, int]) -> None:
+    floor_y = int(compound.meta["raised_floor_y"])
+    support_y = int(compound.meta["support_plane_y"])
+    floor = _ganlan_state(style, "PATH_FORMAL", default=style.primary("WALL_MAIN"))
+    column = _ganlan_axis_state(style.primary("COLUMN"), "y")
+    rail = _ganlan_state(style, "DETAIL_WOOD", "fence",
+                         _ganlan_axis_state(style.primary("COLUMN"), "y"))
+    trapdoor = _ganlan_state(style, "DETAIL_WOOD", "trapdoor", None)
+    for x, z in floor_cells:
+        compound.grid.set((x, floor_y, z), floor, ["STRUCTURE", "GROUND"],
+                          PRIORITY["STRUCTURE"], "PATH_FORMAL")
+
+    xs = [x for x, _ in floor_cells]
+    zs = [z for _, z in floor_cells]
+    x0, x1 = min(xs), max(xs)
+    z0, z1 = min(zs), max(zs)
+    body_x0, body_z0, body_x1, body_z1 = body
+    post_xs = _ganlan_bay_positions(
+        body_x0, body_x1, int(compound.meta["main_bays"]))
+    post_zs = sorted({z0 + 1, body_z0, body_z1})
+    post_cells = {(x, z) for x in post_xs for z in post_zs}
+    beam = style.primary("FRAME_WOOD")
+    beam_blocks = 0
+    for z in post_zs:
+        for x in range(min(post_xs), max(post_xs) + 1):
+            compound.grid.set((x, floor_y - 1, z), _ganlan_axis_state(beam, "x"),
+                              ["STRUCTURE"], PRIORITY["STRUCTURE"], "FRAME_WOOD")
+            beam_blocks += 1
+    for x in post_xs:
+        for z in range(min(post_zs), max(post_zs) + 1):
+            compound.grid.set((x, floor_y - 1, z), _ganlan_axis_state(beam, "z"),
+                              ["STRUCTURE"], PRIORITY["STRUCTURE"], "FRAME_WOOD")
+            beam_blocks += 1
+    for x, z in post_cells:
+        for y in range(support_y, floor_y):
+            compound.grid.set((x, y, z), column, ["STRUCTURE"],
+                              PRIORITY["STRUCTURE"], "COLUMN")
+
+    rail_cells: Set[Cell2] = set()
+    stair_axis = int(compound.meta["entry_stair_center_x"])
+    opening = {stair_axis - 1, stair_axis, stair_axis + 1}
+    for x in range(x0, x1 + 1):
+        if x not in opening:
+            rail_cells.add((x, z0))
+        rail_cells.add((x, z1))
+    for z in range(z0 + 1, z1):
+        rail_cells.add((x0, z))
+        rail_cells.add((x1, z))
+    for x, z in sorted(rail_cells):
+        if trapdoor and (x, z) in veranda_cells and z == z0:
+            compound.grid.set((x, floor_y + 1, z), _ganlan_trapdoor_state(trapdoor, "north"),
+                              ["DETAIL"], PRIORITY["DETAIL"], "DETAIL_WOOD")
+        else:
+            compound.grid.set((x, floor_y + 1, z), rail, ["DETAIL", "STRUCTURE"],
+                              PRIORITY["DETAIL"], "DETAIL_WOOD")
+
+    compound.parcel_nodes.append(
+        ParcelNode("raised_floor", "raised_floor", floor_cells, {
+            "floor_y": floor_y,
+            "support_plane_y": support_y,
+            "height_above_support": floor_y - support_y,
+        }))
+    compound.parcel_nodes.append(
+        ParcelNode("stilt_support_grid", "support_posts", post_cells, {
+            "post_count": len(post_cells),
+            "bay_aligned": True,
+            "beam_blocks": beam_blocks,
+            "support_plane_y": support_y,
+            "post_top_y": floor_y - 1,
+        }))
+    compound.parcel_nodes.append(
+        ParcelNode("raised_veranda_edge", "veranda", veranda_cells, {
+            "floor_y": floor_y,
+            "rail_cells": len(rail_cells),
+            "entry_side": "south",
+            "entry_stair_center_x": stair_axis,
+            "door_x": compound.axis_x,
+            "entry_transition_length": abs(stair_axis - compound.axis_x),
+        }))
+
+
+def _ganlan_place_body(compound: CompoundGraph, style: Style,
+                       body: Tuple[int, int, int, int]) -> None:
+    floor_y = int(compound.meta["raised_floor_y"])
+    wall_h = int(compound.meta["wall_height"])
+    x0, z0, x1, z1 = body
+    wall = style.primary("WALL_MAIN")
+    frame = _ganlan_axis_state(style.primary("FRAME_WOOD"), "y")
+    lattice = _ganlan_state(style, "DETAIL_WOOD", "fence", wall)
+    door_base = "minecraft:bamboo_door"
+    axis = compound.axis_x
+    bay_xs = _ganlan_bay_positions(x0, x1, int(compound.meta["main_bays"]))
+    side_zs = sorted({z0, (z0 + z1) // 2, z1})
+    body_cells = _rect(x0, z0, x1, z1)
+    frame_posts: Set[Cell2] = set()
+    tie_beam_blocks = 0
+    for x, z in body_cells:
+        perimeter = x in (x0, x1) or z in (z0, z1)
+        if not perimeter:
+            continue
+        for y in range(floor_y + 1, floor_y + wall_h + 1):
+            is_door = z == z0 and x == axis and y in (floor_y + 1, floor_y + 2)
+            is_frame = ((z in (z0, z1) and x in bay_xs) or
+                        (x in (x0, x1) and z in side_zs))
+            is_front_window = (z == z0 and x not in bay_xs and abs(x - axis) > 1
+                               and y in (floor_y + 2, floor_y + 3))
+            is_rear_window = (z == z1 and x not in bay_xs
+                              and y in (floor_y + 2, floor_y + 3))
+            is_side_window = (x in (x0, x1) and z not in side_zs
+                              and y in (floor_y + 2, floor_y + 3))
+            if is_door:
+                compound.grid.set((x, y, z), AIR, ["AIR_CARVE", "OPENING"],
+                                  PRIORITY["AIR_CARVE"], force=True)
+                continue
+            if is_front_window or is_rear_window or is_side_window:
+                compound.grid.set((x, y, z), lattice, ["DETAIL", "OPENING"],
+                                  PRIORITY["DETAIL"], "DETAIL_WOOD")
+                continue
+            state = frame if is_frame else wall
+            slot = "FRAME_WOOD" if state == frame else "WALL_MAIN"
+            compound.grid.set((x, y, z), state, ["STRUCTURE", "FACADE"],
+                              PRIORITY["STRUCTURE"], slot)
+            if is_frame:
+                frame_posts.add((x, z))
+    for y in (floor_y + 1, floor_y + wall_h):
+        for x in range(x0, x1 + 1):
+            for z in (z0, z1):
+                compound.grid.set((x, y, z), _ganlan_axis_state(frame, "x"),
+                                  ["STRUCTURE", "FACADE"], PRIORITY["STRUCTURE"],
+                                  "FRAME_WOOD")
+                tie_beam_blocks += 1
+        for z in range(z0 + 1, z1):
+            for x in (x0, x1):
+                compound.grid.set((x, y, z), _ganlan_axis_state(frame, "z"),
+                                  ["STRUCTURE", "FACADE"], PRIORITY["STRUCTURE"],
+                                  "FRAME_WOOD")
+                tie_beam_blocks += 1
+    compound.grid.set((axis, floor_y + 1, z0),
+                      f"{door_base}[facing=south,half=lower,hinge=left,open=false,powered=false]",
+                      ["OPENING", "PROTECTED"], PRIORITY["OPENING"], "FRAME_WOOD",
+                      force=True)
+    compound.grid.set((axis, floor_y + 2, z0),
+                      f"{door_base}[facing=south,half=upper,hinge=left,open=false,powered=false]",
+                      ["OPENING", "PROTECTED"], PRIORITY["OPENING"], "FRAME_WOOD",
+                      force=True)
+    compound.parcel_nodes.append(
+        ParcelNode("ganlan_house_body", "house_body", body_cells, {
+            "wall_height": wall_h,
+            "door": [axis, floor_y + 1, z0],
+            "frame_post_count": len(frame_posts),
+            "tie_beam_blocks": tie_beam_blocks,
+            "bay_count": compound.meta["main_bays"],
+            "frame_system": "bay_aligned_column_and_tie",
+        }))
+
+
+def _ganlan_place_entry_stair(compound: CompoundGraph, style: Style) -> None:
+    floor_y = int(compound.meta["raised_floor_y"])
+    axis = int(compound.meta["entry_stair_center_x"])
+    z_end = int(compound.meta["floor_z0"]) - 1
+    stair_base = _ganlan_state(style, "ROOF_DARK", "_stairs", "minecraft:oak_stairs")
+    cells: Set[Cell2] = set()
+    for step in range(floor_y):
+        z = z_end - (floor_y - 1 - step)
+        for x in range(axis - 1, axis + 2):
+            compound.grid.set((x, step, z), _ganlan_stair_state(stair_base, "south"),
+                              ["DETAIL", "GROUND"], PRIORITY["DETAIL"], "ROOF_DARK")
+            cells.add((x, z))
+    compound.parcel_nodes.append(
+        ParcelNode("raised_entry_stair", "entry_stair", cells, {
+            "start_y": 0,
+            "end_y": floor_y,
+            "entry_side": "south",
+            "center_x": axis,
+            "door_x": compound.axis_x,
+            "veranda_transition": abs(axis - compound.axis_x),
+        }))
+
+
+def _ganlan_place_veranda_canopy(compound: CompoundGraph, style: Style,
+                                  floor_bounds: Tuple[int, int, int, int],
+                                  body: Tuple[int, int, int, int]) -> None:
+    floor_y = int(compound.meta["raised_floor_y"])
+    wall_h = int(compound.meta["wall_height"])
+    _, floor_z0, _, _ = floor_bounds
+    body_x0, body_z0, body_x1, _ = body
+    front_z = floor_z0 - 1
+    back_z = body_z0 - 1
+    attach_y = floor_y + wall_h
+    stair = _ganlan_state(style, "ROOF_DARK", "_stairs",
+                          style.slot_entry("ROOF_DARK", "_planks"))
+    column = _ganlan_axis_state(style.primary("COLUMN"), "y")
+    canopy_cells: Set[Cell2] = set()
+    for z in range(front_z, back_z + 1):
+        drop = (back_z - z) // 2
+        y = attach_y - drop
+        for x in range(body_x0 - 1, body_x1 + 2):
+            compound.grid.set((x, y, z), _ganlan_stair_state(stair, "south"),
+                              ["ROOF", "DETAIL"], PRIORITY["ROOF"], "ROOF_DARK")
+            canopy_cells.add((x, z))
+
+    support_xs = _ganlan_bay_positions(
+        int(compound.meta["body_x0"]), int(compound.meta["body_x1"]),
+        int(compound.meta["main_bays"]))
+    support_count = 0
+    support_z = floor_z0
+    canopy_front_y = attach_y - ((back_z - front_z) // 2)
+    for x in support_xs:
+        for y in range(floor_y + 1, canopy_front_y):
+            compound.grid.set((x, y, support_z), column, ["STRUCTURE", "FACADE"],
+                              PRIORITY["STRUCTURE"], "COLUMN")
+        support_count += 1
+    compound.parcel_nodes.append(
+        ParcelNode("veranda_rain_canopy", "veranda_canopy", canopy_cells, {
+            "projection": body_z0 - floor_z0 + 1,
+            "support_count": support_count,
+            "covers_front_veranda": True,
+            "attach_y": attach_y,
+        }))
+
+
+def _ganlan_place_deep_eave_roof(compound: CompoundGraph, style: Style,
+                                 body: Tuple[int, int, int, int]) -> None:
+    floor_y = int(compound.meta["raised_floor_y"])
+    wall_h = int(compound.meta["wall_height"])
+    side_eave = int(compound.meta["main_roof_side_overhang"])
+    end_eave = int(compound.meta["main_roof_end_overhang"])
+    x0, z0, x1, z1 = body
+    roof_x0, roof_x1 = x0 - side_eave, x1 + side_eave
+    roof_z0, roof_z1 = z0 - end_eave, z1 + end_eave
+    roof_y = floor_y + wall_h + 1
+    stair = _ganlan_state(style, "ROOF_DARK", "_stairs",
+                          style.slot_entry("ROOF_DARK", "_planks"))
+    slab = _ganlan_state(style, "ROOF_DARK", "_slab",
+                         style.slot_entry("ROOF_DARK", "_planks") or stair)
+    roof_cells = _rect(roof_x0, roof_z0, roof_x1, roof_z1)
+    depth = roof_z1 - roof_z0 + 1
+    layers = max(4, depth // 2 + 1)
+    placed_layers = 0
+    for layer in range(layers):
+        y = roof_y + layer
+        south_z = roof_z0 + layer
+        north_z = roof_z1 - layer
+        if south_z > north_z:
+            break
+        placed_layers += 1
+        south_state = _ganlan_stair_state(stair, "south")
+        north_state = _ganlan_stair_state(stair, "north")
+        for x in range(roof_x0, roof_x1 + 1):
+            if south_z == north_z:
+                compound.grid.set((x, y, south_z), slab, ["ROOF", "DETAIL"],
+                                  PRIORITY["ROOF"], "ROOF_DARK")
+            else:
+                compound.grid.set((x, y, south_z), south_state, ["ROOF"],
+                                  PRIORITY["ROOF"], "ROOF_DARK")
+                compound.grid.set((x, y, north_z), north_state, ["ROOF"],
+                                  PRIORITY["ROOF"], "ROOF_DARK")
+    ridge = _ganlan_axis_state(style.primary("FRAME_WOOD"), "x")
+    ridge_y = roof_y + placed_layers - 1
+    ridge_z0 = roof_z0 + placed_layers - 1
+    ridge_z1 = roof_z1 - placed_layers + 1
+    for z in range(ridge_z0, ridge_z1 + 1):
+        for x in range(roof_x0, roof_x1 + 1):
+            compound.grid.set((x, ridge_y, z), ridge, ["ROOF", "DETAIL"],
+                              PRIORITY["DETAIL"], "FRAME_WOOD")
+    gable_fill = _ganlan_state(style, "WALL_MAIN", default=style.primary("FRAME_WOOD"))
+    for layer in range(1, layers):
+        y = roof_y + layer - 1
+        south_z = roof_z0 + layer
+        north_z = roof_z1 - layer
+        if south_z > north_z:
+            break
+        for x in (x0, x1):
+            for z in range(south_z, north_z + 1):
+                compound.grid.set((x, y, z), gable_fill, ["ROOF", "FACADE"],
+                                  PRIORITY["FACADE"], "WALL_MAIN")
+    compound.parcel_nodes.append(
+        ParcelNode("deep_eave_gable", "deep_eave_roof", roof_cells, {
+            "overhang": side_eave,
+            "end_overhang": end_eave,
+            "roof_base_y": roof_y,
+            "layers": placed_layers,
+            "ridge_span": roof_x1 - roof_x0 + 1,
+        }))
+
+
+def _ganlan_place_wet_decor(compound: CompoundGraph, style: Style,
+                            cells: Set[Cell2], water_cells: Set[Cell2],
+                            floor_cells: Set[Cell2]) -> None:
+    plant = _ganlan_state(style, "PLANTING", default="minecraft:flowering_azalea_leaves")
+    lantern = _ganlan_state(style, "LIGHTING", "lantern", "minecraft:lantern")
+    path_axis = int(compound.meta["entry_stair_center_x"])
+    water_edges = sorted(
+        (x, z) for x, z in cells - floor_cells - water_cells
+        if any((x + dx, z + dz) in water_cells
+               for dx, dz in ((1, 0), (-1, 0), (0, 1), (0, -1))))
+    for index, (x, z) in enumerate(water_edges):
+        if index % 11 == 0 and len(water_edges) > 0:
+            compound.grid.set((x, 0, z), plant, ["DETAIL"],
+                              PRIORITY["DETAIL"], "PLANTING")
+    post = _ganlan_state(style, "DETAIL_WOOD", "fence",
+                         _ganlan_axis_state(style.primary("COLUMN"), "y"))
+    for x, z in ((path_axis - 3, compound.meta["floor_z0"] - 2),
+                 (path_axis + 3, compound.meta["floor_z0"] - 2)):
+        compound.grid.set((x, 0, z), post, ["DETAIL", "STRUCTURE"],
+                          PRIORITY["DETAIL"], "DETAIL_WOOD")
+        compound.grid.set((x, 1, z), f"{lantern.split('[', 1)[0]}[hanging=false,waterlogged=false]",
+                          ["DETAIL"], PRIORITY["DETAIL"], "LIGHTING")
+
+
+def generate_ganlan_stilted_house(seed: int, style: Optional[Style] = None) -> CompoundGraph:
+    """Generate an original Ganlan / 干栏式 raised-floor reference slice."""
+    style = style or load_style("ganlan_stilted_house")
+    wide = bool(seed % 2)
+    lot_w, lot_d = (31, 32) if wide else (25, 28)
+    axis = lot_w // 2
+    floor_y = 5 if wide else 4
+    floor_x0, floor_x1 = (6, 24) if wide else (5, 19)
+    floor_z0, floor_z1 = (8, 22) if wide else (7, 19)
+    body_x0, body_x1 = (8, 22) if wide else (7, 17)
+    body_z0, body_z1 = (12, 21) if wide else (10, 18)
+    entry_stair_center_x = axis + 5 if wide else axis - 4
+    variant = _ganlan_variant(seed)
+    compound = CompoundGraph(
+        style.style_id, seed, variant, (lot_w, lot_d), axis,
+        meta={
+            "layout_strategy": "ganlan_stilted_reference_slice",
+            "reference_candidate": "candidate_005",
+            "source_usage_decision": "local_research",
+            "original_generated": True,
+            "copied_source_assets": False,
+            "partial_implementation": True,
+            "requires_owner_visual_verdict": True,
+            "ganlan_typology": "humid_fully_elevated",
+            "main_bays": variant.main_bays,
+            "raised_floor_y": floor_y,
+            "support_plane_y": 0,
+            "floor_z0": floor_z0,
+            "entry_stair_center_x": entry_stair_center_x,
+            "body_x0": body_x0,
+            "body_x1": body_x1,
+            "wall_height": 5,
+            "deep_eave_overhang": body_z0 - floor_z0 + 1,
+            "main_roof_side_overhang": 2,
+            "main_roof_end_overhang": 1,
+            "siting_context": "humid_waterside",
+        })
+    floor_cells = _rect(floor_x0, floor_z0, floor_x1, floor_z1)
+    veranda_cells = _rect(floor_x0, floor_z0, floor_x1, body_z0 - 1)
+    body = (body_x0, body_z0, body_x1, body_z1)
+    edge_water = {
+        (x, z)
+        for x in range(max(2, floor_x0 - 2), lot_w - 2)
+        for z in range(lot_d - 6, lot_d - 2)
+    }
+    underfloor_water = {
+        (x, z)
+        for x in range(floor_x0, floor_x1 + 1)
+        for z in range(floor_z1 - 3, floor_z1 + 1)
+    }
+    side_water = {
+        (x, z)
+        for x in range(floor_x1 - 1, min(lot_w - 1, floor_x1 + 4))
+        for z in range(floor_z0 - 2, min(lot_d - 1, floor_z1 + 3))
+    }
+    water_cells = edge_water | underfloor_water | side_water
+    water_cells -= {
+        (floor_x0 + 1, floor_z1 - 1),
+        (floor_x1 - 2, floor_z1 - 3),
+        (floor_x1 + 1, floor_z0 + 1),
+    }
+    wet_cells = _ganlan_ground(compound, style, water_cells, floor_cells)
+    _ganlan_place_floor_and_posts(compound, style, floor_cells, veranda_cells, body)
+    _ganlan_place_body(compound, style, body)
+    _ganlan_place_entry_stair(compound, style)
+    _ganlan_place_veranda_canopy(
+        compound, style, (floor_x0, floor_z0, floor_x1, floor_z1), body)
+    _ganlan_place_deep_eave_roof(compound, style, body)
+    _ganlan_place_wet_decor(
+        compound, style, wet_cells, water_cells, floor_cells)
+    return compound
+
+
+def validate_ganlan_stilted_house(compound: CompoundGraph) -> dict:
+    errors: List[str] = []
+    nodes = {node.id: node for node in compound.parcel_nodes}
+    if compound.meta.get("layout_strategy") != "ganlan_stilted_reference_slice":
+        errors.append("ganlan_layout_strategy_missing")
+    if compound.meta.get("reference_candidate") != "candidate_005":
+        errors.append("ganlan_reference_candidate_missing")
+    if compound.meta.get("source_usage_decision") != "local_research":
+        errors.append("ganlan_reference_usage_decision_missing")
+    if compound.meta.get("original_generated") is not True:
+        errors.append("ganlan_original_generated_missing")
+    if compound.meta.get("copied_source_assets") is not False:
+        errors.append("ganlan_source_asset_copy_forbidden")
+
+    required = {"raised_floor", "stilt_support_grid", "raised_veranda_edge",
+                "raised_entry_stair", "deep_eave_gable", "veranda_rain_canopy",
+                "ganlan_house_body", "wet_ground_context"}
+    missing = sorted(required - set(nodes))
+    if missing:
+        errors.append(f"ganlan_nodes_missing:{missing}")
+
+    raised_floor_y = compound.meta.get("raised_floor_y")
+    support_plane_y = compound.meta.get("support_plane_y")
+    height_above_support = None
+    if isinstance(raised_floor_y, int) and isinstance(support_plane_y, int):
+        height_above_support = raised_floor_y - support_plane_y
+        if height_above_support < 2:
+            errors.append(f"ganlan_raised_floor_too_low:{height_above_support}")
+    else:
+        errors.append("ganlan_raised_floor_metadata_missing")
+
+    floor = nodes.get("raised_floor")
+    posts = nodes.get("stilt_support_grid")
+    post_count = posts.meta.get("post_count") if posts else None
+    if not isinstance(post_count, int) or post_count < 10:
+        errors.append(f"ganlan_too_few_support_posts:{post_count}")
+    beam_blocks = posts.meta.get("beam_blocks") if posts else None
+    if not isinstance(beam_blocks, int) or beam_blocks < 30:
+        errors.append(f"ganlan_underfloor_beam_rhythm_missing:{beam_blocks}")
+    unsupported_posts = []
+    if posts and isinstance(raised_floor_y, int) and isinstance(support_plane_y, int):
+        for x, z in sorted(posts.cells):
+            if compound.grid.is_empty((x, support_plane_y, z)):
+                unsupported_posts.append([x, z, support_plane_y])
+            if compound.grid.is_empty((x, raised_floor_y - 1, z)):
+                unsupported_posts.append([x, z, raised_floor_y - 1])
+    if unsupported_posts:
+        errors.append(f"ganlan_support_posts_not_connected:{unsupported_posts[:4]}")
+
+    underside_open_ratio = None
+    if floor and isinstance(raised_floor_y, int) and isinstance(support_plane_y, int):
+        total = len(floor.cells) * max(1, raised_floor_y - support_plane_y - 1)
+        solid = 0
+        for x, z in floor.cells:
+            for y in range(support_plane_y + 1, raised_floor_y):
+                if not compound.grid.is_empty((x, y, z)):
+                    solid += 1
+        underside_open_ratio = 1.0 - (solid / total if total else 1.0)
+        if underside_open_ratio < 0.65:
+            errors.append(f"ganlan_underside_too_filled:{underside_open_ratio:.2f}")
+
+    stair = nodes.get("raised_entry_stair")
+    if not stair or stair.meta.get("end_y") != raised_floor_y:
+        errors.append("ganlan_entry_stair_missing_or_low")
+    veranda = nodes.get("raised_veranda_edge")
+    if not veranda or len(veranda.cells) < 20:
+        errors.append(f"ganlan_veranda_too_small:{len(veranda.cells) if veranda else 0}")
+    entry_transition = veranda.meta.get("entry_transition_length") if veranda else None
+    if not isinstance(entry_transition, int) or entry_transition < 3:
+        errors.append(f"ganlan_entry_transition_too_direct:{entry_transition}")
+    canopy = nodes.get("veranda_rain_canopy")
+    canopy_projection = canopy.meta.get("projection") if canopy else None
+    canopy_support_count = canopy.meta.get("support_count") if canopy else None
+    if not isinstance(canopy_projection, int) or canopy_projection < 3:
+        errors.append(f"ganlan_veranda_canopy_too_shallow:{canopy_projection}")
+    if not isinstance(canopy_support_count, int) or canopy_support_count < 4:
+        errors.append(f"ganlan_veranda_canopy_unsupported:{canopy_support_count}")
+    roof = nodes.get("deep_eave_gable")
+    roof_overhang = roof.meta.get("overhang") if roof else None
+    if not isinstance(roof_overhang, int) or roof_overhang < 2:
+        errors.append(f"ganlan_deep_eave_missing:{roof_overhang}")
+    body = nodes.get("ganlan_house_body")
+    frame_post_count = body.meta.get("frame_post_count") if body else None
+    tie_beam_blocks = body.meta.get("tie_beam_blocks") if body else None
+    if not isinstance(frame_post_count, int) or frame_post_count < 8:
+        errors.append(f"ganlan_frame_rhythm_missing:{frame_post_count}")
+    if not isinstance(tie_beam_blocks, int) or tie_beam_blocks < 40:
+        errors.append(f"ganlan_tie_beams_missing:{tie_beam_blocks}")
+    wet = nodes.get("wet_ground_context")
+    water_under_floor = wet.meta.get("water_cells_under_floor") if wet else None
+    if not isinstance(water_under_floor, int) or water_under_floor < 8:
+        errors.append(f"ganlan_water_not_under_floor:{water_under_floor}")
+    if compound.meta.get("ganlan_typology") != "humid_fully_elevated":
+        errors.append("ganlan_typology_scope_missing")
+
+    stats = {
+        "raised_floor_y": raised_floor_y,
+        "support_plane_y": support_plane_y,
+        "height_above_support": height_above_support,
+        "support_post_count": post_count,
+        "underfloor_beam_blocks": beam_blocks,
+        "unsupported_posts": unsupported_posts,
+        "underside_open_ratio": underside_open_ratio,
+        "veranda_cells": len(veranda.cells) if veranda else 0,
+        "entry_transition_length": entry_transition,
+        "veranda_canopy_projection": canopy_projection,
+        "veranda_canopy_support_count": canopy_support_count,
+        "roof_overhang": roof_overhang,
+        "frame_post_count": frame_post_count,
+        "tie_beam_blocks": tie_beam_blocks,
+        "water_cells_under_floor": water_under_floor,
+        "ganlan_typology": compound.meta.get("ganlan_typology"),
+        "lot_size": list(compound.lot_size),
+        "reference_candidate": compound.meta.get("reference_candidate"),
+        "original_generated": compound.meta.get("original_generated"),
+        "partial_implementation": compound.meta.get("partial_implementation"),
+        "requires_owner_visual_verdict": compound.meta.get("requires_owner_visual_verdict"),
+    }
+    return {
+        "passed": not errors,
+        "errors": errors,
+        "stats": stats,
+        "reference_candidate": compound.meta.get("reference_candidate"),
+        "original_generated": compound.meta.get("original_generated"),
+        "copied_source_assets": compound.meta.get("copied_source_assets"),
+        "partial_implementation": compound.meta.get("partial_implementation"),
+        "requires_owner_visual_verdict": compound.meta.get("requires_owner_visual_verdict"),
+    }
+
+
+def sample_ganlan_stilted_house_library(count: int = 2, base_seed: int = 20260708,
+                                        style: Optional[Style] = None) -> List[CompoundGraph]:
+    style = style or load_style("ganlan_stilted_house")
+    compounds: List[CompoundGraph] = []
+    attempt = 0
+    max_attempts = max(8, count * 4)
+    while len(compounds) < count and attempt < max_attempts:
+        compound = generate_ganlan_stilted_house(base_seed + attempt, style)
+        report = validate_ganlan_stilted_house(compound)
+        if report["passed"]:
+            compounds.append(compound)
+        attempt += 1
+    if len(compounds) < count:
+        raise RuntimeError(
+            f"could only generate {len(compounds)}/{count} valid Ganlan stilted houses")
+    return compounds
+
+
 def _small_courtyard_variant(seed: int, size: str) -> CompoundVariant:
     rng = random.Random(seed)
     return CompoundVariant(

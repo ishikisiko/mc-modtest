@@ -189,6 +189,24 @@ GROUPS: Dict[str, SettlementGroup] = {
             "huipai_rear_hall": "housing",
         },
     ),
+    "ganlan_stilted_house": SettlementGroup(
+        group_id="ganlan_stilted_house",
+        style_id="ganlan_stilted_house",
+        archetype_roster=(
+            "ganlan_small_house",
+            "ganlan_medium_house",
+        ),
+        layout_strategy="ganlan_stilted_reference_slice",
+        scale_params={
+            "gallery_group": "ganlan_stilted_house",
+            "compound_count": 2,
+            "reference_candidate": "candidate_005",
+        },
+        classifications={
+            "ganlan_small_house": "housing",
+            "ganlan_medium_house": "housing",
+        },
+    ),
     "cultivation_sect": SettlementGroup(
         group_id="cultivation_sect",
         style_id="cultivation_sect",

@@ -185,6 +185,8 @@ def main() -> int:
     parser.add_argument("--mansion-base-seed", type=int, default=20260618)
     parser.add_argument("--huipai-mansion-count", type=int, default=2)
     parser.add_argument("--huipai-mansion-base-seed", type=int, default=20260619)
+    parser.add_argument("--ganlan-stilted-house-count", type=int, default=2)
+    parser.add_argument("--ganlan-stilted-house-base-seed", type=int, default=20260708)
     args = parser.parse_args()
 
     if args.mc_version != SUPPORTED_MC_VERSION:
@@ -217,6 +219,9 @@ def main() -> int:
         generate_group_compound_library(
             "chinese_huipai_mansion", args.huipai_mansion_count,
             args.huipai_mansion_base_seed, args.profile)
+        generate_group_compound_library(
+            "ganlan_stilted_house", args.ganlan_stilted_house_count,
+            args.ganlan_stilted_house_base_seed, args.profile)
         if args.profile == "full":
             generate_mod_block_fallbacks()
         copy_default_output(output_dir)

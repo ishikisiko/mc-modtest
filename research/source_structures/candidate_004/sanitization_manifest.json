@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "candidate_id": "candidate_004",
+  "state": "sanitized_for_preview",
+  "policy": {
+    "path": "research/source_structures/candidate_004/quarantine_policy.json",
+    "sha256": "602b3a67f7911eac93409bcbd4fdc5f8868b922fea68b344392c63e0bb80c937"
+  },
+  "source": {
+    "revision": "3da53915cd7658b5085f5926ff0205ebd30ee9d9",
+    "path": "data/mcs/structure/village/grotto/buildings/yaodong_1.nbt",
+    "quarantine_path": "out/import_quarantine/candidate_004/raw/yaodong_1.nbt",
+    "quarantine_copy_read_only": true,
+    "sha256": "02c9211678dd530c9f8e068a18b448a77816b26ec6e960e68077be64b10925e2",
+    "data_version": 3953,
+    "size": [24, 17, 23],
+    "block_entries": 5209,
+    "entities": 0,
+    "block_entity_payloads": 31
+  },
+  "output": {
+    "path": "out/import_quarantine/candidate_004/yaodong_1.sanitized.nbt",
+    "tracked": false,
+    "read_only": true,
+    "shipping_allowed": false,
+    "sha256": "76608f65e42e05f14b3e7c9a7e6994938d4d36aa47bbf7297658058153047807",
+    "author": "Silicon23 (sanitized research copy)",
+    "data_version": 3953,
+    "target_data_version": 3955,
+    "target_3955_ready": false,
+    "target_blocker": "No Minecraft DataFixer path was exercised; changing only the DataVersion integer is forbidden.",
+    "size": [24, 17, 23],
+    "block_entries": 5206,
+    "entities": 0,
+    "block_entity_payloads": 0,
+    "jigsaw_blocks": 0,
+    "palette_namespaces": ["minecraft"]
+  },
+  "transformations": [
+    {
+      "rule": "drop_all_entities",
+      "count": 0
+    },
+    {
+      "rule": "strip_all_block_entity_payloads",
+      "count": 31,
+      "includes_loot_table_payloads": 6,
+      "includes_items_list_payloads": 19,
+      "actual_item_stack_nodes": 0
+    },
+    {
+      "rule": "resolve_jigsaw_final_state",
+      "count": 4,
+      "targets": {
+        "minecraft:cave_air": 1,
+        "minecraft:stone_bricks": 3
+      }
+    },
+    {
+      "rule": "omit_jigsaw_structure_void",
+      "count": 3
+    },
+    {
+      "rule": "restricted_geometry_reemit",
+      "count": 5206,
+      "note": "Only size, resolved palette states, block positions, and source DataVersion were re-emitted. Unknown NBT fields were not round-tripped."
+    }
+  ],
+  "visual_evidence": {
+    "source_isometric": "out/preview/candidate_004_source/yaodong_1/isometric.png",
+    "source_slices": "out/preview/candidate_004_source/yaodong_1/slices_contact.png",
+    "source_viewer": "out/preview/candidate_004_source/yaodong_1/viewer.html",
+    "sanitized_isometric": "out/preview/candidate_004_sanitized/yaodong_1.sanitized/isometric.png",
+    "sanitized_slices": "out/preview/candidate_004_sanitized/yaodong_1.sanitized/slices_contact.png",
+    "sanitized_viewer": "out/preview/candidate_004_sanitized/yaodong_1.sanitized/viewer.html",
+    "comparison_index": "out/preview/candidate_004_comparison/index.html",
+    "isometric_comparison": "out/preview/candidate_004_comparison/isometric_source-left_sanitized-right.png",
+    "slice_comparison": "out/preview/candidate_004_comparison/slices_source-left_sanitized-right.png",
+    "comparison_desktop_screenshot": "out/preview/candidate_004_comparison/page_desktop.png",
+    "comparison_mobile_screenshot": "out/preview/candidate_004_comparison/page_mobile.png"
+  },
+  "remaining_blockers": [
+    "No hardened bounded parser exists for arbitrary untrusted NBT.",
+    "No DataFixer migration from DataVersion 3953 to the project target 3955 was exercised.",
+    "No in-game placement, terrain integration, or walkability review was performed.",
+    "The source license and attribution facts are recorded, but this research verdict is not a shipping decision."
+  ],
+  "human_verdict_state": "accepted_with_changes"
+}

@@ -1,0 +1,116 @@
+{
+  "style_id": "ganlan_stilted_house",
+  "material_slots": {
+    "BASE_STONE": [
+      "minecraft:mossy_cobblestone",
+      "minecraft:cobblestone"
+    ],
+    "PLATFORM_STONE": [
+      "minecraft:mossy_cobblestone",
+      "minecraft:stone"
+    ],
+    "COLUMN": [
+      "minecraft:stripped_spruce_log",
+      "minecraft:stripped_bamboo_block"
+    ],
+    "WALL_MAIN": [
+      "minecraft:bamboo_planks",
+      "minecraft:oak_planks"
+    ],
+    "FRAME_WOOD": [
+      "minecraft:stripped_spruce_log",
+      "minecraft:bamboo_block"
+    ],
+    "ROOF_DARK": [
+      "minecraft:dark_oak_stairs",
+      "minecraft:dark_oak_slab",
+      "minecraft:dark_oak_planks"
+    ],
+    "DETAIL_WOOD": [
+      "minecraft:spruce_fence",
+      "minecraft:bamboo_trapdoor",
+      "minecraft:bamboo_slab"
+    ],
+    "LIGHTING": [
+      "minecraft:lantern"
+    ],
+    "GROUND_PATH": [
+      "minecraft:coarse_dirt",
+      "minecraft:rooted_dirt"
+    ],
+    "GROUND_YARD_OPEN": [
+      "minecraft:grass_block",
+      "minecraft:rooted_dirt"
+    ],
+    "GROUND_YARD_UNDER_EAVE": [
+      "minecraft:coarse_dirt",
+      "minecraft:moss_block"
+    ],
+    "GROUND_YARD_HEART": [
+      "minecraft:water",
+      "minecraft:moss_block"
+    ],
+    "PATH_FORMAL": [
+      "minecraft:oak_planks",
+      "minecraft:jungle_planks"
+    ],
+    "PATH_ALLEY": [
+      "minecraft:coarse_dirt",
+      "minecraft:rooted_dirt"
+    ],
+    "FURNITURE": [
+      "minecraft:barrel",
+      "minecraft:chest"
+    ],
+    "WATER": [
+      "minecraft:water"
+    ],
+    "PLANTING": [
+      "minecraft:flowering_azalea_leaves",
+      "minecraft:moss_block"
+    ]
+  },
+  "variation_rate": {
+    "WALL_MAIN": 0.05,
+    "GROUND_PATH": 0.1
+  },
+  "allowed_roof_types": [
+    "chinese_overhang_gable",
+    "gable_roof"
+  ],
+  "allowed_wall_types": [
+    "raised_bamboo_wall",
+    "open_stilt_underframe"
+  ],
+  "allowed_opening_styles": [
+    "raised_entry",
+    "veranda_window"
+  ],
+  "allowed_motifs": [
+    "stilt_support_grid",
+    "underfloor_tie_beams",
+    "raised_veranda_edge",
+    "veranda_rain_canopy",
+    "deep_eave_gable",
+    "wet_ground_patch",
+    "lantern_post"
+  ],
+  "forbidden_blocks": [
+    "command_block",
+    "spawner",
+    "shulker",
+    "beacon",
+    "netherite",
+    "quartz",
+    "concrete"
+  ],
+  "proportions": {
+    "wall_height": [5, 5],
+    "roof_height_ratio": [0.45, 0.65],
+    "bay_width": [4, 5],
+    "eave_overhang": [2, 5],
+    "door_height": [2, 3],
+    "window_frequency": [0.2, 0.35],
+    "courtyard_ratio": [0.0, 0.0]
+  }
+}

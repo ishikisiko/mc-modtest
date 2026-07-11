@@ -7,6 +7,39 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.20.0
+
+### Changed
+
+- Rebuilt the existing `pagoda_001..003` cultivation landmarks as three
+  deterministic large profiles: compact five-storey, broad five-storey, and
+  slender seven-storey. Every occupied level now has a projecting two-band
+  eave, bracket rhythm, lifted corners, framed openings, stepped taper, a
+  pyramidal crown, and a taller finial; ground colonnades stop at the first
+  eave instead of rising as uninterrupted posts to the crown.
+- Expanded the two larger pagoda resources and synchronized their measured
+  footprints across Python town/sect planning and Java runtime mirrors while
+  keeping the compact profile inside the fixed civic-core parcel.
+- Added pagoda-specific geometry/provenance metrics, a three-profile
+  distinctness and NBT-hash gate, focused tests, updated previews/docs, and a
+  new owner visual-review handoff. `candidate_006` remains calibration-only;
+  no external structure asset is copied.
+
+## 0.19.1
+
+### Added
+
+- Added the second external-reference-driven generated structure slice:
+  `ganlan_stilted_house_001..002`, derived from the `candidate_005` Ganlan /
+  干栏式 breakdown as original generator output rather than copied source
+  assets. The slice adds a dedicated settlement group/style profile, raised
+  living floor, support-post grid, open underside, raised veranda/entry stair,
+  deep-eave gable roof, wet-ground context, deterministic provenance and
+  stilt-cue validation, focused tests, NBT/place/gallery resources, preview
+  handoff coverage and KB/README command docs. The owner accepted the narrow
+  generated visual slice on 2026-07-11; broader village/worldgen work remains
+  out of scope.
+
 ## 0.19.0
 
 ### Added

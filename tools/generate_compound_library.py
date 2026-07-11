@@ -24,8 +24,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from buildgen import export
 from buildgen.compound import (sample_compound_library, sample_sect_compound_library,
                                sample_huipai_mansion_library,
+                               sample_ganlan_stilted_house_library,
                                sample_town_block_library, validate_compound,
                                validate_huipai_mansion,
+                               validate_ganlan_stilted_house,
                                validate_compound_library, validate_sect_compound,
                                validate_town_block, validate_town_block_library,
                                generate_mansion, validate_mansion,
@@ -210,6 +212,60 @@ def main() -> int:
         with open(report_path, "w", encoding="utf-8") as f:
             json.dump(summary, f, indent=2, ensure_ascii=False)
         print(f"\ngenerated {len(compound_reports)}/{args.count} Hui-style compounds")
+        print(f"report: {export.repo_relpath(report_path)}")
+        print(f"gallery: {summary['gallery_function']}")
+        return 0 if passed else 1
+
+    if group.layout_strategy == "ganlan_stilted_reference_slice":
+        compounds = sample_ganlan_stilted_house_library(args.count, args.base_seed, style)
+        entries = []
+        compound_reports = []
+        for index, compound in enumerate(compounds, start=1):
+            name = f"ganlan_stilted_house_{index:03d}"
+            report = validate_ganlan_stilted_house(compound)
+            if not report["passed"]:
+                raise RuntimeError(f"{name} failed Ganlan validation: {report['errors']}")
+            _, info = export.write_structure_nbt(deepcopy(compound.grid),
+                                                 style.style_id, name)
+            export.write_place_function(style.style_id, name)
+            report["name"] = name
+            report["export"] = info
+            report["compound_graph"] = compound.to_summary_dict()
+            compound_reports.append(report)
+            entries.append({
+                "name": name,
+                "archetype": "ganlan_stilted_house",
+                "scale_tier": compound.variant.courtyard_size,
+                "size": info["size"],
+                "group_id": "ganlan_stilted_house",
+            })
+            print(f"OK {name:24s} variant={compound.variant.key()} "
+                  f"size={info['size']} blocks={info['block_count']}")
+        gallery_path = export.write_gallery_function(style.style_id, entries,
+                                                     spacing_x=40, spacing_z=44)
+        passed = all(report["passed"] for report in compound_reports)
+        summary = {
+            "style_id": style.style_id,
+            "group_id": args.group,
+            "requested": args.count,
+            "generated": len(compound_reports),
+            "passed": passed,
+            "errors": [error for report in compound_reports for error in report["errors"]],
+            "distinct_variants": len(set(c.variant.key() for c in compounds)),
+            "gallery_function": export.repo_relpath(gallery_path),
+            "reference_candidate": group.scale_params.get("reference_candidate", "candidate_005"),
+            "source_usage_decision": "local_research",
+            "original_generated": True,
+            "copied_source_assets": False,
+            "partial_implementation": True,
+            "requires_owner_visual_verdict": True,
+            "standalone_reports": [],
+            "compounds": compound_reports,
+        }
+        os.makedirs(os.path.dirname(report_path), exist_ok=True)
+        with open(report_path, "w", encoding="utf-8") as f:
+            json.dump(summary, f, indent=2, ensure_ascii=False)
+        print(f"\ngenerated {len(compound_reports)}/{args.count} Ganlan stilted houses")
         print(f"report: {export.repo_relpath(report_path)}")
         print(f"gallery: {summary['gallery_function']}")
         return 0 if passed else 1
