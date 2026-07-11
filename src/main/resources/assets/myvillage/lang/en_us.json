@@ -6,6 +6,8 @@
   "block.myvillage.rockery_block": "Rockery",
   "block.myvillage.rockery_cascade": "Rockery Cascade",
   "block.myvillage.test_item_block": "Test Item Block",
+  "entity.myvillage.simple_fox": "Simple Fox",
+  "item.myvillage.simple_fox_spawn_egg": "Simple Fox Spawn Egg",
   "itemGroup.myvillage.main": "MyVillage",
   "plaque_frame.myvillage.town_shop_wood_3w": "Town Shop Wood 3W",
   "plaque_frame.myvillage.town_inn_lacquered_4w": "Town Inn Lacquered 4W",

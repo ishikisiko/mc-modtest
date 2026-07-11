@@ -7,6 +7,16 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.21.0
+
+### Added
+
+- Added `myvillage:simple_fox` with vanilla fox model/AI inheritance, a spawn
+  egg and translations, intentional empty loot, taiga natural spawning, and
+  deterministic `48x32` UV provenance. Focused validators, the build, and
+  dedicated-server startup pass, followed by accepted in-game client validation
+  on 2026-07-12. This path adds no GeckoLib, paid GPT image call, or custom audio.
+
 ## 0.20.0
 
 ### Changed

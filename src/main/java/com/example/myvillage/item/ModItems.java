@@ -2,21 +2,22 @@ package com.example.myvillage.item;
 
 import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.block.ModBlocks;
+import com.example.myvillage.entity.ModEntities;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.common.DeferredSpawnEggItem;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 /**
- * Items registry for the myvillage mod. Currently exposes the 假山
- * (rockery) block as a placeable {@link BlockItem} so players can obtain it via
- * {@code /give} and find it in the dedicated {@code myvillage:main} creative tab.
+ * Items registry for the myvillage mod. Exposes hand-placeable decor and the
+ * simple fox spawn egg through the dedicated {@code myvillage:main} creative
+ * tab.
  *
  * <p>The rockery has 56 sub-block variants but only ONE item id
  * ({@code myvillage:rockery_block}); the variant to place is rolled at placement
@@ -46,6 +47,14 @@ public final class ModItems {
             ITEMS.registerItem("test_item_block",
                     props -> new BlockItem(ModBlocks.TEST_ITEM_BLOCK.get(), props));
 
+    public static final DeferredItem<DeferredSpawnEggItem> SIMPLE_FOX_SPAWN_EGG =
+            ITEMS.registerItem("simple_fox_spawn_egg",
+                    props -> new DeferredSpawnEggItem(
+                            ModEntities.SIMPLE_FOX,
+                            0xD77A2F,
+                            0xF1C58F,
+                            props));
+
     /**
      * The {@code myvillage:main} creative tab. Icon + content is the rockery
      * item; the tab groups all hand-placeable myvillage blocks together.
@@ -57,6 +66,7 @@ public final class ModItems {
                     .displayItems((params, output) -> {
                         output.accept(ROCKERY_BLOCK_ITEM.get());
                         output.accept(TEST_ITEM_BLOCK_ITEM.get());
+                        output.accept(SIMPLE_FOX_SPAWN_EGG.get());
                     })
                     .build());
 

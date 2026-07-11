@@ -2,10 +2,13 @@ package com.example.myvillage.client;
 
 import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.block.ModBlocks;
+import com.example.myvillage.client.entity.SimpleFoxRenderer;
+import com.example.myvillage.entity.ModEntities;
 import net.minecraft.client.renderer.BiomeColors;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 
 /**
@@ -21,6 +24,11 @@ public final class MyVillageClient {
     private static final int DEFAULT_WATER = 0x3F76E4;
 
     private MyVillageClient() {
+    }
+
+    @SubscribeEvent
+    static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event) {
+        event.registerEntityRenderer(ModEntities.SIMPLE_FOX.get(), SimpleFoxRenderer::new);
     }
 
     @SubscribeEvent

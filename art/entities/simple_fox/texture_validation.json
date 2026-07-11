@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "texture": "src/main/resources/assets/myvillage/textures/entity/simple_fox/simple_fox.png",
+  "original_mode": "RGBA",
+  "size": [
+    48,
+    32
+  ],
+  "expected_size": [
+    48,
+    32
+  ],
+  "alpha_values": [
+    0,
+    255
+  ],
+  "semi_transparent_pixels": 0,
+  "transparent_pixels_with_rgb": 0,
+  "outside_island_opaque_pixels": 0,
+  "inside_island_transparent_pixels": 0,
+  "opaque_color_count": 10,
+  "max_colors": 32,
+  "regions": [
+    {
+      "id": "head_and_face",
+      "occupied_pixels": 264,
+      "opaque_pixels": 264,
+      "opaque_color_count": 9,
+      "status": "ok"
+    },
+    {
+      "id": "ears",
+      "occupied_pixels": 32,
+      "opaque_pixels": 32,
+      "opaque_color_count": 5,
+      "status": "ok"
+    },
+    {
+      "id": "muzzle_and_nose",
+      "occupied_pixels": 52,
+      "opaque_pixels": 52,
+      "opaque_color_count": 4,
+      "status": "ok"
+    },
+    {
+      "id": "torso_caps",
+      "occupied_pixels": 72,
+      "opaque_pixels": 72,
+      "opaque_color_count": 2,
+      "status": "ok"
+    },
+    {
+      "id": "torso_sides",
+      "occupied_pixels": 264,
+      "opaque_pixels": 264,
+      "opaque_color_count": 4,
+      "status": "ok"
+    },
+    {
+      "id": "legs_and_paws",
+      "occupied_pixels": 112,
+      "opaque_pixels": 112,
+      "opaque_color_count": 6,
+      "status": "ok"
+    },
+    {
+      "id": "tail",
+      "occupied_pixels": 202,
+      "opaque_pixels": 202,
+      "opaque_color_count": 7,
+      "status": "ok"
+    }
+  ],
+  "native_patch_schema": "<skill-root>/schemas/texture_patches.schema.json",
+  "native_patches": [
+    {
+      "patch": "paired_eyes",
+      "face": "head.north",
+      "position": [
+        9,
+        13
+      ],
+      "expected_rgba": [
+        29,
+        22,
+        20,
+        255
+      ],
+      "actual_rgba": [
+        29,
+        22,
+        20,
+        255
+      ],
+      "status": "ok"
+    },
+    {
+      "patch": "paired_eyes",
+      "face": "head.north",
+      "position": [
+        12,
+        13
+      ],
+      "expected_rgba": [
+        29,
+        22,
+        20,
+        255
+      ],
+      "actual_rgba": [
+        29,
+        22,
+        20,
+        255
+      ],
+      "status": "ok"
+    },
+    {
+      "patch": "muzzle_nose",
+      "face": "muzzle.north",
+      "position": [
+        10,
+        22
+      ],
+      "expected_rgba": [
+        29,
+        22,
+        20,
+        255
+      ],
+      "actual_rgba": [
+        29,
+        22,
+        20,
+        255
+      ],
+      "status": "ok"
+    },
+    {
+      "patch": "muzzle_nose",
+      "face": "muzzle.north",
+      "position": [
+        11,
+        22
+      ],
+      "expected_rgba": [
+        29,
+        22,
+        20,
+        255
+      ],
+      "actual_rgba": [
+        29,
+        22,
+        20,
+        255
+      ],
+      "status": "ok"
+    }
+  ],
+  "warnings": [],
+  "failures": [],
+  "status": "pass"
+}

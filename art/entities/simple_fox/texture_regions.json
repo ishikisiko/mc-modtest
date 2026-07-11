@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "entity_id": "simple_fox",
+  "canvas": {
+    "width": 48,
+    "height": 32
+  },
+  "notes": [
+    "Rectangles are semantic edit bounds; the binary UV mask remains the exact write boundary.",
+    "Left front/hind legs share one island and right front/hind legs share another."
+  ],
+  "regions": [
+    {
+      "id": "head_and_face",
+      "label": "Head and face",
+      "rect": [1, 5, 28, 12],
+      "prompt_role": "Orange head, cream cheeks and blaze, paired dark eyes."
+    },
+    {
+      "id": "ears",
+      "label": "Ears",
+      "rect": [8, 1, 13, 3],
+      "prompt_role": "Dark ear tips with small warm inner-ear accents."
+    },
+    {
+      "id": "muzzle_and_nose",
+      "label": "Muzzle and nose",
+      "rect": [6, 18, 14, 5],
+      "prompt_role": "Cream muzzle with a restrained two-pixel dark nose."
+    },
+    {
+      "id": "torso_caps",
+      "label": "Torso end caps",
+      "rect": [30, 15, 12, 6],
+      "prompt_role": "Orange torso end caps with hard face shading."
+    },
+    {
+      "id": "torso_sides",
+      "label": "Torso sides",
+      "rect": [24, 21, 24, 11],
+      "prompt_role": "Orange torso sides with a cream underside."
+    },
+    {
+      "id": "legs_and_paws",
+      "label": "Legs and paws",
+      "rect": [4, 24, 17, 8],
+      "prompt_role": "Orange legs terminating in dark paws."
+    },
+    {
+      "id": "tail",
+      "label": "Tail",
+      "rect": [30, 0, 18, 14],
+      "prompt_role": "Orange tail with an irregular cream tip transition."
+    }
+  ]
+}

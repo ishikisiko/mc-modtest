@@ -1,0 +1,19 @@
+Create one UV texture atlas for an existing Minecraft FoxModel, not character art.
+Image 1 is the exact 1152x768 UV work canvas and coordinate source of truth.
+Image 2 is the approved simple orange fox concept. Image 3 is a semantic region
+overlay. Image 4 labels every cuboid part and face direction. Image 5 is a black-
+and-white guide where white marks editable UV texels.
+Preserve Image 1's canvas ratio, island positions, shapes, orientation, scale and
+spacing exactly. Do not move, rotate, resize, duplicate, merge, add or delete UV
+islands. Paint only inside the existing islands; local deterministic compositing
+will enforce the exact boundary. Use an original hard-edge Minecraft pixel texture
+with warm orange fur, cream cheeks, belly and tail tip, plus dark ears, paws, eyes
+and nose. Put both eyes and the centered forehead/blaze only on head.north; do not
+paint eyes on head.west, head.east or head.south. Put the nose only on muzzle.north.
+The rotated model reads body.north as the cream underside. Carry one consistent
+cream tip band across tail.west, tail.north, tail.east and tail.south at matching
+edge positions. Put dark paws only at the lower ends of the leg side faces. Keep
+all cube-edge seams continuous and readable after nearest downscaling to 48x32.
+No text, labels, signatures, watermarks, background, cast
+shadows, perspective, antialiasing, realistic fur, photographic noise or smooth
+gradients. Return only the atlas aligned to Image 1.

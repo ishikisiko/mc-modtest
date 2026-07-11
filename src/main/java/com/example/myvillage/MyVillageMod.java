@@ -1,6 +1,7 @@
 package com.example.myvillage;
 
 import com.example.myvillage.block.ModBlocks;
+import com.example.myvillage.entity.ModEntities;
 import com.example.myvillage.item.ModItems;
 import com.example.myvillage.region.runtime.RegionCommands;
 import com.example.myvillage.region.runtime.RegionRuntimeService;
@@ -66,6 +67,7 @@ public final class MyVillageMod {
 
     public MyVillageMod(IEventBus modEventBus) {
         LOGGER.info("MyVillage resource mod loaded");
+        ModEntities.register(modEventBus);
         ModBlocks.register(modEventBus);
         ModItems.register(modEventBus);
         SectStructures.register(modEventBus);

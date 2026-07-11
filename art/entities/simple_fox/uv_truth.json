@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "entity_id": "simple_fox",
+  "canvas": {
+    "width": 48,
+    "height": 32
+  },
+  "model": {
+    "class": "net.minecraft.client.model.FoxModel",
+    "model_layer": "minecraft:fox#main",
+    "layer_definition": "LayerDefinition.create(meshdefinition, 48, 32)",
+    "source": {
+      "minecraft_version": "1.21.1",
+      "version_manifest_path": "/home/ubuntu/.gradle/caches/neoformruntime/artifacts/minecraft_1.21.1_version_manifest.json",
+      "version_manifest_sha256": "582488569755ec01ac0580b3ea14a228bf8300796191ffb8c4e1a490bf3738dd",
+      "client_jar_path": "/home/ubuntu/.gradle/caches/neoformruntime/artifacts/minecraft_1.21.1_client.jar",
+      "client_jar_sha1": "30c73b1c5da787909b2f73340419fdf13b9def88",
+      "client_jar_sha256": "499f6897d1837516680f3114072d8106e11c9adcd933fe5cf051b551089b0c99",
+      "mapped_sources_archive_path": "/home/ubuntu/.gradle/caches/neoformruntime/intermediate_results/sourcesWithNeoForge_c5fbd36527a6b23fc77144f84d909e8365b2f20d_output.zip",
+      "mapped_sources_archive_sha256": "0885737e0373a5bab6086681a0d277926447dd21ef27f69c115834ad92c2f039",
+      "fox_model_entry": "net/minecraft/client/model/FoxModel.java",
+      "fox_model_entry_sha256": "06c565396a0d85fa4ca9ae8ff068009aa8cad1ee4b7a3c61c84bcd6795eeeeb0"
+    }
+  },
+  "vanilla_texture_evidence": {
+    "usage": "Dimensions and binary-alpha topology were inspected only; no Mojang RGB pixels are copied or recolored.",
+    "entries": [
+      {
+        "path": "assets/minecraft/textures/entity/fox/fox.png",
+        "sha256": "417aaa17f7dfc3457022cdb767a8bf93445319923393c0b9f8922e325c643532"
+      },
+      {
+        "path": "assets/minecraft/textures/entity/fox/fox_sleep.png",
+        "sha256": "8d1e2fb30f087b29e7cc672c7e3258c79baf16f5697310c481e2d6b8bc359c79"
+      },
+      {
+        "path": "assets/minecraft/textures/entity/fox/snow_fox.png",
+        "sha256": "ec8df55639e0f724573e5ebb83310747c0ab99cf3210b244dc381a6534e655d8"
+      },
+      {
+        "path": "assets/minecraft/textures/entity/fox/snow_fox_sleep.png",
+        "sha256": "3cd97c03982a957c035cc9fb1171a3884fcc67a6813eab8db955cf61c0ee8dab"
+      }
+    ],
+    "shared_dimensions": [48, 32],
+    "shared_alpha_values": [0, 255],
+    "shared_opaque_texels": 998,
+    "shared_transparent_texels": 538
+  },
+  "uv_convention": {
+    "coordinates": "zero-based half-open rectangles",
+    "box_dimensions": "[dx, dy, dz]",
+    "faces": {
+      "down": "[u+dz, v, u+dz+dx, v+dz)",
+      "up": "[u+dz+dx, v, u+dz+2*dx, v+dz)",
+      "west": "[u, v+dz, u+dz, v+dz+dy)",
+      "north": "[u+dz, v+dz, u+dz+dx, v+dz+dy)",
+      "east": "[u+dz+dx, v+dz, u+2*dz+dx, v+dz+dy)",
+      "south": "[u+2*dz+dx, v+dz, u+2*dz+2*dx, v+dz+dy)"
+    }
+  },
+  "parts": [
+    {
+      "id": "head",
+      "model_parts": ["head"],
+      "tex_offset": [1, 5],
+      "box": [8, 6, 6],
+      "semantic_region": "head_and_face"
+    },
+    {
+      "id": "right_ear",
+      "model_parts": ["right_ear"],
+      "tex_offset": [8, 1],
+      "box": [2, 2, 1],
+      "semantic_region": "ears"
+    },
+    {
+      "id": "left_ear",
+      "model_parts": ["left_ear"],
+      "tex_offset": [15, 1],
+      "box": [2, 2, 1],
+      "semantic_region": "ears"
+    },
+    {
+      "id": "muzzle",
+      "model_parts": ["nose"],
+      "tex_offset": [6, 18],
+      "box": [4, 2, 3],
+      "semantic_region": "muzzle_and_nose"
+    },
+    {
+      "id": "body",
+      "model_parts": ["body"],
+      "tex_offset": [24, 15],
+      "box": [6, 11, 6],
+      "semantic_region": "torso"
+    },
+    {
+      "id": "left_legs_shared",
+      "model_parts": ["left_hind_leg", "left_front_leg"],
+      "tex_offset": [4, 24],
+      "box": [2, 6, 2],
+      "semantic_region": "legs_and_paws"
+    },
+    {
+      "id": "right_legs_shared",
+      "model_parts": ["right_hind_leg", "right_front_leg"],
+      "tex_offset": [13, 24],
+      "box": [2, 6, 2],
+      "semantic_region": "legs_and_paws"
+    },
+    {
+      "id": "tail",
+      "model_parts": ["tail"],
+      "tex_offset": [30, 0],
+      "box": [4, 9, 5],
+      "semantic_region": "tail"
+    }
+  ],
+  "expected": {
+    "unique_uv_components": 8,
+    "component_areas_descending": [336, 264, 202, 56, 56, 52, 16, 16],
+    "opaque_texels": 998,
+    "transparent_texels": 538,
+    "max_opaque_colors": 32
+  }
+}

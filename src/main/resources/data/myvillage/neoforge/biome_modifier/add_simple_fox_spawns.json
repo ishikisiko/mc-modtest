@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "#myvillage:has_simple_fox",
+  "spawners": {
+    "type": "myvillage:simple_fox",
+    "weight": 8,
+    "minCount": 1,
+    "maxCount": 2
+  }
+}

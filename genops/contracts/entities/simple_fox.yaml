@@ -1,0 +1,310 @@
+schema_version: 1
+
+project:
+  mod_id: myvillage
+  java_package: com.example.myvillage
+  minecraft_version: 1.21.1
+  neoforge_version: 21.1.233
+  java_version: 21
+
+entity:
+  id: simple_fox
+  resource_location: myvillage:simple_fox
+  display_name:
+    zh_cn: 简易狐狸
+    en_us: Simple Fox
+  fantasy_role: 用于验证自定义生物完整流程的普通林地狐狸
+  kind: animal
+  base_class: net.minecraft.world.entity.animal.Fox
+  mob_category: creature
+  temperament: neutral
+  behavior_inheritance:
+    source: net.minecraft.world.entity.animal.Fox
+    strategy: subclass_without_replacing_vanilla_goal_selectors
+    inherited_features:
+      - vanilla_fox_ai_and_target_selection
+      - breeding_and_fox_food_interaction
+      - trusted_player_defense
+      - prey_stalking_and_pouncing
+      - item_pickup_and_eating
+      - sitting_sleeping_crouching_and_faceplant_states
+
+physical:
+  width: 0.60
+  height: 0.70
+  eye_height: 0.40
+  shadow_radius: 0.40
+  fire_immune: false
+  summonable: true
+  saveable: true
+  client_tracking_range: 8
+  update_interval_ticks: 3
+  immune_to:
+    - minecraft:sweet_berry_bush
+
+attributes:
+  max_health: 10.0
+  movement_speed: 0.30
+  follow_range: 32.0
+  attack_damage: 2.0
+  armor: 0.0
+  knockback_resistance: 0.0
+  safe_fall_distance: 5.0
+
+behavior:
+  goals:
+    - priority: 0
+      id: inherit_vanilla_fox_goal_selector
+      parameters:
+        source: net.minecraft.world.entity.animal.Fox#registerGoals
+        replace_or_append: false
+  target_goals:
+    - priority: 0
+      id: inherit_vanilla_fox_target_selector
+      parameters:
+        source: net.minecraft.world.entity.animal.Fox#registerGoals
+        replace_or_append: false
+  interaction:
+    feed_item_tag: "#minecraft:fox_food"
+    tameable: false
+    breedable: true
+    rideable: false
+    strategy: inherit_vanilla_fox
+  combat:
+    mode: inherited_vanilla_fox
+    attack_damage: 2.0
+    server_authoritative: true
+    custom_skills: []
+  performance:
+    strategy: inherit_vanilla_fox
+    custom_tick_scans: false
+
+state:
+  synced: []
+  persisted: []
+  transient: []
+  custom_state:
+    synced: []
+    persisted: []
+    transient: []
+    statement: SimpleFox adds no custom synchronized, persisted, or transient state.
+  inherited_state:
+    source: net.minecraft.world.entity.animal.Fox
+    superclass_state: Entity, LivingEntity, Mob, and Animal state remains delegated to their vanilla super implementations.
+    synced:
+      - name: DATA_TRUSTED_ID_0
+        type: optional_uuid
+        default: empty
+        purpose: first trusted entity UUID
+      - name: DATA_TRUSTED_ID_1
+        type: optional_uuid
+        default: empty
+        purpose: second trusted entity UUID
+      - name: DATA_TYPE_ID
+        type: int
+        default: 0
+        purpose: vanilla red or snow fox type retained for data and behavior compatibility
+      - name: DATA_FLAGS_ID
+        type: byte
+        default: 0
+        purpose: sitting, crouching, interested, pouncing, sleeping, faceplanted, and defending flags
+    persisted:
+      - nbt_key: Trusted
+        source: Fox#addAdditionalSaveData
+      - nbt_key: Sleeping
+        source: Fox#addAdditionalSaveData
+      - nbt_key: Type
+        source: Fox#addAdditionalSaveData
+      - nbt_key: Sitting
+        source: Fox#addAdditionalSaveData
+      - nbt_key: Crouching
+        source: Fox#addAdditionalSaveData
+    non_persisted_flags:
+      - interested
+      - pouncing
+      - faceplanted
+      - defending
+
+rendering:
+  route: vanilla
+  model_class: net.minecraft.client.model.FoxModel
+  model_layer: minecraft:fox#main
+  renderer_strategy: custom entity renderer reusing FoxModel and always returning the single custom texture
+  geo: null
+  animation: null
+  base_texture: myvillage:textures/entity/simple_fox/simple_fox.png
+  glow_texture: null
+  final_texture_size:
+    width: 48
+    height: 32
+  working_texture_size:
+    width: 1152
+    height: 768
+  palette_max_colors: 32
+  uv_face_map: art/entities/simple_fox/texture_faces.json
+  native_texture_patches: art/entities/simple_fox/texture_patches.json
+  bones:
+    - head
+    - right_ear
+    - left_ear
+    - nose
+    - body
+    - tail
+    - right_hind_leg
+    - left_hind_leg
+    - right_front_leg
+    - left_front_leg
+  animations:
+    - id: idle
+      loop: true
+      source: vanilla_fox_model
+    - id: walk
+      loop: true
+      source: vanilla_fox_model
+    - id: sit
+      loop: true
+      source: vanilla_fox_model
+    - id: sleep
+      loop: true
+      source: vanilla_fox_model
+    - id: crouch
+      loop: true
+      source: vanilla_fox_model
+    - id: pounce
+      loop: false
+      source: vanilla_fox_model_and_renderer
+    - id: hurt
+      loop: false
+      source: vanilla_living_entity_render_state
+    - id: death
+      loop: false
+      source: vanilla_living_entity_render_state
+  emissive_regions: []
+  custom_geometry: false
+  custom_animation_files: false
+  texture_count: 1
+
+texture_art_direction:
+  silhouette: 完整复用原版 FoxModel 的方块狐狸轮廓和 UV 布局
+  base_material: 原版 Minecraft 风格的硬边像素化短毛
+  palette:
+    primary: "#D77A2F"
+    secondary: "#F1C58F"
+    dark: "#3A241B"
+    nose: "#211815"
+  markings:
+    - 橙色主体
+    - 浅色口鼻、胸腹和尾尖
+    - 深色耳尖、四足和鼻眼
+  forbidden:
+    - 写实毛发
+    - 抗锯齿或平滑缩放
+    - 发光区域
+    - 第二张睡眠或雪狐贴图
+    - 文字、签名和水印
+
+items:
+  spawn_egg:
+    enabled: true
+    id: simple_fox_spawn_egg
+    primary_color: "#D77A2F"
+    secondary_color: "#F1C58F"
+    creative_tab: myvillage:main
+
+sound:
+  strategy: direct_vanilla_reuse
+  custom_sound_resources: false
+  events:
+    ambient: minecraft:entity.fox.ambient
+    sleep: minecraft:entity.fox.sleep
+    screech: minecraft:entity.fox.screech
+    hurt: minecraft:entity.fox.hurt
+    death: minecraft:entity.fox.death
+    bite: minecraft:entity.fox.bite
+    eat: minecraft:entity.fox.eat
+    sniff: minecraft:entity.fox.sniff
+    spit: minecraft:entity.fox.spit
+    aggro: minecraft:entity.fox.aggro
+  subtitles: inherit_vanilla
+
+loot:
+  table: myvillage:entities/simple_fox
+  intent: empty_first_iteration_entity_loot_table
+  pools: []
+  entries: []
+  inherited_held_item_drop_semantics: true
+
+spawn:
+  natural: true
+  biome_tag: myvillage:has_simple_fox
+  biome_modifier: myvillage:add_simple_fox_spawns
+  biome_values:
+    - "#minecraft:is_taiga"
+  placement: no_restrictions
+  heightmap: motion_blocking_no_leaves
+  predicate: com.example.myvillage.entity.SimpleFox#checkSpawnRules
+  predicate_semantics: Equivalent to Fox#checkFoxSpawnRules, exposed with SimpleFox-compatible generics.
+  weight: 8
+  min_group: 1
+  max_group: 2
+  conditions:
+    spawnable_on_tag: "#minecraft:foxes_spawnable_on"
+    requires_bright_enough_to_spawn: true
+    requires_solid_ground: true
+    requires_two_blocks_headroom: true
+
+acceptance:
+  build: true
+  dedicated_server_start: true
+  summon_test: true
+  spawn_egg_test: true
+  save_reload_test: true
+  natural_spawn_test: true
+  multiplayer_observer_test: true
+  visual_views:
+    - front
+    - left
+    - right
+    - back
+    - three_quarter
+  visual_states:
+    - idle
+    - walk
+    - sit
+    - sleep
+    - crouch
+    - pounce
+    - hurt
+    - death
+  visual_checks:
+    - custom orange texture is present with no missing-texture fallback
+    - vanilla model UV faces align without visible seams
+    - inherited poses do not clip materially
+    - the same texture remains readable while sleeping and in taiga lighting
+  human_verdict_required: true
+  human_verdict_status: accepted
+
+assumptions:
+  - 当前仓库基线为 Minecraft 1.21.1、NeoForge 21.1.233、Java 21，mod id 为 myvillage，Java 包根为 com.example.myvillage。
+  - SimpleFox 直接继承原版 Fox；除自定义 EntityType、后代类型保持为 simple_fox 所需的窄适配，以及固定贴图渲染外，不替换原版 AI、交互、战斗或状态逻辑。
+  - 所有外观状态共用一张 48x32 橙色贴图；不添加雪狐、睡眠、发光或外观变体贴图。继承的 DATA_TYPE_ID 仅为原版数据和行为兼容保留，不选择贴图。
+  - 空战利品指实体 loot table 没有 pools；狐狸继承的拾取物品和原版装备掉落语义不被本轮改写。
+  - 自然生成从低权重、1 至 2 只起步，群系标签仅引用原版 is_taiga 标签，并同时实现 biome modifier 与 Fox spawn placement 谓词。
+  - 所有声音直接复用原版狐狸 SoundEvent 和字幕，不创建 sounds.json 条目或 OGG 文件。
+  - 不新增运行时依赖，不修改 Minecraft、NeoForge 或 Java 版本；mod 发布版本由仓库统一版本任务另行同步。
+
+out_of_scope:
+  - geckolib
+  - blockbench_geometry
+  - custom_animation_clips
+  - glow_or_emissive_layer
+  - custom_audio
+  - custom_combat_skills
+  - taming_changes
+  - new_visual_variants
+  - boss_mechanics
+
+schema_limitations:
+  - schema 即使在 vanilla route 下仍要求非空 bones 和 animations；本契约记录继承的 FoxModel 部件与原版姿态，而非自定义几何或动画文件。
+  - schema 只校验 state.synced 为对象数组、state.persisted 为字符串数组，无法结构化校验继承的原版状态；详细继承状态记录在 inherited_state 扩展字段中。
+  - schema 不校验 spawn egg、声音、空 loot table、群系标签内容或继承语义，这些仍需资源完整性检查和构建、专服、游戏内验收。

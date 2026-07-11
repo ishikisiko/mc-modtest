@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "entity_id": "simple_fox",
+  "canvas": {"width": 48, "height": 32},
+  "patches": [
+    {
+      "id": "paired_eyes",
+      "face": "head.north",
+      "pixels": [[2, 2, "#1D1614"], [5, 2, "#1D1614"]]
+    },
+    {
+      "id": "muzzle_nose",
+      "face": "muzzle.north",
+      "pixels": [[1, 1, "#1D1614"], [2, 1, "#1D1614"]]
+    }
+  ]
+}

@@ -41,6 +41,7 @@ artifact and up-to-date command docs. Generate and validate:
 python3 tools/generate_all_structures.py
 python3 tools/validate_generated_structures.py src/main/resources/data/myvillage/structure
 python3 tools/validate_mod_items.py
+python3 tools/validate_custom_entities.py
 python3 tools/validate_mod_block_fallbacks.py
 python3 tools/validate_plaque_bindings.py
 python3 tools/validate_compound_library.py --count 6

@@ -33,6 +33,7 @@ Spend time on thinking; you do not need to use the commentary channel to report 
 - GenOps/CRAFT: `CRAFT.md`, `docs/ai-kb/19_genops.md`, `openspec/specs/genops/spec.md`, `genops/README.md`.
 - Resources/commands: `openspec/specs/resource-export/spec.md`.
 - Mod items: `docs/ai-kb/22_mod_item_creation.md`, `mod-item-pipeline`, `.codex/skills/mod-item-creation/SKILL.md`.
+- Custom entities: `docs/ai-kb/26_custom_entities.md`, `genops/contracts/entities/`, `custom-entity-runtime`, `tools/validate_custom_entities.py`, `resource-export`, `validation`.
 - Groups/style/modset/forms: `settlement-group`, `style-profile`, `modset-profile`, `form-registry`, `chinese-vernacular-roof-vocabulary`, `cultivation-form-vocabulary`.
 - Region runtime: `docs/ai-kb/13_region_topology.md`, `region-profile`, `region-topology`, `region-runtime-binding`.
 - Courtyard/mansion surfaces: `docs/ai-kb/16_path_surface_zoning.md`, `courtyard-ground-layer`, `courtyard-path-network`, `path-surface-zoning`, `courtyard-voxel-walkability`.

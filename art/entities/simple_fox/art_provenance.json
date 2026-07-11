@@ -1,0 +1,97 @@
+{
+  "schema_version": 2,
+  "entity_id": "simple_fox",
+  "status": "builtin_concept_adopted_atlas_rejected_deterministic_runtime",
+  "source_art": {
+    "strategy": "Programmatic hard-edge painting from FoxModel cuboid UV coordinates.",
+    "vanilla_pixel_copy": false,
+    "vanilla_recolor": false,
+    "vanilla_evidence_usage": "Only model geometry, dimensions, texture paths, hashes and binary-alpha topology were inspected."
+  },
+  "imagegen": {
+    "generator": "codex_builtin_imagegen",
+    "direct_api": false,
+    "api_credentials_used": false,
+    "concept_generation": {
+      "status": "executed",
+      "verdict": "adopted_as_direction_reference",
+      "prompt": "concept_prompt.txt",
+      "canonical_prompt_sha256": "f19b104207b9aa378abaf29af2ce07131706211fe6ea1462d3c8e3930515ccdb",
+      "execution_note": "The built-in call used the worker instruction plus the concept prompt; the tracked file is the canonical closeout prompt.",
+      "output": "references/concept_builtin.png",
+      "output_sha256": "8663dfb458e444874f95eda04b19ac0a7c96f75ca213a6afa4c47a8061057b93"
+    },
+    "atlas_edit": {
+      "status": "rejected",
+      "prompt": "atlas_prompt.txt",
+      "canonical_prompt_sha256": "f31f751952a5dce01c40efe4cbda5fd0a1b17fb496738efb164e2d2d53bc9ccb",
+      "references": {
+        "work_base_sha256": "55d6b3793c9552a9f6dce64f82f580e1a5b492dc32d59c7b68b2615f260ceddb",
+        "concept_sha256": "8663dfb458e444874f95eda04b19ac0a7c96f75ca213a6afa4c47a8061057b93",
+        "region_overlay_sha256": "a3bf26a0acde0163d49a7fa90fe676f3fdccbfa03de5483cbd1b036e2ecfef7a",
+        "face_overlay_sha256": "552d795a98dc1064af1114ef23f578d0f850d37a064069238b8db040d6331cdc",
+        "guide_mask_sha256": "6bedd926d582c23b19c05ab3e18f5c6bd07e0fdb2254044541783b813d5e1f58"
+      },
+      "attempts": [
+        {
+          "raw_sha256": "afb5d24da1d4c89ce7f974a6277bf77b75d883995919685cd7d835be4026ecab",
+          "final_candidate_sha256": "6bbe8ea3df8d9cf7ddaedac2231ac6a3ecbec8e2974a0804a94a01e081eaceff",
+          "face_overlay_supplied": false,
+          "verdict": "rejected_uv_semantics",
+          "reason": "The model painted one planar face across the complete head island, placing paired eye details on different cuboid faces."
+        },
+        {
+          "raw_sha256": "c55653c5c0dbb3ec1540d28439f068dff5f4e974a4bde3d984f434f6f7eecaa6",
+          "final_candidate_sha256": "d871db56f49d9c3757e1f01be5234dc2870b7f9029d95cf7ee1b6618b9e22647",
+          "face_overlay_supplied": true,
+          "verdict": "rejected_uv_semantics",
+          "reason": "The face overlay improved tail and paw direction but directional head details still crossed head.north and adjacent faces."
+        }
+      ],
+      "raw_candidates_tracked": false
+    },
+    "deterministic_composite": {
+      "status": "pass",
+      "normalization": "1536x1024 to 1152x768 nearest",
+      "composite_mask_sha256": "6bedd926d582c23b19c05ab3e18f5c6bd07e0fdb2254044541783b813d5e1f58",
+      "protected_pixels_changed": 0,
+      "final_candidate_dimensions": [48, 32],
+      "final_candidate_palette_colors": 32,
+      "coverage_validation": "pass",
+      "semantic_visual_verdict": "reject"
+    }
+  },
+  "deterministic_pipeline": {
+    "generator": "build_texture.py",
+    "uv_truth": "uv_truth.json",
+    "semantic_regions": "texture_regions.json",
+    "cuboid_faces": "texture_faces.json",
+    "native_patches": "texture_patches.json",
+    "mask": "uv_islands_mask.png",
+    "preview": "atlas_preview.png",
+    "validation": "texture_validation.json",
+    "runtime_texture": "src/main/resources/assets/myvillage/textures/entity/simple_fox/simple_fox.png",
+    "runtime_texture_sha256": "8e367c8ac884ac8c55b15fd268a3f56309b0d4cba72987bbb6ffab5c843f5ecd",
+    "resampling": "nearest",
+    "unused_texels": "transparent black",
+    "palette_limit": 32,
+    "selection_reason": "The native 48x32 atlas needs exact per-face placement for eyes, nose and seams; the deterministic source remained more correct than both generated atlas candidates."
+  },
+  "skill_exercise": {
+    "rectangular_contract": "pass",
+    "cuboid_uv_mask": "pass",
+    "uniform_work_scale": 24,
+    "work_size": [1152, 768],
+    "builtin_concept": "executed",
+    "builtin_atlas": "executed_twice_and_rejected",
+    "deterministic_composite": "pass",
+    "native_patch_schema_and_face_validation": "pass",
+    "final_texture_validation": "pass"
+  },
+  "visual_verdict": "accepted",
+  "owner_verdict": {
+    "status": "accepted",
+    "recorded_on": "2026-07-12",
+    "source": "completed in-game validation"
+  }
+}

@@ -474,12 +474,14 @@ jar tf build/libs/*.jar | grep "data/myvillage/structure"
 jar tf build/libs/*.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
 jar tf build/libs/*.jar | grep "data/myvillage/painting_variant/inscription"
 jar tf build/libs/*.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/*.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
+jar tf build/libs/*.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
 ```
 
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.20.0.jar
+build/libs/myvillage-0.21.0.jar
 ```
 
 ## Versioning And Changelog
@@ -508,6 +510,7 @@ command documentation:
 ```bash
 python3 tools/generate_all_structures.py --mc-version 1.21.1 --output src/main/resources/data/myvillage/structure
 python3 tools/validate_generated_structures.py src/main/resources/data/myvillage/structure
+python3 tools/validate_custom_entities.py
 python3 tools/validate_mod_block_fallbacks.py
 python3 tools/validate_plaque_bindings.py
 python3 tools/validate_compound_library.py --count 6
@@ -531,12 +534,14 @@ python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 
 python3 tools/write_visual_acceptance_report.py
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.20.0.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.20.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.20.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.20.0.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.20.0.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.20.0.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.21.0.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.21.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.21.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.21.0.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.21.0.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.21.0.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.21.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
+jar tf build/libs/myvillage-0.21.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -550,6 +555,26 @@ prep steps change.
 ```
 
 Create or open a flat test world with commands enabled.
+
+## Simple Fox Entity Smoke Test
+
+`myvillage:simple_fox` is the first complete custom-entity slice. It reuses the
+vanilla fox model, animation, AI, synchronized state, NBT, and sounds while
+keeping an independent entity id, orange texture, spawn egg, loot table, and
+low-weight taiga natural spawn entry.
+
+```mcfunction
+/summon myvillage:simple_fox ~ ~ ~
+/give @s myvillage:simple_fox_spawn_egg
+/data get entity @e[type=myvillage:simple_fox,limit=1,sort=nearest]
+```
+
+For save/reload, note the summoned fox's UUID from `/data get`, save and exit,
+reopen the world, and query the same nearby entity again. Natural-spawn review
+must use a recorded seed and taiga-family biome, then note observation time and
+group size; a successful codec/server boot does not prove frequency. Inspect
+front, both sides, back, three-quarter, idle, walk, sit, sleep, crouch, pounce,
+hurt, and death before recording the human visual verdict.
 
 ## Available Commands
 
@@ -955,6 +980,7 @@ Included:
 - /myvillage galleryat <all|original|cultivation> <x> <y> <z>
 - a custom `myvillage:sect` worldgen Structure: sects are sited during world generation, biome-gated by `tags/worldgen/biome/has_sect`, spaced by `worldgen/structure_set/sect`, and `/locate`-able, resting on a mountain derived from the terrace profile (反推山形)
 - generated optional-mod runtime fallback map and fallback coverage validation
+- `myvillage:simple_fox`: vanilla-model custom entity, spawn egg, empty first-pass loot table, and low-weight taiga natural spawning
 - NBT integrity validation for roof/top-layer/function-block/signature checks
 - deterministic town-plan and sect-plan/sect-generation validation with top-down previews
 ```
@@ -964,7 +990,7 @@ Not included:
 ```text
 - passive/natural *town* worldgen (towns remain command-built via `/myvillage town`; only sects are sited during world generation)
 - jigsaw / template-pool generation (the sect structure is a hand-written `Structure`, not a jigsaw template pool)
-- loot tables or complex authored block-entity NBT
+- reward-bearing entity loot or complex authored block-entity NBT
 ```
 
 Future direction:
@@ -1005,4 +1031,7 @@ acceptance still needs a v0.9 mod jar plus in-game visual inspection with
 `/myvillage place sect_gate_001`,
 `/myvillage place scripture_pavilion_001`,
 `/myvillage place cultivation_sect_001`, `/myvillage gallery`,
-`/myvillage gallery original`, and `/myvillage gallery cultivation`.
+`/myvillage gallery original`, and `/myvillage gallery cultivation`. The
+simple-fox slice completed its summon, spawn-egg, save/reload,
+natural-frequency, multiplayer, and multi-view Minecraft acceptance on
+2026-07-12.
