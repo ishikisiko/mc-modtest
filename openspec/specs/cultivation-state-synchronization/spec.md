@@ -71,6 +71,12 @@ The client SHALL register `Open Cultivation Profile` as a configurable key mappi
 - **WHEN** the owning client has a synchronized snapshot and activates the profile key
 - **THEN** the screen SHALL show player identity, translated realm and stage, raw cultivation progress, stability, raw current spiritual power, spiritual-root affinities or unawakened state, learned techniques with category, grade, and mastery, and profile schema version
 - **AND** the screen SHALL read the immutable latest snapshot without sending a cultivation payload
+- **AND** the panel, player face, labels, values, bars, and dividers SHALL be rendered after or without the vanilla background-blur pass so profile content remains sharp
+
+#### Scenario: The diagnostic screen renders its backdrop
+- **WHEN** `CultivationProfileScreen#render` draws its owned translucent backdrop and profile content
+- **THEN** it SHALL NOT invoke `Screen#render` after drawing that content
+- **AND** the vanilla background post-process SHALL NOT blur the already-rendered profile UI
 
 #### Scenario: The snapshot has not arrived
 - **WHEN** the profile screen opens before `ClientCultivationState` contains a snapshot

@@ -49,6 +49,7 @@ public final class CultivationProfileScreen extends Screen {
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        // Screen#render applies the vanilla blur pass; this screen owns its backdrop so its content stays crisp.
         graphics.fill(0, 0, width, height, BACKDROP);
 
         int panelWidth = Math.min(440, width - 20);
@@ -72,7 +73,6 @@ public final class CultivationProfileScreen extends Screen {
                     left + panelWidth / 2,
                     top + panelHeight / 2,
                     MUTED);
-            super.render(graphics, mouseX, mouseY, partialTick);
             return;
         }
 
@@ -103,7 +103,6 @@ public final class CultivationProfileScreen extends Screen {
         String schema = Component.translatable(
                 "screen.myvillage.cultivation.schema", profile.schemaVersion()).getString();
         graphics.drawString(font, schema, right - 10 - font.width(schema), bottom - 12, MUTED, false);
-        super.render(graphics, mouseX, mouseY, partialTick);
     }
 
     private void drawHeader(

@@ -105,8 +105,10 @@ definition cannot be resolved.
 
 The screen has no mutation controls and sends no payload. Pressing `H` again or
 Escape closes it. An absent snapshot is rendered as an explicit waiting state
-rather than a fabricated default profile. This is a testing surface, not the
-future meditation, breakthrough, technique-execution, or combat HUD.
+rather than a fabricated default profile. The screen owns its translucent
+backdrop and does not run the vanilla background-blur pass after drawing profile
+content, so the face, text, bars, and dividers remain sharp. This is a testing
+surface, not the future meditation, breakthrough, technique-execution, or combat HUD.
 
 ## Administrator Commands
 

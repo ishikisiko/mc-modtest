@@ -7,6 +7,15 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.22.2-fix1
+
+### Fixed
+
+- Fixed the cultivation profile screen calling the vanilla `Screen#render`
+  background-blur pass after drawing its panel. The screen now keeps its owned
+  translucent backdrop while rendering the player face, text, bars, and
+  dividers without post-process blur.
+
 ## 0.22.2
 
 ### Added
