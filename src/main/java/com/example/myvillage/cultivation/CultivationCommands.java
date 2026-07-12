@@ -33,101 +33,121 @@ public final class CultivationCommands {
     }
 
     public static LiteralArgumentBuilder<CommandSourceStack> command() {
-        return Commands.literal("cultivation")
-                .then(Commands.literal("info")
+        return commandTree("cultivation");
+    }
+
+    public static LiteralArgumentBuilder<CommandSourceStack> pinyinCommand() {
+        return commandTree("xiulian");
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> commandTree(String rootLiteral) {
+        return Commands.literal(rootLiteral)
+                .then(infoCommand("info"))
+                .then(infoCommand("chakan"))
+                .then(resetCommand("reset"))
+                .then(resetCommand("chongzhi"))
+                .then(realmCommand("setrealm"))
+                .then(realmCommand("shezhijingjie"))
+                .then(progressCommand("setprogress"))
+                .then(progressCommand("shezhixiuwei"))
+                .then(stabilityCommand("setstability"))
+                .then(stabilityCommand("shezhiwendingdu"))
+                .then(powerCommand("setpower"))
+                .then(powerCommand("shezhilingli"))
+                .then(setRootCommand("setroot"))
+                .then(setRootCommand("shezhilinggen"))
+                .then(clearRootCommand("clearroot"))
+                .then(clearRootCommand("qingchulinggen"))
+                .then(techniqueCommand("learn", CultivationCommands::learnTechnique))
+                .then(techniqueCommand("xuexi", CultivationCommands::learnTechnique))
+                .then(techniqueCommand("forget", CultivationCommands::forgetTechnique))
+                .then(techniqueCommand("yiwang", CultivationCommands::forgetTechnique))
+                .then(masteryCommand("setmastery"))
+                .then(masteryCommand("shezhishuliandu"));
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> infoCommand(String literal) {
+        return Commands.literal(literal)
+                .executes(context -> info(
+                        context.getSource(), context.getSource().getPlayerOrException()))
+                .then(Commands.argument("target", EntityArgument.player())
                         .executes(context -> info(
-                                context.getSource(), context.getSource().getPlayerOrException()))
-                        .then(Commands.argument("target", EntityArgument.player())
-                                .executes(context -> info(
-                                        context.getSource(), EntityArgument.getPlayer(context, "target")))))
-                .then(Commands.literal("reset")
-                        .then(Commands.argument("target", EntityArgument.player())
-                                .executes(context -> report(
-                                        context.getSource(),
-                                        EntityArgument.getPlayer(context, "target"),
-                                        CultivationService.resetProfile(
-                                                EntityArgument.getPlayer(context, "target"))))))
-                .then(Commands.literal("setrealm")
-                        .then(Commands.argument("target", EntityArgument.player())
-                                .then(Commands.argument("realm_id", ResourceLocationArgument.id())
-                                        .suggests(CultivationCommands::suggestRealms)
-                                        .then(Commands.argument("stage_id", ResourceLocationArgument.id())
-                                                .suggests(CultivationCommands::suggestStages)
-                                                .executes(context -> {
-                                                    ServerPlayer target = EntityArgument.getPlayer(context, "target");
-                                                    return report(
-                                                            context.getSource(),
+                                context.getSource(), EntityArgument.getPlayer(context, "target"))));
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> resetCommand(String literal) {
+        return Commands.literal(literal)
+                .then(Commands.argument("target", EntityArgument.player())
+                        .executes(context -> report(
+                                context.getSource(),
+                                EntityArgument.getPlayer(context, "target"),
+                                CultivationService.resetProfile(
+                                        EntityArgument.getPlayer(context, "target")))));
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> realmCommand(String literal) {
+        return Commands.literal(literal)
+                .then(Commands.argument("target", EntityArgument.player())
+                        .then(Commands.argument("realm_id", ResourceLocationArgument.id())
+                                .suggests(CultivationCommands::suggestRealms)
+                                .then(Commands.argument("stage_id", ResourceLocationArgument.id())
+                                        .suggests(CultivationCommands::suggestStages)
+                                        .executes(context -> {
+                                            ServerPlayer target = EntityArgument.getPlayer(context, "target");
+                                            return report(
+                                                    context.getSource(),
+                                                    target,
+                                                    CultivationService.setRealmAndStage(
                                                             target,
-                                                            CultivationService.setRealmAndStage(
-                                                                    target,
-                                                                    ResourceLocationArgument.getId(context, "realm_id"),
-                                                                    ResourceLocationArgument.getId(context, "stage_id")));
-                                                })))))
-                .then(Commands.literal("setprogress")
-                        .then(Commands.argument("target", EntityArgument.player())
-                                .then(Commands.argument("amount", LongArgumentType.longArg(0))
-                                        .executes(context -> {
-                                            ServerPlayer target = EntityArgument.getPlayer(context, "target");
-                                            return report(
-                                                    context.getSource(),
-                                                    target,
-                                                    CultivationService.setProgress(
-                                                            target, LongArgumentType.getLong(context, "amount")));
-                                        }))))
-                .then(Commands.literal("setstability")
-                        .then(Commands.argument("target", EntityArgument.player())
-                                .then(Commands.argument("amount", IntegerArgumentType.integer(0, 100))
-                                        .executes(context -> {
-                                            ServerPlayer target = EntityArgument.getPlayer(context, "target");
-                                            return report(
-                                                    context.getSource(),
-                                                    target,
-                                                    CultivationService.setStability(
-                                                            target, IntegerArgumentType.getInteger(context, "amount")));
-                                        }))))
-                .then(Commands.literal("setpower")
-                        .then(Commands.argument("target", EntityArgument.player())
-                                .then(Commands.argument("amount", LongArgumentType.longArg(0))
-                                        .executes(context -> {
-                                            ServerPlayer target = EntityArgument.getPlayer(context, "target");
-                                            return report(
-                                                    context.getSource(),
-                                                    target,
-                                                    CultivationService.setSpiritualPower(
-                                                            target, LongArgumentType.getLong(context, "amount")));
-                                        }))))
-                .then(setRootCommand())
-                .then(Commands.literal("clearroot")
-                        .then(Commands.argument("target", EntityArgument.player())
+                                                            ResourceLocationArgument.getId(context, "realm_id"),
+                                                            ResourceLocationArgument.getId(context, "stage_id")));
+                                        }))));
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> progressCommand(String literal) {
+        return Commands.literal(literal)
+                .then(Commands.argument("target", EntityArgument.player())
+                        .then(Commands.argument("amount", LongArgumentType.longArg(0))
                                 .executes(context -> {
                                     ServerPlayer target = EntityArgument.getPlayer(context, "target");
                                     return report(
                                             context.getSource(),
                                             target,
-                                            CultivationService.clearSpiritualRoot(target));
-                                })))
-                .then(techniqueCommand("learn", CultivationCommands::learnTechnique))
-                .then(techniqueCommand("forget", CultivationCommands::forgetTechnique))
-                .then(Commands.literal("setmastery")
-                        .then(Commands.argument("target", EntityArgument.player())
-                                .then(Commands.argument("technique_id", ResourceLocationArgument.id())
-                                        .suggests(CultivationCommands::suggestTechniques)
-                                        .then(Commands.argument("amount", LongArgumentType.longArg(0))
-                                                .executes(context -> {
-                                                    ServerPlayer target = EntityArgument.getPlayer(context, "target");
-                                                    return report(
-                                                            context.getSource(),
-                                                            target,
-                                                            CultivationService.setTechniqueMastery(
-                                                                    target,
-                                                                    ResourceLocationArgument.getId(
-                                                                            context, "technique_id"),
-                                                                    LongArgumentType.getLong(context, "amount")));
-                                                })))));
+                                            CultivationService.setProgress(
+                                                    target, LongArgumentType.getLong(context, "amount")));
+                                })));
     }
 
-    private static LiteralArgumentBuilder<CommandSourceStack> setRootCommand() {
-        return Commands.literal("setroot")
+    private static LiteralArgumentBuilder<CommandSourceStack> stabilityCommand(String literal) {
+        return Commands.literal(literal)
+                .then(Commands.argument("target", EntityArgument.player())
+                        .then(Commands.argument("amount", IntegerArgumentType.integer(0, 100))
+                                .executes(context -> {
+                                    ServerPlayer target = EntityArgument.getPlayer(context, "target");
+                                    return report(
+                                            context.getSource(),
+                                            target,
+                                            CultivationService.setStability(
+                                                    target, IntegerArgumentType.getInteger(context, "amount")));
+                                })));
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> powerCommand(String literal) {
+        return Commands.literal(literal)
+                .then(Commands.argument("target", EntityArgument.player())
+                        .then(Commands.argument("amount", LongArgumentType.longArg(0))
+                                .executes(context -> {
+                                    ServerPlayer target = EntityArgument.getPlayer(context, "target");
+                                    return report(
+                                            context.getSource(),
+                                            target,
+                                            CultivationService.setSpiritualPower(
+                                                    target, LongArgumentType.getLong(context, "amount")));
+                                })));
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> setRootCommand(String literal) {
+        return Commands.literal(literal)
                 .then(Commands.argument("target", EntityArgument.player())
                         .then(Commands.argument("metal", IntegerArgumentType.integer(0, 10_000))
                                 .then(Commands.argument("wood", IntegerArgumentType.integer(0, 10_000))
@@ -137,6 +157,18 @@ public final class CultivationCommands {
                                                                         "earth",
                                                                         IntegerArgumentType.integer(0, 10_000))
                                                                 .executes(CultivationCommands::setRoot)))))));
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> clearRootCommand(String literal) {
+        return Commands.literal(literal)
+                .then(Commands.argument("target", EntityArgument.player())
+                        .executes(context -> {
+                            ServerPlayer target = EntityArgument.getPlayer(context, "target");
+                            return report(
+                                    context.getSource(),
+                                    target,
+                                    CultivationService.clearSpiritualRoot(target));
+                        }));
     }
 
     private static int setRoot(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
@@ -182,6 +214,25 @@ public final class CultivationCommands {
                                                     ResourceLocationArgument.getId(
                                                             context, "technique_id")));
                                 })));
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> masteryCommand(String literal) {
+        return Commands.literal(literal)
+                .then(Commands.argument("target", EntityArgument.player())
+                        .then(Commands.argument("technique_id", ResourceLocationArgument.id())
+                                .suggests(CultivationCommands::suggestTechniques)
+                                .then(Commands.argument("amount", LongArgumentType.longArg(0))
+                                        .executes(context -> {
+                                            ServerPlayer target = EntityArgument.getPlayer(context, "target");
+                                            return report(
+                                                    context.getSource(),
+                                                    target,
+                                                    CultivationService.setTechniqueMastery(
+                                                            target,
+                                                            ResourceLocationArgument.getId(
+                                                                    context, "technique_id"),
+                                                            LongArgumentType.getLong(context, "amount")));
+                                        }))));
     }
 
     private static CultivationService.Result learnTechnique(

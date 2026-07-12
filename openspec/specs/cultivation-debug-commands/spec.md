@@ -7,7 +7,7 @@ commands used to inspect and validate server-authoritative player profiles.
 
 ## Requirements
 ### Requirement: Cultivation commands extend the existing protected root
-`CultivationCommands` SHALL provide a `cultivation` subtree delegated from the existing `/myvillage` command registration. The subtree SHALL inherit the root's permission-level-2 requirement. Adding it SHALL NOT refactor or change existing town, sect, gallery, spawn, structure-placement, or flying-sword behavior.
+`CultivationCommands` SHALL provide `cultivation` and pinyin `xiulian` subtrees delegated from the existing `/myvillage` command registration. Both subtrees SHALL inherit the root's permission-level-2 requirement. Adding them SHALL NOT refactor or change existing town, sect, gallery, spawn, structure-placement, or flying-sword behavior.
 
 #### Scenario: An operator uses a cultivation command
 - **WHEN** a command source with permission level `2` or greater invokes `/myvillage cultivation ...`
@@ -16,6 +16,22 @@ commands used to inspect and validate server-authoritative player profiles.
 #### Scenario: An unprivileged player uses a cultivation command
 - **WHEN** a command source below permission level `2` attempts to invoke the subtree
 - **THEN** Brigadier SHALL deny access through the existing root permission boundary
+
+### Requirement: Every cultivation command has a structurally equivalent pinyin alias
+Both `/myvillage cultivation` and `/myvillage xiulian` SHALL expose every English and pinyin literal in the following fixed mapping: `info` / `chakan`, `reset` / `chongzhi`, `setrealm` / `shezhijingjie`, `setprogress` / `shezhixiuwei`, `setstability` / `shezhiwendingdu`, `setpower` / `shezhilingli`, `setroot` / `shezhilinggen`, `clearroot` / `qingchulinggen`, `learn` / `xuexi`, `forget` / `yiwang`, and `setmastery` / `shezhishuliandu`. Each pair SHALL use the same argument names and types, numeric bounds, dynamic registry suggestions, execution handler, permission boundary, diagnostics, return result, atomic mutation semantics, and snapshot synchronization behavior. The aliases SHALL NOT introduce a second service mutation implementation.
+
+#### Scenario: An operator uses a fully pinyin route
+- **WHEN** an operator invokes `/myvillage xiulian shezhixiuwei <target> <amount>`
+- **THEN** the command SHALL produce the same result as `/myvillage cultivation setprogress <target> <amount>`
+
+#### Scenario: English and pinyin literals are mixed
+- **WHEN** an operator uses an English subcommand under `xiulian` or a pinyin subcommand under `cultivation`
+- **THEN** Brigadier SHALL accept the route with the same arguments and behavior as its canonical English route
+
+#### Scenario: Command-tree equivalence is tested
+- **WHEN** automated tests enumerate both root subtrees and every alias pair
+- **THEN** both roots SHALL contain the complete English-and-pinyin literal set
+- **AND** each English/pinyin pair SHALL expose an equivalent descendant argument and execution shape
 
 ### Requirement: The info command reports the complete current profile
 The mod SHALL provide `/myvillage cultivation info [target]`. Without `target`, the executing player SHALL be used; with `target`, the command SHALL use the standard single-player argument. Output SHALL include schema version, realm id, stage id, cultivation progress, stability, current spiritual power, spiritual root or `unawakened`, and every learned technique id with mastery.
@@ -130,5 +146,5 @@ Every invalid cultivation command SHALL identify the specific invalid target, id
 The cultivation command subtree SHALL NOT provide random awakening, meditation, cultivation-gain, breakthrough, technique-execution, spiritual-power recovery, cooldown, equipment, or combat commands.
 
 #### Scenario: The command tree is inspected
-- **WHEN** the registered `/myvillage cultivation` literals are enumerated
-- **THEN** only the specified info, reset, deterministic set/clear, and learned-technique maintenance commands SHALL be present
+- **WHEN** the registered `/myvillage cultivation` and `/myvillage xiulian` literals are enumerated
+- **THEN** only the specified info, reset, deterministic set/clear, learned-technique maintenance commands, and their documented pinyin aliases SHALL be present

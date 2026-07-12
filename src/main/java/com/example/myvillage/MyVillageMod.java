@@ -207,7 +207,8 @@ public final class MyVillageMod {
                                         .executes(ctx -> RegionCommands.spawnInfo(ctx.getSource())))
                                 .then(Commands.literal("recompute")
                                         .executes(ctx -> RegionCommands.spawnRecompute(ctx.getSource()))))
-                        .then(CultivationCommands.command()));
+                        .then(CultivationCommands.command())
+                        .then(CultivationCommands.pinyinCommand()));
     }
 
     private int placeNamedStructure(CommandSourceStack source, String rawId) throws CommandSyntaxException {

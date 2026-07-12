@@ -128,6 +128,15 @@ Targets use the standard single-player argument.
 /myvillage cultivation setmastery <target> <technique_id> <amount>
 ```
 
+`/myvillage xiulian` is a complete pinyin alias of the `cultivation` root.
+Both roots expose both names in every pair: `info` / `chakan`, `reset` /
+`chongzhi`, `setrealm` / `shezhijingjie`, `setprogress` / `shezhixiuwei`,
+`setstability` / `shezhiwendingdu`, `setpower` / `shezhilingli`, `setroot` /
+`shezhilinggen`, `clearroot` / `qingchulinggen`, `learn` / `xuexi`, `forget` /
+`yiwang`, and `setmastery` / `shezhishuliandu`. English and pinyin routes share
+the same argument types, registry suggestions, permission boundary, handlers,
+diagnostics, atomic mutation behavior, and synchronization effects.
+
 Progress, power, and mastery are non-negative. `setrealm` requires the stage to
 belong to the selected registered realm. The five `setroot` values are basis
 points in `0..10000` and must total exactly `10000`; this convenience command

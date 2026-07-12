@@ -7,6 +7,17 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.22.2
+
+### Added
+
+- Added `/myvillage xiulian` and complete pinyin aliases for every cultivation
+  inspection and mutation command. Both cultivation roots accept both English
+  and pinyin subcommands and share the same arguments, registry suggestions,
+  handlers, permission boundary, atomic service mutations, and synchronization.
+- Added command-tree equivalence tests and synchronized the alias contract in
+  the cultivation command spec, technical notes, README, and agent guidance.
+
 ## 0.22.1
 
 ### Added

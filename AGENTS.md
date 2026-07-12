@@ -24,7 +24,7 @@ Spend time on thinking; you do not need to use the commentary channel to report 
 - Chunky automation is a staged handoff, not visual acceptance. Headless Chunky renderer PNGs cannot prove custom `myvillage:` block appearance until a dedicated compatibility path exists.
 - When commands or acceptance prep steps change, update `README.md`, this `AGENTS.md`, and relevant `openspec/specs/` documents together.
 - Flying-sword changes must keep the custom payload input-only and run `tools/validate_rideable_flying_sword.py`, tests, build, and the acceptance server; riding and appearance still require in-game review.
-- Cultivation-core changes must keep immutable profile replacement behind `CultivationService`, use Attachment `copyOnDeath` without a cultivation `PlayerEvent.Clone` copy, keep snapshots clientbound-only, and run the cultivation validator, tests, build, and a bounded acceptance-server smoke; lifecycle gameplay checks remain manual.
+- Cultivation-core changes must keep immutable profile replacement behind `CultivationService`, use Attachment `copyOnDeath` without a cultivation `PlayerEvent.Clone` copy, keep snapshots clientbound-only, keep every English `/myvillage cultivation` command structurally equivalent to its documented pinyin alias under both `cultivation` and `xiulian`, and run the cultivation validator, tests, build, and a bounded acceptance-server smoke; lifecycle gameplay checks remain manual.
 - Git workflow: branches off `main`; unless told otherwise, fast-forward-merge finished change branches back to `main` and push after committing. Keep branches/PRs open only when explicitly asked.
 - 最后每次回报的时候用中文。
 
