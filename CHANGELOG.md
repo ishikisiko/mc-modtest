@@ -7,6 +7,18 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.22.1
+
+### Added
+
+- Added a configurable `H` key binding and non-pausing, read-only personal
+  cultivation profile screen for testing synchronized realm, stage, progress,
+  stability, spiritual power, spiritual-root affinities, learned techniques,
+  grades, categories, mastery, and profile schema version.
+- Added synchronized display colors for the five shipped spiritual elements and
+  English/Chinese screen translations. The panel reads only the owning-client
+  snapshot and sends no cultivation mutation payload.
+
 ## 0.22.0-fix2
 
 ### Fixed

@@ -60,9 +60,27 @@ The server SHALL synchronize the current profile on player login, player respawn
 - **THEN** the cache SHALL become empty before another connection can observe the stale profile
 
 #### Scenario: Client UI code reads the cache
-- **WHEN** future client presentation code accesses `ClientCultivationState`
+- **WHEN** client presentation code accesses `ClientCultivationState`
 - **THEN** it SHALL receive a read-only profile view
 - **AND** it SHALL have no API to submit or install server-authoritative values
+
+### Requirement: A configurable key opens the read-only cultivation profile screen
+The client SHALL register `Open Cultivation Profile` as a configurable key mapping that defaults to `H`. While a local player is present and no other screen is open, consuming that key SHALL open a non-pausing cultivation profile screen. Pressing the configured key again while that screen is focused or pressing Escape SHALL close it.
+
+#### Scenario: A player opens the diagnostic profile
+- **WHEN** the owning client has a synchronized snapshot and activates the profile key
+- **THEN** the screen SHALL show player identity, translated realm and stage, raw cultivation progress, stability, raw current spiritual power, spiritual-root affinities or unawakened state, learned techniques with category, grade, and mastery, and profile schema version
+- **AND** the screen SHALL read the immutable latest snapshot without sending a cultivation payload
+
+#### Scenario: The snapshot has not arrived
+- **WHEN** the profile screen opens before `ClientCultivationState` contains a snapshot
+- **THEN** it SHALL show an explicit unavailable or waiting state
+- **AND** it SHALL NOT fabricate the default profile
+
+#### Scenario: A profile references unavailable definitions
+- **WHEN** the screen cannot resolve a realm, stage, element, or technique id against the synchronized registries
+- **THEN** it SHALL retain and display the raw id with an unavailable marker
+- **AND** it SHALL continue rendering the remaining valid profile fields
 
 ### Requirement: Payload handling uses the current NeoForge main-thread contract
 The clientbound handler SHALL schedule cache replacement with `IPayloadContext#enqueueWork`. Payload registration SHALL use the current `PayloadRegistrar#playToClient` API and a `StreamCodec` over `RegistryFriendlyByteBuf`; it SHALL NOT use `SimpleChannel` or an obsolete Forge networking API.

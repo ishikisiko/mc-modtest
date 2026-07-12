@@ -44,6 +44,9 @@ neoForge {
         configureEach {
             // all runs load the mod declared above
         }
+        client {
+            client()
+        }
         server {
             server()
         }

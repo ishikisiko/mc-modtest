@@ -3,9 +3,10 @@
 The first cultivation runtime slice is infrastructure only. It provides
 data-driven definitions, an immutable player profile, persistence, server-to-client
 snapshot synchronization, permission-level-2 administrator commands, and focused
-validation. It does not provide meditation, awakening generation, cultivation
+validation. It also provides a read-only diagnostic profile screen opened by the
+configurable `H` key. It does not provide meditation, awakening generation, cultivation
 gain, breakthroughs, technique execution, power recovery, cooldowns, combat
-attributes, equipment slots, UI, or new items, blocks, and entities. Region qi,
+attributes, equipment slots, interactive cultivation UI, or new items, blocks, and entities. Region qi,
 sect facilities, worldgen, and flying-sword restrictions are not connected.
 
 ## Authority And Profile
@@ -90,6 +91,22 @@ definition records, which arrive through registry synchronization. The handler
 uses `enqueueWork`; the client stores only the latest immutable snapshot and
 clears it on disconnect. There is no client-to-server cultivation mutation
 payload, and common/server registration does not classload client-only types.
+
+## Diagnostic Profile Screen
+
+The configurable `Open Cultivation Profile` key defaults to `H`. It opens a
+non-pausing, read-only screen for the owning player's latest synchronized
+snapshot. The screen shows player identity, translated realm and stage,
+cultivation progress, stability, current spiritual power, spiritual-root
+affinities, learned techniques, categories, grades, mastery values, and profile
+schema version. It uses the synchronized registries for labels, ordering, and
+element colors and preserves raw ids with an unavailable marker when a
+definition cannot be resolved.
+
+The screen has no mutation controls and sends no payload. Pressing `H` again or
+Escape closes it. An absent snapshot is rendered as an explicit waiting state
+rather than a fabricated default profile. This is a testing surface, not the
+future meditation, breakthrough, technique-execution, or combat HUD.
 
 ## Administrator Commands
 

@@ -483,7 +483,7 @@ jar tf build/libs/*.jar | grep "assets/myvillage/textures/item/rideable_flying_s
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.22.0-fix2.jar
+build/libs/myvillage-0.22.1.jar
 ```
 
 ## Versioning And Changelog
@@ -538,16 +538,16 @@ python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 
 python3 tools/write_visual_acceptance_report.py
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.22.0-fix2.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.22.0-fix2.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.22.0-fix2.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.22.0-fix2.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.22.0-fix2.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.22.0-fix2.jar | grep "assets/myvillage/textures/painting/inscription"
-jar tf build/libs/myvillage-0.22.0-fix2.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
-jar tf build/libs/myvillage-0.22.0-fix2.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
-jar tf build/libs/myvillage-0.22.0-fix2.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
-jar tf build/libs/myvillage-0.22.0-fix2.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
+jar tf build/libs/myvillage-0.22.1.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.22.1.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.22.1.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.22.1.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.22.1.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.22.1.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.22.1.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
+jar tf build/libs/myvillage-0.22.1.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
+jar tf build/libs/myvillage-0.22.1.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
+jar tf build/libs/myvillage-0.22.1.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -644,7 +644,15 @@ The foundation adds a server-authoritative immutable v1 player profile,
 codec-backed Data Attachment persistence, synced definition registries, an
 owning-client read-only snapshot, and operator commands. It does not generate a
 spiritual root, accumulate cultivation, advance realms, execute
-`basic_breathing`, recover spiritual power, or add a HUD, item, block, or entity.
+`basic_breathing`, recover spiritual power, or add a cultivation HUD, item,
+block, or entity.
+
+Press `H` in game to open the read-only personal cultivation profile panel. The
+binding is configurable as `Open Cultivation Profile` under the MyVillage key
+category. The panel shows the latest server-synchronized realm, stage,
+cultivation progress, stability, current spiritual power, spiritual-root
+affinities, learned techniques, grades, categories, and mastery. It is a
+non-pausing diagnostic view with no mutation controls; `H` or Escape closes it.
 
 The profile contains schema version `1`, realm and stage ids, non-negative
 cultivation progress, stability in `0..100`, non-negative current spiritual
