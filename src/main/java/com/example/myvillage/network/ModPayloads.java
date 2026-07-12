@@ -1,12 +1,18 @@
 package com.example.myvillage.network;
 
+import com.example.myvillage.cultivation.network.CultivationPayloads;
+import com.example.myvillage.cultivation.network.CultivationSnapshotPayload;
 import com.example.myvillage.entity.RideableFlyingSwordEntity;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class ModPayloads {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ModPayloads.class);
     private static final String PROTOCOL_VERSION = "1";
 
     private ModPayloads() {
@@ -17,10 +23,16 @@ public final class ModPayloads {
     }
 
     private static void registerPayloadHandlers(RegisterPayloadHandlersEvent event) {
-        event.registrar(PROTOCOL_VERSION).playToServer(
+        PayloadRegistrar registrar = event.registrar(PROTOCOL_VERSION);
+        registrar.playToServer(
                 FlyingSwordInputPayload.TYPE,
                 FlyingSwordInputPayload.STREAM_CODEC,
                 ModPayloads::handleFlyingSwordInput);
+        CultivationPayloads.register(registrar);
+        LOGGER.info(
+                "Payload handlers registered: serverbound={}, clientbound={}",
+                FlyingSwordInputPayload.TYPE.id(),
+                CultivationSnapshotPayload.TYPE.id());
     }
 
     private static void handleFlyingSwordInput(

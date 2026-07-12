@@ -1,0 +1,11 @@
+{
+  "translation_key": "cultivation.realm.myvillage.foundation_establishment",
+  "sort_order": 2,
+  "stages": [
+    {
+      "id": "myvillage:foundation_early",
+      "translation_key": "cultivation.stage.myvillage.foundation_early",
+      "sort_order": 0
+    }
+  ]
+}

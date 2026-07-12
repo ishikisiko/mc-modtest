@@ -24,6 +24,7 @@ Spend time on thinking; you do not need to use the commentary channel to report 
 - Chunky automation is a staged handoff, not visual acceptance. Headless Chunky renderer PNGs cannot prove custom `myvillage:` block appearance until a dedicated compatibility path exists.
 - When commands or acceptance prep steps change, update `README.md`, this `AGENTS.md`, and relevant `openspec/specs/` documents together.
 - Flying-sword changes must keep the custom payload input-only and run `tools/validate_rideable_flying_sword.py`, tests, build, and the acceptance server; riding and appearance still require in-game review.
+- Cultivation-core changes must keep immutable profile replacement behind `CultivationService`, use Attachment `copyOnDeath` without a cultivation `PlayerEvent.Clone` copy, keep snapshots clientbound-only, and run the cultivation validator, tests, build, and a bounded acceptance-server smoke; lifecycle gameplay checks remain manual.
 - Git workflow: branches off `main`; unless told otherwise, fast-forward-merge finished change branches back to `main` and push after committing. Keep branches/PRs open only when explicitly asked.
 - 最后每次回报的时候用中文。
 
@@ -36,6 +37,7 @@ Spend time on thinking; you do not need to use the commentary channel to report 
 - Mod items: `docs/ai-kb/22_mod_item_creation.md`, `mod-item-pipeline`, `.codex/skills/mod-item-creation/SKILL.md`.
 - Custom entities: `docs/ai-kb/26_custom_entities.md`, `genops/contracts/entities/`, `custom-entity-runtime`, `tools/validate_custom_entities.py`, `resource-export`, `validation`.
 - Rideable flying sword: `docs/ai-kb/27_rideable_flying_sword.md`, `add-rideable-flying-sword`, `tools/validate_rideable_flying_sword.py`, `validation`.
+- Cultivation core: `docs/ai-kb/28_cultivation_core.md`, `cultivation-player-profile`, `cultivation-definition-registries`, `cultivation-persistence-lifecycle`, `cultivation-state-synchronization`, `cultivation-debug-commands`, `cultivation-core-validation`, `tools/validate_cultivation_core.py`, `python3 tools/run_chunky_acceptance.py --stage 1`, `validation`.
 - Groups/style/modset/forms: `settlement-group`, `style-profile`, `modset-profile`, `form-registry`, `chinese-vernacular-roof-vocabulary`, `cultivation-form-vocabulary`.
 - Region runtime: `docs/ai-kb/13_region_topology.md`, `region-profile`, `region-topology`, `region-runtime-binding`.
 - Courtyard/mansion surfaces: `docs/ai-kb/16_path_surface_zoning.md`, `courtyard-ground-layer`, `courtyard-path-network`, `path-surface-zoning`, `courtyard-voxel-walkability`.

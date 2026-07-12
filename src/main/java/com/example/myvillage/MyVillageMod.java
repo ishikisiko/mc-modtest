@@ -1,6 +1,10 @@
 package com.example.myvillage;
 
 import com.example.myvillage.block.ModBlocks;
+import com.example.myvillage.cultivation.CultivationAttachments;
+import com.example.myvillage.cultivation.CultivationCommands;
+import com.example.myvillage.cultivation.CultivationEvents;
+import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.entity.ModEntities;
 import com.example.myvillage.entity.RideableFlyingSwordEntity;
 import com.example.myvillage.item.ModItems;
@@ -74,6 +78,9 @@ public final class MyVillageMod {
         ModBlocks.register(modEventBus);
         ModItems.register(modEventBus);
         ModPayloads.register(modEventBus);
+        ModCultivationRegistries.register(modEventBus);
+        CultivationAttachments.register(modEventBus);
+        CultivationEvents.register();
         SectStructures.register(modEventBus);
         NeoForge.EVENT_BUS.addListener(this::registerCommands);
         NeoForge.EVENT_BUS.addListener(this::onServerStarted);
@@ -199,7 +206,8 @@ public final class MyVillageMod {
                                 .then(Commands.literal("info")
                                         .executes(ctx -> RegionCommands.spawnInfo(ctx.getSource())))
                                 .then(Commands.literal("recompute")
-                                        .executes(ctx -> RegionCommands.spawnRecompute(ctx.getSource())))));
+                                        .executes(ctx -> RegionCommands.spawnRecompute(ctx.getSource()))))
+                        .then(CultivationCommands.command()));
     }
 
     private int placeNamedStructure(CommandSourceStack source, String rawId) throws CommandSyntaxException {

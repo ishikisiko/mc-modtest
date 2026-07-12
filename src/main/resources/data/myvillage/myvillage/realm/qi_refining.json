@@ -1,0 +1,52 @@
+{
+  "translation_key": "cultivation.realm.myvillage.qi_refining",
+  "sort_order": 1,
+  "stages": [
+    {
+      "id": "myvillage:qi_refining_1",
+      "translation_key": "cultivation.stage.myvillage.qi_refining_1",
+      "sort_order": 0
+    },
+    {
+      "id": "myvillage:qi_refining_2",
+      "translation_key": "cultivation.stage.myvillage.qi_refining_2",
+      "sort_order": 1
+    },
+    {
+      "id": "myvillage:qi_refining_3",
+      "translation_key": "cultivation.stage.myvillage.qi_refining_3",
+      "sort_order": 2
+    },
+    {
+      "id": "myvillage:qi_refining_4",
+      "translation_key": "cultivation.stage.myvillage.qi_refining_4",
+      "sort_order": 3
+    },
+    {
+      "id": "myvillage:qi_refining_5",
+      "translation_key": "cultivation.stage.myvillage.qi_refining_5",
+      "sort_order": 4
+    },
+    {
+      "id": "myvillage:qi_refining_6",
+      "translation_key": "cultivation.stage.myvillage.qi_refining_6",
+      "sort_order": 5
+    },
+    {
+      "id": "myvillage:qi_refining_7",
+      "translation_key": "cultivation.stage.myvillage.qi_refining_7",
+      "sort_order": 6
+    },
+    {
+      "id": "myvillage:qi_refining_8",
+      "translation_key": "cultivation.stage.myvillage.qi_refining_8",
+      "sort_order": 7
+    },
+    {
+      "id": "myvillage:qi_refining_9",
+      "translation_key": "cultivation.stage.myvillage.qi_refining_9",
+      "sort_order": 8
+    }
+  ],
+  "next_realm": "myvillage:foundation_establishment"
+}

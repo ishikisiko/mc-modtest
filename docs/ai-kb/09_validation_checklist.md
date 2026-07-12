@@ -43,6 +43,7 @@ python3 tools/validate_generated_structures.py src/main/resources/data/myvillage
 python3 tools/validate_mod_items.py
 python3 tools/validate_custom_entities.py
 python3 tools/validate_rideable_flying_sword.py
+python3 tools/validate_cultivation_core.py
 python3 tools/validate_mod_block_fallbacks.py
 python3 tools/validate_plaque_bindings.py
 python3 tools/validate_compound_library.py --count 6
@@ -69,6 +70,42 @@ python3 tools/generate_town_plan_preview.py --count 6   # top-down town-plan PNG
 python3 tools/generate_sect_plan_preview.py --count 6   # top-down sect-plan PNG/HTML under out/preview/sect_plan_s* (default covers all 3 detached-spire variants + absent)
 ./gradlew build
 ```
+
+For the cultivation core, run the deterministic gates and a bounded dedicated
+server smoke:
+
+```text
+openspec validate --specs --strict
+python3 tools/validate_cultivation_core.py
+./gradlew test
+./gradlew build
+python3 tools/run_chunky_acceptance.py --stage 1
+```
+
+Stage 1 provisions an isolated acceptance profile, waits for RCON, runs a
+bounded server lifecycle smoke, sends `save-all` and `stop`, and waits for a
+clean process exit. Inspect `run-acceptance/logs/latest.log` for cultivation
+registry/attachment/command registration, the clientbound cultivation snapshot,
+the existing serverbound flying-sword payload, and the absence of
+registry-freeze, codec, datapack-path, payload-direction, duplicate-handler,
+and client-only classloading errors. The startup smoke is
+registration/side-safety evidence, not manual lifecycle evidence.
+
+Record every cultivation manual item as `pass`, `fail`, or `not_verified`.
+Leave unobserved items as `not_verified` even when the validator, tests, build,
+and server smoke pass:
+
+1. New-player `info` shows schema 1 and the exact default profile.
+2. A legal five-element `setroot` totaling 10000 succeeds.
+3. A `setroot` total other than 10000 is rejected and the old profile is unchanged.
+4. A registered realm-stage pair succeeds through `setrealm`.
+5. A stage outside the selected realm is rejected without mutation.
+6. Registered `myvillage:basic_breathing` can be learned at zero mastery.
+7. An unregistered technique is rejected without mutation.
+8. A non-default profile survives save and server restart.
+9. A non-default profile survives true death without field loss.
+10. End return preserves the profile once, without a duplicate copy or merge.
+11. Dimension change delivers the latest snapshot to the owning client.
 
 For the rideable flying sword, also run the dedicated-server gate:
 
@@ -160,5 +197,6 @@ what was checked. In-game final appearance review still belongs to the reviewer.
 ## See also
 
 - Spec: [validation](../../openspec/specs/validation/spec.md) — the normative validation requirements.
+- Cultivation core: [Cultivation Core Foundation](28_cultivation_core.md) and its [validation spec](../../openspec/specs/cultivation-core-validation/spec.md).
 - Flying sword: [Rideable Flying Sword](27_rideable_flying_sword.md) and its [change spec](../../openspec/changes/add-rideable-flying-sword/specs/rideable-flying-sword/spec.md).
 - Index: [Knowledge Base Map](INDEX.md).

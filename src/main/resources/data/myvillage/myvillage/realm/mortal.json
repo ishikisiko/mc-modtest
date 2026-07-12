@@ -1,0 +1,17 @@
+{
+  "translation_key": "cultivation.realm.myvillage.mortal",
+  "sort_order": 0,
+  "stages": [
+    {
+      "id": "myvillage:mortal_unawakened",
+      "translation_key": "cultivation.stage.myvillage.mortal_unawakened",
+      "sort_order": 0
+    },
+    {
+      "id": "myvillage:mortal_qi_sensed",
+      "translation_key": "cultivation.stage.myvillage.mortal_qi_sensed",
+      "sort_order": 1
+    }
+  ],
+  "next_realm": "myvillage:qi_refining"
+}

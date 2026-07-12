@@ -514,6 +514,7 @@ python3 tools/generate_all_structures.py --mc-version 1.21.1 --output src/main/r
 python3 tools/validate_generated_structures.py src/main/resources/data/myvillage/structure
 python3 tools/validate_custom_entities.py
 python3 tools/validate_rideable_flying_sword.py
+python3 tools/validate_cultivation_core.py
 python3 tools/validate_mod_block_fallbacks.py
 python3 tools/validate_plaque_bindings.py
 python3 tools/validate_compound_library.py --count 6
@@ -634,6 +635,92 @@ ground, smooth riding without repeated position/yaw snaps, the blade tip pointin
 along the player's horizontal view direction, fall-distance reset,
 recall/singleton behavior, every cleanup condition, multiplayer authority, and
 item-model scale/readability before recording acceptance.
+
+## Cultivation Core Foundation
+
+**当前只有修炼数据基础设施，没有静修、突破或术法玩法。**
+
+The foundation adds a server-authoritative immutable v1 player profile,
+codec-backed Data Attachment persistence, synced definition registries, an
+owning-client read-only snapshot, and operator commands. It does not generate a
+spiritual root, accumulate cultivation, advance realms, execute
+`basic_breathing`, recover spiritual power, or add a HUD, item, block, or entity.
+
+The profile contains schema version `1`, realm and stage ids, non-negative
+cultivation progress, stability in `0..100`, non-negative current spiritual
+power, an optional generic element-affinity map totaling `10000` basis points,
+and learned technique ids with non-negative mastery. Removed definition ids
+remain decodable and are reported as `unavailable`; administrator writes still
+require definitions in the current registry. Future schema changes require an
+explicit versioned migration rather than a silent reset.
+
+The synced datapack registries and shipped resource roots are:
+
+| Registry key | Resource root |
+|---|---|
+| `myvillage:realm` | `src/main/resources/data/myvillage/myvillage/realm/` |
+| `myvillage:spiritual_element` | `src/main/resources/data/myvillage/myvillage/spiritual_element/` |
+| `myvillage:technique` | `src/main/resources/data/myvillage/myvillage/technique/` |
+
+The doubled namespace follows
+`data/<entry_namespace>/<registry_namespace>/<registry_path>/`. The shipped
+entries are the five elements, three foundation realms with their stages, and
+metadata-only `myvillage:basic_breathing`.
+
+All cultivation commands inherit the existing `/myvillage` permission-level-2
+requirement:
+
+```mcfunction
+/myvillage cultivation info
+/myvillage cultivation info <target>
+/myvillage cultivation reset <target>
+/myvillage cultivation setrealm <target> <realm_id> <stage_id>
+/myvillage cultivation setprogress <target> <amount>
+/myvillage cultivation setstability <target> <0..100>
+/myvillage cultivation setpower <target> <amount>
+/myvillage cultivation setroot <target> <metal> <wood> <water> <fire> <earth>
+/myvillage cultivation clearroot <target>
+/myvillage cultivation learn <target> <technique_id>
+/myvillage cultivation forget <target> <technique_id>
+/myvillage cultivation setmastery <target> <technique_id> <amount>
+```
+
+`setrealm` accepts only a registered stage belonging to the selected realm.
+The five `setroot` arguments are basis points in metal/wood/water/fire/earth
+order; every value is in `0..10000` and the total must be exactly `10000`.
+`learn`, `forget`, and `setmastery` require a currently registered technique,
+and mastery can be set only after learning it. There is no `awaken` command.
+
+Run the foundation gates in order:
+
+```bash
+openspec validate --specs --strict
+python3 tools/validate_cultivation_core.py
+./gradlew test
+./gradlew build
+python3 tools/run_chunky_acceptance.py --stage 1
+```
+
+Stage 1 provisions the isolated acceptance profile, waits for RCON, runs the
+bounded server lifecycle smoke, sends `save-all` and `stop`, and waits for a
+clean process exit. Inspect `run-acceptance/logs/latest.log` for registry,
+codec, datapack-path, payload-direction, duplicate-handler, and client-only
+classloading errors. This proves dedicated-server loading and registration
+only. It does not prove command behavior, save/restart persistence, true-death
+or End-return preservation, or
+dimension-change snapshot delivery; record those separately with the eleven-item
+checklist in `docs/ai-kb/28_cultivation_core.md`.
+
+The attachment `myvillage:cultivation_profile` uses `copyOnDeath` as its only
+copy mechanism; there is no duplicate cultivation `PlayerEvent.Clone` handler.
+The server sends `myvillage:cultivation_snapshot` to the owning client on login,
+respawn, dimension change, reset, and every successful administrator mutation.
+The client cache is read-only, clears on disconnect, and has no client-to-server
+cultivation mutation payload.
+
+Later cultivation work must start from one explicit boundary: root
+generation/awakening, `basic_breathing` execution, power cap/recovery,
+meditation state, cultivation gain, or qi-refining levels 1-3 advancement.
 
 ## Available Commands
 

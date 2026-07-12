@@ -22,8 +22,8 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-// Geometry parity tests load TownGenerator itself; inherit the mod runtime so
-// its Minecraft/NeoForge types are resolvable under plain JUnit.
+// Runtime-backed tests load mapped Minecraft/NeoForge types directly.
+configurations.testCompileClasspath.extendsFrom(configurations.runtimeClasspath)
 configurations.testRuntimeClasspath.extendsFrom(configurations.runtimeClasspath)
 
 tasks.named('test') {
