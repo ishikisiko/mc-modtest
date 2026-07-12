@@ -43,7 +43,10 @@ axis-specific acceleration and drag. Normal `Entity#move` collision resolution
 keeps `noPhysics` disabled; gravity stays disabled. With no accepted input, drag
 brings velocity toward zero so the sword hovers and gradually slows. While the
 owner is mounted, the server also resets the player's fall distance and keeps
-the sword pitch at zero.
+the sword pitch at zero. A descending base `Entity` also accumulates fall
+distance on the vehicle itself, so the sword blocks that vehicle-to-passenger
+fall-damage propagation on touchdown. Normal block collision remains active;
+only the mounted touchdown damage is suppressed.
 
 ## Binding And Cleanup
 
@@ -83,7 +86,8 @@ python3 tools/validate_rideable_flying_sword.py
 
 The dedicated-server gate proves side-safe loading and registration, not flight
 quality. In-game acceptance still covers all six controls, Shift descent without
-dismount, hover/drag, block collision, horizontal orientation, fall safety,
+dismount, hover/drag, block collision, damage-free touchdown while mounted,
+horizontal orientation, fall safety,
 singleton recall, all cleanup paths, multiplayer authority, and item-model
 scale/readability. It must also confirm that riding has no repeated snapshot
 jitter and that the blade tip, rather than the hilt, points along the player's

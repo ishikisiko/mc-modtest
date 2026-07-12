@@ -37,3 +37,11 @@
 - [x] 6.4 Run strict change validation, focused item/entity validators, `./gradlew test`, `./gradlew build`, and `./gradlew runAcceptanceServer`.
 - [x] 6.5 Apply the validated-fix version rule atomically and re-run release-sensitive build, server, and jar checks.
 - [x] 6.6 Recheck riding stability and blade-tip direction in a real client; the owner accepted both fixes on 2026-07-12.
+
+## 7. Mounted Touchdown Safety Fix
+
+- [x] 7.1 Trace the landing damage path and prevent the base vehicle fall-distance hook from forwarding sword touchdown damage to its passenger.
+- [x] 7.2 Extend the vehicle contract, capability scenario, validator, KB, README, and manual checklist for damage-free mounted touchdown.
+- [x] 7.3 Run strict change validation, focused item/entity validators, `./gradlew test`, `./gradlew build`, and `./gradlew runAcceptanceServer`.
+- [x] 7.4 Apply the validated-fix version rule atomically and re-run release-sensitive build, server, and jar checks.
+- [x] 7.5 Verify in game that descending onto solid ground while still mounted does not reduce player health; the owner accepted the fix on 2026-07-12.

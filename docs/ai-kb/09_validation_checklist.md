@@ -88,7 +88,8 @@ session:
 - W/S forward/backward, A/D strafe, Space ascent, and Shift descent without
   vanilla dismount.
 - Neutral hover and gradual slowdown, solid-block collision, horizontal yaw
-  following, and rider fall-distance reset.
+  following, rider fall-distance reset, and no damage when the mounted sword
+  descends onto a solid block.
 - Owner-only single-passenger control and multiplayer observation of
   server-driven motion.
 - Cleanup after owner death, logout, dimension change, and more than 64 blocks

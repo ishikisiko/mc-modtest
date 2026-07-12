@@ -7,6 +7,16 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.22.0-fix2
+
+### Fixed
+
+- Prevented a descending flying-sword vehicle from forwarding its accumulated
+  fall distance to the mounted player when it touches a solid block. Collision
+  remains active and ordinary player fall damage outside a mounted sword is
+  unchanged. The owner confirmed the damage-free mounted touchdown in game on
+  2026-07-12.
+
 ## 0.22.0-fix1
 
 ### Fixed

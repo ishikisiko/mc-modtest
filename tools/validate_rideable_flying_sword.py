@@ -82,6 +82,19 @@ def validate() -> list[str]:
     require(entity, "INPUT_TIMEOUT_TICKS", "input_timeout", errors)
     require(entity, "lerpPositionAndRotationStep(", "client_server_transform_interpolation", errors)
     require(entity, "clientLerpSteps = steps + 2", "bounded_client_lerp_window", errors)
+    fall_override = re.search(
+        r"public\s+boolean\s+causeFallDamage\s*\([^)]*\)\s*\{(?P<body>.*?)\n\s*\}",
+        entity,
+        re.DOTALL,
+    )
+    if fall_override is None:
+        errors.append("missing:vehicle_fall_damage_override")
+    else:
+        fall_body = fall_override.group("body")
+        require(fall_body, "getPassengers().forEach(Entity::resetFallDistance)", "passenger_fall_reset", errors)
+        require(fall_body, "return false;", "vehicle_fall_damage_blocked", errors)
+        if "super.causeFallDamage" in fall_body:
+            errors.append("vehicle_fall_damage_must_not_propagate_to_passenger")
     require(item, "noBlockCollision", "collision_free_spawn", errors)
     if "getControllingPassenger(" in entity:
         errors.append("client_vehicle_coordinate_path_enabled:getControllingPassenger")

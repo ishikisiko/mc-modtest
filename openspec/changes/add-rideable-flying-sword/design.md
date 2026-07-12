@@ -48,6 +48,8 @@ The server converts W/S and A/D bits into normalized horizontal vectors based on
 
 Each server tick sets pitch to zero, copies only the owner's horizontal yaw, calls normal collision-aware movement, and resets the mounted player's fall distance. The client does not run authoritative movement and receives ordinary entity tracking updates.
 
+Resetting only the player is insufficient for landing safety: base `Entity` accumulates fall distance on the descending vehicle and forwards that distance to every passenger from `Entity#causeFallDamage` when the vehicle touches a block. The sword overrides that vehicle hook, clears its own and its passenger's fall distance, and returns without invoking the base propagation path. The exemption is therefore limited to a mounted sword touchdown rather than becoming a global player fall-damage cancellation.
+
 The base `Entity` implementation snaps ordinary tracking packets directly to their target transform, which is visibly unstable for a mounted vehicle. The sword therefore follows the vanilla minecart-style client interpolation pattern: it stores only the latest server-provided position/yaw target and eases toward it over a bounded tick window. This is presentation-only interpolation. The client still performs no flight integration or prediction and the entity deliberately does not expose a controlling passenger, so vanilla vehicle-coordinate packets remain disabled.
 
 ### Reserve Shift for descent while mounted

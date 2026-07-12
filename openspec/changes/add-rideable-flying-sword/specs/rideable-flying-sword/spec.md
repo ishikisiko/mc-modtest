@@ -65,7 +65,7 @@ The server SHALL map W/S to forward/backward movement, A/D to left/right movemen
 - **THEN** the sword follows the owner's horizontal yaw while keeping its own pitch at zero
 
 ### Requirement: Flight respects collision and fall safety
-The flying sword SHALL retain normal block collision, and the server SHALL reset the mounted player's fall distance while riding.
+The flying sword SHALL retain normal block collision, and the server SHALL reset the mounted player's fall distance while riding. When the flying-sword vehicle touches down after downward movement, it MUST NOT propagate its own accumulated vehicle fall distance to the mounted player or cause fall damage.
 
 #### Scenario: Sword meets a solid block
 - **WHEN** server-computed movement intersects a solid block collision shape
@@ -74,6 +74,10 @@ The flying sword SHALL retain normal block collision, and the server SHALL reset
 #### Scenario: Rider accumulates fall distance
 - **WHEN** a player remains mounted during ascent, descent, or horizontal flight
 - **THEN** the server clears that player's fall distance each tick
+
+#### Scenario: Mounted sword touches down
+- **WHEN** a player remains mounted while the flying sword descends onto a solid block
+- **THEN** the sword resolves normal collision but the mounted player takes no fall damage from that touchdown
 
 ### Requirement: Owner lifecycle removes transient swords
 The flying sword SHALL be transient and SHALL automatically disappear when its owner dies, logs out, changes dimension, or exceeds the configured owner distance. Player/entity bindings SHALL be cleared when recalled or found stale, and the sword SHALL NOT persist across world saves or transfer across dimensions.

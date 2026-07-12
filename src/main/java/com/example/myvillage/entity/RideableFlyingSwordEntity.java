@@ -11,6 +11,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
@@ -257,6 +258,13 @@ public final class RideableFlyingSwordEntity extends Entity {
 
     private static boolean blocked(double requested, double actual) {
         return Math.abs(requested - actual) > COLLISION_EPSILON;
+    }
+
+    @Override
+    public boolean causeFallDamage(float distance, float damageMultiplier, DamageSource source) {
+        resetFallDistance();
+        getPassengers().forEach(Entity::resetFallDistance);
+        return false;
     }
 
     @Override

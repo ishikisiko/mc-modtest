@@ -79,6 +79,7 @@ server_movement:
     - call move with MoverType.SELF for normal block collision
     - keep noGravity true, noPhysics false, pitch zero, and roll zero
     - clear the passenger fall distance each server tick
+    - suppress base Entity vehicle fall-damage propagation when the sword touches down
     - do not expose the player as getControllingPassenger, preventing vanilla client vehicle-coordinate packets
 
 client_tracking:
@@ -124,7 +125,7 @@ acceptance:
   manual:
     - summon and automatic mounting
     - all six controls and Shift without dismount
-    - hover, gradual slowdown, collision, yaw, and horizontal rendering
+    - hover, gradual slowdown, collision, damage-free touchdown while mounted, yaw, and horizontal rendering
     - one passenger, owner-only control, recall, and every cleanup condition
     - multiplayer observer sees stable server-driven movement
   human_verdict: pending
