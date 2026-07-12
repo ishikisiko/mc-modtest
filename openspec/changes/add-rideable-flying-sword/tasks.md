@@ -28,3 +28,12 @@
 - [x] 5.1 Apply the feature version rule atomically: bump to `0.22.0` in `gradle.properties` and mod metadata, update README jar-name examples, and add the matching CHANGELOG entry.
 - [x] 5.2 Re-run the release-sensitive build and dedicated-server gates after the version update.
 - [x] 5.3 Prepare manual in-game checks for all controls, Shift descent, hover/drag, collision, orientation, fall safety, singleton/recall, every cleanup condition, multiplayer authority, and placeholder appearance; keep the verdict pending until observed.
+
+## 6. Riding Visual Fix
+
+- [x] 6.1 Interpolate server-provided position and yaw snapshots on the client without enabling client prediction or vehicle-coordinate packets.
+- [x] 6.2 Correct the item-render transform so the diagonal placeholder texture lies horizontally with its blade tip aligned to the entity's forward yaw.
+- [x] 6.3 Extend the contract, validator, and manual acceptance wording for stable tracking and explicit blade-tip direction.
+- [x] 6.4 Run strict change validation, focused item/entity validators, `./gradlew test`, `./gradlew build`, and `./gradlew runAcceptanceServer`.
+- [x] 6.5 Apply the validated-fix version rule atomically and re-run release-sensitive build, server, and jar checks.
+- [x] 6.6 Recheck riding stability and blade-tip direction in a real client; the owner accepted both fixes on 2026-07-12.

@@ -48,6 +48,8 @@ The server converts W/S and A/D bits into normalized horizontal vectors based on
 
 Each server tick sets pitch to zero, copies only the owner's horizontal yaw, calls normal collision-aware movement, and resets the mounted player's fall distance. The client does not run authoritative movement and receives ordinary entity tracking updates.
 
+The base `Entity` implementation snaps ordinary tracking packets directly to their target transform, which is visibly unstable for a mounted vehicle. The sword therefore follows the vanilla minecart-style client interpolation pattern: it stores only the latest server-provided position/yaw target and eases toward it over a bounded tick window. This is presentation-only interpolation. The client still performs no flight integration or prediction and the entity deliberately does not expose a controlling passenger, so vanilla vehicle-coordinate packets remain disabled.
+
 ### Reserve Shift for descent while mounted
 
 A client-only movement-input hook suppresses the vanilla dismount interpretation of Shift only while the local player rides this entity, while the raw Shift key still contributes the descend bit. Reusing the held flying-sword item recalls the entity and cleanly dismounts the player.
@@ -60,12 +62,12 @@ The entity checks its bound owner on the server tick and discards itself when th
 
 ### Render through the item model on the client
 
-`RideableFlyingSwordRenderer` delegates to the vanilla `ItemRenderer` with an `ItemStack` of `myvillage:rideable_flying_sword`, applies a horizontal transform, and does not own a separate entity texture/model format. Renderer registration and input hooks remain under the client package and client distribution annotations; common registration, payload, entity, item, and lifecycle code import no `net.minecraft.client` classes.
+`RideableFlyingSwordRenderer` delegates to the vanilla `ItemRenderer` with an `ItemStack` of `myvillage:rideable_flying_sword`, applies a horizontal transform, and does not own a separate entity texture/model format. It uses the unmodified item-model context rather than stacking the model's `FIXED` display transform, rotates the diagonal placeholder texture axis so hilt-to-tip becomes local forward, then applies the interpolated entity yaw. Renderer registration and input hooks remain under the client package and client distribution annotations; common registration, payload, entity, item, and lifecycle code import no `net.minecraft.client` classes.
 
 ## Risks / Trade-offs
 
 - [Shift handling can regress with input event ordering] -> Cover the source boundary with focused checks and retain item reuse as the reliable recall/dismount path; verify descent without dismount manually in a real client.
-- [Latency makes server-authoritative flight feel less immediate] -> Send compact input every client tick, use a short tracking update interval, and smooth only server velocity rather than predicting coordinates client-side.
+- [Latency makes server-authoritative flight feel less immediate] -> Send compact input every client tick, use a short tracking update interval, and interpolate only received server transforms rather than predicting movement or sending coordinates client-side.
 - [A stale index or duplicate could be created outside normal item use] -> Lookups verify type and owner, removal compares UUIDs before clearing, item use removes every loaded owner match, unowned summons self-discard, and no sword is saved across unload.
 - [Transient entities disappear on unload/restart] -> This is intentional for the first version and prevents abandoned vehicles; persistence and cross-dimension transfer remain non-goals.
 - [A flat item model has limited visual depth] -> Accept the low-cost placeholder route for this iteration and leave in-game angle/scale/readability as an explicit human review item.

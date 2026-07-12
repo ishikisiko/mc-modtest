@@ -33,6 +33,11 @@ public final class RideableFlyingSwordEntity extends Entity {
     private UUID ownerUuid;
     private byte inputFlags;
     private long lastInputTick = Long.MIN_VALUE;
+    private int clientLerpSteps;
+    private double clientLerpX;
+    private double clientLerpY;
+    private double clientLerpZ;
+    private double clientLerpYRot;
 
     public RideableFlyingSwordEntity(EntityType<? extends RideableFlyingSwordEntity> type, Level level) {
         super(type, level);
@@ -92,6 +97,11 @@ public final class RideableFlyingSwordEntity extends Entity {
     public void tick() {
         super.tick();
         setNoGravity(true);
+        if (level().isClientSide()) {
+            tickClientInterpolation();
+            return;
+        }
+
         setXRot(0.0F);
         if (!(level() instanceof ServerLevel serverLevel)) {
             return;
@@ -117,6 +127,57 @@ public final class RideableFlyingSwordEntity extends Entity {
 
         byte activeFlags = isInputFresh(serverLevel.getGameTime()) && ownerMounted ? inputFlags : 0;
         moveFromInput(owner, activeFlags);
+    }
+
+    private void tickClientInterpolation() {
+        if (clientLerpSteps > 0) {
+            lerpPositionAndRotationStep(
+                    clientLerpSteps,
+                    clientLerpX,
+                    clientLerpY,
+                    clientLerpZ,
+                    clientLerpYRot,
+                    0.0);
+            clientLerpSteps--;
+            return;
+        }
+
+        reapplyPosition();
+        setRot(getYRot(), 0.0F);
+    }
+
+    @Override
+    public void lerpTo(double x, double y, double z, float yRot, float xRot, int steps) {
+        clientLerpX = x;
+        clientLerpY = y;
+        clientLerpZ = z;
+        clientLerpYRot = yRot;
+        clientLerpSteps = steps + 2;
+    }
+
+    @Override
+    public double lerpTargetX() {
+        return clientLerpSteps > 0 ? clientLerpX : getX();
+    }
+
+    @Override
+    public double lerpTargetY() {
+        return clientLerpSteps > 0 ? clientLerpY : getY();
+    }
+
+    @Override
+    public double lerpTargetZ() {
+        return clientLerpSteps > 0 ? clientLerpZ : getZ();
+    }
+
+    @Override
+    public float lerpTargetXRot() {
+        return 0.0F;
+    }
+
+    @Override
+    public float lerpTargetYRot() {
+        return clientLerpSteps > 0 ? (float) clientLerpYRot : getYRot();
     }
 
     private ServerPlayer resolveOwner(ServerLevel level) {

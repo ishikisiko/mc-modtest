@@ -81,6 +81,12 @@ server_movement:
     - clear the passenger fall distance each server tick
     - do not expose the player as getControllingPassenger, preventing vanilla client vehicle-coordinate packets
 
+client_tracking:
+  authority: server_snapshots_only
+  interpolation: interpolate ordinary server position and yaw snapshots over a bounded client tick window
+  prediction: forbidden
+  outbound_coordinates: forbidden
+
 lifecycle_cleanup:
   discard_when:
     - owner is dead, removed, or offline
@@ -97,6 +103,8 @@ rendering:
   renderer_class: com.example.myvillage.client.entity.RideableFlyingSwordRenderer
   item_model: myvillage:rideable_flying_sword
   texture: myvillage:item/rideable_flying_sword
+  pose: horizontal
+  forward_axis: texture blade tip aligned to the entity yaw
   geckolib: false
   animation: static
 

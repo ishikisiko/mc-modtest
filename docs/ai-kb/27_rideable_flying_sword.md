@@ -63,7 +63,12 @@ restart.
 ## Rendering And Side Safety
 
 The client renderer draws an `ItemStack` of the flying-sword item horizontally
-through the vanilla item renderer. Input hooks and renderer registration stay
+through the vanilla item renderer. It avoids the item model's extra `FIXED`
+display transform, aligns the diagonal placeholder texture from hilt to blade
+tip with local forward, and then follows the interpolated server yaw. The base
+entity also smooths received server position/yaw snapshots over a bounded client
+tick window instead of snapping between them. This does not predict movement or
+send a transform back to the server. Input hooks and renderer registration stay
 under the client package; the common item, entity, payload, and registration
 classes do not import `net.minecraft.client` types.
 
@@ -80,7 +85,9 @@ The dedicated-server gate proves side-safe loading and registration, not flight
 quality. In-game acceptance still covers all six controls, Shift descent without
 dismount, hover/drag, block collision, horizontal orientation, fall safety,
 singleton recall, all cleanup paths, multiplayer authority, and item-model
-scale/readability.
+scale/readability. It must also confirm that riding has no repeated snapshot
+jitter and that the blade tip, rather than the hilt, points along the player's
+horizontal view direction.
 
 ## See Also
 

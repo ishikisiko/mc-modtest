@@ -7,6 +7,18 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.22.0-fix1
+
+### Fixed
+
+- Smoothed received server position and yaw snapshots on the client so the
+  mounted flying sword no longer snaps directly between tracking packets. The
+  server remains authoritative, and the client still sends only key-state input.
+- Corrected the vanilla item-render transform so the horizontal placeholder
+  sword follows the entity yaw with its blade tip pointing forward instead of
+  stacking the parent model's `FIXED` transform. The owner confirmed both the
+  riding stability and blade-tip direction in game on 2026-07-12.
+
 ## 0.22.0
 
 ### Added

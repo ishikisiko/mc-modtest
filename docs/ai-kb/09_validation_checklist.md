@@ -93,7 +93,8 @@ session:
   server-driven motion.
 - Cleanup after owner death, logout, dimension change, and more than 64 blocks
   of separation, plus `noSave()` removal across unload/reload.
-- Horizontal item-model scale, orientation, texture readability, and absence of
+- Smooth riding without repeated position/yaw snaps; blade-tip-forward horizontal
+  item-model scale, orientation, texture readability, and absence of
   missing-model fallback.
 
 Optional in-game automation with Chunky:

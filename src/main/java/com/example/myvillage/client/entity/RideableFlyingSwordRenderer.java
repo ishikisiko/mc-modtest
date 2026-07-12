@@ -19,6 +19,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 @OnlyIn(Dist.CLIENT)
 public final class RideableFlyingSwordRenderer extends EntityRenderer<RideableFlyingSwordEntity> {
     private static final float MODEL_SCALE = 2.5F;
+    private static final float TEXTURE_AXIS_ALIGNMENT_DEGREES = 45.0F;
 
     private final ItemRenderer itemRenderer;
     private final ItemStack swordStack;
@@ -40,12 +41,13 @@ public final class RideableFlyingSwordRenderer extends EntityRenderer<RideableFl
             int packedLight) {
         poseStack.pushPose();
         poseStack.translate(0.0F, 0.15F, 0.0F);
-        poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - entityYaw));
+        poseStack.mulPose(Axis.YP.rotationDegrees(-entityYaw));
         poseStack.mulPose(Axis.XP.rotationDegrees(90.0F));
+        poseStack.mulPose(Axis.ZP.rotationDegrees(TEXTURE_AXIS_ALIGNMENT_DEGREES));
         poseStack.scale(MODEL_SCALE, MODEL_SCALE, MODEL_SCALE);
         itemRenderer.renderStatic(
                 swordStack,
-                ItemDisplayContext.FIXED,
+                ItemDisplayContext.NONE,
                 packedLight,
                 OverlayTexture.NO_OVERLAY,
                 poseStack,

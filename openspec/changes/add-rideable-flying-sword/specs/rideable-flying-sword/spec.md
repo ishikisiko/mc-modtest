@@ -95,11 +95,15 @@ The flying sword SHALL be transient and SHALL automatically disappear when its o
 - **THEN** the flying sword is not serialized as a persistent vehicle
 
 ### Requirement: Item-model renderer remains client-only
-The client SHALL render the flying-sword entity horizontally through the registered flying-sword item model using vanilla item rendering. GeckoLib and custom animation files SHALL NOT be introduced, and common code MUST NOT import or resolve client-only classes.
+The client SHALL render the flying-sword entity horizontally through the registered flying-sword item model using vanilla item rendering. The blade tip SHALL point along the entity's server-provided horizontal yaw, and ordinary server position/yaw snapshots SHALL be visually interpolated over a bounded client tick window rather than snapped. This interpolation MUST NOT predict motion, transmit transforms, or enable vanilla client vehicle-coordinate control. GeckoLib and custom animation files SHALL NOT be introduced, and common code MUST NOT import or resolve client-only classes.
 
 #### Scenario: Client renders the vehicle
 - **WHEN** a client tracks `myvillage:rideable_flying_sword`
-- **THEN** the dedicated renderer displays the flying-sword item model horizontally at the entity position and yaw
+- **THEN** the dedicated renderer displays the flying-sword item model horizontally with the blade tip pointing along the interpolated server-provided entity yaw
+
+#### Scenario: Server snapshots arrive while riding
+- **WHEN** the client receives successive authoritative position or yaw updates for the flying sword
+- **THEN** it interpolates between those snapshots over a bounded tick window without sending coordinates, velocity, or predicted transforms back to the server
 
 #### Scenario: Dedicated server starts
 - **WHEN** the dedicated acceptance server loads the mod and registers the item, entity, payload, and lifecycle listeners

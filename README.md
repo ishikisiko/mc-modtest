@@ -483,7 +483,7 @@ jar tf build/libs/*.jar | grep "assets/myvillage/textures/item/rideable_flying_s
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.22.0.jar
+build/libs/myvillage-0.22.0-fix1.jar
 ```
 
 ## Versioning And Changelog
@@ -537,16 +537,16 @@ python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 
 python3 tools/write_visual_acceptance_report.py
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.22.0.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.22.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.22.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.22.0.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.22.0.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.22.0.jar | grep "assets/myvillage/textures/painting/inscription"
-jar tf build/libs/myvillage-0.22.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
-jar tf build/libs/myvillage-0.22.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
-jar tf build/libs/myvillage-0.22.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
-jar tf build/libs/myvillage-0.22.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
+jar tf build/libs/myvillage-0.22.0-fix1.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.22.0-fix1.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.22.0-fix1.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.22.0-fix1.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.22.0-fix1.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.22.0-fix1.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.22.0-fix1.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
+jar tf build/libs/myvillage-0.22.0-fix1.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
+jar tf build/libs/myvillage-0.22.0-fix1.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
+jar tf build/libs/myvillage-0.22.0-fix1.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -629,7 +629,8 @@ python3 tools/validate_rideable_flying_sword.py
 Dedicated-server startup checks payload/entity registration and common/client
 separation, not riding quality. In a real client, manually verify all six
 controls, Shift descent without dismount, neutral hover and gradual slowdown,
-solid-block collision, horizontal view-following orientation, fall-distance
+solid-block collision, smooth riding without repeated position/yaw snaps, the
+blade tip pointing along the player's horizontal view direction, fall-distance
 reset, recall/singleton behavior, every cleanup condition, multiplayer
 authority, and item-model scale/readability before recording acceptance.
 

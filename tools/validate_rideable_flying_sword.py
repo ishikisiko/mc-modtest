@@ -80,6 +80,8 @@ def validate() -> list[str]:
     require(entity, "setNoGravity(true)", "no_gravity", errors)
     require(entity, "resetFallDistance()", "fall_distance", errors)
     require(entity, "INPUT_TIMEOUT_TICKS", "input_timeout", errors)
+    require(entity, "lerpPositionAndRotationStep(", "client_server_transform_interpolation", errors)
+    require(entity, "clientLerpSteps = steps + 2", "bounded_client_lerp_window", errors)
     require(item, "noBlockCollision", "collision_free_spawn", errors)
     if "getControllingPassenger(" in entity:
         errors.append("client_vehicle_coordinate_path_enabled:getControllingPassenger")
@@ -95,7 +97,11 @@ def validate() -> list[str]:
     require(client_input, "shiftKeyDown = false", "shift_dismount_suppression", errors)
     require(client_input, "PacketDistributor.sendToServer", "key_payload_send", errors)
     require(renderer, "ItemRenderer", "item_model_renderer", errors)
-    require(renderer, "ItemDisplayContext.FIXED", "fixed_item_transform", errors)
+    require(renderer, "ItemDisplayContext.NONE", "unmodified_item_model_context", errors)
+    require(renderer, "Axis.YP.rotationDegrees(-entityYaw)", "yaw_follows_entity", errors)
+    require(renderer, "TEXTURE_AXIS_ALIGNMENT_DEGREES = 45.0F", "tip_axis_alignment", errors)
+    if "ItemDisplayContext.FIXED" in renderer:
+        errors.append("renderer_must_not_reapply_fixed_display_transform")
 
     for path in COMMON_FILES:
         text = read(path)
