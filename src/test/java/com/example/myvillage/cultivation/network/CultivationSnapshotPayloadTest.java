@@ -19,12 +19,15 @@ class CultivationSnapshotPayloadTest {
     @Test
     void actualRegistryFriendlyStreamCodecRoundTripsCompleteSnapshot() {
         CultivationProfile profile = new CultivationProfile(
-                1,
+                CultivationProfile.CURRENT_SCHEMA_VERSION,
                 id("removed_pack", "lost_realm"),
                 id("removed_pack", "lost_stage"),
                 123_456_789L,
                 88,
                 987_654_321L,
+                37,
+                12_345L,
+                678L,
                 Optional.of(new SpiritualRoot(Map.of(
                         id("myvillage", "fire"), 7_000,
                         id("removed_pack", "storm"), 3_000))),

@@ -14,11 +14,13 @@ import java.util.Set;
 public record RealmDefinition(
         String translationKey,
         int sortOrder,
+        int maximumLifespanYears,
         List<RealmStageDefinition> stages,
         Optional<ResourceLocation> nextRealm) {
     private static final Codec<SerializedRealm> SERIALIZED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             Codec.STRING.fieldOf("translation_key").forGetter(SerializedRealm::translationKey),
             Codec.INT.fieldOf("sort_order").forGetter(SerializedRealm::sortOrder),
+            Codec.INT.fieldOf("maximum_lifespan_years").forGetter(SerializedRealm::maximumLifespanYears),
             RealmStageDefinition.CODEC.listOf().fieldOf("stages").forGetter(SerializedRealm::stages),
             ResourceLocation.CODEC.optionalFieldOf("next_realm").forGetter(SerializedRealm::nextRealm)
     ).apply(instance, SerializedRealm::new));
@@ -32,6 +34,10 @@ public record RealmDefinition(
         }
         if (sortOrder < 0) {
             throw new IllegalArgumentException("Realm sort_order must be non-negative, got " + sortOrder);
+        }
+        if (maximumLifespanYears <= 0) {
+            throw new IllegalArgumentException(
+                    "Realm maximum_lifespan_years must be positive, got " + maximumLifespanYears);
         }
         Objects.requireNonNull(stages, "stages");
         if (stages.isEmpty()) {
@@ -68,17 +74,19 @@ public record RealmDefinition(
     }
 
     private SerializedRealm serialize() {
-        return new SerializedRealm(translationKey, sortOrder, stages, nextRealm);
+        return new SerializedRealm(translationKey, sortOrder, maximumLifespanYears, stages, nextRealm);
     }
 
     private record SerializedRealm(
             String translationKey,
             int sortOrder,
+            int maximumLifespanYears,
             List<RealmStageDefinition> stages,
             Optional<ResourceLocation> nextRealm) {
         private DataResult<RealmDefinition> decode() {
             try {
-                return DataResult.success(new RealmDefinition(translationKey, sortOrder, stages, nextRealm));
+                return DataResult.success(new RealmDefinition(
+                        translationKey, sortOrder, maximumLifespanYears, stages, nextRealm));
             } catch (IllegalArgumentException | NullPointerException exception) {
                 return DataResult.error(exception::getMessage);
             }

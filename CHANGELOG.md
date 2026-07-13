@@ -7,6 +7,65 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.25.0
+
+### Added
+
+- Upgraded cultivation profiles to schema v3 with server-owned spiritual
+  affinity, default value `10`, explicit v1/v2 migration, and lossless
+  preservation of the now-inert legacy meditation reserve.
+- Added Profile and Meditation tabs to H. The Meditation tab exposes normal,
+  spirit, stop, and advancement buttons that reuse the bounded V/B/G/N action
+  payload without accepting client-authored rates, costs, targets, or results.
+
+### Changed
+
+- Normal meditation now grants the current spiritual-affinity value every ten
+  eligible ticks. Spirit meditation grants a fixed `50` progress per ten ticks
+  and directly consumes the current stage's complete low-grade-spirit-stone
+  batch: sensed/Qi I `1`, Qi II `2`, and Qi III `3`.
+- Revised released target-layer thresholds to `1000`, `1100`, `1200`, and
+  `1300` for advancement into Qi I through Qi IV. Stability stays locked until
+  progress is full, then gains current affinity per ten ticks in either mode up
+  to stage caps `500/550/600/650` without a stone cost. Successful advancement
+  retains integer-floor half of current stability; mastery remains `10` per
+  configured cultivation year, and Qi IV remains the release ceiling.
+
+### Notes
+
+- H-tab layout, button interaction, exact ten-tick progress and post-cap
+  stability gain, multi-slot stone consumption, and advancement halving remain
+  pending real-client acceptance.
+
+## 0.24.0
+
+### Added
+
+- Added low-grade spirit stones plus stone/deepslate spirit-stone ores with
+  iron-tier harvest rules, Silk Touch/Fortune loot, three-layer Overworld ore
+  generation, bilingual assets, and deterministic resource validation.
+- Upgraded cultivation profiles to schema v2 with explicit v1 migration,
+  persistent lifespan consumption and meditation reserve, realm-owned maximum
+  lifespan, a shared active-player calendar, configurable time scale, relative
+  lifespan warnings, and non-lethal exhaustion.
+- Added one server-authoritative V/B/G/N session manager for normal meditation,
+  spirit-stone meditation, stopping, and deterministic advancement. Basic
+  Breathing settles in 100-tick batches, spirit stones fund retained reserve,
+  progress is stage-local and capped, and Qi-sensed through Qi III can advance
+  one stage at a time to the Qi IV release ceiling.
+- Extended the read-only H profile with capped progress, reserve, calendar,
+  lifespan, session, and advancement status. Added protocol-v2 payloads,
+  focused Java/Python tests, strict OpenSpec coverage, and a documented
+  real-client acceptance ledger.
+
+### Notes
+
+- Spirit-stone appearance/distribution, real-client controls and interruption
+  feel, H-screen layout, multiplayer time behavior, and in-game advancement
+  remain pending manual acceptance. Lifespan exhaustion does not kill or reset
+  the player, and Qi IV+, Foundation advancement, pills, facilities, and
+  reincarnation remain deferred.
+
 ## 0.23.0
 
 ### Added

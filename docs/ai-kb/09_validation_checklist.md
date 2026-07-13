@@ -77,6 +77,13 @@ server smoke:
 ```text
 openspec validate --specs --strict
 python3 tools/validate_cultivation_core.py
+python3 tools/validate_cultivation_initiation.py
+python3 tools/validate_spirit_stone_resources.py
+python3 tools/validate_cultivation_lifespan.py
+python3 tools/validate_cultivation_meditation.py
+python3 tools/validate_cultivation_gain.py
+python3 tools/validate_cultivation_advancement.py
+python3 -m unittest discover -s tools/tests -p 'test_validate_*.py'
 ./gradlew test
 ./gradlew build
 python3 tools/run_chunky_acceptance.py --stage 1
@@ -95,7 +102,7 @@ Record every cultivation manual item as `pass`, `fail`, or `not_verified`.
 Leave unobserved items as `not_verified` even when the validator, tests, build,
 and server smoke pass:
 
-1. New-player `info` shows schema 1 and the exact default profile.
+1. New-player `info` shows schema 3 and the exact default profile, including affinity 10, zero lifespan consumption, and preserved zero legacy reserve.
 2. A legal five-element `setroot` totaling 10000 succeeds.
 3. A `setroot` total other than 10000 is rejected and the old profile is unchanged.
 4. A registered realm-stage pair succeeds through `setrealm`.
@@ -106,6 +113,15 @@ and server smoke pass:
 9. A non-default profile survives true death without field loss.
 10. End return preserves the profile once, without a duplicate copy or merge.
 11. Dimension change delivers the latest snapshot to the owning client.
+
+The playable-loop acceptance ledger in
+[README.md](../../README.md#in-game-acceptance) additionally covers spirit-stone
+appearance, Silk Touch/Fortune/worldgen, V/B/G/N and H-button parity,
+interruption behavior, calendar/lifespan, affinity gain, direct layer-priced
+stone batches, pre-cap stability locking, post-cap affinity consolidation,
+stage-derived stability caps, success halving, deterministic advancement, and
+both H-screen tabs. Automated
+gates do not turn any unobserved real-client item into `pass`.
 
 For the rideable flying sword, also run the dedicated-server gate:
 

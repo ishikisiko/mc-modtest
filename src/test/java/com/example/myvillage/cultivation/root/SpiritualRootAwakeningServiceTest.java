@@ -24,12 +24,15 @@ class SpiritualRootAwakeningServiceTest {
     @Test
     void defaultProfileAwakensWithOneAtomicReplacement() {
         CultivationProfile current = new CultivationProfile(
-                1,
+                CultivationProfile.CURRENT_SCHEMA_VERSION,
                 ModCultivationRegistries.MORTAL_REALM_ID,
                 ModCultivationRegistries.MORTAL_UNAWAKENED_STAGE_ID,
                 77,
                 42,
                 19,
+                23,
+                1234,
+                56,
                 Optional.empty(),
                 Map.of(id("other_technique"), new TechniqueProgress(12)));
         AtomicInteger commits = new AtomicInteger();
@@ -54,6 +57,9 @@ class SpiritualRootAwakeningServiceTest {
         assertEquals(current.cultivationProgress(), outcome.profile().cultivationProgress());
         assertEquals(current.stability(), outcome.profile().stability());
         assertEquals(current.currentSpiritualPower(), outcome.profile().currentSpiritualPower());
+        assertEquals(current.spiritualAffinity(), outcome.profile().spiritualAffinity());
+        assertEquals(current.lifespanConsumedTicks(), outcome.profile().lifespanConsumedTicks());
+        assertEquals(current.meditationQiReserve(), outcome.profile().meditationQiReserve());
         assertEquals(current.learnedTechniques(), outcome.profile().learnedTechniques());
         assertTrue(candidates().stream().map(SpiritualRootGenerator.ElementCandidate::id).toList()
                 .containsAll(outcome.profile().spiritualRoot().orElseThrow().affinitiesBasisPoints().keySet()));

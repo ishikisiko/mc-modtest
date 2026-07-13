@@ -5,22 +5,6 @@
 Define the immutable version-1 cultivation profile, spiritual-root and
 technique-progress values, invariants, defaults, and unknown-id behavior.
 ## Requirements
-### Requirement: The cultivation profile has a stable immutable v1 schema
-The system SHALL represent a player's cultivation state as an immutable `CultivationProfile` value with `schemaVersion`, `realmId`, `stageId`, `cultivationProgress`, `stability`, `currentSpiritualPower`, optional `spiritualRoot`, and a `learnedTechniques` map. The current schema version SHALL be `1`. The schema SHALL NOT persist a redundant awakened flag or any technique equipment slot.
-
-#### Scenario: A new profile is created
-- **WHEN** a player has no stored cultivation attachment
-- **THEN** the system SHALL create a version-1 profile with realm `myvillage:mortal`, stage `myvillage:mortal_unawakened`, zero progress, zero stability, zero current spiritual power, no spiritual root, and no learned techniques
-
-#### Scenario: Awakening state is read
-- **WHEN** code needs to determine whether a player is awakened
-- **THEN** the system SHALL derive the result from whether `spiritualRoot` is present
-- **AND** the serialized profile SHALL NOT contain a separate awakened boolean
-
-#### Scenario: A v1 profile is round-tripped
-- **WHEN** a valid profile containing a root and learned techniques is encoded and decoded with `CultivationProfile.CODEC`
-- **THEN** every v1 field and value SHALL equal the original profile
-
 ### Requirement: Profile identifiers remain stable and definition-independent
 The profile SHALL encode realm, stage, spiritual-element, and technique identifiers as `ResourceLocation` values. Profile persistence SHALL NOT encode Java enum ordinals, registry numeric ids, holders, or resolved definition objects. The profile codec SHALL validate identifier syntax without requiring the referenced definition to exist in the current registry.
 
@@ -99,29 +83,21 @@ The system SHALL expose `getProfile`, `replaceProfile` or `updateProfile`, `rese
 - **THEN** the service SHALL reject the operation rather than learning the technique implicitly
 
 ### Requirement: Profile schema changes use explicit migrations
-The v1 decoder SHALL accept schema version `1` and SHALL reject an unsupported schema version with a controlled codec error. A future schema-changing implementation MUST retain version-specific old decoders and MUST migrate decoded old values through explicit, validated `vN` to `vN+1` transformations before writing the current schema.
+The retained v1 decoder SHALL accept only schema version `1`, the retained v2
+decoder SHALL accept only schema version `2`, and the current v3 decoder SHALL
+accept only schema version `3`. The current codec SHALL dispatch by declared
+version and migrate through explicit validated transformations before writing
+v3. Future schema changes MUST retain all supported old decoders and MUST NOT
+reinterpret existing v1, v2, or v3 field meanings.
 
-#### Scenario: An unsupported schema is loaded by v1 code
-- **WHEN** a persisted profile declares a schema version other than `1`
-- **THEN** the v1 codec SHALL fail explicitly rather than guessing fields or silently resetting the profile
+#### Scenario: An unsupported schema is loaded by v3 code
+- **WHEN** a persisted profile declares a schema version other than `1`, `2`, or `3`
+- **THEN** the codec SHALL fail explicitly rather than guess fields or silently reset the profile
 
-#### Scenario: A future equipment-slot schema is introduced
-- **WHEN** a later change adds technique equipment slots or another persisted field
-- **THEN** that change MUST add migration coverage from v1
-- **AND** it MUST NOT reinterpret or mutate the existing v1 field meanings
-
-### Requirement: Initiation reuses the immutable v1 profile without redundant state
-Spiritual-root awakening and basic-technique inheritance SHALL use only the existing version-1 fields. Awakening SHALL remain derived from `spiritualRoot.isPresent()`, learned state SHALL remain derived from `learnedTechniques.containsKey(techniqueId)`, and the profile SHALL remain at schema version `1`. The implementation SHALL NOT add an awakened flag, root type/quality/tier/rarity, awakening seed/time/reroll/generator-version field, basic-breathing-learned flag, equipment slot, or other persistent initiation field.
-
-#### Scenario: A completed initiation profile is encoded
-- **WHEN** a player has an awakened root and learned `myvillage:basic_breathing`
-- **THEN** `CultivationProfile.CODEC` SHALL encode only the existing v1 fields
-- **AND** schema version SHALL remain `1`
-
-#### Scenario: Code checks ritual state
-- **WHEN** code asks whether the player is awakened or knows basic breathing
-- **THEN** it SHALL inspect the optional root or learned-technique map respectively
-- **AND** it SHALL NOT consult a redundant boolean, enum, quality, or marker field
+#### Scenario: A future schema is introduced
+- **WHEN** a later change adds another persisted field
+- **THEN** it MUST add a validated migration from v3 and retain both earlier migration paths
+- **AND** it MUST preserve the meanings of spiritual affinity and legacy reserve
 
 ### Requirement: Ritual services submit one validated immutable replacement
 Awakening and inheritance services SHALL construct a complete immutable replacement and call `CultivationService#replaceProfile`, `updateProfile`, or an equivalently validating extension exactly once per successful ritual action. Blocks and command handlers MUST NOT call `ServerPlayer#setData`, mutate a retrieved profile or nested map, or compose the action from multiple service mutations. A failed or repeated action SHALL leave the previous profile value equal and SHALL NOT synchronize a changed snapshot.
@@ -140,3 +116,153 @@ Awakening and inheritance services SHALL construct a complete immutable replacem
 - **WHEN** an already awakened or already initiated profile repeats the corresponding action
 - **THEN** the prior immutable profile and nested maps SHALL remain unchanged
 - **AND** existing technique mastery SHALL NOT be reset
+
+### Requirement: Cultivation progress is current-stage progress
+`cultivationProgress` SHALL represent progress within the profile's current
+realm stage, not lifetime cultivation earned. Ordinary gameplay settlement
+SHALL apply no progress above the current registered stage cap and SHALL carry
+no excess into a later stage. Migration and privileged administrator data MAY
+retain a raw value above the cap; settlement SHALL treat such a value as capped
+without normalizing it.
+
+#### Scenario: Normal settlement reaches the current cap
+- **WHEN** a player's applicable progress gain is greater than the remaining current-stage capacity
+- **THEN** the replacement profile SHALL contain exactly the cap
+- **AND** no progress SHALL be banked for a later advancement
+
+#### Scenario: Existing raw progress is above the cap
+- **WHEN** a migrated or administrator-created profile has progress above its current stage cap
+- **THEN** settlement SHALL preserve the raw value and add no further progress
+
+### Requirement: Meditation reserve is a separate durable balance
+`meditationQiReserve` SHALL remain a non-negative persistent meditation-only
+balance. It SHALL NOT be read as, converted to, or substituted for
+`currentSpiritualPower`; meditation gain SHALL NOT spend or restore current
+spiritual power. Every successful profile replacement and interruption SHALL
+preserve unspent reserve exactly.
+
+#### Scenario: Spirit meditation spends reserve
+- **WHEN** an applicable spirit bonus point is settled
+- **THEN** reserve SHALL decrease by exactly one for that bonus point
+- **AND** current spiritual power SHALL remain unchanged
+
+#### Scenario: Meditation stops with reserve remaining
+- **WHEN** a session is interrupted or stopped after a prior stone conversion
+- **THEN** the unspent reserve SHALL remain in the persistent profile
+
+### Requirement: A gain settlement installs one immutable profile replacement
+A successful cultivation settlement SHALL compute progress, stability, Basic
+Breathing mastery, and reserve as one proposed immutable profile and submit it
+through `CultivationService` once. Runtime managers, payload handlers, and
+inventory helpers MUST NOT mutate the attachment or a retrieved profile/map
+directly. A rejected settlement SHALL install and synchronize nothing.
+
+#### Scenario: Several fields become due together
+- **WHEN** one settlement produces progress, stability, mastery, and reserve spend
+- **THEN** one validated replacement SHALL contain all final values
+- **AND** no intermediate profile SHALL be installed
+
+#### Scenario: Settlement validation fails
+- **WHEN** the proposed gain profile violates a profile or registry invariant
+- **THEN** the previous immutable profile SHALL remain installed
+- **AND** no changed profile snapshot SHALL be sent
+
+### Requirement: Advancement preserves v2 profile identity outside transition fields
+A successful advancement SHALL construct one immutable v2 replacement that
+changes only realm id, stage id, stage-local progress to zero, and stability by
+the declared success cost. It SHALL preserve `lifespanConsumedTicks`,
+`meditationQiReserve`, current spiritual power, spiritual root, learned
+techniques/mastery, schema version, and every unrelated field. It SHALL use
+`CultivationService` as the sole attachment mutation boundary.
+
+#### Scenario: Success preserves durable counters and learning
+- **WHEN** a player with nonzero lifespan, reserve, spiritual power, affinities, and mastery advances
+- **THEN** all those values SHALL equal their pre-advancement values
+- **AND** only transition-owned fields SHALL change
+
+#### Scenario: A transition replacement is invalid
+- **WHEN** target references or calculated stability fail profile validation
+- **THEN** the previous profile SHALL remain installed and no changed snapshot SHALL be sent
+
+### Requirement: Bottleneck interruption is one atomic stability-only replacement
+An eligible player/world interruption of the Qi-III bottleneck SHALL submit at
+most one immutable replacement through `CultivationService` that changes only
+stability by exact loss `5`, clamped at zero. Ordinary or administrative
+teardown SHALL submit no penalty replacement. No interruption SHALL reset
+progress or spend reserve.
+
+#### Scenario: A full-progress Qi-III bottleneck is interrupted
+- **WHEN** its current stability is 80 and a penalized interruption occurs
+- **THEN** one replacement SHALL retain Qi III and progress 1200 with stability 75
+- **AND** lifespan, reserve, power, root, and techniques SHALL remain unchanged
+
+#### Scenario: Several hooks observe the same interruption
+- **WHEN** interruption handling is invoked repeatedly after session removal
+- **THEN** later invocations SHALL install no additional profile replacement
+
+### Requirement: The cultivation profile has a stable immutable v3 schema
+The current immutable `CultivationProfile` SHALL contain every v2 field plus a
+non-negative integer `spiritualAffinity`. Current schema version SHALL be `3`.
+A new or reset profile SHALL use affinity `10`, preserve the previous default
+realm/stage/root/technique values, and use zero for every prior numeric field.
+The profile SHALL retain `meditationQiReserve` as inert compatibility data but
+SHALL NOT add a client-writable, derived-speed, or meditation-mode field.
+Stored stability SHALL be a non-negative integer without a fixed schema-level
+upper bound because its gameplay cap is derived from the current stage.
+
+#### Scenario: A new v3 profile is created
+- **WHEN** a player has no stored cultivation attachment
+- **THEN** the default profile SHALL use schema `3` and spiritual affinity `10`
+- **AND** its realm, stage, root, techniques, and prior numeric defaults SHALL match the v2 default
+
+#### Scenario: A non-default v3 profile round-trips
+- **WHEN** the current codec encodes and decodes a valid profile with non-default affinity and reserve
+- **THEN** every v3 field and unknown syntactically valid id SHALL equal the original
+
+#### Scenario: Negative affinity is supplied
+- **WHEN** a constructor, codec, snapshot, or service replacement receives spiritual affinity below zero
+- **THEN** validation SHALL fail without installing or synchronizing a replacement
+
+#### Scenario: Stability exceeds the historical fixed ceiling
+- **WHEN** a valid v3 profile contains stability `500`
+- **THEN** profile construction and codec round trip SHALL preserve it
+- **AND** current-stage settlement and advancement rules SHALL enforce the applicable derived cap
+
+### Requirement: V1 and v2 profiles migrate explicitly and losslessly to v3
+The codec SHALL retain version-specific v1, v2, and v3 decoders. V1 SHALL
+migrate through the retained validated v1-to-v2 transformation and then the
+v2-to-v3 transformation; v2 SHALL migrate directly through that same final
+transformation. Both old versions SHALL receive affinity `10`. All old fields,
+unknown syntactically valid ids, over-cap progress, lifespan, and reserve SHALL
+be preserved exactly. The current encoder SHALL write only version `3`, and any
+other version SHALL fail explicitly.
+
+#### Scenario: A non-default v1 profile is loaded
+- **WHEN** valid v1 data contains progress, stability, power, root affinities, techniques, mastery, and unknown ids
+- **THEN** the resulting v3 profile SHALL preserve every v1 value exactly and assign affinity `10`
+- **AND** the retained v1-to-v2 defaults for lifespan and reserve SHALL remain zero
+
+#### Scenario: A non-default v2 profile is loaded
+- **WHEN** valid v2 data contains nonzero lifespan, reserve, and over-cap progress
+- **THEN** the resulting v3 profile SHALL preserve those values exactly and assign affinity `10`
+
+#### Scenario: An unsupported profile version is loaded
+- **WHEN** persisted data declares a schema version other than `1`, `2`, or `3`
+- **THEN** decoding SHALL fail with a controlled unsupported-version error rather than guess or reset
+
+### Requirement: Every authoritative replacement preserves v3 fields atomically
+Commands and every gameplay/lifecycle mutation SHALL submit complete
+immutable replacements through `CultivationService`; initiation, lifespan
+flushes, normal and spirit settlements, advancement, reset helpers, and
+lifecycle handlers SHALL not bypass it. Unless an operation explicitly resets
+the whole profile, it SHALL preserve `spiritualAffinity` and the legacy reserve
+exactly. Client input SHALL NOT supply affinity or directly install a profile.
+
+#### Scenario: Initiation or advancement replaces a v3 profile
+- **WHEN** a valid ritual or advancement commits on a profile with non-default affinity and reserve
+- **THEN** one final replacement SHALL preserve both values exactly
+- **AND** no intermediate or client-authored profile SHALL be installed
+
+#### Scenario: A profile mutation fails validation
+- **WHEN** any proposed replacement violates a v3 invariant
+- **THEN** `CultivationService` SHALL leave the old attachment equal and send no changed snapshot

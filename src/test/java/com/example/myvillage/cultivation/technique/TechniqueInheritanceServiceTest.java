@@ -35,12 +35,15 @@ class TechniqueInheritanceServiceTest {
         Map<ResourceLocation, TechniqueProgress> learned = new LinkedHashMap<>();
         learned.put(TechniqueRequirementEvaluatorTest.id("other"), new TechniqueProgress(88));
         CultivationProfile current = new CultivationProfile(
-                1,
+                CultivationProfile.CURRENT_SCHEMA_VERSION,
                 ModCultivationRegistries.MORTAL_REALM_ID,
                 ModCultivationRegistries.MORTAL_QI_SENSED_STAGE_ID,
                 91,
                 33,
                 17,
+                29,
+                1234,
+                56,
                 Optional.of(TechniqueRequirementEvaluatorTest.root(3)),
                 learned);
         AtomicInteger commits = new AtomicInteger();
@@ -69,6 +72,9 @@ class TechniqueInheritanceServiceTest {
         assertEquals(current.cultivationProgress(), outcome.profile().cultivationProgress());
         assertEquals(current.stability(), outcome.profile().stability());
         assertEquals(current.currentSpiritualPower(), outcome.profile().currentSpiritualPower());
+        assertEquals(current.spiritualAffinity(), outcome.profile().spiritualAffinity());
+        assertEquals(current.lifespanConsumedTicks(), outcome.profile().lifespanConsumedTicks());
+        assertEquals(current.meditationQiReserve(), outcome.profile().meditationQiReserve());
         assertEquals(current.spiritualRoot(), outcome.profile().spiritualRoot());
     }
 

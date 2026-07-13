@@ -6,6 +6,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
+import net.minecraft.world.level.material.MapColor;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -50,6 +52,12 @@ public final class ModBlocks {
             BLOCKS.registerBlock("technique_inheritance_stele",
                     TechniqueInheritanceSteleBlock::new,
                     steleProperties(SoundType.STONE));
+    public static final DeferredBlock<Block> SPIRIT_STONE_ORE =
+            BLOCKS.registerBlock("spirit_stone_ore", Block::new, spiritStoneOreProperties());
+    public static final DeferredBlock<Block> DEEPSLATE_SPIRIT_STONE_ORE =
+            BLOCKS.registerBlock("deepslate_spirit_stone_ore",
+                    Block::new,
+                    deepslateSpiritStoneOreProperties());
 
     private static final List<String> BLOCK_IDS = List.of(
             "wall_plaque",
@@ -60,7 +68,9 @@ public final class ModBlocks {
             "rockery_cascade",
             "test_item_block",
             "spirit_testing_stele",
-            "technique_inheritance_stele");
+            "technique_inheritance_stele",
+            "spirit_stone_ore",
+            "deepslate_spirit_stone_ore");
 
     private ModBlocks() {
     }
@@ -114,5 +124,22 @@ public final class ModBlocks {
                 .requiresCorrectToolForDrops()
                 .sound(soundType)
                 .noOcclusion();
+    }
+
+    private static BlockBehaviour.Properties spiritStoneOreProperties() {
+        return BlockBehaviour.Properties.of()
+                .mapColor(MapColor.STONE)
+                .instrument(NoteBlockInstrument.BASEDRUM)
+                .requiresCorrectToolForDrops()
+                .strength(3.0F, 3.0F);
+    }
+
+    private static BlockBehaviour.Properties deepslateSpiritStoneOreProperties() {
+        return BlockBehaviour.Properties.of()
+                .mapColor(MapColor.DEEPSLATE)
+                .instrument(NoteBlockInstrument.BASEDRUM)
+                .requiresCorrectToolForDrops()
+                .strength(4.5F, 3.0F)
+                .sound(SoundType.DEEPSLATE);
     }
 }

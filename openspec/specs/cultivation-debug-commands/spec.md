@@ -38,30 +38,40 @@ Both `/myvillage cultivation` and `/myvillage xiulian` SHALL expose every Englis
 - **AND** each English/pinyin pair SHALL expose an equivalent descendant argument and execution shape
 
 ### Requirement: The info command reports the complete current profile
-The mod SHALL provide `/myvillage cultivation info [target]`. Without `target`, the executing player SHALL be used; with `target`, the command SHALL use the standard single-player argument. Output SHALL include schema version, realm id, stage id, cultivation progress, stability, current spiritual power, spiritual root or `unawakened`, and every learned technique id with mastery.
+The mod SHALL provide `/myvillage cultivation info [target]` and its existing
+structurally equivalent aliases. Output SHALL include schema version, realm,
+stage, cultivation progress, stability, current spiritual power,
+`lifespanConsumedTicks`, `meditationQiReserve`, spiritual root or `unawakened`,
+and every learned technique id with mastery.
 
 #### Scenario: A new player is inspected
 - **WHEN** an operator runs `info` for a player with the default profile
-- **THEN** output SHALL show schema `1`, `myvillage:mortal`, `myvillage:mortal_unawakened`, zero numeric values, `unawakened`, and no learned techniques
+- **THEN** output SHALL show schema `2`, mortal/unawakened ids, all numeric fields including lifespan/reserve as zero, and no learned techniques
 
 #### Scenario: Stored ids are unavailable
-- **WHEN** the inspected profile contains a realm, stage, element, or technique id absent from current registries
-- **THEN** output SHALL retain the raw id
-- **AND** it SHALL mark that id as `unavailable`
-- **AND** inspection SHALL NOT mutate or reset the profile
+- **WHEN** the inspected v2 profile contains an id absent from current registries
+- **THEN** output SHALL retain and mark the raw id as `unavailable`
+- **AND** inspection SHALL not mutate or reset the profile
 
 ### Requirement: Reset and scalar commands mutate through CultivationService
-The mod SHALL provide `/myvillage cultivation reset <target>`, `setprogress <target> <amount>`, `setstability <target> <0..100>`, and `setpower <target> <amount>`. Targets SHALL use the standard player argument. Progress and power amounts SHALL be non-negative long values, stability SHALL be bounded from `0` through `100`, and all successful operations SHALL call the matching `CultivationService` method.
+The existing scalar/reset routes SHALL mutate through `CultivationService`.
+The reset, setprogress, setstability, and setpower English/pinyin routes SHALL
+retain their argument and permission contracts and SHALL mutate through
+`CultivationService`. Reset SHALL install the exact current-v2 default, including
+zero lifespan and reserve. This change SHALL not add commands that let players
+author calendar, lifespan, or reserve values.
 
 #### Scenario: A profile is reset
-- **WHEN** an operator runs `reset` for a target
-- **THEN** the service SHALL install the exact default v1 profile
-- **AND** it SHALL synchronize the target immediately
+- **WHEN** an operator runs reset for a target
+- **THEN** the service SHALL install the exact default v2 profile and synchronize immediately
 
 #### Scenario: A scalar amount is invalid
 - **WHEN** an operator supplies negative progress or power, or stability outside `0..100`
-- **THEN** command/service validation SHALL reject the input
-- **AND** the target profile SHALL remain unchanged
+- **THEN** command/service validation SHALL reject the input and leave every v2 field unchanged
+
+#### Scenario: A player requests clock mutation
+- **WHEN** the command trees are enumerated after this change
+- **THEN** no unprivileged or new administrator calendar/lifespan/reserve setter SHALL exist
 
 ### Requirement: Realm changes require a registered matching realm-stage pair
 The mod SHALL provide `/myvillage cultivation setrealm <target> <realm_id> <stage_id>`. The command SHALL resolve `realm_id` in `myvillage:realm`, SHALL require `stage_id` to occur in that realm's stage list, and SHALL call `CultivationService#setRealmAndStage` only after both checks pass.

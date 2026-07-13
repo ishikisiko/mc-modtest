@@ -49,7 +49,7 @@ public final class CultivationInitiationMessages {
                             "message.myvillage.cultivation.inheritance.success",
                             basicBreathingName(player)),
                     Component.translatable("message.myvillage.cultivation.inheritance.view_profile"),
-                    Component.translatable("message.myvillage.cultivation.inheritance.not_executable"));
+                    Component.translatable("message.myvillage.cultivation.inheritance.practice_controls"));
             case NOT_AWAKENED -> List.of(Component.translatable(
                     "message.myvillage.cultivation.inheritance.not_awakened"));
             case REQUIREMENTS_NOT_MET -> List.of(Component.translatable(

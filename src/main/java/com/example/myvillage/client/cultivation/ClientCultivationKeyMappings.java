@@ -16,6 +16,26 @@ public final class ClientCultivationKeyMappings {
             InputConstants.Type.KEYSYM,
             GLFW.GLFW_KEY_H,
             "key.categories.myvillage");
+    public static final KeyMapping START_NORMAL_MEDITATION = new KeyMapping(
+            "key.myvillage.start_normal_meditation",
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_V,
+            "key.categories.myvillage");
+    public static final KeyMapping START_SPIRIT_MEDITATION = new KeyMapping(
+            "key.myvillage.start_spirit_meditation",
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_B,
+            "key.categories.myvillage");
+    public static final KeyMapping STOP_MEDITATION = new KeyMapping(
+            "key.myvillage.stop_meditation",
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_G,
+            "key.categories.myvillage");
+    public static final KeyMapping START_ADVANCEMENT = new KeyMapping(
+            "key.myvillage.start_advancement",
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_N,
+            "key.categories.myvillage");
 
     public ClientCultivationKeyMappings(IEventBus modEventBus) {
         modEventBus.addListener(ClientCultivationKeyMappings::registerKeyMappings);
@@ -23,5 +43,9 @@ public final class ClientCultivationKeyMappings {
 
     static void registerKeyMappings(RegisterKeyMappingsEvent event) {
         event.register(OPEN_PROFILE);
+        event.register(START_NORMAL_MEDITATION);
+        event.register(START_SPIRIT_MEDITATION);
+        event.register(STOP_MEDITATION);
+        event.register(START_ADVANCEMENT);
     }
 }

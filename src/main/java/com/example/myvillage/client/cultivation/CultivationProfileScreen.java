@@ -4,17 +4,25 @@ import com.example.myvillage.cultivation.CultivationProfile;
 import com.example.myvillage.cultivation.SpiritualRoot;
 import com.example.myvillage.cultivation.TechniqueProgress;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
+import com.example.myvillage.cultivation.data.AdvancementDefinition;
 import com.example.myvillage.cultivation.data.RealmDefinition;
 import com.example.myvillage.cultivation.data.RealmStageDefinition;
 import com.example.myvillage.cultivation.data.SpiritualElementDefinition;
 import com.example.myvillage.cultivation.data.TechniqueDefinition;
+import com.example.myvillage.cultivation.network.MeditationIntentAction;
+import com.example.myvillage.cultivation.network.CultivationTimeSnapshotPayload;
+import com.example.myvillage.cultivation.meditation.MeditationStatus;
+import com.example.myvillage.item.ModItems;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -35,74 +43,203 @@ public final class CultivationProfileScreen extends Screen {
     private static final int BAR_BACKGROUND = 0xFF3C4240;
     private static final int STABILITY = 0xFF5AA58A;
     private static final int FALLBACK_ELEMENT = 0xFF7C8B88;
+    private static final int TAB_HEIGHT = 20;
+    private static final int ACTION_HEIGHT = 20;
+    private static final int WIDGET_GAP = 4;
+    private static final int SPIRIT_PROGRESS_PER_BATCH = 50;
 
+    private View view = View.PROFILE;
+    private int panelLeft;
+    private int panelTop;
+    private int panelWidth;
+    private int panelHeight;
     private int techniqueScroll;
     private int techniqueListX;
     private int techniqueListY;
     private int techniqueListWidth;
     private int techniqueListHeight;
     private int techniqueContentHeight;
+    private Button profileTab;
+    private Button meditationTab;
+    private Button normalButton;
+    private Button spiritButton;
+    private Button stopButton;
+    private Button advancementButton;
+
+    private enum View {
+        PROFILE,
+        MEDITATION
+    }
 
     public CultivationProfileScreen() {
         super(Component.translatable("screen.myvillage.cultivation.title"));
     }
 
     @Override
+    protected void init() {
+        updatePanelBounds();
+        int innerLeft = panelLeft + 12;
+        int innerWidth = panelWidth - 24;
+        int tabWidth = Math.max(1, (innerWidth - WIDGET_GAP) / 2);
+        int secondTabWidth = Math.max(1, innerWidth - WIDGET_GAP - tabWidth);
+        int tabY = panelTop + 48;
+
+        profileTab = addRenderableWidget(Button.builder(
+                        Component.translatable("screen.myvillage.cultivation.tab.profile"),
+                        button -> setView(View.PROFILE))
+                .bounds(innerLeft, tabY, tabWidth, TAB_HEIGHT)
+                .build());
+        meditationTab = addRenderableWidget(Button.builder(
+                        Component.translatable("screen.myvillage.cultivation.tab.meditation"),
+                        button -> setView(View.MEDITATION))
+                .bounds(innerLeft + tabWidth + WIDGET_GAP, tabY, secondTabWidth, TAB_HEIGHT)
+                .build());
+
+        int actionWidth = Math.max(1, (innerWidth - WIDGET_GAP) / 2);
+        int secondActionWidth = Math.max(1, innerWidth - WIDGET_GAP - actionWidth);
+        int secondRowY = panelTop + panelHeight - ACTION_HEIGHT - 8;
+        int firstRowY = secondRowY - ACTION_HEIGHT - WIDGET_GAP;
+        normalButton = actionButton(
+                "screen.myvillage.cultivation.button.normal",
+                MeditationIntentAction.START_NORMAL,
+                innerLeft,
+                firstRowY,
+                actionWidth);
+        spiritButton = actionButton(
+                "screen.myvillage.cultivation.button.spirit",
+                MeditationIntentAction.START_SPIRIT,
+                innerLeft + actionWidth + WIDGET_GAP,
+                firstRowY,
+                secondActionWidth);
+        stopButton = actionButton(
+                "screen.myvillage.cultivation.button.stop",
+                MeditationIntentAction.STOP,
+                innerLeft,
+                secondRowY,
+                actionWidth);
+        advancementButton = actionButton(
+                "screen.myvillage.cultivation.button.advancement",
+                MeditationIntentAction.START_BREAKTHROUGH,
+                innerLeft + actionWidth + WIDGET_GAP,
+                secondRowY,
+                secondActionWidth);
+        refreshButtons();
+    }
+
+    private Button actionButton(
+            String translationKey,
+            MeditationIntentAction action,
+            int x,
+            int y,
+            int buttonWidth) {
+        return addRenderableWidget(Button.builder(
+                        Component.translatable(translationKey),
+                        button -> ClientCultivationIntentSender.send(action))
+                .bounds(x, y, buttonWidth, ACTION_HEIGHT)
+                .build());
+    }
+
+    private void updatePanelBounds() {
+        panelWidth = Math.max(1, Math.min(520, width - 20));
+        panelHeight = Math.max(1, Math.min(300, height - 20));
+        panelLeft = (width - panelWidth) / 2;
+        panelTop = (height - panelHeight) / 2;
+    }
+
+    private void setView(View newView) {
+        view = newView;
+        refreshButtons();
+    }
+
+    @Override
+    public void tick() {
+        refreshButtons();
+    }
+
+    private void refreshButtons() {
+        if (profileTab == null || meditationTab == null) {
+            return;
+        }
+        profileTab.active = view != View.PROFILE;
+        meditationTab.active = view != View.MEDITATION;
+
+        boolean meditationVisible = view == View.MEDITATION;
+        normalButton.visible = meditationVisible;
+        spiritButton.visible = meditationVisible;
+        stopButton.visible = meditationVisible;
+        advancementButton.visible = meditationVisible;
+
+        MeditationStatus status = ClientCultivationState.meditation().orElse(null);
+        boolean synchronizedStatus = status != null;
+        boolean activeSession = synchronizedStatus && status.state().active();
+        normalButton.active = meditationVisible && synchronizedStatus && !activeSession;
+        spiritButton.active = meditationVisible && synchronizedStatus && !activeSession;
+        advancementButton.active = meditationVisible && synchronizedStatus && !activeSession;
+        stopButton.active = meditationVisible && activeSession;
+    }
+
+    @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        // Screen#render applies the vanilla blur pass; this screen owns its backdrop so its content stays crisp.
         graphics.fill(0, 0, width, height, BACKDROP);
+        int right = panelLeft + panelWidth;
+        int bottom = panelTop + panelHeight;
 
-        int panelWidth = Math.min(440, width - 20);
-        int panelHeight = Math.min(250, height - 20);
-        int left = (width - panelWidth) / 2;
-        int top = (height - panelHeight) / 2;
-        int right = left + panelWidth;
-        int bottom = top + panelHeight;
-
-        graphics.fill(left, top, right, bottom, PANEL);
-        graphics.renderOutline(left, top, panelWidth, panelHeight, BORDER);
-        graphics.fill(left + 1, top + 1, right - 1, top + 57, PANEL_HEADER);
-        graphics.hLine(left + 1, right - 2, top + 57, DIVIDER);
+        graphics.fill(panelLeft, panelTop, right, bottom, PANEL);
+        graphics.renderOutline(panelLeft, panelTop, panelWidth, panelHeight, BORDER);
+        graphics.fill(panelLeft + 1, panelTop + 1, right - 1, panelTop + 45, PANEL_HEADER);
+        graphics.hLine(panelLeft + 1, right - 2, panelTop + 45, DIVIDER);
+        graphics.hLine(panelLeft + 12, right - 13, panelTop + 71, DIVIDER);
 
         CultivationProfile profile = ClientCultivationState.latest().orElse(null);
-        drawHeader(graphics, profile, left, top, panelWidth);
+        drawHeader(graphics, profile, panelLeft, panelTop, panelWidth);
         if (profile == null) {
             graphics.drawCenteredString(
                     font,
                     Component.translatable("screen.myvillage.cultivation.no_snapshot"),
-                    left + panelWidth / 2,
-                    top + panelHeight / 2,
+                    panelLeft + panelWidth / 2,
+                    panelTop + panelHeight / 2,
                     MUTED);
-            return;
+        } else {
+            RegistryAccess registries = minecraft != null && minecraft.level != null
+                    ? minecraft.level.registryAccess()
+                    : RegistryAccess.EMPTY;
+            int innerLeft = panelLeft + 12;
+            int innerWidth = panelWidth - 24;
+            int contentTop = panelTop + 77;
+            if (view == View.PROFILE) {
+                int gap = 14;
+                int columnWidth = (innerWidth - gap) / 2;
+                int contentBottom = bottom - 17;
+                drawCultivationColumn(
+                        graphics, profile, registries, innerLeft, contentTop, columnWidth, contentBottom);
+                int dividerX = innerLeft + columnWidth + gap / 2;
+                graphics.vLine(dividerX, contentTop, contentBottom, DIVIDER);
+                drawTechniqueColumn(
+                        graphics,
+                        profile,
+                        registries,
+                        dividerX + gap / 2,
+                        contentTop,
+                        columnWidth,
+                        contentBottom,
+                        mouseX,
+                        mouseY);
+
+                String schema = Component.translatable(
+                        "screen.myvillage.cultivation.schema", profile.schemaVersion()).getString();
+                graphics.drawString(font, schema, right - 10 - font.width(schema), bottom - 12, MUTED, false);
+            } else {
+                drawMeditationView(graphics, profile, registries, innerLeft, contentTop, innerWidth);
+            }
         }
 
-        RegistryAccess registries = minecraft != null && minecraft.level != null
-                ? minecraft.level.registryAccess()
-                : RegistryAccess.EMPTY;
-        int innerLeft = left + 12;
-        int innerWidth = panelWidth - 24;
-        int gap = 14;
-        int columnWidth = (innerWidth - gap) / 2;
-        int contentTop = top + 67;
-        int contentBottom = bottom - 17;
+        refreshButtons();
+        super.render(graphics, mouseX, mouseY, partialTick);
+    }
 
-        drawCultivationColumn(graphics, profile, registries, innerLeft, contentTop, columnWidth, contentBottom);
-        int dividerX = innerLeft + columnWidth + gap / 2;
-        graphics.vLine(dividerX, contentTop, contentBottom, DIVIDER);
-        drawTechniqueColumn(
-                graphics,
-                profile,
-                registries,
-                dividerX + gap / 2,
-                contentTop,
-                columnWidth,
-                contentBottom,
-                mouseX,
-                mouseY);
-
-        String schema = Component.translatable(
-                "screen.myvillage.cultivation.schema", profile.schemaVersion()).getString();
-        graphics.drawString(font, schema, right - 10 - font.width(schema), bottom - 12, MUTED, false);
+    @Override
+    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        // The screen renders a stable, sharp backdrop before Screen renders its widgets.
     }
 
     private void drawHeader(
@@ -146,26 +283,75 @@ public final class CultivationProfileScreen extends Screen {
             int top,
             int columnWidth,
             int bottom) {
-        graphics.drawString(
-                font,
-                Component.translatable("screen.myvillage.cultivation.status"),
-                x,
-                top,
-                ACCENT,
-                false);
-        drawPair(graphics, "screen.myvillage.cultivation.progress", Long.toString(profile.cultivationProgress()),
-                x, top + 15, columnWidth);
+        drawPair(graphics, "screen.myvillage.cultivation.progress", progressValue(profile, registries),
+                x, top, columnWidth);
         drawPair(graphics, "screen.myvillage.cultivation.power", Long.toString(profile.currentSpiritualPower()),
-                x, top + 28, columnWidth);
-        drawPair(graphics, "screen.myvillage.cultivation.stability", profile.stability() + " / 100",
-                x, top + 41, columnWidth);
+                x, top + 10, columnWidth);
+        drawPair(graphics, "screen.myvillage.cultivation.stability", stabilityValue(profile, registries),
+                x, top + 20, columnWidth);
 
-        int barY = top + 53;
+        int barY = top + 30;
         graphics.fill(x, barY, x + columnWidth, barY + 4, BAR_BACKGROUND);
-        int fillWidth = Math.round(columnWidth * (profile.stability() / 100.0F));
+        int fillWidth = stabilityFillWidth(profile, registries, columnWidth);
         graphics.fill(x, barY, x + fillWidth, barY + 4, STABILITY);
 
-        int rootTitleY = top + 65;
+        drawPair(
+                graphics,
+                "screen.myvillage.cultivation.spiritual_affinity",
+                Integer.toString(profile.spiritualAffinity()),
+                x,
+                top + 37,
+                columnWidth);
+
+        CultivationTimeSnapshotPayload time = ClientCultivationState.time().orElse(null);
+        if (time == null) {
+            drawPair(
+                    graphics,
+                    "screen.myvillage.cultivation.calendar",
+                    Component.translatable("screen.myvillage.cultivation.time_waiting").getString(),
+                    x,
+                    top + 47,
+                    columnWidth);
+        } else {
+            drawPair(
+                    graphics,
+                    "screen.myvillage.cultivation.calendar",
+                    calendarValue(time),
+                    x,
+                    top + 47,
+                    columnWidth);
+            drawPair(
+                    graphics,
+                    "screen.myvillage.cultivation.lifespan_consumed",
+                    Component.translatable(
+                            "screen.myvillage.cultivation.years_value",
+                            yearsFloor(time.lifespanConsumedTicks(), time)).getString(),
+                    x,
+                    top + 57,
+                    columnWidth);
+            drawPair(
+                    graphics,
+                    "screen.myvillage.cultivation.lifespan_remaining",
+                    remainingValue(time),
+                    x,
+                    top + 67,
+                    columnWidth);
+        }
+
+        MeditationStatus meditation = ClientCultivationState.meditation().orElse(null);
+        drawPair(
+                graphics,
+                "screen.myvillage.cultivation.session",
+                meditation == null
+                        ? Component.translatable("screen.myvillage.cultivation.time_waiting").getString()
+                        : Component.translatable(
+                                "screen.myvillage.cultivation.session."
+                                        + meditation.state().name().toLowerCase(Locale.ROOT)).getString(),
+                x,
+                top + 77,
+                columnWidth);
+
+        int rootTitleY = top + 91;
         graphics.drawString(
                 font,
                 Component.translatable("screen.myvillage.cultivation.spiritual_root"),
@@ -179,7 +365,7 @@ public final class CultivationProfileScreen extends Screen {
                     font,
                     Component.translatable("screen.myvillage.cultivation.unawakened"),
                     x,
-                    rootTitleY + 14,
+                    rootTitleY + 12,
                     MUTED,
                     false);
             return;
@@ -190,24 +376,261 @@ public final class CultivationProfileScreen extends Screen {
         affinities.sort(Comparator
                 .comparingInt((Map.Entry<ResourceLocation, Integer> entry) -> elementSortOrder(registries, entry.getKey()))
                 .thenComparing(entry -> entry.getKey().toString()));
-        int rowY = rootTitleY + 14;
-        int visibleRows = Math.max(1, (bottom - rowY) / 11);
+        int rowY = rootTitleY + 12;
+        int visibleRows = Math.max(1, (bottom - rowY) / 9);
         int rendered = Math.min(visibleRows, affinities.size());
         for (int index = 0; index < rendered; index++) {
             Map.Entry<ResourceLocation, Integer> affinity = affinities.get(index);
             String name = displayElement(registries, affinity.getKey()).getString();
             String percent = String.format(Locale.ROOT, "%.1f%%", affinity.getValue() / 100.0D);
             int color = elementColor(registries, affinity.getKey());
-            graphics.fill(x, rowY + index * 11 + 2, x + 5, rowY + index * 11 + 7, color);
-            graphics.drawString(font, fit(name, columnWidth - 49), x + 9, rowY + index * 11, TEXT, false);
+            graphics.fill(x, rowY + index * 9 + 2, x + 5, rowY + index * 9 + 7, color);
+            graphics.drawString(font, fit(name, columnWidth - 49), x + 9, rowY + index * 9, TEXT, false);
             graphics.drawString(
                     font,
                     percent,
                     x + columnWidth - font.width(percent),
-                    rowY + index * 11,
+                    rowY + index * 9,
                     MUTED,
                     false);
         }
+    }
+
+    private void drawMeditationView(
+            GuiGraphics graphics,
+            CultivationProfile profile,
+            RegistryAccess registries,
+            int x,
+            int top,
+            int contentWidth) {
+        MeditationStatus meditation = ClientCultivationState.meditation().orElse(null);
+        drawPair(
+                graphics,
+                "screen.myvillage.cultivation.session",
+                meditation == null
+                        ? Component.translatable("screen.myvillage.cultivation.time_waiting").getString()
+                        : Component.translatable(
+                                "screen.myvillage.cultivation.session."
+                                        + meditation.state().name().toLowerCase(Locale.ROOT)).getString(),
+                x,
+                top,
+                contentWidth);
+        drawPair(
+                graphics,
+                "screen.myvillage.cultivation.progress",
+                progressValue(profile, registries),
+                x,
+                top + 13,
+                contentWidth);
+
+        int progressBarY = top + 26;
+        graphics.fill(x, progressBarY, x + contentWidth, progressBarY + 5, BAR_BACKGROUND);
+        int progressFill = progressFillWidth(profile, registries, contentWidth);
+        graphics.fill(x, progressBarY, x + progressFill, progressBarY + 5, ACCENT);
+
+        int pairGap = 14;
+        int columnWidth = (contentWidth - pairGap) / 2;
+        int rightX = x + columnWidth + pairGap;
+        Optional<RealmStageDefinition> stage = currentStage(profile, registries);
+        String unavailable = Component.translatable("screen.myvillage.cultivation.unavailable").getString();
+
+        drawPair(
+                graphics,
+                "screen.myvillage.cultivation.spiritual_affinity",
+                Integer.toString(profile.spiritualAffinity()),
+                x,
+                top + 36,
+                columnWidth);
+        drawPair(
+                graphics,
+                "screen.myvillage.cultivation.stability",
+                stabilityValue(profile, registries),
+                rightX,
+                top + 36,
+                columnWidth);
+        drawPair(
+                graphics,
+                "screen.myvillage.cultivation.normal_rate",
+                Component.translatable(
+                        "screen.myvillage.cultivation.rate_per_ten_ticks",
+                        profile.spiritualAffinity()).getString(),
+                x,
+                top + 49,
+                columnWidth);
+        drawPair(
+                graphics,
+                "screen.myvillage.cultivation.basic_breathing_mastery",
+                basicBreathingMastery(profile, unavailable),
+                rightX,
+                top + 49,
+                columnWidth);
+        drawPair(
+                graphics,
+                "screen.myvillage.cultivation.spirit_rate",
+                Component.translatable(
+                        "screen.myvillage.cultivation.rate_per_ten_ticks",
+                        SPIRIT_PROGRESS_PER_BATCH).getString(),
+                x,
+                top + 62,
+                columnWidth);
+        drawPair(
+                graphics,
+                "screen.myvillage.cultivation.spirit_cost",
+                spiritCostValue(profile, stage, unavailable),
+                rightX,
+                top + 62,
+                columnWidth);
+        drawPair(
+                graphics,
+                "screen.myvillage.cultivation.spirit_inventory",
+                spiritStoneInventory(unavailable),
+                x,
+                top + 75,
+                columnWidth);
+        drawPair(
+                graphics,
+                "screen.myvillage.cultivation.stability_gain",
+                stabilityGainValue(profile, stage, unavailable),
+                rightX,
+                top + 75,
+                columnWidth);
+    }
+
+    private int progressFillWidth(
+            CultivationProfile profile,
+            RegistryAccess registries,
+            int width) {
+        return currentStage(profile, registries)
+                .flatMap(RealmStageDefinition::cultivationCap)
+                .map(cap -> (int) Math.round(width * Math.min(
+                        1.0D,
+                        profile.cultivationProgress() / (double) cap)))
+                .orElse(0);
+    }
+
+    private String stabilityValue(CultivationProfile profile, RegistryAccess registries) {
+        String unavailable = Component.translatable(
+                "screen.myvillage.cultivation.unavailable").getString();
+        return currentStage(profile, registries)
+                .flatMap(RealmStageDefinition::stabilityCap)
+                .map(cap -> profile.stability() + " / " + cap)
+                .orElse(profile.stability() + " / " + unavailable);
+    }
+
+    private int stabilityFillWidth(
+            CultivationProfile profile,
+            RegistryAccess registries,
+            int width) {
+        return currentStage(profile, registries)
+                .flatMap(RealmStageDefinition::stabilityCap)
+                .map(cap -> (int) Math.round(width * Math.min(
+                        1.0D,
+                        profile.stability() / (double) cap)))
+                .orElse(0);
+    }
+
+    private String stabilityGainValue(
+            CultivationProfile profile,
+            Optional<RealmStageDefinition> stage,
+            String unavailable) {
+        if (stage.isEmpty()
+                || stage.orElseThrow().cultivationCap().isEmpty()
+                || stage.orElseThrow().stabilityCap().isEmpty()) {
+            return unavailable;
+        }
+        RealmStageDefinition definition = stage.orElseThrow();
+        if (profile.cultivationProgress() < definition.cultivationCap().orElseThrow()) {
+            return Component.translatable(
+                    "screen.myvillage.cultivation.stability_locked").getString();
+        }
+        if (profile.stability() >= definition.stabilityCap().orElseThrow()) {
+            return Component.translatable(
+                    "screen.myvillage.cultivation.stability_capped").getString();
+        }
+        return Component.translatable(
+                "screen.myvillage.cultivation.rate_per_ten_ticks",
+                profile.spiritualAffinity()).getString();
+    }
+
+    private String spiritCostValue(
+            CultivationProfile profile,
+            Optional<RealmStageDefinition> stage,
+            String unavailable) {
+        if (stage.isEmpty()) {
+            return unavailable;
+        }
+        RealmStageDefinition definition = stage.orElseThrow();
+        if (definition.cultivationCap().isPresent()
+                && profile.cultivationProgress() >= definition.cultivationCap().orElseThrow()) {
+            return Component.translatable(
+                    "screen.myvillage.cultivation.stability_no_stone_cost").getString();
+        }
+        return definition.spiritStoneCost()
+                .map(cost -> Component.translatable(
+                        "screen.myvillage.cultivation.cost_per_ten_ticks", cost).getString())
+                .orElse(unavailable);
+    }
+
+    private String basicBreathingMastery(CultivationProfile profile, String unavailable) {
+        TechniqueProgress progress = profile.learnedTechniques()
+                .get(ModCultivationRegistries.BASIC_BREATHING_TECHNIQUE_ID);
+        return progress == null ? unavailable : Long.toString(progress.masteryPoints());
+    }
+
+    private String spiritStoneInventory(String unavailable) {
+        if (minecraft == null || minecraft.player == null) {
+            return unavailable;
+        }
+        Inventory inventory = minecraft.player.getInventory();
+        long count = 0;
+        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
+            ItemStack stack = inventory.getItem(slot);
+            if (stack.is(ModItems.LOW_GRADE_SPIRIT_STONE.get())) {
+                count = Math.min(Integer.MAX_VALUE, count + stack.getCount());
+            }
+        }
+        return Long.toString(count);
+    }
+
+    private String calendarValue(CultivationTimeSnapshotPayload time) {
+        long elapsedDays = time.elapsedCalendarTicks() / time.ticksPerDay();
+        long year = elapsedDays / time.daysPerYear();
+        long oneBasedYear = year == Long.MAX_VALUE ? Long.MAX_VALUE : year + 1;
+        long day = elapsedDays % time.daysPerYear() + 1;
+        return Component.translatable(
+                "screen.myvillage.cultivation.calendar_value", oneBasedYear, day).getString();
+    }
+
+    private String remainingValue(CultivationTimeSnapshotPayload time) {
+        if (!time.lifespanAvailable()) {
+            return Component.translatable("screen.myvillage.cultivation.unavailable").getString();
+        }
+        if (time.exhausted()) {
+            return Component.translatable(
+                    "screen.myvillage.cultivation.lifespan_exhausted", time.maximumLifespanYears()).getString();
+        }
+        long remainingYears = yearsCeil(time.remainingLifespanTicks(), time);
+        return Component.translatable(
+                "screen.myvillage.cultivation.lifespan_fraction",
+                remainingYears,
+                time.maximumLifespanYears()).getString();
+    }
+
+    private long yearsFloor(long ticks, CultivationTimeSnapshotPayload time) {
+        return ticks / ticksPerYear(time);
+    }
+
+    private long yearsCeil(long ticks, CultivationTimeSnapshotPayload time) {
+        long ticksPerYear = ticksPerYear(time);
+        long whole = ticks / ticksPerYear;
+        return ticks % ticksPerYear == 0 || whole == Long.MAX_VALUE ? whole : whole + 1;
+    }
+
+    private long ticksPerYear(CultivationTimeSnapshotPayload time) {
+        if (time.ticksPerDay() > Long.MAX_VALUE / time.daysPerYear()) {
+            return Long.MAX_VALUE;
+        }
+        return time.ticksPerDay() * time.daysPerYear();
     }
 
     private void drawTechniqueColumn(
@@ -220,11 +643,13 @@ public final class CultivationProfileScreen extends Screen {
             int bottom,
             int mouseX,
             int mouseY) {
+        drawAdvancementSummary(graphics, profile, registries, x, top, columnWidth);
+        int techniqueTop = top + 59;
         graphics.drawString(
                 font,
                 Component.translatable("screen.myvillage.cultivation.techniques"),
                 x,
-                top,
+                techniqueTop,
                 ACCENT,
                 false);
         if (profile.learnedTechniques().isEmpty()) {
@@ -232,15 +657,19 @@ public final class CultivationProfileScreen extends Screen {
                     font,
                     Component.translatable("screen.myvillage.cultivation.none"),
                     x,
-                    top + 15,
+                    techniqueTop + 15,
                     MUTED,
                     false);
+            techniqueListX = x;
+            techniqueListY = techniqueTop + 14;
+            techniqueListWidth = columnWidth;
+            techniqueListHeight = Math.max(1, bottom - techniqueListY);
             techniqueContentHeight = 0;
             return;
         }
 
         techniqueListX = x;
-        techniqueListY = top + 14;
+        techniqueListY = techniqueTop + 14;
         techniqueListWidth = columnWidth;
         techniqueListHeight = Math.max(1, bottom - techniqueListY);
         techniqueContentHeight = profile.learnedTechniques().size() * 29;
@@ -277,6 +706,107 @@ public final class CultivationProfileScreen extends Screen {
         }
     }
 
+    private void drawAdvancementSummary(
+            GuiGraphics graphics,
+            CultivationProfile profile,
+            RegistryAccess registries,
+            int x,
+            int top,
+            int columnWidth) {
+        graphics.drawString(
+                font,
+                Component.translatable("screen.myvillage.cultivation.advancement"),
+                x,
+                top,
+                ACCENT,
+                false);
+        RealmStageDefinition stage = currentStage(profile, registries).orElse(null);
+        if (stage == null) {
+            graphics.drawString(
+                    font,
+                    Component.translatable("screen.myvillage.cultivation.unavailable"),
+                    x,
+                    top + 15,
+                    MUTED,
+                    false);
+            graphics.hLine(x, x + columnWidth - 5, top + 51, DIVIDER);
+            return;
+        }
+
+        AdvancementDefinition advancement = stage.advancement().orElse(null);
+        if (advancement == null) {
+            String value = stage.id().equals(ModCultivationRegistries.QI_REFINING_4_STAGE_ID)
+                    ? Component.translatable(
+                            "screen.myvillage.cultivation.advancement_release_ceiling").getString()
+                    : Component.translatable(
+                            "screen.myvillage.cultivation.advancement_unavailable").getString();
+            graphics.drawString(font, fit(value, columnWidth - 5), x, top + 15, MUTED, false);
+            graphics.hLine(x, x + columnWidth - 5, top + 51, DIVIDER);
+            return;
+        }
+
+        String kind = Component.translatable(
+                "screen.myvillage.cultivation.advancement_kind."
+                        + advancement.kind().serializedName()).getString();
+        drawPair(
+                graphics,
+                "screen.myvillage.cultivation.advancement_rule",
+                Component.translatable(
+                        "screen.myvillage.cultivation.advancement_rule_value",
+                        kind,
+                        advancement.durationTicks()).getString(),
+                x,
+                top + 14,
+                columnWidth);
+        drawPair(
+                graphics,
+                "screen.myvillage.cultivation.advancement_stability",
+                Component.translatable(
+                "screen.myvillage.cultivation.advancement_stability_value",
+                        advancement.requiredStability()).getString(),
+                x,
+                top + 27,
+                columnWidth);
+
+        MeditationStatus status = ClientCultivationState.meditation().orElse(null);
+        String runtime = status != null && status.state().advancing()
+                ? Component.translatable(
+                        "screen.myvillage.cultivation.advancement_runtime_value",
+                        status.advancementTicksRemaining(),
+                        status.advancementDurationTicks()).getString()
+                : Component.translatable(
+                        "screen.myvillage.cultivation.advancement_inactive").getString();
+        drawPair(
+                graphics,
+                "screen.myvillage.cultivation.advancement_runtime",
+                runtime,
+                x,
+                top + 40,
+                columnWidth);
+        graphics.hLine(x, x + columnWidth - 5, top + 51, DIVIDER);
+    }
+
+    private String progressValue(CultivationProfile profile, RegistryAccess registries) {
+        RealmStageDefinition stage = currentStage(profile, registries).orElse(null);
+        if (stage == null) {
+            return Component.translatable(
+                    "screen.myvillage.cultivation.progress_unavailable",
+                    profile.cultivationProgress()).getString();
+        }
+        if (stage.cultivationCap().isPresent()) {
+            return Component.translatable(
+                    "screen.myvillage.cultivation.progress_capped",
+                    profile.cultivationProgress(),
+                    stage.cultivationCap().orElseThrow()).getString();
+        }
+        String suffix = stage.id().equals(ModCultivationRegistries.QI_REFINING_4_STAGE_ID)
+                ? Component.translatable(
+                        "screen.myvillage.cultivation.progress_release_ceiling").getString()
+                : Component.translatable(
+                        "screen.myvillage.cultivation.progress_unsupported").getString();
+        return profile.cultivationProgress() + " / " + suffix;
+    }
+
     private void drawPair(
             GuiGraphics graphics,
             String labelKey,
@@ -285,9 +815,11 @@ public final class CultivationProfileScreen extends Screen {
             int y,
             int width) {
         String label = Component.translatable(labelKey).getString();
-        graphics.drawString(font, label, x, y, MUTED, false);
-        int valueX = x + font.width(label) + 5;
-        graphics.drawString(font, fit(value, Math.max(1, x + width - valueX)), valueX, y, TEXT, false);
+        int gap = 4;
+        int labelWidth = Math.min(font.width(label), Math.max(1, (width - gap) * 2 / 5));
+        int valueX = x + labelWidth + gap;
+        graphics.drawString(font, fit(label, labelWidth), x, y, MUTED, false);
+        graphics.drawString(font, fit(value, Math.max(1, width - labelWidth - gap)), valueX, y, TEXT, false);
     }
 
     private String techniqueDetail(TechniqueDefinition definition, TechniqueProgress progress) {
@@ -311,15 +843,19 @@ public final class CultivationProfileScreen extends Screen {
     }
 
     private Component displayStage(CultivationProfile profile, RegistryAccess registries) {
-        RealmStageDefinition stage = registries.registry(ModCultivationRegistries.REALMS)
-                .flatMap(registry -> registry.getOptional(profile.realmId()))
-                .flatMap(realm -> realm.stages().stream()
-                        .filter(candidate -> candidate.id().equals(profile.stageId()))
-                        .findFirst())
-                .orElse(null);
+        RealmStageDefinition stage = currentStage(profile, registries).orElse(null);
         return stage == null
                 ? unavailable(profile.stageId())
                 : Component.translatable(stage.translationKey());
+    }
+
+    private Optional<RealmStageDefinition> currentStage(
+            CultivationProfile profile, RegistryAccess registries) {
+        return registries.registry(ModCultivationRegistries.REALMS)
+                .flatMap(registry -> registry.getOptional(profile.realmId()))
+                .flatMap(realm -> realm.stages().stream()
+                        .filter(candidate -> candidate.id().equals(profile.stageId()))
+                        .findFirst());
     }
 
     private Component displayElement(RegistryAccess registries, ResourceLocation elementId) {
@@ -376,7 +912,7 @@ public final class CultivationProfileScreen extends Screen {
                 && mouseX < techniqueListX + techniqueListWidth
                 && mouseY >= techniqueListY
                 && mouseY < techniqueListY + techniqueListHeight;
-        if (overTechniqueList && techniqueContentHeight > techniqueListHeight) {
+        if (view == View.PROFILE && overTechniqueList && techniqueContentHeight > techniqueListHeight) {
             int maxScroll = techniqueContentHeight - techniqueListHeight;
             techniqueScroll = Math.max(0, Math.min(maxScroll, techniqueScroll - (int) Math.signum(scrollY) * 18));
             return true;

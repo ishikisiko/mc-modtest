@@ -1,6 +1,7 @@
 {
   "translation_key": "cultivation.realm.myvillage.foundation_establishment",
   "sort_order": 2,
+  "maximum_lifespan_years": 240,
   "stages": [
     {
       "id": "myvillage:foundation_early",

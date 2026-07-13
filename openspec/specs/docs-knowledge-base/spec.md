@@ -65,12 +65,20 @@ The change SHALL add `docs/ai-kb/29_cultivation_initiation_ritual.md`, list it i
 - **AND** its stated behavior SHALL match the shipped implementation and current validation commands
 
 ### Requirement: Existing cultivation scope documentation is narrowed when initiation ships
-The same change SHALL update `docs/ai-kb/28_cultivation_core.md`, README, AGENTS guidance, and directly related command/validation documentation so they no longer state that spiritual-root awakening, initiation commands, or new cultivation blocks are entirely absent. The updated text SHALL state that deterministic awakening and basic-breathing inheritance are implemented while meditation, technique execution, spiritual-power recovery, cultivation gain, and qi-refining advancement remain absent.
+The final serial change SHALL update cultivation core/initiation notes, README,
+AGENTS guidance, commands/controls, and validation documentation so scope text
+matches the first playable loop. It SHALL describe deterministic awakening,
+Basic Breathing inheritance, ordinary/spirit meditation, lifespan/calendar,
+spirit-stone resources, gain through Qi III, and advancement through the Qi-III
+bottleneck. Remaining exclusions SHALL name Qi IV+ cultivation/advancement,
+Foundation Establishment, major-realm processes, random/material/environment
+systems, and lifespan exhaustion consequences rather than claiming all
+meditation or progression is absent.
 
-#### Scenario: Foundation exclusions are checked after release
-- **WHEN** the initiation change is ready for closeout
-- **THEN** no current scope statement SHALL still classify the shipped two-step ritual as unimplemented
-- **AND** remaining exclusions SHALL be limited to behavior that is still absent
+#### Scenario: Old exclusions are checked after release
+- **WHEN** the five serial changes are ready for closeout
+- **THEN** no current scope statement SHALL classify their shipped resources, clocks, meditation, gain, or four transitions as absent
+- **AND** later-stage and lifecycle exclusions SHALL remain explicit
 
 ### Requirement: The two-boundary initiation scope exception is documented without becoming precedent
 The design and initiation KB note SHALL record that the owner explicitly combined deterministic awakening and basic-breathing inheritance in one change despite the foundation note's normal one-boundary guidance. They SHALL preserve the two steps as independent services/facilities and SHALL state that the exception does not include technique execution or meditation.
@@ -87,3 +95,31 @@ Documentation SHALL reference the authoritative feature-version task rule in `op
 - **WHEN** the feature version is selected during implementation
 - **THEN** every version-sensitive file SHALL identify the same release
 - **AND** docs SHALL describe only behavior actually included in that release
+
+### Requirement: The first playable cultivation loop has an indexed same-topic note
+The final serial change SHALL add
+`docs/ai-kb/30_cultivation_playable_loop.md`, list it in
+`docs/ai-kb/INDEX.md`, and cross-link it with the lifespan/calendar,
+meditation, gain, advancement, profile, registry, synchronization, resource,
+and validation capabilities. The concise note SHALL document the server-owned
+loop, time scale and dynamic-reinterpretation warning, exact rates/caps/reserve,
+V/B/G/N and H roles, exact transition table, interruption/atomicity rules,
+release ceiling, validation commands, and manual evidence boundary.
+
+#### Scenario: The playable-loop note is reviewed
+- **WHEN** a contributor follows the cultivation learning chain
+- **THEN** the indexed note and same-topic specs SHALL link to each other
+- **AND** its constants, controls, commands, and exclusions SHALL match shipped behavior
+
+### Requirement: User-facing acceptance docs cover the complete serial feature
+README and acceptance guidance SHALL document item ids, ore/new-chunk behavior,
+configuration, calendar/lifespan display, initiation order, V/B/G/N controls, H
+read-only status, ordinary/spirit gain, reserve conversion, all four advancement
+requirements, Qi-IV release limit, validation commands, and real-client
+pass/fail/`not_verified` checks. They SHALL not present backend CRAFT/GenOps
+identifiers as required owner-facing usage.
+
+#### Scenario: A player follows the acceptance path
+- **WHEN** the documented commands and controls are read in order
+- **THEN** the player SHALL be able to prepare ore/resources, complete both steles, meditate in both modes, inspect H, and test four transitions
+- **AND** every observation unavailable to automation SHALL be labeled for manual verdict

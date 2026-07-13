@@ -1,51 +1,91 @@
 {
   "translation_key": "cultivation.realm.myvillage.qi_refining",
   "sort_order": 1,
+  "maximum_lifespan_years": 120,
   "stages": [
     {
       "id": "myvillage:qi_refining_1",
       "translation_key": "cultivation.stage.myvillage.qi_refining_1",
-      "sort_order": 0
+      "sort_order": 0,
+      "cultivation_cap": 1100,
+      "spirit_stone_cost": 1,
+      "advancement": {
+        "target_realm": "myvillage:qi_refining",
+        "target_stage": "myvillage:qi_refining_2",
+        "kind": "ordinary",
+        "duration_ticks": 100,
+        "required_stability": 550,
+        "stability_cost": 275,
+        "interruption_stability_loss": 0
+      }
     },
     {
       "id": "myvillage:qi_refining_2",
       "translation_key": "cultivation.stage.myvillage.qi_refining_2",
-      "sort_order": 1
+      "sort_order": 1,
+      "cultivation_cap": 1200,
+      "spirit_stone_cost": 2,
+      "advancement": {
+        "target_realm": "myvillage:qi_refining",
+        "target_stage": "myvillage:qi_refining_3",
+        "kind": "ordinary",
+        "duration_ticks": 120,
+        "required_stability": 600,
+        "stability_cost": 300,
+        "interruption_stability_loss": 0
+      }
     },
     {
       "id": "myvillage:qi_refining_3",
       "translation_key": "cultivation.stage.myvillage.qi_refining_3",
-      "sort_order": 2
+      "sort_order": 2,
+      "cultivation_cap": 1300,
+      "spirit_stone_cost": 3,
+      "advancement": {
+        "target_realm": "myvillage:qi_refining",
+        "target_stage": "myvillage:qi_refining_4",
+        "kind": "bottleneck",
+        "duration_ticks": 200,
+        "required_stability": 650,
+        "stability_cost": 325,
+        "interruption_stability_loss": 5
+      }
     },
     {
       "id": "myvillage:qi_refining_4",
       "translation_key": "cultivation.stage.myvillage.qi_refining_4",
-      "sort_order": 3
+      "sort_order": 3,
+      "spirit_stone_cost": 4
     },
     {
       "id": "myvillage:qi_refining_5",
       "translation_key": "cultivation.stage.myvillage.qi_refining_5",
-      "sort_order": 4
+      "sort_order": 4,
+      "spirit_stone_cost": 5
     },
     {
       "id": "myvillage:qi_refining_6",
       "translation_key": "cultivation.stage.myvillage.qi_refining_6",
-      "sort_order": 5
+      "sort_order": 5,
+      "spirit_stone_cost": 6
     },
     {
       "id": "myvillage:qi_refining_7",
       "translation_key": "cultivation.stage.myvillage.qi_refining_7",
-      "sort_order": 6
+      "sort_order": 6,
+      "spirit_stone_cost": 7
     },
     {
       "id": "myvillage:qi_refining_8",
       "translation_key": "cultivation.stage.myvillage.qi_refining_8",
-      "sort_order": 7
+      "sort_order": 7,
+      "spirit_stone_cost": 8
     },
     {
       "id": "myvillage:qi_refining_9",
       "translation_key": "cultivation.stage.myvillage.qi_refining_9",
-      "sort_order": 8
+      "sort_order": 8,
+      "spirit_stone_cost": 9
     }
   ],
   "next_realm": "myvillage:foundation_establishment"

@@ -1,7 +1,6 @@
 package com.example.myvillage.network;
 
 import com.example.myvillage.cultivation.network.CultivationPayloads;
-import com.example.myvillage.cultivation.network.CultivationSnapshotPayload;
 import com.example.myvillage.entity.RideableFlyingSwordEntity;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.IEventBus;
@@ -13,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 public final class ModPayloads {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModPayloads.class);
-    private static final String PROTOCOL_VERSION = "1";
+    private static final String PROTOCOL_VERSION = "3";
 
     private ModPayloads() {
     }
@@ -30,9 +29,8 @@ public final class ModPayloads {
                 ModPayloads::handleFlyingSwordInput);
         CultivationPayloads.register(registrar);
         LOGGER.info(
-                "Payload handlers registered: serverbound={}, clientbound={}",
-                FlyingSwordInputPayload.TYPE.id(),
-                CultivationSnapshotPayload.TYPE.id());
+                "Payload handlers registered: flying-sword input plus cultivation profile/time/session/intent (protocol {})",
+                PROTOCOL_VERSION);
     }
 
     private static void handleFlyingSwordInput(

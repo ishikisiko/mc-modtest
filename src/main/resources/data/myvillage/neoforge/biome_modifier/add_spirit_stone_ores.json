@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#myvillage:has_spirit_stone_ore",
+  "features": [
+    "myvillage:spirit_stone_ore_upper",
+    "myvillage:spirit_stone_ore_middle",
+    "myvillage:spirit_stone_ore_deep"
+  ],
+  "step": "underground_ores"
+}

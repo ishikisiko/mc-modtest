@@ -52,10 +52,13 @@ class TechniqueRequirementEvaluatorTest {
         ambiguous.put(ambiguousId, new RealmDefinition(
                 "realm.ambiguous",
                 0,
+                80,
                 List.of(new RealmStageDefinition(id("ambiguous_stage"), "stage.ambiguous", 0)),
                 Optional.empty()));
         CultivationProfile ambiguousProfile = new CultivationProfile(
-                1, ambiguousId, id("ambiguous_stage"), 0, 0, 0, Optional.of(root(1)), Map.of());
+                CultivationProfile.CURRENT_SCHEMA_VERSION,
+                ambiguousId, id("ambiguous_stage"), 0, 0, 0, 10, 0, 0,
+                Optional.of(root(1)), Map.of());
         assertEquals(
                 TechniqueRequirementEvaluator.Status.AMBIGUOUS_REALM_ORDER,
                 TechniqueRequirementEvaluator.evaluate(
@@ -103,10 +106,13 @@ class TechniqueRequirementEvaluatorTest {
                         Optional.of(missingStage),
                         Map.of()));
         CultivationProfile higherRealm = new CultivationProfile(
-                1,
+                CultivationProfile.CURRENT_SCHEMA_VERSION,
                 ModCultivationRegistries.QI_REFINING_REALM_ID,
                 ModCultivationRegistries.QI_REFINING_1_STAGE_ID,
                 0,
+                0,
+                0,
+                10,
                 0,
                 0,
                 Optional.of(root(1)),
@@ -170,6 +176,7 @@ class TechniqueRequirementEvaluatorTest {
         RealmDefinition mortal = new RealmDefinition(
                 "realm.mortal",
                 0,
+                80,
                 List.of(
                         new RealmStageDefinition(
                                 ModCultivationRegistries.MORTAL_UNAWAKENED_STAGE_ID,
@@ -183,6 +190,7 @@ class TechniqueRequirementEvaluatorTest {
         RealmDefinition qiRefining = new RealmDefinition(
                 "realm.qi_refining",
                 1,
+                120,
                 List.of(new RealmStageDefinition(
                         ModCultivationRegistries.QI_REFINING_1_STAGE_ID,
                         "stage.qi_1",

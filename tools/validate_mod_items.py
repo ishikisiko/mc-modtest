@@ -36,7 +36,9 @@ def png_size(path: Path) -> tuple[int, int]:
 
 def registered_items() -> set[str]:
     text = MOD_ITEMS.read_text(encoding="utf-8")
-    return set(re.findall(r'ITEMS\.registerItem\("([a-z0-9_./-]+)"', text))
+    explicit = re.findall(r'ITEMS\.registerItem\(\s*"([a-z0-9_./-]+)"', text, re.MULTILINE)
+    simple = re.findall(r'ITEMS\.registerSimpleItem\(\s*"([a-z0-9_./-]+)"', text, re.MULTILINE)
+    return set(explicit) | set(simple)
 
 
 def registered_block_items() -> set[str]:
@@ -51,7 +53,11 @@ def registered_block_items() -> set[str]:
 
 def registered_blocks() -> set[str]:
     text = MOD_BLOCKS.read_text(encoding="utf-8")
-    return set(re.findall(r'BLOCKS\.registerBlock\("([a-z0-9_./-]+)"', text))
+    return set(re.findall(
+        r'BLOCKS\.registerBlock\(\s*"([a-z0-9_./-]+)"',
+        text,
+        re.MULTILINE,
+    ))
 
 
 def texture_path(ref: str) -> Path | None:

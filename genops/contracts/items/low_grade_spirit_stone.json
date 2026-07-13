@@ -1,0 +1,84 @@
+{
+  "item_id": "myvillage:low_grade_spirit_stone",
+  "kind": "functional_item",
+  "display_name": {
+    "en_us": "Low-Grade Spirit Stone",
+    "zh_design_name": "下品灵石"
+  },
+  "owner_facing_goal": "提供可由灵石原矿直接产出的下品灵石，并在服务器权威的灵石修炼结算中作为逐批消耗资源。",
+  "creative_tab": {
+    "visibility": "visible",
+    "tab_id": "myvillage:main",
+    "ordering": "append"
+  },
+  "java_registration": {
+    "owner_file": "src/main/java/com/example/myvillage/item/ModItems.java",
+    "deferred_holder": "ModItems.LOW_GRADE_SPIRIT_STONE",
+    "properties": "new Item.Properties() with vanilla-default stack size 64"
+  },
+  "client_assets": {
+    "lang_key": "item.myvillage.low_grade_spirit_stone",
+    "model": "src/main/resources/assets/myvillage/models/item/low_grade_spirit_stone.json",
+    "textures": [
+      "src/main/resources/assets/myvillage/textures/item/low_grade_spirit_stone.png"
+    ],
+    "visual_verdict": "accept"
+  },
+  "data_resources": {
+    "recipes": [],
+    "tags": [],
+    "loot_or_advancement_hooks": [
+      "src/main/resources/data/myvillage/loot_table/blocks/spirit_stone_ore.json",
+      "src/main/resources/data/myvillage/loot_table/blocks/deepslate_spirit_stone_ore.json"
+    ]
+  },
+  "behavior": {
+    "type": "functional",
+    "server_client_boundary": "The client sends only the existing START_SPIRIT intent. The logical server resolves the current registered realm stage, its spirit-stone batch cost, inventory availability, progress cap, and settlement result. No client-authored rate, layer, cost, inventory slot, progress, or success value is accepted.",
+    "interaction": "The item has no right-click action. During an eligible spirit-meditation settlement every 10 active ticks, the server removes one atomic batch from ordinary player inventory: one stone for qi-sensing mortal and N stones while at Qi Refining layer N. A funded batch grants 50 stage-local progress before cap clamping. Insufficient inventory removes nothing and downgrades the session to normal meditation; a failed profile commit restores every removed stack exactly.",
+    "cooldown_or_durability": "No cooldown, durability, rarity override, or custom data components.",
+    "data_components": [],
+    "tests": [
+      "registered in ModItems and exposed in myvillage:main",
+      "both non-Silk-Touch ore loot tables drop this exact item id",
+      "Fortune uses the vanilla ore-drops bonus formula",
+      "server derives the stage-owned batch cost and never accepts a client-authored count",
+      "multi-slot batch removal is all-or-nothing and rolls back on profile-commit failure",
+      "no batch is removed when progress is already capped",
+      "insufficient stones downgrade to normal meditation without a partial charge"
+    ]
+  },
+  "acceptance": {
+    "commands": [
+      "/give @s myvillage:low_grade_spirit_stone"
+    ],
+    "gates": [
+      "openspec validate add-spirit-stone-resources --type change --strict",
+      "python3 tools/validate_mod_items.py",
+      "python3 tools/validate_spirit_stone_resources.py",
+      "python3 tools/validate_cultivation_gain.py",
+      "./gradlew test",
+      "./gradlew build"
+    ],
+    "jar_checks": [
+      "assets/myvillage/models/item/low_grade_spirit_stone.json",
+      "assets/myvillage/textures/item/low_grade_spirit_stone.png",
+      "English and Chinese item translation keys",
+      "both ore loot tables reference myvillage:low_grade_spirit_stone"
+    ],
+    "human_verdict": "accept"
+  },
+  "docs": {
+    "sync_required": true
+  },
+  "non_goals": [
+    "raw spirit stone or fragment items",
+    "smelting, refining, or crafting recipes",
+    "currency or trading behavior",
+    "spirit-stone storage block",
+    "medium-grade or high-grade spirit stones",
+    "right-click use behavior, cooldown, durability, rarity, or custom data components",
+    "client-authored layer, inventory slot, batch cost, progress, or settlement result",
+    "using the legacy meditation qi reserve to fund new spirit-meditation settlements"
+  ]
+}

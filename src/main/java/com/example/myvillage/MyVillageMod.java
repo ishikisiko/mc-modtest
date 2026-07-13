@@ -5,6 +5,7 @@ import com.example.myvillage.cultivation.CultivationAttachments;
 import com.example.myvillage.cultivation.CultivationCommands;
 import com.example.myvillage.cultivation.CultivationEvents;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
+import com.example.myvillage.cultivation.time.CultivationServerConfig;
 import com.example.myvillage.entity.ModEntities;
 import com.example.myvillage.entity.RideableFlyingSwordEntity;
 import com.example.myvillage.item.ModItems;
@@ -19,6 +20,8 @@ import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.ModContainer;
+import net.neoforged.fml.config.ModConfig;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
@@ -72,8 +75,11 @@ public final class MyVillageMod {
             "other");
     private static final Logger LOGGER = LoggerFactory.getLogger(MyVillageMod.class);
 
-    public MyVillageMod(IEventBus modEventBus) {
+    public MyVillageMod(IEventBus modEventBus, ModContainer modContainer) {
         LOGGER.info("MyVillage resource mod loaded");
+        modContainer.registerConfig(ModConfig.Type.SERVER, CultivationServerConfig.SPEC);
+        modEventBus.addListener(CultivationServerConfig::onConfigLoading);
+        modEventBus.addListener(CultivationServerConfig::onConfigReloading);
         ModEntities.register(modEventBus);
         ModBlocks.register(modEventBus);
         ModItems.register(modEventBus);

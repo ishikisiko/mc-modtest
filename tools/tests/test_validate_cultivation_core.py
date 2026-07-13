@@ -137,6 +137,80 @@ class CultivationCoreValidationTest(unittest.TestCase):
             "stage sort_order values must be strictly increasing",
         )
 
+    def test_required_realm_lifespan_is_rejected_when_missing(self) -> None:
+        path = RESOURCE_ROOT / "realm/mortal.json"
+        realm = self.load_json(path)
+        del realm["maximum_lifespan_years"]
+        self.write_json(path, realm)
+
+        result = self.validate()
+
+        self.assert_error_contains(result, "missing required field 'maximum_lifespan_years'")
+        self.assert_error_contains(
+            result,
+            "realm myvillage:mortal maximum_lifespan_years must be 80",
+        )
+
+    def test_release_ceiling_rejects_extra_stage_cap(self) -> None:
+        path = RESOURCE_ROOT / "realm/qi_refining.json"
+        realm = self.load_json(path)
+        realm["stages"][3]["cultivation_cap"] = 1400
+        self.write_json(path, realm)
+
+        result = self.validate()
+
+        self.assert_error_contains(
+            result,
+            "release-ceiling stage myvillage:qi_refining_4 must omit cultivation_cap",
+        )
+
+    def test_cultivatable_stage_requires_positive_spirit_stone_cost(self) -> None:
+        path = RESOURCE_ROOT / "realm/qi_refining.json"
+        realm = self.load_json(path)
+        del realm["stages"][1]["spirit_stone_cost"]
+        self.write_json(path, realm)
+
+        result = self.validate()
+
+        self.assert_error_contains(
+            result,
+            "a cultivatable stage must declare positive spirit_stone_cost",
+        )
+        self.assert_error_contains(
+            result,
+            "stage myvillage:qi_refining_2 spirit_stone_cost must be 2",
+        )
+
+    def test_advancement_target_owner_drift_is_rejected(self) -> None:
+        path = RESOURCE_ROOT / "realm/qi_refining.json"
+        realm = self.load_json(path)
+        realm["stages"][0]["advancement"]["target_realm"] = "myvillage:mortal"
+        self.write_json(path, realm)
+
+        result = self.validate()
+
+        self.assert_error_contains(
+            result,
+            "advancement target stage myvillage:qi_refining_2 does not belong to myvillage:mortal",
+        )
+        self.assert_error_contains(
+            result,
+            "stage myvillage:qi_refining_1 advancement must be",
+        )
+
+    def test_advancement_stability_ratio_drift_is_rejected(self) -> None:
+        path = RESOURCE_ROOT / "realm/qi_refining.json"
+        realm = self.load_json(path)
+        realm["stages"][0]["advancement"]["required_stability"] = 549
+        self.write_json(path, realm)
+
+        result = self.validate()
+
+        self.assert_error_contains(
+            result,
+            "required_stability must equal half of cultivation_cap",
+        )
+
     def test_missing_required_id_is_rejected(self) -> None:
         (self.fixture_root / RESOURCE_ROOT / "spiritual_element/metal.json").unlink()
 

@@ -74,8 +74,9 @@ total is exactly `10000`.
 existing root and rootless profiles in other realm/stage states.
 
 Success installs the generated root and `mortal_qi_sensed` in one immutable
-profile replacement through `CultivationService`, preserving schema `1`, realm,
-progress, stability, spiritual power, and learned techniques. One commit sends
+profile replacement through `CultivationService`, preserving the current schema,
+realm, progress, stability, spiritual affinity, spiritual power, lifespan
+consumption, inert meditation reserve, and learned techniques. One commit sends
 one final client snapshot. Failures commit nothing, send no mutation snapshot,
 and do not play the complete success effect. Repeating awakening never rerolls
 or overwrites an existing root, including one installed by `setroot`.
@@ -188,18 +189,22 @@ remain manual evidence rather than automated acceptance claims.
 | All four `awaken`/`juexing` and four `initiate`/`rumen` routes | `not_verified` |
 | Both stele drops, mining, creative-tab presence, messages, effects, and appearance | `not_verified` |
 | H-screen sharpness and existing cultivation-command/flying-sword regression | `not_verified` |
-| No execution, cultivation/power gain, mastery growth, or qi-refining advancement | `not_verified` |
+| The initiation actions themselves grant no execution, cultivation/power gain, mastery growth, or advancement | `not_verified` |
 
 ## Strict Non-Goals
 
-This slice adds no meditation or sitting state, basic-breathing executor,
+At its original release boundary, this slice added no meditation or sitting state,
+basic-breathing executor,
 spiritual-power cap/recovery, cultivation gain, efficiency, mastery growth,
 realm/stage advancement, breakthrough, stability growth, equipment/primary
 technique slot, combat art, element bonus/matchup, root quality/tier/rarity,
 washing/reroll, player-selected root input, profile schema v2 field, new
 cultivation C2S payload, recipe, natural/worldgen/sect/region integration, NPC,
 quest, alchemy, crafting, or flying-sword rule change. Learning is not equipping,
-executing, gaining cultivation, or gaining spiritual power.
+executing, gaining cultivation, or gaining spiritual power. Profile v3,
+meditation, gain, advancement, affinity, and H-tab controls were later added as
+separate changes; see
+[Cultivation Playable Loop](30_cultivation_playable_loop.md).
 
 ## See Also
 

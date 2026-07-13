@@ -5,12 +5,16 @@ import com.example.myvillage.cultivation.data.RealmDefinition;
 import com.example.myvillage.cultivation.data.SpiritualElementDefinition;
 import com.example.myvillage.cultivation.data.TechniqueDefinition;
 import com.example.myvillage.cultivation.network.CultivationSnapshotPayload;
+import com.example.myvillage.cultivation.time.CultivationTimeMath;
+import com.example.myvillage.cultivation.time.CultivationTimeRuntime;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Objects;
@@ -18,6 +22,8 @@ import java.util.Optional;
 import java.util.function.UnaryOperator;
 
 public final class CultivationService {
+    private static final Logger LOGGER = LoggerFactory.getLogger(CultivationService.class);
+
     private CultivationService() {
     }
 
@@ -110,6 +116,21 @@ public final class CultivationService {
                 player,
                 profile -> profile.withCurrentSpiritualPower(amount),
                 "set current spiritual power=" + amount);
+    }
+
+    public static Result addLifespanConsumedTicks(ServerPlayer player, long amount) {
+        Objects.requireNonNull(player, "player");
+        CultivationProfile oldProfile = getProfile(player);
+        if (amount < 0) {
+            return Result.failure(
+                    "Lifespan increment must be non-negative, got " + amount, oldProfile);
+        }
+        return constructAndCommit(
+                player,
+                oldProfile,
+                profile -> profile.withLifespanConsumedTicks(CultivationTimeMath.saturatingAdd(
+                        profile.lifespanConsumedTicks(), amount)),
+                "added lifespan consumed ticks=" + amount);
     }
 
     public static Result setSpiritualRoot(ServerPlayer player, SpiritualRoot root) {
@@ -234,8 +255,19 @@ public final class CultivationService {
             ServerPlayer player,
             CultivationProfile replacement,
             String successMessage) {
+        CultivationProfile previous = getProfile(player);
         player.setData(CultivationAttachments.PROFILE.get(), replacement);
-        syncToClient(player, replacement);
+        try {
+            syncToClient(player, replacement);
+        } catch (RuntimeException exception) {
+            LOGGER.error(
+                    "Cultivation profile committed for {}, but its client snapshot could not be sent",
+                    player.getGameProfile().getName(),
+                    exception);
+        }
+        if (!previous.realmId().equals(replacement.realmId())) {
+            CultivationTimeRuntime.notifyStatus(player);
+        }
         return Result.success(successMessage, replacement);
     }
 

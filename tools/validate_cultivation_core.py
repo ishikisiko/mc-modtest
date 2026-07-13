@@ -48,6 +48,61 @@ REQUIRED_STAGE_OWNERS = {
 }
 REQUIRED_TECHNIQUE = "myvillage:basic_breathing"
 MAX_AWAKENING_WEIGHT = 1_000_000
+REQUIRED_REALM_LIFESPANS = {
+    "myvillage:mortal": 80,
+    "myvillage:qi_refining": 120,
+    "myvillage:foundation_establishment": 240,
+}
+REQUIRED_STAGE_CAPS = {
+    "myvillage:mortal_qi_sensed": 1000,
+    "myvillage:qi_refining_1": 1100,
+    "myvillage:qi_refining_2": 1200,
+    "myvillage:qi_refining_3": 1300,
+}
+REQUIRED_STAGE_SPIRIT_STONE_COSTS = {
+    "myvillage:mortal_qi_sensed": 1,
+    "myvillage:qi_refining_1": 1,
+    "myvillage:qi_refining_2": 2,
+    "myvillage:qi_refining_3": 3,
+}
+REQUIRED_ADVANCEMENTS = {
+    "myvillage:mortal_qi_sensed": {
+        "target_realm": "myvillage:qi_refining",
+        "target_stage": "myvillage:qi_refining_1",
+        "kind": "ordinary",
+        "duration_ticks": 100,
+        "required_stability": 500,
+        "stability_cost": 250,
+        "interruption_stability_loss": 0,
+    },
+    "myvillage:qi_refining_1": {
+        "target_realm": "myvillage:qi_refining",
+        "target_stage": "myvillage:qi_refining_2",
+        "kind": "ordinary",
+        "duration_ticks": 100,
+        "required_stability": 550,
+        "stability_cost": 275,
+        "interruption_stability_loss": 0,
+    },
+    "myvillage:qi_refining_2": {
+        "target_realm": "myvillage:qi_refining",
+        "target_stage": "myvillage:qi_refining_3",
+        "kind": "ordinary",
+        "duration_ticks": 120,
+        "required_stability": 600,
+        "stability_cost": 300,
+        "interruption_stability_loss": 0,
+    },
+    "myvillage:qi_refining_3": {
+        "target_realm": "myvillage:qi_refining",
+        "target_stage": "myvillage:qi_refining_4",
+        "kind": "bottleneck",
+        "duration_ticks": 200,
+        "required_stability": 650,
+        "stability_cost": 325,
+        "interruption_stability_loss": 5,
+    },
+}
 
 
 class DuplicateJsonKey(ValueError):
@@ -96,6 +151,10 @@ class CultivationValidator:
         self.realm_stages: dict[str, set[str]] = {}
         self.stage_owners: dict[str, list[str]] = {}
         self.realm_next: dict[str, str] = {}
+        self.realm_lifespans: dict[str, int] = {}
+        self.stage_caps: dict[str, int] = {}
+        self.stage_spirit_stone_costs: dict[str, int] = {}
+        self.stage_advancements: dict[str, dict[str, Any]] = {}
 
         self.element_ids: set[str] = set()
         self.technique_ids: set[str] = set()
@@ -241,6 +300,11 @@ class CultivationValidator:
 
             self.record_translation_key(value, location)
             self.required_integer(value, "sort_order", location, 0)
+            maximum_lifespan = self.required_integer(
+                value, "maximum_lifespan_years", location, 1
+            )
+            if maximum_lifespan is not None:
+                self.realm_lifespans[identifier] = maximum_lifespan
 
             next_realm = self.optional_resource_location(value, "next_realm", location)
             if next_realm is not None:
@@ -272,6 +336,112 @@ class CultivationValidator:
                 stage_order = self.required_integer(
                     stage, "sort_order", stage_location, 0
                 )
+
+                cultivation_cap: int | None = None
+                if "cultivation_cap" in stage:
+                    cultivation_cap = self.required_integer(
+                        stage, "cultivation_cap", stage_location, 1
+                    )
+                    if stage_id is not None and cultivation_cap is not None:
+                        self.stage_caps[stage_id] = cultivation_cap
+
+                spirit_stone_cost: int | None = None
+                if "spirit_stone_cost" in stage:
+                    spirit_stone_cost = self.required_integer(
+                        stage, "spirit_stone_cost", stage_location, 1
+                    )
+                    if stage_id is not None and spirit_stone_cost is not None:
+                        self.stage_spirit_stone_costs[stage_id] = spirit_stone_cost
+                if cultivation_cap is not None and spirit_stone_cost is None:
+                    self.error(
+                        stage_location,
+                        "a cultivatable stage must declare positive spirit_stone_cost",
+                    )
+
+                advancement = stage.get("advancement")
+                if advancement is not None:
+                    if type(advancement) is not dict:
+                        self.error(stage_location, "field 'advancement' must be an object")
+                    elif stage_id is not None:
+                        advancement_location = f"{stage_location}.advancement"
+                        target_realm = self.required_resource_location(
+                            advancement, "target_realm", advancement_location
+                        )
+                        target_stage = self.required_resource_location(
+                            advancement, "target_stage", advancement_location
+                        )
+                        kind = self.required_string(
+                            advancement, "kind", advancement_location
+                        )
+                        if kind is not None and kind not in {"ordinary", "bottleneck"}:
+                            self.error(
+                                advancement_location,
+                                "field 'kind' must be ordinary or bottleneck",
+                            )
+                        duration = self.required_integer(
+                            advancement, "duration_ticks", advancement_location, 1
+                        )
+                        required_stability = self.required_integer(
+                            advancement, "required_stability", advancement_location, 0
+                        )
+                        stability_cost = self.required_integer(
+                            advancement, "stability_cost", advancement_location, 0
+                        )
+                        interruption_loss = self.required_integer(
+                            advancement,
+                            "interruption_stability_loss",
+                            advancement_location,
+                            0,
+                        )
+                        if (
+                            required_stability is not None
+                            and stability_cost is not None
+                            and stability_cost > required_stability
+                        ):
+                            self.error(
+                                advancement_location,
+                                "stability_cost must not exceed required_stability",
+                            )
+                        if cultivation_cap is None:
+                            self.error(
+                                advancement_location,
+                                "advancement requires a positive cultivation_cap",
+                            )
+                        elif required_stability is not None:
+                            expected_stability = cultivation_cap // 2
+                            if required_stability != expected_stability:
+                                self.error(
+                                    advancement_location,
+                                    "required_stability must equal half of cultivation_cap",
+                                )
+                            if stability_cost is not None:
+                                expected_cost = expected_stability - expected_stability // 2
+                                if stability_cost != expected_cost:
+                                    self.error(
+                                        advancement_location,
+                                        "stability_cost must retain half of required stability",
+                                    )
+                        if all(
+                            value is not None
+                            for value in (
+                                target_realm,
+                                target_stage,
+                                kind,
+                                duration,
+                                required_stability,
+                                stability_cost,
+                                interruption_loss,
+                            )
+                        ) and kind in {"ordinary", "bottleneck"}:
+                            self.stage_advancements[stage_id] = {
+                                "target_realm": target_realm,
+                                "target_stage": target_stage,
+                                "kind": kind,
+                                "duration_ticks": duration,
+                                "required_stability": required_stability,
+                                "stability_cost": stability_cost,
+                                "interruption_stability_loss": interruption_loss,
+                            }
 
                 if stage_id is not None:
                     previous_owners = self.stage_owners.setdefault(stage_id, [])
@@ -311,6 +481,23 @@ class CultivationValidator:
                     f"realm {identifier}",
                     f"next_realm references missing realm {next_realm}",
                 )
+
+        for source_stage, advancement in sorted(self.stage_advancements.items()):
+            target_realm = advancement["target_realm"]
+            target_stage = advancement["target_stage"]
+            owners = self.stage_owners.get(target_stage, [])
+            if target_realm not in self.realm_ids:
+                self.error(
+                    f"stage {source_stage}",
+                    f"advancement references missing target realm {target_realm}",
+                )
+            elif target_realm not in owners:
+                self.error(
+                    f"stage {source_stage}",
+                    f"advancement target stage {target_stage} does not belong to {target_realm}",
+                )
+            if target_stage == source_stage:
+                self.error(f"stage {source_stage}", "advancement must not target itself")
 
     def validate_elements(self) -> None:
         entries = self.registry_entries("spiritual_element")
@@ -511,6 +698,45 @@ class CultivationValidator:
                 f"missing required technique {REQUIRED_TECHNIQUE}",
             )
 
+        for realm, expected in REQUIRED_REALM_LIFESPANS.items():
+            actual = self.realm_lifespans.get(realm)
+            if actual != expected:
+                self.error(
+                    "foundation definitions",
+                    f"realm {realm} maximum_lifespan_years must be {expected}, got {actual!r}",
+                )
+        for stage, expected in REQUIRED_STAGE_CAPS.items():
+            actual = self.stage_caps.get(stage)
+            if actual != expected:
+                self.error(
+                    "foundation definitions",
+                    f"stage {stage} cultivation_cap must be {expected}, got {actual!r}",
+                )
+        for stage, expected in REQUIRED_STAGE_SPIRIT_STONE_COSTS.items():
+            actual = self.stage_spirit_stone_costs.get(stage)
+            if actual != expected:
+                self.error(
+                    "foundation definitions",
+                    f"stage {stage} spirit_stone_cost must be {expected}, got {actual!r}",
+                )
+        for stage in sorted(set(self.stage_caps) - set(REQUIRED_STAGE_CAPS)):
+            self.error(
+                "foundation definitions",
+                f"release-ceiling stage {stage} must omit cultivation_cap",
+            )
+        for stage, expected in REQUIRED_ADVANCEMENTS.items():
+            actual = self.stage_advancements.get(stage)
+            if actual != expected:
+                self.error(
+                    "foundation definitions",
+                    f"stage {stage} advancement must be {expected!r}, got {actual!r}",
+                )
+        for stage in sorted(set(self.stage_advancements) - set(REQUIRED_ADVANCEMENTS)):
+            self.error(
+                "foundation definitions",
+                f"release-ceiling stage {stage} must omit advancement",
+            )
+
         for stage, expected_realm in sorted(REQUIRED_STAGE_OWNERS.items()):
             if stage in self.realm_stages.get(expected_realm, set()):
                 continue
@@ -597,6 +823,9 @@ def main() -> int:
         "required foundation ids present: mortal -> qi_refining -> "
         "foundation_establishment; mortal stages, qi_refining_1..9, "
         "foundation_early; metal/wood/water/fire/earth; basic_breathing; "
+        "realm lifespans=80/120/240; caps=1000/1100/1200/1300; "
+        "stability=500/550/600/650; spirit-stone costs=1/1/2/3; "
+        "four deterministic half-retention advancement rules; "
         "en_us/zh_cn translations"
     )
     return 0

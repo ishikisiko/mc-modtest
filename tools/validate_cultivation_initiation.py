@@ -47,8 +47,24 @@ EXPECTED_PROFILE_FIELDS = (
     "cultivationProgress",
     "stability",
     "currentSpiritualPower",
+    "spiritualAffinity",
+    "lifespanConsumedTicks",
+    "meditationQiReserve",
     "spiritualRoot",
     "learnedTechniques",
+)
+ALLOWED_CULTIVATION_PAYLOADS = frozenset(
+    {
+        "CultivationSnapshotPayload.java",
+        "CultivationTimeSnapshotPayload.java",
+        "MeditationStatusPayload.java",
+        "MeditationIntentPayload.java",
+    }
+)
+CLIENTBOUND_CULTIVATION_PAYLOADS = (
+    "CultivationSnapshotPayload",
+    "CultivationTimeSnapshotPayload",
+    "MeditationStatusPayload",
 )
 MAX_AWAKENING_WEIGHT = 1_000_000
 
@@ -734,8 +750,12 @@ class CultivationInitiationValidator:
         profile = self.java_class("CultivationProfile")
         if profile is not None:
             path, source = profile
-            if not re.search(r"CURRENT_SCHEMA_VERSION\s*=\s*1\s*;", source):
-                self.error(path, "cultivation profile schema must remain 1")
+            if not re.search(r"CURRENT_SCHEMA_VERSION\s*=\s*3\s*;", source):
+                self.error(path, "cultivation profile schema must be 3")
+            if not re.search(r"DEFAULT_SPIRITUAL_AFFINITY\s*=\s*10\s*;", source):
+                self.error(path, "default spiritual affinity must be 10")
+            if not re.search(r"spiritualAffinity\s*<\s*0", source):
+                self.error(path, "spiritual affinity must reject negative values")
             record_match = re.search(r"\brecord\s+CultivationProfile\s*\(", source)
             components: tuple[str, ...] = ()
             if record_match is not None:
@@ -751,21 +771,41 @@ class CultivationInitiationValidator:
             if components != EXPECTED_PROFILE_FIELDS:
                 self.error(
                     path,
-                    "v1 profile components changed; expected "
+                    "v3 profile components changed; expected "
                     + ", ".join(EXPECTED_PROFILE_FIELDS)
                     + f", got {', '.join(components) or '<unparsed>'}",
                 )
+
+        snapshot = self.java_class("CultivationSnapshotPayload")
+        if snapshot is not None:
+            path, source = snapshot
+            if not re.search(r"CultivationProfile\s+profile", source):
+                self.error(path, "profile snapshot must carry the complete v3 CultivationProfile")
+            if "CultivationProfile.CODEC" not in source:
+                self.error(path, "profile snapshot must encode the v3 profile including spiritual affinity")
 
         payloads = self.java_class("CultivationPayloads")
         if payloads is not None:
             path, source = payloads
             register = _method_body(source, "register") or ""
-            if len(re.findall(r"registrar\.playToClient\s*\(", register)) != 1:
-                self.error(path, "cultivation networking must register exactly one clientbound snapshot")
-            if "CultivationSnapshotPayload.TYPE" not in register:
-                self.error(path, "clientbound registration must remain CultivationSnapshotPayload")
-            if re.search(r"registrar\.(?:playToServer|common|bidirectional)\s*\(", register):
-                self.error(path, "cultivation networking must not register a C2S/common payload")
+            clientbound_count = len(re.findall(r"registrar\.playToClient\s*\(", register))
+            if clientbound_count != len(CLIENTBOUND_CULTIVATION_PAYLOADS):
+                self.error(
+                    path,
+                    "cultivation networking must register exactly three clientbound snapshots",
+                )
+            for payload_name in CLIENTBOUND_CULTIVATION_PAYLOADS:
+                if f"{payload_name}.TYPE" not in register:
+                    self.error(path, f"missing clientbound registration for {payload_name}")
+            if len(re.findall(r"registrar\.playToServer\s*\(", register)) != 1:
+                self.error(
+                    path,
+                    "cultivation networking must register exactly one bounded C2S meditation intent",
+                )
+            if "MeditationIntentPayload.TYPE" not in register:
+                self.error(path, "C2S registration must be MeditationIntentPayload")
+            if re.search(r"registrar\.(?:common|bidirectional)\s*\(", register):
+                self.error(path, "cultivation networking must not register a common/bidirectional payload")
 
         cultivation_java = self.root / JAVA_ROOT / "cultivation"
         if cultivation_java.is_dir():
@@ -775,13 +815,52 @@ class CultivationInitiationValidator:
                 except (OSError, UnicodeError) as exc:
                     self.error(java_path, f"cannot inspect cultivation source: {exc}")
                     continue
-                if "playToServer(" in source:
-                    self.error(java_path, "new cultivation C2S payload registration is forbidden")
+                if "playToServer(" in source and java_path.name != "CultivationPayloads.java":
+                    self.error(java_path, "C2S registration must remain centralized in CultivationPayloads")
                 if (
                     "implements CustomPacketPayload" in source
-                    and java_path.name != "CultivationSnapshotPayload.java"
+                    and java_path.name not in ALLOWED_CULTIVATION_PAYLOADS
                 ):
-                    self.error(java_path, "only the existing cultivation snapshot payload is allowed")
+                    self.error(
+                        java_path,
+                        "only the declared cultivation snapshot/time/status/intent payloads are allowed",
+                    )
+
+        intent = self.java_class("MeditationIntentPayload")
+        if intent is not None:
+            path, source = intent
+            record_match = re.search(r"\brecord\s+MeditationIntentPayload\s*\(", source)
+            components: tuple[str, ...] = ()
+            if record_match is not None:
+                open_paren = source.find("(", record_match.start())
+                region = _balanced_content(source, open_paren, "(", ")")
+                if region is not None:
+                    names: list[str] = []
+                    for part in _top_level_parts(region[0]):
+                        name_match = re.search(r"([A-Za-z_$][\w$]*)\s*$", part)
+                        if name_match:
+                            names.append(name_match.group(1))
+                    components = tuple(names)
+            if components != ("action",):
+                self.error(path, "MeditationIntentPayload must contain only the bounded action intent")
+            if re.search(
+                r"\b(?:BlockPos|Vec3|position|coordinate|velocity|speed|realmId|stageId|"
+                r"spiritualRoot|techniqueId|cultivationProgress|stability|spiritualAffinity|"
+                r"lifespan|reserve|cost|rate|inventory|elapsed|mastery|power|target|result)\b",
+                source,
+                re.IGNORECASE,
+            ):
+                self.error(path, "MeditationIntentPayload must not carry client-authored state")
+            bounded_decode = re.search(
+                r"networkId\s*>=\s*actions\.length", source
+            ) or re.search(
+                r"switch\s*\(\s*networkId\s*\).*?default\s*->\s*throw\s+new\s+"
+                r"IllegalArgumentException",
+                source,
+                re.DOTALL,
+            )
+            if not re.search(r"readUnsignedByte\s*\(", source) or bounded_decode is None:
+                self.error(path, "MeditationIntentPayload codec must reject unknown bounded action ids")
 
         state = self.java_class("ClientCultivationState")
         if state is not None:
@@ -789,19 +868,58 @@ class CultivationInitiationValidator:
             public_methods = set(
                 re.findall(r"\bpublic\s+static\s+[\w<>?,. ]+\s+(\w+)\s*\(", source)
             )
-            if public_methods - {"latest"}:
+            if public_methods - {"latest", "time", "meditation"}:
                 self.error(path, "client cultivation cache must expose no public mutation API")
             if re.search(r"\b(?:PacketDistributor|sendToServer|setData)\b", source):
                 self.error(path, "client cultivation cache must remain read-only")
         screen = self.java_class("CultivationProfileScreen")
         if screen is not None:
             path, source = screen
-            forbidden_ui = re.search(
-                r"\b(?:Button\.builder|addRenderableWidget|sendToServer|PacketDistributor|setData)\b",
+            for view in ("PROFILE", "MEDITATION"):
+                if view not in source:
+                    self.error(path, f"H screen must expose the {view.title()} tab")
+            for action in ("START_NORMAL", "START_SPIRIT", "STOP", "START_BREAKTHROUGH"):
+                if action not in source:
+                    self.error(path, f"H meditation tab must expose one {action} button")
+            if not re.search(r"Button\.builder\s*\(", source):
+                self.error(path, "H tabs and actions must use visible buttons")
+            if not re.search(
+                r"(?:ClientCultivationIntentSender\.send|PacketDistributor\.sendToServer)\s*\(",
                 source,
+            ):
+                self.error(path, "H action buttons must reuse the bounded meditation intent sender")
+            if re.search(r"\b(?:player\s*\.\s*)?setData\s*\(", source):
+                self.error(path, "H screen must not write profile attachment data directly")
+            set_view = _method_body(source, "setView") or ""
+            if re.search(r"(?:sendToServer|IntentSender\.send|new\s+MeditationIntentPayload)", set_view):
+                self.error(path, "switching H tabs must not send a cultivation intent")
+
+            declared_keys = set(
+                re.findall(
+                    r'"(screen\.myvillage\.cultivation\.[a-z0-9_.-]+)"',
+                    source,
+                )
             )
-            if forbidden_ui:
-                self.error(path, "H profile screen must remain a read-only display")
+            declared_keys = {key for key in declared_keys if not key.endswith(".")}
+            required_keys = {
+                "screen.myvillage.cultivation.tab.profile",
+                "screen.myvillage.cultivation.tab.meditation",
+                "screen.myvillage.cultivation.button.normal",
+                "screen.myvillage.cultivation.button.spirit",
+                "screen.myvillage.cultivation.button.stop",
+                "screen.myvillage.cultivation.button.advancement",
+                "screen.myvillage.cultivation.spiritual_affinity",
+            }
+            for key in sorted(required_keys - declared_keys):
+                self.error(path, f"H screen must declare translatable UI key {key}")
+            for locale in ("en_us", "zh_cn"):
+                language_path = LANG_ROOT / f"{locale}.json"
+                language = self.load_json(language_path, f"{locale} language file")
+                if not isinstance(language, dict):
+                    continue
+                for key in sorted(declared_keys):
+                    if not isinstance(language.get(key), str) or not language[key].strip():
+                        self.error(language_path, f"missing non-empty H-screen translation {key}")
 
     def validate_scope_and_release(self) -> None:
         for directory in (DATA_ROOT / "recipe", DATA_ROOT / "worldgen"):
@@ -876,8 +994,11 @@ class CultivationInitiationValidator:
         ):
             if required not in readme:
                 self.error(readme_path, f"missing initiation usage detail {required}")
-        if not re.search(r"read[- ]only|只读", readme, re.IGNORECASE):
-            self.error(readme_path, "H profile screen must be documented as read-only")
+        if not (
+            re.search(r"Profile.*Meditation|Meditation.*Profile", readme, re.IGNORECASE | re.DOTALL)
+            or ("档案" in readme and "修炼" in readme)
+        ):
+            self.error(readme_path, "H screen must document both Profile and Meditation tabs")
 
     def validate(self) -> ValidationResult:
         self.validate_artifacts()
@@ -918,7 +1039,7 @@ def main() -> int:
     print(
         "cultivation initiation validation passed: "
         f"checked_files={result.checked_files}; blocks=2; elements=5; "
-        "profile_schema=1; cultivation_c2s=0"
+        "profile_schema=3; cultivation_c2s=1-bounded-intent; h_tabs=2; h_actions=4"
     )
     print(
         "algorithm determinism, affinity arithmetic, atomic transitions, and repeat "

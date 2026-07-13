@@ -283,9 +283,16 @@ class CultivationInitiationValidationTest(unittest.TestCase):
                     long cultivationProgress,
                     int stability,
                     long currentSpiritualPower,
+                    int spiritualAffinity,
+                    long lifespanConsumedTicks,
+                    long meditationQiReserve,
                     Optional<SpiritualRoot> spiritualRoot,
                     Map<ResourceLocation, TechniqueProgress> learnedTechniques) {
-                public static final int CURRENT_SCHEMA_VERSION = 1;
+                public static final int CURRENT_SCHEMA_VERSION = 3;
+                public static final int DEFAULT_SPIRITUAL_AFFINITY = 10;
+                public CultivationProfile {
+                    if (spiritualAffinity < 0) throw new IllegalArgumentException();
+                }
             }
             """,
         )
@@ -297,6 +304,12 @@ class CultivationInitiationValidationTest(unittest.TestCase):
                 public static void register(PayloadRegistrar registrar) {
                     registrar.playToClient(CultivationSnapshotPayload.TYPE,
                             CultivationSnapshotPayload.STREAM_CODEC, CultivationPayloads::handle);
+                    registrar.playToClient(CultivationTimeSnapshotPayload.TYPE,
+                            CultivationTimeSnapshotPayload.STREAM_CODEC, CultivationPayloads::handleTime);
+                    registrar.playToClient(MeditationStatusPayload.TYPE,
+                            MeditationStatusPayload.STREAM_CODEC, CultivationPayloads::handleStatus);
+                    registrar.playToServer(MeditationIntentPayload.TYPE,
+                            MeditationIntentPayload.STREAM_CODEC, CultivationPayloads::handleIntent);
                 }
             }
             """,
@@ -305,7 +318,52 @@ class CultivationInitiationValidationTest(unittest.TestCase):
             "src/main/java/com/example/myvillage/cultivation/network/CultivationSnapshotPayload.java",
             """
             package com.example.myvillage.cultivation.network;
-            public record CultivationSnapshotPayload(Profile profile) implements CustomPacketPayload {}
+            import com.example.myvillage.cultivation.CultivationProfile;
+            public record CultivationSnapshotPayload(CultivationProfile profile)
+                    implements CustomPacketPayload {
+                static final Codec STREAM_CODEC = ByteBufCodecs.fromCodec(CultivationProfile.CODEC);
+            }
+            """,
+        )
+        self.write(
+            "src/main/java/com/example/myvillage/cultivation/network/CultivationTimeSnapshotPayload.java",
+            """
+            package com.example.myvillage.cultivation.network;
+            public record CultivationTimeSnapshotPayload(long elapsedCalendarTicks)
+                    implements CustomPacketPayload {}
+            """,
+        )
+        self.write(
+            "src/main/java/com/example/myvillage/cultivation/network/MeditationStatusPayload.java",
+            """
+            package com.example.myvillage.cultivation.network;
+            public record MeditationStatusPayload(Status status) implements CustomPacketPayload {}
+            """,
+        )
+        self.write(
+            "src/main/java/com/example/myvillage/cultivation/network/MeditationIntentPayload.java",
+            """
+            package com.example.myvillage.cultivation.network;
+            public record MeditationIntentPayload(MeditationIntentAction action)
+                    implements CustomPacketPayload {
+                public static final Codec STREAM_CODEC = new Codec() {
+                    public MeditationIntentPayload decode(Buffer buffer) {
+                        int networkId = buffer.readUnsignedByte();
+                        MeditationIntentAction[] actions = MeditationIntentAction.values();
+                        if (networkId >= actions.length) throw new IllegalArgumentException();
+                        return new MeditationIntentPayload(actions[networkId]);
+                    }
+                };
+            }
+            """,
+        )
+        self.write(
+            "src/main/java/com/example/myvillage/cultivation/network/MeditationIntentAction.java",
+            """
+            package com.example.myvillage.cultivation.network;
+            public enum MeditationIntentAction {
+                START_NORMAL, START_SPIRIT, STOP, START_BREAKTHROUGH
+            }
             """,
         )
         self.write(
@@ -314,7 +372,11 @@ class CultivationInitiationValidationTest(unittest.TestCase):
             package com.example.myvillage.client.cultivation;
             public final class ClientCultivationState {
                 public static Optional<Profile> latest() { return Optional.empty(); }
+                public static Optional<Time> time() { return Optional.empty(); }
+                public static Optional<Status> meditation() { return Optional.empty(); }
                 static void replace(Profile profile) {}
+                static void replaceTime(Time time) {}
+                static void replaceMeditation(Status status) {}
                 static void clear() {}
             }
             """,
@@ -324,8 +386,28 @@ class CultivationInitiationValidationTest(unittest.TestCase):
             """
             package com.example.myvillage.client.cultivation;
             public final class CultivationProfileScreen extends Screen {
+                private enum View { PROFILE, MEDITATION }
+                private View view = View.PROFILE;
+                protected void init() {
+                    addRenderableWidget(Button.builder(
+                            Component.translatable("screen.myvillage.cultivation.tab.profile"),
+                            button -> setView(View.PROFILE)).build());
+                    addRenderableWidget(Button.builder(
+                            Component.translatable("screen.myvillage.cultivation.tab.meditation"),
+                            button -> setView(View.MEDITATION)).build());
+                    actionButton("screen.myvillage.cultivation.button.normal", START_NORMAL);
+                    actionButton("screen.myvillage.cultivation.button.spirit", START_SPIRIT);
+                    actionButton("screen.myvillage.cultivation.button.stop", STOP);
+                    actionButton("screen.myvillage.cultivation.button.advancement", START_BREAKTHROUGH);
+                }
+                private void setView(View newView) { view = newView; }
+                private void actionButton(String key, MeditationIntentAction action) {
+                    Button.builder(Component.translatable(key),
+                            button -> ClientCultivationIntentSender.send(action)).build();
+                }
                 public void render(GuiGraphics graphics, int x, int y, float tick) {
                     ClientCultivationState.latest();
+                    Component.translatable("screen.myvillage.cultivation.spiritual_affinity");
                 }
             }
             """,
@@ -336,6 +418,13 @@ class CultivationInitiationValidationTest(unittest.TestCase):
             "block.myvillage.technique_inheritance_stele": "Technique Inheritance Stele",
             "message.myvillage.cultivation.awakening.success": "Awakened",
             "message.myvillage.cultivation.inheritance.success": "Inherited",
+            "screen.myvillage.cultivation.tab.profile": "Profile",
+            "screen.myvillage.cultivation.tab.meditation": "Meditation",
+            "screen.myvillage.cultivation.button.normal": "Normal",
+            "screen.myvillage.cultivation.button.spirit": "Spirit",
+            "screen.myvillage.cultivation.button.stop": "Stop",
+            "screen.myvillage.cultivation.button.advancement": "Advance",
+            "screen.myvillage.cultivation.spiritual_affinity": "Spiritual Affinity",
         }
         for locale in ("en_us", "zh_cn"):
             self.write_json(f"src/main/resources/assets/myvillage/lang/{locale}.json", languages)
@@ -394,7 +483,7 @@ class CultivationInitiationValidationTest(unittest.TestCase):
 
             Use `myvillage:spirit_testing_stele` to `awaken` into
             `mortal_qi_sensed`, then use `myvillage:technique_inheritance_stele`
-            to `initiate`. H is a read-only profile view. Run
+            to `initiate`. H provides Profile and Meditation tabs. Run
             `python3 tools/validate_cultivation_initiation.py`.
             Expected jar: `build/libs/myvillage-{VERSION}.jar`.
             """,
@@ -495,20 +584,65 @@ class CultivationInitiationValidationTest(unittest.TestCase):
 
         result = self.validate()
 
-        self.assert_error_contains(result, "only the existing cultivation snapshot payload is allowed")
+        self.assert_error_contains(
+            result,
+            "only the declared cultivation snapshot/time/status/intent payloads are allowed",
+        )
 
     def test_profile_schema_or_shape_change_is_rejected(self) -> None:
         path = self.root / "src/main/java/com/example/myvillage/cultivation/CultivationProfile.java"
         source = path.read_text(encoding="utf-8").replace(
             "Map<ResourceLocation, TechniqueProgress> learnedTechniques)",
             "Map<ResourceLocation, TechniqueProgress> learnedTechniques, boolean awakened)",
-        ).replace("CURRENT_SCHEMA_VERSION = 1", "CURRENT_SCHEMA_VERSION = 2")
+        ).replace("CURRENT_SCHEMA_VERSION = 3", "CURRENT_SCHEMA_VERSION = 4")
         path.write_text(source, encoding="utf-8")
 
         result = self.validate()
 
-        self.assert_error_contains(result, "cultivation profile schema must remain 1")
-        self.assert_error_contains(result, "v1 profile components changed")
+        self.assert_error_contains(result, "cultivation profile schema must be 3")
+        self.assert_error_contains(result, "v3 profile components changed")
+
+    def test_profile_snapshot_must_use_complete_v3_codec(self) -> None:
+        path = self.root / "src/main/java/com/example/myvillage/cultivation/network/CultivationSnapshotPayload.java"
+        source = path.read_text(encoding="utf-8").replace(
+            "CultivationProfile.CODEC",
+            "Codec.EMPTY",
+            1,
+        )
+        path.write_text(source, encoding="utf-8")
+
+        result = self.validate()
+
+        self.assert_error_contains(
+            result,
+            "profile snapshot must encode the v3 profile including spiritual affinity",
+        )
+
+    def test_negative_affinity_guard_removal_is_rejected(self) -> None:
+        path = self.root / "src/main/java/com/example/myvillage/cultivation/CultivationProfile.java"
+        source = path.read_text(encoding="utf-8").replace(
+            "spiritualAffinity < 0",
+            "spiritualAffinity < -1",
+            1,
+        )
+        path.write_text(source, encoding="utf-8")
+
+        result = self.validate()
+
+        self.assert_error_contains(result, "spiritual affinity must reject negative values")
+
+    def test_missing_meditation_button_translation_is_rejected(self) -> None:
+        path = self.root / "src/main/resources/assets/myvillage/lang/zh_cn.json"
+        language = json.loads(path.read_text(encoding="utf-8"))
+        del language["screen.myvillage.cultivation.button.spirit"]
+        path.write_text(json.dumps(language, indent=2), encoding="utf-8")
+
+        result = self.validate()
+
+        self.assert_error_contains(
+            result,
+            "missing non-empty H-screen translation screen.myvillage.cultivation.button.spirit",
+        )
 
     def test_basic_breathing_requirement_drift_is_rejected(self) -> None:
         path = self.root / "src/main/resources/data/myvillage/myvillage/technique/basic_breathing.json"

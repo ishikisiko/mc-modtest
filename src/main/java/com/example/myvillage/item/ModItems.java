@@ -7,6 +7,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.DeferredSpawnEggItem;
@@ -67,6 +68,17 @@ public final class ModItems {
             ITEMS.registerItem("rideable_flying_sword",
                     props -> new RideableFlyingSwordItem(props.stacksTo(1)));
 
+    public static final DeferredItem<Item> LOW_GRADE_SPIRIT_STONE =
+            ITEMS.registerSimpleItem("low_grade_spirit_stone");
+
+    public static final DeferredItem<BlockItem> SPIRIT_STONE_ORE_ITEM =
+            ITEMS.registerItem("spirit_stone_ore",
+                    props -> new BlockItem(ModBlocks.SPIRIT_STONE_ORE.get(), props));
+
+    public static final DeferredItem<BlockItem> DEEPSLATE_SPIRIT_STONE_ORE_ITEM =
+            ITEMS.registerItem("deepslate_spirit_stone_ore",
+                    props -> new BlockItem(ModBlocks.DEEPSLATE_SPIRIT_STONE_ORE.get(), props));
+
     /**
      * The {@code myvillage:main} creative tab. Icon + content is the rockery
      * item; the tab groups all hand-placeable myvillage blocks together.
@@ -82,6 +94,9 @@ public final class ModItems {
                         output.accept(TECHNIQUE_INHERITANCE_STELE_ITEM.get());
                         output.accept(SIMPLE_FOX_SPAWN_EGG.get());
                         output.accept(RIDEABLE_FLYING_SWORD.get());
+                        output.accept(LOW_GRADE_SPIRIT_STONE.get());
+                        output.accept(SPIRIT_STONE_ORE_ITEM.get());
+                        output.accept(DEEPSLATE_SPIRIT_STONE_ORE_ITEM.get());
                     })
                     .build());
 

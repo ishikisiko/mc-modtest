@@ -85,27 +85,31 @@ The generator SHALL produce an immutable map containing only selected element id
 - **THEN** generation SHALL return a controlled failure rather than an invalid root
 
 ### Requirement: Awakening validates state and commits root plus stage atomically
-`SpiritualRootAwakeningService` SHALL read the current profile and current registries, obtain the Overworld seed, invoke the pure generator, and submit one immutable replacement through `CultivationService`. Ordinary awakening SHALL require no existing root, realm `myvillage:mortal`, and stage `myvillage:mortal_unawakened` or `myvillage:mortal_qi_sensed`. Success SHALL set the generated root and stage `myvillage:mortal_qi_sensed` in one profile replacement while preserving schema version `1`, realm, cultivation progress, stability, current spiritual power, and learned techniques.
+`SpiritualRootAwakeningService` SHALL read the current profile and registries,
+obtain the Overworld seed, invoke the pure generator, and submit one immutable
+replacement through `CultivationService`. Ordinary awakening SHALL require no
+existing root, realm `myvillage:mortal`, and stage
+`myvillage:mortal_unawakened` or `myvillage:mortal_qi_sensed`. Success SHALL set
+the generated root and sensed stage in one replacement while preserving current
+schema version, realm, cultivation progress, stability, spiritual power,
+lifespan consumed, meditation reserve, and learned techniques.
 
 #### Scenario: A default profile awakens
-- **WHEN** an unawakened default mortal profile uses the awakening service with eligible elements
-- **THEN** the final profile SHALL contain the generated root
-- **AND** its stage SHALL equal `myvillage:mortal_qi_sensed`
+- **WHEN** an unawakened default mortal v2 profile uses the service with eligible elements
+- **THEN** the final profile SHALL contain the generated root and sensed stage
 - **AND** exactly one attachment replacement and one final client snapshot SHALL occur
 
 #### Scenario: An administrator cleared a sensed mortal root
-- **WHEN** a mortal profile has stage `myvillage:mortal_qi_sensed` but no root after `clearroot`
-- **THEN** ordinary awakening SHALL be allowed and SHALL atomically restore a generated root while retaining that stage
+- **WHEN** a sensed mortal v2 profile has no root after `clearroot`
+- **THEN** awakening SHALL restore the root while preserving nonzero lifespan and reserve
 
 #### Scenario: A non-mortal profile lacks a root
-- **WHEN** a rootless profile's realm is not `myvillage:mortal`
-- **THEN** awakening SHALL return `INVALID_PROFILE_STATE`
-- **AND** it SHALL NOT force the profile back to mortal
+- **WHEN** a rootless profile's realm is not mortal
+- **THEN** awakening SHALL return `INVALID_PROFILE_STATE` without forcing a realm or changing either v2 counter
 
 #### Scenario: The update boundary rejects the replacement
 - **WHEN** `CultivationService` rejects the proposed awakened profile
-- **THEN** the service SHALL return `UPDATE_REJECTED`
-- **AND** no intermediate root-only or stage-only profile and no changed snapshot SHALL be observable
+- **THEN** no intermediate profile, changed counter, or changed snapshot SHALL be observable
 
 ### Requirement: Awakening is one-time and existing roots are never migrated automatically
 If a profile already contains any spiritual root, including one installed by an administrator, ordinary awakening SHALL return `ALREADY_AWAKENED` without generation, overwrite, stage repair, snapshot, or complete success effect. Registry/datapack or generator changes SHALL affect only future generation; already persisted roots, including unknown element ids, SHALL remain unchanged and SHALL NOT be automatically recalculated, deleted, or migrated.
@@ -203,28 +207,43 @@ The mod SHALL register `myvillage:spirit_testing_stele` and `myvillage:technique
 - **THEN** neither stele SHALL have a BlockEntity, menu, recipe, natural placement, structure integration, or block-local profile storage
 
 ### Requirement: Initiation reuses the existing one-way snapshot and read-only profile screen
-Successful initiation mutations SHALL synchronize through the existing clientbound `CultivationSnapshotPayload` to the owning player. The payload/profile shape SHALL remain version `1`; no cultivation play-to-server mutation payload SHALL be added. The client SHALL only cache and render the received root, stage, and learned technique through the existing read-only `H` screen and SHALL NOT generate a root, evaluate inheritance, choose ids/affinities, or submit profile changes.
+Successful initiation mutations SHALL synchronize through the current
+clientbound profile snapshot. Initiation SHALL add no awaken, root-generation,
+affinity-selection, inheritance, or technique-learning serverbound payload. The
+separate meditation capability MAY register bounded normal/spirit/stop intent
+that carries no profile value and cannot bypass either ritual. H SHALL remain
+read-only and SHALL not generate roots, evaluate inheritance, choose ids or
+affinities, or submit profile changes.
 
 #### Scenario: Awakening succeeds then inheritance succeeds
-- **WHEN** the owning client receives each final snapshot
-- **THEN** after awakening the H screen SHALL show `myvillage:mortal_qi_sensed`, the generated affinities, and no automatically learned technique
-- **AND** after inheritance it SHALL show `myvillage:basic_breathing` at mastery `0`
+- **WHEN** the owning client receives each final ritual snapshot
+- **THEN** H SHALL show the sensed-stage/root result and later Basic Breathing mastery zero
 
 #### Scenario: A ritual action fails
-- **WHEN** awakening or inheritance returns any non-success result
-- **THEN** no mutation snapshot SHALL be sent
-- **AND** the client SHALL retain its prior read-only snapshot
+- **WHEN** awakening or inheritance returns a non-success result
+- **THEN** no changed profile snapshot SHALL be sent and the prior client profile SHALL remain
 
 #### Scenario: Payload registrations are inspected
-- **WHEN** initiation integration is validated
-- **THEN** no `AwakenPayload`, root-generation payload, inheritance payload, or other cultivation play-to-server mutation payload SHALL exist
-- **AND** the existing flying-sword serverbound payload SHALL remain unchanged
+- **WHEN** initiation is validated alongside meditation
+- **THEN** no initiation-specific serverbound payload SHALL exist
+- **AND** only the separately specified meditation intent and existing flying-sword input SHALL be permitted serverbound
 
 ### Requirement: Initiation does not implement cultivation execution or progression
-This change SHALL NOT add meditation, basic-breathing execution, spiritual-power cap/recovery, cultivation or mastery gain, automatic realm/stage advancement, breakthroughs, stability growth, technique equipment, combat effects, element bonuses, root quality/tiering, rerolls, sect/region/worldgen integration, quests, NPCs, alchemy, crafting, or a profile schema v2 field. Learning a technique SHALL NOT mean equipping, executing, gaining cultivation, or gaining spiritual power.
+The awakening and inheritance ritual actions SHALL NOT themselves execute Basic
+Breathing, add progress, stability, mastery, reserve, spiritual power, or
+automatically advance a realm/stage. Learning the technique SHALL remain
+acquisition-only. After both rituals are complete, a separately requested and
+server-approved meditation session MAY execute the fixed Basic Breathing gain
+defined by `cultivation-gain`. This change SHALL NOT add a generic technique
+executor, technique equipment, combat effects, element bonuses, root quality,
+rerolls, automatic advancement, or breakthrough behavior.
 
 #### Scenario: A player completes both steles
-- **WHEN** a player awakens and inherits `myvillage:basic_breathing`
-- **THEN** the player SHALL remain at realm `myvillage:mortal` and stage `myvillage:mortal_qi_sensed`
-- **AND** the ritual SHALL NOT increase cultivation progress, spiritual power, stability, mastery, attributes, or effects
-- **AND** `basic_breathing` SHALL still have no executor
+- **WHEN** awakening and inheritance succeed
+- **THEN** the player SHALL remain at `myvillage:mortal_qi_sensed` with unchanged progress, stability, spiritual power, and zero newly granted mastery
+- **AND** neither stele SHALL start a meditation session or consume a spirit stone
+
+#### Scenario: The initiated player later meditates
+- **WHEN** the player separately sends an eligible meditation start intent and an active settlement becomes due
+- **THEN** gain MAY be produced by the meditation service rather than by either ritual
+- **AND** `myvillage:basic_breathing` SHALL still have no generic executor field

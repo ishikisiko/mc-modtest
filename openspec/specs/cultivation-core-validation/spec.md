@@ -112,17 +112,27 @@ The same change SHALL add `docs/ai-kb/28_cultivation_core.md`, list it in `docs/
 - **AND** they SHALL distinguish implemented infrastructure from future gameplay
 
 ### Requirement: Regression validation protects explicit non-goals
-Validation SHALL preserve existing flying-sword payload tests and server checks, SHALL verify that initiation adds no cultivation client-to-server mutation payload, and SHALL verify that the H profile screen remains read-only and retains its sharp-content/background-blur ordering. The implementation diff SHALL contain no cultivation technique executor, meditation/recovery/progression/advancement/combat system, profile schema v2 field, root quality/reroll system, sect/region/worldgen integration, unnecessary BlockEntity/menu/recipe, or item/block beyond the two declared stele BlockItems. Release metadata changes SHALL be limited to the synchronized feature-version files required by `openspec/config.yaml`.
+Validation SHALL preserve the flying-sword protocol, clientbound-only
+profile/time/status authority, immutable v2 profile replacement,
+server-authoritative cultivation intents, read-only H screen, two independent
+initiation rituals, lifespan invariance, stage-local caps, and declared Basic
+Breathing settlement. This change MAY add only the fourth bounded action,
+definition-owned four-transition sequence, transient advancement states,
+deterministic success costs, and exact Qi-III bottleneck loss. It SHALL add no
+client target/result, random success, overflow/chaining, Qi IV+ gain or
+advancement, Foundation Establishment process, major-realm rule, pill/facility/
+environment requirement, tribulation, or reincarnation behavior. Release
+metadata SHALL follow `openspec/config.yaml`.
 
 #### Scenario: Scope is reviewed before closeout
-- **WHEN** CRAFT/front-door evidence and the final git diff are inspected
-- **THEN** every changed implementation file SHALL map to deterministic awakening, basic-technique inheritance, the two steles, their validation, required documentation, or synchronized feature release metadata
-- **AND** all excluded gameplay, worldgen, C2S cultivation payload, profile-schema, and flying-sword protocol surfaces SHALL remain unchanged
+- **WHEN** final code, data, payload registrations, and validation evidence are inspected
+- **THEN** every transition SHALL map to one of the four declared source-stage rules
+- **AND** every deferred later-stage, major-realm, material, random, and client-authority surface SHALL remain absent
 
-#### Scenario: Basic breathing is inspected
-- **WHEN** shipped technique data and runtime registrations are validated
-- **THEN** `myvillage:basic_breathing` SHALL have the declared initiation requirements
-- **AND** it SHALL still have no executor, qi cost, recovery, progress, effect, attribute, or advancement implementation
+#### Scenario: Protocol regression is inspected
+- **WHEN** all payload codecs and directions are enumerated
+- **THEN** the cultivation intent SHALL contain only four bounded actions without target/result fields
+- **AND** the flying-sword input and clientbound cultivation paths SHALL retain their contracts
 
 ### Requirement: OpenSpec evidence validates strictly before implementation closeout
 The active change SHALL contain proposal, design, tasks, and delta specifications for all six cultivation foundation capabilities. `openspec validate add-cultivation-core-foundation --type change --strict` SHALL pass before closeout, and archive SHALL synchronize the six capabilities into the implemented baseline without editing baseline specs directly during proposal authoring.
@@ -235,3 +245,220 @@ The archived initiation change SHALL retain proposal, design, completed tasks, t
 - **WHEN** closeout checks version-sensitive files
 - **THEN** mod version, mod metadata, README jar examples, and CHANGELOG SHALL agree
 - **AND** README/KB SHALL distinguish implemented initiation from excluded meditation, recovery, progress gain, advancement, and technique execution
+
+### Requirement: Automated tests prove v1-to-v2 migration and time arithmetic
+Java tests SHALL cover exact v1 fixtures, unknown ids, v2 round trips, negative
+counters, unsupported versions, default/reset, all profile-copy helpers,
+initiation preservation, checked scale products, calendar eligibility, personal
+eligibility, 600-tick batching, warning thresholds, exhaustion, and counter
+saturation.
+
+#### Scenario: The migration suite runs
+- **WHEN** tests decode representative default, non-default, unknown-id, and over-cap v1 profiles
+- **THEN** every old field SHALL be preserved and both new fields SHALL equal zero
+
+#### Scenario: The time suite runs
+- **WHEN** eligible/excluded player and config fixtures execute
+- **THEN** clock increments, pauses, thresholds, reinterpretation, and overflow handling SHALL match the capability exactly
+
+### Requirement: Lifecycle and UI evidence remain truthful
+Automated integration SHALL cover payload codecs/directions, dedicated-server
+side safety, registry/config/SavedData loading, and bounded server startup.
+Relog, death, End return, dimension change, configuration reinterpretation,
+warning delivery, H-screen layout, and clean-stop flush SHALL remain
+`not_verified` until each is directly observed or supported by its declared
+integration test surface.
+
+#### Scenario: Only unit tests build and server startup pass
+- **WHEN** no real client lifecycle session is observed
+- **THEN** the manual lifecycle, warning, and visual rows SHALL remain `not_verified`
+
+### Requirement: Automated tests cover meditation authority and interruption
+Tests SHALL cover every legal/unknown action, payload round trip,
+sender-derived identity, duplicate/rate-limited starts, idempotent stop, all
+eligibility gates, 40-tick transitions, 100-tick damage window, camera-only
+rotation, movement tolerance, every interruption/lifecycle cause, no persistent
+state, and no profile/inventory mutation.
+
+#### Scenario: The focused meditation suite runs
+- **WHEN** Gradle and validator tests execute
+- **THEN** normal/spirit preparation, active, rejection, interruption, and cleanup paths SHALL match the server-authoritative contract
+
+### Requirement: Manual meditation evidence is not inferred from startup
+Real-client checks SHALL separately record V/B/G input, feedback, camera
+rotation, movement/jump, damage, attack, mining, use, mount, swim/flight,
+dimension, death, logout, H interaction, and multiplayer authority as `pass`,
+`fail`, or `not_verified`.
+
+#### Scenario: Automated gates pass without a client
+- **WHEN** tests, build, and server startup pass but no gameplay session is observed
+- **THEN** every interaction and feel item SHALL remain `not_verified`
+
+### Requirement: Automated validation pins cultivation settlement arithmetic
+Java tests and a focused deterministic validator SHALL cover the 100-tick
+interval, fixed-point carry, default-year rates `100/10/10`, spirit total
+progress `400`, exact caps `300/500/800/1200`, continued capped
+stability/mastery, less-than-one session-end remainder loss, and unchanged
+lifespan rate in both modes.
+
+#### Scenario: The arithmetic suite runs
+- **WHEN** normal and spirit fixtures span partial batches, a complete default year, and cap boundaries
+- **THEN** whole outputs and remainders SHALL match the declared rates exactly
+- **AND** spirit fixtures SHALL consume one reserve per applied bonus point without changing lifespan speed
+
+### Requirement: Automated validation covers reserve and inventory authority
+Tests SHALL exercise persistent reserve, one stone to 100 reserve, ordinary-
+inventory-only lookup, cap-aware spending, logical rollback on item/profile
+failure, downgrade to normal, one final snapshot, and no per-tick scanning or
+snapshot traffic. Negative fixtures SHALL reject direct attachment mutation and
+client-authored settlement values.
+
+#### Scenario: Stone-backed settlement is tested
+- **WHEN** a fixture requires conversion, applies only part of the credited reserve, and then interrupts
+- **THEN** exactly one inventory stone SHALL be consumed
+- **AND** the applied bonus and preserved reserve SHALL reconcile to 100 points
+
+#### Scenario: No acceleration resource exists
+- **WHEN** a spirit session reaches a bonus settlement with zero reserve and no inventory stone
+- **THEN** validation SHALL observe one downgrade and continuing ordinary gain eligibility
+
+### Requirement: Cultivation gain runs the complete automated handoff
+Closeout SHALL run strict validation for this change and implemented baseline,
+the cultivation core/initiation/lifespan/meditation/gain validators, focused
+tests, Gradle tests and build, practical jar inspection, and a bounded dedicated
+acceptance-server smoke. Manual H-screen, timing, interruption, inventory, and
+feel observations SHALL remain explicit pass/fail/`not_verified` evidence.
+
+#### Scenario: Automated handoff succeeds
+- **WHEN** the change is proposed for implementation closeout
+- **THEN** every declared automated validator, test, build, jar, and server-smoke surface SHALL pass
+- **AND** no unobserved in-game result SHALL be reported as verified
+
+### Requirement: Automated tests pin every advancement rule and gate
+Java tests and a focused deterministic validator SHALL cover all four source,
+target, cap, kind, duration, requirement, success-cost, and interruption-loss
+tuples; missing/invalid/self/mismatched targets; unsupported kinds; every start
+gate; completion revalidation; and Qi-IV release-ceiling rejection.
+
+#### Scenario: The shipped advancement matrix is tested
+- **WHEN** data validation enumerates qi-sensed through Qi IV
+- **THEN** it SHALL find ordinary `100/10/5/0`, ordinary `100/20/10/0`, ordinary `120/30/15/0`, and bottleneck `200/80/30/5`
+- **AND** it SHALL find no fifth rule
+
+### Requirement: Automated tests prove interruption and atomicity
+Tests SHALL exercise every shared interruption, allowed yaw/pitch, idempotent
+overlapping hooks, ordinary zero loss, bottleneck exact five loss, administrative
+zero loss, one immutable success/penalty replacement, complete v2 preservation,
+progress reset, one snapshot, no randomness, and no multi-stage chaining.
+
+#### Scenario: A bottleneck interruption matrix runs
+- **WHEN** each player/world interruption is applied to an active Qi-III bottleneck
+- **THEN** the session SHALL stop and stability SHALL lose exactly five once
+- **AND** ordinary and administrative teardown fixtures SHALL lose zero
+
+#### Scenario: Atomic success runs with non-default v2 data
+- **WHEN** each of the four transitions completes from a profile with nonzero lifespan, reserve, power, root, and mastery
+- **THEN** only realm, stage, progress, and declared stability cost SHALL differ
+- **AND** one final snapshot SHALL be observed
+
+### Requirement: Advancement runs the complete automated and manual handoff
+Closeout SHALL run strict validation for this change and implemented baseline,
+all cultivation/resource validators introduced by the five serial changes,
+focused tests, Gradle tests/build, practical jar inspection, and bounded
+acceptance-server smoke. Manual V/B/G/N, H, timing, interruption, two-stele,
+inventory, ore/worldgen, and presentation observations SHALL retain explicit
+pass/fail/`not_verified` evidence.
+
+#### Scenario: Final serial handoff succeeds
+- **WHEN** the five-change feature is proposed for closeout
+- **THEN** every automated spec, validator, test, build, jar, and server-smoke surface SHALL pass
+- **AND** unobserved real-client behavior SHALL remain `not_verified`
+
+### Requirement: Automated tests prove v3 migration and affinity preservation
+Java tests SHALL cover exact v3 defaults, non-default v3 codec and real snapshot
+round trips, non-negative affinity validation, v1-to-v2-to-v3 migration,
+v2-to-v3 migration with nonzero lifespan/reserve and unknown ids, unsupported
+versions, reset behavior, and preservation of affinity/reserve through
+initiation, lifespan, settlement, advancement, commands, and copy helpers.
+Focused Python validation SHALL inspect current version ownership and all
+integration paths without substituting source matching for codec behavior.
+
+#### Scenario: Profile migration tests run
+- **WHEN** the automated suite decodes representative v1 and v2 fixtures
+- **THEN** both SHALL produce valid schema-v3 profiles with affinity `10`
+- **AND** every old value required by its source schema SHALL remain exact
+
+#### Scenario: A copy path omits affinity
+- **WHEN** static integration validation finds a profile replacement that resets or drops affinity or reserve
+- **THEN** the focused validator SHALL fail with the owning path
+
+### Requirement: Automated tests pin ten-tick gain and direct item costs
+Tests SHALL prove eligible-tick counting, partial-session discard, normal gain
+for default, zero, and non-default affinity, fixed spirit gain, exact sensed/Qi
+I/Qi II/Qi III costs, near-cap clamping, no overflow, no charge at cap or
+unsupported stages, pre-cap stability lock, next-batch affinity stability in
+both modes, 50% dynamic stability caps, unchanged `10/year` mastery, inert
+reserve, and insufficient-cost downgrade to the normal result. Tests SHALL prove the client
+cannot author affinity, rate, cost, cap, target, elapsed ticks, or result.
+
+#### Scenario: Settlement arithmetic tests run
+- **WHEN** ten-tick fixtures exercise each released source stage and cap boundary
+- **THEN** exact progress and inventory deltas SHALL match the current affinity or fixed spirit contract
+- **AND** stability SHALL remain locked before full progress, then use affinity without stone cost
+- **AND** mastery SHALL remain on its independent configured-year rate
+
+#### Scenario: The player is capped
+- **WHEN** a spirit settlement fixture begins with zero remaining capacity
+- **THEN** tests SHALL observe zero inventory removal and no reserve mutation
+- **AND** eligible stability SHALL advance by affinity up to the derived cap
+
+### Requirement: Automated tests prove inventory and profile rollback semantics
+Transaction tests SHALL cover complete removal and commit, insufficient count,
+partial-removal rollback, profile validation failure, attachment-install failure,
+snapshot failure after successful install, external-container exclusion, and
+duplicate/reentrant settlement protection. They SHALL distinguish an installed
+profile from a later synchronization failure so rollback cannot duplicate items.
+
+#### Scenario: A pre-install failure occurs
+- **WHEN** the full item cost was removed but the profile replacement does not install
+- **THEN** tests SHALL prove complete item restoration and unchanged profile state
+
+#### Scenario: A post-install snapshot failure occurs
+- **WHEN** the attachment replacement succeeds before client delivery fails
+- **THEN** tests SHALL prove the cost and profile result remain committed exactly once
+
+### Requirement: UI tests and evidence cover both H tabs and bounded actions
+Automated UI/source tests SHALL verify two tabs, four translatable action
+buttons, one-intent click behavior, keyboard parity, absence of reserve labels,
+v3 affinity presentation, missing-data states, advisory enablement, disconnect
+cleanup, sharp render ordering, and unchanged payload field bounds. Manual
+evidence SHALL inspect representative supported window sizes and GUI scales and
+record each unobserved layout or action as `not_verified`.
+
+#### Scenario: UI integration tests run
+- **WHEN** the H-screen and payload registrations are inspected
+- **THEN** every button SHALL route to one of the existing four actions and no numeric authority field SHALL be added
+
+#### Scenario: No real client has been observed
+- **WHEN** automated tests and server smoke pass without opening both tabs in Minecraft
+- **THEN** button feel, text fit, sharpness, focus, hover, and action feedback SHALL remain `not_verified`
+
+### Requirement: The revised loop runs the complete regression and release handoff
+Closeout SHALL record strict validation for this change and the complete spec
+baseline; `validate_cultivation_core.py`, `validate_cultivation_initiation.py`,
+`validate_spirit_stone_resources.py`, `validate_cultivation_lifespan.py`,
+`validate_cultivation_meditation.py`, `validate_cultivation_gain.py`, and
+`validate_cultivation_advancement.py`; all validator tests; Gradle tests/build;
+current-jar inspection; bounded stage-1 acceptance-server smoke; CRAFT/front-door
+checks; documentation and visual evidence; and synchronized feature metadata
+for `0.25.0` under the repository version rule. One failing required gate SHALL
+block completion, archive, merge, and push as a successful release.
+
+#### Scenario: Every automated gate passes
+- **WHEN** the implemented worktree is prepared for human review
+- **THEN** evidence SHALL record the real exit status of every required command and the current jar version/content
+- **AND** real-client gameplay and layout SHALL remain separate manual verdicts
+
+#### Scenario: One playable-loop regression fails
+- **WHEN** any of the five focused change validators, foundation/initiation validator, test, build, jar, server-smoke, or governance gate exits nonzero
+- **THEN** the change SHALL not be reported complete or closeout-ready

@@ -152,6 +152,27 @@ public final class ModCultivationRegistries {
                 if (previousOwner != null) {
                     errors.add("stage " + stage.id() + " is owned by both " + previousOwner + " and " + realmId);
                 }
+                if (stage.cultivationCap().isPresent() && stage.spiritStoneCost().isEmpty()) {
+                    errors.add("stage " + stage.id() + " has cultivation_cap without spirit_stone_cost");
+                }
+                stage.advancement().ifPresent(advancement -> {
+                    if (stage.cultivationCap().isEmpty()) {
+                        errors.add("stage " + stage.id() + " has advancement without cultivation_cap");
+                    }
+                    if (realmId.equals(advancement.targetRealm())
+                            && stage.id().equals(advancement.targetStage())) {
+                        errors.add("stage " + stage.id() + " advancement targets itself");
+                    }
+                    RealmDefinition targetRealm = realms.get(advancement.targetRealm());
+                    if (targetRealm == null) {
+                        errors.add("stage " + stage.id() + " references missing advancement target realm "
+                                + advancement.targetRealm());
+                    } else if (!targetRealm.containsStage(advancement.targetStage())) {
+                        errors.add("stage " + stage.id() + " advancement target stage "
+                                + advancement.targetStage() + " does not belong to realm "
+                                + advancement.targetRealm());
+                    }
+                });
             }
             realm.nextRealm().ifPresent(nextRealm -> {
                 if (!realms.containsKey(nextRealm)) {

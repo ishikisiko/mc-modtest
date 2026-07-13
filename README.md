@@ -485,7 +485,7 @@ jar tf build/libs/*.jar | grep "assets/myvillage/blockstates/technique_inheritan
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.23.0.jar
+build/libs/myvillage-0.25.0.jar
 ```
 
 ## Versioning And Changelog
@@ -507,6 +507,11 @@ python3 tools/validate_custom_entities.py
 python3 tools/validate_rideable_flying_sword.py
 python3 tools/validate_cultivation_core.py
 python3 tools/validate_cultivation_initiation.py
+python3 tools/validate_spirit_stone_resources.py
+python3 tools/validate_cultivation_lifespan.py
+python3 tools/validate_cultivation_meditation.py
+python3 tools/validate_cultivation_gain.py
+python3 tools/validate_cultivation_advancement.py
 python3 tools/validate_mod_block_fallbacks.py
 python3 tools/validate_plaque_bindings.py
 python3 tools/validate_compound_library.py --count 6
@@ -530,18 +535,21 @@ python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 
 python3 tools/write_visual_acceptance_report.py
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.23.0.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.23.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.23.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.23.0.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.23.0.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.23.0.jar | grep "assets/myvillage/textures/painting/inscription"
-jar tf build/libs/myvillage-0.23.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
-jar tf build/libs/myvillage-0.23.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
-jar tf build/libs/myvillage-0.23.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
-jar tf build/libs/myvillage-0.23.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
-jar tf build/libs/myvillage-0.23.0.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
-jar tf build/libs/myvillage-0.23.0.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
+jar tf build/libs/myvillage-0.25.0.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.25.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.25.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.25.0.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.25.0.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.25.0.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.25.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
+jar tf build/libs/myvillage-0.25.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
+jar tf build/libs/myvillage-0.25.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
+jar tf build/libs/myvillage-0.25.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
+jar tf build/libs/myvillage-0.25.0.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
+jar tf build/libs/myvillage-0.25.0.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
+jar tf build/libs/myvillage-0.25.0.jar | grep "assets/myvillage/textures/item/low_grade_spirit_stone.png"
+jar tf build/libs/myvillage-0.25.0.jar | grep "data/myvillage/worldgen/configured_feature/spirit_stone_ore.json"
+jar tf build/libs/myvillage-0.25.0.jar | grep "data/myvillage/myvillage/realm/qi_refining.json"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -630,14 +638,14 @@ along the player's horizontal view direction, fall-distance reset,
 recall/singleton behavior, every cleanup condition, multiplayer authority, and
 item-model scale/readability before recording acceptance.
 
-## Cultivation Core And Initiation
+## Cultivation Playable Loop
 
-**当前已实现“测灵觉醒 -> 基础吐纳诀传承”，但仍没有静修、功法执行、灵力恢复、修为获取或自动晋级。**
+**当前已实现“测灵觉醒 -> 基础吐纳诀传承 -> 普通/灵石打坐 -> 修为结算 -> 确定性冲关”的第一段可玩循环；炼气四层是本版终点，不代表炼气后续层级与筑基已经开放。**
 
-The foundation provides a server-authoritative immutable v1 player profile,
-codec-backed Data Attachment persistence, synced definition registries, an
-owning-client snapshot, and operator commands. The initiation slice adds two
-separate server-side actions without adding profile fields:
+The foundation provides a server-authoritative immutable v3 player profile,
+codec-backed Data Attachment persistence, synced definition registries,
+owning-client snapshots, and operator commands. The initiation slice remains
+two separate server-side actions:
 
 ```text
 mortal_unawakened
@@ -647,9 +655,11 @@ mortal_unawakened
   -> myvillage:basic_breathing at mastery 0
 ```
 
-Awakening never teaches the technique automatically. Inheritance does not equip
-or execute it and grants no cultivation progress, spiritual power, stability,
-mastery growth, attribute, effect, or qi-refining advancement.
+Awakening never teaches the technique automatically. Inheritance learns
+`myvillage:basic_breathing` at mastery `0`; only an active, eligible meditation
+session executes that technique. Neither initiation action directly grants
+progress, spiritual power, stability, mastery growth, attributes, effects, or
+advancement.
 
 Acquire the two facilities from `myvillage:main` creative inventory or with:
 
@@ -658,24 +668,46 @@ Acquire the two facilities from `myvillage:main` creative inventory or with:
 /give @s myvillage:technique_inheritance_stele
 ```
 
-These are the only current acquisition paths. Neither stele has a recipe,
+These are the only current stele acquisition paths. Neither stele has a recipe,
 natural generation, sect/worldgen placement, BlockEntity, menu, or block-local
 player data.
 
-Press `H` in game to open the read-only personal cultivation profile panel. The
-binding is configurable as `Open Cultivation Profile` under the MyVillage key
-category. The non-pausing panel renders the latest server-synchronized realm,
-stage, progress, stability, power, spiritual-root affinities, learned techniques,
-grades, categories, and mastery. It has no mutation control, generates no root,
-evaluates no eligibility, and sends no cultivation payload; `H` or Escape closes
-it.
+The first spirit-stone slice can be inspected directly with:
 
-The profile remains schema version `1`: realm/stage ids, non-negative cultivation
-progress, stability in `0..100`, non-negative spiritual power, an optional generic
-affinity map totaling `10000` basis points, and technique ids with non-negative
-mastery. Removed definition ids remain decodable and appear as `unavailable`.
-The attachment uses `copyOnDeath` as its only copy mechanism; there is no duplicate
-cultivation `PlayerEvent.Clone` handler.
+```mcfunction
+/give @s myvillage:low_grade_spirit_stone 64
+/give @s myvillage:spirit_stone_ore
+/give @s myvillage:deepslate_spirit_stone_ore
+```
+
+Both ores require an iron-tier-or-better pickaxe. Silk Touch drops the matching
+ore block; ordinary mining starts from one low-grade spirit stone, and Fortune
+uses the vanilla `ore_drops` bonus formula. The Overworld biome modifier adds
+upper/middle/deep layers with counts `30/3/3`, vein sizes `6/6/3`, and height
+bands `80..384`, `-24..56`, and world-bottom through `0`. Existing generated
+chunks are not retrofitted: natural ore must be checked in newly generated
+chunks. There is no raw ore, smelting chain, recipe, higher grade, storage block,
+fragment, refining machine, or currency behavior in this slice.
+
+Press `H` in game to open the non-pausing cultivation panel. The binding is
+configurable as `Open Cultivation Profile` under the MyVillage key category.
+Its Profile tab renders the latest server-synchronized realm, stage,
+current/capped progress, stability, spiritual affinity, power, root,
+techniques, calendar, and lifespan. Its Meditation tab shows the current rates,
+stage-owned spirit-stone cost and runtime state, with normal, spirit, stop, and
+advance buttons. Profile values remain read-only: each button sends only the
+same bounded action intent as V/B/G/N, and the server revalidates every result.
+`H` or Escape closes the panel without stopping cultivation.
+
+The current profile is schema version `3`: all v2 fields plus non-negative
+`spiritualAffinity`, whose new/reset/migrated default is `10`. The
+version-dispatched codec preserves explicit v1 and v2 decode paths, migrates
+both into v3 without losing unknown ids, progress, lifespan, or reserve, and
+writes only v3 afterward. `meditationQiReserve` remains stored for save
+compatibility but is inert: v3 cultivation does not credit, spend, convert, or
+display it. The attachment uses `copyOnDeath` as its only copy mechanism; there
+is no duplicate cultivation `PlayerEvent.Clone` handler. Every profile
+replacement still goes through `CultivationService`.
 
 The synced datapack registries and shipped resource roots are:
 
@@ -698,9 +730,123 @@ recalculated. Datapack id/weight changes affect future awakening and may change 
 post-reset result; seed plus UUID alone is not a permanence promise. Reusing the
 testing stele without reset never rerolls an existing root.
 
-`myvillage:basic_breathing` is executor-free and requires current definition
-eligibility at minimum `myvillage:mortal` / `myvillage:mortal_qi_sensed`, with no
-element-affinity restriction. Repeat inheritance never resets existing mastery.
+`myvillage:basic_breathing` has no generic/data-driven executor field. The fixed
+first-release settlement service executes only this technique and requires
+current definition eligibility at minimum `myvillage:mortal` /
+`myvillage:mortal_qi_sensed`, with no element-affinity restriction. Repeat
+inheritance never resets existing mastery.
+
+### Meditation, Time, And Settlement
+
+The client sends only a bounded action intent. Identity, position, eligibility,
+timing, profile values, inventory use, settlement, and advancement outcome are
+derived on the logical server.
+
+| Configurable key | Intent |
+|---|---|
+| `V` | Start normal meditation |
+| `B` | Start spirit-stone meditation |
+| `G` | Stop meditation or advancement |
+| `N` | Start the current definition-owned advancement |
+| `H` | Open/close the Profile and Meditation panel |
+
+Normal and spirit meditation share one transient state machine. Both start with
+`40` eligible preparation ticks. Starting requires an awakened root, learned
+Basic Breathing, survival/adventure mode, a living non-exhausted player on stable
+ground, no mount/swimming/flight/sleep/item use/conflicting session, and no
+positive damage during the previous `100` server ticks. Moving more than `0.01`
+block on any axis, jumping, damage, attack/swing, mining, block/entity/item use,
+mounting, swimming/flying/sleeping, incompatible game mode, dimension change,
+death, logout, or `G` interrupts the session. Camera yaw and pitch, opening H,
+and switching between its tabs are allowed.
+
+The time defaults under server config section `cultivation_time` are
+`ticks_per_day = 24000` and `days_per_year = 6`: one cultivation year is
+`144000` effective ticks. The Overworld `SavedData` calendar advances once per
+server tick while at least one survival/adventure player is online. A player's
+lifespan advances only while that player is online, alive, and in
+survival/adventure. Sleep, `/time set`, daylight-cycle rules, dimension, and
+offline wall time do not drive either clock. Realm definitions currently grant
+maximum lifespans of `80` mortal, `120` Qi Refining, and `240` Foundation years;
+warnings are derived at `10`, `5`, and `1` remaining years.
+
+Both counters store raw effective ticks. Changing either time-scale setting does
+not rescale old data; it immediately reinterprets all prior calendar and lifespan
+ticks and can move the displayed date, warnings, or exhaustion in either
+direction. The server logs an operator warning on load/reload. Treat scale
+changes as world-rule migrations, back up the world first, and do not assume the
+old displayed ages are preserved.
+
+Active Basic Breathing makes one progress settlement every `10` continuously
+eligible ticks. Normal meditation adds the current server-profile
+`spiritualAffinity`; its default result is therefore `10` progress per batch.
+Spirit meditation adds a fixed total `50` progress per funded batch, independent
+of affinity, and atomically removes the current source stage's complete batch
+from ordinary inventory:
+
+| Current source stage | Low-grade stones / 10 ticks | Progress / 10 ticks |
+|---|---:|---:|
+| Mortal, qi sensed | 1 | 50 |
+| Qi Refining I | 1 | 50 |
+| Qi Refining II | 2 | 50 |
+| Qi Refining III | 3 | 50 |
+
+The final nonempty batch pays the full item cost even when fewer than `50`
+points remain; its output is clamped to the cap. At the cap, no stone is scanned
+or removed. Insufficient inventory removes nothing, applies that due batch at
+the normal affinity rate, and downgrades the same session to normal without a
+new preparation period. Failed pre-install profile commits restore the complete
+multi-slot item removal. Stability does not grow while stage-local progress is
+below its cap, including the batch that first fills progress. Starting with the
+next ten-tick batch, either mode adds current `spiritualAffinity` to stability,
+without scanning or consuming a stone, until the stage stability cap is reached.
+Basic Breathing mastery alone remains at `10` per configured cultivation year
+in both modes and across both phases.
+
+The shipped stage-local caps are:
+
+| Stage | Progress cap | Stability cap |
+|---|---:|---:|
+| Mortal, qi sensed | 1000 | 500 |
+| Qi Refining I | 1100 | 550 |
+| Qi Refining II | 1200 | 600 |
+| Qi Refining III | 1300 | 650 |
+
+Unawakened mortal, Qi Refining IV-IX, and Foundation Early have no cultivation
+cap in this release and cannot gain progress. `cultivationProgress` is always
+the current stage's progress; successful advancement resets it to zero and never
+transfers overflow.
+
+### Deterministic Advancement
+
+Press `N` only after the current cap and stability requirement are met. The
+server owns the target and rule; there is no random failure and no client-chosen
+stage. Advancement is mutually exclusive with meditation and reuses its
+interruption set.
+
+| Transition | Required progress | Duration | Required stability | Stability after success | Interrupt loss |
+|---|---:|---:|---:|---:|---:|
+| Qi-sensed mortal -> Qi Refining I | 1000 | 100 ticks | 500 | 250 | 0 |
+| Qi Refining I -> II | 1100 | 100 ticks | 550 | 275 | 0 |
+| Qi Refining II -> III | 1200 | 120 ticks | 600 | 300 | 0 |
+| Qi Refining III -> IV bottleneck | 1300 | 200 ticks | 650 | 325 | 5 |
+
+The result column assumes advancement starts at the ordinary stage cap. Runtime
+always retains integer-floor half of actual current stability; it does not
+subtract a fixed absolute cost.
+
+Ordinary advancement loses no stability when interrupted. A player/world
+interruption during the Qi III bottleneck loses exactly `5` stability, clamped
+at zero; clean server shutdown or registry-reload teardown has no penalty. One
+completed process advances exactly one stage. Qi Refining IV is the release
+ceiling: Qi IV-IX cultivation, Foundation breakthrough, pills, facilities,
+environment rules, tribulation, and reincarnation remain deferred.
+
+Lifespan exhaustion is a derived state, not a death loop. At or beyond the
+current realm maximum the player cannot start meditation or advancement and sees
+an explicit status, but the profile is not cleared and the system does not kill
+the player. Lifespan continues to be counted monotonically while otherwise
+eligible.
 
 All cultivation commands inherit the existing `/myvillage` permission-level-2
 requirement. The existing administrator surface remains available:
@@ -710,7 +856,7 @@ requirement. The existing administrator surface remains available:
 /myvillage cultivation reset <target>
 /myvillage cultivation setrealm <target> <realm_id> <stage_id>
 /myvillage cultivation setprogress <target> <amount>
-/myvillage cultivation setstability <target> <0..100>
+/myvillage cultivation setstability <target> <amount>
 /myvillage cultivation setpower <target> <amount>
 /myvillage cultivation setroot <target> <metal> <wood> <water> <fire> <earth>
 /myvillage cultivation clearroot <target>
@@ -718,6 +864,10 @@ requirement. The existing administrator surface remains available:
 /myvillage cultivation forget <target> <technique_id>
 /myvillage cultivation setmastery <target> <technique_id> <amount>
 ```
+
+`setstability` accepts a non-negative integer. The profile schema has no fixed
+`100` ceiling; ordinary gameplay derives the current stage cap from half of its
+progress cap.
 
 The normal-rules initiation actions expose all eight English/pinyin routes:
 
@@ -753,36 +903,131 @@ Both command roots continue to accept either literal in every pair:
 | `awaken` | `juexing` |
 | `initiate` | `rumen` |
 
-Run the complete initiation handoff gates:
+Run the complete playable-loop and affinity/UI revision handoff gates:
 
 ```bash
 openspec validate --specs --strict
+for change in add-spirit-stone-resources add-cultivation-lifespan-calendar add-cultivation-meditation add-basic-breathing-cultivation-gain add-qi-refining-advancement; do openspec validate "$change" --type change --strict; done
+openspec validate revise-cultivation-affinity-meditation-ui --type change --strict
 python3 tools/validate_cultivation_core.py
 python3 tools/validate_cultivation_initiation.py
-python3 -m unittest tools.tests.test_validate_cultivation_core
-python3 -m unittest tools.tests.test_validate_cultivation_initiation
+python3 tools/validate_spirit_stone_resources.py
+python3 tools/validate_cultivation_lifespan.py
+python3 tools/validate_cultivation_meditation.py
+python3 tools/validate_cultivation_gain.py
+python3 tools/validate_cultivation_advancement.py
 python3 tools/validate_mod_items.py
+python3 -m unittest discover -s tools/tests -p 'test_validate_*.py'
 ./gradlew test
 ./gradlew build
 python3 tools/run_chunky_acceptance.py --stage 1
 ```
 
 Stage 1 proves bounded dedicated-server startup, registration, datapack loading,
-payload direction, and side safety only. It does not prove stele interaction,
-visuals, messages/effects, H-screen phases, commands, persistence, death, dimension
-change, or repeat behavior. Until directly observed, every manual item is
-`not_verified`; use the ledgers in `docs/ai-kb/28_cultivation_core.md` and
-`docs/ai-kb/29_cultivation_initiation_ritual.md`.
+payload direction, and side safety only. It does not prove ore readability,
+natural distribution, stele interaction, controls, exact interruption feel,
+inventory consumption, H-screen layout, multiplayer clocks, persistence, or
+advancement. Use a real client and record every unobserved item as
+`not_verified`, never as an inferred pass.
 
-The server continues to send only `myvillage:cultivation_snapshot` to the owning
-client after successful mutations and lifecycle sync points. The client cache is
-read-only, clears on disconnect, and has no client-to-server cultivation mutation
-payload.
+### In-Game Acceptance
 
-The owner-directed change combined awakening and inheritance as consecutive but
-independent rituals. That narrow exception does not authorize bundling later
-boundaries. Future work must choose among actual `basic_breathing` execution,
-power cap/recovery, meditation, cultivation gain, or qi-refining advancement.
+Use a disposable world copy for time-scale and exhaustion checks. Build and
+install the same jar on client and server, keep the default scale for the main
+pass, and record the exact game/version/config used.
+
+1. Use the three spirit-resource `/give` commands above. Confirm inventory icons,
+   names, hand scale, both placed block textures, and distinction from ordinary
+   stone/deepslate. Confirm all three entries appear in `myvillage:main`.
+2. In survival, break both ores with an under-tier/wrong tool, an iron pickaxe,
+   a Silk Touch iron pickaxe, and a Fortune pickaxe. The wrong tool yields no
+   resource, iron yields low-grade stones, Silk Touch yields the matching block,
+   and repeated Fortune trials produce bonuses without changing the drop item.
+3. Explore newly generated Overworld chunks at the upper, middle, and deep bands.
+   Confirm both stone targets occur and that old generated chunks are unchanged;
+   do not infer distribution from `/give` or placed blocks.
+4. Run `/myvillage cultivation reset @s`, then test the testing stele and the
+   inheritance stele as separate actions. Confirm awakening does not teach the
+   technique, inheritance does not reroll the root, and repeat use is idempotent.
+5. Open `H`. Confirm the Profile and Meditation tabs remain within the panel at
+   normal and constrained GUI scales. Profile must show schema 3, affinity 10,
+   calendar, lifespan, realm/stage, progress/cap, stability/current-stage cap,
+   power, root, and mastery without displaying legacy reserve. Meditation must
+   show status, normal and spirit results, source-stage cost, inventory count,
+   locked/active/capped stability state, and four stable buttons without treating
+   displayed values as authority.
+6. On stable ground use both the Normal button and `V`; remain still through the
+   40-tick preparation and confirm one bounded start each. Repeat parity checks
+   for Spirit/B, Stop/G, and Advance/N. Rotate the camera, switch H tabs, and
+   close H without interruption or an implicit stop, then separately verify
+   movement, jump, positive damage, attack/swing, mining, item/block/entity use,
+   mount, swim/flight/sleep, mode change, dimension change, death, logout, and
+   `G` each end a session once. Verify recent damage blocks restart for 100 ticks.
+7. Confirm default-affinity normal meditation adds exactly 10 progress per ten
+   active ticks. Prepare sensed, Qi-I, Qi-II, and Qi-III profiles and confirm one
+   funded spirit batch adds 50 while removing exactly `1/1/2/3` stones across
+   ordinary inventory slots. Confirm a final partial-cap batch pays the full
+   cost and clamps output, an already capped batch costs nothing, and an
+   underfunded batch removes nothing, applies the normal affinity result, and
+   downgrades once. Before progress is full, confirm stability never changes,
+   including the batch that fills progress. On the next normal and spirit
+   batches, confirm stability gains current affinity, consumes no stone, and
+   clamps at `500/550/600/650`; mastery must remain at 10 per configured year.
+   Legacy reserve must remain unchanged and inert.
+8. Use the administrator setters to prepare each row of the advancement table.
+   Press `N`, remain eligible for its exact duration, and confirm one transition,
+   zero progress, integer-floor half of prior stability, and preservation of root, power,
+   techniques, mastery, lifespan, affinity, and inert reserve. Interrupt an ordinary attempt and
+   confirm zero loss; interrupt Qi III -> IV and confirm exactly five stability
+   loss. At Qi IV, `N` and cultivation gain must report the release limit.
+9. With one survival/adventure player, observe shared calendar and personal age
+   advance independently of sleep and `/time set`. Switch the only player to
+   creative/spectator and confirm both pause. With a second survival/adventure
+   player online, confirm the shared calendar advances while the excluded or
+   offline first player's personal age does not. Separately verify reconnect,
+   dimension change, death/respawn, ordinary save/restart, and clean-stop flushes
+   without double age. Also wait through one 600-tick interval to verify the
+   periodic batch path separately.
+10. In a backed-up disposable copy, change `cultivation_time.ticks_per_day` or
+    `days_per_year` and reload/restart. Confirm the operator warning and immediate
+    reinterpretation of raw history. A `1/1` scale can reach the mortal limit
+    quickly: exhaustion must block `V`, `B`, and `N` with a clear status, must not
+    kill the player or clear the profile, and restoring the old scale may make the
+    same raw counter non-exhausted again.
+
+Owner real-client verdict recorded on 2026-07-13: `pass`.
+
+| Manual acceptance surface | Result |
+|---|---|
+| Three item/block assets and creative-tab exposure | `pass` |
+| Iron-tier, Silk Touch, Fortune, and wrong-tool loot | `pass` |
+| Upper/middle/deep generation in new Overworld chunks | `pass` |
+| Separate testing/inheritance stele flow and repeat behavior | `pass` |
+| H Profile/Meditation tabs, text fit, values, buttons, and status feedback | `pass` |
+| V/B/G/N and button parity, preparation, camera movement, and interruptions | `pass` |
+| Affinity progress, `1/1/2/3` direct costs, rollback, cap, and downgrade | `pass` |
+| Pre-cap stability lock, post-cap affinity gain, no stone cost, and `500/550/600/650` caps | `pass` |
+| `1000/1100/1200/1300` advancement rules, stability halving, interruption, Qi-IV ceiling | `pass` |
+| Shared calendar, personal online lifespan, lifecycle persistence, multiplayer | `pass` |
+| Config reinterpretation warning and non-lethal exhaustion | `pass` |
+
+Use only `pass`, `fail`, or `not_verified`. A `fail` records the observed mismatch
+and reproduction steps; `not_verified` means the surface was not directly
+observed and does not block truthful reporting of automated results.
+
+Profile, time, and session status travel only server-to-client. The sole
+client-to-server cultivation payload is the bounded meditation/advancement
+intent enum used by both keys and H buttons; it carries no identity, coordinate,
+velocity, affinity, resource count, rate, profile value, target stage, or
+result. Client caches and button state are presentation-only and clear on
+disconnect.
+
+The serial dependency is intentional: spirit resources -> profile v3/time ->
+meditation state -> affinity/direct-stone Basic Breathing settlement ->
+advancement. Later work must
+treat Qi IV+, Foundation breakthrough, generic technique execution, spiritual-
+power recovery, pills/facilities, combat/exploration rewards, and reincarnation
+as separate boundaries.
 
 ## Available Commands
 

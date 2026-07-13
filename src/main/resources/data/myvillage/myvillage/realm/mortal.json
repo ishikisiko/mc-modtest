@@ -1,6 +1,7 @@
 {
   "translation_key": "cultivation.realm.myvillage.mortal",
   "sort_order": 0,
+  "maximum_lifespan_years": 80,
   "stages": [
     {
       "id": "myvillage:mortal_unawakened",
@@ -10,7 +11,18 @@
     {
       "id": "myvillage:mortal_qi_sensed",
       "translation_key": "cultivation.stage.myvillage.mortal_qi_sensed",
-      "sort_order": 1
+      "sort_order": 1,
+      "cultivation_cap": 1000,
+      "spirit_stone_cost": 1,
+      "advancement": {
+        "target_realm": "myvillage:qi_refining",
+        "target_stage": "myvillage:qi_refining_1",
+        "kind": "ordinary",
+        "duration_ticks": 100,
+        "required_stability": 500,
+        "stability_cost": 250,
+        "interruption_stability_loss": 0
+      }
     }
   ],
   "next_realm": "myvillage:qi_refining"

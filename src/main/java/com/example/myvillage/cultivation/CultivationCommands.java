@@ -147,7 +147,7 @@ public final class CultivationCommands {
     private static LiteralArgumentBuilder<CommandSourceStack> stabilityCommand(String literal) {
         return Commands.literal(literal)
                 .then(Commands.argument("target", EntityArgument.player())
-                        .then(Commands.argument("amount", IntegerArgumentType.integer(0, 100))
+                        .then(Commands.argument("amount", IntegerArgumentType.integer(0))
                                 .executes(context -> {
                                     ServerPlayer target = EntityArgument.getPlayer(context, "target");
                                     return report(
@@ -328,6 +328,8 @@ public final class CultivationCommands {
                 + "\ncultivation progress: " + profile.cultivationProgress()
                 + "\nstability: " + profile.stability()
                 + "\ncurrent spiritual power: " + profile.currentSpiritualPower()
+                + "\nspiritual affinity: " + profile.spiritualAffinity()
+                + "\nlifespan consumed ticks: " + profile.lifespanConsumedTicks()
                 + "\nspiritual root: " + root
                 + "\nlearned techniques: " + learned;
         source.sendSuccess(() -> Component.literal(output), false);
