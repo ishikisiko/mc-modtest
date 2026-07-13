@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Focused GuideME validation covers dependency source and guide integrity
-The repository SHALL provide `tools/validate_guideme_cultivation_guide.py` and `tools/tests/test_validate_guideme_cultivation_guide.py`. The validator SHALL check Maven Central API/runtime coordinates, required `BOTH`-side NeoForge metadata, absence of local-jar build wiring, guide-definition JSON including the absence of first-slice `custom_colors`, exact bilingual topology under authoritative root `guidebook/`, the one-way `processResources` output mapping and absence of a checked-in resource mirror, frontmatter/navigation/internal links, shipped item/block and key-binding references, current cultivation factual anchors and deferred-system exclusions, handbook registration/model/language resources, root-source `runGuide` configuration with guide-id startup display and validation, README command order/release synchronization, and practical-jar entries. Negative fixtures SHALL produce specific nonzero failures for representative dependency, page-pair, reference, content, model, preview, command, and packaging drift.
+The repository SHALL provide `tools/validate_guideme_cultivation_guide.py` and `tools/tests/test_validate_guideme_cultivation_guide.py`. The validator SHALL check Maven Central API/runtime coordinates, required `BOTH`-side NeoForge metadata, absence of local-jar build wiring, guide-definition JSON including the absence of first-slice `custom_colors`, exact bilingual topology under authoritative root `guidebook/`, the one-way `processResources` output mapping and absence of a checked-in resource mirror, frontmatter/navigation/internal links, shipped item/block and key-binding references, the MyVillage `X` stop default and absence of a reserved default `G`, current cultivation factual anchors and deferred-system exclusions, handbook registration/model/language resources, root-source `runGuide` configuration with guide-id startup display and validation, README command order/release synchronization, and practical-jar entries. Negative fixtures SHALL produce specific nonzero failures for representative dependency, page-pair, reference, content, key-default, model, preview, command, and packaging drift.
 
 #### Scenario: The focused validator passes
 - **WHEN** every declared dependency, guide, content, handbook, preview, documentation, release, and packaging invariant is present
@@ -14,6 +14,10 @@ The repository SHALL provide `tools/validate_guideme_cultivation_guide.py` and `
 #### Scenario: A translated page or live key-binding component drifts
 - **WHEN** a fixture removes one paired page, breaks a page link, references an unknown item id, or replaces a required key-binding component with a fixed-letter instruction
 - **THEN** the validator SHALL fail with the affected path or reference
+
+#### Scenario: MyVillage reserves G again
+- **WHEN** a fixture changes the stop-meditation default from X back to G
+- **THEN** focused validation SHALL fail with a GuideME G-hotkey diagnostic
 
 #### Scenario: Handbook packaging drifts
 - **WHEN** a fixture removes the registered item/model/language surface, changes the model away from `guideme:item/guide_base`, adds a MyVillage handbook texture, or omits a declared jar entry
@@ -34,6 +38,8 @@ Closeout SHALL run strict change and baseline spec validation, the focused valid
 
 ### Requirement: Real-client guide acceptance uses pass fail or not_verified
 Manual acceptance SHALL record only `pass`, `fail`, or `not_verified` for guide discovery, Chinese-default fallback, English switching, three-page navigation, search results for the released loop, both stele item-index jumps, spirit-stone item-index jumps, representative `ItemLink`/`BlockImage` rendering, live configured key displays, root-source live reload, custom-handbook opening/reopening, and existing cultivation-screen/gameplay regression. No source validator, jar listing, screenshot-free client startup, or dedicated-server startup SHALL infer a pass for an unobserved item.
+
+The 0.25.1 observation that `G` was unavailable SHALL remain recorded as a failed historical surface. After MyVillage moves its stop default to `X`, GuideME's `G` item-index behavior SHALL return to `not_verified` until a reviewer repeats the interaction on the fixed artifact.
 
 #### Scenario: A guide interaction was not directly observed
 - **WHEN** closeout has no real-client evidence for that interaction

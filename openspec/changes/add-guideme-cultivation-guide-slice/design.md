@@ -14,6 +14,7 @@ The first slice must prove compatibility without creating a second documentation
 - Ship the data-driven `myvillage:cultivation` guide from one root `guidebook/` source with exactly three concise Chinese pages and three path-matched English pages.
 - Cover the complete released cultivation loop and its Qi Refining IV ceiling without documenting planned mechanics as available.
 - Display the player's configured MyVillage controls, index the relevant initiation and spirit-stone entries, and render representative item/block links.
+- Leave GuideME's default `G` item-index hotkey available by default without adding integration-specific input interception or automatic binding migration.
 - Add a one-stack `myvillage:cultivation_handbook` that opens the guide through GuideME without adding a MyVillage payload.
 - Make `runGuide` live-preview the root Markdown truth that `processResources` packages in the jar.
 - Add deterministic source/package validation plus bounded client and dedicated-server compatibility handoffs.
@@ -25,6 +26,7 @@ The first slice must prove compatibility without creating a second documentation
 - Qi Refining V or later progression, Foundation Establishment gameplay, pills, facilities, reincarnation, or any other unimplemented cultivation system.
 - A separate handbook texture or a new visual identity for the book.
 - Changes to cultivation authority, payloads, progression arithmetic, generated structures, worldgen behavior, or existing resource ids.
+- Automatic rewriting of an existing player's saved key bindings.
 
 ## Decisions
 
@@ -54,7 +56,18 @@ The first guide definition does not declare `custom_colors`, and its pages do no
 
 The pages are written against the implemented 0.25.0 registries, resources, and server rules rather than the older initiation-only narrative. They identify the independent awakening and inheritance steps, Basic Breathing prerequisite, Profile/Meditation tabs, ordinary versus direct-stone meditation, progress-before-stability ordering, stage-owned costs and limits, deterministic one-stage advancement, stability halving, lifespan gating, and the Qi Refining IV ceiling. They do not imply recipes or world placement for the steles, retroactive ore generation, random advancement, or post-ceiling gameplay.
 
-All five configurable controls use GuideME `KeyBind` components with the existing translation ids for profile, normal meditation, spirit meditation, stop, and advancement. Prose may explain an action but does not present H/V/B/G/N as immutable instructions. Initiation indexes both stele ids; the combined cultivation-loop page indexes the low-grade stone and both ore blocks. `ItemLink` and `BlockImage` components use fully qualified shipped ids so missing or stale references can be validated.
+All five configurable controls use GuideME `KeyBind` components with the existing translation ids for profile, normal meditation, spirit meditation, stop, and advancement. Prose may explain an action but does not present H/V/B/X/N as immutable instructions. Initiation indexes both stele ids; the combined cultivation-loop page indexes the low-grade stone and both ore blocks. `ItemLink` and `BlockImage` components use fully qualified shipped ids so missing or stale references can be validated.
+
+### Release GuideME's G binding instead of layering conflict logic
+
+The first real-client review confirmed the guide UI but found GuideME's `G`
+item-index hotkey globally unavailable while MyVillage also registered stop
+meditation on `G`. The corrective default is `X` for MyVillage stop meditation.
+MyVillage does not inspect, consume, remap, or otherwise special-case GuideME's
+mapping; its pre-existing ordinary screen guard and bounded intent path remain
+unchanged. This is a default change, not a migration: an installation that has
+already saved the old `G` mapping must reset or rebind `Stop Meditation` in the
+Controls screen.
 
 ### Preview the packaged source tree directly
 
@@ -83,6 +96,7 @@ Gradle tests/build and a bounded dedicated-server startup establish compilation,
 - [Three pages compress several systems] -> Keep the page split task-oriented and defer reference-level tables and long explanations to the later handbook change.
 - [Reusing `guideme:guide_base` couples the item appearance to GuideME] -> Accept that dependency for the compatibility slice and keep the MyVillage model id as the future replacement point.
 - [Source checks cannot prove GuideME rendering or interaction] -> Keep client-only observations separate and leave every unobserved visual or interaction item `not_verified`.
+- [Existing options can preserve the old G binding after the default changes] -> Document one manual reset/rebind and avoid silently rewriting player configuration.
 
 ## Migration Plan
 
@@ -91,6 +105,7 @@ Gradle tests/build and a bounded dedicated-server startup establish compilation,
 3. Register the handbook item, inherit the GuideME base model, add bilingual item text, and expose it in `myvillage:main`.
 4. Add focused validation/tests, classify this compatibility slice as a small feature, and synchronize the 0.25.1 player-facing/release files under the repository's authoritative task rule before building and inspecting the practical jar.
 5. Run bounded client and dedicated-server smokes and record real-client guide interactions separately.
+6. After the first real-client verdict, move the MyVillage stop default to `X`, release `G` without GuideME-specific interception, append the validated-fix version, and require a fresh item-index hotkey observation.
 
 Rollback removes the isolated item/resources/run configuration, GuideME Gradle coordinates, and required metadata entry together. No existing cultivation profile, world data, or generated resource needs migration; the only new saved-world concern is an item id introduced by this change.
 

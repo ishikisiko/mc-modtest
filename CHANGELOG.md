@@ -7,6 +7,23 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.25.1-fix1
+
+### Fixed
+
+- Changed MyVillage's default stop-meditation binding from `G` to `X`, leaving
+  GuideME's default `G` item-index hotkey unreserved.
+- Kept the integration free of conflict-specific input logic: MyVillage adds no
+  GuideME-specific key interception, remapping, or automatic saved-binding
+  migration. The pre-existing ordinary screen guard is unchanged. Existing
+  clients that saved `G` must reset or rebind Stop Meditation once in Controls.
+
+### Validation
+
+- Recorded the accepted GuideME UI review and the historical 0.25.1 global-G
+  failure separately. Post-fix GuideME `G` behavior remains `not_verified`
+  until repeated on the fixed client artifact.
+
 ## 0.25.1
 
 ### Added

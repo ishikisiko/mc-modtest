@@ -309,12 +309,18 @@ class CultivationMeditationValidator:
         for key, action in (
             ("GLFW_KEY_V", "START_NORMAL"),
             ("GLFW_KEY_B", "START_SPIRIT"),
-            ("GLFW_KEY_G", "STOP"),
+            ("GLFW_KEY_X", "STOP"),
         ):
             if key not in combined:
                 self.error(JAVA / "client/cultivation", f"missing configurable meditation key {key}")
             if action not in combined:
                 self.error(JAVA / "client/cultivation", f"client key path omits {action} intent")
+        key_mappings = self.read(JAVA / "client/cultivation/ClientCultivationKeyMappings.java")
+        if "GLFW_KEY_G" in key_mappings:
+            self.error(
+                JAVA / "client/cultivation/ClientCultivationKeyMappings.java",
+                "MyVillage must leave GuideME's default G hotkey unreserved",
+            )
         if "PacketDistributor.sendToServer" not in combined:
             self.error(JAVA / "client/cultivation", "client keys must send only the bounded intent")
         client_events_path = self.root / JAVA / "client/cultivation/ClientCultivationEvents.java"

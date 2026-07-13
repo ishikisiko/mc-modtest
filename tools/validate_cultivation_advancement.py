@@ -259,7 +259,7 @@ class CultivationAdvancementValidator:
         for key, action in (
             ("GLFW_KEY_V", "START_NORMAL"),
             ("GLFW_KEY_B", "START_SPIRIT"),
-            ("GLFW_KEY_G", "STOP"),
+            ("GLFW_KEY_X", "STOP"),
             ("GLFW_KEY_N", "START_BREAKTHROUGH"),
         ):
             if key not in client:

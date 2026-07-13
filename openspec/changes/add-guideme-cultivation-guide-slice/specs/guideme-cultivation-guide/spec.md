@@ -57,9 +57,16 @@ The paired pages SHALL describe only implemented MyVillage 0.25.0 behavior. `ind
 ### Requirement: Guide controls and indexed resources resolve live shipped entries
 Every player-facing control instruction SHALL render the existing configurable mappings `key.myvillage.open_cultivation_profile`, `key.myvillage.start_normal_meditation`, `key.myvillage.start_spirit_meditation`, `key.myvillage.stop_meditation`, and `key.myvillage.start_advancement` through GuideME key-binding components rather than treating their default letters as fixed controls. The initiation page SHALL index both stele ids, and the cultivation-loop page SHALL index the low-grade spirit stone and both spirit-stone ore ids. Representative `ItemLink` and `BlockImage` components SHALL reference fully qualified shipped `myvillage:` ids.
 
+MyVillage SHALL leave GuideME's default `G` item-index hotkey unreserved by assigning stop meditation to `X` by default. The integration SHALL NOT intercept, remap, or migrate GuideME's key binding, and SHALL NOT rewrite an existing player's saved MyVillage binding. Existing configurations that retain `G` remain a manual Controls-screen reset or rebind.
+
 #### Scenario: A player changes a MyVillage key binding
 - **WHEN** the player opens a page that names the affected action
 - **THEN** GuideME SHALL display the player's current configured binding rather than a hard-coded default letter
+
+#### Scenario: Default mappings are registered after the G-hotkey failure
+- **WHEN** a new client registers GuideME and MyVillage controls
+- **THEN** GuideME SHALL retain its default G item-index binding
+- **AND** MyVillage stop meditation SHALL default to X without GuideME-specific input logic
 
 #### Scenario: An initiation stele is queried through GuideME item indexing
 - **WHEN** GuideME resolves either `myvillage:spirit_testing_stele` or `myvillage:technique_inheritance_stele`

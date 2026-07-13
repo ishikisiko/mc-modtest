@@ -118,7 +118,7 @@ and server smoke pass:
 
 The playable-loop acceptance ledger in
 [README.md](../../README.md#in-game-acceptance) additionally covers spirit-stone
-appearance, Silk Touch/Fortune/worldgen, V/B/G/N and H-button parity,
+appearance, Silk Touch/Fortune/worldgen, V/B/X/N and H-button parity,
 interruption behavior, calendar/lifespan, affinity gain, direct layer-priced
 stone batches, pre-cap stability locking, post-cap affinity consolidation,
 stage-derived stability caps, success halving, deterministic advancement, and
@@ -143,7 +143,7 @@ actually interacts with the client. The dedicated-server run checks the required
 GuideME dependency and side safety. Neither run can infer a pass for default
 Chinese fallback, English switching, navigation, search, item-index jumps,
 `ItemLink`/`BlockImage`, configured key rendering, live reload, handbook
-open/reopen, the default-G conflict, or existing H/gameplay regression. Record
+open/reopen, the post-fix GuideME `G` item-index hotkey, or existing H/gameplay regression. Record
 all unobserved surfaces as `not_verified` in the README ledger.
 
 For the rideable flying sword, also run the dedicated-server gate:

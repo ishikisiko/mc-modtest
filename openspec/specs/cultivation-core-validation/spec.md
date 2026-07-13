@@ -285,7 +285,7 @@ state, and no profile/inventory mutation.
 - **THEN** normal/spirit preparation, active, rejection, interruption, and cleanup paths SHALL match the server-authoritative contract
 
 ### Requirement: Manual meditation evidence is not inferred from startup
-Real-client checks SHALL separately record V/B/G input, feedback, camera
+Real-client checks SHALL separately record V/B/X input, feedback, camera
 rotation, movement/jump, damage, attack, mining, use, mount, swim/flight,
 dimension, death, logout, H interaction, and multiplayer authority as `pass`,
 `fail`, or `not_verified`.
@@ -365,7 +365,7 @@ progress reset, one snapshot, no randomness, and no multi-stage chaining.
 Closeout SHALL run strict validation for this change and implemented baseline,
 all cultivation/resource validators introduced by the five serial changes,
 focused tests, Gradle tests/build, practical jar inspection, and bounded
-acceptance-server smoke. Manual V/B/G/N, H, timing, interruption, two-stele,
+acceptance-server smoke. Manual V/B/X/N, H, timing, interruption, two-stele,
 inventory, ore/worldgen, and presentation observations SHALL retain explicit
 pass/fail/`not_verified` evidence.
 

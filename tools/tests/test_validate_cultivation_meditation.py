@@ -52,6 +52,18 @@ class CultivationMeditationValidationTest(unittest.TestCase):
     def test_complete_shipped_fixture_passes(self) -> None:
         self.assertEqual((), self.validate().errors)
 
+    def test_legacy_g_stop_binding_is_rejected(self) -> None:
+        self.mutate(
+            "src/main/java/com/example/myvillage/client/cultivation/ClientCultivationKeyMappings.java",
+            "GLFW.GLFW_KEY_X",
+            "GLFW.GLFW_KEY_G",
+        )
+
+        result = self.validate()
+
+        self.assert_error_contains(result, "missing configurable meditation key GLFW_KEY_X")
+        self.assert_error_contains(result, "leave GuideME's default G hotkey unreserved")
+
     def test_client_authored_coordinate_is_rejected(self) -> None:
         self.mutate(
             "src/main/java/com/example/myvillage/cultivation/network/MeditationIntentPayload.java",

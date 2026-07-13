@@ -599,7 +599,7 @@ headless startup SHALL not count as real-client visual or interaction proof.
 ### Requirement: The real-client ledger exercises revised progression without inferred passes
 README acceptance SHALL record `pass`, `fail`, or `not_verified` for v1/v2 save
 migration, default affinity `10`, Profile/Meditation tabs, all four buttons and
-V/B/G/N parity, normal ten-tick gain, each released spirit cost, insufficient
+V/B/X/N parity, normal ten-tick gain, each released spirit cost, insufficient
 stone downgrade, no progress-cap charge, pre-cap stability lock, post-cap
 affinity stability in both modes, all four dynamic stability caps, success
 halving, unchanged mastery clock, all four new progress thresholds, Qi-IV

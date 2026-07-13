@@ -103,7 +103,7 @@ The final serial change SHALL add
 meditation, gain, advancement, profile, registry, synchronization, resource,
 and validation capabilities. The concise note SHALL document the server-owned
 loop, time scale and dynamic-reinterpretation warning, exact rates/caps/reserve,
-V/B/G/N and H roles, exact transition table, interruption/atomicity rules,
+V/B/X/N and H roles, exact transition table, interruption/atomicity rules,
 release ceiling, validation commands, and manual evidence boundary.
 
 #### Scenario: The playable-loop note is reviewed
@@ -113,7 +113,7 @@ release ceiling, validation commands, and manual evidence boundary.
 
 ### Requirement: User-facing acceptance docs cover the complete serial feature
 README and acceptance guidance SHALL document item ids, ore/new-chunk behavior,
-configuration, calendar/lifespan display, initiation order, V/B/G/N controls, H
+configuration, calendar/lifespan display, initiation order, V/B/X/N controls, H
 read-only status, ordinary/spirit gain, reserve conversion, all four advancement
 requirements, Qi-IV release limit, validation commands, and real-client
 pass/fail/`not_verified` checks. They SHALL not present backend CRAFT/GenOps

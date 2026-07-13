@@ -24,3 +24,9 @@
 - [x] 5.1 Run strict change and baseline spec validation, the focused validator/tests, existing mod-item and cultivation validators/tests, and Gradle tests/build.
 - [x] 5.2 Inspect the practical jar for the exact GuideME/MyVillage resources and absence of embedded GuideME code or a handbook texture.
 - [x] 5.3 Run bounded `runGuide` client and acceptance-server startup smokes, stop both cleanly, and preserve every unobserved real-client rendering or interaction item as `not_verified`.
+
+## 6. Owner-Reported G Hotkey Correction
+
+- [x] 6.1 Release GuideME's default `G` item-index hotkey by changing MyVillage stop meditation from `G` to `X`, without adding GuideME-specific interception, remapping, or saved-binding migration; update focused validators and negative fixtures.
+- [x] 6.2 Record the accepted guide UI and historical 0.25.1 G-hotkey failure, synchronize README/AGENTS/KB and relevant baseline/change specs to V/B/X/N, and bump the validated fix to 0.25.1-fix1 under the repository version rule.
+- [x] 6.3 Run strict change/baseline validation, all focused cultivation/GuideME validators and tests, Gradle tests/build, practical-jar inspection, and bounded acceptance-server smoke; leave post-fix G behavior `not_verified` until a real client retests it.

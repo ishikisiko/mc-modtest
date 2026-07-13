@@ -16,7 +16,7 @@ The practical MyVillage jar SHALL package the `myvillage:cultivation` guide defi
 - **AND** no guide structure template or worldgen entry SHALL be implied
 
 ### Requirement: Guide dependency and acquisition documentation accompany the artifact
-README usage and acceptance guidance SHALL identify GuideME as a required separately installed mod, document `/give @s myvillage:cultivation_handbook`, use the GuideME 21.1.17 direct-open command order `/guidemec myvillage:cultivation open`, document the `runGuide` author-preview entry point, and keep the released cultivation sequence and Qi Refining IV ceiling consistent with the packaged pages. As a small feature from the 0.25.0 baseline, the release files SHALL be synchronized at 0.25.1 under the authoritative `openspec/config.yaml` task rule before handoff.
+README usage and acceptance guidance SHALL identify GuideME as a required separately installed mod, document `/give @s myvillage:cultivation_handbook`, use the GuideME 21.1.17 direct-open command order `/guidemec myvillage:cultivation open`, document the `runGuide` author-preview entry point, and keep the released cultivation sequence and Qi Refining IV ceiling consistent with the packaged pages. As a small feature from the 0.25.0 baseline, the initial release files SHALL be synchronized at 0.25.1; the validated default-key correction SHALL synchronize them again at 0.25.1-fix1 under the authoritative `openspec/config.yaml` task rule before handoff.
 
 #### Scenario: A player prepares the compatible mod set
 - **WHEN** the current MyVillage jar is handed off
@@ -27,3 +27,8 @@ README usage and acceptance guidance SHALL identify GuideME as a required separa
 #### Scenario: An author prepares guide preview
 - **WHEN** the author follows README guidance
 - **THEN** the documented Gradle entry point SHALL launch `runGuide` against authoritative root `guidebook/` without requiring a checked-in `src/main/resources` mirror
+
+#### Scenario: A player upgrades from 0.25.1
+- **WHEN** README documents the G-hotkey correction
+- **THEN** it SHALL identify X as the new MyVillage stop-meditation default
+- **AND** it SHALL explain that an existing saved G binding requires a manual reset or rebind

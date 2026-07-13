@@ -58,7 +58,7 @@ de-duplication, and pending lifespan batches remain transient server memory.
 
 H remains non-pausing and uses Profile and Meditation tabs. Profile values,
 time status, and session status are clientbound/read-only. Four Meditation-tab
-buttons send only the existing normal/spirit/stop/advance enum used by V/B/G/N;
+buttons send only the existing normal/spirit/stop/advance enum used by V/B/X/N;
 the server derives all rates, costs, targets, inventory changes, and results.
 Client caches clear on disconnect and never decide eligibility or install a
 profile.
@@ -128,7 +128,7 @@ IDLE
   -> PREPARING_SPIRIT (40 eligible ticks) -> MEDITATING_SPIRIT
 ```
 
-The configurable controls are V normal, B spirit, G stop, N advancement, and H
+The configurable controls are V normal, B spirit, X stop, N advancement, and H
 for the two-tab panel. Start requires an awakened root, learned Basic Breathing,
 survival/adventure, life remaining, stable support, no mount/swim/flight/sleep/
 item-use conflict, and no positive damage in the previous 100 ticks. Server-

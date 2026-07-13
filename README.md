@@ -488,7 +488,7 @@ jar tf build/libs/*.jar | grep "assets/myvillage/models/item/cultivation_handboo
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.25.1.jar
+build/libs/myvillage-0.25.1-fix1.jar
 ```
 
 ## Versioning And Changelog
@@ -539,24 +539,24 @@ python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 
 python3 tools/write_visual_acceptance_report.py
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.25.1.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.25.1.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.25.1.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.25.1.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.25.1.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.25.1.jar | grep "assets/myvillage/textures/painting/inscription"
-jar tf build/libs/myvillage-0.25.1.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
-jar tf build/libs/myvillage-0.25.1.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
-jar tf build/libs/myvillage-0.25.1.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
-jar tf build/libs/myvillage-0.25.1.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
-jar tf build/libs/myvillage-0.25.1.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
-jar tf build/libs/myvillage-0.25.1.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
-jar tf build/libs/myvillage-0.25.1.jar | grep "assets/myvillage/textures/item/low_grade_spirit_stone.png"
-jar tf build/libs/myvillage-0.25.1.jar | grep "data/myvillage/worldgen/configured_feature/spirit_stone_ore.json"
-jar tf build/libs/myvillage-0.25.1.jar | grep "data/myvillage/myvillage/realm/qi_refining.json"
-jar tf build/libs/myvillage-0.25.1.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
-jar tf build/libs/myvillage-0.25.1.jar | grep "assets/myvillage/guides/myvillage/cultivation"
-jar tf build/libs/myvillage-0.25.1.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
+jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
+jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
+jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
+jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
+jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
+jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
+jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "assets/myvillage/textures/item/low_grade_spirit_stone.png"
+jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "data/myvillage/worldgen/configured_feature/spirit_stone_ore.json"
+jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "data/myvillage/myvillage/realm/qi_refining.json"
+jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
+jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "assets/myvillage/guides/myvillage/cultivation"
+jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -647,7 +647,7 @@ item-model scale/readability before recording acceptance.
 
 ## GuideME Cultivation Guide
 
-MyVillage 0.25.1 requires a compatible GuideME installation on both client and
+MyVillage 0.25.1-fix1 requires a compatible GuideME installation on both client and
 server (`[21.1.17,22)`). Gradle resolves GuideME 21.1.17 from Maven Central for
 development; GuideME is not bundled in the MyVillage jar. The untracked
 root-level `guideme-21.1.17.jar` is inspection material, not a build input.
@@ -678,10 +678,12 @@ For authoring, edit only the root `guidebook/` tree and launch:
 That run watches the same source copied into the jar and validates/opens the
 guide at startup. Do not add a second checked-in Markdown mirror below
 `src/main/resources`. GuideME's item-tooltip hotkey applies in inventory-style
-screens, not to a placed block under the crosshair. Its default `G` conflicts
-visibly with MyVillage's default stop key; the existing screen guard prevents a
-stop intent while a GUI is open, but remapping and real-client behavior still
-need direct review.
+screens, not to a placed block under the crosshair. Owner review of 0.25.1 found
+that sharing `G` with MyVillage's stop-meditation binding made GuideME's hotkey
+unavailable. The current fix leaves `G` to GuideME and changes MyVillage's
+default stop key to `X`; it adds no GuideME-specific interception, remapping, or
+automatic migration. Existing installations that saved the old `G` binding
+must reset or rebind `Stop Meditation` once in Controls.
 
 Run the focused automated gate before client review:
 
@@ -697,19 +699,24 @@ python3 -m unittest tools.tests.test_validate_guideme_cultivation_guide
 Client startup and dedicated-server startup prove dependency, page parsing,
 packaging, and side safety only. They do not prove rendering or interaction.
 
+Owner real-client review on 2026-07-14 confirmed the guide UI, Chinese default
+surface, three-page navigation, and representative component rendering. The
+0.25.1 `G` item-index hotkey failed globally; after releasing `G` in the current
+fix, the post-fix hotkey behavior remains `not_verified` until retested.
+
 | GuideME real-client acceptance surface | Result |
 |---|---|
-| Guide discovery and Chinese-default fallback | `not_verified` |
+| Guide discovery and Chinese-default fallback | `pass` |
 | Complete English switching | `not_verified` |
-| Three-page navigation | `not_verified` |
+| Three-page navigation | `pass` |
 | Search for 打坐, 灵石, and 冲关 | `not_verified` |
 | Both stele item-index jumps | `not_verified` |
 | Spirit-stone and ore item-index jumps | `not_verified` |
-| `ItemLink` and `BlockImage` rendering | `not_verified` |
+| `ItemLink` and `BlockImage` rendering | `pass` |
 | Live configured key displays after remapping | `not_verified` |
 | Root-source live reload | `not_verified` |
 | Handbook first open and remembered-page reopen | `not_verified` |
-| GuideME/MyVillage default-G coexistence | `not_verified` |
+| GuideME `G` item-index hotkey after MyVillage stop moved to `X` | `not_verified` |
 | Existing H-screen and cultivation gameplay regression | `not_verified` |
 
 ## Cultivation Playable Loop
@@ -770,7 +777,7 @@ current/capped progress, stability, spiritual affinity, power, root,
 techniques, calendar, and lifespan. Its Meditation tab shows the current rates,
 stage-owned spirit-stone cost and runtime state, with normal, spirit, stop, and
 advance buttons. Profile values remain read-only: each button sends only the
-same bounded action intent as V/B/G/N, and the server revalidates every result.
+same bounded action intent as V/B/X/N, and the server revalidates every result.
 `H` or Escape closes the panel without stopping cultivation.
 
 The current profile is schema version `3`: all v2 fields plus non-negative
@@ -1082,7 +1089,8 @@ Owner real-client verdict recorded on 2026-07-13: `pass`.
 | Upper/middle/deep generation in new Overworld chunks | `pass` |
 | Separate testing/inheritance stele flow and repeat behavior | `pass` |
 | H Profile/Meditation tabs, text fit, values, buttons, and status feedback | `pass` |
-| V/B/G/N and button parity, preparation, camera movement, and interruptions | `pass` |
+| V/B/N and H-button parity, preparation, camera movement, and interruptions | `pass` |
+| Default X stop key after releasing GuideME G | `not_verified` |
 | Affinity progress, `1/1/2/3` direct costs, rollback, cap, and downgrade | `pass` |
 | Pre-cap stability lock, post-cap affinity gain, no stone cost, and `500/550/600/650` caps | `pass` |
 | `1000/1100/1200/1300` advancement rules, stability halving, interruption, Qi-IV ceiling | `pass` |

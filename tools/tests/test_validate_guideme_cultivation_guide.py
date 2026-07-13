@@ -31,7 +31,7 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
             "gradle.properties",
             """
             mod_id=myvillage
-            mod_version=0.25.1
+            mod_version=0.25.1-fix1
             guideme_version=21.1.17
             """,
         )
@@ -70,7 +70,7 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
             loaderVersion = "[4,)"
             [[mods]]
             modId = "myvillage"
-            version = "0.25.1"
+            version = "0.25.1-fix1"
 
             [[dependencies.myvillage]]
             modId = "guideme"
@@ -185,7 +185,7 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
         )
         self.write(
             "src/main/java/com/example/myvillage/client/cultivation/ClientCultivationKeyMappings.java",
-            "\n".join(f'key("{key}");' for key in keys),
+            "\n".join((*[f'key("{key}");' for key in keys], "GLFW_KEY_X;")),
         )
 
         index_zh = """
@@ -314,14 +314,14 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
             `/guidemec myvillage:cultivation open`. Authors run `./gradlew runGuide`.
             Run `python3 tools/validate_guideme_cultivation_guide.py`.
             Manual rendering and interaction remain `not_verified`.
-            Artifact: `build/libs/myvillage-0.25.1.jar`.
+            Artifact: `build/libs/myvillage-0.25.1-fix1.jar`.
             """,
         )
         self.write(
             "CHANGELOG.md",
             """
             # Changelog
-            ## 0.25.1
+            ## 0.25.1-fix1
             Added GuideME integration and `myvillage:cultivation_handbook`.
             """,
         )
@@ -464,6 +464,16 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
         text = text.replace("if (level.isClientSide()) {", "if (true) {", 1)
         path.write_text(text, encoding="utf-8")
         self.assert_error_contains(self.validate(), "must be guarded by level.isClientSide()")
+
+    def test_legacy_g_stop_binding_is_rejected(self) -> None:
+        path = self.root / "src/main/java/com/example/myvillage/client/cultivation/ClientCultivationKeyMappings.java"
+        path.write_text(
+            path.read_text(encoding="utf-8").replace("GLFW_KEY_X", "GLFW_KEY_G"),
+            encoding="utf-8",
+        )
+        result = self.validate()
+        self.assert_error_contains(result, "stop meditation must default to X")
+        self.assert_error_contains(result, "leave GuideME's default G hotkey unreserved")
 
     def test_practical_jar_with_exact_entries_passes(self) -> None:
         jar = self.build_jar()

@@ -22,7 +22,7 @@ except ImportError:  # pragma: no cover - the repository toolchain provides PyYA
 
 ROOT = Path(__file__).resolve().parents[1]
 GUIDEME_VERSION = "21.1.17"
-MOD_VERSION = "0.25.1"
+MOD_VERSION = "0.25.1-fix1"
 
 BUILD_GRADLE = Path("build.gradle")
 GRADLE_PROPERTIES = Path("gradle.properties")
@@ -584,8 +584,8 @@ class GuideMECultivationGuideValidator:
                         f"KeyBind ids must be {sorted(REQUIRED_KEYBINDS)}, got {sorted(keybinds)}",
                     )
                 fixed_patterns = (
-                    r"(?:按下?|按)\s*[HVBGN]\s*键",
-                    r"\bpress\s+(?:the\s+)?[HVBGN]\b",
+                    r"(?:按下?|按)\s*[HVBXGN]\s*键",
+                    r"\bpress\s+(?:the\s+)?[HVBXGN]\b",
                 )
                 if any(re.search(pattern, loop.body, re.IGNORECASE) for pattern in fixed_patterns):
                     self.error(
@@ -598,6 +598,10 @@ class GuideMECultivationGuideValidator:
             for key in sorted(REQUIRED_KEYBINDS):
                 if f'"{key}"' not in keys_source:
                     self.error(CLIENT_KEYS, f"missing registered key binding {key}")
+            if "GLFW_KEY_X" not in keys_source:
+                self.error(CLIENT_KEYS, "stop meditation must default to X")
+            if "GLFW_KEY_G" in keys_source:
+                self.error(CLIENT_KEYS, "MyVillage must leave GuideME's default G hotkey unreserved")
         for locale in ("en_us", "zh_cn"):
             lang_path = ASSET_ROOT / f"lang/{locale}.json"
             language = self.load_json(lang_path, f"{locale} language file")
@@ -946,7 +950,7 @@ class GuideMECultivationGuideValidator:
             if not all(term.lower() in changelog.lower() for term in ("GuideME", "cultivation_handbook")):
                 self.error(
                     Path("CHANGELOG.md"),
-                    "0.25.1 release notes must mention GuideME and cultivation_handbook",
+                    f"{MOD_VERSION} release notes must mention GuideME and cultivation_handbook",
                 )
         if readme is not None:
             required = (

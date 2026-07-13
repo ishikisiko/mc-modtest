@@ -8,7 +8,7 @@ integration contract is the active
 
 ## Dependency Boundary
 
-MyVillage 0.25.1 requires GuideME on client and server with NeoForge range
+MyVillage 0.25.1-fix1 requires GuideME on client and server with NeoForge range
 `[21.1.17,22)`. Gradle compiles against the published 21.1.17 `api` classifier
 and loads the full published artifact for development runs. GuideME is not
 nested in the MyVillage jar. The root `guideme-21.1.17.jar` is untracked
@@ -57,10 +57,12 @@ Use the player item or GuideME diagnostics with:
 
 Run `./gradlew runGuide` for author preview. It watches root `guidebook/`, uses
 the `myvillage` source namespace, and validates/opens `myvillage:cultivation` at
-startup. GuideME's default item-tooltip `G` and MyVillage's default stop `G`
-appear as a key conflict; the GUI screen guard prevents a stop intent in an
-inventory screen, but remapping and actual tooltip navigation remain manual
-client checks.
+startup. Owner review of 0.25.1 found GuideME's default item-tooltip `G`
+unavailable while MyVillage also used `G` for stop meditation. The fix changes
+MyVillage's default stop key to `X` and leaves GuideME input alone: there is no
+GuideME-specific interception, remapping, or automatic migration. A client that
+saved the old binding must reset or rebind `Stop Meditation`; actual post-fix
+tooltip navigation remains a manual client check.
 
 ## Validation Boundary
 

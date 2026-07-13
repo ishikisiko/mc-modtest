@@ -29,7 +29,7 @@ public final class ClientCultivationKeyMappings {
     public static final KeyMapping STOP_MEDITATION = new KeyMapping(
             "key.myvillage.stop_meditation",
             InputConstants.Type.KEYSYM,
-            GLFW.GLFW_KEY_G,
+            GLFW.GLFW_KEY_X,
             "key.categories.myvillage");
     public static final KeyMapping START_ADVANCEMENT = new KeyMapping(
             "key.myvillage.start_advancement",
