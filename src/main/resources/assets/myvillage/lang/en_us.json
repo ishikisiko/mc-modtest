@@ -13,6 +13,8 @@
   "entity.myvillage.rideable_flying_sword": "Flying Sword",
   "entity.myvillage.simple_fox": "Simple Fox",
   "item.myvillage.rideable_flying_sword": "Rideable Flying Sword",
+  "item.myvillage.cultivation_handbook": "Cultivation Primer",
+  "item.myvillage.cultivation_handbook.tooltip": "Opens the in-game cultivation guide",
   "item.myvillage.low_grade_spirit_stone": "Low-Grade Spirit Stone",
   "item.myvillage.simple_fox_spawn_egg": "Simple Fox Spawn Egg",
   "itemGroup.myvillage.main": "MyVillage",

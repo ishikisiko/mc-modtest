@@ -7,6 +7,34 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.25.1
+
+### Added
+
+- Added the data-driven `myvillage:cultivation` GuideME guide with three Chinese
+  default pages, complete path-matched English translations, live configurable
+  key displays, and indexes for the initiation steles and spirit-stone resources.
+- Added the one-stack `myvillage:cultivation_handbook` item, which opens the guide
+  through GuideME's client API without adding a MyVillage network payload.
+- Added root-source `runGuide` live preview plus focused dependency, content,
+  resource, documentation, release, and practical-jar validation.
+
+### Changed
+
+- GuideME 21.1.17 is now a required client-and-server dependency, resolved from
+  Maven Central for development and installed separately from the MyVillage jar.
+- The first handbook slice documents the complete released initiation,
+  meditation, progress/stability, lifespan, and deterministic advancement loop
+  through the Qi Refining IV ceiling.
+
+### Notes
+
+- The handbook reuses GuideME's base book model; custom art and the known-bad
+  GuideME 21.1.17 custom-color path remain outside this compatibility slice.
+- Language rendering, navigation/search, item-index jumps, component/model
+  appearance, live reload, key remapping, handbook reopen behavior, and existing
+  gameplay regression remain pending real-client acceptance.
+
 ## 0.25.0
 
 ### Added

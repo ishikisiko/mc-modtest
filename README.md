@@ -480,12 +480,15 @@ jar tf build/libs/*.jar | grep "assets/myvillage/models/item/rideable_flying_swo
 jar tf build/libs/*.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
 jar tf build/libs/*.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
 jar tf build/libs/*.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
+jar tf build/libs/*.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
+jar tf build/libs/*.jar | grep "assets/myvillage/guides/myvillage/cultivation/index.md"
+jar tf build/libs/*.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
 ```
 
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.25.0.jar
+build/libs/myvillage-0.25.1.jar
 ```
 
 ## Versioning And Changelog
@@ -512,6 +515,7 @@ python3 tools/validate_cultivation_lifespan.py
 python3 tools/validate_cultivation_meditation.py
 python3 tools/validate_cultivation_gain.py
 python3 tools/validate_cultivation_advancement.py
+python3 tools/validate_guideme_cultivation_guide.py
 python3 tools/validate_mod_block_fallbacks.py
 python3 tools/validate_plaque_bindings.py
 python3 tools/validate_compound_library.py --count 6
@@ -535,21 +539,24 @@ python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 
 python3 tools/write_visual_acceptance_report.py
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.25.0.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.25.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.25.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.25.0.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.25.0.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.25.0.jar | grep "assets/myvillage/textures/painting/inscription"
-jar tf build/libs/myvillage-0.25.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
-jar tf build/libs/myvillage-0.25.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
-jar tf build/libs/myvillage-0.25.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
-jar tf build/libs/myvillage-0.25.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
-jar tf build/libs/myvillage-0.25.0.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
-jar tf build/libs/myvillage-0.25.0.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
-jar tf build/libs/myvillage-0.25.0.jar | grep "assets/myvillage/textures/item/low_grade_spirit_stone.png"
-jar tf build/libs/myvillage-0.25.0.jar | grep "data/myvillage/worldgen/configured_feature/spirit_stone_ore.json"
-jar tf build/libs/myvillage-0.25.0.jar | grep "data/myvillage/myvillage/realm/qi_refining.json"
+jar tf build/libs/myvillage-0.25.1.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.25.1.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.25.1.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.25.1.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.25.1.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.25.1.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.25.1.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
+jar tf build/libs/myvillage-0.25.1.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
+jar tf build/libs/myvillage-0.25.1.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
+jar tf build/libs/myvillage-0.25.1.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
+jar tf build/libs/myvillage-0.25.1.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
+jar tf build/libs/myvillage-0.25.1.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
+jar tf build/libs/myvillage-0.25.1.jar | grep "assets/myvillage/textures/item/low_grade_spirit_stone.png"
+jar tf build/libs/myvillage-0.25.1.jar | grep "data/myvillage/worldgen/configured_feature/spirit_stone_ore.json"
+jar tf build/libs/myvillage-0.25.1.jar | grep "data/myvillage/myvillage/realm/qi_refining.json"
+jar tf build/libs/myvillage-0.25.1.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
+jar tf build/libs/myvillage-0.25.1.jar | grep "assets/myvillage/guides/myvillage/cultivation"
+jar tf build/libs/myvillage-0.25.1.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -637,6 +644,73 @@ ground, smooth riding without repeated position/yaw snaps, the blade tip pointin
 along the player's horizontal view direction, fall-distance reset,
 recall/singleton behavior, every cleanup condition, multiplayer authority, and
 item-model scale/readability before recording acceptance.
+
+## GuideME Cultivation Guide
+
+MyVillage 0.25.1 requires a compatible GuideME installation on both client and
+server (`[21.1.17,22)`). Gradle resolves GuideME 21.1.17 from Maven Central for
+development; GuideME is not bundled in the MyVillage jar. The untracked
+root-level `guideme-21.1.17.jar` is inspection material, not a build input.
+
+The first data-driven `myvillage:cultivation` slice has one Chinese default
+source, a complete `_en_us` pair, and three task pages: overview, initiation,
+and the combined cultivation loop. Give and use the MyVillage entry item with:
+
+```mcfunction
+/give @s myvillage:cultivation_handbook
+```
+
+GuideME's own diagnostic entry points are:
+
+```mcfunction
+/guidemec myvillage:cultivation open
+/guideme open @s myvillage:cultivation
+/guideme give @s myvillage:cultivation
+/give @s guideme:guide[guideme:guide_id="myvillage:cultivation"]
+```
+
+For authoring, edit only the root `guidebook/` tree and launch:
+
+```bash
+./gradlew runGuide
+```
+
+That run watches the same source copied into the jar and validates/opens the
+guide at startup. Do not add a second checked-in Markdown mirror below
+`src/main/resources`. GuideME's item-tooltip hotkey applies in inventory-style
+screens, not to a placed block under the crosshair. Its default `G` conflicts
+visibly with MyVillage's default stop key; the existing screen guard prevents a
+stop intent while a GUI is open, but remapping and real-client behavior still
+need direct review.
+
+Run the focused automated gate before client review:
+
+```bash
+python3 tools/validate_guideme_cultivation_guide.py
+python3 -m unittest tools.tests.test_validate_guideme_cultivation_guide
+./gradlew test
+./gradlew build
+./gradlew runGuide
+./gradlew runAcceptanceServer
+```
+
+Client startup and dedicated-server startup prove dependency, page parsing,
+packaging, and side safety only. They do not prove rendering or interaction.
+
+| GuideME real-client acceptance surface | Result |
+|---|---|
+| Guide discovery and Chinese-default fallback | `not_verified` |
+| Complete English switching | `not_verified` |
+| Three-page navigation | `not_verified` |
+| Search for 打坐, 灵石, and 冲关 | `not_verified` |
+| Both stele item-index jumps | `not_verified` |
+| Spirit-stone and ore item-index jumps | `not_verified` |
+| `ItemLink` and `BlockImage` rendering | `not_verified` |
+| Live configured key displays after remapping | `not_verified` |
+| Root-source live reload | `not_verified` |
+| Handbook first open and remembered-page reopen | `not_verified` |
+| GuideME/MyVillage default-G coexistence | `not_verified` |
+| Existing H-screen and cultivation gameplay regression | `not_verified` |
 
 ## Cultivation Playable Loop
 
@@ -907,8 +981,7 @@ Run the complete playable-loop and affinity/UI revision handoff gates:
 
 ```bash
 openspec validate --specs --strict
-for change in add-spirit-stone-resources add-cultivation-lifespan-calendar add-cultivation-meditation add-basic-breathing-cultivation-gain add-qi-refining-advancement; do openspec validate "$change" --type change --strict; done
-openspec validate revise-cultivation-affinity-meditation-ui --type change --strict
+for spec in spirit-stone-resources cultivation-lifespan-calendar cultivation-meditation cultivation-gain cultivation-advancement; do openspec validate "$spec" --type spec --strict; done
 python3 tools/validate_cultivation_core.py
 python3 tools/validate_cultivation_initiation.py
 python3 tools/validate_spirit_stone_resources.py
@@ -916,6 +989,7 @@ python3 tools/validate_cultivation_lifespan.py
 python3 tools/validate_cultivation_meditation.py
 python3 tools/validate_cultivation_gain.py
 python3 tools/validate_cultivation_advancement.py
+python3 tools/validate_guideme_cultivation_guide.py
 python3 tools/validate_mod_items.py
 python3 -m unittest discover -s tools/tests -p 'test_validate_*.py'
 ./gradlew test
@@ -929,6 +1003,10 @@ natural distribution, stele interaction, controls, exact interruption feel,
 inventory consumption, H-screen layout, multiplayer clocks, persistence, or
 advancement. Use a real client and record every unobserved item as
 `not_verified`, never as an inferred pass.
+
+The five original playable-loop changes and the affinity/UI revision are now
+archived and synchronized into baseline specs. Validate those capabilities as
+specs; do not run their old change names as though they were still active.
 
 ### In-Game Acceptance
 

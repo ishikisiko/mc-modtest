@@ -1,0 +1,78 @@
+{
+  "item_id": "myvillage:cultivation_handbook",
+  "kind": "functional_item",
+  "display_name": {
+    "en_us": "Cultivation Primer",
+    "zh_design_name": "修行入门录"
+  },
+  "owner_facing_goal": "为玩家提供一个稳定的 MyVillage 命名空间入口，右键即可通过 GuideME 打开 myvillage:cultivation 修炼指南。",
+  "creative_tab": {
+    "visibility": "visible",
+    "tab_id": "myvillage:main",
+    "ordering": "after ModItems.TECHNIQUE_INHERITANCE_STELE_ITEM, following both cultivation steles"
+  },
+  "java_registration": {
+    "owner_file": "src/main/java/com/example/myvillage/item/ModItems.java; src/main/java/com/example/myvillage/item/CultivationHandbookItem.java",
+    "deferred_holder": "ModItems.CULTIVATION_HANDBOOK",
+    "properties": "new CultivationHandbookItem(props.stacksTo(1))"
+  },
+  "client_assets": {
+    "lang_key": "item.myvillage.cultivation_handbook",
+    "model": "src/main/resources/assets/myvillage/models/item/cultivation_handbook.json",
+    "textures": [],
+    "visual_verdict": "pending"
+  },
+  "data_resources": {
+    "recipes": [],
+    "tags": [],
+    "loot_or_advancement_hooks": []
+  },
+  "behavior": {
+    "type": "functional",
+    "server_client_boundary": "Right-click use calls GuidesCommon to open myvillage:cultivation only on the logical client. The server performs no guide-opening action, and MyVillage adds no payload or client-authored coordinates, velocity, entity identity, guide state, player state, or item state.",
+    "interaction": "CultivationHandbookItem overrides right-click use to ask GuidesCommon to open myvillage:cultivation while preserving the one-stack handbook, and overrides the item tooltip with bilingual translatable text.",
+    "cooldown_or_durability": "No cooldown or durability; max stack size is one.",
+    "data_components": [],
+    "tests": [
+      "ModItems registers CultivationHandbookItem with stacksTo(1) and exposes it in myvillage:main immediately after both cultivation steles",
+      "right-click calls GuidesCommon for exactly myvillage:cultivation only on the logical client",
+      "right-click preserves the handbook stack and relies on GuideME remembered-page behavior",
+      "no MyVillage guide-opening payload, coordinates, velocity, identity, or mutable state cross the client/server boundary",
+      "the tooltip override resolves bilingual translatable text",
+      "common and dedicated-server class loading remain side-safe"
+    ]
+  },
+  "acceptance": {
+    "commands": [
+      "/give @s myvillage:cultivation_handbook",
+      "right-click the handbook, navigate away from the index, close it, and right-click again to verify GuideME remembered-page behavior"
+    ],
+    "gates": [
+      "python3 tools/validate_guideme_cultivation_guide.py",
+      "python3 tools/validate_mod_items.py",
+      "./gradlew test",
+      "./gradlew build",
+      "./gradlew runGuide",
+      "./gradlew runAcceptanceServer"
+    ],
+    "jar_checks": [
+      "com/example/myvillage/item/CultivationHandbookItem.class",
+      "assets/myvillage/models/item/cultivation_handbook.json inherits guideme:item/guide_base",
+      "English and Chinese item name and tooltip translation keys",
+      "the myvillage:cultivation guide definition and its declared bilingual pages",
+      "no assets/myvillage/textures/item/cultivation_handbook.png, embedded GuideME jar, or copied GuideME classes"
+    ],
+    "human_verdict": "pending"
+  },
+  "docs": {
+    "sync_required": true
+  },
+  "non_goals": [
+    "crafting recipe or item tags",
+    "cooldown, durability, rarity override, or custom data components",
+    "a MyVillage-specific handbook texture or copied GuideME visual asset",
+    "a MyVillage payload or any client-authored coordinates, velocity, identity, guide state, player state, or item state",
+    "changes to cultivation authority, progression, persistence, or synchronization",
+    "a custom guide navigation or remembered-page implementation outside GuideME"
+  ]
+}

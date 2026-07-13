@@ -1,0 +1,17 @@
+{
+  "item_settings": {
+    "display_name": {
+      "type": "translatable",
+      "translate": "item.myvillage.cultivation_handbook"
+    },
+    "tooltip_lines": [
+      {
+        "type": "translatable",
+        "translate": "item.myvillage.cultivation_handbook.tooltip",
+        "color": "dark_gray"
+      }
+    ],
+    "model": "myvillage:item/cultivation_handbook"
+  },
+  "default_language": "zh_cn"
+}

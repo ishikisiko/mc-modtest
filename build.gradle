@@ -17,6 +17,9 @@ repositories {
 }
 
 dependencies {
+    compileOnly "org.appliedenergistics:guideme:${guideme_version}:api"
+    runtimeOnly "org.appliedenergistics:guideme:${guideme_version}"
+
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
     testImplementation 'com.google.code.gson:gson:2.10.1'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
@@ -47,6 +50,13 @@ neoForge {
         client {
             client()
         }
+        guide {
+            client()
+            systemProperty 'guideme.myvillage.cultivation.sources', file('guidebook').absolutePath
+            systemProperty 'guideme.myvillage.cultivation.sourcesNamespace', 'myvillage'
+            systemProperty 'guideme.showOnStartup', 'myvillage:cultivation'
+            systemProperty 'guideme.validateAtStartup', 'myvillage:cultivation'
+        }
         server {
             server()
         }
@@ -75,6 +85,9 @@ tasks.register('generateAllStructures', Exec) {
 
 tasks.named('processResources') {
     dependsOn 'generateAllStructures'
+    from('guidebook') {
+        into 'assets/myvillage/guides/myvillage/cultivation'
+    }
     // Generation may change outputs between runs.
     outputs.upToDateWhen { false }
 }

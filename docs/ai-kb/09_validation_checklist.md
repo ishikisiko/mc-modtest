@@ -44,6 +44,7 @@ python3 tools/validate_mod_items.py
 python3 tools/validate_custom_entities.py
 python3 tools/validate_rideable_flying_sword.py
 python3 tools/validate_cultivation_core.py
+python3 tools/validate_guideme_cultivation_guide.py
 python3 tools/validate_mod_block_fallbacks.py
 python3 tools/validate_plaque_bindings.py
 python3 tools/validate_compound_library.py --count 6
@@ -83,6 +84,7 @@ python3 tools/validate_cultivation_lifespan.py
 python3 tools/validate_cultivation_meditation.py
 python3 tools/validate_cultivation_gain.py
 python3 tools/validate_cultivation_advancement.py
+python3 tools/validate_guideme_cultivation_guide.py
 python3 -m unittest discover -s tools/tests -p 'test_validate_*.py'
 ./gradlew test
 ./gradlew build
@@ -122,6 +124,27 @@ stone batches, pre-cap stability locking, post-cap affinity consolidation,
 stage-derived stability caps, success halving, deterministic advancement, and
 both H-screen tabs. Automated
 gates do not turn any unobserved real-client item into `pass`.
+
+For the GuideME cultivation guide, also run:
+
+```text
+openspec validate add-guideme-cultivation-guide-slice --type change --strict
+python3 tools/validate_guideme_cultivation_guide.py
+python3 -m unittest tools.tests.test_validate_guideme_cultivation_guide
+./gradlew test
+./gradlew build
+./gradlew runGuide
+./gradlew runAcceptanceServer
+```
+
+`runGuide` must watch root `guidebook/`, validate and open
+`myvillage:cultivation`, and remain a bounded startup smoke unless a reviewer
+actually interacts with the client. The dedicated-server run checks the required
+GuideME dependency and side safety. Neither run can infer a pass for default
+Chinese fallback, English switching, navigation, search, item-index jumps,
+`ItemLink`/`BlockImage`, configured key rendering, live reload, handbook
+open/reopen, the default-G conflict, or existing H/gameplay regression. Record
+all unobserved surfaces as `not_verified` in the README ledger.
 
 For the rideable flying sword, also run the dedicated-server gate:
 
@@ -214,5 +237,6 @@ what was checked. In-game final appearance review still belongs to the reviewer.
 
 - Spec: [validation](../../openspec/specs/validation/spec.md) — the normative validation requirements.
 - Cultivation core: [Cultivation Core Foundation](28_cultivation_core.md) and its [validation spec](../../openspec/specs/cultivation-core-validation/spec.md).
+- GuideME cultivation guide: [GuideME Cultivation Guide](31_guideme_cultivation_guide.md) and its [change spec](../../openspec/changes/add-guideme-cultivation-guide-slice/specs/guideme-cultivation-guide/spec.md).
 - Flying sword: [Rideable Flying Sword](27_rideable_flying_sword.md) and its [change spec](../../openspec/changes/add-rideable-flying-sword/specs/rideable-flying-sword/spec.md).
 - Index: [Knowledge Base Map](INDEX.md).

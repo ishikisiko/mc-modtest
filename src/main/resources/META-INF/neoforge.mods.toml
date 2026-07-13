@@ -4,7 +4,7 @@ license = "MIT"
 
 [[mods]]
 modId = "myvillage"
-version = "0.25.0"
+version = "0.25.1"
 displayName = "MyVillage"
 description = '''
 Resource-validation mod shipping myvillage structure templates, debug commands,
@@ -24,6 +24,13 @@ modId = "minecraft"
 type = "required"
 versionRange = "[1.21.1]"
 ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.myvillage]]
+modId = "guideme"
+type = "required"
+versionRange = "[21.1.17,22)"
+ordering = "AFTER"
 side = "BOTH"
 
 [[dependencies.myvillage]]

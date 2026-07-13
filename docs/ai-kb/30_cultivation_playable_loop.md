@@ -6,6 +6,8 @@ foundation and initiation work; it does not replace the
 profile, registry, persistence, command, or two-stele contracts described in
 [Cultivation Core Foundation](28_cultivation_core.md) and
 [Cultivation Initiation Ritual](29_cultivation_initiation_ritual.md).
+The in-game summary and its separate interaction boundary are recorded in
+[GuideME Cultivation Guide](31_guideme_cultivation_guide.md).
 
 ## Shipped Boundary
 
@@ -197,8 +199,9 @@ server stop and registry-reload teardown are penalty-free.
 
 ## Validation And Manual Evidence
 
-Automated handoff requires strict baseline, all five foundation change specs and
-the affinity/UI revision, the core, initiation, spirit-stone, lifespan,
+Automated handoff requires the strict baseline, including the capability specs
+synchronized from all five archived foundation changes and the affinity/UI
+revision, plus the core, initiation, spirit-stone, lifespan,
 meditation, gain, and advancement validators, validator unit tests, Gradle
 tests/build, jar inspection, and bounded stage-1 acceptance-server smoke. Those
 checks establish schemas, references, arithmetic, payload direction, side
@@ -220,3 +223,4 @@ stone costs, multiplayer clocks, persistence, and advancement remain
 - Gain: [proposal](../../openspec/changes/add-basic-breathing-cultivation-gain/proposal.md) and [delta spec](../../openspec/changes/add-basic-breathing-cultivation-gain/specs/cultivation-gain/spec.md).
 - Advancement: [proposal](../../openspec/changes/add-qi-refining-advancement/proposal.md) and [delta spec](../../openspec/changes/add-qi-refining-advancement/specs/cultivation-advancement/spec.md).
 - Affinity/UI revision: [proposal](../../openspec/changes/revise-cultivation-affinity-meditation-ui/proposal.md) and [delta specs](../../openspec/changes/revise-cultivation-affinity-meditation-ui/specs/).
+- GuideME summary: [GuideME Cultivation Guide](31_guideme_cultivation_guide.md) and its [change spec](../../openspec/changes/add-guideme-cultivation-guide-slice/specs/guideme-cultivation-guide/spec.md).
