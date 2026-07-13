@@ -4,6 +4,7 @@ import com.example.myvillage.MyVillageMod;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
@@ -41,6 +42,14 @@ public final class ModBlocks {
     // plain full cube so item/block registration and resource checks stay small.
     public static final DeferredBlock<Block> TEST_ITEM_BLOCK =
             BLOCKS.registerBlock("test_item_block", Block::new, testItemBlockProperties());
+    public static final DeferredBlock<SpiritTestingSteleBlock> SPIRIT_TESTING_STELE =
+            BLOCKS.registerBlock("spirit_testing_stele",
+                    SpiritTestingSteleBlock::new,
+                    steleProperties(SoundType.DEEPSLATE_TILES));
+    public static final DeferredBlock<TechniqueInheritanceSteleBlock> TECHNIQUE_INHERITANCE_STELE =
+            BLOCKS.registerBlock("technique_inheritance_stele",
+                    TechniqueInheritanceSteleBlock::new,
+                    steleProperties(SoundType.STONE));
 
     private static final List<String> BLOCK_IDS = List.of(
             "wall_plaque",
@@ -49,7 +58,9 @@ public final class ModBlocks {
             "hanging_plaque_vertical",
             "rockery_block",
             "rockery_cascade",
-            "test_item_block");
+            "test_item_block",
+            "spirit_testing_stele",
+            "technique_inheritance_stele");
 
     private ModBlocks() {
     }
@@ -95,5 +106,13 @@ public final class ModBlocks {
     private static BlockBehaviour.Properties testItemBlockProperties() {
         return BlockBehaviour.Properties.of()
                 .strength(0.6F);
+    }
+
+    private static BlockBehaviour.Properties steleProperties(SoundType soundType) {
+        return BlockBehaviour.Properties.of()
+                .strength(1.5F, 6.0F)
+                .requiresCorrectToolForDrops()
+                .sound(soundType)
+                .noOcclusion();
     }
 }

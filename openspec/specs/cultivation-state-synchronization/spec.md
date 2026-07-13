@@ -4,7 +4,6 @@
 
 Define owning-client snapshot delivery, read-only client caching, payload
 direction, mutation authority, and dedicated-server side safety.
-
 ## Requirements
 ### Requirement: Cultivation snapshots flow only from server to owning client
 The mod SHALL register `CultivationSnapshotPayload` with payload id `myvillage:cultivation_snapshot` as a play-to-client payload. The payload SHALL carry an immutable cultivation profile snapshot or an equivalent read-only DTO containing the same v1 fields. The foundation MUST NOT register a client-to-server payload that writes realm, stage, root, progress, stability, power, learned techniques, or mastery.
@@ -33,14 +32,18 @@ The mod SHALL register `CultivationSnapshotPayload` with payload id `myvillage:c
 - **AND** presentation code SHALL treat the definition as unavailable rather than rejecting the entire snapshot
 
 ### Requirement: Snapshot synchronization occurs at authoritative lifecycle and mutation points
-The server SHALL synchronize the current profile on player login, player respawn after true death or End return, player dimension change, successful administrator mutation, and profile reset. It SHALL NOT synchronize cultivation state every tick.
+The server SHALL synchronize the current profile on player login, player respawn after true death or End return, player dimension change, successful administrator mutation, successful spiritual-root awakening, and successful basic-technique inheritance. Each successful initiation action SHALL send only the one final installed profile, and the server SHALL NOT synchronize a root-only/stage-only intermediate value or cultivation state every tick.
 
 #### Scenario: An administrator changes a profile
 - **WHEN** a cultivation command succeeds through `CultivationService`
 - **THEN** the service SHALL send the newly installed snapshot immediately
 
+#### Scenario: A stele ritual succeeds
+- **WHEN** awakening or inheritance commits a valid replacement through `CultivationService`
+- **THEN** the service SHALL send exactly one snapshot containing the final profile to the owning player
+
 #### Scenario: A cultivation mutation fails
-- **WHEN** a cultivation command or service validation fails
+- **WHEN** a cultivation command, awakening service, inheritance service, or service validation fails
 - **THEN** the server SHALL leave the profile unchanged
 - **AND** it SHALL NOT send a changed snapshot
 
@@ -131,3 +134,25 @@ Common attachment, registry, service, event, command, payload-registration, and 
 - **WHEN** decoded payload data violates a profile numeric or root invariant
 - **THEN** payload decoding SHALL fail
 - **AND** the client cache SHALL retain its previous value
+
+### Requirement: Initiation adds no client-authoritative mutation path
+The initiation change SHALL reuse the existing `CultivationSnapshotPayload` profile shape and clientbound registration. It MUST NOT add an awaken, root-generation, affinity-selection, inheritance, or technique-learning play-to-server payload. Client code SHALL NOT receive the Overworld seed or expose an API that selects or installs a root or technique.
+
+#### Scenario: Payload registration is inspected after initiation integration
+- **WHEN** the registered payload types and directions are enumerated
+- **THEN** `myvillage:cultivation_snapshot` SHALL remain clientbound-only
+- **AND** no cultivation play-to-server mutation payload SHALL exist
+- **AND** the flying-sword input payload SHALL remain the existing independent serverbound payload
+
+### Requirement: The H profile screen remains a read-only ritual result view
+The existing profile screen SHALL render the final synchronized stage, spiritual-root affinities, learned `myvillage:basic_breathing`, and mastery `0` without adding awaken, reroll, learn, equip, execute, meditation, or other mutation controls. The existing sharp-content/background-blur ordering SHALL remain unchanged.
+
+#### Scenario: A player views each ritual phase
+- **WHEN** the client opens the H screen before awakening, after awakening, and after inheritance
+- **THEN** it SHALL respectively show unawakened/empty, `mortal_qi_sensed` with affinities/empty, and `mortal_qi_sensed` with affinities/basic-breathing mastery `0`
+- **AND** no view SHALL send a cultivation payload
+
+#### Scenario: Initiation UI regression is checked
+- **WHEN** the H screen is manually inspected after the change
+- **THEN** its profile content SHALL remain sharp and readable
+- **AND** any unobserved visual behavior SHALL be recorded as `not_verified` rather than inferred from build success

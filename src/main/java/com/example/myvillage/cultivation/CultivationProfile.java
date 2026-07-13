@@ -111,6 +111,20 @@ public record CultivationProfile(
         return withSpiritualRoot(Optional.of(Objects.requireNonNull(root, "root")));
     }
 
+    public CultivationProfile withSpiritualRootAndStage(
+            ResourceLocation realm,
+            ResourceLocation stage,
+            SpiritualRoot root) {
+        return copy(
+                Objects.requireNonNull(realm, "realm"),
+                Objects.requireNonNull(stage, "stage"),
+                cultivationProgress,
+                stability,
+                currentSpiritualPower,
+                Optional.of(Objects.requireNonNull(root, "root")),
+                learnedTechniques);
+    }
+
     public CultivationProfile withoutSpiritualRoot() {
         return withSpiritualRoot(Optional.empty());
     }

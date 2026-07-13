@@ -4,6 +4,8 @@ import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.data.RealmDefinition;
 import com.example.myvillage.cultivation.data.SpiritualElementDefinition;
 import com.example.myvillage.cultivation.data.TechniqueDefinition;
+import com.example.myvillage.cultivation.root.SpiritualRootAwakeningService;
+import com.example.myvillage.cultivation.technique.TechniqueInheritanceService;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -63,7 +65,11 @@ public final class CultivationCommands {
                 .then(techniqueCommand("forget", CultivationCommands::forgetTechnique))
                 .then(techniqueCommand("yiwang", CultivationCommands::forgetTechnique))
                 .then(masteryCommand("setmastery"))
-                .then(masteryCommand("shezhishuliandu"));
+                .then(masteryCommand("shezhishuliandu"))
+                .then(awakenCommand("awaken"))
+                .then(awakenCommand("juexing"))
+                .then(initiateCommand("initiate"))
+                .then(initiateCommand("rumen"));
     }
 
     private static LiteralArgumentBuilder<CommandSourceStack> infoCommand(String literal) {
@@ -83,6 +89,26 @@ public final class CultivationCommands {
                                 EntityArgument.getPlayer(context, "target"),
                                 CultivationService.resetProfile(
                                         EntityArgument.getPlayer(context, "target")))));
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> awakenCommand(String literal) {
+        return Commands.literal(literal)
+                .executes(context -> awaken(
+                        context.getSource(), context.getSource().getPlayerOrException()))
+                .then(Commands.argument("target", EntityArgument.player())
+                        .executes(context -> awaken(
+                                context.getSource(),
+                                EntityArgument.getPlayer(context, "target"))));
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> initiateCommand(String literal) {
+        return Commands.literal(literal)
+                .executes(context -> initiate(
+                        context.getSource(), context.getSource().getPlayerOrException()))
+                .then(Commands.argument("target", EntityArgument.player())
+                        .executes(context -> initiate(
+                                context.getSource(),
+                                EntityArgument.getPlayer(context, "target"))));
     }
 
     private static LiteralArgumentBuilder<CommandSourceStack> realmCommand(String literal) {
@@ -247,6 +273,26 @@ public final class CultivationCommands {
         return CultivationService.forgetTechnique(player, techniqueId);
     }
 
+    private static int awaken(CommandSourceStack source, ServerPlayer target) {
+        SpiritualRootAwakeningService.Outcome outcome =
+                SpiritualRootAwakeningService.awaken(target);
+        return reportInitiation(
+                source,
+                target,
+                outcome.success(),
+                CultivationInitiationMessages.awakening(target, outcome));
+    }
+
+    private static int initiate(CommandSourceStack source, ServerPlayer target) {
+        TechniqueInheritanceService.Outcome outcome =
+                TechniqueInheritanceService.inheritBasicBreathing(target);
+        return reportInitiation(
+                source,
+                target,
+                outcome.success(),
+                CultivationInitiationMessages.inheritance(target, outcome));
+    }
+
     private static int info(CommandSourceStack source, ServerPlayer target) {
         CultivationProfile profile = CultivationService.getProfile(target);
         Optional<Registry<RealmDefinition>> realms =
@@ -308,6 +354,25 @@ public final class CultivationCommands {
                                 + ": " + result.message()),
                 true);
         return 1;
+    }
+
+    private static int reportInitiation(
+            CommandSourceStack source,
+            ServerPlayer target,
+            boolean success,
+            java.util.List<Component> messages) {
+        for (Component message : messages) {
+            Component output = Component.translatable(
+                    "commands.myvillage.cultivation.initiation_result",
+                    target.getDisplayName(),
+                    message);
+            if (success) {
+                source.sendSuccess(() -> output, true);
+            } else {
+                source.sendFailure(output);
+            }
+        }
+        return success ? 1 : 0;
     }
 
     private static CompletableFuture<Suggestions> suggestRealms(

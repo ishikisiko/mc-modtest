@@ -1,5 +1,6 @@
 {
   "translation_key": "cultivation.element.myvillage.water",
   "sort_order": 2,
-  "display_color": 5083609
+  "display_color": 5083609,
+  "awakening_weight": 1
 }

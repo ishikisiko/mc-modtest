@@ -3,5 +3,8 @@
   "category": "core",
   "grade": 0,
   "elements": [],
-  "requirements": {}
+  "requirements": {
+    "minimum_realm": "myvillage:mortal",
+    "minimum_stage": "myvillage:mortal_qi_sensed"
+  }
 }

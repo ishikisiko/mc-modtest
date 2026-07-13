@@ -23,7 +23,9 @@ class CultivationCommandsTest {
             Map.entry("clearroot", "qingchulinggen"),
             Map.entry("learn", "xuexi"),
             Map.entry("forget", "yiwang"),
-            Map.entry("setmastery", "shezhishuliandu"));
+            Map.entry("setmastery", "shezhishuliandu"),
+            Map.entry("awaken", "juexing"),
+            Map.entry("initiate", "rumen"));
 
     @Test
     void englishAndPinyinRootsExposeEquivalentAliasTrees() {
@@ -45,6 +47,21 @@ class CultivationCommandsTest {
             PINYIN_ALIASES.forEach((english, pinyin) ->
                     assertEquals(shape(root.getChild(english)), shape(root.getChild(pinyin)),
                             () -> english + " and " + pinyin + " must parse identical arguments"));
+        }
+    }
+
+    @Test
+    void initiationCommandsSupportOnlySelfOrOneTarget() {
+        for (CommandNode<CommandSourceStack> root : List.of(
+                CultivationCommands.command().build(),
+                CultivationCommands.pinyinCommand().build())) {
+            for (String literal : List.of("awaken", "juexing", "initiate", "rumen")) {
+                CommandNode<CommandSourceStack> command = root.getChild(literal);
+                assertEquals(Set.of("target"), childNames(command));
+                assertEquals(true, command.getCommand() != null);
+                assertEquals(true, command.getChild("target").getCommand() != null);
+                assertEquals(Set.of(), childNames(command.getChild("target")));
+            }
         }
     }
 

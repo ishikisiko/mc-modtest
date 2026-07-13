@@ -47,6 +47,7 @@ REQUIRED_STAGE_OWNERS = {
     "myvillage:foundation_early": "myvillage:foundation_establishment",
 }
 REQUIRED_TECHNIQUE = "myvillage:basic_breathing"
+MAX_AWAKENING_WEIGHT = 1_000_000
 
 
 class DuplicateJsonKey(ValueError):
@@ -327,6 +328,14 @@ class CultivationValidator:
             if "display_color" in value:
                 self.required_integer(
                     value, "display_color", location, 0, 0xFFFFFF
+                )
+            if "awakening_weight" in value:
+                self.required_integer(
+                    value,
+                    "awakening_weight",
+                    location,
+                    0,
+                    MAX_AWAKENING_WEIGHT,
                 )
 
     def validate_techniques(self) -> None:

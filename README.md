@@ -478,31 +478,22 @@ jar tf build/libs/*.jar | grep "assets/myvillage/textures/entity/simple_fox/simp
 jar tf build/libs/*.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
 jar tf build/libs/*.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
 jar tf build/libs/*.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
+jar tf build/libs/*.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
+jar tf build/libs/*.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
 ```
 
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.22.2-fix1.jar
+build/libs/myvillage-0.23.0.jar
 ```
 
 ## Versioning And Changelog
 
 Maintain `CHANGELOG.md` whenever a version is prepared or a validated fix is
-accepted. Version updates must be applied consistently in `gradle.properties`,
-`src/main/resources/META-INF/neoforge.mods.toml`, README jar-name examples, and
-the changelog.
-
-Version numbers use the current `0.x.y` line:
-
-```text
-large feature addition: 0.x.y -> 0.(x+1).0
-small feature addition: 0.x.y -> 0.x.(y+1)
-single validated fix:  0.x.y -> 0.x.y-fix1, then fix2, fix3, ...
-```
-
-A `fixN` suffix should only be added after the relevant build or validation
-step passes.
+accepted. The authoritative version increment and synchronized-file rule lives
+only in `openspec/config.yaml` under `rules.tasks`; apply that rule rather than
+duplicating its mechanics here.
 
 ## Manual Acceptance Prep
 
@@ -515,6 +506,7 @@ python3 tools/validate_generated_structures.py src/main/resources/data/myvillage
 python3 tools/validate_custom_entities.py
 python3 tools/validate_rideable_flying_sword.py
 python3 tools/validate_cultivation_core.py
+python3 tools/validate_cultivation_initiation.py
 python3 tools/validate_mod_block_fallbacks.py
 python3 tools/validate_plaque_bindings.py
 python3 tools/validate_compound_library.py --count 6
@@ -538,16 +530,18 @@ python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 
 python3 tools/write_visual_acceptance_report.py
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.22.2-fix1.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.22.2-fix1.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.22.2-fix1.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.22.2-fix1.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.22.2-fix1.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.22.2-fix1.jar | grep "assets/myvillage/textures/painting/inscription"
-jar tf build/libs/myvillage-0.22.2-fix1.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
-jar tf build/libs/myvillage-0.22.2-fix1.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
-jar tf build/libs/myvillage-0.22.2-fix1.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
-jar tf build/libs/myvillage-0.22.2-fix1.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
+jar tf build/libs/myvillage-0.23.0.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.23.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.23.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.23.0.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.23.0.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.23.0.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.23.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
+jar tf build/libs/myvillage-0.23.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
+jar tf build/libs/myvillage-0.23.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
+jar tf build/libs/myvillage-0.23.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
+jar tf build/libs/myvillage-0.23.0.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
+jar tf build/libs/myvillage-0.23.0.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -636,31 +630,52 @@ along the player's horizontal view direction, fall-distance reset,
 recall/singleton behavior, every cleanup condition, multiplayer authority, and
 item-model scale/readability before recording acceptance.
 
-## Cultivation Core Foundation
+## Cultivation Core And Initiation
 
-**当前只有修炼数据基础设施，没有静修、突破或术法玩法。**
+**当前已实现“测灵觉醒 -> 基础吐纳诀传承”，但仍没有静修、功法执行、灵力恢复、修为获取或自动晋级。**
 
-The foundation adds a server-authoritative immutable v1 player profile,
+The foundation provides a server-authoritative immutable v1 player profile,
 codec-backed Data Attachment persistence, synced definition registries, an
-owning-client read-only snapshot, and operator commands. It does not generate a
-spiritual root, accumulate cultivation, advance realms, execute
-`basic_breathing`, recover spiritual power, or add a cultivation HUD, item,
-block, or entity.
+owning-client snapshot, and operator commands. The initiation slice adds two
+separate server-side actions without adding profile fields:
+
+```text
+mortal_unawakened
+  -> use myvillage:spirit_testing_stele
+  -> deterministic root + mortal_qi_sensed
+  -> use myvillage:technique_inheritance_stele
+  -> myvillage:basic_breathing at mastery 0
+```
+
+Awakening never teaches the technique automatically. Inheritance does not equip
+or execute it and grants no cultivation progress, spiritual power, stability,
+mastery growth, attribute, effect, or qi-refining advancement.
+
+Acquire the two facilities from `myvillage:main` creative inventory or with:
+
+```mcfunction
+/give @s myvillage:spirit_testing_stele
+/give @s myvillage:technique_inheritance_stele
+```
+
+These are the only current acquisition paths. Neither stele has a recipe,
+natural generation, sect/worldgen placement, BlockEntity, menu, or block-local
+player data.
 
 Press `H` in game to open the read-only personal cultivation profile panel. The
 binding is configurable as `Open Cultivation Profile` under the MyVillage key
-category. The panel shows the latest server-synchronized realm, stage,
-cultivation progress, stability, current spiritual power, spiritual-root
-affinities, learned techniques, grades, categories, and mastery. It is a
-non-pausing diagnostic view with no mutation controls; `H` or Escape closes it.
+category. The non-pausing panel renders the latest server-synchronized realm,
+stage, progress, stability, power, spiritual-root affinities, learned techniques,
+grades, categories, and mastery. It has no mutation control, generates no root,
+evaluates no eligibility, and sends no cultivation payload; `H` or Escape closes
+it.
 
-The profile contains schema version `1`, realm and stage ids, non-negative
-cultivation progress, stability in `0..100`, non-negative current spiritual
-power, an optional generic element-affinity map totaling `10000` basis points,
-and learned technique ids with non-negative mastery. Removed definition ids
-remain decodable and are reported as `unavailable`; administrator writes still
-require definitions in the current registry. Future schema changes require an
-explicit versioned migration rather than a silent reset.
+The profile remains schema version `1`: realm/stage ids, non-negative cultivation
+progress, stability in `0..100`, non-negative spiritual power, an optional generic
+affinity map totaling `10000` basis points, and technique ids with non-negative
+mastery. Removed definition ids remain decodable and appear as `unavailable`.
+The attachment uses `copyOnDeath` as its only copy mechanism; there is no duplicate
+cultivation `PlayerEvent.Clone` handler.
 
 The synced datapack registries and shipped resource roots are:
 
@@ -670,17 +685,28 @@ The synced datapack registries and shipped resource roots are:
 | `myvillage:spiritual_element` | `src/main/resources/data/myvillage/myvillage/spiritual_element/` |
 | `myvillage:technique` | `src/main/resources/data/myvillage/myvillage/technique/` |
 
-The doubled namespace follows
-`data/<entry_namespace>/<registry_namespace>/<registry_path>/`. The shipped
-entries are the five elements, three foundation realms with their stages, and
-metadata-only `myvillage:basic_breathing`.
+Spiritual-root generation uses only the Overworld seed, player UUID, algorithm
+version `1`, fixed salt `0x4D5956494C4C4147`, and the current positive-weight
+element id/`awakening_weight` set sorted by full id. Omitted weights default to
+`1`; weight `0` excludes an element. The count distribution is `10/25/35/20/10`
+for one through five distinct elements, and integer largest-remainder allocation
+produces positive affinities totaling exactly `10000`.
+
+The same root is reproduced after `reset` only when seed, UUID, eligible ids,
+weights, and algorithm version are unchanged. Existing saved roots are never
+recalculated. Datapack id/weight changes affect future awakening and may change a
+post-reset result; seed plus UUID alone is not a permanence promise. Reusing the
+testing stele without reset never rerolls an existing root.
+
+`myvillage:basic_breathing` is executor-free and requires current definition
+eligibility at minimum `myvillage:mortal` / `myvillage:mortal_qi_sensed`, with no
+element-affinity restriction. Repeat inheritance never resets existing mastery.
 
 All cultivation commands inherit the existing `/myvillage` permission-level-2
-requirement:
+requirement. The existing administrator surface remains available:
 
 ```mcfunction
-/myvillage cultivation info
-/myvillage cultivation info <target>
+/myvillage cultivation info [target]
 /myvillage cultivation reset <target>
 /myvillage cultivation setrealm <target> <realm_id> <stage_id>
 /myvillage cultivation setprogress <target> <amount>
@@ -693,10 +719,23 @@ requirement:
 /myvillage cultivation setmastery <target> <technique_id> <amount>
 ```
 
-The complete pinyin command surface is available under `/myvillage xiulian`.
-Both `cultivation` and `xiulian` accept either the English literal or its
-pinyin alias, with identical arguments, suggestions, permissions, output, and
-server-authoritative effects:
+The normal-rules initiation actions expose all eight English/pinyin routes:
+
+```mcfunction
+/myvillage cultivation awaken [target]
+/myvillage cultivation juexing [target]
+/myvillage xiulian awaken [target]
+/myvillage xiulian juexing [target]
+/myvillage cultivation initiate [target]
+/myvillage cultivation rumen [target]
+/myvillage xiulian initiate [target]
+/myvillage xiulian rumen [target]
+```
+
+Omitting `target` uses the executing player. Awakening routes accept no seed,
+element, affinity, count, reroll, force, or bypass argument. Inheritance routes
+always target `myvillage:basic_breathing` and accept no technique id or bypass.
+Both command roots continue to accept either literal in every pair:
 
 | English | Pinyin |
 |---|---|
@@ -711,50 +750,39 @@ server-authoritative effects:
 | `learn` | `xuexi` |
 | `forget` | `yiwang` |
 | `setmastery` | `shezhishuliandu` |
+| `awaken` | `juexing` |
+| `initiate` | `rumen` |
 
-For example, these are equivalent:
-
-```mcfunction
-/myvillage cultivation setprogress @s 3500
-/myvillage xiulian shezhixiuwei @s 3500
-```
-
-`setrealm` accepts only a registered stage belonging to the selected realm.
-The five `setroot` arguments are basis points in metal/wood/water/fire/earth
-order; every value is in `0..10000` and the total must be exactly `10000`.
-`learn`, `forget`, and `setmastery` require a currently registered technique,
-and mastery can be set only after learning it. There is no `awaken` command.
-
-Run the foundation gates in order:
+Run the complete initiation handoff gates:
 
 ```bash
 openspec validate --specs --strict
 python3 tools/validate_cultivation_core.py
+python3 tools/validate_cultivation_initiation.py
+python3 -m unittest tools.tests.test_validate_cultivation_core
+python3 -m unittest tools.tests.test_validate_cultivation_initiation
+python3 tools/validate_mod_items.py
 ./gradlew test
 ./gradlew build
 python3 tools/run_chunky_acceptance.py --stage 1
 ```
 
-Stage 1 provisions the isolated acceptance profile, waits for RCON, runs the
-bounded server lifecycle smoke, sends `save-all` and `stop`, and waits for a
-clean process exit. Inspect `run-acceptance/logs/latest.log` for registry,
-codec, datapack-path, payload-direction, duplicate-handler, and client-only
-classloading errors. This proves dedicated-server loading and registration
-only. It does not prove command behavior, save/restart persistence, true-death
-or End-return preservation, or
-dimension-change snapshot delivery; record those separately with the eleven-item
-checklist in `docs/ai-kb/28_cultivation_core.md`.
+Stage 1 proves bounded dedicated-server startup, registration, datapack loading,
+payload direction, and side safety only. It does not prove stele interaction,
+visuals, messages/effects, H-screen phases, commands, persistence, death, dimension
+change, or repeat behavior. Until directly observed, every manual item is
+`not_verified`; use the ledgers in `docs/ai-kb/28_cultivation_core.md` and
+`docs/ai-kb/29_cultivation_initiation_ritual.md`.
 
-The attachment `myvillage:cultivation_profile` uses `copyOnDeath` as its only
-copy mechanism; there is no duplicate cultivation `PlayerEvent.Clone` handler.
-The server sends `myvillage:cultivation_snapshot` to the owning client on login,
-respawn, dimension change, reset, and every successful administrator mutation.
-The client cache is read-only, clears on disconnect, and has no client-to-server
-cultivation mutation payload.
+The server continues to send only `myvillage:cultivation_snapshot` to the owning
+client after successful mutations and lifecycle sync points. The client cache is
+read-only, clears on disconnect, and has no client-to-server cultivation mutation
+payload.
 
-Later cultivation work must start from one explicit boundary: root
-generation/awakening, `basic_breathing` execution, power cap/recovery,
-meditation state, cultivation gain, or qi-refining levels 1-3 advancement.
+The owner-directed change combined awakening and inheritance as consecutive but
+independent rituals. That narrow exception does not authorize bundling later
+boundaries. Future work must choose among actual `basic_breathing` execution,
+power cap/recovery, meditation, cultivation gain, or qi-refining advancement.
 
 ## Available Commands
 

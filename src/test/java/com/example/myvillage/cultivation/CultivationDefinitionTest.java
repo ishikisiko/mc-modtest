@@ -12,6 +12,7 @@ import com.example.myvillage.cultivation.data.TechniqueCategory;
 import com.example.myvillage.cultivation.data.TechniqueDefinition;
 import com.example.myvillage.cultivation.data.TechniqueRequirements;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
@@ -19,6 +20,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.Test;
 
@@ -84,9 +87,44 @@ class CultivationDefinitionTest {
         SpiritualElementDefinition element = new SpiritualElementDefinition(
                 "cultivation.element.myvillage.fire",
                 3,
-                Optional.of(0xEE4411));
+                Optional.of(0xEE4411),
+                27);
 
         assertEquals(element, roundTrip(SpiritualElementDefinition.CODEC, element));
+    }
+
+    @Test
+    void spiritualElementAwakeningWeightDefaultsAndEnforcesBounds() {
+        SpiritualElementDefinition omitted = SpiritualElementDefinition.CODEC.parse(
+                JsonOps.INSTANCE,
+                JsonParser.parseString("""
+                        {"translation_key":"element.test","sort_order":0}
+                        """))
+                .getOrThrow();
+        assertEquals(1, omitted.awakeningWeight());
+
+        for (int weight : List.of(0, 1_000_000)) {
+            SpiritualElementDefinition definition = new SpiritualElementDefinition(
+                    "element.test", 0, Optional.empty(), weight);
+            assertEquals(weight, roundTrip(SpiritualElementDefinition.CODEC, definition).awakeningWeight());
+        }
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new SpiritualElementDefinition("element.test", 0, Optional.empty(), -1));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new SpiritualElementDefinition("element.test", 0, Optional.empty(), 1_000_001));
+        assertTrue(SpiritualElementDefinition.CODEC.parse(
+                JsonOps.INSTANCE,
+                JsonParser.parseString("""
+                        {"translation_key":"element.test","sort_order":0,"awakening_weight":-1}
+                        """)).isError());
+        assertTrue(SpiritualElementDefinition.CODEC.parse(
+                JsonOps.INSTANCE,
+                JsonParser.parseString("""
+                        {"translation_key":"element.test","sort_order":0,"awakening_weight":1000001}
+                        """)).isError());
     }
 
     @Test
@@ -145,6 +183,21 @@ class CultivationDefinitionTest {
         assertEquals(technique, TechniqueDefinition.CODEC
                 .parse(JsonOps.INSTANCE, encoded)
                 .getOrThrow());
+    }
+
+    @Test
+    void shippedBasicBreathingRequiresQiSensedMortalAndNoElementAffinity() throws Exception {
+        Path path = Path.of(
+                "src/main/resources/data/myvillage/myvillage/technique/basic_breathing.json");
+        TechniqueDefinition definition = TechniqueDefinition.CODEC.parse(
+                JsonOps.INSTANCE,
+                JsonParser.parseString(Files.readString(path)))
+                .getOrThrow();
+
+        assertEquals(Optional.of(id("mortal")), definition.requirements().minimumRealm());
+        assertEquals(Optional.of(id("mortal_qi_sensed")), definition.requirements().minimumStage());
+        assertTrue(definition.requirements().minimumElementAffinity().isEmpty());
+        assertTrue(definition.elements().isEmpty());
     }
 
     @Test

@@ -101,6 +101,29 @@ class CultivationCoreValidationTest(unittest.TestCase):
             "field 'display_color' must be 0..16777215",
         )
 
+    def test_optional_awakening_weight_may_be_omitted(self) -> None:
+        path = RESOURCE_ROOT / "spiritual_element/fire.json"
+        element = self.load_json(path)
+        element.pop("awakening_weight", None)
+        self.write_json(path, element)
+
+        result = self.validate()
+
+        self.assertEqual((), result.errors)
+
+    def test_out_of_range_awakening_weight_is_rejected(self) -> None:
+        path = RESOURCE_ROOT / "spiritual_element/fire.json"
+        element = self.load_json(path)
+        element["awakening_weight"] = 1_000_001
+        self.write_json(path, element)
+
+        result = self.validate()
+
+        self.assert_error_contains(
+            result,
+            "field 'awakening_weight' must be 0..1000000",
+        )
+
     def test_unordered_realm_stages_are_rejected(self) -> None:
         path = RESOURCE_ROOT / "realm/mortal.json"
         realm = self.load_json(path)

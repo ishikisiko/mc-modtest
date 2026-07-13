@@ -7,6 +7,27 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.23.0
+
+### Added
+
+- Added deterministic one-time spiritual-root awakening from the Overworld
+  seed, player UUID, and the sorted current spiritual-element ids and
+  `awakening_weight` values. The fixed generator selects one through five
+  distinct elements and produces positive affinities totaling exactly `10000`.
+- Added separate `myvillage:spirit_testing_stele` and
+  `myvillage:technique_inheritance_stele` blocks and BlockItems. The first
+  atomically installs the root plus `mortal_qi_sensed`; the second evaluates the
+  current `basic_breathing` definition and learns it at mastery `0` without
+  resetting existing mastery.
+- Added `awaken`/`juexing` and `initiate`/`rumen` under both cultivation command
+  roots, complete bilingual resources, focused Java/Python validation, and
+  dedicated-server handoff coverage. The H profile remains read-only and the
+  cultivation snapshot remains clientbound-only.
+- Kept meditation, technique execution, spiritual-power recovery, cultivation
+  gain, mastery growth, qi-refining advancement, root quality/reroll, worldgen,
+  and profile schema changes outside this release.
+
 ## 0.22.2-fix1
 
 ### Fixed

@@ -1,0 +1,47 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "particle": "minecraft:block/calcite",
+    "base": "minecraft:block/polished_andesite",
+    "body": "minecraft:block/calcite",
+    "cap": "minecraft:block/amethyst_block"
+  },
+  "elements": [
+    {
+      "from": [2, 0, 2],
+      "to": [14, 3, 14],
+      "faces": {
+        "down": { "texture": "#base", "cullface": "down" },
+        "up": { "texture": "#base" },
+        "north": { "texture": "#base" },
+        "south": { "texture": "#base" },
+        "west": { "texture": "#base" },
+        "east": { "texture": "#base" }
+      }
+    },
+    {
+      "from": [4, 3, 5],
+      "to": [12, 15, 11],
+      "faces": {
+        "down": { "texture": "#body" },
+        "up": { "texture": "#body" },
+        "north": { "texture": "#body" },
+        "south": { "texture": "#body" },
+        "west": { "texture": "#body" },
+        "east": { "texture": "#body" }
+      }
+    },
+    {
+      "from": [3, 14, 4],
+      "to": [13, 16, 12],
+      "faces": {
+        "down": { "texture": "#cap" },
+        "up": { "texture": "#cap", "cullface": "up" },
+        "north": { "texture": "#cap" },
+        "south": { "texture": "#cap" },
+        "west": { "texture": "#cap" },
+        "east": { "texture": "#cap" }
+      }
+    }
+  ]
+}

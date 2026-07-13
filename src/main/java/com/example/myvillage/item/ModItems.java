@@ -47,6 +47,14 @@ public final class ModItems {
             ITEMS.registerItem("test_item_block",
                     props -> new BlockItem(ModBlocks.TEST_ITEM_BLOCK.get(), props));
 
+    public static final DeferredItem<BlockItem> SPIRIT_TESTING_STELE_ITEM =
+            ITEMS.registerItem("spirit_testing_stele",
+                    props -> new BlockItem(ModBlocks.SPIRIT_TESTING_STELE.get(), props));
+
+    public static final DeferredItem<BlockItem> TECHNIQUE_INHERITANCE_STELE_ITEM =
+            ITEMS.registerItem("technique_inheritance_stele",
+                    props -> new BlockItem(ModBlocks.TECHNIQUE_INHERITANCE_STELE.get(), props));
+
     public static final DeferredItem<DeferredSpawnEggItem> SIMPLE_FOX_SPAWN_EGG =
             ITEMS.registerItem("simple_fox_spawn_egg",
                     props -> new DeferredSpawnEggItem(
@@ -70,6 +78,8 @@ public final class ModItems {
                     .displayItems((params, output) -> {
                         output.accept(ROCKERY_BLOCK_ITEM.get());
                         output.accept(TEST_ITEM_BLOCK_ITEM.get());
+                        output.accept(SPIRIT_TESTING_STELE_ITEM.get());
+                        output.accept(TECHNIQUE_INHERITANCE_STELE_ITEM.get());
                         output.accept(SIMPLE_FOX_SPAWN_EGG.get());
                         output.accept(RIDEABLE_FLYING_SWORD.get());
                     })

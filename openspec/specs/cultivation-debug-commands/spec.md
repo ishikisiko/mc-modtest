@@ -4,7 +4,6 @@
 
 Define the permissioned `/myvillage cultivation` diagnostics and mutation
 commands used to inspect and validate server-authoritative player profiles.
-
 ## Requirements
 ### Requirement: Cultivation commands extend the existing protected root
 `CultivationCommands` SHALL provide `cultivation` and pinyin `xiulian` subtrees delegated from the existing `/myvillage` command registration. Both subtrees SHALL inherit the root's permission-level-2 requirement. Adding them SHALL NOT refactor or change existing town, sect, gallery, spawn, structure-placement, or flying-sword behavior.
@@ -18,7 +17,7 @@ commands used to inspect and validate server-authoritative player profiles.
 - **THEN** Brigadier SHALL deny access through the existing root permission boundary
 
 ### Requirement: Every cultivation command has a structurally equivalent pinyin alias
-Both `/myvillage cultivation` and `/myvillage xiulian` SHALL expose every English and pinyin literal in the following fixed mapping: `info` / `chakan`, `reset` / `chongzhi`, `setrealm` / `shezhijingjie`, `setprogress` / `shezhixiuwei`, `setstability` / `shezhiwendingdu`, `setpower` / `shezhilingli`, `setroot` / `shezhilinggen`, `clearroot` / `qingchulinggen`, `learn` / `xuexi`, `forget` / `yiwang`, and `setmastery` / `shezhishuliandu`. Each pair SHALL use the same argument names and types, numeric bounds, dynamic registry suggestions, execution handler, permission boundary, diagnostics, return result, atomic mutation semantics, and snapshot synchronization behavior. The aliases SHALL NOT introduce a second service mutation implementation.
+Both `/myvillage cultivation` and `/myvillage xiulian` SHALL expose every English and pinyin literal in the following fixed mapping: `info` / `chakan`, `reset` / `chongzhi`, `setrealm` / `shezhijingjie`, `setprogress` / `shezhixiuwei`, `setstability` / `shezhiwendingdu`, `setpower` / `shezhilingli`, `setroot` / `shezhilinggen`, `clearroot` / `qingchulinggen`, `learn` / `xuexi`, `forget` / `yiwang`, `setmastery` / `shezhishuliandu`, rules-based `awaken` / `juexing`, and rules-based `initiate` / `rumen`. Each pair SHALL use the same argument names and types, optional-target shape where defined, numeric bounds, dynamic registry behavior, execution handler, permission boundary, diagnostics, return result, atomic mutation semantics, and snapshot synchronization behavior. The aliases SHALL NOT introduce a second service mutation implementation.
 
 #### Scenario: An operator uses a fully pinyin route
 - **WHEN** an operator invokes `/myvillage xiulian shezhixiuwei <target> <amount>`
@@ -27,6 +26,11 @@ Both `/myvillage cultivation` and `/myvillage xiulian` SHALL expose every Englis
 #### Scenario: English and pinyin literals are mixed
 - **WHEN** an operator uses an English subcommand under `xiulian` or a pinyin subcommand under `cultivation`
 - **THEN** Brigadier SHALL accept the route with the same arguments and behavior as its canonical English route
+
+#### Scenario: Initiation aliases are mixed across roots
+- **WHEN** an operator invokes any of `cultivation awaken`, `cultivation juexing`, `xiulian awaken`, or `xiulian juexing`
+- **THEN** every route SHALL use the same awakening handler and service
+- **AND** the corresponding four `initiate`/`rumen` routes SHALL use the same inheritance handler and service
 
 #### Scenario: Command-tree equivalence is tested
 - **WHEN** automated tests enumerate both root subtrees and every alias pair
@@ -142,9 +146,57 @@ Every invalid cultivation command SHALL identify the specific invalid target, id
 - **WHEN** a later semantic check such as realm-stage membership or root total fails
 - **THEN** none of the earlier parsed values SHALL be written to the target profile
 
-### Requirement: The foundation exposes no awakening or gameplay command
-The cultivation command subtree SHALL NOT provide random awakening, meditation, cultivation-gain, breakthrough, technique-execution, spiritual-power recovery, cooldown, equipment, or combat commands.
+### Requirement: Awakening commands call the ordinary awakening service
+The command tree SHALL provide `awaken` and `juexing` under both `cultivation` and `xiulian`. Each literal SHALL execute for the command-source player when no target is supplied and SHALL also expose a standard single-player `target` argument. Every route SHALL inherit `/myvillage` permission level `2` and call one shared handler backed by `SpiritualRootAwakeningService`. The routes SHALL accept no seed, element, affinity, root count, reroll, force, or bypass argument.
 
-#### Scenario: The command tree is inspected
-- **WHEN** the registered `/myvillage cultivation` and `/myvillage xiulian` literals are enumerated
-- **THEN** only the specified info, reset, deterministic set/clear, learned-technique maintenance commands, and their documented pinyin aliases SHALL be present
+#### Scenario: An operator awakens themself
+- **WHEN** an operator player runs `/myvillage cultivation awaken` without a target
+- **THEN** the shared handler SHALL invoke ordinary awakening for that executing player
+
+#### Scenario: An operator awakens one target through pinyin
+- **WHEN** an operator runs `/myvillage xiulian juexing <target>`
+- **THEN** the same ordinary awakening service and result mapping SHALL apply to the selected player
+
+#### Scenario: A repeat awakening command runs
+- **WHEN** any awakening alias targets an already awakened profile
+- **THEN** it SHALL report the controlled already-awakened result
+- **AND** it SHALL NOT reroll, overwrite, or force the root
+
+#### Scenario: The awaken argument surface is inspected
+- **WHEN** Brigadier descendants under `awaken` and `juexing` are enumerated
+- **THEN** only the optional standard single-player target path SHALL exist
+- **AND** no seed, element, affinity, count, reroll, or force argument SHALL exist
+
+### Requirement: Inheritance commands call the normal-rules inheritance service
+The command tree SHALL provide `initiate` and `rumen` under both `cultivation` and `xiulian`. Each literal SHALL execute for the command-source player when no target is supplied and SHALL also expose a standard single-player `target` argument. Every route SHALL call one shared handler backed by `TechniqueInheritanceService` for fixed id `myvillage:basic_breathing`. It SHALL NOT accept a technique id or call the low-level `learn` handler to bypass awakening or current definition requirements.
+
+#### Scenario: An operator initiates themself
+- **WHEN** an operator player runs `/myvillage cultivation initiate` without a target
+- **THEN** the shared handler SHALL invoke normal-rules basic-technique inheritance for that player
+
+#### Scenario: An operator initiates one target through pinyin
+- **WHEN** an operator runs `/myvillage xiulian rumen <target>`
+- **THEN** the same inheritance service and result mapping SHALL apply to the selected player
+
+#### Scenario: A repeat inheritance command runs
+- **WHEN** any inheritance alias targets a profile that already knows basic breathing
+- **THEN** it SHALL report the controlled already-learned result
+- **AND** it SHALL NOT reset existing mastery
+
+#### Scenario: The initiate argument surface is inspected
+- **WHEN** Brigadier descendants under `initiate` and `rumen` are enumerated
+- **THEN** only the optional standard single-player target path SHALL exist
+- **AND** no technique-id or requirement-bypass argument SHALL exist
+
+### Requirement: Rules-based initiation remains distinct from low-level administrator mutation
+`awaken`/`juexing` SHALL enforce one-time awakening through `SpiritualRootAwakeningService`, and `initiate`/`rumen` SHALL enforce current `TechniqueDefinition.requirements` through `TechniqueInheritanceService`. Existing `setroot`, `clearroot`, `learn`, `forget`, `setmastery`, and `reset` commands SHALL retain their administrator debugging roles and SHALL NOT be silently repurposed as the normal ritual handlers.
+
+#### Scenario: Learn and initiate are compared
+- **WHEN** command handlers are inspected or tested
+- **THEN** `learn` SHALL remain the explicit administrator technique mutation path for a supplied registered id
+- **AND** `initiate` SHALL use the fixed basic-breathing inheritance service and its awakening/requirements checks
+
+#### Scenario: The final command boundary is enumerated
+- **WHEN** both cultivation roots are inspected after this change
+- **THEN** they SHALL expose the existing diagnostics/mutation commands plus only the new awakening and basic-inheritance normal-rules routes
+- **AND** they SHALL NOT expose meditation, cultivation-gain, breakthrough, technique-execution, recovery, equipment, combat, reroll, or force-awaken commands

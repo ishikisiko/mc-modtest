@@ -1,13 +1,16 @@
 # Cultivation Core Foundation
 
-The first cultivation runtime slice is infrastructure only. It provides
+The first cultivation runtime slice established the infrastructure. It provides
 data-driven definitions, an immutable player profile, persistence, server-to-client
 snapshot synchronization, permission-level-2 administrator commands, and focused
 validation. It also provides a read-only diagnostic profile screen opened by the
-configurable `H` key. It does not provide meditation, awakening generation, cultivation
-gain, breakthroughs, technique execution, power recovery, cooldowns, combat
-attributes, equipment slots, interactive cultivation UI, or new items, blocks, and entities. Region qi,
-sect facilities, worldgen, and flying-sword restrictions are not connected.
+configurable `H` key. The subsequent initiation slice now adds deterministic
+spiritual-root awakening, rules-based `basic_breathing` inheritance, two steles,
+and their administrator routes without changing the v1 profile shape. The runtime
+still does not provide meditation, cultivation gain, breakthroughs, technique
+execution, power recovery, cooldowns, combat attributes, equipment slots, or a
+mutable cultivation UI. Region qi, sect/worldgen placement, and flying-sword
+restrictions are not connected.
 
 ## Authority And Profile
 
@@ -71,9 +74,12 @@ entry `<pack_namespace>:example` in `myvillage:technique` therefore lives at
 The shipped data is deliberately small: metal, wood, water, fire, and earth;
 the mortal, qi-refining, and foundation-establishment realms; mortal-unawakened,
 mortal-qi-sensed, qi-refining stages 1 through 9, and foundation-early; and the
-metadata-only `myvillage:basic_breathing` technique. Definitions contain no
-balance thresholds or technique executor. Runtime lookups and command suggestions
-use the current `RegistryAccess`, not Java tables or id-prefix inference.
+executor-free `myvillage:basic_breathing` technique with its initiation realm/stage
+requirements. Spiritual-element definitions now expose optional/defaulted
+`awakening_weight`; the initiation generator consumes the current positive-weight
+set rather than a Java element table. Definitions contain no technique executor.
+Runtime lookups and command suggestions use the current `RegistryAccess`, not Java
+tables or id-prefix inference.
 
 ## Persistence And Synchronization
 
@@ -128,6 +134,8 @@ Targets use the standard single-player argument.
 /myvillage cultivation learn <target> <technique_id>
 /myvillage cultivation forget <target> <technique_id>
 /myvillage cultivation setmastery <target> <technique_id> <amount>
+/myvillage cultivation awaken [target]
+/myvillage cultivation initiate [target]
 ```
 
 `/myvillage xiulian` is a complete pinyin alias of the `cultivation` root.
@@ -135,9 +143,11 @@ Both roots expose both names in every pair: `info` / `chakan`, `reset` /
 `chongzhi`, `setrealm` / `shezhijingjie`, `setprogress` / `shezhixiuwei`,
 `setstability` / `shezhiwendingdu`, `setpower` / `shezhilingli`, `setroot` /
 `shezhilinggen`, `clearroot` / `qingchulinggen`, `learn` / `xuexi`, `forget` /
-`yiwang`, and `setmastery` / `shezhishuliandu`. English and pinyin routes share
-the same argument types, registry suggestions, permission boundary, handlers,
-diagnostics, atomic mutation behavior, and synchronization effects.
+`yiwang`, `setmastery` / `shezhishuliandu`, rules-based `awaken` / `juexing`, and
+rules-based `initiate` / `rumen`. English and pinyin routes share the same argument
+types, registry suggestions, permission boundary, handlers, diagnostics, atomic
+mutation behavior, and synchronization effects. Each of the two initiation pairs
+is available under both roots, yielding four awakening and four inheritance routes.
 
 Progress, power, and mastery are non-negative. `setrealm` requires the stage to
 belong to the selected registered realm. The five `setroot` values are basis
@@ -145,8 +155,10 @@ points in `0..10000` and must total exactly `10000`; this convenience command
 does not narrow the generic profile model. Technique mutation requires a current
 registered technique, and `setmastery` does not implicitly learn one. `info`
 prints all v1 fields, `unawakened` or the root affinities, and every learned id
-with mastery; it preserves and marks unavailable raw ids. There is no random
-`awaken` command.
+with mastery; it preserves and marks unavailable raw ids. `awaken`/`juexing`
+calls the ordinary deterministic awakening service, while `initiate`/`rumen`
+calls normal-rules basic-breathing inheritance. Neither route accepts seed,
+element, affinity, count, technique-id, reroll, force, or bypass input.
 
 ## Validation And Manual Acceptance
 
@@ -156,6 +168,10 @@ acceptance-server lifecycle and clean stop:
 ```bash
 openspec validate --specs --strict
 python3 tools/validate_cultivation_core.py
+python3 tools/validate_cultivation_initiation.py
+python3 -m unittest tools.tests.test_validate_cultivation_core
+python3 -m unittest tools.tests.test_validate_cultivation_initiation
+python3 tools/validate_mod_items.py
 ./gradlew test
 ./gradlew build
 python3 tools/run_chunky_acceptance.py --stage 1
@@ -186,14 +202,21 @@ in a real client/server session and recorded as pass or fail:
 | 10 | A non-default profile survives End return without duplicate copying. | `not_verified` |
 | 11 | Dimension change delivers the latest snapshot to the owning client. | `not_verified` |
 
+The two-step ritual has a separate, fully `not_verified` manual ledger covering
+both steles, all eight initiation command routes, H-screen phases, repeat
+invariants, lifecycle, and continued non-execution; see
+[Cultivation Initiation Ritual](29_cultivation_initiation_ritual.md).
+
 ## Allowed Next Changes
 
-The next cultivation change must choose one foundation boundary rather than
-combining them: deterministic spiritual-root generation/awakening; actual
-`basic_breathing` execution; spiritual-power cap/recovery; a meditation state
-machine; cultivation-gain rules; or advancement through qi-refining levels 1-3.
-Each consumes `CultivationService`, current registry lookups, and snapshots
-instead of bypassing them.
+The owner-directed initiation change deliberately combined awakening and
+inheritance while retaining two independent service/facility boundaries. That
+narrow exception is complete and does not authorize later bundles. The next
+cultivation change must again choose one boundary: actual `basic_breathing`
+execution; spiritual-power cap/recovery; a meditation state machine;
+cultivation-gain rules; or advancement through qi-refining levels 1-3. Each must
+consume `CultivationService`, current registry lookups, and snapshots instead of
+bypassing them.
 
 ## See Also
 
@@ -203,4 +226,7 @@ instead of bypassing them.
 - [cultivation-state-synchronization](../../openspec/specs/cultivation-state-synchronization/spec.md)
 - [cultivation-debug-commands](../../openspec/specs/cultivation-debug-commands/spec.md)
 - [cultivation-core-validation](../../openspec/specs/cultivation-core-validation/spec.md)
+- [Cultivation Initiation Ritual](29_cultivation_initiation_ritual.md)
+- [cultivation-initiation-ritual](../../openspec/specs/cultivation-initiation-ritual/spec.md)
+- [Archived initiation change](../../openspec/changes/archive/2026-07-13-add-cultivation-initiation-ritual/proposal.md)
 - [Validation Checklist](09_validation_checklist.md)
