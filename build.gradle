@@ -16,7 +16,17 @@ repositories {
     mavenCentral()
 }
 
+def palJarName = 'PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar'
+def palJar = layout.projectDirectory.file(palJarName).asFile
+if (!palJar.isFile()) {
+    throw new GradleException(
+            "Required Player Animation Library jar is missing: ${palJar.absolutePath}. " +
+                    "Place ${palJarName} in the project root.")
+}
+
 dependencies {
+    implementation files(palJar)
+
     compileOnly "org.appliedenergistics:guideme:${guideme_version}:api"
     runtimeOnly "org.appliedenergistics:guideme:${guideme_version}"
 
@@ -49,6 +59,28 @@ neoForge {
         }
         client {
             client()
+            if (providers.gradleProperty('combat_smoke_game_dir').isPresent()) {
+                gameDirectory = project.file(providers.gradleProperty('combat_smoke_game_dir').get())
+            }
+            if (providers.gradleProperty('combat_smoke_username').isPresent()) {
+                programArgument '--username'
+                programArgument providers.gradleProperty('combat_smoke_username').get()
+            }
+            if (providers.gradleProperty('combat_smoke_server').isPresent()) {
+                programArgument '--quickPlayMultiplayer'
+                programArgument providers.gradleProperty('combat_smoke_server').get()
+                programArgument '--width'
+                programArgument '960'
+                programArgument '--height'
+                programArgument '540'
+            } else if (providers.gradleProperty('pal_smoke_world').isPresent()) {
+                programArgument '--quickPlaySingleplayer'
+                programArgument providers.gradleProperty('pal_smoke_world').get()
+                programArgument '--width'
+                programArgument '960'
+                programArgument '--height'
+                programArgument '540'
+            }
         }
         guide {
             client()

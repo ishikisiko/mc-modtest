@@ -478,6 +478,11 @@ jar tf build/libs/*.jar | grep "assets/myvillage/textures/entity/simple_fox/simp
 jar tf build/libs/*.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
 jar tf build/libs/*.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
 jar tf build/libs/*.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
+jar tf build/libs/*.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
+jar tf build/libs/*.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
+jar tf build/libs/*.jar | grep "assets/myvillage/player_animations/sword_combat.json"
+jar tf build/libs/*.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
+jar tf build/libs/*.jar | grep "data/minecraft/tags/item/swords.json"
 jar tf build/libs/*.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
 jar tf build/libs/*.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
 jar tf build/libs/*.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
@@ -488,7 +493,7 @@ jar tf build/libs/*.jar | grep "assets/myvillage/models/item/cultivation_handboo
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.25.1-fix1.jar
+build/libs/myvillage-0.26.0.jar
 ```
 
 ## Versioning And Changelog
@@ -508,6 +513,7 @@ python3 tools/generate_all_structures.py --mc-version 1.21.1 --output src/main/r
 python3 tools/validate_generated_structures.py src/main/resources/data/myvillage/structure
 python3 tools/validate_custom_entities.py
 python3 tools/validate_rideable_flying_sword.py
+python3 tools/validate_sword_combat_foundation.py
 python3 tools/validate_cultivation_core.py
 python3 tools/validate_cultivation_initiation.py
 python3 tools/validate_spirit_stone_resources.py
@@ -539,24 +545,29 @@ python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 
 python3 tools/write_visual_acceptance_report.py
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "assets/myvillage/textures/painting/inscription"
-jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
-jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
-jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
-jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
-jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
-jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
-jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "assets/myvillage/textures/item/low_grade_spirit_stone.png"
-jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "data/myvillage/worldgen/configured_feature/spirit_stone_ore.json"
-jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "data/myvillage/myvillage/realm/qi_refining.json"
-jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
-jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "assets/myvillage/guides/myvillage/cultivation"
-jar tf build/libs/myvillage-0.25.1-fix1.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
+jar tf build/libs/myvillage-0.26.0.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.26.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.26.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.26.0.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.26.0.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.26.0.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.26.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
+jar tf build/libs/myvillage-0.26.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
+jar tf build/libs/myvillage-0.26.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
+jar tf build/libs/myvillage-0.26.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
+jar tf build/libs/myvillage-0.26.0.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.26.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
+jar tf build/libs/myvillage-0.26.0.jar | grep "assets/myvillage/player_animations/sword_combat.json"
+jar tf build/libs/myvillage-0.26.0.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.26.0.jar | grep "data/minecraft/tags/item/swords.json"
+jar tf build/libs/myvillage-0.26.0.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
+jar tf build/libs/myvillage-0.26.0.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
+jar tf build/libs/myvillage-0.26.0.jar | grep "assets/myvillage/textures/item/low_grade_spirit_stone.png"
+jar tf build/libs/myvillage-0.26.0.jar | grep "data/myvillage/worldgen/configured_feature/spirit_stone_ore.json"
+jar tf build/libs/myvillage-0.26.0.jar | grep "data/myvillage/myvillage/realm/qi_refining.json"
+jar tf build/libs/myvillage-0.26.0.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
+jar tf build/libs/myvillage-0.26.0.jar | grep "assets/myvillage/guides/myvillage/cultivation"
+jar tf build/libs/myvillage-0.26.0.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -645,9 +656,148 @@ along the player's horizontal view direction, fall-distance reset,
 recall/singleton behavior, every cleanup condition, multiplayer authority, and
 item-model scale/readability before recording acceptance.
 
+<!-- SWORD_COMBAT_FOUNDATION -->
+## Qingfeng Sword Combat
+
+This feature requires the exact `PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar`
+on both client and server. Place it at the repository root for development and
+beside MyVillage in the instance `mods/` directory for play. PAL is not bundled
+in the MyVillage jar, and the supplied root jar remains untracked.
+
+Obtain the independent functional sword and switch modes with the configurable
+`Switch Combat Mode` control (default `R`):
+
+```mcfunction
+/give @s myvillage:qingfeng_sword
+```
+
+In vanilla mode, the Qingfeng Sword follows ordinary diamond-sword attack,
+mining, enchantment, repair, and durability behavior. In cultivation mode,
+mapped attack input is intercepted only while this sword is in the main hand.
+The client sends an empty attack intent; the server owns the move, timing,
+facing, hit shape, targets, damage, durability, and fifth-move step. Pickaxes,
+empty hands, other weapons, open screens, and vanilla mode keep their existing
+input paths. An eligible cultivation click also starts one local-only
+first-person Qingfeng held-item animation for the predicted move. The five
+camera-space poses map one-to-one to the server style and use the same move
+durations; an authoritative start corrects elapsed time, while rejection or
+stop restores the normal held pose. The current owner-review revision scales
+pose displacement around neutral by `1.20`, starts visible wind-up at normalized
+progress `0.12-0.16`, places the strike at `0.56-0.60`, and keeps recovery
+visible through `0.84-0.88`. This makes the stroke occupy more of the unchanged
+server duration instead of changing attack cadence or hit timing. The small inherited hand swing remains a
+packet-free fallback for an unpredicted authoritative start. None of these
+client visuals sends a vanilla attack packet or chooses a move, hit, damage, or
+movement.
+
+One legal attack input advances each connected move. A late input can buffer
+one next move; misses may continue the sequence, while timeout or move five
+resets it:
+
+```text
+1  basic_sword_01_thrust          一式：青锋问路
+2  basic_sword_02_horizontal_cut  二式：流云横渡
+3  basic_sword_03_rising_cut      三式：燕返撩月
+4  basic_sword_04_diagonal_cut    四式：回风落雁
+5  basic_sword_05_lunge_thrust    五式：一线穿云
+```
+
+Operators can inspect the server-computed active samples without changing hit
+authority:
+
+```mcfunction
+/myvillage combat debug on
+/myvillage combat debug status
+/myvillage combat debug off
+```
+
+For client-side pose review only, a developer client can play each held-item
+curve without generating an attack intent:
+
+```text
+/myvillage_pal_smoke move 1
+/myvillage_pal_smoke move 2
+/myvillage_pal_smoke move 3
+/myvillage_pal_smoke move 4
+/myvillage_pal_smoke move 5
+```
+
+This local smoke command proves rendering and recovery only. It cannot replace
+mapped-click, server authority, damage, timing, or multiplayer acceptance.
+
+Run the focused automated gates before client review:
+
+```bash
+python3 tools/validate_sword_combat_foundation.py
+python3 -m unittest tools.tests.test_validate_sword_combat_foundation
+python3 tools/validate_mod_items.py
+./gradlew test
+./gradlew build
+./gradlew runAcceptanceServer
+```
+
+For a separate final client profile, connect to the bounded server without
+editing launcher state:
+
+```bash
+./gradlew runClient -Pcombat_smoke_server=127.0.0.1:25565 \
+  -Pcombat_smoke_game_dir=run-combat-smoke -Pcombat_smoke_username=CombatDev
+```
+
+`combat_smoke_server` also bounds the client window to `960x540`; use a unique
+game directory and username for a second physical client. Stop every client and
+the acceptance server cleanly after collecting the evidence.
+
+Gate A directly observed PAL controller registration, play, transition, stop,
+normal-pose restoration, and dedicated-server side safety. A later real-client
+`THIRD_PERSON_MODEL` probe failed because the ready sword floated near screen
+center and the attack arm/sword clipped at excessive scale. Custom PAL first
+person-model arms/camera are therefore disabled with
+`FirstPersonMode.DISABLED`. First-person combat instead uses a Qingfeng-only
+NeoForge held-item extension; a physical client separately observed all five
+curves and normal-pose recovery. The owner found the initial curves insufficiently
+distinct, so the revised amplitude/timing pass remains `not_verified` until a
+new owner review. Record only directly observed results below.
+
+| Qingfeng real-client acceptance surface | Result |
+|---|---|
+| Inventory and held-item Qingfeng model/texture resolve and remain recognizable | `pass` |
+| Chinese name, recipe-book result, and creative-tab order | `not_verified` |
+| Owner verdict on texture, model scale, seven-animation style, and combat feel | `not_verified` |
+| Vanilla-mode entity attack, block mining, cooldown, enchantments, repair, and durability | `not_verified` |
+| Default `R` toggle and server-owned cultivation mode across reconnect, death, and dimension change | `pass` |
+| Mode persistence across a clean server restart | `pass` |
+| Rebound mode key plus both English and Chinese action-bar text | `not_verified` |
+| Cultivation main-hand Qingfeng interception without a vanilla attack packet or duplicate damage path | `pass` |
+| Remapped attack, sword-on-block mining suppression, unsupported item, empty hand, GUI, and vanilla-mode input regression | `not_verified` |
+| Moves one through five in exact order, distinct full-body poses, visible fifth lunge, timeout reset, and fifth-to-first reset | `pass` |
+| Ordinary late-buffer chain and miss continuation under click timing | `pass` |
+| Second buffered-intent rejection while the one slot is full | `not_verified` |
+| Move-one center-thrust side/rear range boundaries | `not_verified` |
+| Move-two/three/four visible arc and diagonal distinction | `pass` |
+| Move-two/three/four exact target caps, range boundaries, and light knockback | `not_verified` |
+| Move-five server-owned forward step measured at `0.8` blocks | `pass` |
+| Move-five wall suppression plus no wall-through target damage | `pass` |
+| Move-five player collision and cliff suppression | `not_verified` |
+| Solid-wall target blocking | `pass` |
+| PvP/team rules, invulnerability, deterministic target order, and per-action hit deduplication | `not_verified` |
+| Real server damage and exactly one durability loss for each of five successful actions | `pass` |
+| Armor/protection, Sharpness/Smite/Bane, Knockback/Fire Aspect, and NeoForge event-listener compatibility | `not_verified` |
+| No duplicate vanilla damage, sweep, cultivation critical, or sprint bonus | `not_verified` |
+| First-person mapped click produces immediate packet-free predicted Qingfeng feedback | `pass` |
+| Revised first-person Qingfeng playback makes moves one through five distinct, continuous, unclipped, and restores the normal pose | `not_verified` |
+| PAL third-person-model first-person arms/camera animation | `fail` |
+| Two-client nearby five-move start/stop animation and real target damage synchronization | `pass` |
+| Live interruption on mode, item, mount, dimension, death, and meditation start | `pass` |
+| Logout/reconnect cleanup plus persisted ready state | `pass` |
+| Unfinished-action recovery-lock timing | `not_verified` |
+| Meditation start suppresses attack/ready pose until meditation stops | `pass` |
+| Advancement mutual interruption and double-penalty exclusion | `not_verified` |
+| Existing rideable sword, cultivation H/keys, GuideME, and ordinary combat regression | `not_verified` |
+
 ## GuideME Cultivation Guide
 
-MyVillage 0.25.1-fix1 requires a compatible GuideME installation on both client and
+MyVillage 0.26.0 requires a compatible GuideME installation on both client and
 server (`[21.1.17,22)`). Gradle resolves GuideME 21.1.17 from Maven Central for
 development; GuideME is not bundled in the MyVillage jar. The untracked
 root-level `guideme-21.1.17.jar` is inspection material, not a build input.

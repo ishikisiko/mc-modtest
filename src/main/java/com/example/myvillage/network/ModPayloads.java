@@ -1,5 +1,6 @@
 package com.example.myvillage.network;
 
+import com.example.myvillage.combat.network.CombatPayloads;
 import com.example.myvillage.cultivation.network.CultivationPayloads;
 import com.example.myvillage.entity.RideableFlyingSwordEntity;
 import net.minecraft.server.level.ServerPlayer;
@@ -12,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 public final class ModPayloads {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModPayloads.class);
-    private static final String PROTOCOL_VERSION = "3";
+    private static final String PROTOCOL_VERSION = "4";
 
     private ModPayloads() {
     }
@@ -28,8 +29,9 @@ public final class ModPayloads {
                 FlyingSwordInputPayload.STREAM_CODEC,
                 ModPayloads::handleFlyingSwordInput);
         CultivationPayloads.register(registrar);
+        CombatPayloads.register(registrar);
         LOGGER.info(
-                "Payload handlers registered: flying-sword input plus cultivation profile/time/session/intent (protocol {})",
+                "Payload handlers registered: flying-sword input, cultivation snapshots/intents, and combat intents/snapshots/actions (protocol {})",
                 PROTOCOL_VERSION);
     }
 

@@ -2,6 +2,9 @@
 build/
 run/
 run-acceptance/
+run-observer/
+run-combat-smoke/
+tmp/
 out/
 __pycache__/
 *.pyc

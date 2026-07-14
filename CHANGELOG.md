@@ -7,6 +7,47 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.26.0
+
+### Added
+
+- Added the independent diamond-tier `myvillage:qingfeng_sword`, bilingual
+  resources, recipe, sword tag, creative-tab entry, original pixel texture,
+  Item Contract, and focused resource validation.
+- Added persistent server-owned vanilla/cultivation combat preference with a
+  configurable default-`R` toggle, bounded input-only payloads, and lifecycle
+  synchronization.
+- Added the complete five-move Basic Sword cultivation style with centralized
+  timings, server-tick combo and recovery state, per-move swept hit geometry,
+  wall and target legality checks, server-owned fifth-move stepping, damage and
+  enchantment hooks, bounded debug particles, and remote-player synchronization.
+- Integrated Player Animation Library 1.1.4 from an externally installed local
+  jar with seven original full-body animations, ready/enter transitions, local
+  prediction correction, and strict client/common isolation.
+- Added a separate Qingfeng-only first-person held-item layer with five bounded
+  move curves, authoritative elapsed-time correction, and clean pose recovery;
+  it does not move the camera or add client gameplay authority.
+
+### Fixed
+
+- Restored visible first-person response for intercepted cultivation attacks
+  with predicted five-move held-item playback and a client-only fallback swing;
+  neither sends a vanilla attack packet nor changes server authority.
+- Revised the first-person five-move curves after owner feedback with exactly
+  20 percent more displacement and earlier wind-up/later strike and recovery
+  keyframes, preserving every server move duration and hit window.
+
+### Notes
+
+- PAL remains a required separately installed client-and-server dependency and
+  is not shaded, unpacked, copied, or distributed in the MyVillage jar.
+- PAL 1.1.4's third-person-model first-person path clipped with this animation
+  set, so PAL body arms/camera remain disabled; the dedicated held-item layer
+  supplies first-person combat animation instead.
+- Automated gates and bounded two-client evidence are recorded; the Qingfeng
+  texture, animation feel, and complete owner-led gameplay ledger remain pending
+  explicit manual acceptance.
+
 ## 0.25.1-fix1
 
 ### Fixed

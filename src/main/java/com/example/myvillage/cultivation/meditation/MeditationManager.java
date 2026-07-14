@@ -1,5 +1,7 @@
 package com.example.myvillage.cultivation.meditation;
 
+import com.example.myvillage.combat.session.CombatSessionManager;
+import com.example.myvillage.combat.session.CombatStopReason;
 import com.example.myvillage.cultivation.CultivationProfile;
 import com.example.myvillage.cultivation.CultivationService;
 import com.example.myvillage.cultivation.data.AdvancementDefinition;
@@ -95,6 +97,7 @@ public final class MeditationManager {
                 player.getY(),
                 player.getZ(),
                 player.level().dimension());
+        CombatSessionManager.interrupt(player, CombatStopReason.CULTIVATION_STARTED, true);
         SESSIONS.put(player.getUUID(), session);
         MeditationStatus accepted = session.status(MeditationStopReason.START_ACCEPTED);
         notifyStatus(player, accepted);
@@ -146,6 +149,7 @@ public final class MeditationManager {
                 player.getY(),
                 player.getZ(),
                 player.level().dimension());
+        CombatSessionManager.interrupt(player, CombatStopReason.CULTIVATION_STARTED, true);
         SESSIONS.put(player.getUUID(), session);
         MeditationStatus accepted = session.status(MeditationStopReason.ADVANCEMENT_ACCEPTED);
         notifyStatus(player, accepted);

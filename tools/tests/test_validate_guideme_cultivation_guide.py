@@ -397,6 +397,22 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
         self.assertEqual((), result.errors)
         self.assertIn("skipped_missing", result.jar_status)
 
+    def test_release_version_is_derived_from_gradle_properties(self) -> None:
+        for relative in (
+            "gradle.properties",
+            "src/main/resources/META-INF/neoforge.mods.toml",
+            "README.md",
+            "CHANGELOG.md",
+        ):
+            path = self.root / relative
+            path.write_text(
+                path.read_text(encoding="utf-8").replace("0.25.1-fix1", "0.26.0"),
+                encoding="utf-8",
+            )
+
+        result = self.validate()
+        self.assertEqual((), result.errors)
+
     def test_local_jar_dependency_is_rejected(self) -> None:
         path = self.root / "build.gradle"
         path.write_text(

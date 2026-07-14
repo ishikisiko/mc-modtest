@@ -1,0 +1,89 @@
+{
+  "item_id": "myvillage:qingfeng_sword",
+  "kind": "functional_item",
+  "display_name": {
+    "en_us": "Qingfeng Sword",
+    "zh_design_name": "青锋剑"
+  },
+  "owner_facing_goal": "Provide the one supported sword for a server-authoritative five-move cultivation combat foundation while retaining mapped vanilla diamond-sword behavior in vanilla mode.",
+  "creative_tab": {
+    "visibility": "visible",
+    "tab_id": "myvillage:main",
+    "ordering": "Immediately after myvillage:rideable_flying_sword; the two items remain independent."
+  },
+  "java_registration": {
+    "owner_file": "src/main/java/com/example/myvillage/item/ModItems.java",
+    "deferred_holder": "ModItems.QINGFENG_SWORD",
+    "properties": "SwordItem(Tiers.DIAMOND, properties.attributes(SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F)))"
+  },
+  "client_assets": {
+    "lang_key": "item.myvillage.qingfeng_sword",
+    "model": "src/main/resources/assets/myvillage/models/item/qingfeng_sword.json",
+    "textures": [
+      "src/main/resources/assets/myvillage/textures/item/qingfeng_sword.png"
+    ],
+    "visual_verdict": "pending"
+  },
+  "data_resources": {
+    "recipes": [
+      "src/main/resources/data/myvillage/recipe/qingfeng_sword.json"
+    ],
+    "tags": [
+      "src/main/resources/data/minecraft/tags/item/swords.json"
+    ],
+    "loot_or_advancement_hooks": []
+  },
+  "behavior": {
+    "type": "functional",
+    "server_client_boundary": "In vanilla mode the item follows the unmodified Minecraft SwordItem path. In cultivation mode only a remap-safe client attack-key event is canceled; the client sends empty toggle/attack intents and the server owns mode, move, timing, hit volume, targets, damage, step movement, recovery, and synchronization.",
+    "interaction": "Mapped vanilla left-click attack/mining outside the exact cultivation-mode Qingfeng interception; five server-selected basic sword moves inside it. The item has no right-click summon, ride, recall, or GeckoLib behavior.",
+    "cooldown_or_durability": "Diamond-tier durability 1561. Vanilla mode uses ordinary cooldown and durability. Cultivation timing is move-owned, retains a recovery lock across cancel attempts, and charges ordinary sword attack durability once per action with at least one successful target.",
+    "data_components": [
+      "SwordItem diamond-tier tool component",
+      "SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F)",
+      "No item-owned combo or mode component"
+    ],
+    "tests": [
+      "Exact mapped diamond-tier durability, attack damage, attack speed, enchantment value, repair ingredient, and sword tag",
+      "Vanilla mode leaves original attack and mining input untouched",
+      "Cultivation mode intercepts only this main-hand item and suppresses duplicate swing",
+      "Server-authoritative combo, recovery, hit, damage, durability, lifecycle, and payload policy",
+      "Rideable flying sword remains a distinct item and entity behavior"
+    ]
+  },
+  "acceptance": {
+    "commands": [
+      "/give @s myvillage:qingfeng_sword",
+      "/myvillage combat debug on",
+      "/myvillage combat debug off"
+    ],
+    "gates": [
+      "openspec validate add-sword-combat-foundation --type change --strict",
+      "python3 tools/validate_mod_items.py",
+      "python3 tools/validate_sword_combat_foundation.py",
+      "python3 -m unittest tools.tests.test_validate_sword_combat_foundation",
+      "./gradlew test",
+      "./gradlew build",
+      "./gradlew runAcceptanceServer",
+      "PAL client world play/stop smoke",
+      "Real-client and two-player pass/fail/not_verified ledger"
+    ],
+    "jar_checks": [
+      "Qingfeng Sword class, model, texture, bilingual lang, recipe, and swords tag are packaged",
+      "Seven myvillage player-animation ids are packaged below assets/myvillage/player_animations",
+      "No com/zigythebird PAL classes or nested PAL jar are shaded into MyVillage"
+    ],
+    "human_verdict": "pending"
+  },
+  "docs": {
+    "sync_required": true
+  },
+  "non_goals": [
+    "Reuse of myvillage:rideable_flying_sword item, entity, or interaction",
+    "Epic Fight, Better Combat, old PlayerAnimator, or copied third-party assets",
+    "GeckoLib item model",
+    "Dodge, block, parry, stamina, poise, super armor, or complex hurt animation",
+    "Air combo, sword projectile, spiritual-power cost, realm scaling, proficiency, special sword art, flying-sword attack, or lock-on",
+    "Global replacement of unsupported items or mob combat"
+  ]
+}

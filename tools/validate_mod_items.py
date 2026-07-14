@@ -17,6 +17,8 @@ MOD_ITEMS = ROOT / "src" / "main" / "java" / "com" / "example" / "myvillage" / "
 MOD_BLOCKS = ROOT / "src" / "main" / "java" / "com" / "example" / "myvillage" / "block" / "ModBlocks.java"
 ROCKERY_BLOCK = ROOT / "src" / "main" / "java" / "com" / "example" / "myvillage" / "block" / "RockeryBlock.java"
 LANG = ASSET_ROOT / "lang" / "en_us.json"
+ZH_LANG = ASSET_ROOT / "lang" / "zh_cn.json"
+QINGFENG_ID = "qingfeng_sword"
 
 
 def load_json(path: Path) -> Any:
@@ -32,6 +34,13 @@ def png_size(path: Path) -> tuple[int, int]:
         raise ValueError(f"{path}: not a PNG file")
     width, height = struct.unpack(">II", data[16:24])
     return width, height
+
+
+def png_has_alpha(path: Path) -> bool:
+    data = path.read_bytes()
+    return (data.startswith(b"\x89PNG\r\n\x1a\n")
+            and data[12:16] == b"IHDR"
+            and data[25] in (4, 6))
 
 
 def registered_items() -> set[str]:
@@ -127,6 +136,7 @@ def validate() -> list[str]:
     block_items = registered_block_items()
     blocks = registered_blocks()
     lang = load_json(LANG)
+    zh_lang = load_json(ZH_LANG)
     rockery_text = ROCKERY_BLOCK.read_text(encoding="utf-8") if ROCKERY_BLOCK.exists() else ""
 
     if not items:
@@ -163,6 +173,56 @@ def validate() -> list[str]:
     if "rockery_block" in block_items:
         if "getCloneItemStack(" not in rockery_text or "ROCKERY_BLOCK_ITEM.get()" not in rockery_text:
             errors.append("missing_pick_block_clone:myvillage:rockery_block")
+
+    if QINGFENG_ID in items:
+        items_text = MOD_ITEMS.read_text(encoding="utf-8")
+        registration_tokens = (
+            "DeferredItem<SwordItem> QINGFENG_SWORD",
+            'ITEMS.registerItem("qingfeng_sword"',
+            "Tiers.DIAMOND",
+            "SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F)",
+        )
+        for token in registration_tokens:
+            if token not in items_text:
+                errors.append(f"qingfeng_registration_drift:{token}")
+        rideable_position = items_text.find("output.accept(RIDEABLE_FLYING_SWORD.get())")
+        qingfeng_position = items_text.find("output.accept(QINGFENG_SWORD.get())")
+        spirit_position = items_text.find("output.accept(LOW_GRADE_SPIRIT_STONE.get())")
+        if not (0 <= rideable_position < qingfeng_position < spirit_position):
+            errors.append("qingfeng_creative_order")
+
+        if lang.get("item.myvillage.qingfeng_sword") != "Qingfeng Sword":
+            errors.append("qingfeng_en_us_name")
+        if zh_lang.get("item.myvillage.qingfeng_sword") != "青锋剑":
+            errors.append("qingfeng_zh_cn_name")
+
+        texture = ASSET_ROOT / "textures/item/qingfeng_sword.png"
+        if texture.is_file():
+            if png_size(texture) != (64, 64):
+                errors.append("qingfeng_texture_dimensions:expected_64x64")
+            if not png_has_alpha(texture):
+                errors.append("qingfeng_texture_alpha")
+
+        recipe_path = ROOT / "src/main/resources/data/myvillage/recipe/qingfeng_sword.json"
+        if not recipe_path.is_file():
+            errors.append("qingfeng_recipe_missing")
+        else:
+            recipe = load_json(recipe_path)
+            expected_pattern = ["D", "D", "S"]
+            if (recipe.get("type") != "minecraft:crafting_shaped"
+                    or recipe.get("pattern") != expected_pattern
+                    or recipe.get("key", {}).get("D", {}).get("item") != "minecraft:diamond"
+                    or recipe.get("key", {}).get("S", {}).get("item") != "minecraft:stick"
+                    or recipe.get("result", {}).get("id") != "myvillage:qingfeng_sword"):
+                errors.append("qingfeng_recipe_contract")
+
+        tag_path = ROOT / "src/main/resources/data/minecraft/tags/item/swords.json"
+        if not tag_path.is_file():
+            errors.append("qingfeng_sword_tag_missing")
+        else:
+            tag = load_json(tag_path)
+            if tag.get("replace") is not False or "myvillage:qingfeng_sword" not in tag.get("values", []):
+                errors.append("qingfeng_sword_tag_contract")
 
     return errors
 

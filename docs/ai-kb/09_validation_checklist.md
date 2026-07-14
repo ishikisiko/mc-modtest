@@ -43,6 +43,7 @@ python3 tools/validate_generated_structures.py src/main/resources/data/myvillage
 python3 tools/validate_mod_items.py
 python3 tools/validate_custom_entities.py
 python3 tools/validate_rideable_flying_sword.py
+python3 tools/validate_sword_combat_foundation.py
 python3 tools/validate_cultivation_core.py
 python3 tools/validate_guideme_cultivation_guide.py
 python3 tools/validate_mod_block_fallbacks.py
@@ -135,6 +136,8 @@ python3 -m unittest tools.tests.test_validate_guideme_cultivation_guide
 ./gradlew build
 ./gradlew runGuide
 ./gradlew runAcceptanceServer
+./gradlew runClient -Pcombat_smoke_server=127.0.0.1:25565 \
+  -Pcombat_smoke_game_dir=run-combat-smoke -Pcombat_smoke_username=CombatDev
 ```
 
 `runGuide` must watch root `guidebook/`, validate and open
@@ -145,6 +148,61 @@ Chinese fallback, English switching, navigation, search, item-index jumps,
 `ItemLink`/`BlockImage`, configured key rendering, live reload, handbook
 open/reopen, the post-fix GuideME `G` item-index hotkey, or existing H/gameplay regression. Record
 all unobserved surfaces as `not_verified` in the README ledger.
+
+For the Qingfeng sword-combat foundation, keep the exact untracked root
+`PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar` available and run:
+
+```text
+openspec validate add-sword-combat-foundation --type change --strict
+python3 tools/validate_sword_combat_foundation.py
+python3 -m unittest tools.tests.test_validate_sword_combat_foundation
+python3 tools/validate_mod_items.py
+python3 -m unittest tools.tests.test_validate_mod_items
+python3 tools/validate_rideable_flying_sword.py
+python3 tools/validate_cultivation_core.py
+python3 tools/validate_cultivation_initiation.py
+python3 tools/validate_spirit_stone_resources.py
+python3 tools/validate_cultivation_lifespan.py
+python3 tools/validate_cultivation_meditation.py
+python3 tools/validate_cultivation_gain.py
+python3 tools/validate_cultivation_advancement.py
+python3 tools/validate_guideme_cultivation_guide.py
+python3 -m unittest discover -s tools/tests -p 'test_validate_*.py'
+./gradlew test
+./gradlew build
+./gradlew runAcceptanceServer
+```
+
+Inspect the current MyVillage jar for the Qingfeng model/texture/recipe/tag,
+both language files, all seven animation keys, the five first-person pose
+curves, their `IClientItemExtensions` registration, and combat classes. Reject
+PAL packages or a nested PAL jar. Gate A needs direct physical-client play,
+transition, stop, pose recovery, and dedicated-server evidence. Gate B needs the
+complete first-move path through real damage and nearby-player broadcast. Gate C
+needs all five definitions, animations, distinct shapes, combo/reset behavior,
+bounded step, synchronization, and interruptions; compilation cannot substitute
+for any runtime observation.
+
+The three `combat_smoke_*` Gradle properties provide an isolated `960x540`
+physical-client route to the bounded server. Give each simultaneous client a
+different game directory and username, and stop all client/server processes
+after evidence capture.
+
+In a developer client, `/myvillage_pal_smoke move <1-5>` may exercise each
+Qingfeng first-person held-item curve without sending an attack intent. Observe
+all five shapes and normal-pose recovery separately. For the current owner
+revision, also verify that the `1.20` displacement pass does not clip the item,
+the longer visible stroke reduces near-neutral gaps, and the unchanged per-move
+duration still returns exactly to idle. This visual-only command cannot
+substitute for a mapped-click, damage, timing, authority, or multiplayer check,
+and developer observation cannot override the owner's readability verdict.
+
+Use the ordered Qingfeng ledger in README. Texture/animation appearance,
+vanilla/cultivation input, ranges, wall/dedup/step behavior, first person,
+two-player animation/damage, persistence, lifecycle cleanup, cultivation
+exclusion, and regressions remain `not_verified` unless directly observed.
+Automated success and server startup never imply the owner's visual/gameplay
+verdict.
 
 For the rideable flying sword, also run the dedicated-server gate:
 

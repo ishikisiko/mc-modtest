@@ -22,7 +22,6 @@ except ImportError:  # pragma: no cover - the repository toolchain provides PyYA
 
 ROOT = Path(__file__).resolve().parents[1]
 GUIDEME_VERSION = "21.1.17"
-MOD_VERSION = "0.25.1-fix1"
 
 BUILD_GRADLE = Path("build.gradle")
 GRADLE_PROPERTIES = Path("gradle.properties")
@@ -930,27 +929,29 @@ class GuideMECultivationGuideValidator:
         index = self.read_text(Path("docs/ai-kb/INDEX.md"), "knowledge-base index")
         agents = self.read_text(Path("AGENTS.md"), "agent guidance")
 
+        mod_version: str | None = None
         if properties is not None:
             match = re.search(r"(?m)^mod_version\s*=\s*([^\s#]+)\s*$", properties)
-            if match is None or match.group(1) != MOD_VERSION:
-                got = match.group(1) if match else None
-                self.error(GRADLE_PROPERTIES, f"mod_version must be {MOD_VERSION}, got {got!r}")
-        if mods is not None:
+            if match is None:
+                self.error(GRADLE_PROPERTIES, "missing mod_version")
+            else:
+                mod_version = match.group(1)
+        if mods is not None and mod_version is not None:
             match = re.search(
                 r'(?ms)^\s*\[\[mods\]\]\s*$.*?^\s*modId\s*=\s*"myvillage"\s*$.*?'
                 r'^\s*version\s*=\s*"([^"]+)"',
                 mods,
             )
-            if match is None or match.group(1) != MOD_VERSION:
+            if match is None or match.group(1) != mod_version:
                 got = match.group(1) if match else None
-                self.error(MODS_TOML, f"myvillage version must be {MOD_VERSION}, got {got!r}")
-        if changelog is not None:
-            if re.search(rf"(?m)^##\s+{re.escape(MOD_VERSION)}\s*$", changelog) is None:
-                self.error(Path("CHANGELOG.md"), f"missing release heading {MOD_VERSION}")
+                self.error(MODS_TOML, f"myvillage version must be {mod_version}, got {got!r}")
+        if changelog is not None and mod_version is not None:
+            if re.search(rf"(?m)^##\s+{re.escape(mod_version)}\s*$", changelog) is None:
+                self.error(Path("CHANGELOG.md"), f"missing release heading {mod_version}")
             if not all(term.lower() in changelog.lower() for term in ("GuideME", "cultivation_handbook")):
                 self.error(
                     Path("CHANGELOG.md"),
-                    f"{MOD_VERSION} release notes must mention GuideME and cultivation_handbook",
+                    "release history must mention GuideME and cultivation_handbook",
                 )
         if readme is not None:
             required = (
@@ -982,10 +983,10 @@ class GuideMECultivationGuideValidator:
             if not jar_versions:
                 self.error(Path("README.md"), "missing explicit current jar-name example")
             for version in sorted(set(jar_versions)):
-                if version != MOD_VERSION:
+                if mod_version is not None and version != mod_version:
                     self.error(
                         Path("README.md"),
-                        f"jar-name example version {version} does not match {MOD_VERSION}",
+                        f"jar-name example version {version} does not match {mod_version}",
                     )
         if kb is not None:
             for fragment in (

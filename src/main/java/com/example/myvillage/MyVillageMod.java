@@ -1,6 +1,9 @@
 package com.example.myvillage;
 
 import com.example.myvillage.block.ModBlocks;
+import com.example.myvillage.combat.CombatAttachments;
+import com.example.myvillage.combat.CombatCommands;
+import com.example.myvillage.combat.CombatEvents;
 import com.example.myvillage.cultivation.CultivationAttachments;
 import com.example.myvillage.cultivation.CultivationCommands;
 import com.example.myvillage.cultivation.CultivationEvents;
@@ -86,7 +89,9 @@ public final class MyVillageMod {
         ModPayloads.register(modEventBus);
         ModCultivationRegistries.register(modEventBus);
         CultivationAttachments.register(modEventBus);
+        CombatAttachments.register(modEventBus);
         CultivationEvents.register();
+        CombatEvents.register();
         SectStructures.register(modEventBus);
         NeoForge.EVENT_BUS.addListener(this::registerCommands);
         NeoForge.EVENT_BUS.addListener(this::onServerStarted);
@@ -214,7 +219,8 @@ public final class MyVillageMod {
                                 .then(Commands.literal("recompute")
                                         .executes(ctx -> RegionCommands.spawnRecompute(ctx.getSource()))))
                         .then(CultivationCommands.command())
-                        .then(CultivationCommands.pinyinCommand()));
+                        .then(CultivationCommands.pinyinCommand())
+                        .then(CombatCommands.command()));
     }
 
     private int placeNamedStructure(CommandSourceStack source, String rawId) throws CommandSyntaxException {

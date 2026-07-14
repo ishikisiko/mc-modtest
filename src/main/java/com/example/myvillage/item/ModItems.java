@@ -9,6 +9,8 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.SwordItem;
+import net.minecraft.world.item.Tiers;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.common.DeferredSpawnEggItem;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -72,6 +74,12 @@ public final class ModItems {
             ITEMS.registerItem("rideable_flying_sword",
                     props -> new RideableFlyingSwordItem(props.stacksTo(1)));
 
+    public static final DeferredItem<SwordItem> QINGFENG_SWORD =
+            ITEMS.registerItem("qingfeng_sword",
+                    props -> new SwordItem(
+                            Tiers.DIAMOND,
+                            props.attributes(SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F))));
+
     public static final DeferredItem<Item> LOW_GRADE_SPIRIT_STONE =
             ITEMS.registerSimpleItem("low_grade_spirit_stone");
 
@@ -99,6 +107,7 @@ public final class ModItems {
                         output.accept(CULTIVATION_HANDBOOK.get());
                         output.accept(SIMPLE_FOX_SPAWN_EGG.get());
                         output.accept(RIDEABLE_FLYING_SWORD.get());
+                        output.accept(QINGFENG_SWORD.get());
                         output.accept(LOW_GRADE_SPIRIT_STONE.get());
                         output.accept(SPIRIT_STONE_ORE_ITEM.get());
                         output.accept(DEEPSLATE_SPIRIT_STONE_ORE_ITEM.get());
