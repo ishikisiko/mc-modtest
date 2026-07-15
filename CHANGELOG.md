@@ -7,6 +7,28 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.26.1
+
+### Added
+
+- Added the diamond-tier `myvillage:xuanyue_zhenshan_sword`,
+  `myvillage:chilian_lihuo_sword`, and `myvillage:qingxiao_liuyun_sword` with
+  independent 64x64 transparent textures derived from the supplied reference
+  art, handheld models, bilingual names, creative-tab entries, and vanilla
+  sword-tag membership.
+
+### Fixed
+
+- Replaced the three reference-derived textures' partially transparent edge
+  pixels with neighboring solid sprite colors, leaving only fully transparent
+  background pixels and fully opaque sword pixels.
+
+### Notes
+
+- The three swords currently use ordinary diamond-sword behavior. Their names
+  and reference art do not imply recipes, elemental abilities, or Qingfeng's
+  PAL-backed five-move combat integration.
+
 ## 0.26.0
 
 ### Added

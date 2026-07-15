@@ -80,6 +80,24 @@ public final class ModItems {
                             Tiers.DIAMOND,
                             props.attributes(SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F))));
 
+    public static final DeferredItem<SwordItem> XUANYUE_ZHENSHAN_SWORD =
+            ITEMS.registerItem("xuanyue_zhenshan_sword",
+                    props -> new SwordItem(
+                            Tiers.DIAMOND,
+                            props.attributes(SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F))));
+
+    public static final DeferredItem<SwordItem> CHILIAN_LIHUO_SWORD =
+            ITEMS.registerItem("chilian_lihuo_sword",
+                    props -> new SwordItem(
+                            Tiers.DIAMOND,
+                            props.attributes(SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F))));
+
+    public static final DeferredItem<SwordItem> QINGXIAO_LIUYUN_SWORD =
+            ITEMS.registerItem("qingxiao_liuyun_sword",
+                    props -> new SwordItem(
+                            Tiers.DIAMOND,
+                            props.attributes(SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F))));
+
     public static final DeferredItem<Item> LOW_GRADE_SPIRIT_STONE =
             ITEMS.registerSimpleItem("low_grade_spirit_stone");
 
@@ -108,6 +126,9 @@ public final class ModItems {
                         output.accept(SIMPLE_FOX_SPAWN_EGG.get());
                         output.accept(RIDEABLE_FLYING_SWORD.get());
                         output.accept(QINGFENG_SWORD.get());
+                        output.accept(XUANYUE_ZHENSHAN_SWORD.get());
+                        output.accept(CHILIAN_LIHUO_SWORD.get());
+                        output.accept(QINGXIAO_LIUYUN_SWORD.get());
                         output.accept(LOW_GRADE_SPIRIT_STONE.get());
                         output.accept(SPIRIT_STONE_ORE_ITEM.get());
                         output.accept(DEEPSLATE_SPIRIT_STONE_ORE_ITEM.get());

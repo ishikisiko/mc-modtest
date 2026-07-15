@@ -83,6 +83,7 @@ tasks:
       - "src/main/resources/assets/myvillage/textures/block/**"
       - "src/main/resources/assets/myvillage/blockstates/**"
       - "src/main/resources/assets/myvillage/lang/en_us.json"
+      - "src/main/resources/assets/myvillage/lang/zh_cn.json"
       - "src/main/resources/data/myvillage/recipe/**"
       - "src/main/resources/data/myvillage/tags/item/**"
       - "src/main/resources/data/minecraft/tags/item/**"

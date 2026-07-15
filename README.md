@@ -480,6 +480,12 @@ jar tf build/libs/*.jar | grep "assets/myvillage/models/item/rideable_flying_swo
 jar tf build/libs/*.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
 jar tf build/libs/*.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
 jar tf build/libs/*.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
+jar tf build/libs/*.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
+jar tf build/libs/*.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
+jar tf build/libs/*.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
+jar tf build/libs/*.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
+jar tf build/libs/*.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
+jar tf build/libs/*.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
 jar tf build/libs/*.jar | grep "assets/myvillage/player_animations/sword_combat.json"
 jar tf build/libs/*.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
 jar tf build/libs/*.jar | grep "data/minecraft/tags/item/swords.json"
@@ -493,7 +499,7 @@ jar tf build/libs/*.jar | grep "assets/myvillage/models/item/cultivation_handboo
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.26.0.jar
+build/libs/myvillage-0.26.1.jar
 ```
 
 ## Versioning And Changelog
@@ -545,29 +551,35 @@ python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 
 python3 tools/write_visual_acceptance_report.py
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.26.0.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.26.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.26.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.26.0.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.26.0.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.26.0.jar | grep "assets/myvillage/textures/painting/inscription"
-jar tf build/libs/myvillage-0.26.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
-jar tf build/libs/myvillage-0.26.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
-jar tf build/libs/myvillage-0.26.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
-jar tf build/libs/myvillage-0.26.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
-jar tf build/libs/myvillage-0.26.0.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.26.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
-jar tf build/libs/myvillage-0.26.0.jar | grep "assets/myvillage/player_animations/sword_combat.json"
-jar tf build/libs/myvillage-0.26.0.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.26.0.jar | grep "data/minecraft/tags/item/swords.json"
-jar tf build/libs/myvillage-0.26.0.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
-jar tf build/libs/myvillage-0.26.0.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
-jar tf build/libs/myvillage-0.26.0.jar | grep "assets/myvillage/textures/item/low_grade_spirit_stone.png"
-jar tf build/libs/myvillage-0.26.0.jar | grep "data/myvillage/worldgen/configured_feature/spirit_stone_ore.json"
-jar tf build/libs/myvillage-0.26.0.jar | grep "data/myvillage/myvillage/realm/qi_refining.json"
-jar tf build/libs/myvillage-0.26.0.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
-jar tf build/libs/myvillage-0.26.0.jar | grep "assets/myvillage/guides/myvillage/cultivation"
-jar tf build/libs/myvillage-0.26.0.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
+jar tf build/libs/myvillage-0.26.1.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.26.1.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.26.1.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
+jar tf build/libs/myvillage-0.26.1.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
+jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
+jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
+jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
+jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
+jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
+jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
+jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
+jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
+jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
+jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/player_animations/sword_combat.json"
+jar tf build/libs/myvillage-0.26.1.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.26.1.jar | grep "data/minecraft/tags/item/swords.json"
+jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
+jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
+jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/textures/item/low_grade_spirit_stone.png"
+jar tf build/libs/myvillage-0.26.1.jar | grep "data/myvillage/worldgen/configured_feature/spirit_stone_ore.json"
+jar tf build/libs/myvillage-0.26.1.jar | grep "data/myvillage/myvillage/realm/qi_refining.json"
+jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
+jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/guides/myvillage/cultivation"
+jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -655,6 +667,21 @@ ground, smooth riding without repeated position/yaw snaps, the blade tip pointin
 along the player's horizontal view direction, fall-distance reset,
 recall/singleton behavior, every cleanup condition, multiplayer authority, and
 item-model scale/readability before recording acceptance.
+
+## Additional Sword Items
+
+Three reference-derived swords are available from `myvillage:main` or through
+the following commands:
+
+```mcfunction
+/give @s myvillage:xuanyue_zhenshan_sword
+/give @s myvillage:chilian_lihuo_sword
+/give @s myvillage:qingxiao_liuyun_sword
+```
+
+All three currently follow ordinary diamond-sword attack, mining, enchantment,
+repair, and durability behavior. They have no recipes, right-click abilities,
+elemental effects, custom payloads, or Qingfeng/PAL five-move integration.
 
 <!-- SWORD_COMBAT_FOUNDATION -->
 ## Qingfeng Sword Combat
@@ -852,7 +879,7 @@ Record only directly observed results below.
 
 ## GuideME Cultivation Guide
 
-MyVillage 0.26.0 requires a compatible GuideME installation on both client and
+MyVillage 0.26.1 requires a compatible GuideME installation on both client and
 server (`[21.1.17,22)`). Gradle resolves GuideME 21.1.17 from Maven Central for
 development; GuideME is not bundled in the MyVillage jar. The untracked
 root-level `guideme-21.1.17.jar` is inspection material, not a build input.

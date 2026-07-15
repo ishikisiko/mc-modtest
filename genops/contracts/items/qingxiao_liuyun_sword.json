@@ -1,0 +1,84 @@
+{
+  "item_id": "myvillage:qingxiao_liuyun_sword",
+  "kind": "functional_item",
+  "display_name": {
+    "en_us": "Qingxiao Liuyun Sword",
+    "zh_design_name": "青霄流云剑"
+  },
+  "owner_facing_goal": "Turn the Google Drive mc/pic/青霄流云剑.png reference into an independently registered, visually distinct MyVillage sword with ordinary vanilla diamond-sword behavior.",
+  "creative_tab": {
+    "visibility": "visible",
+    "tab_id": "myvillage:main",
+    "ordering": "Immediately after myvillage:chilian_lihuo_sword and before myvillage:low_grade_spirit_stone."
+  },
+  "java_registration": {
+    "owner_file": "src/main/java/com/example/myvillage/item/ModItems.java",
+    "deferred_holder": "ModItems.QINGXIAO_LIUYUN_SWORD",
+    "properties": "SwordItem(Tiers.DIAMOND, properties.attributes(SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F)))"
+  },
+  "client_assets": {
+    "lang_key": "item.myvillage.qingxiao_liuyun_sword",
+    "model": "src/main/resources/assets/myvillage/models/item/qingxiao_liuyun_sword.json",
+    "textures": [
+      "src/main/resources/assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
+    ],
+    "visual_verdict": "pending"
+  },
+  "data_resources": {
+    "recipes": [],
+    "tags": [
+      "src/main/resources/data/minecraft/tags/item/swords.json"
+    ],
+    "loot_or_advancement_hooks": []
+  },
+  "behavior": {
+    "type": "functional",
+    "server_client_boundary": "Use the unmodified Minecraft/NeoForge SwordItem path. No custom payload is registered or sent; normal logical-server attack, damage, enchantment, repair, mining, and durability authority remains unchanged.",
+    "interaction": "Ordinary vanilla left-click melee and sword block interaction only. The item remains unsupported by MyVillage cultivation combat, including while the stored combat preference is cultivation. It has no right-click behavior.",
+    "cooldown_or_durability": "Match the mapped vanilla diamond sword: durability 1561, held attack damage 7.0, held attack speed 1.6, ordinary attack cooldown, durability, Mending, enchantment, and anvil-repair behavior, with no custom cooldown.",
+    "data_components": [
+      "SwordItem diamond-tier tool component",
+      "SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F)",
+      "No custom item-owned data component"
+    ],
+    "tests": [
+      "Registration and creative-tab ordering match this contract",
+      "The item model uses minecraft:item/handheld with layer0 myvillage:item/qingxiao_liuyun_sword",
+      "The output texture is a 64x64 RGBA PNG whose alpha values are only 0 or 255, and both en_us and zh_cn contain the declared lang key",
+      "Diamond-tier durability, attack damage, attack speed, enchantment value, repair ingredient, and vanilla swords-tag membership match the mapped vanilla diamond sword",
+      "The item is absent from BasicSwordStyle supported weapon ids and all Qingfeng-only PAL, input interception, payload, combat-session, and first-person renderer guards"
+    ]
+  },
+  "acceptance": {
+    "commands": [
+      "/give @s myvillage:qingxiao_liuyun_sword",
+      "In a real client, inspect inventory, first-person, and third-person appearance and exercise ordinary melee, durability, enchantment, repair, and block interaction; leave unobserved surfaces not_verified"
+    ],
+    "gates": [
+      "Validate genops/contracts/items/qingxiao_liuyun_sword.json against genops/schemas/item_contract.schema.json",
+      "python3 tools/validate_mod_items.py",
+      "python3 tools/validate_sword_combat_foundation.py",
+      "./gradlew test",
+      "./gradlew build"
+    ],
+    "jar_checks": [
+      "assets/myvillage/models/item/qingxiao_liuyun_sword.json",
+      "assets/myvillage/textures/item/qingxiao_liuyun_sword.png is a 64x64 RGBA PNG with binary alpha",
+      "item.myvillage.qingxiao_liuyun_sword is present in assets/myvillage/lang/en_us.json and assets/myvillage/lang/zh_cn.json",
+      "data/minecraft/tags/item/swords.json contains myvillage:qingxiao_liuyun_sword"
+    ],
+    "human_verdict": "pending"
+  },
+  "docs": {
+    "sync_required": false,
+    "no_op_reason": "The item adds only ordinary creative-tab and vanilla /give acquisition; it introduces no command implementation, recipe, special mechanic, or new acceptance workflow."
+  },
+  "non_goals": [
+    "Crafting recipe, loot acquisition, natural generation, or advancement hook",
+    "Different stats or balance tiers among the three reference swords",
+    "Skill, special ability, right-click use, projectile, area attack, or cultivation resource cost",
+    "PAL-specific animation, Qingfeng first-person transform, five-move cultivation combo support, combat session, or custom network payload",
+    "Client-authored hit, damage, timing, target, position, velocity, durability, or cooldown state",
+    "Rideable flying-sword behavior or changes to myvillage:qingfeng_sword"
+  ]
+}
