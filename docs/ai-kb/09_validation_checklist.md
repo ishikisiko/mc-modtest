@@ -175,8 +175,9 @@ python3 -m unittest discover -s tools/tests -p 'test_validate_*.py'
 
 Inspect the current MyVillage jar for the Qingfeng model/texture/recipe/tag,
 both language files, all seven animation keys, the five first-person pose
-curves, their `IClientItemExtensions` registration, and combat classes. Reject
-PAL packages or a nested PAL jar. Gate A needs direct physical-client play,
+curves, their `IClientItemExtensions` registration, the independent segmented
+`RenderHandEvent` skin/sleeve renderer, and combat classes. Reject PAL
+packages or a nested PAL jar. Gate A needs direct physical-client play,
 transition, stop, pose recovery, and dedicated-server evidence. Gate B needs the
 complete first-move path through real damage and nearby-player broadcast. Gate C
 needs all five definitions, animations, distinct shapes, combo/reset behavior,
@@ -190,10 +191,29 @@ after evidence capture.
 
 In a developer client, `/myvillage_pal_smoke move <1-5>` may exercise each
 Qingfeng first-person held-item curve without sending an attack intent. Observe
-all five shapes and normal-pose recovery separately. For the current owner
-revision, also verify that the `1.20` displacement pass does not clip the item,
-the longer visible stroke reduces near-neutral gaps, and the unchanged per-move
-duration still returns exactly to idle. This visual-only command cannot
+all five shapes and normal-pose recovery separately. Use a `960x540`, `16:9`,
+FOV-70 reference capture for the current owner revision. For each move, inspect
+the temporal union of the projected sword-and-arm silhouette from visible
+wind-up through late recovery: it must span at least `0.50` of the viewport on
+one screen axis, intersect the central horizontal band `x=[0.35,0.65]`, and not
+remain wholly inside the lower-right quadrant. This is the accumulated motion
+path, not a requirement that one frame occlude half the screen. The normalized
+wind-up/strike/recovery ranges and unchanged per-move duration must still return
+exactly to idle. Verify the local skin and enabled sleeve use the custom
+`upper_arm` driver, visible `forearm` and `hand` joints, and screen-edge
+`connector` in all five moves. The distal hand endpoint must remain joined to
+the Qingfeng grip for both hands, the connector must terminate at the corrected
+elbow, and the complete arm must not float in the middle of the screen. Verify
+neither layer enters the near plane, no internal cap becomes a screen slab, no
+duplicate arm appears, neutral cultivation hold remains joined, and
+off-hand/non-cultivation states retain ordinary rendering. If the expanded
+paths approach the near plane, verify the active-only `0.45` viewmodel scale
+eases around the distal grip by normalized progress `0.12`, applies equally to
+the elbow target, and restores full size at both neutral endpoints. Judge the
+simple connector's width and anatomy explicitly rather than treating the
+absence of clipping as visual acceptance. Prefer an actual mapped-click
+recording for the final envelope evidence.
+This visual-only command cannot
 substitute for a mapped-click, damage, timing, authority, or multiplayer check,
 and developer observation cannot override the owner's readability verdict.
 

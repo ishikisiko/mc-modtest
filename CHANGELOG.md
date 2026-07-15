@@ -27,6 +27,14 @@ together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 - Added a separate Qingfeng-only first-person held-item layer with five bounded
   move curves, authoritative elapsed-time correction, and clean pose recovery;
   it does not move the camera or add client gameplay authority.
+- Added an independent first-person local skin-arm and sleeve layer that shares
+  the corrected five-move item frame and neutral cultivation hold, supports
+  wide/slim skins, leaves the ordinary item pass intact, and keeps PAL
+  full-body first person disabled.
+- Added a MyVillage-owned segmented first-person joint viewmodel with an
+  invisible shoulder driver, visible forearm and hand, a screen-edge elbow
+  connector, authored shoulder/elbow/wrist tracks, and right/left grip
+  correction; it copies no Epic Fight or GeckoLib code or assets.
 
 ### Fixed
 
@@ -35,7 +43,18 @@ together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
   neither sends a vanilla attack packet nor changes server authority.
 - Revised the first-person five-move curves after owner feedback with exactly
   20 percent more displacement and earlier wind-up/later strike and recovery
-  keyframes, preserving every server move duration and hit window.
+  keyframes, preserving every server move duration and hit window; this fixed
+  factor is retained as history rather than the current viewport contract.
+- Replaced both rejected complete-arm revisions: separately damped rotation had
+  split the hand from the handle, while the later pivot-locked cuboid exposed a
+  whole arm floating in the middle of the screen. The segmented chain now pins
+  the distal hand to the grip through forward kinematics, connects its elbow to
+  the screen edge, omits internal caps, and compacts to `0.45` around the grip
+  during active motion without changing server authority.
+- Superseded fixed-factor-only first-person amplification with per-move viewport
+  calibration targeting a temporal sword-and-arm envelope of at least half one
+  screen axis, central-band entry, and no lower-right confinement under the
+  `960x540`, FOV-70 reference view, without changing server timing or authority.
 
 ### Notes
 

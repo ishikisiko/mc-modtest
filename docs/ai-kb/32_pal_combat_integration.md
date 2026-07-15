@@ -172,6 +172,37 @@ ticks, and rejection, interruption, or completion clears it. The extension
 does not move the camera, render PAL body arms, send a payload, or own any hit,
 damage, combo, or step decision.
 
+That extension only transforms the item; NeoForge's non-empty item branch does
+not render a player arm. `ClientCombatBootstrap` therefore registers
+`QingfengFirstPersonArmRenderer` directly on `RenderHandEvent`. The listener
+derives its pose from `QingfengFirstPersonAnimator.currentFrame`, falls back to
+the same neutral pose, draws before the normal item pass, and never cancels that
+pass. `QingfengFirstPersonArmModel` builds an original viewmodel hierarchy
+instead of borrowing PAL-mutated, shared `PlayerRenderer`, or complete vanilla
+player-model parts. Its non-rendering `upper_arm` node drives a visible
+`forearm`, then a visible `hand`; a separate `connector` runs from below the
+screen to the computed elbow. Separate skin and sleeve chains use the current
+player texture, respect sleeve visibility, and are generated for wide/slim and
+right/left arms. Internal segment caps are omitted so a face cannot become a
+near-plane slab.
+
+Every move authors shoulder, elbow, and wrist rotations on the same corrected
+item frame. Forward kinematics computes the distal hand endpoint and applies a
+three-dimensional correction that pins it to the sword grip for either hand.
+The same corrected chain computes the elbow connector target. During active
+motion, the viewmodel scales smoothly around the grip from `1.00` to `0.45` by
+normalized progress `0.12`, remains compact through the middle, and restores
+`1.00` at both neutral endpoints; the elbow target uses that same scale. A
+rejected predecessor damped a complete arm around the wrong origin and separated
+the hand from the handle. Its pivot-locked successor fixed the grip but exposed
+the entire arm as a floating middle-screen cuboid. The segmented hierarchy
+replaces both forms. It is MyVillage-owned code and adds no Epic Fight or
+GeckoLib code, assets, runtime dependency, or animation authority.
+
+Main-hand, visibility, cultivation-mode, and Qingfeng guards suppress the layer
+everywhere else. It has no independent clock, packet, camera, remote-player,
+hit, damage, or movement authority.
+
 The original intercepted path canceled the mapped event and set its hand swing
 false, so it also removed every visible first-person response. The final client
 keeps that event suppression but calls inherited
@@ -184,15 +215,30 @@ completion stay server-owned.
 
 The first owner review rejected the initial claim that all five first-person
 paths were visually distinct: in motion they read as only two clear action
-families. The revision keeps every server `totalTicks`, active window, damage,
-step, and payload unchanged. `FirstPersonSwordPose` now amplifies translation,
-rotation, and scale displacement around neutral by exactly `1.20`; wind-up
-keyframes occur at normalized progress `0.12-0.16`, strike keyframes at
-`0.56-0.60`, and late recovery keyframes at `0.84-0.88`, before exact neutral
-at `1.00`. This moves time from near-neutral easing into the visible stroke.
-A developer physical-client smoke found no stuck pose or obvious viewport
-clipping, but only the owner's follow-up review can promote revised five-way
-readability and continuity from `not_verified`.
+families. The first revision kept every server `totalTicks`, active window,
+damage, step, and payload unchanged while amplifying translation, rotation, and
+scale displacement around neutral by exactly `1.20`. Wind-up keyframes moved to
+normalized progress `0.12-0.16`, strike keyframes to `0.56-0.60`, and late
+recovery keyframes to `0.84-0.88`, before exact neutral at `1.00`. The timing
+ranges remain current, but the fixed factor is now implementation history.
+
+A developer physical-client smoke exercised all five current moves with the
+segmented skin and sleeve hierarchy. It showed distinct elbow/wrist poses, the
+arm entering from the screen edge, the handle remaining at the corrected hand
+endpoint, and neutral recovery without the former complete floating arm or
+near-plane slab. The connector remains a simple cuboid whose width and anatomy
+need owner review. This evidence does not promote the full grip or visual ledger.
+
+The active viewport contract calibrates each move independently under a
+`960x540`, `16:9`, FOV-70 reference capture. The temporal union of the projected
+sword-and-arm silhouette from visible wind-up through late recovery must span
+at least `0.50` of the viewport on one screen axis, intersect the central
+horizontal band `x=[0.35,0.65]`, and not remain wholly inside the lower-right
+quadrant. This is an accumulated action path, not a single-frame half-screen
+occlusion target. The shared parent frame, wrist-pivot grip, normalized timing
+ranges, server timing, damage, step, and payload remain unchanged; near-plane
+clipping, grip separation, duplicate arms, and camera rotation remain failures.
+Only owner follow-up can promote the replacement from `not_verified`.
 
 ## Side Boundary
 
@@ -349,18 +395,33 @@ interruptions stopped the active session.
 
 Release validation on `0.26.0` passed strict OpenSpec validation, CRAFT pipeline
 and per-owner front-door checks, Item Contract schema validation, the focused
-and aggregate validators, 149 Python tests, Gradle tests/build, jar
-inspection, dedicated-server startup/clean stop, and a final physical-client
-startup/play/transition/stop/clean-exit smoke. Reconnecting after a clean
-server restart restored cultivation mode and ready idle without another toggle.
+and aggregate validators, 139 validator-pattern tests, 168 full Python tests,
+200 Gradle tests/build, practical jar inspection, dedicated-server startup/clean
+stop, and a final physical-client startup/play/transition/stop/clean-exit smoke.
+Reconnecting after a clean server restart restored cultivation mode and ready
+idle without another toggle.
 
 The dedicated first-person smoke used the actual Qingfeng item and directly
-observed all five revised held-item paths plus normal-pose recovery without an
-obvious stuck transform or viewport clip. It validates the item-layer rendering
-route, not attack input or server gameplay; the local command sends no combat
-intent. The initial owner readability verdict was negative, and the revised
-`1.20` amplitude/equal-duration timing pass remains `not_verified` until owner
-review. PAL body arms/camera remain disabled with `FirstPersonMode.DISABLED`.
+observed all five current held-item paths plus the local segmented skin/sleeve
+viewmodel and normal-pose recovery. Historical revisions separately failed for
+hand/handle separation and for presenting a complete arm as a floating cuboid.
+The current evidence shows authored shoulder/elbow/wrist motion, distal grip
+correction, and a screen-edge connector without the former full-arm slab,
+duplicate arm, or stuck transform. It validates the implementation route, not
+attack input or server gameplay; the local command sends no combat intent. The
+segmented arm join and per-move half-viewport envelope remain `not_verified`
+until owner review. PAL body arms/camera remain disabled with
+`FirstPersonMode.DISABLED`.
+
+The follow-up viewport capture used a real mapped `J` combo at `960x540`,
+`16:9`, FOV 70 rather than `/myvillage_pal_smoke`. Each independently calibrated
+path visibly left the lower-right hold, entered the center/left region, and
+returned to neutral without changing the server timeline. The current active
+viewmodel eases to `0.45` uniform scale by normalized progress `0.12` around the
+distal grip, and the corrected elbow target follows the same scale. Combined
+with side-only segment faces, this removed the earlier near-plane sleeve slab in
+the developer capture. That observation does not promote the owner's five-move
+viewport, joint shape, connector proportion, or grip ledger to `pass`.
 
 These technical gates do not settle combat feel. Exact manual
 range/cap/knockback and enchantment/event compatibility surfaces remain

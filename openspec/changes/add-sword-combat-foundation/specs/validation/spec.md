@@ -1,11 +1,20 @@
 ## ADDED Requirements
 
 ### Requirement: PAL and sword combat have one focused validator with negative fixtures
-The repository SHALL provide a focused standard-library validator and tests that inspect the exact PAL jar identity/metadata/license/API evidence, Gradle local-file failure contract, mod dependency metadata, PAL import side boundary, Qingfeng registration/attributes/creative tab, preference codec/attachment, payload fields/directions/protocol, session/definition wiring, input interception, damage hooks, hit-shape definitions, animation resources, the client-only five-pose first-person item extension, bilingual assets, recipe/tag, docs, and practical-jar contents. Negative fixtures SHALL prove specific failures rather than weaken checks around missing assets or prohibited authority.
+The repository SHALL provide a focused standard-library validator and tests that inspect the exact PAL jar identity/metadata/license/API evidence, Gradle local-file failure contract, mod dependency metadata, PAL import side boundary, Qingfeng registration/attributes/creative tab, preference codec/attachment, payload fields/directions/protocol, session/definition wiring, input interception, damage hooks, hit-shape definitions, animation resources, the client-only five-pose first-person item extension, its independent segmented local-skin/sleeve joint renderer and shared corrected frame, the reference viewport-envelope contract, bilingual assets, recipe/tag, docs, and practical-jar contents. Negative fixtures SHALL prove specific failures rather than weaken checks around missing assets or prohibited authority.
 
 #### Scenario: First-person item extension registration, continuity tuning, or pose distinction drifts
-- **WHEN** a fixture removes Qingfeng `RegisterClientExtensionsEvent` registration, bypasses `applyForgeHandTransform`, aliases fewer than five move curves, changes the explicit `1.20` amplitude factor, moves the revised wind-up/strike/recovery envelope outside its declared normalized ranges, or enables PAL `THIRD_PERSON_MODEL`
+- **WHEN** a fixture removes Qingfeng `RegisterClientExtensionsEvent` registration, bypasses `applyForgeHandTransform`, aliases fewer than five move curves, removes the per-move viewport-envelope calibration or its `960x540`/`16:9`/FOV-70 evidence contract, permits a reported move envelope below `0.50` on both axes or wholly inside the lower-right quadrant, moves the revised wind-up/strike/recovery envelope outside its declared normalized ranges, or enables PAL `THIRD_PERSON_MODEL`
 - **THEN** the focused validator SHALL fail with a named first-person integration finding
+
+#### Scenario: Source checks pass without viewport evidence
+- **WHEN** the first-person source invariants pass but no reference capture demonstrates the per-move temporal envelope, central-band intersection, grip, and clipping requirements
+- **THEN** automated validation MAY pass while the revised first-person visual surface remains `not_verified`
+- **AND** a fixed amplitude constant or developer source inspection SHALL NOT promote the owner verdict
+
+#### Scenario: First-person arm integration drifts
+- **WHEN** a fixture removes client-bootstrap `RenderHandEvent` registration, cancels the ordinary item pass, omits skin/sleeve rendering, wide/slim or right/left selection, the shoulder-driver/forearm/hand hierarchy, the screen-edge elbow connector, joint pose reset, per-move shoulder/elbow/wrist tracks, forward-kinematic grip correction, grip-anchored viewmodel scale, main-hand/invisibility/mode guards, the shared neutral fallback, or the common parent transform, gives the arm an elapsed-time clock separate from the item animator's corrected frame, or introduces copied Epic Fight/GeckoLib code or assets
+- **THEN** the focused validator SHALL fail with a named first-person arm-integration finding
 
 #### Scenario: Focused validation passes
 - **WHEN** every declared source, resource, protocol, side, definition, documentation, and jar invariant is present

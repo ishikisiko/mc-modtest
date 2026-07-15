@@ -7,12 +7,14 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import net.neoforged.neoforge.common.NeoForge;
 
 @Mod(value = MyVillageMod.MOD_ID, dist = Dist.CLIENT)
 public final class ClientCombatBootstrap {
     public ClientCombatBootstrap(IEventBus modEventBus) {
         modEventBus.addListener(ClientCombatBootstrap::onClientSetup);
         modEventBus.addListener(ClientCombatBootstrap::onRegisterClientExtensions);
+        NeoForge.EVENT_BUS.addListener(QingfengFirstPersonArmRenderer::onRenderHand);
     }
 
     private static void onClientSetup(FMLClientSetupEvent event) {

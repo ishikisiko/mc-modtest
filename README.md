@@ -681,14 +681,50 @@ input paths. An eligible cultivation click also starts one local-only
 first-person Qingfeng held-item animation for the predicted move. The five
 camera-space poses map one-to-one to the server style and use the same move
 durations; an authoritative start corrects elapsed time, while rejection or
-stop restores the normal held pose. The current owner-review revision scales
-pose displacement around neutral by `1.20`, starts visible wind-up at normalized
-progress `0.12-0.16`, places the strike at `0.56-0.60`, and keeps recovery
-visible through `0.84-0.88`. This makes the stroke occupy more of the unchanged
-server duration instead of changing attack cadence or hit timing. The small inherited hand swing remains a
-packet-free fallback for an unpredicted authoritative start. None of these
-client visuals sends a vanilla attack packet or chooses a move, hit, damage, or
-movement.
+stop restores the normal held pose. An earlier owner-review revision used an
+exact `1.20` displacement factor with visible wind-up at normalized progress
+`0.12-0.16`, strike at `0.56-0.60`, and recovery through `0.84-0.88`. The fixed
+factor is now historical: owner review found that the resulting motion still
+remained concentrated in the lower-right corner.
+
+The current review target calibrates each move independently. In a `960x540`,
+`16:9`, FOV-70 reference capture, the temporal union of the projected sword and
+arm from visible wind-up through late recovery must span at least `0.50` of the
+viewport on one screen axis, enter the central horizontal band
+`x=[0.35,0.65]`, and not remain wholly inside the lower-right quadrant. This is
+the path accumulated across the action, not a requirement that one frame cover
+half the screen. The normalized keyframe ranges and server-owned move duration,
+active window, damage, step, and payload remain unchanged.
+
+The item transform hook cannot draw player geometry by itself. A client-only
+`RenderHandEvent` listener therefore draws one MyVillage-owned segmented
+viewmodel before leaving the ordinary Qingfeng item pass uncancelled. It does
+not reuse a complete vanilla player arm: `QingfengFirstPersonArmModel` contains
+a non-rendering `upper_arm` shoulder driver, visible `forearm` and `hand`
+segments, and a separate screen-edge `connector` that reaches the computed
+elbow. Skin and enabled sleeve layers are generated for wide/slim and left/right
+arms from the local player's current texture. This replaces the rejected
+one-piece arm, whose complete cuboid visibly floated in the middle of the
+screen. The joint architecture is original MyVillage code; it copies no Epic
+Fight or GeckoLib code, model, texture, animation, or dependency.
+
+While a visible local player holds Qingfeng in the main hand in cultivation
+mode, item and arm sample the same corrected action frame or the same neutral
+fallback. Each move authors separate shoulder, elbow, and wrist tracks. Forward
+kinematics computes the distal hand endpoint, then a grip correction keeps that
+endpoint on the sword handle for either hand. The corrected elbow supplies the
+screen-edge connector target, so the visible chain enters from outside the
+viewport instead of presenting a detached full arm. To protect the near plane
+during the widened paths, only the active viewmodel eases from full size to
+`0.45` by normalized progress `0.12`, stays compact through the middle of the
+move, and returns to full size at both neutral endpoints. Scaling is performed
+about the grip and applied to the corrected elbow target as well, so it does not
+move the hand away from the handle. This is a client viewmodel correction, not
+a third-person player-model or gameplay scale change.
+Off-hand, invisible, non-Qingfeng, and non-cultivation states render no
+independent arm. The small inherited hand swing remains a packet-free fallback
+for an unpredicted authoritative start. None of these client visuals sends a
+vanilla attack packet or chooses a move, hit, damage, or movement.
 
 One legal attack input advances each connected move. A late input can buffer
 one next move; misses may continue the sequence, while timeout or move five
@@ -744,9 +780,10 @@ editing launcher state:
   -Pcombat_smoke_game_dir=run-combat-smoke -Pcombat_smoke_username=CombatDev
 ```
 
-`combat_smoke_server` also bounds the client window to `960x540`; use a unique
-game directory and username for a second physical client. Stop every client and
-the acceptance server cleanly after collecting the evidence.
+`combat_smoke_server` also bounds the client window to `960x540`; set FOV to
+`70` for the reference viewport-envelope capture. Use a unique game directory
+and username for a second physical client. Stop every client and the acceptance
+server cleanly after collecting the evidence.
 
 Gate A directly observed PAL controller registration, play, transition, stop,
 normal-pose restoration, and dedicated-server side safety. A later real-client
@@ -754,10 +791,26 @@ normal-pose restoration, and dedicated-server side safety. A later real-client
 center and the attack arm/sword clipped at excessive scale. Custom PAL first
 person-model arms/camera are therefore disabled with
 `FirstPersonMode.DISABLED`. First-person combat instead uses a Qingfeng-only
-NeoForge held-item extension; a physical client separately observed all five
-curves and normal-pose recovery. The owner found the initial curves insufficiently
-distinct, so the revised amplitude/timing pass remains `not_verified` until a
-new owner review. Record only directly observed results below.
+NeoForge held-item extension plus the segmented local skin/sleeve viewmodel
+described above. A developer physical client separately observed all five
+current curves and normal-pose recovery. The separately damped revision was
+rejected because its hand left the handle; the later complete-arm revision was
+rejected because the entire arm floated in the middle of the screen. The current
+joint version showed separate elbow/wrist articulation, a screen-edge
+connection, and the handle remaining at the distal hand contact without the
+prior full-arm slab or stuck pose. The connector is still a deliberately simple
+cuboid and its proportion remains an owner-review surface. This is
+implementation evidence, not an inferred readability, anatomy, or grip-quality
+verdict.
+The latest owner review reported no obvious arm problem for now but rejected the
+fixed-factor action framing because all motion still felt confined to the
+lower-right corner. A subsequent developer capture used the actual mapped `J`
+attack input at `960x540`, `16:9`, FOV 70 and observed all five revised paths
+leave that corner, enter the center/left region, remain joined at the grip, and
+recover to neutral without a near-plane sleeve slab. That capture is evidence
+for the implementation route only. The segmented arm join and the per-move
+half-viewport calibration both remain `not_verified` until a new owner review.
+Record only directly observed results below.
 
 | Qingfeng real-client acceptance surface | Result |
 |---|---|
@@ -785,7 +838,9 @@ new owner review. Record only directly observed results below.
 | Armor/protection, Sharpness/Smite/Bane, Knockback/Fire Aspect, and NeoForge event-listener compatibility | `not_verified` |
 | No duplicate vanilla damage, sweep, cultivation critical, or sprint bonus | `not_verified` |
 | First-person mapped click produces immediate packet-free predicted Qingfeng feedback | `pass` |
-| Revised first-person Qingfeng playback makes moves one through five distinct, continuous, unclipped, and restores the normal pose | `not_verified` |
+| Historical exact-`1.20` first-person framing leaves the lower-right corner and uses at least half of the viewport | `fail` |
+| Per-move first-person envelope spans at least `0.50` on one axis, enters the central band, stays distinct/unclipped, and restores the normal pose | `not_verified` |
+| Segmented local skin/sleeve shoulder-elbow-wrist rig stays screen-connected and joined to the Qingfeng grip through all five revised moves without duplicate rendering | `not_verified` |
 | PAL third-person-model first-person arms/camera animation | `fail` |
 | Two-client nearby five-move start/stop animation and real target damage synchronization | `pass` |
 | Live interruption on mode, item, mount, dimension, death, and meditation start | `pass` |

@@ -4,7 +4,6 @@ import com.example.myvillage.combat.CombatMode;
 import com.example.myvillage.combat.definition.BasicSwordStyle;
 import com.example.myvillage.item.ModItems;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
@@ -12,6 +11,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+
+import java.util.Optional;
 
 public final class QingfengFirstPersonAnimator implements IClientItemExtensions {
     public static final QingfengFirstPersonAnimator INSTANCE = new QingfengFirstPersonAnimator();
@@ -50,39 +51,54 @@ public final class QingfengFirstPersonAnimator implements IClientItemExtensions 
             float partialTick,
             float equipProcess,
             float swingProcess) {
-        if (activeMoveIndex < 0
-                || ClientCombatState.mode() != CombatMode.CULTIVATION
-                || arm != player.getMainArm()
-                || !itemInHand.is(ModItems.QINGFENG_SWORD.get())
-                || !player.getMainHandItem().is(ModItems.QINGFENG_SWORD.get())) {
+        if (arm != player.getMainArm() || !itemInHand.is(ModItems.QINGFENG_SWORD.get())) {
             return false;
         }
 
-        int totalTicks = BasicSwordStyle.DEFINITION.move(activeMoveIndex).totalTicks();
-        double elapsedTicks = player.level().getGameTime() + partialTick - actionStartTick;
-        if (elapsedTicks < 0.0 || elapsedTicks >= totalTicks) {
-            if (elapsedTicks >= totalTicks) {
-                clear();
-            }
+        if (ClientCombatState.mode() != CombatMode.CULTIVATION) {
             return false;
         }
 
-        FirstPersonSwordPose.Pose pose = FirstPersonSwordPose.sample(
-                activeMoveIndex, (float) (elapsedTicks / totalTicks));
-        float side = arm == HumanoidArm.RIGHT ? 1.0F : -1.0F;
-        poseStack.translate(
-                side * (0.56F + pose.x()),
-                -0.52F - equipProcess * 0.6F + pose.y(),
-                -0.72F + pose.z());
-        poseStack.mulPose(Axis.XP.rotationDegrees(pose.pitch()));
-        poseStack.mulPose(Axis.YP.rotationDegrees(side * pose.yaw()));
-        poseStack.mulPose(Axis.ZP.rotationDegrees(side * pose.roll()));
-        poseStack.scale(pose.scale(), pose.scale(), pose.scale());
+        FirstPersonSwordPose.Pose pose = currentFrame(player, partialTick)
+                .map(Frame::pose)
+                .orElse(FirstPersonSwordPose.neutral());
+        FirstPersonSwordTransform.apply(poseStack, arm, equipProcess, pose);
         return true;
+    }
+
+    Optional<Frame> currentFrame(LocalPlayer player, float partialTick) {
+        if (activeMoveIndex < 0) {
+            return Optional.empty();
+        }
+        if (ClientCombatState.mode() != CombatMode.CULTIVATION
+                || !player.getMainHandItem().is(ModItems.QINGFENG_SWORD.get())) {
+            clear();
+            return Optional.empty();
+        }
+
+        int moveIndex = activeMoveIndex;
+        int totalTicks = BasicSwordStyle.DEFINITION.move(moveIndex).totalTicks();
+        double elapsedTicks = player.level().getGameTime() + partialTick - actionStartTick;
+        if (elapsedTicks < 0.0) {
+            return Optional.empty();
+        }
+        if (elapsedTicks >= totalTicks) {
+            clear();
+            return Optional.empty();
+        }
+
+        float progress = (float) (elapsedTicks / totalTicks);
+        return Optional.of(new Frame(
+                moveIndex,
+                progress,
+                FirstPersonSwordPose.sample(moveIndex, progress)));
     }
 
     private void clear() {
         activeMoveIndex = -1;
         actionStartTick = 0.0;
+    }
+
+    record Frame(int moveIndex, float progress, FirstPersonSwordPose.Pose pose) {
     }
 }

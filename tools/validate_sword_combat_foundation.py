@@ -125,19 +125,35 @@ def validate_dependency_wiring(root: Path, findings: list[Finding]) -> None:
 
 def validate_client_boundary(root: Path, findings: list[Finding]) -> None:
     java_root = root / "src/main/java"
+    test_root = root / "src/test/java"
     client_combat = java_root / "com/example/myvillage/client/combat"
+    client_combat_tests = test_root / "com/example/myvillage/client/combat"
     controller_path = client_combat / "CombatAnimationController.java"
     bootstrap_path = client_combat / "ClientCombatBootstrap.java"
     smoke_path = client_combat / "ClientPalSmokeEvents.java"
     first_person_animator_path = client_combat / "QingfengFirstPersonAnimator.java"
     first_person_pose_path = client_combat / "FirstPersonSwordPose.java"
+    first_person_transform_path = client_combat / "FirstPersonSwordTransform.java"
+    first_person_arm_renderer_path = client_combat / "QingfengFirstPersonArmRenderer.java"
+    first_person_arm_model_path = client_combat / "QingfengFirstPersonArmModel.java"
+    first_person_arm_pose_path = client_combat / "FirstPersonArmPose.java"
+    first_person_pose_test_path = client_combat_tests / "FirstPersonSwordPoseTest.java"
+    first_person_transform_test_path = client_combat_tests / "FirstPersonSwordTransformTest.java"
+    first_person_arm_pose_test_path = client_combat_tests / "FirstPersonArmPoseTest.java"
 
     for path, code in (
             (controller_path, "PAL_CONTROLLER_MISSING"),
             (bootstrap_path, "PAL_BOOTSTRAP_MISSING"),
             (smoke_path, "PAL_SMOKE_ENTRY_MISSING"),
             (first_person_animator_path, "COMBAT_FIRST_PERSON_ANIMATOR_MISSING"),
-            (first_person_pose_path, "COMBAT_FIRST_PERSON_POSE_MISSING")):
+            (first_person_pose_path, "COMBAT_FIRST_PERSON_POSE_MISSING"),
+            (first_person_transform_path, "COMBAT_FIRST_PERSON_TRANSFORM_MISSING"),
+            (first_person_arm_renderer_path, "COMBAT_FIRST_PERSON_ARM_RENDERER_MISSING"),
+            (first_person_arm_model_path, "COMBAT_FIRST_PERSON_ARM_MODEL_MISSING"),
+            (first_person_arm_pose_path, "COMBAT_FIRST_PERSON_ARM_POSE_MISSING"),
+            (first_person_pose_test_path, "COMBAT_FIRST_PERSON_POSE_TEST_MISSING"),
+            (first_person_transform_test_path, "COMBAT_FIRST_PERSON_TRANSFORM_TEST_MISSING"),
+            (first_person_arm_pose_test_path, "COMBAT_FIRST_PERSON_ARM_POSE_TEST_MISSING")):
         require_file(path, root, code, findings)
 
     if controller_path.is_file():
@@ -165,7 +181,10 @@ def validate_client_boundary(root: Path, findings: list[Finding]) -> None:
                 ("RegisterClientExtensionsEvent", "COMBAT_FIRST_PERSON_EXTENSION_EVENT"),
                 ("event.registerItem(QingfengFirstPersonAnimator.INSTANCE, "
                  "ModItems.QINGFENG_SWORD.get())",
-                 "COMBAT_FIRST_PERSON_EXTENSION_REGISTRATION")):
+                 "COMBAT_FIRST_PERSON_EXTENSION_REGISTRATION"),
+                ("NeoForge.EVENT_BUS.addListener("
+                 "QingfengFirstPersonArmRenderer::onRenderHand)",
+                 "COMBAT_FIRST_PERSON_ARM_EVENT_REGISTRATION")):
             require_contains(bootstrap, needle, code, bootstrap_path.name, findings)
 
     if first_person_animator_path.is_file():
@@ -175,14 +194,22 @@ def validate_client_boundary(root: Path, findings: list[Finding]) -> None:
                 ("applyForgeHandTransform(", "COMBAT_FIRST_PERSON_HAND_TRANSFORM"),
                 ("BasicSwordStyle.DEFINITION.indexOf(animationId)",
                  "COMBAT_FIRST_PERSON_MOVE_MAPPING"),
-                ("BasicSwordStyle.DEFINITION.move(activeMoveIndex).totalTicks()",
+                ("BasicSwordStyle.DEFINITION.move(moveIndex).totalTicks()",
                  "COMBAT_FIRST_PERSON_DURATION_MAPPING"),
                 ("player.level().getGameTime() - Math.max(0.0F, elapsedTicks)",
                  "COMBAT_FIRST_PERSON_CORRECTED_TIMELINE"),
+                ("Optional<Frame> currentFrame(LocalPlayer player, float partialTick)",
+                 "COMBAT_FIRST_PERSON_SHARED_FRAME"),
+                ("player.level().getGameTime() + partialTick - actionStartTick",
+                 "COMBAT_FIRST_PERSON_FRAME_TIMELINE"),
                 ("ClientCombatState.mode() != CombatMode.CULTIVATION",
                  "COMBAT_FIRST_PERSON_MODE_GUARD"),
                 ("arm != player.getMainArm()", "COMBAT_FIRST_PERSON_MAIN_HAND_GUARD"),
-                ("FirstPersonSwordPose.sample(", "COMBAT_FIRST_PERSON_POSE_SAMPLE")):
+                (".orElse(FirstPersonSwordPose.neutral())",
+                 "COMBAT_FIRST_PERSON_NEUTRAL_FALLBACK"),
+                ("FirstPersonSwordPose.sample(", "COMBAT_FIRST_PERSON_POSE_SAMPLE"),
+                ("FirstPersonSwordTransform.apply(poseStack, arm, equipProcess, pose)",
+                 "COMBAT_FIRST_PERSON_ITEM_SHARED_TRANSFORM")):
             require_contains(animator, needle, code, first_person_animator_path.name, findings)
         for forbidden in ("RenderHandEvent", "Camera", "PacketDistributor", "ServerboundSwingPacket"):
             if forbidden in animator:
@@ -194,7 +221,6 @@ def validate_client_boundary(root: Path, findings: list[Finding]) -> None:
         first_person_pose = text(first_person_pose_path)
         for needle, code in (
                 ("MOVE_COUNT = 5", "COMBAT_FIRST_PERSON_MOVE_COUNT"),
-                ("AMPLITUDE_SCALE = 1.20F", "COMBAT_FIRST_PERSON_AMPLITUDE_SCALE"),
                 ("private static final List<Keyframe> THRUST", "COMBAT_FIRST_PERSON_THRUST"),
                 ("private static final List<Keyframe> HORIZONTAL_CUT",
                  "COMBAT_FIRST_PERSON_HORIZONTAL_CUT"),
@@ -218,6 +244,349 @@ def validate_client_boundary(root: Path, findings: list[Finding]) -> None:
             findings.append(Finding(
                 "COMBAT_FIRST_PERSON_CONTINUITY_TIMING",
                 first_person_pose_path.name))
+
+    if first_person_transform_path.is_file():
+        first_person_transform = text(first_person_transform_path)
+        for needle, code in (
+                ("static void apply(", "COMBAT_FIRST_PERSON_SHARED_TRANSFORM_APPLY"),
+                ("side * (BASE_X + pose.x())", "COMBAT_FIRST_PERSON_TRANSFORM_VIEW_X"),
+                ("BASE_Y - equipProgress * EQUIP_DROP + pose.y()",
+                 "COMBAT_FIRST_PERSON_TRANSFORM_VIEW_Y"),
+                ("BASE_Z + pose.z()", "COMBAT_FIRST_PERSON_TRANSFORM_VIEW_Z"),
+                ("Axis.XP.rotationDegrees(pose.pitch())",
+                 "COMBAT_FIRST_PERSON_TRANSFORM_PITCH"),
+                ("Axis.YP.rotationDegrees(side * pose.yaw())",
+                 "COMBAT_FIRST_PERSON_TRANSFORM_YAW"),
+                ("Axis.ZP.rotationDegrees(side * pose.roll())",
+                 "COMBAT_FIRST_PERSON_TRANSFORM_ROLL"),
+                ("poseStack.scale(pose.scale(), pose.scale(), pose.scale())",
+                 "COMBAT_FIRST_PERSON_TRANSFORM_SCALE")):
+            require_contains(
+                first_person_transform,
+                needle,
+                code,
+                first_person_transform_path.name,
+                findings)
+        transform_order = (
+            "poseStack.translate(",
+            "Axis.XP.rotationDegrees(pose.pitch())",
+            "Axis.YP.rotationDegrees(side * pose.yaw())",
+            "Axis.ZP.rotationDegrees(side * pose.roll())",
+            "poseStack.scale(pose.scale(), pose.scale(), pose.scale())",
+        )
+        cursor = -1
+        for token in transform_order:
+            cursor = first_person_transform.find(token, cursor + 1)
+            if cursor < 0:
+                findings.append(Finding(
+                    "COMBAT_FIRST_PERSON_SHARED_TRANSFORM_ORDER",
+                    first_person_transform_path.name))
+                break
+
+    if first_person_pose_test_path.is_file():
+        first_person_pose_test = text(first_person_pose_test_path)
+        for needle, code in (
+                ("everyMoveCrossesCenterWithAViewportSizedViewPlaneSweep",
+                 "COMBAT_FIRST_PERSON_VIEWPORT_CONTRACT_TEST"),
+                ("MIN_VIEW_PLANE_SWEEP = 1.00F",
+                 "COMBAT_FIRST_PERSON_VIEWPORT_MIN_SWEEP_TEST"),
+                ("MAX_VIEW_PLANE_SWEEP = 1.85F",
+                 "COMBAT_FIRST_PERSON_VIEWPORT_MAX_SWEEP_TEST"),
+                ("MAX_VIEW_PLANE_STEP = 0.08F",
+                 "COMBAT_FIRST_PERSON_VIEWPORT_CONTINUITY_TEST"),
+                ("viewportCurvesStayInsideSafeBoundsAndRemainContinuous",
+                 "COMBAT_FIRST_PERSON_VIEWPORT_BOUNDS_TEST"),
+                ("thrustHitsAdvanceIntoTheCenterAndLungeReadsStronger",
+                 "COMBAT_FIRST_PERSON_THRUST_DEPTH_TEST"),
+                ("cutsKeepTheirDirectionalViewPlaneSignatures",
+                 "COMBAT_FIRST_PERSON_CUT_SIGNATURE_TEST")):
+            require_contains(
+                first_person_pose_test,
+                needle,
+                code,
+                first_person_pose_test_path.name,
+                findings)
+
+    if first_person_transform_test_path.is_file():
+        first_person_transform_test = text(first_person_transform_test_path)
+        require_contains(
+            first_person_transform_test,
+            "sharedParentTransformMirrorsHandsAndPreservesMatrixOrder",
+            "COMBAT_FIRST_PERSON_TRANSFORM_MATRIX_TEST",
+            first_person_transform_test_path.name,
+            findings)
+
+    if first_person_arm_renderer_path.is_file():
+        arm_renderer = text(first_person_arm_renderer_path)
+        for needle, code in (
+                ("public static void onRenderHand(RenderHandEvent event)",
+                 "COMBAT_FIRST_PERSON_ARM_RENDER_EVENT"),
+                ("event.getHand() != InteractionHand.MAIN_HAND",
+                 "COMBAT_FIRST_PERSON_ARM_MAIN_HAND_GUARD"),
+                ("player.isInvisible()", "COMBAT_FIRST_PERSON_ARM_INVISIBLE_GUARD"),
+                ("!event.getItemStack().is(ModItems.QINGFENG_SWORD.get())",
+                 "COMBAT_FIRST_PERSON_ARM_EVENT_ITEM_GUARD"),
+                ("!player.getMainHandItem().is(ModItems.QINGFENG_SWORD.get())",
+                 "COMBAT_FIRST_PERSON_ARM_PLAYER_ITEM_GUARD"),
+                ("ClientCombatState.mode() != CombatMode.CULTIVATION",
+                 "COMBAT_FIRST_PERSON_ARM_MODE_GUARD"),
+                (".currentFrame(player, event.getPartialTick())",
+                 "COMBAT_FIRST_PERSON_ARM_SHARED_FRAME"),
+                (".orElse(FirstPersonSwordPose.neutral())",
+                 "COMBAT_FIRST_PERSON_ARM_NEUTRAL_FALLBACK"),
+                ("FirstPersonArmPose.sample(",
+                 "COMBAT_FIRST_PERSON_ARM_JOINT_SAMPLE"),
+                (".orElse(FirstPersonArmPose.neutral(swordPose))",
+                 "COMBAT_FIRST_PERSON_ARM_NEUTRAL_JOINTS"),
+                ("FirstPersonSwordTransform.apply("
+                 "poseStack, arm, event.getEquipProgress(), swordPose)",
+                 "COMBAT_FIRST_PERSON_ARM_SHARED_TRANSFORM"),
+                ("side * FirstPersonArmPose.GRIP_PIVOT_X",
+                 "COMBAT_FIRST_PERSON_ARM_GRIP_PIVOT"),
+                ("pose.counterRoll()", "COMBAT_FIRST_PERSON_ARM_COUNTER_ROLL"),
+                ("pose.counterYaw()", "COMBAT_FIRST_PERSON_ARM_COUNTER_YAW"),
+                ("pose.counterPitch()", "COMBAT_FIRST_PERSON_ARM_COUNTER_PITCH"),
+                ("side * FirstPersonArmPose.GRIP_OFFSET_X",
+                 "COMBAT_FIRST_PERSON_ARM_GRIP_OFFSET"),
+                ("QingfengFirstPersonArmModel.create(true, arm)",
+                 "COMBAT_FIRST_PERSON_ARM_SLIM_MODEL"),
+                ("QingfengFirstPersonArmModel.create(false, arm)",
+                 "COMBAT_FIRST_PERSON_ARM_WIDE_MODEL"),
+                ("player.getSkin().model() == PlayerSkin.Model.SLIM",
+                 "COMBAT_FIRST_PERSON_ARM_SKIN_MODEL"),
+                ("FirstPersonArmPose.gripCorrection(pose, arm)",
+                 "COMBAT_FIRST_PERSON_ARM_DISTAL_ANCHOR"),
+                ("pose.viewmodelScale()",
+                 "COMBAT_FIRST_PERSON_ARM_VIEWMODEL_SCALE"),
+                ("model.applyPose(pose, arm)",
+                 "COMBAT_FIRST_PERSON_ARM_POSE_APPLY"),
+                ("FirstPersonArmPose.scaledCorrectedElbow(pose, arm)",
+                 "COMBAT_FIRST_PERSON_ARM_ELBOW_TARGET"),
+                ("new Quaternionf().rotationTo(",
+                 "COMBAT_FIRST_PERSON_ARM_CONNECTOR_ROTATION"),
+                ("QingfengFirstPersonArmModel.CONNECTOR_LENGTH_UNITS",
+                 "COMBAT_FIRST_PERSON_ARM_CONNECTOR_LENGTH"),
+                ("model.renderSkinConnector(",
+                 "COMBAT_FIRST_PERSON_ARM_SKIN_CONNECTOR"),
+                ("model.renderSleeveConnector(",
+                 "COMBAT_FIRST_PERSON_ARM_SLEEVE_CONNECTOR"),
+                ("RenderType.entitySolid(player.getSkin().texture())",
+                 "COMBAT_FIRST_PERSON_ARM_SKIN_TEXTURE"),
+                ("RenderType.entityTranslucent(player.getSkin().texture())",
+                 "COMBAT_FIRST_PERSON_ARM_SLEEVE_TEXTURE"),
+                ("PlayerModelPart.RIGHT_SLEEVE", "COMBAT_FIRST_PERSON_RIGHT_SLEEVE"),
+                ("PlayerModelPart.LEFT_SLEEVE", "COMBAT_FIRST_PERSON_LEFT_SLEEVE"),
+                ("poseStack.pushPose();", "COMBAT_FIRST_PERSON_ARM_POSE_PUSH"),
+                ("poseStack.popPose();", "COMBAT_FIRST_PERSON_ARM_POSE_POP")):
+            require_contains(
+                arm_renderer,
+                needle,
+                code,
+                first_person_arm_renderer_path.name,
+                findings)
+        transform_order = (
+            "FirstPersonSwordTransform.apply(",
+            "side * FirstPersonArmPose.GRIP_PIVOT_X",
+            "pose.counterRoll()",
+            "pose.counterYaw()",
+            "pose.counterPitch()",
+            "-side * FirstPersonArmPose.GRIP_PIVOT_X",
+            "side * FirstPersonArmPose.GRIP_OFFSET_X",
+            "Axis.YP.rotationDegrees(side * 45.0F)",
+        )
+        cursor = -1
+        for token in transform_order:
+            cursor = arm_renderer.find(token, cursor + 1)
+            if cursor < 0:
+                findings.append(Finding(
+                    "COMBAT_FIRST_PERSON_ARM_GRIP_TRANSFORM_ORDER",
+                    first_person_arm_renderer_path.name))
+                break
+        if "event.setCanceled" in arm_renderer:
+            findings.append(Finding(
+                "COMBAT_FIRST_PERSON_ARM_ITEM_PASS_CANCEL",
+                first_person_arm_renderer_path.name))
+        for forbidden in ("getGameTime", "actionStartTick"):
+            if forbidden in arm_renderer:
+                findings.append(Finding(
+                    "COMBAT_FIRST_PERSON_ARM_DUPLICATE_TIMELINE",
+                    f"{first_person_arm_renderer_path.name}:{forbidden}"))
+        for forbidden in (
+                "Camera", "PacketDistributor", "ServerboundSwingPacket", "com.zigythebird"):
+            if forbidden in arm_renderer:
+                findings.append(Finding(
+                    "COMBAT_FIRST_PERSON_ARM_AUTHORITY_OR_CAMERA_LEAK",
+                    f"{first_person_arm_renderer_path.name}:{forbidden}"))
+        for forbidden in ("yesman.epicfight", "software.bernie.geckolib"):
+            if forbidden in arm_renderer:
+                findings.append(Finding(
+                    "COMBAT_FIRST_PERSON_ARM_THIRD_PARTY_RIG_FORBIDDEN",
+                    f"{first_person_arm_renderer_path.name}:{forbidden}"))
+
+    if first_person_arm_model_path.is_file():
+        arm_model = text(first_person_arm_model_path)
+        for needle, code in (
+                ("LayerDefinition.create(mesh, TEXTURE_SIZE, TEXTURE_SIZE)",
+                 "COMBAT_FIRST_PERSON_ARM_LAYER_DEFINITION"),
+                ("addChain(\n                root,\n                \"skin\"",
+                 "COMBAT_FIRST_PERSON_ARM_SKIN_CHAIN"),
+                ("addChain(\n                root,\n                \"sleeve\"",
+                 "COMBAT_FIRST_PERSON_ARM_SLEEVE_CHAIN"),
+                ("prefix + \"_upper_arm\"",
+                 "COMBAT_FIRST_PERSON_ARM_UPPER_DRIVER"),
+                ("prefix + \"_forearm\"",
+                 "COMBAT_FIRST_PERSON_ARM_FOREARM_SEGMENT"),
+                ("prefix + \"_hand\"",
+                 "COMBAT_FIRST_PERSON_ARM_HAND_SEGMENT"),
+                ("prefix + \"_connector\"",
+                 "COMBAT_FIRST_PERSON_ARM_SCREEN_CONNECTOR"),
+                ("SEGMENT_SIDE_FACES",
+                 "COMBAT_FIRST_PERSON_ARM_INTERNAL_CAP_GUARD"),
+                ("HAND_CAP_FACE",
+                 "COMBAT_FIRST_PERSON_ARM_HAND_CAP"),
+                ("skin.apply(pose.joints(), arm)",
+                 "COMBAT_FIRST_PERSON_ARM_SKIN_JOINT_APPLY"),
+                ("sleeve.apply(pose.joints(), arm)",
+                 "COMBAT_FIRST_PERSON_ARM_SLEEVE_JOINT_APPLY"),
+                ("upperArm.resetPose();",
+                 "COMBAT_FIRST_PERSON_ARM_UPPER_RESET"),
+                ("forearm.resetPose();",
+                 "COMBAT_FIRST_PERSON_ARM_FOREARM_RESET"),
+                ("hand.resetPose();",
+                 "COMBAT_FIRST_PERSON_ARM_HAND_RESET"),
+                ("upperArm.setRotation(",
+                 "COMBAT_FIRST_PERSON_ARM_UPPER_ROTATION"),
+                ("forearm.setRotation(",
+                 "COMBAT_FIRST_PERSON_ARM_FOREARM_ROTATION"),
+                ("hand.setRotation(",
+                 "COMBAT_FIRST_PERSON_ARM_HAND_ROTATION"),
+                ("float side = arm == HumanoidArm.RIGHT ? 1.0F : -1.0F",
+                 "COMBAT_FIRST_PERSON_ARM_JOINT_MIRROR")):
+            require_contains(
+                arm_model,
+                needle,
+                code,
+                first_person_arm_model_path.name,
+                findings)
+        for forbidden in ("PlayerModel<", "ModelLayers.PLAYER", "com.zigythebird"):
+            if forbidden in arm_model:
+                findings.append(Finding(
+                    "COMBAT_FIRST_PERSON_ARM_WHOLE_MODEL_FORBIDDEN",
+                    f"{first_person_arm_model_path.name}:{forbidden}"))
+        for forbidden in ("yesman.epicfight", "software.bernie.geckolib"):
+            if forbidden in arm_model:
+                findings.append(Finding(
+                    "COMBAT_FIRST_PERSON_ARM_THIRD_PARTY_RIG_FORBIDDEN",
+                    f"{first_person_arm_model_path.name}:{forbidden}"))
+
+    if first_person_arm_pose_path.is_file():
+        arm_pose = text(first_person_arm_pose_path)
+        for needle, code in (
+                ("PITCH_FOLLOW = 0.10F", "COMBAT_FIRST_PERSON_ARM_PITCH_FOLLOW"),
+                ("YAW_FOLLOW = 0.35F", "COMBAT_FIRST_PERSON_ARM_YAW_FOLLOW"),
+                ("ROLL_FOLLOW = 0.20F", "COMBAT_FIRST_PERSON_ARM_ROLL_FOLLOW"),
+                ("MIN_VIEWMODEL_SCALE = 0.45F",
+                 "COMBAT_FIRST_PERSON_ARM_MIN_VIEWMODEL_SCALE"),
+                ("VIEWMODEL_SCALE_FADE_PROGRESS = 0.12F",
+                 "COMBAT_FIRST_PERSON_ARM_VIEWMODEL_SCALE_FADE"),
+                ("SHOULDER_TO_ELBOW_Y = 3.0F",
+                 "COMBAT_FIRST_PERSON_ARM_SHOULDER_TO_ELBOW"),
+                ("FOREARM_LENGTH = 5.0F",
+                 "COMBAT_FIRST_PERSON_ARM_FOREARM_LENGTH"),
+                ("HAND_LENGTH = 2.0F",
+                 "COMBAT_FIRST_PERSON_ARM_HAND_LENGTH"),
+                ("GRIP_ENDPOINT_Y = 10.0F",
+                 "COMBAT_FIRST_PERSON_ARM_GRIP_ENDPOINT"),
+                ("GRIP_PIVOT_X = 0.055F", "COMBAT_FIRST_PERSON_ARM_GRIP_PIVOT_X"),
+                ("GRIP_PIVOT_Y = -0.061F", "COMBAT_FIRST_PERSON_ARM_GRIP_PIVOT_Y"),
+                ("GRIP_PIVOT_Z = -0.024F", "COMBAT_FIRST_PERSON_ARM_GRIP_PIVOT_Z"),
+                ("GRIP_OFFSET_X = -0.040F", "COMBAT_FIRST_PERSON_ARM_GRIP_OFFSET_X"),
+                ("GRIP_OFFSET_Y = -0.182F", "COMBAT_FIRST_PERSON_ARM_GRIP_OFFSET_Y"),
+                ("GRIP_OFFSET_Z = 0.394F", "COMBAT_FIRST_PERSON_ARM_GRIP_OFFSET_Z"),
+                ("swordPose.x()", "COMBAT_FIRST_PERSON_ARM_GRIP_X"),
+                ("swordPose.y()", "COMBAT_FIRST_PERSON_ARM_GRIP_Y"),
+                ("swordPose.z()", "COMBAT_FIRST_PERSON_ARM_GRIP_Z"),
+                ("swordPose.scale()", "COMBAT_FIRST_PERSON_ARM_GRIP_SCALE"),
+                ("-swordPose.pitch() * (1.0F - PITCH_FOLLOW)",
+                 "COMBAT_FIRST_PERSON_ARM_PITCH_COUNTER_DERIVATION"),
+                ("-swordPose.yaw() * (1.0F - YAW_FOLLOW)",
+                 "COMBAT_FIRST_PERSON_ARM_YAW_COUNTER_DERIVATION"),
+                ("-swordPose.roll() * (1.0F - ROLL_FOLLOW)",
+                 "COMBAT_FIRST_PERSON_ARM_ROLL_COUNTER_DERIVATION"),
+                ("private static final JointPose NEUTRAL_JOINTS",
+                 "COMBAT_FIRST_PERSON_ARM_NEUTRAL_JOINTS"),
+                ("private static final List<Keyframe> THRUST",
+                 "COMBAT_FIRST_PERSON_ARM_THRUST_JOINT_TRACK"),
+                ("private static final List<Keyframe> HORIZONTAL_CUT",
+                 "COMBAT_FIRST_PERSON_ARM_HORIZONTAL_JOINT_TRACK"),
+                ("private static final List<Keyframe> RISING_CUT",
+                 "COMBAT_FIRST_PERSON_ARM_RISING_JOINT_TRACK"),
+                ("private static final List<Keyframe> DIAGONAL_CUT",
+                 "COMBAT_FIRST_PERSON_ARM_DIAGONAL_JOINT_TRACK"),
+                ("private static final List<Keyframe> LUNGE_THRUST",
+                 "COMBAT_FIRST_PERSON_ARM_LUNGE_JOINT_TRACK"),
+                ("static Vector3f gripCorrection(Pose pose, HumanoidArm arm)",
+                 "COMBAT_FIRST_PERSON_ARM_GRIP_CORRECTION_FUNCTION"),
+                ("GRIP_ENDPOINT_Y - endpoint.y",
+                 "COMBAT_FIRST_PERSON_ARM_GRIP_CORRECTION_DERIVATION"),
+                ("static Vector3f scaledCorrectedElbow(Pose pose, HumanoidArm arm)",
+                 "COMBAT_FIRST_PERSON_ARM_SCALED_ELBOW_FUNCTION"),
+                ("elbow.sub(grip).mul(pose.viewmodelScale()).add(grip)",
+                 "COMBAT_FIRST_PERSON_ARM_SCALED_ELBOW_DERIVATION"),
+                ("private static Vector3f handEndpoint(JointPose pose, HumanoidArm arm)",
+                 "COMBAT_FIRST_PERSON_ARM_FORWARD_KINEMATICS"),
+                (".rotationZYX(radians(roll), radians(yaw), radians(pitch))",
+                 "COMBAT_FIRST_PERSON_ARM_JOINT_ROTATION_ORDER"),
+                ("private static float viewmodelScale(float progress)",
+                 "COMBAT_FIRST_PERSON_ARM_VIEWMODEL_SCALE_FUNCTION"),
+                ("edgeDistance / VIEWMODEL_SCALE_FADE_PROGRESS",
+                 "COMBAT_FIRST_PERSON_ARM_VIEWMODEL_SCALE_DERIVATION"),
+                ("JointPose joints,",
+                 "COMBAT_FIRST_PERSON_ARM_POSE_JOINT_PAYLOAD")):
+            require_contains(
+                arm_pose,
+                needle,
+                code,
+                first_person_arm_pose_path.name,
+                findings)
+        for forbidden in (
+                "getGameTime", "actionStartTick", "Camera", "PacketDistributor",
+                "ServerboundSwingPacket", "com.zigythebird"):
+            if forbidden in arm_pose:
+                findings.append(Finding(
+                    "COMBAT_FIRST_PERSON_ARM_AUTHORITY_OR_CAMERA_LEAK",
+                    f"{first_person_arm_pose_path.name}:{forbidden}"))
+        for forbidden in ("yesman.epicfight", "software.bernie.geckolib"):
+            if forbidden in arm_pose:
+                findings.append(Finding(
+                    "COMBAT_FIRST_PERSON_ARM_THIRD_PARTY_RIG_FORBIDDEN",
+                    f"{first_person_arm_pose_path.name}:{forbidden}"))
+
+    if first_person_arm_pose_test_path.is_file():
+        arm_pose_test = text(first_person_arm_pose_test_path)
+        for needle, code in (
+                ("armAndSwordShareTheCorrectedActionFrameAtEverySample",
+                 "COMBAT_FIRST_PERSON_ARM_SHARED_FRAME_TEST"),
+                ("fiveMovesAuthorDistinctShoulderElbowAndWristPoses",
+                 "COMBAT_FIRST_PERSON_ARM_JOINT_TRACK_TEST"),
+                ("jointDepthAxesStayInsideTheNearPlaneEnvelope",
+                 "COMBAT_FIRST_PERSON_ARM_NEAR_PLANE_TEST"),
+                ("gripCorrectionAnchorsTheArticulatedHandForBothHandsAtEverySample",
+                 "COMBAT_FIRST_PERSON_ARM_GRIP_ANCHOR_TEST"),
+                ("scaledElbowConnectorTargetMirrorsForBothHandsAtEverySample",
+                 "COMBAT_FIRST_PERSON_ARM_CONNECTOR_TARGET_TEST"),
+                ("jointCurvesStayContinuousAndWithinTheViewmodelEnvelope",
+                 "COMBAT_FIRST_PERSON_ARM_JOINT_CONTINUITY_TEST"),
+                ("viewmodelScaleProtectsOnlyTheMiddleAndReturnsToFullSize",
+                 "COMBAT_FIRST_PERSON_ARM_VIEWMODEL_SCALE_TEST"),
+                ("counterRotationCannotMoveTheGripPivot",
+                 "COMBAT_FIRST_PERSON_ARM_GRIP_PIVOT_TEST")):
+            require_contains(
+                arm_pose_test,
+                needle,
+                code,
+                first_person_arm_pose_test_path.name,
+                findings)
 
     if java_root.is_dir():
         for path in java_root.rglob("*.java"):
@@ -602,10 +971,12 @@ def validate_docs(root: Path, findings: list[Finding]) -> None:
         root / "README.md": (
             "SWORD_COMBAT_FOUNDATION", "myvillage:qingfeng_sword", "/myvillage combat debug on",
             "myvillage_pal_smoke move", "combat_smoke_server", "combat_smoke_game_dir",
-            "combat_smoke_username", "not_verified"),
+            "combat_smoke_username", "RenderHandEvent", "wide/slim", "not_verified"),
         root / "docs/ai-kb/32_pal_combat_integration.md": (
             "PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar", "CombatDamageService", "First-person",
-            "IClientItemExtensions", "RegisterClientExtensionsEvent"),
+            "IClientItemExtensions", "RegisterClientExtensionsEvent",
+            "QingfengFirstPersonArmRenderer", "QingfengFirstPersonArmModel",
+            "upper_arm", "forearm", "hand", "connector"),
         root / "AGENTS.md": (
             "validate_sword_combat_foundation.py", "PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar",
             "myvillage_pal_smoke move", "combat_smoke_server", "combat_smoke_game_dir",
@@ -644,6 +1015,12 @@ def validate_jar_resources(root: Path, findings: list[Finding]) -> None:
     jar = max(jars, key=lambda path: path.stat().st_mtime)
     source_paths = (
         root / "src/main/java/com/example/myvillage/item/ModItems.java",
+        root / "src/main/java/com/example/myvillage/client/combat/FirstPersonSwordPose.java",
+        root / "src/main/java/com/example/myvillage/client/combat/FirstPersonSwordTransform.java",
+        root / "src/main/java/com/example/myvillage/client/combat/FirstPersonArmPose.java",
+        root / "src/main/java/com/example/myvillage/client/combat/QingfengFirstPersonArmModel.java",
+        root / "src/main/java/com/example/myvillage/client/combat/QingfengFirstPersonAnimator.java",
+        root / "src/main/java/com/example/myvillage/client/combat/QingfengFirstPersonArmRenderer.java",
         root / "src/main/resources/assets/myvillage/player_animations/sword_combat.json",
         root / "src/main/resources/assets/myvillage/textures/item/qingfeng_sword.png",
     )
@@ -661,7 +1038,15 @@ def validate_jar_resources(root: Path, findings: list[Finding]) -> None:
         "com/example/myvillage/combat/session/CombatSessionManager.class",
         "com/example/myvillage/combat/runtime/CombatDamageService.class",
         "com/example/myvillage/client/combat/FirstPersonSwordPose.class",
+        "com/example/myvillage/client/combat/FirstPersonSwordTransform.class",
+        "com/example/myvillage/client/combat/FirstPersonArmPose.class",
+        "com/example/myvillage/client/combat/FirstPersonArmPose$Pose.class",
+        "com/example/myvillage/client/combat/FirstPersonArmPose$JointPose.class",
+        "com/example/myvillage/client/combat/QingfengFirstPersonArmModel.class",
+        "com/example/myvillage/client/combat/QingfengFirstPersonArmModel$Chain.class",
         "com/example/myvillage/client/combat/QingfengFirstPersonAnimator.class",
+        "com/example/myvillage/client/combat/QingfengFirstPersonAnimator$Frame.class",
+        "com/example/myvillage/client/combat/QingfengFirstPersonArmRenderer.class",
         "assets/myvillage/lang/en_us.json",
         "assets/myvillage/lang/zh_cn.json",
     }
