@@ -1,0 +1,9 @@
+.gradle/
+build/
+run/
+runs/
+.idea/
+*.iml
+.vscode/
+mcp-server/.venv/
+__pycache__/
