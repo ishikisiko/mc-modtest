@@ -1,0 +1,29 @@
+modLoader="javafml"
+loaderVersion="[1,)"
+license="MIT"
+issueTrackerURL="https://example.invalid/devbridge/issues"
+
+[[mods]]
+modId="devbridge"
+version="0.1.0"
+displayName="DevBridge"
+description='''
+Development-only HTTP bridge exposing logs, commands, registries, world state,
+reflection and screenshots so an external AI agent / MCP server can observe and
+drive a running Minecraft instance. Not intended for production use.
+'''
+authors="you"
+
+[[dependencies.devbridge]]
+modId="neoforge"
+type="required"
+versionRange="[21.1.0,)"
+ordering="NONE"
+side="BOTH"
+
+[[dependencies.devbridge]]
+modId="minecraft"
+type="required"
+versionRange="[1.21.1]"
+ordering="NONE"
+side="BOTH"
