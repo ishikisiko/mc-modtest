@@ -40,7 +40,7 @@ const css = fs.readFileSync(path.join(root, 'src/ui/style.css'), 'utf8');
 let html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
 const esc = (s) => s.replace(/<\/script/gi, '<\\/script');
 // (replacer functions: bundles contain `$` sequences that string replacements would expand)
-html = html.replace(/<link rel="stylesheet"[^>]*>/, () => `<style>\n${css}\n</style>`);
+html = html.replace(/<link rel="stylesheet" href="\.\/src\/ui\/style\.css"[^>]*>/, () => `<style>\n${css}\n</style>`);
 html = html.replace(/<script type="importmap">[\s\S]*?<\/script>\n?/, () => '');
 html = html.replace(
   /<script type="module" src="\.\/src\/main\.js"><\/script>/,
@@ -50,3 +50,17 @@ fs.mkdirSync(path.join(root, 'dist'), { recursive: true });
 const out = path.join(root, 'dist/yunshan-city.html');
 fs.writeFileSync(out, html);
 console.log(`wrote ${path.relative(root, out)} (${(html.length / 1024).toFixed(0)} KB)`);
+
+// artifact variant: page content only (the host wraps it in its own html/head/body skeleton)
+if (process.argv.includes('--artifact')) {
+  const head = html.match(/<head>([\s\S]*?)<\/head>/)[1];
+  const body = html.match(/<body>([\s\S]*?)<\/body>/)[1];
+  const keep = head
+    .split('\n')
+    .filter((l) => !/<meta charset|<meta name="viewport"/.test(l))
+    .join('\n');
+  const art = `${keep.trim()}\n${body.trim()}\n`;
+  const aout = path.join(root, 'dist/artifact.html');
+  fs.writeFileSync(aout, art);
+  console.log(`wrote ${path.relative(root, aout)} (${(art.length / 1024).toFixed(0)} KB)`);
+}
