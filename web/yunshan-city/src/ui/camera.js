@@ -238,7 +238,7 @@ export class CameraRig {
       if (k.has('KeyS') || k.has('ArrowDown')) mv.sub(dir);
       if (k.has('KeyD') || k.has('ArrowRight')) mv.add(right);
       if (k.has('KeyA') || k.has('ArrowLeft')) mv.sub(right);
-      if (k.has('KeyE') || k.has('Space')) mv.y += 1;
+      if (k.has('KeyE')) mv.y += 1;
       if (k.has('KeyQ') || k.has('KeyC')) mv.y -= 1;
       if (mv.lengthSq() > 0) mv.normalize().multiplyScalar(this.flySpeed * fast);
       this.velocity.lerp(mv, 1 - Math.exp(-dt * 6));

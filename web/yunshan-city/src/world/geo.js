@@ -152,6 +152,32 @@ export function createGeo(seed = 1) {
     return best;
   }
 
+  // enumerate pillar centres (same rules as pillars()) inside a radius
+  function listPillars(cx, cz, radius) {
+    const out = [];
+    const i0 = Math.floor((cx - radius) / PILLAR_CELL);
+    const i1 = Math.floor((cx + radius) / PILLAR_CELL);
+    const j0 = Math.floor((cz - radius) / PILLAR_CELL);
+    const j1 = Math.floor((cz + radius) / PILLAR_CELL);
+    for (let j = j0; j <= j1; j++)
+      for (let i = i0; i <= i1; i++) {
+        const h = hash2(i, j, seed * 31 + 5);
+        if ((h & 255) < 105) continue;
+        const px = (i + 0.2 + 0.6 * ((h >>> 8) & 255) / 255) * PILLAR_CELL;
+        const pz = (j + 0.2 + 0.6 * ((h >>> 16) & 255) / 255) * PILLAR_CELL;
+        if (plateauMask(px, pz) > 0.02) continue;
+        if (px * px + (pz + 100) * (pz + 100) > 1500 * 1500) continue;
+        if (Math.hypot(px - cx, pz - cz) > radius) continue;
+        const rr = ((h >>> 24) & 255) / 255;
+        const r0 = 9 + 34 * rr * rr;
+        const distC = Math.sqrt(px * px + (pz + 60) * (pz + 60));
+        const hv = hash2(j, i, seed + 99) / 4294967296;
+        const top = -60 + 190 * hv * hv + 60 * smoothstep(900, 400, distC);
+        out.push({ x: px, z: pz, r: r0, top });
+      }
+    return out;
+  }
+
   // 1 inside the elevated valley plateau, 0 in the outer lowlands
   function plateauMask(x, z) {
     const d = x - axisX(z);
@@ -260,5 +286,5 @@ export function createGeo(seed = 1) {
     return clamp(0.5 + 0.6 * fbm(nE, x, z, 1 / 90, 3, 0.2), 0, 1);
   }
 
-  return { axisX, floorY, halfWidth, ridge, height, forest, plateauMask, fbm, noise: { nA, nB, nC, nD, nE } };
+  return { axisX, floorY, halfWidth, ridge, height, forest, plateauMask, listPillars, fbm, noise: { nA, nB, nC, nD, nE } };
 }

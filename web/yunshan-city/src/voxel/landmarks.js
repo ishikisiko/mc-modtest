@@ -647,3 +647,73 @@ export function buildLamp() {
   M.box(-1, 17, -1, 1, 18, 1, PAL.TILE);
   return M;
 }
+
+// ---------------------------------------------------------------- wall watchtower (敌楼)
+export function buildWallTower(def) {
+  const w = def.w || 50;
+  const M = new VoxelModel(-w / 2 - 12, -46, -w / 2 - 12, w / 2 + 12, 90, w / 2 + 12);
+  // foundation reaching down the slope, brick base with crenellated top
+  M.box(-w / 2, -45, -w / 2, w / 2, 4, w / 2, PAL.BRICK);
+  crenels(M, -w / 2, w / 2, w / 2 - 1, 4, 1);
+  crenels(M, -w / 2, w / 2, -w / 2, 4, -1);
+  for (let z = -w / 2; z < w / 2; z++) {
+    for (const x of [-w / 2, w / 2 - 1]) {
+      M.set(x, 4, z, PAL.BRICK_D);
+      M.set(x, 5, z, PAL.BRICK_D);
+      if ((z + w / 2) % 8 < 5) for (let y = 6; y < 9; y++) M.set(x, y, z, PAL.BRICK_D);
+    }
+  }
+  // brick lower storey with arched passages along x (the wall axis) and loopholes
+  const b = w / 2 - 8;
+  M.box(-b, 4, -b, b, 24, b, PAL.BRICK);
+  tunnel(M, 0, 5, 16, -b - 1, b + 1, 'x');
+  for (const s of [-1, 1])
+    for (let k = -2; k <= 2; k++) {
+      M.box(k * 6 - 1, 14, s > 0 ? b - 1 : -b, k * 6 + 1, 18, s > 0 ? b : -b + 1, PAL.BLACK);
+    }
+  M.box(-b - 1, 23, -b - 1, b + 1, 25, b + 1, PAL.STONE_D);
+  // timber upper storey
+  const c = b - 3;
+  body(M, { x0: -c, z0: -c, x1: c, z1: c, y0: 25, y1: 40, bayX: 3, bayZ: 3, colMat: PAL.RED, front: 'window', back: 'window', left: 'window', right: 'window', beam: 'painted', beamH: 3, lowWall: PAL.WOOD_D });
+  roofRect(M, { x0: -c - 7, x1: c + 7, z0: -c - 7, z1: c + 7, y: 40, type: 'xieshan', tiles: TILESETS.grey, wall: [-c, -c, c, c], lift: 4 });
+  lantern(M, -c - 1, 39, c);
+  lantern(M, c, 39, c);
+  return M;
+}
+
+// ---------------------------------------------------------------- boats (乌篷船)
+export function buildBoat(def) {
+  const r = new Rng(def.seed || 5);
+  const L = def.len || 30;
+  const M = new VoxelModel(-6, -3, -L / 2 - 2, 6, 14, L / 2 + 2);
+  for (let z = -L / 2; z < L / 2; z++) {
+    const t = Math.abs(z + 0.5) / (L / 2);
+    const hw = Math.max(1, Math.round(4 * Math.sqrt(1 - t * t)));
+    const lift = Math.round(t * t * 3);
+    for (let x = -hw; x < hw; x++) {
+      M.set(x, -2 + lift, z, PAL.WOOD_D);
+      M.set(x, -1 + lift, z, PAL.WOOD_D);
+      const edge = x === -hw || x === hw - 1;
+      if (edge) M.set(x, lift, z, PAL.WOOD);
+      else M.set(x, -1 + lift, z, PAL.WOOD);
+    }
+  }
+  // arched black canopy
+  const c0 = -Math.round(L * 0.18);
+  const c1 = Math.round(L * 0.2);
+  for (let z = c0; z < c1; z++)
+    for (let x = -4; x < 4; x++) {
+      const ax = x + 0.5;
+      const y = Math.round(5 + Math.sqrt(Math.max(0, 16 - ax * ax)) * 0.9);
+      M.set(x, y, z, (z - c0) % 5 === 0 ? PAL.WOOD_D : PAL.BLACK);
+      if (Math.abs(ax) > 3) for (let yy = 0; yy < y; yy++) M.set(x, yy, z, PAL.WOOD_D);
+    }
+  // bow lantern & a boatman's pole
+  lantern(M, 0, 8, L / 2 - 3, r.chance(0.5) ? PAL.LANTERN : PAL.LANTERN_W);
+  M.set(0, 4, L / 2 - 3, PAL.WOOD_D);
+  M.set(0, 5, L / 2 - 3, PAL.WOOD_D);
+  M.set(0, 6, L / 2 - 3, PAL.WOOD_D);
+  M.set(0, 7, L / 2 - 3, PAL.WOOD_D);
+  M.line(2, 1, -L / 2 + 3, 3, 12, -L / 2 + 1, 0.5, PAL.BAMBOO);
+  return M;
+}
