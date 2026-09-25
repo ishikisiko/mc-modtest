@@ -717,3 +717,47 @@ export function buildBoat(def) {
   M.line(2, 1, -L / 2 + 3, 3, 12, -L / 2 + 1, 0.5, PAL.BAMBOO);
   return M;
 }
+
+// ---------------------------------------------------------------- people (scale figures)
+const ROBES = [PAL.CLOTH_B, PAL.CLOTH_R, PAL.CLOTH_W, PAL.BRICK, PAL.PAINT_G, PAL.OCHRE, PAL.TEAL, PAL.WOOD];
+export function buildPerson(def) {
+  const r = new Rng(def.seed || 1);
+  const M = new VoxelModel(-3, 0, -3, 3, 12, 3);
+  const robe = def.guard ? PAL.RED : ROBES[r.int(0, ROBES.length)];
+  const trim = r.chance(0.5) ? PAL.BLACK : PAL.CLOTH_W;
+  // robe to the ground (2 wide x 2 deep x 5 tall), sash, torso with sleeves
+  M.box(-1, 0, -1, 1, 5, 1, robe);
+  M.box(-1, 0, -1, 1, 1, 1, PAL.BLACK);
+  M.box(-1, 4, -1, 1, 5, 1, trim);
+  M.box(-1, 5, -1, 1, 7, 1, robe);
+  M.set(-2, 5, 0, robe);
+  M.set(1, 5, 0, robe);
+  M.set(-2, 6, 0, robe);
+  M.set(1, 6, 0, robe);
+  M.set(-2, 4, 0, PAL.PLASTER_O);
+  M.set(1, 4, 0, PAL.PLASTER_O);
+  // head
+  M.box(-1, 7, -1, 1, 9, 1, PAL.PLASTER_O);
+  M.box(-1, 8, -1, 1, 9, 0, PAL.BLACK);
+  // hat: straw hat, black cap or a guard helmet with a spear
+  if (def.guard) {
+    M.box(-1, 9, -1, 1, 10, 1, PAL.GOLD);
+    for (let y = 0; y < 12; y++) M.set(2, y, 0, y > 9 ? PAL.GOLD : PAL.WOOD_D);
+  } else if (r.chance(0.35)) {
+    M.box(-2, 9, -2, 2, 10, 2, PAL.THATCH);
+    M.box(-1, 10, -1, 1, 11, 1, PAL.THATCH);
+  } else {
+    M.box(-1, 9, -1, 1, 10, 1, PAL.BLACK);
+    if (r.chance(0.3)) M.set(0, 10, 0, PAL.BLACK);
+  }
+  // some carry a red paper umbrella or a lantern
+  if (!def.guard && r.chance(0.2)) {
+    for (let y = 4; y < 11; y++) M.set(-2, y, 1, PAL.WOOD_D);
+    M.box(-4, 11, -1, 1, 12, 4, PAL.CLOTH_R);
+  } else if (!def.guard && r.chance(0.25)) {
+    M.set(1, 4, 1, PAL.WOOD_D);
+    M.set(1, 3, 1, PAL.LANTERN);
+    M.set(1, 2, 1, PAL.LANTERN);
+  }
+  return M;
+}

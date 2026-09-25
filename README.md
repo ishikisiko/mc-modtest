@@ -17,6 +17,16 @@ systems when the data and runtime pipeline are ready.
 > **CRAFT orchestration:** start at [CRAFT.md](CRAFT.md) for the Commander,
 > GenOps pipelines, project Codex subagents, evidence, and review gates.
 
+## 云山巨城 · Browser Voxel Artwork
+
+`web/yunshan-city/` is a standalone browser project (independent of the mod
+jar): a three.js voxel scene of a terraced Chinese mountain city above a sea of
+clouds, built entirely from 0.2 m voxels, with a guided road tour and a
+continuous 24-hour day/night cycle. Open `web/yunshan-city/dist/yunshan-city.html`
+directly, or run `npm start` inside `web/yunshan-city/` and visit
+<http://localhost:8080/>. Controls and architecture are documented in
+[web/yunshan-city/README.md](web/yunshan-city/README.md).
+
 ## GenOps Orchestration
 
 Generator work is routed through a Commander Agent conversation. The project

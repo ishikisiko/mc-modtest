@@ -172,6 +172,14 @@ export class HUD {
     helpBtn.onclick = () => this.toggleHelp();
     side.appendChild(helpBtn);
     r.appendChild(side);
+    // compact screens: the panel folds behind a toggle
+    this.side = side;
+    const narrow = window.matchMedia('(max-width: 760px)');
+    if (narrow.matches) side.classList.add('folded');
+    const toggle = el('button', 'btn chip side-toggle', '名胜 · 设置');
+    toggle.onclick = () => side.classList.toggle('folded');
+    r.appendChild(toggle);
+    for (const b of side.querySelectorAll('.grid .btn')) b.addEventListener('click', () => narrow.matches && side.classList.add('folded'));
 
     // tour status
     this.tourBox = el('div', 'tourbox panel hidden');

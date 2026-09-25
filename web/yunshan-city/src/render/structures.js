@@ -24,7 +24,7 @@ export class StructureManager {
     for (const inst of plan.instances) {
       let p = this.prefabs.get(inst.id);
       if (!p) {
-        p = { id: inst.id, inst: [], state: 0, meshes: [], bufs: [], attrs: [], tree: !!inst.tree, lamp: inst.id === 'lamp_post' };
+        p = { id: inst.id, inst: [], state: 0, meshes: [], bufs: [], attrs: [], tree: !!inst.tree, lamp: inst.id === 'lamp_post', person: !!inst.person };
         this.prefabs.set(inst.id, p);
       }
       p.inst.push(inst);
@@ -145,7 +145,7 @@ export class StructureManager {
       if (p.state !== 2) continue;
       const counts = [0, 0, 0, 0, 0];
       const scale = p.tree ? 0.7 : 1;
-      const cull = p.lamp ? 450 : p.tree ? 2200 : 6000;
+      const cull = p.person ? 320 : p.lamp ? 450 : p.tree ? 2200 : 6000;
       const n = p.inst.length;
       for (let k = 0; k < n; k++) {
         const dx = p.cx[k * 3] - cam.x;

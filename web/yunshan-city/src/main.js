@@ -139,7 +139,12 @@ async function main() {
   const rig = new CameraRig(camera, canvas, groundAt);
   rig.setTour(plan.tour);
   rig.tourEnd = plan.views.summit;
-  const view = plan.views[params.get('view') || 'overview'] || plan.views.overview;
+  let view = plan.views[params.get('view') || 'overview'] || plan.views.overview;
+  if (params.has('cam') && params.has('look')) {
+    const c = params.get('cam').split(',').map(Number);
+    const l = params.get('look').split(',').map(Number);
+    if (c.length === 3 && l.length === 3 && c.concat(l).every(Number.isFinite)) view = { pos: c, target: l };
+  }
   if (params.has('tour')) {
     rig.mode = 'tour';
     rig.tourT = parseFloat(params.get('tour')) || 0;
@@ -164,6 +169,7 @@ async function main() {
     const h = window.innerHeight;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
+    camera.fov = w / h < 0.8 ? 70 : 55; // portrait phones need a wider view
     camera.updateProjectionMatrix();
     const pr = renderer.getPixelRatio();
     post.setSize(Math.floor(w * pr), Math.floor(h * pr));

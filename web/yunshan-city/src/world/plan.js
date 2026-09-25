@@ -890,6 +890,73 @@ export function buildPlan(seed = 1) {
   glowAt(MARKET.x, marketY + 4, MARKET.z, 26, 1.0);
   for (const bp of bridges) glowAt(bp[0], bp[1] + 2, bp[2], 12, 1.0);
 
+  // ---------- people (scale figures) ----------
+  {
+    const people = catalog.groups.person;
+    const pr = new Rng(seed * 77 + 5);
+    const person = (x, z, rot, y) => {
+      const yy = y !== undefined ? y : H(x, z);
+      addInst(people[pr.int(0, people.length)], x, yy, z, rot, { person: 1 });
+    };
+    U('guard', { kind: 'person', guard: true, seed: 13 });
+    const guard = (x, z, rot, y) => addInst('guard', x, y !== undefined ? y : H(x, z), z, rot, { person: 1 });
+    // along the avenue
+    for (let i = 2; i < avenue.length - 1; i += 3) {
+      const a = avenue[i - 1];
+      const c = avenue[i + 1];
+      const L = Math.hypot(c[0] - a[0], c[1] - a[1]) || 1;
+      const nx = -(c[1] - a[1]) / L;
+      const nz = (c[0] - a[0]) / L;
+      const n = pr.int(1, 4);
+      for (let k = 0; k < n; k++) {
+        const off = pr.range(-3.6, 3.6);
+        const x = avenue[i][0] + nx * off + pr.range(-1, 1);
+        const z = avenue[i][1] + nz * off + pr.range(-1, 1);
+        person(x, z, pr.chance(0.5) ? 0 : 2);
+      }
+    }
+    // people climbing the stair lanes
+    for (const L of lanes) for (let i = 3; i < L.length; i += 7) person(L[i][0] + pr.range(-0.6, 0.6), L[i][1] + pr.range(-0.6, 0.6), pr.chance(0.5) ? 1 : 3);
+    // market crowd
+    const mk = plan.market;
+    for (let k = 0; k < 26; k++) {
+      const x = mk.x - mk.w / 2 + 3 + pr.range(0, mk.w - 6);
+      const z = mk.z - mk.d / 2 + 3 + pr.range(0, mk.d - 6);
+      if (Math.abs(x - (mk.x - 16)) < 11 && Math.abs(z - (mk.z - 4)) < 11) continue;
+      person(x, z, pr.int(0, 4), mk.y);
+    }
+    // lake promenade & quays
+    for (let a = 0.2; a < Math.PI * 2; a += 0.45) {
+      const x = LAKE.x + Math.cos(a) * (LAKE.rx + 3.4);
+      const z = LAKE.z + Math.sin(a) * (LAKE.rz + 3.4);
+      if (pr.chance(0.35)) person(x, z, pr.int(0, 4));
+    }
+    for (let i = 2; i < riverPts.length; i += 5) {
+      const p = riverPts[i];
+      const s = pr.chance(0.5) ? 1 : -1;
+      person(p[0] + s * (RIVER_HW + pr.range(2.5, 6)), p[1] + pr.range(-2, 2), pr.chance(0.5) ? 1 : 3);
+    }
+    // palace guards along the imperial way and at the gates
+    for (let z = -118; z >= -130; z -= 3) {
+      guard(P.x - 7, z, 1, P.y2);
+      guard(P.x + 7, z, 3, P.y2);
+    }
+    for (const dx of [-9, -5, 5, 9]) guard(P.x + dx, -40, 0, P.y1);
+    for (const dx of [-5, -2.6, 2.6, 5]) guard(GATE.x + dx, GATE.z + 16, 0);
+    // guards on the city walls beside the watchtowers
+    for (const t of instances.filter((it) => it.id === 'wall_tower')) {
+      const along = t.rot & 1 ? [0, 1] : [1, 0];
+      for (const s of [-1, 1]) guard(t.x + along[0] * s * 7.5, t.z + along[1] * s * 7.5, t.rot, t.y);
+    }
+    // visitors at the waterfall tower, the summit and on the trail
+    for (let k = 0; k < 4; k++) {
+      const a = -0.6 + k * 0.5;
+      person(LEDGE.x + Math.cos(a) * 12, LEDGE.z + Math.sin(a) * 10, 3, LEDGE.y);
+    }
+    for (let k = 0; k < 3; k++) person(S.x - 5 + k * 3.4, S.z + 6.5, 0, sumY);
+    for (let i = 6; i < trail.length; i += 14) person(trail[i][0], trail[i][1], pr.int(0, 4));
+  }
+
   // ---------- trees ----------
   const treeGroups = catalog.groups;
   const pickTree = (g, x, z) => treeGroups[g][Math.floor(rand01(x, z, 21) * treeGroups[g].length)];
