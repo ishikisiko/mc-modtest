@@ -56,6 +56,7 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #0b0d12; col
 .row { display: flex; gap: 6px; flex-wrap: wrap; }
 .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .grid .btn { width: 100%; }
+.side-toggle { display: none; position: fixed; right: 10px; top: calc(12px + env(safe-area-inset-top, 0px)); background: rgba(18, 21, 26, 0.62); }
 .tourbox { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); display: flex; gap: 8px; align-items: center; padding: 7px 12px; }
 .tour-text { font-family: var(--font); letter-spacing: 0.15em; color: #efe3c5; margin-right: 4px; }
 .hidden { display: none !important; }
@@ -74,7 +75,9 @@ html, body { margin: 0; height: 100%; overflow: hidden; background: #0b0d12; col
 @media (max-width: 760px) {
   .t-main { font-size: 26px; }
   .t-sub { font-size: 11px; letter-spacing: 0.12em; }
-  .side { top: auto; bottom: 138px; right: 8px; width: 170px; padding: 9px; max-height: 40vh; }
+  .side { top: calc(52px + env(safe-area-inset-top, 0px)); right: 8px; width: 186px; padding: 9px; max-height: calc(100% - 200px); }
+  .side.folded { display: none; }
+  .side-toggle { display: block; }
   .timebar { flex-wrap: wrap; gap: 8px; padding: 8px 10px; bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
   .slider-wrap { order: 5; flex-basis: 100%; }
   .presets { display: none; }

@@ -12,7 +12,7 @@ function even(n) {
 export function makeCatalog(seed = 1) {
   const rng = new Rng(seed * 131 + 17);
   const defs = {};
-  const groups = { house: [], shop: [], court: [], tea: [], pine: [], cypress: [], broad: [], blossom: [], maple: [], willow: [], bamboo: [] };
+  const groups = { house: [], shop: [], court: [], tea: [], pine: [], cypress: [], broad: [], blossom: [], maple: [], willow: [], bamboo: [], person: [] };
   const add = (group, def) => {
     defs[def.id] = def;
     groups[group].push(def.id);
@@ -58,5 +58,6 @@ export function makeCatalog(seed = 1) {
   for (let i = 0; i < 3; i++) add('willow', { id: `willow_${i}`, kind: 'tree', species: 'willow', w: 40, d: 40, seed: rng.int(1, 1e9) });
   for (let i = 0; i < 2; i++) add('bamboo', { id: `bamboo_${i}`, kind: 'tree', species: 'bamboo', w: 26, d: 26, seed: rng.int(1, 1e9) });
 
+  for (let i = 0; i < 12; i++) add('person', { id: `person_${i}`, kind: 'person', w: 4, d: 4, seed: rng.int(1, 1e9) });
   return { defs, groups };
 }

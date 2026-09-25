@@ -51,4 +51,5 @@ Spend time on thinking; you do not need to use the commentary channel to report 
 - Pagoda landmark: `docs/ai-kb/24_pagoda_landmark_rebuild.md`, `rebuild-pagoda-landmark`, `vertical-landmark`, `cultivation-massing-grammar`, `validation`.
 - `myvillage:` decor/rockery: `docs/ai-kb/15_rockery_form_diagnosis.md`, `mod-decor-block-family`, `garden-rockery`.
 - Cultivation settlements: `sect-compound-layout`, `sect-compound-realization`, `sect-worldgen-structure`, `sect-mountain-derivation`, `town-plan`, `town-districts`, `town-realization`, `settlement-group`.
+- Browser voxel artwork 云山巨城: `web/yunshan-city/README.md` (standalone three.js project; `npm start`, `npm run build` for `dist/`; not part of the mod jar or GenOps pipelines).
 - Rendering/handoff: `docs/ai-kb/17_chunky_acceptance.md`, `docs/ai-kb/18_chunky_path_traced_render.md`, `chunky-acceptance-automation`, `interactive-preview`.
