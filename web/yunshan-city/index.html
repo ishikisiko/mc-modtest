@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+<title>云山巨城</title>
+<link rel="stylesheet" href="./src/ui/style.css" />
+<script type="importmap">
+{ "imports": { "three": "./vendor/three.module.min.js" } }
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="loading">
+  <div class="load-title">云山巨城</div>
+  <div class="load-sub">体素 0.2 米 · 山水城池</div>
+  <div class="load-track"><div id="loading-bar"></div></div>
+  <div id="loading-text">载入中…</div>
+</div>
+<div id="hud"></div>
+<div id="stats"></div>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>

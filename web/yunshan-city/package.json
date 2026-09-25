@@ -1,0 +1,16 @@
+{
+  "name": "yunshan-city",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "云山巨城 — browser voxel artwork (0.2 m voxels) with a 24h day/night cycle",
+  "scripts": {
+    "start": "node server.mjs",
+    "build": "node tools/build.mjs",
+    "map": "node tools/map-preview.mjs",
+    "prefab": "node tools/prefab-preview.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  }
+}
