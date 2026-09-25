@@ -1,7 +1,7 @@
 // Prefab dispatcher: definition -> cropped voxel model.
 import { buildHouse, buildShop, buildCourt, buildTea } from './buildings.js';
 import { buildTree } from './trees.js';
-import { buildHall, buildPalGate, buildCityGate, buildWaterGate, buildDrumTower, buildLou, buildPagoda, buildPavilion, buildArchBridge, buildLangQiao, buildLamp } from './landmarks.js';
+import { buildHall, buildPalGate, buildCityGate, buildWaterGate, buildDrumTower, buildLou, buildPagoda, buildPavilion, buildArchBridge, buildLangQiao, buildLamp, buildWallTower, buildBoat } from './landmarks.js';
 
 const BUILDERS = {
   house: buildHouse,
@@ -20,6 +20,8 @@ const BUILDERS = {
   archbridge: buildArchBridge,
   langqiao: buildLangQiao,
   lamp: buildLamp,
+  walltower: buildWallTower,
+  boat: buildBoat,
 };
 
 export function buildPrefab(def) {

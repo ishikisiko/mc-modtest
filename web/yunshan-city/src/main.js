@@ -8,6 +8,7 @@ import { createTerrainMaterial, createTerrainDepthMaterial } from './render/terr
 import { createSky } from './render/sky.js';
 import { createStructMaterial, createStructDepthMaterial } from './render/structMaterial.js';
 import { StructureManager } from './render/structures.js';
+import { Life } from './render/life.js';
 import { CascadedShadows } from './render/shadows.js';
 import { PostFX } from './render/post.js';
 import { CloudPass } from './render/clouds.js';
@@ -127,6 +128,7 @@ async function main() {
   const structMat = createStructMaterial(shared);
   const structs = new StructureManager({ scene, pool, plan, material: structMat, depthMaterial: createStructDepthMaterial(), lodScale: Q.structLod });
   const post = new PostFX(renderer, { bloom: Q.bloom });
+  const life = new Life(scene, plan, uniforms);
   const clouds = Q.clouds ? new CloudPass(renderer, uniforms, { steps: Q.cloudSteps || 36, scale: 0.5 }) : null;
 
   const day = new DayNight();
@@ -280,6 +282,7 @@ async function main() {
     uniforms.uTime.value += dt;
     day.update(dt);
     day.applyTo(uniforms);
+    life.update(dt, day);
     uniforms.uStarRot.value = (day.time / 24) * Math.PI * 2;
     rig.update(dt);
     camera.updateMatrixWorld();

@@ -10,7 +10,21 @@ import { PAL_RGB } from '../src/voxel/palette.js';
 const [out, specList, lodArg, yawArg, pxArg] = process.argv.slice(2);
 const cat = makeCatalog(1);
 let planU = null;
-const specs = specList.split(',');
+// split on commas that are not inside a JSON object
+const specs = [];
+{
+  let depth = 0;
+  let cur = '';
+  for (const ch of specList) {
+    if (ch === '{') depth++;
+    if (ch === '}') depth--;
+    if (ch === ',' && depth === 0) {
+      specs.push(cur);
+      cur = '';
+    } else cur += ch;
+  }
+  if (cur) specs.push(cur);
+}
 const tiles = [];
 for (const spec of specs) {
 let def;

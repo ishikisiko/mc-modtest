@@ -4,7 +4,7 @@
 import { createGeo, SITE, POOLS, TERRACE } from './geo.js';
 import { Rng, hash2, smoothstep, clamp } from './noise.js';
 import { TM } from './materials.js';
-import { createField, MODE, KIND, FT, quayAt } from './field.js';
+import { createField, MODE, KIND, FT, quayAt, poolLevelAt as poolLevel } from './field.js';
 import { makeCatalog } from '../voxel/catalog.js';
 import { resample, smoothField, chaikin, pointInPoly, segDist, polyLength } from './geom.js';
 
@@ -643,6 +643,63 @@ export function buildPlan(seed = 1) {
   U('bridge_lake', { kind: 'archbridge', span: 22 / V, width: 5 / V, seed: 91 });
   addInst('bridge_lake', 30, 40, 356, 1);
 
+  // ---------- wall watchtowers (敌楼) ----------
+  U('wall_tower', { kind: 'walltower', w: 50, seed: 81 });
+  const towerOn = (pts, every, rotFor) => {
+    for (let i = Math.floor(every / 2); i < pts.length - 3; i += every) {
+      const p = pts[i];
+      const a = pts[Math.max(0, i - 2)];
+      const c = pts[Math.min(pts.length - 1, i + 2)];
+      const grade = Math.abs(c[2] - a[2]) / (Math.hypot(c[0] - a[0], c[1] - a[1]) || 1);
+      if (grade > 0.45) continue;
+      addInst('wall_tower', p[0], p[2], p[1], rotFor(p));
+      resMark(p[0] - 7, p[1] - 7, p[0] + 7, p[1] + 7);
+    }
+  };
+  towerOn(wW, 17, () => 3);
+  towerOn(eW, 17, () => 1);
+  towerOn(sW1, 12, () => 0);
+  towerOn(sW3, 12, () => 0);
+
+  // ---------- boats on the lake and river pools ----------
+  U('boat_a', { kind: 'boat', len: 30, seed: 3 });
+  U('boat_b', { kind: 'boat', len: 38, seed: 8 });
+  for (let k = 0; k < 7; k++) {
+    const a = rng.range(0, Math.PI * 2);
+    const rr = Math.sqrt(rng.range(0.15, 0.75));
+    const x = LAKE.x + Math.cos(a) * LAKE.rx * rr;
+    const z = LAKE.z + Math.sin(a) * LAKE.rz * rr;
+    if (Math.hypot(x - 26, z - 250) < 18 || Math.abs(z - 244) < 6) continue;
+    addInst(k % 2 ? 'boat_a' : 'boat_b', x, 37.8, z, rng.int(0, 4));
+  }
+  for (const zc of [128, 20, -60]) {
+    const p = riverPts.reduce((best, pt) => (Math.abs(pt[1] - zc) < Math.abs(best[1] - zc) ? pt : best));
+    addInst('boat_a', p[0] + rng.range(-2, 2), poolLevel(zc) - 0.2, zc, rng.chance(0.5) ? 0 : 2);
+  }
+
+  // ---------- hermit pavilions on karst pillars rising from the clouds ----------
+  U('pillar_ting', { kind: 'pavilion', sides: 6, r: 2.8 / V, double: false, tile: 'green', seed: 75 });
+  {
+    const cands = geo
+      .listPillars(0, 60, 760)
+      .filter((p) => p.top > 45 && p.r > 13)
+      .sort((a, c) => c.top - a.top)
+      .slice(0, 4);
+    plan.pillarSites = [];
+    for (const p of cands) {
+      const y = q(p.top - 1);
+      ell(p.x, p.z, 7.5, 7.5, y, MODE.SET, TM.PLAZA, TM.ROCK);
+      addInst('pillar_ting', p.x, y, p.z, rng.int(0, 4));
+      for (let k = 0; k < 3; k++) {
+        const a = rng.range(0, Math.PI * 2);
+        const tx = p.x + Math.cos(a) * rng.range(9, Math.max(10, p.r * 0.7));
+        const tz = p.z + Math.sin(a) * rng.range(9, Math.max(10, p.r * 0.7));
+        plan.pillarSites.push([tx, tz]);
+      }
+      light(p.x, y + 3, p.z, 10, 1.2);
+    }
+  }
+
   // ---------- building lots ----------
   const avenueNear = (x, z) => {
     let best = 1e9;
@@ -927,6 +984,10 @@ export function buildPlan(seed = 1) {
     const z = S.z + Math.sin(a) * rng.range(11, 20);
     addInst(pickTree('pine', x, z), x, H(x, z), z, k & 3, { tree: 1 });
   }
+  for (const [tx, tz] of plan.pillarSites || []) {
+    addInst(pickTree('pine', tx, tz), tx, H(tx, tz), tz, Math.floor(rand01(tx, tz, 44) * 4), { tree: 1 });
+    treeCount++;
+  }
   plan.treeCount = treeCount;
 
   // ---------- tour route & viewpoints ----------
@@ -981,7 +1042,7 @@ export function buildPlan(seed = 1) {
     waterfall: { pos: [-60, 170, -210], target: [-5, 200, -392] },
     tower: { pos: [-40, 196, -330], target: [30, 196, -377] },
     summit: { pos: [150, 430, -440], target: [206, 405, -520] },
-    clouds: { pos: [260, 40, 560], target: [0, 120, -100] },
+    clouds: { pos: [-150, 58, 720], target: [-10, 100, 20] },
   };
   plan.labels = [
     { text: '正阳门', pos: [GATE.x, gateY + 22, GATE.z] },
