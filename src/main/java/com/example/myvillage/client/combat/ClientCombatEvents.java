@@ -6,6 +6,7 @@ import com.example.myvillage.combat.definition.BasicSwordStyle;
 import com.example.myvillage.combat.network.CombatAttackReceiver;
 import com.example.myvillage.combat.network.CombatAttackStartPayload;
 import com.example.myvillage.combat.network.CombatAttackStopPayload;
+import com.example.myvillage.combat.network.CombatHitConfirmPayload;
 import com.example.myvillage.combat.network.CombatModeSnapshotPayload;
 import com.example.myvillage.combat.network.CombatModeSnapshotReceiver;
 import com.example.myvillage.combat.network.CombatModeTogglePayload;
@@ -36,7 +37,8 @@ public final class ClientCombatEvents {
         CombatModeSnapshotReceiver.install(ClientCombatEvents::receiveModeSnapshot);
         CombatAttackReceiver.install(
                 ClientCombatEvents::receiveAttackStart,
-                ClientCombatEvents::receiveAttackStop);
+                ClientCombatEvents::receiveAttackStop,
+                ClientCombatEvents::receiveHitConfirm);
     }
 
     private ClientCombatEvents() {
@@ -55,6 +57,7 @@ public final class ClientCombatEvents {
             return;
         }
 
+        QingfengFirstPersonAnimator.clientTick(player);
         long tick = minecraft.level.getGameTime();
         if (ClientCombatState.predictionPending()
                 && tick - ClientCombatState.predictionTick() > PREDICTION_TIMEOUT_TICKS) {
@@ -119,6 +122,7 @@ public final class ClientCombatEvents {
                 player,
                 BasicSwordStyle.DEFINITION.move(predictedIndex).animation().animationId(),
                 0.0F);
+        CombatWorldTrails.start(player, predictedIndex, 0.0F, player.getYRot());
         ClientCombatState.beginPrediction(tick);
     }
 
@@ -128,6 +132,7 @@ public final class ClientCombatEvents {
             CombatAnimationController.stop(Minecraft.getInstance().player);
         }
         ClientCombatState.clear();
+        CombatWorldTrails.clear();
         lastAttackIntentTick = Long.MIN_VALUE;
     }
 
@@ -169,6 +174,7 @@ public final class ClientCombatEvents {
                 && ClientCombatState.predictionPending();
         long elapsed = Math.max(0L, minecraft.level.getGameTime() - payload.serverStartTick());
         CombatAnimationController.play(player, payload.moveId(), (float) elapsed);
+        CombatWorldTrails.start(player, moveIndex, (float) elapsed, payload.facingYaw());
         if (player == minecraft.player) {
             if (!localPredictionPending) {
                 player.swing(InteractionHand.MAIN_HAND, false);
@@ -190,6 +196,7 @@ public final class ClientCombatEvents {
         if (payload.reason() == CombatStopReason.REJECTED && player == minecraft.player) {
             if (ClientCombatState.predictionPending()) {
                 CombatAnimationController.stop(player);
+                CombatWorldTrails.stop(player.getId());
                 ClientCombatState.rejectPrediction();
             }
             return;
@@ -198,6 +205,9 @@ public final class ClientCombatEvents {
             return;
         }
         CombatAnimationController.stop(player);
+        if (payload.reason() != CombatStopReason.COMPLETED) {
+            CombatWorldTrails.stop(player.getId());
+        }
         if (resetsServerSession(payload.reason())) {
             ClientCombatState.resetActionRevision(payload.attackerEntityId());
         }
@@ -207,6 +217,14 @@ public final class ClientCombatEvents {
             } else {
                 ClientCombatState.clearActionAnimation();
             }
+        }
+    }
+
+    private static void receiveHitConfirm(CombatHitConfirmPayload payload) {
+        Minecraft minecraft = Minecraft.getInstance();
+        LocalPlayer player = minecraft.player;
+        if (player != null && payload.attackerEntityId() == player.getId()) {
+            QingfengFirstPersonAnimator.confirmHit(player);
         }
     }
 

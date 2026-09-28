@@ -42,7 +42,19 @@ public final class BasicSwordStyle {
                             "long_lunge_thrust", thrustSamples(7, 9, 2.8, 3.5, 0.19),
                             Optional.of(new StepDefinition(6, 0.8, 0.35)))));
 
+    /** Swing/hit cues, index-aligned with {@link #DEFINITION}'s moves. */
+    public static final List<MoveFeedback> FEEDBACK = List.of(
+            new MoveFeedback(MoveFeedback.SwingSound.THRUST, 1.25F, false),
+            new MoveFeedback(MoveFeedback.SwingSound.CUT, 1.10F, false),
+            new MoveFeedback(MoveFeedback.SwingSound.CUT, 1.20F, false),
+            new MoveFeedback(MoveFeedback.SwingSound.CUT, 0.95F, false),
+            new MoveFeedback(MoveFeedback.SwingSound.THRUST, 0.90F, true));
+
     private BasicSwordStyle() {
+    }
+
+    public static MoveFeedback feedback(int moveIndex) {
+        return FEEDBACK.get(moveIndex);
     }
 
     private static AttackMoveDefinition move(

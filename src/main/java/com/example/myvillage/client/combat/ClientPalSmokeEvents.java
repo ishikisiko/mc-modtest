@@ -2,6 +2,7 @@ package com.example.myvillage.client.combat;
 
 import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.combat.definition.BasicSwordStyle;
+import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -29,6 +30,14 @@ public final class ClientPalSmokeEvents {
                                         1, BasicSwordStyle.DEFINITION.moves().size()))
                                 .executes(context -> playMove(
                                         IntegerArgumentType.getInteger(context, "index")))))
+                .then(Commands.literal("first_person")
+                        .then(Commands.literal("release").executes(context -> releaseFirstPerson()))
+                        .then(Commands.argument("index", IntegerArgumentType.integer(
+                                        1, BasicSwordStyle.DEFINITION.moves().size()))
+                                .then(Commands.argument("tick", FloatArgumentType.floatArg(0.0F))
+                                        .executes(context -> probeFirstPerson(
+                                                IntegerArgumentType.getInteger(context, "index"),
+                                                FloatArgumentType.getFloat(context, "tick"))))))
                 .then(Commands.literal("transition").executes(context -> transition()))
                 .then(Commands.literal("stop").executes(context -> stop()))
                 .then(Commands.literal("status").executes(context -> status())));
@@ -56,6 +65,17 @@ public final class ClientPalSmokeEvents {
                 player,
                 BasicSwordStyle.DEFINITION.move(oneBasedIndex - 1).animation().animationId(),
                 0.0F) ? 1 : 0;
+    }
+
+    private static int probeFirstPerson(int oneBasedIndex, float tick) {
+        QingfengFirstPersonAnimator.probe(oneBasedIndex - 1, tick);
+        LOGGER.info("PAL_SMOKE first_person move={} tick={}", oneBasedIndex, tick);
+        return 1;
+    }
+
+    private static int releaseFirstPerson() {
+        QingfengFirstPersonAnimator.releaseProbe();
+        return 1;
     }
 
     private static int stop() {

@@ -7,6 +7,35 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.26.2
+
+### Changed
+
+- Replaced the Qingfeng first-person curves with a tick-authored shoulder-pivot
+  swing rig in `assets/myvillage/combat/qingfeng_first_person.json`. Each
+  move's visible strike now covers the server active window, cuts show the
+  blade's flat, and resource reload (`F3+T`) applies rig edits.
+- Hid the segmented first-person skin/sleeve arm at the owner's request; a
+  complete arm will be re-authored on the new rig.
+
+### Added
+
+- First-person 剑光 ribbon during each strike and a world-space ribbon along the
+  move's hitbox samples for other players and detached cameras.
+- Swing, thrust, hit, and heavy-hit sound events with bilingual subtitles,
+  aliased to vanilla attack sounds through `sounds.json`.
+- Post-damage hit sound plus crit and sweep particles, and an attacker-only hit
+  confirmation that triggers a short client hit-stop ending on the server total.
+- `/myvillage_pal_smoke first_person <move> <tick>` and `release` to hold one
+  first-person frame for review.
+
+### Notes
+
+- Payload protocol is now `5`: attack starts carry the frozen server facing yaw
+  and the new hit confirmation carries only attacker id, revision, and hit
+  count. Client C2S payloads remain empty.
+- Owner verdict on the revised swings, trails, sounds, and hit-stop is pending.
+
 ## 0.26.1
 
 ### Added

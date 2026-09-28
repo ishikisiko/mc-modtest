@@ -8,15 +8,19 @@ public final class CombatAttackReceiver {
     };
     private static Consumer<CombatAttackStopPayload> stopReceiver = ignored -> {
     };
+    private static Consumer<CombatHitConfirmPayload> hitReceiver = ignored -> {
+    };
 
     private CombatAttackReceiver() {
     }
 
     public static void install(
             Consumer<CombatAttackStartPayload> start,
-            Consumer<CombatAttackStopPayload> stop) {
+            Consumer<CombatAttackStopPayload> stop,
+            Consumer<CombatHitConfirmPayload> hit) {
         startReceiver = Objects.requireNonNull(start, "start");
         stopReceiver = Objects.requireNonNull(stop, "stop");
+        hitReceiver = Objects.requireNonNull(hit, "hit");
     }
 
     public static void receiveStart(CombatAttackStartPayload payload) {
@@ -25,5 +29,9 @@ public final class CombatAttackReceiver {
 
     public static void receiveStop(CombatAttackStopPayload payload) {
         stopReceiver.accept(Objects.requireNonNull(payload, "payload"));
+    }
+
+    public static void receiveHit(CombatHitConfirmPayload payload) {
+        hitReceiver.accept(Objects.requireNonNull(payload, "payload"));
     }
 }

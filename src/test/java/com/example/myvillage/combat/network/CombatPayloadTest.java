@@ -39,11 +39,30 @@ class CombatPayloadTest {
                         ResourceLocation.fromNamespaceAndPath(
                                 "myvillage", "basic_sword_03_rising_cut"),
                         1_234,
-                        8),
+                        8,
+                        -37.5F),
                 CombatAttackStartPayload.STREAM_CODEC);
         assertRoundTrip(
                 new CombatAttackStopPayload(42, 8, CombatStopReason.WEAPON_CHANGED),
                 CombatAttackStopPayload.STREAM_CODEC);
+        assertRoundTrip(
+                new CombatHitConfirmPayload(42, 8, 2),
+                CombatHitConfirmPayload.STREAM_CODEC);
+    }
+
+    @Test
+    void hitConfirmationRequiresAnActionAndAHit() {
+        assertThrows(IllegalArgumentException.class, () -> new CombatHitConfirmPayload(42, 0, 1));
+        assertThrows(IllegalArgumentException.class, () -> new CombatHitConfirmPayload(42, 8, 0));
+        assertThrows(IllegalArgumentException.class, () -> new CombatHitConfirmPayload(-1, 8, 1));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new CombatAttackStartPayload(
+                        42,
+                        ResourceLocation.fromNamespaceAndPath("myvillage", "basic_sword_01_thrust"),
+                        1,
+                        1,
+                        Float.NaN));
     }
 
     @Test

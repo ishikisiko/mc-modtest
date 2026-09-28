@@ -164,81 +164,83 @@ absent.
 First-person Qingfeng attacks use a separate NeoForge
 `IClientItemExtensions` implementation registered through
 `RegisterClientExtensionsEvent`. `QingfengFirstPersonAnimator` overrides only
-the main-hand Qingfeng transform while a cultivation action is active. Its five
-bounded `FirstPersonSwordPose` curves map one-to-one to `BasicSwordStyle` and
-sample the same `totalTicks` timeline. Local prediction starts the matching
-curve immediately; the authoritative start replays it from corrected elapsed
-ticks, and rejection, interruption, or completion clears it. The extension
-does not move the camera, render PAL body arms, send a payload, or own any hit,
-damage, combo, or step decision.
+the main-hand Qingfeng transform in cultivation mode. Local prediction starts
+the matching swing immediately; the authoritative start replays it from
+corrected elapsed ticks, and rejection or interruption blends back to the
+neutral hold over three ticks. The extension does not move the camera, render
+PAL body arms, send a payload, or own any hit, damage, combo, or step decision.
 
-That extension only transforms the item; NeoForge's non-empty item branch does
-not render a player arm. `ClientCombatBootstrap` therefore registers
-`QingfengFirstPersonArmRenderer` directly on `RenderHandEvent`. The listener
-derives its pose from `QingfengFirstPersonAnimator.currentFrame`, falls back to
-the same neutral pose, draws before the normal item pass, and never cancels that
-pass. `QingfengFirstPersonArmModel` builds an original viewmodel hierarchy
-instead of borrowing PAL-mutated, shared `PlayerRenderer`, or complete vanilla
-player-model parts. Its non-rendering `upper_arm` node drives a visible
-`forearm`, then a visible `hand`; a separate `connector` runs from below the
-screen to the computed elbow. Separate skin and sleeve chains use the current
-player texture, respect sleeve visibility, and are generated for wide/slim and
-right/left arms. Internal segment caps are omitted so a face cannot become a
-near-plane slab.
+### Swing rig (0.26.2)
 
-Every move authors shoulder, elbow, and wrist rotations on the same corrected
-item frame. Forward kinematics computes the distal hand endpoint and applies a
-three-dimensional correction that pins it to the sword grip for either hand.
-The same corrected chain computes the elbow connector target. During active
-motion, the viewmodel scales smoothly around the grip from `1.00` to `0.45` by
-normalized progress `0.12`, remains compact through the middle, and restores
-`1.00` at both neutral endpoints; the elbow target uses that same scale. A
-rejected predecessor damped a complete arm around the wrong origin and separated
-the hand from the handle. Its pivot-locked successor fixed the grip but exposed
-the entire arm as a floating middle-screen cuboid. The segmented hierarchy
-replaces both forms. It is MyVillage-owned code and adds no Epic Fight or
-GeckoLib code, assets, runtime dependency, or animation authority.
+The owner rejected the 0.26.1 curves as "not like swinging a sword". Capture
+showed three causes: strike keys at normalized `0.56-0.60` landed after the
+server active windows (about `0.27-0.53`), so targets flinched before the blade
+arrived; a smoothstep on every segment stopped the blade at each key; and the
+flat sprite was edge-on at screen center.
 
-Main-hand, visibility, cultivation-mode, and Qingfeng guards suppress the layer
-everywhere else. It has no independent clock, packet, camera, remote-player,
-hit, damage, or movement authority.
+`FirstPersonSwing` now loads `assets/myvillage/combat/qingfeng_first_person.json`
+through `FirstPersonSwingResources`, a client reload listener, so `F3+T`
+applies edits. The rig swings the sword from one camera-space shoulder pivot:
+
+- `plane`: swing-plane tilt around the view axis (screen angle of the cut).
+- `sweep`: arm angle within that plane (positive toward the left).
+- `reach`: pivot-to-grip distance.
+- `lead`, `lift`, `twist`: blade aim ahead/behind the arm, elevation (`0` up,
+  `-90` forward), and turn about the blade (`90` shows the flat on a cut).
+- `offset`: optional camera-space translation.
+
+`FirstPersonSwordTransform` applies those in that order and then undoes the
+vanilla handheld display transform (`-19.3` degree pitch plus the handle
+offset), so the rig grip is the Qingfeng handle. The left hand mirrors the
+right. Keys are server ticks with per-segment `linear`/`in`/`out`/`in_out`
+easing, start and end at `neutral`, and each move's `strike` window must cover
+the server active window within three ticks. Loading rejects anything else, and
+`FirstPersonSwingTest` also checks grip depth, strike speed against recovery,
+and hand mirroring.
+
+`/myvillage_pal_smoke first_person <move> <tick>` holds one frame and
+`first_person release` clears it; combined with `F3+T` this is the tuning loop.
+
+### Feedback
+
+`BasicSwordStyle.FEEDBACK` gives each move a swing family, pitch, and heavy-hit
+flag. `CombatFeedbackService` plays the swing sound at the active start for
+everyone but the attacker (whose client plays it on the visual timeline), and
+after successful damage only, plays the hit sound, sends crit particles plus a
+sweep particle for cuts, and sends the attacker a `CombatHitConfirmPayload`
+(attacker id, revision, hit count). `SwingClock` turns that into one hit-stop:
+`2.5` ticks at `0.08` speed with a small viewmodel shake, then a catch-up rate
+that ends the swing on the server total.
+
+`FirstPersonSwordTrail` draws an additive ribbon on `RenderHandEvent` by
+re-posing the blade at earlier visual ticks within the strike window; it keeps
+no frame history and never cancels the item pass. `CombatWorldTrails` draws a
+world ribbon for other players, and for the local player in a detached camera,
+along the move's hitbox samples interpolated in polar form, using the facing
+yaw now carried in `CombatAttackStartPayload`. Payload protocol is `5`.
+
+### Withdrawn arm
+
+The segmented skin/sleeve arm (`QingfengFirstPersonArmRenderer`,
+`QingfengFirstPersonArmModel`, `FirstPersonArmPose`) was removed in 0.26.2. Its
+joint tracks were tied to the old normalized curves, and the owner chose to hide
+the arm while the sword motion is re-authored. Earlier rejected forms remain
+rejected: a separately damped complete arm left the handle, and a pivot-locked
+complete arm floated mid-screen. The follow-up arm should use the rig directly:
+shoulder at the pivot, hand at the rig grip, two-bone solve for the elbow.
 
 The original intercepted path canceled the mapped event and set its hand swing
-false, so it also removed every visible first-person response. The final client
-keeps that event suppression but calls inherited
+false, so it also removed every visible first-person response. The client keeps
+that event suppression but calls inherited
 `LivingEntity#swing(InteractionHand.MAIN_HAND, false)` once for an eligible
 unblocked prediction, or at an unpredicted authoritative buffered start. Unlike
 the one-argument `LocalPlayer#swing`, this client-level overload does not send a
-vanilla swing packet. It remains a small packet-free input fallback underneath
-the dedicated held-item curve; hit, damage, movement, move choice, and action
-completion stay server-owned.
+vanilla swing packet.
 
-The first owner review rejected the initial claim that all five first-person
-paths were visually distinct: in motion they read as only two clear action
-families. The first revision kept every server `totalTicks`, active window,
-damage, step, and payload unchanged while amplifying translation, rotation, and
-scale displacement around neutral by exactly `1.20`. Wind-up keyframes moved to
-normalized progress `0.12-0.16`, strike keyframes to `0.56-0.60`, and late
-recovery keyframes to `0.84-0.88`, before exact neutral at `1.00`. The timing
-ranges remain current, but the fixed factor is now implementation history.
-
-A developer physical-client smoke exercised all five current moves with the
-segmented skin and sleeve hierarchy. It showed distinct elbow/wrist poses, the
-arm entering from the screen edge, the handle remaining at the corrected hand
-endpoint, and neutral recovery without the former complete floating arm or
-near-plane slab. The connector remains a simple cuboid whose width and anatomy
-need owner review. This evidence does not promote the full grip or visual ledger.
-
-The active viewport contract calibrates each move independently under a
-`960x540`, `16:9`, FOV-70 reference capture. The temporal union of the projected
-sword-and-arm silhouette from visible wind-up through late recovery must span
-at least `0.50` of the viewport on one screen axis, intersect the central
-horizontal band `x=[0.35,0.65]`, and not remain wholly inside the lower-right
-quadrant. This is an accumulated action path, not a single-frame half-screen
-occlusion target. The shared parent frame, wrist-pivot grip, normalized timing
-ranges, server timing, damage, step, and payload remain unchanged; near-plane
-clipping, grip separation, duplicate arms, and camera rotation remain failures.
-Only owner follow-up can promote the replacement from `not_verified`.
+A developer capture at `960x540`, FOV 70 with mapped clicks showed all five
+0.26.2 swings crossing the target during the hit, both trails, sweep/crit
+particles, and hit-stop. Sound was not observable on the headless host. Only the
+owner can promote these surfaces from `not_verified`.
 
 ## Side Boundary
 

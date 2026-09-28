@@ -58,4 +58,15 @@ class BasicSwordStyleTest {
         assertEquals(6, moves.get(4).step().orElseThrow().actionTick());
         assertEquals(0.35, moves.get(4).step().orElseThrow().supportDepth());
     }
+
+    @Test
+    void everyMoveHasPresentationFeedback() {
+        assertEquals(BasicSwordStyle.DEFINITION.moves().size(), BasicSwordStyle.FEEDBACK.size());
+        assertEquals(MoveFeedback.SwingSound.THRUST, BasicSwordStyle.feedback(0).swingSound());
+        assertEquals(MoveFeedback.SwingSound.THRUST, BasicSwordStyle.feedback(4).swingSound());
+        assertTrue(BasicSwordStyle.feedback(4).heavyHit());
+        for (int index = 1; index <= 3; index++) {
+            assertEquals(MoveFeedback.SwingSound.CUT, BasicSwordStyle.feedback(index).swingSound());
+        }
+    }
 }

@@ -177,6 +177,16 @@ An accepted sword-attack intent is routed through the existing meditation/advanc
 
 The item has one ordinary generated item model, a new original transparent pixel texture depicting a narrow Chinese double-edged straight sword with a small guard, dark wrap, and cyan-jade accent, standard diamond-sword-shaped recipe, bilingual names, and creative-tab exposure next to the rideable sword. It does not reuse the rideable item/entity/model behavior and does not add GeckoLib.
 
+### Owner feel revision: shoulder-pivot rig, strike timing, and feedback
+
+The 0.26.1 first-person curves were normalized keyframes with a smoothstep on every segment and strike keys at `0.56-0.60`. The server active windows sit at roughly `0.27-0.53` of each move, so hits landed before the blade visibly arrived, and every key decelerated to a stop, which read as waving rather than cutting. The held sprite was also edge-on at screen center.
+
+The replacement treats the sword as swung from a fixed camera-space shoulder pivot. Plane tilt plus sweep angle place the grip on an arc; lead, lift, and twist orient the blade at the grip. Interpolating those angles traces arcs, and twist turns the flat toward the camera during cuts. Keys are authored in server ticks with per-segment easing, and each move declares a strike window that must cover the server active window within three ticks. The rig lives in a JSON resource with a reload listener because pose tuning is iterative and visual; code owns only the transform and validation.
+
+Feedback stays presentation-only and derives from server outcomes. The server plays swing sounds at the active start for other players and hit sounds and particles only for contacts that took damage, then sends the attacker a hit confirmation carrying no damage or target data. The attacker's client turns that into a single hit-stop whose catch-up keeps the visual end on the server total. The first-person trail re-poses the blade at earlier visual ticks instead of keeping frame history, and the world trail follows the move's own hitbox samples so what observers see matches where the hit resolves.
+
+The segmented arm was withdrawn instead of retuned: its joint tracks were bound to the old normalized curves, and the owner prioritized the sword motion. The shoulder-pivot rig gives a later arm a direct two-bone target (pivot to grip).
+
 ## Risks / Trade-offs
 
 - [PAL 1.1.4 universal NeoForge entry point references client event types despite `BOTH` metadata] -> Keep all MyVillage PAL imports client-only and require a real dedicated-server startup before Gate A passes; stop with the exact linkage/classloading error if the library itself fails.

@@ -96,3 +96,16 @@
 - [x] 10.2 Re-run release-sensitive strict validation, focused/aggregate validators, Gradle tests/build, jar inspection, acceptance server, and final client smoke after the version update.
 - [ ] 10.3 Record the owner's explicit Qingfeng texture/animation/gameplay verdict and resolve every required change without inferring acceptance from automation.
 - [ ] 10.4 Complete the requirement-by-requirement evidence audit, sync delta specs, archive the change through CRAFT, fast-forward the finished branch to `main`, push, and report final branch/worktree state while leaving the uncommitted third-party jars untouched.
+
+## 11. Owner Feel Revision (2026-09-29)
+
+The owner reviewed 0.26.1 and judged the swings "not like swinging a sword". Capture showed the first-person strike keys (`0.56-0.60`) landing after the server active window, every segment easing to a stop, the blade presented edge-on at screen center, and no hit, sound, or trail feedback. The owner approved hiding the first-person arm for now while requiring a complete arm later.
+
+- [x] 11.1 Replace hard-coded normalized first-person curves with the tick-authored shoulder-pivot rig in `assets/myvillage/combat/qingfeng_first_person.json`, loaded by a client reload listener; validate server move parity, neutral endpoints, and strike windows that cover each active window within three ticks.
+- [x] 11.2 Undo the vanilla handheld display offset so the rig grip is the Qingfeng handle, mirror the left hand, and tune all five swings in a `960x540`, FOV-70 capture using the `/myvillage_pal_smoke first_person <move> <tick>` probe and resource reload.
+- [x] 11.3 Withdraw the segmented skin/sleeve arm layer and its tests/validator checks; keep no first-person arm until 11.8.
+- [x] 11.4 Add presentation-only feedback: per-move swing/hit cues, `CombatSounds` events aliased through `sounds.json` with bilingual subtitles, server swing sound excluding the attacker, local swing sound on the visual timeline, post-damage hit sound/particles, and the attacker-only `CombatHitConfirmPayload` (protocol `5`).
+- [x] 11.5 Add the client hit-stop clock with catch-up to the server total, the first-person 剑光 ribbon re-posed from the rig, and the world-space ribbon from hitbox samples using the broadcast facing yaw.
+- [x] 11.6 Extend Java tests, focused validator checks, negative fixtures, docs, and apply the small-feature version rule to `0.26.2`.
+- [ ] 11.7 Record the owner's verdict on the revised swings, trails, sounds, and hit-stop.
+- [ ] 11.8 Re-author a complete first-person arm on the shoulder-pivot rig (shoulder at the pivot, hand on the rig grip) after 11.7 accepts the sword motion.

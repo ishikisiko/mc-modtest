@@ -1,0 +1,63 @@
+{
+  "rig": { "shoulder": [0.30, -0.42, -0.05] },
+  "neutral": { "plane": 0, "sweep": -25, "reach": 0.75, "lead": 25, "lift": -32, "twist": 60, "offset": [0, -0.13, 0] },
+  "moves": {
+    "myvillage:basic_sword_01_thrust": {
+      "strike": [3.0, 4.2],
+      "keys": [
+        { "tick": 0, "pose": "neutral" },
+        { "tick": 2.2, "ease": "out", "sweep": -35, "reach": 0.45, "lead": 30, "lift": -84, "twist": 35, "offset": [0, 0.14, 0] },
+        { "tick": 3.0, "ease": "linear", "reach": 0.43 },
+        { "tick": 4.2, "ease": "in", "sweep": 2, "reach": 0.88, "lead": 6, "lift": -84, "offset": [0, 0.16, 0] },
+        { "tick": 5.6, "ease": "out", "reach": 0.92 },
+        { "tick": 11, "ease": "in_out", "pose": "neutral" }
+      ]
+    },
+    "myvillage:basic_sword_02_horizontal_cut": {
+      "strike": [3.8, 6.2],
+      "keys": [
+        { "tick": 0, "pose": "neutral" },
+        { "tick": 3.2, "ease": "out", "plane": -4, "sweep": 48, "reach": 0.95, "lead": 28, "lift": -72, "twist": 90, "offset": [-0.15, 0.14, 0] },
+        { "tick": 3.8, "ease": "linear", "sweep": 46 },
+        { "tick": 5.0, "ease": "linear", "plane": -6, "sweep": 2, "lead": 30, "lift": -80 },
+        { "tick": 6.2, "ease": "linear", "plane": -8, "sweep": -42, "lead": -22, "lift": -80 },
+        { "tick": 7.6, "ease": "out", "sweep": -55, "lead": -26, "reach": 0.90 },
+        { "tick": 13, "ease": "in_out", "pose": "neutral" }
+      ]
+    },
+    "myvillage:basic_sword_03_rising_cut": {
+      "strike": [4.6, 7.4],
+      "keys": [
+        { "tick": 0, "pose": "neutral" },
+        { "tick": 4.0, "ease": "out", "plane": -38, "sweep": -45, "reach": 0.95, "lead": -28, "lift": -80, "twist": 45, "offset": [-0.05, 0.10, 0] },
+        { "tick": 4.6, "ease": "linear", "sweep": -43 },
+        { "tick": 7.4, "ease": "linear", "sweep": 50, "lead": 18, "lift": -82, "twist": 25 },
+        { "tick": 9.0, "ease": "out", "sweep": 60, "lead": 24 },
+        { "tick": 15, "ease": "in_out", "pose": "neutral" }
+      ]
+    },
+    "myvillage:basic_sword_04_diagonal_cut": {
+      "strike": [5.6, 8.4],
+      "keys": [
+        { "tick": 0, "pose": "neutral" },
+        { "tick": 5.0, "ease": "out", "plane": -52, "sweep": 45, "reach": 1.00, "lead": 30, "lift": -62, "twist": 30, "offset": [-0.05, 0.10, 0] },
+        { "tick": 5.6, "ease": "linear", "sweep": 43 },
+        { "tick": 8.4, "ease": "linear", "sweep": -45, "lead": -22, "lift": -86, "twist": 60 },
+        { "tick": 10.0, "ease": "out", "sweep": -55, "lead": -30, "reach": 0.92 },
+        { "tick": 17, "ease": "in_out", "pose": "neutral" }
+      ]
+    },
+    "myvillage:basic_sword_05_lunge_thrust": {
+      "strike": [6.4, 9.0],
+      "keys": [
+        { "tick": 0, "pose": "neutral" },
+        { "tick": 5.0, "ease": "out", "sweep": -38, "reach": 0.42, "lead": 32, "lift": -84, "twist": 35, "offset": [0, 0.16, 0.08] },
+        { "tick": 6.4, "ease": "linear", "reach": 0.40 },
+        { "tick": 7.6, "ease": "in", "sweep": 0, "reach": 1.00, "lead": 6, "lift": -84, "offset": [0, 0.18, -0.05] },
+        { "tick": 10.0, "ease": "out", "reach": 1.05 },
+        { "tick": 13.0, "ease": "linear", "reach": 0.98 },
+        { "tick": 20, "ease": "in_out", "pose": "neutral" }
+      ]
+    }
+  }
+}

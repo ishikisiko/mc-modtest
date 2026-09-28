@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import shutil
 import tempfile
 import unittest
@@ -26,6 +27,8 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
                 "src/main/resources/assets/myvillage/textures/item/qingfeng_sword.png",
                 "src/main/resources/assets/myvillage/lang/en_us.json",
                 "src/main/resources/assets/myvillage/lang/zh_cn.json",
+                "src/main/resources/assets/myvillage/sounds.json",
+                "src/main/resources/assets/myvillage/combat/qingfeng_first_person.json",
                 "src/main/resources/data/myvillage/recipe/qingfeng_sword.json",
                 "src/main/resources/data/minecraft/tags/item/swords.json",
                 "src/main/java/com/example/myvillage/client/combat",
@@ -34,9 +37,8 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
                 "src/main/java/com/example/myvillage/cultivation/CultivationProfile.java",
                 "src/main/java/com/example/myvillage/cultivation/meditation/MeditationManager.java",
                 "src/main/java/com/example/myvillage/network/ModPayloads.java",
-                "src/test/java/com/example/myvillage/client/combat/FirstPersonSwordPoseTest.java",
-                "src/test/java/com/example/myvillage/client/combat/FirstPersonSwordTransformTest.java",
-                "src/test/java/com/example/myvillage/client/combat/FirstPersonArmPoseTest.java"):
+                "src/test/java/com/example/myvillage/client/combat/FirstPersonSwingTest.java",
+                "src/test/java/com/example/myvillage/client/combat/SwingClockTest.java"):
             source = validator.ROOT / relative
             target = self.root / relative
             target.parent.mkdir(parents=True, exist_ok=True)
@@ -144,294 +146,116 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
             encoding="utf-8")
         self.assertIn("COMBAT_FIRST_PERSON_EXTENSION_REGISTRATION", self.codes())
 
-    def test_first_person_move_curve_alias_has_named_failure(self) -> None:
-        path = self.root / (
-            "src/main/java/com/example/myvillage/client/combat/FirstPersonSwordPose.java")
-        path.write_text(
-            path.read_text(encoding="utf-8").replace(
-                "List.of(THRUST, HORIZONTAL_CUT, RISING_CUT, DIAGONAL_CUT, LUNGE_THRUST)",
-                "List.of(THRUST, HORIZONTAL_CUT, RISING_CUT, DIAGONAL_CUT, THRUST)"),
-            encoding="utf-8")
-        self.assertIn("COMBAT_FIRST_PERSON_MOVE_CURVES", self.codes())
+    def edit(self, relative: str, old: str, new: str) -> None:
+        path = self.root / relative
+        content = path.read_text(encoding="utf-8")
+        self.assertIn(old, content)
+        path.write_text(content.replace(old, new, 1), encoding="utf-8")
 
-    def test_first_person_shared_transform_missing_has_named_failure(self) -> None:
-        path = self.root / (
-            "src/main/java/com/example/myvillage/client/combat/FirstPersonSwordTransform.java")
-        path.unlink()
-        self.assertIn("COMBAT_FIRST_PERSON_TRANSFORM_MISSING", self.codes())
+    def rig(self) -> dict:
+        return json.loads((self.root / validator.FIRST_PERSON_RIG).read_text(encoding="utf-8"))
 
-    def test_first_person_item_shared_transform_drift_has_named_failure(self) -> None:
-        path = self.root / (
-            "src/main/java/com/example/myvillage/client/combat/QingfengFirstPersonAnimator.java")
-        path.write_text(
-            path.read_text(encoding="utf-8").replace(
-                "FirstPersonSwordTransform.apply(poseStack, arm, equipProcess, pose);",
-                "poseStack.translate(pose.x(), pose.y(), pose.z());",
-                1),
-            encoding="utf-8")
-        self.assertIn("COMBAT_FIRST_PERSON_ITEM_SHARED_TRANSFORM", self.codes())
+    def write_rig(self, rig: dict) -> None:
+        (self.root / validator.FIRST_PERSON_RIG).write_text(json.dumps(rig), encoding="utf-8")
 
-    def test_first_person_viewport_contract_test_drift_has_named_failure(self) -> None:
-        path = self.root / (
-            "src/test/java/com/example/myvillage/client/combat/FirstPersonSwordPoseTest.java")
-        path.write_text(
-            path.read_text(encoding="utf-8").replace(
-                "everyMoveCrossesCenterWithAViewportSizedViewPlaneSweep",
-                "viewportCoverageWasRemoved",
-                1),
-            encoding="utf-8")
-        self.assertIn("COMBAT_FIRST_PERSON_VIEWPORT_CONTRACT_TEST", self.codes())
+    def test_first_person_rig_missing_has_named_failure(self) -> None:
+        (self.root / validator.FIRST_PERSON_RIG).unlink()
+        self.assertIn("COMBAT_FIRST_PERSON_RIG_MISSING", self.codes())
 
-    def test_first_person_transform_matrix_test_drift_has_named_failure(self) -> None:
-        path = self.root / (
-            "src/test/java/com/example/myvillage/client/combat/FirstPersonSwordTransformTest.java")
-        path.write_text(
-            path.read_text(encoding="utf-8").replace(
-                "sharedParentTransformMirrorsHandsAndPreservesMatrixOrder",
-                "sharedParentTransformCoverageWasRemoved",
-                1),
-            encoding="utf-8")
-        self.assertIn("COMBAT_FIRST_PERSON_TRANSFORM_MATRIX_TEST", self.codes())
+    def test_first_person_strike_after_active_window_has_named_failure(self) -> None:
+        rig = self.rig()
+        rig["moves"]["myvillage:basic_sword_02_horizontal_cut"]["strike"] = [4.5, 6.2]
+        self.write_rig(rig)
+        self.assertIn("COMBAT_FIRST_PERSON_RIG_STRIKE", self.codes())
 
-    def test_first_person_continuity_timing_drift_has_named_failure(self) -> None:
-        path = self.root / (
-            "src/main/java/com/example/myvillage/client/combat/FirstPersonSwordPose.java")
-        path.write_text(
-            path.read_text(encoding="utf-8").replace(
-                "frame(0.84F", "frame(0.62F", 1),
-            encoding="utf-8")
-        self.assertIn("COMBAT_FIRST_PERSON_CONTINUITY_TIMING", self.codes())
+    def test_first_person_slow_strike_has_named_failure(self) -> None:
+        rig = self.rig()
+        rig["moves"]["myvillage:basic_sword_04_diagonal_cut"]["strike"] = [2.0, 9.0]
+        self.write_rig(rig)
+        self.assertIn("COMBAT_FIRST_PERSON_RIG_STRIKE", self.codes())
 
-    def test_first_person_corrected_timeline_drift_has_named_failure(self) -> None:
-        path = self.root / (
-            "src/main/java/com/example/myvillage/client/combat/QingfengFirstPersonAnimator.java")
-        path.write_text(
-            path.read_text(encoding="utf-8").replace(
-                "player.level().getGameTime() - Math.max(0.0F, elapsedTicks)",
-                "player.level().getGameTime()"),
-            encoding="utf-8")
-        self.assertIn("COMBAT_FIRST_PERSON_CORRECTED_TIMELINE", self.codes())
+    def test_first_person_rig_unknown_move_has_named_failure(self) -> None:
+        rig = self.rig()
+        rig["moves"]["myvillage:basic_sword_06_extra"] = rig["moves"]["myvillage:basic_sword_01_thrust"]
+        self.write_rig(rig)
+        self.assertIn("COMBAT_FIRST_PERSON_RIG_MOVES", self.codes())
 
-    def test_first_person_arm_event_drift_has_named_failure(self) -> None:
-        path = self.root / (
-            "src/main/java/com/example/myvillage/client/combat/"
-            "QingfengFirstPersonArmRenderer.java")
-        path.write_text(
-            path.read_text(encoding="utf-8").replace(
-                "RenderHandEvent event", "Object event", 1),
-            encoding="utf-8")
-        self.assertIn("COMBAT_FIRST_PERSON_ARM_RENDER_EVENT", self.codes())
+    def test_first_person_rig_not_ending_neutral_has_named_failure(self) -> None:
+        rig = self.rig()
+        rig["moves"]["myvillage:basic_sword_03_rising_cut"]["keys"][-1].pop("pose")
+        self.write_rig(rig)
+        self.assertIn("COMBAT_FIRST_PERSON_RIG_NEUTRAL", self.codes())
 
-    def test_first_person_arm_registration_drift_has_named_failure(self) -> None:
-        path = self.root / (
-            "src/main/java/com/example/myvillage/client/combat/"
-            "ClientCombatBootstrap.java")
-        path.write_text(
-            path.read_text(encoding="utf-8").replace(
-                "        NeoForge.EVENT_BUS.addListener("
-                "QingfengFirstPersonArmRenderer::onRenderHand);\n",
-                "", 1),
-            encoding="utf-8")
-        self.assertIn("COMBAT_FIRST_PERSON_ARM_EVENT_REGISTRATION", self.codes())
+    def test_first_person_rig_reload_registration_drift_has_named_failure(self) -> None:
+        self.edit(
+            "src/main/java/com/example/myvillage/client/combat/ClientCombatBootstrap.java",
+            "event.registerReloadListener(FirstPersonSwingResources.INSTANCE);",
+            "// removed rig reload")
+        self.assertIn("COMBAT_FIRST_PERSON_RIG_RELOAD", self.codes())
 
-    def test_first_person_arm_main_hand_guard_drift_has_named_failure(self) -> None:
-        path = self.root / (
-            "src/main/java/com/example/myvillage/client/combat/"
-            "QingfengFirstPersonArmRenderer.java")
-        path.write_text(
-            path.read_text(encoding="utf-8").replace(
-                "event.getHand() != InteractionHand.MAIN_HAND",
-                "event.getHand() == InteractionHand.MAIN_HAND", 1),
-            encoding="utf-8")
-        self.assertIn("COMBAT_FIRST_PERSON_ARM_MAIN_HAND_GUARD", self.codes())
+    def test_first_person_transform_order_drift_has_named_failure(self) -> None:
+        self.edit(
+            "src/main/java/com/example/myvillage/client/combat/FirstPersonSwordTransform.java",
+            "poseStack.mulPose(Axis.XP.rotationDegrees(GRIP_ALIGN_PITCH));",
+            "// removed grip alignment")
+        self.assertIn("COMBAT_FIRST_PERSON_TRANSFORM_ORDER", self.codes())
 
-    def test_first_person_arm_invisibility_guard_drift_has_named_failure(self) -> None:
-        path = self.root / (
-            "src/main/java/com/example/myvillage/client/combat/"
-            "QingfengFirstPersonArmRenderer.java")
-        path.write_text(
-            path.read_text(encoding="utf-8").replace(
-                "player.isInvisible()", "false", 1),
-            encoding="utf-8")
-        self.assertIn("COMBAT_FIRST_PERSON_ARM_INVISIBLE_GUARD", self.codes())
+    def test_first_person_trail_independent_clock_is_rejected(self) -> None:
+        self.edit(
+            "src/main/java/com/example/myvillage/client/combat/FirstPersonSwordTrail.java",
+            "        Minecraft minecraft = Minecraft.getInstance();\n",
+            "        Minecraft minecraft = Minecraft.getInstance();\n"
+            "        long ignored = minecraft.level.getGameTime();\n")
+        self.assertIn("COMBAT_FIRST_PERSON_TRAIL_DUPLICATE_TIMELINE", self.codes())
 
-    def test_first_person_arm_shared_frame_drift_has_named_failure(self) -> None:
-        path = self.root / (
-            "src/main/java/com/example/myvillage/client/combat/"
-            "QingfengFirstPersonArmRenderer.java")
-        path.write_text(
-            path.read_text(encoding="utf-8").replace(
-                ".currentFrame(player, event.getPartialTick())",
-                ".currentFrame(player, 0.0F)", 1),
-            encoding="utf-8")
-        self.assertIn("COMBAT_FIRST_PERSON_ARM_SHARED_FRAME", self.codes())
+    def test_first_person_trail_item_pass_cancellation_is_rejected(self) -> None:
+        self.edit(
+            "src/main/java/com/example/myvillage/client/combat/FirstPersonSwordTrail.java",
+            "        FirstPersonSwing.Move move =",
+            "        event.setCanceled(true);\n        FirstPersonSwing.Move move =")
+        self.assertIn("COMBAT_FIRST_PERSON_TRAIL_ITEM_PASS_CANCEL", self.codes())
 
-    def test_first_person_arm_shared_transform_drift_has_named_failure(self) -> None:
-        path = self.root / (
-            "src/main/java/com/example/myvillage/client/combat/"
-            "QingfengFirstPersonArmRenderer.java")
-        path.write_text(
-            path.read_text(encoding="utf-8").replace(
-                "FirstPersonSwordTransform.apply("
-                "poseStack, arm, event.getEquipProgress(), swordPose);",
-                "poseStack.translate(swordPose.x(), swordPose.y(), swordPose.z());",
-                1),
-            encoding="utf-8")
-        self.assertIn("COMBAT_FIRST_PERSON_ARM_SHARED_TRANSFORM", self.codes())
+    def test_world_trail_hitbox_source_drift_has_named_failure(self) -> None:
+        self.edit(
+            "src/main/java/com/example/myvillage/client/combat/CombatWorldTrails.java",
+            "move.hitbox().samples()",
+            "List.<HitboxSample>of()")
+        self.assertIn("COMBAT_WORLD_TRAIL_HITBOX_SOURCE", self.codes())
 
-    def test_first_person_arm_neutral_fallback_drift_has_named_failure(self) -> None:
-        path = self.root / (
-            "src/main/java/com/example/myvillage/client/combat/"
-            "QingfengFirstPersonArmRenderer.java")
-        path.write_text(
-            path.read_text(encoding="utf-8").replace(
-                ".orElse(FirstPersonSwordPose.neutral())",
-                ".orElseThrow()", 1),
-            encoding="utf-8")
-        self.assertIn("COMBAT_FIRST_PERSON_ARM_NEUTRAL_FALLBACK", self.codes())
+    def test_hit_stop_catch_up_drift_has_named_failure(self) -> None:
+        self.edit(
+            "src/main/java/com/example/myvillage/client/combat/SwingClock.java",
+            "(totalTicks - frozenAt) / (totalTicks - stopEnd)",
+            "1.0F")
+        self.assertIn("COMBAT_HIT_STOP_CATCH_UP", self.codes())
 
-    def test_first_person_arm_grip_pivot_drift_has_named_failure(self) -> None:
-        path = self.root / (
-            "src/main/java/com/example/myvillage/client/combat/"
-            "FirstPersonArmPose.java")
-        path.write_text(
-            path.read_text(encoding="utf-8").replace(
-                "GRIP_PIVOT_X = 0.055F", "GRIP_PIVOT_X = 0.255F", 1),
-            encoding="utf-8")
-        self.assertIn("COMBAT_FIRST_PERSON_ARM_GRIP_PIVOT_X", self.codes())
+    def test_hit_feedback_before_damage_has_named_failure(self) -> None:
+        self.edit(
+            "src/main/java/com/example/myvillage/combat/session/CombatSessionManager.java",
+            "CombatFeedbackService.hit(player, move, session.revision(), successfulContacts);",
+            "CombatFeedbackService.hit(player, move, session.revision(), resolution.contacts());")
+        self.assertIn("COMBAT_HIT_FEEDBACK_AFTER_DAMAGE", self.codes())
 
-    def test_first_person_arm_rotation_follow_drift_has_named_failure(self) -> None:
-        path = self.root / (
-            "src/main/java/com/example/myvillage/client/combat/"
-            "FirstPersonArmPose.java")
-        path.write_text(
-            path.read_text(encoding="utf-8").replace(
-                "PITCH_FOLLOW = 0.10F", "PITCH_FOLLOW = 0.30F", 1),
-            encoding="utf-8")
-        self.assertIn("COMBAT_FIRST_PERSON_ARM_PITCH_FOLLOW", self.codes())
+    def test_hit_confirm_authority_field_is_rejected(self) -> None:
+        self.edit(
+            "src/main/java/com/example/myvillage/combat/network/CombatHitConfirmPayload.java",
+            "        int hitCount) implements",
+            "        int hitCount,\n        float damage) implements")
+        self.assertIn("COMBAT_HIT_CONFIRM_AUTHORITY_FIELD", self.codes())
 
-    def test_first_person_arm_viewmodel_scale_drift_has_named_failure(self) -> None:
-        path = self.root / (
-            "src/main/java/com/example/myvillage/client/combat/"
-            "FirstPersonArmPose.java")
-        path.write_text(
-            path.read_text(encoding="utf-8").replace(
-                "MIN_VIEWMODEL_SCALE = 0.45F",
-                "MIN_VIEWMODEL_SCALE = 0.80F", 1),
-            encoding="utf-8")
-        self.assertIn("COMBAT_FIRST_PERSON_ARM_MIN_VIEWMODEL_SCALE", self.codes())
+    def test_missing_sound_event_has_named_failure(self) -> None:
+        path = self.root / "src/main/resources/assets/myvillage/sounds.json"
+        sounds = json.loads(path.read_text(encoding="utf-8"))
+        del sounds["combat.sword.hit"]
+        path.write_text(json.dumps(sounds), encoding="utf-8")
+        self.assertIn("COMBAT_SOUND_EVENT", self.codes())
 
-    def test_first_person_arm_joint_hierarchy_drift_has_named_failure(self) -> None:
-        path = self.root / (
-            "src/main/java/com/example/myvillage/client/combat/"
-            "QingfengFirstPersonArmModel.java")
-        path.write_text(
-            path.read_text(encoding="utf-8").replace(
-                'prefix + "_forearm"', 'prefix + "_single_piece_arm"'),
-            encoding="utf-8")
-        self.assertIn("COMBAT_FIRST_PERSON_ARM_FOREARM_SEGMENT", self.codes())
-
-    def test_first_person_arm_joint_track_test_drift_has_named_failure(self) -> None:
-        path = self.root / (
-            "src/test/java/com/example/myvillage/client/combat/"
-            "FirstPersonArmPoseTest.java")
-        path.write_text(
-            path.read_text(encoding="utf-8").replace(
-                "fiveMovesAuthorDistinctShoulderElbowAndWristPoses",
-                "jointTrackCoverageWasRemoved", 1),
-            encoding="utf-8")
-        self.assertIn("COMBAT_FIRST_PERSON_ARM_JOINT_TRACK_TEST", self.codes())
-
-    def test_first_person_arm_grip_anchor_test_drift_has_named_failure(self) -> None:
-        path = self.root / (
-            "src/test/java/com/example/myvillage/client/combat/"
-            "FirstPersonArmPoseTest.java")
-        path.write_text(
-            path.read_text(encoding="utf-8").replace(
-                "gripCorrectionAnchorsTheArticulatedHandForBothHandsAtEverySample",
-                "gripAnchorCoverageWasRemoved", 1),
-            encoding="utf-8")
-        self.assertIn("COMBAT_FIRST_PERSON_ARM_GRIP_ANCHOR_TEST", self.codes())
-
-    def test_first_person_arm_connector_render_drift_has_named_failure(self) -> None:
-        path = self.root / (
-            "src/main/java/com/example/myvillage/client/combat/"
-            "QingfengFirstPersonArmRenderer.java")
-        path.write_text(
-            path.read_text(encoding="utf-8").replace(
-                "model.renderSkinConnector(",
-                "model.renderSkin(", 1),
-            encoding="utf-8")
-        self.assertIn("COMBAT_FIRST_PERSON_ARM_SKIN_CONNECTOR", self.codes())
-
-    def test_first_person_arm_third_party_rig_import_is_rejected(self) -> None:
-        path = self.root / (
-            "src/main/java/com/example/myvillage/client/combat/"
-            "QingfengFirstPersonArmModel.java")
-        path.write_text(
-            path.read_text(encoding="utf-8").replace(
-                "package com.example.myvillage.client.combat;",
-                "package com.example.myvillage.client.combat;\n"
-                "import software.bernie.geckolib.animation.AnimationController;",
-                1),
-            encoding="utf-8")
-        self.assertIn(
-            "COMBAT_FIRST_PERSON_ARM_THIRD_PARTY_RIG_FORBIDDEN",
-            self.codes())
-
-    def test_first_person_arm_grip_transform_order_drift_has_named_failure(self) -> None:
-        path = self.root / (
-            "src/main/java/com/example/myvillage/client/combat/"
-            "QingfengFirstPersonArmRenderer.java")
-        path.write_text(
-            path.read_text(encoding="utf-8").replace(
-                "        poseStack.mulPose(Axis.ZP.rotationDegrees("
-                "side * pose.counterRoll()));\n"
-                "        poseStack.mulPose(Axis.YP.rotationDegrees("
-                "side * pose.counterYaw()));",
-                "        poseStack.mulPose(Axis.YP.rotationDegrees("
-                "side * pose.counterYaw()));\n"
-                "        poseStack.mulPose(Axis.ZP.rotationDegrees("
-                "side * pose.counterRoll()));", 1),
-            encoding="utf-8")
-        self.assertIn("COMBAT_FIRST_PERSON_ARM_GRIP_TRANSFORM_ORDER", self.codes())
-
-    def test_first_person_arm_slim_model_drift_has_named_failure(self) -> None:
-        path = self.root / (
-            "src/main/java/com/example/myvillage/client/combat/"
-            "QingfengFirstPersonArmRenderer.java")
-        path.write_text(
-            path.read_text(encoding="utf-8").replace(
-                "QingfengFirstPersonArmModel.create(true, arm)",
-                "QingfengFirstPersonArmModel.create(false, arm)"),
-            encoding="utf-8")
-        self.assertIn("COMBAT_FIRST_PERSON_ARM_SLIM_MODEL", self.codes())
-
-    def test_first_person_arm_item_pass_cancellation_is_rejected(self) -> None:
-        path = self.root / (
-            "src/main/java/com/example/myvillage/client/combat/"
-            "QingfengFirstPersonArmRenderer.java")
-        path.write_text(
-            path.read_text(encoding="utf-8").replace(
-                "        renderArm(player, event, swordPose, armPose);",
-                "        event.setCanceled(true);\n"
-                "        renderArm(player, event, swordPose, armPose);",
-                1),
-            encoding="utf-8")
-        self.assertIn("COMBAT_FIRST_PERSON_ARM_ITEM_PASS_CANCEL", self.codes())
-
-    def test_first_person_arm_independent_clock_is_rejected(self) -> None:
-        path = self.root / (
-            "src/main/java/com/example/myvillage/client/combat/"
-            "QingfengFirstPersonArmRenderer.java")
-        path.write_text(
-            path.read_text(encoding="utf-8").replace(
-                "        Minecraft minecraft = Minecraft.getInstance();",
-                "        Minecraft minecraft = Minecraft.getInstance();\n"
-                "        long actionStartTick = minecraft.level.getGameTime();",
-                1),
-            encoding="utf-8")
-        self.assertIn("COMBAT_FIRST_PERSON_ARM_DUPLICATE_TIMELINE", self.codes())
+    def test_first_person_third_party_rig_import_is_rejected(self) -> None:
+        self.edit(
+            "src/main/java/com/example/myvillage/client/combat/FirstPersonSwordTrail.java",
+            "import org.joml.Vector3f;",
+            "import org.joml.Vector3f;\nimport yesman.epicfight.api.Placeholder;")
+        self.assertIn("COMBAT_FIRST_PERSON_THIRD_PARTY_RIG_FORBIDDEN", self.codes())
 
     def test_serverbound_vanilla_swing_is_rejected(self) -> None:
         path = self.root / (

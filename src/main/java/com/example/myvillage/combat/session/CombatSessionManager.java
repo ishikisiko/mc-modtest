@@ -8,6 +8,7 @@ import com.example.myvillage.combat.network.CombatAttackStartPayload;
 import com.example.myvillage.combat.network.CombatAttackStopPayload;
 import com.example.myvillage.combat.runtime.CombatDamageService;
 import com.example.myvillage.combat.runtime.CombatDebugService;
+import com.example.myvillage.combat.runtime.CombatFeedbackService;
 import com.example.myvillage.combat.runtime.CombatHitResolver;
 import com.example.myvillage.combat.runtime.CombatStepService;
 import com.example.myvillage.cultivation.meditation.MeditationManager;
@@ -96,6 +97,9 @@ public final class CombatSessionManager {
                     sweep.ifPresent(value -> STEP_SWEEPS.put(
                             playerId, new StepRecord(session.revision(), value)));
                 });
+                if (actionTick == move.activeStartTick()) {
+                    CombatFeedbackService.swing(player, move);
+                }
                 if (move.isActiveTick(actionTick)) {
                     Optional<CombatHitResolver.StepSweep> sweep = Optional.ofNullable(STEP_SWEEPS.get(playerId))
                             .filter(record -> record.revision() == session.revision())
@@ -110,6 +114,7 @@ public final class CombatSessionManager {
                             successfulContacts.add(contact);
                         }
                     }
+                    CombatFeedbackService.hit(player, move, session.revision(), successfulContacts);
                     CombatDebugService.render(player, resolution, successfulContacts);
                 }
             }
@@ -213,7 +218,11 @@ public final class CombatSessionManager {
         PacketDistributor.sendToPlayersTrackingEntityAndSelf(
                 player,
                 new CombatAttackStartPayload(
-                        player.getId(), start.move().id(), start.startTick(), start.revision()));
+                        player.getId(),
+                        start.move().id(),
+                        start.startTick(),
+                        start.revision(),
+                        start.facingYaw()));
     }
 
     private static void broadcastStop(

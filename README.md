@@ -499,7 +499,7 @@ jar tf build/libs/*.jar | grep "assets/myvillage/models/item/cultivation_handboo
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.26.1.jar
+build/libs/myvillage-0.26.2.jar
 ```
 
 ## Versioning And Changelog
@@ -551,35 +551,35 @@ python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 
 python3 tools/write_visual_acceptance_report.py
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.26.1.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.26.1.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.26.1.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/textures/painting/inscription"
-jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
-jar tf build/libs/myvillage-0.26.1.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
-jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
-jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
-jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
-jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
-jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
-jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
-jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
-jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
-jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
-jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/player_animations/sword_combat.json"
-jar tf build/libs/myvillage-0.26.1.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.26.1.jar | grep "data/minecraft/tags/item/swords.json"
-jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
-jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
-jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/textures/item/low_grade_spirit_stone.png"
-jar tf build/libs/myvillage-0.26.1.jar | grep "data/myvillage/worldgen/configured_feature/spirit_stone_ore.json"
-jar tf build/libs/myvillage-0.26.1.jar | grep "data/myvillage/myvillage/realm/qi_refining.json"
-jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
-jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/guides/myvillage/cultivation"
-jar tf build/libs/myvillage-0.26.1.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
+jar tf build/libs/myvillage-0.26.2.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.26.2.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.26.2.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
+jar tf build/libs/myvillage-0.26.2.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
+jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
+jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
+jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
+jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
+jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
+jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
+jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
+jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
+jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
+jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/player_animations/sword_combat.json"
+jar tf build/libs/myvillage-0.26.2.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.26.2.jar | grep "data/minecraft/tags/item/swords.json"
+jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
+jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
+jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/textures/item/low_grade_spirit_stone.png"
+jar tf build/libs/myvillage-0.26.2.jar | grep "data/myvillage/worldgen/configured_feature/spirit_stone_ore.json"
+jar tf build/libs/myvillage-0.26.2.jar | grep "data/myvillage/myvillage/realm/qi_refining.json"
+jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
+jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/guides/myvillage/cultivation"
+jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -705,53 +705,36 @@ The client sends an empty attack intent; the server owns the move, timing,
 facing, hit shape, targets, damage, durability, and fifth-move step. Pickaxes,
 empty hands, other weapons, open screens, and vanilla mode keep their existing
 input paths. An eligible cultivation click also starts one local-only
-first-person Qingfeng held-item animation for the predicted move. The five
-camera-space poses map one-to-one to the server style and use the same move
-durations; an authoritative start corrects elapsed time, while rejection or
-stop restores the normal held pose. An earlier owner-review revision used an
-exact `1.20` displacement factor with visible wind-up at normalized progress
-`0.12-0.16`, strike at `0.56-0.60`, and recovery through `0.84-0.88`. The fixed
-factor is now historical: owner review found that the resulting motion still
-remained concentrated in the lower-right corner.
+first-person Qingfeng swing for the predicted move; an authoritative start
+corrects its elapsed time, and rejection or stop blends back to the neutral
+hold.
 
-The current review target calibrates each move independently. In a `960x540`,
-`16:9`, FOV-70 reference capture, the temporal union of the projected sword and
-arm from visible wind-up through late recovery must span at least `0.50` of the
-viewport on one screen axis, enter the central horizontal band
-`x=[0.35,0.65]`, and not remain wholly inside the lower-right quadrant. This is
-the path accumulated across the action, not a requirement that one frame cover
-half the screen. The normalized keyframe ranges and server-owned move duration,
-active window, damage, step, and payload remain unchanged.
+The first-person swings are data in
+`src/main/resources/assets/myvillage/combat/qingfeng_first_person.json`. The
+sword swings around one camera-space shoulder pivot: `plane` tilts the swing on
+screen, `sweep` turns the arm in that plane, `reach` is pivot-to-grip distance,
+and `lead`/`lift`/`twist` aim and turn the blade at the handle (`lift 0` points
+the blade up, `-90` points it forward, `twist 90` shows the flat during a cut).
+Keys are in server ticks with an `ease` per segment (`linear`, `in`, `out`,
+`in_out`), start and end at the neutral hold, and each move's `strike` window
+must cover the server active window within three ticks so the blade crosses
+the target while the hit resolves. Edit the file and reload resources (`F3+T`)
+to see changes; an invalid file is logged and Qingfeng falls back to the
+vanilla hold. The first-person arm is hidden in this revision and will be
+re-authored on the same pivot rig.
 
-The item transform hook cannot draw player geometry by itself. A client-only
-`RenderHandEvent` listener therefore draws one MyVillage-owned segmented
-viewmodel before leaving the ordinary Qingfeng item pass uncancelled. It does
-not reuse a complete vanilla player arm: `QingfengFirstPersonArmModel` contains
-a non-rendering `upper_arm` shoulder driver, visible `forearm` and `hand`
-segments, and a separate screen-edge `connector` that reaches the computed
-elbow. Skin and enabled sleeve layers are generated for wide/slim and left/right
-arms from the local player's current texture. This replaces the rejected
-one-piece arm, whose complete cuboid visibly floated in the middle of the
-screen. The joint architecture is original MyVillage code; it copies no Epic
-Fight or GeckoLib code, model, texture, animation, or dependency.
-
-While a visible local player holds Qingfeng in the main hand in cultivation
-mode, item and arm sample the same corrected action frame or the same neutral
-fallback. Each move authors separate shoulder, elbow, and wrist tracks. Forward
-kinematics computes the distal hand endpoint, then a grip correction keeps that
-endpoint on the sword handle for either hand. The corrected elbow supplies the
-screen-edge connector target, so the visible chain enters from outside the
-viewport instead of presenting a detached full arm. To protect the near plane
-during the widened paths, only the active viewmodel eases from full size to
-`0.45` by normalized progress `0.12`, stays compact through the middle of the
-move, and returns to full size at both neutral endpoints. Scaling is performed
-about the grip and applied to the corrected elbow target as well, so it does not
-move the hand away from the handle. This is a client viewmodel correction, not
-a third-person player-model or gameplay scale change.
-Off-hand, invisible, non-Qingfeng, and non-cultivation states render no
-independent arm. The small inherited hand swing remains a packet-free fallback
-for an unpredicted authoritative start. None of these client visuals sends a
-vanilla attack packet or chooses a move, hit, damage, or movement.
+Feedback follows server outcomes only. Each move plays a swing or thrust sound
+at its active start (the attacker hears it on the local timeline, others from
+the server). Only targets that took damage produce the hit sound, crit
+particles, and a sweep particle for cuts; the attacker also gets one short
+hit-stop in which the first-person swing nearly freezes for `2.5` ticks with a
+small shake, then catches up so the move still ends on the server total. A
+cyan 剑光 ribbon follows the blade through each strike in first person; other
+players, and your own third-person camera, see a ribbon along the move's server
+hitbox samples. The four `myvillage:combat.sword.*` sounds currently alias
+vanilla attack sounds in `assets/myvillage/sounds.json` and have subtitles.
+None of these visuals or sounds sends a packet or changes timing, targets,
+damage, or movement.
 
 One legal attack input advances each connected move. A late input can buffer
 one next move; misses may continue the sequence, while timeout or move five
@@ -774,18 +757,17 @@ authority:
 /myvillage combat debug off
 ```
 
-For client-side pose review only, a developer client can play each held-item
-curve without generating an attack intent:
+For client-side pose review only, a developer client can play each full-body
+PAL curve, or hold one first-person frame at a server tick, without generating
+an attack intent:
 
 ```text
 /myvillage_pal_smoke move 1
-/myvillage_pal_smoke move 2
-/myvillage_pal_smoke move 3
-/myvillage_pal_smoke move 4
-/myvillage_pal_smoke move 5
+/myvillage_pal_smoke first_person 2 5.0
+/myvillage_pal_smoke first_person release
 ```
 
-This local smoke command proves rendering and recovery only. It cannot replace
+These local smoke commands prove rendering only. They cannot replace
 mapped-click, server authority, damage, timing, or multiplayer acceptance.
 
 Run the focused automated gates before client review:
@@ -808,35 +790,24 @@ editing launcher state:
 ```
 
 `combat_smoke_server` also bounds the client window to `960x540`; set FOV to
-`70` for the reference viewport-envelope capture. Use a unique game directory
+`70` for the reference first-person capture. Use a unique game directory
 and username for a second physical client. Stop every client and the acceptance
 server cleanly after collecting the evidence.
 
 Gate A directly observed PAL controller registration, play, transition, stop,
 normal-pose restoration, and dedicated-server side safety. A later real-client
 `THIRD_PERSON_MODEL` probe failed because the ready sword floated near screen
-center and the attack arm/sword clipped at excessive scale. Custom PAL first
-person-model arms/camera are therefore disabled with
-`FirstPersonMode.DISABLED`. First-person combat instead uses a Qingfeng-only
-NeoForge held-item extension plus the segmented local skin/sleeve viewmodel
-described above. A developer physical client separately observed all five
-current curves and normal-pose recovery. The separately damped revision was
-rejected because its hand left the handle; the later complete-arm revision was
-rejected because the entire arm floated in the middle of the screen. The current
-joint version showed separate elbow/wrist articulation, a screen-edge
-connection, and the handle remaining at the distal hand contact without the
-prior full-arm slab or stuck pose. The connector is still a deliberately simple
-cuboid and its proportion remains an owner-review surface. This is
-implementation evidence, not an inferred readability, anatomy, or grip-quality
-verdict.
-The latest owner review reported no obvious arm problem for now but rejected the
-fixed-factor action framing because all motion still felt confined to the
-lower-right corner. A subsequent developer capture used the actual mapped `J`
-attack input at `960x540`, `16:9`, FOV 70 and observed all five revised paths
-leave that corner, enter the center/left region, remain joined at the grip, and
-recover to neutral without a near-plane sleeve slab. That capture is evidence
-for the implementation route only. The segmented arm join and the per-move
-half-viewport calibration both remain `not_verified` until a new owner review.
+center and the attack arm/sword clipped at excessive scale, so custom PAL
+first-person arms/camera stay disabled with `FirstPersonMode.DISABLED`.
+
+The 0.26.1 owner review judged the first-person swings "not like swinging a
+sword". Capture confirmed why: the strike keys sat after the server hit window,
+every key eased to a stop, the blade was edge-on at screen center, and there was
+no hit, sound, or trail feedback. Revision 0.26.2 replaces that layer with the
+pivot rig and feedback described above and hides the segmented arm. A developer
+capture at `960x540`, FOV 70 with mapped clicks showed all five swings crossing
+the target during the hit, the trails, sweep/crit particles, and hit-stop. That
+capture is implementation evidence only; the owner verdict is still pending.
 Record only directly observed results below.
 
 | Qingfeng real-client acceptance surface | Result |
@@ -865,9 +836,11 @@ Record only directly observed results below.
 | Armor/protection, Sharpness/Smite/Bane, Knockback/Fire Aspect, and NeoForge event-listener compatibility | `not_verified` |
 | No duplicate vanilla damage, sweep, cultivation critical, or sprint bonus | `not_verified` |
 | First-person mapped click produces immediate packet-free predicted Qingfeng feedback | `pass` |
-| Historical exact-`1.20` first-person framing leaves the lower-right corner and uses at least half of the viewport | `fail` |
-| Per-move first-person envelope spans at least `0.50` on one axis, enters the central band, stays distinct/unclipped, and restores the normal pose | `not_verified` |
-| Segmented local skin/sleeve shoulder-elbow-wrist rig stays screen-connected and joined to the Qingfeng grip through all five revised moves without duplicate rendering | `not_verified` |
+| 0.26.1 normalized first-person curves read as a sword swing | `fail` |
+| 0.26.2 pivot-rig swings read as five distinct cuts/thrusts whose blade crosses the target during the hit | `not_verified` |
+| First-person 剑光 trail, hit-stop, swing/hit sounds, and hit particles | `not_verified` |
+| Remote/third-person world trail follows the hitbox arc | `not_verified` |
+| Complete first-person arm on the pivot rig | `not_verified` (deferred; arm hidden in 0.26.2) |
 | PAL third-person-model first-person arms/camera animation | `fail` |
 | Two-client nearby five-move start/stop animation and real target damage synchronization | `pass` |
 | Live interruption on mode, item, mount, dimension, death, and meditation start | `pass` |
@@ -879,7 +852,7 @@ Record only directly observed results below.
 
 ## GuideME Cultivation Guide
 
-MyVillage 0.26.1 requires a compatible GuideME installation on both client and
+MyVillage 0.26.2 requires a compatible GuideME installation on both client and
 server (`[21.1.17,22)`). Gradle resolves GuideME 21.1.17 from Maven Central for
 development; GuideME is not bundled in the MyVillage jar. The untracked
 root-level `guideme-21.1.17.jar` is inspection material, not a build input.

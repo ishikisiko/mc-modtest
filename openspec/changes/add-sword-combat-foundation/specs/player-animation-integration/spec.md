@@ -87,58 +87,39 @@ Remote player animation SHALL begin and stop only from server-authoritative comb
 - **THEN** tracking clients SHALL stop that attacker's MyVillage controller and restore normal pose
 
 ### Requirement: First-person support is evidence-bound
-The integration SHALL keep PAL 1.1.4's rejected `FirstPersonMode.THIRD_PERSON_MODEL` path disabled for the actual full-body combat animations. It SHALL register a physical-client-only Qingfeng `IClientItemExtensions` through `RegisterClientExtensionsEvent` and use `applyForgeHandTransform` to provide five distinct, bounded first-person held-sword sequences while the local player has a cultivation attack active with the Qingfeng Sword in the main hand. It SHALL also register a physical-client `RenderHandEvent` listener from the client bootstrap to render one local player-skin/sleeve segmented viewmodel before the ordinary item pass, without cancelling or replacing that item pass. The viewmodel SHALL be MyVillage-owned and SHALL contain a non-rendering shoulder driver, visible forearm and hand joints, and a screen-edge connector that terminates at the computed elbow. It SHALL generate wide/slim and right/left skin/sleeve variants, reset every joint before rendering, honor current skin and sleeve visibility, and omit internal caps that can present as near-plane slabs. It SHALL NOT copy or depend on Epic Fight or GeckoLib code, assets, models, or animations, and SHALL NOT borrow PAL-mutated or shared renderer model parts.
+The integration SHALL keep PAL 1.1.4's rejected `FirstPersonMode.THIRD_PERSON_MODEL` path disabled for the actual full-body combat animations. It SHALL register a physical-client-only Qingfeng `IClientItemExtensions` through `RegisterClientExtensionsEvent` and use `applyForgeHandTransform` to provide five distinct first-person held-sword swings while the local player holds the Qingfeng Sword in the main hand in cultivation mode. It SHALL NOT copy or depend on Epic Fight or GeckoLib code, assets, models, or animations.
 
-While a visible local player holds the Qingfeng Sword in the main hand in cultivation mode, item and arm SHALL use the animator's same corrected move frame or the same neutral fallback instead of independent elapsed-time clocks. Each move SHALL author distinct shoulder, elbow, and wrist tracks. Forward kinematics and a three-dimensional distal correction SHALL keep the hand endpoint on the sword grip for either hand; the corrected elbow SHALL drive the screen-edge connector. The active viewmodel MAY scale uniformly to `0.45` by normalized progress `0.12` to avoid the near plane only when that scale occurs around the corrected grip, is applied to the elbow target, and returns to `1.00` at both neutral endpoints. Separately damping a complete arm, applying a grip-agnostic model-origin scale, or rendering a complete floating player arm SHALL NOT satisfy this requirement. The independent arm SHALL be absent for off-hand, invisible, non-Qingfeng, or non-cultivation states. The five sequences SHALL map one-to-one to the server-owned move ids and durations, start or correct from the same elapsed tick supplied to PAL playback, and return the sword and arm to their joined neutral cultivation hold at completion or rejection; mode, item, and lifecycle interruption SHALL remove the layer through the same eligibility state. The first-person layers SHALL leave camera orientation unchanged, never animate remote players, and add no client-authored action, hit, damage, movement, or completion authority. Custom PAL body arms/camera SHALL remain documented as unsupported.
+The swings SHALL be data, loaded from `assets/myvillage/combat/qingfeng_first_person.json` through a client resource-reload listener so a resource reload applies edits. The file SHALL declare one camera-space shoulder pivot, one neutral cultivation hold, and exactly one key track per server move id. A pose SHALL be expressed as swing-plane tilt, sweep within that plane, pivot-to-grip reach, and blade lead/lift/twist at the grip, plus an optional camera-space offset, so interpolated keys trace arcs around the pivot rather than straight lines. The sword transform SHALL first undo the vanilla handheld display offset so the rig grip is the Qingfeng handle and a zero lift points the blade straight up; the left hand SHALL mirror the right. Keys SHALL be authored in server ticks, SHALL start at tick `0` and end at the move's server `totalTicks`, SHALL start and end at the neutral hold, and SHALL name a per-segment easing (`linear`, `in`, `out`, `in_out`). Each move SHALL declare a visible strike window that begins at or before the server active start tick, ends at or after the server active end tick, and lasts at most three ticks, so the blade visibly crosses the target while the server resolves hits instead of arriving afterward. A missing or invalid file SHALL log an error and leave Qingfeng on the ordinary vanilla held-item pose.
 
-The earlier owner-requested continuity revision used an explicit `1.20` amplitude factor. That fixed value is historical and SHALL NOT define the current viewport-coverage requirement. In a `960x540`, `16:9`, FOV-70 reference capture, each move's temporal union of the projected sword-and-arm silhouette from visible wind-up through late recovery SHALL span at least `0.50` of the viewport on at least one screen axis, SHALL intersect the central horizontal band `x=[0.35,0.65]`, and SHALL NOT remain wholly within the lower-right quadrant. The envelope SHALL mean the projection accumulated across the action rather than a requirement for one frame to occlude half the viewport. Across moves one through five, visible wind-up keyframes SHALL remain within normalized progress `0.12-0.16`, strike keyframes within `0.56-0.60`, and late recovery keyframes within `0.84-0.88`, with exact neutral retained at `0.00` and `1.00`. Per-move camera-space translation, rotation, and scale MAY differ to meet the coverage contract, but the shared full parent frame, calibrated wrist grip, and unchanged server-owned total ticks SHALL remain authoritative. The revision SHALL NOT introduce near-plane clipping, grip separation, duplicate arm rendering, or camera rotation, and SHALL NOT change attack acceptance, active windows, combo timing, damage, step authority, or packet content.
+The five swings SHALL map one-to-one to the server-owned move ids and durations and SHALL start or correct from the same elapsed tick supplied to PAL playback. An interruption SHALL blend back to the neutral hold over a short client-only interval. The first-person layer SHALL leave camera orientation unchanged, never animate remote players, and add no client-authored action, hit, damage, movement, or completion authority. Custom PAL body arms/camera SHALL remain documented as unsupported.
 
-If the expanded envelope requires the segmented arm or sleeve to be scaled
-during an active move to avoid the near plane, that correction SHALL be smooth,
-client-only, anchored at the distal hand endpoint, and shared by the elbow
-connector target. It SHALL restore full size at both neutral endpoints and SHALL
-NOT move the hand away from the calibrated grip, alter the third-person player
-model, or change the action timeline. Scaling around an unanchored model-part
-origin SHALL NOT satisfy this requirement.
+The earlier segmented skin/sleeve arm viewmodel is withdrawn at the owner's request while the sword swing itself is re-authored. No first-person arm SHALL render in cultivation mode until a later revision re-authors it on the shoulder-pivot rig; that follow-up SHALL keep the hand on the rig grip and SHALL NOT restore the rejected floating-arm or separately damped arm routes.
 
 An eligible local attack SHALL still start at most one packet-free fallback hand/sword swing, either at immediate prediction or at an unpredicted authoritative buffered start, without calling the one-argument `LocalPlayer#swing`, emitting `ServerboundSwingPacket`, or duplicating the dedicated first-person item transform.
 
-#### Scenario: Dedicated first-person sequences pass
-- **WHEN** a real client observes the local skin hand and Qingfeng Sword remain joined through all five move sequences without grip separation, clipping, duplicate rendering, camera jumps, indistinguishable poses, or a stuck transform
+A client-only `/myvillage_pal_smoke first_person <move> <tick>` probe MAY hold one first-person frame for inspection and `/myvillage_pal_smoke first_person release` SHALL clear it. The probe SHALL send nothing to the server and SHALL NOT substitute for mapped-click or server evidence.
+
+#### Scenario: Dedicated first-person swings pass
+- **WHEN** a real client observes all five Qingfeng swings read as distinct sword strikes whose blade crosses the target during the hit, without clipping, camera jumps, or a stuck transform
 - **THEN** the final report MAY record the dedicated first-person Qingfeng animation as `pass`
-- **AND** it SHALL continue to report custom PAL body arms/camera separately as unsupported
+- **AND** it SHALL continue to report custom PAL body arms/camera separately as unsupported and the deferred first-person arm as not delivered
 
-#### Scenario: Independent arm layer is ineligible
-- **WHEN** cultivation mode is inactive, the Qingfeng Sword is not in the main hand, the local player is invisible, or the off-hand render event fires
-- **THEN** the independent arm layer SHALL render nothing
-- **AND** ordinary first-person item/hand behavior SHALL continue without a duplicate arm
+#### Scenario: The visible strike lags the server hit
+- **WHEN** a move's declared strike window starts after the server active start tick, ends before its active end tick, or spans more than three ticks
+- **THEN** the rig SHALL be rejected at load and by focused validation
 
-#### Scenario: Independent arm returns to a joined neutral hold
-- **WHEN** a cultivation Qingfeng action completes or has no active move frame while the local player remains eligible
-- **THEN** the item and independent arm SHALL use the same neutral fallback
-- **AND** the wrist SHALL remain on the calibrated grip instead of disappearing or snapping to a separately transformed pose
-
-#### Scenario: Independent arm model is selected
-- **WHEN** an eligible local cultivation hold or action renders for either the wide or slim player-skin model
-- **THEN** the matching right/left segmented arm and enabled sleeve SHALL use the current player skin on the shared corrected sword frame
-- **AND** the visible forearm/hand chain SHALL articulate from a screen-edge connector to the corrected elbow without exposing a complete floating arm
-- **AND** PAL or shared third-person renderer pose state SHALL NOT alter that arm
-
-#### Scenario: Viewport expansion preserves timing and grip
-- **WHEN** the owner requests that each first-person move leave the lower-right corner and sweep across at least half of the reference viewport without changing total action time
-- **THEN** only the client-side per-move translation, rotation, and scale curves SHALL change
-- **AND** the normalized wind-up, strike, and recovery ranges, all server move totals, active windows, authority checks, damage, step timing, and payload schemas SHALL remain unchanged
-- **AND** the item and arm SHALL retain their shared parent frame and calibrated grip throughout the expanded envelope
-- **AND** physical-client evidence SHALL still decide whether the five envelopes meet the declared coverage, distinction, grip, and clipping contract
+#### Scenario: The rig is edited and reloaded
+- **WHEN** the owner edits `qingfeng_first_person.json` and reloads client resources
+- **THEN** the next swing SHALL use the edited keys without a code change or server restart
 
 #### Scenario: First-person sequence evidence is absent or fails
-- **WHEN** no real-client evidence exists or one declared first-person sequence check fails
+- **WHEN** no real-client evidence exists or one declared first-person check fails
 - **THEN** the final report SHALL record dedicated first-person Qingfeng animation as `not_verified` or `fail`
 - **AND** automated API/resource checks SHALL not promote it to `pass`
 
 #### Scenario: Custom PAL first person is rejected but dedicated feedback remains visible
 - **WHEN** the mapped cultivation attack is accepted for immediate prediction or an unpredicted buffered move starts authoritatively
-- **THEN** the local client SHALL show the matching first-person Qingfeng move from the corrected action timeline
+- **THEN** the local client SHALL show the matching first-person Qingfeng swing from the corrected action timeline
 - **AND** the fallback swing and dedicated item transform SHALL send no vanilla swing packet and SHALL not restore vanilla attack, hit, damage, or movement authority
 
 ### Requirement: Gate A proves client and dedicated-server compatibility before combat expansion

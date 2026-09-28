@@ -286,7 +286,7 @@ An action that damages at least one legal target SHALL run ordinary sword `hurtE
 - **THEN** the action SHALL not consume attack durability
 
 ### Requirement: Start and stop synchronization is revisioned and tracking-aware
-The server SHALL broadcast accepted action starts to the attacker and tracking players with attacker entity id, move id, server start tick, and monotonically increasing revision. It SHALL broadcast authoritative stops with attacker id, revision, and a bounded reason when an active action is canceled or corrected. Client code SHALL animate remote players only from those broadcasts.
+The server SHALL broadcast accepted action starts to the attacker and tracking players with attacker entity id, move id, server start tick, monotonically increasing revision, and the action's frozen server facing yaw. It SHALL broadcast authoritative stops with attacker id, revision, and a bounded reason when an active action is canceled or corrected. Client code SHALL animate remote players only from those broadcasts.
 
 #### Scenario: Two players observe one attacker
 - **WHEN** the server accepts the attacker's move
@@ -306,6 +306,28 @@ The local client MAY immediately predict an animation from its last authoritativ
 #### Scenario: Prediction is wrong
 - **WHEN** the server selects another move or rejects the intent
 - **THEN** the client SHALL replace or stop the predicted animation and SHALL not retain predicted combo authority
+
+### Requirement: Combat feedback is presentation-only and follows server outcomes
+Each move SHALL declare presentation cues (swing sound family, swing pitch, heavy-hit flag) beside its definition. Swing, thrust, hit, and heavy-hit sounds SHALL be MyVillage sound events whose `sounds.json` entries currently alias vanilla attack sounds and carry bilingual subtitles, so original audio can replace them without code changes. At a move's server active start tick the server SHALL play the swing sound for nearby players except the attacker; the attacker's client SHALL play the same cue locally when its visual timeline reaches that tick. After damage succeeds, and only for targets that took it, the server SHALL play the hit sound at the contact, send bounded crit particles plus a sweep particle for cuts, and send the attacker one clientbound hit confirmation containing only attacker id, action revision, and hit count.
+
+The attacker's client MAY answer a hit confirmation with one hit-stop per action: the first-person visual clock slows sharply for `2.5` ticks with a small viewmodel shake, then runs slightly faster so the swing still ends exactly at the server total. Hit-stop SHALL be skipped when too little of the action remains.
+
+The first-person client SHALL draw an additive 剑光 ribbon swept by the Qingfeng blade during each move's strike window by re-posing the blade at earlier visual ticks, fading after the window. Other clients, and the attacker in a detached camera, SHALL draw a world-space ribbon along the move's own server hitbox samples, positioned by the broadcast facing yaw. Trails, sounds, particles, and hit-stop SHALL NOT change timing, hit selection, damage, movement, or any payload the client sends, and SHALL NOT constitute a sword projectile.
+
+#### Scenario: A cut lands
+- **WHEN** the server applies damage from a horizontal cut
+- **THEN** nearby players SHALL hear the hit sound and see sweep and crit particles at the contact
+- **AND** the attacker SHALL receive a hit confirmation and MAY see a brief hit-stop that still ends on the server total
+
+#### Scenario: A swing misses
+- **WHEN** a move's active window resolves no damage
+- **THEN** the swing sound and trail SHALL still play
+- **AND** no hit sound, hit particle, hit confirmation, or hit-stop SHALL occur
+
+#### Scenario: A remote player attacks
+- **WHEN** a tracking client receives an attack start
+- **THEN** it SHALL draw that player's trail from the move's hitbox samples and broadcast facing yaw
+- **AND** it SHALL remove the trail when an interrupting stop arrives
 
 ### Requirement: Combat debug visualization is operator-only transient and off by default
 The server SHALL expose a permission-gated `/myvillage combat debug on|off` control that stores no persistent gameplay value. When enabled for an operator, bounded particles MAY show active samples and accepted contacts. Debug state SHALL default off, send no client-authored hitbox, and change no hit result.
