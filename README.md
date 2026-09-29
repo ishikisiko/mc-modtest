@@ -499,7 +499,7 @@ jar tf build/libs/*.jar | grep "assets/myvillage/models/item/cultivation_handboo
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.26.2.jar
+build/libs/myvillage-0.27.0.jar
 ```
 
 ## Versioning And Changelog
@@ -551,35 +551,35 @@ python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 
 python3 tools/write_visual_acceptance_report.py
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.26.2.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.26.2.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.26.2.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/textures/painting/inscription"
-jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
-jar tf build/libs/myvillage-0.26.2.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
-jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
-jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
-jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
-jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
-jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
-jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
-jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
-jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
-jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
-jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/player_animations/sword_combat.json"
-jar tf build/libs/myvillage-0.26.2.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.26.2.jar | grep "data/minecraft/tags/item/swords.json"
-jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
-jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
-jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/textures/item/low_grade_spirit_stone.png"
-jar tf build/libs/myvillage-0.26.2.jar | grep "data/myvillage/worldgen/configured_feature/spirit_stone_ore.json"
-jar tf build/libs/myvillage-0.26.2.jar | grep "data/myvillage/myvillage/realm/qi_refining.json"
-jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
-jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/guides/myvillage/cultivation"
-jar tf build/libs/myvillage-0.26.2.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
+jar tf build/libs/myvillage-0.27.0.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.27.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.27.0.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
+jar tf build/libs/myvillage-0.27.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
+jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
+jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
+jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
+jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
+jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
+jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
+jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
+jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
+jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
+jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/player_animations/sword_combat.json"
+jar tf build/libs/myvillage-0.27.0.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.27.0.jar | grep "data/minecraft/tags/item/swords.json"
+jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
+jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
+jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/textures/item/low_grade_spirit_stone.png"
+jar tf build/libs/myvillage-0.27.0.jar | grep "data/myvillage/worldgen/configured_feature/spirit_stone_ore.json"
+jar tf build/libs/myvillage-0.27.0.jar | grep "data/myvillage/myvillage/realm/qi_refining.json"
+jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
+jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/guides/myvillage/cultivation"
+jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -702,7 +702,7 @@ In vanilla mode, the Qingfeng Sword follows ordinary diamond-sword attack,
 mining, enchantment, repair, and durability behavior. In cultivation mode,
 mapped attack input is intercepted only while this sword is in the main hand.
 The client sends an empty attack intent; the server owns the move, timing,
-facing, hit shape, targets, damage, durability, and fifth-move step. Pickaxes,
+facing, hit shape, targets, damage, durability, steps, and target reaction. Pickaxes,
 empty hands, other weapons, open screens, and vanilla mode keep their existing
 input paths. An eligible cultivation click also starts one local-only
 first-person Qingfeng swing for the predicted move; an authoritative start
@@ -716,29 +716,53 @@ screen, `sweep` turns the arm in that plane, `reach` is pivot-to-grip distance,
 and `lead`/`lift`/`twist` aim and turn the blade at the handle (`lift 0` points
 the blade up, `-90` points it forward, `twist 90` shows the flat during a cut).
 Keys are in server ticks with an `ease` per segment (`linear`, `in`, `out`,
-`in_out`), start and end at the neutral hold, and each move's `strike` window
-must cover the server active window within three ticks so the blade crosses
-the target while the hit resolves. Edit the file and reload resources (`F3+T`)
-to see changes; an invalid file is logged and Qingfeng falls back to the
-vanilla hold. The first-person arm is hidden in this revision and will be
-re-authored on the same pivot rig.
+`in_out`, `in_cubic`, `out_cubic`, `in_out_cubic`, `out_back`). They start and
+end at the neutral hold. Each move's `strike` window must cover the server
+active window within three ticks so the blade crosses the target while the hit
+resolves, and an optional `contact` tick anchors the hit-stop. Edit the file and
+reload resources (`F3+T`) to see changes; an invalid file is logged and Qingfeng
+falls back to the vanilla hold. A complete skin and sleeve arm
+(`QingfengFirstPersonArmRenderer`) holds the sword on the same pivot rig. It is
+drawn beside the item pass and never cancels it.
+
+The third-person full-body poses in `player_animations/sword_combat.json` are
+generated. Edit `tools/gen_sword_pal_anims.py` and rerun it instead of editing
+the JSON by hand.
 
 Feedback follows server outcomes only. Each move plays a swing or thrust sound
-at its active start (the attacker hears it on the local timeline, others from
-the server). Only targets that took damage produce the hit sound, crit
-particles, and a sweep particle for cuts; the attacker also gets one short
-hit-stop in which the first-person swing nearly freezes for `2.5` ticks with a
-small shake, then catches up so the move still ends on the server total. A
-cyan 剑光 ribbon follows the blade through each strike in first person; other
-players, and your own third-person camera, see a ribbon along the move's server
-hitbox samples. The four `myvillage:combat.sword.*` sounds currently alias
-vanilla attack sounds in `assets/myvillage/sounds.json` and have subtitles.
-None of these visuals or sounds sends a packet or changes timing, targets,
-damage, or movement.
+about one tick before its active start, with slight pitch variation. The
+attacker hears it on the local timeline and everyone else hears it from the
+server. Only targets that took damage produce feedback:
+- the hit sound, plus a heavy impact layer on moves four and five;
+- a `myvillage:blade_cut` slash particle at the contact point and a few crit
+  sparks (the vanilla sweep particle is gone);
+- a per-move hit-stop (`1.5/2/2/3/4` ticks) for the attacker, after which the
+  swing catches up so the move still ends on the server total;
+- attacker-local camera shake and kicks, scaled by the Screen Effect Scale and
+  FOV Effect Scale accessibility options.
 
-One legal attack input advances each connected move. A late input can buffer
-one next move; misses may continue the sequence, while timeout or move five
-resets it:
+Nearby clients also briefly freeze and jitter the struck target from the
+`CombatImpactPayload` broadcast. A thin translucent 剑光 ribbon follows the blade
+through each strike in first person. Other players, and your own third-person
+camera, see a ribbon along the move's server hitbox samples. The five
+`myvillage:combat.sword.*` sounds currently alias vanilla sounds in
+`assets/myvillage/sounds.json` and have subtitles. None of these visuals or
+sounds sends a packet or changes timing, targets, damage, or movement.
+
+The server also decides how the target reacts. Mobs freeze for the hit-stop,
+slide back along the attack facing, then stagger for `9-16` ticks (no movement
+or melee damage). Repeated stuns fall off, and bosses are exempt. Player targets
+are never frozen; they slide and are slowed by 60% for the hitstun. Every move
+takes a small forward step, and move five a lunge of up to `1.40` blocks. The
+server decides each step's distance, stopping short of a target in front, and
+sends it as a motion impulse that the attacker's client moves through with
+normal collision, like knockback.
+
+One legal attack input advances each connected move. A click from a move's
+active start onward is held in one buffer slot. The held click cancels the rest
+of the recovery and starts the next move at its chain tick (`7/8/10/13` for
+moves one to four). Without a held click the move plays to its end. Misses may
+continue the sequence, while timeout or move five resets it:
 
 ```text
 1  basic_sword_01_thrust          一式：青锋问路
@@ -775,6 +799,9 @@ Run the focused automated gates before client review:
 ```bash
 python3 tools/validate_sword_combat_foundation.py
 python3 -m unittest tools.tests.test_validate_sword_combat_foundation
+python3 tools/gen_sword_pal_anims.py --check
+python3 tools/gen_blade_cut_sprite.py --check
+python3 -m unittest tools.tests.test_gen_sword_pal_anims tools.tests.test_gen_blade_cut_sprite
 python3 tools/validate_mod_items.py
 ./gradlew test
 ./gradlew build
@@ -807,8 +834,21 @@ no hit, sound, or trail feedback. Revision 0.26.2 replaces that layer with the
 pivot rig and feedback described above and hides the segmented arm. A developer
 capture at `960x540`, FOV 70 with mapped clicks showed all five swings crossing
 the target during the hit, the trails, sweep/crit particles, and hit-stop. That
-capture is implementation evidence only; the owner verdict is still pending.
-Record only directly observed results below.
+capture is implementation evidence only.
+
+Owner verdict on 0.26.2 (2026-09-30): after watching it (lab station A) next to
+Epic Fight, the owner said A "现在不太行看上去" and asked for an optimized A:
+"我要的是那种战斗真实动作游戏的感觉". The 0.26.2 swings were not accepted.
+Revision 0.27.0 is the response. It adds chain windows, server-decided steps and
+lunge, target reaction, per-move hit-stop, camera effects, blade-cut particles,
+thin translucent trails, the complete first-person arm, and generated
+third-person poses. The owner has not yet given a verdict on 0.27.0.
+
+The lab station E capture on 2026-09-30
+(`/home/ubuntu/code/mc/combat-lab/out/E`) exercised 0.27.0 in a physical client.
+Rows marked "lab capture E" below were observed there. That capture is
+implementation evidence, not owner acceptance. Record only directly observed
+results below.
 
 | Qingfeng real-client acceptance surface | Result |
 |---|---|
@@ -822,13 +862,16 @@ Record only directly observed results below.
 | Cultivation main-hand Qingfeng interception without a vanilla attack packet or duplicate damage path | `pass` |
 | Remapped attack, sword-on-block mining suppression, unsupported item, empty hand, GUI, and vanilla-mode input regression | `not_verified` |
 | Moves one through five in exact order, distinct full-body poses, visible fifth lunge, timeout reset, and fifth-to-first reset | `pass` |
-| Ordinary late-buffer chain and miss continuation under click timing | `pass` |
+| 0.26.x ordinary late-buffer chain and miss continuation under click timing | `pass` (0.26.x timing) |
+| 0.27.0 buffer from active start and chain at `7/8/10/13` under real click timing | `not_verified` |
 | Second buffered-intent rejection while the one slot is full | `not_verified` |
 | Move-one center-thrust side/rear range boundaries | `not_verified` |
 | Move-two/three/four visible arc and diagonal distinction | `pass` |
 | Move-two/three/four exact target caps, range boundaries, and light knockback | `not_verified` |
-| Move-five server-owned forward step measured at `0.8` blocks | `pass` |
-| Move-five wall suppression plus no wall-through target damage | `pass` |
+| Move-five server-owned forward step measured at `0.8` blocks | `pass` (0.26.x server move; superseded) |
+| Move-five wall suppression plus no wall-through target damage | `pass` (0.26.x server move) |
+| 0.27.0 move-five impulse lunge produces visible forward displacement | `pass` (lab capture E; distance not measured) |
+| 0.27.0 impulse step distances, magnetism stop, wall/cliff suppression, and planned-origin hit sweep | `not_verified` |
 | Move-five player collision and cliff suppression | `not_verified` |
 | Solid-wall target blocking | `pass` |
 | PvP/team rules, invulnerability, deterministic target order, and per-action hit deduplication | `not_verified` |
@@ -837,10 +880,19 @@ Record only directly observed results below.
 | No duplicate vanilla damage, sweep, cultivation critical, or sprint bonus | `not_verified` |
 | First-person mapped click produces immediate packet-free predicted Qingfeng feedback | `pass` |
 | 0.26.1 normalized first-person curves read as a sword swing | `fail` |
-| 0.26.2 pivot-rig swings read as five distinct cuts/thrusts whose blade crosses the target during the hit | `not_verified` |
-| First-person 剑光 trail, hit-stop, swing/hit sounds, and hit particles | `not_verified` |
+| 0.26.2 pivot-rig swings read as a real action game (owner, 2026-09-30: "现在不太行看上去") | `fail` |
+| Owner verdict on the 0.27.0 action-feel revision | `not_verified` |
+| 0.27.0 first-person arm holds the sword on the pivot rig | `pass` (lab capture E) |
+| 0.27.0 thin translucent 剑光 trails | `pass` (lab capture E) |
+| 0.27.0 `blade_cut` particles at the contact point | `pass` (lab capture E) |
+| 0.27.0 target slide on hit | `pass` (lab capture E) |
+| 0.27.0 camera roll on heavy hits | `pass` (lab capture E) |
+| 0.27.0 third-person full-body poses | `pass` (lab capture E) |
+| 0.27.0 per-move hit-stop, target freeze/hitstun, player-target slow, and boss exemption | `not_verified` |
+| 0.27.0 swing whoosh lead, pitch variation, heavy impact layer, and subtitles | `not_verified` |
+| 0.27.0 no slowness FOV zoom during swings; accessibility scaling of camera effects | `not_verified` |
+| 0.27.0 chained-move prediction and remote impact freeze/jitter in multiplayer | `not_verified` |
 | Remote/third-person world trail follows the hitbox arc | `not_verified` |
-| Complete first-person arm on the pivot rig | `not_verified` (deferred; arm hidden in 0.26.2) |
 | PAL third-person-model first-person arms/camera animation | `fail` |
 | Two-client nearby five-move start/stop animation and real target damage synchronization | `pass` |
 | Live interruption on mode, item, mount, dimension, death, and meditation start | `pass` |
@@ -852,7 +904,7 @@ Record only directly observed results below.
 
 ## GuideME Cultivation Guide
 
-MyVillage 0.26.2 requires a compatible GuideME installation on both client and
+MyVillage 0.27.0 requires a compatible GuideME installation on both client and
 server (`[21.1.17,22)`). Gradle resolves GuideME 21.1.17 from Maven Central for
 development; GuideME is not bundled in the MyVillage jar. The untracked
 root-level `guideme-21.1.17.jar` is inspection material, not a build input.

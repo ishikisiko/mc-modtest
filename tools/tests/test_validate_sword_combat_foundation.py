@@ -29,6 +29,9 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
                 "src/main/resources/assets/myvillage/lang/zh_cn.json",
                 "src/main/resources/assets/myvillage/sounds.json",
                 "src/main/resources/assets/myvillage/combat/qingfeng_first_person.json",
+                validator.BLADE_CUT_PARTICLE,
+                validator.BLADE_CUT_TEXTURE,
+                *(script for script, _ in validator.GENERATOR_CHECKS),
                 "src/main/resources/data/myvillage/recipe/qingfeng_sword.json",
                 "src/main/resources/data/minecraft/tags/item/swords.json",
                 "src/main/java/com/example/myvillage/client/combat",
@@ -50,11 +53,12 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
     def tearDown(self) -> None:
         self.temp_dir.cleanup()
 
-    def codes(self) -> set[str]:
-        return {finding.code for finding in validator.validate(self.root)}
+    def codes(self, run_generators: bool = False) -> set[str]:
+        # The generator drift checks spawn Python; only the tests that need them run them.
+        return {finding.code for finding in validator.validate(self.root, run_generators)}
 
     def test_valid_repository_fixture_passes(self) -> None:
-        self.assertEqual(set(), self.codes())
+        self.assertEqual(set(), self.codes(run_generators=True))
 
     def test_missing_jar_has_named_failure(self) -> None:
         (self.root / validator.PAL_JAR_NAME).unlink()
@@ -146,11 +150,11 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
             encoding="utf-8")
         self.assertIn("COMBAT_FIRST_PERSON_EXTENSION_REGISTRATION", self.codes())
 
-    def edit(self, relative: str, old: str, new: str) -> None:
+    def edit(self, relative: str, old: str, new: str, count: int = 1) -> None:
         path = self.root / relative
         content = path.read_text(encoding="utf-8")
         self.assertIn(old, content)
-        path.write_text(content.replace(old, new, 1), encoding="utf-8")
+        path.write_text(content.replace(old, new, count), encoding="utf-8")
 
     def rig(self) -> dict:
         return json.loads((self.root / validator.FIRST_PERSON_RIG).read_text(encoding="utf-8"))
@@ -226,7 +230,8 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
         self.edit(
             "src/main/java/com/example/myvillage/client/combat/SwingClock.java",
             "(totalTicks - frozenAt) / (totalTicks - stopEnd)",
-            "1.0F")
+            "1.0F",
+            count=-1)
         self.assertIn("COMBAT_HIT_STOP_CATCH_UP", self.codes())
 
     def test_hit_feedback_before_damage_has_named_failure(self) -> None:
@@ -314,12 +319,143 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
             encoding="utf-8")
         self.assertIn("COMBAT_DOC_DRIFT", self.codes())
 
+    def current_jar_name(self) -> str:
+        properties = (self.root / "gradle.properties").read_text(encoding="utf-8")
+        version = next(line.split("=", 1)[1] for line in properties.splitlines()
+                       if line.startswith("mod_version="))
+        return f"myvillage-{version}.jar"
+
     def test_packaged_resource_drift_has_named_failure(self) -> None:
-        jar = self.root / "build/libs/myvillage-negative.jar"
+        jar = self.root / "build/libs" / self.current_jar_name()
         jar.parent.mkdir(parents=True, exist_ok=True)
         with zipfile.ZipFile(jar, "w") as archive:
             archive.writestr("META-INF/MANIFEST.MF", "Manifest-Version: 1.0\n")
         self.assertIn("COMBAT_JAR_RESOURCE_MISSING", self.codes())
+
+    def test_jar_from_an_older_version_is_stale(self) -> None:
+        jar = self.root / "build/libs/myvillage-0.0.1.jar"
+        jar.parent.mkdir(parents=True, exist_ok=True)
+        with zipfile.ZipFile(jar, "w") as archive:
+            archive.writestr("META-INF/MANIFEST.MF", "Manifest-Version: 1.0\n")
+        self.assertIn("COMBAT_JAR_STALE", self.codes())
+
+    # --- Action-feel revision (0.27.0) invariants ---
+
+    STYLE = "src/main/java/com/example/myvillage/combat/definition/BasicSwordStyle.java"
+    MOVE = "src/main/java/com/example/myvillage/combat/definition/AttackMoveDefinition.java"
+    SESSION = "src/main/java/com/example/myvillage/combat/session/CombatSession.java"
+    MANAGER = "src/main/java/com/example/myvillage/combat/session/CombatSessionManager.java"
+    STEP = "src/main/java/com/example/myvillage/combat/runtime/CombatStepService.java"
+    FEEDBACK = "src/main/java/com/example/myvillage/combat/runtime/CombatFeedbackService.java"
+    REACTION = "src/main/java/com/example/myvillage/combat/runtime/CombatReactionService.java"
+    PAYLOADS = "src/main/java/com/example/myvillage/combat/network/CombatPayloads.java"
+    IMPACT = "src/main/java/com/example/myvillage/combat/network/CombatImpactPayload.java"
+    CLIENT = "src/main/java/com/example/myvillage/client/combat/"
+
+    def test_protocol_version_drift_has_named_failure(self) -> None:
+        self.edit("src/main/java/com/example/myvillage/network/ModPayloads.java",
+                  'PROTOCOL_VERSION = "6"', 'PROTOCOL_VERSION = "5"')
+        self.assertIn("COMBAT_PROTOCOL_VERSION", self.codes())
+
+    def test_chain_tick_drift_has_named_failure(self) -> None:
+        self.edit(self.STYLE, "11, 3, 4, 0.90, 1, 3.0, 3, 7,", "11, 3, 4, 0.90, 1, 3.0, 3, 9,")
+        self.assertIn("COMBAT_CHAIN_WINDOW_DRIFT", self.codes())
+
+    def test_chain_invariant_removal_has_named_failure(self) -> None:
+        self.edit(self.MOVE, "chainTick <= activeEndTick || ", "")
+        self.assertIn("COMBAT_CHAIN_INVARIANT", self.codes())
+
+    def test_late_recovery_buffer_regression_has_named_failure(self) -> None:
+        self.edit(self.MOVE, "return actionTick >= bufferStartTick && actionTick < totalTicks;",
+                  "return actionTick >= totalTicks - 2 && actionTick < totalTicks;")
+        self.assertIn("COMBAT_BUFFER_FROM_ACTIVE_START", self.codes())
+
+    def test_one_slot_buffer_removal_has_named_failure(self) -> None:
+        self.edit(self.SESSION, "REJECTED_BUFFER_FULL", "REJECTED_QUEUE_FULL", count=-1)
+        self.assertIn("COMBAT_BUFFER_CAPACITY", self.codes())
+
+    def test_step_distance_drift_has_named_failure(self) -> None:
+        self.edit(self.STYLE, "new StepDefinition(6, 1.40, 0.35)", "new StepDefinition(6, 1.60, 0.35)")
+        self.assertIn("COMBAT_STEP_BOUND", self.codes())
+
+    def test_server_side_step_move_is_rejected(self) -> None:
+        self.edit(self.STEP, "player.hurtMarked = true;",
+                  "player.hurtMarked = true;\n        player.move(MoverType.PLAYER, Vec3.ZERO);")
+        self.assertIn("COMBAT_STEP_SERVER_MOVE", self.codes())
+
+    def test_step_impulse_removal_has_named_failure(self) -> None:
+        self.edit(self.STEP, "player.hurtMarked = true;", "// no sync")
+        self.assertIn("COMBAT_STEP_IMPULSE", self.codes())
+
+    def test_swing_sound_timing_drift_has_named_failure(self) -> None:
+        self.edit(self.MANAGER, "actionTick == move.activeStartTick() - 1", "actionTick == move.activeStartTick()")
+        self.assertIn("COMBAT_SWING_SOUND_TIMING", self.codes())
+
+    def test_impact_payload_client_to_server_is_rejected(self) -> None:
+        self.edit(self.PAYLOADS, "registrar.playToClient(\n                CombatImpactPayload.TYPE",
+                  "registrar.playToServer(\n                CombatImpactPayload.TYPE")
+        self.assertIn("COMBAT_IMPACT_S2C_ONLY", self.codes())
+
+    def test_impact_payload_damage_field_is_rejected(self) -> None:
+        self.edit(self.IMPACT, "        List<Vec3> contactPoints) implements",
+                  "        List<Vec3> contactPoints,\n        float damage) implements")
+        self.assertIn("COMBAT_IMPACT_AUTHORITY_FIELD", self.codes())
+
+    def test_player_freeze_is_rejected(self) -> None:
+        self.edit(self.REACTION, "boolean freezable = target instanceof Mob && !excluded",
+                  "boolean freezable = target instanceof LivingEntity && !excluded")
+        self.assertIn("COMBAT_REACTION_NO_PLAYER_FREEZE", self.codes())
+
+    def test_vanilla_sweep_particle_is_rejected(self) -> None:
+        self.edit(self.FEEDBACK, "ParticleTypes.CRIT, point.x", "ParticleTypes.SWEEP_ATTACK, point.x")
+        self.assertIn("COMBAT_VANILLA_SWEEP_PARTICLE", self.codes())
+
+    def test_combat_slow_fov_correction_removal_has_named_failure(self) -> None:
+        self.edit(self.CLIENT + "ClientCombatBootstrap.java",
+                  "NeoForge.EVENT_BUS.addListener(CombatCameraFx::onComputeFovModifier);", "")
+        self.assertIn("COMBAT_SLOW_FOV_CORRECTION_REGISTRATION", self.codes())
+
+    def test_camera_fx_authority_leak_is_rejected(self) -> None:
+        self.edit(self.CLIENT + "CombatCameraFx.java", "event.setNewFovModifier(",
+                  "PacketDistributor.sendToServer(null);\n            event.setNewFovModifier(")
+        self.assertIn("COMBAT_PRESENTATION_AUTHORITY_LEAK", self.codes())
+
+    def test_additive_trail_is_rejected(self) -> None:
+        self.edit(self.CLIENT + "CombatRenderTypes.java", "RenderStateShard.TRANSLUCENT_TRANSPARENCY",
+                  "RenderStateShard.LIGHTNING_TRANSPARENCY")
+        self.assertIn("COMBAT_TRAIL_ADDITIVE_BLEND", self.codes())
+
+    def test_arm_renderer_cancelling_hand_is_rejected(self) -> None:
+        self.edit(self.CLIENT + "QingfengFirstPersonArmRenderer.java",
+                  "public static void onRenderHand(RenderHandEvent event) {",
+                  "public static void onRenderHand(RenderHandEvent event) {\n        event.setCanceled(true);")
+        self.assertIn("COMBAT_FIRST_PERSON_ARM_CANCELS_HAND", self.codes())
+
+    def test_arm_renderer_registration_removal_has_named_failure(self) -> None:
+        self.edit(self.CLIENT + "ClientCombatBootstrap.java",
+                  "NeoForge.EVENT_BUS.addListener(QingfengFirstPersonArmRenderer::onRenderHand);", "")
+        self.assertIn("COMBAT_FIRST_PERSON_ARM_REGISTRATION", self.codes())
+
+    def test_heavy_impact_sound_missing_has_named_failure(self) -> None:
+        path = self.root / "src/main/resources/assets/myvillage/sounds.json"
+        sounds = json.loads(path.read_text(encoding="utf-8"))
+        del sounds["combat.sword.impact_heavy"]["subtitle"]
+        path.write_text(json.dumps(sounds), encoding="utf-8")
+        self.assertIn("COMBAT_SOUND_EVENT", self.codes())
+
+    def test_blade_cut_particle_json_missing_has_named_failure(self) -> None:
+        (self.root / validator.BLADE_CUT_PARTICLE).unlink()
+        self.assertIn("COMBAT_BLADE_CUT_PARTICLE_JSON", self.codes())
+
+    def test_hand_edited_pal_animation_has_generator_drift(self) -> None:
+        path = self.root / "src/main/resources/assets/myvillage/player_animations/sword_combat.json"
+        path.write_text(path.read_text(encoding="utf-8") + "\n", encoding="utf-8")
+        self.assertIn("COMBAT_PAL_GENERATOR_DRIFT", self.codes(run_generators=True))
+
+    def test_hand_edited_blade_cut_sprite_has_generator_drift(self) -> None:
+        path = self.root / validator.BLADE_CUT_TEXTURE
+        path.write_bytes(path.read_bytes() + b"\0")
+        self.assertIn("COMBAT_BLADE_CUT_SPRITE_DRIFT", self.codes(run_generators=True))
 
 
 if __name__ == "__main__":

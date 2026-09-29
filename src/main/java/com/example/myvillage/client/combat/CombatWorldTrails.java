@@ -12,24 +12,36 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
  * World-space 剑光 for players seen from outside (remote players, or the local player in a
- * detached camera). The ribbon follows the move's own server hitbox samples, so what other
- * players see is where the strike actually lands.
+ * detached camera). The ribbon's direction follows the move's own server hitbox samples, so what
+ * other players see matches where the strike lands, but it is drawn at sword length around the
+ * attacker's shoulder instead of at full gameplay reach, so it hugs the held blade. It freezes
+ * while the attacker is in a hit-stop, like the attacker's animation.
  */
 public final class CombatWorldTrails {
-    private static final float TRAIL_TICKS = 1.8F;
-    private static final float FADE_TICKS = 2.0F;
-    private static final int SEGMENTS = 12;
-    private static final double BLADE_START = 0.35;
-    private static final float THRUST_HALF_WIDTH = 0.07F;
+    static final float TRAIL_TICKS = 1.2F;
+    static final float FADE_TICKS = 2.4F;
+    static final int SEGMENTS = 24;
+    /** Height of the blade's pivot (about the sword shoulder) above the feet, in blocks. */
+    static final double PIVOT_HEIGHT = 1.3;
+    /** Longest drawn blade reach from the pivot: arm plus sword, not the gameplay hitbox reach. */
+    static final double MAXIMUM_TIP_RADIUS = 1.7;
+    /**
+     * Drawn blade length from base to tip. With the shared taper (newest sample from 55% of the
+     * blade outward) the fresh band spans the outer 0.45 blocks.
+     */
+    static final double DRAWN_BLADE_LENGTH = 1.0;
+    static final float STREAK_TICKS = 3.0F;
+    private static final float STREAK_HALF_WIDTH = 0.025F;
+    private static final double STREAK_OVERSHOOT = 1.15;
     private static final Map<Integer, Action> ACTIONS = new HashMap<>();
 
     private CombatWorldTrails() {
@@ -39,7 +51,8 @@ public final class CombatWorldTrails {
         ACTIONS.put(attacker.getId(), new Action(
                 moveIndex,
                 attacker.level().getGameTime() - Math.max(0.0F, elapsedTicks),
-                facingYaw));
+                facingYaw,
+                new ArrayList<>()));
     }
 
     static void stop(int entityId) {
@@ -48,6 +61,14 @@ public final class CombatWorldTrails {
 
     static void clear() {
         ACTIONS.clear();
+    }
+
+    /** Freezes the attacker's world trail for a hit-stop that starts at {@code startTime}. */
+    static void hitStop(int attackerEntityId, double startTime, float stopTicks) {
+        Action action = ACTIONS.get(attackerEntityId);
+        if (action != null && stopTicks > 0.0F) {
+            action.stops().add(new double[] {startTime, stopTicks});
+        }
     }
 
     public static void onRenderLevelStage(RenderLevelStageEvent event) {
@@ -64,30 +85,27 @@ public final class CombatWorldTrails {
         float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(false);
         double now = minecraft.level.getGameTime() + partialTick;
         MultiBufferSource.BufferSource buffers = minecraft.renderBuffers().bufferSource();
-        VertexConsumer consumer = buffers.getBuffer(CombatRenderTypes.SWORD_TRAIL);
-        // Level rendering already applies the camera rotation; vertices are camera-relative.
-        Matrix4f matrix = new Matrix4f();
+        VertexConsumer consumer = buffers.getBuffer(CombatRenderTypes.SWORD_TRAIL_TRANSLUCENT);
 
         ACTIONS.entrySet().removeIf(entry -> {
             Entity entity = minecraft.level.getEntity(entry.getKey());
             Action action = entry.getValue();
             AttackMoveDefinition move = BasicSwordStyle.DEFINITION.move(action.moveIndex());
-            float tick = (float) (now - action.startTick());
+            float tick = (float) (now - action.startTick() - action.lostTicks(now));
             if (entity == null || tick >= move.totalTicks()) {
                 return true;
             }
             boolean firstPersonSelf = entity == minecraft.player && !camera.isDetached();
             if (!firstPersonSelf) {
-                render(consumer, matrix, entity, action, move, tick, partialTick, cameraPosition);
+                render(consumer, entity, action, move, tick, partialTick, cameraPosition);
             }
             return false;
         });
-        buffers.endBatch(CombatRenderTypes.SWORD_TRAIL);
+        buffers.endBatch(CombatRenderTypes.SWORD_TRAIL_TRANSLUCENT);
     }
 
     private static void render(
             VertexConsumer consumer,
-            Matrix4f matrix,
             Entity entity,
             Action action,
             AttackMoveDefinition move,
@@ -97,44 +115,80 @@ public final class CombatWorldTrails {
         List<HitboxSample> samples = move.hitbox().samples();
         float first = samples.getFirst().actionTick() - 0.5F;
         float last = samples.getLast().actionTick() + 0.5F;
+        Vec3 origin = entity.getPosition(partialTick);
+        boolean thrust = BasicSwordStyle.feedback(action.moveIndex()).swingSound()
+                == MoveFeedback.SwingSound.THRUST;
+        if (thrust) {
+            // A thrust sweeps no area: one camera-facing streak along the blade, drawn once.
+            float alpha = SwordTrailShape.streakAlpha(tick, first, STREAK_TICKS);
+            if (alpha <= 0.0F) {
+                return;
+            }
+            HitboxSample blade = drawnBlade(blade(samples, Math.min(tick, last)), STREAK_OVERSHOOT);
+            CombatGeometry.WorldSample world = CombatGeometry.transform(blade, origin, action.facingYaw());
+            CombatRenderTypes.streak(
+                    consumer,
+                    relative(world.start(), cameraPosition),
+                    relative(world.end(), cameraPosition),
+                    STREAK_HALF_WIDTH,
+                    alpha);
+            return;
+        }
+
         float newest = Math.min(tick, last);
         float oldest = Math.max(first, tick - TRAIL_TICKS);
         if (newest <= oldest) {
             return;
         }
-        float fade = tick <= last ? 1.0F : 1.0F - (tick - last) / FADE_TICKS;
+        float fade = SwordTrailShape.fade(tick, last, FADE_TICKS);
         if (fade <= 0.0F) {
             return;
         }
-        boolean thrust = BasicSwordStyle.feedback(action.moveIndex()).swingSound()
-                == MoveFeedback.SwingSound.THRUST;
-        Vec3 origin = entity.getPosition(partialTick);
         Vector3f[] previous = null;
+        float previousAge = 0.0F;
         float previousAlpha = 0.0F;
         for (int index = 0; index <= SEGMENTS; index++) {
             float sampleTick = newest - (newest - oldest) * index / SEGMENTS;
             float age = (tick - sampleTick) / TRAIL_TICKS;
-            float alpha = (float) Math.pow(Math.max(0.0F, 1.0F - age), 1.5) * fade * 0.8F;
+            float alpha = SwordTrailShape.alpha(age, fade);
             CombatGeometry.WorldSample world = CombatGeometry.transform(
-                    blade(samples, sampleTick), origin, action.facingYaw());
-            Vector3f base = relative(world.start().lerp(world.end(), BLADE_START), cameraPosition, matrix);
-            Vector3f tip = relative(world.end(), cameraPosition, matrix);
-            if (thrust) {
-                // A thrust sweeps no area; draw a thin cross-shaped streak along the blade instead.
-                Vector3f lift = relative(world.end().add(0.0, THRUST_HALF_WIDTH, 0.0), cameraPosition, matrix);
-                Vector3f drop = relative(world.end().add(0.0, -THRUST_HALF_WIDTH, 0.0), cameraPosition, matrix);
-                CombatRenderTypes.ribbonQuad(consumer, base, lift, alpha, base, drop, alpha);
-                previous = null;
-                continue;
-            }
-            Vector3f[] blade = {base, tip};
+                    drawnBlade(blade(samples, sampleTick), 1.0), origin, action.facingYaw());
+            Vector3f[] blade = {relative(world.start(), cameraPosition), relative(world.end(), cameraPosition)};
             if (previous != null) {
-                CombatRenderTypes.ribbonQuad(
-                        consumer, previous[0], previous[1], previousAlpha, blade[0], blade[1], alpha);
+                CombatRenderTypes.trailSegment(
+                        consumer,
+                        previous[0], previous[1], previousAge, previousAlpha,
+                        blade[0], blade[1], age, alpha);
             }
             previous = blade;
+            previousAge = age;
             previousAlpha = alpha;
         }
+    }
+
+    /**
+     * The drawn blade for one hitbox sample, in the same attacker-local frame: from the sword
+     * pivot toward the sample's far end, with the tip at {@code min(reach, 1.7)} (times
+     * {@code tipScale}) and the base {@link #DRAWN_BLADE_LENGTH} closer to the pivot.
+     */
+    static HitboxSample drawnBlade(HitboxSample sample, double tipScale) {
+        double x = sample.endX();
+        double y = sample.endY() - PIVOT_HEIGHT;
+        double z = sample.endZ();
+        double length = Math.sqrt(x * x + y * y + z * z);
+        if (length < 1.0E-6) {
+            return sample;
+        }
+        double tipRadius = Math.min(length, MAXIMUM_TIP_RADIUS);
+        double baseRadius = Math.max(0.0, tipRadius - DRAWN_BLADE_LENGTH);
+        double tip = tipRadius * tipScale / length;
+        double base = baseRadius / length;
+        return new HitboxSample(
+                sample.actionTick(),
+                x * base, PIVOT_HEIGHT + y * base, z * base,
+                x * tip, PIVOT_HEIGHT + y * tip, z * tip,
+                sample.horizontalRadius(),
+                sample.verticalRadius());
     }
 
     /** Interpolates the blade segment between authored samples in polar form so arcs stay round. */
@@ -185,13 +239,23 @@ public final class CombatWorldTrails {
         };
     }
 
-    private static Vector3f relative(Vec3 point, Vec3 cameraPosition, Matrix4f matrix) {
-        return matrix.transformPosition(new Vector3f(
+    // Level rendering already applies the camera rotation; vertices are camera-relative.
+    private static Vector3f relative(Vec3 point, Vec3 cameraPosition) {
+        return new Vector3f(
                 (float) (point.x - cameraPosition.x),
                 (float) (point.y - cameraPosition.y),
-                (float) (point.z - cameraPosition.z)));
+                (float) (point.z - cameraPosition.z));
     }
 
-    private record Action(int moveIndex, double startTick, float facingYaw) {
+    /** One attacker's trail; {@code stops} holds {startTime, stopTicks} for each hit-stop. */
+    private record Action(int moveIndex, double startTick, float facingYaw, List<double[]> stops) {
+        /** Trail time lost to hit-stops so far, so the ribbon holds still during each stop. */
+        double lostTicks(double now) {
+            double lost = 0.0;
+            for (double[] stop : stops) {
+                lost += CombatImpactFx.hitStopLostTicks((float) (now - stop[0]), (float) stop[1]);
+            }
+            return lost;
+        }
     }
 }

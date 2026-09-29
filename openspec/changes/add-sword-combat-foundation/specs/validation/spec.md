@@ -11,6 +11,14 @@ The repository SHALL provide a focused standard-library validator and tests that
 - **WHEN** a fixture gives the first-person trail its own elapsed-time clock or cancels the item pass, detaches the world trail from the hitbox samples, removes the hit-stop catch-up, sends hit feedback for contacts that took no damage, adds an authority field to the hit confirmation, removes a combat sound event, or imports Epic Fight/GeckoLib into the client combat package
 - **THEN** the focused validator SHALL fail with a named combat-feedback finding
 
+#### Scenario: Action-feel authority boundaries drift
+- **WHEN** a fixture changes the protocol version, a buffer start or chain tick, removes a chain or buffer invariant, restores a late-recovery-only buffer or a server-side step move, removes the step impulse, drifts a step distance, moves the swing sound off `activeStartTick - 1`, registers the impact payload serverbound or adds a damage field to it, lets the reaction service freeze a non-`Mob` (player) target, restores the vanilla sweep particle or an additive trail, removes the combat-slow FOV correction or the first-person arm registration, lets the arm renderer cancel `RenderHandEvent`, adds network or motion calls to the camera/impact effects, removes the heavy-impact sound subtitle or the blade-cut particle definition
+- **THEN** the focused validator SHALL fail with a named action-feel finding
+
+#### Scenario: A generated asset is hand-edited
+- **WHEN** `sword_combat.json` or `textures/particle/blade_cut.png` differs from its generator output
+- **THEN** the focused validator SHALL run `tools/gen_sword_pal_anims.py --check` and `tools/gen_blade_cut_sprite.py --check` and fail with a named generator-drift finding
+
 #### Scenario: Source checks pass without real-client evidence
 - **WHEN** the first-person and feedback source invariants pass but no real client has judged the swings, trails, sounds, and hit-stop
 - **THEN** automated validation MAY pass while those visual and audio surfaces remain `not_verified`

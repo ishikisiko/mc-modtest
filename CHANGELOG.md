@@ -7,6 +7,72 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.27.0
+
+### Changed
+
+- Qingfeng combo timing: the one-slot buffer now opens at each move's active
+  start, and a held click cancels recovery into the next move at `chainTick`
+  `7/8/10/13/20`. Totals and active windows are unchanged. Without a held click a
+  move still plays to its total. Move five cannot chain.
+- Attacks face the view yaw. Body and head snap to it at start, and each chained
+  move re-aims. A temporary `myvillage:combat_commit` speed modifier slows the
+  attacker during the swing, and sprinting stops at start.
+- Steps: every move now steps (`0.30/0.25/0.30/0.45/1.40` blocks, bound
+  `(0, 1.6]`). The step is a server-decided motion impulse executed by client
+  physics instead of a server-side move. It keeps the collision and support
+  checks, adds target magnetism, and hits use the server-planned origin.
+- Knockback: vanilla hurt knockback is replaced for our hits by each move's
+  slide/lift/lateral reaction along the attack facing. Enchantment and attribute
+  knockback still apply, scaled by knockback resistance.
+- Hit-stop is per move (`1.5/2/2/3/4` ticks): a full freeze, then a creep, then
+  catch-up to the server total, anchored at the rig's per-move contact tick.
+- Trails are now thin alpha-blended ribbons (`SWORD_TRAIL_TRANSLUCENT`); the
+  additive trail is removed. The vanilla sweep particle is removed, and crit
+  sparks are cut to 3 per hit (6 on heavy moves).
+- The first-person rig is re-authored with cubic and overshoot easing, per-move
+  contact ticks, and 2-tick chain cross-fades.
+- `sword_combat.json` is regenerated from the new `tools/gen_sword_pal_anims.py`
+  (planted feet, cut directions that match the hitboxes, lunge on the step
+  tick). `CombatAnimationController` cross-fades chains and holds stops briefly.
+
+### Added
+
+- Server target reaction (`ReactionDefinition`, `CombatReactionService`):
+  - mobs freeze for the hit-stop, then are staggered for `9-16` ticks;
+  - repeat stuns fall off, and bosses are exempt;
+  - players are never frozen and get a 60% `myvillage:combat_stun` slow instead.
+- `CombatImpactPayload` (S2C to the attacker and trackers: struck ids and
+  contact points, no damage or health) drives client-side target freeze and
+  jitter and remote attacker hit-stop.
+- `CombatCameraFx`: attacker-local shake and kicks, scaled by the Screen Effect
+  Scale and FOV Effect Scale options. It also cancels the slowness FOV zoom from
+  the combat commit and stun modifiers.
+- A complete first-person skin/sleeve arm on the pivot rig
+  (`QingfengFirstPersonArmRenderer` with a two-bone IK). It never cancels the
+  hand render event.
+- `myvillage:blade_cut` particle with an original procedurally generated sprite
+  (`tools/gen_blade_cut_sprite.py`).
+- Sound event `combat.sword.impact_heavy` (heavy-hit layer) with bilingual
+  subtitles, plus swing pitch variation. The swing sound now leads the active
+  start by one tick.
+- Focused validator checks for these invariants, including the chain
+  invariants, the S2C-only impact payload, no player freeze, no additive trail
+  or sweep particle, the FOV correction, the arm registration, and both
+  generators' `--check` drift checks.
+
+### Notes
+
+- Payload protocol is now `6`. Both C2S combat payloads remain empty.
+- On 2026-09-30, after watching 0.26.2 (lab station A) next to Epic Fight, the
+  owner said "现在不太行看上去" and asked for an optimized A:
+  "我要的是那种战斗真实动作游戏的感觉". The 0.26.2 swings were not accepted.
+  There is no owner verdict on 0.27.0 yet.
+- Lab station E capture (2026-09-30, `combat-lab/out/E`) observed the
+  first-person arm, thin trails, blade-cut particles, target slide, move-five
+  lunge displacement, camera roll on heavy hits, and third-person poses in a
+  physical client. All other 0.27.0 real-client surfaces are `not_verified`.
+
 ## 0.26.2
 
 ### Changed

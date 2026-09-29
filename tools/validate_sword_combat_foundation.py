@@ -7,6 +7,8 @@ import hashlib
 import json
 import re
 import struct
+import subprocess
+import sys
 import zipfile
 from dataclasses import dataclass
 from pathlib import Path
@@ -22,6 +24,23 @@ EXPECTED_MOVES = {
     "basic_sword_04_diagonal_cut": (17, 6, 8, 1.10, 3, 3.0, 0.85),
     "basic_sword_05_lunge_thrust": (20, 7, 9, 1.25, 2, 3.5, 1.0),
 }
+# (bufferStartTick, chainTick) per move: the buffer opens at the active start and a held click
+# cancels recovery into the next move at chainTick; the finisher cannot chain (chain == total).
+EXPECTED_CHAINS = {
+    "basic_sword_01_thrust": (3, 7),
+    "basic_sword_02_horizontal_cut": (4, 8),
+    "basic_sword_03_rising_cut": (5, 10),
+    "basic_sword_04_diagonal_cut": (6, 13),
+    "basic_sword_05_lunge_thrust": (7, 20),
+}
+# Server-decided step impulses: new StepDefinition(actionTick, maximumDistance, supportDepth).
+EXPECTED_STEPS = {
+    "basic_sword_01_thrust": "new StepDefinition(2, 0.30, 0.35)",
+    "basic_sword_02_horizontal_cut": "new StepDefinition(3, 0.25, 0.35)",
+    "basic_sword_03_rising_cut": "new StepDefinition(4, 0.30, 0.35)",
+    "basic_sword_04_diagonal_cut": "new StepDefinition(5, 0.45, 0.35)",
+    "basic_sword_05_lunge_thrust": "new StepDefinition(6, 1.40, 0.35)",
+}
 REQUIRED_ANIMATION_BONES = {
     "body", "head", "right_arm", "left_arm", "right_leg", "left_leg"
 }
@@ -34,10 +53,19 @@ COMBAT_TRANSLATIONS = {
     "commands.myvillage.combat.debug.off",
     "commands.myvillage.combat.debug.player_only",
     *(f"combat.myvillage.move.{move_id}" for move_id in EXPECTED_MOVES),
-    *(f"subtitles.myvillage.combat.sword.{cue}" for cue in ("cut", "thrust", "hit", "hit_heavy")),
+    *(f"subtitles.myvillage.combat.sword.{cue}"
+      for cue in ("cut", "thrust", "hit", "hit_heavy", "impact_heavy")),
 }
 COMBAT_SOUND_EVENTS = (
-    "combat.sword.cut", "combat.sword.thrust", "combat.sword.hit", "combat.sword.hit_heavy")
+    "combat.sword.cut", "combat.sword.thrust", "combat.sword.hit", "combat.sword.hit_heavy",
+    "combat.sword.impact_heavy")
+BLADE_CUT_PARTICLE = "src/main/resources/assets/myvillage/particles/blade_cut.json"
+BLADE_CUT_TEXTURE = "src/main/resources/assets/myvillage/textures/particle/blade_cut.png"
+GENERATOR_CHECKS = (
+    ("tools/gen_sword_pal_anims.py", "COMBAT_PAL_GENERATOR_DRIFT"),
+    ("tools/gen_blade_cut_sprite.py", "COMBAT_BLADE_CUT_SPRITE_DRIFT"),
+)
+GENERATOR_TIMEOUT_SECONDS = 120
 FIRST_PERSON_RIG = "src/main/resources/assets/myvillage/combat/qingfeng_first_person.json"
 MAX_STRIKE_TICKS = 3.0
 
@@ -143,6 +171,11 @@ def validate_client_boundary(root: Path, findings: list[Finding]) -> None:
     swing_clock_path = client_combat / "SwingClock.java"
     first_person_trail_path = client_combat / "FirstPersonSwordTrail.java"
     world_trail_path = client_combat / "CombatWorldTrails.java"
+    arm_renderer_path = client_combat / "QingfengFirstPersonArmRenderer.java"
+    camera_fx_path = client_combat / "CombatCameraFx.java"
+    impact_fx_path = client_combat / "CombatImpactFx.java"
+    render_types_path = client_combat / "CombatRenderTypes.java"
+    blade_cut_particle_path = client_combat / "BladeCutParticle.java"
     swing_test_path = client_combat_tests / "FirstPersonSwingTest.java"
     swing_clock_test_path = client_combat_tests / "SwingClockTest.java"
 
@@ -157,6 +190,11 @@ def validate_client_boundary(root: Path, findings: list[Finding]) -> None:
             (swing_clock_path, "COMBAT_HIT_STOP_CLOCK_MISSING"),
             (first_person_trail_path, "COMBAT_FIRST_PERSON_TRAIL_MISSING"),
             (world_trail_path, "COMBAT_WORLD_TRAIL_MISSING"),
+            (arm_renderer_path, "COMBAT_FIRST_PERSON_ARM_MISSING"),
+            (camera_fx_path, "COMBAT_CAMERA_FX_MISSING"),
+            (impact_fx_path, "COMBAT_IMPACT_FX_MISSING"),
+            (render_types_path, "COMBAT_TRAIL_RENDER_TYPE_MISSING"),
+            (blade_cut_particle_path, "COMBAT_BLADE_CUT_PROVIDER_MISSING"),
             (swing_test_path, "COMBAT_FIRST_PERSON_SWING_TEST_MISSING"),
             (swing_clock_test_path, "COMBAT_HIT_STOP_CLOCK_TEST_MISSING")):
         require_file(path, root, code, findings)
@@ -192,8 +230,25 @@ def validate_client_boundary(root: Path, findings: list[Finding]) -> None:
                 ("NeoForge.EVENT_BUS.addListener(FirstPersonSwordTrail::onRenderHand)",
                  "COMBAT_FIRST_PERSON_TRAIL_REGISTRATION"),
                 ("NeoForge.EVENT_BUS.addListener(CombatWorldTrails::onRenderLevelStage)",
-                 "COMBAT_WORLD_TRAIL_REGISTRATION")):
+                 "COMBAT_WORLD_TRAIL_REGISTRATION"),
+                ("NeoForge.EVENT_BUS.addListener(QingfengFirstPersonArmRenderer::onRenderHand)",
+                 "COMBAT_FIRST_PERSON_ARM_REGISTRATION"),
+                ("NeoForge.EVENT_BUS.addListener(CombatCameraFx::onComputeCameraAngles)",
+                 "COMBAT_CAMERA_FX_REGISTRATION"),
+                ("NeoForge.EVENT_BUS.addListener(CombatCameraFx::onComputeFov)",
+                 "COMBAT_CAMERA_FX_REGISTRATION"),
+                ("NeoForge.EVENT_BUS.addListener(CombatCameraFx::onComputeFovModifier)",
+                 "COMBAT_SLOW_FOV_CORRECTION_REGISTRATION"),
+                ("NeoForge.EVENT_BUS.addListener(CombatImpactFx::onEntityTickPre)",
+                 "COMBAT_IMPACT_FX_REGISTRATION"),
+                ("event.registerSpriteSet(CombatParticles.BLADE_CUT.get()",
+                 "COMBAT_BLADE_CUT_PROVIDER_REGISTRATION")):
             require_contains(bootstrap, needle, code, bootstrap_path.name, findings)
+        arm_at = bootstrap.find("addListener(QingfengFirstPersonArmRenderer::onRenderHand)")
+        trail_at = bootstrap.find("addListener(FirstPersonSwordTrail::onRenderHand)")
+        if 0 <= trail_at < arm_at:
+            # The arm draws first so the translucent trail blends over it.
+            findings.append(Finding("COMBAT_FIRST_PERSON_ARM_ORDER", bootstrap_path.name))
 
     if first_person_animator_path.is_file():
         animator = text(first_person_animator_path)
@@ -212,7 +267,11 @@ def validate_client_boundary(root: Path, findings: list[Finding]) -> None:
                 ("arm != player.getMainArm()", "COMBAT_FIRST_PERSON_MAIN_HAND_GUARD"),
                 ("FirstPersonSwingResources.current()", "COMBAT_FIRST_PERSON_RIG_SOURCE"),
                 ("FirstPersonSwordTransform.apply(", "COMBAT_FIRST_PERSON_ITEM_TRANSFORM"),
-                ("player.level().playLocalSound(", "COMBAT_LOCAL_SWING_SOUND")):
+                ("player.level().playLocalSound(", "COMBAT_LOCAL_SWING_SOUND"),
+                ("visualTick + 1.5F < move.activeStartTick()", "COMBAT_LOCAL_SWING_SOUND_LEAD"),
+                ("CombatSounds.jitteredSwingPitch(feedback.swingPitch(), player.getRandom())",
+                 "COMBAT_LOCAL_SWING_SOUND_PITCH"),
+                ("BasicSwordStyle.feedback(", "COMBAT_FIRST_PERSON_PER_MOVE_HIT_STOP")):
             require_contains(animator, needle, code, first_person_animator_path.name, findings)
         for forbidden in ("RenderHandEvent", "Camera", "PacketDistributor", "ServerboundSwingPacket"):
             if forbidden in animator:
@@ -259,6 +318,57 @@ def validate_client_boundary(root: Path, findings: list[Finding]) -> None:
                 ("HIT_STOP_TICKS = 2.5F", "COMBAT_HIT_STOP_DURATION"),
                 ("(totalTicks - frozenAt) / (totalTicks - stopEnd)", "COMBAT_HIT_STOP_CATCH_UP")):
             require_contains(clock, needle, code, swing_clock_path.name, findings)
+
+    if arm_renderer_path.is_file():
+        arm = text(arm_renderer_path)
+        require_contains(
+            arm, "public static void onRenderHand(RenderHandEvent event)",
+            "COMBAT_FIRST_PERSON_ARM_EVENT", arm_renderer_path.name, findings)
+        if "setCanceled" in arm:
+            # The arm is drawn beside the vanilla item pass; cancelling would hide the sword.
+            findings.append(Finding("COMBAT_FIRST_PERSON_ARM_CANCELS_HAND", arm_renderer_path.name))
+
+    if camera_fx_path.is_file():
+        camera_fx = text(camera_fx_path)
+        for needle, code in (
+                ("screenEffectScale()", "COMBAT_CAMERA_FX_ACCESSIBILITY_SCALE"),
+                ("fovEffectScale()", "COMBAT_CAMERA_FX_ACCESSIBILITY_SCALE"),
+                ("CombatSessionManager.COMMIT_MODIFIER_ID", "COMBAT_SLOW_FOV_CORRECTION"),
+                ("CombatReactionService.STUN_MODIFIER_ID", "COMBAT_SLOW_FOV_CORRECTION"),
+                ("public static void onComputeFovModifier(ComputeFovModifierEvent event)",
+                 "COMBAT_SLOW_FOV_CORRECTION"),
+                ("event.setNewFovModifier(", "COMBAT_SLOW_FOV_CORRECTION")):
+            require_contains(camera_fx, needle, code, camera_fx_path.name, findings)
+
+    for path in (camera_fx_path, impact_fx_path):
+        if not path.is_file():
+            continue
+        content = text(path)
+        for forbidden in ("PacketDistributor", "setDeltaMovement", "hurtMarked", ".hurt("):
+            if forbidden in content:
+                findings.append(Finding(
+                    "COMBAT_PRESENTATION_AUTHORITY_LEAK", f"{path.name}:{forbidden}"))
+
+    if render_types_path.is_file():
+        render_types = text(render_types_path)
+        require_contains(
+            render_types, "SWORD_TRAIL_TRANSLUCENT = RenderType.create(",
+            "COMBAT_TRAIL_TRANSLUCENT", render_types_path.name, findings)
+        require_contains(
+            render_types, "TRANSLUCENT_TRANSPARENCY",
+            "COMBAT_TRAIL_TRANSLUCENT", render_types_path.name, findings)
+        if (re.search(r"\b(?:LIGHTNING|ADDITIVE)_TRANSPARENCY\b", render_types)
+                or re.search(r"DestFactor\.ONE\b", render_types)):
+            findings.append(Finding("COMBAT_TRAIL_ADDITIVE_BLEND", render_types_path.name))
+    for path in (first_person_trail_path, world_trail_path):
+        if not path.is_file():
+            continue
+        content = text(path)
+        require_contains(
+            content, "CombatRenderTypes.SWORD_TRAIL_TRANSLUCENT",
+            "COMBAT_TRAIL_TRANSLUCENT", path.name, findings)
+        if re.search(r"\bSWORD_TRAIL\b", content):
+            findings.append(Finding("COMBAT_TRAIL_ADDITIVE_BLEND", path.name))
 
     if first_person_trail_path.is_file():
         trail = text(first_person_trail_path)
@@ -519,8 +629,32 @@ def validate_preference_and_payloads(root: Path, findings: list[Finding]) -> Non
     mod_payloads = root / "src/main/java/com/example/myvillage/network/ModPayloads.java"
     if require_file(mod_payloads, root, "COMBAT_PAYLOAD_REGISTRAR", findings):
         content = text(mod_payloads)
-        require_contains(content, 'PROTOCOL_VERSION = "5"', "COMBAT_PROTOCOL_VERSION", "ModPayloads", findings)
+        require_contains(content, 'PROTOCOL_VERSION = "6"', "COMBAT_PROTOCOL_VERSION", "ModPayloads", findings)
         require_contains(content, "CombatPayloads.register(registrar)", "COMBAT_PAYLOAD_REGISTRATION", "ModPayloads", findings)
+
+    payloads_path = network_root / "CombatPayloads.java"
+    if require_file(payloads_path, root, "COMBAT_PAYLOADS_MISSING", findings):
+        content = text(payloads_path)
+        if re.search(r"playToClient\(\s*CombatImpactPayload\.TYPE", content) is None:
+            findings.append(Finding("COMBAT_IMPACT_S2C_ONLY", "CombatImpactPayload not registered playToClient"))
+        if re.search(r"playToServer\(\s*CombatImpactPayload\.TYPE", content) is not None:
+            findings.append(Finding("COMBAT_IMPACT_S2C_ONLY", "CombatImpactPayload registered playToServer"))
+    impact_path = network_root / "CombatImpactPayload.java"
+    if require_file(impact_path, root, "COMBAT_IMPACT_PAYLOAD_MISSING", findings):
+        content = text(impact_path)
+        components = re.search(r"record\s+CombatImpactPayload\s*\((.*?)\)\s*implements", content, re.DOTALL)
+        if components is None:
+            findings.append(Finding("COMBAT_IMPACT_PAYLOAD_SHAPE", impact_path.name))
+        else:
+            lowered = components.group(1).lower()
+            for forbidden in ("damage", "health", "amount", "knockback", "velocity", "motion"):
+                if forbidden in lowered:
+                    findings.append(Finding("COMBAT_IMPACT_AUTHORITY_FIELD", forbidden))
+    receiver_path = network_root / "CombatAttackReceiver.java"
+    if require_file(receiver_path, root, "COMBAT_ATTACK_RECEIVER_MISSING", findings):
+        require_contains(
+            text(receiver_path), "public static void receiveImpact(CombatImpactPayload payload)",
+            "COMBAT_IMPACT_RECEIVER", receiver_path.name, findings)
 
     client_input = root / "src/main/java/com/example/myvillage/client/combat/ClientCombatEvents.java"
     client_state = root / "src/main/java/com/example/myvillage/client/combat/ClientCombatState.java"
@@ -540,7 +674,11 @@ def validate_preference_and_payloads(root: Path, findings: list[Finding]) -> Non
                 ("ModItems.QINGFENG_SWORD.get()", "COMBAT_ITEM_GUARD"),
                 ("ClientCombatState.localActionActive()", "COMBAT_PREDICTION_DISPOSABLE"),
                 ("ClientCultivationState.meditation()", "COMBAT_READY_CULTIVATION_GUARD"),
-                ("resetsServerSession", "COMBAT_CLIENT_SESSION_RESET")):
+                ("resetsServerSession", "COMBAT_CLIENT_SESSION_RESET"),
+                ("ClientCombatEvents::receiveImpact", "COMBAT_IMPACT_CLIENT_WIRING"),
+                ("ClientCombatState.bufferClick(", "COMBAT_CLIENT_ONE_SLOT_BUFFER"),
+                ("ClientCombatState.chainDue(", "COMBAT_CLIENT_CHAIN_PREDICTION"),
+                ("player.setSprinting(false);", "COMBAT_CLIENT_PREDICTED_SPRINT_STOP")):
             require_contains(content, needle, code, client_input.name, findings)
         if "GLFW_MOUSE_BUTTON" in content or "matchesMouse" in content:
             findings.append(Finding("COMBAT_PHYSICAL_MOUSE_BINDING", client_input.name))
@@ -595,12 +733,43 @@ def validate_definitions_and_runtime(root: Path, findings: list[Finding]) -> Non
                 re.DOTALL)
             if pattern.search(content) is None:
                 findings.append(Finding("COMBAT_MOVE_DEFINITION_DRIFT", move_id))
+            buffer_start, chain_tick = EXPECTED_CHAINS[move_id]
+            if not (active_start <= buffer_start < total and active_end < chain_tick <= total):
+                findings.append(Finding("COMBAT_CHAIN_INVARIANT", move_id))
+            chain_pattern = re.compile(
+                rf'"{re.escape(move_id)}".*?{total},\s*{active_start},\s*{active_end},\s*'
+                rf'{multiplier:.2f},\s*{maximum},\s*{attack_range:.1f},\s*{buffer_start},\s*{chain_tick},',
+                re.DOTALL)
+            if chain_pattern.search(content) is None:
+                findings.append(Finding("COMBAT_CHAIN_WINDOW_DRIFT", move_id))
+            require_contains(content, EXPECTED_STEPS[move_id], "COMBAT_STEP_BOUND", move_id, findings)
+        last_move = list(EXPECTED_MOVES)[-1]
+        if EXPECTED_CHAINS[last_move][1] != EXPECTED_MOVES[last_move][0]:
+            findings.append(Finding("COMBAT_CHAIN_INVARIANT", f"{last_move}:finisher must not chain"))
         for shape in (
                 "center_thrust", "horizontal_arc_110", "rising_diagonal",
                 "descending_diagonal_thick", "long_lunge_thrust"):
             require_contains(content, f'"{shape}"', "COMBAT_DISTINCT_SHAPE", shape, findings)
-        require_contains(content, "new StepDefinition(6, 0.8, 0.35)", "COMBAT_STEP_BOUND", definition.name, findings)
+        require_contains(content, "new ReactionDefinition(", "COMBAT_TARGET_REACTION", definition.name, findings)
         require_contains(content, "new HitboxDefinition(shape, samples, 0.20, 0.12)", "COMBAT_TOLERANCE_BOUND", definition.name, findings)
+
+    move_definition = definition.parent / "AttackMoveDefinition.java"
+    if require_file(move_definition, root, "COMBAT_MOVE_DEFINITION_RECORD", findings):
+        content = text(move_definition)
+        for needle, code in (
+                ("bufferStartTick < activeStartTick || bufferStartTick >= totalTicks",
+                 "COMBAT_CHAIN_INVARIANT"),
+                ("chainTick <= activeEndTick || chainTick > totalTicks || chainTick < bufferStartTick",
+                 "COMBAT_CHAIN_INVARIANT"),
+                ("return actionTick >= bufferStartTick && actionTick < totalTicks;",
+                 "COMBAT_BUFFER_FROM_ACTIVE_START"),
+                ("return actionTick >= chainTick;", "COMBAT_CHAIN_TICK")):
+            require_contains(content, needle, code, move_definition.name, findings)
+    step_definition = definition.parent / "StepDefinition.java"
+    if require_file(step_definition, root, "COMBAT_STEP_DEFINITION_RECORD", findings):
+        require_contains(
+            text(step_definition), "MAXIMUM_STEP_DISTANCE = 1.6",
+            "COMBAT_STEP_BOUND", step_definition.name, findings)
 
     if session.is_file():
         content = text(session)
@@ -610,7 +779,8 @@ def validate_definitions_and_runtime(root: Path, findings: list[Finding]) -> Non
                 ("attemptedEntityIds", "COMBAT_HIT_DEDUP"),
                 ("remainingTargetCapacity", "COMBAT_ACTION_TARGET_CAP"),
                 ("comboDeadline", "COMBAT_COMBO_TIMEOUT"),
-                ("originalEndTick", "COMBAT_RECOVERY_END")):
+                ("originalEndTick", "COMBAT_RECOVERY_END"),
+                ("boolean chain = bufferedIntent && move.chainsAt(actionTick);", "COMBAT_CHAIN_TICK")):
             require_contains(content, needle, code, session.name, findings)
     if manager.is_file():
         content = text(manager)
@@ -618,7 +788,10 @@ def validate_definitions_and_runtime(root: Path, findings: list[Finding]) -> Non
                 ("BLOCKED_UNTIL_TICKS", "COMBAT_RECOVERY_LOCK"),
                 ("MeditationManager.status(player).state().active()", "COMBAT_CULTIVATION_EXCLUSION"),
                 ("sendToPlayersTrackingEntityAndSelf", "COMBAT_TRACKING_BROADCAST"),
-                ("player.serverLevel().getGameTime()", "COMBAT_SERVER_TICK_AUTHORITY")):
+                ("player.serverLevel().getGameTime()", "COMBAT_SERVER_TICK_AUTHORITY"),
+                ("session.tick(tick, player.getYRot())", "COMBAT_VIEW_YAW_FACING"),
+                ("player.setYBodyRot(start.facingYaw())", "COMBAT_VIEW_YAW_FACING"),
+                ("speed.removeModifier(COMMIT_MODIFIER_ID)", "COMBAT_COMMITMENT_CLEANUP")):
             require_contains(content, needle, code, manager.name, findings)
 
     if geometry.is_file():
@@ -643,8 +816,15 @@ def validate_definitions_and_runtime(root: Path, findings: list[Finding]) -> Non
                 ("step.maximumDistance()", "COMBAT_STEP_DEFINITION_AUTHORITY"),
                 ("noCollision(player, destination)", "COMBAT_STEP_COLLISION"),
                 ("destination.move(0.0, -supportDepth, 0.0)", "COMBAT_STEP_SUPPORT"),
-                ("player.move(MoverType.PLAYER", "COMBAT_STEP_SERVER_MOVE")):
+                ("player.setDeltaMovement(", "COMBAT_STEP_IMPULSE"),
+                ("player.hurtMarked = true", "COMBAT_STEP_IMPULSE"),
+                ("GROUND_DRAG_COMPENSATION = 1.0 - 0.6 * 0.91", "COMBAT_STEP_DRAG_COMPENSATION"),
+                ("MAGNETISM_STANDOFF = 0.6", "COMBAT_STEP_MAGNETISM"),
+                ("MAGNETISM_HALF_ANGLE_DEGREES = 30.0", "COMBAT_STEP_MAGNETISM")):
             require_contains(content, needle, code, step.name, findings)
+        if "player.move(MoverType.PLAYER" in content or "teleportTo(" in content:
+            # The step is a server-decided impulse executed by client physics, not a server move.
+            findings.append(Finding("COMBAT_STEP_SERVER_MOVE", step.name))
     if damage.is_file():
         content = text(damage)
         for needle, code in (
@@ -682,12 +862,58 @@ def validate_definitions_and_runtime(root: Path, findings: list[Finding]) -> Non
         for needle, code in (
                 ("serverLevel().playSound(\n                attacker,", "COMBAT_SWING_SOUND_EXCLUDES_ATTACKER"),
                 ("new CombatHitConfirmPayload(", "COMBAT_HIT_CONFIRM_SEND"),
-                ("PacketDistributor.sendToPlayer(", "COMBAT_HIT_CONFIRM_ATTACKER_ONLY")):
+                ("PacketDistributor.sendToPlayer(", "COMBAT_HIT_CONFIRM_ATTACKER_ONLY"),
+                ("PacketDistributor.sendToPlayersTrackingEntityAndSelf(", "COMBAT_IMPACT_BROADCAST"),
+                ("new CombatImpactPayload(", "COMBAT_IMPACT_BROADCAST"),
+                ("CombatParticles.BLADE_CUT.get()", "COMBAT_BLADE_CUT_SPAWN"),
+                ("CombatSounds.IMPACT_HEAVY.get()", "COMBAT_HEAVY_IMPACT_LAYER"),
+                ("CombatSounds.jitteredSwingPitch(", "COMBAT_SWING_PITCH_JITTER")):
             require_contains(content, needle, code, feedback.name, findings)
+        if "SWEEP_ATTACK" in content:
+            findings.append(Finding("COMBAT_VANILLA_SWEEP_PARTICLE", feedback.name))
+    reaction = root / "src/main/java/com/example/myvillage/combat/runtime/CombatReactionService.java"
+    if require_file(reaction, root, "COMBAT_REACTION_SERVICE", findings):
+        content = text(reaction)
+        for needle, code in (
+                # Only Mob targets are frozen or AI-stalled; players get knockback and a slow.
+                ("boolean freezable = target instanceof Mob && !excluded", "COMBAT_REACTION_NO_PLAYER_FREEZE"),
+                ("!(entity instanceof Mob mob)", "COMBAT_REACTION_NO_PLAYER_FREEZE"),
+                ('"combat_stun"', "COMBAT_REACTION_PLAYER_SLOW"),
+                ("target instanceof EnderDragon || target instanceof WitherBoss || target instanceof Warden",
+                 "COMBAT_REACTION_BOSS_EXCLUSION")):
+            require_contains(content, needle, code, reaction.name, findings)
+        if re.search(r"instanceof\s+(?:Server)?Player\b[^;]*freezeUntil", content):
+            findings.append(Finding("COMBAT_REACTION_NO_PLAYER_FREEZE", reaction.name))
+    if events.is_file():
+        content = text(events)
+        for needle, code in (
+                ("NeoForge.EVENT_BUS.addListener(CombatReactionService::onEntityTickPre)",
+                 "COMBAT_REACTION_REGISTRATION"),
+                ("NeoForge.EVENT_BUS.addListener(CombatEvents::onLivingKnockBack)",
+                 "COMBAT_REACTION_KNOCKBACK_OVERRIDE")):
+            require_contains(content, needle, code, events.name, findings)
+    particles = root / "src/main/java/com/example/myvillage/combat/CombatParticles.java"
+    if require_file(particles, root, "COMBAT_PARTICLE_REGISTRY", findings):
+        require_contains(
+            text(particles), 'PARTICLE_TYPES.register("blade_cut"',
+            "COMBAT_BLADE_CUT_REGISTRATION", particles.name, findings)
+    particle_json = root / BLADE_CUT_PARTICLE
+    if require_file(particle_json, root, "COMBAT_BLADE_CUT_PARTICLE_JSON", findings):
+        try:
+            textures = json.loads(text(particle_json)).get("textures")
+        except (json.JSONDecodeError, AttributeError) as exc:
+            findings.append(Finding("COMBAT_BLADE_CUT_PARTICLE_JSON", str(exc)))
+        else:
+            if textures != ["myvillage:blade_cut"]:
+                findings.append(Finding("COMBAT_BLADE_CUT_PARTICLE_JSON", str(textures)))
+    particle_texture = root / BLADE_CUT_TEXTURE
+    if require_file(particle_texture, root, "COMBAT_BLADE_CUT_TEXTURE", findings):
+        if not particle_texture.read_bytes().startswith(b"\x89PNG\r\n\x1a\n"):
+            findings.append(Finding("COMBAT_BLADE_CUT_TEXTURE", "not a PNG"))
     if manager.is_file():
         content = text(manager)
         for needle, code in (
-                ("actionTick == move.activeStartTick()", "COMBAT_SWING_SOUND_TIMING"),
+                ("actionTick == move.activeStartTick() - 1", "COMBAT_SWING_SOUND_TIMING"),
                 ("CombatFeedbackService.hit(player, move, session.revision(), successfulContacts)",
                  "COMBAT_HIT_FEEDBACK_AFTER_DAMAGE"),
                 ("start.facingYaw()", "COMBAT_START_FACING_BROADCAST")):
@@ -753,22 +979,47 @@ def validate_first_person_rig(root: Path, findings: list[Finding]) -> None:
             findings.append(Finding("COMBAT_FIRST_PERSON_RIG_STRIKE", move_id))
 
 
+def validate_generated_assets(root: Path, findings: list[Finding]) -> None:
+    """Runs each committed generator's --check so hand edits to generated assets are caught."""
+    for relative, code in GENERATOR_CHECKS:
+        script = root / relative
+        if not require_file(script, root, "COMBAT_GENERATOR_MISSING", findings):
+            continue
+        try:
+            result = subprocess.run(
+                [sys.executable, str(script), "--check"],
+                cwd=root,
+                capture_output=True,
+                text=True,
+                timeout=GENERATOR_TIMEOUT_SECONDS,
+                check=False)
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            findings.append(Finding(code, f"{relative}: {exc}"))
+            continue
+        if result.returncode != 0:
+            lines = (result.stderr or result.stdout).strip().splitlines()
+            findings.append(Finding(code, f"{relative}: {lines[-1] if lines else result.returncode}"))
+
+
 def validate_docs(root: Path, findings: list[Finding]) -> None:
     paths = {
         root / "README.md": (
             "SWORD_COMBAT_FOUNDATION", "myvillage:qingfeng_sword", "/myvillage combat debug on",
             "myvillage_pal_smoke move", "combat_smoke_server", "combat_smoke_game_dir",
             "combat_smoke_username", "myvillage_pal_smoke first_person", "qingfeng_first_person.json",
-            "hit-stop", "not_verified"),
+            "hit-stop", "not_verified", "gen_sword_pal_anims.py --check",
+            "gen_blade_cut_sprite.py --check", "QingfengFirstPersonArmRenderer"),
         root / "docs/ai-kb/32_pal_combat_integration.md": (
             "PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar", "CombatDamageService", "First-person",
             "IClientItemExtensions", "RegisterClientExtensionsEvent",
             "qingfeng_first_person.json", "FirstPersonSwordTrail", "CombatWorldTrails",
-            "SwingClock", "CombatHitConfirmPayload"),
+            "SwingClock", "CombatHitConfirmPayload", "CombatImpactPayload", "chainTick",
+            "GROUND_DRAG_COMPENSATION", "QingfengFirstPersonArmRenderer", "SWORD_TRAIL_TRANSLUCENT",
+            "gen_sword_pal_anims.py --check", "onComputeFovModifier"),
         root / "AGENTS.md": (
             "validate_sword_combat_foundation.py", "PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar",
             "myvillage_pal_smoke move", "combat_smoke_server", "combat_smoke_game_dir",
-            "combat_smoke_username"),
+            "combat_smoke_username", "QingfengFirstPersonArmRenderer", "gen_sword_pal_anims.py"),
     }
     for path, needles in paths.items():
         if not require_file(path, root, "COMBAT_DOC_MISSING", findings):
@@ -801,6 +1052,12 @@ def validate_jar_resources(root: Path, findings: list[Finding]) -> None:
     if not jars:
         return
     jar = max(jars, key=lambda path: path.stat().st_mtime)
+    properties = root / "gradle.properties"
+    version = re.search(r"^mod_version=(\S+)$", text(properties), re.MULTILINE) if properties.is_file() else None
+    if version is not None and jar.name != f"myvillage-{version.group(1)}.jar":
+        # The newest jar predates the current release version; rebuild before inspecting it.
+        findings.append(Finding("COMBAT_JAR_STALE", f"{jar.name}:expected myvillage-{version.group(1)}.jar"))
+        return
     source_paths = (
         root / "src/main/java/com/example/myvillage/item/ModItems.java",
         root / "src/main/java/com/example/myvillage/client/combat/FirstPersonSwing.java",
@@ -808,7 +1065,12 @@ def validate_jar_resources(root: Path, findings: list[Finding]) -> None:
         root / "src/main/java/com/example/myvillage/client/combat/QingfengFirstPersonAnimator.java",
         root / "src/main/java/com/example/myvillage/client/combat/FirstPersonSwordTrail.java",
         root / "src/main/java/com/example/myvillage/client/combat/CombatWorldTrails.java",
+        root / "src/main/java/com/example/myvillage/client/combat/QingfengFirstPersonArmRenderer.java",
+        root / "src/main/java/com/example/myvillage/client/combat/CombatCameraFx.java",
+        root / "src/main/java/com/example/myvillage/combat/network/CombatImpactPayload.java",
         root / FIRST_PERSON_RIG,
+        root / BLADE_CUT_PARTICLE,
+        root / BLADE_CUT_TEXTURE,
         root / "src/main/resources/assets/myvillage/sounds.json",
         root / "src/main/resources/assets/myvillage/player_animations/sword_combat.json",
         root / "src/main/resources/assets/myvillage/textures/item/qingfeng_sword.png",
@@ -842,6 +1104,15 @@ def validate_jar_resources(root: Path, findings: list[Finding]) -> None:
         "com/example/myvillage/client/combat/QingfengFirstPersonAnimator$Frame.class",
         "assets/myvillage/lang/en_us.json",
         "assets/myvillage/lang/zh_cn.json",
+        "assets/myvillage/particles/blade_cut.json",
+        "assets/myvillage/textures/particle/blade_cut.png",
+        "com/example/myvillage/combat/CombatParticles.class",
+        "com/example/myvillage/combat/network/CombatImpactPayload.class",
+        "com/example/myvillage/combat/runtime/CombatReactionService.class",
+        "com/example/myvillage/client/combat/QingfengFirstPersonArmRenderer.class",
+        "com/example/myvillage/client/combat/CombatCameraFx.class",
+        "com/example/myvillage/client/combat/CombatImpactFx.class",
+        "com/example/myvillage/client/combat/BladeCutParticle.class",
     }
     try:
         with zipfile.ZipFile(jar) as archive:
@@ -886,7 +1157,7 @@ def validate_no_shaded_pal(root: Path, findings: list[Finding]) -> None:
             findings.append(Finding("PAL_SHADED_CONTENT", f"{jar.name}:{shaded}"))
 
 
-def validate(root: Path = ROOT) -> list[Finding]:
+def validate(root: Path = ROOT, run_generators: bool = True) -> list[Finding]:
     findings: list[Finding] = []
     validate_pal_jar(root, findings)
     validate_dependency_wiring(root, findings)
@@ -896,6 +1167,8 @@ def validate(root: Path = ROOT) -> list[Finding]:
     validate_qingfeng_item(root, findings)
     validate_preference_and_payloads(root, findings)
     validate_definitions_and_runtime(root, findings)
+    if run_generators:
+        validate_generated_assets(root, findings)
     validate_docs(root, findings)
     validate_forbidden_integrations(root, findings)
     validate_jar_resources(root, findings)

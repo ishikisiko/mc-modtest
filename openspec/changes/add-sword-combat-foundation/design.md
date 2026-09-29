@@ -91,7 +91,7 @@ No combat field enters `CultivationProfile`. The client cache is read-only and c
 
 `CombatSessionManager` owns UUID-keyed `CombatSession` instances and bounded recovery locks. A session records current move id/index, action start tick, active-window state, at most one buffered intent, hit entity ids, monotonically increasing revision, weapon item id, and stop reason. The pure transition type accepts server game ticks and emits start/active/end/reset decisions; event handlers do not reproduce combo logic.
 
-An idle legal intent starts move one. The final recovery portion of a move accepts one buffered intent; another intent is rejected without replacing it. An intent after action end but before combo timeout starts the next move. Too-early or rate-limited input cannot advance a move. A missed move still advances. Move five completion and combo timeout reset to move one.
+An idle legal intent starts move one. Since the 2026-09-30 action-feel revision, a move accepts one buffered intent from its `bufferStartTick` (its active start) until it ends, and a buffered intent starts the next move at the move's `chainTick`, cancelling the remaining recovery; another intent is rejected without replacing it. An intent after action end but before combo timeout starts the next move. Too-early or rate-limited input cannot advance a move. A missed move still advances. Move five completion and combo timeout reset to move one.
 
 Switching item, toggling to vanilla, death, logout, dimension change, mounting, starting meditation/advancement, or entering another disallowed state clears the session. Clearing an unfinished action retains its `blockedUntilTick` recovery lock, so mode/item swapping cannot cancel recovery and immediately attack. Death/logout/dimension teardown may discard the old-world lock because no same-life immediate exploit remains.
 
@@ -100,7 +100,7 @@ Switching item, toggling to vanilla, death, logout, dimension change, mounting, 
 A Java definition graph is used instead of a custom datapack registry in this first slice:
 
 - `CombatStyleDefinition` owns the supported item set, combo timeout, input-buffer policy, and ordered moves.
-- `AttackMoveDefinition` owns id, display key, total ticks, inclusive active ticks, multiplier, maximum targets, range, animation id, hitbox definition, optional step, and knockback.
+- `AttackMoveDefinition` owns id, display key, total ticks, inclusive active ticks, multiplier, maximum targets, range, `bufferStartTick`, `chainTick`, a `ReactionDefinition` (hitstun, slide, lift, lateral bias; this replaced the earlier knockback value), animation id, hitbox definition, and optional step. It enforces `activeStartTick <= bufferStartTick < totalTicks` and `activeEndTick < chainTick <= totalTicks`.
 - `HitboxDefinition` owns per-active-tick local samples and tolerance.
 - `AnimationDefinition` owns the PAL id and expected tick length.
 
@@ -132,23 +132,25 @@ Protocol version increments once for the new payload set:
 - `CombatAttackStartPayload` S2C: attacker entity id, move id, server start tick, and action revision.
 - `CombatAttackStopPayload` S2C: attacker entity id, revision, and bounded stop reason.
 
+Later revisions added the attacker-only `CombatHitConfirmPayload` (protocol `5`) and the presentation-only `CombatImpactPayload` S2C broadcast to the attacker and trackers (attacker id, revision, move index, struck ids, contact points; protocol `6`). The start payload also carries the frozen facing yaw.
+
 C2S handlers derive the sender and revalidate life/removal/spectator state, mode, exact main-hand item, dimension/world, mount/cultivation conflicts, current server tick, session transition, and packet rate. They accept no combo index, target, damage, hitbox, endpoint, velocity, or completion value. Start/stop payloads are sent to the attacker and tracking players. Client receivers are common-safe bridges installed only by a client subscriber.
 
 Local prediction never becomes authority. It predicts only an animation from the last authoritative read-only sequence state. The next start payload restarts/corrects to the server move and elapsed tick; a stop or rejection revision cancels an unconfirmed prediction. Remote clients animate only from server broadcasts.
 
 ### Resolve move-specific swept volumes on the server
 
-Each active server tick transforms local samples by the server player's feet position and body yaw. Broad phase queries one union AABB. Narrow phase uses yaw-oriented boxes and segment/capsule-style swept tests against candidate entity AABBs:
+Each active server tick transforms local samples by the server-planned attack origin and the action's frozen facing yaw (the attacker's view yaw at action start, not `yBodyRot`). Broad phase queries one union AABB. Narrow phase uses yaw-oriented boxes and segment/capsule-style swept tests against candidate entity AABBs:
 
 - Move 1 uses a narrow center-line thrust with increasing forward samples.
-- Move 2 uses several right-to-left horizontal OBB samples spanning about 110 degrees.
-- Move 3 uses rising diagonal samples from left-low to right-high.
-- Move 4 uses a thicker right-high to left-low diagonal sweep that remains narrower than move 2.
-- Move 5 uses the union of the blade thrust and the complete server-observed player-start-to-player-end swept volume.
+- Move 2 uses several left-to-right (backhand) horizontal OBB samples spanning about 110 degrees.
+- Move 3 uses rising diagonal samples from right-low to left-high.
+- Move 4 uses a thicker left-high to right-low diagonal sweep that remains narrower than move 2.
+- Move 5 uses the union of the blade thrust and the server-planned lunge path.
 
 Horizontal tolerance is at most `0.25` block and vertical tolerance at most `0.15` block. Candidate order is deterministic by first contact distance then entity id. The resolver filters the attacker, dead/removed/spectator/invulnerable-invalid candidates, world mismatch, team/PvP-forbidden candidates, previously hit ids, and candidates behind a solid-block clip. It stops at the move maximum. One entity can be damaged only once in one action.
 
-Move five requests at most `0.8` block forward movement. Before moving, the server clips the intended path, checks collision-free player space and supporting collision below the destination to avoid a ledge step, then uses normal collision-aware server movement for the safe distance. No client movement value is accepted. The resolver records the actual start and end, so collision shortening cannot leave a fake long hit sweep.
+Every move declares a step (`0.30/0.25/0.30/0.45/1.40` blocks at ticks `2/3/4/5/6`, bound `(0, 1.6]`). At the step tick the server searches forward for collision-free player space with supporting collision below it, applies target magnetism (stop `0.6` short of a legal target within ±30° of facing; skip light steps when the target is already in range), and then issues a motion impulse (`setDeltaMovement` scaled by `GROUND_DRAG_COMPENSATION = 1 - 0.6 * 0.91`, plus `hurtMarked`) that the attacker's client physics executes with normal collision, like vanilla knockback. It replaces the 0.26.x server-side `player.move`. No client movement value is accepted. Hit sweeps use the server-planned origin (start + facing × planned distance × progress), so hits never depend on the client's echo of the impulse.
 
 An operator-only `/myvillage combat debug on|off` flag is transient and defaults off. When enabled, the server emits bounded particles for active samples and accepted hits; it exposes no authoritative state to the client.
 
@@ -162,7 +164,7 @@ Calling `player.attack(target)` is rejected for cultivation moves because it wou
 2. Revalidate attackability and skip-attack interaction.
 3. Start from the player's current `Attributes.ATTACK_DAMAGE`, multiply the attribute portion by the move multiplier, add item target-specific attack bonus, and call `EnchantmentHelper.modifyDamage` with the current weapon and `playerAttack` damage source.
 4. Call `target.hurt(player.damageSources().playerAttack(player), damage)`, retaining NeoForge incoming/pre/post damage events, armor, protection, invulnerability frames, and `ServerPlayer` PvP checks.
-5. On success, use current attack-knockback attribute plus `EnchantmentHelper.modifyKnockback`, apply only the move's declared small knockback, and call `EnchantmentHelper.doPostAttackEffects` for effects such as relevant attacker/victim enchantment callbacks.
+5. On success, cancel vanilla hurt knockback for this hit only and apply the move's `ReactionDefinition` slide/lift/lateral impulse along the frozen facing, plus the current attack-knockback attribute and `EnchantmentHelper.modifyKnockback` in vanilla units, scaled by `1 - knockback resistance`. Then call `EnchantmentHelper.doPostAttackEffects` for effects such as relevant attacker/victim enchantment callbacks. The target's invulnerability timer is cleared just for this `hurt` call and afterwards restored to the larger of its old and new value.
 6. After the action's first successful target, run the sword's `hurtEnemy`/`postHurtEnemy` path exactly once for that action, update last-hurt/stat/exhaustion bookkeeping once, and retain normal break/repair/Mending behavior.
 
 Cultivation attacks intentionally do not produce vanilla critical, sprint-knockback, or sweeping attacks. Vanilla mode still uses unmodified `player.attack` through normal input. Damage-service parity and known exclusions are tested and documented rather than described as byte-for-byte vanilla equivalence.
@@ -187,6 +189,20 @@ Feedback stays presentation-only and derives from server outcomes. The server pl
 
 The segmented arm was withdrawn instead of retuned: its joint tracks were bound to the old normalized curves, and the owner prioritized the sword motion. The shoulder-pivot rig gives a later arm a direct two-bone target (pivot to grip).
 
+### Action-feel revision (2026-09-30)
+
+After watching the 0.26.2 revision (lab station A) next to Epic Fight, the owner said A "现在不太行看上去" and asked for an optimized A: "我要的是那种战斗真实动作游戏的感觉". The 0.26.2 swings were not accepted (task 11.7). Revision `0.27.0` keeps server authority and the empty C2S payloads. It also keeps totals, active windows, multipliers, target caps, and ranges. It changes how the combo flows and how hits land:
+
+- **Chain/cancel windows.** The buffer opens at the active start, and a held click cancels recovery at `chainTick` `7/8/10/13/20`. Move five cannot chain. This is the action-game cadence the owner asked for; it shortens the gap between hits without shortening any hit.
+- **Facing and commitment.** Actions face the view yaw, and body and head snap to it. A temporary movement-speed modifier gives each swing weight, and the client cancels the slowness FOV zoom the modifier would otherwise cause.
+- **Steps.** Every move steps, as the impulse with magnetism described above.
+- **Target reaction.** `CombatReactionService` freezes struck mobs for the hit-stop, holds their slide until the freeze ends, and then staggers them. Repeat stuns fall off and bosses are exempt. Players are never frozen because their movement is client-driven; they get the slide at once and a temporary slow.
+- **Hit presentation.** Hit-stop is per move and anchored at the rig's contact tick. `CombatImpactPayload` lets every nearby client freeze and jitter the struck entity and slow the attacker's PAL animation. Attacker-local camera shake and kicks scale with the accessibility options. A procedurally generated `blade_cut` particle replaces the vanilla sweep particle. Trails became thin alpha-blended ribbons because the additive ribbon clipped to a white slab in daylight.
+- **First-person arm.** The complete arm (old task 11.8) was pulled forward. `QingfengFirstPersonArmRenderer` solves a two-bone arm from the pivot rig so the hand stays on the grip, and it never cancels `RenderHandEvent`.
+- **Third-person poses.** `sword_combat.json` is generated by `tools/gen_sword_pal_anims.py`, which plants the feet, matches the hitbox cut directions, and times the lunge to the server step. Its `--check` mode guards against hand edits.
+
+Epic Fight (GPL) was read for ideas only; no code, asset, or dependency was taken. Automated tests and a lab capture do not stand in for the owner's verdict on 0.27.0.
+
 ## Risks / Trade-offs
 
 - [PAL 1.1.4 universal NeoForge entry point references client event types despite `BOTH` metadata] -> Keep all MyVillage PAL imports client-only and require a real dedicated-server startup before Gate A passes; stop with the exact linkage/classloading error if the library itself fails.
@@ -194,9 +210,12 @@ The segmented arm was withdrawn instead of retuned: its joint tracks were bound 
 - [PAL first-person rendering can be uncomfortable or incompatible] -> The real-client `THIRD_PERSON_MODEL` probe failed, so keep PAL custom first person disabled and use a bounded Qingfeng-only `IClientItemExtensions` pose layer driven by the same corrected move timeline.
 - [Client prediction can show the wrong move under latency] -> Carry server start tick and revision, restart at corrected elapsed tick, and stop stale predictions.
 - [A custom damage path can miss obscure vanilla/mod hooks] -> Invoke the mapped NeoForge attack gate, vanilla enchantment helpers, standard player damage source, ordinary `hurt`, post-attack helpers, and item durability hooks; test documented parity and keep critical/sweep exclusions explicit.
-- [Multi-target invulnerability frames may reject closely spaced moves] -> Preserve normal invulnerability behavior as required; tune move cadence only through centralized definitions, never by bypassing invulnerability.
+- [Invulnerability frames would swallow chained moves] -> Clear the target's invulnerability timer only for our own `hurt` call and restore the larger of the old and new timer afterwards, so other damage sources still see vanilla invulnerability.
 - [OBB/swept-volume math can overreach or miss corners] -> Unit-test transforms/intersections, use constrained tolerances, deterministic samples, wall clips, and opt-in debug particles; leave real-client ranges pending until observed.
-- [Fifth-move stepping can cross geometry or ledges] -> Server clip/collision/support checks precede bounded normal movement, and actual displacement bounds the hit sweep.
+- [Steps can cross geometry or ledges] -> The server collision/support search chooses the impulse distance, the client's own physics adds normal collision, and hits use the server-planned origin rather than the client echo.
+- [The attacker's step impulse relies on the next motion sync] -> Not yet checked across latency in a real client; the ledger keeps step distances `not_verified`.
+- [A frozen mob skips its whole server tick] -> The freeze is bounded to the rounded hit-stop (at most 4 ticks), so fire, effects, and other mods' tick logic pause only briefly; players are never frozen.
+- [A chained prediction can be wrong] -> The server's completion stop and new start confirm it, and a missing start drops it within 2-8 ticks.
 - [Mode or weapon switching can cancel recovery] -> Preserve a server recovery lock independently of the cleared action session and test both exploits.
 - [Seven hand-authored animations may be technically valid but aesthetically weak] -> Validate format/duration/bones automatically, inspect the source texture/animation evidence, and require a human visual/gameplay verdict rather than self-accepting it.
 

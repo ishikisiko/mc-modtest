@@ -1,5 +1,6 @@
 package com.example.myvillage.combat.session;
 
+import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.combat.CombatMode;
 import com.example.myvillage.combat.CombatService;
 import com.example.myvillage.combat.definition.AttackMoveDefinition;
@@ -18,6 +19,9 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
@@ -32,6 +36,14 @@ public final class CombatSessionManager {
     private static final Map<UUID, Long> BLOCKED_UNTIL_TICKS = new HashMap<>();
     private static final Map<UUID, Long> LAST_INTENT_TICKS = new HashMap<>();
     private static final Map<UUID, StepRecord> STEP_SWEEPS = new HashMap<>();
+
+    /** Transient MOVEMENT_SPEED modifier that commits the body to an action. */
+    public static final ResourceLocation COMMIT_MODIFIER_ID =
+            ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID, "combat_commit");
+    /** Anticipation and strike (start through activeEnd): movement x0.25. */
+    static final double STRIKE_COMMITMENT = -0.75;
+    /** Recovery until chainTick (or the end of a move that cannot chain): movement x0.6. */
+    static final double RECOVERY_COMMITMENT = -0.4;
 
     private CombatSessionManager() {
     }
@@ -56,20 +68,21 @@ public final class CombatSessionManager {
             sendRejection(player);
             return false;
         }
-        LAST_INTENT_TICKS.put(player.getUUID(), tick);
-
         CombatSession session = SESSIONS.computeIfAbsent(
                 player.getUUID(), ignored -> new CombatSession(BasicSwordStyle.DEFINITION));
         ResourceLocation weaponId = BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem());
         ResourceLocation worldId = player.level().dimension().location();
         CombatSession.IntentResult result = session.acceptIntent(
-                tick, weaponId, worldId, player.yBodyRot);
-        result.start().ifPresent(start -> broadcastStart(player, start));
+                tick, weaponId, worldId, player.getYRot());
         if (result.decision() == CombatSession.IntentDecision.REJECTED_TIMING
                 || result.decision() == CombatSession.IntentDecision.REJECTED_BUFFER_FULL) {
             sendRejection(player);
             return false;
         }
+        // Only accepted or buffered intents count toward the minimum interval, so a click the
+        // session rejected never blocks the next, valid click.
+        LAST_INTENT_TICKS.put(player.getUUID(), tick);
+        result.start().ifPresent(start -> beginAction(player, start));
         return true;
     }
 
@@ -91,13 +104,15 @@ public final class CombatSessionManager {
             if (session.hasActiveAction()) {
                 AttackMoveDefinition move = session.currentMove();
                 int actionTick = session.actionTick(tick);
+                updateCommitment(player, move, actionTick);
                 move.step().filter(step -> step.actionTick() == actionTick).ifPresent(step -> {
                     Optional<CombatHitResolver.StepSweep> sweep = CombatStepService.tryStep(
-                            player, step, session.facingYaw());
+                            player, move, step, session.facingYaw(), session);
                     sweep.ifPresent(value -> STEP_SWEEPS.put(
                             playerId, new StepRecord(session.revision(), value)));
                 });
-                if (actionTick == move.activeStartTick()) {
+                // The whoosh leads the blade by one tick so it lands with the visible strike.
+                if (actionTick == move.activeStartTick() - 1) {
                     CombatFeedbackService.swing(player, move);
                 }
                 if (move.isActiveTick(actionTick)) {
@@ -119,12 +134,15 @@ public final class CombatSessionManager {
                 }
             }
 
-            CombatSession.TickResult transition = session.tick(tick);
+            CombatSession.TickResult transition = session.tick(tick, player.getYRot());
             transition.stop().ifPresent(stop -> broadcastStop(player, stop.revision(), stop.reason()));
-            transition.start().ifPresent(start -> {
+            if (transition.start().isPresent()) {
                 STEP_SWEEPS.remove(playerId);
-                broadcastStart(player, start);
-            });
+                beginAction(player, transition.start().orElseThrow());
+            } else if (transition.stop().isPresent()) {
+                STEP_SWEEPS.remove(playerId);
+                clearCommitment(player);
+            }
         }
         BLOCKED_UNTIL_TICKS.entrySet().removeIf(entry -> {
             ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
@@ -148,6 +166,60 @@ public final class CombatSessionManager {
             broadcastStop(player, stop.revision(), reason);
         });
         STEP_SWEEPS.remove(player.getUUID());
+        clearCommitment(player);
+    }
+
+    /**
+     * Removes the action movement commitment. Safe to call at any time; every stop path
+     * (completion without a chain, interrupt, death, logout, dimension change, respawn) calls it.
+     */
+    public static void clearCommitment(ServerPlayer player) {
+        AttributeInstance speed = player.getAttribute(Attributes.MOVEMENT_SPEED);
+        if (speed != null) {
+            speed.removeModifier(COMMIT_MODIFIER_ID);
+        }
+    }
+
+    /** Commitment for one action tick: strike weight until activeEnd, lighter until chainTick. */
+    static double commitmentAt(AttackMoveDefinition move, int actionTick) {
+        if (actionTick <= move.activeEndTick()) {
+            return STRIKE_COMMITMENT;
+        }
+        return move.chainsAt(actionTick) ? 0.0 : RECOVERY_COMMITMENT;
+    }
+
+    private static void updateCommitment(ServerPlayer player, AttackMoveDefinition move, int actionTick) {
+        double amount = commitmentAt(move, actionTick);
+        if (amount == 0.0) {
+            clearCommitment(player);
+            return;
+        }
+        setCommitment(player, amount);
+    }
+
+    private static void setCommitment(ServerPlayer player, double amount) {
+        AttributeInstance speed = player.getAttribute(Attributes.MOVEMENT_SPEED);
+        if (speed == null) {
+            return;
+        }
+        AttributeModifier current = speed.getModifier(COMMIT_MODIFIER_ID);
+        if (current != null && current.amount() == amount) {
+            return;
+        }
+        speed.addOrUpdateTransientModifier(new AttributeModifier(
+                COMMIT_MODIFIER_ID, amount, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
+    }
+
+    /**
+     * Server side of a started action: the body and head snap to the view yaw the action faces,
+     * sprinting ends (as vanilla melee does), and movement is committed.
+     */
+    private static void beginAction(ServerPlayer player, CombatSession.StartEvent start) {
+        player.setYBodyRot(start.facingYaw());
+        player.setYHeadRot(start.facingYaw());
+        player.setSprinting(false);
+        setCommitment(player, STRIKE_COMMITMENT);
+        broadcastStart(player, start);
     }
 
     public static void removeRuntime(UUID playerId, boolean discardRecovery) {

@@ -107,5 +107,32 @@ The owner reviewed 0.26.1 and judged the swings "not like swinging a sword". Cap
 - [x] 11.4 Add presentation-only feedback: per-move swing/hit cues, `CombatSounds` events aliased through `sounds.json` with bilingual subtitles, server swing sound excluding the attacker, local swing sound on the visual timeline, post-damage hit sound/particles, and the attacker-only `CombatHitConfirmPayload` (protocol `5`).
 - [x] 11.5 Add the client hit-stop clock with catch-up to the server total, the first-person 剑光 ribbon re-posed from the rig, and the world-space ribbon from hitbox samples using the broadcast facing yaw.
 - [x] 11.6 Extend Java tests, focused validator checks, negative fixtures, docs, and apply the small-feature version rule to `0.26.2`.
-- [ ] 11.7 Record the owner's verdict on the revised swings, trails, sounds, and hit-stop.
-- [ ] 11.8 Re-author a complete first-person arm on the shoulder-pivot rig (shoulder at the pivot, hand on the rig grip) after 11.7 accepts the sword motion.
+- [x] 11.7 Record the owner's verdict on the revised swings, trails, sounds, and hit-stop. Recorded 2026-09-30: after watching A next to Epic Fight the owner said A "现在不太行看上去" and asked for an optimized A: "我要的是那种战斗真实动作游戏的感觉". Verdict: the revised swings were NOT accepted; section 12 is the response.
+- [x] 11.8 Superseded: 11.7 did not accept the sword motion, and the lead pulled the complete first-person arm forward into 12.7. Its acceptance is tracked in section 12.
+
+## 12. Action-feel revision (2026-09-30)
+
+Owner direction after the 11.7 verdict: "我要的是那种战斗真实动作游戏的感觉". Totals, active windows, multipliers, target caps, ranges, server authority, and the empty C2S payloads are unchanged. Java items below are covered by the combat JUnit suite (108 tests passing in the lead's build) and the focused validator.
+
+- [x] 12.1 Add per-move `bufferStartTick` (the active start) and `chainTick` (`7/8/10/13/20`) to `AttackMoveDefinition` with invariants `activeStartTick <= bufferStartTick < totalTicks` and `activeEndTick < chainTick <= totalTicks`. A held click cancels recovery into the next move through stop-then-start. Move five cannot chain. Keep the one-slot buffer, and do not count a rejected click toward the minimum interval.
+- [x] 12.2 Face the view yaw at each move start, snap body and head to it, add the removable `myvillage:combat_commit` movement modifier, stop sprinting at start (server and predicting client), and move the server swing sound to `activeStartTick - 1`.
+- [x] 12.3 Replace the server-side fifth-move `player.move` with server-decided step impulses on every move (`StepDefinition` bound `(0, 1.6]`, move five `1.40`). Use `setDeltaMovement` + `hurtMarked` with `GROUND_DRAG_COMPENSATION`, keep the collision/support search, add ±30° magnetism with a `0.6` standoff, and resolve hits from the server-planned origin.
+- [x] 12.4 Add `ReactionDefinition` and `CombatReactionService`: mob freeze for the hit-stop with a held slide, hitstun AI stall and melee suppression, stun falloff, boss exemption, never freezing players (slide plus `myvillage:combat_stun` slow instead), vanilla hurt knockback replaced for our hits only, invulnerability restored to the larger timer, and cleanup on death, unload, dimension change, and server start/stop.
+- [x] 12.5 Add the presentation-only `CombatImpactPayload` (clientbound only; ids, revision, move index, and contact points; no damage or health), sent to the attacker and trackers. Wire `CombatAttackReceiver` with 4 consumers and bump the payload protocol to `6`.
+- [x] 12.6 Add per-move hit-stop (`SwingClock.beginHitStop`, anchored at the rig contact tick) and the re-authored first-person rig (cubic/overshoot easing, contact ticks, 2-tick chain cross-fade). Add `CombatCameraFx` (shake, kicks, FOV punch scaled by the accessibility options, plus the combat-slow FOV correction) and `CombatImpactFx` (client target freeze/jitter, remote attacker hit-stop).
+- [x] 12.7 Add the complete first-person arm: `QingfengFirstPersonArmRenderer`, `QingfengFirstPersonArmIk` (two-bone, hand on the grip), and `QingfengFirstPersonArmModel`, registered before the trail and never cancelling `RenderHandEvent`.
+- [x] 12.8 Replace the additive trail with `SWORD_TRAIL_TRANSLUCENT` thin tapered ribbons, remove the vanilla sweep particle, cut crit sparks, add the `myvillage:blade_cut` particle (generated original sprite, `tools/gen_blade_cut_sprite.py`), add the `combat.sword.impact_heavy` sound with bilingual subtitles, and add swing pitch variation with a local whoosh that leads by about one tick.
+- [x] 12.9 Generate `sword_combat.json` from `tools/gen_sword_pal_anims.py` (planted feet, hitbox-matched cut directions, lunge on the step tick, `--check` drift and self-checks). Add chain cross-fade, graceful stop, and `setHitStopRate` to `CombatAnimationController`.
+- [x] 12.10 Update the focused validator and its negative fixtures for protocol `6`, chain windows and invariants, all five steps, impulse steps, swing-sound timing, the S2C-only impact payload without authority fields, no player freeze, the FOV correction, translucent trails, no sweep particle, the heavy-impact sound, blade-cut resources, arm registration and no-cancel, and both generator `--check` drift checks.
+- [x] 12.11 Update the specs (buffer from active start, chain windows, view-yaw facing, impulse steps and bound, shipped cut directions, target reaction, impact payload, camera effects, first-person arm, generated poses), KB 32, README, AGENTS.md, and CHANGELOG.
+- [x] 12.12 Apply the large-feature version rule to `0.27.0` in `gradle.properties`, `neoforge.mods.toml`, README jar-name examples, and `CHANGELOG.md`.
+- [ ] 12.13 Rebuild and inspect the `myvillage-0.27.0.jar` (focused validator jar checks, no shaded PAL), rerun `./gradlew test`/`build`, and run a bounded acceptance server.
+- [x] 12.14 Record the lab station E physical-client capture (2026-09-30, `/home/ubuntu/code/mc/combat-lab/out/E`) in the README ledger: first-person arm holding the sword, thin trails, blade_cut particles, target slide, move-five lunge displacement, camera roll on heavy hits, and third-person full-body poses. This is implementation evidence only.
+- [ ] 12.15 Real-client verification of the remaining `not_verified` 0.27.0 surfaces:
+  - chain timing under real clicks;
+  - step distances, magnetism, and wall/cliff suppression under the impulse;
+  - per-move hit-stop, hitstun, player-target slow, and boss exemption;
+  - sounds and subtitles;
+  - no slowness FOV zoom and accessibility scaling;
+  - chained prediction and remote impact effects in two-client multiplayer.
+- [ ] 12.16 Record the owner's verdict on the 0.27.0 action-feel revision, quoted without inference, and resolve any required changes.

@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 public final class ModPayloads {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModPayloads.class);
-    private static final String PROTOCOL_VERSION = "5";
+    private static final String PROTOCOL_VERSION = "6";
 
     private ModPayloads() {
     }

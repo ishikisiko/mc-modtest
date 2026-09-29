@@ -19,7 +19,8 @@ import java.util.Objects;
  * swing plane on screen, {@code sweep} turns the arm within that plane, {@code reach} is the
  * pivot-to-grip distance, and {@code lead}/{@code lift}/{@code twist} orient the blade at the
  * grip. Keys are authored in server ticks so the visible strike can be checked against each
- * move's active window.
+ * move's active window. An optional per-move {@code contact} tick marks the moment the drawn
+ * blade reaches the target; the hit-stop waits for it so the freeze reads as the blade biting.
  */
 final class FirstPersonSwing {
     static final String RESOURCE_PATH = "combat/qingfeng_first_person.json";
@@ -118,7 +119,11 @@ final class FirstPersonSwing {
                     + " strike window must cover active ticks "
                     + definition.activeStartTick() + ".." + definition.activeEndTick());
         }
-        return new Move(definition.id(), definition.totalTicks(), keys, strike[0], strike[1]);
+        float contact = json.has("contact") ? json.get("contact").getAsFloat() : strike[0];
+        if (!(contact >= strike[0] && contact <= strike[1])) {
+            throw new IllegalArgumentException(definition.id() + " contact tick must lie inside the strike window");
+        }
+        return new Move(definition.id(), definition.totalTicks(), keys, strike[0], strike[1], contact);
     }
 
     private static Pose pose(JsonObject json, Pose fallback) {
@@ -206,12 +211,23 @@ final class FirstPersonSwing {
         }
     }
 
-    /** Easing applied to the segment that arrives at a key. */
+    /**
+     * Easing applied to the segment that arrives at a key. Strikes accelerate into contact
+     * ({@code in}/{@code in_cubic}); {@code out_back} decelerates past its key by about 12% and
+     * settles back, which authors the follow-through overshoot.
+     */
     enum Ease {
         LINEAR,
         IN,
         OUT,
-        IN_OUT;
+        IN_OUT,
+        IN_CUBIC,
+        OUT_CUBIC,
+        IN_OUT_CUBIC,
+        OUT_BACK;
+
+        /** Overshoot constant of {@link #OUT_BACK}; 1.9 peaks about 12% past the key. */
+        static final float BACK_OVERSHOOT = 1.9F;
 
         static Ease parse(String name) {
             return switch (name) {
@@ -219,8 +235,17 @@ final class FirstPersonSwing {
                 case "in" -> IN;
                 case "out" -> OUT;
                 case "in_out" -> IN_OUT;
+                case "in_cubic" -> IN_CUBIC;
+                case "out_cubic" -> OUT_CUBIC;
+                case "in_out_cubic" -> IN_OUT_CUBIC;
+                case "out_back" -> OUT_BACK;
                 default -> throw new IllegalArgumentException("Unknown swing ease: " + name);
             };
+        }
+
+        /** True when the curve leaves 0..1 before it settles on the key. */
+        boolean overshoots() {
+            return this == OUT_BACK;
         }
 
         float apply(float value) {
@@ -230,6 +255,23 @@ final class FirstPersonSwing {
                 case IN -> t * t;
                 case OUT -> 1.0F - (1.0F - t) * (1.0F - t);
                 case IN_OUT -> t * t * (3.0F - 2.0F * t);
+                case IN_CUBIC -> t * t * t;
+                case OUT_CUBIC -> {
+                    float inverse = 1.0F - t;
+                    yield 1.0F - inverse * inverse * inverse;
+                }
+                case IN_OUT_CUBIC -> {
+                    if (t < 0.5F) {
+                        yield 4.0F * t * t * t;
+                    }
+                    float inverse = -2.0F * t + 2.0F;
+                    yield 1.0F - inverse * inverse * inverse * 0.5F;
+                }
+                case OUT_BACK -> {
+                    float shifted = t - 1.0F;
+                    yield 1.0F + (BACK_OVERSHOOT + 1.0F) * shifted * shifted * shifted
+                            + BACK_OVERSHOOT * shifted * shifted;
+                }
             };
         }
     }
@@ -242,9 +284,14 @@ final class FirstPersonSwing {
             int totalTicks,
             List<Key> keys,
             float strikeStartTick,
-            float strikeEndTick) {
+            float strikeEndTick,
+            float contactTick) {
         Move {
             keys = List.copyOf(keys);
+        }
+
+        Move(ResourceLocation id, int totalTicks, List<Key> keys, float strikeStartTick, float strikeEndTick) {
+            this(id, totalTicks, keys, strikeStartTick, strikeEndTick, strikeStartTick);
         }
 
         Pose sample(float tick) {

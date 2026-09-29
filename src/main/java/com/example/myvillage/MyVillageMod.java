@@ -4,6 +4,7 @@ import com.example.myvillage.block.ModBlocks;
 import com.example.myvillage.combat.CombatAttachments;
 import com.example.myvillage.combat.CombatCommands;
 import com.example.myvillage.combat.CombatEvents;
+import com.example.myvillage.combat.CombatParticles;
 import com.example.myvillage.combat.CombatSounds;
 import com.example.myvillage.cultivation.CultivationAttachments;
 import com.example.myvillage.cultivation.CultivationCommands;
@@ -88,6 +89,7 @@ public final class MyVillageMod {
         ModBlocks.register(modEventBus);
         ModItems.register(modEventBus);
         CombatSounds.register(modEventBus);
+        CombatParticles.register(modEventBus);
         ModPayloads.register(modEventBus);
         ModCultivationRegistries.register(modEventBus);
         CultivationAttachments.register(modEventBus);

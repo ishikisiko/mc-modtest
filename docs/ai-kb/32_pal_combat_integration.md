@@ -193,8 +193,13 @@ applies edits. The rig swings the sword from one camera-space shoulder pivot:
 vanilla handheld display transform (`-19.3` degree pitch plus the handle
 offset), so the rig grip is the Qingfeng handle. The left hand mirrors the
 right. Keys are server ticks with per-segment `linear`/`in`/`out`/`in_out`
-easing, start and end at `neutral`, and each move's `strike` window must cover
-the server active window within three ticks. Loading rejects anything else, and
+easing (0.27.0 adds `in_cubic`, `out_cubic`, `in_out_cubic`, and `out_back` with
+about 12% overshoot), start and end at `neutral`, and each move's `strike`
+window must cover the server active window within three ticks. An optional
+per-move `contact` tick (inside the strike window) anchors the hit-stop. The
+0.27.0 rig strikes with an eased-in blow, overshoots, holds for 2.7-4 ticks, and
+returns over 3.5-4 ticks. A chained move cross-fades from the pose on screen over
+2 ticks. Loading rejects anything else, and
 `FirstPersonSwingTest` also checks grip depth, strike speed against recovery,
 and hand mirroring.
 
@@ -203,31 +208,89 @@ and hand mirroring.
 
 ### Feedback
 
-`BasicSwordStyle.FEEDBACK` gives each move a swing family, pitch, and heavy-hit
-flag. `CombatFeedbackService` plays the swing sound at the active start for
-everyone but the attacker (whose client plays it on the visual timeline), and
-after successful damage only, plays the hit sound, sends crit particles plus a
-sweep particle for cuts, and sends the attacker a `CombatHitConfirmPayload`
-(attacker id, revision, hit count). `SwingClock` turns that into one hit-stop:
-`2.5` ticks at `0.08` speed with a small viewmodel shake, then a catch-up rate
-that ends the swing on the server total.
+`BasicSwordStyle.FEEDBACK` gives each move a swing family and pitch, a
+heavy-hit flag (moves 4 and 5), hit-stop ticks (`1.5/2/2/3/4`), camera trauma
+(`0.25/0.30/0.30/0.50/0.80`), and a blade-cut roll (`0/0/-35/40/0` degrees).
+`CombatFeedbackService` plays the swing sound one tick before the active start
+(`actionTick == activeStartTick() - 1`) for everyone but the attacker, with
+`CombatSounds.jitteredSwingPitch` adding about 6% pitch variation. The
+attacker's `QingfengFirstPersonAnimator.clientTick` plays the same cue locally
+about one tick ahead of the visible strike. After successful damage only, the
+service plays the hit sound (plus the `combat.sword.impact_heavy` layer on
+heavy moves), spawns one `myvillage:blade_cut` particle at the true contact
+point (x velocity carries the roll in radians, y > 0.5 marks heavy), sends 3
+crit sparks (6 on heavy), sends the attacker a `CombatHitConfirmPayload`
+(attacker id, revision, hit count), and broadcasts `CombatImpactPayload` to
+the attacker and all trackers. The vanilla sweep particle was removed.
 
-`FirstPersonSwordTrail` draws an additive ribbon on `RenderHandEvent` by
-re-posing the blade at earlier visual ticks within the strike window; it keeps
-no frame history and never cancels the item pass. `CombatWorldTrails` draws a
-world ribbon for other players, and for the local player in a detached camera,
-along the move's hitbox samples interpolated in polar form, using the facing
-yaw now carried in `CombatAttackStartPayload`. Payload protocol is `5`.
+`SwingClock.beginHitStop(realTick, hitStopTicks)` uses the move's own hit-stop:
+the swing is fully frozen for the first 60% of the stop, creeps at `0.15` for
+the rest, then catches up so it still ends on the server total. `confirmHit`
+starts the stop at the rig's per-move `contact` tick (`3.8/4.9/6.0/7.0/8.0`) if
+the confirmation arrives early. `HIT_STOP_TICKS = 2.5F` remains the default.
 
-### Withdrawn arm
+Both trails use `CombatRenderTypes.SWORD_TRAIL_TRANSLUCENT` (SRC_ALPHA /
+ONE_MINUS_SRC_ALPHA, no cull, no depth write). The additive `SWORD_TRAIL`
+washed out to a white slab against the sky and was removed. Each trail is a thin
+tapered band with a near-white edge at the tip and a pale-blue body inside it;
+thrusts draw a single streak. `FirstPersonSwordTrail` still re-poses the blade
+at earlier visual ticks from the shared frame and never cancels the item pass.
+`CombatWorldTrails` still samples the move's hitbox with the broadcast facing
+yaw and is skipped in first person. It is drawn from a pivot 1.3 blocks up and
+holds still while its attacker is frozen in a hit-stop.
 
-The segmented skin/sleeve arm (`QingfengFirstPersonArmRenderer`,
-`QingfengFirstPersonArmModel`, `FirstPersonArmPose`) was removed in 0.26.2. Its
-joint tracks were tied to the old normalized curves, and the owner chose to hide
-the arm while the sword motion is re-authored. Earlier rejected forms remain
-rejected: a separately damped complete arm left the handle, and a pivot-locked
-complete arm floated mid-screen. The follow-up arm should use the rig directly:
-shoulder at the pivot, hand at the rig grip, two-bone solve for the elbow.
+### Camera and impact effects
+
+`CombatCameraFx` (client, presentation only) adds attacker-local trauma on hit
+confirm. Shake is trauma² × (2.5° roll, 1.5° pitch, 1.0° yaw) of about 22 Hz
+noise, and trauma decays at 1.6 per second. It also plays per-move kicks: a
+rising cut pitches up, a diagonal pitches down and rolls, and the lunge gets a
+FOV punch plus a FOV surge at its step. Angles scale with
+`options.screenEffectScale` and FOV changes with `options.fovEffectScale`; both
+are halved in third person. `onComputeFovModifier` removes the vanilla slowness
+zoom that the server's `myvillage:combat_commit` and `myvillage:combat_stun`
+movement modifiers would otherwise cause. Other speed changes still change FOV.
+
+`CombatImpactFx` reads `CombatImpactPayload` (attacker id, revision, move index,
+struck entity ids, contact points; no damage or health). On the client it skips
+struck non-player entities' ticks for the rounded hit-stop, jitters every
+struck entity except the local player, and drives a remote attacker's PAL
+hit-stop through `CombatAnimationController.setHitStopRate`. None of this sends a
+packet or changes an entity's server state.
+
+### First-person arm (0.27.0)
+
+`QingfengFirstPersonArmRenderer.onRenderHand` draws a complete skin and sleeve
+arm on the same shoulder-pivot rig, registered before the trail so the trail
+blends over it. It never cancels `RenderHandEvent`. `QingfengFirstPersonArmIk`
+is a two-bone solve (5 px upper arm and forearm) that keeps the hand on the rig
+grip. When the grip is out of reach, the off-screen shoulder slides instead of
+the hand. Forearm roll follows the grip frame. `QingfengFirstPersonArmModel`
+builds wide or slim, right or left boxes from the player skin. The renderer
+reads the same `displayedPose` as the sword item, so a 2-tick chain cross-fade
+moves the arm and sword together. The earlier rejected forms stay rejected: a
+separately damped complete arm left the handle, and a pivot-locked complete arm
+floated mid-screen.
+
+### Third-person PAL poses (0.27.0)
+
+`tools/gen_sword_pal_anims.py` (stdlib only, deterministic) generates
+`player_animations/sword_combat.json`. Its pose table is keyed by server tick and
+phase (guard, anticipation, coil, contact, sweep, through, hold, recovery). It
+solves the legs so both feet stay planted and checks every key with a
+forward-kinematics copy of the PAL and vanilla transforms. Run
+`python3 tools/gen_sword_pal_anims.py --check` after any edit; the focused
+validator runs it too and fails on drift. Cut directions match the hitboxes:
+横 left to right, 撩 right-low to left-high, 斜 left-high to right-low. The
+lunge coils until the server step tick 6 and then lunges with the hips 6-7 px
+forward (PAL body z is negative-forward). `CombatAnimationController`
+cross-fades a chained START over 2 ticks and holds a stopped pose for 2 ticks
+before the ready idle. Hit-stop runs through its `SpeedModifier`, and frozen
+time is repaid at up to +0.5x speed. `tools/gen_blade_cut_sprite.py --check`
+guards the procedurally generated 32x32 `textures/particle/blade_cut.png` the
+same way.
+
+### Fallback swing and evidence
 
 The original intercepted path canceled the mapped event and set its hand swing
 false, so it also removed every visible first-person response. The client keeps
@@ -239,8 +302,17 @@ vanilla swing packet.
 
 A developer capture at `960x540`, FOV 70 with mapped clicks showed all five
 0.26.2 swings crossing the target during the hit, both trails, sweep/crit
-particles, and hit-stop. Sound was not observable on the headless host. Only the
-owner can promote these surfaces from `not_verified`.
+particles, and hit-stop. Sound was not observable on the headless host. On
+2026-09-30, after watching this revision (lab station A) next to Epic Fight, the
+owner said A "现在不太行看上去" and asked for an optimized A: "我要的是那种战斗真实动作游戏的感觉".
+The 0.26.2 swings were therefore not accepted, and 0.27.0 is the response.
+
+Lab station E capture (2026-09-30, `/home/ubuntu/code/mc/combat-lab/out/E`) of
+the 0.27.0 revision in a physical client showed the first-person arm holding
+the sword, thin trails, blade_cut particles, target slide, forward lunge
+displacement on move 5, camera roll on heavy hits, and third-person full-body
+poses. This is implementation evidence only. No owner verdict on 0.27.0 exists,
+and every other 0.27.0 surface is `not_verified`.
 
 ## Side Boundary
 
@@ -321,10 +393,13 @@ target caps.
 2. current `Attributes.ATTACK_DAMAGE` times the move multiplier;
 3. item target bonus and `EnchantmentHelper.modifyDamage`;
 4. `player.damageSources().playerAttack(player)` plus ordinary `target.hurt`;
-5. current attack-knockback attribute, `EnchantmentHelper.modifyKnockback`, and
-   frozen action facing plus the vanilla server-player motion packet/reset path,
-   then `EnchantmentHelper.doPostAttackEffectsWithItemSource` after successful
-   damage;
+5. the move's `ReactionDefinition` slide/lift/lateral push along the frozen
+   action facing, plus the current attack-knockback attribute and
+   `EnchantmentHelper.modifyKnockback` in vanilla units, scaled by
+   `1 - knockback resistance`. Vanilla hurt knockback is cancelled only for our
+   own hit (`LivingKnockBackEvent`), and player targets get the vanilla motion
+   packet. `EnchantmentHelper.doPostAttackEffectsWithItemSource` runs after
+   successful damage;
 6. one `hurtEnemy`/`postHurtEnemy` durability path for the whole action after
    its first successful target.
 
@@ -336,19 +411,68 @@ the untouched vanilla path.
 
 ## Timing And Hitbox Tuning
 
-`BasicSwordStyle` is the only owner of the five move contracts. Initial totals
-are `11/13/15/17/20` ticks, active windows are `3-4/4-6/5-7/6-8/7-9`, and the
-late buffer begins at `8/10/12/14/17`. Combo timeout is 14 server ticks and the
-minimum accepted intent interval is two server ticks.
+`BasicSwordStyle` is the only owner of the five move contracts. Totals are
+`11/13/15/17/20` ticks and active windows `3-4/4-6/5-7/6-8/7-9`, unchanged since
+0.26.0. Since 0.27.0 the one-slot buffer opens at the active start
+(`bufferStartTick` `3/4/5/6/7`), so a click during the hit is held. Clicks
+during anticipation are still rejected, and a rejected click no longer counts
+toward the two-tick minimum interval. A held click cancels the rest of the
+recovery and starts the next move at `chainTick` `7/8/10/13/20`, through the same
+stop-then-start path. Without a held click a move still plays to its total.
+Move five cannot chain (`chainTick == totalTicks`), and the combo resets after
+it. Combo timeout is 14 server ticks. `AttackMoveDefinition` enforces
+`activeStartTick <= bufferStartTick < totalTicks` and
+`activeEndTick < chainTick <= totalTicks`. The client mirrors this with
+`ClientCombatState.bufferClick`/`chainDue` and predicts the chained move at the
+chain tick. The server's COMPLETED stop and new START confirm it, and a missing
+START drops it within 2-8 ticks.
 
-The five shape families are center thrust, approximately 110-degree horizontal
-arc, rising diagonal, thicker descending diagonal, and long lunge thrust. Every
+The action faces the view yaw (`player.getYRot()`), not `yBodyRot`. Body and
+head snap to it at start, and each chained move takes the current view yaw, so
+the player can re-aim between hits. While a move runs, the temporary
+`myvillage:combat_commit` speed modifier holds the player to 25% speed until
+the hit ends, then to 60% until the chain tick. It is removed on every stop path,
+and sprinting stops at start on the server and on the predicting client.
+
+Every move steps: `StepDefinition(tick, maximumDistance, 0.35)` is
+`(2, 0.30)`, `(3, 0.25)`, `(4, 0.30)`, `(5, 0.45)`, `(6, 1.40)`, with the
+distance bound raised to `(0, 1.6]`. The step is a server-decided impulse, not a
+server move. `CombatStepService` keeps the collision and support search, picks
+the distance, and sets `player.setDeltaMovement(forward * distance *
+GROUND_DRAG_COMPENSATION)` with `hurtMarked = true`. The client's own physics
+then carries it out, like vanilla knockback. `GROUND_DRAG_COMPENSATION = 1 -
+0.6 * 0.91` makes the ground slide cover the planned distance. Magnetism: if a
+legal target lies within ±30° of facing and within range plus step, the step
+stops `0.6` short of its hitbox edge. Light steps (0.5 or less) are skipped when
+the target is already in range. Hit sweeps during and after a step use the
+server-planned origin (start + forward × planned distance × progress), never the
+client's echoed position. Only a step of at least `0.6` also sweeps the body
+path.
+
+Target reaction (`ReactionDefinition(hitstunTicks, slideDistance, lift,
+lateralBias)`, `CombatReactionService`):
+- Only `Mob` targets are frozen. They skip their server tick for the rounded
+  hit-stop, and their slide impulse is held until the freeze ends.
+- Mobs are then staggered for `9/9/10/13/16` ticks: no navigation, move, look,
+  jump, or melee damage.
+- Repeat stuns within 40 ticks scale by `0.7` each, and targets with 100+ max
+  health take 30%. The Ender Dragon, Wither, and Warden are never frozen or
+  stunned.
+- Players are never frozen. They get the slide at once plus a 60% slow
+  (`myvillage:combat_stun`).
+- All reaction state clears on death, unload, dimension change, and server
+  start/stop.
+- Our hit clears the target's i-frames only for itself; afterwards the target
+  keeps the larger of its old and new timer.
+
+The five shape families are center thrust, a roughly 110-degree horizontal arc
+swept left to right, a right-low to left-high rising diagonal, a thicker
+left-high to right-low descending diagonal, and a long lunge thrust. Every
 active sample uses `0.20` horizontal and `0.12` vertical tolerance. Broad-phase
 union bounds are followed by segment/capsule-style narrow tests, wall clips,
 legal-target filtering, deterministic contact-distance/entity-id ordering, an
-action-wide target cap, and attempted-target deduplication. Move five requests a
-server-owned step at tick 6, samples down to a safe supported destination, uses
-normal collision-aware movement, and adds only the actual start-to-end sweep.
+action-wide target cap, and attempted-target deduplication. Payload protocol is
+`6`.
 
 ## Verified Commands
 

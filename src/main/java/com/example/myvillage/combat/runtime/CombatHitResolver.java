@@ -20,6 +20,9 @@ import java.util.Optional;
 import java.util.OptionalDouble;
 
 public final class CombatHitResolver {
+    /** Only a lunge-length step also sweeps the attacker's body path as a hit capsule. */
+    static final double LUNGE_BODY_SWEEP_DISTANCE = 0.6;
+
     private CombatHitResolver() {
     }
 
@@ -30,12 +33,17 @@ public final class CombatHitResolver {
             int actionTick,
             Optional<StepSweep> stepSweep) {
         HitboxDefinition hitbox = move.hitbox();
+        // After a step the hitbox follows the server-planned origin, never the client's echo.
+        Vec3 origin = stepSweep
+                .map(sweep -> sweep.originAt(actionTick))
+                .orElseGet(attacker::position);
         List<CombatGeometry.WorldSample> worldSamples = new ArrayList<>(
                 hitbox.samplesAt(actionTick).stream()
                         .map(sample -> CombatGeometry.transform(
-                                sample, attacker.position(), session.facingYaw()))
+                                sample, origin, session.facingYaw()))
                         .toList());
-        if (move.step().isPresent() && stepSweep.isPresent()) {
+        if (move.step().isPresent() && stepSweep.isPresent()
+                && stepSweep.orElseThrow().distance() >= LUNGE_BODY_SWEEP_DISTANCE) {
             StepSweep sweep = stepSweep.orElseThrow();
             worldSamples.add(new CombatGeometry.WorldSample(
                     sweep.start().add(0.0, 0.9, 0.0),
@@ -73,7 +81,7 @@ public final class CombatHitResolver {
         return new Resolution(List.copyOf(contacts), List.copyOf(worldSamples));
     }
 
-    private static boolean legalTarget(
+    static boolean legalTarget(
             ServerPlayer attacker,
             Entity target,
             CombatSession session) {
@@ -135,7 +143,20 @@ public final class CombatHitResolver {
         return blockHit.distanceToSqr(origin) + 0.01 < targetCenter.distanceToSqr(origin);
     }
 
-    public record StepSweep(Vec3 start, Vec3 end) {
+    /**
+     * A server-planned step: the attacker's position when the step was decided, the planned
+     * destination, and the action tick of the step impulse.
+     */
+    public record StepSweep(Vec3 start, Vec3 end, int stepTick) {
+        /** Planned feet origin at an action tick: the start until the step tick, the end after. */
+        public Vec3 originAt(int actionTick) {
+            double progress = Math.max(0.0, Math.min(1.0, actionTick - stepTick));
+            return start.lerp(end, progress);
+        }
+
+        public double distance() {
+            return start.distanceTo(end);
+        }
     }
 
     public record TargetContact(Entity target, double distanceSquared, Vec3 contactPoint) {

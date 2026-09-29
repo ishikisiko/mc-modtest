@@ -6,9 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import com.example.myvillage.combat.CombatMode;
 import com.example.myvillage.combat.session.CombatStopReason;
 import io.netty.buffer.Unpooled;
+import java.util.List;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.connection.ConnectionType;
 import org.junit.jupiter.api.Test;
 
@@ -48,6 +50,30 @@ class CombatPayloadTest {
         assertRoundTrip(
                 new CombatHitConfirmPayload(42, 8, 2),
                 CombatHitConfirmPayload.STREAM_CODEC);
+        assertRoundTrip(
+                new CombatImpactPayload(
+                        42,
+                        8,
+                        4,
+                        List.of(7, 99),
+                        List.of(new Vec3(1.25, 65.5, -3.0), new Vec3(-0.125, 64.0, 2.75))),
+                CombatImpactPayload.STREAM_CODEC);
+    }
+
+    @Test
+    void impactPayloadNeedsAlignedBoundedContacts() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new CombatImpactPayload(42, 8, 0, List.of(), List.of()));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new CombatImpactPayload(42, 8, 0, List.of(1, 2), List.of(Vec3.ZERO)));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new CombatImpactPayload(42, 0, 0, List.of(1), List.of(Vec3.ZERO)));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> new CombatImpactPayload(42, 8, 0, List.of(1), List.of(new Vec3(Double.NaN, 0.0, 0.0))));
     }
 
     @Test

@@ -40,7 +40,9 @@ public final class CombatSession {
         expireCombo(serverTick);
         if (hasActiveAction()) {
             int actionTick = actionTick(serverTick);
-            if (!currentMove().acceptsBuffer(actionTick)) {
+            // A click on the completion tick itself (handled before this tick's session update)
+            // is held too, so it starts the next move instead of being dropped.
+            if (!currentMove().acceptsBuffer(actionTick) && actionTick < currentMove().totalTicks()) {
                 return IntentResult.rejected(IntentDecision.REJECTED_TIMING);
             }
             if (bufferedIntent) {
@@ -55,27 +57,42 @@ public final class CombatSession {
     }
 
     public TickResult tick(long serverTick) {
+        return tick(serverTick, Float.NaN);
+    }
+
+    /**
+     * Advances the action by server time. A buffered intent starts the next move as soon as the
+     * current move reaches its {@code chainTick} (cancelling the rest of its recovery); without a
+     * buffered intent the move plays to {@code totalTicks}. A chained move faces
+     * {@code currentFacingYaw} when it is finite, otherwise the previous move's facing.
+     */
+    public TickResult tick(long serverTick, float currentFacingYaw) {
         expireCombo(serverTick);
-        if (!hasActiveAction() || actionTick(serverTick) < currentMove().totalTicks()) {
+        if (!hasActiveAction()) {
+            return TickResult.none();
+        }
+        int actionTick = actionTick(serverTick);
+        AttackMoveDefinition move = currentMove();
+        boolean chain = bufferedIntent && move.chainsAt(actionTick);
+        if (!chain && actionTick < move.totalTicks()) {
             return TickResult.none();
         }
 
         StopEvent stop = stopEvent(CombatStopReason.COMPLETED);
         int completedIndex = currentMoveIndex;
-        boolean continueBuffered = bufferedIntent;
         clearAction();
         nextMoveIndex = completedIndex + 1;
         if (nextMoveIndex >= style.moves().size()) {
             nextMoveIndex = 0;
         }
 
-        if (continueBuffered) {
+        if (chain) {
             StartEvent start = start(
                     nextMoveIndex,
                     serverTick,
                     stop.weaponId(),
                     stop.worldId(),
-                    stop.facingYaw());
+                    Float.isFinite(currentFacingYaw) ? currentFacingYaw : stop.facingYaw());
             return new TickResult(Optional.of(stop), Optional.of(start));
         }
 

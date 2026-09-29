@@ -35,6 +35,10 @@ public final class CombatPayloads {
                 CombatHitConfirmPayload.TYPE,
                 CombatHitConfirmPayload.STREAM_CODEC,
                 CombatPayloads::handleHitConfirm);
+        registrar.playToClient(
+                CombatImpactPayload.TYPE,
+                CombatImpactPayload.STREAM_CODEC,
+                CombatPayloads::handleImpact);
     }
 
     private static void handleModeToggle(
@@ -75,5 +79,11 @@ public final class CombatPayloads {
             CombatHitConfirmPayload payload,
             IPayloadContext context) {
         context.enqueueWork(() -> CombatAttackReceiver.receiveHit(payload));
+    }
+
+    private static void handleImpact(
+            CombatImpactPayload payload,
+            IPayloadContext context) {
+        context.enqueueWork(() -> CombatAttackReceiver.receiveImpact(payload));
     }
 }

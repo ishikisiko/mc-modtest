@@ -2,11 +2,13 @@ package com.example.myvillage.client.combat;
 
 import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.combat.CombatMode;
+import com.example.myvillage.combat.definition.AttackMoveDefinition;
 import com.example.myvillage.combat.definition.BasicSwordStyle;
 import com.example.myvillage.combat.network.CombatAttackReceiver;
 import com.example.myvillage.combat.network.CombatAttackStartPayload;
 import com.example.myvillage.combat.network.CombatAttackStopPayload;
 import com.example.myvillage.combat.network.CombatHitConfirmPayload;
+import com.example.myvillage.combat.network.CombatImpactPayload;
 import com.example.myvillage.combat.network.CombatModeSnapshotPayload;
 import com.example.myvillage.combat.network.CombatModeSnapshotReceiver;
 import com.example.myvillage.combat.network.CombatModeTogglePayload;
@@ -31,6 +33,13 @@ import net.neoforged.neoforge.network.PacketDistributor;
 public final class ClientCombatEvents {
     private static final int CLIENT_INTENT_INTERVAL_TICKS = 2;
     private static final int PREDICTION_TIMEOUT_TICKS = 8;
+    /**
+     * After the server ends the move a chained prediction left, its START for the chained move
+     * is sent in the same server tick; allow this many client ticks before giving up on it.
+     */
+    private static final int CHAIN_CONFIRM_GRACE_TICKS = 2;
+    /** A step at least this long is a lunge and widens the camera's FOV as it launches. */
+    private static final double LUNGE_STEP_DISTANCE = 1.0;
     private static long lastAttackIntentTick = Long.MIN_VALUE;
 
     static {
@@ -38,7 +47,8 @@ public final class ClientCombatEvents {
         CombatAttackReceiver.install(
                 ClientCombatEvents::receiveAttackStart,
                 ClientCombatEvents::receiveAttackStop,
-                ClientCombatEvents::receiveHitConfirm);
+                ClientCombatEvents::receiveHitConfirm,
+                ClientCombatEvents::receiveImpact);
     }
 
     private ClientCombatEvents() {
@@ -59,11 +69,15 @@ public final class ClientCombatEvents {
 
         QingfengFirstPersonAnimator.clientTick(player);
         long tick = minecraft.level.getGameTime();
-        if (ClientCombatState.predictionPending()
-                && tick - ClientCombatState.predictionTick() > PREDICTION_TIMEOUT_TICKS) {
+        if (ClientCombatState.chainPredictionAbandoned(tick, CHAIN_CONFIRM_GRACE_TICKS)
+                || (ClientCombatState.predictionPending()
+                && tick - ClientCombatState.predictionTick() > PREDICTION_TIMEOUT_TICKS)) {
             CombatAnimationController.stop(player);
+            CombatWorldTrails.stop(player.getId());
             ClientCombatState.rejectPrediction();
         }
+        predictChainedMove(player, tick);
+        playLocalCues(tick);
 
         boolean shouldReady = ClientCombatState.mode() == CombatMode.CULTIVATION
                 && player.getMainHandItem().is(ModItems.QINGFENG_SWORD.get())
@@ -112,10 +126,14 @@ public final class ClientCombatEvents {
         lastAttackIntentTick = tick;
         PacketDistributor.sendToServer(SwordAttackIntentPayload.INSTANCE);
 
-        if (ClientCombatState.localActionActive()) {
+        if (ClientCombatState.localActionActive() || ClientCombatState.predictionPending()) {
+            // The server holds one click from the move's bufferStartTick; remember it here too so
+            // the chained move can be predicted at the chain tick instead of waiting a round trip.
+            ClientCombatState.bufferClick(tick, BasicSwordStyle.DEFINITION);
             return;
         }
         player.swing(InteractionHand.MAIN_HAND, false);
+        player.setSprinting(false);
         int predictedIndex = ClientCombatState.preparePrediction(
                 tick, BasicSwordStyle.DEFINITION.comboTimeoutTicks());
         CombatAnimationController.play(
@@ -124,6 +142,50 @@ public final class ClientCombatEvents {
                 0.0F);
         CombatWorldTrails.start(player, predictedIndex, 0.0F, player.getYRot());
         ClientCombatState.beginPrediction(tick);
+        ClientCombatState.trackLocalAction(predictedIndex, tick, -1L);
+    }
+
+    /**
+     * Presentation-only prediction of a chained move (the server decides it the same way): the
+     * local action holds a buffered click and reached its chain tick, so the next move starts
+     * now on this screen. The server's STOP for the old move and START for the new one then
+     * confirm it like any other prediction, or a missing START drops it.
+     */
+    private static void predictChainedMove(LocalPlayer player, long tick) {
+        if (ClientCombatState.mode() != CombatMode.CULTIVATION
+                || !player.getMainHandItem().is(ModItems.QINGFENG_SWORD.get())
+                || !player.isAlive()) {
+            return;
+        }
+        int nextIndex = ClientCombatState.chainDue(tick, BasicSwordStyle.DEFINITION);
+        if (nextIndex < 0) {
+            return;
+        }
+        player.swing(InteractionHand.MAIN_HAND, false);
+        player.setSprinting(false);
+        CombatAnimationController.play(
+                player,
+                BasicSwordStyle.DEFINITION.move(nextIndex).animation().animationId(),
+                0.0F);
+        CombatWorldTrails.start(player, nextIndex, 0.0F, player.getYRot());
+        ClientCombatState.beginChainPrediction(tick, nextIndex);
+    }
+
+    /** Camera cues on the local action's timeline: a lean as the blade starts, the lunge surge. */
+    private static void playLocalCues(long tick) {
+        int moveIndex = ClientCombatState.localMoveIndex();
+        if (moveIndex < 0) {
+            return;
+        }
+        AttackMoveDefinition move = BasicSwordStyle.DEFINITION.move(moveIndex);
+        if (ClientCombatState.reachCue(tick, Math.max(0, move.activeStartTick() - 1))) {
+            CombatCameraFx.swingLean(moveIndex);
+        }
+        move.step()
+                .filter(step -> step.maximumDistance() >= LUNGE_STEP_DISTANCE)
+                .filter(step -> ClientCombatState.reachCue(tick, step.actionTick()))
+                .ifPresent(step -> CombatCameraFx.lungeSurge());
+        ClientCombatState.markCuesThrough(tick);
     }
 
     @SubscribeEvent
@@ -133,6 +195,8 @@ public final class ClientCombatEvents {
         }
         ClientCombatState.clear();
         CombatWorldTrails.clear();
+        CombatImpactFx.clear();
+        CombatCameraFx.clear();
         lastAttackIntentTick = Long.MIN_VALUE;
     }
 
@@ -178,7 +242,9 @@ public final class ClientCombatEvents {
         if (player == minecraft.player) {
             if (!localPredictionPending) {
                 player.swing(InteractionHand.MAIN_HAND, false);
+                player.setSprinting(false);
             }
+            ClientCombatState.trackLocalAction(moveIndex, payload.serverStartTick(), payload.revision());
             ClientCombatState.confirmPrediction(
                     (moveIndex + 1) % BasicSwordStyle.DEFINITION.moves().size());
         }
@@ -194,7 +260,9 @@ public final class ClientCombatEvents {
             return;
         }
         if (payload.reason() == CombatStopReason.REJECTED && player == minecraft.player) {
-            if (ClientCombatState.predictionPending()) {
+            // A rejection during a chained prediction may answer an extra click rather than the
+            // buffered one; the chained move is dropped only if the server's START never comes.
+            if (ClientCombatState.predictionPending() && !ClientCombatState.chainPredictionPending()) {
                 CombatAnimationController.stop(player);
                 CombatWorldTrails.stop(player.getId());
                 ClientCombatState.rejectPrediction();
@@ -202,6 +270,12 @@ public final class ClientCombatEvents {
             return;
         }
         if (!ClientCombatState.acceptActionRevision(payload.attackerEntityId(), payload.revision())) {
+            return;
+        }
+        if (player == minecraft.player
+                && payload.reason() == CombatStopReason.COMPLETED
+                && ClientCombatState.absorbChainSourceStop(payload.revision(), minecraft.level.getGameTime())) {
+            // The end of the move this client already chained out of: keep the chained move.
             return;
         }
         CombatAnimationController.stop(player);
@@ -225,7 +299,17 @@ public final class ClientCombatEvents {
         LocalPlayer player = minecraft.player;
         if (player != null && payload.attackerEntityId() == player.getId()) {
             QingfengFirstPersonAnimator.confirmHit(player);
+            CombatCameraFx.onHitConfirm(
+                    ClientCombatState.localMoveIndexFor(payload.revision()), payload.revision());
         }
+    }
+
+    /**
+     * Target hit-stop, shudder and the remote attacker's animation stop. The local attacker's
+     * own camera trauma comes from {@link #receiveHitConfirm} only.
+     */
+    private static void receiveImpact(CombatImpactPayload payload) {
+        CombatImpactFx.receive(payload);
     }
 
     private static boolean resetsServerSession(CombatStopReason reason) {

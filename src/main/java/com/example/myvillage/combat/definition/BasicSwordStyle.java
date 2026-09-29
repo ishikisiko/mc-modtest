@@ -22,33 +22,41 @@ public final class BasicSwordStyle {
             List.of(
                     move(
                             "basic_sword_01_thrust", "combat.myvillage.move.basic_sword_01_thrust",
-                            11, 3, 4, 0.90, 1, 3.0, 8, 0.20,
-                            "center_thrust", thrustSamples(3, 4, 2.55, 2.95, 0.16), Optional.empty()),
+                            11, 3, 4, 0.90, 1, 3.0, 3, 7, new ReactionDefinition(9, 0.30, 0.00, 0.0),
+                            "center_thrust", thrustSamples(3, 4, 2.55, 2.95, 0.16),
+                            Optional.of(new StepDefinition(2, 0.30, 0.35))),
                     move(
                             "basic_sword_02_horizontal_cut", "combat.myvillage.move.basic_sword_02_horizontal_cut",
-                            13, 4, 6, 0.95, 3, 2.8, 10, 0.28,
-                            "horizontal_arc_110", arcSamples(4, 6, 2.8, 55.0, -55.0, 1.15, 0.18), Optional.empty()),
+                            13, 4, 6, 0.95, 3, 2.8, 4, 8, new ReactionDefinition(9, 0.35, 0.00, 0.3),
+                            "horizontal_arc_110", arcSamples(4, 6, 2.8, 55.0, -55.0, 1.15, 0.18),
+                            Optional.of(new StepDefinition(3, 0.25, 0.35))),
                     move(
                             "basic_sword_03_rising_cut", "combat.myvillage.move.basic_sword_03_rising_cut",
-                            15, 5, 7, 1.00, 2, 2.8, 12, 0.24,
-                            "rising_diagonal", diagonalSamples(5, 7, false, 0.20), Optional.empty()),
+                            15, 5, 7, 1.00, 2, 2.8, 5, 10, new ReactionDefinition(10, 0.30, 0.20, 0.0),
+                            "rising_diagonal", diagonalSamples(5, 7, false, 0.20),
+                            Optional.of(new StepDefinition(4, 0.30, 0.35))),
                     move(
                             "basic_sword_04_diagonal_cut", "combat.myvillage.move.basic_sword_04_diagonal_cut",
-                            17, 6, 8, 1.10, 3, 3.0, 14, 0.32,
-                            "descending_diagonal_thick", diagonalSamples(6, 8, true, 0.28), Optional.empty()),
+                            17, 6, 8, 1.10, 3, 3.0, 6, 13, new ReactionDefinition(13, 0.60, 0.00, 0.0),
+                            "descending_diagonal_thick", diagonalSamples(6, 8, true, 0.28),
+                            Optional.of(new StepDefinition(5, 0.45, 0.35))),
                     move(
                             "basic_sword_05_lunge_thrust", "combat.myvillage.move.basic_sword_05_lunge_thrust",
-                            20, 7, 9, 1.25, 2, 3.5, 17, 0.36,
+                            20, 7, 9, 1.25, 2, 3.5, 7, 20, new ReactionDefinition(16, 2.00, 0.25, 0.0),
                             "long_lunge_thrust", thrustSamples(7, 9, 2.8, 3.5, 0.19),
-                            Optional.of(new StepDefinition(6, 0.8, 0.35)))));
+                            Optional.of(new StepDefinition(6, 1.40, 0.35)))));
 
-    /** Swing/hit cues, index-aligned with {@link #DEFINITION}'s moves. */
+    /**
+     * Presentation cues, index-aligned with {@link #DEFINITION}'s moves: swing sound and pitch,
+     * heavy-impact layer, hit-stop ticks (also the server target-freeze length), camera trauma,
+     * and the blade-cut particle roll in degrees.
+     */
     public static final List<MoveFeedback> FEEDBACK = List.of(
-            new MoveFeedback(MoveFeedback.SwingSound.THRUST, 1.25F, false),
-            new MoveFeedback(MoveFeedback.SwingSound.CUT, 1.10F, false),
-            new MoveFeedback(MoveFeedback.SwingSound.CUT, 1.20F, false),
-            new MoveFeedback(MoveFeedback.SwingSound.CUT, 0.95F, false),
-            new MoveFeedback(MoveFeedback.SwingSound.THRUST, 0.90F, true));
+            new MoveFeedback(MoveFeedback.SwingSound.THRUST, 1.25F, false, 1.5F, 0.25F, 0.0F),
+            new MoveFeedback(MoveFeedback.SwingSound.CUT, 1.10F, false, 2.0F, 0.30F, 0.0F),
+            new MoveFeedback(MoveFeedback.SwingSound.CUT, 1.20F, false, 2.0F, 0.30F, -35.0F),
+            new MoveFeedback(MoveFeedback.SwingSound.CUT, 0.95F, true, 3.0F, 0.50F, 40.0F),
+            new MoveFeedback(MoveFeedback.SwingSound.THRUST, 0.90F, true, 4.0F, 0.80F, 0.0F));
 
     private BasicSwordStyle() {
     }
@@ -67,7 +75,8 @@ public final class BasicSwordStyle {
             int maximumTargets,
             double range,
             int bufferStart,
-            double knockback,
+            int chainTick,
+            ReactionDefinition reaction,
             String shape,
             List<HitboxSample> samples,
             Optional<StepDefinition> step) {
@@ -82,7 +91,8 @@ public final class BasicSwordStyle {
                 maximumTargets,
                 range,
                 bufferStart,
-                knockback,
+                chainTick,
+                reaction,
                 new AnimationDefinition(moveId, totalTicks),
                 new HitboxDefinition(shape, samples, 0.20, 0.12),
                 step);

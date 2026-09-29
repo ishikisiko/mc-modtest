@@ -15,6 +15,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import org.joml.Vector3f;
 
 import java.util.Optional;
 
@@ -22,15 +23,29 @@ public final class QingfengFirstPersonAnimator implements IClientItemExtensions 
     public static final QingfengFirstPersonAnimator INSTANCE = new QingfengFirstPersonAnimator();
 
     private static final float BLEND_OUT_TICKS = 3.0F;
-    private static final float HIT_STOP_SHAKE = 0.012F;
+    /** A chained move cross-fades from the pose on screen instead of snapping. */
+    static final float CHAIN_BLEND_TICKS = 2.0F;
+    /** Authoritative start corrections up to this size are slewed instead of snapped. */
+    static final float RESYNC_SLEW_LIMIT_TICKS = 2.0F;
+    static final float RESYNC_SLEW_TICKS = 3.0F;
+    /** Hit-stop shake amplitude in rig units: base plus a share per stop tick, decaying over the stop. */
+    static final float HIT_STOP_SHAKE = 0.018F;
+    static final float HIT_STOP_SHAKE_PER_TICK = 0.003F;
+    /** About 12 Hz: slow enough to read at 60 fps as a shudder rather than noise. */
+    private static final float HIT_STOP_SHAKE_RADIANS_PER_TICK = 3.8F;
+    private static final float STRIKE_DIRECTION_PROBE_TICKS = 0.35F;
 
     private int activeMoveIndex = -1;
     private double actionStartTick;
+    private double slewOffset;
+    private double slewStartTick;
     private SwingClock clock;
     private boolean swingSoundPlayed;
     private FirstPersonSwing.Pose blendFrom;
     private double blendStartTick;
+    private float blendTicks = BLEND_OUT_TICKS;
     private Frame probeFrame;
+    private final Vector3f shakeDirection = new Vector3f(1.0F, 0.0F, 0.0F);
 
     private QingfengFirstPersonAnimator() {
     }
@@ -45,19 +60,40 @@ public final class QingfengFirstPersonAnimator implements IClientItemExtensions 
             return;
         }
         QingfengFirstPersonAnimator animator = INSTANCE;
+        double now = player.level().getGameTime();
         double startTick = player.level().getGameTime() - Math.max(0.0F, elapsedTicks);
-        if (animator.activeMoveIndex == moveIndex && Math.abs(animator.actionStartTick - startTick) < 1.0E-3) {
+        if (animator.activeMoveIndex == moveIndex && animator.clock != null) {
+            // An authoritative correction of the same predicted move keeps its hit-stop and sound
+            // state. Small corrections are slewed so the blade never teleports mid-strike.
+            double shift = animator.effectiveStartTick(now) - startTick;
+            if (Math.abs(shift) < 1.0E-3) {
+                return;
+            }
+            animator.actionStartTick = startTick;
+            if (Math.abs(shift) <= RESYNC_SLEW_LIMIT_TICKS) {
+                animator.slewOffset = shift;
+                animator.slewStartTick = now;
+            } else {
+                animator.slewOffset = 0.0;
+            }
             return;
         }
-        // An authoritative correction of the same predicted move keeps its hit-stop and sound state.
-        boolean sameMove = animator.activeMoveIndex == moveIndex;
+
+        // A different move (a chained combo step, or a start right after a stop) cross-fades from
+        // whatever is on screen now.
+        Optional<FirstPersonSwing> swing = FirstPersonSwingResources.current();
+        FirstPersonSwing.Pose from = null;
+        if (swing.isPresent() && (animator.activeMoveIndex >= 0 || animator.blendFrom != null)) {
+            from = animator.currentPose(localPlayer, 0.0F, swing.get());
+        }
         animator.activeMoveIndex = moveIndex;
         animator.actionStartTick = startTick;
-        animator.blendFrom = null;
-        if (!sameMove) {
-            animator.clock = new SwingClock(BasicSwordStyle.DEFINITION.move(moveIndex).totalTicks());
-            animator.swingSoundPlayed = false;
-        }
+        animator.slewOffset = 0.0;
+        animator.clock = new SwingClock(BasicSwordStyle.DEFINITION.move(moveIndex).totalTicks());
+        animator.swingSoundPlayed = false;
+        animator.blendFrom = from;
+        animator.blendStartTick = now;
+        animator.blendTicks = CHAIN_BLEND_TICKS;
     }
 
     static void stop(AbstractClientPlayer player) {
@@ -76,13 +112,43 @@ public final class QingfengFirstPersonAnimator implements IClientItemExtensions 
         INSTANCE.probeFrame = null;
     }
 
-    /** Presentation-only hit-stop after the server confirmed damage for the local action. */
+    /**
+     * Presentation-only hit-stop after the server confirmed damage for the local action. The stop
+     * lasts the move's {@code MoveFeedback.hitStopTicks} and starts when the drawn blade reaches its
+     * contact tick, or at once when the confirmation arrives later than that.
+     */
     static void confirmHit(LocalPlayer player) {
         QingfengFirstPersonAnimator animator = INSTANCE;
         if (animator.activeMoveIndex < 0 || animator.clock == null) {
             return;
         }
-        animator.clock.beginHitStop((float) animator.realTick(player, 0.0F));
+        MoveFeedback feedback = BasicSwordStyle.feedback(animator.activeMoveIndex);
+        float now = (float) animator.realTick(player, 0.0F);
+        float start = now;
+        Optional<FirstPersonSwing> swing = FirstPersonSwingResources.current();
+        if (swing.isPresent()) {
+            FirstPersonSwing.Move move = swing.get().move(animator.activeMoveIndex);
+            start = Math.max(now, animator.clock.realTickForVisual(move.contactTick()));
+            animator.aimShake(swing.get(), move);
+        }
+        animator.clock.beginHitStop(start, feedback.hitStopTicks());
+    }
+
+    /**
+     * Visual ticks advanced per real tick for this player's action right now: 0 in the frozen part
+     * of a hit-stop, then the creep and catch-up rates; 1 when idle or for any other player.
+     */
+    static float visualRate(AbstractClientPlayer player) {
+        QingfengFirstPersonAnimator animator = INSTANCE;
+        Minecraft minecraft = Minecraft.getInstance();
+        if (!(player instanceof LocalPlayer localPlayer)
+                || player != minecraft.player
+                || animator.activeMoveIndex < 0
+                || animator.clock == null) {
+            return 1.0F;
+        }
+        float partialTick = minecraft.getTimer().getGameTimeDeltaPartialTick(true);
+        return animator.clock.rate((float) animator.realTick(localPlayer, partialTick));
     }
 
     static void clientTick(LocalPlayer player) {
@@ -92,7 +158,8 @@ public final class QingfengFirstPersonAnimator implements IClientItemExtensions 
         }
         AttackMoveDefinition move = BasicSwordStyle.DEFINITION.move(animator.activeMoveIndex);
         float visualTick = animator.clock.visualTick((float) animator.realTick(player, 0.0F));
-        if (visualTick + 0.5F < move.activeStartTick()) {
+        // The whoosh leads the blade by about one tick, like the server swing sound.
+        if (visualTick + 1.5F < move.activeStartTick()) {
             return;
         }
         animator.swingSoundPlayed = true;
@@ -106,7 +173,7 @@ public final class QingfengFirstPersonAnimator implements IClientItemExtensions 
                         : CombatSounds.SWORD_CUT.get(),
                 SoundSource.PLAYERS,
                 0.9F,
-                feedback.swingPitch(),
+                CombatSounds.jitteredSwingPitch(feedback.swingPitch(), player.getRandom()),
                 false);
     }
 
@@ -133,21 +200,40 @@ public final class QingfengFirstPersonAnimator implements IClientItemExtensions 
         return true;
     }
 
+    /**
+     * The one pose drawn this frame for the Qingfeng viewmodel: the sword item transform and the
+     * first-person arm both read it, so the hand never leaves the handle. Empty when the rig does
+     * not apply (not in cultivation mode, Qingfeng not in the main hand, or no rig loaded).
+     */
+    static Optional<FirstPersonSwing.Pose> displayedPose(LocalPlayer player, float partialTick) {
+        if (ClientCombatState.mode() != CombatMode.CULTIVATION
+                || !player.getMainHandItem().is(ModItems.QINGFENG_SWORD.get())) {
+            return Optional.empty();
+        }
+        return FirstPersonSwingResources.current()
+                .map(swing -> INSTANCE.currentPose(player, partialTick, swing));
+    }
+
     FirstPersonSwing.Pose currentPose(LocalPlayer player, float partialTick, FirstPersonSwing swing) {
         Optional<Frame> frame = currentFrame(player, partialTick);
+        FirstPersonSwing.Pose target = swing.neutral();
         if (frame.isPresent()) {
-            FirstPersonSwing.Pose pose = swing.sample(frame.get().moveIndex(), frame.get().tick());
-            return frame.get().hitStop() ? shaken(pose, player, partialTick) : pose;
+            target = swing.sample(frame.get().moveIndex(), frame.get().tick());
+            if (frame.get().hitStop()) {
+                target = shaken(target, (float) realTick(player, partialTick));
+            }
         }
         if (blendFrom != null) {
             double elapsed = player.level().getGameTime() + partialTick - blendStartTick;
-            if (elapsed >= 0.0 && elapsed < BLEND_OUT_TICKS) {
-                float progress = FirstPersonSwing.Ease.IN_OUT.apply((float) (elapsed / BLEND_OUT_TICKS));
-                return FirstPersonSwing.Pose.interpolate(blendFrom, swing.neutral(), progress);
+            if (elapsed >= 0.0 && elapsed < blendTicks) {
+                float progress = FirstPersonSwing.Ease.IN_OUT.apply((float) (elapsed / blendTicks));
+                return FirstPersonSwing.Pose.interpolate(blendFrom, target, progress);
             }
-            blendFrom = null;
+            if (elapsed >= blendTicks) {
+                blendFrom = null;
+            }
         }
-        return swing.neutral();
+        return target;
     }
 
     Optional<Frame> currentFrame(LocalPlayer player, float partialTick) {
@@ -180,7 +266,21 @@ public final class QingfengFirstPersonAnimator implements IClientItemExtensions 
     }
 
     private double realTick(LocalPlayer player, float partialTick) {
-        return player.level().getGameTime() + partialTick - actionStartTick;
+        double now = player.level().getGameTime() + partialTick;
+        return now - effectiveStartTick(now);
+    }
+
+    /** The action start including any in-progress slew toward an authoritative correction. */
+    private double effectiveStartTick(double now) {
+        if (slewOffset == 0.0) {
+            return actionStartTick;
+        }
+        double remaining = 1.0 - (now - slewStartTick) / RESYNC_SLEW_TICKS;
+        if (remaining <= 0.0) {
+            slewOffset = 0.0;
+            return actionStartTick;
+        }
+        return actionStartTick + slewOffset * Math.min(1.0, remaining);
     }
 
     private void beginBlendOut(AbstractClientPlayer player) {
@@ -193,25 +293,63 @@ public final class QingfengFirstPersonAnimator implements IClientItemExtensions 
         if (realTick < 0.0 || realTick >= swing.get().move(activeMoveIndex).totalTicks()) {
             return;
         }
-        blendFrom = swing.get().sample(activeMoveIndex, clock.visualTick((float) realTick));
+        blendFrom = currentPose(localPlayer, 0.0F, swing.get());
         blendStartTick = player.level().getGameTime();
+        blendTicks = BLEND_OUT_TICKS;
     }
 
-    private static FirstPersonSwing.Pose shaken(
-            FirstPersonSwing.Pose pose,
-            LocalPlayer player,
-            float partialTick) {
-        double time = (player.level().getGameTime() + partialTick) * 2.3;
-        float dx = (float) Math.sin(time * 7.0) * HIT_STOP_SHAKE;
-        float dy = (float) Math.cos(time * 9.0) * HIT_STOP_SHAKE;
+    /** Points the hit-stop shudder along the blade's travel at the move's contact tick. */
+    private void aimShake(FirstPersonSwing swing, FirstPersonSwing.Move move) {
+        float contact = move.contactTick();
+        Vector3f before = gripPoint(swing, move.sample(contact - STRIKE_DIRECTION_PROBE_TICKS));
+        Vector3f after = gripPoint(swing, move.sample(contact + STRIKE_DIRECTION_PROBE_TICKS));
+        Vector3f direction = after.sub(before);
+        if (direction.lengthSquared() > 1.0E-8F) {
+            shakeDirection.set(direction.normalize());
+        } else {
+            shakeDirection.set(1.0F, 0.0F, 0.0F);
+        }
+    }
+
+    /** Grip position in right-hand rig space, where pose offsets are authored. */
+    private static Vector3f gripPoint(FirstPersonSwing swing, FirstPersonSwing.Pose pose) {
+        return FirstPersonSwordTransform.gripFrame(HumanoidArm.RIGHT, 0.0F, swing.rig(), pose)
+                .getTranslation(new Vector3f());
+    }
+
+    /**
+     * Hit-stop shudder: the blade first bites forward along its strike, then recoils, with a
+     * smaller cross-axis tremor. Amplitude grows with the stop length and decays to zero by its end.
+     */
+    private FirstPersonSwing.Pose shaken(FirstPersonSwing.Pose pose, float realTick) {
+        if (clock == null || !clock.hasHitStop()) {
+            return pose;
+        }
+        float stopTicks = clock.hitStopTicks();
+        float elapsed = Math.max(0.0F, realTick - clock.hitStopStart());
+        float decay = 1.0F - clock.hitStopProgress(realTick);
+        float amplitude = (HIT_STOP_SHAKE + HIT_STOP_SHAKE_PER_TICK * stopTicks) * decay;
+        float along = (float) Math.cos(elapsed * HIT_STOP_SHAKE_RADIANS_PER_TICK) * amplitude;
+        float across = (float) Math.sin(elapsed * HIT_STOP_SHAKE_RADIANS_PER_TICK * 1.7F) * amplitude * 0.35F;
+        // Cross axis: the strike direction turned 90 degrees in the view plane.
+        float crossX = -shakeDirection.y;
+        float crossY = shakeDirection.x;
+        float crossLength = (float) Math.sqrt(crossX * crossX + crossY * crossY);
+        if (crossLength > 1.0E-4F) {
+            crossX /= crossLength;
+            crossY /= crossLength;
+        }
         return new FirstPersonSwing.Pose(
                 pose.plane(), pose.sweep(), pose.reach(), pose.lead(), pose.lift(), pose.twist(),
-                pose.x() + dx, pose.y() + dy, pose.z());
+                pose.x() + shakeDirection.x * along + crossX * across,
+                pose.y() + shakeDirection.y * along + crossY * across,
+                pose.z() + shakeDirection.z * along);
     }
 
     private void clear() {
         activeMoveIndex = -1;
         actionStartTick = 0.0;
+        slewOffset = 0.0;
         clock = null;
         swingSoundPlayed = false;
     }

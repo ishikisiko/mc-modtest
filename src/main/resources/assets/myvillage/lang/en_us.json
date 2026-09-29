@@ -75,6 +75,7 @@
   "subtitles.myvillage.combat.sword.thrust": "Sword thrusts",
   "subtitles.myvillage.combat.sword.hit": "Sword strikes",
   "subtitles.myvillage.combat.sword.hit_heavy": "Sword strikes hard",
+  "subtitles.myvillage.combat.sword.impact_heavy": "Heavy blade impact",
   "commands.myvillage.cultivation.initiation_result": "%s: %s",
   "key.categories.myvillage": "MyVillage",
   "key.myvillage.toggle_combat_mode": "Switch Combat Mode",

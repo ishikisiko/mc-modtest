@@ -2,26 +2,41 @@
   "combat.sword.cut": {
     "subtitle": "subtitles.myvillage.combat.sword.cut",
     "sounds": [
-      { "name": "minecraft:entity.player.attack.sweep", "type": "event" }
+      { "name": "minecraft:entity.player.attack.sweep", "type": "event", "volume": 0.85, "pitch": 1.0 },
+      { "name": "minecraft:entity.player.attack.sweep", "type": "event", "volume": 0.8, "pitch": 1.08 },
+      { "name": "minecraft:entity.player.attack.sweep", "type": "event", "volume": 0.9, "pitch": 0.93 }
     ]
   },
   "combat.sword.thrust": {
     "subtitle": "subtitles.myvillage.combat.sword.thrust",
     "sounds": [
-      { "name": "minecraft:entity.player.attack.nodamage", "type": "event" }
+      { "name": "minecraft:item.trident.throw", "type": "event", "volume": 0.7, "pitch": 1.35 },
+      { "name": "minecraft:entity.player.attack.sweep", "type": "event", "volume": 0.75, "pitch": 1.45 },
+      { "name": "minecraft:item.trident.throw", "type": "event", "volume": 0.65, "pitch": 1.5 }
     ]
   },
   "combat.sword.hit": {
     "subtitle": "subtitles.myvillage.combat.sword.hit",
     "sounds": [
-      { "name": "minecraft:entity.player.attack.strong", "type": "event" }
+      { "name": "minecraft:entity.player.attack.strong", "type": "event", "volume": 1.0, "pitch": 1.0 },
+      { "name": "minecraft:entity.player.attack.strong", "type": "event", "volume": 0.9, "pitch": 1.1 },
+      { "name": "minecraft:item.trident.hit", "type": "event", "volume": 0.7, "pitch": 1.2 }
     ]
   },
   "combat.sword.hit_heavy": {
     "subtitle": "subtitles.myvillage.combat.sword.hit_heavy",
     "sounds": [
-      { "name": "minecraft:entity.player.attack.crit", "type": "event" },
-      { "name": "minecraft:entity.player.attack.knockback", "type": "event" }
+      { "name": "minecraft:entity.player.attack.knockback", "type": "event", "volume": 1.0, "pitch": 0.9 },
+      { "name": "minecraft:entity.player.attack.crit", "type": "event", "volume": 1.0, "pitch": 0.9 },
+      { "name": "minecraft:entity.player.attack.knockback", "type": "event", "volume": 1.0, "pitch": 0.8 }
+    ]
+  },
+  "combat.sword.impact_heavy": {
+    "subtitle": "subtitles.myvillage.combat.sword.impact_heavy",
+    "sounds": [
+      { "name": "minecraft:item.mace.smash_ground", "type": "event", "volume": 0.6, "pitch": 1.1 },
+      { "name": "minecraft:item.mace.smash_ground", "type": "event", "volume": 0.55, "pitch": 1.25 },
+      { "name": "minecraft:entity.player.attack.knockback", "type": "event", "volume": 0.8, "pitch": 0.7 }
     ]
   }
 }
