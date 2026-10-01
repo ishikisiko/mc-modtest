@@ -1,0 +1,7 @@
+{
+  "schema": 1,
+  "item": "myvillage:qingfeng_sword",
+  "style": "myvillage:basic_sword",
+  "first_person_rig": "myvillage:combat/qingfeng_first_person.json",
+  "geometry": "myvillage:combat/qingfeng_sword_geometry.json"
+}
