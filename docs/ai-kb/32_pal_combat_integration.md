@@ -335,7 +335,12 @@ lunge coils until the server step tick 6 and then lunges with the hips 6-7 px
 forward (PAL body z is negative-forward). `CombatAnimationController`
 cross-fades a chained START over 2 ticks and holds a stopped pose for 2 ticks
 before the ready idle. Hit-stop runs through its `SpeedModifier`, and frozen
-time is repaid at up to +0.5x speed. `tools/gen_blade_cut_sprite.py --check`
+time is repaid at up to +0.5x speed. The same outermost modifier blends the legs
+back to vanilla walking during the ready idle and the mode entry
+(`LocomotionBlend`, from 0.27.1-fix1): PAL hands each bone in with the vanilla
+pose, so the legs follow the vanilla limb-swing amount and the body root drops
+its hip offset and turn, while the arms, torso, head, and sword keep the guard.
+Moves are not blended. `tools/gen_blade_cut_sprite.py --check`
 guards the procedurally generated 32x32 `textures/particle/blade_cut.png` the
 same way.
 

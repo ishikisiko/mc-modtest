@@ -14,6 +14,7 @@ import com.zigythebird.playeranimcore.animation.layered.IAnimation;
 import com.zigythebird.playeranimcore.animation.layered.modifier.AbstractFadeModifier;
 import com.zigythebird.playeranimcore.animation.layered.modifier.SpeedModifier;
 import com.zigythebird.playeranimcore.api.firstPerson.FirstPersonMode;
+import com.zigythebird.playeranimcore.bones.PlayerAnimBone;
 import com.zigythebird.playeranimcore.easing.EasingType;
 import com.zigythebird.playeranimcore.enums.PlayState;
 import net.minecraft.client.Minecraft;
@@ -291,6 +292,7 @@ public final class CombatAnimationController {
         state.lifecycle.reset();
         state.currentAnimation = null;
         state.remoteHitStop.clear();
+        state.resetLocomotion();
         state.speed = 1.0F;
         controller.stopTriggeredAnimation();
         controller.stop();
@@ -350,13 +352,19 @@ public final class CombatAnimationController {
     /**
      * Per-player layer state, installed as the controller's first modifier: a {@link SpeedModifier}
      * whose rate is refreshed every tick (and every frame for the local player), plus the lifecycle
-     * and remote hit-stop bookkeeping. Its tick also expires stops nobody took over.
+     * and remote hit-stop bookkeeping. Its tick also expires stops nobody took over. Being the
+     * outermost modifier, it also blends the legs back to vanilla walking during the ready guard
+     * ({@link LocomotionBlend}).
      */
     private static final class LayerState extends SpeedModifier {
         private final AbstractClientPlayer player;
         private final Lifecycle lifecycle = new Lifecycle();
         private final RemoteHitStop remoteHitStop = new RemoteHitStop();
         private ResourceLocation currentAnimation;
+        private final PlayerAnimBone vanillaPose = new PlayerAnimBone("vanilla");
+        private float previousLocomotion;
+        private float locomotion;
+        private float locomotionWeight;
 
         private LayerState(AbstractClientPlayer player) {
             super(1.0F);
@@ -373,6 +381,11 @@ public final class CombatAnimationController {
             }
             float remoteRate = remoteHitStop.advance(now);
             speed = isLocal(player) ? localRate(player) : clampRate(remoteRate);
+            previousLocomotion = locomotion;
+            float target = lifecycle.allowsLocomotion()
+                    ? LocomotionBlend.target(player.walkAnimation.speed())
+                    : 0.0F;
+            locomotion = LocomotionBlend.step(locomotion, target);
             super.tick(data);
         }
 
@@ -381,7 +394,26 @@ public final class CombatAnimationController {
             if (isLocal(player)) {
                 speed = localRate(player);
             }
+            locomotionWeight = LocomotionBlend.lerp(previousLocomotion, locomotion, data.getPartialTick());
             super.setupAnim(data);
+        }
+
+        @Override
+        public PlayerAnimBone get3DTransform(PlayerAnimBone bone) {
+            LocomotionBlend.Part part = locomotionWeight > 0.0F ? LocomotionBlend.part(bone.getName()) : null;
+            if (part == null) {
+                return super.get3DTransform(bone);
+            }
+            LocomotionBlend.copyPose(bone, vanillaPose);
+            PlayerAnimBone animated = super.get3DTransform(bone);
+            LocomotionBlend.apply(part, vanillaPose, animated, locomotionWeight);
+            return animated;
+        }
+
+        private void resetLocomotion() {
+            previousLocomotion = 0.0F;
+            locomotion = 0.0F;
+            locomotionWeight = 0.0F;
         }
     }
 
@@ -464,6 +496,14 @@ public final class CombatAnimationController {
 
         boolean reportsActive() {
             return phase != Phase.NONE && phase != Phase.STOPPING;
+        }
+
+        /**
+         * The ready guard and the mode entry give the legs back to vanilla walking; moves keep
+         * their authored footwork.
+         */
+        boolean allowsLocomotion() {
+            return phase == Phase.IDLE || phase == Phase.ENTER;
         }
 
         boolean holdsIdle() {

@@ -7,6 +7,28 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.27.1-fix1
+
+### Fixed
+
+- Walking with the Qingfeng Sword drawn in cultivation mode no longer freezes
+  the legs. The third-person ready idle keys a planted stance (fixed leg
+  angles, a 15 degree body turn and a hip drop), so the legs did not swing and
+  the player glided. The PAL layer state now blends the legs back to vanilla
+  walking by the vanilla limb-swing amount (planted below `0.05`, fully vanilla
+  from `0.3`, at most `0.25` per tick in or out), and returns the body root's
+  hip drop and turn to neutral while keeping its forward lean. Arms, torso,
+  head and the sword keep the guard. It applies only during the ready idle and
+  the mode entry; moves keep their authored footwork. Presentation only.
+
+### Validation
+
+- `LocomotionBlendTest` covers the thresholds, the ramp, the bone split, the
+  blend, and the phases that allow it. A headless front-view capture of the
+  local player showed the legs swinging while walking with the guard kept, and
+  the planted stance returning after stopping. Remote players and real
+  keyboard play are `not_verified`.
+
 ## 0.27.1
 
 ### Changed
