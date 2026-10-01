@@ -220,6 +220,53 @@ public final class CombatAnimationController {
         return !activeAfter;
     }
 
+    /**
+     * Development probe: plays {@code animationId} on the local player's layer from
+     * {@code elapsedTicks} and holds it at rate zero until {@link #releaseThirdPersonProbe}, a stop,
+     * or any real start or transition. Starts from a hard reset so no fade is frozen half-way, and
+     * keeps the legs out of {@link LocomotionBlend}. Presentation only; sends nothing.
+     */
+    public static boolean holdThirdPersonProbe(
+            AbstractClientPlayer player,
+            ResourceLocation animationId,
+            float elapsedTicks) {
+        Optional<PlayerAnimationController> controller = controller(player);
+        if (controller.isEmpty()) {
+            return false;
+        }
+        PlayerAnimationController animationController = controller.get();
+        LayerState state = state(player, animationController);
+        hardStop(animationController, state);
+        boolean accepted = animationController.triggerAnimation(animationId, Math.max(0.0F, elapsedTicks));
+        if (accepted) {
+            state.currentAnimation = animationId;
+            state.lifecycle.holdProbe();
+            state.speed = 0.0F;
+        }
+        return accepted;
+    }
+
+    /** Ends a held third-person probe and returns the layer to the vanilla pose. */
+    public static boolean releaseThirdPersonProbe(AbstractClientPlayer player) {
+        Optional<PlayerAnimationController> controller = controller(player);
+        if (controller.isEmpty()) {
+            return false;
+        }
+        LayerState state = state(player, controller.get());
+        if (state.lifecycle.phase() != Lifecycle.Phase.PROBE) {
+            return false;
+        }
+        hardStop(controller.get(), state);
+        return true;
+    }
+
+    /** True while a third-person probe holds this player's layer. */
+    public static boolean thirdPersonProbeHeld(AbstractClientPlayer player) {
+        Optional<PlayerAnimationController> controller = controller(player);
+        return controller.isPresent()
+                && state(player, controller.get()).lifecycle.phase() == Lifecycle.Phase.PROBE;
+    }
+
     /** False while a stopped layer waits for a hand-over, so the client may claim the ready idle. */
     public static boolean isActive(AbstractClientPlayer player) {
         Optional<PlayerAnimationController> controller = controller(player);
@@ -380,7 +427,7 @@ public final class CombatAnimationController {
                 hardStop(controller, this);
             }
             float remoteRate = remoteHitStop.advance(now);
-            speed = isLocal(player) ? localRate(player) : clampRate(remoteRate);
+            speed = lifecycle.frozen() ? 0.0F : isLocal(player) ? localRate(player) : clampRate(remoteRate);
             previousLocomotion = locomotion;
             float target = lifecycle.allowsLocomotion()
                     ? LocomotionBlend.target(player.walkAnimation.speed())
@@ -391,7 +438,9 @@ public final class CombatAnimationController {
 
         @Override
         public void setupAnim(AnimationData data) {
-            if (isLocal(player)) {
+            if (lifecycle.frozen()) {
+                speed = 0.0F;
+            } else if (isLocal(player)) {
                 speed = localRate(player);
             }
             locomotionWeight = LocomotionBlend.lerp(previousLocomotion, locomotion, data.getPartialTick());
@@ -400,7 +449,9 @@ public final class CombatAnimationController {
 
         @Override
         public PlayerAnimBone get3DTransform(PlayerAnimBone bone) {
-            LocomotionBlend.Part part = locomotionWeight > 0.0F ? LocomotionBlend.part(bone.getName()) : null;
+            LocomotionBlend.Part part = locomotionWeight > 0.0F && !lifecycle.frozen()
+                    ? LocomotionBlend.part(bone.getName())
+                    : null;
             if (part == null) {
                 return super.get3DTransform(bone);
             }
@@ -440,7 +491,9 @@ public final class CombatAnimationController {
             /** A stop was requested; the pose is held for a chained START or the ready idle. */
             STOPPING,
             /** The ready idle, claimed by the client combat state. */
-            IDLE
+            IDLE,
+            /** A development probe holds one move frozen until released, stopped, or replaced. */
+            PROBE
         }
 
         private Phase phase = Phase.NONE;
@@ -464,6 +517,15 @@ public final class CombatAnimationController {
 
         void reset() {
             set(Phase.NONE, NO_DEADLINE);
+        }
+
+        void holdProbe() {
+            set(Phase.PROBE, NO_DEADLINE);
+        }
+
+        /** A held probe plays at rate zero and never blends the legs. */
+        boolean frozen() {
+            return phase == Phase.PROBE;
         }
 
         /**

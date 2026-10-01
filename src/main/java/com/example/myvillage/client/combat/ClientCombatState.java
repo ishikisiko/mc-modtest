@@ -272,6 +272,11 @@ final class ClientCombatState {
         readyAnimation = true;
     }
 
+    /** Lets the client tick claim the ready idle again, for example after a probe replaced it. */
+    static void clearReadyAnimation() {
+        readyAnimation = false;
+    }
+
     static CombatMode mode() {
         return mode;
     }

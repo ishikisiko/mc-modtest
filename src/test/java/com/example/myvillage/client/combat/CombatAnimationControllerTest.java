@@ -105,6 +105,35 @@ final class CombatAnimationControllerTest {
     }
 
     @Test
+    void thirdPersonProbeHoldsFrozenUntilSomethingReplacesIt() {
+        Lifecycle lifecycle = new Lifecycle();
+        lifecycle.idle();
+        lifecycle.holdProbe();
+        assertEquals(Phase.PROBE, lifecycle.phase());
+        assertTrue(lifecycle.frozen());
+        assertTrue(lifecycle.reportsActive(), "the client tick must not claim the ready idle");
+        assertFalse(lifecycle.allowsLocomotion(), "a held pose never blends the legs");
+        assertFalse(lifecycle.holdsIdle());
+        assertFalse(lifecycle.expired(Long.MAX_VALUE), "a held probe never times out");
+
+        // A stop ends the hold through the normal grace period.
+        assertTrue(lifecycle.requestStop(40L));
+        assertEquals(Phase.STOPPING, lifecycle.phase());
+        assertFalse(lifecycle.frozen());
+
+        // A real start ends the hold.
+        lifecycle.holdProbe();
+        lifecycle.startMove();
+        assertFalse(lifecycle.frozen());
+
+        // A probe whose tick is past the end lets PAL stop instead of holding the idle.
+        lifecycle.holdProbe();
+        assertFalse(lifecycle.onTriggeredFinished(60L));
+        lifecycle.reset();
+        assertFalse(lifecycle.frozen());
+    }
+
+    @Test
     void remoteHitStopFreezesThenRepaysTheLostTime() {
         RemoteHitStop hitStop = new RemoteHitStop();
         assertEquals(1.0F, hitStop.advance(0L));

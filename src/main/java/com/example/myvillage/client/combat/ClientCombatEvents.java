@@ -78,6 +78,10 @@ public final class ClientCombatEvents {
         }
         predictChainedMove(player, tick);
         playLocalCues(tick);
+        if (CombatAnimationController.thirdPersonProbeHeld(player)) {
+            // A development freeze probe owns the layer until released, stopped, or replaced.
+            return;
+        }
 
         boolean shouldReady = ClientCombatState.mode() == CombatMode.CULTIVATION
                 && player.getMainHandItem().is(ModItems.QINGFENG_SWORD.get())

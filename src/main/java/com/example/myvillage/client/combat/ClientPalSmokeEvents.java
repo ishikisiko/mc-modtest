@@ -38,6 +38,14 @@ public final class ClientPalSmokeEvents {
                                         .executes(context -> probeFirstPerson(
                                                 IntegerArgumentType.getInteger(context, "index"),
                                                 FloatArgumentType.getFloat(context, "tick"))))))
+                .then(Commands.literal("third_person")
+                        .then(Commands.literal("release").executes(context -> releaseThirdPerson()))
+                        .then(Commands.argument("index", IntegerArgumentType.integer(
+                                        1, BasicSwordStyle.DEFINITION.moves().size()))
+                                .then(Commands.argument("tick", FloatArgumentType.floatArg(0.0F))
+                                        .executes(context -> probeThirdPerson(
+                                                IntegerArgumentType.getInteger(context, "index"),
+                                                FloatArgumentType.getFloat(context, "tick"))))))
                 .then(Commands.literal("transition").executes(context -> transition()))
                 .then(Commands.literal("stop").executes(context -> stop()))
                 .then(Commands.literal("status").executes(context -> status())));
@@ -75,6 +83,38 @@ public final class ClientPalSmokeEvents {
 
     private static int releaseFirstPerson() {
         QingfengFirstPersonAnimator.releaseProbe();
+        return 1;
+    }
+
+    /**
+     * Holds the local player's third-person pose of one move at one tick. The hold ends with
+     * {@code third_person release}, {@code stop}, a real action, or logout. Sends nothing.
+     */
+    private static int probeThirdPerson(int oneBasedIndex, float tick) {
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player == null) {
+            return 0;
+        }
+        boolean held = CombatAnimationController.holdThirdPersonProbe(
+                player,
+                BasicSwordStyle.DEFINITION.move(oneBasedIndex - 1).animation().animationId(),
+                tick);
+        if (!held) {
+            return 0;
+        }
+        ClientCombatState.clearReadyAnimation();
+        LOGGER.info("PAL_SMOKE third_person move={} tick={}", oneBasedIndex, tick);
+        return 1;
+    }
+
+    private static int releaseThirdPerson() {
+        LocalPlayer player = Minecraft.getInstance().player;
+        if (player == null) {
+            return 0;
+        }
+        CombatAnimationController.releaseThirdPersonProbe(player);
+        ClientCombatState.clearReadyAnimation();
+        LOGGER.info("PAL_SMOKE third_person release");
         return 1;
     }
 
