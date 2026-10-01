@@ -48,22 +48,6 @@ public final class CombatCameraFx {
     /** Trauma for a confirm that cannot be matched to the local action's move. */
     static final float UNKNOWN_MOVE_TRAUMA = 0.25F;
 
-    /** Legacy constants, kept only for the data equivalence test; nothing reads them at runtime. */
-    @Deprecated(forRemoval = true)
-    static final float LEGACY_SWING_LEAN_DEGREES = 0.3F;
-    @Deprecated(forRemoval = true)
-    static final float LEGACY_LUNGE_FOV_SURGE = 2.0F;
-    @Deprecated(forRemoval = true)
-    static final double LEGACY_LUNGE_STEP_DISTANCE = 1.0;
-    @Deprecated(forRemoval = true)
-    static final float[] LEGACY_HIT_PITCH_KICK = {0.0F, 0.0F, 0.6F, -0.8F, -1.2F};
-    @Deprecated(forRemoval = true)
-    static final float[] LEGACY_HIT_ROLL_KICK = {0.0F, 0.5F, 0.0F, 0.4F, 0.0F};
-    @Deprecated(forRemoval = true)
-    static final float[] LEGACY_HIT_FOV_PUNCH = {0.0F, 0.0F, 0.0F, 0.0F, -3.0F};
-    @Deprecated(forRemoval = true)
-    static final float[] LEGACY_SWING_LEAN_SIGN = {0.0F, 1.0F, -1.0F, 1.0F, 0.0F};
-
     private static float trauma;
     private static double traumaTime = Double.NaN;
     private static long lastKickRevision = Long.MIN_VALUE;
