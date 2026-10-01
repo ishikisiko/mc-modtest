@@ -73,7 +73,8 @@ together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 ### Notes
 
 - Owner feedback on 0.27.0 (2026-09-30): "自研的动作好一些了现在，但是握持这部分完全不行现在就像插入肉里的，非常僵硬。剑的建模也不太行可以优化一下。"
-  This revision responds to it. There is no owner verdict on 0.27.1 yet.
+  This revision responds to it. Owner words on 0.27.1 (2026-10-01, after viewing
+  the 0.27.0 vs 0.27.1 comparison page): "感觉271看上去可以"; then "暂时就这样".
 - Presentation only: server authority, timing, hit windows, damage, steps, and
   the empty C2S payloads are unchanged. Payload protocol stays `6`.
 - Lab station F (2026-09-30, `combat-lab/out/F`) observed in a physical client:

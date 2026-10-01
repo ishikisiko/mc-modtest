@@ -9,6 +9,7 @@ See also:
 - Item route: [Mod Item Creation](22_mod_item_creation.md)
 - Existing network reference: [Rideable Flying Sword](27_rideable_flying_sword.md)
 - Current cultivation runtime: [Cultivation Playable Loop](30_cultivation_playable_loop.md)
+- Framework comparison and direction: [Combat Framework Comparison (Combat Lab)](33_combat_framework_comparison.md)
 
 ## Supplied Artifact
 
@@ -362,12 +363,15 @@ particles, and hit-stop. Sound was not observable on the headless host. On
 owner said A "现在不太行看上去" and asked for an optimized A: "我要的是那种战斗真实动作游戏的感觉".
 The 0.26.2 swings were therefore not accepted, and 0.27.0 is the response.
 
-Lab station E capture (2026-09-30, `/home/ubuntu/code/mc/combat-lab/out/E`) of
-the 0.27.0 revision in a physical client showed the first-person arm holding
-the sword, thin trails, blade_cut particles, target slide, forward lunge
-displacement on move 5, camera roll on heavy hits, and third-person full-body
-poses. This is implementation evidence only. No owner verdict on 0.27.0 exists,
-and every other 0.27.0 surface is `not_verified`.
+Lab station E capture (2026-09-30, `/home/ubuntu/code/mc/combat-lab/out/E`,
+local copy `out/preview/combat_lab/out/E`) of the 0.27.0 revision in a physical
+client showed the first-person arm holding the sword, thin trails, blade_cut
+particles, target slide, forward lunge displacement on move 5, camera roll on
+heavy hits, and third-person full-body poses. This is implementation evidence
+only, and every other 0.27.0 surface is `not_verified`. The owner's words on
+0.27.0 and 0.27.1 are quoted in
+[Combat Framework Comparison](33_combat_framework_comparison.md) and in tasks
+12.16 and 13.9.
 
 ## Side Boundary
 

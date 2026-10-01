@@ -878,8 +878,10 @@ third-person poses.
 
 Owner feedback on 0.27.0 (2026-09-30): "自研的动作好一些了现在，但是握持这部分完全不行现在就像插入肉里的，非常僵硬。剑的建模也不太行可以优化一下。"
 Revision 0.27.1 is the response: the fist-and-wrist arm with wrist lag, the 3D
-jian model, the geometry contract, and the third-person grip compensation. The
-owner has not yet given a verdict on 0.27.1.
+jian model, the geometry contract, and the third-person grip compensation.
+
+Owner words on 0.27.1 (2026-10-01, after viewing the 0.27.0 vs 0.27.1
+comparison page, not real-client play): "感觉271看上去可以"; then "暂时就这样".
 
 The lab station E capture on 2026-09-30
 (`/home/ubuntu/code/mc/combat-lab/out/E`) exercised 0.27.0 in a physical client.
@@ -889,9 +891,12 @@ capture on 2026-09-30 (`/home/ubuntu/code/mc/combat-lab/out/F`) exercised the
 were observed there. Both captures are implementation evidence, not owner
 acceptance. A local copy of the F evidence (0.27.0 vs 0.27.1 comparison
 sheets, reactive-dummy clips, model previews, the lab capture tools and their
-usage) lives in `out/preview/qingfeng_grip_0271/`, and the lab's handoff
-chapter is `combat-lab/report/combat_lab_report.md` section 0. Record only
-directly observed results below.
+usage) lives in `out/preview/qingfeng_grip_0271/`. A local copy of the whole
+lab (reports, station configs, harness, and the A to F captures) lives in
+`out/preview/combat_lab/`; its handoff chapter is
+`report/combat_lab_report.md` section 0, and the tracked summary is
+[docs/ai-kb/33_combat_framework_comparison.md](docs/ai-kb/33_combat_framework_comparison.md).
+Record only directly observed results below.
 
 | Qingfeng real-client acceptance surface | Result |
 |---|---|
