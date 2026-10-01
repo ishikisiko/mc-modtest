@@ -1,10 +1,6 @@
-"""Minimal reader for the bundled combat data (index, weapon, style) and the
-first-person rig. Pure functions over JSON; no Minecraft or host programs.
-
-Ids follow D1 of add-combat-data-infrastructure: ``ns:path`` maps to
-``data/<ns>/combat/style/<path>.json`` or ``data/<ns>/combat/weapon/<path>.json``.
-A weapon's ``first_person_rig`` is an asset location ``ns:path`` that maps to
-``assets/<ns>/<path>``.
+"""Reader for one weapon's capture inputs (index, weapon, style, first-person rig)
+from any resources root, such as ``src/main/resources``. Pure functions over JSON;
+no Minecraft or host programs. Id-to-path rules come from ``tools/combat_data.py``.
 """
 from __future__ import annotations
 
@@ -12,6 +8,8 @@ import hashlib
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
+
+from tools import combat_data
 
 INDEX_REL = "data/myvillage/combat/index.json"
 
@@ -24,28 +22,26 @@ class DataError(ValueError):
 
 
 def split_id(ident: str) -> tuple[str, str]:
-    if not isinstance(ident, str) or ident.count(":") != 1:
-        raise DataError(f"expected an id like ns:path, got {ident!r}")
-    ns, path = ident.split(":", 1)
-    if not ns or not path or path.startswith("/") or ".." in path.split("/"):
-        raise DataError(f"invalid id {ident!r}")
-    return ns, path
+    try:
+        return combat_data.split_id(ident)
+    except ValueError:
+        raise DataError(f"expected an id like ns:path, got {ident!r}") from None
 
 
 def style_rel(style_id: str) -> str:
-    ns, path = split_id(style_id)
-    return f"data/{ns}/combat/style/{path}.json"
+    split_id(style_id)
+    return combat_data.style_rel(style_id)
 
 
 def weapon_rel(weapon_id: str) -> str:
-    ns, path = split_id(weapon_id)
-    return f"data/{ns}/combat/weapon/{path}.json"
+    split_id(weapon_id)
+    return combat_data.weapon_rel(weapon_id)
 
 
 def asset_rel(location: str) -> str:
     """Asset location ``ns:combat/x.json`` -> ``assets/ns/combat/x.json``."""
-    ns, path = split_id(location)
-    return f"assets/{ns}/{path}"
+    split_id(location)
+    return combat_data.asset_rel(location)
 
 
 def load_json(path: Path):

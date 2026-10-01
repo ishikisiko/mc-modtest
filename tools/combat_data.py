@@ -107,23 +107,39 @@ def split_id(value: str) -> tuple[str, str]:
     if not isinstance(value, str) or not ID_PATTERN.match(value):
         raise ValueError(f"not a resource id: {value!r}")
     namespace, path = value.split(":", 1)
+    if path.startswith("/") or ".." in path.split("/"):
+        raise ValueError(f"not a resource id: {value!r}")
     return namespace, path
 
 
-def style_file(root: Path, style_id: str) -> Path:
+def style_rel(style_id: str) -> str:
+    """Path of a style file relative to a resources root (``src/main/resources`` or a jar)."""
     namespace, path = split_id(style_id)
-    return root / RESOURCES / "data" / namespace / "combat" / "style" / f"{path}.json"
+    return f"data/{namespace}/combat/style/{path}.json"
+
+
+def weapon_rel(weapon_id: str) -> str:
+    """Path of a weapon file relative to a resources root."""
+    namespace, path = split_id(weapon_id)
+    return f"data/{namespace}/combat/weapon/{path}.json"
+
+
+def asset_rel(asset_id: str) -> str:
+    """A client asset location such as ``myvillage:combat/x.json`` -> ``assets/myvillage/combat/x.json``."""
+    namespace, path = split_id(asset_id)
+    return f"assets/{namespace}/{path}"
+
+
+def style_file(root: Path, style_id: str) -> Path:
+    return root / RESOURCES / style_rel(style_id)
 
 
 def weapon_file(root: Path, weapon_id: str) -> Path:
-    namespace, path = split_id(weapon_id)
-    return root / RESOURCES / "data" / namespace / "combat" / "weapon" / f"{path}.json"
+    return root / RESOURCES / weapon_rel(weapon_id)
 
 
 def asset_file(root: Path, asset_id: str) -> Path:
-    """A client asset location such as ``myvillage:combat/x.json`` -> ``assets/myvillage/combat/x.json``."""
-    namespace, path = split_id(asset_id)
-    return root / RESOURCES / "assets" / namespace / path
+    return root / RESOURCES / asset_rel(asset_id)
 
 
 def _relative(root: Path, path: Path) -> str:
