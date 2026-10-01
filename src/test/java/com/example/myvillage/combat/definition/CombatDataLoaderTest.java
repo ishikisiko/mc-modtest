@@ -140,6 +140,28 @@ final class CombatDataLoaderTest {
     }
 
     @Test
+    void lenientJsonIsRejected() {
+        String style = Files.bundled().contents(STYLE);
+        // A duplicate key: a lenient parser would silently keep the second chain tick.
+        assertRejected(STYLE, "moves[0].chain_tick", "duplicate key",
+                files -> files.put(STYLE, style.replaceFirst("\"chain_tick\": 7,", "\"chain_tick\": 7, \"chain_tick\": 8,")));
+        assertRejected(STYLE, "id", "duplicate key",
+                files -> files.put(STYLE, style.replaceFirst("\"id\": \"myvillage:basic_sword\",",
+                        "\"id\": \"myvillage:basic_sword\", \"id\": \"myvillage:basic_sword\",")));
+        assertRejected(WEAPON, "<root>", "not valid JSON",
+                files -> files.put(WEAPON, "// comment\n" + files.contents(WEAPON)));
+        assertRejected(WEAPON, "<root>", "not valid JSON",
+                files -> files.put(WEAPON, files.contents(WEAPON).replace("\"item\"", "item")));
+        assertRejected(WEAPON, "<root>", "not valid JSON",
+                files -> files.put(WEAPON, files.contents(WEAPON).replace("\"myvillage:basic_sword\"", "'myvillage:basic_sword'")));
+        assertRejected(WEAPON, "<root>", "not valid JSON",
+                files -> files.put(WEAPON, files.contents(WEAPON) + "{}"));
+        assertRejected(STYLE, "<root>", "not valid JSON",
+                files -> files.put(STYLE, style.replaceFirst("\"range\": 3.0", "\"range\": NaN")));
+        assertRejected(INDEX, "<root>", "must be a JSON object", files -> files.put(INDEX, "[]"));
+    }
+
+    @Test
     void missingListedFilesAreRejected() {
         assertRejected(INDEX, "styles[1]", "data/myvillage/combat/style/missing_sword.json is missing",
                 files -> files.edit(INDEX, index -> index.getAsJsonArray("styles").add("myvillage:missing_sword")));
@@ -229,6 +251,10 @@ final class CombatDataLoaderTest {
                 }
             }
             return files;
+        }
+
+        String contents(String path) {
+            return contents.get(path);
         }
 
         JsonObject json(String path) {

@@ -3,9 +3,10 @@ package com.example.myvillage.combat.definition;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonParser;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonPrimitive;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
 import net.minecraft.resources.ResourceLocation;
 
 import java.io.IOException;
@@ -348,13 +349,74 @@ public final class CombatDataLoader {
             throw new CombatDataException(listedIn, listedAt, "listed file " + file + " is missing");
         }
         try (Reader reader = new InputStreamReader(stream, StandardCharsets.UTF_8)) {
-            JsonElement element = JsonParser.parseReader(reader);
+            return parseStrict(file, reader);
+        } catch (IOException exception) {
+            throw new CombatDataException(file, "<root>", "cannot read: " + exception.getMessage(), exception);
+        }
+    }
+
+    /**
+     * Parses one data file as strict RFC 8259 JSON: no comments, unquoted names, single quotes,
+     * NaN, or trailing content, and no key twice in one object (a lenient parser keeps only the
+     * last, silently). The result must be an object.
+     */
+    public static JsonObject parseStrict(String file, Reader source) {
+        JsonReader reader = new JsonReader(source);
+        reader.setLenient(false);
+        try {
+            JsonElement element = readStrict(reader, file, "");
+            if (reader.peek() != JsonToken.END_DOCUMENT) {
+                throw new CombatDataException(file, "<root>", "is not valid JSON: content after the top-level value");
+            }
             if (!element.isJsonObject()) {
                 throw new CombatDataException(file, "<root>", "must be a JSON object");
             }
             return element.getAsJsonObject();
-        } catch (IOException | JsonParseException exception) {
+        } catch (IOException | IllegalStateException | NumberFormatException exception) {
             throw new CombatDataException(file, "<root>", "is not valid JSON: " + exception.getMessage(), exception);
+        }
+    }
+
+    private static JsonElement readStrict(JsonReader reader, String file, String path) throws IOException {
+        switch (reader.peek()) {
+            case BEGIN_OBJECT -> {
+                JsonObject object = new JsonObject();
+                reader.beginObject();
+                while (reader.hasNext()) {
+                    String name = reader.nextName();
+                    String child = path.isEmpty() ? name : path + "." + name;
+                    if (object.has(name)) {
+                        throw new CombatDataException(file, child, "duplicate key");
+                    }
+                    object.add(name, readStrict(reader, file, child));
+                }
+                reader.endObject();
+                return object;
+            }
+            case BEGIN_ARRAY -> {
+                JsonArray array = new JsonArray();
+                reader.beginArray();
+                while (reader.hasNext()) {
+                    array.add(readStrict(reader, file, path + "[" + array.size() + "]"));
+                }
+                reader.endArray();
+                return array;
+            }
+            case STRING -> {
+                return new JsonPrimitive(reader.nextString());
+            }
+            case NUMBER -> {
+                return new JsonPrimitive(new BigDecimal(reader.nextString()));
+            }
+            case BOOLEAN -> {
+                return new JsonPrimitive(reader.nextBoolean());
+            }
+            case NULL -> {
+                reader.nextNull();
+                return JsonNull.INSTANCE;
+            }
+            default -> throw new CombatDataException(file, path.isEmpty() ? "<root>" : path,
+                    "is not valid JSON: unexpected " + reader.peek());
         }
     }
 
