@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from tools.combat_capture import capture, cli, data, page, procs, scene, sheets
+from tools.combat_capture import capture, cli, data, page, procs, scene, sheets, xgame
 from tools.combat_capture.session import (CLIENT_DIR_REL, client_extra, gradle_argv, merge_options,
                                           server_properties)
 
@@ -356,6 +356,59 @@ class SceneTest(unittest.TestCase):
         self.assertIn("time set 6000", rules)
         self.assertTrue(any(r.startswith("weather clear") for r in rules))
         self.assertEqual(scene.wall_fill(-4, "minecraft:barrier"), "fill -4 -60 -4 5 -54 -4 minecraft:barrier")
+
+
+class FakeGame(xgame.Game):
+    """Game whose X side is scripted: grabbed is a list of pointer states."""
+
+    def __init__(self, log_path, grabbed, confirm_on_enter=True):
+        super().__init__(":0", log_path, log=lambda m: None)
+        self.grabbed = list(grabbed)
+        self.sent = []
+        self.confirm_on_enter = confirm_on_enter
+
+    def pointer_grabbed(self):
+        return self.grabbed.pop(0) if self.grabbed else True
+
+    def xdo(self, *args):
+        self.sent.append(args)
+        if args[:2] == ("key", "Return") and self.confirm_on_enter:
+            with open(self.client_log, "a") as f:
+                f.write("[x] PAL_SMOKE first_person move=1 tick=0.0\n")
+        return ""
+
+
+class ChatRecoveryTest(unittest.TestCase):
+    def setUp(self):
+        self.td = tempfile.TemporaryDirectory()
+        self.log = Path(self.td.name) / "latest.log"
+        self.log.write_text("")
+        self.sleep = mock.patch("tools.combat_capture.xgame.time.sleep").start()
+        self.addCleanup(mock.patch.stopall)
+        self.addCleanup(self.td.cleanup)
+
+    def test_lost_grab_is_repaired_with_a_middle_click(self):
+        # in game before typing, then never re-grabbed until the middle click
+        g = FakeGame(self.log, [True] + [False] * 200 + [True])
+        with mock.patch.object(g, "wait_ingame", side_effect=[True, False]):
+            m, _ = g.chat("/myvillage_pal_smoke first_person 1 0", confirm=r"PAL_SMOKE first_person move=1")
+        self.assertIsNotNone(m)
+        self.assertIn(("click", "2"), g.sent)
+        self.assertNotIn(("key", "Escape"), g.sent)
+
+    def test_missing_confirmation_is_retried_once(self):
+        g = FakeGame(self.log, [], confirm_on_enter=False)
+        with mock.patch.object(xgame.LogTail, "wait", return_value=(None, None)):
+            with self.assertRaises(xgame.GameInputError):
+                g.chat("/x", confirm="never", timeout=0.01)
+        self.assertEqual(sum(1 for s in g.sent if s[:2] == ("key", "Return")), 2)
+
+    def test_no_keys_when_a_screen_is_open(self):
+        g = FakeGame(self.log, [False] * 1000)
+        with mock.patch.object(g, "wait_ingame", return_value=False):
+            with self.assertRaises(xgame.GameInputError):
+                g.key("r")
+        self.assertEqual(g.sent, [])
 
 
 class ReloadTest(unittest.TestCase):

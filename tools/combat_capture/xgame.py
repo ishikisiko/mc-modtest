@@ -21,6 +21,10 @@ class GameInputError(RuntimeError):
     pass
 
 
+class ChatStuck(GameInputError):
+    pass
+
+
 LOG_TS = re.compile(r"^\[(\d{2}[A-Za-z]{3}\d{4} \d{2}:\d{2}:\d{2}\.\d{3})\]")
 
 
@@ -121,7 +125,7 @@ class Game:
         finally:
             x.XCloseDisplay(d)
 
-    def wait_ingame(self, timeout: float = 3.0) -> bool:
+    def wait_ingame(self, timeout: float = 3.0, poll: float = 0.1) -> bool:
         deadline = time.time() + timeout
         while True:
             state = self.pointer_grabbed()
@@ -129,7 +133,7 @@ class Game:
                 return True
             if time.time() >= deadline:
                 return False
-            time.sleep(0.1)
+            time.sleep(poll)
 
     def require_ingame(self, what: str, timeout: float = 3.0):
         if not self.ui_check:
@@ -152,22 +156,60 @@ class Game:
         time.sleep(0.2)
         self.xdo("key", "Return")
         t = time.time()
-        if self.ui_check and not self.wait_ingame(4.0):
-            raise GameInputError(f"after {text!r} a screen is still open (chat did not close?)")
-        return t
+        if not self.ui_check:
+            time.sleep(0.4)
+            return t
+        # The game re-grabs the pointer on the frame after the chat closes. Our probe grabs
+        # the pointer for an instant; if the two collide the game's grab fails and is not
+        # retried, so do not probe during that window.
+        time.sleep(0.6)
+        if self.wait_ingame(5.0) or self.recover_grab():
+            return t
+        raise ChatStuck(f"after {text!r} a screen is still open (chat did not close?)")
 
-    def chat(self, text: str, confirm: str | None = None, timeout: float = 8.0):
+    def recover_grab(self) -> bool:
+        """The client is either in game without the pointer grab, or a screen
+        is really open. A middle click re-grabs the pointer in game (it picks
+        nothing when aimed at air and is ignored by the chat screen); only if
+        that does not help is Escape sent, which closes the open screen."""
+        self.xdo("click", "2")
+        time.sleep(0.6)
+        if self.pointer_grabbed() is not False:
+            self.log("  pointer re-grabbed with a middle click (the game had lost its grab)")
+            return True
+        self.xdo("key", "Escape")
+        time.sleep(0.8)
+        if self.wait_ingame(2.0):
+            self.log("  a screen was open after Enter; closed it with Escape")
+        return False
+
+    def chat(self, text: str, confirm: str | None = None, timeout: float = 8.0, retries: int = 1):
         """Send a chat line; with `confirm`, wait for a client log line
-        matching it and return (match, line)."""
-        tail = LogTail(self.client_log)
-        self.type_chat(text)
-        if not confirm:
-            return None, None
-        m, line = tail.wait(confirm, timeout)
-        if not m:
+        matching it and return (match, line). A chat that did not close or
+        did not confirm is retried (the probes are idempotent)."""
+        for attempt in range(retries + 1):
+            tail = LogTail(self.client_log)
+            try:
+                self.type_chat(text)
+            except ChatStuck:
+                m, line = tail.wait(confirm, 1.0) if confirm else (None, None)
+                if m and self.wait_ingame(1.0):
+                    return m, line
+                if attempt < retries and self.wait_ingame(1.0):
+                    self.log(f"  retrying {text!r}")
+                    continue
+                raise
+            if not confirm:
+                return None, None
+            m, line = tail.wait(confirm, timeout)
+            if m:
+                return m, line
+            if attempt < retries:
+                self.log(f"  no confirmation for {text!r}; retrying")
+                continue
             raise GameInputError(f"client did not confirm {text!r} within {timeout}s (pattern {confirm!r}). "
                                  f"Last client log lines:\n{tail.tail_text()}")
-        return m, line
+        return None, None
 
     def click(self, hold: float = 0.06):
         # no mousemove: the game holds the cursor and pointer motion turns the camera

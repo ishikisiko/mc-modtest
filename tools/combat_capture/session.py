@@ -345,7 +345,9 @@ class Supervisor:
         self.state["timings"]["client_join_s"] = round(time.time() - t0, 1)
         self.log(f"player joined after {time.time() - t0:.0f}s")
         game = Game(self.state["display"], Path(self.state["client_log"]), SCREEN)
-        if not game.wait_ingame(self.cfg.ingame_timeout):
+        # poll slowly: each probe grabs the pointer for an instant and could collide with the
+        # game's own grab when the loading screen closes; a middle click repairs a lost grab
+        if not (game.wait_ingame(self.cfg.ingame_timeout, poll=1.0) or game.recover_grab()):
             raise RuntimeError("player joined but the client never reached in-game (pointer never grabbed)")
         time.sleep(self.cfg.settle)
         self.state["timings"]["client_ingame_s"] = round(time.time() - t0, 1)
