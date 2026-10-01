@@ -551,6 +551,11 @@ def validate_source_invariants(root: Path, findings: list[Finding]) -> None:
             if pattern.search(content):
                 findings.append(Finding("COMBAT_VANILLA_ATTACK", f"{relative(root, path)}: {label}"))
 
+    # Combat code selects weapons through the weapon data, never by a named item.
+    for path, content in sources:
+        if "ModItems" in content:
+            findings.append(Finding("COMBAT_NAMED_ITEM", relative(root, path)))
+
     records: dict[str, str] = {}
     directions: dict[str, set[str]] = {}
     for _, content in sources:

@@ -337,6 +337,14 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
             path.write_text(re.sub(r"\bplayToServer\b", "playToClient", content), encoding="utf-8")
         self.assertIn("COMBAT_C2S_PAYLOADS_MISSING", self.codes())
 
+    def test_named_item_in_combat_code_is_rejected(self) -> None:
+        self.write_java(COMBAT_JAVA + "runtime/ProbeItem.java",
+                        "package com.example.myvillage.combat.runtime;\n"
+                        "import com.example.myvillage.item.ModItems;\n"
+                        "final class ProbeItem {\n"
+                        "    static boolean armed(ItemStack stack) { return stack.is(ModItems.QINGFENG_SWORD.get()); }\n}\n")
+        self.assertIn("COMBAT_NAMED_ITEM", self.codes())
+
     def test_vanilla_attack_in_combat_code_is_rejected(self) -> None:
         self.write_java(COMBAT_JAVA + "runtime/ProbeAttack.java",
                         "package com.example.myvillage.combat.runtime;\n"
