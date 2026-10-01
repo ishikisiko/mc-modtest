@@ -112,6 +112,39 @@ class LingxiaoSpearModelTest(unittest.TestCase):
         self.assertEqual({"rotation": [-10.81, 180.0, 0.0], "translation": [0.0, 6.84, 0.312],
                           "scale": [0.9, 0.9, 0.9]}, third)
 
+    def test_left_hand_entries_draw_the_mirror_image_of_the_right_hand(self) -> None:
+        # ItemTransform.apply(leftHand=true) negates rotation y/z and translation x.  The left hand
+        # is a true mirror when that applied transform equals M * (right-hand transform) * M with
+        # M = diag(-1, 1, 1), the reflection across the player's sagittal plane.
+        m = [[-1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
+        display = gen.build_display()
+        for ctx in ("firstperson", "thirdperson"):
+            right_r, right_t = gen.game_apply(display[f"{ctx}_righthand"], left_hand=False)
+            left_r, left_t = gen.game_apply(display[f"{ctx}_lefthand"], left_hand=True)
+            mirrored = sword.mm(sword.mm(m, right_r), m)
+            for i in range(3):
+                self.assertAlmostEqual(-right_t[0] if i == 0 else right_t[i], left_t[i], places=6, msg=ctx)
+                for j in range(3):
+                    self.assertAlmostEqual(mirrored[i][j], left_r[i][j], places=6, msg=ctx)
+        # Pre-negating y/z (the sword's mirror()) breaks the property for the spear's tilted hold.
+        broken_r, _ = gen.game_apply(sword.mirror(display["firstperson_righthand"]), left_hand=True)
+        right_r, _ = gen.game_apply(display["firstperson_righthand"], left_hand=False)
+        mirrored = sword.mm(sword.mm(m, right_r), m)
+        self.assertGreater(max(abs(mirrored[i][j] - broken_r[i][j]) for i in range(3) for j in range(3)), 0.1)
+
+    def test_icon_is_32_logical_pixels_in_2x2_blocks(self) -> None:
+        width, height, raw = sword.decode_png_rgba(gen.outputs()[gen.ICON_PATH])
+        pixel = lambda x, y: raw[(y * width + x) * 4:(y * width + x) * 4 + 4]
+        for y in range(0, height, 2):
+            for x in range(0, width, 2):
+                block = {pixel(x + dx, y + dy) for dx in (0, 1) for dy in (0, 1)}
+                self.assertEqual(1, len(block), (x, y))
+        self.assertEqual({0, 255}, set(raw[3::4]))
+        grid = gen.icon_grid()
+        blade = [xy for xy, c in grid.items() if c in (gen.CYAN["base"], gen.CYAN["pale"], gen.CYAN["white"],
+                                                        gen._mix(gen.CYAN["base"], gen.CYAN["mid"], 0.3))]
+        self.assertGreater(len(blade), 40)  # an oversized head, not a speck
+
     def test_hands_have_bare_shaft(self) -> None:
         self.assertEqual([], gen.bare_shaft_errors(gen.build_elements()))
         crowded = gen.build_elements() + [gen.collar("extra", gen.OFF_HAND_GRIP_Y - 0.5, gen.OFF_HAND_GRIP_Y + 0.5)[0]]

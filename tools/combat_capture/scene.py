@@ -38,6 +38,15 @@ def wall_fill(z: int, block: str) -> str:
     return f"fill {x0} {FLOOR_Y} {z} {x1} {FLOOR_Y + WALL_H - 1} {z} {block}"
 
 
+def wall_commands(wall: str | None) -> list[str]:
+    """Barrier row behind ('back') or in front ('front') of the player, the
+    other row air; None clears both (vanilla F5 distance)."""
+    if wall not in (None, "back", "front"):
+        raise SceneError(f"unknown wall {wall!r}")
+    return [wall_fill(BACK_WALL_Z, "minecraft:barrier" if wall == "back" else "minecraft:air"),
+            wall_fill(FRONT_WALL_Z, "minecraft:barrier" if wall == "front" else "minecraft:air")]
+
+
 def player_setup(user: str, item: str) -> list[str]:
     px, py, pz = PLAYER_POS
     return [f"op {user}", f"gamemode survival {user}",

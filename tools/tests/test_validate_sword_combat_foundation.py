@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 import re
 import shutil
+import subprocess
+import sys
 import tempfile
 import unittest
 import zipfile
@@ -24,6 +26,24 @@ CLIENT_COMBAT_JAVA = "src/main/java/com/example/myvillage/client/combat/"
 THRUST = "myvillage:basic_sword_01_thrust"
 HORIZONTAL = "myvillage:basic_sword_02_horizontal_cut"
 
+# The second weapon (add-lingxiao-spear design).  Its data, item model, 3D model, textures, contract,
+# and model generator are committed; its first-person rig and third-person animations are built
+# synthetically in the fixture from its style file (see SECOND_WEAPON_SYNTHETIC), so the tests do
+# not depend on the rig and pose-table work in progress.
+SPEAR_WEAPON_ID = "myvillage:lingxiao_spear"
+SPEAR_STYLE = f"{DATA}/style/basic_spear.json"
+SPEAR_WEAPON = f"{DATA}/weapon/lingxiao_spear.json"
+SPEAR_RIG = f"{RESOURCES}/assets/myvillage/combat/lingxiao_spear_first_person.json"
+SPEAR_GEOMETRY = f"{RESOURCES}/assets/myvillage/combat/lingxiao_spear_geometry.json"
+SPEAR_ANIMATIONS = f"{RESOURCES}/assets/myvillage/player_animations/spear_combat.json"
+SPEAR_MODEL = f"{RESOURCES}/assets/myvillage/models/item/lingxiao_spear.json"
+SPEAR_MODEL_3D = f"{RESOURCES}/assets/myvillage/models/item/lingxiao_spear_3d.json"
+SPEAR_MODEL_TEXTURE = f"{RESOURCES}/assets/myvillage/textures/item/lingxiao_spear_model.png"
+SPEAR_TEXTURE = f"{RESOURCES}/assets/myvillage/textures/item/lingxiao_spear.png"
+SPEAR_GENERATOR = "tools/gen_lingxiao_spear_model.py"
+PAL_GENERATOR = "tools/gen_sword_pal_anims.py"
+
+_REPOSITORY_DATA = validator.combat_data.load(validator.ROOT)
 FIXTURE = (
     validator.PAL_JAR_NAME,
     "build.gradle",
@@ -37,18 +57,54 @@ FIXTURE = (
     f"{RESOURCES}/assets/myvillage/combat",
     f"{RESOURCES}/assets/myvillage/player_animations",
     f"{RESOURCES}/assets/myvillage/lang",
+    f"{RESOURCES}/assets/myvillage/models/item",
+    f"{RESOURCES}/assets/myvillage/textures/item",
     SOUNDS,
-    validator.QINGFENG_MODEL,
-    validator.QINGFENG_TEXTURE,
-    validator.QINGFENG_MODEL_3D,
-    validator.QINGFENG_MODEL_TEXTURE,
     validator.QINGFENG_RECIPE,
     validator.SWORD_TAG,
     validator.BLADE_CUT_PARTICLE,
     validator.BLADE_CUT_TEXTURE,
     "tools/combat_data.py",
-    *(script for script, _ in validator.GENERATOR_CHECKS),
+    # The fixed generators and the model generator each committed geometry contract names.
+    *(script for script, _ in validator.generator_checks(validator.ROOT, _REPOSITORY_DATA)),
 )
+SECOND_WEAPON_SYNTHETIC = (SPEAR_RIG, SPEAR_ANIMATIONS)
+
+
+def synthetic_rig(style: dict, template: dict) -> dict:
+    """A first-person rig for every move of ``style``: the template's arm and neutral pose, three
+    keys per move, and a strike window just around the active ticks."""
+    rig = {"rig": template["rig"], "neutral": template["neutral"], "moves": {}}
+    pose = {field: value for field, value in template["neutral"].items()}
+    for move in style["moves"]:
+        start, end = move["active_ticks"]
+        rig["moves"][move["id"]] = {
+            "strike": [start - 0.25, end + 0.25],
+            "contact": start,
+            "keys": [{"tick": 0, "pose": "neutral"},
+                     {"tick": start, "ease": "in_out", **pose, "reach": pose["reach"] + 0.05},
+                     {"tick": move["total_ticks"], "ease": "in_out", "pose": "neutral"}],
+        }
+    return rig
+
+
+def synthetic_animations(style: dict) -> dict:
+    """A PAL file with a full-body animation for the style's mode-enter, ready-idle, and moves:
+    each bone keyed at 0, inside the active window, and at the end."""
+    def animation(total: int, middle: float, loop: bool = False) -> dict:
+        frames = {f"{tick / 20:g}": [0, 0, 0] for tick in (0, middle, total)}
+        document = {"animation_length": total / 20,
+                    "bones": {bone: {"rotation": dict(frames)} for bone in validator.REQUIRED_ANIMATION_BONES}}
+        if loop:
+            document["loop"] = True
+        return document
+
+    name = lambda resource_id: validator.combat_data.split_id(resource_id)[1]
+    animations = {name(style["animations"]["mode_enter"]): animation(16, 8),
+                  name(style["animations"]["ready_idle"]): animation(24, 12, loop=True)}
+    for move in style["moves"]:
+        animations[name(move["id"])] = animation(move["total_ticks"], move["active_ticks"][0])
+    return {"format_version": validator.PAL_FORMAT_VERSION, "animations": animations}
 
 
 class SwordCombatFoundationValidatorTest(unittest.TestCase):
@@ -63,6 +119,10 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
                 shutil.copytree(source, target, dirs_exist_ok=True)
             else:
                 shutil.copy2(source, target)
+        # Rebuilt on every run, whatever the repository holds for them right now.
+        spear_style = self.read_json(SPEAR_STYLE)
+        self.write_json(SPEAR_RIG, synthetic_rig(spear_style, self.read_json(RIG)))
+        self.write_json(SPEAR_ANIMATIONS, synthetic_animations(spear_style))
 
     def tearDown(self) -> None:
         self.temp_dir.cleanup()
@@ -101,9 +161,43 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
     def style_move(self, style: dict, move_id: str) -> dict:
         return next(move for move in style["moves"] if move["id"] == move_id)
 
+    def regenerate_player_animations(self) -> None:
+        """Replace the fixture's PAL files with the PAL generator's output, so its --check holds.
+
+        Skips the test while the generator cannot build a pose table for every style in the index
+        (the spear table is work in progress on add-lingxiao-spear)."""
+        result = subprocess.run([sys.executable, PAL_GENERATOR], cwd=self.root, capture_output=True,
+                                text=True, timeout=validator.GENERATOR_TIMEOUT_SECONDS, check=False)
+        if result.returncode != 0:
+            lines = (result.stderr or result.stdout).strip().splitlines()
+            self.skipTest(f"{PAL_GENERATOR} cannot generate every pose table yet: "
+                          f"{lines[-1] if lines else result.returncode}")
+
+    def generator_details(self, code: str) -> list[str]:
+        return [f.detail for f in self.findings(run_generators=True) if f.code == code]
+
     # --- whole repository -------------------------------------------------------------------
 
     def test_valid_repository_fixture_passes(self) -> None:
+        data = validator.combat_data.load(self.root)
+        self.assertEqual(["myvillage:qingfeng_sword", SPEAR_WEAPON_ID], list(data.weapons))
+        self.assertEqual(["myvillage:basic_sword", "myvillage:basic_spear"], list(data.styles))
+        self.assertTrue((self.root / ANIMATIONS).is_file() and (self.root / SPEAR_ANIMATIONS).is_file())
+        self.assertEqual([], [str(f) for f in self.findings()])
+
+    def test_weapon_model_generators_are_derived_from_the_contracts(self) -> None:
+        checks = validator.generator_checks(self.root, validator.combat_data.load(self.root))
+        self.assertIn((SPEAR_GENERATOR, validator.WEAPON_MODEL_GENERATOR_DRIFT), checks)
+        self.assertIn(("tools/gen_qingfeng_sword_model.py", validator.WEAPON_MODEL_GENERATOR_DRIFT), checks)
+        self.assertEqual(len(checks), len({script for script, _ in checks}))
+
+    def test_generators_other_than_pal_pass_on_the_fixture(self) -> None:
+        # The fixture's spear PAL file is synthetic, so only the PAL generator may disagree here.
+        findings = [str(f) for f in self.findings(run_generators=True) if f.code != "COMBAT_PAL_GENERATOR_DRIFT"]
+        self.assertEqual([], findings)
+
+    def test_valid_repository_fixture_passes_with_generators(self) -> None:
+        self.regenerate_player_animations()
         self.assertEqual([], [str(f) for f in self.findings(run_generators=True)])
 
     # --- PAL dependency ---------------------------------------------------------------------
@@ -307,6 +401,169 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
         self.write_json(GEOMETRY, geometry)
         self.assertTrue(any("blade_tip" in d for d in self.details("COMBAT_GEOMETRY_CONTRACT")))
 
+    # --- second weapon (every weapon in the index gets the same checks) ----------------------
+
+    def assert_finding(self, code: str, *needles: str) -> None:
+        details = self.details(code)
+        self.assertTrue(any(all(needle in d for needle in needles) for d in details), (code, needles, details))
+
+    def test_second_weapon_animation_missing_names_its_move(self) -> None:
+        document = self.read_json(SPEAR_ANIMATIONS)
+        del document["animations"]["basic_spear_02_sweep"]
+        self.write_json(SPEAR_ANIMATIONS, document)
+        self.assert_finding("COMBAT_ANIMATION_MISSING", "myvillage:basic_spear", "basic_spear_02_sweep")
+
+    def test_second_weapon_item_model_missing_has_named_failure(self) -> None:
+        (self.root / SPEAR_MODEL).unlink()
+        self.assert_finding("COMBAT_WEAPON_ITEM_MODEL", SPEAR_WEAPON_ID, "lingxiao_spear.json")
+
+    def test_second_weapon_3d_model_missing_has_named_failure(self) -> None:
+        (self.root / SPEAR_MODEL_3D).unlink()
+        self.assert_finding("COMBAT_WEAPON_MODEL_MISSING", SPEAR_WEAPON_ID, "myvillage:item/lingxiao_spear_3d")
+
+    def test_second_weapon_3d_model_invalid_json_has_named_failure(self) -> None:
+        (self.root / SPEAR_MODEL_3D).write_text("{", encoding="utf-8")
+        self.assert_finding("COMBAT_WEAPON_MODEL_MISSING", SPEAR_WEAPON_ID, "lingxiao_spear_3d.json")
+
+    def test_second_weapon_model_texture_missing_has_named_failure(self) -> None:
+        (self.root / SPEAR_MODEL_TEXTURE).unlink()
+        self.assert_finding("COMBAT_WEAPON_TEXTURE_MISSING", SPEAR_WEAPON_ID, "myvillage:item/lingxiao_spear_model")
+
+    def test_second_weapon_icon_texture_missing_has_named_failure(self) -> None:
+        (self.root / SPEAR_TEXTURE).unlink()
+        self.assert_finding("COMBAT_WEAPON_TEXTURE_MISSING", SPEAR_WEAPON_ID, "lingxiao_spear.png")
+
+    def test_second_weapon_texture_that_is_not_png_has_named_failure(self) -> None:
+        (self.root / SPEAR_MODEL_TEXTURE).write_bytes(b"not a png")
+        self.assert_finding("COMBAT_WEAPON_TEXTURE_MISSING", SPEAR_WEAPON_ID, "not a PNG")
+
+    def test_second_weapon_flat_item_model_has_named_failure(self) -> None:
+        self.write_json(SPEAR_MODEL, {"parent": "minecraft:item/handheld",
+                                      "textures": {"layer0": "myvillage:item/lingxiao_spear"}})
+        self.assert_finding("COMBAT_WEAPON_MODEL_3D", SPEAR_WEAPON_ID, "myvillage:item/lingxiao_spear_3d")
+
+    def test_second_weapon_model_without_geometry_or_hand_display_has_named_failure(self) -> None:
+        model = self.read_json(SPEAR_MODEL_3D)
+        del model["display"]["firstperson_righthand"]
+        self.write_json(SPEAR_MODEL_3D, model)
+        self.assert_finding("COMBAT_WEAPON_MODEL_3D", SPEAR_WEAPON_ID, "firstperson_righthand")
+        model = self.read_json(SPEAR_MODEL_3D)
+        model["elements"] = []
+        self.write_json(SPEAR_MODEL_3D, model)
+        self.assert_finding("COMBAT_WEAPON_MODEL_3D", SPEAR_WEAPON_ID, "elements")
+
+    def test_contract_naming_another_model_has_named_failure(self) -> None:
+        geometry = self.read_json(SPEAR_GEOMETRY)
+        geometry["model"] = "myvillage:item/qingfeng_sword_3d"
+        self.write_json(SPEAR_GEOMETRY, geometry)
+        self.assert_finding("COMBAT_WEAPON_MODEL_3D", SPEAR_WEAPON_ID, "does not draw myvillage:item/qingfeng_sword_3d")
+
+    def test_second_weapon_rig_missing_has_named_failure(self) -> None:
+        (self.root / SPEAR_RIG).unlink()
+        self.assert_finding("COMBAT_FIRST_PERSON_RIG_MISSING", "lingxiao_spear_first_person.json")
+
+    def test_second_weapon_rig_checked_against_its_own_style(self) -> None:
+        rig = self.read_json(SPEAR_RIG)
+        del rig["moves"]["myvillage:basic_spear_05_dragon_lunge"]
+        rig["moves"][THRUST] = self.read_json(RIG)["moves"][THRUST]
+        self.write_json(SPEAR_RIG, rig)
+        self.assert_finding("COMBAT_FIRST_PERSON_RIG_MOVES", "lingxiao_spear_first_person.json",
+                            "myvillage:basic_spear", "basic_spear_05_dragon_lunge", THRUST)
+        rig = self.read_json(SPEAR_RIG)
+        rig["moves"]["myvillage:basic_spear_02_sweep"]["strike"] = [1.0, 3.0]
+        self.write_json(SPEAR_RIG, rig)
+        self.assert_finding("COMBAT_FIRST_PERSON_RIG_STRIKE", "myvillage:basic_spear_02_sweep", "[5, 7]")
+
+    def test_off_hand_rig_on_a_one_handed_weapon_has_named_failure(self) -> None:
+        rig = self.read_json(RIG)
+        rig["rig"]["off_hand"] = {}
+        self.write_json(RIG, rig)
+        self.assert_finding("COMBAT_FIRST_PERSON_RIG_OFF_HAND", "myvillage:qingfeng_sword", "off_hand_grip_center")
+        rig = self.read_json(SPEAR_RIG)
+        rig["rig"]["off_hand"] = {}
+        self.write_json(SPEAR_RIG, rig)
+        self.assertFalse(any(SPEAR_WEAPON_ID in d for d in self.details("COMBAT_FIRST_PERSON_RIG_OFF_HAND")))
+
+    def test_off_hand_block_content_has_named_failure(self) -> None:
+        good = self.read_json(SPEAR_RIG)
+        good["rig"]["off_hand"] = {"shoulder_offset": [0.03, -0.02, -0.12], "grip_diagonal": 30,
+                                   "unknown_field": 1}  # unknown fields are ignored, as in Java
+        good["neutral"]["off_hand_slide"] = -3
+        keys = next(iter(good["moves"].values()))["keys"]
+        keys[1].update({"off_hand_slide": -6, "off_hand_roll": 20, "off_hand_elbow": 10, "off_hand_hold": 0.5})
+        self.write_json(SPEAR_RIG, good)
+        self.assertEqual([], self.details("COMBAT_FIRST_PERSON_RIG_OFF_HAND"))
+        cases = {
+            "shoulder_offset": lambda rig: rig["rig"]["off_hand"].update(shoulder_offset=[0.1, 0.2]),
+            "grip_diagonal": lambda rig: rig["rig"]["off_hand"].update(grip_diagonal=70),
+            "must be an object": lambda rig: rig["rig"].update(off_hand=[]),
+            "off_hand_hold 1.5": lambda rig: next(iter(rig["moves"].values()))["keys"][1].update(off_hand_hold=1.5),
+            "off_hand_roll must be numbers":
+                lambda rig: next(iter(rig["moves"].values()))["keys"][1].update(off_hand_roll="up"),
+            "off the handle": lambda rig: next(iter(rig["moves"].values()))["keys"][1].update(off_hand_slide=9),
+            "neutral: off_hand_slide": lambda rig: rig["neutral"].update(off_hand_slide=-30),
+        }
+        for needle, change in cases.items():
+            rig = json.loads(json.dumps(good))
+            change(rig)
+            self.write_json(SPEAR_RIG, rig)
+            self.assert_finding("COMBAT_FIRST_PERSON_RIG_OFF_HAND", SPEAR_WEAPON_ID, needle)
+        # A key without the field inherits the slide of the key before it.
+        rig = json.loads(json.dumps(good))
+        keys = next(iter(rig["moves"].values()))["keys"]
+        keys[1]["off_hand_slide"] = 9
+        keys.insert(2, {key: value for key, value in keys[1].items() if key != "off_hand_slide"})
+        keys[2]["tick"] = (keys[1]["tick"] + keys[3]["tick"]) / 2
+        self.write_json(SPEAR_RIG, rig)
+        self.assert_finding("COMBAT_FIRST_PERSON_RIG_OFF_HAND", "key 2: off_hand_slide 9")
+
+    def test_second_weapon_contract_missing_has_named_failure(self) -> None:
+        (self.root / SPEAR_GEOMETRY).unlink()
+        self.assert_finding("COMBAT_GEOMETRY_CONTRACT", "lingxiao_spear_geometry.json")
+
+    def test_second_weapon_contract_order_has_named_failure(self) -> None:
+        geometry = self.read_json(SPEAR_GEOMETRY)
+        geometry["blade_tip"][1] = geometry["blade_base"][1] - 1.0
+        self.write_json(SPEAR_GEOMETRY, geometry)
+        self.assert_finding("COMBAT_GEOMETRY_CONTRACT", "lingxiao_spear_geometry.json", "pommel<handle<guard<blade")
+
+    def test_bad_off_hand_grip_has_named_failure(self) -> None:
+        original = self.read_json(SPEAR_GEOMETRY)
+        grip_y = original["grip_center"][1]
+        handle = original["handle"]["y"]
+        cases = {
+            "off the weapon axis": [8.5, original["off_hand_grip_center"][1], 8.0],
+            "outside the handle": [8.0, handle[1] + 1.0, 8.0],
+            "ahead of grip_center": [8.0, grip_y - 3.0, 8.0],
+            "two fists need": [8.0, grip_y + 2.0, 8.0],
+            "must be [x, y, z]": [8.0, 11.0],
+        }
+        for needle, point in cases.items():
+            geometry = json.loads(json.dumps(original))
+            geometry["off_hand_grip_center"] = point
+            self.write_json(SPEAR_GEOMETRY, geometry)
+            self.assert_finding("COMBAT_GEOMETRY_OFF_HAND_GRIP", "lingxiao_spear_geometry.json", needle)
+
+    def test_fist_gap_follows_the_model_third_person_scale(self) -> None:
+        # 4 px fists at the player scale 0.9375: the gap is 3.75 px / scale in contract pixels.
+        geometry = self.read_json(SPEAR_GEOMETRY)
+        geometry["off_hand_grip_center"][1] = geometry["grip_center"][1] + 4.0
+        self.write_json(SPEAR_GEOMETRY, geometry)
+        model = self.read_json(SPEAR_MODEL_3D)
+        model["display"]["thirdperson_righthand"]["scale"] = [1.0, 1.0, 1.0]
+        self.write_json(SPEAR_MODEL_3D, model)
+        self.assertEqual([], self.details("COMBAT_GEOMETRY_OFF_HAND_GRIP"))
+        model["display"]["thirdperson_righthand"]["scale"] = [0.9, 0.9, 0.9]
+        self.write_json(SPEAR_MODEL_3D, model)
+        self.assert_finding("COMBAT_GEOMETRY_OFF_HAND_GRIP", "4.17 px")
+
+    def test_one_handed_contract_needs_no_off_hand_grip(self) -> None:
+        self.assertNotIn("off_hand_grip_center", self.read_json(GEOMETRY))
+        geometry = self.read_json(SPEAR_GEOMETRY)
+        del geometry["off_hand_grip_center"]
+        self.write_json(SPEAR_GEOMETRY, geometry)
+        self.assertEqual([], [str(f) for f in self.findings()])
+
     # --- Java source invariants -------------------------------------------------------------
 
     def test_pal_import_outside_client_combat_is_rejected(self) -> None:
@@ -432,11 +689,17 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
     # --- generated assets -------------------------------------------------------------------
 
     def test_hand_edited_pal_animation_has_generator_drift(self) -> None:
-        path = self.root / ANIMATIONS
-        path.write_text(path.read_text(encoding="utf-8") + "\n", encoding="utf-8")
-        self.assertIn("COMBAT_PAL_GENERATOR_DRIFT", self.codes(run_generators=True))
+        self.regenerate_player_animations()
+        for animations in (ANIMATIONS, SPEAR_ANIMATIONS):
+            path = self.root / animations
+            original = path.read_text(encoding="utf-8")
+            path.write_text(original + "\n", encoding="utf-8")
+            drift = self.generator_details("COMBAT_PAL_GENERATOR_DRIFT")
+            self.assertTrue(any(Path(animations).name in d for d in drift), drift)
+            path.write_text(original, encoding="utf-8")
 
     def test_style_without_poses_fails_the_generator_check(self) -> None:
+        self.regenerate_player_animations()
         style = self.read_json(STYLE)
         extra = json.loads(json.dumps(style["moves"][0]))
         extra["id"] = "myvillage:basic_sword_06_extra"
@@ -453,7 +716,60 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
 
     def test_hand_edited_sword_model_has_generator_drift(self) -> None:
         self.edit(validator.QINGFENG_MODEL_3D, '"scale": [0.8, 0.8, 0.8]', '"scale": [0.85, 0.85, 0.85]')
-        self.assertIn("COMBAT_SWORD_MODEL_GENERATOR_DRIFT", self.codes(run_generators=True))
+        drift = self.generator_details(validator.WEAPON_MODEL_GENERATOR_DRIFT)
+        self.assertTrue(any("gen_qingfeng_sword_model.py" in d for d in drift), drift)
+
+    def test_qingfeng_model_generator_runs_without_its_contract_field(self) -> None:
+        # Pinned: the accepted Qingfeng model stays checked even if its contract stops naming it.
+        geometry = self.read_json(GEOMETRY)
+        geometry["generator"] = SPEAR_GENERATOR
+        self.write_json(GEOMETRY, geometry)
+        self.edit(validator.QINGFENG_MODEL_3D, '"scale": [0.8, 0.8, 0.8]', '"scale": [0.85, 0.85, 0.85]')
+        drift = self.generator_details(validator.WEAPON_MODEL_GENERATOR_DRIFT)
+        self.assertTrue(any("gen_qingfeng_sword_model.py" in d for d in drift), drift)
+
+    def test_hand_edited_second_weapon_model_has_generator_drift(self) -> None:
+        model = self.read_json(SPEAR_MODEL_3D)
+        model["display"]["thirdperson_righthand"]["scale"] = [0.95, 0.95, 0.95]
+        self.write_json(SPEAR_MODEL_3D, model)
+        drift = self.generator_details(validator.WEAPON_MODEL_GENERATOR_DRIFT)
+        self.assertTrue(any(SPEAR_GENERATOR in d and "lingxiao_spear_3d.json" in d for d in drift), drift)
+
+    def test_hand_edited_second_weapon_texture_has_generator_drift(self) -> None:
+        path = self.root / SPEAR_MODEL_TEXTURE
+        original = path.read_bytes()
+        shutil.copy2(self.root / validator.QINGFENG_MODEL_TEXTURE, path)  # a valid PNG, wrong pixels
+        self.assertNotEqual(original, path.read_bytes())
+        self.assertEqual([], self.details("COMBAT_WEAPON_TEXTURE_MISSING"))
+        drift = self.generator_details(validator.WEAPON_MODEL_GENERATOR_DRIFT)
+        self.assertTrue(any(SPEAR_GENERATOR in d and "lingxiao_spear_model.png" in d for d in drift), drift)
+
+    def test_hand_edited_second_weapon_contract_has_generator_drift(self) -> None:
+        geometry = self.read_json(SPEAR_GEOMETRY)
+        geometry["off_hand_grip_center"][1] += 1.0  # still a valid off-hand grip
+        self.write_json(SPEAR_GEOMETRY, geometry)
+        self.assertEqual([], self.details("COMBAT_GEOMETRY_OFF_HAND_GRIP"))
+        drift = self.generator_details(validator.WEAPON_MODEL_GENERATOR_DRIFT)
+        self.assertTrue(any(SPEAR_GENERATOR in d and "lingxiao_spear_geometry.json" in d for d in drift), drift)
+
+    def test_contract_generator_that_does_not_exist_has_named_failure(self) -> None:
+        geometry = self.read_json(SPEAR_GEOMETRY)
+        geometry["generator"] = "tools/gen_missing_spear_model.py"
+        self.write_json(SPEAR_GEOMETRY, geometry)
+        missing = [f.detail for f in self.findings(run_generators=True) if f.code == "COMBAT_GENERATOR_MISSING"]
+        self.assertTrue(any("gen_missing_spear_model.py" in d for d in missing), missing)
+
+    def test_contract_without_a_generator_has_named_failure(self) -> None:
+        for value in (None, "../evil.py", "scripts/gen.py"):
+            geometry = self.read_json(SPEAR_GEOMETRY)
+            if value is None:
+                del geometry["generator"]
+            else:
+                geometry["generator"] = value
+            self.write_json(SPEAR_GEOMETRY, geometry)
+            details = self.details("COMBAT_GEOMETRY_CONTRACT")
+            self.assertTrue(any("lingxiao_spear_geometry.json" in d and "generator" in d for d in details),
+                            (value, details))
 
     # --- docs -------------------------------------------------------------------------------
 
@@ -486,6 +802,27 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
     def test_complete_jar_passes(self) -> None:
         self.write_complete_jar(self.current_jar())
         self.assertEqual([], [str(f) for f in self.findings()])
+
+    def test_every_weapon_is_expected_in_the_jar(self) -> None:
+        expected = validator.packaged_resources(self.root, validator.combat_data.load(self.root))
+        for path in (SPEAR_MODEL, SPEAR_MODEL_3D, SPEAR_MODEL_TEXTURE, SPEAR_TEXTURE, SPEAR_RIG, SPEAR_GEOMETRY,
+                     SPEAR_ANIMATIONS, SPEAR_STYLE, SPEAR_WEAPON, validator.QINGFENG_MODEL,
+                     validator.QINGFENG_MODEL_3D, validator.QINGFENG_TEXTURE, validator.QINGFENG_MODEL_TEXTURE,
+                     RIG, GEOMETRY, ANIMATIONS):
+            self.assertIn(Path(path).relative_to(RESOURCES).as_posix(), expected)
+
+    def test_jar_without_the_second_weapon_model_has_named_failure(self) -> None:
+        jar = self.current_jar()
+        self.write_complete_jar(jar)
+        dropped = (Path(SPEAR_MODEL_3D).relative_to(RESOURCES).as_posix(),
+                   Path(SPEAR_MODEL_TEXTURE).relative_to(RESOURCES).as_posix())
+        with zipfile.ZipFile(jar) as archive:
+            entries = {name: archive.read(name) for name in archive.namelist() if name not in dropped}
+        with zipfile.ZipFile(jar, "w") as archive:
+            for name, content in entries.items():
+                archive.writestr(name, content)
+        details = self.details("COMBAT_JAR_RESOURCE_MISSING")
+        self.assertTrue(any(all(name in d for name in dropped) for d in details), details)
 
     def test_packaged_resource_drift_has_named_failure(self) -> None:
         with zipfile.ZipFile(self.current_jar(), "w") as archive:

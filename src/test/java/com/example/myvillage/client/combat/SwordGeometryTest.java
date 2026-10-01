@@ -64,8 +64,34 @@ final class SwordGeometryTest {
         assertThrows(IllegalArgumentException.class, () -> SwordGeometry.parse(flatHandle));
     }
 
+    @Test
+    void offHandGripIsOptionalAndCheckedLikeTheGrip() throws IOException {
+        assertTrue(SwordGeometry.parse(json()).offHandGripCenter().isEmpty(), "the one-handed sword has no off hand");
+        SwordGeometry spear = SwordGeometry.parse(spear());
+        assertEquals(new Vector3f(8.0F, 11.0F, 8.0F), spear.offHandGripCenter().orElseThrow());
+        assertTrue(spear.offHandGripCenter().orElseThrow().y > spear.gripCenter().y);
+
+        JsonObject offAxis = spear();
+        offAxis.add("off_hand_grip_center", vector(8.5F, 11.0F, 8.0F));
+        assertThrows(IllegalArgumentException.class, () -> SwordGeometry.parse(offAxis));
+        JsonObject offHandle = spear();
+        offHandle.add("off_hand_grip_center", vector(8.0F, 18.0F, 8.0F));
+        assertThrows(IllegalArgumentException.class, () -> SwordGeometry.parse(offHandle));
+        JsonObject behind = spear();
+        behind.add("off_hand_grip_center", vector(8.0F, -6.0F, 8.0F));
+        assertThrows(IllegalArgumentException.class, () -> SwordGeometry.parse(behind));
+        JsonObject shortPoint = spear();
+        shortPoint.add("off_hand_grip_center", new JsonArray());
+        assertThrows(IllegalArgumentException.class, () -> SwordGeometry.parse(shortPoint));
+    }
+
     private static JsonObject json() throws IOException {
         return JsonParser.parseString(Files.readString(GEOMETRY)).getAsJsonObject();
+    }
+
+    private static JsonObject spear() throws IOException {
+        return JsonParser.parseString(Files.readString(
+                CombatTestData.assetPath(CombatTestData.lingxiao().geometry()))).getAsJsonObject();
     }
 
     private static JsonArray vector(float x, float y, float z) {

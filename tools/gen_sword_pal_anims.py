@@ -623,20 +623,28 @@ def solve_limb(body_rot, yaw, elevation, previous=None, previous_body=None):
     return min(candidates, key=deviation)
 
 
-def solve_stance(body_rot, front, splay, direction):
+def solve_stance(body_rot, front, splay, direction, previous=None):
     """Legs for a planted stance, plus the hip drop (negative px) that keeps both feet grounded.
 
-    Of the two Euler solutions per leg the one with the smaller yaw is used, so a back leg
-    swings backward (x > 0) instead of swinging forward and twisting 180 degrees.
+    Without a previous key, of the two Euler solutions per leg the one with the smaller yaw is
+    used, so a back leg swings backward (x > 0) instead of swinging forward and twisting 180
+    degrees.  With a previous key (``previous`` = (body, right leg, left leg) of the resolved
+    previous pose) each leg takes the solution that stays on the previous key's branch, as
+    :func:`solve_limb` does for the arms: a body turned more than about 90 degrees off the stance
+    line (the bladed spear) would otherwise flip a leg between the branches between two keys.
     """
     down = -(90.0 - splay)
 
-    def untwisted(yaw):
+    def untwisted(yaw, before):
+        if before is not None:
+            return solve_limb(body_rot, yaw, down, previous=before, previous_body=previous[0])
         options = _limb_candidates(body_rot, world_direction(yaw, down))
         return min(options, key=lambda c: (abs(c[1]), c[0]))
 
-    front_leg = untwisted(direction)
-    back_leg = untwisted(direction + 180.0)
+    before_right, before_left = (None, None) if previous is None else (previous[1], previous[2])
+    before_front, before_back = (before_right, before_left) if front == "R" else (before_left, before_right)
+    front_leg = untwisted(direction, before_front)
+    back_leg = untwisted(direction + 180.0, before_back)
     drop = -LEG_LENGTH_PX * (1.0 - math.cos(_rad(splay)))
     right, left = (front_leg, back_leg) if front == "R" else (back_leg, front_leg)
     return right, left, drop
@@ -654,8 +662,9 @@ def _is_guard(k: Key, guard_spec: dict = GUARD) -> bool:
 
 
 def _resolve_key(k: Key, previous, table: PoseTable = BASIC_SWORD) -> dict[str, list[float]]:
-    right_leg, left_leg, drop = solve_stance(k.body, *k.stance)
     previous_body = None if previous is None else previous["body"]
+    right_leg, left_leg, drop = solve_stance(k.body, *k.stance, previous=None if previous is None else (
+        previous_body, previous["right_leg"][:2], previous["left_leg"][:2]))
     previous_larm = None if previous is None else previous["left_arm"][:2]
     rarm = solve_limb(k.body, *k.rarm, previous=None if previous is None else previous["right_arm"][:2],
                       previous_body=previous_body)

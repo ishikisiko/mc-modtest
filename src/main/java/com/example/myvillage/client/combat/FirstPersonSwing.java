@@ -30,6 +30,15 @@ import java.util.Objects;
  * along the +Z edge, 90 along the +X flat normal), and {@code elbow}, degrees the elbow swivels up
  * and out around the shoulder-wrist line (0 keeps the natural low elbow). Missing values inherit
  * the previous key, and the neutral hold defaults both to 0.
+ *
+ * <p>An optional {@code rig.off_hand} block makes the arm renderer also draw the off arm with its
+ * hand on the shaft at the geometry contract's {@code off_hand_grip_center} (a rig with the block
+ * on a weapon whose contract lacks that point is invalid). Four more pose fields steer it, keyed and
+ * interpolated like the rest and ignored without the block: {@code off_hand_slide} (model pixels
+ * along the shaft from that point, + toward the tip), {@code off_hand_roll} (degrees the hand
+ * turns about the shaft from its natural reach), {@code off_hand_elbow} (the off elbow's swivel,
+ * as {@code elbow}) and {@code off_hand_hold} (1 holds the shaft, 0 lets go; values between move
+ * the hand between the shaft and its released rest). The neutral hold defaults them to 0, 0, 0, 1.
  */
 final class FirstPersonSwing {
     /** Item-model units (16 px) to blocks for the first-person sword when the rig omits it. */
@@ -88,8 +97,17 @@ final class FirstPersonSwing {
             throw new IllegalArgumentException("rig.sword_scale must be within 0.2..1.5");
         }
         Arm arm = Arm.parse(rigJson.has("arm") ? rigJson.getAsJsonObject("arm") : new JsonObject());
-        Rig rig = new Rig(shoulder[0], shoulder[1], shoulder[2], swordScale, arm);
+        OffHand offHand = null;
+        if (rigJson.has("off_hand")) {
+            if (sword.offHandGripCenter().isEmpty()) {
+                throw new IllegalArgumentException(
+                        "rig.off_hand needs a weapon geometry with off_hand_grip_center");
+            }
+            offHand = OffHand.parse(rigJson.getAsJsonObject("off_hand"), arm);
+        }
+        Rig rig = new Rig(shoulder[0], shoulder[1], shoulder[2], swordScale, arm, offHand);
         Pose neutral = pose(json.getAsJsonObject("neutral"), Pose.ZERO);
+        checkOffHand(rig, sword, neutral, "neutral");
 
         JsonObject movesJson = json.getAsJsonObject("moves");
         if (movesJson == null) {
@@ -101,12 +119,27 @@ final class FirstPersonSwing {
             if (moveJson == null) {
                 throw new IllegalArgumentException("Missing first-person swing for " + definition.id());
             }
-            moves.add(move(definition, moveJson, neutral));
+            Move move = move(definition, moveJson, neutral);
+            for (Key key : move.keys()) {
+                checkOffHand(rig, sword, key.pose(), definition.id() + " key " + key.tick());
+            }
+            moves.add(move);
         }
         if (movesJson.size() != moves.size()) {
             throw new IllegalArgumentException("First-person swing file declares unknown moves");
         }
         return new FirstPersonSwing(rig, neutral, moves, sword);
+    }
+
+    /** With an off hand, each key's slide must keep the hand's point on the handle. */
+    private static void checkOffHand(Rig rig, SwordGeometry sword, Pose pose, String where) {
+        if (rig.offHand() == null) {
+            return;
+        }
+        float y = sword.offHandGripCenter().orElseThrow().y + pose.offHandSlide();
+        if (!(y >= sword.handleBottom() && y <= sword.handleTop())) {
+            throw new IllegalArgumentException(where + " off_hand_slide moves the off hand off the handle");
+        }
     }
 
     private static Move move(AttackMoveDefinition definition, JsonObject json, Pose neutral) {
@@ -159,6 +192,10 @@ final class FirstPersonSwing {
         float[] offset = json.has("offset")
                 ? vector(json.getAsJsonArray("offset"), "offset")
                 : new float[] {fallback.x(), fallback.y(), fallback.z()};
+        float hold = value(json, "off_hand_hold", fallback.offHandHold());
+        if (!(hold >= 0.0F && hold <= 1.0F)) {
+            throw new IllegalArgumentException("off_hand_hold must be within 0..1");
+        }
         return new Pose(
                 value(json, "plane", fallback.plane()),
                 value(json, "sweep", fallback.sweep()),
@@ -170,7 +207,11 @@ final class FirstPersonSwing {
                 offset[1],
                 offset[2],
                 value(json, "grip_roll", fallback.gripRoll()),
-                value(json, "elbow", fallback.elbow()));
+                value(json, "elbow", fallback.elbow()),
+                value(json, "off_hand_slide", fallback.offHandSlide()),
+                value(json, "off_hand_roll", fallback.offHandRoll()),
+                value(json, "off_hand_elbow", fallback.offHandElbow()),
+                hold);
     }
 
     private static float value(JsonObject json, String name, float fallback) {
@@ -192,7 +233,38 @@ final class FirstPersonSwing {
         return values;
     }
 
-    record Rig(float shoulderX, float shoulderY, float shoulderZ, float swordScale, Arm arm) {
+    /** @param offHand the off arm's tuning, or null when the rig draws only the main arm */
+    record Rig(float shoulderX, float shoulderY, float shoulderZ, float swordScale, Arm arm, OffHand offHand) {
+        Rig(float shoulderX, float shoulderY, float shoulderZ, float swordScale, Arm arm) {
+            this(shoulderX, shoulderY, shoulderZ, swordScale, arm, null);
+        }
+    }
+
+    /**
+     * The off arm, from {@code rig.off_hand}; its fields are optional. The off shoulder is the main
+     * shoulder mirrored across the view's vertical plane, with {@code shoulder_offset} in place of
+     * {@code rig.arm.shoulder_offset} (+x outward, away from the body's centre); {@code grip_diagonal}
+     * is how far the shaft leans across the off palm. Bone lengths and thickness are the main arm's.
+     */
+    record OffHand(float shoulderOffsetX, float shoulderOffsetY, float shoulderOffsetZ, float gripDiagonal) {
+        OffHand {
+            if (!Float.isFinite(shoulderOffsetX) || !Float.isFinite(shoulderOffsetY) || !Float.isFinite(shoulderOffsetZ)) {
+                throw new IllegalArgumentException("rig.off_hand.shoulder_offset must be finite");
+            }
+            if (!(gripDiagonal >= 0.0F && gripDiagonal <= 50.0F)) {
+                throw new IllegalArgumentException("rig.off_hand.grip_diagonal must be within 0..50");
+            }
+        }
+
+        static OffHand parse(JsonObject json, Arm arm) {
+            if (json == null) {
+                throw new IllegalArgumentException("rig.off_hand must be an object");
+            }
+            float[] offset = json.has("shoulder_offset")
+                    ? vector(json.getAsJsonArray("shoulder_offset"), "rig.off_hand.shoulder_offset")
+                    : new float[] {arm.shoulderOffsetX(), arm.shoulderOffsetY(), arm.shoulderOffsetZ()};
+            return new OffHand(offset[0], offset[1], offset[2], value(json, "grip_diagonal", arm.gripDiagonal()));
+        }
     }
 
     /**
@@ -257,16 +329,28 @@ final class FirstPersonSwing {
             float y,
             float z,
             float gripRoll,
-            float elbow) {
+            float elbow,
+            float offHandSlide,
+            float offHandRoll,
+            float offHandElbow,
+            float offHandHold) {
         static final Pose ZERO = new Pose(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
 
         Pose {
             if (!Float.isFinite(plane) || !Float.isFinite(sweep) || !Float.isFinite(reach)
                     || !Float.isFinite(lead) || !Float.isFinite(lift) || !Float.isFinite(twist)
                     || !Float.isFinite(x) || !Float.isFinite(y) || !Float.isFinite(z)
-                    || !Float.isFinite(gripRoll) || !Float.isFinite(elbow)) {
+                    || !Float.isFinite(gripRoll) || !Float.isFinite(elbow)
+                    || !Float.isFinite(offHandSlide) || !Float.isFinite(offHandRoll)
+                    || !Float.isFinite(offHandElbow) || !Float.isFinite(offHandHold)) {
                 throw new IllegalArgumentException("Swing pose values must be finite");
             }
+        }
+
+        /** A main-arm-only pose: the off hand at its default point, holding the shaft. */
+        Pose(float plane, float sweep, float reach, float lead, float lift, float twist,
+                float x, float y, float z, float gripRoll, float elbow) {
+            this(plane, sweep, reach, lead, lift, twist, x, y, z, gripRoll, elbow, 0.0F, 0.0F, 0.0F, 1.0F);
         }
 
         static Pose interpolate(Pose start, Pose end, float progress) {
@@ -287,7 +371,11 @@ final class FirstPersonSwing {
                     lerp(start.y, end.y, progress),
                     lerp(start.z, end.z, progress),
                     lerp(start.gripRoll, end.gripRoll, progress),
-                    lerp(start.elbow, end.elbow, progress));
+                    lerp(start.elbow, end.elbow, progress),
+                    lerp(start.offHandSlide, end.offHandSlide, progress),
+                    lerp(start.offHandRoll, end.offHandRoll, progress),
+                    lerp(start.offHandElbow, end.offHandElbow, progress),
+                    lerp(start.offHandHold, end.offHandHold, progress));
         }
 
         private static float lerp(float start, float end, float progress) {

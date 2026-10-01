@@ -101,7 +101,7 @@ class ManifestTest(unittest.TestCase):
         self.assertEqual(m["kind"], "capture")
         self.assertEqual([mv["index"] for mv in m["moves"]], [1, 3])
         self.assertEqual([k["key"] for k in m["moves"][0]["keys"]], list(data.KEY_NAMES))
-        self.assertEqual(set(m["source"]["files"]), {"index", "weapon", "style", "rig"})
+        self.assertEqual(set(m["source"]["files"]), {"index", "weapon", "style", "rig", "geometry"})
         self.assertEqual(len(m["source"]["files"]["rig"]["sha256"]), 64)
         text = json.dumps(m)
         self.assertNotIn(str(ROOT), text, "manifest must not carry absolute host paths")
@@ -138,6 +138,144 @@ class ManifestTest(unittest.TestCase):
         self.assertIn(":93.0+0,0", argv)
         self.assertEqual(argv[argv.index("-t") + 1], "7.5")
         self.assertIn("cfr", argv)
+
+
+def simulate_body(body, yaws, limit=50.0):
+    """Vanilla LivingEntity.tickHeadTurn for a standing, not swinging player:
+    the body moves only by the excess over `limit` (one client tick per yaw)."""
+    def wrap(a):
+        a = a % 360.0
+        return a - 360.0 if a >= 180.0 else a
+    for yaw in yaws:
+        off = wrap(yaw - body)
+        if abs(off) > limit:
+            body += off - (limit if off > 0 else -limit)
+    return wrap(body)
+
+
+class ViewTest(unittest.TestCase):
+    def test_body_ends_aligned_from_any_start(self):
+        for view in ("tp_back", "tp_front", "tp_back_right", "tp_back_left", "tp_front_right", "tp_front_left"):
+            look = capture.VIEWS[view]["camera"]["look_yaw"]
+            yaws = capture.body_align_yaws(look)
+            self.assertEqual(yaws[-1], look)
+            for start in range(-180, 180, 5):
+                with self.subTest(view=view, start=start):
+                    self.assertAlmostEqual(simulate_body(float(start), yaws), capture.BODY_YAW, places=4)
+
+    def test_quarter_views_turn_the_head_the_full_limit(self):
+        self.assertEqual(capture.VIEWS["tp_back_right"]["camera"]["look_yaw"], -50.0)  # right side is -x
+        self.assertEqual(capture.VIEWS["tp_front_right"]["camera"]["look_yaw"], 50.0)
+        self.assertEqual(capture.VIEWS["tp_back_left"]["camera"]["look_yaw"], 50.0)
+        self.assertEqual(capture.VIEWS["tp_front_left"]["camera"]["look_yaw"], -50.0)
+        with self.assertRaises(ValueError):
+            capture.body_align_yaws(60.0)
+
+    def test_straight_views_keep_their_old_camera(self):
+        back, front = capture.camera_record("tp_back"), capture.camera_record("tp_front")
+        self.assertEqual((back["wall_distance"], back["pitch"], back["look_yaw"]), (2.4, 30.0, 0.0))
+        self.assertEqual((front["wall_distance"], front["pitch"], front["look_yaw"]), (2.4, 15.0, 0.0))
+        self.assertEqual(back["player_pos"], [0.5, -60, -0.6])
+        self.assertEqual(front["player_pos"], [0.5, -60, 1.6])
+        q = capture.camera_record("tp_front_left")
+        self.assertIsNone(q["wall_distance"])
+        self.assertEqual(q["camera_distance"], 4.0)
+        self.assertEqual(q["player_pos"], [0.5, -60, 0.5])
+
+    def test_tp_command(self):
+        self.assertEqual(capture.tp_command("P", -0.6000000000000001, -50.0, 30.0), "tp P 0.5 -60 -0.6 -50 30")
+
+    def test_wall_commands(self):
+        self.assertEqual(scene.wall_commands("back"), [scene.wall_fill(-4, "minecraft:barrier"),
+                                                       scene.wall_fill(4, "minecraft:air")])
+        self.assertEqual(scene.wall_commands(None), [scene.wall_fill(-4, "minecraft:air"),
+                                                     scene.wall_fill(4, "minecraft:air")])
+        with self.assertRaises(scene.SceneError):
+            scene.wall_commands("side")
+
+    def test_default_views_by_held_length(self):
+        sword = data.load_weapon(RESOURCES, QINGFENG)
+        self.assertAlmostEqual(sword.held_length, 24.5 * 0.8 / 16, places=3)
+        self.assertEqual(capture.default_views(sword), ["fp", "tp_back", "tp_front"])
+        w = fake_weapon()
+        self.assertEqual(capture.default_views(w), ["fp", "tp_back", "tp_front"])  # no geometry
+        w.held_length = capture.LONG_WEAPON_BLOCKS
+        self.assertEqual(capture.default_views(w), list(capture.LONG_WEAPON_VIEWS))
+        for v in capture.LONG_WEAPON_VIEWS:
+            self.assertIn(v, capture.ALL_VIEWS)
+
+    def test_bundled_spear_is_long_without_a_rig(self):
+        spear_id = "myvillage:lingxiao_spear"
+        index = json.loads((RESOURCES / data.INDEX_REL).read_text(encoding="utf-8"))
+        if spear_id not in index["weapons"]:
+            self.skipTest("spear not bundled")
+        spear = data.load_weapon(RESOURCES, spear_id, require_rig=False)
+        self.assertGreaterEqual(spear.held_length, capture.LONG_WEAPON_BLOCKS)
+        self.assertEqual(capture.default_views(spear), list(capture.LONG_WEAPON_VIEWS))
+
+    def test_held_length(self):
+        g = {"overall_y": [-16.0, 32.0]}
+        self.assertEqual(data.held_length_blocks(g, None), 3.0)
+        self.assertEqual(data.held_length_blocks(g, {"display": {"thirdperson_righthand": {"scale": [1, 0.5, 1]}}}),
+                         1.5)
+        with self.assertRaises(data.DataError):
+            data.held_length_blocks({}, None)
+        self.assertEqual(data.model_rel("ns:item/x_3d"), "assets/ns/models/item/x_3d.json")
+
+    def test_missing_rig_is_allowed_only_on_request(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            for rel in (data.INDEX_REL, "data/myvillage/combat/weapon/qingfeng_sword.json",
+                        "data/myvillage/combat/style/basic_sword.json",
+                        "assets/myvillage/combat/qingfeng_sword_geometry.json"):
+                (root / rel).parent.mkdir(parents=True, exist_ok=True)
+                (root / rel).write_bytes((RESOURCES / rel).read_bytes())
+            with self.assertRaises(data.DataError):
+                data.load_weapon(root, QINGFENG)
+            w = data.load_weapon(root, QINGFENG, require_rig=False)
+            self.assertNotIn("rig", w.files)
+            self.assertEqual(w.moves[0].keys, [])
+            self.assertAlmostEqual(w.held_length, 24.5 / 16, places=3)  # no item model: scale 1
+
+    def test_camera_mismatches(self):
+        old = {"capture": {"third_person_camera": {"back": {"wall_distance": 2.4, "pitch": 30.0}}}}
+        new = {"capture": {"third_person_camera": {"back": capture.camera_record("tp_back")}}}
+        self.assertEqual(capture.camera_mismatches(old, new, ["fp", "tp_back"]), [])
+        moved = {"capture": {"third_person_camera": {"back": dict(capture.camera_record("tp_back"), pitch=20.0)}}}
+        self.assertEqual(capture.camera_mismatches(old, moved, ["tp_back"]), ["tp_back: pitch 30.0 vs 20.0"])
+        turned = {"capture": {"third_person_camera": {"back": dict(capture.camera_record("tp_back"), look_yaw=-50.0)}}}
+        self.assertEqual(capture.camera_mismatches(old, turned, ["tp_back"]), ["tp_back: look_yaw 0.0 vs -50.0"])
+
+    def test_manifest_records_cameras_of_the_views(self):
+        w = data.load_weapon(RESOURCES, QINGFENG)
+        m = capture.new_manifest("lbl", w, RESOURCES, ["fp", "tp_back_right", "tp_front_left"], [1])
+        cams = m["capture"]["third_person_camera"]
+        self.assertEqual(set(cams), {"back", "front", "back_right", "front_left"})
+        self.assertEqual(cams["back_right"]["look_yaw"], -50.0)
+        self.assertEqual(m["capture"]["weapon_held_length_blocks"], w.held_length)
+        html = page.capture_page(dict(m, sheets={}, combo=None))
+        self.assertIn("tp_back_right: F5 back, vanilla F5 distance 4 blocks, pitch 30, look yaw -50", html)
+
+
+class StabilityTest(unittest.TestCase):
+    def test_exact_and_noise(self):
+        a = bytes([100] * 30)
+        self.assertEqual(xgame.settled([a, a]), ("exact", 0))
+        b = bytes([101] * 15 + [98] * 15)
+        self.assertEqual(xgame.settled([a, b]), (None, 2))  # noise needs three grabs
+        c = bytes([99] * 30)
+        self.assertEqual(xgame.settled([a, b, c]), ("noise", 2))
+
+    def test_motion_and_drift_are_not_settled(self):
+        a = bytes([100] * 30)
+        moved = bytes([100] * 29 + [160])  # one edge pixel moved
+        self.assertEqual(xgame.settled([a, a, moved]), (None, 60))
+        drift = [bytes([100] * 30), bytes([102] * 30), bytes([104] * 30)]  # 2 per grab, 4 overall
+        self.assertEqual(xgame.settled(drift), (None, 4))
+
+    def test_max_level_diff(self):
+        self.assertEqual(xgame.max_level_diff(b"\x00\x05", b"\x03\x01"), 4)
+        self.assertEqual(xgame.max_level_diff(b"\x00", b"\x00\x00"), 255)
 
 
 def frame(view, move, key, tick, stable=True, short="m"):
@@ -246,8 +384,28 @@ class ArgumentTest(unittest.TestCase):
 
     def test_views(self):
         self.assertEqual(cli.parse_views("tp_front,fp"), ["fp", "tp_front"])
+        self.assertEqual(cli.parse_views("tp_front_left,tp_back_right,fp"), ["fp", "tp_back_right", "tp_front_left"])
         with self.assertRaises(argparse.ArgumentTypeError):
             cli.parse_views("fp,side")
+
+    def test_view_and_shot_commands_parse(self):
+        a = cli.build_parser().parse_args(["view", "tp_back_right"])
+        self.assertIs(a.func, cli.cmd_view)
+        a = cli.build_parser().parse_args(["shot", "out/x.png", "--max-wait", "2"])
+        self.assertIs(a.func, cli.cmd_shot)
+        self.assertEqual(a.max_wait, 2.0)
+        with self.assertRaises(SystemExit):
+            with mock.patch("sys.stderr"):
+                cli.build_parser().parse_args(["view", "tp_side"])
+
+    def test_shot_refuses_while_a_screen_is_open(self):
+        with tempfile.TemporaryDirectory() as td:
+            g = FakeGame(Path(td) / "latest.log", [False] * 100)
+            with mock.patch.object(g, "wait_ingame", return_value=False), \
+                    mock.patch.object(g, "grab_raw") as grab:
+                with self.assertRaises(xgame.GameInputError):
+                    g.shot(Path(td) / "x.png")
+                grab.assert_not_called()
 
     def test_moves(self):
         self.assertEqual(cli.parse_moves(None, [1, 2, 3]), [1, 2, 3])
@@ -260,7 +418,8 @@ class ArgumentTest(unittest.TestCase):
     def test_run_parser_defaults(self):
         a = cli.build_parser().parse_args(["run", "--label", "x"])
         self.assertEqual(a.weapon, QINGFENG)
-        self.assertEqual(a.views, ["fp", "tp_back", "tp_front"])
+        self.assertIsNone(a.views)  # resolved from the weapon's held length
+        self.assertEqual(cli.resolve_views(a, data.load_weapon(RESOURCES, QINGFENG)), ["fp", "tp_back", "tp_front"])
         self.assertEqual(a.targets, "dummy")
         self.assertIs(a.func, cli.cmd_run)
         with self.assertRaises(SystemExit):

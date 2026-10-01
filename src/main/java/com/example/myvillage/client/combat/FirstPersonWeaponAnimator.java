@@ -410,7 +410,11 @@ public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
                 pose.y() + shakeDirection.y * along + crossY * across,
                 pose.z() + shakeDirection.z * along,
                 pose.gripRoll(),
-                pose.elbow());
+                pose.elbow(),
+                pose.offHandSlide(),
+                pose.offHandRoll(),
+                pose.offHandElbow(),
+                pose.offHandHold());
     }
 
     /**
@@ -431,7 +435,11 @@ public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
                 pose.y() + BREATH_RISE * breath,
                 pose.z(),
                 pose.gripRoll(),
-                pose.elbow() + BREATH_ELBOW_DEGREES * breath);
+                pose.elbow() + BREATH_ELBOW_DEGREES * breath,
+                pose.offHandSlide(),
+                pose.offHandRoll(),
+                pose.offHandElbow(),
+                pose.offHandHold());
     }
 
     private void clear() {

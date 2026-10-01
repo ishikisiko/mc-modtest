@@ -87,6 +87,15 @@ SHAFT_HALF = 0.5                      # 1 px shaft: 0.9 px in the 4 px fist
 SHAFT_Y = (-13.6, 18.4)               # the element runs into the butt cap and the socket
 # A hand needs this much bare shaft on each side of its grip point (fist half-depth / scale).
 BARE_SHAFT_HALF = 2.4
+# Hand zones that must hold nothing but bare shaft: a fist box (4.4 px cube on the axis) at every
+# hand position.  The leading hand ranges over y 0..13.5 (third person: wherever the shaft
+# crosses the arm's reach; first person: it slides down to about y 2.6 in thrusts); the rear hand
+# sits at the grip centre +-2.4.
+FIST_HALF = 2.2
+HAND_ZONES = (  # name, y range of the hand centre, half extent along the axis beyond it
+    ("rear hand", (GRIP_CENTER_Y, GRIP_CENTER_Y), BARE_SHAFT_HALF),
+    ("leading hand", (0.0, 13.5), FIST_HALF),
+)
 
 # Gold collars with cyan inlays: three near the butt, one mid-shaft (handle), two below the head.
 SHAFT_COLLARS = (("butt_collar_1", -11.7, -10.5), ("butt_collar_2", -8.7, -7.5),
@@ -193,7 +202,6 @@ REGIONS = {
     "blade_needle": (20, 0, 24, 16),
     "blade_navy": (24, 0, 30, 16),
     "blade_spine": (30, 0, 34, 16),
-    "plaque_icon": (24, 54, 34, 66),
     "gold_band": (8, 20, 16, 28),
     "gold_top": (16, 20, 24, 28),
     "gold_plain": (24, 20, 32, 28),
@@ -312,10 +320,6 @@ def paint_region(name: str, i: int, j: int, w: int, h: int, x: int, y: int):
         return (*_jitter(c, 2.0, x, y), 255)
     if name == "blade_spine":
         return (*_jitter(GOLD["shade"] if i in (1, 2) else GOLD["dark"], 2.0, x, y), 255)
-    if name == "plaque_icon":  # the plaque as the 64 px icon sees it: gold frame, cream, one ink mark
-        if i in (0, 1, w - 2, w - 1) or j in (0, 1, h - 2, h - 1):
-            return (*GOLD["light"], 255)
-        return (*(INK if 4 <= i <= 5 and 4 <= j <= 7 else CREAM), 255)
     if name == "gold_band":
         rows = (GOLD["hi"], GOLD["light"], GOLD["base"], GOLD["base"], GOLD["base"], GOLD["base"], GOLD["shade"],
                 GOLD["dark"])
@@ -535,7 +539,7 @@ def build_butt() -> list[dict]:
     for name, z0, z1, half, tex, glow in parts:
         if tex == "tassel_h":
             faces = {"east": uv(tex, flip_u=True), "west": uv(tex), "up": uv(tex), "down": uv(tex),
-                     "south": uv("tassel_v", sub=(0, 0.8, 1, 1))}
+                     "south": uv("tassel_v", sub=(0, 0.8, 1, 1)), "north": uv("tassel_v", sub=(0, 0, 1, 0.2))}
         else:
             faces = all_faces(tex, tex)
         els.append(box(name, (ax - half, ay - half, az + z0), (ax + half, ay + half, az + z1), faces, rot, glow))
@@ -558,7 +562,13 @@ def build_hanging() -> list[dict]:
     p = PENNANT_SIZE
     cloth = uv("pennant")
     els.append(hanging("pennant", PENNANT_ANCHOR, PENNANT_ANGLE, 0.0, p["length"], p["half_thickness"],
-                       p["half_width"], {"east": cloth, "west": cloth}))
+                       p["half_width"], {"east": cloth, "west": cloth,
+                                         # edge faces reuse the cloth's own border texels, so their alpha
+                                         # follows the gathered top and the swallow tail
+                                         "north": uv("pennant", sub=(0, 0, 1 / 15, 1)),
+                                         "south": uv("pennant", sub=(14 / 15, 0, 1, 1)),
+                                         "up": uv("pennant", sub=(0, 0, 1, 1 / 48)),
+                                         "down": uv("pennant", sub=(0, 47 / 48, 1, 1))}))
     els.append(hanging("pennant_cap", PENNANT_ANCHOR, PENNANT_ANGLE, -0.15, 0.45, 0.2, 0.32,
                        all_faces("gold_band", "gold_top")))
     # 道 plaque on a chain with a bead and a cyan tassel.
@@ -571,7 +581,8 @@ def build_hanging() -> list[dict]:
              ("plaque_bead", 0.5, 0.25, 0.25, all_faces("cyan_gem", "cyan_gem"), True),
              ("plaque_tassel_cap", 0.3, 0.3, 0.3, all_faces("gold_band", "gold_top"), False),
              ("plaque_tassel", 2.1, 0.38, 0.38,
-              {**all_faces("tassel_v"), "down": uv("tassel_v", sub=(0, 0.8, 1, 1))}, False)]
+              {**all_faces("tassel_v"), "down": uv("tassel_v", sub=(0, 0.8, 1, 1)),
+               "up": uv("tassel_v", sub=(0, 0, 1, 0.2))}, False)]
     for name, length, half_x, half_z, faces, glow in parts:
         els.append(hanging(name, PLAQUE_ANCHOR, PLAQUE_ANGLE, y, y + length, half_x, half_z, faces, glow))
         y += length
@@ -618,15 +629,46 @@ def derive(context: str, anchor_new, scale: float, anchor_target=None, anchor_ol
     return {"rotation": rotation, "translation": translation, "scale": (scale, scale, scale)}
 
 
+REFLECT_X = [[-1, 0, 0], [0, 1, 0], [0, 0, 1]]
+
+
+def game_apply(transform: dict, left_hand: bool):
+    """(3x3 linear part, translation in px) of ItemTransform.apply(leftHand, poseStack).
+
+    Vanilla 1.21.1 ItemTransform.apply negates rotation y and z and translation x when leftHand
+    is true; NeoForge's separate_transforms passes the flag through unchanged
+    (SeparateTransformsModel.applyTransform -> IBakedModelExtension.applyTransform).  With
+    M = diag(-1, 1, 1) that is exactly M * apply(T) * M, because M Rx(a) M = Rx(a),
+    M Ry(b) M = Ry(-b) and M Rz(c) M = Rz(-c)."""
+    x, y, z = transform["rotation"]
+    t = list(transform["translation"])
+    if left_hand:
+        y, z, t[0] = -y, -z, -t[0]
+    r = qf.euler_xyz((x, y, z))
+    s = transform["scale"][0]
+    return [[r[i][j] * s for j in range(3)] for i in range(3)], tuple(t)
+
+
+def left_hand(right: dict) -> dict:
+    """The left-hand entry whose applied transform is the mirror image of the right hand's.
+
+    The game already reflects a left-hand entry (see ``game_apply``) and ItemInHandRenderer /
+    ItemInHandLayer place the left hand at the mirrored arm position, so the entry that draws the
+    true mirror image is the right-hand entry itself.  Pre-negating y/z (``qf.mirror``) cancels
+    the game's reflection and leaves the item turned like the right hand; that only coincides with
+    a mirror when the rotation commutes with M (y and z in {0, 180}), as for Qingfeng's values."""
+    return {"rotation": right["rotation"], "translation": right["translation"], "scale": right["scale"]}
+
+
 def build_display() -> dict:
     third = derive("thirdperson_righthand", GRIP_CENTER, THIRD_PERSON_SCALE, anchor_target=qf.FIST_CENTER_ITEM)
     first = derive("firstperson_righthand", GRIP_CENTER, FIRST_PERSON_SCALE, anchor_old=qf.OLD_HANDLE_CENTER,
                    roll=True, tilt=FIRST_PERSON_TILT)
     return {
         "thirdperson_righthand": third,
-        "thirdperson_lefthand": qf.mirror(third),
+        "thirdperson_lefthand": left_hand(third),
         "firstperson_righthand": first,
-        "firstperson_lefthand": qf.mirror(first),
+        "firstperson_lefthand": left_hand(first),
         "ground": derive("ground", AXIS_CENTER, GROUND_SCALE, anchor_old=qf.OLD_SPRITE_CENTER, roll=True),
         "head": derive("head", AXIS_CENTER, HEAD_SCALE, anchor_old=qf.OLD_SPRITE_CENTER, roll=True),
         "fixed": derive("fixed", AXIS_CENTER, FIXED_SCALE, anchor_old=qf.OLD_SPRITE_CENTER, roll=True),
@@ -634,114 +676,132 @@ def build_display() -> dict:
 
 
 # ---------------------------------------------------------------------------------------------
-# Inventory icon: the flat view (from -X, so the +Z hanging side is down) on the diagonal.
+# Inventory icon: pixel art on a 32x32 logical grid (each logical pixel written as a 2x2 block of
+# the 64x64 file the item validator requires), so it stays crisp in a 32-px slot at GUI scale 2
+# and in a 64-px slot at GUI scale 4.  The spear lies on the diagonal like vanilla tools; only
+# what reads at that size is drawn: a bold two-pixel shaft with gold collars, an oversized barbed
+# cyan head with a pale rim, the gold star, a simple white pennant and the butt tassel.
 # ---------------------------------------------------------------------------------------------
-ICON_BUTT = (3.6, 60.4)        # icon pixel coordinates (x right, y down)
-ICON_TIP = (60.6, 3.4)
-ICON_WIDTH_GAIN = 1.45         # widen the profile across the axis so a 1 px shaft still reads
-ICON_SAMPLES = 4               # supersamples per axis
-ICON_MIN_COVER = 6             # of 16 samples for an opaque pixel
-ICON_FACE_OVERRIDES = {"plaque": "plaque_icon"}   # the glyph would read as a dark blob at 64 px
+ICON_GRID = 32
+ICON_AXIS_SUM = 30                     # axis pixels satisfy x + y = 30 (x right, y down)
+ICON_T_RANGE = (-26, 28)               # t = x - y along the axis, butt to tip
+ICON_COLLARS = (-20, -16, -12, -4, 1)
+ICON_CAP_T = (-26, -23)
+ICON_STAR_T = 6
+ICON_BLADE_HALF = {9: 2, 10: 4, 11: 4, 12: 3, 13: 2, 14: 4, 15: 4, 16: 3, 17: 3, 18: 2, 19: 2,
+                   20: 2, 21: 1, 22: 1, 23: 1, 24: 1, 25: 0, 26: 0, 27: 0, 28: 0}   # half width, c units
+ICON_SPINE_TOP, ICON_NAVY_TOP, ICON_PALE_FROM = 21, 12, 23
+ICON_PENNANT = dict(x=(16, 19), y=(16, 24))
+OUTLINE = _hex("#141a28")
 
 
-def _icon_faces(elements: list[dict]):
-    """West faces as (depth x, inverse rotation, rect (y0, y1, z0, z1), uv, tex image)."""
-    faces = []
-    for e in elements:
-        face = e["faces"].get("west")
-        if face is None:
-            continue
-        rot = e.get("rotation")
-        if rot and rot["axis"] != "x":
-            continue
-        lo, hi = e["from"], e["to"]
-        angle = math.radians(rot["angle"]) if rot else 0.0
-        origin = rot["origin"] if rot else (CX, 0.0, CZ)
-        face_uv = uv(ICON_FACE_OVERRIDES[e["name"]]) if e["name"] in ICON_FACE_OVERRIDES else face["uv"]
-        faces.append((lo[0], angle, origin, (lo[1], hi[1], lo[2], hi[2]), face_uv))
-    faces.sort(key=lambda f: f[0])  # smallest x is nearest to a viewer on -X
-    return faces
+def _icon_xy(t: int, c: int):
+    """Logical pixel at axis position t and cross offset c (c > 0 toward the lower right)."""
+    if (ICON_AXIS_SUM + c + t) % 2:
+        return None
+    return (ICON_AXIS_SUM + c + t) // 2, (ICON_AXIS_SUM + c - t) // 2
 
 
-def _texel_index(c: float, a: float, b: float) -> int:
-    """Texel column/row of UV coordinate ``c`` on a face spanning UV a..b (either order)."""
-    lo, hi = min(a, b) * TEXELS_PER_UV, max(a, b) * TEXELS_PER_UV
-    return int(min(max(math.floor(c * TEXELS_PER_UV), math.floor(lo)), math.ceil(hi) - 1))
+def icon_grid() -> dict[tuple[int, int], tuple[int, int, int]]:
+    """Logical 32x32 icon as {(x, y): rgb}."""
+    px: dict[tuple[int, int], tuple[int, int, int]] = {}
+    outlined: set[tuple[int, int]] = set()
+
+    def put(xy, colour, outline=False):
+        if xy is not None and 0 <= xy[0] < ICON_GRID and 0 <= xy[1] < ICON_GRID:
+            px[xy] = colour
+            if outline:
+                outlined.add(xy)
+
+    # Pennant (behind the shaft), hanging straight down below the head collars.
+    (x0, x1), (y0, y1) = ICON_PENNANT["x"], ICON_PENNANT["y"]
+    for y in range(y0, y1 + 1):
+        for x in range(x0, x1 + 1):
+            if y <= y0 + 1 and x in (x0, x1):
+                continue                              # gathered top
+            if y == y1 and x0 < x < x1:
+                continue                              # swallow tail
+            c = CLOTH["shade"] if x == x1 else CLOTH["white"]
+            if y == y0:
+                c = GOLD["light"]
+            if (x, y) in ((x0 + 1, y0 + 4), (x0 + 1, y0 + 5), (x0 + 2, y0 + 5)):
+                c = CLOTH["blue"]                     # yin-yang mark
+            if y == y1 - 2:
+                c = CLOTH["blue_light"]
+            put((x, y), c, outline=True)
+    # Shaft: two diagonals, highlight on the upper one.
+    for t in range(ICON_T_RANGE[0], ICON_STAR_T + 2):
+        put(_icon_xy(t, -1), NAVY["hi"])
+        put(_icon_xy(t, 0), NAVY["base"])
+        put(_icon_xy(t, 1), NAVY["dark"])
+    for t0 in ICON_COLLARS:
+        for t in (t0, t0 + 1):
+            for c in (-2, -1, 0, 1, 2):
+                put(_icon_xy(t, c), CYAN["base"] if c in (0, 1) and t == t0 + (c + t0) % 2 else
+                    GOLD["light"] if c < 0 else GOLD["shade"])
+    # Butt cap with a cyan gem and the tassel hanging below it.
+    for t in range(ICON_CAP_T[0], ICON_CAP_T[1] + 1):
+        for c in range(-3, 4):
+            put(_icon_xy(t, c), GOLD["light"] if c < 0 else GOLD["base"] if c < 2 else GOLD["shade"], outline=True)
+    put(_icon_xy(-25, 1), CYAN["light"])
+    put(_icon_xy(-24, 0), CYAN["base"])
+    bx, by = _icon_xy(-24, 4) or _icon_xy(-25, 4)
+    for dy, colour in ((0, CYAN["white"]), (1, CYAN["light"]), (2, CYAN["base"])):
+        put((bx, by + dy), colour, outline=True)
+        if dy:
+            put((bx + 1, by + dy), CYAN["mid"], outline=True)
+    # Spearhead.
+    blade = {}
+    for t, half in ICON_BLADE_HALF.items():
+        for c in range(-half, half + 1):
+            xy = _icon_xy(t, c)
+            if xy is not None:
+                blade[xy] = (t, c)
+    for xy, (t, c) in blade.items():
+        rim = any((xy[0] + dx, xy[1] + dy) not in blade for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
+        colour = _mix(CYAN["base"], CYAN["mid"], 0.3)
+        if t >= ICON_PALE_FROM:
+            colour = CYAN["pale"]
+        if c == 0 and t <= ICON_SPINE_TOP:
+            colour = GOLD["shade"]
+        elif abs(c) == 1 and t <= ICON_NAVY_TOP:
+            colour = NAVY["mid"]
+        if rim:
+            colour = CYAN["white"] if t >= ICON_PALE_FROM else CYAN["pale"]
+        put(xy, colour, outline=True)
+    # Star: gold diamond with a cyan ring and gem, points along the screen axes (the art's diagonal
+    # rays) and across the shaft (the side points).
+    sx, sy = _icon_xy(ICON_STAR_T, 0)
+    for dx in range(-3, 4):
+        for dy in range(-3, 4):
+            d = abs(dx) + abs(dy)
+            colour = None
+            if d == 0:
+                colour = CYAN["white"]
+            elif d == 1:
+                colour = CYAN["base"]
+            elif d == 2:
+                colour = GOLD["light"]
+            elif (dx == 0 or dy == 0) and d == 3:
+                colour = GOLD["hi"]                   # the art's diagonal rays
+            elif dx == dy and d == 4:
+                colour = GOLD["base"]                 # side points across the shaft
+            if colour is not None:
+                put((sx + dx, sy + dy), colour, outline=True)
+    # Dark outline around the light parts so they read on the light slot background.
+    for (x, y) in list(outlined):
+        for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)):
+            n = (x + dx, y + dy)
+            if n not in px and 0 <= n[0] < ICON_GRID and 0 <= n[1] < ICON_GRID:
+                px[n] = OUTLINE
+    return px
 
 
-def _icon_sample(faces, pixels, y: float, z: float):
-    for depth, angle, origin, (y0, y1, z0, z1), face_uv in faces:
-        if angle:
-            dy, dz = y - origin[1], z - origin[2]
-            c, s = math.cos(-angle), math.sin(-angle)
-            py, pz = origin[1] + dy * c - dz * s, origin[2] + dy * s + dz * c
-        else:
-            py, pz = y, z
-        if not (y0 <= py <= y1 and z0 <= pz <= z1):
-            continue
-        # west face: u runs with +Z, v runs from the top (y1) down.
-        fu = (pz - z0) / (z1 - z0) if z1 > z0 else 0.0
-        fv = (y1 - py) / (y1 - y0) if y1 > y0 else 0.0
-        u = face_uv[0] + (face_uv[2] - face_uv[0]) * fu
-        v = face_uv[1] + (face_uv[3] - face_uv[1]) * fv
-        tx = _texel_index(u, face_uv[0], face_uv[2])
-        ty = _texel_index(v, face_uv[1], face_uv[3])
-        texel = pixels[ty][tx]
-        if texel[3] < 26:
-            continue
-        return texel
-    return None
-
-
-def render_icon(elements: list[dict] | None = None, texture=None) -> list[list[tuple[int, int, int, int]]]:
-    elements = elements if elements is not None else build_elements()
-    texture = texture if texture is not None else render_texture()
-    faces = _icon_faces(elements)
-    bx, by = ICON_BUTT
-    ux, uy = ICON_TIP[0] - bx, ICON_TIP[1] - by
-    length = math.hypot(ux, uy)
-    ux, uy = ux / length, uy / length
-    nx, ny = -uy, ux                                   # screen down-right = model +Z (seen from -X)
-    along = length / (TIP_Y - BUTT_Y)                  # icon px per model px along the axis
-    across = along * ICON_WIDTH_GAIN
-    out = []
-    n = ICON_SAMPLES
-    # Crisp pixel art: a pixel is opaque when enough of it is covered and takes the colour of
-    # its most central covered sample (averaging would blur the ornaments into mud).
-    order = sorted(((si, sj) for sj in range(n) for si in range(n)),
-                   key=lambda s: ((s[0] + 0.5 - n / 2) ** 2 + (s[1] + 0.5 - n / 2) ** 2, s[1], s[0]))
-    for py in range(ICON_SIZE):
-        row = []
-        for px in range(ICON_SIZE):
-            colour, hits = None, 0
-            for si, sj in order:
-                sx, sy = px + (si + 0.5) / n - bx, py + (sj + 0.5) / n - by
-                y = BUTT_Y + (sx * ux + sy * uy) / along
-                z = CZ + (sx * nx + sy * ny) / across
-                if y < BUTT_Y - 0.5 or y > TIP_Y + 0.5:
-                    continue
-                texel = _icon_sample(faces, texture, y, z)
-                if texel is not None:
-                    hits += 1
-                    colour = colour or texel[:3]
-            row.append((*colour, 255) if hits >= ICON_MIN_COVER else (0, 0, 0, 0))
-        out.append(row)
-    return _icon_outline(out)
-
-
-def _icon_outline(pixels):
-    """Darken the outermost opaque pixels a little so the spear reads on light slots."""
-    out = [list(row) for row in pixels]
-    for y in range(ICON_SIZE):
-        for x in range(ICON_SIZE):
-            r, g, b, a = pixels[y][x]
-            if a == 0:
-                continue
-            edge = any(not (0 <= x + dx < ICON_SIZE and 0 <= y + dy < ICON_SIZE) or pixels[y + dy][x + dx][3] == 0
-                       for dx, dy in ((1, 0), (-1, 0), (0, 1), (0, -1)))
-            if edge:
-                out[y][x] = (int(r * 0.72), int(g * 0.72), int(b * 0.78), a)
-    return out
+def render_icon() -> list[list[tuple[int, int, int, int]]]:
+    grid = icon_grid()
+    scale = ICON_SIZE // ICON_GRID
+    return [[(*grid[(x // scale, y // scale)], 255) if (x // scale, y // scale) in grid else (0, 0, 0, 0)
+             for x in range(ICON_SIZE)] for y in range(ICON_SIZE)]
 
 
 # ---------------------------------------------------------------------------------------------
@@ -804,7 +864,7 @@ def outputs() -> dict[Path, bytes]:
         MODEL_PATH: qf.render_model_json(build_model()).encode(),
         GEOMETRY_PATH: qf.render_model_json(geometry_contract()).encode(),
         TEXTURE_PATH: qf.encode_png(texture),
-        ICON_PATH: qf.encode_png(render_icon(build_elements(), texture)),
+        ICON_PATH: qf.encode_png(render_icon()),
     }
 
 
@@ -857,16 +917,57 @@ def element_samples(e: dict, n: int = 6):
     return out
 
 
+def hand_zone_boxes():
+    """(name, lo, hi) model-space boxes swept by each hand's fist."""
+    out = []
+    for name, (y0, y1), half_y in HAND_ZONES:
+        out.append((name, (CX - FIST_HALF, y0 - half_y, CZ - FIST_HALF), (CX + FIST_HALF, y1 + half_y, CZ + FIST_HALF)))
+    return out
+
+
+def _element_axes(e: dict):
+    """Centre, unit axes and half sizes of an element as an oriented box."""
+    lo, hi = e["from"], e["to"]
+    centre = [(lo[i] + hi[i]) / 2.0 for i in range(3)]
+    half = [(hi[i] - lo[i]) / 2.0 for i in range(3)]
+    axes = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
+    rot = e.get("rotation")
+    if rot:
+        m = qf._rot(rot["axis"], rot["angle"])
+        o = rot["origin"]
+        centre = [o[a] + qf.mv(m, tuple(centre[b] - o[b] for b in range(3)))[a] for a in range(3)]
+        axes = [list(qf.mv(m, tuple(ax))) for ax in axes]
+    return centre, axes, half
+
+
+def box_overlaps(e: dict, lo, hi, tolerance: float = 1e-6) -> bool:
+    """Exact oriented-box vs axis-aligned-box overlap (separating axis theorem)."""
+    c1, a1, h1 = _element_axes(e)
+    c2 = [(lo[i] + hi[i]) / 2.0 for i in range(3)]
+    h2 = [(hi[i] - lo[i]) / 2.0 for i in range(3)]
+    a2 = [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]
+    d = [c2[i] - c1[i] for i in range(3)]
+    dot = lambda u, v: sum(u[i] * v[i] for i in range(3))
+    candidates = a1 + a2 + [list(qf.cross(u, v)) for u in a1 for v in a2]
+    for axis in candidates:
+        n = math.sqrt(dot(axis, axis))
+        if n < 1e-9:
+            continue
+        axis = [c / n for c in axis]
+        r1 = sum(h1[i] * abs(dot(a1[i], axis)) for i in range(3))
+        r2 = sum(h2[i] * abs(dot(a2[i], axis)) for i in range(3))
+        if abs(dot(d, axis)) >= r1 + r2 - tolerance:
+            return False
+    return True
+
+
 def bare_shaft_errors(elements: list[dict]) -> list[str]:
-    """Only the shaft may occupy the space a hand needs around each grip point."""
+    """Only the shaft may occupy a hand zone (see HAND_ZONES)."""
     errors = []
-    for label, gy in (("grip_center", GRIP_CENTER_Y), ("off_hand_grip_center", OFF_HAND_GRIP_Y)):
+    for name, lo, hi in hand_zone_boxes():
         for e in elements:
-            if e["name"] == "shaft":
-                continue
-            if any(abs(p[0] - CX) < 2.0 and abs(p[2] - CZ) < 2.0 and abs(p[1] - gy) < BARE_SHAFT_HALF
-                   for p in element_samples(e)):
-                errors.append(f"{e['name']} crowds the {label} hand at y={gy}")
+            if e["name"] != "shaft" and box_overlaps(e, lo, hi):
+                errors.append(f"{e['name']} intrudes into the {name} zone (y {lo[1]:g}..{hi[1]:g})")
     return errors
 
 

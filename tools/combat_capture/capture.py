@@ -16,22 +16,130 @@ from .session import REPO, SCREEN
 MANIFEST = "manifest.json"
 MANIFEST_SCHEMA = 1
 
-# view -> (title, probe, F5 position, camera wall z or None, wall-to-eye distance, pitch)
-VIEWS = {
-    "fp": {"title": "first person", "probe": "first_person", "f5": "first"},
-    "tp_back": {"title": "third person, F5 back", "probe": "third_person", "f5": "back"},
-    "tp_front": {"title": "third person, F5 front", "probe": "third_person", "f5": "front"},
-}
 F5_INDEX = {"first": 0, "back": 1, "front": 2}
-# Camera framing for F5: the barrier wall stops the camera this far
-# (horizontally) from the eye; the eye sits at the screen centre. The back
-# view looks down over the shoulder, the front view's camera sits low in front
-# looking up, so the blade is not hidden behind the hotbar. The player's pitch
-# also tilts the PAL arm pose, so these values are recorded in the manifest and
-# must match between two captures that are compared.
+# Camera framing for F5. The eye sits at the screen centre and the F5 camera
+# looks along the player's look direction (back) or against it (front).
+# - wall: a barrier wall row behind ("back") or in front ("front") of the
+#   player stops the camera `wall_distance` blocks (horizontally) from the eye;
+#   None leaves vanilla's 4-block F5 distance (the most a no-Java camera gets).
+# - pitch: the player's pitch. It also tilts the PAL arm pose, so a quarter
+#   view uses the same pitch as the straight view on its side and shows the
+#   same pose.
+# - look_yaw: the player's yaw. The body is first aligned to BODY_YAW (the
+#   action facing, south); vanilla then keeps a standing player's body where it
+#   is while the head turns up to HEAD_BODY_LIMIT degrees, so look_yaw +-50
+#   sees the posed body from 50 degrees off its axis (see body_align_yaws).
+#   Player facing south: its right side is -x, so a camera behind the right
+#   shoulder needs look_yaw -50 and one in front on the right needs +50.
+# These values are recorded in the manifest and must match between two
+# captures that are compared.
 TP_BACK_DIST, TP_BACK_PITCH = 2.4, 30.0
 TP_FRONT_DIST, TP_FRONT_PITCH = 2.4, 15.0
+VANILLA_F5_DISTANCE = 4.0
+BODY_YAW = 0.0
+HEAD_BODY_LIMIT = 50.0
+QUARTER_YAW = 50.0
+# Weapons drawn at least this long in a third-person hand get the quarter
+# views by default (the straight views look along their shaft).
+LONG_WEAPON_BLOCKS = 1.8
+
+
+def _tp(title, f5, wall, dist, pitch, look_yaw):
+    return {"title": title, "probe": "third_person", "f5": f5,
+            "camera": {"wall": wall, "wall_distance": dist, "pitch": pitch, "look_yaw": look_yaw}}
+
+
+VIEWS = {
+    "fp": {"title": "first person", "probe": "first_person", "f5": "first"},
+    "tp_back": _tp("third person, F5 back", "back", "back", TP_BACK_DIST, TP_BACK_PITCH, BODY_YAW),
+    "tp_front": _tp("third person, F5 front", "front", "front", TP_FRONT_DIST, TP_FRONT_PITCH, BODY_YAW),
+    "tp_back_right": _tp("third person, F5 back, 50 deg off behind the right shoulder", "back", None, None,
+                         TP_BACK_PITCH, BODY_YAW - QUARTER_YAW),
+    "tp_back_left": _tp("third person, F5 back, 50 deg off behind the left shoulder", "back", None, None,
+                        TP_BACK_PITCH, BODY_YAW + QUARTER_YAW),
+    "tp_front_right": _tp("third person, F5 front, 50 deg off on the player's right", "front", None, None,
+                          TP_FRONT_PITCH, BODY_YAW + QUARTER_YAW),
+    "tp_front_left": _tp("third person, F5 front, 50 deg off on the player's left", "front", None, None,
+                         TP_FRONT_PITCH, BODY_YAW - QUARTER_YAW),
+}
+ALL_VIEWS = tuple(VIEWS)
+SHORT_WEAPON_VIEWS = ("fp", "tp_back", "tp_front")
+LONG_WEAPON_VIEWS = ("fp", "tp_back_right", "tp_front_left")
 TICK_SECONDS = 0.05
+
+
+def default_views(weapon: Weapon) -> list[str]:
+    """Views a capture of this weapon takes unless --views says otherwise:
+    the quarter views for a weapon drawn LONG_WEAPON_BLOCKS or longer in a
+    third-person hand (from its geometry contract and item model), the
+    straight views otherwise (and when the weapon has no geometry)."""
+    long = weapon.held_length is not None and weapon.held_length >= LONG_WEAPON_BLOCKS
+    return list(LONG_WEAPON_VIEWS if long else SHORT_WEAPON_VIEWS)
+
+
+def body_align_yaws(look_yaw: float, body_yaw: float = BODY_YAW, limit: float = HEAD_BODY_LIMIT) -> list[float]:
+    """Player yaws to teleport through, a client tick or more apart, so the
+    body ends at exactly `body_yaw` and the look at `look_yaw`, whatever the
+    body was before. Vanilla turns a standing, not swinging player's body only
+    when the head is more than `limit` degrees off it, and then by exactly the
+    excess. Step 1 (body - s*70) leaves the body 20..120 degrees on the far
+    side; step 2 (body + s*limit) is then 70..170 degrees off, so the body is
+    clamped to exactly body_yaw; step 3 turns the head only (within the limit)."""
+    off = look_yaw - body_yaw
+    if abs(off) > limit:
+        raise ValueError(f"look yaw {look_yaw} is more than {limit} degrees off the body yaw {body_yaw}")
+    s = -1.0 if off < 0 else 1.0
+    out = [body_yaw - s * (limit + 20.0), body_yaw + s * limit]
+    if look_yaw != out[-1]:
+        out.append(look_yaw)
+    return out
+
+
+def stand_z(camera: dict) -> float:
+    """Where the player stands (z) so a wall stops the camera at wall_distance."""
+    if camera["wall"] == "back":
+        return scene.BACK_WALL_Z + 1 + camera["wall_distance"]
+    if camera["wall"] == "front":
+        return scene.FRONT_WALL_Z - camera["wall_distance"]
+    return scene.PLAYER_POS[2]
+
+
+def camera_record(view: str) -> dict:
+    """Manifest entry for a third-person view's camera."""
+    c = VIEWS[view]["camera"]
+    return {"view": view, "f5": VIEWS[view]["f5"], "wall_distance": c["wall_distance"],
+            "camera_distance": c["wall_distance"] if c["wall"] else VANILLA_F5_DISTANCE,
+            "pitch": c["pitch"], "look_yaw": c["look_yaw"], "body_yaw": BODY_YAW,
+            "player_pos": [scene.PLAYER_POS[0], scene.PLAYER_POS[1], round(stand_z(c), 3)]}
+
+
+def camera_key(view: str) -> str:
+    return view[3:] if view.startswith("tp_") else view
+
+
+def camera_mismatches(a: dict, b: dict, views) -> list[str]:
+    """Camera fields that differ between two manifests for the given views.
+    Only fields both record are compared (older captures lack look_yaw etc.);
+    a missing look_yaw/body_yaw counts as BODY_YAW (old captures faced south)."""
+    out = []
+    ca = a.get("capture", {}).get("third_person_camera", {})
+    cb = b.get("capture", {}).get("third_person_camera", {})
+    for view in views:
+        if VIEWS.get(view, {}).get("f5") in (None, "first"):
+            continue
+        x, y = ca.get(camera_key(view)), cb.get(camera_key(view))
+        if x is None or y is None:
+            continue
+        for k in sorted(set(x) | set(y)):
+            if k in x and k in y:
+                va, vb = x[k], y[k]
+            elif k in ("look_yaw", "body_yaw"):
+                va, vb = x.get(k, BODY_YAW), y.get(k, BODY_YAW)
+            else:
+                continue
+            if va != vb:
+                out.append(f"{view}: {k} {va} vs {vb}")
+    return out
 
 
 def now_iso() -> str:
@@ -74,8 +182,10 @@ def new_manifest(label: str, weapon: Weapon, resources: Path, views: list[str], 
                    "files": {role: {"path": rel, "sha256": sha256_file(Path(resources) / rel)}
                              for role, rel in weapon.files.items()}},
         "capture": {"size": list(SCREEN), "fov": 70, "views": views,
-                    "third_person_camera": {"back": {"wall_distance": TP_BACK_DIST, "pitch": TP_BACK_PITCH},
-                                            "front": {"wall_distance": TP_FRONT_DIST, "pitch": TP_FRONT_PITCH}}},
+                    "weapon_held_length_blocks": weapon.held_length,
+                    "third_person_camera": {camera_key(v): camera_record(v)
+                                            for v in ["tp_back", "tp_front"] + [v for v in views if v not in
+                                                                                ("fp", "tp_back", "tp_front")]}},
         "moves": [{"index": m.index, "id": m.id, "short": m.short, "kind": m.kind, "total_ticks": m.total_ticks,
                    "keys": [{"key": k, "tick": t} for k, t in m.keys]}
                   for m in weapon.moves if m.index in moves],
@@ -109,6 +219,53 @@ def f5_presses(current: str, target: str) -> int:
     return (F5_INDEX[target] - F5_INDEX[current]) % 3
 
 
+def press_f5_to(session, target: str) -> None:
+    n = f5_presses(session.view, target)
+    for _ in range(n):
+        session.game.key("F5")
+        session.view = {0: "back", 1: "front", 2: "first"}[F5_INDEX[session.view]]
+        time.sleep(0.35)
+    if n:
+        time.sleep(0.7)
+
+
+def tp_command(user: str, z: float, yaw: float, pitch: float) -> str:
+    px, py, _ = scene.PLAYER_POS
+    return f"tp {user} {px:g} {py:g} {z:g} {yaw:g} {pitch:g}"
+
+
+# A teleport reaches the client within a server tick; the client applies the
+# head-turn clamp on its next tick. 0.4 s leaves several ticks for each step.
+ALIGN_STEP_SECONDS = 0.4
+
+
+def set_camera(session, view: str) -> bool:
+    """Put the client camera into `view` (walls, stand, body alignment, F5)
+    without any probe. Returns True if a barrier wall is up."""
+    spec = VIEWS[view]
+    if spec["f5"] == "first":
+        session.run(scene.wall_fill(scene.BACK_WALL_Z, "minecraft:air"),
+                    scene.wall_fill(scene.FRONT_WALL_Z, "minecraft:air"))
+        session.run(tp_command(session.username, scene.PLAYER_POS[2], BODY_YAW, 0.0))
+        time.sleep(0.6)
+        press_f5_to(session, "first")
+        time.sleep(0.8)
+        return False
+    cam = spec["camera"]
+    session.run(*scene.wall_commands(cam["wall"]))
+    z = stand_z(cam)
+    # Stand first (a teleport is not movement for the body-turn logic, but keep
+    # the alignment teleports at one position anyway), then turn body and head.
+    session.run(tp_command(session.username, z, BODY_YAW, cam["pitch"]))
+    time.sleep(ALIGN_STEP_SECONDS)
+    for yaw in body_align_yaws(cam["look_yaw"]):
+        session.run(tp_command(session.username, z, yaw, cam["pitch"]))
+        time.sleep(ALIGN_STEP_SECONDS)
+    press_f5_to(session, spec["f5"])
+    time.sleep(0.8)
+    return cam["wall"] is not None
+
+
 # ====================================================================== stills
 class Stills:
     def __init__(self, session, weapon: Weapon, out_dir: Path, manifest: dict, log=print):
@@ -122,38 +279,14 @@ class Stills:
         self.walls = False
 
     def press_f5_to(self, target: str):
-        n = f5_presses(self.s.view, target)
-        for _ in range(n):
-            self.g.key("F5")
-            self.s.view = {0: "back", 1: "front", 2: "first"}[F5_INDEX[self.s.view]]
-            time.sleep(0.35)
-        if n:
-            time.sleep(0.7)
+        press_f5_to(self.s, target)
 
     def place(self, z: float, pitch: float):
-        px, py, _ = scene.PLAYER_POS
-        self.s.run(f"tp {self.s.username} {px} {py} {z} 0 {pitch}")
+        self.s.run(tp_command(self.s.username, z, BODY_YAW, pitch))
         time.sleep(0.6)
 
     def set_view(self, view: str):
-        f5 = VIEWS[view]["f5"]
-        if f5 == "first":
-            self.s.run(scene.wall_fill(scene.BACK_WALL_Z, "minecraft:air"),
-                       scene.wall_fill(scene.FRONT_WALL_Z, "minecraft:air"))
-            self.walls = False
-            self.place(scene.PLAYER_POS[2], 0.0)
-        elif f5 == "back":
-            self.s.run(scene.wall_fill(scene.BACK_WALL_Z, "minecraft:barrier"),
-                       scene.wall_fill(scene.FRONT_WALL_Z, "minecraft:air"))
-            self.walls = True
-            self.place(scene.BACK_WALL_Z + 1 + TP_BACK_DIST, TP_BACK_PITCH)
-        else:
-            self.s.run(scene.wall_fill(scene.BACK_WALL_Z, "minecraft:air"),
-                       scene.wall_fill(scene.FRONT_WALL_Z, "minecraft:barrier"))
-            self.walls = True
-            self.place(scene.FRONT_WALL_Z - TP_FRONT_DIST, TP_FRONT_PITCH)
-        self.press_f5_to(f5)
-        time.sleep(0.8)
+        self.walls = set_camera(self.s, view) or self.walls
 
     def shoot(self, view: str, move, key: str, tick: float):
         probe = VIEWS[view]["probe"]
@@ -172,8 +305,11 @@ class Stills:
         self.m["frames"] = [f for f in self.m["frames"]
                             if not (f["view"] == view and f["move"] == n and f["key"] == key)] + [rec]
         write_manifest(self.out, self.m)
-        flag = "" if info["stable"] else f"  NOT STABLE (diff {info.get('diff_fraction')})"
-        self.log(f"  {view:<8} m{n} {move.short:<18} {key:<12} t={fmt_tick(tick):<5} grabs={info['grabs']}{flag}")
+        flag = ("" if info["stable"] else f"  NOT STABLE (diff {info.get('diff_fraction')}, "
+                                          f"max level diff {info.get('max_level_diff')})")
+        noise = f" within noise {info['max_level_diff']}" if info.get("match") == "noise" else ""
+        self.log(f"  {view:<14} m{n} {move.short:<18} {key:<12} t={fmt_tick(tick):<5} grabs={info['grabs']}"
+                 f"{noise}{flag}")
 
     def release(self):
         if self.active_probe:

@@ -12,6 +12,8 @@ public final class CombatTestData {
     public static final Path RESOURCES = Path.of("src/main/resources");
     public static final ResourceLocation BASIC_SWORD = ResourceLocation.fromNamespaceAndPath("myvillage", "basic_sword");
     public static final ResourceLocation QINGFENG_SWORD = ResourceLocation.fromNamespaceAndPath("myvillage", "qingfeng_sword");
+    public static final ResourceLocation BASIC_SPEAR = ResourceLocation.fromNamespaceAndPath("myvillage", "basic_spear");
+    public static final ResourceLocation LINGXIAO_SPEAR = ResourceLocation.fromNamespaceAndPath("myvillage", "lingxiao_spear");
 
     private static CombatStyles styles;
 
@@ -31,6 +33,14 @@ public final class CombatTestData {
 
     public static WeaponDefinition qingfeng() {
         return styles().weapon(QINGFENG_SWORD).orElseThrow();
+    }
+
+    public static CombatStyleDefinition basicSpear() {
+        return styles().style(BASIC_SPEAR).orElseThrow();
+    }
+
+    public static WeaponDefinition lingxiao() {
+        return styles().weapon(LINGXIAO_SPEAR).orElseThrow();
     }
 
     /** Source path of a client asset location such as a weapon's rig or geometry. */

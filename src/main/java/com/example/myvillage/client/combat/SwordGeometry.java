@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import org.joml.Vector3f;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * A sword's geometry contract, loaded from the {@code geometry} asset its weapon entry names (for
@@ -13,6 +14,10 @@ import java.util.Objects;
  * generator). All values are item-model pixels (16 per block): the blade runs along +Y, the flat
  * normal along X, the edge along Z, the same axes as the first-person grip frame. Nothing about the
  * sword's shape is hard-coded in Java; the grip, trail and arm all read this.
+ *
+ * <p>A two-handed weapon also gives {@code off_hand_grip_center}, the leading hand's point: on the
+ * handle axis, inside the handle and ahead of (above) {@code grip_center}. A one-handed weapon
+ * omits it.
  */
 final class SwordGeometry {
     private final Vector3f gripCenter;
@@ -28,6 +33,7 @@ final class SwordGeometry {
     private final float pommelTop;
     private final Vector3f bladeBase;
     private final Vector3f bladeTip;
+    private final Vector3f offHandGripCenter;
 
     private SwordGeometry(
             Vector3f gripCenter,
@@ -39,7 +45,8 @@ final class SwordGeometry {
             float guardHalfThickness,
             float[] pommel,
             Vector3f bladeBase,
-            Vector3f bladeTip) {
+            Vector3f bladeTip,
+            Vector3f offHandGripCenter) {
         this.gripCenter = gripCenter;
         this.handleBottom = handle[0];
         this.handleTop = handle[1];
@@ -53,6 +60,7 @@ final class SwordGeometry {
         this.pommelTop = pommel[1];
         this.bladeBase = bladeBase;
         this.bladeTip = bladeTip;
+        this.offHandGripCenter = offHandGripCenter;
     }
 
     static SwordGeometry parse(JsonObject json) {
@@ -95,8 +103,21 @@ final class SwordGeometry {
         if (bladeAxis.y < 0.999F || Math.abs(base.x - grip.x) > 0.05F || Math.abs(base.z - grip.z) > 0.05F) {
             throw new IllegalArgumentException("Sword blade must run along +Y through the grip axis");
         }
+        Vector3f offHand = null;
+        if (json.has("off_hand_grip_center")) {
+            offHand = point(json, "off_hand_grip_center");
+            if (Math.abs(offHand.x - grip.x) > 0.05F || Math.abs(offHand.z - grip.z) > 0.05F) {
+                throw new IllegalArgumentException("Sword off_hand_grip_center must lie on the handle axis");
+            }
+            if (!(offHand.y > handleY[0] && offHand.y < handleY[1])) {
+                throw new IllegalArgumentException("Sword off_hand_grip_center must lie on the handle");
+            }
+            if (!(offHand.y > grip.y)) {
+                throw new IllegalArgumentException("Sword off_hand_grip_center must lie ahead of grip_center");
+            }
+        }
         return new SwordGeometry(grip, handleY, handleHalfWidth, handleHalfThickness,
-                guardY, guardHalfWidth, guardHalfThickness, pommelY, base, tip);
+                guardY, guardHalfWidth, guardHalfThickness, pommelY, base, tip, offHand);
     }
 
     /** Model-pixel point relative to the grip centre, scaled to blocks by {@code swordScale / 16}. */
@@ -111,6 +132,11 @@ final class SwordGeometry {
 
     Vector3f gripCenter() {
         return new Vector3f(gripCenter);
+    }
+
+    /** The leading (off) hand's grip point, for a two-handed weapon. */
+    Optional<Vector3f> offHandGripCenter() {
+        return Optional.ofNullable(offHandGripCenter).map(Vector3f::new);
     }
 
     Vector3f bladeBase() {

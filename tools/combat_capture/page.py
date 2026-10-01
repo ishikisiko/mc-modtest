@@ -55,8 +55,24 @@ def _source_text(m: dict) -> str:
 NOTE = ("Developer evidence. The stills come from the client freeze probes "
         "(<code>/myvillage_pal_smoke first_person</code> and <code>third_person</code>), which pose the local "
         "client only and send nothing to the server; each still was kept once two consecutive screen grabs were "
-        "identical. The combo run uses real mapped left clicks, and target health is read from the server over "
+        "identical, or three were within two colour levels of each other everywhere (whole-frame rendering "
+        "noise). The combo run uses real mapped left clicks, and target health is read from the server over "
         "rcon before and after. This page records what was captured; it does not record any review outcome.")
+
+
+def camera_text(m: dict) -> str:
+    """One line per third-person view in this capture: F5 side, distance, pitch, yaws."""
+    cams = m.get("capture", {}).get("third_person_camera", {})
+    lines = []
+    for view in m.get("capture", {}).get("views", []):
+        c = cams.get(view[3:] if view.startswith("tp_") else view)
+        if not c:
+            continue
+        dist = (f"barrier wall {c['wall_distance']:g} blocks from the eye" if c.get("wall_distance")
+                else f"vanilla F5 distance {c.get('camera_distance', 4.0):g} blocks")
+        lines.append(f"{escape(view)}: F5 {escape(str(c.get('f5', '')))}, {dist}, pitch {c.get('pitch', 0):g}, "
+                     f"look yaw {c.get('look_yaw', 0):g}, body yaw {c.get('body_yaw', 0):g}")
+    return "<br>".join(lines)
 
 
 def meta_table(m: dict) -> str:
@@ -70,7 +86,10 @@ def meta_table(m: dict) -> str:
         ("Commit", _source_text(m)),
         ("Captured", escape(m.get("created", ""))),
         ("Capture", f"{m['capture']['size'][0]}x{m['capture']['size'][1]}, FOV {m['capture'].get('fov')}, "
-                    f"views {escape(', '.join(m['capture']['views']))}"),
+                    f"views {escape(', '.join(m['capture']['views']))}"
+                    + (f"; weapon drawn {m['capture']['weapon_held_length_blocks']:g} blocks long in a "
+                       f"third-person hand" if m['capture'].get('weapon_held_length_blocks') else "")),
+        ("Third-person cameras", camera_text(m) or "none"),
         ("Frames", f"{len(frames)} ({unstable} not stable)" + ("" if m.get("stills_complete") else
                                                                ", stills run did not complete")),
     ]) + "</table>"
@@ -158,6 +177,10 @@ def comparison_page(cmp: dict) -> str:
         ]) + "</table>"
     body += (f"<p>Pairs: {cmp['counts']['pairs']}; only in A: {cmp['counts']['only_a']}; "
              f"only in B: {cmp['counts']['only_b']}.</p>")
+    if cmp.get("camera_differences"):
+        body += ("<p><strong>Camera settings differ between A and B</strong> for paired views, so those cells "
+                 "do not show the same camera:</p><ul>"
+                 + "".join(f"<li>{escape(d)}</li>" for d in cmp["camera_differences"]) + "</ul>")
     if cmp.get("links"):
         body += "<p>" + " · ".join(f"<a href=\"{escape(href)}\">{escape(text)}</a>"
                                    for text, href in cmp["links"]) + "</p>"
