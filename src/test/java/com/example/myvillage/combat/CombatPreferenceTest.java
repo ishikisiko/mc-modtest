@@ -19,6 +19,12 @@ class CombatPreferenceTest {
     }
 
     @Test
+    void attachmentIdIsStable() {
+        // CombatAttachments registers the attachment under this path; the class needs a live registry.
+        assertEquals("combat_preference", CombatPreference.ATTACHMENT_PATH);
+    }
+
+    @Test
     void codecPersistsOnlyTheNamedMode() {
         CombatPreference preference = new CombatPreference(CombatMode.CULTIVATION);
         JsonObject encoded = CombatPreference.CODEC.encodeStart(JsonOps.INSTANCE, preference)

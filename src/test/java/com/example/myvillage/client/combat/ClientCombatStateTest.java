@@ -122,4 +122,21 @@ final class ClientCombatStateTest {
         ClientCombatState.confirmPrediction(2);
         assertFalse(ClientCombatState.reachCue(104, 3));
     }
+
+    @Test
+    void localActionKnowsItsStyleAndMove() {
+        var style = CombatTestData.basicSword();
+        assertTrue(ClientCombatState.localMove().isEmpty());
+        assertEquals(0, ClientCombatState.preparePrediction(10, style));
+        ClientCombatState.trackLocalAction(style, 0, 10, 3);
+        ClientCombatState.confirmPrediction(1);
+        assertEquals(style, ClientCombatState.localStyle());
+        assertEquals(style.move(0), ClientCombatState.localMove().orElseThrow());
+        assertEquals(style.move(0), ClientCombatState.localMoveFor(3).orElseThrow());
+        assertTrue(ClientCombatState.localMoveFor(2).isEmpty());
+        ClientCombatState.completeAction(30);
+        assertTrue(ClientCombatState.localMove().isEmpty());
+        // Same style inside the combo window continues the combo.
+        assertEquals(1, ClientCombatState.preparePrediction(31, style));
+    }
 }
