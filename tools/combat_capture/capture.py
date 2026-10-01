@@ -187,6 +187,10 @@ class Stills:
         self.press_f5_to("first")
         self.m["combat_mode_before_stills"] = scene.ensure_cultivation(self.s)
         write_manifest(self.out, self.m)
+        # The first still after scene setup and the mode switch kept changing slightly for
+        # over 6 s; let the screen settle once (discarded) before the first probe.
+        _, warm = self.g.stable_grab(max_wait=20.0)
+        self.log(f"warm-up: screen {'settled' if warm['stable'] else 'still changing'} after {warm['seconds']}s")
         try:
             for view in views:
                 self.log(f"== {VIEWS[view]['title']}")
