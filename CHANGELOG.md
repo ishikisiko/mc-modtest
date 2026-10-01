@@ -7,6 +7,62 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.28.0
+
+Combat infrastructure. Qingfeng's five moves, timing, damage, and look are
+unchanged.
+
+### Added
+
+- Bundled combat data under `data/myvillage/combat/`: `style/basic_sword.json`
+  (timing, damage, hit shapes, steps, reactions, sound ids, hit-stop, camera
+  cues), `weapon/qingfeng_sword.json` (item, style, first-person rig, geometry
+  contract), and `index.json`. The files load from the jar at startup on both
+  sides; unknown fields, duplicate keys, and broken timing invariants are
+  startup errors that name the file and field. A datapack cannot override them.
+- `CombatStyles`, a registry that resolves the style by held item and a move by
+  id. Rigs and geometry load per weapon on resource reload.
+- `/myvillage_pal_smoke third_person <move> <tick>` and `third_person release`:
+  an exact full-body freeze probe. The smoke probes now use the style of the
+  weapon in the main hand.
+- `tools/combat_data.py`, the shared reader for the data files.
+- `tools/combat_capture/`: session control, hot reload, per-move stills in first
+  and third person, a mapped-click combo run with video and server-side target
+  health, before/after comparison sheets, and a review page under
+  `out/preview/combat_capture/`.
+- `docs/ai-kb/34_combat_data_and_capture.md`.
+
+### Changed
+
+- `BasicSwordStyle`, the index-aligned camera arrays in `CombatCameraFx`, and
+  every direct `ModItems.QINGFENG_SWORD` check in combat code are removed. The
+  `Qingfeng*` first-person classes are renamed `FirstPersonWeaponAnimator`,
+  `FirstPersonArmRenderer`, `FirstPersonArmIk`, and `FirstPersonArmModel`.
+- `CombatImpactPayload` carries the move id instead of a move index. Payload
+  protocol is `7`, so the client and server need the same jar.
+- `tools/gen_sword_pal_anims.py` reads move timing from the style file. The
+  generated `sword_combat.json` is byte-identical.
+- `tools/validate_sword_combat_foundation.py` validates the data files and
+  their consistency with animations, rigs, translations, and sounds. It holds no
+  per-move numbers and no checks tied to class names; it rejects a named item in
+  combat code.
+
+### Validation
+
+- A Java equivalence test compared the loaded style with the old constants,
+  including every hitbox sample, before the constants were deleted; the values
+  are now pinned in `BasicSwordStyleTest` and
+  `tools/tests/test_combat_style_baseline.py`.
+- 310 Java tests and the Python tool tests pass; the focused validator passes
+  against the built jar. A standalone dedicated server loaded the data from the
+  packaged jar.
+- Headless capture of the game before and after (same probe, same camera): all
+  75 stills (5 moves, 5 key ticks, first person and F5 back/front) match at a
+  2% colour tolerance, and five mapped clicks took the target from `80.0` to
+  `44.18` in both.
+- Not verified: two-client behaviour after the protocol change, a weapon change
+  during an action in a real client, real keyboard play, and sound.
+
 ## 0.27.1-fix1
 
 ### Fixed

@@ -502,7 +502,7 @@ jar tf build/libs/*.jar | grep "assets/myvillage/models/item/cultivation_handboo
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.27.1-fix1.jar
+build/libs/myvillage-0.28.0.jar
 ```
 
 ## Versioning And Changelog
@@ -554,38 +554,39 @@ python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 
 python3 tools/write_visual_acceptance_report.py
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "assets/myvillage/textures/painting/inscription"
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "assets/myvillage/player_animations/sword_combat.json"
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "data/minecraft/tags/item/swords.json"
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "assets/myvillage/textures/item/low_grade_spirit_stone.png"
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "data/myvillage/worldgen/configured_feature/spirit_stone_ore.json"
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "data/myvillage/myvillage/realm/qi_refining.json"
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "assets/myvillage/guides/myvillage/cultivation"
-jar tf build/libs/myvillage-0.27.1-fix1.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
+jar tf build/libs/myvillage-0.28.0.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.28.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.28.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.28.0.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.28.0.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.28.0.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.28.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
+jar tf build/libs/myvillage-0.28.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
+jar tf build/libs/myvillage-0.28.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
+jar tf build/libs/myvillage-0.28.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
+jar tf build/libs/myvillage-0.28.0.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.28.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
+jar tf build/libs/myvillage-0.28.0.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
+jar tf build/libs/myvillage-0.28.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
+jar tf build/libs/myvillage-0.28.0.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
+jar tf build/libs/myvillage-0.28.0.jar | grep "data/myvillage/combat/"
+jar tf build/libs/myvillage-0.28.0.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
+jar tf build/libs/myvillage-0.28.0.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
+jar tf build/libs/myvillage-0.28.0.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
+jar tf build/libs/myvillage-0.28.0.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
+jar tf build/libs/myvillage-0.28.0.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
+jar tf build/libs/myvillage-0.28.0.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
+jar tf build/libs/myvillage-0.28.0.jar | grep "assets/myvillage/player_animations/sword_combat.json"
+jar tf build/libs/myvillage-0.28.0.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.28.0.jar | grep "data/minecraft/tags/item/swords.json"
+jar tf build/libs/myvillage-0.28.0.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
+jar tf build/libs/myvillage-0.28.0.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
+jar tf build/libs/myvillage-0.28.0.jar | grep "assets/myvillage/textures/item/low_grade_spirit_stone.png"
+jar tf build/libs/myvillage-0.28.0.jar | grep "data/myvillage/worldgen/configured_feature/spirit_stone_ore.json"
+jar tf build/libs/myvillage-0.28.0.jar | grep "data/myvillage/myvillage/realm/qi_refining.json"
+jar tf build/libs/myvillage-0.28.0.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
+jar tf build/libs/myvillage-0.28.0.jar | grep "assets/myvillage/guides/myvillage/cultivation"
+jar tf build/libs/myvillage-0.28.0.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -983,6 +984,12 @@ Record only directly observed results below.
 | 0.27.1 first-person wrist top edge: an occasional 1 px dark-green line in the rising-cut follow-through, visible at 6x zoom (lab F `grip_v5/compare_v4_v5_wrist_6x.png`). Suspected skin-texture bleed at the face boundary (the body shirt column next to the arm strip), not geometry; needs a recapture with other skins to confirm, and would be fixed by insetting the arm box UVs | `not_verified` (open) |
 | 0.27.1-fix1 third-person legs walk with the sword drawn (ready idle), arms keep the guard, no foot sinking, smooth return to the stance on stopping | `pass` (headless capture 2026-10-02, local player, front F5 view, W held 2.5 s) |
 | 0.27.1-fix1 walking legs seen on a remote player and under real keyboard play | `not_verified` |
+| 0.28.0 data-driven styles: five moves and server damage unchanged under mapped clicks (target `80.0` to `44.18` before and after) | `pass` (headless capture 2026-10-02, `out/preview/combat_capture/before-vs-after-data-infra`) |
+| 0.28.0 first- and third-person poses unchanged: 75 probe stills (5 moves, 5 key ticks, 3 views) match before and after | `pass` (same capture; developer comparison at 2% colour tolerance, not an owner verdict) |
+| 0.28.0 packaged jar loads the combat data on a standalone dedicated server (protocol `7`) | `pass` |
+| 0.28.0 two-client observation after the protocol change: remote start/stop, impact freeze/jitter, world-trail length | `not_verified` |
+| 0.28.0 weapon change during an action in a real client (unregistered item stops it) | `not_verified` |
+| 0.28.0 real keyboard play and sound | `not_verified` |
 | Remote/third-person world trail follows the hitbox arc | `not_verified` |
 | PAL third-person-model first-person arms/camera animation | `fail` |
 | Two-client nearby five-move start/stop animation and real target damage synchronization | `pass` |

@@ -9,8 +9,10 @@ See also:
 
 - How the combat itself works: [PAL Sword Combat Integration](32_pal_combat_integration.md)
 - Why the route is self-developed: [Combat Framework Comparison](33_combat_framework_comparison.md)
-- Specs in change `add-combat-data-infrastructure`: `combat-style-data`,
-  `combat-data-validation`, `combat-capture-tooling`
+- Specs: [combat-style-data](../../openspec/specs/combat-style-data/spec.md),
+  [combat-data-validation](../../openspec/specs/combat-data-validation/spec.md),
+  [combat-capture-tooling](../../openspec/specs/combat-capture-tooling/spec.md)
+  (archived change `add-combat-data-infrastructure`)
 - Capture tool usage: `tools/combat_capture/README.md`
 
 ## Where each fact lives
@@ -75,7 +77,8 @@ one weapon. A main-hand item with no weapon entry is not a combat weapon.
 
 ## Runtime
 
-- `CombatDataLoader` parses the files into the definition records and throws
+- `CombatDataLoader` parses the files strictly (no duplicate keys, comments,
+  unquoted names, or trailing content) into the definition records and throws
   `CombatDataException` with the file and field. `CombatStyles` is the
   registry: lookups by style id, by item or stack, and by move id.
 - `AttackMoveDefinition` carries `kind`, `feedback` (sound ids), and `camera`.
@@ -94,6 +97,10 @@ one weapon. A main-hand item with no weapon entry is not a combat weapon.
   hold. `FirstPersonWeaponAnimator`, `FirstPersonArmRenderer`,
   `FirstPersonArmIk`, and `FirstPersonArmModel` replace the `Qingfeng*`
   classes.
+- World trails take the blade length from the held item when it is a weapon
+  of the move's style, otherwise from the first registered weapon of that
+  style, so a START that arrives before the equipment update keeps the right
+  length.
 - A sound id with a valid format that is not registered is not a load error;
   the validator checks the ids against `sounds.json`.
 - Entering cultivation mode with no registered weapon in hand plays the first
@@ -106,8 +113,18 @@ and `third_person <n> <tick>` resolve `<n>` (one-based) against the style of the
 main-hand weapon. With no registered weapon they log
 `PAL_SMOKE <probe> rejected reason=no_weapon` and change nothing.
 `third_person` holds the local player's full-body pose at that tick until
-`third_person release`, `stop`, a real action start, or logout. The probes log
+`third_person release`, `stop`, a real action start, or logout. A tick outside
+`[0, total_ticks)` is rejected with
+`PAL_SMOKE third_person rejected reason=tick_out_of_range`, and a refused probe
+changes no pose. The probes log
 `PAL_SMOKE first_person|third_person move=<n> tick=<tick>` and send nothing.
+
+The hold is exact. PAL's `SpeedModifier` passes its accumulated remainder to the
+animation as the partial tick, and at rate zero that remainder keeps whatever
+value in `[0, 1)` it had when the freeze began, so a plain rate-zero hold shows
+a pose up to one tick late and differs between runs. While a probe holds, the
+layer therefore skips the inner tick and renders with partial tick zero, and
+each hold first removes any fade modifier left from an earlier hand-over.
 
 ## Tools
 
