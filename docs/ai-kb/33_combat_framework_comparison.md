@@ -152,10 +152,15 @@ collect evidence. Its scripts still point at the lab folder.
 | Development resource pack | `harness/lab.py devpack` | Rig, model, texture, and contract edits take effect on F3+T in about 5 seconds, without a rebuild |
 | Grip capture | `harness/grip_shots.py` | Per-move stills at fixed ticks: first person through `/myvillage_pal_smoke first_person`, third person through a barrier wall and `tick rate 5` bursts |
 | Before/after sheets | `harness/tools/compare_grip.py` | Pairs two captures by move and moment |
+
+Since 0.28.0 the capture workflow is in the repository as `tools/combat_capture/`
+(session, hot reload, stills, combo run, comparison page), built on the
+repository's own run tasks.
 | Offline model preview | `harness/tools/preview_item_model.py` | Renders a JSON item model in about a second |
 
-The repository has no third-person freeze probe. The lab worked around that
-with slow-motion bursts.
+Until 0.28.0 the repository had no third-person freeze probe, and the lab worked
+around that with slow-motion bursts. `/myvillage_pal_smoke third_person` now
+provides one.
 
 ## Scale-Up Assessment
 
@@ -165,9 +170,11 @@ These are the lab lead's estimates from 2026-10-01. Nothing here was measured.
   `tools/gen_qingfeng_sword_model.py` into one parameter file per sword, then
   hours per sword. The grip code follows the geometry contract, not a
   particular sword.
-- The Java side is the blocker. `ModItems.QINGFENG_SWORD` is referenced 13
+- The Java side was the blocker until 0.28.0, which added the style and weapon
+  registry ([Combat Data and Capture Tooling](34_combat_data_and_capture.md)).
+  At the time of the estimate, `ModItems.QINGFENG_SWORD` was referenced 13
   times in 8 files outside `ModItems` (at `f1988d3`), and `BasicSwordStyle.DEFINITION`
-  is the only style. A registry that selects style, rig, and geometry by held
+  was the only style. A registry that selects style, rig, and geometry by held
   item or tag was estimated at 2 to 3 days, once.
 - New moves or a new style: about 1 to 2 weeks for five moves. More than half
   is hand-tuning the first-person rig (7 to 8 keys of 12 parameters per move,

@@ -10,6 +10,11 @@ See also:
 - Existing network reference: [Rideable Flying Sword](27_rideable_flying_sword.md)
 - Current cultivation runtime: [Cultivation Playable Loop](30_cultivation_playable_loop.md)
 - Framework comparison and direction: [Combat Framework Comparison (Combat Lab)](33_combat_framework_comparison.md)
+- Move and weapon data, validator, and capture tooling since 0.28.0: [Combat Data and Capture Tooling](34_combat_data_and_capture.md)
+
+Since 0.28.0 the move values quoted below live in
+`data/myvillage/combat/style/basic_sword.json`, not in Java constants, and the
+runtime picks the style by held item. The values themselves did not change.
 
 ## Supplied Artifact
 
@@ -137,7 +142,7 @@ basic_sword_05_lunge_thrust
 ```
 
 Attack animation length is authored in seconds and must remain aligned to
-`total_ticks / 20.0` in `BasicSwordStyle`.
+`total_ticks / 20.0` in the style file.
 
 ## First-person Conclusion
 
@@ -164,8 +169,9 @@ absent.
 
 First-person Qingfeng attacks use a separate NeoForge
 `IClientItemExtensions` implementation registered through
-`RegisterClientExtensionsEvent`. `QingfengFirstPersonAnimator` overrides only
-the main-hand Qingfeng transform in cultivation mode. Local prediction starts
+`RegisterClientExtensionsEvent` for every registered weapon item.
+`FirstPersonWeaponAnimator` overrides only the main-hand weapon transform in
+cultivation mode. Local prediction starts
 the matching swing immediately; the authoritative start replays it from
 corrected elapsed ticks, and rejection or interruption blends back to the
 neutral hold over three ticks. The extension does not move the camera, render
@@ -210,13 +216,13 @@ and hand mirroring.
 
 ### Feedback
 
-`BasicSwordStyle.FEEDBACK` gives each move a swing family and pitch, a
-heavy-hit flag (moves 4 and 5), hit-stop ticks (`1.5/2/2/3/4`), camera trauma
+Each move's `feedback` block in the style file gives it a swing sound and
+pitch, a hit sound, an optional heavy layer sound, a heavy-hit flag (moves 4 and 5), hit-stop ticks (`1.5/2/2/3/4`), camera trauma
 (`0.25/0.30/0.30/0.50/0.80`), and a blade-cut roll (`0/0/-35/40/0` degrees).
 `CombatFeedbackService` plays the swing sound one tick before the active start
 (`actionTick == activeStartTick() - 1`) for everyone but the attacker, with
 `CombatSounds.jitteredSwingPitch` adding about 6% pitch variation. The
-attacker's `QingfengFirstPersonAnimator.clientTick` plays the same cue locally
+attacker's `FirstPersonWeaponAnimator.clientTick` plays the same cue locally
 about one tick ahead of the visible strike. After successful damage only, the
 service plays the hit sound (plus the `combat.sword.impact_heavy` layer on
 heavy moves), spawns one `myvillage:blade_cut` particle at the true contact
@@ -253,7 +259,7 @@ are halved in third person. `onComputeFovModifier` removes the vanilla slowness
 zoom that the server's `myvillage:combat_commit` and `myvillage:combat_stun`
 movement modifiers would otherwise cause. Other speed changes still change FOV.
 
-`CombatImpactFx` reads `CombatImpactPayload` (attacker id, revision, move index,
+`CombatImpactFx` reads `CombatImpactPayload` (attacker id, revision, move id,
 struck entity ids, contact points; no damage or health). On the client it skips
 struck non-player entities' ticks for the rounded hit-stop, jitters every
 struck entity except the local player, and drives a remote attacker's PAL
@@ -262,16 +268,16 @@ packet or changes an entity's server state.
 
 ### First-person arm (0.27.1)
 
-`QingfengFirstPersonArmRenderer.onRenderHand` draws a skin and sleeve arm on
+`FirstPersonArmRenderer.onRenderHand` draws a skin and sleeve arm on
 the same shoulder-pivot rig. It is registered before the trail, so the trail
 blends over it, and it never cancels `RenderHandEvent`. It reads the same
 displayed pose as the sword item, so a chain cross-fade moves the arm and the
 sword together.
 
 - Segments: upper arm, forearm, wrist, and a separate fist
-  (`QingfengFirstPersonArmModel`, wide or slim, right or left, cut from the
+  (`FirstPersonArmModel`, wide or slim, right or left, cut from the
   player skin; the fist carries the skin's hand rows).
-- Fist: `QingfengFirstPersonArmIk` locks the fist to the grip frame. The handle
+- Fist: `FirstPersonArmIk` locks the fist to the grip frame. The handle
   crosses the palm at `rig.arm.grip_diagonal`, so the guard shows on the thumb
   side and the pommel below the little finger. The wrist sits one palm behind
   the handle.
@@ -474,7 +480,8 @@ the untouched vanilla path.
 
 ## Timing And Hitbox Tuning
 
-`BasicSwordStyle` is the only owner of the five move contracts. Totals are
+`data/myvillage/combat/style/basic_sword.json` is the only owner of the five
+move contracts. Totals are
 `11/13/15/17/20` ticks and active windows `3-4/4-6/5-7/6-8/7-9`, unchanged since
 0.26.0. Since 0.27.0 the one-slot buffer opens at the active start
 (`bufferStartTick` `3/4/5/6/7`), so a click during the hit is held. Clicks
@@ -535,7 +542,7 @@ active sample uses `0.20` horizontal and `0.12` vertical tolerance. Broad-phase
 union bounds are followed by segment/capsule-style narrow tests, wall clips,
 legal-target filtering, deterministic contact-distance/entity-id ordering, an
 action-wide target cap, and attempted-target deduplication. Payload protocol is
-`6`.
+`7` since 0.28.0 (the impact payload carries the move id).
 
 ## Verified Commands
 

@@ -706,14 +706,23 @@ Obtain the independent functional sword and switch modes with the configurable
 
 In vanilla mode, the Qingfeng Sword follows ordinary diamond-sword attack,
 mining, enchantment, repair, and durability behavior. In cultivation mode,
-mapped attack input is intercepted only while this sword is in the main hand.
-The client sends an empty attack intent; the server owns the move, timing,
+mapped attack input is intercepted only while a registered combat weapon is in
+the main hand; this sword is the only one so far. The client sends an empty attack intent; the server owns the move, timing,
 facing, hit shape, targets, damage, durability, steps, and target reaction. Pickaxes,
 empty hands, other weapons, open screens, and vanilla mode keep their existing
 input paths. An eligible cultivation click also starts one local-only
 first-person Qingfeng swing for the predicted move; an authoritative start
 corrects its elapsed time, and rejection or stop blends back to the neutral
 hold.
+
+Since 0.28.0 the move set is data. Each style file under
+`src/main/resources/data/myvillage/combat/style/` holds a combo's timing,
+damage, hit shapes, steps, reactions, sounds, hit-stop, and camera cues. Each
+weapon file under `.../combat/weapon/` binds an item to a style, a first-person
+rig, and a geometry contract, and `.../combat/index.json` lists both. The files
+ship in the jar and load at startup on both sides; a datapack cannot override
+them and `/reload` does not re-read them. The field reference and the steps to
+add a weapon or a move are in `docs/ai-kb/34_combat_data_and_capture.md`.
 
 The first-person swings are data in
 `src/main/resources/assets/myvillage/combat/qingfeng_first_person.json`. The
@@ -729,7 +738,7 @@ resolves, and an optional `contact` tick anchors the hit-stop. Edit the file and
 reload resources (`F3+T`) to see changes; an invalid file is logged and Qingfeng
 falls back to the vanilla hold.
 
-A skin and sleeve arm (`QingfengFirstPersonArmRenderer`) holds the sword on the
+A skin and sleeve arm (`FirstPersonArmRenderer`) holds the sword on the
 same pivot rig: upper arm, forearm, a bending wrist, and a fist. The handle
 crosses the fist, with the guard showing on the thumb side and the pommel below
 the little finger. The wrist bend stays within anatomical limits, and the arm
@@ -813,13 +822,17 @@ authority:
 ```
 
 For client-side pose review only, a developer client can play each full-body
-PAL curve, or hold one first-person frame at a server tick, without generating
-an attack intent:
+PAL curve, or hold one first-person or third-person frame at a server tick,
+without generating an attack intent. The move number is one-based within the
+style of the weapon in the main hand; with no registered weapon the command
+fails:
 
 ```text
 /myvillage_pal_smoke move 1
 /myvillage_pal_smoke first_person 2 5.0
 /myvillage_pal_smoke first_person release
+/myvillage_pal_smoke third_person 2 5.0
+/myvillage_pal_smoke third_person release
 ```
 
 These local smoke commands prove rendering only. They cannot replace
@@ -829,16 +842,36 @@ Run the focused automated gates before client review:
 
 ```bash
 python3 tools/validate_sword_combat_foundation.py
-python3 -m unittest tools.tests.test_validate_sword_combat_foundation
+python3 -m unittest tools.tests.test_validate_sword_combat_foundation tools.tests.test_combat_data tools.tests.test_combat_style_baseline
 python3 tools/gen_sword_pal_anims.py --check
 python3 tools/gen_blade_cut_sprite.py --check
 python3 tools/gen_qingfeng_sword_model.py --check
 python3 -m unittest tools.tests.test_gen_sword_pal_anims tools.tests.test_gen_blade_cut_sprite tools.tests.test_gen_qingfeng_sword_model
+python3 -m unittest tools.tests.test_combat_capture
 python3 tools/validate_mod_items.py
 ./gradlew test
 ./gradlew build
 ./gradlew runAcceptanceServer
 ```
+
+The validator checks the combat data files and their consistency with the
+animations, rigs, translations, and sounds; it holds no per-move numbers.
+`tools/tests/test_combat_style_baseline.py` pins the accepted Qingfeng values,
+so a deliberate retune updates that test.
+
+To collect presentation evidence on a headless host (stills of every move at
+its key ticks in first and third person, a mapped-click combo with video and
+server-side target health, and a before/after page), use the capture tool. It
+needs `Xvfb`, `xdotool`, `ffmpeg`, and ImageMagick, takes about 6 to 8 minutes
+per pass, and writes to `out/preview/combat_capture/<label>/`:
+
+```bash
+python3 -m tools.combat_capture run --label <label>
+python3 -m tools.combat_capture compare out/preview/combat_capture/<a> out/preview/combat_capture/<b> --label <a-vs-b>
+```
+
+`tools/combat_capture/README.md` has the session, hot-reload, and tuning-loop
+commands. Capture output is developer evidence and records no owner verdict.
 
 For a separate final client profile, connect to the bounded server without
 editing launcher state:
