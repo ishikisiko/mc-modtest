@@ -129,8 +129,18 @@ final class CombatAnimationControllerTest {
         // A probe whose tick is past the end lets PAL stop instead of holding the idle.
         lifecycle.holdProbe();
         assertFalse(lifecycle.onTriggeredFinished(60L));
-        lifecycle.reset();
+        assertEquals(Phase.NONE, lifecycle.phase(), "a finished probe no longer counts as held");
         assertFalse(lifecycle.frozen());
+        assertFalse(lifecycle.reportsActive(), "the client tick may claim the ready idle again");
+    }
+
+    @Test
+    void probeTicksStayInsideTheMove() {
+        assertTrue(CombatAnimationController.probeTickInside(0.0F, 11));
+        assertTrue(CombatAnimationController.probeTickInside(10.9F, 11));
+        assertFalse(CombatAnimationController.probeTickInside(11.0F, 11));
+        assertFalse(CombatAnimationController.probeTickInside(-0.5F, 11));
+        assertFalse(CombatAnimationController.probeTickInside(Float.NaN, 11));
     }
 
     @Test
