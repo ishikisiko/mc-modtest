@@ -37,3 +37,6 @@ chunky-launcher.json
 run-joint-preview/
 .kimi/
 /*.jar
+
+# tools/combat_capture session state, logs and client game directory.
+run-combat-capture/
