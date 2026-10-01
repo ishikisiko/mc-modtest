@@ -3,6 +3,11 @@ package com.example.myvillage.client.combat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.example.myvillage.combat.definition.AttackMoveDefinition;
+import com.example.myvillage.combat.definition.CameraCues;
+import com.example.myvillage.combat.definition.CombatStyleDefinition;
+import com.example.myvillage.combat.definition.CombatTestData;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 final class CombatCameraFxTest {
@@ -42,6 +47,46 @@ final class CombatCameraFxTest {
         assertTrue(CombatCameraFx.envelope(1.0F, 2.0F, 5.0F) > 0.5F);
         assertTrue(CombatCameraFx.envelope(4.0F, 2.0F, 5.0F) < 1.0F);
         assertEquals(0.0F, CombatCameraFx.envelope(7.0F, 2.0F, 5.0F), 1.0E-6F);
+    }
+
+    @Test
+    void hitCuesAreReadFromTheMove() {
+        CombatStyleDefinition style = CombatTestData.basicSword();
+        for (AttackMoveDefinition move : style.moves()) {
+            CombatCameraFx.HitCue first = CombatCameraFx.hitCue(Optional.of(move), true);
+            assertEquals(move.feedback().cameraTrauma(), first.trauma(), 0.0F);
+            assertEquals(move.camera().hitPitchKick(), first.pitchKick(), 0.0F);
+            assertEquals(move.camera().hitRollKick(), first.rollKick(), 0.0F);
+            assertEquals(move.camera().hitFovPunch(), first.fovPunch(), 0.0F);
+            CombatCameraFx.HitCue later = CombatCameraFx.hitCue(Optional.of(move), false);
+            assertEquals(move.feedback().cameraTrauma() * 0.5F, later.trauma(), 0.0F);
+            assertEquals(new CombatCameraFx.HitCue(later.trauma(), 0.0F, 0.0F, 0.0F), later);
+        }
+        // The lunge: -1.2 pitch and a -3 FOV punch; an unknown move only shakes.
+        CombatCameraFx.HitCue lunge = CombatCameraFx.hitCue(Optional.of(style.move(4)), true);
+        assertEquals(new CombatCameraFx.HitCue(0.80F, -1.2F, 0.0F, -3.0F), lunge);
+        assertEquals(new CombatCameraFx.HitCue(CombatCameraFx.UNKNOWN_MOVE_TRAUMA, 0.0F, 0.0F, 0.0F),
+                CombatCameraFx.hitCue(Optional.empty(), true));
+
+        // A move with its own cues gets exactly those.
+        AttackMoveDefinition thrust = style.move(0);
+        AttackMoveDefinition retuned = new AttackMoveDefinition(
+                thrust.id(), thrust.displayKey(), thrust.kind(), thrust.totalTicks(), thrust.activeStartTick(),
+                thrust.activeEndTick(), thrust.damageMultiplier(), thrust.maximumTargets(), thrust.range(),
+                thrust.bufferStartTick(), thrust.chainTick(), thrust.reaction(), thrust.animation(),
+                thrust.hitbox(), thrust.step(), thrust.feedback(), new CameraCues(0.7F, -0.2F, -1.0F, 0.4F, 1.5F));
+        assertEquals(new CombatCameraFx.HitCue(0.25F, 0.7F, -0.2F, -1.0F),
+                CombatCameraFx.hitCue(Optional.of(retuned), true));
+    }
+
+    @Test
+    void accessibilityScalesStillApply() {
+        assertEquals(1.0F, CombatCameraFx.angleScale(1.0F, false), 0.0F);
+        assertEquals(0.5F, CombatCameraFx.angleScale(1.0F, true), 0.0F);
+        assertEquals(0.25F, CombatCameraFx.angleScale(0.5F, true), 0.0F);
+        assertEquals(0.0F, CombatCameraFx.angleScale(0.0F, false), 0.0F);
+        assertEquals(-1.5F, CombatCameraFx.scaledFov(-3.0F, 0.5F), 0.0F);
+        assertEquals(0.0F, CombatCameraFx.scaledFov(2.0F, 0.0F), 0.0F);
     }
 
     @Test

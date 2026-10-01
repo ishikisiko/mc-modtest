@@ -4,20 +4,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.example.myvillage.combat.definition.BasicSwordStyle;
+import com.example.myvillage.combat.definition.CombatTestData;
 import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class CombatSessionTest {
-    private static final ResourceLocation WEAPON = BasicSwordStyle.QINGFENG_SWORD_ID;
+    private static final ResourceLocation WEAPON = CombatTestData.QINGFENG_SWORD;
     private static final ResourceLocation WORLD = ResourceLocation.withDefaultNamespace("overworld");
 
     private CombatSession session;
 
     @BeforeEach
     void setUp() {
-        session = new CombatSession(BasicSwordStyle.DEFINITION);
+        session = new CombatSession(CombatTestData.basicSword());
     }
 
     @Test
@@ -26,7 +26,7 @@ class CombatSessionTest {
         CombatSession.StartEvent current = session.acceptIntent(tick, WEAPON, WORLD, 20.0F)
                 .start().orElseThrow();
         for (int index = 0; index < 5; index++) {
-            assertEquals(index, BasicSwordStyle.DEFINITION.indexOf(current.move().id()));
+            assertEquals(index, CombatTestData.basicSword().indexOf(current.move().id()));
 
             int bufferTick = current.move().bufferStartTick();
             assertEquals(
@@ -38,12 +38,12 @@ class CombatSessionTest {
             assertEquals(CombatStopReason.COMPLETED, transition.stop().orElseThrow().reason());
             if (index < 4) {
                 current = transition.start().orElseThrow();
-                assertEquals(tick + BasicSwordStyle.DEFINITION.move(index).chainTick(), current.startTick());
+                assertEquals(tick + CombatTestData.basicSword().move(index).chainTick(), current.startTick());
                 tick = current.startTick();
             } else {
                 assertTrue(transition.start().isPresent());
                 assertEquals(
-                        BasicSwordStyle.DEFINITION.move(0).id(),
+                        CombatTestData.basicSword().move(0).id(),
                         transition.start().orElseThrow().move().id());
             }
         }
@@ -66,7 +66,7 @@ class CombatSessionTest {
         CombatSession.TickResult chained = session.tick(chainTick, 45.0F);
         assertEquals(first.revision(), chained.stop().orElseThrow().revision());
         CombatSession.StartEvent second = chained.start().orElseThrow();
-        assertEquals(BasicSwordStyle.DEFINITION.move(1).id(), second.move().id());
+        assertEquals(CombatTestData.basicSword().move(1).id(), second.move().id());
         assertEquals(chainTick, second.startTick());
         assertEquals(45.0F, second.facingYaw());
         assertEquals(0, session.actionTick(chainTick));
@@ -107,7 +107,7 @@ class CombatSessionTest {
                 CombatSession.IntentDecision.BUFFERED,
                 session.acceptIntent(total, WEAPON, WORLD, 0.0F).decision());
         assertEquals(
-                BasicSwordStyle.DEFINITION.move(1).id(),
+                CombatTestData.basicSword().move(1).id(),
                 session.tick(total).start().orElseThrow().move().id());
     }
 
@@ -127,14 +127,14 @@ class CombatSessionTest {
                 session.acceptIntent(start.move().bufferStartTick() + 1L, WEAPON, WORLD, 0.0F).decision());
         CombatSession.TickResult chained = session.tick(start.move().chainTick());
         assertEquals(
-                BasicSwordStyle.DEFINITION.move(1).id(),
+                CombatTestData.basicSword().move(1).id(),
                 chained.start().orElseThrow().move().id());
     }
 
     @Test
     void earlyClickDuringTheHitIsBufferedForEveryMove() {
-        for (int index = 0; index < BasicSwordStyle.DEFINITION.moves().size(); index++) {
-            var move = BasicSwordStyle.DEFINITION.move(index);
+        for (int index = 0; index < CombatTestData.basicSword().moves().size(); index++) {
+            var move = CombatTestData.basicSword().move(index);
             assertTrue(move.acceptsBuffer(move.activeStartTick()), move.id().toString());
             assertTrue(move.acceptsBuffer(move.activeEndTick()), move.id().toString());
             assertTrue(!move.acceptsBuffer(move.activeStartTick() - 1), move.id().toString());
@@ -148,10 +148,10 @@ class CombatSessionTest {
         session.tick(first.move().totalTicks());
         assertEquals(1, session.nextMoveIndex());
 
-        long expired = first.move().totalTicks() + BasicSwordStyle.COMBO_TIMEOUT_TICKS + 1L;
+        long expired = first.move().totalTicks() + CombatTestData.basicSword().comboTimeoutTicks() + 1L;
         CombatSession.StartEvent reset = session.acceptIntent(expired, WEAPON, WORLD, 0.0F)
                 .start().orElseThrow();
-        assertEquals(BasicSwordStyle.DEFINITION.move(0).id(), reset.move().id());
+        assertEquals(CombatTestData.basicSword().move(0).id(), reset.move().id());
     }
 
     @Test

@@ -8,15 +8,13 @@ import org.joml.Vector3f;
 import java.util.Objects;
 
 /**
- * The Qingfeng sword's geometry contract, loaded from
- * {@code assets/myvillage/combat/qingfeng_sword_geometry.json} (written by the sword-model
+ * A sword's geometry contract, loaded from the {@code geometry} asset its weapon entry names (for
+ * Qingfeng {@code assets/myvillage/combat/qingfeng_sword_geometry.json}, written by the sword-model
  * generator). All values are item-model pixels (16 per block): the blade runs along +Y, the flat
  * normal along X, the edge along Z, the same axes as the first-person grip frame. Nothing about the
  * sword's shape is hard-coded in Java; the grip, trail and arm all read this.
  */
 final class SwordGeometry {
-    static final String RESOURCE_PATH = "combat/qingfeng_sword_geometry.json";
-
     private final Vector3f gripCenter;
     private final float handleBottom;
     private final float handleTop;

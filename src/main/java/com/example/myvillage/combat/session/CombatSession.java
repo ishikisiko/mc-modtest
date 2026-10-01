@@ -10,7 +10,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public final class CombatSession {
-    private final CombatStyleDefinition style;
+    private CombatStyleDefinition style;
     private final Set<Integer> attemptedEntityIds = new HashSet<>();
 
     private int nextMoveIndex;
@@ -28,6 +28,26 @@ public final class CombatSession {
 
     public CombatSession(CombatStyleDefinition style) {
         this.style = Objects.requireNonNull(style, "style");
+    }
+
+    public CombatStyleDefinition style() {
+        return style;
+    }
+
+    /**
+     * Switches to the held weapon's style between actions. A different style restarts the combo
+     * at its first move; the revision keeps counting, so clients never see it go backwards.
+     */
+    public void useStyle(CombatStyleDefinition replacement) {
+        Objects.requireNonNull(replacement, "replacement");
+        if (replacement.equals(style)) {
+            return;
+        }
+        if (hasActiveAction()) {
+            throw new IllegalStateException("Cannot change the combat style during an action");
+        }
+        style = replacement;
+        resetCombo(CombatStopReason.WEAPON_CHANGED);
     }
 
     public IntentResult acceptIntent(

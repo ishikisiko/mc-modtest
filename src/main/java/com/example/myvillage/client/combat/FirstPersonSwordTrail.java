@@ -1,9 +1,7 @@
 package com.example.myvillage.client.combat;
 
 import com.example.myvillage.combat.CombatMode;
-import com.example.myvillage.combat.definition.BasicSwordStyle;
-import com.example.myvillage.combat.definition.MoveFeedback;
-import com.example.myvillage.item.ModItems;
+import com.example.myvillage.combat.definition.MoveKind;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
@@ -17,14 +15,15 @@ import org.joml.Vector3f;
 import java.util.Optional;
 
 /**
- * Draws the first-person 剑光 ribbon swept by the Qingfeng blade during each move's strike
+ * Draws the first-person 剑光 ribbon swept by the held weapon's blade during each move's strike
  * window. The blade is re-posed at earlier visual ticks, so the ribbon follows the exact same
  * curve as the held item without keeping any frame history, and it pauses with the hit-stop
  * because it reads the same visual tick as the viewmodel.
  *
  * <p>The ribbon is alpha-blended and tapers with age: the newest sample covers the outer 45% of
  * the blade, older samples shrink to a sliver at the tip, and a near-white edge band runs along
- * the tip's path. Thrusts sweep no area, so they draw one camera-facing streak along the blade.
+ * the tip's path. Thrust moves ({@link MoveKind#THRUST}) sweep no area, so they draw one
+ * camera-facing streak along the blade.
  * The blade's base and tip come from the sword geometry contract ({@link SwordGeometry}), placed
  * through the same grip frame and sword scale as the held item.
  */
@@ -48,23 +47,23 @@ public final class FirstPersonSwordTrail {
         if (player == null
                 || event.getHand() != InteractionHand.MAIN_HAND
                 || player.isInvisible()
-                || !event.getItemStack().is(ModItems.QINGFENG_SWORD.get())
                 || ClientCombatState.mode() != CombatMode.CULTIVATION) {
             return;
         }
-        Optional<FirstPersonSwing> swing = FirstPersonSwingResources.current();
-        Optional<QingfengFirstPersonAnimator.Frame> frame = QingfengFirstPersonAnimator.INSTANCE
-                .currentFrame(player, event.getPartialTick());
-        if (swing.isEmpty() || frame.isEmpty()) {
+        Optional<FirstPersonSwingResources.WeaponRig> rig = FirstPersonSwingResources.forStack(event.getItemStack());
+        Optional<FirstPersonWeaponAnimator.Frame> frame = rig.isEmpty()
+                ? Optional.empty()
+                : FirstPersonWeaponAnimator.INSTANCE.currentFrame(player, event.getPartialTick());
+        if (rig.isEmpty() || frame.isEmpty()) {
             return;
         }
+        Optional<FirstPersonSwing> swing = rig.map(FirstPersonSwingResources.WeaponRig::swing);
         FirstPersonSwing.Move move = swing.get().move(frame.get().moveIndex());
         float now = frame.get().tick();
         HumanoidArm arm = player.getMainArm();
         VertexConsumer consumer = event.getMultiBufferSource().getBuffer(CombatRenderTypes.SWORD_TRAIL_TRANSLUCENT);
 
-        boolean thrust = BasicSwordStyle.feedback(frame.get().moveIndex()).swingSound()
-                == MoveFeedback.SwingSound.THRUST;
+        boolean thrust = SwordTrailShape.streak(rig.get().style().move(frame.get().moveIndex()).kind());
         if (thrust) {
             float alpha = SwordTrailShape.streakAlpha(now, move.strikeStartTick(), STREAK_TICKS);
             if (alpha <= 0.0F) {

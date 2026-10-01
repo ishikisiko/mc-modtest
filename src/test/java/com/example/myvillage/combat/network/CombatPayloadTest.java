@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.example.myvillage.combat.CombatMode;
 import com.example.myvillage.combat.session.CombatStopReason;
+import com.example.myvillage.network.ModPayloads;
 import io.netty.buffer.Unpooled;
 import java.util.List;
 import net.minecraft.core.RegistryAccess;
@@ -15,6 +16,9 @@ import net.neoforged.neoforge.network.connection.ConnectionType;
 import org.junit.jupiter.api.Test;
 
 class CombatPayloadTest {
+    private static final ResourceLocation MOVE =
+            ResourceLocation.fromNamespaceAndPath("myvillage", "basic_sword_01_thrust");
+
     @Test
     void c2sIntentsCarryNoAuthorityFieldsOrBytes() {
         assertEquals(0, CombatModeTogglePayload.class.getRecordComponents().length);
@@ -54,7 +58,7 @@ class CombatPayloadTest {
                 new CombatImpactPayload(
                         42,
                         8,
-                        4,
+                        ResourceLocation.fromNamespaceAndPath("myvillage", "basic_sword_05_lunge_thrust"),
                         List.of(7, 99),
                         List.of(new Vec3(1.25, 65.5, -3.0), new Vec3(-0.125, 64.0, 2.75))),
                 CombatImpactPayload.STREAM_CODEC);
@@ -64,16 +68,32 @@ class CombatPayloadTest {
     void impactPayloadNeedsAlignedBoundedContacts() {
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new CombatImpactPayload(42, 8, 0, List.of(), List.of()));
+                () -> new CombatImpactPayload(42, 8, MOVE, List.of(), List.of()));
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new CombatImpactPayload(42, 8, 0, List.of(1, 2), List.of(Vec3.ZERO)));
+                () -> new CombatImpactPayload(42, 8, MOVE, List.of(1, 2), List.of(Vec3.ZERO)));
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new CombatImpactPayload(42, 0, 0, List.of(1), List.of(Vec3.ZERO)));
+                () -> new CombatImpactPayload(42, 0, MOVE, List.of(1), List.of(Vec3.ZERO)));
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new CombatImpactPayload(42, 8, 0, List.of(1), List.of(new Vec3(Double.NaN, 0.0, 0.0))));
+                () -> new CombatImpactPayload(42, 8, MOVE, List.of(1), List.of(new Vec3(Double.NaN, 0.0, 0.0))));
+    }
+
+    @Test
+    void impactNamesTheMoveByIdAndProtocolIsBumped() {
+        CombatImpactPayload impact = new CombatImpactPayload(42, 8, MOVE, List.of(1), List.of(Vec3.ZERO));
+        assertEquals(MOVE, impact.moveId());
+        assertThrows(
+                NullPointerException.class,
+                () -> new CombatImpactPayload(42, 8, null, List.of(1), List.of(Vec3.ZERO)));
+        // Attacker, revision, move id, struck ids and contact points only: no damage or health.
+        assertEquals(
+                List.of("attackerEntityId", "revision", "moveId", "struckEntityIds", "contactPoints"),
+                java.util.Arrays.stream(CombatImpactPayload.class.getRecordComponents())
+                        .map(java.lang.reflect.RecordComponent::getName)
+                        .toList());
+        assertEquals("7", ModPayloads.PROTOCOL_VERSION);
     }
 
     @Test

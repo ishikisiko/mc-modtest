@@ -1,5 +1,7 @@
 package com.example.myvillage.client.combat;
 
+import com.example.myvillage.combat.definition.MoveKind;
+
 /**
  * Pure shape and fade math shared by the first-person and world 剑光 trails. A trail sample is
  * one blade position (base to tip) at some age in [0, 1], where 0 is the blade drawn this frame
@@ -21,6 +23,14 @@ final class SwordTrailShape {
     static final float TIP_ALPHA_SHARE = 0.9F;
 
     private SwordTrailShape() {
+    }
+
+    /**
+     * The trail form a move draws, from its kind: a thrust sweeps no area and draws one streak
+     * along the blade; a cut draws the swept band.
+     */
+    static boolean streak(MoveKind kind) {
+        return kind == MoveKind.THRUST;
     }
 
     /** Where the visible trail starts along the blade for a sample of this age. */

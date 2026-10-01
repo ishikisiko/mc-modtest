@@ -4,7 +4,8 @@ import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.combat.CombatMode;
 import com.example.myvillage.combat.CombatService;
 import com.example.myvillage.combat.definition.AttackMoveDefinition;
-import com.example.myvillage.combat.definition.BasicSwordStyle;
+import com.example.myvillage.combat.definition.CombatStyleDefinition;
+import com.example.myvillage.combat.definition.CombatStyles;
 import com.example.myvillage.combat.network.CombatAttackStartPayload;
 import com.example.myvillage.combat.network.CombatAttackStopPayload;
 import com.example.myvillage.combat.runtime.CombatDamageService;
@@ -14,7 +15,6 @@ import com.example.myvillage.combat.runtime.CombatHitResolver;
 import com.example.myvillage.combat.runtime.CombatStepService;
 import com.example.myvillage.cultivation.meditation.MeditationManager;
 import com.example.myvillage.cultivation.meditation.MeditationStopReason;
-import com.example.myvillage.item.ModItems;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -57,19 +57,26 @@ public final class CombatSessionManager {
             return false;
         }
         CombatStopReason failure = eligibilityFailure(player, null);
-        if (failure != null || !CombatTimingPolicy.recoveryComplete(
+        Optional<CombatStyleDefinition> style = CombatStyles.bundled().styleFor(player.getMainHandItem());
+        if (failure == null) {
+            failure = weaponFailure(style, SESSIONS.get(player.getUUID()));
+        }
+        if (failure != null || style.isEmpty() || !CombatTimingPolicy.recoveryComplete(
                 tick, BLOCKED_UNTIL_TICKS.getOrDefault(player.getUUID(), Long.MIN_VALUE))) {
             sendRejection(player);
             return false;
         }
         Long lastIntent = LAST_INTENT_TICKS.get(player.getUUID());
         if (!CombatTimingPolicy.allowsIntent(
-                lastIntent, tick, BasicSwordStyle.DEFINITION.minimumIntentIntervalTicks())) {
+                lastIntent, tick, style.get().minimumIntentIntervalTicks())) {
             sendRejection(player);
             return false;
         }
         CombatSession session = SESSIONS.computeIfAbsent(
-                player.getUUID(), ignored -> new CombatSession(BasicSwordStyle.DEFINITION));
+                player.getUUID(), ignored -> new CombatSession(style.get()));
+        // Between actions the session follows the held weapon; during one, eligibility has already
+        // rejected a weapon of another style.
+        session.useStyle(style.get());
         ResourceLocation weaponId = BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem());
         ResourceLocation worldId = player.level().dimension().location();
         CombatSession.IntentResult result = session.acceptIntent(
@@ -266,8 +273,10 @@ public final class CombatSessionManager {
         if (CombatService.getMode(player) != CombatMode.CULTIVATION) {
             return CombatStopReason.MODE_CHANGED;
         }
-        if (!player.getMainHandItem().is(ModItems.QINGFENG_SWORD.get())) {
-            return CombatStopReason.WEAPON_CHANGED;
+        CombatStopReason weaponFailure = weaponFailure(
+                CombatStyles.bundled().styleFor(player.getMainHandItem()), session);
+        if (weaponFailure != null) {
+            return weaponFailure;
         }
         if (MeditationManager.status(player).state().active()) {
             return CombatStopReason.CULTIVATION_STARTED;
@@ -275,6 +284,20 @@ public final class CombatSessionManager {
         if (session != null && session.hasActiveAction()
                 && !player.level().dimension().location().equals(session.worldId())) {
             return CombatStopReason.DIMENSION_CHANGED;
+        }
+        return null;
+    }
+
+    /**
+     * WEAPON_CHANGED when the held item is not a registered weapon, or when an action is running
+     * with another style than the held weapon's. Two weapons of one style are interchangeable.
+     */
+    static CombatStopReason weaponFailure(Optional<CombatStyleDefinition> heldStyle, CombatSession session) {
+        if (heldStyle.isEmpty()) {
+            return CombatStopReason.WEAPON_CHANGED;
+        }
+        if (session != null && session.hasActiveAction() && !session.style().equals(heldStyle.get())) {
+            return CombatStopReason.WEAPON_CHANGED;
         }
         return null;
     }

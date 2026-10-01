@@ -26,7 +26,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * Server-authoritative target reaction to a successful Qingfeng hit.
+ * Server-authoritative target reaction to a successful combat-weapon hit.
  *
  * <ol>
  *     <li>Freeze: a struck non-player {@link Mob} skips its whole entity tick for
@@ -60,14 +60,14 @@ public final class CombatReactionService {
             return;
         }
         long now = target.level().getGameTime();
-        boolean excluded = excluded(target);
+        boolean excluded = excludedType(target.getClass());
         Reaction reaction = REACTIONS.get(target.getId());
         if (reaction == null || reaction.target != target) {
             reaction = new Reaction(target);
             REACTIONS.put(target.getId(), reaction);
         }
 
-        boolean freezable = target instanceof Mob && !excluded && freezeTicks > 0 && !target.isDeadOrDying();
+        boolean freezable = freezes(target.getClass(), freezeTicks) && !target.isDeadOrDying();
         if (freezable) {
             reaction.freezeUntil = Math.max(reaction.freezeUntil, now + freezeTicks);
             reaction.pendingImpulse = impulse;
@@ -87,7 +87,7 @@ public final class CombatReactionService {
             if (stun > 0) {
                 long begin = Math.max(now, reaction.freezeUntil);
                 reaction.stunUntil = Math.max(reaction.stunUntil, begin + stun);
-                if (target instanceof Player) {
+                if (stunSlows(target.getClass())) {
                     setPlayerStun(target, true);
                 }
             }
@@ -231,8 +231,21 @@ public final class CombatReactionService {
         }
     }
 
-    private static boolean excluded(LivingEntity target) {
-        return target instanceof EnderDragon || target instanceof WitherBoss || target instanceof Warden;
+    /** The Ender Dragon, Wither and Warden are never frozen or stunned. */
+    static boolean excludedType(Class<? extends Entity> type) {
+        return EnderDragon.class.isAssignableFrom(type)
+                || WitherBoss.class.isAssignableFrom(type)
+                || Warden.class.isAssignableFrom(type);
+    }
+
+    /** Only non-boss {@link Mob}s freeze for the hit-stop; players and other entities never do. */
+    static boolean freezes(Class<? extends Entity> type, int freezeTicks) {
+        return Mob.class.isAssignableFrom(type) && !excludedType(type) && freezeTicks > 0;
+    }
+
+    /** Players are not frozen; a stun gives them the transient movement slow instead. */
+    static boolean stunSlows(Class<? extends Entity> type) {
+        return Player.class.isAssignableFrom(type);
     }
 
     private static final class Reaction {

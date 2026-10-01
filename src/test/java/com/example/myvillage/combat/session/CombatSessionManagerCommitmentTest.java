@@ -3,13 +3,13 @@ package com.example.myvillage.combat.session;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.example.myvillage.combat.definition.AttackMoveDefinition;
-import com.example.myvillage.combat.definition.BasicSwordStyle;
+import com.example.myvillage.combat.definition.CombatTestData;
 import org.junit.jupiter.api.Test;
 
 class CombatSessionManagerCommitmentTest {
     @Test
     void commitmentIsHeavyThroughTheStrikeLighterInRecoveryAndGoneAtTheChainTick() {
-        AttackMoveDefinition thrust = BasicSwordStyle.DEFINITION.move(0);
+        AttackMoveDefinition thrust = CombatTestData.basicSword().move(0);
         assertEquals(-0.75, CombatSessionManager.commitmentAt(thrust, 0));
         assertEquals(-0.75, CombatSessionManager.commitmentAt(thrust, thrust.activeEndTick()));
         assertEquals(-0.4, CombatSessionManager.commitmentAt(thrust, thrust.activeEndTick() + 1));
@@ -19,7 +19,7 @@ class CombatSessionManagerCommitmentTest {
 
     @Test
     void finisherStaysCommittedUntilItsEnd() {
-        AttackMoveDefinition lunge = BasicSwordStyle.DEFINITION.move(4);
+        AttackMoveDefinition lunge = CombatTestData.basicSword().move(4);
         assertEquals(-0.4, CombatSessionManager.commitmentAt(lunge, lunge.totalTicks() - 1));
         assertEquals("myvillage:combat_commit", CombatSessionManager.COMMIT_MODIFIER_ID.toString());
     }

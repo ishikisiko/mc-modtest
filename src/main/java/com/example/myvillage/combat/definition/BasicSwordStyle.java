@@ -8,13 +8,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+/**
+ * The pre-data Qingfeng constants, kept only until the equivalence test proves the bundled
+ * {@code basic_sword.json} reproduces them. Nothing at runtime reads this class.
+ */
+@Deprecated(forRemoval = true)
 public final class BasicSwordStyle {
     public static final ResourceLocation QINGFENG_SWORD_ID = id("qingfeng_sword");
     public static final ResourceLocation READY_IDLE_ANIMATION = id("sword_ready_idle");
     public static final int COMBO_TIMEOUT_TICKS = 14;
     public static final int MINIMUM_INTENT_INTERVAL_TICKS = 2;
 
-    public static final CombatStyleDefinition DEFINITION = new CombatStyleDefinition(
+    public static final LegacyStyle DEFINITION = new LegacyStyle(
             id("basic_sword"),
             Set.of(QINGFENG_SWORD_ID),
             COMBO_TIMEOUT_TICKS,
@@ -51,21 +56,21 @@ public final class BasicSwordStyle {
      * heavy-impact layer, hit-stop ticks (also the server target-freeze length), camera trauma,
      * and the blade-cut particle roll in degrees.
      */
-    public static final List<MoveFeedback> FEEDBACK = List.of(
-            new MoveFeedback(MoveFeedback.SwingSound.THRUST, 1.25F, false, 1.5F, 0.25F, 0.0F),
-            new MoveFeedback(MoveFeedback.SwingSound.CUT, 1.10F, false, 2.0F, 0.30F, 0.0F),
-            new MoveFeedback(MoveFeedback.SwingSound.CUT, 1.20F, false, 2.0F, 0.30F, -35.0F),
-            new MoveFeedback(MoveFeedback.SwingSound.CUT, 0.95F, true, 3.0F, 0.50F, 40.0F),
-            new MoveFeedback(MoveFeedback.SwingSound.THRUST, 0.90F, true, 4.0F, 0.80F, 0.0F));
+    public static final List<LegacyFeedback> FEEDBACK = List.of(
+            new LegacyFeedback(SwingSound.THRUST, 1.25F, false, 1.5F, 0.25F, 0.0F),
+            new LegacyFeedback(SwingSound.CUT, 1.10F, false, 2.0F, 0.30F, 0.0F),
+            new LegacyFeedback(SwingSound.CUT, 1.20F, false, 2.0F, 0.30F, -35.0F),
+            new LegacyFeedback(SwingSound.CUT, 0.95F, true, 3.0F, 0.50F, 40.0F),
+            new LegacyFeedback(SwingSound.THRUST, 0.90F, true, 4.0F, 0.80F, 0.0F));
 
     private BasicSwordStyle() {
     }
 
-    public static MoveFeedback feedback(int moveIndex) {
+    public static LegacyFeedback feedback(int moveIndex) {
         return FEEDBACK.get(moveIndex);
     }
 
-    private static AttackMoveDefinition move(
+    private static LegacyMove move(
             String path,
             String displayKey,
             int totalTicks,
@@ -81,7 +86,7 @@ public final class BasicSwordStyle {
             List<HitboxSample> samples,
             Optional<StepDefinition> step) {
         ResourceLocation moveId = id(path);
-        return new AttackMoveDefinition(
+        return new LegacyMove(
                 moveId,
                 displayKey,
                 totalTicks,
@@ -161,5 +166,47 @@ public final class BasicSwordStyle {
 
     private static ResourceLocation id(String path) {
         return ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID, path);
+    }
+
+    public enum SwingSound {
+        CUT,
+        THRUST
+    }
+
+    public record LegacyFeedback(
+            SwingSound swingSound,
+            float swingPitch,
+            boolean heavyHit,
+            float hitStopTicks,
+            float cameraTrauma,
+            float cutRollDegrees) {
+    }
+
+    public record LegacyStyle(
+            ResourceLocation id,
+            Set<ResourceLocation> supportedItems,
+            int comboTimeoutTicks,
+            int minimumIntentIntervalTicks,
+            List<LegacyMove> moves) {
+        public LegacyMove move(int index) {
+            return moves.get(index);
+        }
+    }
+
+    public record LegacyMove(
+            ResourceLocation id,
+            String displayKey,
+            int totalTicks,
+            int activeStartTick,
+            int activeEndTick,
+            double damageMultiplier,
+            int maximumTargets,
+            double range,
+            int bufferStartTick,
+            int chainTick,
+            ReactionDefinition reaction,
+            AnimationDefinition animation,
+            HitboxDefinition hitbox,
+            Optional<StepDefinition> step) {
     }
 }

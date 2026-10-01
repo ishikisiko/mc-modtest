@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.example.myvillage.combat.definition.AttackMoveDefinition;
-import com.example.myvillage.combat.definition.BasicSwordStyle;
+import com.example.myvillage.combat.definition.CombatTestData;
 import com.example.myvillage.combat.definition.HitboxSample;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -55,7 +55,7 @@ class CombatGeometryTest {
 
     @Test
     void everyMoveHasStableInsideAndOutsideNarrowPhaseBoundaries() {
-        for (AttackMoveDefinition move : BasicSwordStyle.DEFINITION.moves()) {
+        for (AttackMoveDefinition move : CombatTestData.basicSword().moves()) {
             HitboxSample local = move.hitbox().samplesAt(move.activeStartTick()).getFirst();
             CombatGeometry.WorldSample sample = CombatGeometry.transform(local, Vec3.ZERO, 0.0F);
             Vec3 direction = sample.end().subtract(sample.start());

@@ -6,16 +6,20 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * One server-authoritative move.
+ * One server-authoritative move, loaded from a style file.
  *
  * <p>Input buffer: a click at {@code bufferStartTick <= actionTick < totalTicks} is held in the
  * session's single slot (clicks during anticipation are rejected). Chain: a held click starts the
  * next move at {@code chainTick}, cancelling the rest of this move's recovery; without a held click
  * the move still plays to {@code totalTicks}.
+ *
+ * <p>{@code kind}, {@code feedback} and {@code camera} are presentation: the server reads only the
+ * feedback's hit-stop length to size the target freeze.
  */
 public record AttackMoveDefinition(
         ResourceLocation id,
         String displayKey,
+        MoveKind kind,
         int totalTicks,
         int activeStartTick,
         int activeEndTick,
@@ -27,14 +31,19 @@ public record AttackMoveDefinition(
         ReactionDefinition reaction,
         AnimationDefinition animation,
         HitboxDefinition hitbox,
-        Optional<StepDefinition> step) {
+        Optional<StepDefinition> step,
+        MoveFeedback feedback,
+        CameraCues camera) {
     public AttackMoveDefinition {
         Objects.requireNonNull(id, "id");
         Objects.requireNonNull(displayKey, "displayKey");
+        Objects.requireNonNull(kind, "kind");
         Objects.requireNonNull(reaction, "reaction");
         Objects.requireNonNull(animation, "animation");
         Objects.requireNonNull(hitbox, "hitbox");
         step = Objects.requireNonNull(step, "step");
+        Objects.requireNonNull(feedback, "feedback");
+        Objects.requireNonNull(camera, "camera");
         if (displayKey.isBlank()) {
             throw new IllegalArgumentException("Display key must not be blank");
         }
@@ -56,6 +65,9 @@ public record AttackMoveDefinition(
         }
         if (step.isPresent() && step.orElseThrow().actionTick() >= totalTicks) {
             throw new IllegalArgumentException("Step tick must lie inside the move duration");
+        }
+        if (camera.stepFovSurge() > 0.0F && step.isEmpty()) {
+            throw new IllegalArgumentException("A step FOV surge needs a step");
         }
     }
 

@@ -3,7 +3,8 @@ package com.example.myvillage.client.combat;
 import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.combat.CombatMode;
 import com.example.myvillage.combat.definition.AttackMoveDefinition;
-import com.example.myvillage.combat.definition.BasicSwordStyle;
+import com.example.myvillage.combat.definition.CombatStyleDefinition;
+import com.example.myvillage.combat.definition.CombatStyles;
 import com.example.myvillage.combat.network.CombatAttackReceiver;
 import com.example.myvillage.combat.network.CombatAttackStartPayload;
 import com.example.myvillage.combat.network.CombatAttackStopPayload;
@@ -15,10 +16,10 @@ import com.example.myvillage.combat.network.CombatModeTogglePayload;
 import com.example.myvillage.combat.network.SwordAttackIntentPayload;
 import com.example.myvillage.combat.session.CombatStopReason;
 import com.example.myvillage.client.cultivation.ClientCultivationState;
-import com.example.myvillage.item.ModItems;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.neoforged.api.distmarker.Dist;
@@ -29,6 +30,8 @@ import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
+import java.util.Optional;
+
 @EventBusSubscriber(modid = MyVillageMod.MOD_ID, value = Dist.CLIENT)
 public final class ClientCombatEvents {
     private static final int CLIENT_INTENT_INTERVAL_TICKS = 2;
@@ -38,8 +41,6 @@ public final class ClientCombatEvents {
      * is sent in the same server tick; allow this many client ticks before giving up on it.
      */
     private static final int CHAIN_CONFIRM_GRACE_TICKS = 2;
-    /** A step at least this long is a lunge and widens the camera's FOV as it launches. */
-    private static final double LUNGE_STEP_DISTANCE = 1.0;
     private static long lastAttackIntentTick = Long.MIN_VALUE;
 
     static {
@@ -67,7 +68,7 @@ public final class ClientCombatEvents {
             return;
         }
 
-        QingfengFirstPersonAnimator.clientTick(player);
+        FirstPersonWeaponAnimator.clientTick(player);
         long tick = minecraft.level.getGameTime();
         if (ClientCombatState.chainPredictionAbandoned(tick, CHAIN_CONFIRM_GRACE_TICKS)
                 || (ClientCombatState.predictionPending()
@@ -83,8 +84,9 @@ public final class ClientCombatEvents {
             return;
         }
 
+        Optional<CombatStyleDefinition> heldStyle = CombatStyles.bundled().styleFor(player.getMainHandItem());
         boolean shouldReady = ClientCombatState.mode() == CombatMode.CULTIVATION
-                && player.getMainHandItem().is(ModItems.QINGFENG_SWORD.get())
+                && heldStyle.isPresent()
                 && player.isAlive()
                 && !ClientCombatState.predictionPending()
                 && !ClientCombatState.localActionActive()
@@ -94,8 +96,17 @@ public final class ClientCombatEvents {
         if (shouldReady
                 && !ClientCombatState.readyAnimation()
                 && !CombatAnimationController.isActive(player)) {
-            if (CombatAnimationController.transition(player, BasicSwordStyle.READY_IDLE_ANIMATION)) {
-                ClientCombatState.markReadyAnimation();
+            ResourceLocation readyIdle = heldStyle.get().readyIdleAnimation();
+            if (CombatAnimationController.transition(player, readyIdle)) {
+                ClientCombatState.markReadyAnimation(readyIdle);
+            }
+        } else if (shouldReady
+                && ClientCombatState.readyAnimation()
+                && !heldStyle.get().readyIdleAnimation().equals(ClientCombatState.readyIdleAnimation())) {
+            // A weapon of another style took over the guard: switch to its own ready idle.
+            ResourceLocation readyIdle = heldStyle.get().readyIdleAnimation();
+            if (CombatAnimationController.transition(player, readyIdle)) {
+                ClientCombatState.markReadyAnimation(readyIdle);
             }
         } else if (!shouldReady && ClientCombatState.readyAnimation()) {
             CombatAnimationController.stop(player);
@@ -112,8 +123,11 @@ public final class ClientCombatEvents {
                 || player == null
                 || !player.isAlive()
                 || minecraft.screen != null
-                || ClientCombatState.mode() != CombatMode.CULTIVATION
-                || !player.getMainHandItem().is(ModItems.QINGFENG_SWORD.get())) {
+                || ClientCombatState.mode() != CombatMode.CULTIVATION) {
+            return;
+        }
+        Optional<CombatStyleDefinition> heldStyle = CombatStyles.bundled().styleFor(player.getMainHandItem());
+        if (heldStyle.isEmpty()) {
             return;
         }
 
@@ -133,20 +147,21 @@ public final class ClientCombatEvents {
         if (ClientCombatState.localActionActive() || ClientCombatState.predictionPending()) {
             // The server holds one click from the move's bufferStartTick; remember it here too so
             // the chained move can be predicted at the chain tick instead of waiting a round trip.
-            ClientCombatState.bufferClick(tick, BasicSwordStyle.DEFINITION);
+            CombatStyleDefinition localStyle = ClientCombatState.localStyle();
+            if (localStyle != null) {
+                ClientCombatState.bufferClick(tick, localStyle);
+            }
             return;
         }
         player.swing(InteractionHand.MAIN_HAND, false);
         player.setSprinting(false);
-        int predictedIndex = ClientCombatState.preparePrediction(
-                tick, BasicSwordStyle.DEFINITION.comboTimeoutTicks());
-        CombatAnimationController.play(
-                player,
-                BasicSwordStyle.DEFINITION.move(predictedIndex).animation().animationId(),
-                0.0F);
-        CombatWorldTrails.start(player, predictedIndex, 0.0F, player.getYRot());
+        CombatStyleDefinition style = heldStyle.get();
+        int predictedIndex = ClientCombatState.preparePrediction(tick, style);
+        AttackMoveDefinition move = style.move(predictedIndex);
+        CombatAnimationController.play(player, move.animation().animationId(), 0.0F);
+        CombatWorldTrails.start(player, move, 0.0F, player.getYRot());
         ClientCombatState.beginPrediction(tick);
-        ClientCombatState.trackLocalAction(predictedIndex, tick, -1L);
+        ClientCombatState.trackLocalAction(style, predictedIndex, tick, -1L);
     }
 
     /**
@@ -156,39 +171,39 @@ public final class ClientCombatEvents {
      * confirm it like any other prediction, or a missing START drops it.
      */
     private static void predictChainedMove(LocalPlayer player, long tick) {
+        CombatStyleDefinition style = ClientCombatState.localStyle();
         if (ClientCombatState.mode() != CombatMode.CULTIVATION
-                || !player.getMainHandItem().is(ModItems.QINGFENG_SWORD.get())
+                || style == null
+                || !CombatStyles.bundled().styleFor(player.getMainHandItem()).filter(style::equals).isPresent()
                 || !player.isAlive()) {
             return;
         }
-        int nextIndex = ClientCombatState.chainDue(tick, BasicSwordStyle.DEFINITION);
+        int nextIndex = ClientCombatState.chainDue(tick, style);
         if (nextIndex < 0) {
             return;
         }
         player.swing(InteractionHand.MAIN_HAND, false);
         player.setSprinting(false);
-        CombatAnimationController.play(
-                player,
-                BasicSwordStyle.DEFINITION.move(nextIndex).animation().animationId(),
-                0.0F);
-        CombatWorldTrails.start(player, nextIndex, 0.0F, player.getYRot());
+        AttackMoveDefinition move = style.move(nextIndex);
+        CombatAnimationController.play(player, move.animation().animationId(), 0.0F);
+        CombatWorldTrails.start(player, move, 0.0F, player.getYRot());
         ClientCombatState.beginChainPrediction(tick, nextIndex);
     }
 
-    /** Camera cues on the local action's timeline: a lean as the blade starts, the lunge surge. */
+    /** Camera cues on the local action's timeline: a lean as the blade starts, the step surge. */
     private static void playLocalCues(long tick) {
-        int moveIndex = ClientCombatState.localMoveIndex();
-        if (moveIndex < 0) {
+        Optional<AttackMoveDefinition> local = ClientCombatState.localMove();
+        if (local.isEmpty()) {
             return;
         }
-        AttackMoveDefinition move = BasicSwordStyle.DEFINITION.move(moveIndex);
+        AttackMoveDefinition move = local.get();
         if (ClientCombatState.reachCue(tick, Math.max(0, move.activeStartTick() - 1))) {
-            CombatCameraFx.swingLean(moveIndex);
+            CombatCameraFx.swingLean(move.camera().swingLeanDegrees());
         }
         move.step()
-                .filter(step -> step.maximumDistance() >= LUNGE_STEP_DISTANCE)
+                .filter(step -> move.camera().stepFovSurge() > 0.0F)
                 .filter(step -> ClientCombatState.reachCue(tick, step.actionTick()))
-                .ifPresent(step -> CombatCameraFx.lungeSurge());
+                .ifPresent(step -> CombatCameraFx.stepSurge(move.camera().stepFovSurge()));
         ClientCombatState.markCuesThrough(tick);
     }
 
@@ -220,7 +235,7 @@ public final class ClientCombatEvents {
         }
         if (payload.mode() == CombatMode.CULTIVATION) {
             CombatAnimationController.play(
-                    player, CombatAnimationController.SMOKE_ANIMATION, 0.0F);
+                    player, CombatAnimationController.modeEnterAnimation(player), 0.0F);
         } else {
             CombatAnimationController.stop(player);
         }
@@ -233,24 +248,25 @@ public final class ClientCombatEvents {
                 payload.attackerEntityId(), payload.revision())) {
             return;
         }
-        int moveIndex = BasicSwordStyle.DEFINITION.indexOf(payload.moveId());
+        Optional<CombatStyles.MoveRef> started = CombatStyles.bundled().move(payload.moveId());
         Entity entity = minecraft.level.getEntity(payload.attackerEntityId());
-        if (moveIndex < 0 || !(entity instanceof AbstractClientPlayer player)) {
+        if (started.isEmpty() || !(entity instanceof AbstractClientPlayer player)) {
             return;
         }
+        CombatStyleDefinition style = started.get().style();
+        int moveIndex = started.get().index();
         boolean localPredictionPending = player == minecraft.player
                 && ClientCombatState.predictionPending();
         long elapsed = Math.max(0L, minecraft.level.getGameTime() - payload.serverStartTick());
         CombatAnimationController.play(player, payload.moveId(), (float) elapsed);
-        CombatWorldTrails.start(player, moveIndex, (float) elapsed, payload.facingYaw());
+        CombatWorldTrails.start(player, started.get().move(), (float) elapsed, payload.facingYaw());
         if (player == minecraft.player) {
             if (!localPredictionPending) {
                 player.swing(InteractionHand.MAIN_HAND, false);
                 player.setSprinting(false);
             }
-            ClientCombatState.trackLocalAction(moveIndex, payload.serverStartTick(), payload.revision());
-            ClientCombatState.confirmPrediction(
-                    (moveIndex + 1) % BasicSwordStyle.DEFINITION.moves().size());
+            ClientCombatState.trackLocalAction(style, moveIndex, payload.serverStartTick(), payload.revision());
+            ClientCombatState.confirmPrediction((moveIndex + 1) % style.moves().size());
         }
     }
 
@@ -302,9 +318,9 @@ public final class ClientCombatEvents {
         Minecraft minecraft = Minecraft.getInstance();
         LocalPlayer player = minecraft.player;
         if (player != null && payload.attackerEntityId() == player.getId()) {
-            QingfengFirstPersonAnimator.confirmHit(player);
+            FirstPersonWeaponAnimator.confirmHit(player);
             CombatCameraFx.onHitConfirm(
-                    ClientCombatState.localMoveIndexFor(payload.revision()), payload.revision());
+                    ClientCombatState.localMoveFor(payload.revision()), payload.revision());
         }
     }
 

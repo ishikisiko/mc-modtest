@@ -7,12 +7,17 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
+import java.util.Optional;
+import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.Test;
 
+/** The bundled {@code myvillage:basic_sword} style (the Qingfeng sword's moves). */
 class BasicSwordStyleTest {
+    private static final CombatStyleDefinition STYLE = CombatTestData.basicSword();
+
     @Test
     void centralDefinitionMatchesTheFiveMoveContract() {
-        List<AttackMoveDefinition> moves = BasicSwordStyle.DEFINITION.moves();
+        List<AttackMoveDefinition> moves = STYLE.moves();
 
         assertEquals(5, moves.size());
         assertEquals(
@@ -51,14 +56,14 @@ class BasicSwordStyleTest {
         assertEquals(
                 List.of(0.0, 0.3, 0.0, 0.0, 0.0),
                 moves.stream().map(move -> move.reaction().lateralBias()).toList());
-        assertEquals(14, BasicSwordStyle.DEFINITION.comboTimeoutTicks());
-        assertEquals(2, BasicSwordStyle.DEFINITION.minimumIntentIntervalTicks());
+        assertEquals(14, STYLE.comboTimeoutTicks());
+        assertEquals(2, STYLE.minimumIntentIntervalTicks());
         assertEquals(5, moves.stream().map(move -> move.hitbox().shapeFamily()).distinct().count());
     }
 
     @Test
     void animationAndHitboxContractsAreBoundedAndDistinct() {
-        List<AttackMoveDefinition> moves = BasicSwordStyle.DEFINITION.moves();
+        List<AttackMoveDefinition> moves = STYLE.moves();
         for (AttackMoveDefinition move : moves) {
             assertEquals(move.id(), move.animation().animationId());
             assertEquals(move.totalTicks(), move.animation().lengthTicks());
@@ -89,29 +94,30 @@ class BasicSwordStyleTest {
 
     @Test
     void everyMoveHasPresentationFeedback() {
-        assertEquals(BasicSwordStyle.DEFINITION.moves().size(), BasicSwordStyle.FEEDBACK.size());
-        assertEquals(MoveFeedback.SwingSound.THRUST, BasicSwordStyle.feedback(0).swingSound());
-        assertEquals(MoveFeedback.SwingSound.THRUST, BasicSwordStyle.feedback(4).swingSound());
-        assertTrue(BasicSwordStyle.feedback(4).heavyHit());
-        assertTrue(BasicSwordStyle.feedback(3).heavyHit());
-        assertFalse(BasicSwordStyle.feedback(0).heavyHit());
-        for (int index = 1; index <= 3; index++) {
-            assertEquals(MoveFeedback.SwingSound.CUT, BasicSwordStyle.feedback(index).swingSound());
-        }
+        List<MoveFeedback> feedback = STYLE.moves().stream().map(AttackMoveDefinition::feedback).toList();
+        ResourceLocation thrust = id("combat.sword.thrust");
+        ResourceLocation cut = id("combat.sword.cut");
+        assertEquals(List.of(thrust, cut, cut, cut, thrust), feedback.stream().map(MoveFeedback::swingSound).toList());
+        assertEquals(
+                List.of(MoveKind.THRUST, MoveKind.CUT, MoveKind.CUT, MoveKind.CUT, MoveKind.THRUST),
+                STYLE.moves().stream().map(AttackMoveDefinition::kind).toList());
+        assertTrue(feedback.get(4).heavyHit());
+        assertTrue(feedback.get(3).heavyHit());
+        assertFalse(feedback.get(0).heavyHit());
         assertEquals(
                 List.of(1.5F, 2.0F, 2.0F, 3.0F, 4.0F),
-                BasicSwordStyle.FEEDBACK.stream().map(MoveFeedback::hitStopTicks).toList());
+                feedback.stream().map(MoveFeedback::hitStopTicks).toList());
         assertEquals(
                 List.of(0.25F, 0.30F, 0.30F, 0.50F, 0.80F),
-                BasicSwordStyle.FEEDBACK.stream().map(MoveFeedback::cameraTrauma).toList());
+                feedback.stream().map(MoveFeedback::cameraTrauma).toList());
         assertEquals(
                 List.of(0.0F, 0.0F, -35.0F, 40.0F, 0.0F),
-                BasicSwordStyle.FEEDBACK.stream().map(MoveFeedback::cutRollDegrees).toList());
+                feedback.stream().map(MoveFeedback::cutRollDegrees).toList());
     }
 
     @Test
     void moveDefinitionRejectsBrokenBufferAndChainWindows() {
-        AttackMoveDefinition thrust = BasicSwordStyle.DEFINITION.move(0);
+        AttackMoveDefinition thrust = STYLE.move(0);
         assertThrows(IllegalArgumentException.class, () -> copy(thrust, thrust.activeStartTick() - 1, thrust.chainTick()));
         assertThrows(IllegalArgumentException.class, () -> copy(thrust, thrust.bufferStartTick(), thrust.activeEndTick()));
         assertThrows(IllegalArgumentException.class, () -> copy(thrust, thrust.bufferStartTick(), thrust.totalTicks() + 1));
@@ -122,7 +128,7 @@ class BasicSwordStyleTest {
 
     @Test
     void chainAndBufferPredicatesFollowTheDefinition() {
-        AttackMoveDefinition thrust = BasicSwordStyle.DEFINITION.move(0);
+        AttackMoveDefinition thrust = STYLE.move(0);
         assertFalse(thrust.acceptsBuffer(thrust.activeStartTick() - 1));
         assertTrue(thrust.acceptsBuffer(thrust.activeStartTick()));
         assertTrue(thrust.acceptsBuffer(thrust.totalTicks() - 1));
@@ -137,18 +143,26 @@ class BasicSwordStyleTest {
         assertThrows(IllegalArgumentException.class, () -> new ReactionDefinition(9, -0.1, 0.0, 0.0));
         assertThrows(IllegalArgumentException.class, () -> new ReactionDefinition(9, 0.3, 0.0, 1.5));
         assertThrows(IllegalArgumentException.class, () -> new ReactionDefinition(9, 0.3, Double.NaN, 0.0));
+        ResourceLocation cut = id("combat.sword.cut");
+        ResourceLocation hit = id("combat.sword.hit");
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new MoveFeedback(MoveFeedback.SwingSound.CUT, 1.0F, false, 7.0F, 0.3F, 0.0F));
+                () -> new MoveFeedback(cut, 1.0F, hit, Optional.empty(), false, 7.0F, 0.3F, 0.0F));
         assertThrows(
                 IllegalArgumentException.class,
-                () -> new MoveFeedback(MoveFeedback.SwingSound.CUT, 1.0F, false, 2.0F, 1.5F, 0.0F));
+                () -> new MoveFeedback(cut, 1.0F, hit, Optional.empty(), false, 2.0F, 1.5F, 0.0F));
+        assertThrows(IllegalArgumentException.class, () -> new CameraCues(0.0F, 0.0F, 0.0F, 0.0F, -1.0F));
+    }
+
+    private static ResourceLocation id(String path) {
+        return ResourceLocation.fromNamespaceAndPath("myvillage", path);
     }
 
     private static AttackMoveDefinition copy(AttackMoveDefinition move, int bufferStart, int chainTick) {
         return new AttackMoveDefinition(
                 move.id(),
                 move.displayKey(),
+                move.kind(),
                 move.totalTicks(),
                 move.activeStartTick(),
                 move.activeEndTick(),
@@ -160,6 +174,8 @@ class BasicSwordStyleTest {
                 move.reaction(),
                 move.animation(),
                 move.hitbox(),
-                move.step());
+                move.step(),
+                move.feedback(),
+                move.camera());
     }
 }
