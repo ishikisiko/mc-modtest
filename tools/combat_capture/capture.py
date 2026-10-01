@@ -46,7 +46,7 @@ def git_info(repo: Path = REPO) -> dict:
         except (OSError, subprocess.SubprocessError):
             return ""
     dirty = git("status", "--porcelain", "--untracked-files=no")
-    return {"head": git("rev-parse", "HEAD") or None, "describe": git("log", "-1", "--format=%h %s") or None,
+    return {"head": git("rev-parse", "HEAD") or None, "describe": git("log", "-1", "--format=%s") or None,
             "dirty": bool(dirty)}
 
 

@@ -44,7 +44,8 @@ def player_setup(user: str, item: str) -> list[str]:
             "kill @e[type=!minecraft:player]", f"clear {user}",
             f"effect clear {user}",
             f"effect give {user} minecraft:saturation infinite 255 true",
-            f"effect give {user} minecraft:regeneration infinite 1 true",
+            # No regeneration: its effect makes the heart row bounce, so two grabs would rarely match.
+            f"effect give {user} minecraft:instant_health 1 10 true",
             wall_fill(BACK_WALL_Z, "minecraft:air"), wall_fill(FRONT_WALL_Z, "minecraft:air"),
             f"tp {user} {px} {py} {pz} 0 0",
             f"item replace entity {user} weapon.mainhand with {item}"]

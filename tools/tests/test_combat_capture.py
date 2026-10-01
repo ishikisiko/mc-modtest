@@ -350,6 +350,8 @@ class SceneTest(unittest.TestCase):
         setup = scene.player_setup("P", "ns:item")
         self.assertIn("item replace entity P weapon.mainhand with ns:item", setup)
         self.assertIn("gamemode survival P", setup)
+        # regeneration bounces the heart row, which keeps frames from settling
+        self.assertFalse(any("regeneration" in c for c in setup))
         rules = scene.world_rules()
         self.assertIn("time set 6000", rules)
         self.assertTrue(any(r.startswith("weather clear") for r in rules))
