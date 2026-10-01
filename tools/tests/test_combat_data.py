@@ -171,6 +171,14 @@ class CombatDataTest(unittest.TestCase):
         self.write(WEAPON, weapon)
         self.find("REFERENCE", "style")
 
+    def test_duplicate_key_is_reported(self) -> None:
+        path = self.root / STYLE
+        text = path.read_text(encoding="utf-8")
+        path.write_text(text.replace('"combo_timeout_ticks": 14,',
+                                     '"combo_timeout_ticks": 14,\n  "combo_timeout_ticks": 20,', 1),
+                        encoding="utf-8")
+        self.assertIn("duplicate key 'combo_timeout_ticks'", self.find("JSON").message)
+
     def test_invalid_json_is_reported(self) -> None:
         (self.root / WEAPON).write_text("{", encoding="utf-8")
         self.assertEqual(WEAPON, self.find("JSON").file)

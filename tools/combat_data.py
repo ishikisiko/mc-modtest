@@ -445,14 +445,28 @@ def validate_weapon(document: Any, file: str) -> list[Issue]:
 # Loading.
 # ---------------------------------------------------------------------------------------------
 
+class _DuplicateKey(ValueError):
+    pass
+
+
+def _unique_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    """A repeated key would silently keep only its last value; reject it instead."""
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise _DuplicateKey(f"duplicate key {key!r}")
+        result[key] = value
+    return result
+
+
 def _read_json(root: Path, path: Path, issues: list[Issue]) -> Any:
     file = _relative(root, path)
     if not path.is_file():
         issues.append(Issue("MISSING_FILE", file, "", "file is missing"))
         return None
     try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, UnicodeDecodeError) as exc:
+        return json.loads(path.read_text(encoding="utf-8"), object_pairs_hook=_unique_keys)
+    except (json.JSONDecodeError, UnicodeDecodeError, _DuplicateKey) as exc:
         issues.append(Issue("JSON", file, "", f"invalid JSON: {exc}"))
         return None
 
