@@ -2,9 +2,14 @@
 # SPDX-License-Identifier: MIT
 """Generate the Qingfeng third-person PAL animations (sword_combat.json).
 
-The five combo moves are authored as a pose table keyed by *server tick* and
-phase (guard, anticipation, coil, contact, sweep, through, hold, recovery).
-Each key stores readable intent instead of raw Euler soup:
+Each combat style has a pose table (``POSE_TABLES``) keyed by *server tick*
+and phase (guard, anticipation, coil, contact, sweep, through, hold,
+recovery).  The moves themselves, their order, and their timing (total, active
+window, chain tick, step tick) and kind come from the style file under
+``data/myvillage/combat/style/`` through ``tools/combat_data.py``; the pose
+table holds only the authored poses, and the generator fails when the table and
+the style disagree on the set of moves.  Each key stores readable intent
+instead of raw Euler soup:
 
 * ``body``   whole-figure rotation in PAL degrees (x+ lean forward, y+ turn
   right, z+ tilt left); PAL applies it to the whole model around the hips.
@@ -41,6 +46,11 @@ import math
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path
+
+try:
+    from tools import combat_data
+except ImportError:  # run as a script: tools/ itself is on sys.path
+    import combat_data
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "src/main/resources/assets/myvillage/player_animations/sword_combat.json"
@@ -81,15 +91,57 @@ class Key:
 
 
 @dataclass(frozen=True)
+class MovePoses:
+    """Authored third-person poses of one move.
+
+    Timing (total, active window, chain and step ticks) and kind come from the style file; the
+    pose table only says what the body does.  ``lunge`` marks the 弓步 finisher whose hips drive
+    forward on the server step tick; ``cut_path`` names the blade path that must agree with the
+    server hitbox (``left_to_right``, ``rising`` right-low -> left-high, ``descending``
+    left-high -> right-low).
+    """
+
+    keys: tuple[Key, ...]
+    lunge: bool = False
+    cut_path: str | None = None
+
+
+@dataclass(frozen=True)
+class PoseTable:
+    """Third-person animation source of one combat style, written to one PAL file."""
+
+    style_id: str
+    output: Path
+    guard: dict
+    mode_enter: tuple[Key, ...]
+    mode_enter_ticks: int
+    ready_idle: tuple[Key, ...]
+    ready_idle_ticks: int
+    moves: dict[str, MovePoses]
+
+
+@dataclass(frozen=True)
 class Move:
+    """A style move bound to its poses: timing and kind from the style file, keys from the table."""
+
+    move_id: str
     animation_id: str
     kind: str  # "thrust" or "cut"
     total: int
     active_start: int
     active_end: int
     chain_tick: int
-    step_tick: int
+    step_tick: int | None
     keys: tuple[Key, ...] = field(default_factory=tuple)
+    lunge: bool = False
+    cut_path: str | None = None
+
+
+class PoseTableError(ValueError):
+    """The pose tables and the combat data disagree."""
+
+
+CUT_PATHS = ("left_to_right", "rising", "descending")
 
 
 def key(tick, phase, easing, body, stance, rarm, larm, item, blade, pos=(0.0, 0.0)) -> Key:
@@ -98,10 +150,11 @@ def key(tick, phase, easing, body, stance, rarm, larm, item, blade, pos=(0.0, 0.
 
 
 # ---------------------------------------------------------------------------------------------
-# Pose table.  Directions in the player's frame: yaw 0 = action facing, +90 = player's right,
-# -90 = player's left; elevation + = up.  Cut directions follow the server hitboxes:
-# 横 sweeps the player's left -> right, 撩 rises right-low -> left-high, 斜 descends
-# left-high -> right-low.
+# Pose table of myvillage:basic_sword (the Qingfeng jian).  Directions in the player's frame:
+# yaw 0 = action facing, +90 = player's right, -90 = player's left; elevation + = up.  Cut
+# directions follow the server hitboxes: 横 sweeps the player's left -> right, 撩 rises
+# right-low -> left-high, 斜 descends left-high -> right-low.  Key ticks are authored against
+# the style's timing, and check_move verifies them against the style file.
 # ---------------------------------------------------------------------------------------------
 
 # Guard: slightly bladed stance (right foot forward, right shoulder a little forward), sword
@@ -116,8 +169,8 @@ def guard(tick: int, phase: str, easing: str) -> Key:
     return key(tick, phase, easing, **GUARD)
 
 
-MOVES: tuple[Move, ...] = (
-    Move("basic_sword_01_thrust", "thrust", 11, 3, 4, 7, 2, (
+BASIC_SWORD_MOVES: dict[str, MovePoses] = {
+    "myvillage:basic_sword_01_thrust": MovePoses((
         guard(0, "guard", "linear"),
         key(1, "anticipation", "easeinoutsine", (-2, 15, 0), ("R", 28, 0), (-165, -72), (-8, 0),
             (-32, -16, -4), (0, 5)),
@@ -131,7 +184,7 @@ MOVES: tuple[Move, ...] = (
             (80, 17, -2), (10, -3), pos=(0, -1.5)),
         guard(11, "recovery", "easeinoutsine"),
     )),
-    Move("basic_sword_02_horizontal_cut", "cut", 13, 4, 6, 8, 3, (
+    "myvillage:basic_sword_02_horizontal_cut": MovePoses((
         guard(0, "guard", "linear"),
         key(2, "anticipation", "easeinoutsine", (4, -45, 0), ("R", 30, 10), (-40, 5), (-100, -30),
             (17, -54, -63), (-120, 10)),
@@ -146,8 +199,8 @@ MOVES: tuple[Move, ...] = (
         key(9, "hold", "linear", (8, 48, 0), ("R", 40, 10), (78, -6), (-172, 0),
             (99, -76, 1), (98, -6)),
         guard(13, "recovery", "easeinoutsine"),
-    )),
-    Move("basic_sword_03_rising_cut", "cut", 15, 5, 7, 10, 4, (
+    ), cut_path="left_to_right"),
+    "myvillage:basic_sword_03_rising_cut": MovePoses((
         guard(0, "guard", "linear"),
         key(3, "anticipation", "easeinoutsine", (12, 36, 0), ("R", 38, 0), (140, -50), (-40, -10),
             (55, 42, 8), (160, -30)),
@@ -162,8 +215,8 @@ MOVES: tuple[Move, ...] = (
         key(10, "hold", "linear", (-7, -60, 0), ("R", 36, 0), (-103, 16), (-152, -30),
             (66, 73, -26), (-101, 46)),
         guard(15, "recovery", "easeinoutsine"),
-    )),
-    Move("basic_sword_04_diagonal_cut", "cut", 17, 6, 8, 13, 5, (
+    ), cut_path="rising"),
+    "myvillage:basic_sword_04_diagonal_cut": MovePoses((
         guard(0, "guard", "linear"),
         key(4, "anticipation", "easeinoutsine", (-6, -35, 0), ("R", 28, 0), (-80, 55), (-120, -40),
             (74, -19, -25), (-115, 45)),
@@ -178,8 +231,8 @@ MOVES: tuple[Move, ...] = (
         key(12, "hold", "linear", (25, 44, 0), ("R", 44, 0), (66, -46), (-161, 5),
             (88, -20, 23), (97, -36)),
         guard(17, "recovery", "easeinoutsine"),
-    )),
-    Move("basic_sword_05_lunge_thrust", "thrust", 20, 7, 9, 20, 6, (
+    ), cut_path="descending"),
+    "myvillage:basic_sword_05_lunge_thrust": MovePoses((
         guard(0, "guard", "linear"),
         key(4, "anticipation", "easeinoutsine", (-8, 38, 0), ("R", 30, 0), (-142, -70), (-5, 5),
             (-32, -32, 4), (5, 5), pos=(0, 1)),
@@ -192,13 +245,8 @@ MOVES: tuple[Move, ...] = (
         key(13, "hold", "linear", (22, -58, 0), ("R", 46, 0), (17, -3), (-153, 8),
             (79, 23, -6), (12, -4), pos=(0, -7)),
         guard(20, "recovery", "easeinoutsine"),
-    )),
-)
-
-READY_IDLE_ID = "sword_ready_idle"
-READY_IDLE_LENGTH_TICKS = 24  # 1.2 s loop
-MODE_ENTER_ID = "sword_mode_enter"
-MODE_ENTER_LENGTH_TICKS = 16  # 0.8 s
+    ), lunge=True),
+}
 
 
 def idle_keys() -> tuple[Key, ...]:
@@ -219,6 +267,99 @@ def enter_keys() -> tuple[Key, ...]:
             (9, -4, -22), (-4, 29)),
         guard(16, "guard", "easeinoutsine"),
     )
+
+
+BASIC_SWORD = PoseTable(
+    style_id="myvillage:basic_sword",
+    output=OUTPUT,
+    guard=GUARD,
+    mode_enter=enter_keys(),
+    mode_enter_ticks=16,  # 0.8 s
+    ready_idle=idle_keys(),
+    ready_idle_ticks=24,  # 1.2 s loop
+    moves=BASIC_SWORD_MOVES,
+)
+
+# One pose table per combat style.  A second style is an added table with its own output file;
+# its guard must be the guard its keys are built from, because guard keys resolve to it exactly.
+POSE_TABLES: tuple[PoseTable, ...] = (BASIC_SWORD,)
+
+
+# ---------------------------------------------------------------------------------------------
+# Binding the pose tables to the combat data (tools/combat_data.py).
+# ---------------------------------------------------------------------------------------------
+
+def bind(table: PoseTable, style: dict) -> tuple[Move, ...]:
+    """The style's moves, in combo order, with their pose keys.
+
+    Raises :class:`PoseTableError` naming every move that the style defines without poses and
+    every posed move that the style does not define.
+    """
+    style_ids = [move["id"] for move in style["moves"]]
+    problems = [f"style {table.style_id} defines {move_id} but its pose table has no poses for it"
+                for move_id in style_ids if move_id not in table.moves]
+    problems += [f"pose table of {table.style_id} poses {move_id}, which the style does not define"
+                 for move_id in table.moves if move_id not in style_ids]
+    namespace = table.output.parent.parent.name
+    for move_id in style_ids:
+        if combat_data.split_id(move_id)[0] != namespace:
+            problems.append(f"{move_id} is outside the namespace of {table.output.name} ({namespace})")
+    for move_id, poses in table.moves.items():
+        if poses.cut_path is not None and poses.cut_path not in CUT_PATHS:
+            problems.append(f"{move_id}: unknown cut_path {poses.cut_path!r}")
+    if problems:
+        raise PoseTableError("; ".join(problems))
+    bound = []
+    for data in style["moves"]:
+        poses = table.moves[data["id"]]
+        step = data.get("step")
+        bound.append(Move(
+            move_id=data["id"],
+            animation_id=combat_data.split_id(data["id"])[1],
+            kind=data["kind"],
+            total=data["total_ticks"],
+            active_start=data["active_ticks"][0],
+            active_end=data["active_ticks"][1],
+            chain_tick=data["chain_tick"],
+            step_tick=None if step is None else step["tick"],
+            keys=poses.keys,
+            lunge=poses.lunge,
+            cut_path=poses.cut_path,
+        ))
+    return tuple(bound)
+
+
+def check_tables(styles: dict[str, dict], tables: tuple[PoseTable, ...] = POSE_TABLES) -> None:
+    """Every listed style has exactly one pose table and every table belongs to a listed style."""
+    table_styles = [table.style_id for table in tables]
+    problems = [f"style {style_id} has no pose table" for style_id in styles if style_id not in table_styles]
+    problems += [f"pose table for {style_id}, which the combat index does not list"
+                 for style_id in table_styles if style_id not in styles]
+    problems += [f"two pose tables for {style_id}" for style_id in sorted(set(table_styles))
+                 if table_styles.count(style_id) > 1]
+    if problems:
+        raise PoseTableError("; ".join(problems))
+
+
+_STYLES: dict[Path, dict[str, dict]] = {}
+
+
+def combat_styles(root: Path = ROOT) -> dict[str, dict]:
+    """Validated styles of the combat data; raises combat_data.CombatDataError if it is invalid."""
+    if root not in _STYLES:
+        _STYLES[root] = combat_data.load_strict(root).styles
+    return _STYLES[root]
+
+
+def moves(table: PoseTable = BASIC_SWORD) -> tuple[Move, ...]:
+    """The bound moves of a pose table, read from the committed style file."""
+    return bind(table, combat_styles()[table.style_id])
+
+
+def animation_names(style: dict) -> tuple[str, str]:
+    """PAL keys of the style's (mode enter, ready idle) animations."""
+    animations = style["animations"]
+    return combat_data.split_id(animations["mode_enter"])[1], combat_data.split_id(animations["ready_idle"])[1]
 
 
 # ---------------------------------------------------------------------------------------------
@@ -333,9 +474,10 @@ def _r(value: float, digits: int = 1) -> float:
     return 0.0 if value == 0 else value
 
 
-def _is_guard(k: Key) -> bool:
+def _is_guard(k: Key, guard_spec: dict = GUARD) -> bool:
     return (k.body, k.stance, k.rarm, k.larm, k.item, k.pos) == (
-        GUARD["body"], GUARD["stance"], GUARD["rarm"], GUARD["larm"], GUARD["item"], (0.0, 0.0))
+        tuple(guard_spec["body"]), tuple(guard_spec["stance"]), tuple(guard_spec["rarm"]),
+        tuple(guard_spec["larm"]), tuple(guard_spec["item"]), (0.0, 0.0))
 
 
 def _resolve_key(k: Key, previous) -> dict[str, list[float]]:
@@ -361,11 +503,11 @@ def _resolve_key(k: Key, previous) -> dict[str, list[float]]:
     return pose
 
 
-def canonical_guard() -> dict[str, list[float]]:
-    return _resolve_key(guard(0, "guard", "linear"), None)
+def canonical_guard(guard_spec: dict = GUARD) -> dict[str, list[float]]:
+    return _resolve_key(key(0, "guard", "linear", **guard_spec), None)
 
 
-def resolve(keys: tuple[Key, ...]) -> list[dict[str, list[float]]]:
+def resolve(keys: tuple[Key, ...], guard_spec: dict = GUARD) -> list[dict[str, list[float]]]:
     """Turn intent keys into per-bone PAL values ({bone: [x, y, z]} plus 'body_pos').
 
     Guard keys always resolve to the one canonical guard pose; every other key picks the
@@ -374,7 +516,7 @@ def resolve(keys: tuple[Key, ...]) -> list[dict[str, list[float]]]:
     poses = []
     previous = None
     for k in keys:
-        pose = canonical_guard() if _is_guard(k) else _resolve_key(k, previous)
+        pose = canonical_guard(guard_spec) if _is_guard(k, guard_spec) else _resolve_key(k, previous)
         poses.append(pose)
         previous = pose
     return poses
@@ -395,8 +537,9 @@ def _vector(values: list[float], easing: str):
     return {"vector": vector, "easing": easing}
 
 
-def build_animation(keys: tuple[Key, ...], length_ticks: int, loop: bool = False) -> dict:
-    poses = resolve(keys)
+def build_animation(keys: tuple[Key, ...], length_ticks: int, loop: bool = False,
+                    guard_spec: dict = GUARD) -> dict:
+    poses = resolve(keys, guard_spec)
     bones: dict[str, dict[str, dict]] = {}
     for bone in BONE_ORDER:
         rotation = {}
@@ -417,13 +560,16 @@ def build_animation(keys: tuple[Key, ...], length_ticks: int, loop: bool = False
     return animation
 
 
-def build_document() -> dict:
+def build_document(table: PoseTable = BASIC_SWORD, style: dict | None = None) -> dict:
+    """The PAL document of one pose table; ``style`` defaults to the committed style file."""
+    style = combat_styles()[table.style_id] if style is None else style
+    enter_id, idle_id = animation_names(style)
     animations = {
-        MODE_ENTER_ID: build_animation(enter_keys(), MODE_ENTER_LENGTH_TICKS),
-        READY_IDLE_ID: build_animation(idle_keys(), READY_IDLE_LENGTH_TICKS, loop=True),
+        enter_id: build_animation(table.mode_enter, table.mode_enter_ticks, guard_spec=table.guard),
+        idle_id: build_animation(table.ready_idle, table.ready_idle_ticks, loop=True, guard_spec=table.guard),
     }
-    for move in MOVES:
-        animations[move.animation_id] = build_animation(move.keys, move.total)
+    for move in bind(table, style):
+        animations[move.animation_id] = build_animation(move.keys, move.total, guard_spec=table.guard)
     return {"format_version": FORMAT_VERSION, "animations": animations}
 
 
@@ -627,8 +773,8 @@ def _key_at(move: Move, phase: str) -> int:
     raise AssertionError(f"{move.animation_id}: missing {phase} key")
 
 
-def measure(move: Move) -> dict:
-    poses = resolve(move.keys)
+def measure(move: Move, guard_spec: dict = GUARD) -> dict:
+    poses = resolve(move.keys, guard_spec)
     info = {"poses": poses, "skeletons": [skeleton(p) for p in poses]}
     samples = []
     tick = 0.0
@@ -640,10 +786,10 @@ def measure(move: Move) -> dict:
     return info
 
 
-def check_keys(name: str, keys: tuple[Key, ...]) -> list[str]:
+def check_keys(name: str, keys: tuple[Key, ...], guard_spec: dict = GUARD) -> list[str]:
     """Checks shared by every animation: grounded feet, blade intent, smooth limbs and blade."""
     errors: list[str] = []
-    poses = resolve(keys)
+    poses = resolve(keys, guard_spec)
     skeletons = [skeleton(p) for p in poses]
 
     def fail(message):
@@ -716,12 +862,13 @@ def check_keys(name: str, keys: tuple[Key, ...]) -> list[str]:
     return errors
 
 
-def check_move(move: Move) -> list[str]:
+def check_move(move: Move, guard_spec: dict = GUARD) -> list[str]:
+    """Pose checks of one move against its style timing (active window, step tick) and kind."""
     errors: list[str] = []
     name = move.animation_id
     keys = move.keys
     ticks = [k.tick for k in keys]
-    info = measure(move)
+    info = measure(move, guard_spec)
     poses, skeletons = info["poses"], info["skeletons"]
 
     def fail(message):
@@ -737,10 +884,10 @@ def check_move(move: Move) -> list[str]:
     for k in keys:
         if k.easing not in PAL_EASINGS:
             fail(f"unknown PAL easing {k.easing}")
-    canonical = canonical_guard()
+    canonical = canonical_guard(guard_spec)
     if poses[0] != canonical or poses[-1] != canonical:
         fail("moves must start and end on the canonical guard pose")
-    errors.extend(check_keys(name, keys))
+    errors.extend(check_keys(name, keys, guard_spec))
 
     # Phase timing.
     contact = _key_at(move, "contact")
@@ -810,34 +957,36 @@ def check_move(move: Move) -> list[str]:
             right_dir = direction_angles(sk["right_shoulder"], sk["right_hand"])
             if abs(right_dir[1]) > 20.0:
                 fail(f"thrust arm not level at tick {keys[index].tick}")
-            if sk["tip"][2] < (1.9 if move.step_tick >= 6 else 1.5):
+            if sk["tip"][2] < (1.9 if move.lunge else 1.5):
                 fail(f"thrust reach {sk['tip'][2]:.2f} too short at tick {keys[index].tick}")
 
     # Cut directions shared with the server hitboxes.
     wind = skeletons[contact - 1]
-    if name.endswith("horizontal_cut"):
+    if move.cut_path == "left_to_right":
         if not (wind["tip"][0] < -0.4 and hold_sk["tip"][0] > 0.6):
             fail("horizontal cut must sweep the player's left -> right")
         mid = next(s for s in info["samples"] if abs(s[0] - (move.active_start + move.active_end) / 2) < 1e-9)
         mid_yaw, _ = direction_angles(mid[2]["grip"], mid[2]["tip"])
         if abs(mid_yaw) > 25.0:
             fail(f"blade crosses the centre at yaw {mid_yaw:.0f} on the middle active tick")
-    if name.endswith("rising_cut"):
+    if move.cut_path == "rising":
         contact_sk = skeletons[contact]
         if not (contact_sk["tip"][0] > 0.4 and contact_sk["tip"][1] < 0.9):
             fail("rising cut must start right-low")
         if not (hold_sk["tip"][0] < -0.6 and hold_sk["tip"][1] > 1.8):
             fail("rising cut must finish left-high")
-    if name.endswith("diagonal_cut"):
+    if move.cut_path == "descending":
         if not (wind["tip"][0] < -0.3 and wind["tip"][1] > 2.0):
             fail("diagonal cut must wind up left-high")
         if not (hold_sk["tip"][0] > 0.6 and hold_sk["tip"][1] < 0.6):
             fail("diagonal cut must finish right-low")
 
     # Lunge: 弓步 and forward drive timed to the server step.
-    if move.step_tick >= 6:
+    if move.lunge:
         coil = keys[contact - 1]
-        if coil.tick != move.step_tick:
+        if move.step_tick is None:
+            fail("lunge needs a server step in the style file")
+        elif coil.tick != move.step_tick:
             fail("lunge must leave the coiled hold on the step tick")
         if keys[contact].pos[1] > -4.0 or keys[through].pos[1] > -4.0:
             fail("lunge must drive the hips forward (pos z <= -4 px)")
@@ -849,18 +998,23 @@ def check_move(move: Move) -> list[str]:
     return errors
 
 
-def check_document(document: dict) -> list[str]:
+def check_document(document: dict, table: PoseTable = BASIC_SWORD, style: dict | None = None) -> list[str]:
+    """Structure of the generated document against the style, plus every pose self-check."""
+    style = combat_styles()[table.style_id] if style is None else style
+    bound = bind(table, style)
+    enter_id, idle_id = animation_names(style)
     errors: list[str] = []
     animations = document.get("animations", {})
-    expected = {MODE_ENTER_ID, READY_IDLE_ID, *(m.animation_id for m in MOVES)}
+    expected = {enter_id, idle_id, *(m.animation_id for m in bound)}
     if document.get("format_version") != FORMAT_VERSION:
         errors.append("format_version must be 1.8.0")
     if set(animations) != expected:
         errors.append(f"animation ids {sorted(animations)} != {sorted(expected)}")
-    idle = animations.get(READY_IDLE_ID, {})
-    if idle.get("loop") is not True or idle.get("animation_length") != 1.2:
-        errors.append("sword_ready_idle must loop with length 1.2")
-    for move in MOVES:
+    idle = animations.get(idle_id, {})
+    idle_length = round(table.ready_idle_ticks / TICKS_PER_SECOND, 4)
+    if idle.get("loop") is not True or idle.get("animation_length") != idle_length:
+        errors.append(f"{idle_id} must loop with length {idle_length}")
+    for move in bound:
         animation = animations.get(move.animation_id, {})
         if abs(animation.get("animation_length", -1) - move.total / TICKS_PER_SECOND) > 1e-6:
             errors.append(f"{move.animation_id}: length must be total/20")
@@ -871,26 +1025,27 @@ def check_document(document: dict) -> list[str]:
                 errors.append(f"{move.animation_id}:{bone} needs rotation keys at 0 and total")
             if not any(move.active_start <= t <= move.active_end for t in times):
                 errors.append(f"{move.animation_id}:{bone} needs a rotation key in the active window")
-    lunge = animations.get("basic_sword_05_lunge_thrust", {}).get("bones", {}).get("body", {}).get("position", {})
-    if not any(isinstance(v, list) and any(x != 0 for x in v) for v in lunge.values()):
-        errors.append("basic_sword_05_lunge_thrust body.position needs a non-zero plain vector")
+        if move.lunge:
+            position = bones.get("body", {}).get("position", {})
+            if not any(isinstance(v, list) and any(x != 0 for x in v) for v in position.values()):
+                errors.append(f"{move.animation_id} body.position needs a non-zero plain vector")
     # Idle and mode entry end in the guard so PAL hands over without a pop.
-    guard_pose = canonical_guard()
-    idle_poses = resolve(idle_keys())
+    guard_pose = canonical_guard(table.guard)
+    idle_poses = resolve(table.ready_idle, table.guard)
     if idle_poses[0] != guard_pose or idle_poses[-1] != guard_pose:
-        errors.append("sword_ready_idle must start and end on the canonical guard")
-    if resolve(enter_keys())[-1] != guard_pose:
-        errors.append("sword_mode_enter must end on the canonical guard")
-    errors.extend(check_keys(READY_IDLE_ID, idle_keys()))
-    errors.extend(check_keys(MODE_ENTER_ID, enter_keys()))
-    for move in MOVES:
-        errors.extend(check_move(move))
+        errors.append(f"{idle_id} must start and end on the canonical guard")
+    if resolve(table.mode_enter, table.guard)[-1] != guard_pose:
+        errors.append(f"{enter_id} must end on the canonical guard")
+    errors.extend(check_keys(idle_id, table.ready_idle, table.guard))
+    errors.extend(check_keys(enter_id, table.mode_enter, table.guard))
+    for move in bound:
+        errors.extend(check_move(move, table.guard))
     return errors
 
 
-def report() -> None:
-    for move in MOVES:
-        info = measure(move)
+def report(table: PoseTable = BASIC_SWORD) -> None:
+    for move in moves(table):
+        info = measure(move, table.guard)
         print(f"== {move.animation_id} (total {move.total}, active {move.active_start}-{move.active_end}, chain {move.chain_tick})")
         for k, pose, sk in zip(move.keys, info["poses"], info["skeletons"]):
             yaw, elevation = direction_angles(sk["grip"], sk["tip"])
@@ -905,25 +1060,40 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--check", action="store_true", help="verify the committed JSON and self-checks")
     parser.add_argument("--report", action="store_true", help="print forward-kinematics measurements")
     args = parser.parse_args(argv)
-    document = build_document()
-    errors = check_document(document)
-    if args.report:
-        report()
-    if errors:
-        for error in errors:
-            print(f"SELF_CHECK {error}", file=sys.stderr)
+    try:
+        styles = combat_styles()
+        check_tables(styles)
+        documents = [(table, styles[table.style_id], build_document(table, styles[table.style_id]))
+                     for table in POSE_TABLES]
+    except combat_data.CombatDataError as exc:
+        for issue in exc.issues:
+            print(f"COMBAT_DATA {issue}", file=sys.stderr)
         return 1
-    text = render(document)
-    if args.check:
-        if not OUTPUT.exists() or OUTPUT.read_text(encoding="utf-8") != text:
-            print(f"DRIFT {OUTPUT.relative_to(ROOT)} differs from the generator output", file=sys.stderr)
-            return 1
-        print("OK sword_combat.json matches the generator and passes all self-checks")
-        return 0
-    if not args.report:
-        OUTPUT.write_text(text, encoding="utf-8")
-        print(f"wrote {OUTPUT.relative_to(ROOT)}")
-    return 0
+    except PoseTableError as exc:
+        print(f"POSE_TABLE {exc}", file=sys.stderr)
+        return 1
+    status = 0
+    for table, style, document in documents:
+        errors = check_document(document, table, style)
+        if args.report:
+            report(table)
+        if errors:
+            for error in errors:
+                print(f"SELF_CHECK {error}", file=sys.stderr)
+            status = 1
+            continue
+        text = render(document)
+        relative = table.output.relative_to(ROOT)
+        if args.check:
+            if not table.output.exists() or table.output.read_text(encoding="utf-8") != text:
+                print(f"DRIFT {relative} differs from the generator output", file=sys.stderr)
+                status = 1
+            else:
+                print(f"OK {table.output.name} matches the generator and passes all self-checks")
+        elif not args.report:
+            table.output.write_text(text, encoding="utf-8")
+            print(f"wrote {relative}")
+    return status
 
 
 if __name__ == "__main__":
