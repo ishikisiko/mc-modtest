@@ -77,7 +77,8 @@ class BasicSwordStyleTest {
             List<HitboxSample> actual = move.hitbox().samples();
             assertEquals(expected.size(), actual.size(), move.id().toString());
             for (int sample = 0; sample < expected.size(); sample++) {
-                assertSample(expected.get(sample), actual.get(sample), move.id() + " sample " + sample);
+                // Exact: record equality compares every double bit for bit (Double.compare).
+                assertEquals(expected.get(sample), actual.get(sample), move.id() + " sample " + sample);
             }
         }
 
@@ -113,16 +114,6 @@ class BasicSwordStyleTest {
                 STYLE.moves().stream().map(AttackMoveDefinition::camera).toList());
     }
 
-    private static void assertSample(HitboxSample expected, HitboxSample actual, String message) {
-        assertEquals(expected.actionTick(), actual.actionTick(), message);
-        double[] want = {expected.startX(), expected.startY(), expected.startZ(), expected.endX(), expected.endY(),
-                expected.endZ(), expected.horizontalRadius(), expected.verticalRadius()};
-        double[] got = {actual.startX(), actual.startY(), actual.startZ(), actual.endX(), actual.endY(),
-                actual.endZ(), actual.horizontalRadius(), actual.verticalRadius()};
-        for (int component = 0; component < want.length; component++) {
-            assertEquals(want[component], got[component], 1.0E-12, message + " component " + component);
-        }
-    }
 
     @Test
     void centralDefinitionMatchesTheFiveMoveContract() {

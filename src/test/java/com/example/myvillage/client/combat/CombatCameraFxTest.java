@@ -50,6 +50,29 @@ final class CombatCameraFxTest {
     }
 
     @Test
+    void qingfengCameraCuesArePinned() {
+        CombatStyleDefinition style = CombatTestData.basicSword();
+        float[] pitch = {0.0F, 0.0F, 0.6F, -0.8F, -1.2F};
+        float[] roll = {0.0F, 0.5F, 0.0F, 0.4F, 0.0F};
+        float[] fov = {0.0F, 0.0F, 0.0F, 0.0F, -3.0F};
+        float[] lean = {0.0F, 0.3F, -0.3F, 0.3F, 0.0F};
+        float[] surge = {0.0F, 0.0F, 0.0F, 0.0F, 2.0F};
+        float[] trauma = {0.25F, 0.30F, 0.30F, 0.50F, 0.80F};
+        assertEquals(5, style.moves().size());
+        for (int index = 0; index < 5; index++) {
+            AttackMoveDefinition move = style.move(index);
+            assertEquals(new CameraCues(pitch[index], roll[index], fov[index], lean[index], surge[index]), move.camera());
+            assertEquals(new CombatCameraFx.HitCue(trauma[index], pitch[index], roll[index], fov[index]),
+                    CombatCameraFx.hitCue(Optional.of(move), true));
+            assertEquals(new CombatCameraFx.HitCue(trauma[index] * 0.5F, 0.0F, 0.0F, 0.0F),
+                    CombatCameraFx.hitCue(Optional.of(move), false));
+        }
+        assertEquals(0.25F, CombatCameraFx.UNKNOWN_MOVE_TRAUMA);
+        assertEquals(new CombatCameraFx.HitCue(0.25F, 0.0F, 0.0F, 0.0F), CombatCameraFx.hitCue(Optional.empty(), true));
+        assertEquals(new CombatCameraFx.HitCue(0.25F, 0.0F, 0.0F, 0.0F), CombatCameraFx.hitCue(Optional.empty(), false));
+    }
+
+    @Test
     void hitCuesAreReadFromTheMove() {
         CombatStyleDefinition style = CombatTestData.basicSword();
         for (AttackMoveDefinition move : style.moves()) {

@@ -1,6 +1,8 @@
 package com.example.myvillage.client.combat;
 
 import com.example.myvillage.combat.definition.AttackMoveDefinition;
+import com.example.myvillage.combat.definition.CombatStyles;
+import com.example.myvillage.combat.definition.WeaponDefinition;
 import com.example.myvillage.combat.definition.HitboxSample;
 import com.example.myvillage.combat.runtime.CombatGeometry;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -30,7 +32,7 @@ import java.util.Optional;
  * detached camera). The ribbon's direction follows the move's own server hitbox samples, so what
  * other players see matches where the strike lands, but it is drawn at sword length around the
  * attacker's shoulder instead of at full gameplay reach, so it hugs the held blade. Its length
- * comes from the geometry of the weapon held when the move started. It freezes while the attacker
+ * comes from the geometry of the attacker's weapon for the move's style (see {@link #trailWeapon}). It freezes while the attacker
  * is in a hit-stop, like the attacker's animation.
  */
 public final class CombatWorldTrails {
@@ -60,12 +62,34 @@ public final class CombatWorldTrails {
 
     static void start(Entity attacker, AttackMoveDefinition move, float elapsedTicks, float facingYaw) {
         ItemStack held = attacker instanceof LivingEntity living ? living.getMainHandItem() : ItemStack.EMPTY;
+        ResourceLocation heldItem = held.isEmpty() ? null : BuiltInRegistries.ITEM.getKey(held.getItem());
         ACTIONS.put(attacker.getId(), new Action(
                 move,
-                held.isEmpty() ? null : BuiltInRegistries.ITEM.getKey(held.getItem()),
+                trailWeapon(CombatStyles.bundled(), heldItem, move.id()).orElse(null),
                 attacker.level().getGameTime() - Math.max(0.0F, elapsedTicks),
                 facingYaw,
                 new ArrayList<>()));
+    }
+
+    /**
+     * The weapon whose geometry sizes an action's trail: the held item when it is a weapon of the
+     * move's style, otherwise the first registered weapon of that style. A remote START can arrive
+     * a tick before the attacker's equipment update, so the held item alone is not reliable.
+     */
+    static Optional<ResourceLocation> trailWeapon(CombatStyles styles, ResourceLocation heldItem, ResourceLocation moveId) {
+        Optional<ResourceLocation> styleId = styles.move(moveId).map(ref -> ref.style().id());
+        if (styleId.isEmpty()) {
+            return Optional.empty();
+        }
+        if (heldItem != null && styles.weapon(heldItem)
+                .filter(weapon -> weapon.style().equals(styleId.get()))
+                .isPresent()) {
+            return Optional.of(heldItem);
+        }
+        return styles.weapons().stream()
+                .filter(weapon -> weapon.style().equals(styleId.get()))
+                .map(WeaponDefinition::item)
+                .findFirst();
     }
 
     static void stop(int entityId) {

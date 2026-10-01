@@ -241,9 +241,15 @@ public final class CombatAnimationController {
         if (controller.isEmpty()) {
             return false;
         }
+        if (!PlayerAnimResources.hasAnimation(animationId)) {
+            // Refused before touching the layer, so a failed probe changes no pose.
+            return false;
+        }
         PlayerAnimationController animationController = controller.get();
         LayerState state = state(player, animationController);
         hardStop(animationController, state);
+        // A fade still running from an earlier hand-over would be frozen half-way at rate zero.
+        animationController.removeModifierIf(modifier -> modifier instanceof AbstractFadeModifier);
         boolean accepted = animationController.triggerAnimation(animationId, Math.max(0.0F, elapsedTicks));
         if (accepted) {
             state.currentAnimation = animationId;
@@ -251,6 +257,11 @@ public final class CombatAnimationController {
             state.speed = 0.0F;
         }
         return accepted;
+    }
+
+    /** A probe tick a move of {@code totalTicks} can hold: from its start to just before its end. */
+    static boolean probeTickInside(float tick, int totalTicks) {
+        return Float.isFinite(tick) && tick >= 0.0F && tick < totalTicks;
     }
 
     /** Ends a held third-person probe and returns the layer to the vanilla pose. */
@@ -429,6 +440,9 @@ public final class CombatAnimationController {
      * ({@link LocomotionBlend}).
      */
     private static final class LayerState extends SpeedModifier {
+        /** The partial tick a held probe always renders with: its pose is exactly at the probe tick. */
+        private static final float PROBE_PARTIAL_TICK = 0.0F;
+
         private final AbstractClientPlayer player;
         private final Lifecycle lifecycle = new Lifecycle();
         private final RemoteHitStop remoteHitStop = new RemoteHitStop();
@@ -453,8 +467,14 @@ public final class CombatAnimationController {
                 LOGGER.debug("PAL layer for {} was not taken over; returning to the vanilla pose", player.getUUID());
                 hardStop(controller, this);
             }
+            if (lifecycle.frozen()) {
+                // A held probe neither advances nor blends: no inner tick at all.
+                speed = 0.0F;
+                resetLocomotion();
+                return;
+            }
             float remoteRate = remoteHitStop.advance(now);
-            speed = lifecycle.frozen() ? 0.0F : isLocal(player) ? localRate(player) : clampRate(remoteRate);
+            speed = isLocal(player) ? localRate(player) : clampRate(remoteRate);
             previousLocomotion = locomotion;
             float target = lifecycle.allowsLocomotion()
                     ? LocomotionBlend.target(player.walkAnimation.speed())
@@ -466,8 +486,17 @@ public final class CombatAnimationController {
         @Override
         public void setupAnim(AnimationData data) {
             if (lifecycle.frozen()) {
+                // SpeedModifier would hand the animation its stale sub-tick remainder as the
+                // partial tick, which varies from hold to hold. A probe shows exactly its tick.
                 speed = 0.0F;
-            } else if (isLocal(player)) {
+                locomotionWeight = 0.0F;
+                data.setPartialTick(PROBE_PARTIAL_TICK);
+                if (anim != null) {
+                    anim.setupAnim(data);
+                }
+                return;
+            }
+            if (isLocal(player)) {
                 speed = localRate(player);
             }
             locomotionWeight = LocomotionBlend.lerp(previousLocomotion, locomotion, data.getPartialTick());
@@ -564,6 +593,12 @@ public final class CombatAnimationController {
                 case MOVE -> set(Phase.HELD_IDLE, now + AWAIT_STOP_TICKS);
                 case ENTER -> set(Phase.STOPPING, now + STOP_GRACE_TICKS);
                 case HELD_IDLE, STOPPING, IDLE -> {
+                }
+                case PROBE -> {
+                    // A probe past the move's end finished at once: leave PROBE so the client
+                    // tick handles the ready idle again over the vanilla pose.
+                    set(Phase.NONE, NO_DEADLINE);
+                    return false;
                 }
                 default -> {
                     return false;

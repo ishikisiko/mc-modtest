@@ -1,6 +1,7 @@
 package com.example.myvillage.client.combat;
 
 import com.example.myvillage.MyVillageMod;
+import com.example.myvillage.combat.definition.AttackMoveDefinition;
 import com.example.myvillage.combat.definition.CombatStyleDefinition;
 import com.example.myvillage.combat.definition.CombatStyles;
 import com.mojang.brigadier.arguments.FloatArgumentType;
@@ -114,9 +115,18 @@ public final class ClientPalSmokeEvents {
         if (style.isEmpty()) {
             return 0;
         }
+        AttackMoveDefinition move = style.get().move(oneBasedIndex - 1);
+        if (!CombatAnimationController.probeTickInside(tick, move.totalTicks())) {
+            // At or past the end the animation would finish at once and hold nothing.
+            LOGGER.info("PAL_SMOKE third_person rejected reason=tick_out_of_range move={} tick={} total_ticks={}",
+                    oneBasedIndex, tick, move.totalTicks());
+            context.getSource().sendFailure(Component.literal(
+                    move.id() + " lasts " + move.totalTicks() + " ticks; the probe tick must be below that"));
+            return 0;
+        }
         boolean held = CombatAnimationController.holdThirdPersonProbe(
                 player,
-                style.get().move(oneBasedIndex - 1).animation().animationId(),
+                move.animation().animationId(),
                 tick);
         if (!held) {
             return 0;
@@ -131,9 +141,14 @@ public final class ClientPalSmokeEvents {
         if (player == null) {
             return 0;
         }
-        CombatAnimationController.releaseThirdPersonProbe(player);
-        ClientCombatState.clearReadyAnimation();
-        LOGGER.info("PAL_SMOKE third_person release");
+        boolean released = CombatAnimationController.releaseThirdPersonProbe(player);
+        if (released) {
+            // Only a real release hands the layer back for the client tick to claim the ready idle.
+            ClientCombatState.clearReadyAnimation();
+            LOGGER.info("PAL_SMOKE third_person release");
+        } else {
+            LOGGER.info("PAL_SMOKE third_person release held=false");
+        }
         return 1;
     }
 
