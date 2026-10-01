@@ -54,6 +54,20 @@ final class CombatWorldTrailsTest {
     }
 
     @Test
+    void trailLengthComesFromAWeaponOfTheMovesStyle() {
+        var styles = CombatTestData.styles();
+        var move = CombatTestData.basicSword().move(2).id();
+        var qingfeng = CombatTestData.QINGFENG_SWORD;
+        assertEquals(Optional.of(qingfeng), CombatWorldTrails.trailWeapon(styles, qingfeng, move));
+        // START before the equipment update: the held item is not yet the weapon.
+        assertEquals(Optional.of(qingfeng), CombatWorldTrails.trailWeapon(styles, null, move));
+        assertEquals(Optional.of(qingfeng), CombatWorldTrails.trailWeapon(
+                styles, net.minecraft.resources.ResourceLocation.withDefaultNamespace("stick"), move));
+        assertEquals(Optional.empty(), CombatWorldTrails.trailWeapon(
+                styles, qingfeng, net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("myvillage", "unknown")));
+    }
+
+    @Test
     void worldBladeFollowsTheMoveSamplesAndTheServerFacing() {
         List<HitboxSample> samples = CombatTestData.basicSword().move(1).hitbox().samples();
         float tick = samples.getFirst().actionTick();
