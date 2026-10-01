@@ -21,22 +21,39 @@ import java.util.Objects;
  * grip. Keys are authored in server ticks so the visible strike can be checked against each
  * move's active window. An optional per-move {@code contact} tick marks the moment the drawn
  * blade reaches the target; the hit-stop waits for it so the freeze reads as the blade biting.
+ *
+ * <p>The rig also carries the sword's first-person scale ({@code rig.sword_scale}, item-model
+ * units to blocks), optional arm tuning ({@code rig.arm}) and the sword geometry contract. Two
+ * optional pose fields drive the first-person arm and are interpolated like the rest:
+ * {@code grip_roll}, the hand's turn about the handle in the sword's own frame (0 puts the knuckles
+ * along the +Z edge, 90 along the +X flat normal), and {@code elbow}, degrees the elbow swivels up
+ * and out around the shoulder-wrist line (0 keeps the natural low elbow). Missing values inherit
+ * the previous key, and the neutral hold defaults both to 0.
  */
 final class FirstPersonSwing {
     static final String RESOURCE_PATH = "combat/qingfeng_first_person.json";
 
+    /** Item-model units (16 px) to blocks for the first-person sword when the rig omits it. */
+    static final float DEFAULT_SWORD_SCALE = 0.60F;
+
     private final Rig rig;
     private final Pose neutral;
     private final List<Move> moves;
+    private final SwordGeometry sword;
 
-    private FirstPersonSwing(Rig rig, Pose neutral, List<Move> moves) {
+    private FirstPersonSwing(Rig rig, Pose neutral, List<Move> moves, SwordGeometry sword) {
         this.rig = rig;
         this.neutral = neutral;
         this.moves = List.copyOf(moves);
+        this.sword = sword;
     }
 
     Rig rig() {
         return rig;
+    }
+
+    SwordGeometry sword() {
+        return sword;
     }
 
     Pose neutral() {
@@ -58,11 +75,21 @@ final class FirstPersonSwing {
         return move(moveIndex).sample(tick);
     }
 
-    static FirstPersonSwing parse(JsonObject json, CombatStyleDefinition style) {
+    static FirstPersonSwing parse(JsonObject json, CombatStyleDefinition style, SwordGeometry sword) {
         Objects.requireNonNull(json, "json");
         Objects.requireNonNull(style, "style");
-        float[] shoulder = vector(json.getAsJsonObject("rig").getAsJsonArray("shoulder"), "rig.shoulder");
-        Rig rig = new Rig(shoulder[0], shoulder[1], shoulder[2]);
+        Objects.requireNonNull(sword, "sword");
+        JsonObject rigJson = json.getAsJsonObject("rig");
+        if (rigJson == null) {
+            throw new IllegalArgumentException("First-person swing file has no rig");
+        }
+        float[] shoulder = vector(rigJson.getAsJsonArray("shoulder"), "rig.shoulder");
+        float swordScale = value(rigJson, "sword_scale", DEFAULT_SWORD_SCALE);
+        if (!(swordScale >= 0.2F && swordScale <= 1.5F)) {
+            throw new IllegalArgumentException("rig.sword_scale must be within 0.2..1.5");
+        }
+        Arm arm = Arm.parse(rigJson.has("arm") ? rigJson.getAsJsonObject("arm") : new JsonObject());
+        Rig rig = new Rig(shoulder[0], shoulder[1], shoulder[2], swordScale, arm);
         Pose neutral = pose(json.getAsJsonObject("neutral"), Pose.ZERO);
 
         JsonObject movesJson = json.getAsJsonObject("moves");
@@ -80,7 +107,7 @@ final class FirstPersonSwing {
         if (movesJson.size() != moves.size()) {
             throw new IllegalArgumentException("First-person swing file declares unknown moves");
         }
-        return new FirstPersonSwing(rig, neutral, moves);
+        return new FirstPersonSwing(rig, neutral, moves, sword);
     }
 
     private static Move move(AttackMoveDefinition definition, JsonObject json, Pose neutral) {
@@ -142,7 +169,9 @@ final class FirstPersonSwing {
                 value(json, "twist", fallback.twist()),
                 offset[0],
                 offset[1],
-                offset[2]);
+                offset[2],
+                value(json, "grip_roll", fallback.gripRoll()),
+                value(json, "elbow", fallback.elbow()));
     }
 
     private static float value(JsonObject json, String name, float fallback) {
@@ -164,7 +193,58 @@ final class FirstPersonSwing {
         return values;
     }
 
-    record Rig(float shoulderX, float shoulderY, float shoulderZ) {
+    record Rig(float shoulderX, float shoulderY, float shoulderZ, float swordScale, Arm arm) {
+    }
+
+    /**
+     * First-person arm tuning, all optional under {@code rig.arm}. Lengths are blocks; the arm's
+     * cross-section is {@code thickness} times the skin's pixel size; {@code grip_diagonal} is how
+     * far the handle leans across the palm (blade toward the knuckles); {@code follow_through}
+     * scales the wrist lag and follow-through (0 turns it off).
+     */
+    record Arm(
+            float shoulderOffsetX,
+            float shoulderOffsetY,
+            float shoulderOffsetZ,
+            float upperArm,
+            float forearm,
+            float thickness,
+            float gripDiagonal,
+            float followThrough) {
+        static final Arm DEFAULT = new Arm(0.03F, -0.02F, 0.0F, 0.33F, 0.33F, 0.5F, 40.0F, 1.0F);
+
+        Arm {
+            if (!(upperArm >= 0.1F && upperArm <= 0.6F && forearm >= 0.1F && forearm <= 0.6F)) {
+                throw new IllegalArgumentException("rig.arm bone lengths must be within 0.1..0.6");
+            }
+            if (!(thickness >= 0.2F && thickness <= 1.2F)) {
+                throw new IllegalArgumentException("rig.arm.thickness must be within 0.2..1.2");
+            }
+            if (!(gripDiagonal >= 0.0F && gripDiagonal <= 50.0F)) {
+                throw new IllegalArgumentException("rig.arm.grip_diagonal must be within 0..50");
+            }
+            if (!(followThrough >= 0.0F && followThrough <= 2.0F)) {
+                throw new IllegalArgumentException("rig.arm.follow_through must be within 0..2");
+            }
+            if (!Float.isFinite(shoulderOffsetX) || !Float.isFinite(shoulderOffsetY) || !Float.isFinite(shoulderOffsetZ)) {
+                throw new IllegalArgumentException("rig.arm.shoulder_offset must be finite");
+            }
+        }
+
+        static Arm parse(JsonObject json) {
+            float[] offset = json.has("shoulder_offset")
+                    ? vector(json.getAsJsonArray("shoulder_offset"), "rig.arm.shoulder_offset")
+                    : new float[] {DEFAULT.shoulderOffsetX, DEFAULT.shoulderOffsetY, DEFAULT.shoulderOffsetZ};
+            return new Arm(
+                    offset[0],
+                    offset[1],
+                    offset[2],
+                    value(json, "upper_arm", DEFAULT.upperArm),
+                    value(json, "forearm", DEFAULT.forearm),
+                    value(json, "thickness", DEFAULT.thickness),
+                    value(json, "grip_diagonal", DEFAULT.gripDiagonal),
+                    value(json, "follow_through", DEFAULT.followThrough));
+        }
     }
 
     record Pose(
@@ -176,13 +256,16 @@ final class FirstPersonSwing {
             float twist,
             float x,
             float y,
-            float z) {
-        static final Pose ZERO = new Pose(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
+            float z,
+            float gripRoll,
+            float elbow) {
+        static final Pose ZERO = new Pose(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
 
         Pose {
             if (!Float.isFinite(plane) || !Float.isFinite(sweep) || !Float.isFinite(reach)
                     || !Float.isFinite(lead) || !Float.isFinite(lift) || !Float.isFinite(twist)
-                    || !Float.isFinite(x) || !Float.isFinite(y) || !Float.isFinite(z)) {
+                    || !Float.isFinite(x) || !Float.isFinite(y) || !Float.isFinite(z)
+                    || !Float.isFinite(gripRoll) || !Float.isFinite(elbow)) {
                 throw new IllegalArgumentException("Swing pose values must be finite");
             }
         }
@@ -203,7 +286,9 @@ final class FirstPersonSwing {
                     lerp(start.twist, end.twist, progress),
                     lerp(start.x, end.x, progress),
                     lerp(start.y, end.y, progress),
-                    lerp(start.z, end.z, progress));
+                    lerp(start.z, end.z, progress),
+                    lerp(start.gripRoll, end.gripRoll, progress),
+                    lerp(start.elbow, end.elbow, progress));
         }
 
         private static float lerp(float start, float end, float progress) {

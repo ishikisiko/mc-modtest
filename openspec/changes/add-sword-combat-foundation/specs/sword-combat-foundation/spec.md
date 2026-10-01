@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Qingfeng Sword is a complete independent diamond-tier sword
-The mod SHALL register `myvillage:qingfeng_sword` as a `SwordItem` using mapped `Tiers.DIAMOND` and `SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F)`. It SHALL therefore have durability `1561`, held attack damage `7.0`, held attack speed `1.6`, diamond enchantment value and repair ingredient behavior, normal durability/Mending compatibility, and membership in the vanilla sword item tag. It SHALL appear in `myvillage:main` with English `Qingfeng Sword`, Chinese `青锋剑`, an ordinary item model, an original pixel texture, and a shaped diamond-sword-equivalent recipe.
+The mod SHALL register `myvillage:qingfeng_sword` as a `SwordItem` using mapped `Tiers.DIAMOND` and `SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F)`. It SHALL therefore have durability `1561`, held attack damage `7.0`, held attack speed `1.6`, diamond enchantment value and repair ingredient behavior, normal durability/Mending compatibility, and membership in the vanilla sword item tag. It SHALL appear in `myvillage:main` with English `Qingfeng Sword`, Chinese `青锋剑`, an original 2D pixel texture as its inventory icon, a generated 3D held model (see the held-model requirement), and a shaped diamond-sword-equivalent recipe.
 
 #### Scenario: The sword is obtained
 - **WHEN** a player opens `myvillage:main` or runs `/give @s myvillage:qingfeng_sword`
@@ -14,6 +14,25 @@ The mod SHALL register `myvillage:qingfeng_sword` as a `SwordItem` using mapped 
 #### Scenario: The sword is enchanted or repaired
 - **WHEN** normal sword-compatible enchantment, anvil repair, Mending, or durability loss logic evaluates the stack
 - **THEN** the Qingfeng Sword SHALL participate through ordinary sword/tier/item hooks
+
+### Requirement: Qingfeng Sword has a generated 3D held model and geometry contract
+The Qingfeng item model SHALL be a `neoforge:separate_transforms` model whose `base` is the element model `myvillage:item/qingfeng_sword_3d` and whose `gui` perspective keeps the original 2D `myvillage:item/qingfeng_sword` sprite on `minecraft:item/handheld`. The 3D model SHALL depict a straight double-edged jian (ridged blade with straight edges and a tapered tip, guard, wrapped grip, pommel) with its own texture `myvillage:item/qingfeng_sword_model`, SHALL have no parent that ends in `builtin/generated`, and SHALL carry its own hand, ground, fixed, and head display transforms but no `gui` transform.
+
+`tools/gen_qingfeng_sword_model.py` SHALL be the only source of the 3D model, its texture, the wrapper model, and the geometry contract `assets/myvillage/combat/qingfeng_sword_geometry.json`. It SHALL be deterministic, standard-library only, and provide `--check` (fail on drift from the committed outputs or on a failed self-check) and `--report`. The contract SHALL state, in model pixels with the blade along `+Y`, the flat normal along X, and the edge along Z: the grip centre, the handle, guard, and pommel extents, the blade base and tip, and the axes. Its display transforms SHALL be derived so the third-person grip centre lands in the fist and the blade keeps the direction the PAL moves were designed for. The generated third-person PAL animation SHALL compensate `right_item` rotation so the grip centre stays in the fist during moves.
+
+The first-person grip and first-person trail SHALL read the blade base and tip from the contract, and the world trail's drawn blade length SHALL follow the contract blade at the model's third-person display scale, with a bounded fallback when the contract is absent. The model and contract are presentation only and SHALL NOT change reach, hit shapes, or damage.
+
+#### Scenario: The sword is seen in the inventory and in hand
+- **WHEN** a player views the Qingfeng Sword in a GUI slot and then holds it
+- **THEN** the slot SHALL show the 2D icon and the hand SHALL show the 3D jian without missing textures
+
+#### Scenario: A generated sword asset is hand-edited
+- **WHEN** the 3D model, its texture, the wrapper model, or the geometry contract differs from the generator output
+- **THEN** `python3 tools/gen_qingfeng_sword_model.py --check` SHALL fail and the focused validator SHALL report generator drift
+
+#### Scenario: The sword model is regenerated with new proportions
+- **WHEN** the generator changes the blade length or grip position and resources reload
+- **THEN** the first-person grip, first-person trail, and world-trail blade length SHALL follow the new contract without a Java change
 
 ### Requirement: Qingfeng Sword and rideable flying sword remain separate
 `myvillage:qingfeng_sword` and `myvillage:rideable_flying_sword` SHALL retain distinct item ids, Java item types, models, textures, interactions, contracts, and gameplay state. The Qingfeng Sword SHALL NOT summon, mount, recall, render, or control the rideable-flying-sword entity.

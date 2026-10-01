@@ -7,6 +7,81 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.27.1
+
+### Changed
+
+- The Qingfeng Sword in hand is now a 3D element model of a jian: a thin
+  double-edged blade with a raised ridge and a straight tapered tip, a guard with
+  upswept wings, a wrapped grip, and a jade pommel. It replaces the extruded
+  sprite, and its colors follow the old texture. `qingfeng_sword.json` is a
+  `neoforge:separate_transforms` wrapper: `base` is the new
+  `qingfeng_sword_3d.json`, while the `gui` perspective keeps the existing 2D
+  `qingfeng_sword.png` icon.
+- The display transforms of the 3D model are derived from the old sprite's
+  poses, not hand-tuned. In third person the grip centre lands in the fist, and
+  the blade keeps the direction the PAL moves were designed for.
+- Third-person PAL grip compensation: PAL rotates `right_item` about the item
+  origin, so at large item rotations the handle swung out of the fist. This
+  happened with the old sprite as well. `tools/gen_sword_pal_anims.py` now adds a
+  `right_item` position per key so the rotation pivots on the grip centre. The
+  generator reads the 3D model's display transform and the geometry contract,
+  and new self-checks bound the grip drift at keys and between keys.
+  `sword_combat.json` is regenerated.
+- The first-person arm is now an upper arm, forearm, wrist, and a separate fist.
+  The handle crosses the fist diagonally, with the guard showing on the thumb
+  side and the pommel below the little finger. The IK solves from the shoulder to
+  the wrist, and the wrist bend stays within anatomical flexion and deviation
+  limits. The arm's cross-section is thinner, so it takes up less of the screen.
+- The first-person sword is aligned from the geometry contract and the baked
+  model's own first-person display transform, which is undone at runtime. The
+  hard-coded `GRIP_*` sprite offsets are gone, so the model's display values no
+  longer move the grip.
+- The rig file gains `rig.sword_scale`, optional `rig.arm` tuning (bone lengths,
+  thickness, grip diagonal, follow-through), and per-key `grip_roll` (hand turn
+  about the handle) and `elbow` (elbow swivel). All of them are interpolated like
+  the other pose fields.
+- The first-person trail takes its blade base and tip from the geometry contract.
+  The world trail's blade length is the contract's blade length at the model's
+  third-person display scale; without the contract it falls back to 1 block.
+
+### Added
+
+- `tools/gen_qingfeng_sword_model.py` (stdlib only, deterministic, with
+  `--check` and `--report`). It writes the 3D model, its 64x64 texture
+  `textures/item/qingfeng_sword_model.png`, the `qingfeng_sword.json` wrapper,
+  and the geometry contract `assets/myvillage/combat/qingfeng_sword_geometry.json`
+  (grip centre, handle, guard, pommel, blade base and tip, axes, in model pixels).
+- `SwordGeometry` loads the contract with the swing rig on every resource
+  reload (`F3+T`). A missing or invalid contract leaves Qingfeng on the vanilla
+  hold.
+- `FirstPersonArmLag`: presentation-only wrist secondary motion. The grip's
+  recent path runs through an under-damped low-pass, so the arm trails a cut and
+  follows through past the stop. It freezes with the hit-stop and fades out at
+  the end of a move. A faint idle breath moves the neutral hold.
+- Validator checks:
+  - `tools/validate_mod_items.py` checks the `separate_transforms` wrapper, the
+    2D gui icon, and the element model (bounds, rotations, faces, textures, UVs,
+    hand display contexts, no `gui` display, no generated parent).
+  - The focused validator checks the 3D model, texture, and geometry contract,
+    the generator drift (`COMBAT_SWORD_MODEL_GENERATOR_DRIFT`), the display
+    undo, the contract reload, the fist, wrist limits, grip roll, elbow swivel,
+    wrist lag, the trail's contract blade points, and the world-trail blade
+    length. It rejects reintroduced `GRIP_*` or hard-coded `BLADE_*` constants
+    and requires the new jar entries and focused Java tests.
+
+### Notes
+
+- Owner feedback on 0.27.0 (2026-09-30): "自研的动作好一些了现在，但是握持这部分完全不行现在就像插入肉里的，非常僵硬。剑的建模也不太行可以优化一下。"
+  This revision responds to it. There is no owner verdict on 0.27.1 yet.
+- Presentation only: server authority, timing, hit windows, damage, steps, and
+  the empty C2S payloads are unchanged. Payload protocol stays `6`.
+- Lab station F (2026-09-30, `combat-lab/out/F`) observed in a physical client:
+  the 2D hotbar icon with the 3D sword in hand and no missing textures; the
+  handle through the fist in third person, staying in the fist during moves; and
+  in first person, the fist on the handle with the guard visible. These are
+  implementation evidence only.
+
 ## 0.27.0
 
 ### Changed

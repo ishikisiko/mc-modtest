@@ -64,7 +64,13 @@ BLADE_CUT_TEXTURE = "src/main/resources/assets/myvillage/textures/particle/blade
 GENERATOR_CHECKS = (
     ("tools/gen_sword_pal_anims.py", "COMBAT_PAL_GENERATOR_DRIFT"),
     ("tools/gen_blade_cut_sprite.py", "COMBAT_BLADE_CUT_SPRITE_DRIFT"),
+    ("tools/gen_qingfeng_sword_model.py", "COMBAT_SWORD_MODEL_GENERATOR_DRIFT"),
 )
+QINGFENG_MODEL_3D = "src/main/resources/assets/myvillage/models/item/qingfeng_sword_3d.json"
+QINGFENG_MODEL_TEXTURE = "src/main/resources/assets/myvillage/textures/item/qingfeng_sword_model.png"
+QINGFENG_GEOMETRY = "src/main/resources/assets/myvillage/combat/qingfeng_sword_geometry.json"
+QINGFENG_GEOMETRY_FIELDS = ("grip_center", "handle", "guard", "pommel", "blade_base", "blade_tip",
+                            "edge_axis", "flat_axis", "axes")
 GENERATOR_TIMEOUT_SECONDS = 120
 FIRST_PERSON_RIG = "src/main/resources/assets/myvillage/combat/qingfeng_first_person.json"
 MAX_STRIKE_TICKS = 3.0
@@ -172,12 +178,17 @@ def validate_client_boundary(root: Path, findings: list[Finding]) -> None:
     first_person_trail_path = client_combat / "FirstPersonSwordTrail.java"
     world_trail_path = client_combat / "CombatWorldTrails.java"
     arm_renderer_path = client_combat / "QingfengFirstPersonArmRenderer.java"
+    arm_ik_path = client_combat / "QingfengFirstPersonArmIk.java"
+    arm_model_path = client_combat / "QingfengFirstPersonArmModel.java"
+    arm_lag_path = client_combat / "FirstPersonArmLag.java"
+    sword_geometry_path = client_combat / "SwordGeometry.java"
     camera_fx_path = client_combat / "CombatCameraFx.java"
     impact_fx_path = client_combat / "CombatImpactFx.java"
     render_types_path = client_combat / "CombatRenderTypes.java"
     blade_cut_particle_path = client_combat / "BladeCutParticle.java"
     swing_test_path = client_combat_tests / "FirstPersonSwingTest.java"
     swing_clock_test_path = client_combat_tests / "SwingClockTest.java"
+    arm_test_path = client_combat_tests / "FirstPersonArmIkTest.java"
 
     for path, code in (
             (controller_path, "PAL_CONTROLLER_MISSING"),
@@ -191,6 +202,11 @@ def validate_client_boundary(root: Path, findings: list[Finding]) -> None:
             (first_person_trail_path, "COMBAT_FIRST_PERSON_TRAIL_MISSING"),
             (world_trail_path, "COMBAT_WORLD_TRAIL_MISSING"),
             (arm_renderer_path, "COMBAT_FIRST_PERSON_ARM_MISSING"),
+            (arm_ik_path, "COMBAT_FIRST_PERSON_ARM_MISSING"),
+            (arm_model_path, "COMBAT_FIRST_PERSON_ARM_MISSING"),
+            (arm_lag_path, "COMBAT_FIRST_PERSON_WRIST_LAG_MISSING"),
+            (sword_geometry_path, "COMBAT_SWORD_GEOMETRY_LOADER_MISSING"),
+            (arm_test_path, "COMBAT_FIRST_PERSON_ARM_TEST_MISSING"),
             (camera_fx_path, "COMBAT_CAMERA_FX_MISSING"),
             (impact_fx_path, "COMBAT_IMPACT_FX_MISSING"),
             (render_types_path, "COMBAT_TRAIL_RENDER_TYPE_MISSING"),
@@ -267,6 +283,7 @@ def validate_client_boundary(root: Path, findings: list[Finding]) -> None:
                 ("arm != player.getMainArm()", "COMBAT_FIRST_PERSON_MAIN_HAND_GUARD"),
                 ("FirstPersonSwingResources.current()", "COMBAT_FIRST_PERSON_RIG_SOURCE"),
                 ("FirstPersonSwordTransform.apply(", "COMBAT_FIRST_PERSON_ITEM_TRANSFORM"),
+                ("model.applyTransform(context, scratch, leftHand)", "COMBAT_FIRST_PERSON_DISPLAY_UNDO"),
                 ("player.level().playLocalSound(", "COMBAT_LOCAL_SWING_SOUND"),
                 ("visualTick + 1.5F < move.activeStartTick()", "COMBAT_LOCAL_SWING_SOUND_LEAD"),
                 ("CombatSounds.jitteredSwingPitch(feedback.swingPitch(), player.getRandom())",
@@ -300,8 +317,8 @@ def validate_client_boundary(root: Path, findings: list[Finding]) -> None:
             "Axis.YP.rotationDegrees(side * pose.lead())",
             "Axis.XP.rotationDegrees(pose.lift())",
             "Axis.YP.rotationDegrees(side * pose.twist())",
-            "Axis.XP.rotationDegrees(GRIP_ALIGN_PITCH)",
-            "poseStack.translate(-side * GRIP_X, -GRIP_Y, -GRIP_Z)",
+            "poseStack.mulPose(itemToGrip(swing.sword(), swing.rig().swordScale(), display))",
+            "result.mul(new Matrix4f(display).invert())",
         )
         cursor = -1
         for token in transform_order:
@@ -311,6 +328,22 @@ def validate_client_boundary(root: Path, findings: list[Finding]) -> None:
                     "COMBAT_FIRST_PERSON_TRANSFORM_ORDER",
                     f"{first_person_transform_path.name}:{token}"))
                 break
+        # The grip comes from the geometry contract and the baked display transform, never from
+        # constants measured against one sword model.
+        if re.search(r"\bGRIP_(?:ALIGN_PITCH|X|Y|Z)\b", first_person_transform):
+            findings.append(Finding("COMBAT_FIRST_PERSON_HARDCODED_GRIP", first_person_transform_path.name))
+
+    if swing_resources_path.is_file():
+        swing_resources = text(swing_resources_path)
+        for needle in ("GEOMETRY_LOCATION", "SwordGeometry.parse(", "FirstPersonSwing.parse(rigJson.get(), "
+                       "BasicSwordStyle.DEFINITION, geometry)"):
+            require_contains(
+                swing_resources, needle, "COMBAT_SWORD_GEOMETRY_RELOAD", swing_resources_path.name, findings)
+
+    if sword_geometry_path.is_file():
+        require_contains(
+            text(sword_geometry_path), 'RESOURCE_PATH = "combat/qingfeng_sword_geometry.json"',
+            "COMBAT_SWORD_GEOMETRY_PATH", sword_geometry_path.name, findings)
 
     if swing_clock_path.is_file():
         clock = text(swing_clock_path)
@@ -327,6 +360,22 @@ def validate_client_boundary(root: Path, findings: list[Finding]) -> None:
         if "setCanceled" in arm:
             # The arm is drawn beside the vanilla item pass; cancelling would hide the sword.
             findings.append(Finding("COMBAT_FIRST_PERSON_ARM_CANCELS_HAND", arm_renderer_path.name))
+        for needle, code in (
+                ("model.fist(sleeve)", "COMBAT_FIRST_PERSON_FIST"),
+                ("solution.fistRotation()", "COMBAT_FIRST_PERSON_FIST"),
+                ("FirstPersonArmLag.offset(", "COMBAT_FIRST_PERSON_WRIST_LAG")):
+            require_contains(arm, needle, code, arm_renderer_path.name, findings)
+        for forbidden in ("PacketDistributor", "setDeltaMovement", "hurtMarked", ".hurt("):
+            if forbidden in arm:
+                findings.append(Finding("COMBAT_PRESENTATION_AUTHORITY_LEAK", f"{arm_renderer_path.name}:{forbidden}"))
+
+    if arm_ik_path.is_file():
+        arm_ik = text(arm_ik_path)
+        for needle, code in (
+                ("pose.gripRoll()", "COMBAT_FIRST_PERSON_GRIP_ROLL"),
+                ("pose.elbow()", "COMBAT_FIRST_PERSON_ELBOW_POLE"),
+                ("withinLimits(", "COMBAT_FIRST_PERSON_WRIST_LIMITS")):
+            require_contains(arm_ik, needle, code, arm_ik_path.name, findings)
 
     if camera_fx_path.is_file():
         camera_fx = text(camera_fx_path)
@@ -377,11 +426,15 @@ def validate_client_boundary(root: Path, findings: list[Finding]) -> None:
                 ("event.getHand() != InteractionHand.MAIN_HAND", "COMBAT_FIRST_PERSON_TRAIL_MAIN_HAND"),
                 ("ClientCombatState.mode() != CombatMode.CULTIVATION", "COMBAT_FIRST_PERSON_TRAIL_MODE_GUARD"),
                 (".currentFrame(player, event.getPartialTick())", "COMBAT_FIRST_PERSON_TRAIL_SHARED_FRAME"),
-                ("FirstPersonSwordTransform.apply(", "COMBAT_FIRST_PERSON_TRAIL_SHARED_TRANSFORM"),
+                ("FirstPersonSwordTransform.swordPoint(", "COMBAT_FIRST_PERSON_TRAIL_SHARED_TRANSFORM"),
+                ("sword.bladeBase()", "COMBAT_FIRST_PERSON_TRAIL_GEOMETRY"),
+                ("sword.bladeTip()", "COMBAT_FIRST_PERSON_TRAIL_GEOMETRY"),
                 ("move.strikeEndTick()", "COMBAT_FIRST_PERSON_TRAIL_STRIKE_WINDOW")):
             require_contains(trail, needle, code, first_person_trail_path.name, findings)
         if "event.setCanceled" in trail:
             findings.append(Finding("COMBAT_FIRST_PERSON_TRAIL_ITEM_PASS_CANCEL", first_person_trail_path.name))
+        if re.search(r"\bBLADE_(?:BASE|TIP)\s*=\s*new Vector3f", trail):
+            findings.append(Finding("COMBAT_FIRST_PERSON_TRAIL_HARDCODED_BLADE", first_person_trail_path.name))
         for forbidden in ("getGameTime", "actionStartTick"):
             if forbidden in trail:
                 findings.append(Finding(
@@ -393,7 +446,8 @@ def validate_client_boundary(root: Path, findings: list[Finding]) -> None:
         for needle, code in (
                 ("move.hitbox().samples()", "COMBAT_WORLD_TRAIL_HITBOX_SOURCE"),
                 ("camera.isDetached()", "COMBAT_WORLD_TRAIL_FIRST_PERSON_SKIP"),
-                ("action.facingYaw()", "COMBAT_WORLD_TRAIL_SERVER_FACING")):
+                ("action.facingYaw()", "COMBAT_WORLD_TRAIL_SERVER_FACING"),
+                ("drawnBladeLength(", "COMBAT_WORLD_TRAIL_BLADE_LENGTH")):
             require_contains(world_trail, needle, code, world_trail_path.name, findings)
 
     for path, needles in (
@@ -401,7 +455,13 @@ def validate_client_boundary(root: Path, findings: list[Finding]) -> None:
                 ("visibleStrikeCoversTheServerActiveWindow", "COMBAT_FIRST_PERSON_STRIKE_TEST"),
                 ("bladeTravelsMostDuringTheStrike", "COMBAT_FIRST_PERSON_STRIKE_SPEED_TEST"),
                 ("gripStaysInFrontOfTheCameraForBothHands", "COMBAT_FIRST_PERSON_NEAR_PLANE_TEST"),
-                ("invalidRigsAreRejected", "COMBAT_FIRST_PERSON_RIG_NEGATIVE_TEST"))),
+                ("invalidRigsAreRejected", "COMBAT_FIRST_PERSON_RIG_NEGATIVE_TEST"),
+                ("swordGripLandsOnTheGripFrameWhateverTheDisplayTransform", "COMBAT_FIRST_PERSON_GRIP_TEST"))),
+            (arm_test_path, (
+                ("wristStaysAnatomicalAndBonesKeepTheirLength", "COMBAT_FIRST_PERSON_WRIST_TEST"),
+                ("fistClosesAroundTheHandleWithGuardAndPommelOutside", "COMBAT_FIRST_PERSON_FIST_TEST"),
+                ("forearmAndUpperArmNeverCrossTheBlade", "COMBAT_FIRST_PERSON_BLADE_CLEARANCE_TEST"),
+                ("cutsTrailTheArmThenFollowThrough", "COMBAT_FIRST_PERSON_WRIST_LAG_TEST"))),
             (swing_clock_test_path, (
                 ("hitStopSlowsThenCatchesUpToTheServerTotal", "COMBAT_HIT_STOP_CATCH_UP_TEST"),))):
         if path.is_file():
@@ -550,10 +610,7 @@ def validate_qingfeng_item(root: Path, findings: list[Finding]) -> None:
         require_file(path, root, code, findings)
 
     if model_path.is_file():
-        model = json.loads(text(model_path))
-        if (model.get("parent") != "minecraft:item/handheld"
-                or model.get("textures", {}).get("layer0") != "myvillage:item/qingfeng_sword"):
-            findings.append(Finding("QINGFENG_MODEL_CONTRACT", model_path.name))
+        validate_qingfeng_model(root, json.loads(text(model_path)), findings)
     if texture_path.is_file():
         data = texture_path.read_bytes()
         if (not data.startswith(b"\x89PNG\r\n\x1a\n")
@@ -585,6 +642,62 @@ def validate_qingfeng_item(root: Path, findings: list[Finding]) -> None:
         if missing_translations:
             findings.append(Finding(
                 "COMBAT_TRANSLATIONS", f"{path.name}:{','.join(missing_translations)}"))
+
+
+def validate_qingfeng_model(root: Path, model: dict, findings: list[Finding]) -> None:
+    """3D jian in hand (separate_transforms base), 2D icon in the GUI, geometry contract for the grip."""
+    icon = {"parent": "minecraft:item/handheld", "textures": {"layer0": "myvillage:item/qingfeng_sword"}}
+    perspectives = model.get("perspectives") if isinstance(model, dict) else None
+    if (not isinstance(model, dict) or model.get("loader") != "neoforge:separate_transforms"
+            or model.get("base") != {"parent": "myvillage:item/qingfeng_sword_3d"}
+            or not isinstance(perspectives, dict) or perspectives.get("gui") != icon):
+        findings.append(Finding("QINGFENG_MODEL_CONTRACT", "separate_transforms: 3D base, 2D gui icon"))
+    model_3d_path = root / QINGFENG_MODEL_3D
+    if require_file(model_3d_path, root, "QINGFENG_MODEL_3D", findings):
+        try:
+            model_3d = json.loads(text(model_3d_path))
+        except json.JSONDecodeError as exc:
+            findings.append(Finding("QINGFENG_MODEL_3D", str(exc)))
+        else:
+            display = model_3d.get("display", {}) if isinstance(model_3d, dict) else {}
+            if (not isinstance(model_3d, dict) or "parent" in model_3d
+                    or not model_3d.get("elements")
+                    or model_3d.get("textures", {}).get("sword") != "myvillage:item/qingfeng_sword_model"
+                    or not all(context in display for context in (
+                        "thirdperson_righthand", "thirdperson_lefthand",
+                        "firstperson_righthand", "firstperson_lefthand"))
+                    or "gui" in display):
+                findings.append(Finding("QINGFENG_MODEL_3D", "elements, own display, texture qingfeng_sword_model"))
+    texture_path = root / QINGFENG_MODEL_TEXTURE
+    if require_file(texture_path, root, "QINGFENG_MODEL_TEXTURE", findings):
+        data = texture_path.read_bytes()
+        if not data.startswith(b"\x89PNG\r\n\x1a\n") or data[12:16] != b"IHDR":
+            findings.append(Finding("QINGFENG_MODEL_TEXTURE", "expected PNG"))
+    geometry_path = root / QINGFENG_GEOMETRY
+    if require_file(geometry_path, root, "QINGFENG_GEOMETRY_CONTRACT", findings):
+        try:
+            geometry = json.loads(text(geometry_path))
+        except json.JSONDecodeError as exc:
+            findings.append(Finding("QINGFENG_GEOMETRY_CONTRACT", str(exc)))
+            return
+        missing = [f for f in QINGFENG_GEOMETRY_FIELDS if f not in geometry]
+        if missing or geometry.get("units") != "model_pixels":
+            findings.append(Finding("QINGFENG_GEOMETRY_CONTRACT", "missing " + ",".join(missing or ["units"])))
+            return
+        try:
+            grip_y = float(geometry["grip_center"][1])
+            handle = [float(v) for v in geometry["handle"]["y"]]
+            guard = [float(v) for v in geometry["guard"]["y"]]
+            pommel = [float(v) for v in geometry["pommel"]["y"]]
+            base_y, tip_y = float(geometry["blade_base"][1]), float(geometry["blade_tip"][1])
+        except (KeyError, IndexError, TypeError, ValueError) as exc:
+            findings.append(Finding("QINGFENG_GEOMETRY_CONTRACT", f"malformed: {exc}"))
+            return
+        axes = geometry.get("axes", {})
+        if (not pommel[1] <= handle[0] < grip_y < handle[1] <= guard[0] < guard[1] <= base_y < tip_y
+                or not isinstance(axes, dict)
+                or (axes.get("blade"), axes.get("flat_normal"), axes.get("edge")) != ("+y", "x", "z")):
+            findings.append(Finding("QINGFENG_GEOMETRY_CONTRACT", "pommel<handle<guard<blade, axes +y/x/z"))
 
 
 def validate_preference_and_payloads(root: Path, findings: list[Finding]) -> None:
@@ -957,6 +1070,19 @@ def validate_first_person_rig(root: Path, findings: list[Finding]) -> None:
     except (json.JSONDecodeError, KeyError, TypeError) as exc:
         findings.append(Finding("COMBAT_FIRST_PERSON_RIG_JSON", str(exc)))
         return
+    rig_settings = rig["rig"]
+    scale = rig_settings.get("sword_scale", 0.6)
+    arm = rig_settings.get("arm", {})
+    if (not isinstance(scale, (int, float)) or not 0.2 <= scale <= 1.5 or not isinstance(arm, dict)
+            or any(not isinstance(arm.get(name, 0), (int, float))
+                   for name in ("upper_arm", "forearm", "thickness", "grip_diagonal", "follow_through"))
+            or not 0.2 <= arm.get("thickness", 0.5) <= 1.2
+            or not 0 <= arm.get("grip_diagonal", 40) <= 50):
+        findings.append(Finding("COMBAT_FIRST_PERSON_RIG_ARM", "rig.sword_scale/rig.arm"))
+    arm_poses = [rig["neutral"]] + [key for move in moves.values() if isinstance(move, dict)
+                                     for key in move.get("keys", []) if isinstance(key, dict)]
+    if any(not isinstance(pose.get(name, 0), (int, float)) for pose in arm_poses for name in ("grip_roll", "elbow")):
+        findings.append(Finding("COMBAT_FIRST_PERSON_RIG_ARM", "grip_roll/elbow must be numbers"))
     expected_ids = {f"myvillage:{move_id}" for move_id in EXPECTED_MOVES}
     if set(moves) != expected_ids:
         findings.append(Finding("COMBAT_FIRST_PERSON_RIG_MOVES", ",".join(sorted(moves))))
@@ -1008,18 +1134,21 @@ def validate_docs(root: Path, findings: list[Finding]) -> None:
             "myvillage_pal_smoke move", "combat_smoke_server", "combat_smoke_game_dir",
             "combat_smoke_username", "myvillage_pal_smoke first_person", "qingfeng_first_person.json",
             "hit-stop", "not_verified", "gen_sword_pal_anims.py --check",
-            "gen_blade_cut_sprite.py --check", "QingfengFirstPersonArmRenderer"),
+            "gen_blade_cut_sprite.py --check", "QingfengFirstPersonArmRenderer",
+            "gen_qingfeng_sword_model.py --check", "qingfeng_sword_geometry.json"),
         root / "docs/ai-kb/32_pal_combat_integration.md": (
             "PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar", "CombatDamageService", "First-person",
             "IClientItemExtensions", "RegisterClientExtensionsEvent",
             "qingfeng_first_person.json", "FirstPersonSwordTrail", "CombatWorldTrails",
             "SwingClock", "CombatHitConfirmPayload", "CombatImpactPayload", "chainTick",
             "GROUND_DRAG_COMPENSATION", "QingfengFirstPersonArmRenderer", "SWORD_TRAIL_TRANSLUCENT",
-            "gen_sword_pal_anims.py --check", "onComputeFovModifier"),
+            "gen_sword_pal_anims.py --check", "onComputeFovModifier",
+            "qingfeng_sword_geometry.json", "SwordGeometry"),
         root / "AGENTS.md": (
             "validate_sword_combat_foundation.py", "PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar",
             "myvillage_pal_smoke move", "combat_smoke_server", "combat_smoke_game_dir",
-            "combat_smoke_username", "QingfengFirstPersonArmRenderer", "gen_sword_pal_anims.py"),
+            "combat_smoke_username", "QingfengFirstPersonArmRenderer", "gen_sword_pal_anims.py",
+            "gen_qingfeng_sword_model.py", "qingfeng_sword_geometry.json"),
     }
     for path, needles in paths.items():
         if not require_file(path, root, "COMBAT_DOC_MISSING", findings):
@@ -1066,6 +1195,9 @@ def validate_jar_resources(root: Path, findings: list[Finding]) -> None:
         root / "src/main/java/com/example/myvillage/client/combat/FirstPersonSwordTrail.java",
         root / "src/main/java/com/example/myvillage/client/combat/CombatWorldTrails.java",
         root / "src/main/java/com/example/myvillage/client/combat/QingfengFirstPersonArmRenderer.java",
+        root / "src/main/java/com/example/myvillage/client/combat/QingfengFirstPersonArmIk.java",
+        root / "src/main/java/com/example/myvillage/client/combat/FirstPersonArmLag.java",
+        root / "src/main/java/com/example/myvillage/client/combat/SwordGeometry.java",
         root / "src/main/java/com/example/myvillage/client/combat/CombatCameraFx.java",
         root / "src/main/java/com/example/myvillage/combat/network/CombatImpactPayload.java",
         root / FIRST_PERSON_RIG,
@@ -1074,6 +1206,10 @@ def validate_jar_resources(root: Path, findings: list[Finding]) -> None:
         root / "src/main/resources/assets/myvillage/sounds.json",
         root / "src/main/resources/assets/myvillage/player_animations/sword_combat.json",
         root / "src/main/resources/assets/myvillage/textures/item/qingfeng_sword.png",
+        root / "src/main/resources/assets/myvillage/models/item/qingfeng_sword.json",
+        root / QINGFENG_MODEL_3D,
+        root / QINGFENG_MODEL_TEXTURE,
+        root / QINGFENG_GEOMETRY,
     )
     newest_source = max((path.stat().st_mtime for path in source_paths if path.is_file()), default=0)
     if jar.stat().st_mtime < newest_source:
@@ -1082,6 +1218,9 @@ def validate_jar_resources(root: Path, findings: list[Finding]) -> None:
     expected = {
         "assets/myvillage/models/item/qingfeng_sword.json",
         "assets/myvillage/textures/item/qingfeng_sword.png",
+        "assets/myvillage/models/item/qingfeng_sword_3d.json",
+        "assets/myvillage/textures/item/qingfeng_sword_model.png",
+        "assets/myvillage/combat/qingfeng_sword_geometry.json",
         "assets/myvillage/player_animations/sword_combat.json",
         "data/myvillage/recipe/qingfeng_sword.json",
         "data/minecraft/tags/item/swords.json",
@@ -1110,6 +1249,9 @@ def validate_jar_resources(root: Path, findings: list[Finding]) -> None:
         "com/example/myvillage/combat/network/CombatImpactPayload.class",
         "com/example/myvillage/combat/runtime/CombatReactionService.class",
         "com/example/myvillage/client/combat/QingfengFirstPersonArmRenderer.class",
+        "com/example/myvillage/client/combat/QingfengFirstPersonArmIk.class",
+        "com/example/myvillage/client/combat/FirstPersonArmLag.class",
+        "com/example/myvillage/client/combat/SwordGeometry.class",
         "com/example/myvillage/client/combat/CombatCameraFx.class",
         "com/example/myvillage/client/combat/CombatImpactFx.class",
         "com/example/myvillage/client/combat/BladeCutParticle.class",

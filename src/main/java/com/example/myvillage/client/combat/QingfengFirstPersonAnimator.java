@@ -10,11 +10,14 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 import java.util.Optional;
@@ -34,6 +37,13 @@ public final class QingfengFirstPersonAnimator implements IClientItemExtensions 
     /** About 12 Hz: slow enough to read at 60 fps as a shudder rather than noise. */
     private static final float HIT_STOP_SHAKE_RADIANS_PER_TICK = 3.8F;
     private static final float STRIKE_DIRECTION_PROBE_TICKS = 0.35F;
+    /** Idle breathing on the neutral hold: rig units / degrees, one breath about every 3.5 s. */
+    static final float BREATH_RISE = 0.006F;
+    static final float BREATH_LIFT_DEGREES = 1.2F;
+    static final float BREATH_ELBOW_DEGREES = 2.5F;
+    static final float BREATH_PERIOD_TICKS = 70.0F;
+    /** Breathing fades back in over this many ticks after a move, so it never pops. */
+    static final float BREATH_FADE_TICKS = 12.0F;
 
     private int activeMoveIndex = -1;
     private double actionStartTick;
@@ -45,6 +55,7 @@ public final class QingfengFirstPersonAnimator implements IClientItemExtensions 
     private double blendStartTick;
     private float blendTicks = BLEND_OUT_TICKS;
     private Frame probeFrame;
+    private double idleSinceTick = Double.NEGATIVE_INFINITY;
     private final Vector3f shakeDirection = new Vector3f(1.0F, 0.0F, 0.0F);
 
     private QingfengFirstPersonAnimator() {
@@ -87,6 +98,7 @@ public final class QingfengFirstPersonAnimator implements IClientItemExtensions 
             from = animator.currentPose(localPlayer, 0.0F, swing.get());
         }
         animator.activeMoveIndex = moveIndex;
+        animator.idleSinceTick = Double.NEGATIVE_INFINITY;
         animator.actionStartTick = startTick;
         animator.slewOffset = 0.0;
         animator.clock = new SwingClock(BasicSwordStyle.DEFINITION.move(moveIndex).totalTicks());
@@ -196,8 +208,26 @@ public final class QingfengFirstPersonAnimator implements IClientItemExtensions 
             return false;
         }
         FirstPersonSwordTransform.apply(
-                poseStack, arm, equipProcess, swing.get().rig(), currentPose(player, partialTick, swing.get()));
+                poseStack, arm, equipProcess, swing.get(), currentPose(player, partialTick, swing.get()),
+                displayTransform(player, itemInHand, arm));
         return true;
+    }
+
+    /**
+     * The baked model's own first-person display transform for this hand, exactly as the item pass
+     * will apply it next (through {@code BakedModel#applyTransform}, so wrapper models such as
+     * separate-transforms forward to the model actually drawn).
+     */
+    private static Matrix4f displayTransform(LocalPlayer player, ItemStack stack, HumanoidArm arm) {
+        boolean leftHand = arm == HumanoidArm.LEFT;
+        ItemDisplayContext context = leftHand
+                ? ItemDisplayContext.FIRST_PERSON_LEFT_HAND
+                : ItemDisplayContext.FIRST_PERSON_RIGHT_HAND;
+        BakedModel model = Minecraft.getInstance().getItemRenderer()
+                .getModel(stack, player.level(), player, player.getId() + context.ordinal());
+        PoseStack scratch = new PoseStack();
+        model.applyTransform(context, scratch, leftHand);
+        return new Matrix4f(scratch.last().pose());
     }
 
     /**
@@ -217,6 +247,9 @@ public final class QingfengFirstPersonAnimator implements IClientItemExtensions 
     FirstPersonSwing.Pose currentPose(LocalPlayer player, float partialTick, FirstPersonSwing swing) {
         Optional<Frame> frame = currentFrame(player, partialTick);
         FirstPersonSwing.Pose target = swing.neutral();
+        if (frame.isEmpty() && probeFrame == null) {
+            target = breathing(target, player.level().getGameTime() + partialTick);
+        }
         if (frame.isPresent()) {
             target = swing.sample(frame.get().moveIndex(), frame.get().tick());
             if (frame.get().hitStop()) {
@@ -343,7 +376,30 @@ public final class QingfengFirstPersonAnimator implements IClientItemExtensions 
                 pose.plane(), pose.sweep(), pose.reach(), pose.lead(), pose.lift(), pose.twist(),
                 pose.x() + shakeDirection.x * along + crossX * across,
                 pose.y() + shakeDirection.y * along + crossY * across,
-                pose.z() + shakeDirection.z * along);
+                pose.z() + shakeDirection.z * along,
+                pose.gripRoll(),
+                pose.elbow());
+    }
+
+    /**
+     * A slow breath on the neutral hold: the sword rises and tips back a little and the elbow
+     * lifts with it. It ramps in after a move so the hold never jumps.
+     */
+    private FirstPersonSwing.Pose breathing(FirstPersonSwing.Pose pose, double now) {
+        if (idleSinceTick == Double.NEGATIVE_INFINITY) {
+            idleSinceTick = now;
+        }
+        float fade = (float) Math.min(1.0, Math.max(0.0, (now - idleSinceTick) / BREATH_FADE_TICKS));
+        float breath = fade * (float) Math.sin(now * 2.0 * Math.PI / BREATH_PERIOD_TICKS);
+        return new FirstPersonSwing.Pose(
+                pose.plane(), pose.sweep(), pose.reach(), pose.lead(),
+                pose.lift() + BREATH_LIFT_DEGREES * breath,
+                pose.twist(),
+                pose.x(),
+                pose.y() + BREATH_RISE * breath,
+                pose.z(),
+                pose.gripRoll(),
+                pose.elbow() + BREATH_ELBOW_DEGREES * breath);
     }
 
     private void clear() {

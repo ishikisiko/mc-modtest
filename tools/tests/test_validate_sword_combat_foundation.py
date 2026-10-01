@@ -25,6 +25,9 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
                 "src/main/resources/assets/myvillage/player_animations/sword_combat.json",
                 "src/main/resources/assets/myvillage/models/item/qingfeng_sword.json",
                 "src/main/resources/assets/myvillage/textures/item/qingfeng_sword.png",
+                validator.QINGFENG_MODEL_3D,
+                validator.QINGFENG_MODEL_TEXTURE,
+                validator.QINGFENG_GEOMETRY,
                 "src/main/resources/assets/myvillage/lang/en_us.json",
                 "src/main/resources/assets/myvillage/lang/zh_cn.json",
                 "src/main/resources/assets/myvillage/sounds.json",
@@ -41,7 +44,8 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
                 "src/main/java/com/example/myvillage/cultivation/meditation/MeditationManager.java",
                 "src/main/java/com/example/myvillage/network/ModPayloads.java",
                 "src/test/java/com/example/myvillage/client/combat/FirstPersonSwingTest.java",
-                "src/test/java/com/example/myvillage/client/combat/SwingClockTest.java"):
+                "src/test/java/com/example/myvillage/client/combat/SwingClockTest.java",
+                "src/test/java/com/example/myvillage/client/combat/FirstPersonArmIkTest.java"):
             source = validator.ROOT / relative
             target = self.root / relative
             target.parent.mkdir(parents=True, exist_ok=True)
@@ -200,9 +204,50 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
     def test_first_person_transform_order_drift_has_named_failure(self) -> None:
         self.edit(
             "src/main/java/com/example/myvillage/client/combat/FirstPersonSwordTransform.java",
-            "poseStack.mulPose(Axis.XP.rotationDegrees(GRIP_ALIGN_PITCH));",
-            "// removed grip alignment")
+            "poseStack.mulPose(itemToGrip(swing.sword(), swing.rig().swordScale(), display));",
+            "// removed display undo")
         self.assertIn("COMBAT_FIRST_PERSON_TRANSFORM_ORDER", self.codes())
+
+    def test_hardcoded_grip_constants_are_rejected(self) -> None:
+        self.edit(self.CLIENT + "FirstPersonSwordTransform.java",
+                  "    static final float EQUIP_DROP = 0.60F;",
+                  "    static final float EQUIP_DROP = 0.60F;\n    private static final float GRIP_X = 0.0706F;")
+        self.assertIn("COMBAT_FIRST_PERSON_HARDCODED_GRIP", self.codes())
+
+    def test_display_transform_undo_removal_has_named_failure(self) -> None:
+        self.edit(self.CLIENT + "QingfengFirstPersonAnimator.java",
+                  "model.applyTransform(context, scratch, leftHand);", "// display ignored")
+        self.assertIn("COMBAT_FIRST_PERSON_DISPLAY_UNDO", self.codes())
+
+    def test_sword_geometry_reload_removal_has_named_failure(self) -> None:
+        self.edit(self.CLIENT + "FirstPersonSwingResources.java",
+                  "geometry = SwordGeometry.parse(geometryJson.get());", "geometry = null;")
+        self.assertIn("COMBAT_SWORD_GEOMETRY_RELOAD", self.codes())
+
+    def test_trail_sprite_blade_constants_are_rejected(self) -> None:
+        self.edit(self.CLIENT + "FirstPersonSwordTrail.java",
+                  "    private FirstPersonSwordTrail() {",
+                  "    private static final Vector3f BLADE_TIP = new Vector3f(60.0F / 64.0F, 0.97F, 0.5F);\n\n"
+                  "    private FirstPersonSwordTrail() {")
+        self.assertIn("COMBAT_FIRST_PERSON_TRAIL_HARDCODED_BLADE", self.codes())
+
+    def test_arm_without_fist_or_wrist_lag_has_named_failure(self) -> None:
+        self.edit(self.CLIENT + "QingfengFirstPersonArmRenderer.java",
+                  "FirstPersonArmLag.offset(", "FirstPersonArmLag.ignored(")
+        self.assertIn("COMBAT_FIRST_PERSON_WRIST_LAG", self.codes())
+        self.edit(self.CLIENT + "QingfengFirstPersonArmRenderer.java", "model.fist(sleeve)", "model.forearm(sleeve)")
+        self.assertIn("COMBAT_FIRST_PERSON_FIST", self.codes())
+
+    def test_first_person_rig_arm_nonsense_has_named_failure(self) -> None:
+        path = self.root / "src/main/resources/assets/myvillage/combat/qingfeng_first_person.json"
+        rig = json.loads(path.read_text(encoding="utf-8"))
+        rig["rig"]["arm"]["thickness"] = 3.0
+        path.write_text(json.dumps(rig), encoding="utf-8")
+        self.assertIn("COMBAT_FIRST_PERSON_RIG_ARM", self.codes())
+        rig["rig"]["arm"]["thickness"] = 0.5
+        rig["neutral"]["grip_roll"] = "palm up"
+        path.write_text(json.dumps(rig), encoding="utf-8")
+        self.assertIn("COMBAT_FIRST_PERSON_RIG_ARM", self.codes())
 
     def test_first_person_trail_independent_clock_is_rejected(self) -> None:
         self.edit(
@@ -456,6 +501,39 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
         path = self.root / validator.BLADE_CUT_TEXTURE
         path.write_bytes(path.read_bytes() + b"\0")
         self.assertIn("COMBAT_BLADE_CUT_SPRITE_DRIFT", self.codes(run_generators=True))
+
+    def test_qingfeng_flat_handheld_model_has_named_failure(self) -> None:
+        path = self.root / "src/main/resources/assets/myvillage/models/item/qingfeng_sword.json"
+        path.write_text(json.dumps({"parent": "minecraft:item/handheld",
+                                    "textures": {"layer0": "myvillage:item/qingfeng_sword"}}), encoding="utf-8")
+        self.assertIn("QINGFENG_MODEL_CONTRACT", self.codes())
+
+    def test_qingfeng_3d_model_missing_has_named_failure(self) -> None:
+        (self.root / validator.QINGFENG_MODEL_3D).unlink()
+        self.assertIn("QINGFENG_MODEL_3D", self.codes())
+
+    def test_qingfeng_3d_model_with_gui_display_has_named_failure(self) -> None:
+        path = self.root / validator.QINGFENG_MODEL_3D
+        model = json.loads(path.read_text(encoding="utf-8"))
+        model["display"]["gui"] = {"rotation": [0, 0, 0], "translation": [0, 0, 0], "scale": [1, 1, 1]}
+        path.write_text(json.dumps(model), encoding="utf-8")
+        self.assertIn("QINGFENG_MODEL_3D", self.codes())
+
+    def test_qingfeng_geometry_contract_drift_has_named_failure(self) -> None:
+        path = self.root / validator.QINGFENG_GEOMETRY
+        geometry = json.loads(path.read_text(encoding="utf-8"))
+        geometry["grip_center"][1] = geometry["guard"]["y"][1]  # grip outside the handle
+        path.write_text(json.dumps(geometry), encoding="utf-8")
+        self.assertIn("QINGFENG_GEOMETRY_CONTRACT", self.codes())
+        del geometry["blade_tip"]
+        path.write_text(json.dumps(geometry), encoding="utf-8")
+        self.assertIn("QINGFENG_GEOMETRY_CONTRACT", self.codes())
+
+    def test_hand_edited_sword_model_has_generator_drift(self) -> None:
+        path = self.root / validator.QINGFENG_MODEL_3D
+        path.write_text(path.read_text(encoding="utf-8").replace('"scale": [0.8, 0.8, 0.8]', '"scale": [0.85, 0.85, 0.85]'),
+                        encoding="utf-8")
+        self.assertIn("COMBAT_SWORD_MODEL_GENERATOR_DRIFT", self.codes(run_generators=True))
 
 
 if __name__ == "__main__":

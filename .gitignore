@@ -34,3 +34,6 @@ reports/*
 chunky-render/
 chunky.json
 chunky-launcher.json
+run-joint-preview/
+.kimi/
+/*.jar

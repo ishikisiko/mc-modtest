@@ -5,11 +5,16 @@ import com.example.myvillage.combat.definition.BasicSwordStyle;
 import com.example.myvillage.combat.definition.HitboxSample;
 import com.example.myvillage.combat.definition.MoveFeedback;
 import com.example.myvillage.combat.runtime.CombatGeometry;
+import com.example.myvillage.item.ModItems;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import org.joml.Vector3f;
@@ -18,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * World-space 剑光 for players seen from outside (remote players, or the local player in a
@@ -35,10 +41,14 @@ public final class CombatWorldTrails {
     /** Longest drawn blade reach from the pivot: arm plus sword, not the gameplay hitbox reach. */
     static final double MAXIMUM_TIP_RADIUS = 1.7;
     /**
-     * Drawn blade length from base to tip. With the shared taper (newest sample from 55% of the
-     * blade outward) the fresh band spans the outer 0.45 blocks.
+     * Fallback drawn blade length from base to tip, used when the sword geometry contract is not
+     * loaded. Normally the length is the contract's blade (base to tip) at the sword model's
+     * third-person display scale, so the ribbon matches the drawn blade; with the shared taper
+     * (newest sample from 55% of the blade outward) the fresh band spans its outer 45%.
      */
     static final double DRAWN_BLADE_LENGTH = 1.0;
+    static final double MINIMUM_BLADE_LENGTH = 0.5;
+    static final double MAXIMUM_BLADE_LENGTH = 1.3;
     static final float STREAK_TICKS = 3.0F;
     private static final float STREAK_HALF_WIDTH = 0.025F;
     private static final double STREAK_OVERSHOOT = 1.15;
@@ -84,6 +94,9 @@ public final class CombatWorldTrails {
         Vec3 cameraPosition = camera.getPosition();
         float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(false);
         double now = minecraft.level.getGameTime() + partialTick;
+        double bladeLength = drawnBladeLength(
+                FirstPersonSwingResources.current().map(FirstPersonSwing::sword),
+                thirdPersonScale(minecraft));
         MultiBufferSource.BufferSource buffers = minecraft.renderBuffers().bufferSource();
         VertexConsumer consumer = buffers.getBuffer(CombatRenderTypes.SWORD_TRAIL_TRANSLUCENT);
 
@@ -97,7 +110,7 @@ public final class CombatWorldTrails {
             }
             boolean firstPersonSelf = entity == minecraft.player && !camera.isDetached();
             if (!firstPersonSelf) {
-                render(consumer, entity, action, move, tick, partialTick, cameraPosition);
+                render(consumer, entity, action, move, tick, partialTick, cameraPosition, bladeLength);
             }
             return false;
         });
@@ -111,7 +124,8 @@ public final class CombatWorldTrails {
             AttackMoveDefinition move,
             float tick,
             float partialTick,
-            Vec3 cameraPosition) {
+            Vec3 cameraPosition,
+            double bladeLength) {
         List<HitboxSample> samples = move.hitbox().samples();
         float first = samples.getFirst().actionTick() - 0.5F;
         float last = samples.getLast().actionTick() + 0.5F;
@@ -124,7 +138,7 @@ public final class CombatWorldTrails {
             if (alpha <= 0.0F) {
                 return;
             }
-            HitboxSample blade = drawnBlade(blade(samples, Math.min(tick, last)), STREAK_OVERSHOOT);
+            HitboxSample blade = drawnBlade(blade(samples, Math.min(tick, last)), STREAK_OVERSHOOT, bladeLength);
             CombatGeometry.WorldSample world = CombatGeometry.transform(blade, origin, action.facingYaw());
             CombatRenderTypes.streak(
                     consumer,
@@ -152,7 +166,7 @@ public final class CombatWorldTrails {
             float age = (tick - sampleTick) / TRAIL_TICKS;
             float alpha = SwordTrailShape.alpha(age, fade);
             CombatGeometry.WorldSample world = CombatGeometry.transform(
-                    drawnBlade(blade(samples, sampleTick), 1.0), origin, action.facingYaw());
+                    drawnBlade(blade(samples, sampleTick), 1.0, bladeLength), origin, action.facingYaw());
             Vector3f[] blade = {relative(world.start(), cameraPosition), relative(world.end(), cameraPosition)};
             if (previous != null) {
                 CombatRenderTypes.trailSegment(
@@ -172,6 +186,11 @@ public final class CombatWorldTrails {
      * {@code tipScale}) and the base {@link #DRAWN_BLADE_LENGTH} closer to the pivot.
      */
     static HitboxSample drawnBlade(HitboxSample sample, double tipScale) {
+        return drawnBlade(sample, tipScale, DRAWN_BLADE_LENGTH);
+    }
+
+    /** As {@link #drawnBlade(HitboxSample, double)} with the base {@code bladeLength} closer to the pivot. */
+    static HitboxSample drawnBlade(HitboxSample sample, double tipScale, double bladeLength) {
         double x = sample.endX();
         double y = sample.endY() - PIVOT_HEIGHT;
         double z = sample.endZ();
@@ -180,7 +199,7 @@ public final class CombatWorldTrails {
             return sample;
         }
         double tipRadius = Math.min(length, MAXIMUM_TIP_RADIUS);
-        double baseRadius = Math.max(0.0, tipRadius - DRAWN_BLADE_LENGTH);
+        double baseRadius = Math.max(0.0, tipRadius - bladeLength);
         double tip = tipRadius * tipScale / length;
         double base = baseRadius / length;
         return new HitboxSample(
@@ -189,6 +208,28 @@ public final class CombatWorldTrails {
                 x * tip, PIVOT_HEIGHT + y * tip, z * tip,
                 sample.horizontalRadius(),
                 sample.verticalRadius());
+    }
+
+    /**
+     * The drawn blade length: the geometry contract's blade in model pixels at the model's
+     * third-person display scale, bounded to a sane range; {@link #DRAWN_BLADE_LENGTH} without a
+     * contract or a usable scale.
+     */
+    static double drawnBladeLength(Optional<SwordGeometry> sword, float thirdPersonScale) {
+        if (sword.isEmpty() || !(thirdPersonScale > 0.0F) || !Float.isFinite(thirdPersonScale)) {
+            return DRAWN_BLADE_LENGTH;
+        }
+        double length = sword.get().bladeLengthPixels() / 16.0 * thirdPersonScale;
+        return Math.max(MINIMUM_BLADE_LENGTH, Math.min(MAXIMUM_BLADE_LENGTH, length));
+    }
+
+    /** Length scale of the Qingfeng model's third-person display transform along the blade (+Y). */
+    private static float thirdPersonScale(Minecraft minecraft) {
+        ItemStack stack = new ItemStack(ModItems.QINGFENG_SWORD.get());
+        BakedModel model = minecraft.getItemRenderer().getModel(stack, minecraft.level, null, 0);
+        PoseStack scratch = new PoseStack();
+        model.applyTransform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, scratch, false);
+        return scratch.last().pose().transformDirection(new Vector3f(0.0F, 1.0F, 0.0F)).length();
     }
 
     /** Interpolates the blade segment between authored samples in polar form so arcs stay round. */

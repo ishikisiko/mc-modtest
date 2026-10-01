@@ -480,6 +480,9 @@ jar tf build/libs/*.jar | grep "assets/myvillage/models/item/rideable_flying_swo
 jar tf build/libs/*.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
 jar tf build/libs/*.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
 jar tf build/libs/*.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
+jar tf build/libs/*.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
+jar tf build/libs/*.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
+jar tf build/libs/*.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
 jar tf build/libs/*.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
 jar tf build/libs/*.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
 jar tf build/libs/*.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
@@ -499,7 +502,7 @@ jar tf build/libs/*.jar | grep "assets/myvillage/models/item/cultivation_handboo
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.27.0.jar
+build/libs/myvillage-0.27.1.jar
 ```
 
 ## Versioning And Changelog
@@ -551,35 +554,38 @@ python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 
 python3 tools/write_visual_acceptance_report.py
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.27.0.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.27.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.27.0.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/textures/painting/inscription"
-jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
-jar tf build/libs/myvillage-0.27.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
-jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
-jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
-jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
-jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
-jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
-jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
-jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
-jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
-jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
-jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/player_animations/sword_combat.json"
-jar tf build/libs/myvillage-0.27.0.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.27.0.jar | grep "data/minecraft/tags/item/swords.json"
-jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
-jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
-jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/textures/item/low_grade_spirit_stone.png"
-jar tf build/libs/myvillage-0.27.0.jar | grep "data/myvillage/worldgen/configured_feature/spirit_stone_ore.json"
-jar tf build/libs/myvillage-0.27.0.jar | grep "data/myvillage/myvillage/realm/qi_refining.json"
-jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
-jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/guides/myvillage/cultivation"
-jar tf build/libs/myvillage-0.27.0.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
+jar tf build/libs/myvillage-0.27.1.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.27.1.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.27.1.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.27.1.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.27.1.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.27.1.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.27.1.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
+jar tf build/libs/myvillage-0.27.1.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
+jar tf build/libs/myvillage-0.27.1.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
+jar tf build/libs/myvillage-0.27.1.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
+jar tf build/libs/myvillage-0.27.1.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.27.1.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
+jar tf build/libs/myvillage-0.27.1.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
+jar tf build/libs/myvillage-0.27.1.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
+jar tf build/libs/myvillage-0.27.1.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
+jar tf build/libs/myvillage-0.27.1.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
+jar tf build/libs/myvillage-0.27.1.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
+jar tf build/libs/myvillage-0.27.1.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
+jar tf build/libs/myvillage-0.27.1.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
+jar tf build/libs/myvillage-0.27.1.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
+jar tf build/libs/myvillage-0.27.1.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
+jar tf build/libs/myvillage-0.27.1.jar | grep "assets/myvillage/player_animations/sword_combat.json"
+jar tf build/libs/myvillage-0.27.1.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.27.1.jar | grep "data/minecraft/tags/item/swords.json"
+jar tf build/libs/myvillage-0.27.1.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
+jar tf build/libs/myvillage-0.27.1.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
+jar tf build/libs/myvillage-0.27.1.jar | grep "assets/myvillage/textures/item/low_grade_spirit_stone.png"
+jar tf build/libs/myvillage-0.27.1.jar | grep "data/myvillage/worldgen/configured_feature/spirit_stone_ore.json"
+jar tf build/libs/myvillage-0.27.1.jar | grep "data/myvillage/myvillage/realm/qi_refining.json"
+jar tf build/libs/myvillage-0.27.1.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
+jar tf build/libs/myvillage-0.27.1.jar | grep "assets/myvillage/guides/myvillage/cultivation"
+jar tf build/libs/myvillage-0.27.1.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -721,13 +727,38 @@ end at the neutral hold. Each move's `strike` window must cover the server
 active window within three ticks so the blade crosses the target while the hit
 resolves, and an optional `contact` tick anchors the hit-stop. Edit the file and
 reload resources (`F3+T`) to see changes; an invalid file is logged and Qingfeng
-falls back to the vanilla hold. A complete skin and sleeve arm
-(`QingfengFirstPersonArmRenderer`) holds the sword on the same pivot rig. It is
-drawn beside the item pass and never cancels it.
+falls back to the vanilla hold.
+
+A skin and sleeve arm (`QingfengFirstPersonArmRenderer`) holds the sword on the
+same pivot rig: upper arm, forearm, a bending wrist, and a fist. The handle
+crosses the fist, with the guard showing on the thumb side and the pommel below
+the little finger. The wrist bend stays within anatomical limits, and the arm
+lags a cut slightly and follows through when it stops (presentation only). The
+rig's `rig.sword_scale` and `rig.arm` settings and each key's `grip_roll` (hand
+turn about the handle) and `elbow` (elbow swivel) tune it. The arm is drawn
+beside the item pass and never cancels it.
+
+The held Qingfeng Sword is a 3D jian model. The inventory icon stays the 2D
+sprite (`neoforge:separate_transforms`). The 3D model, its texture, the wrapper
+model, and the geometry contract `combat/qingfeng_sword_geometry.json` (grip
+centre, guard, pommel, blade base and tip) are all generated. Edit
+`tools/gen_qingfeng_sword_model.py` and rerun it instead of editing them:
+
+```bash
+python3 tools/gen_qingfeng_sword_model.py            # write the outputs
+python3 tools/gen_qingfeng_sword_model.py --check    # fail on drift
+python3 tools/gen_qingfeng_sword_model.py --report   # print the derived display and grip fit
+```
+
+The first-person grip, the first-person trail, and the world-trail blade length
+read the contract, and the grip undoes the model's own first-person display
+transform. A regenerated sword therefore needs no Java change; reload resources
+(`F3+T`) to see it.
 
 The third-person full-body poses in `player_animations/sword_combat.json` are
 generated. Edit `tools/gen_sword_pal_anims.py` and rerun it instead of editing
-the JSON by hand.
+the JSON by hand. It keeps the grip centre in the fist while PAL rotates the
+held item.
 
 Feedback follows server outcomes only. Each move plays a swing or thrust sound
 about one tick before its active start, with slight pitch variation. The
@@ -801,7 +832,8 @@ python3 tools/validate_sword_combat_foundation.py
 python3 -m unittest tools.tests.test_validate_sword_combat_foundation
 python3 tools/gen_sword_pal_anims.py --check
 python3 tools/gen_blade_cut_sprite.py --check
-python3 -m unittest tools.tests.test_gen_sword_pal_anims tools.tests.test_gen_blade_cut_sprite
+python3 tools/gen_qingfeng_sword_model.py --check
+python3 -m unittest tools.tests.test_gen_sword_pal_anims tools.tests.test_gen_blade_cut_sprite tools.tests.test_gen_qingfeng_sword_model
 python3 tools/validate_mod_items.py
 ./gradlew test
 ./gradlew build
@@ -842,13 +874,24 @@ Epic Fight, the owner said A "现在不太行看上去" and asked for an optimiz
 Revision 0.27.0 is the response. It adds chain windows, server-decided steps and
 lunge, target reaction, per-move hit-stop, camera effects, blade-cut particles,
 thin translucent trails, the complete first-person arm, and generated
-third-person poses. The owner has not yet given a verdict on 0.27.0.
+third-person poses.
+
+Owner feedback on 0.27.0 (2026-09-30): "自研的动作好一些了现在，但是握持这部分完全不行现在就像插入肉里的，非常僵硬。剑的建模也不太行可以优化一下。"
+Revision 0.27.1 is the response: the fist-and-wrist arm with wrist lag, the 3D
+jian model, the geometry contract, and the third-person grip compensation. The
+owner has not yet given a verdict on 0.27.1.
 
 The lab station E capture on 2026-09-30
 (`/home/ubuntu/code/mc/combat-lab/out/E`) exercised 0.27.0 in a physical client.
-Rows marked "lab capture E" below were observed there. That capture is
-implementation evidence, not owner acceptance. Record only directly observed
-results below.
+Rows marked "lab capture E" below were observed there. The lab station F
+capture on 2026-09-30 (`/home/ubuntu/code/mc/combat-lab/out/F`) exercised the
+0.27.1 grip and model with a development jar, and rows marked "lab capture F"
+were observed there. Both captures are implementation evidence, not owner
+acceptance. A local copy of the F evidence (0.27.0 vs 0.27.1 comparison
+sheets, reactive-dummy clips, model previews, the lab capture tools and their
+usage) lives in `out/preview/qingfeng_grip_0271/`, and the lab's handoff
+chapter is `combat-lab/report/combat_lab_report.md` section 0. Record only
+directly observed results below.
 
 | Qingfeng real-client acceptance surface | Result |
 |---|---|
@@ -892,6 +935,14 @@ results below.
 | 0.27.0 swing whoosh lead, pitch variation, heavy impact layer, and subtitles | `not_verified` |
 | 0.27.0 no slowness FOV zoom during swings; accessibility scaling of camera effects | `not_verified` |
 | 0.27.0 chained-move prediction and remote impact freeze/jitter in multiplayer | `not_verified` |
+| Owner verdict on the 0.27.1 grip and 3D sword model | `not_verified` |
+| 0.27.1 inventory shows the 2D icon, hand shows the 3D jian, no missing texture | `pass` (lab capture F) |
+| 0.27.1 item frame and dropped item show the 3D jian | `pass` (lab capture F) |
+| 0.27.1 third-person handle through the fist, back and front, staying in the fist during moves | `pass` (lab capture F) |
+| 0.27.1 first-person fist on the handle with the guard visible | `pass` (lab capture F) |
+| 0.27.1 first-person wrist bend and wrist lag/follow-through read naturally | `not_verified` |
+| 0.27.1 first-person grip with a slim-arm skin and a left main hand | `not_verified` |
+| 0.27.1 first-person wrist top edge: an occasional 1 px dark-green line in the rising-cut follow-through, visible at 6x zoom (lab F `grip_v5/compare_v4_v5_wrist_6x.png`). Suspected skin-texture bleed at the face boundary (the body shirt column next to the arm strip), not geometry; needs a recapture with other skins to confirm, and would be fixed by insetting the arm box UVs | `not_verified` (open) |
 | Remote/third-person world trail follows the hitbox arc | `not_verified` |
 | PAL third-person-model first-person arms/camera animation | `fail` |
 | Two-client nearby five-move start/stop animation and real target damage synchronization | `pass` |
@@ -904,7 +955,7 @@ results below.
 
 ## GuideME Cultivation Guide
 
-MyVillage 0.27.0 requires a compatible GuideME installation on both client and
+MyVillage 0.27.1 requires a compatible GuideME installation on both client and
 server (`[21.1.17,22)`). Gradle resolves GuideME 21.1.17 from Maven Central for
 development; GuideME is not bundled in the MyVillage jar. The untracked
 root-level `guideme-21.1.17.jar` is inspection material, not a build input.

@@ -9,139 +9,301 @@ import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 import net.minecraft.world.entity.HumanoidArm;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.junit.jupiter.api.Test;
 
+/**
+ * The first-person arm on the shipped rig: every move, both main arms, every eighth of a tick,
+ * with and without the wrist lag. The fist must close around the handle (guard and pommel
+ * outside), the wrist must stay anatomical, the arm must never meet the blade, and nothing may pop.
+ */
 final class FirstPersonArmIkTest {
     private static final Path RIG = Path.of(
             "src/main/resources/assets/myvillage", FirstPersonSwing.RESOURCE_PATH);
     private static final float EPSILON = 1.0E-4F;
-    private static final Vector3f SHOULDER = new Vector3f(0.30F, -0.34F, -0.10F);
-    private static final Vector3f BLADE_UP_FORWARD = new Vector3f(0.0F, 0.5F, -0.866F).normalize();
+    private static final float STEP = 0.125F;
+    /** Handle length (model pixels either side of grip_center) the fist must cover even for slim skins. */
+    private static final float COVERED_HANDLE_PIXELS = 1.2F;
+    private static final float BLADE_CLEARANCE = 0.03F;
 
     @Test
-    void handLandsOnTheGripAndBonesKeepTheirLength() {
-        Vector3f[] grips = {
-                new Vector3f(0.10F, -0.30F, -0.55F),
-                new Vector3f(-0.15F, -0.35F, -0.45F),
-                new Vector3f(0.20F, -0.20F, -0.40F),
-        };
-        for (Vector3f grip : grips) {
-            QingfengFirstPersonArmIk.Solution solution =
-                    QingfengFirstPersonArmIk.solve(SHOULDER, grip, BLADE_UP_FORWARD, HumanoidArm.RIGHT);
-            assertFalse(solution.clamped(), "grip " + grip + " is within reach");
-            assertEquals(0.0F, solution.hand().distance(grip), EPSILON);
-            assertEquals(0.0F, solution.shoulder().distance(SHOULDER), EPSILON);
-            assertBones(solution);
-        }
-    }
-
-    @Test
-    void outOfReachGripMovesTheOffscreenShoulderNotTheHand() {
-        Vector3f far = new Vector3f(0.0F, -0.30F, -0.95F);
-        QingfengFirstPersonArmIk.Solution solution =
-                QingfengFirstPersonArmIk.solve(SHOULDER, far, BLADE_UP_FORWARD, HumanoidArm.RIGHT);
-        assertTrue(solution.clamped());
-        assertEquals(0.0F, solution.hand().distance(far), EPSILON);
-        assertEquals(QingfengFirstPersonArmIk.REACH_LIMIT, solution.shoulder().distance(far), EPSILON);
-        assertBones(solution);
-
-        Vector3f near = new Vector3f(0.30F, -0.34F, -0.15F);
-        QingfengFirstPersonArmIk.Solution folded =
-                QingfengFirstPersonArmIk.solve(SHOULDER, near, BLADE_UP_FORWARD, HumanoidArm.RIGHT);
-        assertTrue(folded.clamped());
-        assertEquals(0.0F, folded.hand().distance(near), EPSILON);
-        assertEquals(QingfengFirstPersonArmIk.MINIMUM_REACH, folded.shoulder().distance(near), EPSILON);
-        assertBones(folded);
-    }
-
-    @Test
-    void elbowBendsDownAndOutwardForEitherMainArm() {
-        Vector3f grip = new Vector3f(0.10F, -0.30F, -0.55F);
-        QingfengFirstPersonArmIk.Solution right =
-                QingfengFirstPersonArmIk.solve(SHOULDER, grip, BLADE_UP_FORWARD, HumanoidArm.RIGHT);
-        Vector3f middle = new Vector3f(SHOULDER).add(grip).mul(0.5F);
-        assertTrue(right.elbow().y < middle.y, "elbow should drop below the shoulder-grip line");
-        assertTrue(right.elbow().x > middle.x, "right elbow should swing outward");
-
-        Vector3f leftShoulder = new Vector3f(-SHOULDER.x, SHOULDER.y, SHOULDER.z);
-        Vector3f leftGrip = new Vector3f(-grip.x, grip.y, grip.z);
-        QingfengFirstPersonArmIk.Solution left =
-                QingfengFirstPersonArmIk.solve(leftShoulder, leftGrip, BLADE_UP_FORWARD, HumanoidArm.LEFT);
-        assertEquals(-right.elbow().x, left.elbow().x, EPSILON);
-        assertEquals(right.elbow().y, left.elbow().y, EPSILON);
-        assertEquals(right.elbow().z, left.elbow().z, EPSILON);
-    }
-
-    @Test
-    void segmentFramesFollowTheBonesAndFaceTheBlade() {
-        Vector3f grip = new Vector3f(0.05F, -0.32F, -0.50F);
-        QingfengFirstPersonArmIk.Solution solution =
-                QingfengFirstPersonArmIk.solve(SHOULDER, grip, BLADE_UP_FORWARD, HumanoidArm.RIGHT);
-        Vector3f upperDirection = new Vector3f(solution.elbow()).sub(solution.shoulder()).normalize();
-        Vector3f forearmDirection = new Vector3f(solution.hand()).sub(solution.elbow()).normalize();
-        assertEquals(0.0F, solution.upperArmRotation().transform(new Vector3f(0.0F, 1.0F, 0.0F))
-                .distance(upperDirection), EPSILON);
-        assertEquals(0.0F, solution.forearmRotation().transform(new Vector3f(0.0F, 1.0F, 0.0F))
-                .distance(forearmDirection), EPSILON);
-        // The arm's front face (model -Z) turns toward the blade, so the handle crosses the fist.
-        Vector3f front = solution.forearmRotation().transform(new Vector3f(0.0F, 0.0F, -1.0F));
-        assertTrue(front.dot(BLADE_UP_FORWARD) > 0.0F);
-        // Right-handed frames keep face winding (and culling) intact.
-        Vector3f x = solution.forearmRotation().transform(new Vector3f(1.0F, 0.0F, 0.0F));
-        Vector3f y = solution.forearmRotation().transform(new Vector3f(0.0F, 1.0F, 0.0F));
-        Vector3f z = solution.forearmRotation().transform(new Vector3f(0.0F, 0.0F, 1.0F));
-        assertEquals(0.0F, new Vector3f(x).cross(y).distance(z), EPSILON);
-    }
-
-    @Test
-    void bladeAlongTheForearmStillGivesAFrame() {
-        Vector3f grip = new Vector3f(0.10F, -0.30F, -0.55F);
-        QingfengFirstPersonArmIk.Solution probe =
-                QingfengFirstPersonArmIk.solve(SHOULDER, grip, BLADE_UP_FORWARD, HumanoidArm.RIGHT);
-        Vector3f alongForearm = new Vector3f(probe.hand()).sub(probe.elbow()).normalize();
-        QingfengFirstPersonArmIk.Solution solution =
-                QingfengFirstPersonArmIk.solve(SHOULDER, grip, alongForearm, HumanoidArm.RIGHT);
-        Vector3f y = solution.forearmRotation().transform(new Vector3f(0.0F, 1.0F, 0.0F));
-        assertTrue(Float.isFinite(y.x) && Float.isFinite(y.y) && Float.isFinite(y.z));
-        assertEquals(1.0F, y.length(), EPSILON);
-    }
-
-    @Test
-    void shippedRigNeverOverstretchesTheArmOrBendsTheWristBackward() throws IOException {
-        FirstPersonSwing swing = FirstPersonSwing.parse(
-                JsonParser.parseString(Files.readString(RIG)).getAsJsonObject(), BasicSwordStyle.DEFINITION);
-        float wristLimit = (float) Math.sin(Math.toRadians(-35.0));
+    void wristStaysAnatomicalAndBonesKeepTheirLength() throws IOException {
+        FirstPersonSwing swing = shipped();
         for (HumanoidArm arm : HumanoidArm.values()) {
             for (FirstPersonSwing.Move move : swing.moves()) {
-                for (int sample = 0; sample <= move.totalTicks() * 4; sample++) {
-                    float tick = sample / 4.0F;
+                for (float tick = 0.0F; tick <= move.totalTicks(); tick += STEP) {
                     FirstPersonSwing.Pose pose = move.sample(tick);
-                    QingfengFirstPersonArmIk.Solution solution =
-                            QingfengFirstPersonArmIk.solve(arm, 0.0F, swing.rig(), pose);
-                    assertFalse(solution.clamped(), move.id() + " " + arm + " overstretches at " + tick);
+                    QingfengFirstPersonArmIk.Solution still = QingfengFirstPersonArmIk.solve(arm, 0.0F, swing, pose);
+                    assertFalse(still.clamped(), move.id() + " " + arm + " overstretches at " + tick);
+                    QingfengFirstPersonArmIk.Solution lagged = QingfengFirstPersonArmIk.solve(
+                            arm, 0.0F, swing, pose, FirstPersonArmLag.offset(swing, move, tick));
                     Vector3f grip = FirstPersonSwordTransform.gripFrame(arm, 0.0F, swing.rig(), pose)
                             .getTranslation(new Vector3f());
-                    assertEquals(0.0F, solution.hand().distance(grip), EPSILON);
-                    assertBones(solution);
-                    Vector3f middle = new Vector3f(solution.shoulder()).add(solution.hand()).mul(0.5F);
-                    assertTrue(solution.elbow().y < middle.y, move.id() + " elbow rises at " + tick);
-                    Vector3f blade = FirstPersonSwordTransform.gripFrame(arm, 0.0F, swing.rig(), pose)
-                            .transformDirection(new Vector3f(0.0F, 1.0F, 0.0F)).normalize();
-                    Vector3f forearm = new Vector3f(solution.hand()).sub(solution.elbow()).normalize();
-                    assertTrue(blade.dot(forearm) >= wristLimit,
-                            move.id() + " blade points back along the forearm at " + tick);
+                    for (QingfengFirstPersonArmIk.Solution solution : List.of(still, lagged)) {
+                        String where = move.id() + " " + arm + " at " + tick;
+                        assertTrue(QingfengFirstPersonArmIk.withinLimits(solution.flexion(), solution.deviation()),
+                                where + " wrist flexion " + solution.flexion() + " deviation " + solution.deviation());
+                        assertBones(swing, solution, where);
+                        assertEquals(0.0F, solution.grip().distance(grip), EPSILON, where);
+                    }
                 }
             }
         }
     }
 
-    private static void assertBones(QingfengFirstPersonArmIk.Solution solution) {
-        assertEquals(QingfengFirstPersonArmIk.UPPER_ARM_LENGTH,
-                solution.elbow().distance(solution.shoulder()), EPSILON);
-        assertEquals(QingfengFirstPersonArmIk.FOREARM_LENGTH,
-                solution.hand().distance(solution.elbow()), EPSILON);
-        assertTrue(solution.hand().distance(solution.shoulder()) <= QingfengFirstPersonArmIk.REACH_LIMIT + EPSILON);
+    @Test
+    void fistClosesAroundTheHandleWithGuardAndPommelOutside() throws IOException {
+        FirstPersonSwing swing = shipped();
+        SwordGeometry sword = swing.sword();
+        float pixel = swing.rig().arm().thickness() / 16.0F;
+        Box slimFist = fistBox(pixel, 3.0F);
+        Box wideFist = fistBox(pixel, 4.0F);
+        for (FirstPersonSwing.Move move : swing.moves()) {
+            for (float tick = 0.0F; tick <= move.totalTicks(); tick += STEP) {
+                FirstPersonSwing.Pose pose = move.sample(tick);
+                QingfengFirstPersonArmIk.Solution solution = QingfengFirstPersonArmIk.solve(
+                        HumanoidArm.RIGHT, 0.0F, swing, pose, FirstPersonArmLag.offset(swing, move, tick));
+                String where = move.id() + " at " + tick;
+                for (int step = -3; step <= 3; step++) {
+                    float along = COVERED_HANDLE_PIXELS * step / 3.0F;
+                    Vector3f handle = swordPoint(swing, pose, axis(sword, sword.gripCenter().y + along));
+                    assertTrue(slimFist.contains(solution.wrist(), solution.fistRotation(), handle),
+                            where + " handle leaves the fist " + along + " px from the grip");
+                }
+                float pommel = (sword.pommelBottom() + sword.pommelTop()) * 0.5F;
+                assertFalse(wideFist.contains(solution.wrist(), solution.fistRotation(),
+                        swordPoint(swing, pose, axis(sword, pommel))), where + " pommel buried in the fist");
+                for (float x : new float[] {-sword.guardHalfThickness(), sword.guardHalfThickness()}) {
+                    for (float z : new float[] {-sword.guardHalfWidth(), sword.guardHalfWidth()}) {
+                        for (float y : new float[] {sword.guardBottom(), sword.guardTop()}) {
+                            Vector3f corner = swordPoint(swing, pose, new Vector3f(
+                                    sword.gripCenter().x + x, y, sword.gripCenter().z + z));
+                            assertTrue(wideFist.distance(solution.wrist(), solution.fistRotation(), corner) > 0.01F,
+                                    where + " guard sinks into the fist");
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    void forearmAndUpperArmNeverCrossTheBlade() throws IOException {
+        FirstPersonSwing swing = shipped();
+        SwordGeometry sword = swing.sword();
+        FirstPersonSwing.Arm armRig = swing.rig().arm();
+        float pixel = armRig.thickness() / 16.0F;
+        float half = 2.0F * pixel;
+        float forearmHalf = half * QingfengFirstPersonArmRenderer.FOREARM_WIDTH;
+        Box forearm = new Box(forearmHalf,
+                -QingfengFirstPersonArmRenderer.ELBOW_OVERLAP_PIXELS * pixel,
+                armRig.forearm() + QingfengFirstPersonArmRenderer.WRIST_OVERLAP_PIXELS * pixel,
+                forearmHalf);
+        Box upper = new Box(half, 0.0F, armRig.upperArm() + pixel, half);
+        for (FirstPersonSwing.Move move : swing.moves()) {
+            for (float tick = 0.0F; tick <= move.totalTicks(); tick += STEP) {
+                FirstPersonSwing.Pose pose = move.sample(tick);
+                QingfengFirstPersonArmIk.Solution solution = QingfengFirstPersonArmIk.solve(
+                        HumanoidArm.RIGHT, 0.0F, swing, pose, FirstPersonArmLag.offset(swing, move, tick));
+                for (int step = 0; step <= 20; step++) {
+                    Vector3f point = swordPoint(swing, pose, sword.bladeBase().lerp(sword.bladeTip(), step / 20.0F));
+                    String where = move.id() + " at " + tick + " blade point " + step;
+                    assertTrue(forearm.distance(solution.elbow(), solution.forearmRotation(), point) > BLADE_CLEARANCE,
+                            where + " passes through the forearm");
+                    assertTrue(upper.distance(solution.shoulder(), solution.upperArmRotation(), point) > BLADE_CLEARANCE,
+                            where + " passes through the upper arm");
+                }
+            }
+        }
+    }
+
+    @Test
+    void handAndForearmMoveWithoutPopping() throws IOException {
+        FirstPersonSwing swing = shipped();
+        for (FirstPersonSwing.Move move : swing.moves()) {
+            Quaternionf previousHand = null;
+            Vector3f previousForearm = null;
+            for (float tick = 0.0F; tick <= move.totalTicks(); tick += STEP) {
+                FirstPersonSwing.Pose pose = move.sample(tick);
+                QingfengFirstPersonArmIk.Solution solution = QingfengFirstPersonArmIk.solve(
+                        HumanoidArm.RIGHT, 0.0F, swing, pose, FirstPersonArmLag.offset(swing, move, tick));
+                // The hand's turn on the handle, in the sword's own frame.
+                Quaternionf sword = FirstPersonSwordTransform.gripFrame(HumanoidArm.RIGHT, 0.0F, swing.rig(), pose)
+                        .getNormalizedRotation(new Quaternionf());
+                Quaternionf hand = new Quaternionf(sword).conjugate().mul(solution.fistRotation());
+                Vector3f forearm = new Vector3f(solution.wrist()).sub(solution.elbow()).normalize();
+                if (previousHand != null) {
+                    float handTurn = angleDegrees(previousHand, hand);
+                    float forearmTurn = (float) Math.toDegrees(Math.acos(Math.min(1.0F, forearm.dot(previousForearm))));
+                    assertTrue(handTurn <= 12.0F, move.id() + " hand spins " + handTurn + " deg on the handle at " + tick);
+                    assertTrue(forearmTurn <= 25.0F, move.id() + " forearm snaps " + forearmTurn + " deg at " + tick);
+                }
+                previousHand = hand;
+                previousForearm = forearm;
+            }
+        }
+    }
+
+    @Test
+    void cutsTrailTheArmThenFollowThrough() throws IOException {
+        FirstPersonSwing swing = shipped();
+        for (int index = 1; index <= 3; index++) {
+            FirstPersonSwing.Move move = swing.move(index);
+            float contact = move.contactTick();
+            Vector3f direction = grip(swing, move.sample(contact + 0.25F))
+                    .sub(grip(swing, move.sample(contact - 0.25F)))
+                    .normalize();
+            float atContact = FirstPersonArmLag.offset(swing, move, contact).dot(direction);
+            assertTrue(atContact < -0.02F, move.id() + " arm does not trail the strike: " + atContact);
+            float followThrough = 0.0F;
+            for (float tick = move.strikeEndTick() - 1.0F; tick <= move.strikeEndTick() + 2.5F; tick += 0.25F) {
+                followThrough = Math.max(followThrough, FirstPersonArmLag.offset(swing, move, tick).dot(direction));
+            }
+            assertTrue(followThrough > 0.02F, move.id() + " no follow-through past the grip: " + followThrough);
+        }
+        for (FirstPersonSwing.Move move : swing.moves()) {
+            assertEquals(0.0F, FirstPersonArmLag.offset(swing, move, 0.0F).length(), EPSILON, move.id() + " start");
+            assertEquals(0.0F, FirstPersonArmLag.offset(swing, move, move.totalTicks()).length(), EPSILON,
+                    move.id() + " end");
+            for (float tick = 0.0F; tick <= move.totalTicks(); tick += 0.5F) {
+                assertTrue(FirstPersonArmLag.offset(swing, move, tick).length() <= FirstPersonArmLag.CAP + EPSILON);
+            }
+        }
+    }
+
+    @Test
+    void leftArmMirrorsTheRightArm() throws IOException {
+        FirstPersonSwing swing = shipped();
+        FirstPersonSwing.Move move = swing.move(3);
+        FirstPersonSwing.Pose pose = move.sample(7.0F);
+        Vector3f lag = FirstPersonArmLag.offset(swing, move, 7.0F);
+        QingfengFirstPersonArmIk.Solution right =
+                QingfengFirstPersonArmIk.solve(HumanoidArm.RIGHT, 0.0F, swing, pose, lag);
+        QingfengFirstPersonArmIk.Solution left =
+                QingfengFirstPersonArmIk.solve(HumanoidArm.LEFT, 0.0F, swing, pose, lag);
+        for (Vector3f[] pair : new Vector3f[][] {
+                {right.shoulder(), left.shoulder()}, {right.elbow(), left.elbow()},
+                {right.wrist(), left.wrist()}, {right.grip(), left.grip()}}) {
+            assertEquals(pair[0].x, -pair[1].x, EPSILON);
+            assertEquals(pair[0].y, pair[1].y, EPSILON);
+            assertEquals(pair[0].z, pair[1].z, EPSILON);
+        }
+        assertEquals(right.flexion(), left.flexion(), EPSILON);
+        assertEquals(right.deviation(), left.deviation(), EPSILON);
+        Vector3f leftGrip = FirstPersonSwordTransform.gripFrame(HumanoidArm.LEFT, 0.0F, swing.rig(), pose)
+                .getTranslation(new Vector3f());
+        assertEquals(0.0F, left.grip().distance(leftGrip), EPSILON);
+        // Mirrored frames stay proper rotations, so face winding (and culling) is intact.
+        for (Quaternionf rotation : List.of(left.upperArmRotation(), left.forearmRotation(), left.fistRotation())) {
+            Vector3f x = rotation.transform(new Vector3f(1.0F, 0.0F, 0.0F));
+            Vector3f y = rotation.transform(new Vector3f(0.0F, 1.0F, 0.0F));
+            Vector3f z = rotation.transform(new Vector3f(0.0F, 0.0F, 1.0F));
+            assertEquals(0.0F, new Vector3f(x).cross(y).distance(z), EPSILON);
+        }
+    }
+
+    @Test
+    void neutralHoldKeepsTheArmLowAndRight() throws IOException {
+        FirstPersonSwing swing = shipped();
+        QingfengFirstPersonArmIk.Solution solution =
+                QingfengFirstPersonArmIk.solve(HumanoidArm.RIGHT, 0.0F, swing, swing.neutral());
+        assertTrue(solution.wrist().x > 0.1F && solution.wrist().y < -0.2F, "wrist " + solution.wrist());
+        assertTrue(solution.elbow().x > solution.wrist().x && solution.elbow().y < solution.wrist().y,
+                "elbow " + solution.elbow());
+        assertTrue(Math.abs(solution.deviation()) <= 20.0F && Math.abs(solution.flexion()) <= 20.0F,
+                "neutral wrist " + solution.flexion() + " / " + solution.deviation());
+    }
+
+    /** Writes each move's key-frame wrist angles (static and with lag) as build evidence. */
+    @Test
+    void recordsKeyFrameWristAngles() throws IOException {
+        FirstPersonSwing swing = shipped();
+        List<String> lines = new ArrayList<>();
+        lines.add("move\ttick\tflexion\tdeviation\tflexion_lag\tdeviation_lag\tgrip_roll\telbow\tlag_scale");
+        for (FirstPersonSwing.Move move : swing.moves()) {
+            for (FirstPersonSwing.Key key : move.keys()) {
+                FirstPersonSwing.Pose pose = move.sample(key.tick());
+                QingfengFirstPersonArmIk.Solution still =
+                        QingfengFirstPersonArmIk.solve(HumanoidArm.RIGHT, 0.0F, swing, pose);
+                QingfengFirstPersonArmIk.Solution lagged = QingfengFirstPersonArmIk.solve(
+                        HumanoidArm.RIGHT, 0.0F, swing, pose, FirstPersonArmLag.offset(swing, move, key.tick()));
+                lines.add(String.format(Locale.ROOT, "%s\t%.1f\t%.1f\t%.1f\t%.1f\t%.1f\t%.0f\t%.0f\t%.2f",
+                        move.id().getPath(), key.tick(), still.flexion(), still.deviation(),
+                        lagged.flexion(), lagged.deviation(), pose.gripRoll(), pose.elbow(), lagged.lagScale()));
+            }
+        }
+        Path out = Path.of("build", "reports", "qingfeng_wrist_angles.tsv");
+        Files.createDirectories(out.getParent());
+        Files.write(out, lines);
+        assertTrue(lines.size() > swing.moves().size());
+    }
+
+    private static void assertBones(FirstPersonSwing swing, QingfengFirstPersonArmIk.Solution solution, String where) {
+        FirstPersonSwing.Arm arm = swing.rig().arm();
+        assertEquals(arm.upperArm(), solution.elbow().distance(solution.shoulder()), EPSILON, where + " upper arm");
+        assertEquals(arm.forearm(), solution.wrist().distance(solution.elbow()), EPSILON, where + " forearm");
+        Vector3f palm = new Vector3f(solution.grip()).sub(solution.wrist());
+        assertEquals(QingfengFirstPersonArmIk.wristToGrip(arm),
+                solution.fistRotation().transform(new Vector3f(0.0F, 1.0F, 0.0F)).dot(palm), EPSILON, where + " palm");
+    }
+
+    private static Box fistBox(float pixel, float widthPixels) {
+        return new Box(
+                widthPixels * 0.5F * pixel * QingfengFirstPersonArmRenderer.FIST_WIDTH,
+                -QingfengFirstPersonArmIk.FIST_OVERLAP_PIXELS * pixel,
+                (QingfengFirstPersonArmIk.FIST_LENGTH_PIXELS - QingfengFirstPersonArmIk.FIST_OVERLAP_PIXELS) * pixel,
+                QingfengFirstPersonArmIk.DEPTH_PIXELS * 0.5F * pixel * QingfengFirstPersonArmRenderer.FIST_WIDTH);
+    }
+
+    private static Vector3f axis(SwordGeometry sword, float y) {
+        return new Vector3f(sword.gripCenter().x, y, sword.gripCenter().z);
+    }
+
+    private static Vector3f swordPoint(FirstPersonSwing swing, FirstPersonSwing.Pose pose, Vector3f modelPixels) {
+        return FirstPersonSwordTransform.swordPoint(HumanoidArm.RIGHT, 0.0F, swing, pose, modelPixels);
+    }
+
+    private static Vector3f grip(FirstPersonSwing swing, FirstPersonSwing.Pose pose) {
+        Matrix4f frame = FirstPersonSwordTransform.gripFrame(HumanoidArm.RIGHT, 0.0F, swing.rig(), pose);
+        return frame.getTranslation(new Vector3f());
+    }
+
+    private static float angleDegrees(Quaternionf from, Quaternionf to) {
+        float dot = Math.abs(from.dot(to));
+        return (float) Math.toDegrees(2.0 * Math.acos(Math.min(1.0F, dot)));
+    }
+
+    private static FirstPersonSwing shipped() throws IOException {
+        return FirstPersonSwing.parse(
+                JsonParser.parseString(Files.readString(RIG)).getAsJsonObject(),
+                BasicSwordStyle.DEFINITION,
+                FirstPersonSwingTest.geometry());
+    }
+
+    /** A segment box in its bone frame: |x| <= halfWidth, yMin <= y <= yMax, |z| <= halfDepth. */
+    private record Box(float halfWidth, float yMin, float yMax, float halfDepth) {
+        private Vector3f local(Vector3f origin, Quaternionf rotation, Vector3f point) {
+            return new Quaternionf(rotation).conjugate().transform(new Vector3f(point).sub(origin));
+        }
+
+        boolean contains(Vector3f origin, Quaternionf rotation, Vector3f point) {
+            Vector3f local = local(origin, rotation, point);
+            return Math.abs(local.x) <= halfWidth && local.y >= yMin && local.y <= yMax
+                    && Math.abs(local.z) <= halfDepth;
+        }
+
+        float distance(Vector3f origin, Quaternionf rotation, Vector3f point) {
+            Vector3f local = local(origin, rotation, point);
+            float dx = Math.max(0.0F, Math.abs(local.x) - halfWidth);
+            float dy = Math.max(0.0F, Math.max(yMin - local.y, local.y - yMax));
+            float dz = Math.max(0.0F, Math.abs(local.z) - halfDepth);
+            return (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
+        }
     }
 }

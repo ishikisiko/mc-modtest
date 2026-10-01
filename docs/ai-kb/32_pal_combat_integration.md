@@ -189,10 +189,11 @@ applies edits. The rig swings the sword from one camera-space shoulder pivot:
   `-90` forward), and turn about the blade (`90` shows the flat on a cut).
 - `offset`: optional camera-space translation.
 
-`FirstPersonSwordTransform` applies those in that order and then undoes the
-vanilla handheld display transform (`-19.3` degree pitch plus the handle
-offset), so the rig grip is the Qingfeng handle. The left hand mirrors the
-right. Keys are server ticks with per-segment `linear`/`in`/`out`/`in_out`
+`FirstPersonSwordTransform` applies those in that order. It then multiplies by
+the inverse of the baked model's own `firstperson_*` display transform and maps
+the geometry contract's `grip_center` onto the grip at `rig.sword_scale`, so
+the rig grip is the Qingfeng handle (0.27.1; see below). The left hand mirrors
+the right. Keys are server ticks with per-segment `linear`/`in`/`out`/`in_out`
 easing (0.27.0 adds `in_cubic`, `out_cubic`, `in_out_cubic`, and `out_back` with
 about 12% overshoot), start and end at `neutral`, and each move's `strike`
 window must cover the server active window within three ticks. An optional
@@ -258,19 +259,66 @@ struck entity except the local player, and drives a remote attacker's PAL
 hit-stop through `CombatAnimationController.setHitStopRate`. None of this sends a
 packet or changes an entity's server state.
 
-### First-person arm (0.27.0)
+### First-person arm (0.27.1)
 
-`QingfengFirstPersonArmRenderer.onRenderHand` draws a complete skin and sleeve
-arm on the same shoulder-pivot rig, registered before the trail so the trail
-blends over it. It never cancels `RenderHandEvent`. `QingfengFirstPersonArmIk`
-is a two-bone solve (5 px upper arm and forearm) that keeps the hand on the rig
-grip. When the grip is out of reach, the off-screen shoulder slides instead of
-the hand. Forearm roll follows the grip frame. `QingfengFirstPersonArmModel`
-builds wide or slim, right or left boxes from the player skin. The renderer
-reads the same `displayedPose` as the sword item, so a 2-tick chain cross-fade
-moves the arm and sword together. The earlier rejected forms stay rejected: a
-separately damped complete arm left the handle, and a pivot-locked complete arm
-floated mid-screen.
+`QingfengFirstPersonArmRenderer.onRenderHand` draws a skin and sleeve arm on
+the same shoulder-pivot rig. It is registered before the trail, so the trail
+blends over it, and it never cancels `RenderHandEvent`. It reads the same
+displayed pose as the sword item, so a chain cross-fade moves the arm and the
+sword together.
+
+- Segments: upper arm, forearm, wrist, and a separate fist
+  (`QingfengFirstPersonArmModel`, wide or slim, right or left, cut from the
+  player skin; the fist carries the skin's hand rows).
+- Fist: `QingfengFirstPersonArmIk` locks the fist to the grip frame. The handle
+  crosses the palm at `rig.arm.grip_diagonal`, so the guard shows on the thumb
+  side and the pommel below the little finger. The wrist sits one palm behind
+  the handle.
+- IK: a two-bone solve from an off-screen shoulder to the wrist. The elbow
+  swivel comes from per-key `elbow`, and the hand's turn about the handle comes
+  from per-key `grip_roll`. Both interpolate with the pose. If the wrist is out
+  of reach, the shoulder moves instead. Wrist bend stays within the flexion,
+  radial, and ulnar limits (`FLEX_LIMIT`, `RADIAL_LIMIT`, `ULNAR_LIMIT`).
+- Size: the bone lengths, cross-section (`thickness`), grip diagonal, and
+  follow-through gain live under `rig.arm` in `qingfeng_first_person.json`.
+- Secondary motion: `FirstPersonArmLag` runs the grip's recent path (the rig
+  sampled at earlier visual ticks) through an under-damped low-pass. The arm
+  trails a cut and follows through past the stop. The lag moves the shoulder
+  and swivels the elbow, and it is scaled back if it would break a wrist limit.
+  It freezes with the hit-stop, fades out over a move's last ticks, and relaxes
+  after an interrupted move. It is presentation only: the sword, trails, and
+  gameplay ignore it.
+- Idle: a slow breath moves the neutral hold and fades back in after a move.
+
+The earlier rejected forms stay rejected: a separately damped complete arm left
+the handle, and a pivot-locked complete arm floated mid-screen. The 0.27.0 form
+(a forearm box that ran past the grip and swallowed the handle, with no wrist)
+was the owner's "插入肉里的，非常僵硬".
+
+### Qingfeng 3D model and geometry contract (0.27.1)
+
+`tools/gen_qingfeng_sword_model.py` (stdlib only, deterministic; `--check`,
+`--report`) is the only source of these files, which are never hand-edited:
+
+- `models/item/qingfeng_sword_3d.json`: element model of a jian, with no parent
+  and its own display transforms for every context except `gui`.
+- `textures/item/qingfeng_sword_model.png`: its procedural 64x64 texture.
+- `models/item/qingfeng_sword.json`: a `neoforge:separate_transforms` wrapper.
+  `base` is the 3D model, and the `gui` perspective keeps the 2D
+  `item/qingfeng_sword` sprite on `minecraft:item/handheld`.
+- `combat/qingfeng_sword_geometry.json`: the contract, in model pixels, with
+  blade `+Y`, flat normal X, and edge Z. It gives `grip_center`, the `handle`,
+  `guard`, and `pommel` extents, `blade_base`, `blade_tip`, and the axes.
+
+Display transforms are derived from the old sprite's pose in each context. In
+third person the grip centre lands on the fist centre. The first-person values
+match the old sprite's vanilla hold outside cultivation mode; the rig undoes
+them. The baked wrapper forwards `applyTransform` to the drawn model, so runtime
+reads get the 3D values. `SwordGeometry` loads the contract with the rig in
+`FirstPersonSwingResources` on every reload. A missing or invalid contract
+leaves Qingfeng on the vanilla hold. The first-person trail takes its blade
+base and tip from the contract. The world-trail blade length is the contract
+blade at the third-person display scale, clamped, with a 1-block fallback.
 
 ### Third-person PAL poses (0.27.0)
 
@@ -289,6 +337,13 @@ before the ready idle. Hit-stop runs through its `SpeedModifier`, and frozen
 time is repaid at up to +0.5x speed. `tools/gen_blade_cut_sprite.py --check`
 guards the procedurally generated 32x32 `textures/particle/blade_cut.png` the
 same way.
+
+PAL rotates `right_item` about the item origin, not the grip, so large item
+rotations swung the handle out of the fist. Since 0.27.1 the generator writes a
+per-key `right_item` position (`grip_compensation`) that moves the pivot to the
+contract's grip centre. Its forward kinematics read the 3D model's third-person
+display and the contract, and its self-checks bound the grip drift at keys and
+between keys.
 
 ### Fallback swing and evidence
 

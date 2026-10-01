@@ -1,17 +1,21 @@
 {
-  "rig": { "shoulder": [0.30, -0.42, -0.05] },
-  "neutral": {"plane": 0, "sweep": -5, "reach": 0.64, "lead": 27, "lift": -36, "twist": 55, "offset": [0, 0.08, 0]},
+  "rig": {
+    "shoulder": [0.30, -0.42, -0.05],
+    "sword_scale": 0.60,
+    "arm": {"shoulder_offset": [0.03, -0.02, 0.0], "upper_arm": 0.33, "forearm": 0.33, "thickness": 0.5, "grip_diagonal": 40, "follow_through": 1.0}
+  },
+  "neutral": {"plane": 0, "sweep": -5, "reach": 0.64, "lead": 27, "lift": -36, "twist": 55, "offset": [0, 0.08, 0], "grip_roll": 120, "elbow": 30},
   "moves": {
     "myvillage:basic_sword_01_thrust": {
       "strike": [2.5, 4.8],
       "contact": 3.8,
       "keys": [
         {"tick": 0, "pose": "neutral"},
-        {"tick": 2.0, "ease": "out_cubic", "plane": 0, "sweep": -11, "reach": 0.56, "lead": 19, "lift": -67, "twist": 50, "offset": [0, 0.08, 0.02]},
-        {"tick": 2.5, "ease": "in_out", "sweep": -12, "reach": 0.53, "lead": 20},
-        {"tick": 3.8, "ease": "in", "sweep": 5, "reach": 0.6, "lead": 6, "lift": -67, "twist": 32, "offset": [0, 0.15, 0]},
-        {"tick": 4.8, "ease": "out_back", "sweep": 8, "reach": 0.643, "lead": 5, "lift": -65, "twist": 18, "offset": [0, 0.15, -0.01]},
-        {"tick": 7.5, "ease": "in_out", "sweep": 7, "reach": 0.635, "lift": -63},
+        {"tick": 2.0, "ease": "out_cubic", "plane": 0, "sweep": -11, "reach": 0.56, "lead": 19, "lift": -67, "twist": 50, "offset": [0, 0.08, 0.02], "grip_roll": 150, "elbow": 60},
+        {"tick": 2.5, "ease": "in_out", "sweep": -12, "reach": 0.53, "lead": 20, "grip_roll": 170, "elbow": 60},
+        {"tick": 3.8, "ease": "in", "sweep": 5, "reach": 0.6, "lead": 6, "lift": -67, "twist": 32, "offset": [0, 0.15, 0], "grip_roll": 180, "elbow": 60},
+        {"tick": 4.8, "ease": "out_back", "sweep": 8, "reach": 0.643, "lead": 5, "lift": -65, "twist": 18, "offset": [0, 0.15, -0.01], "grip_roll": 180, "elbow": 60},
+        {"tick": 7.5, "ease": "in_out", "sweep": 7, "reach": 0.635, "lift": -63, "grip_roll": 170, "elbow": 60},
         {"tick": 11, "ease": "in_out_cubic", "pose": "neutral"}
       ]
     },
@@ -20,11 +24,11 @@
       "contact": 4.9,
       "keys": [
         {"tick": 0, "pose": "neutral"},
-        {"tick": 2.8, "ease": "out_cubic", "plane": 0, "sweep": 46, "reach": 0.58, "lead": 20, "lift": -55, "twist": 22, "offset": [0, 0.1, 0]},
-        {"tick": 3.3, "ease": "in_out", "sweep": 48, "lead": 23},
-        {"tick": 5.0, "ease": "in_cubic", "sweep": 16, "reach": 0.56, "lead": -20, "lift": -58, "twist": 52},
-        {"tick": 6.6, "ease": "out_back", "sweep": -8, "reach": 0.56, "lead": -52, "lift": -58, "twist": 65},
-        {"tick": 9.5, "ease": "in_out", "sweep": -10, "lead": -54, "lift": -56},
+        {"tick": 2.8, "ease": "out_cubic", "plane": 0, "sweep": 46, "reach": 0.58, "lead": 20, "lift": -55, "twist": 22, "offset": [0, 0.1, 0], "grip_roll": 160, "elbow": 60},
+        {"tick": 3.3, "ease": "in_out", "sweep": 48, "lead": 23, "grip_roll": 170, "elbow": 60},
+        {"tick": 5.0, "ease": "in_cubic", "sweep": 16, "reach": 0.56, "lead": -20, "lift": -58, "twist": 52, "grip_roll": 180, "elbow": 40},
+        {"tick": 6.6, "ease": "out_back", "sweep": -8, "reach": 0.56, "lead": -52, "lift": -58, "twist": 65, "grip_roll": 190, "elbow": -20},
+        {"tick": 9.5, "ease": "in_out", "sweep": -10, "lead": -54, "lift": -56, "grip_roll": 180, "elbow": -20},
         {"tick": 13, "ease": "in_out_cubic", "pose": "neutral"}
       ]
     },
@@ -33,11 +37,11 @@
       "contact": 6.0,
       "keys": [
         {"tick": 0, "pose": "neutral"},
-        {"tick": 3.6, "ease": "out_cubic", "plane": -30, "sweep": -14, "reach": 0.55, "lead": -38, "lift": -40, "twist": 53, "offset": [0, 0.14, 0]},
-        {"tick": 4.3, "ease": "in_out", "sweep": -17, "lead": -42, "lift": -38},
-        {"tick": 6.0, "ease": "in_cubic", "sweep": 15, "reach": 0.6, "lead": 12, "lift": -58, "twist": 53, "offset": [0.02, -0.06, 0]},
-        {"tick": 7.6, "ease": "out_back", "sweep": 44, "reach": 0.63, "lead": 30, "lift": -88, "twist": 43, "offset": [0, 0.02, 0]},
-        {"tick": 11.2, "ease": "in_out", "sweep": 42, "lead": 28, "lift": -86},
+        {"tick": 3.6, "ease": "out_cubic", "plane": -30, "sweep": -14, "reach": 0.55, "lead": -38, "lift": -40, "twist": 53, "offset": [0, 0.14, 0], "grip_roll": 180, "elbow": -20},
+        {"tick": 4.3, "ease": "in_out", "sweep": -17, "lead": -42, "lift": -38, "grip_roll": 180, "elbow": -20},
+        {"tick": 6.0, "ease": "in_cubic", "sweep": 15, "reach": 0.6, "lead": 12, "lift": -58, "twist": 53, "offset": [0.02, -0.06, 0], "grip_roll": 150, "elbow": 40},
+        {"tick": 7.6, "ease": "out_back", "sweep": 44, "reach": 0.63, "lead": 30, "lift": -88, "twist": 43, "offset": [0, 0.02, 0], "grip_roll": 120, "elbow": 90},
+        {"tick": 11.2, "ease": "in_out", "sweep": 42, "lead": 28, "lift": -86, "grip_roll": 110, "elbow": 90},
         {"tick": 15, "ease": "in_out_cubic", "pose": "neutral"}
       ]
     },
@@ -46,11 +50,11 @@
       "contact": 7.0,
       "keys": [
         {"tick": 0, "pose": "neutral"},
-        {"tick": 4.5, "ease": "out_cubic", "plane": -34, "sweep": 39, "reach": 0.62, "lead": 30, "lift": -73, "twist": 70, "offset": [0, 0.13, 0]},
-        {"tick": 5.5, "ease": "in_out", "sweep": 42, "lead": 33, "lift": -72},
-        {"tick": 7.2, "ease": "in_cubic", "sweep": 30, "reach": 0.585, "lead": -30, "lift": -55, "twist": 51, "offset": [0, 0.0, 0]},
-        {"tick": 9.0, "ease": "out_back", "sweep": -13, "reach": 0.64, "lead": -47, "lift": -55, "twist": 65, "offset": [0, 0.04, 0]},
-        {"tick": 13, "ease": "in_out", "sweep": -13, "lead": -46, "lift": -56},
+        {"tick": 4.5, "ease": "out_cubic", "plane": -34, "sweep": 39, "reach": 0.62, "lead": 30, "lift": -73, "twist": 70, "offset": [0.04, 0.03, 0], "grip_roll": 120, "elbow": 40},
+        {"tick": 5.5, "ease": "in_out", "sweep": 42, "lead": 33, "lift": -72, "grip_roll": 120, "elbow": 40},
+        {"tick": 7.2, "ease": "in_cubic", "sweep": 30, "reach": 0.585, "lead": -30, "lift": -55, "twist": 51, "offset": [0, 0.0, 0], "grip_roll": 170, "elbow": 40},
+        {"tick": 9.0, "ease": "out_back", "sweep": -13, "reach": 0.64, "lead": -47, "lift": -55, "twist": 65, "offset": [0, 0.08, 0], "grip_roll": 180, "elbow": -10},
+        {"tick": 13, "ease": "in_out", "sweep": -13, "lead": -46, "lift": -56, "offset": [0, 0.12, 0], "grip_roll": 180, "elbow": -10},
         {"tick": 17, "ease": "in_out_cubic", "pose": "neutral"}
       ]
     },
@@ -59,12 +63,12 @@
       "contact": 8.0,
       "keys": [
         {"tick": 0, "pose": "neutral"},
-        {"tick": 4.5, "ease": "out_cubic", "plane": 0, "sweep": -14.5, "reach": 0.56, "lead": 17, "lift": -70, "twist": 50, "offset": [0.02, 0.06, 0.04]},
-        {"tick": 6.4, "ease": "in_out", "sweep": -15.5, "reach": 0.565, "lead": 18, "offset": [0.03, 0.05, 0.06]},
-        {"tick": 8.0, "ease": "in", "sweep": 5, "reach": 0.6, "lead": 7, "lift": -67, "twist": 41, "offset": [0, 0.145, -0.035]},
-        {"tick": 9.0, "ease": "out_back", "sweep": 7, "reach": 0.643, "lead": 9, "lift": -64, "twist": 30, "offset": [0, 0.15, -0.08]},
-        {"tick": 13, "ease": "in_out", "sweep": 6, "reach": 0.635, "lift": -62, "offset": [0, 0.14, -0.07]},
-        {"tick": 16, "ease": "in_out", "sweep": 0, "reach": 0.62, "lead": 16, "lift": -52, "twist": 40, "offset": [0, 0.11, -0.03]},
+        {"tick": 4.5, "ease": "out_cubic", "plane": 0, "sweep": -14.5, "reach": 0.56, "lead": 17, "lift": -70, "twist": 50, "offset": [0.02, 0.06, 0.04], "grip_roll": 160, "elbow": 60},
+        {"tick": 6.4, "ease": "in_out", "sweep": -15.5, "reach": 0.565, "lead": 18, "offset": [0.03, 0.05, 0.06], "grip_roll": 170, "elbow": 60},
+        {"tick": 8.0, "ease": "in", "sweep": 5, "reach": 0.6, "lead": 7, "lift": -67, "twist": 41, "offset": [0, 0.145, -0.035], "grip_roll": 180, "elbow": 60},
+        {"tick": 9.0, "ease": "out_back", "sweep": 7, "reach": 0.643, "lead": 9, "lift": -64, "twist": 30, "offset": [0, 0.15, -0.08], "grip_roll": 180, "elbow": 60},
+        {"tick": 13, "ease": "in_out", "sweep": 6, "reach": 0.635, "lift": -62, "offset": [0, 0.14, -0.07], "grip_roll": 170, "elbow": 60},
+        {"tick": 16, "ease": "in_out", "sweep": 0, "reach": 0.62, "lead": 16, "lift": -52, "twist": 40, "offset": [0, 0.11, -0.03], "grip_roll": 150, "elbow": 60},
         {"tick": 20, "ease": "in_out_cubic", "pose": "neutral"}
       ]
     }

@@ -137,6 +137,54 @@ class ModItemsValidatorTest(unittest.TestCase):
         path.write_text(json.dumps(model, indent=2) + "\n", encoding="utf-8")
         self.assertIn("xuanyue_zhenshan_model_contract", self.errors())
 
+    def qingfeng_model(self, name: str = "qingfeng_sword") -> tuple[Path, dict]:
+        path = self.root / f"src/main/resources/assets/myvillage/models/item/{name}.json"
+        return path, json.loads(path.read_text(encoding="utf-8"))
+
+    def test_qingfeng_is_a_separate_transforms_3d_model(self) -> None:
+        _, model = self.qingfeng_model()
+        self.assertEqual("neoforge:separate_transforms", model["loader"])
+        self.assertEqual({"parent": "myvillage:item/qingfeng_sword_3d"}, model["base"])
+        self.assertEqual("myvillage:item/qingfeng_sword", model["perspectives"]["gui"]["textures"]["layer0"])
+
+    def test_qingfeng_reverted_to_flat_handheld_is_named(self) -> None:
+        path, _ = self.qingfeng_model()
+        path.write_text(json.dumps({"parent": "minecraft:item/handheld",
+                                    "textures": {"layer0": "myvillage:item/qingfeng_sword"}}) + "\n",
+                        encoding="utf-8")
+        self.assertIn("qingfeng_model_contract", self.errors())
+
+    def test_qingfeng_gui_without_2d_icon_is_named(self) -> None:
+        path, model = self.qingfeng_model()
+        del model["perspectives"]["gui"]
+        path.write_text(json.dumps(model) + "\n", encoding="utf-8")
+        self.assertIn("qingfeng_model_contract", self.errors())
+
+    def test_qingfeng_3d_model_on_generated_parent_is_named(self) -> None:
+        path, model = self.qingfeng_model("qingfeng_sword_3d")
+        model["parent"] = "minecraft:item/handheld"
+        path.write_text(json.dumps(model) + "\n", encoding="utf-8")
+        self.assertIn("qingfeng_model_3d_contract:generated_parent_ignores_elements", self.errors())
+
+    def test_qingfeng_3d_invalid_rotation_and_bounds_are_named(self) -> None:
+        path, model = self.qingfeng_model("qingfeng_sword_3d")
+        model["elements"][0]["rotation"] = {"angle": 30, "axis": "x", "origin": [8, 8, 8]}
+        model["elements"][1]["to"][1] = 40
+        path.write_text(json.dumps(model) + "\n", encoding="utf-8")
+        errors = self.errors()
+        self.assertIn("qingfeng_model_3d_contract:element_0:rotation", errors)
+        self.assertIn("qingfeng_model_3d_contract:element_1:outside_-16_32", errors)
+
+    def test_qingfeng_3d_missing_model_and_texture_are_named(self) -> None:
+        path, model = self.qingfeng_model("qingfeng_sword_3d")
+        model["textures"]["sword"] = "myvillage:item/iron_blade"
+        path.write_text(json.dumps(model) + "\n", encoding="utf-8")
+        errors = self.errors()
+        self.assertIn("qingfeng_model_3d_contract:texture_sword", errors)
+        self.assertIn("missing_texture:src/main/resources/assets/myvillage/textures/item/iron_blade.png", errors)
+        path.unlink()
+        self.assertIn("qingfeng_model_3d_missing", self.errors())
+
     def test_chilian_semitransparent_pixels_are_named(self) -> None:
         self.write_rgba_texture("chilian_lihuo_sword", [0, 1, 254, 255])
         self.assertIn("chilian_lihuo_texture_non_binary_alpha:2", self.errors())

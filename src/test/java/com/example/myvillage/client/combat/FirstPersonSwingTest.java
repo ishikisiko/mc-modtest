@@ -25,6 +25,8 @@ import org.junit.jupiter.api.Test;
 final class FirstPersonSwingTest {
     private static final Path RIG = Path.of(
             "src/main/resources/assets/myvillage", FirstPersonSwing.RESOURCE_PATH);
+    private static final Path GEOMETRY = Path.of(
+            "src/main/resources/assets/myvillage", SwordGeometry.RESOURCE_PATH);
 
     @Test
     void shippedRigCoversEveryServerMove() throws IOException {
@@ -285,6 +287,95 @@ final class FirstPersonSwingTest {
         assertThrows(IllegalArgumentException.class, () -> parse(lateContact));
     }
 
+    @Test
+    void swordGripLandsOnTheGripFrameWhateverTheDisplayTransform() throws IOException {
+        FirstPersonSwing swing = shipped();
+        SwordGeometry sword = swing.sword();
+        float scale = swing.rig().swordScale();
+        FirstPersonSwing.Pose pose = swing.move(1).sample(5.0F);
+        Matrix4f[] displays = {
+                new Matrix4f(),
+                // Vanilla item/handheld first person, and the 3D sword's equivalent display.
+                new Matrix4f().translate(1.13F / 16.0F, 3.2F / 16.0F, 1.13F / 16.0F)
+                        .rotateXYZ(0.0F, radians(-90.0F), radians(25.0F)).scale(0.68F),
+                new Matrix4f().translate(1.13F / 16.0F, -0.024F / 16.0F, -0.073F / 16.0F)
+                        .rotateXYZ(radians(19.19F), radians(180.0F), 0.0F).scale(0.572F),
+                new Matrix4f().translate(0.1F, -0.2F, 0.05F).rotateXYZ(0.3F, -1.1F, 0.7F).scale(0.5F, 0.8F, 0.6F)
+        };
+        Vector3f[] pixels = {
+                sword.gripCenter(),
+                sword.bladeBase(),
+                sword.bladeTip(),
+                new Vector3f(sword.gripCenter().x, sword.pommelBottom(), sword.gripCenter().z),
+                new Vector3f(sword.gripCenter().x + sword.guardHalfThickness(), sword.guardTop(),
+                        sword.gripCenter().z + sword.guardHalfWidth())
+        };
+        for (HumanoidArm arm : HumanoidArm.values()) {
+            Matrix4f gripFrame = FirstPersonSwordTransform.gripFrame(arm, 0.0F, swing.rig(), pose);
+            for (Matrix4f display : displays) {
+                PoseStack poseStack = new PoseStack();
+                FirstPersonSwordTransform.apply(poseStack, arm, 0.0F, swing, pose, display);
+                // What the item pass then does: the model's display transform and translate(-0.5).
+                Matrix4f item = new Matrix4f(poseStack.last().pose()).mul(display).translate(-0.5F, -0.5F, -0.5F);
+                for (Vector3f pixel : pixels) {
+                    Vector3f drawn = item.transformPosition(new Vector3f(pixel).div(16.0F));
+                    Vector3f expected = gripFrame.transformPosition(sword.toGrip(pixel, scale));
+                    assertEquals(0.0F, drawn.distance(expected), 1.0E-4F, arm + " " + pixel + " via " + display);
+                }
+                Vector3f origin = item.transformPosition(sword.gripCenter().div(16.0F));
+                assertEquals(0.0F, origin.distance(gripFrame.getTranslation(new Vector3f())), 1.0E-4F);
+            }
+        }
+        // About the 0.27.0 on-screen length (0.76 from grip to tip) or a little shorter.
+        float tip = sword.toGrip(sword.bladeTip(), scale).length();
+        assertTrue(tip >= 0.66F && tip <= 0.78F, "grip-to-tip " + tip);
+    }
+
+    @Test
+    void armTuningHasDefaultsAndRejectsNonsense() throws IOException {
+        JsonObject bare = rigJson();
+        bare.getAsJsonObject("rig").remove("arm");
+        bare.getAsJsonObject("rig").remove("sword_scale");
+        FirstPersonSwing swing = parse(bare);
+        assertEquals(FirstPersonSwing.Arm.DEFAULT, swing.rig().arm());
+        assertEquals(FirstPersonSwing.DEFAULT_SWORD_SCALE, swing.rig().swordScale());
+
+        JsonObject thick = rigJson();
+        thick.getAsJsonObject("rig").getAsJsonObject("arm").addProperty("thickness", 3.0F);
+        assertThrows(IllegalArgumentException.class, () -> parse(thick));
+        JsonObject tiny = rigJson();
+        tiny.getAsJsonObject("rig").addProperty("sword_scale", 0.05F);
+        assertThrows(IllegalArgumentException.class, () -> parse(tiny));
+        JsonObject straight = rigJson();
+        straight.getAsJsonObject("rig").getAsJsonObject("arm").addProperty("grip_diagonal", 80.0F);
+        assertThrows(IllegalArgumentException.class, () -> parse(straight));
+    }
+
+    @Test
+    void gripRollAndElbowAreKeyedAndInherited() throws IOException {
+        FirstPersonSwing swing = shipped();
+        FirstPersonSwing.Move rising = swing.move(2);
+        FirstPersonSwing.Key finish = rising.keys().get(4);
+        assertEquals(7.6F, finish.tick(), 1.0E-6F);
+        assertTrue(finish.pose().elbow() > swing.neutral().elbow(), "high finish raises the elbow");
+        // A key that omits the fields keeps the previous key's values.
+        JsonObject inherited = rigJson();
+        JsonObject key = firstMove(inherited).getAsJsonArray("keys").get(2).getAsJsonObject();
+        key.remove("grip_roll");
+        key.remove("elbow");
+        FirstPersonSwing.Move move = parse(inherited).move(0);
+        assertEquals(move.keys().get(1).pose().gripRoll(), move.keys().get(2).pose().gripRoll());
+        assertEquals(move.keys().get(1).pose().elbow(), move.keys().get(2).pose().elbow());
+        // Interpolated like every other pose value.
+        FirstPersonSwing.Pose halfway = FirstPersonSwing.Pose.interpolate(
+                swing.neutral(), finish.pose(), 0.5F);
+        assertEquals((swing.neutral().elbow() + finish.pose().elbow()) * 0.5F, halfway.elbow(), 1.0E-4F);
+    }
+
+    private static float radians(float degrees) {
+        return (float) Math.toRadians(degrees);
+    }
+
     private static float tipSpeed(FirstPersonSwing swing, FirstPersonSwing.Move move, float tick) {
         Vector3f before = point(swing, move.sample(tick - 0.125F), TIP);
         Vector3f after = point(swing, move.sample(tick + 0.125F), TIP);
@@ -304,18 +395,30 @@ final class FirstPersonSwingTest {
 
     private static Vector3f grip(FirstPersonSwing swing, HumanoidArm arm, FirstPersonSwing.Pose pose) {
         PoseStack poseStack = new PoseStack();
-        FirstPersonSwordTransform.apply(poseStack, arm, 0.0F, swing.rig(), pose);
-        // The alignment translation leaves the handle at the model point the rig treats as the grip.
-        return poseStack.last().pose().transformPosition(
-                FirstPersonSwordTransform.gripInItemFrame(arm), new Vector3f());
+        FirstPersonSwordTransform.applyGripFrame(poseStack, arm, 0.0F, swing.rig(), pose);
+        return poseStack.last().pose().getTranslation(new Vector3f());
     }
 
-    // Qingfeng sprite points in the grip frame (+Y along the blade), measured from the vanilla
-    // handheld display transform; the view uses the fixed 70 degree hand FOV at 16:9.
-    private static final Vector3f HANDLE = new Vector3f(0.0F, -0.0226F, 0.0073F);
-    private static final Vector3f GUARD = new Vector3f(0.0F, 0.0976F, 0.0088F);
-    private static final Vector3f BLADE_BASE = new Vector3f(0.0F, 0.1876F, 0.0249F);
-    private static final Vector3f TIP = new Vector3f(0.0F, 0.7589F, 0.0018F);
+    // Sword points in the grip frame (+Y along the blade), from the geometry contract at the rig's
+    // sword scale; the view uses the fixed 70 degree hand FOV at 16:9.
+    private static final Vector3f HANDLE;
+    private static final Vector3f GUARD;
+    private static final Vector3f BLADE_BASE;
+    private static final Vector3f TIP;
+
+    static {
+        try {
+            FirstPersonSwing swing = shipped();
+            SwordGeometry sword = swing.sword();
+            float scale = swing.rig().swordScale();
+            HANDLE = sword.axisPoint(sword.gripCenter().y, scale);
+            GUARD = sword.axisPoint((sword.guardBottom() + sword.guardTop()) * 0.5F, scale);
+            BLADE_BASE = sword.toGrip(sword.bladeBase(), scale);
+            TIP = sword.toGrip(sword.bladeTip(), scale);
+        } catch (IOException exception) {
+            throw new ExceptionInInitializerError(exception);
+        }
+    }
     private static final float WIDTH = 960.0F;
     private static final float HEIGHT = 540.0F;
     private static final float TAN_HALF_FOV = (float) Math.tan(Math.toRadians(35.0));
@@ -388,8 +491,12 @@ final class FirstPersonSwingTest {
         return parse(rigJson());
     }
 
-    private static FirstPersonSwing parse(JsonObject json) {
-        return FirstPersonSwing.parse(json, BasicSwordStyle.DEFINITION);
+    private static FirstPersonSwing parse(JsonObject json) throws IOException {
+        return FirstPersonSwing.parse(json, BasicSwordStyle.DEFINITION, geometry());
+    }
+
+    static SwordGeometry geometry() throws IOException {
+        return SwordGeometry.parse(JsonParser.parseString(Files.readString(GEOMETRY)).getAsJsonObject());
     }
 
     private static JsonObject rigJson() throws IOException {

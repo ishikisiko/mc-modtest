@@ -1,6 +1,9 @@
 {
-  "parent": "minecraft:item/handheld",
-  "textures": {
-    "layer0": "myvillage:item/qingfeng_sword"
-  }
+  "loader": "neoforge:separate_transforms",
+  "gui_light": "front",
+  "base": {"parent": "myvillage:item/qingfeng_sword_3d"},
+  "perspectives": {
+    "gui": {"parent": "minecraft:item/handheld", "textures": {"layer0": "myvillage:item/qingfeng_sword"}}
+  },
+  "textures": {"particle": "myvillage:item/qingfeng_sword"}
 }

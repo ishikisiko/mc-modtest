@@ -15,13 +15,16 @@ import java.io.Reader;
 import java.util.Optional;
 
 /**
- * Loads the first-person swing rig on every client resource reload, so F3+T picks up edits.
- * A missing or invalid file leaves Qingfeng on the ordinary vanilla held-item pose.
+ * Loads the first-person swing rig and the sword geometry contract on every client resource
+ * reload, so F3+T picks up edits to either. A missing or invalid file leaves Qingfeng on the
+ * ordinary vanilla held-item pose (no rig arm, no custom grip).
  */
 final class FirstPersonSwingResources implements ResourceManagerReloadListener {
     static final FirstPersonSwingResources INSTANCE = new FirstPersonSwingResources();
     static final ResourceLocation LOCATION =
             ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID, FirstPersonSwing.RESOURCE_PATH);
+    static final ResourceLocation GEOMETRY_LOCATION =
+            ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID, SwordGeometry.RESOURCE_PATH);
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FirstPersonSwingResources.class);
     private static FirstPersonSwing current;
@@ -35,19 +38,39 @@ final class FirstPersonSwingResources implements ResourceManagerReloadListener {
 
     @Override
     public void onResourceManagerReload(ResourceManager resourceManager) {
-        Optional<Resource> resource = resourceManager.getResource(LOCATION);
-        if (resource.isEmpty()) {
-            current = null;
-            LOGGER.error("First-person swing rig {} is missing; Qingfeng uses the vanilla hold", LOCATION);
+        current = null;
+        Optional<JsonObject> geometryJson = read(resourceManager, GEOMETRY_LOCATION);
+        Optional<JsonObject> rigJson = read(resourceManager, LOCATION);
+        if (geometryJson.isEmpty() || rigJson.isEmpty()) {
             return;
         }
-        try (Reader reader = resource.get().openAsReader()) {
-            JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
-            current = FirstPersonSwing.parse(json, BasicSwordStyle.DEFINITION);
-            LOGGER.info("Loaded first-person swing rig {} ({} moves)", LOCATION, current.moves().size());
-        } catch (Exception exception) {
-            current = null;
+        SwordGeometry geometry;
+        try {
+            geometry = SwordGeometry.parse(geometryJson.get());
+        } catch (RuntimeException exception) {
+            LOGGER.error("Invalid sword geometry {}; Qingfeng uses the vanilla hold", GEOMETRY_LOCATION, exception);
+            return;
+        }
+        try {
+            current = FirstPersonSwing.parse(rigJson.get(), BasicSwordStyle.DEFINITION, geometry);
+            LOGGER.info("Loaded first-person swing rig {} ({} moves) with sword geometry {}",
+                    LOCATION, current.moves().size(), GEOMETRY_LOCATION);
+        } catch (RuntimeException exception) {
             LOGGER.error("Invalid first-person swing rig {}; Qingfeng uses the vanilla hold", LOCATION, exception);
+        }
+    }
+
+    private static Optional<JsonObject> read(ResourceManager resourceManager, ResourceLocation location) {
+        Optional<Resource> resource = resourceManager.getResource(location);
+        if (resource.isEmpty()) {
+            LOGGER.error("First-person resource {} is missing; Qingfeng uses the vanilla hold", location);
+            return Optional.empty();
+        }
+        try (Reader reader = resource.get().openAsReader()) {
+            return Optional.of(JsonParser.parseReader(reader).getAsJsonObject());
+        } catch (Exception exception) {
+            LOGGER.error("Unreadable first-person resource {}; Qingfeng uses the vanilla hold", location, exception);
+            return Optional.empty();
         }
     }
 }

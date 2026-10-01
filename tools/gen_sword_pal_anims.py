@@ -356,7 +356,9 @@ def _resolve_key(k: Key, previous) -> dict[str, list[float]]:
         "left_leg": [left_leg[0], left_leg[1], 0.0],
         "right_item": [k.item[0], k.item[1], k.item[2]],
     }
-    return {bone: [_r(v, 2 if bone == "body_pos" else 1) for v in values] for bone, values in pose.items()}
+    pose = {bone: [_r(v, 2 if bone == "body_pos" else 1) for v in values] for bone, values in pose.items()}
+    pose["right_item_pos"] = [_r(v, 2) for v in grip_compensation(pose["right_item"])]
+    return pose
 
 
 def canonical_guard() -> dict[str, list[float]]:
@@ -404,6 +406,9 @@ def build_animation(keys: tuple[Key, ...], length_ticks: int, loop: bool = False
         if bone == "body":
             bones[bone]["position"] = {
                 _timestamp(k.tick): _vector(pose["body_pos"], k.easing) for k, pose in zip(keys, poses)}
+        if bone == "right_item" and any(any(v != 0 for v in pose["right_item_pos"]) for pose in poses):
+            bones[bone]["position"] = {
+                _timestamp(k.tick): _vector(pose["right_item_pos"], k.easing) for k, pose in zip(keys, poses)}
     animation: dict = {}
     if loop:
         animation["loop"] = True
@@ -450,7 +455,7 @@ def render(document: dict) -> str:
 
 # ---------------------------------------------------------------------------------------------
 # Forward kinematics (mirrors PlayerRendererMixin, PlayerModelMixin.translateToHand,
-# ItemInHandLayer + ItemInHandLayerMixin and the vanilla handheld thirdperson_righthand display).
+# ItemInHandLayer + ItemInHandLayerMixin and the Qingfeng 3D model's thirdperson_righthand display).
 # World frame of the results: (right, up, forward) in blocks from the feet, facing = +forward.
 # ---------------------------------------------------------------------------------------------
 
@@ -484,6 +489,53 @@ def _apply(m, p):
     return (x, y, -z)  # local +Z is behind the player -> forward = -z
 
 
+# The held item is the Qingfeng 3D jian: its thirdperson_righthand display transform and the grip /
+# tip points come from the committed model and geometry contract written by
+# tools/gen_qingfeng_sword_model.py, so this rig measures the sword that the game renders.
+SWORD_MODEL_3D = ROOT / "src/main/resources/assets/myvillage/models/item/qingfeng_sword_3d.json"
+SWORD_GEOMETRY = ROOT / "src/main/resources/assets/myvillage/combat/qingfeng_sword_geometry.json"
+_SWORD_CACHE: dict[str, object] = {}
+
+
+def sword_rig():
+    """(display matrices, grip point, tip point) of the held sword, in item-model block units."""
+    if "rig" not in _SWORD_CACHE:
+        display = json.loads(SWORD_MODEL_3D.read_text(encoding="utf-8"))["display"]["thirdperson_righthand"]
+        geometry = json.loads(SWORD_GEOMETRY.read_text(encoding="utf-8"))
+        tx, ty, tz = (c / 16.0 for c in display["translation"])
+        rx, ry, rz = display["rotation"]
+        sx, sy, sz = display["scale"]
+        # ItemTransform.apply: translate, rotationXYZ (Rx * Ry * Rz), scale; then ItemRenderer -0.5.
+        matrices = (_t(tx, ty, tz), _r4("x", rx), _r4("y", ry), _r4("z", rz), _s(sx, sy, sz), _t(-0.5, -0.5, -0.5))
+        grip = tuple(c / 16.0 for c in geometry["grip_center"])
+        tip = tuple(c / 16.0 for c in geometry["blade_tip"])
+        _SWORD_CACHE["rig"] = (matrices, grip, tip)
+    return _SWORD_CACHE["rig"]
+
+
+def grip_compensation(item_rotation) -> tuple[float, float, float]:
+    """PAL right_item position that keeps the sword's grip centre in the fist for a right_item rotation.
+
+    PAL rotates the item about the layer's item origin (the front-bottom edge of the fist), so a
+    large right_item rotation swings the handle out of the hand.  Translating the item by
+    K (I - R) g, with K the layer's Rx(-90) Ry(180) and g the grip centre after the display
+    transform, turns that into a rotation about the grip centre.
+    """
+    ix, iy, iz = item_rotation
+    display, grip, _ = sword_rig()
+    g = _apply_raw(_chain(*display), grip)
+    r = _chain(_r4("z", -iy), _r4("y", -iz), _r4("x", -ix))
+    rg = _apply_raw(r, g)
+    k = _chain(_r4("x", -90), _r4("y", 180))
+    offset = _apply_raw(k, tuple(g[i] - rg[i] for i in range(3)))
+    return (offset[0] * 16, -offset[1] * 16, offset[2] * 16)
+
+
+def _apply_raw(m, p):
+    v = (p[0], p[1], p[2], 1.0)
+    return tuple(sum(m[i][k] * v[k] for k in range(4)) for i in range(3))
+
+
 def skeleton(pose: dict[str, list[float]]) -> dict[str, tuple[float, float, float]]:
     bx, by, bz = pose["body"]
     px, py, pz = pose["body_pos"]
@@ -499,9 +551,11 @@ def skeleton(pose: dict[str, list[float]]) -> dict[str, tuple[float, float, floa
     right_leg = part("right_leg", (-1.9, 12, 0))
     left_leg = part("left_leg", (1.9, 12, 0))
     ix, iy, iz = pose["right_item"]
-    item = _chain(right_arm, _r4("x", -90), _r4("y", 180), _t(1 / 16, 0.125, -0.625),
-                  _r4("z", -iy), _r4("y", -iz), _r4("x", -ix),
-                  _t(0, 0.25, 0.03125), _r4("y", -90), _r4("z", 55), _s(0.85, 0.85, 0.85), _t(-0.5, -0.5, -0.5))
+    qx, qy, qz = pose.get("right_item_pos", (0.0, 0.0, 0.0))
+    display, grip, tip = sword_rig()
+    # ItemInHandLayerMixin.changeItemLocation: translate(posX, -posY, posZ) / 16 before the layer's rotations.
+    item = _chain(right_arm, _t(qx / 16, -qy / 16, qz / 16), _r4("x", -90), _r4("y", 180), _t(1 / 16, 0.125, -0.625),
+                  _r4("z", -iy), _r4("y", -iz), _r4("x", -ix), *display)
     return {
         "hip": _apply(root, (0, 0.75, 0)),
         "right_shoulder": _apply(right_arm, (0, 0, 0)),
@@ -509,8 +563,9 @@ def skeleton(pose: dict[str, list[float]]) -> dict[str, tuple[float, float, floa
         "left_hand": _apply(left_arm, (1 / 16, 10 / 16, 0)),
         "right_foot": _apply(right_leg, (0, 12 / 16, 0)),
         "left_foot": _apply(left_leg, (0, 12 / 16, 0)),
-        "grip": _apply(item, (4.5 / 16, 4.5 / 16, 0.5)),
-        "tip": _apply(item, (15 / 16, 15.3 / 16, 0.5)),
+        "fist": _apply(right_arm, (-1 / 16, 8 / 16, 0)),
+        "grip": _apply(item, grip),
+        "tip": _apply(item, tip),
     }
 
 
@@ -599,6 +654,20 @@ def check_keys(name: str, keys: tuple[Key, ...]) -> list[str]:
         low = min(sk["right_foot"][1], sk["left_foot"][1]) * 16
         if abs(low) > 0.6:
             fail(f"feet off the ground by {low:.2f} px at tick {k.tick}")
+
+    # The sword's grip centre stays in the fist (the fist is 4 px wide): exact at every key thanks
+    # to the right_item position compensation, and within the fist between keys.
+    for k, sk in zip(keys, skeletons):
+        off = math.dist(sk["grip"], sk["fist"]) * 16 / 0.9375
+        if off > 0.1:
+            fail(f"grip {off:.2f} px from the fist centre at tick {k.tick}")
+    for i in range(1, len(keys)):
+        for step in range(1, 8):
+            tick = keys[i - 1].tick + (keys[i].tick - keys[i - 1].tick) * step / 8
+            sk = skeleton(sample(keys, poses, tick))
+            off = math.dist(sk["grip"], sk["fist"]) * 16 / 0.9375
+            if off > 1.9:
+                fail(f"grip leaves the fist by {off:.2f} px near tick {tick:.2f}")
 
     # The authored blade direction is what the rig actually produces.
     for k, sk in zip(keys, skeletons):

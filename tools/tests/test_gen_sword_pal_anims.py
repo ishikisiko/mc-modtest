@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import dataclasses
 import json
+import math
 import re
 import unittest
 import zipfile
+from unittest import mock
 
 from tools import gen_sword_pal_anims as gen
 
@@ -205,6 +207,18 @@ class SelfCheckNegativeTest(unittest.TestCase):
     def _with_key(self, m: gen.Move, phase: str, **changes) -> gen.Move:
         keys = tuple(dataclasses.replace(k, **changes) if k.phase == phase else k for k in m.keys)
         return dataclasses.replace(m, keys=keys)
+
+    def test_grip_stays_in_the_fist(self) -> None:
+        # right_item position turns PAL's item-origin rotation into a rotation about the grip centre.
+        for m in gen.MOVES:
+            for pose in gen.resolve(m.keys):
+                skeleton = gen.skeleton(pose)
+                self.assertLess(math.dist(skeleton["grip"], skeleton["fist"]) * 16 / 0.9375, 0.1, m.animation_id)
+
+    def test_uncompensated_item_rotation_is_rejected(self) -> None:
+        with mock.patch.object(gen, "grip_compensation", return_value=(0.0, 0.0, 0.0)):
+            errors = gen.check_move(move("basic_sword_04_diagonal_cut"))
+        self.assertTrue(any("from the fist centre" in e for e in errors), errors)
 
     def test_slow_strike_is_rejected(self) -> None:
         m = move("basic_sword_05_lunge_thrust")

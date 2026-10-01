@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: PAL and sword combat have one focused validator with negative fixtures
-The repository SHALL provide a focused standard-library validator and tests that inspect the exact PAL jar identity/metadata/license/API evidence, Gradle local-file failure contract, mod dependency metadata, PAL import side boundary, Qingfeng registration/attributes/creative tab, preference codec/attachment, payload fields/directions/protocol, session/definition wiring, input interception, damage hooks, hit-shape definitions, animation resources, the client-only first-person item extension and its data-driven swing rig, the hit-stop clock, first-person and world trails, combat sound events and hit confirmation, bilingual assets, recipe/tag, docs, and practical-jar contents. Negative fixtures SHALL prove specific failures rather than weaken checks around missing assets or prohibited authority.
+The repository SHALL provide a focused standard-library validator and tests that inspect the exact PAL jar identity/metadata/license/API evidence, Gradle local-file failure contract, mod dependency metadata, PAL import side boundary, Qingfeng registration/attributes/creative tab, preference codec/attachment, payload fields/directions/protocol, session/definition wiring, input interception, damage hooks, hit-shape definitions, animation resources, the Qingfeng 3D held model, its texture, and the sword geometry contract, the client-only first-person item extension, its data-driven swing rig, and the first-person arm, the hit-stop clock, first-person and world trails, combat sound events and hit confirmation, bilingual assets, recipe/tag, docs, and practical-jar contents. Negative fixtures SHALL prove specific failures rather than weaken checks around missing assets or prohibited authority.
 
 #### Scenario: First-person swing integration drifts
 - **WHEN** a fixture removes Qingfeng `RegisterClientExtensionsEvent` registration or the rig reload listener, deletes the swing rig, declares an unknown or missing move, lets a strike window start after or end before the server active window or last longer than three ticks, ends a move away from the neutral hold, reorders or drops the shoulder-pivot transform or its grip alignment, or enables PAL `THIRD_PERSON_MODEL`
@@ -16,8 +16,22 @@ The repository SHALL provide a focused standard-library validator and tests that
 - **THEN** the focused validator SHALL fail with a named action-feel finding
 
 #### Scenario: A generated asset is hand-edited
-- **WHEN** `sword_combat.json` or `textures/particle/blade_cut.png` differs from its generator output
-- **THEN** the focused validator SHALL run `tools/gen_sword_pal_anims.py --check` and `tools/gen_blade_cut_sprite.py --check` and fail with a named generator-drift finding
+- **WHEN** `sword_combat.json`, `textures/particle/blade_cut.png`, the Qingfeng 3D model, its texture, the wrapper model, or the sword geometry contract differs from its generator output
+- **THEN** the focused validator SHALL run `tools/gen_sword_pal_anims.py --check`, `tools/gen_blade_cut_sprite.py --check`, and `tools/gen_qingfeng_sword_model.py --check` and fail with a named generator-drift finding
+
+#### Scenario: The Qingfeng model structure drifts
+- **WHEN** a fixture makes `qingfeng_sword.json` a plain handheld model, points its `base` elsewhere, drops or replaces the 2D `gui` icon, gives the 3D model a parent or a `gui` display, removes its elements, hand display transforms, or `qingfeng_sword_model` texture, or deletes the model texture
+- **THEN** the focused validator SHALL fail with `QINGFENG_MODEL_CONTRACT`, `QINGFENG_MODEL_3D`, or `QINGFENG_MODEL_TEXTURE`
+- **AND** `tools/validate_mod_items.py` SHALL fail its sword model contract for an invalid `separate_transforms` wrapper, a missing 3D model, an element outside the vanilla bounds or with an unsupported rotation, a face with an undeclared texture or out-of-range UV, a missing hand display context, a `gui` display on the 3D model, or a parent chain that ends in `builtin/generated`
+
+#### Scenario: The geometry contract is missing or inconsistent
+- **WHEN** a fixture deletes `qingfeng_sword_geometry.json`, drops a required field, changes its units from `model_pixels`, breaks the pommel-handle-guard-blade order along `+Y`, moves the grip centre off the handle, or changes the axes from blade `+y`, flat normal `x`, edge `z`
+- **THEN** the focused validator SHALL fail with `QINGFENG_GEOMETRY_CONTRACT`
+
+#### Scenario: First-person grip or arm integration drifts
+- **WHEN** a fixture reintroduces `GRIP_ALIGN_PITCH` or `GRIP_X/Y/Z` constants, removes the baked display undo or the contract-based item-to-grip matrix, stops loading the geometry contract with the rig, restores hard-coded trail `BLADE_BASE`/`BLADE_TIP` points, drops the world-trail contract blade length, removes the fist, wrist limits, grip roll, elbow swivel, or wrist lag, adds a network, motion, or damage call to the arm renderer, or gives the rig an out-of-range `sword_scale` or `rig.arm` value or a non-numeric `grip_roll`/`elbow`
+- **THEN** the focused validator SHALL fail with a named first-person grip finding such as `COMBAT_FIRST_PERSON_HARDCODED_GRIP`, `COMBAT_FIRST_PERSON_DISPLAY_UNDO`, `COMBAT_SWORD_GEOMETRY_RELOAD`, `COMBAT_FIRST_PERSON_TRAIL_HARDCODED_BLADE`, `COMBAT_WORLD_TRAIL_BLADE_LENGTH`, `COMBAT_FIRST_PERSON_WRIST_LIMITS`, `COMBAT_PRESENTATION_AUTHORITY_LEAK`, or `COMBAT_FIRST_PERSON_RIG_ARM`
+- **AND** it SHALL require the focused Java tests for the grip landing on the grip frame, the anatomical wrist, the fist around the handle with guard and pommel outside, blade clearance, and wrist lag
 
 #### Scenario: Source checks pass without real-client evidence
 - **WHEN** the first-person and feedback source invariants pass but no real client has judged the swings, trails, sounds, and hit-stop
