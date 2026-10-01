@@ -153,7 +153,6 @@ For the Qingfeng sword-combat foundation, keep the exact untracked root
 `PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar` available and run:
 
 ```text
-openspec validate add-sword-combat-foundation --type change --strict
 python3 tools/validate_sword_combat_foundation.py
 python3 -m unittest tools.tests.test_validate_sword_combat_foundation
 python3 tools/validate_mod_items.py

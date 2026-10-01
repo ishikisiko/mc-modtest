@@ -58,7 +58,6 @@
       "/myvillage combat debug off"
     ],
     "gates": [
-      "openspec validate add-sword-combat-foundation --type change --strict",
       "python3 tools/validate_mod_items.py",
       "python3 tools/validate_sword_combat_foundation.py",
       "python3 -m unittest tools.tests.test_validate_sword_combat_foundation",

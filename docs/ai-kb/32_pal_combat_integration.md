@@ -1,11 +1,11 @@
 # PAL Sword Combat Integration
 
-Factual integration note for change `add-sword-combat-foundation`.
+Factual integration note for the Qingfeng sword combat. Its OpenSpec change
+`add-sword-combat-foundation` was deleted unarchived on 2026-10-02 and has no
+specs under `openspec/specs/`; the last tree that has it is commit `fb407f1`.
 
 See also:
 
-- OpenSpec: [`player-animation-integration`](../../openspec/changes/add-sword-combat-foundation/specs/player-animation-integration/spec.md)
-- OpenSpec: [`sword-combat-foundation`](../../openspec/changes/add-sword-combat-foundation/specs/sword-combat-foundation/spec.md)
 - Item route: [Mod Item Creation](22_mod_item_creation.md)
 - Existing network reference: [Rideable Flying Sword](27_rideable_flying_sword.md)
 - Current cultivation runtime: [Cultivation Playable Loop](30_cultivation_playable_loop.md)
@@ -370,8 +370,7 @@ particles, target slide, forward lunge displacement on move 5, camera roll on
 heavy hits, and third-person full-body poses. This is implementation evidence
 only, and every other 0.27.0 surface is `not_verified`. The owner's words on
 0.27.0 and 0.27.1 are quoted in
-[Combat Framework Comparison](33_combat_framework_comparison.md) and in tasks
-12.16 and 13.9.
+[Combat Framework Comparison](33_combat_framework_comparison.md).
 
 ## Side Boundary
 

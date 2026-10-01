@@ -10,9 +10,7 @@ decided.
 See also:
 
 - Implementation note: [PAL Sword Combat Integration](32_pal_combat_integration.md)
-- OpenSpec: [`sword-combat-foundation`](../../openspec/changes/add-sword-combat-foundation/specs/sword-combat-foundation/spec.md)
-- OpenSpec: [`player-animation-integration`](../../openspec/changes/add-sword-combat-foundation/specs/player-animation-integration/spec.md)
-- Owner-verdict records: `openspec/changes/add-sword-combat-foundation/tasks.md` items 11.7, 12.16, and 13.9
+- Real-client ledger: `README.md`
 
 ## Sources
 
