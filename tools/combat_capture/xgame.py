@@ -1,0 +1,244 @@
+"""Talking to the running client on the session's X display: UI-state probe,
+keys, chat, clicks, F5, F3+T, client-log tailing and stable screen grabs.
+
+Keys typed while no screen is open hit game binds (R toggles combat mode, V/B
+start meditation, X stops it), and keys typed while a screen is open go into
+that screen. Every keystroke here is preceded by a UI-state check: the game
+holds the X pointer grab only when it is in-game with no screen open.
+"""
+from __future__ import annotations
+
+import ctypes
+import datetime
+import os
+import re
+import subprocess
+import time
+from pathlib import Path
+
+
+class GameInputError(RuntimeError):
+    pass
+
+
+LOG_TS = re.compile(r"^\[(\d{2}[A-Za-z]{3}\d{4} \d{2}:\d{2}:\d{2}\.\d{3})\]")
+
+
+def log_line_time(line: str):
+    m = LOG_TS.match(line)
+    if not m:
+        return None
+    try:
+        return datetime.datetime.strptime(m.group(1), "%d%b%Y %H:%M:%S.%f").timestamp()
+    except ValueError:
+        return None
+
+
+class LogTail:
+    """Reads only lines appended to a log after construction."""
+
+    def __init__(self, path):
+        self.path = Path(path)
+        self.pos = self.path.stat().st_size if self.path.is_file() else 0
+        self.partial = ""
+        self.lines: list[str] = []
+        self.cursor = 0
+
+    def poll(self):
+        if not self.path.is_file():
+            return
+        size = self.path.stat().st_size
+        if size < self.pos:  # rotated
+            self.pos = 0
+        if size == self.pos:
+            return
+        with open(self.path, "rb") as f:
+            f.seek(self.pos)
+            chunk = f.read()
+        self.pos += len(chunk)
+        text = self.partial + chunk.decode("utf-8", errors="replace")
+        parts = text.split("\n")
+        self.partial = parts.pop()
+        self.lines.extend(parts)
+
+    def wait(self, pattern: str, timeout: float, poll: float = 0.1):
+        rx = re.compile(pattern)
+        deadline = time.time() + timeout
+        while True:
+            self.poll()
+            for i in range(self.cursor, len(self.lines)):
+                m = rx.search(self.lines[i])
+                if m:
+                    self.cursor = i + 1
+                    return m, self.lines[i]
+            if time.time() >= deadline:
+                return None, None
+            time.sleep(poll)
+
+    def tail_text(self, n: int = 12) -> str:
+        self.poll()
+        return "\n".join("    " + l[:220] for l in self.lines[-n:]) or "    (no new log lines)"
+
+
+class Game:
+    def __init__(self, display: str, client_log: Path, size=(960, 540), ui_check: bool = True, log=print):
+        self.display = display
+        self.client_log = Path(client_log)
+        self.size = size
+        self.ui_check = ui_check
+        self.log = log
+        self.env = dict(os.environ, DISPLAY=display)
+
+    # ------------------------------------------------------------ low level
+    def xdo(self, *args):
+        return subprocess.run(["xdotool", *args], env=self.env, check=True, capture_output=True,
+                              text=True, timeout=20).stdout
+
+    def pointer_grabbed(self):
+        """True: in-game, no screen open (the game holds the pointer grab).
+        False: a screen is open or the window is unfocused. None: no probe."""
+        try:
+            x = ctypes.cdll.LoadLibrary("libX11.so.6")
+        except OSError:
+            return None
+        x.XOpenDisplay.restype = ctypes.c_void_p
+        x.XOpenDisplay.argtypes = [ctypes.c_char_p]
+        x.XDefaultRootWindow.argtypes = [ctypes.c_void_p]
+        x.XDefaultRootWindow.restype = ctypes.c_ulong
+        x.XGrabPointer.argtypes = [ctypes.c_void_p, ctypes.c_ulong, ctypes.c_int, ctypes.c_uint, ctypes.c_int,
+                                   ctypes.c_int, ctypes.c_ulong, ctypes.c_ulong, ctypes.c_ulong]
+        x.XUngrabPointer.argtypes = [ctypes.c_void_p, ctypes.c_ulong]
+        x.XCloseDisplay.argtypes = [ctypes.c_void_p]
+        d = x.XOpenDisplay(self.display.encode())
+        if not d:
+            return None
+        try:
+            rc = x.XGrabPointer(d, x.XDefaultRootWindow(d), 0, 0, 1, 1, 0, 0, 0)
+            if rc == 0:  # GrabSuccess: nobody held it
+                x.XUngrabPointer(d, 0)
+                return False
+            return rc == 1  # AlreadyGrabbed
+        finally:
+            x.XCloseDisplay(d)
+
+    def wait_ingame(self, timeout: float = 3.0) -> bool:
+        deadline = time.time() + timeout
+        while True:
+            state = self.pointer_grabbed()
+            if state is not False:
+                return True
+            if time.time() >= deadline:
+                return False
+            time.sleep(0.1)
+
+    def require_ingame(self, what: str, timeout: float = 3.0):
+        if not self.ui_check:
+            return
+        if not self.wait_ingame(timeout):
+            raise GameInputError(f"not sending {what}: a game screen looks open (the pointer is not grabbed)")
+
+    # ------------------------------------------------------------ actions
+    def key(self, keysym: str):
+        self.require_ingame(f"key {keysym}")
+        self.xdo("key", "--delay", "60", keysym)
+
+    def type_chat(self, text: str) -> float:
+        """T, type, Enter; returns the time right after Enter. The chat must
+        close again (pointer re-grabbed) before the call returns."""
+        self.require_ingame(f"chat {text!r}")
+        self.xdo("key", "t")
+        time.sleep(0.5)
+        self.xdo("type", "--delay", "35", text)
+        time.sleep(0.2)
+        self.xdo("key", "Return")
+        t = time.time()
+        if self.ui_check and not self.wait_ingame(4.0):
+            raise GameInputError(f"after {text!r} a screen is still open (chat did not close?)")
+        return t
+
+    def chat(self, text: str, confirm: str | None = None, timeout: float = 8.0):
+        """Send a chat line; with `confirm`, wait for a client log line
+        matching it and return (match, line)."""
+        tail = LogTail(self.client_log)
+        self.type_chat(text)
+        if not confirm:
+            return None, None
+        m, line = tail.wait(confirm, timeout)
+        if not m:
+            raise GameInputError(f"client did not confirm {text!r} within {timeout}s (pattern {confirm!r}). "
+                                 f"Last client log lines:\n{tail.tail_text()}")
+        return m, line
+
+    def click(self, hold: float = 0.06):
+        # no mousemove: the game holds the cursor and pointer motion turns the camera
+        self.xdo("mousedown", "1")
+        time.sleep(hold)
+        self.xdo("mouseup", "1")
+
+    def f3_t(self, rig_pattern: str, timeout: float = 120.0, settle: float = 5.0):
+        """Resource reload: F3+T, wait for 'Reloading ResourceManager' and the
+        rig-loaded line, then settle before any further keystroke."""
+        self.require_ingame("F3+T")
+        tail = LogTail(self.client_log)
+        t0 = time.time()
+        self.xdo("keydown", "F3")
+        time.sleep(0.15)
+        self.xdo("key", "t")
+        time.sleep(0.15)
+        self.xdo("keyup", "F3")
+        m, _ = tail.wait(r"Reloading ResourceManager", 20)
+        if not m:
+            raise GameInputError("F3+T sent but the client log shows no 'Reloading ResourceManager' within 20 s.\n"
+                                 + tail.tail_text())
+        m2, line2 = tail.wait(rig_pattern, timeout)
+        if not m2:
+            raise GameInputError(f"no log line matching {rig_pattern!r} within {timeout:.0f}s after F3+T.\n"
+                                 + tail.tail_text())
+        time.sleep(settle)
+        tail.poll()
+        problems = [l for l in tail.lines if re.search(r"/ERROR\]", l) and re.search(r"combat|rig|sword", l, re.I)]
+        return {"seconds": round(time.time() - t0, 1), "rig_line": line2.strip()[:300], "problems": problems[:20]}
+
+    # ------------------------------------------------------------ frames
+    def grab_raw(self) -> bytes:
+        w, h = self.size
+        out = subprocess.run(["import", "-silent", "-window", "root", "-crop", f"{w}x{h}+0+0", "-depth", "8", "rgb:-"],
+                             env=self.env, capture_output=True, timeout=30, check=True).stdout
+        if len(out) != w * h * 3:
+            raise GameInputError(f"screen grab returned {len(out)} bytes, expected {w * h * 3}")
+        return out
+
+    def stable_grab(self, max_wait: float = 6.0, gap: float = 0.15, settle: float = 0.3):
+        """Grab until two consecutive grabs are identical. Returns (raw, info);
+        info['stable'] is False if max_wait passed first (the last grab is
+        returned and info['diff_fraction'] says how much it still changed)."""
+        time.sleep(settle)
+        t0 = time.time()
+        prev = self.grab_raw()
+        grabs = 1
+        while True:
+            time.sleep(gap)
+            cur = self.grab_raw()
+            grabs += 1
+            if cur == prev:
+                return cur, {"stable": True, "grabs": grabs, "seconds": round(time.time() - t0, 2)}
+            if time.time() - t0 >= max_wait:
+                return cur, {"stable": False, "grabs": grabs, "seconds": round(time.time() - t0, 2),
+                             "diff_fraction": round(diff_fraction(prev, cur), 5)}
+            prev = cur
+
+    def save_png(self, raw: bytes, path: Path):
+        w, h = self.size
+        path.parent.mkdir(parents=True, exist_ok=True)
+        subprocess.run(["convert", "-size", f"{w}x{h}", "-depth", "8", "rgb:-", f"png:{path}"],
+                       input=raw, check=True, timeout=60)
+
+
+def diff_fraction(a: bytes, b: bytes, stride: int = 7) -> float:
+    """Share of sampled bytes that differ (cheap, stdlib only)."""
+    n = min(len(a), len(b))
+    if n == 0:
+        return 0.0
+    idx = range(0, n, stride)
+    diff = sum(1 for i in idx if a[i] != b[i])
+    return diff / len(idx)
