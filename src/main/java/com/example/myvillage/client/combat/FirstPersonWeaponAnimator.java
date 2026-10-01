@@ -2,10 +2,11 @@ package com.example.myvillage.client.combat;
 
 import com.example.myvillage.combat.CombatMode;
 import com.example.myvillage.combat.CombatSounds;
+import com.example.myvillage.client.combat.FirstPersonSwingResources.WeaponRig;
 import com.example.myvillage.combat.definition.AttackMoveDefinition;
-import com.example.myvillage.combat.definition.BasicSwordStyle;
+import com.example.myvillage.combat.definition.CombatStyleDefinition;
+import com.example.myvillage.combat.definition.CombatStyles;
 import com.example.myvillage.combat.definition.MoveFeedback;
-import com.example.myvillage.item.ModItems;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -22,8 +23,13 @@ import org.joml.Vector3f;
 
 import java.util.Optional;
 
-public final class QingfengFirstPersonAnimator implements IClientItemExtensions {
-    public static final QingfengFirstPersonAnimator INSTANCE = new QingfengFirstPersonAnimator();
+/**
+ * First-person viewmodel for every registered combat weapon: drives the held item along the
+ * weapon's first-person rig on the local action's timeline (with hit-stop, chain blends and resync
+ * slews), and is the item extension registered for each weapon item. Presentation only.
+ */
+public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
+    public static final FirstPersonWeaponAnimator INSTANCE = new FirstPersonWeaponAnimator();
 
     private static final float BLEND_OUT_TICKS = 3.0F;
     /** A chained move cross-fades from the pose on screen instead of snapping. */
@@ -45,6 +51,8 @@ public final class QingfengFirstPersonAnimator implements IClientItemExtensions 
     /** Breathing fades back in over this many ticks after a move, so it never pops. */
     static final float BREATH_FADE_TICKS = 12.0F;
 
+    /** The style of the local action on screen; its rig is the held weapon's. */
+    private CombatStyleDefinition activeStyle;
     private int activeMoveIndex = -1;
     private double actionStartTick;
     private double slewOffset;
@@ -55,10 +63,11 @@ public final class QingfengFirstPersonAnimator implements IClientItemExtensions 
     private double blendStartTick;
     private float blendTicks = BLEND_OUT_TICKS;
     private Frame probeFrame;
+    private CombatStyleDefinition probeStyle;
     private double idleSinceTick = Double.NEGATIVE_INFINITY;
     private final Vector3f shakeDirection = new Vector3f(1.0F, 0.0F, 0.0F);
 
-    private QingfengFirstPersonAnimator() {
+    private FirstPersonWeaponAnimator() {
     }
 
     static void play(AbstractClientPlayer player, ResourceLocation animationId, float elapsedTicks) {
@@ -66,14 +75,16 @@ public final class QingfengFirstPersonAnimator implements IClientItemExtensions 
         if (player != localPlayer) {
             return;
         }
-        int moveIndex = BasicSwordStyle.DEFINITION.indexOf(animationId);
-        if (moveIndex < 0) {
+        Optional<CombatStyles.MoveRef> started = CombatStyles.bundled().move(animationId);
+        if (started.isEmpty()) {
             return;
         }
-        QingfengFirstPersonAnimator animator = INSTANCE;
+        CombatStyleDefinition style = started.get().style();
+        int moveIndex = started.get().index();
+        FirstPersonWeaponAnimator animator = INSTANCE;
         double now = player.level().getGameTime();
         double startTick = player.level().getGameTime() - Math.max(0.0F, elapsedTicks);
-        if (animator.activeMoveIndex == moveIndex && animator.clock != null) {
+        if (style.equals(animator.activeStyle) && animator.activeMoveIndex == moveIndex && animator.clock != null) {
             // An authoritative correction of the same predicted move keeps its hit-stop and sound
             // state. Small corrections are slewed so the blade never teleports mid-strike.
             double shift = animator.effectiveStartTick(now) - startTick;
@@ -92,16 +103,17 @@ public final class QingfengFirstPersonAnimator implements IClientItemExtensions 
 
         // A different move (a chained combo step, or a start right after a stop) cross-fades from
         // whatever is on screen now.
-        Optional<FirstPersonSwing> swing = FirstPersonSwingResources.current();
+        Optional<FirstPersonSwing> swing = FirstPersonSwingResources.forHeld(localPlayer).map(WeaponRig::swing);
         FirstPersonSwing.Pose from = null;
         if (swing.isPresent() && (animator.activeMoveIndex >= 0 || animator.blendFrom != null)) {
             from = animator.currentPose(localPlayer, 0.0F, swing.get());
         }
+        animator.activeStyle = style;
         animator.activeMoveIndex = moveIndex;
         animator.idleSinceTick = Double.NEGATIVE_INFINITY;
         animator.actionStartTick = startTick;
         animator.slewOffset = 0.0;
-        animator.clock = new SwingClock(BasicSwordStyle.DEFINITION.move(moveIndex).totalTicks());
+        animator.clock = new SwingClock(started.get().move().totalTicks());
         animator.swingSoundPlayed = false;
         animator.blendFrom = from;
         animator.blendStartTick = now;
@@ -115,13 +127,21 @@ public final class QingfengFirstPersonAnimator implements IClientItemExtensions 
         }
     }
 
-    /** Development probe: holds one visual frame until released. Sends nothing to the server. */
-    static void probe(int moveIndex, float tick) {
+    /**
+     * Development probe: holds one visual frame of {@code style}'s move until released. It shows
+     * only while a weapon of that style is held. Sends nothing to the server.
+     */
+    static void probe(CombatStyleDefinition style, int moveIndex, float tick) {
+        if (moveIndex < 0 || moveIndex >= style.moves().size()) {
+            throw new IllegalArgumentException("Unknown move index " + moveIndex + " for " + style.id());
+        }
+        INSTANCE.probeStyle = style;
         INSTANCE.probeFrame = new Frame(moveIndex, tick, false);
     }
 
     static void releaseProbe() {
         INSTANCE.probeFrame = null;
+        INSTANCE.probeStyle = null;
     }
 
     /**
@@ -130,14 +150,14 @@ public final class QingfengFirstPersonAnimator implements IClientItemExtensions 
      * contact tick, or at once when the confirmation arrives later than that.
      */
     static void confirmHit(LocalPlayer player) {
-        QingfengFirstPersonAnimator animator = INSTANCE;
+        FirstPersonWeaponAnimator animator = INSTANCE;
         if (animator.activeMoveIndex < 0 || animator.clock == null) {
             return;
         }
-        MoveFeedback feedback = BasicSwordStyle.feedback(animator.activeMoveIndex);
+        MoveFeedback feedback = animator.activeStyle.move(animator.activeMoveIndex).feedback();
         float now = (float) animator.realTick(player, 0.0F);
         float start = now;
-        Optional<FirstPersonSwing> swing = FirstPersonSwingResources.current();
+        Optional<FirstPersonSwing> swing = animator.activeSwing(player);
         if (swing.isPresent()) {
             FirstPersonSwing.Move move = swing.get().move(animator.activeMoveIndex);
             start = Math.max(now, animator.clock.realTickForVisual(move.contactTick()));
@@ -151,7 +171,7 @@ public final class QingfengFirstPersonAnimator implements IClientItemExtensions 
      * of a hit-stop, then the creep and catch-up rates; 1 when idle or for any other player.
      */
     static float visualRate(AbstractClientPlayer player) {
-        QingfengFirstPersonAnimator animator = INSTANCE;
+        FirstPersonWeaponAnimator animator = INSTANCE;
         Minecraft minecraft = Minecraft.getInstance();
         if (!(player instanceof LocalPlayer localPlayer)
                 || player != minecraft.player
@@ -164,25 +184,23 @@ public final class QingfengFirstPersonAnimator implements IClientItemExtensions 
     }
 
     static void clientTick(LocalPlayer player) {
-        QingfengFirstPersonAnimator animator = INSTANCE;
+        FirstPersonWeaponAnimator animator = INSTANCE;
         if (animator.activeMoveIndex < 0 || animator.swingSoundPlayed || animator.clock == null) {
             return;
         }
-        AttackMoveDefinition move = BasicSwordStyle.DEFINITION.move(animator.activeMoveIndex);
+        AttackMoveDefinition move = animator.activeStyle.move(animator.activeMoveIndex);
         float visualTick = animator.clock.visualTick((float) animator.realTick(player, 0.0F));
         // The whoosh leads the blade by about one tick, like the server swing sound.
         if (visualTick + 1.5F < move.activeStartTick()) {
             return;
         }
         animator.swingSoundPlayed = true;
-        MoveFeedback feedback = BasicSwordStyle.feedback(animator.activeMoveIndex);
+        MoveFeedback feedback = move.feedback();
         player.level().playLocalSound(
                 player.getX(),
                 player.getY(),
                 player.getZ(),
-                feedback.swingSound() == MoveFeedback.SwingSound.THRUST
-                        ? CombatSounds.SWORD_THRUST.get()
-                        : CombatSounds.SWORD_CUT.get(),
+                CombatSounds.resolve(feedback.swingSound()),
                 SoundSource.PLAYERS,
                 0.9F,
                 CombatSounds.jitteredSwingPitch(feedback.swingPitch(), player.getRandom()),
@@ -199,11 +217,10 @@ public final class QingfengFirstPersonAnimator implements IClientItemExtensions 
             float equipProcess,
             float swingProcess) {
         if (arm != player.getMainArm()
-                || !itemInHand.is(ModItems.QINGFENG_SWORD.get())
                 || ClientCombatState.mode() != CombatMode.CULTIVATION) {
             return false;
         }
-        Optional<FirstPersonSwing> swing = FirstPersonSwingResources.current();
+        Optional<FirstPersonSwing> swing = FirstPersonSwingResources.forStack(itemInHand).map(WeaponRig::swing);
         if (swing.isEmpty()) {
             return false;
         }
@@ -231,17 +248,17 @@ public final class QingfengFirstPersonAnimator implements IClientItemExtensions 
     }
 
     /**
-     * The one pose drawn this frame for the Qingfeng viewmodel: the sword item transform and the
+     * The one pose drawn this frame for the weapon viewmodel: the item transform and the
      * first-person arm both read it, so the hand never leaves the handle. Empty when the rig does
-     * not apply (not in cultivation mode, Qingfeng not in the main hand, or no rig loaded).
+     * not apply (not in cultivation mode, no registered weapon in the main hand, or its rig did
+     * not load).
      */
     static Optional<FirstPersonSwing.Pose> displayedPose(LocalPlayer player, float partialTick) {
-        if (ClientCombatState.mode() != CombatMode.CULTIVATION
-                || !player.getMainHandItem().is(ModItems.QINGFENG_SWORD.get())) {
+        if (ClientCombatState.mode() != CombatMode.CULTIVATION) {
             return Optional.empty();
         }
-        return FirstPersonSwingResources.current()
-                .map(swing -> INSTANCE.currentPose(player, partialTick, swing));
+        return FirstPersonSwingResources.forHeld(player)
+                .map(rig -> INSTANCE.currentPose(player, partialTick, rig.swing()));
     }
 
     FirstPersonSwing.Pose currentPose(LocalPlayer player, float partialTick, FirstPersonSwing swing) {
@@ -271,19 +288,18 @@ public final class QingfengFirstPersonAnimator implements IClientItemExtensions 
 
     Optional<Frame> currentFrame(LocalPlayer player, float partialTick) {
         if (probeFrame != null) {
-            return Optional.of(probeFrame);
+            return holdsStyle(player, probeStyle) ? Optional.of(probeFrame) : Optional.empty();
         }
         if (activeMoveIndex < 0 || clock == null) {
             return Optional.empty();
         }
-        if (ClientCombatState.mode() != CombatMode.CULTIVATION
-                || !player.getMainHandItem().is(ModItems.QINGFENG_SWORD.get())) {
+        if (ClientCombatState.mode() != CombatMode.CULTIVATION || !holdsStyle(player, activeStyle)) {
             clear();
             blendFrom = null;
             return Optional.empty();
         }
 
-        int totalTicks = BasicSwordStyle.DEFINITION.move(activeMoveIndex).totalTicks();
+        int totalTicks = activeStyle.move(activeMoveIndex).totalTicks();
         double realTick = realTick(player, partialTick);
         if (realTick < 0.0) {
             return Optional.empty();
@@ -296,6 +312,20 @@ public final class QingfengFirstPersonAnimator implements IClientItemExtensions 
                 activeMoveIndex,
                 clock.visualTick((float) realTick),
                 clock.inHitStop((float) realTick)));
+    }
+
+    /** True when the main-hand item is a registered weapon of {@code style}. */
+    private static boolean holdsStyle(LocalPlayer player, CombatStyleDefinition style) {
+        return style != null && CombatStyles.bundled().styleFor(player.getMainHandItem())
+                .filter(style::equals)
+                .isPresent();
+    }
+
+    /** The held weapon's rig when it belongs to the active action's style. */
+    private Optional<FirstPersonSwing> activeSwing(LocalPlayer player) {
+        return FirstPersonSwingResources.forHeld(player)
+                .filter(rig -> rig.style().equals(activeStyle))
+                .map(WeaponRig::swing);
     }
 
     private double realTick(LocalPlayer player, float partialTick) {
@@ -317,9 +347,11 @@ public final class QingfengFirstPersonAnimator implements IClientItemExtensions 
     }
 
     private void beginBlendOut(AbstractClientPlayer player) {
-        Optional<FirstPersonSwing> swing = FirstPersonSwingResources.current();
-        if (activeMoveIndex < 0 || clock == null || swing.isEmpty()
-                || !(player instanceof LocalPlayer localPlayer)) {
+        if (activeMoveIndex < 0 || clock == null || !(player instanceof LocalPlayer localPlayer)) {
+            return;
+        }
+        Optional<FirstPersonSwing> swing = activeSwing(localPlayer);
+        if (swing.isEmpty()) {
             return;
         }
         double realTick = realTick(localPlayer, 0.0F);
@@ -403,6 +435,7 @@ public final class QingfengFirstPersonAnimator implements IClientItemExtensions 
     }
 
     private void clear() {
+        activeStyle = null;
         activeMoveIndex = -1;
         actionStartTick = 0.0;
         slewOffset = 0.0;

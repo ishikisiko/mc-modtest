@@ -1,18 +1,18 @@
 package com.example.myvillage.client.combat;
 
 import com.example.myvillage.combat.definition.AttackMoveDefinition;
-import com.example.myvillage.combat.definition.BasicSwordStyle;
 import com.example.myvillage.combat.definition.HitboxSample;
-import com.example.myvillage.combat.definition.MoveFeedback;
 import com.example.myvillage.combat.runtime.CombatGeometry;
-import com.example.myvillage.item.ModItems;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
@@ -29,8 +29,9 @@ import java.util.Optional;
  * World-space 剑光 for players seen from outside (remote players, or the local player in a
  * detached camera). The ribbon's direction follows the move's own server hitbox samples, so what
  * other players see matches where the strike lands, but it is drawn at sword length around the
- * attacker's shoulder instead of at full gameplay reach, so it hugs the held blade. It freezes
- * while the attacker is in a hit-stop, like the attacker's animation.
+ * attacker's shoulder instead of at full gameplay reach, so it hugs the held blade. Its length
+ * comes from the geometry of the weapon held when the move started. It freezes while the attacker
+ * is in a hit-stop, like the attacker's animation.
  */
 public final class CombatWorldTrails {
     static final float TRAIL_TICKS = 1.2F;
@@ -57,9 +58,11 @@ public final class CombatWorldTrails {
     private CombatWorldTrails() {
     }
 
-    static void start(Entity attacker, int moveIndex, float elapsedTicks, float facingYaw) {
+    static void start(Entity attacker, AttackMoveDefinition move, float elapsedTicks, float facingYaw) {
+        ItemStack held = attacker instanceof LivingEntity living ? living.getMainHandItem() : ItemStack.EMPTY;
         ACTIONS.put(attacker.getId(), new Action(
-                moveIndex,
+                move,
+                held.isEmpty() ? null : BuiltInRegistries.ITEM.getKey(held.getItem()),
                 attacker.level().getGameTime() - Math.max(0.0F, elapsedTicks),
                 facingYaw,
                 new ArrayList<>()));
@@ -94,23 +97,21 @@ public final class CombatWorldTrails {
         Vec3 cameraPosition = camera.getPosition();
         float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(false);
         double now = minecraft.level.getGameTime() + partialTick;
-        double bladeLength = drawnBladeLength(
-                FirstPersonSwingResources.current().map(FirstPersonSwing::sword),
-                thirdPersonScale(minecraft));
         MultiBufferSource.BufferSource buffers = minecraft.renderBuffers().bufferSource();
         VertexConsumer consumer = buffers.getBuffer(CombatRenderTypes.SWORD_TRAIL_TRANSLUCENT);
 
         ACTIONS.entrySet().removeIf(entry -> {
             Entity entity = minecraft.level.getEntity(entry.getKey());
             Action action = entry.getValue();
-            AttackMoveDefinition move = BasicSwordStyle.DEFINITION.move(action.moveIndex());
+            AttackMoveDefinition move = action.move();
             float tick = (float) (now - action.startTick() - action.lostTicks(now));
             if (entity == null || tick >= move.totalTicks()) {
                 return true;
             }
             boolean firstPersonSelf = entity == minecraft.player && !camera.isDetached();
             if (!firstPersonSelf) {
-                render(consumer, entity, action, move, tick, partialTick, cameraPosition, bladeLength);
+                render(consumer, entity, action, move, tick, partialTick, cameraPosition,
+                        bladeLength(minecraft, action.weaponItem()));
             }
             return false;
         });
@@ -130,16 +131,14 @@ public final class CombatWorldTrails {
         float first = samples.getFirst().actionTick() - 0.5F;
         float last = samples.getLast().actionTick() + 0.5F;
         Vec3 origin = entity.getPosition(partialTick);
-        boolean thrust = BasicSwordStyle.feedback(action.moveIndex()).swingSound()
-                == MoveFeedback.SwingSound.THRUST;
-        if (thrust) {
+        if (SwordTrailShape.streak(move.kind())) {
             // A thrust sweeps no area: one camera-facing streak along the blade, drawn once.
             float alpha = SwordTrailShape.streakAlpha(tick, first, STREAK_TICKS);
             if (alpha <= 0.0F) {
                 return;
             }
-            HitboxSample blade = drawnBlade(blade(samples, Math.min(tick, last)), STREAK_OVERSHOOT, bladeLength);
-            CombatGeometry.WorldSample world = CombatGeometry.transform(blade, origin, action.facingYaw());
+            CombatGeometry.WorldSample world = worldBlade(
+                    samples, Math.min(tick, last), STREAK_OVERSHOOT, bladeLength, origin, action.facingYaw());
             CombatRenderTypes.streak(
                     consumer,
                     relative(world.start(), cameraPosition),
@@ -165,8 +164,8 @@ public final class CombatWorldTrails {
             float sampleTick = newest - (newest - oldest) * index / SEGMENTS;
             float age = (tick - sampleTick) / TRAIL_TICKS;
             float alpha = SwordTrailShape.alpha(age, fade);
-            CombatGeometry.WorldSample world = CombatGeometry.transform(
-                    drawnBlade(blade(samples, sampleTick), 1.0, bladeLength), origin, action.facingYaw());
+            CombatGeometry.WorldSample world = worldBlade(
+                    samples, sampleTick, 1.0, bladeLength, origin, action.facingYaw());
             Vector3f[] blade = {relative(world.start(), cameraPosition), relative(world.end(), cameraPosition)};
             if (previous != null) {
                 CombatRenderTypes.trailSegment(
@@ -178,6 +177,20 @@ public final class CombatWorldTrails {
             previousAge = age;
             previousAlpha = alpha;
         }
+    }
+
+    /**
+     * The drawn blade in the world at {@code tick}: the move's own hitbox samples, interpolated,
+     * drawn at sword length, and turned by the facing the server started the action with.
+     */
+    static CombatGeometry.WorldSample worldBlade(
+            List<HitboxSample> samples,
+            float tick,
+            double tipScale,
+            double bladeLength,
+            Vec3 origin,
+            float facingYaw) {
+        return CombatGeometry.transform(drawnBlade(blade(samples, tick), tipScale, bladeLength), origin, facingYaw);
     }
 
     /**
@@ -223,9 +236,21 @@ public final class CombatWorldTrails {
         return Math.max(MINIMUM_BLADE_LENGTH, Math.min(MAXIMUM_BLADE_LENGTH, length));
     }
 
-    /** Length scale of the Qingfeng model's third-person display transform along the blade (+Y). */
-    private static float thirdPersonScale(Minecraft minecraft) {
-        ItemStack stack = new ItemStack(ModItems.QINGFENG_SWORD.get());
+    /** The drawn blade length for the weapon an action started with; the fallback without a rig. */
+    private static double bladeLength(Minecraft minecraft, ResourceLocation weaponItem) {
+        if (weaponItem == null) {
+            return DRAWN_BLADE_LENGTH;
+        }
+        Optional<FirstPersonSwingResources.WeaponRig> rig = FirstPersonSwingResources.forItem(weaponItem);
+        if (rig.isEmpty()) {
+            return DRAWN_BLADE_LENGTH;
+        }
+        ItemStack stack = new ItemStack(BuiltInRegistries.ITEM.get(weaponItem));
+        return drawnBladeLength(Optional.of(rig.get().swing().sword()), thirdPersonScale(minecraft, stack));
+    }
+
+    /** Length scale of the weapon model's third-person display transform along the blade (+Y). */
+    private static float thirdPersonScale(Minecraft minecraft, ItemStack stack) {
         BakedModel model = minecraft.getItemRenderer().getModel(stack, minecraft.level, null, 0);
         PoseStack scratch = new PoseStack();
         model.applyTransform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, scratch, false);
@@ -288,8 +313,16 @@ public final class CombatWorldTrails {
                 (float) (point.z - cameraPosition.z));
     }
 
-    /** One attacker's trail; {@code stops} holds {startTime, stopTicks} for each hit-stop. */
-    private record Action(int moveIndex, double startTick, float facingYaw, List<double[]> stops) {
+    /**
+     * One attacker's trail; {@code weaponItem} is the main-hand item when it started (null when
+     * empty), {@code stops} holds {startTime, stopTicks} for each hit-stop.
+     */
+    private record Action(
+            AttackMoveDefinition move,
+            ResourceLocation weaponItem,
+            double startTick,
+            float facingYaw,
+            List<double[]> stops) {
         /** Trail time lost to hit-stops so far, so the ribbon holds still during each stop. */
         double lostTicks(double now) {
             double lost = 0.0;

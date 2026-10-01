@@ -20,13 +20,13 @@ import java.util.Set;
  * so the fist carries the skin's hand. The sleeve uses the same boxes with the sleeve UVs and is
  * inflated by scaling when drawn.
  */
-final class QingfengFirstPersonArmModel {
+final class FirstPersonArmModel {
     private static final int TEXTURE_SIZE = 64;
     static final float UPPER_ARM_TEXTURE_PIXELS = 6.0F;
     static final int FOREARM_FIRST_ROW = 4;
     static final float FOREARM_TEXTURE_PIXELS = 5.0F;
     static final int FIST_FIRST_ROW = 8;
-    static final float DEPTH_PIXELS = QingfengFirstPersonArmIk.DEPTH_PIXELS;
+    static final float DEPTH_PIXELS = FirstPersonArmIk.DEPTH_PIXELS;
     static final float SLEEVE_INFLATION_PIXELS = 0.25F;
     private static final Set<Direction> SIDES = EnumSet.of(
             Direction.NORTH, Direction.SOUTH, Direction.EAST, Direction.WEST);
@@ -50,7 +50,7 @@ final class QingfengFirstPersonArmModel {
     private final ModelPart sleeveForearm;
     private final ModelPart sleeveFist;
 
-    private QingfengFirstPersonArmModel(float widthPixels, ModelPart root) {
+    private FirstPersonArmModel(float widthPixels, ModelPart root) {
         this.widthPixels = widthPixels;
         this.skinUpper = root.getChild("skin_upper");
         this.skinForearm = root.getChild("skin_forearm");
@@ -60,7 +60,7 @@ final class QingfengFirstPersonArmModel {
         this.sleeveFist = root.getChild("sleeve_fist");
     }
 
-    static QingfengFirstPersonArmModel create(boolean slim, HumanoidArm arm) {
+    static FirstPersonArmModel create(boolean slim, HumanoidArm arm) {
         float width = slim ? 3.0F : 4.0F;
         int skinU = arm == HumanoidArm.RIGHT ? 40 : 32;
         int skinV = arm == HumanoidArm.RIGHT ? 16 : 48;
@@ -70,7 +70,7 @@ final class QingfengFirstPersonArmModel {
         PartDefinition root = mesh.getRoot();
         addSegments(root, "skin", width, skinU, skinV, true);
         addSegments(root, "sleeve", width, sleeveU, sleeveV, false);
-        return new QingfengFirstPersonArmModel(
+        return new FirstPersonArmModel(
                 width, LayerDefinition.create(mesh, TEXTURE_SIZE, TEXTURE_SIZE).bakeRoot());
     }
 
@@ -90,8 +90,8 @@ final class QingfengFirstPersonArmModel {
                         .texOffs(u, v + FOREARM_FIRST_ROW)
                         .addBox(minX, 0.0F, minZ, width, FOREARM_TEXTURE_PIXELS, DEPTH_PIXELS, SIDES),
                 PartPose.ZERO);
-        float fistStart = -QingfengFirstPersonArmIk.FIST_OVERLAP_PIXELS;
-        float fistLength = QingfengFirstPersonArmIk.FIST_LENGTH_PIXELS;
+        float fistStart = -FirstPersonArmIk.FIST_OVERLAP_PIXELS;
+        float fistLength = FirstPersonArmIk.FIST_LENGTH_PIXELS;
         CubeListBuilder fist = CubeListBuilder.create()
                 .texOffs(u, v + FIST_FIRST_ROW)
                 .addBox(minX, fistStart, minZ, width, fistLength, DEPTH_PIXELS, SIDES)

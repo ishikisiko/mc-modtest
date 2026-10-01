@@ -1,6 +1,6 @@
 package com.example.myvillage.client.combat;
 
-import com.example.myvillage.combat.definition.BasicSwordStyle;
+import com.example.myvillage.combat.definition.CombatStyles;
 import com.example.myvillage.combat.definition.MoveFeedback;
 import com.example.myvillage.combat.network.CombatImpactPayload;
 import net.minecraft.client.Minecraft;
@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -54,12 +55,11 @@ public final class CombatImpactFx {
     static void receive(CombatImpactPayload payload) {
         Minecraft minecraft = Minecraft.getInstance();
         ClientLevel level = minecraft.level;
-        if (level == null
-                || payload.moveIndex() < 0
-                || payload.moveIndex() >= BasicSwordStyle.DEFINITION.moves().size()) {
+        Optional<CombatStyles.MoveRef> move = CombatStyles.bundled().move(payload.moveId());
+        if (level == null || move.isEmpty()) {
             return;
         }
-        MoveFeedback feedback = BasicSwordStyle.feedback(payload.moveIndex());
+        MoveFeedback feedback = move.get().move().feedback();
         float stopTicks = feedback.hitStopTicks();
         double now = level.getGameTime();
         // Entities that stopped ticking or rendering (unloaded, out of range) never clear

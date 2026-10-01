@@ -1,6 +1,7 @@
 package com.example.myvillage.client.combat;
 
-import com.example.myvillage.combat.definition.BasicSwordStyle;
+import com.example.myvillage.combat.definition.AttackMoveDefinition;
+import com.example.myvillage.combat.definition.CameraCues;
 import com.example.myvillage.combat.definition.MoveFeedback;
 import com.example.myvillage.combat.runtime.CombatReactionService;
 import com.example.myvillage.combat.session.CombatSessionManager;
@@ -16,6 +17,7 @@ import net.neoforged.neoforge.client.event.ViewportEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Attacker-local camera feedback. Presentation only: it changes the render camera and the
@@ -25,9 +27,11 @@ import java.util.List;
  *     <li>Trauma model: each confirmed hit adds the move's {@code cameraTrauma}; the shake is
  *     {@code trauma²} times at most 2.5° roll, 1.5° pitch and 1.0° yaw, driven by ~22 Hz smooth
  *     noise sampled with the partial tick. Trauma decays linearly at 1.6 per second.</li>
- *     <li>Directional kicks per move (degrees, pitch up positive): 撩 +0.6, 斜 −0.8, lunge −1.2
- *     plus a −3° FOV punch (in over 2 ticks, out over 5), 横 leans into the sweep.</li>
- *     <li>Each swing leans the camera 0.3° into the cut; the lunge's step widens the FOV by 2°.</li>
+ *     <li>Directional kicks per move come from the move's {@link CameraCues} (degrees, pitch up
+ *     positive): a pitch and roll kick and an FOV punch (in over 2 ticks, out over 5) on the first
+ *     confirmed hit of an action.</li>
+ *     <li>Each swing leans the camera by the move's signed {@code swingLeanDegrees}; a move with a
+ *     positive {@code stepFovSurge} widens the FOV by that much as its step launches.</li>
  * </ul>
  * Everything scales with the accessibility options {@code screenEffectScale} (angles) and
  * {@code fovEffectScale} (FOV), and is halved in third person.
@@ -41,15 +45,8 @@ public final class CombatCameraFx {
     /** Noise samples per tick: about 22 Hz. */
     static final float NOISE_SAMPLES_PER_TICK = 22.0F / 20.0F;
     static final float THIRD_PERSON_SCALE = 0.5F;
-    static final float SWING_LEAN_DEGREES = 0.3F;
-    static final float LUNGE_FOV_SURGE = 2.0F;
-
-    /** Per-move hit kicks, index-aligned with BasicSwordStyle: pitch (up positive) and roll. */
-    private static final float[] HIT_PITCH_KICK = {0.0F, 0.0F, 0.6F, -0.8F, -1.2F};
-    private static final float[] HIT_ROLL_KICK = {0.0F, 0.5F, 0.0F, 0.4F, 0.0F};
-    private static final float[] HIT_FOV_PUNCH = {0.0F, 0.0F, 0.0F, 0.0F, -3.0F};
-    /** Swing lean direction per move: +1 leans right (the 横 and 斜 sweeps), -1 left (撩), 0 none. */
-    private static final float[] SWING_LEAN_SIGN = {0.0F, 1.0F, -1.0F, 1.0F, 0.0F};
+    /** Trauma for a confirm that cannot be matched to the local action's move. */
+    static final float UNKNOWN_MOVE_TRAUMA = 0.25F;
 
     private static float trauma;
     private static double traumaTime = Double.NaN;
@@ -80,43 +77,71 @@ public final class CombatCameraFx {
     }
 
     /**
-     * The local attacker's hit confirm. Trauma is added per confirm (a later confirm in the same
-     * move adds half); the directional kick plays once per action revision.
+     * The local attacker's hit confirm for {@code move} (empty when it cannot be matched to the
+     * local action). Trauma is added per confirm (a later confirm in the same move adds half); the
+     * directional kick plays once per action revision.
      */
-    static void onHitConfirm(int moveIndex, long revision) {
-        if (moveIndex < 0 || moveIndex >= BasicSwordStyle.DEFINITION.moves().size()) {
-            addTrauma(0.25F, 0.0F, 0.0F);
-            return;
+    static void onHitConfirm(Optional<AttackMoveDefinition> move, long revision) {
+        boolean firstInAction = move.isPresent() && revision != lastKickRevision;
+        if (move.isPresent()) {
+            lastKickRevision = revision;
         }
-        MoveFeedback feedback = BasicSwordStyle.feedback(moveIndex);
-        boolean firstInAction = revision != lastKickRevision;
-        lastKickRevision = revision;
-        if (!firstInAction) {
-            addTrauma(feedback.cameraTrauma() * 0.5F, 0.0F, 0.0F);
-            return;
-        }
-        addTrauma(feedback.cameraTrauma(), kick(HIT_PITCH_KICK, moveIndex), kick(HIT_FOV_PUNCH, moveIndex));
-        float roll = kick(HIT_ROLL_KICK, moveIndex);
+        HitCue cue = hitCue(move, firstInAction);
+        addTrauma(cue.trauma(), cue.pitchKick(), cue.fovPunch());
+        float roll = cue.rollKick();
         double now = now(0.0F);
         if (roll != 0.0F && !Double.isNaN(now)) {
             KICKS.add(new Kick(now, Channel.ROLL, roll, 1.0F, 3.0F));
         }
     }
 
-    /** A small lean into the cut as the blade starts moving; plays on hits and whiffs alike. */
-    static void swingLean(int moveIndex) {
-        float sign = kick(SWING_LEAN_SIGN, moveIndex);
+    /**
+     * What one hit confirm adds, read from the move's feedback and {@link CameraCues}: its full
+     * trauma plus the directional kicks on the first confirm of an action, half the trauma and no
+     * kicks on a later one, and a default trauma when the move is unknown.
+     */
+    static HitCue hitCue(Optional<AttackMoveDefinition> move, boolean firstInAction) {
+        if (move.isEmpty()) {
+            return new HitCue(UNKNOWN_MOVE_TRAUMA, 0.0F, 0.0F, 0.0F);
+        }
+        MoveFeedback feedback = move.get().feedback();
+        if (!firstInAction) {
+            return new HitCue(feedback.cameraTrauma() * 0.5F, 0.0F, 0.0F, 0.0F);
+        }
+        CameraCues camera = move.get().camera();
+        return new HitCue(feedback.cameraTrauma(), camera.hitPitchKick(), camera.hitRollKick(), camera.hitFovPunch());
+    }
+
+    /** Trauma and kicks (degrees) of one hit confirm. */
+    record HitCue(float trauma, float pitchKick, float rollKick, float fovPunch) {
+    }
+
+    /** Camera-angle effect scale: the accessibility {@code screenEffectScale}, halved in third person. */
+    static float angleScale(float screenEffectScale, boolean detachedCamera) {
+        return detachedCamera ? screenEffectScale * THIRD_PERSON_SCALE : screenEffectScale;
+    }
+
+    /** FOV offset after the accessibility {@code fovEffectScale}. */
+    static float scaledFov(float fovOffsetDegrees, float fovEffectScale) {
+        return fovOffsetDegrees * fovEffectScale;
+    }
+
+    /**
+     * A small signed lean (degrees of roll) into the cut as the blade starts moving; plays on hits
+     * and whiffs alike. Zero adds nothing.
+     */
+    static void swingLean(float leanDegrees) {
         double now = now(0.0F);
-        if (sign != 0.0F && !Double.isNaN(now)) {
-            KICKS.add(new Kick(now, Channel.ROLL, SWING_LEAN_DEGREES * sign, 1.5F, 3.0F));
+        if (leanDegrees != 0.0F && !Double.isNaN(now)) {
+            KICKS.add(new Kick(now, Channel.ROLL, leanDegrees, 1.5F, 3.0F));
         }
     }
 
-    /** FOV widening as the lunge step launches the attacker forward. */
-    static void lungeSurge() {
+    /** FOV widening (degrees) as a move's step launches the attacker forward. */
+    static void stepSurge(float surgeDegrees) {
         double now = now(0.0F);
-        if (!Double.isNaN(now)) {
-            KICKS.add(new Kick(now, Channel.FOV, LUNGE_FOV_SURGE, 2.0F, 6.0F));
+        if (surgeDegrees > 0.0F && !Double.isNaN(now)) {
+            KICKS.add(new Kick(now, Channel.FOV, surgeDegrees, 2.0F, 6.0F));
         }
     }
 
@@ -136,10 +161,8 @@ public final class CombatCameraFx {
         if (Double.isNaN(now)) {
             return;
         }
-        float scale = minecraft.options.screenEffectScale().get().floatValue();
-        if (event.getCamera().isDetached()) {
-            scale *= THIRD_PERSON_SCALE;
-        }
+        float scale = angleScale(
+                minecraft.options.screenEffectScale().get().floatValue(), event.getCamera().isDetached());
         if (scale <= 0.0F) {
             return;
         }
@@ -168,8 +191,7 @@ public final class CombatCameraFx {
         if (offset == 0.0F) {
             return;
         }
-        float scale = minecraft.options.fovEffectScale().get().floatValue();
-        event.setFOV(event.getFOV() + offset * scale);
+        event.setFOV(event.getFOV() + scaledFov(offset, minecraft.options.fovEffectScale().get().floatValue()));
     }
 
     /** Shake strength from trauma: squared, so small trauma barely moves the camera. */
@@ -252,10 +274,6 @@ public final class CombatCameraFx {
         if (currentTrauma(now) <= 0.0F) {
             trauma = 0.0F;
         }
-    }
-
-    private static float kick(float[] table, int moveIndex) {
-        return moveIndex >= 0 && moveIndex < table.length ? table[moveIndex] : 0.0F;
     }
 
     private static double now(float partialTick) {

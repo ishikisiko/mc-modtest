@@ -1,7 +1,6 @@
 package com.example.myvillage.combat.runtime;
 
 import com.example.myvillage.combat.definition.AttackMoveDefinition;
-import com.example.myvillage.combat.definition.BasicSwordStyle;
 import com.example.myvillage.combat.session.CombatSession;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.server.level.ServerLevel;
@@ -139,8 +138,7 @@ public final class CombatDamageService {
     }
 
     private static int feedbackFreezeTicks(AttackMoveDefinition move) {
-        int index = BasicSwordStyle.DEFINITION.indexOf(move.id());
-        return CombatReactionMath.freezeTicks(BasicSwordStyle.feedback(Math.max(0, index)).hitStopTicks());
+        return CombatReactionMath.freezeTicks(move.feedback().hitStopTicks());
     }
 
     public record DamageResult(boolean successful, float requestedDamage, float actualDamage) {

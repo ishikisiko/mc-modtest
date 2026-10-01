@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.example.myvillage.combat.definition.AttackMoveDefinition;
-import com.example.myvillage.combat.definition.BasicSwordStyle;
+import com.example.myvillage.combat.definition.CombatTestData;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -23,17 +23,15 @@ import org.joml.Vector3f;
 import org.junit.jupiter.api.Test;
 
 final class FirstPersonSwingTest {
-    private static final Path RIG = Path.of(
-            "src/main/resources/assets/myvillage", FirstPersonSwing.RESOURCE_PATH);
-    private static final Path GEOMETRY = Path.of(
-            "src/main/resources/assets/myvillage", SwordGeometry.RESOURCE_PATH);
+    private static final Path RIG = CombatTestData.assetPath(CombatTestData.qingfeng().firstPersonRig());
+    private static final Path GEOMETRY = CombatTestData.assetPath(CombatTestData.qingfeng().geometry());
 
     @Test
     void shippedRigCoversEveryServerMove() throws IOException {
         FirstPersonSwing swing = shipped();
-        assertEquals(BasicSwordStyle.DEFINITION.moves().size(), swing.moves().size());
+        assertEquals(CombatTestData.basicSword().moves().size(), swing.moves().size());
         for (int index = 0; index < swing.moves().size(); index++) {
-            AttackMoveDefinition definition = BasicSwordStyle.DEFINITION.move(index);
+            AttackMoveDefinition definition = CombatTestData.basicSword().move(index);
             FirstPersonSwing.Move move = swing.move(index);
             assertEquals(definition.id(), move.id());
             assertEquals(definition.totalTicks(), move.totalTicks());
@@ -46,7 +44,7 @@ final class FirstPersonSwingTest {
     void visibleStrikeCoversTheServerActiveWindow() throws IOException {
         FirstPersonSwing swing = shipped();
         for (int index = 0; index < swing.moves().size(); index++) {
-            AttackMoveDefinition definition = BasicSwordStyle.DEFINITION.move(index);
+            AttackMoveDefinition definition = CombatTestData.basicSword().move(index);
             FirstPersonSwing.Move move = swing.move(index);
             assertTrue(move.strikeStartTick() <= definition.activeStartTick(), move.id().toString());
             assertTrue(move.strikeEndTick() >= definition.activeEndTick(), move.id().toString());
@@ -492,7 +490,7 @@ final class FirstPersonSwingTest {
     }
 
     private static FirstPersonSwing parse(JsonObject json) throws IOException {
-        return FirstPersonSwing.parse(json, BasicSwordStyle.DEFINITION, geometry());
+        return FirstPersonSwing.parse(json, CombatTestData.basicSword(), geometry());
     }
 
     static SwordGeometry geometry() throws IOException {

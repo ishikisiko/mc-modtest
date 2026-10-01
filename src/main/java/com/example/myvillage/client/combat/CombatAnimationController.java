@@ -1,7 +1,7 @@
 package com.example.myvillage.client.combat;
 
 import com.example.myvillage.MyVillageMod;
-import com.example.myvillage.combat.definition.BasicSwordStyle;
+import com.example.myvillage.combat.definition.CombatStyles;
 import com.zigythebird.playeranim.animation.PlayerAnimResources;
 import com.zigythebird.playeranim.animation.PlayerAnimationController;
 import com.zigythebird.playeranim.api.PlayerAnimationAccess;
@@ -23,6 +23,8 @@ import net.minecraft.resources.ResourceLocation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -40,14 +42,12 @@ import java.util.Optional;
  *     <li>When a move runs out before its STOP arrives, the state handler continues straight into
  *     the ready idle. Every move ends on the idle's guard pose, so the body never pops to vanilla.</li>
  *     <li>A {@link SpeedModifier} freezes the body during hit-stop. The local player's rate follows
- *     {@code QingfengFirstPersonAnimator.visualRate(player)} every tick and frame; other players use
+ *     {@code FirstPersonWeaponAnimator.visualRate(player)} every tick and frame; other players use
  *     {@link #setHitStopRate(AbstractClientPlayer, float)} and repay the frozen time afterwards.</li>
  * </ul>
  */
 public final class CombatAnimationController {
     public static final ResourceLocation LAYER_ID = id("sword_combat");
-    public static final ResourceLocation SMOKE_ANIMATION = id("sword_mode_enter");
-    public static final ResourceLocation READY_IDLE = BasicSwordStyle.READY_IDLE_ANIMATION;
     public static final int LAYER_PRIORITY = 1600;
 
     /** Cross-fade when a START replaces a move that is still on screen (a chained combo step). */
@@ -64,8 +64,7 @@ public final class CombatAnimationController {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CombatAnimationController.class);
     private static boolean factoryRegistered;
-    private static Animation cachedIdleSource;
-    private static RawAnimation cachedIdle;
+    private static final Map<ResourceLocation, CachedIdle> CACHED_IDLES = new HashMap<>();
 
     private CombatAnimationController() {
     }
@@ -98,7 +97,7 @@ public final class CombatAnimationController {
             AbstractClientPlayer player,
             ResourceLocation animationId,
             float elapsedTicks) {
-        QingfengFirstPersonAnimator.play(player, animationId, elapsedTicks);
+        FirstPersonWeaponAnimator.play(player, animationId, elapsedTicks);
         Optional<PlayerAnimationController> controller = controller(player);
         float elapsed = Math.max(0.0F, elapsedTicks);
         boolean accepted = false;
@@ -106,7 +105,8 @@ public final class CombatAnimationController {
             PlayerAnimationController animationController = controller.get();
             LayerState state = state(player, animationController);
             Lifecycle.Phase phase = state.lifecycle.phase();
-            boolean move = BasicSwordStyle.DEFINITION.indexOf(animationId) >= 0;
+            Optional<CombatStyles.MoveRef> moveRef = CombatStyles.bundled().move(animationId);
+            boolean move = moveRef.isPresent();
             boolean playingSameMove = move
                     && (phase == Lifecycle.Phase.MOVE || phase == Lifecycle.Phase.STOPPING)
                     && animationId.equals(state.currentAnimation)
@@ -131,9 +131,11 @@ public final class CombatAnimationController {
             if (accepted) {
                 state.currentAnimation = animationId;
                 if (move) {
+                    state.readyIdle = moveRef.get().style().readyIdleAnimation();
                     state.lifecycle.startMove();
                     state.remoteHitStop.clearDebt();
-                } else if (READY_IDLE.equals(animationId)) {
+                } else if (CombatStyles.bundled().isReadyIdle(animationId)) {
+                    state.readyIdle = animationId;
                     state.lifecycle.idle();
                 } else {
                     state.lifecycle.startEnter();
@@ -150,7 +152,7 @@ public final class CombatAnimationController {
     }
 
     public static boolean transition(AbstractClientPlayer player, ResourceLocation animationId) {
-        QingfengFirstPersonAnimator.stop(player);
+        FirstPersonWeaponAnimator.stop(player);
         Optional<PlayerAnimationController> controller = controller(player);
         boolean accepted = false;
         if (controller.isPresent()) {
@@ -159,8 +161,10 @@ public final class CombatAnimationController {
             Lifecycle.Phase phase = state.lifecycle.phase();
             boolean heldIdleRunning = animationController.isActive()
                     && !animationController.isPlayingTriggeredAnimation()
-                    && state.lifecycle.holdsIdle();
-            if (READY_IDLE.equals(animationId) && heldIdleRunning) {
+                    && state.lifecycle.holdsIdle()
+                    && animationId.equals(state.currentAnimation);
+            boolean readyIdle = CombatStyles.bundled().isReadyIdle(animationId);
+            if (readyIdle && heldIdleRunning) {
                 // The state handler already continued the finished move into the ready idle.
                 accepted = true;
             } else {
@@ -173,9 +177,12 @@ public final class CombatAnimationController {
             }
             if (accepted) {
                 state.currentAnimation = animationId;
-                if (READY_IDLE.equals(animationId)) {
+                Optional<CombatStyles.MoveRef> moveRef = CombatStyles.bundled().move(animationId);
+                if (readyIdle) {
+                    state.readyIdle = animationId;
                     state.lifecycle.idle();
-                } else if (BasicSwordStyle.DEFINITION.indexOf(animationId) >= 0) {
+                } else if (moveRef.isPresent()) {
+                    state.readyIdle = moveRef.get().style().readyIdleAnimation();
                     state.lifecycle.startMove();
                 } else {
                     state.lifecycle.startEnter();
@@ -196,7 +203,7 @@ public final class CombatAnimationController {
      * off (stopTriggeredAnimation, stop and forceAnimationReset) on a later client tick.
      */
     public static boolean stop(AbstractClientPlayer player) {
-        QingfengFirstPersonAnimator.stop(player);
+        FirstPersonWeaponAnimator.stop(player);
         Optional<PlayerAnimationController> controller = controller(player);
         if (controller.isEmpty()) {
             LOGGER.info("PAL_SMOKE stop player={} controller_present=false", player.getUUID());
@@ -282,7 +289,7 @@ public final class CombatAnimationController {
      * so call it every client tick while the freeze lasts (or once for a short default freeze);
      * 1 ends it at once. The frozen time is repaid afterwards so the body still ends together with
      * the server-timed move. The local player's rate always comes from
-     * {@code QingfengFirstPersonAnimator.visualRate(player)}, so calls for the local player only
+     * {@code FirstPersonWeaponAnimator.visualRate(player)}, so calls for the local player only
      * record the value.
      */
     public static void setHitStopRate(AbstractClientPlayer player, float rate) {
@@ -291,6 +298,17 @@ public final class CombatAnimationController {
             return;
         }
         state(player, controller.get()).remoteHitStop.set(rate, gameTime(player));
+    }
+
+    /**
+     * The mode-entry animation for this player: the held weapon's style's, or the first style's
+     * when no registered weapon is held (entering cultivation mode always plays an entry).
+     */
+    public static ResourceLocation modeEnterAnimation(AbstractClientPlayer player) {
+        CombatStyles styles = CombatStyles.bundled();
+        return styles.styleFor(player.getMainHandItem())
+                .orElseGet(styles::defaultStyle)
+                .modeEnterAnimation();
     }
 
     /** True when the authoritative start is far enough from what plays to restart the move. */
@@ -315,24 +333,31 @@ public final class CombatAnimationController {
         if (!state.lifecycle.onTriggeredFinished(gameTime(state.player))) {
             return PlayState.STOP;
         }
-        RawAnimation idle = readyIdle();
+        ResourceLocation idleId = state.readyIdle != null
+                ? state.readyIdle
+                : CombatStyles.bundled().defaultStyle().readyIdleAnimation();
+        RawAnimation idle = readyIdle(idleId);
         if (idle == null) {
             return PlayState.STOP;
         }
-        state.currentAnimation = READY_IDLE;
+        state.currentAnimation = idleId;
         return setter.setAnimation(idle, 0);
     }
 
-    private static RawAnimation readyIdle() {
-        if (!PlayerAnimResources.hasAnimation(READY_IDLE)) {
+    private static RawAnimation readyIdle(ResourceLocation idleId) {
+        if (!PlayerAnimResources.hasAnimation(idleId)) {
             return null;
         }
-        Animation source = PlayerAnimResources.getAnimation(READY_IDLE);
-        if (source != cachedIdleSource || cachedIdle == null) {
-            cachedIdleSource = source;
-            cachedIdle = RawAnimation.begin().thenLoop(source);
+        Animation source = PlayerAnimResources.getAnimation(idleId);
+        CachedIdle cached = CACHED_IDLES.get(idleId);
+        if (cached == null || cached.source() != source) {
+            cached = new CachedIdle(source, RawAnimation.begin().thenLoop(source));
+            CACHED_IDLES.put(idleId, cached);
         }
-        return cachedIdle;
+        return cached.idle();
+    }
+
+    private record CachedIdle(Animation source, RawAnimation idle) {
     }
 
     private static void hardStop(AnimationController controller, LayerState state) {
@@ -347,7 +372,7 @@ public final class CombatAnimationController {
     }
 
     private static float localRate(AbstractClientPlayer player) {
-        return clampRate(QingfengFirstPersonAnimator.visualRate(player));
+        return clampRate(FirstPersonWeaponAnimator.visualRate(player));
     }
 
     static float clampRate(float rate) {
@@ -408,6 +433,8 @@ public final class CombatAnimationController {
         private final Lifecycle lifecycle = new Lifecycle();
         private final RemoteHitStop remoteHitStop = new RemoteHitStop();
         private ResourceLocation currentAnimation;
+        /** The ready idle of the style last played, which a finished move continues into. */
+        private ResourceLocation readyIdle;
         private final PlayerAnimBone vanillaPose = new PlayerAnimBone("vanilla");
         private float previousLocomotion;
         private float locomotion;

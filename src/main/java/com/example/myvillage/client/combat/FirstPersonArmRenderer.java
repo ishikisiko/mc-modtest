@@ -1,6 +1,5 @@
 package com.example.myvillage.client.combat;
 
-import com.example.myvillage.item.ModItems;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
@@ -22,12 +21,12 @@ import java.util.Optional;
 
 /**
  * Draws the first-person sword arm (skin plus sleeve) as upper arm, forearm and fist: the fist
- * closes around the Qingfeng handle, the forearm meets it at a solved wrist, and the upper arm runs
+ * closes around the weapon's handle, the forearm meets it at a solved wrist, and the upper arm runs
  * off-screen to the shoulder. It uses exactly the pose the held item uses this frame, plus the
  * presentation-only wrist lag from {@link FirstPersonArmLag}. The event is never cancelled, so
  * vanilla still draws the sword itself.
  */
-public final class QingfengFirstPersonArmRenderer {
+public final class FirstPersonArmRenderer {
     /**
      * Cross-section scales against the skin arm: the fist (palm) is a little wider than the arm and
      * the forearm narrows toward it, so the wrist reads as a joint instead of one long block.
@@ -44,12 +43,12 @@ public final class QingfengFirstPersonArmRenderer {
     private static final Vector3f lastLag = new Vector3f();
     private static double lastLagTime = Double.NEGATIVE_INFINITY;
 
-    private static QingfengFirstPersonArmModel wideRight;
-    private static QingfengFirstPersonArmModel wideLeft;
-    private static QingfengFirstPersonArmModel slimRight;
-    private static QingfengFirstPersonArmModel slimLeft;
+    private static FirstPersonArmModel wideRight;
+    private static FirstPersonArmModel wideLeft;
+    private static FirstPersonArmModel slimRight;
+    private static FirstPersonArmModel slimLeft;
 
-    private QingfengFirstPersonArmRenderer() {
+    private FirstPersonArmRenderer() {
     }
 
     public static void onRenderHand(RenderHandEvent event) {
@@ -58,21 +57,21 @@ public final class QingfengFirstPersonArmRenderer {
         if (player == null
                 || event.getHand() != InteractionHand.MAIN_HAND
                 || player.isInvisible()
-                || player.isScoping()
-                || !event.getItemStack().is(ModItems.QINGFENG_SWORD.get())) {
+                || player.isScoping()) {
             return;
         }
-        Optional<FirstPersonSwing> swing = FirstPersonSwingResources.current();
-        Optional<FirstPersonSwing.Pose> pose = QingfengFirstPersonAnimator.displayedPose(player, event.getPartialTick());
+        Optional<FirstPersonSwing> swing = FirstPersonSwingResources.forStack(event.getItemStack())
+                .map(FirstPersonSwingResources.WeaponRig::swing);
+        Optional<FirstPersonSwing.Pose> pose = FirstPersonWeaponAnimator.displayedPose(player, event.getPartialTick());
         if (swing.isEmpty() || pose.isEmpty()) {
             return;
         }
         Vector3f lag = lag(player, event.getPartialTick(), swing.get());
         HumanoidArm arm = player.getMainArm();
-        QingfengFirstPersonArmIk.Solution solution = QingfengFirstPersonArmIk.solve(
+        FirstPersonArmIk.Solution solution = FirstPersonArmIk.solve(
                 arm, event.getEquipProgress(), swing.get(), pose.get(), lag);
         PlayerSkin skin = player.getSkin();
-        QingfengFirstPersonArmModel model = model(skin.model() == PlayerSkin.Model.SLIM, arm);
+        FirstPersonArmModel model = model(skin.model() == PlayerSkin.Model.SLIM, arm);
         PlayerModelPart sleevePart = arm == HumanoidArm.RIGHT
                 ? PlayerModelPart.RIGHT_SLEEVE
                 : PlayerModelPart.LEFT_SLEEVE;
@@ -86,8 +85,8 @@ public final class QingfengFirstPersonArmRenderer {
      */
     private static Vector3f lag(LocalPlayer player, float partialTick, FirstPersonSwing swing) {
         double now = player.level().getGameTime() + partialTick;
-        Optional<QingfengFirstPersonAnimator.Frame> frame =
-                QingfengFirstPersonAnimator.INSTANCE.currentFrame(player, partialTick);
+        Optional<FirstPersonWeaponAnimator.Frame> frame =
+                FirstPersonWeaponAnimator.INSTANCE.currentFrame(player, partialTick);
         if (frame.isPresent()) {
             Vector3f lag = FirstPersonArmLag.offset(swing, swing.move(frame.get().moveIndex()), frame.get().tick());
             lastLag.set(lag);
@@ -106,16 +105,16 @@ public final class QingfengFirstPersonArmRenderer {
             MultiBufferSource buffers,
             int packedLight,
             ResourceLocation texture,
-            QingfengFirstPersonArmModel model,
+            FirstPersonArmModel model,
             FirstPersonSwing.Arm arm,
-            QingfengFirstPersonArmIk.Solution solution,
+            FirstPersonArmIk.Solution solution,
             boolean sleeveShown) {
         VertexConsumer skin = buffers.getBuffer(RenderType.entitySolid(texture));
         drawArm(poseStack, skin, packedLight, model, arm, solution, false, 0.0F);
         if (sleeveShown) {
             VertexConsumer sleeve = buffers.getBuffer(RenderType.entityTranslucent(texture));
             drawArm(poseStack, sleeve, packedLight, model, arm, solution, true,
-                    QingfengFirstPersonArmModel.SLEEVE_INFLATION_PIXELS);
+                    FirstPersonArmModel.SLEEVE_INFLATION_PIXELS);
         }
     }
 
@@ -123,31 +122,31 @@ public final class QingfengFirstPersonArmRenderer {
             PoseStack poseStack,
             VertexConsumer consumer,
             int packedLight,
-            QingfengFirstPersonArmModel model,
+            FirstPersonArmModel model,
             FirstPersonSwing.Arm arm,
-            QingfengFirstPersonArmIk.Solution solution,
+            FirstPersonArmIk.Solution solution,
             boolean sleeve,
             float inflationPixels) {
         float thickness = arm.thickness();
         float pixel = thickness / 16.0F;
         float width = thickness * (model.widthPixels() + 2.0F * inflationPixels) / model.widthPixels();
-        float depth = thickness * (QingfengFirstPersonArmModel.DEPTH_PIXELS + 2.0F * inflationPixels)
-                / QingfengFirstPersonArmModel.DEPTH_PIXELS;
+        float depth = thickness * (FirstPersonArmModel.DEPTH_PIXELS + 2.0F * inflationPixels)
+                / FirstPersonArmModel.DEPTH_PIXELS;
         float extra = inflationPixels * pixel;
 
         float upperLength = arm.upperArm() + SHOULDER_TO_ELBOW_OVERLAP_PIXELS * pixel + extra;
         segment(poseStack, consumer, packedLight, model.upper(sleeve), solution.shoulder(),
                 solution.upperArmRotation(), 0.0F,
-                width, upperLength * 16.0F / QingfengFirstPersonArmModel.UPPER_ARM_TEXTURE_PIXELS, depth);
+                width, upperLength * 16.0F / FirstPersonArmModel.UPPER_ARM_TEXTURE_PIXELS, depth);
 
         float back = ELBOW_OVERLAP_PIXELS * pixel + extra;
         float forearmLength = back + arm.forearm() + WRIST_OVERLAP_PIXELS * pixel + extra;
         segment(poseStack, consumer, packedLight, model.forearm(sleeve), solution.elbow(),
                 solution.forearmRotation(), -back,
-                width * FOREARM_WIDTH, forearmLength * 16.0F / QingfengFirstPersonArmModel.FOREARM_TEXTURE_PIXELS,
+                width * FOREARM_WIDTH, forearmLength * 16.0F / FirstPersonArmModel.FOREARM_TEXTURE_PIXELS,
                 depth * FOREARM_WIDTH);
 
-        float fistLength = QingfengFirstPersonArmIk.FIST_LENGTH_PIXELS;
+        float fistLength = FirstPersonArmIk.FIST_LENGTH_PIXELS;
         float fistScale = thickness * (fistLength + 2.0F * inflationPixels) / fistLength;
         segment(poseStack, consumer, packedLight, model.fist(sleeve), solution.wrist(),
                 solution.fistRotation(), 0.0F, width * FIST_WIDTH, fistScale, depth * FIST_WIDTH);
@@ -173,27 +172,27 @@ public final class QingfengFirstPersonArmRenderer {
         poseStack.popPose();
     }
 
-    private static QingfengFirstPersonArmModel model(boolean slim, HumanoidArm arm) {
+    private static FirstPersonArmModel model(boolean slim, HumanoidArm arm) {
         if (arm == HumanoidArm.RIGHT) {
             if (slim) {
                 if (slimRight == null) {
-                    slimRight = QingfengFirstPersonArmModel.create(true, arm);
+                    slimRight = FirstPersonArmModel.create(true, arm);
                 }
                 return slimRight;
             }
             if (wideRight == null) {
-                wideRight = QingfengFirstPersonArmModel.create(false, arm);
+                wideRight = FirstPersonArmModel.create(false, arm);
             }
             return wideRight;
         }
         if (slim) {
             if (slimLeft == null) {
-                slimLeft = QingfengFirstPersonArmModel.create(true, arm);
+                slimLeft = FirstPersonArmModel.create(true, arm);
             }
             return slimLeft;
         }
         if (wideLeft == null) {
-            wideLeft = QingfengFirstPersonArmModel.create(false, arm);
+            wideLeft = FirstPersonArmModel.create(false, arm);
         }
         return wideLeft;
     }

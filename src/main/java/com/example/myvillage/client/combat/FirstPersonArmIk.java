@@ -25,7 +25,7 @@ import org.joml.Vector3f;
  * would push the wrist past {@link #FLEX_LIMIT}, {@link #RADIAL_LIMIT} or {@link #ULNAR_LIMIT}.
  * Everything is solved for the right arm and mirrored.
  */
-final class QingfengFirstPersonArmIk {
+final class FirstPersonArmIk {
     /** Anatomical wrist limits in degrees: flexion/extension, radial and ulnar deviation. */
     static final float FLEX_LIMIT = 45.0F;
     static final float RADIAL_LIMIT = 30.0F;
@@ -46,7 +46,7 @@ final class QingfengFirstPersonArmIk {
     private static final int LAG_BISECTIONS = 5;
     private static final float DEGENERATE = 1.0E-4F;
 
-    private QingfengFirstPersonArmIk() {
+    private FirstPersonArmIk() {
     }
 
     /**

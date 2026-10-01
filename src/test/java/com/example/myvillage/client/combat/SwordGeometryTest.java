@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.example.myvillage.combat.definition.CombatTestData;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -14,8 +15,7 @@ import org.joml.Vector3f;
 import org.junit.jupiter.api.Test;
 
 final class SwordGeometryTest {
-    private static final Path GEOMETRY = Path.of(
-            "src/main/resources/assets/myvillage", SwordGeometry.RESOURCE_PATH);
+    private static final Path GEOMETRY = CombatTestData.assetPath(CombatTestData.qingfeng().geometry());
 
     @Test
     void shippedContractStacksPommelHandleGuardAndBlade() throws IOException {

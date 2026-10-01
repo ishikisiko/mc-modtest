@@ -12,7 +12,7 @@ public final class CombatAttachments {
             DeferredRegister.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, MyVillageMod.MOD_ID);
 
     public static final DeferredHolder<AttachmentType<?>, AttachmentType<CombatPreference>> PREFERENCE =
-            ATTACHMENT_TYPES.register("combat_preference", () -> AttachmentType
+            ATTACHMENT_TYPES.register(CombatPreference.ATTACHMENT_PATH, () -> AttachmentType
                     .builder(CombatPreference::defaultPreference)
                     .serialize(CombatPreference.CODEC)
                     .copyOnDeath()

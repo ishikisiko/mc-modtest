@@ -4,20 +4,25 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
+/**
+ * One move set: the ordered combo, its timing policy, and the ready-idle and mode-entry
+ * animations. Which items run it is decided by weapon entries, not by the style.
+ */
 public record CombatStyleDefinition(
         ResourceLocation id,
-        Set<ResourceLocation> supportedItems,
+        ResourceLocation readyIdleAnimation,
+        ResourceLocation modeEnterAnimation,
         int comboTimeoutTicks,
         int minimumIntentIntervalTicks,
         List<AttackMoveDefinition> moves) {
     public CombatStyleDefinition {
         Objects.requireNonNull(id, "id");
-        supportedItems = Set.copyOf(Objects.requireNonNull(supportedItems, "supportedItems"));
+        Objects.requireNonNull(readyIdleAnimation, "readyIdleAnimation");
+        Objects.requireNonNull(modeEnterAnimation, "modeEnterAnimation");
         moves = List.copyOf(Objects.requireNonNull(moves, "moves"));
-        if (supportedItems.isEmpty() || moves.isEmpty()) {
-            throw new IllegalArgumentException("A style needs a supported item and moves");
+        if (moves.isEmpty()) {
+            throw new IllegalArgumentException("A style needs moves");
         }
         if (comboTimeoutTicks <= 0 || minimumIntentIntervalTicks <= 0) {
             throw new IllegalArgumentException("Style timing must be positive");

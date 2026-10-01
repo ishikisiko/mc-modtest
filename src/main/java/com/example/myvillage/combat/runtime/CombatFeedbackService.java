@@ -3,7 +3,6 @@ package com.example.myvillage.combat.runtime;
 import com.example.myvillage.combat.CombatParticles;
 import com.example.myvillage.combat.CombatSounds;
 import com.example.myvillage.combat.definition.AttackMoveDefinition;
-import com.example.myvillage.combat.definition.BasicSwordStyle;
 import com.example.myvillage.combat.definition.MoveFeedback;
 import com.example.myvillage.combat.network.CombatHitConfirmPayload;
 import com.example.myvillage.combat.network.CombatImpactPayload;
@@ -17,6 +16,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Server-side presentation for accepted actions: swing and hit sounds, the blade-cut and spark
@@ -34,10 +34,8 @@ public final class CombatFeedbackService {
      * client plays it on its own predicted timeline.
      */
     public static void swing(ServerPlayer attacker, AttackMoveDefinition move) {
-        MoveFeedback feedback = feedback(move);
-        SoundEvent sound = feedback.swingSound() == MoveFeedback.SwingSound.THRUST
-                ? CombatSounds.SWORD_THRUST.get()
-                : CombatSounds.SWORD_CUT.get();
+        MoveFeedback feedback = move.feedback();
+        SoundEvent sound = CombatSounds.resolve(feedback.swingSound());
         attacker.serverLevel().playSound(
                 attacker,
                 attacker.getX(),
@@ -57,11 +55,10 @@ public final class CombatFeedbackService {
         if (contacts.isEmpty()) {
             return;
         }
-        MoveFeedback feedback = feedback(move);
+        MoveFeedback feedback = move.feedback();
         ServerLevel level = attacker.serverLevel();
-        SoundEvent sound = feedback.heavyHit()
-                ? CombatSounds.SWORD_HIT_HEAVY.get()
-                : CombatSounds.SWORD_HIT.get();
+        SoundEvent sound = CombatSounds.resolve(feedback.hitSound());
+        Optional<SoundEvent> heavyLayer = feedback.heavyLayerSound().map(CombatSounds::resolve);
         double rollRadians = Math.toRadians(feedback.cutRollDegrees());
         double heavy = feedback.heavyHit() ? 1.0 : 0.0;
         List<Integer> struckEntityIds = new ArrayList<>(contacts.size());
@@ -70,9 +67,9 @@ public final class CombatFeedbackService {
             Vec3 point = contact.contactPoint();
             float pitch = 0.95F + level.random.nextFloat() * 0.1F;
             level.playSound(null, point.x, point.y, point.z, sound, SoundSource.PLAYERS, 1.0F, pitch);
-            if (feedback.heavyHit()) {
+            if (heavyLayer.isPresent()) {
                 level.playSound(
-                        null, point.x, point.y, point.z, CombatSounds.IMPACT_HEAVY.get(),
+                        null, point.x, point.y, point.z, heavyLayer.get(),
                         SoundSource.PLAYERS, 1.0F, 0.9F + level.random.nextFloat() * 0.1F);
             }
             // count 0: the three "offsets" arrive as the particle's velocity, which the client
@@ -93,13 +90,8 @@ public final class CombatFeedbackService {
                 new CombatImpactPayload(
                         attacker.getId(),
                         revision,
-                        Math.max(0, BasicSwordStyle.DEFINITION.indexOf(move.id())),
+                        move.id(),
                         struckEntityIds,
                         contactPoints));
-    }
-
-    private static MoveFeedback feedback(AttackMoveDefinition move) {
-        int index = BasicSwordStyle.DEFINITION.indexOf(move.id());
-        return BasicSwordStyle.feedback(Math.max(0, index));
     }
 }

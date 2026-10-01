@@ -1,6 +1,7 @@
 package com.example.myvillage.combat;
 
 import com.example.myvillage.MyVillageMod;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -13,7 +14,8 @@ import net.neoforged.neoforge.registries.DeferredRegister;
  * Sword-combat sound events. {@code sounds.json} currently aliases each event to
  * vanilla sounds (two or three pitch/volume variants each) so original audio can replace
  * them without code changes. {@link #IMPACT_HEAVY} is an extra low layer played with the
- * normal hit sound on heavy moves.
+ * normal hit sound on heavy moves. Style files name sounds by id; {@link #resolve} turns an id
+ * into the registered event.
  */
 public final class CombatSounds {
     public static final DeferredRegister<SoundEvent> SOUND_EVENTS =
@@ -33,6 +35,15 @@ public final class CombatSounds {
 
     public static void register(IEventBus modEventBus) {
         SOUND_EVENTS.register(modEventBus);
+    }
+
+    /**
+     * The registered sound event for a style file's sound id. An id that is not registered still
+     * plays through {@code sounds.json} as a variable-range event, like {@code /playsound}.
+     */
+    public static SoundEvent resolve(ResourceLocation soundId) {
+        SoundEvent registered = BuiltInRegistries.SOUND_EVENT.get(soundId);
+        return registered != null ? registered : SoundEvent.createVariableRangeEvent(soundId);
     }
 
     /** The move's swing pitch with a random ±6% spread, so repeated cuts never sound identical. */

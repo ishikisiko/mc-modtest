@@ -12,8 +12,9 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Data-driven first-person sword rig loaded from
- * {@code assets/myvillage/combat/qingfeng_first_person.json}.
+ * Data-driven first-person sword rig, loaded from the {@code first_person_rig} asset a weapon entry
+ * names (for Qingfeng {@code assets/myvillage/combat/qingfeng_first_person.json}) and checked
+ * against that weapon's style.
  *
  * <p>The sword swings around a fixed shoulder pivot in camera space: {@code plane} tilts the
  * swing plane on screen, {@code sweep} turns the arm within that plane, {@code reach} is the
@@ -31,8 +32,6 @@ import java.util.Objects;
  * the previous key, and the neutral hold defaults both to 0.
  */
 final class FirstPersonSwing {
-    static final String RESOURCE_PATH = "combat/qingfeng_first_person.json";
-
     /** Item-model units (16 px) to blocks for the first-person sword when the rig omits it. */
     static final float DEFAULT_SWORD_SCALE = 0.60F;
 

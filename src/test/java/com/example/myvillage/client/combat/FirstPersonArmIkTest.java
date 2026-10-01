@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.example.myvillage.combat.definition.BasicSwordStyle;
+import com.example.myvillage.combat.definition.CombatTestData;
 import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -24,8 +24,7 @@ import org.junit.jupiter.api.Test;
  * outside), the wrist must stay anatomical, the arm must never meet the blade, and nothing may pop.
  */
 final class FirstPersonArmIkTest {
-    private static final Path RIG = Path.of(
-            "src/main/resources/assets/myvillage", FirstPersonSwing.RESOURCE_PATH);
+    private static final Path RIG = CombatTestData.assetPath(CombatTestData.qingfeng().firstPersonRig());
     private static final float EPSILON = 1.0E-4F;
     private static final float STEP = 0.125F;
     /** Handle length (model pixels either side of grip_center) the fist must cover even for slim skins. */
@@ -39,15 +38,15 @@ final class FirstPersonArmIkTest {
             for (FirstPersonSwing.Move move : swing.moves()) {
                 for (float tick = 0.0F; tick <= move.totalTicks(); tick += STEP) {
                     FirstPersonSwing.Pose pose = move.sample(tick);
-                    QingfengFirstPersonArmIk.Solution still = QingfengFirstPersonArmIk.solve(arm, 0.0F, swing, pose);
+                    FirstPersonArmIk.Solution still = FirstPersonArmIk.solve(arm, 0.0F, swing, pose);
                     assertFalse(still.clamped(), move.id() + " " + arm + " overstretches at " + tick);
-                    QingfengFirstPersonArmIk.Solution lagged = QingfengFirstPersonArmIk.solve(
+                    FirstPersonArmIk.Solution lagged = FirstPersonArmIk.solve(
                             arm, 0.0F, swing, pose, FirstPersonArmLag.offset(swing, move, tick));
                     Vector3f grip = FirstPersonSwordTransform.gripFrame(arm, 0.0F, swing.rig(), pose)
                             .getTranslation(new Vector3f());
-                    for (QingfengFirstPersonArmIk.Solution solution : List.of(still, lagged)) {
+                    for (FirstPersonArmIk.Solution solution : List.of(still, lagged)) {
                         String where = move.id() + " " + arm + " at " + tick;
-                        assertTrue(QingfengFirstPersonArmIk.withinLimits(solution.flexion(), solution.deviation()),
+                        assertTrue(FirstPersonArmIk.withinLimits(solution.flexion(), solution.deviation()),
                                 where + " wrist flexion " + solution.flexion() + " deviation " + solution.deviation());
                         assertBones(swing, solution, where);
                         assertEquals(0.0F, solution.grip().distance(grip), EPSILON, where);
@@ -67,7 +66,7 @@ final class FirstPersonArmIkTest {
         for (FirstPersonSwing.Move move : swing.moves()) {
             for (float tick = 0.0F; tick <= move.totalTicks(); tick += STEP) {
                 FirstPersonSwing.Pose pose = move.sample(tick);
-                QingfengFirstPersonArmIk.Solution solution = QingfengFirstPersonArmIk.solve(
+                FirstPersonArmIk.Solution solution = FirstPersonArmIk.solve(
                         HumanoidArm.RIGHT, 0.0F, swing, pose, FirstPersonArmLag.offset(swing, move, tick));
                 String where = move.id() + " at " + tick;
                 for (int step = -3; step <= 3; step++) {
@@ -100,16 +99,16 @@ final class FirstPersonArmIkTest {
         FirstPersonSwing.Arm armRig = swing.rig().arm();
         float pixel = armRig.thickness() / 16.0F;
         float half = 2.0F * pixel;
-        float forearmHalf = half * QingfengFirstPersonArmRenderer.FOREARM_WIDTH;
+        float forearmHalf = half * FirstPersonArmRenderer.FOREARM_WIDTH;
         Box forearm = new Box(forearmHalf,
-                -QingfengFirstPersonArmRenderer.ELBOW_OVERLAP_PIXELS * pixel,
-                armRig.forearm() + QingfengFirstPersonArmRenderer.WRIST_OVERLAP_PIXELS * pixel,
+                -FirstPersonArmRenderer.ELBOW_OVERLAP_PIXELS * pixel,
+                armRig.forearm() + FirstPersonArmRenderer.WRIST_OVERLAP_PIXELS * pixel,
                 forearmHalf);
         Box upper = new Box(half, 0.0F, armRig.upperArm() + pixel, half);
         for (FirstPersonSwing.Move move : swing.moves()) {
             for (float tick = 0.0F; tick <= move.totalTicks(); tick += STEP) {
                 FirstPersonSwing.Pose pose = move.sample(tick);
-                QingfengFirstPersonArmIk.Solution solution = QingfengFirstPersonArmIk.solve(
+                FirstPersonArmIk.Solution solution = FirstPersonArmIk.solve(
                         HumanoidArm.RIGHT, 0.0F, swing, pose, FirstPersonArmLag.offset(swing, move, tick));
                 for (int step = 0; step <= 20; step++) {
                     Vector3f point = swordPoint(swing, pose, sword.bladeBase().lerp(sword.bladeTip(), step / 20.0F));
@@ -131,7 +130,7 @@ final class FirstPersonArmIkTest {
             Vector3f previousForearm = null;
             for (float tick = 0.0F; tick <= move.totalTicks(); tick += STEP) {
                 FirstPersonSwing.Pose pose = move.sample(tick);
-                QingfengFirstPersonArmIk.Solution solution = QingfengFirstPersonArmIk.solve(
+                FirstPersonArmIk.Solution solution = FirstPersonArmIk.solve(
                         HumanoidArm.RIGHT, 0.0F, swing, pose, FirstPersonArmLag.offset(swing, move, tick));
                 // The hand's turn on the handle, in the sword's own frame.
                 Quaternionf sword = FirstPersonSwordTransform.gripFrame(HumanoidArm.RIGHT, 0.0F, swing.rig(), pose)
@@ -183,10 +182,10 @@ final class FirstPersonArmIkTest {
         FirstPersonSwing.Move move = swing.move(3);
         FirstPersonSwing.Pose pose = move.sample(7.0F);
         Vector3f lag = FirstPersonArmLag.offset(swing, move, 7.0F);
-        QingfengFirstPersonArmIk.Solution right =
-                QingfengFirstPersonArmIk.solve(HumanoidArm.RIGHT, 0.0F, swing, pose, lag);
-        QingfengFirstPersonArmIk.Solution left =
-                QingfengFirstPersonArmIk.solve(HumanoidArm.LEFT, 0.0F, swing, pose, lag);
+        FirstPersonArmIk.Solution right =
+                FirstPersonArmIk.solve(HumanoidArm.RIGHT, 0.0F, swing, pose, lag);
+        FirstPersonArmIk.Solution left =
+                FirstPersonArmIk.solve(HumanoidArm.LEFT, 0.0F, swing, pose, lag);
         for (Vector3f[] pair : new Vector3f[][] {
                 {right.shoulder(), left.shoulder()}, {right.elbow(), left.elbow()},
                 {right.wrist(), left.wrist()}, {right.grip(), left.grip()}}) {
@@ -211,8 +210,8 @@ final class FirstPersonArmIkTest {
     @Test
     void neutralHoldKeepsTheArmLowAndRight() throws IOException {
         FirstPersonSwing swing = shipped();
-        QingfengFirstPersonArmIk.Solution solution =
-                QingfengFirstPersonArmIk.solve(HumanoidArm.RIGHT, 0.0F, swing, swing.neutral());
+        FirstPersonArmIk.Solution solution =
+                FirstPersonArmIk.solve(HumanoidArm.RIGHT, 0.0F, swing, swing.neutral());
         assertTrue(solution.wrist().x > 0.1F && solution.wrist().y < -0.2F, "wrist " + solution.wrist());
         assertTrue(solution.elbow().x > solution.wrist().x && solution.elbow().y < solution.wrist().y,
                 "elbow " + solution.elbow());
@@ -229,9 +228,9 @@ final class FirstPersonArmIkTest {
         for (FirstPersonSwing.Move move : swing.moves()) {
             for (FirstPersonSwing.Key key : move.keys()) {
                 FirstPersonSwing.Pose pose = move.sample(key.tick());
-                QingfengFirstPersonArmIk.Solution still =
-                        QingfengFirstPersonArmIk.solve(HumanoidArm.RIGHT, 0.0F, swing, pose);
-                QingfengFirstPersonArmIk.Solution lagged = QingfengFirstPersonArmIk.solve(
+                FirstPersonArmIk.Solution still =
+                        FirstPersonArmIk.solve(HumanoidArm.RIGHT, 0.0F, swing, pose);
+                FirstPersonArmIk.Solution lagged = FirstPersonArmIk.solve(
                         HumanoidArm.RIGHT, 0.0F, swing, pose, FirstPersonArmLag.offset(swing, move, key.tick()));
                 lines.add(String.format(Locale.ROOT, "%s\t%.1f\t%.1f\t%.1f\t%.1f\t%.1f\t%.0f\t%.0f\t%.2f",
                         move.id().getPath(), key.tick(), still.flexion(), still.deviation(),
@@ -244,21 +243,21 @@ final class FirstPersonArmIkTest {
         assertTrue(lines.size() > swing.moves().size());
     }
 
-    private static void assertBones(FirstPersonSwing swing, QingfengFirstPersonArmIk.Solution solution, String where) {
+    private static void assertBones(FirstPersonSwing swing, FirstPersonArmIk.Solution solution, String where) {
         FirstPersonSwing.Arm arm = swing.rig().arm();
         assertEquals(arm.upperArm(), solution.elbow().distance(solution.shoulder()), EPSILON, where + " upper arm");
         assertEquals(arm.forearm(), solution.wrist().distance(solution.elbow()), EPSILON, where + " forearm");
         Vector3f palm = new Vector3f(solution.grip()).sub(solution.wrist());
-        assertEquals(QingfengFirstPersonArmIk.wristToGrip(arm),
+        assertEquals(FirstPersonArmIk.wristToGrip(arm),
                 solution.fistRotation().transform(new Vector3f(0.0F, 1.0F, 0.0F)).dot(palm), EPSILON, where + " palm");
     }
 
     private static Box fistBox(float pixel, float widthPixels) {
         return new Box(
-                widthPixels * 0.5F * pixel * QingfengFirstPersonArmRenderer.FIST_WIDTH,
-                -QingfengFirstPersonArmIk.FIST_OVERLAP_PIXELS * pixel,
-                (QingfengFirstPersonArmIk.FIST_LENGTH_PIXELS - QingfengFirstPersonArmIk.FIST_OVERLAP_PIXELS) * pixel,
-                QingfengFirstPersonArmIk.DEPTH_PIXELS * 0.5F * pixel * QingfengFirstPersonArmRenderer.FIST_WIDTH);
+                widthPixels * 0.5F * pixel * FirstPersonArmRenderer.FIST_WIDTH,
+                -FirstPersonArmIk.FIST_OVERLAP_PIXELS * pixel,
+                (FirstPersonArmIk.FIST_LENGTH_PIXELS - FirstPersonArmIk.FIST_OVERLAP_PIXELS) * pixel,
+                FirstPersonArmIk.DEPTH_PIXELS * 0.5F * pixel * FirstPersonArmRenderer.FIST_WIDTH);
     }
 
     private static Vector3f axis(SwordGeometry sword, float y) {
@@ -282,7 +281,7 @@ final class FirstPersonArmIkTest {
     private static FirstPersonSwing shipped() throws IOException {
         return FirstPersonSwing.parse(
                 JsonParser.parseString(Files.readString(RIG)).getAsJsonObject(),
-                BasicSwordStyle.DEFINITION,
+                CombatTestData.basicSword(),
                 FirstPersonSwingTest.geometry());
     }
 

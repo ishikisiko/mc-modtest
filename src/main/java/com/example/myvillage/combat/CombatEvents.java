@@ -1,10 +1,12 @@
 package com.example.myvillage.combat;
 
 import com.example.myvillage.MyVillageMod;
+import com.example.myvillage.combat.definition.CombatStyles;
 import com.example.myvillage.combat.runtime.CombatDamageService;
 import com.example.myvillage.combat.runtime.CombatReactionService;
 import com.example.myvillage.combat.session.CombatSessionManager;
 import com.example.myvillage.combat.session.CombatStopReason;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
@@ -25,6 +27,14 @@ public final class CombatEvents {
     }
 
     public static void register() {
+        // Bundled style and weapon data load here, on both sides; a broken file stops startup.
+        CombatStyles styles = CombatStyles.bundled();
+        LOGGER.info(
+                "Combat data loaded: {} style(s) {}, {} weapon(s) {}",
+                styles.styles().size(),
+                styles.styles().stream().map(style -> style.id().toString()).toList(),
+                styles.weapons().size(),
+                styles.weapons().stream().map(weapon -> weapon.item().toString()).toList());
         NeoForge.EVENT_BUS.addListener(CombatEvents::onServerStarted);
         NeoForge.EVENT_BUS.addListener(CombatEvents::onPlayerLoggedIn);
         NeoForge.EVENT_BUS.addListener(CombatEvents::onPlayerRespawn);
@@ -45,11 +55,17 @@ public final class CombatEvents {
         CombatService.clearRuntime();
         CombatSessionManager.clearAll(event.getServer(), CombatStopReason.SERVER_STOPPING);
         CombatReactionService.clearAll();
+        CombatStyles styles = CombatStyles.bundled();
         LOGGER.info(
-                "Combat foundation registered: attachment={}, style={}, moves={}",
+                "Combat foundation registered: attachment={}, styles={} ({} moves), weapons={} {}",
                 CombatAttachments.PREFERENCE.getId(),
-                com.example.myvillage.combat.definition.BasicSwordStyle.DEFINITION.id(),
-                com.example.myvillage.combat.definition.BasicSwordStyle.DEFINITION.moves().size());
+                styles.styles().size(),
+                styles.styles().stream().mapToInt(style -> style.moves().size()).sum(),
+                styles.weapons().size(),
+                styles.weapons().stream()
+                        .map(weapon -> weapon.item() + "->" + weapon.style()
+                                + (BuiltInRegistries.ITEM.containsKey(weapon.item()) ? "" : " (item not registered)"))
+                        .toList());
     }
 
     private static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {

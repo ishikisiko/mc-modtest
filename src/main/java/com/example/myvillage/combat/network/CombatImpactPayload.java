@@ -13,14 +13,15 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Broadcast to the attacker and everyone tracking it after the server lands a hit: which
- * entities were struck and where the blade first touched each one (index-aligned). Clients use
- * it only for presentation (target hit-stop, jitter, sparks); it carries no damage or health.
+ * Broadcast to the attacker and everyone tracking it after the server lands a hit: the move by
+ * id, which entities were struck, and where the blade first touched each one (index-aligned).
+ * Clients use it only for presentation (target hit-stop, jitter, sparks); it carries no damage or
+ * health.
  */
 public record CombatImpactPayload(
         int attackerEntityId,
         long revision,
-        int moveIndex,
+        ResourceLocation moveId,
         List<Integer> struckEntityIds,
         List<Vec3> contactPoints) implements CustomPacketPayload {
     public static final int MAXIMUM_STRUCK_ENTITIES = 16;
@@ -40,8 +41,8 @@ public record CombatImpactPayload(
                     CombatImpactPayload::attackerEntityId,
                     ByteBufCodecs.VAR_LONG,
                     CombatImpactPayload::revision,
-                    ByteBufCodecs.VAR_INT,
-                    CombatImpactPayload::moveIndex,
+                    ResourceLocation.STREAM_CODEC,
+                    CombatImpactPayload::moveId,
                     ByteBufCodecs.VAR_INT.apply(ByteBufCodecs.list(MAXIMUM_STRUCK_ENTITIES)),
                     CombatImpactPayload::struckEntityIds,
                     VEC3.apply(ByteBufCodecs.list(MAXIMUM_STRUCK_ENTITIES)),
@@ -51,8 +52,9 @@ public record CombatImpactPayload(
     public CombatImpactPayload {
         struckEntityIds = List.copyOf(Objects.requireNonNull(struckEntityIds, "struckEntityIds"));
         contactPoints = List.copyOf(Objects.requireNonNull(contactPoints, "contactPoints"));
-        if (attackerEntityId < 0 || revision <= 0 || moveIndex < 0) {
-            throw new IllegalArgumentException("Impact needs a valid attacker, positive revision, and move index");
+        Objects.requireNonNull(moveId, "moveId");
+        if (attackerEntityId < 0 || revision <= 0) {
+            throw new IllegalArgumentException("Impact needs a valid attacker and a positive revision");
         }
         if (struckEntityIds.isEmpty() || struckEntityIds.size() > MAXIMUM_STRUCK_ENTITIES
                 || struckEntityIds.size() != contactPoints.size()) {

@@ -13,7 +13,8 @@ import org.slf4j.LoggerFactory;
 
 public final class ModPayloads {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModPayloads.class);
-    private static final String PROTOCOL_VERSION = "6";
+    /** Payload protocol; bump it whenever a payload layout changes (7: impact carries the move id). */
+    public static final String PROTOCOL_VERSION = "7";
 
     private ModPayloads() {
     }

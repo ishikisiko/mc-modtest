@@ -3,9 +3,11 @@ package com.example.myvillage.client.combat;
 import com.example.myvillage.combat.CombatMode;
 import com.example.myvillage.combat.definition.AttackMoveDefinition;
 import com.example.myvillage.combat.definition.CombatStyleDefinition;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 final class ClientCombatState {
     private static final Map<Integer, Long> ACTION_REVISIONS = new HashMap<>();
@@ -18,10 +20,15 @@ final class ClientCombatState {
     private static long lastCompletedActionTick = Long.MIN_VALUE;
     private static boolean readyAnimation;
     private static boolean localActionActive;
+    /** The style the next predicted move index belongs to; another style restarts the combo. */
+    private static CombatStyleDefinition predictionStyle;
+    /** The ready idle the client claimed, so a weapon of another style can claim its own. */
+    private static ResourceLocation readyIdleAnimation;
     /**
      * The local player's current (confirmed or predicted) action timeline. A predicted action
      * has revision -1 until the server's START confirms it.
      */
+    private static CombatStyleDefinition localStyle;
     private static int localMoveIndex = -1;
     private static long localStartTick;
     private static long localRevision = -1L;
@@ -49,6 +56,7 @@ final class ClientCombatState {
             predictionPending = false;
             lastCompletedActionTick = Long.MIN_VALUE;
             readyAnimation = false;
+            readyIdleAnimation = null;
             localActionActive = false;
             clearLocalAction();
         }
@@ -87,13 +95,15 @@ final class ClientCombatState {
     /**
      * Records the local player's action timeline: from a local prediction (revision -1) or from
      * the server's START. Confirming the move already predicted keeps its cue progress, so the
-     * swing lean and lunge surge never play twice.
+     * swing lean and step surge never play twice.
      */
-    static void trackLocalAction(int moveIndex, long startTick, long revision) {
-        boolean samePredictedMove = moveIndex == localMoveIndex && localRevision < 0L && revision >= 0L;
+    static void trackLocalAction(CombatStyleDefinition style, int moveIndex, long startTick, long revision) {
+        boolean samePredictedMove = style.equals(localStyle)
+                && moveIndex == localMoveIndex && localRevision < 0L && revision >= 0L;
         if (!samePredictedMove) {
             localCueTick = -1;
         }
+        localStyle = style;
         localMoveIndex = moveIndex;
         localStartTick = startTick;
         localRevision = revision;
@@ -142,7 +152,7 @@ final class ClientCombatState {
         predictionTick = tick;
         readyAnimation = false;
         predictedNextMoveIndex = nextMoveIndex;
-        trackLocalAction(nextMoveIndex, tick, -1L);
+        trackLocalAction(localStyle, nextMoveIndex, tick, -1L);
     }
 
     /**
@@ -176,8 +186,26 @@ final class ClientCombatState {
         return revision >= 0L && revision == localRevision ? localMoveIndex : -1;
     }
 
+    /** The move of the local action with this server revision, if any. */
+    static Optional<AttackMoveDefinition> localMoveFor(long revision) {
+        int index = localMoveIndexFor(revision);
+        return index >= 0 && localStyle != null ? Optional.of(localStyle.move(index)) : Optional.empty();
+    }
+
     static int localMoveIndex() {
         return localMoveIndex;
+    }
+
+    /** The style of the local action, or null without one. */
+    static CombatStyleDefinition localStyle() {
+        return localStyle;
+    }
+
+    /** The move of the local action, if any. */
+    static Optional<AttackMoveDefinition> localMove() {
+        return localMoveIndex >= 0 && localStyle != null
+                ? Optional.of(localStyle.move(localMoveIndex))
+                : Optional.empty();
     }
 
     /** Whole ticks since the local action started; -1 without one. */
@@ -207,6 +235,19 @@ final class ClientCombatState {
 
     static boolean localClickBuffered() {
         return bufferedClick;
+    }
+
+    /**
+     * The move index to predict for a click with a weapon of {@code style}. A weapon of another
+     * style than the last prediction restarts at its first move, as the server does.
+     */
+    static int preparePrediction(long tick, CombatStyleDefinition style) {
+        if (!style.equals(predictionStyle)) {
+            predictedNextMoveIndex = 0;
+            lastCompletedActionTick = Long.MIN_VALUE;
+            predictionStyle = style;
+        }
+        return preparePrediction(tick, style.comboTimeoutTicks());
     }
 
     static int preparePrediction(long tick, int comboTimeoutTicks) {
@@ -258,6 +299,7 @@ final class ClientCombatState {
     }
 
     private static void clearLocalAction() {
+        localStyle = null;
         localMoveIndex = -1;
         localStartTick = 0L;
         localRevision = -1L;
@@ -268,13 +310,19 @@ final class ClientCombatState {
         chainSourceStoppedTick = Long.MIN_VALUE;
     }
 
-    static void markReadyAnimation() {
+    static void markReadyAnimation(ResourceLocation idleAnimation) {
         readyAnimation = true;
+        readyIdleAnimation = idleAnimation;
     }
 
     /** Lets the client tick claim the ready idle again, for example after a probe replaced it. */
     static void clearReadyAnimation() {
         readyAnimation = false;
+    }
+
+    /** The ready idle last claimed, or null. */
+    static ResourceLocation readyIdleAnimation() {
+        return readyIdleAnimation;
     }
 
     static CombatMode mode() {
@@ -303,6 +351,8 @@ final class ClientCombatState {
 
     static void clear() {
         ACTION_REVISIONS.clear();
+        predictionStyle = null;
+        readyIdleAnimation = null;
         mode = CombatMode.VANILLA;
         preferenceRevision = -1L;
         predictedNextMoveIndex = 0;
