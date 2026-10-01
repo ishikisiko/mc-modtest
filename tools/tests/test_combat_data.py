@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import json
+import math
 import shutil
 import tempfile
 import unittest
@@ -12,6 +13,28 @@ from tools import combat_data
 DATA = "src/main/resources/data/myvillage/combat"
 STYLE = f"{DATA}/style/basic_sword.json"
 WEAPON = f"{DATA}/weapon/qingfeng_sword.json"
+SPEAR_STYLE = f"{DATA}/style/basic_spear.json"
+SPEAR_MOVES = [
+    "myvillage:basic_spear_01_mid_thrust",
+    "myvillage:basic_spear_02_sweep",
+    "myvillage:basic_spear_03_rising_flick",
+    "myvillage:basic_spear_04_overhead_smash",
+    "myvillage:basic_spear_05_dragon_lunge",
+]
+
+
+def forward_reach(move: dict) -> float | None:
+    """Farthest +Z the move's hit capsules reach (end plus horizontal radius), or None if unknown."""
+    samples = move["hitbox"]["samples"]
+    if isinstance(samples, list):
+        return max(sample["end"][2] + sample["horizontal_radius"] for sample in samples)
+    if samples["generator"] == "thrust":
+        return samples["final_range"] + samples["radius"]
+    if samples["generator"] == "arc":
+        low, high = sorted((samples["start_angle"], samples["end_angle"]))
+        nearest = 0.0 if low <= 0.0 <= high else min(abs(low), abs(high))
+        return samples["range"] * math.cos(math.radians(nearest)) + samples["radius"]
+    return None
 
 
 class CombatDataTest(unittest.TestCase):
@@ -49,10 +72,33 @@ class CombatDataTest(unittest.TestCase):
     def test_committed_data_is_valid(self) -> None:
         data = combat_data.load()
         self.assertEqual((), data.issues)
-        self.assertEqual(["myvillage:basic_sword"], list(data.styles))
-        self.assertEqual(["myvillage:qingfeng_sword"], list(data.weapons))
-        self.assertEqual(5, len(list(data.moves())))
+        self.assertEqual(["myvillage:basic_sword", "myvillage:basic_spear"], list(data.styles))
+        self.assertEqual(["myvillage:qingfeng_sword", "myvillage:lingxiao_spear"], list(data.weapons))
+        self.assertEqual(10, len(list(data.moves())))
         self.assertEqual(combat_data.ROOT / STYLE, data.files["myvillage:basic_sword"])
+        self.assertEqual(combat_data.ROOT / SPEAR_STYLE, data.files["myvillage:basic_spear"])
+
+    def test_spear_style_and_weapon(self) -> None:
+        data = combat_data.load()
+        spear = data.styles["myvillage:basic_spear"]
+        self.assertEqual(SPEAR_MOVES, [move["id"] for move in spear["moves"]])
+        self.assertEqual([f"combat.myvillage.move.{move_id.split(':')[1]}" for move_id in SPEAR_MOVES],
+                         [move["display_key"] for move in spear["moves"]])
+        weapon = data.weapons["myvillage:lingxiao_spear"]
+        self.assertEqual("myvillage:lingxiao_spear", weapon["item"])
+        self.assertEqual("myvillage:basic_spear", weapon["style"])
+        # The finisher cannot chain.
+        self.assertEqual(spear["moves"][-1]["total_ticks"], spear["moves"][-1]["chain_tick"])
+
+    def test_samples_reach_the_move_range(self) -> None:
+        # CombatStepService keeps a light step still when a target is within `range`, so the
+        # hit volume must reach at least that far (end + radius + tolerance along +Z).
+        for style_id, move in combat_data.load().moves():
+            reach = forward_reach(move)
+            if reach is None:
+                continue  # the diagonal generator's reach is a Java constant
+            with self.subTest(move=move["id"]):
+                self.assertGreaterEqual(reach + move["hitbox"]["horizontal_tolerance"], move["range"])
 
     def test_ids_resolve_to_paths(self) -> None:
         self.assertEqual(self.root / STYLE, combat_data.style_file(self.root, "myvillage:basic_sword"))
@@ -86,7 +132,7 @@ class CombatDataTest(unittest.TestCase):
         index = self.read(f"{DATA}/index.json")
         index["weapons"].append("myvillage:missing_blade")
         self.write(f"{DATA}/index.json", index)
-        issue = self.find("INDEX", "weapons[1]")
+        issue = self.find("INDEX", f"weapons[{len(index['weapons']) - 1}]")
         self.assertIn("myvillage:missing_blade", issue.message)
 
     def test_chain_tick_inside_active_window_is_rejected(self) -> None:

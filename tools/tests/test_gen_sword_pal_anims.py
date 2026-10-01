@@ -5,19 +5,79 @@ import dataclasses
 import io
 import json
 import math
+import tempfile
 import unittest
 import zipfile
-from contextlib import redirect_stderr
+from contextlib import redirect_stderr, redirect_stdout
+from pathlib import Path
 from unittest import mock
 
 from tools import gen_sword_pal_anims as gen
 
 
 PAL_JAR = gen.ROOT / "PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar"
+PIKE = "myvillage:test_pike"
 
 
 def style() -> dict:
     return copy.deepcopy(gen.combat_styles()[gen.BASIC_SWORD.style_id])
+
+
+def synthetic_weapon(root: Path, name: str = "test_pike", scale: float = 0.85, grip_y: float = -2.0,
+                     off_hand_y: float | None = 11.0, grip_shift_px: float = 0.0) -> tuple[Path, Path]:
+    """A two-handed weapon in the Qingfeng frame spanning y = -16..32 (contract + 3D model display).
+
+    The display translation is solved so the grip centre lands where the Qingfeng grip does (in the
+    fist); ``grip_shift_px`` moves it off the fist along the display y axis.
+    """
+    sword_display = json.loads(gen.SWORD_MODEL_3D.read_text(encoding="utf-8"))["display"]["thirdperson_righthand"]
+    sword_grip = json.loads(gen.SWORD_GEOMETRY.read_text(encoding="utf-8"))["grip_center"]
+    rx, ry, rz = sword_display["rotation"]
+    rotation = gen._chain(gen._r4("x", rx), gen._r4("y", ry), gen._r4("z", rz))
+    s0 = sword_display["scale"][0]
+    grip = (sword_grip[0], grip_y, sword_grip[2])
+    delta = gen._apply_raw(rotation, [s0 * (sword_grip[i] / 16 - 0.5) - scale * (grip[i] / 16 - 0.5) for i in range(3)])
+    translation = [round(sword_display["translation"][i] + 16 * delta[i] + (grip_shift_px if i == 1 else 0.0), 6)
+                   for i in range(3)]
+    geometry = {
+        "format": 1, "units": "model_pixels", "model": f"myvillage:item/{name}_3d",
+        "axes": {"blade": "+y", "flat_normal": "x", "edge": "z", "center_x": 8.0, "center_z": 8.0},
+        "grip_center": [8.0, grip_y, 8.0],
+        "handle": {"y": [-14.5, 22.0], "half_width": 0.7, "half_thickness": 0.7},
+        "guard": {"y": [22.0, 24.0], "half_width": 1.5, "half_thickness": 1.5},
+        "pommel": {"y": [-16.0, -14.5], "half_width": 0.9, "half_thickness": 0.9},
+        "blade_base": [8.0, 24.0, 8.0], "blade_tip": [8.0, 32.0, 8.0], "overall_y": [-16.0, 32.0],
+    }
+    if off_hand_y is not None:
+        geometry["off_hand_grip_center"] = [8.0, off_hand_y, 8.0]
+    geometry_path = root / f"assets/myvillage/combat/{name}_geometry.json"
+    model_path = root / f"assets/myvillage/models/item/{name}_3d.json"
+    geometry_path.parent.mkdir(parents=True, exist_ok=True)
+    model_path.parent.mkdir(parents=True, exist_ok=True)
+    geometry_path.write_text(json.dumps(geometry), encoding="utf-8")
+    model_path.write_text(json.dumps({"display": {"thirdperson_righthand": {
+        "rotation": sword_display["rotation"], "translation": translation, "scale": [scale] * 3}}}), encoding="utf-8")
+    return geometry_path, model_path
+
+
+def pike_style() -> dict:
+    """The sword style renamed to a synthetic second style (same timing)."""
+    data = style()
+    data["id"] = PIKE
+    data["animations"] = {"ready_idle": "myvillage:pike_ready_idle", "mode_enter": "myvillage:pike_mode_enter"}
+    for entry in data["moves"]:
+        entry["id"] = entry["id"].replace("basic_sword", "test_pike")
+    return data
+
+
+def pike_table(root: Path, weapon: tuple[Path, Path] | None = None, **changes) -> gen.PoseTable:
+    """A second, one-handed table: the sword poses on the synthetic long weapon."""
+    geometry, model = synthetic_weapon(root) if weapon is None else weapon
+    table = dataclasses.replace(
+        gen.BASIC_SWORD, style_id=PIKE, output=root / "assets/myvillage/player_animations/pike_combat.json",
+        moves={move_id.replace("basic_sword", "test_pike"): poses for move_id, poses in gen.BASIC_SWORD_MOVES.items()},
+        geometry=geometry, item_model=model)
+    return dataclasses.replace(table, **changes)
 
 
 def move(animation_id: str) -> gen.Move:
@@ -155,7 +215,7 @@ class PoseTableDisagreementTest(unittest.TestCase):
         data["moves"].append(extra)
         stderr = io.StringIO()
         with mock.patch.object(gen, "combat_styles", return_value={gen.BASIC_SWORD.style_id: data}), \
-                redirect_stderr(stderr):
+                mock.patch.object(gen, "POSE_TABLES", (gen.BASIC_SWORD,)), redirect_stderr(stderr):
             self.assertEqual(1, gen.main(["--check"]))
         self.assertIn("POSE_TABLE", stderr.getvalue())
         self.assertIn("myvillage:basic_sword_06_extra", stderr.getvalue())
@@ -316,6 +376,251 @@ class SelfCheckNegativeTest(unittest.TestCase):
             for k in m.keys)
         errors = gen.check_move(dataclasses.replace(m, keys=keys))
         self.assertTrue(any("whole-figure turn" in e for e in errors), errors)
+
+
+class TempDirTest(unittest.TestCase):
+    def setUp(self) -> None:
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        self.root = Path(temp.name)
+
+
+class PerTableRigTest(TempDirTest):
+    def test_sword_table_names_the_qingfeng_rig(self) -> None:
+        self.assertEqual(gen.SWORD_GEOMETRY, gen.BASIC_SWORD.geometry)
+        self.assertEqual(gen.SWORD_MODEL_3D, gen.BASIC_SWORD.item_model)
+        self.assertFalse(gen.BASIC_SWORD.two_handed)
+        self.assertEqual(gen.SWORD_RULES, gen.BASIC_SWORD.rules)
+
+    def test_forward_kinematics_measure_the_table_weapon(self) -> None:
+        pike = pike_table(self.root)
+        sword_sk = gen.skeleton(gen.canonical_guard(), gen.BASIC_SWORD)
+        pike_sk = gen.skeleton(gen.canonical_guard(pike), pike)
+        scale = 0.85 * gen.PLAYER_SCALE
+        self.assertAlmostEqual((32 + 2) / 16 * scale, math.dist(pike_sk["grip"], pike_sk["tip"]), places=6)
+        self.assertAlmostEqual(48 / 16 * scale, math.dist(pike_sk["butt"], pike_sk["tip"]), places=6)
+        self.assertLess(math.dist(sword_sk["grip"], sword_sk["tip"]), 1.0)
+        # Same frame and grip in the fist: the blade direction is the sword's, the tip twice as far.
+        self.assertLess(math.dist(pike_sk["grip"], pike_sk["fist"]) * 16 / gen.PLAYER_SCALE, 0.1)
+        self.assertLess(gen.angle_between(gen.direction_angles(sword_sk["grip"], sword_sk["tip"]),
+                                          gen.direction_angles(pike_sk["grip"], pike_sk["tip"])), 0.1)
+
+    def test_sword_poses_pass_every_check_on_a_one_handed_long_weapon(self) -> None:
+        pike = pike_table(self.root)
+        data = pike_style()
+        self.assertEqual([], gen.check_document(gen.build_document(pike, data), pike, data))
+
+    def test_grip_compensation_uses_the_table_grip(self) -> None:
+        shifted = pike_table(self.root, synthetic_weapon(self.root, "shifted", grip_shift_px=2.0))
+        rotation = (80, 17, -2)
+        self.assertNotEqual(gen.grip_compensation(rotation), gen.grip_compensation(rotation, shifted))
+
+        def grip_off(item):
+            k = gen.key(0, "probe", "linear", **dict(gen.GUARD, item=item))
+            sk = gen.skeleton(gen._resolve_key(k, None, shifted), shifted)
+            return math.dist(sk["grip"], sk["fist"]) * 16 / gen.PLAYER_SCALE
+
+        # The item turns about the table's own grip: its offset from the fist does not change.
+        self.assertGreater(grip_off((0, 0, 0)), 1.0)
+        self.assertAlmostEqual(grip_off((0, 0, 0)), grip_off(rotation), places=2)
+        errors = gen.check_keys("idle", gen.idle_keys(), shifted)
+        self.assertTrue(any("from the fist centre" in e for e in errors), errors)
+        self.assertEqual([], gen.check_keys("idle", gen.idle_keys()))
+
+    def test_contract_for_another_model_is_rejected(self) -> None:
+        geometry, _ = synthetic_weapon(self.root)
+        _, other_model = synthetic_weapon(self.root, "other")
+        with self.assertRaises(gen.PoseTableError) as raised:
+            gen.load_rig(geometry, other_model)
+        self.assertIn("test_pike_3d", str(raised.exception))
+
+    def test_missing_contract_is_a_pose_table_error(self) -> None:
+        with self.assertRaises(gen.PoseTableError):
+            gen.load_rig(self.root / "missing_geometry.json", gen.SWORD_MODEL_3D)
+
+
+class MultiTableTest(TempDirTest):
+    def tables(self):
+        sword = dataclasses.replace(gen.BASIC_SWORD, output=self.root / "assets/myvillage/player_animations/sword_combat.json")
+        sword.output.parent.mkdir(parents=True, exist_ok=True)
+        return sword, pike_table(self.root)
+
+    def run_main(self, argv, tables):
+        styles = {gen.BASIC_SWORD.style_id: style(), PIKE: pike_style()}
+        stdout, stderr = io.StringIO(), io.StringIO()
+        with mock.patch.object(gen, "combat_styles", return_value=styles), \
+                mock.patch.object(gen, "POSE_TABLES", tables), redirect_stdout(stdout), redirect_stderr(stderr):
+            status = gen.main(argv)
+        return status, stdout.getvalue(), stderr.getvalue()
+
+    def test_every_table_writes_and_checks_its_own_file(self) -> None:
+        sword, pike = self.tables()
+        status, out, err = self.run_main([], (sword, pike))
+        self.assertEqual(0, status, err)
+        self.assertEqual(gen.OUTPUT.read_bytes(), sword.output.read_bytes())
+        animations = json.loads(pike.output.read_text(encoding="utf-8"))["animations"]
+        self.assertIn("pike_ready_idle", animations)
+        self.assertIn("test_pike_05_lunge_thrust", animations)
+        self.assertNotIn("sword_ready_idle", animations)
+        status, out, err = self.run_main(["--check"], (sword, pike))
+        self.assertEqual(0, status, err)
+        self.assertIn("OK sword_combat.json", out)
+        self.assertIn("OK pike_combat.json", out)
+        status, out, _ = self.run_main(["--report"], (sword, pike))
+        self.assertEqual(0, status)
+        self.assertIn(f"## {PIKE} -> pike_combat.json", out)
+        self.assertIn("== test_pike_02_horizontal_cut", out)
+        self.assertIn("== basic_sword_02_horizontal_cut", out)
+
+    def test_drift_is_reported_per_table(self) -> None:
+        sword, pike = self.tables()
+        self.run_main([], (sword, pike))
+        pike.output.write_text("{}\n", encoding="utf-8")
+        status, out, err = self.run_main(["--check"], (sword, pike))
+        self.assertEqual(1, status)
+        self.assertIn("OK sword_combat.json", out)
+        self.assertIn("DRIFT", err)
+        self.assertIn("pike_combat.json", err)
+
+    def test_two_tables_cannot_share_an_output(self) -> None:
+        sword, pike = self.tables()
+        styles = {gen.BASIC_SWORD.style_id: style(), PIKE: pike_style()}
+        with self.assertRaises(gen.PoseTableError) as raised:
+            gen.check_tables(styles, (sword, dataclasses.replace(pike, output=sword.output)))
+        self.assertIn("sword_combat.json", str(raised.exception))
+
+    def test_cut_paths_are_per_table(self) -> None:
+        # A spear-like table whose horizontal path sweeps right -> left fails the sword's swing.
+        right_to_left = gen.CutPath((gen.PathRule(
+            "sweep must travel the player's right -> left", (("wind", "tip_x", ">", 0.4), ("hold", "tip_x", "<", -0.6))),))
+        pike = pike_table(self.root, cut_paths=dict(gen.SWORD_CUT_PATHS, left_to_right=right_to_left))
+        horizontal = next(m for m in gen.bind(pike, pike_style()) if m.cut_path == "left_to_right")
+        errors = gen.check_move(horizontal, pike)
+        self.assertIn("test_pike_02_horizontal_cut: sweep must travel the player's right -> left", errors)
+        without_rising = {name: path for name, path in gen.SWORD_CUT_PATHS.items() if name != "rising"}
+        with self.assertRaises(gen.PoseTableError) as raised:
+            gen.bind(pike_table(self.root, cut_paths=without_rising), pike_style())
+        self.assertIn("unknown cut_path 'rising'", str(raised.exception))
+
+    def test_rules_are_per_table(self) -> None:
+        thrust = next(m for m in gen.bind(pike_table(self.root), pike_style()) if m.kind == "thrust")
+        self.assertEqual([], gen.check_move(thrust, pike_table(self.root)))
+        far = pike_table(self.root, rules=dataclasses.replace(gen.SWORD_RULES, thrust_reach=(4.0, 4.5)))
+        self.assertTrue(any("thrust reach" in e for e in gen.check_move(thrust, far)))
+        bladed_right = pike_table(self.root, rules=dataclasses.replace(gen.SWORD_RULES, thrust_body_yaw=(30.0, None)))
+        self.assertTrue(any("not bladed" in e for e in gen.check_move(thrust, bladed_right)))
+
+
+# A two-handed guard whose shaft passes through the left fist's reach ahead of the right hand.
+SPEAR_GUARD = dict(body=(4, -15, 0), stance=("R", 24, 0), rarm=(-150, -20), larm=gen.ON_SHAFT,
+                   item=(-60, -90, 0), blade=(-12, 13))
+LEFT_FIST_REACH = math.hypot(1, 8) / 16 * gen.PLAYER_SCALE
+
+
+class OffHandTest(TempDirTest):
+    def setUp(self) -> None:
+        super().setUp()
+        self.table = pike_table(self.root, two_handed=True, guard=SPEAR_GUARD)
+
+    def resolve_one(self, **changes):
+        k = gen.key(0, "probe", "linear", **dict(SPEAR_GUARD, **changes))
+        pose = gen._resolve_key(k, None, self.table)
+        return pose, gen.skeleton(pose, self.table)
+
+    def shaft_oracle(self, sk, preferred):
+        """Brute force over the handle: (smallest residual px, shaft y of the reachable point nearest the
+        preferred y, shaft y of the smallest residual)."""
+        rig = gen.weapon_rig(self.table)
+        h0, h1 = rig.handle
+        a, b, shoulder = sk["handle_start"], sk["handle_end"], sk["left_shoulder"]
+        gap = gen.FIST_WIDTH / (math.dist(a, b) / (h1 - h0))
+        samples = []
+        for i in range(8001):
+            s = h0 + (h1 - h0) * i / 8000
+            if abs(s - rig.grip_y) < gap:
+                continue
+            point = [a[j] + (b[j] - a[j]) * (s - h0) / (h1 - h0) for j in range(3)]
+            samples.append((abs(math.dist(point, shoulder) - LEFT_FIST_REACH) * 16 / gen.PLAYER_SCALE, s))
+        best, argmin = min(samples)
+        return best, min((s for r, s in samples if r <= best + 0.01), key=lambda s: abs(s - preferred)), argmin
+
+    def test_left_hand_lands_on_the_shaft(self) -> None:
+        _, sk = self.resolve_one()
+        offset, at = gen.off_hand_offset(sk, self.table)
+        self.assertLess(offset, 0.05)
+        residual, expected, _ = self.shaft_oracle(sk, 11.0)
+        self.assertLess(residual, 0.01)
+        self.assertAlmostEqual(expected, at, delta=0.1)
+        self.assertGreater(at, -2.0 + 4 / 0.85)  # ahead of the right fist, clear of it
+        self.assertEqual([], [e for e in gen.check_keys("guard", (gen.key(0, "guard", "linear", **SPEAR_GUARD),), self.table)
+                              if "shaft" in e])
+
+    def test_preferred_point_out_of_reach_falls_back_to_the_nearest_reachable_point(self) -> None:
+        _, sk = self.resolve_one(larm=gen.OnShaft(at=20.0))
+        offset, at = gen.off_hand_offset(sk, self.table)
+        self.assertLess(offset, 0.05)
+        self.assertLess(at, 19.0)
+        _, expected, _ = self.shaft_oracle(sk, 20.0)
+        self.assertAlmostEqual(expected, at, delta=0.1)
+
+    def test_unreachable_shaft_reports_the_residual(self) -> None:
+        guard = dict(gen.GUARD, larm=gen.ON_SHAFT)  # the sword guard: the shaft runs ahead, out of reach
+        pose, sk = self.resolve_one(**guard)
+        offset, at = gen.off_hand_offset(sk, self.table)
+        s, residual = gen.shaft_target(pose, self.table)
+        oracle_residual, _, oracle_s = self.shaft_oracle(sk, 11.0)
+        self.assertGreater(offset, 3.0)
+        self.assertAlmostEqual(oracle_residual, residual * 16 / gen.PLAYER_SCALE, delta=0.05)
+        self.assertAlmostEqual(oracle_s, s, delta=0.1)
+        self.assertAlmostEqual(offset, oracle_residual, delta=0.1)  # the fist is as close as the arm allows
+        errors = gen.check_keys("probe", (gen.key(0, "guard", "linear", **guard),), self.table)
+        self.assertIn(f"probe: left hand {offset:.2f} px off the shaft at tick 0", "\n".join(errors))
+        self.assertTrue(any(f"nearest reachable shaft y {at:.1f}, wanted 11" in e for e in errors), errors)
+
+    def segment(self, larm=gen.ON_SHAFT):
+        start = gen.key(0, "guard", "linear", **SPEAR_GUARD)
+        end = gen.key(6, "turn", "easeinoutsine", (4, 20, 0), ("R", 24, 0), (-120, -40), larm, (-30, -60, 30), (0, 0))
+        return start, end
+
+    def test_drift_between_keys_names_the_move_and_tick(self) -> None:
+        start, end = self.segment()
+        errors = [e for e in gen.check_keys("test_pike_02_sweep", (start, end), self.table) if "shaft" in e]
+        self.assertEqual(1, len(errors), errors)
+        self.assertRegex(errors[0], r"^test_pike_02_sweep: left hand leaves the shaft by \d+\.\d\d px near tick "
+                                    r"3\.00 between keys 0 and 6 \(> 1\.9\); add a key with larm=ON_SHAFT at tick 3$")
+        middle = gen.key(3, "mid", "easeinoutsine", (4, 2.5, 0), ("R", 24, 0), (-135, -30), gen.ON_SHAFT,
+                         (-45, -75, 15), (0, 0))
+        self.assertEqual([], [e for e in gen.check_keys("x", (start, middle, end), self.table) if "shaft" in e])
+
+    def test_released_hand_is_not_held_to_the_shaft(self) -> None:
+        start, end = self.segment(larm=(-30, -20))
+        self.assertEqual([], [e for e in gen.check_keys("x", (start, end), self.table) if "shaft" in e])
+
+    def test_adjacent_keys_get_a_different_hint(self) -> None:
+        start, end = self.segment()
+        end = dataclasses.replace(end, tick=1)
+        errors = [e for e in gen.check_keys("x", (start, end), self.table) if "shaft" in e]
+        self.assertTrue(errors and "one tick apart" in errors[0], errors)
+
+    def test_on_shaft_needs_a_two_handed_table(self) -> None:
+        with self.assertRaises(gen.PoseTableError) as raised:
+            gen.bind(dataclasses.replace(self.table, two_handed=False), pike_style())
+        self.assertIn("not two_handed", str(raised.exception))
+
+    def test_two_handed_table_needs_an_off_hand_grip(self) -> None:
+        one_hand = synthetic_weapon(self.root, "one_hand", off_hand_y=None)
+        table = pike_table(self.root, one_hand, two_handed=True, guard=SPEAR_GUARD)
+        with self.assertRaises(gen.PoseTableError) as raised:
+            gen.bind(table, pike_style())
+        self.assertIn("off_hand_grip_center", str(raised.exception))
+
+    def test_report_shows_the_left_hand_on_the_shaft(self) -> None:
+        table = pike_table(self.root, two_handed=True)
+        stdout = io.StringIO()
+        with redirect_stdout(stdout):
+            gen.report(table, pike_style())
+        self.assertIn("two-handed", stdout.getvalue())
+        self.assertIn(" free", stdout.getvalue())
 
 
 if __name__ == "__main__":

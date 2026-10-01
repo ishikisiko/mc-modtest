@@ -107,6 +107,51 @@ class ModItemsValidatorTest(unittest.TestCase):
             "SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F)",
             self.errors())
 
+    def test_spear_attribute_drift_is_named(self) -> None:
+        self.replace_in_registration(
+            "LINGXIAO_SPEAR",
+            "SwordItem.createAttributes(Tiers.DIAMOND, 4, -2.8F)",
+            "SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F)")
+        self.assertIn(
+            "lingxiao_spear_registration_drift:SwordItem.createAttributes(Tiers.DIAMOND, 4, -2.8F)",
+            self.errors())
+
+    def test_spear_after_swords_in_creative_tab(self) -> None:
+        path = self.root / "src/main/java/com/example/myvillage/item/ModItems.java"
+        content = path.read_text(encoding="utf-8")
+        spear = "                        output.accept(LINGXIAO_SPEAR.get());\n"
+        self.assertIn(spear, content)
+        content = content.replace(spear, "", 1).replace(
+            "                        output.accept(QINGFENG_SWORD.get());\n",
+            spear + "                        output.accept(QINGFENG_SWORD.get());\n", 1)
+        path.write_text(content, encoding="utf-8")
+        self.assertIn(
+            "sword_creative_order:rideable->qingfeng->xuanyue->chilian->qingxiao->lingxiao->spirit_stone",
+            self.errors())
+
+    def test_missing_spear_tag_entry_and_names_are_named(self) -> None:
+        tag_path = self.root / "src/main/resources/data/minecraft/tags/item/swords.json"
+        tag = json.loads(tag_path.read_text(encoding="utf-8"))
+        tag["values"].remove("myvillage:lingxiao_spear")
+        tag_path.write_text(json.dumps(tag, indent=2) + "\n", encoding="utf-8")
+        for name in ("en_us", "zh_cn"):
+            path = self.root / f"src/main/resources/assets/myvillage/lang/{name}.json"
+            language = json.loads(path.read_text(encoding="utf-8"))
+            del language["item.myvillage.lingxiao_spear"]
+            path.write_text(json.dumps(language, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        errors = self.errors()
+        self.assertIn("lingxiao_spear_sword_tag_contract", errors)
+        self.assertIn("lingxiao_spear_en_us_name", errors)
+        self.assertIn("lingxiao_spear_zh_cn_name", errors)
+        self.assertIn("missing_lang:item.myvillage.lingxiao_spear|block.myvillage.lingxiao_spear", errors)
+
+    def test_spear_flat_handheld_model_is_named(self) -> None:
+        path = self.root / "src/main/resources/assets/myvillage/models/item/lingxiao_spear.json"
+        path.write_text(json.dumps({"parent": "minecraft:item/handheld",
+                                    "textures": {"layer0": "myvillage:item/lingxiao_spear"}}) + "\n",
+                        encoding="utf-8")
+        self.assertIn("lingxiao_spear_model_contract", self.errors())
+
     def test_missing_sword_tag_is_named(self) -> None:
         (self.root / "src/main/resources/data/minecraft/tags/item/swords.json").unlink()
         self.assertIn("qingfeng_sword_tag_missing", self.errors())

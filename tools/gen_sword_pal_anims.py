@@ -35,7 +35,48 @@ torso yaw.
 Run ``python3 tools/gen_sword_pal_anims.py`` to regenerate the JSON, or
 ``--check`` to verify that the committed file matches and all self-checks
 pass.  ``--report`` prints the forward-kinematics measurements per key.
+All three cover every table in ``POSE_TABLES``; each table writes its own file.
 The script is deterministic and uses only the Python standard library.
+
+Adding a pose table for another weapon (e.g. the two-handed spear)
+-------------------------------------------------------------------
+1. Write the poses (a guard dict, mode-enter and ready-idle keys, one
+   ``MovePoses`` per style move) and append a ``PoseTable`` to ``POSE_TABLES``:
+
+   ``style_id``/``output``   the style in ``index.json`` and its own PAL file
+                             (``player_animations/<name>.json``);
+   ``geometry``/``item_model`` the weapon's geometry contract and the 3D item
+                             model whose ``thirdperson_righthand`` display the
+                             game uses; grip compensation, forward kinematics,
+                             blade and reach checks all use this weapon;
+   ``rules``                 ``PoseRules`` thresholds that depend on the weapon
+                             or the stance (``SWORD_RULES`` is the sword's; use
+                             ``dataclasses.replace(SWORD_RULES, ...)``, ``None``
+                             switches a sword-only rule off);
+   ``cut_paths``             the named ``CutPath`` specs its moves may use
+                             (``SWORD_CUT_PATHS`` holds 横/撩/斜; a spear can
+                             define e.g. ``right_to_left`` with its own tip
+                             thresholds, or ``side_finish=False`` for a cut
+                             that ends forward);
+   ``two_handed=True``       the weapon is held in both hands.
+
+2. In a two-handed table a key asks for the left hand on the shaft with
+   ``larm=ON_SHAFT`` (the contract's ``off_hand_grip_center``) or
+   ``larm=OnShaft(at=8.0)`` (another preferred contract y, in model px).  The
+   generator solves the left arm from the resolved pose so the left fist (the
+   centre of the arm's bottom 4x4x4 cube, mirroring the right fist where the
+   grip sits) lands on the shaft there, or at the nearest shaft point inside the
+   contract's ``handle`` range that the rigid arm reaches, keeping clear of the
+   right fist.  An explicit ``larm=(yaw, elevation)`` is a deliberate release.
+   Example: ``key(5, "contact", "easeoutcubic", (8, 40, 0), ("L", 36, 0),
+   (20, -30), ON_SHAFT, (75, -20, -10), (5, 0))``.
+
+3. Run ``--check``.  ``SELF_CHECK <animation>: left hand ... off the shaft at
+   tick N`` means the shaft is out of the left arm's reach at that key; ``left
+   hand leaves the shaft ... between keys A and B; add a key ... at tick T``
+   names the move and the tick to add an ``ON_SHAFT`` key at.  ``--report``
+   prints, for a two-handed table, the shaft y of the left hand and its offset
+   from the shaft in px for every key (``free`` for a release).
 """
 
 from __future__ import annotations
@@ -54,6 +95,11 @@ except ImportError:  # run as a script: tools/ itself is on sys.path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "src/main/resources/assets/myvillage/player_animations/sword_combat.json"
+# The Qingfeng 3D jian: its thirdperson_righthand display transform and the grip / tip points come
+# from the committed model and geometry contract written by tools/gen_qingfeng_sword_model.py, so
+# the rig of the basic_sword table measures the sword that the game renders.
+SWORD_MODEL_3D = ROOT / "src/main/resources/assets/myvillage/models/item/qingfeng_sword_3d.json"
+SWORD_GEOMETRY = ROOT / "src/main/resources/assets/myvillage/combat/qingfeng_sword_geometry.json"
 FORMAT_VERSION = "1.8.0"
 TICKS_PER_SECOND = 20
 
@@ -71,9 +117,41 @@ RECOVERY_EASINGS = {"easeinoutsine", "easeinoutquad", "easeinoutcubic"}
 BONE_ORDER = ("body", "torso", "head", "right_arm", "left_arm", "right_leg", "left_leg", "right_item")
 REQUIRED_BONES = ("body", "head", "right_arm", "left_arm", "right_leg", "left_leg")
 
-LEG_LENGTH_PX = 12.0 * 0.9375  # vanilla leg length after PlayerRenderer's 0.9375 scale
+PLAYER_SCALE = 0.9375  # PlayerRenderer's model scale
+LEG_LENGTH_PX = 12.0 * PLAYER_SCALE  # vanilla leg length after PlayerRenderer's 0.9375 scale
 HEAD_YAW_LIMIT = 70.0
 TORSO_TWIST_LIMIT = 8.0
+
+# Vanilla arm boxes (wide arms): right addBox(-3, -2, -2, 4, 12, 4) about the pivot (-5, 2, 0), left
+# addBox(-1, -2, -2, 4, 12, 4) about (5, 2, 0).  The fist is the centre of the bottom 4x4x4 cube of
+# the box, on the box's centre line (x -1 / +1), 8 px down from the pivot; grip compensation puts
+# the weapon's grip centre exactly on the right fist, and the off-hand solve puts the left fist on
+# the shaft.  Values in blocks, arm-local.
+RIGHT_ARM_PIVOT = (-5.0, 2.0, 0.0)
+LEFT_ARM_PIVOT = (5.0, 2.0, 0.0)
+RIGHT_FIST = (-1 / 16, 8 / 16, 0.0)
+LEFT_FIST = (1 / 16, 8 / 16, 0.0)
+FIST_WIDTH = 4 / 16 * PLAYER_SCALE  # blocks: two fists on one shaft keep their centres this far apart
+# Off-hand on the shaft: distance of the left fist centre from the shaft axis in player-model px
+# (the same unit as the grip check).  The fist is 4 px wide, so with the axis within 1 px of its
+# centre the hand still closes round the shaft at a key; between keys the axis must stay inside the
+# fist (half-width 2 px, the 1.9 px of the grip-drift check).
+OFF_HAND_KEY_TOLERANCE_PX = 1.0
+OFF_HAND_BETWEEN_TOLERANCE_PX = 1.9
+
+
+@dataclass(frozen=True)
+class OnShaft:
+    """Left-arm request of a two-handed table: solve the left fist onto the weapon's shaft.
+
+    ``at`` is the preferred contract y (model px) of the left hand; ``None`` is the contract's
+    ``off_hand_grip_center``.
+    """
+
+    at: float | None = None
+
+
+ON_SHAFT = OnShaft()
 
 
 @dataclass(frozen=True)
@@ -84,7 +162,7 @@ class Key:
     body: tuple[float, float, float]
     stance: tuple[str, float, float]
     rarm: tuple[float, float]
-    larm: tuple[float, float]
+    larm: tuple[float, float] | OnShaft
     item: tuple[float, float, float]
     blade: tuple[float, float]
     pos: tuple[float, float] = (0.0, 0.0)
@@ -97,8 +175,8 @@ class MovePoses:
     Timing (total, active window, chain and step ticks) and kind come from the style file; the
     pose table only says what the body does.  ``lunge`` marks the 弓步 finisher whose hips drive
     forward on the server step tick; ``cut_path`` names the blade path that must agree with the
-    server hitbox (``left_to_right``, ``rising`` right-low -> left-high, ``descending``
-    left-high -> right-low).
+    server hitbox, one of the table's ``cut_paths`` (the sword's: ``left_to_right``, ``rising``
+    right-low -> left-high, ``descending`` left-high -> right-low).
     """
 
     keys: tuple[Key, ...]
@@ -107,8 +185,56 @@ class MovePoses:
 
 
 @dataclass(frozen=True)
+class PathRule:
+    """One cut-path rule: every condition must hold, else ``message`` (formatted with the measured
+    values in condition order) is reported.
+
+    A condition is ``(where, measure, op, limit)``: ``where`` is ``wind`` (the key before contact),
+    ``contact``, ``through``, ``hold`` or ``mid_active`` (the pose sampled at the middle of the active
+    window); ``measure`` is ``tip_x`` / ``tip_y`` / ``tip_z`` (blocks, right / up / forward from the
+    feet) or ``blade_yaw`` / ``blade_elevation`` (degrees); ``op`` is ``<``, ``>``, ``<=``, ``>=`` or
+    ``abs<=``.
+    """
+
+    message: str
+    conditions: tuple[tuple[str, str, str, float], ...]
+
+
+@dataclass(frozen=True)
+class CutPath:
+    """The blade path of a cut, shared with the server hitbox.
+
+    ``side_finish``: the table's ``cut_end_*`` rules (the blade finishes out to the side) apply.
+    """
+
+    rules: tuple[PathRule, ...]
+    side_finish: bool = True
+
+
+@dataclass(frozen=True)
+class PoseRules:
+    """Self-check thresholds that depend on the weapon or the stance; ``None`` switches a rule off.
+
+    The defaults are the basic_sword (Qingfeng, one hand, right foot forward) values.
+    """
+
+    hip_drop_px: tuple[float, float] = (2.0, 3.5)       # at contact, through and hold
+    cut_turn_deg: tuple[float, float] = (70.0, 110.0)   # whole-figure yaw peak-to-peak of a cut
+    cut_end_hand_lateral: float | None = 0.35           # min |right hand x| (blocks) at through/hold
+    cut_end_blade_yaw: tuple[float, float] | None = (80.0, 110.0)  # |blade yaw| at through/hold
+    cut_end_tip_lateral: float | None = 0.6             # min |tip x| (blocks) at through/hold
+    thrust_body_yaw: tuple[float | None, float | None] = (None, -40.0)  # bladed body yaw (min, max)
+    thrust_left_hand_lateral: float | None = -0.45      # 剑指 T-shape: max left hand x (blocks)
+    thrust_arm_level: float | None = 20.0               # max |elevation| shoulder -> right hand
+    thrust_reach: tuple[float, float] = (1.5, 1.9)      # min tip z (blocks): plain thrust, lunge
+
+
+SWORD_RULES = PoseRules()
+
+
+@dataclass(frozen=True)
 class PoseTable:
-    """Third-person animation source of one combat style, written to one PAL file."""
+    """Third-person animation source of one combat style and weapon, written to one PAL file."""
 
     style_id: str
     output: Path
@@ -118,6 +244,11 @@ class PoseTable:
     ready_idle: tuple[Key, ...]
     ready_idle_ticks: int
     moves: dict[str, MovePoses]
+    geometry: Path    # the weapon's geometry contract (grip, handle, tip, off-hand grip)
+    item_model: Path  # the 3D item model whose thirdperson_righthand display the game applies
+    rules: PoseRules
+    cut_paths: dict[str, CutPath]
+    two_handed: bool = False
 
 
 @dataclass(frozen=True)
@@ -141,11 +272,32 @@ class PoseTableError(ValueError):
     """The pose tables and the combat data disagree."""
 
 
-CUT_PATHS = ("left_to_right", "rising", "descending")
+# Cut paths of the sword, matching the server hitboxes (thresholds are tip positions of the
+# Qingfeng blade in blocks).
+SWORD_CUT_PATHS: dict[str, CutPath] = {
+    "left_to_right": CutPath((
+        PathRule("horizontal cut must sweep the player's left -> right",
+                 (("wind", "tip_x", "<", -0.4), ("hold", "tip_x", ">", 0.6))),
+        PathRule("blade crosses the centre at yaw {0:.0f} on the middle active tick",
+                 (("mid_active", "blade_yaw", "abs<=", 25.0),)),
+    )),
+    "rising": CutPath((
+        PathRule("rising cut must start right-low", (("contact", "tip_x", ">", 0.4), ("contact", "tip_y", "<", 0.9))),
+        PathRule("rising cut must finish left-high", (("hold", "tip_x", "<", -0.6), ("hold", "tip_y", ">", 1.8))),
+    )),
+    "descending": CutPath((
+        PathRule("diagonal cut must wind up left-high", (("wind", "tip_x", "<", -0.3), ("wind", "tip_y", ">", 2.0))),
+        PathRule("diagonal cut must finish right-low", (("hold", "tip_x", ">", 0.6), ("hold", "tip_y", "<", 0.6))),
+    )),
+}
+
+
+def _larm(value):
+    return value if isinstance(value, OnShaft) else tuple(value)
 
 
 def key(tick, phase, easing, body, stance, rarm, larm, item, blade, pos=(0.0, 0.0)) -> Key:
-    return Key(tick, phase, easing, tuple(body), tuple(stance), tuple(rarm), tuple(larm),
+    return Key(tick, phase, easing, tuple(body), tuple(stance), tuple(rarm), _larm(larm),
                tuple(item), tuple(blade), tuple(pos))
 
 
@@ -278,10 +430,15 @@ BASIC_SWORD = PoseTable(
     ready_idle=idle_keys(),
     ready_idle_ticks=24,  # 1.2 s loop
     moves=BASIC_SWORD_MOVES,
+    geometry=SWORD_GEOMETRY,
+    item_model=SWORD_MODEL_3D,
+    rules=SWORD_RULES,
+    cut_paths=SWORD_CUT_PATHS,
 )
 
-# One pose table per combat style.  A second style is an added table with its own output file;
-# its guard must be the guard its keys are built from, because guard keys resolve to it exactly.
+# One pose table per combat style.  A second style is an added table with its own output file and
+# weapon rig (see the module docstring); its guard must be the guard its keys are built from,
+# because guard keys resolve to it exactly.
 POSE_TABLES: tuple[PoseTable, ...] = (BASIC_SWORD,)
 
 
@@ -305,8 +462,9 @@ def bind(table: PoseTable, style: dict) -> tuple[Move, ...]:
         if combat_data.split_id(move_id)[0] != namespace:
             problems.append(f"{move_id} is outside the namespace of {table.output.name} ({namespace})")
     for move_id, poses in table.moves.items():
-        if poses.cut_path is not None and poses.cut_path not in CUT_PATHS:
+        if poses.cut_path is not None and poses.cut_path not in table.cut_paths:
             problems.append(f"{move_id}: unknown cut_path {poses.cut_path!r}")
+    problems += _hand_problems(table)
     if problems:
         raise PoseTableError("; ".join(problems))
     bound = []
@@ -329,14 +487,29 @@ def bind(table: PoseTable, style: dict) -> tuple[Move, ...]:
     return tuple(bound)
 
 
+def _hand_problems(table: PoseTable) -> list[str]:
+    """ON_SHAFT keys need a two-handed table, and a two-handed table needs an off-hand grip."""
+    keys = (*table.mode_enter, *table.ready_idle, *(k for poses in table.moves.values() for k in poses.keys))
+    asks = isinstance(table.guard["larm"], OnShaft) or any(isinstance(k.larm, OnShaft) for k in keys)
+    if asks and not table.two_handed:
+        return [f"pose table of {table.style_id} puts the left hand on the shaft but is not two_handed"]
+    if table.two_handed and weapon_rig(table).off_hand_y is None:
+        return [f"pose table of {table.style_id} is two_handed but {table.geometry.name} has no off_hand_grip_center"]
+    return []
+
+
 def check_tables(styles: dict[str, dict], tables: tuple[PoseTable, ...] = POSE_TABLES) -> None:
-    """Every listed style has exactly one pose table and every table belongs to a listed style."""
+    """Every listed style has exactly one pose table, every table belongs to a listed style, and
+    every table writes its own file."""
     table_styles = [table.style_id for table in tables]
     problems = [f"style {style_id} has no pose table" for style_id in styles if style_id not in table_styles]
     problems += [f"pose table for {style_id}, which the combat index does not list"
                  for style_id in table_styles if style_id not in styles]
     problems += [f"two pose tables for {style_id}" for style_id in sorted(set(table_styles))
                  if table_styles.count(style_id) > 1]
+    outputs = [table.output for table in tables]
+    problems += [f"two pose tables write {output.name}" for output in sorted(set(outputs))
+                 if outputs.count(output) > 1]
     if problems:
         raise PoseTableError("; ".join(problems))
 
@@ -477,16 +650,18 @@ def _r(value: float, digits: int = 1) -> float:
 def _is_guard(k: Key, guard_spec: dict = GUARD) -> bool:
     return (k.body, k.stance, k.rarm, k.larm, k.item, k.pos) == (
         tuple(guard_spec["body"]), tuple(guard_spec["stance"]), tuple(guard_spec["rarm"]),
-        tuple(guard_spec["larm"]), tuple(guard_spec["item"]), (0.0, 0.0))
+        _larm(guard_spec["larm"]), tuple(guard_spec["item"]), (0.0, 0.0))
 
 
-def _resolve_key(k: Key, previous) -> dict[str, list[float]]:
+def _resolve_key(k: Key, previous, table: PoseTable = BASIC_SWORD) -> dict[str, list[float]]:
     right_leg, left_leg, drop = solve_stance(k.body, *k.stance)
     previous_body = None if previous is None else previous["body"]
+    previous_larm = None if previous is None else previous["left_arm"][:2]
     rarm = solve_limb(k.body, *k.rarm, previous=None if previous is None else previous["right_arm"][:2],
                       previous_body=previous_body)
-    larm = solve_limb(k.body, *k.larm, previous=None if previous is None else previous["left_arm"][:2],
-                      previous_body=previous_body)
+    # An ON_SHAFT left arm is solved below, from the rounded pose; this placeholder is replaced.
+    larm = (0.0, 0.0) if isinstance(k.larm, OnShaft) else solve_limb(
+        k.body, *k.larm, previous=previous_larm, previous_body=previous_body)
     pose = {
         "body": [k.body[0], k.body[1], k.body[2]],
         "body_pos": [k.pos[0], drop, k.pos[1]],
@@ -499,24 +674,27 @@ def _resolve_key(k: Key, previous) -> dict[str, list[float]]:
         "right_item": [k.item[0], k.item[1], k.item[2]],
     }
     pose = {bone: [_r(v, 2 if bone == "body_pos" else 1) for v in values] for bone, values in pose.items()}
-    pose["right_item_pos"] = [_r(v, 2) for v in grip_compensation(pose["right_item"])]
+    pose["right_item_pos"] = [_r(v, 2) for v in grip_compensation(pose["right_item"], table)]
+    if isinstance(k.larm, OnShaft):
+        larm = solve_off_hand(pose, table, k.larm.at, previous_larm, previous_body)
+        pose["left_arm"] = [_r(larm[0]), _r(larm[1]), 0.0]
     return pose
 
 
-def canonical_guard(guard_spec: dict = GUARD) -> dict[str, list[float]]:
-    return _resolve_key(key(0, "guard", "linear", **guard_spec), None)
+def canonical_guard(table: PoseTable = BASIC_SWORD) -> dict[str, list[float]]:
+    return _resolve_key(key(0, "guard", "linear", **table.guard), None, table)
 
 
-def resolve(keys: tuple[Key, ...], guard_spec: dict = GUARD) -> list[dict[str, list[float]]]:
+def resolve(keys: tuple[Key, ...], table: PoseTable = BASIC_SWORD) -> list[dict[str, list[float]]]:
     """Turn intent keys into per-bone PAL values ({bone: [x, y, z]} plus 'body_pos').
 
-    Guard keys always resolve to the one canonical guard pose; every other key picks the
-    limb solution closest to the previous key so no channel flips between equivalent angles.
+    Guard keys always resolve to the one canonical guard pose of the table; every other key picks
+    the limb solution closest to the previous key so no channel flips between equivalent angles.
     """
     poses = []
     previous = None
     for k in keys:
-        pose = canonical_guard(guard_spec) if _is_guard(k, guard_spec) else _resolve_key(k, previous)
+        pose = canonical_guard(table) if _is_guard(k, table.guard) else _resolve_key(k, previous, table)
         poses.append(pose)
         previous = pose
     return poses
@@ -538,8 +716,8 @@ def _vector(values: list[float], easing: str):
 
 
 def build_animation(keys: tuple[Key, ...], length_ticks: int, loop: bool = False,
-                    guard_spec: dict = GUARD) -> dict:
-    poses = resolve(keys, guard_spec)
+                    table: PoseTable = BASIC_SWORD) -> dict:
+    poses = resolve(keys, table)
     bones: dict[str, dict[str, dict]] = {}
     for bone in BONE_ORDER:
         rotation = {}
@@ -564,12 +742,13 @@ def build_document(table: PoseTable = BASIC_SWORD, style: dict | None = None) ->
     """The PAL document of one pose table; ``style`` defaults to the committed style file."""
     style = combat_styles()[table.style_id] if style is None else style
     enter_id, idle_id = animation_names(style)
+    bound = bind(table, style)
     animations = {
-        enter_id: build_animation(table.mode_enter, table.mode_enter_ticks, guard_spec=table.guard),
-        idle_id: build_animation(table.ready_idle, table.ready_idle_ticks, loop=True, guard_spec=table.guard),
+        enter_id: build_animation(table.mode_enter, table.mode_enter_ticks, table=table),
+        idle_id: build_animation(table.ready_idle, table.ready_idle_ticks, loop=True, table=table),
     }
-    for move in bind(table, style):
-        animations[move.animation_id] = build_animation(move.keys, move.total, guard_spec=table.guard)
+    for move in bound:
+        animations[move.animation_id] = build_animation(move.keys, move.total, table=table)
     return {"format_version": FORMAT_VERSION, "animations": animations}
 
 
@@ -601,7 +780,7 @@ def render(document: dict) -> str:
 
 # ---------------------------------------------------------------------------------------------
 # Forward kinematics (mirrors PlayerRendererMixin, PlayerModelMixin.translateToHand,
-# ItemInHandLayer + ItemInHandLayerMixin and the Qingfeng 3D model's thirdperson_righthand display).
+# ItemInHandLayer + ItemInHandLayerMixin and the table weapon's thirdperson_righthand display).
 # World frame of the results: (right, up, forward) in blocks from the feet, facing = +forward.
 # ---------------------------------------------------------------------------------------------
 
@@ -635,32 +814,79 @@ def _apply(m, p):
     return (x, y, -z)  # local +Z is behind the player -> forward = -z
 
 
-# The held item is the Qingfeng 3D jian: its thirdperson_righthand display transform and the grip /
-# tip points come from the committed model and geometry contract written by
-# tools/gen_qingfeng_sword_model.py, so this rig measures the sword that the game renders.
-SWORD_MODEL_3D = ROOT / "src/main/resources/assets/myvillage/models/item/qingfeng_sword_3d.json"
-SWORD_GEOMETRY = ROOT / "src/main/resources/assets/myvillage/combat/qingfeng_sword_geometry.json"
-_SWORD_CACHE: dict[str, object] = {}
+@dataclass(frozen=True)
+class WeaponRig:
+    """The held weapon of a pose table, read from its geometry contract and 3D item model.
+
+    Points are in item-model block units (model px / 16); ``handle``, ``grip_y`` and ``off_hand_y``
+    are contract y values in model px along the weapon axis (+Y at ``axis`` x/z).
+    """
+
+    display: tuple            # thirdperson_righthand ItemTransform + ItemRenderer matrices
+    grip: tuple[float, float, float]
+    tip: tuple[float, float, float]
+    butt: tuple[float, float, float]
+    axis: tuple[float, float]
+    handle: tuple[float, float]
+    grip_y: float
+    off_hand_y: float | None
+
+    def point(self, y: float) -> tuple[float, float, float]:
+        """Axis point at contract y (model px)."""
+        return (self.axis[0], y / 16.0, self.axis[1])
 
 
-def sword_rig():
-    """(display matrices, grip point, tip point) of the held sword, in item-model block units."""
-    if "rig" not in _SWORD_CACHE:
-        display = json.loads(SWORD_MODEL_3D.read_text(encoding="utf-8"))["display"]["thirdperson_righthand"]
-        geometry = json.loads(SWORD_GEOMETRY.read_text(encoding="utf-8"))
+_RIGS: dict[tuple[Path, Path], WeaponRig] = {}
+
+
+def load_rig(geometry_path: Path, model_path: Path) -> WeaponRig:
+    """The weapon rig of a geometry contract and item model; raises PoseTableError if unusable."""
+    cache_key = (geometry_path, model_path)
+    if cache_key in _RIGS:
+        return _RIGS[cache_key]
+    try:
+        geometry = json.loads(geometry_path.read_text(encoding="utf-8"))
+        model = json.loads(model_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise PoseTableError(f"weapon rig unreadable: {exc}") from exc
+    named = geometry.get("model")
+    if named is not None:
+        namespace, path = combat_data.split_id(named)
+        if not model_path.as_posix().endswith(f"assets/{namespace}/models/{path}.json"):
+            raise PoseTableError(f"{geometry_path.name} describes {named}, not {model_path.name}")
+    try:
+        display = model["display"]["thirdperson_righthand"]
         tx, ty, tz = (c / 16.0 for c in display["translation"])
         rx, ry, rz = display["rotation"]
         sx, sy, sz = display["scale"]
-        # ItemTransform.apply: translate, rotationXYZ (Rx * Ry * Rz), scale; then ItemRenderer -0.5.
-        matrices = (_t(tx, ty, tz), _r4("x", rx), _r4("y", ry), _r4("z", rz), _s(sx, sy, sz), _t(-0.5, -0.5, -0.5))
-        grip = tuple(c / 16.0 for c in geometry["grip_center"])
-        tip = tuple(c / 16.0 for c in geometry["blade_tip"])
-        _SWORD_CACHE["rig"] = (matrices, grip, tip)
-    return _SWORD_CACHE["rig"]
+        grip_center = geometry["grip_center"]
+        axes = geometry.get("axes", {})
+        axis = (axes.get("center_x", grip_center[0]) / 16.0, axes.get("center_z", grip_center[2]) / 16.0)
+        butt_y = geometry["pommel"]["y"][0] if "pommel" in geometry else geometry["overall_y"][0]
+        off_hand = geometry.get("off_hand_grip_center")
+        rig = WeaponRig(
+            # ItemTransform.apply: translate, rotationXYZ (Rx * Ry * Rz), scale; then ItemRenderer -0.5.
+            display=(_t(tx, ty, tz), _r4("x", rx), _r4("y", ry), _r4("z", rz), _s(sx, sy, sz), _t(-0.5, -0.5, -0.5)),
+            grip=tuple(c / 16.0 for c in grip_center),
+            tip=tuple(c / 16.0 for c in geometry["blade_tip"]),
+            butt=(axis[0], butt_y / 16.0, axis[1]),
+            axis=axis,
+            handle=(float(geometry["handle"]["y"][0]), float(geometry["handle"]["y"][1])),
+            grip_y=float(grip_center[1]),
+            off_hand_y=None if off_hand is None else float(off_hand[1]),
+        )
+    except (KeyError, IndexError, TypeError, ValueError) as exc:
+        raise PoseTableError(f"weapon rig {geometry_path.name} / {model_path.name}: missing {exc}") from exc
+    _RIGS[cache_key] = rig
+    return rig
 
 
-def grip_compensation(item_rotation) -> tuple[float, float, float]:
-    """PAL right_item position that keeps the sword's grip centre in the fist for a right_item rotation.
+def weapon_rig(table: PoseTable = BASIC_SWORD) -> WeaponRig:
+    return load_rig(table.geometry, table.item_model)
+
+
+def grip_compensation(item_rotation, table: PoseTable = BASIC_SWORD) -> tuple[float, float, float]:
+    """PAL right_item position that keeps the weapon's grip centre in the fist for a right_item rotation.
 
     PAL rotates the item about the layer's item origin (the front-bottom edge of the fist), so a
     large right_item rotation swings the handle out of the hand.  Translating the item by
@@ -668,8 +894,8 @@ def grip_compensation(item_rotation) -> tuple[float, float, float]:
     transform, turns that into a rotation about the grip centre.
     """
     ix, iy, iz = item_rotation
-    display, grip, _ = sword_rig()
-    g = _apply_raw(_chain(*display), grip)
+    rig = weapon_rig(table)
+    g = _apply_raw(_chain(*rig.display), rig.grip)
     r = _chain(_r4("z", -iy), _r4("y", -iz), _r4("x", -ix))
     rg = _apply_raw(r, g)
     k = _chain(_r4("x", -90), _r4("y", 180))
@@ -682,37 +908,157 @@ def _apply_raw(m, p):
     return tuple(sum(m[i][k] * v[k] for k in range(4)) for i in range(3))
 
 
-def skeleton(pose: dict[str, list[float]]) -> dict[str, tuple[float, float, float]]:
+def _root_frame(pose):
     bx, by, bz = pose["body"]
     px, py, pz = pose["body_pos"]
-    root = _chain(_t(-px / 16, py / 16 + 0.75, pz / 16), _r4("z", bz), _r4("y", -by), _r4("x", -bx),
+    return _chain(_t(-px / 16, py / 16 + 0.75, pz / 16), _r4("z", bz), _r4("y", -by), _r4("x", -bx),
                   _t(0, -0.75, 0), _s(-1, -1, 1), _s(0.9375, 0.9375, 0.9375), _t(0, -1.501, 0))
 
-    def part(bone, pivot):
-        x, y, z = pose[bone]
-        return _chain(root, _t(pivot[0] / 16, pivot[1] / 16, pivot[2] / 16), _r4("z", z), _r4("y", y), _r4("x", x))
 
-    right_arm = part("right_arm", (-5, 2, 0))
-    left_arm = part("left_arm", (5, 2, 0))
-    right_leg = part("right_leg", (-1.9, 12, 0))
-    left_leg = part("left_leg", (1.9, 12, 0))
+def _part_frame(root, pivot, rotation):
+    x, y, z = rotation
+    return _chain(root, _t(pivot[0] / 16, pivot[1] / 16, pivot[2] / 16), _r4("z", z), _r4("y", y), _r4("x", x))
+
+
+def _item_frame(right_arm, pose, rig: WeaponRig):
     ix, iy, iz = pose["right_item"]
     qx, qy, qz = pose.get("right_item_pos", (0.0, 0.0, 0.0))
-    display, grip, tip = sword_rig()
     # ItemInHandLayerMixin.changeItemLocation: translate(posX, -posY, posZ) / 16 before the layer's rotations.
-    item = _chain(right_arm, _t(qx / 16, -qy / 16, qz / 16), _r4("x", -90), _r4("y", 180), _t(1 / 16, 0.125, -0.625),
-                  _r4("z", -iy), _r4("y", -iz), _r4("x", -ix), *display)
+    return _chain(right_arm, _t(qx / 16, -qy / 16, qz / 16), _r4("x", -90), _r4("y", 180), _t(1 / 16, 0.125, -0.625),
+                  _r4("z", -iy), _r4("y", -iz), _r4("x", -ix), *rig.display)
+
+
+def skeleton(pose: dict[str, list[float]], table: PoseTable = BASIC_SWORD) -> dict[str, tuple[float, float, float]]:
+    """World points of a resolved pose with the table's weapon in the right hand."""
+    rig = weapon_rig(table)
+    root = _root_frame(pose)
+    right_arm = _part_frame(root, RIGHT_ARM_PIVOT, pose["right_arm"])
+    left_arm = _part_frame(root, LEFT_ARM_PIVOT, pose["left_arm"])
+    right_leg = _part_frame(root, (-1.9, 12, 0), pose["right_leg"])
+    left_leg = _part_frame(root, (1.9, 12, 0), pose["left_leg"])
+    item = _item_frame(right_arm, pose, rig)
     return {
         "hip": _apply(root, (0, 0.75, 0)),
         "right_shoulder": _apply(right_arm, (0, 0, 0)),
+        "left_shoulder": _apply(left_arm, (0, 0, 0)),
         "right_hand": _apply(right_arm, (-1 / 16, 10 / 16, 0)),
         "left_hand": _apply(left_arm, (1 / 16, 10 / 16, 0)),
         "right_foot": _apply(right_leg, (0, 12 / 16, 0)),
         "left_foot": _apply(left_leg, (0, 12 / 16, 0)),
-        "fist": _apply(right_arm, (-1 / 16, 8 / 16, 0)),
-        "grip": _apply(item, grip),
-        "tip": _apply(item, tip),
+        "fist": _apply(right_arm, RIGHT_FIST),
+        "left_fist": _apply(left_arm, LEFT_FIST),
+        "grip": _apply(item, rig.grip),
+        "tip": _apply(item, rig.tip),
+        "butt": _apply(item, rig.butt),
+        "handle_start": _apply(item, rig.point(rig.handle[0])),
+        "handle_end": _apply(item, rig.point(rig.handle[1])),
     }
+
+
+def off_hand_offset(sk: dict, table: PoseTable = BASIC_SWORD) -> tuple[float, float]:
+    """(distance of the left fist from the shaft in player-model px, contract y of the nearest shaft point).
+
+    The shaft is the weapon axis over the contract's ``handle`` range.
+    """
+    h0, h1 = weapon_rig(table).handle
+    a, b, p = sk["handle_start"], sk["handle_end"], sk["left_fist"]
+    ab = [b[i] - a[i] for i in range(3)]
+    t = sum((p[i] - a[i]) * ab[i] for i in range(3)) / (sum(v * v for v in ab) or 1.0)
+    t = max(0.0, min(1.0, t))
+    nearest = [a[i] + ab[i] * t for i in range(3)]
+    return math.dist(p, nearest) * 16 / PLAYER_SCALE, h0 + (h1 - h0) * t
+
+
+def _unit(v):
+    norm = math.sqrt(sum(c * c for c in v))
+    return [c / norm for c in v] if norm > 1e-12 else [0.0, -1.0, 0.0]
+
+
+def shaft_target(pose: dict[str, list[float]], table: PoseTable, at: float | None = None) -> tuple[float, float]:
+    """(contract y, residual in blocks) of the shaft point the rigid left arm puts its fist on.
+
+    The left fist moves on a sphere of radius |LEFT_FIST| * 0.9375 about the left shoulder pivot.
+    Of the handle points on that sphere (keeping one fist width clear of the right fist), the one
+    closest to the preferred y (``at``, else the contract's off-hand grip) is used.  When no handle
+    point is on the sphere, the handle point whose distance from the sphere is smallest is used and
+    that distance is the residual.
+    """
+    rig = weapon_rig(table)
+    preferred = rig.off_hand_y if at is None else at
+    if preferred is None:
+        raise PoseTableError(f"{table.geometry.name} has no off_hand_grip_center for an ON_SHAFT left hand")
+    root = _root_frame(pose)
+    item = _item_frame(_part_frame(root, RIGHT_ARM_PIVOT, pose["right_arm"]), pose, rig)
+    origin, step = _apply(item, rig.point(0.0)), _apply(item, rig.point(1.0))
+    u = [step[i] - origin[i] for i in range(3)]  # world blocks per contract px
+    shoulder = _apply(root, (LEFT_ARM_PIVOT[0] / 16, LEFT_ARM_PIVOT[1] / 16, LEFT_ARM_PIVOT[2] / 16))
+    reach = math.hypot(*LEFT_FIST) * PLAYER_SCALE
+    w = [origin[i] - shoulder[i] for i in range(3)]
+    uu = sum(v * v for v in u)
+    uw = sum(u[i] * w[i] for i in range(3))
+    ww = sum(v * v for v in w)
+    gap = FIST_WIDTH / math.sqrt(uu)
+    h0, h1 = rig.handle
+    ranges = [(lo, hi) for lo, hi in ((h0, min(h1, rig.grip_y - gap)), (max(h0, rig.grip_y + gap), h1)) if lo <= hi]
+    closest = -uw / uu
+    candidates = []
+    for lo, hi in ranges:
+        candidates += [lo, hi, max(lo, min(hi, closest))]
+        disc = uw * uw - uu * (ww - reach * reach)
+        if disc >= 0.0:
+            candidates += [s for s in ((-uw - math.sqrt(disc)) / uu, (-uw + math.sqrt(disc)) / uu) if lo <= s <= hi]
+
+    def residual(s):
+        return abs(math.sqrt(uu * s * s + 2 * uw * s + ww) - reach)
+
+    best = min(candidates, key=lambda s: (round(residual(s), 9), abs(s - preferred)))
+    return best, residual(best)
+
+
+def solve_off_hand(pose: dict[str, list[float]], table: PoseTable, at: float | None = None,
+                   previous=None, previous_body=None) -> tuple[float, float]:
+    """Left-arm rotation (x, y) that puts the left fist on the shaft point of :func:`shaft_target`.
+
+    The fist sits 1 px off the arm's pivot axis, on the side set by the arm's twist, so each of the
+    two Euler twists (z = 0) aims its axis at the target minus that offset, refined by fixed-point
+    iteration.  Of the twists that put the fist closest to the target, the one whose interpolation
+    from the previous key stays nearest the direct path is used (as :func:`solve_limb` does).
+    """
+    rig = weapon_rig(table)
+    body = pose["body"]
+    s, _ = shaft_target(pose, table, at)
+    root = _root_frame(pose)
+    item = _item_frame(_part_frame(root, RIGHT_ARM_PIVOT, pose["right_arm"]), pose, rig)
+    target = _apply(item, rig.point(s))
+    shoulder = _apply(root, (LEFT_ARM_PIVOT[0] / 16, LEFT_ARM_PIVOT[1] / 16, LEFT_ARM_PIVOT[2] / 16))
+    reach = math.hypot(*LEFT_FIST) * PLAYER_SCALE
+    toward = _unit([target[i] - shoulder[i] for i in range(3)])
+    branches = []
+    for branch in (0, 1):
+        aim = toward
+        for _ in range(12):
+            x, y = _limb_candidates(body, _unit(aim))[branch]
+            arm = _part_frame(root, LEFT_ARM_PIVOT, (x, y, 0.0))
+            on_axis = _apply(arm, (0.0, LEFT_FIST[1], 0.0))
+            fist = _apply(arm, LEFT_FIST)
+            aim = [toward[i] * reach - (fist[i] - on_axis[i]) for i in range(3)]
+        branches.append(((x, y), math.dist(fist, target)))
+    best = min(error for _, error in branches)
+    options = [(x, y + wrap) for (x, y), error in branches if error <= best + 0.01 / 16
+               for wrap in (-360.0, 0.0, 360.0)]
+    if previous is None:
+        return min(options, key=lambda c: (abs(c[1]), abs(c[0])))
+    start = limb_direction(previous_body, previous)
+    mid_body = [(previous_body[i] + body[i]) / 2.0 for i in range(3)]
+
+    def deviation(c):
+        end = limb_direction(body, c)
+        ideal = _unit([start[i] + end[i] for i in range(3)])
+        mid = limb_direction(mid_body, ((previous[0] + c[0]) / 2.0, (previous[1] + c[1]) / 2.0))
+        dot = max(-1.0, min(1.0, sum(mid[i] * ideal[i] for i in range(3))))
+        return (round(math.degrees(math.acos(dot)), 3), abs(c[0] - previous[0]) + abs(c[1] - previous[1]))
+
+    return min(options, key=deviation)
 
 
 def direction_angles(a, b) -> tuple[float, float]:
@@ -773,24 +1119,52 @@ def _key_at(move: Move, phase: str) -> int:
     raise AssertionError(f"{move.animation_id}: missing {phase} key")
 
 
-def measure(move: Move, guard_spec: dict = GUARD) -> dict:
-    poses = resolve(move.keys, guard_spec)
-    info = {"poses": poses, "skeletons": [skeleton(p) for p in poses]}
-    samples = []
-    tick = 0.0
-    while tick <= move.total + 1e-9:
-        pose = sample(move.keys, poses, tick)
-        samples.append((tick, pose, skeleton(pose)))
-        tick += 0.25
-    info["samples"] = samples
-    return info
+def measure(move: Move, table: PoseTable = BASIC_SWORD) -> dict:
+    poses = resolve(move.keys, table)
+    return {"poses": poses, "skeletons": [skeleton(p, table) for p in poses]}
 
 
-def check_keys(name: str, keys: tuple[Key, ...], guard_spec: dict = GUARD) -> list[str]:
-    """Checks shared by every animation: grounded feet, blade intent, smooth limbs and blade."""
+def _check_off_hand(name: str, keys: tuple[Key, ...], poses, skeletons, table: PoseTable) -> list[str]:
+    """Two-handed tables: an ON_SHAFT left hand is on the shaft at its keys and stays on it between
+    two ON_SHAFT keys (sampled like the grip drift).  A key with an explicit larm is a release."""
     errors: list[str] = []
-    poses = resolve(keys, guard_spec)
-    skeletons = [skeleton(p) for p in poses]
+    rig = weapon_rig(table)
+    on_shaft = [isinstance(k.larm, OnShaft) for k in keys]
+    for k, sk, held in zip(keys, skeletons, on_shaft):
+        if not held:
+            continue
+        off, at = off_hand_offset(sk, table)
+        if off > OFF_HAND_KEY_TOLERANCE_PX:
+            wanted = rig.off_hand_y if k.larm.at is None else k.larm.at
+            errors.append(
+                f"{name}: left hand {off:.2f} px off the shaft at tick {k.tick} (> {OFF_HAND_KEY_TOLERANCE_PX:g}; "
+                f"nearest reachable shaft y {at:.1f}, wanted {wanted:g}): the shaft is out of the left arm's reach, "
+                f"bring the weapon closer to the left shoulder or release the hand with an explicit larm")
+    for i in range(1, len(keys)):
+        if not (on_shaft[i - 1] and on_shaft[i]):
+            continue
+        start, end = keys[i - 1].tick, keys[i].tick
+        worst, worst_tick = 0.0, start
+        for step in range(1, 8):
+            tick = start + (end - start) * step / 8
+            off, _ = off_hand_offset(skeleton(sample(keys, poses, tick), table), table)
+            if off > worst:
+                worst, worst_tick = off, tick
+        if worst > OFF_HAND_BETWEEN_TOLERANCE_PX:
+            suggestion = min(max(round(worst_tick), start + 1), end - 1)
+            hint = (f"add a key with larm=ON_SHAFT at tick {suggestion}" if start < suggestion < end
+                    else "the keys are one tick apart; reduce the change between them")
+            errors.append(f"{name}: left hand leaves the shaft by {worst:.2f} px near tick {worst_tick:.2f} "
+                          f"between keys {start} and {end} (> {OFF_HAND_BETWEEN_TOLERANCE_PX:g}); {hint}")
+    return errors
+
+
+def check_keys(name: str, keys: tuple[Key, ...], table: PoseTable = BASIC_SWORD) -> list[str]:
+    """Checks shared by every animation: grounded feet, blade intent, smooth limbs and blade, and
+    for a two-handed table the left hand on the shaft."""
+    errors: list[str] = []
+    poses = resolve(keys, table)
+    skeletons = [skeleton(p, table) for p in poses]
 
     def fail(message):
         errors.append(f"{name}: {message}")
@@ -801,7 +1175,7 @@ def check_keys(name: str, keys: tuple[Key, ...], guard_spec: dict = GUARD) -> li
         if abs(low) > 0.6:
             fail(f"feet off the ground by {low:.2f} px at tick {k.tick}")
 
-    # The sword's grip centre stays in the fist (the fist is 4 px wide): exact at every key thanks
+    # The weapon's grip centre stays in the fist (the fist is 4 px wide): exact at every key thanks
     # to the right_item position compensation, and within the fist between keys.
     for k, sk in zip(keys, skeletons):
         off = math.dist(sk["grip"], sk["fist"]) * 16 / 0.9375
@@ -810,7 +1184,7 @@ def check_keys(name: str, keys: tuple[Key, ...], guard_spec: dict = GUARD) -> li
     for i in range(1, len(keys)):
         for step in range(1, 8):
             tick = keys[i - 1].tick + (keys[i].tick - keys[i - 1].tick) * step / 8
-            sk = skeleton(sample(keys, poses, tick))
+            sk = skeleton(sample(keys, poses, tick), table)
             off = math.dist(sk["grip"], sk["fist"]) * 16 / 0.9375
             if off > 1.9:
                 fail(f"grip leaves the fist by {off:.2f} px near tick {tick:.2f}")
@@ -852,23 +1226,42 @@ def check_keys(name: str, keys: tuple[Key, ...], guard_spec: dict = GUARD) -> li
         steps = max(4, (end_tick - start_tick) * 8)
         directions = []
         for s_index in range(steps + 1):
-            sk = skeleton(sample(keys, poses, start_tick + (end_tick - start_tick) * s_index / steps))
+            sk = skeleton(sample(keys, poses, start_tick + (end_tick - start_tick) * s_index / steps), table)
             directions.append(direction_angles(sk["grip"], sk["tip"]))
         path = sum(angle_between(directions[j], directions[j + 1]) for j in range(steps))
         waste = path - angle_between(directions[0], directions[-1])
         if waste > 30.0:
             fail(f"blade wobbles {waste:.0f} deg between ticks {start_tick} and {end_tick}")
 
+    if table.two_handed:
+        errors.extend(_check_off_hand(name, keys, poses, skeletons, table))
     return errors
 
 
-def check_move(move: Move, guard_spec: dict = GUARD) -> list[str]:
+_PATH_OPS = {
+    "<": lambda v, limit: v < limit,
+    ">": lambda v, limit: v > limit,
+    "<=": lambda v, limit: v <= limit,
+    ">=": lambda v, limit: v >= limit,
+    "abs<=": lambda v, limit: abs(v) <= limit,
+}
+
+
+def _path_measure(sk: dict, measure_name: str) -> float:
+    if measure_name.startswith("tip_"):
+        return sk["tip"]["xyz".index(measure_name[-1])]
+    yaw, elevation = direction_angles(sk["grip"], sk["tip"])
+    return {"blade_yaw": yaw, "blade_elevation": elevation}[measure_name]
+
+
+def check_move(move: Move, table: PoseTable = BASIC_SWORD) -> list[str]:
     """Pose checks of one move against its style timing (active window, step tick) and kind."""
     errors: list[str] = []
     name = move.animation_id
     keys = move.keys
     ticks = [k.tick for k in keys]
-    info = measure(move, guard_spec)
+    rules = table.rules
+    info = measure(move, table)
     poses, skeletons = info["poses"], info["skeletons"]
 
     def fail(message):
@@ -884,10 +1277,10 @@ def check_move(move: Move, guard_spec: dict = GUARD) -> list[str]:
     for k in keys:
         if k.easing not in PAL_EASINGS:
             fail(f"unknown PAL easing {k.easing}")
-    canonical = canonical_guard(guard_spec)
+    canonical = canonical_guard(table)
     if poses[0] != canonical or poses[-1] != canonical:
         fail("moves must start and end on the canonical guard pose")
-    errors.extend(check_keys(name, keys, guard_spec))
+    errors.extend(check_keys(name, keys, table))
 
     # Phase timing.
     contact = _key_at(move, "contact")
@@ -917,10 +1310,11 @@ def check_move(move: Move, guard_spec: dict = GUARD) -> list[str]:
         fail("anticipation must be longer than the strike")
 
     # Hip drop on strikes.
+    low_drop, high_drop = rules.hip_drop_px
     for index in (contact, through, hold):
         drop = -poses[index]["body_pos"][1]
-        if not 2.0 - 1e-6 <= drop <= 3.5 + 1e-6:
-            fail(f"hip drop {drop:.2f} px at tick {keys[index].tick} (2-3.5)")
+        if not low_drop - 1e-6 <= drop <= high_drop + 1e-6:
+            fail(f"hip drop {drop:.2f} px at tick {keys[index].tick} ({low_drop:g}-{high_drop:g})")
 
     # Chest twist stays within what PAL can show without detaching the arms.
     for pose in poses:
@@ -928,58 +1322,58 @@ def check_move(move: Move, guard_spec: dict = GUARD) -> list[str]:
             fail("torso twist exceeds the PAL-safe limit")
 
     body_yaws = [p["body"][1] for p in poses]
-    through_sk = skeletons[through]
-    hold_sk = skeletons[hold]
+    path = None if move.cut_path is None else table.cut_paths[move.cut_path]
     if move.kind == "cut":
         turn = max(body_yaws) - min(body_yaws)
-        if not 70.0 <= turn <= 110.0:
-            fail(f"whole-figure turn {turn:.0f} deg peak-to-peak (70-110)")
-        for index in (through, hold):
+        low_turn, high_turn = rules.cut_turn_deg
+        if not low_turn <= turn <= high_turn:
+            fail(f"whole-figure turn {turn:.0f} deg peak-to-peak ({low_turn:g}-{high_turn:g})")
+        for index in (through, hold) if path is None or path.side_finish else ():
             sk = skeletons[index]
             hand_lateral = sk["right_hand"][0]
             blade_yaw, _ = direction_angles(sk["grip"], sk["tip"])
-            if abs(hand_lateral) < 0.35:
-                fail(f"hand only {hand_lateral:+.2f} block lateral at tick {keys[index].tick} (>= 0.35)")
-            if not 80.0 <= abs(blade_yaw) <= 110.0:
-                fail(f"blade yaw {blade_yaw:+.0f} at tick {keys[index].tick} (+-80..110)")
-            if abs(sk["tip"][0]) < 0.6:
+            if rules.cut_end_hand_lateral is not None and abs(hand_lateral) < rules.cut_end_hand_lateral:
+                fail(f"hand only {hand_lateral:+.2f} block lateral at tick {keys[index].tick} "
+                     f"(>= {rules.cut_end_hand_lateral:g})")
+            if rules.cut_end_blade_yaw is not None:
+                low_yaw, high_yaw = rules.cut_end_blade_yaw
+                if not low_yaw <= abs(blade_yaw) <= high_yaw:
+                    fail(f"blade yaw {blade_yaw:+.0f} at tick {keys[index].tick} (+-{low_yaw:g}..{high_yaw:g})")
+            if rules.cut_end_tip_lateral is not None and abs(sk["tip"][0]) < rules.cut_end_tip_lateral:
                 fail(f"blade tip only {sk['tip'][0]:+.2f} block outside the silhouette at tick {keys[index].tick}")
     else:
+        low_body, high_body = rules.thrust_body_yaw
         for index in (contact, through, hold):
             sk = skeletons[index]
             blade_yaw, blade_elevation = direction_angles(sk["grip"], sk["tip"])
-            if poses[index]["body"][1] > -40.0:
+            body_yaw = poses[index]["body"][1]
+            if (low_body is not None and body_yaw < low_body) or (high_body is not None and body_yaw > high_body):
                 fail(f"thrust body is not bladed at tick {keys[index].tick}")
             if abs(blade_yaw) > 20.0 or abs(blade_elevation) > 15.0:
                 fail(f"thrust blade not in line at tick {keys[index].tick}: {blade_yaw:.0f}/{blade_elevation:.0f}")
-            if sk["left_hand"][0] > -0.45:
+            if rules.thrust_left_hand_lateral is not None and sk["left_hand"][0] > rules.thrust_left_hand_lateral:
                 fail(f"left 剑指 arm does not open the T-shape at tick {keys[index].tick}")
             right_dir = direction_angles(sk["right_shoulder"], sk["right_hand"])
-            if abs(right_dir[1]) > 20.0:
+            if rules.thrust_arm_level is not None and abs(right_dir[1]) > rules.thrust_arm_level:
                 fail(f"thrust arm not level at tick {keys[index].tick}")
-            if sk["tip"][2] < (1.9 if move.lunge else 1.5):
+            if sk["tip"][2] < (rules.thrust_reach[1] if move.lunge else rules.thrust_reach[0]):
                 fail(f"thrust reach {sk['tip'][2]:.2f} too short at tick {keys[index].tick}")
 
     # Cut directions shared with the server hitboxes.
-    wind = skeletons[contact - 1]
-    if move.cut_path == "left_to_right":
-        if not (wind["tip"][0] < -0.4 and hold_sk["tip"][0] > 0.6):
-            fail("horizontal cut must sweep the player's left -> right")
-        mid = next(s for s in info["samples"] if abs(s[0] - (move.active_start + move.active_end) / 2) < 1e-9)
-        mid_yaw, _ = direction_angles(mid[2]["grip"], mid[2]["tip"])
-        if abs(mid_yaw) > 25.0:
-            fail(f"blade crosses the centre at yaw {mid_yaw:.0f} on the middle active tick")
-    if move.cut_path == "rising":
-        contact_sk = skeletons[contact]
-        if not (contact_sk["tip"][0] > 0.4 and contact_sk["tip"][1] < 0.9):
-            fail("rising cut must start right-low")
-        if not (hold_sk["tip"][0] < -0.6 and hold_sk["tip"][1] > 1.8):
-            fail("rising cut must finish left-high")
-    if move.cut_path == "descending":
-        if not (wind["tip"][0] < -0.3 and wind["tip"][1] > 2.0):
-            fail("diagonal cut must wind up left-high")
-        if not (hold_sk["tip"][0] > 0.6 and hold_sk["tip"][1] < 0.6):
-            fail("diagonal cut must finish right-low")
+    if path is not None:
+        where = {"wind": skeletons[contact - 1], "contact": skeletons[contact], "through": skeletons[through],
+                 "hold": skeletons[hold]}
+        for rule in path.rules:
+            measured, held = [], True
+            for place, measure_name, op, limit in rule.conditions:
+                if place not in where:  # mid_active
+                    mid = (move.active_start + move.active_end) / 2
+                    where[place] = skeleton(sample(keys, poses, mid), table)
+                value = _path_measure(where[place], measure_name)
+                measured.append(value)
+                held = held and _PATH_OPS[op](value, limit)
+            if not held:
+                fail(rule.message.format(*measured))
 
     # Lunge: 弓步 and forward drive timed to the server step.
     if move.lunge:
@@ -1030,29 +1424,43 @@ def check_document(document: dict, table: PoseTable = BASIC_SWORD, style: dict |
             if not any(isinstance(v, list) and any(x != 0 for x in v) for v in position.values()):
                 errors.append(f"{move.animation_id} body.position needs a non-zero plain vector")
     # Idle and mode entry end in the guard so PAL hands over without a pop.
-    guard_pose = canonical_guard(table.guard)
-    idle_poses = resolve(table.ready_idle, table.guard)
+    guard_pose = canonical_guard(table)
+    idle_poses = resolve(table.ready_idle, table)
     if idle_poses[0] != guard_pose or idle_poses[-1] != guard_pose:
         errors.append(f"{idle_id} must start and end on the canonical guard")
-    if resolve(table.mode_enter, table.guard)[-1] != guard_pose:
+    if resolve(table.mode_enter, table)[-1] != guard_pose:
         errors.append(f"{enter_id} must end on the canonical guard")
-    errors.extend(check_keys(idle_id, table.ready_idle, table.guard))
-    errors.extend(check_keys(enter_id, table.mode_enter, table.guard))
+    errors.extend(check_keys(idle_id, table.ready_idle, table))
+    errors.extend(check_keys(enter_id, table.mode_enter, table))
     for move in bound:
-        errors.extend(check_move(move, table.guard))
+        errors.extend(check_move(move, table))
     return errors
 
 
-def report(table: PoseTable = BASIC_SWORD) -> None:
-    for move in moves(table):
-        info = measure(move, table.guard)
+def report(table: PoseTable = BASIC_SWORD, style: dict | None = None) -> None:
+    style = combat_styles()[table.style_id] if style is None else style
+    fmt = lambda v: "(%+.2f,%+.2f,%+.2f)" % v
+    print(f"## {table.style_id} -> {table.output.name} ({table.geometry.name}"
+          f"{', two-handed' if table.two_handed else ''})")
+    for move in bind(table, style):
+        info = measure(move, table)
         print(f"== {move.animation_id} (total {move.total}, active {move.active_start}-{move.active_end}, chain {move.chain_tick})")
         for k, pose, sk in zip(move.keys, info["poses"], info["skeletons"]):
             yaw, elevation = direction_angles(sk["grip"], sk["tip"])
-            fmt = lambda v: "(%+.2f,%+.2f,%+.2f)" % v
-            print(f"  t{k.tick:>2} {k.phase:<12} {k.easing:<13} body y{pose['body'][1]:+5.0f} drop{pose['body_pos'][1]:+5.2f}"
-                  f" hand{fmt(sk['right_hand'])} tip{fmt(sk['tip'])} blade {yaw:+4.0f}/{elevation:+3.0f}"
-                  f" lhand{fmt(sk['left_hand'])}")
+            line = (f"  t{k.tick:>2} {k.phase:<12} {k.easing:<13} body y{pose['body'][1]:+5.0f} drop{pose['body_pos'][1]:+5.2f}"
+                    f" hand{fmt(sk['right_hand'])} tip{fmt(sk['tip'])} blade {yaw:+4.0f}/{elevation:+3.0f}"
+                    f" lhand{fmt(sk['left_hand'])}")
+            if table.two_handed:
+                off, at = off_hand_offset(sk, table)
+                line += f" shaft y{at:+5.1f} off {off:.2f}px" if isinstance(k.larm, OnShaft) else " free"
+            print(line)
+
+
+def _shown(path: Path) -> Path:
+    try:
+        return path.relative_to(ROOT)
+    except ValueError:
+        return path
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -1062,7 +1470,7 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     try:
         styles = combat_styles()
-        check_tables(styles)
+        check_tables(styles, POSE_TABLES)
         documents = [(table, styles[table.style_id], build_document(table, styles[table.style_id]))
                      for table in POSE_TABLES]
     except combat_data.CombatDataError as exc:
@@ -1076,14 +1484,14 @@ def main(argv: list[str] | None = None) -> int:
     for table, style, document in documents:
         errors = check_document(document, table, style)
         if args.report:
-            report(table)
+            report(table, style)
         if errors:
             for error in errors:
                 print(f"SELF_CHECK {error}", file=sys.stderr)
             status = 1
             continue
         text = render(document)
-        relative = table.output.relative_to(ROOT)
+        relative = _shown(table.output)
         if args.check:
             if not table.output.exists() or table.output.read_text(encoding="utf-8") != text:
                 print(f"DRIFT {relative} differs from the generator output", file=sys.stderr)
