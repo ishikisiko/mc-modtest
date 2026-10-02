@@ -238,5 +238,48 @@ class LingxiaoSpearModelTest(unittest.TestCase):
             self.assertIn(field, geometry)
 
 
+    def test_trail_span_is_the_front_shaft_and_head(self) -> None:
+        geometry = json.loads(gen.GEOMETRY_PATH.read_text(encoding="utf-8"))
+        self.assertEqual({"base": [8.0, 16.0, 8.0], "tip": [8.0, 32.0, 8.0]}, geometry["trail"])
+        base, tip = geometry["trail"]["base"][1], geometry["trail"]["tip"][1]
+        # About as long as the sword's blade, which draws the sword's trails.
+        blade = sword.geometry_contract()
+        self.assertAlmostEqual(blade["blade_tip"][1] - blade["blade_base"][1], tip - base, delta=0.5)
+        # Starts above every hand position and ends at the tip: SwordGeometry and the validator
+        # need it on the axis, ordered, and on the weapon.
+        self.assertGreaterEqual(base, max(y1 + half for _, (_, y1), half in gen.HAND_ZONES))
+        self.assertEqual(geometry["blade_tip"][1], tip)
+        self.assertLess(base, geometry["blade_base"][1])
+
+    def test_bad_trail_span_fails_the_self_check(self) -> None:
+        original = gen.TRAIL_Y
+        try:
+            for span, needle in (((32.0, 16.0), "base to tip"), ((16.0, 33.0), "base to tip"),
+                                 ((10.0, 32.0), "inside the hand zones")):
+                gen.TRAIL_Y = span
+                self.assertTrue(any(needle in e for e in gen.self_check()), (span, gen.self_check()))
+        finally:
+            gen.TRAIL_Y = original
+        self.assertEqual([], gen.self_check())
+
+    def test_trail_block_leaves_every_other_contract_value_unchanged(self) -> None:
+        # The values the other workers built on, as committed before the trail block existed.
+        contract = gen.geometry_contract()
+        contract.pop("trail")
+        self.assertEqual({
+            "format": 1, "units": "model_pixels", "generator": "tools/gen_lingxiao_spear_model.py",
+            "model": "myvillage:item/lingxiao_spear_3d",
+            "axes": {"blade": "+y", "flat_normal": "x", "edge": "z", "center_x": 8.0, "center_z": 8.0},
+            "grip_center": [8.0, -2.0, 8.0], "off_hand_grip_center": [8.0, 11.0, 8.0],
+            "handle": {"y": [-13.4, 16.0], "half_width": 0.5, "half_thickness": 0.5},
+            "guard": {"y": [16.0, 23.4], "half_width": 2.35, "half_thickness": 0.68},
+            "pommel": {"y": [-16.0, -13.4], "half_width": 1.0, "half_thickness": 1.0},
+            "blade": {"half_width": 1.9, "half_thickness": 0.35, "ridge_half_thickness": 0.35,
+                      "taper_start_y": 25.6},
+            "blade_base": [8.0, 23.4, 8.0], "blade_tip": [8.0, 32.0, 8.0],
+            "edge_axis": [0.0, 0.0, 1.0], "flat_axis": [1.0, 0.0, 0.0], "overall_y": [-16.0, 32.0],
+        }, contract)
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -789,7 +789,8 @@ def validate_rig(rig, name: str, style: dict, findings: list[Finding]) -> None:
 
 def validate_geometry_contracts(root: Path, data: combat_data.CombatData, findings: list[Finding]) -> None:
     """Each weapon's geometry contract carries the grip, guard, blade, axes, model, and generator
-    fields in order along +Y, and a valid off-hand grip when it has one."""
+    fields in order along +Y, a valid off-hand grip when it has one, and a valid trail span when
+    it names one."""
     for geometry_id in sorted({weapon["geometry"] for weapon in data.weapons.values()}):
         path = combat_data.asset_file(root, geometry_id)
         geometry = read_json(path, root, "COMBAT_GEOMETRY_CONTRACT", findings)
@@ -829,6 +830,41 @@ def validate_geometry_contracts(root: Path, data: combat_data.CombatData, findin
             problem = off_hand_problem(root, geometry, grip_y, handle)
             if problem:
                 findings.append(Finding("COMBAT_GEOMETRY_OFF_HAND_GRIP", f"{name}: {problem}"))
+        if "trail" in geometry:
+            problem = trail_problem(geometry, pommel[0], tip_y)
+            if problem:
+                findings.append(Finding("COMBAT_GEOMETRY_TRAIL", f"{name}: {problem}"))
+
+
+def trail_problem(geometry: dict, bottom_y: float, tip_y: float) -> str | None:
+    """Why the optional ``trail`` span (the part of the weapon that draws the trails; without it
+    ``blade_base``..``blade_tip``) is unusable, or None.
+
+    It is ``{"base": [x, y, z], "tip": [x, y, z]}`` on the weapon axis, base below tip, from the
+    pommel's bottom up to the blade tip at most (SwordGeometry.parse checks the same)."""
+    trail = geometry["trail"]
+    if not isinstance(trail, dict) or set(trail) != {"base", "tip"}:
+        return f"trail must be an object with exactly base and tip, got {trail!r}"
+    points = []
+    for key in ("base", "tip"):
+        point = trail[key]
+        if not isinstance(point, list) or len(point) != 3 or not all(is_number(v) for v in point):
+            return f"trail.{key} {point!r} must be [x, y, z]"
+        points.append(point)
+    axes = geometry["axes"]
+    grip = geometry["grip_center"]
+    axis_x, axis_z = axes.get("center_x", grip[0]), axes.get("center_z", grip[2])
+    if not is_number(axis_x) or not is_number(axis_z):
+        return "the weapon axis (axes.center_x/center_z or grip_center x/z) must be numbers"
+    for key, point in zip(("base", "tip"), points):
+        if abs(point[0] - axis_x) > AXIS_TOLERANCE_PX or abs(point[2] - axis_z) > AXIS_TOLERANCE_PX:
+            return f"trail.{key} {point} is off the weapon axis x={axis_x:g}, z={axis_z:g}"
+    base_y, trail_tip_y = points[0][1], points[1][1]
+    if not base_y < trail_tip_y:
+        return f"trail base y={base_y:g} must lie below its tip y={trail_tip_y:g}"
+    if base_y < bottom_y or trail_tip_y > tip_y:
+        return f"trail y {base_y:g}..{trail_tip_y:g} must lie on the weapon y {bottom_y:g}..{tip_y:g}"
+    return None
 
 
 def third_person_scale(root: Path, geometry: dict) -> float:

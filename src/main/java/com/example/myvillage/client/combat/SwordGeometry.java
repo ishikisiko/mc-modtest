@@ -18,6 +18,11 @@ import java.util.Optional;
  * <p>A two-handed weapon also gives {@code off_hand_grip_center}, the leading hand's point: on the
  * handle axis, inside the handle and ahead of (above) {@code grip_center}. A one-handed weapon
  * omits it.
+ *
+ * <p>The optional {@code trail} block ({@code {"base": [x, y, z], "tip": [x, y, z]}}) names the part
+ * of the weapon that draws the 剑光 trails: on the weapon axis, base below tip, within the weapon
+ * from the pommel's bottom to the blade tip. Without it the trail spans {@code blade_base} to
+ * {@code blade_tip}, which suits a sword; a polearm whose blade is a short head names a longer span.
  */
 final class SwordGeometry {
     private final Vector3f gripCenter;
@@ -34,6 +39,8 @@ final class SwordGeometry {
     private final Vector3f bladeBase;
     private final Vector3f bladeTip;
     private final Vector3f offHandGripCenter;
+    private final Vector3f trailBase;
+    private final Vector3f trailTip;
 
     private SwordGeometry(
             Vector3f gripCenter,
@@ -46,7 +53,9 @@ final class SwordGeometry {
             float[] pommel,
             Vector3f bladeBase,
             Vector3f bladeTip,
-            Vector3f offHandGripCenter) {
+            Vector3f offHandGripCenter,
+            Vector3f trailBase,
+            Vector3f trailTip) {
         this.gripCenter = gripCenter;
         this.handleBottom = handle[0];
         this.handleTop = handle[1];
@@ -61,6 +70,8 @@ final class SwordGeometry {
         this.bladeBase = bladeBase;
         this.bladeTip = bladeTip;
         this.offHandGripCenter = offHandGripCenter;
+        this.trailBase = trailBase;
+        this.trailTip = trailTip;
     }
 
     static SwordGeometry parse(JsonObject json) {
@@ -116,8 +127,26 @@ final class SwordGeometry {
                 throw new IllegalArgumentException("Sword off_hand_grip_center must lie ahead of grip_center");
             }
         }
+        Vector3f trailBase = base;
+        Vector3f trailTip = tip;
+        if (json.has("trail")) {
+            JsonObject trail = object(json, "trail");
+            trailBase = point(trail, "trail.base", "base");
+            trailTip = point(trail, "trail.tip", "tip");
+            for (Vector3f point : new Vector3f[] {trailBase, trailTip}) {
+                if (Math.abs(point.x - grip.x) > 0.05F || Math.abs(point.z - grip.z) > 0.05F) {
+                    throw new IllegalArgumentException("Sword trail must lie on the weapon axis");
+                }
+            }
+            if (!(trailBase.y < trailTip.y)) {
+                throw new IllegalArgumentException("Sword trail base must lie below its tip");
+            }
+            if (trailBase.y < pommelY[0] - 1.0E-3F || trailTip.y > tip.y + 1.0E-3F) {
+                throw new IllegalArgumentException("Sword trail must lie on the weapon, from the pommel to the blade tip");
+            }
+        }
         return new SwordGeometry(grip, handleY, handleHalfWidth, handleHalfThickness,
-                guardY, guardHalfWidth, guardHalfThickness, pommelY, base, tip, offHand);
+                guardY, guardHalfWidth, guardHalfThickness, pommelY, base, tip, offHand, trailBase, trailTip);
     }
 
     /** Model-pixel point relative to the grip centre, scaled to blocks by {@code swordScale / 16}. */
@@ -149,6 +178,26 @@ final class SwordGeometry {
 
     float bladeLengthPixels() {
         return bladeTip.distance(bladeBase);
+    }
+
+    /** Where the trail starts on the weapon: the contract's {@code trail.base}, else {@code blade_base}. */
+    Vector3f trailBase() {
+        return new Vector3f(trailBase);
+    }
+
+    /** Where the trail ends on the weapon: the contract's {@code trail.tip}, else {@code blade_tip}. */
+    Vector3f trailTip() {
+        return new Vector3f(trailTip);
+    }
+
+    /** Length of the trail span in model pixels. */
+    float trailLengthPixels() {
+        return trailTip.distance(trailBase);
+    }
+
+    /** Distance from the grip centre to the trail tip in model pixels: how far the weapon reaches. */
+    float gripToTrailTipPixels() {
+        return trailTip.distance(gripCenter);
     }
 
     float handleBottom() {
@@ -205,7 +254,11 @@ final class SwordGeometry {
     }
 
     private static Vector3f point(JsonObject json, String name) {
-        float[] values = numbers(json.get(name), name, 3);
+        return point(json, name, name);
+    }
+
+    private static Vector3f point(JsonObject json, String label, String name) {
+        float[] values = numbers(json.get(name), label, 3);
         return new Vector3f(values[0], values[1], values[2]);
     }
 

@@ -544,6 +544,28 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
             self.write_json(SPEAR_GEOMETRY, geometry)
             self.assert_finding("COMBAT_GEOMETRY_OFF_HAND_GRIP", "lingxiao_spear_geometry.json", needle)
 
+    def test_trail_span_is_optional_and_checked(self) -> None:
+        self.assertEqual([], self.details("COMBAT_GEOMETRY_TRAIL"))
+        self.assertNotIn("trail", self.read_json(GEOMETRY), "the sword trails along its blade")
+        original = self.read_json(SPEAR_GEOMETRY)
+        self.assertIn("trail", original)
+        cases = {
+            "off the weapon axis": {"base": [8.5, 16.0, 8.0], "tip": [8.0, 32.0, 8.0]},
+            "below its tip": {"base": [8.0, 32.0, 8.0], "tip": [8.0, 16.0, 8.0]},
+            "must lie on the weapon": {"base": [8.0, 16.0, 8.0], "tip": [8.0, 33.0, 8.0]},
+            "must be [x, y, z]": {"base": [8.0, 16.0], "tip": [8.0, 32.0, 8.0]},
+            "exactly base and tip": {"base": [8.0, 16.0, 8.0]},
+        }
+        for needle, trail in cases.items():
+            geometry = json.loads(json.dumps(original))
+            geometry["trail"] = trail
+            self.write_json(SPEAR_GEOMETRY, geometry)
+            self.assert_finding("COMBAT_GEOMETRY_TRAIL", "lingxiao_spear_geometry.json", needle)
+        geometry = json.loads(json.dumps(original))
+        geometry["trail"] = {"base": [8.0, -16.0, 8.0], "tip": [8.0, 32.0, 8.0]}
+        self.write_json(SPEAR_GEOMETRY, geometry)
+        self.assertEqual([], self.details("COMBAT_GEOMETRY_TRAIL"))
+
     def test_fist_gap_follows_the_model_third_person_scale(self) -> None:
         # 4 px fists at the player scale 0.9375: the gap is 3.75 px / scale in contract pixels.
         geometry = self.read_json(SPEAR_GEOMETRY)

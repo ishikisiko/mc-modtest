@@ -19,6 +19,9 @@ on the axis x = 8, z = 8, the spearhead's flat normal is X and its edge Z; butt 
 tip y = 32 (the full vanilla element range).  Contract names keep the sword's: ``pommel`` is
 the butt cap, ``handle`` the shaft, ``guard`` the socket with its star ornament,
 ``blade_base``/``blade_tip`` the spearhead.  ``off_hand_grip_center`` is the leading hand.
+``trail`` is the span that draws the combat trails: the spearhead alone is about half the
+sword's blade, so the trails run from the top of the leading hand's zone (the socket's bottom
+collar) to the tip, 16 px, about the sword's 15.9 px blade.
 
 The pennant, the 道 plaque and the tassels hang on the +Z side: in the third-person hold
 derived below +Z points at the ground and -Y back toward the player, so a piece rotated 45°
@@ -83,6 +86,7 @@ GUARD_Y = (HANDLE_Y[1], 23.4)         # socket collars, star ornament, blade roo
 BLADE_BASE_Y = GUARD_Y[1]
 GRIP_CENTER_Y = -2.0                  # main (rear, right) hand
 OFF_HAND_GRIP_Y = 11.0                # leading (left) hand
+TRAIL_Y = (HANDLE_Y[1], TIP_Y)        # trail span: front of the shaft (socket) plus the head
 SHAFT_HALF = 0.5                      # 1 px shaft: 0.9 px in the 4 px fist
 SHAFT_Y = (-13.6, 18.4)               # the element runs into the butt cap and the socket
 # A hand needs this much bare shaft on each side of its grip point (fist half-depth / scale).
@@ -859,6 +863,7 @@ def geometry_contract() -> dict:
                   "ridge_half_thickness": CONTRACT_BLADE_HALF_THICKNESS, "taper_start_y": CONTRACT_TAPER_START_Y},
         "blade_base": [CX, BLADE_BASE_Y, CZ],
         "blade_tip": [CX, TIP_Y, CZ],
+        "trail": {"base": [CX, TRAIL_Y[0], CZ], "tip": [CX, TRAIL_Y[1], CZ]},
         "edge_axis": [0.0, 0.0, 1.0],
         "flat_axis": [1.0, 0.0, 0.0],
         "overall_y": [BUTT_Y, TIP_Y],
@@ -1098,6 +1103,14 @@ def self_check() -> list[str]:
             errors.append(f"{key} outside the handle")
     if not geo["grip_center"][1] < geo["off_hand_grip_center"][1]:
         errors.append("the off hand must lead the main hand")
+    trail = geo["trail"]
+    if any((p[0], p[2]) != (CX, CZ) for p in (trail["base"], trail["tip"])):
+        errors.append("trail span is off the weapon axis")
+    if not BUTT_Y <= trail["base"][1] < trail["tip"][1] <= geo["blade_tip"][1]:
+        errors.append("trail span must run up the weapon from base to tip, ending at or below the blade tip")
+    leading_top = max(y1 + half for name, (y0, y1), half in HAND_ZONES)
+    if trail["base"][1] < leading_top:
+        errors.append(f"trail span starts at y {trail['base'][1]} inside the hand zones (top {leading_top})")
     return errors
 
 
