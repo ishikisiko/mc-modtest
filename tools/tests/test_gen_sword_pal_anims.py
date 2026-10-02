@@ -623,5 +623,168 @@ class OffHandTest(TempDirTest):
         self.assertIn(" free", stdout.getvalue())
 
 
+SPEAR = gen.BASIC_SPEAR
+
+
+def spear_keys() -> list[tuple[str, tuple[gen.Key, ...]]]:
+    """Every animation of the spear table: mode entry, ready idle and the five moves."""
+    style_data = gen.combat_styles()[SPEAR.style_id]
+    enter, idle = gen.animation_names(style_data)
+    return [(enter, SPEAR.mode_enter), (idle, SPEAR.ready_idle),
+            *((m.animation_id, m.keys) for m in gen.moves(SPEAR))]
+
+
+def spear_probe(**changes) -> tuple[gen.Key, ...]:
+    """A one-key animation: the spear guard with some fields changed."""
+    return (gen.key(0, "probe", "linear", **dict(SPEAR.guard, **changes)),)
+
+
+class SpearTableTest(unittest.TestCase):
+    """The committed Lingxiao spear table (myvillage:basic_spear)."""
+
+    def test_table_binds_to_the_spear_style(self) -> None:
+        self.assertIn(SPEAR, gen.POSE_TABLES)
+        self.assertTrue(SPEAR.two_handed)
+        self.assertEqual("spear_combat.json", SPEAR.output.name)
+        self.assertEqual("lingxiao_spear_geometry.json", SPEAR.geometry.name)
+        self.assertEqual("lingxiao_spear_3d.json", SPEAR.item_model.name)
+        data = gen.combat_styles()[SPEAR.style_id]
+        bound = gen.moves(SPEAR)
+        self.assertEqual([m["id"] for m in data["moves"]], [m.move_id for m in bound])
+        self.assertEqual(["thrust", "cut", "cut", "cut", "thrust"], [m.kind for m in bound])
+        self.assertEqual([None, "left_to_right", "rising", "descending", None], [m.cut_path for m in bound])
+        self.assertEqual([False, False, False, False, True], [m.lunge for m in bound])
+        self.assertEqual(("spear_mode_enter", "spear_ready_idle"), gen.animation_names(data))
+
+    def test_committed_json_matches_generator(self) -> None:
+        self.assertEqual(gen.render(gen.build_document(SPEAR)), SPEAR.output.read_text(encoding="utf-8"),
+                         "spear_combat.json drifted; run python3 tools/gen_sword_pal_anims.py")
+
+    def test_self_checks_pass(self) -> None:
+        self.assertEqual([], gen.check_document(gen.build_document(SPEAR), SPEAR))
+
+    def test_sword_output_is_untouched_by_the_spear_table(self) -> None:
+        self.assertEqual(gen.render(gen.build_document(gen.BASIC_SWORD)), gen.OUTPUT.read_text(encoding="utf-8"))
+        for name in ("weapon_ground_clearance", "min_hand_separation_px", "shaft_body_clearance_px"):
+            self.assertIsNone(getattr(gen.SWORD_RULES, name), name)
+
+    def test_left_hand_is_on_the_shaft_and_apart_from_the_right(self) -> None:
+        rig = gen.weapon_rig(SPEAR)
+        held = 0
+        for name, keys in spear_keys():
+            for k, pose in zip(keys, gen.resolve(keys, SPEAR)):
+                if not isinstance(k.larm, gen.OnShaft):
+                    continue
+                held += 1
+                offset, at = gen.off_hand_offset(gen.skeleton(pose, SPEAR), SPEAR)
+                self.assertLessEqual(offset, gen.OFF_HAND_KEY_TOLERANCE_PX, (name, k.tick))
+                self.assertGreaterEqual(at - rig.grip_y, SPEAR.rules.min_hand_separation_px, (name, k.tick))
+                self.assertLessEqual(at, rig.handle[1], (name, k.tick))
+        self.assertGreater(held, 40)
+        # Only the mode entry releases the hand (the vanilla carry and the upright salute).
+        free = [(name, k.tick) for name, keys in spear_keys() for k in keys if not isinstance(k.larm, gen.OnShaft)]
+        self.assertEqual([("spear_mode_enter", 0), ("spear_mode_enter", 4)], free)
+
+    def test_long_weapon_margins(self) -> None:
+        rules = SPEAR.rules
+        for name, keys in spear_keys():
+            margins = gen.long_weapon_margins(keys, SPEAR)
+            self.assertGreaterEqual(margins["ground"], rules.weapon_ground_clearance, name)
+            self.assertGreaterEqual(margins["hands"], rules.min_hand_separation_px, name)
+            self.assertGreaterEqual(margins["body"], rules.shaft_body_clearance_px, name)
+
+    def test_guard_is_a_bladed_left_lead(self) -> None:
+        guard = SPEAR.guard
+        self.assertEqual("L", guard["stance"][0])
+        self.assertGreater(guard["body"][1], 40)  # turned right: left shoulder and hand lead
+        sk = gen.skeleton(gen.canonical_guard(SPEAR), SPEAR)
+        yaw, elevation = gen.direction_angles(sk["grip"], sk["tip"])
+        self.assertLessEqual(abs(yaw), 5)
+        self.assertTrue(0 <= elevation <= 20, elevation)
+        self.assertLess(sk["right_hand"][1], 0.8)  # rear hand by the hip
+        self.assertLess(sk["right_hand"][2], sk["left_hand"][2])  # left hand leads
+
+    def test_cut_senses_agree_with_the_hit_samples(self) -> None:
+        # Server samples use +x = the player's left; the pose rig uses +x = the player's right.
+        data = {m["id"]: m for m in gen.combat_styles()[SPEAR.style_id]["moves"]}
+        for m in gen.moves(SPEAR):
+            if m.kind != "cut":
+                continue
+            samples = data[m.move_id]["hitbox"]["samples"]
+            first = [s for s in samples if s["tick"] == m.active_start]
+            last = [s for s in samples if s["tick"] == m.active_end]
+            poses = gen.resolve(m.keys, SPEAR)
+            phases = [k.phase for k in m.keys]
+            contact = gen.skeleton(poses[phases.index("contact")], SPEAR)["tip"]
+            hold = gen.skeleton(poses[phases.index("hold")], SPEAR)["tip"]
+            # The sweep's sense is carried by the far (tip) end of its samples, the diagonals' by the
+            # near end, as the sword's 横 / 撩 / 斜 conventions read the same generator shapes.
+            end = "end" if m.cut_path == "left_to_right" else "start"
+            server_start, server_end = -first[0][end][0], -last[-1][end][0]  # to the rig's +x = right
+            self.assertLess(server_start * server_end, 0, m.animation_id)  # crosses the centre line
+            self.assertGreater(contact[0] * server_start, 0, m.animation_id)
+            self.assertGreater(hold[0] * server_end, 0, m.animation_id)
+            if m.cut_path == "rising":
+                self.assertGreater(hold[1], contact[1] + 1.0)
+            if m.cut_path == "descending":
+                wind = gen.skeleton(poses[phases.index("contact") - 1], SPEAR)["tip"]
+                self.assertGreater(wind[1], hold[1] + 1.5)
+
+    def test_thrusts_reach_and_lunge(self) -> None:
+        for m in gen.moves(SPEAR):
+            if m.kind != "thrust":
+                continue
+            poses = gen.resolve(m.keys, SPEAR)
+            phases = [k.phase for k in m.keys]
+            sk = gen.skeleton(poses[phases.index("through")], SPEAR)
+            self.assertGreaterEqual(sk["tip"][2], SPEAR.rules.thrust_reach[1 if m.lunge else 0], m.animation_id)
+            # The rear hand drives forward of the body: the shaft slides through the leading hand.
+            guard_at = gen.off_hand_offset(gen.skeleton(poses[0], SPEAR), SPEAR)[1]
+            strike_at = gen.off_hand_offset(sk, SPEAR)[1]
+            self.assertLess(strike_at, guard_at - 4.0, m.animation_id)
+            self.assertGreater(sk["right_hand"][2], 0.4, m.animation_id)
+
+
+class SpearRuleNegativeTest(unittest.TestCase):
+    def test_weapon_into_the_ground_is_rejected(self) -> None:
+        item = SPEAR.guard["item"]
+        errors = gen.check_keys("probe", spear_probe(item=(item[0] + 90, item[1], item[2])), SPEAR)
+        self.assertTrue(any("tip" in e and "above the ground" in e for e in errors), errors)
+
+    def test_shaft_through_the_body_is_rejected(self) -> None:
+        item = SPEAR.guard["item"]
+        errors = gen.check_keys("probe", spear_probe(item=(item[0] - 60, item[1], item[2])), SPEAR)
+        self.assertTrue(any("shaft 0.00 px from the head" in e for e in errors), errors)
+
+    def test_hands_too_close_are_rejected(self) -> None:
+        thrust = gen.moves(SPEAR)[0]
+        close = dataclasses.replace(SPEAR, rules=dataclasses.replace(SPEAR.rules, min_hand_separation_px=6.0))
+        errors = gen.check_keys(thrust.animation_id, thrust.keys, close)
+        self.assertTrue(any("hands only" in e and "apart on the shaft" in e for e in errors), errors)
+        self.assertEqual([], gen.check_keys(thrust.animation_id, thrust.keys, SPEAR))
+
+    def test_rules_are_checked_between_keys(self) -> None:
+        # Both keys keep the shaft clear of the body; the Euler interpolation between them swings
+        # it through the torso.
+        item = SPEAR.guard["item"]
+        start = spear_probe()[0]
+        end = dataclasses.replace(spear_probe(item=(item[0] - 180, item[1] + 45, item[2] - 180))[0], tick=4)
+        poses = gen.resolve((start, end), SPEAR)
+        for pose in poses:
+            self.assertGreater(gen.shaft_body_clearance(pose, gen.skeleton(pose, SPEAR))[0], 0.5)
+        errors = [e for e in gen.check_keys("probe", (start, end), SPEAR) if "px from the" in e]
+        self.assertEqual(1, len(errors), errors)
+        self.assertRegex(errors[0], r"^probe: shaft 0\.00 px from the torso near tick [123]\.\d\d ")
+
+    def test_leg_branch_follows_the_previous_key(self) -> None:
+        # A body turned ~100 degrees off the stance line flipped a leg between Euler branches
+        # before the stance solve followed the previous key.
+        for name, keys in spear_keys():
+            poses = gen.resolve(keys, SPEAR)
+            for a, b in zip(poses, poses[1:]):
+                for bone in ("right_leg", "left_leg"):
+                    self.assertLess(max(abs(a[bone][j] - b[bone][j]) for j in range(2)), 120, (name, bone))
+
+
 if __name__ == "__main__":
     unittest.main()

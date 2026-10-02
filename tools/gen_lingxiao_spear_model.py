@@ -97,9 +97,12 @@ HAND_ZONES = (  # name, y range of the hand centre, half extent along the axis b
     ("leading hand", (0.0, 13.5), FIST_HALF),
 )
 
-# Gold collars with cyan inlays: three near the butt, one mid-shaft (handle), two below the head.
+# Gold collars with cyan inlays: three near the butt and two below the head.  The art's mid-shaft
+# collar falls inside the leading hand's zone, so it is a flush gold band painted on the shaft
+# (MID_BAND_Y) instead of geometry.
 SHAFT_COLLARS = (("butt_collar_1", -11.7, -10.5), ("butt_collar_2", -8.7, -7.5),
-                 ("butt_collar_3", -6.1, -4.9), ("mid_collar", 4.2, 5.4))
+                 ("butt_collar_3", -6.1, -4.9))
+MID_BAND_Y = (4.2, 5.4)
 COLLAR_HALF, COLLAR_INLAY_HALF, COLLAR_INLAY_WIDTH, COLLAR_INLAY_HEIGHT = 0.8, 0.85, 0.3, 0.28
 HEAD_COLLARS = (("head_collar_1", 16.0, 17.1, 0.9), ("head_collar_2", 18.2, 19.1, 0.84))
 
@@ -178,11 +181,11 @@ CONTRACT_TAPER_START_Y = 25.6
 
 # Hanging pieces (+Z side).  Each hangs from an anchor point (x, y, z) and is built along -Y
 # (or along +Z for the butt tassel), then rotated about X around the anchor.
-PENNANT_ANCHOR = (7.9, 16.4, 9.4)
+PENNANT_ANCHOR = (7.9, 18.65, 9.6)    # from head collar 2, just below the socket
 PENNANT_SIZE = dict(length=9.5, half_width=1.5, half_thickness=0.06)
 PENNANT_ANGLE = -45.0                 # -Y toward +Z
-PENNANT_CORD = dict(z=(8.85, 9.45), y=(16.3, 16.6), half_x=0.12)
-PLAQUE_ANCHOR = (8.75, 20.4, 8.9)
+PENNANT_CORD = dict(z=(8.85, 9.65), y=(18.5, 18.8), half_x=0.12)
+PLAQUE_ANCHOR = (8.75, 21.3, 10.2)    # from the star's +Z side point
 PLAQUE_ANGLE = -45.0
 PLAQUE_CHAIN, PLAQUE_SIZE = 1.3, dict(length=1.9, half_width=0.75, half_thickness=0.15)
 BUTT_TASSEL_ANCHOR = (CX, -14.1, CZ + 1.0)
@@ -304,6 +307,11 @@ def paint_region(name: str, i: int, j: int, w: int, h: int, x: int, y: int):
     if name == "shaft":
         my = SHAFT_Y[1] - (j + 0.5) * (SHAFT_Y[1] - SHAFT_Y[0]) / h
         base = (NAVY["mid"], NAVY["hi"], NAVY["base"], NAVY["dark"])[i]
+        if MID_BAND_Y[0] <= my <= MID_BAND_Y[1]:
+            edge = my - MID_BAND_Y[0] < 0.3 or MID_BAND_Y[1] - my < 0.3
+            mid = abs(my - sum(MID_BAND_Y) / 2.0) < 0.3
+            c = GOLD["shade"] if edge else CYAN["base"] if mid and i in (1, 2) else GOLD["light"]
+            return (*_jitter(c, 2.0, x, y), 255)
         if _shaft_ornament(my) and (3 * i + j) % 5 == 0:
             base = CYAN["mid"] if (i + j) % 2 else CYAN["deep"]
         elif _hash(x * 7, y * 3) > 0.8:

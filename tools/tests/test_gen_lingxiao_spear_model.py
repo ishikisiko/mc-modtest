@@ -85,10 +85,10 @@ class LingxiaoSpearModelTest(unittest.TestCase):
 
     def test_glowing_parts_use_neoforge_light_data(self) -> None:
         elements = {e["name"]: e for e in gen.build_elements()}
-        for name in ("blade_step_0", "blade_body_2", "star_gem", "star_ring", "butt_gem_x", "mid_collar_inlay_x",
+        for name in ("blade_step_0", "blade_body_2", "star_gem", "star_ring", "butt_gem_x", "butt_collar_1_inlay_x",
                      "plaque_bead"):
             self.assertEqual({"block_light": 15, "sky_light": 15}, elements[name]["neoforge_data"], name)
-        for name in ("shaft", "pennant", "butt_cap", "mid_collar", "blade_navy_0", "blade_spine_0"):
+        for name in ("shaft", "pennant", "butt_cap", "butt_collar_1", "blade_navy_0", "blade_spine_0"):
             self.assertNotIn("neoforge_data", elements[name], name)
 
     def test_spearhead_is_barbed_and_inside_the_contract(self) -> None:
@@ -146,9 +146,35 @@ class LingxiaoSpearModelTest(unittest.TestCase):
         self.assertGreater(len(blade), 40)  # an oversized head, not a speck
 
     def test_hands_have_bare_shaft(self) -> None:
+        # Rule: a 4.4 px fist box on the axis, for every leading-hand position y 0..13.5 and around
+        # the rear hand at y -2 (+-2.4), contains nothing but the shaft.
+        self.assertEqual(((-2.0, -2.0), 2.4), gen.HAND_ZONES[0][1:])
+        self.assertEqual(((0.0, 13.5), 2.2), gen.HAND_ZONES[1][1:])
+        self.assertEqual(2.2, gen.FIST_HALF)
         self.assertEqual([], gen.bare_shaft_errors(gen.build_elements()))
-        crowded = gen.build_elements() + [gen.collar("extra", gen.OFF_HAND_GRIP_Y - 0.5, gen.OFF_HAND_GRIP_Y + 0.5)[0]]
-        self.assertTrue(any("off_hand_grip_center" in e for e in gen.bare_shaft_errors(crowded)))
+        names = {e["name"] for e in gen.build_elements()}
+        self.assertNotIn("mid_collar", names)  # the mid-shaft collar is a flush painted band now
+        for y in (0.0, 2.6, 11.0, 13.5):
+            crowded = gen.build_elements() + [gen.collar("extra", y - 0.5, y + 0.5)[0]]
+            self.assertTrue(any("leading hand" in e for e in gen.bare_shaft_errors(crowded)), y)
+        crowded = gen.build_elements() + [gen.collar("extra", -2.5, -1.5)[0]]
+        self.assertTrue(any("rear hand" in e for e in gen.bare_shaft_errors(crowded)))
+
+    def test_hanging_pieces_stay_out_of_the_hand_zone(self) -> None:
+        saved = gen.PENNANT_ANCHOR
+        try:
+            gen.PENNANT_ANCHOR = (7.9, 16.4, 9.4)  # the old hang point beside the leading hand
+            self.assertTrue(any(e.startswith("pennant ") for e in gen.bare_shaft_errors(gen.build_elements())))
+        finally:
+            gen.PENNANT_ANCHOR = saved
+        # An exact oriented-box test: a 45-degree piece whose corner merely nears the zone is clear.
+        zone = gen.hand_zone_boxes()[1]
+        probe = gen.box("probe", (8.0, 18.0, 10.4), (8.1, 19.0, 11.0), {},
+                        {"angle": -45, "axis": "x", "origin": (8.0, 18.0, 10.4)})
+        self.assertFalse(gen.box_overlaps(probe, zone[1], zone[2]))
+        probe = gen.box("probe", (8.0, 14.0, 9.5), (8.1, 15.0, 10.0), {},
+                        {"angle": -45, "axis": "x", "origin": (8.0, 14.0, 9.5)})  # swings to z 8.8, y 14.7
+        self.assertTrue(gen.box_overlaps(probe, zone[1], zone[2]))
 
     def test_hanging_pieces_hang_down_in_third_person(self) -> None:
         # Item frame: +Z points to the shoulder (up), so a piece hanging toward -Y/+Z in the model
