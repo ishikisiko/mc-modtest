@@ -245,6 +245,13 @@ sheets, byte for byte, as the copies they came from.
 - `pose`: third-person PAL poses from the animation file and the item model
   (`out/preview/lingxiao_spear/pose_preview_validation/`).
 - `model`: the item model in each display context.
+- `sweep`: candidate values for rig fields (`--set rig.off_hand.thickness=0.42,0.5,0.56,0.62`)
+  as one grid of frames per value, with close-ups where they differ, changed
+  pixels against the shipped value, and a rig file per candidate. `diff`:
+  before/after sheets and changed-pixel counts from two capture sets. The
+  0.29.0-fix1 off-arm choice, redone with both, is the README's worked example
+  (`out/preview/combat_preview/sweep_offarm_thickness/`, `spear_offarm_diff/`).
+  `diff` reproduces the counts measured by hand at the time.
 
 The `fp` solver (pose sampling, grip frame, arm lag, main and off arm) is
 pinned to the Java by `src/test/resources/first_person_preview_parity.json`:

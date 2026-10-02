@@ -8,7 +8,7 @@ prints per-frame measurements. Output is developer evidence only.
 Run everything from the repository root:
 
 ```bash
-python3 -m tools.combat_preview fp|pose|model [options]    # <tool> -h lists its options
+python3 -m tools.combat_preview fp|pose|model|sweep|diff [options]    # <tool> -h lists its options
 ```
 
 | Tool | What it draws |
@@ -16,6 +16,8 @@ python3 -m tools.combat_preview fp|pose|model [options]    # <tool> -h lists its
 | `fp` | First-person frames of a weapon's rig at any tick: item model, main arm, off arm (`rig.off_hand`), trail, crosshair and HUD outline, as the client's freeze probe shows them. A port of `FirstPersonSwing`, `FirstPersonWeaponTransform`, `FirstPersonArmIk`, `FirstPersonArmLag`, `FirstPersonArmRenderer`/`FirstPersonArmModel`, `FirstPersonWeaponTrail` and `WeaponGeometry`. |
 | `pose` | Third-person PAL poses from a `player_animations` file with the item model in the right hand: F5 back and front cameras as the capture tool frames them, orthographic side and top. |
 | `model` | An item model in each display context (front, side, iso, hilt, tip, third-person hand, GUI), with the geometry contract's points marked. |
+| `sweep` | Candidate values for rig fields side by side: `fp` frames for each value, close-ups where they differ, changed pixels against the shipped value, and a rig file per candidate. See "Tuning a rig value". |
+| `diff` | Before/after evidence from two sets of stills (capture directories or PNG folders): side-by-side sheet, changed pixels and their bounding box per frame, close-ups. See "Tuning a rig value". |
 
 ## Interpreter
 
@@ -69,6 +71,92 @@ python3 -m tools.combat_preview model myvillage:item/lingxiao_spear \
 `model` looks up the Qingfeng geometry contract unless `--geometry` names
 another one (or `none`), so pass the spear's contract for the spear. `pose`
 finds `assets/<ns>/combat/<item>_geometry.json` by itself.
+
+## Tuning a rig value
+
+`sweep` picks a value offline; `diff` shows afterwards what the in-game stills
+changed.
+
+```bash
+python3 -m tools.combat_preview sweep --weapon myvillage:lingxiao_spear \
+    --set rig.off_hand.thickness=0.42,0.5,0.56,0.62 --frames 1:0,1:4,2:6,3:7.5,5:7.4 \
+    --out out/preview/combat_preview/sweep_offarm_thickness
+python3 -m tools.combat_preview diff out/preview/combat_capture/spear-final \
+    out/preview/combat_capture/spear-fix1-offarm --out out/preview/combat_preview/spear_offarm_diff
+```
+
+`sweep` options:
+
+- `--set <json.path>=<v1>,<v2>,...`: a field of the rig file, keys separated by
+  `.` and list indices in brackets (`rig.arm.thickness`, `rig.shoulder[1]`,
+  `neutral.off_hand_slide`, `moves.<move id>.keys[3].reach`). Each value is JSON
+  (`0.5`, `[0.3,-0.27,-0.05]`, `true`) or a bare word (`out_back`); commas
+  inside brackets do not split. A path missing from the base rig is accepted
+  only when its parent object exists (it introduces an optional field).
+  Repeating `--set` gives one column per combination, the first `--set`
+  varying slowest, at most 16 columns. Two `--set`s may not address the same
+  value.
+- `--frames <move>:<tick>,...`: 1-based move numbers; the tick is a number or a
+  capture key name (`idle`, `strike_start`, `contact`, `strike_end`,
+  `recovery`). Default: `1:idle` (every move starts from the same neutral pose
+  with no lag) and the contact tick of every move.
+- `--rig` (the base, default the weapon's shipped rig), `--skin`, `--arms`,
+  `--main-arm`, `--off-hand-occupied`, `--no-sleeve`, `--root`, `--geometry`,
+  `--vanilla-jar` and `--no-vanilla` work as in `fp`, with `fp`'s defaults.
+  `--cell` sets the frame width in the grid and `--threshold` the changed-pixel
+  threshold (default 36, as `fp --key-threshold`).
+
+Each candidate rig is the base file with only that value edited in the text
+(`rigs/c<n>_<slug>.json`), so it can be copied over the shipped rig as a
+one-token diff. It is loaded by the same loader as `fp`, so a value the game
+would reject stops the command with the loader's message and the candidate's
+name. Frames are rendered at 960x540 without point marks and compared with the
+base rig's frame. A pixel counts as changed when its summed absolute RGB
+difference exceeds the threshold.
+
+Output in `--out`: `grid.png` (rows = frames, columns = candidates; the base
+value's column is outlined in gold, and is added as an extra column when no
+candidate equals it; the white box is the HUD, which covers that area in game),
+`zoom.png` and `zoom/<frame>.png` (each frame cropped to the union of changed
+pixels plus 24 px, enlarged by a whole factor, nearest neighbour),
+`summary.json` and `summary.txt` (changed pixels per candidate and frame, and
+the solver's warnings: shoulder clamped, off hand slid along the shaft, plus
+any loud loader message). A candidate other than the base value that changes
+no pixel in any frame is flagged `IDENTICAL`: the renderer ignores the path,
+the value equals the loader default, or the chosen frames do not show it. When
+every candidate is identical the sheet says `NOTHING DIFFERS` and the command
+exits 1. The same command writes the same bytes.
+
+`diff <before> <after>`: each argument is a `tools/combat_capture` directory
+(its `frames/<view>/` stills, `--view`, default `fp`, in the manifest's order)
+or a plain directory of PNGs. Frames pair by file name. Files present on one
+side only, and pairs whose sizes differ, are listed on stderr, in the sheet
+header and in `summary.json`. `--frames m1_idle,m3_contact` selects frames,
+`--threshold` defaults to 36, and the bounding box is inclusive. Output:
+`sheet.png` (before | after | changed pixels in red over the dimmed after),
+`zoom.png` (the same three cropped to the box plus `--margin`) and
+`summary.json`.
+
+Worked example: the spear's off-arm thickness (0.29.0-fix1). The sweep above
+writes `out/preview/combat_preview/sweep_offarm_thickness/`. Changed pixels
+against the shipped 0.56:
+
+| Frame | 0.42 | 0.5 | 0.62 |
+|---|---|---|---|
+| m1 t 0 idle | 11190 | 5768 | 6505 |
+| m1 t 4 contact | 5613 | 2619 | 2740 |
+| m2 t 6 contact | 4991 | 2515 | 2751 |
+| m3 t 7.5 strike_end | 11172 | 5379 | 5755 |
+| m5 t 7.4 strike_start | 4047 | 1951 | 2085 |
+
+Every changed box lies on the off arm, and no frame reports a slid hand or a
+clamped shoulder. The `diff` above on the in-game stills before (0.42) and
+after (0.56) gives `m1_idle` 7119 px, box (351,363)-(602,533); `m1_contact`
+3888, (555,339)-(683,495); `m3_strike_end` 11005, (151,274)-(351,539). These
+are the counts measured by hand at the time. Outside the HUD box the offline
+and in-game counts for m1 idle agree (5119 and 5081 px). The whole-frame
+offline count is higher because the game's hotbar and hearts cover part of the
+arm, while the offline frame only outlines them.
 
 ## Parity with the Java
 

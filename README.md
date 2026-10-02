@@ -546,8 +546,8 @@ failed. The steps: the four version places agree and the newest CHANGELOG
 entry has a body; `openspec validate --specs --strict` (skipped without the
 CLI); the generator `--check`s; the structure generator, then the validators
 from [Manual Acceptance Prep](#manual-acceptance-prep); `tools/tests`; the
-offline preview's parity test under `$MC_PREVIEW_PYTHON` or `.venv-preview`
-(skipped when neither exists); and `./gradlew build` under the shared heavy-work lock (`$MC_HEAVY_LOCK`, else
+offline preview's numpy tests (solver parity, `sweep`/`diff` rendering) under
+`$MC_PREVIEW_PYTHON` or `.venv-preview` (skipped when neither exists); and `./gradlew build` under the shared heavy-work lock (`$MC_HEAVY_LOCK`, else
 `.mc-heavy.lock` beside the main checkout). Python steps use `/usr/bin/python3`
 because it has PyYAML. The gate deletes the current version's jar before
 building, so the combat, spirit-stone, and GuideME jar checks and the README
@@ -965,8 +965,8 @@ python3 tools/gen_blade_cut_sprite.py --check
 python3 tools/gen_qingfeng_sword_model.py --check
 python3 tools/gen_lingxiao_spear_model.py --check
 python3 -m unittest tools.tests.test_gen_sword_pal_anims tools.tests.test_gen_blade_cut_sprite tools.tests.test_gen_qingfeng_sword_model tools.tests.test_gen_lingxiao_spear_model
-python3 -m unittest tools.tests.test_combat_capture tools.tests.test_combat_preview
-.venv-preview/bin/python -m unittest tools.tests.test_combat_preview_parity
+python3 -m unittest tools.tests.test_combat_capture tools.tests.test_combat_preview tools.tests.test_combat_preview_tuning
+.venv-preview/bin/python -m unittest tools.tests.test_combat_preview_parity tools.tests.test_combat_preview_sweep
 python3 tools/validate_mod_items.py
 python3 -m unittest tools.tests.test_validate_mod_items
 ./gradlew test
@@ -1016,7 +1016,17 @@ python3 -m tools.combat_preview fp --weapon myvillage:lingxiao_spear --move all 
 python3 -m tools.combat_preview pose --animations src/main/resources/assets/myvillage/player_animations/spear_combat.json \
     --animation basic_spear_02_sweep --all-keys --item myvillage:item/lingxiao_spear --out out/preview/combat_preview/spear_sweep.png
 python3 -m tools.combat_preview model myvillage:item/qingfeng_sword --out out/preview/combat_preview/sword_model.png
+# candidate rig values side by side; before/after stills from two capture sets
+python3 -m tools.combat_preview sweep --weapon myvillage:lingxiao_spear --set rig.off_hand.thickness=0.42,0.5,0.56,0.62 \
+    --out out/preview/combat_preview/sweep_offarm_thickness
+python3 -m tools.combat_preview diff out/preview/combat_capture/<before> out/preview/combat_capture/<after> --out out/preview/combat_preview/<before-vs-after>
 ```
+
+`sweep` renders `fp` frames for each candidate value of a rig field (a dotted
+JSON path) and writes close-ups where they differ, changed pixels against the
+shipped value, and a rig file per candidate. `diff` writes a before/after sheet
+and changed-pixel counts with their bounding boxes. Both are covered in
+`tools/combat_preview/README.md` ("Tuning a rig value").
 
 The `fp` port of the first-person solver is pinned to the Java by
 `src/test/resources/first_person_preview_parity.json`. Both tests check it;

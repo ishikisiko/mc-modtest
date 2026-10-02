@@ -1,6 +1,6 @@
 """Command line for the offline combat previews. See tools/combat_preview/README.md.
 
-    python3 -m tools.combat_preview fp|pose|model [options]     (<tool> -h for its options)
+    python3 -m tools.combat_preview fp|pose|model|sweep|diff [options]     (<tool> -h for its options)
 """
 from __future__ import annotations
 
@@ -13,6 +13,8 @@ TOOLS = {
     "fp": ("fp_rig", "first-person frames of a weapon's rig (item model, arm or arms, trail) at any tick"),
     "pose": ("pal_pose", "third-person PAL poses from an animation file with the item in the hand"),
     "model": ("item_model", "an item model in each display context"),
+    "sweep": ("sweep", "candidate sheets for rig values (--set <json.path>=<v1>,<v2>,...)"),
+    "diff": ("diff", "before/after sheet and changed-pixel counts for two sets of stills"),
 }
 USAGE = "usage: python3 -m tools.combat_preview {" + "|".join(TOOLS) + "} [options]"
 

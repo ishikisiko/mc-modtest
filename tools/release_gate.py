@@ -260,7 +260,7 @@ def gradle_build(gate: "Gate") -> Outcome:
 # The step list, in run order: cheap checks; the structure generator and the validators that read
 # its output; the Python suites; the build; the steps that read the jar it wrote.
 # To add a step, add one Step. One that needs another interpreter passes python=..., as
-# combat-preview-parity does; it reports a skip when neither interpreter exists.
+# combat-preview-tests does; it reports a skip when neither interpreter exists.
 # ---------------------------------------------------------------------------------------------
 
 STEPS: tuple[Step, ...] = (
@@ -303,8 +303,10 @@ STEPS: tuple[Step, ...] = (
     tool("check_style_policy", after=GENERATE),
     tool("check_cultivation_forms", after=GENERATE),
     Step("python-tests", (PY, "-m", "unittest", "discover", "-s", "tools/tests")),
-    # The offline preview's Python port against the golden the Java parity test checks (needs numpy).
-    Step("combat-preview-parity", (PY, "-m", "unittest", "tools.tests.test_combat_preview_parity"),
+    # The offline preview's tests that need numpy: its Python port against the golden the Java parity
+    # test checks, and the sweep/diff commands rendering real frames.
+    Step("combat-preview-tests", (PY, "-m", "unittest", "tools.tests.test_combat_preview_parity",
+                                  "tools.tests.test_combat_preview_sweep"),
          python=lambda root: find_python(os.environ.get("MC_PREVIEW_PYTHON"), root / ".venv-preview/bin/python")),
     Step(BUILD, func=gradle_build),
     Step("generated-resources-current", func=check_generated_resources, after=GENERATE),

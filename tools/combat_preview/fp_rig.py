@@ -1551,7 +1551,7 @@ def compare_capture(scene, a):
 
 
 # ============================================================================ main
-def main(argv=None):
+def parser():
     ap = argparse.ArgumentParser(prog="python3 -m tools.combat_preview fp", description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--weapon", required=True, help="weapon id (data/<ns>/combat/weapon/<path>.json)")
@@ -1587,7 +1587,11 @@ def main(argv=None):
     ap.add_argument("--pairs", help="with --compare-capture: only these move:key pairs, e.g. 1:idle,2:contact")
     ap.add_argument("--key-threshold", type=float, default=36.0, help="game keying threshold (sum of |RGB diff|)")
     ap.add_argument("--out", required=True)
-    a = ap.parse_args(argv)
+    return ap
+
+
+def main(argv=None):
+    a = parser().parse_args(argv)
     if not a.root:
         a.root = [str(DEFAULT_ROOT)]
     note_missing_jar(a.vanilla_jar, a.no_vanilla)
