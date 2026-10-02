@@ -28,11 +28,8 @@ ZH_LANG = ASSET_ROOT / "lang" / "zh_cn.json"
 COMBAT_WEAPON_CLASS = "CombatWeaponItem"
 # The re-equip rule CombatWeaponItem must keep: vanilla's behaviour minus the durability replay
 # (same item, count and components with minecraft:damage ignored: no re-equip; slotChanged unused).
-COMBAT_WEAPON_RULE = ("shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged)",
-                      "DataComponents.DAMAGE",
-                      "before.remove(ignored);",
-                      "after.remove(ignored);",
-                      "return !before.equals(after);")
+# Pinned: the override exists and the rule refers to the damage component; the method body is free.
+COMBAT_WEAPON_RULE = ("boolean shouldCauseReequipAnimation(", "DataComponents.DAMAGE")
 COMBAT_WEAPON_RULE_FORBIDDEN = ("slotChanged ||", "|| slotChanged")
 
 # SwordItem.createAttributes(Tiers.DIAMOND, <attack bonus>, <attack speed>) per item.

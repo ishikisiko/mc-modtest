@@ -95,16 +95,26 @@ final class LiveSwingTimingTest {
                 for (float[] arrivals : confirmations) {
                     for (float framesPerTick : new float[] {1.5F, 2.25F, 6.0F}) {
                         for (float phase : new float[] {0.0F, 0.37F}) {
+                            // A client whose game clock matches the server's.
+                            List<Float> inSync = new Replay(definition, move, framesPerTick, phase, arrivals,
+                                    startArrival, 0, Integer.MAX_VALUE).run();
                             for (int jump : CLOCK_JUMPS) {
                                 // The same game-clock offset, never reset.
-                                List<Float> reference = new Replay(definition, move, framesPerTick, phase, arrivals,
+                                List<Float> offset = new Replay(definition, move, framesPerTick, phase, arrivals,
                                         startArrival, jump, Integer.MAX_VALUE).run();
                                 for (int jumpTick = 1; jumpTick < definition.totalTicks(); jumpTick++) {
                                     List<Float> drawn = new Replay(definition, move, framesPerTick, phase, arrivals,
                                             startArrival, jump, jumpTick).run();
+                                    String where = definition.id() + " jump " + jump + " at tick " + jumpTick
+                                            + " fpt " + framesPerTick + " phase " + phase;
                                     if (jumpTick > startArrival) {
-                                        assertEquals(reference, drawn, definition.id() + " jump " + jump + " at tick "
-                                                + jumpTick + " fpt " + framesPerTick + ": the reset changed the swing");
+                                        // After the START: the swing is the one mapped with the offset clock,
+                                        // the reset itself changes nothing on screen.
+                                        assertEquals(offset, drawn, where + ": the reset after the START changed the swing");
+                                    } else {
+                                        // Before the START: the START maps the server's start with the corrected
+                                        // clock, exactly as for a client that was never off.
+                                        assertEquals(inSync, drawn, where + ": the START did not map with the corrected clock");
                                     }
                                     replays++;
                                 }
@@ -180,7 +190,7 @@ final class LiveSwingTimingTest {
                 }
                 if (!started && time >= startArrival) {
                     started = true;
-                    mappedStart = ClientCombatClock.fromServer(0L, gameTime);
+                    mappedStart = ClientCombatClock.localTickAgo(ClientCombatClock.elapsedSince(0L, gameTime));
                     double shift = timeline.correct(mappedStart, ClientCombatClock.ticks());
                     assertTrue(LocalSwingTimeline.slewed(shift), where + ": start shift " + shift);
                 }
@@ -208,7 +218,7 @@ final class LiveSwingTimingTest {
                 // This frame's client ticks: the clock advances first, then the readers.
                 float partial = time - (float) Math.floor(time);
                 for (int tick = (int) Math.floor(previousFrame) + 1; tick <= (int) Math.floor(time); tick++) {
-                    ClientCombatClock.advance();
+                    ClientCombatClock.endOfTick(true, tick - (clockSet ? 0 : jump));
                     timeline.visualTick(ClientCombatClock.now(0.0F));
                     timeline.rate(ClientCombatClock.now(partial));
                 }

@@ -72,7 +72,7 @@ public final class CombatWorldTrails {
         ACTIONS.put(attacker.getId(), new Action(
                 move,
                 trailWeapon(CombatStyles.bundled(), heldItem, move.id()).orElse(null),
-                attacker.level().getGameTime() - Math.max(0.0F, elapsedTicks),
+                ClientCombatClock.ticks() - Math.max(0.0F, elapsedTicks),
                 facingYaw,
                 new ArrayList<>()));
     }
@@ -126,7 +126,8 @@ public final class CombatWorldTrails {
         Camera camera = event.getCamera();
         Vec3 cameraPosition = camera.getPosition();
         float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(false);
-        double now = minecraft.level.getGameTime() + partialTick;
+        // Local ticks, like the attacker's stop it pairs with: a game-clock reset is not trail time.
+        double now = ClientCombatClock.now(partialTick);
         MultiBufferSource.BufferSource buffers = minecraft.renderBuffers().bufferSource();
         VertexConsumer consumer = buffers.getBuffer(CombatRenderTypes.SWORD_TRAIL_TRANSLUCENT);
 

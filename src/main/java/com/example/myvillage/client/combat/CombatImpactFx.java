@@ -104,8 +104,7 @@ public final class CombatImpactFx {
         }
 
         if (attacker != null && firstStopOfAction(STOPPED_REVISIONS, attacker.getId(), payload.revision(), now)) {
-            // The world trail keeps its own game-clock timeline.
-            CombatWorldTrails.hitStop(attacker.getId(), level.getGameTime(), stopTicks);
+            CombatWorldTrails.hitStop(attacker.getId(), now, stopTicks);
             if (attacker instanceof AbstractClientPlayer player && attacker != minecraft.player && stopTicks > 0.0F) {
                 ATTACKERS.put(attacker.getId(), new AttackerStop(player, now, stopTicks));
             }
@@ -124,6 +123,11 @@ public final class CombatImpactFx {
         }
         stopped.put(attackerId, new double[] {revision, now});
         return true;
+    }
+
+    /** The attacker respawned or changed dimension: its next action may reuse an old revision. */
+    static void forgetAttacker(int attackerId) {
+        STOPPED_REVISIONS.remove(attackerId);
     }
 
     static void clear() {

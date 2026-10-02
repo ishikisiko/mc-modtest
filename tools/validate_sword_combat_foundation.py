@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import re
 import struct
 import subprocess
@@ -867,16 +868,23 @@ def trail_problem(geometry: dict, bottom_y: float, tip_y: float) -> str | None:
     return None
 
 
-def third_person_scale(root: Path, geometry: dict) -> float:
-    """The y scale of the contract model's thirdperson_righthand transform (1 when unreadable; the
-    model check reports an unreadable model)."""
+def model_third_person_scale(root: Path, geometry: dict) -> float | None:
+    """Length scale along the blade (+Y) of the contract model's thirdperson_righthand transform,
+    as CombatWorldTrails.thirdPersonScale measures it (|scale y|; rotation keeps lengths), or
+    None when the model or the transform is unreadable."""
     model_id = contract_model_id(geometry)
     try:
         model = json.loads(text(model_file(root, model_id)))
-        scale = float(model["display"]["thirdperson_righthand"]["scale"][1])
+        scale = abs(float(model["display"]["thirdperson_righthand"]["scale"][1]))
     except (OSError, ValueError, KeyError, IndexError, TypeError):
-        return 1.0
-    return scale if scale > 0 else 1.0
+        return None
+    return scale if scale > 0 and math.isfinite(scale) else None
+
+
+def third_person_scale(root: Path, geometry: dict) -> float:
+    """The y scale of the contract model's thirdperson_righthand transform (1 when unreadable; the
+    model check reports an unreadable model)."""
+    return model_third_person_scale(root, geometry) or 1.0
 
 
 def off_hand_problem(root: Path, geometry: dict, grip_y: float, handle: list[float]) -> str | None:
@@ -906,10 +914,140 @@ def off_hand_problem(root: Path, geometry: dict, grip_y: float, handle: list[flo
     return None
 
 
+# The world trail other players see (client/combat/CombatWorldTrails.java), mirrored here rather
+# than imported from tools/gen_sword_pal_anims.py, whose port (trail_tip_radius) needs a pose table
+# and measures grip to tip along y only; the Java code measures the 3D distance.
+TRAIL_PIVOT_HEIGHT = 1.3          # CombatWorldTrails.PIVOT_HEIGHT: the attacker's centre, 1.3 up
+TRAIL_ARM_REACH = 0.705           # CombatWorldTrails.ARM_REACH
+TRAIL_FRAME_TICKS = 1.2 / 24      # CombatWorldTrails.TRAIL_TICKS / SEGMENTS: one drawn frame
+TRAIL_TOLERANCE = 1.0e-6
+
+
+def trail_tip_radius(root: Path, geometry: dict) -> float | None:
+    """CombatWorldTrails.trailSize(...).tipRadius(): ARM_REACH plus grip centre to trail tip (the
+    contract's trail.tip, else blade_tip) in model px at the model's third-person scale.  None when
+    the contract or model cannot give one (the game then draws a fallback; other checks report it)."""
+    scale = model_third_person_scale(root, geometry)
+    try:
+        trail = geometry.get("trail")
+        tip = trail["tip"] if isinstance(trail, dict) else geometry["blade_tip"]
+        grip = geometry["grip_center"]
+        reach = math.dist([float(v) for v in tip], [float(v) for v in grip])
+    except (KeyError, TypeError, ValueError):
+        return None
+    if scale is None or len(tip) != 3 or len(grip) != 3:
+        return None
+    return TRAIL_ARM_REACH + reach * scale / 16.0
+
+
+def far_end_reach(end) -> float:
+    """Distance of a sample's far end from the trail pivot."""
+    return math.sqrt(end[0] ** 2 + (end[1] - TRAIL_PIVOT_HEIGHT) ** 2 + end[2] ** 2)
+
+
+def trail_sample_times(samples: list[dict]) -> list[float]:
+    """CombatWorldTrails.sampleTime: the n samples of tick t sit at t + (i + 0.5) / n - 0.5."""
+    times = []
+    for index, sample in enumerate(samples):
+        same = [other for other in range(len(samples)) if samples[other]["tick"] == sample["tick"]]
+        times.append(sample["tick"] + (same.index(index) + 0.5) / len(same) - 0.5)
+    return times
+
+
+def trail_far_end(samples: list[dict], times: list[float], tick: float) -> tuple[list[float], int, int]:
+    """CombatWorldTrails.blade's far end at ``tick`` (polar interpolation between the neighbouring
+    samples, clamped to the first and last), with the indexes of those two samples."""
+    before, after = 0, len(samples) - 1
+    for index, time in enumerate(times):
+        if time <= tick:
+            before = index
+        if time >= tick:
+            after = index
+            break
+    first, second = samples[before]["end"], samples[after]["end"]
+    if before == after or not times[after] > times[before]:
+        return list(first), before, after
+    progress = max(0.0, min(1.0, (tick - times[before]) / (times[after] - times[before])))
+    first_angle, second_angle = math.atan2(first[0], first[2]), math.atan2(second[0], second[2])
+    angle = first_angle + (second_angle - first_angle) * progress
+    first_radius = math.hypot(first[0], first[2])
+    radius = first_radius + (math.hypot(second[0], second[2]) - first_radius) * progress
+    return ([math.sin(angle) * radius, first[1] + (second[1] - first[1]) * progress, math.cos(angle) * radius],
+            before, after)
+
+
+def cut_reach_problem(move: dict, radius: float) -> str | None:
+    """Why a cut's trail head leaves the weapon's tip-radius sphere, or None.
+
+    The drawn head sits at min(far-end distance, tip radius) from the pivot, so a far end shorter
+    than the radius pulls the head inward and bends the trail (CombatWorldTrailsTest
+    .shippedSpearCutsKeepTheTrailHeadOnTheTipRadius).  Checked on every sample, then on every
+    drawn frame from half a tick before the active window to half a tick after it."""
+    samples = combat_data.expand_samples(move)
+    source = ("explicit samples" if isinstance(move["hitbox"]["samples"], list)
+              else f"the {move['hitbox']['samples']['generator']} generator's samples")
+    short = [(far_end_reach(sample["end"]), index) for index, sample in enumerate(samples)
+             if far_end_reach(sample["end"]) < radius - TRAIL_TOLERANCE]
+    if short:
+        reach, index = min(short)
+        return (f"{source}[{index}] (tick {samples[index]['tick']}) has its far end {reach:.3f} blocks from "
+                f"the trail pivot (0, {TRAIL_PIVOT_HEIGHT:g}, 0), inside the weapon's trail tip radius "
+                f"{radius:.3f}; {len(short)} sample(s) fall short.  Move each such far end out along its "
+                f"direction from the pivot to at least {radius:.3f} blocks")
+    times = trail_sample_times(samples)
+    start, end = move["active_ticks"]
+    frames = int(math.floor((end - start + 1.0) / TRAIL_FRAME_TICKS + 1.0e-6)) + 1
+    for frame in range(frames):
+        tick = start - 0.5 + frame * TRAIL_FRAME_TICKS
+        far, before, after = trail_far_end(samples, times, tick)
+        reach = far_end_reach(far)
+        if reach < radius - TRAIL_TOLERANCE:
+            return (f"between {source}[{before}] and [{after}] the drawn far end comes to {reach:.3f} blocks "
+                    f"from the trail pivot near tick {tick:.2f}, inside the weapon's trail tip radius "
+                    f"{radius:.3f}, although both samples reach it.  Push those far ends further out, or "
+                    f"add samples between them, so the interpolated far end stays at least {radius:.3f}")
+    return None
+
+
+def validate_trail_reach(root: Path, data: combat_data.CombatData, contracts: dict[str, dict],
+                         findings: list[Finding]) -> None:
+    """For each weapon and each cut of its style, every drawn trail frame keeps its head on the
+    weapon's tip radius.  Per weapon, because weapons that share a style have their own radius."""
+    for weapon_id, weapon in data.weapons.items():
+        style = data.styles.get(weapon["style"])
+        contract = contracts.get(weapon["geometry"])
+        if style is None or contract is None:
+            continue
+        if "trail" in contract and not contract_problem_free_trail(contract):
+            continue  # COMBAT_GEOMETRY_TRAIL reports it; the game draws the fallback size
+        radius = trail_tip_radius(root, contract)
+        if radius is None:
+            continue
+        for move in style["moves"]:
+            if move["kind"] != "cut":
+                continue  # a thrust draws a streak along the blade, not a swept band
+            problem = cut_reach_problem(move, radius)
+            if problem:
+                findings.append(Finding("COMBAT_TRAIL_CUT_REACH", f"{weapon_id} {move['id']}: {problem}"))
+
+
+def contract_problem_free_trail(contract: dict) -> bool:
+    """Whether the contract's optional trail span is usable (see trail_problem)."""
+    try:
+        pommel_y = float(contract["pommel"]["y"][0])
+        tip_y = float(contract["blade_tip"][1])
+    except (KeyError, IndexError, TypeError, ValueError):
+        return False
+    return trail_problem(contract, pommel_y, tip_y) is None
+
+
 # ---------------------------------------------------------------------------------------------
 # Java source invariants (no class or method names inside the combat packages).
 # ---------------------------------------------------------------------------------------------
 
+CLIENT_COMBAT_CLOCK = "ClientCombatClock.java"
+GAME_CLOCK_READ = re.compile(r"\bgetGameTime\s*\(\s*\)")
+JAVA_COMMENTS = re.compile(r"//[^\n]*|/\*.*?\*/", re.DOTALL)
 RECORD_PATTERN = re.compile(r"\brecord\s+(\w+)\s*\((.*?)\)\s*(?:implements\b|\{)", re.DOTALL)
 REGISTRATION_PATTERN = re.compile(r"\b(playToServer|playToClient|playBidirectional)\s*\(\s*(\w+)\s*\.\s*TYPE\b")
 
@@ -974,6 +1112,16 @@ def validate_source_invariants(root: Path, findings: list[Finding]) -> None:
                     findings.append(Finding(code, f"{name}:{word}"))
     if not any("Impact" in name and "playToClient" in seen for name, seen in directions.items()):
         findings.append(Finding("COMBAT_IMPACT_S2C_ONLY", "no impact payload registered playToClient"))
+
+    # Client combat timing reads one clock. The client's game time is re-set by the server's time
+    # packet every 20 ticks; only ClientCombatClock reads it (the one server-tick conversion and the
+    # reset watch). Everything else (swing, prediction, impact, trail, camera, arm lag) reads that clock.
+    for path, content in java_sources(root, CLIENT_COMBAT_PACKAGE):
+        if path.name == CLIENT_COMBAT_CLOCK:
+            continue
+        code = JAVA_COMMENTS.sub("", content)
+        if GAME_CLOCK_READ.search(code):
+            findings.append(Finding("COMBAT_CLIENT_GAME_CLOCK_READ", relative(root, path)))
 
     # Combat state stays out of the cultivation profile.
     profile = root / JAVA_ROOT / "com/example/myvillage/cultivation/CultivationProfile.java"
@@ -1248,6 +1396,7 @@ def validate(root: Path = ROOT, run_generators: bool = True) -> list[Finding]:
     validate_weapon_models(root, data, contracts, findings)
     validate_first_person_rigs(root, data, contracts, findings)
     validate_geometry_contracts(root, data, findings)
+    validate_trail_reach(root, data, contracts, findings)
     validate_source_invariants(root, findings)
     validate_qingfeng_item(root, findings)
     validate_blade_cut_assets(root, findings)

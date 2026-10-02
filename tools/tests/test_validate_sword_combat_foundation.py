@@ -597,6 +597,84 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
         self.write_json(SPEAR_GEOMETRY, geometry)
         self.assertEqual([], [str(f) for f in self.findings()])
 
+    # --- world trail rules (CombatWorldTrails) ----------------------------------------------
+
+    def spear_cut(self, style: dict) -> dict:
+        return next(m for m in style["moves"] if m["kind"] == "cut" and isinstance(m["hitbox"]["samples"], list))
+
+    def trail_reach(self) -> list[str]:
+        return self.details("COMBAT_TRAIL_CUT_REACH")
+
+    def test_uneven_samples_per_tick_surface_in_the_validator(self) -> None:
+        style = self.read_json(SPEAR_STYLE)
+        move = self.spear_cut(style)
+        end = move["active_ticks"][1]
+        last = max(i for i, s in enumerate(move["hitbox"]["samples"]) if s["tick"] == end)
+        del move["hitbox"]["samples"][last]
+        self.write_json(SPEAR_STYLE, style)
+        self.assert_finding("COMBAT_DATA_SAMPLE_COUNT", SPEAR_STYLE, move["id"], "the same number")
+
+    def test_trail_tip_radius_follows_the_java_trail_size(self) -> None:
+        contracts = validator.read_geometry_contracts(self.root, validator.combat_data.load(self.root))
+        sword = contracts["myvillage:combat/qingfeng_sword_geometry.json"]
+        # CombatWorldTrailsTest pins the jian at 1.7 (0.705 + 19.9 px * 0.8 / 16).
+        self.assertAlmostEqual(1.7, validator.trail_tip_radius(self.root, sword), places=6)
+        spear = contracts["myvillage:combat/lingxiao_spear_geometry.json"]
+        model = self.read_json(SPEAR_MODEL_3D)
+        tip = spear["trail"]["tip"] if "trail" in spear else spear["blade_tip"]
+        expected = 0.705 + abs(tip[1] - spear["grip_center"][1]) * model["display"]["thirdperson_righthand"]["scale"][1] / 16
+        self.assertAlmostEqual(expected, validator.trail_tip_radius(self.root, spear), places=6)
+
+    def test_committed_cuts_keep_the_trail_head_on_the_tip_radius(self) -> None:
+        # Sword cuts come from generators and are checked too; the accepted sword passes.
+        self.assertEqual([], self.trail_reach())
+
+    def test_short_cut_far_end_has_named_failure(self) -> None:
+        style = self.read_json(SPEAR_STYLE)
+        move = self.spear_cut(style)
+        sample = move["hitbox"]["samples"][1]
+        sample["end"] = [value * 0.5 for value in sample["end"]]  # pulled toward the feet and the pivot
+        self.write_json(SPEAR_STYLE, style)
+        self.assert_finding("COMBAT_TRAIL_CUT_REACH", SPEAR_WEAPON_ID, move["id"], "explicit samples[1]",
+                            "at least")
+
+    def test_cut_far_ends_that_dip_between_samples_have_named_failure(self) -> None:
+        # Every sample reaches the radius, but the trail interpolates the horizontal radius and the
+        # height linearly, so alternating level and overhead far ends cut the corner between them.
+        style = self.read_json(SPEAR_STYLE)
+        move = self.spear_cut(style)
+        contracts = validator.read_geometry_contracts(self.root, validator.combat_data.load(self.root))
+        reach = validator.trail_tip_radius(self.root, contracts["myvillage:combat/lingxiao_spear_geometry.json"]) + 0.05
+        for index, sample in enumerate(move["hitbox"]["samples"]):
+            sample["end"] = [0.0, validator.TRAIL_PIVOT_HEIGHT, reach] if index % 2 == 0 else \
+                [0.0, validator.TRAIL_PIVOT_HEIGHT + reach, 0.0]
+        self.write_json(SPEAR_STYLE, style)
+        self.assert_finding("COMBAT_TRAIL_CUT_REACH", SPEAR_WEAPON_ID, move["id"], "between explicit samples")
+
+    def test_generated_sword_cut_inside_the_radius_has_named_failure(self) -> None:
+        style = self.read_json(STYLE)
+        move = self.style_move(style, HORIZONTAL)
+        move["hitbox"]["samples"]["range"] = 1.5
+        self.write_json(STYLE, style)
+        self.assert_finding("COMBAT_TRAIL_CUT_REACH", "myvillage:qingfeng_sword", HORIZONTAL, "arc generator")
+
+    def test_thrusts_are_not_held_to_the_tip_radius(self) -> None:
+        style = self.read_json(STYLE)
+        self.style_move(style, THRUST)["hitbox"]["samples"].update(first_range=1.0, final_range=1.2)
+        self.write_json(STYLE, style)
+        self.assertEqual([], self.trail_reach())
+
+    def test_trail_reach_is_checked_per_weapon(self) -> None:
+        # The sword's rising cut (diagonal generator, far ends from about 2.60) clears the jian's 1.7
+        # but not the spear's longer radius: a spear sharing the sword style fails for the spear only.
+        weapon = self.read_json(SPEAR_WEAPON)
+        weapon["style"] = "myvillage:basic_sword"
+        self.write_json(SPEAR_WEAPON, weapon)
+        details = self.trail_reach()
+        self.assertTrue(any(d.startswith(SPEAR_WEAPON_ID) and "basic_sword_03_rising_cut" in d for d in details),
+                        details)
+        self.assertFalse(any(d.startswith("myvillage:qingfeng_sword") for d in details), details)
+
     # --- Java source invariants -------------------------------------------------------------
 
     def test_pal_import_outside_client_combat_is_rejected(self) -> None:
@@ -691,6 +769,22 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
                         "package com.example.myvillage.client.combat;\n"
                         "import software.bernie.geckolib.Placeholder;\n")
         self.assertIn("COMBAT_FIRST_PERSON_THIRD_PARTY_RIG_FORBIDDEN", self.codes())
+
+    def test_client_combat_reads_the_game_clock_only_in_the_combat_clock(self) -> None:
+        self.assertNotIn("COMBAT_CLIENT_GAME_CLOCK_READ", self.codes())
+        self.write_java(CLIENT_COMBAT_JAVA + "ProbeTimer.java",
+                        "package com.example.myvillage.client.combat;\n"
+                        "final class ProbeTimer {\n"
+                        "    // level.getGameTime() in a comment is fine\n"
+                        "    static double now(net.minecraft.world.level.Level level, float partial) {\n"
+                        "        return level.getGameTime() + partial;\n    }\n}\n")
+        self.assertIn("COMBAT_CLIENT_GAME_CLOCK_READ", self.codes())
+        self.write_java(CLIENT_COMBAT_JAVA + "ProbeTimer.java",
+                        "package com.example.myvillage.client.combat;\n"
+                        "final class ProbeTimer {\n"
+                        "    /* level.getGameTime() */ static float partial(net.minecraft.client.DeltaTracker t) {\n"
+                        "        return t.getGameTimeDeltaPartialTick(true);\n    }\n}\n")
+        self.assertNotIn("COMBAT_CLIENT_GAME_CLOCK_READ", self.codes())
 
     # --- Qingfeng item and presentation assets ----------------------------------------------
 

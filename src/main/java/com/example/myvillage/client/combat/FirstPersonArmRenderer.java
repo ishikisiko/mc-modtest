@@ -104,7 +104,7 @@ public final class FirstPersonArmRenderer {
      * when a move was interrupted or cross-faded away.
      */
     private static Vector3f lag(LocalPlayer player, float partialTick, FirstPersonSwing swing) {
-        double now = player.level().getGameTime() + partialTick;
+        double now = ClientCombatClock.now(partialTick);
         Optional<FirstPersonWeaponAnimator.Frame> frame =
                 FirstPersonWeaponAnimator.INSTANCE.currentFrame(player, partialTick);
         if (frame.isPresent()) {
