@@ -276,6 +276,7 @@ class Move:
     lunge: bool = False
     cut_path: str | None = None
     samples: str = "[]"  # the style's hitbox samples as JSON (a list or one generator object)
+    trail_samples: str | None = None  # the move's optional trail.samples as JSON (the world trail's path)
 
 
 class PoseTableError(ValueError):
@@ -732,6 +733,7 @@ def bind(table: PoseTable, style: dict) -> tuple[Move, ...]:
             lunge=poses.lunge,
             cut_path=poses.cut_path,
             samples=json.dumps(data["hitbox"]["samples"], sort_keys=True),
+            trail_samples=None if "trail" not in data else json.dumps(data["trail"]["samples"], sort_keys=True),
         ))
     return tuple(bound)
 
@@ -1475,7 +1477,18 @@ TRAIL_STREAK_OVERSHOOT = 1.15
 
 def hit_samples(move: Move) -> list[tuple[int, tuple, tuple]]:
     """(tick, start, end) of the move's hitbox samples in the server frame, generators expanded."""
-    data = json.loads(move.samples)
+    return _expanded_samples(move, json.loads(move.samples))
+
+
+def world_trail_samples(move: Move) -> list[tuple[int, tuple, tuple]]:
+    """(tick, start, end) of the samples the world trail draws: the move's ``trail.samples`` when it
+    has them (AttackMoveDefinition.worldTrailSamples), else its hit samples."""
+    if move.trail_samples is None:
+        return hit_samples(move)
+    return _expanded_samples(move, json.loads(move.trail_samples))
+
+
+def _expanded_samples(move: Move, data) -> list[tuple[int, tuple, tuple]]:
     if isinstance(data, list):
         return [(int(d["tick"]), tuple(d["start"]), tuple(d["end"])) for d in data]
     start, end = move.active_start, move.active_end
@@ -1544,7 +1557,7 @@ def trail_residuals(move: Move, table: PoseTable, steps_per_tick: int = 6) -> li
     """(action time, distance in blocks from the posed weapon tip to the trail head) while the trail
     head moves, from the first to the last sample's time.  A thrust's streak head is drawn at
     TRAIL_STREAK_OVERSHOOT times the radius and is compared over the active ticks."""
-    samples = hit_samples(move)
+    samples = world_trail_samples(move)
     times = trail_sample_times(samples)
     radius = trail_tip_radius(table)
     scale = TRAIL_STREAK_OVERSHOOT if move.kind == "thrust" else 1.0

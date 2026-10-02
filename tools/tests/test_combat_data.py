@@ -322,6 +322,79 @@ class CombatDataTest(unittest.TestCase):
         explicit = self.read(SPEAR_STYLE)["moves"][self.spear_cut_index()]
         self.assertIs(explicit["hitbox"]["samples"], combat_data.expand_samples(explicit))
 
+    # --- optional world-trail samples (presentation only) --------------------------------------
+
+    def test_without_a_trail_block_the_trail_draws_the_hit_samples(self) -> None:
+        for _, move in combat_data.load().moves():
+            self.assertNotIn("trail", move, f"{move['id']}: no shipped move draws a separate trail")
+            self.assertEqual(combat_data.expand_samples(move), combat_data.expand_trail_samples(move))
+
+    def test_trail_samples_are_what_the_trail_draws_and_leave_the_hits_alone(self) -> None:
+        sword = self.read(STYLE)
+        index = next(i for i, m in enumerate(sword["moves"]) if m["hitbox"]["samples"].get("generator") == "arc")
+        before = copy.deepcopy(sword["moves"][index])
+        # The hit arc mirrored left to right, two per active tick.
+        mirrored = [dict(s, start=[-s["start"][0], *s["start"][1:]], end=[-s["end"][0], *s["end"][1:]])
+                    for s in combat_data.expand_samples(before) for _ in range(2)]
+        sword["moves"][index]["trail"] = {"samples": mirrored}
+        self.write(STYLE, sword)
+        self.assertEqual([], [str(i) for i in self.issues()])
+        move = combat_data.load(self.root).styles["myvillage:basic_sword"]["moves"][index]
+        self.assertEqual(mirrored, combat_data.expand_trail_samples(move))
+        self.assertEqual(combat_data.expand_samples(before), combat_data.expand_samples(move))
+        self.assertEqual(before, {key: value for key, value in move.items() if key != "trail"})
+        # A generator works for the trail as for the hit samples.
+        sword["moves"][index]["trail"] = {"samples": dict(before["hitbox"]["samples"], start_angle=50.0)}
+        self.write(STYLE, sword)
+        self.assertEqual([], [str(i) for i in self.issues()])
+        move = combat_data.load(self.root).styles["myvillage:basic_sword"]["moves"][index]
+        self.assertNotEqual(combat_data.expand_samples(move), combat_data.expand_trail_samples(move))
+        self.assertEqual(combat_data.expand_samples(before), combat_data.expand_samples(move))
+
+    def test_malformed_trail_samples_are_rejected(self) -> None:
+        sample = {"tick": 3, "start": [0, 1.2, 0.5], "end": [0, 1.2, 2.9],
+                  "horizontal_radius": 0.16, "vertical_radius": 0.16}
+        start, end = self.read(STYLE)["moves"][0]["active_ticks"]
+        cases = (
+            ({"samples": [dict(sample, tick=end), dict(sample, tick=start)]}, "SAMPLE_ORDER",
+             "moves[0].trail.samples[1].tick"),
+            ({"samples": [dict(sample, tick=start), dict(sample, tick=start), dict(sample, tick=end)]},
+             "SAMPLE_COUNT", "moves[0].trail.samples"),
+            ({"samples": [dict(sample, tick=end + 1)]}, "INVARIANT", "moves[0].trail.samples[0].tick"),
+            ({"samples": []}, "SCHEMA", "moves[0].trail.samples"),
+            ({}, "SCHEMA", "moves[0].trail.samples"),
+            ({"samples": [sample], "path": []}, "UNKNOWN_FIELD", "moves[0].trail.path"),
+            ({"samples": [dict(sample, vertical_radius=0)]}, "SCHEMA", "moves[0].trail.samples[0].vertical_radius"),
+            ({"samples": {"generator": "spiral"}}, "SCHEMA", "moves[0].trail.samples.generator"),
+            ([sample], "SCHEMA", "moves[0].trail"),
+        )
+        for trail, code, field in cases:
+            with self.subTest(code=code, field=field):
+                self.edit_style(lambda style: style["moves"][0].update(trail=trail))
+                issue = self.find(code, field)
+                self.assertEqual(STYLE, issue.file)
+
+    # --- geometry contract and rig names (format 2) ---------------------------------------------
+
+    def test_committed_contracts_and_rigs_use_the_format_2_names(self) -> None:
+        data = combat_data.load()
+        for weapon in data.weapons.values():
+            contract = json.loads(combat_data.asset_file(combat_data.ROOT, weapon["geometry"]).read_text("utf-8"))
+            rig = json.loads(combat_data.asset_file(combat_data.ROOT, weapon["first_person_rig"]).read_text("utf-8"))
+            self.assertEqual([], combat_data.geometry_format_problems(contract), weapon["geometry"])
+            self.assertEqual([], combat_data.rig_format_problems(rig), weapon["first_person_rig"])
+
+    def test_format_1_names_are_reported_with_the_new_name(self) -> None:
+        contract = {"format": 1, "axes": {"blade": "+y"}, "pommel": {}, "guard": {}, "blade": {},
+                    "blade_base": [8, 8, 8], "blade_tip": [8, 24, 8]}
+        problems = combat_data.geometry_format_problems(contract)
+        self.assertIn("format is 1, expected 2", problems[0])
+        for old, new in (("pommel", "butt"), ("guard", "collar"), ("blade", "head"), ("blade_base", "head_base"),
+                         ("blade_tip", "head_tip"), ("axes.blade", "axes.length")):
+            self.assertIn(f"{old} was renamed {new} in format 2", problems)
+        self.assertEqual(["rig.sword_scale was renamed rig.weapon_scale"],
+                         combat_data.rig_format_problems({"rig": {"sword_scale": 0.6, "shoulder": [0, 0, 0]}}))
+
     def test_unknown_sample_generator_is_rejected(self) -> None:
         self.edit_style(lambda style: style["moves"][2]["hitbox"]["samples"].update(generator="spiral"))
         self.find("SCHEMA", "moves[2].hitbox.samples.generator")

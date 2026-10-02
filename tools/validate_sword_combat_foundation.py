@@ -991,10 +991,13 @@ def cut_reach_problem(move: dict, radius: float) -> str | None:
     The drawn head sits at min(far-end distance, tip radius) from the pivot, so a far end shorter
     than the radius pulls the head inward and bends the trail (CombatWorldTrailsTest
     .shippedSpearCutsKeepTheTrailHeadOnTheTipRadius).  Checked on every sample, then on every
-    drawn frame from half a tick before the active window to half a tick after it."""
-    samples = combat_data.expand_samples(move)
-    source = ("explicit samples" if isinstance(move["hitbox"]["samples"], list)
-              else f"the {move['hitbox']['samples']['generator']} generator's samples")
+    drawn frame from half a tick before the active window to half a tick after it.  The samples are
+    the ones the trail draws: the move's ``trail.samples`` when it has them, else its hit samples."""
+    samples = combat_data.expand_trail_samples(move)
+    owner = "trail" if move.get("trail") is not None else "hitbox"
+    spec = move[owner]["samples"]
+    source = (f"explicit {owner}.samples" if isinstance(spec, list)
+              else f"the {owner}.samples {spec['generator']} generator's samples")
     short = [(far_end_reach(sample["end"]), index) for index, sample in enumerate(samples)
              if far_end_reach(sample["end"]) < radius - TRAIL_TOLERANCE]
     if short:

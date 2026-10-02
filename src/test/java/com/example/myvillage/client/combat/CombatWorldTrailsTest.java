@@ -8,6 +8,7 @@ import com.example.myvillage.combat.definition.AttackMoveDefinition;
 import com.example.myvillage.combat.definition.CombatStyleDefinition;
 import com.example.myvillage.combat.definition.CombatTestData;
 import com.example.myvillage.combat.definition.HitboxSample;
+import com.example.myvillage.combat.definition.TrailDefinition;
 import com.example.myvillage.combat.definition.WeaponDefinition;
 import com.example.myvillage.combat.runtime.CombatGeometry;
 import com.google.gson.JsonObject;
@@ -130,6 +131,51 @@ final class CombatWorldTrailsTest {
         assertEquals(Math.PI / 2.0, Math.abs(Math.IEEEremainder(northAngle - eastAngle, 2.0 * Math.PI)), 1.0E-9);
     }
 
+    /**
+     * A move with its own trail samples: the world trail draws from them (the arc mirrored to the
+     * other side here), frame by frame exactly as it would draw those samples as hit samples, while
+     * the move's hit samples, and so the server's active samples, stay the shipped ones.
+     */
+    @Test
+    void trailSamplesRedirectTheWorldTrailAndNotTheHitSamples() {
+        AttackMoveDefinition shipped = CombatTestData.basicSword().move(1);
+        assertSame(shipped.hitbox().samples(), shipped.worldTrailSamples(), "without trail samples: the hit samples");
+        List<HitboxSample> mirrored = shipped.hitbox().samples().stream()
+                .map(sample -> new HitboxSample(sample.actionTick(),
+                        -sample.startX(), sample.startY(), sample.startZ(),
+                        -sample.endX(), sample.endY(), sample.endZ(),
+                        sample.horizontalRadius(), sample.verticalRadius()))
+                .toList();
+        AttackMoveDefinition move = new AttackMoveDefinition(shipped.id(), shipped.displayKey(), shipped.kind(),
+                shipped.totalTicks(), shipped.activeStartTick(), shipped.activeEndTick(), shipped.damageMultiplier(),
+                shipped.maximumTargets(), shipped.range(), shipped.bufferStartTick(), shipped.chainTick(),
+                shipped.reaction(), shipped.animation(), shipped.hitbox(), shipped.step(), shipped.feedback(),
+                shipped.camera(), Optional.of(new TrailDefinition(mirrored)));
+
+        assertEquals(mirrored, move.worldTrailSamples());
+        assertEquals(shipped.hitbox(), move.hitbox());
+        for (int tick = move.activeStartTick(); tick <= move.activeEndTick(); tick++) {
+            assertEquals(shipped.hitbox().samplesAt(tick), move.hitbox().samplesAt(tick), "server samples at " + tick);
+        }
+        CombatWorldTrails.TrailSize size = new CombatWorldTrails.TrailSize(1.7, 0.795);
+        float first = mirrored.getFirst().actionTick() - 0.5F;
+        float last = mirrored.getLast().actionTick() + 0.5F;
+        for (float tick = first; tick <= last + 1.0E-4F; tick += CombatWorldTrails.TRAIL_TICKS / CombatWorldTrails.SEGMENTS) {
+            CombatGeometry.WorldSample drawn = CombatWorldTrails.worldBlade(
+                    move.worldTrailSamples(), tick, 1.0, size, ORIGIN, 30.0F);
+            CombatGeometry.WorldSample fromTrail = CombatWorldTrails.worldBlade(mirrored, tick, 1.0, size, ORIGIN, 30.0F);
+            CombatGeometry.WorldSample fromHits = CombatWorldTrails.worldBlade(
+                    shipped.hitbox().samples(), tick, 1.0, size, ORIGIN, 30.0F);
+            assertEquals(fromTrail, drawn, "tick " + tick);
+            // The mirrored arc is the shipped one reflected about the facing: the drawn heads differ
+            // except where the arc crosses straight ahead.
+            HitboxSample head = CombatWorldTrails.blade(mirrored, tick);
+            if (Math.abs(head.endX()) > 0.05) {
+                assertTrue(drawn.end().distanceTo(fromHits.end()) > 0.05, "tick " + tick + " still draws the hits");
+            }
+        }
+    }
+
     @Test
     void trailSizeComesFromTheWeaponGeometryAndScale() throws IOException {
         WeaponGeometry sword = FirstPersonSwingTest.geometry();
@@ -166,7 +212,7 @@ final class CombatWorldTrailsTest {
         CombatStyleDefinition style = CombatTestData.basicSword();
         assertEquals(5, style.moves().size());
         for (AttackMoveDefinition move : style.moves()) {
-            List<HitboxSample> samples = move.hitbox().samples();
+            List<HitboxSample> samples = move.worldTrailSamples();
             float first = samples.getFirst().actionTick() - 0.5F;
             float last = samples.getLast().actionTick() + 0.5F;
             for (float tick = first; tick <= last + 1.0E-4F; tick += CombatWorldTrails.TRAIL_TICKS / CombatWorldTrails.SEGMENTS) {
@@ -213,7 +259,7 @@ final class CombatWorldTrailsTest {
         // never beyond the radius, the base is the span length inside the head, and a far end past
         // the sword's 1.7 is never drawn at that old cap.
         for (AttackMoveDefinition move : CombatTestData.basicSpear().moves()) {
-            assertDrawnAtMinOfReachAndRadius(move.id().toString(), move.hitbox().samples(), size, sword);
+            assertDrawnAtMinOfReachAndRadius(move.id().toString(), move.worldTrailSamples(), size, sword);
         }
     }
 
@@ -265,7 +311,7 @@ final class CombatWorldTrailsTest {
                 continue;
             }
             cuts++;
-            List<HitboxSample> samples = move.hitbox().samples();
+            List<HitboxSample> samples = move.worldTrailSamples();
             for (float tick = move.activeStartTick() - 0.5F; tick <= move.activeEndTick() + 0.5F + 1.0E-4F;
                     tick += CombatWorldTrails.TRAIL_TICKS / CombatWorldTrails.SEGMENTS) {
                 HitboxSample far = CombatWorldTrails.blade(samples, tick);
@@ -343,7 +389,7 @@ final class CombatWorldTrailsTest {
                         + ": every active tick needs the same number of samples, or the trail's speed changes"
                         + " at the tick boundary (sampleTime spaces n samples 1/n of a tick apart)");
             }
-            List<HitboxSample> samples = move.hitbox().samples();
+            List<HitboxSample> samples = move.worldTrailSamples();
             // The posed samples' own speed per interval, in radians per tick.
             List<Double> poseSpeeds = new ArrayList<>();
             for (int index = 0; index + 1 < samples.size(); index++) {

@@ -1043,6 +1043,20 @@ class WorldTrailTest(unittest.TestCase):
         v1 = dataclasses.replace(sweep, keys=v1_sweep_keys() + sweep.keys[-3:])
         self.assertGreater(sum(r for _, r in gen.trail_residuals(v1, SPEAR)) / 9, 1.0)
 
+    def test_trail_residuals_follow_the_trail_samples(self) -> None:
+        # Without trail samples the world trail draws the hit samples; with them, it draws those, and
+        # the residual check measures the posed tip against what is drawn.
+        sweep = gen.moves(SPEAR)[1]
+        self.assertIsNone(sweep.trail_samples)
+        self.assertEqual(gen.hit_samples(sweep), gen.world_trail_samples(sweep))
+        mirrored = [dict(s, end=[-s["end"][0], *s["end"][1:]]) for s in json.loads(sweep.samples)]
+        moved = dataclasses.replace(sweep, trail_samples=json.dumps(mirrored))
+        self.assertEqual(gen.hit_samples(sweep), gen.hit_samples(moved))
+        self.assertEqual([(s["tick"], tuple(s["start"]), tuple(s["end"])) for s in mirrored],
+                         gen.world_trail_samples(moved))
+        self.assertGreater(max(r for _, r in gen.trail_residuals(moved, SPEAR)),
+                           max(r for _, r in gen.trail_residuals(sweep, SPEAR)) + 0.5)
+
     def test_detached_trail_fails_the_check(self) -> None:
         sweep = gen.moves(SPEAR)[1]
         tight = dataclasses.replace(SPEAR, cut_paths=dict(SPEAR.cut_paths, left_to_right=dataclasses.replace(

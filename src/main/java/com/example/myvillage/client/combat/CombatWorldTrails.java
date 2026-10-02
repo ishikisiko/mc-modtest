@@ -30,7 +30,9 @@ import java.util.Optional;
 /**
  * World-space 剑光 for players seen from outside (remote players, or the local player in a
  * detached camera). The ribbon's direction follows the move's own server hitbox samples, so what
- * other players see matches where the strike lands, but it is drawn at weapon length around the
+ * other players see matches where the strike lands, unless the move names a separate trail path
+ * ({@code trail.samples}, see {@link AttackMoveDefinition#worldTrailSamples()}), which only changes
+ * what is drawn. Either way it is drawn at weapon length around the
  * attacker's shoulder instead of at full gameplay reach, so it hugs the held weapon. Its size
  * comes from the geometry of the attacker's weapon for the move's style (see {@link #trailWeapon}
  * and {@link #trailSize}). It freezes while the attacker is in a hit-stop, like the attacker's
@@ -158,7 +160,7 @@ public final class CombatWorldTrails {
             float partialTick,
             Vec3 cameraPosition,
             TrailSize size) {
-        List<HitboxSample> samples = move.hitbox().samples();
+        List<HitboxSample> samples = move.worldTrailSamples();
         float first = samples.getFirst().actionTick() - 0.5F;
         float last = samples.getLast().actionTick() + 0.5F;
         Vec3 origin = entity.getPosition(partialTick);
@@ -211,7 +213,7 @@ public final class CombatWorldTrails {
     }
 
     /**
-     * The drawn blade in the world at {@code tick}: the move's own hitbox samples, interpolated,
+     * The drawn blade in the world at {@code tick}: the move's trail samples, interpolated,
      * drawn at the weapon's trail size, and turned by the facing the server started the action with.
      */
     static CombatGeometry.WorldSample worldBlade(

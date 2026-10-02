@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.example.myvillage.combat.runtime.CombatGeometry;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -13,11 +14,15 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.junit.jupiter.api.Test;
 
 final class CombatDataLoaderTest {
@@ -95,6 +100,160 @@ final class CombatDataLoaderTest {
             samples.add(sample);
         }
         return samples;
+    }
+
+    @Test
+    void withoutATrailBlockTheWorldTrailFollowsTheHitSamples() {
+        for (CombatStyleDefinition style : CombatTestData.styles().styles()) {
+            for (AttackMoveDefinition move : style.moves()) {
+                assertTrue(move.trail().isEmpty(), move.id() + ": no shipped move draws a separate trail");
+                assertEquals(move.hitbox().samples(), move.worldTrailSamples(), move.id().toString());
+            }
+        }
+    }
+
+    @Test
+    void trailSamplesRedirectOnlyTheWorldTrail() {
+        AttackMoveDefinition original = CombatTestData.basicSword().move(1);
+        // The hit samples mirrored left to right, three per active tick: a path no hit sample takes.
+        JsonArray path = new JsonArray();
+        for (HitboxSample hit : original.hitbox().samples()) {
+            for (int repeat = 0; repeat < 3; repeat++) {
+                JsonObject sample = new JsonObject();
+                sample.addProperty("tick", hit.actionTick());
+                sample.add("start", vector(-hit.startX(), hit.startY(), hit.startZ()));
+                sample.add("end", vector(-hit.endX() - 0.1 * repeat, hit.endY(), hit.endZ()));
+                sample.addProperty("horizontal_radius", hit.horizontalRadius());
+                sample.addProperty("vertical_radius", hit.verticalRadius());
+                path.add(sample);
+            }
+        }
+        Files files = Files.bundled();
+        files.edit(STYLE, style -> {
+            JsonObject trail = new JsonObject();
+            trail.add("samples", path);
+            move(style, 1).add("trail", trail);
+        });
+        CombatStyleDefinition loaded = files.load().style(CombatTestData.BASIC_SWORD).orElseThrow();
+        AttackMoveDefinition moved = loaded.move(1);
+
+        // The world trail reads the new path ...
+        List<HitboxSample> drawn = moved.worldTrailSamples();
+        assertEquals(path.size(), drawn.size());
+        assertEquals(drawn, moved.trail().orElseThrow().samples());
+        assertEquals(-original.hitbox().samples().getFirst().endX(), drawn.getFirst().endX(), 1.0E-12);
+        // ... and nothing else changes: the hit samples, every other field and every other move load
+        // as before, so the server, which reads hitbox() and never trail(), resolves the same hits.
+        assertEquals(original.hitbox(), moved.hitbox());
+        assertEquals(original, withoutTrail(moved));
+        for (int index = 0; index < loaded.moves().size(); index++) {
+            if (index != 1) {
+                assertEquals(CombatTestData.basicSword().move(index), loaded.move(index));
+            }
+        }
+        // The server's active samples (CombatHitResolver: hitbox().samplesAt, turned to the world)
+        // and their contacts with targets on the hit path and on the trail path are the same.
+        Vec3 origin = new Vec3(10.0, 64.0, -3.0);
+        List<AABB> targets = List.of(
+                box(origin, original.hitbox().samples().getLast()), box(origin, drawn.getFirst()));
+        for (int tick = moved.activeStartTick(); tick <= moved.activeEndTick(); tick++) {
+            for (float yaw : new float[] {0.0F, 73.0F}) {
+                List<CombatGeometry.WorldSample> before = world(original, tick, origin, yaw);
+                List<CombatGeometry.WorldSample> after = world(moved, tick, origin, yaw);
+                assertEquals(before, after, "tick " + tick);
+                for (AABB target : targets) {
+                    for (int index = 0; index < before.size(); index++) {
+                        assertEquals(
+                                CombatGeometry.firstContact(before.get(index), target, 0.1, 0.1),
+                                CombatGeometry.firstContact(after.get(index), target, 0.1, 0.1),
+                                "tick " + tick + " sample " + index);
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    void malformedTrailSamplesAreRejected() {
+        assertRejected(STYLE, "moves[1].trail.samples[2].tick", "non-decreasing tick order",
+                files -> files.edit(STYLE, style -> move(style, 1).add("trail", trail(samplesAt(5, 6, 5)))));
+        assertRejected(STYLE, "moves[1].trail.samples", "needs at least one sample",
+                files -> files.edit(STYLE, style -> move(style, 1).add("trail", trail(new JsonArray()))));
+        assertRejected(STYLE, "moves[1].trail.samples", "is required",
+                files -> files.edit(STYLE, style -> move(style, 1).add("trail", new JsonObject())));
+        assertRejected(STYLE, "moves[1].trail.path", "unknown field", files -> files.edit(STYLE, style -> {
+            JsonObject trail = trail(samplesAt(4, 5, 6));
+            trail.add("path", samplesAt(4));
+            move(style, 1).add("trail", trail);
+        }));
+        assertRejected(STYLE, "moves[1].trail", "must be a JSON object",
+                files -> files.edit(STYLE, style -> move(style, 1).add("trail", samplesAt(4, 5, 6))));
+        assertRejected(STYLE, "moves[1].trail.samples[0].tick", "must lie inside the move",
+                files -> files.edit(STYLE, style -> move(style, 1).add("trail", trail(samplesAt(40)))));
+        assertRejected(STYLE, "moves[1].trail.samples[0].end", "must be [x, y, z]", files -> files.edit(STYLE, style -> {
+            JsonArray samples = samplesAt(4);
+            samples.get(0).getAsJsonObject().add("end", new JsonArray());
+            move(style, 1).add("trail", trail(samples));
+        }));
+        assertRejected(STYLE, "moves[1].trail.samples[0]", "radii must be positive", files -> files.edit(STYLE, style -> {
+            JsonArray samples = samplesAt(4);
+            samples.get(0).getAsJsonObject().addProperty("vertical_radius", 0.0);
+            move(style, 1).add("trail", trail(samples));
+        }));
+        assertRejected(STYLE, "moves[1].trail.samples.generator", "thrust, arc, or diagonal", files -> files.edit(STYLE,
+                style -> {
+                    JsonObject generator = new JsonObject();
+                    generator.addProperty("generator", "spiral");
+                    move(style, 1).add("trail", trail(generator));
+                }));
+    }
+
+    @Test
+    void onlyTheWorldTrailReadsTheTrailSamples() throws IOException {
+        // Presentation only: outside the definitions, the one reader is the client's world trail.
+        Path sources = Path.of("src/main/java/com/example/myvillage");
+        List<String> readers;
+        try (Stream<Path> files = java.nio.file.Files.walk(sources)) {
+            readers = files.filter(path -> path.toString().endsWith(".java"))
+                    .filter(path -> !path.startsWith(sources.resolve("combat/definition")))
+                    .filter(path -> {
+                        try {
+                            String source = java.nio.file.Files.readString(path);
+                            return source.contains("worldTrailSamples(") || source.contains(".trail()")
+                                    || source.contains("TrailDefinition");
+                        } catch (IOException exception) {
+                            throw new IllegalStateException(exception);
+                        }
+                    })
+                    .map(path -> sources.relativize(path).toString().replace('\\', '/'))
+                    .toList();
+        }
+        assertEquals(List.of("client/combat/CombatWorldTrails.java"), readers);
+    }
+
+    private static JsonObject trail(JsonElement samples) {
+        JsonObject trail = new JsonObject();
+        trail.add("samples", samples);
+        return trail;
+    }
+
+    private static AttackMoveDefinition withoutTrail(AttackMoveDefinition move) {
+        return new AttackMoveDefinition(move.id(), move.displayKey(), move.kind(), move.totalTicks(),
+                move.activeStartTick(), move.activeEndTick(), move.damageMultiplier(), move.maximumTargets(),
+                move.range(), move.bufferStartTick(), move.chainTick(), move.reaction(), move.animation(),
+                move.hitbox(), move.step(), move.feedback(), move.camera());
+    }
+
+    private static List<CombatGeometry.WorldSample> world(AttackMoveDefinition move, int tick, Vec3 origin, float yaw) {
+        return move.hitbox().samplesAt(tick).stream()
+                .map(sample -> CombatGeometry.transform(sample, origin, yaw))
+                .toList();
+    }
+
+    /** A target box around a sample's far end, in front of an attacker facing yaw 0 at {@code origin}. */
+    private static AABB box(Vec3 origin, HitboxSample sample) {
+        Vec3 end = CombatGeometry.transform(sample, origin, 0.0F).end();
+        return new AABB(end.x - 0.3, end.y - 0.9, end.z - 0.3, end.x + 0.3, end.y + 0.9, end.z + 0.3);
     }
 
     @Test

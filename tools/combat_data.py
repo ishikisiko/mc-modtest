@@ -15,8 +15,10 @@ API
     Same, but raises :class:`CombatDataError` (listing every issue) when there is any issue.
 ``validate_style(document, file) -> list[Issue]`` / ``validate_weapon(document, file) -> list[Issue]``
     Check one parsed document against the schema and the move invariants.
-``expand_samples(move) -> list[dict]``
-    A validated move's hit samples as explicit samples (a generator's output, or the list).
+``expand_samples(move) -> list[dict]`` / ``expand_trail_samples(move) -> list[dict]``
+    A validated move's hit samples, or the samples its world trail draws (the optional
+    ``trail.samples``, else the hit samples), as explicit samples (a generator's output, or the
+    list).
 ``split_id(value) -> (namespace, path)``, ``style_file(root, id)``, ``weapon_file(root, id)``,
 ``asset_file(root, id)``
     Resolve resource ids to repository paths.
@@ -56,7 +58,7 @@ class Issue:
 
     ``code`` is one of ``JSON``, ``MISSING_FILE``, ``SCHEMA``, ``UNKNOWN_FIELD``, ``INVARIANT``,
     ``DUPLICATE``, ``INDEX`` (index and directory disagree), ``REFERENCE`` (an id that does
-    not resolve), ``SAMPLE_ORDER`` (explicit hit samples whose ticks go backwards) or
+    not resolve), ``SAMPLE_ORDER`` (explicit hit or trail samples whose ticks go backwards) or
     ``SAMPLE_COUNT`` (uneven explicit samples per active tick).  ``file`` is relative to the
     repository root; ``field`` is a dotted path such as ``moves[2].chain_tick`` (empty for a
     whole-file problem).
@@ -412,6 +414,8 @@ MOVE = obj(
     {
         "step": obj({"tick": integer(0), "maximum_distance": number(positive=True),
                      "support_depth": number(positive=True)}),
+        # Presentation only: the samples the world trail follows instead of the hit samples.
+        "trail": obj({"samples": samples}),
     })
 
 
@@ -461,41 +465,60 @@ def _move_invariants(c: _Checker, move: dict, path: str) -> None:
     if step is not None and not 0 <= step["tick"] < total:
         c.fail("INVARIANT", _join(path, "step.tick"),
                f"must lie inside the move (0..{total - 1}), got {step['tick']}")
-    sample_list = move["hitbox"]["samples"]
-    if isinstance(sample_list, list):
-        for i, sample in enumerate(sample_list):
-            if not start <= sample["tick"] <= end:
-                c.fail("INVARIANT", _join(path, f"hitbox.samples[{i}].tick"),
-                       f"must lie inside the active ticks [{start}, {end}], got {sample['tick']}")
-            # The world trail walks the samples in list order and keeps the list order within a
-            # tick, so the ticks may repeat but never go back.
-            if i > 0 and sample["tick"] < sample_list[i - 1]["tick"]:
-                c.fail("SAMPLE_ORDER", _join(path, f"hitbox.samples[{i}].tick"),
-                       f"explicit samples must be in non-decreasing tick order; {move['id']} "
-                       f"samples[{i}] has tick {sample['tick']} after samples[{i - 1}] at tick "
-                       f"{sample_list[i - 1]['tick']}")
-        # The world trail spaces the n samples of one tick 1/n of a tick apart (CombatWorldTrails
-        # .sampleTime), so once a tick carries several samples every active tick needs the same
-        # number, or the drawn sweep changes speed at the tick boundaries.  A tick without samples
-        # counts as zero.  One sample per tick (or a gap between single samples) sits on its tick.
-        counts = {tick: 0 for tick in range(start, end + 1)}
-        for sample in sample_list:
-            if sample["tick"] in counts:
-                counts[sample["tick"]] += 1
-        if max(counts.values(), default=0) > 1 and len(set(counts.values())) > 1:
-            per_tick = counts[start] if counts[start] > 0 else max(counts.values())
-            shown = ", ".join(f"tick {tick}: {count}" for tick, count in counts.items())
-            c.fail("SAMPLE_COUNT", _join(path, "hitbox.samples"),
-                   f"{move['id']} has uneven samples per active tick ({shown}); once a tick carries "
-                   f"several samples, give every active tick {start}..{end} the same number (for "
-                   f"example {per_tick}), because the world trail spaces the n samples of a tick 1/n "
-                   f"of a tick apart")
+    _sample_invariants(c, move, move["hitbox"]["samples"], _join(path, "hitbox.samples"))
+    trail = move.get("trail")
+    if trail is not None:
+        _sample_invariants(c, move, trail["samples"], _join(path, "trail.samples"))
+
+
+def _sample_invariants(c: _Checker, move: dict, sample_list: Any, path: str) -> None:
+    """The explicit-sample rules, for the hit samples and for the optional trail samples alike."""
+    if not isinstance(sample_list, list):
+        return
+    start, end = move["active_ticks"]
+    for i, sample in enumerate(sample_list):
+        if not start <= sample["tick"] <= end:
+            c.fail("INVARIANT", f"{path}[{i}].tick",
+                   f"must lie inside the active ticks [{start}, {end}], got {sample['tick']}")
+        # The world trail walks the samples in list order and keeps the list order within a
+        # tick, so the ticks may repeat but never go back.
+        if i > 0 and sample["tick"] < sample_list[i - 1]["tick"]:
+            c.fail("SAMPLE_ORDER", f"{path}[{i}].tick",
+                   f"explicit samples must be in non-decreasing tick order; {move['id']} "
+                   f"samples[{i}] has tick {sample['tick']} after samples[{i - 1}] at tick "
+                   f"{sample_list[i - 1]['tick']}")
+    # The world trail spaces the n samples of one tick 1/n of a tick apart (CombatWorldTrails
+    # .sampleTime), so once a tick carries several samples every active tick needs the same
+    # number, or the drawn sweep changes speed at the tick boundaries.  A tick without samples
+    # counts as zero.  One sample per tick (or a gap between single samples) sits on its tick.
+    counts = {tick: 0 for tick in range(start, end + 1)}
+    for sample in sample_list:
+        if sample["tick"] in counts:
+            counts[sample["tick"]] += 1
+    if max(counts.values(), default=0) > 1 and len(set(counts.values())) > 1:
+        per_tick = counts[start] if counts[start] > 0 else max(counts.values())
+        shown = ", ".join(f"tick {tick}: {count}" for tick, count in counts.items())
+        c.fail("SAMPLE_COUNT", path,
+               f"{move['id']} has uneven samples per active tick ({shown}); once a tick carries "
+               f"several samples, give every active tick {start}..{end} the same number (for "
+               f"example {per_tick}), because the world trail spaces the n samples of a tick 1/n "
+               f"of a tick apart")
 
 
 def expand_samples(move: dict) -> list[dict]:
     """A validated move's hit samples as explicit samples, in tick order: the list itself, or the
     output of its generator (a port of ``HitboxGenerators.java``, same constants)."""
-    samples = move["hitbox"]["samples"]
+    return _expand(move, move["hitbox"]["samples"])
+
+
+def expand_trail_samples(move: dict) -> list[dict]:
+    """The samples a validated move's world trail draws (``AttackMoveDefinition.worldTrailSamples``):
+    its optional ``trail.samples``, else its hit samples, expanded like :func:`expand_samples`."""
+    trail = move.get("trail")
+    return expand_samples(move) if trail is None else _expand(move, trail["samples"])
+
+
+def _expand(move: dict, samples: Any) -> list[dict]:
     if isinstance(samples, list):
         return samples
     start, end = move["active_ticks"]

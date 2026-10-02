@@ -44,10 +44,12 @@ public final class CombatDataLoader {
     private static final Set<String> ANIMATION_FIELDS = Set.of("ready_idle", "mode_enter");
     private static final Set<String> MOVE_FIELDS = Set.of(
             "id", "display_key", "kind", "total_ticks", "active_ticks", "buffer_start_tick", "chain_tick",
-            "damage_multiplier", "maximum_targets", "range", "reaction", "hitbox", "step", "feedback", "camera");
+            "damage_multiplier", "maximum_targets", "range", "reaction", "hitbox", "step", "feedback", "camera",
+            "trail");
     private static final Set<String> REACTION_FIELDS = Set.of("hitstun_ticks", "slide_distance", "lift", "lateral_bias");
     private static final Set<String> HITBOX_FIELDS = Set.of(
             "shape_family", "horizontal_tolerance", "vertical_tolerance", "samples");
+    private static final Set<String> TRAIL_FIELDS = Set.of("samples");
     private static final Set<String> SAMPLE_FIELDS = Set.of(
             "tick", "start", "end", "horizontal_radius", "vertical_radius");
     private static final Set<String> THRUST_FIELDS = Set.of("generator", "first_range", "final_range", "radius");
@@ -211,6 +213,15 @@ public final class CombatDataLoader {
 
         HitboxDefinition hitbox = parseHitbox(move.object("hitbox", HITBOX_FIELDS), activeStart, activeEnd, totalTicks);
 
+        // The world trail's own path, in the hit samples' form; presentation only (see TrailDefinition).
+        Optional<TrailDefinition> trail = Optional.empty();
+        Optional<Fields> trailFields = move.optionalObject("trail", TRAIL_FIELDS);
+        if (trailFields.isPresent()) {
+            Fields fields = trailFields.get();
+            List<HitboxSample> trailSamples = samples(fields, activeStart, activeEnd, totalTicks);
+            trail = Optional.of(build(fields, () -> new TrailDefinition(trailSamples)));
+        }
+
         Optional<StepDefinition> step = Optional.empty();
         Optional<Fields> stepFields = move.optionalObject("step", STEP_FIELDS);
         if (stepFields.isPresent()) {
@@ -246,6 +257,7 @@ public final class CombatDataLoader {
         }
 
         Optional<StepDefinition> finalStep = step;
+        Optional<TrailDefinition> finalTrail = trail;
         return build(move, () -> new AttackMoveDefinition(
                 id,
                 displayKey,
@@ -263,33 +275,38 @@ public final class CombatDataLoader {
                 hitbox,
                 finalStep,
                 feedback,
-                camera));
+                camera,
+                finalTrail));
     }
 
     private static HitboxDefinition parseHitbox(Fields hitbox, int activeStart, int activeEnd, int totalTicks) {
         String shapeFamily = hitbox.nonBlankString("shape_family");
         double horizontalTolerance = hitbox.number("horizontal_tolerance");
         double verticalTolerance = hitbox.number("vertical_tolerance");
-        JsonElement samplesJson = hitbox.require("samples");
-        List<HitboxSample> samples;
-        if (samplesJson.isJsonArray()) {
-            samples = explicitSamples(hitbox, samplesJson.getAsJsonArray(), totalTicks);
-        } else if (samplesJson.isJsonObject()) {
-            samples = generatedSamples(hitbox, samplesJson.getAsJsonObject(), activeStart, activeEnd);
-        } else {
-            throw hitbox.error("samples", "must be a list of samples or a generator object");
-        }
+        List<HitboxSample> samples = samples(hitbox, activeStart, activeEnd, totalTicks);
         return build(hitbox, () -> new HitboxDefinition(
                 shapeFamily, samples, horizontalTolerance, verticalTolerance));
     }
 
-    private static List<HitboxSample> explicitSamples(Fields hitbox, JsonArray array, int totalTicks) {
+    /** The {@code samples} of {@code owner} ({@code hitbox} or {@code trail}): an explicit list or one generator. */
+    private static List<HitboxSample> samples(Fields owner, int activeStart, int activeEnd, int totalTicks) {
+        JsonElement samplesJson = owner.require("samples");
+        if (samplesJson.isJsonArray()) {
+            return explicitSamples(owner, samplesJson.getAsJsonArray(), totalTicks);
+        }
+        if (samplesJson.isJsonObject()) {
+            return generatedSamples(owner, samplesJson.getAsJsonObject(), activeStart, activeEnd);
+        }
+        throw owner.error("samples", "must be a list of samples or a generator object");
+    }
+
+    private static List<HitboxSample> explicitSamples(Fields owner, JsonArray array, int totalTicks) {
         if (array.isEmpty()) {
-            throw hitbox.error("samples", "needs at least one sample");
+            throw owner.error("samples", "needs at least one sample");
         }
         List<HitboxSample> samples = new ArrayList<>();
         for (int index = 0; index < array.size(); index++) {
-            Fields sample = new Fields(hitbox.file, hitbox.field("samples[" + index + "]"), array.get(index), SAMPLE_FIELDS);
+            Fields sample = new Fields(owner.file, owner.field("samples[" + index + "]"), array.get(index), SAMPLE_FIELDS);
             int tick = sample.integer("tick");
             if (tick < 0 || tick >= totalTicks) {
                 throw sample.error("tick", "must lie inside the move (0 <= tick < " + totalTicks + "), got " + tick);
@@ -310,23 +327,23 @@ public final class CombatDataLoader {
     }
 
     private static List<HitboxSample> generatedSamples(
-            Fields hitbox, JsonObject generatorJson, int activeStart, int activeEnd) {
-        String path = hitbox.field("samples");
+            Fields owner, JsonObject generatorJson, int activeStart, int activeEnd) {
+        String path = owner.field("samples");
         JsonElement nameJson = generatorJson.get("generator");
         if (nameJson == null || !nameJson.isJsonPrimitive() || !nameJson.getAsJsonPrimitive().isString()) {
-            throw new CombatDataException(hitbox.file, path + ".generator", "must name thrust, arc, or diagonal");
+            throw new CombatDataException(owner.file, path + ".generator", "must name thrust, arc, or diagonal");
         }
         String generator = nameJson.getAsString();
         return switch (generator) {
             case "thrust" -> {
-                Fields fields = new Fields(hitbox.file, path, generatorJson, THRUST_FIELDS);
+                Fields fields = new Fields(owner.file, path, generatorJson, THRUST_FIELDS);
                 fields.require("generator");
                 yield build(fields, () -> HitboxGenerators.thrust(
                         activeStart, activeEnd,
                         fields.number("first_range"), fields.number("final_range"), fields.number("radius")));
             }
             case "arc" -> {
-                Fields fields = new Fields(hitbox.file, path, generatorJson, ARC_FIELDS);
+                Fields fields = new Fields(owner.file, path, generatorJson, ARC_FIELDS);
                 fields.require("generator");
                 yield build(fields, () -> HitboxGenerators.arc(
                         activeStart, activeEnd,
@@ -334,13 +351,13 @@ public final class CombatDataLoader {
                         fields.number("height"), fields.number("radius")));
             }
             case "diagonal" -> {
-                Fields fields = new Fields(hitbox.file, path, generatorJson, DIAGONAL_FIELDS);
+                Fields fields = new Fields(owner.file, path, generatorJson, DIAGONAL_FIELDS);
                 fields.require("generator");
                 yield build(fields, () -> HitboxGenerators.diagonal(
                         activeStart, activeEnd, fields.bool("descending"), fields.number("radius")));
             }
             default -> throw new CombatDataException(
-                    hitbox.file, path + ".generator", "must name thrust, arc, or diagonal, not " + generator);
+                    owner.file, path + ".generator", "must name thrust, arc, or diagonal, not " + generator);
         };
     }
 

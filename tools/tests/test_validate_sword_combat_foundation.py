@@ -659,8 +659,24 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
         sample = move["hitbox"]["samples"][1]
         sample["end"] = [value * 0.5 for value in sample["end"]]  # pulled toward the feet and the pivot
         self.write_json(SPEAR_STYLE, style)
-        self.assert_finding("COMBAT_TRAIL_CUT_REACH", SPEAR_WEAPON_ID, move["id"], "explicit samples[1]",
+        self.assert_finding("COMBAT_TRAIL_CUT_REACH", SPEAR_WEAPON_ID, move["id"], "explicit hitbox.samples[1]",
                             "at least")
+
+    def test_cut_reach_checks_the_samples_the_trail_draws(self) -> None:
+        # With trail samples the trail draws them, not the hit samples: a short trail far end fails
+        # and names the trail samples ...
+        style = self.read_json(SPEAR_STYLE)
+        move = self.spear_cut(style)
+        trail = [dict(sample) for sample in move["hitbox"]["samples"]]
+        trail[1]["end"] = [value * 0.5 for value in trail[1]["end"]]
+        move["trail"] = {"samples": trail}
+        self.write_json(SPEAR_STYLE, style)
+        self.assert_finding("COMBAT_TRAIL_CUT_REACH", SPEAR_WEAPON_ID, move["id"], "explicit trail.samples[1]")
+        # ... and short hit far ends no longer matter for the trail once trail samples reach.
+        move["trail"] = {"samples": [dict(sample) for sample in move["hitbox"]["samples"]]}
+        move["hitbox"]["samples"][1]["end"] = [value * 0.5 for value in move["hitbox"]["samples"][1]["end"]]
+        self.write_json(SPEAR_STYLE, style)
+        self.assertFalse(any(move["id"] in d for d in self.trail_reach()), self.trail_reach())
 
     def test_cut_far_ends_that_dip_between_samples_have_named_failure(self) -> None:
         # Every sample reaches the radius, but the trail interpolates the horizontal radius and the
@@ -673,7 +689,7 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
             sample["end"] = [0.0, validator.TRAIL_PIVOT_HEIGHT, reach] if index % 2 == 0 else \
                 [0.0, validator.TRAIL_PIVOT_HEIGHT + reach, 0.0]
         self.write_json(SPEAR_STYLE, style)
-        self.assert_finding("COMBAT_TRAIL_CUT_REACH", SPEAR_WEAPON_ID, move["id"], "between explicit samples")
+        self.assert_finding("COMBAT_TRAIL_CUT_REACH", SPEAR_WEAPON_ID, move["id"], "between explicit hitbox.samples")
 
     def test_generated_sword_cut_inside_the_radius_has_named_failure(self) -> None:
         style = self.read_json(STYLE)
