@@ -34,7 +34,7 @@
   },
   "behavior": {
     "type": "functional",
-    "server_client_boundary": "In vanilla mode the item follows the Minecraft SwordItem path; CombatWeaponItem only stops a data-only stack change (durability) from replaying the equip animation. In cultivation mode the combat runtime finds the item through data/myvillage/combat/weapon/lingxiao_spear.json; no Java code names the item, and the server owns mode, move, timing, hit volume, targets, damage, step movement, recovery, and synchronization exactly as for other data-registered weapons.",
+    "server_client_boundary": "In vanilla mode the item follows the Minecraft SwordItem path; CombatWeaponItem only keeps a durability-only stack change from replaying the equip animation. In cultivation mode the combat runtime finds the item through data/myvillage/combat/weapon/lingxiao_spear.json; no Java code names the item, and the server owns mode, move, timing, hit volume, targets, damage, step movement, recovery, and synchronization exactly as for other data-registered weapons.",
     "interaction": "Mapped vanilla left-click attack/mining outside cultivation mode; the five myvillage:basic_spear moves inside it. No right-click behavior.",
     "cooldown_or_durability": "Diamond-tier durability 1561 and max stack size 1 from the tier. Held attack damage 8.0 and attack speed 1.2 (SwordItem.createAttributes(Tiers.DIAMOND, 4, -2.8F)). Cultivation timing is move-owned by the style data.",
     "data_components": [

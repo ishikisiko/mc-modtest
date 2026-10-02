@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # SPDX-License-Identifier: MIT
-"""Generate the Qingfeng third-person PAL animations (sword_combat.json).
+"""Generate the third-person PAL combat animations, one file per style (sword_combat.json, ...).
 
 Each combat style has a pose table (``POSE_TABLES``) keyed by *server tick*
 and phase (guard, anticipation, coil, contact, sweep, through, hold,

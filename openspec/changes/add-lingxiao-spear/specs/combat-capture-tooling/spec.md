@@ -31,9 +31,20 @@ The tool SHALL provide `view VIEW` (put the camera into one view without a probe
 - **WHEN** `motion --label L --views tp_back_right` runs against a session holding the spear
 - **THEN** it writes `motion/tp_back_right.mp4` and lists each move's playback in the manifest
 
-### Requirement: Combo camera
-`combo` SHALL accept `--camera back` to film the same mapped-click run (same position, targets, and clicks) from F5 back at vanilla distance, and SHALL record the camera in the manifest.
+### Requirement: Combo options and hit attribution
+`combo` SHALL accept `--layout default|sweep|line` (one target ahead with two out of reach; an arc 2.5 blocks out; three in a line ahead), `--tick-rate N` (the run at `/tick rate N`, clicks and recording scaled, the rate restored afterwards also on failure), and `--camera back` (the same run filmed from F5 back). During the run it SHALL poll every target's health and attribute each loss to the latest client move start before it, recording `hits` and `hits_by_move`, and SHALL record the client's hit-stop and resync log lines (`fp_log`), the camera, the layout, and the tick rate in the manifest.
 
-#### Scenario: Back camera keeps the server evidence
-- **WHEN** `combo --camera back` runs
-- **THEN** the manifest records the clicks, the target health before and after, and the camera settings
+#### Scenario: Sweep layout attributes hits by move
+- **WHEN** `combo --layout sweep` runs with the spear
+- **THEN** `hits_by_move` shows which targets the sweep struck and the target health before and after is recorded
+
+#### Scenario: Slowed run restores the tick rate
+- **WHEN** `combo --tick-rate 5` fails part-way
+- **THEN** the server's tick rate is set back to 20
+
+### Requirement: Captures are comparable after a combo
+The scene setup SHALL reset the player's experience to zero, so that the experience bar is the same in captures taken before and after a combo that killed targets.
+
+#### Scenario: Stills after a combo
+- **WHEN** stills are captured in a session after a combo run
+- **THEN** the experience bar row matches stills captured before any combo

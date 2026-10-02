@@ -74,14 +74,23 @@ sampled over the active ticks:
 The generators are the pre-0.28.0 helper functions with their constants, so the
 five Qingfeng moves load the same sample values as before.
 
+Explicit samples (0.29.0 rules): listed in non-decreasing tick order (Java
+loader and `tools/combat_data.py`); once a tick has several, every active tick
+has the same number (`tools/combat_data.py`); and for every weapon of the
+style, a cut's far ends reach at least that weapon's world-trail tip radius at
+every drawn frame (validator, `COMBAT_TRAIL_CUT_REACH`). Reasons in
+[Lingxiao Spear](35_lingxiao_spear.md).
+
 ## Weapon file (schema 1)
 
 `schema`, `item`, `style`, `first_person_rig`, `geometry`. Two weapons may
 share a style and a rig and differ only in geometry. An item belongs to at most
 one weapon. A main-hand item with no weapon entry is not a combat weapon. The
 item itself must be registered as `CombatWeaponItem` (0.29.0): a landed hit
-costs durability, and on a plain `SwordItem` that data-only stack change
-replays the equip animation. `tools/validate_mod_items.py` enforces it.
+costs durability, and on a plain `SwordItem` the resent stack replays the
+equip animation. Its rule is vanilla's minus that replay (only a change of
+`minecraft:damage` alone keeps the weapon in place; `slotChanged` is not
+consulted). `tools/validate_mod_items.py` enforces the class and the rule.
 
 Geometry contract fields since 0.29.0 (both optional): `off_hand_grip_center`
 (a second hand on the shaft; required by a rig with `rig.off_hand`) and
@@ -117,6 +126,11 @@ The rig's optional `rig.off_hand` block and its per-key fields are described in
   0.29.0 the size comes from the contract: tip radius `0.705` plus grip to
   trail tip, length the `trail` span, both at the model's third-person scale
   (Qingfeng unchanged at 1.7 and 0.795 blocks).
+- Client timing (0.29.0): every client combat timeline runs on
+  `ClientCombatClock`, the client's own tick count; a server tick is converted
+  once when its START arrives, and no other class in `client/combat` reads the
+  game clock. A remote attacker's stop and trail freeze run once per action.
+  Details in [PAL Sword Combat Integration](32_pal_combat_integration.md).
 - A sound id with a valid format that is not registered is not a load error;
   the validator checks the ids against `sounds.json`.
 - Entering cultivation mode with no registered weapon in hand plays the first
@@ -172,8 +186,11 @@ each hold first removes any fade modifier left from an earlier hand-over.
   files in a current jar. It holds no per-move numbers. Its Java source checks
   are limited to: PAL and client imports only under `client/combat`, empty
   client-to-server combat payloads, no vanilla `attack(` call in combat code,
-  clientbound payloads without damage or health fields, and no named item in
-  combat code.
+  clientbound payloads without damage or health fields, no named item in
+  combat code, and no `getGameTime()` in `client/combat` outside
+  `ClientCombatClock`. It also reports the sample-order, per-tick count, and
+  cut-reach rules (`COMBAT_DATA_SAMPLE_ORDER`, `COMBAT_DATA_SAMPLE_COUNT`,
+  `COMBAT_TRAIL_CUT_REACH`).
 - `tools/tests/test_combat_data.py` also expands every move's samples and
   requires that a standing mob straight ahead, from 1.0 block out to the
   move's `range`, is touched by some sample.
@@ -219,7 +236,7 @@ the headless host. It uses the Python standard library plus `Xvfb`, `xdotool`,
 | `run --label L [--weapon ID]` | Whole pass: session, stills, combo run, page. About 6 to 8 minutes. |
 | `session start` / `status` / `stop` | Xvfb, acceptance server, and one smoke client under a supervisor. |
 | `stills --label L [--views V,...]` | Stills of every move at five key ticks in each view. |
-| `combo --label L [--camera first\|back]` | Mapped left clicks through the combo, an mp4, and target health over rcon before and after; `back` films it from F5 back. |
+| `combo --label L [--layout default\|sweep\|line] [--tick-rate N] [--camera first\|back]` | Mapped left clicks through the combo, an mp4, target health over rcon before and after, and each loss attributed to a move (`hits_by_move`); layouts place the three targets (one in reach; an arc; a line), `--tick-rate 5` runs at quarter speed, `back` films from F5 back. The client's hit-stop and resync log lines go to `fp_log`. |
 | `motion --label L [--views V,...]` | Third-person video of each move's PAL animation played on the client (no server action, no hits). |
 | `view VIEW`, `shot PATH` | Put the camera into one view; grab one stable frame. |
 | `check`, `ticks` | Host programs and the weapon's data (held length, default views, rig); the moves and key ticks. |
@@ -259,6 +276,8 @@ Facts that matter when using it:
   client playback only.
 - The player's pitch tilts the third-person arm pose, so compared captures
   must use the same camera settings; the manifest records them.
+- The scene sets the player's experience to 0, so stills taken after a combo
+  that killed targets compare with stills taken before one.
 - The combo run is the mapped-click and server-damage evidence. The freeze
   probes never substitute for it.
 - There is no audio device on the host. Sound is not captured.

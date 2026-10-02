@@ -20,14 +20,16 @@ See also:
 
 - The spear was added with no change to `combat/session`, `combat/runtime`,
   `combat/network`, or the payload protocol. `BasicSpearStyleTest` drives a
-  real `CombatSession` through the five moves. In the first headless combo
-  capture (`out/preview/combat_capture/spear-v1/`, before the runtime fixes
-  and the pose redesign) all five moves played from mapped clicks and the
-  centre target went from `80.0` to `38.28` health.
+  real `CombatSession` through the five moves. In the final headless capture
+  on `26b99e9` (`out/preview/combat_capture/spear-final*`) all five moves
+  played from mapped clicks and the centre target went from `80.0` to `38.28`
+  (per move `7.085`, `7.478`, `7.872`, `9.053`, `10.234`) in every
+  default-layout run; the sweep hit three targets on an arc, and on a line the
+  lunge hit three. Qingfeng still took its target from `80.0` to `44.18`.
 - Java changed where the presentation or the item class could not express a
-  second weapon: the first-person off-hand arm, contract fields, trail sizing,
-  `CombatWeaponItem`, and two runtime defects that also affected Qingfeng
-  (see "Findings").
+  second weapon (the first-person off-hand arm, contract fields, trail sizing,
+  `CombatWeaponItem`) and where the spear exposed runtime defects that also
+  affected Qingfeng (see "Findings").
 
 ## The weapon
 
@@ -48,8 +50,8 @@ See also:
 |---|---|---|---|---|---|---|---|---|---|
 | 1 | 中平扎 mid thrust | thrust | 12 | 4–5 | 8 | 0.90 | 1 | 4.2 | `thrust` generator |
 | 2 | 横扫 sweep | cut | 15 | 5–7 | 10 | 0.95 | 4 | 3.8 | 9 explicit samples, left to right |
-| 3 | 上挑 rising flick | cut | 15 | 5–7 | 10 | 1.00 | 2 | 3.6 | 9 explicit samples, right-low to left-high |
-| 4 | 劈枪 overhead smash | cut | 19 | 7–9 | 14 | 1.15 | 3 | 4.0 | 9 explicit samples, left-high to right-low |
+| 3 | 上挑 rising flick | cut | 15 | 5–7 | 10 | 1.00 | 2 | 3.6 | 12 explicit samples (4 per tick), right-low to left-high |
+| 4 | 劈枪 overhead smash | cut | 19 | 7–9 | 14 | 1.15 | 3 | 4.0 | 12 explicit samples (4 per tick), left-high to right-low |
 | 5 | 游龙突刺 dragon lunge | thrust | 22 | 8–10 | 22 (no chain) | 1.30 | 3 | 5.0 | `thrust` generator, 1.6-block step |
 
 Sounds reuse `myvillage:combat.sword.*`; moves 4 and 5 are heavy.
@@ -84,9 +86,12 @@ Third person (generated, PAL):
   through the leading hand). Released for the swing and regripped in recovery:
   sweep (after the wind-up), flick (after the drop), smash (as the spear is
   raised), lunge (as the rear arm drives).
-- `--check` fails on a left fist off the shaft at or between keys, butt or tip
-  below 0.1 block, hands closer than 5 contract px, or the shaft within 0.5
-  player-model px of torso, head, legs, or arms.
+- `--check` fails on a left fist off the shaft at or between keys, the
+  model's lowest element corner (barbs, star, pennant, plaque, tassels
+  included) below 0.05 block, hands closer than 5 contract px, or the shaft
+  within 0.5 player-model px of torso, head and neck, legs, or arms, each box
+  including its skin's outer layer. The smash crosses the top on one arc, and
+  the cut-sense test compares the samples' far ends with the posed head.
 
 First person (rig data, `FirstPersonArmIk` two-bone solve):
 
@@ -136,6 +141,51 @@ The first-person trail spans `trail`. The world trail's tip radius is `0.705`
 both at the model's third-person scale: spear tip radius about 2.62 blocks,
 length 0.9; Qingfeng 1.7 and 0.795, as in 0.28.0.
 
+## Hit sample rules
+
+Found with the spear's multi-sample cuts; they apply to every style.
+
+| Rule | Why | Enforced by |
+|---|---|---|
+| Explicit samples in non-decreasing tick order | The world trail walks samples in list order | Java loader, `tools/combat_data.py` (`COMBAT_DATA_SAMPLE_ORDER`) |
+| Once a tick has several samples, every active tick has the same number | The trail spaces a tick's n samples 1/n of a tick apart, so uneven counts change its speed at tick boundaries | `tools/combat_data.py` (`COMBAT_DATA_SAMPLE_COUNT`) |
+| Every drawn frame of a cut's far end at or beyond the weapon's trail tip radius | The trail head is drawn at min(far-end distance, tip radius); a shorter far end bends the trail inward | validator, per weapon (`COMBAT_TRAIL_CUT_REACH`) |
+
+The spear's flick and smash far ends sit at least 2.65 blocks from the pivot
+(tip radius 2.62). `gen_sword_pal_anims.py --report` prints, per move, how far
+the posed spearhead is from the world-trail head: max 0.79 / 0.47 / 0.70 /
+0.62 / 0.14 block for the five spear moves.
+
+## Runtime rules shared with Qingfeng
+
+- One client combat clock: `ClientCombatClock` counts client ticks in which
+  the level ran; the first-person swing (`LocalSwingTimeline`), prediction and
+  chain ticks, impact freezes, the attacker's stop, the world trail, camera
+  kicks, and the arm lag read it. A server tick is converted once, when its
+  START arrives. The client's game time, which the server's time packet
+  re-sets every 20 ticks, is read nowhere else in `client/combat`
+  (`COMBAT_CLIENT_GAME_CLOCK_READ`). A reset during a local action logs
+  `PAL_SMOKE client_time_jump`.
+- One stop per action: a remote attacker's third-person stop and world-trail
+  freeze start on the first impact of an action only; each struck entity
+  still freezes and shudders. In first person only the first confirmation
+  starts a stop, and a confirmation for an action that is no longer current
+  is dropped. Each confirmation logs `PAL_SMOKE fp_hit_stop ... result=`
+  (`started`, `started_at_contact`, `ignored_stop_already_started`,
+  `ignored_too_late_to_catch_up`, `ignored_not_current_action`).
+- Re-equip (`CombatWeaponItem`, vanilla's rule minus the durability replay;
+  the renderer keeps a stack that `ItemStack.matches` before asking):
+
+| Old and new main-hand stack | Equip animation |
+|---|---|
+| Identical | no (vanilla) |
+| Same item and count, only `minecraft:damage` differs (a hit's durability cost, or a switch to another copy) | no |
+| Same item, another component differs (rename, enchantment) | yes |
+| Another item or count | yes |
+| One of them empty | yes (NeoForge answers before asking the item; both empty: no) |
+
+`slotChanged` is not consulted.
+
 ## Regenerate and check
 
 ```bash
@@ -179,10 +229,18 @@ development host, port 8766 at the time of writing):
 | `lingxiao_spear/model/` | Offline model previews and the reference art |
 | `lingxiao_spear/ingame_model/` | First in-game look (give, tooltip, tab, icon, hands, ground, frame, night) |
 | `combat_capture/spear-v1/`, `lingxiao_spear/ingame_combat/` | First combat capture: stills and mapped-click combo |
-| `lingxiao_spear/fp_runtime/` | Hit-stop and re-equip fixes, before and after, both weapons |
+| `lingxiao_spear/fp_runtime/` | Hit-stop and re-equip fixes, before and after, both weapons; `forced/`: game-clock resets forced with `/tick sprint`, `freeze`/`step`, rate changes, a Nether teleport, and a death |
 | `lingxiao_spear/fp_rig_stage3/`, `lingxiao_spear/poses_v2/` | Offline sheets of the rig and the pose table |
+| `combat_capture/spear-final*`, `combat_capture/sword-final*` | Final capture on `26b99e9`: stills, combos in the default, sweep, and line layouts at normal and quarter speed, quarter-view motion; Qingfeng regression against `sword-v2` |
+| `lingxiao_spear/ingame_combat_final/` | Crops, world-trail frames from behind, and the offline-renderer comparison with the final stills |
+| `lingxiao_spear/review/index.html` | Evidence page for the owner (Chinese), with the not-verified list |
 
-None of it is an owner verdict.
+None of it is an owner verdict. Not verified anywhere: sound; a second client
+(another player's view, one stop per action as others see it); real keyboard
+and mouse play; the flick's and smash's world trails from the side; foot
+sliding; frame rates on a real GPU; other skins, armour, and capes; a
+game-clock reset from server lag, a camera kick running through a reset, and a
+clean track of a +1 or +2 reset mid-swing.
 
 ## Findings
 
@@ -215,7 +273,13 @@ None of it is an owner verdict.
   rig, stills needed byte-identical grabs, a refused probe was silent until
   timeout, and there was no third-person motion recording. Now default views
   by held length, cropped sheets, a tolerant stability rule, fail-fast
-  refusals, `shot`/`view`/`motion`, and `combo --camera back`.
+  refusals, `shot`/`view`/`motion`, `combo --camera back`, target layouts
+  (`--layout default|sweep|line`) with per-move hit attribution, quarter-speed
+  runs (`--tick-rate`), the client's hit-stop log in the manifest, and an
+  experience reset so stills after a combo compare with stills before one.
+- Data rules: nothing said in which order explicit samples go or how many a
+  tick may have, and nothing tied a cut's samples to the trail they draw (see
+  "Hit sample rules").
 - First person drew one arm; now the optional off-hand arm.
 - Trails: the first-person trail used the blade span and the world trail a
   hard-coded 1.7-block radius with a clamped length, one sample per tick. Now
@@ -233,7 +297,17 @@ None of it is an owner verdict.
   `SwingClock` (the pose follows the latest action time seen).
 - Re-equip after every hit: the durability cost resends the stack and NeoForge's
   default rule replayed the equip animation, so the weapon sank for 5 to 6
-  ticks after each landed hit. Fixed by `CombatWeaponItem`.
+  ticks after each landed hit. Fixed by `CombatWeaponItem` (vanilla's rule
+  minus the durability replay; see "Runtime rules shared with Qingfeng").
+- The client's game clock as combat time: every client combat timeline read
+  `Level#getGameTime()`, which the server's time packet re-sets every 20 ticks
+  by a tick or more, so a +2 reset skipped the swing two ticks. Fixed with
+  `ClientCombatClock`. Forced in game: `/tick sprint 20` re-set the clock by
+  +20 as the flick started and the swing played through without a skip.
+- One stop per impact instead of per action: a three-target sweep sent three
+  impacts, froze a remote attacker about two ticks longer, and ran its world
+  trail backwards. Fixed in `CombatImpactFx`; a late confirmation of a
+  finished action is now also dropped in first person.
 - Left-hand display entries were pre-mirrored by the model generator although
   the game mirrors at apply time. Correct for Qingfeng only because its
   rotations are 0 or 180; the spear generator writes the right-hand values.
@@ -242,6 +316,26 @@ None of it is an owner verdict.
 - The third-person probe refused a missing animation without a log line, and a
   missing ready idle logged a refused transition every tick. Both now log once
   with a reason.
+
+### Latent defects in the base, not fixed here
+
+- `out_back` easing: `FirstPersonSwing.Pose.interpolate` returns the end pose
+  once progress reaches 1, so an `out_back` segment arrives early and never
+  overshoots. It affects five Qingfeng keys and two spear keys. Left as is
+  because fixing it changes the accepted sword's look; the offline renderer
+  reproduces it.
+- Respawn and dimension change do not reset the first-person animator:
+  `FirstPersonWeaponAnimator.stop` compares with the already-replaced player.
+  Harmless now, since the swing runs out on its own clock.
+
+### Consequences of the local clock
+
+- A server tick enters the local clock once, when the START arrives. If the
+  client's game time is k ticks off the server's at that moment, the whole
+  move is drawn k ticks off (about −1 to +2 on the capture host); the server's
+  STOP cuts the last k recovery ticks, or the next move's start is slewed.
+  Before, the next time packet corrected it mid-move as a visible skip. Every
+  resync in the final capture session was −1.00 tick on a combo's first move.
 
 ### Limits that remain
 
@@ -266,6 +360,11 @@ None of it is an owner verdict.
 - The pennant side is not mirrored in the off-hand vanilla hold.
 - The third-person body restarts a predicted move when the server's start
   arrives more than a tick late (existing behaviour).
+- Seen in the final capture: thin first-person trails and a small spearhead at
+  the thrust's and lunge's contact; the smash's impact is hidden from behind
+  in third person; at the sweep's wind-up the butt collar projects onto the
+  shoulder line from the front-right camera although it clears it by 3 px in
+  3D; the rigid pennant points up in the smash's first-person contact frame.
 
 ### Recommended next steps
 

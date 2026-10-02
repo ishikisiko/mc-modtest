@@ -23,7 +23,7 @@ The mod SHALL register `myvillage:lingxiao_spear` (en_us `Lingxiao Spear`, zh_cn
 - **THEN** each equals the matching right-hand entry, because the game mirrors the left hand when it applies the transform
 
 ### Requirement: Basic spear style
-The bundled style `myvillage:basic_spear` SHALL define, in combo order, `basic_spear_01_mid_thrust` (thrust), `basic_spear_02_sweep` (cut), `basic_spear_03_rising_flick` (cut), `basic_spear_04_overhead_smash` (cut), and `basic_spear_05_dragon_lunge` (thrust, cannot chain), with translations in both languages and the existing combat sound events. The weapon file SHALL bind `myvillage:lingxiao_spear` to this style, its first-person rig, and its geometry contract. Adding the style and weapon SHALL need no change to `combat/session`, `combat/runtime`, `combat/network`, or the payload protocol.
+The bundled style `myvillage:basic_spear` SHALL define, in combo order, `basic_spear_01_mid_thrust` (thrust), `basic_spear_02_sweep` (cut), `basic_spear_03_rising_flick` (cut), `basic_spear_04_overhead_smash` (cut), and `basic_spear_05_dragon_lunge` (thrust, cannot chain), with translations in both languages and the existing combat sound events. The thrusts SHALL use the `thrust` generator; the sweep, flick, and smash SHALL use explicit samples with the same number per active tick (three for the sweep, four for the flick and smash), whose far ends reach at least the spear's world-trail tip radius. The weapon file SHALL bind `myvillage:lingxiao_spear` to this style, its first-person rig, and its geometry contract. Adding the style and weapon SHALL need no change to `combat/session`, `combat/runtime`, `combat/network`, or the payload protocol.
 
 #### Scenario: Combo runs through a real session
 - **WHEN** a `CombatSession` for `myvillage:basic_spear` receives an intent and then one buffered intent per move
@@ -34,7 +34,7 @@ The bundled style `myvillage:basic_spear` SHALL define, in combo order, `basic_s
 - **THEN** the server starts `myvillage:basic_spear_01_mid_thrust`
 
 ### Requirement: Two-handed third-person poses
-`player_animations/spear_combat.json` SHALL be generated from the `myvillage:basic_spear` pose table, which uses the spear's contract and 3D model and is marked two-handed. In the guard, ready idle, mode entry, and mid thrust the left hand SHALL be solved onto the shaft; the sweep, flick, smash, and lunge MAY release it for the swing and SHALL regrip it in recovery. The generator SHALL fail when an on-shaft key leaves the left fist off the shaft beyond its tolerance, when the butt or tip goes below the ground clearance, or when the shaft enters the body.
+`player_animations/spear_combat.json` SHALL be generated from the `myvillage:basic_spear` pose table, which uses the spear's contract and 3D model and is marked two-handed. In the guard, ready idle, mode entry, and mid thrust the left hand SHALL be solved onto the shaft; the sweep, flick, smash, and lunge MAY release it for the swing and SHALL regrip it in recovery. The generator SHALL fail when an on-shaft key leaves the left fist off the shaft beyond its tolerance, when the weapon model's lowest corner goes below the ground clearance, or when the shaft enters the body, neck, or skin layers.
 
 #### Scenario: Unreachable shaft fails the check
 - **WHEN** a spear key asks for the left hand on the shaft at a pose where the rigid left arm cannot reach it

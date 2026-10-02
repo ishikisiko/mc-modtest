@@ -36,15 +36,52 @@ A first-person rig MAY declare `rig.off_hand` (`shoulder_offset`, `grip_diagonal
 - **THEN** the off arm is not drawn and the off-hand item keeps its vanilla hand pass
 
 ### Requirement: Combat weapons are CombatWeaponItem
-Every item that has a combat weapon entry SHALL be registered as `CombatWeaponItem`, which SHALL replay the equip animation only when the slot changes or the item differs, never when only the stack's data changes.
+Every item that has a combat weapon entry SHALL be registered as `CombatWeaponItem`, whose re-equip rule SHALL be the vanilla rule minus the durability replay: when the first-person renderer asks, it SHALL answer "re-equip" unless the old and new stacks are the same item with the same count and the same components once `minecraft:damage` is ignored. It SHALL NOT consult `slotChanged`.
 
 #### Scenario: Durability loss does not re-equip
 - **WHEN** a landed combat hit costs the held weapon durability and the server resends the stack
 - **THEN** the first-person weapon keeps its place on screen instead of dropping and climbing back
 
+#### Scenario: Other changes still re-equip
+- **WHEN** the held weapon is renamed or enchanted, or the main hand changes to another item or count
+- **THEN** the equip animation plays as in vanilla
+
+#### Scenario: Switching to an identical weapon does not re-equip
+- **WHEN** the player switches hotbar slots between two stacks of the same weapon that differ only in durability
+- **THEN** no equip animation plays
+
 ### Requirement: First-person hit-stop never moves the pose backwards
-The first-person swing SHALL be drawn from the latest action time any reader has seen, never from an earlier reading. A hit confirmation SHALL start the hit-stop at the rig's contact tick when the drawn swing has not reached it, and otherwise at that latest time, so the frozen pose is the one on screen.
+The first-person swing SHALL be drawn from the latest action time any reader has seen, never from an earlier reading. The first hit confirmation of the action on screen SHALL start the hit-stop at the rig's contact tick when the drawn swing has not reached it, and otherwise at that latest time, so the frozen pose is the one on screen. Later confirmations of the same action SHALL NOT start another stop, and a confirmation for an action that is no longer the current one SHALL be dropped.
 
 #### Scenario: Late confirmation freezes the pose on screen
 - **WHEN** the hit confirmation for a cut arrives after the swing has passed the rig's contact tick
 - **THEN** the hit-stop holds the pose already drawn and the weapon does not step back along the move
+
+#### Scenario: Three targets, one stop
+- **WHEN** a sweep hits three targets and the client receives three confirmations
+- **THEN** the first starts the hit-stop and the other two are logged as ignored
+
+### Requirement: Client combat timing uses one client clock
+Every client combat timeline (the first-person swing, prediction and chain ticks, impact freezes, the attacker's stop, the world trail, camera kicks, and the arm's lag) SHALL run on one client-owned tick count that advances once per client tick in which the level ran and that nothing else sets. A server tick SHALL enter it through one conversion, once, when its message arrives. A reset of the client's game time by the server's time packet SHALL NOT change elapsed combat time.
+
+#### Scenario: Game-clock reset mid-swing
+- **WHEN** the server's time packet moves the client's game time forward by two ticks while a move plays
+- **THEN** the swing keeps its pace and does not skip two ticks
+
+#### Scenario: Paused or frozen ticks
+- **WHEN** the game is paused or the level's tick rate is frozen
+- **THEN** the combat clock does not advance and no reset is reported
+
+### Requirement: The attacker's stop runs once per action
+On clients that see an attacker from outside, the attacker's third-person hit-stop and world-trail freeze SHALL start once per action, on its first impact, sized as for one target, however many impact messages the action sends. Every struck entity SHALL still get its own freeze and shudder.
+
+#### Scenario: Multi-target sweep
+- **WHEN** a remote player's sweep strikes three targets in separate impact messages
+- **THEN** the attacker's figure and trail stop once, and each target shudders
+
+### Requirement: Explicit hit samples are in tick order
+The loader SHALL reject a style whose explicit hit samples are not listed in non-decreasing tick order, naming the file and the sample.
+
+#### Scenario: Sample out of order
+- **WHEN** a move lists a sample at tick 6 after one at tick 7
+- **THEN** the style fails to load and the error names the move's sample and both ticks

@@ -467,43 +467,44 @@ override it with the `PYTHON` environment variable, e.g.
 ./gradlew build
 ```
 
-Confirm the jar contains the structure resources:
+Confirm the jar contains the structure resources (name the versioned jar:
+`build/libs/` keeps the jars of earlier versions):
 
 ```bash
-jar tf build/libs/*.jar | grep "data/myvillage/structure"
-jar tf build/libs/*.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/*.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/*.jar | grep "assets/myvillage/textures/painting/inscription"
-jar tf build/libs/*.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
-jar tf build/libs/*.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
-jar tf build/libs/*.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
-jar tf build/libs/*.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
-jar tf build/libs/*.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
-jar tf build/libs/*.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
-jar tf build/libs/*.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
-jar tf build/libs/*.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
-jar tf build/libs/*.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
-jar tf build/libs/*.jar | grep "assets/myvillage/models/item/lingxiao_spear.json"
-jar tf build/libs/*.jar | grep "assets/myvillage/models/item/lingxiao_spear_3d.json"
-jar tf build/libs/*.jar | grep "assets/myvillage/textures/item/lingxiao_spear.png"
-jar tf build/libs/*.jar | grep "assets/myvillage/textures/item/lingxiao_spear_model.png"
-jar tf build/libs/*.jar | grep "assets/myvillage/combat/lingxiao_spear_geometry.json"
-jar tf build/libs/*.jar | grep "assets/myvillage/combat/lingxiao_spear_first_person.json"
-jar tf build/libs/*.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
-jar tf build/libs/*.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
-jar tf build/libs/*.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
-jar tf build/libs/*.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
-jar tf build/libs/*.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
-jar tf build/libs/*.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
-jar tf build/libs/*.jar | grep "assets/myvillage/player_animations/sword_combat.json"
-jar tf build/libs/*.jar | grep "assets/myvillage/player_animations/spear_combat.json"
-jar tf build/libs/*.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
-jar tf build/libs/*.jar | grep "data/minecraft/tags/item/swords.json"
-jar tf build/libs/*.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
-jar tf build/libs/*.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
-jar tf build/libs/*.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
-jar tf build/libs/*.jar | grep "assets/myvillage/guides/myvillage/cultivation/index.md"
-jar tf build/libs/*.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
+jar tf build/libs/myvillage-0.29.0.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.29.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.29.0.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.29.0.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.29.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
+jar tf build/libs/myvillage-0.29.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
+jar tf build/libs/myvillage-0.29.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
+jar tf build/libs/myvillage-0.29.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
+jar tf build/libs/myvillage-0.29.0.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.29.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
+jar tf build/libs/myvillage-0.29.0.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
+jar tf build/libs/myvillage-0.29.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
+jar tf build/libs/myvillage-0.29.0.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
+jar tf build/libs/myvillage-0.29.0.jar | grep "assets/myvillage/models/item/lingxiao_spear.json"
+jar tf build/libs/myvillage-0.29.0.jar | grep "assets/myvillage/models/item/lingxiao_spear_3d.json"
+jar tf build/libs/myvillage-0.29.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear.png"
+jar tf build/libs/myvillage-0.29.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear_model.png"
+jar tf build/libs/myvillage-0.29.0.jar | grep "assets/myvillage/combat/lingxiao_spear_geometry.json"
+jar tf build/libs/myvillage-0.29.0.jar | grep "assets/myvillage/combat/lingxiao_spear_first_person.json"
+jar tf build/libs/myvillage-0.29.0.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
+jar tf build/libs/myvillage-0.29.0.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
+jar tf build/libs/myvillage-0.29.0.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
+jar tf build/libs/myvillage-0.29.0.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
+jar tf build/libs/myvillage-0.29.0.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
+jar tf build/libs/myvillage-0.29.0.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
+jar tf build/libs/myvillage-0.29.0.jar | grep "assets/myvillage/player_animations/sword_combat.json"
+jar tf build/libs/myvillage-0.29.0.jar | grep "assets/myvillage/player_animations/spear_combat.json"
+jar tf build/libs/myvillage-0.29.0.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.29.0.jar | grep "data/minecraft/tags/item/swords.json"
+jar tf build/libs/myvillage-0.29.0.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
+jar tf build/libs/myvillage-0.29.0.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
+jar tf build/libs/myvillage-0.29.0.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
+jar tf build/libs/myvillage-0.29.0.jar | grep "assets/myvillage/guides/myvillage/cultivation/index.md"
+jar tf build/libs/myvillage-0.29.0.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
 ```
 
 The expected jar is:
@@ -537,7 +538,7 @@ python3 tools/validate_cultivation_lifespan.py
 python3 tools/validate_cultivation_meditation.py
 python3 tools/validate_cultivation_gain.py
 python3 tools/validate_cultivation_advancement.py
-python3 tools/validate_guideme_cultivation_guide.py
+python3 tools/validate_guideme_cultivation_guide.py    # needs PyYAML in this python3
 python3 tools/validate_mod_block_fallbacks.py
 python3 tools/validate_plaque_bindings.py
 python3 tools/validate_compound_library.py --count 6
@@ -932,12 +933,16 @@ per pass, and writes to `out/preview/combat_capture/<label>/`:
 ```bash
 python3 -m tools.combat_capture run --label <label>
 python3 -m tools.combat_capture run --label <label> --weapon myvillage:lingxiao_spear
+python3 -m tools.combat_capture combo --label <label> --weapon myvillage:lingxiao_spear --layout sweep --camera back   # in a running session
 python3 -m tools.combat_capture compare out/preview/combat_capture/<a> out/preview/combat_capture/<b> --label <a-vs-b>
 ```
 
 Without `--views`, a weapon shorter than 1.8 blocks is captured in first person
 and F5 back and front, and a longer one (the spear) in first person and two
-quarter views whose sheets are cropped around the player.
+quarter views whose sheets are cropped around the player. `combo --layout
+default|sweep|line` places the three targets (one in reach; an arc 2.5 blocks
+out; a line ahead), `--tick-rate 5` runs at quarter speed, and the manifest
+attributes every health loss to a move (`hits_by_move`).
 
 `tools/combat_capture/README.md` has the session, hot-reload, and tuning-loop
 commands. Capture output is developer evidence and records no owner verdict.
@@ -1081,21 +1086,25 @@ lives under `out/preview/lingxiao_spear/` and `out/preview/combat_capture/`.
 | Inventory icon readable at GUI scale 2 (icon redrawn on a 32x32 grid after the first look found the earlier one breaking up) | `not_verified` |
 | Off-hand vanilla hold drawn as the mirror of the main hand (left-hand display fixed after the first look; the pennant side is still not mirrored) | `not_verified` |
 | Chinese and English item and move names in game | `not_verified` |
-| All five spear moves from mapped clicks with server damage (centre target `80.0` to `38.28`) | `pass` (headless capture 2026-10-02, `combat_capture/spear-v1`; build before the runtime fixes and the pose redesign) |
-| Final-tree spear combo: five moves, server damage, target spread | `not_verified` (second capture pending) |
-| Final-tree spear stills: first person with both hands on the shaft, quarter views of the two-handed guard, releases, and regrips | `not_verified` (second capture pending) |
-| Spear world trail sized to the spear and following the hits, seen by another player | `not_verified` |
+| All five spear moves from mapped clicks with server damage, default layout: centre target `80.0` to `38.28` (per move `7.085/7.478/7.872/9.053/10.234`) in every run, normal and quarter speed, first person and F5 back | `pass` (headless capture 2026-10-02, `combat_capture/spear-final`, `-tpcombo`, `-slow-fp`, `-slow-back`) |
+| Spear target spread: sweep hits three targets on an arc 2.5 blocks out; on a line 2.5/3.5/4.5 ahead the lunge hits three, sweep, flick, and smash two each, thrust one | `pass` (headless capture 2026-10-02, `combat_capture/spear-final-sweep`, `-line`) |
+| Spear stills: first person with both hands on the shaft, quarter views of the two-handed guard, releases, and regrips, five moves at five key ticks | `pass` (headless capture 2026-10-02, `combat_capture/spear-final`; developer evidence, not an owner verdict) |
+| Quarter-view motion of the five moves, mode entry, and ready idle | `pass` (client playback only, `combat_capture/spear-final-motion`; no hits, steps, or world trail) |
+| One first-person hit-stop per move; a three-target sweep starts one stop and ignores two confirmations | `pass` (headless capture 2026-10-02, `fp_log` of `spear-final-sweep`) |
+| Swing keeps its pace through a forced +20 game-clock reset (`/tick sprint 20`); `/tick freeze` and `/tick step` hold and resume it; a Nether teleport and a death mid-move stop it cleanly | `pass` (headless capture 2026-10-02, `lingxiao_spear/fp_runtime/forced`) |
+| Game-clock reset from server lag, a camera kick running through a reset, a clean track of a +1/+2 reset mid-swing | `not_verified` |
+| Spear world trail seen by another player; one stop per action seen by another player | `not_verified` |
+| Flick and smash world trails seen from the side | `not_verified` |
 | Spear first-person off arm hidden while an item is in the off hand | `not_verified` |
-| Spear step distances, magnetism stop, and lunge wall/cliff suppression | `not_verified` |
+| Spear step distances, magnetism stop, lunge wall/cliff suppression, and foot sliding | `not_verified` |
 | Owner verdict on the spear model, icon, five moves, and two-handed presentation | `not_verified` |
 | First-person hit-stop no longer steps back on a late hit confirmation (Qingfeng and spear, normal and quarter tick rate) | `pass` (headless capture 2026-10-02, `lingxiao_spear/fp_runtime`) |
 | First-person weapon no longer dips out of view after a landed hit costs durability (Qingfeng and spear) | `pass` (same capture; an unbreakable control shows the same no-dip trace) |
-| Qingfeng first-person probe stills unchanged by the hit-stop fix (25 stills) | `pass` (same capture; within 2 colour levels outside the XP bar) |
-| Qingfeng final-tree regression: stills in all views and combo damage against 0.28.0 | `not_verified` (second capture pending) |
-| Owner verdict on the changed Qingfeng first-person hit-stop and post-hit hold | `not_verified` |
-| Hotbar switches between two spears still replay the equip animation | `not_verified` |
-| Combat-mode action-bar text is weapon-neutral in both languages | `not_verified` |
-| Real keyboard play, sound, and a second client with the spear | `not_verified` |
+| Rename, enchantment, or another item still plays the equip animation; switching between two copies of one weapon does not | `not_verified` |
+| Qingfeng regression: `80.0` to `44.18` under mapped clicks; third-person stills identical and first-person stills within 2 colour levels of `sword-v2`, apart from the experience bar row | `pass` (headless capture 2026-10-02, `combat_capture/sword-final`; developer comparison, not an owner verdict) |
+| Owner verdict on the changed Qingfeng first-person hit-stop, post-hit hold, and clock behaviour | `not_verified` |
+| Combat-mode and debug-command messages weapon-neutral in both languages | `not_verified` |
+| Real keyboard and mouse play, sound, frame rates on a real GPU, other skins, armour, and capes | `not_verified` |
 
 ## GuideME Cultivation Guide
 
@@ -1147,6 +1156,9 @@ python3 -m unittest tools.tests.test_validate_guideme_cultivation_guide
 ./gradlew runGuide
 ./gradlew runAcceptanceServer
 ```
+
+The GuideME validator and its tests need a `python3` that has PyYAML; without
+it they fail with "PyYAML is required to validate GuideME frontmatter".
 
 Client startup and dedicated-server startup prove dependency, page parsing,
 packaging, and side safety only. They do not prove rendering or interaction.

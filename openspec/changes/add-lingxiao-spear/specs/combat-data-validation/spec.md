@@ -19,10 +19,32 @@ For every move of every style the validator SHALL require a player animation wit
 - **WHEN** a generated file of the spear model differs from its generator's output
 - **THEN** the validator reports a model generator drift for that generator
 
+### Requirement: Validator holds no per-move literals and only stable source checks
+The validator MUST NOT embed expected timing, damage, or step numbers for any move. Its Java source checks SHALL be limited to invariants that do not depend on class or method names inside the combat packages: Player Animation Library and client imports only under `client/combat`, empty client-to-server combat payload records, no vanilla player `attack(` call in combat code, a clientbound-only impact payload without damage or health, no reference to `ModItems` in combat code, and no game-clock read (`getGameTime()` outside comments) in `client/combat` except in the one client combat clock class.
+
+#### Scenario: Retuning a move does not require a validator edit
+- **WHEN** a move's `total_ticks` changes consistently in the style file, the rig, and the regenerated animation
+- **THEN** the validator passes without modification
+
+#### Scenario: A second game-clock reader is reported
+- **WHEN** a class in `client/combat` other than the client combat clock calls `getGameTime()`
+- **THEN** the validator reports `COMBAT_CLIENT_GAME_CLOCK_READ` with the file
+
 ## ADDED Requirements
 
+### Requirement: Hit sample rules
+The shared reader and the validator SHALL report explicit hit samples whose ticks go backwards (`COMBAT_DATA_SAMPLE_ORDER`) and, once any active tick of a move carries several samples, active ticks with different sample counts (`COMBAT_DATA_SAMPLE_COUNT`). For every weapon and every cut of its style, the validator SHALL require each sample's far end, and the interpolated far end at every drawn world-trail frame from half a tick before the active window to half a tick after it, to lie at least the weapon's trail tip radius from the trail pivot (`COMBAT_TRAIL_CUT_REACH`), with the radius computed per weapon as the world trail computes it.
+
+#### Scenario: Uneven samples per tick are reported
+- **WHEN** a cut has three samples on its first active tick and two on its second
+- **THEN** the validator reports `COMBAT_DATA_SAMPLE_COUNT` for the move
+
+#### Scenario: Short far end bends the trail
+- **WHEN** a spear cut's sample ends 2.4 blocks from the trail pivot while the spear's tip radius is about 2.62
+- **THEN** the validator reports `COMBAT_TRAIL_CUT_REACH` with the weapon, the move, the sample, and the radius
+
 ### Requirement: One pose table and output per style
-`tools/gen_sword_pal_anims.py` SHALL hold one pose table per combat style, each with its own geometry contract, 3D item model, pose rules, cut paths, and output file, and SHALL measure grip compensation, forward kinematics, reach, and cut paths with that table's weapon. `--check` and `--report` SHALL cover every table. A table marked two-handed SHALL solve the left arm onto the shaft for every on-shaft key and check the left fist's offset from the shaft at keys and between keys; a table with long-weapon rules SHALL check the ground clearance of butt and tip, the separation of the two hands, and the shaft's clearance from torso, head, legs, and arms at keys and between keys of every animation.
+`tools/gen_sword_pal_anims.py` SHALL hold one pose table per combat style, each with its own geometry contract, 3D item model, pose rules, cut paths, and output file, and SHALL measure grip compensation, forward kinematics, reach, and cut paths with that table's weapon. `--check` and `--report` SHALL cover every table. A table marked two-handed SHALL solve the left arm onto the shaft for every on-shaft key and check the left fist's offset from the shaft at keys and between keys; a table with long-weapon rules SHALL check the ground clearance of the weapon model's lowest element corner, the separation of the two hands, and the shaft's clearance from torso, head and neck, legs, and arms, each body box including its skin's outer layer, at keys and between keys of every animation.
 
 #### Scenario: Adding a table leaves the sword file unchanged
 - **WHEN** the spear table is added and the generator runs

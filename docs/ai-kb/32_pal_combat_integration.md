@@ -247,8 +247,33 @@ already on screen. Before 0.29.0 a late confirmation started the stop at the
 tick reading of the packet, which is handled at the start of a frame and lies
 up to a tick behind the frame already drawn, so the blade stepped back (the
 horizontal cut by about 114 px at normal speed). Each confirmation logs
-`PAL_SMOKE fp_hit_stop` with the reading, the present, the contact tick, and
-the start. `HIT_STOP_TICKS = 2.5F` remains the default.
+`PAL_SMOKE fp_hit_stop` with the reading, the present, the contact tick, the
+start, and a `result`. Only the first confirmation of an action starts a stop
+(a three-target sweep logs one `started` and two
+`ignored_stop_already_started`), and a confirmation for an action that is no
+longer current is dropped (`ignored_not_current_action`).
+`HIT_STOP_TICKS = 2.5F` remains the default.
+
+Client combat clock (0.29.0). The client's `Level#getGameTime()` is not
+monotonic: every 20 ticks the server's time packet sets it to the server's
+time, a tick or more either way, and every combat timeline used to read it as
+elapsed time (a +2 reset skipped the swing two ticks). `ClientCombatClock` is
+the client's own count of ticks in which the level ran (paused or tick-frozen
+ticks do not count); it advances at the end of the client tick before any
+other combat handler. The first-person swing (`LocalSwingTimeline`, which
+holds the start, the slew of an authoritative correction, and the
+`SwingClock`), prediction, buffering and chain ticks, impact freezes, the
+attacker's stop, the world trail, camera kicks, and the arm's lag all read it.
+`ClientCombatClock.elapsedSinceServer` is the one conversion of a server tick,
+done once when the START arrives; the validator rejects any other
+`getGameTime()` in `client/combat`. A reset during a local action logs
+`PAL_SMOKE client_time_jump from=<t> to=<t> local=<n>`. Consequence: a client
+clock k ticks off the server's at the START draws the whole move k ticks off
+(about −1 to +2 on the capture host); the server's STOP cuts the last k
+recovery ticks or the next start is slewed, where the next time packet used
+to correct it mid-move as a visible skip. An authoritative correction of up
+to 2 ticks is slewed over 3 ticks (a larger one snaps); each logs
+`PAL_SMOKE fp_resync`.
 
 Both trails use `CombatRenderTypes.SWORD_TRAIL_TRANSLUCENT` (SRC_ALPHA /
 ONE_MINUS_SRC_ALPHA, no cull, no depth write). The additive `SWORD_TRAIL`
@@ -279,7 +304,14 @@ struck entity ids, contact points; no damage or health). On the client it skips
 struck non-player entities' ticks for the rounded hit-stop, jitters every
 struck entity except the local player, and drives a remote attacker's PAL
 hit-stop through `CombatAnimationController.setHitStopRate`. None of this sends a
-packet or changes an entity's server state.
+packet or changes an entity's server state. Since 0.29.0 the attacker's stop
+(PAL hit-stop and world-trail freeze) starts once per action, on its first
+impact message, sized as for one target; before, each hit batch restarted it,
+so a three-target sweep froze the attacker about two ticks longer and ran its
+trail backwards. Every struck entity still gets its own freeze and shudder.
+Because the server restarts an attacker's revisions after a session reset, a
+stop that resets the session, the local player's respawn or dimension change,
+and a revision last seen more than 40 ticks ago all count as a new action.
 
 ### First-person arm (0.27.1)
 
@@ -318,8 +350,11 @@ sword together.
 - Re-equip (0.29.0): a landed hit costs durability and the server resends the
   stack. On a plain `SwordItem` NeoForge then replayed the equip animation, so
   the weapon sank out of view for 5 to 6 ticks after every hit. Combat weapons
-  are `CombatWeaponItem`, which re-equips only on a slot change or another
-  item, never on a data-only change.
+  are `CombatWeaponItem`, whose rule is vanilla's minus that replay: a stack
+  that differs only in `minecraft:damage` keeps its place (also when switching
+  to another copy of the same weapon), while a rename, an enchantment, another
+  item, or another count re-equips. `slotChanged` is not consulted. Table in
+  [Lingxiao Spear](35_lingxiao_spear.md).
 
 The earlier rejected forms stay rejected: a separately damped complete arm left
 the handle, and a pivot-locked complete arm floated mid-screen. The 0.27.0 form
