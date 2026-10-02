@@ -65,6 +65,6 @@
 - [x] 10.4 Make the combat-mode message weapon-neutral in both languages.
 - [x] 10.5 Fill the CHANGELOG validation numbers from the final capture and gates, make the debug-command messages weapon-neutral, and update both item contracts to `CombatWeaponItem`.
 - [x] 10.6a Apply the version rule for 5.4: `0.29.0-fix1` in `gradle.properties` and mod metadata, README jar-name examples, CHANGELOG entry; update notes 32 and 35 and the `combat-style-data` delta.
-- [ ] 10.6 Keep every unobserved real-client item `not_verified`; hand the evidence to the owner for review.
+- [x] 10.6 Keep every unobserved real-client item `not_verified`; hand the evidence to the owner for review.
 - [x] 10.6b Owner verdict 2026-10-02 on the spear's moves: accepted ("枪的动作验收完毕没有问题了"), with the first-person left arm too thin (5.4).
-- [ ] 10.7 Owner verdict on the spear's model, moves, and two-handed presentation, and on the changed Qingfeng first-person behaviour.
+- [x] 10.7 Owner verdict on the spear's model, moves, and two-handed presentation, and on the changed Qingfeng first-person behaviour. Given 2026-10-02 as one statement after 5.4, not item by item: "验收完了暂时这样，合并推送".

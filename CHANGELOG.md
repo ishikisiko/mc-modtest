@@ -34,8 +34,9 @@ together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
   Before and after, the candidate values (0.42, 0.50, 0.56, 0.62), and a
   wide-arm skin rendered offline are in
   `out/preview/lingxiao_spear/off_arm_thickness/`.
-- `not_verified`: the owner's verdict on the new thickness, real keyboard and
-  mouse play, and a wide-arm skin in game.
+- The owner accepted the spear with the new thickness on 2026-10-02.
+  `not_verified`: real keyboard and mouse play on this host, and a wide-arm
+  skin in game.
 
 ## 0.29.0
 
