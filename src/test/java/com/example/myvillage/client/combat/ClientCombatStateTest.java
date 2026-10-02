@@ -49,6 +49,27 @@ final class ClientCombatStateTest {
     }
 
     @Test
+    void aHitConfirmationBelongsOnlyToTheActionWithItsRevision() {
+        var spear = CombatTestData.basicSpear();
+        ClientCombatState.beginPrediction(100);
+        ClientCombatState.trackLocalAction(spear, 1, 100, -1L);
+        assertFalse(ClientCombatState.isCurrentAction(7), "a predicted move has no revision yet");
+        ClientCombatState.trackLocalAction(spear, 1, 100, 7);
+        ClientCombatState.confirmPrediction(2);
+        assertTrue(ClientCombatState.isCurrentAction(7));
+        assertFalse(ClientCombatState.isCurrentAction(6));
+        // The sweep chains into the flick, predicted locally: a late confirmation of the sweep
+        // must not stop the flick.
+        assertTrue(ClientCombatState.bufferClick(106, spear));
+        assertEquals(2, ClientCombatState.chainDue(110, spear));
+        ClientCombatState.beginChainPrediction(110, 2);
+        assertFalse(ClientCombatState.isCurrentAction(7));
+        ClientCombatState.trackLocalAction(spear, 2, 110, 8);
+        assertTrue(ClientCombatState.isCurrentAction(8));
+        assertFalse(ClientCombatState.isCurrentAction(7));
+    }
+
+    @Test
     void predictionResetsToFirstMoveAfterServerComboTimeout() {
         ClientCombatState.confirmPrediction(2);
         ClientCombatState.completeAction(40);

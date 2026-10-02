@@ -53,16 +53,22 @@ final class CombatWorldTrailsTest {
                 assertEquals(samples.get(index).actionTick(), CombatWorldTrails.sampleTime(samples, index), 0.0F);
             }
         }
-        // The spear sweep has three lines per active tick: a third of a tick apart, in list order,
-        // the middle one on the tick, so the steps across a tick boundary match the steps inside it.
-        List<HitboxSample> sweep = spearSweep().hitbox().samples();
-        assertEquals(9, sweep.size());
-        for (int index = 0; index < sweep.size(); index++) {
-            float expected = sweep.getFirst().actionTick() - 1.0F / 3.0F + index / 3.0F;
-            assertEquals(expected, CombatWorldTrails.sampleTime(sweep, index), 1.0E-5F);
-            HitboxSample at = CombatWorldTrails.blade(sweep, CombatWorldTrails.sampleTime(sweep, index));
-            assertSame(sweep.get(index), at, "sample " + index);
+        // n samples on one tick sit 1/n of a tick apart in list order, centred on the tick, and the
+        // trail shows each one exactly at its time. Counts come from the loaded spear moves.
+        int shared = 0;
+        for (AttackMoveDefinition move : CombatTestData.basicSpear().moves()) {
+            List<HitboxSample> samples = move.hitbox().samples();
+            for (int index = 0; index < samples.size(); index++) {
+                int tick = samples.get(index).actionTick();
+                int count = move.hitbox().samplesAt(tick).size();
+                int position = (int) samples.subList(0, index).stream().filter(sample -> sample.actionTick() == tick).count();
+                float expected = tick + (position + 0.5F) / count - 0.5F;
+                assertEquals(expected, CombatWorldTrails.sampleTime(samples, index), 1.0E-5F, move.id() + " sample " + index);
+                assertSame(samples.get(index), CombatWorldTrails.blade(samples, expected), move.id() + " sample " + index);
+                shared += count > 1 ? 1 : 0;
+            }
         }
+        assertTrue(shared > 0, "a spear move with several samples on one tick");
     }
 
     @Test
@@ -196,107 +202,243 @@ final class CombatWorldTrailsTest {
         CombatWorldTrails.TrailSize size = CombatWorldTrails.trailSize(Optional.of(spear), scale);
         CombatWorldTrails.TrailSize sword = CombatWorldTrails.trailSize(
                 Optional.of(FirstPersonSwingTest.geometry()), thirdPersonScale(CombatTestData.qingfeng()));
-        // Grip y -2 to tip y 32 at scale 0.9 plus the arm: about 2.6 blocks; the span y 16..32.
-        assertEquals(0.9F, scale, 0.0F);
-        assertEquals(CombatWorldTrails.ARM_REACH + 34.0 * 0.9 / 16.0, size.tipRadius(), 1.0E-6);
-        assertEquals(16.0 * 0.9 / 16.0, size.trailLength(), 1.0E-6);
+        // The arm plus grip to trail tip, and the trail span, at the spear model's third-person scale.
+        assertEquals(CombatWorldTrails.ARM_REACH + spear.gripToTrailTipPixels() * scale / 16.0, size.tipRadius(), 1.0E-6);
+        assertEquals(spear.trailLengthPixels() * scale / 16.0, size.trailLength(), 1.0E-6);
         assertTrue(size.tipRadius() > sword.tipRadius() + 0.8, "spear reaches " + size.tipRadius());
         assertTrue(size.trailLength() > sword.trailLength(), "spear span " + size.trailLength());
 
-        // The trail head is never beyond the spear's own tip radius: it is that radius wherever the
-        // move's far end reaches it, and the far end itself where the move is shorter (a cut whose
-        // far end is the posed spearhead up in the air). The span keeps its length inside the head.
-        // Checked at every drawn frame, between samples too, and for streaks.
-        int full = 0;
-        int shorter = 0;
+        // The rule, on every drawn frame of every shipped spear move (between samples too, streaks
+        // included), whatever lengths the data chooses: the head is min(far-end length, tip radius),
+        // never beyond the radius, the base is the span length inside the head, and a far end past
+        // the sword's 1.7 is never drawn at that old cap.
         for (AttackMoveDefinition move : CombatTestData.basicSpear().moves()) {
-            List<HitboxSample> samples = move.hitbox().samples();
-            float first = CombatWorldTrails.sampleTime(samples, 0) - 0.5F;
-            float last = CombatWorldTrails.sampleTime(samples, samples.size() - 1) + 0.5F;
-            for (float tick = first; tick <= last + 1.0E-4F; tick += CombatWorldTrails.TRAIL_TICKS / CombatWorldTrails.SEGMENTS) {
-                HitboxSample far = CombatWorldTrails.blade(samples, tick);
-                double reach = tipRadius(far);
-                HitboxSample drawn = CombatWorldTrails.drawnBlade(far, 1.0, size);
-                String where = move.id() + " tick " + tick + " far end " + reach;
-                double head = Math.min(reach, size.tipRadius());
-                assertEquals(head, tipRadius(drawn), 1.0E-6, where);
-                assertEquals(Math.max(0.0, head - size.trailLength()), baseRadius(drawn), 1.0E-6, where);
-                assertTrue(tipRadius(drawn) <= size.tipRadius() + 1.0E-9, where);
-                HitboxSample streak = CombatWorldTrails.drawnBlade(far, STREAK_OVERSHOOT, size);
-                assertEquals(head * STREAK_OVERSHOOT, tipRadius(streak), 1.0E-6, where);
-                // Never the old sword-sized cap: past 1.7 blocks the spear's head follows its reach.
-                if (reach > sword.tipRadius() + 0.01) {
-                    assertTrue(tipRadius(drawn) > sword.tipRadius() + 0.01 - 1.0E-9, where);
-                }
-                if (reach >= size.tipRadius()) {
-                    full++;
-                } else {
-                    shorter++;
-                }
-            }
-        }
-        assertTrue(full > 0 && shorter > 0, "both cases drawn: full " + full + ", shorter " + shorter);
-        // The sweep and both thrusts reach past the drawn spear everywhere: full radius throughout.
-        for (int index : new int[] {0, 1, 4}) {
-            for (HitboxSample sample : CombatTestData.basicSpear().move(index).hitbox().samples()) {
-                HitboxSample drawn = CombatWorldTrails.drawnBlade(sample, 1.0, size);
-                assertEquals(size.tipRadius(), tipRadius(drawn), 1.0E-6, CombatTestData.basicSpear().move(index).id().toString());
-                assertEquals(size.tipRadius() - size.trailLength(), baseRadius(drawn), 1.0E-6);
-            }
+            assertDrawnAtMinOfReachAndRadius(move.id().toString(), move.hitbox().samples(), size, sword);
         }
     }
 
     /**
-     * The spear sweep's nine lines (three per tick) draw one steady arc: at the render's own step
-     * the tip only ever turns one way, and no step turns more than the average step (no jump at
-     * a tick boundary). The old per-tick lookup turned 35 degrees at once at each boundary.
+     * A move whose far ends are shorter than the weapon's tip radius (built here, so the case is
+     * covered whatever the shipped data does): the head follows the far end's own length where it
+     * is shorter, and the base never passes behind the pivot.
      */
     @Test
-    void multiSampleSweepTracesASmoothPathInSampleOrder() throws IOException {
-        AttackMoveDefinition move = spearSweep();
-        List<HitboxSample> samples = move.hitbox().samples();
+    void shortFarEndsDrawTheHeadAtTheirOwnLength() throws IOException {
+        CombatWorldTrails.TrailSize size = CombatWorldTrails.trailSize(
+                Optional.of(FirstPersonOffHandTest.spearGeometry()), thirdPersonScale(CombatTestData.lingxiao()));
+        CombatWorldTrails.TrailSize sword = CombatWorldTrails.trailSize(
+                Optional.of(FirstPersonSwingTest.geometry()), thirdPersonScale(CombatTestData.qingfeng()));
+        double pivot = CombatWorldTrails.PIVOT_HEIGHT;
+        // Far ends 3.5, 2.2, 1.4 and 0.6 blocks from the pivot, rising; two share tick 6.
+        List<HitboxSample> samples = List.of(
+                farEnd(5, 0.0, pivot - 0.3, 3.5),
+                farEnd(6, 0.4, pivot + 1.2, 2.2),
+                farEnd(6, 0.3, pivot + 1.1, 1.4),
+                farEnd(7, 0.1, pivot + 0.4, 0.6));
+        double[] lengths = samples.stream().mapToDouble(CombatWorldTrailsTest::tipRadius).toArray();
+        assertTrue(lengths[0] > size.tipRadius() && lengths[1] < size.tipRadius() && lengths[1] > sword.tipRadius()
+                && lengths[2] < sword.tipRadius() && lengths[3] < size.trailLength(), java.util.Arrays.toString(lengths));
+        assertDrawnAtMinOfReachAndRadius("synthetic", samples, size, sword);
+        for (int index = 0; index < samples.size(); index++) {
+            HitboxSample drawn = CombatWorldTrails.drawnBlade(samples.get(index), 1.0, size);
+            double head = Math.min(lengths[index], size.tipRadius());
+            assertEquals(head, tipRadius(drawn), 1.0E-6, "sample " + index);
+            assertEquals(Math.max(0.0, head - size.trailLength()), baseRadius(drawn), 1.0E-6, "sample " + index);
+        }
+        assertEquals(0.0, baseRadius(CombatWorldTrails.drawnBlade(samples.get(3), 1.0, size)), 1.0E-9,
+                "a far end shorter than the span puts the base on the pivot, not behind it");
+    }
+
+    /**
+     * What the shipped spear cuts are authored for: through each cut's active window the drawn head
+     * stays on the tip-radius sphere. A far end shorter than the radius pulls the head inward and
+     * bends its path (the c40f7ee flick and smash, whose posed-head far ends of 2.0 to 2.1 blocks
+     * gave 39 to 42 degree corners); lengthen such far ends to at least the radius instead.
+     */
+    @Test
+    void shippedSpearCutsKeepTheTrailHeadOnTheTipRadius() throws IOException {
+        CombatWorldTrails.TrailSize size = CombatWorldTrails.trailSize(
+                Optional.of(FirstPersonOffHandTest.spearGeometry()), thirdPersonScale(CombatTestData.lingxiao()));
+        int cuts = 0;
+        for (AttackMoveDefinition move : CombatTestData.basicSpear().moves()) {
+            if (SwordTrailShape.streak(move.kind())) {
+                continue;
+            }
+            cuts++;
+            List<HitboxSample> samples = move.hitbox().samples();
+            for (float tick = move.activeStartTick() - 0.5F; tick <= move.activeEndTick() + 0.5F + 1.0E-4F;
+                    tick += CombatWorldTrails.TRAIL_TICKS / CombatWorldTrails.SEGMENTS) {
+                HitboxSample far = CombatWorldTrails.blade(samples, tick);
+                double head = tipRadius(CombatWorldTrails.drawnBlade(far, 1.0, size));
+                assertEquals(size.tipRadius(), head, 1.0E-6, move.id() + " tick " + tick + ": the far end is "
+                        + tipRadius(far) + " blocks from the trail pivot, shorter than the spear's tip radius "
+                        + size.tipRadius() + ", so the trail head leaves the radius and its path bends; author"
+                        + " the cut's far ends at least that far out");
+            }
+        }
+        assertEquals(3, cuts, "the spear's three cuts");
+    }
+
+    /** One drawn frame per render step over the trail window: the drawn-size rule holds on each. */
+    private static void assertDrawnAtMinOfReachAndRadius(
+            String label,
+            List<HitboxSample> samples,
+            CombatWorldTrails.TrailSize size,
+            CombatWorldTrails.TrailSize sword) {
+        float first = CombatWorldTrails.sampleTime(samples, 0) - 0.5F;
+        float last = CombatWorldTrails.sampleTime(samples, samples.size() - 1) + 0.5F;
+        for (float tick = first; tick <= last + 1.0E-4F; tick += CombatWorldTrails.TRAIL_TICKS / CombatWorldTrails.SEGMENTS) {
+            HitboxSample far = CombatWorldTrails.blade(samples, tick);
+            double reach = tipRadius(far);
+            HitboxSample drawn = CombatWorldTrails.drawnBlade(far, 1.0, size);
+            String where = label + " tick " + tick + " far end " + reach;
+            double head = Math.min(reach, size.tipRadius());
+            assertEquals(head, tipRadius(drawn), 1.0E-6, where);
+            assertTrue(tipRadius(drawn) <= size.tipRadius() + 1.0E-9, where);
+            assertEquals(Math.max(0.0, head - size.trailLength()), baseRadius(drawn), 1.0E-6, where);
+            HitboxSample streak = CombatWorldTrails.drawnBlade(far, STREAK_OVERSHOOT, size);
+            assertEquals(head * STREAK_OVERSHOOT, tipRadius(streak), 1.0E-6, where);
+            if (reach > sword.tipRadius() + 0.01) {
+                assertTrue(tipRadius(drawn) > sword.tipRadius() + 0.01 - 1.0E-9, where + ": drawn at the old 1.7 cap");
+            }
+        }
+    }
+
+    /** A sample whose far end is {@code reach} blocks from the trail pivot, at side {@code x} and height {@code y}. */
+    private static HitboxSample farEnd(int tick, double x, double y, double reach) {
+        double up = y - CombatWorldTrails.PIVOT_HEIGHT;
+        double z = Math.sqrt(reach * reach - x * x - up * up);
+        return new HitboxSample(tick, 0.0, 1.05, 0.55, x, y, z, 0.2, 0.2);
+    }
+
+    /**
+     * Every spear cut's trail head traces one smooth path in sample order through the cut's active
+     * window. Read from the loaded data, not pinned:
+     * <ul>
+     *     <li>each active tick carries the same number of samples, so {@link CombatWorldTrails#sampleTime}
+     *     spaces them evenly; uneven counts (3/4/2 at c40f7ee) spaced them 1/3, 1/4 and 1/2 of a tick
+     *     apart and changed the drawn speed by themselves;</li>
+     *     <li>the head never reverses: consecutive drawn steps turn by less than 90 degrees;</li>
+     *     <li>where the head is moving (a step of at least a fifth of the cut's fastest), neighbouring
+     *     drawn steps differ in speed by no more than the posed samples themselves do from one
+     *     interval to the next (5% for the interpolation inside an interval): the trail adds no
+     *     speed change of its own. The bound is the pose's motion, not a number fixed here.</li>
+     * </ul>
+     */
+    @Test
+    void spearCutsTraceASmoothOneWayPathInSampleOrder() throws IOException {
         CombatWorldTrails.TrailSize size = CombatWorldTrails.trailSize(
                 Optional.of(FirstPersonOffHandTest.spearGeometry()), thirdPersonScale(CombatTestData.lingxiao()));
         float step = CombatWorldTrails.TRAIL_TICKS / CombatWorldTrails.SEGMENTS;
+        int cuts = 0;
+        for (AttackMoveDefinition move : CombatTestData.basicSpear().moves()) {
+            if (SwordTrailShape.streak(move.kind())) {
+                continue;
+            }
+            cuts++;
+            String id = move.id().toString();
+            int perTick = move.hitbox().samplesAt(move.activeStartTick()).size();
+            for (int tick = move.activeStartTick(); tick <= move.activeEndTick(); tick++) {
+                assertEquals(perTick, move.hitbox().samplesAt(tick).size(), id + " tick " + tick
+                        + ": every active tick needs the same number of samples, or the trail's speed changes"
+                        + " at the tick boundary (sampleTime spaces n samples 1/n of a tick apart)");
+            }
+            List<HitboxSample> samples = move.hitbox().samples();
+            // The posed samples' own speed per interval, in radians per tick.
+            List<Double> poseSpeeds = new ArrayList<>();
+            for (int index = 0; index + 1 < samples.size(); index++) {
+                poseSpeeds.add(angle(direction(samples.get(index)), direction(samples.get(index + 1)))
+                        / (CombatWorldTrails.sampleTime(samples, index + 1) - CombatWorldTrails.sampleTime(samples, index)));
+            }
+            double poseRatio = movingRatio(poseSpeeds);
+            List<double[]> heads = new ArrayList<>();
+            float start = CombatWorldTrails.sampleTime(samples, 0);
+            float end = CombatWorldTrails.sampleTime(samples, samples.size() - 1);
+            for (float tick = start; tick <= end + 1.0E-4F; tick += step) {
+                HitboxSample drawn = CombatWorldTrails.drawnBlade(CombatWorldTrails.blade(samples, tick), 1.0, size);
+                heads.add(new double[] {drawn.endX(), drawn.endY() - CombatWorldTrails.PIVOT_HEIGHT, drawn.endZ()});
+            }
+            List<Double> steps = new ArrayList<>();
+            for (int index = 0; index + 1 < heads.size(); index++) {
+                steps.add(angle(unit(heads.get(index)), unit(heads.get(index + 1))));
+            }
+            for (int index = 0; index + 2 < heads.size(); index++) {
+                double[] first = difference(heads.get(index + 1), heads.get(index));
+                double[] second = difference(heads.get(index + 2), heads.get(index + 1));
+                if (length(first) > 1.0E-9 && length(second) > 1.0E-9) {
+                    assertTrue(angle(unit(first), unit(second)) < Math.PI / 2.0,
+                            id + " frame " + index + ": the trail head turns back");
+                }
+            }
+            double frameRatio = movingRatio(steps);
+            assertTrue(frameRatio <= Math.max(1.0, poseRatio) * 1.05, id + ": neighbouring drawn steps change speed "
+                    + frameRatio + "x, the posed samples only " + poseRatio + "x");
+        }
+        assertTrue(cuts > 0, "the spear has cuts");
+    }
+
+    /**
+     * The jump the shared-tick timeline replaced, on a level arc built here with three lines per
+     * tick: the old per-tick lookup drew the arc with steps many times the average at each tick
+     * boundary; the timeline draws it at one speed in sample order.
+     */
+    @Test
+    void sharedTickSamplesNoLongerJumpAtTickBoundaries() {
+        List<HitboxSample> samples = new ArrayList<>();
+        for (int index = 0; index < 9; index++) {
+            double angle = Math.toRadians(60.0 - 15.0 * index);
+            samples.add(new HitboxSample(5 + index / 3, 0.0, 1.05, 0.45,
+                    Math.sin(angle) * 3.5, 1.05, Math.cos(angle) * 3.5, 0.18, 0.34));
+        }
+        float step = CombatWorldTrails.TRAIL_TICKS / CombatWorldTrails.SEGMENTS;
         float start = CombatWorldTrails.sampleTime(samples, 0);
         float end = CombatWorldTrails.sampleTime(samples, samples.size() - 1);
-        List<Double> turns = new ArrayList<>();
-        List<Double> legacyTurns = new ArrayList<>();
-        double previous = Double.NaN;
-        double legacyPrevious = Double.NaN;
-        for (float tick = start; tick <= end + 1.0E-4F; tick += step) {
-            double angle = heading(CombatWorldTrails.drawnBlade(CombatWorldTrails.blade(samples, tick), 1.0, size));
-            double legacy = heading(legacyBlade(samples, tick));
-            if (!Double.isNaN(previous)) {
-                turns.add(angle - previous);
-                legacyTurns.add(legacy - legacyPrevious);
-            }
-            previous = angle;
-            legacyPrevious = legacy;
+        double mean = Math.toRadians(120.0) / ((end - start) / step);
+        double largest = 0.0;
+        double legacyLargest = 0.0;
+        for (float tick = start + step; tick <= end + 1.0E-4F; tick += step) {
+            double turn = heading(CombatWorldTrails.blade(samples, tick)) - heading(CombatWorldTrails.blade(samples, tick - step));
+            assertTrue(turn < 0.0, "tick " + tick + " turns back");
+            largest = Math.max(largest, -turn);
+            legacyLargest = Math.max(legacyLargest,
+                    Math.abs(heading(legacyBlade(samples, tick)) - heading(legacyBlade(samples, tick - step))));
         }
-        double total = heading(samples.getLast()) - heading(samples.getFirst());
-        assertEquals(-140.0, Math.toDegrees(total), 0.1, "the sweep runs 140 degrees right to left");
-        double mean = Math.abs(total) / ((end - start) / step);
-        for (int index = 0; index < turns.size(); index++) {
-            double turn = turns.get(index);
-            assertTrue(turn < 0.0, "step " + index + " turns back by " + Math.toDegrees(turn));
-            assertTrue(-turn <= mean * 1.01, "step " + index + " turns " + Math.toDegrees(-turn)
-                    + " degrees, mean " + Math.toDegrees(mean));
-        }
-        // The jump this replaces: the largest old step was many average steps at once.
-        double legacyLargest = legacyTurns.stream().mapToDouble(Math::abs).max().orElseThrow();
+        assertTrue(largest <= mean * 1.01, "largest step " + Math.toDegrees(largest) + ", mean " + Math.toDegrees(mean));
         assertTrue(legacyLargest > 5.0 * mean, "legacy largest step " + Math.toDegrees(legacyLargest));
     }
 
-    /** The spear's level sweep (move 2): nine lines, three per active tick, all at full reach. */
-    private static AttackMoveDefinition spearSweep() {
-        AttackMoveDefinition sweep = CombatTestData.basicSpear().move(1);
-        List<HitboxSample> samples = sweep.hitbox().samples();
-        for (int tick = sweep.activeStartTick(); tick <= sweep.activeEndTick(); tick++) {
-            assertEquals(3, sweep.hitbox().samplesAt(tick).size(), "sweep samples at tick " + tick);
+    private static double movingRatio(List<Double> speeds) {
+        double fastest = speeds.stream().mapToDouble(Double::doubleValue).max().orElse(0.0);
+        double ratio = 1.0;
+        for (int index = 0; index + 1 < speeds.size(); index++) {
+            double first = speeds.get(index);
+            double second = speeds.get(index + 1);
+            if (first >= 0.2 * fastest && second >= 0.2 * fastest && first > 0.0 && second > 0.0) {
+                ratio = Math.max(ratio, Math.max(first / second, second / first));
+            }
         }
-        assertEquals(9, samples.size());
-        return sweep;
+        return ratio;
+    }
+
+    private static double[] direction(HitboxSample sample) {
+        return unit(new double[] {sample.endX(), sample.endY() - CombatWorldTrails.PIVOT_HEIGHT, sample.endZ()});
+    }
+
+    private static double[] difference(double[] a, double[] b) {
+        return new double[] {a[0] - b[0], a[1] - b[1], a[2] - b[2]};
+    }
+
+    private static double length(double[] v) {
+        return Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+    }
+
+    private static double[] unit(double[] v) {
+        double length = length(v);
+        return new double[] {v[0] / length, v[1] / length, v[2] / length};
+    }
+
+    private static double angle(double[] a, double[] b) {
+        return Math.acos(Math.max(-1.0, Math.min(1.0, a[0] * b[0] + a[1] * b[1] + a[2] * b[2])));
     }
 
     private static double heading(HitboxSample sample) {

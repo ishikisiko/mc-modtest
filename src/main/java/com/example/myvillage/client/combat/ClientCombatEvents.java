@@ -23,17 +23,21 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
 @EventBusSubscriber(modid = MyVillageMod.MOD_ID, value = Dist.CLIENT)
 public final class ClientCombatEvents {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClientCombatEvents.class);
     private static final int CLIENT_INTENT_INTERVAL_TICKS = 2;
     private static final int PREDICTION_TIMEOUT_TICKS = 8;
     /**
@@ -42,6 +46,7 @@ public final class ClientCombatEvents {
      */
     private static final int CHAIN_CONFIRM_GRACE_TICKS = 2;
     private static long lastAttackIntentTick = Long.MIN_VALUE;
+    private static long lastClientTickTime = Long.MIN_VALUE;
 
     static {
         CombatModeSnapshotReceiver.install(ClientCombatEvents::receiveModeSnapshot);
@@ -53,6 +58,18 @@ public final class ClientCombatEvents {
     }
 
     private ClientCombatEvents() {
+    }
+
+    /**
+     * Advances the {@link ClientCombatClock} once per client tick in which the level ran (its game
+     * time advanced in this same tick), before any other combat tick handler reads it.
+     */
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    static void advanceCombatClock(ClientTickEvent.Post event) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.level != null && !minecraft.isPaused() && minecraft.level.tickRateManager().runsNormally()) {
+            ClientCombatClock.advance();
+        }
     }
 
     @SubscribeEvent
@@ -69,7 +86,17 @@ public final class ClientCombatEvents {
         }
 
         FirstPersonWeaponAnimator.clientTick(player);
-        long tick = minecraft.level.getGameTime();
+        long gameTime = minecraft.level.getGameTime();
+        if (lastClientTickTime != Long.MIN_VALUE && gameTime - lastClientTickTime != 1L
+                && (ClientCombatState.localActionActive() || ClientCombatState.predictionPending())) {
+            // The server's time packet re-set the client's game time. Combat timelines run on the
+            // ClientCombatClock, so the reset is logged, not played.
+            LOGGER.info("PAL_SMOKE client_time_jump from={} to={} local={}",
+                    lastClientTickTime, gameTime, ClientCombatClock.ticks());
+        }
+        lastClientTickTime = gameTime;
+        // Prediction, buffering and chain ticks are local ticks; server ticks are mapped on arrival.
+        long tick = ClientCombatClock.ticks();
         if (ClientCombatState.chainPredictionAbandoned(tick, CHAIN_CONFIRM_GRACE_TICKS)
                 || (ClientCombatState.predictionPending()
                 && tick - ClientCombatState.predictionTick() > PREDICTION_TIMEOUT_TICKS)) {
@@ -136,7 +163,7 @@ public final class ClientCombatEvents {
         if (minecraft.level == null) {
             return;
         }
-        long tick = minecraft.level.getGameTime();
+        long tick = ClientCombatClock.ticks();
         if (lastAttackIntentTick != Long.MIN_VALUE
                 && tick - lastAttackIntentTick < CLIENT_INTENT_INTERVAL_TICKS) {
             return;
@@ -217,6 +244,7 @@ public final class ClientCombatEvents {
         CombatImpactFx.clear();
         CombatCameraFx.clear();
         lastAttackIntentTick = Long.MIN_VALUE;
+        lastClientTickTime = Long.MIN_VALUE;
     }
 
     @SubscribeEvent
@@ -265,7 +293,9 @@ public final class ClientCombatEvents {
                 player.swing(InteractionHand.MAIN_HAND, false);
                 player.setSprinting(false);
             }
-            ClientCombatState.trackLocalAction(style, moveIndex, payload.serverStartTick(), payload.revision());
+            ClientCombatState.trackLocalAction(style, moveIndex,
+                    ClientCombatClock.fromServer(payload.serverStartTick(), minecraft.level.getGameTime()),
+                    payload.revision());
             ClientCombatState.confirmPrediction((moveIndex + 1) % style.moves().size());
         }
     }
@@ -294,7 +324,7 @@ public final class ClientCombatEvents {
         }
         if (player == minecraft.player
                 && payload.reason() == CombatStopReason.COMPLETED
-                && ClientCombatState.absorbChainSourceStop(payload.revision(), minecraft.level.getGameTime())) {
+                && ClientCombatState.absorbChainSourceStop(payload.revision(), ClientCombatClock.ticks())) {
             // The end of the move this client already chained out of: keep the chained move.
             return;
         }
@@ -307,7 +337,7 @@ public final class ClientCombatEvents {
         }
         if (player == minecraft.player) {
             if (payload.reason() == CombatStopReason.COMPLETED) {
-                ClientCombatState.completeAction(minecraft.level.getGameTime());
+                ClientCombatState.completeAction(ClientCombatClock.ticks());
             } else {
                 ClientCombatState.clearActionAnimation();
             }
@@ -318,7 +348,8 @@ public final class ClientCombatEvents {
         Minecraft minecraft = Minecraft.getInstance();
         LocalPlayer player = minecraft.player;
         if (player != null && payload.attackerEntityId() == player.getId()) {
-            FirstPersonWeaponAnimator.confirmHit(player);
+            FirstPersonWeaponAnimator.confirmHit(player, payload.revision(), payload.hitCount(),
+                    ClientCombatState.isCurrentAction(payload.revision()));
             CombatCameraFx.onHitConfirm(
                     ClientCombatState.localMoveFor(payload.revision()), payload.revision());
         }

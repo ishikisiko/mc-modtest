@@ -72,6 +72,32 @@ final class CombatDataLoaderTest {
     }
 
     @Test
+    void explicitSamplesMustBeListedInTickOrder() {
+        // Several samples on one tick are fine; a tick lower than the one before is a load error.
+        Files files = Files.bundled();
+        files.edit(STYLE, style -> move(style, 0).getAsJsonObject("hitbox").add("samples", samplesAt(3, 4, 4, 5)));
+        assertEquals(List.of(3, 4, 4, 5), files.load().style(CombatTestData.BASIC_SWORD).orElseThrow().move(0)
+                .hitbox().samples().stream().map(HitboxSample::actionTick).toList());
+        assertRejected(STYLE, "moves[0].hitbox.samples[2].tick", "non-decreasing tick order",
+                rejected -> rejected.edit(STYLE, style -> move(style, 0).getAsJsonObject("hitbox")
+                        .add("samples", samplesAt(5, 6, 5))));
+    }
+
+    private static JsonArray samplesAt(int... ticks) {
+        JsonArray samples = new JsonArray();
+        for (int tick : ticks) {
+            JsonObject sample = new JsonObject();
+            sample.addProperty("tick", tick);
+            sample.add("start", vector(0.0, 1.0, 0.5));
+            sample.add("end", vector(0.25, 1.25, 2.5));
+            sample.addProperty("horizontal_radius", 0.2);
+            sample.addProperty("vertical_radius", 0.3);
+            samples.add(sample);
+        }
+        return samples;
+    }
+
+    @Test
     void unknownFieldsAreRejectedWithFileAndField() {
         assertRejected(STYLE, "moves[0].chain_tik", "unknown field",
                 files -> files.edit(STYLE, style -> move(style, 0).addProperty("chain_tik", 7)));

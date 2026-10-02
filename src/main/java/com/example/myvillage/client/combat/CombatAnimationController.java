@@ -443,8 +443,12 @@ public final class CombatAnimationController {
         return player == Minecraft.getInstance().player;
     }
 
+    /**
+     * Deadlines (stop grace, awaited stop, remote hit-stop rate TTL) count local client ticks, which
+     * the server's time packet never re-sets ({@link ClientCombatClock}).
+     */
     private static long gameTime(AbstractClientPlayer player) {
-        return player.level().getGameTime();
+        return ClientCombatClock.ticks();
     }
 
     /**

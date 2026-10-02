@@ -259,6 +259,29 @@ class CombatDataTest(unittest.TestCase):
         self.edit_style(lambda style: style["moves"][0]["hitbox"]["samples"][1].update(radius=1))
         self.find("UNKNOWN_FIELD", "moves[0].hitbox.samples[1].radius")
 
+    def test_explicit_samples_must_not_go_back_in_tick(self) -> None:
+        sample = {"tick": 3, "start": [0, 1.2, 0.5], "end": [0, 1.2, 2.9],
+                  "horizontal_radius": 0.16, "vertical_radius": 0.16}
+        thrust = self.read(STYLE)["moves"][0]
+        start, end = thrust["active_ticks"]
+        self.assertLess(start, end)
+        # Repeated ticks keep their list order and are allowed.
+        ordered = [dict(sample, tick=start), dict(sample, tick=start), dict(sample, tick=end)]
+        self.edit_style(lambda style: style["moves"][0]["hitbox"].update(samples=ordered))
+        self.assertEqual([], self.issues())
+        # [start, end, start]: valid ticks for gameplay, but the trail would jump back.
+        backwards = [dict(sample, tick=start), dict(sample, tick=end), dict(sample, tick=start)]
+        self.edit_style(lambda style: style["moves"][0]["hitbox"].update(samples=backwards))
+        # (The style no longer loads, so its weapon also gets a REFERENCE issue.)
+        issues = [issue for issue in self.issues() if issue.code == "SAMPLE_ORDER"]
+        self.assertEqual(1, len(issues), [str(i) for i in self.issues()])
+        issue = issues[0]
+        self.assertEqual(STYLE, issue.file)
+        self.assertEqual("moves[0].hitbox.samples[2].tick", issue.field)
+        self.assertIn(thrust["id"], issue.message)
+        self.assertIn("samples[1]", issue.message)
+        self.assertIn(STYLE, str(issue))
+
     def test_unknown_sample_generator_is_rejected(self) -> None:
         self.edit_style(lambda style: style["moves"][2]["hitbox"]["samples"].update(generator="spiral"))
         self.find("SCHEMA", "moves[2].hitbox.samples.generator")

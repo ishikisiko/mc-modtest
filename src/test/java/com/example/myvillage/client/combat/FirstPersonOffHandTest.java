@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.example.myvillage.combat.definition.CombatTestData;
 import com.google.gson.JsonArray;
@@ -319,13 +318,13 @@ final class FirstPersonOffHandTest {
         assertTrue(off.arm().grip().distance(main.grip()) > 0.2F, "fists too close");
     }
 
-    /** Once the shipped spear rig draws the off arm, its hand must hold the shaft at every tick. */
+    /** The shipped spear rig draws the off arm, and its hand holds the shaft at every tick. */
     @Test
     void shippedSpearRigKeepsTheOffHandOnTheShaft() throws IOException {
         Path rigPath = CombatTestData.assetPath(CombatTestData.lingxiao().firstPersonRig());
-        assumeTrue(Files.exists(rigPath), "the spear rig is not authored yet");
+        assertTrue(Files.exists(rigPath), "the shipped spear rig is missing: " + rigPath);
         JsonObject json = JsonParser.parseString(Files.readString(rigPath)).getAsJsonObject();
-        assumeTrue(json.getAsJsonObject("rig").has("off_hand"), "the spear rig has no rig.off_hand yet");
+        assertTrue(json.getAsJsonObject("rig").has("off_hand"), "the shipped spear rig lost its rig.off_hand block");
         FirstPersonSwing swing = FirstPersonSwing.parse(json, CombatTestData.basicSpear(), spearGeometry());
         SwordGeometry spear = swing.sword();
         FirstPersonArmIk.OffHandSolution neutral =

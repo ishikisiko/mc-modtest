@@ -28,8 +28,9 @@ HORIZONTAL = "myvillage:basic_sword_02_horizontal_cut"
 
 # The second weapon (add-lingxiao-spear design).  Its data, item model, 3D model, textures, contract,
 # and model generator are committed; its first-person rig and third-person animations are built
-# synthetically in the fixture from its style file (see SECOND_WEAPON_SYNTHETIC), so the tests do
-# not depend on the rig and pose-table work in progress.
+# synthetically in the fixture from its style file (see SECOND_WEAPON_SYNTHETIC), so the cross-file
+# tests do not depend on the committed rig and PAL file.  Tests that run the PAL generator's --check
+# first regenerate the PAL files with it (regenerate_player_animations) and fail if it cannot.
 SPEAR_WEAPON_ID = "myvillage:lingxiao_spear"
 SPEAR_STYLE = f"{DATA}/style/basic_spear.json"
 SPEAR_WEAPON = f"{DATA}/weapon/lingxiao_spear.json"
@@ -164,14 +165,13 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
     def regenerate_player_animations(self) -> None:
         """Replace the fixture's PAL files with the PAL generator's output, so its --check holds.
 
-        Skips the test while the generator cannot build a pose table for every style in the index
-        (the spear table is work in progress on add-lingxiao-spear)."""
+        The fixture's spear PAL file is synthetic until this runs.  A generator that cannot build
+        every pose table fails the calling test with the generator's own message."""
         result = subprocess.run([sys.executable, PAL_GENERATOR], cwd=self.root, capture_output=True,
                                 text=True, timeout=validator.GENERATOR_TIMEOUT_SECONDS, check=False)
         if result.returncode != 0:
-            lines = (result.stderr or result.stdout).strip().splitlines()
-            self.skipTest(f"{PAL_GENERATOR} cannot generate every pose table yet: "
-                          f"{lines[-1] if lines else result.returncode}")
+            output = "\n".join(part.strip() for part in (result.stderr, result.stdout) if part.strip())
+            self.fail(f"{PAL_GENERATOR} failed (exit {result.returncode}) on the fixture:\n{output}")
 
     def generator_details(self, code: str) -> list[str]:
         return [f.detail for f in self.findings(run_generators=True) if f.code == code]
@@ -239,6 +239,17 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
     def test_index_entry_without_file_is_reported(self) -> None:
         (self.root / WEAPON).unlink()
         self.assertTrue(any("myvillage:qingfeng_sword" in d for d in self.details("COMBAT_DATA_INDEX")))
+
+    def test_explicit_samples_out_of_tick_order_are_reported(self) -> None:
+        style = self.read_json(STYLE)
+        move = self.style_move(style, THRUST)
+        start, end = move["active_ticks"]
+        sample = {"start": [0, 1.2, 0.5], "end": [0, 1.2, 2.9], "horizontal_radius": 0.16, "vertical_radius": 0.16}
+        move["hitbox"]["samples"] = [dict(sample, tick=t) for t in (start, end, start)]
+        self.write_json(STYLE, style)
+        details = self.details("COMBAT_DATA_SAMPLE_ORDER")
+        self.assertTrue(any(STYLE in d and "moves[0].hitbox.samples[2].tick" in d and THRUST in d
+                            for d in details), details)
 
     def test_timing_invariant_violation_is_reported(self) -> None:
         style = self.read_json(STYLE)

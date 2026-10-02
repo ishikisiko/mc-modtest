@@ -50,8 +50,8 @@ class Issue:
     """One problem in the combat data.
 
     ``code`` is one of ``JSON``, ``MISSING_FILE``, ``SCHEMA``, ``UNKNOWN_FIELD``, ``INVARIANT``,
-    ``DUPLICATE``, ``INDEX`` (index and directory disagree) or ``REFERENCE`` (an id that does
-    not resolve).  ``file`` is relative to the repository root; ``field`` is a dotted path such
+    ``DUPLICATE``, ``INDEX`` (index and directory disagree), ``REFERENCE`` (an id that does
+    not resolve) or ``SAMPLE_ORDER`` (explicit hit samples whose ticks go backwards).  ``file`` is relative to the repository root; ``field`` is a dotted path such
     as ``moves[2].chain_tick`` (empty for a whole-file problem).
     """
 
@@ -411,6 +411,13 @@ def _move_invariants(c: _Checker, move: dict, path: str) -> None:
             if not start <= sample["tick"] <= end:
                 c.fail("INVARIANT", _join(path, f"hitbox.samples[{i}].tick"),
                        f"must lie inside the active ticks [{start}, {end}], got {sample['tick']}")
+            # The world trail walks the samples in list order and keeps the list order within a
+            # tick, so the ticks may repeat but never go back.
+            if i > 0 and sample["tick"] < sample_list[i - 1]["tick"]:
+                c.fail("SAMPLE_ORDER", _join(path, f"hitbox.samples[{i}].tick"),
+                       f"explicit samples must be in non-decreasing tick order; {move['id']} "
+                       f"samples[{i}] has tick {sample['tick']} after samples[{i - 1}] at tick "
+                       f"{sample_list[i - 1]['tick']}")
 
 
 def validate_style(document: Any, file: str) -> list[Issue]:

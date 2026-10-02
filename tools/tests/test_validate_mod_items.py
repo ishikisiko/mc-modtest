@@ -149,8 +149,13 @@ class ModItemsValidatorTest(unittest.TestCase):
     def test_combat_weapon_item_without_its_reequip_rule_is_named(self) -> None:
         path = self.root / "src/main/java/com/example/myvillage/item/CombatWeaponItem.java"
         source = path.read_text(encoding="utf-8")
-        path.write_text(source.replace("return slotChanged || !sameItem;", "return true;"), encoding="utf-8")
+        path.write_text(source.replace("return !before.equals(after);", "return true;"), encoding="utf-8")
         self.assertIn("combat_weapon_item_contract:reequip_rule", self.errors())
+        path.write_text(source.replace("if (!sameItemAndCount) {", "if (slotChanged || !sameItemAndCount) {"),
+                        encoding="utf-8")
+        self.assertIn("combat_weapon_item_contract:reequip_rule", self.errors())
+        path.write_text(source, encoding="utf-8")
+        self.assertNotIn("combat_weapon_item_contract:reequip_rule", self.errors())
         path.unlink()
         self.assertIn("combat_weapon_item_missing:CombatWeaponItem.java", self.errors())
 

@@ -26,10 +26,14 @@ ZH_LANG = ASSET_ROOT / "lang" / "zh_cn.json"
 # CombatWeaponItem: a landed combat hit costs durability, and on a plain SwordItem that data-only change
 # replays the vanilla equip animation, which drops the first-person weapon after every hit.
 COMBAT_WEAPON_CLASS = "CombatWeaponItem"
-# The re-equip rule CombatWeaponItem must keep: only a slot change or another item re-equips.
+# The re-equip rule CombatWeaponItem must keep: vanilla's behaviour minus the durability replay
+# (same item, count and components with minecraft:damage ignored: no re-equip; slotChanged unused).
 COMBAT_WEAPON_RULE = ("shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged)",
-                      "reequips(ItemStack.isSameItem(oldStack, newStack), slotChanged)",
-                      "return slotChanged || !sameItem;")
+                      "DataComponents.DAMAGE",
+                      "before.remove(ignored);",
+                      "after.remove(ignored);",
+                      "return !before.equals(after);")
+COMBAT_WEAPON_RULE_FORBIDDEN = ("slotChanged ||", "|| slotChanged")
 
 # SwordItem.createAttributes(Tiers.DIAMOND, <attack bonus>, <attack speed>) per item.
 SWORD_ATTRIBUTES = (3, "-2.4F")
@@ -464,8 +468,9 @@ def validate_combat_weapon_items(items_text: str, combat_items: set[str], errors
         errors.append(f"combat_weapon_item_missing:{COMBAT_WEAPON_ITEM.name}")
         return
     source = COMBAT_WEAPON_ITEM.read_text(encoding="utf-8")
-    if not re.search(rf"class\s+{COMBAT_WEAPON_CLASS}\s+extends\s+SwordItem\b", source) or any(
-            needle not in source for needle in COMBAT_WEAPON_RULE):
+    if (not re.search(rf"class\s+{COMBAT_WEAPON_CLASS}\s+extends\s+SwordItem\b", source)
+            or any(needle not in source for needle in COMBAT_WEAPON_RULE)
+            or any(needle in source for needle in COMBAT_WEAPON_RULE_FORBIDDEN)):
         errors.append("combat_weapon_item_contract:reequip_rule")
 
 
