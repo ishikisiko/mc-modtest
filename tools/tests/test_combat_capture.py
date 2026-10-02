@@ -204,14 +204,19 @@ class ViewTest(unittest.TestCase):
         for v in capture.LONG_WEAPON_VIEWS:
             self.assertIn(v, capture.ALL_VIEWS)
 
-    def test_bundled_spear_is_long_without_a_rig(self):
+    def test_bundled_spear_is_long_and_has_its_rig(self):
+        """The spear is bundled with its final rig and geometry contract: it
+        must resolve fully (rig required) and get the long-weapon views."""
         spear_id = "myvillage:lingxiao_spear"
         index = json.loads((RESOURCES / data.INDEX_REL).read_text(encoding="utf-8"))
-        if spear_id not in index["weapons"]:
-            self.skipTest("spear not bundled")
-        spear = data.load_weapon(RESOURCES, spear_id, require_rig=False)
+        self.assertIn(spear_id, index["weapons"])
+        spear = data.load_weapon(RESOURCES, spear_id)  # require_rig=True: a missing rig fails here
+        self.assertIn("rig", spear.files)
+        self.assertIn("geometry", spear.files)
+        self.assertIsNotNone(spear.held_length)
         self.assertGreaterEqual(spear.held_length, capture.LONG_WEAPON_BLOCKS)
         self.assertEqual(capture.default_views(spear), list(capture.LONG_WEAPON_VIEWS))
+        self.assertTrue(all(len(m.keys) == len(data.KEY_NAMES) for m in spear.moves))
 
     def test_held_length(self):
         g = {"overall_y": [-16.0, 32.0]}
