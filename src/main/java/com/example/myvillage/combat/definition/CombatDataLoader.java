@@ -294,6 +294,12 @@ public final class CombatDataLoader {
             if (tick < 0 || tick >= totalTicks) {
                 throw sample.error("tick", "must lie inside the move (0 <= tick < " + totalTicks + "), got " + tick);
             }
+            // The server reads samples by tick, but the trails draw them in list order (several on
+            // one tick follow each other through it), so the list must run in tick order.
+            if (!samples.isEmpty() && tick < samples.getLast().actionTick()) {
+                throw sample.error("tick", "samples must be listed in non-decreasing tick order; got " + tick
+                        + " after samples[" + (index - 1) + "] at tick " + samples.getLast().actionTick());
+            }
             double[] start = sample.vector("start");
             double[] end = sample.vector("end");
             samples.add(build(sample, () -> new HitboxSample(

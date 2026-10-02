@@ -15,6 +15,8 @@ API
     Same, but raises :class:`CombatDataError` (listing every issue) when there is any issue.
 ``validate_style(document, file) -> list[Issue]`` / ``validate_weapon(document, file) -> list[Issue]``
     Check one parsed document against the schema and the move invariants.
+``expand_samples(move) -> list[dict]``
+    A validated move's hit samples as explicit samples (a generator's output, or the list).
 ``split_id(value) -> (namespace, path)``, ``style_file(root, id)``, ``weapon_file(root, id)``,
 ``asset_file(root, id)``
     Resolve resource ids to repository paths.
@@ -50,9 +52,11 @@ class Issue:
     """One problem in the combat data.
 
     ``code`` is one of ``JSON``, ``MISSING_FILE``, ``SCHEMA``, ``UNKNOWN_FIELD``, ``INVARIANT``,
-    ``DUPLICATE``, ``INDEX`` (index and directory disagree) or ``REFERENCE`` (an id that does
-    not resolve).  ``file`` is relative to the repository root; ``field`` is a dotted path such
-    as ``moves[2].chain_tick`` (empty for a whole-file problem).
+    ``DUPLICATE``, ``INDEX`` (index and directory disagree), ``REFERENCE`` (an id that does
+    not resolve), ``SAMPLE_ORDER`` (explicit hit samples whose ticks go backwards) or
+    ``SAMPLE_COUNT`` (uneven explicit samples per active tick).  ``file`` is relative to the
+    repository root; ``field`` is a dotted path such as ``moves[2].chain_tick`` (empty for a
+    whole-file problem).
     """
 
     code: str
@@ -411,6 +415,59 @@ def _move_invariants(c: _Checker, move: dict, path: str) -> None:
             if not start <= sample["tick"] <= end:
                 c.fail("INVARIANT", _join(path, f"hitbox.samples[{i}].tick"),
                        f"must lie inside the active ticks [{start}, {end}], got {sample['tick']}")
+            # The world trail walks the samples in list order and keeps the list order within a
+            # tick, so the ticks may repeat but never go back.
+            if i > 0 and sample["tick"] < sample_list[i - 1]["tick"]:
+                c.fail("SAMPLE_ORDER", _join(path, f"hitbox.samples[{i}].tick"),
+                       f"explicit samples must be in non-decreasing tick order; {move['id']} "
+                       f"samples[{i}] has tick {sample['tick']} after samples[{i - 1}] at tick "
+                       f"{sample_list[i - 1]['tick']}")
+        # The world trail spaces the n samples of one tick 1/n of a tick apart (CombatWorldTrails
+        # .sampleTime), so once a tick carries several samples every active tick needs the same
+        # number, or the drawn sweep changes speed at the tick boundaries.  A tick without samples
+        # counts as zero.  One sample per tick (or a gap between single samples) sits on its tick.
+        counts = {tick: 0 for tick in range(start, end + 1)}
+        for sample in sample_list:
+            if sample["tick"] in counts:
+                counts[sample["tick"]] += 1
+        if max(counts.values(), default=0) > 1 and len(set(counts.values())) > 1:
+            per_tick = counts[start] if counts[start] > 0 else max(counts.values())
+            shown = ", ".join(f"tick {tick}: {count}" for tick, count in counts.items())
+            c.fail("SAMPLE_COUNT", _join(path, "hitbox.samples"),
+                   f"{move['id']} has uneven samples per active tick ({shown}); once a tick carries "
+                   f"several samples, give every active tick {start}..{end} the same number (for "
+                   f"example {per_tick}), because the world trail spaces the n samples of a tick 1/n "
+                   f"of a tick apart")
+
+
+def expand_samples(move: dict) -> list[dict]:
+    """A validated move's hit samples as explicit samples, in tick order: the list itself, or the
+    output of its generator (a port of ``HitboxGenerators.java``, same constants)."""
+    samples = move["hitbox"]["samples"]
+    if isinstance(samples, list):
+        return samples
+    start, end = move["active_ticks"]
+    out = []
+    for tick in range(start, end + 1):
+        progress = (tick - start) / max(1, end - start)
+        if samples["generator"] == "thrust":
+            reach = samples["first_range"] + (samples["final_range"] - samples["first_range"]) * progress
+            near, far, vertical = [0.0, 1.05, 0.55], [0.0, 1.20, reach], 0.25
+        elif samples["generator"] == "arc":
+            angle = math.radians(samples["start_angle"] + (samples["end_angle"] - samples["start_angle"]) * progress)
+            height, length = samples["height"], samples["range"]
+            near = [math.sin(angle) * 0.45, height, math.cos(angle) * 0.45]
+            far, vertical = [math.sin(angle) * length, height, math.cos(angle) * length], 0.34
+        else:  # diagonal
+            side, opposite = -0.75 + 1.50 * progress, 0.95 - 1.90 * progress
+            low, high = 0.45 + 0.30 * progress, 1.90 - 0.15 * progress
+            if samples["descending"]:
+                near, far, vertical = [-side, high, 0.55], [-opposite, low, 2.75], 0.22
+            else:
+                near, far, vertical = [side, low, 0.55], [opposite, high, 2.55], 0.20
+        out.append({"tick": tick, "start": near, "end": far,
+                    "horizontal_radius": samples["radius"], "vertical_radius": vertical})
+    return out
 
 
 def validate_style(document: Any, file: str) -> list[Issue]:

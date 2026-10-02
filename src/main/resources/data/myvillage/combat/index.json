@@ -1,5 +1,5 @@
 {
   "schema": 1,
-  "styles": ["myvillage:basic_sword"],
-  "weapons": ["myvillage:qingfeng_sword"]
+  "styles": ["myvillage:basic_sword", "myvillage:basic_spear"],
+  "weapons": ["myvillage:qingfeng_sword", "myvillage:lingxiao_spear"]
 }

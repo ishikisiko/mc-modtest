@@ -1,0 +1,9 @@
+{
+  "loader": "neoforge:separate_transforms",
+  "gui_light": "front",
+  "base": {"parent": "myvillage:item/lingxiao_spear_3d"},
+  "perspectives": {
+    "gui": {"parent": "minecraft:item/handheld", "textures": {"layer0": "myvillage:item/lingxiao_spear"}}
+  },
+  "textures": {"particle": "myvillage:item/lingxiao_spear"}
+}

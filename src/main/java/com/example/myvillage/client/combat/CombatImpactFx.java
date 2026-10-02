@@ -34,6 +34,9 @@ import java.util.Set;
  *     camera trauma come from the attacker-only hit confirm instead, so nothing is counted twice.</li>
  *     <li>The attacker's world 剑光 freezes for the same stop.</li>
  * </ul>
+ * The attacker's stop (third-person animation and world trail) runs once per action: a move that
+ * strikes several targets sends one impact per hit batch, and only the first of an action starts
+ * it, sized as for one target. Every struck entity still gets its own freeze and shudder.
  */
 public final class CombatImpactFx {
     static final float FROZEN_SHARE = 0.6F;
@@ -46,6 +49,8 @@ public final class CombatImpactFx {
 
     private static final Map<Integer, TargetStop> TARGETS = new HashMap<>();
     private static final Map<Integer, AttackerStop> ATTACKERS = new HashMap<>();
+    /** Each attacker's last started stop: {action revision, game time}. */
+    private static final Map<Integer, double[]> STOPPED_REVISIONS = new HashMap<>();
     /** Entities whose pose we pushed in RenderLivingEvent.Pre and must pop in Post. */
     private static final Set<Integer> PUSHED = new HashSet<>();
 
@@ -61,7 +66,8 @@ public final class CombatImpactFx {
         }
         MoveFeedback feedback = move.get().move().feedback();
         float stopTicks = feedback.hitStopTicks();
-        double now = level.getGameTime();
+        // Local client ticks: the server's time packet re-sets the game clock, never this one.
+        double now = ClientCombatClock.ticks();
         // Entities that stopped ticking or rendering (unloaded, out of range) never clear
         // their own entry; drop anything long finished.
         TARGETS.values().removeIf(stop -> now >= stop.endTime() + STALE_TICKS || stop.entity().isRemoved());
@@ -97,12 +103,31 @@ public final class CombatImpactFx {
                     !(target instanceof Player)));
         }
 
-        if (attacker != null) {
+        if (attacker != null && firstStopOfAction(STOPPED_REVISIONS, attacker.getId(), payload.revision(), now)) {
             CombatWorldTrails.hitStop(attacker.getId(), now, stopTicks);
             if (attacker instanceof AbstractClientPlayer player && attacker != minecraft.player && stopTicks > 0.0F) {
                 ATTACKERS.put(attacker.getId(), new AttackerStop(player, now, stopTicks));
             }
         }
+    }
+
+    /**
+     * True for the first impact of the attacker's action {@code revision}, which records it; false
+     * for a later impact of the same action. A revision seen more than {@link #STALE_TICKS} ago
+     * counts as a new action (the server restarts its revisions after a death or a dimension change).
+     */
+    static boolean firstStopOfAction(Map<Integer, double[]> stopped, int attackerId, long revision, double now) {
+        double[] previous = stopped.get(attackerId);
+        if (previous != null && (long) previous[0] == revision && now - previous[1] <= STALE_TICKS) {
+            return false;
+        }
+        stopped.put(attackerId, new double[] {revision, now});
+        return true;
+    }
+
+    /** The attacker respawned or changed dimension: its next action may reuse an old revision. */
+    static void forgetAttacker(int attackerId) {
+        STOPPED_REVISIONS.remove(attackerId);
     }
 
     static void clear() {
@@ -114,6 +139,7 @@ public final class CombatImpactFx {
         }
         TARGETS.clear();
         ATTACKERS.clear();
+        STOPPED_REVISIONS.clear();
         PUSHED.clear();
     }
 
@@ -130,7 +156,7 @@ public final class CombatImpactFx {
         if (stop == null || stop.entity() != entity) {
             return;
         }
-        long now = entity.level().getGameTime();
+        long now = ClientCombatClock.ticks();
         if (now >= stop.endTime()) {
             TARGETS.remove(entity.getId());
             return;
@@ -150,7 +176,7 @@ public final class CombatImpactFx {
         if (stop == null || stop.entity() != entity) {
             return;
         }
-        double now = entity.level().getGameTime() + event.getPartialTick();
+        double now = ClientCombatClock.now(event.getPartialTick());
         float offset = jitterOffset((float) (now - stop.startTime()), stop.shakeTicks(), stop.amplitude());
         float across = jitterCross((float) (now - stop.startTime()), stop.shakeTicks(), stop.amplitude());
         if (offset == 0.0F && across == 0.0F) {
@@ -180,7 +206,7 @@ public final class CombatImpactFx {
             ATTACKERS.clear();
             return;
         }
-        double now = minecraft.level.getGameTime() + event.getPartialTick().getGameTimeDeltaPartialTick(false);
+        double now = ClientCombatClock.now(event.getPartialTick().getGameTimeDeltaPartialTick(false));
         Iterator<Map.Entry<Integer, AttackerStop>> iterator = ATTACKERS.entrySet().iterator();
         while (iterator.hasNext()) {
             AttackerStop stop = iterator.next().getValue();

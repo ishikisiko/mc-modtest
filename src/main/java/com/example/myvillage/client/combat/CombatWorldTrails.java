@@ -30,28 +30,34 @@ import java.util.Optional;
 /**
  * World-space 剑光 for players seen from outside (remote players, or the local player in a
  * detached camera). The ribbon's direction follows the move's own server hitbox samples, so what
- * other players see matches where the strike lands, but it is drawn at sword length around the
- * attacker's shoulder instead of at full gameplay reach, so it hugs the held blade. Its length
- * comes from the geometry of the attacker's weapon for the move's style (see {@link #trailWeapon}). It freezes while the attacker
- * is in a hit-stop, like the attacker's animation.
+ * other players see matches where the strike lands, but it is drawn at weapon length around the
+ * attacker's shoulder instead of at full gameplay reach, so it hugs the held weapon. Its size
+ * comes from the geometry of the attacker's weapon for the move's style (see {@link #trailWeapon}
+ * and {@link #trailSize}). It freezes while the attacker is in a hit-stop, like the attacker's
+ * animation.
+ *
+ * <p>Samples that share a server tick are spread evenly through that tick in list order (see
+ * {@link #sampleTime}), so a move that sweeps several lines per tick draws one smooth arc.
  */
 public final class CombatWorldTrails {
     static final float TRAIL_TICKS = 1.2F;
     static final float FADE_TICKS = 2.4F;
     static final int SEGMENTS = 24;
-    /** Height of the blade's pivot (about the sword shoulder) above the feet, in blocks. */
+    /** Height of the blade's pivot (about the weapon shoulder) above the feet, in blocks. */
     static final double PIVOT_HEIGHT = 1.3;
-    /** Longest drawn blade reach from the pivot: arm plus sword, not the gameplay hitbox reach. */
-    static final double MAXIMUM_TIP_RADIUS = 1.7;
     /**
-     * Fallback drawn blade length from base to tip, used when the sword geometry contract is not
-     * loaded. Normally the length is the contract's blade (base to tip) at the sword model's
-     * third-person display scale, so the ribbon matches the drawn blade; with the shared taper
-     * (newest sample from 55% of the blade outward) the fresh band spans its outer 45%.
+     * Player-body constant: from the shoulder pivot to the hand's grip centre along the extended
+     * arm, in blocks. A weapon's drawn tip radius is this plus the weapon's own grip-to-tip
+     * length at its third-person scale. The value keeps the jian contract (19.9 px grip to tip at
+     * scale 0.8, 0.995 blocks) at the tuned 0.27.0 tip radius of 1.7.
      */
-    static final double DRAWN_BLADE_LENGTH = 1.0;
-    static final double MINIMUM_BLADE_LENGTH = 0.5;
-    static final double MAXIMUM_BLADE_LENGTH = 1.3;
+    static final double ARM_REACH = 0.705;
+    /**
+     * Drawn size without a usable geometry contract or display scale: tip 1.7 blocks from the
+     * pivot, trail 1.0 block long. With the shared taper (newest sample from 55% of the span
+     * outward) the fresh band covers the outer 45% of the drawn span.
+     */
+    static final TrailSize FALLBACK_SIZE = new TrailSize(1.7, 1.0);
     static final float STREAK_TICKS = 3.0F;
     private static final float STREAK_HALF_WIDTH = 0.025F;
     private static final double STREAK_OVERSHOOT = 1.15;
@@ -66,7 +72,7 @@ public final class CombatWorldTrails {
         ACTIONS.put(attacker.getId(), new Action(
                 move,
                 trailWeapon(CombatStyles.bundled(), heldItem, move.id()).orElse(null),
-                attacker.level().getGameTime() - Math.max(0.0F, elapsedTicks),
+                ClientCombatClock.ticks() - Math.max(0.0F, elapsedTicks),
                 facingYaw,
                 new ArrayList<>()));
     }
@@ -120,7 +126,8 @@ public final class CombatWorldTrails {
         Camera camera = event.getCamera();
         Vec3 cameraPosition = camera.getPosition();
         float partialTick = event.getPartialTick().getGameTimeDeltaPartialTick(false);
-        double now = minecraft.level.getGameTime() + partialTick;
+        // Local ticks, like the attacker's stop it pairs with: a game-clock reset is not trail time.
+        double now = ClientCombatClock.now(partialTick);
         MultiBufferSource.BufferSource buffers = minecraft.renderBuffers().bufferSource();
         VertexConsumer consumer = buffers.getBuffer(CombatRenderTypes.SWORD_TRAIL_TRANSLUCENT);
 
@@ -135,7 +142,7 @@ public final class CombatWorldTrails {
             boolean firstPersonSelf = entity == minecraft.player && !camera.isDetached();
             if (!firstPersonSelf) {
                 render(consumer, entity, action, move, tick, partialTick, cameraPosition,
-                        bladeLength(minecraft, action.weaponItem()));
+                        trailSize(minecraft, action.weaponItem()));
             }
             return false;
         });
@@ -150,7 +157,7 @@ public final class CombatWorldTrails {
             float tick,
             float partialTick,
             Vec3 cameraPosition,
-            double bladeLength) {
+            TrailSize size) {
         List<HitboxSample> samples = move.hitbox().samples();
         float first = samples.getFirst().actionTick() - 0.5F;
         float last = samples.getLast().actionTick() + 0.5F;
@@ -162,7 +169,7 @@ public final class CombatWorldTrails {
                 return;
             }
             CombatGeometry.WorldSample world = worldBlade(
-                    samples, Math.min(tick, last), STREAK_OVERSHOOT, bladeLength, origin, action.facingYaw());
+                    samples, Math.min(tick, last), STREAK_OVERSHOOT, size, origin, action.facingYaw());
             CombatRenderTypes.streak(
                     consumer,
                     relative(world.start(), cameraPosition),
@@ -189,7 +196,7 @@ public final class CombatWorldTrails {
             float age = (tick - sampleTick) / TRAIL_TICKS;
             float alpha = SwordTrailShape.alpha(age, fade);
             CombatGeometry.WorldSample world = worldBlade(
-                    samples, sampleTick, 1.0, bladeLength, origin, action.facingYaw());
+                    samples, sampleTick, 1.0, size, origin, action.facingYaw());
             Vector3f[] blade = {relative(world.start(), cameraPosition), relative(world.end(), cameraPosition)};
             if (previous != null) {
                 CombatRenderTypes.trailSegment(
@@ -205,29 +212,24 @@ public final class CombatWorldTrails {
 
     /**
      * The drawn blade in the world at {@code tick}: the move's own hitbox samples, interpolated,
-     * drawn at sword length, and turned by the facing the server started the action with.
+     * drawn at the weapon's trail size, and turned by the facing the server started the action with.
      */
     static CombatGeometry.WorldSample worldBlade(
             List<HitboxSample> samples,
             float tick,
             double tipScale,
-            double bladeLength,
+            TrailSize size,
             Vec3 origin,
             float facingYaw) {
-        return CombatGeometry.transform(drawnBlade(blade(samples, tick), tipScale, bladeLength), origin, facingYaw);
+        return CombatGeometry.transform(drawnBlade(blade(samples, tick), tipScale, size), origin, facingYaw);
     }
 
     /**
-     * The drawn blade for one hitbox sample, in the same attacker-local frame: from the sword
-     * pivot toward the sample's far end, with the tip at {@code min(reach, 1.7)} (times
-     * {@code tipScale}) and the base {@link #DRAWN_BLADE_LENGTH} closer to the pivot.
+     * The drawn blade for one hitbox sample, in the same attacker-local frame: from the pivot
+     * toward the sample's far end, with the tip at {@code min(reach, size.tipRadius)} (times
+     * {@code tipScale}) and the base {@code size.trailLength} closer to the pivot (never past it).
      */
-    static HitboxSample drawnBlade(HitboxSample sample, double tipScale) {
-        return drawnBlade(sample, tipScale, DRAWN_BLADE_LENGTH);
-    }
-
-    /** As {@link #drawnBlade(HitboxSample, double)} with the base {@code bladeLength} closer to the pivot. */
-    static HitboxSample drawnBlade(HitboxSample sample, double tipScale, double bladeLength) {
+    static HitboxSample drawnBlade(HitboxSample sample, double tipScale, TrailSize size) {
         double x = sample.endX();
         double y = sample.endY() - PIVOT_HEIGHT;
         double z = sample.endZ();
@@ -235,8 +237,8 @@ public final class CombatWorldTrails {
         if (length < 1.0E-6) {
             return sample;
         }
-        double tipRadius = Math.min(length, MAXIMUM_TIP_RADIUS);
-        double baseRadius = Math.max(0.0, tipRadius - bladeLength);
+        double tipRadius = Math.min(length, size.tipRadius());
+        double baseRadius = Math.max(0.0, tipRadius - size.trailLength());
         double tip = tipRadius * tipScale / length;
         double base = baseRadius / length;
         return new HitboxSample(
@@ -248,29 +250,33 @@ public final class CombatWorldTrails {
     }
 
     /**
-     * The drawn blade length: the geometry contract's blade in model pixels at the model's
-     * third-person display scale, bounded to a sane range; {@link #DRAWN_BLADE_LENGTH} without a
-     * contract or a usable scale.
+     * The drawn trail size for a weapon: the tip is {@link #ARM_REACH} plus the contract's grip
+     * centre to trail tip, and the trail is the contract's trail span, both in model pixels at the
+     * model's third-person display scale. {@link #FALLBACK_SIZE} without a contract or a usable
+     * scale. The contract checks (span on the axis, base below tip) keep both lengths positive,
+     * and {@link #drawnBlade} never draws the base behind the pivot.
      */
-    static double drawnBladeLength(Optional<SwordGeometry> sword, float thirdPersonScale) {
-        if (sword.isEmpty() || !(thirdPersonScale > 0.0F) || !Float.isFinite(thirdPersonScale)) {
-            return DRAWN_BLADE_LENGTH;
+    static TrailSize trailSize(Optional<SwordGeometry> weapon, float thirdPersonScale) {
+        if (weapon.isEmpty() || !(thirdPersonScale > 0.0F) || !Float.isFinite(thirdPersonScale)) {
+            return FALLBACK_SIZE;
         }
-        double length = sword.get().bladeLengthPixels() / 16.0 * thirdPersonScale;
-        return Math.max(MINIMUM_BLADE_LENGTH, Math.min(MAXIMUM_BLADE_LENGTH, length));
+        double blocksPerPixel = thirdPersonScale / 16.0;
+        return new TrailSize(
+                ARM_REACH + weapon.get().gripToTrailTipPixels() * blocksPerPixel,
+                weapon.get().trailLengthPixels() * blocksPerPixel);
     }
 
-    /** The drawn blade length for the weapon an action started with; the fallback without a rig. */
-    private static double bladeLength(Minecraft minecraft, ResourceLocation weaponItem) {
+    /** The drawn trail size for the weapon an action started with; the fallback without a rig. */
+    private static TrailSize trailSize(Minecraft minecraft, ResourceLocation weaponItem) {
         if (weaponItem == null) {
-            return DRAWN_BLADE_LENGTH;
+            return FALLBACK_SIZE;
         }
         Optional<FirstPersonSwingResources.WeaponRig> rig = FirstPersonSwingResources.forItem(weaponItem);
         if (rig.isEmpty()) {
-            return DRAWN_BLADE_LENGTH;
+            return FALLBACK_SIZE;
         }
         ItemStack stack = new ItemStack(BuiltInRegistries.ITEM.get(weaponItem));
-        return drawnBladeLength(Optional.of(rig.get().swing().sword()), thirdPersonScale(minecraft, stack));
+        return trailSize(Optional.of(rig.get().swing().sword()), thirdPersonScale(minecraft, stack));
     }
 
     /** Length scale of the weapon model's third-person display transform along the blade (+Y). */
@@ -281,36 +287,71 @@ public final class CombatWorldTrails {
         return scratch.last().pose().transformDirection(new Vector3f(0.0F, 1.0F, 0.0F)).length();
     }
 
-    /** Interpolates the blade segment between authored samples in polar form so arcs stay round. */
+    /**
+     * Interpolates the blade segment between authored samples in polar form so arcs stay round.
+     * Each sample sits at its {@link #sampleTime}; between two samples the blade moves at a
+     * constant rate, so a tick with several samples traces them in list order.
+     */
     static HitboxSample blade(List<HitboxSample> samples, float tick) {
-        HitboxSample before = samples.getFirst();
-        HitboxSample after = samples.getLast();
-        for (HitboxSample sample : samples) {
-            if (sample.actionTick() <= tick) {
-                before = sample;
+        float[] times = sampleTimes(samples);
+        int before = 0;
+        int after = samples.size() - 1;
+        for (int index = 0; index < samples.size(); index++) {
+            if (times[index] <= tick) {
+                before = index;
             }
-            if (sample.actionTick() >= tick) {
-                after = sample;
+            if (times[index] >= tick) {
+                after = index;
                 break;
             }
         }
-        if (before == after || after.actionTick() == before.actionTick()) {
-            return before;
+        HitboxSample first = samples.get(before);
+        HitboxSample second = samples.get(after);
+        if (before == after || !(times[after] > times[before])) {
+            return first;
         }
-        float progress = Math.max(0.0F, Math.min(1.0F,
-                (tick - before.actionTick()) / (float) (after.actionTick() - before.actionTick())));
+        float progress = Math.max(0.0F, Math.min(1.0F, (tick - times[before]) / (times[after] - times[before])));
         double[] start = polarLerp(
-                before.startX(), before.startY(), before.startZ(),
-                after.startX(), after.startY(), after.startZ(), progress);
+                first.startX(), first.startY(), first.startZ(),
+                second.startX(), second.startY(), second.startZ(), progress);
         double[] end = polarLerp(
-                before.endX(), before.endY(), before.endZ(),
-                after.endX(), after.endY(), after.endZ(), progress);
+                first.endX(), first.endY(), first.endZ(),
+                second.endX(), second.endY(), second.endZ(), progress);
         return new HitboxSample(
-                before.actionTick(),
+                first.actionTick(),
                 start[0], start[1], start[2],
                 end[0], end[1], end[2],
-                before.horizontalRadius(),
-                before.verticalRadius());
+                first.horizontalRadius(),
+                first.verticalRadius());
+    }
+
+    /**
+     * When the trail shows a sample: the {@code n} samples of one server tick {@code t} (in list
+     * order, index {@code i}) sit at {@code t + (i + 0.5) / n - 0.5}, evenly through the tick and
+     * centred on it. A lone sample sits exactly on its tick, as before; three per tick sit a third
+     * of a tick apart, also across the tick boundary, so the drawn sweep keeps one speed.
+     */
+    static float sampleTime(List<HitboxSample> samples, int index) {
+        int tick = samples.get(index).actionTick();
+        int count = 0;
+        int position = 0;
+        for (int other = 0; other < samples.size(); other++) {
+            if (samples.get(other).actionTick() == tick) {
+                if (other < index) {
+                    position++;
+                }
+                count++;
+            }
+        }
+        return tick + (position + 0.5F) / count - 0.5F;
+    }
+
+    private static float[] sampleTimes(List<HitboxSample> samples) {
+        float[] times = new float[samples.size()];
+        for (int index = 0; index < times.length; index++) {
+            times[index] = sampleTime(samples, index);
+        }
+        return times;
     }
 
     private static double[] polarLerp(
@@ -327,6 +368,13 @@ public final class CombatWorldTrails {
                 firstY + (secondY - firstY) * progress,
                 Math.cos(angle) * radius
         };
+    }
+
+    /**
+     * How big an attacker's world trail is drawn, in blocks: {@code tipRadius} from the pivot to
+     * the trail's tip, {@code trailLength} from its base to its tip.
+     */
+    record TrailSize(double tipRadius, double trailLength) {
     }
 
     // Level rendering already applies the camera rotation; vertices are camera-relative.

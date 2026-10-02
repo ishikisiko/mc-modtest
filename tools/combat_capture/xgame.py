@@ -25,6 +25,19 @@ class ChatStuck(GameInputError):
     pass
 
 
+class ProbeRejected(GameInputError):
+    """The client logged a refusal for the command (e.g. `PAL_SMOKE third_person
+    rejected reason=...`); retrying the same command cannot help."""
+
+    def __init__(self, command: str, line: str, reason: str | None):
+        self.command, self.line, self.reason = command, line, reason
+        super().__init__(f"client refused {command!r}: reason={reason or '?'} ({line.strip()[-200:]})")
+
+
+# Largest per-channel difference two grabs may show and still count as the
+# same picture (software rendering noise across the whole frame).
+NOISE_LEVELS = 2
+
 LOG_TS = re.compile(r"^\[(\d{2}[A-Za-z]{3}\d{4} \d{2}:\d{2}:\d{2}\.\d{3})\]")
 
 
@@ -77,6 +90,26 @@ class LogTail:
                     return m, self.lines[i]
             if time.time() >= deadline:
                 return None, None
+            time.sleep(poll)
+
+    def wait_either(self, pattern: str, reject: str | None, timeout: float, poll: float = 0.1):
+        """Like wait, but also stops at the first line matching `reject`.
+        Returns (match, line, rejected)."""
+        if not reject:
+            m, line = self.wait(pattern, timeout, poll)
+            return m, line, False
+        rx, rj = re.compile(pattern), re.compile(reject)
+        deadline = time.time() + timeout
+        while True:
+            self.poll()
+            for i in range(self.cursor, len(self.lines)):
+                for r, rejected in ((rx, False), (rj, True)):
+                    m = r.search(self.lines[i])
+                    if m:
+                        self.cursor = i + 1
+                        return m, self.lines[i], rejected
+            if time.time() >= deadline:
+                return None, None, False
             time.sleep(poll)
 
     def tail_text(self, n: int = 12) -> str:
@@ -183,16 +216,21 @@ class Game:
             self.log("  a screen was open after Enter; closed it with Escape")
         return False
 
-    def chat(self, text: str, confirm: str | None = None, timeout: float = 8.0, retries: int = 1):
+    def chat(self, text: str, confirm: str | None = None, timeout: float = 8.0, retries: int = 1,
+             reject: str | None = None):
         """Send a chat line; with `confirm`, wait for a client log line
         matching it and return (match, line). A chat that did not close or
-        did not confirm is retried (the probes are idempotent)."""
+        did not confirm is retried (the probes are idempotent). With `reject`,
+        a client log line matching it ends the wait at once with
+        ProbeRejected (no retry); its first group, if any, is the reason."""
         for attempt in range(retries + 1):
             tail = LogTail(self.client_log)
             try:
                 self.type_chat(text)
             except ChatStuck:
-                m, line = tail.wait(confirm, 1.0) if confirm else (None, None)
+                m, line, rejected = tail.wait_either(confirm, reject, 1.0) if confirm else (None, None, False)
+                if m and rejected:
+                    raise ProbeRejected(text, line, m.group(1) if m.groups() else None) from None
                 if m and self.wait_ingame(1.0):
                     return m, line
                 if attempt < retries and self.wait_ingame(1.0):
@@ -201,7 +239,9 @@ class Game:
                 raise
             if not confirm:
                 return None, None
-            m, line = tail.wait(confirm, timeout)
+            m, line, rejected = tail.wait_either(confirm, reject, timeout)
+            if m and rejected:
+                raise ProbeRejected(text, line, m.group(1) if m.groups() else None)
             if m:
                 return m, line
             if attempt < retries:
@@ -250,30 +290,78 @@ class Game:
             raise GameInputError(f"screen grab returned {len(out)} bytes, expected {w * h * 3}")
         return out
 
-    def stable_grab(self, max_wait: float = 6.0, gap: float = 0.15, settle: float = 0.3):
-        """Grab until two consecutive grabs are identical. Returns (raw, info);
-        info['stable'] is False if max_wait passed first (the last grab is
-        returned and info['diff_fraction'] says how much it still changed)."""
+    def stable_grab(self, max_wait: float = 6.0, gap: float = 0.15, settle: float = 0.3,
+                    noise_levels: int = NOISE_LEVELS):
+        """Grab until the picture holds still. Settled means two consecutive
+        grabs are identical, or (whole-frame rendering noise) three consecutive
+        grabs are pairwise within `noise_levels` per channel everywhere. A pose
+        still moving changes edge pixels by far more than that, and a slow drift
+        shows up between the first and third grab. Returns (raw, info):
+        info['match'] is 'exact' or 'noise' (then info['max_level_diff'] is the
+        largest difference seen); info['stable'] is False if max_wait passed
+        first (the last grab is returned with info['diff_fraction'] and
+        info['max_level_diff'])."""
         time.sleep(settle)
         t0 = time.time()
-        prev = self.grab_raw()
+        recent = [self.grab_raw()]
         grabs = 1
         while True:
             time.sleep(gap)
-            cur = self.grab_raw()
+            recent = (recent + [self.grab_raw()])[-3:]
             grabs += 1
-            if cur == prev:
-                return cur, {"stable": True, "grabs": grabs, "seconds": round(time.time() - t0, 2)}
+            verdict, worst = settled(recent, noise_levels)
+            if verdict:
+                info = {"stable": True, "grabs": grabs, "seconds": round(time.time() - t0, 2), "match": verdict}
+                if verdict == "noise":
+                    info["max_level_diff"] = worst
+                return recent[-1], info
             if time.time() - t0 >= max_wait:
-                return cur, {"stable": False, "grabs": grabs, "seconds": round(time.time() - t0, 2),
-                             "diff_fraction": round(diff_fraction(prev, cur), 5)}
-            prev = cur
+                return recent[-1], {"stable": False, "grabs": grabs, "seconds": round(time.time() - t0, 2),
+                                    "diff_fraction": round(diff_fraction(recent[-2], recent[-1]), 5),
+                                    "max_level_diff": worst}
+
+    def shot(self, path: Path, max_wait: float = 6.0, settle: float = 0.3) -> dict:
+        """One full frame to a PNG once the picture holds still (or max_wait
+        passes). Refused while a screen is open (it would be in the frame and
+        the pointer is not the game's); nothing is typed or clicked."""
+        self.require_ingame("a screen grab")
+        raw, info = self.stable_grab(max_wait=max_wait, settle=settle)
+        self.save_png(raw, Path(path))
+        return info
 
     def save_png(self, raw: bytes, path: Path):
         w, h = self.size
         path.parent.mkdir(parents=True, exist_ok=True)
         subprocess.run(["convert", "-size", f"{w}x{h}", "-depth", "8", "rgb:-", f"png:{path}"],
                        input=raw, check=True, timeout=60)
+
+
+def max_level_diff(a: bytes, b: bytes) -> int:
+    """Largest per-byte (per-channel) difference; 0 for identical grabs, which
+    return at once. Otherwise every byte is checked (about 0.1 s at 960x540)."""
+    if a == b:
+        return 0
+    if len(a) != len(b):
+        return 255
+    return max(x - y if x > y else y - x for x, y in zip(a, b))
+
+
+def settled(recent: list[bytes], noise_levels: int = NOISE_LEVELS) -> tuple[str | None, int]:
+    """Stability rule over the most recent grabs (oldest first). Returns
+    ('exact', 0) if the last two are identical; ('noise', d) if the last three
+    are pairwise at most noise_levels apart per channel (d = the largest of the
+    three differences); otherwise (None, d) with d = the last two's difference."""
+    if len(recent) < 2:
+        return None, 0
+    last = max_level_diff(recent[-2], recent[-1])
+    if last == 0:
+        return "exact", 0
+    if last > noise_levels or len(recent) < 3:
+        return None, last
+    worst = max(last, max_level_diff(recent[-3], recent[-2]))
+    if worst <= noise_levels:
+        worst = max(worst, max_level_diff(recent[-3], recent[-1]))
+    return ("noise" if worst <= noise_levels else None), worst
 
 
 def diff_fraction(a: bytes, b: bytes, stride: int = 7) -> float:

@@ -11,10 +11,14 @@ See also:
 - Current cultivation runtime: [Cultivation Playable Loop](30_cultivation_playable_loop.md)
 - Framework comparison and direction: [Combat Framework Comparison (Combat Lab)](33_combat_framework_comparison.md)
 - Move and weapon data, validator, and capture tooling since 0.28.0: [Combat Data and Capture Tooling](34_combat_data_and_capture.md)
+- The second weapon (two-handed spear, 0.29.0) and the validation findings: [Lingxiao Spear](35_lingxiao_spear.md)
 
 Since 0.28.0 the move values quoted below live in
 `data/myvillage/combat/style/basic_sword.json`, not in Java constants, and the
 runtime picks the style by held item. The values themselves did not change.
+Since 0.29.0 a second weapon, the Lingxiao Spear, uses the same runtime; the
+hit-stop, re-equip, and trail rules below changed with it and apply to
+Qingfeng too.
 
 ## Supplied Artifact
 
@@ -233,9 +237,43 @@ the attacker and all trackers. The vanilla sweep particle was removed.
 
 `SwingClock.beginHitStop(realTick, hitStopTicks)` uses the move's own hit-stop:
 the swing is fully frozen for the first 60% of the stop, creeps at `0.15` for
-the rest, then catches up so it still ends on the server total. `confirmHit`
-starts the stop at the rig's per-move `contact` tick (`3.8/4.9/6.0/7.0/8.0`) if
-the confirmation arrives early. `HIT_STOP_TICKS = 2.5F` remains the default.
+the rest, then catches up so it still ends on the server total. Since 0.29.0
+the clock also keeps the action's present, the latest real tick any reader has
+seen (a rendered frame, a client tick, a packet), and the pose is drawn from
+it, so it never moves backwards along the move. `SwingClock.confirmHit` starts
+the stop at the rig's per-move `contact` tick (`3.8/4.9/6.0/7.0/8.0`) if the
+drawn swing has not reached it, and otherwise at the present, freezing the pose
+already on screen. Before 0.29.0 a late confirmation started the stop at the
+tick reading of the packet, which is handled at the start of a frame and lies
+up to a tick behind the frame already drawn, so the blade stepped back (the
+horizontal cut by about 114 px at normal speed). Each confirmation logs
+`PAL_SMOKE fp_hit_stop` with the reading, the present, the contact tick, the
+start, and a `result`. Only the first confirmation of an action starts a stop
+(a three-target sweep logs one `started` and two
+`ignored_stop_already_started`), and a confirmation for an action that is no
+longer current is dropped (`ignored_not_current_action`).
+`HIT_STOP_TICKS = 2.5F` remains the default.
+
+Client combat clock (0.29.0). The client's `Level#getGameTime()` is not
+monotonic: every 20 ticks the server's time packet sets it to the server's
+time, a tick or more either way, and every combat timeline used to read it as
+elapsed time (a +2 reset skipped the swing two ticks). `ClientCombatClock` is
+the client's own count of ticks in which the level ran (paused or tick-frozen
+ticks do not count); it advances at the end of the client tick before any
+other combat handler. The first-person swing (`LocalSwingTimeline`, which
+holds the start, the slew of an authoritative correction, and the
+`SwingClock`), prediction, buffering and chain ticks, impact freezes, the
+attacker's stop, the world trail, camera kicks, and the arm's lag all read it.
+`ClientCombatClock.elapsedSinceServer` is the one conversion of a server tick,
+done once when the START arrives; the validator rejects any other
+`getGameTime()` in `client/combat`. A reset during a local action logs
+`PAL_SMOKE client_time_jump from=<t> to=<t> local=<n>`. Consequence: a client
+clock k ticks off the server's at the START draws the whole move k ticks off
+(about −1 to +2 on the capture host); the server's STOP cuts the last k
+recovery ticks or the next start is slewed, where the next time packet used
+to correct it mid-move as a visible skip. An authoritative correction of up
+to 2 ticks is slewed over 3 ticks (a larger one snaps); each logs
+`PAL_SMOKE fp_resync`.
 
 Both trails use `CombatRenderTypes.SWORD_TRAIL_TRANSLUCENT` (SRC_ALPHA /
 ONE_MINUS_SRC_ALPHA, no cull, no depth write). The additive `SWORD_TRAIL`
@@ -245,7 +283,9 @@ thrusts draw a single streak. `FirstPersonSwordTrail` still re-poses the blade
 at earlier visual ticks from the shared frame and never cancels the item pass.
 `CombatWorldTrails` still samples the move's hitbox with the broadcast facing
 yaw and is skipped in first person. It is drawn from a pivot 1.3 blocks up and
-holds still while its attacker is frozen in a hit-stop.
+holds still while its attacker is frozen in a hit-stop. Samples that share a
+server tick are spread evenly through the tick (one sample per tick, as all
+Qingfeng moves have, sits on its tick as before).
 
 ### Camera and impact effects
 
@@ -264,7 +304,14 @@ struck entity ids, contact points; no damage or health). On the client it skips
 struck non-player entities' ticks for the rounded hit-stop, jitters every
 struck entity except the local player, and drives a remote attacker's PAL
 hit-stop through `CombatAnimationController.setHitStopRate`. None of this sends a
-packet or changes an entity's server state.
+packet or changes an entity's server state. Since 0.29.0 the attacker's stop
+(PAL hit-stop and world-trail freeze) starts once per action, on its first
+impact message, sized as for one target; before, each hit batch restarted it,
+so a three-target sweep froze the attacker about two ticks longer and ran its
+trail backwards. Every struck entity still gets its own freeze and shudder.
+Because the server restarts an attacker's revisions after a session reset, a
+stop that resets the session, the local player's respawn or dimension change,
+and a revision last seen more than 40 ticks ago all count as a new action.
 
 ### First-person arm (0.27.1)
 
@@ -296,6 +343,18 @@ sword together.
   after an interrupted move. It is presentation only: the sword, trails, and
   gameplay ignore it.
 - Idle: a slow breath moves the neutral hold and fades back in after a move.
+- Off arm (0.29.0, optional): a rig with `rig.off_hand` also draws the other
+  arm with its hand on the shaft at the contract's `off_hand_grip_center`,
+  only while the off-hand slot is empty. Qingfeng's rig has no such block and
+  draws as before. Schema in [Lingxiao Spear](35_lingxiao_spear.md).
+- Re-equip (0.29.0): a landed hit costs durability and the server resends the
+  stack. On a plain `SwordItem` NeoForge then replayed the equip animation, so
+  the weapon sank out of view for 5 to 6 ticks after every hit. Combat weapons
+  are `CombatWeaponItem`, whose rule is vanilla's minus that replay: a stack
+  that differs only in `minecraft:damage` keeps its place (also when switching
+  to another copy of the same weapon), while a rename, an enchantment, another
+  item, or another count re-equips. `slotChanged` is not consulted. Table in
+  [Lingxiao Spear](35_lingxiao_spear.md).
 
 The earlier rejected forms stay rejected: a separately damped complete arm left
 the handle, and a pivot-locked complete arm floated mid-screen. The 0.27.0 form
@@ -323,14 +382,20 @@ match the old sprite's vanilla hold outside cultivation mode; the rig undoes
 them. The baked wrapper forwards `applyTransform` to the drawn model, so runtime
 reads get the 3D values. `SwordGeometry` loads the contract with the rig in
 `FirstPersonSwingResources` on every reload. A missing or invalid contract
-leaves Qingfeng on the vanilla hold. The first-person trail takes its blade
-base and tip from the contract. The world-trail blade length is the contract
-blade at the third-person display scale, clamped, with a 1-block fallback.
+leaves Qingfeng on the vanilla hold. The first-person trail spans the
+contract's optional `trail` (else `blade_base` to `blade_tip`). Since 0.29.0
+the world trail is sized from the contract without clamps: its tip lies
+`0.705` (shoulder to grip) plus the grip-to-trail-tip distance from the pivot
+and its length is the trail span, both at the model's third-person display
+scale. For Qingfeng that is 1.7 and 0.795 blocks, the same drawn trail as
+before (`CombatWorldTrailsTest` pins every frame). Without a contract or scale
+it falls back to 1.7 and 1.0.
 
 ### Third-person PAL poses (0.27.0)
 
 `tools/gen_sword_pal_anims.py` (stdlib only, deterministic) generates
-`player_animations/sword_combat.json`. Its pose table is keyed by server tick and
+`player_animations/sword_combat.json` (and, since 0.29.0, one file per further
+style from its own pose table and weapon). Its pose table is keyed by server tick and
 phase (guard, anticipation, coil, contact, sweep, through, hold, recovery). It
 solves the legs so both feet stay planted and checks every key with a
 forward-kinematics copy of the PAL and vanilla transforms. Run

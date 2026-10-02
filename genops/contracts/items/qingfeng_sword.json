@@ -14,7 +14,7 @@
   "java_registration": {
     "owner_file": "src/main/java/com/example/myvillage/item/ModItems.java",
     "deferred_holder": "ModItems.QINGFENG_SWORD",
-    "properties": "SwordItem(Tiers.DIAMOND, properties.attributes(SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F)))"
+    "properties": "CombatWeaponItem(Tiers.DIAMOND, properties.attributes(SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F)))"
   },
   "client_assets": {
     "lang_key": "item.myvillage.qingfeng_sword",
@@ -35,7 +35,7 @@
   },
   "behavior": {
     "type": "functional",
-    "server_client_boundary": "In vanilla mode the item follows the unmodified Minecraft SwordItem path. In cultivation mode only a remap-safe client attack-key event is canceled; the client sends empty toggle/attack intents and the server owns mode, move, timing, hit volume, targets, damage, step movement, recovery, and synchronization.",
+    "server_client_boundary": "In vanilla mode the item follows the Minecraft SwordItem path; CombatWeaponItem (0.29.0) only keeps a durability-only stack change from replaying the equip animation. In cultivation mode only a remap-safe client attack-key event is canceled; the client sends empty toggle/attack intents and the server owns mode, move, timing, hit volume, targets, damage, step movement, recovery, and synchronization.",
     "interaction": "Mapped vanilla left-click attack/mining outside the exact cultivation-mode Qingfeng interception; five server-selected basic sword moves inside it. The item has no right-click summon, ride, recall, or GeckoLib behavior.",
     "cooldown_or_durability": "Diamond-tier durability 1561. Vanilla mode uses ordinary cooldown and durability. Cultivation timing is move-owned, retains a recovery lock across cancel attempts, and charges ordinary sword attack durability once per action with at least one successful target.",
     "data_components": [

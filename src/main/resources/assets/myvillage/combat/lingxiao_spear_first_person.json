@@ -1,0 +1,105 @@
+{
+  "rig": {
+    "shoulder": [0.3, -0.27, -0.05],
+    "sword_scale": 1.0,
+    "arm": {"shoulder_offset": [0.03, -0.02, 0.0], "upper_arm": 0.33, "forearm": 0.33, "thickness": 0.42, "grip_diagonal": 50, "follow_through": 1.0},
+    "off_hand": {"shoulder_offset": [-0.25, -0.14, -0.2], "grip_diagonal": 30}
+  },
+  "neutral": {"plane": 0.0, "sweep": -29.8, "reach": 0.346, "lead": 63.0, "lift": -89.1, "twist": 250.0, "offset": [0.0, -0.03, 0.0], "grip_roll": 120.0, "elbow": 20.0, "off_hand_slide": -4.5, "off_hand_roll": -15.0, "off_hand_elbow": 80.0, "off_hand_hold": 1.0},
+  "moves": {
+    "myvillage:basic_spear_01_mid_thrust": {
+      "strike": [2.8, 5.5],
+      "contact": 4.0,
+      "keys": [
+        {"tick": 0, "pose": "neutral"},
+        {"tick": 2.0, "ease": "out_cubic", "plane": 0.0, "sweep": -32.7, "reach": 0.321, "lead": 69.1, "lift": -90.8, "twist": 250.0, "offset": [0.0, -0.027, 0.0], "grip_roll": 125.0, "elbow": 20.0, "off_hand_slide": -4.12, "off_hand_roll": 30.0, "off_hand_elbow": 0.0},
+        {"tick": 2.8, "ease": "in_out", "plane": 0.0, "sweep": -33.0, "reach": 0.316, "lead": 69.9, "lift": -91.0, "twist": 250.0, "offset": [0.0, -0.027, 0.0], "grip_roll": 125.0, "elbow": 20.0, "off_hand_slide": -4.07, "off_hand_roll": 30.0, "off_hand_elbow": 0.0},
+        {"tick": 4.0, "ease": "in", "plane": 0.0, "sweep": -6.1, "reach": 0.432, "lead": 21.1, "lift": -85.9, "twist": 290.0, "offset": [0.08, -0.016, -0.05], "grip_roll": 10.0, "elbow": 40.0, "off_hand_slide": -7.71, "off_hand_roll": 20.0, "off_hand_elbow": 0.0},
+        {"tick": 4.7, "ease": "out", "plane": 0.0, "sweep": -6.7, "reach": 0.453, "lead": 20.8, "lift": -84.8, "twist": 300.0, "offset": [0.08, -0.025, -0.08], "grip_roll": 25.0, "elbow": 20.0, "off_hand_slide": -8.23, "off_hand_roll": 20.0, "off_hand_elbow": 0.0},
+        {"tick": 6.0, "ease": "in_out", "plane": 0.0, "sweep": -6.6, "reach": 0.443, "lead": 21.1, "lift": -85.4, "twist": 295.0, "offset": [0.08, -0.021, -0.06], "grip_roll": 30.0, "elbow": 20.0, "off_hand_slide": -7.98, "off_hand_roll": 20.0, "off_hand_elbow": 0.0},
+        {"tick": 7.5, "ease": "in_out", "plane": 0.0, "sweep": -6.1, "reach": 0.432, "lead": 21.1, "lift": -85.9, "twist": 290.0, "offset": [0.08, -0.016, -0.05], "grip_roll": 10.0, "elbow": 40.0, "off_hand_slide": -7.68, "off_hand_roll": 20.0, "off_hand_elbow": 0.0},
+        {"tick": 12, "ease": "in_out_cubic", "pose": "neutral"}
+      ]
+    },
+    "myvillage:basic_spear_02_sweep": {
+      "strike": [4.6, 7.6],
+      "contact": 6.0,
+      "keys": [
+        {"tick": 0, "pose": "neutral"},
+        {"tick": 0.8, "ease": "out", "plane": 0.0, "sweep": -33.1, "reach": 0.341, "lead": 80.4, "lift": -91.5, "twist": 250.0, "offset": [0.0, -0.034, 0.0], "grip_roll": 155.0, "elbow": 40.0, "off_hand_slide": -5.5, "off_hand_roll": 50.0, "off_hand_elbow": -40.0},
+        {"tick": 1.6, "ease": "in_out", "plane": 0.0, "sweep": -35.1, "reach": 0.337, "lead": 91.6, "lift": -92.9, "twist": 250.0, "offset": [0.0, -0.036, 0.0], "grip_roll": 190.0, "elbow": 60.0, "off_hand_slide": -6.5, "off_hand_roll": 50.0, "off_hand_elbow": -40.0},
+        {"tick": 3.4, "ease": "out", "plane": 0.0, "sweep": -36.2, "reach": 0.335, "lead": 97.7, "lift": -93.8, "twist": 250.0, "offset": [0.0, -0.037, 0.0], "grip_roll": 190.0, "elbow": 60.0, "off_hand_slide": -7.0, "off_hand_roll": 50.0, "off_hand_elbow": -40.0},
+        {"tick": 4.6, "ease": "in_out", "plane": 0.0, "sweep": -36.8, "reach": 0.331, "lead": 100.1, "lift": -93.6, "twist": 250.0, "offset": [0.0, -0.036, 0.0], "grip_roll": 195.0, "elbow": 60.0, "off_hand_slide": -7.0, "off_hand_roll": 50.0, "off_hand_elbow": -40.0},
+        {"tick": 5.0, "ease": "in", "plane": 0.0, "sweep": -33.9, "reach": 0.325, "lead": 88.5, "lift": -95.4, "twist": 250.0, "offset": [0.0, -0.03, 0.0], "grip_roll": 155.0, "elbow": 40.0, "off_hand_slide": -7.0, "off_hand_roll": 50.0, "off_hand_elbow": -40.0},
+        {"tick": 5.5, "ease": "linear", "plane": 0.0, "sweep": -29.4, "reach": 0.327, "lead": 67.1, "lift": -97.4, "twist": 250.0, "offset": [0.0, -0.027, 0.0], "grip_roll": 120.0, "elbow": 40.0, "off_hand_roll": 40.0, "off_hand_elbow": -40.0},
+        {"tick": 6.0, "ease": "linear", "plane": 0.0, "sweep": -23.6, "reach": 0.327, "lead": 35.4, "lift": -98.1, "twist": 250.0, "offset": [0.0, -0.022, 0.0], "grip_roll": 100.0, "elbow": 0.0, "off_hand_roll": 30.0, "off_hand_elbow": -40.0},
+        {"tick": 6.5, "ease": "linear", "plane": 0.0, "sweep": -18.0, "reach": 0.331, "lead": 1.7, "lift": -95.6, "twist": 250.0, "offset": [0.0, -0.018, 0.0], "grip_roll": 25.0, "elbow": 60.0, "off_hand_slide": -8.82, "off_hand_roll": 20.0, "off_hand_elbow": 20.0},
+        {"tick": 7.0, "ease": "linear", "plane": 0.0, "sweep": -12.7, "reach": 0.338, "lead": -24.6, "lift": -91.7, "twist": 250.0, "offset": [0.0, -0.014, 0.0], "grip_roll": 120.0, "elbow": -60.0, "off_hand_slide": -9.57, "off_hand_roll": 10.0, "off_hand_elbow": 40.0},
+        {"tick": 8.3, "ease": "out_back", "plane": 0.0, "sweep": -10.7, "reach": 0.346, "lead": -34.3, "lift": -89.2, "twist": 250.0, "offset": [0.0, -0.013, 0.0], "grip_roll": 110.0, "elbow": -60.0, "off_hand_roll": 10.0, "off_hand_elbow": 40.0},
+        {"tick": 11.0, "ease": "in_out", "plane": 0.0, "sweep": -11.3, "reach": 0.345, "lead": -32.7, "lift": -89.7, "twist": 250.0, "offset": [0.0, -0.014, 0.0], "grip_roll": 115.0, "elbow": -60.0, "off_hand_roll": 10.0, "off_hand_elbow": 40.0},
+        {"tick": 13.0, "ease": "in_out", "plane": 0.0, "sweep": -25.0, "reach": 0.336, "lead": 23.0, "lift": -95.0, "twist": 250.0, "offset": [0.0, -0.025, 0.0], "grip_roll": 30.0, "elbow": 60.0, "off_hand_roll": 30.0, "off_hand_elbow": -20.0},
+        {"tick": 15, "ease": "in_out_cubic", "pose": "neutral"}
+      ]
+    },
+    "myvillage:basic_spear_03_rising_flick": {
+      "strike": [4.5, 7.5],
+      "contact": 6.0,
+      "keys": [
+        {"tick": 0, "pose": "neutral"},
+        {"tick": 0.6, "ease": "out", "plane": 0.0, "sweep": -6.2, "reach": 0.322, "lead": 0.3, "lift": -94.6, "twist": 250.0, "offset": [0.0, -0.072, 0.0], "grip_roll": 140.0, "elbow": -60.0, "off_hand_slide": -7.17, "off_hand_roll": -10.0, "off_hand_elbow": 80.0},
+        {"tick": 1.2, "ease": "in_out", "plane": 0.0, "sweep": 8.2, "reach": 0.307, "lead": -37.8, "lift": -98.1, "twist": 250.0, "offset": [0.0, -0.097, 0.0], "grip_roll": 115.0, "elbow": -60.0, "off_hand_roll": -10.0, "off_hand_elbow": 60.0},
+        {"tick": 3.0, "ease": "out", "plane": 0.0, "sweep": 18.7, "reach": 0.296, "lead": -65.6, "lift": -100.6, "twist": 250.0, "offset": [0.0, -0.115, 0.0], "grip_roll": 90.0, "elbow": -60.0, "off_hand_slide": -6.73, "off_hand_roll": -10.0, "off_hand_elbow": 40.0},
+        {"tick": 4.5, "ease": "in_out", "plane": 0.0, "sweep": 18.0, "reach": 0.289, "lead": -67.3, "lift": -101.2, "twist": 250.0, "offset": [0.0, -0.113, 0.0], "grip_roll": 90.0, "elbow": -60.0, "off_hand_slide": -6.78, "off_hand_roll": -10.0, "off_hand_elbow": 40.0},
+        {"tick": 5.0, "ease": "in", "plane": 0.0, "sweep": 21.8, "reach": 0.301, "lead": -68.1, "lift": -93.4, "twist": 250.0, "offset": [0.0, -0.115, 0.0], "grip_roll": 85.0, "elbow": -60.0, "off_hand_slide": -6.71, "off_hand_roll": 0.0, "off_hand_elbow": 40.0},
+        {"tick": 5.5, "ease": "linear", "plane": 0.0, "sweep": 30.2, "reach": 0.324, "lead": -63.7, "lift": -73.8, "twist": 250.0, "offset": [0.0, -0.111, 0.0], "grip_roll": 75.0, "elbow": -60.0, "off_hand_slide": -6.29, "off_hand_roll": 0.0, "off_hand_elbow": 40.0},
+        {"tick": 6.0, "ease": "linear", "plane": 0.0, "sweep": 35.2, "reach": 0.343, "lead": -39.0, "lift": -60.3, "twist": 250.0, "offset": [0.0, -0.107, 0.0], "grip_roll": 80.0, "elbow": -20.0, "off_hand_slide": -5.5, "off_hand_roll": 0.0, "off_hand_elbow": 40.0},
+        {"tick": 6.5, "ease": "linear", "plane": 0.0, "sweep": 37.4, "reach": 0.353, "lead": -9.8, "lift": -58.1, "twist": 250.0, "offset": [0.0, -0.102, 0.0], "grip_roll": 75.0, "elbow": 0.0, "off_hand_slide": -4.54, "off_hand_roll": -10.0, "off_hand_elbow": 40.0},
+        {"tick": 7.0, "ease": "linear", "plane": 0.0, "sweep": 38.5, "reach": 0.358, "lead": 6.4, "lift": -61.6, "twist": 250.0, "offset": [0.0, -0.098, 0.0], "grip_roll": 60.0, "elbow": 20.0, "off_hand_slide": -3.88, "off_hand_roll": 0.0, "off_hand_elbow": 20.0},
+        {"tick": 8.2, "ease": "out_back", "plane": 0.0, "sweep": 39.1, "reach": 0.361, "lead": 11.5, "lift": -64.1, "twist": 250.0, "offset": [0.0, -0.098, 0.0], "grip_roll": 40.0, "elbow": 40.0, "off_hand_slide": -3.63, "off_hand_roll": 0.0, "off_hand_elbow": 20.0},
+        {"tick": 11.0, "ease": "in_out", "plane": 0.0, "sweep": 38.5, "reach": 0.358, "lead": 10.2, "lift": -64.7, "twist": 250.0, "offset": [0.0, -0.098, 0.0], "grip_roll": 70.0, "elbow": 20.0, "off_hand_slide": -3.63, "off_hand_roll": 0.0, "off_hand_elbow": 20.0},
+        {"tick": 15, "ease": "in_out_cubic", "pose": "neutral"}
+      ]
+    },
+    "myvillage:basic_spear_04_overhead_smash": {
+      "strike": [6.5, 9.5],
+      "contact": 8.0,
+      "keys": [
+        {"tick": 0, "pose": "neutral"},
+        {"tick": 0.8, "ease": "out_cubic", "plane": 0.0, "sweep": -33.1, "reach": 0.382, "lead": 71.2, "lift": -81.0, "twist": 250.0, "offset": [0.0, -0.008, 0.0], "grip_roll": 145.0, "elbow": 20.0, "off_hand_roll": 50.0, "off_hand_elbow": 40.0, "off_hand_hold": 0.15},
+        {"tick": 2.5, "ease": "out_cubic", "plane": 0.0, "sweep": -35.8, "reach": 0.456, "lead": 86.0, "lift": -70.0, "twist": 160.0, "offset": [0.0, 0.205, 0.0], "grip_roll": 290.0, "elbow": 40.0, "off_hand_roll": 50.0, "off_hand_elbow": 40.0, "off_hand_hold": 0.0},
+        {"tick": 4.5, "ease": "out_cubic", "plane": 0.0, "sweep": -35.3, "reach": 0.49, "lead": 87.7, "lift": -69.4, "twist": 160.0, "offset": [0.0, 0.387, 0.0], "grip_roll": 290.0, "elbow": 40.0, "off_hand_roll": 50.0, "off_hand_elbow": 40.0},
+        {"tick": 6.5, "ease": "in_out", "plane": 0.0, "sweep": -35.9, "reach": 0.494, "lead": 89.6, "lift": -68.9, "twist": 160.0, "offset": [0.0, 0.41, 0.0], "grip_roll": 290.0, "elbow": 40.0, "off_hand_roll": 50.0, "off_hand_elbow": 40.0},
+        {"tick": 7.0, "ease": "in", "plane": 0.0, "sweep": -34.8, "reach": 0.487, "lead": 84.4, "lift": -71.2, "twist": 160.0, "offset": [0.0, 0.381, 0.0], "grip_roll": 290.0, "elbow": 40.0, "off_hand_roll": 50.0, "off_hand_elbow": 40.0},
+        {"tick": 7.5, "ease": "linear", "plane": 0.0, "sweep": -31.9, "reach": 0.471, "lead": 67.4, "lift": -80.8, "twist": 160.0, "offset": [0.0, 0.293, 0.0], "grip_roll": 245.0, "elbow": 20.0, "off_hand_slide": -7.4, "off_hand_roll": 50.0, "off_hand_elbow": 40.0},
+        {"tick": 8.0, "ease": "linear", "plane": 0.0, "sweep": -27.4, "reach": 0.439, "lead": 43.0, "lift": -96.8, "twist": 160.0, "offset": [0.0, 0.202, 0.0], "grip_roll": 195.0, "elbow": 20.0, "off_hand_slide": -9.16, "off_hand_roll": 50.0, "off_hand_elbow": 40.0},
+        {"tick": 8.5, "ease": "out", "plane": 0.0, "sweep": -23.9, "reach": 0.416, "lead": 26.6, "lift": -111.5, "twist": 160.0, "offset": [0.0, 0.114, 0.0], "grip_roll": 145.0, "elbow": 60.0, "off_hand_roll": 50.0, "off_hand_elbow": 40.0},
+        {"tick": 9.2, "ease": "out", "plane": 0.0, "sweep": -21.6, "reach": 0.398, "lead": 18.7, "lift": -115.6, "twist": 160.0, "offset": [0.0, 0.068, 0.0], "grip_roll": 140.0, "elbow": 60.0, "off_hand_roll": 50.0, "off_hand_elbow": 40.0},
+        {"tick": 9.8, "ease": "out", "plane": 0.0, "sweep": -21.9, "reach": 0.399, "lead": 19.7, "lift": -112.2, "twist": 160.0, "offset": [0.0, 0.085, 0.0], "grip_roll": 140.0, "elbow": 60.0, "off_hand_roll": 50.0, "off_hand_elbow": 40.0},
+        {"tick": 10.8, "ease": "in_out", "plane": 0.0, "sweep": -22.3, "reach": 0.4, "lead": 19.8, "lift": -114.3, "twist": 160.0, "offset": [0.0, 0.074, 0.0], "grip_roll": 140.0, "elbow": 60.0, "off_hand_roll": 50.0, "off_hand_elbow": 40.0, "off_hand_hold": 0.0},
+        {"tick": 14.0, "ease": "in_out", "plane": 0.0, "sweep": -24.3, "reach": 0.395, "lead": 24.3, "lift": -112.2, "twist": 200.0, "offset": [0.0, 0.038, 0.0], "grip_roll": 105.0, "elbow": 60.0, "off_hand_roll": 50.0, "off_hand_elbow": 40.0, "off_hand_hold": 0.0},
+        {"tick": 19, "ease": "in_out_cubic", "pose": "neutral"}
+      ]
+    },
+    "myvillage:basic_spear_05_dragon_lunge": {
+      "strike": [7.4, 10.4],
+      "contact": 8.2,
+      "keys": [
+        {"tick": 0, "pose": "neutral"},
+        {"tick": 1.8, "ease": "out_cubic", "plane": 0.0, "sweep": -31.3, "reach": 0.339, "lead": 68.7, "lift": -92.1, "twist": 250.0, "offset": [0.0, -0.032, 0.0], "grip_roll": 125.0, "elbow": 20.0, "off_hand_slide": -4.37, "off_hand_roll": 30.0, "off_hand_elbow": 0.0},
+        {"tick": 3.6, "ease": "in_out", "plane": 0.0, "sweep": -32.7, "reach": 0.321, "lead": 60.0, "lift": -86.6, "twist": 250.0, "offset": [0.0, -0.027, 0.0], "grip_roll": 115.0, "elbow": 20.0, "off_hand_slide": -4.12, "off_hand_roll": 20.0, "off_hand_elbow": 0.0},
+        {"tick": 5.5, "ease": "in_out", "plane": 0.0, "sweep": -35.9, "reach": 0.296, "lead": 62.0, "lift": -97.5, "twist": 250.0, "offset": [0.0, -0.029, 0.0], "grip_roll": 105.0, "elbow": 40.0, "off_hand_slide": -2.87, "off_hand_roll": 20.0, "off_hand_elbow": 0.0},
+        {"tick": 6.8, "ease": "in_out", "plane": 0.0, "sweep": -36.2, "reach": 0.295, "lead": 62.6, "lift": -97.9, "twist": 250.0, "offset": [0.0, -0.03, 0.0], "grip_roll": 105.0, "elbow": 40.0, "off_hand_slide": -2.4, "off_hand_roll": 10.0, "off_hand_elbow": 0.0},
+        {"tick": 7.4, "ease": "in", "plane": 0.0, "sweep": -35.5, "reach": 0.307, "lead": 63.0, "lift": -96.4, "twist": 250.0, "offset": [0.0, -0.033, 0.0], "grip_roll": 110.0, "elbow": 40.0, "off_hand_slide": -2.89, "off_hand_roll": 20.0, "off_hand_elbow": 0.0},
+        {"tick": 7.9, "ease": "in", "plane": 0.0, "sweep": -21.9, "reach": 0.464, "lead": 43.8, "lift": -87.6, "twist": 280.0, "offset": [0.0, -0.023, 0.0], "grip_roll": 80.0, "elbow": 20.0, "off_hand_slide": -8.61, "off_hand_roll": 50.0, "off_hand_elbow": 0.0, "off_hand_hold": 0.85},
+        {"tick": 8.2, "ease": "linear", "plane": 0.0, "sweep": -11.5, "reach": 0.561, "lead": 23.1, "lift": -82.3, "twist": 300.0, "offset": [-0.02, -0.057, -0.12], "grip_roll": 85.0, "elbow": -20.0, "off_hand_slide": -10.28, "off_hand_roll": 60.0, "off_hand_elbow": 40.0, "off_hand_hold": 0.25},
+        {"tick": 8.9, "ease": "out", "plane": 0.0, "sweep": -9.5, "reach": 0.598, "lead": 19.7, "lift": -81.4, "twist": 310.0, "offset": [-0.025, -0.062, -0.16], "grip_roll": 90.0, "elbow": -40.0, "off_hand_slide": -10.28, "off_hand_roll": 60.0, "off_hand_elbow": 40.0, "off_hand_hold": 0.0},
+        {"tick": 10.3, "ease": "in_out", "plane": 0.0, "sweep": -10.1, "reach": 0.589, "lead": 21.0, "lift": -81.8, "twist": 305.0, "offset": [-0.02, -0.061, -0.14], "grip_roll": 95.0, "elbow": -40.0, "off_hand_slide": -10.28, "off_hand_roll": 60.0, "off_hand_elbow": 40.0},
+        {"tick": 14.0, "ease": "in_out", "plane": 0.0, "sweep": -10.2, "reach": 0.589, "lead": 21.3, "lift": -82.1, "twist": 305.0, "offset": [-0.02, -0.059, -0.13], "grip_roll": 95.0, "elbow": -40.0, "off_hand_slide": -10.28, "off_hand_roll": 60.0, "off_hand_elbow": 40.0},
+        {"tick": 15.5, "ease": "in_out", "plane": 0.0, "sweep": -13.1, "reach": 0.534, "lead": 28.2, "lift": -84.1, "twist": 290.0, "offset": [-0.01, -0.055, -0.09], "grip_roll": 75.0, "elbow": 0.0, "off_hand_slide": -10.28, "off_hand_roll": 60.0, "off_hand_elbow": 40.0, "off_hand_hold": 0.0},
+        {"tick": 17.0, "ease": "in_out", "plane": 0.0, "sweep": -20.6, "reach": 0.438, "lead": 44.6, "lift": -86.4, "twist": 270.0, "offset": [0.0, -0.054, -0.04], "grip_roll": 90.0, "elbow": 20.0, "off_hand_slide": -7.83, "off_hand_roll": 60.0, "off_hand_elbow": 0.0, "off_hand_hold": 0.7},
+        {"tick": 18.5, "ease": "in_out", "plane": 0.0, "sweep": -26.1, "reach": 0.379, "lead": 56.5, "lift": -88.2, "twist": 255.0, "offset": [0.0, -0.041, -0.01], "grip_roll": 110.0, "elbow": 20.0, "off_hand_slide": -5.24, "off_hand_roll": 20.0, "off_hand_elbow": 0.0, "off_hand_hold": 1.0},
+        {"tick": 22, "ease": "in_out_cubic", "pose": "neutral"}
+      ]
+    }
+  }
+}

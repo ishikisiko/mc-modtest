@@ -64,8 +64,82 @@ final class SwordGeometryTest {
         assertThrows(IllegalArgumentException.class, () -> SwordGeometry.parse(flatHandle));
     }
 
+    @Test
+    void offHandGripIsOptionalAndCheckedLikeTheGrip() throws IOException {
+        assertTrue(SwordGeometry.parse(json()).offHandGripCenter().isEmpty(), "the one-handed sword has no off hand");
+        SwordGeometry spear = SwordGeometry.parse(spear());
+        assertEquals(new Vector3f(8.0F, 11.0F, 8.0F), spear.offHandGripCenter().orElseThrow());
+        assertTrue(spear.offHandGripCenter().orElseThrow().y > spear.gripCenter().y);
+
+        JsonObject offAxis = spear();
+        offAxis.add("off_hand_grip_center", vector(8.5F, 11.0F, 8.0F));
+        assertThrows(IllegalArgumentException.class, () -> SwordGeometry.parse(offAxis));
+        JsonObject offHandle = spear();
+        offHandle.add("off_hand_grip_center", vector(8.0F, 18.0F, 8.0F));
+        assertThrows(IllegalArgumentException.class, () -> SwordGeometry.parse(offHandle));
+        JsonObject behind = spear();
+        behind.add("off_hand_grip_center", vector(8.0F, -6.0F, 8.0F));
+        assertThrows(IllegalArgumentException.class, () -> SwordGeometry.parse(behind));
+        JsonObject shortPoint = spear();
+        shortPoint.add("off_hand_grip_center", new JsonArray());
+        assertThrows(IllegalArgumentException.class, () -> SwordGeometry.parse(shortPoint));
+    }
+
+    @Test
+    void trailSpanDefaultsToTheBladeAndIsCheckedLikeTheBlade() throws IOException {
+        SwordGeometry sword = SwordGeometry.parse(json());
+        assertTrue(!json().has("trail"), "the sword trails along its blade");
+        assertEquals(sword.bladeBase(), sword.trailBase());
+        assertEquals(sword.bladeTip(), sword.trailTip());
+        assertEquals(sword.bladeLengthPixels(), sword.trailLengthPixels(), 1.0E-6F);
+        assertEquals(sword.bladeTip().y - sword.gripCenter().y, sword.gripToTrailTipPixels(), 1.0E-6F);
+
+        // The spear's head is short; its trail span adds the front of the shaft, about a sword blade.
+        SwordGeometry spear = SwordGeometry.parse(spear());
+        assertEquals(new Vector3f(8.0F, 16.0F, 8.0F), spear.trailBase());
+        assertEquals(spear.bladeTip(), spear.trailTip());
+        assertTrue(spear.trailBase().y < spear.bladeBase().y);
+        assertTrue(spear.bladeLengthPixels() < 0.6F * sword.bladeLengthPixels());
+        assertEquals(sword.trailLengthPixels(), spear.trailLengthPixels(), 0.5F);
+
+        JsonObject offAxis = spear();
+        offAxis.add("trail", trail(vector(8.0F, 16.0F, 8.5F), vector(8.0F, 32.0F, 8.0F)));
+        assertThrows(IllegalArgumentException.class, () -> SwordGeometry.parse(offAxis));
+        JsonObject inverted = spear();
+        inverted.add("trail", trail(vector(8.0F, 32.0F, 8.0F), vector(8.0F, 16.0F, 8.0F)));
+        assertThrows(IllegalArgumentException.class, () -> SwordGeometry.parse(inverted));
+        JsonObject pastTip = spear();
+        pastTip.add("trail", trail(vector(8.0F, 16.0F, 8.0F), vector(8.0F, 33.0F, 8.0F)));
+        assertThrows(IllegalArgumentException.class, () -> SwordGeometry.parse(pastTip));
+        JsonObject belowButt = spear();
+        belowButt.add("trail", trail(vector(8.0F, -17.0F, 8.0F), vector(8.0F, 32.0F, 8.0F)));
+        assertThrows(IllegalArgumentException.class, () -> SwordGeometry.parse(belowButt));
+        JsonObject missingTip = spear();
+        missingTip.getAsJsonObject("trail").remove("tip");
+        assertThrows(IllegalArgumentException.class, () -> SwordGeometry.parse(missingTip));
+        JsonObject notObject = spear();
+        notObject.add("trail", vector(8.0F, 16.0F, 8.0F));
+        assertThrows(IllegalArgumentException.class, () -> SwordGeometry.parse(notObject));
+        // The whole weapon is a valid span.
+        JsonObject whole = spear();
+        whole.add("trail", trail(vector(8.0F, -16.0F, 8.0F), vector(8.0F, 32.0F, 8.0F)));
+        assertEquals(48.0F, SwordGeometry.parse(whole).trailLengthPixels(), 1.0E-6F);
+    }
+
+    private static JsonObject trail(JsonArray base, JsonArray tip) {
+        JsonObject trail = new JsonObject();
+        trail.add("base", base);
+        trail.add("tip", tip);
+        return trail;
+    }
+
     private static JsonObject json() throws IOException {
         return JsonParser.parseString(Files.readString(GEOMETRY)).getAsJsonObject();
+    }
+
+    private static JsonObject spear() throws IOException {
+        return JsonParser.parseString(Files.readString(
+                CombatTestData.assetPath(CombatTestData.lingxiao().geometry()))).getAsJsonObject();
     }
 
     private static JsonArray vector(float x, float y, float z) {

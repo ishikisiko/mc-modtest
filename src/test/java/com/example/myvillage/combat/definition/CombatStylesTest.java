@@ -16,7 +16,10 @@ final class CombatStylesTest {
     @Test
     void looksUpStylesWeaponsAndMoves() {
         CombatStyleDefinition basic = styles.style(CombatTestData.BASIC_SWORD).orElseThrow();
-        assertSame(basic, styles.defaultStyle());
+        // The default is the first style the index lists; the bundled index keeps the sword first so
+        // the ready idle played without a weapon entry stays the sword's.
+        assertSame(styles.styles().getFirst(), styles.defaultStyle());
+        assertSame(basic, styles.defaultStyle(), "the bundled index must list basic_sword first");
         assertSame(basic, styles.styleForItem(CombatTestData.QINGFENG_SWORD).orElseThrow());
         assertEquals(CombatTestData.BASIC_SWORD, styles.weapon(CombatTestData.QINGFENG_SWORD).orElseThrow().style());
         assertFalse(styles.styleForItem(ResourceLocation.withDefaultNamespace("iron_sword")).isPresent());

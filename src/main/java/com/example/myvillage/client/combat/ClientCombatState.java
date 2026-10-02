@@ -181,6 +181,15 @@ final class ClientCombatState {
         return chainPrediction && predictionPending;
     }
 
+    /**
+     * True when a server message for {@code revision} belongs to the local action on screen. A
+     * locally predicted move has no revision yet, so a late message of the action before it is not
+     * its own.
+     */
+    static boolean isCurrentAction(long revision) {
+        return localMoveIndexFor(revision) >= 0;
+    }
+
     /** Move index of the local action with this server revision, or -1. */
     static int localMoveIndexFor(long revision) {
         return revision >= 0L && revision == localRevision ? localMoveIndex : -1;

@@ -20,7 +20,10 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.Locale;
 import java.util.Optional;
 
 /**
@@ -30,13 +33,11 @@ import java.util.Optional;
  */
 public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
     public static final FirstPersonWeaponAnimator INSTANCE = new FirstPersonWeaponAnimator();
+    private static final Logger LOGGER = LoggerFactory.getLogger(FirstPersonWeaponAnimator.class);
 
     private static final float BLEND_OUT_TICKS = 3.0F;
     /** A chained move cross-fades from the pose on screen instead of snapping. */
     static final float CHAIN_BLEND_TICKS = 2.0F;
-    /** Authoritative start corrections up to this size are slewed instead of snapped. */
-    static final float RESYNC_SLEW_LIMIT_TICKS = 2.0F;
-    static final float RESYNC_SLEW_TICKS = 3.0F;
     /** Hit-stop shake amplitude in rig units: base plus a share per stop tick, decaying over the stop. */
     static final float HIT_STOP_SHAKE = 0.018F;
     static final float HIT_STOP_SHAKE_PER_TICK = 0.003F;
@@ -54,10 +55,8 @@ public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
     /** The style of the local action on screen; its rig is the held weapon's. */
     private CombatStyleDefinition activeStyle;
     private int activeMoveIndex = -1;
-    private double actionStartTick;
-    private double slewOffset;
-    private double slewStartTick;
-    private SwingClock clock;
+    /** The local action's start, swing clock and confirmations, on the {@link ClientCombatClock}. */
+    private LocalSwingTimeline timeline;
     private boolean swingSoundPlayed;
     private FirstPersonSwing.Pose blendFrom;
     private double blendStartTick;
@@ -82,22 +81,22 @@ public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
         CombatStyleDefinition style = started.get().style();
         int moveIndex = started.get().index();
         FirstPersonWeaponAnimator animator = INSTANCE;
-        double now = player.level().getGameTime();
-        double startTick = player.level().getGameTime() - Math.max(0.0F, elapsedTicks);
-        if (style.equals(animator.activeStyle) && animator.activeMoveIndex == moveIndex && animator.clock != null) {
+        // Local time: the server's start enters once, as elapsed ticks by the game clock now.
+        double now = ClientCombatClock.ticks();
+        double startTick = now - Math.max(0.0F, elapsedTicks);
+        if (style.equals(animator.activeStyle) && animator.activeMoveIndex == moveIndex && animator.timeline != null) {
             // An authoritative correction of the same predicted move keeps its hit-stop and sound
             // state. Small corrections are slewed so the blade never teleports mid-strike.
-            double shift = animator.effectiveStartTick(now) - startTick;
-            if (Math.abs(shift) < 1.0E-3) {
+            double shift = animator.timeline.correct(startTick, now);
+            if (shift == 0.0) {
                 return;
             }
-            animator.actionStartTick = startTick;
-            if (Math.abs(shift) <= RESYNC_SLEW_LIMIT_TICKS) {
-                animator.slewOffset = shift;
-                animator.slewStartTick = now;
-            } else {
-                animator.slewOffset = 0.0;
-            }
+            // shift > 0: the server started earlier than predicted, the swing jumps or speeds up;
+            // shift < 0: it started later, the swing slows (slew) or holds (snap) until it catches up.
+            LOGGER.info("PAL_SMOKE fp_resync animation={} shift_ticks={} slewed={} predicted_start={} server_start={} now={}",
+                    animationId, String.format(Locale.ROOT, "%.2f", shift), LocalSwingTimeline.slewed(shift),
+                    String.format(Locale.ROOT, "%.2f", startTick + shift), String.format(Locale.ROOT, "%.0f", startTick),
+                    String.format(Locale.ROOT, "%.0f", now));
             return;
         }
 
@@ -111,9 +110,7 @@ public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
         animator.activeStyle = style;
         animator.activeMoveIndex = moveIndex;
         animator.idleSinceTick = Double.NEGATIVE_INFINITY;
-        animator.actionStartTick = startTick;
-        animator.slewOffset = 0.0;
-        animator.clock = new SwingClock(started.get().move().totalTicks());
+        animator.timeline = new LocalSwingTimeline(started.get().move().totalTicks(), startTick);
         animator.swingSoundPlayed = false;
         animator.blendFrom = from;
         animator.blendStartTick = now;
@@ -147,23 +144,41 @@ public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
     /**
      * Presentation-only hit-stop after the server confirmed damage for the local action. The stop
      * lasts the move's {@code MoveFeedback.hitStopTicks} and starts when the drawn blade reaches its
-     * contact tick, or at once when the confirmation arrives later than that.
+     * contact tick, or, when the confirmation arrives later than that, at once on the pose already
+     * on screen ({@link SwingClock#confirmHit}). The packet is handled at the start of a frame,
+     * before the frame's client tick, so its own tick reading can lie up to a tick behind the
+     * frame drawn last; the clock's present covers that.
+     *
+     * <p>The server sends one confirmation per hit batch, so a move that strikes several targets
+     * (a sweep) sends several. Only the first starts the stop, sized as for one target; the rest
+     * are logged as ignored. {@code current} is false for a confirmation of an action that is no
+     * longer the local one (it arrived after the next move started); it never stops the new move.
      */
-    static void confirmHit(LocalPlayer player) {
+    static void confirmHit(LocalPlayer player, long revision, int targets, boolean current) {
         FirstPersonWeaponAnimator animator = INSTANCE;
-        if (animator.activeMoveIndex < 0 || animator.clock == null) {
+        if (!current || animator.activeMoveIndex < 0 || animator.timeline == null) {
+            LOGGER.info("PAL_SMOKE fp_hit_stop revision={} targets={} start=none result=ignored_not_current_action",
+                    revision, targets);
             return;
         }
-        MoveFeedback feedback = animator.activeStyle.move(animator.activeMoveIndex).feedback();
-        float now = (float) animator.realTick(player, 0.0F);
-        float start = now;
+        AttackMoveDefinition definition = animator.activeStyle.move(animator.activeMoveIndex);
+        float contact = Float.NEGATIVE_INFINITY;
         Optional<FirstPersonSwing> swing = animator.activeSwing(player);
         if (swing.isPresent()) {
             FirstPersonSwing.Move move = swing.get().move(animator.activeMoveIndex);
-            start = Math.max(now, animator.clock.realTickForVisual(move.contactTick()));
+            contact = move.contactTick();
             animator.aimShake(swing.get(), move);
         }
-        animator.clock.beginHitStop(start, feedback.hitStopTicks());
+        LocalSwingTimeline.Confirmation confirmation = animator.timeline.confirm(
+                ClientCombatClock.now(0.0F), contact, definition.feedback().hitStopTicks());
+        LOGGER.info("PAL_SMOKE fp_hit_stop animation={} tick_reading={} present={} contact={} start={} "
+                        + "revision={} confirmation={} targets={} result={}",
+                definition.id(), ticks(confirmation.reading()), ticks(confirmation.present()), ticks(contact),
+                ticks(confirmation.start()), revision, confirmation.number(), targets, confirmation.result());
+    }
+
+    private static String ticks(float value) {
+        return Float.isFinite(value) ? String.format(Locale.ROOT, "%.3f", value) : "none";
     }
 
     /**
@@ -176,20 +191,20 @@ public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
         if (!(player instanceof LocalPlayer localPlayer)
                 || player != minecraft.player
                 || animator.activeMoveIndex < 0
-                || animator.clock == null) {
+                || animator.timeline == null) {
             return 1.0F;
         }
         float partialTick = minecraft.getTimer().getGameTimeDeltaPartialTick(true);
-        return animator.clock.rate((float) animator.realTick(localPlayer, partialTick));
+        return animator.timeline.rate(ClientCombatClock.now(partialTick));
     }
 
     static void clientTick(LocalPlayer player) {
         FirstPersonWeaponAnimator animator = INSTANCE;
-        if (animator.activeMoveIndex < 0 || animator.swingSoundPlayed || animator.clock == null) {
+        if (animator.activeMoveIndex < 0 || animator.swingSoundPlayed || animator.timeline == null) {
             return;
         }
         AttackMoveDefinition move = animator.activeStyle.move(animator.activeMoveIndex);
-        float visualTick = animator.clock.visualTick((float) animator.realTick(player, 0.0F));
+        float visualTick = animator.timeline.visualTick(ClientCombatClock.now(0.0F));
         // The whoosh leads the blade by about one tick, like the server swing sound.
         if (visualTick + 1.5F < move.activeStartTick()) {
             return;
@@ -265,16 +280,16 @@ public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
         Optional<Frame> frame = currentFrame(player, partialTick);
         FirstPersonSwing.Pose target = swing.neutral();
         if (frame.isEmpty() && probeFrame == null) {
-            target = breathing(target, player.level().getGameTime() + partialTick);
+            target = breathing(target, ClientCombatClock.now(partialTick));
         }
         if (frame.isPresent()) {
             target = swing.sample(frame.get().moveIndex(), frame.get().tick());
-            if (frame.get().hitStop()) {
-                target = shaken(target, (float) realTick(player, partialTick));
+            if (frame.get().hitStop() && timeline != null) {
+                target = shaken(target, timeline.clock());
             }
         }
         if (blendFrom != null) {
-            double elapsed = player.level().getGameTime() + partialTick - blendStartTick;
+            double elapsed = ClientCombatClock.now(partialTick) - blendStartTick;
             if (elapsed >= 0.0 && elapsed < blendTicks) {
                 float progress = FirstPersonSwing.Ease.IN_OUT.apply((float) (elapsed / blendTicks));
                 return FirstPersonSwing.Pose.interpolate(blendFrom, target, progress);
@@ -290,7 +305,7 @@ public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
         if (probeFrame != null) {
             return holdsStyle(player, probeStyle) ? Optional.of(probeFrame) : Optional.empty();
         }
-        if (activeMoveIndex < 0 || clock == null) {
+        if (activeMoveIndex < 0 || timeline == null) {
             return Optional.empty();
         }
         if (ClientCombatState.mode() != CombatMode.CULTIVATION || !holdsStyle(player, activeStyle)) {
@@ -299,19 +314,13 @@ public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
             return Optional.empty();
         }
 
-        int totalTicks = activeStyle.move(activeMoveIndex).totalTicks();
-        double realTick = realTick(player, partialTick);
-        if (realTick < 0.0) {
-            return Optional.empty();
-        }
-        if (realTick >= totalTicks) {
+        LocalSwingTimeline.Drawn drawn = timeline.frame(ClientCombatClock.now(partialTick));
+        if (drawn.ended()) {
             clear();
-            return Optional.empty();
         }
-        return Optional.of(new Frame(
-                activeMoveIndex,
-                clock.visualTick((float) realTick),
-                clock.inHitStop((float) realTick)));
+        return drawn.drawn()
+                ? Optional.of(new Frame(activeMoveIndex, drawn.tick(), drawn.hitStop()))
+                : Optional.empty();
     }
 
     /** True when the main-hand item is a registered weapon of {@code style}. */
@@ -328,38 +337,17 @@ public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
                 .map(WeaponRig::swing);
     }
 
-    private double realTick(LocalPlayer player, float partialTick) {
-        double now = player.level().getGameTime() + partialTick;
-        return now - effectiveStartTick(now);
-    }
-
-    /** The action start including any in-progress slew toward an authoritative correction. */
-    private double effectiveStartTick(double now) {
-        if (slewOffset == 0.0) {
-            return actionStartTick;
-        }
-        double remaining = 1.0 - (now - slewStartTick) / RESYNC_SLEW_TICKS;
-        if (remaining <= 0.0) {
-            slewOffset = 0.0;
-            return actionStartTick;
-        }
-        return actionStartTick + slewOffset * Math.min(1.0, remaining);
-    }
-
     private void beginBlendOut(AbstractClientPlayer player) {
-        if (activeMoveIndex < 0 || clock == null || !(player instanceof LocalPlayer localPlayer)) {
+        if (activeMoveIndex < 0 || timeline == null || !(player instanceof LocalPlayer localPlayer)) {
             return;
         }
         Optional<FirstPersonSwing> swing = activeSwing(localPlayer);
-        if (swing.isEmpty()) {
-            return;
-        }
-        double realTick = realTick(localPlayer, 0.0F);
-        if (realTick < 0.0 || realTick >= swing.get().move(activeMoveIndex).totalTicks()) {
+        double now = ClientCombatClock.ticks();
+        if (swing.isEmpty() || timeline.notStarted(now) || timeline.ended(now)) {
             return;
         }
         blendFrom = currentPose(localPlayer, 0.0F, swing.get());
-        blendStartTick = player.level().getGameTime();
+        blendStartTick = now;
         blendTicks = BLEND_OUT_TICKS;
     }
 
@@ -386,8 +374,9 @@ public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
      * Hit-stop shudder: the blade first bites forward along its strike, then recoils, with a
      * smaller cross-axis tremor. Amplitude grows with the stop length and decays to zero by its end.
      */
-    private FirstPersonSwing.Pose shaken(FirstPersonSwing.Pose pose, float realTick) {
-        if (clock == null || !clock.hasHitStop()) {
+    private FirstPersonSwing.Pose shaken(FirstPersonSwing.Pose pose, SwingClock clock) {
+        float realTick = clock.present();
+        if (!clock.hasHitStop()) {
             return pose;
         }
         float stopTicks = clock.hitStopTicks();
@@ -410,7 +399,11 @@ public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
                 pose.y() + shakeDirection.y * along + crossY * across,
                 pose.z() + shakeDirection.z * along,
                 pose.gripRoll(),
-                pose.elbow());
+                pose.elbow(),
+                pose.offHandSlide(),
+                pose.offHandRoll(),
+                pose.offHandElbow(),
+                pose.offHandHold());
     }
 
     /**
@@ -431,15 +424,17 @@ public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
                 pose.y() + BREATH_RISE * breath,
                 pose.z(),
                 pose.gripRoll(),
-                pose.elbow() + BREATH_ELBOW_DEGREES * breath);
+                pose.elbow() + BREATH_ELBOW_DEGREES * breath,
+                pose.offHandSlide(),
+                pose.offHandRoll(),
+                pose.offHandElbow(),
+                pose.offHandHold());
     }
 
     private void clear() {
         activeStyle = null;
         activeMoveIndex = -1;
-        actionStartTick = 0.0;
-        slewOffset = 0.0;
-        clock = null;
+        timeline = null;
         swingSoundPlayed = false;
     }
 

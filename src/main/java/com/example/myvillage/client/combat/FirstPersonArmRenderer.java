@@ -25,6 +25,11 @@ import java.util.Optional;
  * off-screen to the shoulder. It uses exactly the pose the held item uses this frame, plus the
  * presentation-only wrist lag from {@link FirstPersonArmLag}. The event is never cancelled, so
  * vanilla still draws the sword itself.
+ *
+ * <p>A rig with {@code rig.off_hand} also gets the off arm, its hand on the shaft (see
+ * {@link FirstPersonArmIk#solveOffHand}), drawn with the off arm's skin and sleeve, but only while
+ * the off-hand slot is empty: an off-hand item keeps its own vanilla hand pass and the second arm
+ * is not drawn. The off arm takes no lag, so its hand never leaves the shaft.
  */
 public final class FirstPersonArmRenderer {
     /**
@@ -77,6 +82,21 @@ public final class FirstPersonArmRenderer {
                 : PlayerModelPart.LEFT_SLEEVE;
         render(event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(),
                 skin.texture(), model, swing.get().rig().arm(), solution, player.isModelPartShown(sleevePart));
+
+        if (swing.get().rig().offHand() == null || !player.getOffhandItem().isEmpty()) {
+            return;
+        }
+        Optional<FirstPersonArmIk.OffHandSolution> offHand = FirstPersonArmIk.solveOffHand(
+                arm, event.getEquipProgress(), swing.get(), pose.get());
+        if (offHand.isPresent()) {
+            HumanoidArm offArm = arm.getOpposite();
+            PlayerModelPart offSleeve = offArm == HumanoidArm.RIGHT
+                    ? PlayerModelPart.RIGHT_SLEEVE
+                    : PlayerModelPart.LEFT_SLEEVE;
+            render(event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(),
+                    skin.texture(), model(skin.model() == PlayerSkin.Model.SLIM, offArm), swing.get().rig().arm(),
+                    offHand.get().arm(), player.isModelPartShown(offSleeve));
+        }
     }
 
     /**
@@ -84,7 +104,7 @@ public final class FirstPersonArmRenderer {
      * when a move was interrupted or cross-faded away.
      */
     private static Vector3f lag(LocalPlayer player, float partialTick, FirstPersonSwing swing) {
-        double now = player.level().getGameTime() + partialTick;
+        double now = ClientCombatClock.now(partialTick);
         Optional<FirstPersonWeaponAnimator.Frame> frame =
                 FirstPersonWeaponAnimator.INSTANCE.currentFrame(player, partialTick);
         if (frame.isPresent()) {

@@ -7,6 +7,160 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.29.0
+
+The Lingxiao Spear, a second combat weapon, built on the 0.28.0 combat data
+as its validation. Qingfeng's moves, timing, damage, rig, model, and generated
+animation are unchanged; the fixes below change how it behaves in live play.
+
+### Added
+
+- `myvillage:lingxiao_spear` (凌霄枪): a two-handed spear on the diamond tier
+  (8 attack damage, 1.2 attack speed), in `#minecraft:swords` and in
+  `myvillage:main` after the swords, no recipe. Its 3D model (79 elements,
+  fullbright head and inlays), 128x128 texture, 64x64 icon, wrapper model, and
+  geometry contract come from the new `tools/gen_lingxiao_spear_model.py`.
+- Combat style `myvillage:basic_spear` with five moves: 中平扎 mid thrust, 横扫
+  sweep, 上挑 rising flick, 劈枪 overhead smash, 游龙突刺 dragon lunge. The
+  thrusts use the `thrust` generator; the sweep (three per active tick), flick,
+  and smash (four per active tick) use explicit samples that follow the posed
+  spearhead. Weapon entry, index entries, translations, and the reused
+  `myvillage:combat.sword.*` sounds.
+- `player_animations/spear_combat.json`: two-handed third-person poses with a
+  bladed guard; the leading hand stays on the shaft for the guard and the mid
+  thrust and lets go for the sweep, flick, smash, and lunge.
+- `combat/lingxiao_spear_first_person.json`, a first-person rig with both
+  hands on the shaft.
+- Optional first-person off-hand arm: `rig.off_hand` and the per-key
+  `off_hand_slide`, `off_hand_roll`, `off_hand_elbow`, and `off_hand_hold`. It
+  is drawn only while the off-hand slot is empty. Rigs without the block render
+  as before.
+- Optional geometry contract fields `off_hand_grip_center` and `trail`.
+- `CombatWeaponItem`, the item class for every item with a combat weapon
+  entry.
+- `ClientCombatClock`, the client's own combat tick count, and
+  `LocalSwingTimeline`.
+- Data rules: explicit hit samples in non-decreasing tick order (Java loader
+  and `tools/combat_data.py`); equal sample counts per active tick once any
+  tick has several (`tools/combat_data.py`); every drawn frame of a cut's far
+  end at or beyond the weapon's world-trail tip radius, per weapon, and no
+  game-clock read in `client/combat` outside `ClientCombatClock` (validator).
+- Capture tool: default views by weapon length (quarter views for weapons of
+  1.8 blocks or more), cropped quarter-view sheets, `shot`, `view`, `motion`,
+  `combo --camera back`, `combo --layout default|sweep|line`,
+  `combo --tick-rate`, per-move hit attribution (`hits`, `hits_by_move`), the
+  client's hit-stop and resync lines in the manifest (`fp_log`), an experience
+  reset in the scene, and a record of the rig the client loaded.
+- `docs/ai-kb/35_lingxiao_spear.md`: the spear, the two-hand rules, and what
+  the validation found.
+
+### Changed
+
+- `tools/gen_sword_pal_anims.py` holds one pose table per style, each with its
+  own weapon geometry, rules, cut paths, and output file, and can solve the
+  left arm onto a shaft. Long-weapon checks cover the model's real corners
+  against the ground and the skin's outer layers and the neck against the
+  shaft. `sword_combat.json` is byte-identical.
+- The first-person trail spans the contract's `trail` (else the blade). The
+  world trail is sized from the contract (shoulder-to-grip reach plus grip to
+  trail tip, and the trail span, at the model's third-person scale) instead of
+  a 1.7-block cap and a clamped blade length; samples that share a tick are
+  spread through it. The Qingfeng world trail draws exactly as before.
+- Client combat timing maps a server tick onto the local clock once, when the
+  START arrives. If the client's game time is k ticks off the server's at that
+  moment, the whole move is drawn k ticks off (about −1 to +2 on the capture
+  host) and the server's STOP cuts the last k recovery ticks or the next start
+  is slewed; before, the next time packet corrected it mid-move as a visible
+  skip.
+- `tools/validate_sword_combat_foundation.py` checks every weapon's models,
+  textures, model generator, and jar contents, the off-hand and trail fields,
+  and the new data rules. `tools/validate_mod_items.py` requires
+  `CombatWeaponItem` for every combat weapon. Fixture tests that used to skip
+  now fail.
+- Capture stills accept three grabs within 2 colour levels as stable, and a
+  refused probe stops the wait at once with its reason.
+- Messages no longer name the sword: "Cultivation combat enabled." /
+  "已切换为修行战斗。", and "Combat hitbox debug particles enabled/disabled." /
+  "已开启/已关闭战斗判定粒子。".
+
+### Fixed
+
+Each of these changes how the Qingfeng Sword behaves in live play as well as
+the spear.
+
+- First person: when the hit confirmation arrived after the rig's contact
+  tick, the hit-stop started on a pose the weapon had already passed, so the
+  weapon jumped back, held, and swept on (the horizontal cut by about 114 px
+  at normal speed). The hit-stop now freezes the pose on screen, and the swing
+  never moves backwards.
+- First person: every landed hit costs durability, and the resent stack
+  replayed the equip animation, so the weapon sank out of view for 5 to 6
+  ticks after each hit. The re-equip rule is now vanilla's minus that replay:
+  only a stack that differs in nothing but `minecraft:damage` keeps its place.
+  A rename, an enchantment, another item, or another count still plays the
+  equip animation; switching between two copies of the same weapon that differ
+  only in durability no longer does.
+- Every client combat timeline (first-person swing, chain prediction, impact
+  freezes, the attacker's stop, the world trail, camera kicks, arm lag) read
+  the client's game clock, which the server's time packet re-sets every 20
+  ticks. A reset mid-move was read as swing time (a +2 reset skipped the swing
+  two ticks). They now run on the client's own combat clock.
+- Another player's figure and world trail stopped once per impact message
+  instead of once per action, so a three-target sweep froze the attacker about
+  two ticks longer and ran its trail backwards. They now stop once per action;
+  each struck target still freezes and shudders.
+- First person: only the first hit confirmation of an action starts a
+  hit-stop, and a confirmation for an action that is no longer current is
+  dropped instead of stopping the move on screen.
+- A refused third-person probe now logs
+  `PAL_SMOKE third_person rejected reason=<reason>`, and a refused ready-idle
+  transition is logged once instead of every tick.
+
+### Validation
+
+- No change to `combat/session`, `combat/runtime`, `combat/network`, or the
+  payload protocol (still `7`). `BasicSpearStyleTest` drives a real
+  `CombatSession` through the five spear moves.
+- Release gates on `26b99e9`: 354 Java tests (0 failed, 0 skipped);
+  `./gradlew build` produced `myvillage-0.29.0.jar`; the focused combat
+  validator passed against it; every README jar-listing line matched; the
+  acceptance server and a standalone NeoForge 21.1.233 dedicated server on the
+  packaged jar logged two styles, two weapons, ten moves, and protocol 7, and
+  stopped cleanly; strict OpenSpec, the flying-sword validator, and the seven
+  cultivation validators passed. The GuideME validator and its tests need a
+  Python with PyYAML (as on `main`).
+- Python suites: validator, data, and baseline 132 tests; generators 122;
+  capture 71; mod items 23.
+- Final headless capture (developer client, 960x540, software rendering):
+  - Spear, default layout (one target in reach): all five moves from mapped
+    clicks; the target went from `80.0` to `38.28` (per move `7.085`,
+    `7.478`, `7.872`, `9.053`, `10.234`) in every run, at normal and quarter
+    speed and from first person and F5 back.
+  - Spear, sweep layout (2.5 blocks out, ahead and 45 degrees either side):
+    the sweep hit all three targets. Line layout (2.5, 3.5, 4.5 ahead): the
+    lunge hit all three, the sweep, flick, and smash two each, the thrust one.
+  - Qingfeng: `80.0` to `44.18` as in 0.28.0; third-person stills identical to
+    the previous capture and first-person stills within 2 colour levels, apart
+    from the experience bar row.
+  - One first-person hit-stop per move; the three-target sweep logged one
+    started stop and two ignored confirmations. Every resync was −1.00 tick on
+    a combo's first move; no game-clock reset was logged during a local
+    action.
+  - The offline first-person renderer matched 25 spear stills with at most
+    0.18 % silhouette difference and 0 px tip offset.
+- Forced clock changes: `/tick sprint 20` re-set the client clock by +20 as
+  the spear's flick started and the swing played through it without a skip;
+  `/tick freeze` and `/tick step` held and resumed the swing; a Nether
+  teleport and a death mid-move stopped the action cleanly and the next run in
+  the session played normally. Not shown in the game: a reset caused by server
+  lag, a camera kick running through a reset, and a clean track of a +1 or +2
+  reset mid-swing.
+- Not verified: sound; a second client (another player's view of the moves
+  and of one stop per action); real keyboard and mouse play; the flick's and
+  smash's world trails seen from the side; foot sliding; frame rates on a real
+  GPU; other skins, armour, and capes; the owner's verdict on the spear and on
+  the changed Qingfeng behaviour.
+
 ## 0.28.0
 
 Combat infrastructure. Qingfeng's five moves, timing, damage, and look are

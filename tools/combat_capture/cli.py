@@ -12,14 +12,14 @@ import time
 from pathlib import Path
 
 from . import procs
+from .capture import ALL_VIEWS, BUILD_RESOURCES, VIEWS, default_views
 from .data import DataError, fmt_tick, load_weapon
+from .scene import TARGET_LAYOUTS
 from .session import REPO, RIG_LOADED, SessionConfig
 
 RESOURCES = REPO / "src/main/resources"
-BUILD_RESOURCES = REPO / "build/resources/main"
 OUT_ROOT = REPO / "out/preview/combat_capture"
 DEFAULT_WEAPON = "myvillage:qingfeng_sword"
-ALL_VIEWS = ("fp", "tp_back", "tp_front")
 RELOAD_GLOBS = (
     "assets/*/combat/**/*.json",
     "assets/*/player_animations/*.json",
@@ -65,6 +65,11 @@ def parse_moves(text: str | None, available: list[int]) -> list[int]:
     return moves
 
 
+def resolve_views(a, weapon) -> list[str]:
+    """--views if given, else the weapon's default view set (see default_views)."""
+    return list(a.views) if a.views else default_views(weapon)
+
+
 def require_programs():
     missing = procs.missing_programs()
     if missing:
@@ -87,8 +92,10 @@ def cmd_check(a):
     missing = procs.missing_programs()
     for name in procs.REQUIRED_PROGRAMS:
         log(f"  {name:<8} {'MISSING' if name in missing else 'ok'}")
-    w = load_weapon(RESOURCES, a.weapon)
-    log(f"weapon {w.id}: item {w.item}, style {w.style_id}, {len(w.moves)} moves, rig {w.files['rig']}")
+    w = load_weapon(RESOURCES, a.weapon, require_rig=False)
+    log(f"weapon {w.id}: item {w.item}, style {w.style_id}, {len(w.moves)} moves, "
+        f"rig {w.files.get('rig') or 'MISSING (' + w.rig_location + '; stills refuse this weapon)'}")
+    log(f"held length {w.held_length} blocks -> default views {', '.join(default_views(w))}")
     log(f"lock {a.lock or procs.default_lock_path(REPO)}")
     if missing:
         raise UsageError("missing host program(s): " + ", ".join(missing))
@@ -133,12 +140,30 @@ def cmd_scene(a):
     from . import scene
     from .session import Session
     s = Session.attach(log=log)
-    w = load_weapon(RESOURCES, a.weapon)
+    w = load_weapon(RESOURCES, a.weapon, require_rig=False)
     log(f"hand: {scene.base_scene(s, w.item)}")
     log(f"combat mode: {scene.ensure_cultivation(s)}")
     if a.kind == "combo":
         for t in scene.place_targets(s, a.targets):
             log(f"  target {t['tag']} {t['kind']} at {t['pos']} health {t['health']}")
+
+
+def cmd_view(a):
+    """Camera only: walls, stand, body alignment and F5 for one view; no probe."""
+    from . import capture
+    from .session import Session
+    s = Session.attach(ui_check=not a.no_ui_check, log=log)
+    capture.set_camera(s, a.view)
+    cam = capture.camera_record(a.view) if VIEWS[a.view]["f5"] != "first" else {"view": a.view, "f5": "first"}
+    log(f"{a.view}: {VIEWS[a.view]['title']}; {json.dumps(cam)}")
+
+
+def cmd_shot(a):
+    from .session import Session
+    require_programs()
+    s = Session.attach(ui_check=not a.no_ui_check, log=log)
+    info = s.game.shot(Path(a.path), max_wait=a.max_wait)
+    log(f"{a.path} {json.dumps(info)}")
 
 
 def changed_resources(src_root: Path, dst_root: Path, globs=RELOAD_GLOBS) -> list[str]:
@@ -216,12 +241,13 @@ def cmd_stills(a):
     require_programs()
     w = load_weapon(RESOURCES, a.weapon)
     moves = parse_moves(a.moves, [m.index for m in w.moves])
+    views = resolve_views(a, w)
     s = Session.attach(ui_check=not a.no_ui_check, log=log)
     out = prepare_out(a.out_root, a.label, a.force)
-    m = capture.new_manifest(a.label, w, RESOURCES, a.views, moves)
+    m = capture.new_manifest(a.label, w, RESOURCES, views, moves)
     capture.write_manifest(out, m)
     try:
-        _stills(s, w, out, m, a.views, moves)
+        _stills(s, w, out, m, views, moves)
     finally:
         finalize(out)
 
@@ -241,7 +267,32 @@ def cmd_combo(a):
         out.mkdir(parents=True, exist_ok=True)
         m = capture.new_manifest(a.label, w, RESOURCES, [], [mv.index for mv in w.moves])
     try:
-        capture.run_combo(s, w, out, m, targets=a.targets, log=log)
+        capture.run_combo(s, w, out, m, targets=a.targets, camera=a.camera, pitch=a.pitch, layout=a.layout,
+                          tick_rate=a.tick_rate, log=log)
+    finally:
+        finalize(out)
+
+
+def cmd_motion(a):
+    from . import capture
+    from .session import Session
+    require_programs()
+    w = load_weapon(RESOURCES, a.weapon, require_rig=False)
+    moves = parse_moves(a.moves, [m.index for m in w.moves])
+    views = list(a.views) if a.views else [v for v in default_views(w) if v != "fp"]
+    if "fp" in views:
+        raise UsageError("motion records third-person views only")
+    s = Session.attach(ui_check=not a.no_ui_check, log=log)
+    out = capture_dir(a.out_root, a.label)
+    if (out / capture.MANIFEST).is_file():
+        m = capture.load_manifest(out)
+        if m["weapon"] != w.id:
+            raise UsageError(f"{out} holds a capture of {m['weapon']}, not {w.id}")
+    else:
+        out.mkdir(parents=True, exist_ok=True)
+        m = capture.new_manifest(a.label, w, RESOURCES, [], moves)
+    try:
+        capture.run_motion(s, w, out, m, views, moves, enter=a.enter, idle=a.idle, gap=a.gap, log=log)
     finally:
         finalize(out)
 
@@ -259,22 +310,29 @@ def cmd_compare(a):
     out = prepare_out(a.out_root, a.label, a.force)
     paired = sheets.pair_frames(ma, mb)
     entries = sorted(paired["pairs"] + paired["only_a"] + paired["only_b"],
-                     key=lambda e: (list(ALL_VIEWS).index(e["view"]) if e["view"] in ALL_VIEWS else 9,
-                                    e["move"], _key_rank(e["key"])))
+                     key=lambda e: (_view_rank(e["view"]), e["move"], _key_rank(e["key"])))
     views = [v for v in ALL_VIEWS if any(e["view"] == v for e in entries)]
     sheet_files = {}
+    crops = {}
     for view in views:
+        box = compare_crop(da, ma, db, mb, view)
+        if box:
+            crops[view] = box
         p = out / f"compare_{view}.png"
         title = f"{a.label}  |  A: {ma['label']}  vs  B: {mb['label']}  |  {capture.VIEWS[view]['title']}"
-        if sheets.compare_sheet(da, db, ma["label"], mb["label"], entries, view, p, title):
+        if sheets.compare_sheet(da, db, ma["label"], mb["label"], entries, view, p, title, box=box):
             sheet_files[view] = p.name
-            log(f"sheet {p}")
+            log(f"sheet {p}" + (f" (cropped {box[2]}x{box[3]}+{box[0]}+{box[1]})" if box else ""))
     for side, d, m in (("a", da, ma), ("b", db, mb)):
         if m.get("combo") and (d / "combo").is_dir():
             shutil.copytree(d / "combo", out / side / "combo")
     unpaired = [{"view": e["view"], "move_id": e["move_id"], "key": e["key"],
                  "in": f"A ({ma['label']})" if e["a"] else f"B ({mb['label']})"}
                 for e in paired["only_a"] + paired["only_b"]]
+    paired_views = sorted({e["view"] for e in paired["pairs"]}, key=lambda v: _view_rank(v))
+    camera_diffs = capture.camera_mismatches(ma, mb, paired_views)
+    for d in camera_diffs:
+        log(f"WARNING camera differs between A and B: {d}")
     links = []
     if da.resolve().parent == out.resolve().parent:
         links.append((f"A: {ma['label']}", f"../{da.name}/index.html"))
@@ -283,11 +341,28 @@ def cmd_compare(a):
     cmp = {"schema": 1, "kind": "comparison", "label": a.label, "created": capture.now_iso(),
            "a": ma, "b": mb,
            "counts": {k: len(v) for k, v in paired.items()}, "unpaired": unpaired, "sheets": sheet_files,
-           "links": links}
+           "camera_differences": camera_diffs, "links": links, "crops": crops}
     (out / "comparison.json").write_text(json.dumps(cmp, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     (out / "index.html").write_text(page.comparison_page(cmp), encoding="utf-8")
     log(f"pairs {cmp['counts']['pairs']}, only A {cmp['counts']['only_a']}, only B {cmp['counts']['only_b']}")
     log(f"page {out / 'index.html'}")
+
+
+def compare_crop(da: Path, ma: dict, db: Path, mb: dict, view: str):
+    """One box for both sides of a compared view: the union of each set's own
+    box (crop.view_crop); None (full frames) if either side's view is not
+    croppable, so a cropped and an uncropped camera are never mixed."""
+    from . import crop
+    if not (crop.croppable(ma, view) and crop.croppable(mb, view)):
+        return None
+    ra, rb = crop.view_crop(da, ma, view), crop.view_crop(db, mb, view)
+    if not ra or not rb:
+        return None
+    return crop.box_union_xywh(ra["box"], rb["box"])
+
+
+def _view_rank(view: str) -> int:
+    return ALL_VIEWS.index(view) if view in ALL_VIEWS else len(ALL_VIEWS)
 
 
 def _key_rank(key: str) -> int:
@@ -302,8 +377,9 @@ def cmd_run(a):
     require_programs()
     w = load_weapon(RESOURCES, a.weapon)
     moves = parse_moves(a.moves, [m.index for m in w.moves])
+    views = resolve_views(a, w)
     out = prepare_out(a.out_root, a.label, a.force)
-    m = capture.new_manifest(a.label, w, RESOURCES, a.views, moves)
+    m = capture.new_manifest(a.label, w, RESOURCES, views, moves)
     capture.write_manifest(out, m)
     t0 = time.time()
     timings = {}
@@ -314,8 +390,8 @@ def cmd_run(a):
         timings["session_start_s"] = st["timings"].get("startup_s")
         s = Session.attach(ui_check=not a.no_ui_check, log=log)
         t1 = time.time()
-        if a.views:
-            _stills(s, w, out, m, a.views, moves)
+        if views:
+            _stills(s, w, out, m, views, moves)
         timings["stills_s"] = round(time.time() - t1, 1)
         if not a.no_combo:
             t2 = time.time()
@@ -399,9 +475,22 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--settle", type=float, default=5.0)
     p.set_defaults(func=cmd_reload)
 
+    p = sub.add_parser("view", help="put the camera into one view (walls, stand, body alignment, F5); no probe")
+    p.add_argument("view", choices=ALL_VIEWS)
+    p.add_argument("--no-ui-check", action="store_true", help="send keys without the in-game check (unsafe)")
+    p.set_defaults(func=cmd_view)
+
+    p = sub.add_parser("shot", help="grab one full frame to a PNG once it holds still (in game, no screen open)")
+    p.add_argument("path", help="PNG to write (parent directories are created)")
+    p.add_argument("--max-wait", type=float, default=6.0, help="seconds to wait for the picture to hold still")
+    p.add_argument("--no-ui-check", action="store_true", help="grab even if a screen looks open")
+    p.set_defaults(func=cmd_shot)
+
+    views_help = (f"comma list of {', '.join(ALL_VIEWS)} (default: by the weapon's held length, "
+                  f"see README)")
     p = sub.add_parser("stills", help="per-move stills at the rig's key ticks in a running session")
     capture_opts(p)
-    p.add_argument("--views", type=parse_views, default=list(ALL_VIEWS))
+    p.add_argument("--views", type=parse_views, default=None, help=views_help)
     p.add_argument("--moves", help="comma list of move numbers (default all)")
     p.add_argument("--force", action="store_true", help="replace an existing capture with this label")
     p.set_defaults(func=cmd_stills)
@@ -409,7 +498,25 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("combo", help="mapped-click combo run with video and target health")
     capture_opts(p)
     p.add_argument("--targets", choices=("dummy", "golem"), default="dummy")
+    p.add_argument("--camera", choices=("first", "back"), default="first",
+                   help="first person, or F5 back at vanilla distance (a real combo cannot hold a quarter view)")
+    p.add_argument("--pitch", type=float, help="player pitch for --camera back (default 30)")
+    p.add_argument("--layout", choices=tuple(TARGET_LAYOUTS), default="default",
+                   help="target placement: default (t2/t3 out of reach), sweep (arc 2.5 blocks out), "
+                        "line (three straight ahead)")
+    p.add_argument("--tick-rate", type=int, default=20,
+                   help="run the combo at /tick rate N (1-20; e.g. 5 = quarter speed), clicks scaled to match")
     p.set_defaults(func=cmd_combo)
+
+    p = sub.add_parser("motion", help="third-person videos of each move played on the client (quarter views)")
+    capture_opts(p)
+    p.add_argument("--views", type=parse_views, default=None,
+                   help="third-person views (default: the weapon's default views without fp)")
+    p.add_argument("--moves", help="comma list of move numbers (default all)")
+    p.add_argument("--enter", action="store_true", help="first record the mode-enter animation (R, R)")
+    p.add_argument("--idle", type=float, default=0.0, help="seconds of ready idle before the moves")
+    p.add_argument("--gap", type=float, default=1.0, help="seconds between moves")
+    p.set_defaults(func=cmd_motion)
 
     p = sub.add_parser("compare", help="pair two capture sets into side-by-side sheets and a page")
     p.add_argument("a", help="capture directory A (left)")
@@ -426,7 +533,7 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("run", help="full pass: session start, stills, combo, session stop, page")
     capture_opts(p)
     session_opts(p)
-    p.add_argument("--views", type=parse_views, default=list(ALL_VIEWS))
+    p.add_argument("--views", type=parse_views, default=None, help=views_help)
     p.add_argument("--moves", help="comma list of move numbers (default all)")
     p.add_argument("--targets", choices=("dummy", "golem"), default="dummy")
     p.add_argument("--no-combo", action="store_true")

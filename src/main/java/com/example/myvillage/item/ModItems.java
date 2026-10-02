@@ -76,7 +76,7 @@ public final class ModItems {
 
     public static final DeferredItem<SwordItem> QINGFENG_SWORD =
             ITEMS.registerItem("qingfeng_sword",
-                    props -> new SwordItem(
+                    props -> new CombatWeaponItem(
                             Tiers.DIAMOND,
                             props.attributes(SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F))));
 
@@ -97,6 +97,12 @@ public final class ModItems {
                     props -> new SwordItem(
                             Tiers.DIAMOND,
                             props.attributes(SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F))));
+
+    public static final DeferredItem<SwordItem> LINGXIAO_SPEAR =
+            ITEMS.registerItem("lingxiao_spear",
+                    props -> new CombatWeaponItem(
+                            Tiers.DIAMOND,
+                            props.attributes(SwordItem.createAttributes(Tiers.DIAMOND, 4, -2.8F))));
 
     public static final DeferredItem<Item> LOW_GRADE_SPIRIT_STONE =
             ITEMS.registerSimpleItem("low_grade_spirit_stone");
@@ -129,6 +135,7 @@ public final class ModItems {
                         output.accept(XUANYUE_ZHENSHAN_SWORD.get());
                         output.accept(CHILIAN_LIHUO_SWORD.get());
                         output.accept(QINGXIAO_LIUYUN_SWORD.get());
+                        output.accept(LINGXIAO_SPEAR.get());
                         output.accept(LOW_GRADE_SPIRIT_STONE.get());
                         output.accept(SPIRIT_STONE_ORE_ITEM.get());
                         output.accept(DEEPSLATE_SPIRIT_STONE_ORE_ITEM.get());

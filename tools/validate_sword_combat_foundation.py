@@ -4,9 +4,12 @@
 The move facts live in the bundled combat data (``data/myvillage/combat/``), read through
 ``tools/combat_data.py``.  This validator checks that data against the schema and the move
 invariants, then cross-checks it against the resources that depend on it: the PAL player
-animations, translations, sound events, item models, first-person rigs, and geometry
-contracts.  It holds no per-move numbers; the accepted Qingfeng values are pinned once in
-``tools/tests/test_combat_style_baseline.py``.
+animations, translations, sound events, and, for every weapon in the index, its item model,
+the models that wraps, their textures, the 3D model its geometry contract describes, its
+first-person rig, its geometry contract (including an optional off-hand grip), and the model
+generator the contract names.  It holds no per-move numbers; the accepted Qingfeng values are
+pinned once in ``tools/tests/test_combat_style_baseline.py``.  The Qingfeng item checks
+(``validate_qingfeng_item``) are deliberately specific to that accepted item.
 
 Java source checks are limited to invariants that do not depend on class or method names
 inside the combat packages: PAL and client imports stay client-side, the client-to-server
@@ -19,6 +22,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import re
 import struct
 import subprocess
@@ -48,7 +52,23 @@ TICKS_PER_SECOND = 20.0
 # A first-person strike window covers the server active ticks and lasts at most this long.
 MAX_STRIKE_TICKS = 3.0
 GEOMETRY_FIELDS = ("grip_center", "handle", "guard", "pommel", "blade_base", "blade_tip",
-                   "edge_axis", "flat_axis", "axes")
+                   "edge_axis", "flat_axis", "axes", "model", "generator")
+# A contract's generator is a standard-library script in tools/ that writes the contract, the 3D
+# model, and its textures, and verifies them with --check.
+GENERATOR_SCRIPT = re.compile(r"^tools/[A-Za-z0-9_]+\.py$")
+# Two fists on one shaft: a fist is the 4 px bottom cube of the player's arm, drawn at the player
+# renderer's 0.9375 scale.  Along the weapon axis the fist centres stay this far apart in blocks,
+# which in contract pixels is FIST_WIDTH_BLOCKS * 16 / (the 3D model's third-person scale); the
+# same rule as the PAL generator's off-hand solve.
+PLAYER_SCALE = 0.9375
+FIST_WIDTH_BLOCKS = 4 / 16 * PLAYER_SCALE
+AXIS_TOLERANCE_PX = 1.0e-3
+# The display contexts the combat tooling reads from a weapon's 3D model: the PAL generator uses
+# the third-person transform, the first-person rig the first-person one.
+WEAPON_HAND_DISPLAYS = ("thirdperson_righthand", "firstperson_righthand")
+# Model and texture references into these namespaces are vanilla and not part of this jar.
+EXTERNAL_NAMESPACES = ("minecraft",)
+SEPARATE_TRANSFORMS = "neoforge:separate_transforms"
 # Combat UI strings that are not move data (mode toggle and debug command feedback).
 COMBAT_UI_TRANSLATIONS = (
     "key.myvillage.toggle_combat_mode",
@@ -61,10 +81,15 @@ COMBAT_UI_TRANSLATIONS = (
 FEEDBACK_SOUND_FIELDS = ("swing_sound", "hit_sound", "heavy_layer_sound")
 BLADE_CUT_PARTICLE = f"{RESOURCES}/assets/myvillage/particles/blade_cut.json"
 BLADE_CUT_TEXTURE = f"{RESOURCES}/assets/myvillage/textures/particle/blade_cut.png"
+WEAPON_MODEL_GENERATOR_DRIFT = "COMBAT_WEAPON_MODEL_GENERATOR_DRIFT"
+# Generators that always run.  The Qingfeng model generator is pinned here as well as named by its
+# geometry contract, so the accepted Qingfeng model stays checked even if its contract loses the
+# field or the weapon leaves the index; every other weapon's model generator comes from the
+# ``generator`` field of its geometry contract (see generator_checks).
 GENERATOR_CHECKS = (
     ("tools/gen_sword_pal_anims.py", "COMBAT_PAL_GENERATOR_DRIFT"),
     ("tools/gen_blade_cut_sprite.py", "COMBAT_BLADE_CUT_SPRITE_DRIFT"),
-    ("tools/gen_qingfeng_sword_model.py", "COMBAT_SWORD_MODEL_GENERATOR_DRIFT"),
+    ("tools/gen_qingfeng_sword_model.py", WEAPON_MODEL_GENERATOR_DRIFT),
 )
 GENERATOR_TIMEOUT_SECONDS = 120
 QINGFENG_ITEM = "myvillage:qingfeng_sword"
@@ -403,6 +428,161 @@ def in_package(root: Path, path: Path, package: str) -> bool:
     return True
 
 
+def resource_id(value, default_namespace: str = "minecraft") -> str | None:
+    """A model or texture reference as ``ns:path`` (vanilla's default namespace when it has none).
+
+    ``None`` for a texture variable (``#name``) or a ``builtin/`` parent; a malformed value is
+    returned unchanged so that resolving it fails with a finding."""
+    if not isinstance(value, str) or value.startswith("#") or value.startswith("builtin/"):
+        return None
+    return value if ":" in value else f"{default_namespace}:{value}"
+
+
+def is_external(reference: str) -> bool:
+    return reference.split(":", 1)[0] in EXTERNAL_NAMESPACES
+
+
+def model_file(root: Path, model_id: str) -> Path:
+    namespace, path = combat_data.split_id(model_id)
+    return root / RESOURCES / "assets" / namespace / "models" / f"{path}.json"
+
+
+def texture_file(root: Path, texture_id: str) -> Path:
+    namespace, path = combat_data.split_id(texture_id)
+    return root / RESOURCES / "assets" / namespace / "textures" / f"{path}.png"
+
+
+def item_model_id(item_id: str) -> str:
+    namespace, name = combat_data.split_id(item_id)
+    return f"{namespace}:item/{name}"
+
+
+def model_parts(model: dict) -> list[dict]:
+    """The model and the sub-models a NeoForge ``separate_transforms`` model carries inline."""
+    parts = [model]
+    if isinstance(model.get("base"), dict):
+        parts.append(model["base"])
+    if isinstance(model.get("perspectives"), dict):
+        parts.extend(part for part in model["perspectives"].values() if isinstance(part, dict))
+    return parts
+
+
+@dataclass
+class ModelGraph:
+    """The mod models and textures an item model needs: its parents, the ``base`` and
+    ``perspectives`` sub-models, and every texture they reference (vanilla ones excepted)."""
+
+    models: dict[str, Path]
+    textures: dict[str, Path]
+    documents: dict[str, dict]
+    problems: list[tuple[str, str]]
+
+    def files(self) -> list[Path]:
+        return [*self.models.values(), *self.textures.values()]
+
+
+def model_graph(root: Path, start: str, start_code: str = "COMBAT_WEAPON_MODEL_MISSING") -> ModelGraph:
+    graph = ModelGraph({}, {}, {}, [])
+    queue: list[tuple[str, str | None]] = [(start, None)]
+    while queue:
+        model_id, referrer = queue.pop(0)
+        if model_id in graph.models:
+            continue
+        code = start_code if referrer is None else "COMBAT_WEAPON_MODEL_MISSING"
+        via = "" if referrer is None else f"{referrer} -> "
+        try:
+            path = model_file(root, model_id)
+        except ValueError as exc:
+            graph.problems.append((code, f"{via}{exc}"))
+            continue
+        graph.models[model_id] = path
+        try:
+            document = json.loads(text(path))
+        except FileNotFoundError:
+            graph.problems.append((code, f"{via}{model_id}: {relative(root, path)}"))
+            continue
+        except (OSError, json.JSONDecodeError, UnicodeDecodeError) as exc:
+            graph.problems.append((code, f"{via}{model_id}: {relative(root, path)}: {exc}"))
+            continue
+        if not isinstance(document, dict):
+            graph.problems.append((code, f"{via}{model_id}: not an object"))
+            continue
+        graph.documents[model_id] = document
+        for part in model_parts(document):
+            parent = resource_id(part.get("parent"))
+            if parent is not None and not is_external(parent):
+                queue.append((parent, model_id))
+            textures = part.get("textures")
+            for texture in (textures.values() if isinstance(textures, dict) else ()):
+                texture_id = resource_id(texture)
+                if texture_id is None or is_external(texture_id) or texture_id in graph.textures:
+                    continue
+                try:
+                    texture_path = texture_file(root, texture_id)
+                except ValueError as exc:
+                    graph.problems.append(("COMBAT_WEAPON_TEXTURE_MISSING", f"{model_id}: {exc}"))
+                    continue
+                graph.textures[texture_id] = texture_path
+                if not texture_path.is_file():
+                    graph.problems.append(("COMBAT_WEAPON_TEXTURE_MISSING",
+                                           f"{model_id} -> {texture_id}: {relative(root, texture_path)}"))
+                elif not texture_path.read_bytes()[:8] == b"\x89PNG\r\n\x1a\n":
+                    graph.problems.append(("COMBAT_WEAPON_TEXTURE_MISSING",
+                                           f"{model_id} -> {texture_id}: not a PNG"))
+    return graph
+
+
+def in_hand_models(graph: ModelGraph, start: str) -> list[str]:
+    """The models the item draws in the hand: the parent chain, through ``base`` for a
+    ``separate_transforms`` model (whose ``perspectives`` only replace other contexts)."""
+    chain: list[str] = []
+    current: str | None = start
+    while current is not None and current not in chain:
+        chain.append(current)
+        document = graph.documents.get(current)
+        if document is None:
+            break
+        part = document["base"] if (document.get("loader") == SEPARATE_TRANSFORMS
+                                     and isinstance(document.get("base"), dict)) else document
+        current = resource_id(part.get("parent"))
+    return chain
+
+
+def read_geometry_contracts(root: Path, data: combat_data.CombatData) -> dict[str, dict]:
+    """Every weapon's geometry contract that parses to an object (findings come from
+    validate_geometry_contracts)."""
+    contracts: dict[str, dict] = {}
+    for geometry_id in sorted({weapon["geometry"] for weapon in data.weapons.values()}):
+        try:
+            document = json.loads(text(combat_data.asset_file(root, geometry_id)))
+        except (OSError, ValueError):
+            continue
+        if isinstance(document, dict):
+            contracts[geometry_id] = document
+    return contracts
+
+
+def contract_model_id(contract: dict) -> str | None:
+    model_id = resource_id(contract.get("model"))
+    try:
+        combat_data.split_id(model_id)
+    except ValueError:
+        return None
+    return model_id
+
+
+def weapon_resource_files(root: Path, data: combat_data.CombatData) -> list[Path]:
+    """Item models, 3D models, and textures of every weapon (present or not)."""
+    contracts = read_geometry_contracts(root, data)
+    files: list[Path] = []
+    for weapon in data.weapons.values():
+        files += model_graph(root, item_model_id(weapon["item"])).files()
+        model_id = contract_model_id(contracts.get(weapon["geometry"], {}))
+        if model_id is not None:
+            files += model_graph(root, model_id).files()
+    return files
+
+
 def validate_weapon_items(root: Path, data: combat_data.CombatData, findings: list[Finding]) -> None:
     """A weapon's item is registered in Java under its id and has an item model."""
     sources = [content for _, content in java_sources(root, "")]
@@ -411,24 +591,141 @@ def validate_weapon_items(root: Path, data: combat_data.CombatData, findings: li
         registration = re.compile(rf'\.register(?:Item)?\(\s*"{re.escape(name)}"')
         if not any(registration.search(content) for content in sources):
             findings.append(Finding("COMBAT_WEAPON_ITEM_UNREGISTERED", f"{weapon_id}: {weapon['item']}"))
-        model = root / RESOURCES / "assets" / namespace / "models/item" / f"{name}.json"
-        if not model.is_file():
-            findings.append(Finding("COMBAT_WEAPON_ITEM_MODEL", f"{weapon_id}: {relative(root, model)}"))
 
 
-def validate_first_person_rigs(root: Path, data: combat_data.CombatData, findings: list[Finding]) -> None:
+def validate_weapon_models(root: Path, data: combat_data.CombatData, contracts: dict[str, dict],
+                           findings: list[Finding]) -> None:
+    """Every weapon's item model, the models it wraps, and their textures exist; the item draws the
+    3D model its geometry contract describes, and that model has geometry and hand transforms."""
+    for weapon_id, weapon in data.weapons.items():
+        start = item_model_id(weapon["item"])
+        graph = model_graph(root, start, "COMBAT_WEAPON_ITEM_MODEL")
+        for code, detail in graph.problems:
+            findings.append(Finding(code, f"{weapon_id}: {detail}"))
+        contract = contracts.get(weapon["geometry"])
+        if contract is None:
+            continue  # reported by validate_geometry_contracts
+        model_id = contract_model_id(contract)
+        if model_id is None:
+            continue  # reported by validate_geometry_contracts
+        if model_id not in in_hand_models(graph, start):
+            findings.append(Finding(
+                "COMBAT_WEAPON_MODEL_3D",
+                f"{weapon_id}: item model {start} does not draw {model_id} in the hand, "
+                f"the model its geometry contract {weapon['geometry']} describes"))
+            own = model_graph(root, model_id)
+            for code, detail in own.problems:
+                findings.append(Finding(code, f"{weapon_id}: {detail}"))
+            graph = own
+        model = graph.documents.get(model_id)
+        if model is None:
+            continue  # missing or unreadable, reported above
+        display = model.get("display")
+        missing = [context for context in WEAPON_HAND_DISPLAYS
+                   if not isinstance(display, dict) or not isinstance(display.get(context), dict)]
+        if not isinstance(model.get("elements"), list) or not model["elements"] or missing:
+            findings.append(Finding(
+                "COMBAT_WEAPON_MODEL_3D",
+                f"{weapon_id}: {model_id} needs elements and display "
+                f"{', '.join(WEAPON_HAND_DISPLAYS)} (missing {', '.join(missing) or 'elements'})"))
+
+
+def validate_first_person_rigs(root: Path, data: combat_data.CombatData, contracts: dict[str, dict],
+                               findings: list[Finding]) -> None:
     """Each weapon's rig poses every move of its style, with strike windows over the active ticks."""
     checked: set[tuple[str, str]] = set()
+    rigs: dict[str, object] = {}
     for weapon_id, weapon in data.weapons.items():
-        style = data.styles.get(weapon["style"])
-        if style is None or (weapon["first_person_rig"], weapon["style"]) in checked:
-            continue
-        checked.add((weapon["first_person_rig"], weapon["style"]))
-        path = combat_data.asset_file(root, weapon["first_person_rig"])
-        rig = read_json(path, root, "COMBAT_FIRST_PERSON_RIG_MISSING", findings)
+        rig_id = weapon["first_person_rig"]
+        path = combat_data.asset_file(root, rig_id)
+        if rig_id not in rigs:
+            rigs[rig_id] = read_json(path, root, "COMBAT_FIRST_PERSON_RIG_MISSING", findings)
+        rig = rigs[rig_id]
         if rig is None:
             continue
-        validate_rig(rig, relative(root, path), style, findings)
+        style = data.styles.get(weapon["style"])
+        if style is not None and (rig_id, weapon["style"]) not in checked:
+            checked.add((rig_id, weapon["style"]))
+            validate_rig(rig, relative(root, path), style, findings)
+        # A rig that draws the off hand on the shaft needs a two-handed weapon: a contract without
+        # off_hand_grip_center describes a one-handed weapon.
+        settings = rig.get("rig") if isinstance(rig, dict) else None
+        contract = contracts.get(weapon["geometry"])
+        if (isinstance(settings, dict) and settings.get("off_hand") is not None and contract is not None
+                and contract.get("off_hand_grip_center") is None):
+            findings.append(Finding(
+                "COMBAT_FIRST_PERSON_RIG_OFF_HAND",
+                f"{weapon_id}: {relative(root, path)} has rig.off_hand but {weapon['geometry']} "
+                f"has no off_hand_grip_center"))
+        for problem in off_hand_problems(rig, contract):
+            findings.append(Finding("COMBAT_FIRST_PERSON_RIG_OFF_HAND",
+                                    f"{weapon_id}: {relative(root, path)}: {problem}"))
+
+
+OFF_HAND_POSE_FIELDS = ("off_hand_slide", "off_hand_roll", "off_hand_elbow", "off_hand_hold")
+
+
+def off_hand_problems(rig, contract) -> list[str]:
+    """What FirstPersonSwing would reject in the rig.off_hand block and the per-key off-hand fields.
+
+    The key fields are numbers and ``off_hand_hold`` is within 0..1 in any rig (Java parses them
+    either way); with the block, ``shoulder_offset`` is three numbers, ``grip_diagonal`` 0..50, and
+    each key's ``off_hand_slide`` (inherited from the previous key) keeps the contract's
+    ``off_hand_grip_center`` on the handle. Unknown fields are ignored, as everywhere in the rig.
+    """
+    if not isinstance(rig, dict) or not isinstance(rig.get("rig"), dict):
+        return []
+    problems = []
+    poses = [("neutral", rig.get("neutral"))]
+    moves = rig.get("moves")
+    for move_id, move in (moves.items() if isinstance(moves, dict) else ()):
+        keys = move.get("keys") if isinstance(move, dict) else None
+        for index, key in enumerate(keys if isinstance(keys, list) else ()):
+            poses.append((f"{move_id} key {index}", key))
+    for where, pose in poses:
+        if not isinstance(pose, dict):
+            continue
+        bad = [field for field in OFF_HAND_POSE_FIELDS if field in pose and not is_number(pose[field])]
+        if bad:
+            problems.append(f"{where}: {', '.join(bad)} must be numbers")
+        elif "off_hand_hold" in pose and not 0 <= pose["off_hand_hold"] <= 1:
+            problems.append(f"{where}: off_hand_hold {pose['off_hand_hold']} must be within 0..1")
+
+    block = rig["rig"].get("off_hand")
+    if block is None:
+        return problems
+    if not isinstance(block, dict):
+        return problems + ["rig.off_hand must be an object"]
+    offset = block.get("shoulder_offset", [0, 0, 0])
+    if not isinstance(offset, list) or len(offset) != 3 or not all(is_number(v) for v in offset):
+        problems.append(f"rig.off_hand.shoulder_offset {offset!r} must be [x, y, z]")
+    diagonal = block.get("grip_diagonal", 0)
+    if not is_number(diagonal) or not 0 <= diagonal <= 50:
+        problems.append(f"rig.off_hand.grip_diagonal {diagonal!r} must be within 0..50")
+    point = contract.get("off_hand_grip_center") if isinstance(contract, dict) else None
+    handle = contract.get("handle", {}).get("y") if isinstance(contract, dict) else None
+    if not (isinstance(point, list) and len(point) == 3 and is_number(point[1])
+            and isinstance(handle, list) and len(handle) == 2 and all(is_number(v) for v in handle)):
+        return problems  # no usable off-hand point: reported above or by the contract check
+    neutral = rig.get("neutral") if isinstance(rig.get("neutral"), dict) else {}
+    neutral_slide = neutral.get("off_hand_slide", 0.0)
+    slides = [("neutral", neutral_slide)]
+    for move_id, move in (moves.items() if isinstance(moves, dict) else ()):
+        keys = move.get("keys") if isinstance(move, dict) else None
+        slide = neutral_slide  # each move's keys inherit from the neutral hold, then from the key before
+        for index, key in enumerate(keys if isinstance(keys, list) else ()):
+            if not isinstance(key, dict):
+                continue
+            if key.get("pose") == "neutral":
+                slide = neutral_slide
+            else:
+                slide = key.get("off_hand_slide", slide)
+            slides.append((f"{move_id} key {index}", slide))
+    for where, slide in slides:
+        if is_number(slide) and not handle[0] <= point[1] + slide <= handle[1]:
+            problems.append(f"{where}: off_hand_slide {slide:g} puts the off hand at y={point[1] + slide:g}, "
+                            f"off the handle {handle}")
+    return problems
 
 
 def validate_rig(rig, name: str, style: dict, findings: list[Finding]) -> None:
@@ -492,7 +789,9 @@ def validate_rig(rig, name: str, style: dict, findings: list[Finding]) -> None:
 
 
 def validate_geometry_contracts(root: Path, data: combat_data.CombatData, findings: list[Finding]) -> None:
-    """Each weapon's geometry contract carries the grip, guard, blade, and axes fields."""
+    """Each weapon's geometry contract carries the grip, guard, blade, axes, model, and generator
+    fields in order along +Y, a valid off-hand grip when it has one, and a valid trail span when
+    it names one."""
     for geometry_id in sorted({weapon["geometry"] for weapon in data.weapons.values()}):
         path = combat_data.asset_file(root, geometry_id)
         geometry = read_json(path, root, "COMBAT_GEOMETRY_CONTRACT", findings)
@@ -520,12 +819,235 @@ def validate_geometry_contracts(root: Path, data: combat_data.CombatData, findin
                 or not isinstance(axes, dict)
                 or (axes.get("blade"), axes.get("flat_normal"), axes.get("edge")) != ("+y", "x", "z")):
             findings.append(Finding("COMBAT_GEOMETRY_CONTRACT", f"{name}: pommel<handle<guard<blade, axes +y/x/z"))
+            continue
+        generator = geometry.get("generator")
+        if not isinstance(generator, str) or not GENERATOR_SCRIPT.match(generator):
+            findings.append(Finding("COMBAT_GEOMETRY_CONTRACT",
+                                    f"{name}: generator {generator!r} must name a tools/<script>.py"))
+        if contract_model_id(geometry) is None:
+            findings.append(Finding("COMBAT_GEOMETRY_CONTRACT",
+                                    f"{name}: model {geometry.get('model')!r} must be a model id"))
+        if "off_hand_grip_center" in geometry:
+            problem = off_hand_problem(root, geometry, grip_y, handle)
+            if problem:
+                findings.append(Finding("COMBAT_GEOMETRY_OFF_HAND_GRIP", f"{name}: {problem}"))
+        if "trail" in geometry:
+            problem = trail_problem(geometry, pommel[0], tip_y)
+            if problem:
+                findings.append(Finding("COMBAT_GEOMETRY_TRAIL", f"{name}: {problem}"))
+
+
+def trail_problem(geometry: dict, bottom_y: float, tip_y: float) -> str | None:
+    """Why the optional ``trail`` span (the part of the weapon that draws the trails; without it
+    ``blade_base``..``blade_tip``) is unusable, or None.
+
+    It is ``{"base": [x, y, z], "tip": [x, y, z]}`` on the weapon axis, base below tip, from the
+    pommel's bottom up to the blade tip at most (SwordGeometry.parse checks the same)."""
+    trail = geometry["trail"]
+    if not isinstance(trail, dict) or set(trail) != {"base", "tip"}:
+        return f"trail must be an object with exactly base and tip, got {trail!r}"
+    points = []
+    for key in ("base", "tip"):
+        point = trail[key]
+        if not isinstance(point, list) or len(point) != 3 or not all(is_number(v) for v in point):
+            return f"trail.{key} {point!r} must be [x, y, z]"
+        points.append(point)
+    axes = geometry["axes"]
+    grip = geometry["grip_center"]
+    axis_x, axis_z = axes.get("center_x", grip[0]), axes.get("center_z", grip[2])
+    if not is_number(axis_x) or not is_number(axis_z):
+        return "the weapon axis (axes.center_x/center_z or grip_center x/z) must be numbers"
+    for key, point in zip(("base", "tip"), points):
+        if abs(point[0] - axis_x) > AXIS_TOLERANCE_PX or abs(point[2] - axis_z) > AXIS_TOLERANCE_PX:
+            return f"trail.{key} {point} is off the weapon axis x={axis_x:g}, z={axis_z:g}"
+    base_y, trail_tip_y = points[0][1], points[1][1]
+    if not base_y < trail_tip_y:
+        return f"trail base y={base_y:g} must lie below its tip y={trail_tip_y:g}"
+    if base_y < bottom_y or trail_tip_y > tip_y:
+        return f"trail y {base_y:g}..{trail_tip_y:g} must lie on the weapon y {bottom_y:g}..{tip_y:g}"
+    return None
+
+
+def model_third_person_scale(root: Path, geometry: dict) -> float | None:
+    """Length scale along the blade (+Y) of the contract model's thirdperson_righthand transform,
+    as CombatWorldTrails.thirdPersonScale measures it (|scale y|; rotation keeps lengths), or
+    None when the model or the transform is unreadable."""
+    model_id = contract_model_id(geometry)
+    try:
+        model = json.loads(text(model_file(root, model_id)))
+        scale = abs(float(model["display"]["thirdperson_righthand"]["scale"][1]))
+    except (OSError, ValueError, KeyError, IndexError, TypeError):
+        return None
+    return scale if scale > 0 and math.isfinite(scale) else None
+
+
+def third_person_scale(root: Path, geometry: dict) -> float:
+    """The y scale of the contract model's thirdperson_righthand transform (1 when unreadable; the
+    model check reports an unreadable model)."""
+    return model_third_person_scale(root, geometry) or 1.0
+
+
+def off_hand_problem(root: Path, geometry: dict, grip_y: float, handle: list[float]) -> str | None:
+    """Why ``off_hand_grip_center`` is not a second hand on the shaft, or None.
+
+    It lies on the weapon axis, inside the handle, ahead of (above) the main grip, and at least
+    one fist width from it so the two fists do not overlap."""
+    point = geometry["off_hand_grip_center"]
+    if (not isinstance(point, list) or len(point) != 3 or not all(is_number(v) for v in point)):
+        return f"off_hand_grip_center {point!r} must be [x, y, z]"
+    axes = geometry["axes"]
+    grip = geometry["grip_center"]
+    axis_x, axis_z = axes.get("center_x", grip[0]), axes.get("center_z", grip[2])
+    if not is_number(axis_x) or not is_number(axis_z):
+        return "the weapon axis (axes.center_x/center_z or grip_center x/z) must be numbers"
+    x, y, z = point
+    if abs(x - axis_x) > AXIS_TOLERANCE_PX or abs(z - axis_z) > AXIS_TOLERANCE_PX:
+        return f"off_hand_grip_center {point} is off the weapon axis x={axis_x:g}, z={axis_z:g}"
+    if not handle[0] <= y <= handle[1]:
+        return f"off_hand_grip_center y={y:g} is outside the handle {handle}"
+    if y <= grip_y:
+        return f"off_hand_grip_center y={y:g} must be ahead of grip_center y={grip_y:g}"
+    gap = FIST_WIDTH_BLOCKS * 16.0 / third_person_scale(root, geometry)
+    if y - grip_y < gap:
+        return (f"off_hand_grip_center y={y:g} is {y - grip_y:g} px from grip_center y={grip_y:g}; "
+                f"two fists need {gap:.2f} px at the model's third-person scale")
+    return None
+
+
+# The world trail other players see (client/combat/CombatWorldTrails.java), mirrored here rather
+# than imported from tools/gen_sword_pal_anims.py, whose port (trail_tip_radius) needs a pose table
+# and measures grip to tip along y only; the Java code measures the 3D distance.
+TRAIL_PIVOT_HEIGHT = 1.3          # CombatWorldTrails.PIVOT_HEIGHT: the attacker's centre, 1.3 up
+TRAIL_ARM_REACH = 0.705           # CombatWorldTrails.ARM_REACH
+TRAIL_FRAME_TICKS = 1.2 / 24      # CombatWorldTrails.TRAIL_TICKS / SEGMENTS: one drawn frame
+TRAIL_TOLERANCE = 1.0e-6
+
+
+def trail_tip_radius(root: Path, geometry: dict) -> float | None:
+    """CombatWorldTrails.trailSize(...).tipRadius(): ARM_REACH plus grip centre to trail tip (the
+    contract's trail.tip, else blade_tip) in model px at the model's third-person scale.  None when
+    the contract or model cannot give one (the game then draws a fallback; other checks report it)."""
+    scale = model_third_person_scale(root, geometry)
+    try:
+        trail = geometry.get("trail")
+        tip = trail["tip"] if isinstance(trail, dict) else geometry["blade_tip"]
+        grip = geometry["grip_center"]
+        reach = math.dist([float(v) for v in tip], [float(v) for v in grip])
+    except (KeyError, TypeError, ValueError):
+        return None
+    if scale is None or len(tip) != 3 or len(grip) != 3:
+        return None
+    return TRAIL_ARM_REACH + reach * scale / 16.0
+
+
+def far_end_reach(end) -> float:
+    """Distance of a sample's far end from the trail pivot."""
+    return math.sqrt(end[0] ** 2 + (end[1] - TRAIL_PIVOT_HEIGHT) ** 2 + end[2] ** 2)
+
+
+def trail_sample_times(samples: list[dict]) -> list[float]:
+    """CombatWorldTrails.sampleTime: the n samples of tick t sit at t + (i + 0.5) / n - 0.5."""
+    times = []
+    for index, sample in enumerate(samples):
+        same = [other for other in range(len(samples)) if samples[other]["tick"] == sample["tick"]]
+        times.append(sample["tick"] + (same.index(index) + 0.5) / len(same) - 0.5)
+    return times
+
+
+def trail_far_end(samples: list[dict], times: list[float], tick: float) -> tuple[list[float], int, int]:
+    """CombatWorldTrails.blade's far end at ``tick`` (polar interpolation between the neighbouring
+    samples, clamped to the first and last), with the indexes of those two samples."""
+    before, after = 0, len(samples) - 1
+    for index, time in enumerate(times):
+        if time <= tick:
+            before = index
+        if time >= tick:
+            after = index
+            break
+    first, second = samples[before]["end"], samples[after]["end"]
+    if before == after or not times[after] > times[before]:
+        return list(first), before, after
+    progress = max(0.0, min(1.0, (tick - times[before]) / (times[after] - times[before])))
+    first_angle, second_angle = math.atan2(first[0], first[2]), math.atan2(second[0], second[2])
+    angle = first_angle + (second_angle - first_angle) * progress
+    first_radius = math.hypot(first[0], first[2])
+    radius = first_radius + (math.hypot(second[0], second[2]) - first_radius) * progress
+    return ([math.sin(angle) * radius, first[1] + (second[1] - first[1]) * progress, math.cos(angle) * radius],
+            before, after)
+
+
+def cut_reach_problem(move: dict, radius: float) -> str | None:
+    """Why a cut's trail head leaves the weapon's tip-radius sphere, or None.
+
+    The drawn head sits at min(far-end distance, tip radius) from the pivot, so a far end shorter
+    than the radius pulls the head inward and bends the trail (CombatWorldTrailsTest
+    .shippedSpearCutsKeepTheTrailHeadOnTheTipRadius).  Checked on every sample, then on every
+    drawn frame from half a tick before the active window to half a tick after it."""
+    samples = combat_data.expand_samples(move)
+    source = ("explicit samples" if isinstance(move["hitbox"]["samples"], list)
+              else f"the {move['hitbox']['samples']['generator']} generator's samples")
+    short = [(far_end_reach(sample["end"]), index) for index, sample in enumerate(samples)
+             if far_end_reach(sample["end"]) < radius - TRAIL_TOLERANCE]
+    if short:
+        reach, index = min(short)
+        return (f"{source}[{index}] (tick {samples[index]['tick']}) has its far end {reach:.3f} blocks from "
+                f"the trail pivot (0, {TRAIL_PIVOT_HEIGHT:g}, 0), inside the weapon's trail tip radius "
+                f"{radius:.3f}; {len(short)} sample(s) fall short.  Move each such far end out along its "
+                f"direction from the pivot to at least {radius:.3f} blocks")
+    times = trail_sample_times(samples)
+    start, end = move["active_ticks"]
+    frames = int(math.floor((end - start + 1.0) / TRAIL_FRAME_TICKS + 1.0e-6)) + 1
+    for frame in range(frames):
+        tick = start - 0.5 + frame * TRAIL_FRAME_TICKS
+        far, before, after = trail_far_end(samples, times, tick)
+        reach = far_end_reach(far)
+        if reach < radius - TRAIL_TOLERANCE:
+            return (f"between {source}[{before}] and [{after}] the drawn far end comes to {reach:.3f} blocks "
+                    f"from the trail pivot near tick {tick:.2f}, inside the weapon's trail tip radius "
+                    f"{radius:.3f}, although both samples reach it.  Push those far ends further out, or "
+                    f"add samples between them, so the interpolated far end stays at least {radius:.3f}")
+    return None
+
+
+def validate_trail_reach(root: Path, data: combat_data.CombatData, contracts: dict[str, dict],
+                         findings: list[Finding]) -> None:
+    """For each weapon and each cut of its style, every drawn trail frame keeps its head on the
+    weapon's tip radius.  Per weapon, because weapons that share a style have their own radius."""
+    for weapon_id, weapon in data.weapons.items():
+        style = data.styles.get(weapon["style"])
+        contract = contracts.get(weapon["geometry"])
+        if style is None or contract is None:
+            continue
+        if "trail" in contract and not contract_problem_free_trail(contract):
+            continue  # COMBAT_GEOMETRY_TRAIL reports it; the game draws the fallback size
+        radius = trail_tip_radius(root, contract)
+        if radius is None:
+            continue
+        for move in style["moves"]:
+            if move["kind"] != "cut":
+                continue  # a thrust draws a streak along the blade, not a swept band
+            problem = cut_reach_problem(move, radius)
+            if problem:
+                findings.append(Finding("COMBAT_TRAIL_CUT_REACH", f"{weapon_id} {move['id']}: {problem}"))
+
+
+def contract_problem_free_trail(contract: dict) -> bool:
+    """Whether the contract's optional trail span is usable (see trail_problem)."""
+    try:
+        pommel_y = float(contract["pommel"]["y"][0])
+        tip_y = float(contract["blade_tip"][1])
+    except (KeyError, IndexError, TypeError, ValueError):
+        return False
+    return trail_problem(contract, pommel_y, tip_y) is None
 
 
 # ---------------------------------------------------------------------------------------------
 # Java source invariants (no class or method names inside the combat packages).
 # ---------------------------------------------------------------------------------------------
 
+CLIENT_COMBAT_CLOCK = "ClientCombatClock.java"
+GAME_CLOCK_READ = re.compile(r"\bgetGameTime\s*\(\s*\)")
+JAVA_COMMENTS = re.compile(r"//[^\n]*|/\*.*?\*/", re.DOTALL)
 RECORD_PATTERN = re.compile(r"\brecord\s+(\w+)\s*\((.*?)\)\s*(?:implements\b|\{)", re.DOTALL)
 REGISTRATION_PATTERN = re.compile(r"\b(playToServer|playToClient|playBidirectional)\s*\(\s*(\w+)\s*\.\s*TYPE\b")
 
@@ -591,6 +1113,16 @@ def validate_source_invariants(root: Path, findings: list[Finding]) -> None:
     if not any("Impact" in name and "playToClient" in seen for name, seen in directions.items()):
         findings.append(Finding("COMBAT_IMPACT_S2C_ONLY", "no impact payload registered playToClient"))
 
+    # Client combat timing reads one clock. The client's game time is re-set by the server's time
+    # packet every 20 ticks; only ClientCombatClock reads it (the one server-tick conversion and the
+    # reset watch). Everything else (swing, prediction, impact, trail, camera, arm lag) reads that clock.
+    for path, content in java_sources(root, CLIENT_COMBAT_PACKAGE):
+        if path.name == CLIENT_COMBAT_CLOCK:
+            continue
+        code = JAVA_COMMENTS.sub("", content)
+        if GAME_CLOCK_READ.search(code):
+            findings.append(Finding("COMBAT_CLIENT_GAME_CLOCK_READ", relative(root, path)))
+
     # Combat state stays out of the cultivation profile.
     profile = root / JAVA_ROOT / "com/example/myvillage/cultivation/CultivationProfile.java"
     if profile.is_file():
@@ -601,7 +1133,8 @@ def validate_source_invariants(root: Path, findings: list[Finding]) -> None:
 
 
 # ---------------------------------------------------------------------------------------------
-# Qingfeng item and presentation assets (not part of the combat data refactor).
+# Qingfeng item and presentation assets (not part of the combat data refactor).  Deliberately
+# specific to the accepted Qingfeng item; the checks every weapon gets are validate_weapon_models.
 # ---------------------------------------------------------------------------------------------
 
 def validate_qingfeng_item(root: Path, findings: list[Finding]) -> None:
@@ -611,10 +1144,18 @@ def validate_qingfeng_item(root: Path, findings: list[Finding]) -> None:
         for needle, code in (
                 ("DeferredItem<SwordItem> QINGFENG_SWORD", "QINGFENG_REGISTRATION_TYPE"),
                 ('ITEMS.registerItem("qingfeng_sword"', "QINGFENG_REGISTRATION_ID"),
-                ("Tiers.DIAMOND", "QINGFENG_DIAMOND_TIER"),
-                ("SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F)", "QINGFENG_ATTRIBUTES"),
                 ("output.accept(QINGFENG_SWORD.get())", "QINGFENG_CREATIVE_TAB")):
             require_contains(items, needle, code, items_path.name, findings)
+        # The registration itself: a CombatWeaponItem (a landed hit's durability change must not
+        # replay the equip animation), diamond tier, the accepted attribute pair.
+        start = items.find("DeferredItem<SwordItem> QINGFENG_SWORD")
+        end = items.find(";", start) if start >= 0 else -1
+        registration = items[start:end + 1] if start >= 0 and end >= 0 else ""
+        require_contains(registration, "new CombatWeaponItem(", "QINGFENG_COMBAT_WEAPON_ITEM", items_path.name, findings)
+        if re.search(r"new\s+\w+\(\s*Tiers\.DIAMOND\s*,", registration) is None:
+            findings.append(Finding("QINGFENG_DIAMOND_TIER", items_path.name))
+        require_contains(registration, "SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F)", "QINGFENG_ATTRIBUTES",
+                         items_path.name, findings)
         rideable = items.find("output.accept(RIDEABLE_FLYING_SWORD.get())")
         qingfeng = items.find("output.accept(QINGFENG_SWORD.get())")
         spirit = items.find("output.accept(LOW_GRADE_SPIRIT_STONE.get())")
@@ -715,9 +1256,21 @@ def validate_blade_cut_assets(root: Path, findings: list[Finding]) -> None:
 # Generated assets, docs, and the packaged jar.
 # ---------------------------------------------------------------------------------------------
 
-def validate_generated_assets(root: Path, findings: list[Finding]) -> None:
+def generator_checks(root: Path, data: combat_data.CombatData) -> list[tuple[str, str]]:
+    """``(script, finding code)`` of every generator to run: the fixed ones, then the model
+    generator named by each weapon's geometry contract."""
+    checks = list(GENERATOR_CHECKS)
+    for contract in read_geometry_contracts(root, data).values():
+        generator = contract.get("generator")
+        if (isinstance(generator, str) and GENERATOR_SCRIPT.match(generator)
+                and generator not in (script for script, _ in checks)):
+            checks.append((generator, WEAPON_MODEL_GENERATOR_DRIFT))
+    return checks
+
+
+def validate_generated_assets(root: Path, data: combat_data.CombatData, findings: list[Finding]) -> None:
     """Runs each committed generator's --check so hand edits to generated assets are caught."""
-    for relative_script, code in GENERATOR_CHECKS:
+    for relative_script, code in generator_checks(root, data):
         script = root / relative_script
         if not require_file(script, root, "COMBAT_GENERATOR_MISSING", findings):
             continue
@@ -765,8 +1318,9 @@ def packaged_resources(root: Path, data: combat_data.CombatData) -> set[str]:
     for weapon in data.weapons.values():
         for asset in (weapon["first_person_rig"], weapon["geometry"]):
             expected.add(combat_data.asset_file(root, asset).relative_to(resources).as_posix())
-        namespace, name = combat_data.split_id(weapon["item"])
-        expected.add(f"assets/{namespace}/models/item/{name}.json")
+    # Each weapon's item model, the models it wraps, the 3D model of its contract, and their textures.
+    expected.update(path.relative_to(resources).as_posix() for path in weapon_resource_files(root, data))
+    # The accepted Qingfeng item stays expected even if its weapon entry changes.
     for path in (QINGFENG_MODEL, QINGFENG_TEXTURE, QINGFENG_MODEL_3D, QINGFENG_MODEL_TEXTURE, QINGFENG_RECIPE,
                  SWORD_TAG, BLADE_CUT_PARTICLE, BLADE_CUT_TEXTURE):
         expected.add(Path(path).relative_to(RESOURCES).as_posix())
@@ -837,14 +1391,17 @@ def validate(root: Path = ROOT, run_generators: bool = True) -> list[Finding]:
     data = validate_combat_data(root, findings)
     validate_player_animations(root, data, findings)
     validate_translations_and_sounds(root, data, findings)
+    contracts = read_geometry_contracts(root, data)
     validate_weapon_items(root, data, findings)
-    validate_first_person_rigs(root, data, findings)
+    validate_weapon_models(root, data, contracts, findings)
+    validate_first_person_rigs(root, data, contracts, findings)
     validate_geometry_contracts(root, data, findings)
+    validate_trail_reach(root, data, contracts, findings)
     validate_source_invariants(root, findings)
     validate_qingfeng_item(root, findings)
     validate_blade_cut_assets(root, findings)
     if run_generators:
-        validate_generated_assets(root, findings)
+        validate_generated_assets(root, data, findings)
     validate_docs(root, findings)
     validate_forbidden_integrations(root, findings)
     validate_jar_resources(root, data, findings)

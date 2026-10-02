@@ -24,8 +24,10 @@ import java.util.Optional;
  * the blade, older samples shrink to a sliver at the tip, and a near-white edge band runs along
  * the tip's path. Thrust moves ({@link MoveKind#THRUST}) sweep no area, so they draw one
  * camera-facing streak along the blade.
- * The blade's base and tip come from the sword geometry contract ({@link SwordGeometry}), placed
- * through the same grip frame and sword scale as the held item.
+ * The trail's base and tip come from the geometry contract's trail span
+ * ({@link SwordGeometry#trailBase()}, {@link SwordGeometry#trailTip()}: the blade unless the contract
+ * names a longer span, as a polearm does), placed through the same grip frame and sword scale as
+ * the held item.
  */
 public final class FirstPersonSwordTrail {
     static final float TRAIL_TICKS = 1.2F;
@@ -69,7 +71,7 @@ public final class FirstPersonSwordTrail {
             if (alpha <= 0.0F) {
                 return;
             }
-            Vector3f[] blade = bladePoints(
+            Vector3f[] blade = trailPoints(
                     event.getPoseStack(), arm, event.getEquipProgress(), swing.get(),
                     move.sample(Math.min(now, move.strikeEndTick())));
             Vector3f length = new Vector3f(blade[1]).sub(blade[0]);
@@ -95,7 +97,7 @@ public final class FirstPersonSwordTrail {
             float tick = newest - (newest - oldest) * index / SEGMENTS;
             float age = (now - tick) / TRAIL_TICKS;
             float alpha = SwordTrailShape.alpha(age, fade);
-            Vector3f[] blade = bladePoints(
+            Vector3f[] blade = trailPoints(
                     event.getPoseStack(), arm, event.getEquipProgress(), swing.get(),
                     move.sample(tick));
             if (previous != null) {
@@ -110,8 +112,8 @@ public final class FirstPersonSwordTrail {
         }
     }
 
-    /** Blade base and tip for one pose, in the event pose stack's space. */
-    static Vector3f[] bladePoints(
+    /** Trail base and tip on the weapon for one pose, in the event pose stack's space. */
+    static Vector3f[] trailPoints(
             PoseStack poseStack,
             HumanoidArm arm,
             float equipProgress,
@@ -121,9 +123,9 @@ public final class FirstPersonSwordTrail {
         SwordGeometry sword = swing.sword();
         return new Vector3f[] {
                 matrix.transformPosition(FirstPersonSwordTransform.swordPoint(
-                        arm, equipProgress, swing, pose, sword.bladeBase())),
+                        arm, equipProgress, swing, pose, sword.trailBase())),
                 matrix.transformPosition(FirstPersonSwordTransform.swordPoint(
-                        arm, equipProgress, swing, pose, sword.bladeTip()))
+                        arm, equipProgress, swing, pose, sword.trailTip()))
         };
     }
 }

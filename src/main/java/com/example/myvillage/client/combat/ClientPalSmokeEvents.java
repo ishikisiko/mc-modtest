@@ -12,6 +12,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -124,11 +125,15 @@ public final class ClientPalSmokeEvents {
                     move.id() + " lasts " + move.totalTicks() + " ticks; the probe tick must be below that"));
             return 0;
         }
-        boolean held = CombatAnimationController.holdThirdPersonProbe(
-                player,
-                move.animation().animationId(),
-                tick);
-        if (!held) {
+        ResourceLocation animation = move.animation().animationId();
+        CombatAnimationController.ProbeResult result =
+                CombatAnimationController.holdThirdPersonProbe(player, animation, tick);
+        if (!result.held()) {
+            // Every refusal says why, so a capture waiting for the probe line fails at once.
+            LOGGER.info("PAL_SMOKE third_person rejected reason={} move={} tick={} animation={}",
+                    result.reason(), oneBasedIndex, tick, animation);
+            context.getSource().sendFailure(Component.literal(
+                    "Cannot hold " + animation + ": " + result.reason()));
             return 0;
         }
         ClientCombatState.clearReadyAnimation();

@@ -1,0 +1,19 @@
+{
+  "format": 1,
+  "units": "model_pixels",
+  "generator": "tools/gen_lingxiao_spear_model.py",
+  "model": "myvillage:item/lingxiao_spear_3d",
+  "axes": {"blade": "+y", "flat_normal": "x", "edge": "z", "center_x": 8.0, "center_z": 8.0},
+  "grip_center": [8.0, -2.0, 8.0],
+  "off_hand_grip_center": [8.0, 11.0, 8.0],
+  "handle": {"y": [-13.4, 16.0], "half_width": 0.5, "half_thickness": 0.5},
+  "guard": {"y": [16.0, 23.4], "half_width": 2.35, "half_thickness": 0.68},
+  "pommel": {"y": [-16.0, -13.4], "half_width": 1.0, "half_thickness": 1.0},
+  "blade": {"half_width": 1.9, "half_thickness": 0.35, "ridge_half_thickness": 0.35, "taper_start_y": 25.6},
+  "blade_base": [8.0, 23.4, 8.0],
+  "blade_tip": [8.0, 32.0, 8.0],
+  "trail": {"base": [8.0, 16.0, 8.0], "tip": [8.0, 32.0, 8.0]},
+  "edge_axis": [0.0, 0.0, 1.0],
+  "flat_axis": [1.0, 0.0, 0.0],
+  "overall_y": [-16.0, 32.0]
+}

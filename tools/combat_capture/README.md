@@ -23,14 +23,17 @@ repository root (in a worktree, symlink it from the main checkout).
 |---|---|
 | `run --label L [--weapon ID]` | Whole pass: session start, stills, combo, session stop, sheets and page. Stops the session on any error and keeps partial output. |
 | `session start` / `status` / `stop` | Start Xvfb, the acceptance server and one smoke client under a supervisor that holds the heavy-work lock; show state; stop only what it started. |
-| `stills --label L` | First-person and F5 back/front stills of every move at its key ticks, one sheet per view, `manifest.json`, `index.html`. Needs a running session. |
-| `combo --label L [--targets dummy\|golem]` | Targets in front of the player, real mapped left clicks through the combo at chain timing, mp4, target health before and after. Adds to an existing capture set with the same label. |
+| `stills --label L [--views V,...]` | Stills of every move at its key ticks in each view (default views: see "Views"), one sheet per view, `manifest.json`, `index.html`. Needs a running session. |
+| `combo --label L [--targets dummy\|golem] [--layout default\|sweep\|line] [--tick-rate N] [--camera first\|back] [--pitch P]` | Targets in front of the player (`--layout`, see "Combo run"), real mapped left clicks through the combo at chain timing, mp4, target health before and after and per move (`hits_by_move`), the client's hit-stop and resync lines (`fp_log`); `--tick-rate` slows the run. Adds to an existing capture set with the same label. `--camera back`: the same run filmed from F5 back at vanilla distance (pitch 30 unless `--pitch`). |
+| `motion --label L [--views V,...] [--enter] [--idle S] [--moves N,...]` | Third-person video per view (default: the weapon's third-person default views) of each move's PAL animation played on the client at game speed; `--enter` first records the mode-enter animation through the real R toggle, `--idle` seconds of the ready idle. No server action. |
 | `reload [--src DIR] [--paths GLOB...]` | Copy changed combat client resources into `build/resources/main`, press F3+T, wait for the rig-loaded log line. |
 | `compare A B --label L` | Pair two capture sets by weapon, move, key and view into side-by-side sheets and a page; cells present in one set only are marked `[UNPAIRED]`. |
 | `page DIR` | Rebuild the sheets, combo strip and `index.html` of a capture directory. |
-| `scene stills\|combo` | Set up the scene only (for manual looks). |
+| `scene stills\|combo` | Set up the scene only (for manual looks). Works for a weapon without a first-person rig. |
+| `view VIEW` | Put the camera into one view (walls, stand, body alignment, F5) without any probe, for manual looks. |
+| `shot PATH [--max-wait S]` | Grab one full frame to a PNG once it holds still (same rule as the stills); refused while a screen is open. Types and clicks nothing. |
 | `rcon CMD...`, `ui-state` | Server commands in the session; whether the client is in game with no screen open. |
-| `check`, `ticks` | Host programs and the weapon's data; the moves and key ticks (light, no processes). |
+| `check`, `ticks` | Host programs and the weapon's data (held length, default views, rig present?); the moves and key ticks (light, no processes). |
 
 Typical use:
 
@@ -106,16 +109,78 @@ it is vanilla, the tool presses R once and checks the server again.
 - First person: `/myvillage_pal_smoke first_person <n> <tick>`, confirmed by
   the client log line `PAL_SMOKE first_person move=<n> tick=<tick>`; ends with
   `first_person release`.
-- Third person, F5 back and F5 front: `/myvillage_pal_smoke third_person <n> <tick>`,
-  confirmed by `PAL_SMOKE third_person move=<n> tick=<tick>`; ends with
-  `third_person release`. An invisible barrier wall stops the F5 camera 2.4
-  blocks from the eye. Back view pitch 30 (looking down over the shoulder),
-  front view pitch 15 (camera low in front). The player's pitch also tilts the
-  PAL arm pose, so these values are in the manifest and must match between
-  compared captures.
-- Each still is kept only after two consecutive full-screen grabs are
-  byte-identical (up to 6 s; otherwise it is kept, flagged `stable: false` and
-  labelled `[UNSTABLE]`).
+- Third person: `/myvillage_pal_smoke third_person <n> <tick>`, confirmed by
+  `PAL_SMOKE third_person move=<n> tick=<tick>`; ends with
+  `third_person release`. The probe holds every bone of the move's PAL
+  animation, so there is no idle sway in these stills.
+- A refused probe logs `PAL_SMOKE <probe> rejected reason=<reason> ...`
+  (e.g. `no_weapon`, `index_out_of_range`, `tick_out_of_range`, or the move's
+  animation not loaded). The wait stops at that line at once with an error
+  naming the reason (no retry: the same command would be refused again);
+  `motion` does the same for `move <n>`.
+- The manifest's `rig_loaded` records the first-person rig the client reads
+  (`build/resources/main`, which `reload` writes): its sha256, whether it
+  declares an off hand (`rig.off_hand`) and whether it equals the source
+  tree's copy (it does not after `reload --src`). The client's rig-loaded log
+  line says neither. `source.files.rig` is always the source tree's file.
+- Each still is kept once the picture holds still: two consecutive
+  full-screen grabs byte-identical, or three consecutive grabs pairwise within
+  2 colour levels per channel everywhere (whole-frame rendering noise; a pose
+  still moving changes edge pixels by tens of levels, and a slow drift shows
+  between the first and third grab). Up to 6 s; otherwise it is kept, flagged
+  `stable: false` and labelled `[UNSTABLE]`. The frame record says `match`:
+  `exact` or `noise` (with `max_level_diff`). Neither rule can tell a pose that
+  never arrived from one that did; the probe's log confirmation covers that.
+
+### Views
+
+| View | F5 | Camera | Pitch | Look yaw |
+|---|---|---|---|---|
+| `fp` | first | | 0 | 0 |
+| `tp_back` | back | barrier wall 2.4 blocks behind the eye | 30 | 0 |
+| `tp_front` | front | barrier wall 2.4 blocks in front of the eye | 15 | 0 |
+| `tp_back_right` | back | vanilla 4 blocks, behind the right shoulder | 30 | -50 |
+| `tp_back_left` | back | vanilla 4 blocks, behind the left shoulder | 30 | +50 |
+| `tp_front_right` | front | vanilla 4 blocks, in front on the player's right | 15 | +50 |
+| `tp_front_left` | front | vanilla 4 blocks, in front on the player's left | 15 | -50 |
+
+The body always faces south (yaw 0, the action facing) and the PAL animation
+poses the figure relative to the body. The F5 camera follows the look, and
+vanilla lets a standing player's head turn up to 50 degrees off the body
+before the body follows (`LivingEntity.tickHeadTurn`; the body also follows
+when the player moves or swings). So the quarter views turn the look 50
+degrees and see the posed body from 50 degrees off its axis. The head bone is
+keyed by the animations, so the head shows the animation's pose, not the
+look. Every third-person view sets the body deterministically by teleporting
+(server `tp`, same position, 0.4 s apart) through the yaws
+`[-s*70, s*50, look]` (s = the sign of the look yaw, + for 0): the first leaves
+the body 20-120 degrees on the far side whatever it was, the second is then
+70-170 degrees off it, so vanilla clamps the body to exactly 0, and the last
+turns only the head. Two frames of the same probe taken after different body
+yaws are byte-identical. Quarter views use no barrier wall: 4 blocks is the
+farthest F5 camera there is without Java, and a long weapon needs it.
+
+The player's pitch also tilts the PAL arm pose, so a quarter view uses the
+pitch of the straight view on its side and shows the same pose. These values
+are in the manifest (`capture.third_person_camera`, keyed by the view without
+`tp_`) and must match between compared captures; `compare` warns and the page
+lists any camera field that differs for a paired view.
+
+Default views when `--views` is not given: the weapon's held length is its
+geometry contract's `overall_y` span times its item model's
+`thirdperson_righthand` scale, in blocks (`geometry` in the weapon file).
+Shorter than 1.8 blocks (Qingfeng sword: 1.225), or no geometry:
+`fp,tp_back,tp_front`, as before. 1.8 or longer (Lingxiao spear: 2.7):
+`fp,tp_back_right,tp_front_left`; the straight views look along the shaft of a
+weapon held pointing forward.
+
+Framing limits measured with the spear (armor-stand stand-ins, frames under
+`out/preview/lingxiao_spear/capture_views/`): the back quarters keep a forward
+tip 3.5 blocks ahead of the player and sideways sweeps 2.5 blocks out well
+inside the frame. The front quarters keep a forward tip up to about 3.1 blocks
+ahead inside the frame (tp_front_left about 45 px from the edge, tp_front_right
+about 12 px, for a right-hand thrust); at 3.5 blocks it is cut at the side
+edge. The straight `tp_front` cuts a forward-held spear off at the top.
 
 ## Combo run
 
@@ -131,19 +196,70 @@ client's `PAL_SMOKE play` animation starts during the run. This is the
 mapped-click and server-damage evidence; the freeze probes never substitute
 for it. There is no audio device on the capture host, so sound is not captured.
 
+`--layout` places the three targets (offsets from the player; +x is the
+player's left): `default` (t1 2.5 ahead, t2/t3 5 blocks out, out of reach of
+every move), `sweep` (an arc 2.5 blocks out: ahead and 45 degrees to either
+side) and `line` (2.5, 3.5 and 4.5 blocks straight ahead). During the run a
+second rcon connection polls every target's health about every 0.05 s; each
+loss is put on the latest client move start (`PAL_SMOKE play`, a prediction
+and its confirmation counted once) before it, so the manifest's `hits` and
+`hits_by_move` say who was hit by which move. The client's
+`PAL_SMOKE fp_hit_stop` and `fp_resync` lines during the run go to `fp_log`.
+`--tick-rate N` (1-20) slows the game with `/tick rate N` for the run only
+(5 = quarter speed) and scales the clicks and the recording to it; the rate
+is set back to 20 afterwards, also on failure.
+
+`--camera back` films the same run (same position, targets, clicks) from F5
+back, 4 blocks, look yaw 0. A quarter view cannot be held through a real
+combo: each action snaps the body and head to the look yaw it faces (server)
+and vanilla turns the body to the look while the arm swings (client), so the
+F5 camera ends on the body's axis. For quarter-view motion use `motion`: it
+plays each move's animation on the client with
+`/myvillage_pal_smoke move <n>` (typed in chat, so the chat line shows for a
+moment); nothing reaches the server, so there are no hits, no lunge movement
+and no world trail, and the body keeps its facing. Videos go to
+`motion/<view>.mp4`, events and their times to the manifest's `motion` list.
+
 ## Output
 
 `out/preview/combat_capture/<label>/` (change with `--out-root`):
 
 ```
-manifest.json            weapon, style, rig, commit, file hashes, camera settings, moves and key ticks, frames, combo
+manifest.json            weapon, style, rig, loaded rig, commit, file hashes, camera settings, moves and key ticks, frames, crops, combo
 sheet_fp.png             rows = moves, columns = key ticks; every cell names weapon, move, key, tick, view
-sheet_tp_back.png
-sheet_tp_front.png
+sheet_tp_back.png ...     one per captured view
 frames/<view>/m<n>_<key>.png   full 960x540 frames
 combo/combo.mp4          combo/combo_strip.png
 index.html
 ```
+
+### Cropped third-person sheets
+
+In the quarter views (third person without a barrier wall, camera 4 blocks
+away) the figure covers a small part of the frame, so their sheets crop every
+frame to one box per view and enlarge it by an integer factor (1-3, point
+filter, cell at most 720 px wide; 480 px per side in a comparison). The box
+is fixed for the view and the capture set, so the cells stay comparable:
+
+1. body box: the standing player's volume (0.5 blocks either side of the body
+   axis in x and z, from below the soles to above the head, relative to the
+   eye at the screen centre) projected through the view's recorded camera
+   (F5 side, distance, pitch, look yaw, FOV 70, 960x540);
+2. motion box: the union over all the view's frames of where a frame differs
+   from the per-pixel median of those frames by more than 4 % grey (the
+   background is the same in every frame of a view, so this covers the
+   weapon and the limbs in every pose);
+3. the union of both, plus 16 px on every side, at least 160x120, clamped to
+   the frame.
+
+A view with fewer than 3 frames is not cropped. The box and rule are stored
+in the manifest's `crops` and named in the sheet title and on the page.
+`compare` crops both sides of a view with the union of the two sets' boxes,
+and only when the view is cropped in both. The straight views (`tp_back`,
+`tp_front`, barrier wall 2.4 blocks) and `fp` keep their full frames, so the
+sword's sheets and comparisons are unchanged. Files under `frames/` are never
+modified; the crop happens when the sheet is drawn. `page DIR` rebuilds the
+sheets of an existing capture set with the crop (offline).
 
 A comparison directory holds `compare_<view>.png`, `comparison.json`,
 `a/combo/`, `b/combo/` and `index.html`. `out/preview/` is served publicly
@@ -152,6 +268,17 @@ absolute paths, ports, host names or credentials.
 
 ## Pitfalls
 
+- Killed targets drop experience, and a filling XP bar is part of every
+  frame: the scene setup sets the player's experience to 0, so captures made
+  after a combo still compare with captures made before one. Captures taken
+  before this reset (up to `sword-v2`) can differ in the XP bar row
+  (y 482-491) alone.
+- `tp` with a large yaw change leaves a standing player's body up to 50
+  degrees off the look until it moves or swings; `view` and the stills align
+  it (see "Views"). A manual `tp` before `shot` does not.
+- In the vanilla hold (no probe, e.g. a weapon without animations) the arms
+  sway with the game time and `/tick freeze` does not stop players, so a
+  `shot` of it does not settle; it is still saved, with `stable: false`.
 - Keys typed while no screen is open hit game binds (R combat mode, V/B
   meditation, X stop, F1 hides the held item). Every keystroke is preceded by
   a UI-state check: the game holds the X pointer grab only when it is in game

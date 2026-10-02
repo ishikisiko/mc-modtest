@@ -95,6 +95,63 @@ final class SwingClockTest {
     }
 
     @Test
+    void aLateConfirmationFreezesThePoseOnScreenNotTheTickStart() {
+        // The live spear sweep: contact 6.0, stop 2.0. A frame drew real tick 6.55; the hit
+        // confirmation is handled at the start of the next frame, whose tick reading is still 6.0.
+        SwingClock clock = new SwingClock(15.0F);
+        float shown = clock.visualTick(clock.advance(6.55F));
+        assertEquals(6.55F, clock.advance(6.0F), 1.0E-6F, "an older reading never moves the present back");
+        assertEquals(6.55F, clock.confirmHit(6.0F, 2.0F), 1.0E-6F);
+        // The next frames hold exactly the pose already drawn, for the whole frozen share.
+        assertEquals(shown, clock.visualTick(clock.advance(6.6F)), 1.0E-6F);
+        assertEquals(shown, clock.visualTick(clock.advance(6.55F + 2.0F * SwingClock.FREEZE_FRACTION - 0.01F)), 1.0E-6F);
+        assertTrue(clock.inHitStop(8.5F));
+        assertFalse(clock.inHitStop(8.55F));
+        // Then the creep and the catch-up still end on the server total.
+        assertEquals(6.55F + 0.8F * SwingClock.CREEP_RATE, clock.visualTick(8.55F), 1.0E-4F);
+        assertEquals(15.0F, clock.visualTick(15.0F), 1.0E-4F);
+    }
+
+    @Test
+    void anEarlyConfirmationStillWaitsForTheContactTick() {
+        SwingClock clock = new SwingClock(13.0F);
+        clock.advance(4.2F);
+        assertEquals(4.9F, clock.confirmHit(4.9F, 2.0F), 1.0E-6F);
+        assertEquals(4.5F, clock.visualTick(clock.advance(4.5F)), 1.0E-6F);
+        assertEquals(4.9F, clock.visualTick(clock.advance(5.5F)), 1.0E-6F);
+    }
+
+    @Test
+    void aConfirmationBeforeAnyReadingStartsAtContact() {
+        SwingClock clock = new SwingClock(13.0F);
+        assertEquals(Float.NEGATIVE_INFINITY, clock.present());
+        assertEquals(4.9F, clock.confirmHit(4.9F, 2.0F), 1.0E-6F);
+        SwingClock noRig = new SwingClock(13.0F);
+        assertEquals(0.0F, noRig.confirmHit(Float.NEGATIVE_INFINITY, 2.0F), 1.0E-6F);
+    }
+
+    @Test
+    void aStartCorrectedLaterHoldsThePoseInsteadOfRewinding() {
+        // The server's start lands three ticks after the predicted one: the real tick drops from
+        // 7 to 4. The present stays at 7 until the corrected timeline passes it.
+        SwingClock clock = new SwingClock(17.0F);
+        assertEquals(7.0F, clock.advance(7.0F), 1.0E-6F);
+        assertEquals(7.0F, clock.advance(4.0F), 1.0E-6F);
+        assertEquals(7.0F, clock.advance(6.9F), 1.0E-6F);
+        assertEquals(7.5F, clock.advance(7.5F), 1.0E-6F);
+    }
+
+    @Test
+    void lateOrRepeatedConfirmationsAreIgnored() {
+        SwingClock clock = new SwingClock(11.0F);
+        clock.advance(8.0F);
+        assertTrue(Float.isNaN(clock.confirmHit(3.8F, 1.5F)), "too late to catch up before the server total");
+        SwingClock early = new SwingClock(11.0F);
+        assertEquals(3.8F, early.confirmHit(3.8F, 1.5F), 1.0E-6F);
+        assertTrue(Float.isNaN(early.confirmHit(3.8F, 1.5F)), "one hit-stop per move");
+    }
+
+    @Test
     void emptyOrLateStopsAreIgnored() {
         SwingClock clock = new SwingClock(11.0F);
         assertFalse(clock.beginHitStop(3.0F, 0.0F));

@@ -24,17 +24,21 @@ final class CombatDataLoaderTest {
     private static final String INDEX = CombatDataLoader.INDEX_PATH;
     private static final String STYLE = "data/myvillage/combat/style/basic_sword.json";
     private static final String WEAPON = "data/myvillage/combat/weapon/qingfeng_sword.json";
+    private static final ResourceLocation QINGFENG_FILE = ResourceLocation.fromNamespaceAndPath("myvillage", "qingfeng_sword");
 
     @Test
     void loadsTheBundledIndexStyleAndWeapon() {
         CombatStyles styles = CombatDataLoader.load(CombatTestData::open);
-        assertEquals(1, styles.styles().size());
-        assertEquals(1, styles.weapons().size());
-        CombatStyleDefinition style = styles.styles().getFirst();
-        assertEquals(CombatTestData.BASIC_SWORD, style.id());
+        // Every listed style and weapon loads, in the order the index lists them.
+        assertEquals(indexIds("styles"), styles.styles().stream().map(CombatStyleDefinition::id).toList());
+        List<ResourceLocation> weaponFiles = indexIds("weapons");
+        assertEquals(weaponFiles.size(), styles.weapons().size());
+        CombatStyleDefinition style = styles.style(CombatTestData.BASIC_SWORD).orElseThrow();
         assertEquals(5, style.moves().size());
-        WeaponDefinition weapon = styles.weapons().getFirst();
+        // The weapon file id is the index entry; the item id is a field inside the file.
+        WeaponDefinition weapon = styles.weapons().get(weaponFiles.indexOf(QINGFENG_FILE));
         assertEquals(CombatTestData.QINGFENG_SWORD, weapon.item());
+        assertEquals(weapon, styles.weapon(CombatTestData.QINGFENG_SWORD).orElseThrow());
         assertEquals(CombatTestData.BASIC_SWORD, weapon.style());
         assertEquals(id("combat/qingfeng_first_person.json"), weapon.firstPersonRig());
         assertEquals(id("combat/qingfeng_sword_geometry.json"), weapon.geometry());
@@ -63,8 +67,34 @@ final class CombatDataLoaderTest {
             samples.add(sample);
             hitbox.add("samples", samples);
         });
-        HitboxDefinition hitbox = files.load().styles().getFirst().move(0).hitbox();
+        HitboxDefinition hitbox = files.load().style(CombatTestData.BASIC_SWORD).orElseThrow().move(0).hitbox();
         assertEquals(List.of(new HitboxSample(3, 0.0, 1.0, 0.5, 0.25, 1.25, 2.5, 0.2, 0.3)), hitbox.samples());
+    }
+
+    @Test
+    void explicitSamplesMustBeListedInTickOrder() {
+        // Several samples on one tick are fine; a tick lower than the one before is a load error.
+        Files files = Files.bundled();
+        files.edit(STYLE, style -> move(style, 0).getAsJsonObject("hitbox").add("samples", samplesAt(3, 4, 4, 5)));
+        assertEquals(List.of(3, 4, 4, 5), files.load().style(CombatTestData.BASIC_SWORD).orElseThrow().move(0)
+                .hitbox().samples().stream().map(HitboxSample::actionTick).toList());
+        assertRejected(STYLE, "moves[0].hitbox.samples[2].tick", "non-decreasing tick order",
+                rejected -> rejected.edit(STYLE, style -> move(style, 0).getAsJsonObject("hitbox")
+                        .add("samples", samplesAt(5, 6, 5))));
+    }
+
+    private static JsonArray samplesAt(int... ticks) {
+        JsonArray samples = new JsonArray();
+        for (int tick : ticks) {
+            JsonObject sample = new JsonObject();
+            sample.addProperty("tick", tick);
+            sample.add("start", vector(0.0, 1.0, 0.5));
+            sample.add("end", vector(0.25, 1.25, 2.5));
+            sample.addProperty("horizontal_radius", 0.2);
+            sample.addProperty("vertical_radius", 0.3);
+            samples.add(sample);
+        }
+        return samples;
     }
 
     @Test
@@ -163,9 +193,12 @@ final class CombatDataLoaderTest {
 
     @Test
     void missingListedFilesAreRejected() {
-        assertRejected(INDEX, "styles[1]", "data/myvillage/combat/style/missing_sword.json is missing",
+        // The field is the missing entry's position in the index: appended after the bundled styles.
+        assertRejected(INDEX, "styles[" + indexIds("styles").size() + "]",
+                "data/myvillage/combat/style/missing_sword.json is missing",
                 files -> files.edit(INDEX, index -> index.getAsJsonArray("styles").add("myvillage:missing_sword")));
-        assertRejected(INDEX, "weapons[0]", "data/myvillage/combat/weapon/qingfeng_sword.json is missing",
+        assertRejected(INDEX, "weapons[" + indexIds("weapons").indexOf(QINGFENG_FILE) + "]",
+                "data/myvillage/combat/weapon/qingfeng_sword.json is missing",
                 files -> files.remove(WEAPON));
         assertRejected(INDEX, "<file>", "data/myvillage/combat/index.json is missing",
                 files -> files.remove(INDEX));
@@ -204,7 +237,7 @@ final class CombatDataLoaderTest {
         files.put(twin, weapon.toString());
         files.edit(INDEX, index -> index.getAsJsonArray("weapons").add("myvillage:twin"));
         CombatStyles styles = files.load();
-        assertEquals(2, styles.weapons().size());
+        assertEquals(indexIds("weapons").size() + 1, styles.weapons().size());
         assertEquals(styles.styleForItem(CombatTestData.QINGFENG_SWORD), styles.styleForItem(id("twin_sword")));
         assertFalse(styles.styleForItem(id("stick")).isPresent());
     }
@@ -219,6 +252,13 @@ final class CombatDataLoaderTest {
         assertTrue(failure.getMessage().contains(messagePart), failure.getMessage());
         assertTrue(failure.getMessage().contains(file), failure.getMessage());
         return failure;
+    }
+
+    /** The style or weapon ids the bundled index lists under {@code key}, in order. */
+    private static List<ResourceLocation> indexIds(String key) {
+        return Files.bundled().json(INDEX).getAsJsonArray(key).asList().stream()
+                .map(element -> ResourceLocation.parse(element.getAsString()))
+                .toList();
     }
 
     private static JsonObject move(JsonObject style, int index) {
@@ -237,20 +277,37 @@ final class CombatDataLoaderTest {
         return ResourceLocation.fromNamespaceAndPath("myvillage", path);
     }
 
-    /** An editable in-memory copy of the bundled data files. */
+    /** An editable in-memory copy of the bundled data files: the index and every file it lists. */
     private static final class Files {
         private final Map<String, String> contents = new HashMap<>();
 
         static Files bundled() {
             Files files = new Files();
-            for (String path : List.of(INDEX, STYLE, WEAPON)) {
-                try (InputStream stream = CombatTestData.open(path)) {
-                    files.contents.put(path, new String(stream.readAllBytes(), StandardCharsets.UTF_8));
-                } catch (IOException exception) {
-                    throw new IllegalStateException(exception);
+            files.copy(INDEX);
+            JsonObject index = files.json(INDEX);
+            for (JsonElement style : index.getAsJsonArray("styles")) {
+                files.copy(CombatDataLoader.stylePath(ResourceLocation.parse(style.getAsString())));
+            }
+            for (JsonElement weapon : index.getAsJsonArray("weapons")) {
+                files.copy(CombatDataLoader.weaponPath(ResourceLocation.parse(weapon.getAsString())));
+            }
+            for (String path : List.of(STYLE, WEAPON)) {
+                if (!files.contents.containsKey(path)) {
+                    throw new IllegalStateException("The bundled index no longer lists " + path);
                 }
             }
             return files;
+        }
+
+        private void copy(String path) {
+            try (InputStream stream = CombatTestData.open(path)) {
+                if (stream == null) {
+                    throw new IllegalStateException(path + " is missing from the source tree");
+                }
+                contents.put(path, new String(stream.readAllBytes(), StandardCharsets.UTF_8));
+            } catch (IOException exception) {
+                throw new IllegalStateException(exception);
+            }
         }
 
         String contents(String path) {

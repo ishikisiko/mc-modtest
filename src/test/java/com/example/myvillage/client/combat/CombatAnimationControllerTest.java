@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.example.myvillage.client.combat.CombatAnimationController.Lifecycle;
 import com.example.myvillage.client.combat.CombatAnimationController.Lifecycle.Phase;
 import com.example.myvillage.client.combat.CombatAnimationController.RemoteHitStop;
+import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.Test;
 
 final class CombatAnimationControllerTest {
@@ -132,6 +133,30 @@ final class CombatAnimationControllerTest {
         assertEquals(Phase.NONE, lifecycle.phase(), "a finished probe no longer counts as held");
         assertFalse(lifecycle.frozen());
         assertFalse(lifecycle.reportsActive(), "the client tick may claim the ready idle again");
+    }
+
+    @Test
+    void everyProbeRefusalHasALogReason() {
+        assertTrue(CombatAnimationController.ProbeResult.HELD.held());
+        assertEquals(null, CombatAnimationController.ProbeResult.HELD.reason());
+        for (CombatAnimationController.ProbeResult result : CombatAnimationController.ProbeResult.values()) {
+            if (result != CombatAnimationController.ProbeResult.HELD) {
+                assertFalse(result.held());
+                // Logged as PAL_SMOKE third_person rejected reason=<reason>, like the other refusals.
+                assertTrue(result.reason().matches("[a-z_]+"), result.reason());
+            }
+        }
+        assertEquals("missing_animation", CombatAnimationController.ProbeResult.MISSING_ANIMATION.reason());
+    }
+
+    @Test
+    void aRefusedTransitionIsLoggedOnceNotEveryTick() {
+        ResourceLocation idle = ResourceLocation.fromNamespaceAndPath("myvillage", "spear_ready_idle");
+        ResourceLocation other = ResourceLocation.fromNamespaceAndPath("myvillage", "sword_ready_idle");
+        assertFalse(CombatAnimationController.repeatedRefusal(null, idle, false), "the first refusal logs");
+        assertTrue(CombatAnimationController.repeatedRefusal(idle, idle, false), "its per-tick retries do not");
+        assertFalse(CombatAnimationController.repeatedRefusal(idle, other, false), "another weapon's idle logs");
+        assertFalse(CombatAnimationController.repeatedRefusal(idle, idle, true), "an accepted transition logs");
     }
 
     @Test

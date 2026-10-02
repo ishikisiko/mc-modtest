@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import json
+import math
 import shutil
 import tempfile
 import unittest
@@ -12,6 +13,61 @@ from tools import combat_data
 DATA = "src/main/resources/data/myvillage/combat"
 STYLE = f"{DATA}/style/basic_sword.json"
 WEAPON = f"{DATA}/weapon/qingfeng_sword.json"
+SPEAR_STYLE = f"{DATA}/style/basic_spear.json"
+SPEAR_MOVES = [
+    "myvillage:basic_spear_01_mid_thrust",
+    "myvillage:basic_spear_02_sweep",
+    "myvillage:basic_spear_03_rising_flick",
+    "myvillage:basic_spear_04_overhead_smash",
+    "myvillage:basic_spear_05_dragon_lunge",
+]
+
+
+# A mob-sized target standing on the ground: 0.6 wide, 1.8 tall.
+TARGET_HALF_WIDTH = 0.3
+TARGET_HEIGHT = 1.8
+COVERAGE_FROM = 1.0
+COVERAGE_STEP = 0.05
+
+
+# The move's hit capsules as explicit samples (a port of HitboxGenerators.java, same constants).
+expand_samples = combat_data.expand_samples
+
+
+def forward_reach(move: dict) -> float:
+    """Farthest +Z the move's hit capsules reach (end plus horizontal radius)."""
+    return max(sample["end"][2] + sample["horizontal_radius"] for sample in expand_samples(move))
+
+
+def segment_touches_box(start, end, low, high) -> bool:
+    """Slab test of the segment start->end against an axis-aligned box (CombatGeometry.segmentAabbContact)."""
+    first, last = 0.0, 1.0
+    for axis in range(3):
+        delta = end[axis] - start[axis]
+        if abs(delta) < 1e-9:
+            if not low[axis] <= start[axis] <= high[axis]:
+                return False
+            continue
+        a, b = (low[axis] - start[axis]) / delta, (high[axis] - start[axis]) / delta
+        first, last = max(first, min(a, b)), min(last, max(a, b))
+        if first > last:
+            return False
+    return True
+
+
+def standing_target_ticks(move: dict, distance: float, lateral: float = 0.0) -> set[int]:
+    """Ticks at which a sample touches a standing target whose near face is ``distance`` ahead of the
+    attacker's feet (attacker-local frame; the target box is inflated by radius plus tolerance)."""
+    hitbox = move["hitbox"]
+    ticks = set()
+    for sample in expand_samples(move):
+        h = sample["horizontal_radius"] + hitbox["horizontal_tolerance"]
+        v = sample["vertical_radius"] + hitbox["vertical_tolerance"]
+        low = (lateral - TARGET_HALF_WIDTH - h, -v, distance - h)
+        high = (lateral + TARGET_HALF_WIDTH + h, TARGET_HEIGHT + v, distance + 2 * TARGET_HALF_WIDTH + h)
+        if segment_touches_box(sample["start"], sample["end"], low, high):
+            ticks.add(sample["tick"])
+    return ticks
 
 
 class CombatDataTest(unittest.TestCase):
@@ -49,10 +105,49 @@ class CombatDataTest(unittest.TestCase):
     def test_committed_data_is_valid(self) -> None:
         data = combat_data.load()
         self.assertEqual((), data.issues)
-        self.assertEqual(["myvillage:basic_sword"], list(data.styles))
-        self.assertEqual(["myvillage:qingfeng_sword"], list(data.weapons))
-        self.assertEqual(5, len(list(data.moves())))
+        self.assertEqual(["myvillage:basic_sword", "myvillage:basic_spear"], list(data.styles))
+        self.assertEqual(["myvillage:qingfeng_sword", "myvillage:lingxiao_spear"], list(data.weapons))
+        self.assertEqual(10, len(list(data.moves())))
         self.assertEqual(combat_data.ROOT / STYLE, data.files["myvillage:basic_sword"])
+        self.assertEqual(combat_data.ROOT / SPEAR_STYLE, data.files["myvillage:basic_spear"])
+
+    def test_spear_style_and_weapon(self) -> None:
+        data = combat_data.load()
+        spear = data.styles["myvillage:basic_spear"]
+        self.assertEqual(SPEAR_MOVES, [move["id"] for move in spear["moves"]])
+        self.assertEqual([f"combat.myvillage.move.{move_id.split(':')[1]}" for move_id in SPEAR_MOVES],
+                         [move["display_key"] for move in spear["moves"]])
+        weapon = data.weapons["myvillage:lingxiao_spear"]
+        self.assertEqual("myvillage:lingxiao_spear", weapon["item"])
+        self.assertEqual("myvillage:basic_spear", weapon["style"])
+        # The finisher cannot chain.
+        self.assertEqual(spear["moves"][-1]["total_ticks"], spear["moves"][-1]["chain_tick"])
+
+    def test_samples_reach_the_move_range(self) -> None:
+        # CombatStepService keeps a light step still when a target is within `range`, so the
+        # hit volume must reach at least that far (end + radius + tolerance along +Z).
+        for style_id, move in combat_data.load().moves():
+            with self.subTest(move=move["id"]):
+                self.assertGreaterEqual(forward_reach(move) + move["hitbox"]["horizontal_tolerance"], move["range"])
+
+    def test_standing_target_straight_ahead_is_hit_out_to_range(self) -> None:
+        # A mob straight ahead whose near face is anywhere from 1.0 block out to the move's range
+        # (the distance CombatStepService compares with `range`) is touched by some sample.
+        for style_id, move in combat_data.load().moves():
+            steps = int(round((move["range"] - COVERAGE_FROM) / COVERAGE_STEP))
+            holes = [round(COVERAGE_FROM + i * COVERAGE_STEP, 2) for i in range(steps + 1)
+                     if not standing_target_ticks(move, COVERAGE_FROM + i * COVERAGE_STEP)]
+            with self.subTest(move=move["id"]):
+                self.assertEqual([], holes, f"{move['id']}: no sample touches a standing target at these distances")
+
+    def test_spear_flick_connects_early_and_smash_late(self) -> None:
+        moves = {move["id"]: move for _, move in combat_data.load().moves()}
+        flick = moves["myvillage:basic_spear_03_rising_flick"]
+        smash = moves["myvillage:basic_spear_04_overhead_smash"]
+        # The flick lifts what is in front on its first active tick; the smash pins at range as the
+        # head comes down, after its first active tick.
+        self.assertIn(flick["active_ticks"][0], standing_target_ticks(flick, 2.0))
+        self.assertGreater(min(standing_target_ticks(smash, 3.0)), smash["active_ticks"][0])
 
     def test_ids_resolve_to_paths(self) -> None:
         self.assertEqual(self.root / STYLE, combat_data.style_file(self.root, "myvillage:basic_sword"))
@@ -86,7 +181,7 @@ class CombatDataTest(unittest.TestCase):
         index = self.read(f"{DATA}/index.json")
         index["weapons"].append("myvillage:missing_blade")
         self.write(f"{DATA}/index.json", index)
-        issue = self.find("INDEX", "weapons[1]")
+        issue = self.find("INDEX", f"weapons[{len(index['weapons']) - 1}]")
         self.assertIn("myvillage:missing_blade", issue.message)
 
     def test_chain_tick_inside_active_window_is_rejected(self) -> None:
@@ -138,6 +233,94 @@ class CombatDataTest(unittest.TestCase):
         self.find("INVARIANT", "moves[0].hitbox.samples[1].tick")
         self.edit_style(lambda style: style["moves"][0]["hitbox"]["samples"][1].update(radius=1))
         self.find("UNKNOWN_FIELD", "moves[0].hitbox.samples[1].radius")
+
+    def test_explicit_samples_must_not_go_back_in_tick(self) -> None:
+        sample = {"tick": 3, "start": [0, 1.2, 0.5], "end": [0, 1.2, 2.9],
+                  "horizontal_radius": 0.16, "vertical_radius": 0.16}
+        thrust = self.read(STYLE)["moves"][0]
+        start, end = thrust["active_ticks"]
+        self.assertLess(start, end)
+        # Repeated ticks keep their list order and are allowed (two per tick, so the counts match).
+        ordered = [dict(sample, tick=start), dict(sample, tick=start), dict(sample, tick=end), dict(sample, tick=end)]
+        self.edit_style(lambda style: style["moves"][0]["hitbox"].update(samples=ordered))
+        self.assertEqual([], self.issues())
+        # [start, end, start]: valid ticks for gameplay, but the trail would jump back.
+        backwards = [dict(sample, tick=start), dict(sample, tick=end), dict(sample, tick=start)]
+        self.edit_style(lambda style: style["moves"][0]["hitbox"].update(samples=backwards))
+        # (The style no longer loads, so its weapon also gets a REFERENCE issue.)
+        issues = [issue for issue in self.issues() if issue.code == "SAMPLE_ORDER"]
+        self.assertEqual(1, len(issues), [str(i) for i in self.issues()])
+        issue = issues[0]
+        self.assertEqual(STYLE, issue.file)
+        self.assertEqual("moves[0].hitbox.samples[2].tick", issue.field)
+        self.assertIn(thrust["id"], issue.message)
+        self.assertIn("samples[1]", issue.message)
+        self.assertIn(STYLE, str(issue))
+
+    def spear_cut_index(self) -> int:
+        spear = self.read(SPEAR_STYLE)
+        return next(i for i, move in enumerate(spear["moves"])
+                    if isinstance(move["hitbox"]["samples"], list)
+                    and any(sum(1 for s in move["hitbox"]["samples"] if s["tick"] == t) > 1
+                            for t in range(move["active_ticks"][0], move["active_ticks"][1] + 1)))
+
+    def test_committed_shared_ticks_carry_equal_sample_counts(self) -> None:
+        index = self.spear_cut_index()  # a committed move with several samples on one tick
+        self.assertEqual([], [i for i in self.issues() if i.code == "SAMPLE_COUNT"])
+        move = self.read(SPEAR_STYLE)["moves"][index]
+        start, end = move["active_ticks"]
+        counts = {t: sum(1 for s in move["hitbox"]["samples"] if s["tick"] == t) for t in range(start, end + 1)}
+        self.assertEqual(1, len(set(counts.values())), counts)
+
+    def test_uneven_samples_per_tick_are_reported(self) -> None:
+        index = self.spear_cut_index()
+        spear = self.read(SPEAR_STYLE)
+        move = spear["moves"][index]
+        start, end = move["active_ticks"]
+        # Drop one sample of the last active tick: the counts become n, ..., n - 1.
+        last = max(i for i, s in enumerate(move["hitbox"]["samples"]) if s["tick"] == end)
+        del move["hitbox"]["samples"][last]
+        self.write(SPEAR_STYLE, spear)
+        issue = self.find("SAMPLE_COUNT", f"moves[{index}].hitbox.samples")
+        self.assertEqual(SPEAR_STYLE, issue.file)
+        self.assertIn(move["id"], issue.message)
+        self.assertIn(f"tick {end}: ", issue.message)
+        self.assertIn(f"{start}..{end}", issue.message)
+
+    def test_shared_tick_with_an_empty_active_tick_is_reported(self) -> None:
+        spear = self.read(SPEAR_STYLE)
+        index = self.spear_cut_index()
+        move = spear["moves"][index]
+        start, end = move["active_ticks"]
+        self.assertGreater(end - start, 1)
+        middle = start + 1
+        move["hitbox"]["samples"] = [s for s in move["hitbox"]["samples"] if s["tick"] != middle]
+        self.write(SPEAR_STYLE, spear)
+        self.assertIn(f"tick {middle}: 0", self.find("SAMPLE_COUNT", f"moves[{index}].hitbox.samples").message)
+
+    def test_single_samples_per_tick_need_no_equal_count(self) -> None:
+        # One sample per tick sits on its tick, so a gap between single samples is not uneven.
+        sample = {"tick": 3, "start": [0, 1.2, 0.5], "end": [0, 1.2, 2.9],
+                  "horizontal_radius": 0.16, "vertical_radius": 0.16}
+        style = self.read(STYLE)
+        move = next(m for m in style["moves"] if m["active_ticks"][1] - m["active_ticks"][0] >= 2)
+        start, end = move["active_ticks"]
+        move["hitbox"]["samples"] = [dict(sample, tick=start), dict(sample, tick=end)]
+        self.write(STYLE, style)
+        self.assertEqual([], [str(i) for i in self.issues()])
+
+    def test_expand_samples_matches_the_generators(self) -> None:
+        sword = self.read(STYLE)
+        arc = next(m for m in sword["moves"] if m["hitbox"]["samples"].get("generator") == "arc")
+        expanded = combat_data.expand_samples(arc)
+        start, end = arc["active_ticks"]
+        self.assertEqual(list(range(start, end + 1)), [s["tick"] for s in expanded])
+        spec = arc["hitbox"]["samples"]
+        first = math.radians(spec["start_angle"])
+        self.assertAlmostEqual(math.sin(first) * spec["range"], expanded[0]["end"][0])
+        self.assertAlmostEqual(math.cos(first) * spec["range"], expanded[0]["end"][2])
+        explicit = self.read(SPEAR_STYLE)["moves"][self.spear_cut_index()]
+        self.assertIs(explicit["hitbox"]["samples"], combat_data.expand_samples(explicit))
 
     def test_unknown_sample_generator_is_rejected(self) -> None:
         self.edit_style(lambda style: style["moves"][2]["hitbox"]["samples"].update(generator="spiral"))

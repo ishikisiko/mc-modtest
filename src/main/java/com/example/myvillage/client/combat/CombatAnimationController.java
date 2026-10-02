@@ -128,6 +128,7 @@ public final class CombatAnimationController {
                         animationId);
             }
             accepted = animationController.triggerAnimation(animationId, elapsed);
+            state.refusedTransition = null;
             if (accepted) {
                 state.currentAnimation = animationId;
                 if (move) {
@@ -155,6 +156,7 @@ public final class CombatAnimationController {
         FirstPersonWeaponAnimator.stop(player);
         Optional<PlayerAnimationController> controller = controller(player);
         boolean accepted = false;
+        boolean repeatedRefusal = false;
         if (controller.isPresent()) {
             PlayerAnimationController animationController = controller.get();
             LayerState state = state(player, animationController);
@@ -188,13 +190,29 @@ public final class CombatAnimationController {
                     state.lifecycle.startEnter();
                 }
             }
+            repeatedRefusal = repeatedRefusal(state.refusedTransition, animationId, accepted);
+            state.refusedTransition = accepted ? null : animationId;
         }
-        LOGGER.info(
-                "PAL_SMOKE transition player={} animation={} accepted={}",
-                player.getUUID(),
-                animationId,
-                accepted);
+        if (repeatedRefusal) {
+            // The client tick retries a refused ready idle (missing animation data) every tick.
+            LOGGER.debug("PAL_SMOKE transition player={} animation={} accepted=false repeated=true",
+                    player.getUUID(), animationId);
+        } else {
+            LOGGER.info(
+                    "PAL_SMOKE transition player={} animation={} accepted={}",
+                    player.getUUID(),
+                    animationId,
+                    accepted);
+        }
         return accepted;
+    }
+
+    /**
+     * True when a refused transition repeats the previous one for the same animation, with nothing
+     * accepted or played in between: it is logged once, not on every client tick that retries it.
+     */
+    static boolean repeatedRefusal(ResourceLocation previouslyRefused, ResourceLocation animationId, boolean accepted) {
+        return !accepted && animationId.equals(previouslyRefused);
     }
 
     /**
@@ -233,17 +251,17 @@ public final class CombatAnimationController {
      * or any real start or transition. Starts from a hard reset so no fade is frozen half-way, and
      * keeps the legs out of {@link LocomotionBlend}. Presentation only; sends nothing.
      */
-    public static boolean holdThirdPersonProbe(
+    public static ProbeResult holdThirdPersonProbe(
             AbstractClientPlayer player,
             ResourceLocation animationId,
             float elapsedTicks) {
         Optional<PlayerAnimationController> controller = controller(player);
         if (controller.isEmpty()) {
-            return false;
+            return ProbeResult.NO_LAYER;
         }
         if (!PlayerAnimResources.hasAnimation(animationId)) {
             // Refused before touching the layer, so a failed probe changes no pose.
-            return false;
+            return ProbeResult.MISSING_ANIMATION;
         }
         PlayerAnimationController animationController = controller.get();
         LayerState state = state(player, animationController);
@@ -251,12 +269,39 @@ public final class CombatAnimationController {
         // A fade still running from an earlier hand-over would be frozen half-way at rate zero.
         animationController.removeModifierIf(modifier -> modifier instanceof AbstractFadeModifier);
         boolean accepted = animationController.triggerAnimation(animationId, Math.max(0.0F, elapsedTicks));
-        if (accepted) {
-            state.currentAnimation = animationId;
-            state.lifecycle.holdProbe();
-            state.speed = 0.0F;
+        if (!accepted) {
+            return ProbeResult.TRIGGER_REFUSED;
         }
-        return accepted;
+        state.currentAnimation = animationId;
+        state.lifecycle.holdProbe();
+        state.speed = 0.0F;
+        return ProbeResult.HELD;
+    }
+
+    /**
+     * Outcome of {@link #holdThirdPersonProbe}; a refusal carries the {@code reason} the smoke
+     * probe logs as {@code PAL_SMOKE third_person rejected reason=<reason>}.
+     */
+    public enum ProbeResult {
+        HELD(null),
+        NO_LAYER("no_layer"),
+        MISSING_ANIMATION("missing_animation"),
+        TRIGGER_REFUSED("trigger_refused");
+
+        private final String reason;
+
+        ProbeResult(String reason) {
+            this.reason = reason;
+        }
+
+        public boolean held() {
+            return this == HELD;
+        }
+
+        /** The log reason of a refusal; null when held. */
+        public String reason() {
+            return reason;
+        }
     }
 
     /** A probe tick a move of {@code totalTicks} can hold: from its start to just before its end. */
@@ -373,6 +418,7 @@ public final class CombatAnimationController {
 
     private static void hardStop(AnimationController controller, LayerState state) {
         state.lifecycle.reset();
+        state.refusedTransition = null;
         state.currentAnimation = null;
         state.remoteHitStop.clear();
         state.resetLocomotion();
@@ -397,8 +443,12 @@ public final class CombatAnimationController {
         return player == Minecraft.getInstance().player;
     }
 
+    /**
+     * Deadlines (stop grace, awaited stop, remote hit-stop rate TTL) count local client ticks, which
+     * the server's time packet never re-sets ({@link ClientCombatClock}).
+     */
     private static long gameTime(AbstractClientPlayer player) {
-        return player.level().getGameTime();
+        return ClientCombatClock.ticks();
     }
 
     /**
@@ -449,6 +499,8 @@ public final class CombatAnimationController {
         private ResourceLocation currentAnimation;
         /** The ready idle of the style last played, which a finished move continues into. */
         private ResourceLocation readyIdle;
+        /** The animation of the last transition, when it was refused; its retries log at debug. */
+        private ResourceLocation refusedTransition;
         private final PlayerAnimBone vanillaPose = new PlayerAnimBone("vanilla");
         private float previousLocomotion;
         private float locomotion;

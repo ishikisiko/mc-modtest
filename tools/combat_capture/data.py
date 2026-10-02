@@ -118,11 +118,36 @@ class Weapon:
     files: dict  # role -> repo-relative path (for provenance)
     moves: list  # [Move]
     combo_timeout_ticks: int
+    # Third-person held length in blocks (see held_length_blocks), None without a geometry contract.
+    held_length: float | None = None
 
 
-def load_weapon(resources: Path, weapon_id: str) -> Weapon:
+def model_rel(location: str) -> str:
+    """Model location ``ns:item/x`` -> ``assets/ns/models/item/x.json``."""
+    ns, path = split_id(location)
+    return f"assets/{ns}/models/{path}.json"
+
+
+def held_length_blocks(geometry: dict, model: dict | None) -> float:
+    """Length of the weapon as drawn in a third-person hand, in blocks: the
+    geometry contract's ``overall_y`` span (model pixels) times the model's
+    ``thirdperson_righthand`` scale along the blade axis (1 if absent), /16."""
+    try:
+        y0, y1 = (float(v) for v in geometry["overall_y"])
+    except (KeyError, TypeError, ValueError) as e:
+        raise DataError(f"geometry needs overall_y [min, max] ({e})") from None
+    scale = 1.0
+    display = ((model or {}).get("display") or {}).get("thirdperson_righthand") or {}
+    if isinstance(display.get("scale"), list) and len(display["scale"]) == 3:
+        scale = float(display["scale"][1])
+    return abs(y1 - y0) * scale / 16.0
+
+
+def load_weapon(resources: Path, weapon_id: str, require_rig: bool = True) -> Weapon:
     """Read index -> weapon -> style -> rig from a resources root such as
-    ``src/main/resources``. Every move of the style needs a rig entry."""
+    ``src/main/resources``. Every move of the style needs a rig entry. With
+    ``require_rig=False`` a missing rig file is allowed (moves then have no key
+    ticks); scene and camera commands use that, the stills never do."""
     resources = Path(resources)
     index = load_json(resources / INDEX_REL)
     if weapon_id not in index.get("weapons", []):
@@ -136,21 +161,36 @@ def load_weapon(resources: Path, weapon_id: str) -> Weapon:
     style = load_json(resources / s_rel)
     rig_loc = weapon.get("first_person_rig")
     r_rel = asset_rel(rig_loc)
-    rig = load_json(resources / r_rel)
-    rig_moves = rig.get("moves", {})
+    files = {"index": INDEX_REL, "weapon": w_rel, "style": s_rel, "rig": r_rel}
+    if require_rig or (resources / r_rel).is_file():
+        rig_moves = load_json(resources / r_rel).get("moves", {})
+    else:
+        rig_moves = None
+        del files["rig"]
     moves = []
     for i, m in enumerate(style.get("moves", []), start=1):
         mid = m["id"]
-        if mid not in rig_moves:
+        if rig_moves is not None and mid not in rig_moves:
             raise DataError(f"move {mid} of {style_id} has no entry in rig {r_rel}")
         moves.append(Move(index=i, id=mid, kind=m.get("kind", ""), total_ticks=int(m["total_ticks"]),
                           active_ticks=list(m["active_ticks"]), buffer_start_tick=int(m["buffer_start_tick"]),
-                          chain_tick=int(m["chain_tick"]), keys=key_ticks(rig_moves[mid])))
+                          chain_tick=int(m["chain_tick"]),
+                          keys=key_ticks(rig_moves[mid]) if rig_moves is not None else []))
     if not moves:
         raise DataError(f"style {style_id} has no moves")
+    held = None
+    if weapon.get("geometry"):
+        g_rel = asset_rel(weapon["geometry"])
+        geometry = load_json(resources / g_rel)
+        files["geometry"] = g_rel
+        model = None
+        if geometry.get("model"):
+            m_path = resources / model_rel(geometry["model"])
+            model = load_json(m_path) if m_path.is_file() else None
+        held = round(held_length_blocks(geometry, model), 3)
     return Weapon(id=weapon_id, item=weapon["item"], style_id=style_id, rig_location=rig_loc,
-                  files={"index": INDEX_REL, "weapon": w_rel, "style": s_rel, "rig": r_rel},
-                  moves=moves, combo_timeout_ticks=int(style.get("combo_timeout_ticks", 0)))
+                  files=files, moves=moves, combo_timeout_ticks=int(style.get("combo_timeout_ticks", 0)),
+                  held_length=held)
 
 
 def fmt_tick(t: float) -> str:

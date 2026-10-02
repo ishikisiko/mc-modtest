@@ -278,7 +278,8 @@ public final class CombatCameraFx {
 
     private static double now(float partialTick) {
         Minecraft minecraft = Minecraft.getInstance();
-        return minecraft.level == null ? Double.NaN : minecraft.level.getGameTime() + partialTick;
+        // Local ticks: a game-clock reset right after a hit must not end or stretch a kick.
+        return minecraft.level == null ? Double.NaN : ClientCombatClock.now(partialTick);
     }
 
     private enum Channel {

@@ -1,0 +1,82 @@
+{
+  "item_id": "myvillage:lingxiao_spear",
+  "kind": "functional_item",
+  "display_name": {
+    "en_us": "Lingxiao Spear",
+    "zh_design_name": "凌霄枪"
+  },
+  "owner_facing_goal": "Add a two-handed long spear as the first weapon built on the 0.28.0 combat data infrastructure: a diamond-tier SwordItem with spear attributes whose cultivation combat comes entirely from data (myvillage:basic_spear), with mapped vanilla behavior in vanilla mode.",
+  "creative_tab": {
+    "visibility": "visible",
+    "tab_id": "myvillage:main",
+    "ordering": "Immediately after myvillage:qingxiao_liuyun_sword and before myvillage:low_grade_spirit_stone."
+  },
+  "java_registration": {
+    "owner_file": "src/main/java/com/example/myvillage/item/ModItems.java",
+    "deferred_holder": "ModItems.LINGXIAO_SPEAR",
+    "properties": "CombatWeaponItem(Tiers.DIAMOND, properties.attributes(SwordItem.createAttributes(Tiers.DIAMOND, 4, -2.8F)))"
+  },
+  "client_assets": {
+    "lang_key": "item.myvillage.lingxiao_spear",
+    "model": "src/main/resources/assets/myvillage/models/item/lingxiao_spear.json",
+    "textures": [
+      "src/main/resources/assets/myvillage/textures/item/lingxiao_spear.png",
+      "src/main/resources/assets/myvillage/textures/item/lingxiao_spear_model.png"
+    ],
+    "visual_verdict": "pending"
+  },
+  "data_resources": {
+    "recipes": [],
+    "tags": [
+      "src/main/resources/data/minecraft/tags/item/swords.json"
+    ],
+    "loot_or_advancement_hooks": []
+  },
+  "behavior": {
+    "type": "functional",
+    "server_client_boundary": "In vanilla mode the item follows the Minecraft SwordItem path; CombatWeaponItem only keeps a durability-only stack change from replaying the equip animation. In cultivation mode the combat runtime finds the item through data/myvillage/combat/weapon/lingxiao_spear.json; no Java code names the item, and the server owns mode, move, timing, hit volume, targets, damage, step movement, recovery, and synchronization exactly as for other data-registered weapons.",
+    "interaction": "Mapped vanilla left-click attack/mining outside cultivation mode; the five myvillage:basic_spear moves inside it. No right-click behavior.",
+    "cooldown_or_durability": "Diamond-tier durability 1561 and max stack size 1 from the tier. Held attack damage 8.0 and attack speed 1.2 (SwordItem.createAttributes(Tiers.DIAMOND, 4, -2.8F)). Cultivation timing is move-owned by the style data.",
+    "data_components": [
+      "SwordItem diamond-tier tool component",
+      "SwordItem.createAttributes(Tiers.DIAMOND, 4, -2.8F)",
+      "No item-owned combo or mode component"
+    ],
+    "tests": [
+      "Registration as CombatWeaponItem, attributes, creative-tab ordering, bilingual names, and swords-tag membership match this contract (tools/validate_mod_items.py)",
+      "The item model is a neoforge:separate_transforms wrapper over myvillage:item/lingxiao_spear_3d whose gui perspective stays the 2D myvillage:item/lingxiao_spear icon",
+      "No Java source under combat/** or client/combat/** names the item"
+    ]
+  },
+  "acceptance": {
+    "commands": [
+      "/give @s myvillage:lingxiao_spear",
+      "/myvillage combat debug on",
+      "/myvillage combat debug off"
+    ],
+    "gates": [
+      "Validate genops/contracts/items/lingxiao_spear.json against genops/schemas/item_contract.schema.json",
+      "python3 tools/validate_mod_items.py",
+      "python3 -m unittest tools.tests.test_validate_mod_items",
+      "./gradlew test",
+      "./gradlew build"
+    ],
+    "jar_checks": [
+      "assets/myvillage/models/item/lingxiao_spear.json and assets/myvillage/models/item/lingxiao_spear_3d.json",
+      "assets/myvillage/textures/item/lingxiao_spear.png and assets/myvillage/textures/item/lingxiao_spear_model.png",
+      "item.myvillage.lingxiao_spear is present in assets/myvillage/lang/en_us.json and assets/myvillage/lang/zh_cn.json",
+      "data/minecraft/tags/item/swords.json contains myvillage:lingxiao_spear",
+      "data/myvillage/combat/weapon/lingxiao_spear.json"
+    ],
+    "human_verdict": "pending"
+  },
+  "docs": {
+    "sync_required": true
+  },
+  "non_goals": [
+    "Crafting recipe, loot acquisition, natural generation, or advancement hook",
+    "Any Java hook that names the item outside ModItems",
+    "Off-hand item placement; the spear stays a main-hand item drawn with two hands",
+    "New sound assets, projectiles, special arts, or spiritual-power cost"
+  ]
+}

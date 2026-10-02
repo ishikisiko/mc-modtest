@@ -17,7 +17,16 @@ BACK_WALL_Z, FRONT_WALL_Z = -4, 4
 WALL_X = (-4, 5)
 WALL_H = 7
 
-TARGET_LAYOUT = [("t1", 0.0, 2.5), ("t2", -3.0, 4.0), ("t3", 3.0, 4.0)]  # (tag, dx, dz) from the player
+# (tag, dx, dz) from the player, who faces south (+z); +x is the player's left.
+TARGET_LAYOUTS = {
+    # t1 straight ahead; t2/t3 well to the sides (5 blocks out: only t1 is in reach of any move)
+    "default": [("t1", 0.0, 2.5), ("t2", -3.0, 4.0), ("t3", 3.0, 4.0)],
+    # an arc 2.5 blocks out: ahead, 45 degrees left, 45 degrees right (inside a wide sweep)
+    "sweep": [("t1", 0.0, 2.5), ("t2", 1.768, 1.768), ("t3", -1.768, 1.768)],
+    # three in a line straight ahead, a block apart (a piercing thrust)
+    "line": [("t1", 0.0, 2.5), ("t2", 0.0, 3.5), ("t3", 0.0, 4.5)],
+}
+TARGET_LAYOUT = TARGET_LAYOUTS["default"]
 TARGET_TAG = "capture_target"
 
 
@@ -38,11 +47,22 @@ def wall_fill(z: int, block: str) -> str:
     return f"fill {x0} {FLOOR_Y} {z} {x1} {FLOOR_Y + WALL_H - 1} {z} {block}"
 
 
+def wall_commands(wall: str | None) -> list[str]:
+    """Barrier row behind ('back') or in front ('front') of the player, the
+    other row air; None clears both (vanilla F5 distance)."""
+    if wall not in (None, "back", "front"):
+        raise SceneError(f"unknown wall {wall!r}")
+    return [wall_fill(BACK_WALL_Z, "minecraft:barrier" if wall == "back" else "minecraft:air"),
+            wall_fill(FRONT_WALL_Z, "minecraft:barrier" if wall == "front" else "minecraft:air")]
+
+
 def player_setup(user: str, item: str) -> list[str]:
     px, py, pz = PLAYER_POS
     return [f"op {user}", f"gamemode survival {user}",
             "kill @e[type=!minecraft:player]", f"clear {user}",
             f"effect clear {user}",
+            # killed targets drop experience; a filling XP bar would differ between captures
+            f"experience set {user} 0 levels", f"experience set {user} 0 points",
             f"effect give {user} minecraft:saturation infinite 255 true",
             # No regeneration: its effect makes the heart row bounce, so two grabs would rarely match.
             f"effect give {user} minecraft:instant_health 1 10 true",
@@ -57,13 +77,19 @@ def cleanup_drops(user: str, item: str) -> list[str]:
             f"item replace entity {user} weapon.mainhand with {item}"]
 
 
-def target_summons(kind: str) -> list[str]:
+def layout(name: str) -> list:
+    if name not in TARGET_LAYOUTS:
+        raise SceneError(f"unknown target layout {name!r} ({', '.join(TARGET_LAYOUTS)})")
+    return TARGET_LAYOUTS[name]
+
+
+def target_summons(kind: str, layout_name: str = "default") -> list[str]:
     """Targets in front of the player. 'dummy': a husk with AI on (so knockback
     and hitstun can move it) that cannot walk or acquire a target, 80 HP.
     'golem': a NoAI iron golem (100 HP, knockback resistant)."""
     px, py, pz = PLAYER_POS
     cmds = []
-    for tag, dx, dz in TARGET_LAYOUT:
+    for tag, dx, dz in layout(layout_name):
         x, z = px + dx, pz + dz
         if kind == "dummy":
             cmds.append(
@@ -148,12 +174,12 @@ def ensure_cultivation(session, timeout: float = 8.0) -> str:
     raise SceneError("pressed R but the server still reports combat_mode != cultivation")
 
 
-def place_targets(session, kind: str) -> list[dict]:
-    session.run(*target_summons(kind))
+def place_targets(session, kind: str, layout_name: str = "default") -> list[dict]:
+    session.run(*target_summons(kind, layout_name))
     time.sleep(0.6)
     targets = []
     px, py, pz = PLAYER_POS
-    for tag, dx, dz in TARGET_LAYOUT:
+    for tag, dx, dz in layout(layout_name):
         out = session.run(f"data get entity @e[tag=capture_{tag},limit=1] UUID", warn=False)[0]
         m = INT_ARRAY.search(out)
         if not m:
