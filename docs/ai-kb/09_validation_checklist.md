@@ -38,7 +38,8 @@ read the `.nbt` instead of expecting generated reports to carry the full graph.
 in order and prints one line per step: version agreement (and a non-empty
 newest CHANGELOG entry), `openspec validate --specs --strict`, the generator
 `--check`s, the structure generator and the validators below, `tools/tests`
-under `/usr/bin/python3`, `./gradlew build` under the shared heavy-work lock,
+under `/usr/bin/python3`, the combat preview parity test under the preview
+interpreter (a reported skip without one), `./gradlew build` under the shared heavy-work lock,
 the jar-reading validators, and the README `jar tf` listing. It deletes the
 current version's jar before building, so the jar checks never read a jar left
 untouched by an up-to-date Gradle run. `--list`, `--only <glob>`, and

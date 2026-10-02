@@ -545,8 +545,9 @@ It prints one line per step and a summary, and exits non-zero if a step
 failed. The steps: the four version places agree and the newest CHANGELOG
 entry has a body; `openspec validate --specs --strict` (skipped without the
 CLI); the generator `--check`s; the structure generator, then the validators
-from [Manual Acceptance Prep](#manual-acceptance-prep); `tools/tests`; and
-`./gradlew build` under the shared heavy-work lock (`$MC_HEAVY_LOCK`, else
+from [Manual Acceptance Prep](#manual-acceptance-prep); `tools/tests`; the
+offline preview's parity test under `$MC_PREVIEW_PYTHON` or `.venv-preview`
+(skipped when neither exists); and `./gradlew build` under the shared heavy-work lock (`$MC_HEAVY_LOCK`, else
 `.mc-heavy.lock` beside the main checkout). Python steps use `/usr/bin/python3`
 because it has PyYAML. The gate deletes the current version's jar before
 building, so the combat, spirit-stone, and GuideME jar checks and the README
