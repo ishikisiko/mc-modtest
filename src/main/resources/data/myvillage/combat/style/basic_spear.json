@@ -138,8 +138,8 @@
         "horizontal_tolerance": 0.20,
         "vertical_tolerance": 0.12,
         "samples": [
-          {"tick": 7, "start": [-0.011, 1.628, 0.378], "end": [-0.059, 3.037, 2.001], "horizontal_radius": 0.28, "vertical_radius": 0.22},
-          {"tick": 7, "start": [0.01, 1.617, 0.387], "end": [0.05, 2.979, 2.049], "horizontal_radius": 0.28, "vertical_radius": 0.22},
+          {"tick": 7, "start": [0.02, 1.624, 0.381], "end": [0.106, 3.015, 2.018], "horizontal_radius": 0.28, "vertical_radius": 0.22},
+          {"tick": 7, "start": [0.011, 1.617, 0.387], "end": [0.057, 2.978, 2.05], "horizontal_radius": 0.28, "vertical_radius": 0.22},
           {"tick": 7, "start": [-0.001, 1.572, 0.42], "end": [-0.006, 2.74, 2.225], "horizontal_radius": 0.28, "vertical_radius": 0.22},
           {"tick": 7, "start": [-0.022, 1.48, 0.466], "end": [-0.114, 2.251, 2.471], "horizontal_radius": 0.28, "vertical_radius": 0.22},
           {"tick": 8, "start": [-0.034, 1.39, 0.491], "end": [-0.262, 1.987, 3.741], "horizontal_radius": 0.28, "vertical_radius": 0.22},
