@@ -520,10 +520,49 @@ accepted. The authoritative version increment and synchronized-file rule lives
 only in `openspec/config.yaml` under `rules.tasks`; apply that rule rather than
 duplicating its mechanics here.
 
+`tools/bump_version.py` applies the rule. It rewrites `mod_version` in
+`gradle.properties`, the `[[mods]]` version in `neoforge.mods.toml`, and every
+README jar name of the current version, and inserts an empty `## <version>`
+heading above the newest CHANGELOG entry. It refuses a malformed or
+non-increasing version and a tree whose four places already disagree. Other
+mentions of the old version (prose, older CHANGELOG entries) are left alone.
+
+```bash
+python3 tools/bump_version.py 0.30.0 --dry-run   # print the plan, write nothing
+python3 tools/bump_version.py 0.30.0
+```
+
+Write the CHANGELOG entry by hand, then run the release gate:
+
+```bash
+python3 tools/release_gate.py                 # every step, with a fresh ./gradlew build
+python3 tools/release_gate.py --list          # step names, in order
+python3 tools/release_gate.py --skip-build    # no Gradle build and no jar steps
+python3 tools/release_gate.py --only 'validate-cultivation-*'
+```
+
+It prints one line per step and a summary, and exits non-zero if a step
+failed. The steps: the four version places agree and the newest CHANGELOG
+entry has a body; `openspec validate --specs --strict` (skipped without the
+CLI); the generator `--check`s; the structure generator, then the validators
+from [Manual Acceptance Prep](#manual-acceptance-prep); `tools/tests`; and
+`./gradlew build` under the shared heavy-work lock (`$MC_HEAVY_LOCK`, else
+`.mc-heavy.lock` beside the main checkout). Python steps use `/usr/bin/python3`
+because it has PyYAML. The gate deletes the current version's jar before
+building, so the combat, spirit-stone, and GuideME jar checks and the README
+jar listing (each `jar tf ... | grep` pattern above must match an entry) read a
+jar written by that run. It fails if regenerating changed a file under
+`src/main/resources`. It starts no Minecraft client or server:
+`runAcceptanceServer`, Chunky stages, previews, and real-client checks stay
+manual. Per-step output is in `reports/release_gate/`.
+
 ## Manual Acceptance Prep
 
 Before a staged manual acceptance pass, prepare both the mod artifact and the
-command documentation:
+command documentation. `python3 tools/release_gate.py` (see
+[Versioning And Changelog](#versioning-and-changelog)) runs the generator,
+validators, build, and jar listing below in one command; previews, the visual
+report, and the preview server are not part of it.
 
 ```bash
 python3 tools/generate_all_structures.py --mc-version 1.21.1 --output src/main/resources/data/myvillage/structure

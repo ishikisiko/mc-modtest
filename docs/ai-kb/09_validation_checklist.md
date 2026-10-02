@@ -32,6 +32,22 @@ This summary shape does not alter in-memory `to_dict()` data or generated `.nbt`
 output. If a task needs the full per-cell graph, inspect `to_dict()` in code or
 read the `.nbt` instead of expecting generated reports to carry the full graph.
 
+## Release gate and version bump
+
+`python3 tools/release_gate.py` runs the deterministic part of this checklist
+in order and prints one line per step: version agreement (and a non-empty
+newest CHANGELOG entry), `openspec validate --specs --strict`, the generator
+`--check`s, the structure generator and the validators below, `tools/tests`
+under `/usr/bin/python3`, `./gradlew build` under the shared heavy-work lock,
+the jar-reading validators, and the README `jar tf` listing. It deletes the
+current version's jar before building, so the jar checks never read a jar left
+untouched by an up-to-date Gradle run. `--list`, `--only <glob>`, and
+`--skip-build` narrow it. Previews, Chunky, `runAcceptanceServer`, `runGuide`,
+and real-client checks are not part of it.
+
+`python3 tools/bump_version.py <version> [--dry-run]` applies the version rule
+in `openspec/config.yaml` (`rules.tasks`) to its four files.
+
 ## Acceptance / preview command checklist
 
 Run before asking for staged manual (visual) review. Prepare both the buildable
