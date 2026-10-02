@@ -203,13 +203,45 @@ final class CombatWorldTrailsTest {
         assertTrue(size.tipRadius() > sword.tipRadius() + 0.8, "spear reaches " + size.tipRadius());
         assertTrue(size.trailLength() > sword.trailLength(), "spear span " + size.trailLength());
 
+        // The trail head is never beyond the spear's own tip radius: it is that radius wherever the
+        // move's far end reaches it, and the far end itself where the move is shorter (a cut whose
+        // far end is the posed spearhead up in the air). The span keeps its length inside the head.
+        // Checked at every drawn frame, between samples too, and for streaks.
+        int full = 0;
+        int shorter = 0;
         for (AttackMoveDefinition move : CombatTestData.basicSpear().moves()) {
             List<HitboxSample> samples = move.hitbox().samples();
-            for (HitboxSample sample : samples) {
-                // Every spear move reaches past the drawn spear, so the trail hugs the spear.
+            float first = CombatWorldTrails.sampleTime(samples, 0) - 0.5F;
+            float last = CombatWorldTrails.sampleTime(samples, samples.size() - 1) + 0.5F;
+            for (float tick = first; tick <= last + 1.0E-4F; tick += CombatWorldTrails.TRAIL_TICKS / CombatWorldTrails.SEGMENTS) {
+                HitboxSample far = CombatWorldTrails.blade(samples, tick);
+                double reach = tipRadius(far);
+                HitboxSample drawn = CombatWorldTrails.drawnBlade(far, 1.0, size);
+                String where = move.id() + " tick " + tick + " far end " + reach;
+                double head = Math.min(reach, size.tipRadius());
+                assertEquals(head, tipRadius(drawn), 1.0E-6, where);
+                assertEquals(Math.max(0.0, head - size.trailLength()), baseRadius(drawn), 1.0E-6, where);
+                assertTrue(tipRadius(drawn) <= size.tipRadius() + 1.0E-9, where);
+                HitboxSample streak = CombatWorldTrails.drawnBlade(far, STREAK_OVERSHOOT, size);
+                assertEquals(head * STREAK_OVERSHOOT, tipRadius(streak), 1.0E-6, where);
+                // Never the old sword-sized cap: past 1.7 blocks the spear's head follows its reach.
+                if (reach > sword.tipRadius() + 0.01) {
+                    assertTrue(tipRadius(drawn) > sword.tipRadius() + 0.01 - 1.0E-9, where);
+                }
+                if (reach >= size.tipRadius()) {
+                    full++;
+                } else {
+                    shorter++;
+                }
+            }
+        }
+        assertTrue(full > 0 && shorter > 0, "both cases drawn: full " + full + ", shorter " + shorter);
+        // The sweep and both thrusts reach past the drawn spear everywhere: full radius throughout.
+        for (int index : new int[] {0, 1, 4}) {
+            for (HitboxSample sample : CombatTestData.basicSpear().move(index).hitbox().samples()) {
                 HitboxSample drawn = CombatWorldTrails.drawnBlade(sample, 1.0, size);
-                assertEquals(size.tipRadius(), tipRadius(drawn), 1.0E-6, move.id().toString());
-                assertEquals(size.tipRadius() - size.trailLength(), baseRadius(drawn), 1.0E-6, move.id().toString());
+                assertEquals(size.tipRadius(), tipRadius(drawn), 1.0E-6, CombatTestData.basicSpear().move(index).id().toString());
+                assertEquals(size.tipRadius() - size.trailLength(), baseRadius(drawn), 1.0E-6);
             }
         }
     }
@@ -256,11 +288,15 @@ final class CombatWorldTrailsTest {
         assertTrue(legacyLargest > 5.0 * mean, "legacy largest step " + Math.toDegrees(legacyLargest));
     }
 
+    /** The spear's level sweep (move 2): nine lines, three per active tick, all at full reach. */
     private static AttackMoveDefinition spearSweep() {
-        return CombatTestData.basicSpear().moves().stream()
-                .filter(move -> move.hitbox().samples().size() > move.activeEndTick() - move.activeStartTick() + 1)
-                .findFirst()
-                .orElseThrow();
+        AttackMoveDefinition sweep = CombatTestData.basicSpear().move(1);
+        List<HitboxSample> samples = sweep.hitbox().samples();
+        for (int tick = sweep.activeStartTick(); tick <= sweep.activeEndTick(); tick++) {
+            assertEquals(3, sweep.hitbox().samplesAt(tick).size(), "sweep samples at tick " + tick);
+        }
+        assertEquals(9, samples.size());
+        return sweep;
     }
 
     private static double heading(HitboxSample sample) {
