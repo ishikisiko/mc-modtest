@@ -689,6 +689,18 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
                   "SwordItem.createAttributes(Tiers.DIAMOND, 4, -2.4F)", count=-1)
         self.assertIn("QINGFENG_ATTRIBUTES", self.codes())
 
+    def test_qingfeng_tier_drift_has_named_failure(self) -> None:
+        self.edit("src/main/java/com/example/myvillage/item/ModItems.java",
+                  "new CombatWeaponItem(\n                            Tiers.DIAMOND,",
+                  "new CombatWeaponItem(\n                            Tiers.NETHERITE,")
+        self.assertIn("QINGFENG_DIAMOND_TIER", self.codes())
+
+    def test_qingfeng_as_plain_sword_item_has_named_failure(self) -> None:
+        self.edit("src/main/java/com/example/myvillage/item/ModItems.java",
+                  'ITEMS.registerItem("qingfeng_sword",\n                    props -> new CombatWeaponItem(',
+                  'ITEMS.registerItem("qingfeng_sword",\n                    props -> new SwordItem(')
+        self.assertIn("QINGFENG_COMBAT_WEAPON_ITEM", self.codes())
+
     def test_qingfeng_flat_handheld_model_has_named_failure(self) -> None:
         self.write_json(validator.QINGFENG_MODEL, {"parent": "minecraft:item/handheld",
                                                    "textures": {"layer0": "myvillage:item/qingfeng_sword"}})

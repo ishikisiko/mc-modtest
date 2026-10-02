@@ -76,7 +76,7 @@ public final class ModItems {
 
     public static final DeferredItem<SwordItem> QINGFENG_SWORD =
             ITEMS.registerItem("qingfeng_sword",
-                    props -> new SwordItem(
+                    props -> new CombatWeaponItem(
                             Tiers.DIAMOND,
                             props.attributes(SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F))));
 
@@ -100,7 +100,7 @@ public final class ModItems {
 
     public static final DeferredItem<SwordItem> LINGXIAO_SPEAR =
             ITEMS.registerItem("lingxiao_spear",
-                    props -> new SwordItem(
+                    props -> new CombatWeaponItem(
                             Tiers.DIAMOND,
                             props.attributes(SwordItem.createAttributes(Tiers.DIAMOND, 4, -2.8F))));
 

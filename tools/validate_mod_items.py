@@ -17,8 +17,19 @@ ASSET_ROOT = ROOT / "src" / "main" / "resources" / "assets" / "myvillage"
 MOD_ITEMS = ROOT / "src" / "main" / "java" / "com" / "example" / "myvillage" / "item" / "ModItems.java"
 MOD_BLOCKS = ROOT / "src" / "main" / "java" / "com" / "example" / "myvillage" / "block" / "ModBlocks.java"
 ROCKERY_BLOCK = ROOT / "src" / "main" / "java" / "com" / "example" / "myvillage" / "block" / "RockeryBlock.java"
+COMBAT_WEAPON_ITEM = ROOT / "src" / "main" / "java" / "com" / "example" / "myvillage" / "item" / "CombatWeaponItem.java"
+COMBAT_WEAPON_DATA = ROOT / "src" / "main" / "resources" / "data" / "myvillage" / "combat" / "weapon"
 LANG = ASSET_ROOT / "lang" / "en_us.json"
 ZH_LANG = ASSET_ROOT / "lang" / "zh_cn.json"
+
+# An item with a combat weapon entry (data/myvillage/combat/weapon/*.json) must be registered as a
+# CombatWeaponItem: a landed combat hit costs durability, and on a plain SwordItem that data-only change
+# replays the vanilla equip animation, which drops the first-person weapon after every hit.
+COMBAT_WEAPON_CLASS = "CombatWeaponItem"
+# The re-equip rule CombatWeaponItem must keep: only a slot change or another item re-equips.
+COMBAT_WEAPON_RULE = ("shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged)",
+                      "reequips(ItemStack.isSameItem(oldStack, newStack), slotChanged)",
+                      "return slotChanged || !sameItem;")
 
 # SwordItem.createAttributes(Tiers.DIAMOND, <attack bonus>, <attack speed>) per item.
 SWORD_ATTRIBUTES = (3, "-2.4F")
@@ -421,13 +432,51 @@ def validate_sword_model(item_id: str, model: Any, error_key: str, errors: list[
             errors.append(f"{error_key}_model_3d_contract:texture_{key}")
 
 
+def combat_weapon_items() -> set[str]:
+    """Item ids (myvillage namespace, path only) that have a combat weapon entry."""
+    found: set[str] = set()
+    if not COMBAT_WEAPON_DATA.is_dir():
+        return found
+    for path in sorted(COMBAT_WEAPON_DATA.glob("*.json")):
+        try:
+            item = load_json(path).get("item")
+        except (ValueError, AttributeError):
+            continue
+        if isinstance(item, str) and item.startswith("myvillage:"):
+            found.add(item.split(":", 1)[1])
+    return found
+
+
+def registration_body(items_text: str, item_id: str) -> str | None:
+    match = re.search(rf'ITEMS\.registerItem\(\s*"{re.escape(item_id)}"(?P<body>.*?\)\s*;)', items_text, re.DOTALL)
+    return match.group("body") if match else None
+
+
+def validate_combat_weapon_items(items_text: str, combat_items: set[str], errors: list[str]) -> None:
+    """Every combat weapon is a CombatWeaponItem, and that class keeps its re-equip rule."""
+    for item_id in sorted(combat_items):
+        body = registration_body(items_text, item_id)
+        if body is None or re.search(rf"new\s+{COMBAT_WEAPON_CLASS}\(", body) is None:
+            errors.append(f"combat_weapon_not_{COMBAT_WEAPON_CLASS}:{item_id}")
+    if not combat_items:
+        return
+    if not COMBAT_WEAPON_ITEM.is_file():
+        errors.append(f"combat_weapon_item_missing:{COMBAT_WEAPON_ITEM.name}")
+        return
+    source = COMBAT_WEAPON_ITEM.read_text(encoding="utf-8")
+    if not re.search(rf"class\s+{COMBAT_WEAPON_CLASS}\s+extends\s+SwordItem\b", source) or any(
+            needle not in source for needle in COMBAT_WEAPON_RULE):
+        errors.append("combat_weapon_item_contract:reequip_rule")
+
+
 def validate_sword_registration(
         items_text: str,
         item_id: str,
         holder: str,
         error_key: str,
         attributes: tuple[int, str],
-        errors: list[str]) -> None:
+        errors: list[str],
+        item_class: str = "SwordItem") -> None:
     declaration = re.search(
         rf"public\s+static\s+final\s+DeferredItem<SwordItem>\s+{re.escape(holder)}\s*=\s*"
         rf"(?P<body>.*?\)\s*;)",
@@ -442,9 +491,12 @@ def validate_sword_registration(
     if re.search(rf'ITEMS\.registerItem\(\s*"{re.escape(item_id)}"', body) is None:
         errors.append(f'{error_key}_registration_drift:ITEMS.registerItem("{item_id}"')
 
+    if re.search(rf"new\s+{item_class}\(", body) is None:
+        errors.append(f"{error_key}_registration_drift:new {item_class}")
+
     bonus, speed = attributes
     exact_attributes = re.compile(
-        r"new\s+SwordItem\(\s*Tiers\.DIAMOND\s*,\s*"
+        rf"new\s+{item_class}\(\s*Tiers\.DIAMOND\s*,\s*"
         r"[A-Za-z_][A-Za-z0-9_]*\.attributes\(\s*"
         rf"SwordItem\.createAttributes\(\s*Tiers\.DIAMOND\s*,\s*{bonus}\s*,\s*{re.escape(speed)}\s*\)"
         r"\s*\)\s*\)",
@@ -456,8 +508,11 @@ def validate_sword_registration(
 
 
 def validate_swords(items_text: str, lang: dict[str, Any], zh_lang: dict[str, Any], errors: list[str]) -> None:
+    combat_items = combat_weapon_items()
+    validate_combat_weapon_items(items_text, combat_items, errors)
     for item_id, holder, en_name, zh_name, error_key, binary_alpha, attributes in SWORD_CONTRACTS:
-        validate_sword_registration(items_text, item_id, holder, error_key, attributes, errors)
+        item_class = COMBAT_WEAPON_CLASS if item_id in combat_items else "SwordItem"
+        validate_sword_registration(items_text, item_id, holder, error_key, attributes, errors, item_class)
 
         lang_key = f"item.myvillage.{item_id}"
         if lang.get(lang_key) != en_name:

@@ -996,10 +996,18 @@ def validate_qingfeng_item(root: Path, findings: list[Finding]) -> None:
         for needle, code in (
                 ("DeferredItem<SwordItem> QINGFENG_SWORD", "QINGFENG_REGISTRATION_TYPE"),
                 ('ITEMS.registerItem("qingfeng_sword"', "QINGFENG_REGISTRATION_ID"),
-                ("Tiers.DIAMOND", "QINGFENG_DIAMOND_TIER"),
-                ("SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F)", "QINGFENG_ATTRIBUTES"),
                 ("output.accept(QINGFENG_SWORD.get())", "QINGFENG_CREATIVE_TAB")):
             require_contains(items, needle, code, items_path.name, findings)
+        # The registration itself: a CombatWeaponItem (a landed hit's durability change must not
+        # replay the equip animation), diamond tier, the accepted attribute pair.
+        start = items.find("DeferredItem<SwordItem> QINGFENG_SWORD")
+        end = items.find(";", start) if start >= 0 else -1
+        registration = items[start:end + 1] if start >= 0 and end >= 0 else ""
+        require_contains(registration, "new CombatWeaponItem(", "QINGFENG_COMBAT_WEAPON_ITEM", items_path.name, findings)
+        if re.search(r"new\s+\w+\(\s*Tiers\.DIAMOND\s*,", registration) is None:
+            findings.append(Finding("QINGFENG_DIAMOND_TIER", items_path.name))
+        require_contains(registration, "SwordItem.createAttributes(Tiers.DIAMOND, 3, -2.4F)", "QINGFENG_ATTRIBUTES",
+                         items_path.name, findings)
         rideable = items.find("output.accept(RIDEABLE_FLYING_SWORD.get())")
         qingfeng = items.find("output.accept(QINGFENG_SWORD.get())")
         spirit = items.find("output.accept(LOW_GRADE_SPIRIT_STONE.get())")

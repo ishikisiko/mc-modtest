@@ -18,6 +18,8 @@ class ModItemsValidatorTest(unittest.TestCase):
         self.root = Path(self.temp_dir.name)
         for relative in (
                 "src/main/java/com/example/myvillage/item/ModItems.java",
+                "src/main/java/com/example/myvillage/item/CombatWeaponItem.java",
+                "src/main/resources/data/myvillage/combat/weapon",
                 "src/main/java/com/example/myvillage/block/ModBlocks.java",
                 "src/main/java/com/example/myvillage/block/RockeryBlock.java",
                 "src/main/resources/assets/myvillage",
@@ -41,6 +43,8 @@ class ModItemsValidatorTest(unittest.TestCase):
                 ROOT=self.root,
                 ASSET_ROOT=assets,
                 MOD_ITEMS=self.root / "src/main/java/com/example/myvillage/item/ModItems.java",
+                COMBAT_WEAPON_ITEM=self.root / "src/main/java/com/example/myvillage/item/CombatWeaponItem.java",
+                COMBAT_WEAPON_DATA=self.root / "src/main/resources/data/myvillage/combat/weapon",
                 MOD_BLOCKS=self.root / "src/main/java/com/example/myvillage/block/ModBlocks.java",
                 ROCKERY_BLOCK=self.root / "src/main/java/com/example/myvillage/block/RockeryBlock.java",
                 LANG=assets / "lang/en_us.json",
@@ -115,6 +119,40 @@ class ModItemsValidatorTest(unittest.TestCase):
         self.assertIn(
             "lingxiao_spear_registration_drift:SwordItem.createAttributes(Tiers.DIAMOND, 4, -2.8F)",
             self.errors())
+
+    def test_spear_tier_drift_is_named(self) -> None:
+        self.replace_in_registration(
+            "LINGXIAO_SPEAR", "new CombatWeaponItem(\n                            Tiers.DIAMOND",
+            "new CombatWeaponItem(\n                            Tiers.NETHERITE")
+        self.assertIn(
+            "lingxiao_spear_registration_drift:SwordItem.createAttributes(Tiers.DIAMOND, 4, -2.8F)",
+            self.errors())
+
+    def test_combat_weapon_as_plain_sword_item_is_named(self) -> None:
+        self.replace_in_registration("QINGFENG_SWORD", "new CombatWeaponItem(", "new SwordItem(")
+        errors = self.errors()
+        self.assertIn("combat_weapon_not_CombatWeaponItem:qingfeng_sword", errors)
+        self.assertIn("qingfeng_registration_drift:new CombatWeaponItem", errors)
+
+    def test_plain_sword_as_combat_weapon_item_is_named(self) -> None:
+        self.replace_in_registration("XUANYUE_ZHENSHAN_SWORD", "new SwordItem(", "new CombatWeaponItem(")
+        self.assertIn("xuanyue_zhenshan_registration_drift:new SwordItem", self.errors())
+
+    def test_weapon_entry_for_a_plain_sword_item_is_named(self) -> None:
+        weapon = self.root / "src/main/resources/data/myvillage/combat/weapon/xuanyue_zhenshan_sword.json"
+        weapon.write_text(json.dumps({"schema": 1, "item": "myvillage:xuanyue_zhenshan_sword",
+                                      "style": "myvillage:basic_sword"}), encoding="utf-8")
+        errors = self.errors()
+        self.assertIn("combat_weapon_not_CombatWeaponItem:xuanyue_zhenshan_sword", errors)
+        self.assertIn("xuanyue_zhenshan_registration_drift:new CombatWeaponItem", errors)
+
+    def test_combat_weapon_item_without_its_reequip_rule_is_named(self) -> None:
+        path = self.root / "src/main/java/com/example/myvillage/item/CombatWeaponItem.java"
+        source = path.read_text(encoding="utf-8")
+        path.write_text(source.replace("return slotChanged || !sameItem;", "return true;"), encoding="utf-8")
+        self.assertIn("combat_weapon_item_contract:reequip_rule", self.errors())
+        path.unlink()
+        self.assertIn("combat_weapon_item_missing:CombatWeaponItem.java", self.errors())
 
     def test_spear_after_swords_in_creative_tab(self) -> None:
         path = self.root / "src/main/java/com/example/myvillage/item/ModItems.java"
