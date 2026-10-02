@@ -21,6 +21,7 @@ is covered by the Java unit tests.
 from __future__ import annotations
 
 import hashlib
+import glob
 import json
 import math
 import re
@@ -40,6 +41,7 @@ except ImportError:  # run as a script: tools/ itself is on sys.path
 ROOT = Path(__file__).resolve().parents[1]
 RESOURCES = combat_data.RESOURCES
 JAVA_ROOT = "src/main/java"
+COMPILED_CLASSES = "build/classes/java/main"
 COMBAT_PACKAGE = "com/example/myvillage/combat"
 CLIENT_COMBAT_PACKAGE = "com/example/myvillage/client/combat"
 NETWORK_PACKAGE = "com/example/myvillage/network"
@@ -1356,6 +1358,38 @@ def packaged_resources(root: Path, data: combat_data.CombatData) -> set[str]:
     return expected
 
 
+def stale_jar_sources(root: Path, jar: Path, archive: zipfile.ZipFile, names: set[str],
+                      resources: list[str]) -> list[str]:
+    """Sources changed after the jar was written that the jar does not hold as a build would pack them.
+
+    Gradle leaves the jar untouched when a rebuild changes no bytes (a comment-only Java edit), so
+    a jar older than a source is still current when it holds the resource's bytes or, for a Java
+    source, the bytes of its class files compiled since the source last changed.
+    """
+    jar_time = jar.stat().st_mtime
+    stale = []
+    for name in resources:
+        source = root / RESOURCES / name
+        if (source.is_file() and source.stat().st_mtime > jar_time
+                and (name not in names or archive.read(name) != source.read_bytes())):
+            stale.append(name)
+    compiled_root = root / COMPILED_CLASSES
+    for path, _ in combat_sources(root):
+        source_time = path.stat().st_mtime
+        if source_time <= jar_time:
+            continue
+        relative_class = path.relative_to(root / JAVA_ROOT).with_suffix(".class")
+        compiled = compiled_root / relative_class
+        nested = sorted(compiled.parent.glob(glob.escape(compiled.stem) + "$*.class")) if compiled.is_file() else []
+        current = compiled.is_file() and compiled.stat().st_mtime >= source_time and all(
+            (entry := item.relative_to(compiled_root).as_posix()) in names
+            and archive.read(entry) == item.read_bytes()
+            for item in [compiled, *nested])
+        if not current:
+            stale.append(relative(root, path))
+    return stale
+
+
 def validate_jar_resources(root: Path, data: combat_data.CombatData, findings: list[Finding]) -> None:
     """The newest mod jar, when present and current, packages the combat data, assets, and classes."""
     build_libs = root / "build/libs"
@@ -1372,18 +1406,17 @@ def validate_jar_resources(root: Path, data: combat_data.CombatData, findings: l
     resources = sorted(packaged_resources(root, data))
     classes = sorted(path.relative_to(root / JAVA_ROOT).with_suffix(".class").as_posix()
                      for path, _ in combat_sources(root))
-    sources = [root / RESOURCES / name for name in resources] + [path for path, _ in combat_sources(root)]
-    newest_source = max((path.stat().st_mtime for path in sources if path.is_file()), default=0)
-    if jar.stat().st_mtime < newest_source:
-        findings.append(Finding("COMBAT_JAR_STALE", jar.name))
-        return
     try:
         with zipfile.ZipFile(jar) as archive:
             names = set(archive.namelist())
+            stale = stale_jar_sources(root, jar, archive, names, resources)
             packaged = {name: archive.read(name) for name in resources
                         if name in names and (name.startswith("data/") or "/player_animations/" in name)}
     except zipfile.BadZipFile as exc:
         findings.append(Finding("COMBAT_JAR_INVALID", str(exc)))
+        return
+    if stale:
+        findings.append(Finding("COMBAT_JAR_STALE", f"{jar.name}:{','.join(stale)}"))
         return
     missing = sorted(set(resources + classes) - names)
     if missing:

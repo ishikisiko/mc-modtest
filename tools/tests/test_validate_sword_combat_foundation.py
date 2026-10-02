@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -1022,6 +1023,48 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
         name = "data/myvillage/combat/style/basic_sword.json"
         self.write_complete_jar(self.current_jar(), {name: b"{}"})
         self.assertIn(name, self.details("COMBAT_JAR_DATA_DRIFT"))
+
+    def touch_after(self, path: Path, jar: Path, seconds: float = 10.0) -> None:
+        stamp = jar.stat().st_mtime + seconds
+        os.utime(path, (stamp, stamp))
+
+    def test_jar_older_than_a_source_with_the_same_bytes_is_current(self) -> None:
+        # Gradle keeps the jar when a rebuild changes no bytes, e.g. after a comment-only edit.
+        jar = self.current_jar()
+        self.write_complete_jar(jar)
+        self.touch_after(self.root / RESOURCES / "data/myvillage/combat/style/basic_sword.json", jar)
+        source = validator.combat_sources(self.root)[0][0]
+        self.touch_after(source, jar)
+        compiled = (self.root / validator.COMPILED_CLASSES
+                    / source.relative_to(self.root / validator.JAVA_ROOT).with_suffix(".class"))
+        compiled.parent.mkdir(parents=True, exist_ok=True)
+        compiled.write_bytes(b"")  # write_complete_jar packs empty class files
+        self.touch_after(compiled, jar, 20.0)
+        self.assertEqual([], [str(f) for f in self.findings()])
+
+    def test_jar_older_than_a_changed_resource_is_stale(self) -> None:
+        jar = self.current_jar()
+        name = "data/myvillage/combat/style/basic_sword.json"
+        self.write_complete_jar(jar, {name: b"{}"})
+        self.touch_after(self.root / RESOURCES / name, jar)
+        self.assertTrue(any(name in d for d in self.details("COMBAT_JAR_STALE")))
+
+    def test_jar_older_than_a_java_source_is_stale_without_a_matching_compile(self) -> None:
+        jar = self.current_jar()
+        self.write_complete_jar(jar)
+        source = validator.combat_sources(self.root)[0][0]
+        self.touch_after(source, jar)
+        needle = source.relative_to(self.root).as_posix()
+        self.assertTrue(any(needle in d for d in self.details("COMBAT_JAR_STALE")))  # never compiled
+        compiled = (self.root / validator.COMPILED_CLASSES
+                    / source.relative_to(self.root / validator.JAVA_ROOT).with_suffix(".class"))
+        compiled.parent.mkdir(parents=True, exist_ok=True)
+        compiled.write_bytes(b"new bytes")
+        self.touch_after(compiled, jar, 20.0)
+        self.assertTrue(any(needle in d for d in self.details("COMBAT_JAR_STALE")))  # compiled, not packed
+        compiled.write_bytes(b"")
+        self.touch_after(compiled, jar, 5.0)
+        self.assertTrue(any(needle in d for d in self.details("COMBAT_JAR_STALE")))  # compiled before the edit
 
     def test_jar_from_an_older_version_is_stale(self) -> None:
         jar = self.root / "build/libs/myvillage-0.0.1.jar"
