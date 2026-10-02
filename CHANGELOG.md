@@ -7,6 +7,99 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.29.0
+
+The Lingxiao Spear, a second combat weapon, built on the 0.28.0 combat data
+as its validation. Qingfeng's moves, timing, damage, rig, model, and generated
+animation are unchanged; two first-person fixes change how it looks in play
+(see Fixed).
+
+### Added
+
+- `myvillage:lingxiao_spear` (凌霄枪): a two-handed spear on the diamond tier
+  (8 attack damage, 1.2 attack speed), in `#minecraft:swords` and in
+  `myvillage:main` after the swords, no recipe. Its 3D model (79 elements,
+  fullbright head and inlays), 128x128 texture, 64x64 icon, wrapper model, and
+  geometry contract come from the new `tools/gen_lingxiao_spear_model.py`.
+- Combat style `myvillage:basic_spear` with five moves: 中平扎 mid thrust, 横扫
+  sweep, 上挑 rising flick, 劈枪 overhead smash, 游龙突刺 dragon lunge. The
+  sweep, flick, and smash use explicit hit samples, three per active tick.
+  Weapon entry, index entries, translations, and the reused
+  `myvillage:combat.sword.*` sounds.
+- `player_animations/spear_combat.json`: two-handed third-person poses with a
+  bladed guard; the leading hand stays on the shaft for the guard and the mid
+  thrust and lets go for the sweep, flick, smash, and lunge.
+- `combat/lingxiao_spear_first_person.json`, a first-person rig with both
+  hands on the shaft.
+- Optional first-person off-hand arm: `rig.off_hand` and the per-key
+  `off_hand_slide`, `off_hand_roll`, `off_hand_elbow`, and `off_hand_hold`. It
+  is drawn only while the off-hand slot is empty. Rigs without the block render
+  as before.
+- Optional geometry contract fields `off_hand_grip_center` and `trail`.
+- `CombatWeaponItem`, the item class for every item with a combat weapon
+  entry.
+- Capture tool: default views by weapon length (quarter views for weapons of
+  1.8 blocks or more), cropped quarter-view sheets, `shot`, `view`, `motion`,
+  `combo --camera back`, and a record of the rig the client loaded.
+- `docs/ai-kb/35_lingxiao_spear.md`: the spear, the two-hand rules, and what
+  the validation found.
+
+### Changed
+
+- `tools/gen_sword_pal_anims.py` holds one pose table per style, each with its
+  own weapon geometry, rules, cut paths, and output file, and can solve the
+  left arm onto a shaft. `sword_combat.json` is byte-identical.
+- The first-person trail spans the contract's `trail` (else the blade). The
+  world trail is sized from the contract (shoulder-to-grip reach plus grip to
+  trail tip, and the trail span, at the model's third-person scale) instead of
+  a 1.7-block cap and a clamped blade length; samples that share a tick are
+  spread through it. The Qingfeng world trail draws exactly as before.
+- `tools/validate_sword_combat_foundation.py` checks every weapon's models,
+  textures, model generator, and jar contents, and the off-hand and trail
+  fields. `tools/validate_mod_items.py` requires `CombatWeaponItem` for every
+  combat weapon.
+- Capture stills accept three grabs within 2 colour levels as stable, and a
+  refused probe stops the wait at once with its reason.
+- The combat-mode message no longer names the sword: "Cultivation combat
+  enabled." / "已切换为修行战斗。".
+
+### Fixed
+
+- First person, Qingfeng and spear: when the server's hit confirmation arrived
+  after the rig's contact tick, the hit-stop started on a pose the weapon had
+  already passed, so the weapon jumped back, held, and swept on (the Qingfeng
+  horizontal cut by about 114 px at normal speed). The hit-stop now freezes the
+  pose on screen, and the swing never moves backwards.
+- First person, Qingfeng and spear: every landed hit costs durability, and the
+  resent stack replayed the equip animation, so the weapon sank out of view
+  for 5 to 6 ticks after each hit. Combat weapons now keep their place;
+  switching slots or items still plays the equip animation.
+- A refused third-person probe now logs
+  `PAL_SMOKE third_person rejected reason=<reason>`, and a refused ready-idle
+  transition is logged once instead of every tick.
+
+### Validation
+
+- No change to `combat/session`, `combat/runtime`, `combat/network`, or the
+  payload protocol (still `7`). `BasicSpearStyleTest` drives a real
+  `CombatSession` through the five spear moves.
+- 341 Java tests pass. The combat Python suites (181 tests) and the generator,
+  model, and item suites (138 tests) pass; `gen_sword_pal_anims.py --check`,
+  `gen_lingxiao_spear_model.py --check`, and `validate_mod_items.py` pass. The
+  focused validator passes except for the stale jar, which predates this
+  version.
+- First headless combo with the spear (before the fixes and the pose
+  redesign): all five moves played from mapped clicks and the centre target
+  went from `80.0` to `38.28`.
+- Headless before/after capture of both weapons at normal and quarter tick
+  rate: no backward step at the hit-stop and no post-hit dip after the fixes;
+  the 25 first-person Qingfeng probe stills are unchanged.
+- Second capture of the final tree (`spear-v2`, `sword-v2`): results to be
+  added.
+- Not verified: owner verdict on the spear and on the changed Qingfeng
+  first-person behaviour, the icon at GUI scale 2, the off-hand vanilla hold,
+  two-client and remote-trail behaviour, real keyboard play, and sound.
+
 ## 0.28.0
 
 Combat infrastructure. Qingfeng's five moves, timing, damage, and look are

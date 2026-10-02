@@ -54,7 +54,7 @@
   "message.myvillage.cultivation.lifespan_exhausted": "寿元已尽。",
   "message.myvillage.cultivation.affinity_entry": "%s %s.%s%%",
   "message.myvillage.cultivation.affinity_separator": "、",
-  "message.myvillage.combat.mode.cultivation": "已切换为修行剑式。",
+  "message.myvillage.combat.mode.cultivation": "已切换为修行战斗。",
   "message.myvillage.combat.mode.vanilla": "已恢复原版战斗。",
   "combat.myvillage.move.basic_sword_01_thrust": "一式：青锋问路",
   "combat.myvillage.move.basic_sword_02_horizontal_cut": "二式：流云横渡",

@@ -62,7 +62,7 @@
   "message.myvillage.cultivation.lifespan_exhausted": "Your lifespan is exhausted.",
   "message.myvillage.cultivation.affinity_entry": "%s %s.%s%%",
   "message.myvillage.cultivation.affinity_separator": ", ",
-  "message.myvillage.combat.mode.cultivation": "Cultivation sword combat enabled.",
+  "message.myvillage.combat.mode.cultivation": "Cultivation combat enabled.",
   "message.myvillage.combat.mode.vanilla": "Vanilla combat restored.",
   "combat.myvillage.move.basic_sword_01_thrust": "Form I: Qingfeng Seeks the Way",
   "combat.myvillage.move.basic_sword_02_horizontal_cut": "Form II: Flowing Cloud Crossing",

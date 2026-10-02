@@ -1,15 +1,19 @@
 ## Why
 
-0.28.0 moved combat moves and weapons into data files, a registry, a validator, and an in-repository capture workflow, with the claim that a new weapon or a new style needs no combat Java. That claim has only been exercised by the Qingfeng sword it was extracted from. The owner supplied concept art for a second weapon of a different class, the Lingxiao Spear (凌霄枪), and asked for it to be built end to end as the validation of that infrastructure.
+0.28.0 moved combat moves and weapons into data files, a registry, a validator, and an in-repository capture workflow, with the claim that a new weapon or a new style needs no combat Java. That claim had only been exercised by the Qingfeng sword it was extracted from. The owner supplied concept art for a second weapon of a different class, the Lingxiao Spear (凌霄枪), and asked for it to be built end to end as the validation of that infrastructure.
 
 ## What Changes
 
 - Add the item `myvillage:lingxiao_spear` (凌霄枪) with a generated 3D element model, texture, 2D inventory icon, and geometry contract, following the concept art (`image.png` at the repository root, untracked).
 - Add the combat style `myvillage:basic_spear` with five spear moves (mid thrust, sweep, rising flick, overhead smash, dragon lunge), its weapon entry, translations, a first-person rig, and third-person PAL animations in a new `spear_combat.json`.
-- Generalize `tools/gen_sword_pal_anims.py` so a pose table carries its own weapon geometry and can solve the off hand onto the weapon shaft (two-handed third-person poses). `sword_combat.json` stays byte-identical.
-- Add an optional off-hand arm to the first-person rig so a two-handed weapon shows both hands. Weapons whose rig does not ask for it are unchanged.
+- Register every item that has a combat weapon entry as `CombatWeaponItem`, a `SwordItem` that does not replay the equip animation when only the held stack's data changes. Qingfeng moves to it.
+- Generalize `tools/gen_sword_pal_anims.py`: one pose table per style, each with its own weapon geometry, rules, cut paths, and output file, and a two-handed mode that solves the left arm onto the shaft. `sword_combat.json` stays byte-identical.
+- Add an optional off-hand arm to the first-person rig (`rig.off_hand` and four per-key fields). Rigs without it render as before.
+- Add optional `off_hand_grip_center` and `trail` fields to the geometry contract, and size the first-person and world trails from the contract instead of the blade span and a fixed 1.7-block radius.
+- Fix two first-person defects found on the way that also affected Qingfeng: the hit-stop could start behind the pose on screen, and a landed hit's durability cost replayed the equip animation.
+- Extend the validator, the model and generator tests, and the capture tool to more than one weapon and style.
 - Record what the 0.28.0 infrastructure handled without Java and every place it had to be extended.
-- Qingfeng's moves, timing, damage, rig, model, and generated animation do not change.
+- Qingfeng's moves, timing, damage, rig, model, and generated animation do not change; its live first-person presentation changes through the two fixes.
 
 ## Capabilities
 
@@ -19,13 +23,14 @@
 
 ### Modified Capabilities
 
-- `combat-style-data`: The first-person rig may declare an off-hand grip; the geometry contract may name an off-hand grip point.
-- `combat-data-validation`: The generator checks cover more than one pose table, per-table weapon geometry, and the off-hand shaft fit.
+- `combat-style-data`: Optional off-hand arm in the first-person rig; optional `off_hand_grip_center` and `trail` in the geometry contract; combat weapons registered as `CombatWeaponItem`; the first-person hit-stop never moves the pose backwards.
+- `combat-data-validation`: Per-weapon model, texture, generator, and jar checks; off-hand and trail checks; one pose table and output per style with its own weapon rig, two-handed solve, and clearance checks; a standing-target coverage test.
+- `combat-capture-tooling`: Quarter views chosen by weapon length, cropped sheets, a tolerant stability rule, `shot`/`view`/`motion`, a combo camera option, fail-fast probe refusals, and a record of the loaded rig.
 
 ## Impact
 
-- Java: `item/ModItems` (registration and creative tab); `client/combat` first-person arm classes and rig parsing for the off-hand arm; their tests. No change to `combat/session`, `combat/runtime`, `combat/network`, or the payload protocol.
-- Resources: new `data/myvillage/combat/style/basic_spear.json`, `weapon/lingxiao_spear.json`, `index.json` entries, item model, textures, geometry contract, first-person rig, `player_animations/spear_combat.json`, translations.
-- Tools: new `tools/gen_lingxiao_spear_model.py`; `tools/gen_sword_pal_anims.py`; validator and tests where they assumed one style or one weapon.
-- Docs: `README.md`, `AGENTS.md`, `docs/ai-kb/34_combat_data_and_capture.md`, a new KB note for the spear and the validation findings, `docs/ai-kb/INDEX.md`, `CHANGELOG.md` (0.29.0).
-- Out of scope: new sound assets (the spear reuses the existing combat sound events), the concept art's floating ribbons and particles, cloth simulation for the pennant and tassels, a recipe, datapack override of style data, and any owner verdict.
+- Java: new `item/CombatWeaponItem`; `item/ModItems` (registration, creative tab); `client/combat` (`FirstPersonSwing`, `FirstPersonArmIk`, `FirstPersonArmRenderer`, `FirstPersonSwordTrail`, `FirstPersonWeaponAnimator`, `SwingClock`, `SwordGeometry`, `CombatWorldTrails`, `CombatAnimationController`, `ClientPalSmokeEvents`); their tests. No change to `combat/session`, `combat/runtime`, `combat/network`, or the payload protocol.
+- Resources: new `data/myvillage/combat/style/basic_spear.json`, `weapon/lingxiao_spear.json`, `index.json` entries, item models, textures, geometry contract, first-person rig, `player_animations/spear_combat.json`, translations, swords tag; one combat-mode message reworded to be weapon-neutral.
+- Tools: new `tools/gen_lingxiao_spear_model.py`; `tools/gen_sword_pal_anims.py`; `tools/validate_sword_combat_foundation.py`; `tools/validate_mod_items.py`; `tools/combat_capture/`; their tests.
+- Docs: `README.md`, `AGENTS.md`, `docs/ai-kb/32_pal_combat_integration.md`, `docs/ai-kb/34_combat_data_and_capture.md`, new `docs/ai-kb/35_lingxiao_spear.md`, `docs/ai-kb/INDEX.md`, `CHANGELOG.md` (0.29.0).
+- Out of scope: new sound assets (the spear reuses the existing combat sound events), the concept art's floating ribbons and particles, cloth simulation for the pennant and tassels, a recipe, datapack override of style data, bending arms in third person, and any owner verdict.
