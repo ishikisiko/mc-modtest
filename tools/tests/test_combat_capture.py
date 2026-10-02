@@ -356,6 +356,18 @@ class PageTest(unittest.TestCase):
         self.assertIn("No frames for this view", html)  # tp_back has no sheet
         self.assert_plain(html)
 
+    def test_capture_page_with_back_combo_and_motion(self):
+        m = capture_manifest()
+        m["combo"]["camera"] = capture.combo_camera_record("back", None)
+        m["motion"] = [{"view": "tp_back_right", "video": "motion/tp_back_right.mp4", "seconds": 12.0,
+                        "camera": capture.camera_record("tp_back_right"),
+                        "events": [{"event": "move 1 01_m", "s": 2.5}], "client_animation_starts": []}]
+        html = page.capture_page(m)
+        self.assertIn("F5 back at 4.0 blocks, pitch 30.0", html)
+        self.assertIn("motion/tp_back_right.mp4", html)
+        self.assertIn("move 1 01_m at 2.5s", html)
+        self.assert_plain(html)
+
     def test_capture_page_without_combo(self):
         m = capture_manifest()
         m["combo"] = None
@@ -406,6 +418,19 @@ class ArgumentTest(unittest.TestCase):
                 with self.assertRaises(xgame.GameInputError):
                     g.shot(Path(td) / "x.png")
                 grab.assert_not_called()
+
+    def test_combo_camera_and_motion_parse(self):
+        a = cli.build_parser().parse_args(["combo", "--label", "x", "--camera", "back", "--pitch", "20"])
+        self.assertEqual((a.camera, a.pitch), ("back", 20.0))
+        self.assertEqual(cli.build_parser().parse_args(["combo", "--label", "x"]).camera, "first")
+        self.assertEqual(capture.combo_camera_record("back", 20.0)["pitch"], 20.0)
+        self.assertEqual(capture.combo_camera_record("first", None)["f5"], "first")
+        with self.assertRaises(ValueError):
+            capture.combo_camera_record("back_right", None)
+        a = cli.build_parser().parse_args(["motion", "--label", "x", "--views", "tp_back_right,tp_front_left",
+                                           "--enter", "--idle", "3"])
+        self.assertIs(a.func, cli.cmd_motion)
+        self.assertEqual((a.views, a.enter, a.idle), (["tp_back_right", "tp_front_left"], True, 3.0))
 
     def test_moves(self):
         self.assertEqual(cli.parse_moves(None, [1, 2, 3]), [1, 2, 3])

@@ -267,7 +267,31 @@ def cmd_combo(a):
         out.mkdir(parents=True, exist_ok=True)
         m = capture.new_manifest(a.label, w, RESOURCES, [], [mv.index for mv in w.moves])
     try:
-        capture.run_combo(s, w, out, m, targets=a.targets, log=log)
+        capture.run_combo(s, w, out, m, targets=a.targets, camera=a.camera, pitch=a.pitch, log=log)
+    finally:
+        finalize(out)
+
+
+def cmd_motion(a):
+    from . import capture
+    from .session import Session
+    require_programs()
+    w = load_weapon(RESOURCES, a.weapon, require_rig=False)
+    moves = parse_moves(a.moves, [m.index for m in w.moves])
+    views = list(a.views) if a.views else [v for v in default_views(w) if v != "fp"]
+    if "fp" in views:
+        raise UsageError("motion records third-person views only")
+    s = Session.attach(ui_check=not a.no_ui_check, log=log)
+    out = capture_dir(a.out_root, a.label)
+    if (out / capture.MANIFEST).is_file():
+        m = capture.load_manifest(out)
+        if m["weapon"] != w.id:
+            raise UsageError(f"{out} holds a capture of {m['weapon']}, not {w.id}")
+    else:
+        out.mkdir(parents=True, exist_ok=True)
+        m = capture.new_manifest(a.label, w, RESOURCES, [], moves)
+    try:
+        capture.run_motion(s, w, out, m, views, moves, enter=a.enter, idle=a.idle, gap=a.gap, log=log)
     finally:
         finalize(out)
 
@@ -456,7 +480,20 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("combo", help="mapped-click combo run with video and target health")
     capture_opts(p)
     p.add_argument("--targets", choices=("dummy", "golem"), default="dummy")
+    p.add_argument("--camera", choices=("first", "back"), default="first",
+                   help="first person, or F5 back at vanilla distance (a real combo cannot hold a quarter view)")
+    p.add_argument("--pitch", type=float, help="player pitch for --camera back (default 30)")
     p.set_defaults(func=cmd_combo)
+
+    p = sub.add_parser("motion", help="third-person videos of each move played on the client (quarter views)")
+    capture_opts(p)
+    p.add_argument("--views", type=parse_views, default=None,
+                   help="third-person views (default: the weapon's default views without fp)")
+    p.add_argument("--moves", help="comma list of move numbers (default all)")
+    p.add_argument("--enter", action="store_true", help="first record the mode-enter animation (R, R)")
+    p.add_argument("--idle", type=float, default=0.0, help="seconds of ready idle before the moves")
+    p.add_argument("--gap", type=float, default=1.0, help="seconds between moves")
+    p.set_defaults(func=cmd_motion)
 
     p = sub.add_parser("compare", help="pair two capture sets into side-by-side sheets and a page")
     p.add_argument("a", help="capture directory A (left)")

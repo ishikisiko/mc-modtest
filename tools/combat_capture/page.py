@@ -120,7 +120,8 @@ def combo_section(c: dict | None, prefix: str = "") -> str:
     anim_txt = ", ".join(escape(a["animation"].split(":")[-1]) + ("" if a["accepted"] else " (rejected)")
                          + (" (confirmed prediction)" if a.get("kept_prediction") else "") for a in anims) or "none logged"
     out = (f"<figure><video controls preload=metadata src=\"{escape(prefix + c['video'])}\"></video>"
-           f"<figcaption>Combo run, {c['video_seconds']:g}s at 30 fps. The first click was sent {c['lead_seconds']:g}s "
+           f"<figcaption>Combo run{_combo_camera_text(c.get('camera'))}, {c['video_seconds']:g}s at 30 fps. "
+           f"The first click was sent {c['lead_seconds']:g}s "
            f"after ffmpeg was launched; ffmpeg's own start-up makes it appear a few tenths of a second earlier in "
            f"the video. No audio (the capture host has no sound device).</figcaption></figure>")
     if c.get("strip"):
@@ -135,6 +136,27 @@ def combo_section(c: dict | None, prefix: str = "") -> str:
             f"Player position before / after: <code>{escape(str(c.get('player_pos_before')))}</code> / "
             f"<code>{escape(str(c.get('player_pos_after')))}</code>.<br>"
             f"Client PAL animation starts logged during the run: {anim_txt}.</p>")
+    return out
+
+
+def _combo_camera_text(cam: dict | None) -> str:
+    if not cam or cam.get("f5") == "first":
+        return ", first person"
+    return (f", F5 {escape(str(cam.get('f5')))} at {cam.get('camera_distance')} blocks, pitch {cam.get('pitch')}, "
+            f"look yaw {cam.get('look_yaw')}")
+
+
+def motion_section(records) -> str:
+    if not records:
+        return ""
+    out = ("<h2>Third-person motion</h2><p class=note>Each move's PAL animation played on the client at game "
+           "speed with the smoke command (typed in chat, so the chat line shows briefly); no server action, so no "
+           "hits, no lunge movement and no world trail. The body keeps its facing, so the quarter view holds.</p>")
+    for r in records:
+        ev = ", ".join(f"{escape(e['event'])} at {e['s']:g}s" for e in r.get("events", []))
+        out += (f"<h3>{escape(VIEWS.get(r['view'], {}).get('title', r['view']))}</h3><figure><video controls "
+                f"preload=metadata src=\"{escape(r['video'])}\"></video><figcaption>{r['seconds']:g}s. "
+                f"Events (seconds after ffmpeg was launched): {ev}.</figcaption></figure>")
     return out
 
 
@@ -154,6 +176,7 @@ def capture_page(m: dict) -> str:
         else:
             body += "<p class=note>No frames for this view.</p>"
     body += "<h2>Combo run</h2>" + combo_section(m.get("combo"))
+    body += motion_section(m.get("motion"))
     if m.get("notes"):
         body += "<h2>Notes</h2><ul>" + "".join(f"<li>{escape(n)}</li>" for n in m["notes"]) + "</ul>"
     body += "<p class=note><a href=\"manifest.json\">manifest.json</a></p>"

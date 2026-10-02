@@ -381,23 +381,42 @@ def ffmpeg_record_argv(display: str, out: Path, seconds: float, fps: int = 30, s
 
 PLAY_LINE = re.compile(r"PAL_SMOKE play .*animation=(\S+) elapsed_ticks=(\S+) accepted=(\w+)(.*)$")
 
+# Cameras a combo can be recorded from. A real action snaps the body (and the
+# head) to the look yaw it faces and vanilla turns the body to the look while
+# swinging, so the F5 camera of a combo always sits on the body's axis: the
+# quarter views cannot be held through a real combo (see `motion` for those).
+# "back": F5 back at vanilla distance (no wall, the player stays at the combo
+# start so the targets and hits are the first-person run's), look yaw 0.
+COMBO_CAMERAS = ("first", "back")
+
+
+def combo_camera_record(camera: str, pitch: float | None) -> dict:
+    if camera not in COMBO_CAMERAS:
+        raise ValueError(f"combo camera must be one of {COMBO_CAMERAS}, got {camera!r}")
+    if camera == "first":
+        return {"f5": "first", "pitch": 0.0, "look_yaw": BODY_YAW}
+    return {"f5": "back", "camera_distance": VANILLA_F5_DISTANCE,
+            "pitch": TP_BACK_PITCH if pitch is None else float(pitch), "look_yaw": BODY_YAW}
+
 
 def run_combo(session, weapon: Weapon, out_dir: Path, manifest: dict, targets: str = "dummy",
-              lead: float = 2.0, tail: float = 2.5, hold: float = 0.06, log=print) -> dict:
+              lead: float = 2.0, tail: float = 2.5, hold: float = 0.06, camera: str = "first",
+              pitch: float | None = None, log=print) -> dict:
     """Targets in front, mapped left clicks through the whole combo at chain
-    timing while ffmpeg records, target health over rcon before and after."""
+    timing while ffmpeg records, target health over rcon before and after.
+    `camera` "back" records the same run from F5 back (see COMBO_CAMERAS)."""
     from .xgame import LogTail
     g = session.game
+    cam = combo_camera_record(camera, pitch)
     out_dir = Path(out_dir)
     (out_dir / "combo").mkdir(parents=True, exist_ok=True)
     scene.base_scene(session, weapon.item)
-    if session.view != "first":
-        n = f5_presses(session.view, "first")
-        for _ in range(n):
-            g.key("F5")
-            time.sleep(0.35)
-        session.view = "first"
+    press_f5_to(session, "first")
     mode = scene.ensure_cultivation(session)
+    if cam["f5"] != "first":
+        session.run(tp_command(session.username, scene.PLAYER_POS[2], BODY_YAW, cam["pitch"]))
+        time.sleep(0.6)
+        press_f5_to(session, cam["f5"])
     placed = scene.place_targets(session, targets)
     time.sleep(1.5)
     before = {t["tag"]: scene.read_health(session, t["uuid"]) for t in placed}
@@ -452,6 +471,7 @@ def run_combo(session, weapon: Weapon, out_dir: Path, manifest: dict, targets: s
         "player_pos_before": _strip_name(pos_before),
         "player_pos_after": _strip_name(pos_after),
         "client_animation_starts": plays,
+        "camera": cam,
         "recorded": now_iso(),
     }
     manifest["combo"] = result
@@ -462,7 +482,110 @@ def run_combo(session, weapon: Weapon, out_dir: Path, manifest: dict, targets: s
     session.run("kill @e[type=!minecraft:player]", warn=False)
     time.sleep(1.0)
     session.run(*scene.cleanup_drops(session.username, weapon.item), warn=False)
+    if cam["f5"] != "first":
+        press_f5_to(session, "first")
+        session.run(tp_command(session.username, scene.PLAYER_POS[2], BODY_YAW, 0.0))
     return result
+
+
+# ====================================================================== motion
+def stop_recording(rec: subprocess.Popen, timeout: float = 30.0) -> int:
+    """End an open-ended ffmpeg recording cleanly ('q' on its stdin)."""
+    try:
+        rec.stdin.write(b"q")
+        rec.stdin.flush()
+        rec.stdin.close()
+    except (OSError, ValueError):
+        pass
+    try:
+        return rec.wait(timeout=timeout)
+    except subprocess.TimeoutExpired:
+        rec.terminate()
+        return rec.wait(timeout=10)
+
+
+def wait_mode(session, want: str, timeout: float = 8.0) -> bool:
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        time.sleep(0.3)
+        if scene.combat_mode(session) == want:
+            return True
+    return False
+
+
+def run_motion(session, weapon: Weapon, out_dir: Path, manifest: dict, views: list[str], moves: list[int],
+               enter: bool = False, idle: float = 0.0, gap: float = 1.0, log=print) -> list[dict]:
+    """Real-time third-person motion from views a real combo cannot hold (the
+    quarter views): per view one video of, optionally, the mode-enter
+    animation through the real toggle key (R to vanilla, R back) and `idle`
+    seconds of the ready idle, then each move's PAL animation played on the
+    client at game speed with `/myvillage_pal_smoke move <n>` (typed in chat,
+    so the chat line shows briefly). No server action: no hits, no lunge,
+    no world trail, and the body does not turn, so the camera keeps its angle."""
+    from .xgame import LogTail
+    g = session.game
+    out_dir = Path(out_dir)
+    (out_dir / "motion").mkdir(parents=True, exist_ok=True)
+    scene.base_scene(session, weapon.item)
+    press_f5_to(session, "first")
+    scene.ensure_cultivation(session)
+    records = []
+    try:
+        for view in views:
+            if VIEWS[view]["f5"] == "first":
+                raise ValueError("motion is for third-person views")
+            set_camera(session, view)
+            video = out_dir / "motion" / f"{view}.mp4"
+            argv = ffmpeg_record_argv(session.state["display"], video, 900)
+            rec = subprocess.Popen(argv, stdin=subprocess.PIPE)
+            t0 = time.time()
+            events = []
+            tail_log = LogTail(g.client_log)
+            try:
+                time.sleep(1.5)
+                if enter:
+                    g.key("r")
+                    events.append({"event": "R (to vanilla)", "s": round(time.time() - t0, 2)})
+                    if not wait_mode(session, "vanilla"):
+                        log("  WARNING: server did not report vanilla after R")
+                    time.sleep(1.5)
+                    g.key("r")
+                    events.append({"event": "R (to cultivation: mode enter)", "s": round(time.time() - t0, 2)})
+                    if not wait_mode(session, "cultivation"):
+                        raise RuntimeError("server did not report cultivation after the second R")
+                    time.sleep(max(idle, 1.0))
+                elif idle:
+                    events.append({"event": "ready idle", "s": round(time.time() - t0, 2)})
+                    time.sleep(idle)
+                for mv in weapon.moves:
+                    if mv.index not in moves:
+                        continue
+                    m, _ = g.chat(f"/myvillage_pal_smoke move {mv.index}", confirm=r"PAL_SMOKE play .*animation=(\S+)")
+                    events.append({"event": f"move {mv.index} {mv.short}", "animation": m.group(1),
+                                   "s": round(time.time() - t0, 2)})
+                    time.sleep(mv.total_ticks * TICK_SECONDS + gap)
+                time.sleep(1.0)
+            finally:
+                rc = stop_recording(rec)
+            if not video.is_file():
+                raise RuntimeError(f"ffmpeg wrote no video for {view} (rc {rc})")
+            tail_log.poll()
+            plays = [PLAY_LINE.search(l).group(1) for l in tail_log.lines if PLAY_LINE.search(l)]
+            rec_ = {"view": view, "video": f"motion/{view}.mp4", "seconds": round(time.time() - t0, 1),
+                    "camera": camera_record(view), "events": events, "client_animation_starts": plays}
+            records.append(rec_)
+            manifest["motion"] = [r for r in manifest.get("motion") or [] if r["view"] != view] + [rec_]
+            write_manifest(out_dir, manifest)
+            log(f"  {view}: {rec_['video']} {rec_['seconds']}s, {len(events)} events")
+    finally:
+        try:
+            session.run(scene.wall_fill(scene.BACK_WALL_Z, "minecraft:air"),
+                        scene.wall_fill(scene.FRONT_WALL_Z, "minecraft:air"))
+            press_f5_to(session, "first")
+            session.run(tp_command(session.username, scene.PLAYER_POS[2], BODY_YAW, 0.0))
+        except Exception as e:  # noqa: BLE001 - best effort
+            log(f"  restore failed: {e}")
+    return records
 
 
 def _strip_name(reply: str) -> str:

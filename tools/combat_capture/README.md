@@ -24,7 +24,8 @@ repository root (in a worktree, symlink it from the main checkout).
 | `run --label L [--weapon ID]` | Whole pass: session start, stills, combo, session stop, sheets and page. Stops the session on any error and keeps partial output. |
 | `session start` / `status` / `stop` | Start Xvfb, the acceptance server and one smoke client under a supervisor that holds the heavy-work lock; show state; stop only what it started. |
 | `stills --label L [--views V,...]` | Stills of every move at its key ticks in each view (default views: see "Views"), one sheet per view, `manifest.json`, `index.html`. Needs a running session. |
-| `combo --label L [--targets dummy\|golem]` | Targets in front of the player, real mapped left clicks through the combo at chain timing, mp4, target health before and after. Adds to an existing capture set with the same label. |
+| `combo --label L [--targets dummy\|golem] [--camera first\|back] [--pitch P]` | Targets in front of the player, real mapped left clicks through the combo at chain timing, mp4, target health before and after. Adds to an existing capture set with the same label. `--camera back`: the same run filmed from F5 back at vanilla distance (pitch 30 unless `--pitch`). |
+| `motion --label L [--views V,...] [--enter] [--idle S] [--moves N,...]` | Third-person video per view (default: the weapon's third-person default views) of each move's PAL animation played on the client at game speed; `--enter` first records the mode-enter animation through the real R toggle, `--idle` seconds of the ready idle. No server action. |
 | `reload [--src DIR] [--paths GLOB...]` | Copy changed combat client resources into `build/resources/main`, press F3+T, wait for the rig-loaded log line. |
 | `compare A B --label L` | Pair two capture sets by weapon, move, key and view into side-by-side sheets and a page; cells present in one set only are marked `[UNPAIRED]`. |
 | `page DIR` | Rebuild the sheets, combo strip and `index.html` of a capture directory. |
@@ -186,6 +187,17 @@ the clicks actually sent, the player position before and after, and the
 client's `PAL_SMOKE play` animation starts during the run. This is the
 mapped-click and server-damage evidence; the freeze probes never substitute
 for it. There is no audio device on the capture host, so sound is not captured.
+
+`--camera back` films the same run (same position, targets, clicks) from F5
+back, 4 blocks, look yaw 0. A quarter view cannot be held through a real
+combo: each action snaps the body and head to the look yaw it faces (server)
+and vanilla turns the body to the look while the arm swings (client), so the
+F5 camera ends on the body's axis. For quarter-view motion use `motion`: it
+plays each move's animation on the client with
+`/myvillage_pal_smoke move <n>` (typed in chat, so the chat line shows for a
+moment); nothing reaches the server, so there are no hits, no lunge movement
+and no world trail, and the body keeps its facing. Videos go to
+`motion/<view>.mp4`, events and their times to the manifest's `motion` list.
 
 ## Output
 
