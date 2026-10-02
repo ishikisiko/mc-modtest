@@ -151,6 +151,19 @@ def combo_section(c: dict | None, prefix: str = "") -> str:
         out += (f"<figure><a href=\"{escape(prefix + c['strip'])}\"><img loading=lazy src=\"{escape(prefix + c['strip'])}\" "
                 f"alt=\"frames from the combo video\"></a><figcaption>Evenly spaced frames from the video."
                 f"</figcaption></figure>")
+    if c.get("tick_rate", 20) != 20 or c.get("layout", "default") != "default":
+        out += (f"<p>Tick rate during the run: {c.get('tick_rate', 20)} (clicks scaled to it). Target layout: "
+                f"{escape(str(c.get('layout', 'default')))} "
+                + escape(", ".join(f"{t} at {dx:+g} x, {dz:+g} z" for t, dx, dz in c.get("layout_offsets", [])))
+                + " (relative to the player; +x is the player's left).</p>")
+    if c.get("hits_by_move") is not None:
+        hb = c["hits_by_move"]
+        out += ("<h3>Damage by move (health polled over rcon during the run)</h3>"
+                + ("<table><tr><th>Move</th><th>Damage per target</th></tr>" + "".join(
+                    f"<tr><td>{escape(mv)}</td><td>" + escape(", ".join(f"{t} -{d:g}" for t, d in sorted(per.items())))
+                    + "</td></tr>" for mv, per in hb.items()) + "</table>" if hb else "<p>No health loss seen.</p>")
+                + f"<p class=note>Each loss is put on the latest client move start before it. "
+                  f"{len(c.get('fp_log', []))} first-person hit-stop/resync log lines during the run.</p>")
     out += ("<h3>Target health (server, over rcon)</h3><table><tr><th>Target</th><th>Kind</th><th>Before</th>"
             f"<th>After</th><th>Difference</th></tr>{rows}</table>"
             f"<p>Total difference: {c['total_damage']:g}. Combat mode during the run: "

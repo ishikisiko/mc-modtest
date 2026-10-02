@@ -196,6 +196,19 @@ client's `PAL_SMOKE play` animation starts during the run. This is the
 mapped-click and server-damage evidence; the freeze probes never substitute
 for it. There is no audio device on the capture host, so sound is not captured.
 
+`--layout` places the three targets (offsets from the player; +x is the
+player's left): `default` (t1 2.5 ahead, t2/t3 5 blocks out, out of reach of
+every move), `sweep` (an arc 2.5 blocks out: ahead and 45 degrees to either
+side) and `line` (2.5, 3.5 and 4.5 blocks straight ahead). During the run a
+second rcon connection polls every target's health about every 0.05 s; each
+loss is put on the latest client move start (`PAL_SMOKE play`, a prediction
+and its confirmation counted once) before it, so the manifest's `hits` and
+`hits_by_move` say who was hit by which move. The client's
+`PAL_SMOKE fp_hit_stop` and `fp_resync` lines during the run go to `fp_log`.
+`--tick-rate N` (1-20) slows the game with `/tick rate N` for the run only
+(5 = quarter speed) and scales the clicks and the recording to it; the rate
+is set back to 20 afterwards, also on failure.
+
 `--camera back` films the same run (same position, targets, clicks) from F5
 back, 4 blocks, look yaw 0. A quarter view cannot be held through a real
 combo: each action snaps the body and head to the look yaw it faces (server)
@@ -255,6 +268,11 @@ absolute paths, ports, host names or credentials.
 
 ## Pitfalls
 
+- Killed targets drop experience, and a filling XP bar is part of every
+  frame: the scene setup sets the player's experience to 0, so captures made
+  after a combo still compare with captures made before one. Captures taken
+  before this reset (up to `sword-v2`) can differ in the XP bar row
+  (y 482-491) alone.
 - `tp` with a large yaw change leaves a standing player's body up to 50
   degrees off the look until it moves or swings; `view` and the stills align
   it (see "Views"). A manual `tp` before `shot` does not.

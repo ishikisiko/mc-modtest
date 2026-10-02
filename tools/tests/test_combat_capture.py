@@ -534,6 +534,7 @@ class SceneTest(unittest.TestCase):
         setup = scene.player_setup("P", "ns:item")
         self.assertIn("item replace entity P weapon.mainhand with ns:item", setup)
         self.assertIn("gamemode survival P", setup)
+        self.assertIn("experience set P 0 points", setup)  # the XP bar is part of every frame
         # regeneration bounces the heart row, which keeps frames from settling
         self.assertFalse(any("regeneration" in c for c in setup))
         rules = scene.world_rules()
@@ -705,6 +706,92 @@ class CropTest(unittest.TestCase):
         with mock.patch.object(crop, "view_crop") as vc:
             self.assertIsNone(cli.compare_crop(Path("a"), m, Path("b"), m, "tp_back"))
             vc.assert_not_called()
+
+
+class ComboRunTest(unittest.TestCase):
+    def test_layouts(self):
+        import math
+        self.assertEqual(scene.TARGET_LAYOUT, scene.TARGET_LAYOUTS["default"])
+        for name, tl in scene.TARGET_LAYOUTS.items():
+            self.assertEqual([t for t, _, _ in tl], ["t1", "t2", "t3"])
+            self.assertEqual(len(scene.target_summons("dummy", name)), 3)
+        sweep = {t: (dx, dz) for t, dx, dz in scene.TARGET_LAYOUTS["sweep"]}
+        for t in ("t1", "t2", "t3"):
+            self.assertAlmostEqual(math.hypot(*sweep[t]), 2.5, places=2)
+        self.assertAlmostEqual(math.degrees(math.atan2(sweep["t2"][0], sweep["t2"][1])), 45.0, places=1)
+        self.assertAlmostEqual(math.degrees(math.atan2(sweep["t3"][0], sweep["t3"][1])), -45.0, places=1)
+        self.assertTrue(all(dx == 0.0 for _, dx, _ in scene.TARGET_LAYOUTS["line"]))
+        with self.assertRaises(scene.SceneError):
+            scene.target_summons("dummy", "circle")
+
+    def test_bundled_spear_reaches_the_layouts(self):
+        """The spear's sweep samples pass within reach of every sweep-layout
+        target and the lunge's range covers the whole line (static check of
+        the placement, not of the game)."""
+        import math
+        style = json.loads((RESOURCES / "data/myvillage/combat/style/basic_spear.json").read_text())
+        moves = {m["id"].split(":")[1]: m for m in style["moves"]}
+
+        def seg_dist(p, a, b):
+            ax, az, bx, bz = a[0], a[2], b[0], b[2]
+            vx, vz = bx - ax, bz - az
+            k = max(0.0, min(1.0, ((p[0] - ax) * vx + (p[1] - az) * vz) / (vx * vx + vz * vz)))
+            return math.hypot(p[0] - ax - k * vx, p[1] - az - k * vz)
+        sweep = moves["basic_spear_02_sweep"]["hitbox"]["samples"]
+        for tag, dx, dz in scene.TARGET_LAYOUTS["sweep"]:
+            best = min(seg_dist((dx, dz), smp["start"], smp["end"]) for smp in sweep)
+            self.assertLess(best, 0.3 + sweep[0]["horizontal_radius"], tag)
+        lunge = moves["basic_spear_05_dragon_lunge"]
+        self.assertGreaterEqual(lunge["hitbox"]["samples"]["first_range"],
+                                max(dz for _, _, dz in scene.TARGET_LAYOUTS["line"]) - 0.3)
+        self.assertGreaterEqual(lunge["maximum_targets"], 3)
+
+    def test_slow_click_schedule_scales(self):
+        w = data.load_weapon(RESOURCES, QINGFENG)
+        normal, ticks = capture.click_schedule(w.moves)
+        slow, ticks4 = capture.click_schedule(w.moves, 0.2)
+        self.assertEqual(ticks, ticks4)
+        for a, b in zip(normal, slow):
+            self.assertEqual(a["tick"], b["tick"])
+            self.assertAlmostEqual(b["seconds"], a["seconds"] * 4, places=2)
+
+    def test_hit_attribution(self):
+        starts = capture.move_starts([(10.0, "ns:a"), (10.1, "ns:a"), (10.5, "ns:b"), (10.52, "ns:b"),
+                                      (11.2, "ns:a")], merge_seconds=0.6)
+        self.assertEqual([(st["t"], st["animation"]) for st in starts], [(10.0, "ns:a"), (10.5, "ns:b"), (11.2, "ns:a")])
+        samples = [(9.9, "t1", 80.0), (9.9, "t2", 80.0), (10.3, "t1", 72.0), (10.3, "t2", 80.0),
+                   (10.7, "t1", 64.0), (10.7, "t2", 75.5), (10.8, "t2", None), (11.4, "t2", 70.0)]
+        drops = capture.health_drops(samples)
+        self.assertEqual([(d["tag"], d["damage"]) for d in drops], [("t1", 8.0), ("t1", 8.0), ("t2", 4.5), ("t2", 5.5)])
+        Mv = data.Move
+        moves = [Mv(1, "ns:a", "cut", 10, [3, 4], 4, 8), Mv(2, "ns:b", "cut", 10, [3, 4], 4, 8)]
+        hits = capture.attribute_hits(drops, starts, moves)
+        self.assertEqual([h["move"] for h in hits], [1, 2, 2, 1])
+        self.assertEqual(capture.hits_by_move(hits), {"m1": {"t1": 8.0, "t2": 5.5}, "m2": {"t1": 8.0, "t2": 4.5}})
+        early = capture.attribute_hits([{"tag": "t1", "t": 1.0, "before": 2, "after": 1, "damage": 1}], starts)
+        self.assertIsNone(early[0]["animation"])
+        self.assertEqual(capture.hits_by_move(early), {"before any move": {"t1": 1}})
+
+    def test_fp_log_pattern(self):
+        m = capture.FP_LINE.search("[x] [Render thread/INFO] [y/]: PAL_SMOKE fp_hit_stop animation=ns:a "
+                                   "tick_reading=6.2 present=5.9 contact=6.0 start=12")
+        self.assertEqual(m.group(1), "fp_hit_stop")
+        self.assertTrue(capture.FP_LINE.search("PAL_SMOKE fp_resync animation=ns:a shift_ticks=-0.4 slewed=true"))
+
+    def test_combo_options_parse_and_page(self):
+        a = cli.build_parser().parse_args(["combo", "--label", "x", "--layout", "sweep", "--tick-rate", "5"])
+        self.assertEqual((a.layout, a.tick_rate), ("sweep", 5))
+        with self.assertRaises(SystemExit):
+            with mock.patch("sys.stderr"):
+                cli.build_parser().parse_args(["combo", "--label", "x", "--layout", "circle"])
+        m = capture_manifest()
+        m["combo"].update({"layout": "sweep", "layout_offsets": [["t2", 1.768, 1.768]], "tick_rate": 5,
+                           "hits_by_move": {"m2": {"t1": 7.5, "t2": 7.5}}, "fp_log": [{"t": 1, "kind": "fp_hit_stop"}]})
+        html = page.capture_page(m)
+        self.assertIn("Tick rate during the run: 5", html)
+        self.assertIn("t2 -7.5", html)
+        self.assertIn("1 first-person hit-stop/resync log lines", html)
+        PageTest.assert_plain(self, html)
 
 
 class RigRecordTest(unittest.TestCase):

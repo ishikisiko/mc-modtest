@@ -14,6 +14,7 @@ from pathlib import Path
 from . import procs
 from .capture import ALL_VIEWS, BUILD_RESOURCES, VIEWS, default_views
 from .data import DataError, fmt_tick, load_weapon
+from .scene import TARGET_LAYOUTS
 from .session import REPO, RIG_LOADED, SessionConfig
 
 RESOURCES = REPO / "src/main/resources"
@@ -266,7 +267,8 @@ def cmd_combo(a):
         out.mkdir(parents=True, exist_ok=True)
         m = capture.new_manifest(a.label, w, RESOURCES, [], [mv.index for mv in w.moves])
     try:
-        capture.run_combo(s, w, out, m, targets=a.targets, camera=a.camera, pitch=a.pitch, log=log)
+        capture.run_combo(s, w, out, m, targets=a.targets, camera=a.camera, pitch=a.pitch, layout=a.layout,
+                          tick_rate=a.tick_rate, log=log)
     finally:
         finalize(out)
 
@@ -499,6 +501,11 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--camera", choices=("first", "back"), default="first",
                    help="first person, or F5 back at vanilla distance (a real combo cannot hold a quarter view)")
     p.add_argument("--pitch", type=float, help="player pitch for --camera back (default 30)")
+    p.add_argument("--layout", choices=tuple(TARGET_LAYOUTS), default="default",
+                   help="target placement: default (t2/t3 out of reach), sweep (arc 2.5 blocks out), "
+                        "line (three straight ahead)")
+    p.add_argument("--tick-rate", type=int, default=20,
+                   help="run the combo at /tick rate N (1-20; e.g. 5 = quarter speed), clicks scaled to match")
     p.set_defaults(func=cmd_combo)
 
     p = sub.add_parser("motion", help="third-person videos of each move played on the client (quarter views)")

@@ -119,7 +119,8 @@ def combo_strip(capture_dir: Path, manifest: dict, count: int = 24, cols: int = 
     if not video.is_file():
         return None
     start = max(0.0, combo["lead_seconds"] - 1.0)  # ffmpeg start-up shifts the clicks earlier in the video
-    end = min(combo["video_seconds"] - 0.1, combo["lead_seconds"] + combo["expected_combo_ticks"] * 0.05 + 1.0)
+    end = min(combo["video_seconds"] - 0.1,
+              combo["lead_seconds"] + combo["expected_combo_ticks"] * combo.get("tick_seconds", 0.05) + 1.0)
     times = [start + (end - start) * i / (count - 1) for i in range(count)]
     out = Path(capture_dir) / "combo" / "combo_strip.png"
     with tempfile.TemporaryDirectory() as td:

@@ -395,19 +395,109 @@ class Stills:
 
 
 # ====================================================================== combo
-def click_schedule(moves) -> tuple[list[dict], int]:
+def click_schedule(moves, tick_seconds: float = TICK_SECONDS) -> tuple[list[dict], int]:
     """Clicks at chain timing through the whole combo. Move 1 is clicked at
     t=0; the click for move n+1 lands midway between move n's buffer start
     and its chain tick (the buffered click is then consumed at the chain tick,
-    when move n+1 starts). Returns ([{move, tick, seconds}], expected ticks
-    until the last move ends)."""
+    when move n+1 starts). `tick_seconds` is the length of a game tick (0.05
+    at the normal tick rate; 0.2 at /tick rate 5). Returns
+    ([{move, tick, seconds}], expected ticks until the last move ends)."""
     clicks = [{"move": moves[0].index, "tick": 0.0, "seconds": 0.0}]
     start = 0.0
     for cur, nxt in zip(moves, moves[1:]):
         t = start + (cur.buffer_start_tick + cur.chain_tick) / 2.0
-        clicks.append({"move": nxt.index, "tick": t, "seconds": round(t * TICK_SECONDS, 3)})
+        clicks.append({"move": nxt.index, "tick": t, "seconds": round(t * tick_seconds, 3)})
         start += cur.chain_tick
     return clicks, int(start + moves[-1].total_ticks)
+
+
+FP_LINE = re.compile(r"PAL_SMOKE (fp_hit_stop|fp_resync) (.*)$")
+
+
+def move_starts(timed_plays: list[tuple[float, str]], merge_seconds: float) -> list[dict]:
+    """Distinct move starts from the client's accepted `PAL_SMOKE play` lines
+    [(time, animation)]: a prediction and its confirmation (the same
+    animation again within `merge_seconds`) count once."""
+    out = []
+    for t, anim in sorted(timed_plays):
+        if out and out[-1]["animation"] == anim and t - out[-1]["t"] <= merge_seconds:
+            continue
+        out.append({"t": t, "animation": anim})
+    return out
+
+
+def health_drops(samples: list[tuple[float, str, float]]) -> list[dict]:
+    """[(time, tag, health)] in time order -> one record per decrease."""
+    last, out = {}, []
+    for t, tag, h in samples:
+        if h is None:
+            continue
+        prev = last.get(tag)
+        if prev is not None and h < prev - 1e-6:
+            out.append({"tag": tag, "t": t, "before": prev, "after": h, "damage": round(prev - h, 3)})
+        last[tag] = h
+    return out
+
+
+def attribute_hits(drops: list[dict], starts: list[dict], moves=None) -> list[dict]:
+    """Each health drop goes to the latest move start at or before it (the
+    server applies damage during the move's active ticks, after the client
+    started it). Adds 'animation' and, when it names a move of `moves`, its
+    one-based 'move'."""
+    ids = {m.id: m.index for m in (moves or [])}
+    out = []
+    for d in drops:
+        owner = None
+        for st in starts:
+            if st["t"] <= d["t"]:
+                owner = st
+        rec = dict(d, animation=owner["animation"] if owner else None)
+        if owner and owner["animation"] in ids:
+            rec["move"] = ids[owner["animation"]]
+        out.append(rec)
+    return out
+
+
+def hits_by_move(hits: list[dict]) -> dict:
+    """{move label: {tag: total damage}} for the page and the report."""
+    table: dict = {}
+    for h in hits:
+        key = f"m{h['move']}" if h.get("move") else (h.get("animation") or "before any move")
+        table.setdefault(key, {})
+        table[key][h["tag"]] = round(table[key].get(h["tag"], 0.0) + h["damage"], 3)
+    return table
+
+
+class HealthPoller:
+    """Polls the targets' health over its own rcon connection while the combo
+    runs, so each loss can be put on the move that caused it."""
+
+    def __init__(self, session, targets: list[dict], interval: float = 0.05):
+        import threading
+        self.session, self.targets, self.interval = session, targets, interval
+        self.samples: list[tuple[float, str, float]] = []
+        self.error = None
+        self._stop = threading.Event()
+        self._thread = threading.Thread(target=self._run, daemon=True)
+
+    def _run(self):
+        try:
+            with self.session.rcon() as r:
+                while not self._stop.is_set():
+                    for t in self.targets:
+                        h = scene.parse_float_data(r.cmd(f"data get entity {t['uuid']} Health"))
+                        self.samples.append((time.time(), t["tag"], h))
+                    self._stop.wait(self.interval)
+        except Exception as e:  # noqa: BLE001 - reported in the manifest, never fatal to the run
+            self.error = f"{type(e).__name__}: {e}"
+
+    def __enter__(self):
+        self._thread.start()
+        return self
+
+    def __exit__(self, *exc):
+        self._stop.set()
+        self._thread.join(timeout=10)
 
 
 def ffmpeg_record_argv(display: str, out: Path, seconds: float, fps: int = 30, size=SCREEN) -> list[str]:
@@ -439,11 +529,18 @@ def combo_camera_record(camera: str, pitch: float | None) -> dict:
 
 def run_combo(session, weapon: Weapon, out_dir: Path, manifest: dict, targets: str = "dummy",
               lead: float = 2.0, tail: float = 2.5, hold: float = 0.06, camera: str = "first",
-              pitch: float | None = None, log=print) -> dict:
+              pitch: float | None = None, layout: str = "default", tick_rate: int = 20,
+              video_name: str = "combo.mp4", log=print) -> dict:
     """Targets in front, mapped left clicks through the whole combo at chain
-    timing while ffmpeg records, target health over rcon before and after.
-    `camera` "back" records the same run from F5 back (see COMBO_CAMERAS)."""
-    from .xgame import LogTail
+    timing while ffmpeg records, target health over rcon before and after and
+    polled during the run (each loss is put on the move that caused it).
+    `camera` "back" records the same run from F5 back (see COMBO_CAMERAS);
+    `layout` places the targets (scene.TARGET_LAYOUTS); `tick_rate` below 20
+    slows the game with /tick rate for the run (clicks scaled to match)."""
+    from .xgame import LogTail, log_line_time
+    if not 1 <= int(tick_rate) <= 20:
+        raise ValueError("tick_rate must be 1-20")
+    tick_seconds = 1.0 / int(tick_rate)
     g = session.game
     cam = combo_camera_record(camera, pitch)
     out_dir = Path(out_dir)
@@ -457,44 +554,66 @@ def run_combo(session, weapon: Weapon, out_dir: Path, manifest: dict, targets: s
         session.run(tp_command(session.username, scene.PLAYER_POS[2], BODY_YAW, cam["pitch"]))
         time.sleep(0.6)
         press_f5_to(session, cam["f5"])
-    placed = scene.place_targets(session, targets)
+    placed = scene.place_targets(session, targets, layout)
     time.sleep(1.5)
     before = {t["tag"]: scene.read_health(session, t["uuid"]) for t in placed}
     pos_before = scene.player_pos(session)
-    clicks, expected_ticks = click_schedule(weapon.moves)
-    seconds = lead + clicks[-1]["seconds"] + expected_ticks * TICK_SECONDS + tail
-    video = out_dir / "combo" / "combo.mp4"
+    clicks, expected_ticks = click_schedule(weapon.moves, tick_seconds)
+    seconds = lead + clicks[-1]["seconds"] + expected_ticks * tick_seconds + tail
+    video = out_dir / "combo" / video_name
+    if tick_rate != 20:
+        session.run(f"tick rate {int(tick_rate)}")
+        time.sleep(1.0)
     tail_log = LogTail(g.client_log)
-    log(f"combo: {len(clicks)} clicks at {[c['seconds'] for c in clicks]} s, recording {seconds:.1f}s")
-    rec = subprocess.Popen(ffmpeg_record_argv(session.state["display"], video, seconds), stdin=subprocess.DEVNULL)
+    log(f"combo: {len(clicks)} clicks at {[c['seconds'] for c in clicks]} s, recording {seconds:.1f}s"
+        + (f", tick rate {tick_rate}" if tick_rate != 20 else ""))
     try:
-        time.sleep(lead)
-        g.require_ingame("combo clicks")
-        t0 = time.time()
-        done = []
-        for c in clicks:
-            delay = t0 + c["seconds"] - time.time()
-            if delay > 0:
-                time.sleep(delay)
-            g.click(hold)
-            done.append(round(time.time() - t0, 3))
-        rc = rec.wait(timeout=seconds + 60)
-    except BaseException:
-        rec.terminate()
-        rec.wait(timeout=10)
-        raise
+        with HealthPoller(session, placed) as poller:
+            rec = subprocess.Popen(ffmpeg_record_argv(session.state["display"], video, seconds),
+                                   stdin=subprocess.DEVNULL)
+            try:
+                time.sleep(lead)
+                g.require_ingame("combo clicks")
+                t0 = time.time()
+                done = []
+                for c in clicks:
+                    delay = t0 + c["seconds"] - time.time()
+                    if delay > 0:
+                        time.sleep(delay)
+                    g.click(hold)
+                    done.append(round(time.time() - t0, 3))
+                rc = rec.wait(timeout=seconds + 60)
+            except BaseException:
+                rec.terminate()
+                rec.wait(timeout=10)
+                raise
+            time.sleep(0.5)
+    finally:
+        if tick_rate != 20:
+            session.run("tick rate 20")
     if rc != 0 or not video.is_file():
         raise RuntimeError(f"ffmpeg failed (rc {rc})")
-    time.sleep(0.5)
     after = {t["tag"]: scene.read_health(session, t["uuid"]) for t in placed}
     pos_after = scene.player_pos(session)
     tail_log.poll()
-    plays = []
+    plays, timed, fp_lines = [], [], []
     for line in tail_log.lines:
         m = PLAY_LINE.search(line)
+        lt = log_line_time(line)
         if m:
             plays.append({"animation": m.group(1), "elapsed_ticks": m.group(2), "accepted": m.group(3) == "true",
-                          "kept_prediction": "kept_prediction=true" in m.group(4)})
+                          "kept_prediction": "kept_prediction=true" in m.group(4),
+                          "t": None if lt is None else round(lt - t0, 3)})
+            if m.group(3) == "true" and lt is not None:
+                timed.append((lt, m.group(1)))
+        f = FP_LINE.search(line)
+        if f:
+            fp_lines.append({"t": None if lt is None else round(lt - t0, 3), "kind": f.group(1),
+                             "text": f.group(2).strip()[:300]})
+    starts = move_starts(timed, merge_seconds=12 * tick_seconds)
+    hits = attribute_hits(health_drops(poller.samples), starts, weapon.moves)
+    for h in hits:
+        h["t"] = round(h["t"] - t0, 3)
     result = {
         "targets": [{"tag": t["tag"], "kind": t["kind"], "pos": t["pos"], "health_before": before[t["tag"]],
                      "health_after": after[t["tag"]],
@@ -504,13 +623,22 @@ def run_combo(session, weapon: Weapon, out_dir: Path, manifest: dict, targets: s
         "clicks_planned": clicks,
         "clicks_sent_s": done,
         "expected_combo_ticks": expected_ticks,
-        "video": "combo/combo.mp4",
+        "video": f"combo/{video_name}",
         "video_seconds": round(seconds, 2),
         "lead_seconds": lead,
         "combat_mode": "cultivation" if mode in ("already", "toggled") else mode,
         "player_pos_before": _strip_name(pos_before),
         "player_pos_after": _strip_name(pos_after),
         "client_animation_starts": plays,
+        "move_starts_s": [{"t": round(st["t"] - t0, 3), "animation": st["animation"]} for st in starts],
+        "hits": hits,
+        "hits_by_move": hits_by_move(hits),
+        "health_poll": {"samples": len(poller.samples), "error": poller.error},
+        "fp_log": fp_lines,
+        "layout": layout,
+        "layout_offsets": [[tag, dx, dz] for tag, dx, dz in scene.layout(layout)],
+        "tick_rate": int(tick_rate),
+        "tick_seconds": tick_seconds,
         "camera": cam,
         "recorded": now_iso(),
     }
@@ -518,6 +646,10 @@ def run_combo(session, weapon: Weapon, out_dir: Path, manifest: dict, targets: s
     write_manifest(out_dir, manifest)
     for t in result["targets"]:
         log(f"  {t['tag']} ({t['kind']}) health {t['health_before']} -> {t['health_after']} (damage {t['damage']})")
+    for mv, per in result["hits_by_move"].items():
+        log(f"  {mv}: " + ", ".join(f"{tag} -{dmg}" for tag, dmg in sorted(per.items())))
+    if poller.error:
+        log(f"  WARNING health poll stopped: {poller.error}")
     # leave a clean field for whatever runs next
     session.run("kill @e[type=!minecraft:player]", warn=False)
     time.sleep(1.0)
