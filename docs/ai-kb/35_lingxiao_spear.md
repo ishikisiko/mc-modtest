@@ -110,8 +110,19 @@ First person (rig data, `FirstPersonArmIk` two-bone solve):
 | `shoulder_offset` | The off shoulder is the main shoulder mirrored across the view's vertical plane, with this offset in place of `rig.arm.shoulder_offset` (+x outward). Default: the main arm's. |
 | `grip_diagonal` | How far the shaft leans across the off palm, 0 to 50 degrees. Default: the main arm's. |
 | `thickness` | The off arm's cross-section, 0.2 to 1.2, as `rig.arm.thickness` (0.29.0-fix1). Default: the main arm's. |
+| `upper_arm`, `forearm` | The off arm's bone lengths in blocks, 0.1 to 0.6, as `rig.arm`. Default: the main arm's. |
+| `rest_direction` | `[x, y, z]`, any non-zero length (normalised on load): the way the released hand rests from the off shoulder, in the off arm's frame (+x outward, +y up, -z forward). Default `[0.15, -1, -0.2]`: down beside the body, a little out and forward. |
+| `rest_reach` | How far the released wrist rests from the off shoulder, as a share of the off arm's length (upper arm plus forearm), 0.3 to 0.97 (the solver's reach clamp, so the rest never moves the shoulder). Default `0.9`. |
 
-Bone lengths are the main arm's. The spear draws its off arm at `0.56` against
+`Rig.offArm()` builds the off arm from the block (bones, thickness, grip
+diagonal, shoulder offset, with the main arm's follow-through); the rest is
+read from the same block. The defaults are the values the solver used before
+they were configurable, so a rig without the new fields draws as before. The
+shipped spear rig sets only `shoulder_offset`, `grip_diagonal`, and
+`thickness`. A modified copy of it with all four new fields is pinned in
+`src/test/resources/first_person_off_arm_overrides.json`, which
+`FirstPersonOffHandTest` and `tools/tests/test_combat_preview_parity.py` both
+check (no shipped rig uses them, so the parity golden cannot). The spear draws its off arm at `0.56` against
 the main arm's `0.42`: the leading hand holds the shaft farther from the eye
 and shows its whole forearm, so at the main arm's size it read as a thin
 stick. The thickness scales the fist, the wrist-to-grip distance, and the
@@ -124,7 +135,7 @@ Per-key fields (interpolated like the others, ignored without the block):
 | `off_hand_slide` | 0 | Model px along the shaft from `off_hand_grip_center`, + toward the tip. Must keep the hand on the handle. |
 | `off_hand_roll` | 0 | Degrees the hand turns about the shaft from its natural reach. |
 | `off_hand_elbow` | 0 | Off elbow swivel, as `elbow`. |
-| `off_hand_hold` | 1 | 1 holds the shaft, 0 lets go; between, the hand moves toward a fixed rest beside the body. At 0 the arm is not drawn. |
+| `off_hand_hold` | 1 | 1 holds the shaft, 0 lets go; between, the hand moves toward its rest (`rest_direction`, `rest_reach`). At 0 the arm is not drawn. |
 
 A point out of reach slides the hand to the nearest reachable shaft point,
 never off the shaft or into the main fist. The off arm takes no lag. A rig with
@@ -138,9 +149,14 @@ Both optional; the Qingfeng contract has neither.
   ahead of `grip_center`. The validator also requires one fist width from the
   grip at the model's third-person scale.
 - `trail` `{"base": [...], "tip": [...]}`: the span that draws the 剑光
-  trails, on the axis, base below tip, within pommel bottom to blade tip.
-  Without it the trail is `blade_base`..`blade_tip`. The spear's is `y 16..32`
+  trails, on the axis, base below tip, within butt bottom to head tip.
+  Without it the trail is `head_base`..`head_tip`. The spear's is `y 16..32`
   (16 px; the head alone is 8.6 px, the sword blade 15.9 px).
+
+The contract is format 2 (weapon-neutral names; the spear reads `butt` as the
+butt cap, `handle` as the shaft, `collar` as the socket, and `head` as the
+spearhead). The rename table is in
+[Combat Data and Capture](34_combat_data_and_capture.md).
 
 The first-person trail spans `trail`. The world trail's tip radius is `0.705`
 (shoulder to grip) plus grip-to-trail-tip, and its length the `trail` span,
@@ -149,13 +165,14 @@ length 0.9; Qingfeng 1.7 and 0.795, as in 0.28.0.
 
 ## Hit sample rules
 
-Found with the spear's multi-sample cuts; they apply to every style.
+Found with the spear's multi-sample cuts; they apply to every style, and to a
+move's optional world-trail samples (`trail.samples`) as to its hit samples.
 
 | Rule | Why | Enforced by |
 |---|---|---|
 | Explicit samples in non-decreasing tick order | The world trail walks samples in list order | Java loader, `tools/combat_data.py` (`COMBAT_DATA_SAMPLE_ORDER`) |
 | Once a tick has several samples, every active tick has the same number | The trail spaces a tick's n samples 1/n of a tick apart, so uneven counts change its speed at tick boundaries | `tools/combat_data.py` (`COMBAT_DATA_SAMPLE_COUNT`) |
-| Every drawn frame of a cut's far end at or beyond the weapon's trail tip radius | The trail head is drawn at min(far-end distance, tip radius); a shorter far end bends the trail inward | validator, per weapon (`COMBAT_TRAIL_CUT_REACH`) |
+| Every drawn frame of a cut's far end at or beyond the weapon's trail tip radius | The trail head is drawn at min(far-end distance, tip radius); a shorter far end bends the trail inward | validator, per weapon (`COMBAT_TRAIL_CUT_REACH`), on the samples the trail draws (`trail.samples`, else the hit samples) |
 
 The spear's flick and smash far ends sit at least 2.65 blocks from the pivot
 (tip radius 2.62). `gen_sword_pal_anims.py --report` prints, per move, how far
@@ -367,16 +384,16 @@ clean track of a +1 or +2 reset mid-swing.
   two-handed weapon cannot be held with both hands through wide swings.
 - The `arc` generator draws one line per tick and the `diagonal` generator has
   no reach parameter; wide or long cuts need explicit samples.
-- The world trail follows the hit samples, so a hit volume and its trail
-  cannot be authored separately; where samples must reach far ground targets
-  the trail head sits about half a block from the posed head.
+- No shipped move uses `trail.samples` yet, so the spear's world trails still
+  follow its hit samples; where they must reach far ground targets the trail
+  head sits about half a block from the posed head. The radius is the same
+  along a whole move.
 - The step always stops a fixed 0.6 short of a target (`MAGNETISM_STANDOFF`).
-- One `sword_scale` for the whole weapon; the off shoulder shares the body
-  offset; the off arm shares the main arm's bone lengths; a released hand's
-  rest pose is fixed.
-- Sword-shaped names: `sword_scale`, `combat.sword.*` sounds, `blade_*`,
-  `guard`, `pommel`, the validator's file name, and the log line
-  `... with sword geometry ...`.
+- One `weapon_scale` for the whole weapon; the off shoulder shares the body
+  offset.
+- Sword-shaped names kept on purpose: the `combat.sword.*` sound events and
+  the tool file names (`validate_sword_combat_foundation.py`,
+  `gen_sword_pal_anims.py`).
 - The F5 camera cannot hold a quarter view through a real combo, and at 4
   blocks a front quarter view cuts a tip more than about 3.1 blocks ahead.
 - The offline previews' arm mesh, trail, and rasteriser, and the `pose` and
@@ -397,7 +414,7 @@ clean track of a +1 or +2 reset mid-swing.
 
 1. Draw the leading arm in third person with the first-person two-bone solve,
    so two-handed weapons keep both hands through swings.
-2. Separate trail paths from hit samples, or let the trail radius vary.
-3. Rename the sword-shaped fields in a schema revision.
-4. Fix the Qingfeng generator's left-hand mirroring before any tilt or roll is
+2. Let the world-trail radius vary along a move (trail paths can now be
+   authored apart from hit samples with `trail.samples`).
+3. Fix the Qingfeng generator's left-hand mirroring before any tilt or roll is
    added to its display.

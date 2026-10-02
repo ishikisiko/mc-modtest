@@ -28,7 +28,7 @@ See also:
 | Which styles and weapons exist | `data/myvillage/combat/index.json` |
 | Third-person poses | one pose table per style in `tools/gen_sword_pal_anims.py`, each generated into its own file (`player_animations/sword_combat.json`, `spear_combat.json`) |
 | First-person keys, strike window, contact tick, off hand | the rig named by the weapon file |
-| Weapon geometry (grip, off-hand grip, blade, trail span) | the geometry contract named by the weapon file, written by the model generator its `generator` field names (`tools/gen_qingfeng_sword_model.py`, `tools/gen_lingxiao_spear_model.py`) |
+| Weapon geometry (grip, off-hand grip, head, trail span) | the geometry contract (format 2) named by the weapon file, written by the model generator its `generator` field names (`tools/gen_qingfeng_sword_model.py`, `tools/gen_lingxiao_spear_model.py`) |
 | Item class | `CombatWeaponItem` for every item with a weapon file (`item/ModItems.java`) |
 | Accepted Qingfeng numbers (regression pin) | `tools/tests/test_combat_style_baseline.py` and the Java equivalence test |
 
@@ -62,6 +62,7 @@ Top level: `schema`, `id`, `combo_timeout_ticks`,
 | `step` (optional) | `tick`, `maximum_distance`, `support_depth`. |
 | `feedback` | `swing_sound`, `swing_pitch`, `hit_sound`, optional `heavy_layer_sound`, `heavy_hit`, `hit_stop_ticks`, `camera_trauma`, `cut_roll_degrees`. Sounds are sound-event ids. |
 | `camera` | `hit_pitch_kick`, `hit_roll_kick`, `hit_fov_punch`, `swing_lean_degrees`, `step_fov_surge`. |
+| `trail` (optional) | `samples`: the path the third-person world trail follows instead of `hitbox.samples`, in the same form. Presentation only. |
 
 `hitbox.samples` is an explicit list of
 `{tick, start, end, horizontal_radius, vertical_radius}` or one generator,
@@ -81,6 +82,23 @@ style, a cut's far ends reach at least that weapon's world-trail tip radius at
 every drawn frame (validator, `COMBAT_TRAIL_CUT_REACH`). Reasons in
 [Lingxiao Spear](35_lingxiao_spear.md).
 
+World-trail samples (optional `trail.samples`, after 0.29.0-fix1): the world
+trail (`CombatWorldTrails`) follows them instead of the hit samples, so a hit
+volume and the trail it draws can be authored separately. They take the hit
+samples' form (an explicit list or one generator), are parsed as strictly
+(unknown fields, an empty list, and malformed samples are load errors naming
+`moves[i].trail.samples...`), and obey the same rules: tick order, equal counts
+per active tick, ticks inside the active window (`tools/combat_data.py`). The
+cut-reach rule checks whichever samples the trail draws: `trail.samples` when
+present, else `hitbox.samples`. They are presentation only: only
+`CombatWorldTrails` reads them (through
+`AttackMoveDefinition.worldTrailSamples()`), so hits, damage, timing, the
+server's active samples, and the payload protocol never see them; without the
+block nothing changes. No shipped style uses them. `trail` sits at move level,
+beside the other presentation blocks (`feedback`, `camera`) rather than inside
+`hitbox`, which the server reads, and it is an object so further trail fields
+can join `samples`.
+
 ## Weapon file (schema 1)
 
 `schema`, `item`, `style`, `first_person_rig`, `geometry`. Two weapons may
@@ -94,9 +112,41 @@ consulted). `tools/validate_mod_items.py` enforces the class and the rule.
 
 Geometry contract fields since 0.29.0 (both optional): `off_hand_grip_center`
 (a second hand on the shaft; required by a rig with `rig.off_hand`) and
-`trail` (`{base, tip}`, the span that draws the trails; default the blade).
+`trail` (`{base, tip}`, the span that draws the trails; default the head).
 The rig's optional `rig.off_hand` block and its per-key fields are described in
 [Lingxiao Spear](35_lingxiao_spear.md).
+
+### Geometry contract format 2 and the rig scale
+
+The contract and rig names were sword-shaped; format 2 (after 0.29.0-fix1)
+renames them for any weapon. Values and generated models did not change.
+
+| Format 1 | Format 2 |
+|---|---|
+| `"format": 1` | `"format": 2` |
+| `axes.blade` | `axes.length` |
+| `pommel` | `butt` |
+| `guard` | `collar` |
+| `blade` (half widths, taper) | `head` |
+| `blade_base` | `head_base` |
+| `blade_tip` | `head_tip` |
+| rig `rig.sword_scale` | `rig.weapon_scale` |
+
+Unchanged: `units`, `generator`, `model`, `axes.flat_normal`, `axes.edge`,
+`axes.center_*`, `grip_center`, `off_hand_grip_center`, `handle`, `trail`,
+`edge_axis`, `flat_axis`, `overall_y`. Old data fails loudly, never with a
+default: `WeaponGeometry` rejects a contract that is not format 2 or still has
+a format 1 field, and `FirstPersonSwing` rejects a rig with `sword_scale` (rig
+fields are otherwise ignored when unknown, so it would silently draw the
+default scale); each message names the new field and the weapon keeps the
+vanilla hold. `tools/combat_data.py` (`geometry_format_problems`,
+`rig_format_problems`) gives the Python readers (the validator, the PAL
+generator, `tools/combat_preview`) the same rule. The Java classes were renamed
+with it: `SwordGeometry` to `WeaponGeometry`, `FirstPersonSwordTransform` to
+`FirstPersonWeaponTransform`, `FirstPersonSwordTrail` to
+`FirstPersonWeaponTrail`, `SwordTrailShape` to `WeaponTrailShape`. Tool file
+names, sound events (`myvillage:combat.sword.*`), item, style, move, and
+animation ids, and validator finding codes keep their names.
 
 ## Runtime
 
@@ -115,7 +165,7 @@ The rig's optional `rig.off_hand` block and its per-key fields are described in
   The two client-to-server combat payloads are still empty.
 - Client: `FirstPersonSwingResources` loads one rig and geometry per weapon on
   every resource reload and logs
-  `Loaded first-person swing rig <rig> (<n> moves) with sword geometry <geometry>`
+  `Loaded first-person swing rig <rig> (<n> moves) with weapon geometry <geometry>`
   for each. An invalid rig or geometry puts only that weapon on the vanilla
   hold. `FirstPersonWeaponAnimator`, `FirstPersonArmRenderer`,
   `FirstPersonArmIk`, and `FirstPersonArmModel` replace the `Qingfeng*`
@@ -165,7 +215,9 @@ each hold first removes any fade modifier left from an earlier hand-over.
   any issue, and `style_rel` / `weapon_rel` / `asset_rel` map ids to paths.
   It rejects unknown fields and checks the timing invariants, id uniqueness,
   and that the index and the directories agree. The Java loader stays
-  authoritative for value ranges.
+  authoritative for value ranges. `expand_samples` and `expand_trail_samples`
+  give a move's hit samples and the samples its world trail draws; the
+  format 2 helpers are described above.
 - `tools/gen_sword_pal_anims.py` reads each move's total, active window, chain
   tick, step tick, and kind from the style file. `POSE_TABLES` holds one
   `PoseTable` per style with its own geometry contract, 3D model, `PoseRules`,
@@ -180,8 +232,8 @@ each hold first removes any fade modifier left from an earlier hand-over.
   `total_ticks / 20` s), translation, and sound events, and every weapon
   against its item, item model chain and textures, 3D model, rig (`strike`
   covers the active ticks within three ticks; `contact` inside `strike`;
-  `rig.off_hand` and off-hand pose fields), and geometry contract (including
-  `off_hand_grip_center` and `trail`). It runs `--check` of the model
+  `rig.off_hand` and off-hand pose fields; no format 1 `sword_scale`), and
+  geometry contract (format 2, including `off_hand_grip_center` and `trail`). It runs `--check` of the model
   generator each contract names (Qingfeng's always) and checks every weapon's
   files in a current jar. It holds no per-move numbers. Its Java source checks
   are limited to: PAL and client imports only under `client/combat`, empty

@@ -760,14 +760,15 @@ same pivot rig: upper arm, forearm, a bending wrist, and a fist. The handle
 crosses the fist, with the guard showing on the thumb side and the pommel below
 the little finger. The wrist bend stays within anatomical limits, and the arm
 lags a cut slightly and follows through when it stops (presentation only). The
-rig's `rig.sword_scale` and `rig.arm` settings and each key's `grip_roll` (hand
+rig's `rig.weapon_scale` and `rig.arm` settings and each key's `grip_roll` (hand
 turn about the handle) and `elbow` (elbow swivel) tune it. The arm is drawn
 beside the item pass and never cancels it.
 
 The held Qingfeng Sword is a 3D jian model. The inventory icon stays the 2D
 sprite (`neoforge:separate_transforms`). The 3D model, its texture, the wrapper
-model, and the geometry contract `combat/qingfeng_sword_geometry.json` (grip
-centre, guard, pommel, blade base and tip) are all generated. Edit
+model, and the geometry contract `combat/qingfeng_sword_geometry.json` (format 2:
+grip centre, `collar` for the guard, `butt` for the pommel, `head_base` and
+`head_tip` for the blade) are all generated. Edit
 `tools/gen_qingfeng_sword_model.py` and rerun it instead of editing them:
 
 ```bash
@@ -876,6 +877,17 @@ are described in `docs/ai-kb/35_lingxiao_spear.md`, with what the spear showed
 about the 0.28.0 data infrastructure. A rig, contract, or first-person solver
 change also rewrites the first-person parity golden (see the offline preview
 commands below).
+
+Geometry contracts are format 2 and use weapon-neutral names (`butt`, `handle`,
+`collar`, `head`, `head_base`, `head_tip`, `axes.length`); the rig's scale is
+`rig.weapon_scale`. A format 1 contract or a rig that still has `sword_scale`
+fails to load with a message naming the new field, and the validator reports it.
+The rename table is in `docs/ai-kb/34_combat_data_and_capture.md`. A move may
+also give its third-person world trail its own path (`"trail": {"samples": ...}`
+in the style file, presentation only; without it the trail follows the hit
+samples), and `rig.off_hand` may give the off arm its own `upper_arm`,
+`forearm`, and released rest (`rest_direction`, `rest_reach`). No shipped style
+or rig uses these yet.
 
 Operators can inspect the server-computed active samples without changing hit
 authority:

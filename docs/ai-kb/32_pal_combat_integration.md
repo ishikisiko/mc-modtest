@@ -200,9 +200,10 @@ applies edits. The rig swings the sword from one camera-space shoulder pivot:
   `-90` forward), and turn about the blade (`90` shows the flat on a cut).
 - `offset`: optional camera-space translation.
 
-`FirstPersonSwordTransform` applies those in that order. It then multiplies by
+`FirstPersonWeaponTransform` (named `FirstPersonSwordTransform` before the
+format 2 rename) applies those in that order. It then multiplies by
 the inverse of the baked model's own `firstperson_*` display transform and maps
-the geometry contract's `grip_center` onto the grip at `rig.sword_scale`, so
+the geometry contract's `grip_center` onto the grip at `rig.weapon_scale`, so
 the rig grip is the Qingfeng handle (0.27.1; see below). The left hand mirrors
 the right. Keys are server ticks with per-segment `linear`/`in`/`out`/`in_out`
 easing (0.27.0 adds `in_cubic`, `out_cubic`, `in_out_cubic`, and `out_back` with
@@ -275,14 +276,17 @@ to correct it mid-move as a visible skip. An authoritative correction of up
 to 2 ticks is slewed over 3 ticks (a larger one snaps); each logs
 `PAL_SMOKE fp_resync`.
 
-Both trails use `CombatRenderTypes.SWORD_TRAIL_TRANSLUCENT` (SRC_ALPHA /
+Both trails use `CombatRenderTypes.WEAPON_TRAIL_TRANSLUCENT` (SRC_ALPHA /
 ONE_MINUS_SRC_ALPHA, no cull, no depth write). The additive `SWORD_TRAIL`
 washed out to a white slab against the sky and was removed. Each trail is a thin
 tapered band with a near-white edge at the tip and a pale-blue body inside it;
-thrusts draw a single streak. `FirstPersonSwordTrail` still re-poses the blade
+thrusts draw a single streak. `FirstPersonWeaponTrail` still re-poses the weapon
 at earlier visual ticks from the shared frame and never cancels the item pass.
 `CombatWorldTrails` still samples the move's hitbox with the broadcast facing
-yaw and is skipped in first person. It is drawn from a pivot 1.3 blocks up and
+yaw and is skipped in first person; a move may instead name its own trail path
+(`trail.samples`, presentation only, read through
+`AttackMoveDefinition.worldTrailSamples()`; see
+[Combat Data and Capture](34_combat_data_and_capture.md)). It is drawn from a pivot 1.3 blocks up and
 holds still while its attacker is frozen in a hit-stop. Samples that share a
 server tick are spread evenly through the tick (one sample per tick, as all
 Qingfeng moves have, sits on its tick as before).
@@ -347,7 +351,8 @@ sword together.
   arm with its hand on the shaft at the contract's `off_hand_grip_center`,
   only while the off-hand slot is empty. Qingfeng's rig has no such block and
   draws as before. The block may give the off arm its own `thickness`
-  (0.29.0-fix1). Schema in [Lingxiao Spear](35_lingxiao_spear.md).
+  (0.29.0-fix1), bone lengths (`upper_arm`, `forearm`), and released rest
+  (`rest_direction`, `rest_reach`). Schema in [Lingxiao Spear](35_lingxiao_spear.md).
 - Re-equip (0.29.0): a landed hit costs durability and the server resends the
   stack. On a plain `SwordItem` NeoForge then replayed the equip animation, so
   the weapon sank out of view for 5 to 6 ticks after every hit. Combat weapons
@@ -373,18 +378,19 @@ was the owner's "插入肉里的，非常僵硬".
 - `models/item/qingfeng_sword.json`: a `neoforge:separate_transforms` wrapper.
   `base` is the 3D model, and the `gui` perspective keeps the 2D
   `item/qingfeng_sword` sprite on `minecraft:item/handheld`.
-- `combat/qingfeng_sword_geometry.json`: the contract, in model pixels, with
-  blade `+Y`, flat normal X, and edge Z. It gives `grip_center`, the `handle`,
-  `guard`, and `pommel` extents, `blade_base`, `blade_tip`, and the axes.
+- `combat/qingfeng_sword_geometry.json`: the contract (format 2), in model
+  pixels, with the weapon along `+Y` (`axes.length`), flat normal X, and edge Z.
+  It gives `grip_center`, the `handle`, `collar` (the guard), and `butt` (the
+  pommel) extents, `head_base` and `head_tip` (the blade), and the axes.
 
 Display transforms are derived from the old sprite's pose in each context. In
 third person the grip centre lands on the fist centre. The first-person values
 match the old sprite's vanilla hold outside cultivation mode; the rig undoes
 them. The baked wrapper forwards `applyTransform` to the drawn model, so runtime
-reads get the 3D values. `SwordGeometry` loads the contract with the rig in
+reads get the 3D values. `WeaponGeometry` loads the contract with the rig in
 `FirstPersonSwingResources` on every reload. A missing or invalid contract
 leaves Qingfeng on the vanilla hold. The first-person trail spans the
-contract's optional `trail` (else `blade_base` to `blade_tip`). Since 0.29.0
+contract's optional `trail` (else `head_base` to `head_tip`). Since 0.29.0
 the world trail is sized from the contract without clamps: its tip lies
 `0.705` (shoulder to grip) plus the grip-to-trail-tip distance from the pivot
 and its length is the trail span, both at the model's third-person display

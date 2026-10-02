@@ -13,7 +13,7 @@ python3 -m tools.combat_preview fp|pose|model [options]    # <tool> -h lists its
 
 | Tool | What it draws |
 |---|---|
-| `fp` | First-person frames of a weapon's rig at any tick: item model, main arm, off arm (`rig.off_hand`), trail, crosshair and HUD outline, as the client's freeze probe shows them. A port of `FirstPersonSwing`, `FirstPersonSwordTransform`, `FirstPersonArmIk`, `FirstPersonArmLag`, `FirstPersonArmRenderer`/`FirstPersonArmModel`, `FirstPersonSwordTrail` and `SwordGeometry`. |
+| `fp` | First-person frames of a weapon's rig at any tick: item model, main arm, off arm (`rig.off_hand`), trail, crosshair and HUD outline, as the client's freeze probe shows them. A port of `FirstPersonSwing`, `FirstPersonWeaponTransform`, `FirstPersonArmIk`, `FirstPersonArmLag`, `FirstPersonArmRenderer`/`FirstPersonArmModel`, `FirstPersonWeaponTrail` and `WeaponGeometry`. |
 | `pose` | Third-person PAL poses from a `player_animations` file with the item model in the right hand: F5 back and front cameras as the capture tool frames them, orthographic side and top. |
 | `model` | An item model in each display context (front, side, iso, hilt, tip, third-person hand, GUI), with the geometry contract's points marked. |
 
@@ -86,14 +86,25 @@ rotations, wrist angles, grip height on the shaft, hold). Two tests check it:
 
 Under an interpreter without numpy the Python test skips and names the
 command above. After a deliberate change to the first-person solver
-(`FirstPersonSwing`, `FirstPersonSwordTransform`, `FirstPersonArmIk`,
-`FirstPersonArmLag`, `SwordGeometry`), a rig, or a geometry contract, rewrite
+(`FirstPersonSwing`, `FirstPersonWeaponTransform`, `FirstPersonArmIk`,
+`FirstPersonArmLag`, `WeaponGeometry`), a rig, or a geometry contract, rewrite
 the golden from the Java, then bring `fp_rig.py` in step until the Python test
 passes:
 
 ```bash
 ./gradlew test --tests com.example.myvillage.client.combat.FirstPersonPreviewParityTest -PupdatePreviewParity
 ```
+
+The golden covers shipped rigs only. The off-arm fields no shipped rig uses
+(`rig.off_hand` `upper_arm`, `forearm`, `rest_direction`, `rest_reach`) are
+pinned by `src/test/resources/first_person_off_arm_overrides.json`, a modified
+copy of the spear rig with its expected off-arm joints, checked by
+`FirstPersonOffHandTest` and by the same Python test; a solver change that moves
+them is fixed by hand from the Java test's failure message.
+
+The tools read geometry contracts in format 2 only, like the game: a format 1
+contract or a rig with `sword_scale` stops with the format 2 name (see
+`docs/ai-kb/34_combat_data_and_capture.md`).
 
 On the shared capture host every Gradle command takes the heavy-work lock:
 `flock /home/ubuntu/code/mc/.mc-heavy.lock ./gradlew ... -x generateAllStructures --console=plain`.
