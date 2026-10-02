@@ -665,7 +665,7 @@ class SpearTableTest(unittest.TestCase):
 
     def test_sword_output_is_untouched_by_the_spear_table(self) -> None:
         self.assertEqual(gen.render(gen.build_document(gen.BASIC_SWORD)), gen.OUTPUT.read_text(encoding="utf-8"))
-        for name in ("weapon_ground_clearance", "min_hand_separation_px", "shaft_body_clearance_px"):
+        for name in ("weapon_ground_clearance", "min_hand_separation_px", "shaft_body_clearance_px", "lunge_body_yaw"):
             self.assertIsNone(getattr(gen.SWORD_RULES, name), name)
 
     def test_left_hand_is_on_the_shaft_and_apart_from_the_right(self) -> None:
@@ -680,10 +680,41 @@ class SpearTableTest(unittest.TestCase):
                 self.assertLessEqual(offset, gen.OFF_HAND_KEY_TOLERANCE_PX, (name, k.tick))
                 self.assertGreaterEqual(at - rig.grip_y, SPEAR.rules.min_hand_separation_px, (name, k.tick))
                 self.assertLessEqual(at, rig.handle[1], (name, k.tick))
-        self.assertGreater(held, 40)
-        # Only the mode entry releases the hand (the vanilla carry and the upright salute).
-        free = [(name, k.tick) for name, keys in spear_keys() for k in keys if not isinstance(k.larm, gen.OnShaft)]
-        self.assertEqual([("spear_mode_enter", 0), ("spear_mode_enter", 4)], free)
+        self.assertGreater(held, 30)
+
+    def test_left_hand_schedule(self) -> None:
+        # The leading hand lets go only where holding on would cripple the move (see the table's
+        # comment): never in the thrust, idle or guard; for the swing of the sweep and the flick,
+        # the overhead smash and the lunge's finish; always back on the shaft before the guard.
+        free = {name: [k.tick for k in keys if not isinstance(k.larm, gen.OnShaft)] for name, keys in spear_keys()}
+        self.assertEqual({
+            "spear_mode_enter": [0, 4],
+            "spear_ready_idle": [],
+            "basic_spear_01_mid_thrust": [],
+            "basic_spear_02_sweep": [4, 5, 6, 7, 10],
+            "basic_spear_03_rising_flick": [3, 4, 5, 6, 7, 10, 12],
+            "basic_spear_04_overhead_smash": [3, 4, 6, 7, 8, 9, 13, 15],
+            "basic_spear_05_dragon_lunge": [8, 10, 14, 16],
+        }, free)
+        for name, keys in spear_keys():
+            self.assertIsInstance(keys[-1].larm, gen.OnShaft, name)
+            if name != "spear_mode_enter":
+                self.assertIsInstance(keys[-2].larm, gen.OnShaft, name)  # regripped before the guard
+
+    def test_released_arm_is_never_a_t_pose_or_hanging(self) -> None:
+        # A free left arm counterbalances behind or reaches forward: never straight out to the side
+        # level with the shoulder, never hanging straight down.
+        for name, keys in spear_keys():
+            if name == "spear_mode_enter":
+                continue
+            for k, pose in zip(keys, gen.resolve(keys, SPEAR)):
+                if isinstance(k.larm, gen.OnShaft):
+                    continue
+                direction = gen.limb_direction(pose["body"], pose["left_arm"][:2])
+                yaw, elevation = gen.direction_angles((0, 0, 0), direction)
+                relative = (yaw - pose["body"][1] + 180) % 360 - 180
+                self.assertGreater(elevation, -80, (name, k.tick))
+                self.assertFalse(-110 < relative < -70 and abs(elevation) < 20, (name, k.tick, relative, elevation))
 
     def test_long_weapon_margins(self) -> None:
         rules = SPEAR.rules
@@ -730,19 +761,48 @@ class SpearTableTest(unittest.TestCase):
                 wind = gen.skeleton(poses[phases.index("contact") - 1], SPEAR)["tip"]
                 self.assertGreater(wind[1], hold[1] + 1.5)
 
-    def test_thrusts_reach_and_lunge(self) -> None:
-        for m in gen.moves(SPEAR):
-            if m.kind != "thrust":
-                continue
-            poses = gen.resolve(m.keys, SPEAR)
-            phases = [k.phase for k in m.keys]
-            sk = gen.skeleton(poses[phases.index("through")], SPEAR)
-            self.assertGreaterEqual(sk["tip"][2], SPEAR.rules.thrust_reach[1 if m.lunge else 0], m.animation_id)
-            # The rear hand drives forward of the body: the shaft slides through the leading hand.
-            guard_at = gen.off_hand_offset(gen.skeleton(poses[0], SPEAR), SPEAR)[1]
-            strike_at = gen.off_hand_offset(sk, SPEAR)[1]
-            self.assertLess(strike_at, guard_at - 4.0, m.animation_id)
-            self.assertGreater(sk["right_hand"][2], 0.4, m.animation_id)
+    def through(self, m):
+        poses = gen.resolve(m.keys, SPEAR)
+        index = [k.phase for k in m.keys].index("through")
+        return m.keys[index], poses[index], gen.skeleton(poses[index], SPEAR)
+
+    def test_thrust_is_short_two_handed_and_slides(self) -> None:
+        thrust = gen.moves(SPEAR)[0]
+        k, pose, sk = self.through(thrust)
+        self.assertGreaterEqual(sk["tip"][2], SPEAR.rules.thrust_reach[0])
+        self.assertIsInstance(k.larm, gen.OnShaft)
+        self.assertGreaterEqual(pose["body"][1], 40)  # still bladed, hips turned in from the coil
+        # The rear hand drives forward: the shaft slides through the leading hand toward the tip.
+        guard_at = gen.off_hand_offset(gen.skeleton(gen.canonical_guard(SPEAR), SPEAR), SPEAR)[1]
+        self.assertLess(gen.off_hand_offset(sk, SPEAR)[1], guard_at - 4.0)
+
+    def test_lunge_is_one_handed_and_reaches_clearly_further(self) -> None:
+        thrust, lunge = gen.moves(SPEAR)[0], gen.moves(SPEAR)[4]
+        _, thrust_pose, thrust_sk = self.through(thrust)
+        k, pose, sk = self.through(lunge)
+        self.assertFalse(isinstance(k.larm, gen.OnShaft))  # one-handed finish
+        self.assertGreaterEqual(sk["tip"][2], thrust_sk["tip"][2] + 0.5)
+        self.assertGreaterEqual(sk["tip"][2], SPEAR.rules.thrust_reach[1])
+        self.assertLessEqual(pose["body"][1], 20)  # the rear shoulder driven through, not bladed
+        self.assertGreater(pose["body"][0], thrust_pose["body"][0] + 8)  # longer forward lean
+        self.assertLess(pose["body_pos"][2], -8)  # hips driven forward
+        arm = gen._unit([sk["right_hand"][i] - sk["right_shoulder"][i] for i in range(3)])
+        shaft = gen._unit([sk["tip"][i] - sk["grip"][i] for i in range(3)])
+        self.assertGreater(sum(arm[i] * shaft[i] for i in range(3)), math.cos(math.radians(30)))  # in line
+        self.assertLess(sk["left_hand"][2], sk["hip"][2])  # the free arm thrown back
+
+    def test_smash_goes_overhead(self) -> None:
+        smash = gen.moves(SPEAR)[3]
+        poses = gen.resolve(smash.keys, SPEAR)
+        phases = [k.phase for k in smash.keys]
+        wind = gen.skeleton(poses[phases.index("coil")], SPEAR)
+        self.assertGreater(wind["tip"][1], 2.9)  # spear raised high
+        self.assertGreater(wind["right_hand"][1], wind["right_shoulder"][1] + 0.3)  # rear arm up
+        self.assertLess(wind["tip"][2], 0.0)  # tip behind the head
+        hold = gen.skeleton(poses[phases.index("hold")], SPEAR)
+        self.assertLess(hold["tip"][1], 0.6)
+        self.assertGreater(hold["tip"][2], 1.8)  # driven into the ground in front, not by the feet
+        self.assertGreater(poses[phases.index("hold")]["body"][0], 25)  # the body folds into it
 
 
 class SpearRuleNegativeTest(unittest.TestCase):
@@ -772,8 +832,8 @@ class SpearRuleNegativeTest(unittest.TestCase):
         poses = gen.resolve((start, end), SPEAR)
         for pose in poses:
             self.assertGreater(gen.shaft_body_clearance(pose, gen.skeleton(pose, SPEAR))[0], 0.5)
-        errors = [e for e in gen.check_keys("probe", (start, end), SPEAR) if "px from the" in e]
-        self.assertEqual(1, len(errors), errors)
+        errors = [e for e in gen.check_keys("probe", (start, end), SPEAR) if "px from the torso" in e]
+        self.assertEqual(1, len(errors), errors)  # one error per body part
         self.assertRegex(errors[0], r"^probe: shaft 0\.00 px from the torso near tick [123]\.\d\d ")
 
     def test_leg_branch_follows_the_previous_key(self) -> None:
@@ -784,6 +844,107 @@ class SpearRuleNegativeTest(unittest.TestCase):
             for a, b in zip(poses, poses[1:]):
                 for bone in ("right_leg", "left_leg"):
                     self.assertLess(max(abs(a[bone][j] - b[bone][j]) for j in range(2)), 120, (name, bone))
+
+
+# The v1 sweep (the in-game capture of 2026-10-02): at its follow-through the arms were spread in a
+# T and the shaft ran back through the right arm and across the chest.  The torso-only check passed
+# it at 1.39 px.
+V1_SWEEP = (
+    (0, "guard", "linear", None),
+    (2, "wind", "easeinoutsine", ((6, 30, 0), ("L", 31, -5), (50, -70), gen.ON_SHAFT, (-24.2, -101.1, -19.3), (-55, 8))),
+    (3, "anticipation", "easeinoutsine", ((4, 8, 0), ("L", 32, -10), (5, -30), gen.ON_SHAFT, (-33.5, -109.6, -58.5), (-95, 6))),
+    (4, "coil", "linear", ((5, 4, 0), ("L", 32, -10), (35, -30), gen.ON_SHAFT, (-66.6, -149, -39.3), (-98, 6))),
+    (5, "contact", "easeoutcubic", ((8, 48, 0), ("L", 36, -10), (70, -40), gen.OnShaft(at=12), (-45.2, -133.9, -38.9), (-55, 0))),
+    (6, "sweep", "linear", ((10, 78, 0), ("L", 38, -10), (150, -40), gen.OnShaft(at=12), (-54.7, -147.8, -22.5), (0, -2))),
+    (7, "through", "easeoutsine", ((10, 112, 0), ("L", 40, -10), (-135, -20), gen.OnShaft(at=13), (-76.8, -163.3, -17.8), (64, -3))),
+)
+
+
+def v1_sweep_keys() -> tuple[gen.Key, ...]:
+    return tuple(gen.key(t, phase, easing, **SPEAR.guard) if spec is None else gen.key(t, phase, easing, *spec)
+                 for t, phase, easing, spec in V1_SWEEP)
+
+
+class ShaftClearanceRegressionTest(unittest.TestCase):
+    def test_v1_sweep_t_pose_is_caught(self) -> None:
+        keys = v1_sweep_keys()
+        pose = gen.resolve(keys, SPEAR)[-1]
+        sk = gen.skeleton(pose, SPEAR)
+        gaps = gen.shaft_body_gaps(pose, sk)
+        self.assertGreater(gaps["torso"], 1.0)  # what the torso/head/legs-only check measured
+        self.assertEqual(0.0, gaps["right upper arm"])  # the shaft folded back through the arm
+        errors = [e for e in gen.check_keys("v1_sweep", keys, SPEAR) if "right upper arm" in e]
+        self.assertTrue(errors, "the folded-back shaft must fail the clearance check")
+
+    def test_shaft_along_the_forearm_is_allowed(self) -> None:
+        # The thrust's butt rides along the driving forearm and the guard's shaft crosses the belly:
+        # neither is a fold-back.
+        thrust = gen.moves(SPEAR)[0]
+        poses = gen.resolve(thrust.keys, SPEAR)
+        for pose in (poses[0], poses[[k.phase for k in thrust.keys].index("contact")]):
+            gaps = gen.shaft_body_gaps(pose, gen.skeleton(pose, SPEAR))
+            self.assertGreaterEqual(min(gaps.values()), SPEAR.rules.shaft_body_clearance_px, gaps)
+
+
+class WorldTrailTest(unittest.TestCase):
+    """The port of CombatWorldTrails / HitboxGenerators."""
+
+    def test_tip_radius_comes_from_the_weapon(self) -> None:
+        # 0.705 + (blade tip 32 - grip -2) px * 0.9 / 16 (CombatWorldTrails.trailSize).
+        self.assertAlmostEqual(0.705 + 34 * 0.9 / 16, gen.trail_tip_radius(SPEAR), places=6)
+        self.assertAlmostEqual(0.705 + 0.995, gen.trail_tip_radius(gen.BASIC_SWORD), places=2)  # the 1.7 jian
+
+    def test_sample_times_spread_each_tick(self) -> None:
+        sweep = gen.moves(SPEAR)[1]
+        times = gen.trail_sample_times(gen.hit_samples(sweep))
+        self.assertEqual(9, len(times))
+        for got, want in zip(times, [4 + 2 / 3, 5, 5 + 1 / 3, 5 + 2 / 3, 6, 6 + 1 / 3, 6 + 2 / 3, 7, 7 + 1 / 3]):
+            self.assertAlmostEqual(want, got, places=6)
+        thrust = gen.moves(SPEAR)[0]
+        self.assertEqual([4.0, 5.0], gen.trail_sample_times(gen.hit_samples(thrust)))  # a lone sample sits on its tick
+
+    def test_trail_head_follows_the_far_end_at_the_tip_radius(self) -> None:
+        sweep = gen.moves(SPEAR)[1]
+        samples, radius = gen.hit_samples(sweep), gen.trail_tip_radius(SPEAR)
+        head = gen.trail_head(samples, 6.0, radius)  # the straight-ahead sample (0, 1.05, 3.8)
+        self.assertAlmostEqual(0.0, head[0], places=6)
+        self.assertAlmostEqual(radius, math.dist(head, (0.0, gen.TRAIL_PIVOT_HEIGHT, 0.0)), places=6)
+        self.assertLess(head[1], gen.TRAIL_PIVOT_HEIGHT)
+        first = gen.trail_head(samples, 4.0, radius)  # before the first sample: held there
+        self.assertLess(first[0], -2.0)  # server +x (left) is the rig's -x
+        last = gen.trail_head(samples, 8.0, radius)
+        self.assertGreater(last[0], 2.0)
+
+    def test_sweep_spearhead_stays_with_the_trail(self) -> None:
+        sweep = gen.moves(SPEAR)[1]
+        tolerance = SPEAR.cut_paths["left_to_right"].trail_tolerance
+        self.assertEqual(0.48, tolerance)
+        self.assertLessEqual(max(r for _, r in gen.trail_residuals(sweep, SPEAR)), tolerance)
+        # The v1 sweep was about 1.5 blocks off the trail.
+        v1 = dataclasses.replace(sweep, keys=v1_sweep_keys() + sweep.keys[-3:])
+        self.assertGreater(sum(r for _, r in gen.trail_residuals(v1, SPEAR)) / 9, 1.0)
+
+    def test_detached_trail_fails_the_check(self) -> None:
+        sweep = gen.moves(SPEAR)[1]
+        tight = dataclasses.replace(SPEAR, cut_paths=dict(SPEAR.cut_paths, left_to_right=dataclasses.replace(
+            SPEAR.cut_paths["left_to_right"], trail_tolerance=0.2)))
+        errors = gen.check_move(sweep, tight)
+        self.assertTrue(any("from the world trail head" in e for e in errors), errors)
+
+    def test_lunge_tip_reaches_the_streak(self) -> None:
+        lunge = gen.moves(SPEAR)[4]
+        self.assertLess(max(r for _, r in gen.trail_residuals(lunge, SPEAR)), 0.2)
+
+
+class ArmBranchTest(unittest.TestCase):
+    def test_released_arm_comes_back_on_the_guard_branch(self) -> None:
+        # The lunge's left arm is thrown behind and regrips: every segment takes the short way.
+        lunge = gen.moves(SPEAR)[4]
+        self.assertEqual([], [e for e in gen.check_keys(lunge.animation_id, lunge.keys, SPEAR) if "left_arm" in e])
+
+    def test_the_sword_is_resolved_as_before(self) -> None:
+        for m in gen.moves():
+            self.assertEqual(gen.resolve(m.keys), gen._settle_arm_branches(m.keys, gen.resolve(m.keys), gen.BASIC_SWORD))
 
 
 if __name__ == "__main__":

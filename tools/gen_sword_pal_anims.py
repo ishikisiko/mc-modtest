@@ -205,10 +205,13 @@ class CutPath:
     """The blade path of a cut, shared with the server hitbox.
 
     ``side_finish``: the table's ``cut_end_*`` rules (the blade finishes out to the side) apply.
+    ``trail_tolerance``: max distance in blocks from the posed weapon tip to the head of the world
+    trail (``CombatWorldTrails``) while the trail is moving; ``None`` only reports the distances.
     """
 
     rules: tuple[PathRule, ...]
     side_finish: bool = True
+    trail_tolerance: float | None = None
 
 
 @dataclass(frozen=True)
@@ -224,6 +227,7 @@ class PoseRules:
     cut_end_blade_yaw: tuple[float, float] | None = (80.0, 110.0)  # |blade yaw| at through/hold
     cut_end_tip_lateral: float | None = 0.6             # min |tip x| (blocks) at through/hold
     thrust_body_yaw: tuple[float | None, float | None] = (None, -40.0)  # bladed body yaw (min, max)
+    lunge_body_yaw: tuple[float | None, float | None] | None = None   # the lunge's; None = thrust_body_yaw
     thrust_left_hand_lateral: float | None = -0.45      # 剑指 T-shape: max left hand x (blocks)
     thrust_arm_level: float | None = 20.0               # max |elevation| shoulder -> right hand
     thrust_reach: tuple[float, float] = (1.5, 1.9)      # min tip z (blocks): plain thrust, lunge
@@ -271,6 +275,7 @@ class Move:
     keys: tuple[Key, ...] = field(default_factory=tuple)
     lunge: bool = False
     cut_path: str | None = None
+    samples: str = "[]"  # the style's hitbox samples as JSON (a list or one generator object)
 
 
 class PoseTableError(ValueError):
@@ -445,10 +450,22 @@ BASIC_SWORD = PoseTable(
 # Pose table of myvillage:basic_spear (the Lingxiao spear, two-handed).  The item rides the right
 # (rear) hand at the contract's grip_center; every ON_SHAFT key solves the left (leading) hand onto
 # the shaft.  With rigid arms the left fist only reaches a shaft that points roughly 45-120
-# degrees to the left of the chest, so the spear is held bladed (body turned right, left foot and
-# left hand leading) and the whole body turns with the shaft.  Cut senses follow the style's hit
-# samples: 横扫 sweeps the player's left -> right, 上挑 rises right-low -> left-high and 劈枪
-# descends left-high -> right-low, both through the centre line.
+# degrees to the left of the chest, so the guard is bladed (body turned right, left foot and left
+# hand leading) and a two-handed spear cannot point ahead of the chest without its butt entering
+# the body.  The moves therefore release the leading hand where holding on would cripple them
+# (an explicit larm is a deliberate release, and the free arm counterbalances or reaches):
+#   中平扎  both hands throughout; the shaft slides through the leading hand.
+#   横扫    both hands for the wind-up; released as the spear is pushed out to full reach for the
+#           one-handed level arc; regripped in the recovery.
+#   上挑    released after the drop; one-handed flick from right-low to left-high; regripped in
+#           the recovery.
+#   劈枪    released as the rear arm raises the spear overhead; one-handed smash into the ground
+#           in front; regripped in the recovery (both hands at impact would put the butt in the
+#           chest).
+#   游龙突刺 both hands through the coil; released as the rear arm drives; one-handed finish at
+#           full depth; regripped in the recovery.
+# Cut senses follow the style's hit samples: 横扫 sweeps the player's left -> right, 上挑 rises
+# right-low -> left-high and 劈枪 descends left-high -> right-low, both through the centre line.
 # ---------------------------------------------------------------------------------------------
 
 SPEAR_GEOMETRY = ROOT / "src/main/resources/assets/myvillage/combat/lingxiao_spear_geometry.json"
@@ -466,13 +483,16 @@ SPEAR_RULES = replace(
     cut_end_tip_lateral=1.0,
     # Bladed with the LEFT shoulder leading (body turned right) instead of the sword's right.
     thrust_body_yaw=(40.0, None),
+    # The one-handed lunge drives the rear (right) shoulder through: square to the target or
+    # turned a little left, never bladed the guard's way.
+    lunge_body_yaw=(-45.0, 20.0),
     # The left hand is on the shaft (checked by the off-hand rules), not out in a 剑指 T-shape.
     thrust_left_hand_lateral=None,
     # The rear arm drives forward to the belly line, so it may point a little lower than the
     # sword arm.
     thrust_arm_level=30.0,
     # A 2.6-block spear: the visual tip reaches about 60 % of the server range, as the sword's does.
-    thrust_reach=(2.1, 2.45),
+    thrust_reach=(2.1, 2.85),
     weapon_ground_clearance=0.1,
     min_hand_separation_px=5.0,
     shaft_body_clearance_px=0.5,
@@ -490,7 +510,10 @@ SPEAR_CUT_PATHS: dict[str, CutPath] = {
         PathRule("sweep must stay level at the hit height (tip y {0:.2f}, elevation {2:.0f})",
                  (("mid_active", "tip_y", ">=", 0.6), ("mid_active", "tip_y", "<=", 1.5),
                   ("mid_active", "blade_elevation", "abs<=", 15.0))),
-    )),
+    ), trail_tolerance=0.48),  # one drawn trail length: the spearhead stays inside the ribbon it draws
+    # The world trail of the flick and the smash follows the FAR ends of their samples, which run
+    # level (head height left -> right for the flick, knee height right -> left for the smash), so
+    # a vertical technique cannot stay on it: their trail distances are reported, not enforced.
     "rising": CutPath((
         PathRule("flick must start right-low", (("contact", "tip_x", ">", 0.3), ("contact", "tip_y", "<", 0.8))),
         PathRule("flick must finish left-high", (("hold", "tip_x", "<", -0.15), ("hold", "tip_y", ">", 1.8))),
@@ -536,54 +559,66 @@ BASIC_SPEAR_MOVES: dict[str, MovePoses] = {
         spear_guard(0, "guard", "linear"),
         key(2, "wind", "easeinoutsine", (6, 30, 0), ("L", 31, -5), (50, -70), ON_SHAFT,
             (-24.2, -101.1, -19.3), (-55, 8)),
-        key(3, "anticipation", "easeinoutsine", (4, 8, 0), ("L", 32, -10), (5, -30), ON_SHAFT,
-            (-33.5, -109.6, -58.5), (-95, 6)),
-        key(4, "coil", "linear", (5, 4, 0), ("L", 32, -10), (35, -30), ON_SHAFT,
-            (-66.6, -149, -39.3), (-98, 6)),
-        key(5, "contact", "easeoutcubic", (8, 48, 0), ("L", 36, -10), (70, -40), OnShaft(at=12),
-            (-45.2, -133.9, -38.9), (-55, 0)),
-        key(6, "sweep", "linear", (10, 78, 0), ("L", 38, -10), (150, -40), OnShaft(at=12),
-            (-54.7, -147.8, -22.5), (0, -2)),
-        key(7, "through", "easeoutsine", (10, 112, 0), ("L", 40, -10), (-135, -20), OnShaft(at=13),
-            (-76.8, -163.3, -17.8), (64, -3)),
-        key(10, "hold", "linear", (10, 112, 0), ("L", 40, -10), (-135, -20), OnShaft(at=13),
-            (-76.8, -163.3, -17.8), (64, -3)),
-        key(12, "return", "easeinoutsine", (10, 95, 0), ("L", 36, -5), (-165, -50), OnShaft(at=12),
-            (-52.1, -148.7, -12.7), (35, 3)),
+        key(3, "anticipation", "easeinoutsine", (4, 8, 0), ("L", 32, -10), (5, -50), ON_SHAFT,
+            (-25.1, -103.2, -39.3), (-95, 6)),
+        key(4, "coil", "linear", (18, -40, 15), ("L", 36, -10), (-80, -5), (-165, -10),
+            (73, -11.2, -14.9), (-95, 1)),
+        key(5, "contact", "easeoutquad", (18, -15, 10), ("L", 38, -10), (-65, -5), (-150, -5),
+            (73.2, -10.7, -7.9), (-73, 1), pos=(0, -2)),
+        key(6, "sweep", "linear", (18, 25, 0), ("L", 40, -10), (-10, 0), (-128, 0),
+            (78.2, -10.6, 1), (-9, 1), pos=(0, -4)),
+        key(7, "through", "linear", (15, 58, -8), ("L", 40, -10), (50, 0), (-105, 5),
+            (77.2, -7.4, 7), (57, 2), pos=(0, -4)),
+        key(10, "hold", "linear", (15, 60, -8), ("L", 40, -10), (55, 0), (-104, 5),
+            (77.2, -6.1, 4), (59, 2), pos=(0, -4)),
+        key(12, "return", "easeinoutsine", (10, 62, 0), ("L", 34, -5), (160, -85), ON_SHAFT,
+            (-23.4, -85.8, -2), (4, 8), pos=(0, -1)),
         spear_guard(15, "recovery", "easeinoutsine"),
     ), cut_path="left_to_right"),
     "myvillage:basic_spear_03_rising_flick": MovePoses((
         spear_guard(0, "guard", "linear"),
-        key(3, "anticipation", "easeinoutsine", (14, 98, 0), ("L", 32, 0), (180, 0), OnShaft(at=12),
-            (-75.8, -166.1, -22), (22, -25)),
-        key(4, "coil", "linear", (15, 108, 0), ("L", 32, 0), (178, 13), OnShaft(at=12),
-            (-87.4, -171.8, -26.3), (25, -28)),
-        key(5, "contact", "easeoutcubic", (8, 84, 0), ("L", 36, 0), (180, 5), OnShaft(at=12),
-            (-90, -173.6, -18), (18, -16)),
-        key(6, "sweep", "linear", (0, 60, 0), ("L", 38, 0), (150, -55), OnShaft(at=12),
-            (-57, -154.7, -16.7), (0, 15)),
-        key(7, "through", "easeoutsine", (-6, 40, 0), ("L", 38, 0), (90, -60), OnShaft(at=12),
-            (-64.5, -128.6, -26.9), (-25, 40)),
-        key(10, "hold", "linear", (-7, 37, 0), ("L", 38, 0), (88, -61), OnShaft(at=12),
-            (-68.4, -132, -25.8), (-28, 44)),
+        key(2, "drop", "easeinoutsine", (10, 72, 0), ("L", 32, 0), (170, -30), ON_SHAFT,
+            (-61.2, -158.1, -17.2), (10, -8)),
+        key(3, "anticipation", "easeinoutsine", (14, 88, 0), ("L", 34, 0), (40, -50), (-60, 20),
+            (39.3, -29.9, -13.3), (19, -12)),
+        key(4, "coil", "linear", (15, 92, 0), ("L", 34, 0), (45, -55), (-70, 25),
+            (36.4, -32.6, -11.9), (24, -14)),
+        key(5, "contact", "easeoutcubic", (10, 70, 0), ("L", 36, 0), (15, -20), (-90, 10),
+            (68.2, -8.8, -1), (14, -9), pos=(0, -1)),
+        key(6, "sweep", "linear", (2, 45, 0), ("L", 38, 0), (2, 12), (-140, -20),
+            (76.4, 0.9, -10.8), (-9, 15), pos=(0, -2)),
+        key(7, "through", "easeoutsine", (-6, 18, 0), ("L", 38, 0), (-15, 45), (-170, -35),
+            (83.6, 27.3, -21.4), (-46, 45), pos=(0, -2)),
+        key(10, "hold", "linear", (-6, 18, 0), ("L", 38, 0), (-15, 45), (-170, -35),
+            (83.6, 27.3, -21.4), (-46, 45), pos=(0, -2)),
+        key(12, "gather", "easeinoutsine", (4, 35, 0), ("L", 36, 0), (15, -50), (-50, -60),
+            (20.8, -9.7, -6.4), (5, 8), pos=(0, -1)),
+        key(13, "return", "easeinoutsine", (12, 59, 0), ("L", 34, 0), (-20, -80), OnShaft(at=9),
+            (-10.3, -26.6, 3.1), (-2, 9), pos=(0, -1)),
         spear_guard(15, "recovery", "easeinoutsine"),
     ), cut_path="rising"),
     "myvillage:basic_spear_04_overhead_smash": MovePoses((
         spear_guard(0, "guard", "linear"),
-        key(4, "anticipation", "easeinoutsine", (-8, 30, 0), ("L", 30, 0), (10, -30), OnShaft(at=9),
-            (-55.8, -86.6, -60), (-80, 45)),
-        key(6, "coil", "linear", (-10, 20, 0), ("L", 30, 0), (0, -10), OnShaft(at=9),
-            (-34.7, -59.8, -78.8), (-85, 50)),
-        key(7, "contact", "easeoutcubic", (6, 40, 0), ("L", 36, 0), (60, -50), ON_SHAFT,
-            (-34.1, -100.1, -39.3), (-40, 15)),
-        key(8, "sweep", "linear", (18, 66, 0), ("L", 40, 0), (175, -55), OnShaft(at=12),
-            (-40.7, -143.7, -2.9), (0, -5)),
-        key(9, "through", "easeoutsine", (25, 90, 0), ("L", 44, 0), (-170, -25), OnShaft(at=12),
-            (-61.7, -150.1, -4.5), (15, -14), pos=(0, -3)),
-        key(13, "hold", "linear", (25, 90, 0), ("L", 44, 0), (-170, -25), OnShaft(at=12),
-            (-60.7, -150.1, -4.5), (15, -15), pos=(0, -3)),
-        key(16, "return", "easeinoutsine", (16, 72, 0), ("L", 36, 0), (160, -50), ON_SHAFT,
-            (-49.8, -135.7, -16.4), (6, 2), pos=(0, -1)),
+        key(2, "lift", "easeinoutsine", (-6, 22, 0), ("L", 30, 0), (10, -30), OnShaft(at=9),
+            (-55.9, -88.5, -60), (-80, 45)),
+        key(3, "raise", "easeinoutsine", (-10, 12, 0), ("L", 30, 0), (0, 45), (-10, 10),
+            (-89.6, -116, -138.7), (-69, 59)),
+        key(4, "anticipation", "easeinoutsine", (-14, -6, 0), ("L", 30, 0), (10, 85), (-5, 25),
+            (-59.9, -51.8, -176.8), (-130, 53)),
+        key(6, "coil", "linear", (-16, -15, 0), ("L", 30, 0), (40, 75), (-10, 30),
+            (-44.1, -41, -176.9), (-128, 48)),
+        key(7, "contact", "easeoutcubic", (-4, 20, 0), ("L", 36, 0), (10, 45), (0, 40),
+            (-89.5, -159.3, -161.3), (-17, 37)),
+        key(8, "sweep", "linear", (18, 48, 0), ("L", 40, 0), (10, 0), (-20, 0),
+            (-103.8, -191.3, -160), (-10, 3), pos=(0, -2)),
+        key(9, "through", "easeoutsine", (30, 45, 0), ("L", 44, 0), (20, -40), (-150, 10),
+            (-132.8, -206.4, -164), (-1, -10), pos=(0, -4)),
+        key(13, "hold", "linear", (30, 45, 0), ("L", 44, 0), (20, -40), (-150, 10),
+            (-132.8, -206.4, -164), (-1, -10), pos=(0, -4)),
+        key(15, "gather", "easeinoutsine", (20, 54, 0), ("L", 38, 0), (15, -50), (-30, -35),
+            (-114.7, -136, -130.7), (5, 0), pos=(0, -3)),
+        key(17, "return", "easeinoutsine", (12, 59, 0), ("L", 36, 0), (-20, -80), OnShaft(at=9),
+            (-9.4, -25.3, -66.9), (-2, 9), pos=(0, -2)),
         spear_guard(19, "recovery", "easeinoutsine"),
     ), cut_path="descending"),
     "myvillage:basic_spear_05_dragon_lunge": MovePoses((
@@ -592,12 +627,14 @@ BASIC_SPEAR_MOVES: dict[str, MovePoses] = {
             (-45, -123.4, -56.8), (0, 10), pos=(0, 2.5)),
         key(7, "coil", "linear", (-14, 89, 0), ("L", 33, 0), (100, -30), OnShaft(at=10),
             (-36.5, -113.1, -58.5), (0, 9), pos=(0, 3)),
-        key(8, "contact", "easeoutquart", (18, 55, 0), ("L", 46, 0), (0, -10), OnShaft(at=5),
-            (67.2, -15, -1.9), (-2, 2), pos=(0, -7)),
-        key(10, "through", "easeoutsine", (20, 54, 0), ("L", 46, 0), (-5, -15), OnShaft(at=5),
-            (63.2, -16.3, 2.9), (-2, 1), pos=(0, -8)),
-        key(14, "hold", "linear", (20, 54, 0), ("L", 46, 0), (-5, -15), OnShaft(at=5),
-            (64.2, -16.3, 2.9), (-2, 0), pos=(0, -8)),
+        key(8, "contact", "easeoutquart", (28, -10, 0), ("L", 46, 0), (0, -10), (-140, -60),
+            (59.1, 3.1, -9.8), (-10, 10), pos=(0, -9)),
+        key(10, "through", "easeoutsine", (30, -12, 0), ("L", 46, 0), (0, -10), (-145, -40),
+            (58, 4.6, -9.8), (-10, 11), pos=(0, -10)),
+        key(14, "hold", "linear", (30, -12, 0), ("L", 46, 0), (0, -10), (-145, -40),
+            (58, 4.6, -9.8), (-10, 11), pos=(0, -10)),
+        key(16, "recoil", "easeinoutsine", (22, 20, 0), ("L", 42, 0), (20, -30), (-60, -60),
+            (34.6, -18, -28.1), (-13, 10), pos=(0, -6)),
         key(18, "return", "easeinoutsine", (12, 59, 0), ("L", 36, 0), (-20, -80), OnShaft(at=9),
             (-10.3, -26.6, 3.1), (-2, 9), pos=(0, -2)),
         spear_guard(22, "recovery", "easeinoutsine"),
@@ -692,6 +729,7 @@ def bind(table: PoseTable, style: dict) -> tuple[Move, ...]:
             keys=poses.keys,
             lunge=poses.lunge,
             cut_path=poses.cut_path,
+            samples=json.dumps(data["hitbox"]["samples"], sort_keys=True),
         ))
     return tuple(bound)
 
@@ -915,6 +953,60 @@ def resolve(keys: tuple[Key, ...], table: PoseTable = BASIC_SWORD) -> list[dict[
         pose = canonical_guard(table) if _is_guard(k, table.guard) else _resolve_key(k, previous, table)
         poses.append(pose)
         previous = pose
+    return _settle_arm_branches(keys, poses, table)
+
+
+def _segment_deviation(a_body, a, b_body, b) -> float:
+    """Degrees between the Euler-midpoint direction of a limb and the great-circle midpoint."""
+    start, end = limb_direction(a_body, a), limb_direction(b_body, b)
+    ideal = [start[j] + end[j] for j in range(3)]
+    norm = math.sqrt(sum(v * v for v in ideal))
+    if norm < 1e-6:
+        return 0.0
+    mid = limb_direction([(a_body[j] + b_body[j]) / 2.0 for j in range(3)], [(a[j] + b[j]) / 2.0 for j in range(2)])
+    return math.degrees(math.acos(max(-1.0, min(1.0, sum(mid[j] * ideal[j] / norm for j in range(3))))))
+
+
+def _long_way(a, b, bone) -> bool:
+    return (_segment_deviation(a["body"], a[bone][:2], b["body"], b[bone][:2]) > 30.0
+            or max(abs(a[bone][j] - b[bone][j]) for j in range(2)) > 190.0)
+
+
+def _settle_arm_branches(keys: tuple[Key, ...], poses, table: PoseTable):
+    """Backward pass over the arms: guard keys are fixed, so a key resolved against its previous
+    key alone can sit on the Euler branch opposite the next key's (an arm released behind the
+    back that comes forward again into the guard) and swing the long way.  Only for such a
+    segment, walking back from the end, the earlier key takes the equivalent solution ((x, y) or
+    (-x, y + 180), y wrapped by 360) whose two segments are shortest; a held left hand must keep
+    its fist on the shaft.  Animations without a long-way segment are returned unchanged."""
+    poses = [dict(p) for p in poses]
+    for i in range(len(keys) - 2, 0, -1):
+        if _is_guard(keys[i], table.guard):
+            continue
+        for bone in ("left_arm",):  # the right arm carries the item; its twist is part of the item pose
+            if not _long_way(poses[i], poses[i + 1], bone):
+                continue
+            x, y = poses[i][bone][:2]
+            best, best_cost = poses[i], None
+            solutions = [(x, y), (-x, y + 180.0)]
+            if isinstance(keys[i].larm, OnShaft):  # re-solve the fist onto the shaft on the next key's branch
+                solutions.append(solve_off_hand(poses[i], table, keys[i].larm.at,
+                                                poses[i + 1][bone][:2], poses[i + 1]["body"]))
+            for cx, cy in solutions:
+                for wrap in (-360.0, 0.0, 360.0):
+                    trial = dict(poses[i], **{bone: [_r(cx), _r(cy + wrap), 0.0]})
+                    if isinstance(keys[i].larm, OnShaft) and \
+                            off_hand_offset(skeleton(trial, table), table)[0] > OFF_HAND_KEY_TOLERANCE_PX:
+                        continue
+                    cost = (_long_way(trial, poses[i + 1], bone) + _long_way(poses[i - 1], trial, bone),
+                            trial is not None and trial[bone][:2] != poses[i][bone][:2],
+                            round(_segment_deviation(trial["body"], trial[bone][:2], poses[i + 1]["body"],
+                                                     poses[i + 1][bone][:2])
+                                  + _segment_deviation(poses[i - 1]["body"], poses[i - 1][bone][:2],
+                                                       trial["body"], trial[bone][:2]), 3))
+                    if best_cost is None or cost < best_cost:
+                        best, best_cost = trial, cost
+            poses[i] = best
     return poses
 
 
@@ -1048,6 +1140,8 @@ class WeaponRig:
     handle: tuple[float, float]
     grip_y: float
     off_hand_y: float | None
+    trail_tip_y: float = 0.0    # contract y of the trail's tip (``trail.tip``, else ``blade_tip``)
+    display_scale: float = 1.0  # thirdperson_righthand scale along the weapon axis
 
     def point(self, y: float) -> tuple[float, float, float]:
         """Axis point at contract y (model px)."""
@@ -1092,6 +1186,8 @@ def load_rig(geometry_path: Path, model_path: Path) -> WeaponRig:
             handle=(float(geometry["handle"]["y"][0]), float(geometry["handle"]["y"][1])),
             grip_y=float(grip_center[1]),
             off_hand_y=None if off_hand is None else float(off_hand[1]),
+            trail_tip_y=float(geometry["trail"]["tip"][1] if "trail" in geometry else geometry["blade_tip"][1]),
+            display_scale=float(sy),
         )
     except (KeyError, IndexError, TypeError, ValueError) as exc:
         raise PoseTableError(f"weapon rig {geometry_path.name} / {model_path.name}: missing {exc}") from exc
@@ -1327,6 +1423,110 @@ def sample(keys: tuple[Key, ...], poses, tick: float) -> dict[str, list[float]]:
 
 
 # ---------------------------------------------------------------------------------------------
+# The world trail (剑光) other players see, ported from client/combat/CombatWorldTrails.java and
+# combat/definition/HitboxGenerators.java, so the poses can be checked against it.  The trail is
+# drawn from a pivot PIVOT_HEIGHT above the feet on the body's centre line toward the FAR end of
+# each hit sample, its head at min(sample length, tip radius) from the pivot; the tip radius is
+# ARM_REACH plus the weapon's grip-to-trail-tip length at its third-person display scale.  Samples
+# of one tick sit evenly through it (sampleTime) and are interpolated in polar form (polarLerp).
+# Server samples use +x = the player's LEFT; the trail head is returned in the rig frame
+# (+x = right, y up, z forward), relative to the feet like the skeleton.
+# ---------------------------------------------------------------------------------------------
+
+TRAIL_PIVOT_HEIGHT = 1.3
+TRAIL_ARM_REACH = 0.705
+TRAIL_STREAK_OVERSHOOT = 1.15
+
+
+def hit_samples(move: Move) -> list[tuple[int, tuple, tuple]]:
+    """(tick, start, end) of the move's hitbox samples in the server frame, generators expanded."""
+    data = json.loads(move.samples)
+    if isinstance(data, list):
+        return [(int(d["tick"]), tuple(d["start"]), tuple(d["end"])) for d in data]
+    start, end = move.active_start, move.active_end
+    out = []
+    for tick in range(start, end + 1):
+        progress = (tick - start) / max(1, end - start)
+        if data["generator"] == "thrust":
+            reach = data["first_range"] + (data["final_range"] - data["first_range"]) * progress
+            out.append((tick, (0.0, 1.05, 0.55), (0.0, 1.20, reach)))
+        elif data["generator"] == "arc":
+            angle = math.radians(data["start_angle"] + (data["end_angle"] - data["start_angle"]) * progress)
+            h, r = data["height"], data["range"]
+            out.append((tick, (math.sin(angle) * 0.45, h, math.cos(angle) * 0.45),
+                        (math.sin(angle) * r, h, math.cos(angle) * r)))
+        else:  # diagonal
+            side, opposite = -0.75 + 1.50 * progress, 0.95 - 1.90 * progress
+            low, high = 0.45 + 0.30 * progress, 1.90 - 0.15 * progress
+            out.append((tick, (-side, high, 0.55), (-opposite, low, 2.75)) if data["descending"]
+                       else (tick, (side, low, 0.55), (opposite, high, 2.55)))
+    return out
+
+
+def trail_tip_radius(table: PoseTable) -> float:
+    rig = weapon_rig(table)
+    return TRAIL_ARM_REACH + (rig.trail_tip_y - rig.grip_y) * rig.display_scale / 16.0
+
+
+def trail_sample_times(samples) -> list[float]:
+    """sampleTime: the n samples of tick t sit at t + (i + 0.5) / n - 0.5."""
+    times = []
+    for index, (tick, _, _) in enumerate(samples):
+        same = [i for i, s in enumerate(samples) if s[0] == tick]
+        times.append(tick + (same.index(index) + 0.5) / len(same) - 0.5)
+    return times
+
+
+def _polar_lerp(a, b, u):
+    angle_a, angle_b = math.atan2(a[0], a[2]), math.atan2(b[0], b[2])
+    angle = angle_a + (angle_b - angle_a) * u
+    radius_a = math.hypot(a[0], a[2])
+    radius = radius_a + (math.hypot(b[0], b[2]) - radius_a) * u
+    return (math.sin(angle) * radius, a[1] + (b[1] - a[1]) * u, math.cos(angle) * radius)
+
+
+def trail_head(samples, time: float, radius: float, tip_scale: float = 1.0) -> tuple[float, float, float]:
+    """The drawn trail's head (tip of the newest blade) at action time ``time``, in the rig frame."""
+    times = trail_sample_times(samples)
+    before, after = 0, len(samples) - 1
+    for index, t in enumerate(times):
+        if t <= time:
+            before = index
+        if t >= time:
+            after = index
+            break
+    end = samples[before][2]
+    if before != after and times[after] > times[before]:
+        u = max(0.0, min(1.0, (time - times[before]) / (times[after] - times[before])))
+        end = _polar_lerp(samples[before][2], samples[after][2], u)
+    x, y, z = end[0], end[1] - TRAIL_PIVOT_HEIGHT, end[2]
+    length = math.sqrt(x * x + y * y + z * z)
+    scale = min(length, radius) * tip_scale / length
+    return (-x * scale, TRAIL_PIVOT_HEIGHT + y * scale, z * scale)
+
+
+def trail_residuals(move: Move, table: PoseTable, steps_per_tick: int = 6) -> list[tuple[float, float]]:
+    """(action time, distance in blocks from the posed weapon tip to the trail head) while the trail
+    head moves, from the first to the last sample's time.  A thrust's streak head is drawn at
+    TRAIL_STREAK_OVERSHOOT times the radius and is compared over the active ticks."""
+    samples = hit_samples(move)
+    times = trail_sample_times(samples)
+    radius = trail_tip_radius(table)
+    scale = TRAIL_STREAK_OVERSHOOT if move.kind == "thrust" else 1.0
+    first, last = times[0], times[-1]
+    if last - first < 1e-9:
+        first, last = move.active_start, move.active_end
+    poses = resolve(move.keys, table)
+    count = max(1, round((last - first) * steps_per_tick))
+    out = []
+    for i in range(count + 1):
+        time = first + (last - first) * i / count
+        tip = skeleton(sample(move.keys, poses, time), table)["tip"]
+        out.append((time, math.dist(tip, trail_head(samples, time, radius, scale))))
+    return out
+
+
+# ---------------------------------------------------------------------------------------------
 # Self-checks.
 # ---------------------------------------------------------------------------------------------
 
@@ -1377,13 +1577,26 @@ def _check_off_hand(name: str, keys: tuple[Key, ...], poses, skeletons, table: P
     return errors
 
 
-# Vanilla body boxes (pivot, box min, box max in model px) that a long weapon must not pass through.
+# Vanilla body boxes (label, bone, pivot, box min, box max in model px) that a long weapon must not
+# pass through.  The arms are tested as their shoulder half (the lower 6 px are the hand cube and
+# the wrist that close round the shaft):
+# the right upper arm against the shaft from the grip to the tip only (the butt side may lie along
+# a forearm driven along the shaft, as in a thrust; the tip side crossing back through the arm is
+# the arm and the spear folded against each other), the left upper arm against the whole shaft
+# except where the shaft runs within ARM_ALONG_SHAFT_DEG of the arm.  A released left hand is
+# tested with its hand cube.
 BODY_BOXES = (
     ("torso", "torso", (0.0, 0.0, 0.0), (-4.0, 0.0, -2.0), (4.0, 12.0, 2.0)),
     ("head", "head", (0.0, 0.0, 0.0), (-4.0, -8.0, -4.0), (4.0, 0.0, 4.0)),
     ("right leg", "right_leg", (-1.9, 12.0, 0.0), (-2.0, 0.0, -2.0), (2.0, 12.0, 2.0)),
     ("left leg", "left_leg", (1.9, 12.0, 0.0), (-2.0, 0.0, -2.0), (2.0, 12.0, 2.0)),
 )
+RIGHT_UPPER_ARM = ((-3.0, -2.0, -2.0), (1.0, 4.0, 2.0))
+LEFT_UPPER_ARM = ((-1.0, -2.0, -2.0), (3.0, 4.0, 2.0))
+LEFT_WHOLE_ARM = ((-1.0, -2.0, -2.0), (3.0, 10.0, 2.0))
+# A shaft through the fist centre (8 px down the arm) at less than atan(2 / 4) = 27 degrees to the
+# arm grazes a 4 px wide box ending 4 px above it however it is held; such a shaft lies along the arm.
+ARM_ALONG_SHAFT_DEG = 30.0
 SHAFT_SAMPLES = 48
 
 
@@ -1398,25 +1611,51 @@ def _affine_inverse(m):
     return [inv[i] + [-sum(inv[i][k] * t[k] for k in range(3))] for i in range(3)] + [[0.0, 0.0, 0.0, 1.0]]
 
 
-def shaft_body_clearance(pose: dict[str, list[float]], sk: dict, samples: int = SHAFT_SAMPLES) -> tuple[float, str]:
-    """(smallest distance in player-model px from the weapon axis, butt to tip, to a body box; its name).
+def _box_gap(frame, points, low, high) -> float:
+    """Smallest distance in model px from world points (skeleton frame) to a box of a part frame."""
+    inverse = _affine_inverse(frame)
+    best = math.inf
+    for p in points:
+        raw = (p[0], p[1], -p[2], 1.0)  # skeleton points are (right, up, forward); frames use -z forward
+        local = [sum(inverse[i][k] * raw[k] for k in range(4)) * 16.0 for i in range(3)]
+        best = min(best, math.sqrt(sum(max(low[i] - local[i], 0.0, local[i] - high[i]) ** 2 for i in range(3))))
+    return best
 
-    The axis is sampled at ``samples`` + 1 points; the boxes are the vanilla torso, head and legs in
-    their posed frames.
+
+def _segment(a, b, samples):
+    return [[a[j] + (b[j] - a[j]) * i / samples for j in range(3)] for i in range(samples + 1)]
+
+
+def shaft_body_clearance(pose: dict[str, list[float]], sk: dict, samples: int = SHAFT_SAMPLES,
+                         left_free: bool = False) -> tuple[float, str]:
+    """(smallest distance in player-model px from the weapon axis to a body part; that part's name).
+
+    The torso, head and legs are tested against the whole axis, butt to tip; the arms as described
+    at :data:`BODY_BOXES`.  ``left_free``: the left hand is off the shaft (tested with its fist).
     """
+    gaps = shaft_body_gaps(pose, sk, samples, left_free)
+    where = min(gaps, key=gaps.get)
+    return gaps[where], where
+
+
+def shaft_body_gaps(pose: dict[str, list[float]], sk: dict, samples: int = SHAFT_SAMPLES,
+                    left_free: bool = False) -> dict[str, float]:
+    """Distance in player-model px from the weapon axis to each body part (see :func:`shaft_body_clearance`)."""
     root = _root_frame(pose)
-    butt, tip = sk["butt"], sk["tip"]
-    points = [[butt[j] + (tip[j] - butt[j]) * i / samples for j in range(3)] for i in range(samples + 1)]
-    best, where = math.inf, ""
-    for label, bone, pivot, low, high in BODY_BOXES:
-        inverse = _affine_inverse(_part_frame(root, pivot, pose[bone]))
-        for p in points:
-            raw = (p[0], p[1], -p[2], 1.0)  # skeleton points are (right, up, forward); frames use -z forward
-            local = [sum(inverse[i][k] * raw[k] for k in range(4)) * 16.0 for i in range(3)]
-            gap = math.sqrt(sum(max(low[i] - local[i], 0.0, local[i] - high[i]) ** 2 for i in range(3)))
-            if gap < best:
-                best, where = gap, label
-    return best, where
+    shaft = _segment(sk["butt"], sk["tip"], samples)
+    gaps = {label: _box_gap(_part_frame(root, pivot, pose[bone]), shaft, low, high)
+            for label, bone, pivot, low, high in BODY_BOXES}
+    right_arm = _part_frame(root, RIGHT_ARM_PIVOT, pose["right_arm"])
+    gaps["right upper arm"] = _box_gap(right_arm, _segment(sk["grip"], sk["tip"], samples), *RIGHT_UPPER_ARM)
+    left_arm = _part_frame(root, LEFT_ARM_PIVOT, pose["left_arm"])
+    if left_free:
+        gaps["left arm"] = _box_gap(left_arm, shaft, *LEFT_WHOLE_ARM)
+    else:
+        arm_axis = _unit([sk["left_fist"][i] - sk["left_shoulder"][i] for i in range(3)])
+        shaft_axis = _unit([sk["tip"][i] - sk["butt"][i] for i in range(3)])
+        along = abs(sum(arm_axis[i] * shaft_axis[i] for i in range(3))) >= math.cos(math.radians(ARM_ALONG_SHAFT_DEG))
+        gaps["left upper arm"] = math.inf if along else _box_gap(left_arm, shaft, *LEFT_UPPER_ARM)
+    return gaps
 
 
 def _check_long_weapon(name: str, keys: tuple[Key, ...], poses, table: PoseTable) -> list[str]:
@@ -1435,10 +1674,13 @@ def _check_long_weapon(name: str, keys: tuple[Key, ...], poses, table: PoseTable
 
     held = [isinstance(k.larm, OnShaft) for k in keys]
     for i, k in enumerate(keys):
-        steps = [(k.tick, poses[i], held[i])]
+        steps = [(k.tick, poses[i], held[i], held[i])]
         if i + 1 < len(keys):
-            steps += [(k.tick + (keys[i + 1].tick - k.tick) * s / 8, None, held[i] and held[i + 1]) for s in range(1, 8)]
-        for tick, pose, on_shaft in steps:
+            # Between a held and a released key the left fist leaves (or reaches) the shaft: test
+            # it like a held hand (upper arm only), but do not require the hands apart.
+            steps += [(k.tick + (keys[i + 1].tick - k.tick) * s / 8, None, held[i] and held[i + 1],
+                       held[i] or held[i + 1]) for s in range(1, 8)]
+        for tick, pose, on_shaft, touching in steps:
             pose = sample(keys, poses, tick) if pose is None else pose
             sk = skeleton(pose, table)
             if rules.weapon_ground_clearance is not None:
@@ -1447,8 +1689,8 @@ def _check_long_weapon(name: str, keys: tuple[Key, ...], poses, table: PoseTable
             if rules.min_hand_separation_px is not None and on_shaft:
                 note("hands", off_hand_offset(sk, table)[1] - grip_y, tick)
             if rules.shaft_body_clearance_px is not None:
-                gap, box = shaft_body_clearance(pose, sk)
-                note("body", gap, tick, box)
+                for box, gap in shaft_body_gaps(pose, sk, left_free=not touching).items():
+                    note("body:" + box, gap, tick, box)
     errors = []
     if "ground" in found and found["ground"][0] < rules.weapon_ground_clearance:
         value, tick, end = found["ground"]
@@ -1458,10 +1700,10 @@ def _check_long_weapon(name: str, keys: tuple[Key, ...], poses, table: PoseTable
         value, tick, _ = found["hands"]
         errors.append(f"{name}: hands only {value:.1f} px apart on the shaft near tick {tick:.2f} "
                       f"(< {rules.min_hand_separation_px:g})")
-    if "body" in found and found["body"][0] < rules.shaft_body_clearance_px:
-        value, tick, box = found["body"]
-        errors.append(f"{name}: shaft {value:.2f} px from the {box} near tick {tick:.2f} "
-                      f"(< {rules.shaft_body_clearance_px:g}; inside it at 0)")
+    for rule, (value, tick, box) in found.items():
+        if rule.startswith("body:") and value < rules.shaft_body_clearance_px:
+            errors.append(f"{name}: shaft {value:.2f} px from the {box} near tick {tick:.2f} "
+                          f"(< {rules.shaft_body_clearance_px:g}; inside it at 0)")
     return errors
 
 
@@ -1473,17 +1715,17 @@ def long_weapon_margins(keys: tuple[Key, ...], table: PoseTable) -> dict[str, fl
     out = {"ground": math.inf, "hands": math.inf, "body": math.inf}
     for i, k in enumerate(keys):
         both = isinstance(k.larm, OnShaft)
-        ticks = [(k.tick, both)]
+        ticks = [(k.tick, both, both)]
         if i + 1 < len(keys):
-            nxt = both and isinstance(keys[i + 1].larm, OnShaft)
-            ticks += [(k.tick + (keys[i + 1].tick - k.tick) * s / 8, nxt) for s in range(1, 8)]
-        for tick, on_shaft in ticks:
+            other = isinstance(keys[i + 1].larm, OnShaft)
+            ticks += [(k.tick + (keys[i + 1].tick - k.tick) * s / 8, both and other, both or other) for s in range(1, 8)]
+        for tick, on_shaft, touching in ticks:
             pose = sample(keys, poses, tick)
             sk = skeleton(pose, table)
             out["ground"] = min(out["ground"], sk["butt"][1], sk["tip"][1])
             if on_shaft:
                 out["hands"] = min(out["hands"], off_hand_offset(sk, table)[1] - grip_y)
-            out["body"] = min(out["body"], shaft_body_clearance(pose, sk)[0])
+            out["body"] = min(out["body"], shaft_body_clearance(pose, sk, left_free=not touching)[0])
     return out
 
 
@@ -1671,7 +1913,7 @@ def check_move(move: Move, table: PoseTable = BASIC_SWORD) -> list[str]:
             if rules.cut_end_tip_lateral is not None and abs(sk["tip"][0]) < rules.cut_end_tip_lateral:
                 fail(f"blade tip only {sk['tip'][0]:+.2f} block outside the silhouette at tick {keys[index].tick}")
     else:
-        low_body, high_body = rules.thrust_body_yaw
+        low_body, high_body = rules.lunge_body_yaw if move.lunge and rules.lunge_body_yaw else rules.thrust_body_yaw
         for index in (contact, through, hold):
             sk = skeletons[index]
             blade_yaw, blade_elevation = direction_angles(sk["grip"], sk["tip"])
@@ -1703,6 +1945,13 @@ def check_move(move: Move, table: PoseTable = BASIC_SWORD) -> list[str]:
                 held = held and _PATH_OPS[op](value, limit)
             if not held:
                 fail(rule.message.format(*measured))
+
+    # The spearhead stays with the world trail other players see.
+    if path is not None and path.trail_tolerance is not None:
+        worst_time, worst = max(trail_residuals(move, table), key=lambda r: r[1])
+        if worst > path.trail_tolerance:
+            fail(f"weapon tip {worst:.2f} block from the world trail head near tick {worst_time:.2f} "
+                 f"(> {path.trail_tolerance:g})")
 
     # Lunge: 弓步 and forward drive timed to the server step.
     if move.lunge:
@@ -1788,6 +2037,11 @@ def report(table: PoseTable = BASIC_SWORD, style: dict | None = None) -> None:
             margins = long_weapon_margins(move.keys, table)
             print(f"  margins (keys and between): butt/tip >= {margins['ground']:.2f} block, hands >= "
                   f"{margins['hands']:.1f} px apart, shaft >= {margins['body']:.2f} px from the body")
+            residuals = trail_residuals(move, table)
+            worst_time, worst = max(residuals, key=lambda r: r[1])
+            mean = sum(r[1] for r in residuals) / len(residuals)
+            print(f"  trail: tip to trail head max {worst:.2f} block near tick {worst_time:.2f}, mean {mean:.2f} "
+                  f"(radius {trail_tip_radius(table):.3f})")
 
 
 def _shown(path: Path) -> Path:
