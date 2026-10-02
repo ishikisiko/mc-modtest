@@ -809,7 +809,7 @@ class SpearRuleNegativeTest(unittest.TestCase):
     def test_weapon_into_the_ground_is_rejected(self) -> None:
         item = SPEAR.guard["item"]
         errors = gen.check_keys("probe", spear_probe(item=(item[0] + 90, item[1], item[2])), SPEAR)
-        self.assertTrue(any("tip" in e and "above the ground" in e for e in errors), errors)
+        self.assertTrue(any("blade" in e and "above the ground" in e for e in errors), errors)
 
     def test_shaft_through_the_body_is_rejected(self) -> None:
         item = SPEAR.guard["item"]
@@ -843,7 +843,8 @@ class SpearRuleNegativeTest(unittest.TestCase):
             poses = gen.resolve(keys, SPEAR)
             for a, b in zip(poses, poses[1:]):
                 for bone in ("right_leg", "left_leg"):
-                    self.assertLess(max(abs(a[bone][j] - b[bone][j]) for j in range(2)), 120, (name, bone))
+                    # A flip between the two Euler branches shows as about 180 degrees.
+                    self.assertLess(max(abs(a[bone][j] - b[bone][j]) for j in range(2)), 160, (name, bone))
 
 
 # The v1 sweep (the in-game capture of 2026-10-02): at its follow-through the arms were spread in a
@@ -884,6 +885,85 @@ class ShaftClearanceRegressionTest(unittest.TestCase):
         for pose in (poses[0], poses[[k.phase for k in thrust.keys].index("contact")]):
             gaps = gen.shaft_body_gaps(pose, gen.skeleton(pose, SPEAR))
             self.assertGreaterEqual(min(gaps.values()), SPEAR.rules.shaft_body_clearance_px, gaps)
+
+
+# The v2 sweep (in-game capture spear-v2, 2026-10-03): at the first-person strike-start tick 4.6 the
+# rear hand crossed the chest at jaw height and the shaft lay under the jaw and in front of the
+# neck, a "yoke".  It cleared the bare head and torso boxes by 1.3 and 1.0 px.
+V2_SWEEP = (
+    (0, "guard", "linear", None),
+    (2, "wind", "easeinoutsine", ((6, 30, 0), ("L", 31, -5), (50, -70), gen.ON_SHAFT, (-24.2, -101.1, -19.3), (-55, 8))),
+    (3, "anticipation", "easeinoutsine", ((4, 8, 0), ("L", 32, -10), (5, -50), gen.ON_SHAFT, (-25.1, -103.2, -39.3), (-95, 6))),
+    (4, "coil", "linear", ((18, -40, 15), ("L", 36, -10), (-80, -5), (-165, -10), (73, -11.2, -14.9), (-95, 1))),
+    (5, "contact", "easeoutquad", ((18, -15, 10), ("L", 38, -10), (-65, -5), (-150, -5), (73.2, -10.7, -7.9), (-73, 1), (0, -2))),
+)
+
+
+class HeadAndNeckClearanceTest(unittest.TestCase):
+    def v2_pose(self, tick):
+        keys = tuple(gen.key(t, phase, easing, **SPEAR.guard) if spec is None else gen.key(t, phase, easing, *spec)
+                     for t, phase, easing, spec in V2_SWEEP)
+        return keys, gen.sample(keys, gen.resolve(keys, SPEAR), tick)
+
+    def test_v2_sweep_strike_start_yoke_is_caught(self) -> None:
+        keys, pose = self.v2_pose(4.6)
+        sk = gen.skeleton(pose, SPEAR)
+        root = gen._root_frame(pose)
+        shaft = gen._segment(sk["butt"], sk["tip"], 96)
+        bare_head = gen._box_gap(gen._part_frame(root, (0, 0, 0), pose["head"]), shaft, (-4, -8, -4), (4, 0, 4))
+        bare_torso = gen._box_gap(gen._part_frame(root, (0, 0, 0), pose["torso"]), shaft, (-4, 0, -2), (4, 12, 2))
+        self.assertGreater(bare_head, 1.0)   # why the earlier check passed it
+        self.assertGreater(bare_torso, 0.9)
+        self.assertEqual(0.0, gen.shaft_body_gaps(pose, sk, left_free=True)["head and neck"])
+        errors = [e for e in gen.check_keys("v2_sweep", keys, SPEAR) if "head and neck" in e]
+        self.assertTrue(errors, "the shaft under the jaw must fail")
+
+    def test_sweep_wind_up_is_carried_low_and_clear(self) -> None:
+        sweep = gen.moves(SPEAR)[1]
+        poses = gen.resolve(sweep.keys, SPEAR)
+        for step in range(0, 121):  # ticks 0 to 6, the wind-up, coil and release into the swing
+            pose = gen.sample(sweep.keys, poses, step / 20)
+            sk = gen.skeleton(pose, SPEAR)
+            gaps = gen.shaft_body_gaps(pose, sk, left_free=step > 60)
+            self.assertGreaterEqual(gaps["head and neck"], 1.4, step / 20)
+        pose = gen.sample(sweep.keys, poses, 4.6)
+        self.assertLess(gen.skeleton(pose, SPEAR)["grip"][1], 1.1)  # rear hand at chest or waist height
+
+    def test_skin_layers_and_neck_notch(self) -> None:
+        self.assertEqual(0.5, gen.HAT_LAYER)
+        self.assertEqual(0.25, gen.SKIN_LAYER)
+        head = next(b for b in gen.BODY_BOXES if b[0] == "head and neck")
+        self.assertEqual((4.5, gen.NECK_NOTCH, 4.5), head[4])  # down past the jaw into the shoulders
+
+
+class WeaponGroundTest(unittest.TestCase):
+    def hold_probe(self, tilt):
+        smash = gen.moves(SPEAR)[3]
+        hold = next(k for k in smash.keys if k.phase == "hold")
+        return dataclasses.replace(hold, tick=0, item=(hold.item[0] + tilt, hold.item[1], hold.item[2]))
+
+    def test_axis_clear_but_pennant_in_the_grass_is_caught(self) -> None:
+        probe = self.hold_probe(8)
+        pose = gen._resolve_key(probe, None, SPEAR)
+        sk = gen.skeleton(pose, SPEAR)
+        self.assertGreater(min(sk["tip"][1], sk["butt"][1]), 0.1)  # the axis-only check passed this
+        height, part = gen.weapon_lowest_point(pose, SPEAR)
+        self.assertLess(height, 0.0)
+        self.assertEqual("pennant", part)
+        errors = [e for e in gen.check_keys("probe", (probe,), SPEAR) if "above the ground" in e]
+        self.assertTrue(errors and "pennant" in errors[0], errors)
+
+    def test_model_corners_cover_the_hanging_pieces(self) -> None:
+        names = {name for name, _ in gen.weapon_rig(SPEAR).corners}
+        for piece in ("pennant", "plaque", "plaque_tassel", "butt_tassel", "blade_step_2", "star_points_tip"):
+            self.assertIn(piece, names)
+
+    def test_smash_lands_just_above_the_ground(self) -> None:
+        smash = gen.moves(SPEAR)[3]
+        poses = gen.resolve(smash.keys, SPEAR)
+        hold = poses[[k.phase for k in smash.keys].index("hold")]
+        height, part = gen.weapon_lowest_point(hold, SPEAR)
+        self.assertTrue(SPEAR.rules.weapon_ground_clearance <= height < 0.15, (height, part))
 
 
 class WorldTrailTest(unittest.TestCase):

@@ -233,7 +233,7 @@ class PoseRules:
     thrust_reach: tuple[float, float] = (1.5, 1.9)      # min tip z (blocks): plain thrust, lunge
     # Long-weapon rules (off for the sword), checked at every key and sampled between keys of every
     # animation of the table (moves, idle, mode entry):
-    weapon_ground_clearance: float | None = None   # min height (blocks) of the butt and the tip
+    weapon_ground_clearance: float | None = None   # min height (blocks) of the weapon model's lowest corner
     min_hand_separation_px: float | None = None    # min contract px from the grip to an ON_SHAFT left hand
     shaft_body_clearance_px: float | None = None   # min player-model px from the weapon axis to torso, head, legs
 
@@ -493,7 +493,9 @@ SPEAR_RULES = replace(
     thrust_arm_level=30.0,
     # A 2.6-block spear: the visual tip reaches about 60 % of the server range, as the sword's does.
     thrust_reach=(2.1, 2.85),
-    weapon_ground_clearance=0.1,
+    # Measured on the model's real corners (barbs, star, pennant, plaque, tassels), not the axis:
+    # the lowest corner keeps just under a pixel of grass clearance.
+    weapon_ground_clearance=0.05,
     min_hand_separation_px=5.0,
     shaft_body_clearance_px=0.5,
 )
@@ -539,18 +541,18 @@ def spear_guard(tick: int, phase: str, easing: str) -> Key:
 BASIC_SPEAR_MOVES: dict[str, MovePoses] = {
     "myvillage:basic_spear_01_mid_thrust": MovePoses((
         spear_guard(0, "guard", "linear"),
-        key(2, "coil", "easeinoutsine", (4, 72, 0), ("L", 30, 0), (150, -55), OnShaft(at=14),
-            (-52.3, -148.9, -16.1), (-1, 10), pos=(0, 1.2)),
+        key(2, "coil", "easeinoutsine", (4, 72, 0), ("L", 30, 0), (145, -55), OnShaft(at=14),
+            (-50.9, -144.6, -18.7), (-1, 10), pos=(0, 1.2)),
         key(3, "drive", "easeinquad", (8, 64, 0), ("L", 34, 0), (60, -82), OnShaft(at=8),
             (-15, -63.8, -7.1), (-2, 8), pos=(0, -0.5)),
         key(4, "contact", "easeoutcubic", (16, 52, 0), ("L", 38, 0), (-5, -18), OnShaft(at=5),
-            (56.1, -12.6, 2.8), (-2, 5), pos=(0, -2.5)),
+            (56.2, -13.5, 0), (-5, 5), pos=(0, -2.5)),
         key(5, "through", "easeoutsine", (18, 52, 0), ("L", 40, 0), (-5, -15), OnShaft(at=5),
-            (60.2, -14.3, 2.9), (-2, 4), pos=(0, -3)),
+            (60.2, -15.1, 0), (-5, 4), pos=(0, -3)),
         key(8, "hold", "linear", (18, 52, 0), ("L", 40, 0), (-5, -15), OnShaft(at=5),
-            (61.2, -14.3, 2.9), (-2, 3), pos=(0, -3)),
+            (61.2, -15.1, 0), (-5, 3), pos=(0, -3)),
         key(9, "recoil", "easeinoutsine", (13, 55, 0), ("L", 36, 0), (-5, -35), OnShaft(at=7),
-            (39.1, -10.4, 3.2), (-1, 5), pos=(0, -1.6)),
+            (39.2, -12.2, 0.8), (-4, 5), pos=(0, -1.6)),
         key(10, "return", "easeinoutsine", (9, 60, 0), ("L", 33, 0), (60, -85), OnShaft(at=9),
             (-17.5, -61.9, -4.4), (-2, 9), pos=(0, -0.8)),
         spear_guard(12, "recovery", "easeinoutsine"),
@@ -561,36 +563,36 @@ BASIC_SPEAR_MOVES: dict[str, MovePoses] = {
             (-24.2, -101.1, -19.3), (-55, 8)),
         key(3, "anticipation", "easeinoutsine", (4, 8, 0), ("L", 32, -10), (5, -50), ON_SHAFT,
             (-25.1, -103.2, -39.3), (-95, 6)),
-        key(4, "coil", "linear", (18, -40, 15), ("L", 36, -10), (-80, -5), (-165, -10),
-            (73, -11.2, -14.9), (-95, 1)),
-        key(5, "contact", "easeoutquad", (18, -15, 10), ("L", 38, -10), (-65, -5), (-150, -5),
-            (73.2, -10.7, -7.9), (-73, 1), pos=(0, -2)),
-        key(6, "sweep", "linear", (18, 25, 0), ("L", 40, -10), (-10, 0), (-128, 0),
-            (78.2, -10.6, 1), (-9, 1), pos=(0, -4)),
-        key(7, "through", "linear", (15, 58, -8), ("L", 40, -10), (50, 0), (-105, 5),
-            (77.2, -7.4, 7), (57, 2), pos=(0, -4)),
-        key(10, "hold", "linear", (15, 60, -8), ("L", 40, -10), (55, 0), (-104, 5),
-            (77.2, -6.1, 4), (59, 2), pos=(0, -4)),
-        key(12, "return", "easeinoutsine", (10, 62, 0), ("L", 34, -5), (160, -85), ON_SHAFT,
-            (-23.4, -85.8, -2), (4, 8), pos=(0, -1)),
+        key(4, "coil", "linear", (20, -48, 18), ("L", 36, -10), (-60, -10), (-165, -10),
+            (66.3, -3.7, -38.3), (-99, 0)),
+        key(5, "contact", "easeoutquad", (24, -24, 16), ("L", 38, -10), (-45, -20), (-150, -5),
+            (52.2, -11.8, -32.6), (-80, 3), pos=(0, -3)),
+        key(6, "sweep", "linear", (18, 25, 0), ("L", 40, -10), (5, -15), (-128, 0),
+            (58.5, -10.9, -17.4), (-13, 5), pos=(0, -4)),
+        key(7, "through", "linear", (15, 58, -8), ("L", 40, -10), (60, -5), (-105, 5),
+            (71.1, -3.9, -5), (55, 3), pos=(0, -4)),
+        key(10, "hold", "linear", (15, 58, -8), ("L", 40, -10), (60, -5), (-104, 5),
+            (71.1, -3.9, -5), (55, 3), pos=(0, -4)),
+        key(12, "return", "easeinoutsine", (10, 62, 0), ("L", 34, -5), (150, -80), ON_SHAFT,
+            (-27.1, -101.9, -5.6), (4, 8), pos=(0, -1)),
         spear_guard(15, "recovery", "easeinoutsine"),
     ), cut_path="left_to_right"),
     "myvillage:basic_spear_03_rising_flick": MovePoses((
         spear_guard(0, "guard", "linear"),
-        key(2, "drop", "easeinoutsine", (10, 72, 0), ("L", 32, 0), (170, -30), ON_SHAFT,
-            (-61.2, -158.1, -17.2), (10, -8)),
+        key(2, "drop", "easeinoutsine", (10, 72, 0), ("L", 32, 0), (165, -40), ON_SHAFT,
+            (-53.8, -153.1, -15.9), (6, -5)),
         key(3, "anticipation", "easeinoutsine", (14, 88, 0), ("L", 34, 0), (40, -50), (-60, 20),
             (39.3, -29.9, -13.3), (19, -12)),
         key(4, "coil", "linear", (15, 92, 0), ("L", 34, 0), (45, -55), (-70, 25),
             (36.4, -32.6, -11.9), (24, -14)),
-        key(5, "contact", "easeoutcubic", (10, 70, 0), ("L", 36, 0), (15, -20), (-90, 10),
-            (68.2, -8.8, -1), (14, -9), pos=(0, -1)),
-        key(6, "sweep", "linear", (2, 45, 0), ("L", 38, 0), (2, 12), (-140, -20),
-            (76.4, 0.9, -10.8), (-9, 15), pos=(0, -2)),
-        key(7, "through", "easeoutsine", (-6, 18, 0), ("L", 38, 0), (-15, 45), (-170, -35),
-            (83.6, 27.3, -21.4), (-46, 45), pos=(0, -2)),
-        key(10, "hold", "linear", (-6, 18, 0), ("L", 38, 0), (-15, 45), (-170, -35),
-            (83.6, 27.3, -21.4), (-46, 45), pos=(0, -2)),
+        key(5, "contact", "easeoutcubic", (10, 70, 0), ("L", 36, 0), (20, -20), (-90, 10),
+            (68.1, -10.3, -6.6), (13, -9), pos=(0, -1)),
+        key(6, "sweep", "linear", (2, 45, 0), ("L", 38, 0), (15, 10), (-140, -20),
+            (75.3, 4, -26.6), (-12, 15), pos=(0, -2)),
+        key(7, "through", "easeoutsine", (-6, 18, 0), ("L", 38, 0), (5, 40), (-170, -35),
+            (90.8, 44.2, -38.9), (-50, 44), pos=(0, -2)),
+        key(10, "hold", "linear", (-6, 18, 0), ("L", 38, 0), (5, 40), (-170, -35),
+            (90.8, 44.2, -38.9), (-50, 44), pos=(0, -2)),
         key(12, "gather", "easeinoutsine", (4, 35, 0), ("L", 36, 0), (15, -50), (-50, -60),
             (20.8, -9.7, -6.4), (5, 8), pos=(0, -1)),
         key(13, "return", "easeinoutsine", (12, 59, 0), ("L", 34, 0), (-20, -80), OnShaft(at=9),
@@ -601,12 +603,12 @@ BASIC_SPEAR_MOVES: dict[str, MovePoses] = {
         spear_guard(0, "guard", "linear"),
         key(2, "lift", "easeinoutsine", (-6, 22, 0), ("L", 30, 0), (10, -30), OnShaft(at=9),
             (-55.9, -88.5, -60), (-80, 45)),
-        key(3, "raise", "easeinoutsine", (-10, 12, 0), ("L", 30, 0), (0, 45), (-10, 10),
-            (-89.6, -116, -138.7), (-69, 59)),
-        key(4, "anticipation", "easeinoutsine", (-14, -6, 0), ("L", 30, 0), (10, 85), (-5, 25),
-            (-59.9, -51.8, -176.8), (-130, 53)),
-        key(6, "coil", "linear", (-16, -15, 0), ("L", 30, 0), (40, 75), (-10, 30),
-            (-44.1, -41, -176.9), (-128, 48)),
+        key(3, "raise", "easeinoutsine", (-10, 12, 0), ("L", 30, 0), (0, 40), (-10, 10),
+            (-62.9, -70.2, -150.6), (-70, 60)),
+        key(4, "anticipation", "easeinoutsine", (-14, -14, 0), ("L", 30, 0), (100, 60), (-5, 25),
+            (-39.9, 13, -201.1), (-126, 51)),
+        key(6, "coil", "linear", (-16, -8, 0), ("L", 30, 0), (90, 62), (-10, 30),
+            (-36, -2.4, -195.2), (-124, 49)),
         key(7, "contact", "easeoutcubic", (-4, 20, 0), ("L", 36, 0), (10, 45), (0, 40),
             (-89.5, -159.3, -161.3), (-17, 37)),
         key(8, "sweep", "linear", (18, 48, 0), ("L", 40, 0), (10, 0), (-20, 0),
@@ -1142,6 +1144,7 @@ class WeaponRig:
     off_hand_y: float | None
     trail_tip_y: float = 0.0    # contract y of the trail's tip (``trail.tip``, else ``blade_tip``)
     display_scale: float = 1.0  # thirdperson_righthand scale along the weapon axis
+    corners: tuple = ()         # (element name, corner) of every model element, rotated, in model blocks
 
     def point(self, y: float) -> tuple[float, float, float]:
         """Axis point at contract y (model px)."""
@@ -1149,6 +1152,34 @@ class WeaponRig:
 
 
 _RIGS: dict[tuple[Path, Path], WeaponRig] = {}
+
+
+def _element_corners(elements) -> tuple:
+    """(name, corner) of every cuboid of a block model, its element rotation applied, in model blocks."""
+    out = []
+    for index, element in enumerate(elements):
+        low, high = element["from"], element["to"]
+        rotation = element.get("rotation")
+        for corner in [(x, y, z) for x in (low[0], high[0]) for y in (low[1], high[1]) for z in (low[2], high[2])]:
+            point = list(corner)
+            if rotation and rotation.get("angle"):
+                origin = rotation["origin"]
+                m = _mat3(rotation["axis"], rotation["angle"])
+                rel = [point[i] - origin[i] for i in range(3)]
+                point = [origin[i] + sum(m[i][j] * rel[j] for j in range(3)) for i in range(3)]
+            out.append((element.get("name", f"element {index}"), tuple(c / 16.0 for c in point)))
+    return tuple(out)
+
+
+def weapon_lowest_point(pose: dict[str, list[float]], table: PoseTable) -> tuple[float, str]:
+    """(height in blocks of the weapon model's lowest corner, that element's name); the axis ends
+    when the model has no elements."""
+    rig = weapon_rig(table)
+    item = _item_frame(_part_frame(_root_frame(pose), RIGHT_ARM_PIVOT, pose["right_arm"]), pose, rig)
+    if not rig.corners:
+        sk = skeleton(pose, table)
+        return min((sk["butt"][1], "butt"), (sk["tip"][1], "tip"))
+    return min((_apply(item, corner)[1], name) for name, corner in rig.corners)
 
 
 def load_rig(geometry_path: Path, model_path: Path) -> WeaponRig:
@@ -1188,6 +1219,7 @@ def load_rig(geometry_path: Path, model_path: Path) -> WeaponRig:
             off_hand_y=None if off_hand is None else float(off_hand[1]),
             trail_tip_y=float(geometry["trail"]["tip"][1] if "trail" in geometry else geometry["blade_tip"][1]),
             display_scale=float(sy),
+            corners=_element_corners(model.get("elements", [])),
         )
     except (KeyError, IndexError, TypeError, ValueError) as exc:
         raise PoseTableError(f"weapon rig {geometry_path.name} / {model_path.name}: missing {exc}") from exc
@@ -1578,22 +1610,32 @@ def _check_off_hand(name: str, keys: tuple[Key, ...], poses, skeletons, table: P
 
 
 # Vanilla body boxes (label, bone, pivot, box min, box max in model px) that a long weapon must not
-# pass through.  The arms are tested as their shoulder half (the lower 6 px are the hand cube and
-# the wrist that close round the shaft):
+# pass through, as rendered: each box carries its skin's outer layer (hat +0.5 px, jacket, sleeves
+# and trousers +0.25 px).  The head box also closes the 2 px notch under the jaw and the back of
+# the head, where the 8 px deep head overhangs the 4 px deep torso: a shaft lodged there clears
+# both boxes by about a pixel but reads as a yoke across the neck and jaw.  The arms are tested as
+# their shoulder half (the lower 6 px are the hand cube and the wrist that close round the shaft):
 # the right upper arm against the shaft from the grip to the tip only (the butt side may lie along
 # a forearm driven along the shaft, as in a thrust; the tip side crossing back through the arm is
 # the arm and the spear folded against each other), the left upper arm against the whole shaft
 # except where the shaft runs within ARM_ALONG_SHAFT_DEG of the arm.  A released left hand is
 # tested with its hand cube.
+SKIN_LAYER = 0.25
+HAT_LAYER = 0.5
+NECK_NOTCH = 2.0
 BODY_BOXES = (
-    ("torso", "torso", (0.0, 0.0, 0.0), (-4.0, 0.0, -2.0), (4.0, 12.0, 2.0)),
-    ("head", "head", (0.0, 0.0, 0.0), (-4.0, -8.0, -4.0), (4.0, 0.0, 4.0)),
-    ("right leg", "right_leg", (-1.9, 12.0, 0.0), (-2.0, 0.0, -2.0), (2.0, 12.0, 2.0)),
-    ("left leg", "left_leg", (1.9, 12.0, 0.0), (-2.0, 0.0, -2.0), (2.0, 12.0, 2.0)),
+    ("torso", "torso", (0.0, 0.0, 0.0), (-4.0 - SKIN_LAYER, -SKIN_LAYER, -2.0 - SKIN_LAYER),
+     (4.0 + SKIN_LAYER, 12.0 + SKIN_LAYER, 2.0 + SKIN_LAYER)),
+    ("head and neck", "head", (0.0, 0.0, 0.0), (-4.0 - HAT_LAYER, -8.0 - HAT_LAYER, -4.0 - HAT_LAYER),
+     (4.0 + HAT_LAYER, NECK_NOTCH, 4.0 + HAT_LAYER)),
+    ("right leg", "right_leg", (-1.9, 12.0, 0.0), (-2.0 - SKIN_LAYER, -SKIN_LAYER, -2.0 - SKIN_LAYER),
+     (2.0 + SKIN_LAYER, 12.0 + SKIN_LAYER, 2.0 + SKIN_LAYER)),
+    ("left leg", "left_leg", (1.9, 12.0, 0.0), (-2.0 - SKIN_LAYER, -SKIN_LAYER, -2.0 - SKIN_LAYER),
+     (2.0 + SKIN_LAYER, 12.0 + SKIN_LAYER, 2.0 + SKIN_LAYER)),
 )
-RIGHT_UPPER_ARM = ((-3.0, -2.0, -2.0), (1.0, 4.0, 2.0))
-LEFT_UPPER_ARM = ((-1.0, -2.0, -2.0), (3.0, 4.0, 2.0))
-LEFT_WHOLE_ARM = ((-1.0, -2.0, -2.0), (3.0, 10.0, 2.0))
+RIGHT_UPPER_ARM = ((-3.0 - SKIN_LAYER, -2.0 - SKIN_LAYER, -2.0 - SKIN_LAYER), (1.0 + SKIN_LAYER, 4.0, 2.0 + SKIN_LAYER))
+LEFT_UPPER_ARM = ((-1.0 - SKIN_LAYER, -2.0 - SKIN_LAYER, -2.0 - SKIN_LAYER), (3.0 + SKIN_LAYER, 4.0, 2.0 + SKIN_LAYER))
+LEFT_WHOLE_ARM = ((-1.0 - SKIN_LAYER, -2.0 - SKIN_LAYER, -2.0 - SKIN_LAYER), (3.0 + SKIN_LAYER, 10.0 + SKIN_LAYER, 2.0 + SKIN_LAYER))
 # A shaft through the fist centre (8 px down the arm) at less than atan(2 / 4) = 27 degrees to the
 # arm grazes a 4 px wide box ending 4 px above it however it is held; such a shaft lies along the arm.
 ARM_ALONG_SHAFT_DEG = 30.0
@@ -1684,8 +1726,8 @@ def _check_long_weapon(name: str, keys: tuple[Key, ...], poses, table: PoseTable
             pose = sample(keys, poses, tick) if pose is None else pose
             sk = skeleton(pose, table)
             if rules.weapon_ground_clearance is not None:
-                low_end = min(("butt", sk["butt"][1]), ("tip", sk["tip"][1]), key=lambda e: e[1])
-                note("ground", low_end[1], tick, low_end[0])
+                height, part = weapon_lowest_point(pose, table)
+                note("ground", height, tick, part)
             if rules.min_hand_separation_px is not None and on_shaft:
                 note("hands", off_hand_offset(sk, table)[1] - grip_y, tick)
             if rules.shaft_body_clearance_px is not None:
@@ -1694,8 +1736,8 @@ def _check_long_weapon(name: str, keys: tuple[Key, ...], poses, table: PoseTable
     errors = []
     if "ground" in found and found["ground"][0] < rules.weapon_ground_clearance:
         value, tick, end = found["ground"]
-        errors.append(f"{name}: weapon {end} {value:.2f} block above the ground near tick {tick:.2f} "
-                      f"(< {rules.weapon_ground_clearance:g})")
+        errors.append(f"{name}: weapon {end} {value:.3f} block above the ground near tick {tick:.2f} "
+                      f"(< {rules.weapon_ground_clearance:g}; the model's lowest corner)")
     if "hands" in found and found["hands"][0] < rules.min_hand_separation_px:
         value, tick, _ = found["hands"]
         errors.append(f"{name}: hands only {value:.1f} px apart on the shaft near tick {tick:.2f} "
@@ -1722,7 +1764,7 @@ def long_weapon_margins(keys: tuple[Key, ...], table: PoseTable) -> dict[str, fl
         for tick, on_shaft, touching in ticks:
             pose = sample(keys, poses, tick)
             sk = skeleton(pose, table)
-            out["ground"] = min(out["ground"], sk["butt"][1], sk["tip"][1])
+            out["ground"] = min(out["ground"], weapon_lowest_point(pose, table)[0])
             if on_shaft:
                 out["hands"] = min(out["hands"], off_hand_offset(sk, table)[1] - grip_y)
             out["body"] = min(out["body"], shaft_body_clearance(pose, sk, left_free=not touching)[0])
@@ -2035,7 +2077,7 @@ def report(table: PoseTable = BASIC_SWORD, style: dict | None = None) -> None:
         rules = table.rules
         if (rules.weapon_ground_clearance, rules.min_hand_separation_px, rules.shaft_body_clearance_px) != (None,) * 3:
             margins = long_weapon_margins(move.keys, table)
-            print(f"  margins (keys and between): butt/tip >= {margins['ground']:.2f} block, hands >= "
+            print(f"  margins (keys and between): weapon >= {margins['ground']:.2f} block above the ground, hands >= "
                   f"{margins['hands']:.1f} px apart, shaft >= {margins['body']:.2f} px from the body")
             residuals = trail_residuals(move, table)
             worst_time, worst = max(residuals, key=lambda r: r[1])
