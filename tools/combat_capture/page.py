@@ -75,13 +75,36 @@ def camera_text(m: dict) -> str:
     return "<br>".join(lines)
 
 
+def rig_loaded_text(r: dict | None) -> str:
+    """What the rig the client loaded declares (read from the file it reads)."""
+    if not r:
+        return "<br>loaded rig: not recorded (capture made before the tool recorded it)"
+    if not r.get("present"):
+        return "<br>loaded rig: file missing from the client's resources"
+    same = r.get("same_as_source")
+    return (f"<br>loaded rig ({escape(str(r.get('read_from')))}): "
+            f"{'declares an off hand (rig.off_hand)' if r.get('off_hand') else 'no off hand declared'}; "
+            f"sha256 <code>{escape(str(r.get('sha256', ''))[:12])}</code>"
+            + ("" if same is None else ("; same as the source tree" if same else
+                                        "; <strong>differs from the source tree</strong> (hot-reloaded data)")))
+
+
+def crop_text(c: dict | None, size) -> str:
+    if not c:
+        return ""
+    x, y, w, h = c["box"]
+    return (f" Each cell shows the box {w}x{h} at ({x}, {y}) of the {size[0]}x{size[1]} frame, enlarged by an "
+            f"integer factor. Rule: {escape(c['rule'])}. "
+            f"Full frames are unchanged on disk.")
+
+
 def meta_table(m: dict) -> str:
     frames = m.get("frames", [])
     unstable = sum(1 for f in frames if not f.get("stable", True))
     return "<table>" + _rows([
         ("Weapon", f"<code>{escape(m['weapon'])}</code> (item <code>{escape(m.get('item', ''))}</code>)"),
         ("Style", f"<code>{escape(m.get('style', ''))}</code>"),
-        ("First-person rig", f"<code>{escape(m.get('rig', ''))}</code>"),
+        ("First-person rig", f"<code>{escape(m.get('rig', ''))}</code>" + rig_loaded_text(m.get("rig_loaded"))),
         ("Mod version", escape(str(m.get("source", {}).get("mod_version")))),
         ("Commit", _source_text(m)),
         ("Captured", escape(m.get("created", ""))),
@@ -172,7 +195,8 @@ def capture_page(m: dict) -> str:
         if sheet:
             body += (f"<figure><a href=\"{escape(sheet)}\"><img loading=lazy src=\"{escape(sheet)}\" "
                      f"alt=\"{escape(view)} sheet\"></a><figcaption>Rows are moves, columns are key ticks. Single "
-                     f"frames are under <code>frames/{escape(view)}/</code>.</figcaption></figure>")
+                     f"frames are under <code>frames/{escape(view)}/</code>."
+                     f"{crop_text(m.get('crops', {}).get(view), m['capture']['size'])}</figcaption></figure>")
         else:
             body += "<p class=note>No frames for this view.</p>"
     body += "<h2>Combo run</h2>" + combo_section(m.get("combo"))
@@ -211,7 +235,10 @@ def comparison_page(cmp: dict) -> str:
     for view, sheet in cmp.get("sheets", {}).items():
         body += (f"<h3>{escape(VIEWS.get(view, {}).get('title', view))}</h3><figure><a href=\"{escape(sheet)}\">"
                  f"<img loading=lazy src=\"{escape(sheet)}\" alt=\"{escape(view)} comparison\"></a>"
-                 f"<figcaption>Left: {escape(a['label'])}. Right: {escape(b['label'])}.</figcaption></figure>")
+                 f"<figcaption>Left: {escape(a['label'])}. Right: {escape(b['label'])}."
+                 + (" Both sides cropped to the same box {2}x{3} at ({0}, {1}) (the union of the two sets' own "
+                    "boxes).".format(*cmp["crops"][view]) if cmp.get("crops", {}).get(view) else "")
+                 + "</figcaption></figure>")
     unpaired = cmp.get("unpaired", [])
     if unpaired:
         body += ("<h2>Present in one set only</h2><table><tr><th>View</th><th>Move</th><th>Key</th><th>In</th></tr>"

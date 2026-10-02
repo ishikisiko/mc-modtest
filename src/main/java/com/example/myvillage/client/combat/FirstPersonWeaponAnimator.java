@@ -20,7 +20,10 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.Locale;
 import java.util.Optional;
 
 /**
@@ -30,6 +33,7 @@ import java.util.Optional;
  */
 public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
     public static final FirstPersonWeaponAnimator INSTANCE = new FirstPersonWeaponAnimator();
+    private static final Logger LOGGER = LoggerFactory.getLogger(FirstPersonWeaponAnimator.class);
 
     private static final float BLEND_OUT_TICKS = 3.0F;
     /** A chained move cross-fades from the pose on screen instead of snapping. */
@@ -92,12 +96,17 @@ public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
                 return;
             }
             animator.actionStartTick = startTick;
-            if (Math.abs(shift) <= RESYNC_SLEW_LIMIT_TICKS) {
+            boolean slewed = Math.abs(shift) <= RESYNC_SLEW_LIMIT_TICKS;
+            if (slewed) {
                 animator.slewOffset = shift;
                 animator.slewStartTick = now;
             } else {
                 animator.slewOffset = 0.0;
             }
+            // shift > 0: the server started earlier than predicted, the swing jumps or speeds up;
+            // shift < 0: it started later, the swing slows (slew) or holds (snap) until it catches up.
+            LOGGER.info("PAL_SMOKE fp_resync animation={} shift_ticks={} slewed={}",
+                    animationId, String.format(Locale.ROOT, "%.2f", shift), slewed);
             return;
         }
 
@@ -147,23 +156,33 @@ public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
     /**
      * Presentation-only hit-stop after the server confirmed damage for the local action. The stop
      * lasts the move's {@code MoveFeedback.hitStopTicks} and starts when the drawn blade reaches its
-     * contact tick, or at once when the confirmation arrives later than that.
+     * contact tick, or, when the confirmation arrives later than that, at once on the pose already
+     * on screen ({@link SwingClock#confirmHit}). The packet is handled at the start of a frame,
+     * before the frame's client tick, so its own tick reading can lie up to a tick behind the
+     * frame drawn last; the clock's present covers that.
      */
     static void confirmHit(LocalPlayer player) {
         FirstPersonWeaponAnimator animator = INSTANCE;
         if (animator.activeMoveIndex < 0 || animator.clock == null) {
             return;
         }
-        MoveFeedback feedback = animator.activeStyle.move(animator.activeMoveIndex).feedback();
-        float now = (float) animator.realTick(player, 0.0F);
-        float start = now;
+        AttackMoveDefinition definition = animator.activeStyle.move(animator.activeMoveIndex);
+        float reading = (float) animator.realTick(player, 0.0F);
+        float present = animator.clock.advance(reading);
+        float contact = Float.NEGATIVE_INFINITY;
         Optional<FirstPersonSwing> swing = animator.activeSwing(player);
         if (swing.isPresent()) {
             FirstPersonSwing.Move move = swing.get().move(animator.activeMoveIndex);
-            start = Math.max(now, animator.clock.realTickForVisual(move.contactTick()));
+            contact = move.contactTick();
             animator.aimShake(swing.get(), move);
         }
-        animator.clock.beginHitStop(start, feedback.hitStopTicks());
+        float start = animator.clock.confirmHit(contact, definition.feedback().hitStopTicks());
+        LOGGER.info("PAL_SMOKE fp_hit_stop animation={} tick_reading={} present={} contact={} start={}",
+                definition.id(), ticks(reading), ticks(present), ticks(contact), ticks(start));
+    }
+
+    private static String ticks(float value) {
+        return Float.isFinite(value) ? String.format(Locale.ROOT, "%.3f", value) : "none";
     }
 
     /**
@@ -180,7 +199,7 @@ public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
             return 1.0F;
         }
         float partialTick = minecraft.getTimer().getGameTimeDeltaPartialTick(true);
-        return animator.clock.rate((float) animator.realTick(localPlayer, partialTick));
+        return animator.clock.rate(animator.clock.advance((float) animator.realTick(localPlayer, partialTick)));
     }
 
     static void clientTick(LocalPlayer player) {
@@ -189,7 +208,7 @@ public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
             return;
         }
         AttackMoveDefinition move = animator.activeStyle.move(animator.activeMoveIndex);
-        float visualTick = animator.clock.visualTick((float) animator.realTick(player, 0.0F));
+        float visualTick = animator.clock.visualTick(animator.clock.advance((float) animator.realTick(player, 0.0F)));
         // The whoosh leads the blade by about one tick, like the server swing sound.
         if (visualTick + 1.5F < move.activeStartTick()) {
             return;
@@ -269,8 +288,8 @@ public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
         }
         if (frame.isPresent()) {
             target = swing.sample(frame.get().moveIndex(), frame.get().tick());
-            if (frame.get().hitStop()) {
-                target = shaken(target, (float) realTick(player, partialTick));
+            if (frame.get().hitStop() && clock != null) {
+                target = shaken(target, clock.present());
             }
         }
         if (blendFrom != null) {
@@ -308,10 +327,10 @@ public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
             clear();
             return Optional.empty();
         }
-        return Optional.of(new Frame(
-                activeMoveIndex,
-                clock.visualTick((float) realTick),
-                clock.inHitStop((float) realTick)));
+        // The server-timed end above reads the real tick; the pose reads the present, so it
+        // never steps back along the move.
+        float present = clock.advance((float) realTick);
+        return Optional.of(new Frame(activeMoveIndex, clock.visualTick(present), clock.inHitStop(present)));
     }
 
     /** True when the main-hand item is a registered weapon of {@code style}. */

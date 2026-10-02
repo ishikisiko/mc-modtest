@@ -10,8 +10,10 @@ import time
 from pathlib import Path
 
 from . import scene
-from .data import Weapon, fmt_tick, sha256_file
+from .data import Weapon, asset_rel, fmt_tick, sha256_file
 from .session import REPO, SCREEN
+
+BUILD_RESOURCES = REPO / "build/resources/main"
 
 MANIFEST = "manifest.json"
 MANIFEST_SCHEMA = 1
@@ -267,6 +269,40 @@ def set_camera(session, view: str) -> bool:
 
 
 # ====================================================================== stills
+def probe_reject_pattern(probe: str) -> str:
+    """Client log line of a refused probe (ClientPalSmokeEvents): group 1 is
+    the reason, e.g. tick_out_of_range, no_weapon, index_out_of_range."""
+    return rf"PAL_SMOKE {probe} rejected reason=(\S+)"
+
+
+def rig_record(resources_root: Path, rel: str, source_root: Path | None = None) -> dict:
+    """What a first-person rig file declares, read from the file the client
+    loads (build/resources/main for a running session): its sha256 and
+    whether it declares an off hand (rig.off_hand). With `source_root`, also
+    whether it equals the source tree's copy (it differs after `reload --src`)."""
+    p = Path(resources_root) / rel
+    rec = {"path": rel, "read_from": "build/resources/main" if Path(resources_root) == BUILD_RESOURCES
+           else "resources root", "present": p.is_file()}
+    if not p.is_file():
+        return rec
+    try:
+        rig = json.loads(p.read_text(encoding="utf-8")).get("rig", {})
+    except ValueError:
+        rig = {}
+        rec["invalid_json"] = True
+    rec.update({"sha256": sha256_file(p), "off_hand": isinstance(rig.get("off_hand"), dict)})
+    if source_root is not None:
+        s = Path(source_root) / rel
+        rec["same_as_source"] = s.is_file() and sha256_file(s) == rec["sha256"]
+    return rec
+
+
+def record_loaded_rig(manifest: dict, weapon: Weapon) -> None:
+    """manifest['rig_loaded'] from the copy the running client reads."""
+    rel = weapon.files.get("rig") or asset_rel(weapon.rig_location)
+    manifest["rig_loaded"] = rig_record(BUILD_RESOURCES, rel, REPO / "src/main/resources")
+
+
 class Stills:
     def __init__(self, session, weapon: Weapon, out_dir: Path, manifest: dict, log=print):
         self.s = session
@@ -292,7 +328,8 @@ class Stills:
         probe = VIEWS[view]["probe"]
         n = move.index
         m, line = self.g.chat(f"/myvillage_pal_smoke {probe} {n} {fmt_tick(tick)}",
-                              confirm=rf"PAL_SMOKE {probe} move={n} tick=([-\d.Ee]+)")
+                              confirm=rf"PAL_SMOKE {probe} move={n} tick=([-\d.Ee]+)",
+                              reject=probe_reject_pattern(probe))
         self.active_probe = probe
         got = float(m.group(1))
         if abs(got - tick) > 1e-3:
@@ -320,6 +357,7 @@ class Stills:
     def run(self, views: list[str], moves: list[int]):
         self.log(f"stills: {self.weapon.id}, views {views}, moves {moves}")
         scene.base_scene(self.s, self.weapon.item)
+        record_loaded_rig(self.m, self.weapon)
         self.press_f5_to("first")
         self.m["combat_mode_before_stills"] = scene.ensure_cultivation(self.s)
         write_manifest(self.out, self.m)
@@ -411,6 +449,8 @@ def run_combo(session, weapon: Weapon, out_dir: Path, manifest: dict, targets: s
     out_dir = Path(out_dir)
     (out_dir / "combo").mkdir(parents=True, exist_ok=True)
     scene.base_scene(session, weapon.item)
+    if not manifest.get("rig_loaded"):
+        record_loaded_rig(manifest, weapon)
     press_f5_to(session, "first")
     mode = scene.ensure_cultivation(session)
     if cam["f5"] != "first":
@@ -560,7 +600,8 @@ def run_motion(session, weapon: Weapon, out_dir: Path, manifest: dict, views: li
                 for mv in weapon.moves:
                     if mv.index not in moves:
                         continue
-                    m, _ = g.chat(f"/myvillage_pal_smoke move {mv.index}", confirm=r"PAL_SMOKE play .*animation=(\S+)")
+                    m, _ = g.chat(f"/myvillage_pal_smoke move {mv.index}", confirm=r"PAL_SMOKE play .*animation=(\S+)",
+                                  reject=probe_reject_pattern("move"))
                     events.append({"event": f"move {mv.index} {mv.short}", "animation": m.group(1),
                                    "s": round(time.time() - t0, 2)})
                     time.sleep(mv.total_ticks * TICK_SECONDS + gap)

@@ -6,6 +6,13 @@ package com.example.myvillage.client.combat;
  * creep at {@link #CREEP_RATE}. The rest of the action then runs slightly faster so the visual
  * move still ends exactly at the server-owned total. The stop length is per move
  * ({@code MoveFeedback.hitStopTicks}); {@link #HIT_STOP_TICKS} is only the default.
+ *
+ * <p>The clock also keeps the action's present: the latest real tick any reader saw (a rendered
+ * frame, a client tick, a packet). Readings arrive out of order (a packet handled at the start of
+ * a frame reads the tick before the one the previous frame already drew part of), and an
+ * authoritative start correction can move the real tick back. The displayed pose follows
+ * {@link #advance}, never a raw reading, so it never moves backwards along the move, and a
+ * confirmed hit freezes the pose that is on screen ({@link #confirmHit}).
  */
 final class SwingClock {
     static final float HIT_STOP_TICKS = 2.5F;
@@ -16,6 +23,7 @@ final class SwingClock {
     private final float totalTicks;
     private float hitStopStart = Float.NaN;
     private float hitStopTicks = HIT_STOP_TICKS;
+    private float present = Float.NEGATIVE_INFINITY;
 
     SwingClock(float totalTicks) {
         if (!(totalTicks > 0.0F)) {
@@ -44,6 +52,33 @@ final class SwingClock {
         hitStopStart = realTick;
         hitStopTicks = stopTicks;
         return true;
+    }
+
+    /**
+     * Records a reading of the action's real tick and returns the present: the latest reading so
+     * far. A reading behind an earlier one leaves the present where it is.
+     */
+    float advance(float realTick) {
+        if (realTick > present) {
+            present = realTick;
+        }
+        return present;
+    }
+
+    /** The latest real tick read so far; negative infinity before the first reading. */
+    float present() {
+        return present;
+    }
+
+    /**
+     * Starts the hit-stop of a confirmed hit. When the drawn blade has not reached
+     * {@code contactTick} (a visual tick) yet, the stop waits for it; otherwise it starts at the
+     * present, so it freezes the pose already on screen instead of one the blade has passed.
+     * Returns the real tick the stop starts at, or NaN when {@link #beginHitStop} ignores it.
+     */
+    float confirmHit(float contactTick, float stopTicks) {
+        float start = Math.max(Math.max(0.0F, present), realTickForVisual(contactTick));
+        return beginHitStop(start, stopTicks) ? start : Float.NaN;
     }
 
     boolean hasHitStop() {

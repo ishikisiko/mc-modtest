@@ -12,12 +12,11 @@ import time
 from pathlib import Path
 
 from . import procs
-from .capture import ALL_VIEWS, VIEWS, default_views
+from .capture import ALL_VIEWS, BUILD_RESOURCES, VIEWS, default_views
 from .data import DataError, fmt_tick, load_weapon
 from .session import REPO, RIG_LOADED, SessionConfig
 
 RESOURCES = REPO / "src/main/resources"
-BUILD_RESOURCES = REPO / "build/resources/main"
 OUT_ROOT = REPO / "out/preview/combat_capture"
 DEFAULT_WEAPON = "myvillage:qingfeng_sword"
 RELOAD_GLOBS = (
@@ -312,12 +311,16 @@ def cmd_compare(a):
                      key=lambda e: (_view_rank(e["view"]), e["move"], _key_rank(e["key"])))
     views = [v for v in ALL_VIEWS if any(e["view"] == v for e in entries)]
     sheet_files = {}
+    crops = {}
     for view in views:
+        box = compare_crop(da, ma, db, mb, view)
+        if box:
+            crops[view] = box
         p = out / f"compare_{view}.png"
         title = f"{a.label}  |  A: {ma['label']}  vs  B: {mb['label']}  |  {capture.VIEWS[view]['title']}"
-        if sheets.compare_sheet(da, db, ma["label"], mb["label"], entries, view, p, title):
+        if sheets.compare_sheet(da, db, ma["label"], mb["label"], entries, view, p, title, box=box):
             sheet_files[view] = p.name
-            log(f"sheet {p}")
+            log(f"sheet {p}" + (f" (cropped {box[2]}x{box[3]}+{box[0]}+{box[1]})" if box else ""))
     for side, d, m in (("a", da, ma), ("b", db, mb)):
         if m.get("combo") and (d / "combo").is_dir():
             shutil.copytree(d / "combo", out / side / "combo")
@@ -336,11 +339,24 @@ def cmd_compare(a):
     cmp = {"schema": 1, "kind": "comparison", "label": a.label, "created": capture.now_iso(),
            "a": ma, "b": mb,
            "counts": {k: len(v) for k, v in paired.items()}, "unpaired": unpaired, "sheets": sheet_files,
-           "camera_differences": camera_diffs, "links": links}
+           "camera_differences": camera_diffs, "links": links, "crops": crops}
     (out / "comparison.json").write_text(json.dumps(cmp, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     (out / "index.html").write_text(page.comparison_page(cmp), encoding="utf-8")
     log(f"pairs {cmp['counts']['pairs']}, only A {cmp['counts']['only_a']}, only B {cmp['counts']['only_b']}")
     log(f"page {out / 'index.html'}")
+
+
+def compare_crop(da: Path, ma: dict, db: Path, mb: dict, view: str):
+    """One box for both sides of a compared view: the union of each set's own
+    box (crop.view_crop); None (full frames) if either side's view is not
+    croppable, so a cropped and an uncropped camera are never mixed."""
+    from . import crop
+    if not (crop.croppable(ma, view) and crop.croppable(mb, view)):
+        return None
+    ra, rb = crop.view_crop(da, ma, view), crop.view_crop(db, mb, view)
+    if not ra or not rb:
+        return None
+    return crop.box_union_xywh(ra["box"], rb["box"])
 
 
 def _view_rank(view: str) -> int:

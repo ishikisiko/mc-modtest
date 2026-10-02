@@ -25,6 +25,15 @@ class ChatStuck(GameInputError):
     pass
 
 
+class ProbeRejected(GameInputError):
+    """The client logged a refusal for the command (e.g. `PAL_SMOKE third_person
+    rejected reason=...`); retrying the same command cannot help."""
+
+    def __init__(self, command: str, line: str, reason: str | None):
+        self.command, self.line, self.reason = command, line, reason
+        super().__init__(f"client refused {command!r}: reason={reason or '?'} ({line.strip()[-200:]})")
+
+
 # Largest per-channel difference two grabs may show and still count as the
 # same picture (software rendering noise across the whole frame).
 NOISE_LEVELS = 2
@@ -81,6 +90,26 @@ class LogTail:
                     return m, self.lines[i]
             if time.time() >= deadline:
                 return None, None
+            time.sleep(poll)
+
+    def wait_either(self, pattern: str, reject: str | None, timeout: float, poll: float = 0.1):
+        """Like wait, but also stops at the first line matching `reject`.
+        Returns (match, line, rejected)."""
+        if not reject:
+            m, line = self.wait(pattern, timeout, poll)
+            return m, line, False
+        rx, rj = re.compile(pattern), re.compile(reject)
+        deadline = time.time() + timeout
+        while True:
+            self.poll()
+            for i in range(self.cursor, len(self.lines)):
+                for r, rejected in ((rx, False), (rj, True)):
+                    m = r.search(self.lines[i])
+                    if m:
+                        self.cursor = i + 1
+                        return m, self.lines[i], rejected
+            if time.time() >= deadline:
+                return None, None, False
             time.sleep(poll)
 
     def tail_text(self, n: int = 12) -> str:
@@ -187,16 +216,21 @@ class Game:
             self.log("  a screen was open after Enter; closed it with Escape")
         return False
 
-    def chat(self, text: str, confirm: str | None = None, timeout: float = 8.0, retries: int = 1):
+    def chat(self, text: str, confirm: str | None = None, timeout: float = 8.0, retries: int = 1,
+             reject: str | None = None):
         """Send a chat line; with `confirm`, wait for a client log line
         matching it and return (match, line). A chat that did not close or
-        did not confirm is retried (the probes are idempotent)."""
+        did not confirm is retried (the probes are idempotent). With `reject`,
+        a client log line matching it ends the wait at once with
+        ProbeRejected (no retry); its first group, if any, is the reason."""
         for attempt in range(retries + 1):
             tail = LogTail(self.client_log)
             try:
                 self.type_chat(text)
             except ChatStuck:
-                m, line = tail.wait(confirm, 1.0) if confirm else (None, None)
+                m, line, rejected = tail.wait_either(confirm, reject, 1.0) if confirm else (None, None, False)
+                if m and rejected:
+                    raise ProbeRejected(text, line, m.group(1) if m.groups() else None) from None
                 if m and self.wait_ingame(1.0):
                     return m, line
                 if attempt < retries and self.wait_ingame(1.0):
@@ -205,7 +239,9 @@ class Game:
                 raise
             if not confirm:
                 return None, None
-            m, line = tail.wait(confirm, timeout)
+            m, line, rejected = tail.wait_either(confirm, reject, timeout)
+            if m and rejected:
+                raise ProbeRejected(text, line, m.group(1) if m.groups() else None)
             if m:
                 return m, line
             if attempt < retries:

@@ -112,9 +112,17 @@ it is vanilla, the tool presses R once and checks the server again.
 - Third person: `/myvillage_pal_smoke third_person <n> <tick>`, confirmed by
   `PAL_SMOKE third_person move=<n> tick=<tick>`; ends with
   `third_person release`. The probe holds every bone of the move's PAL
-  animation, so there is no idle sway in these stills. The probe refuses
-  (silently, no log line) when the move's animation is not loaded, e.g. a
-  weapon whose `player_animations` file does not exist yet.
+  animation, so there is no idle sway in these stills.
+- A refused probe logs `PAL_SMOKE <probe> rejected reason=<reason> ...`
+  (e.g. `no_weapon`, `index_out_of_range`, `tick_out_of_range`, or the move's
+  animation not loaded). The wait stops at that line at once with an error
+  naming the reason (no retry: the same command would be refused again);
+  `motion` does the same for `move <n>`.
+- The manifest's `rig_loaded` records the first-person rig the client reads
+  (`build/resources/main`, which `reload` writes): its sha256, whether it
+  declares an off hand (`rig.off_hand`) and whether it equals the source
+  tree's copy (it does not after `reload --src`). The client's rig-loaded log
+  line says neither. `source.files.rig` is always the source tree's file.
 - Each still is kept once the picture holds still: two consecutive
   full-screen grabs byte-identical, or three consecutive grabs pairwise within
   2 colour levels per channel everywhere (whole-frame rendering noise; a pose
@@ -204,13 +212,41 @@ and no world trail, and the body keeps its facing. Videos go to
 `out/preview/combat_capture/<label>/` (change with `--out-root`):
 
 ```
-manifest.json            weapon, style, rig, commit, file hashes, camera settings, moves and key ticks, frames, combo
+manifest.json            weapon, style, rig, loaded rig, commit, file hashes, camera settings, moves and key ticks, frames, crops, combo
 sheet_fp.png             rows = moves, columns = key ticks; every cell names weapon, move, key, tick, view
 sheet_tp_back.png ...     one per captured view
 frames/<view>/m<n>_<key>.png   full 960x540 frames
 combo/combo.mp4          combo/combo_strip.png
 index.html
 ```
+
+### Cropped third-person sheets
+
+In the quarter views (third person without a barrier wall, camera 4 blocks
+away) the figure covers a small part of the frame, so their sheets crop every
+frame to one box per view and enlarge it by an integer factor (1-3, point
+filter, cell at most 720 px wide; 480 px per side in a comparison). The box
+is fixed for the view and the capture set, so the cells stay comparable:
+
+1. body box: the standing player's volume (0.5 blocks either side of the body
+   axis in x and z, from below the soles to above the head, relative to the
+   eye at the screen centre) projected through the view's recorded camera
+   (F5 side, distance, pitch, look yaw, FOV 70, 960x540);
+2. motion box: the union over all the view's frames of where a frame differs
+   from the per-pixel median of those frames by more than 4 % grey (the
+   background is the same in every frame of a view, so this covers the
+   weapon and the limbs in every pose);
+3. the union of both, plus 16 px on every side, at least 160x120, clamped to
+   the frame.
+
+A view with fewer than 3 frames is not cropped. The box and rule are stored
+in the manifest's `crops` and named in the sheet title and on the page.
+`compare` crops both sides of a view with the union of the two sets' boxes,
+and only when the view is cropped in both. The straight views (`tp_back`,
+`tp_front`, barrier wall 2.4 blocks) and `fp` keep their full frames, so the
+sword's sheets and comparisons are unchanged. Files under `frames/` are never
+modified; the crop happens when the sheet is drawn. `page DIR` rebuilds the
+sheets of an existing capture set with the crop (offline).
 
 A comparison directory holds `compare_<view>.png`, `comparison.json`,
 `a/combo/`, `b/combo/` and `index.html`. `out/preview/` is served publicly

@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 from unittest import mock
 
-from tools.combat_capture import capture, cli, data, page, procs, scene, sheets, xgame
+from tools.combat_capture import capture, cli, crop, data, page, procs, scene, sheets, xgame
 from tools.combat_capture.session import (CLIENT_DIR_REL, client_extra, gradle_argv, merge_options,
                                           server_properties)
 
@@ -587,6 +587,36 @@ class ChatRecoveryTest(unittest.TestCase):
                 g.chat("/x", confirm="never", timeout=0.01)
         self.assertEqual(sum(1 for s in g.sent if s[:2] == ("key", "Return")), 2)
 
+    def test_probe_rejection_fails_fast_with_the_reason(self):
+        g = FakeGame(self.log, [], confirm_on_enter=False)
+        line = ("[02Oct2026 08:39:35.763] [Render thread/INFO] [x/]: PAL_SMOKE third_person rejected "
+                "reason=tick_out_of_range move=1 tick=12.0 total_ticks=12\n")
+        orig = g.xdo
+
+        def xdo(*args):
+            if args[:2] == ("key", "Return"):
+                with open(self.log, "a") as f:
+                    f.write(line)
+            return orig(*args)
+        g.xdo = xdo
+        with self.assertRaises(xgame.ProbeRejected) as ctx:
+            g.chat("/myvillage_pal_smoke third_person 1 12", confirm=r"PAL_SMOKE third_person move=1 tick=(\S+)",
+                   reject=capture.probe_reject_pattern("third_person"), timeout=30)
+        self.assertEqual(ctx.exception.reason, "tick_out_of_range")
+        self.assertIn("tick_out_of_range", str(ctx.exception))
+        self.assertEqual(sum(1 for s in g.sent if s[:2] == ("key", "Return")), 1)  # no retry
+
+    def test_reject_patterns(self):
+        import re
+        for probe in ("first_person", "third_person", "move"):
+            m = re.search(capture.probe_reject_pattern(probe),
+                          f"PAL_SMOKE {probe} rejected reason=no_weapon")
+            self.assertEqual(m.group(1), "no_weapon")
+        self.assertIsNone(re.search(capture.probe_reject_pattern("first_person"),
+                                    "PAL_SMOKE third_person rejected reason=no_weapon"))
+        self.assertIsNone(re.search(capture.probe_reject_pattern("third_person"),
+                                    "PAL_SMOKE third_person release held=false"))
+
     def test_no_keys_when_a_screen_is_open(self):
         g = FakeGame(self.log, [False] * 1000)
         with mock.patch.object(g, "wait_ingame", return_value=False):
@@ -608,6 +638,109 @@ class ReloadTest(unittest.TestCase):
             (src / "assets/ns/combat/new.json").write_text("{}")
             self.assertEqual(cli.changed_resources(src, dst, ("assets/*/combat/**/*.json",)),
                              ["assets/ns/combat/new.json", "assets/ns/combat/rig.json"])
+
+
+class CropTest(unittest.TestCase):
+    QUARTER = {"view": "tp_back_right", "f5": "back", "wall_distance": None, "camera_distance": 4.0,
+               "pitch": 30.0, "look_yaw": -50.0, "body_yaw": 0.0}
+
+    def manifest(self, views):
+        return {"capture": {"size": [960, 540], "fov": 70, "views": views,
+                            "third_person_camera": {capture.camera_key(v): capture.camera_record(v)
+                                                    for v in views if v != "fp"}}, "frames": []}
+
+    def test_croppable_views(self):
+        m = self.manifest(["fp", "tp_back", "tp_front", "tp_back_right", "tp_front_left"])
+        self.assertEqual([v for v in m["capture"]["views"] if crop.croppable(m, v)],
+                         ["tp_back_right", "tp_front_left"])  # wall views and fp keep full frames
+
+    def test_projection(self):
+        for view in ("tp_back_right", "tp_back_left", "tp_front_right", "tp_front_left"):
+            cam = capture.camera_record(view)
+            x, y = crop.project((0.0, 0.0, 0.0), cam)
+            self.assertAlmostEqual(x, 480.0, places=6)  # the eye is the screen centre
+            self.assertAlmostEqual(y, 270.0, places=6)
+            fx, fy = crop.project((0.0, -crop.EYE_HEIGHT, 0.0), cam)
+            self.assertGreater(fy, 330.0)  # feet below the eye
+            self.assertAlmostEqual(fx, 480.0, places=6)
+        # behind the right shoulder: a point to the player's right (-x) is on the right of the screen
+        rx, _ = crop.project((-1.0, 0.0, 0.0), capture.camera_record("tp_back_right"))
+        self.assertGreater(rx, 480.0)
+        # front: the player's right appears on the left
+        lx, _ = crop.project((-1.0, 0.0, 0.0), capture.camera_record("tp_front"))
+        self.assertLess(lx, 480.0)
+        box = crop.body_box(self.QUARTER)
+        self.assertTrue(box[0] < 480 < box[2] and box[1] < 270 < box[3])
+
+    def test_boxes(self):
+        self.assertEqual(crop.parse_bbox("164x180+414+244"), (414, 244, 578, 424))
+        self.assertIsNone(crop.parse_bbox("0x0+960+540"))
+        self.assertIsNone(crop.parse_bbox(""))
+        self.assertEqual(crop.union([(1, 2, 3, 4), None, (0, 5, 2, 9)]), (0, 2, 3, 9))
+        self.assertIsNone(crop.union([None]))
+        self.assertEqual(crop.finish((100, 100, 300, 300), margin=10), [90, 90, 220, 220])
+        # minimum size grows about the centre; clamped to the frame
+        self.assertEqual(crop.finish((480, 270, 490, 280), margin=0, min_size=(160, 120)), [405, 215, 160, 120])
+        self.assertEqual(crop.finish((0, 500, 50, 540), margin=16, min_size=(160, 120)), [0, 420, 160, 120])
+        self.assertEqual(crop.finish((-50, -50, 2000, 2000)), [0, 0, 960, 540])
+        self.assertEqual(crop.box_union_xywh([10, 10, 100, 50], [0, 20, 50, 100]), [0, 10, 110, 110])
+        self.assertEqual(crop.box_union_xywh(None, [1, 2, 3, 4]), [1, 2, 3, 4])
+        self.assertEqual(crop.zoom_for([0, 0, 319, 256], 720), 2)
+        self.assertEqual(crop.zoom_for([0, 0, 533, 280], 720), 1)
+        self.assertEqual(crop.zoom_for([0, 0, 160, 120], 720), 3)
+        self.assertEqual(crop.crop_spec("a/b.png", [1, 2, 3, 4]), "a/b.png[3x4+1+2]")
+
+    def test_view_crop_needs_frames(self):
+        m = self.manifest(["tp_back_right"])
+        m["frames"] = [{"view": "tp_back_right", "file": "frames/tp_back_right/m1_idle.png"}]
+        with tempfile.TemporaryDirectory() as td:
+            self.assertIsNone(crop.view_crop(Path(td), m, "tp_back_right"))  # missing files / too few frames
+            self.assertIsNone(crop.view_crop(Path(td), m, "fp"))
+
+    def test_compare_uses_one_box_for_both_sides(self):
+        m = self.manifest(["tp_back_right", "tp_back"])
+        with mock.patch.object(crop, "view_crop", side_effect=[{"box": [10, 10, 100, 100]},
+                                                               {"box": [50, 0, 100, 100]}]):
+            self.assertEqual(cli.compare_crop(Path("a"), m, Path("b"), m, "tp_back_right"), [10, 0, 140, 110])
+        with mock.patch.object(crop, "view_crop") as vc:
+            self.assertIsNone(cli.compare_crop(Path("a"), m, Path("b"), m, "tp_back"))
+            vc.assert_not_called()
+
+
+class RigRecordTest(unittest.TestCase):
+    def test_off_hand_is_read_from_the_loaded_file(self):
+        with tempfile.TemporaryDirectory() as td:
+            build, src = Path(td) / "build", Path(td) / "src"
+            rel = "assets/ns/combat/rig.json"
+            for root, rig in ((build, {"arm": {}}), (src, {"arm": {}, "off_hand": {"grip_diagonal": 30}})):
+                (root / rel).parent.mkdir(parents=True)
+                (root / rel).write_text(json.dumps({"rig": rig, "moves": {}}))
+            r = capture.rig_record(build, rel, src)
+            self.assertFalse(r["off_hand"])
+            self.assertFalse(r["same_as_source"])
+            r2 = capture.rig_record(src, rel, src)
+            self.assertTrue(r2["off_hand"])
+            self.assertTrue(r2["same_as_source"])
+            self.assertFalse(capture.rig_record(build, "missing.json")["present"])
+
+    def test_bundled_rigs(self):
+        spear = capture.rig_record(RESOURCES, "assets/myvillage/combat/lingxiao_spear_first_person.json")
+        sword = capture.rig_record(RESOURCES, "assets/myvillage/combat/qingfeng_first_person.json")
+        self.assertTrue(spear["off_hand"])
+        self.assertFalse(sword["off_hand"])
+
+    def test_page_shows_the_loaded_rig_and_crops(self):
+        m = capture_manifest()
+        html = page.capture_page(m)
+        self.assertIn("loaded rig: not recorded", html)
+        m["rig_loaded"] = {"path": "x", "read_from": "build/resources/main", "present": True, "sha256": "ab" * 32,
+                           "off_hand": True, "same_as_source": False}
+        m["crops"] = {"fp": {"box": [1, 2, 300, 200], "rule": "test rule", "frames": 2}}
+        html = page.capture_page(m)
+        self.assertIn("declares an off hand", html)
+        self.assertIn("differs from the source tree", html)
+        self.assertIn("300x200 at (1, 2)", html)
+        PageTest.assert_plain(self, html)
 
 
 if __name__ == "__main__":
