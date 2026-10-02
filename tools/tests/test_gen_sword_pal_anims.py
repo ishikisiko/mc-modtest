@@ -736,30 +736,66 @@ class SpearTableTest(unittest.TestCase):
         self.assertLess(sk["right_hand"][2], sk["left_hand"][2])  # left hand leads
 
     def test_cut_senses_agree_with_the_hit_samples(self) -> None:
-        # Server samples use +x = the player's left; the pose rig uses +x = the player's right.
-        data = {m["id"]: m for m in gen.combat_styles()[SPEAR.style_id]["moves"]}
+        # A spear cut's samples run from near the attacker out along the spearhead's direction, so its
+        # sense is read from the samples' far ends (where the hit volume and the world trail point),
+        # in the rig frame (+x = the player's right; the server's +x is the left), and every far end
+        # must point where the posed spearhead points at the sample's time (seen from the trail
+        # pivot, within SENSE_TOLERANCE_DEG).  The sword's diagonal cuts keep their slanted-line
+        # reading in SWORD_CUT_PATHS and test_cut_directions_match_hitboxes.
+        pivot = (0.0, gen.TRAIL_PIVOT_HEIGHT, 0.0)
+
+        def angle(a, b):
+            dot = sum(a[i] * b[i] for i in range(3)) / math.sqrt(sum(v * v for v in a) * sum(v * v for v in b))
+            return math.degrees(math.acos(max(-1.0, min(1.0, dot))))
+
+        senses = {}
         for m in gen.moves(SPEAR):
             if m.kind != "cut":
                 continue
-            samples = data[m.move_id]["hitbox"]["samples"]
-            first = [s for s in samples if s["tick"] == m.active_start]
-            last = [s for s in samples if s["tick"] == m.active_end]
+            samples = gen.hit_samples(m)
             poses = gen.resolve(m.keys, SPEAR)
-            phases = [k.phase for k in m.keys]
-            contact = gen.skeleton(poses[phases.index("contact")], SPEAR)["tip"]
-            hold = gen.skeleton(poses[phases.index("hold")], SPEAR)["tip"]
-            # The sweep's sense is carried by the far (tip) end of its samples, the diagonals' by the
-            # near end, as the sword's 横 / 撩 / 斜 conventions read the same generator shapes.
-            end = "end" if m.cut_path == "left_to_right" else "start"
-            server_start, server_end = -first[0][end][0], -last[-1][end][0]  # to the rig's +x = right
-            self.assertLess(server_start * server_end, 0, m.animation_id)  # crosses the centre line
-            self.assertGreater(contact[0] * server_start, 0, m.animation_id)
-            self.assertGreater(hold[0] * server_end, 0, m.animation_id)
-            if m.cut_path == "rising":
-                self.assertGreater(hold[1], contact[1] + 1.0)
-            if m.cut_path == "descending":
-                wind = gen.skeleton(poses[phases.index("contact") - 1], SPEAR)["tip"]
-                self.assertGreater(wind[1], hold[1] + 1.5)
+            far = [(-end[0], end[1], end[2]) for _, _, end in samples]
+            for (_, _, end), time, point in zip(samples, gen.trail_sample_times(samples), far):
+                tip = gen.skeleton(gen.sample(m.keys, poses, time), SPEAR)["tip"]
+                self.assertLessEqual(angle([point[i] - pivot[i] for i in range(3)], [tip[i] - pivot[i] for i in range(3)]),
+                                     self.SENSE_TOLERANCE_DEG, (m.animation_id, time))
+            senses[m.cut_path] = far
+        sweep, flick, smash = senses["left_to_right"], senses["rising"], senses["descending"]
+        # Sweep: left to right, level.
+        self.assertLess(sweep[0][0], -1.0)
+        self.assertGreater(sweep[-1][0], 1.0)
+        yaws = [math.degrees(math.atan2(p[0], p[2])) for p in sweep]
+        self.assertEqual(sorted(yaws), yaws)
+        for p in sweep:
+            self.assertLessEqual(abs(math.degrees(math.atan2(p[1] - pivot[1], math.hypot(p[0], p[2])))), 10.0)
+        # Flick: starts low on the right, ends high on the left.
+        self.assertGreater(flick[0][0], 0.3)
+        self.assertLess(flick[0][1], 1.0)
+        self.assertLess(flick[-1][0], -0.3)
+        self.assertGreater(flick[-1][1], 2.0)
+        # Smash: starts high near the centre line, ends low in front and slightly to the right.
+        self.assertGreater(smash[0][1], 2.0)
+        self.assertLessEqual(abs(smash[0][0]), 0.3)
+        self.assertLess(smash[-1][1], 0.6)
+        self.assertGreater(smash[-1][2], 2.0)
+        self.assertTrue(0.0 < smash[-1][0] <= 1.0, smash[-1])
+
+    SENSE_TOLERANCE_DEG = 15.0  # the sweep's samples are the authored 140-degree arc; its pose lags it by <10
+
+    def test_smash_crosses_the_top_without_a_reversal(self) -> None:
+        # The head comes over the top and down: at the contact key it may stop (the strike eases
+        # out) but must not turn back on itself.
+        smash = gen.moves(SPEAR)[3]
+        poses = gen.resolve(smash.keys, SPEAR)
+
+        def tip(t):
+            return gen.skeleton(gen.sample(smash.keys, poses, t), SPEAR)["tip"]
+
+        before = [tip(7.0)[i] - tip(6.9)[i] for i in range(3)]
+        after = [tip(7.1)[i] - tip(7.0)[i] for i in range(3)]
+        dot = sum(before[i] * after[i] for i in range(3)) / math.sqrt(sum(v * v for v in before) * sum(v * v for v in after))
+        self.assertLess(math.degrees(math.acos(max(-1.0, min(1.0, dot)))), 45.0)
+        self.assertLess(before[1], 0.0)  # already descending when the contact key arrives
 
     def through(self, m):
         poses = gen.resolve(m.keys, SPEAR)
@@ -795,10 +831,13 @@ class SpearTableTest(unittest.TestCase):
         smash = gen.moves(SPEAR)[3]
         poses = gen.resolve(smash.keys, SPEAR)
         phases = [k.phase for k in smash.keys]
-        wind = gen.skeleton(poses[phases.index("coil")], SPEAR)
-        self.assertGreater(wind["tip"][1], 2.9)  # spear raised high
-        self.assertGreater(wind["right_hand"][1], wind["right_shoulder"][1] + 0.3)  # rear arm up
-        self.assertLess(wind["tip"][2], 0.0)  # tip behind the head
+        raised = gen.skeleton(poses[phases.index("anticipation")], SPEAR)
+        self.assertGreater(raised["tip"][1], 2.9)  # spear raised high
+        self.assertGreater(raised["right_hand"][1], raised["right_shoulder"][1] + 0.3)  # rear arm up
+        self.assertLess(raised["tip"][2], 0.0)  # tip behind the head
+        over = gen.skeleton(poses[phases.index("coil")], SPEAR)  # coming over the top into the strike
+        self.assertGreater(over["tip"][1], 2.9)
+        self.assertGreater(over["right_hand"][1], over["right_shoulder"][1] + 0.3)
         hold = gen.skeleton(poses[phases.index("hold")], SPEAR)
         self.assertLess(hold["tip"][1], 0.6)
         self.assertGreater(hold["tip"][2], 1.8)  # driven into the ground in front, not by the feet
