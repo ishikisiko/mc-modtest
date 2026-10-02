@@ -873,7 +873,9 @@ The first-person rig `combat/lingxiao_spear_first_person.json` is hand-authored
 and reloads with `F3+T`. Its `rig.off_hand` block and the per-key
 `off_hand_slide`, `off_hand_roll`, `off_hand_elbow`, and `off_hand_hold` fields
 are described in `docs/ai-kb/35_lingxiao_spear.md`, with what the spear showed
-about the 0.28.0 data infrastructure.
+about the 0.28.0 data infrastructure. A rig, contract, or first-person solver
+change also rewrites the first-person parity golden (see the offline preview
+commands below).
 
 Operators can inspect the server-computed active samples without changing hit
 authority:
@@ -911,7 +913,8 @@ python3 tools/gen_blade_cut_sprite.py --check
 python3 tools/gen_qingfeng_sword_model.py --check
 python3 tools/gen_lingxiao_spear_model.py --check
 python3 -m unittest tools.tests.test_gen_sword_pal_anims tools.tests.test_gen_blade_cut_sprite tools.tests.test_gen_qingfeng_sword_model tools.tests.test_gen_lingxiao_spear_model
-python3 -m unittest tools.tests.test_combat_capture
+python3 -m unittest tools.tests.test_combat_capture tools.tests.test_combat_preview
+.venv-preview/bin/python -m unittest tools.tests.test_combat_preview_parity
 python3 tools/validate_mod_items.py
 python3 -m unittest tools.tests.test_validate_mod_items
 ./gradlew test
@@ -946,6 +949,37 @@ attributes every health loss to a move (`hits_by_move`).
 
 `tools/combat_capture/README.md` has the session, hot-reload, and tuning-loop
 commands. Capture output is developer evidence and records no owner verdict.
+
+For quick looks without Minecraft, the offline previews render first-person rig
+frames (item model, both arms, trail) at any tick, third-person PAL poses, and
+item models from `src/main/resources`, in seconds and without the heavy-work
+lock. They need numpy and Pillow; without them the command re-executes under
+`$MC_PREVIEW_PYTHON` or `.venv-preview/bin/python`, or prints the setup
+command. The default vanilla resources jar comes from a Gradle build
+(`build/moddev/artifacts/`).
+
+```bash
+python3 -m venv .venv-preview && .venv-preview/bin/pip install -r tools/combat_preview/requirements.txt   # once
+python3 -m tools.combat_preview fp --weapon myvillage:lingxiao_spear --move all --key-ticks --out out/preview/combat_preview/spear_fp.png
+python3 -m tools.combat_preview pose --animations src/main/resources/assets/myvillage/player_animations/spear_combat.json \
+    --animation basic_spear_02_sweep --all-keys --item myvillage:item/lingxiao_spear --out out/preview/combat_preview/spear_sweep.png
+python3 -m tools.combat_preview model myvillage:item/qingfeng_sword --out out/preview/combat_preview/sword_model.png
+```
+
+The `fp` port of the first-person solver is pinned to the Java by
+`src/test/resources/first_person_preview_parity.json`. Both tests check it;
+after a deliberate change to the solver, a rig, or a geometry contract, rewrite
+it from the Java and bring `tools/combat_preview/fp_rig.py` in step until the
+Python test passes:
+
+```bash
+./gradlew test --tests com.example.myvillage.client.combat.FirstPersonPreviewParityTest                        # check
+./gradlew test --tests com.example.myvillage.client.combat.FirstPersonPreviewParityTest -PupdatePreviewParity  # rewrite the golden
+.venv-preview/bin/python -m unittest tools.tests.test_combat_preview_parity                                   # Python port
+```
+
+`tools/combat_preview/README.md` has the options, the `--compare-capture`
+check against capture stills, and what the golden does not cover.
 
 For a separate final client profile, connect to the bounded server without
 editing launcher state:

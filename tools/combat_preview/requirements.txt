@@ -1,0 +1,4 @@
+# Interpreter for tools/combat_preview (python3 -m tools.combat_preview re-execs into .venv-preview).
+# Checked with numpy 2.5.3 and pillow 12.3.0; the pixel output was compared under those versions.
+numpy>=1.26
+pillow>=10.0

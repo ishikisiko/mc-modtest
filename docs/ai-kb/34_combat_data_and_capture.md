@@ -194,6 +194,13 @@ each hold first removes any fade modifier left from an earlier hand-over.
 - `tools/tests/test_combat_data.py` also expands every move's samples and
   requires that a standing mob straight ahead, from 1.0 block out to the
   move's `range`, is touched by some sample.
+- `tools/combat_preview/` (numpy and Pillow, `.venv-preview/`) renders
+  first-person rig frames, PAL poses, and item models offline. Its port of the
+  first-person solver is pinned to the Java by
+  `src/test/resources/first_person_preview_parity.json`, checked by
+  `FirstPersonPreviewParityTest` and `tools/tests/test_combat_preview_parity.py`;
+  any rig, contract, or solver change rewrites it (see
+  [Lingxiao Spear](35_lingxiao_spear.md), "Offline preview tools").
 
 ## Adding content
 
@@ -205,6 +212,8 @@ A weapon that reuses an existing style:
    that the contract's `generator` field names (it must pass `--check`).
 3. Add `weapon/<item>.json` naming the style, a rig, and the geometry, and list
    it in `index.json`.
+4. Rewrite the first-person parity golden (`-PupdatePreviewParity`, see
+   `tools/combat_preview/README.md`) and run the Python parity test.
 
 A new move or style:
 
@@ -212,7 +221,8 @@ A new move or style:
 2. Add a `PoseTable` for the style to `POSE_TABLES` in
    `tools/gen_sword_pal_anims.py` (its weapon's contract and 3D model, rules,
    cut paths, output file) and regenerate.
-3. Add the moves to a first-person rig.
+3. Add the moves to a first-person rig, and rewrite the first-person parity
+   golden.
 4. Add translations, and sound events if the ids are new.
 5. Run the validator and tests, then capture and review.
 
@@ -286,9 +296,7 @@ Facts that matter when using it:
 ## Not done here
 
 Datapack override or `/reload` of style data, a parameterized sword-model
-generator, 3D models for the other three swords, move templates, and an
-in-repository offline pose or rig preview (the preview tools used for the spear
-are outside the repository; see [Lingxiao Spear](35_lingxiao_spear.md)).
+generator, 3D models for the other three swords, and move templates.
 Two-handed grips exist since 0.29.0, but third-person arms stay rigid. The
 scale-up order is in
 [Combat Framework Comparison](33_combat_framework_comparison.md).

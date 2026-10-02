@@ -41,6 +41,10 @@ configurations.testRuntimeClasspath.extendsFrom(configurations.runtimeClasspath)
 
 tasks.named('test') {
     useJUnitPlatform()
+    // -PupdatePreviewParity: FirstPersonPreviewParityTest rewrites its golden fixture instead of checking it.
+    if (providers.gradleProperty('updatePreviewParity').isPresent()) {
+        systemProperty 'myvillage.updatePreviewParity', 'true'
+    }
 }
 
 neoForge {

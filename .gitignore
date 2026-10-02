@@ -40,3 +40,6 @@ run-joint-preview/
 
 # tools/combat_capture session state, logs and client game directory.
 run-combat-capture/
+
+# tools/combat_preview interpreter (numpy + pillow; see tools/combat_preview/README.md).
+.venv-preview/

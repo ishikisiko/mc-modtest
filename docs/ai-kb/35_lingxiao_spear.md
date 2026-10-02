@@ -205,6 +205,8 @@ python3 tools/validate_sword_combat_foundation.py
 python3 tools/validate_mod_items.py
 python3 -m unittest tools.tests.test_gen_lingxiao_spear_model tools.tests.test_gen_sword_pal_anims tools.tests.test_combat_data
 python3 -m tools.combat_capture run --label <label> --weapon myvillage:lingxiao_spear
+python3 -m tools.combat_preview fp --weapon myvillage:lingxiao_spear --move all --key-ticks --out out/preview/combat_preview/spear_fp.png
+.venv-preview/bin/python -m unittest tools.tests.test_combat_preview_parity
 ```
 
 The first-person rig is hand-authored data; edit it and use
@@ -212,18 +214,32 @@ The first-person rig is hand-authored data; edit it and use
 
 ## Offline preview tools
 
-Used for the rig and pose work; they live outside the repository in
-`/home/ubuntu/code/mc/combat-lab/harness/tools/` and need that folder's Python
-environment (numpy):
+`tools/combat_preview/` (`python3 -m tools.combat_preview fp|pose|model`, see
+its README) renders from the mod's resources with numpy and Pillow; without
+them it re-executes under `$MC_PREVIEW_PYTHON` or `.venv-preview/`. Moved into
+the repository after 0.29.0-fix1; for the same inputs they write the same
+sheets, byte for byte, as the copies they came from.
 
-- `preview_fp_rig.py`: first-person frames of a weapon's rig (item model, arm
-  or arms, trail) at any tick, from the mod's resources. Checked against 25
-  Qingfeng and 25 spear in-game probe stills: silhouette XOR over union at most
-  0.5 % (`out/preview/lingxiao_spear/fp_preview_validation/`,
+- `fp`: first-person frames of a weapon's rig (item model, arm or arms, trail)
+  at any tick. Checked against 25 Qingfeng and 25 spear in-game probe stills:
+  silhouette XOR over union at most 0.5 %
+  (`out/preview/lingxiao_spear/fp_preview_validation/`,
   `ingame_combat/fp_compare_spear_v1/`).
-- `preview_pal_pose.py`: third-person PAL poses from the animation file and the
-  item model (`out/preview/lingxiao_spear/pose_preview_validation/`).
-- `preview_item_model.py`: the item model in each display context.
+- `pose`: third-person PAL poses from the animation file and the item model
+  (`out/preview/lingxiao_spear/pose_preview_validation/`).
+- `model`: the item model in each display context.
+
+The `fp` solver (pose sampling, grip frame, arm lag, main and off arm) is
+pinned to the Java by `src/test/resources/first_person_preview_parity.json`:
+`FirstPersonPreviewParityTest` (JUnit) and
+`tools/tests/test_combat_preview_parity.py` (run with
+`.venv-preview/bin/python`) both check it, for both weapons, every move, key
+ticks plus every 2.5 ticks, and both main arms. A solver, rig, or contract
+change rewrites it with `./gradlew test --tests
+com.example.myvillage.client.combat.FirstPersonPreviewParityTest
+-PupdatePreviewParity`, and the Python port must then pass. When the golden
+was first written the port matched the Java within its rounding (5e-5 block).
+The arm mesh, trail, and rasteriser are checked only against in-game stills.
 
 ## Evidence
 
@@ -363,7 +379,10 @@ clean track of a +1 or +2 reset mid-swing.
   `... with sword geometry ...`.
 - The F5 camera cannot hold a quarter view through a real combo, and at 4
   blocks a front quarter view cuts a tip more than about 3.1 blocks ahead.
-- The offline preview tools are outside the repository.
+- The offline previews' arm mesh, trail, and rasteriser, and the `pose` and
+  `model` tools, have no parity test against the Java; only the `fp` solver
+  does. `model` defaults to the Qingfeng geometry contract (pass
+  `--geometry` for the spear).
 - Third person with an off-hand item: the left hand stays posed on the shaft.
 - The pennant side is not mirrored in the off-hand vanilla hold.
 - The third-person body restarts a predicted move when the server's start
@@ -378,8 +397,7 @@ clean track of a +1 or +2 reset mid-swing.
 
 1. Draw the leading arm in third person with the first-person two-bone solve,
    so two-handed weapons keep both hands through swings.
-2. Bring the offline preview tools into the repository.
-3. Separate trail paths from hit samples, or let the trail radius vary.
-4. Rename the sword-shaped fields in a schema revision.
-5. Fix the Qingfeng generator's left-hand mirroring before any tilt or roll is
+2. Separate trail paths from hit samples, or let the trail radius vary.
+3. Rename the sword-shaped fields in a schema revision.
+4. Fix the Qingfeng generator's left-hand mirroring before any tilt or roll is
    added to its display.
