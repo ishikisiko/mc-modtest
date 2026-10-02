@@ -29,9 +29,9 @@ import java.util.Optional;
  *
  * <p>With {@code rig.off_hand} the off arm is solved too ({@link #solveOffHand}): the mirror image
  * of the main arm (its shoulder is the main shoulder reflected across the view's vertical plane,
- * the body offset shared), whose fist closes on the shaft at the contract's
- * {@code off_hand_grip_center} plus the pose's {@code off_hand_slide}, in the same grip frame the
- * weapon and the main hand use. Its thumb points toward the tip; by default the hand lines up with
+ * the body offset shared, the cross-section its own {@code thickness}), whose fist closes on the
+ * shaft at the contract's {@code off_hand_grip_center} plus the pose's {@code off_hand_slide}, in
+ * the same grip frame the weapon and the main hand use. Its thumb points toward the tip; by default the hand lines up with
  * the reach from its shoulder (knuckles away from the shoulder), and {@code off_hand_roll} turns it
  * about the shaft from there. A point out of reach slides the hand along the shaft to the nearest
  * reachable point, never off the shaft or into the main fist. The off arm takes no lag: the lag
@@ -244,10 +244,7 @@ final class FirstPersonArmIk {
         if (offHand == null || center.isEmpty() || hold <= 0.0F) {
             return Optional.empty();
         }
-        FirstPersonSwing.Arm main = rig.arm();
-        FirstPersonSwing.Arm armRig = new FirstPersonSwing.Arm(
-                offHand.shoulderOffsetX(), offHand.shoulderOffsetY(), offHand.shoulderOffsetZ(),
-                main.upperArm(), main.forearm(), main.thickness(), offHand.gripDiagonal(), main.followThrough());
+        FirstPersonSwing.Arm armRig = rig.offArm();
         Matrix4f gripFrame = FirstPersonSwordTransform.gripFrame(HumanoidArm.RIGHT, equipProgress, rig, pose);
         Shaft shaft = new Shaft(
                 gripFrame,

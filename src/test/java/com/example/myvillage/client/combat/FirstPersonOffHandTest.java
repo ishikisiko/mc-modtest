@@ -94,14 +94,21 @@ final class FirstPersonOffHandTest {
         assertEquals(arm.shoulderOffsetY(), offHand.shoulderOffsetY());
         assertEquals(arm.shoulderOffsetZ(), offHand.shoulderOffsetZ());
         assertEquals(arm.gripDiagonal(), offHand.gripDiagonal());
+        assertEquals(arm.thickness(), offHand.thickness());
 
         JsonObject tuned = twoHandedJson();
         JsonObject block = tuned.getAsJsonObject("rig").getAsJsonObject("off_hand");
         block.add("shoulder_offset", vector(0.05F, -0.03F, 0.02F));
         block.addProperty("grip_diagonal", 20.0F);
+        block.addProperty("thickness", 0.6F);
         block.addProperty("unknown_field", 3.0F); // ignored, like unknown fields elsewhere in the rig
-        FirstPersonSwing.OffHand parsed = parse(tuned, spearGeometry()).rig().offHand();
-        assertEquals(new FirstPersonSwing.OffHand(0.05F, -0.03F, 0.02F, 20.0F), parsed);
+        FirstPersonSwing.Rig tunedRig = parse(tuned, spearGeometry()).rig();
+        assertEquals(new FirstPersonSwing.OffHand(0.05F, -0.03F, 0.02F, 20.0F, 0.6F), tunedRig.offHand());
+        // Only the off arm takes the block's thickness; the bones stay the main arm's.
+        assertEquals(0.6F, tunedRig.offArm().thickness());
+        assertEquals(tunedRig.arm().upperArm(), tunedRig.offArm().upperArm());
+        assertEquals(tunedRig.arm().forearm(), tunedRig.offArm().forearm());
+        assertNotEquals(0.6F, tunedRig.arm().thickness());
 
         JsonObject steep = twoHandedJson();
         steep.getAsJsonObject("rig").getAsJsonObject("off_hand").addProperty("grip_diagonal", 70.0F);
@@ -109,6 +116,28 @@ final class FirstPersonOffHandTest {
         JsonObject shortOffset = twoHandedJson();
         shortOffset.getAsJsonObject("rig").getAsJsonObject("off_hand").add("shoulder_offset", new JsonArray());
         assertThrows(IllegalArgumentException.class, () -> parse(shortOffset, spearGeometry()));
+        JsonObject thick = twoHandedJson();
+        thick.getAsJsonObject("rig").getAsJsonObject("off_hand").addProperty("thickness", 1.5F);
+        assertThrows(IllegalArgumentException.class, () -> parse(thick, spearGeometry()));
+    }
+
+    /** A thicker off arm keeps its fist on the same shaft point and never changes the main arm. */
+    @Test
+    void offArmThicknessKeepsTheGripAndTheMainArm() throws IOException {
+        FirstPersonSwing plain = twoHanded();
+        JsonObject json = twoHandedJson();
+        json.getAsJsonObject("rig").getAsJsonObject("off_hand").addProperty("thickness", 0.7F);
+        FirstPersonSwing thick = parse(json, spearGeometry());
+        FirstPersonSwing.Pose pose = plain.neutral();
+        FirstPersonArmIk.OffHandSolution thin =
+                FirstPersonArmIk.solveOffHand(HumanoidArm.RIGHT, 0.0F, plain, pose).orElseThrow();
+        FirstPersonArmIk.OffHandSolution wide =
+                FirstPersonArmIk.solveOffHand(HumanoidArm.RIGHT, 0.0F, thick, pose).orElseThrow();
+        assertEquals(thin.gripY(), wide.gripY(), EPSILON);
+        assertEquals(0.0F, wide.arm().grip().distance(thin.arm().grip()), EPSILON);
+        assertBones(thick.rig().offArm(), wide.arm(), "thick off arm");
+        assertEquals(FirstPersonArmIk.solve(HumanoidArm.RIGHT, 0.0F, plain, pose).wrist(),
+                FirstPersonArmIk.solve(HumanoidArm.RIGHT, 0.0F, thick, pose).wrist());
     }
 
     @Test
@@ -169,7 +198,7 @@ final class FirstPersonOffHandTest {
                     float thumbSide = arm == HumanoidArm.RIGHT ? -1.0F : 1.0F;
                     assertTrue(thumbSide * solution.fistRotation().transform(new Vector3f(1.0F, 0.0F, 0.0F))
                             .dot(tipward) > 0.5F, where + " thumb");
-                    assertBones(swing, solution, where);
+                    assertBones(swing.rig().offArm(), solution, where);
                 }
             }
         }
@@ -261,7 +290,7 @@ final class FirstPersonOffHandTest {
         float previousY = previous.y;
         for (float hold = 0.9F; hold > 0.0F; hold -= 0.1F) {
             FirstPersonArmIk.Solution solution = solveWithHold(swing, base, hold).orElseThrow().arm();
-            assertBones(swing, solution, "hold " + hold);
+            assertBones(swing.rig().offArm(), solution, "hold " + hold);
             assertTrue(solution.wrist().y < previousY + EPSILON, "the hand drops as it lets go: " + hold);
             assertTrue(solution.wrist().distance(previous) < 0.12F, "the hand jumps at hold " + hold);
             previous = solution.wrist();
@@ -291,7 +320,7 @@ final class FirstPersonOffHandTest {
         FirstPersonSwing.Pose crowded = withOffHand(base, -12.0F, 0.0F, 0.0F, 1.0F);
         FirstPersonArmIk.OffHandSolution low = FirstPersonArmIk.solveOffHand(HumanoidArm.RIGHT, 0.0F, swing, crowded)
                 .orElseThrow();
-        float gap = FirstPersonArmIk.OFF_HAND_GAP_PIXELS * swing.rig().arm().thickness() / swing.rig().swordScale();
+        float gap = FirstPersonArmIk.OFF_HAND_GAP_PIXELS * swing.rig().offArm().thickness() / swing.rig().swordScale();
         assertTrue(low.gripY() >= swing.sword().gripCenter().y + gap - EPSILON, "off grip " + low.gripY());
         // Roll turns the hand about the shaft; elbow swivels the elbow; neither moves the grip.
         FirstPersonArmIk.OffHandSolution rolled = FirstPersonArmIk.solveOffHand(HumanoidArm.RIGHT, 0.0F, swing,
@@ -346,7 +375,7 @@ final class FirstPersonOffHandTest {
                             new Vector3f(spear.gripCenter().x, off.get().gripY(), spear.gripCenter().z));
                     assertEquals(0.0F, off.get().arm().grip().distance(onShaft), EPSILON, where);
                 }
-                assertBones(swing, off.get().arm(), where);
+                assertBones(swing.rig().offArm(), off.get().arm(), where);
                 if (!Float.isNaN(previous)) {
                     assertTrue(Math.abs(off.get().gripY() - previous) <= 3.0F, where + " hand jumps along the shaft");
                 }
@@ -367,8 +396,7 @@ final class FirstPersonOffHandTest {
                 pose.twist(), pose.x(), pose.y(), pose.z(), pose.gripRoll(), pose.elbow(), slide, roll, elbow, hold);
     }
 
-    private static void assertBones(FirstPersonSwing swing, FirstPersonArmIk.Solution solution, String where) {
-        FirstPersonSwing.Arm arm = swing.rig().arm();
+    private static void assertBones(FirstPersonSwing.Arm arm, FirstPersonArmIk.Solution solution, String where) {
         assertEquals(arm.upperArm(), solution.elbow().distance(solution.shoulder()), EPSILON, where + " upper arm");
         assertEquals(arm.forearm(), solution.wrist().distance(solution.elbow()), EPSILON, where + " forearm");
         Vector3f palm = new Vector3f(solution.grip()).sub(solution.wrist());

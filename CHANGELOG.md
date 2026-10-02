@@ -7,6 +7,36 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.29.0-fix1
+
+### Fixed
+
+- The Lingxiao Spear's first-person left arm was too thin (owner review). The
+  off arm was drawn at the main arm's `thickness` (`0.42`), but its hand holds
+  the shaft farther from the eye and its whole forearm shows, so it read as a
+  stick. `rig.off_hand` takes an optional `thickness` (0.2 to 1.2, default the
+  main arm's), and the spear's off arm is now `0.56`. Bone lengths stay the
+  main arm's, so the grip point on the shaft and every pose are unchanged; the
+  main arm, the third-person poses, and Qingfeng are untouched. Presentation
+  only.
+
+### Validation
+
+- 355 Java tests (0 failed, 0 skipped), including the block's default, range,
+  and that a thicker off arm keeps its shaft point and the main arm;
+  `./gradlew build` produced `myvillage-0.29.0-fix1.jar`; the focused combat
+  validator (which now checks the field) and the mod-item validator passed
+  against it; strict OpenSpec validation of `add-lingxiao-spear` passed.
+- Headless capture `spear-fix1-offarm` (25 first-person stills, capture skin
+  with slim arms): the left arm is drawn at the new thickness in all five
+  moves. Against the offline renderer the stills agree to at most 0.002
+  silhouette XOR over union with 0 px tip, main-fist, and grip offset.
+  Before and after, the candidate values (0.42, 0.50, 0.56, 0.62), and a
+  wide-arm skin rendered offline are in
+  `out/preview/lingxiao_spear/off_arm_thickness/`.
+- `not_verified`: the owner's verdict on the new thickness, real keyboard and
+  mouse play, and a wide-arm skin in game.
+
 ## 0.29.0
 
 The Lingxiao Spear, a second combat weapon, built on the 0.28.0 combat data

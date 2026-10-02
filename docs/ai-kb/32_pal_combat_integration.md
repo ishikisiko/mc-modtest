@@ -346,7 +346,8 @@ sword together.
 - Off arm (0.29.0, optional): a rig with `rig.off_hand` also draws the other
   arm with its hand on the shaft at the contract's `off_hand_grip_center`,
   only while the off-hand slot is empty. Qingfeng's rig has no such block and
-  draws as before. Schema in [Lingxiao Spear](35_lingxiao_spear.md).
+  draws as before. The block may give the off arm its own `thickness`
+  (0.29.0-fix1). Schema in [Lingxiao Spear](35_lingxiao_spear.md).
 - Re-equip (0.29.0): a landed hit costs durability and the server resends the
   stack. On a plain `SwordItem` NeoForge then replayed the equip animation, so
   the weapon sank out of view for 5 to 6 ticks after every hit. Combat weapons

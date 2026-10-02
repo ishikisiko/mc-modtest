@@ -94,7 +94,7 @@ public final class FirstPersonArmRenderer {
                     ? PlayerModelPart.RIGHT_SLEEVE
                     : PlayerModelPart.LEFT_SLEEVE;
             render(event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(),
-                    skin.texture(), model(skin.model() == PlayerSkin.Model.SLIM, offArm), swing.get().rig().arm(),
+                    skin.texture(), model(skin.model() == PlayerSkin.Model.SLIM, offArm), swing.get().rig().offArm(),
                     offHand.get().arm(), player.isModelPartShown(offSleeve));
         }
     }

@@ -238,21 +238,34 @@ final class FirstPersonSwing {
         Rig(float shoulderX, float shoulderY, float shoulderZ, float swordScale, Arm arm) {
             this(shoulderX, shoulderY, shoulderZ, swordScale, arm, null);
         }
+
+        /** The off arm as it is solved and drawn: the main arm's bones with {@code rig.off_hand}'s tuning. */
+        Arm offArm() {
+            return new Arm(
+                    offHand.shoulderOffsetX(), offHand.shoulderOffsetY(), offHand.shoulderOffsetZ(),
+                    arm.upperArm(), arm.forearm(), offHand.thickness(), offHand.gripDiagonal(), arm.followThrough());
+        }
     }
 
     /**
      * The off arm, from {@code rig.off_hand}; its fields are optional. The off shoulder is the main
      * shoulder mirrored across the view's vertical plane, with {@code shoulder_offset} in place of
      * {@code rig.arm.shoulder_offset} (+x outward, away from the body's centre); {@code grip_diagonal}
-     * is how far the shaft leans across the off palm. Bone lengths and thickness are the main arm's.
+     * is how far the shaft leans across the off palm and {@code thickness} the off arm's cross-section
+     * (as {@code rig.arm.thickness}; the off hand holds the shaft farther from the eye, so a rig may
+     * draw it thicker). Bone lengths are the main arm's.
      */
-    record OffHand(float shoulderOffsetX, float shoulderOffsetY, float shoulderOffsetZ, float gripDiagonal) {
+    record OffHand(
+            float shoulderOffsetX, float shoulderOffsetY, float shoulderOffsetZ, float gripDiagonal, float thickness) {
         OffHand {
             if (!Float.isFinite(shoulderOffsetX) || !Float.isFinite(shoulderOffsetY) || !Float.isFinite(shoulderOffsetZ)) {
                 throw new IllegalArgumentException("rig.off_hand.shoulder_offset must be finite");
             }
             if (!(gripDiagonal >= 0.0F && gripDiagonal <= 50.0F)) {
                 throw new IllegalArgumentException("rig.off_hand.grip_diagonal must be within 0..50");
+            }
+            if (!(thickness >= 0.2F && thickness <= 1.2F)) {
+                throw new IllegalArgumentException("rig.off_hand.thickness must be within 0.2..1.2");
             }
         }
 
@@ -263,7 +276,12 @@ final class FirstPersonSwing {
             float[] offset = json.has("shoulder_offset")
                     ? vector(json.getAsJsonArray("shoulder_offset"), "rig.off_hand.shoulder_offset")
                     : new float[] {arm.shoulderOffsetX(), arm.shoulderOffsetY(), arm.shoulderOffsetZ()};
-            return new OffHand(offset[0], offset[1], offset[2], value(json, "grip_diagonal", arm.gripDiagonal()));
+            return new OffHand(
+                    offset[0],
+                    offset[1],
+                    offset[2],
+                    value(json, "grip_diagonal", arm.gripDiagonal()),
+                    value(json, "thickness", arm.thickness()));
         }
     }
 

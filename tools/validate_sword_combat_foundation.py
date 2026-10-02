@@ -669,8 +669,8 @@ def off_hand_problems(rig, contract) -> list[str]:
     """What FirstPersonSwing would reject in the rig.off_hand block and the per-key off-hand fields.
 
     The key fields are numbers and ``off_hand_hold`` is within 0..1 in any rig (Java parses them
-    either way); with the block, ``shoulder_offset`` is three numbers, ``grip_diagonal`` 0..50, and
-    each key's ``off_hand_slide`` (inherited from the previous key) keeps the contract's
+    either way); with the block, ``shoulder_offset`` is three numbers, ``grip_diagonal`` 0..50,
+    ``thickness`` 0.2..1.2, and each key's ``off_hand_slide`` (inherited from the previous key) keeps the contract's
     ``off_hand_grip_center`` on the handle. Unknown fields are ignored, as everywhere in the rig.
     """
     if not isinstance(rig, dict) or not isinstance(rig.get("rig"), dict):
@@ -702,6 +702,9 @@ def off_hand_problems(rig, contract) -> list[str]:
     diagonal = block.get("grip_diagonal", 0)
     if not is_number(diagonal) or not 0 <= diagonal <= 50:
         problems.append(f"rig.off_hand.grip_diagonal {diagonal!r} must be within 0..50")
+    thickness = block.get("thickness", 0.5)
+    if not is_number(thickness) or not 0.2 <= thickness <= 1.2:
+        problems.append(f"rig.off_hand.thickness {thickness!r} must be within 0.2..1.2")
     point = contract.get("off_hand_grip_center") if isinstance(contract, dict) else None
     handle = contract.get("handle", {}).get("y") if isinstance(contract, dict) else None
     if not (isinstance(point, list) and len(point) == 3 and is_number(point[1])

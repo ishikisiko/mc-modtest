@@ -109,9 +109,15 @@ First person (rig data, `FirstPersonArmIk` two-bone solve):
 |---|---|
 | `shoulder_offset` | The off shoulder is the main shoulder mirrored across the view's vertical plane, with this offset in place of `rig.arm.shoulder_offset` (+x outward). Default: the main arm's. |
 | `grip_diagonal` | How far the shaft leans across the off palm, 0 to 50 degrees. Default: the main arm's. |
+| `thickness` | The off arm's cross-section, 0.2 to 1.2, as `rig.arm.thickness` (0.29.0-fix1). Default: the main arm's. |
 
-Bone lengths and thickness are the main arm's. Per-key fields (interpolated
-like the others, ignored without the block):
+Bone lengths are the main arm's. The spear draws its off arm at `0.56` against
+the main arm's `0.42`: the leading hand holds the shaft farther from the eye
+and shows its whole forearm, so at the main arm's size it read as a thin
+stick. The thickness scales the fist, the wrist-to-grip distance, and the
+closest the off hand comes to the main grip (6 skin px at the off arm's
+thickness); the grip point on the shaft and the main arm do not change.
+Per-key fields (interpolated like the others, ignored without the block):
 
 | Field | Default | Meaning |
 |---|---|---|
@@ -234,6 +240,7 @@ development host, port 8766 at the time of writing):
 | `combat_capture/spear-final*`, `combat_capture/sword-final*` | Final capture on `26b99e9`: stills, combos in the default, sweep, and line layouts at normal and quarter speed, quarter-view motion; Qingfeng regression against `sword-v2` |
 | `lingxiao_spear/ingame_combat_final/` | Crops, world-trail frames from behind, and the offline-renderer comparison with the final stills |
 | `lingxiao_spear/review/index.html` | Evidence page for the owner (Chinese), with the not-verified list |
+| `combat_capture/spear-fix1-offarm`, `lingxiao_spear/off_arm_thickness/` | 0.29.0-fix1 off-arm thickness: first-person stills, in-game before and after, offline candidates (0.42 to 0.62), a wide-arm skin offline, and the offline-renderer comparison |
 
 None of it is an owner verdict. Not verified anywhere: sound; a second client
 (another player's view, one stop per action as others see it); real keyboard
@@ -349,7 +356,8 @@ clean track of a +1 or +2 reset mid-swing.
   the trail head sits about half a block from the posed head.
 - The step always stops a fixed 0.6 short of a target (`MAGNETISM_STANDOFF`).
 - One `sword_scale` for the whole weapon; the off shoulder shares the body
-  offset; a released hand's rest pose is fixed.
+  offset; the off arm shares the main arm's bone lengths; a released hand's
+  rest pose is fixed.
 - Sword-shaped names: `sword_scale`, `combat.sword.*` sounds, `blade_*`,
   `guard`, `pommel`, the validator's file name, and the log line
   `... with sword geometry ...`.

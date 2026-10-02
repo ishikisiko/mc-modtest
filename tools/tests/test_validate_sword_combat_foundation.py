@@ -497,7 +497,7 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
 
     def test_off_hand_block_content_has_named_failure(self) -> None:
         good = self.read_json(SPEAR_RIG)
-        good["rig"]["off_hand"] = {"shoulder_offset": [0.03, -0.02, -0.12], "grip_diagonal": 30,
+        good["rig"]["off_hand"] = {"shoulder_offset": [0.03, -0.02, -0.12], "grip_diagonal": 30, "thickness": 0.6,
                                    "unknown_field": 1}  # unknown fields are ignored, as in Java
         good["neutral"]["off_hand_slide"] = -3
         keys = next(iter(good["moves"].values()))["keys"]
@@ -507,6 +507,7 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
         cases = {
             "shoulder_offset": lambda rig: rig["rig"]["off_hand"].update(shoulder_offset=[0.1, 0.2]),
             "grip_diagonal": lambda rig: rig["rig"]["off_hand"].update(grip_diagonal=70),
+            "thickness": lambda rig: rig["rig"]["off_hand"].update(thickness=1.5),
             "must be an object": lambda rig: rig["rig"].update(off_hand=[]),
             "off_hand_hold 1.5": lambda rig: next(iter(rig["moves"].values()))["keys"][1].update(off_hand_hold=1.5),
             "off_hand_roll must be numbers":

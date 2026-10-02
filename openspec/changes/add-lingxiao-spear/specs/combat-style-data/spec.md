@@ -25,11 +25,15 @@ A geometry contract MAY give `off_hand_grip_center`, which SHALL lie on the weap
 - **THEN** the geometry fails to load and its weapon uses the vanilla hold
 
 ### Requirement: Optional first-person off-hand arm
-A first-person rig MAY declare `rig.off_hand` (`shoulder_offset`, `grip_diagonal` within 0 to 50). With it, and only while the player's off-hand slot is empty, the arm renderer SHALL also draw the off arm with its hand solved onto the shaft at the contract's `off_hand_grip_center` plus the pose's `off_hand_slide`, turned by `off_hand_roll`, its elbow swivelled by `off_hand_elbow`, and moved toward a rest beside the body as `off_hand_hold` falls from 1 to 0 (not drawn at 0). The four pose fields SHALL interpolate with the pose and default to 0, 0, 0, and 1. A rig with the block on a weapon whose contract has no `off_hand_grip_center`, or whose slide puts the hand off the handle, SHALL fail to load. A rig without the block SHALL render as before.
+A first-person rig MAY declare `rig.off_hand` (`shoulder_offset`, `grip_diagonal` within 0 to 50, `thickness` within 0.2 to 1.2; each defaults to the main arm's). The off arm SHALL be drawn and solved at that `thickness` with the main arm's bone lengths, and the block's `thickness` SHALL NOT change the main arm. With the block, and only while the player's off-hand slot is empty, the arm renderer SHALL also draw the off arm with its hand solved onto the shaft at the contract's `off_hand_grip_center` plus the pose's `off_hand_slide`, turned by `off_hand_roll`, its elbow swivelled by `off_hand_elbow`, and moved toward a rest beside the body as `off_hand_hold` falls from 1 to 0 (not drawn at 0). The four pose fields SHALL interpolate with the pose and default to 0, 0, 0, and 1. A rig with the block on a weapon whose contract has no `off_hand_grip_center`, or whose slide puts the hand off the handle, SHALL fail to load. A rig without the block SHALL render as before.
 
 #### Scenario: Rig without the block is unchanged
 - **WHEN** the Qingfeng rig, which has no `rig.off_hand`, is loaded
 - **THEN** only the main arm is drawn and every pose equals the pose before this change
+
+#### Scenario: Off arm with its own thickness
+- **WHEN** a rig's `rig.off_hand` gives a `thickness` different from `rig.arm.thickness`
+- **THEN** the off arm is drawn at that thickness with its fist on the same shaft point, and the main arm is solved and drawn as without the field
 
 #### Scenario: Off-hand item suppresses the off arm
 - **WHEN** a player holds a weapon whose rig declares `rig.off_hand` and has an item in the off hand
