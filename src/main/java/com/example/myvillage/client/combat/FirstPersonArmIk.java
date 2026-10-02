@@ -9,19 +9,19 @@ import org.joml.Vector3f;
 import java.util.Optional;
 
 /**
- * Shoulder, elbow, wrist and fist for the first-person sword arm, in hand-render pose-stack space.
+ * Shoulder, elbow, wrist and fist for the first-person weapon arm, in hand-render pose-stack space.
  *
- * <p>The fist is locked to the sword: the handle passes through it across the palm, leaning
+ * <p>The fist is locked to the weapon: the handle passes through it across the palm, leaning
  * {@code grip_diagonal} degrees toward the knuckles (as a real sword grip runs from the index
- * knuckle to the heel of the hand), so the guard sits above the thumb side and the pommel below
+ * knuckle to the heel of the hand), so the collar sits above the thumb side and the butt below
  * the little finger. The wrist is one palm behind the handle along the hand. A two-bone solve then
  * reaches from an off-screen shoulder to that wrist, so the angle between forearm and fist is a
  * real wrist bend.
  *
  * <p>Two pose fields keep that bend anatomical, both authored per key in the rig and interpolated
  * with the rest of the pose (so they are continuous and need no frame history): {@code grip_roll},
- * how the hand turns about the handle in the sword's frame (a loose grip lets the rig show the
- * blade's flat while the hand stays lined up with the forearm), and {@code elbow}, the elbow's
+ * how the hand turns about the handle in the weapon's frame (a loose grip lets the rig show the
+ * head's flat while the hand stays lined up with the forearm), and {@code elbow}, the elbow's
  * swivel about the shoulder-wrist line. A presentation-only lag vector (see
  * {@link FirstPersonArmLag}) then drags the shoulder and elbow behind the grip, scaled down if it
  * would push the wrist past {@link #FLEX_LIMIT}, {@link #RADIAL_LIMIT} or {@link #ULNAR_LIMIT}.
@@ -58,7 +58,7 @@ final class FirstPersonArmIk {
     /**
      * Closest the two grip points come along the shaft, and closest the off grip comes to the
      * handle's top end, in skin pixels at the arm's thickness (about two and one half-fists across
-     * a diagonal grip), so the fists never overlap each other or the guard.
+     * a diagonal grip), so the fists never overlap each other or the collar.
      */
     static final float OFF_HAND_GAP_PIXELS = 6.0F;
     static final float OFF_HAND_END_PIXELS = 3.0F;
@@ -76,7 +76,7 @@ final class FirstPersonArmIk {
     }
 
     /**
-     * Solves the arm for one rig pose, from the same grip frame the sword item is drawn in.
+     * Solves the arm for one rig pose, from the same grip frame the weapon item is drawn in.
      *
      * @param lag right-arm lag offset from {@link FirstPersonArmLag}, or null for none
      */
@@ -106,11 +106,11 @@ final class FirstPersonArmIk {
             Vector3f lag) {
         FirstPersonSwing.Rig rig = swing.rig();
         FirstPersonSwing.Arm armRig = rig.arm();
-        Matrix4f gripFrame = FirstPersonSwordTransform.gripFrame(HumanoidArm.RIGHT, equipProgress, rig, pose);
+        Matrix4f gripFrame = FirstPersonWeaponTransform.gripFrame(HumanoidArm.RIGHT, equipProgress, rig, pose);
         Frame frame = new Frame(
                 gripFrame.getTranslation(new Vector3f()),
                 gripFrame.transformDirection(new Vector3f(0.0F, 1.0F, 0.0F)).normalize(),
-                FirstPersonSwordTransform.pivot(HumanoidArm.RIGHT, equipProgress, rig, pose)
+                FirstPersonWeaponTransform.pivot(HumanoidArm.RIGHT, equipProgress, rig, pose)
                         .add(armRig.shoulderOffsetX(), armRig.shoulderOffsetY(), armRig.shoulderOffsetZ()),
                 armRig);
         Vector3f handRoll = handRoll(gripFrame, pose.gripRoll());
@@ -146,7 +146,7 @@ final class FirstPersonArmIk {
 
     /**
      * The hand's knuckle direction projected across the handle: {@code gripRoll} degrees from the
-     * sword's +Z edge toward its +X flat normal, in the grip frame.
+     * weapon's +Z edge toward its +X flat normal, in the grip frame.
      */
     static Vector3f handRoll(Matrix4f gripFrame, float gripRoll) {
         float radians = (float) Math.toRadians(gripRoll);
@@ -239,34 +239,34 @@ final class FirstPersonArmIk {
             FirstPersonSwing.Pose pose) {
         FirstPersonSwing.Rig rig = swing.rig();
         FirstPersonSwing.OffHand offHand = rig.offHand();
-        Optional<Vector3f> center = swing.sword().offHandGripCenter();
+        Optional<Vector3f> center = swing.weapon().offHandGripCenter();
         float hold = Math.max(0.0F, Math.min(1.0F, pose.offHandHold()));
         if (offHand == null || center.isEmpty() || hold <= 0.0F) {
             return Optional.empty();
         }
         FirstPersonSwing.Arm armRig = rig.offArm();
-        Matrix4f gripFrame = FirstPersonSwordTransform.gripFrame(HumanoidArm.RIGHT, equipProgress, rig, pose);
+        Matrix4f gripFrame = FirstPersonWeaponTransform.gripFrame(HumanoidArm.RIGHT, equipProgress, rig, pose);
         Shaft shaft = new Shaft(
                 gripFrame,
-                swing.sword(),
-                rig.swordScale(),
+                swing.weapon(),
+                rig.weaponScale(),
                 mirror(gripFrame.transformDirection(new Vector3f(0.0F, 1.0F, 0.0F)).normalize()),
                 mirror(gripFrame.transformDirection(new Vector3f(0.0F, 0.0F, 1.0F)).normalize()),
                 new Vector3f(
                         rig.shoulderX() + offHand.shoulderOffsetX() - pose.x(),
-                        rig.shoulderY() + pose.y() - equipProgress * FirstPersonSwordTransform.EQUIP_DROP
+                        rig.shoulderY() + pose.y() - equipProgress * FirstPersonWeaponTransform.EQUIP_DROP
                                 + offHand.shoulderOffsetY(),
                         rig.shoulderZ() + pose.z() + offHand.shoulderOffsetZ()),
                 armRig,
                 (float) Math.toRadians(pose.offHandRoll()));
 
         // The off hand's range on the shaft: a hand gap ahead of the main grip, short of the top end.
-        float pixelsPerSkinPixel = armRig.thickness() / swing.rig().swordScale();
-        SwordGeometry sword = swing.sword();
-        float low = sword.gripCenter().y + OFF_HAND_GAP_PIXELS * pixelsPerSkinPixel;
-        float high = sword.handleTop() - OFF_HAND_END_PIXELS * pixelsPerSkinPixel;
+        float pixelsPerSkinPixel = armRig.thickness() / swing.rig().weaponScale();
+        WeaponGeometry weapon = swing.weapon();
+        float low = weapon.gripCenter().y + OFF_HAND_GAP_PIXELS * pixelsPerSkinPixel;
+        float high = weapon.handleTop() - OFF_HAND_END_PIXELS * pixelsPerSkinPixel;
         if (low > high) {
-            low = high = Math.max(sword.handleBottom(), Math.min(sword.handleTop(), center.get().y));
+            low = high = Math.max(weapon.handleBottom(), Math.min(weapon.handleTop(), center.get().y));
         }
         float wanted = Math.max(low, Math.min(high, center.get().y + pose.offHandSlide()));
         float gripY = reachable(shaft, wanted, low, high);
@@ -348,15 +348,15 @@ final class FirstPersonArmIk {
      */
     private record Shaft(
             Matrix4f gripFrame,
-            SwordGeometry sword,
-            float swordScale,
+            WeaponGeometry weapon,
+            float weaponScale,
             Vector3f blade,
             Vector3f edge,
             Vector3f shoulder,
             FirstPersonSwing.Arm arm,
             float roll) {
         Vector3f point(float y) {
-            return mirror(gripFrame.transformPosition(sword.axisPoint(y, swordScale)));
+            return mirror(gripFrame.transformPosition(weapon.axisPoint(y, weaponScale)));
         }
 
         /** The off fist closed on the shaft at model height {@code y}, thumb toward the tip. */
@@ -475,7 +475,7 @@ final class FirstPersonArmIk {
      * @param upperArmRotation model-to-view rotation of the upper arm (+Y shoulder to elbow)
      * @param forearmRotation model-to-view rotation of the forearm (+Y elbow to wrist)
      * @param fistRotation model-to-view rotation of the fist: +Y wrist to knuckles, +X thumb side
-     *     (toward the guard), +Z palm
+     *     (toward the collar), +Z palm
      * @param flexion wrist flexion (+, toward the palm) or extension (-), degrees
      * @param deviation radial (+, toward the thumb) or ulnar (-) deviation, degrees
      * @param roll hand roll about the handle (the pose's {@code grip_roll}), degrees

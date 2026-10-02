@@ -12,21 +12,22 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Data-driven first-person sword rig, loaded from the {@code first_person_rig} asset a weapon entry
+ * Data-driven first-person weapon rig, loaded from the {@code first_person_rig} asset a weapon entry
  * names (for Qingfeng {@code assets/myvillage/combat/qingfeng_first_person.json}) and checked
  * against that weapon's style.
  *
- * <p>The sword swings around a fixed shoulder pivot in camera space: {@code plane} tilts the
+ * <p>The weapon swings around a fixed shoulder pivot in camera space: {@code plane} tilts the
  * swing plane on screen, {@code sweep} turns the arm within that plane, {@code reach} is the
- * pivot-to-grip distance, and {@code lead}/{@code lift}/{@code twist} orient the blade at the
+ * pivot-to-grip distance, and {@code lead}/{@code lift}/{@code twist} orient the weapon at the
  * grip. Keys are authored in server ticks so the visible strike can be checked against each
  * move's active window. An optional per-move {@code contact} tick marks the moment the drawn
- * blade reaches the target; the hit-stop waits for it so the freeze reads as the blade biting.
+ * weapon reaches the target; the hit-stop waits for it so the freeze reads as the weapon biting.
  *
- * <p>The rig also carries the sword's first-person scale ({@code rig.sword_scale}, item-model
- * units to blocks), optional arm tuning ({@code rig.arm}) and the sword geometry contract. Two
+ * <p>The rig also carries the weapon's first-person scale ({@code rig.weapon_scale}, item-model
+ * units to blocks; the format 1 name {@code rig.sword_scale} is rejected rather than ignored),
+ * optional arm tuning ({@code rig.arm}) and the weapon geometry contract. Two
  * optional pose fields drive the first-person arm and are interpolated like the rest:
- * {@code grip_roll}, the hand's turn about the handle in the sword's own frame (0 puts the knuckles
+ * {@code grip_roll}, the hand's turn about the handle in the weapon's own frame (0 puts the knuckles
  * along the +Z edge, 90 along the +X flat normal), and {@code elbow}, degrees the elbow swivels up
  * and out around the shoulder-wrist line (0 keeps the natural low elbow). Missing values inherit
  * the previous key, and the neutral hold defaults both to 0.
@@ -41,27 +42,27 @@ import java.util.Objects;
  * the hand between the shaft and its released rest). The neutral hold defaults them to 0, 0, 0, 1.
  */
 final class FirstPersonSwing {
-    /** Item-model units (16 px) to blocks for the first-person sword when the rig omits it. */
-    static final float DEFAULT_SWORD_SCALE = 0.60F;
+    /** Item-model units (16 px) to blocks for the first-person weapon when the rig omits it. */
+    static final float DEFAULT_WEAPON_SCALE = 0.60F;
 
     private final Rig rig;
     private final Pose neutral;
     private final List<Move> moves;
-    private final SwordGeometry sword;
+    private final WeaponGeometry weapon;
 
-    private FirstPersonSwing(Rig rig, Pose neutral, List<Move> moves, SwordGeometry sword) {
+    private FirstPersonSwing(Rig rig, Pose neutral, List<Move> moves, WeaponGeometry weapon) {
         this.rig = rig;
         this.neutral = neutral;
         this.moves = List.copyOf(moves);
-        this.sword = sword;
+        this.weapon = weapon;
     }
 
     Rig rig() {
         return rig;
     }
 
-    SwordGeometry sword() {
-        return sword;
+    WeaponGeometry weapon() {
+        return weapon;
     }
 
     Pose neutral() {
@@ -74,7 +75,7 @@ final class FirstPersonSwing {
 
     Move move(int moveIndex) {
         if (moveIndex < 0 || moveIndex >= moves.size()) {
-            throw new IllegalArgumentException("Unknown first-person sword move index: " + moveIndex);
+            throw new IllegalArgumentException("Unknown first-person move index: " + moveIndex);
         }
         return moves.get(moveIndex);
     }
@@ -83,31 +84,35 @@ final class FirstPersonSwing {
         return move(moveIndex).sample(tick);
     }
 
-    static FirstPersonSwing parse(JsonObject json, CombatStyleDefinition style, SwordGeometry sword) {
+    static FirstPersonSwing parse(JsonObject json, CombatStyleDefinition style, WeaponGeometry weapon) {
         Objects.requireNonNull(json, "json");
         Objects.requireNonNull(style, "style");
-        Objects.requireNonNull(sword, "sword");
+        Objects.requireNonNull(weapon, "weapon");
         JsonObject rigJson = json.getAsJsonObject("rig");
         if (rigJson == null) {
             throw new IllegalArgumentException("First-person swing file has no rig");
         }
         float[] shoulder = vector(rigJson.getAsJsonArray("shoulder"), "rig.shoulder");
-        float swordScale = value(rigJson, "sword_scale", DEFAULT_SWORD_SCALE);
-        if (!(swordScale >= 0.2F && swordScale <= 1.5F)) {
-            throw new IllegalArgumentException("rig.sword_scale must be within 0.2..1.5");
+        // Unknown rig fields are ignored, so the format 1 name would silently draw the default scale.
+        if (rigJson.has("sword_scale")) {
+            throw new IllegalArgumentException("rig.sword_scale was renamed rig.weapon_scale");
+        }
+        float weaponScale = value(rigJson, "weapon_scale", DEFAULT_WEAPON_SCALE);
+        if (!(weaponScale >= 0.2F && weaponScale <= 1.5F)) {
+            throw new IllegalArgumentException("rig.weapon_scale must be within 0.2..1.5");
         }
         Arm arm = Arm.parse(rigJson.has("arm") ? rigJson.getAsJsonObject("arm") : new JsonObject());
         OffHand offHand = null;
         if (rigJson.has("off_hand")) {
-            if (sword.offHandGripCenter().isEmpty()) {
+            if (weapon.offHandGripCenter().isEmpty()) {
                 throw new IllegalArgumentException(
                         "rig.off_hand needs a weapon geometry with off_hand_grip_center");
             }
             offHand = OffHand.parse(rigJson.getAsJsonObject("off_hand"), arm);
         }
-        Rig rig = new Rig(shoulder[0], shoulder[1], shoulder[2], swordScale, arm, offHand);
+        Rig rig = new Rig(shoulder[0], shoulder[1], shoulder[2], weaponScale, arm, offHand);
         Pose neutral = pose(json.getAsJsonObject("neutral"), Pose.ZERO);
-        checkOffHand(rig, sword, neutral, "neutral");
+        checkOffHand(rig, weapon, neutral, "neutral");
 
         JsonObject movesJson = json.getAsJsonObject("moves");
         if (movesJson == null) {
@@ -121,23 +126,23 @@ final class FirstPersonSwing {
             }
             Move move = move(definition, moveJson, neutral);
             for (Key key : move.keys()) {
-                checkOffHand(rig, sword, key.pose(), definition.id() + " key " + key.tick());
+                checkOffHand(rig, weapon, key.pose(), definition.id() + " key " + key.tick());
             }
             moves.add(move);
         }
         if (movesJson.size() != moves.size()) {
             throw new IllegalArgumentException("First-person swing file declares unknown moves");
         }
-        return new FirstPersonSwing(rig, neutral, moves, sword);
+        return new FirstPersonSwing(rig, neutral, moves, weapon);
     }
 
     /** With an off hand, each key's slide must keep the hand's point on the handle. */
-    private static void checkOffHand(Rig rig, SwordGeometry sword, Pose pose, String where) {
+    private static void checkOffHand(Rig rig, WeaponGeometry weapon, Pose pose, String where) {
         if (rig.offHand() == null) {
             return;
         }
-        float y = sword.offHandGripCenter().orElseThrow().y + pose.offHandSlide();
-        if (!(y >= sword.handleBottom() && y <= sword.handleTop())) {
+        float y = weapon.offHandGripCenter().orElseThrow().y + pose.offHandSlide();
+        if (!(y >= weapon.handleBottom() && y <= weapon.handleTop())) {
             throw new IllegalArgumentException(where + " off_hand_slide moves the off hand off the handle");
         }
     }
@@ -234,9 +239,9 @@ final class FirstPersonSwing {
     }
 
     /** @param offHand the off arm's tuning, or null when the rig draws only the main arm */
-    record Rig(float shoulderX, float shoulderY, float shoulderZ, float swordScale, Arm arm, OffHand offHand) {
-        Rig(float shoulderX, float shoulderY, float shoulderZ, float swordScale, Arm arm) {
-            this(shoulderX, shoulderY, shoulderZ, swordScale, arm, null);
+    record Rig(float shoulderX, float shoulderY, float shoulderZ, float weaponScale, Arm arm, OffHand offHand) {
+        Rig(float shoulderX, float shoulderY, float shoulderZ, float weaponScale, Arm arm) {
+            this(shoulderX, shoulderY, shoulderZ, weaponScale, arm, null);
         }
 
         /** The off arm as it is solved and drawn: the main arm's bones with {@code rig.off_hand}'s tuning. */
@@ -288,7 +293,7 @@ final class FirstPersonSwing {
     /**
      * First-person arm tuning, all optional under {@code rig.arm}. Lengths are blocks; the arm's
      * cross-section is {@code thickness} times the skin's pixel size; {@code grip_diagonal} is how
-     * far the handle leans across the palm (blade toward the knuckles); {@code follow_through}
+     * far the handle leans across the palm (head toward the knuckles); {@code follow_through}
      * scales the wrist lag and follow-through (0 turns it off).
      */
     record Arm(

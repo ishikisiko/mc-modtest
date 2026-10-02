@@ -25,11 +25,11 @@ It also reports what the game would reject (element rotation not in 0/+-22.5/+-4
 coordinates outside -16..32, missing textures).
 
 Views (--views, comma list): front (look at the flat, +X side), side (look at the edge,
-+Z side), iso, hilt (close-up of guard/handle/pommel), tip (close-up of the blade tip),
++Z side), iso, hilt (close-up of collar/handle/butt), tip (close-up of the head tip),
 tp_right / tp_front / tp_iso (thirdperson_righthand on the schematic arm; the fist is
 the darker bottom 4 px of the arm), gui. With a geometry contract file (--geometry, or
 assets/myvillage/combat/qingfeng_sword_geometry.json found in the roots) the grip
-centre, blade base/tip and the handle/guard/pommel ranges are marked, and the tp views
+centre, head base/tip and the handle/collar/butt ranges are marked, and the tp views
 report where the grip centre lands relative to the fist box.
 """
 import argparse
@@ -44,6 +44,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image, ImageDraw
 
+from .. import combat_data
 from . import sheets
 from .env import DEFAULT_ROOT, OUT_ROOT, note_missing_jar, vanilla_jar
 
@@ -536,27 +537,35 @@ def raster_tri(img, zb, S, uv, tex, color, shade):
 
 
 # ---------------------------------------------------------------- views
+def checked_geometry(geo, src):
+    """The contract, or exit naming the format 2 fields when it is not format 2 (as the game rejects it)."""
+    problems = combat_data.geometry_format_problems(geo)
+    if problems:
+        raise SystemExit(f"ERROR: geometry contract {src}: " + "; ".join(problems))
+    return geo, src
+
+
 def geometry_for(assets, arg):
     if arg == "none":
         return None, None
     if arg:
         p = Path(arg)
-        return json.loads(p.read_text(encoding="utf-8")), str(p)
+        return checked_geometry(json.loads(p.read_text(encoding="utf-8")), str(p))
     data = assets.read(DEFAULT_GEOMETRY)
-    return (json.loads(data), assets.origin.get(DEFAULT_GEOMETRY)) if data else (None, None)
+    return checked_geometry(json.loads(data), assets.origin.get(DEFAULT_GEOMETRY)) if data else (None, None)
 
 
 def model_space_points(geo):
     pts = {}
     if not geo:
         return pts
-    for k in ("grip_center", "blade_base", "blade_tip"):
+    for k in ("grip_center", "head_base", "head_tip"):
         if k in geo:
             pts[k] = np.array(geo[k], float)
     return pts
 
 
-MARK_COLORS = {"grip_center": (230, 40, 40), "blade_base": (20, 160, 200), "blade_tip": (20, 160, 200)}
+MARK_COLORS = {"grip_center": (230, 40, 40), "head_base": (20, 160, 200), "head_tip": (20, 160, 200)}
 
 
 def draw_marks(im, to_screen, pts, labels=True):
@@ -571,12 +580,12 @@ def draw_marks(im, to_screen, pts, labels=True):
 
 
 def draw_ranges(im, to_screen, geo, axis_screen_x=8):
-    """handle/guard/pommel Y ranges as coloured bars along the left edge (model-space views)."""
+    """handle/collar/butt Y ranges as coloured bars along the left edge (model-space views)."""
     if not geo:
         return
     d = ImageDraw.Draw(im)
     f = sheets.font(11)
-    cols = {"pommel": (40, 150, 120), "handle": (120, 80, 40), "guard": (200, 160, 30)}
+    cols = {"butt": (40, 150, 120), "handle": (120, 80, 40), "collar": (200, 160, 30)}
     for k, c in cols.items():
         if k in geo and "y" in geo[k]:
             y0, y1 = geo[k]["y"]
@@ -650,9 +659,9 @@ def tp_scene(model, geo, schematic=True):
             info["fist_center_arm_px"] = [round(float(x), 2) for x in fist_c]
             info["grip_offset_from_fist_center_px"] = [round(float(x), 2) for x in g_arm - fist_c]
             info["grip_center_inside_fist"] = inside
-        if "blade_base" in geo and "blade_tip" in geo:
-            b = apply_point(item_in_arm, geo["blade_base"])
-            t = apply_point(item_in_arm, geo["blade_tip"])
+        if "head_base" in geo and "head_tip" in geo:
+            b = apply_point(item_in_arm, geo["head_base"])
+            t = apply_point(item_in_arm, geo["head_tip"])
             dv = (t - b) / (np.linalg.norm(t - b) or 1)
             # arm-local: +y runs from shoulder to hand (down the arm), -z is the arm's front
             info["blade_dir_arm_local"] = [round(float(x), 3) for x in dv]
@@ -696,11 +705,11 @@ def build(args):
     size = args.size
     ys = [q.pos[:, 1] for q in model.base.quads]
     ymin, ymax = (float(min(y.min() for y in ys)), float(max(y.max() for y in ys))) if ys else (0.0, 16.0)
-    if geo and all(k in geo for k in ("pommel", "guard")):
-        hilt_rng = (geo["pommel"]["y"][0] - 0.5, geo["guard"]["y"][1] + 1.5)
+    if geo and all(k in geo for k in ("butt", "collar")):
+        hilt_rng = (geo["butt"]["y"][0] - 0.5, geo["collar"]["y"][1] + 1.5)
     else:
         hilt_rng = (ymin, ymin + 0.4 * (ymax - ymin))
-    tip_y = geo["blade_tip"][1] if geo and "blade_tip" in geo else ymax
+    tip_y = geo["head_tip"][1] if geo and "head_tip" in geo else ymax
     tip_rng = (tip_y - 6.0, tip_y + 0.5)
     cells, report = [], {"model": model.name, "loader": model.loader, "views": {}}
     for vname in views:

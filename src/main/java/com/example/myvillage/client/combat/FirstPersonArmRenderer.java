@@ -20,11 +20,11 @@ import org.joml.Vector3f;
 import java.util.Optional;
 
 /**
- * Draws the first-person sword arm (skin plus sleeve) as upper arm, forearm and fist: the fist
+ * Draws the first-person weapon arm (skin plus sleeve) as upper arm, forearm and fist: the fist
  * closes around the weapon's handle, the forearm meets it at a solved wrist, and the upper arm runs
  * off-screen to the shoulder. It uses exactly the pose the held item uses this frame, plus the
  * presentation-only wrist lag from {@link FirstPersonArmLag}. The event is never cancelled, so
- * vanilla still draws the sword itself.
+ * vanilla still draws the weapon itself.
  *
  * <p>A rig with {@code rig.off_hand} also gets the off arm, its hand on the shaft (see
  * {@link FirstPersonArmIk#solveOffHand}), drawn with the off arm's skin and sleeve, but only while

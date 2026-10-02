@@ -22,7 +22,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Loads each registered weapon's first-person swing rig and sword geometry contract (the client
+ * Loads each registered weapon's first-person swing rig and weapon geometry contract (the client
  * assets its weapon entry names) on every client resource reload, so F3+T picks up edits to
  * either. A missing or invalid file leaves only that weapon on the ordinary vanilla held-item pose
  * (no rig arm, no custom grip); other weapons keep their rigs.
@@ -87,17 +87,17 @@ final class FirstPersonSwingResources implements ResourceManagerReloadListener {
         if (geometryJson.isEmpty() || rigJson.isEmpty()) {
             return Optional.empty();
         }
-        SwordGeometry geometry;
+        WeaponGeometry geometry;
         try {
-            geometry = SwordGeometry.parse(geometryJson.get());
+            geometry = WeaponGeometry.parse(geometryJson.get());
         } catch (RuntimeException exception) {
-            LOGGER.error("Invalid sword geometry {}; {} uses the vanilla hold",
+            LOGGER.error("Invalid weapon geometry {}; {} uses the vanilla hold",
                     geometryLocation, weapon.item(), exception);
             return Optional.empty();
         }
         try {
             FirstPersonSwing swing = FirstPersonSwing.parse(rigJson.get(), style, geometry);
-            LOGGER.info("Loaded first-person swing rig {} ({} moves) with sword geometry {}",
+            LOGGER.info("Loaded first-person swing rig {} ({} moves) with weapon geometry {}",
                     rigLocation, swing.moves().size(), geometryLocation);
             return Optional.of(new WeaponRig(weapon, style, swing));
         } catch (RuntimeException exception) {

@@ -13,8 +13,8 @@ final class CombatRenderTypes {
      * write depth. Normal blending keeps the trail's hue and edge in daylight, where additive
      * blending clipped to a white slab over the sky.
      */
-    static final RenderType SWORD_TRAIL_TRANSLUCENT = RenderType.create(
-            "myvillage_sword_trail_translucent",
+    static final RenderType WEAPON_TRAIL_TRANSLUCENT = RenderType.create(
+            "myvillage_weapon_trail_translucent",
             DefaultVertexFormat.POSITION_COLOR,
             VertexFormat.Mode.QUADS,
             4096,
@@ -54,12 +54,12 @@ final class CombatRenderTypes {
             Vector3f olderTip,
             float olderAge,
             float olderAlpha) {
-        Vector3f newerInner = along(newerBase, newerTip, SwordTrailShape.innerFraction(newerAge));
-        Vector3f newerEdge = along(newerBase, newerTip, SwordTrailShape.edgeFraction(newerAge));
-        Vector3f olderInner = along(olderBase, olderTip, SwordTrailShape.innerFraction(olderAge));
-        Vector3f olderEdge = along(olderBase, olderTip, SwordTrailShape.edgeFraction(olderAge));
-        float body = SwordTrailShape.BODY_ALPHA_SHARE;
-        float tip = SwordTrailShape.TIP_ALPHA_SHARE;
+        Vector3f newerInner = along(newerBase, newerTip, WeaponTrailShape.innerFraction(newerAge));
+        Vector3f newerEdge = along(newerBase, newerTip, WeaponTrailShape.edgeFraction(newerAge));
+        Vector3f olderInner = along(olderBase, olderTip, WeaponTrailShape.innerFraction(olderAge));
+        Vector3f olderEdge = along(olderBase, olderTip, WeaponTrailShape.edgeFraction(olderAge));
+        float body = WeaponTrailShape.BODY_ALPHA_SHARE;
+        float tip = WeaponTrailShape.TIP_ALPHA_SHARE;
 
         body(consumer, newerInner, 0.0F);
         body(consumer, newerEdge, newerAlpha * body);
@@ -109,6 +109,6 @@ final class CombatRenderTypes {
     }
 
     private static int alphaByte(float alpha) {
-        return Math.round(SwordTrailShape.clamp01(alpha) * 255.0F);
+        return Math.round(WeaponTrailShape.clamp01(alpha) * 255.0F);
     }
 }

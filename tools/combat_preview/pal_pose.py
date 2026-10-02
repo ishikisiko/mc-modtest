@@ -693,11 +693,11 @@ def load_geometry(assets, arg, item_ref):
     if arg == "none" or not item_ref:
         return None, None
     if arg:
-        return json.loads(Path(arg).read_text(encoding="utf-8")), arg
+        return pim.checked_geometry(json.loads(Path(arg).read_text(encoding="utf-8")), arg)
     ns, path = pim.Assets.split(item_ref) if ":" in item_ref else ("minecraft", item_ref)
     rel = f"assets/{ns}/combat/{Path(path).name}_geometry.json"
     data = assets.read(rel)
-    return (json.loads(data), rel) if data else (None, None)
+    return pim.checked_geometry(json.loads(data), rel) if data else (None, None)
 
 
 def parse_markers(specs, geo):

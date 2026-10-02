@@ -132,7 +132,7 @@ final class CombatWorldTrailsTest {
 
     @Test
     void trailSizeComesFromTheWeaponGeometryAndScale() throws IOException {
-        SwordGeometry sword = FirstPersonSwingTest.geometry();
+        WeaponGeometry sword = FirstPersonSwingTest.geometry();
         CombatWorldTrails.TrailSize size = CombatWorldTrails.trailSize(Optional.of(sword), 0.8F);
         assertEquals(sword.trailLengthPixels() / 16.0 * 0.8, size.trailLength(), 1.0E-6);
         assertEquals(CombatWorldTrails.ARM_REACH + sword.gripToTrailTipPixels() / 16.0 * 0.8, size.tipRadius(), 1.0E-6);
@@ -157,7 +157,7 @@ final class CombatWorldTrailsTest {
         WeaponDefinition weapon = CombatTestData.qingfeng();
         float scale = thirdPersonScale(weapon);
         assertEquals(0.8F, scale, 0.0F);
-        SwordGeometry sword = FirstPersonSwingTest.geometry();
+        WeaponGeometry sword = FirstPersonSwingTest.geometry();
         CombatWorldTrails.TrailSize size = CombatWorldTrails.trailSize(Optional.of(sword), scale);
         assertEquals(1.7, size.tipRadius(), 1.0E-6);
         assertEquals(0.795, size.trailLength(), 1.0E-6);
@@ -198,7 +198,7 @@ final class CombatWorldTrailsTest {
     void spearWorldTrailIsSizedFromItsOwnGeometry() throws IOException {
         WeaponDefinition weapon = CombatTestData.lingxiao();
         float scale = thirdPersonScale(weapon);
-        SwordGeometry spear = FirstPersonOffHandTest.spearGeometry();
+        WeaponGeometry spear = FirstPersonOffHandTest.spearGeometry();
         CombatWorldTrails.TrailSize size = CombatWorldTrails.trailSize(Optional.of(spear), scale);
         CombatWorldTrails.TrailSize sword = CombatWorldTrails.trailSize(
                 Optional.of(FirstPersonSwingTest.geometry()), thirdPersonScale(CombatTestData.qingfeng()));
@@ -261,7 +261,7 @@ final class CombatWorldTrailsTest {
                 Optional.of(FirstPersonOffHandTest.spearGeometry()), thirdPersonScale(CombatTestData.lingxiao()));
         int cuts = 0;
         for (AttackMoveDefinition move : CombatTestData.basicSpear().moves()) {
-            if (SwordTrailShape.streak(move.kind())) {
+            if (WeaponTrailShape.streak(move.kind())) {
                 continue;
             }
             cuts++;
@@ -332,7 +332,7 @@ final class CombatWorldTrailsTest {
         float step = CombatWorldTrails.TRAIL_TICKS / CombatWorldTrails.SEGMENTS;
         int cuts = 0;
         for (AttackMoveDefinition move : CombatTestData.basicSpear().moves()) {
-            if (SwordTrailShape.streak(move.kind())) {
+            if (WeaponTrailShape.streak(move.kind())) {
                 continue;
             }
             cuts++;
@@ -469,8 +469,8 @@ final class CombatWorldTrailsTest {
 
     // ---- The world trail as it was at 922d7a1, kept verbatim as the reference for the sword. ----
 
-    private static double legacyBladeLength(SwordGeometry sword, float thirdPersonScale) {
-        double length = sword.bladeLengthPixels() / 16.0 * thirdPersonScale;
+    private static double legacyBladeLength(WeaponGeometry sword, float thirdPersonScale) {
+        double length = sword.headLengthPixels() / 16.0 * thirdPersonScale;
         return Math.max(0.5, Math.min(1.3, length));
     }
 

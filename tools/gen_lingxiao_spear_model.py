@@ -16,9 +16,9 @@ Outputs (all under src/main/resources/assets/myvillage/):
 
 Model frame (fixed by openspec/changes/add-lingxiao-spear/design.md): the spear runs along +Y
 on the axis x = 8, z = 8, the spearhead's flat normal is X and its edge Z; butt end y = -16,
-tip y = 32 (the full vanilla element range).  Contract names keep the sword's: ``pommel`` is
-the butt cap, ``handle`` the shaft, ``guard`` the socket with its star ornament,
-``blade_base``/``blade_tip`` the spearhead.  ``off_hand_grip_center`` is the leading hand.
+tip y = 32 (the full vanilla element range).  In the contract's weapon-neutral names (format 2)
+``butt`` is the butt cap, ``handle`` the shaft, ``collar`` the socket with its star ornament,
+``head``/``head_base``/``head_tip`` the spearhead.  ``off_hand_grip_center`` is the leading hand.
 ``trail`` is the span that draws the combat trails: the spearhead alone is about half the
 sword's blade, so the trails run from the top of the leading hand's zone (the socket's bottom
 collar) to the tip, 16 px, about the sword's 15.9 px blade.
@@ -80,10 +80,10 @@ _hash = qf._hash
 CX = CZ = 8.0
 BUTT_Y = -16.0
 TIP_Y = 32.0
-POMMEL_Y = (BUTT_Y, -13.4)            # butt cap 枪鐏
-HANDLE_Y = (POMMEL_Y[1], 16.0)        # bare shaft between the butt cap and the socket
-GUARD_Y = (HANDLE_Y[1], 23.4)         # socket collars, star ornament, blade root
-BLADE_BASE_Y = GUARD_Y[1]
+BUTT_CAP_Y = (BUTT_Y, -13.4)            # butt cap 枪鐏
+HANDLE_Y = (BUTT_CAP_Y[1], 16.0)        # bare shaft between the butt cap and the socket
+COLLAR_Y = (HANDLE_Y[1], 23.4)         # socket collars, star ornament, blade root
+HEAD_BASE_Y = COLLAR_Y[1]
 GRIP_CENTER_Y = -2.0                  # main (rear, right) hand
 OFF_HAND_GRIP_Y = 11.0                # leading (left) hand
 TRAIL_Y = (HANDLE_Y[1], TIP_Y)        # trail span: front of the shaft (socket) plus the head
@@ -130,7 +130,7 @@ STAR_SIDE_POINTS = (  # name suffix, half extent on Z, half height on Y, half th
     ("inner", 1.75, 0.42, 0.46),
     ("tip", 2.35, 0.19, 0.4),
 )
-BLADE_ROOT = dict(half_x=0.42, half_z=0.36, y=(22.5, BLADE_BASE_Y))
+BLADE_ROOT = dict(half_x=0.42, half_z=0.36, y=(22.5, HEAD_BASE_Y))
 
 # Spearhead: a barbed leaf built from stacked steps (y0, y1, half width on Z).  Where a step is
 # wider than the one below it, its flat underside is a backward-pointing barb; two barbs on each
@@ -161,7 +161,7 @@ BLADE_SPINE = ((22.0, 25.3, 0.3, 0.33), (25.3, 27.3, 0.21, 0.33), (27.3, 29.7, 0
 # Butt cap 枪鐏: a gold block with a hooked flange on -Z (out, down, curling back with a notch)
 # and a stepped foot on +Z under the tassel.
 CAP_PARTS = (  # name, half (X and Z), y range, side texture, cap texture
-    ("butt_cap_rim", 1.0, (-13.95, POMMEL_Y[1]), "gold_band", "gold_top"),
+    ("butt_cap_rim", 1.0, (-13.95, BUTT_CAP_Y[1]), "gold_band", "gold_top"),
     ("butt_cap", 0.88, (-15.5, -13.95), "cap_face", "gold_top"),
     ("butt_cap_foot_rim", 1.0, (-15.78, -15.5), "gold_band", "gold_top"),
     ("butt_cap_foot", 0.62, (BUTT_Y, -15.78), "gold_dark", "gold_dark"),
@@ -176,11 +176,11 @@ CAP_PROFILE = (  # name, half x, (z0, z1) relative to the axis, (y0, y1)
 CAP_GEM = dict(half_out=0.93, half_in=0.38, y=(-15.1, -14.45))
 
 # Contract values handed to the pose and first-person workers (frozen 2026-10-02; the hook and
-# star points are ornament outside the pommel/guard half sizes, which describe the cap body and
+# star points are ornament outside the butt/collar half sizes, which describe the cap body and
 # the socket's star extent).
-CONTRACT_POMMEL_HALF = 1.0
-CONTRACT_GUARD_HALF_WIDTH, CONTRACT_GUARD_HALF_THICKNESS = 2.35, 0.68
-CONTRACT_BLADE_HALF_WIDTH, CONTRACT_BLADE_HALF_THICKNESS = 1.9, 0.35
+CONTRACT_BUTT_HALF = 1.0
+CONTRACT_COLLAR_HALF_WIDTH, CONTRACT_COLLAR_HALF_THICKNESS = 2.35, 0.68
+CONTRACT_HEAD_HALF_WIDTH, CONTRACT_HEAD_HALF_THICKNESS = 1.9, 0.35
 CONTRACT_TAPER_START_Y = 25.6
 
 # Hanging pieces (+Z side).  Each hangs from an anchor point (x, y, z) and is built along -Y
@@ -266,7 +266,7 @@ HUI_PATTERN = (
 
 def _shaft_ornament(y: float) -> bool:
     """Shaft heights with the black-and-cyan checker (beside the butt collars and the socket)."""
-    spans = ((POMMEL_Y[1], SHAFT_COLLARS[2][2] + 0.6), (HEAD_COLLARS[0][2], HEAD_COLLARS[1][1]))
+    spans = ((BUTT_CAP_Y[1], SHAFT_COLLARS[2][2] + 0.6), (HEAD_COLLARS[0][2], HEAD_COLLARS[1][1]))
     return any(a <= y <= b for a, b in spans)
 
 
@@ -848,21 +848,21 @@ def build_model() -> dict:
 
 def geometry_contract() -> dict:
     return {
-        "format": 1,
+        "format": 2,
         "units": "model_pixels",
         "generator": "tools/gen_lingxiao_spear_model.py",
         "model": MODEL_3D_ID,
-        "axes": {"blade": "+y", "flat_normal": "x", "edge": "z", "center_x": CX, "center_z": CZ},
+        "axes": {"length": "+y", "flat_normal": "x", "edge": "z", "center_x": CX, "center_z": CZ},
         "grip_center": [CX, GRIP_CENTER_Y, CZ],
         "off_hand_grip_center": [CX, OFF_HAND_GRIP_Y, CZ],
         "handle": {"y": list(HANDLE_Y), "half_width": SHAFT_HALF, "half_thickness": SHAFT_HALF},
-        "guard": {"y": list(GUARD_Y), "half_width": CONTRACT_GUARD_HALF_WIDTH,
-                  "half_thickness": CONTRACT_GUARD_HALF_THICKNESS},
-        "pommel": {"y": list(POMMEL_Y), "half_width": CONTRACT_POMMEL_HALF, "half_thickness": CONTRACT_POMMEL_HALF},
-        "blade": {"half_width": CONTRACT_BLADE_HALF_WIDTH, "half_thickness": CONTRACT_BLADE_HALF_THICKNESS,
-                  "ridge_half_thickness": CONTRACT_BLADE_HALF_THICKNESS, "taper_start_y": CONTRACT_TAPER_START_Y},
-        "blade_base": [CX, BLADE_BASE_Y, CZ],
-        "blade_tip": [CX, TIP_Y, CZ],
+        "collar": {"y": list(COLLAR_Y), "half_width": CONTRACT_COLLAR_HALF_WIDTH,
+                   "half_thickness": CONTRACT_COLLAR_HALF_THICKNESS},
+        "butt": {"y": list(BUTT_CAP_Y), "half_width": CONTRACT_BUTT_HALF, "half_thickness": CONTRACT_BUTT_HALF},
+        "head": {"half_width": CONTRACT_HEAD_HALF_WIDTH, "half_thickness": CONTRACT_HEAD_HALF_THICKNESS,
+                 "ridge_half_thickness": CONTRACT_HEAD_HALF_THICKNESS, "taper_start_y": CONTRACT_TAPER_START_Y},
+        "head_base": [CX, HEAD_BASE_Y, CZ],
+        "head_tip": [CX, TIP_Y, CZ],
         "trail": {"base": [CX, TRAIL_Y[0], CZ], "tip": [CX, TRAIL_Y[1], CZ]},
         "edge_axis": [0.0, 0.0, 1.0],
         "flat_axis": [1.0, 0.0, 0.0],
@@ -990,9 +990,9 @@ def blade_outline_errors(elements: list[dict]) -> list[str]:
     blade = [e for e in elements if e["name"].startswith("blade_") and e["name"] != "blade_root"]
     for e in blade:
         lo, hi = element_bounds(e)
-        if max(abs(lo[2] - CZ), abs(hi[2] - CZ)) > CONTRACT_BLADE_HALF_WIDTH + 1e-6:
+        if max(abs(lo[2] - CZ), abs(hi[2] - CZ)) > CONTRACT_HEAD_HALF_WIDTH + 1e-6:
             errors.append(f"{e['name']} is wider than the contract blade half width")
-        if max(abs(lo[0] - CX), abs(hi[0] - CX)) > CONTRACT_BLADE_HALF_THICKNESS + 1e-6:
+        if max(abs(lo[0] - CX), abs(hi[0] - CX)) > CONTRACT_HEAD_HALF_THICKNESS + 1e-6:
             errors.append(f"{e['name']} is thicker than the contract blade half thickness")
         if hi[1] > TIP_Y + 1e-6:
             errors.append(f"{e['name']} passes the tip")
@@ -1002,7 +1002,7 @@ def blade_outline_errors(elements: list[dict]) -> list[str]:
         errors.append(f"spearhead has {barbs} barbs, expected at least 2 per edge")
     widest = max(range(len(BLADE_STEPS)), key=lambda k: widths[k])
     mid = (BLADE_STEPS[widest][0] + BLADE_STEPS[widest][1]) / 2.0
-    if not BLADE_BASE_Y <= mid <= BLADE_BASE_Y + (TIP_Y - BLADE_BASE_Y) / 2.0:
+    if not HEAD_BASE_Y <= mid <= HEAD_BASE_Y + (TIP_Y - HEAD_BASE_Y) / 2.0:
         errors.append(f"widest point at y={mid:.2f} is not in the lower half of the blade")
     for (a0, a1, _), (b0, _, _) in zip(BLADE_STEPS, BLADE_STEPS[1:]):
         if abs(a1 - b0) > 1e-9:
@@ -1012,18 +1012,18 @@ def blade_outline_errors(elements: list[dict]) -> list[str]:
     order = (BLADE_EDGE_HALF_X, BLADE_BODY_HALF_X, BLADE_NAVY[0][3], BLADE_SPINE[0][3])
     if list(order) != sorted(set(order)):
         errors.append("blade plates must get thicker toward the spine")
-    guard = [e for e in elements if e["name"].startswith("star")]
-    for e in guard:
+    collar = [e for e in elements if e["name"].startswith("star")]
+    for e in collar:
         lo, hi = element_bounds(e)
-        if max(abs(lo[2] - CZ), abs(hi[2] - CZ)) > CONTRACT_GUARD_HALF_WIDTH + 1e-6:
-            errors.append(f"{e['name']} is wider than the contract guard half width")
-        if max(abs(lo[0] - CX), abs(hi[0] - CX)) > CONTRACT_GUARD_HALF_THICKNESS + 1e-6:
-            errors.append(f"{e['name']} is thicker than the contract guard half thickness")
+        if max(abs(lo[2] - CZ), abs(hi[2] - CZ)) > CONTRACT_COLLAR_HALF_WIDTH + 1e-6:
+            errors.append(f"{e['name']} is wider than the contract collar half width")
+        if max(abs(lo[0] - CX), abs(hi[0] - CX)) > CONTRACT_COLLAR_HALF_THICKNESS + 1e-6:
+            errors.append(f"{e['name']} is thicker than the contract collar half thickness")
     for e in elements:
         if e["name"].startswith("butt_cap") or e["name"].startswith("butt_hook") or e["name"].startswith("butt_step"):
             lo, hi = element_bounds(e)
-            if lo[1] < POMMEL_Y[0] - 1e-6 or hi[1] > POMMEL_Y[1] + 1e-6:
-                errors.append(f"{e['name']} leaves the pommel range")
+            if lo[1] < BUTT_CAP_Y[0] - 1e-6 or hi[1] > BUTT_CAP_Y[1] + 1e-6:
+                errors.append(f"{e['name']} leaves the butt range")
     return errors
 
 
@@ -1095,8 +1095,8 @@ def self_check() -> list[str]:
     if fixed_extent() > 12.0:
         errors.append(f"item-frame view reaches {fixed_extent():.2f} px from the centre (opening is 12)")
     geo = geometry_contract()
-    if not (geo["pommel"]["y"][1] <= geo["handle"]["y"][0] and geo["handle"]["y"][1] <= geo["guard"]["y"][0]
-            and geo["guard"]["y"][1] <= geo["blade_base"][1] < geo["blade_tip"][1]):
+    if not (geo["butt"]["y"][1] <= geo["handle"]["y"][0] and geo["handle"]["y"][1] <= geo["collar"]["y"][0]
+            and geo["collar"]["y"][1] <= geo["head_base"][1] < geo["head_tip"][1]):
         errors.append("geometry contract parts are out of order")
     for key in ("grip_center", "off_hand_grip_center"):
         if not geo["handle"]["y"][0] < geo[key][1] < geo["handle"]["y"][1]:
@@ -1106,8 +1106,8 @@ def self_check() -> list[str]:
     trail = geo["trail"]
     if any((p[0], p[2]) != (CX, CZ) for p in (trail["base"], trail["tip"])):
         errors.append("trail span is off the weapon axis")
-    if not BUTT_Y <= trail["base"][1] < trail["tip"][1] <= geo["blade_tip"][1]:
-        errors.append("trail span must run up the weapon from base to tip, ending at or below the blade tip")
+    if not BUTT_Y <= trail["base"][1] < trail["tip"][1] <= geo["head_tip"][1]:
+        errors.append("trail span must run up the weapon from base to tip, ending at or below the head tip")
     leading_top = max(y1 + half for name, (y0, y1), half in HAND_ZONES)
     if trail["base"][1] < leading_top:
         errors.append(f"trail span starts at y {trail['base'][1]} inside the hand zones (top {leading_top})")

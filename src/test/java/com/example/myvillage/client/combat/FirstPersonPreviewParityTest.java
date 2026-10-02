@@ -202,7 +202,7 @@ final class FirstPersonPreviewParityTest {
 
     private static JsonObject weapon(WeaponDefinition weapon) throws IOException {
         CombatStyleDefinition style = CombatTestData.styles().style(weapon.style()).orElseThrow();
-        SwordGeometry geometry = SwordGeometry.parse(json(CombatTestData.assetPath(weapon.geometry())));
+        WeaponGeometry geometry = WeaponGeometry.parse(json(CombatTestData.assetPath(weapon.geometry())));
         FirstPersonSwing swing = FirstPersonSwing.parse(
                 json(CombatTestData.assetPath(weapon.firstPersonRig())), style, geometry);
         JsonObject out = new JsonObject();
@@ -248,7 +248,7 @@ final class FirstPersonPreviewParityTest {
         out.add("lag", vector(lag));
         for (HumanoidArm arm : new HumanoidArm[] {HumanoidArm.RIGHT, HumanoidArm.LEFT}) {
             JsonObject side = new JsonObject();
-            side.add("grip_frame", gripFrame(FirstPersonSwordTransform.gripFrame(arm, 0.0F, swing.rig(), pose)));
+            side.add("grip_frame", gripFrame(FirstPersonWeaponTransform.gripFrame(arm, 0.0F, swing.rig(), pose)));
             FirstPersonArmIk.Solution main = FirstPersonArmIk.solve(arm, 0.0F, swing, pose, lag);
             JsonObject mainJson = solution(main);
             mainJson.add("lag_scale", number(main.lagScale()));

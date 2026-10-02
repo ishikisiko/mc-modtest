@@ -103,11 +103,11 @@ class LingxiaoSpearModelTest(unittest.TestCase):
     def test_contract_and_display_are_frozen(self) -> None:
         # Pose and first-person workers build on these values; a change needs the lead's sign-off.
         self.assertEqual({"y": [16.0, 23.4], "half_width": 2.35, "half_thickness": 0.68},
-                         gen.geometry_contract()["guard"])
+                         gen.geometry_contract()["collar"])
         self.assertEqual({"y": [-16.0, -13.4], "half_width": 1.0, "half_thickness": 1.0},
-                         gen.geometry_contract()["pommel"])
+                         gen.geometry_contract()["butt"])
         self.assertEqual({"half_width": 1.9, "half_thickness": 0.35, "ridge_half_thickness": 0.35,
-                          "taper_start_y": 25.6}, gen.geometry_contract()["blade"])
+                          "taper_start_y": 25.6}, gen.geometry_contract()["head"])
         third = gen._json_display(gen.build_display())["thirdperson_righthand"]
         self.assertEqual({"rotation": [-10.81, 180.0, 0.0], "translation": [0.0, 6.84, 0.312],
                           "scale": [0.9, 0.9, 0.9]}, third)
@@ -213,27 +213,27 @@ class LingxiaoSpearModelTest(unittest.TestCase):
     def test_geometry_contract_is_ordered_and_matches_the_model(self) -> None:
         geometry = json.loads(gen.GEOMETRY_PATH.read_text(encoding="utf-8"))
         self.assertEqual("model_pixels", geometry["units"])
-        self.assertEqual({"blade": "+y", "flat_normal": "x", "edge": "z", "center_x": 8.0, "center_z": 8.0},
+        self.assertEqual({"length": "+y", "flat_normal": "x", "edge": "z", "center_x": 8.0, "center_z": 8.0},
                          geometry["axes"])
         self.assertEqual([8.0, -2.0, 8.0], geometry["grip_center"])
         self.assertEqual([8.0, 11.0, 8.0], geometry["off_hand_grip_center"])
-        # SwordGeometry.parse: pommel <= handle <= guard <= blade base < tip, grips on the handle.
-        self.assertLessEqual(geometry["pommel"]["y"][1], geometry["handle"]["y"][0])
+        # WeaponGeometry.parse: butt <= handle <= collar <= head base < tip, grips on the handle.
+        self.assertLessEqual(geometry["butt"]["y"][1], geometry["handle"]["y"][0])
         for key in ("grip_center", "off_hand_grip_center"):
             self.assertLess(geometry["handle"]["y"][0], geometry[key][1])
             self.assertLess(geometry[key][1], geometry["handle"]["y"][1])
-        self.assertLessEqual(geometry["handle"]["y"][1], geometry["guard"]["y"][0])
-        self.assertLessEqual(geometry["guard"]["y"][1], geometry["blade_base"][1])
-        self.assertLess(geometry["blade_base"][1], geometry["blade_tip"][1])
-        for part in ("handle", "guard", "pommel"):
+        self.assertLessEqual(geometry["handle"]["y"][1], geometry["collar"]["y"][0])
+        self.assertLessEqual(geometry["collar"]["y"][1], geometry["head_base"][1])
+        self.assertLess(geometry["head_base"][1], geometry["head_tip"][1])
+        for part in ("handle", "collar", "butt"):
             self.assertGreater(geometry[part]["half_width"], 0)
             self.assertGreater(geometry[part]["half_thickness"], 0)
-        self.assertEqual(geometry["grip_center"][0], geometry["blade_base"][0])
-        self.assertEqual(geometry["grip_center"][2], geometry["blade_base"][2])
+        self.assertEqual(geometry["grip_center"][0], geometry["head_base"][0])
+        self.assertEqual(geometry["grip_center"][2], geometry["head_base"][2])
         self.assertEqual([-16.0, 32.0], geometry["overall_y"])
         tops = [max(p[1] for p in sword.element_corners(e)) for e in gen.build_elements()]
-        self.assertAlmostEqual(geometry["blade_tip"][1], max(tops), places=3)
-        for field in ("grip_center", "handle", "guard", "pommel", "blade_base", "blade_tip",
+        self.assertAlmostEqual(geometry["head_tip"][1], max(tops), places=3)
+        for field in ("grip_center", "handle", "collar", "butt", "head_base", "head_tip",
                       "edge_axis", "flat_axis", "axes"):  # validate_sword_combat_foundation GEOMETRY_FIELDS
             self.assertIn(field, geometry)
 
@@ -244,12 +244,12 @@ class LingxiaoSpearModelTest(unittest.TestCase):
         base, tip = geometry["trail"]["base"][1], geometry["trail"]["tip"][1]
         # About as long as the sword's blade, which draws the sword's trails.
         blade = sword.geometry_contract()
-        self.assertAlmostEqual(blade["blade_tip"][1] - blade["blade_base"][1], tip - base, delta=0.5)
-        # Starts above every hand position and ends at the tip: SwordGeometry and the validator
+        self.assertAlmostEqual(blade["head_tip"][1] - blade["head_base"][1], tip - base, delta=0.5)
+        # Starts above every hand position and ends at the tip: WeaponGeometry and the validator
         # need it on the axis, ordered, and on the weapon.
         self.assertGreaterEqual(base, max(y1 + half for _, (_, y1), half in gen.HAND_ZONES))
-        self.assertEqual(geometry["blade_tip"][1], tip)
-        self.assertLess(base, geometry["blade_base"][1])
+        self.assertEqual(geometry["head_tip"][1], tip)
+        self.assertLess(base, geometry["head_base"][1])
 
     def test_bad_trail_span_fails_the_self_check(self) -> None:
         original = gen.TRAIL_Y
@@ -267,16 +267,16 @@ class LingxiaoSpearModelTest(unittest.TestCase):
         contract = gen.geometry_contract()
         contract.pop("trail")
         self.assertEqual({
-            "format": 1, "units": "model_pixels", "generator": "tools/gen_lingxiao_spear_model.py",
+            "format": 2, "units": "model_pixels", "generator": "tools/gen_lingxiao_spear_model.py",
             "model": "myvillage:item/lingxiao_spear_3d",
-            "axes": {"blade": "+y", "flat_normal": "x", "edge": "z", "center_x": 8.0, "center_z": 8.0},
+            "axes": {"length": "+y", "flat_normal": "x", "edge": "z", "center_x": 8.0, "center_z": 8.0},
             "grip_center": [8.0, -2.0, 8.0], "off_hand_grip_center": [8.0, 11.0, 8.0],
             "handle": {"y": [-13.4, 16.0], "half_width": 0.5, "half_thickness": 0.5},
-            "guard": {"y": [16.0, 23.4], "half_width": 2.35, "half_thickness": 0.68},
-            "pommel": {"y": [-16.0, -13.4], "half_width": 1.0, "half_thickness": 1.0},
-            "blade": {"half_width": 1.9, "half_thickness": 0.35, "ridge_half_thickness": 0.35,
+            "collar": {"y": [16.0, 23.4], "half_width": 2.35, "half_thickness": 0.68},
+            "butt": {"y": [-16.0, -13.4], "half_width": 1.0, "half_thickness": 1.0},
+            "head": {"half_width": 1.9, "half_thickness": 0.35, "ridge_half_thickness": 0.35,
                       "taper_start_y": 25.6},
-            "blade_base": [8.0, 23.4, 8.0], "blade_tip": [8.0, 32.0, 8.0],
+            "head_base": [8.0, 23.4, 8.0], "head_tip": [8.0, 32.0, 8.0],
             "edge_axis": [0.0, 0.0, 1.0], "flat_axis": [1.0, 0.0, 0.0], "overall_y": [-16.0, 32.0],
         }, contract)
 

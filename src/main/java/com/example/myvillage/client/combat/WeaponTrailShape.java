@@ -8,7 +8,7 @@ import com.example.myvillage.combat.definition.MoveKind;
  * and 1 is the oldest remembered position. Older samples keep only a thin strip near the tip,
  * so the ribbon tapers into the arc the tip drew instead of reading as a filled wedge.
  */
-final class SwordTrailShape {
+final class WeaponTrailShape {
     /** Fraction of the blade (base 0, tip 1) where the visible trail starts on the newest sample. */
     static final float INNER_FRACTION_NEW = 0.55F;
     /** ... and on the oldest sample: the tail collapses to a sliver at the tip. */
@@ -22,7 +22,7 @@ final class SwordTrailShape {
     /** The edge band keeps this share of its opacity at the very tip. */
     static final float TIP_ALPHA_SHARE = 0.9F;
 
-    private SwordTrailShape() {
+    private WeaponTrailShape() {
     }
 
     /**

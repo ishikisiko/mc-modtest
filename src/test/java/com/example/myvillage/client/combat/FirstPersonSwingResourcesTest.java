@@ -40,7 +40,7 @@ final class FirstPersonSwingResourcesTest {
         assertEquals(qingfeng, rig.weapon());
         assertEquals(CombatTestData.basicSword(), rig.style());
         assertEquals(5, rig.swing().moves().size());
-        assertTrue(rig.swing().sword().bladeLengthPixels() > 0.0F);
+        assertTrue(rig.swing().weapon().headLengthPixels() > 0.0F);
     }
 
     private static Optional<JsonObject> read(WeaponDefinition weapon, ResourceLocation location) {

@@ -1142,7 +1142,7 @@ class WeaponRig:
     handle: tuple[float, float]
     grip_y: float
     off_hand_y: float | None
-    trail_tip_y: float = 0.0    # contract y of the trail's tip (``trail.tip``, else ``blade_tip``)
+    trail_tip_y: float = 0.0    # contract y of the trail's tip (``trail.tip``, else ``head_tip``)
     display_scale: float = 1.0  # thirdperson_righthand scale along the weapon axis
     corners: tuple = ()         # (element name, corner) of every model element, rotated, in model blocks
 
@@ -1192,6 +1192,9 @@ def load_rig(geometry_path: Path, model_path: Path) -> WeaponRig:
         model = json.loads(model_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         raise PoseTableError(f"weapon rig unreadable: {exc}") from exc
+    problems = combat_data.geometry_format_problems(geometry)
+    if problems:
+        raise PoseTableError(f"{geometry_path.name}: {'; '.join(problems)}")
     named = geometry.get("model")
     if named is not None:
         namespace, path = combat_data.split_id(named)
@@ -1205,19 +1208,19 @@ def load_rig(geometry_path: Path, model_path: Path) -> WeaponRig:
         grip_center = geometry["grip_center"]
         axes = geometry.get("axes", {})
         axis = (axes.get("center_x", grip_center[0]) / 16.0, axes.get("center_z", grip_center[2]) / 16.0)
-        butt_y = geometry["pommel"]["y"][0] if "pommel" in geometry else geometry["overall_y"][0]
+        butt_y = geometry["butt"]["y"][0] if "butt" in geometry else geometry["overall_y"][0]
         off_hand = geometry.get("off_hand_grip_center")
         rig = WeaponRig(
             # ItemTransform.apply: translate, rotationXYZ (Rx * Ry * Rz), scale; then ItemRenderer -0.5.
             display=(_t(tx, ty, tz), _r4("x", rx), _r4("y", ry), _r4("z", rz), _s(sx, sy, sz), _t(-0.5, -0.5, -0.5)),
             grip=tuple(c / 16.0 for c in grip_center),
-            tip=tuple(c / 16.0 for c in geometry["blade_tip"]),
+            tip=tuple(c / 16.0 for c in geometry["head_tip"]),
             butt=(axis[0], butt_y / 16.0, axis[1]),
             axis=axis,
             handle=(float(geometry["handle"]["y"][0]), float(geometry["handle"]["y"][1])),
             grip_y=float(grip_center[1]),
             off_hand_y=None if off_hand is None else float(off_hand[1]),
-            trail_tip_y=float(geometry["trail"]["tip"][1] if "trail" in geometry else geometry["blade_tip"][1]),
+            trail_tip_y=float(geometry["trail"]["tip"][1] if "trail" in geometry else geometry["head_tip"][1]),
             display_scale=float(sy),
             corners=_element_corners(model.get("elements", [])),
         )

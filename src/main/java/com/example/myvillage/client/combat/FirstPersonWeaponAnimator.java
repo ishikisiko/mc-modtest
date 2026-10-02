@@ -239,7 +239,7 @@ public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
         if (swing.isEmpty()) {
             return false;
         }
-        FirstPersonSwordTransform.apply(
+        FirstPersonWeaponTransform.apply(
                 poseStack, arm, equipProcess, swing.get(), currentPose(player, partialTick, swing.get()),
                 displayTransform(player, itemInHand, arm));
         return true;
@@ -366,7 +366,7 @@ public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
 
     /** Grip position in right-hand rig space, where pose offsets are authored. */
     private static Vector3f gripPoint(FirstPersonSwing swing, FirstPersonSwing.Pose pose) {
-        return FirstPersonSwordTransform.gripFrame(HumanoidArm.RIGHT, 0.0F, swing.rig(), pose)
+        return FirstPersonWeaponTransform.gripFrame(HumanoidArm.RIGHT, 0.0F, swing.rig(), pose)
                 .getTranslation(new Vector3f());
     }
 
@@ -407,7 +407,7 @@ public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
     }
 
     /**
-     * A slow breath on the neutral hold: the sword rises and tips back a little and the elbow
+     * A slow breath on the neutral hold: the weapon rises and tips back a little and the elbow
      * lifts with it. It ramps in after a move so the hold never jumps.
      */
     private FirstPersonSwing.Pose breathing(FirstPersonSwing.Pose pose, double now) {

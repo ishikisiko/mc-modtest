@@ -40,13 +40,13 @@ def synthetic_weapon(root: Path, name: str = "test_pike", scale: float = 0.85, g
     translation = [round(sword_display["translation"][i] + 16 * delta[i] + (grip_shift_px if i == 1 else 0.0), 6)
                    for i in range(3)]
     geometry = {
-        "format": 1, "units": "model_pixels", "model": f"myvillage:item/{name}_3d",
-        "axes": {"blade": "+y", "flat_normal": "x", "edge": "z", "center_x": 8.0, "center_z": 8.0},
+        "format": 2, "units": "model_pixels", "model": f"myvillage:item/{name}_3d",
+        "axes": {"length": "+y", "flat_normal": "x", "edge": "z", "center_x": 8.0, "center_z": 8.0},
         "grip_center": [8.0, grip_y, 8.0],
         "handle": {"y": [-14.5, 22.0], "half_width": 0.7, "half_thickness": 0.7},
-        "guard": {"y": [22.0, 24.0], "half_width": 1.5, "half_thickness": 1.5},
-        "pommel": {"y": [-16.0, -14.5], "half_width": 0.9, "half_thickness": 0.9},
-        "blade_base": [8.0, 24.0, 8.0], "blade_tip": [8.0, 32.0, 8.0], "overall_y": [-16.0, 32.0],
+        "collar": {"y": [22.0, 24.0], "half_width": 1.5, "half_thickness": 1.5},
+        "butt": {"y": [-16.0, -14.5], "half_width": 0.9, "half_thickness": 0.9},
+        "head_base": [8.0, 24.0, 8.0], "head_tip": [8.0, 32.0, 8.0], "overall_y": [-16.0, 32.0],
     }
     if off_hand_y is not None:
         geometry["off_hand_grip_center"] = [8.0, off_hand_y, 8.0]

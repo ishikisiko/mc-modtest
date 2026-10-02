@@ -20,6 +20,9 @@ API
 ``split_id(value) -> (namespace, path)``, ``style_file(root, id)``, ``weapon_file(root, id)``,
 ``asset_file(root, id)``
     Resolve resource ids to repository paths.
+``geometry_format_problems(contract) -> list[str]`` / ``rig_format_problems(rig) -> list[str]``
+    Why a weapon's geometry contract is not format 2 or its first-person rig still uses a renamed
+    field (``GEOMETRY_RENAMED_FIELDS``, ``GEOMETRY_RENAMED_AXES``, ``RIG_RENAMED_FIELDS``).
 
 Styles and weapons are returned as the validated JSON objects, so field names are the ones
 in the design (``total_ticks``, ``active_ticks``, ``chain_tick``, ``step.tick``, ...).
@@ -151,6 +154,55 @@ def _relative(root: Path, path: Path) -> str:
         return path.relative_to(root).as_posix()
     except ValueError:
         return path.as_posix()
+
+
+# ---------------------------------------------------------------------------------------------
+# Geometry contract and first-person rig names (client assets, read by the Java client).
+# ---------------------------------------------------------------------------------------------
+
+GEOMETRY_FORMAT = 2
+# Format 1 named the contract after a sword; format 2 uses weapon-neutral names.  An old name is
+# never read as a fallback: a contract that still has one is rejected, naming the new field.
+GEOMETRY_RENAMED_FIELDS = {
+    "pommel": "butt",
+    "guard": "collar",
+    "blade": "head",
+    "blade_base": "head_base",
+    "blade_tip": "head_tip",
+}
+GEOMETRY_RENAMED_AXES = {"blade": "length"}
+# Unknown rig fields are ignored by the game, so an old rig field would silently fall back to its
+# default; the renamed ones are rejected instead.
+RIG_RENAMED_FIELDS = {"sword_scale": "weapon_scale"}
+
+
+def geometry_format_problems(geometry: Any) -> list[str]:
+    """Why a geometry contract is not format 2, as WeaponGeometry.parse rejects it: a missing or
+    other ``format``, or a format 1 field name (each message names the format 2 field)."""
+    if not isinstance(geometry, dict):
+        return ["the geometry contract must be an object"]
+    problems = []
+    if geometry.get("format") != GEOMETRY_FORMAT:
+        problems.append(f"format is {geometry.get('format')!r}, expected {GEOMETRY_FORMAT} (format 2 renamed "
+                        + ", ".join([f"axes.{old} to axes.{new}" for old, new in GEOMETRY_RENAMED_AXES.items()]
+                                    + [f"{old} to {new}" for old, new in GEOMETRY_RENAMED_FIELDS.items()])
+                        + ")")
+    for old, new in GEOMETRY_RENAMED_FIELDS.items():
+        if old in geometry:
+            problems.append(f"{old} was renamed {new} in format {GEOMETRY_FORMAT}")
+    axes = geometry.get("axes")
+    for old, new in GEOMETRY_RENAMED_AXES.items():
+        if isinstance(axes, dict) and old in axes:
+            problems.append(f"axes.{old} was renamed axes.{new} in format {GEOMETRY_FORMAT}")
+    return problems
+
+
+def rig_format_problems(rig: Any) -> list[str]:
+    """Renamed fields a first-person rig still uses, as FirstPersonSwing.parse rejects them."""
+    settings = rig.get("rig") if isinstance(rig, dict) else None
+    if not isinstance(settings, dict):
+        return []
+    return [f"rig.{old} was renamed rig.{new}" for old, new in RIG_RENAMED_FIELDS.items() if old in settings]
 
 
 # ---------------------------------------------------------------------------------------------

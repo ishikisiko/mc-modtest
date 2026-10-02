@@ -1,7 +1,7 @@
 {
   "rig": {
     "shoulder": [0.3, -0.27, -0.05],
-    "sword_scale": 1.0,
+    "weapon_scale": 1.0,
     "arm": {"shoulder_offset": [0.03, -0.02, 0.0], "upper_arm": 0.33, "forearm": 0.33, "thickness": 0.42, "grip_diagonal": 50, "follow_through": 1.0},
     "off_hand": {"shoulder_offset": [-0.25, -0.14, -0.2], "grip_diagonal": 30, "thickness": 0.56}
   },

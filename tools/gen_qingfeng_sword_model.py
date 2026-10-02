@@ -598,21 +598,23 @@ def geometry_contract() -> dict:
     guard_wing_extent = (WING_CENTER_DZ + (WING_SIZE_Z / 2) * math.cos(math.radians(22.5))
                          + (WING_SIZE_Y / 2) * math.sin(math.radians(22.5)))
     return {
-        "format": 1,
+        "format": 2,
         "units": "model_pixels",
         "generator": "tools/gen_qingfeng_sword_model.py",
         "model": MODEL_3D_ID,
-        "axes": {"blade": "+y", "flat_normal": "x", "edge": "z", "center_x": CX, "center_z": CZ},
+        "axes": {"length": "+y", "flat_normal": "x", "edge": "z", "center_x": CX, "center_z": CZ},
         "grip_center": [CX, GRIP_CENTER_Y, CZ],
         "handle": {"y": [LOWER_FERRULE_Y[0], UPPER_FERRULE_Y[1]], "half_width": WRAP_HALF_Z,
                    "half_thickness": WRAP_DIAMOND_HALF, "wrap_y": list(WRAP_Y)},
-        "guard": {"y": list(GUARD_Y), "half_width": _r(guard_wing_extent),
-                  "half_thickness": _r(BOSS_HALF_X)},
-        "pommel": {"y": list(POMMEL_Y), "half_width": POMMEL_RIM["half_z"], "half_thickness": POMMEL_RIM["half_x"]},
-        "blade": {"half_width": BLADE_HALF_WIDTH, "half_thickness": BLADE_HALF_THICKNESS,
-                  "ridge_half_thickness": RIDGE_HALF_DIAGONAL, "taper_start_y": _r(TIP_START_Y)},
-        "blade_base": [CX, BLADE_BASE_Y, CZ],
-        "blade_tip": [CX, TIP_Y, CZ],
+        # Contract names are weapon-neutral (format 2): the sword's guard is the collar, its pommel
+        # the butt, and its blade the head.
+        "collar": {"y": list(GUARD_Y), "half_width": _r(guard_wing_extent),
+                   "half_thickness": _r(BOSS_HALF_X)},
+        "butt": {"y": list(POMMEL_Y), "half_width": POMMEL_RIM["half_z"], "half_thickness": POMMEL_RIM["half_x"]},
+        "head": {"half_width": BLADE_HALF_WIDTH, "half_thickness": BLADE_HALF_THICKNESS,
+                 "ridge_half_thickness": RIDGE_HALF_DIAGONAL, "taper_start_y": _r(TIP_START_Y)},
+        "head_base": [CX, BLADE_BASE_Y, CZ],
+        "head_tip": [CX, TIP_Y, CZ],
         "edge_axis": [0.0, 0.0, 1.0],
         "flat_axis": [1.0, 0.0, 0.0],
         "overall_y": [POMMEL_Y[0], TIP_Y],
@@ -781,8 +783,8 @@ def self_check() -> list[str]:
     if not 0.2 < fit["pommel_behind_fist"] < 1.5:
         errors.append(f"pommel sits {fit['pommel_behind_fist']:.2f} px behind the fist")
     geo = geometry_contract()
-    if not (geo["pommel"]["y"][1] <= geo["handle"]["y"][0] and geo["handle"]["y"][1] <= geo["guard"]["y"][0]
-            and geo["guard"]["y"][1] <= geo["blade_base"][1] < geo["blade_tip"][1]):
+    if not (geo["butt"]["y"][1] <= geo["handle"]["y"][0] and geo["handle"]["y"][1] <= geo["collar"]["y"][0]
+            and geo["collar"]["y"][1] <= geo["head_base"][1] < geo["head_tip"][1]):
         errors.append("geometry contract parts are out of order")
     if not geo["handle"]["y"][0] < GRIP_CENTER_Y < geo["handle"]["y"][1]:
         errors.append("grip centre outside the handle")

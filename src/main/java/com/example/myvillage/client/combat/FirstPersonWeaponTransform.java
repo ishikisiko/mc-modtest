@@ -7,26 +7,26 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
 /**
- * Places the held sword for one {@link FirstPersonSwing.Pose}. The left hand mirrors the right
+ * Places the held weapon for one {@link FirstPersonSwing.Pose}. The left hand mirrors the right
  * across the view's vertical plane. The same chain also yields the grip frame the first-person
- * arm holds, so the sword, its trail and the arm all read one pose.
+ * arm holds, so the weapon, its trail and the arm all read one pose.
  *
- * <p>The sword model's own first-person display transform is undone rather than compensated with
+ * <p>The weapon model's own first-person display transform is undone rather than compensated with
  * measured constants: {@link #apply} multiplies by the inverse of the baked
  * {@code firstperson_*} transform, then maps the geometry contract's {@code grip_center} onto the
- * grip frame origin (model +Y blade, +X flat normal, +Z edge), scaled by the rig's
- * {@code sword_scale}. Editing the model's display values therefore never moves the grip.
+ * grip frame origin (model +Y along the weapon, +X flat normal, +Z edge), scaled by the rig's
+ * {@code weapon_scale}. Editing the model's display values therefore never moves the grip.
  */
-final class FirstPersonSwordTransform {
+final class FirstPersonWeaponTransform {
     static final float EQUIP_DROP = 0.60F;
     private static final float SINGULAR_DETERMINANT = 1.0E-9F;
 
-    private FirstPersonSwordTransform() {
+    private FirstPersonWeaponTransform() {
     }
 
     /**
      * Moves {@code poseStack} into the grip frame: the origin is the hand's grip point, local +Y is
-     * the blade axis (toward the tip), local +X the blade's flat normal and local +Z its edge.
+     * the weapon axis (toward the tip), local +X the weapon's flat normal and local +Z its edge.
      */
     static void applyGripFrame(
             PoseStack poseStack,
@@ -61,17 +61,17 @@ final class FirstPersonSwordTransform {
             FirstPersonSwing.Pose pose,
             Matrix4f display) {
         applyGripFrame(poseStack, arm, equipProgress, swing.rig(), pose);
-        poseStack.mulPose(itemToGrip(swing.sword(), swing.rig().swordScale(), display));
+        poseStack.mulPose(itemToGrip(swing.weapon(), swing.rig().weaponScale(), display));
     }
 
     /**
      * Grip-frame matrix for the item pass: {@code scale * translate(0.5 - grip / 16) * display^-1}.
      * A singular display (a zero scale hides the item anyway) is treated as the identity.
      */
-    static Matrix4f itemToGrip(SwordGeometry sword, float swordScale, Matrix4f display) {
-        Vector3f grip = sword.gripCenter().div(16.0F);
+    static Matrix4f itemToGrip(WeaponGeometry weapon, float weaponScale, Matrix4f display) {
+        Vector3f grip = weapon.gripCenter().div(16.0F);
         Matrix4f result = new Matrix4f()
-                .scale(swordScale)
+                .scale(weaponScale)
                 .translate(0.5F - grip.x, 0.5F - grip.y, 0.5F - grip.z);
         if (Math.abs(display.determinant()) > SINGULAR_DETERMINANT) {
             result.mul(new Matrix4f(display).invert());
@@ -90,15 +90,15 @@ final class FirstPersonSwordTransform {
         return new Matrix4f(poseStack.last().pose());
     }
 
-    /** A sword model point (item-model pixels) in hand-render space for one pose. */
-    static Vector3f swordPoint(
+    /** A weapon model point (item-model pixels) in hand-render space for one pose. */
+    static Vector3f weaponPoint(
             HumanoidArm arm,
             float equipProgress,
             FirstPersonSwing swing,
             FirstPersonSwing.Pose pose,
             Vector3f modelPixels) {
         return gripFrame(arm, equipProgress, swing.rig(), pose).transformPosition(
-                swing.sword().toGrip(modelPixels, swing.rig().swordScale()));
+                swing.weapon().toGrip(modelPixels, swing.rig().weaponScale()));
     }
 
     /** The swing pivot (rig shoulder plus the pose's body offset), mirrored for the left hand. */

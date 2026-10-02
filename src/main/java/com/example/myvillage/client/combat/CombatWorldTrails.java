@@ -129,7 +129,7 @@ public final class CombatWorldTrails {
         // Local ticks, like the attacker's stop it pairs with: a game-clock reset is not trail time.
         double now = ClientCombatClock.now(partialTick);
         MultiBufferSource.BufferSource buffers = minecraft.renderBuffers().bufferSource();
-        VertexConsumer consumer = buffers.getBuffer(CombatRenderTypes.SWORD_TRAIL_TRANSLUCENT);
+        VertexConsumer consumer = buffers.getBuffer(CombatRenderTypes.WEAPON_TRAIL_TRANSLUCENT);
 
         ACTIONS.entrySet().removeIf(entry -> {
             Entity entity = minecraft.level.getEntity(entry.getKey());
@@ -146,7 +146,7 @@ public final class CombatWorldTrails {
             }
             return false;
         });
-        buffers.endBatch(CombatRenderTypes.SWORD_TRAIL_TRANSLUCENT);
+        buffers.endBatch(CombatRenderTypes.WEAPON_TRAIL_TRANSLUCENT);
     }
 
     private static void render(
@@ -162,9 +162,9 @@ public final class CombatWorldTrails {
         float first = samples.getFirst().actionTick() - 0.5F;
         float last = samples.getLast().actionTick() + 0.5F;
         Vec3 origin = entity.getPosition(partialTick);
-        if (SwordTrailShape.streak(move.kind())) {
+        if (WeaponTrailShape.streak(move.kind())) {
             // A thrust sweeps no area: one camera-facing streak along the blade, drawn once.
-            float alpha = SwordTrailShape.streakAlpha(tick, first, STREAK_TICKS);
+            float alpha = WeaponTrailShape.streakAlpha(tick, first, STREAK_TICKS);
             if (alpha <= 0.0F) {
                 return;
             }
@@ -184,7 +184,7 @@ public final class CombatWorldTrails {
         if (newest <= oldest) {
             return;
         }
-        float fade = SwordTrailShape.fade(tick, last, FADE_TICKS);
+        float fade = WeaponTrailShape.fade(tick, last, FADE_TICKS);
         if (fade <= 0.0F) {
             return;
         }
@@ -194,7 +194,7 @@ public final class CombatWorldTrails {
         for (int index = 0; index <= SEGMENTS; index++) {
             float sampleTick = newest - (newest - oldest) * index / SEGMENTS;
             float age = (tick - sampleTick) / TRAIL_TICKS;
-            float alpha = SwordTrailShape.alpha(age, fade);
+            float alpha = WeaponTrailShape.alpha(age, fade);
             CombatGeometry.WorldSample world = worldBlade(
                     samples, sampleTick, 1.0, size, origin, action.facingYaw());
             Vector3f[] blade = {relative(world.start(), cameraPosition), relative(world.end(), cameraPosition)};
@@ -256,7 +256,7 @@ public final class CombatWorldTrails {
      * scale. The contract checks (span on the axis, base below tip) keep both lengths positive,
      * and {@link #drawnBlade} never draws the base behind the pivot.
      */
-    static TrailSize trailSize(Optional<SwordGeometry> weapon, float thirdPersonScale) {
+    static TrailSize trailSize(Optional<WeaponGeometry> weapon, float thirdPersonScale) {
         if (weapon.isEmpty() || !(thirdPersonScale > 0.0F) || !Float.isFinite(thirdPersonScale)) {
             return FALLBACK_SIZE;
         }
@@ -276,10 +276,10 @@ public final class CombatWorldTrails {
             return FALLBACK_SIZE;
         }
         ItemStack stack = new ItemStack(BuiltInRegistries.ITEM.get(weaponItem));
-        return trailSize(Optional.of(rig.get().swing().sword()), thirdPersonScale(minecraft, stack));
+        return trailSize(Optional.of(rig.get().swing().weapon()), thirdPersonScale(minecraft, stack));
     }
 
-    /** Length scale of the weapon model's third-person display transform along the blade (+Y). */
+    /** Length scale of the weapon model's third-person display transform along its length (+Y). */
     private static float thirdPersonScale(Minecraft minecraft, ItemStack stack) {
         BakedModel model = minecraft.getItemRenderer().getModel(stack, minecraft.level, null, 0);
         PoseStack scratch = new PoseStack();

@@ -51,7 +51,7 @@ REQUIRED_ANIMATION_BONES = ("body", "head", "right_arm", "left_arm", "right_leg"
 TICKS_PER_SECOND = 20.0
 # A first-person strike window covers the server active ticks and lasts at most this long.
 MAX_STRIKE_TICKS = 3.0
-GEOMETRY_FIELDS = ("grip_center", "handle", "guard", "pommel", "blade_base", "blade_tip",
+GEOMETRY_FIELDS = ("grip_center", "handle", "collar", "butt", "head_base", "head_tip",
                    "edge_axis", "flat_axis", "axes", "model", "generator")
 # A contract's generator is a standard-library script in tools/ that writes the contract, the 3D
 # model, and its textures, and verifies them with --check.
@@ -742,14 +742,16 @@ def validate_rig(rig, name: str, style: dict, findings: list[Finding]) -> None:
     except (KeyError, TypeError) as exc:
         findings.append(Finding("COMBAT_FIRST_PERSON_RIG_JSON", f"{name}: {exc}"))
         return
-    scale = rig_settings.get("sword_scale", 0.6)
+    for problem in combat_data.rig_format_problems(rig):
+        findings.append(Finding("COMBAT_FIRST_PERSON_RIG_JSON", f"{name}: {problem}"))
+    scale = rig_settings.get("weapon_scale", 0.6)
     arm = rig_settings.get("arm", {})
     if (not is_number(scale) or not 0.2 <= scale <= 1.5 or not isinstance(arm, dict)
             or any(not is_number(arm.get(field, 0))
                    for field in ("upper_arm", "forearm", "thickness", "grip_diagonal", "follow_through"))
             or not 0.2 <= arm.get("thickness", 0.5) <= 1.2
             or not 0 <= arm.get("grip_diagonal", 40) <= 50):
-        findings.append(Finding("COMBAT_FIRST_PERSON_RIG_ARM", f"{name}: rig.sword_scale/rig.arm"))
+        findings.append(Finding("COMBAT_FIRST_PERSON_RIG_ARM", f"{name}: rig.weapon_scale/rig.arm"))
     poses = [neutral] + [key for move in moves.values() if isinstance(move, dict)
                          for key in move.get("keys", []) if isinstance(key, dict)]
     if any(not is_number(pose.get(field, 0)) for pose in poses for field in ("grip_roll", "elbow")):
@@ -792,9 +794,9 @@ def validate_rig(rig, name: str, style: dict, findings: list[Finding]) -> None:
 
 
 def validate_geometry_contracts(root: Path, data: combat_data.CombatData, findings: list[Finding]) -> None:
-    """Each weapon's geometry contract carries the grip, guard, blade, axes, model, and generator
-    fields in order along +Y, a valid off-hand grip when it has one, and a valid trail span when
-    it names one."""
+    """Each weapon's geometry contract is format 2 and carries the grip, collar, head, axes, model,
+    and generator fields in order along +Y, a valid off-hand grip when it has one, and a valid
+    trail span when it names one."""
     for geometry_id in sorted({weapon["geometry"] for weapon in data.weapons.values()}):
         path = combat_data.asset_file(root, geometry_id)
         geometry = read_json(path, root, "COMBAT_GEOMETRY_CONTRACT", findings)
@@ -804,6 +806,10 @@ def validate_geometry_contracts(root: Path, data: combat_data.CombatData, findin
         if not isinstance(geometry, dict):
             findings.append(Finding("COMBAT_GEOMETRY_CONTRACT", f"{name}: not an object"))
             continue
+        format_problems = combat_data.geometry_format_problems(geometry)
+        if format_problems:
+            findings.append(Finding("COMBAT_GEOMETRY_CONTRACT", f"{name}: {'; '.join(format_problems)}"))
+            continue
         missing = [field for field in GEOMETRY_FIELDS if field not in geometry]
         if missing or geometry.get("units") != "model_pixels":
             findings.append(Finding("COMBAT_GEOMETRY_CONTRACT", f"{name}: missing {','.join(missing or ['units'])}"))
@@ -811,17 +817,17 @@ def validate_geometry_contracts(root: Path, data: combat_data.CombatData, findin
         try:
             grip_y = float(geometry["grip_center"][1])
             handle = [float(v) for v in geometry["handle"]["y"]]
-            guard = [float(v) for v in geometry["guard"]["y"]]
-            pommel = [float(v) for v in geometry["pommel"]["y"]]
-            base_y, tip_y = float(geometry["blade_base"][1]), float(geometry["blade_tip"][1])
+            collar = [float(v) for v in geometry["collar"]["y"]]
+            butt = [float(v) for v in geometry["butt"]["y"]]
+            base_y, tip_y = float(geometry["head_base"][1]), float(geometry["head_tip"][1])
         except (KeyError, IndexError, TypeError, ValueError) as exc:
             findings.append(Finding("COMBAT_GEOMETRY_CONTRACT", f"{name}: malformed {exc}"))
             continue
         axes = geometry.get("axes", {})
-        if (not pommel[1] <= handle[0] < grip_y < handle[1] <= guard[0] < guard[1] <= base_y < tip_y
+        if (not butt[1] <= handle[0] < grip_y < handle[1] <= collar[0] < collar[1] <= base_y < tip_y
                 or not isinstance(axes, dict)
-                or (axes.get("blade"), axes.get("flat_normal"), axes.get("edge")) != ("+y", "x", "z")):
-            findings.append(Finding("COMBAT_GEOMETRY_CONTRACT", f"{name}: pommel<handle<guard<blade, axes +y/x/z"))
+                or (axes.get("length"), axes.get("flat_normal"), axes.get("edge")) != ("+y", "x", "z")):
+            findings.append(Finding("COMBAT_GEOMETRY_CONTRACT", f"{name}: butt<handle<collar<head, axes +y/x/z"))
             continue
         generator = geometry.get("generator")
         if not isinstance(generator, str) or not GENERATOR_SCRIPT.match(generator):
@@ -835,17 +841,17 @@ def validate_geometry_contracts(root: Path, data: combat_data.CombatData, findin
             if problem:
                 findings.append(Finding("COMBAT_GEOMETRY_OFF_HAND_GRIP", f"{name}: {problem}"))
         if "trail" in geometry:
-            problem = trail_problem(geometry, pommel[0], tip_y)
+            problem = trail_problem(geometry, butt[0], tip_y)
             if problem:
                 findings.append(Finding("COMBAT_GEOMETRY_TRAIL", f"{name}: {problem}"))
 
 
 def trail_problem(geometry: dict, bottom_y: float, tip_y: float) -> str | None:
     """Why the optional ``trail`` span (the part of the weapon that draws the trails; without it
-    ``blade_base``..``blade_tip``) is unusable, or None.
+    ``head_base``..``head_tip``) is unusable, or None.
 
     It is ``{"base": [x, y, z], "tip": [x, y, z]}`` on the weapon axis, base below tip, from the
-    pommel's bottom up to the blade tip at most (SwordGeometry.parse checks the same)."""
+    butt's bottom up to the head tip at most (WeaponGeometry.parse checks the same)."""
     trail = geometry["trail"]
     if not isinstance(trail, dict) or set(trail) != {"base", "tip"}:
         return f"trail must be an object with exactly base and tip, got {trail!r}"
@@ -872,7 +878,7 @@ def trail_problem(geometry: dict, bottom_y: float, tip_y: float) -> str | None:
 
 
 def model_third_person_scale(root: Path, geometry: dict) -> float | None:
-    """Length scale along the blade (+Y) of the contract model's thirdperson_righthand transform,
+    """Length scale along the weapon axis (+Y) of the contract model's thirdperson_righthand transform,
     as CombatWorldTrails.thirdPersonScale measures it (|scale y|; rotation keeps lengths), or
     None when the model or the transform is unreadable."""
     model_id = contract_model_id(geometry)
@@ -928,12 +934,12 @@ TRAIL_TOLERANCE = 1.0e-6
 
 def trail_tip_radius(root: Path, geometry: dict) -> float | None:
     """CombatWorldTrails.trailSize(...).tipRadius(): ARM_REACH plus grip centre to trail tip (the
-    contract's trail.tip, else blade_tip) in model px at the model's third-person scale.  None when
+    contract's trail.tip, else head_tip) in model px at the model's third-person scale.  None when
     the contract or model cannot give one (the game then draws a fallback; other checks report it)."""
     scale = model_third_person_scale(root, geometry)
     try:
         trail = geometry.get("trail")
-        tip = trail["tip"] if isinstance(trail, dict) else geometry["blade_tip"]
+        tip = trail["tip"] if isinstance(trail, dict) else geometry["head_tip"]
         grip = geometry["grip_center"]
         reach = math.dist([float(v) for v in tip], [float(v) for v in grip])
     except (KeyError, TypeError, ValueError):
@@ -1037,11 +1043,11 @@ def validate_trail_reach(root: Path, data: combat_data.CombatData, contracts: di
 def contract_problem_free_trail(contract: dict) -> bool:
     """Whether the contract's optional trail span is usable (see trail_problem)."""
     try:
-        pommel_y = float(contract["pommel"]["y"][0])
-        tip_y = float(contract["blade_tip"][1])
+        butt_y = float(contract["butt"]["y"][0])
+        tip_y = float(contract["head_tip"][1])
     except (KeyError, IndexError, TypeError, ValueError):
         return False
-    return trail_problem(contract, pommel_y, tip_y) is None
+    return trail_problem(contract, butt_y, tip_y) is None
 
 
 # ---------------------------------------------------------------------------------------------

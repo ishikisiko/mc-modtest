@@ -42,7 +42,7 @@ final class FirstPersonArmIkTest {
                     assertFalse(still.clamped(), move.id() + " " + arm + " overstretches at " + tick);
                     FirstPersonArmIk.Solution lagged = FirstPersonArmIk.solve(
                             arm, 0.0F, swing, pose, FirstPersonArmLag.offset(swing, move, tick));
-                    Vector3f grip = FirstPersonSwordTransform.gripFrame(arm, 0.0F, swing.rig(), pose)
+                    Vector3f grip = FirstPersonWeaponTransform.gripFrame(arm, 0.0F, swing.rig(), pose)
                             .getTranslation(new Vector3f());
                     for (FirstPersonArmIk.Solution solution : List.of(still, lagged)) {
                         String where = move.id() + " " + arm + " at " + tick;
@@ -59,7 +59,7 @@ final class FirstPersonArmIkTest {
     @Test
     void fistClosesAroundTheHandleWithGuardAndPommelOutside() throws IOException {
         FirstPersonSwing swing = shipped();
-        SwordGeometry sword = swing.sword();
+        WeaponGeometry sword = swing.weapon();
         float pixel = swing.rig().arm().thickness() / 16.0F;
         Box slimFist = fistBox(pixel, 3.0F);
         Box wideFist = fistBox(pixel, 4.0F);
@@ -71,17 +71,17 @@ final class FirstPersonArmIkTest {
                 String where = move.id() + " at " + tick;
                 for (int step = -3; step <= 3; step++) {
                     float along = COVERED_HANDLE_PIXELS * step / 3.0F;
-                    Vector3f handle = swordPoint(swing, pose, axis(sword, sword.gripCenter().y + along));
+                    Vector3f handle = weaponPoint(swing, pose, axis(sword, sword.gripCenter().y + along));
                     assertTrue(slimFist.contains(solution.wrist(), solution.fistRotation(), handle),
                             where + " handle leaves the fist " + along + " px from the grip");
                 }
-                float pommel = (sword.pommelBottom() + sword.pommelTop()) * 0.5F;
+                float pommel = (sword.buttBottom() + sword.buttTop()) * 0.5F;
                 assertFalse(wideFist.contains(solution.wrist(), solution.fistRotation(),
-                        swordPoint(swing, pose, axis(sword, pommel))), where + " pommel buried in the fist");
-                for (float x : new float[] {-sword.guardHalfThickness(), sword.guardHalfThickness()}) {
-                    for (float z : new float[] {-sword.guardHalfWidth(), sword.guardHalfWidth()}) {
-                        for (float y : new float[] {sword.guardBottom(), sword.guardTop()}) {
-                            Vector3f corner = swordPoint(swing, pose, new Vector3f(
+                        weaponPoint(swing, pose, axis(sword, pommel))), where + " pommel buried in the fist");
+                for (float x : new float[] {-sword.collarHalfThickness(), sword.collarHalfThickness()}) {
+                    for (float z : new float[] {-sword.collarHalfWidth(), sword.collarHalfWidth()}) {
+                        for (float y : new float[] {sword.collarBottom(), sword.collarTop()}) {
+                            Vector3f corner = weaponPoint(swing, pose, new Vector3f(
                                     sword.gripCenter().x + x, y, sword.gripCenter().z + z));
                             assertTrue(wideFist.distance(solution.wrist(), solution.fistRotation(), corner) > 0.01F,
                                     where + " guard sinks into the fist");
@@ -95,7 +95,7 @@ final class FirstPersonArmIkTest {
     @Test
     void forearmAndUpperArmNeverCrossTheBlade() throws IOException {
         FirstPersonSwing swing = shipped();
-        SwordGeometry sword = swing.sword();
+        WeaponGeometry sword = swing.weapon();
         FirstPersonSwing.Arm armRig = swing.rig().arm();
         float pixel = armRig.thickness() / 16.0F;
         float half = 2.0F * pixel;
@@ -111,7 +111,7 @@ final class FirstPersonArmIkTest {
                 FirstPersonArmIk.Solution solution = FirstPersonArmIk.solve(
                         HumanoidArm.RIGHT, 0.0F, swing, pose, FirstPersonArmLag.offset(swing, move, tick));
                 for (int step = 0; step <= 20; step++) {
-                    Vector3f point = swordPoint(swing, pose, sword.bladeBase().lerp(sword.bladeTip(), step / 20.0F));
+                    Vector3f point = weaponPoint(swing, pose, sword.headBase().lerp(sword.headTip(), step / 20.0F));
                     String where = move.id() + " at " + tick + " blade point " + step;
                     assertTrue(forearm.distance(solution.elbow(), solution.forearmRotation(), point) > BLADE_CLEARANCE,
                             where + " passes through the forearm");
@@ -133,7 +133,7 @@ final class FirstPersonArmIkTest {
                 FirstPersonArmIk.Solution solution = FirstPersonArmIk.solve(
                         HumanoidArm.RIGHT, 0.0F, swing, pose, FirstPersonArmLag.offset(swing, move, tick));
                 // The hand's turn on the handle, in the sword's own frame.
-                Quaternionf sword = FirstPersonSwordTransform.gripFrame(HumanoidArm.RIGHT, 0.0F, swing.rig(), pose)
+                Quaternionf sword = FirstPersonWeaponTransform.gripFrame(HumanoidArm.RIGHT, 0.0F, swing.rig(), pose)
                         .getNormalizedRotation(new Quaternionf());
                 Quaternionf hand = new Quaternionf(sword).conjugate().mul(solution.fistRotation());
                 Vector3f forearm = new Vector3f(solution.wrist()).sub(solution.elbow()).normalize();
@@ -195,7 +195,7 @@ final class FirstPersonArmIkTest {
         }
         assertEquals(right.flexion(), left.flexion(), EPSILON);
         assertEquals(right.deviation(), left.deviation(), EPSILON);
-        Vector3f leftGrip = FirstPersonSwordTransform.gripFrame(HumanoidArm.LEFT, 0.0F, swing.rig(), pose)
+        Vector3f leftGrip = FirstPersonWeaponTransform.gripFrame(HumanoidArm.LEFT, 0.0F, swing.rig(), pose)
                 .getTranslation(new Vector3f());
         assertEquals(0.0F, left.grip().distance(leftGrip), EPSILON);
         // Mirrored frames stay proper rotations, so face winding (and culling) is intact.
@@ -260,16 +260,16 @@ final class FirstPersonArmIkTest {
                 FirstPersonArmIk.DEPTH_PIXELS * 0.5F * pixel * FirstPersonArmRenderer.FIST_WIDTH);
     }
 
-    private static Vector3f axis(SwordGeometry sword, float y) {
+    private static Vector3f axis(WeaponGeometry sword, float y) {
         return new Vector3f(sword.gripCenter().x, y, sword.gripCenter().z);
     }
 
-    private static Vector3f swordPoint(FirstPersonSwing swing, FirstPersonSwing.Pose pose, Vector3f modelPixels) {
-        return FirstPersonSwordTransform.swordPoint(HumanoidArm.RIGHT, 0.0F, swing, pose, modelPixels);
+    private static Vector3f weaponPoint(FirstPersonSwing swing, FirstPersonSwing.Pose pose, Vector3f modelPixels) {
+        return FirstPersonWeaponTransform.weaponPoint(HumanoidArm.RIGHT, 0.0F, swing, pose, modelPixels);
     }
 
     private static Vector3f grip(FirstPersonSwing swing, FirstPersonSwing.Pose pose) {
-        Matrix4f frame = FirstPersonSwordTransform.gripFrame(HumanoidArm.RIGHT, 0.0F, swing.rig(), pose);
+        Matrix4f frame = FirstPersonWeaponTransform.gripFrame(HumanoidArm.RIGHT, 0.0F, swing.rig(), pose);
         return frame.getTranslation(new Vector3f());
     }
 

@@ -178,7 +178,7 @@ final class FirstPersonOffHandTest {
     @Test
     void offFistStaysClosedOnTheShaftAndTheArmKeepsItsBones() throws IOException {
         FirstPersonSwing swing = twoHanded();
-        SwordGeometry spear = swing.sword();
+        WeaponGeometry spear = swing.weapon();
         for (HumanoidArm arm : HumanoidArm.values()) {
             for (FirstPersonSwing.Move move : swing.moves()) {
                 for (float tick = 0.0F; tick <= move.totalTicks(); tick += STEP) {
@@ -187,13 +187,13 @@ final class FirstPersonOffHandTest {
                     FirstPersonArmIk.OffHandSolution off =
                             FirstPersonArmIk.solveOffHand(arm, 0.0F, swing, pose).orElseThrow();
                     FirstPersonArmIk.Solution solution = off.arm();
-                    Vector3f onShaft = FirstPersonSwordTransform.swordPoint(arm, 0.0F, swing, pose,
+                    Vector3f onShaft = FirstPersonWeaponTransform.weaponPoint(arm, 0.0F, swing, pose,
                             new Vector3f(spear.gripCenter().x, off.gripY(), spear.gripCenter().z));
                     assertEquals(0.0F, solution.grip().distance(onShaft), EPSILON, where + " off grip leaves the shaft");
                     assertTrue(off.gripY() > spear.gripCenter().y && off.gripY() < spear.handleTop(), where);
                     // The off fist's thumb side points up the shaft (toward the tip). A mirrored
                     // (left) arm's +X is the reflected thumb side, as for a left main arm.
-                    Vector3f tipward = FirstPersonSwordTransform.swordPoint(arm, 0.0F, swing, pose, spear.bladeTip())
+                    Vector3f tipward = FirstPersonWeaponTransform.weaponPoint(arm, 0.0F, swing, pose, spear.headTip())
                             .sub(onShaft).normalize();
                     float thumbSide = arm == HumanoidArm.RIGHT ? -1.0F : 1.0F;
                     assertTrue(thumbSide * solution.fistRotation().transform(new Vector3f(1.0F, 0.0F, 0.0F))
@@ -227,8 +227,8 @@ final class FirstPersonOffHandTest {
                 assertEquals(a.flexion(), b.flexion(), EPSILON);
                 assertEquals(a.deviation(), b.deviation(), EPSILON);
                 // Left main hand: the off grip is on the left-hand weapon's shaft.
-                Vector3f leftShaft = FirstPersonSwordTransform.swordPoint(HumanoidArm.LEFT, 0.2F, swing, pose,
-                        new Vector3f(swing.sword().gripCenter().x, left.gripY(), swing.sword().gripCenter().z));
+                Vector3f leftShaft = FirstPersonWeaponTransform.weaponPoint(HumanoidArm.LEFT, 0.2F, swing, pose,
+                        new Vector3f(swing.weapon().gripCenter().x, left.gripY(), swing.weapon().gripCenter().z));
                 assertEquals(0.0F, b.grip().distance(leftShaft), EPSILON);
                 for (Quaternionf rotation : List.of(b.upperArmRotation(), b.forearmRotation(), b.fistRotation(),
                         a.upperArmRotation(), a.forearmRotation(), a.fistRotation())) {
@@ -249,7 +249,7 @@ final class FirstPersonOffHandTest {
         FirstPersonSwing swing = parse(json, spearGeometry());
         FirstPersonSwing.Arm arm = swing.rig().arm();
         float reach = FirstPersonArmIk.REACH_FRACTION * (arm.upperArm() + arm.forearm());
-        SwordGeometry spear = swing.sword();
+        WeaponGeometry spear = swing.weapon();
         int slid = 0;
         for (FirstPersonSwing.Move move : swing.moves()) {
             float previous = Float.NaN;
@@ -258,7 +258,7 @@ final class FirstPersonOffHandTest {
                 String where = move.id() + " at " + tick;
                 FirstPersonArmIk.OffHandSolution off =
                         FirstPersonArmIk.solveOffHand(HumanoidArm.RIGHT, 0.0F, swing, pose).orElseThrow();
-                Vector3f onShaft = FirstPersonSwordTransform.swordPoint(HumanoidArm.RIGHT, 0.0F, swing, pose,
+                Vector3f onShaft = FirstPersonWeaponTransform.weaponPoint(HumanoidArm.RIGHT, 0.0F, swing, pose,
                         new Vector3f(spear.gripCenter().x, off.gripY(), spear.gripCenter().z));
                 assertEquals(0.0F, off.arm().grip().distance(onShaft), EPSILON, where);
                 assertTrue(off.gripY() > spear.gripCenter().y && off.gripY() < spear.handleTop(), where);
@@ -304,7 +304,7 @@ final class FirstPersonOffHandTest {
     void slideMovesTheHandAlongTheShaft() throws IOException {
         FirstPersonSwing swing = twoHanded();
         FirstPersonSwing.Pose base = swing.neutral();
-        float center = swing.sword().offHandGripCenter().orElseThrow().y;
+        float center = swing.weapon().offHandGripCenter().orElseThrow().y;
         FirstPersonArmIk.OffHandSolution still = FirstPersonArmIk.solveOffHand(HumanoidArm.RIGHT, 0.0F, swing, base)
                 .orElseThrow();
         assertEquals(center + NEUTRAL_SLIDE, still.wantedGripY(), EPSILON);
@@ -315,13 +315,13 @@ final class FirstPersonOffHandTest {
         assertEquals(center + NEUTRAL_SLIDE - 3.0F, down.gripY(), EPSILON);
         assertNotEquals(still.arm().grip(), down.arm().grip());
         float travelled = down.arm().grip().distance(still.arm().grip());
-        assertEquals(3.0F * swing.rig().swordScale() / 16.0F, travelled, EPSILON, "slide is in model pixels");
+        assertEquals(3.0F * swing.rig().weaponScale() / 16.0F, travelled, EPSILON, "slide is in model pixels");
         // Never into the main fist: the range stops a hand gap ahead of the main grip.
         FirstPersonSwing.Pose crowded = withOffHand(base, -12.0F, 0.0F, 0.0F, 1.0F);
         FirstPersonArmIk.OffHandSolution low = FirstPersonArmIk.solveOffHand(HumanoidArm.RIGHT, 0.0F, swing, crowded)
                 .orElseThrow();
-        float gap = FirstPersonArmIk.OFF_HAND_GAP_PIXELS * swing.rig().offArm().thickness() / swing.rig().swordScale();
-        assertTrue(low.gripY() >= swing.sword().gripCenter().y + gap - EPSILON, "off grip " + low.gripY());
+        float gap = FirstPersonArmIk.OFF_HAND_GAP_PIXELS * swing.rig().offArm().thickness() / swing.rig().weaponScale();
+        assertTrue(low.gripY() >= swing.weapon().gripCenter().y + gap - EPSILON, "off grip " + low.gripY());
         // Roll turns the hand about the shaft; elbow swivels the elbow; neither moves the grip.
         FirstPersonArmIk.OffHandSolution rolled = FirstPersonArmIk.solveOffHand(HumanoidArm.RIGHT, 0.0F, swing,
                 withOffHand(base, NEUTRAL_SLIDE, 30.0F, 0.0F, 1.0F)).orElseThrow();
@@ -355,7 +355,7 @@ final class FirstPersonOffHandTest {
         JsonObject json = JsonParser.parseString(Files.readString(rigPath)).getAsJsonObject();
         assertTrue(json.getAsJsonObject("rig").has("off_hand"), "the shipped spear rig lost its rig.off_hand block");
         FirstPersonSwing swing = FirstPersonSwing.parse(json, CombatTestData.basicSpear(), spearGeometry());
-        SwordGeometry spear = swing.sword();
+        WeaponGeometry spear = swing.weapon();
         FirstPersonArmIk.OffHandSolution neutral =
                 FirstPersonArmIk.solveOffHand(HumanoidArm.RIGHT, 0.0F, swing, swing.neutral()).orElseThrow();
         assertFalse(neutral.arm().clamped(), "the neutral off hand cannot reach the shaft");
@@ -371,7 +371,7 @@ final class FirstPersonOffHandTest {
                 }
                 String where = move.id() + " at " + tick;
                 if (off.get().hold() >= 1.0F) {
-                    Vector3f onShaft = FirstPersonSwordTransform.swordPoint(HumanoidArm.RIGHT, 0.0F, swing, pose,
+                    Vector3f onShaft = FirstPersonWeaponTransform.weaponPoint(HumanoidArm.RIGHT, 0.0F, swing, pose,
                             new Vector3f(spear.gripCenter().x, off.get().gripY(), spear.gripCenter().z));
                     assertEquals(0.0F, off.get().arm().grip().distance(onShaft), EPSILON, where);
                 }
@@ -435,7 +435,7 @@ final class FirstPersonOffHandTest {
         return json;
     }
 
-    private static FirstPersonSwing parse(JsonObject json, SwordGeometry geometry) {
+    private static FirstPersonSwing parse(JsonObject json, WeaponGeometry geometry) {
         return FirstPersonSwing.parse(json, CombatTestData.basicSword(), geometry);
     }
 
@@ -443,12 +443,12 @@ final class FirstPersonOffHandTest {
         return JsonParser.parseString(Files.readString(SWORD_RIG)).getAsJsonObject();
     }
 
-    static SwordGeometry spearGeometry() throws IOException {
-        return SwordGeometry.parse(JsonParser.parseString(Files.readString(SPEAR_GEOMETRY)).getAsJsonObject());
+    static WeaponGeometry spearGeometry() throws IOException {
+        return WeaponGeometry.parse(JsonParser.parseString(Files.readString(SPEAR_GEOMETRY)).getAsJsonObject());
     }
 
-    private static SwordGeometry swordGeometry() throws IOException {
-        return SwordGeometry.parse(JsonParser.parseString(Files.readString(SWORD_GEOMETRY)).getAsJsonObject());
+    private static WeaponGeometry swordGeometry() throws IOException {
+        return WeaponGeometry.parse(JsonParser.parseString(Files.readString(SWORD_GEOMETRY)).getAsJsonObject());
     }
 
     private static JsonObject firstMove(JsonObject rig) {

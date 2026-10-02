@@ -6,7 +6,7 @@
 Renders a sheet (rows = moves, columns = ticks) of 960x540-proportioned first-person frames: the
 weapon's item model and the skin arm (upper arm, forearm, fist) where the mod draws them, plus the
 cut trail / thrust streak, over a flat sky/ground backdrop with a crosshair and the HUD outline.
-Prints per tick the screen position (960x540 game pixels) of the grip centre, blade tip and
+Prints per tick the screen position (960x540 game pixels) of the grip centre, head tip and
 off-hand grip point, the frame coverage of weapon and arm, and whether tip and fist are on screen.
 
 Tick selection: --ticks 0,3.3,4.9 | --all-keys (every key of the rig's move) | --key-ticks (the five
@@ -24,11 +24,11 @@ Transform chain (ported from client/combat in the mod and vanilla 1.21.1 / NeoFo
             unhurt player.  View space: camera at the origin looking down -Z, +X right, +Y up.
   grip G  = T(side*(shoulder.x + x), shoulder.y + y - equip*0.6, shoulder.z + z)
             * Rz(side*plane) * Ry(side*sweep) * T(0, 0, -reach)
-            * Ry(side*lead) * Rx(lift) * Ry(side*twist)              FirstPersonSwordTransform.applyGripFrame
-  item    = G * S(sword_scale) * T(0.5 - grip/16) * D^-1             FirstPersonSwordTransform.itemToGrip
+            * Ry(side*lead) * Rx(lift) * Ry(side*twist)              FirstPersonWeaponTransform.applyGripFrame
+  item    = G * S(weapon_scale) * T(0.5 - grip/16) * D^-1            FirstPersonWeaponTransform.itemToGrip
             * D * T(-0.5) * px/16                                     ItemRenderer (D = the model's own
             firstperson display transform via BakedModel.applyTransform; it cancels exactly)
-          = G * S(sword_scale) * T(-grip_center/16) * px/16
+          = G * S(weapon_scale) * T(-grip_center/16) * px/16
   arm     = FirstPersonArmIk.solve (grip_diagonal, grip_roll, elbow swivel, two-bone solve with
             reach clamp 0.30..0.97, wrist-limit lag bisection) with FirstPersonArmLag.offset at the
             displayed tick, drawn as FirstPersonArmRenderer/FirstPersonArmModel boxes (skin layer
@@ -37,10 +37,10 @@ Transform chain (ported from client/combat in the mod and vanilla 1.21.1 / NeoFo
             solve mirrored, fist on the shaft at off_hand_grip_center + off_hand_slide (slid along the
             shaft into reach when needed), auto roll + off_hand_roll, off_hand_elbow swivel, no lag,
             off_hand_hold < 1 blends toward a rest below the view; drawn with the off arm's skin/sleeve.
-  trail   = FirstPersonSwordTrail: thrust -> one streak (alpha 0.8 fading over 3 ticks from
+  trail   = FirstPersonWeaponTrail: thrust -> one streak (alpha 0.8 fading over 3 ticks from
             strike start), cut -> 24-segment ribbon over the last 1.2 ticks of the strike window,
-            fading 2.4 ticks after it.  Drawn over the contract's trail span (SwordGeometry.trailBase/
-            trailTip): the optional "trail": {"base", "tip"} block, else blade_base..blade_tip.
+            fading 2.4 ticks after it.  Drawn over the contract's trail span (WeaponGeometry.trailBase/
+            trailTip): the optional "trail": {"base", "tip"} block, else head_base..head_tip.
 
 What is shown is what the capture tool's freeze probe shows (FirstPersonWeaponAnimator.probe):
 the rig sampled at the tick, no breathing, no hit-stop shake, no chain blend, equip progress 0,
@@ -70,6 +70,7 @@ import sys
 import time
 from pathlib import Path
 
+from .. import combat_data
 from . import item_model as pim
 from .env import DEFAULT_ROOT, note_missing_jar
 
@@ -82,7 +83,7 @@ FOV = 70.0
 NEAR = 0.05
 GAME_W, GAME_H = 960, 540
 EQUIP_DROP = 0.60
-DEFAULT_SWORD_SCALE = 0.60
+DEFAULT_WEAPON_SCALE = 0.60
 LIGHT0 = np.array([0.2, 1.0, -0.7]) / np.linalg.norm([0.2, 1.0, -0.7])
 LIGHT1 = np.array([-0.2, 1.0, 0.7]) / np.linalg.norm([-0.2, 1.0, 0.7])
 # The capture HUD (GUI scale 2 at 960x540): hearts/food row and hotbar, bottom centre.
@@ -140,7 +141,7 @@ POSE_FIELDS = ("plane", "sweep", "reach", "lead", "lift", "twist", "x", "y", "z"
 POSE_KEYS = {"plane", "sweep", "reach", "lead", "lift", "twist", "offset", "grip_roll", "elbow", *OFF_POSE_FIELDS}
 KEY_KEYS = POSE_KEYS | {"tick", "ease", "pose"}
 MOVE_KEYS = {"strike", "contact", "keys"}
-RIG_KEYS = {"shoulder", "sword_scale", "arm", "off_hand"}
+RIG_KEYS = {"shoulder", "weapon_scale", "arm", "off_hand"}
 OFF_HAND_KEYS = {"shoulder_offset", "grip_diagonal", "thickness"}
 ARM_KEYS = {"shoulder_offset", "upper_arm", "forearm", "thickness", "grip_diagonal", "follow_through"}
 TOP_KEYS = {"rig", "neutral", "moves"}
@@ -261,11 +262,14 @@ class Rig:
         rj = doc.get("rig")
         if rj is None:
             raise RigError("First-person swing file has no rig")
+        renamed = combat_data.rig_format_problems(doc)
+        if renamed:
+            raise RigError("; ".join(renamed))
         _unknown(rj, RIG_KEYS, f"{where}.rig")
         self.shoulder = _vec(rj.get("shoulder"), "rig.shoulder")
-        self.sword_scale = float(rj.get("sword_scale", DEFAULT_SWORD_SCALE))
-        if not (0.2 <= self.sword_scale <= 1.5):
-            raise RigError("rig.sword_scale must be within 0.2..1.5")
+        self.weapon_scale = float(rj.get("weapon_scale", DEFAULT_WEAPON_SCALE))
+        if not (0.2 <= self.weapon_scale <= 1.5):
+            raise RigError("rig.weapon_scale must be within 0.2..1.5")
         aj = rj.get("arm", {})
         _unknown(aj, ARM_KEYS, f"{where}.rig.arm")
         self.shoulder_offset = _vec(aj["shoulder_offset"], "rig.arm.shoulder_offset") if "shoulder_offset" in aj \
@@ -364,58 +368,61 @@ class Rig:
         return Move(mid, d.get("kind", "cut"), total, (a0, a1), keys, strike, contact)
 
 
-# ============================================================================ geometry contract (SwordGeometry port)
+# ============================================================================ geometry contract (WeaponGeometry port)
 class Geometry:
     def __init__(self, g):
+        problems = combat_data.geometry_format_problems(g)
+        if problems:
+            raise RigError("Weapon geometry: " + "; ".join(problems))
         if g.get("units") != "model_pixels":
-            raise RigError("Sword geometry units must be model_pixels")
+            raise RigError("Weapon geometry units must be model_pixels")
         ax = g.get("axes") or {}
-        if ax.get("blade") != "+y" or ax.get("flat_normal") != "x" or ax.get("edge") != "z":
-            raise RigError("Sword geometry axes must be blade +y, flat_normal x, edge z")
+        if ax.get("length") != "+y" or ax.get("flat_normal") != "x" or ax.get("edge") != "z":
+            raise RigError("Weapon geometry axes must be length +y, flat_normal x, edge z")
         self.raw = g
         self.grip = np.array(_vec(g.get("grip_center"), "grip_center"))
-        hy, gy, py = (_vec(g[k]["y"], f"{k}.y", 2) for k in ("handle", "guard", "pommel"))
-        for k in ("handle", "guard"):
+        hy, cy, by = (_vec(g[k]["y"], f"{k}.y", 2) for k in ("handle", "collar", "butt"))
+        for k in ("handle", "collar"):
             for f in ("half_width", "half_thickness"):
                 if not float(g[k].get(f, 0)) > 0:
                     raise RigError(f"{k}.{f} must be positive")
-        self.base = np.array(_vec(g.get("blade_base"), "blade_base"))
-        self.tip = np.array(_vec(g.get("blade_tip"), "blade_tip"))
-        if not (py[1] <= hy[0] + 1e-3 and hy[1] <= gy[0] + 1e-3 and gy[1] <= self.base[1] + 1e-3
+        self.base = np.array(_vec(g.get("head_base"), "head_base"))
+        self.tip = np.array(_vec(g.get("head_tip"), "head_tip"))
+        if not (by[1] <= hy[0] + 1e-3 and hy[1] <= cy[0] + 1e-3 and cy[1] <= self.base[1] + 1e-3
                 and self.base[1] < self.tip[1]):
-            raise RigError("Sword geometry must stack pommel, handle, guard, blade base and tip along +Y")
+            raise RigError("Weapon geometry must stack butt, handle, collar, head base and tip along +Y")
         if not (hy[0] < self.grip[1] < hy[1]):
-            raise RigError("Sword grip_center must lie on the handle")
+            raise RigError("Weapon grip_center must lie on the handle")
         ax_ = (self.tip - self.base) / np.linalg.norm(self.tip - self.base)
         if ax_[1] < 0.999 or abs(self.base[0] - self.grip[0]) > 0.05 or abs(self.base[2] - self.grip[2]) > 0.05:
-            raise RigError("Sword blade must run along +Y through the grip axis")
+            raise RigError("Weapon head must run along +Y through the grip axis")
         self.handle = hy
         self.off_hand = None
         if "off_hand_grip_center" in g:
             oh = np.array(_vec(g["off_hand_grip_center"], "off_hand_grip_center"))
             if abs(oh[0] - self.grip[0]) > 0.05 or abs(oh[2] - self.grip[2]) > 0.05:
-                raise RigError("Sword off_hand_grip_center must lie on the handle axis")
+                raise RigError("Weapon off_hand_grip_center must lie on the handle axis")
             if not hy[0] < oh[1] < hy[1]:
-                raise RigError("Sword off_hand_grip_center must lie on the handle")
+                raise RigError("Weapon off_hand_grip_center must lie on the handle")
             if not oh[1] > self.grip[1]:
-                raise RigError("Sword off_hand_grip_center must lie ahead of grip_center")
+                raise RigError("Weapon off_hand_grip_center must lie ahead of grip_center")
             self.off_hand = oh
         self.overall = g.get("overall_y")
-        # Optional trail span (SwordGeometry: on the axis, base below tip, pommel bottom..blade tip).
+        # Optional trail span (WeaponGeometry: on the axis, base below tip, butt bottom..head tip).
         self.trail_base, self.trail_tip = self.base, self.tip
         if "trail" in g:
             tr = g["trail"]
             if not isinstance(tr, dict):
-                raise RigError("Sword geometry needs a trail object")
+                raise RigError("Weapon geometry needs a trail object")
             tb = np.array(_vec(tr.get("base"), "trail.base"))
             tt = np.array(_vec(tr.get("tip"), "trail.tip"))
             for q in (tb, tt):
                 if abs(q[0] - self.grip[0]) > 0.05 or abs(q[2] - self.grip[2]) > 0.05:
-                    raise RigError("Sword trail must lie on the weapon axis")
+                    raise RigError("Weapon trail must lie on the weapon axis")
             if not tb[1] < tt[1]:
-                raise RigError("Sword trail base must lie below its tip")
-            if tb[1] < py[0] - 1e-3 or tt[1] > self.tip[1] + 1e-3:
-                raise RigError("Sword trail must lie on the weapon, from the pommel to the blade tip")
+                raise RigError("Weapon trail base must lie below its tip")
+            if tb[1] < by[0] - 1e-3 or tt[1] > self.tip[1] + 1e-3:
+                raise RigError("Weapon trail must lie on the weapon, from the butt to the head tip")
             self.trail_base, self.trail_tip = tb, tt
 
     def to_grip(self, p, scale):
@@ -446,8 +453,8 @@ def pt(M, p):
     return M[:3, :3] @ np.asarray(p, float) + M[:3, 3]
 
 
-def sword_point(side, rig, geo, pose, model_px):
-    return pt(grip_frame(side, rig, pose), geo.to_grip(model_px, rig.sword_scale))
+def weapon_point(side, rig, geo, pose, model_px):
+    return pt(grip_frame(side, rig, pose), geo.to_grip(model_px, rig.weapon_scale))
 
 
 # ============================================================================ arm lag (FirstPersonArmLag port)
@@ -680,7 +687,7 @@ def solve_off_arm(side, rig, geo, pose, equip=0.0):
     d = math.radians(arm.grip_diagonal)
 
     def grasp(y):
-        grip = MIRROR @ pt(G, geo.to_grip([geo.grip[0], y, geo.grip[2]], rig.sword_scale))
+        grip = MIRROR @ pt(G, geo.to_grip([geo.grip[0], y, geo.grip[2]], rig.weapon_scale))
         reach = perp(grip - shoulder, blade)
         if reach is None:
             reach = perp(edge, blade)
@@ -695,7 +702,7 @@ def solve_off_arm(side, rig, geo, pose, equip=0.0):
         dist = float(np.linalg.norm(grasp(y)[0] - shoulder))
         return max(dist - REACH_FRACTION * total, MIN_REACH_FRACTION * total - dist)
 
-    k = arm.thickness / rig.sword_scale
+    k = arm.thickness / rig.weapon_scale
     lo = geo.grip[1] + OFF_HAND_GAP_PX * k
     hi = geo.handle[1] - OFF_HAND_END_PX * k
     if lo > hi:
@@ -887,7 +894,7 @@ def load_skin(spec, arms, vanilla_jar):
                      "offline:<username> or a .png")
 
 
-# ============================================================================ trail (FirstPersonSwordTrail port)
+# ============================================================================ trail (FirstPersonWeaponTrail port)
 TRAIL_TICKS, TRAIL_FADE_TICKS, TRAIL_SEGMENTS, STREAK_TICKS = 1.2, 2.4, 24, 3.0
 STREAK_HALF_WIDTH, STREAK_START, STREAK_OVERSHOOT = 0.012, 0.35, 0.15
 INNER_NEW, INNER_OLD, EDGE_FRACTION, PEAK_ALPHA, BODY_SHARE, TIP_SHARE = 0.55, 0.97, 0.85, 0.7, 0.5, 0.9
@@ -900,9 +907,9 @@ def _c01(v):
 
 
 def trail_quads(side, rig, geo, move, now):
-    """[(4x3 view-space points, 4x4 rgba)] like FirstPersonSwordTrail.onRenderHand."""
+    """[(4x3 view-space points, 4x4 rgba)] like FirstPersonWeaponTrail.onRenderHand."""
     def blade(pose):
-        return sword_point(side, rig, geo, pose, geo.trail_base), sword_point(side, rig, geo, pose, geo.trail_tip)
+        return weapon_point(side, rig, geo, pose, geo.trail_base), weapon_point(side, rig, geo, pose, geo.trail_tip)
 
     out = []
     if move.kind == "thrust":
@@ -1156,7 +1163,7 @@ class Scene:
         lagv = arm_lag(self.rig, move, tick) if lag else None
         sol = solve_arm(self.side, self.rig, pose, lagv)
         G = grip_frame(self.side, self.rig, pose)
-        M = item_matrix(G, self.geo, self.rig.sword_scale)
+        M = item_matrix(G, self.geo, self.rig.weapon_scale)
         off = None if self.a.off_hand_occupied else solve_off_arm(self.side, self.rig, self.geo, pose)
         sol["off"] = off
         return pose, sol, G, M
@@ -1187,8 +1194,8 @@ class Scene:
         return pose, sol, M
 
     def points(self, M, sol):
-        pts = {"grip_center": pt(M, self.geo.grip), "blade_tip": pt(M, self.geo.tip),
-               "blade_base": pt(M, self.geo.base), "fist": fist_center(sol, self.rig)}
+        pts = {"grip_center": pt(M, self.geo.grip), "head_tip": pt(M, self.geo.tip),
+               "head_base": pt(M, self.geo.base), "fist": fist_center(sol, self.rig)}
         if self.geo.off_hand is not None:
             pts["off_hand_grip"] = pt(M, self.geo.off_hand)
         if sol.get("off") is not None:
@@ -1212,7 +1219,7 @@ def under_hud(xy):
 
 
 # ============================================================================ overlays
-MARK_COL = {"grip_center": (230, 30, 30), "blade_tip": (0, 200, 230), "off_hand_grip": (230, 40, 220),
+MARK_COL = {"grip_center": (230, 30, 30), "head_tip": (0, 200, 230), "off_hand_grip": (230, 40, 220),
             "fist": (255, 140, 0), "off_fist": (255, 200, 0)}
 
 
@@ -1231,7 +1238,7 @@ def draw_frame_overlays(im, frame_w, frame_h, pts, marks=True, hud=True):
         return
     f = sheets.font(max(9, round(12 * sx)))
     for name, P in pts.items():
-        if name == "blade_base":
+        if name == "head_base":
             continue
         xy, on, w = screen_info(P, frame_w, frame_h)
         col = MARK_COL.get(name, (250, 230, 40))
@@ -1245,7 +1252,7 @@ def draw_frame_overlays(im, frame_w, frame_h, pts, marks=True, hud=True):
             ex, ey = min(max(x, 4), frame_w - 5), min(max(y, 4), frame_h - 5)
             d.polygon([(ex - r, ey - r), (ex + r, ey - r), (ex + r, ey + r), (ex - r, ey + r)], outline=col)
             x, y = ex, ey
-        if on and name not in ("grip_center", "blade_tip", "fist", "off_fist"):
+        if on and name not in ("grip_center", "head_tip", "fist", "off_fist"):
             d.text((x + r + 2, y - r), name, fill=col, font=f)
 
 
@@ -1335,7 +1342,7 @@ def build_sheet(scene, a):
             p = m["points"]
             l1, l2 = pose.describe()
             lines = [f"m{n} {mv.short} · t {tick:g}" + (f" [{key}]" if key else ""), l1, l2,
-                     f"grip {fmt_point(p['grip_center'])} tip {fmt_point(p['blade_tip'])} "
+                     f"grip {fmt_point(p['grip_center'])} tip {fmt_point(p['head_tip'])} "
                      f"fist {m['fist_visible_fraction_outside_hud'] * 100:.0f}% visible"
                      + (f" off-hand {fmt_point(p['off_hand_grip'])}" if "off_hand_grip" in p else ""),
                      f"cover weapon {m['cover_weapon'] * 100:.1f}% arm {m['cover_arm'] * 100:.1f}% · wrist flex "
@@ -1351,10 +1358,10 @@ def build_sheet(scene, a):
                 lines.append("off hand: " + ("not drawn (off-hand slot occupied)" if a.off_hand_occupied
                                              else f"released ({pose.describe_off()})"))
             cells.append(sheets.labelled(im, lines, cw))
-            pr = (f"m{n} t {tick:6g} {key:13s} grip {fmt_point(p['grip_center']):>14s}  tip {fmt_point(p['blade_tip']):>14s}"
+            pr = (f"m{n} t {tick:6g} {key:13s} grip {fmt_point(p['grip_center']):>14s}  tip {fmt_point(p['head_tip']):>14s}"
                   + (f"  off-hand {fmt_point(p['off_hand_grip']):>14s}" if "off_hand_grip" in p else "")
                   + f"  fist {fmt_point(p['fist']):>14s}  cover weapon {m['cover_weapon'] * 100:5.1f}% arm "
-                  f"{m['cover_arm'] * 100:5.1f}%  tip on screen {'yes' if p['blade_tip']['on_screen'] else 'NO'}"
+                  f"{m['cover_arm'] * 100:5.1f}%  tip on screen {'yes' if p['head_tip']['on_screen'] else 'NO'}"
                   f"  fist on screen {'yes' if p['fist']['on_screen'] else 'NO'}"
                   f"{' (under HUD)' if p['fist']['under_hud'] else ''}"
                   f" ({m['fist_visible_fraction_outside_hud'] * 100:.0f}% of the drawn fist outside the HUD)")
@@ -1365,7 +1372,7 @@ def build_sheet(scene, a):
                        + f" flex {o['wrist_flexion']:.0f} dev {o['wrist_deviation']:.0f}"
                        + (" OFF SHOULDER CLAMPED" if o["shoulder_clamped"] else ""))
             for name in p:
-                if name not in ("grip_center", "blade_tip", "off_hand_grip", "fist", "off_fist", "blade_base"):
+                if name not in ("grip_center", "head_tip", "off_hand_grip", "fist", "off_fist", "head_base"):
                     pr += f"  {name} {fmt_point(p[name])}"
             print(pr)
         rows.append(cells)
@@ -1469,7 +1476,7 @@ def compare_capture(scene, a):
         res = {"move": f["move"], "key": f["key"], "tick": tick, "silhouette_xor_over_union": round(xor, 4),
                "game_px": int(g_.sum()), "render_px": int(r_.sum())}
         for name, tagsel, half in (("tip", None, 34), ("fist", 4, 40), ("grip", None, 34)):
-            P = pts["blade_tip" if name == "tip" else "fist" if name == "fist" else "grip_center"]
+            P = pts["head_tip" if name == "tip" else "fist" if name == "fist" else "grip_center"]
             xy, on, _ = screen_info(P)
             if not on or under_hud(xy):
                 res[f"{name}_offset_px"] = None
@@ -1492,7 +1499,7 @@ def compare_capture(scene, a):
         diff[hud] = (50, 50, 70)
         diff = Image.fromarray(diff)
         d = ImageDraw.Draw(diff)
-        for name in ("blade_tip", "fist", "grip_center"):
+        for name in ("head_tip", "fist", "grip_center"):
             xy, on, _ = screen_info(pts[name])
             if on:
                 d.ellipse((xy[0] - 5, xy[1] - 5, xy[0] + 5, xy[1] + 5), outline=MARK_COL[name], width=2)

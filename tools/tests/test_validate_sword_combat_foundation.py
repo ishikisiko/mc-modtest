@@ -369,6 +369,29 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
         self.write_json(RIG, rig)
         self.assertIn("COMBAT_FIRST_PERSON_RIG_ARM", self.codes())
 
+    def test_rig_with_the_format_1_scale_name_has_named_failure(self) -> None:
+        # The game ignores unknown rig fields, so a leftover sword_scale would silently draw the
+        # default scale; the validator names the new field instead.
+        rig = self.read_json(RIG)
+        rig["rig"]["sword_scale"] = rig["rig"].pop("weapon_scale")
+        self.write_json(RIG, rig)
+        self.assert_finding("COMBAT_FIRST_PERSON_RIG_JSON", "rig.sword_scale was renamed rig.weapon_scale")
+
+    def test_format_1_geometry_contract_has_named_failure(self) -> None:
+        geometry = self.read_json(GEOMETRY)
+        geometry["format"] = 1
+        self.write_json(GEOMETRY, geometry)
+        self.assert_finding("COMBAT_GEOMETRY_CONTRACT", "qingfeng_sword_geometry.json", "format is 1, expected 2")
+        geometry["format"] = 2
+        old = {"butt": "pommel", "collar": "guard", "head": "blade", "head_base": "blade_base", "head_tip": "blade_tip"}
+        renamed = {old.get(key, key): value for key, value in geometry.items()}
+        renamed["axes"] = {("blade" if key == "length" else key): value for key, value in geometry["axes"].items()}
+        self.write_json(GEOMETRY, renamed)
+        for needle in ("pommel was renamed butt", "guard was renamed collar", "blade was renamed head",
+                       "blade_base was renamed head_base", "blade_tip was renamed head_tip",
+                       "axes.blade was renamed axes.length"):
+            self.assert_finding("COMBAT_GEOMETRY_CONTRACT", "qingfeng_sword_geometry.json", needle)
+
     def test_missing_display_translation_has_named_failure(self) -> None:
         language = self.read_json(EN_US)
         del language["combat.myvillage.move.basic_sword_05_lunge_thrust"]
@@ -405,12 +428,12 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
 
     def test_geometry_contract_drift_has_named_failure(self) -> None:
         geometry = self.read_json(GEOMETRY)
-        geometry["grip_center"][1] = geometry["guard"]["y"][1]  # grip outside the handle
+        geometry["grip_center"][1] = geometry["collar"]["y"][1]  # grip outside the handle
         self.write_json(GEOMETRY, geometry)
         self.assertIn("COMBAT_GEOMETRY_CONTRACT", self.codes())
-        del geometry["blade_tip"]
+        del geometry["head_tip"]
         self.write_json(GEOMETRY, geometry)
-        self.assertTrue(any("blade_tip" in d for d in self.details("COMBAT_GEOMETRY_CONTRACT")))
+        self.assertTrue(any("head_tip" in d for d in self.details("COMBAT_GEOMETRY_CONTRACT")))
 
     # --- second weapon (every weapon in the index gets the same checks) ----------------------
 
@@ -535,9 +558,9 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
 
     def test_second_weapon_contract_order_has_named_failure(self) -> None:
         geometry = self.read_json(SPEAR_GEOMETRY)
-        geometry["blade_tip"][1] = geometry["blade_base"][1] - 1.0
+        geometry["head_tip"][1] = geometry["head_base"][1] - 1.0
         self.write_json(SPEAR_GEOMETRY, geometry)
-        self.assert_finding("COMBAT_GEOMETRY_CONTRACT", "lingxiao_spear_geometry.json", "pommel<handle<guard<blade")
+        self.assert_finding("COMBAT_GEOMETRY_CONTRACT", "lingxiao_spear_geometry.json", "butt<handle<collar<head")
 
     def test_bad_off_hand_grip_has_named_failure(self) -> None:
         original = self.read_json(SPEAR_GEOMETRY)
@@ -622,7 +645,7 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
         self.assertAlmostEqual(1.7, validator.trail_tip_radius(self.root, sword), places=6)
         spear = contracts["myvillage:combat/lingxiao_spear_geometry.json"]
         model = self.read_json(SPEAR_MODEL_3D)
-        tip = spear["trail"]["tip"] if "trail" in spear else spear["blade_tip"]
+        tip = spear["trail"]["tip"] if "trail" in spear else spear["head_tip"]
         expected = 0.705 + abs(tip[1] - spear["grip_center"][1]) * model["display"]["thirdperson_righthand"]["scale"][1] / 16
         self.assertAlmostEqual(expected, validator.trail_tip_radius(self.root, spear), places=6)
 

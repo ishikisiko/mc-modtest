@@ -4,7 +4,7 @@ import net.minecraft.world.entity.HumanoidArm;
 import org.joml.Vector3f;
 
 /**
- * Secondary motion for the first-person sword arm: where a loosely sprung arm would trail the
+ * Secondary motion for the first-person weapon arm: where a loosely sprung arm would trail the
  * grip. The grip's recent path (the rig sampled at earlier visual ticks) is run through an
  * under-damped second-order low-pass, and the offset of that filtered point from the grip now is
  * the lag. While the blade accelerates into a cut the arm trails it (the tip leads and the wrist
@@ -12,7 +12,7 @@ import org.joml.Vector3f;
  * through past the grip and settle. It reads visual ticks, so it freezes with the hit-stop, and
  * it keeps no frame history: the same move and tick always give the same lag.
  *
- * <p>Presentation only: the sword, its trail and every gameplay decision ignore it.
+ * <p>Presentation only: the weapon, its trail and every gameplay decision ignore it.
  */
 final class FirstPersonArmLag {
     /** Natural frequency (radians per tick) and damping ratio of the arm spring: about 3 ticks per swing. */
@@ -66,7 +66,7 @@ final class FirstPersonArmLag {
     }
 
     private static Vector3f grip(FirstPersonSwing swing, FirstPersonSwing.Pose pose) {
-        return FirstPersonSwordTransform.gripFrame(HumanoidArm.RIGHT, 0.0F, swing.rig(), pose)
+        return FirstPersonWeaponTransform.gripFrame(HumanoidArm.RIGHT, 0.0F, swing.rig(), pose)
                 .getTranslation(new Vector3f());
     }
 }

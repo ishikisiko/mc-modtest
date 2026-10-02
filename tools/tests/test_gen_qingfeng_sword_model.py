@@ -79,15 +79,15 @@ class QingfengSwordModelTest(unittest.TestCase):
     def test_geometry_contract_is_ordered_and_matches_the_model(self) -> None:
         geometry = json.loads(gen.GEOMETRY_PATH.read_text(encoding="utf-8"))
         self.assertEqual("model_pixels", geometry["units"])
-        self.assertEqual({"blade": "+y", "flat_normal": "x", "edge": "z", "center_x": 8.0, "center_z": 8.0},
+        self.assertEqual({"length": "+y", "flat_normal": "x", "edge": "z", "center_x": 8.0, "center_z": 8.0},
                          geometry["axes"])
-        self.assertLessEqual(geometry["pommel"]["y"][1], geometry["handle"]["y"][0])
+        self.assertLessEqual(geometry["butt"]["y"][1], geometry["handle"]["y"][0])
         self.assertLess(geometry["handle"]["y"][0], geometry["grip_center"][1])
         self.assertLess(geometry["grip_center"][1], geometry["handle"]["y"][1])
-        self.assertLessEqual(geometry["handle"]["y"][1], geometry["guard"]["y"][0])
-        self.assertEqual(geometry["guard"]["y"][1], geometry["blade_base"][1])
+        self.assertLessEqual(geometry["handle"]["y"][1], geometry["collar"]["y"][0])
+        self.assertEqual(geometry["collar"]["y"][1], geometry["head_base"][1])
         tops = [max(p[1] for p in gen.element_corners(e)) for e in gen.build_elements()]
-        self.assertAlmostEqual(geometry["blade_tip"][1], max(tops), places=3)
+        self.assertAlmostEqual(geometry["head_tip"][1], max(tops), places=3)
         bottoms = [min(p[1] for p in gen.element_corners(e)) for e in gen.build_elements()]
         self.assertAlmostEqual(geometry["overall_y"][0], min(bottoms), places=3)
 
