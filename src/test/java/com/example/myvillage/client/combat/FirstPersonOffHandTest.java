@@ -32,6 +32,7 @@ final class FirstPersonOffHandTest {
     private static final Path SWORD_RIG = CombatTestData.assetPath(CombatTestData.qingfeng().firstPersonRig());
     private static final Path SWORD_GEOMETRY = CombatTestData.assetPath(CombatTestData.qingfeng().geometry());
     private static final Path SPEAR_GEOMETRY = CombatTestData.assetPath(CombatTestData.lingxiao().geometry());
+    private static final Path OVERRIDES = Path.of("src/test/resources/first_person_off_arm_overrides.json");
     private static final float EPSILON = 1.0E-4F;
     private static final float STEP = 0.25F;
 
@@ -95,6 +96,12 @@ final class FirstPersonOffHandTest {
         assertEquals(arm.shoulderOffsetZ(), offHand.shoulderOffsetZ());
         assertEquals(arm.gripDiagonal(), offHand.gripDiagonal());
         assertEquals(arm.thickness(), offHand.thickness());
+        assertEquals(arm.upperArm(), offHand.upperArm());
+        assertEquals(arm.forearm(), offHand.forearm());
+        // The released rest defaults to the constants the solver used before it was configurable.
+        assertEquals(new Vector3f(0.15F, -1.0F, -0.2F).normalize(), offHand.restDirection());
+        assertEquals(0.9F, offHand.restReach());
+        assertEquals(swing.rig().arm(), swing.rig().offArm(), "an empty block draws the main arm's parameters");
 
         JsonObject tuned = twoHandedJson();
         JsonObject block = tuned.getAsJsonObject("rig").getAsJsonObject("off_hand");
@@ -103,8 +110,10 @@ final class FirstPersonOffHandTest {
         block.addProperty("thickness", 0.6F);
         block.addProperty("unknown_field", 3.0F); // ignored, like unknown fields elsewhere in the rig
         FirstPersonSwing.Rig tunedRig = parse(tuned, spearGeometry()).rig();
-        assertEquals(new FirstPersonSwing.OffHand(0.05F, -0.03F, 0.02F, 20.0F, 0.6F), tunedRig.offHand());
-        // Only the off arm takes the block's thickness; the bones stay the main arm's.
+        FirstPersonSwing.Arm main = tunedRig.arm();
+        assertEquals(new FirstPersonSwing.OffHand(0.05F, -0.03F, 0.02F, 20.0F, 0.6F, main.upperArm(), main.forearm(),
+                0.15F, -1.0F, -0.2F, 0.9F), tunedRig.offHand());
+        // Only the off arm takes the block's thickness; without upper_arm/forearm the bones stay the main arm's.
         assertEquals(0.6F, tunedRig.offArm().thickness());
         assertEquals(tunedRig.arm().upperArm(), tunedRig.offArm().upperArm());
         assertEquals(tunedRig.arm().forearm(), tunedRig.offArm().forearm());
@@ -119,6 +128,129 @@ final class FirstPersonOffHandTest {
         JsonObject thick = twoHandedJson();
         thick.getAsJsonObject("rig").getAsJsonObject("off_hand").addProperty("thickness", 1.5F);
         assertThrows(IllegalArgumentException.class, () -> parse(thick, spearGeometry()));
+        // Bone lengths take rig.arm's range; the rest needs a direction and a reach inside the solver's clamp.
+        for (String[] bad : new String[][] {{"upper_arm", "0.8"}, {"forearm", "0.05"}, {"rest_reach", "1.0"},
+                {"rest_reach", "0.2"}}) {
+            JsonObject json = twoHandedJson();
+            json.getAsJsonObject("rig").getAsJsonObject("off_hand").addProperty(bad[0], Float.parseFloat(bad[1]));
+            IllegalArgumentException error = assertThrows(IllegalArgumentException.class,
+                    () -> parse(json, spearGeometry()), bad[0] + " " + bad[1]);
+            assertTrue(error.getMessage().contains(bad[0].startsWith("rest") ? "rest_reach" : "bone lengths"),
+                    error.getMessage());
+        }
+        JsonObject zeroRest = twoHandedJson();
+        zeroRest.getAsJsonObject("rig").getAsJsonObject("off_hand").add("rest_direction", vector(0.0F, 0.0F, 0.0F));
+        assertTrue(assertThrows(IllegalArgumentException.class, () -> parse(zeroRest, spearGeometry()))
+                .getMessage().contains("rest_direction"));
+        JsonObject shortRest = twoHandedJson();
+        shortRest.getAsJsonObject("rig").getAsJsonObject("off_hand").add("rest_direction", new JsonArray());
+        assertThrows(IllegalArgumentException.class, () -> parse(shortRest, spearGeometry()));
+    }
+
+    /**
+     * The off arm's own bones: drawn and solved at those lengths, the fist still on the same shaft
+     * point, the main arm untouched. Writing the defaults out changes nothing.
+     */
+    @Test
+    void offArmBonesAndRestOverrideOnlyTheOffArm() throws IOException {
+        FirstPersonSwing plain = twoHanded();
+        JsonObject json = twoHandedJson();
+        JsonObject block = json.getAsJsonObject("rig").getAsJsonObject("off_hand");
+        block.addProperty("upper_arm", 0.38F);
+        block.addProperty("forearm", 0.29F);
+        FirstPersonSwing longer = parse(json, spearGeometry());
+        assertEquals(0.38F, longer.rig().offArm().upperArm());
+        assertEquals(0.29F, longer.rig().offArm().forearm());
+        assertEquals(plain.rig().arm(), longer.rig().arm());
+        for (FirstPersonSwing.Move move : plain.moves()) {
+            for (float tick = 0.0F; tick <= move.totalTicks(); tick += 1.0F) {
+                FirstPersonSwing.Pose pose = move.sample(tick);
+                String where = move.id() + " at " + tick;
+                FirstPersonArmIk.OffHandSolution off =
+                        FirstPersonArmIk.solveOffHand(HumanoidArm.RIGHT, 0.0F, longer, pose).orElseThrow();
+                assertBones(longer.rig().offArm(), off.arm(), where);
+                Vector3f onShaft = FirstPersonWeaponTransform.weaponPoint(HumanoidArm.RIGHT, 0.0F, longer, pose,
+                        new Vector3f(longer.weapon().gripCenter().x, off.gripY(), longer.weapon().gripCenter().z));
+                assertEquals(0.0F, off.arm().grip().distance(onShaft), EPSILON, where);
+                assertEquals(FirstPersonArmIk.solve(HumanoidArm.RIGHT, 0.0F, plain, pose),
+                        FirstPersonArmIk.solve(HumanoidArm.RIGHT, 0.0F, longer, pose), where + " main arm");
+            }
+        }
+
+        // The defaults written out give the same off arm, bit for bit, holding or letting go.
+        JsonObject spelled = twoHandedJson();
+        JsonObject defaults = spelled.getAsJsonObject("rig").getAsJsonObject("off_hand");
+        defaults.addProperty("upper_arm", plain.rig().arm().upperArm());
+        defaults.addProperty("forearm", plain.rig().arm().forearm());
+        defaults.add("rest_direction", vector(0.15F, -1.0F, -0.2F));
+        defaults.addProperty("rest_reach", 0.9F);
+        FirstPersonSwing explicit = parse(spelled, spearGeometry());
+        assertEquals(plain.rig(), explicit.rig());
+        for (float hold : new float[] {1.0F, 0.6F, 0.2F}) {
+            assertEquals(solveWithHold(plain, plain.neutral(), hold), solveWithHold(explicit, explicit.neutral(), hold));
+        }
+
+        // Another rest moves only the released hand: holding, the hand is where it was.
+        JsonObject moved = twoHandedJson();
+        moved.getAsJsonObject("rig").getAsJsonObject("off_hand").add("rest_direction", vector(0.6F, -0.6F, -0.5F));
+        moved.getAsJsonObject("rig").getAsJsonObject("off_hand").addProperty("rest_reach", 0.7F);
+        FirstPersonSwing rest = parse(moved, spearGeometry());
+        assertEquals(solveWithHold(plain, plain.neutral(), 1.0F), solveWithHold(rest, rest.neutral(), 1.0F));
+        FirstPersonArmIk.Solution letGo = solveWithHold(rest, rest.neutral(), 0.01F).orElseThrow().arm();
+        assertTrue(letGo.wrist().distance(solveWithHold(plain, plain.neutral(), 0.01F).orElseThrow().arm().wrist())
+                > 0.1F, "the rest did not move the released hand");
+        // Nearly let go, the wrist is at the rest: rest_reach of the arm's length along the direction.
+        Vector3f expected = new Vector3f(0.6F, -0.6F, -0.5F).normalize()
+                .mul(0.7F * (rest.rig().offArm().upperArm() + rest.rig().offArm().forearm()));
+        Vector3f fromShoulder = new Vector3f(letGo.wrist()).sub(letGo.shoulder());
+        // Solved in the mirror image: the off arm's +x (outward) is the view's -x for a right main arm.
+        assertEquals(-expected.x, fromShoulder.x, 0.02F);
+        assertEquals(expected.y, fromShoulder.y, 0.02F);
+        assertEquals(expected.z, fromShoulder.z, 0.02F);
+    }
+
+    /**
+     * The overrides on a modified copy of the shipped spear rig, against the numbers in
+     * {@code first_person_off_arm_overrides.json}, which the Python port's test checks too.
+     */
+    @Test
+    void offArmOverridesMatchTheSharedFixture() throws IOException {
+        JsonObject fixture = JsonParser.parseString(Files.readString(OVERRIDES)).getAsJsonObject();
+        JsonObject rigJson = JsonParser.parseString(Files.readString(
+                CombatTestData.assetPath(CombatTestData.lingxiao().firstPersonRig()))).getAsJsonObject();
+        JsonObject block = rigJson.getAsJsonObject("rig").getAsJsonObject("off_hand");
+        fixture.getAsJsonObject("off_hand_overrides").entrySet().forEach(entry -> block.add(entry.getKey(), entry.getValue()));
+        FirstPersonSwing swing = FirstPersonSwing.parse(rigJson, CombatTestData.basicSpear(), spearGeometry());
+        float tolerance = fixture.get("tolerance").getAsFloat();
+        StringBuilder actual = new StringBuilder();
+        boolean matches = true;
+        for (var element : fixture.getAsJsonArray("cases")) {
+            JsonObject expected = element.getAsJsonObject();
+            FirstPersonSwing.Pose pose = expected.has("move")
+                    ? swing.move(expected.get("move").getAsInt() - 1).sample(expected.get("tick").getAsFloat())
+                    : swing.neutral();
+            if (expected.has("hold")) {
+                pose = withOffHand(pose, pose.offHandSlide(), pose.offHandRoll(), pose.offHandElbow(),
+                        expected.get("hold").getAsFloat());
+            }
+            FirstPersonArmIk.OffHandSolution off =
+                    FirstPersonArmIk.solveOffHand(HumanoidArm.RIGHT, 0.0F, swing, pose).orElseThrow();
+            assertBones(swing.rig().offArm(), off.arm(), expected.toString());
+            matches &= Math.abs(off.gripY() - expected.get("grip_y").getAsFloat()) <= tolerance;
+            Vector3f[] points = {off.arm().shoulder(), off.arm().elbow(), off.arm().wrist(), off.arm().grip()};
+            String[] names = {"shoulder", "elbow", "wrist", "grip"};
+            actual.append(String.format(java.util.Locale.ROOT, "%n  grip_y %.5f", off.gripY()));
+            for (int index = 0; index < points.length; index++) {
+                JsonArray want = expected.getAsJsonArray(names[index]);
+                Vector3f point = points[index];
+                matches &= Math.abs(point.x - want.get(0).getAsFloat()) <= tolerance
+                        && Math.abs(point.y - want.get(1).getAsFloat()) <= tolerance
+                        && Math.abs(point.z - want.get(2).getAsFloat()) <= tolerance;
+                actual.append(String.format(java.util.Locale.ROOT, " %s [%.5f, %.5f, %.5f]",
+                        names[index], point.x, point.y, point.z));
+            }
+        }
+        assertTrue(matches, "off-arm overrides moved; the Java solves:" + actual);
     }
 
     /** A thicker off arm keeps its fist on the same shaft point and never changes the main arm. */

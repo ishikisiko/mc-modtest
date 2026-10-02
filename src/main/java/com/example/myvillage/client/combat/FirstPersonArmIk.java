@@ -29,14 +29,15 @@ import java.util.Optional;
  *
  * <p>With {@code rig.off_hand} the off arm is solved too ({@link #solveOffHand}): the mirror image
  * of the main arm (its shoulder is the main shoulder reflected across the view's vertical plane,
- * the body offset shared, the cross-section its own {@code thickness}), whose fist closes on the
+ * the body offset shared, the cross-section and bone lengths its own), whose fist closes on the
  * shaft at the contract's {@code off_hand_grip_center} plus the pose's {@code off_hand_slide}, in
  * the same grip frame the weapon and the main hand use. Its thumb points toward the tip; by default the hand lines up with
  * the reach from its shoulder (knuckles away from the shoulder), and {@code off_hand_roll} turns it
  * about the shaft from there. A point out of reach slides the hand along the shaft to the nearest
  * reachable point, never off the shaft or into the main fist. The off arm takes no lag: the lag
  * never moves the weapon, so the off hand stays locked to the shaft. {@code off_hand_hold} below 1
- * moves the hand from the shaft toward a released rest beside the body (below the view at 0).
+ * moves the hand from the shaft toward its released rest ({@code rig.off_hand.rest_direction} and
+ * {@code rest_reach}; by default beside the body, below the view at 0).
  */
 final class FirstPersonArmIk {
     /** Anatomical wrist limits in degrees: flexion/extension, radial and ulnar deviation. */
@@ -64,9 +65,6 @@ final class FirstPersonArmIk {
     static final float OFF_HAND_END_PIXELS = 3.0F;
     static final int OFF_HAND_REACH_SAMPLES = 48;
     static final int OFF_HAND_REACH_BISECTIONS = 10;
-    /** Where a released off hand rests: down beside the body, a little out and forward (right-arm space). */
-    static final Vector3f REST_DIRECTION = new Vector3f(0.15F, -1.0F, -0.2F).normalize();
-    static final float REST_REACH_FRACTION = 0.9F;
 
     private static final Vector3f RIGHT_POLE = new Vector3f(0.5F, -1.0F, 0.3F).normalize();
     private static final int LAG_BISECTIONS = 5;
@@ -277,10 +275,11 @@ final class FirstPersonArmIk {
         Vector3f hand = grasp.hand;
         Vector3f palm = grasp.palm;
         if (hold < 1.0F) {
-            // Let go: the wrist travels toward the rest beside the body and the fist turns with it.
-            Vector3f restHand = new Vector3f(REST_DIRECTION);
+            // Let go: the wrist travels toward the rig's rest (by default beside the body) and the
+            // fist turns with it.
+            Vector3f restHand = offHand.restDirection();
             Vector3f restWrist = new Vector3f(shaft.shoulder)
-                    .add(new Vector3f(restHand).mul(REST_REACH_FRACTION * (armRig.upperArm() + armRig.forearm())));
+                    .add(new Vector3f(restHand).mul(offHand.restReach() * (armRig.upperArm() + armRig.forearm())));
             Vector3f restThumb = perpendicular(new Vector3f(0.0F, 0.0F, -1.0F), restHand);
             Quaternionf rotation = basis(restThumb, restHand).slerp(basis(thumb, hand), hold);
             wrist = new Vector3f(restWrist).lerp(wrist, hold);

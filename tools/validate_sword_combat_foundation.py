@@ -663,6 +663,8 @@ def validate_first_person_rigs(root: Path, data: combat_data.CombatData, contrac
 
 
 OFF_HAND_POSE_FIELDS = ("off_hand_slide", "off_hand_roll", "off_hand_elbow", "off_hand_hold")
+# FirstPersonArmIk.MINIMUM_REACH_FRACTION..REACH_FRACTION: a released off hand's rest stays reachable.
+OFF_HAND_REST_REACH = (0.30, 0.97)
 
 
 def off_hand_problems(rig, contract) -> list[str]:
@@ -670,8 +672,11 @@ def off_hand_problems(rig, contract) -> list[str]:
 
     The key fields are numbers and ``off_hand_hold`` is within 0..1 in any rig (Java parses them
     either way); with the block, ``shoulder_offset`` is three numbers, ``grip_diagonal`` 0..50,
-    ``thickness`` 0.2..1.2, and each key's ``off_hand_slide`` (inherited from the previous key) keeps the contract's
-    ``off_hand_grip_center`` on the handle. Unknown fields are ignored, as everywhere in the rig.
+    ``thickness`` 0.2..1.2, ``upper_arm`` and ``forearm`` 0.1..0.6 (as ``rig.arm``),
+    ``rest_direction`` a non-zero [x, y, z], ``rest_reach`` within the solver's reach clamp
+    0.3..0.97, and each key's ``off_hand_slide`` (inherited from the previous key) keeps the
+    contract's ``off_hand_grip_center`` on the handle. Unknown fields are ignored, as everywhere in
+    the rig.
     """
     if not isinstance(rig, dict) or not isinstance(rig.get("rig"), dict):
         return []
@@ -705,6 +710,18 @@ def off_hand_problems(rig, contract) -> list[str]:
     thickness = block.get("thickness", 0.5)
     if not is_number(thickness) or not 0.2 <= thickness <= 1.2:
         problems.append(f"rig.off_hand.thickness {thickness!r} must be within 0.2..1.2")
+    for bone in ("upper_arm", "forearm"):
+        length = block.get(bone, 0.33)
+        if not is_number(length) or not 0.1 <= length <= 0.6:
+            problems.append(f"rig.off_hand.{bone} {length!r} must be within 0.1..0.6")
+    rest = block.get("rest_direction", [0.15, -1.0, -0.2])
+    if (not isinstance(rest, list) or len(rest) != 3 or not all(is_number(v) for v in rest)
+            or math.sqrt(sum(v * v for v in rest)) < 1.0e-3):
+        problems.append(f"rig.off_hand.rest_direction {rest!r} must be a non-zero [x, y, z]")
+    reach = block.get("rest_reach", 0.9)
+    if not is_number(reach) or not OFF_HAND_REST_REACH[0] <= reach <= OFF_HAND_REST_REACH[1]:
+        problems.append(f"rig.off_hand.rest_reach {reach!r} must be within "
+                        f"{OFF_HAND_REST_REACH[0]:g}..{OFF_HAND_REST_REACH[1]:g}")
     point = contract.get("off_hand_grip_center") if isinstance(contract, dict) else None
     handle = contract.get("handle", {}).get("y") if isinstance(contract, dict) else None
     if not (isinstance(point, list) and len(point) == 3 and is_number(point[1])

@@ -19,6 +19,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 RESOURCES = ROOT / "src/main/resources"
 GOLDEN = ROOT / "src/test/resources/first_person_preview_parity.json"
+OFF_ARM_OVERRIDES = ROOT / "src/test/resources/first_person_off_arm_overrides.json"
 MISSING = [m for m in ("numpy", "PIL") if importlib.util.find_spec(m) is None]
 SKIP_REASON = (f"{sys.executable} has no {' or '.join(MISSING)}; run this test with the preview interpreter: "
                ".venv-preview/bin/python -m unittest tools.tests.test_combat_preview_parity "
@@ -115,6 +116,36 @@ class FirstPersonSolverParityTest(unittest.TestCase):
                         arms += 1
         self.assertGreater(arms, 0)
         self.assertGreater(off_arms, 0, "no off-arm sample was compared")
+
+    def test_off_arm_overrides_match_the_shared_fixture(self):
+        # No shipped rig uses rig.off_hand upper_arm/forearm/rest_direction/rest_reach, so the golden
+        # does not cover them; FirstPersonOffHandTest checks the same numbers on the Java side.
+        fp = self.fp
+        fixture = json.loads(OFF_ARM_OVERRIDES.read_text(encoding="utf-8"))
+        data = fp.ModData([RESOURCES])
+        rig_ns, rig_path = fixture["rig"].split(":", 1)
+        geo_ns, geo_path = fixture["geometry"].split(":", 1)
+        geo = fp.Geometry(data.json(f"assets/{geo_ns}/{geo_path}", "geometry")[0])
+        rig_json, _ = data.json(f"assets/{rig_ns}/{rig_path}", "rig")
+        rig_json["rig"]["off_hand"].update(fixture["off_hand_overrides"])
+        style = fp.load_weapon(data, "myvillage:lingxiao_spear")["style"]
+        rig = fp.Rig(rig_json, style, "overrides", geo)
+        tol = fixture["tolerance"]
+        for case in fixture["cases"]:
+            pose = rig.moves[case["move"] - 1].sample(case["tick"]) if "move" in case else rig.neutral
+            if "hold" in case:
+                values = list(pose)
+                values[fp.POSE_FIELDS.index("off_hand_hold")] = case["hold"]
+                pose = fp.Pose(values)
+            off = fp.solve_off_arm(1.0, rig, geo, pose)
+            where = json.dumps({k: v for k, v in case.items() if k in ("pose", "move", "tick", "hold")})
+            self.assertIsNotNone(off, where)
+            self.near(case["grip_y"], off["grip_y"], tol, f"{where} grip y")
+            for joint in JOINTS:
+                self.near(case[joint], off[joint], tol, f"{where} {joint}")
+            overrides = fixture["off_hand_overrides"]
+            self.near(overrides["upper_arm"], self.np.linalg.norm(off["elbow"] - off["shoulder"]), 1e-6, f"{where} upper arm")
+            self.near(overrides["forearm"], self.np.linalg.norm(off["wrist"] - off["elbow"]), 1e-6, f"{where} forearm")
 
 
 if __name__ == "__main__":

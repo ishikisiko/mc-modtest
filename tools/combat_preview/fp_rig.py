@@ -84,6 +84,9 @@ NEAR = 0.05
 GAME_W, GAME_H = 960, 540
 EQUIP_DROP = 0.60
 DEFAULT_WEAPON_SCALE = 0.60
+# FirstPersonSwing.OffHand defaults for the released off hand's rest (off arm frame, +x outward).
+DEFAULT_REST_DIRECTION = (0.15, -1.0, -0.2)
+DEFAULT_REST_REACH = 0.9
 LIGHT0 = np.array([0.2, 1.0, -0.7]) / np.linalg.norm([0.2, 1.0, -0.7])
 LIGHT1 = np.array([-0.2, 1.0, 0.7]) / np.linalg.norm([-0.2, 1.0, 0.7])
 # The capture HUD (GUI scale 2 at 960x540): hearts/food row and hotbar, bottom centre.
@@ -142,7 +145,7 @@ POSE_KEYS = {"plane", "sweep", "reach", "lead", "lift", "twist", "offset", "grip
 KEY_KEYS = POSE_KEYS | {"tick", "ease", "pose"}
 MOVE_KEYS = {"strike", "contact", "keys"}
 RIG_KEYS = {"shoulder", "weapon_scale", "arm", "off_hand"}
-OFF_HAND_KEYS = {"shoulder_offset", "grip_diagonal", "thickness"}
+OFF_HAND_KEYS = {"shoulder_offset", "grip_diagonal", "thickness", "upper_arm", "forearm", "rest_direction", "rest_reach"}
 ARM_KEYS = {"shoulder_offset", "upper_arm", "forearm", "thickness", "grip_diagonal", "follow_through"}
 TOP_KEYS = {"rig", "neutral", "moves"}
 BACK_OVERSHOOT = 1.9
@@ -295,16 +298,28 @@ class Rig:
             if geo is None or geo.off_hand is None:
                 raise RigError("rig.off_hand needs a weapon geometry with off_hand_grip_center")
             _unknown(oj, OFF_HAND_KEYS, f"{where}.rig.off_hand")
+            rest = _vec(oj["rest_direction"], "rig.off_hand.rest_direction") if "rest_direction" in oj \
+                else list(DEFAULT_REST_DIRECTION)
             self.off_hand = {
                 "shoulder_offset": _vec(oj["shoulder_offset"], "rig.off_hand.shoulder_offset")
                 if "shoulder_offset" in oj else list(self.shoulder_offset),
                 "grip_diagonal": float(oj.get("grip_diagonal", self.grip_diagonal)),
                 "thickness": float(oj.get("thickness", self.thickness)),
+                "upper_arm": float(oj.get("upper_arm", self.upper_arm)),
+                "forearm": float(oj.get("forearm", self.forearm)),
+                "rest_reach": float(oj.get("rest_reach", DEFAULT_REST_REACH)),
             }
             if not 0.0 <= self.off_hand["grip_diagonal"] <= 50.0:
                 raise RigError("rig.off_hand.grip_diagonal must be within 0..50")
             if not 0.2 <= self.off_hand["thickness"] <= 1.2:
                 raise RigError("rig.off_hand.thickness must be within 0.2..1.2")
+            if not (0.1 <= self.off_hand["upper_arm"] <= 0.6 and 0.1 <= self.off_hand["forearm"] <= 0.6):
+                raise RigError("rig.off_hand bone lengths must be within 0.1..0.6")
+            if not all(math.isfinite(v) for v in rest) or math.sqrt(sum(v * v for v in rest)) < 1e-3:
+                raise RigError("rig.off_hand.rest_direction must be a finite, non-zero direction")
+            if not MIN_REACH_FRACTION <= self.off_hand["rest_reach"] <= REACH_FRACTION:
+                raise RigError(f"rig.off_hand.rest_reach must be within {MIN_REACH_FRACTION}..{REACH_FRACTION}")
+            self.off_hand["rest_direction"] = _norm(np.array(rest, float))
         self.geo = geo
         nj = doc.get("neutral")
         _unknown(nj or {}, POSE_KEYS, f"{where}.neutral")
@@ -618,18 +633,19 @@ def solve_arm(side, rig, pose, lag):
 
 # ============================================================================ off arm (FirstPersonArmIk.solveOffHand port)
 OFF_HAND_GAP_PX, OFF_HAND_END_PX, OFF_REACH_SAMPLES, OFF_REACH_BISECTIONS = 6.0, 3.0, 48, 10
-REST_DIRECTION = _norm(np.array([0.15, -1.0, -0.2]))
-REST_REACH_FRACTION = 0.9
 MIRROR = np.diag([-1.0, 1.0, 1.0])
 
 
 class _OffArmRig:
-    """The main rig's bones with the off hand's shoulder offset, grip diagonal and thickness."""
+    """FirstPersonSwing.Rig.offArm(): rig.off_hand's shoulder offset, grip diagonal, thickness and
+    bones (each defaulting to the main arm's), plus its released rest."""
 
     def __init__(self, rig):
-        self.upper_arm, self.forearm, self.thickness = rig.upper_arm, rig.forearm, rig.off_hand["thickness"]
-        self.grip_diagonal = rig.off_hand["grip_diagonal"]
-        self.shoulder_offset = rig.off_hand["shoulder_offset"]
+        oh = rig.off_hand
+        self.upper_arm, self.forearm, self.thickness = oh["upper_arm"], oh["forearm"], oh["thickness"]
+        self.grip_diagonal = oh["grip_diagonal"]
+        self.shoulder_offset = oh["shoulder_offset"]
+        self.rest_direction, self.rest_reach = oh["rest_direction"], oh["rest_reach"]
 
 
 def _quat_from(Rm):
@@ -732,8 +748,8 @@ def solve_off_arm(side, rig, geo, pose, equip=0.0):
             y = reached
     wrist, thumb, hand, palm = grasp(y)
     if hold < 1.0:
-        rest_hand = REST_DIRECTION.copy()
-        rest_wrist = shoulder + rest_hand * REST_REACH_FRACTION * total
+        rest_hand = arm.rest_direction.copy()
+        rest_wrist = shoulder + rest_hand * arm.rest_reach * total
         rest_thumb = perp(np.array([0, 0, -1.0]), rest_hand)
         q = _slerp(_quat_from(basis(rest_thumb, rest_hand)), _quat_from(basis(thumb, hand)), hold)
         Rq = _quat_rot(q)

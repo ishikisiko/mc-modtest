@@ -6,6 +6,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.resources.ResourceLocation;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -244,11 +245,16 @@ final class FirstPersonSwing {
             this(shoulderX, shoulderY, shoulderZ, weaponScale, arm, null);
         }
 
-        /** The off arm as it is solved and drawn: the main arm's bones with {@code rig.off_hand}'s tuning. */
+        /**
+         * The off arm as it is solved and drawn: {@code rig.off_hand}'s tuning (each field defaulting
+         * to the main arm's) with the main arm's follow-through. The only place the off arm's
+         * parameters are built.
+         */
         Arm offArm() {
             return new Arm(
                     offHand.shoulderOffsetX(), offHand.shoulderOffsetY(), offHand.shoulderOffsetZ(),
-                    arm.upperArm(), arm.forearm(), offHand.thickness(), offHand.gripDiagonal(), arm.followThrough());
+                    offHand.upperArm(), offHand.forearm(), offHand.thickness(), offHand.gripDiagonal(),
+                    arm.followThrough());
         }
     }
 
@@ -258,10 +264,33 @@ final class FirstPersonSwing {
      * {@code rig.arm.shoulder_offset} (+x outward, away from the body's centre); {@code grip_diagonal}
      * is how far the shaft leans across the off palm and {@code thickness} the off arm's cross-section
      * (as {@code rig.arm.thickness}; the off hand holds the shaft farther from the eye, so a rig may
-     * draw it thicker). Bone lengths are the main arm's.
+     * draw it thicker); {@code upper_arm} and {@code forearm} are its bone lengths (blocks, as in
+     * {@code rig.arm}). Each defaults to the main arm's.
+     *
+     * <p>{@code rest_direction} and {@code rest_reach} place the released hand ({@code off_hand_hold}
+     * below 1): its wrist rests {@code rest_reach} times the off arm's full length from the off
+     * shoulder along {@code rest_direction}, in the off arm's own frame (+x outward, +y up, -z
+     * forward; the hand points along it). The direction is normalised here; the reach stays inside
+     * the solver's reach clamp, so the rest never moves the shoulder. Defaults: down beside the body,
+     * a little out and forward, at 0.9.
      */
     record OffHand(
-            float shoulderOffsetX, float shoulderOffsetY, float shoulderOffsetZ, float gripDiagonal, float thickness) {
+            float shoulderOffsetX,
+            float shoulderOffsetY,
+            float shoulderOffsetZ,
+            float gripDiagonal,
+            float thickness,
+            float upperArm,
+            float forearm,
+            float restDirectionX,
+            float restDirectionY,
+            float restDirectionZ,
+            float restReach) {
+        static final float DEFAULT_REST_DIRECTION_X = 0.15F;
+        static final float DEFAULT_REST_DIRECTION_Y = -1.0F;
+        static final float DEFAULT_REST_DIRECTION_Z = -0.2F;
+        static final float DEFAULT_REST_REACH = 0.9F;
+
         OffHand {
             if (!Float.isFinite(shoulderOffsetX) || !Float.isFinite(shoulderOffsetY) || !Float.isFinite(shoulderOffsetZ)) {
                 throw new IllegalArgumentException("rig.off_hand.shoulder_offset must be finite");
@@ -272,6 +301,21 @@ final class FirstPersonSwing {
             if (!(thickness >= 0.2F && thickness <= 1.2F)) {
                 throw new IllegalArgumentException("rig.off_hand.thickness must be within 0.2..1.2");
             }
+            if (!(upperArm >= 0.1F && upperArm <= 0.6F && forearm >= 0.1F && forearm <= 0.6F)) {
+                throw new IllegalArgumentException("rig.off_hand bone lengths must be within 0.1..0.6");
+            }
+            if (!Float.isFinite(restDirectionX) || !Float.isFinite(restDirectionY) || !Float.isFinite(restDirectionZ)
+                    || new Vector3f(restDirectionX, restDirectionY, restDirectionZ).length() < 1.0E-3F) {
+                throw new IllegalArgumentException("rig.off_hand.rest_direction must be a finite, non-zero direction");
+            }
+            if (!(restReach >= FirstPersonArmIk.MINIMUM_REACH_FRACTION && restReach <= FirstPersonArmIk.REACH_FRACTION)) {
+                throw new IllegalArgumentException("rig.off_hand.rest_reach must be within "
+                        + FirstPersonArmIk.MINIMUM_REACH_FRACTION + ".." + FirstPersonArmIk.REACH_FRACTION);
+            }
+            Vector3f rest = new Vector3f(restDirectionX, restDirectionY, restDirectionZ).normalize();
+            restDirectionX = rest.x;
+            restDirectionY = rest.y;
+            restDirectionZ = rest.z;
         }
 
         static OffHand parse(JsonObject json, Arm arm) {
@@ -281,12 +325,26 @@ final class FirstPersonSwing {
             float[] offset = json.has("shoulder_offset")
                     ? vector(json.getAsJsonArray("shoulder_offset"), "rig.off_hand.shoulder_offset")
                     : new float[] {arm.shoulderOffsetX(), arm.shoulderOffsetY(), arm.shoulderOffsetZ()};
+            float[] rest = json.has("rest_direction")
+                    ? vector(json.getAsJsonArray("rest_direction"), "rig.off_hand.rest_direction")
+                    : new float[] {DEFAULT_REST_DIRECTION_X, DEFAULT_REST_DIRECTION_Y, DEFAULT_REST_DIRECTION_Z};
             return new OffHand(
                     offset[0],
                     offset[1],
                     offset[2],
                     value(json, "grip_diagonal", arm.gripDiagonal()),
-                    value(json, "thickness", arm.thickness()));
+                    value(json, "thickness", arm.thickness()),
+                    value(json, "upper_arm", arm.upperArm()),
+                    value(json, "forearm", arm.forearm()),
+                    rest[0],
+                    rest[1],
+                    rest[2],
+                    value(json, "rest_reach", DEFAULT_REST_REACH));
+        }
+
+        /** The released hand's rest direction (unit length) in the off arm's frame. */
+        Vector3f restDirection() {
+            return new Vector3f(restDirectionX, restDirectionY, restDirectionZ);
         }
     }
 

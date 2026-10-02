@@ -1,0 +1,18 @@
+{
+  "about": "Off-arm overrides (rig.off_hand upper_arm, forearm, rest_direction, rest_reach) on a modified copy of the shipped spear rig, with the right main arm: FirstPersonOffHandTest (Java) and tools/tests/test_combat_preview_parity.py (the Python port) both solve these cases and check these numbers. No shipped rig uses the overrides, so the first-person parity golden does not cover them. A change to the spear rig's neutral hold or smash keys moves the numbers; re-derive them from the Java test's failure message.",
+  "rig": "myvillage:combat/lingxiao_spear_first_person.json",
+  "geometry": "myvillage:combat/lingxiao_spear_geometry.json",
+  "off_hand_overrides": {"upper_arm": 0.36, "forearm": 0.30, "rest_direction": [0.3, -1.0, 0.1], "rest_reach": 0.8},
+  "tolerance": 2.0E-4,
+  "cases": [
+    {"pose": "neutral", "hold": 1.0, "grip_y": 6.5,
+     "shoulder": [-0.05, -0.44, -0.25], "elbow": [-0.08592, -0.32297, -0.58855],
+     "wrist": [0.16137, -0.29282, -0.75569], "grip": [0.1811, -0.29166, -0.79472]},
+    {"pose": "neutral", "hold": 0.4, "grip_y": 6.5,
+     "shoulder": [-0.05, -0.44, -0.25], "elbow": [-0.32428, -0.55267, -0.45415],
+     "wrist": [-0.05607, -0.68318, -0.42207], "grip": [-0.04252, -0.72195, -0.43716]},
+    {"move": 4, "tick": 2.0, "grip_y": 6.5,
+     "shoulder": [-0.05, -0.21042, -0.25], "elbow": [-0.32473, -0.43823, -0.20279],
+     "wrist": [-0.19956, -0.71087, -0.20168], "grip": [-0.21249, -0.75243, -0.19729]}
+  ]
+}
