@@ -31,7 +31,7 @@
 
 ## 6. Trails And Runtime Fixes
 
-- [x] 6.1 Read `off_hand_grip_center` and `trail` in `SwordGeometry`; size the first-person and world trails from the contract; spread same-tick samples through the tick; pin the unchanged Qingfeng world trail.
+- [x] 6.1 Read `off_hand_grip_center` and `trail` in `WeaponGeometry`; size the first-person and world trails from the contract; spread same-tick samples through the tick; pin the unchanged Qingfeng world trail.
 - [x] 6.2 Make the first-person hit-stop start at the action's present so a late confirmation never steps the pose back; test it.
 - [x] 6.3 Log every refused third-person probe with its reason and log a repeated refused transition once.
 - [x] 6.4 Run every client combat timeline on one client-owned tick count (`ClientCombatClock`, `LocalSwingTimeline`) with one conversion of a server tick, so a game-clock reset is not swing time; tests.
