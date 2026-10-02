@@ -23,18 +23,76 @@ SPEAR_MOVES = [
 ]
 
 
-def forward_reach(move: dict) -> float | None:
-    """Farthest +Z the move's hit capsules reach (end plus horizontal radius), or None if unknown."""
+# A mob-sized target standing on the ground: 0.6 wide, 1.8 tall.
+TARGET_HALF_WIDTH = 0.3
+TARGET_HEIGHT = 1.8
+COVERAGE_FROM = 1.0
+COVERAGE_STEP = 0.05
+
+
+def expand_samples(move: dict) -> list[dict]:
+    """The move's hit capsules as explicit samples: a port of HitboxGenerators.java (same constants)."""
     samples = move["hitbox"]["samples"]
     if isinstance(samples, list):
-        return max(sample["end"][2] + sample["horizontal_radius"] for sample in samples)
-    if samples["generator"] == "thrust":
-        return samples["final_range"] + samples["radius"]
-    if samples["generator"] == "arc":
-        low, high = sorted((samples["start_angle"], samples["end_angle"]))
-        nearest = 0.0 if low <= 0.0 <= high else min(abs(low), abs(high))
-        return samples["range"] * math.cos(math.radians(nearest)) + samples["radius"]
-    return None
+        return samples
+    start, end = move["active_ticks"]
+    out = []
+    for tick in range(start, end + 1):
+        progress = (tick - start) / max(1, end - start)
+        if samples["generator"] == "thrust":
+            reach = samples["first_range"] + (samples["final_range"] - samples["first_range"]) * progress
+            near, far, vertical = [0.0, 1.05, 0.55], [0.0, 1.20, reach], 0.25
+        elif samples["generator"] == "arc":
+            angle = math.radians(samples["start_angle"] + (samples["end_angle"] - samples["start_angle"]) * progress)
+            height, length = samples["height"], samples["range"]
+            near = [math.sin(angle) * 0.45, height, math.cos(angle) * 0.45]
+            far, vertical = [math.sin(angle) * length, height, math.cos(angle) * length], 0.34
+        else:  # diagonal
+            side, opposite = -0.75 + 1.50 * progress, 0.95 - 1.90 * progress
+            low, high = 0.45 + 0.30 * progress, 1.90 - 0.15 * progress
+            if samples["descending"]:
+                near, far, vertical = [-side, high, 0.55], [-opposite, low, 2.75], 0.22
+            else:
+                near, far, vertical = [side, low, 0.55], [opposite, high, 2.55], 0.20
+        out.append({"tick": tick, "start": near, "end": far,
+                    "horizontal_radius": samples["radius"], "vertical_radius": vertical})
+    return out
+
+
+def forward_reach(move: dict) -> float:
+    """Farthest +Z the move's hit capsules reach (end plus horizontal radius)."""
+    return max(sample["end"][2] + sample["horizontal_radius"] for sample in expand_samples(move))
+
+
+def segment_touches_box(start, end, low, high) -> bool:
+    """Slab test of the segment start->end against an axis-aligned box (CombatGeometry.segmentAabbContact)."""
+    first, last = 0.0, 1.0
+    for axis in range(3):
+        delta = end[axis] - start[axis]
+        if abs(delta) < 1e-9:
+            if not low[axis] <= start[axis] <= high[axis]:
+                return False
+            continue
+        a, b = (low[axis] - start[axis]) / delta, (high[axis] - start[axis]) / delta
+        first, last = max(first, min(a, b)), min(last, max(a, b))
+        if first > last:
+            return False
+    return True
+
+
+def standing_target_ticks(move: dict, distance: float, lateral: float = 0.0) -> set[int]:
+    """Ticks at which a sample touches a standing target whose near face is ``distance`` ahead of the
+    attacker's feet (attacker-local frame; the target box is inflated by radius plus tolerance)."""
+    hitbox = move["hitbox"]
+    ticks = set()
+    for sample in expand_samples(move):
+        h = sample["horizontal_radius"] + hitbox["horizontal_tolerance"]
+        v = sample["vertical_radius"] + hitbox["vertical_tolerance"]
+        low = (lateral - TARGET_HALF_WIDTH - h, -v, distance - h)
+        high = (lateral + TARGET_HALF_WIDTH + h, TARGET_HEIGHT + v, distance + 2 * TARGET_HALF_WIDTH + h)
+        if segment_touches_box(sample["start"], sample["end"], low, high):
+            ticks.add(sample["tick"])
+    return ticks
 
 
 class CombatDataTest(unittest.TestCase):
@@ -94,11 +152,27 @@ class CombatDataTest(unittest.TestCase):
         # CombatStepService keeps a light step still when a target is within `range`, so the
         # hit volume must reach at least that far (end + radius + tolerance along +Z).
         for style_id, move in combat_data.load().moves():
-            reach = forward_reach(move)
-            if reach is None:
-                continue  # the diagonal generator's reach is a Java constant
             with self.subTest(move=move["id"]):
-                self.assertGreaterEqual(reach + move["hitbox"]["horizontal_tolerance"], move["range"])
+                self.assertGreaterEqual(forward_reach(move) + move["hitbox"]["horizontal_tolerance"], move["range"])
+
+    def test_standing_target_straight_ahead_is_hit_out_to_range(self) -> None:
+        # A mob straight ahead whose near face is anywhere from 1.0 block out to the move's range
+        # (the distance CombatStepService compares with `range`) is touched by some sample.
+        for style_id, move in combat_data.load().moves():
+            steps = int(round((move["range"] - COVERAGE_FROM) / COVERAGE_STEP))
+            holes = [round(COVERAGE_FROM + i * COVERAGE_STEP, 2) for i in range(steps + 1)
+                     if not standing_target_ticks(move, COVERAGE_FROM + i * COVERAGE_STEP)]
+            with self.subTest(move=move["id"]):
+                self.assertEqual([], holes, f"{move['id']}: no sample touches a standing target at these distances")
+
+    def test_spear_flick_connects_early_and_smash_late(self) -> None:
+        moves = {move["id"]: move for _, move in combat_data.load().moves()}
+        flick = moves["myvillage:basic_spear_03_rising_flick"]
+        smash = moves["myvillage:basic_spear_04_overhead_smash"]
+        # The flick lifts what is in front on its first active tick; the smash pins at range as the
+        # head comes down, after its first active tick.
+        self.assertIn(flick["active_ticks"][0], standing_target_ticks(flick, 2.0))
+        self.assertGreater(min(standing_target_ticks(smash, 3.0)), smash["active_ticks"][0])
 
     def test_ids_resolve_to_paths(self) -> None:
         self.assertEqual(self.root / STYLE, combat_data.style_file(self.root, "myvillage:basic_sword"))

@@ -95,9 +95,15 @@
         "horizontal_tolerance": 0.20,
         "vertical_tolerance": 0.12,
         "samples": [
-          {"tick": 5, "start": [-0.75, 0.45, 0.55], "end": [0.95, 1.90, 3.35], "horizontal_radius": 0.20, "vertical_radius": 0.20},
-          {"tick": 6, "start": [0.0, 0.60, 0.55], "end": [0.0, 1.825, 3.35], "horizontal_radius": 0.20, "vertical_radius": 0.20},
-          {"tick": 7, "start": [0.75, 0.75, 0.55], "end": [-0.95, 1.75, 3.35], "horizontal_radius": 0.20, "vertical_radius": 0.20}
+          {"tick": 5, "start": [-0.186, 1.159, 0.442], "end": [-1.297, 0.312, 3.089], "horizontal_radius": 0.20, "vertical_radius": 0.20},
+          {"tick": 5, "start": [-0.18, 1.162, 0.446], "end": [-1.254, 0.337, 3.107], "horizontal_radius": 0.20, "vertical_radius": 0.20},
+          {"tick": 5, "start": [-0.133, 1.236, 0.478], "end": [-0.897, 0.867, 3.228], "horizontal_radius": 0.20, "vertical_radius": 0.20},
+          {"tick": 6, "start": [-0.081, 1.304, 0.493], "end": [-0.544, 1.328, 3.306], "horizontal_radius": 0.20, "vertical_radius": 0.20},
+          {"tick": 6, "start": [-0.031, 1.364, 0.495], "end": [-0.213, 1.733, 3.343], "horizontal_radius": 0.20, "vertical_radius": 0.20},
+          {"tick": 6, "start": [0.033, 1.448, 0.477], "end": [0.177, 2.1, 2.582], "horizontal_radius": 0.20, "vertical_radius": 0.20},
+          {"tick": 6, "start": [0.103, 1.548, 0.422], "end": [0.422, 2.319, 1.736], "horizontal_radius": 0.20, "vertical_radius": 0.20},
+          {"tick": 7, "start": [0.162, 1.644, 0.325], "end": [0.647, 2.677, 1.301], "horizontal_radius": 0.20, "vertical_radius": 0.20},
+          {"tick": 7, "start": [0.171, 1.662, 0.3], "end": [0.68, 2.741, 1.193], "horizontal_radius": 0.20, "vertical_radius": 0.20}
         ]
       },
       "step": {"tick": 4, "maximum_distance": 0.30, "support_depth": 0.35},
@@ -129,9 +135,15 @@
         "horizontal_tolerance": 0.20,
         "vertical_tolerance": 0.12,
         "samples": [
-          {"tick": 7, "start": [0.75, 1.90, 0.55], "end": [-0.95, 0.45, 3.75], "horizontal_radius": 0.28, "vertical_radius": 0.22},
-          {"tick": 8, "start": [0.0, 1.825, 0.55], "end": [0.0, 0.60, 3.75], "horizontal_radius": 0.28, "vertical_radius": 0.22},
-          {"tick": 9, "start": [-0.75, 1.75, 0.55], "end": [0.95, 0.75, 3.75], "horizontal_radius": 0.28, "vertical_radius": 0.22}
+          {"tick": 7, "start": [0.013, 1.625, 0.38], "end": [0.05, 2.599, 1.517], "horizontal_radius": 0.28, "vertical_radius": 0.22},
+          {"tick": 7, "start": [0.01, 1.616, 0.387], "end": [0.042, 2.566, 1.549], "horizontal_radius": 0.28, "vertical_radius": 0.22},
+          {"tick": 7, "start": [-0.019, 1.495, 0.46], "end": [-0.077, 2.112, 1.918], "horizontal_radius": 0.28, "vertical_radius": 0.22},
+          {"tick": 8, "start": [-0.034, 1.39, 0.491], "end": [-0.262, 1.987, 3.741], "horizontal_radius": 0.28, "vertical_radius": 0.22},
+          {"tick": 8, "start": [-0.036, 1.309, 0.499], "end": [-0.273, 1.37, 3.74], "horizontal_radius": 0.28, "vertical_radius": 0.22},
+          {"tick": 8, "start": [-0.056, 1.242, 0.493], "end": [-0.425, 0.861, 3.726], "horizontal_radius": 0.28, "vertical_radius": 0.22},
+          {"tick": 8, "start": [-0.087, 1.186, 0.479], "end": [-0.671, 0.42, 3.69], "horizontal_radius": 0.28, "vertical_radius": 0.22},
+          {"tick": 9, "start": [-0.104, 1.133, 0.459], "end": [-0.81, 0.0, 3.569], "horizontal_radius": 0.28, "vertical_radius": 0.22},
+          {"tick": 9, "start": [-0.106, 1.122, 0.455], "end": [-0.778, 0.0, 3.329], "horizontal_radius": 0.28, "vertical_radius": 0.22}
         ]
       },
       "step": {"tick": 6, "maximum_distance": 0.45, "support_depth": 0.35},
