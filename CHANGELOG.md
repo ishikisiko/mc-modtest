@@ -7,6 +7,70 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.30.0
+
+Combat base capabilities after the Lingxiao Spear: the combat data format is
+revised to weapon-neutral names (format 2), and the tooling a third weapon
+needs is in the repository. Nothing a player sees or the server computes
+changes; both weapons look and play as in 0.29.0-fix1.
+
+### Changed
+
+- Geometry contract `format` 2: `axes.blade` is `axes.length`, `pommel` is
+  `butt`, `guard` is `collar`, `blade` is `head`, `blade_base`/`blade_tip` are
+  `head_base`/`head_tip`. First-person rig: `rig.sword_scale` is
+  `rig.weapon_scale`. A format-1 contract, an old field name, or a rig with
+  `sword_scale` fails to load with a message naming the new field (Java loader,
+  `tools/combat_data.py`, validator); nothing falls back to a default. The
+  client classes follow (`WeaponGeometry`, `FirstPersonWeaponTransform`,
+  `FirstPersonWeaponTrail`, `WeaponTrailShape`). Tool file names, sound ids,
+  animation files, and item, style, and move ids keep their names. Migration
+  table in `docs/ai-kb/34_combat_data_and_capture.md`.
+- `COMBAT_JAR_STALE` compares content: a jar older than a source is stale only
+  when it lacks that resource's bytes or the class files compiled since the
+  source changed. Before, a comment-only Java edit left a current jar reported
+  stale, because Gradle keeps a jar whose bytes do not change.
+
+### Added
+
+- Per-move `trail.samples` in a style file (optional): the samples the
+  third-person world trail follows instead of the hit samples, in the same
+  form and under the same sample rules. Presentation only; the server never
+  reads it. No shipped style uses it.
+- `rig.off_hand` overrides (optional): `upper_arm`, `forearm`,
+  `rest_direction`, `rest_reach`; defaults are the main arm's bones and the
+  former fixed rest. The shipped spear rig does not use them.
+- `tools/combat_preview/` (`python3 -m tools.combat_preview fp|pose|model`):
+  the offline preview tools, formerly outside the repository, with
+  `requirements.txt` and `.venv-preview` / `$MC_PREVIEW_PYTHON` interpreter
+  resolution. A golden fixture pins the first-person solver:
+  `FirstPersonPreviewParityTest` checks the Java against it and
+  `tools/tests/test_combat_preview_parity.py` checks the Python port against
+  the same file (`-PupdatePreviewParity` rewrites it).
+- `python3 -m tools.combat_preview sweep`: candidate sheets for a rig value
+  (grid, zoomed strips of the region that differs, each candidate's rig file).
+  `python3 -m tools.combat_preview diff <before> <after>`: before/after stills
+  side by side with changed-pixel counts and boxes.
+- `tools/release_gate.py`: the documented release checks as one command, with
+  a jar rewritten by that run. `tools/bump_version.py <version>`: the version
+  rule applied to its four files.
+
+### Validation
+
+- `tools/release_gate.py`: 41 of 42 steps passed on the first run, including
+  364 Java tests (0 failed, 0 skipped), the Python tool tests, the combat
+  preview parity tests, and `./gradlew build` producing
+  `myvillage-0.30.0.jar`, which the focused combat validator passed and all
+  41 README jar-listing patterns matched. `generated-resources-current`
+  failed because an earlier interrupted gate had left the 143 generated
+  structure, function, and settlement-meta files deleted; regeneration
+  restored them identical to the committed files, and a rerun of
+  `generate-all-structures` with `generated-resources-current` passed
+  ("regenerating changed nothing").
+- Format 2 migration: the offline renders were byte-identical, 25 in-game
+  first-person stills showed zero pixel difference, and combo damage was
+  unchanged (spear 80 to 38.28, sword 80 to 44.18 target health).
+
 ## 0.29.0-fix1
 
 ### Fixed
