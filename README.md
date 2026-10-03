@@ -484,6 +484,7 @@ jar tf build/libs/myvillage-0.30.0.jar | grep "assets/myvillage/textures/item/qi
 jar tf build/libs/myvillage-0.30.0.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
 jar tf build/libs/myvillage-0.30.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
 jar tf build/libs/myvillage-0.30.0.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
+jar tf build/libs/myvillage-0.30.0.jar | grep "assets/myvillage/combat/qingfeng_first_person.json"
 jar tf build/libs/myvillage-0.30.0.jar | grep "assets/myvillage/models/item/lingxiao_spear.json"
 jar tf build/libs/myvillage-0.30.0.jar | grep "assets/myvillage/models/item/lingxiao_spear_3d.json"
 jar tf build/libs/myvillage-0.30.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear.png"
@@ -617,6 +618,7 @@ jar tf build/libs/myvillage-0.30.0.jar | grep "assets/myvillage/textures/item/qi
 jar tf build/libs/myvillage-0.30.0.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
 jar tf build/libs/myvillage-0.30.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
 jar tf build/libs/myvillage-0.30.0.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
+jar tf build/libs/myvillage-0.30.0.jar | grep "assets/myvillage/combat/qingfeng_first_person.json"
 jar tf build/libs/myvillage-0.30.0.jar | grep "assets/myvillage/models/item/lingxiao_spear.json"
 jar tf build/libs/myvillage-0.30.0.jar | grep "assets/myvillage/models/item/lingxiao_spear_3d.json"
 jar tf build/libs/myvillage-0.30.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear.png"
@@ -1201,6 +1203,27 @@ lives under `out/preview/lingxiao_spear/` and `out/preview/combat_capture/`.
 | Owner verdict on the changed Qingfeng first-person hit-stop, post-hit hold, and clock behaviour | `not_verified` |
 | Combat-mode and debug-command messages weapon-neutral in both languages | `not_verified` |
 | Real keyboard and mouse play, sound, frame rates on a real GPU, other skins, armour, and capes | `not_verified` |
+
+### Adding Another Combat Weapon (0.30.0)
+
+The procedure is `docs/ai-kb/36_new_combat_weapon.md` (22 numbered steps).
+`tools/new_combat_weapon.py` starts a weapon from an existing one and reports
+how far it has come, in the same step ids:
+
+```bash
+python3 tools/new_combat_weapon.py scaffold --from myvillage:qingfeng_sword --id myvillage:jade_sword --dry-run
+python3 tools/new_combat_weapon.py scaffold --from myvillage:lingxiao_spear --id myvillage:iron_halberd \
+    --style myvillage:basic_halberd --moves thrust,sweep,hook,chop,lunge
+python3 tools/new_combat_weapon.py progress myvillage:iron_halberd [--fast] [--json]
+```
+
+`scaffold` writes only the renamed copies (weapon file, index entries,
+first-person rig, with `--style` the style, and `TODO(new_combat_weapon)`
+translations) and prints every other step with its file; it never writes Java
+or a generator-owned file, and refuses, writing nothing, when an id or file is
+taken. `progress` sorts the existing validators' and tests' findings into the
+steps (`DONE`, `PLACEHOLDER`, `MISSING`, `BLOCKED`, `N/A`) and exits 1 while a
+checked step is open.
 
 ## GuideME Cultivation Guide
 

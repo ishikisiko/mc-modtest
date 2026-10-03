@@ -54,19 +54,33 @@ changes; both weapons look and play as in 0.29.0-fix1.
 - `tools/release_gate.py`: the documented release checks as one command, with
   a jar rewritten by that run. `tools/bump_version.py <version>`: the version
   rule applied to its four files.
+- `docs/ai-kb/36_new_combat_weapon.md`: the procedure for a third weapon in 22
+  numbered steps. `tools/new_combat_weapon.py scaffold --from <weapon> --id
+  <item> [--style <style> [--moves ...]] [--dry-run]` writes the renamed
+  copies (weapon file, index entries, first-person rig, the style with every
+  id renamed, `TODO(new_combat_weapon)` translations) and prints the other
+  steps with their files; it writes no Java and no generator-owned file, and
+  refuses, writing nothing, when an id or file is taken. `progress <weapon>`
+  sorts the existing validators' and tests' findings into the playbook's steps
+  and reports a copy that is still the template's as `PLACEHOLDER`.
+- README: the Qingfeng first-person rig's `jar tf` line in both jar listings
+  (found by `progress`; the spear's rig already had one).
 
 ### Validation
 
-- `tools/release_gate.py`: 41 of 42 steps passed on the first run, including
-  364 Java tests (0 failed, 0 skipped), the Python tool tests, the combat
-  preview parity tests, and `./gradlew build` producing
-  `myvillage-0.30.0.jar`, which the focused combat validator passed and all
-  41 README jar-listing patterns matched. `generated-resources-current`
-  failed because an earlier interrupted gate had left the 143 generated
-  structure, function, and settlement-meta files deleted; regeneration
-  restored them identical to the committed files, and a rerun of
-  `generate-all-structures` with `generated-resources-current` passed
-  ("regenerating changed nothing").
+- `tools/release_gate.py`: all 42 steps passed, including 364 Java tests
+  (0 failed, 0 skipped), 578 Python tool tests (13 skipped), the combat
+  preview parity tests, `generated-resources-current` ("regenerating changed
+  nothing"), and `./gradlew build` producing `myvillage-0.30.0.jar`, which
+  the focused combat validator passed and all 42 README jar-listing patterns
+  matched.
+- `tools/new_combat_weapon.py`, rehearsed on a scratch copy: a new-style
+  scaffold from the spear and a shared-style scaffold from Qingfeng loaded
+  with no data issues, and `progress` reported the copied style, rig, and
+  names as `PLACEHOLDER` and the unwritten steps as `MISSING` or `BLOCKED`;
+  six kinds of bad request were refused with nothing written. Both shipped
+  weapons report every checked step `DONE`. A third weapon was not authored
+  through the remaining steps.
 - Format 2 migration: the offline renders were byte-identical, 25 in-game
   first-person stills showed zero pixel difference, and combo damage was
   unchanged (spear 80 to 38.28, sword 80 to 44.18 target health).
