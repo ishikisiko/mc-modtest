@@ -1,7 +1,10 @@
 name: Build DevBridge
 on:
   push:
-    branches: [build/devbridge-work-20260924]
+    branches: [main, build/devbridge-work-20260924]
+    paths:
+      - 'devbridge/**'
+      - '.github/workflows/devbridge-build.yml'
 permissions:
   contents: read
 jobs:
