@@ -26,6 +26,9 @@ import urllib.request
 from pathlib import Path
 
 DEFAULT_ENV = Path.home() / ".config" / "devbridge" / "devhost.env"
+# Screens shown while a world loads; any other screen (e.g. the inventory) means the world is up.
+LOADING_SCREENS = ("LevelLoadingScreen", "ReceivingLevelScreen", "GenericMessageScreen", "ProgressScreen",
+                   "ConnectScreen", "GenericWaitingScreen")
 
 
 def load_env(path: Path) -> None:
@@ -140,10 +143,12 @@ def wait_in_world(world: str | None, timeout: float) -> dict:
             r = w["result"]
             state = bridge("GET", "/client/state", timeout=5).get("result") or {}
             now = f"bridge up, inWorld={r['inWorld']} folder={r.get('folder')} screen={state.get('screen')}"
-            if r["inWorld"] and state.get("screen") is None and (world is None or r.get("folder") == world):
-                print(f"[{time.monotonic() - start:5.0f}s] in world {r.get('folder')}")
+            screen = state.get("screen") or ""
+            loading = any(screen.endswith(name) for name in LOADING_SCREENS)
+            if r["inWorld"] and not loading and (world is None or r.get("folder") == world):
+                print(f"[{time.monotonic() - start:5.0f}s] in world {r.get('folder')}" + (f" (screen {screen.rsplit('.', 1)[-1]})" if screen else ""))
                 return r
-            if world == "" and state.get("screen", "").endswith("TitleScreen"):
+            if world == "" and screen.endswith("TitleScreen"):
                 print(f"[{time.monotonic() - start:5.0f}s] at the title screen")
                 return r
         else:

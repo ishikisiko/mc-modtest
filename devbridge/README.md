@@ -25,7 +25,7 @@ Targets **Minecraft 1.21.1 / NeoForge 21.1.233** (any 21.1.x should work).
 ```bash
 cd devbridge
 ./gradlew build          # first run downloads NeoForge + decompiles; takes a while
-# -> build/libs/devbridge-0.5.0.jar
+# -> build/libs/devbridge-0.5.3.jar
 ```
 
 (If you don't have the wrapper jar yet: `gradle wrapper` with any Gradle ≥ 8.8 installed, then use `./gradlew`.)
@@ -42,7 +42,7 @@ present in every run config but never leaks into your published artifact:
 
 ```groovy
 dependencies {
-    localRuntime files("libs/devbridge-0.5.0.jar")
+    localRuntime files("libs/devbridge-0.5.3.jar")
 }
 ```
 
@@ -187,7 +187,7 @@ for any route.
 | `POST /client/hotbar {slot}` · `POST /client/perspective {mode}` · `POST /client/hud {hidden}` | hotbar slot, first/back/front camera, F1 *(client only)* |
 | `POST /client/option {name, value, save}` | read or set an option such as `fov`, `renderDistance`, `gamma` *(client only)* |
 | `POST /client/screen/click {widget \| x,y, button}` · `POST /client/screen/type {text, key}` | click and type in the open GUI *(client only)* |
-| `GET /client/window` · `POST /client/window {width, height, x, y}` · `POST /client/mouse {grab}` | window size/position, release or grab the mouse *(client only)* |
+| `GET /client/window` · `POST /client/window {width, height, x, y}` · `POST /client/mouse {grab}` | window size/position; watch mode (free mouse) or play *(client only)* |
 | `GET /client/world` · `GET /client/worlds` | open world (saves folder, name) / saves list *(client only)* |
 | `POST /client/world/leave` · `POST /client/world/open {folder}` · `POST /client/quit` | save and quit to title, open a save, save and close the game; queued, poll afterwards *(client only)* |
 
@@ -215,9 +215,14 @@ Everything that touches game state runs on the server (or client) thread via
   uses that player's selection and undo history, and send `//set` as written.
 - **Window and mouse on a shared desktop**: an automated launch (one with an open-world
   request) resizes the window to `automationWindow` (default `1600x900`, empty = leave it).
-  With `keepMouseFree` (default true) DevBridge releases the mouse after it opens a world or
-  closes a screen, so a game window in the foreground does not capture the user's cursor;
-  clicking into the window grabs it again as usual.
+  With `keepMouseFree` (default true) a world DevBridge opens starts in *watch mode*: the game
+  does not capture the user's cursor on its own (joining, closing a screen). A click into the
+  game view is the user taking over: it captures the mouse for normal play, and that click does
+  not attack. Leaving the window (Alt+Tab) returns to watch mode. The toggle key (default F8,
+  in Controls under DevBridge) switches either way; `POST /client/mouse {grab}` does the same.
+  A game started by hand behaves normally until F8 is pressed.
+  `automationScreen` (default empty) can be set to `inventory` to open the player's inventory
+  once such a world has been up for a second.
 - **Held keys and focus**: keys are pressed through the game's key mappings, so the user's
   bindings don't matter. Continuous mining (holding attack) needs the window focused because
   vanilla requires a grabbed mouse; a click is enough in creative.

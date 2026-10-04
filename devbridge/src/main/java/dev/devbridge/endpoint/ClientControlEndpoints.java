@@ -45,10 +45,8 @@ public final class ClientControlEndpoints {
     private static final int TAP_TICKS = 2;
     private static long ticks;
     private static Field clickCount;
-    private static boolean keepMouseFree;
 
     public static void register(BridgeHttpServer http) {
-        keepMouseFree = http.config().keepMouseFree();
         NeoForge.EVENT_BUS.addListener(ClientTickEvent.Post.class, e -> releaseDueKeys());
 
         http.get("/client/keys", "Key mappings: name, category, bound key, down. params: contains (optional filter)", req -> {
@@ -124,12 +122,14 @@ public final class ClientControlEndpoints {
             });
         });
 
-        http.post("/client/mouse", "Release (grab=false, default) or grab the mouse. A released mouse lets the user work while the game window has focus", req -> {
+        http.post("/client/mouse", "grab=false (default): watch mode, the game never captures the user's mouse; grab=true: normal play (same as the toggle key, default F8)", req -> {
             boolean grab = req.bool("grab", false);
             return onClient(() -> {
-                Minecraft mc = Minecraft.getInstance();
-                if (grab) mc.mouseHandler.grabMouse();
-                else mc.mouseHandler.releaseMouse();
+                if (grab) ClientMouseGuard.play();
+                else {
+                    ClientMouseGuard.watch();
+                    Minecraft.getInstance().mouseHandler.releaseMouse();
+                }
                 return windowState();
             });
         });
@@ -207,7 +207,6 @@ public final class ClientControlEndpoints {
                 }
                 boolean handled = screen.mouseClicked(cx, cy, button);
                 screen.mouseReleased(cx, cy, button);
-                keepMouseFree();
                 JsonObject o = Json.obj();
                 o.addProperty("x", cx);
                 o.addProperty("y", cy);
@@ -233,19 +232,9 @@ public final class ClientControlEndpoints {
                     screen.keyPressed(k.getValue(), 0, 0);
                     screen.keyReleased(k.getValue(), 0, 0);
                 }
-                keepMouseFree();
                 return Json.of("typed");
             });
         });
-    }
-
-    /**
-     * After DevBridge closed a screen (directly or by a click / key), give the cursor back:
-     * setScreen(null) grabs the mouse whenever the game window has focus.
-     */
-    static void keepMouseFree() {
-        Minecraft mc = Minecraft.getInstance();
-        if (keepMouseFree && mc.screen == null) mc.mouseHandler.releaseMouse();
     }
 
     /** Windowed resize; a fullscreen window is left alone. Client thread. */
@@ -281,6 +270,7 @@ public final class ClientControlEndpoints {
         o.addProperty("fullscreen", mc.getWindow().isFullscreen());
         o.addProperty("focused", mc.isWindowActive());
         o.addProperty("mouseGrabbed", mc.mouseHandler.isMouseGrabbed());
+        o.addProperty("watching", ClientMouseGuard.watching());
         return o;
     }
 
@@ -302,7 +292,7 @@ public final class ClientControlEndpoints {
     }
 
     /** One press, as the game counts it (consumeClick), independent of what key it is bound to. */
-    private static void click(KeyMapping k) {
+    static void click(KeyMapping k) {
         try {
             if (clickCount == null) {
                 clickCount = KeyMapping.class.getDeclaredField("clickCount");
