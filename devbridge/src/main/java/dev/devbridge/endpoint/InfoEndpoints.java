@@ -33,6 +33,7 @@ public final class InfoEndpoints {
             o.addProperty("mod", "devbridge");
             o.addProperty("dist", FMLEnvironment.dist.name());
             o.addProperty("time", System.currentTimeMillis());
+            o.addProperty("pid", ProcessHandle.current().pid());
             return o;
         });
 

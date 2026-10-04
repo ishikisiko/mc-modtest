@@ -47,6 +47,8 @@ public final class Json {
         if (v instanceof BlockState s) return blockState(s);
         if (v instanceof ItemStack s) return new JsonPrimitive(s.toString());
         if (v instanceof Entity e) return entity(e, false);
+        // Path is Iterable<Path>: without this it recurses into itself forever.
+        if (v instanceof java.nio.file.Path p) return new JsonPrimitive(p.toString());
         if (v instanceof Iterable<?> it) {
             JsonArray arr = new JsonArray();
             for (Object o : it) arr.add(of(o));

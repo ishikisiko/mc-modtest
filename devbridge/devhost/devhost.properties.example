@@ -1,0 +1,21 @@
+# DevHost settings. Copy to devhost.properties next to DevHost.java and fill in.
+
+# The game directory of the instance (PCL with version isolation: .minecraft\versions\<version>).
+gameDir=C:\\Games\\.minecraft\\versions\\1.21.1-NeoForge_21.1.233
+
+# The launcher's exported launch script for that instance (PCL: export a launch script).
+launch=C:\\Games\\devhost\\launch.bat
+
+# auto = the machine's Tailscale address (100.64.0.0/10); falls back to 127.0.0.1.
+bind=auto
+port=8790
+
+# Bearer token for every route except /ping. Left empty, DevHost generates one on first start
+# and appends it to this file.
+token=
+
+# How long stop waits for the game to save and exit before killing it.
+stopTimeoutSec=60
+
+# Write pauseOnLostFocus:false into options.txt before every launch (the F3+P setting).
+noPauseOnLostFocus=true

@@ -69,7 +69,9 @@ public final class CommandEndpoints {
                     stack = stack.withPosition(new Vec3(x, y, z));
                 }
 
-                server.getCommands().performPrefixedCommand(stack, cmd);
+                // performPrefixedCommand drops one leading '/' itself; pass the command as given so
+                // WorldEdit's '//set' arrives as its '/set' node instead of losing both slashes.
+                server.getCommands().performPrefixedCommand(stack, command);
 
                 JsonObject o = Json.obj();
                 o.addProperty("command", cmd);

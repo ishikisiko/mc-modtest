@@ -300,6 +300,107 @@ def mc_client_look(yaw: float, pitch: float) -> str:
 
 
 @mcp.tool()
+def mc_client_keys(contains: str | None = None) -> str:
+    """List the client's key mappings (name, category, bound key, currently down)."""
+    return _fmt(_call("GET", "/client/keys", contains=contains))
+
+
+@mcp.tool()
+def mc_client_key(names: list[str], action: str = "click", ticks: int = 10) -> str:
+    """Press key mappings as the player, by mapping name so the user's bindings don't matter.
+    names: e.g. ["forward", "sprint"], ["jump"], ["attack"], ["use"], ["hotbar.3"], ["togglePerspective"], ["inventory"].
+    action: click (one press) | hold (down for `ticks`, 20 ticks = 1 s) | down | up."""
+    return _fmt(_call("POST", "/client/key", names=names, action=action, ticks=ticks))
+
+
+@mcp.tool()
+def mc_client_key_release() -> str:
+    """Release every held key (stop moving)."""
+    return _fmt(_call("POST", "/client/key/release"))
+
+
+@mcp.tool()
+def mc_client_window(width: int | None = None, height: int | None = None, x: int | None = None, y: int | None = None) -> str:
+    """Read (no args) or resize/move the game window. Returns size, position, focused, mouseGrabbed."""
+    if width is None and height is None and x is None and y is None:
+        return _fmt(_call("GET", "/client/window"))
+    return _fmt(_call("POST", "/client/window", width=width, height=height, x=x, y=y))
+
+
+@mcp.tool()
+def mc_client_mouse(grab: bool = False) -> str:
+    """Release (default) or grab the mouse. Released, the user's cursor stays free even while the game has focus."""
+    return _fmt(_call("POST", "/client/mouse", grab=grab))
+
+
+@mcp.tool()
+def mc_client_hotbar(slot: int) -> str:
+    """Select hotbar slot 0-8; returns the item now in the main hand."""
+    return _fmt(_call("POST", "/client/hotbar", slot=slot))
+
+
+@mcp.tool()
+def mc_client_perspective(mode: str) -> str:
+    """Camera perspective: first | back | front (the F5 views)."""
+    return _fmt(_call("POST", "/client/perspective", mode=mode))
+
+
+@mcp.tool()
+def mc_client_hud(hidden: bool = True) -> str:
+    """Hide (F1) or show the HUD, e.g. for clean screenshots."""
+    return _fmt(_call("POST", "/client/hud", hidden=hidden))
+
+
+@mcp.tool()
+def mc_client_option(name: str, value: Any = None, save: bool = False) -> str:
+    """Read (value omitted) or set a client option by its Options accessor: fov, renderDistance, gamma, simulationDistance, ...
+    save=False keeps the change only until the game restarts."""
+    return _fmt(_call("POST", "/client/option", name=name, value=value, save=save))
+
+
+@mcp.tool()
+def mc_screen_click(widget: int | None = None, x: float | None = None, y: float | None = None, button: int = 0) -> str:
+    """Click in the open GUI: a widget index from mc_screen, or GUI-scaled x,y. button 0 = left, 1 = right."""
+    return _fmt(_call("POST", "/client/screen/click", widget=widget, x=x, y=y, button=button))
+
+
+@mcp.tool()
+def mc_screen_type(text: str = "", key: str | None = None) -> str:
+    """Type text into the focused GUI field, then optionally press a key such as key.keyboard.enter or key.keyboard.escape."""
+    return _fmt(_call("POST", "/client/screen/type", text=text, key=key))
+
+
+@mcp.tool()
+def mc_client_world() -> str:
+    """The open world: inWorld, singleplayer, folder (the saves/ directory name), display name."""
+    return _fmt(_call("GET", "/client/world"))
+
+
+@mcp.tool()
+def mc_client_worlds() -> str:
+    """Singleplayer saves, newest first (folder names for mc_client_world_open)."""
+    return _fmt(_call("GET", "/client/worlds"))
+
+
+@mcp.tool()
+def mc_client_world_leave() -> str:
+    """Save and quit to the title screen. Returns at once; poll mc_client_state."""
+    return _fmt(_call("POST", "/client/world/leave"))
+
+
+@mcp.tool()
+def mc_client_world_open(folder: str) -> str:
+    """Open a singleplayer world by folder, leaving the current one first. Returns at once; poll mc_client_world."""
+    return _fmt(_call("POST", "/client/world/open", folder=folder))
+
+
+@mcp.tool()
+def mc_client_quit() -> str:
+    """Save the open world and close the game. DevBridge stops answering afterwards."""
+    return _fmt(_call("POST", "/client/quit"))
+
+
+@mcp.tool()
 def mc_routes() -> str:
     """List every raw HTTP route the DevBridge mod exposes (for anything not wrapped as a tool)."""
     return _fmt(_call("GET", "/routes"))

@@ -25,7 +25,7 @@ Targets **Minecraft 1.21.1 / NeoForge 21.1.233** (any 21.1.x should work).
 ```bash
 cd devbridge
 ./gradlew build          # first run downloads NeoForge + decompiles; takes a while
-# -> build/libs/devbridge-0.1.0.jar
+# -> build/libs/devbridge-0.5.0.jar
 ```
 
 (If you don't have the wrapper jar yet: `gradle wrapper` with any Gradle ≥ 8.8 installed, then use `./gradlew`.)
@@ -42,7 +42,7 @@ present in every run config but never leaks into your published artifact:
 
 ```groovy
 dependencies {
-    localRuntime files("libs/devbridge-0.1.0.jar")
+    localRuntime files("libs/devbridge-0.5.0.jar")
 }
 ```
 
@@ -113,8 +113,40 @@ Claude Code / Claude Desktop config:
 }
 ```
 
-The agent then gets 33 tools (`mc_log`, `mc_command`, `mc_block`, `mc_registry`,
+The agent then gets 49 tools (`mc_log`, `mc_command`, `mc_block`, `mc_registry`,
 `mc_screenshot`, `mc_reflect_invoke`, …). Run `mc_routes` for the raw route list.
+
+---
+
+## 5. Optional: DevHost (restart the game without the user)
+
+DevBridge dies with the game, so it cannot swap jars or start Minecraft. `devhost/DevHost.java`
+runs next to the launcher, in the user's desktop session, and offers fixed verbs over the same
+kind of token-protected HTTP API (default port 8790, bound to the Tailscale address):
+`/status`, `/stop` (asks DevBridge to save and quit, kills after a timeout), `/mods/install`
+(upload with sha256; jars with the same modId move to `devhost-backup/`), `/mods/remove`,
+`/launch` (runs the launcher's exported launch script), `/log`, `/crash`. No arbitrary commands.
+
+```bat
+rem Windows, once: put DevHost.java, devhost.properties and start-devhost.bat in one folder,
+rem export the instance's launch script from the launcher, then
+start-devhost.bat            rem shortcut in shell:startup to start it at logon
+```
+
+From the agent's machine (`devhost/devhostctl.py`, standard library only, settings in
+`~/.config/devbridge/devhost.env`):
+
+```bash
+devhostctl.py deploy build/libs/mymod-1.0.jar   # stop -> install -> launch -> wait in world
+devhostctl.py status | stop | launch --world W | logs | crash | shot out.png
+```
+
+`/launch` reopens the world that was open at the last `/stop` (or `world=`): it writes the folder
+name to `config/devbridge-open-world.txt`, which DevBridge reads at startup and opens once the
+title screen is up, so the launch script stays untouched. DevHost finds the game by the game
+directory in its command line, the pid DevBridge reports on `/ping`, or java children of the
+launch script. It is remote code execution by design too (it installs jars): keep the token
+secret and the bind on Tailscale.
 
 ---
 
@@ -151,6 +183,13 @@ for any route.
 | `GET /client/screenshot?maxWidth=` | PNG as base64 *(client only)* |
 | `GET /client/screen` · `POST /client/screen/close` | inspect / close GUI *(client only)* |
 | `POST /client/chat {text}` · `POST /client/look {yaw,pitch}` | act as the local player *(client only)* |
+| `GET /client/keys` · `POST /client/key {names, action, ticks}` · `POST /client/key/release` | press, hold or release key mappings by name (move, jump, sprint, attack, use, hotbar, F5, ...) *(client only)* |
+| `POST /client/hotbar {slot}` · `POST /client/perspective {mode}` · `POST /client/hud {hidden}` | hotbar slot, first/back/front camera, F1 *(client only)* |
+| `POST /client/option {name, value, save}` | read or set an option such as `fov`, `renderDistance`, `gamma` *(client only)* |
+| `POST /client/screen/click {widget \| x,y, button}` · `POST /client/screen/type {text, key}` | click and type in the open GUI *(client only)* |
+| `GET /client/window` · `POST /client/window {width, height, x, y}` · `POST /client/mouse {grab}` | window size/position, release or grab the mouse *(client only)* |
+| `GET /client/world` · `GET /client/worlds` | open world (saves folder, name) / saves list *(client only)* |
+| `POST /client/world/leave` · `POST /client/world/open {folder}` · `POST /client/quit` | save and quit to title, open a save, save and close the game; queued, poll afterwards *(client only)* |
 
 Everything that touches game state runs on the server (or client) thread via
 `submit()`; HTTP threads never touch the world directly.
@@ -165,6 +204,25 @@ Everything that touches game state runs on the server (or client) thread via
 
 ## Gotchas
 
+- **Client joined to a remote server**: `/command`, `/world/*` and `/player*` need a server
+  in the same JVM (singleplayer, LAN host or dedicated server). A client connected to a
+  remote server only has `/client/*`, logs, registries and client-side reflection. To drive
+  the world *and* see it, install DevBridge on both the server and the client (different
+  machines, or different ports) and register two MCP servers, one per URL.
+- **Command output and WorldEdit**: `/command` captures what a command sends to its source.
+  Mods that message the player directly (WorldEdit) skip that; read their replies with
+  `/log?contains=CHAT` on the client instead. Pass `as` with the player name so WorldEdit
+  uses that player's selection and undo history, and send `//set` as written.
+- **Window and mouse on a shared desktop**: an automated launch (one with an open-world
+  request) resizes the window to `automationWindow` (default `1600x900`, empty = leave it).
+  With `keepMouseFree` (default true) DevBridge releases the mouse after it opens a world or
+  closes a screen, so a game window in the foreground does not capture the user's cursor;
+  clicking into the window grabs it again as usual.
+- **Held keys and focus**: keys are pressed through the game's key mappings, so the user's
+  bindings don't matter. Continuous mining (holding attack) needs the window focused because
+  vanilla requires a grabbed mouse; a click is enough in creative.
+- **MCP SDK**: `server.py` uses `mcp.server.fastmcp`, which mcp 2.x renamed, so the
+  dependency is pinned to `mcp<2`.
 - **Pause**: in singleplayer the game pauses when the window loses focus, and the server
   thread stops ticking → game-thread calls time out. Press **F3+P** once in-game to disable
   pause-on-lost-focus (or run a dedicated server instead).

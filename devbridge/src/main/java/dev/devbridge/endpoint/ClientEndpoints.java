@@ -143,6 +143,7 @@ public final class ClientEndpoints {
 
         http.post("/client/screen/close", "Close the current GUI screen", req -> onClient(() -> {
             Minecraft.getInstance().setScreen(null);
+            ClientControlEndpoints.keepMouseFree();
             return Json.of("closed");
         }));
 
