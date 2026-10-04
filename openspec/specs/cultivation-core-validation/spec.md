@@ -427,9 +427,10 @@ profile from a later synchronization failure so rollback cannot duplicate items.
 - **WHEN** the attachment replacement succeeds before client delivery fails
 - **THEN** tests SHALL prove the cost and profile result remain committed exactly once
 
-### Requirement: UI tests and evidence cover both H tabs and bounded actions
-Automated UI/source tests SHALL verify two tabs, four translatable action
-buttons, one-intent click behavior, keyboard parity, absence of reserve labels,
+### Requirement: UI tests and evidence cover the H pages and bounded actions
+Automated UI/source tests SHALL read the screen and its page sources as one
+source and verify the Profile and Meditation pages, four translatable action
+buttons each bound exactly once, one-intent click behavior, keyboard parity, absence of reserve labels,
 v3 affinity presentation, missing-data states, advisory enablement, disconnect
 cleanup, sharp render ordering, and unchanged payload field bounds. Manual
 evidence SHALL inspect representative supported window sizes and GUI scales and
@@ -440,7 +441,7 @@ record each unobserved layout or action as `not_verified`.
 - **THEN** every button SHALL route to one of the existing four actions and no numeric authority field SHALL be added
 
 #### Scenario: No real client has been observed
-- **WHEN** automated tests and server smoke pass without opening both tabs in Minecraft
+- **WHEN** automated tests and server smoke pass without opening the pages in Minecraft
 - **THEN** button feel, text fit, sharpness, focus, hover, and action feedback SHALL remain `not_verified`
 
 ### Requirement: The revised loop runs the complete regression and release handoff

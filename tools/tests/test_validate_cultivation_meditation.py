@@ -152,6 +152,32 @@ class CultivationMeditationValidationTest(unittest.TestCase):
 
         self.assert_error_contains(result, "switching H tabs must not send a meditation intent")
 
+    def test_second_action_button_on_another_page_is_rejected(self) -> None:
+        relative = "src/main/java/com/example/myvillage/client/cultivation/panel/OverviewPage.java"
+        path = self.fixture_root / relative
+        text = path.read_text(encoding="utf-8")
+        path.write_text(
+            text.rsplit("}", 1)[0]
+            + "\n    void probe() { ClientCultivationIntentSender.send(MeditationIntentAction.STOP); }\n}\n",
+            encoding="utf-8",
+        )
+
+        result = self.validate()
+
+        self.assert_error_contains(result, "must bind exactly one button to STOP, got 2")
+
+    def test_action_button_removed_from_meditation_page_is_rejected(self) -> None:
+        self.mutate(
+            "src/main/java/com/example/myvillage/client/cultivation/panel/MeditationPage.java",
+            "MeditationIntentAction.START_SPIRIT",
+            "MeditationIntentAction.START_NORMAL",
+        )
+
+        result = self.validate()
+
+        self.assert_error_contains(result, "must bind exactly one button to START_SPIRIT, got 0")
+        self.assert_error_contains(result, "must bind exactly one button to START_NORMAL, got 2")
+
     def test_missing_data_fallback_removal_is_rejected(self) -> None:
         self.mutate(
             "src/main/java/com/example/myvillage/client/cultivation/CultivationProfileScreen.java",

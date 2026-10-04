@@ -116,8 +116,9 @@ not classload client-only types.
 ## Diagnostic Profile Screen
 
 The configurable `Open Cultivation Profile` key defaults to `H`. It opens one
-non-pausing panel with Profile and Meditation tabs for the owning player's latest
-synchronized snapshots. Profile shows identity, translated realm/stage,
+non-pausing panel for the owning player's latest synchronized snapshots; its
+current page layout is in [Cultivation Panel](37_cultivation_panel.md), and the
+rest of this section describes the original Profile and Meditation tabs. Profile shows identity, translated realm/stage,
 progress, stability, spiritual affinity, current power, lifespan/calendar,
 session status, root, techniques, categories, grades, mastery, and schema
 version; legacy reserve is intentionally hidden. Meditation shows advisory

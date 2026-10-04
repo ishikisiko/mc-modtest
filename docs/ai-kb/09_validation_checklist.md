@@ -141,7 +141,7 @@ appearance, Silk Touch/Fortune/worldgen, V/B/X/N and H-button parity,
 interruption behavior, calendar/lifespan, affinity gain, direct layer-priced
 stone batches, pre-cap stability locking, post-cap affinity consolidation,
 stage-derived stability caps, success halving, deterministic advancement, and
-both H-screen tabs. Automated
+every H-panel page. Automated
 gates do not turn any unobserved real-client item into `pass`.
 
 For the GuideME cultivation guide, also run:

@@ -66,6 +66,22 @@ class CultivationGainValidator:
         self.checked_files.add(path)
         return text
 
+    def read_h_screen(self, screen_path: Path) -> str | None:
+        """The H panel is the screen plus its pages under panel/; checks read them as one source."""
+        screen = self.read(screen_path)
+        if screen is None:
+            return None
+        parts = [screen]
+        panel = self.root / screen_path.parent / "panel"
+        for path in sorted(panel.glob("*.java")) if panel.is_dir() else ():
+            try:
+                parts.append(path.read_text(encoding="utf-8"))
+            except (OSError, UnicodeError) as exc:
+                self.error(path, f"cannot read UTF-8 file: {exc}")
+                continue
+            self.checked_files.add(path)
+        return "\n".join(parts)
+
     def read_tree(self, relative: Path) -> dict[Path, str]:
         base = self.root / relative
         if not base.is_dir():
@@ -376,7 +392,7 @@ class CultivationGainValidator:
                 self.error(JAVA / "cultivation", "time-scale reload must interrupt sessions before reusing fixed-point remainders")
 
         screen_path = JAVA / "client/cultivation/CultivationProfileScreen.java"
-        screen = self.read(screen_path)
+        screen = self.read_h_screen(screen_path)
         for fragment, message in (
             ("cultivationProgress()", "H screen must show current stage progress"),
             ("spiritualAffinity()", "H screen must show normal gain from spiritual affinity"),

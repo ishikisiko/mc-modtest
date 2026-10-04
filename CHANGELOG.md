@@ -7,6 +7,57 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.31.0
+
+The cultivation screen (H) is rebuilt as a panel with a page rail, so later
+systems can each add a page. What the client may read and send is unchanged:
+the same three clientbound caches, the same four bounded meditation intents,
+and every decision on the server.
+
+### Changed
+
+- H opens a framed panel instead of the two-tab screen. A header (name, realm
+  and stage, calendar, remaining lifespan) and a footer (session state) stay
+  visible on every page; the body scrolls when a small window cannot hold a
+  page. Reopening H returns to the page it was left on.
+- The Profile tab is 内视 in Chinese and now shows the current realm's stage
+  ladder, progress and stability bars, a lifespan bar, the spiritual root as
+  shares, and the next advancement's target and conditions.
+- The Meditation page groups session state, the two meditation modes, and the
+  advancement (target, conditions, duration, stability cost, interruption
+  loss). Its four buttons are labelled with their bound keys.
+- The screen title and the Chinese key name read 修仙面板 / 打开修仙面板. The
+  English key name stays `Open Cultivation Profile`.
+
+### Added
+
+- A Techniques page (功法): each learned technique's category, grade,
+  elements, mastery, and requirements.
+- `client/cultivation/panel/`: `PanelPage` (the contract a system's page
+  implements), `PanelContext`, `PanelReadouts`, `PanelTheme`, `PanelButton`,
+  and the three pages. `docs/ai-kb/37_cultivation_panel.md` describes the
+  structure and how to add a page.
+
+### Removed
+
+- The advancement rows of the old Profile tab (rule, stability, runtime) and
+  their six language keys; the Meditation page and the Profile page's
+  advancement card carry that information.
+
+### Validation
+
+- The five cultivation validators that inspect the H screen read
+  `CultivationProfileScreen.java` and every file under `panel/` as one source,
+  so their rules (one button per action, no legacy reserve, no profile write,
+  page switches send nothing) cover any page. New validator tests reject a
+  second action binding on another page and a reserve readout on a page.
+- `PanelReadoutsTest` covers the panel's display arithmetic.
+- Checked on the development host's headless client at GUI 480x270, 427x240,
+  and 320x240, in English and Chinese at the first size, including preparing,
+  meditating, and a completed advancement driven through the panel buttons;
+  then opened on the owner's Windows client through DevBridge with its mortal
+  profile. The owner's verdict on the new panel is `not_verified`.
+
 ## 0.30.0
 
 Combat base capabilities after the Lingxiao Spear: the combat data format is

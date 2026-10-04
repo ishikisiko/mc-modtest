@@ -66,6 +66,22 @@ class CultivationLifespanValidator:
         self.checked_files.add(path)
         return value
 
+    def read_h_screen(self, screen_path: Path) -> str | None:
+        """The H panel is the screen plus its pages under panel/; checks read them as one source."""
+        screen = self.read(screen_path)
+        if screen is None:
+            return None
+        parts = [screen]
+        panel = self.root / screen_path.parent / "panel"
+        for path in sorted(panel.glob("*.java")) if panel.is_dir() else ():
+            try:
+                parts.append(path.read_text(encoding="utf-8"))
+            except (OSError, UnicodeError) as exc:
+                self.error(path, f"cannot read UTF-8 file: {exc}")
+                continue
+            self.checked_files.add(path)
+        return "\n".join(parts)
+
     def load_json(self, relative: Path) -> dict[str, Any] | None:
         text = self.read(relative, "realm JSON")
         if text is None:
@@ -308,7 +324,7 @@ class CultivationLifespanValidator:
         self.require(payloads_path, payloads, "playToClient(\n                CultivationTimeSnapshotPayload.TYPE", "time snapshot must register clientbound")
 
         screen_path = JAVA / "client/cultivation/CultivationProfileScreen.java"
-        screen = self.read(screen_path)
+        screen = self.read_h_screen(screen_path)
         for fragment, message in (
             ("spiritualAffinity()", "H screen must show spiritual affinity"),
             ("calendarValue", "H screen must show cultivation calendar year/day"),

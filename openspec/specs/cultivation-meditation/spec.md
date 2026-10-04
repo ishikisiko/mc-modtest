@@ -131,8 +131,9 @@ interruption routing SHALL remove the one current state idempotently.
 The client SHALL retain configurable V for normal meditation, B for spirit
 meditation, X for stop, N for advancement, and H for the cultivation screen.
 The H screen SHALL expose a Meditation tab with normal, spirit, stop, and
-advance buttons that send exactly the same actions as V, B, X, and N. Opening,
-closing, switching, or rendering tabs SHALL send no action. MyVillage SHALL
+advance buttons that send exactly the same actions as V, B, X, and N, and no
+other page SHALL bind any of the four actions. Opening, closing, switching, or
+rendering tabs SHALL send no action. MyVillage SHALL
 leave `G` unreserved by default and SHALL NOT add GuideME-specific interception,
 remapping, or automatic binding migration; ordinary configurable-key repeat and
 screen handling SHALL remain unchanged.
@@ -142,7 +143,7 @@ screen handling SHALL remain unchanged.
 - **THEN** the client SHALL send only the matching bounded action once
 
 #### Scenario: The player switches tabs
-- **WHEN** the player moves between Profile and Meditation without activating an action button
+- **WHEN** the player moves between Profile, Meditation, and any other page without activating an action button
 - **THEN** the client SHALL send no cultivation intent or profile mutation
 
 #### Scenario: Keyboard control remains available

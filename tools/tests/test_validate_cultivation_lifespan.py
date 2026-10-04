@@ -30,6 +30,7 @@ class CultivationLifespanValidationTest(unittest.TestCase):
             "src/main/java/com/example/myvillage/cultivation/network/CultivationTimeSnapshotPayload.java",
             "src/main/java/com/example/myvillage/cultivation/time",
             "src/main/java/com/example/myvillage/client/cultivation/CultivationProfileScreen.java",
+            "src/main/java/com/example/myvillage/client/cultivation/panel",
             "src/main/resources/data/myvillage/myvillage/realm",
             "src/main/resources/assets/myvillage/lang/en_us.json",
             "src/main/resources/assets/myvillage/lang/zh_cn.json",
@@ -166,6 +167,20 @@ class CultivationLifespanValidationTest(unittest.TestCase):
 
         self.assert_error_contains(result, "must not present the inert legacy meditation reserve")
 
+
+    def test_h_page_legacy_reserve_presentation_is_rejected(self) -> None:
+        relative = "src/main/java/com/example/myvillage/client/cultivation/panel/OverviewPage.java"
+        path = self.fixture_root / relative
+        text = path.read_text(encoding="utf-8")
+        path.write_text(
+            text.rsplit("}", 1)[0]
+            + "\n    long forbiddenReserve(Profile profile) { return profile.meditationQiReserve(); }\n}\n",
+            encoding="utf-8",
+        )
+
+        result = self.validate()
+
+        self.assert_error_contains(result, "must not present the inert legacy meditation reserve")
 
 if __name__ == "__main__":
     unittest.main()

@@ -75,11 +75,13 @@ most once per 600 active server ticks.
 
 ### Requirement: A configurable key opens the read-only cultivation profile screen
 The client SHALL retain `Open Cultivation Profile` on configurable key `H` and
-the existing non-pausing, H/Escape toggle behavior. The screen SHALL contain
-Profile and Meditation tabs in one stable responsive layout. The Profile tab
+the existing non-pausing, H/Escape toggle behavior. The screen SHALL be one
+stable responsive panel with a page rail that contains at least the Profile and
+Meditation pages; it MAY add read-only pages for other systems, such as the
+learned-technique page. Across its pages and its header and footer the panel
 SHALL present prior profile, root, technique, calendar, lifespan, and
 advancement information plus schema `3`, spiritual affinity, and dynamic
-stability cap, while omitting legacy reserve. The Meditation tab SHALL present
+stability cap, while omitting legacy reserve. The Meditation page SHALL present
 current progress/cap, affinity-based normal result, fixed spirit result,
 current source-stage stone cost, stability's locked/active affinity rate and
 dynamic cap, the no-stone-cost state after full progress, mastery context,

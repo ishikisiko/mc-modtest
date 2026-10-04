@@ -14,7 +14,7 @@ item_ids:
 
 The controls below display your current configured bindings. Do not treat their default letters as fixed controls:
 
-- Open the read-only Profile / Meditation screen: <KeyBind id="key.myvillage.open_cultivation_profile" />
+- Open the Profile / Meditation / Techniques panel: <KeyBind id="key.myvillage.open_cultivation_profile" />
 - Start normal meditation: <KeyBind id="key.myvillage.start_normal_meditation" />
 - Start spirit-stone meditation: <KeyBind id="key.myvillage.start_spirit_meditation" />
 - Stop the current cultivation session: <KeyBind id="key.myvillage.stop_meditation" />

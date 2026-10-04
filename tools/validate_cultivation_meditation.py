@@ -344,6 +344,12 @@ class CultivationMeditationValidator:
         screen_path = JAVA / "client/cultivation/CultivationProfileScreen.java"
         screen = client_sources.get(self.root / screen_path)
         if screen is not None:
+            # The H panel is the screen plus its pages under panel/; read them as one source.
+            panel = (self.root / screen_path).parent / "panel"
+            screen = "\n".join(
+                [screen] + [text for path, text in client_sources.items() if path.parent == panel]
+            )
+        if screen is not None:
             for view in ("PROFILE", "MEDITATION"):
                 if view not in screen:
                     self.error(screen_path, f"H screen must expose the {view.title()} tab")
@@ -446,7 +452,7 @@ def main() -> int:
     print(
         "cultivation meditation validation passed: "
         f"checked_files={result.checked_files}; preparation=40; damage_window=100; "
-        "input=one-of-4-actions; h_tabs=2"
+        "input=one-of-4-actions; h_tabs=profile+meditation"
     )
     return 0
 

@@ -14,7 +14,7 @@ item_ids:
 
 下列按键由你的当前键位设置动态显示，不应把默认字母当作固定操作：
 
-- 打开只读的“档案 / 修炼”界面：<KeyBind id="key.myvillage.open_cultivation_profile" />
+- 打开“内视 / 修炼 / 功法”修仙面板：<KeyBind id="key.myvillage.open_cultivation_profile" />
 - 开始普通打坐：<KeyBind id="key.myvillage.start_normal_meditation" />
 - 开始灵石修炼：<KeyBind id="key.myvillage.start_spirit_meditation" />
 - 停止当前修炼：<KeyBind id="key.myvillage.stop_meditation" />

@@ -56,8 +56,9 @@ schema ceiling; its current gameplay cap comes from the resolved stage.
 Meditation/advancement sessions, the mastery remainder, warning
 de-duplication, and pending lifespan batches remain transient server memory.
 
-H remains non-pausing and uses Profile and Meditation tabs. Profile values,
-time status, and session status are clientbound/read-only. Four Meditation-tab
+H remains non-pausing. Since 0.31.0 it is a panel with a page rail (Profile,
+Meditation, Techniques; see [Cultivation Panel](37_cultivation_panel.md)). Profile values,
+time status, and session status are clientbound/read-only. Four Meditation-page
 buttons send only the existing normal/spirit/stop/advance enum used by V/B/X/N;
 the server derives all rates, costs, targets, inventory changes, and results.
 Client caches clear on disconnect and never decide eligibility or install a

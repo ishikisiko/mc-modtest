@@ -269,6 +269,12 @@ class CultivationAdvancementValidator:
         screen_path = JAVA / "client/cultivation/CultivationProfileScreen.java"
         screen = client_sources.get(self.root / screen_path)
         if screen is not None:
+            # The H panel is the screen plus its pages under panel/; read them as one source.
+            panel = (self.root / screen_path).parent / "panel"
+            screen = "\n".join(
+                [screen] + [text for path, text in client_sources.items() if path.parent == panel]
+            )
+        if screen is not None:
             if "START_BREAKTHROUGH" not in screen:
                 self.error(screen_path, "H meditation tab must expose the advancement action")
             if not re.search(

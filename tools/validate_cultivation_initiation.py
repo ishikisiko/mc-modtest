@@ -875,13 +875,22 @@ class CultivationInitiationValidator:
         screen = self.java_class("CultivationProfileScreen")
         if screen is not None:
             path, source = screen
+            # The H panel is the screen plus its pages under panel/; read them as one source.
+            panel = path.parent / "panel"
+            for page in sorted(panel.glob("*.java")) if panel.is_dir() else ():
+                try:
+                    source += "\n" + _strip_java_comments(page.read_text(encoding="utf-8"))
+                except (OSError, UnicodeError) as exc:
+                    self.error(page, f"cannot read Java source: {exc}")
+                    continue
+                self.checked_files.add(page)
             for view in ("PROFILE", "MEDITATION"):
                 if view not in source:
                     self.error(path, f"H screen must expose the {view.title()} tab")
             for action in ("START_NORMAL", "START_SPIRIT", "STOP", "START_BREAKTHROUGH"):
                 if action not in source:
                     self.error(path, f"H meditation tab must expose one {action} button")
-            if not re.search(r"Button\.builder\s*\(", source):
+            if not re.search(r"(?:Button\.builder|new\s+PanelButton)\s*\(", source):
                 self.error(path, "H tabs and actions must use visible buttons")
             if not re.search(
                 r"(?:ClientCultivationIntentSender\.send|PacketDistributor\.sendToServer)\s*\(",
@@ -1039,7 +1048,7 @@ def main() -> int:
     print(
         "cultivation initiation validation passed: "
         f"checked_files={result.checked_files}; blocks=2; elements=5; "
-        "profile_schema=3; cultivation_c2s=1-bounded-intent; h_tabs=2; h_actions=4"
+        "profile_schema=3; cultivation_c2s=1-bounded-intent; h_tabs=profile+meditation; h_actions=4"
     )
     print(
         "algorithm determinism, affinity arithmetic, atomic transitions, and repeat "

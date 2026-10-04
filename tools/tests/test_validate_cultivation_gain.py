@@ -232,7 +232,7 @@ class CultivationGainValidationTest(unittest.TestCase):
     def test_full_progress_no_cost_ui_removal_is_rejected(self) -> None:
         screen = (
             self.fixture_root
-            / "src/main/java/com/example/myvillage/client/cultivation/CultivationProfileScreen.java"
+            / "src/main/java/com/example/myvillage/client/cultivation/panel/MeditationPage.java"
         )
         text = screen.read_text(encoding="utf-8")
         self.assertIn("spiritCostValue", text)

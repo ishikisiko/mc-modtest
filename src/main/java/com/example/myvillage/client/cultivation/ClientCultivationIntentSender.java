@@ -7,11 +7,11 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.Objects;
 
-final class ClientCultivationIntentSender {
+public final class ClientCultivationIntentSender {
     private ClientCultivationIntentSender() {
     }
 
-    static boolean send(MeditationIntentAction action) {
+    public static boolean send(MeditationIntentAction action) {
         Objects.requireNonNull(action, "action");
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.player == null || minecraft.getConnection() == null) {
