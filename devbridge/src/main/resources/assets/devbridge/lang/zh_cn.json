@@ -1,0 +1,6 @@
+{
+  "key.categories.devbridge": "DevBridge",
+  "key.devbridge.toggle_mouse": "切换观察模式（释放鼠标）",
+  "devbridge.mouse.watching": "DevBridge：观察模式，鼠标不会被捕获（点击游戏画面或按 %s 接管）",
+  "devbridge.mouse.playing": "DevBridge：已接管（切出窗口或按 %s 释放鼠标）"
+}

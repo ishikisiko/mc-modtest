@@ -28,12 +28,14 @@ import java.util.HexFormat;
  * @param logBufferSize how many log lines to keep in memory.
  * @param automationWindow window size "WIDTHxHEIGHT" applied when the game was started with an
  *                      open-world request (an automated launch); empty to leave the window alone.
- * @param keepMouseFree  release the mouse after DevBridge opens a world or closes a screen, so a
- *                      game in the foreground does not capture the user's cursor.
+ * @param keepMouseFree  worlds DevBridge opens start in watch mode: the game never captures the
+ *                      user's mouse until the toggle key (default F8) switches to play.
+ * @param automationScreen screen to open once a world DevBridge opened is up: "inventory", or
+ *                      empty (default) for none.
  */
 public record BridgeConfig(String bind, int port, String token, boolean allowReflect,
                            long timeoutMillis, int logBufferSize, String automationWindow,
-                           boolean keepMouseFree) {
+                           boolean keepMouseFree, String automationScreen) {
 
     public static BridgeConfig load() {
         Path file = FMLPaths.CONFIGDIR.get().resolve("devbridge.json");
@@ -55,6 +57,7 @@ public record BridgeConfig(String bind, int port, String token, boolean allowRef
         if (!json.has("logBufferSize")) { json.addProperty("logBufferSize", 5000); dirty = true; }
         if (!json.has("automationWindow")) { json.addProperty("automationWindow", "1600x900"); dirty = true; }
         if (!json.has("keepMouseFree")) { json.addProperty("keepMouseFree", true); dirty = true; }
+        if (!json.has("automationScreen")) { json.addProperty("automationScreen", ""); dirty = true; }
         if (!json.has("token") || json.get("token").getAsString().isBlank()) {
             json.addProperty("token", randomToken());
             dirty = true;
@@ -77,7 +80,8 @@ public record BridgeConfig(String bind, int port, String token, boolean allowRef
                 Long.parseLong(override("timeoutMillis", json.get("timeoutMillis").getAsString())),
                 Integer.parseInt(override("logBufferSize", json.get("logBufferSize").getAsString())),
                 override("automationWindow", json.get("automationWindow").getAsString()).strip(),
-                Boolean.parseBoolean(override("keepMouseFree", json.get("keepMouseFree").getAsString()))
+                Boolean.parseBoolean(override("keepMouseFree", json.get("keepMouseFree").getAsString())),
+                override("automationScreen", json.get("automationScreen").getAsString()).strip()
         );
     }
 

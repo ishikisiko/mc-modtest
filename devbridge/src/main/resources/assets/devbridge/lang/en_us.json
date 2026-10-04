@@ -1,0 +1,6 @@
+{
+  "key.categories.devbridge": "DevBridge",
+  "key.devbridge.toggle_mouse": "Toggle watch mode (free mouse)",
+  "devbridge.mouse.watching": "DevBridge: watching, the mouse stays free (click the game or press %s to take over)",
+  "devbridge.mouse.playing": "DevBridge: you have the mouse (switch away or press %s to free it)"
+}

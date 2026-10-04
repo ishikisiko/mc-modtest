@@ -46,14 +46,17 @@ public final class ClientWorldEndpoints {
     private static String pendingWorld;
     /** Window size for an automated launch, applied on the first client tick. */
     private static int[] pendingWindow;
-    /** Release the mouse once the world DevBridge opened is up. */
-    private static boolean releaseMouseInWorld;
-    private static boolean keepMouseFree;
+    /** Open the inventory once the world DevBridge opened has settled (automationScreen). */
+    private static boolean inventoryOnJoin;
+    private static boolean openInventoryAfterJoin;
+    private static int settledTicks;
 
     public static void register(BridgeHttpServer http) {
-        keepMouseFree = http.config().keepMouseFree();
         pendingWorld = takeOpenWorldRequest();
         if (pendingWorld != null) pendingWindow = parseSize(http.config().automationWindow());
+        String screen = http.config().automationScreen();
+        inventoryOnJoin = screen.equalsIgnoreCase("inventory");
+        if (!screen.isEmpty() && !inventoryOnJoin) DevBridge.LOGGER.warn("[DevBridge] automationScreen '{}' is not 'inventory' or empty; ignored", screen);
         NeoForge.EVENT_BUS.addListener(ClientTickEvent.Post.class, e -> onClientTick());
 
         http.get("/client/world", "The open world: inWorld, singleplayer, folder (saves/ directory name, what /client/world/open takes), name", req -> onClient(() -> {
@@ -160,17 +163,24 @@ public final class ClientWorldEndpoints {
                 DevBridge.LOGGER.warn("[DevBridge] requested world '{}' does not exist; staying at the title screen", folder);
             }
         }
-        // Joining ends with setScreen(null), which grabs the mouse when the window has focus.
-        if (releaseMouseInWorld && mc.level != null && mc.player != null && mc.screen == null) {
-            releaseMouseInWorld = false;
-            mc.mouseHandler.releaseMouse();
+        // Joining passes through several screens; wait until the world has been on screen for 1 s.
+        if (openInventoryAfterJoin) {
+            boolean settled = mc.level != null && mc.player != null && mc.screen == null && mc.getOverlay() == null;
+            settledTicks = settled ? settledTicks + 1 : 0;
+            if (settledTicks >= 20) {
+                openInventoryAfterJoin = false;
+                ClientControlEndpoints.click(mc.options.keyInventory); // the game picks survival or creative
+            }
         }
     }
 
+    /** Opens a world in watch mode (ClientMouseGuard): joining would otherwise capture the mouse. */
     private static void openWorld(Minecraft mc, String folder) {
-        releaseMouseInWorld = keepMouseFree;
+        ClientMouseGuard.watch();
+        openInventoryAfterJoin = inventoryOnJoin;
+        settledTicks = 0;
         mc.createWorldOpenFlows().openWorld(folder, () -> {
-            releaseMouseInWorld = false;
+            openInventoryAfterJoin = false;
             mc.setScreen(new TitleScreen());
         });
     }

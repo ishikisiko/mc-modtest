@@ -329,7 +329,9 @@ def mc_client_window(width: int | None = None, height: int | None = None, x: int
 
 @mcp.tool()
 def mc_client_mouse(grab: bool = False) -> str:
-    """Release (default) or grab the mouse. Released, the user's cursor stays free even while the game has focus."""
+    """grab=False (default): watch mode, the game does not capture the user's mouse on its own.
+    grab=True: normal play. The user takes over by clicking the game view, and gets the mouse back by
+    switching away (Alt+Tab) or pressing F8."""
     return _fmt(_call("POST", "/client/mouse", grab=grab))
 
 
