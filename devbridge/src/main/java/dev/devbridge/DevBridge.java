@@ -1,7 +1,9 @@
 package dev.devbridge;
 
 import com.mojang.logging.LogUtils;
+import dev.devbridge.endpoint.ClientControlEndpoints;
 import dev.devbridge.endpoint.ClientEndpoints;
+import dev.devbridge.endpoint.ClientWorldEndpoints;
 import dev.devbridge.endpoint.CommandEndpoints;
 import dev.devbridge.endpoint.InfoEndpoints;
 import dev.devbridge.endpoint.LogEndpoints;
@@ -47,6 +49,8 @@ public final class DevBridge {
         if (FMLEnvironment.dist.isClient()) {
             // Only touch client classes when we're actually on the client.
             ClientEndpoints.register(http);
+            ClientControlEndpoints.register(http);
+            ClientWorldEndpoints.register(http);
         }
         try {
             http.start();

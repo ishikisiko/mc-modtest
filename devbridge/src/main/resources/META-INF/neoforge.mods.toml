@@ -5,7 +5,7 @@ issueTrackerURL="https://example.invalid/devbridge/issues"
 
 [[mods]]
 modId="devbridge"
-version="0.1.0"
+version="0.5.0"
 displayName="DevBridge"
 description='''
 Development-only HTTP bridge exposing logs, commands, registries, world state,

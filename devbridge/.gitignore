@@ -7,3 +7,7 @@ runs/
 .vscode/
 mcp-server/.venv/
 __pycache__/
+# DevHost local files (the real config holds a token)
+devhost/devhost.properties
+devhost/devhost.log
+devhost/devhost-state.properties
