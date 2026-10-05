@@ -3,7 +3,8 @@
 // DevBridge lives inside Minecraft, so it cannot replace its own jars, start the game or
 // survive a crash. DevHost runs next to the launcher in the user's desktop session and offers
 // a fixed set of verbs over a token-protected HTTP API: status, stop, install/remove a mod
-// jar, launch (and open a world), and read logs and crash reports. No arbitrary commands.
+// jar (uploaded, or downloaded here from a URL and checked against a sha256), launch (and open a
+// world), and read logs and crash reports. No arbitrary commands.
 //
 // Run with a JDK (source-file mode, no build step):
 //     java DevHost.java devhost.properties
@@ -22,6 +23,7 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
+import java.net.ProxySelector;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.net.http.HttpClient;
@@ -46,7 +48,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -59,6 +65,11 @@ public class DevHost {
     static final Pattern JAR_NAME = Pattern.compile("[A-Za-z0-9._+\\-]+\\.jar");
     static final Pattern LOG_NAME = Pattern.compile("[A-Za-z0-9._\\-]+");
     static final String OPEN_WORLD_FILE = "devbridge-open-world.txt";
+    static final String VERSION = "0.2.0";
+    static final Pattern SHA256 = Pattern.compile("[0-9a-fA-F]{64}");
+    static final Pattern PROXY = Pattern.compile("([A-Za-z0-9.\\-]+):(\\d{1,5})");
+    /** Largest jar /mods/install-url downloads. */
+    static final int MAX_PULL_BYTES = 64 * 1024 * 1024;
 
     static Path configFile, home, gameDir, modsDir, launchScript, actionLog, stateFile;
     static String token;
@@ -105,13 +116,15 @@ public class DevHost {
 
         HttpServer server = HttpServer.create(new InetSocketAddress(addr, port), 0);
         server.setExecutor(Executors.newFixedThreadPool(4));
-        route(server, "/ping", false, q -> Map.of("devhost", true, "os", System.getProperty("os.name")));
+        route(server, "/ping", false, q -> Map.of("devhost", true, "os", System.getProperty("os.name"),
+                "version", VERSION, "features", List.of("install-url")));
         route(server, "/status", true, q -> status());
         route(server, "/stop", true, q -> exclusive(() -> stop(intParam(q, "timeoutSec", stopTimeoutSec))));
         route(server, "/mods/remove", true, q -> exclusive(() -> remove(param(q, "name", null))));
         route(server, "/launch", true, q -> exclusive(() -> launch(q.containsKey("world") ? q.get("world") : null)));
         route(server, "/log", true, q -> readLog(param(q, "name", "latest.log"), intParam(q, "lines", 200)));
         route(server, "/crash", true, q -> readCrash(param(q, "name", null), intParam(q, "maxChars", 20000)));
+        route(server, "/mods/install-url", true, q -> exclusive(() -> installFromUrl(q)));
         server.createContext("/mods/install", ex -> handle(ex, true, q -> exclusive(() -> install(q, ex.getRequestBody().readAllBytes()))));
         server.start();
         log("listening on http://" + addr.getHostAddress() + ":" + port + "  gameDir=" + gameDir + "  launch=" + launchScript);
@@ -198,6 +211,64 @@ public class DevHost {
         o.put("modIds", ids);
         o.put("replaced", replaced);
         o.put("backup", backup == null ? null : backup.toString());
+        return o;
+    }
+
+    /**
+     * install(), with the jar downloaded by this machine instead of uploaded to it: the caller's link to
+     * here can be far slower than this machine's own downloads. The sha256 comes over this authenticated
+     * API, so the url may be plain http. proxy = host:port of an HTTP proxy to download through.
+     */
+    static Object installFromUrl(Map<String, String> q) throws Exception {
+        String name = param(q, "name", null);
+        String sha = param(q, "sha256", null);
+        String proxy = param(q, "proxy", "");
+        int timeoutSec = intParam(q, "timeoutSec", 300);
+        if (name == null || !JAR_NAME.matcher(name).matches()) throw new HttpError(400, "name must be a plain .jar file name");
+        if (sha == null || !SHA256.matcher(sha).matches()) throw new HttpError(400, "sha256 (64 hex digits) is required");
+        URI uri;
+        try {
+            uri = URI.create(param(q, "url", ""));
+        } catch (IllegalArgumentException e) {
+            throw new HttpError(400, "url is not a valid URL");
+        }
+        if (uri.getHost() == null || !("http".equals(uri.getScheme()) || "https".equals(uri.getScheme()))) {
+            throw new HttpError(400, "url must be http(s)://host/...");
+        }
+        HttpClient.Builder client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).followRedirects(HttpClient.Redirect.NEVER);
+        if (!proxy.isEmpty()) {
+            Matcher m = PROXY.matcher(proxy);
+            if (!m.matches() || Integer.parseInt(m.group(2)) > 65535) throw new HttpError(400, "proxy must be host:port");
+            client.proxy(ProxySelector.of(new InetSocketAddress(m.group(1), Integer.parseInt(m.group(2)))));
+        }
+        String via = proxy.isEmpty() ? "direct" : "proxy " + proxy;
+        if (gameRunning()) throw new HttpError(409, "the game is running (its jars are locked); stop it first");
+
+        long start = System.nanoTime();
+        // A null body: the server announced more than MAX_PULL_BYTES and nothing was read.
+        CompletableFuture<HttpResponse<byte[]>> pending = client.build().sendAsync(HttpRequest.newBuilder(uri).GET().build(),
+                info -> info.headers().firstValueAsLong("Content-Length").orElse(0) > MAX_PULL_BYTES
+                        ? HttpResponse.BodySubscribers.replacing(null) : HttpResponse.BodySubscribers.ofByteArray());
+        HttpResponse<byte[]> r;
+        try {
+            r = pending.get(timeoutSec, TimeUnit.SECONDS);
+        } catch (TimeoutException e) {
+            pending.cancel(true);
+            throw new HttpError(504, "download did not finish in " + timeoutSec + " s (" + via + ")");
+        } catch (ExecutionException e) {
+            throw new HttpError(502, "download failed (" + via + "): " + e.getCause());
+        }
+        if (r.statusCode() != 200) throw new HttpError(502, "download failed (" + via + "): HTTP " + r.statusCode() + " from " + uri);
+        byte[] jar = r.body();
+        if (jar == null || jar.length > MAX_PULL_BYTES) throw new HttpError(413, "the download is larger than " + MAX_PULL_BYTES + " bytes");
+        long millis = (System.nanoTime() - start) / 1_000_000L;
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> o = (Map<String, Object>) install(q, jar);
+        o.put("bytes", jar.length);
+        o.put("downloadMillis", millis);
+        o.put("via", via);
+        log("install-url: " + name + " " + jar.length + " bytes in " + millis + " ms via " + via + " from " + uri);
         return o;
     }
 

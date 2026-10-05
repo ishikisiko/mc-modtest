@@ -124,7 +124,8 @@ DevBridge dies with the game, so it cannot swap jars or start Minecraft. `devhos
 runs next to the launcher, in the user's desktop session, and offers fixed verbs over the same
 kind of token-protected HTTP API (default port 8790, bound to the Tailscale address):
 `/status`, `/stop` (asks DevBridge to save and quit, kills after a timeout), `/mods/install`
-(upload with sha256; jars with the same modId move to `devhost-backup/`), `/mods/remove`,
+(upload with sha256; jars with the same modId move to `devhost-backup/`), `/mods/install-url`
+(the same, downloaded by DevHost), `/mods/remove`,
 `/launch` (runs the launcher's exported launch script), `/log`, `/crash`. No arbitrary commands.
 
 ```bat
@@ -149,6 +150,18 @@ failed (`--timeout`, default 600 s, goes before the action: `world --timeout 120
 needs DevHost only when the game is not running: it launches into the world if it exists, else to
 the title screen, then creates it (`--preset`, `--game-mode`, `--rule NAME=VALUE`, `--time`, ... as
 for `create`). Everything new talks to DevBridge; DevHost itself is unchanged.
+
+Slow uplink to the PC: `/mods/install` uploads the jar over the agent's link to the PC, which can be
+far slower than the PC's own downloads (11 KB/s against 100 Mbit/s was measured). `/mods/install-url`
+(`url`, `name`, `sha256`, optional `proxy=host:port`, `timeoutSec`) has DevHost download the jar
+itself, through an HTTP proxy on the PC if one is named, check it against the sha256 and install it
+as an upload would. The sha256 travels over the token-protected API, so the URL may be plain http;
+only http(s) URLs, no redirects, at most 64 MB. `devhostctl.py install` and `deploy` use it when
+`DEVHOST_PULL_DIR` (a local directory) and `DEVHOST_PULL_URL` (the public URL that serves it) are
+set: the jar is staged under a random folder name, pulled through `DEVHOST_PULL_PROXY` first and
+then directly, removed again, and uploaded the old way if pulling fails or the installed DevHost
+predates the route (`/ping` lists `features`). DevHost cannot update itself: replace `DevHost.java`
+on the PC and restart it to get a new version.
 
 `/launch` reopens the world that was open at the last `/stop` (or `world=`): it writes the folder
 name to `config/devbridge-open-world.txt`, which DevBridge reads at startup and opens once the

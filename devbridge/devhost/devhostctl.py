@@ -13,7 +13,9 @@ World commands wait until the operation has finished and exit 1 with its error i
 Restore, reset and delete only work on worlds DevBridge created (devbridge-world.json).
 
 Settings come from the environment or an env file (default ~/.config/devbridge/devhost.env,
-override with --env): DEVHOST_URL, DEVHOST_TOKEN, DEVBRIDGE_URL, DEVBRIDGE_TOKEN.
+override with --env): DEVHOST_URL, DEVHOST_TOKEN, DEVBRIDGE_URL, DEVBRIDGE_TOKEN. Optional, to have the PC
+download jars itself instead of receiving an upload: DEVHOST_PULL_DIR (a local directory that
+DEVHOST_PULL_URL serves over http) and DEVHOST_PULL_PROXY (host:port of an HTTP proxy on the PC).
 Standard library only.
 """
 
@@ -24,6 +26,7 @@ import base64
 import hashlib
 import json
 import os
+import secrets
 import sys
 import time
 import urllib.error
@@ -104,9 +107,46 @@ def cmd_stop(a) -> None:
 def install(jar: Path) -> dict:
     data = jar.read_bytes()
     sha = hashlib.sha256(data).hexdigest()
+    pulled = pull_install(jar, data, sha)
+    if pulled is not None:
+        return pulled
     # The uplink to the PC can be as slow as ~10 KB/s: allow 4 KB/s, and never less than two minutes.
     return must(host("POST", "/mods/install", params={"name": jar.name, "sha256": sha}, body=data,
                      timeout=max(120, len(data) // 4000)), f"install {jar.name}")
+
+
+def pull_install(jar: Path, data: bytes, sha: str) -> dict | None:
+    """Have DevHost download the jar itself (/mods/install-url) when DEVHOST_PULL_DIR (a local directory that
+    DEVHOST_PULL_URL serves) is set: this machine's uplink to the PC can be far slower than the PC's own
+    downloads. Tries DEVHOST_PULL_PROXY (host:port of an HTTP proxy on the PC) first, then a direct download.
+    None = not configured, or it did not work and the caller should upload instead."""
+    pull_dir, pull_url = os.environ.get("DEVHOST_PULL_DIR", ""), os.environ.get("DEVHOST_PULL_URL", "").rstrip("/")
+    if not pull_dir or not pull_url:
+        return None
+    slot = secrets.token_hex(8)
+    staged = Path(pull_dir) / slot / jar.name
+    try:
+        staged.parent.mkdir(parents=True, exist_ok=True)
+        staged.write_bytes(data)
+        proxy = os.environ.get("DEVHOST_PULL_PROXY", "")
+        for via in ([proxy] if proxy else []) + [""]:
+            res = host("POST", "/mods/install-url", timeout=330, params={
+                "url": f"{pull_url}/{slot}/{urllib.parse.quote(jar.name)}", "name": jar.name, "sha256": sha, "proxy": via or None})
+            if res.get("ok"):
+                return res["result"]
+            print(f"pull {jar.name} ({'proxy ' + via if via else 'direct'}) failed: {res.get('error')}", file=sys.stderr)
+            if res.get("error") in ("HTTP 404", "HTTP 405") or "is running" in str(res.get("error")):
+                break  # an older DevHost without the route, or nothing a retry fixes
+        if "is running" in str(res.get("error")):
+            raise SystemExit(f"install {jar.name} failed: {res.get('error')}")
+        print(f"uploading {jar.name} instead", file=sys.stderr)
+        return None
+    finally:
+        staged.unlink(missing_ok=True)
+        try:
+            staged.parent.rmdir()
+        except OSError:
+            pass
 
 
 def cmd_install(a) -> None:
