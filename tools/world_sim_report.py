@@ -44,7 +44,7 @@ TIER_ZH = {"small": "小档", "medium": "中档", "large": "大档"}
 TIER_ORDER = {"small": 0, "medium": 1, "large": 2}
 RANK_FALLBACK_ZH = {"sect_master": "掌门", "elder": "长老", "inner": "内门弟子", "outer": "外门弟子",
                     "rogue": "散修"}
-DEATH_CAUSE_ZH = {"old_age": "坐化", "qi_deviation": "走火入魔", "killed": "被杀", "beast": "丧于妖兽",
+DEATH_CAUSE_ZH = {"old_age": "坐化", "qi_deviation": "走火入魔", "killed": "被杀", "slain": "死于人手", "beast": "丧于妖兽",
                   "misadventure": "遭逢不测", "battle": "战殁", "trap": "触机关而亡", "revenge": "为仇家所杀"}
 # Event type prefix -> chronicle tag. Longest prefix wins; unknown types get no tag.
 TYPE_TAGS = [
@@ -54,7 +54,10 @@ TYPE_TAGS = [
     ("duel", "争斗"), ("rob", "劫掠"), ("war", "战事"), ("truce", "战事"), ("feud", "结怨"),
     ("enmity", "结怨"), ("found", "开宗"), ("split", "分裂"), ("schism", "分裂"), ("sect_extinct", "覆灭"),
     ("sect_destroy", "覆灭"), ("destroy", "覆灭"), ("annex", "吞并"), ("decline", "衰落"), ("sect", "宗门"),
-    ("disciple", "师承"), ("promotion", "擢升"), ("entrant", "入道"),
+    ("disciple", "师承"), ("promotion", "擢升"), ("entrant", "入道"), ("slain", "仇杀"), ("battle", "战事"),
+    ("beast", "兽劫"), ("friendship", "结交"), ("quarrel", "口角"), ("travel", "游历"), ("seclusion", "闭关"),
+    ("desertion", "叛离"), ("rogue_join", "投门"), ("sect_found", "开宗"), ("sect_split", "分裂"),
+    ("sect_decline", "衰落"), ("sect_revival", "中兴"), ("sect_destroy", "覆灭"), ("war_end", "罢战"),
 ]
 # Sect-timeline marker kinds, matched against the event type.
 SECT_MARKERS = [
@@ -62,6 +65,8 @@ SECT_MARKERS = [
     ("feud", "feud", "▲", "结怨"), ("split", "split", "⑂", "分裂"), ("schism", "split", "⑂", "分裂"),
     ("found", "found", "●", "开宗"), ("sect_extinct", "end", "✕", "覆灭"), ("sect_destroy", "end", "✕", "覆灭"),
     ("destroy", "end", "✕", "覆灭"), ("annex", "end", "✕", "覆灭"), ("decline", "decl", "▼", "衰落"),
+    ("battle", "war", "▲", "战事"), ("sect_found", "found", "●", "开宗"), ("sect_split", "split", "⑂", "分裂"),
+    ("sect_decline", "decl", "▼", "衰落"), ("sect_revival", "found", "●", "中兴"),
 ]
 
 
@@ -110,14 +115,51 @@ def format_template(template: str, args: list[str], escape_literal: bool) -> str
     return "".join(out)
 
 
+_CN_DIGITS = "零一二三四五六七八九"
+_CN_UNITS = ("", "十", "百", "千")
+
+
+def chinese_numeral(n: int) -> str:
+    """41 → 四十一, 105 → 一百零五, 12 → 十二; a port of the CLI's ChineseNumerals.of."""
+    if n < 0:
+        return "负" + chinese_numeral(-n)
+    if n < 10:
+        return _CN_DIGITS[n]
+    if n >= 10_000:
+        high, low = divmod(n, 10_000)
+        return chinese_numeral(high) + "万" + ("" if low == 0 else ("零" if low < 1000 else "") + chinese_numeral(low))
+    out, pending_zero, digits = [], False, str(n)
+    for i, ch in enumerate(digits):
+        d, unit = int(ch), len(digits) - 1 - i
+        if d == 0:
+            pending_zero = bool(out)
+            continue
+        if pending_zero:
+            out.append("零")
+            pending_zero = False
+        if not (d == 1 and unit == 1 and not out):
+            out.append(_CN_DIGITS[d])
+        out.append(_CN_UNITS[unit])
+    return "".join(out)
+
+
+def is_plain_number(s: str) -> bool:
+    """Same test as ChineseNumerals.isNumber: 1–9 ASCII digits."""
+    return 0 < len(s) <= 9 and all("0" <= c <= "9" for c in s)
+
+
 class Lang:
-    def __init__(self, entries: dict):
+    """A language file formatted the way the CLI's Lang does it: in a Chinese file every all-digit
+    literal param (ages, years, counts) is written as a Chinese numeral."""
+
+    def __init__(self, entries: dict, chinese_numerals: bool = True):
         self.entries = {k: v for k, v in entries.items() if isinstance(v, str)}
+        self.chinese_numerals = chinese_numerals
         self.missing: Counter = Counter()
 
     @classmethod
     def load(cls, path: Path) -> "Lang":
-        return cls(json.loads(path.read_text(encoding="utf-8")))
+        return cls(json.loads(path.read_text(encoding="utf-8")), chinese_numerals=path.name.startswith("zh"))
 
     def get(self, key: str):
         value = self.entries.get(key)
@@ -138,6 +180,8 @@ class Lang:
         if p.startswith("@"):
             v = self.get(p[1:])
             return v if v is not None else f"[{p[1:]}]"
+        if self.chinese_numerals and is_plain_number(p):
+            return chinese_numeral(int(p))
         return p
 
 
@@ -239,7 +283,8 @@ class Run:
                 "root_grade": t.get("root_grade") or self._root_grade(t.get("root")),
                 "sect": t.get("sect", -1), "rank": t.get("rank", "rogue"), "master": t.get("master", -1),
                 "dao_name": t.get("dao_name") or "", "title": t.get("title") or "",
-                "technique": t.get("technique") or "", "relations": t.get("relations") or [],
+                "technique": t.get("technique") or "", "technique_grade": t.get("technique_grade") or "",
+                "relations": t.get("relations") or [],
                 "kills_field": t.get("kills", 0) or 0, "death": t.get("death"), "cause": t.get("cause"),
                 "killer": t.get("killer", -1), "death_event": t.get("death_event", -1), "region": "",
             }
@@ -352,7 +397,7 @@ class Run:
                 self.founded[f].append(s["id"])
         for e in self.events:
             typ = str(e.get("type", ""))
-            if typ.startswith("found") and e.get("actors") and e.get("sects"):
+            if (typ.startswith("found") or typ.startswith("sect_found")) and e.get("actors") and e.get("sects"):
                 for sid in e["sects"][:1]:
                     if sid not in self.founded[e["actors"][0]]:
                         self.founded[e["actors"][0]].append(sid)
@@ -432,7 +477,7 @@ class Run:
 
     # ---- text rendering
     def _param_html(self, p: str, link: bool) -> str:
-        if p.startswith("@"):
+        if p.startswith("@") or is_plain_number(p):
             return esc(self.lang.param(p))
         target = self.name_links.get(p) if link else None
         if target:
@@ -636,6 +681,8 @@ def outcome_tables(run: Run) -> list[dict]:
         if p["technique"]:
             techs.add(p["technique"])
         grades = {run.technique_grade(t) for t in techs if run.technique_grade(t)}
+        if p.get("technique_grade"):
+            grades.add(p["technique_grade"])
         sect = run.sects.get(p["sect"]) or {}
         sig = run.technique_grade(sect.get("signature_technique", "")) if sect else ""
         golden_master = any(run.realm_at(m, d) >= 2 for d, m in run.masters_of(pid))
@@ -1099,6 +1146,11 @@ def _link_person(run: Run, pid: int) -> str:
     return f'<a class="pn" href="{target}">{esc(p["name"])}</a>' if target else esc(p["name"])
 
 
+def cn(n: int) -> str:
+    """Counts and ages inside biography prose, written like the engine's own chronicle text."""
+    return chinese_numeral(int(n))
+
+
 def _sentence(text: str) -> str:
     return text if text.endswith(("。", "！", "？", "」", "”")) else text + "。"
 
@@ -1114,7 +1166,7 @@ def bio_card(run: Run, cand: dict) -> str:
     beats = []  # (day, order, html) told in date order
 
     def when(day):
-        return f"{esc(run.date(day))}（{run.age(pid, day)}岁）"
+        return f"{esc(run.date(day))}（{cn(run.age(pid, day))}岁）"
 
     entry = run.entry_day.get(pid)
     first_sect = next((e for e in subj if e.get("type") == "recruit"), None)
@@ -1140,11 +1192,12 @@ def bio_card(run: Run, cand: dict) -> str:
             if realm is None:
                 continue
             how = ""
-            if key.endswith(".sect_pill"):
+            variant = set(key.split(".")[3:])
+            if "sect_pill" in variant:
                 how = "，得宗门赐丹之助"
-            elif key.endswith(".desperate"):
+            elif "desperate" in variant:
                 how = "，乃寿元将尽强行冲关而成"
-            elif ".fortune" in key:
+            elif any(v.startswith("fortune") for v in variant):
                 how = "，全凭机缘"
             if e.get("cause", -1) not in (-1, None) and e["cause"] in run.ev:
                 how += f"（起因：{esc(run.event_plain(run.ev[e['cause']]).rstrip('。'))}）"
@@ -1168,30 +1221,34 @@ def bio_card(run: Run, cand: dict) -> str:
             seen_text.add(b[2])
             s.append(_sentence(b[2]))
     if len(run.fortunes.get(pid, [])) > 4:
-        s.append(f"一生奇遇凡{len(run.fortunes[pid])}次。")
+        s.append(f"一生奇遇凡{cn(len(run.fortunes[pid]))}次。")
     victims = run.victims.get(pid, [])
     if len(victims) > 4:
-        s.append("手下亡魂共" + f"{len(victims)}人。")
+        s.append(f"手下亡魂共{cn(len(victims))}人。")
     fails = sum(1 for e in subj if str(e.get("type", "")).startswith("breakthrough_fail"))
     if fails:
-        s.append(f"一生冲关受挫凡{fails}次。")
+        s.append(f"一生冲关受挫凡{cn(fails)}次。")
     disciples = sorted({e["actors"][0] for e in evs if e.get("type") == "disciple" and len(e.get("actors") or []) > 1
                         and e["actors"][1] == pid})
     if disciples:
-        s.append(f"门下亲传弟子{len(disciples)}人。")
+        s.append(f"门下亲传弟子{cn(len(disciples))}人。")
     if p["alive"]:
         sect = run.sect_name(p["sect"])
         role = (sect + run.rank_zh(p["rank"])) if sect else run.rank_zh("rogue")
         s.append(f"至今在世，为{esc(role)}，{esc(run.stage_zh(p['realm'], p['stage']))}修为，"
-                 f"年{run.age(pid, run.final_day)}。")
+                 f"年{cn(run.age(pid, run.final_day))}。")
     else:
         de = run.ev.get(p["death_event"])
         how = run.event_html(de) if de else esc(DEATH_CAUSE_ZH.get(p["cause"], p["cause"] or "卒"))
         killer = ""
         if p["killer"] not in (-1, None) and p["killer"] in run.people and not de:
             killer = f"，死于{_link_person(run, p['killer'])}之手"
-        s.append(f"{esc(run.date(p['death']))}，{how}{killer}享年{run.age(pid, p['death'])}。"
-                 if how.endswith("。") else f"{esc(run.date(p['death']))}，{how}{killer}，享年{run.age(pid, p['death'])}。")
+        # The engine's death texts often state the age already (年四十一, 寿五百); do not repeat it.
+        told_age = de is not None and any(is_plain_number(str(x)) for x in de.get("params") or [])
+        tail = "" if told_age else f"享年{cn(run.age(pid, p['death']))}。"
+        if tail and not how.endswith("。"):
+            tail = "，" + tail
+        s.append(_sentence(f"{esc(run.date(p['death']))}，{how}{killer}{tail}"))
     facts = (f"{esc(run.root_zh(p['root_grade']))} → {esc(run.stage_zh(p['realm'], p['stage']))}"
              f"　{esc(run.sect_name(p['sect']) or '散修')}"
              f"　{'在世' if p['alive'] else '已故'}　故事分 {cand['score']:g}")
@@ -1204,6 +1261,11 @@ def bio_card(run: Run, cand: dict) -> str:
             f'<details><summary>生平纪事 {len(evs)} 条</summary><ul class="evlist">{"".join(items)}</ul></details></article>')
 
 
+def base_key(key) -> str:
+    """A text key without its trailing wording-variant number (``...stage_up.2`` → ``...stage_up``)."""
+    return re.sub(r"\.\d+$", "", str(key or ""))
+
+
 def collapsed_events(run: Run, evs: list[dict]) -> list[str]:
     """Runs of three or more routine events with the same text key fold into one line."""
     out, i = [], 0
@@ -1211,8 +1273,8 @@ def collapsed_events(run: Run, evs: list[dict]) -> list[str]:
     while i < len(evs):
         e = evs[i]
         j = i
-        key = e.get("key")
-        while j + 1 < len(evs) and evs[j + 1].get("key") == key and evs[j + 1].get("importance", 1) == 1 \
+        key = base_key(e.get("key"))
+        while j + 1 < len(evs) and base_key(evs[j + 1].get("key")) == key and evs[j + 1].get("importance", 1) == 1 \
                 and e.get("importance", 1) == 1:
             j += 1
         anchor = f'<a href="#e{e["id"]}">' if e.get("importance", 1) >= 2 else ""
@@ -1220,10 +1282,10 @@ def collapsed_events(run: Run, evs: list[dict]) -> list[str]:
             last = evs[j]
             text = run.event_html(last)
             if tpl:
-                line = format_template(tpl, [esc(run.date(e["day"])), esc(run.date(last["day"])), text, str(j - i + 1)],
+                line = format_template(tpl, [esc(run.date(e["day"])), esc(run.date(last["day"])), text, cn(j - i + 1)],
                                        escape_literal=True)
             else:
-                line = f"{esc(run.date(e['day']))}至{esc(run.date(last['day']))}　{text}（如是者凡{j - i + 1}次）"
+                line = f"{esc(run.date(e['day']))}至{esc(run.date(last['day']))}　{text}（如是者凡{cn(j - i + 1)}次）"
             out.append(f'<li class="i1"><span class="d">…</span>{line}</li>')
         else:
             for k in range(i, j + 1):
@@ -1242,7 +1304,7 @@ def drivers_section(run: Run) -> str:
         return '<p class="empty">创世之后无人入道，无从比较。</p>'
     out = ['<p class="sub">只计创世之后入道的人（他们的出身、师承和机缘都有记录）。左列为达到该境界者，右列为未达到者；'
            '每格是“具备该条件的人数／有记录的人数”。尚在世、仍有机会的人也算在“未达到”里。'
-           '“拜过金丹以上的师父”按拜师当时师父的境界计；功法只认得到在世者所修功法与奇遇所得功法。</p>']
+           '“拜过金丹以上的师父”按拜师当时师父的境界计；功法按在世者现修、逝者临终所修以及奇遇所得的功法计。</p>']
     for t in tables:
         realm = run.realm_zh(t["realm"])
         out.append(f'<h3>达到{esc(realm)}：{t["yes"]}人　未达到：{t["no"]}人</h3>')
@@ -1533,7 +1595,7 @@ def main(argv=None) -> int:
         except (OSError, ValueError) as e:
             print(f"skip {path}: {e}", file=sys.stderr)
             continue
-        run = Run(data, Lang(lang_entries), content, stem=path.stem)
+        run = Run(data, Lang(lang_entries, chinese_numerals=args.lang.name.startswith("zh")), content, stem=path.stem)
         html_text = render_run(run)
         target = args.out_dir / f"{path.stem}.html"
         target.write_text(html_text, encoding="utf-8")

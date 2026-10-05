@@ -139,6 +139,32 @@ class FormatTest(unittest.TestCase):
         with self.assertRaises(IndexError):
             rep.format_template("%3$s", ["甲"], False)
 
+    def test_chinese_numerals_match_the_cli(self):
+        cases = {0: "零", 7: "七", 10: "十", 12: "十二", 41: "四十一", 101: "一百零一", 110: "一百一十",
+                 313: "三百一十三", 1005: "一千零五", 2000: "二千", 10010: "一万零十", 123456: "十二万三千四百五十六"}
+        for n, text in cases.items():
+            self.assertEqual(rep.chinese_numeral(n), text, n)
+        self.assertTrue(rep.is_plain_number("313"))
+        self.assertFalse(rep.is_plain_number("-3"))
+        self.assertFalse(rep.is_plain_number("1234567890"))
+        lang = rep.Lang({"k": "坐镇%1$s已%2$s年"})
+        self.assertEqual(lang.param("313"), "三百一十三")
+        self.assertEqual(rep.Lang({}, chinese_numerals=False).param("313"), "313")
+        data = fixture()
+        data["events"].append(ev(14, 110, "genesis", 2, [4], "world_sim.event.genesis.sect",
+                                 ["青云宗", "中州", "丁少年", "@world_sim.stage.golden_core.2"],
+                                 text="青云宗立于中州，掌门丁少年，金丹中期修为。"))
+        data["events"].append(ev(15, 111, "x", 2, [4], "world_sim.event.age", ["丁少年", "41"], text="丁少年年四十一。"))
+        lang_entries = dict(LANG, **{"world_sim.event.age": "%1$s年%2$s。"})
+        run = rep.Run(data, rep.Lang(lang_entries), content())
+        run.check_texts()
+        self.assertNotIn("文本不一致", {k for k, _ in run.oddities})
+        self.assertEqual(run.event_plain(run.ev[15]), "丁少年年四十一。")
+
+    def test_variant_suffixes_fold_together(self):
+        self.assertEqual(rep.base_key("world_sim.event.stage_up.2"), "world_sim.event.stage_up")
+        self.assertEqual(rep.base_key("world_sim.event.stage_up.insight"), "world_sim.event.stage_up.insight")
+
     def test_at_params_are_translated(self):
         run, page = render()
         self.assertIn("金丹中期修为", page)
