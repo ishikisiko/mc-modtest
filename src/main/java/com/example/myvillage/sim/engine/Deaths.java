@@ -12,6 +12,9 @@ import com.example.myvillage.sim.model.Tombstone;
 public final class Deaths {
     public static final String OLD_AGE = "old_age";
     public static final String QI_DEVIATION = "qi_deviation";
+    public static final String SLAIN = "slain";
+    public static final String BEAST = "beast";
+    public static final String TRAP = "trap";
 
     private Deaths() {
     }
@@ -41,6 +44,9 @@ public final class Deaths {
         t.killerId = killerId;
         t.deathEventId = deathEventId;
         t.masterId = p.masterId;
+        var technique = ctx.technique(p);
+        t.techniqueId = technique == null ? "" : technique.id();
+        t.techniqueGrade = technique == null ? "" : technique.grade();
         ctx.state.tombstones.put(t.id, t);
         ctx.state.persons.remove(p.id);
 

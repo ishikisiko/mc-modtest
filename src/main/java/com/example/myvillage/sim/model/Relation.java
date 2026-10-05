@@ -11,6 +11,11 @@ public final class Relation implements Comparable<Relation> {
     public String kind;
     public int strength;
     public long causeEventId;
+    /**
+     * Why an enmity exists, for the text: master, disciple, friend, sect (a fellow member was
+     * killed), self (wronged in person), rival; "" when not recorded.
+     */
+    public String reason = "";
 
     public Relation(int other, String kind, int strength, long causeEventId) {
         this.other = other;

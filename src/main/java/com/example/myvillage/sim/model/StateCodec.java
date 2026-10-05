@@ -110,6 +110,10 @@ public final class StateCodec {
             ro.addProperty("since", r.sinceDay);
             ro.addProperty("score", r.score);
             ro.addProperty("tribute_until", r.tributeUntilDay);
+            ro.addProperty("last_war_end", r.lastWarEndDay);
+            ro.addProperty("last_battle", r.lastBattleDay);
+            ro.addProperty("last_champion_a", r.lastChampionA);
+            ro.addProperty("last_champion_b", r.lastChampionB);
             rel.add(ro);
         }
         o.add("relations", rel);
@@ -155,6 +159,9 @@ public final class StateCodec {
             ra.add(r.kind);
             ra.add(r.strength);
             ra.add(r.causeEventId);
+            if (!r.reason.isEmpty()) {
+                ra.add(r.reason);
+            }
             rel.add(ra);
         }
         o.add("relations", rel);
@@ -172,8 +179,11 @@ public final class StateCodec {
         o.add("boons", boons);
         o.addProperty("injury", p.injury);
         o.addProperty("injury_event", p.injuryEventId);
+        o.addProperty("injurer", p.injurerId);
         o.addProperty("dao_name", p.daoName);
         o.addProperty("quarry", p.quarryId);
+        o.addProperty("insight_day", p.insightDay);
+        o.addProperty("journeys", p.journeys);
         o.addProperty("kills", p.kills);
         o.addProperty("fortunes", p.fortunes);
         return o;
@@ -197,6 +207,8 @@ public final class StateCodec {
         o.addProperty("killer", t.killerId);
         o.addProperty("death_event", t.deathEventId);
         o.addProperty("master", t.masterId);
+        o.addProperty("technique", t.techniqueId);
+        o.addProperty("technique_grade", t.techniqueGrade);
         return o;
     }
 
@@ -335,6 +347,10 @@ public final class StateCodec {
             rel.sinceDay = r.optLong("since", -1);
             rel.score = r.optInt("score", 0);
             rel.tributeUntilDay = r.optLong("tribute_until", -1);
+            rel.lastWarEndDay = r.optLong("last_war_end", -1);
+            rel.lastBattleDay = r.optLong("last_battle", -1);
+            rel.lastChampionA = r.optInt("last_champion_a", -1);
+            rel.lastChampionB = r.optInt("last_champion_b", -1);
             s.relations.put(rel.other, rel);
         }
         s.state = o.str("state");
@@ -381,8 +397,12 @@ public final class StateCodec {
         p.wanderlust = traits[3];
         p.loyalty = traits[4];
         for (JsonArray ra : o.optArrays("relations")) {
-            p.relations.add(new Relation(ra.get(0).getAsInt(), ra.get(1).getAsString(), ra.get(2).getAsInt(),
-                    ra.get(3).getAsLong()));
+            Relation rel = new Relation(ra.get(0).getAsInt(), ra.get(1).getAsString(), ra.get(2).getAsInt(),
+                    ra.get(3).getAsLong());
+            if (ra.size() > 4) {
+                rel.reason = ra.get(4).getAsString();
+            }
+            p.relations.add(rel);
         }
         p.techniqueId = o.optStr("technique", "");
         p.techniqueEventId = o.optLong("technique_event", -1);
@@ -392,8 +412,11 @@ public final class StateCodec {
         }
         p.injury = o.optInt("injury", 0);
         p.injuryEventId = o.optLong("injury_event", -1);
+        p.injurerId = o.optInt("injurer", -1);
         p.daoName = o.optStr("dao_name", "");
         p.quarryId = o.optInt("quarry", -1);
+        p.insightDay = o.optLong("insight_day", -1);
+        p.journeys = o.optInt("journeys", 0);
         p.kills = o.optInt("kills", 0);
         p.fortunes = o.optInt("fortunes", 0);
         return p;
@@ -417,6 +440,8 @@ public final class StateCodec {
         t.killerId = o.optInt("killer", -1);
         t.deathEventId = o.optLong("death_event", -1);
         t.masterId = o.optInt("master", -1);
+        t.techniqueId = o.optStr("technique", "");
+        t.techniqueGrade = o.optStr("technique_grade", "");
         return t;
     }
 

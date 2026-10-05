@@ -69,12 +69,20 @@ public final class Person {
     public int injury;
     /** Event that caused the current injury (a fight, a failed breakthrough), or -1. */
     public long injuryEventId = -1;
+    /** Who dealt the current injury, or -1 (self-inflicted, a beast, a trap). */
+    public int injurerId = -1;
 
     /** Daoist name given on reaching a titled realm (the title is name + realm suffix), or "". */
     public String daoName = "";
 
     /** Someone this person is hunting (revenge), or -1. */
     public int quarryId = -1;
+
+    /** Day of the last quiet insight (folded into the next stage-up line), or -1. */
+    public long insightDay = -1;
+
+    /** Journeys taken (only the first is recorded as a line). */
+    public int journeys;
 
     public int kills;
     public int fortunes;
@@ -97,6 +105,14 @@ public final class Person {
     }
 
     /** Adds or strengthens a relation, keeping the list sorted. Returns it. */
+    public Relation relate(int other, String kind, int strength, long causeEventId, String reason) {
+        Relation r = relate(other, kind, strength, causeEventId);
+        if (causeEventId >= 0 || r.reason.isEmpty()) {
+            r.reason = reason;
+        }
+        return r;
+    }
+
     public Relation relate(int other, String kind, int strength, long causeEventId) {
         Relation existing = relation(other, kind);
         if (existing != null) {

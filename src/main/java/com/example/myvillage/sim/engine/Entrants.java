@@ -38,7 +38,7 @@ public final class Entrants {
             sect = pickSect(ctx, rng, sects, tier);
         }
         Rules.Entrants e = ctx.rules.entrants();
-        long ageDays = (long) rng.range(e.age()[0], e.age()[1]) * ctx.dpy + rng.nextInt(ctx.dpy);
+        long ageDays = rng.range(e.age()[0] * ctx.dpy, e.age()[1] * ctx.dpy);
         if (sect == null) {
             int[] root = Roots.draw(ctx.rules.roots(), rng);
             Person p = People.create(ctx, rng, root, 0, 0, ageDays, rogueHaunt(ctx, rng));
@@ -47,7 +47,7 @@ public final class Entrants {
                 p.techniqueId = huang.get(rng.nextInt(huang.size())).id();
             }
             ctx.chronicle.event("entrant", 1).actors(p.id).region(p.regionId)
-                    .text(TextKeys.ENTRANT_ROGUE, p.name(), ctx.regionName(p.regionId));
+                    .say(TextKeys.ENTRANT_ROGUE, Anchor.of(ctx).add(p.name()).age(p).region(p.regionId));
             return;
         }
         Rules.Sects r = ctx.rules.sects();
@@ -59,11 +59,11 @@ public final class Entrants {
         int grade = Roots.gradeIndex(ctx.rules.roots(), root);
         if (grade == 0) {
             ctx.chronicle.event("recruit", 2).actors(p.id).sects(sect.id).region(sect.homeRegionId)
-                    .text(TextKeys.RECRUIT_PRODIGY, p.name(), sect.name,
-                            TextKeys.rootGrade(ctx.rules.roots().grades().get(0).id()));
+                    .say(TextKeys.RECRUIT_PRODIGY, Anchor.of(ctx).add(p.name()).age(p).add(sect.name,
+                            TextKeys.rootGrade(ctx.rules.roots().grades().get(0).id())));
         } else {
             ctx.chronicle.event("recruit", 1).actors(p.id).sects(sect.id).region(sect.homeRegionId)
-                    .text(TextKeys.RECRUIT, p.name(), sect.name);
+                    .say(TextKeys.RECRUIT, Anchor.of(ctx).add(p.name()).age(p).add(sect.name));
         }
     }
 
@@ -74,7 +74,10 @@ public final class Entrants {
         for (int i = 0; i < weights.length; i++) {
             Sect s = sects.get(i);
             int members = ctx.members(s.id).size();
-            weights[i] = (s.prestige + r.recruitWeightFloor()) / (1.0 + r.recruitSizeDamping() * members / nominal);
+            weights[i] = (s.prestige + r.recruitWeightFloor()) / (1.0 + r.recruitSizeDamping() * members / nominal)
+                    * (s.declineSinceDay >= 0 ? ctx.rules.decline().recruitFactor() : 1.0)
+                    * (ctx.day() - s.foundedDay < (long) ctx.rules.decline().graceYears() * ctx.dpy
+                        ? r.youngSectBoost() : 1.0);
         }
         return sects.get(rng.weighted(weights));
     }

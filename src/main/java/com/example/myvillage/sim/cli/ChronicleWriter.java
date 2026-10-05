@@ -143,6 +143,36 @@ public final class ChronicleWriter {
         return ids.subList(0, Math.min(count, ids.size()));
     }
 
+    private static final List<String> FOLDED = List.of(
+            "world_sim.event.stage_up", "world_sim.event.breakthrough_fail.", "world_sim.event.meet.friend",
+            "world_sim.event.meet.quarrel", "world_sim.event.beast.", "world_sim.event.fortune.herb",
+            "world_sim.event.fortune.spring", "world_sim.event.fortune.pill_cache", "world_sim.event.seclusion",
+            "world_sim.event.disciple", "world_sim.event.fight.flee");
+
+    /** Group key for a routine line in a biography, or null for a turning point. */
+    static String foldKey(SimEvent e, int personId) {
+        String f = family(e);
+        for (String prefix : FOLDED) {
+            if (f.startsWith(prefix)) {
+                if (f.equals("world_sim.event.stage_up") || f.equals("world_sim.event.stage_up.insight")) {
+                    String stage = e.params().get(e.params().size() - 1);
+                    return "stage_up:" + stage.substring(0, stage.lastIndexOf('.'));
+                }
+                if (f.equals("world_sim.event.disciple")) {
+                    // Taking disciples folds; becoming someone's disciple stays a turning point.
+                    return e.actors().size() > 1 && e.actors().get(1) == personId ? f : null;
+                }
+                return f;
+            }
+        }
+        return null;
+    }
+
+    /** The line family of an event (its key without the variant number). */
+    static String family(SimEvent e) {
+        return e.textKey().replaceAll("\\.\\d+$", "");
+    }
+
     private void biography(StringBuilder out, WorldSim sim, int id, List<SimEvent> events) {
         Optional<PersonView> found = sim.person(id);
         if (found.isEmpty()) {
@@ -169,23 +199,39 @@ public final class ChronicleWriter {
                 own.add(e);
             }
         }
-        // Runs of the same kind of line (stage after stage, failure after failure) fold into one.
-        for (int i = 0; i < own.size(); ) {
-            int j = i + 1;
-            while (j < own.size() && own.get(j).textKey().equals(own.get(i).textKey())
-                    && own.get(j).subject() == own.get(i).subject()) {
-                j++;
+        // Routine lines (stage-ups within a realm, repeated failures, friendships, quarrels, wounds from
+        // beasts, small finds, seclusions) fold into one line per kind, placed where the kind first
+        // appears; everything else is a turning point and keeps its own line.
+        Map<String, List<SimEvent>> groups = new java.util.LinkedHashMap<>();
+        List<Object> order = new ArrayList<>();
+        for (SimEvent e : own) {
+            String key = foldKey(e, id);
+            if (key == null) {
+                order.add(e);
+                continue;
             }
-            SimEvent last = own.get(j - 1);
-            if (j - i >= 3) {
-                out.append("    ").append(lang.format(R + "bio.repeat", date(own.get(i).day()), date(last.day()),
-                        render(last), j - i)).append('\n');
+            List<SimEvent> g = groups.get(key);
+            if (g == null) {
+                g = new ArrayList<>();
+                groups.put(key, g);
+                order.add(key);
+            }
+            g.add(e);
+        }
+        for (Object item : order) {
+            if (item instanceof SimEvent e) {
+                out.append("    ").append(date(e.day())).append("　").append(render(e)).append('\n');
+                continue;
+            }
+            List<SimEvent> g = groups.get((String) item);
+            SimEvent first = g.get(0);
+            SimEvent last = g.get(g.size() - 1);
+            if (g.size() >= 2) {
+                out.append("    ").append(lang.format(R + "bio.repeat", date(first.day()), date(last.day()),
+                        render(last), g.size())).append('\n');
             } else {
-                for (int k = i; k < j; k++) {
-                    out.append("    ").append(date(own.get(k).day())).append("　").append(render(own.get(k))).append('\n');
-                }
+                out.append("    ").append(date(first.day())).append("　").append(render(first)).append('\n');
             }
-            i = j;
         }
     }
 }

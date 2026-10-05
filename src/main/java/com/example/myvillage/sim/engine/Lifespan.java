@@ -18,11 +18,9 @@ public final class Lifespan {
             return;
         }
         String stage = TextKeys.stage(ctx.realm(p).id(), p.stage);
-        Chronicle.Builder event = ctx.chronicle.event("death", Deaths.importance(ctx, p)).actors(p.id)
-                .sects(Cultivation.sectIds(p)).region(p.regionId).cause(p.lifespanEventId);
-        long id = p.rank.equals("sect_master")
-                ? event.text(TextKeys.DEATH_OLD_AGE_MASTER, p.name(), ctx.sectName(p.sectId), stage)
-                : event.text(TextKeys.DEATH_OLD_AGE, p.name(), stage);
+        long id = ctx.chronicle.event("death", Deaths.importance(ctx, p)).actors(p.id)
+                .sects(Cultivation.sectIds(p)).region(p.regionId)
+                .say(TextKeys.DEATH_OLD_AGE, Anchor.of(ctx).who(p).age(p).add(stage));
         Deaths.bury(ctx, p, Deaths.OLD_AGE, -1, id);
     }
 }

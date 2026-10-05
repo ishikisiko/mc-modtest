@@ -7,8 +7,8 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 /**
  * Checkpoint-1 liveness: a small world stays populated for 400 years (100 prehistory + 300), keeps
- * at least one sect, changes masters and produces a realm pyramid. The tighter health bands of
- * design §7 are pinned once all mechanics exist.
+ * at least one sect, changes masters and someone reaches golden core. The realm pyramid (averaged
+ * over the run) and the pinned bands live in {@link WorldSimHealthTest}.
  */
 class WorldSimLivenessTest {
     private static final int DPY = 6;
@@ -26,11 +26,6 @@ class WorldSimLivenessTest {
                     "year " + year + ": population " + o.population());
             assertTrue(o.activeSects() >= 1, "year " + year + ": no sect left");
         }
-        Overview o = sim.overview(DPY);
-        int qi = o.livingByRealm().get("qi_refining");
-        int foundation = o.livingByRealm().get("foundation_establishment");
-        int core = o.livingByRealm().get("golden_core");
-        assertTrue(qi > foundation && foundation > core, "pyramid: " + o.livingByRealm());
         long successions = c.events.stream().filter(e -> e.type().equals("succession")).count();
         long cores = c.events.stream().filter(e -> e.textKey().startsWith("world_sim.event.breakthrough.golden_core")).count();
         assertTrue(successions >= 1, "masters change");

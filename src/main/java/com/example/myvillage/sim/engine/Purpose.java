@@ -49,4 +49,22 @@ public final class Purpose {
     public static final int ENTRANT_NAME = 402;
     public static final int SECT_NAME = 403;
     public static final int FOUNDING_GATE = 404;
+
+    // Text: 500..599
+    public static final int TEXT_VARIANT = 501;
+
+    // Checkpoint-2 additions (never renumber the ones above)
+    public static final int BEAST = 215;
+    public static final int FORTUNE_PICK = 216;
+    public static final int FORTUNE_EFFECT = 217;
+    public static final int MEETING_PARTNER = 218;
+    public static final int MEETING_OUTCOME = 219;
+    public static final int COMBAT_OUTCOME = 220;
+    public static final int REVENGE_SEEK = 221;
+    public static final int TRAVEL_MOVE = 222;
+    public static final int ROGUE_JOIN = 223;
+    public static final int SECT_SCHISM = 309;
+    public static final int SECT_BATTLE = 310;
+    public static final int SECT_TRUCE = 311;
+    public static final int SECT_FOUND_REGION = 312;
 }

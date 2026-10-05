@@ -5,8 +5,10 @@ import com.example.myvillage.sim.model.Person;
 import java.util.List;
 
 /**
- * One sim day (design §4). Yearly business first on the first day of a year, then every living
- * person in id order, then whatever the day's deaths left to settle. People who arrive today act
+ * One sim day (design §4). Yearly business first on the first day of a year (sect economy and
+ * ranks, sect politics, fortune regrowth, new blood), then every living person in id order
+ * (cultivate, break through, age, travel, beasts, fortunes, revenge, meetings), then the
+ * successions the day's deaths left to settle. People who arrive today act
  * from tomorrow; people who die today stop acting at once.
  */
 public final class Engine {
@@ -20,9 +22,13 @@ public final class Engine {
     }
 
     public static List<SimEvent> step(SimContext ctx) {
+        ctx.newDay();
         if (ctx.newYear()) {
             SectAffairs.yearly(ctx);
+            SectPolitics.yearly(ctx);
+            Fortunes.yearly(ctx);
             Entrants.yearly(ctx);
+            ctx.newDay();
         }
         int[] ids = livingIds(ctx);
         for (int id : ids) {
@@ -32,10 +38,24 @@ public final class Engine {
             }
             Cultivation.daily(ctx, p);
             Breakthrough.daily(ctx, p);
-            if (!ctx.state.persons.containsKey(id)) {
-                continue;
+            if (ctx.alive(p)) {
+                Lifespan.daily(ctx, p);
             }
-            Lifespan.daily(ctx, p);
+            if (ctx.alive(p)) {
+                Travel.daily(ctx, p);
+            }
+            if (ctx.alive(p)) {
+                Danger.daily(ctx, p);
+            }
+            if (ctx.alive(p)) {
+                Fortunes.daily(ctx, p);
+            }
+            if (ctx.alive(p)) {
+                Revenge.daily(ctx, p);
+            }
+            if (ctx.alive(p)) {
+                Meetings.daily(ctx, p);
+            }
         }
         Succession.settle(ctx);
         List<SimEvent> today = ctx.chronicle.endDay();

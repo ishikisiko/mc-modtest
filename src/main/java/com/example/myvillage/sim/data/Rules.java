@@ -27,7 +27,21 @@ public record Rules(
         Entrants entrants,
         Sects sects,
         Genesis genesis,
-        Gates gates) {
+        Gates gates,
+        Naming naming,
+        Importance importance,
+        Travel travel,
+        Seclusion seclusion,
+        Danger danger,
+        Fortune fortune,
+        Map<String, Double> artifactPower,
+        Meetings meetings,
+        Combat combat,
+        Revenge revenge,
+        SectRelations sectRelations,
+        Succession succession,
+        Decline decline,
+        Founding founding) {
 
     public static final List<String> RANKS = List.of("sect_master", "elder", "inner", "outer", "rogue");
     public static final List<String> STATUSES = List.of("at_sect", "travelling", "secluded");
@@ -107,6 +121,7 @@ public record Rules(
     public record Sects(
             double recruitWeightFloor,
             double recruitSizeDamping,
+            double youngSectBoost,
             double prestigePerCandidate,
             int maxCandidates,
             RealmStage promoteInner,
@@ -138,6 +153,143 @@ public record Rules(
     public record Gates(int maxRadius, int minSpacing, int maxOffset, int retries) {
     }
 
+    /** Surnames are listed common-first: weight = 1 / (1 + index / surnameRankScale). */
+    public record Naming(double surnameRankScale, List<String> bannedNamePrefixes) {
+    }
+
+    /** When routine events become notable. */
+    public record Importance(int prodigyFoundationAge, RealmStage notable) {
+    }
+
+    public record Travel(
+            double startRatePerYear,
+            Map<String, Double> rankFactor,
+            int[] years,
+            double movesPerYear,
+            double qiWeight,
+            double tierWeight,
+            double dangerWeight,
+            int walledBoldness) {
+    }
+
+    public record Seclusion(double ratePerYear, int[] years, double nearCapFactor) {
+    }
+
+    public record Danger(
+            double beastRatePerYear,
+            double dangerExponent,
+            double[] beastPower,
+            double fleeChance,
+            double deathOnLoss,
+            int injury,
+            double slayProgressYears,
+            int recordedBeastRank) {
+    }
+
+    public record Fortune(
+            double ratePerYear,
+            double secludedRatePerYear,
+            double tierWeight,
+            double rarityBoost,
+            int richnessCost,
+            int richnessRegenPerYear,
+            double contestChance) {
+    }
+
+    public record Meetings(
+            /** Expected meetings per year by status. */
+            Map<String, Double> ratePerYear,
+            double friend,
+            double quarrel,
+            double spar,
+            double rob,
+            double duelChance,
+            double grudgeChance,
+            int maxFriends,
+            int friendStrength,
+            int enemyStrength) {
+    }
+
+    public record Combat(
+            double steepness,
+            double noise,
+            double injuryPerPoint,
+            double injuryFloor,
+            double fleeBase,
+            double killBase,
+            double killEnemy,
+            double killWar,
+            double sameSectKillFactor,
+            int[] wound,
+            double lootChance) {
+    }
+
+    public record Revenge(
+            int strength,
+            int friendMinStrength,
+            double confidence,
+            double cautionWeight,
+            int recklessAggression,
+            double seekRatePerYear,
+            int giveUpYears,
+            int lateYears) {
+    }
+
+    public record SectRelations(
+            int driftPerYear,
+            int neighbourBaseline,
+            int killPenalty,
+            int notableKillPenalty,
+            int woundPenalty,
+            int feudAt,
+            int warAt,
+            double warChancePerYear,
+            double trucePerYear,
+            double trucePerYearOfWar,
+            double battlesPerYear,
+            int battleIntervalYears,
+            int championMaxInjury,
+            int tributeScore,
+            int tributeYears,
+            double tributeShare,
+            int annexBelow,
+            int peaceYears,
+            int splitValue,
+            double victoryPrestige) {
+    }
+
+    public record Succession(
+            int contestAmbition,
+            double contestGap,
+            double contestChance,
+            double leaveChance,
+            double followerShare,
+            RealmStage minMaster,
+            int minYearsLeft) {
+    }
+
+    public record Decline(
+            double desertRatePerYear,
+            double desertionRatePerYear,
+            int minMembers,
+            double minShare,
+            double recruitFactor,
+            double rogueJoinRatePerYear,
+            double schismSizeRatio,
+            double schismRatePerYear,
+            int schismAmbition,
+            int graceYears) {
+    }
+
+    public record Founding(
+            RealmStage minRealm,
+            int minAmbition,
+            double ratePerYear,
+            double deficitBoost,
+            double surplusExponent,
+            int[] followers) {
+    }
+
     public Tier tier(String id) {
         Tier tier = tiers.get(id);
         if (tier == null) {
@@ -151,7 +303,9 @@ public record Rules(
     static Rules parse(String file, JsonObject json, RealmTable realms) {
         SimJson.Fields root = SimJson.Fields.root(file, json, Set.of(
                 "schema", "time", "tiers", "chronicle", "scheduler", "roots", "techniques", "cultivation",
-                "breakthrough", "injury", "death_importance_by_rank", "entrants", "sects", "genesis", "gates"));
+                "breakthrough", "injury", "death_importance_by_rank", "entrants", "sects", "genesis", "gates", "naming",
+                "importance", "travel", "seclusion", "danger", "fortune", "artifact_power", "meetings", "combat",
+                "revenge", "sect_relations", "succession", "decline", "founding"));
         root.schema();
 
         SimJson.Fields t = root.object("time", Set.of("prehistory_years", "default_days_per_year"));
@@ -249,7 +403,7 @@ public record Rules(
         Entrants entrants = new Entrants(e.nonNegativeNumber("base_rate"), e.nonNegativeNumber("gain"),
                 e.fraction("max_fraction_per_year"), e.intRange("age"), e.fraction("rogue_technique_chance"));
 
-        SimJson.Fields s = root.object("sects", Set.of("recruit_weight_floor", "recruit_size_damping", "prestige_per_candidate",
+        SimJson.Fields s = root.object("sects", Set.of("recruit_weight_floor", "recruit_size_damping", "young_sect_boost", "prestige_per_candidate",
                 "max_candidates", "promotion", "disciples_per_master", "mentor_chance_per_year", "income_base",
                 "income_per_member", "upkeep_per_member", "resource_cap_per_member", "prestige_smoothing", "pills"));
         SimJson.Fields promo = s.object("promotion", Set.of("inner", "elder"));
@@ -265,6 +419,7 @@ public record Rules(
         Sects sects = new Sects(
                 s.nonNegativeNumber("recruit_weight_floor"),
                 s.nonNegativeNumber("recruit_size_damping"),
+                s.nonNegativeNumber("young_sect_boost"),
                 s.positiveNumber("prestige_per_candidate"),
                 s.positiveInteger("max_candidates"),
                 realmStage(promo.object("inner", REALM_STAGE_FIELDS), realms),
@@ -324,9 +479,115 @@ public record Rules(
         Gates gates = new Gates(ga.positiveInteger("max_radius"), ga.positiveInteger("min_spacing"),
                 ga.positiveInteger("max_offset"), ga.positiveInteger("retries"));
 
+
+        SimJson.Fields nm = root.object("naming", Set.of("surname_rank_scale", "banned_name_prefixes"));
+        JsonArray banned = nm.array("banned_name_prefixes");
+        Naming naming = new Naming(nm.positiveNumber("surname_rank_scale"),
+                banned.isEmpty() ? List.of() : nm.stringList("banned_name_prefixes"));
+
+        SimJson.Fields im = root.object("importance", Set.of("prodigy_foundation_age", "notable"));
+        Importance importance = new Importance(im.positiveInteger("prodigy_foundation_age"),
+                realmStage(im.object("notable", REALM_STAGE_FIELDS), realms));
+
+        SimJson.Fields tr = root.object("travel", Set.of("start_rate_per_year", "rank_factor", "years",
+                "moves_per_year", "qi_weight", "tier_weight", "danger_weight", "walled_boldness"));
+        Travel travel = new Travel(tr.fraction("start_rate_per_year"),
+                numberMap(tr.object("rank_factor", Set.copyOf(RANKS)), RANKS), tr.intRange("years"),
+                tr.nonNegativeNumber("moves_per_year"), tr.nonNegativeNumber("qi_weight"),
+                tr.nonNegativeNumber("tier_weight"), tr.nonNegativeNumber("danger_weight"),
+                tr.integer("walled_boldness", 0, 100));
+
+        SimJson.Fields se = root.object("seclusion", Set.of("rate_per_year", "years", "near_cap_factor"));
+        Seclusion seclusion = new Seclusion(se.fraction("rate_per_year"), se.intRange("years"),
+                se.nonNegativeNumber("near_cap_factor"));
+
+        SimJson.Fields dg = root.object("danger", Set.of("beast_rate_per_year", "danger_exponent", "beast_power",
+                "flee_chance", "death_on_loss", "injury", "slay_progress_years", "recorded_beast_rank"));
+        Danger danger = new Danger(dg.fraction("beast_rate_per_year"), dg.nonNegativeNumber("danger_exponent"),
+                dg.numbers("beast_power", 4), dg.fraction("flee_chance"), dg.fraction("death_on_loss"),
+                dg.integer("injury", 0, 100), dg.nonNegativeNumber("slay_progress_years"),
+                dg.integer("recorded_beast_rank", 1, 5));
+
+        SimJson.Fields fo = root.object("fortune", Set.of("rate_per_year", "secluded_rate_per_year", "tier_weight",
+                "rarity_boost", "richness_cost", "richness_regen_per_year", "contest_chance"));
+        Fortune fortune = new Fortune(fo.fraction("rate_per_year"), fo.fraction("secluded_rate_per_year"),
+                fo.fraction("tier_weight"), fo.positiveNumber("rarity_boost"), fo.integer("richness_cost", 0, 100),
+                fo.integer("richness_regen_per_year", 0, 100), fo.fraction("contest_chance"));
+
+        SimJson.Fields ap = root.object("artifact_power", ContentTables.GRADES);
+        Map<String, Double> artifactPower = new LinkedHashMap<>();
+        for (String grade : ContentTables.GRADE_ORDER) {
+            artifactPower.put(grade, ap.positiveNumber(grade));
+        }
+
+        SimJson.Fields me = root.object("meetings", Set.of("rate_per_year", "friend", "quarrel", "spar", "rob",
+                "duel_chance", "grudge_chance", "max_friends", "friend_strength", "enemy_strength"));
+        Meetings meetings = new Meetings(numberMap(me.object("rate_per_year", Set.copyOf(STATUSES)), STATUSES),
+                me.nonNegativeNumber("friend"), me.nonNegativeNumber("quarrel"), me.nonNegativeNumber("spar"),
+                me.nonNegativeNumber("rob"), me.fraction("duel_chance"), me.fraction("grudge_chance"), me.nonNegativeInteger("max_friends"),
+                me.integer("friend_strength", 1, 100),
+                me.integer("enemy_strength", 1, 100));
+
+        SimJson.Fields co = root.object("combat", Set.of("steepness", "noise", "injury_per_point", "injury_floor",
+                "flee_base", "kill_base", "kill_enemy", "kill_war", "same_sect_kill_factor", "wound", "loot_chance"));
+        Combat combat = new Combat(co.positiveNumber("steepness"), co.fraction("noise"),
+                co.nonNegativeNumber("injury_per_point"), co.fraction("injury_floor"), co.fraction("flee_base"),
+                co.fraction("kill_base"), co.fraction("kill_enemy"), co.fraction("kill_war"),
+                co.fraction("same_sect_kill_factor"), co.intRange("wound"),
+                co.fraction("loot_chance"));
+
+        SimJson.Fields rv = root.object("revenge", Set.of("strength", "friend_min_strength", "confidence",
+                "caution_weight", "reckless_aggression", "seek_rate_per_year", "give_up_years", "late_years"));
+        Revenge revenge = new Revenge(rv.integer("strength", 1, 100), rv.integer("friend_min_strength", 0, 100),
+                rv.fraction("confidence"), rv.fraction("caution_weight"), rv.integer("reckless_aggression", 0, 101),
+                rv.fraction("seek_rate_per_year"), rv.positiveInteger("give_up_years"), rv.nonNegativeInteger("late_years"));
+
+        SimJson.Fields sr = root.object("sect_relations", Set.of("drift_per_year", "neighbour_baseline", "kill_penalty",
+                "notable_kill_penalty", "wound_penalty", "feud_at", "war_at", "war_chance_per_year", "truce_per_year",
+                "truce_per_year_of_war", "battles_per_year", "battle_interval_years", "champion_max_injury", "tribute_score", "tribute_years", "tribute_share",
+                "annex_below", "peace_years", "split_value", "victory_prestige"));
+        SectRelations sectRelations = new SectRelations(sr.nonNegativeInteger("drift_per_year"),
+                sr.integer("neighbour_baseline", -100, 0),
+                sr.nonNegativeInteger("kill_penalty"), sr.nonNegativeInteger("notable_kill_penalty"),
+                sr.nonNegativeInteger("wound_penalty"), sr.integer("feud_at", -100, 0), sr.integer("war_at", -100, 0),
+                sr.fraction("war_chance_per_year"), sr.fraction("truce_per_year"),
+                sr.fraction("truce_per_year_of_war"), sr.nonNegativeNumber("battles_per_year"),
+                sr.positiveInteger("battle_interval_years"), sr.integer("champion_max_injury", 0, 100),
+                sr.positiveInteger("tribute_score"), sr.positiveInteger("tribute_years"), sr.fraction("tribute_share"),
+                sr.nonNegativeInteger("annex_below"), sr.nonNegativeInteger("peace_years"),
+                sr.integer("split_value", -100, 100),
+                sr.nonNegativeNumber("victory_prestige"));
+        if (sectRelations.warAt() > sectRelations.feudAt()) {
+            throw sr.error("war_at", "must not be above feud_at");
+        }
+
+        SimJson.Fields su = root.object("succession", Set.of("contest_ambition", "contest_gap", "contest_chance",
+                "leave_chance", "follower_share", "min_master", "min_years_left"));
+        Succession succession = new Succession(su.integer("contest_ambition", 0, 101),
+                su.nonNegativeNumber("contest_gap"), su.fraction("contest_chance"), su.fraction("leave_chance"),
+                su.fraction("follower_share"), realmStage(su.object("min_master", REALM_STAGE_FIELDS), realms),
+                su.nonNegativeInteger("min_years_left"));
+
+        SimJson.Fields de = root.object("decline", Set.of("desert_rate_per_year", "desertion_rate_per_year",
+                "min_members", "min_share", "recruit_factor", "rogue_join_rate_per_year", "schism_size_ratio",
+                "schism_rate_per_year", "schism_ambition", "grace_years"));
+        Decline decline = new Decline(de.fraction("desert_rate_per_year"), de.fraction("desertion_rate_per_year"),
+                de.nonNegativeInteger("min_members"), de.fraction("min_share"), de.fraction("recruit_factor"),
+                de.fraction("rogue_join_rate_per_year"), de.positiveNumber("schism_size_ratio"),
+                de.fraction("schism_rate_per_year"), de.integer("schism_ambition", 0, 101),
+                de.nonNegativeInteger("grace_years"));
+
+        SimJson.Fields fd = root.object("founding", Set.of("min_realm", "min_ambition", "rate_per_year",
+                "deficit_boost", "surplus_exponent", "followers"));
+        Founding founding = new Founding(realmStage(fd.object("min_realm", REALM_STAGE_FIELDS), realms),
+                fd.integer("min_ambition", 0, 101), fd.fraction("rate_per_year"), fd.nonNegativeNumber("deficit_boost"),
+                fd.nonNegativeNumber("surplus_exponent"), fd.intRange("followers"));
+
         return new Rules(time, Collections.unmodifiableMap(tiers), chronicle, scheduler, roots, techniques,
                 cultivation, breakthrough, injury, Collections.unmodifiableMap(deathImportance), entrants, sects,
-                genesis, gates);
+                genesis, gates, naming, importance, travel, seclusion, danger, fortune,
+                Collections.unmodifiableMap(artifactPower), meetings, combat, revenge, sectRelations, succession,
+                decline, founding);
     }
 
     private static final Set<String> GRADE_FACTOR_FIELDS = Set.of("cultivation", "breakthrough", "combat");

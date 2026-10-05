@@ -32,7 +32,7 @@
         {"cap": 46.0, "power": 6.2}
       ],
       "breakthrough": {
-        "base_chance": 0.09,
+        "base_chance": 0.065,
         "death_chance": 0.03,
         "progress_loss": 0.4,
         "injury": 25,

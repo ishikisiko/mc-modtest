@@ -20,4 +20,7 @@ public final class Tombstone {
     public int killerId = -1;
     public long deathEventId = -1;
     public int masterId = -1;
+    /** Technique held at death and its grade (huang/xuan/di/tian), or "". */
+    public String techniqueId = "";
+    public String techniqueGrade = "";
 }

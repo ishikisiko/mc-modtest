@@ -18,6 +18,14 @@ public final class Rates {
         return 1.0 - StrictMath.pow(1.0 - perYear, 1.0 / daysPerYear);
     }
 
+    /** Chance per day of at least one occurrence, for an expected {@code countPerYear} occurrences a year. */
+    public static double poissonPerDay(double countPerYear, int daysPerYear) {
+        if (countPerYear <= 0.0) {
+            return 0.0;
+        }
+        return 1.0 - StrictMath.exp(-countPerYear / daysPerYear);
+    }
+
     /** Linear quantity per day. */
     public static double linear(double perYear, int daysPerYear) {
         return perYear / daysPerYear;

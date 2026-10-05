@@ -34,6 +34,7 @@ public record EncounterTable(List<Encounter> encounters) {
      * @param realms    realm ids allowed (empty = any)
      * @param statuses  statuses allowed (empty = any)
      * @param contested two finders may fight over it
+     * @param quiet     no line of its own: the progress shows in the next stage-up line as an insight
      */
     public record Encounter(
             String id,
@@ -48,7 +49,8 @@ public record EncounterTable(List<Encounter> encounters) {
             List<String> realms,
             List<String> statuses,
             boolean contested,
-            List<Effect> effects) {
+            List<Effect> effects,
+            boolean quiet) {
 
         public String textKey() {
             return TEXT_PREFIX + text;
@@ -72,7 +74,7 @@ public record EncounterTable(List<Encounter> encounters) {
     private static final Set<String> ROOT_FIELDS = Set.of("schema", "encounters");
     private static final Set<String> ENCOUNTER_FIELDS = Set.of(
             "id", "weight", "rarity", "importance", "text", "site_kind", "min_danger", "max_danger", "min_tier",
-            "realms", "statuses", "contested", "effects");
+            "realms", "statuses", "contested", "effects", "quiet");
     private static final Set<String> EFFECT_FIELDS = Set.of("kind", "amount", "grade");
 
     static EncounterTable parse(String file, JsonObject json, RealmTable realms) {
@@ -136,7 +138,8 @@ public record EncounterTable(List<Encounter> encounters) {
             }
             out.add(new Encounter(id, e.positiveInteger("weight"), e.integer("rarity", 0, 3),
                     e.integer("importance", 1, 3), text, siteKind, minDanger, maxDanger,
-                    e.integer("min_tier", 0, 100), realmIds, statuses, e.bool("contested"), List.copyOf(effects)));
+                    e.integer("min_tier", 0, 100), realmIds, statuses, e.bool("contested"), List.copyOf(effects),
+                    e.has("quiet") && e.bool("quiet")));
         }
         return new EncounterTable(List.copyOf(out));
     }

@@ -578,5 +578,8 @@
   "world_sim.event.stage_up.insight.2": "%1$s%2$s%3$s静坐悟道，豁然贯通，晋入%4$s。",
   "world_sim.event.breakthrough_fail.foundation_establishment.3": "%1$s%2$s%3$s冲关未成，只得出关静养。",
   "world_sim.event.breakthrough_fail.golden_core.3": "%1$s%2$s%3$s金丹将成而复溃，只得重头温养。",
-  "world_sim.event.breakthrough_fail.nascent_soul.3": "%1$s%2$s%3$s碎丹之际元神不稳，只得强行收功。"
+  "world_sim.event.breakthrough_fail.nascent_soul.3": "%1$s%2$s%3$s碎丹之际元神不稳，只得强行收功。",
+  "world_sim.event.feud.death.named.1": "%4$s%5$s%6$s死于%1$s%2$s%3$s之手，两宗结下血仇。",
+  "world_sim.event.feud.death.named.2": "%1$s%2$s%3$s斩%4$s%5$s%6$s，两宗自此势同水火。",
+  "world_sim.event.feud.injury.named.1": "%1$s%2$s%3$s重伤%4$s%5$s%6$s之事传开，两宗自此交恶。"
 }

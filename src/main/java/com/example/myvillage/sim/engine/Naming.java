@@ -14,23 +14,52 @@ public final class Naming {
     private Naming() {
     }
 
-    /** Returns {surname, given}; registers the full name as used. */
+    /**
+     * Returns {surname, given}; registers the full name as used. Surnames are listed common-first
+     * and drawn with weight {@code 1 / (1 + index / surname_rank_scale)}; a given name whose first
+     * character repeats the surname's last (云云起) and the rules' banned prefixes (朱德…) are skipped.
+     */
     public static String[] personName(SimContext ctx, SimRng rng, String gender) {
         ContentTables.Names names = ctx.data.names();
         List<String> own = gender.equals("f") ? names.givenFemale() : names.givenMale();
         List<String> neutral = names.givenNeutral();
+        double[] surnameWeights = surnameWeights(ctx);
         String surname = "";
         String given = "";
-        for (int attempt = 0; attempt < ATTEMPTS; attempt++) {
-            surname = names.surnames().get(rng.nextInt(names.surnames().size()));
+        for (int attempt = 0; attempt < ATTEMPTS * 2; attempt++) {
+            surname = names.surnames().get(rng.weighted(surnameWeights));
             int pick = rng.nextInt(own.size() + neutral.size());
             given = pick < own.size() ? own.get(pick) : neutral.get(pick - own.size());
-            if (!ctx.usedNames().contains(surname + given)) {
+            if (acceptable(ctx, surname, given) && (!ctx.usedNames().contains(surname + given) || attempt >= ATTEMPTS)) {
                 break;
             }
         }
         ctx.usedNames().add(surname + given);
         return new String[] {surname, given};
+    }
+
+    static boolean acceptable(SimContext ctx, String surname, String given) {
+        if (given.isEmpty() || surname.isEmpty()
+                || given.codePointAt(0) == surname.codePointBefore(surname.length())) {
+            return false;
+        }
+        String full = surname + given;
+        for (String banned : ctx.rules.naming().bannedNamePrefixes()) {
+            if (full.startsWith(banned)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static double[] surnameWeights(SimContext ctx) {
+        List<String> surnames = ctx.data.names().surnames();
+        double scale = ctx.rules.naming().surnameRankScale();
+        double[] w = new double[surnames.size()];
+        for (int i = 0; i < w.length; i++) {
+            w[i] = 1.0 / (1.0 + i / scale);
+        }
+        return w;
     }
 
     public static String sectName(SimContext ctx, SimRng rng) {

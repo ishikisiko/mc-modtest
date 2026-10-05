@@ -2,6 +2,7 @@ package com.example.myvillage.sim.engine;
 
 import com.example.myvillage.sim.SimEvent;
 import com.example.myvillage.sim.SimObserver;
+import com.example.myvillage.sim.SimRng;
 import com.example.myvillage.sim.model.WorldState;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -20,15 +21,17 @@ import java.util.Set;
 public final class Chronicle {
     private final WorldState state;
     private final Map<String, Integer> arities;
+    private final Map<String, int[]> families;
     private final int minorPerPerson;
     private final Map<Integer, ArrayDeque<Long>> minorBySubject = new HashMap<>();
     private final Set<Long> dropped = new HashSet<>();
     private List<SimEvent> today = new ArrayList<>();
     private SimObserver observer;
 
-    Chronicle(WorldState state, Map<String, Integer> arities, int minorPerPerson) {
+    Chronicle(WorldState state, Map<String, Integer> arities, Map<String, int[]> families, int minorPerPerson) {
         this.state = state;
         this.arities = arities;
+        this.families = families;
         this.minorPerPerson = minorPerPerson;
         for (SimEvent e : state.chronicle) {
             if (e.importance() == 1) {
@@ -130,6 +133,22 @@ public final class Chronicle {
         public Builder cause(long causeId) {
             this.causeId = causeId;
             return this;
+        }
+
+        /** Emits one variant of a line family, chosen by hash of (day, subject, family). */
+        public long say(String family, String... params) {
+            int[] f = families.get(family);
+            if (f == null) {
+                throw new IllegalStateException("unregistered line family " + family);
+            }
+            long subject = actors.isEmpty() ? (sects.isEmpty() ? 0 : -sects.get(0)) : actors.get(0);
+            int variant = 1 + SimRng.at(state.seed, state.day, subject, Purpose.TEXT_VARIANT, family.hashCode())
+                    .nextInt(f[1]);
+            return text(family + "." + variant, params);
+        }
+
+        public long say(String family, Anchor params) {
+            return say(family, params.build());
         }
 
         public long text(String textKey, String... params) {

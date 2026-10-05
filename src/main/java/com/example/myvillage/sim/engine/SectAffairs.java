@@ -49,14 +49,16 @@ public final class SectAffairs {
         Rules.Sects r = ctx.rules.sects();
         for (Person p : ctx.members(sect.id)) {
             if (p.rank.equals("outer") && reached(ctx, p, r.promoteInner())) {
+                String[] before = Anchor.of(ctx).who(p).build();
                 p.rank = "inner";
                 p.techniqueId = upgradeTechnique(ctx, p, sect.signatureTechniqueId);
                 ctx.chronicle.event("promotion", 1).actors(p.id).sects(sect.id).region(p.regionId)
-                        .text(TextKeys.PROMOTE_INNER, p.name(), sect.name);
+                        .say(TextKeys.PROMOTE_INNER, before);
             } else if (p.rank.equals("inner") && reached(ctx, p, r.promoteElder())) {
+                Anchor before = Anchor.of(ctx).who(p).add(TextKeys.stage(ctx.realm(p).id(), p.stage));
                 p.rank = "elder";
                 ctx.chronicle.event("promotion", 1).actors(p.id).sects(sect.id).region(p.regionId)
-                        .text(TextKeys.PROMOTE_ELDER, p.name(), sect.name);
+                        .say(TextKeys.PROMOTE_ELDER, before);
             }
         }
     }
@@ -102,7 +104,7 @@ public final class SectAffairs {
             }
             Person master = mentors.get(rng.weighted(weights));
             long id = ctx.chronicle.event("disciple", 1).actors(disciple.id, master.id).sects(sect.id)
-                    .region(sect.homeRegionId).text(TextKeys.DISCIPLE, disciple.name(), master.name());
+                    .region(sect.homeRegionId).say(TextKeys.DISCIPLE, Anchor.of(ctx).who(disciple).who(master));
             People.bindMentor(master, disciple, id);
         }
     }

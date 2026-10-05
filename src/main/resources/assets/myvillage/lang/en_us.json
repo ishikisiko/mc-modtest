@@ -594,5 +594,8 @@
   "world_sim.event.stage_up.insight.2": "%3$s (%2$s %1$s), in seclusion, has an insight and reaches %4$s.",
   "world_sim.event.breakthrough_fail.foundation_establishment.3": "%3$s (%2$s %1$s) fails to reach Foundation Establishment.",
   "world_sim.event.breakthrough_fail.golden_core.3": "%3$s (%2$s %1$s) fails to reach a Golden Core.",
-  "world_sim.event.breakthrough_fail.nascent_soul.3": "%3$s (%2$s %1$s) fails to reach a Nascent Soul."
+  "world_sim.event.breakthrough_fail.nascent_soul.3": "%3$s (%2$s %1$s) fails to reach a Nascent Soul.",
+  "world_sim.event.feud.death.named.1": "%6$s (%5$s %4$s) dies at the hands of %3$s (%2$s %1$s); the two sects become enemies.",
+  "world_sim.event.feud.death.named.2": "%6$s (%5$s %4$s) dies at the hands of %3$s (%2$s %1$s); the two sects become enemies.",
+  "world_sim.event.feud.injury.named.1": "%3$s (%2$s %1$s) badly wounds %6$s (%5$s %4$s); the two sects fall out."
 }

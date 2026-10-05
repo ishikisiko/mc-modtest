@@ -3,7 +3,7 @@
   "encounters": [
     {
       "id": "herb_patch",
-      "weight": 40,
+      "weight": 80,
       "rarity": 0,
       "importance": 1,
       "text": "herb",
@@ -18,7 +18,7 @@
     },
     {
       "id": "spirit_spring",
-      "weight": 22,
+      "weight": 44,
       "rarity": 0,
       "importance": 1,
       "text": "spring",
@@ -33,7 +33,7 @@
     },
     {
       "id": "broken_manual",
-      "weight": 16,
+      "weight": 32,
       "rarity": 0,
       "importance": 1,
       "text": "manual_huang",
@@ -48,7 +48,7 @@
     },
     {
       "id": "miasma",
-      "weight": 14,
+      "weight": 28,
       "rarity": 0,
       "importance": 1,
       "text": "miasma",
@@ -63,7 +63,7 @@
     },
     {
       "id": "secluded_insight",
-      "weight": 30,
+      "weight": 60,
       "rarity": 0,
       "importance": 1,
       "text": "insight",
@@ -74,11 +74,12 @@
       "realms": [],
       "statuses": ["secluded"],
       "contested": false,
-      "effects": [{"kind": "progress", "amount": 2.5}]
+      "effects": [{"kind": "progress", "amount": 2.5}],
+      "quiet": true
     },
     {
       "id": "pill_cache",
-      "weight": 12,
+      "weight": 36,
       "rarity": 1,
       "importance": 1,
       "text": "pill_cache",
@@ -89,13 +90,13 @@
       "realms": [],
       "statuses": ["travelling"],
       "contested": false,
-      "effects": [{"kind": "breakthrough_pill", "amount": 0.08}]
+      "effects": [{"kind": "breakthrough_pill", "amount": 0.15}]
     },
     {
       "id": "hermit_teaching",
-      "weight": 8,
+      "weight": 16,
       "rarity": 1,
-      "importance": 2,
+      "importance": 1,
       "text": "hermit",
       "site_kind": null,
       "min_danger": 0,
@@ -108,9 +109,9 @@
     },
     {
       "id": "cave_manual",
-      "weight": 9,
+      "weight": 18,
       "rarity": 1,
-      "importance": 2,
+      "importance": 1,
       "text": "manual_xuan",
       "site_kind": "cave",
       "min_danger": 0,
@@ -123,9 +124,9 @@
     },
     {
       "id": "battlefield_relic",
-      "weight": 8,
+      "weight": 16,
       "rarity": 1,
-      "importance": 2,
+      "importance": 1,
       "text": "relic_xuan",
       "site_kind": "battlefield",
       "min_danger": 0,
@@ -138,7 +139,7 @@
     },
     {
       "id": "tomb_mechanism",
-      "weight": 8,
+      "weight": 16,
       "rarity": 1,
       "importance": 1,
       "text": "tomb_trap",
@@ -215,7 +216,7 @@
       "id": "core_pill",
       "weight": 4,
       "rarity": 2,
-      "importance": 2,
+      "importance": 1,
       "text": "core_pill",
       "site_kind": "secret_realm",
       "min_danger": 0,
@@ -224,13 +225,13 @@
       "realms": ["foundation_establishment", "golden_core"],
       "statuses": ["travelling"],
       "contested": false,
-      "effects": [{"kind": "breakthrough_pill", "amount": 0.12}]
+      "effects": [{"kind": "breakthrough_pill", "amount": 0.18}]
     },
     {
       "id": "demonic_qi",
       "weight": 6,
       "rarity": 2,
-      "importance": 2,
+      "importance": 1,
       "text": "demonic",
       "site_kind": null,
       "min_danger": 8,

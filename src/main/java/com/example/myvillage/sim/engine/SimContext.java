@@ -36,6 +36,9 @@ public final class SimContext {
     public int dpy;
 
     private final Map<String, GenRegion> regionById = new LinkedHashMap<>();
+    /** Regions reachable over one 连 edge (a walled region only through its pass), in id order. */
+    private final Map<String, List<String>> neighbours = new LinkedHashMap<>();
+    private Map<String, List<Person>> peopleByRegion;
     private Map<Integer, List<Person>> membersBySect;
     private Set<String> usedNames;
     private Set<String> usedSectNames;
@@ -50,8 +53,19 @@ public final class SimContext {
         this.dpy = dpy;
         for (GenRegion r : graph.regions()) {
             regionById.put(r.id(), r);
+            neighbours.put(r.id(), new ArrayList<>());
         }
-        this.chronicle = new Chronicle(state, TextKeys.eventKeys(data), rules.chronicle().minorPerPerson());
+        for (var e : graph.edges()) {
+            if (e.type().equals(com.example.myvillage.region.runtime.RegionContract.EDGE_LIAN)) {
+                neighbours.get(e.a()).add(e.b());
+                neighbours.get(e.b()).add(e.a());
+            }
+        }
+        for (List<String> list : neighbours.values()) {
+            list.sort(String::compareTo);
+        }
+        this.chronicle = new Chronicle(state, TextKeys.eventKeys(data), TextKeys.families(data),
+                rules.chronicle().minorPerPerson());
     }
 
     public void setObserver(SimObserver observer) {
@@ -193,6 +207,78 @@ public final class SimContext {
 
     public static boolean admitsSects(GenRegion r) {
         return r.admittedSubjects().contains("sect");
+    }
+
+    public List<String> neighbours(String regionId) {
+        return neighbours.getOrDefault(regionId, List.of());
+    }
+
+    /** The next region on a shortest 连 path from {@code from} to {@code to}; {@code from} if unreachable. */
+    public String nextStep(String from, String to) {
+        if (from.equals(to)) {
+            return from;
+        }
+        Map<String, String> parent = new LinkedHashMap<>();
+        java.util.ArrayDeque<String> queue = new java.util.ArrayDeque<>();
+        queue.add(from);
+        parent.put(from, from);
+        while (!queue.isEmpty()) {
+            String u = queue.poll();
+            for (String v : neighbours(u)) {
+                if (!parent.containsKey(v)) {
+                    parent.put(v, u);
+                    if (v.equals(to)) {
+                        String step = v;
+                        while (!parent.get(step).equals(from)) {
+                            step = parent.get(step);
+                        }
+                        return step;
+                    }
+                    queue.add(v);
+                }
+            }
+        }
+        return from;
+    }
+
+    /** Living people in a region as of the start of the day, in id order (may include the newly dead). */
+    public List<Person> peopleIn(String regionId) {
+        if (peopleByRegion == null) {
+            peopleByRegion = new HashMap<>();
+            for (Person p : state.persons.values()) {
+                peopleByRegion.computeIfAbsent(p.regionId, k -> new ArrayList<>()).add(p);
+            }
+        }
+        return peopleByRegion.getOrDefault(regionId, List.of());
+    }
+
+    /** A kept chronicle event by id (binary search), or null when pruned or unknown. */
+    public com.example.myvillage.sim.SimEvent findEvent(long eventId) {
+        List<com.example.myvillage.sim.SimEvent> all = state.chronicle;
+        int lo = 0;
+        int hi = all.size() - 1;
+        while (lo <= hi) {
+            int mid = (lo + hi) >>> 1;
+            long id = all.get(mid).id();
+            if (id == eventId) {
+                return all.get(mid);
+            }
+            if (id < eventId) {
+                lo = mid + 1;
+            } else {
+                hi = mid - 1;
+            }
+        }
+        return null;
+    }
+
+    /** Called at the start of each day. */
+    public void newDay() {
+        peopleByRegion = null;
+    }
+
+    public boolean alive(Person p) {
+        return state.persons.get(p.id) == p;
     }
 
     // ------------------------------------------------------------------ names

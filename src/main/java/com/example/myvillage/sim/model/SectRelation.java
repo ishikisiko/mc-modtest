@@ -15,6 +15,12 @@ public final class SectRelation {
     public int score;
     /** This sect pays tribute to {@code other} until this day (a war lost by tribute), or -1. */
     public long tributeUntilDay = -1;
+    /** Day the last war between the two ended, or -1. */
+    public long lastWarEndDay = -1;
+    /** Day of the last set battle between the two and its champions (for spacing and "再度交锋"), or -1. */
+    public long lastBattleDay = -1;
+    public int lastChampionA = -1;
+    public int lastChampionB = -1;
 
     public SectRelation(int other) {
         this.other = other;

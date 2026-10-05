@@ -22,8 +22,11 @@ public final class Cultivation {
         while (p.stage < realm.lastStage() && p.progress >= realm.stage(p.stage).cap()) {
             p.progress -= realm.stage(p.stage).cap();
             p.stage++;
+            boolean insight = p.insightDay >= 0 && ctx.day() - p.insightDay <= ctx.dpy;
+            p.insightDay = -1;
             ctx.chronicle.event("stage_up", 1).actors(p.id).sects(sectIds(p)).region(p.regionId)
-                    .text(TextKeys.STAGE_UP, p.name(), TextKeys.stage(realm.id(), p.stage));
+                    .say(insight ? TextKeys.STAGE_UP_INSIGHT : TextKeys.STAGE_UP,
+                            Anchor.of(ctx).who(p).add(TextKeys.stage(realm.id(), p.stage)));
         }
         double lastCap = realm.stage(realm.lastStage()).cap();
         if (p.stage == realm.lastStage() && p.progress > lastCap) {

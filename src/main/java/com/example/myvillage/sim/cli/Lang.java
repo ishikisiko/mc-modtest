@@ -15,13 +15,16 @@ import java.util.Map;
 
 /**
  * A language file read the way Minecraft formats it: positional {@code %1$s} templates, and event
- * params starting with {@code @} translated as keys. Missing keys render as {@code [key]} so a gap
+ * params starting with {@code @} translated as keys. In a Chinese file all-digit params (ages,
+ * years, counts) are written as Chinese numerals. Missing keys render as {@code [key]} so a gap
  * shows up in the text instead of vanishing.
  */
 public final class Lang {
     private final Map<String, String> entries = new HashMap<>();
+    private boolean chineseNumerals;
 
     public Lang(Path file) throws IOException {
+        this.chineseNumerals = file.getFileName().toString().startsWith("zh");
         try (Reader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
             JsonObject json = JsonParser.parseReader(reader).getAsJsonObject();
             for (Map.Entry<String, JsonElement> e : json.entrySet()) {
@@ -44,7 +47,8 @@ public final class Lang {
         Object[] args = new Object[params.size()];
         for (int i = 0; i < args.length; i++) {
             String p = params.get(i);
-            args[i] = p.startsWith("@") ? raw(p.substring(1)) : p;
+            args[i] = p.startsWith("@") ? raw(p.substring(1))
+                    : chineseNumerals && ChineseNumerals.isNumber(p) ? ChineseNumerals.of(Long.parseLong(p)) : p;
         }
         String template = raw(key);
         try {

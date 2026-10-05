@@ -309,7 +309,12 @@ public final class WorldSim {
     private PersonView tombView(Tombstone t) {
         return new PersonView(t.id, t.name, t.title, t.gender, false, t.birthDay, t.deathDay, t.cause, t.killerId,
                 List.of(), t.rootGrade, ctx.realms.get(t.realm).id(), t.stage, 0.0, t.sectId, ctx.sectName(t.sectId),
-                t.rank, t.masterId, "", "dead", "", "", 0, List.of());
+                t.rank, t.masterId, "", "dead", t.techniqueId, techniqueName(t.techniqueId), 0, List.of());
+    }
+
+    private String techniqueName(String id) {
+        ContentTables.Technique t = ctx.data.technique(id);
+        return t == null ? "" : t.name();
     }
 
     private static List<Integer> rootList(int[] root) {
