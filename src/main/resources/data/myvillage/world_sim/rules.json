@@ -1,0 +1,113 @@
+{
+  "schema": 1,
+  "time": {"prehistory_years": 100, "default_days_per_year": 6},
+  "tiers": {
+    "small": {"population": 80, "sects": 5, "rogue_share": 0.2},
+    "medium": {"population": 300, "sects": 10, "rogue_share": 0.2},
+    "large": {"population": 1000, "sects": 20, "rogue_share": 0.2}
+  },
+  "chronicle": {"minor_per_person": 8},
+  "scheduler": {"max_pending_days": 30},
+  "roots": {
+    "element_threshold_bp": 1500,
+    "grades": [
+      {"id": "heaven", "max_elements": 1, "weight": 2, "cultivation": 2.0, "breakthrough": 2.0},
+      {"id": "dual", "max_elements": 2, "weight": 8, "cultivation": 1.5, "breakthrough": 1.5},
+      {"id": "triple", "max_elements": 3, "weight": 20, "cultivation": 1.0, "breakthrough": 1.0},
+      {"id": "quad", "max_elements": 4, "weight": 32, "cultivation": 0.75, "breakthrough": 0.65},
+      {"id": "penta", "max_elements": 5, "weight": 38, "cultivation": 0.55, "breakthrough": 0.4}
+    ]
+  },
+  "techniques": {
+    "grades": {
+      "huang": {"cultivation": 1.0, "breakthrough": 1.0, "combat": 1.0},
+      "xuan": {"cultivation": 1.3, "breakthrough": 1.25, "combat": 1.2},
+      "di": {"cultivation": 1.7, "breakthrough": 1.6, "combat": 1.45},
+      "tian": {"cultivation": 2.3, "breakthrough": 2.2, "combat": 1.8}
+    },
+    "none": {"cultivation": 0.6, "breakthrough": 0.7, "combat": 0.85},
+    "element_match_bonus": 0.15
+  },
+  "cultivation": {
+    "base_per_year": 1.0,
+    "status": {"at_sect": 1.0, "travelling": 0.6, "secluded": 1.4},
+    "qi_base": 0.55,
+    "qi_per_point": 0.075,
+    "rank": {"sect_master": 1.15, "elder": 1.1, "inner": 1.0, "outer": 0.85, "rogue": 0.8},
+    "resource_bonus": 0.3,
+    "resource_reference_per_member": 20.0,
+    "master_guidance": 0.15,
+    "injury_per_point": 0.006,
+    "injury_floor": 0.3
+  },
+  "breakthrough": {
+    "attempt_rate_per_year": 0.4,
+    "caution_weight": 0.5,
+    "desperate_years_left": 6,
+    "desperate_attempt_rate_per_year": 0.9,
+    "desperate_chance_factor": 0.6,
+    "desperate_death_factor": 2.5,
+    "failure_penalty": 0.65,
+    "retry_damping": 0.85,
+    "age_weight": 0.6,
+    "injury_per_point": 0.006,
+    "master_bonus": 0.03,
+    "min_chance": 0.005,
+    "max_chance": 0.9,
+    "wound_cause_threshold": 20
+  },
+  "injury": {"heal_per_year": 12},
+  "death_importance_by_rank": {"sect_master": 3, "elder": 2},
+  "entrants": {
+    "base_rate": 0.006,
+    "gain": 0.15,
+    "max_fraction_per_year": 0.12,
+    "age": [12, 18],
+    "rogue_technique_chance": 0.4
+  },
+  "sects": {
+    "recruit_weight_floor": 20.0,
+    "recruit_size_damping": 1.0,
+    "prestige_per_candidate": 60.0,
+    "max_candidates": 4,
+    "promotion": {
+      "inner": {"realm": "qi_refining", "stage": 5},
+      "elder": {"realm": "foundation_establishment", "stage": 0}
+    },
+    "disciples_per_master": 3,
+    "mentor_chance_per_year": 0.5,
+    "income_base": 6.0,
+    "income_per_member": 1.5,
+    "upkeep_per_member": 1.0,
+    "resource_cap_per_member": 60.0,
+    "prestige_smoothing": 0.25,
+    "pills": {
+      "foundation_establishment": {"cost": 45.0, "bonus": 0.05},
+      "golden_core": {"cost": 150.0, "bonus": 0.05},
+      "nascent_soul": {"cost": 600.0, "bonus": 0.03}
+    }
+  },
+  "genesis": {
+    "sect_age_years": [200, 900],
+    "masters": [
+      {"realm": "golden_core", "stage": 1},
+      {"realm": "golden_core", "stage": 0},
+      {"realm": "foundation_establishment", "stage": 2}
+    ],
+    "size_weights": [1.6, 1.3, 1.1, 1.0, 0.9],
+    "signature_grades": ["di", "xuan", "xuan", "huang"],
+    "elder_share": 0.15,
+    "inner_share": 0.35,
+    "region_qi_exponent": 1.5,
+    "region_crowding": 0.6,
+    "ages": {
+      "qi_refining": [14, 70],
+      "foundation_establishment": [45, 170],
+      "golden_core": [140, 380],
+      "nascent_soul": [400, 800]
+    },
+    "rogue_foundation_chance": 0.12,
+    "founder_realm_bonus": 1
+  },
+  "gates": {"max_radius": 3700, "min_spacing": 320, "max_offset": 1500, "retries": 200}
+}
