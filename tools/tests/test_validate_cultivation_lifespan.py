@@ -125,6 +125,30 @@ class CultivationLifespanValidationTest(unittest.TestCase):
 
         self.assert_error_contains(result, "batching interval must be 600 ticks")
 
+    def test_calendar_game_mode_gating_is_rejected(self) -> None:
+        self.mutate_text(
+            "src/main/java/com/example/myvillage/cultivation/time/CultivationTimeRuntime.java",
+            "if (calendarAdvances(server.getPlayerList().getPlayers().size())) {",
+            "if (server.getPlayerList().getPlayers().stream()\n"
+            "                .anyMatch(CultivationTimeRuntime::isSurvivalOrAdventure)) {",
+        )
+
+        result = self.validate()
+
+        self.assert_error_contains(result, "calendar must advance on online-player presence")
+        self.assert_error_contains(result, "shared calendar must not be gated by game mode")
+
+    def test_calendar_predicate_drift_is_rejected(self) -> None:
+        self.mutate_text(
+            "src/main/java/com/example/myvillage/cultivation/time/CultivationTimeRuntime.java",
+            "return onlinePlayerCount > 0;",
+            "return onlinePlayerCount > 1;",
+        )
+
+        result = self.validate()
+
+        self.assert_error_contains(result, "whatever their game mode")
+
     def test_server_save_flush_hook_removal_is_rejected(self) -> None:
         self.mutate_text(
             "src/main/java/com/example/myvillage/cultivation/CultivationEvents.java",

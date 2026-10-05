@@ -263,7 +263,8 @@ class CultivationLifespanValidator:
         for fragment, message in (
             ("COMMIT_INTERVAL_TICKS = 600", "lifespan/calendar batching interval must be 600 ticks"),
             ("Map<UUID, PendingLifespan>", "pending personal lifespan must be keyed by UUID"),
-            ("anyMatch(CultivationTimeRuntime::isSurvivalOrAdventure)", "calendar must require at least one survival/adventure player"),
+            ("calendarAdvances(server.getPlayerList().getPlayers().size())", "calendar must advance on online-player presence"),
+            ("return onlinePlayerCount > 0;", "calendar must advance whenever any player is online, whatever their game mode"),
             ("isEligibleForPersonalLifespan", "personal lifespan eligibility boundary is missing"),
             ("player.isAlive()", "personal lifespan must pause while dead"),
             ("!player.isRemoved()", "removed players must not accrue lifespan"),
@@ -279,6 +280,8 @@ class CultivationLifespanValidator:
         if runtime is not None:
             if "player.setData(" in runtime:
                 self.error(runtime_path, "time runtime must not write the attachment directly")
+            if "anyMatch(CultivationTimeRuntime::isSurvivalOrAdventure)" in runtime:
+                self.error(runtime_path, "shared calendar must not be gated by game mode")
             for forbidden in ("getDayTime(", "getGameTime(", "System.currentTimeMillis", "Instant.now("):
                 if forbidden in runtime:
                     self.error(runtime_path, f"effective clocks must not use {forbidden}")

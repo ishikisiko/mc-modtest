@@ -6,21 +6,26 @@ TBD - created by archiving change add-cultivation-lifespan-calendar. Update Purp
 ### Requirement: The shared cultivation calendar uses Overworld SavedData
 The system SHALL persist non-negative `elapsedCalendarTicks` in one Overworld
 `SavedData` record. A server-post-tick coordinator SHALL increment it exactly
-once per effective server tick when at least one online player is in survival
-or adventure mode, regardless of player dimension. It SHALL pause when no such
-player is online and while the server is stopped.
+once per effective server tick when at least one player is online, regardless of
+player game mode or dimension. It SHALL pause when no player is online and while
+the server is stopped.
 
-#### Scenario: Eligible players are online across dimensions
-- **WHEN** one or more survival/adventure players are online in any dimensions for one server tick
+#### Scenario: Players are online across dimensions and game modes
+- **WHEN** one or more players in any game mode are online in any dimensions for one server tick
 - **THEN** `elapsedCalendarTicks` SHALL increase by exactly one rather than once per player or dimension
 
-#### Scenario: Only excluded players are online
-- **WHEN** all online players are creative or spectator
+#### Scenario: Only creative or spectator players are online
+- **WHEN** all online players are creative or spectator for one server tick
+- **THEN** the shared calendar SHALL still increase by exactly one
+- **AND** no online player's personal lifespan SHALL advance
+
+#### Scenario: No player is online
+- **WHEN** a server tick runs with no player online
 - **THEN** the shared calendar SHALL not advance
 
 #### Scenario: Vanilla time is changed
 - **WHEN** sleep, `/time set`, daylight-cycle changes, weather, or dimension time changes occur
-- **THEN** `elapsedCalendarTicks` SHALL remain governed only by effective server ticks and eligible-player presence
+- **THEN** `elapsedCalendarTicks` SHALL remain governed only by effective server ticks and online-player presence
 
 ### Requirement: Personal lifespan advances only for the eligible living player
 Each player's `lifespanConsumedTicks` SHALL increase once per server tick only

@@ -1679,7 +1679,7 @@ and switching between its tabs are allowed.
 The time defaults under server config section `cultivation_time` are
 `ticks_per_day = 24000` and `days_per_year = 6`: one cultivation year is
 `144000` effective ticks. The Overworld `SavedData` calendar advances once per
-server tick while at least one survival/adventure player is online. A player's
+server tick while at least one player is online, in any game mode. A player's
 lifespan advances only while that player is online, alive, and in
 survival/adventure. Sleep, `/time set`, daylight-cycle rules, dimension, and
 offline wall time do not drive either clock. Realm definitions currently grant
@@ -1903,9 +1903,11 @@ pass, and record the exact game/version/config used.
    loss. At Qi IV, `N` and cultivation gain must report the release limit.
 9. With one survival/adventure player, observe shared calendar and personal age
    advance independently of sleep and `/time set`. Switch the only player to
-   creative/spectator and confirm both pause. With a second survival/adventure
-   player online, confirm the shared calendar advances while the excluded or
-   offline first player's personal age does not. Separately verify reconnect,
+   creative/spectator and confirm the shared calendar keeps advancing while
+   personal age pauses; disconnect the only player and confirm both pause. With
+   a second survival/adventure player online, confirm the shared calendar
+   advances while the creative/spectator or offline first player's personal age
+   does not. Separately verify reconnect,
    dimension change, death/respawn, ordinary save/restart, and clean-stop flushes
    without double age. Also wait through one 600-tick interval to verify the
    periodic batch path separately.

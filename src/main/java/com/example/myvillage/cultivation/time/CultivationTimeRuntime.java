@@ -55,10 +55,8 @@ public final class CultivationTimeRuntime {
 
     public static void tick(MinecraftServer server) {
         Objects.requireNonNull(server, "server");
-        boolean calendarAdvances = server.getPlayerList().getPlayers().stream()
-                .anyMatch(CultivationTimeRuntime::isSurvivalOrAdventure);
         boolean calendarCheckpoint = false;
-        if (calendarAdvances) {
+        if (calendarAdvances(server.getPlayerList().getPlayers().size())) {
             CultivationCalendarSavedData calendar = CultivationCalendarSavedData.get(server.overworld());
             calendar.incrementSaturated();
             activeCalendarTicksSinceCheckpoint++;
@@ -265,6 +263,14 @@ public final class CultivationTimeRuntime {
                     server, MeditationStopReason.CONFIG_RELOADED);
             notifyAllPlayers(server);
         }
+    }
+
+    /**
+     * The shared calendar is the world clock: it runs whenever anyone is online, whatever their game mode.
+     * Game mode only gates personal lifespan ({@link #isEligibleForPersonalLifespan}).
+     */
+    static boolean calendarAdvances(int onlinePlayerCount) {
+        return onlinePlayerCount > 0;
     }
 
     public static boolean isEligibleForPersonalLifespan(ServerPlayer player) {

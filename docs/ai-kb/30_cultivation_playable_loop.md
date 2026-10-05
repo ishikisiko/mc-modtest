@@ -94,7 +94,7 @@ machine, or currency layer.
 
 `CultivationCalendarSavedData` is owned by Overworld data storage and contains
 only non-negative `elapsedCalendarTicks`. It advances once per server tick while
-at least one survival/adventure player is online. Personal lifespan advances
+at least one player is online, whatever their game mode. Personal lifespan advances
 only while that player is online, alive, non-removed, and in
 survival/adventure. Creative, spectator, dead, and offline players do not age;
 sleep, vanilla time, `/time set`, daylight-cycle rules, weather, and dimension

@@ -86,4 +86,12 @@ class CultivationTimeMathTest {
         assertEquals(0, pending.ticks());
         assertThrows(IllegalArgumentException.class, () -> pending.removeCommitted(1));
     }
+
+    @Test
+    void sharedCalendarAdvancesWheneverAnyPlayerIsOnline() {
+        // Game mode is not an input: one creative or spectator player keeps the world clock running.
+        assertFalse(CultivationTimeRuntime.calendarAdvances(0));
+        assertTrue(CultivationTimeRuntime.calendarAdvances(1));
+        assertTrue(CultivationTimeRuntime.calendarAdvances(5));
+    }
 }
