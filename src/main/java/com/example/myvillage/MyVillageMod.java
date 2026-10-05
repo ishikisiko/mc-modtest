@@ -20,6 +20,9 @@ import com.example.myvillage.region.runtime.RegionCommands;
 import com.example.myvillage.region.runtime.RegionRuntimeService;
 import com.example.myvillage.sect.SectGenerator;
 import com.example.myvillage.sect.SectStructures;
+import com.example.myvillage.sim.runtime.WorldSimCommands;
+import com.example.myvillage.sim.runtime.WorldSimRuntime;
+import com.example.myvillage.sim.runtime.WorldSimServerConfig;
 import com.example.myvillage.town.TownGenerator;
 import com.example.myvillage.town.ModBlockFallback;
 import com.mojang.brigadier.arguments.LongArgumentType;
@@ -84,6 +87,7 @@ public final class MyVillageMod {
     public MyVillageMod(IEventBus modEventBus, ModContainer modContainer) {
         LOGGER.info("MyVillage resource mod loaded");
         modContainer.registerConfig(ModConfig.Type.SERVER, CultivationServerConfig.SPEC);
+        modContainer.registerConfig(ModConfig.Type.SERVER, WorldSimServerConfig.SPEC, WorldSimServerConfig.FILE_NAME);
         modEventBus.addListener(CultivationServerConfig::onConfigLoading);
         modEventBus.addListener(CultivationServerConfig::onConfigReloading);
         ModEntities.register(modEventBus);
@@ -102,6 +106,7 @@ public final class MyVillageMod {
         NeoForge.EVENT_BUS.addListener(this::onServerStarted);
         NeoForge.EVENT_BUS.addListener(RegionRuntimeService::onServerStarted);
         NeoForge.EVENT_BUS.addListener(RegionRuntimeService::onServerStopping);
+        WorldSimRuntime.register(); // after the region runtime: genesis needs its graph
         NeoForge.EVENT_BUS.addListener(this::onPlayerLoggedOut);
         NeoForge.EVENT_BUS.addListener(this::onPlayerChangedDimension);
     }
@@ -226,7 +231,8 @@ public final class MyVillageMod {
                         .then(CultivationCommands.command())
                         .then(CultivationCommands.pinyinCommand())
                         .then(CombatCommands.command())
-                        .then(BeastCommands.command()));
+                        .then(BeastCommands.command())
+                        .then(WorldSimCommands.command()));
     }
 
     private int placeNamedStructure(CommandSourceStack source, String rawId) throws CommandSyntaxException {

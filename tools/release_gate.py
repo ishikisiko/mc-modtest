@@ -293,6 +293,7 @@ STEPS: tuple[Step, ...] = (
     tool("validate_cultivation_gain"),
     tool("validate_cultivation_advancement"),
     tool("validate_region_topology"),
+    tool("validate_world_sim"),
     Step(GENERATE, func=generate_structures),
     tool("validate_generated_structures", "src/main/resources/data/myvillage/structure", after=GENERATE),
     tool("validate_mod_block_fallbacks", after=GENERATE),
