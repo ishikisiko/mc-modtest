@@ -14,6 +14,7 @@ assert SPEC.loader is not None
 SPEC.loader.exec_module(MODULE)
 
 WOLF = "myvillage:demon_wolf"
+NPC = "myvillage:cultivator"
 RESOURCES = ROOT / "src/main/resources"
 
 
@@ -191,6 +192,65 @@ class BeastContractTest(unittest.TestCase):
         lang["zh_cn"]["entity.myvillage.demon_wolf"] = "狼"
         self.assertIn("contract_display_name_differs_from_lang:zh_cn",
                       MODULE.check_beast_contract(self.contract, WOLF, self.data, lang))
+
+
+class NpcValidationTest(unittest.TestCase):
+    def setUp(self) -> None:
+        self.model = load("assets/myvillage/npc/cultivator_model.json")
+        self.animations = load("assets/myvillage/npc/cultivator_animations.json")
+        self.contract = (ROOT / "genops/contracts/entities/cultivator.yaml").read_text(encoding="utf-8")
+        self.lang = {locale: load(f"assets/myvillage/lang/{locale}.json") for locale in ("en_us", "zh_cn")}
+
+    def test_every_generated_npc_is_validated(self) -> None:
+        report = MODULE.validate(ROOT)
+        self.assertEqual([NPC], MODULE.npc_ids(ROOT))
+        self.assertEqual([NPC], list(report["npcs"]))
+        self.assertIn(NPC, report["entities"])
+        npc = report["npcs"][NPC]
+        self.assertEqual(0, npc["errors"])
+        self.assertEqual(["idle", "walk"], npc["clips"])
+        self.assertEqual(self.model["scale"], npc["scale"])
+        self.assertEqual([self.model["texture"]["width"], self.model["texture"]["height"]], npc["texture"])
+
+    def test_model_scale_is_optional_and_positive(self) -> None:
+        errors, bones = MODULE.check_beast_model(self.model, NPC)
+        self.assertEqual([], errors)
+        self.assertIn("head", bones)
+        self.assertNotIn("scale", load("assets/myvillage/beast/demon_wolf_model.json"))
+        model = copy.deepcopy(self.model)
+        model["scale"] = 0
+        self.assertIn("invalid_scale", MODULE.check_beast_model(model, NPC)[0])
+        model["scale"], model["tint"] = 0.5, 1
+        self.assertIn("unknown_field:tint", MODULE.check_beast_model(model, NPC)[0])
+
+    def test_idle_and_walk_must_exist_and_loop(self) -> None:
+        errors, bones = MODULE.check_beast_model(self.model, NPC)
+
+        def check(animations):
+            return MODULE.check_beast_animations(animations, NPC, bones, None, looping=MODULE.NPC_CLIPS)
+
+        self.assertEqual([], check(self.animations))  # no run clip is asked of an NPC
+        animations = copy.deepcopy(self.animations)
+        del animations["clips"]["walk"]
+        animations["clips"]["idle"]["loop"] = False
+        animations["clips"]["idle"]["channels"][0]["bone"] = "tail"
+        errors = check(animations)
+        self.assertIn("missing_clip:walk", errors)
+        self.assertIn("clip_loop_must_be_true:idle", errors)
+        self.assertIn("channel_bone_missing:idle:tail", errors)
+
+    def test_contract_agrees_with_files_and_lang(self) -> None:
+        self.assertEqual([], MODULE.check_npc_contract(self.contract, NPC, self.lang))
+        self.assertIn("contract_kind_must_be_npc",
+                      MODULE.check_npc_contract(self.contract.replace("  kind: npc", "  kind: monster"), NPC, self.lang))
+        self.assertIn("contract_data_source:model",
+                      MODULE.check_npc_contract(self.contract.replace("npc/cultivator_model.json", "beast/x.json", 1), NPC, self.lang))
+        lang = copy.deepcopy(self.lang)
+        lang["zh_cn"]["entity.myvillage.cultivator"] = "道士"
+        self.assertIn("contract_display_name_differs_from_lang:zh_cn", MODULE.check_npc_contract(self.contract, NPC, lang))
+        without_walk = self.contract.replace("    - id: walk\n", "", 1)
+        self.assertTrue(any(e.startswith("contract_rendering_clips_missing")
+                            for e in MODULE.check_npc_contract(without_walk, NPC, self.lang)))
 
 
 class SourceScanTest(unittest.TestCase):

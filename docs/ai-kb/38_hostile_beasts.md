@@ -260,5 +260,6 @@ Wolf (0.33.0)" records each surface. Offline previews are in
 
 - Runtime spec: [`hostile-beast-runtime`](../../openspec/specs/hostile-beast-runtime/spec.md)
 - Custom entities and the fox route: [26_custom_entities.md](26_custom_entities.md), [`custom-entity-runtime`](../../openspec/specs/custom-entity-runtime/spec.md)
+- Humanoid NPCs, which share the model and animation schemas and add the model's optional `scale`: [39_humanoid_npcs.md](39_humanoid_npcs.md), [`humanoid-npc-runtime`](../../openspec/specs/humanoid-npc-runtime/spec.md)
 - Combat reactions and capture: [34_combat_data_and_capture.md](34_combat_data_and_capture.md), [`combat-style-data`](../../openspec/specs/combat-style-data/spec.md), [`combat-capture-tooling`](../../openspec/specs/combat-capture-tooling/spec.md)
 - Knowledge-base index: [INDEX.md](INDEX.md)

@@ -142,6 +142,7 @@ class Model:
     look: dict
     shadow_radius: float
     texture_size: tuple | None = None
+    scale: float = 1.0  # renderer scale: one model unit is scale / 16 block
 
     def bone(self, name):
         for b in self.bones:
@@ -353,8 +354,12 @@ def model_json(model):
                        "uv": [int(c.uv[0]), int(c.uv[1])], "inflate": _num(c.inflate), "mirror": bool(c.mirror)}
                       for c in b.cubes],
         })
-    return {"schema": 1, "id": model.id, "texture": {"width": w, "height": h}, "look": model.look,
-            "shadow_radius": _num(model.shadow_radius), "bones": bones}
+    doc = {"schema": 1, "id": model.id, "texture": {"width": w, "height": h}, "look": model.look,
+           "shadow_radius": _num(model.shadow_radius)}
+    if model.scale != 1.0:  # optional in the file; the loader reads a missing scale as 1
+        doc["scale"] = _num(model.scale)
+    doc["bones"] = bones
+    return doc
 
 
 def model_from_json(doc):
@@ -365,5 +370,5 @@ def model_from_json(doc):
                       uv=tuple(c["uv"])) for i, c in enumerate(b["cubes"])]
         bones.append(Bone(b["name"], b["parent"], b["pivot"], b["rotation"], cubes))
     m = Model(doc["id"], bones, doc.get("look"), doc.get("shadow_radius", 0.5),
-              (doc["texture"]["width"], doc["texture"]["height"]))
+              (doc["texture"]["width"], doc["texture"]["height"]), doc.get("scale", 1.0))
     return m

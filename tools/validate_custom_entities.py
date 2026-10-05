@@ -28,6 +28,8 @@ BEAST_INDEX = "data/myvillage/beast/index.json"
 TICKS_PER_SECOND = 20
 CLIP_LENGTH_TOLERANCE = 1.0e-4
 RESERVED_CLIPS = ("idle", "walk", "run")
+NPC_CLIPS = ("idle", "walk")
+NPCGEN_BUILD = "tools/npcgen/build.py"
 NAME_PATTERN = re.compile(r"^[a-z0-9_]+$")
 ID_PATTERN = re.compile(r"^[a-z0-9_.-]+:[a-z0-9_./-]+$")
 # Field sets of schema 1 (mirroring BeastDataLoader, BeastModelFile, BeastAnimationFile).
@@ -50,6 +52,7 @@ BEAST_LUNGE_FIELDS = {"tick", "forward_min", "forward_max", "up"}
 BEAST_HIT_FIELDS = {"forward", "half_width", "height"}
 BEAST_KNOCKBACK_FIELDS = {"strength", "lift"}
 MODEL_FIELDS = {"schema", "id", "texture", "look", "shadow_radius", "bones"}
+MODEL_OPTIONAL_FIELDS = {"scale"}  # renderer scale, 1 when absent
 BONE_FIELDS = {"name", "parent", "pivot", "rotation", "cubes"}
 CUBE_FIELDS = {"origin", "size", "uv", "inflate", "mirror"}
 ANIMATION_FIELDS = {"schema", "id", "clips"}
@@ -587,8 +590,11 @@ def check_beast_move(move: Any, path: str, move_ids: set[str], clips: set[str]) 
 def check_beast_model(model: Any, entity_id: str) -> tuple[list[str], set[str]]:
     """(errors, bone names) of a schema-1 model file."""
     errors: list[str] = []
-    if not _fields(model, "", MODEL_FIELDS, errors):
+    present = MODEL_OPTIONAL_FIELDS & set(model) if isinstance(model, dict) else set()
+    if not _fields(model, "", MODEL_FIELDS | present, errors):
         return errors, set()
+    if "scale" in model and not _rule(model["scale"], "positive"):
+        errors.append("invalid_scale")
     if model["schema"] != 1:
         errors.append(f"unsupported_schema:{model['schema']}")
     if model["id"] != entity_id:
@@ -643,8 +649,10 @@ def check_beast_model(model: Any, entity_id: str) -> tuple[list[str], set[str]]:
     return errors, set(names)
 
 
-def check_beast_animations(animations: Any, entity_id: str, bones: set[str], data: Any) -> list[str]:
-    """Schema-1 clips plus the cross-file rules ``BeastAnimationFile.check`` enforces."""
+def check_beast_animations(animations: Any, entity_id: str, bones: set[str], data: Any,
+                           looping: tuple[str, ...] = RESERVED_CLIPS) -> list[str]:
+    """Schema-1 clips plus the cross-file rules ``BeastAnimationFile.check`` enforces: the
+    ``looping`` clips exist and loop, and ``data`` (a beast's server data, or None) names the rest."""
     errors: list[str] = []
     if not _fields(animations, "", ANIMATION_FIELDS, errors):
         return errors
@@ -693,7 +701,7 @@ def check_beast_animations(animations: Any, entity_id: str, bones: set[str], dat
             errors.append(f"clip_loop_must_be_{str(loop).lower()}:{name}")
         return clip
 
-    for name in RESERVED_CLIPS:
+    for name in looping:
         require(name, True)
     if isinstance(data, dict):
         stagger = data.get("stagger", {}).get("animation") if isinstance(data.get("stagger"), dict) else None
@@ -800,6 +808,87 @@ def registration_block(text: str, name: str) -> str:
     return text[start:end if end > 0 else len(text)]
 
 
+def check_entity_registration(root: Path, entity_id: str, contract: str) -> list[str]:
+    """``ModEntities`` against the contract's pinned size, eye height, tracking range and category."""
+    _, name = split_id(entity_id)
+    const = constant_name(name)
+    found: list[str] = []
+    entities_text = require_text(root / JAVA_ROOT / "entity/ModEntities.java",
+                                 [f"EntityType<{class_name(name)}>> {const} ="], found)
+    block = registration_block(entities_text, name)
+    physical = yaml_block(contract, "physical")
+    if not block:
+        found.append(f"entity_type_not_registered:{name}")
+        return found
+    for field, pattern in (("width", r"\.sized\(([\d.]+)F,"), ("height", r"\.sized\([\d.]+F,\s*([\d.]+)F\)"),
+                           ("eye_height", r"\.eyeHeight\(([\d.]+)F\)"),
+                           ("client_tracking_range", r"\.clientTrackingRange\((\d+)\)")):
+        declared, registered = yaml_scalar(physical, field), float_literal(block, pattern)
+        if declared is None or registered is None or float(declared) != registered:
+            found.append(f"registration_differs_from_contract:{field}:{registered}!={declared}")
+    category = yaml_scalar(yaml_block(contract, "entity"), "mob_category")
+    if f"MobCategory.{(category or '').upper()}" not in block:
+        found.append(f"registration_mob_category_differs_from_contract:{category}")
+    return found
+
+
+def check_spawn_egg(root: Path, entity_id: str, contract: str) -> list[str]:
+    """The spawn egg item, its creative-tab entry and its colours against the contract."""
+    _, name = split_id(entity_id)
+    const = constant_name(name)
+    found: list[str] = []
+    items_text = require_text(root / JAVA_ROOT / "item/ModItems.java",
+                              [f"{const}_SPAWN_EGG", f"ModEntities.{const},", f"output.accept({const}_SPAWN_EGG.get())"],
+                              found)
+    egg_block = items_text[items_text.find(f"{const}_SPAWN_EGG ="):][:400] if items_text else ""
+    for field in ("primary_color", "secondary_color"):
+        color = yaml_scalar(yaml_block(contract, "items"), field)
+        if not color or f"0x{color.lstrip('#').upper()}" not in egg_block:
+            found.append(f"spawn_egg_{field}_differs_from_contract:{color}")
+    return found
+
+
+def check_no_natural_spawning(root: Path, entity_id: str, contract: str, kind: str) -> list[str]:
+    """No spawn placement, biome modifier or spawn biome tag; the contract must say ``natural: false``."""
+    namespace, name = split_id(entity_id)
+    const = constant_name(name)
+    resources = root / RESOURCE_ROOT
+    found: list[str] = []
+    if yaml_scalar(yaml_block(contract, "spawn"), "natural") != "false":
+        found.append(f"{kind}_natural_spawning_not_supported_by_validator")
+    events = root / JAVA_ROOT / "entity/ModEntityEvents.java"
+    events_text = events.read_text(encoding="utf-8") if events.is_file() else ""
+    placements = events_text[events_text.find("RegisterSpawnPlacementsEvent event"):]
+    if f"ModEntities.{const}" in placements:
+        found.append(f"{kind}_has_spawn_placement")
+    for modifier in sorted((resources / "data").glob("*/neoforge/biome_modifier/*.json")):
+        if entity_id in modifier.read_text(encoding="utf-8"):
+            found.append(f"{kind}_has_biome_modifier:{modifier.relative_to(root)}")
+    if (resources / f"data/{namespace}/tags/worldgen/biome/has_{name}.json").is_file():
+        found.append(f"{kind}_has_spawn_biome_tag")
+    return found
+
+
+def check_entity_resources(root: Path, entity_id: str, found: list[str]) -> tuple[dict[str, dict], Any]:
+    """Names in both languages, the spawn egg item model and the loot table; returns (lang, loot)."""
+    namespace, name = split_id(entity_id)
+    resources = root / RESOURCE_ROOT
+    assets = resources / f"assets/{namespace}"
+    lang = {locale: require_json(assets / f"lang/{locale}.json", found) for locale in ("en_us", "zh_cn")}
+    for locale, table in lang.items():
+        for key in (f"entity.{namespace}.{name}", f"item.{namespace}.{name}_spawn_egg"):
+            value = table.get(key) if isinstance(table, dict) else None
+            if not isinstance(value, str) or not value.strip():
+                found.append(f"missing_translation:{locale}:{key}")
+    egg_model = require_json(assets / f"models/item/{name}_spawn_egg.json", found)
+    if egg_model and egg_model.get("parent") != "minecraft:item/template_spawn_egg":
+        found.append("invalid_spawn_egg_model_parent")
+    loot = require_json(resources / f"data/{namespace}/loot_table/entities/{name}.json", found)
+    if loot and (loot.get("type") != "minecraft:entity" or not isinstance(loot.get("pools"), list)):
+        found.append("invalid_loot_table")
+    return lang, loot
+
+
 def validate_beast_framework(root: Path, errors: list[str]) -> list[str]:
     """Beast-wide wiring; returns the beast ids the data index lists."""
     java_root = root / JAVA_ROOT
@@ -889,18 +978,7 @@ def validate_beast(root: Path, entity_id: str, errors: list[str]) -> dict[str, A
     if not re.search(rf"DEFINITIONS\s*=\s*\([^)]*\"{re.escape(name)}\"", build_text):
         found.append(f"beastgen_definition_not_registered:{name}")
 
-    lang = {locale: require_json(assets / f"lang/{locale}.json", found) for locale in ("en_us", "zh_cn")}
-    for locale, table in lang.items():
-        for key in (f"entity.{namespace}.{name}", f"item.{namespace}.{name}_spawn_egg"):
-            value = table.get(key) if isinstance(table, dict) else None
-            if not isinstance(value, str) or not value.strip():
-                found.append(f"missing_translation:{locale}:{key}")
-    egg_model = require_json(assets / f"models/item/{name}_spawn_egg.json", found)
-    if egg_model and egg_model.get("parent") != "minecraft:item/template_spawn_egg":
-        found.append("invalid_spawn_egg_model_parent")
-    loot = require_json(resources / f"data/{namespace}/loot_table/entities/{name}.json", found)
-    if loot and (loot.get("type") != "minecraft:entity" or not isinstance(loot.get("pools"), list)):
-        found.append("invalid_loot_table")
+    lang, loot = check_entity_resources(root, entity_id, found)
 
     contract_path = root / f"genops/contracts/entities/{name}.yaml"
     contract = require_text(contract_path, [], found)
@@ -910,52 +988,19 @@ def validate_beast(root: Path, entity_id: str, errors: list[str]) -> dict[str, A
             found.append("loot_table_not_empty_as_contracted")
 
     # Java registration, compared with the contract where the contract pins a value.
-    entities_text = require_text(java_root / "entity/ModEntities.java",
-                                 [f"EntityType<{class_name(name)}>> {const} ="], found)
-    block = registration_block(entities_text, name)
-    physical = yaml_block(contract, "physical")
-    if not block:
-        found.append(f"entity_type_not_registered:{name}")
-    else:
-        for field, pattern in (("width", r"\.sized\(([\d.]+)F,"), ("height", r"\.sized\([\d.]+F,\s*([\d.]+)F\)"),
-                               ("eye_height", r"\.eyeHeight\(([\d.]+)F\)"),
-                               ("client_tracking_range", r"\.clientTrackingRange\((\d+)\)")):
-            declared, registered = yaml_scalar(physical, field), float_literal(block, pattern)
-            if declared is None or registered is None or float(declared) != registered:
-                found.append(f"registration_differs_from_contract:{field}:{registered}!={declared}")
-        category = yaml_scalar(yaml_block(contract, "entity"), "mob_category")
-        if f"MobCategory.{(category or '').upper()}" not in block:
-            found.append(f"registration_mob_category_differs_from_contract:{category}")
+    found.extend(check_entity_registration(root, entity_id, contract))
     java_class = yaml_scalar(yaml_block(contract, "entity"), "java_class") or ""
     class_path = root / "src/main/java" / (java_class.replace(".", "/") + ".java")
     require_text(class_path, ["extends BeastEntity", f'"{name}"'], found)
     require_text(java_root / "entity/ModEntityEvents.java",
                  [f"event.put(ModEntities.{const}.get()", "BeastEntity.createAttributes("], found)
-    items_text = require_text(java_root / "item/ModItems.java",
-                              [f"{const}_SPAWN_EGG", f"ModEntities.{const},", f"output.accept({const}_SPAWN_EGG.get())"],
-                              found)
-    egg_block = items_text[items_text.find(f"{const}_SPAWN_EGG ="):][:400] if items_text else ""
-    for field in ("primary_color", "secondary_color"):
-        color = yaml_scalar(yaml_block(contract, "items"), field)
-        if not color or f"0x{color.lstrip('#').upper()}" not in egg_block:
-            found.append(f"spawn_egg_{field}_differs_from_contract:{color}")
+    found.extend(check_spawn_egg(root, entity_id, contract))
     require_text(java_root / "client/MyVillageClient.java",
                  ["value = Dist.CLIENT", f"BeastRenderer.register(event, ModEntities.{const})",
                   f"BeastRenderer.registerLayer(event, ModEntities.{const}.getId())"], found)
 
     # No natural spawning unless the contract says so (and then this validator must learn it).
-    if yaml_scalar(yaml_block(contract, "spawn"), "natural") != "false":
-        found.append("beast_natural_spawning_not_supported_by_validator")
-    events_text = (java_root / "entity/ModEntityEvents.java").read_text(encoding="utf-8") \
-        if (java_root / "entity/ModEntityEvents.java").is_file() else ""
-    placements = events_text[events_text.find("RegisterSpawnPlacementsEvent event"):]
-    if f"ModEntities.{const}" in placements:
-        found.append("beast_has_spawn_placement")
-    for modifier in sorted((resources / "data").glob("*/neoforge/biome_modifier/*.json")):
-        if entity_id in modifier.read_text(encoding="utf-8"):
-            found.append(f"beast_has_biome_modifier:{modifier.relative_to(root)}")
-    if (resources / f"data/{namespace}/tags/worldgen/biome/has_{name}.json").is_file():
-        found.append("beast_has_spawn_biome_tag")
+    found.extend(check_no_natural_spawning(root, entity_id, contract, "beast"))
 
     errors.extend(found)
     moves = data.get("moves", []) if isinstance(data, dict) and isinstance(data.get("moves"), list) else []
@@ -968,16 +1013,132 @@ def validate_beast(root: Path, entity_id: str, errors: list[str]) -> dict[str, A
     }
 
 
+def npc_ids(root: Path) -> list[str]:
+    """Entity ids of the NPCs ``tools/npcgen`` builds (its ``DEFINITIONS``), in the mod's namespace."""
+    build = root / NPCGEN_BUILD
+    if not build.is_file():
+        return []
+    match = re.search(r"^DEFINITIONS\s*=\s*\(([^)]*)\)", build.read_text(encoding="utf-8"), re.MULTILINE)
+    return [f"myvillage:{name}" for name in re.findall(r"\"([a-z0-9_]+)\"", match.group(1))] if match else []
+
+
+def check_npc_contract(contract: str, entity_id: str, lang: dict[str, dict]) -> list[str]:
+    """The contract names the NPC, its generated files and its clips, and leaves the verdict open."""
+    errors: list[str] = []
+    namespace, name = split_id(entity_id)
+    entity = yaml_block(contract, "entity")
+    if yaml_scalar(entity, "resource_location") != entity_id:
+        errors.append("contract_resource_location")
+    if yaml_scalar(entity, "kind") != "npc":
+        errors.append("contract_kind_must_be_npc")
+    if yaml_scalar(entity, "temperament") not in {"undecided", "friendly", "neutral", "hostile"}:
+        errors.append("contract_temperament")
+    for locale in ("en_us", "zh_cn"):
+        expected = lang.get(locale, {}).get(f"entity.{namespace}.{name}") if isinstance(lang.get(locale), dict) else None
+        if yaml_scalar(entity, locale) != expected:
+            errors.append(f"contract_display_name_differs_from_lang:{locale}")
+    sources = yaml_block(contract, "data_sources")
+    for key, expected in (("model", f"assets/{namespace}/npc/{name}_model.json"),
+                          ("animations", f"assets/{namespace}/npc/{name}_animations.json"),
+                          ("texture", f"assets/{namespace}/textures/entity/{name}/{name}.png"),
+                          ("art_generator", f"tools/npcgen/defs/{name}.py")):
+        if yaml_scalar(sources, key) != expected:
+            errors.append(f"contract_data_source:{key}")
+    rendering_clips = set(re.findall(r"^\s*-\s+id:\s*([a-z0-9_]+)\s*$", yaml_block(contract, "rendering"), re.MULTILINE))
+    if not set(NPC_CLIPS) <= rendering_clips:
+        errors.append(f"contract_rendering_clips_missing:{sorted(set(NPC_CLIPS) - rendering_clips)}")
+    if yaml_scalar(yaml_block(contract, "acceptance"), "human_verdict_status") is None:
+        errors.append("contract_missing_human_verdict_status")
+    return errors
+
+
+def validate_npc(root: Path, entity_id: str, errors: list[str]) -> dict[str, Any]:
+    """One humanoid NPC: generated client files, contract, registration, resources, spawning."""
+    namespace, name = split_id(entity_id)
+    const = constant_name(name)
+    java_root = root / JAVA_ROOT
+    assets = root / RESOURCE_ROOT / f"assets/{namespace}"
+    found: list[str] = []
+
+    model = require_json(assets / f"npc/{name}_model.json", found)
+    bones: set[str] = set()
+    if model:
+        model_errors, bones = check_beast_model(model, entity_id)
+        found.extend(f"npc_model:{problem}" for problem in model_errors)
+    animations = require_json(assets / f"npc/{name}_animations.json", found)
+    if animations:
+        found.extend(f"npc_animations:{problem}"
+                     for problem in check_beast_animations(animations, entity_id, bones, None, looping=NPC_CLIPS))
+
+    texture_report: list[int] = []
+    cutout_texels = 0
+    texture_path = assets / f"textures/entity/{name}/{name}.png"
+    if not texture_path.is_file():
+        found.append(f"missing_file:{texture_path}")
+    else:
+        try:
+            width, height, rgba = read_png_rgba(texture_path)
+            texture_report = [width, height]
+            atlas = model.get("texture") if isinstance(model, dict) else None
+            if isinstance(atlas, dict) and (width, height) != (atlas.get("width"), atlas.get("height")):
+                found.append(f"npc_texture_size_differs_from_model:{width}x{height}")
+            alphas = rgba[3::4]
+            if any(alpha not in (0, 255) for alpha in alphas):
+                found.append("npc_texture_alpha_must_be_binary")  # the cut-out render type has no blending
+            cutout_texels = sum(1 for alpha in alphas if alpha == 0)
+        except ValueError as exc:
+            found.append(str(exc))
+
+    if not (root / f"tools/npcgen/defs/{name}.py").is_file():
+        found.append(f"missing_file:{root / f'tools/npcgen/defs/{name}.py'}")
+
+    lang, loot = check_entity_resources(root, entity_id, found)
+    contract = require_text(root / f"genops/contracts/entities/{name}.yaml", [], found)
+    if contract:
+        found.extend(f"npc_contract:{problem}" for problem in check_npc_contract(contract, entity_id, lang))
+        if "pools: []" in yaml_block(contract, "loot") and loot and loot.get("pools") != []:
+            found.append("loot_table_not_empty_as_contracted")
+
+    found.extend(check_entity_registration(root, entity_id, contract))
+    java_class = yaml_scalar(yaml_block(contract, "entity"), "java_class") or ""
+    class_path = root / "src/main/java" / (java_class.replace(".", "/") + ".java")
+    require_text(class_path, ["extends NpcEntity", f'"{name}"'], found)
+    require_text(java_root / "entity/ModEntityEvents.java", [f"event.put(ModEntities.{const}.get()"], found)
+    found.extend(check_spawn_egg(root, entity_id, contract))
+    require_text(java_root / "client/MyVillageClient.java",
+                 ["value = Dist.CLIENT", f"NpcRenderer.register(event, ModEntities.{const})",
+                  f"NpcRenderer.registerLayer(event, ModEntities.{const}.getId())"], found)
+    found.extend(check_no_natural_spawning(root, entity_id, contract, "npc"))
+
+    errors.extend(found)
+    return {
+        "clips": sorted(animations.get("clips", {})) if isinstance(animations, dict) and isinstance(animations.get("clips"), dict) else [],
+        "bones": len(bones),
+        "scale": model.get("scale", 1.0) if isinstance(model, dict) else None,
+        "texture": texture_report,
+        "transparent_texels": cutout_texels,
+        "errors": len(found),
+    }
+
+
 def validate(root: Path = ROOT) -> dict[str, Any]:
     errors: list[str] = []
     texture = validate_simple_fox(root, errors)
     beasts = validate_beast_framework(root, errors)
     beast_reports = {entity_id: validate_beast(root, entity_id, errors) for entity_id in beasts}
+    npcs = npc_ids(root)
+    if npcs and not beasts:
+        # validate_beast_framework scans entity/** for client imports; without beasts, do it here.
+        common = sorted((root / JAVA_ROOT / "entity").rglob("*.java"))
+        errors.extend(scan_sources(common, ["import net.minecraft.client", "import com.example.myvillage.client"],
+                                   root, "client_import_in_common_source"))
+    npc_reports = {entity_id: validate_npc(root, entity_id, errors) for entity_id in npcs}
     return {
         "schema_version": 1,
-        "entities": ["myvillage:simple_fox", *beasts],
+        "entities": ["myvillage:simple_fox", *beasts, *npcs],
         "texture": texture,
         "beasts": beast_reports,
+        "npcs": npc_reports,
         "errors": errors,
         "status": "pass" if not errors else "fail",
     }

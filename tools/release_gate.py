@@ -116,6 +116,11 @@ def beastgen_check(beast: str) -> Step:
     return Step(f"beastgen-{beast.replace('_', '-')}-check", (PY, "-m", "tools.beastgen", "build", beast, "--check"))
 
 
+def npcgen_check(npc: str) -> Step:
+    """``python3 -m tools.npcgen build <npc> --check``: the NPC's three generated files are current."""
+    return Step(f"npcgen-{npc.replace('_', '-')}-check", (PY, "-m", "tools.npcgen", "build", npc, "--check"))
+
+
 def needs_program(program: str) -> Callable[[Path], str | None]:
     return lambda root: None if shutil.which(program) else f"{program} CLI not on PATH"
 
@@ -277,6 +282,7 @@ STEPS: tuple[Step, ...] = (
     generator_check("gen_lingxiao_spear_model"),
     generator_check("gen_meridian_figure"),
     beastgen_check("demon_wolf"),
+    npcgen_check("cultivator"),
     tool("validate_mod_items"),
     tool("validate_custom_entities"),
     tool("validate_rideable_flying_sword"),

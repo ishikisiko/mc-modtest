@@ -64,7 +64,7 @@ public final class BeastGait {
                 }
             }
         }
-        return count == 0 ? 0.0 : sum / count / 16.0;
+        return count == 0 ? 0.0 : sum / count / 16.0 * model.scale();
     }
 
     /** Horizontal blocks per tick a mob covers on flat ground when its navigation runs at {@code speed}. */

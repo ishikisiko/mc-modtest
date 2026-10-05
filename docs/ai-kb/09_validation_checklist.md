@@ -61,6 +61,7 @@ python3 tools/validate_generated_structures.py src/main/resources/data/myvillage
 python3 tools/validate_mod_items.py
 python3 tools/validate_custom_entities.py
 python3 -m tools.beastgen build demon_wolf --check
+python3 -m tools.npcgen build cultivator --check
 python3 tools/validate_rideable_flying_sword.py
 python3 tools/validate_sword_combat_foundation.py
 python3 tools/validate_cultivation_core.py

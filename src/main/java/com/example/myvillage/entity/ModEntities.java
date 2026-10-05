@@ -2,6 +2,7 @@ package com.example.myvillage.entity;
 
 import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.entity.beast.DemonWolfEntity;
+import com.example.myvillage.entity.npc.CultivatorEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -43,6 +44,15 @@ public final class ModEntities {
                     .of(DemonWolfEntity::new, MobCategory.MONSTER)
                     .sized(1.3F, 1.45F)
                     .eyeHeight(1.2F)
+                    .clientTrackingRange(10)
+                    .build(id.toString()));
+
+    /** 修仙者: about 1.9 blocks to the top of the head, the hair bun a little above the box; no natural spawning. */
+    public static final DeferredHolder<EntityType<?>, EntityType<CultivatorEntity>> CULTIVATOR =
+            ENTITY_TYPES.register("cultivator", id -> EntityType.Builder
+                    .of(CultivatorEntity::new, MobCategory.MISC)
+                    .sized(0.6F, 1.9F)
+                    .eyeHeight(1.67F)
                     .clientTrackingRange(10)
                     .build(id.toString()));
 

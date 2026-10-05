@@ -4,6 +4,7 @@ import com.example.myvillage.entity.beast.BeastDefinition;
 import com.example.myvillage.entity.beast.BeastDefinitions;
 import com.example.myvillage.entity.beast.BeastDataException;
 import com.example.myvillage.entity.beast.BeastEntity;
+import com.mojang.blaze3d.vertex.PoseStack;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.Map;
@@ -36,6 +37,7 @@ import org.slf4j.LoggerFactory;
 public class BeastRenderer<T extends BeastEntity> extends MobRenderer<T, BeastModel<T>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(BeastRenderer.class);
     private final ResourceLocation texture;
+    private final float modelScale;
 
     public BeastRenderer(EntityRendererProvider.Context context, ResourceLocation beastId) {
         this(context, beastId, BeastRenderer.<T>load(context, beastId));
@@ -44,6 +46,7 @@ public class BeastRenderer<T extends BeastEntity> extends MobRenderer<T, BeastMo
     private BeastRenderer(EntityRendererProvider.Context context, ResourceLocation beastId, Loaded<T> loaded) {
         super(context, loaded.model(), loaded.shadowRadius());
         this.texture = texture(beastId);
+        this.modelScale = loaded.scale();
         RenderType eyes = RenderType.eyes(eyesTexture(beastId));
         addLayer(new EyesLayer<>(this) {
             @Override
@@ -56,6 +59,12 @@ public class BeastRenderer<T extends BeastEntity> extends MobRenderer<T, BeastMo
     @Override
     public ResourceLocation getTextureLocation(T beast) {
         return texture;
+    }
+
+    /** The model file's {@code scale}: applied before vanilla seats the model on the ground. */
+    @Override
+    protected void scale(T beast, PoseStack poseStack, float partialTick) {
+        poseStack.scale(modelScale, modelScale, modelScale);
     }
 
     /** Registers a beast entity type's renderer. */
@@ -91,7 +100,7 @@ public class BeastRenderer<T extends BeastEntity> extends MobRenderer<T, BeastMo
         return beastId.withPath("textures/entity/" + beastId.getPath() + "/" + beastId.getPath() + "_eyes.png");
     }
 
-    private record Loaded<T extends BeastEntity>(BeastModel<T> model, float shadowRadius) {
+    private record Loaded<T extends BeastEntity>(BeastModel<T> model, float shadowRadius, float scale) {
     }
 
     private static <T extends BeastEntity> Loaded<T> load(EntityRendererProvider.Context context, ResourceLocation beastId) {
@@ -109,7 +118,7 @@ public class BeastRenderer<T extends BeastEntity> extends MobRenderer<T, BeastMo
                         + "chase {} blocks/tick)", beastId, gait.walk(), round(gait.walkFootSpeed()), round(gait.walkBlocksPerTick()),
                 gait.run(), round(gait.runFootSpeed()), round(gait.runBlocksPerTick()));
         BeastModel<T> model = new BeastModel<>(context.bakeLayer(layer(beastId)), modelFile, clips, gait);
-        return new Loaded<>(model, modelFile.shadowRadius());
+        return new Loaded<>(model, modelFile.shadowRadius(), modelFile.scale());
     }
 
     static BeastModelFile readModel(ResourceManager resources, ResourceLocation beastId) {

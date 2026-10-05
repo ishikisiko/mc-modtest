@@ -23,7 +23,9 @@ Outputs (schema 1, see the beast contract):
 | `assets/myvillage/textures/entity/<beast>/<beast>.png` | the painted atlas |
 | `assets/myvillage/textures/entity/<beast>/<beast>_eyes.png` | glow layer, transparent except emissive texels (the wolf: eyes, mane blade top edges, tail tip) |
 
-Never hand-edit them; change the definition and rebuild.
+Never hand-edit them; change the definition and rebuild. A model may set `model.scale` (written as
+the optional `scale` field, omitted at 1): the renderer scales the whole model by it, which is how
+`tools/npcgen` authors a humanoid at twice the texel density.
 
 ## Modules
 

@@ -43,6 +43,13 @@ The tool SHALL provide a `beast` command that, for a beast id (default `myvillag
 - **WHEN** the beast command runs with `--parts fight` against an existing output directory
 - **THEN** the fight evidence is replaced and the other parts' entries stay on the page and in the manifest
 
+### Requirement: NPC evidence is captured in game
+The tool SHALL provide an `npc` command that, for an NPC id (default `myvillage:cultivator`), captures in-game evidence into `out/preview/<name>/ingame/` in two parts selectable with `--parts`: `idle` (full-figure stills from four sides with the world frozen, close-ups of the layered parts, and a scale still beside the player) and `walk` (footage of NPCs strolling in a barrier pen). It SHALL start and stop its own session unless one is running, and its page and manifest MUST NOT state or imply an owner verdict.
+
+#### Scenario: Stills cover the layered parts
+- **WHEN** the npc command runs for `myvillage:cultivator`
+- **THEN** it writes stills from the front, side, and both three-quarter views and close-ups of the face, collar, belt, sleeve, hem, and back panel
+
 ### Requirement: Comparison and review page
 The tool SHALL pair two capture sets by weapon, move, key, and view into before/after sheets and SHALL write a static review page under `out/preview/combat_capture/<label>/`. Its output is developer evidence and MUST NOT state or imply an owner verdict.
 

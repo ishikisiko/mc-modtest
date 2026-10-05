@@ -165,6 +165,19 @@ final class BeastAssetFilesTest {
         assertEquals(0.0F, meshRoot.y, EPSILON);
     }
 
+    @Test
+    void scaleIsOptionalAndScalesTheGait() {
+        BeastModelFile plain = model(json -> { });
+        assertEquals(1.0F, plain.scale(), EPSILON, "a file without scale draws at the vanilla size");
+        BeastModelFile half = model(json -> json.addProperty("scale", 0.5));
+        assertEquals(0.5F, half.scale(), EPSILON);
+        assertEquals("scale", modelFailure(json -> json.addProperty("scale", 0)).field());
+        assertEquals("scale", modelFailure(json -> json.addProperty("scale", -1.0)).field());
+        // The same clip on a half-scale model moves its feet half as far in the world.
+        BeastAnimationFile.Clip walk = animations(json -> { }).clip("walk").orElseThrow();
+        assertEquals(BeastGait.plantedFootSpeed(plain, walk) * 0.5, BeastGait.plantedFootSpeed(half, walk), 1.0E-9);
+    }
+
     /** The generated demon wolf files, once tools/beastgen has written them, pass every rule here too. */
     @Test
     void generatedDemonWolfFilesLoadWhenPresent() throws IOException {

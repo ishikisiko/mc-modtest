@@ -450,6 +450,33 @@ def cmd_beast(a):
 BEAST_PARTS = ("idle", "moves", "locomotion", "fight", "dodge", "slowmo")
 
 
+def cmd_npc(a):
+    """NPC evidence (stills, walk footage) in a session; starts and stops its own
+    session unless one is already running (then leaves it running)."""
+    from . import npc, session
+    from .session import Session
+    require_programs()
+    parts = [p.strip() for p in a.parts.split(",") if p.strip()]
+    unknown = sorted(set(parts) - set(npc.NPC_PARTS))
+    if unknown:
+        raise UsageError(f"unknown parts {unknown} (choose from {', '.join(npc.NPC_PARTS)})")
+    path = a.npc.split(":", 1)[-1]
+    out = a.out or (REPO / "out/preview" / path / "ingame")
+    out.mkdir(parents=True, exist_ok=True)
+    started = False
+    try:
+        st = session.read_state()
+        if not (st and st.get("phase") == "ready" and session.supervisor_alive(st)):
+            session.start(session_config(a), wait_timeout=a.timeout, log=log)
+            started = True
+        s = Session.attach(ui_check=not a.no_ui_check, log=log)
+        npc.run_npc(s, a.npc, out, parts, log=log)
+        log(f"page: {out / 'index.html'}")
+    finally:
+        if started:
+            session.stop(log=log)
+
+
 # ---------------------------------------------------------------- parser
 def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(prog="python3 -m tools.combat_capture", description=__doc__)
@@ -567,6 +594,14 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--out", type=Path, default=None, help="output directory (default out/preview/<name>/ingame)")
     p.add_argument("--no-ui-check", action="store_true", help="send keys without the in-game check (unsafe)")
     p.set_defaults(func=cmd_beast)
+
+    p = sub.add_parser("npc", help="NPC evidence: full-figure and close-up stills, walk videos")
+    session_opts(p)
+    p.add_argument("--npc", default="myvillage:cultivator")
+    p.add_argument("--parts", default="idle,walk", help="comma list of: idle, walk")
+    p.add_argument("--out", type=Path, default=None, help="output directory (default out/preview/<name>/ingame)")
+    p.add_argument("--no-ui-check", action="store_true", help="send keys without the in-game check (unsafe)")
+    p.set_defaults(func=cmd_npc)
 
     p = sub.add_parser("run", help="full pass: session start, stills, combo, session stop, page")
     capture_opts(p)

@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define the contract, runtime, resource, texture, spawn, validation, and human-acceptance requirements for the first complete MyVillage custom entity slice. Hostile beasts with their own model, clips, and data-driven moves (first `myvillage:demon_wolf`) are specified in `hostile-beast-runtime`; `tools/validate_custom_entities.py` validates both routes.
+Define the contract, runtime, resource, texture, spawn, validation, and human-acceptance requirements for the first complete MyVillage custom entity slice. Hostile beasts with their own model, clips, and data-driven moves (first `myvillage:demon_wolf`) are specified in `hostile-beast-runtime`; Humanoid NPCs with a generated layered model (first `myvillage:cultivator`) are specified in `humanoid-npc-runtime`; `tools/validate_custom_entities.py` validates all three routes.
 
 ## Requirements
 

@@ -7,6 +7,71 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.34.0
+
+The first humanoid NPC, `myvillage:cultivator` (修仙者), and the framework it
+runs on: an NPC is an `NpcEntity` subclass plus one generated art definition.
+The cultivator is a body without a disposition: it stands, strolls, and looks
+at players; friend or foe is decided later. No natural spawning and no drop;
+`/summon` and its spawn egg only.
+
+### Added
+
+- `myvillage:cultivator` (en_us Cultivator, zh_cn 修仙者): a 0.6 x 1.9 block
+  humanoid in mob category `misc` with its own model, not the player model or
+  a skin. The look is built from layers: a crossed robe collar, a sleeveless
+  indigo vest open down the front with border bands and sloped shoulder caps,
+  a belt with a buckle, sash ends, and a jade pendant, sleeves that deepen to
+  an open cuff with a hanging drape, a two-tier skirt under the vest's panels,
+  and a cut-out hair shell with a bun, crown, pin, ribbons, loose strands, and
+  long back hair. It never attacks, does not despawn by distance, and cannot
+  be leashed.
+- `myvillage:cultivator_spawn_egg` (修仙者刷怪蛋) in `myvillage:main`, after the
+  demon wolf egg; an empty loot table.
+- `entity/npc/`: `NpcEntity` (float, stroll, look at players; no target,
+  attack, trade, or dialogue) and `CultivatorEntity`.
+- `client/entity/npc/`: a generic `NpcRenderer` and `NpcModel` that read an
+  NPC's model and animation JSON with the beast parsers, run `idle` from the
+  first client tick, and drive `walk` at the rate that keeps the planted foot
+  still.
+- Model schema: an optional `scale` (1 when absent). The cultivator's file
+  uses 0.5, so its geometry and texture are twice as fine as a vanilla mob's
+  (32 texels per block). `BeastRenderer` and `BeastGait` honour it; the demon
+  wolf's files are unchanged.
+- `tools/npcgen`: `build <npc> [--check]` writes or verifies the model,
+  animations, and texture from `defs/<npc>.py`; `preview <npc>` renders a
+  turnaround, close-ups, a scale image, the atlas, clip sheets, and GIFs to
+  `out/preview/<npc>/`. `shade.py` bakes shadows cast by the layer above and
+  crevices beside raised bands from the rest-pose geometry. It reuses
+  `tools/beastgen`'s cuboid, painter, and clip modules.
+- `python3 -m tools.combat_capture npc [--parts idle,walk]`: in-game stills
+  (four sides, close-ups of the layered parts, scale beside the player) and
+  walk footage to `out/preview/<name>/ingame/`.
+- `genops/contracts/entities/cultivator.yaml`, spec `humanoid-npc-runtime`,
+  and `docs/ai-kb/39_humanoid_npcs.md`.
+
+### Changed
+
+- `tools/validate_custom_entities.py` validates every NPC `tools/npcgen`
+  builds (schemas, required clips, texture size and binary alpha, names, spawn
+  egg, loot table, registration against the contract, renderer registration,
+  no natural spawning) and accepts the optional model `scale`; its report
+  gains `npcs`. The registration, spawn-egg, resource, and spawning checks are
+  shared by beasts and NPCs.
+- `tools/release_gate.py` runs `python3 -m tools.npcgen build cultivator
+  --check`.
+
+### Verification
+
+- Automated: the release gate (validators, generator checks, Python and
+  Gradle tests, build, jar listing).
+- Developer evidence: offline previews in `out/preview/cultivator/` and a
+  headless in-game capture in `out/preview/cultivator/ingame/` (stills beside
+  the player and from four sides, close-ups, walk footage).
+- Not verified: everything on a physical client, including the look, the
+  walk, `F3+T` reload, save and reload, and multiplayer. See the README
+  ledger "Cultivator NPC (0.34.0)".
+
 ## 0.33.0
 
 The first hostile beast, `myvillage:demon_wolf` (妖狼), and the framework it
