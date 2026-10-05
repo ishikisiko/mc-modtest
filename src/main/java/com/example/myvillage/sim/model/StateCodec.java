@@ -112,6 +112,7 @@ public final class StateCodec {
             ro.addProperty("tribute_until", r.tributeUntilDay);
             ro.addProperty("last_war_end", r.lastWarEndDay);
             ro.addProperty("last_battle", r.lastBattleDay);
+            ro.addProperty("no_war_until", r.noWarUntilDay);
             ro.addProperty("last_champion_a", r.lastChampionA);
             ro.addProperty("last_champion_b", r.lastChampionB);
             rel.add(ro);
@@ -349,6 +350,7 @@ public final class StateCodec {
             rel.tributeUntilDay = r.optLong("tribute_until", -1);
             rel.lastWarEndDay = r.optLong("last_war_end", -1);
             rel.lastBattleDay = r.optLong("last_battle", -1);
+            rel.noWarUntilDay = r.optLong("no_war_until", -1);
             rel.lastChampionA = r.optInt("last_champion_a", -1);
             rel.lastChampionB = r.optInt("last_champion_b", -1);
             s.relations.put(rel.other, rel);

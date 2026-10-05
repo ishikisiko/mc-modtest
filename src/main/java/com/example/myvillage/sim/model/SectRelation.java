@@ -19,6 +19,8 @@ public final class SectRelation {
     public long lastWarEndDay = -1;
     /** Day of the last set battle between the two and its champions (for spacing and "再度交锋"), or -1. */
     public long lastBattleDay = -1;
+    /** No war may be declared between the two before this day (a split's grace period), or -1. */
+    public long noWarUntilDay = -1;
     public int lastChampionA = -1;
     public int lastChampionB = -1;
 

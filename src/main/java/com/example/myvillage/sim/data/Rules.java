@@ -255,6 +255,7 @@ public record Rules(
             int annexBelow,
             int peaceYears,
             int splitValue,
+            int splitGraceYears,
             double victoryPrestige) {
     }
 
@@ -265,7 +266,8 @@ public record Rules(
             double leaveChance,
             double followerShare,
             RealmStage minMaster,
-            int minYearsLeft) {
+            int minYearsLeft,
+            int minSplitFollowers) {
     }
 
     public record Decline(
@@ -287,6 +289,7 @@ public record Rules(
             double ratePerYear,
             double deficitBoost,
             double surplusExponent,
+            int minYearsLeft,
             int[] followers) {
     }
 
@@ -545,7 +548,7 @@ public record Rules(
         SimJson.Fields sr = root.object("sect_relations", Set.of("drift_per_year", "neighbour_baseline", "kill_penalty",
                 "notable_kill_penalty", "wound_penalty", "feud_at", "war_at", "war_chance_per_year", "truce_per_year",
                 "truce_per_year_of_war", "battles_per_year", "battle_interval_years", "champion_max_injury", "tribute_score", "tribute_years", "tribute_share",
-                "annex_below", "peace_years", "split_value", "victory_prestige"));
+                "annex_below", "peace_years", "split_value", "split_grace_years", "victory_prestige"));
         SectRelations sectRelations = new SectRelations(sr.nonNegativeInteger("drift_per_year"),
                 sr.integer("neighbour_baseline", -100, 0),
                 sr.nonNegativeInteger("kill_penalty"), sr.nonNegativeInteger("notable_kill_penalty"),
@@ -555,18 +558,18 @@ public record Rules(
                 sr.positiveInteger("battle_interval_years"), sr.integer("champion_max_injury", 0, 100),
                 sr.positiveInteger("tribute_score"), sr.positiveInteger("tribute_years"), sr.fraction("tribute_share"),
                 sr.nonNegativeInteger("annex_below"), sr.nonNegativeInteger("peace_years"),
-                sr.integer("split_value", -100, 100),
+                sr.integer("split_value", -100, 100), sr.nonNegativeInteger("split_grace_years"),
                 sr.nonNegativeNumber("victory_prestige"));
         if (sectRelations.warAt() > sectRelations.feudAt()) {
             throw sr.error("war_at", "must not be above feud_at");
         }
 
         SimJson.Fields su = root.object("succession", Set.of("contest_ambition", "contest_gap", "contest_chance",
-                "leave_chance", "follower_share", "min_master", "min_years_left"));
+                "leave_chance", "follower_share", "min_master", "min_years_left", "min_split_followers"));
         Succession succession = new Succession(su.integer("contest_ambition", 0, 101),
                 su.nonNegativeNumber("contest_gap"), su.fraction("contest_chance"), su.fraction("leave_chance"),
                 su.fraction("follower_share"), realmStage(su.object("min_master", REALM_STAGE_FIELDS), realms),
-                su.nonNegativeInteger("min_years_left"));
+                su.nonNegativeInteger("min_years_left"), su.positiveInteger("min_split_followers"));
 
         SimJson.Fields de = root.object("decline", Set.of("desert_rate_per_year", "desertion_rate_per_year",
                 "min_members", "min_share", "recruit_factor", "rogue_join_rate_per_year", "schism_size_ratio",
@@ -578,10 +581,11 @@ public record Rules(
                 de.nonNegativeInteger("grace_years"));
 
         SimJson.Fields fd = root.object("founding", Set.of("min_realm", "min_ambition", "rate_per_year",
-                "deficit_boost", "surplus_exponent", "followers"));
+                "deficit_boost", "surplus_exponent", "min_years_left", "followers"));
         Founding founding = new Founding(realmStage(fd.object("min_realm", REALM_STAGE_FIELDS), realms),
                 fd.integer("min_ambition", 0, 101), fd.fraction("rate_per_year"), fd.nonNegativeNumber("deficit_boost"),
-                fd.nonNegativeNumber("surplus_exponent"), fd.intRange("followers"));
+                fd.nonNegativeNumber("surplus_exponent"), fd.nonNegativeInteger("min_years_left"),
+                fd.intRange("followers"));
 
         return new Rules(time, Collections.unmodifiableMap(tiers), chronicle, scheduler, roots, techniques,
                 cultivation, breakthrough, injury, Collections.unmodifiableMap(deathImportance), entrants, sects,

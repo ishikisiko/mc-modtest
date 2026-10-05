@@ -198,7 +198,8 @@
     "tribute_share": 0.2,
     "annex_below": 3,
     "peace_years": 25,
-    "split_value": -60,
+    "split_value": -20,
+    "split_grace_years": 30,
     "victory_prestige": 15.0
   },
   "succession": {
@@ -208,7 +209,8 @@
     "leave_chance": 0.6,
     "follower_share": 0.3,
     "min_master": {"realm": "foundation_establishment", "stage": 0},
-    "min_years_left": 15
+    "min_years_left": 15,
+    "min_split_followers": 2
   },
   "decline": {
     "desert_rate_per_year": 0.12,
@@ -228,6 +230,7 @@
     "rate_per_year": 0.04,
     "deficit_boost": 3.0,
     "surplus_exponent": 4.0,
+    "min_years_left": 40,
     "followers": [0, 3]
   }
 }

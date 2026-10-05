@@ -93,7 +93,7 @@ public final class SectPolitics {
                         if (ab.value > r.feudAt() + r.driftPerYear() * 5) {
                             ab.state = SectRelation.NONE;
                             ba.state = SectRelation.NONE;
-                        } else if (ab.value <= r.warAt() && atPeaceLongEnough(ctx, ab, r)
+                        } else if (ab.value <= r.warAt() && atPeaceLongEnough(ctx, ab, r) && ctx.day() >= ab.noWarUntilDay
                                 && ctx.rng(a.id * 1000L + b.id, Purpose.SECT_WAR).chance(r.warChancePerYear())) {
                             declareWar(ctx, a, b, ab, ba);
                         }
@@ -290,6 +290,7 @@ public final class SectPolitics {
         boolean old = ctx.day() - sect.foundedDay >= (long) d.graceYears() * ctx.dpy;
         if (sect.declineSinceDay >= 0 && master != null
                 && SectAffairs.reached(ctx, master, ctx.rules.succession().minMaster())
+                && Succession.yearsLeft(ctx, master) >= ctx.rules.succession().minYearsLeft()
                 && ctx.members(sect.id).size() >= minViable(ctx)) {
             sect.declineSinceDay = -1;
             ctx.chronicle.event("sect_revival", 2).actors(master.id).sects(sect.id).region(sect.homeRegionId)
@@ -298,6 +299,10 @@ public final class SectPolitics {
             return;
         }
         if (sect.declineSinceDay < 0 && old && ctx.members(sect.id).size() < minViable(ctx) && master != null) {
+            startDecline(ctx, sect, master, -1);
+        } else if (sect.declineSinceDay < 0 && master != null && !hasFitHeir(ctx, sect, master)
+                && Succession.yearsLeft(ctx, master) < ctx.rules.succession().minYearsLeft()) {
+            // The master is near the end and no one could take over: the decline starts before the death.
             startDecline(ctx, sect, master, -1);
         }
         boolean declining = sect.declineSinceDay >= 0;
@@ -325,6 +330,17 @@ public final class SectPolitics {
                     master == null ? "" : master.name());
             dissolve(ctx, sect, false);
         }
+    }
+
+    /** Whether anyone besides the master could lead: fit realm and years enough left. */
+    static boolean hasFitHeir(SimContext ctx, Sect sect, Person master) {
+        Rules.Succession r = ctx.rules.succession();
+        for (Person p : ctx.members(sect.id)) {
+            if (p != master && SectAffairs.reached(ctx, p, r.minMaster()) && Succession.yearsLeft(ctx, p) >= r.minYearsLeft()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /** A sect without a fit leader begins to decline; {@code cause} is what started it. */
@@ -444,7 +460,8 @@ public final class SectPolitics {
                 ? f.ratePerYear() * (1.0 + f.deficitBoost() * (tier.sects() - active) / (double) tier.sects())
                 : f.ratePerYear() * StrictMath.pow(tier.sects() / (double) Math.max(1, active), f.surplusExponent());
         for (Person p : new ArrayList<>(ctx.state.persons.values())) {
-            if (p.sectId >= 0 || p.ambition < f.minAmbition() || !SectAffairs.reached(ctx, p, f.minRealm())) {
+            if (p.sectId >= 0 || p.ambition < f.minAmbition() || !SectAffairs.reached(ctx, p, f.minRealm())
+                    || Succession.yearsLeft(ctx, p) < f.minYearsLeft()) {
                 continue;
             }
             if (ctx.rng(p.id, Purpose.FOUNDING).chance(rate)) {
@@ -489,10 +506,16 @@ public final class SectPolitics {
      * @param family {@link TextKeys#SECT_SPLIT}, {@link TextKeys#SECT_SCHISM} or {@link TextKeys#SECT_FOUNDED}
      */
     static Sect foundSect(SimContext ctx, Person leader, Sect parent, List<Person> followers, long cause, String family) {
+        if (Succession.yearsLeft(ctx, leader) < ctx.rules.founding().minYearsLeft()) {
+            return null;
+        }
+        if (parent != null && followers.size() < ctx.rules.succession().minSplitFollowers()) {
+            return null;
+        }
         SimRng rng = ctx.rng(leader.id, Purpose.SECT_FOUND_REGION);
         String region = null;
         int[] gate = null;
-        for (String candidate : candidateRegions(ctx, leader, rng)) {
+        for (String candidate : candidateRegions(ctx, leader, parent, rng)) {
             gate = GatePlacement.choose(ctx, ctx.rng(leader.id, Purpose.FOUNDING_GATE, candidate.hashCode()), candidate);
             if (gate != null) {
                 region = candidate;
@@ -519,6 +542,11 @@ public final class SectPolitics {
         sect.signatureTechniqueId = own != null ? own.id() : sect.basicTechniqueId;
         ctx.state.sects.put(sect.id, sect);
 
+        // A splinter takes a stake of the parent's wealth and standing in proportion to the people it takes.
+        double share = 0.0;
+        if (parent != null) {
+            share = (followers.size() + 1.0) / Math.max(1, ctx.members(parent.id).size());
+        }
         Anchor params = Anchor.of(ctx).who(leader);
         People.join(ctx, leader, sect, "sect_master");
         for (Person f : followers) {
@@ -537,6 +565,7 @@ public final class SectPolitics {
             Rules.SectRelations r = ctx.rules.sectRelations();
             for (SectRelation rel : new SectRelation[] {sect.relationTo(parent.id), parent.relationTo(sect.id)}) {
                 rel.value = r.splitValue();
+                rel.noWarUntilDay = ctx.day() + (long) r.splitGraceYears() * ctx.dpy;
                 if (rel.value <= r.feudAt()) {
                     rel.state = SectRelation.FEUD;
                     rel.causeEventId = id;
@@ -553,19 +582,27 @@ public final class SectPolitics {
             }
         }
         sect.resources = ctx.rules.sects().incomeBase();
+        if (parent != null) {
+            double stake = Math.min(1.0, share);
+            sect.resources += parent.resources * stake;
+            parent.resources -= parent.resources * stake;
+            sect.prestige = parent.prestige * stake;
+            parent.prestige -= sect.prestige;
+        }
         SectAffairs.economy(ctx, sect);
         return sect;
     }
 
     /** The leader's region first when it admits sects, then the others by qi and crowding. */
-    private static List<String> candidateRegions(SimContext ctx, Person leader, SimRng rng) {
+    private static List<String> candidateRegions(SimContext ctx, Person leader, Sect parent, SimRng rng) {
         List<String> out = new ArrayList<>();
-        if (SimContext.admitsSects(ctx.region(leader.regionId))) {
+        String avoid = parent == null ? null : parent.homeRegionId;
+        if (SimContext.admitsSects(ctx.region(leader.regionId)) && !leader.regionId.equals(avoid)) {
             out.add(leader.regionId);
         }
         List<GenRegion> rest = new ArrayList<>();
         for (GenRegion r : ctx.graph.regions()) {
-            if (SimContext.admitsSects(r) && !r.id().equals(leader.regionId)) {
+            if (SimContext.admitsSects(r) && !r.id().equals(leader.regionId) && !r.id().equals(avoid)) {
                 rest.add(r);
             }
         }
@@ -581,6 +618,10 @@ public final class SectPolitics {
                 w[i] = SimContext.qiMid(rest.get(i)) / (1.0 + crowd);
             }
             out.add(rest.remove(rng.weighted(w)).id());
+        }
+        // A splinter settles away from the parent when it can; the parent's region is the last resort.
+        if (avoid != null && SimContext.admitsSects(ctx.region(avoid))) {
+            out.add(avoid);
         }
         return out;
     }
