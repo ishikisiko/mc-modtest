@@ -7,6 +7,100 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.35.0
+
+The world simulation (世界模拟): every world now keeps a ledger, the 命簿, of
+sects and named cultivators who cultivate, break through or die trying,
+travel the regions, find fortunes (奇遇), befriend, rob, and kill each other,
+take revenge, wage sect wars, found new sects and lose old ones, one sim day
+per cultivation-calendar day, whether or not a player is near. The ledger is
+the only authority; avatars (化身) and sect compounds (山门) are its
+projections. It is the first real caller of the region query interface.
+
+### Added
+
+- Pure core `com.example.myvillage.sim` (no Minecraft types; compiles with
+  plain `javac` and Gson): the facade `WorldSim` with immutable views, one
+  engine class per mechanic (cultivation, great-realm breakthrough, lifespan,
+  travel and seclusion, beasts, fortunes, meetings and fights, revenge chains,
+  sect economy, sect politics with feuds, wars, truces, tribute, annexation,
+  decline, schisms and founding, succession, entrants), genesis with sect
+  gates fixed inside their regions and a prehistory run, three population
+  tiers (`small`, `medium`, `large`), 启元 era dating, a chronicle whose lines
+  state their cause and point at the event that caused them, tombstones for
+  the dead, hash-derived randomness per (seed, day, subject, purpose), and a
+  canonical, versioned save payload.
+- Data `src/main/resources/data/myvillage/world_sim/`: `rules.json` (every
+  balance number, rates per year), `realms.json` (炼气, 筑基, 金丹, 元婴; the sim's
+  own ladder, lifespans equal to the player realms where both exist),
+  `encounters.json` (fortunes), `names.json`, `techniques.json` (功法),
+  `lore.json` (artifacts, sites, beasts); strict loaders that name the file
+  and field on any error. `world_sim.*`, `commands.myvillage.world.*`, and
+  `message.myvillage.world.rumor` keys in `en_us` and `zh_cn`, the Chinese
+  written as chronicle prose.
+- Runtime `sim/runtime/`: overworld SavedData `myvillage_world_sim` holding
+  the core payload; genesis once per world after the region runtime (old
+  worlds included), with the tier then fixed in the save; one settled sim day
+  per tick while days are pending, capped by `catch_up_cap_days`; pause and
+  resume without catch-up; the ledger stays inactive and its save untouched
+  when the region runtime or the data fails to load or the save cannot be
+  read.
+- `/myvillage world [info]`, `sects [all]`, `sect <id|name>`,
+  `person <name>`, `chronicle [1-50]`, `here`, `pause`, `resume`, and
+  `advance <1-3650>` (permission 2).
+- Rumors (江湖传闻): major events reach every online player in chat, players in
+  the event's region first; notable events reach only that region; at most
+  `rumors_per_minute` per player, the rest in a capped queue.
+- Server config `myvillage-world_sim-server.toml`: `tier` (default `small`),
+  `catch_up_cap_days`, `rumors_enabled`, `rumors_per_minute`,
+  `rumor_queue_cap`.
+- `tools/world_sim_cli.py` (offline runner: JSON dump and prose chronicle),
+  `tools/world_sim_report.py` (chronicle pages with population, realm, and
+  sect-timeline charts and biographies in `out/preview/world_sim/`), and
+  `tools/world_sim_evidence.py` (headless creative-mode session and restart,
+  output in `out/preview/world_sim/evidence/`).
+- `tools/validate_world_sim.py`: data structure and cross-references, both
+  languages' keys and slots, and core purity.
+- Tests under `src/test/java/com/example/myvillage/sim/`: determinism,
+  save/load, scheduler, purity guard, realm lifespan agreement, text-key
+  coverage, genesis, liveness, long-run health bands per tier, performance,
+  and the runtime's driver, rumor board, save wrapper, config, and text.
+- `docs/ai-kb/40_world_sim.md`.
+
+<!-- P3: pending (sect compounds by command, avatars) -->
+
+### Changed
+
+- The shared cultivation calendar (修仙历) now advances on every server tick on
+  which at least one player is online, in any game mode, so the world clock
+  keeps running while testing in creative or spectator; personal lifespan is
+  still consumed only in survival or adventure mode while alive.
+  `tools/validate_cultivation_lifespan.py` and its tests check the new rule.
+- Spec `cultivation-lifespan-calendar`: the calendar requirement and its
+  scenarios now describe online-player presence in any game mode (a new
+  scenario for creative or spectator players only, and one for no player
+  online); the personal-lifespan requirement is unchanged.
+- Spec `humanoid-npc-runtime`: <!-- P3: pending -->
+- `tools/release_gate.py` runs `tools/validate_world_sim.py`.
+- `docs/ai-kb/14_deferred_roadmap.md` §A records the world sim as the region
+  query interface's first caller.
+
+### Verification
+
+- Automated: the world-sim validator, its Python tests, and the Gradle tests
+  (the pure-core suite including the health bands, and the runtime tests).
+- Developer evidence: chronicle pages for small and medium tiers in
+  `out/preview/world_sim/`; the headless session and restart
+  (`out/preview/world_sim/evidence/summary.md`) passed all 17 checks:
+  every command, calendar and ledger advancing in creative, pause and resume
+  without catch-up, restart keeping the ledger with genesis once and a later
+  tier change ignored, `advance` bounds, and rate-limited rumors.
+- Not verified: the Chinese chronicle and rumor text on a zh_cn client, how
+  rumors look in chat on a physical client, genesis on an existing old world
+  in game, the inactive and untouched-save paths in game, and the calendar
+  acceptance step 9 under the new rule. See the README ledger "World
+  simulation (0.35.0)".
+
 ## 0.34.1
 
 The cultivator's face is rebuilt. The owner reviewed 0.34.0 on their own PC

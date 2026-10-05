@@ -25,7 +25,7 @@ would extend if picked up.
 ```
                   wrote API hook / data field           wrote only design/vision
                       
-   Region    ─────────────────►  🔴 no consumer    ◄── §A  runtime-binding
+   Region    ─────────────────►  🟡 world sim only ◄── §A  runtime-binding
    Region    ─────────────────►  🔴 no terrain     ◄── §B  region-topology
    Town      ─────────────────►  🔴 no worldgen    ◄── §C  living-town-generation
    Subjects  ◄────────────────  🟡 admitted_subj   ◄── §A2 (sects ignore regions)
@@ -39,7 +39,7 @@ bridge between §A and §B/C and probably the highest-value next change.
 
 ---
 
-## A. Region layer downstream consumers (API live, no caller)
+## A. Region layer downstream consumers (API live, first caller: world sim)
 
 **Source:** `2026-06-21-add-region-runtime-binding/proposal.md` "What Changes"
 + `design.md` "Non-Goals (deferred to future changes)".
@@ -47,8 +47,18 @@ bridge between §A and §B/C and probably the highest-value next change.
 The runtime-binding change landed the graph in-world (`中州` at origin,
 ~4000-block radius), bound spawn to the lowest-tier eligible region, and
 exposed `region_at` / `current_rung` / `next_rung_regions` via
-`RegionRuntimeService` + `RegionQueries`. **No downstream system reads them
-yet.** `grep -r "DeferredRegister.Items" src/main/java/` returns nothing.
+`RegionRuntimeService` + `RegionQueries`. Until 0.35.0 no downstream system
+read them.
+
+**First real caller (2026-10-06, 0.35.0): the world simulation**
+([40_world_sim.md](40_world_sim.md)). It takes the graph from
+`RegionRuntimeService.graph()`; places each sect's gate inside its home region
+with `RegionQueries.regionAt` (and `moveGate` rejects a point outside every
+region); moves travellers along the graph's 连 edges, entering a walled region
+only through its pass; reads region qi, danger, tier, and admitted subjects;
+and answers `/myvillage world here` and rumor audiences with
+`RegionRuntimeService.currentRegion`. It does not use `current_rung` or
+`next_rung_regions`, so the items below remain deferred.
 
 | Deferred item | Source quote | Current state |
 |---|---|---|
@@ -77,7 +87,10 @@ src/main/resources/data/myvillage/worldgen/structure/sect.json:
 ```
 
 So today "which 洲 admits a sect" is data on the graph but does not influence
-where sects generate. Closing this loop is the smallest single change that
+where sects generate. (Since 0.35.0 the world sim's ledger honours
+`admitted_subjects` when it seats sects and their gates, but nothing builds
+those sects in worldgen yet; see [40_world_sim.md](40_world_sim.md) "Known
+limits".) Closing this loop is the smallest single change that
 makes the region layer *do something visible* in generated worlds.
 
 See-also specs: `region-profile`, `sect-worldgen-structure`.
