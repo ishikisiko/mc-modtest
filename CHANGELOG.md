@@ -7,6 +7,56 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.34.1
+
+The cultivator's face is rebuilt. The owner reviewed 0.34.0 on their own PC
+on 2026-10-06 and accepted the clothes, the back view, the poses seen from
+behind, and the walk, but rejected the face: "有点像大佛的脸，没有修仙者那种
+俊朗英气". The face was wider than tall with a full square jaw, carried a teal
+dot between the brows that read as a Buddha's urna, had heavy lids over
+wide-set eyes, and a small saturated pink mouth. Only the head changes; the
+body, clothes, hair back view, strands, and clips are as in 0.34.0.
+
+### Changed
+
+- Head geometry: the skull is now the cranium only (eight rows), and the jaw
+  is three cubes flush with the face plane that narrow toward the chin (11, 9,
+  and 7 texels wide), each shallower than the one above so the jaw line rises
+  toward the ear from the side; the face is now taller than wide. The nose is two texels tall instead of three.
+- Hair cut-outs: the forehead is open under a straight one-row hairline (no
+  fringe, no centre parting), the temple corners come one row lower, and the
+  sideburns run down to the cranium's bottom.
+- Face paint: no mark between the brows and no separate lash line; the brow
+  lies directly on a one-row eye with white either side of a blue-grey iris,
+  and its tail fades into the sideburn on the same row (剑眉入鬓); a plain jaw
+  contour; a muted three-texel mouth. The top of the nose, which faces up and
+  so draws at full brightness, is painted as dark as the lit front; the
+  cranium's underside is hair and the jaw's undersides a light skin tone, so
+  from below there is neither a light line on the nose nor brown patches
+  beside the cheeks.
+- NPC previews draw without back-face culling, as the game does
+  (`NpcModel` draws with `entityCutoutNoCull`): the inside of the hair shell
+  shows through its cut-outs instead of the background. `render` in
+  `tools/beastgen/preview.py` gains `cull=True`; beast previews are unchanged.
+
+### Added
+
+- `python3 -m tools.npcgen preview <npc> --only face`: `face.png`, the head
+  large from the front, from slightly below, from both front three-quarters,
+  at a shallow angle, and from the side, plus the same six views at about the
+  size the face has a few blocks away.
+
+### Verification
+
+- Automated: the release gate (validators, generator checks, Python and
+  Gradle tests, build, jar listing); `tools/tests/test_npcgen.py` pins the
+  tapering jaw, the two-tall nose, the open forehead, the brow on the eye, the
+  eye's texels, the mouth, and the absence of the old mark.
+- Owner, 0.34.0 on their own PC, 2026-10-06: clothes, back view, poses seen
+  from behind, and walk accepted; face rejected.
+- Not verified: the 0.34.1 face, and every surface the owner did not speak
+  to (see the README ledger "Cultivator NPC").
+
 ## 0.34.0
 
 The first humanoid NPC, `myvillage:cultivator` (修仙者), and the framework it

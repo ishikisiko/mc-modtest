@@ -20,7 +20,7 @@ def main(argv=None):
     b.add_argument("--check", action="store_true", help="fail when the files on disk differ")
     p = sub.add_parser("preview", help="offline renders under out/preview/<npc>/")
     p.add_argument("npc")
-    p.add_argument("--only", help="comma list of parts: views,closeups,atlas,sheets,gifs,index")
+    p.add_argument("--only", help="comma list of parts: views,closeups,face,atlas,sheets,gifs,index")
     a = ap.parse_args(argv)
     if a.cmd == "build":
         from .build import run

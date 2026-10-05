@@ -109,8 +109,10 @@ def lights_for(body_rot):
     return R @ LIGHT0, R @ LIGHT1
 
 
-def render(quads, fr, bg=(206, 210, 216), ground=True, body_rot=DEFAULT_BODY_ROT, light=1.0):
-    """light scales the lit result like a dim lightmap; the glow layer stays full bright."""
+def render(quads, fr, bg=(206, 210, 216), ground=True, body_rot=DEFAULT_BODY_ROT, light=1.0, cull=True):
+    """light scales the lit result like a dim lightmap; the glow layer stays full bright. cull=False
+    also draws faces turned away from the camera, as entityCutoutNoCull does (the inside of a cut-out
+    shell); a face is shaded from its own outward normal either way, like the game's vertex normals."""
     ss = fr.ss
     l0, l1 = lights_for(body_rot)
     W, H = fr.W * ss, fr.H * ss
@@ -127,7 +129,7 @@ def render(quads, fr, bg=(206, 210, 216), ground=True, body_rot=DEFAULT_BODY_ROT
         if nn < 1e-12:
             continue
         n /= nn
-        if n @ fr.cam.c <= 1e-9:
+        if cull and n @ fr.cam.c <= 1e-9:
             continue
         sh = min(1.0, 0.4 + 0.6 * (max(0.0, n @ l0) + max(0.0, n @ l1))) * light
         S = fr.screen(P)

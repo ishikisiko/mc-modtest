@@ -33,7 +33,8 @@ it read as layered cloth instead of a painted box:
 1. **Half-size units.** The model file carries `scale: 0.5`: one model unit is
    1/32 block, so both the geometry and the texture are twice as fine as a
    vanilla mob's. A band can stand half a vanilla pixel proud of the cloth under
-   it, and a face has room for brows, lashes, an iris, and a one-texel nose.
+   it, and a face has room for a brow, an eye with white either side of the
+   iris, a jaw that narrows in real steps, and a one-texel nose.
    `scale` is an optional field of the shared model schema (1 when absent); the
    beast renderer honours it too, and the wolf's file is unchanged.
 2. **A cube per layer.** The crossed robe collar is two rotated bands on the
@@ -43,8 +44,10 @@ it read as layered cloth instead of a painted box:
    their own bones; each sleeve leaves the cap, deepens toward an open cuff,
    and ends in a hanging drape with the hand below it; each leg carries half of
    a two-tier skirt, with the vest's panels hanging over it front and back; the
-   hair is a shell around the skull with a stepped-in top, a bun, a crown, a
-   pin, two ribbons, two loose strands, and a slab of long hair down the back.
+   head is a cranium with three jaw cubes under it (`jaw`, `jaw_low`, `chin`)
+   and a nose; the hair is a shell around the head with a stepped-in top, a
+   bun, a crown, a pin, two ribbons, two loose strands, and a slab of long hair
+   down the back.
 3. **Cut-outs and painted depth.** NPC textures are drawn with the entity
    cut-out render type, so a texel with zero alpha in a shell is a hole: the
    vest is open down the front onto the collar bands, and the hair shell is cut
@@ -58,6 +61,39 @@ it read as layered cloth instead of a painted box:
 Entity faces are drawn at 50 to 74 % brightness unless they face up, so base
 tones sit high in their ramps and up-facing ledges are painted darker than the
 cloth beside them.
+
+## Faces
+
+The owner rejected the 0.34.0 face as a Buddha's face without a cultivator's
+handsome spirit (俊朗英气); 0.34.1 rebuilt it. What the rebuild settled:
+
+- **Taper in geometry.** The jaw narrows toward the chin in real cubes (13,
+  11, 9, 7 texels wide), each flush with the face plane and shallower than the
+  one above, so the face is taller than wide and the jaw line rises toward the
+  ear. Painting a taper on a square block still reads square.
+- **Brow on the eye.** The brow lies directly on a one-row eye with white
+  either side of the iris, and its tail fades into the sideburn on the same
+  row (剑眉入鬓). A brow stepping up over three texels reads as an angry
+  zigzag at in-game size, a tail tip one row up as a detached dot, and a
+  separate lash bar under a brow bar as two heavy lids.
+- **Open forehead, plain hairline.** No fringe, no centre parting, no widow's
+  peak (it made an M-shaped hairline); the sideburns run to the cranium's
+  bottom, so no cheek texel pokes out beside them.
+- **No forehead mark, a muted mouth.** A dot between the brows reads as an
+  urna. The mouth is three texels of one muted colour.
+- **Up-facing faces draw at full brightness.** The top of the nose is painted
+  as dark as the lit front looks (far below the face's own tone), or it shows
+  as a light line on the bridge.
+- **Undersides belong to what is above them.** The cranium's underside beside
+  the jaw is painted as hair, since it sits under the sideburn, and the jaw's
+  steps are a light skin tone underneath; painted as shadowed skin they drew
+  brown patches round the lower face from below.
+
+Judge a face at in-game size: `python3 -m tools.npcgen preview <npc> --only
+face` draws the head large from six angles and again at about 70 pixels wide.
+NPC previews draw without back-face culling, as the game does
+(`entityCutoutNoCull`), so the inside of the hair shell shows through its
+cut-outs.
 
 ## Runtime
 
@@ -106,10 +142,11 @@ python3 -m tools.npcgen build cultivator --check    # fail when they differ (a r
 python3 -m tools.npcgen preview cultivator          # out/preview/cultivator/
 ```
 
-`preview` writes a six-view turnaround, close-ups of the layered parts, a
-scale image beside the vanilla player, the atlas, walk and idle sheets, a
-turntable GIF, walk GIFs, and `index.html`. It lights the model with the
-game's two fixed entity lights, so it is darker than a daylight screenshot.
+`preview` writes a six-view turnaround, close-ups of the layered parts, a face
+sheet (`--only face`), a scale image beside the vanilla player, the atlas,
+walk and idle sheets, a turntable GIF, walk GIFs, and `index.html`. It lights
+the model with the game's two fixed entity lights, so it is darker than a
+daylight screenshot, and draws back faces as `entityCutoutNoCull` does.
 
 ## In-game capture
 
@@ -168,8 +205,8 @@ no client import under `entity/**`; and no spawn placement, biome modifier, or
 spawn biome tag. `tools/tests/test_npcgen.py` adds the art rules: layers stack
 outward on the chest, only declared shells are cut out, large cloth faces
 carry several tones, the face is symmetric with its features on the expected
-texels, the planted foot stays down and travels evenly, and panels follow the
-leg.
+texels, the jaw tapers in steps under the cranium, the planted foot stays down
+and travels evenly, and panels follow the leg.
 
 ## Verified and not verified
 
@@ -177,9 +214,12 @@ Automated checks, offline previews (`out/preview/cultivator/`), and the
 headless capture (`out/preview/cultivator/ingame/`) are implementation
 evidence. The capture showed the model at the intended size beside the player,
 the cut-outs and layers drawing as in the preview, and NPCs strolling with the
-walk clip. Nothing has been observed by the owner on a physical client: the
-look, the walk, `F3+T` reload, save and reload, and multiplayer are
-`not_verified`. The README ledger "Cultivator NPC (0.34.0)" records each
+walk clip. The owner observed 0.34.0 on their own PC on 2026-10-06 and
+accepted the clothes, the back view, the poses seen from behind, and the walk
+(`pass`), and rejected the face (`fail`). The 0.34.1 face, and everything the
+owner did not speak to (`F3+T` reload, save and reload, multiplayer, frame
+rate, night and indoor lighting, hurt and death), are `not_verified`. The
+README ledger "Cultivator NPC real-client acceptance surface" records each
 surface.
 
 ## See Also

@@ -36,7 +36,7 @@ the optional `scale` field, omitted at 1): the renderer scales the whole model b
 | `paint.py` | one record per texel: bone, cube, face, bone-local and rest-pose model-space point, normal, distance to the nearest other cube; colour helpers |
 | `anim.py` | clips and keys, the animations JSON, a port of `KeyframeAnimations.animate` and the pose chain |
 | `quadruped.py` | planar two-bone leg IK with a held paw angle, foot paths and looping gait sampling; `lunge_flight`/`move_flight`, a port of the server's `BeastMotion` (vanilla gravity and drag), which gives the landing tick the clips key on and the path the previews move the beast along |
-| `preview.py` | numpy renders through `tools/combat_preview`'s rasteriser, with `LivingEntityRenderer`'s placement |
+| `preview.py` | numpy renders through `tools/combat_preview`'s rasteriser, with `LivingEntityRenderer`'s placement; `render(..., cull=True)` skips faces turned away from the camera, and `cull=False` draws them too (shaded from their own outward normal), as `entityCutoutNoCull` does, which `tools/npcgen` uses so cut-out shells show their inside |
 | `defs/<beast>.py` | the beast: `build_model()`, `legs()`, `paint(texel)`, `glow(texel)`, `clips(model, server)` |
 
 A second quadruped is a new `defs/<name>.py` plus its name in `build.DEFINITIONS`. The painter

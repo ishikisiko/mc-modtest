@@ -118,9 +118,11 @@ class NpcgenTest(unittest.TestCase):
         """The large cloth faces carry shading and pattern: several tones each, not one fill."""
         for name, face, least in (("sleeve_upper_right", "WEST", 6), ("sleeve_lower_right", "WEST", 8),
                                   ("robe_lower_right", "NORTH", 10), ("vest", "SOUTH", 5),
-                                  ("vest_back_panel", "SOUTH", 6), ("hair", "SOUTH", 5), ("skull", "NORTH", 8)):
+                                  ("vest_back_panel", "SOUTH", 6), ("hair", "SOUTH", 5)):
             colours = {self.pixel(t)[:3] for t in self.by_cube[name] if t.face == face and self.pixel(t)[3]}
             self.assertGreaterEqual(len(colours), least, f"{name} {face}: {len(colours)} colours")
+        # the face spans the cranium and the three jaw steps, so it is counted across all four
+        self.assertGreaterEqual(len(set(self.face().values())), 8, "face")
 
     # -------------------------------------------------------------- layers
     def test_layers_stack_outward_on_the_chest(self):
@@ -165,40 +167,122 @@ class NpcgenTest(unittest.TestCase):
         self.assertIsNone(occ.hit((0.0, GROUND - 32.0, -5.9), exclude=("belt",)))
 
     # -------------------------------------------------------------- face
+    FACE_CUBES = ("skull", "jaw", "jaw_low", "chin")
+
     def face(self):
-        """Skull front texels by (column from the centre, row from the top)."""
+        """Front texels of the cranium and the three jaw steps by (column from the centre, row from the
+        top of the cranium)."""
         out = {}
-        for t in self.by_cube["skull"]:
-            if t.face == "NORTH":
-                out[(int(round(t.p[0])), int(cultivator.HEAD_TOP - (GROUND - t.p[1])))] = self.pixel(t)[:3]
+        for name in self.FACE_CUBES:
+            for t in self.by_cube[name]:
+                if t.face == "NORTH":
+                    key = (int(round(t.p[0])), int(cultivator.HEAD_TOP - (GROUND - t.p[1])))
+                    self.assertNotIn(key, out, f"{name} repeats face texel {key}")
+                    out[key] = self.pixel(t)[:3]
         return out
 
     def test_face_has_a_centre_column_and_symmetric_eyes(self):
         face = self.face()
-        self.assertEqual(13 * 12, len(face))
+        self.assertEqual(13 * 8 + 11 * 2 + 9 + 7, len(face))
         for (col, row), colour in face.items():
             self.assertEqual(face[(-col, row)], colour, f"face is not symmetric at {(col, row)}")
-        white = cultivator._rgb(cultivator.EYE_WHITE[0])
-        iris = cultivator._rgb(cultivator.IRIS)
-        self.assertEqual(white, face[(2, 6)])
-        self.assertEqual(iris, face[(3, 6)])
-        self.assertEqual(cultivator._rgb(cultivator.MARK), face[(0, 2)])
-        self.assertEqual(cultivator._rgb(cultivator.LIP), face[(0, 10)])
+        white, iris = cultivator._rgb(cultivator.EYE_WHITE), cultivator._rgb(cultivator.IRIS)
+        for col in (2, 4):
+            self.assertEqual(white, face[(col, 5)])
+            self.assertEqual(white, face[(-col, 5)])
+        self.assertEqual(iris, face[(3, 5)])
+        self.assertEqual(iris, face[(-3, 5)])
+
+    def test_face_rows_narrow_toward_the_chin(self):
+        face = self.face()
+        for row, half in ((0, 6), (7, 6), (8, 5), (9, 5), (10, 4), (11, 3)):
+            cols = sorted(col for col, r in face if r == row)
+            self.assertEqual(list(range(-half, half + 1)), cols, f"row {row}")
+
+    def test_visible_skin_widths(self):
+        """The sideburn (a = 6) is hair from the top of the cranium to its bottom; skin runs to a = 5
+        from row r1 down to r9, a = 4 on r10, a = 3 on r11."""
+        face = self.face()
+        hair = cultivator._tone(cultivator.HAIR, 1.6)
+        for col in range(-6, 7):
+            self.assertEqual(hair, face[(col, 0)], f"r0 a={col}")
+        for row in range(0, 8):
+            self.assertEqual(hair, face[(6, row)], f"r{row}")
+        for row, half in ((1, 4), (2, 5), (5, 5), (7, 5), (8, 5), (9, 5), (10, 4), (11, 3)):
+            for col in range(-half, half + 1):
+                self.assertNotEqual(hair, face[(col, row)], f"r{row} a={col}")
+        self.assertEqual(hair, face[(5, 1)])
+
+    def test_mouth_is_three_texels_of_one_colour(self):
+        face = self.face()
+        mouth = cultivator._rgb(cultivator.MOUTH)
+        for col in (-1, 0, 1):
+            self.assertEqual(mouth, face[(col, 10)])
+        self.assertEqual({(-1, 10), (0, 10), (1, 10)}, {k for k, v in face.items() if v == mouth})
+
+    def test_brow_lies_on_the_eye_and_its_tail_fades_on_the_same_row(self):
+        face = self.face()
+        brow = cultivator._rgb(cultivator.BROW)
+        for col in (2, 3, 4):
+            self.assertEqual(brow, face[(col, 4)])
+            self.assertEqual(brow, face[(-col, 4)])
+        plain = face[(1, 4)]
+        for col in (5, -5):
+            tail = face[(col, 4)]
+            self.assertNotEqual(brow, tail)
+            self.assertNotEqual(plain, tail)
+        row3 = {face[(col, 3)] for col in range(-5, 6)}
+        self.assertNotIn(brow, row3)
+        self.assertNotIn(face[(5, 4)], row3, "no trace of the brow on the row above it")
+
+    def test_no_mark_lash_or_lip(self):
+        old_mark = cultivator._rgb("#3FC4C0")
+        self.assertNotIn(old_mark, set(self.face().values()))
+        for name in ("MARK", "LIP", "LASH"):
+            self.assertFalse(hasattr(cultivator, name), name)
+
+    def test_jaw_tapers_in_steps_flush_with_the_face(self):
+        boxes = [self.box(name) for name in self.FACE_CUBES]
+        widths = [x1 - x0 for (x0, x1), _, _ in boxes]
+        self.assertEqual(sorted(widths, reverse=True), widths)
+        self.assertEqual(len(set(widths)), len(widths), "each step must be narrower than the one above")
+        depths = [z1 - z0 for _, _, (z0, z1) in boxes]
+        self.assertEqual(len(set(depths)), len(depths))
+        self.assertEqual(sorted(depths, reverse=True), depths)
+        for _, _, (z0, _) in boxes:
+            self.assertAlmostEqual(boxes[0][2][0], z0)
+        # stacked without gaps: each step's top is the bottom of the one above
+        for (_, (bottom, _), _), (_, (_, top), _) in zip(boxes, boxes[1:]):
+            self.assertAlmostEqual(bottom, top)
+        self.assertAlmostEqual(cultivator.NECK, boxes[-1][1][0])
 
     def test_nose_and_strands_stand_proud_of_the_face(self):
         face_z = self.box("skull")[2][0]
         self.assertLess(self.box("nose")[2][0], face_z - 0.9)
         self.assertLess(self.box("strand_right_lock")[2][0], self.box("hair")[2][0] - 0.9)
-        (x0, x1), _, _ = self.box("nose")
+        (x0, x1), (bottom, top), _ = self.box("nose")
         self.assertAlmostEqual(0.0, (x0 + x1) / 2.0)
+        self.assertAlmostEqual(2.0, top - bottom)
 
     def test_hair_shell_is_cut_away_round_the_face(self):
         front = [t for t in self.by_cube["hair"] if t.face == "NORTH"]
         open_ = [t for t in front if self.pixel(t)[3] == 0]
         self.assertGreater(len(open_), 90)
-        self.assertTrue(all(GROUND - t.p[1] < 59.0 for t in open_), "the fringe must stay")
+        self.assertTrue(all(GROUND - t.p[1] < 59.0 for t in open_), "the top row of hair must stay")
         back = [t for t in self.by_cube["hair"] if t.face == "SOUTH"]
         self.assertTrue(all(self.pixel(t)[3] == 255 for t in back))
+
+    def test_forehead_is_open_under_a_straight_hairline(self):
+        """Row r1 of the hair shell's front: open over the whole forehead, hair from the temples out."""
+        row = {}
+        for t in self.by_cube["hair"]:
+            if t.face == "NORTH" and int(cultivator.HEAD_TOP - (GROUND - t.p[1])) == 1:
+                row[int(round(t.p[0]))] = self.pixel(t)[3]
+        for col in range(-4, 5):
+            self.assertEqual(0, row[col], col)
+        for col in (5, 6, 7):
+            self.assertEqual(255, row[col], col)
+            self.assertEqual(255, row[-col], -col)
 
     # -------------------------------------------------------------- stance and walk
     def sole(self, mats, side):

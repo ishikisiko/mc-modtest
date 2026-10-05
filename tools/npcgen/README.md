@@ -12,7 +12,8 @@ python3 -m tools.npcgen preview cultivator          # out/preview/cultivator/ (s
 
 `build` and the tests use the standard library only. `preview` needs numpy and Pillow and re-runs
 itself under `.venv-preview/bin/python` (or `$MC_PREVIEW_PYTHON`), like `tools.beastgen`;
-`--only views,closeups,atlas,sheets,gifs,index` renders a subset (the GIFs take about two minutes).
+`--only views,closeups,face,atlas,sheets,gifs,index` renders a subset (the GIFs take about two
+minutes; `face` is the head large from six angles plus the same views at about in-game size).
 
 Outputs (the beast schema-1 formats, read by `NpcRenderer`):
 
@@ -30,7 +31,7 @@ Never hand-edit them; change the definition and rebuild.
 |---|---|
 | `build.py` | builds a definition in memory, writes or checks the three files; `DEFINITIONS` lists the NPCs |
 | `shade.py` | `Occluders`: baked contact shading from the rest-pose geometry (`overhang`: what sticks out above a texel; `contact`: raised geometry beside it); cubes named hollow cast nothing |
-| `preview.py` | turnaround, close-ups, scale beside the player, atlas, clip sheets, GIFs, index page, through `tools/beastgen/preview.py`'s rasteriser |
+| `preview.py` | turnaround, close-ups, face sheet, scale beside the player, atlas, clip sheets, GIFs, index page, through `tools/beastgen/preview.py`'s rasteriser with `cull=False`: `NpcModel` draws with `entityCutoutNoCull`, so back faces are drawn and the inside of a cut-out shell shows through its holes as in game |
 | `defs/<npc>.py` | the NPC: `build_model()`, `painter(model)`, `clips(model)`, and `ID`, `HITBOX`, `HOLLOW` |
 
 The cuboid model, box-UV packer, texel sampler and clip classes are `tools/beastgen`'s
@@ -55,8 +56,14 @@ The cuboid model, box-UV packer, texel sampler and clip classes are `tools/beast
   (shadows from the layer above, crevices), then add folds, dye and trim as functions of position so
   they run on across cube seams. Entity faces are drawn at 50 to 74 % brightness unless they face
   up: keep base tones high, and paint up-facing ledges darker than the cloth beside them.
-- **Odd widths give a centre column.** The cultivator's head is 13 texels wide so the nose, the
-  mark between the brows and the mouth sit on one centre column.
+- **Odd widths give a centre column.** The cultivator's head is 13 texels wide so the nose and
+  the mouth sit on one centre column, and the jaw keeps it as it narrows in odd widths (11, 9, 7)
+  toward the chin.
+- **Judge a face at in-game size.** `preview <npc> --only face` draws the head large from six
+  angles and again at about 70 pixels wide. What reads up close can turn into something else a few
+  blocks away: a brow stepping up over three texels reads as an angry zigzag, a lash bar under a
+  brow bar as heavy lids, a dot between the brows as a Buddha's urna. Faces facing up (the top of a
+  nose) draw at full brightness, so paint them darker than the face.
 - **Walk on a planted foot.** `NpcRenderer` measures how fast the lowest sole corner moves back and
   sets the `animateWalk` rate from it. Author the walk so the planted foot stays on the ground and
   travels evenly (`_leg_angle`, `_sole_low` in the cultivator), and turn hanging panels with the leg

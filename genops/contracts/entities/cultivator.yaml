@@ -115,6 +115,7 @@ rendering:
     - belt over the vest, with a buckle, two sash ends and a jade pendant hanging from it
     - sleeves from under the shoulder caps, deeper toward an open cuff with a hanging drape
     - two-tier skirt carried by the legs, vest panels over it front and back
+    - head of a cranium over three jaw cubes that narrow toward the chin (flush with the face), and a nose
     - hair shell cut out round the face, bun with crown and pin, two ribbons, two loose strands, long back hair
   animations:
     - id: idle
@@ -138,9 +139,11 @@ texture_art_direction:
     vest: "#2A3A6E"
     gold: "#C4A75C"
     jade: "#52B09A"
+  face: 下颌用真实几何逐级收窄，脸长于宽；额头敞开、发际平直、鬓角到颅底；眉直接压在一行眼睛上，眼白在瞳孔两侧，眉尾在同一行淡入鬓角（剑眉入鬓）；无眉心印；嘴为三格低饱和色；以游戏内距离判断（preview --only face）
   shading: 每个纹素按它在模型上的三维位置上色：圆柱感明暗、上层投在下层的影子、凸起饰带旁的凹缝、布料褶皱、下摆与袖口的渐染
   forbidden:
     - 一刀切的平涂色块
+    - 眉心印、独立的睫毛横条、阶梯状上挑的眉毛
     - 抗锯齿或平滑缩放
     - 半透明纹素（只允许完全透明的镂空）
     - 手工修改生成的贴图或模型文件
@@ -189,7 +192,8 @@ acceptance:
     - ./gradlew test
     - ./gradlew build
   developer_evidence:
-    - python3 -m tools.npcgen preview cultivator
+    - python3 -m tools.npcgen preview cultivator             # drawn without back-face culling, as entityCutoutNoCull does
+    - python3 -m tools.npcgen preview cultivator --only face # the head from six angles, large and at in-game size
     - python3 -m tools.combat_capture npc   # parts idle, walk; out/preview/cultivator/ingame/
   visual_views:
     - front
@@ -203,6 +207,7 @@ acceptance:
     - death
   human_verdict_required: true
   human_verdict_status: not_verified
+  human_verdict_note: owner on 0.34.0, own PC, 2026-10-06 — clothes, back view, poses seen from behind and the walk accepted; the face rejected (像大佛的脸，没有俊朗英气). The 0.34.1 face and every other surface are not_verified; see the README ledger.
 
 assumptions:
   - 当前仓库基线为 Minecraft 1.21.1、NeoForge 21.1.233、Java 21，mod id 为 myvillage，Java 包根为 com.example.myvillage。

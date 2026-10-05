@@ -8,7 +8,11 @@ The look is built from real layers instead of one painted box: a crossed robe co
 border bands lie on the chest, the belt wraps over both, sleeves come out from under shoulder wings and
 widen to an open cuff with a hanging drape, the skirt flares in two tiers, vest panels, sash ends and a
 jade pendant hang from the belt, and the hair is a cut-out shell with a bun, a crown, a pin, ribbons
-and two loose strands. The painter then shades every texel from where it sits in 3D (form light,
+and two loose strands. The head is a cranium over a jaw that steps in twice toward a narrow chin, so
+the face is taller than wide; the hair leaves the forehead open under a straight hairline, with
+sideburns down to the cranium's bottom, and the face is a plain symmetric texel map: a brow lying
+directly on a one-row eye (white either side of the iris) whose tail fades into the sideburn on the
+same row, a jaw contour and a small muted mouth. The painter then shades every texel from where it sits in 3D (form light,
 shadows cast by the layer above, crevices beside raised bands) and adds cloth folds, dye and trim.
 """
 from __future__ import annotations
@@ -27,8 +31,8 @@ SCALE = 0.5           # one model unit is 1/32 block
 
 HIP = 29.0            # leg pivots and the body bone
 SHOULDER = 44.0
-NECK = 48.0           # head pivot, the skull's underside
-HEAD_TOP = 60.0       # the skull's top; hair adds one more
+NECK = 48.0           # head pivot, the chin's underside
+HEAD_TOP = 60.0       # the cranium's top; hair adds one more
 BELT = (30.0, 35.0)
 HEM = 3.0
 TIER = 16.0           # where the skirt's lower tier begins
@@ -54,11 +58,9 @@ BOOT = ramp("#14151B", "#20222A", "#2E313B", "#40444F")
 SOLE = ramp("#A8A8A0", "#CECEC5", "#ECECE4")
 TASSEL = ramp("#6A1A1A", "#9C2A2A", "#C8413A", "#E36354")
 CORD = ramp("#665030", "#8A6E3E", "#B08E50")
-LIP = "#C2746B"
-MARK = "#3FC4C0"
-EYE_WHITE = ("#FFFFFF", "#DADDE3")
-IRIS = "#1D2F3A"
-LASH = "#3A2828"
+MOUTH = "#B98377"
+EYE_WHITE = "#F4F5F7"
+IRIS = "#2B5F7A"
 BROW = "#262733"
 
 # The hair and the vest are shells whose texture is partly cut out, so they cast no baked shadow.
@@ -117,13 +119,18 @@ def build_model():
     _pair(b, "vest_cap_{}", "body", (-8.0, -47.0, 0.0), rot=(0.0, 0.0, -CAP_SLOPE),
           boxes=[("vest_cap_{}_shell", (-6.5, 0.0, -3.5), (7, 3, 7))], local=True)
 
-    # ---- head, an odd number of texels wide so the face has a centre column: skull, cut-out hair
-    # shell with a stepped-in top, nose, bun with crown and pin, ribbons, two loose strands
+    # ---- head, an odd number of texels wide so the face has a centre column: the cranium, then a jaw
+    # in three steps that narrow toward the chin from the front and rise toward the ear from the side
+    # (all flush with the face plane), cut-out hair shell with a stepped-in top, nose, bun with crown
+    # and pin, ribbons, two loose strands
     b.bone("head", "body", at=(0.0, -NECK, 0.0))
-    _box(b, "head", "skull", -6.5, 48, -6.5, 13, 12, 13)
+    _box(b, "head", "skull", -6.5, 52, -6.5, 13, 8, 13)
+    _box(b, "head", "jaw", -5.5, 50, -6.5, 11, 2, 9)
+    _box(b, "head", "jaw_low", -4.5, 49, -6.5, 9, 1, 8)
+    _box(b, "head", "chin", -3.5, 48, -6.5, 7, 1, 6)
     _box(b, "head", "hair", -7.5, 48, -7.5, 15, 12, 15)
     _box(b, "head", "hair_cap", -6.5, 60, -6.5, 13, 1, 13)
-    _box(b, "head", "nose", -0.5, 51, -7.5, 1, 3, 1)
+    _box(b, "head", "nose", -0.5, 51, -7.5, 1, 2, 1)
     _box(b, "head", "bun", -2.5, 61, -1.5, 5, 4, 5)
     _box(b, "head", "crown", -3.5, 62, -2.5, 7, 2, 7)
     _box(b, "head", "pin", -6.5, 62.5, 0.5, 13, 1, 1)
@@ -243,7 +250,7 @@ class _Paint:
             "torso": self.torso, "vest": self.vest, "neck": self.neck, "belt": self.belt, "buckle": self.buckle,
             "collar_over_band": self.collar, "collar_under_band": self.collar,
             "vest_edge_right_band": self.vest_edge, "vest_cap_right_shell": self.vest_cap,
-            "skull": self.skull, "hair": self.hair, "hair_cap": self.hair, "nose": self.nose, "bun": self.bun,
+            "skull": self.skull, "jaw": self.jaw, "jaw_low": self.jaw, "chin": self.jaw, "hair": self.hair, "hair_cap": self.hair, "nose": self.nose, "bun": self.bun,
             "crown": self.crown, "pin": self.pin, "pin_knob": self.pin,
             "ribbon_root_right": self.ribbon, "ribbon_right_tail": self.ribbon,
             "strand_right_lock": self.strand, "hair_back_main": self.hair_back, "hair_back_tip": self.hair_back,
@@ -283,16 +290,17 @@ class _Paint:
         return self.skin(t, tone, exclude=("sleeve_drape_right",))
 
     def nose(self, t):
-        row = int(54.0 - (24.0 - t.p[1]))  # 0 bridge .. 2 tip
+        row = int(53.0 - (24.0 - t.p[1]))  # 0 bridge, 1 tip
         if t.face == "NORTH":
-            return _tone(SKIN, (5.4, 5.0, 4.6)[row])
+            return _tone(SKIN, (4.9, 4.7)[row])
         if t.face == "UP":
             return _tone(SKIN, 2.0)  # under the tip
         if t.face == "DOWN":
-            return _tone(SKIN, 5.0)
-        return _tone(SKIN, 3.6 if row < 2 else 3.2)
+            return _tone(SKIN, 1.0)  # faces up, so it draws at full brightness: as dark as the lit front
+        return _tone(SKIN, 3.4)
 
     def skull(self, t):
+        """The cranium: face rows r0..r7, temple and ear on the sides, a ring of underside round the jaw."""
         x, h, z = _xhz(t)
         f = t.face
         if f == "NORTH":
@@ -300,52 +308,51 @@ class _Paint:
         if f in ("WEST", "EAST") and not _hair_on_side(z, h):
             return self.head_side(t, z, h)
         if f == "UP":
-            return _tone(SKIN, 2.4)  # under the chin
+            # the underside beside and behind the jaw sits under the sideburn and the hair
+            return _tone(HAIR, 1.4) if z < 2.5 else _tone(HAIR, 1.2)
         return _tone(HAIR, 1.6)      # scalp under the hair shell
 
+    def jaw(self, t):
+        """jaw, jaw_low, chin: face rows r8..r11 in front, sides in the cranium's shadow, under-chin below."""
+        f = t.face
+        if f == "NORTH":
+            return self.face(t)
+        if f in ("WEST", "EAST"):
+            return self.skin(t, 4.0)
+        if f == "UP":
+            return _tone(SKIN, 3.6)  # under the chin and the jaw steps
+        return _tone(SKIN, 3.4)      # hidden: the top under the cranium, the back inside the hair
+
     def face(self, t):
+        """The front of the head as a symmetric texel map, keyed on (a, r): a columns from the centre
+        column, r rows down from the cranium's top. Skin is plain apart from the hairline's shadow and
+        the baked occlusion beside and under the nose."""
         x, h, _ = _xhz(t)
         a = abs(int(round(x)))            # column from the centre column, 0..6
-        r = int(HEAD_TOP - h)             # row from the top of the skull, 0..11
+        r = int(HEAD_TOP - h)             # row from the top of the cranium, 0..11
         if h >= _hairline(a):
             return _tone(HAIR, 1.6)
-        tone = 4.6
-        tone -= 0.8 * _clamp(1.5 - (_hairline(a) - h))     # the fringe's shadow
-        if r >= 8:
-            tone -= 0.5 * max(0.0, a - 4 + (r - 8) * 0.5)  # a jaw that tapers instead of ending in corners
-        tone -= 0.3 * _clamp((a - 4) / 2.0)
+        tone = 4.6 - 0.8 * _clamp(1.5 - (_hairline(a) - h))   # the hairline's shadow
         skin = lambda d=0.0: _tone(SKIN, tone + d)  # noqa: E731  (no cloth noise: the face stays symmetric)
-        if r == 2 and a == 0:
-            return _rgb(MARK)             # 眉心印
-        if r == 3 and 2 <= a <= 4:
-            return _rgb(BROW) if a < 4 else _mix(_rgb(BROW), skin(), 0.35)
-        if r == 5:
-            if 2 <= a <= 4:
-                return _rgb(LASH) if a > 2 else _mix(_rgb(LASH), skin(), 0.3)
-            if a == 5:
-                return _mix(_rgb(LASH), skin(), 0.6)
-        if r == 6:
-            if a == 2:
-                return _rgb(EYE_WHITE[0])
-            if a == 3:
-                return _rgb(IRIS)
-            if a == 4:
-                return _rgb(EYE_WHITE[1])
         if r == 4 and 2 <= a <= 4:
-            return skin(-0.5)             # the lid under the brow
-        if r == 7 and 2 <= a <= 4:
-            return skin(-0.3)
+            return _rgb(BROW)                           # the brow lies directly on the eye
+        if r == 4 and a == 5:
+            return _mix(_rgb(BROW), skin(), 0.5)        # its tail fades into the sideburn (剑眉入鬓)
+        if r == 5 and 2 <= a <= 4:
+            return _rgb(IRIS) if a == 3 else _rgb(EYE_WHITE)
+        if a == 5 and r in (8, 9):
+            return skin(-0.5)                           # the jaw's contour
         if r == 10:
             if a <= 1:
-                return _rgb(LIP)
-            if a == 2:
-                return _mix(_rgb(LIP), skin(), 0.78)
-        if r == 11 and a == 0:
-            return skin(-0.35)            # the shadow under the lip
+                return _rgb(MOUTH)
+            if a == 4:
+                return skin(-0.5)
+        if r == 11 and a == 3:
+            return skin(-0.5)
         return skin(-0.7 * self.occ.contact(t) - 1.1 * self.occ.overhang(t))
 
     def head_side(self, t, z, h):
-        """Skin where the hair shell is cut away: temple, ear, jaw."""
+        """Skin where the hair shell is cut away on the cranium's side: temple and ear."""
         zc = int(round(z))
         tone = 4.0 - 0.4 * _clamp((z + 4.0) / 4.0) - 0.7 * _clamp((52.0 - h) / 4.0)
         if 52.0 < h < 55.0:
@@ -724,19 +731,20 @@ class _Paint:
 
 # ------------------------------------------------------------------------------------ shapes
 def _hairline(a):
-    """Height of the front hairline `a` columns from the centre: an uneven fringe, temples coming
-    down, and the sideburn at the edge."""
+    """Height of the front hairline `a` columns from the centre: a straight hairline one row down over
+    an open forehead, the temple corners one row lower, and the sideburn down to the cranium's
+    bottom at the edge (also the shell's edge column, a = 7)."""
     if a >= 6:
-        return 53.0
+        return 52.0
     if a == 5:
-        return 56.0
-    return 58.0 if a in (2, 4) else 59.0
+        return 58.0
+    return 59.0
 
 
 def _hair_on_side(z, h):
     """Hair on the side of the head: sideburn, over the ear, and everything behind it down to the nape."""
     if z < -5.5:
-        return h >= 53.0
+        return h >= 52.0
     if z < -0.5:
         return h >= 56.0
     if z < 1.5:
