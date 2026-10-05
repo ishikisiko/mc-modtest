@@ -104,8 +104,9 @@ def cmd_stop(a) -> None:
 def install(jar: Path) -> dict:
     data = jar.read_bytes()
     sha = hashlib.sha256(data).hexdigest()
-    return must(host("POST", "/mods/install", params={"name": jar.name, "sha256": sha}, body=data, timeout=120),
-                f"install {jar.name}")
+    # The uplink to the PC can be as slow as ~10 KB/s: allow 4 KB/s, and never less than two minutes.
+    return must(host("POST", "/mods/install", params={"name": jar.name, "sha256": sha}, body=data,
+                     timeout=max(120, len(data) // 4000)), f"install {jar.name}")
 
 
 def cmd_install(a) -> None:
