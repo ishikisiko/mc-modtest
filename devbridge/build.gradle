@@ -56,6 +56,23 @@ dependencies {
     compileOnly 'org.apache.logging.log4j:log4j-core:2.22.1'
 }
 
+// Self-check of the game-free world logic (WorldFiles, WorldOps): a plain main, no test framework.
+sourceSets {
+    selfCheck {
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+}
+
+tasks.register('selfCheck', JavaExec) {
+    group = 'verification'
+    description = 'Checks folder names, the world marker, snapshot copies and trash moves, and operation tracking'
+    classpath = sourceSets.selfCheck.runtimeClasspath
+    mainClass = 'dev.devbridge.endpoint.WorldFilesCheck'
+}
+
+tasks.named('check') { dependsOn 'selfCheck' }
+
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }

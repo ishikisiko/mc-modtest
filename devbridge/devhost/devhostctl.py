@@ -5,6 +5,12 @@
     devhostctl.py deploy build/libs/mymod-1.0.jar        # stop, install, launch, wait in world
     devhostctl.py launch --world dev1 | --title
     devhostctl.py stop | install JAR... | remove NAME | wait | logs [NAME] | crash | shot OUT.png
+    devhostctl.py worlds                                 # saves: owner's and bridge-owned test worlds
+    devhostctl.py world ensure t1 [--preset flat ...]    # start the game if needed, create t1 if missing, open it
+    devhostctl.py world create|open|leave|save|snapshot|restore|reset|delete|snapshots|snapshot-delete|status ...
+
+World commands wait until the operation has finished and exit 1 with its error if it failed.
+Restore, reset and delete only work on worlds DevBridge created (devbridge-world.json).
 
 Settings come from the environment or an env file (default ~/.config/devbridge/devhost.env,
 override with --env): DEVHOST_URL, DEVHOST_TOKEN, DEVBRIDGE_URL, DEVBRIDGE_TOKEN.
@@ -195,6 +201,173 @@ def cmd_crash(a) -> None:
         print(f"\n== {r['name']}\n{r['text']}")
 
 
+# ---------------------------------------------------------------- worlds
+
+def bridge_up() -> bool:
+    return bool(bridge("GET", "/ping", timeout=5).get("ok"))
+
+
+def wait_op(op: dict, timeout: float) -> dict:
+    """Poll a world operation until it finishes; print its phases; exit 1 with its error if it failed."""
+    start = time.monotonic()
+    last, down_since = "", None
+    label = f"{op['name']} {op.get('folder') or ''}".strip()
+    while time.monotonic() - start < timeout:
+        r = bridge("GET", "/client/world/operation", {"id": op["id"]}, timeout=10)
+        if r.get("ok"):
+            down_since = None
+            o = r["result"]
+            if o["state"] == "failed":
+                raise SystemExit(f"{label} failed: {o.get('error')}")
+            if o["state"] == "done":
+                print(f"[{time.monotonic() - start:5.0f}s] {label} done ({o.get('millis', 0) / 1000:.1f}s)")
+                return o
+            if o["state"] != "running":
+                raise SystemExit(f"{label}: operation {op['id']} is {o['state']} (did the game restart?)")
+            now = f"{label}: {o.get('phase')}"
+        else:
+            down_since = down_since or time.monotonic()
+            now = f"{label}: bridge not answering ({r.get('error')})"
+            if time.monotonic() - down_since > 90:
+                raise SystemExit(f"DevBridge stopped answering during {label}; did the game exit? (devhostctl.py logs / crash)")
+        if now != last:
+            print(f"[{time.monotonic() - start:5.0f}s] {now}")
+            last = now
+        time.sleep(1)
+    raise SystemExit(f"timed out after {timeout:.0f}s waiting for {label} (operation {op['id']} may still be running: world status)")
+
+
+def world_op(path: str, params: dict, timeout: float) -> dict:
+    """Start a world operation and wait for it; returns the finished operation."""
+    r = must(bridge("POST", path, params, timeout=60), path.rsplit("/", 1)[-1])
+    return wait_op(r["operation"], timeout)
+
+
+def settle(timeout: float) -> dict:
+    """Wait until DevBridge answers, the game is at the title screen or in a world, and no world operation runs."""
+    start = time.monotonic()
+    last, seen_running = "", False
+    while time.monotonic() - start < timeout:
+        w = bridge("GET", "/client/world", timeout=10)
+        if w.get("ok"):
+            r = w["result"]
+            st = bridge("GET", "/client/state", timeout=10).get("result") or {}
+            screen = st.get("screen") or ""
+            loading = any(screen.endswith(n) for n in LOADING_SCREENS) or st.get("overlay")
+            if r.get("busy"):
+                now = f"waiting for {r['busy']} {r['current'].get('folder') or ''} ({r['current'].get('phase')})"
+            elif loading or (not r.get("inWorld") and not screen.endswith("TitleScreen")):
+                now = f"game loading (screen {screen.rsplit('.', 1)[-1] or 'none'})"
+            else:
+                return r
+        else:
+            now = "waiting for DevBridge"
+            if os.environ.get("DEVHOST_URL"):
+                hs = host("GET", "/status")
+                running = bool(hs.get("ok") and hs["result"]["running"])
+                if seen_running and not running:
+                    raise SystemExit("the game exited before DevBridge was ready (devhostctl.py logs / crash)")
+                seen_running = seen_running or running
+        if now != last:
+            print(f"[{time.monotonic() - start:5.0f}s] {now}")
+            last = now
+        time.sleep(2)
+    raise SystemExit(f"timed out after {timeout:.0f}s ({last})")
+
+
+def create_params(a, open_world: bool = True) -> dict:
+    p = {"folder": a.folder, "preset": a.preset, "gameMode": a.game_mode, "cheats": not a.no_cheats, "open": open_world}
+    for key, value in (("name", a.name), ("difficulty", a.difficulty), ("seed", a.seed), ("time", a.time), ("structures", a.structures)):
+        if value is not None:
+            p[key] = value
+    if a.hardcore:
+        p["hardcore"] = True
+    if a.rule:
+        rules = {}
+        for r in a.rule:
+            if "=" not in r:
+                raise SystemExit(f"--rule takes NAME=VALUE, not {r!r}")
+            k, v = r.split("=", 1)
+            rules[k.strip()] = v.strip()
+        p["gameRules"] = rules
+    return p
+
+
+def reopen_param(a, p: dict) -> dict:
+    if a.reopen is not None:
+        p["reopen"] = a.reopen
+    return p
+
+
+def cmd_worlds(a) -> None:
+    r = must(bridge("GET", "/client/worlds"), "worlds")
+    if a.json:
+        show(r)
+        return
+    print(f"saves: {r['savesDir']}\nsnapshots: {r['snapshotsDir']}  trash: {r['trashDir']}")
+    print(f"{'folder':24} {'name':20} {'mode':9} {'cheats':6} {'bridge':6} {'open':4}  snapshots")
+    for w in r["worlds"]:
+        snaps = ", ".join(s["name"] for s in w.get("snapshots", []))
+        print(f"{w['folder']:24} {str(w.get('name', '?'))[:20]:20} {str(w.get('gameMode', '?')):9} {str(w.get('cheats', '?')):6} "
+              f"{'yes' if w.get('bridgeOwned') else 'no':6} {'yes' if w.get('open') else '':4}  {snaps}")
+
+
+def cmd_world(a) -> None:
+    t = a.timeout
+    if a.action == "status":
+        show(must(bridge("GET", "/client/world"), "world"))
+    elif a.action == "snapshots":
+        show(must(bridge("GET", "/client/world/snapshots", {"folder": a.folder}), "snapshots"))
+    elif a.action == "create":
+        show(world_op("/client/world/create", create_params(a, not a.no_open), t))
+    elif a.action == "open":
+        show(world_op("/client/world/open", {"folder": a.folder}, t))
+    elif a.action == "leave":
+        world_op("/client/world/leave", {}, t)
+    elif a.action == "save":
+        show(world_op("/client/world/save", {}, t))
+    elif a.action == "snapshot":
+        show(world_op("/client/world/snapshot", reopen_param(a, {"folder": a.folder, "name": a.name, "overwrite": a.overwrite}), t))
+    elif a.action == "restore":
+        show(world_op("/client/world/restore", reopen_param(a, {"folder": a.folder, "name": a.name}), t))
+    elif a.action == "reset":
+        show(world_op("/client/world/reset", reopen_param(a, {"folder": a.folder}), t))
+    elif a.action == "delete":
+        show(world_op("/client/world/delete", {"folder": a.folder}, t))
+    elif a.action == "snapshot-delete":
+        show(world_op("/client/world/snapshot/delete", {"folder": a.folder, "name": a.name}, t))
+    elif a.action == "ensure":
+        world_ensure(a)
+
+
+def world_ensure(a) -> None:
+    """Make sure world a.folder exists and is open: start the game if needed, create the world if missing."""
+    if not bridge_up():
+        if not os.environ.get("DEVHOST_URL"):
+            raise SystemExit("DevBridge is not answering and DEVHOST_URL is not set, so the game cannot be started from here")
+        st = must(host("GET", "/status"), "status")
+        if st["running"]:
+            print("the game is running but DevBridge is not answering yet; waiting")
+        else:
+            r = host("POST", "/launch", params={"world": a.folder})
+            if not r.get("ok") and "no world folder" in str(r.get("error")):
+                print(f"{a.folder} does not exist yet: launching to the title screen")
+                r = host("POST", "/launch", params={"world": ""})
+            r = must(r, "launch")
+            print(f"launched, world={r.get('world')!r}")
+    w = settle(a.timeout)
+    if w.get("inWorld") and w.get("singleplayer") and w.get("folder") == a.folder:
+        print(f"{a.folder} is open")
+        return
+    worlds = must(bridge("GET", "/client/worlds"), "worlds")["worlds"]
+    if any(x["folder"] == a.folder for x in worlds):
+        world_op("/client/world/open", {"folder": a.folder}, a.timeout)
+    else:
+        print(f"{a.folder} does not exist: creating it")
+        show(world_op("/client/world/create", create_params(a), a.timeout)["result"])
+    print(f"{a.folder} is open")
+
+
 def cmd_shot(a) -> None:
     r = must(bridge("GET", "/client/screenshot", {"maxWidth": a.max_width}, timeout=60), "screenshot")
     Path(a.out).write_bytes(base64.b64decode(r["base64"]))
@@ -228,6 +401,47 @@ def main() -> None:
     sp = sub.add_parser("crash"); sp.add_argument("name", nargs="?"); sp.set_defaults(fn=cmd_crash)
     sp = sub.add_parser("shot"); sp.add_argument("out"); sp.add_argument("--max-width", type=int, default=1600)
     sp.set_defaults(fn=cmd_shot)
+    sp = sub.add_parser("worlds", help="list saves (bridge-owned or not, snapshots)"); sp.add_argument("--json", action="store_true")
+    sp.set_defaults(fn=cmd_worlds)
+
+    def create_opts(sp):
+        sp.add_argument("--name", help="level name (default: the folder)")
+        sp.add_argument("--preset", choices=("flat", "default", "void"), default="flat")
+        sp.add_argument("--game-mode", choices=("creative", "survival", "adventure", "spectator"), default="creative")
+        sp.add_argument("--difficulty", choices=("peaceful", "easy", "normal", "hard"))
+        sp.add_argument("--no-cheats", action="store_true")
+        sp.add_argument("--seed")
+        sp.add_argument("--hardcore", action="store_true")
+        g = sp.add_mutually_exclusive_group()
+        g.add_argument("--structures", dest="structures", action="store_const", const=True)
+        g.add_argument("--no-structures", dest="structures", action="store_const", const=False)
+        sp.add_argument("--rule", action="append", metavar="NAME=VALUE", help="game rule, e.g. doDaylightCycle=false (repeatable)")
+        sp.add_argument("--time", type=int, help="day time in ticks after creation (6000 = noon)")
+
+    def reopen_opts(sp):
+        g = sp.add_mutually_exclusive_group()
+        g.add_argument("--reopen", dest="reopen", action="store_const", const=True, help="open the world afterwards")
+        g.add_argument("--no-reopen", dest="reopen", action="store_const", const=False, help="stay closed afterwards")
+
+    wp = sub.add_parser("world", help="test worlds: create, open, save, snapshot, restore, reset, delete")
+    wp.add_argument("--timeout", type=float, default=600, help="seconds to wait for the operation")
+    wsub = wp.add_subparsers(dest="action", required=True)
+    wsub.add_parser("status")
+    sp = wsub.add_parser("snapshots"); sp.add_argument("folder", nargs="?")
+    sp = wsub.add_parser("create"); sp.add_argument("folder"); create_opts(sp)
+    sp.add_argument("--no-open", action="store_true", help="go back to the world open before (or the title screen)")
+    sp = wsub.add_parser("open"); sp.add_argument("folder")
+    wsub.add_parser("leave")
+    wsub.add_parser("save")
+    sp = wsub.add_parser("snapshot"); sp.add_argument("folder"); sp.add_argument("name"); sp.add_argument("--overwrite", action="store_true")
+    reopen_opts(sp)
+    sp = wsub.add_parser("restore"); sp.add_argument("folder"); sp.add_argument("name"); reopen_opts(sp)
+    sp = wsub.add_parser("reset"); sp.add_argument("folder"); reopen_opts(sp)
+    sp = wsub.add_parser("delete"); sp.add_argument("folder")
+    sp = wsub.add_parser("snapshot-delete"); sp.add_argument("folder"); sp.add_argument("name")
+    sp = wsub.add_parser("ensure", help="start the game if needed, create the world if missing, open it"); sp.add_argument("folder")
+    create_opts(sp)
+    wp.set_defaults(fn=cmd_world)
 
     a = p.parse_args()
     load_env(a.env)

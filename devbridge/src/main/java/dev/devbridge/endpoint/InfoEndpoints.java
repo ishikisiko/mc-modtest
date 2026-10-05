@@ -34,6 +34,8 @@ public final class InfoEndpoints {
             o.addProperty("dist", FMLEnvironment.dist.name());
             o.addProperty("time", System.currentTimeMillis());
             o.addProperty("pid", ProcessHandle.current().pid());
+            o.addProperty("version", ModList.get().getModContainerById("devbridge")
+                    .map(c -> c.getModInfo().getVersion().toString()).orElse("unknown"));
             return o;
         });
 

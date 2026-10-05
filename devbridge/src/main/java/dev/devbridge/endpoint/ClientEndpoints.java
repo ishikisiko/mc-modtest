@@ -46,7 +46,7 @@ public final class ClientEndpoints {
 
     public static void register(BridgeHttpServer http) {
 
-        http.get("/client/state", "Client status: fps, in-world?, current screen, local player position/look, target block", req -> onClient(() -> {
+        http.get("/client/state", "Client status: fps, in-world?, current screen, loading overlay, local player position/look, target block", req -> onClient(() -> {
             Minecraft mc = Minecraft.getInstance();
             JsonObject o = Json.obj();
             o.addProperty("fps", mc.getFps());
@@ -59,6 +59,7 @@ public final class ClientEndpoints {
             Screen screen = mc.screen;
             o.addProperty("screen", screen == null ? null : screen.getClass().getName());
             o.addProperty("screenTitle", screen == null ? null : screen.getTitle().getString());
+            o.addProperty("overlay", mc.getOverlay() == null ? null : mc.getOverlay().getClass().getName()); // resource loading
             if (mc.level != null) {
                 o.addProperty("dimension", mc.level.dimension().location().toString());
                 o.addProperty("gameTime", mc.level.getGameTime());

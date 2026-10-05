@@ -20,6 +20,7 @@ from __future__ import annotations
 import base64
 import json
 import os
+import time
 from typing import Any
 
 import httpx
@@ -374,26 +375,105 @@ def mc_screen_type(text: str = "", key: str | None = None) -> str:
 
 @mcp.tool()
 def mc_client_world() -> str:
-    """The open world: inWorld, singleplayer, folder (the saves/ directory name), display name."""
+    """The open world: inWorld, singleplayer, folder (the saves/ directory name), display name; plus world
+    operations: busy (running operation or null), current {id, name, folder, phase}, lastOperation, lastError."""
     return _fmt(_call("GET", "/client/world"))
 
 
 @mcp.tool()
 def mc_client_worlds() -> str:
-    """Singleplayer saves, newest first (folder names for mc_client_world_open)."""
+    """Singleplayer saves, newest first: folder, name, gameMode, cheats, difficulty, open, bridgeOwned
+    (DevBridge created it: only those can be restored, reset or deleted), snapshots."""
     return _fmt(_call("GET", "/client/worlds"))
 
 
 @mcp.tool()
 def mc_client_world_leave() -> str:
-    """Save and quit to the title screen. Returns at once; poll mc_client_state."""
+    """Save and quit to the title screen. Returns an operation at once; wait with mc_client_world_wait."""
     return _fmt(_call("POST", "/client/world/leave"))
 
 
 @mcp.tool()
 def mc_client_world_open(folder: str) -> str:
-    """Open a singleplayer world by folder, leaving the current one first. Returns at once; poll mc_client_world."""
+    """Open a singleplayer world by folder (watch mode), leaving the current one first.
+    Returns an operation at once; wait with mc_client_world_wait."""
     return _fmt(_call("POST", "/client/world/open", folder=folder))
+
+
+@mcp.tool()
+def mc_client_world_wait(operation_id: int, timeout: float = 300) -> str:
+    """Wait until a world operation (the `operation.id` every world tool returns) has finished.
+    Returns the finished operation (ok, error, result); raises if it failed."""
+    deadline = time.monotonic() + timeout
+    while True:
+        op = _call("GET", "/client/world/operation", id=operation_id)
+        if op["state"] == "failed":
+            raise RuntimeError(f"{op.get('name')} {op.get('folder') or ''} failed: {op.get('error')}")
+        if op["state"] not in ("running", "not started"):
+            return _fmt(op)
+        if time.monotonic() > deadline:
+            raise RuntimeError(f"operation {operation_id} still running after {timeout:.0f}s: {_fmt(op)}")
+        time.sleep(1)
+
+
+@mcp.tool()
+def mc_client_world_create(folder: str, name: str | None = None, preset: str = "flat", game_mode: str = "creative",
+                           difficulty: str | None = None, cheats: bool = True, seed: str | None = None,
+                           hardcore: bool = False, structures: bool | None = None,
+                           game_rules: dict[str, Any] | None = None, time_of_day: int | None = None,
+                           open: bool = True) -> str:
+    """Create a disposable test world (bridge-owned: it gets devbridge-world.json) and open it in watch mode,
+    leaving the current world. preset: flat | default | void. game_rules e.g. {"doDaylightCycle": false,
+    "doMobSpawning": false}. time_of_day in ticks (6000 = noon). open=False goes back to the world open before.
+    Refuses an existing folder. Returns an operation; wait with mc_client_world_wait."""
+    return _fmt(_call("POST", "/client/world/create", folder=folder, name=name, preset=preset, gameMode=game_mode,
+                      difficulty=difficulty, cheats=cheats, seed=seed, hardcore=hardcore, structures=structures,
+                      gameRules=game_rules, time=time_of_day, open=open))
+
+
+@mcp.tool()
+def mc_client_world_save() -> str:
+    """Save the open singleplayer world now without leaving it. Returns an operation; wait with mc_client_world_wait."""
+    return _fmt(_call("POST", "/client/world/save"))
+
+
+@mcp.tool()
+def mc_client_world_snapshot(folder: str, name: str, overwrite: bool = False, reopen: bool | None = None) -> str:
+    """Copy a save (any world; it is only read) to devbridge-snapshots/<folder>/<name>. An open world is left first
+    and reopened afterwards. Returns an operation; wait with mc_client_world_wait."""
+    return _fmt(_call("POST", "/client/world/snapshot", folder=folder, name=name, overwrite=overwrite, reopen=reopen))
+
+
+@mcp.tool()
+def mc_client_world_restore(folder: str, name: str, reopen: bool | None = None) -> str:
+    """Replace a bridge-owned save with its snapshot `name` (the replaced save goes to devbridge-trash/).
+    Refused for worlds DevBridge did not create. Returns an operation; wait with mc_client_world_wait."""
+    return _fmt(_call("POST", "/client/world/restore", folder=folder, name=name, reopen=reopen))
+
+
+@mcp.tool()
+def mc_client_world_reset(folder: str, reopen: bool | None = None) -> str:
+    """Recreate a bridge-owned world fresh from its stored settings (same seed); the old save goes to the trash.
+    Refused for worlds DevBridge did not create. Returns an operation; wait with mc_client_world_wait."""
+    return _fmt(_call("POST", "/client/world/reset", folder=folder, reopen=reopen))
+
+
+@mcp.tool()
+def mc_client_world_delete(folder: str) -> str:
+    """Move a bridge-owned world that is not open to devbridge-trash/ (nothing is erased). Finishes at once."""
+    return _fmt(_call("POST", "/client/world/delete", folder=folder))
+
+
+@mcp.tool()
+def mc_client_world_snapshots(folder: str | None = None) -> str:
+    """Snapshots of one save, or of all saves (including deleted ones)."""
+    return _fmt(_call("GET", "/client/world/snapshots", folder=folder))
+
+
+@mcp.tool()
+def mc_client_world_snapshot_delete(folder: str, name: str) -> str:
+    """Move a snapshot to devbridge-trash/. Finishes at once."""
+    return _fmt(_call("POST", "/client/world/snapshot/delete", folder=folder, name=name))
 
 
 @mcp.tool()

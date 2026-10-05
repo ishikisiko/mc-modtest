@@ -25,7 +25,7 @@ Targets **Minecraft 1.21.1 / NeoForge 21.1.233** (any 21.1.x should work).
 ```bash
 cd devbridge
 ./gradlew build          # first run downloads NeoForge + decompiles; takes a while
-# -> build/libs/devbridge-0.5.3.jar
+# -> build/libs/devbridge-0.6.0.jar  (build also runs selfCheck: names, marker, file moves)
 ```
 
 (If you don't have the wrapper jar yet: `gradle wrapper` with any Gradle ≥ 8.8 installed, then use `./gradlew`.)
@@ -42,7 +42,7 @@ present in every run config but never leaks into your published artifact:
 
 ```groovy
 dependencies {
-    localRuntime files("libs/devbridge-0.5.3.jar")
+    localRuntime files("libs/devbridge-0.6.0.jar")
 }
 ```
 
@@ -113,7 +113,7 @@ Claude Code / Claude Desktop config:
 }
 ```
 
-The agent then gets 49 tools (`mc_log`, `mc_command`, `mc_block`, `mc_registry`,
+The agent then gets 58 tools (`mc_log`, `mc_command`, `mc_block`, `mc_registry`,
 `mc_screenshot`, `mc_reflect_invoke`, …). Run `mc_routes` for the raw route list.
 
 ---
@@ -139,7 +139,16 @@ From the agent's machine (`devhost/devhostctl.py`, standard library only, settin
 ```bash
 devhostctl.py deploy build/libs/mymod-1.0.jar   # stop -> install -> launch -> wait in world
 devhostctl.py status | stop | launch --world W | logs | crash | shot out.png
+devhostctl.py world ensure t1                   # game started if needed, t1 created if missing, opened
+devhostctl.py worlds                            # saves, bridge-owned or not, snapshots
+devhostctl.py world create|open|leave|save|snapshot|restore|reset|delete|snapshots|snapshot-delete ...
 ```
+
+The `world` commands wait until the operation has finished and exit 1 with its error if it
+failed (`--timeout`, default 600 s, goes before the action: `world --timeout 120 save`). `ensure`
+needs DevHost only when the game is not running: it launches into the world if it exists, else to
+the title screen, then creates it (`--preset`, `--game-mode`, `--rule NAME=VALUE`, `--time`, ... as
+for `create`). Everything new talks to DevBridge; DevHost itself is unchanged.
 
 `/launch` reopens the world that was open at the last `/stop` (or `world=`): it writes the folder
 name to `config/devbridge-open-world.txt`, which DevBridge reads at startup and opens once the
@@ -188,11 +197,52 @@ for any route.
 | `POST /client/option {name, value, save}` | read or set an option such as `fov`, `renderDistance`, `gamma` *(client only)* |
 | `POST /client/screen/click {widget \| x,y, button}` · `POST /client/screen/type {text, key}` | click and type in the open GUI *(client only)* |
 | `GET /client/window` · `POST /client/window {width, height, x, y}` · `POST /client/mouse {grab}` | window size/position; watch mode (free mouse) or play *(client only)* |
-| `GET /client/world` · `GET /client/worlds` | open world (saves folder, name) / saves list *(client only)* |
-| `POST /client/world/leave` · `POST /client/world/open {folder}` · `POST /client/quit` | save and quit to title, open a save, save and close the game; queued, poll afterwards *(client only)* |
+| `GET /client/world` | open world (saves folder, name) and world operations: `busy`, `current`, `lastOperation`, `lastError` *(client only)* |
+| `GET /client/worlds` | saves list: folder, name, gameMode, cheats, difficulty, open, `bridgeOwned`, snapshots *(client only)* |
+| `GET /client/world/operation?id=` | one world operation: `running` (with phase) / `done` / `failed` (with error), result *(client only)* |
+| `POST /client/world/leave` · `POST /client/world/open {folder}` | save and quit to title; open a save in watch mode (leaving the current one) *(client only, operation)* |
+| `POST /client/world/create {folder, name, preset, gameMode, difficulty, cheats, seed, hardcore, structures, gameRules, time, open}` | new bridge-owned test world, opened in watch mode *(client only, operation)* |
+| `POST /client/world/save` | save the open world now without leaving it *(client only, operation)* |
+| `POST /client/world/snapshot {folder, name, overwrite, reopen}` · `GET /client/world/snapshots?folder=` | copy any save to `devbridge-snapshots/<folder>/<name>`; list *(client only, operation)* |
+| `POST /client/world/restore {folder, name, reopen}` · `POST /client/world/reset {folder, reopen}` | bridge-owned only: put a snapshot back / recreate from the stored settings *(client only, operation)* |
+| `POST /client/world/delete {folder}` · `POST /client/world/snapshot/delete {folder, name}` | bridge-owned, not open: move to `devbridge-trash/`; a snapshot to the trash *(client only)* |
+| `POST /client/quit` | save and close the game *(client only)* |
 
 Everything that touches game state runs on the server (or client) thread via
 `submit()`; HTTP threads never touch the world directly.
+
+## Test worlds
+
+The agent makes and reuses its own disposable worlds instead of playing in the owner's.
+
+- **Operations.** Open, leave, create, save, snapshot, restore, reset and delete run one at a time
+  and outlast an HTTP call: the route returns `{"operation": {"id", "name", "folder"}}` at once
+  (another operation while one runs gets 409). Wait with `GET /client/world/operation?id=` until
+  `state` is `done` or `failed`; `GET /client/world` shows `busy`, `current.phase`,
+  `lastOperation` and `lastError`. A world that fails to load (back at the title screen, or stuck
+  on a prompt screen for 2 minutes) fails the operation with the last logged warnings.
+- **Create.** `folder` is required and must not exist. Defaults: `preset` flat (`default` = normal
+  terrain, `void` = vanilla's void superflat), creative, normal, cheats on, random seed,
+  structures only with the `default` preset; `hardcore` means survival on hard. `gameRules` uses
+  `/gamerule` names (`{"doDaylightCycle": false}`) and is checked first; `time` sets the day time
+  once loaded. `open=false` goes back to the world that was open before (the game can only create
+  a world by loading it). The folder gets `devbridge-world.json`: who created it and the settings,
+  with the seed actually used.
+- **Safety rule.** Restore, reset and delete only act on **bridge-owned** saves: a valid
+  `devbridge-world.json` written for that very folder name (a copied or renamed save is not
+  bridge-owned). Anything else is refused with 403 and left untouched; the owner's saves can be
+  listed, opened, left, saved and snapshotted, never replaced or removed. Folder and snapshot names
+  are one path segment by Windows rules (no `/ \ : * ? " < > |`, no `..` or leading dot, no trailing
+  dot or space, no `CON`, `NUL`, `COM1`, ...).
+- **Nothing is erased.** Snapshots are copies in `<gameDir>/devbridge-snapshots/<folder>/<name>`
+  (an existing name needs `overwrite`, and the old one goes to the trash). Restore keeps the save
+  it replaces, reset keeps the old world, delete keeps the world: all in
+  `<gameDir>/devbridge-trash/<yyyyMMdd-HHmmss>-<what>-<folder>`. Empty the trash by hand.
+- **Closed before copying.** A world that is open is left (saved, server stopped, `session.lock`
+  released) before it is copied or replaced, and reopened afterwards (`reopen`, default: if it was
+  open). A save whose `session.lock` is held by another game is refused. Copies go to a staging
+  directory first and every move is a single rename inside the game directory, so a failure (a file
+  held open by another program on Windows, say) leaves the old save in place and says so.
 
 ## Typical agent loop
 

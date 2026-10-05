@@ -4,6 +4,7 @@ import com.mojang.logging.LogUtils;
 import dev.devbridge.endpoint.ClientControlEndpoints;
 import dev.devbridge.endpoint.ClientEndpoints;
 import dev.devbridge.endpoint.ClientMouseGuard;
+import dev.devbridge.endpoint.ClientSaveEndpoints;
 import dev.devbridge.endpoint.ClientWorldEndpoints;
 import dev.devbridge.endpoint.CommandEndpoints;
 import dev.devbridge.endpoint.InfoEndpoints;
@@ -53,6 +54,7 @@ public final class DevBridge {
             ClientEndpoints.register(http);
             ClientControlEndpoints.register(http);
             ClientWorldEndpoints.register(http);
+            ClientSaveEndpoints.register(http);
         }
         try {
             http.start();
