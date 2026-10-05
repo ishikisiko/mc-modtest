@@ -86,7 +86,12 @@ current progress/cap, affinity-based normal result, fixed spirit result,
 current source-stage stone cost, stability's locked/active affinity rate and
 dynamic cap, the no-stone-cost state after full progress, mastery context,
 latest runtime status, and normal, spirit, stop, and advance action buttons.
-Presentation SHALL remain sharp.
+The Meditation page MAY present these around a meridian diagram. The diagram
+SHALL reflect only synchronized values: the session state, whether the profile
+has an awakened root and Basic Breathing, progress and stability over their
+caps, and advancement timing. It SHALL NOT present a meridian or acupoint
+quantity that the server did not send; motion that stands for no value is
+decoration. Presentation SHALL remain sharp.
 
 #### Scenario: A player opens the v3 Profile tab
 - **WHEN** current profile and time snapshots are available
@@ -97,6 +102,12 @@ Presentation SHALL remain sharp.
 - **WHEN** the current stage and snapshots resolve
 - **THEN** the screen SHALL show the server-contract normal and spirit outputs, resolved cost, progress/stability caps, stability lock or rate, gate context, and latest session state
 - **AND** no action SHALL be sent until one command button is activated
+
+#### Scenario: The meridian diagram follows the session
+- **WHEN** the synchronized status changes between idle, preparing, meditating, and advancing
+- **THEN** the diagram SHALL change with it and distinguish normal from spirit-stone meditation and ordinary from bottleneck advancement
+- **AND** its dantian fill, stability ring, and advancement halo SHALL equal the synchronized progress, stability, and elapsed advancement shares
+- **AND** it SHALL show no preparation countdown and no count of opened channels
 
 #### Scenario: Full progress changes the displayed cost phase
 - **WHEN** the current stage progress is already full and stability is below its cap

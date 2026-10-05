@@ -7,6 +7,7 @@ import com.example.myvillage.cultivation.TechniqueProgress;
 import com.example.myvillage.cultivation.data.AdvancementDefinition;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.data.RealmStageDefinition;
+import com.example.myvillage.cultivation.meditation.MeditationState;
 import com.example.myvillage.cultivation.meditation.MeditationStatus;
 import com.example.myvillage.cultivation.network.MeditationIntentAction;
 import com.example.myvillage.item.ModItems;
@@ -19,21 +20,33 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
- * Meditation and advancement: the session state, what each mode yields and costs, the next
- * advancement's conditions, and the four action buttons. The buttons send the same bounded
- * intents as the keys; every decision stays with the server.
+ * Meditation and advancement, built around the meridian diagram ({@link MeridianView}): a seated
+ * figure whose channels light and circulate with the session state. Beside it (below it when
+ * narrow) are cards for progress and stability, what each mode yields and costs, and the next
+ * advancement's conditions; the four action buttons are docked under the body. The buttons send
+ * the same bounded intents as the keys; every decision stays with the server.
  */
 public final class MeditationPage extends PanelPage {
     private static final int GAP = 4;
-    private static final int WIDE = 300;
+    /** From this body width the figure and the readouts sit side by side. */
+    private static final int WIDE = 330;
+    private static final float STAGE_SHARE = 0.46F;
+    private static final int STAGE_MIN = 120;
+    private static final int STAGE_AIR = 16;
+    private static final int STAGE_MIN_HEIGHT = 120;
+    private static final int STAGE_MAX_HEIGHT = 175;
     private static final int PAD = PanelTheme.CARD_PADDING;
     private static final int ROW = PanelTheme.ROW;
+    private static final int TWIN_GAP = 8;
+    private static final int CARD_BOTTOM = 3;
+    private static final int BARE_TOP = 4;
     private static final int BUTTON_HEIGHT = 18;
-    private static final int MAX_STRETCH = 18;
     private static final int SPIRIT_PROGRESS_PER_BATCH = 50;
 
     private PanelButton normalButton;
@@ -129,181 +142,114 @@ public final class MeditationPage extends PanelPage {
 
     @Override
     public int render(GuiGraphics graphics, PanelContext context, int x, int y, int width, int viewportHeight) {
-        boolean wide = width >= WIDE;
-        int stateHeight = wide ? 47 : 65;
-        int modeHeight = PanelTheme.CARD_TITLE_HEIGHT + 1 + 3 * ROW + 4;
-        int advancementHeight = wide ? 50 : 71;
-        int natural = stateHeight + GAP + (wide ? modeHeight : modeHeight * 2 + GAP) + GAP + advancementHeight;
-        int stretch = Math.max(0, Math.min(MAX_STRETCH, viewportHeight - natural)) / 3;
-        stateHeight += stretch;
-        modeHeight += stretch;
-        advancementHeight += stretch;
-
-        int cursor = y;
-        drawState(graphics, context, x, cursor, width, stateHeight, wide);
-        cursor += stateHeight + GAP;
-        if (wide) {
-            int half = (width - GAP) / 2;
-            drawNormalMode(graphics, context, x, cursor, half, modeHeight);
-            drawSpiritMode(graphics, context, x + half + GAP, cursor, width - half - GAP, modeHeight);
-            cursor += modeHeight + GAP;
-        } else {
-            drawNormalMode(graphics, context, x, cursor, width, modeHeight);
-            cursor += modeHeight + GAP;
-            drawSpiritMode(graphics, context, x, cursor, width, modeHeight);
-            cursor += modeHeight + GAP;
-        }
-        drawAdvancement(graphics, context, x, cursor, width, advancementHeight, wide);
-        return cursor + advancementHeight - y;
-    }
-
-    private void drawState(
-            GuiGraphics graphics, PanelContext context, int x, int y, int width, int height, boolean wide) {
-        Font font = context.font();
-        PanelTheme.card(graphics, font, x, y, width, height,
-                Component.translatable("screen.myvillage.cultivation.session"));
-        int innerX = x + PAD;
-        int innerWidth = width - PAD * 2;
-        int cursor = y + PanelTheme.CARD_TITLE_HEIGHT + 1;
-        int color = context.sessionColor();
-        PanelTheme.diamond(graphics, innerX + 2, cursor + 3, 2, color);
-        graphics.drawString(font, context.sessionText(), innerX + 9, cursor, color, false);
-
         MeditationStatus status = context.meditation();
-        // Only advancement reports its remaining ticks while it runs (the server repeats the
-        // status at its feedback interval); preparation is announced once, so it gets no countdown.
-        if (status != null && status.state().advancing()) {
-            String runtime = context.text(
-                    "screen.myvillage.cultivation.advancement_runtime_value",
-                    status.advancementTicksRemaining(),
-                    status.advancementDurationTicks());
-            int runtimeWidth = innerWidth - 9 - font.width(context.sessionText()) - 8;
-            String fitted = PanelTheme.fit(font, runtime, Math.max(1, runtimeWidth));
-            graphics.drawString(
-                    font, fitted, innerX + innerWidth - font.width(fitted), cursor, PanelTheme.MUTED, false);
-            double done = 1.0D - PanelReadouts.fraction(
-                    status.advancementTicksRemaining(), status.advancementDurationTicks());
-            graphics.fill(x + 1, y + height - 3, x + 1 + (int) Math.round((width - 2) * done), y + height - 1, color);
+        MeridianLook look = MeridianLook.of(status == null ? null : status.state(), channelsOpen(context.profile()));
+        if (width >= WIDE) {
+            int stageHeight = Math.max(STAGE_MIN_HEIGHT, viewportHeight);
+            // the figure takes the width its drawing and labels need; the readouts get the rest
+            int stageWidth = Math.max(STAGE_MIN, Math.min(Math.round(width * STAGE_SHARE),
+                    MeridianView.preferredWidth(context, look, stageHeight) + STAGE_AIR));
+            int infoWidth = width - stageWidth - GAP;
+            List<Card> cards = cards(context, look, infoWidth);
+            int infoHeight = Math.max(stageHeight, naturalHeight(context.font(), cards, infoWidth));
+            MeridianView.render(graphics, context, look, x, y, stageWidth, stageHeight);
+            drawCards(graphics, context.font(), cards, x + stageWidth + GAP, y, infoWidth, infoHeight);
+            return infoHeight;
         }
-        cursor += ROW + 2;
-
-        int meterWidth = wide ? (innerWidth - 10) / 2 : innerWidth;
-        PanelTheme.meter(
-                graphics,
-                font,
-                context.text("screen.myvillage.cultivation.progress"),
-                context.progressValue(),
-                innerX,
-                cursor,
-                meterWidth,
-                context.progressFraction(),
-                PanelTheme.JADE,
-                PanelTheme.JADE_DARK);
-        int stabilityX = wide ? innerX + meterWidth + 10 : innerX;
-        int stabilityY = wide ? cursor : cursor + PanelTheme.METER_HEIGHT + 3;
-        PanelTheme.meter(
-                graphics,
-                font,
-                context.text("screen.myvillage.cultivation.stability"),
-                context.stabilityValue(),
-                stabilityX,
-                stabilityY,
-                wide ? innerWidth - meterWidth - 10 : innerWidth,
-                context.stabilityFraction(),
-                PanelTheme.GOLD_BRIGHT,
-                PanelTheme.GOLD_DIM);
+        // narrow: the figure fills the first screen, the readouts follow below it
+        int stageHeight = Math.max(STAGE_MIN_HEIGHT, Math.min(STAGE_MAX_HEIGHT, viewportHeight));
+        MeridianView.render(graphics, context, look, x, y, width, stageHeight);
+        List<Card> cards = cards(context, look, width);
+        int infoHeight = naturalHeight(context.font(), cards, width);
+        drawCards(graphics, context.font(), cards, x, y + stageHeight + GAP, width, infoHeight);
+        return stageHeight + GAP + infoHeight;
     }
 
-    private void drawNormalMode(GuiGraphics graphics, PanelContext context, int x, int y, int width, int height) {
-        Font font = context.font();
+    private static boolean channelsOpen(CultivationProfile profile) {
+        return profile.awakened()
+                && profile.learnedTechniques().containsKey(ModCultivationRegistries.BASIC_BREATHING_TECHNIQUE_ID);
+    }
+
+    // ---- readout cards ---------------------------------------------------------------------
+
+    /** A label and its value; {@code met} marks a condition row (null for a plain pair). */
+    private record Item(String label, String value, Boolean met) {
+        static Item pair(String label, String value) {
+            return new Item(label, value, null);
+        }
+
+        int naturalWidth(Font font) {
+            return (met == null ? 0 : 8) + font.width(label) + 6 + font.width(value);
+        }
+    }
+
+    private sealed interface Row permits Single, Twin, Note, Meters {
+    }
+
+    private record Single(Item item) implements Row {
+    }
+
+    /** Two items side by side when both fit in half the width, otherwise one under the other. */
+    private record Twin(Item left, Item right) implements Row {
+    }
+
+    /** A line of text with an optional note right-aligned after it. */
+    private record Note(String text, int color, String aside, int asideColor) implements Row {
+    }
+
+    /** The progress and stability meters. */
+    private record Meters(String progressLabel, String progressValue, double progress,
+                          String stabilityLabel, String stabilityValue, double stability) implements Row {
+    }
+
+    /** A readout card; a null title draws a bare card without a title row. */
+    private record Card(String title, int accent, String chip, List<Row> rows) {
+    }
+
+    private List<Card> cards(PanelContext context, MeridianLook look, int width) {
         CultivationProfile profile = context.profile();
-        PanelTheme.card(graphics, font, x, y, width, height,
-                Component.translatable("screen.myvillage.cultivation.button.normal"));
-        int innerX = x + PAD;
-        int innerWidth = width - PAD * 2;
-        int cursor = y + PanelTheme.CARD_TITLE_HEIGHT + 1;
+        MeditationStatus status = context.meditation();
+        MeditationState state = status == null ? null : status.state();
         Optional<RealmStageDefinition> stage = context.currentStage();
         String unavailable = context.unavailableText();
-        PanelTheme.pair(
-                graphics,
-                font,
-                context.text("screen.myvillage.cultivation.normal_rate"),
-                context.text("screen.myvillage.cultivation.rate_per_ten_ticks", profile.spiritualAffinity()),
-                innerX,
-                cursor,
-                innerWidth,
-                PanelTheme.TEXT);
-        cursor += ROW;
-        PanelTheme.pair(
-                graphics,
-                font,
-                context.text("screen.myvillage.cultivation.stability_gain"),
-                stabilityGainValue(context, stage, unavailable),
-                innerX,
-                cursor,
-                innerWidth,
-                PanelTheme.TEXT);
-        cursor += ROW;
-        PanelTheme.pair(
-                graphics,
-                font,
-                context.text("screen.myvillage.cultivation.basic_breathing_mastery"),
-                basicBreathingMastery(profile, unavailable),
-                innerX,
-                cursor,
-                innerWidth,
-                PanelTheme.TEXT);
+        List<Card> cards = new ArrayList<>();
+
+        cards.add(new Card(null, 0, null, List.of(new Meters(
+                context.text("screen.myvillage.cultivation.progress"), context.progressValue(), context.progressFraction(),
+                context.text("screen.myvillage.cultivation.stability"), context.stabilityValue(),
+                context.stabilityFraction()))));
+
+        boolean normalActive = state == MeditationState.PREPARING_NORMAL || state == MeditationState.MEDITATING_NORMAL;
+        cards.add(new Card(context.text("screen.myvillage.cultivation.button.normal"),
+                normalActive ? look.color() : 0, null, List.of(
+                        new Twin(
+                                Item.pair(context.text("screen.myvillage.cultivation.normal_rate"),
+                                        context.text("screen.myvillage.cultivation.rate_per_ten_ticks",
+                                                profile.spiritualAffinity())),
+                                Item.pair(context.text("screen.myvillage.cultivation.basic_breathing_mastery"),
+                                        basicBreathingMastery(profile, unavailable))),
+                        new Single(Item.pair(context.text("screen.myvillage.cultivation.stability_gain"),
+                                stabilityGainValue(context, stage, unavailable))))));
+
+        boolean spiritActive = state == MeditationState.PREPARING_SPIRIT || state == MeditationState.MEDITATING_SPIRIT;
+        cards.add(new Card(context.text("screen.myvillage.cultivation.button.spirit"),
+                spiritActive ? look.color() : 0, null, List.of(
+                        new Twin(
+                                Item.pair(context.text("screen.myvillage.cultivation.spirit_rate"),
+                                        context.text("screen.myvillage.cultivation.rate_per_ten_ticks",
+                                                SPIRIT_PROGRESS_PER_BATCH)),
+                                Item.pair(context.text("screen.myvillage.cultivation.spirit_inventory"),
+                                        spiritStoneInventory(context, unavailable))),
+                        new Single(Item.pair(context.text("screen.myvillage.cultivation.spirit_cost"),
+                                spiritCostValue(context, stage, unavailable))))));
+
+        cards.add(advancementCard(context, look, state));
+        return cards;
     }
 
-    private void drawSpiritMode(GuiGraphics graphics, PanelContext context, int x, int y, int width, int height) {
-        Font font = context.font();
-        PanelTheme.card(graphics, font, x, y, width, height,
-                Component.translatable("screen.myvillage.cultivation.button.spirit"));
-        int innerX = x + PAD;
-        int innerWidth = width - PAD * 2;
-        int cursor = y + PanelTheme.CARD_TITLE_HEIGHT + 1;
-        Optional<RealmStageDefinition> stage = context.currentStage();
-        String unavailable = context.unavailableText();
-        PanelTheme.pair(
-                graphics,
-                font,
-                context.text("screen.myvillage.cultivation.spirit_rate"),
-                context.text("screen.myvillage.cultivation.rate_per_ten_ticks", SPIRIT_PROGRESS_PER_BATCH),
-                innerX,
-                cursor,
-                innerWidth,
-                PanelTheme.TEXT);
-        cursor += ROW;
-        PanelTheme.pair(
-                graphics,
-                font,
-                context.text("screen.myvillage.cultivation.spirit_cost"),
-                spiritCostValue(context, stage, unavailable),
-                innerX,
-                cursor,
-                innerWidth,
-                PanelTheme.TEXT);
-        cursor += ROW;
-        PanelTheme.pair(
-                graphics,
-                font,
-                context.text("screen.myvillage.cultivation.spirit_inventory"),
-                spiritStoneInventory(context, unavailable),
-                innerX,
-                cursor,
-                innerWidth,
-                PanelTheme.TEXT);
-    }
-
-    private void drawAdvancement(
-            GuiGraphics graphics, PanelContext context, int x, int y, int width, int height, boolean wide) {
-        Font font = context.font();
+    private Card advancementCard(PanelContext context, MeridianLook look, MeditationState state) {
         CultivationProfile profile = context.profile();
-        PanelTheme.card(graphics, font, x, y, width, height,
-                Component.translatable("screen.myvillage.cultivation.advancement"));
-        int innerX = x + PAD;
-        int innerWidth = width - PAD * 2;
-        int cursor = y + PanelTheme.CARD_TITLE_HEIGHT + 1;
+        int accent = state != null && state.advancing() ? look.color() : 0;
         RealmStageDefinition stage = context.currentStage().orElse(null);
         AdvancementDefinition advancement = stage == null ? null : stage.advancement().orElse(null);
         if (advancement == null) {
@@ -315,17 +261,11 @@ public final class MeditationPage extends PanelPage {
             } else {
                 message = context.text("screen.myvillage.cultivation.advancement_unavailable");
             }
-            graphics.drawString(
-                    font, PanelTheme.fit(font, message, innerWidth), innerX, cursor, PanelTheme.MUTED, false);
-            return;
+            return new Card(context.text("screen.myvillage.cultivation.advancement"), accent, null,
+                    List.of(new Note(message, PanelTheme.MUTED, "", 0)));
         }
-
         String kind = context.text(
                 "screen.myvillage.cultivation.advancement_kind." + advancement.kind().serializedName());
-        int chipX = x + width - PAD - PanelTheme.chipWidth(font, kind);
-        graphics.fill(chipX - 3, y + 1, x + width - 1, y + PanelTheme.CARD_TITLE_HEIGHT, PanelTheme.CARD);
-        PanelTheme.chip(graphics, font, kind, chipX, y + 1, PanelTheme.GOLD);
-
         String target = context.text(
                 "screen.myvillage.cultivation.advancement_target",
                 context.stageName(profile.realmId(), profile.stageId()),
@@ -335,60 +275,164 @@ public final class MeditationPage extends PanelPage {
                         "screen.myvillage.cultivation.advancement_interruption_value",
                         advancement.interruptionStabilityLoss())
                 : "";
-        int lossWidth = loss.isEmpty() ? 0 : font.width(loss) + 8;
-        graphics.drawString(
-                font,
-                PanelTheme.fit(font, target, Math.max(1, innerWidth - lossWidth)),
-                innerX,
-                cursor,
-                PanelTheme.TEXT,
-                false);
-        if (!loss.isEmpty() && lossWidth < innerWidth / 2) {
-            graphics.drawString(
-                    font, loss, innerX + innerWidth - font.width(loss), cursor, PanelTheme.AMBER, false);
+        List<Row> rows = new ArrayList<>();
+        if (!loss.isEmpty()) {
+            rows.add(new Note(loss, PanelTheme.AMBER, "", 0));
         }
-        cursor += ROW + 1;
+        rows.add(new Twin(
+                new Item(context.text("screen.myvillage.cultivation.condition_progress"),
+                        context.progressValue(), context.progressFull()),
+                new Item(context.text("screen.myvillage.cultivation.condition_stability"),
+                        profile.stability() + " / " + advancement.requiredStability(),
+                        profile.stability() >= advancement.requiredStability())));
+        rows.add(new Twin(
+                Item.pair(context.text("screen.myvillage.cultivation.advancement_duration"),
+                        context.text("screen.myvillage.cultivation.ticks_value", advancement.durationTicks())),
+                Item.pair(context.text("screen.myvillage.cultivation.advancement_cost"),
+                        Integer.toString(advancement.stabilityCost()))));
+        // the card is titled by the advancement itself; its kind chip names what it is
+        return new Card(target, accent, kind, rows);
+    }
 
-        int columnWidth = wide ? (innerWidth - 12) / 2 : innerWidth;
-        int secondX = wide ? innerX + columnWidth + 12 : innerX;
-        int step = wide ? 0 : ROW;
-        PanelTheme.condition(
-                graphics,
-                font,
-                context.progressFull(),
-                context.text("screen.myvillage.cultivation.condition_progress"),
-                context.progressValue(),
-                innerX,
-                cursor,
-                columnWidth);
-        PanelTheme.condition(
-                graphics,
-                font,
-                profile.stability() >= advancement.requiredStability(),
-                context.text("screen.myvillage.cultivation.condition_stability"),
-                profile.stability() + " / " + advancement.requiredStability(),
-                secondX,
-                cursor + step,
-                wide ? innerWidth - columnWidth - 12 : innerWidth);
-        cursor += ROW + step;
-        PanelTheme.pair(
-                graphics,
-                font,
-                context.text("screen.myvillage.cultivation.advancement_duration"),
-                context.text("screen.myvillage.cultivation.ticks_value", advancement.durationTicks()),
-                innerX + 8,
-                cursor,
-                columnWidth - 8,
-                PanelTheme.TEXT);
-        PanelTheme.pair(
-                graphics,
-                font,
-                context.text("screen.myvillage.cultivation.advancement_cost"),
-                Integer.toString(advancement.stabilityCost()),
-                secondX + 8,
-                cursor + step,
-                (wide ? innerWidth - columnWidth - 12 : innerWidth) - 8,
-                PanelTheme.TEXT);
+    private static boolean twinFits(Font font, Twin twin, int innerWidth) {
+        int half = (innerWidth - TWIN_GAP) / 2;
+        return twin.left().naturalWidth(font) <= half && twin.right().naturalWidth(font) <= half;
+    }
+
+    private static boolean metersFit(Font font, Meters meters, int innerWidth) {
+        int half = (innerWidth - TWIN_GAP) / 2;
+        return font.width(meters.progressLabel()) + 6 + font.width(meters.progressValue()) <= half
+                && font.width(meters.stabilityLabel()) + 6 + font.width(meters.stabilityValue()) <= half;
+    }
+
+    private static int rowHeight(Font font, Row row, int innerWidth) {
+        return switch (row) {
+            case Single single -> itemHeight(font, single.item(), innerWidth);
+            case Twin twin -> twinFits(font, twin, innerWidth)
+                    ? ROW
+                    : itemHeight(font, twin.left(), innerWidth) + itemHeight(font, twin.right(), innerWidth);
+            case Note note -> ROW + 1;
+            case Meters meters -> metersFit(font, meters, innerWidth)
+                    ? PanelTheme.METER_HEIGHT + 1
+                    : PanelTheme.METER_HEIGHT * 2 + 4;
+        };
+    }
+
+    private static int cardHeight(Font font, Card card, int width) {
+        int height = (card.title() == null ? BARE_TOP : PanelTheme.CARD_TITLE_HEIGHT) + CARD_BOTTOM;
+        for (Row row : card.rows()) {
+            height += rowHeight(font, row, width - PAD * 2);
+        }
+        return height;
+    }
+
+    private static int naturalHeight(Font font, List<Card> cards, int width) {
+        int height = GAP * (cards.size() - 1);
+        for (Card card : cards) {
+            height += cardHeight(font, card, width);
+        }
+        return height;
+    }
+
+    /** Draws the cards top to bottom, sharing any height beyond their natural size evenly. */
+    private static void drawCards(GuiGraphics graphics, Font font, List<Card> cards, int x, int y, int width, int height) {
+        int extra = Math.max(0, height - naturalHeight(font, cards, width));
+        int cursor = y;
+        for (int index = 0; index < cards.size(); index++) {
+            Card card = cards.get(index);
+            int share = extra / cards.size() + (index < extra % cards.size() ? 1 : 0);
+            int cardHeight = cardHeight(font, card, width) + share;
+            drawCard(graphics, font, card, x, cursor, width, cardHeight, share / 2);
+            cursor += cardHeight + GAP;
+        }
+    }
+
+    private static void drawCard(GuiGraphics graphics, Font font, Card card, int x, int y, int width, int height,
+                                 int offset) {
+        if (card.title() == null) {
+            graphics.fill(x, y, x + width, y + height, PanelTheme.CARD);
+            graphics.renderOutline(x, y, width, height, PanelTheme.CARD_BORDER);
+        } else {
+            PanelTheme.card(graphics, font, x, y, width, height, Component.literal(card.title()));
+        }
+        if (card.accent() != 0) {
+            // the card of the running session takes the diagram's colour
+            graphics.fill(x + 1, y + 1, x + 3, y + height - 1, card.accent());
+            PanelTheme.diamond(graphics, x + 8, y + 7, 2, card.accent());
+        }
+        if (card.chip() != null) {
+            int chipX = x + width - PAD - PanelTheme.chipWidth(font, card.chip());
+            graphics.fill(chipX - 3, y + 1, x + width - 1, y + PanelTheme.CARD_TITLE_HEIGHT, PanelTheme.CARD);
+            PanelTheme.chip(graphics, font, card.chip(), chipX, y + 1, PanelTheme.GOLD);
+        }
+        int innerX = x + PAD;
+        int innerWidth = width - PAD * 2;
+        int cursor = y + (card.title() == null ? BARE_TOP : PanelTheme.CARD_TITLE_HEIGHT) + offset;
+        for (Row row : card.rows()) {
+            drawRow(graphics, font, row, innerX, cursor, innerWidth);
+            cursor += rowHeight(font, row, innerWidth);
+        }
+    }
+
+    private static void drawRow(GuiGraphics graphics, Font font, Row row, int x, int y, int width) {
+        switch (row) {
+            case Single single -> drawItem(graphics, font, single.item(), x, y, width);
+            case Twin twin -> {
+                if (twinFits(font, twin, width)) {
+                    int half = (width - TWIN_GAP) / 2;
+                    drawItem(graphics, font, twin.left(), x, y, half);
+                    drawItem(graphics, font, twin.right(), x + width - half, y, half);
+                } else {
+                    drawItem(graphics, font, twin.left(), x, y, width);
+                    drawItem(graphics, font, twin.right(), x, y + itemHeight(font, twin.left(), width), width);
+                }
+            }
+            case Note note -> {
+                int asideWidth = note.aside().isEmpty() ? 0 : font.width(note.aside()) + 8;
+                boolean aside = asideWidth > 0 && asideWidth <= width / 2;
+                graphics.drawString(font, PanelTheme.fit(font, note.text(), Math.max(1, width - (aside ? asideWidth : 0))),
+                        x, y, note.color(), false);
+                if (aside) {
+                    graphics.drawString(font, note.aside(), x + width - font.width(note.aside()), y,
+                            note.asideColor(), false);
+                }
+            }
+            case Meters meters -> {
+                boolean side = metersFit(font, meters, width);
+                int meterWidth = side ? (width - TWIN_GAP) / 2 : width;
+                PanelTheme.meter(graphics, font, meters.progressLabel(), meters.progressValue(), x, y, meterWidth,
+                        meters.progress(), PanelTheme.JADE, PanelTheme.JADE_DARK);
+                PanelTheme.meter(graphics, font, meters.stabilityLabel(), meters.stabilityValue(),
+                        side ? x + width - meterWidth : x, side ? y : y + PanelTheme.METER_HEIGHT + 3, meterWidth,
+                        meters.stability(), PanelTheme.GOLD_BRIGHT, PanelTheme.GOLD_DIM);
+            }
+        }
+    }
+
+    /** One row, or two when the label and value do not fit side by side. */
+    private static int itemHeight(Font font, Item item, int width) {
+        return item.naturalWidth(font) <= width ? ROW : ROW * 2;
+    }
+
+    private static void drawItem(GuiGraphics graphics, Font font, Item item, int x, int y, int width) {
+        if (item.naturalWidth(font) > width) {
+            // too long for one line: the label, then the value right-aligned under it
+            int indent = item.met() == null ? 0 : 8;
+            if (item.met() != null) {
+                PanelTheme.condition(graphics, font, item.met(), item.label(), "", x, y, width);
+            } else {
+                graphics.drawString(font, PanelTheme.fit(font, item.label(), width), x, y, PanelTheme.MUTED, false);
+            }
+            String value = PanelTheme.fit(font, item.value(), width - indent);
+            int color = item.met() != null && item.met() ? PanelTheme.JADE : PanelTheme.TEXT;
+            graphics.drawString(font, value, x + width - font.width(value), y + ROW, color, false);
+            return;
+        }
+        if (item.met() == null) {
+            PanelTheme.pair(graphics, font, item.label(), item.value(), x, y, width, PanelTheme.TEXT);
+        } else {
+            PanelTheme.condition(graphics, font, item.met(), item.label(), item.value(), x, y, width);
+        }
     }
 
     private String stabilityGainValue(
