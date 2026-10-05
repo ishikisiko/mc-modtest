@@ -1,11 +1,20 @@
 #!/usr/bin/env python3
-"""Validate the first MyVillage custom entity and its pack resources."""
+"""Validate the MyVillage custom entities and their pack resources.
+
+Two routes: the vanilla-model `myvillage:simple_fox`, checked against its pinned contract and UV
+evidence, and every beast listed in `data/myvillage/beast/index.json` (BeastEntity subclasses with
+data-driven moves and generated model/animation/texture files), checked generically: server data
+invariants, client asset files and their cross-file rules, the Entity Contract against the data
+file and Java registration, resources, side safety, and the combat package staying beast-neutral.
+Standard library only; tuned numbers are read from the data file, never pinned here.
+"""
 
 from __future__ import annotations
 
 import argparse
 import hashlib
 import json
+import re
 import struct
 import zlib
 from pathlib import Path
@@ -13,6 +22,42 @@ from typing import Any
 
 
 ROOT = Path(__file__).resolve().parents[1]
+JAVA_ROOT = "src/main/java/com/example/myvillage"
+RESOURCE_ROOT = "src/main/resources"
+BEAST_INDEX = "data/myvillage/beast/index.json"
+TICKS_PER_SECOND = 20
+CLIP_LENGTH_TOLERANCE = 1.0e-4
+RESERVED_CLIPS = ("idle", "walk", "run")
+NAME_PATTERN = re.compile(r"^[a-z0-9_]+$")
+ID_PATTERN = re.compile(r"^[a-z0-9_.-]+:[a-z0-9_./-]+$")
+# Field sets of schema 1 (mirroring BeastDataLoader, BeastModelFile, BeastAnimationFile).
+BEAST_FIELDS = {"schema", "entity", "attributes", "chase", "stagger", "moves"}
+BEAST_ATTRIBUTE_RULES = {
+    "max_health": "positive",
+    "attack_damage": "non_negative",
+    "movement_speed": "positive",
+    "follow_range": "positive",
+    "armor": "non_negative",
+    "knockback_resistance": "fraction",
+    "step_height": "non_negative",
+}
+BEAST_CHASE_FIELDS = {"speed_modifier", "move_gap_ticks", "cancelled_cooldown_ticks"}
+BEAST_MOVE_FIELDS = {
+    "id", "animation", "total_ticks", "windup_ticks", "turn_lock_tick", "active_ticks", "immune_ticks",
+    "damage_multiplier", "maximum_targets", "use_range", "cooldown_ticks", "weight", "lunge", "hit", "knockback",
+}
+BEAST_LUNGE_FIELDS = {"tick", "forward_min", "forward_max", "up"}
+BEAST_HIT_FIELDS = {"forward", "half_width", "height"}
+BEAST_KNOCKBACK_FIELDS = {"strength", "lift"}
+MODEL_FIELDS = {"schema", "id", "texture", "look", "shadow_radius", "bones"}
+BONE_FIELDS = {"name", "parent", "pivot", "rotation", "cubes"}
+CUBE_FIELDS = {"origin", "size", "uv", "inflate", "mirror"}
+ANIMATION_FIELDS = {"schema", "id", "clips"}
+CLIP_FIELDS = {"length", "loop", "channels"}
+CHANNEL_FIELDS = {"bone", "target", "keyframes"}
+KEYFRAME_FIELDS = {"time", "value", "interp"}
+CHANNEL_TARGETS = {"rotation", "position", "scale"}
+INTERPOLATIONS = {"linear", "catmullrom"}
 
 
 def sha256_file(path: Path) -> str:
@@ -206,8 +251,8 @@ def validate_texture(root: Path, errors: list[str]) -> dict[str, Any]:
     return result
 
 
-def validate(root: Path = ROOT) -> dict[str, Any]:
-    errors: list[str] = []
+def validate_simple_fox(root: Path, errors: list[str]) -> dict[str, Any]:
+    """The vanilla-route fox: pinned contract, registration, resources, spawning, UV evidence."""
     java_root = root / "src/main/java/com/example/myvillage"
     resource_root = root / "src/main/resources"
     asset_root = resource_root / "assets/myvillage"
@@ -350,11 +395,589 @@ def validate(root: Path = ROOT) -> dict[str, Any]:
     elif concept_record.get("output_sha256") != sha256_file(concept_path):
         errors.append("simple_fox_concept_hash_mismatch")
 
-    texture = validate_texture(root, errors)
+    return validate_texture(root, errors)
+
+
+# ---------------------------------------------------------------------------------------------
+# Beasts: pure checks over parsed files (unit tested on mutated copies), then the file-system pass.
+# ---------------------------------------------------------------------------------------------
+
+def is_number(value: Any) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
+def is_int(value: Any) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool)
+
+
+def number_pair(value: Any) -> bool:
+    return isinstance(value, list) and len(value) == 2 and all(is_number(v) for v in value)
+
+
+def int_pair(value: Any) -> bool:
+    return isinstance(value, list) and len(value) == 2 and all(is_int(v) for v in value)
+
+
+def vec3(value: Any) -> bool:
+    return isinstance(value, list) and len(value) == 3 and all(is_number(v) for v in value)
+
+
+def split_id(entity_id: str) -> tuple[str, str]:
+    namespace, _, path = entity_id.partition(":")
+    return namespace, path
+
+
+def constant_name(name: str) -> str:
+    return name.upper()
+
+
+def class_name(name: str) -> str:
+    return "".join(part.capitalize() for part in name.split("_")) + "Entity"
+
+
+def _fields(obj: Any, path: str, allowed: set[str], errors: list[str]) -> bool:
+    """Exactly ``allowed`` keys (BeastDataLoader rejects unknown and missing fields alike)."""
+    if not isinstance(obj, dict):
+        errors.append(f"not_an_object:{path}")
+        return False
+    for key in sorted(set(obj) - allowed):
+        errors.append(f"unknown_field:{path}.{key}" if path else f"unknown_field:{key}")
+    for key in sorted(allowed - set(obj)):
+        errors.append(f"missing_field:{path}.{key}" if path else f"missing_field:{key}")
+    return allowed <= set(obj)
+
+
+def _rule(value: Any, rule: str) -> bool:
+    if not is_number(value):
+        return False
+    if rule == "positive":
+        return value > 0
+    if rule == "non_negative":
+        return value >= 0
+    return 0 <= value <= 1  # fraction
+
+
+def check_beast_index(index: Any) -> tuple[list[str], list[str]]:
+    """(errors, listed beast ids) for ``data/myvillage/beast/index.json``."""
+    errors: list[str] = []
+    if not _fields(index, "", {"schema", "beasts"}, errors):
+        return errors, []
+    if index["schema"] != 1:
+        errors.append(f"unsupported_schema:{index['schema']}")
+    beasts = index["beasts"]
+    if not isinstance(beasts, list) or not all(isinstance(b, str) and ID_PATTERN.match(b) for b in beasts):
+        errors.append("beasts_not_a_list_of_ids")
+        return errors, []
+    if len(set(beasts)) != len(beasts):
+        errors.append("duplicate_beast_id")
+    return errors, list(dict.fromkeys(beasts))
+
+
+def check_beast_data(data: Any, entity_id: str) -> list[str]:
+    """Schema-1 invariants of one beast data file (the rules BeastDataLoader enforces)."""
+    errors: list[str] = []
+    if not _fields(data, "", BEAST_FIELDS, errors):
+        return errors
+    if data["schema"] != 1:
+        errors.append(f"unsupported_schema:{data['schema']}")
+    if data["entity"] != entity_id:
+        errors.append(f"entity_mismatch:{data['entity']}")
+
+    attributes = data["attributes"]
+    if _fields(attributes, "attributes", set(BEAST_ATTRIBUTE_RULES), errors):
+        for name, rule in BEAST_ATTRIBUTE_RULES.items():
+            if not _rule(attributes[name], rule):
+                errors.append(f"invalid_attribute:{name}:{rule}")
+    chase = data["chase"]
+    if _fields(chase, "chase", BEAST_CHASE_FIELDS, errors):
+        if not _rule(chase["speed_modifier"], "positive"):
+            errors.append("invalid_chase:speed_modifier")
+        for key in ("move_gap_ticks", "cancelled_cooldown_ticks"):
+            if not is_int(chase[key]) or chase[key] < 0:
+                errors.append(f"invalid_chase:{key}")
+    stagger_clip = None
+    if _fields(data["stagger"], "stagger", {"animation"}, errors):
+        stagger_clip = data["stagger"]["animation"]
+        if not isinstance(stagger_clip, str) or not NAME_PATTERN.match(stagger_clip):
+            errors.append("invalid_clip_name:stagger.animation")
+        elif stagger_clip in RESERVED_CLIPS:
+            errors.append(f"reserved_clip:stagger.animation:{stagger_clip}")
+
+    moves = data["moves"]
+    if not isinstance(moves, list) or not moves:
+        errors.append("moves_empty")
+        return errors
+    clips = set(RESERVED_CLIPS) | ({stagger_clip} if isinstance(stagger_clip, str) else set())
+    move_ids: set[str] = set()
+    for position, move in enumerate(moves):
+        errors.extend(check_beast_move(move, f"moves[{position}]", move_ids, clips))
+    return errors
+
+
+def check_beast_move(move: Any, path: str, move_ids: set[str], clips: set[str]) -> list[str]:
+    errors: list[str] = []
+    if not _fields(move, path, BEAST_MOVE_FIELDS, errors):
+        return errors
+    move_id, clip = move["id"], move["animation"]
+    if not isinstance(move_id, str) or not ID_PATTERN.match(move_id):
+        errors.append(f"invalid_move_id:{path}")
+    elif move_id in move_ids:
+        errors.append(f"duplicate_move_id:{move_id}")
+    else:
+        move_ids.add(move_id)
+    where = move_id if isinstance(move_id, str) else path
+    if not isinstance(clip, str) or not NAME_PATTERN.match(clip):
+        errors.append(f"invalid_clip_name:{where}")
+    elif clip in clips:
+        errors.append(f"clip_reserved_or_reused:{where}:{clip}")
+    else:
+        clips.add(clip)
+
+    total = move["total_ticks"]
+    if not is_int(total) or total <= 0:
+        errors.append(f"invalid_total_ticks:{where}")
+        return errors
+    active, immune = move["active_ticks"], move["immune_ticks"]
+    windup, lock = move["windup_ticks"], move["turn_lock_tick"]
+    if not int_pair(active) or not 0 <= active[0] <= active[1] < total:
+        errors.append(f"active_ticks_outside_move:{where}")
+        return errors
+    if not int_pair(immune) or not 0 <= immune[0] <= immune[1] < total:
+        errors.append(f"immune_ticks_outside_move:{where}")
+    if not is_int(windup) or not 0 <= windup <= active[0]:
+        errors.append(f"windup_after_first_active_tick:{where}")
+    elif not is_int(lock) or not 0 <= lock <= windup:
+        errors.append(f"turn_lock_after_windup:{where}")
+    if not _rule(move["damage_multiplier"], "positive"):
+        errors.append(f"invalid_damage_multiplier:{where}")
+    for key in ("maximum_targets", "weight"):
+        if not is_int(move[key]) or move[key] <= 0:
+            errors.append(f"invalid_{key}:{where}")
+    if not is_int(move["cooldown_ticks"]) or move["cooldown_ticks"] < 0:
+        errors.append(f"invalid_cooldown_ticks:{where}")
+    use_range = move["use_range"]
+    if not number_pair(use_range) or not 0 <= use_range[0] <= use_range[1]:
+        errors.append(f"invalid_use_range:{where}")
+
+    lunge = move["lunge"]
+    if _fields(lunge, f"{path}.lunge", BEAST_LUNGE_FIELDS, errors):
+        if not is_int(lunge["tick"]) or not (is_int(lock) and lock <= lunge["tick"] <= active[1]):
+            errors.append(f"lunge_tick_outside_lock_to_last_active:{where}")
+        if not all(_rule(lunge[k], "non_negative") for k in ("forward_min", "forward_max", "up")):
+            errors.append(f"invalid_lunge_speed:{where}")
+        elif lunge["forward_max"] < lunge["forward_min"]:
+            errors.append(f"lunge_forward_max_below_min:{where}")
+        elif lunge["forward_max"] > 4.0 or lunge["up"] > 1.5:  # BeastMoveDefinition.Lunge bounds
+            errors.append(f"lunge_speed_above_bound:{where}")
+    hit = move["hit"]
+    if _fields(hit, f"{path}.hit", BEAST_HIT_FIELDS, errors):
+        if not number_pair(hit["forward"]) or not hit["forward"][0] < hit["forward"][1]:
+            errors.append(f"invalid_hit_forward:{where}")
+        if not number_pair(hit["height"]) or not hit["height"][0] < hit["height"][1]:
+            errors.append(f"invalid_hit_height:{where}")
+        if not _rule(hit["half_width"], "positive"):
+            errors.append(f"invalid_hit_half_width:{where}")
+    knockback = move["knockback"]
+    if _fields(knockback, f"{path}.knockback", BEAST_KNOCKBACK_FIELDS, errors):
+        if not all(_rule(knockback[k], "non_negative") for k in ("strength", "lift")):
+            errors.append(f"invalid_knockback:{where}")
+    return errors
+
+
+def check_beast_model(model: Any, entity_id: str) -> tuple[list[str], set[str]]:
+    """(errors, bone names) of a schema-1 model file."""
+    errors: list[str] = []
+    if not _fields(model, "", MODEL_FIELDS, errors):
+        return errors, set()
+    if model["schema"] != 1:
+        errors.append(f"unsupported_schema:{model['schema']}")
+    if model["id"] != entity_id:
+        errors.append(f"id_mismatch:{model['id']}")
+    texture = model["texture"]
+    width = height = 0
+    if _fields(texture, "texture", {"width", "height"}, errors):
+        width, height = texture["width"], texture["height"]
+        if not (is_int(width) and is_int(height) and width > 0 and height > 0):
+            errors.append("invalid_texture_size")
+            width = height = 0
+    if not _rule(model["shadow_radius"], "non_negative"):
+        errors.append("invalid_shadow_radius")
+    names: list[str] = []
+    bones = model["bones"]
+    if not isinstance(bones, list) or not bones:
+        errors.append("bones_empty")
+        bones = []
+    for position, bone in enumerate(bones):
+        path = f"bones[{position}]"
+        if not _fields(bone, path, BONE_FIELDS, errors):
+            continue
+        name, parent = bone["name"], bone["parent"]
+        if not isinstance(name, str) or not NAME_PATTERN.match(name):
+            errors.append(f"invalid_bone_name:{path}")
+            continue
+        if name in names:
+            errors.append(f"duplicate_bone:{name}")
+        if parent is not None and parent not in names:
+            errors.append(f"parent_not_listed_before:{name}:{parent}")
+        if not vec3(bone["pivot"]) or not vec3(bone["rotation"]):
+            errors.append(f"invalid_bone_pose:{name}")
+        for cube_index, cube in enumerate(bone["cubes"] if isinstance(bone["cubes"], list) else []):
+            cube_path = f"{name}.cubes[{cube_index}]"
+            if not _fields(cube, cube_path, CUBE_FIELDS, errors):
+                continue
+            uv = cube["uv"]
+            if not (vec3(cube["origin"]) and vec3(cube["size"]) and is_number(cube["inflate"])
+                    and isinstance(cube["mirror"], bool) and number_pair(uv)):
+                errors.append(f"invalid_cube:{cube_path}")
+            elif width and not (0 <= uv[0] < width and 0 <= uv[1] < height):
+                errors.append(f"uv_outside_texture:{cube_path}")
+        if not isinstance(bone["cubes"], list):
+            errors.append(f"invalid_cubes:{name}")
+        names.append(name)
+    look = model["look"]
+    if _fields(look, "look", {"bone", "max_yaw", "max_pitch"}, errors):
+        if look["bone"] not in names:
+            errors.append(f"look_bone_missing:{look['bone']}")
+        if not (_rule(look["max_yaw"], "non_negative") and _rule(look["max_pitch"], "non_negative")):
+            errors.append("invalid_look_limits")
+    return errors, set(names)
+
+
+def check_beast_animations(animations: Any, entity_id: str, bones: set[str], data: Any) -> list[str]:
+    """Schema-1 clips plus the cross-file rules ``BeastAnimationFile.check`` enforces."""
+    errors: list[str] = []
+    if not _fields(animations, "", ANIMATION_FIELDS, errors):
+        return errors
+    if animations["schema"] != 1:
+        errors.append(f"unsupported_schema:{animations['schema']}")
+    if animations["id"] != entity_id:
+        errors.append(f"id_mismatch:{animations['id']}")
+    clips = animations["clips"]
+    if not isinstance(clips, dict):
+        return errors + ["clips_not_an_object"]
+    for name, clip in clips.items():
+        if not NAME_PATTERN.match(name):
+            errors.append(f"invalid_clip_name:{name}")
+        if not _fields(clip, f"clips.{name}", CLIP_FIELDS, errors):
+            continue
+        length = clip["length"]
+        if not _rule(length, "positive") or not isinstance(clip["loop"], bool):
+            errors.append(f"invalid_clip_header:{name}")
+            continue
+        for channel_index, channel in enumerate(clip["channels"] if isinstance(clip["channels"], list) else []):
+            path = f"clips.{name}.channels[{channel_index}]"
+            if not _fields(channel, path, CHANNEL_FIELDS, errors):
+                continue
+            if channel["bone"] not in bones:
+                errors.append(f"channel_bone_missing:{name}:{channel['bone']}")
+            if channel["target"] not in CHANNEL_TARGETS:
+                errors.append(f"invalid_channel_target:{name}:{channel['target']}")
+            keyframes = channel["keyframes"]
+            if not isinstance(keyframes, list) or not keyframes:
+                errors.append(f"channel_without_keyframes:{path}")
+                continue
+            for keyframe in keyframes:
+                if not _fields(keyframe, f"{path}.keyframe", KEYFRAME_FIELDS, errors):
+                    break
+                if (not is_number(keyframe["time"]) or not 0 <= keyframe["time"] <= length + CLIP_LENGTH_TOLERANCE
+                        or not vec3(keyframe["value"]) or keyframe["interp"] not in INTERPOLATIONS):
+                    errors.append(f"invalid_keyframe:{path}")
+                    break
+
+    def require(name: str, loop: bool) -> dict | None:
+        clip = clips.get(name)
+        if not isinstance(clip, dict):
+            errors.append(f"missing_clip:{name}")
+            return None
+        if clip.get("loop") is not loop:
+            errors.append(f"clip_loop_must_be_{str(loop).lower()}:{name}")
+        return clip
+
+    for name in RESERVED_CLIPS:
+        require(name, True)
+    if isinstance(data, dict):
+        stagger = data.get("stagger", {}).get("animation") if isinstance(data.get("stagger"), dict) else None
+        if isinstance(stagger, str):
+            require(stagger, False)
+        for move in data.get("moves", []) if isinstance(data.get("moves"), list) else []:
+            if not isinstance(move, dict) or not isinstance(move.get("animation"), str):
+                continue
+            clip = require(move["animation"], False)
+            total = move.get("total_ticks")
+            if clip is not None and is_int(total) and is_number(clip.get("length")):
+                expected = total / TICKS_PER_SECOND
+                if abs(clip["length"] - expected) > CLIP_LENGTH_TOLERANCE:
+                    errors.append(f"move_clip_length:{move['animation']}:{clip['length']}!={expected}")
+    return errors
+
+
+def yaml_block(text: str, key: str) -> str:
+    """The indented lines under a top-level ``key:`` of a block-style YAML file ('' when absent)."""
+    lines = text.splitlines()
+    for start, line in enumerate(lines):
+        if line.rstrip() == f"{key}:":
+            block = []
+            for following in lines[start + 1:]:
+                if following and not following[0].isspace() and not following.startswith("#"):
+                    break
+                block.append(following)
+            return "\n".join(block)
+    return ""
+
+
+def yaml_scalar(block: str, key: str) -> str | None:
+    """The first ``key: value`` scalar in ``block`` (quotes stripped)."""
+    match = re.search(rf"^\s*{re.escape(key)}:[ \t]*(\S[^\n]*?)\s*$", block, re.MULTILINE)
+    return match.group(1).strip("\"'") if match else None
+
+
+def check_beast_contract(contract: str, entity_id: str, data: Any, lang: dict[str, dict]) -> list[str]:
+    """The contract names what the data file and language files hold, without repeating numbers."""
+    errors: list[str] = []
+    namespace, name = split_id(entity_id)
+    entity = yaml_block(contract, "entity")
+    if yaml_scalar(entity, "resource_location") != entity_id:
+        errors.append("contract_resource_location")
+    if yaml_scalar(entity, "temperament") not in {"hostile", "neutral", "passive", "boss"}:
+        errors.append("contract_temperament")
+    if yaml_scalar(yaml_block(contract, "data_sources"), "server_data") != f"data/{namespace}/beast/{name}.json":
+        errors.append("contract_server_data_path")
+    for locale in ("en_us", "zh_cn"):
+        expected = lang.get(locale, {}).get(f"entity.{namespace}.{name}")
+        if yaml_scalar(entity, locale) != expected:
+            errors.append(f"contract_display_name_differs_from_lang:{locale}")
+    attributes = yaml_block(contract, "attributes")
+    if not isinstance(data, dict):
+        return errors
+    if isinstance(data.get("attributes"), dict):
+        listed = set(re.findall(r"^\s*-\s+([a-z_]+)\s*$", attributes, re.MULTILINE))
+        if listed != set(data["attributes"]):
+            errors.append(f"contract_attribute_names:{sorted(listed ^ set(data['attributes']))}")
+        if re.search(r"^\s*(max_health|movement_speed|follow_range|attack_damage):\s*[-\d.]", attributes, re.MULTILINE):
+            errors.append("contract_repeats_tuned_attribute_values")
+    behavior = yaml_block(contract, "behavior")
+    moves = [m for m in data.get("moves", []) if isinstance(m, dict)] if isinstance(data.get("moves"), list) else []
+    listed_moves = set(re.findall(r"^\s*-\s+id:\s*([a-z0-9_.-]+:[a-z0-9_./-]+)\s*$", behavior, re.MULTILINE))
+    if listed_moves != {m.get("id") for m in moves}:
+        errors.append("contract_move_ids_differ_from_data")
+    behavior_clips = set(re.findall(r"^\s*animation:\s*([a-z0-9_]+)\s*$", behavior, re.MULTILINE))
+    stagger = data.get("stagger", {}).get("animation") if isinstance(data.get("stagger"), dict) else None
+    if behavior_clips != {m.get("animation") for m in moves} | {stagger}:
+        errors.append("contract_move_clips_differ_from_data")
+    rendering_clips = set(re.findall(r"^\s*-\s+id:\s*([a-z0-9_]+)\s*$", yaml_block(contract, "rendering"), re.MULTILINE))
+    needed = set(RESERVED_CLIPS) | {m.get("animation") for m in moves} | {stagger}
+    if not needed <= rendering_clips:
+        errors.append(f"contract_rendering_clips_missing:{sorted(needed - rendering_clips)}")
+    if yaml_scalar(yaml_block(contract, "acceptance"), "human_verdict_status") is None:
+        errors.append("contract_missing_human_verdict_status")
+    return errors
+
+
+def scan_sources(paths: list[Path], needles: list[str], root: Path, code: str) -> list[str]:
+    """``code:<file>:<needle>`` for every needle found in a source file."""
+    errors = []
+    for path in paths:
+        if not path.is_file():
+            continue
+        text = path.read_text(encoding="utf-8")
+        for needle in needles:
+            if needle in text:
+                errors.append(f"{code}:{path.relative_to(root)}:{needle}")
+    return errors
+
+
+def float_literal(text: str, pattern: str) -> float | None:
+    match = re.search(pattern, text)
+    return float(match.group(1)) if match else None
+
+
+def registration_block(text: str, name: str) -> str:
+    """The ``ENTITY_TYPES.register("<name>", ...)`` call up to its ``.build(``."""
+    start = text.find(f'ENTITY_TYPES.register("{name}"')
+    if start < 0:
+        return ""
+    end = text.find(".build(", start)
+    return text[start:end if end > 0 else len(text)]
+
+
+def validate_beast_framework(root: Path, errors: list[str]) -> list[str]:
+    """Beast-wide wiring; returns the beast ids the data index lists."""
+    java_root = root / JAVA_ROOT
+    index = require_json(root / RESOURCE_ROOT / BEAST_INDEX, errors)
+    if not index:
+        return []
+    index_errors, beasts = check_beast_index(index)
+    errors.extend(f"beast_index:{e}" for e in index_errors)
+    if not beasts:
+        return beasts
+
+    require_text(java_root / "MyVillageMod.java", [".then(BeastCommands.command())"], errors)
+    require_text(
+        java_root / "entity/beast/BeastCommands.java",
+        ['Commands.literal("move")', 'Commands.literal("status")', 'Commands.literal("debug")', "hasPermission(2)"],
+        errors,
+    )
+    require_text(java_root / "entity/beast/BeastEntity.java", ["implements StaggerResistant"], errors)
+    require_text(java_root / "combat/runtime/StaggerResistant.java", ["boolean resistsStagger()"], errors)
+    require_text(java_root / "combat/runtime/CombatReactionService.java", ["StaggerResistant.resists("], errors)
+
+    # Common beast code never loads client classes.
+    common = sorted((java_root / "entity").rglob("*.java"))
+    errors.extend(scan_sources(common, ["import net.minecraft.client", "import com.example.myvillage.client"],
+                               root, "client_import_in_common_source"))
+    # The combat package resolves stagger resistance through StaggerResistant and names no beast.
+    combat = sorted((java_root / "combat").rglob("*.java")) + sorted((java_root / "client/combat").rglob("*.java"))
+    needles = ["entity.beast", "BeastEntity"]
+    for entity_id in beasts:
+        _, name = split_id(entity_id)
+        needles += [name, class_name(name)]
+    errors.extend(scan_sources(combat, needles, root, "beast_name_in_combat_source"))
+    return beasts
+
+
+def validate_beast(root: Path, entity_id: str, errors: list[str]) -> dict[str, Any]:
+    """One beast: data, client files, contract, registration, resources, spawning."""
+    namespace, name = split_id(entity_id)
+    const = constant_name(name)
+    java_root = root / JAVA_ROOT
+    resources = root / RESOURCE_ROOT
+    assets = resources / f"assets/{namespace}"
+    found: list[str] = []
+
+    def add(prefix: str, problems: list[str]) -> None:
+        found.extend(f"{prefix}:{problem}" for problem in problems)
+
+    data_path = resources / f"data/{namespace}/beast/{name}.json"
+    data = require_json(data_path, found)
+    if data:
+        add("beast_data", check_beast_data(data, entity_id))
+    model = require_json(assets / f"beast/{name}_model.json", found)
+    bones: set[str] = set()
+    if model:
+        model_errors, bones = check_beast_model(model, entity_id)
+        add("beast_model", model_errors)
+    animations = require_json(assets / f"beast/{name}_animations.json", found)
+    if animations:
+        add("beast_animations", check_beast_animations(animations, entity_id, bones, data))
+
+    texture_size = None
+    if isinstance(model, dict) and isinstance(model.get("texture"), dict):
+        texture_size = (model["texture"].get("width"), model["texture"].get("height"))
+    texture_report: dict[str, Any] = {}
+    for kind, path in (("texture", assets / f"textures/entity/{name}/{name}.png"),
+                       ("glow", assets / f"textures/entity/{name}/{name}_eyes.png")):
+        if not path.is_file():
+            found.append(f"missing_file:{path}")
+            continue
+        try:
+            width, height, rgba = read_png_rgba(path)
+        except ValueError as exc:
+            found.append(str(exc))
+            continue
+        texture_report[kind] = [width, height]
+        if texture_size and (width, height) != texture_size:
+            found.append(f"beast_{kind}_size_differs_from_model:{width}x{height}")
+        if kind == "glow":
+            alphas = rgba[3::4]
+            if not any(alphas) or all(alphas):
+                found.append("beast_glow_must_be_partly_transparent")
+
+    beastgen = root / "tools/beastgen"
+    if not (beastgen / f"defs/{name}.py").is_file():
+        found.append(f"missing_file:{beastgen / f'defs/{name}.py'}")
+    build_text = (beastgen / "build.py").read_text(encoding="utf-8") if (beastgen / "build.py").is_file() else ""
+    if not re.search(rf"DEFINITIONS\s*=\s*\([^)]*\"{re.escape(name)}\"", build_text):
+        found.append(f"beastgen_definition_not_registered:{name}")
+
+    lang = {locale: require_json(assets / f"lang/{locale}.json", found) for locale in ("en_us", "zh_cn")}
+    for locale, table in lang.items():
+        for key in (f"entity.{namespace}.{name}", f"item.{namespace}.{name}_spawn_egg"):
+            value = table.get(key) if isinstance(table, dict) else None
+            if not isinstance(value, str) or not value.strip():
+                found.append(f"missing_translation:{locale}:{key}")
+    egg_model = require_json(assets / f"models/item/{name}_spawn_egg.json", found)
+    if egg_model and egg_model.get("parent") != "minecraft:item/template_spawn_egg":
+        found.append("invalid_spawn_egg_model_parent")
+    loot = require_json(resources / f"data/{namespace}/loot_table/entities/{name}.json", found)
+    if loot and (loot.get("type") != "minecraft:entity" or not isinstance(loot.get("pools"), list)):
+        found.append("invalid_loot_table")
+
+    contract_path = root / f"genops/contracts/entities/{name}.yaml"
+    contract = require_text(contract_path, [], found)
+    if contract:
+        add("beast_contract", check_beast_contract(contract, entity_id, data, lang))
+        if "pools: []" in yaml_block(contract, "loot") and loot and loot.get("pools") != []:
+            found.append("loot_table_not_empty_as_contracted")
+
+    # Java registration, compared with the contract where the contract pins a value.
+    entities_text = require_text(java_root / "entity/ModEntities.java",
+                                 [f"EntityType<{class_name(name)}>> {const} ="], found)
+    block = registration_block(entities_text, name)
+    physical = yaml_block(contract, "physical")
+    if not block:
+        found.append(f"entity_type_not_registered:{name}")
+    else:
+        for field, pattern in (("width", r"\.sized\(([\d.]+)F,"), ("height", r"\.sized\([\d.]+F,\s*([\d.]+)F\)"),
+                               ("eye_height", r"\.eyeHeight\(([\d.]+)F\)"),
+                               ("client_tracking_range", r"\.clientTrackingRange\((\d+)\)")):
+            declared, registered = yaml_scalar(physical, field), float_literal(block, pattern)
+            if declared is None or registered is None or float(declared) != registered:
+                found.append(f"registration_differs_from_contract:{field}:{registered}!={declared}")
+        category = yaml_scalar(yaml_block(contract, "entity"), "mob_category")
+        if f"MobCategory.{(category or '').upper()}" not in block:
+            found.append(f"registration_mob_category_differs_from_contract:{category}")
+    java_class = yaml_scalar(yaml_block(contract, "entity"), "java_class") or ""
+    class_path = root / "src/main/java" / (java_class.replace(".", "/") + ".java")
+    require_text(class_path, ["extends BeastEntity", f'"{name}"'], found)
+    require_text(java_root / "entity/ModEntityEvents.java",
+                 [f"event.put(ModEntities.{const}.get()", "BeastEntity.createAttributes("], found)
+    items_text = require_text(java_root / "item/ModItems.java",
+                              [f"{const}_SPAWN_EGG", f"ModEntities.{const},", f"output.accept({const}_SPAWN_EGG.get())"],
+                              found)
+    egg_block = items_text[items_text.find(f"{const}_SPAWN_EGG ="):][:400] if items_text else ""
+    for field in ("primary_color", "secondary_color"):
+        color = yaml_scalar(yaml_block(contract, "items"), field)
+        if not color or f"0x{color.lstrip('#').upper()}" not in egg_block:
+            found.append(f"spawn_egg_{field}_differs_from_contract:{color}")
+    require_text(java_root / "client/MyVillageClient.java",
+                 ["value = Dist.CLIENT", f"BeastRenderer.register(event, ModEntities.{const})",
+                  f"BeastRenderer.registerLayer(event, ModEntities.{const}.getId())"], found)
+
+    # No natural spawning unless the contract says so (and then this validator must learn it).
+    if yaml_scalar(yaml_block(contract, "spawn"), "natural") != "false":
+        found.append("beast_natural_spawning_not_supported_by_validator")
+    events_text = (java_root / "entity/ModEntityEvents.java").read_text(encoding="utf-8") \
+        if (java_root / "entity/ModEntityEvents.java").is_file() else ""
+    placements = events_text[events_text.find("RegisterSpawnPlacementsEvent event"):]
+    if f"ModEntities.{const}" in placements:
+        found.append("beast_has_spawn_placement")
+    for modifier in sorted((resources / "data").glob("*/neoforge/biome_modifier/*.json")):
+        if entity_id in modifier.read_text(encoding="utf-8"):
+            found.append(f"beast_has_biome_modifier:{modifier.relative_to(root)}")
+    if (resources / f"data/{namespace}/tags/worldgen/biome/has_{name}.json").is_file():
+        found.append("beast_has_spawn_biome_tag")
+
+    errors.extend(found)
+    moves = data.get("moves", []) if isinstance(data, dict) and isinstance(data.get("moves"), list) else []
+    return {
+        "moves": [m.get("id") for m in moves if isinstance(m, dict)],
+        "clips": sorted(animations.get("clips", {})) if isinstance(animations, dict) and isinstance(animations.get("clips"), dict) else [],
+        "bones": len(bones),
+        "textures": texture_report,
+        "errors": len(found),
+    }
+
+
+def validate(root: Path = ROOT) -> dict[str, Any]:
+    errors: list[str] = []
+    texture = validate_simple_fox(root, errors)
+    beasts = validate_beast_framework(root, errors)
+    beast_reports = {entity_id: validate_beast(root, entity_id, errors) for entity_id in beasts}
     return {
         "schema_version": 1,
-        "entity": "myvillage:simple_fox",
+        "entities": ["myvillage:simple_fox", *beasts],
         "texture": texture,
+        "beasts": beast_reports,
         "errors": errors,
         "status": "pass" if not errors else "fail",
     }

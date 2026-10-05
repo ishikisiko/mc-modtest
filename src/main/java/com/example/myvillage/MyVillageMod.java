@@ -13,6 +13,7 @@ import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.time.CultivationServerConfig;
 import com.example.myvillage.entity.ModEntities;
 import com.example.myvillage.entity.RideableFlyingSwordEntity;
+import com.example.myvillage.entity.beast.BeastCommands;
 import com.example.myvillage.item.ModItems;
 import com.example.myvillage.network.ModPayloads;
 import com.example.myvillage.region.runtime.RegionCommands;
@@ -224,7 +225,8 @@ public final class MyVillageMod {
                                         .executes(ctx -> RegionCommands.spawnRecompute(ctx.getSource()))))
                         .then(CultivationCommands.command())
                         .then(CultivationCommands.pinyinCommand())
-                        .then(CombatCommands.command()));
+                        .then(CombatCommands.command())
+                        .then(BeastCommands.command()));
     }
 
     private int placeNamedStructure(CommandSourceStack source, String rawId) throws CommandSyntaxException {

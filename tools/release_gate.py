@@ -111,6 +111,11 @@ def generator_check(script: str) -> Step:
     return tool(script, "--check", name=script.replace("_", "-") + "-check")
 
 
+def beastgen_check(beast: str) -> Step:
+    """``python3 -m tools.beastgen build <beast> --check``: the beast's four generated files are current."""
+    return Step(f"beastgen-{beast.replace('_', '-')}-check", (PY, "-m", "tools.beastgen", "build", beast, "--check"))
+
+
 def needs_program(program: str) -> Callable[[Path], str | None]:
     return lambda root: None if shutil.which(program) else f"{program} CLI not on PATH"
 
@@ -271,6 +276,7 @@ STEPS: tuple[Step, ...] = (
     generator_check("gen_qingfeng_sword_model"),
     generator_check("gen_lingxiao_spear_model"),
     generator_check("gen_meridian_figure"),
+    beastgen_check("demon_wolf"),
     tool("validate_mod_items"),
     tool("validate_custom_entities"),
     tool("validate_rideable_flying_sword"),

@@ -70,6 +70,14 @@ public final class ModItems {
                             0xF1C58F,
                             props));
 
+    public static final DeferredItem<DeferredSpawnEggItem> DEMON_WOLF_SPAWN_EGG =
+            ITEMS.registerItem("demon_wolf_spawn_egg",
+                    props -> new DeferredSpawnEggItem(
+                            ModEntities.DEMON_WOLF,
+                            0x353B44,
+                            0x4FD0C8,
+                            props));
+
     public static final DeferredItem<RideableFlyingSwordItem> RIDEABLE_FLYING_SWORD =
             ITEMS.registerItem("rideable_flying_sword",
                     props -> new RideableFlyingSwordItem(props.stacksTo(1)));
@@ -130,6 +138,7 @@ public final class ModItems {
                         output.accept(TECHNIQUE_INHERITANCE_STELE_ITEM.get());
                         output.accept(CULTIVATION_HANDBOOK.get());
                         output.accept(SIMPLE_FOX_SPAWN_EGG.get());
+                        output.accept(DEMON_WOLF_SPAWN_EGG.get());
                         output.accept(RIDEABLE_FLYING_SWORD.get());
                         output.accept(QINGFENG_SWORD.get());
                         output.accept(XUANYUE_ZHENSHAN_SWORD.get());

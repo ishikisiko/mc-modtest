@@ -420,6 +420,36 @@ def cmd_run(a):
         raise failure
 
 
+def cmd_beast(a):
+    """Beast evidence (stills, footage, fight) in a session; starts and stops
+    its own session unless one is already running (then leaves it running)."""
+    from . import beast, session
+    from .session import Session
+    require_programs()
+    parts = [p.strip() for p in a.parts.split(",") if p.strip()]
+    unknown = sorted(set(parts) - set(BEAST_PARTS))
+    if unknown:
+        raise UsageError(f"unknown parts {unknown} (choose from {', '.join(BEAST_PARTS)})")
+    path = a.beast.split(":", 1)[-1]
+    out = a.out or (REPO / "out/preview" / path / "ingame")
+    out.mkdir(parents=True, exist_ok=True)
+    started = False
+    try:
+        st = session.read_state()
+        if not (st and st.get("phase") == "ready" and session.supervisor_alive(st)):
+            session.start(session_config(a), wait_timeout=a.timeout, log=log)
+            started = True
+        s = Session.attach(ui_check=not a.no_ui_check, log=log)
+        beast.run_beast(s, a.beast, out, parts, log=log)
+        log(f"page: {out / 'index.html'}")
+    finally:
+        if started:
+            session.stop(log=log)
+
+
+BEAST_PARTS = ("idle", "moves", "locomotion", "fight", "dodge", "slowmo")
+
+
 # ---------------------------------------------------------------- parser
 def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(prog="python3 -m tools.combat_capture", description=__doc__)
@@ -529,6 +559,14 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("page", help="rebuild sheets and index.html of a capture directory")
     p.add_argument("dir")
     p.set_defaults(func=cmd_page)
+
+    p = sub.add_parser("beast", help="beast evidence: idle/move stills, walk/run and fight videos, stagger log")
+    session_opts(p)
+    p.add_argument("--beast", default="myvillage:demon_wolf")
+    p.add_argument("--parts", default=",".join(BEAST_PARTS), help="comma list of: " + ", ".join(BEAST_PARTS))
+    p.add_argument("--out", type=Path, default=None, help="output directory (default out/preview/<name>/ingame)")
+    p.add_argument("--no-ui-check", action="store_true", help="send keys without the in-game check (unsafe)")
+    p.set_defaults(func=cmd_beast)
 
     p = sub.add_parser("run", help="full pass: session start, stills, combo, session stop, page")
     capture_opts(p)

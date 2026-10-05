@@ -4,6 +4,7 @@ import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.block.ModBlocks;
 import com.example.myvillage.client.entity.RideableFlyingSwordRenderer;
 import com.example.myvillage.client.entity.SimpleFoxRenderer;
+import com.example.myvillage.client.entity.beast.BeastRenderer;
 import com.example.myvillage.entity.ModEntities;
 import net.minecraft.client.renderer.BiomeColors;
 import net.neoforged.api.distmarker.Dist;
@@ -33,6 +34,12 @@ public final class MyVillageClient {
         event.registerEntityRenderer(
                 ModEntities.RIDEABLE_FLYING_SWORD.get(),
                 RideableFlyingSwordRenderer::new);
+        BeastRenderer.register(event, ModEntities.DEMON_WOLF);
+    }
+
+    @SubscribeEvent
+    static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
+        BeastRenderer.registerLayer(event, ModEntities.DEMON_WOLF.getId());
     }
 
     @SubscribeEvent

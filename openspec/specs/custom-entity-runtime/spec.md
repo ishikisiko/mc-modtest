@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Define the contract, runtime, resource, texture, spawn, validation, and human-acceptance requirements for the first complete MyVillage custom entity slice.
+Define the contract, runtime, resource, texture, spawn, validation, and human-acceptance requirements for the first complete MyVillage custom entity slice. Hostile beasts with their own model, clips, and data-driven moves (first `myvillage:demon_wolf`) are specified in `hostile-beast-runtime`; `tools/validate_custom_entities.py` validates both routes.
 
 ## Requirements
 

@@ -1,0 +1,81 @@
+{
+  "schema": 1,
+  "entity": "myvillage:demon_wolf",
+  "attributes": {
+    "max_health": 70.0,
+    "attack_damage": 4.0,
+    "movement_speed": 0.3,
+    "follow_range": 28.0,
+    "armor": 4.0,
+    "knockback_resistance": 0.3,
+    "step_height": 1.0
+  },
+  "chase": {
+    "speed_modifier": 1.3,
+    "move_gap_ticks": 10,
+    "cancelled_cooldown_ticks": 10
+  },
+  "stagger": {
+    "animation": "stagger"
+  },
+  "moves": [
+    {
+      "id": "myvillage:demon_wolf_bite",
+      "animation": "bite",
+      "total_ticks": 28,
+      "windup_ticks": 10,
+      "turn_lock_tick": 4,
+      "active_ticks": [10, 12],
+      "immune_ticks": [0, 12],
+      "damage_multiplier": 1.0,
+      "maximum_targets": 2,
+      "use_range": [0.0, 3.4],
+      "cooldown_ticks": 24,
+      "weight": 3,
+      "lunge": {
+        "tick": 9,
+        "forward_min": 0.55,
+        "forward_max": 0.55,
+        "up": 0.0
+      },
+      "hit": {
+        "forward": [0.3, 2.9],
+        "half_width": 0.7,
+        "height": [0.0, 1.7]
+      },
+      "knockback": {
+        "strength": 0.5,
+        "lift": 0.1
+      }
+    },
+    {
+      "id": "myvillage:demon_wolf_pounce",
+      "animation": "pounce",
+      "total_ticks": 50,
+      "windup_ticks": 18,
+      "turn_lock_tick": 13,
+      "active_ticks": [19, 30],
+      "immune_ticks": [10, 30],
+      "damage_multiplier": 1.6,
+      "maximum_targets": 2,
+      "use_range": [4.0, 8.0],
+      "cooldown_ticks": 120,
+      "weight": 2,
+      "lunge": {
+        "tick": 18,
+        "forward_min": 0.6,
+        "forward_max": 1.3,
+        "up": 0.38
+      },
+      "hit": {
+        "forward": [-0.2, 1.9],
+        "half_width": 0.85,
+        "height": [-0.3, 1.8]
+      },
+      "knockback": {
+        "strength": 0.9,
+        "lift": 0.25
+      }
+    }
+  ]
+}

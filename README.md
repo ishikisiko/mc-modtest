@@ -481,47 +481,51 @@ Confirm the jar contains the structure resources (name the versioned jar:
 `build/libs/` keeps the jars of earlier versions):
 
 ```bash
-jar tf build/libs/myvillage-0.32.0.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/textures/painting/inscription"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
-jar tf build/libs/myvillage-0.32.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/combat/qingfeng_first_person.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/models/item/lingxiao_spear.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/models/item/lingxiao_spear_3d.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear.png"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear_model.png"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/combat/lingxiao_spear_geometry.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/combat/lingxiao_spear_first_person.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/player_animations/sword_combat.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/player_animations/spear_combat.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "data/minecraft/tags/item/swords.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/guides/myvillage/cultivation/index.md"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
+jar tf build/libs/myvillage-0.33.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "data/myvillage/beast/demon_wolf.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/beast/demon_wolf_model.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/beast/demon_wolf_animations.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/textures/entity/demon_wolf/demon_wolf_eyes.png"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/combat/qingfeng_first_person.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/models/item/lingxiao_spear.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/models/item/lingxiao_spear_3d.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear.png"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear_model.png"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/combat/lingxiao_spear_geometry.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/combat/lingxiao_spear_first_person.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/player_animations/sword_combat.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/player_animations/spear_combat.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "data/minecraft/tags/item/swords.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/guides/myvillage/cultivation/index.md"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
 ```
 
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.32.0.jar
+build/libs/myvillage-0.33.0.jar
 ```
 
 ## Versioning And Changelog
@@ -555,7 +559,8 @@ python3 tools/release_gate.py --only 'validate-cultivation-*'
 It prints one line per step and a summary, and exits non-zero if a step
 failed. The steps: the four version places agree and the newest CHANGELOG
 entry has a body; `openspec validate --specs --strict` (skipped without the
-CLI); the generator `--check`s; the structure generator, then the validators
+CLI); the generator `--check`s (including `python3 -m tools.beastgen build demon_wolf
+--check`); the structure generator, then the validators
 from [Manual Acceptance Prep](#manual-acceptance-prep); `tools/tests`; the
 offline preview's numpy tests (solver parity, `sweep`/`diff` rendering) under
 `$MC_PREVIEW_PYTHON` or `.venv-preview` (skipped when neither exists); and `./gradlew build` under the shared heavy-work lock (`$MC_HEAVY_LOCK`, else
@@ -580,6 +585,7 @@ report, and the preview server are not part of it.
 python3 tools/generate_all_structures.py --mc-version 1.21.1 --output src/main/resources/data/myvillage/structure
 python3 tools/validate_generated_structures.py src/main/resources/data/myvillage/structure
 python3 tools/validate_custom_entities.py
+python3 -m tools.beastgen build demon_wolf --check
 python3 tools/validate_rideable_flying_sword.py
 python3 tools/validate_sword_combat_foundation.py
 python3 tools/validate_cultivation_core.py
@@ -613,47 +619,51 @@ python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 
 python3 tools/write_visual_acceptance_report.py
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.32.0.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.32.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.32.0.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/textures/painting/inscription"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
-jar tf build/libs/myvillage-0.32.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/combat/qingfeng_first_person.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/models/item/lingxiao_spear.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/models/item/lingxiao_spear_3d.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear.png"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear_model.png"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/combat/lingxiao_spear_geometry.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/combat/lingxiao_spear_first_person.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "data/myvillage/combat/"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/player_animations/sword_combat.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/player_animations/spear_combat.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "data/minecraft/tags/item/swords.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/textures/item/low_grade_spirit_stone.png"
-jar tf build/libs/myvillage-0.32.0.jar | grep "data/myvillage/worldgen/configured_feature/spirit_stone_ore.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "data/myvillage/myvillage/realm/qi_refining.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/guides/myvillage/cultivation"
-jar tf build/libs/myvillage-0.32.0.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.33.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.33.0.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
+jar tf build/libs/myvillage-0.33.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "data/myvillage/beast/demon_wolf.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/beast/demon_wolf_model.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/beast/demon_wolf_animations.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/textures/entity/demon_wolf/demon_wolf_eyes.png"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/combat/qingfeng_first_person.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/models/item/lingxiao_spear.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/models/item/lingxiao_spear_3d.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear.png"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear_model.png"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/combat/lingxiao_spear_geometry.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/combat/lingxiao_spear_first_person.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "data/myvillage/combat/"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/player_animations/sword_combat.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/player_animations/spear_combat.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "data/minecraft/tags/item/swords.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/textures/item/low_grade_spirit_stone.png"
+jar tf build/libs/myvillage-0.33.0.jar | grep "data/myvillage/worldgen/configured_feature/spirit_stone_ore.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "data/myvillage/myvillage/realm/qi_refining.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/guides/myvillage/cultivation"
+jar tf build/libs/myvillage-0.33.0.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -687,6 +697,126 @@ must use a recorded seed and taiga-family biome, then note observation time and
 group size; a successful codec/server boot does not prove frequency. Inspect
 front, both sides, back, three-quarter, idle, walk, sit, sleep, crouch, pounce,
 hurt, and death before recording the human visual verdict.
+
+## Demon Wolf (妖狼)
+
+`myvillage:demon_wolf` is the first hostile beast (0.33.0): a wolf about 1.3
+blocks at the shoulder with its own model, keyframe clips, and AI. It hunts
+the nearest player it can see and fights with two moves: a close-range bite
+(撕咬) with a short telegraph and a long recovery, and a mid-range pounce (扑击)
+with a deep crouch, an aim that locks on where the target stood, a leap, and a
+skidding landing. The moves are built so that stepping sideways avoids the
+bite and stepping away after the pounce locks makes it miss (the ledger below
+records what has been observed). There is no natural spawning and no drop:
+summon it or use the spawn egg (in `myvillage:main` after the simple fox egg).
+It needs a difficulty above Peaceful, where vanilla removes every monster.
+
+```mcfunction
+/summon myvillage:demon_wolf ~ ~ ~
+/give @s myvillage:demon_wolf_spawn_egg
+```
+
+During part of each move (its immune window) a combat hit still damages the
+wolf and freezes it for the hit-stop but neither stuns nor pushes it; outside
+that window it flinches like any mob, its move is cancelled, and that move
+comes back after a short cooldown. The bite resists from its first tick
+through its last active tick, so its recovery is the punish window; the pounce
+can be interrupted early in its wind-up and resists from mid wind-up through
+its last active tick. While a move shows, the client draws the wolf on the
+server's tick-by-tick path (each position update applied in one step, the
+move clip two ticks behind the newest synced move tick); that keeps the
+pounce's landing on the ground, and uneven packet arrival can show as a
+slight per-tick judder during a move. Every move
+number (timing, ranges, cooldowns, weights, damage, hit boxes, lunges,
+knockback, immune windows) and the attributes live only in
+`src/main/resources/data/myvillage/beast/demon_wolf.json`; the server runs from
+it and the animation generator reads it, so a retune is a data edit plus a
+rebuild. The model, clips, texture, and glow layer are generated by
+`tools/beastgen`; never edit them by hand. How the framework works and how to
+add a second beast: `docs/ai-kb/38_hostile_beasts.md`.
+
+Operator debug commands (permission 2) for checks and stills:
+
+```mcfunction
+/myvillage beast move @e[type=myvillage:demon_wolf,limit=1,sort=nearest] myvillage:demon_wolf_pounce
+/myvillage beast status @e[type=myvillage:demon_wolf]
+/myvillage beast debug on
+/myvillage beast debug off
+```
+
+`move` starts the named move on the next AI step, ignoring range, cooldown,
+and gap (aimed at the current target, or straight ahead without one);
+`status` prints each selected beast's move, move tick, phase, whether it
+resists stagger, its aim, cooldowns, and target distance; `debug on` writes
+`BEAST_DEBUG` lines for move starts, ends, staggers, and hits to the server
+log. With `/tick freeze` and `/tick step` the client shows the pose of the
+server's exact move tick.
+
+Generator, offline previews, and headless in-game evidence:
+
+```bash
+python3 -m tools.beastgen build demon_wolf            # rewrite the four generated files
+python3 -m tools.beastgen build demon_wolf --check    # fail when they differ (release gate)
+python3 -m tools.beastgen preview demon_wolf          # out/preview/demon_wolf/ (numpy/Pillow via .venv-preview)
+python3 -m tools.combat_capture beast                 # out/preview/demon_wolf/ingame/
+python3 -m tools.combat_capture beast --parts fight,dodge   # re-run some parts
+```
+
+`preview` (sheets, GIFs, and for the pounce `clip_pounce_arc.png` and
+`clip_pounce_landing.png`, with the beast moved along the server's path) is
+described in `tools/beastgen/README.md`. The capture has six parts: `idle`
+(four sides and a scale still), `moves` (exact-tick stills of every move, plus
+landing stills for a move that leaves the ground), `locomotion` (walk and run
+videos), `fight` (60 s against a survival player with the Qingfeng sword, no
+armour or effects, natural regeneration off, with a per-beast table of moves,
+hits, damage, and staggers inside and outside immune windows), `dodge` (slowed
+trials: standing still against strafing for the bite, one early swing against
+every move), and `slowmo` (every move at a slowed tick rate, server ticks
+polled against video time). `tools/combat_capture/README.md` has the details.
+It uses the same host programs, session, and heavy-work lock as the weapon
+captures; its output is developer evidence and records no owner verdict.
+
+Automated checks:
+
+```bash
+python3 tools/validate_custom_entities.py
+/usr/bin/python3 -m unittest tools.tests.test_validate_custom_entities tools.tests.test_beastgen tools.tests.test_beast_capture
+./gradlew test
+./gradlew build
+```
+
+Developer evidence from the headless capture on the build host (not owner
+acceptance): offline previews in `out/preview/demon_wolf/`, in-game stills,
+videos, `fight_log.txt`, and `manifest.json` in
+`out/preview/demon_wolf/ingame/`. In the 60 s fight, 35 player hits landed
+inside an immune window and staggered nothing; of 36 outside, 20 staggered the
+wolf and 17 of those cancelled a move. A player who stood still and traded
+took the pounce and two bites per wolf before killing it, about 14 of 20
+health on Normal, with no deaths. Strafing during the bite's wind-up, from its
+start or from the turn lock, avoided the bite. Stepping away from a pounce
+after its lock was not measured. The pounce's landing hung about 0.6 blocks in
+the air before the one-step position update
+(`out/preview/demon_wolf/ingame_lerp_before/`).
+
+Nothing below has been observed by the owner on a physical client.
+
+| Demon Wolf (0.33.0) real-client acceptance surface | Result |
+|---|---|
+| `/summon` and the spawn egg create the wolf; egg place in the creative tab; English and Chinese names | `not_verified` |
+| Size beside the player, model, texture, and the glowing eyes, mane edges, and tail tip by day and at night | `not_verified` |
+| Idle, walk, and run clips; feet do not slide while walking or running | `not_verified` |
+| Bite and pounce telegraphs read early enough to react; sideways movement avoids the bite; stepping away after the lock makes the pounce miss | `not_verified` |
+| How the fight feels with the Qingfeng sword and the Lingxiao spear: immune windows, stagger flinch, recovery as the punish window | `not_verified` |
+| Bite and pounce damage, armour and shield, and knockback on the player | `not_verified` |
+| Sounds: ambient and wind-up growls, hurt, death, and steps at the lowered pitch (the build host has no audio device) | `not_verified` |
+| Death and no drop | `not_verified` |
+| Save and reload keep the wolf; it does not despawn by distance | `not_verified` |
+| `F3+T` reload picks up regenerated model, animation, and texture files | `not_verified` |
+| Multiplayer: a second client sees the same moves, clips, and staggers in sync | `not_verified` |
+| Moves on a real network: the pounce lands on the ground, and the per-tick judder from uneven packets is acceptable | `not_verified` |
+| `/myvillage beast move`, `status`, and `debug` from a real client | `not_verified` |
+| Frame rate with several wolves on a real GPU | `not_verified` |
+| Owner verdict on the wolf's look and its fight | `not_verified` |
 
 ## Rideable Flying Sword Smoke Test
 
@@ -2130,6 +2260,8 @@ Included:
 - a custom `myvillage:sect` worldgen Structure: sects are sited during world generation, biome-gated by `tags/worldgen/biome/has_sect`, spaced by `worldgen/structure_set/sect`, and `/locate`-able, resting on a mountain derived from the terrace profile (反推山形)
 - generated optional-mod runtime fallback map and fallback coverage validation
 - `myvillage:simple_fox`: vanilla-model custom entity, spawn egg, empty first-pass loot table, and low-weight taiga natural spawning
+- `myvillage:demon_wolf` (妖狼): hostile beast with its own generated model and clips and two data-driven moves; summon and spawn egg only, no drop
+- /myvillage beast move <targets> <move_id> | status <targets> | debug on|off
 - `myvillage:rideable_flying_sword`: transient, one-player, server-authoritative flying-sword vehicle and creative-tab item
 - NBT integrity validation for roof/top-layer/function-block/signature checks
 - deterministic town-plan and sect-plan/sect-generation validation with top-down previews

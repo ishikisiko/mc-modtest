@@ -41,6 +41,9 @@ import java.util.Map;
  *     never frozen or stunned (they still receive knockback, scaled by their resistance).</li>
  *     <li>Players are never frozen and keep full control; they get the knockback at once and a
  *     transient 60% MOVEMENT_SPEED slow for the stun.</li>
+ *     <li>Poise: a target that is a {@link StaggerResistant} and resists at the moment of the hit
+ *     still takes the damage and the hit-stop freeze, but gets no stun and no knockback impulse,
+ *     and its own motion is kept through the freeze.</li>
  * </ol>
  * State is cleared on death, unload, dimension change and server stop.
  */
@@ -60,25 +63,31 @@ public final class CombatReactionService {
             return;
         }
         long now = target.level().getGameTime();
-        boolean excluded = excludedType(target.getClass());
         Reaction reaction = REACTIONS.get(target.getId());
         if (reaction == null || reaction.target != target) {
             reaction = new Reaction(target);
             REACTIONS.put(target.getId(), reaction);
         }
 
-        boolean freezable = freezes(target.getClass(), freezeTicks) && !target.isDeadOrDying();
-        if (freezable) {
+        HitPlan plan = plan(
+                target.getClass(),
+                freezeTicks,
+                move.reaction().hitstunTicks(),
+                StaggerResistant.resists(target),
+                target.isDeadOrDying());
+        if (plan.freeze()) {
             reaction.freezeUntil = Math.max(reaction.freezeUntil, now + freezeTicks);
-            reaction.pendingImpulse = impulse;
-            Vec3 motion = target.getDeltaMovement();
-            target.setDeltaMovement(0.0, Math.min(0.0, motion.y), 0.0);
-        } else {
+            if (plan.impulse()) {
+                reaction.pendingImpulse = impulse;
+                Vec3 motion = target.getDeltaMovement();
+                target.setDeltaMovement(0.0, Math.min(0.0, motion.y), 0.0);
+            }
+        } else if (plan.impulse()) {
             CombatDamageService.applyImpulse(target, impulse);
         }
 
         int baseStun = move.reaction().hitstunTicks();
-        if (!excluded && baseStun > 0 && !target.isDeadOrDying()) {
+        if (plan.stun()) {
             boolean stacked = reaction.lastStunTick != Long.MIN_VALUE
                     && now - reaction.lastStunTick <= CombatReactionMath.STUN_STACK_WINDOW_TICKS;
             reaction.stunStacks = stacked ? reaction.stunStacks + 1 : 0;
@@ -92,6 +101,20 @@ public final class CombatReactionService {
                 }
             }
         }
+    }
+
+    /**
+     * What one hit does to a target of {@code type}: freeze it for the hit-stop, apply (or hold
+     * until the freeze ends) the knockback impulse, and stun it. A resisting
+     * {@link StaggerResistant} keeps only the freeze.
+     */
+    static HitPlan plan(Class<? extends Entity> type, int freezeTicks, int baseStunTicks, boolean resisting, boolean dying) {
+        boolean freeze = freezes(type, freezeTicks) && !dying;
+        boolean stun = !excludedType(type) && baseStunTicks > 0 && !dying && !resisting;
+        return new HitPlan(freeze, !resisting, stun);
+    }
+
+    record HitPlan(boolean freeze, boolean impulse, boolean stun) {
     }
 
     /** Server tick: releases held impulses when a freeze ends and ends expired stuns. */

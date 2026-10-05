@@ -1,6 +1,7 @@
 package com.example.myvillage.entity;
 
 import com.example.myvillage.MyVillageMod;
+import com.example.myvillage.entity.beast.DemonWolfEntity;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -34,6 +35,15 @@ public final class ModEntities {
                     .passengerAttachments(new Vec3(0.0, 0.25, 0.0))
                     .clientTrackingRange(10)
                     .updateInterval(1)
+                    .build(id.toString()));
+
+    /** 妖狼: shoulder about 1.3 blocks, nose to rump about 2.2; no natural spawning. */
+    public static final DeferredHolder<EntityType<?>, EntityType<DemonWolfEntity>> DEMON_WOLF =
+            ENTITY_TYPES.register("demon_wolf", id -> EntityType.Builder
+                    .of(DemonWolfEntity::new, MobCategory.MONSTER)
+                    .sized(1.3F, 1.45F)
+                    .eyeHeight(1.2F)
+                    .clientTrackingRange(10)
                     .build(id.toString()));
 
     private ModEntities() {

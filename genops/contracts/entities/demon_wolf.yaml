@@ -1,0 +1,322 @@
+schema_version: 1
+
+# Numbers that are tuned (attributes, move timing, ranges, cooldowns, weights, hit boxes, lunges,
+# knockback, immune windows) live only in the server data file named under `data_sources`; this
+# contract names the fields and ids and never repeats the values. Generated art facts (bones, atlas
+# size, shadow radius, clip keyframes) live only in the four files tools/beastgen writes.
+# tools/validate_custom_entities.py checks that the ids, attribute names, clip names, and the
+# Java-pinned dimensions below agree with the data file, the model files, and the Java registration.
+
+project:
+  mod_id: myvillage
+  java_package: com.example.myvillage
+  minecraft_version: 1.21.1
+  neoforge_version: 21.1.233
+  java_version: 21
+
+data_sources:
+  server_index: data/myvillage/beast/index.json
+  server_data: data/myvillage/beast/demon_wolf.json
+  model: assets/myvillage/beast/demon_wolf_model.json
+  animations: assets/myvillage/beast/demon_wolf_animations.json
+  art_generator: tools/beastgen/defs/demon_wolf.py
+
+entity:
+  id: demon_wolf
+  resource_location: myvillage:demon_wolf
+  display_name:
+    zh_cn: 妖狼
+    en_us: Demon Wolf
+  fantasy_role: 第一只敌对妖兽；比简易狐狸明显更大，用读得懂的蓄势动作撕咬和扑击玩家
+  kind: monster
+  base_class: com.example.myvillage.entity.beast.BeastEntity
+  java_class: com.example.myvillage.entity.beast.DemonWolfEntity
+  vanilla_superclass: net.minecraft.world.entity.monster.Monster
+  mob_category: monster
+  temperament: hostile
+  behavior_inheritance:
+    source: com.example.myvillage.entity.beast.BeastEntity
+    strategy: generic_beast_framework_subclass
+    subclass_adds:
+      - beast id (selects the bundled data file and the client asset files)
+      - vanilla wolf sounds at a lower pitch and a wind-up growl
+      - experience reward
+
+physical:
+  width: 1.3
+  height: 1.45
+  eye_height: 1.2
+  shadow_radius_source: assets/myvillage/beast/demon_wolf_model.json#shadow_radius
+  fire_immune: false
+  summonable: true
+  saveable: true
+  client_tracking_range: 10
+  despawn_when_far_away: false
+
+attributes:
+  source: data/myvillage/beast/demon_wolf.json#attributes
+  base: Monster.createMonsterAttributes()
+  registered:
+    - max_health
+    - attack_damage
+    - movement_speed
+    - follow_range
+    - armor
+    - knockback_resistance
+    - step_height
+  transient_modifiers:
+    - id: myvillage:beast_poise
+      attribute: knockback_resistance
+      operation: add_value
+      amount: 1.0
+      while: the running move's last executed tick is inside its immune_ticks
+
+behavior:
+  goals:
+    - priority: 0
+      id: float
+    - priority: 2
+      id: beast_attack
+      parameters:
+        class: com.example.myvillage.entity.beast.BeastAttackGoal
+        role: chase the target at chase.speed_modifier and ask the beast to start a ready move
+    - priority: 5
+      id: water_avoiding_random_stroll
+    - priority: 6
+      id: look_at_player
+    - priority: 6
+      id: random_look_around
+  target_goals:
+    - priority: 1
+      id: hurt_by_target
+    - priority: 2
+      id: nearest_attackable_player
+      parameters:
+        must_see: true
+  interaction:
+    tameable: false
+    breedable: false
+    rideable: false
+  combat:
+    mode: data_driven_moves
+    server_authoritative: true
+    tuning_source: data/myvillage/beast/demon_wolf.json
+    move_runtime: >-
+      BeastEntity runs one move tick per server AI step (a hit-stop freeze pauses it): stop
+      navigation, turn toward the target before turn_lock_tick, lock yaw and aim point at
+      turn_lock_tick, one lunge impulse at lunge.tick, test the hit box on active_ticks (each victim
+      once, at most maximum_targets), end at total_ticks and start the move's cooldown.
+    move_selection: >-
+      BeastMoveSelector picks among moves whose use_range holds the horizontal distance and whose
+      cooldown is over, by weight, no sooner than chase.move_gap_ticks after the previous move.
+    damage: mob attack damage source, attack_damage times damage_multiplier, then the move's own knockback along the locked yaw
+    victims: the current target, any attackable player, and any mob targeting the beast
+    moves:
+      - id: myvillage:demon_wolf_bite
+        animation: bite
+        name: 撕咬
+        intent: close range; short telegraph, early yaw lock, small forward snap, long recovery as the punish window
+      - id: myvillage:demon_wolf_pounce
+        animation: pounce
+        name: 扑击
+        intent: mid range; long crouch telegraph, aim locks on the target's position, leap, long skidding recovery
+    stagger:
+      animation: stagger
+      immunity: >-
+        BeastEntity implements combat.runtime.StaggerResistant. Inside a move's immune_ticks a
+        combat hit still deals damage and the hit-stop freeze but no stun and no knockback impulse.
+        Outside it CombatReactionService stuns the beast as any mob; the beast cancels its move
+        (cooldown chase.cancelled_cooldown_ticks) and shows the stagger clip.
+  performance:
+    custom_tick_scans: false
+    hit_query: one entity query of the move hit box's bounds on active ticks only
+
+state:
+  synced:
+    - name: DATA_MOVE
+      type: int
+      default: 0
+      purpose: running move index plus one (0 = none); starts and stops the client move clip
+    - name: DATA_STAGGERED
+      type: boolean
+      default: false
+      purpose: stunned or still inside the short stagger display window
+    - name: DATA_MOVE_TICK
+      type: int
+      default: -1
+      purpose: the move tick the server last ran, so client clips re-anchor to it
+  persisted: []
+  transient:
+    - move index, move tick, aim lock, locked yaw and aim point
+    - victims of the running move
+    - per-move cooldowns and the last move end
+    - forced debug move
+    - stagger display ticks
+  custom_state:
+    statement: Move state is transient and never saved; saved state is vanilla Mob/Monster state only.
+
+rendering:
+  route: vanilla
+  custom_geometry: true
+  custom_animation_files: true
+  geckolib: false
+  model_class: com.example.myvillage.client.entity.beast.BeastModel
+  renderer_class: com.example.myvillage.client.entity.beast.BeastRenderer
+  model_layer: myvillage:demon_wolf#main
+  geo: myvillage:beast/demon_wolf_model.json
+  animation: myvillage:beast/demon_wolf_animations.json
+  base_texture: myvillage:textures/entity/demon_wolf/demon_wolf.png
+  glow_texture: myvillage:textures/entity/demon_wolf/demon_wolf_eyes.png
+  glow_render_type: eyes
+  move_presentation: >-
+    While a move is shown, BeastEntity.lerpTo applies each position packet in one step and the
+    move clip trails the newest synced move tick by MOVE_CLIP_DELAY_TICKS, so the pose matches the
+    drawn position; under /tick freeze the clip shows the server's move tick exactly. Vanilla
+    three-step smoothing applies outside moves.
+  final_texture_size:
+    source: assets/myvillage/beast/demon_wolf_model.json#texture
+  generator:
+    owner: tools/beastgen
+    definition: tools/beastgen/defs/demon_wolf.py
+    check: python3 -m tools.beastgen build demon_wolf --check
+    hand_edits: forbidden
+  bones:
+    source: assets/myvillage/beast/demon_wolf_model.json#bones
+    look_bone: head
+  animations:
+    - id: idle
+      loop: true
+      driver: always running on the client
+    - id: walk
+      loop: true
+      driver: animateWalk while not aggressive
+    - id: run
+      loop: true
+      driver: animateWalk while aggressive
+    - id: bite
+      loop: false
+      driver: move myvillage:demon_wolf_bite, length total_ticks / 20
+    - id: pounce
+      loop: false
+      driver: move myvillage:demon_wolf_pounce, length total_ticks / 20
+    - id: stagger
+      loop: false
+      driver: while the synced stagger flag is set
+    - id: hurt
+      loop: false
+      source: vanilla_living_entity_render_state
+    - id: death
+      loop: false
+      source: vanilla_living_entity_render_state
+  emissive_regions:
+    - eyes
+    - mane blade top edges
+    - tail tip
+
+texture_art_direction:
+  silhouette: 低矮修长的炭灰色掠食者，颈背一列青色鬃刃，尾尖发光
+  palette:
+    coat: "#363C45"
+    ash: "#878F96"
+    teal: "#2E9097"
+    glow: "#82DCD3"
+  forbidden:
+    - 写实毛发
+    - 抗锯齿或平滑缩放
+    - 手工修改生成的贴图或模型文件
+
+items:
+  spawn_egg:
+    enabled: true
+    id: demon_wolf_spawn_egg
+    primary_color: "#353B44"
+    secondary_color: "#4FD0C8"
+    creative_tab: myvillage:main
+
+sound:
+  strategy: direct_vanilla_reuse
+  custom_sound_resources: false
+  pitch: lowered (DemonWolfEntity.VOICE_PITCH)
+  events:
+    ambient: minecraft:entity.wolf.growl
+    windup: minecraft:entity.wolf.growl
+    hurt: minecraft:entity.wolf.hurt
+    death: minecraft:entity.wolf.death
+    step: minecraft:entity.wolf.step
+  subtitles: inherit_vanilla
+
+loot:
+  table: myvillage:entities/demon_wolf
+  intent: no special drop in this version
+  pools: []
+
+spawn:
+  natural: false
+  biome_modifier: null
+  spawn_placement: null
+  routes:
+    - /summon myvillage:demon_wolf
+    - myvillage:demon_wolf_spawn_egg
+
+debug_commands:
+  permission: 2
+  commands:
+    - /myvillage beast move <targets> <move_id>
+    - /myvillage beast status <targets>
+    - /myvillage beast debug on|off
+
+acceptance:
+  build: true
+  dedicated_server_start: true
+  summon_test: true
+  spawn_egg_test: true
+  save_reload_test: true
+  natural_spawn_test: false
+  multiplayer_observer_test: true
+  automated:
+    - python3 tools/validate_custom_entities.py
+    - python3 -m tools.beastgen build demon_wolf --check
+    - /usr/bin/python3 -m unittest tools.tests.test_validate_custom_entities tools.tests.test_beastgen tools.tests.test_beast_capture
+    - ./gradlew test
+    - ./gradlew build
+  developer_evidence:
+    - python3 -m tools.beastgen preview demon_wolf
+    - python3 -m tools.combat_capture beast   # parts idle, moves, locomotion, fight, dodge, slowmo; out/preview/demon_wolf/ingame/
+  visual_views:
+    - front
+    - side
+    - three_quarter_front
+    - three_quarter_back
+  visual_states:
+    - idle
+    - walk
+    - run
+    - bite
+    - pounce
+    - stagger
+    - hurt
+    - death
+  human_verdict_required: true
+  human_verdict_status: not_verified
+
+assumptions:
+  - 当前仓库基线为 Minecraft 1.21.1、NeoForge 21.1.233、Java 21，mod id 为 myvillage，Java 包根为 com.example.myvillage。
+  - 妖狼不继承原版 Wolf；模型、动画、AI 与攻击状态机都是自有的，复用原版 ModelPart、AnimationDefinition 与 Goal 系统，不引入 GeckoLib 或新依赖。
+  - 招式时序与数值只存在于 data/myvillage/beast/demon_wolf.json，Java 与动画生成器都从它读取。
+  - 声音直接复用原版狼的 SoundEvent，降低音高；不创建 sounds.json 条目或 OGG 文件。
+  - 本版本不自然生成，没有特殊掉落：只能 /summon 或刷怪蛋。
+
+out_of_scope:
+  - natural_spawning
+  - special_drops
+  - custom_audio
+  - geckolib
+  - taming_or_breeding
+  - boss_mechanics
+  - player_dodge_or_block
+  - visual_variants
+
+schema_limitations:
+  - attributes 只列出属性名并指向数据文件，不写数值；schema 要求的 max_health/movement_speed/follow_range 数值以 data/myvillage/beast/demon_wolf.json 为唯一来源，避免契约与调参漂移。
+  - rendering.final_texture_size、bones、shadow_radius 指向 tools/beastgen 生成的模型文件，图集尺寸由打包器决定，不在契约里重复。
+  - schema 不校验招式数据、动画片段时长、刷怪蛋、声音或空 loot table；这些由 tools/validate_custom_entities.py、Java 加载器与单元测试、构建和游戏内验收覆盖。

@@ -32,6 +32,17 @@ For a registered weapon the tool SHALL capture first-person and third-person sti
 - **WHEN** the capture command runs for `myvillage:qingfeng_sword`
 - **THEN** it writes one labelled sheet per view with a row for each of the five moves and a manifest listing every frame's move and tick
 
+### Requirement: Beast evidence is captured from server ticks
+The tool SHALL provide a `beast` command that, for a beast id (default `myvillage:demon_wolf`), captures in-game evidence into `out/preview/<name>/ingame/` in six parts selectable with `--parts`: `idle` (stills from four sides and a scale still), `moves` (stills of every move at its key ticks taken with the world frozen (`/tick freeze`, `/tick step`) after starting the move with `/myvillage beast move`, plus the first grounded tick and two ticks later for a move whose lunge leaves the ground), `locomotion` (walk and run footage), `fight` (a recorded fight with the server's `BEAST_DEBUG` log and per-beast counts of moves, hits, damage, and staggers inside and outside immune windows), `dodge` (slowed standing-still, strafing, and early-swing trials), and `slowmo` (every move at a slowed tick rate with server ticks polled against video time). It SHALL read the moves and key ticks from the beast's data file, SHALL start and stop its own session unless one is running, and its page and manifest MUST NOT state or imply an owner verdict.
+
+#### Scenario: Move stills follow the data file
+- **WHEN** the beast command runs for `myvillage:demon_wolf`
+- **THEN** each move still is labelled with its move id, key, and server tick taken from `data/myvillage/beast/demon_wolf.json`
+
+#### Scenario: Re-running one part keeps the others
+- **WHEN** the beast command runs with `--parts fight` against an existing output directory
+- **THEN** the fight evidence is replaced and the other parts' entries stay on the page and in the manifest
+
 ### Requirement: Comparison and review page
 The tool SHALL pair two capture sets by weapon, move, key, and view into before/after sheets and SHALL write a static review page under `out/preview/combat_capture/<label>/`. Its output is developer evidence and MUST NOT state or imply an owner verdict.
 

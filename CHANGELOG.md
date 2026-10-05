@@ -7,6 +7,91 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.33.0
+
+The first hostile beast, `myvillage:demon_wolf` (妖狼), and the framework it
+runs on: a beast is a `BeastEntity` subclass plus a data file of attack moves
+plus one generated art definition. The wolf has no natural spawning and no
+drop; `/summon` and its spawn egg only.
+
+### Added
+
+- `myvillage:demon_wolf` (en_us Demon Wolf, zh_cn 妖狼): a monster with a
+  1.3 x 1.45 block hitbox, its own cuboid model, keyframe clips (idle, walk,
+  run, bite, pounce, stagger), glowing eyes, mane edges, and tail tip, and
+  vanilla wolf sounds at a lower pitch. It hunts the nearest visible player
+  with two moves: a close bite (撕咬) whose recovery is the punish window, and
+  a mid-range pounce (扑击) whose aim locks on where the target stood before it
+  leaps. No GeckoLib or other new dependency.
+- `myvillage:demon_wolf_spawn_egg` (妖狼刷怪蛋) in `myvillage:main`, after the
+  simple fox egg; an empty loot table.
+- `entity/beast/`: `BeastEntity` (server move runtime: selection by range,
+  cooldown, gap, and weight; turn then aim lock; one lunge sized under vanilla
+  drag to land on the aim point; an oriented hit box on the active ticks;
+  per-move knockback), `BeastDataLoader` and `BeastDefinitions` (strict
+  schema-1 loading of `data/myvillage/beast/index.json` and one file per
+  beast, a startup error on bad data), `BeastMoveSelector`, `BeastGeometry`,
+  `BeastMotion`, and `BeastCommands`. Attributes and every move number live
+  only in `data/myvillage/beast/demon_wolf.json`.
+- `client/entity/beast/`: a generic `BeastRenderer` and `BeastModel` that read
+  a beast's model and animation JSON into vanilla `ModelPart` and
+  `AnimationDefinition`, with an emissive layer and walk/run rates that keep
+  planted feet from sliding. Clips follow the synced move tick and pause with
+  the hit-stop. While a move shows, each position update is applied in one
+  step and the move clip plays two ticks behind the newest synced move tick,
+  so the pose matches the drawn position (with vanilla's three-step smoothing
+  the pounce's landing pose hung about 0.6 blocks in the air); uneven packet
+  arrival can show as per-tick judder during a move.
+- `tools/beastgen/`: generates a beast's model, clips, texture, and glow layer
+  from `defs/<name>.py`, keying move clips on the server ticks read from the
+  data file, including the landing tick of a leaping move from a port of the
+  server's lunge physics, and holding planted paws at their world point while
+  a ground lunge carries the body (`build`, `build --check`, `preview`; the
+  previews move the beast along the server's path).
+- `/myvillage beast move <targets> <move_id>`, `status <targets>`, and
+  `debug on|off` (permission 2) for server checks and frozen-tick stills.
+- `python3 -m tools.combat_capture beast` with six parts (`idle`, `moves`,
+  `locomotion`, `fight`, `dodge`, `slowmo`): headless stills, footage, a
+  recorded 60 s fight with the server's debug log and per-beast counts, slowed
+  dodge trials, and slowed move videos, under `out/preview/demon_wolf/ingame/`.
+- `genops/contracts/entities/demon_wolf.yaml`,
+  `docs/ai-kb/38_hostile_beasts.md`, and the `hostile-beast-runtime` spec.
+
+### Changed
+
+- Combat hit reactions honour a new `combat/runtime/StaggerResistant`
+  interface: a target that resists at the moment of the hit takes the damage
+  and the hit-stop freeze but no stun and no knockback impulse. Every other
+  target reacts as before. A beast resists inside its running move's
+  `immune_ticks` (the bite from its first tick through its last active tick,
+  the pounce from mid wind-up through its last active tick) and is otherwise
+  staggered out of the move, which then takes a short cooldown.
+
+### Validation
+
+- `tools/validate_custom_entities.py` now checks every beast in the data index
+  (data invariants, model and clip files against the server ticks, textures,
+  generator ownership, names, spawn egg, loot, Java registration against the
+  contract, client-only rendering, a beast-neutral combat package, no natural
+  spawning), with new tests; the simple fox checks are unchanged.
+- The release gate runs `python3 -m tools.beastgen build demon_wolf --check`.
+- `tools/release_gate.py`: all 44 steps passed, including 418 Java tests and
+  630 Python tests.
+- Headless capture on the build host (developer evidence,
+  `out/preview/demon_wolf/ingame/`; offline previews in
+  `out/preview/demon_wolf/`): in a 60 s fight against a survival player with
+  the Qingfeng sword, no armour, and natural regeneration off, 35 player hits
+  inside an immune window caused no stagger, and 36 outside caused 20, 17 of
+  which cancelled a move. A player who stood still and traded took the pounce
+  and two bites per wolf before killing it (about 14 of 20 health on Normal, no
+  deaths). Strafing during the bite's wind-up avoided it in the dodge trial.
+  Stepping away from a pounce after its lock was not measured. The client
+  position and clip timing during moves have no unit test (they need a client
+  level); the landing stills and slowed videos are their evidence.
+- Nothing about the wolf has been observed by the owner on a physical client;
+  its look, fight feel, sound, `F3+T` reload, and multiplayer are
+  `not_verified` in the README ledger.
+
 ## 0.32.0
 
 The Meditation page of the H panel is rebuilt around a meridian diagram. It is

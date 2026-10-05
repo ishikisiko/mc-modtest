@@ -137,6 +137,15 @@ class SelectionTest(unittest.TestCase):
         readers = {s.name for s in gate.STEPS if s.after == gate.BUILD}
         self.assertTrue({"validate-sword-combat-foundation", "readme-jar-listing"} <= readers)
 
+    def test_every_beastgen_definition_has_a_check_step(self):
+        from tools.beastgen import build as beastgen_build
+        steps = {s.name: s for s in gate.STEPS}
+        for beast in beastgen_build.DEFINITIONS:
+            step = steps.get(f"beastgen-{beast.replace('_', '-')}-check")
+            self.assertIsNotNone(step, beast)
+            self.assertEqual((gate.PY, "-m", "tools.beastgen", "build", beast, "--check"), step.argv)
+            self.assertLess(list(steps).index(step.name), list(steps).index(gate.BUILD))
+
 
 class RunTest(TempRoot):
     def test_all_passing_exits_zero(self):

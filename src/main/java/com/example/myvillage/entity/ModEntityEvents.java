@@ -1,6 +1,9 @@
 package com.example.myvillage.entity;
 
 import com.example.myvillage.MyVillageMod;
+import com.example.myvillage.entity.beast.BeastDefinitions;
+import com.example.myvillage.entity.beast.BeastEntity;
+import com.example.myvillage.entity.beast.DemonWolfEntity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.animal.Fox;
@@ -18,6 +21,9 @@ public final class ModEntityEvents {
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {
         event.put(ModEntities.SIMPLE_FOX.get(), Fox.createAttributes().build());
+        // Beast data loads here on both sides; a broken file stops startup.
+        event.put(ModEntities.DEMON_WOLF.get(),
+                BeastEntity.createAttributes(BeastDefinitions.bundled().require(DemonWolfEntity.ID)).build());
     }
 
     @SubscribeEvent

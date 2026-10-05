@@ -44,6 +44,17 @@ The two combat client-to-server payloads SHALL remain empty, and timing, hit, da
 - **WHEN** the server lands a hit
 - **THEN** the clientbound impact payload carries the attacker id, revision, move id, struck entity ids, and contact points only
 
+### Requirement: Hit reactions honour stagger resistance
+The server's hit reaction SHALL ask `combat/runtime/StaggerResistant` whether a struck target resists stagger at the moment of the hit. A resisting target SHALL take the damage and the hit-stop freeze but no hitstun and no knockback impulse; any other target SHALL react as before (freeze, held impulse, stacked stun, boss and player exceptions). Code under `combat/**` and `client/combat/**` MUST NOT name a specific entity class or id to decide this; entities opt in by implementing the interface (see `hostile-beast-runtime`).
+
+#### Scenario: Resisting target keeps only the freeze
+- **WHEN** a combat move hits a non-boss mob that implements `StaggerResistant` and resists at that moment
+- **THEN** the mob loses health and freezes for the hit-stop, and receives no stun and no knockback impulse
+
+#### Scenario: Ordinary target is unchanged
+- **WHEN** the same move hits a mob that does not implement the interface
+- **THEN** it is frozen, pushed, and stunned exactly as before the hook existed
+
 ### Requirement: Qingfeng behavior is preserved
 After this change the Qingfeng sword SHALL keep its five moves with the same totals, active windows, buffer and chain ticks, damage multipliers, target caps, ranges, hit samples, steps, reactions, sounds, hit-stop, camera cues, first-person rig, and generated third-person animation.
 

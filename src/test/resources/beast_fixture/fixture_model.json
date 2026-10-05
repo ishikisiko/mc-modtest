@@ -1,0 +1,16 @@
+{
+  "schema": 1,
+  "id": "myvillage:fixture_beast",
+  "texture": {"width": 64, "height": 32},
+  "look": {"bone": "head", "max_yaw": 50.0, "max_pitch": 30.0},
+  "shadow_radius": 0.7,
+  "bones": [
+    {"name": "root", "parent": null, "pivot": [0.0, 24.0, 0.0], "rotation": [0.0, 0.0, 0.0], "cubes": []},
+    {"name": "body", "parent": "root", "pivot": [0.0, -12.0, 0.0], "rotation": [0.0, 0.0, 0.0],
+     "cubes": [{"origin": [-4.0, -4.0, -8.0], "size": [8.0, 8.0, 16.0], "uv": [0, 0], "inflate": 0.0, "mirror": false}]},
+    {"name": "head", "parent": "body", "pivot": [0.0, -2.0, -8.0], "rotation": [10.0, 0.0, 0.0],
+     "cubes": [{"origin": [-3.0, -3.0, -6.0], "size": [6.0, 6.0, 6.0], "uv": [40, 0], "inflate": 0.25, "mirror": false}]},
+    {"name": "leg_left", "parent": "body", "pivot": [3.0, 4.0, -6.0], "rotation": [0.0, 0.0, 0.0],
+     "cubes": [{"origin": [-1.0, 0.0, -1.0], "size": [2.0, 8.0, 2.0], "uv": [48, 0], "inflate": 0.0, "mirror": true}]}
+  ]
+}

@@ -300,6 +300,7 @@ Staged manual acceptance SHALL start from a prepared mod artifact and command li
 - **AND** the README command list SHALL include `/myvillage list`, `/myvillage town [seed]`, `/myvillage place <structure_id>`, `/myvillage gallery`, `/myvillage gallery original`, and `/myvillage gallery cultivation`
 - **AND** the acceptance prep SHOULD include `python3 tools/validate_plaque_bindings.py` when plaque-bearing resources are present
 - **AND** the acceptance prep SHOULD include `python3 tools/validate_compound_library.py --group chinese_huipai_mansion --count 2` when Hui-style reference slice resources are present
+- **AND** the acceptance prep SHOULD include `python3 tools/validate_custom_entities.py` and `python3 -m tools.beastgen build <beast> --check` for each beast when hostile-beast resources are present
 - **AND** the offline preview prep SHOULD include `python3 tools/preview_structure.py --all`, producing static PNG previews and per-structure `viewer.html` files under `out/preview/`
 - **AND** town preview prep SHOULD include `python3 tools/generate_town_plan_preview.py --count 6`, producing top-down plan PNG/HTML previews under `out/preview/town_plan_s*` (the default base seed covers all six perimeter wall families in six `+101` increments: `octagon/trapezoid/circle/square/dshape/oval`)
 - **AND** when more than one `viewer.html` is produced, the preview prep SHALL produce an aggregate `out/preview/index.html` review entry point
