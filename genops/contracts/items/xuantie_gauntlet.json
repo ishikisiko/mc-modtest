@@ -1,0 +1,83 @@
+{
+  "item_id": "myvillage:xuantie_gauntlet",
+  "kind": "functional_item",
+  "display_name": {
+    "en_us": "Xuantie Gauntlet",
+    "zh_design_name": "玄铁拳套"
+  },
+  "owner_facing_goal": "Add the 拳掌 (fist) school's weapon: a dark-iron plated gauntlet worn on the right hand, a diamond-tier CombatWeaponItem with fast, light attributes whose cultivation combat comes entirely from data (myvillage:basic_fist: straight punch, horizontal palm, uppercut, chopping palm, step-in double strike), with mapped vanilla behavior in vanilla mode.",
+  "creative_tab": {
+    "visibility": "visible",
+    "tab_id": "myvillage:main",
+    "ordering": "Immediately after myvillage:lingxiao_spear and before myvillage:low_grade_spirit_stone."
+  },
+  "java_registration": {
+    "owner_file": "src/main/java/com/example/myvillage/item/ModItems.java",
+    "deferred_holder": "ModItems.XUANTIE_GAUNTLET",
+    "properties": "CombatWeaponItem(Tiers.DIAMOND, properties.attributes(SwordItem.createAttributes(Tiers.DIAMOND, 1, -1.8F)))"
+  },
+  "client_assets": {
+    "lang_key": "item.myvillage.xuantie_gauntlet",
+    "model": "src/main/resources/assets/myvillage/models/item/xuantie_gauntlet.json",
+    "textures": [
+      "src/main/resources/assets/myvillage/textures/item/xuantie_gauntlet.png",
+      "src/main/resources/assets/myvillage/textures/item/xuantie_gauntlet_model.png"
+    ],
+    "visual_verdict": "pending"
+  },
+  "data_resources": {
+    "recipes": [],
+    "tags": [
+      "src/main/resources/data/minecraft/tags/item/swords.json"
+    ],
+    "loot_or_advancement_hooks": []
+  },
+  "behavior": {
+    "type": "functional",
+    "server_client_boundary": "In vanilla mode the item follows the Minecraft SwordItem path; CombatWeaponItem only keeps a durability-only stack change from replaying the equip animation. In cultivation mode the combat runtime finds the item through data/myvillage/combat/weapon/xuantie_gauntlet.json (family fist); no Java code names the item, and the server owns mode, move, timing, hit volume, targets, damage, step movement, recovery, and synchronization exactly as for other data-registered weapons.",
+    "interaction": "Mapped vanilla left-click attack/mining outside cultivation mode; the five myvillage:basic_fist moves inside it. No right-click behavior. Worn on the main hand: the third-person model sits over the fist, and in first person the bare off hand guards while the off-hand slot is empty.",
+    "cooldown_or_durability": "Diamond-tier durability 1561 and max stack size 1 from the tier. Held attack damage 5.0 and attack speed 2.2 (SwordItem.createAttributes(Tiers.DIAMOND, 1, -1.8F)). Cultivation timing is move-owned by the style data.",
+    "data_components": [
+      "SwordItem diamond-tier tool component",
+      "SwordItem.createAttributes(Tiers.DIAMOND, 1, -1.8F)",
+      "No item-owned combo or mode component"
+    ],
+    "tests": [
+      "Registration as CombatWeaponItem, attributes, creative-tab ordering, bilingual names, and swords-tag membership match this contract (tools/validate_mod_items.py)",
+      "The item model is a neoforge:separate_transforms wrapper over myvillage:item/xuantie_gauntlet_3d whose gui perspective stays the 2D myvillage:item/xuantie_gauntlet icon",
+      "No Java source under combat/** or client/combat/** names the item"
+    ]
+  },
+  "acceptance": {
+    "commands": [
+      "/give @s myvillage:xuantie_gauntlet",
+      "/myvillage combat debug on",
+      "/myvillage combat debug off"
+    ],
+    "gates": [
+      "Validate genops/contracts/items/xuantie_gauntlet.json against genops/schemas/item_contract.schema.json",
+      "python3 tools/validate_mod_items.py",
+      "python3 -m unittest tools.tests.test_validate_mod_items",
+      "./gradlew test",
+      "./gradlew build"
+    ],
+    "jar_checks": [
+      "assets/myvillage/models/item/xuantie_gauntlet.json and assets/myvillage/models/item/xuantie_gauntlet_3d.json",
+      "assets/myvillage/textures/item/xuantie_gauntlet.png and assets/myvillage/textures/item/xuantie_gauntlet_model.png",
+      "item.myvillage.xuantie_gauntlet is present in assets/myvillage/lang/en_us.json and assets/myvillage/lang/zh_cn.json",
+      "data/minecraft/tags/item/swords.json contains myvillage:xuantie_gauntlet",
+      "data/myvillage/combat/weapon/xuantie_gauntlet.json"
+    ],
+    "human_verdict": "pending"
+  },
+  "docs": {
+    "sync_required": true
+  },
+  "non_goals": [
+    "Crafting recipe, loot acquisition, natural generation, or advancement hook",
+    "Any Java hook that names the item outside ModItems",
+    "A second (left-hand) gauntlet or a paired item; the off hand stays bare",
+    "School-specific runtime behaviour from the weapon family (data only for now)",
+    "New sound assets, projectiles, special arts, or spiritual-power cost"
+  ]
+}

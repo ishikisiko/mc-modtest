@@ -9,7 +9,6 @@
   "entity.myvillage.cultivator": "修仙者",
   "item.myvillage.rideable_flying_sword": "可骑乘飞剑",
   "item.myvillage.qingfeng_sword": "青锋剑",
-  "item.myvillage.xuantie_gauntlet": "TODO(new_combat_weapon) 青锋剑",
   "item.myvillage.xuanyue_zhenshan_sword": "玄岳镇山剑",
   "item.myvillage.chilian_lihuo_sword": "赤炼离火剑",
   "item.myvillage.qingxiao_liuyun_sword": "青霄流云剑",
@@ -66,11 +65,6 @@
   "combat.myvillage.move.basic_sword_03_rising_cut": "三式：燕返撩月",
   "combat.myvillage.move.basic_sword_04_diagonal_cut": "四式：回风落雁",
   "combat.myvillage.move.basic_sword_05_lunge_thrust": "五式：一线穿云",
-  "combat.myvillage.move.basic_fist_01_straight_punch": "TODO(new_combat_weapon) 一式：青锋问路",
-  "combat.myvillage.move.basic_fist_02_horizontal_palm": "TODO(new_combat_weapon) 二式：流云横渡",
-  "combat.myvillage.move.basic_fist_03_uppercut": "TODO(new_combat_weapon) 三式：燕返撩月",
-  "combat.myvillage.move.basic_fist_04_chop": "TODO(new_combat_weapon) 四式：回风落雁",
-  "combat.myvillage.move.basic_fist_05_step_double_strike": "TODO(new_combat_weapon) 五式：一线穿云",
   "combat.myvillage.move.basic_spear_01_mid_thrust": "中平扎",
   "combat.myvillage.move.basic_spear_02_sweep": "横扫",
   "combat.myvillage.move.basic_spear_03_rising_flick": "上挑",
@@ -900,5 +894,11 @@
   "screen.myvillage.cultivation.study.no_gate": "无关卡",
   "screen.myvillage.cultivation.study.stop_hint": "按 %1$s 停止",
   "screen.myvillage.cultivation.study.preparing": "准备研读",
-  "screen.myvillage.cultivation.study.reading": "研读中"
+  "screen.myvillage.cultivation.study.reading": "研读中",
+  "item.myvillage.xuantie_gauntlet": "玄铁拳套",
+  "combat.myvillage.move.basic_fist_01_straight_punch": "冲拳",
+  "combat.myvillage.move.basic_fist_02_horizontal_palm": "横掌",
+  "combat.myvillage.move.basic_fist_03_uppercut": "上勾",
+  "combat.myvillage.move.basic_fist_04_chop": "劈掌",
+  "combat.myvillage.move.basic_fist_05_step_double_strike": "踏步双撞"
 }

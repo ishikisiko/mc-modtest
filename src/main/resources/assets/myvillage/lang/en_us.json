@@ -16,7 +16,6 @@
   "entity.myvillage.cultivator": "Cultivator",
   "item.myvillage.rideable_flying_sword": "Rideable Flying Sword",
   "item.myvillage.qingfeng_sword": "Qingfeng Sword",
-  "item.myvillage.xuantie_gauntlet": "TODO(new_combat_weapon) Qingfeng Sword",
   "item.myvillage.xuanyue_zhenshan_sword": "Xuanyue Zhenshan Sword",
   "item.myvillage.chilian_lihuo_sword": "Chilian Lihuo Sword",
   "item.myvillage.qingxiao_liuyun_sword": "Qingxiao Liuyun Sword",
@@ -74,11 +73,6 @@
   "combat.myvillage.move.basic_sword_03_rising_cut": "Form III: Swallow Returns to the Moon",
   "combat.myvillage.move.basic_sword_04_diagonal_cut": "Form IV: Returning Wind, Falling Geese",
   "combat.myvillage.move.basic_sword_05_lunge_thrust": "Form V: Cloud-Piercing Line",
-  "combat.myvillage.move.basic_fist_01_straight_punch": "TODO(new_combat_weapon) Form I: Qingfeng Seeks the Way",
-  "combat.myvillage.move.basic_fist_02_horizontal_palm": "TODO(new_combat_weapon) Form II: Flowing Cloud Crossing",
-  "combat.myvillage.move.basic_fist_03_uppercut": "TODO(new_combat_weapon) Form III: Swallow Returns to the Moon",
-  "combat.myvillage.move.basic_fist_04_chop": "TODO(new_combat_weapon) Form IV: Returning Wind, Falling Geese",
-  "combat.myvillage.move.basic_fist_05_step_double_strike": "TODO(new_combat_weapon) Form V: Cloud-Piercing Line",
   "combat.myvillage.move.basic_spear_01_mid_thrust": "Level Thrust",
   "combat.myvillage.move.basic_spear_02_sweep": "Sweeping Strike",
   "combat.myvillage.move.basic_spear_03_rising_flick": "Rising Flick",
@@ -916,5 +910,11 @@
   "screen.myvillage.cultivation.study.no_gate": "No gate ahead",
   "screen.myvillage.cultivation.study.stop_hint": "Press %1$s to stop",
   "screen.myvillage.cultivation.study.preparing": "Preparing: study",
-  "screen.myvillage.cultivation.study.reading": "Studying"
+  "screen.myvillage.cultivation.study.reading": "Studying",
+  "item.myvillage.xuantie_gauntlet": "Xuantie Gauntlet",
+  "combat.myvillage.move.basic_fist_01_straight_punch": "Straight Punch",
+  "combat.myvillage.move.basic_fist_02_horizontal_palm": "Horizontal Palm",
+  "combat.myvillage.move.basic_fist_03_uppercut": "Uppercut",
+  "combat.myvillage.move.basic_fist_04_chop": "Chopping Palm",
+  "combat.myvillage.move.basic_fist_05_step_double_strike": "Step-in Double Strike"
 }

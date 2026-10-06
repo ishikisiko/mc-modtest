@@ -174,7 +174,7 @@ class ModItemsValidatorTest(unittest.TestCase):
             spear + "                        output.accept(QINGFENG_SWORD.get());\n", 1)
         path.write_text(content, encoding="utf-8")
         self.assertIn(
-            "sword_creative_order:rideable->qingfeng->xuanyue->chilian->qingxiao->lingxiao->spirit_stone",
+            "sword_creative_order:rideable->qingfeng->xuanyue->chilian->qingxiao->lingxiao->xuantie->spirit_stone",
             self.errors())
 
     def test_missing_spear_tag_entry_and_names_are_named(self) -> None:
