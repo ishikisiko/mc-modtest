@@ -26,7 +26,8 @@
       "tian": {"cultivation": 2.3, "breakthrough": 2.2, "combat": 1.8}
     },
     "none": {"cultivation": 0.6, "breakthrough": 0.7, "combat": 0.85},
-    "element_match_bonus": 0.15
+    "element_match_bonus": 0.15,
+    "switch_progress_loss": 0.3
   },
   "cultivation": {
     "base_per_year": 1.0,

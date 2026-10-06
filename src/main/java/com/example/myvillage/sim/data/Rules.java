@@ -68,7 +68,15 @@ public record Rules(
     public record GradeFactors(double cultivation, double breakthrough, double combat) {
     }
 
-    public record Techniques(Map<String, GradeFactors> grades, GradeFactors none, double elementMatchBonus) {
+    /**
+     * Technique factors. {@code switchProgressLoss} is the player-side fraction of cultivation
+     * progress lost when the running core technique (心法) changes outside its heritage chain.
+     */
+    public record Techniques(
+            Map<String, GradeFactors> grades,
+            GradeFactors none,
+            double elementMatchBonus,
+            double switchProgressLoss) {
     }
 
     public record Cultivation(
@@ -349,14 +357,16 @@ public record Rules(
         }
         Roots roots = new Roots(threshold, List.copyOf(grades));
 
-        SimJson.Fields te = root.object("techniques", Set.of("grades", "none", "element_match_bonus"));
+        SimJson.Fields te = root.object("techniques", Set.of("grades", "none", "element_match_bonus",
+                "switch_progress_loss"));
         SimJson.Fields tg = te.object("grades", ContentTables.GRADES);
         Map<String, GradeFactors> gradeFactors = new LinkedHashMap<>();
         for (String grade : ContentTables.GRADE_ORDER) {
             gradeFactors.put(grade, gradeFactors(tg.object(grade, GRADE_FACTOR_FIELDS)));
         }
         Techniques techniques = new Techniques(Collections.unmodifiableMap(gradeFactors),
-                gradeFactors(te.object("none", GRADE_FACTOR_FIELDS)), te.nonNegativeNumber("element_match_bonus"));
+                gradeFactors(te.object("none", GRADE_FACTOR_FIELDS)), te.nonNegativeNumber("element_match_bonus"),
+                te.fraction("switch_progress_loss"));
 
         SimJson.Fields c = root.object("cultivation", Set.of("base_per_year", "status", "qi_base", "qi_per_point",
                 "rank", "resource_bonus", "resource_reference_per_member", "master_guidance", "injury_per_point",
