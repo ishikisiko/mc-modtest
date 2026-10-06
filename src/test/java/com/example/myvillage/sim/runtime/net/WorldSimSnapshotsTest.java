@@ -14,7 +14,9 @@ import com.example.myvillage.sim.PlayerQualification;
 import com.example.myvillage.sim.RegionView;
 import com.example.myvillage.sim.SectView;
 import com.example.myvillage.sim.SimEvent;
+import com.example.myvillage.sim.TaskView;
 import com.example.myvillage.sim.WorldSim;
+import com.example.myvillage.sim.data.ContentTables;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -520,6 +522,39 @@ class WorldSimSnapshotsTest {
             assertNull(WorldSimSnapshots.build(world, DPY, 0, false, 0, NetFixtures.REGION_NAME, Optional.empty(), 0,
                     0, PLAYER, q).mine(), q.kind().name());
         }
+    }
+
+    @Test
+    void mineCarriesTheOpenSectTask() {
+        WorldSim world = joinedWorld();
+        WorldSimSnapshot.MySect before = WorldSimSnapshots.build(world, DPY, 0, false, 0, NetFixtures.REGION_NAME,
+                Optional.empty(), 0, 0, PLAYER, WorldSimQuery.overview()).mine();
+        assertNotNull(before);
+        assertEquals("", before.taskName(), "no task yet");
+        assertEquals(0, before.taskProgress());
+        assertEquals(0, before.taskCount());
+
+        boolean acceptWorked;
+        try {
+            world.acceptTask(PLAYER, "试剑客");
+            acceptWorked = true;
+        } catch (UnsupportedOperationException notYet) {
+            acceptWorked = false;
+        }
+        assumeTrue(acceptWorked, "WorldSim.acceptTask is not implemented yet (slice 3 package S3-A)");
+        TaskView task = world.task(PLAYER).orElseThrow();
+        if (!ContentTables.TASK_TRIBUTE.equals(task.kind())) {
+            world.advanceTask(PLAYER, task.kind(), 1);
+            task = world.task(PLAYER).orElseThrow();
+            assertTrue(task.progress() > 0, "the task moved");
+        }
+        WorldSimSnapshot.MySect mine = WorldSimSnapshots.build(world, DPY, 0, false, 0, NetFixtures.REGION_NAME,
+                Optional.empty(), 0, 0, PLAYER, WorldSimQuery.overview()).mine();
+        assertNotNull(mine);
+        assertEquals(task.id(), mine.taskName(), "the id; the client names it");
+        assertEquals(ContentTables.TASK_TRIBUTE.equals(task.kind()) ? 0 : task.progress(), mine.taskProgress());
+        assertEquals(task.count(), mine.taskCount());
+        assertTrue(mine.taskCount() > 0);
     }
 
     @Test

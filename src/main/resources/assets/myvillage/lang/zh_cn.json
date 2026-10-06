@@ -296,6 +296,8 @@
   "screen.myvillage.cultivation.world.mine_standing": "交情",
   "screen.myvillage.cultivation.world.mine_here": "我在此宗",
   "screen.myvillage.cultivation.world.mine_rank_value": "%1$s · 入门%2$s · 交情%3$s",
+  "screen.myvillage.cultivation.world.task": "事务",
+  "screen.myvillage.cultivation.world.task_value": " %1$s/%2$s",
   "screen.myvillage.cultivation.card.realm": "境界",
   "screen.myvillage.cultivation.card.lifespan": "寿元",
   "screen.myvillage.cultivation.techniques_count": "%s 部",

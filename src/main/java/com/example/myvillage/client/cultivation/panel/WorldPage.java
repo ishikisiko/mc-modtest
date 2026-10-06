@@ -450,10 +450,20 @@ public final class WorldPage extends PanelPage {
                 x, cursor, width);
         cursor += pair(c, "screen.myvillage.cultivation.world.mine_contribution",
                 Integer.toString(mine.contribution()), x, cursor, width);
+        cursor += pair(c, "screen.myvillage.cultivation.world.task", taskText(mine), x, cursor, width);
         c.pair(text("screen.myvillage.cultivation.world.mine_standing"), signed(mine.standing()),
                 x, cursor, width, mine.standing() < 0 ? PanelTheme.RED : PanelTheme.TEXT);
         cursor += ROW;
         return cursor - y;
+    }
+
+    /** The open sect task as its name and progress over target, or 无 without one. */
+    private static String taskText(WorldSimSnapshot.MySect mine) {
+        if (mine.taskName().isEmpty()) {
+            return text("screen.myvillage.cultivation.world.none");
+        }
+        return text("world_sim.task." + mine.taskName() + ".name")
+                + text("screen.myvillage.cultivation.world.task_value", mine.taskProgress(), mine.taskCount());
     }
 
     private int realmsBody(WorldCanvas c, WorldSimSnapshot.Overview o, int x, int y, int width) {

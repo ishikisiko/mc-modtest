@@ -304,6 +304,8 @@
   "screen.myvillage.cultivation.world.mine_standing": "Standing",
   "screen.myvillage.cultivation.world.mine_here": "My place here",
   "screen.myvillage.cultivation.world.mine_rank_value": "%1$s · joined %2$s · standing %3$s",
+  "screen.myvillage.cultivation.world.task": "Task",
+  "screen.myvillage.cultivation.world.task_value": " %1$s/%2$s",
   "screen.myvillage.cultivation.card.realm": "Realm",
   "screen.myvillage.cultivation.card.lifespan": "Lifespan",
   "screen.myvillage.cultivation.techniques_count": "%s",

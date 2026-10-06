@@ -6,7 +6,9 @@ import com.example.myvillage.sim.PlayerMemberView;
 import com.example.myvillage.sim.RegionView;
 import com.example.myvillage.sim.SectView;
 import com.example.myvillage.sim.SimEvent;
+import com.example.myvillage.sim.TaskView;
 import com.example.myvillage.sim.WorldSim;
+import com.example.myvillage.sim.data.ContentTables;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -264,9 +266,15 @@ public final class WorldSimSnapshots {
             PlayerMemberView m = found.get();
             Optional<SectView> sect = sim.sect(m.sectId());
             String name = m.sectName().isEmpty() ? sect.map(SectView::name).orElse("") : m.sectName();
+            // The task line carries the task id (the client names it); a tribute keeps no progress.
+            Optional<TaskView> task = sim.task(playerId);
+            String taskId = task.map(TaskView::id).orElse("");
+            int taskProgress = task.map(t -> ContentTables.TASK_TRIBUTE.equals(t.kind()) ? 0 : t.progress())
+                    .orElse(0);
+            int taskCount = task.map(TaskView::count).orElse(0);
             return new WorldSimSnapshot.MySect(m.sectId(), name, m.rank(), m.joinedDay(), m.masterName(),
                     m.contribution(), m.standings().getOrDefault(m.sectId(), 0), m.borrowed().size(),
-                    sect.map(WorldSimSnapshots::isActive).orElse(false), "", 0, 0); // task line: slice 3 package S3-C
+                    sect.map(WorldSimSnapshots::isActive).orElse(false), taskId, taskProgress, taskCount);
         }
 
         WorldSimSnapshot.SectDetail sectDetail(SectView s) {
