@@ -243,7 +243,7 @@ Low-leverage but tracked. Each came from a design doc's "Open Questions" or
 |---|---|---|
 | `viewer.html` greedy meshing / base64-packed payload | `add-interactive-3d-preview/design.md` | Largest compound viewers are multi-MB inline JSON; acceptable today, optimization held in reserve |
 | Hanging-plaque wind animation (招幌 / 酒幌 swing) | `add-custom-plaque-blocks/design.md` | v1 is static; blockstate space reserved for a future `wind_phase` |
-| True volumetric cloud-sea / biome fog | `add-sect-worldgen/proposal.md` | Current cloud-sea is a manual glass + powder-snow illusion; volumetric fog was out of scope |
+| True volumetric cloud-sea / biome fog | `add-sect-worldgen/proposal.md` | The manual glass + powder-snow cloud sea was removed in 0.35.1 (it sat under the retaining fill and was never visible); volumetric fog was out of scope |
 | Per-world tunable region scale (gamerule / serverconfig) | `add-region-runtime-binding/design.md` | Scale is a single Java constant today; promoting to data deferred until multiplayer tuning demands it |
 | `civic_core` north/back precinct wall | `add-civic-precinct/design.md` Open Questions | South + lateral walls shipped; north edge behind the shrine left optional |
 | Wharf (码头) / 演武场 fringe sub-districts | `rebuild-cultivation-town-districts/design.md` Open Questions | "needs water siting — deferred to follow-up"; `fringe` today is `spirit_field` / `药圃` only |

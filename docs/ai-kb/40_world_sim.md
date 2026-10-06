@@ -407,7 +407,7 @@ all 17 checks; it is developer evidence, not an owner verdict.
 
 `/myvillage world sect <id> build [here]` (`sim/runtime/avatar/GateBuilder`,
 overworld only, active sects only) builds the worldgen-style compound
-(derived mountain, cloud sea, terraces, buildings;
+(derived mountain, terraces, grand stairs, axis corridor, buildings;
 `SectGenerator.generateForcedAt`) where the ledger puts the gate. Without
 `here` it loads (or generates) the gate's chunk and takes the anchor's y from
 the surface there (`MOTION_BLOCKING_NO_LEAVES`); with `here` it first moves
@@ -425,13 +425,31 @@ ledger stays the authority: the build follows its record, never the reverse.
 
 `sect/SectCourtyard.cells(seed, anchor, variant)` derives, from the same plan
 the generator builds, where a figure can stand in the open: each terrace's
-floor rectangle minus its edge row (retaining walls, cliff back), minus every
-building slot (the larger of slot bounds and template footprint, plus a
-one-block margin), minus the roofed gallery cells, minus the detached spire
-and its flying bridge (with margin). Positions are terrace floor + 1, lowest
-terrace first, then by z and x, deterministic. `SectCourtyard.footprint`
-gives the compound's whole site rectangle. `SectCourtyardTest` pins the cells
-against the real plan.
+floor rectangle minus its edge row (retaining band faces, cliff back), minus
+every building slot (the larger of slot bounds and template footprint, plus a
+one-block margin), minus every grand stair with its cheek walls (plus one
+block), minus the axis corridor x 28..34 (kept clear so nobody stands in the
+way), minus a detached spire and its flying bridge only when the spire is
+actually built (with margin; since 0.35.1 no variant is, see below).
+Positions are terrace floor + 1, lowest terrace first, then by z and x,
+deterministic. `SectCourtyard.footprint` gives the compound's whole site
+rectangle. `SectCourtyardTest` pins the cells against the real plan (seed 7:
+272 on the gate terrace, either side of the corridor behind the gate and in
+the two front corners; 310 on the disciple terrace).
+
+The compound itself (0.35.1, after the owner rejected 0.35.0's floating eave
+and gallery fragments and its blocked axis): terraces symmetric about x 31; a
+levelled forecourt in front of the gate; a paved corridor through a passage
+cut in the gate building up to the row before the principal hall, kept clear
+by a final pass; solid retaining bands with stone-brick faces (no wall
+blocks); 9-wide grand stairs with a landing and cheek walls; flanks mirrored
+beside the axis; no covered galleries and no cloud sea. Template blocks that
+touch no other template block are dropped at placement
+(`DropIsolatedBlocks`). The detached spire is built only where it clears every
+slot, terrace and stair, which none of the three variants does yet, so it is
+skipped. `SectCompoundRealizationTest` builds whole compounds with the real
+templates into an in-memory world (both build paths) and checks the axis
+walk, floating blocks, wall blocks, stairs and courtyard ground.
 
 ### Avatars (化身)
 

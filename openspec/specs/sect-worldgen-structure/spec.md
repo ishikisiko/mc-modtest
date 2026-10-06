@@ -37,7 +37,7 @@ The derived mountain, terraces, and the buildings resting on them SHALL share a 
 
 #### Scenario: Terrain and compound share one elevation frame
 
-- **WHEN** a sect is generated and its derived mountain, terraces, stairs, retaining faces, cliff-back, galleries, cloud-sea, and the buildings are written
+- **WHEN** a sect is generated and its derived mountain, forecourt, terraces, retaining bands, stairs, axis corridor, cliff-back, and the buildings are written
 - **THEN** they SHALL all be placed in the same absolute world-Y frame
 - **AND** the terrain SHALL NOT be offset vertically away from the buildings it supports (no floating terrain mass above the compound).
 
@@ -103,4 +103,4 @@ The mod SHALL expose `/myvillage sectat worldgen <seed> <variant|none> <x> <y> <
 #### Scenario: Coordinate force-generation mirrors player-command behavior
 
 - **WHEN** `/myvillage sectat worldgen <seed> <variant> <x> <y> <z>` and `/myvillage sect worldgen <seed> <variant>` are run with equivalent anchor positions and terrain
-- **THEN** both commands SHALL produce the same derived mountain, terrace frame, volumes, galleries, cloud-sea, and detached-spire selection.
+- **THEN** both commands SHALL produce the same derived mountain, terrace frame, volumes, stairs, corridor, and detached-spire selection.

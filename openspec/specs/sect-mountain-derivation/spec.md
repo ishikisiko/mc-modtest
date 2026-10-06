@@ -2,19 +2,20 @@
 
 ## Purpose
 
-This spec captures how the sect's mountain is derived from the compound's exported terrace profile for the worldgen path: the terraces form the skeleton and seed-driven noise fills the slopes, an outer blend skirt grades the man-made relief into natural terrain, a sheer cliff-back rises behind the summit, a horizontal cloud-sea surface is placed below the upper terraces, and a solitary peak is raised under the detached-spire flying-bridge feature.
+This spec captures how the sect's mountain is derived from the compound's exported terrace profile for the worldgen path: the terraces form the skeleton, the compound core and forecourt are noise-free, seed-driven noise fills the slopes outside the core, an outer blend skirt grades the man-made relief into natural terrain, a sheer cliff-back rises behind the summit, and a solitary peak is raised under a built detached-spire flying-bridge feature.
 
 ## Requirements
 
 ### Requirement: The mountain is derived from the terrace profile
 
-The generator SHALL derive the sect's mountain from the compound's exported terrace profile rather than search for matching natural terrain. The terrace elevations and bounds SHALL be treated as the mountain's skeleton; the slopes beneath and between terraces SHALL be filled with seed-driven noise so the result reads as a natural mountain rather than a stepped cone. Derivation SHALL be deterministic for a fixed seed, and the realized terraces SHALL sit at the profile's planned elevations with no terrace floating or buried.
+The generator SHALL derive the sect's mountain from the compound's exported terrace profile rather than search for matching natural terrain. The terrace elevations and bounds SHALL be treated as the mountain's skeleton. Inside the compound core (the terraces' bounding box) and on the forecourt there SHALL be no noise: terrace cells SHALL sit at their floor; band cells between two terraces SHALL sit at the upper floor within the upper terrace's width and at the lower floor otherwise; the forecourt SHALL sit at the gate terrace's floor; and the remaining core cells (the taper strips beside narrower terraces) SHALL sit at the nearest terrace's floor minus the distance to it. Outside the core the slopes SHALL be filled with seed-driven noise so the result reads as a natural mountain rather than a stepped cone. Derivation SHALL be deterministic for a fixed seed, and the realized terraces SHALL sit at the profile's planned elevations with no terrace floating or buried.
 
 #### Scenario: Terraces define the mountain, not the reverse
 
 - **WHEN** a sect is generated
 - **THEN** the mountain heightfield SHALL be derived so each terrace rests at its planned elevation from the compound's terrace profile
-- **AND** the slopes beneath and between terraces SHALL be noise-filled rather than left as bare steps
+- **AND** the core and forecourt SHALL be noise-free so nothing rises onto a terrace, band, stair, or the forecourt
+- **AND** the slopes outside the core SHALL be noise-filled rather than left as bare steps
 - **AND** the same seed SHALL produce the same mountain.
 
 #### Scenario: No floating or buried terraces
@@ -43,23 +44,13 @@ Behind the summit terrace's cliff-back edge, the derivation SHALL produce a shee
 - **THEN** a sheer cliff face SHALL be produced at that edge
 - **AND** the principal hall SHALL back solid rock at the face.
 
-### Requirement: A manual cloud-sea surface is placed below the upper terraces
-
-The generator SHALL place a horizontal cloud-sea (云海面) surface of translucent blocks at a configured Y between the gate and disciple terraces, so the upper terraces read as floating above cloud. The surface MAY be edged with powder-snow wisps clinging to terrace edges. This SHALL be an explicit placed-block surface; the generator SHALL NOT be required to implement volumetric fog rendering.
-
-#### Scenario: A cloud sea sits under the upper terraces
-
-- **WHEN** a sect's mountain is derived
-- **THEN** a horizontal translucent cloud-sea surface SHALL be placed at the configured Y between the gate and disciple terraces
-- **AND** the surface SHALL be realized as placed blocks (e.g. translucent glass, with optional powder-snow wisps), not as a volumetric-fog effect.
-
 ### Requirement: A solitary peak is raised under the detached-spire feature
 
-When the compound selects the detached-spire flying-bridge feature, the generator SHALL raise a solitary peak (孤峰) under the detached volume, separated from the main mountain by a gap that the flying bridge spans, so the detached volume is reachable only across the bridge. In worldgen this feature SHALL appear randomly per site (per the compound's per-seed selection); a flat or unsupported gap SHALL NOT be left under the detached volume.
+When the compound selects the detached-spire flying-bridge feature and the feature clears the compound (so it is built), the generator SHALL raise a solitary peak (孤峰) under the detached volume, separated from the main mountain by a gap that the flying bridge spans, so the detached volume is reachable only across the bridge. In worldgen this feature SHALL appear randomly per site (per the compound's per-seed selection); a flat or unsupported gap SHALL NOT be left under the detached volume.
 
 #### Scenario: The detached volume stands on its own spire
 
-- **WHEN** a generated sect selects the detached-spire feature
+- **WHEN** a generated sect selects the detached-spire feature and the feature clears the compound
 - **THEN** a solitary peak SHALL be raised under the detached volume, separated from the main mountain by a gap
 - **AND** the flying bridge SHALL span that gap with endpoints on the main compound and the detached volume
 - **AND** the detached volume SHALL rest on the spire, not float over an unsupported gap.
@@ -68,4 +59,5 @@ When the compound selects the detached-spire flying-bridge feature, the generato
 
 - **WHEN** many sects are generated across a world
 - **THEN** the detached-spire feature SHALL be present on some sites and absent on others according to the per-seed selection
-- **AND** when present it SHALL be one of the three defined variants.
+- **AND** when present it SHALL be one of the three defined variants
+- **AND** a selected variant that does not clear the compound SHALL raise no peak.
