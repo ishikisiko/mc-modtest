@@ -35,6 +35,10 @@ note and the code are the reference.
 - `CombatDodgeIntentPayload(DodgeDirection)`, serverbound
   `myvillage:combat_dodge_intent`: one byte of input and no authority.
   Timing, distance, protection, cooldown, and cost are the server's.
+  `tools/validate_sword_combat_foundation.py` allows a serverbound combat
+  payload only as an empty record or one whose components are all of a type
+  in `INPUT_ONLY_COMPONENT_TYPES` (now only `DodgeDirection`); anything else
+  is `COMBAT_C2S_AUTHORITY_FIELD`.
 - `CombatDodgeStartPayload(entityId, startTick, directionYaw, distance,
   invulnerableTicks, durationTicks, cooldownTicks, techniqueId)`, clientbound
   `myvillage:combat_dodge_start`, sent with
@@ -52,7 +56,9 @@ Each refusal logs one `rejected` line and changes nothing:
 
 1. Preconditions, in this order: dead or removed, spectating, sleeping,
    using an item, riding, or meditating → `STATE`; combat mode not
-   `CULTIVATION` → `MODE`; not on the ground → `AIRBORNE`. No weapon is
+   `CULTIVATION` → `MODE`; not supported → `AIRBORNE`. `supported()` is the
+   player's `onGround()` (the client's flag) or a collision within
+   `SUPPORT_PROBE` (0.25 blocks) below the bounding box. No weapon is
    required.
 2. Technique: among the learned ids that resolve to a `MOVEMENT` technique
    with an `effects.movement` block, the highest grade; equal grades go to
@@ -70,7 +76,11 @@ Each refusal logs one `rejected` line and changes nothing:
 6. Only now `tryDodgeCancel` interrupts a running recovery with `DODGED`
    (`interrupt(player, DODGED, false)`: combo reset, no recovery lock).
 7. Impulse: `setDeltaMovement(forward × impulseForDistance(distance))` with
-   no vertical part, `hurtMarked = true`, `setSprinting(false)`.
+   vertical part `GROUND_PRESS` (-0.1), `hurtMarked = true`,
+   `setSprinting(false)`. The downward part keeps the client's body on the
+   ground; with a flat impulse the client reported `onGround=false` on the
+   next tick, air friction stretched a 4.5-block dash to 5.39 blocks, and the
+   next press could fail `AIRBORNE` (fixed in `ef4187f`).
 8. State per UUID, all exclusive ends: invulnerable `[now, now +
    invulnerable_ticks)`, presentation `durationTicks = max(invulnerable_ticks,
    6)`, `readyTick = now + cooldown_ticks` (additions saturate).
@@ -209,6 +219,22 @@ accepted=` lines; one F5-back video per wolf move. Output: `index.html`,
 evidence, not owner acceptance; the README ledger "Movement Dodge (0.40.0)"
 records them.
 
+Second run (`ef4187f`, 踏雪无痕: 4.5 blocks, 7 ticks, cooldown 24; videos
+`dodge_demon_wolf_bite.mp4` 88.8 s and `dodge_demon_wolf_pounce.mp4` 115.2 s):
+
+| Trial | Result |
+|---|---|
+| Bite, no dodge | health 20 → 16, hit at move tick 11 (4.0) |
+| Bite, back step at 4, 7, 9, 10; left at 9 | all `started`, health 20 kept; back steps 4.49 blocks, left 4.92 (with the A key's walk); at 10 `cancelled_damage=4.00 source=minecraft:mob_attack` on the next tick and the wolf's hit `accepted=false`; the others out of reach, no hit line |
+| Pounce, no dodge | health 20 → 13.6, hit at move tick 27 (6.4) |
+| Pounce, back step at 14, 17, 18, 19; left at 18 | all `started`, health 20 kept; 4.49 blocks (left 5.14); all escaped by distance, so no pounce hit cancelled by the window |
+| Cooldown, two presses 5 ticks apart | `started`, then `rejected reason=COOLDOWN` |
+| Recovery cancel, Qingfeng move 1 | action tick 3 `rejected reason=TIMING`; action tick 6 `started`, 4.22 blocks |
+
+Every landing matched the planned distance and the log has no `AIRBORNE`.
+The first run (flat impulse) measured 5.39 blocks for the back step and an
+`AIRBORNE` refusal at action tick 3 where `TIMING` was expected.
+
 ## Tests
 
 - Java: `combat/DodgeDirectionTest` (the world-yaw table and the dead zone),
@@ -221,7 +247,9 @@ records them.
   window suppressing prediction, a `DODGED` stop keeping the server session
   and restarting the combo).
 - Python: `tools/tests/test_gen_technique_catalogue.py` `RowEffectsTest`,
-  `tools/tests/test_combat_capture_dodge.py` (the capture's pure helpers).
+  `tools/tests/test_combat_capture_dodge.py` (the capture's pure helpers),
+  `tools/tests/test_validate_sword_combat_foundation.py` (input-only
+  serverbound components).
 
 ## Not implemented
 

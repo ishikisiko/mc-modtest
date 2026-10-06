@@ -24,7 +24,8 @@ and are open to change.
   one every 4 `ClientCombatClock` ticks. It carries no authority.
 - `CombatDodgeService` (server): preconditions (`STATE`: dead, spectating,
   sleeping, using an item, riding or meditating; `MODE`: not cultivation mode;
-  `AIRBORNE`), then the highest-grade learned movement technique with an
+  `AIRBORNE`: neither the client's ground flag nor a block within 0.25
+  below the feet), then the highest-grade learned movement technique with an
   `effects.movement` block (ties to the smaller id; `NO_TECHNIQUE`), the
   per-player cooldown (`COOLDOWN`), the recovery-only cancel rule (`TIMING`),
   and a collision- and footing-safe distance shared with action steps
@@ -32,7 +33,8 @@ and are open to change.
   dodge interrupts a recovery with the new stop reason `DODGED` (appended last;
   combo reset, no recovery lock), applies the impulse, opens the invulnerable
   window `[now, now + invulnerable_ticks)` and the cooldown, and adds one
-  mastery point. No weapon is needed and `qi_cost` is not charged.
+  mastery point. The impulse has a -0.1 downward part so the body stays on
+  the ground. No weapon is needed and `qi_cost` is not charged.
 - Inside the window `LivingIncomingDamageEvent` is cancelled for the player
   unless the source is tagged `bypasses_invulnerability`, and attack intents
   are refused.
@@ -54,7 +56,12 @@ and are open to change.
   the Java shape; names with 步, 身法, 无痕 or 遁 classify as movement.
 - `python3 -m tools.combat_capture dodge`: dodge trials against the demon wolf
   (bite and pounce at several move ticks, cooldown, recovery cancel) into
-  `out/preview/movement_dodge/`.
+  `out/preview/movement_dodge/`. Headless run at `/tick rate 5` with 踏雪无痕:
+  all ten bite and pounce dodges started and kept health at 20 (without a
+  dodge the bite took 4.0, the pounce 6.4); a back step travelled 4.49
+  blocks; the window cancelled the bite once (`cancelled_damage=4.00`,
+  `accepted=false`), the other dodges escaped by distance; `COOLDOWN` and
+  `TIMING` refusals and a recovery cancel at action tick 6 recorded.
 - Tests: `DodgeDirectionTest`, `CombatDodgeServiceTest`,
   `CombatDodgeCancelTest`, `CombatDodgeFxTest`, two more payloads in
   `CombatPayloadTest`, `RowEffectsTest` in
@@ -65,6 +72,10 @@ and are open to change.
 
 - `ModPayloads.PROTOCOL_VERSION` `11` → `12` (the two dodge payloads); client
   and server need the same jar.
+- `tools/validate_sword_combat_foundation.py`: a serverbound combat payload
+  must be an empty record or have only components of a type in
+  `INPUT_ONLY_COMPONENT_TYPES` (now just `DodgeDirection`); anything else is
+  still `COMBAT_C2S_AUTHORITY_FIELD`. Tests added.
 - Movement techniques are no longer data only: the dodge reads their
   `effects.movement`. Active and body effects still have no runtime.
 
@@ -73,6 +84,14 @@ and are open to change.
 - The dodge direction's dead zone is 0.2, below vanilla's 0.3 sneaking input
   scale; with the first 0.3 a sneaking player's held key read as no input and
   every sneaking dodge became a back step.
+- A flat dash impulse (no vertical part) made the client report
+  `onGround=false` on the next tick, so air friction stretched a 4.5-block
+  back step to 5.39 blocks, and in the capture a press at action tick 3 of
+  a sword swing (after the previous dodge) was refused `AIRBORNE` instead of
+  `TIMING`. The impulse now presses down
+  with `GROUND_PRESS` (-0.1) and footing is the client's flag or a block
+  within `SUPPORT_PROBE` (0.25) below the feet (`CombatDodgeService.supported`);
+  the second capture run measured 4.49 blocks and no `AIRBORNE`.
 
 ## 0.39.1
 

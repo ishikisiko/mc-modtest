@@ -174,7 +174,10 @@ animation ids, and validator finding codes keep their names.
   learned 身法 technique. A dodge in an action's recovery interrupts it with
   the stop reason `DODGED` (appended last; combo reset, no recovery lock);
   wind-up and strike refuse it, and attack intents are refused inside the
-  window. Payload protocol `12`. Details in
+  window. Payload protocol `12`. `tools/validate_sword_combat_foundation.py`
+  accepts a serverbound combat payload only as an empty record or with
+  components whose types are all in `INPUT_ONLY_COMPONENT_TYPES` (now only
+  `DodgeDirection`), else `COMBAT_C2S_AUTHORITY_FIELD`. Details in
   [Movement Dodge](42_movement_dodge.md).
 - Client: `FirstPersonSwingResources` loads one rig and geometry per weapon on
   every resource reload and logs

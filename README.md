@@ -1800,7 +1800,8 @@ The client sends only the key press and that one-byte direction
 order, and refuses at the first failed check:
 
 1. State: alive, not spectating, sleeping, using an item, riding, or
-   meditating (`STATE`); cultivation combat mode (`MODE`); on the ground
+   meditating (`STATE`); cultivation combat mode (`MODE`); on the ground,
+   by the client's flag or a block within 0.25 below the feet
    (`AIRBORNE`).
 2. Technique: the highest-grade learned movement technique with an
    `effects.movement` block; equal grades go to the smaller id
@@ -1815,7 +1816,9 @@ order, and refuses at the first failed check:
 
 Then a recovery in progress stops with the new stop reason `DODGED` (combo
 back to the first move, no recovery lock), the server applies the dash
-impulse (`setDeltaMovement` + `hurtMarked`, sprint off), and opens the
+impulse (`setDeltaMovement` + `hurtMarked`, with a small downward part,
+-0.1, so the body stays on the ground and keeps ground friction; sprint off),
+and opens the
 invulnerable window: for that many ticks every incoming damage is cancelled
 except sources tagged `bypasses_invulnerability` (`/kill`, the void), and
 attack intents are refused, so an attack after a dodge starts when the window
@@ -1871,14 +1874,43 @@ videos) into `out/preview/movement_dodge/`:
 python3 -m tools.combat_capture dodge [--beast ID] [--technique ID] [--out DIR]
 ```
 
-<!-- DODGE_CAPTURE_RESULTS --> Capture results: pending (the headless run against
-the built 0.40.0 jar and the deployment to the owner's PC have not been
-recorded yet).
+<!-- DODGE_CAPTURE_RESULTS --> Capture results (headless capture on the
+build host, commit `ef4187f`, `/tick rate 5`, 踏雪无痕: 4.5 blocks, 7
+invulnerable ticks, cooldown 24; output `out/preview/movement_dodge/` with
+`index.html`, `manifest.json`, `dodge_log.txt`, and two F5-back videos,
+`video/dodge_demon_wolf_bite.mp4` 88.8 s and `video/dodge_demon_wolf_pounce.mp4`
+115.2 s). Developer evidence, not the owner's verdict:
+
+- Bite: without a dodge health `20` to `16` (hit at move tick 11, 4.0).
+  Back steps pressed at move ticks 4, 7, 9, 10 and a left dodge at 9 all
+  `started` and health stayed `20`; back steps moved 4.49 blocks, the left
+  dodge 4.92 (with the A key's own walk). After the press at tick 10 the
+  server logged `cancelled_damage=4.00 source=minecraft:mob_attack` on the
+  next tick and the wolf's hit line read `accepted=false` (the window took
+  the hit); the other four left the bite's reach and drew no hit line.
+- Pounce: without a dodge health `20` to `13.6` (hit at move tick 27, 6.4).
+  Back steps at 14, 17, 18, 19 and a left dodge at 18 all `started`, health
+  stayed `20`, 4.49 blocks (left 5.14). All five escaped by distance; no
+  pounce hit was cancelled by the window (that needs a later press or a
+  shorter dash).
+- Cooldown: two presses 5 ticks apart, `started` then
+  `rejected reason=COOLDOWN`.
+- Recovery cancel: after the first Qingfeng move, a press at action tick 3
+  was `rejected reason=TIMING`, one at action tick 6 `started` (4.22
+  blocks).
+- Every landing matched the planned distance; no `AIRBORNE` refusal in the
+  whole log.
+
+The first capture run found that a flat impulse left the client reporting
+`onGround=false` on the next tick: air friction carried the 4.5-block back
+step to 5.39 blocks, and a press at action tick 3 was refused `AIRBORNE`
+instead of `TIMING`. `ef4187f` adds the downward part and the 0.25-block
+support probe; the numbers above are from the second run.
 
 | Movement Dodge (0.40.0) real-client acceptance surface | Result |
 |---|---|
-| A dodge cancels a demon wolf bite and a pounce inside the window (health unchanged, `cancelled_damage` or no accepted hit) | `not_verified` (capture pending) |
-| `COOLDOWN` on a second press inside the cooldown; `TIMING` during an attack's strike and `started` in its recovery | `not_verified` (capture pending) |
+| A dodge cancels a demon wolf bite and a pounce inside the window (health unchanged, `cancelled_damage` or no accepted hit) | `pass` (headless capture `movement_dodge`, `ef4187f`: health `20` kept in all 10 dodge trials; bite at tick 10 cancelled by the window, `cancelled_damage=4.00`, `accepted=false`; the other bite trials and all pounce trials escaped by distance, so window cancellation of a pounce hit is not shown; developer evidence) |
+| `COOLDOWN` on a second press inside the cooldown; `TIMING` during an attack's strike and `started` in its recovery | `pass` (same capture: second press 5 ticks later `COOLDOWN`; action tick 3 `TIMING`, action tick 6 `started`, 4.22 blocks; no `AIRBORNE` in the log; developer evidence) |
 | Feel: dash distance (3.5 / 4.5 blocks), invulnerable window (5 / 7 ticks), cooldown (30 / 24 ticks) | `not_verified` |
 | Key: Left Alt by default, rebinding, eight directions and the back step from real WASD input, sneaking | `not_verified` |
 | Cloud afterimages and the puff at the feet, seen by the dodger and by a second client | `not_verified` |
