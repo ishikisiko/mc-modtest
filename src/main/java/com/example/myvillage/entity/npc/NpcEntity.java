@@ -1,17 +1,22 @@
 package com.example.myvillage.entity.npc;
 
+import java.util.List;
+import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.AnimationState;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
@@ -19,6 +24,7 @@ import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
 
 /**
  * A humanoid NPC drawn from its own model, clip and texture files (see {@code NpcRenderer}).
@@ -35,6 +41,18 @@ import net.minecraft.world.level.Level;
  * ledger person id is synced to clients. An NPC summoned by a command or a spawn egg has id
  * {@link #NO_LEDGER_PERSON} and behaves exactly as described above.
  *
+ * <p><b>Look (外观).</b> One entity type can wear several looks (model, clips and texture sets),
+ * named by {@link #looks()} with {@link #LOOK_DEFAULT} first. The look is synced to clients
+ * ({@link #look()}), which pick the renderer files by it, and saved as {@value #LOOK_TAG} only
+ * when it is not the default ({@code /summon myvillage:cultivator ~ ~ ~ {Look:"f_novice"}}); a
+ * saved name the type does not list is ignored. An NPC from a spawn egg draws a random look from
+ * {@link #looks()} (the default included); an avatar's look is set by the world simulation.
+ *
+ * <p><b>Ledger role (命簿角色).</b> An avatar may carry a dialogue role ({@link #ledgerRole()}:
+ * {@link #ROLE_NONE}, {@link #ROLE_STEWARD} or {@link #ROLE_ELDER}), synced to clients and set by
+ * the world simulation whenever it spawns or reconciles the avatar. It is never saved; a summoned
+ * NPC keeps {@link #ROLE_NONE}.
+ *
  * <p>Client: {@link #idleAnimationState()} runs from the first client tick; the walk clip is driven
  * by vanilla limb swing.
  */
@@ -50,9 +68,23 @@ public abstract class NpcEntity extends PathfinderMob {
      */
     static final String LEDGER_PERSON_TAG = "WorldSimPerson";
     static final float LOOK_DISTANCE = 8.0F;
+    /** The look every NPC type has; its files are the type's plain model, clips and texture. */
+    public static final String LOOK_DEFAULT = "default";
+    /** Saved only when the look is not {@link #LOOK_DEFAULT}. */
+    public static final String LOOK_TAG = "Look";
+    /** No dialogue role (every summoned NPC, and avatars without a role). */
+    public static final String ROLE_NONE = "none";
+    /** The sect's steward (守山执事), who receives players at the gate. */
+    public static final String ROLE_STEWARD = "steward";
+    /** An elder or the sect master. */
+    public static final String ROLE_ELDER = "elder";
 
     private static final EntityDataAccessor<Integer> DATA_LEDGER_PERSON =
             SynchedEntityData.defineId(NpcEntity.class, EntityDataSerializers.INT);
+    private static final EntityDataAccessor<String> DATA_LOOK =
+            SynchedEntityData.defineId(NpcEntity.class, EntityDataSerializers.STRING);
+    private static final EntityDataAccessor<String> DATA_LEDGER_ROLE =
+            SynchedEntityData.defineId(NpcEntity.class, EntityDataSerializers.STRING);
 
     private final AnimationState idleAnimationState = new AnimationState();
     private Goal strollGoal;
@@ -68,6 +100,33 @@ public abstract class NpcEntity extends PathfinderMob {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         builder.define(DATA_LEDGER_PERSON, NO_LEDGER_PERSON);
+        builder.define(DATA_LOOK, LOOK_DEFAULT);
+        builder.define(DATA_LEDGER_ROLE, ROLE_NONE);
+    }
+
+    /** The looks this type can wear, {@link #LOOK_DEFAULT} first. Subclasses with more looks list them. */
+    protected List<String> looks() {
+        return List.of(LOOK_DEFAULT);
+    }
+
+    /** The current look name (synced). */
+    public String look() {
+        return entityData.get(DATA_LOOK);
+    }
+
+    /** Sets the look; null or empty means {@link #LOOK_DEFAULT}. */
+    public void setLook(String look) {
+        entityData.set(DATA_LOOK, look == null || look.isEmpty() ? LOOK_DEFAULT : look);
+    }
+
+    /** The avatar's dialogue role (synced, never saved): none, steward or elder. */
+    public String ledgerRole() {
+        return entityData.get(DATA_LEDGER_ROLE);
+    }
+
+    /** Sets the dialogue role; null or empty means {@link #ROLE_NONE}. */
+    public void setLedgerRole(String role) {
+        entityData.set(DATA_LEDGER_ROLE, role == null || role.isEmpty() ? ROLE_NONE : role);
     }
 
     @Override
@@ -142,6 +201,9 @@ public abstract class NpcEntity extends PathfinderMob {
         if (isLedgerAvatar()) {
             tag.putInt(LEDGER_PERSON_TAG, ledgerPersonId());
         }
+        if (!LOOK_DEFAULT.equals(look())) {
+            tag.putString(LOOK_TAG, look());
+        }
     }
 
     @Override
@@ -150,6 +212,21 @@ public abstract class NpcEntity extends PathfinderMob {
         if (tag.contains(LEDGER_PERSON_TAG, Tag.TAG_INT) && tag.getInt(LEDGER_PERSON_TAG) >= 0) {
             becomeLedgerAvatar(tag.getInt(LEDGER_PERSON_TAG));
         }
+        if (tag.contains(LOOK_TAG, Tag.TAG_STRING) && looks().contains(tag.getString(LOOK_TAG))) {
+            setLook(tag.getString(LOOK_TAG));
+        }
+    }
+
+    @Override
+    @SuppressWarnings("deprecation") // NeoForge deprecates calling it, not overriding it
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty,
+                                        MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData) {
+        SpawnGroupData data = super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData);
+        if (spawnType == MobSpawnType.SPAWN_EGG && LOOK_DEFAULT.equals(look())) {
+            List<String> looks = looks();
+            setLook(looks.get(level.getRandom().nextInt(looks.size())));
+        }
+        return data;
     }
 
     @Override

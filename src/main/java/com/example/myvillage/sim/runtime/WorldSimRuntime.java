@@ -8,7 +8,9 @@ import com.example.myvillage.region.runtime.RegionRuntimeService;
 import com.example.myvillage.sim.SimData;
 import com.example.myvillage.sim.SimEvent;
 import com.example.myvillage.sim.WorldSim;
+import com.example.myvillage.sim.runtime.avatar.GateRealizer;
 import com.example.myvillage.sim.runtime.avatar.WorldSimAvatars;
+import com.example.myvillage.sim.runtime.player.WorldSimPlayers;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -73,6 +75,8 @@ public final class WorldSimRuntime {
         NeoForge.EVENT_BUS.addListener(WorldSimRuntime::onServerStopping);
         WorldSimRumors.register();
         WorldSimAvatars.register();
+        WorldSimPlayers.register();
+        GateRealizer.register();
     }
 
     public static void addListener(DayListener listener) {

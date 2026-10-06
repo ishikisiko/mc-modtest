@@ -90,13 +90,27 @@ state:
       default: -1
       source: com.example.myvillage.entity.npc.NpcEntity#DATA_LEDGER_PERSON
       meaning: the world-ledger person a world-sim avatar projects; -1 for a summoned cultivator
+    - id: look
+      type: string
+      default: default
+      source: com.example.myvillage.entity.npc.NpcEntity#DATA_LOOK
+      meaning: the look (外观) name the client renders, one of CultivatorEntity.LOOKS (default, f_novice, f_adept); a spawn egg draws one at random, an avatar's is set by the world simulation
+    - id: ledger_role
+      type: string
+      default: none
+      source: com.example.myvillage.entity.npc.NpcEntity#DATA_LEDGER_ROLE
+      meaning: the avatar's dialogue role in the ledger (none, steward or elder), set by the world simulation and never saved; none for a summoned cultivator
   persisted:
     - id: WorldSimPerson
       type: int
       source: com.example.myvillage.entity.npc.NpcEntity#LEDGER_PERSON_TAG
       written: only for a world-sim avatar, which is never stored with its chunk; a copy that escapes some other way (a structure template, data copied by command) loads as an avatar its manager does not know and is refused when it joins a level
+    - id: Look
+      type: string
+      source: com.example.myvillage.entity.npc.NpcEntity#LOOK_TAG
+      written: only when the look is not default; on load a name that CultivatorEntity.LOOKS does not list is ignored and the look stays default
   custom_state:
-    statement: A summoned cultivator saves vanilla Mob state only (ledger_person_id stays -1 and is not written).
+    statement: A summoned cultivator saves vanilla Mob state plus Look when its look is not default (ledger_person_id stays -1 and is not written; ledger_role is never written).
 
 world_sim_avatar:
   statement: The world simulation projects ledger members who are at a realized sect gate as cultivators while a player is near; the ledger stays the only authority and the avatar is a temporary projection of it.

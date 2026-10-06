@@ -41,7 +41,8 @@ public record Rules(
         SectRelations sectRelations,
         Succession succession,
         Decline decline,
-        Founding founding) {
+        Founding founding,
+        Player player) {
 
     public static final List<String> RANKS = List.of("sect_master", "elder", "inner", "outer", "rogue");
     public static final List<String> STATUSES = List.of("at_sect", "travelling", "secluded");
@@ -302,6 +303,61 @@ public record Rules(
             int[] followers) {
     }
 
+    /**
+     * Player sect entry ({@code player}, slice 1): admission thresholds, leaving and standing
+     * (交情), yearly promotion of players, the scripture hall, the steward's reach and the
+     * framed gate realization.
+     */
+    public record Player(
+            PlayerAdmission admission,
+            PlayerLeave leave,
+            PlayerPromotion promotion,
+            ScriptureHall scriptureHall,
+            Steward steward,
+            PlayerGates gates) {
+    }
+
+    /**
+     * A point on the player's realm ladder. {@code realm} is {@link #MORTAL} (below every ledger
+     * realm, index -1) or a realm of the ledger's {@link RealmTable}; {@code stage} is 0-based.
+     */
+    public record PlayerRealmStage(String realm, int stage) {
+        public static final String MORTAL = "mortal";
+    }
+
+    /** {@code min} comes from the flat {@code min_realm}/{@code min_stage} fields. */
+    public record PlayerAdmission(boolean requireAwakenedRoot, PlayerRealmStage min, int joinStanding,
+                                  PlayerSelective selective) {
+    }
+
+    /**
+     * Extra bar for a sect of at least {@code prestigeAtLeast}: a root peak of at least
+     * {@code rootPeakBpAtLeast}, or a realm of at least {@code orMinRealm}.
+     */
+    public record PlayerSelective(double prestigeAtLeast, int rootPeakBpAtLeast, String orMinRealm) {
+    }
+
+    public record PlayerLeave(int standingPenalty, int rejoinStandingAtLeast, int rejoinYears,
+                              int standingRecoveryPerYear) {
+    }
+
+    public record PlayerPromotion(PlayerThreshold inner, PlayerThreshold elder) {
+    }
+
+    /** {@code stage} comes from the flat {@code realm}/{@code stage} fields. */
+    public record PlayerThreshold(PlayerRealmStage stage, int contribution) {
+    }
+
+    /** Borrow cost by technique grade ("1".."4"). */
+    public record ScriptureHall(Map<String, Integer> borrowCostByGrade) {
+    }
+
+    public record Steward(double interactRange) {
+    }
+
+    public record PlayerGates(int realizeRadius, int clipsPerTick) {
+    }
+
     public Tier tier(String id) {
         Tier tier = tiers.get(id);
         if (tier == null) {
@@ -317,7 +373,7 @@ public record Rules(
                 "schema", "time", "tiers", "chronicle", "scheduler", "roots", "techniques", "cultivation",
                 "breakthrough", "injury", "death_importance_by_rank", "entrants", "sects", "genesis", "gates", "naming",
                 "importance", "travel", "seclusion", "danger", "fortune", "artifact_power", "meetings", "combat",
-                "revenge", "sect_relations", "succession", "decline", "founding"));
+                "revenge", "sect_relations", "succession", "decline", "founding", "player"));
         root.schema();
 
         SimJson.Fields t = root.object("time", Set.of("prehistory_years", "default_days_per_year"));
@@ -603,7 +659,75 @@ public record Rules(
                 cultivation, breakthrough, injury, Collections.unmodifiableMap(deathImportance), entrants, sects,
                 genesis, gates, naming, importance, travel, seclusion, danger, fortune,
                 Collections.unmodifiableMap(artifactPower), meetings, combat, revenge, sectRelations, succession,
-                decline, founding);
+                decline, founding, player(root, realms));
+    }
+
+    private static Player player(SimJson.Fields root, RealmTable realms) {
+        SimJson.Fields pl = root.object("player", Set.of("admission", "leave", "promotion", "scripture_hall",
+                "steward", "gates"));
+
+        SimJson.Fields ad = pl.object("admission", Set.of("require_awakened_root", "min_realm", "min_stage",
+                "join_standing", "selective"));
+        SimJson.Fields sel = ad.object("selective", Set.of("prestige_at_least", "root_peak_bp_at_least",
+                "or_min_realm"));
+        PlayerAdmission admission = new PlayerAdmission(
+                ad.bool("require_awakened_root"),
+                playerRealmStage(ad, "min_realm", "min_stage", realms),
+                ad.integer("join_standing", -100, 100),
+                new PlayerSelective(sel.nonNegativeNumber("prestige_at_least"),
+                        sel.integer("root_peak_bp_at_least", 0, 10000),
+                        playerRealm(sel, "or_min_realm", realms)));
+
+        SimJson.Fields lv = pl.object("leave", Set.of("standing_penalty", "rejoin_standing_at_least", "rejoin_years",
+                "standing_recovery_per_year"));
+        PlayerLeave leave = new PlayerLeave(lv.integer("standing_penalty", -200, 0),
+                lv.integer("rejoin_standing_at_least", -100, 100), lv.nonNegativeInteger("rejoin_years"),
+                lv.integer("standing_recovery_per_year", 0, 100));
+
+        SimJson.Fields pr = pl.object("promotion", Set.of("inner", "elder"));
+        PlayerPromotion promotion = new PlayerPromotion(playerThreshold(pr.object("inner", THRESHOLD_FIELDS), realms),
+                playerThreshold(pr.object("elder", THRESHOLD_FIELDS), realms));
+
+        SimJson.Fields sh = pl.object("scripture_hall", Set.of("borrow_cost_by_grade"));
+        SimJson.Fields costs = sh.object("borrow_cost_by_grade", Set.copyOf(MANUAL_GRADES));
+        Map<String, Integer> borrowCost = new LinkedHashMap<>();
+        for (String grade : MANUAL_GRADES) {
+            borrowCost.put(grade, costs.nonNegativeInteger(grade));
+        }
+
+        Steward steward = new Steward(pl.object("steward", Set.of("interact_range")).positiveNumber("interact_range"));
+
+        SimJson.Fields gt = pl.object("gates", Set.of("realize_radius", "clips_per_tick"));
+        PlayerGates gates = new PlayerGates(gt.positiveInteger("realize_radius"), gt.positiveInteger("clips_per_tick"));
+
+        return new Player(admission, leave, promotion, new ScriptureHall(Collections.unmodifiableMap(borrowCost)),
+                steward, gates);
+    }
+
+    /** Manual grades as the scripture hall keys them: "1" (黄) .. "4" (天). */
+    private static final List<String> MANUAL_GRADES = List.of("1", "2", "3", "4");
+    private static final Set<String> THRESHOLD_FIELDS = Set.of("realm", "stage", "contribution");
+
+    private static PlayerThreshold playerThreshold(SimJson.Fields f, RealmTable realms) {
+        return new PlayerThreshold(playerRealmStage(f, "realm", "stage", realms), f.nonNegativeInteger("contribution"));
+    }
+
+    /** {@code mortal} or a ledger realm. */
+    private static String playerRealm(SimJson.Fields f, String key, RealmTable realms) {
+        String realm = f.nonEmptyString(key);
+        if (!realm.equals(PlayerRealmStage.MORTAL) && realms.indexOf(realm) < 0) {
+            throw f.error(key, "names unknown realm \"" + realm + "\" (expected \"mortal\" or a ledger realm)");
+        }
+        return realm;
+    }
+
+    private static PlayerRealmStage playerRealmStage(SimJson.Fields f, String realmKey, String stageKey,
+                                                     RealmTable realms) {
+        String realm = playerRealm(f, realmKey, realms);
+        int stage = realm.equals(PlayerRealmStage.MORTAL)
+                ? f.nonNegativeInteger(stageKey)
+                : f.integer(stageKey, 0, realms.get(realms.indexOf(realm)).lastStage());
+        return new PlayerRealmStage(realm, stage);
     }
 
     private static final Set<String> GRADE_FACTOR_FIELDS = Set.of("cultivation", "breakthrough", "combat");

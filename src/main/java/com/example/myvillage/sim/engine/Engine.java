@@ -25,6 +25,7 @@ public final class Engine {
         ctx.newDay();
         if (ctx.newYear()) {
             SectAffairs.yearly(ctx);
+            PlayerAffairs.yearly(ctx);
             SectPolitics.yearly(ctx);
             Fortunes.yearly(ctx);
             Entrants.yearly(ctx);

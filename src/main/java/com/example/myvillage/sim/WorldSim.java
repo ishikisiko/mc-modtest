@@ -8,6 +8,7 @@ import com.example.myvillage.sim.data.SimDataLoader;
 import com.example.myvillage.sim.engine.Engine;
 import com.example.myvillage.sim.engine.SimContext;
 import com.example.myvillage.sim.model.Person;
+import com.example.myvillage.sim.model.PlayerMember;
 import com.example.myvillage.sim.model.Relation;
 import com.example.myvillage.sim.model.Sect;
 import com.example.myvillage.sim.model.SectRelation;
@@ -402,6 +403,101 @@ public final class WorldSim {
             out.add(v);
         }
         return List.copyOf(out);
+    }
+
+    // ------------------------------------------------------------------ players (sect entry, slice 1)
+    //
+    // The player-membership interface. A player is never a person: players are kept in
+    // WorldState.playerMembers by UUID string, are not in members()/membersAt(), and never count
+    // as a sect's people. The runtime (sim.runtime.player.WorldSimPlayers) is the only caller that
+    // mutates; it refreshes the qualification snapshot and marks the saved data dirty.
+
+    /** The ledger record of a player (by UUID string), or empty when the player never joined a sect. */
+    public Optional<PlayerMemberView> playerMember(String playerId) {
+        PlayerMember m = ctx.state.playerMembers.get(playerId);
+        return m == null ? Optional.empty() : Optional.of(playerMemberView(m));
+    }
+
+    /** Every player record, current members and former ones, in player-id order. */
+    public List<PlayerMemberView> playerMembers() {
+        List<PlayerMemberView> out = new ArrayList<>();
+        for (PlayerMember m : ctx.state.playerMembers.values()) {
+            out.add(playerMemberView(m));
+        }
+        return out;
+    }
+
+    /**
+     * The sect's steward (守山执事), derived and never stored: of the members at the sect
+     * ({@link #membersAt}), the lowest rank (outer, inner, elder, sect master, anything else), then
+     * the lowest id. Empty when nobody is at the sect.
+     */
+    public Optional<PersonView> stewardOf(int sectId) {
+        PersonView best = null;
+        for (PersonView p : membersAt(sectId)) {
+            if (best == null || stewardOrder(p.rank()) < stewardOrder(best.rank())
+                    || (stewardOrder(p.rank()) == stewardOrder(best.rank()) && p.id() < best.id())) {
+                best = p;
+            }
+        }
+        return Optional.ofNullable(best);
+    }
+
+    private static int stewardOrder(String rank) {
+        return switch (rank) {
+            case "outer" -> 0;
+            case "inner" -> 1;
+            case "elder" -> 2;
+            case "sect_master" -> 3;
+            default -> 4;
+        };
+    }
+
+    /**
+     * Whether this player may join this sect now, judged from the ledger record, the sect, the
+     * qualification and {@code rules.player.admission}/{@code leave}. Does not change the ledger.
+     */
+    public Admission admission(String playerId, int sectId, PlayerQualification q) {
+        throw new UnsupportedOperationException("slice 1 package A");
+    }
+
+    /**
+     * Joins the player to the sect as an outer disciple and records a {@code player_join} event.
+     * Throws IllegalArgumentException with the {@link Admission} reason when the player may not
+     * join.
+     */
+    public SimEvent joinSect(String playerId, String playerName, int sectId, PlayerQualification q) {
+        throw new UnsupportedOperationException("slice 1 package A");
+    }
+
+    /** The player leaves their sect (standing penalty, rejoin cooldown); records {@code player_leave}. */
+    public SimEvent leaveSect(String playerId, String playerName) {
+        throw new UnsupportedOperationException("slice 1 package A");
+    }
+
+    /** Admin: sets a member's rank and records {@code player_promotion}; empty when the rank is unchanged. */
+    public Optional<SimEvent> promotePlayer(String playerId, String playerName, String rank) {
+        throw new UnsupportedOperationException("slice 1 package A");
+    }
+
+    /** Refreshes a player's name and qualification snapshot; does nothing when the player has no record. */
+    public void updatePlayerQualification(String playerId, String playerName, PlayerQualification q) {
+        PlayerMember m = ctx.state.playerMembers.get(playerId);
+        if (m == null) {
+            return;
+        }
+        m.playerName = playerName;
+        m.realmId = q.realmId();
+        m.stageIndex = q.stageIndex();
+        m.awakened = q.awakened();
+        m.rootPeakBp = q.rootPeakBp();
+    }
+
+    private PlayerMemberView playerMemberView(PlayerMember m) {
+        return new PlayerMemberView(m.playerId, m.playerName, m.sectId, m.sectId < 0 ? "" : ctx.sectName(m.sectId),
+                m.rank, m.joinedDay, m.masterId, m.masterId < 0 ? "" : ctx.nameOf(m.masterId), m.contribution,
+                m.borrowed, m.standings, m.leftSectId, m.leftDay, m.realmId, m.stageIndex, m.awakened,
+                m.rootPeakBp);
     }
 
     // ------------------------------------------------------------------ mutations

@@ -1,6 +1,7 @@
 package com.example.myvillage.entity.npc;
 
 import com.example.myvillage.MyVillageMod;
+import java.util.List;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
@@ -20,6 +21,8 @@ public final class CultivatorEntity extends NpcEntity {
     static final double MOVEMENT_SPEED = 0.3;
     /** An unhurried walk: about 1.7 blocks per second. */
     static final double STROLL_SPEED_MODIFIER = 0.65;
+    /** The cultivator's looks: the male disciple, the female novice and the female adept. */
+    public static final List<String> LOOKS = List.of("default", "f_novice", "f_adept");
 
     public CultivatorEntity(EntityType<? extends CultivatorEntity> entityType, Level level) {
         super(entityType, level);
@@ -29,6 +32,11 @@ public final class CultivatorEntity extends NpcEntity {
         return Mob.createMobAttributes()
                 .add(Attributes.MAX_HEALTH, MAX_HEALTH)
                 .add(Attributes.MOVEMENT_SPEED, MOVEMENT_SPEED);
+    }
+
+    @Override
+    protected List<String> looks() {
+        return LOOKS;
     }
 
     @Override

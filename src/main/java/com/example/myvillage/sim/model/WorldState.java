@@ -23,6 +23,11 @@ public final class WorldState {
     public final TreeMap<String, RegionState> regions = new TreeMap<>();
     /** Heritages whose sect was destroyed, in the order they were lost. */
     public final List<LostHeritage> lostHeritages = new ArrayList<>();
+    /**
+     * Players' ledger records by UUID string (player sect entry, slice 1). Players are not persons.
+     * TODO(slice 1 package A): saved by StateCodec version 3 as {@code player_members}.
+     */
+    public final TreeMap<String, PlayerMember> playerMembers = new TreeMap<>();
     /** Kept chronicle entries in id order (pruned per design §3.5). */
     public final List<SimEvent> chronicle = new ArrayList<>();
     public SettlementScheduler scheduler = new SettlementScheduler();

@@ -234,5 +234,15 @@
     "surplus_exponent": 4.0,
     "min_years_left": 40,
     "followers": [0, 3]
+  },
+  "player": {
+    "admission": {"require_awakened_root": true, "min_realm": "mortal", "min_stage": 1, "join_standing": 20,
+                  "selective": {"prestige_at_least": 60.0, "root_peak_bp_at_least": 3000, "or_min_realm": "qi_refining"}},
+    "leave": {"standing_penalty": -40, "rejoin_standing_at_least": 0, "rejoin_years": 3, "standing_recovery_per_year": 10},
+    "promotion": {"inner": {"realm": "qi_refining", "stage": 4, "contribution": 0},
+                  "elder": {"realm": "foundation_establishment", "stage": 0, "contribution": 0}},
+    "scripture_hall": {"borrow_cost_by_grade": {"1": 0, "2": 0, "3": 0, "4": 0}},
+    "steward": {"interact_range": 6.0},
+    "gates": {"realize_radius": 160, "clips_per_tick": 2}
   }
 }
