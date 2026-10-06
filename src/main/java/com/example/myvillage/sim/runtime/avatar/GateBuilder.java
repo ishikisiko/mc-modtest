@@ -111,6 +111,7 @@ public final class GateBuilder {
             return 0;
         }
         GateRealizations.get(level).put(new GateRealizations.Gate(sectId, anchor, seed, variant, sim.day()));
+        placeShelves(level, sectId, seed, anchor, variant);
         sim.markGateRealized(sectId, true);
         markLedgerDirty(level);
         WorldSimAvatars.gateChanged(sectId);
@@ -119,6 +120,15 @@ public final class GateBuilder {
         source.sendSuccess(() -> WorldSimText.line("sect_build.done", sect.name(), anchor.getX(), anchor.getY(),
                 anchor.getZ(), seconds, WorldSimServerConfig.avatarSpawnRadius()), true);
         return 1;
+    }
+
+    /** The sect's scripture shelves ({@link ScriptureShelves}); a failure there never fails the build. */
+    static void placeShelves(ServerLevel level, int sectId, long seed, BlockPos anchor, String variant) {
+        try {
+            ScriptureShelves.place(level, sectId, seed, anchor, variant);
+        } catch (RuntimeException ex) {
+            LOGGER.warn("SCRIPTURE_SHELF sect={} placement failed", sectId, ex);
+        }
     }
 
     /** The ledger payload changed outside a settled day; make sure the next world save writes it. */

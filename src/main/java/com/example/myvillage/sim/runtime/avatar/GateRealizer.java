@@ -329,6 +329,7 @@ public final class GateRealizer {
     }
 
     private static void finish(ServerLevel level, WorldSim sim, Job j) {
+        GateBuilder.placeShelves(level, j.sectId, j.seed, j.anchor, j.variant);
         releaseTickets(level, j);
         job = null;
         GateRealizations.get(level).put(new GateRealizations.Gate(j.sectId, j.anchor, j.seed, j.variant, sim.day()));
