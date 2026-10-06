@@ -9,6 +9,7 @@ import com.example.myvillage.sim.SectView;
 import com.example.myvillage.sim.SimDate;
 import com.example.myvillage.sim.SimEvent;
 import com.example.myvillage.sim.WorldSim;
+import com.example.myvillage.sim.engine.PlayerAffairs;
 import com.example.myvillage.sim.runtime.avatar.GateBuilder;
 import com.example.myvillage.sim.runtime.avatar.GateRealizerCommands;
 import com.example.myvillage.sim.runtime.net.WorldSimSnapshots;
@@ -24,6 +25,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -45,6 +47,8 @@ import net.minecraft.server.level.ServerPlayer;
  *   <li>{@code sect <id> join <player>} / {@code sect <id> leave <player>} — admin membership: join skips the
  *       admission rules (only the sect must be active), leave works as if the player left
  *       ({@link WorldSimPlayers})</li>
+ *   <li>{@code sect <id> rank <player> <outer|inner|elder>} — admin: set a member's rank (a rise records
+ *       {@code player_promotion})</li>
  *   <li>{@code player <player>} — a player's ledger record: sect, rank, joining date, master, contribution,
  *       standing with each sect, the sect they last left</li>
  *   <li>{@code person <name>} — people whose name or Daoist title contains the text, living first</li>
@@ -87,7 +91,16 @@ public final class WorldSimCommands {
                                 .then(Commands.literal("leave")
                                         .then(Commands.argument("player", EntityArgument.player())
                                                 .executes(ctx -> leavePlayer(ctx.getSource(), IntegerArgumentType.getInteger(ctx, "id"),
-                                                        EntityArgument.getPlayer(ctx, "player"))))))
+                                                        EntityArgument.getPlayer(ctx, "player")))))
+                                .then(Commands.literal("rank")
+                                        .then(Commands.argument("player", EntityArgument.player())
+                                                .then(Commands.argument("rank", StringArgumentType.word())
+                                                        .suggests((ctx, builder) -> SharedSuggestionProvider.suggest(
+                                                                PlayerAffairs.RANKS, builder))
+                                                        .executes(ctx -> rankPlayer(ctx.getSource(),
+                                                                IntegerArgumentType.getInteger(ctx, "id"),
+                                                                EntityArgument.getPlayer(ctx, "player"),
+                                                                StringArgumentType.getString(ctx, "rank")))))))
                         .then(Commands.argument("query", StringArgumentType.greedyString())
                                 .executes(ctx -> sect(ctx.getSource(), StringArgumentType.getString(ctx, "query")))))
                 .then(Commands.literal("person")
@@ -459,6 +472,44 @@ public final class WorldSimCommands {
         }
         String sectName = sectName(active.get().sim(), sectId);
         send(source, () -> WorldSimText.line("sect_leave.done", name, sectName), true);
+        return 1;
+    }
+
+    /**
+     * Sets {@code target}'s rank in the sect ({@code outer}, {@code inner}, {@code elder}); the
+     * target must be a member of {@code sectId}. A rise records {@code player_promotion}, which the
+     * target is told at once.
+     */
+    private static int rankPlayer(CommandSourceStack source, int sectId, ServerPlayer target, String rank) {
+        Optional<WorldSimDriver> active = active(source);
+        if (active.isEmpty()) {
+            return 0;
+        }
+        WorldSim sim = active.get().sim();
+        String id = target.getUUID().toString();
+        String name = target.getGameProfile().getName();
+        String sectName = sectName(sim, sectId);
+        Optional<PlayerMemberView> member = sim.playerMember(id);
+        if (member.isEmpty() || member.get().sectId() != sectId) {
+            source.sendFailure(WorldSimText.line("sect_rank.not_member", name, sectName));
+            return 0;
+        }
+        String before = member.get().rank();
+        Optional<SimEvent> event;
+        try {
+            event = sim.promotePlayer(id, name, rank);
+        } catch (IllegalArgumentException ex) {
+            source.sendFailure(WorldSimText.line("sect_rank.failed", String.valueOf(ex.getMessage())));
+            return 0;
+        }
+        if (before.equals(rank)) {
+            send(source, () -> WorldSimText.line("sect_rank.unchanged", name, WorldSimText.rank(rank)));
+            return 0;
+        }
+        // a lowered rank changes the ledger too, without an event
+        WorldSimSavedData.get(source.getServer().overworld()).setDirty();
+        send(source, () -> WorldSimText.line("sect_rank.done", name, sectName, WorldSimText.rank(rank)), true);
+        event.ifPresent(e -> target.sendSystemMessage(WorldSimText.event(e)));
         return 1;
     }
 
