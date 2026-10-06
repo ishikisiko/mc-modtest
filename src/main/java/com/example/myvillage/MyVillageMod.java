@@ -14,6 +14,7 @@ import com.example.myvillage.cultivation.time.CultivationServerConfig;
 import com.example.myvillage.entity.ModEntities;
 import com.example.myvillage.entity.RideableFlyingSwordEntity;
 import com.example.myvillage.entity.beast.BeastCommands;
+import com.example.myvillage.item.ModDataComponents;
 import com.example.myvillage.item.ModItems;
 import com.example.myvillage.network.ModPayloads;
 import com.example.myvillage.region.runtime.RegionCommands;
@@ -93,6 +94,7 @@ public final class MyVillageMod {
         ModEntities.register(modEventBus);
         ModBlocks.register(modEventBus);
         ModItems.register(modEventBus);
+        ModDataComponents.register(modEventBus);
         CombatSounds.register(modEventBus);
         CombatParticles.register(modEventBus);
         ModPayloads.register(modEventBus);
