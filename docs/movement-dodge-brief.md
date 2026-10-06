@@ -22,7 +22,7 @@ owner 2026-10-07："先做做看看"。功法任务书第二阶段"手感"的第
 ## 1. 已落的契约（统筹已写，编译通过后各包只读不改；要改字段先告诉统筹）
 
 - `combat/session/CombatStopReason.DODGED`，追加在枚举末尾（线上传 ordinal）。
-- `combat/DodgeDirection`：9 向枚举（NONE + 8），`fromInput(forwardImpulse, leftImpulse)` 死区 0.3，`worldYaw(viewYaw)` 给出世界偏航（左 = yaw − 90，NONE = 后撤）。
+- `combat/DodgeDirection`：9 向枚举（NONE + 8），`fromInput(forwardImpulse, leftImpulse)` 死区 0.2（低于原版潜行的 0.3 输入缩放），`worldYaw(viewYaw)` 给出世界偏航（左 = yaw − 90，NONE = 后撤）。
 - `combat/network/CombatDodgeIntentPayload(DodgeDirection direction)`：serverbound，一个字节的输入，不带任何权威。
 - `combat/network/CombatDodgeStartPayload(entityId, startTick, directionYaw, distance, invulnerableTicks, durationTicks, cooldownTicks, techniqueId)`：clientbound，发给本人和追踪者，仅表现用（位移本身由服务端冲量产生的原版运动包送达）。
 - `combat/network/CombatDodgeReceiver.install(Consumer<CombatDodgeStartPayload>)`：客户端装回调。

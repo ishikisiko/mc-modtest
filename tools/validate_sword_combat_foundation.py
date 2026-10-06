@@ -1155,6 +1155,21 @@ GAME_CLOCK_READ = re.compile(r"\bgetGameTime\s*\(\s*\)")
 JAVA_COMMENTS = re.compile(r"//[^\n]*|/\*.*?\*/", re.DOTALL)
 RECORD_PATTERN = re.compile(r"\brecord\s+(\w+)\s*\((.*?)\)\s*(?:implements\b|\{)", re.DOTALL)
 REGISTRATION_PATTERN = re.compile(r"\b(playToServer|playToClient|playBidirectional)\s*\(\s*(\w+)\s*\.\s*TYPE\b")
+# Record component types a serverbound combat payload may carry: quantised player input with no
+# authority over timing, distance, damage or protection (the dodge direction is one byte).
+INPUT_ONLY_COMPONENT_TYPES = frozenset({"DodgeDirection"})
+
+
+def input_only_components(components: str) -> bool:
+    """True when every record component is of an INPUT_ONLY_COMPONENT_TYPES type (or there is none)."""
+    text = components.strip()
+    if not text:
+        return True
+    for component in text.split(","):
+        parts = component.split()
+        if len(parts) < 2 or parts[-2].split("<")[0] not in INPUT_ONLY_COMPONENT_TYPES:
+            return False
+    return True
 
 
 def combat_sources(root: Path) -> list[tuple[Path, str]]:
@@ -1191,7 +1206,9 @@ def validate_source_invariants(root: Path, findings: list[Finding]) -> None:
         for direction, payload in REGISTRATION_PATTERN.findall(content):
             directions.setdefault(payload, set()).add(direction)
 
-    # Client-to-server combat payloads are empty records: the client sends intent only.
+    # Client-to-server combat payloads carry intent only: an empty record, or components whose
+    # types are pure player input (INPUT_ONLY_COMPONENT_TYPES); timing, distance, damage and
+    # windows stay server-decided.
     serverbound = sorted(name for name, seen in directions.items()
                          if seen & {"playToServer", "playBidirectional"})
     if not serverbound:
@@ -1200,7 +1217,7 @@ def validate_source_invariants(root: Path, findings: list[Finding]) -> None:
         components = records.get(name)
         if components is None:
             findings.append(Finding("COMBAT_C2S_PAYLOAD_UNRESOLVED", f"{name} is not a record in combat code"))
-        elif components.strip():
+        elif not input_only_components(components):
             findings.append(Finding("COMBAT_C2S_AUTHORITY_FIELD", f"{name}({' '.join(components.split())})"))
 
     # Clientbound payloads carry no damage or health; the impact payload is clientbound only.

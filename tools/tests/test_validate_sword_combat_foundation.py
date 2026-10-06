@@ -795,6 +795,23 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
         details = self.details("COMBAT_C2S_AUTHORITY_FIELD")
         self.assertTrue(any("ProbeIntentPayload(int moveId)" in d for d in details), details)
 
+    def test_serverbound_payload_with_only_input_components_is_accepted(self) -> None:
+        self.write_java(COMBAT_JAVA + "network/ProbeInputPayload.java",
+                        "package com.example.myvillage.combat.network;\n"
+                        "public record ProbeInputPayload(DodgeDirection direction) implements CustomPacketPayload {\n"
+                        "    static void register(PayloadRegistrar registrar) {\n"
+                        "        registrar.playToServer(ProbeInputPayload.TYPE, null, null);\n"
+                        "    }\n}\n")
+        self.write_java(COMBAT_JAVA + "network/ProbeMixedPayload.java",
+                        "package com.example.myvillage.combat.network;\n"
+                        "public record ProbeMixedPayload(DodgeDirection direction, int ticks) implements CustomPacketPayload {\n"
+                        "    static void register(PayloadRegistrar registrar) {\n"
+                        "        registrar.playToServer(ProbeMixedPayload.TYPE, null, null);\n"
+                        "    }\n}\n")
+        details = self.details("COMBAT_C2S_AUTHORITY_FIELD")
+        self.assertFalse(any("ProbeInputPayload" in d for d in details), details)
+        self.assertTrue(any("ProbeMixedPayload(DodgeDirection direction, int ticks)" in d for d in details), details)
+
     def test_serverbound_registrations_are_required(self) -> None:
         for path in (self.root / COMBAT_JAVA).rglob("*.java"):
             content = path.read_text(encoding="utf-8")

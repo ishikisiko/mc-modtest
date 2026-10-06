@@ -106,6 +106,30 @@ public final class CombatDodgeService {
         }
     }
 
+    /**
+     * Vertical motion of the dash impulse. A flat impulse (y = 0) leaves the client's next
+     * {@code move} without a vertical collision, so for one tick it reports {@code onGround=false}
+     * and uses air friction (0.91 instead of block friction x 0.91); the capture measured a 4.5-block
+     * dash travelling 5.39 blocks and a dodge asked one tick after an attack step rejected as
+     * airborne. A slight downward press keeps the body grounded, so the drag compensation of
+     * {@link CombatStepService#impulseForDistance} holds every tick.
+     */
+    static final double GROUND_PRESS = -0.1;
+    /** How far below the feet {@link #supported} looks for a block (covers the one-tick flag glitch). */
+    static final double SUPPORT_PROBE = 0.25;
+
+    /**
+     * Grounded by the client's flag, or by geometry: a block within {@link #SUPPORT_PROBE} below the
+     * feet. The geometry covers the tick after a flat step impulse, when the flag is false although
+     * the body never left the floor; a jumping or falling body has nothing that close below it.
+     */
+    static boolean supported(ServerPlayer player) {
+        if (player.onGround()) {
+            return true;
+        }
+        return !player.level().noCollision(player, player.getBoundingBox().move(0.0, -SUPPORT_PROBE, 0.0));
+    }
+
     /** A dodge key press with the movement input it was pressed with. Returns whether it started. */
     public static boolean handleIntent(ServerPlayer player, DodgeDirection direction) {
         Objects.requireNonNull(player, "player");
@@ -118,7 +142,7 @@ public final class CombatDodgeService {
                 player.isSpectator() || player.isSleeping() || player.isUsingItem() || player.isPassenger()
                         || MeditationManager.status(player).state().active(),
                 CombatService.getMode(player) == CombatMode.CULTIVATION,
-                player.onGround());
+                supported(player));
         if (precondition.isPresent()) {
             return reject(player, now, precondition.get());
         }
@@ -156,7 +180,7 @@ public final class CombatDodgeService {
             return reject(player, now, Rejection.TIMING);
         }
         double speed = CombatStepService.impulseForDistance(distance);
-        player.setDeltaMovement(forward.x * speed, 0.0, forward.z * speed);
+        player.setDeltaMovement(forward.x * speed, GROUND_PRESS, forward.z * speed);
         player.hurtMarked = true;
         player.setSprinting(false);
 

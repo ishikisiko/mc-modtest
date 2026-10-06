@@ -49,7 +49,7 @@ class DodgeDirectionTest {
     }
 
     @Test
-    void fromInputQuantisesWithADeadZoneOfPointThree() {
+    void fromInputQuantisesWithADeadZoneBelowTheSneakScale() {
         assertEquals(DodgeDirection.NONE, DodgeDirection.fromInput(0.0F, 0.0F));
         assertEquals(DodgeDirection.FORWARD, DodgeDirection.fromInput(1.0F, 0.0F));
         assertEquals(DodgeDirection.BACK, DodgeDirection.fromInput(-1.0F, 0.0F));
