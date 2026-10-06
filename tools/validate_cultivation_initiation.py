@@ -52,6 +52,7 @@ EXPECTED_PROFILE_FIELDS = (
     "meditationQiReserve",
     "spiritualRoot",
     "learnedTechniques",
+    "activeCoreTechnique",
 )
 ALLOWED_CULTIVATION_PAYLOADS = frozenset(
     {
@@ -59,7 +60,12 @@ ALLOWED_CULTIVATION_PAYLOADS = frozenset(
         "CultivationTimeSnapshotPayload.java",
         "MeditationStatusPayload.java",
         "MeditationIntentPayload.java",
+        "CoreTechniqueSwitchPayload.java",
     }
+)
+SERVERBOUND_CULTIVATION_PAYLOADS = (
+    "MeditationIntentPayload",
+    "CoreTechniqueSwitchPayload",
 )
 CLIENTBOUND_CULTIVATION_PAYLOADS = (
     "CultivationSnapshotPayload",
@@ -750,8 +756,8 @@ class CultivationInitiationValidator:
         profile = self.java_class("CultivationProfile")
         if profile is not None:
             path, source = profile
-            if not re.search(r"CURRENT_SCHEMA_VERSION\s*=\s*3\s*;", source):
-                self.error(path, "cultivation profile schema must be 3")
+            if not re.search(r"CURRENT_SCHEMA_VERSION\s*=\s*4\s*;", source):
+                self.error(path, "cultivation profile schema must be 4")
             if not re.search(r"DEFAULT_SPIRITUAL_AFFINITY\s*=\s*10\s*;", source):
                 self.error(path, "default spiritual affinity must be 10")
             if not re.search(r"spiritualAffinity\s*<\s*0", source):
@@ -771,7 +777,7 @@ class CultivationInitiationValidator:
             if components != EXPECTED_PROFILE_FIELDS:
                 self.error(
                     path,
-                    "v3 profile components changed; expected "
+                    "v4 profile components changed; expected "
                     + ", ".join(EXPECTED_PROFILE_FIELDS)
                     + f", got {', '.join(components) or '<unparsed>'}",
                 )
@@ -780,9 +786,9 @@ class CultivationInitiationValidator:
         if snapshot is not None:
             path, source = snapshot
             if not re.search(r"CultivationProfile\s+profile", source):
-                self.error(path, "profile snapshot must carry the complete v3 CultivationProfile")
+                self.error(path, "profile snapshot must carry the complete v4 CultivationProfile")
             if "CultivationProfile.CODEC" not in source:
-                self.error(path, "profile snapshot must encode the v3 profile including spiritual affinity")
+                self.error(path, "profile snapshot must encode the v4 profile including spiritual affinity")
 
         payloads = self.java_class("CultivationPayloads")
         if payloads is not None:
@@ -797,13 +803,24 @@ class CultivationInitiationValidator:
             for payload_name in CLIENTBOUND_CULTIVATION_PAYLOADS:
                 if f"{payload_name}.TYPE" not in register:
                     self.error(path, f"missing clientbound registration for {payload_name}")
-            if len(re.findall(r"registrar\.playToServer\s*\(", register)) != 1:
+            if len(re.findall(r"registrar\.playToServer\s*\(", register)) != len(SERVERBOUND_CULTIVATION_PAYLOADS):
                 self.error(
                     path,
-                    "cultivation networking must register exactly one bounded C2S meditation intent",
+                    "cultivation networking must register exactly the bounded meditation intent "
+                    "and the core-technique switch as C2S payloads",
                 )
             if "MeditationIntentPayload.TYPE" not in register:
                 self.error(path, "C2S registration must be MeditationIntentPayload")
+            if "CoreTechniqueSwitchPayload.TYPE" not in register:
+                self.error(path, "C2S registration must include CoreTechniqueSwitchPayload")
+            switch_handler = _method_body(source, "handleCoreTechniqueSwitch")
+            if switch_handler is not None:
+                if "context.enqueueWork" not in switch_handler:
+                    self.error(path, "core-technique switch must run on the logical server thread")
+                if "CultivationService.switchCoreTechnique" not in switch_handler:
+                    self.error(path, "core-technique switch must delegate to CultivationService.switchCoreTechnique")
+                if re.search(r"\bsetData\s*\(|replaceProfile|updateProfile", switch_handler):
+                    self.error(path, "core-technique switch handler must not write profile data directly")
             if re.search(r"registrar\.(?:common|bidirectional)\s*\(", register):
                 self.error(path, "cultivation networking must not register a common/bidirectional payload")
 
@@ -825,6 +842,23 @@ class CultivationInitiationValidator:
                         java_path,
                         "only the declared cultivation snapshot/time/status/intent payloads are allowed",
                     )
+
+        switch_payload = self.java_class("CoreTechniqueSwitchPayload")
+        if switch_payload is not None:
+            path, source = switch_payload
+            record_match = re.search(r"\brecord\s+CoreTechniqueSwitchPayload\s*\(", source)
+            components = ()
+            if record_match is not None:
+                open_paren = source.find("(", record_match.start())
+                region = _balanced_content(source, open_paren, "(", ")")
+                if region is not None:
+                    components = tuple(
+                        name_match.group(1)
+                        for part in _top_level_parts(region[0])
+                        if (name_match := re.search(r"([A-Za-z_$][\w$]*)\s*$", part))
+                    )
+            if components != ("techniqueId",):
+                self.error(path, "CoreTechniqueSwitchPayload must carry only the technique id")
 
         intent = self.java_class("MeditationIntentPayload")
         if intent is not None:
@@ -1048,7 +1082,7 @@ def main() -> int:
     print(
         "cultivation initiation validation passed: "
         f"checked_files={result.checked_files}; blocks=2; elements=5; "
-        "profile_schema=3; cultivation_c2s=1-bounded-intent; h_tabs=profile+meditation; h_actions=4"
+        "profile_schema=4; cultivation_c2s=bounded-intent+core-switch; h_tabs=profile+meditation; h_actions=4"
     )
     print(
         "algorithm determinism, affinity arithmetic, atomic transitions, and repeat "

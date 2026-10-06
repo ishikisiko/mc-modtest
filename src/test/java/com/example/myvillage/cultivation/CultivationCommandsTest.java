@@ -23,6 +23,7 @@ class CultivationCommandsTest {
             Map.entry("clearroot", "qingchulinggen"),
             Map.entry("learn", "xuexi"),
             Map.entry("forget", "yiwang"),
+            Map.entry("core", "xinfa"),
             Map.entry("setmastery", "shezhishuliandu"),
             Map.entry("awaken", "juexing"),
             Map.entry("initiate", "rumen"));

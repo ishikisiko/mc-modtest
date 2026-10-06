@@ -218,6 +218,47 @@ class TechniqueCatalogueDefinitionTest {
                 """);
     }
 
+    @Test
+    void everyShippedTechniqueSchoolAndHeritageDecodesAndResolves() throws Exception {
+        Path root = Path.of("src/main/resources/data/myvillage/myvillage");
+        Map<ResourceLocation, TechniqueDefinition> techniques = decodeDirectory(
+                root.resolve("technique"), TechniqueDefinition.CODEC);
+        Map<ResourceLocation, SchoolDefinition> schools = decodeDirectory(root.resolve("school"), SchoolDefinition.CODEC);
+        Map<ResourceLocation, HeritageDefinition> heritages = decodeDirectory(
+                root.resolve("heritage"), HeritageDefinition.CODEC);
+
+        assertTrue(techniques.containsKey(ModCultivationRegistries.BASIC_BREATHING_TECHNIQUE_ID));
+        techniques.forEach((id, technique) -> {
+            technique.school().ifPresent(school ->
+                    assertTrue(schools.containsKey(school), () -> id + " names missing school " + school));
+            technique.previous().ifPresent(previous ->
+                    assertTrue(techniques.containsKey(previous), () -> id + " names missing previous " + previous));
+        });
+        heritages.forEach((id, heritage) -> {
+            heritage.school().ifPresent(school ->
+                    assertTrue(schools.containsKey(school), () -> id + " names missing school " + school));
+            heritage.techniques().forEach(technique ->
+                    assertTrue(techniques.containsKey(technique), () -> id + " names missing technique " + technique));
+        });
+    }
+
+    private static <T> Map<ResourceLocation, T> decodeDirectory(Path directory, Codec<T> codec) throws Exception {
+        Map<ResourceLocation, T> result = new java.util.TreeMap<>();
+        if (!Files.isDirectory(directory)) {
+            return result;
+        }
+        try (var files = Files.list(directory)) {
+            for (Path file : files.filter(path -> path.toString().endsWith(".json")).sorted().toList()) {
+                String name = file.getFileName().toString();
+                DataResult<T> decoded = codec.parse(JsonOps.INSTANCE, JsonParser.parseString(Files.readString(file)));
+                assertTrue(decoded.result().isPresent(),
+                        () -> file + ": " + decoded.error().map(DataResult.Error::message).orElse(""));
+                result.put(id(name.substring(0, name.length() - ".json".length())), decoded.getOrThrow());
+            }
+        }
+        return result;
+    }
+
     /** A minimal technique plus one extra field; a repeated key (such as "grade") overrides the default. */
     private static String technique(String category, String extraField) {
         return """

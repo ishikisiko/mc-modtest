@@ -64,6 +64,8 @@ public final class CultivationCommands {
                 .then(techniqueCommand("xuexi", CultivationCommands::learnTechnique))
                 .then(techniqueCommand("forget", CultivationCommands::forgetTechnique))
                 .then(techniqueCommand("yiwang", CultivationCommands::forgetTechnique))
+                .then(coreTechniqueCommand("core"))
+                .then(coreTechniqueCommand("xinfa"))
                 .then(masteryCommand("setmastery"))
                 .then(masteryCommand("shezhishuliandu"))
                 .then(awakenCommand("awaken"))
@@ -242,6 +244,23 @@ public final class CultivationCommands {
                                 })));
     }
 
+    private static LiteralArgumentBuilder<CommandSourceStack> coreTechniqueCommand(String literal) {
+        return Commands.literal(literal)
+                .then(Commands.argument("target", EntityArgument.player())
+                        .then(Commands.argument("technique_id", ResourceLocationArgument.id())
+                                .suggests(CultivationCommands::suggestCoreTechniques)
+                                .executes(context -> {
+                                    ServerPlayer target = EntityArgument.getPlayer(context, "target");
+                                    return report(
+                                            context.getSource(),
+                                            target,
+                                            CultivationService.switchCoreTechnique(
+                                                    target,
+                                                    ResourceLocationArgument.getId(
+                                                            context, "technique_id")));
+                                })));
+    }
+
     private static LiteralArgumentBuilder<CommandSourceStack> masteryCommand(String literal) {
         return Commands.literal(literal)
                 .then(Commands.argument("target", EntityArgument.player())
@@ -331,7 +350,11 @@ public final class CultivationCommands {
                 + "\nspiritual affinity: " + profile.spiritualAffinity()
                 + "\nlifespan consumed ticks: " + profile.lifespanConsumedTicks()
                 + "\nspiritual root: " + root
-                + "\nlearned techniques: " + learned;
+                + "\nlearned techniques: " + learned
+                + "\nrunning core technique: " + profile.activeCoreTechnique()
+                        .map(id -> availability(
+                                id, techniques.map(registry -> registry.containsKey(id)).orElse(false)))
+                        .orElse("none");
         source.sendSuccess(() -> Component.literal(output), false);
         return 1;
     }
@@ -387,6 +410,18 @@ public final class CultivationCommands {
             CommandContext<CommandSourceStack> context,
             SuggestionsBuilder builder) {
         return suggestRegistry(context, builder, ModCultivationRegistries.TECHNIQUES);
+    }
+
+    private static CompletableFuture<Suggestions> suggestCoreTechniques(
+            CommandContext<CommandSourceStack> context,
+            SuggestionsBuilder builder) {
+        return context.getSource().registryAccess().registry(ModCultivationRegistries.TECHNIQUES)
+                .map(registry -> SharedSuggestionProvider.suggestResource(
+                        registry.keySet().stream()
+                                .filter(id -> registry.get(id).isCore())
+                                .sorted(java.util.Comparator.comparing(ResourceLocation::toString)),
+                        builder))
+                .orElseGet(builder::buildFuture);
     }
 
     private static CompletableFuture<Suggestions> suggestStages(

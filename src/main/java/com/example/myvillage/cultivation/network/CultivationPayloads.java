@@ -1,5 +1,6 @@
 package com.example.myvillage.cultivation.network;
 
+import com.example.myvillage.cultivation.CultivationService;
 import com.example.myvillage.cultivation.time.CultivationTimeRuntime;
 import com.example.myvillage.cultivation.meditation.MeditationManager;
 import com.example.myvillage.cultivation.meditation.MeditationMode;
@@ -34,6 +35,10 @@ public final class CultivationPayloads {
                 MeditationIntentPayload.TYPE,
                 MeditationIntentPayload.STREAM_CODEC,
                 CultivationPayloads::handleMeditationIntent);
+        registrar.playToServer(
+                CoreTechniqueSwitchPayload.TYPE,
+                CoreTechniqueSwitchPayload.STREAM_CODEC,
+                CultivationPayloads::handleCoreTechniqueSwitch);
     }
 
     private static void handleSnapshot(
@@ -68,5 +73,15 @@ public final class CultivationPayloads {
                 case START_BREAKTHROUGH -> MeditationManager.requestAdvancement(player);
             }
         });
+    }
+
+    /** Only asks the service; learned, category, lineage and progress loss are decided there. */
+    private static void handleCoreTechniqueSwitch(
+            CoreTechniqueSwitchPayload payload,
+            IPayloadContext context) {
+        if (!(context.player() instanceof ServerPlayer player)) {
+            return;
+        }
+        context.enqueueWork(() -> CultivationService.switchCoreTechnique(player, payload.techniqueId()));
     }
 }

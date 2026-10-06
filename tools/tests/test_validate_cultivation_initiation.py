@@ -287,8 +287,9 @@ class CultivationInitiationValidationTest(unittest.TestCase):
                     long lifespanConsumedTicks,
                     long meditationQiReserve,
                     Optional<SpiritualRoot> spiritualRoot,
-                    Map<ResourceLocation, TechniqueProgress> learnedTechniques) {
-                public static final int CURRENT_SCHEMA_VERSION = 3;
+                    Map<ResourceLocation, TechniqueProgress> learnedTechniques,
+                    Optional<ResourceLocation> activeCoreTechnique) {
+                public static final int CURRENT_SCHEMA_VERSION = 4;
                 public static final int DEFAULT_SPIRITUAL_AFFINITY = 10;
                 public CultivationProfile {
                     if (spiritualAffinity < 0) throw new IllegalArgumentException();
@@ -310,8 +311,21 @@ class CultivationInitiationValidationTest(unittest.TestCase):
                             MeditationStatusPayload.STREAM_CODEC, CultivationPayloads::handleStatus);
                     registrar.playToServer(MeditationIntentPayload.TYPE,
                             MeditationIntentPayload.STREAM_CODEC, CultivationPayloads::handleIntent);
+                    registrar.playToServer(CoreTechniqueSwitchPayload.TYPE,
+                            CoreTechniqueSwitchPayload.STREAM_CODEC, CultivationPayloads::handleCoreTechniqueSwitch);
+                }
+                private static void handleCoreTechniqueSwitch(CoreTechniqueSwitchPayload payload, IPayloadContext context) {
+                    context.enqueueWork(() -> CultivationService.switchCoreTechnique(player, payload.techniqueId()));
                 }
             }
+            """,
+        )
+        self.write(
+            "src/main/java/com/example/myvillage/cultivation/network/CoreTechniqueSwitchPayload.java",
+            """
+            package com.example.myvillage.cultivation.network;
+            public record CoreTechniqueSwitchPayload(ResourceLocation techniqueId)
+                    implements CustomPacketPayload {}
             """,
         )
         self.write(
@@ -592,17 +606,45 @@ class CultivationInitiationValidationTest(unittest.TestCase):
     def test_profile_schema_or_shape_change_is_rejected(self) -> None:
         path = self.root / "src/main/java/com/example/myvillage/cultivation/CultivationProfile.java"
         source = path.read_text(encoding="utf-8").replace(
-            "Map<ResourceLocation, TechniqueProgress> learnedTechniques)",
-            "Map<ResourceLocation, TechniqueProgress> learnedTechniques, boolean awakened)",
-        ).replace("CURRENT_SCHEMA_VERSION = 3", "CURRENT_SCHEMA_VERSION = 4")
+            "Optional<ResourceLocation> activeCoreTechnique)",
+            "Optional<ResourceLocation> activeCoreTechnique, boolean awakened)",
+        ).replace("CURRENT_SCHEMA_VERSION = 4", "CURRENT_SCHEMA_VERSION = 5")
         path.write_text(source, encoding="utf-8")
 
         result = self.validate()
 
-        self.assert_error_contains(result, "cultivation profile schema must be 3")
-        self.assert_error_contains(result, "v3 profile components changed")
+        self.assert_error_contains(result, "cultivation profile schema must be 4")
+        self.assert_error_contains(result, "v4 profile components changed")
 
-    def test_profile_snapshot_must_use_complete_v3_codec(self) -> None:
+    def test_core_switch_payload_carries_only_the_technique_id(self) -> None:
+        path = self.root / "src/main/java/com/example/myvillage/cultivation/network/CoreTechniqueSwitchPayload.java"
+        path.write_text(
+            path.read_text(encoding="utf-8").replace(
+                "(ResourceLocation techniqueId)", "(ResourceLocation techniqueId, long cultivationProgress)"
+            ),
+            encoding="utf-8",
+        )
+
+        result = self.validate()
+
+        self.assert_error_contains(result, "CoreTechniqueSwitchPayload must carry only the technique id")
+
+    def test_core_switch_handler_must_delegate_to_the_service(self) -> None:
+        path = self.root / "src/main/java/com/example/myvillage/cultivation/network/CultivationPayloads.java"
+        path.write_text(
+            path.read_text(encoding="utf-8").replace(
+                "CultivationService.switchCoreTechnique(player, payload.techniqueId())",
+                "CultivationService.replaceProfile(player, null)",
+            ),
+            encoding="utf-8",
+        )
+
+        result = self.validate()
+
+        self.assert_error_contains(result, "must delegate to CultivationService.switchCoreTechnique")
+        self.assert_error_contains(result, "handler must not write profile data directly")
+
+    def test_profile_snapshot_must_use_complete_v4_codec(self) -> None:
         path = self.root / "src/main/java/com/example/myvillage/cultivation/network/CultivationSnapshotPayload.java"
         source = path.read_text(encoding="utf-8").replace(
             "CultivationProfile.CODEC",
@@ -615,7 +657,7 @@ class CultivationInitiationValidationTest(unittest.TestCase):
 
         self.assert_error_contains(
             result,
-            "profile snapshot must encode the v3 profile including spiritual affinity",
+            "profile snapshot must encode the v4 profile including spiritual affinity",
         )
 
     def test_negative_affinity_guard_removal_is_rejected(self) -> None:
