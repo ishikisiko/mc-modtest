@@ -5,7 +5,9 @@ import com.example.myvillage.sim.Admission;
 import com.example.myvillage.sim.PersonView;
 import com.example.myvillage.sim.PlayerMemberView;
 import com.example.myvillage.sim.SectView;
+import com.example.myvillage.sim.TaskView;
 import com.example.myvillage.sim.WorldSim;
+import com.example.myvillage.sim.data.ContentTables;
 import com.example.myvillage.sim.runtime.WorldSimRuntime;
 import com.example.myvillage.sim.runtime.WorldSimText;
 import com.example.myvillage.sim.runtime.net.SectDialoguePayload;
@@ -68,12 +70,18 @@ public final class SectDialogue {
         Speaker s = speaker.get();
         Optional<PlayerMemberView> me = s.sim().playerMember(player.getUUID().toString());
         Admission admission = admission(s.sim(), player, s.sect().id());
-        SectDialogueScenes.Scene scene = SectDialogueScenes.decide(s.role(), me, admission, s.sect().id());
-        send(player, s, me, admission, SectDialogueScenes.openingLines(s.role(), scene), scene.options());
+        SectDialogueScenes.Affairs affairs = affairs(s, player, me);
+        SectDialogueScenes.Scene scene = SectDialogueScenes.decide(s.role(), me, admission, s.sect().id(), affairs);
+        send(player, s, me, admission, SectDialogueScenes.openingLines(s.role(), scene), scene.options(),
+                shownTask(affairs));
         return true;
     }
 
-    /** An option the player picked: checked again, then JOIN/LEAVE through {@link WorldSimPlayers}. */
+    /**
+     * An option the player picked: checked again, then JOIN/LEAVE through {@link WorldSimPlayers},
+     * TASK_ACCEPT/TASK_TURN_IN (steward, member of this sect) and APPRENTICE (elder, member of this
+     * sect) through {@link SectTasks}. The ledger judges each; the answer is a new page.
+     */
     public static void handleIntent(ServerPlayer player, SectIntentPayload intent) {
         if (!allow(player.getUUID(), player.getServer() == null ? 0 : player.getServer().getTickCount())) {
             return;
@@ -102,35 +110,100 @@ public final class SectDialogue {
         String playerId = player.getUUID().toString();
         Optional<PlayerMemberView> me = s.sim().playerMember(playerId);
         boolean here = me.isPresent() && me.get().inSect() && me.get().sectId() == s.sect().id();
-        boolean offered = SectDialogueScenes.ROLE_STEWARD.equals(s.role())
-                && (option == SectDialogueScenes.Option.JOIN ? !here
-                        : option == SectDialogueScenes.Option.LEAVE && here);
+        boolean steward = SectDialogueScenes.ROLE_STEWARD.equals(s.role());
+        boolean offered = switch (option) {
+            case JOIN -> steward && !here;
+            case LEAVE, TASK_ACCEPT, TASK_TURN_IN -> steward && here;
+            case APPRENTICE -> SectDialogueScenes.ROLE_ELDER.equals(s.role()) && here;
+            case FAREWELL -> false;
+        };
         if (!offered) {
             // not an option this page offered: show the page as it stands now
             Admission admission = admission(s.sim(), player, s.sect().id());
-            SectDialogueScenes.Scene scene = SectDialogueScenes.decide(s.role(), me, admission, s.sect().id());
-            send(player, s, me, admission, scene.lines(), scene.options());
+            SectDialogueScenes.Affairs affairs = affairs(s, player, me);
+            SectDialogueScenes.Scene scene = SectDialogueScenes.decide(s.role(), me, admission, s.sect().id(),
+                    affairs);
+            send(player, s, me, admission, scene.lines(), scene.options(), shownTask(affairs));
             return;
         }
+        int sectId = s.sect().id();
+        // the task the answer talks about: the open one before a turn-in (it is cleared after)
+        Optional<TaskView> before = option == SectDialogueScenes.Option.TASK_TURN_IN ? task(s.sim(), playerId)
+                : Optional.empty();
         WorldSimPlayers.Result result;
         try {
-            result = option == SectDialogueScenes.Option.JOIN
-                    ? WorldSimPlayers.join(player, s.sect().id(), false)
-                    : WorldSimPlayers.leave(player);
+            result = switch (option) {
+                case JOIN -> WorldSimPlayers.join(player, sectId, false);
+                case LEAVE -> WorldSimPlayers.leave(player);
+                case TASK_ACCEPT -> SectTasks.accept(player, sectId);
+                case TASK_TURN_IN -> SectTasks.turnIn(player, sectId);
+                case APPRENTICE -> SectTasks.apprentice(player, sectId, s.person().id());
+                case FAREWELL -> throw new IllegalStateException("farewell is not dispatched");
+            };
         } catch (RuntimeException ex) {
-            LOGGER.error("SectDialogue: {} of {} at sect {} failed", option, name(player), s.sect().id(), ex);
+            LOGGER.error("SectDialogue: {} of {} at sect {} failed", option, name(player), sectId, ex);
             result = new WorldSimPlayers.Result(false, SectDialogueKeys.INACTIVE);
         }
-        SectDialogueScenes.Scene scene;
-        if (!result.ok()) {
-            scene = SectDialogueScenes.refused(result.reason());
-        } else if (option == SectDialogueScenes.Option.JOIN) {
-            scene = SectDialogueScenes.welcome();
-        } else {
-            scene = SectDialogueScenes.farewellLeft();
-        }
+        SectDialogueScenes.Scene scene = switch (option) {
+            case JOIN -> result.ok() ? SectDialogueScenes.welcome() : SectDialogueScenes.refused(result.reason());
+            case LEAVE -> result.ok() ? SectDialogueScenes.farewellLeft() : SectDialogueScenes.refused(result.reason());
+            case TASK_ACCEPT -> result.ok() ? SectDialogueScenes.taskAccepted()
+                    : SectDialogueScenes.taskRefused(result.reason());
+            case TASK_TURN_IN -> result.ok() ? SectDialogueScenes.taskDone()
+                    : SectDialogueScenes.taskRefused(result.reason());
+            case APPRENTICE -> result.ok() ? SectDialogueScenes.apprenticed()
+                    : SectDialogueScenes.apprenticeRefused(result.reason());
+            case FAREWELL -> throw new IllegalStateException("farewell is not dispatched");
+        };
+        Optional<TaskView> shown = option == SectDialogueScenes.Option.TASK_TURN_IN ? before
+                : option == SectDialogueScenes.Option.TASK_ACCEPT ? task(s.sim(), playerId) : Optional.empty();
         Optional<PlayerMemberView> after = s.sim().playerMember(playerId);
-        send(player, s, after, admission(s.sim(), player, s.sect().id()), scene.lines(), scene.options());
+        send(player, s, after, admission(s.sim(), player, sectId), scene.lines(), scene.options(), shown);
+    }
+
+    // ------------------------------------------------------------------ tasks and apprenticeship
+
+    /**
+     * What the scene needs to know of the player's task and master. Only read for a member of the
+     * speaker's sect (steward: task, offer, tribute stones; elder: may take them as disciple); a
+     * ledger that cannot answer reads as nothing to offer.
+     */
+    private static SectDialogueScenes.Affairs affairs(Speaker s, ServerPlayer player, Optional<PlayerMemberView> me) {
+        boolean here = me.isPresent() && me.get().inSect() && me.get().sectId() == s.sect().id();
+        if (!here) {
+            return SectDialogueScenes.Affairs.NONE;
+        }
+        if (SectDialogueScenes.ROLE_ELDER.equals(s.role())) {
+            boolean can = SectDialogueScenes.canApprentice(me, s.sect().id(), s.person().rank(), s.person().status());
+            return new SectDialogueScenes.Affairs(Optional.empty(), Optional.empty(), false, can);
+        }
+        String id = player.getUUID().toString();
+        Optional<TaskView> task = task(s.sim(), id);
+        Optional<TaskView> offer = Optional.empty();
+        if (task.isEmpty()) {
+            try {
+                offer = s.sim().offerTask(id);
+            } catch (RuntimeException ex) {
+                LOGGER.warn("SectDialogue: task offer for {} failed", name(player), ex);
+            }
+        }
+        boolean tributeReady = task.filter(t -> ContentTables.TASK_TRIBUTE.equals(t.kind()))
+                .map(t -> SectTasks.tributeReady(player, t)).orElse(false);
+        return new SectDialogueScenes.Affairs(task, offer, tributeReady, false);
+    }
+
+    /** The task an opened page talks about: the open one, else the offer. */
+    private static Optional<TaskView> shownTask(SectDialogueScenes.Affairs affairs) {
+        return affairs.task().isPresent() ? affairs.task() : affairs.offer();
+    }
+
+    private static Optional<TaskView> task(WorldSim sim, String playerId) {
+        try {
+            return sim.task(playerId);
+        } catch (RuntimeException ex) {
+            LOGGER.warn("SectDialogue: task of {} unreadable", playerId, ex);
+            return Optional.empty();
+        }
     }
 
     // ------------------------------------------------------------------ checks
@@ -210,7 +283,7 @@ public final class SectDialogue {
     // ------------------------------------------------------------------ the page
 
     private static void send(ServerPlayer player, Speaker s, Optional<PlayerMemberView> me, Admission admission,
-                             List<String> bases, List<SectDialogueScenes.Option> options) {
+                             List<String> bases, List<SectDialogueScenes.Option> options, Optional<TaskView> task) {
         SectView sect = s.sect();
         boolean here = me.isPresent() && me.get().inSect() && me.get().sectId() == sect.id();
         String rank = here ? me.get().rank() : "";
@@ -219,7 +292,11 @@ public final class SectDialogue {
         Object master = sect.masterName() == null || sect.masterName().isEmpty()
                 ? Component.translatable(NONE_KEY) : sect.masterName();
         SectDialogueScenes.Facts facts = new SectDialogueScenes.Facts(sect.name(), prestige, sect.memberCount(),
-                master, here ? WorldSimText.rank(rank) : Component.empty());
+                master, here ? WorldSimText.rank(rank) : Component.empty(), s.person().name(),
+                task.<Object>map(SectTasks::name).orElse(Component.empty()),
+                task.<Object>map(SectTasks::brief).orElse(Component.empty()),
+                task.map(TaskView::progress).orElse(0), task.map(TaskView::count).orElse(0),
+                task.map(TaskView::contribution).orElse(0));
         long salt = (long) player.getUUID().hashCode() + s.sim().day();
         List<Component> lines = new ArrayList<>();
         for (String base : bases) {

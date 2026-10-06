@@ -22,6 +22,7 @@ import com.example.myvillage.cultivation.time.CultivationTimeStatus;
 import com.example.myvillage.item.ModItems;
 import com.example.myvillage.sim.SimData;
 import com.example.myvillage.sim.runtime.WorldSimRuntime;
+import com.example.myvillage.sim.runtime.player.WorldSimPlayers;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -403,7 +404,7 @@ public final class MeditationManager {
                     session.mode(),
                     accrual,
                     spiritStonesAvailable,
-                    coreTechniqueFactor(player, current));
+                    progressFactorBasisPoints(player, current));
         } catch (IllegalArgumentException | ArithmeticException exception) {
             LOGGER.warn("Cultivation settlement validation failed for {}",
                     player.getGameProfile().getName(), exception);
@@ -754,6 +755,21 @@ public final class MeditationManager {
             }
         }
         return physicalFailure(player);
+    }
+
+    /**
+     * The progress factor of a settlement: the running core technique's factor times the master's
+     * guidance ({@code WorldSimPlayers.masterGuidanceBasisPoints}, 10000 without a master), both in
+     * basis points.
+     */
+    private static int progressFactorBasisPoints(ServerPlayer player, CultivationProfile profile) {
+        int core = coreTechniqueFactor(player, profile);
+        int master = WorldSimPlayers.masterGuidanceBasisPoints(player);
+        if (master == CoreTechniqueFactor.UNIT_BASIS_POINTS) {
+            return core;
+        }
+        return (int) Math.min(Integer.MAX_VALUE,
+                Math.round(core * (double) master / CoreTechniqueFactor.UNIT_BASIS_POINTS));
     }
 
     /** The running core technique's gain factor; rule numbers come only from the world-sim data. */

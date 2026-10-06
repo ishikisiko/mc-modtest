@@ -5,9 +5,11 @@ import com.example.myvillage.cultivation.CultivationService;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.data.RealmDefinition;
 import com.example.myvillage.sim.Admission;
+import com.example.myvillage.sim.PersonView;
 import com.example.myvillage.sim.PlayerMemberView;
 import com.example.myvillage.sim.PlayerQualification;
 import com.example.myvillage.sim.SectView;
+import com.example.myvillage.sim.SimData;
 import com.example.myvillage.sim.SimEvent;
 import com.example.myvillage.sim.WorldSim;
 import com.example.myvillage.sim.runtime.WorldSimRuntime;
@@ -33,7 +35,9 @@ import org.slf4j.LoggerFactory;
  * player the day's {@code player_*} events about them.
  *
  * <p>Admission is the ledger's ({@code WorldSim.joinSect}, with {@code force} for the admin
- * command); the command path logs the same {@code SECT_ENTRY} line as the dialogue.
+ * command); the command path logs the same {@code SECT_ENTRY} line as the dialogue. Sect tasks and
+ * apprenticeship (slice 3) are {@link SectTasks}, which logs its intents with the same line;
+ * {@link #masterGuidanceBasisPoints} is the master's meditation factor.
  */
 public final class WorldSimPlayers {
     private static final Logger LOGGER = LoggerFactory.getLogger(WorldSimPlayers.class);
@@ -41,6 +45,8 @@ public final class WorldSimPlayers {
     static final String LEFT_KEY = "message.myvillage.world.sect.left";
     /** The event types sent to the player they name ({@code params[0]}). */
     static final String PLAYER_EVENT_PREFIX = "player_";
+    /** {@link #masterGuidanceBasisPoints} without a master: the factor 1. */
+    static final int NO_GUIDANCE = 10_000;
 
     private WorldSimPlayers() {
     }
@@ -49,9 +55,15 @@ public final class WorldSimPlayers {
     public record Result(boolean ok, String reason) {
     }
 
-    /** Subscribes the login and settlement-day listeners. Called from {@code WorldSimRuntime.register()}. */
+    /**
+     * Subscribes the login and settlement-day listeners, and the sect-task progress hooks of
+     * {@link SectTasks} (beast kills, the courier check every second). Called from
+     * {@code WorldSimRuntime.register()}.
+     */
     public static void register() {
         NeoForge.EVENT_BUS.addListener(WorldSimPlayers::onLoggedIn);
+        NeoForge.EVENT_BUS.addListener(SectTasks::onLivingDeath);
+        NeoForge.EVENT_BUS.addListener(SectTasks::onServerTick);
         WorldSimRuntime.addListener(WorldSimPlayers::onDaySettled);
     }
 
@@ -138,7 +150,25 @@ public final class WorldSimPlayers {
      * its progress factor.
      */
     public static int masterGuidanceBasisPoints(ServerPlayer player) {
-        return 10_000; // slice 3 package S3-B
+        Optional<WorldSim> active = WorldSimRuntime.sim();
+        Optional<SimData> data = WorldSimRuntime.data();
+        if (active.isEmpty() || data.isEmpty()) {
+            return NO_GUIDANCE;
+        }
+        try {
+            WorldSim sim = active.get();
+            Optional<PlayerMemberView> me = sim.playerMember(player.getUUID().toString());
+            if (me.isEmpty() || me.get().masterId() < 0) {
+                return NO_GUIDANCE;
+            }
+            Optional<PersonView> master = sim.person(me.get().masterId());
+            return SectTasks.guidanceBasisPoints(me.get().sectId(), me.get().masterId(),
+                    master.map(PersonView::alive).orElse(false), master.map(PersonView::sectId).orElse(-1),
+                    data.get().rules().cultivation().masterGuidance());
+        } catch (RuntimeException ex) {
+            LOGGER.warn("WorldSimPlayers: master guidance of {} unreadable", player.getGameProfile().getName(), ex);
+            return NO_GUIDANCE;
+        }
     }
 
     // ------------------------------------------------------------------ join and leave
@@ -197,18 +227,19 @@ public final class WorldSimPlayers {
         return logged(name, "LEAVE", sectId, new Result(true, Admission.OK));
     }
 
-    private static String reasonOf(IllegalArgumentException ex) {
+    static String reasonOf(IllegalArgumentException ex) {
         String message = ex.getMessage();
         return message == null || message.isBlank() || message.contains(" ") ? "refused" : message;
     }
 
-    private static Result logged(String player, String intent, int sectId, Result result) {
+    /** Logs {@code SECT_ENTRY player=<name> intent=<intent> sect=<id> result=ok|<reason>} and returns the result. */
+    static Result logged(String player, String intent, int sectId, Result result) {
         LOGGER.info("SECT_ENTRY player={} intent={} sect={} result={}", player, intent, sectId,
                 result.ok() ? Admission.OK : result.reason());
         return result;
     }
 
-    private static void markDirty(MinecraftServer server) {
+    static void markDirty(MinecraftServer server) {
         if (server != null) {
             WorldSimSavedData.get(server.overworld()).setDirty();
         }
