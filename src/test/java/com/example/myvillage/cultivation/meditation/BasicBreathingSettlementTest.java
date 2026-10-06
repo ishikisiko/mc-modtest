@@ -171,15 +171,15 @@ class BasicBreathingSettlementTest {
         assertEquals(10, unit.progressApplied());
 
         BasicBreathingSettlement.Plan xuan = BasicBreathingSettlement.plan(
-                current, 1000, MeditationMode.NORMAL, accrual(1), false, 14_950);
+                current, 1000, MeditationMode.NORMAL, accrual(1), false, 14_500);
         assertEquals(14, xuan.progressApplied());
         assertEquals(114, xuan.replacement().cultivationProgress());
         assertEquals(5, xuan.replacement().learnedTechniques()
                 .get(ModCultivationRegistries.BASIC_BREATHING_TECHNIQUE_ID).masteryPoints());
 
         BasicBreathingSettlement.Plan spirit = BasicBreathingSettlement.plan(
-                current, 1000, MeditationMode.SPIRIT, accrual(0), true, 14_950);
-        assertEquals(74, spirit.progressApplied());
+                current, 1000, MeditationMode.SPIRIT, accrual(0), true, 14_500);
+        assertEquals(72, spirit.progressApplied());
         assertTrue(spirit.consumeSpiritStones());
 
         BasicBreathingSettlement.Plan nearCap = BasicBreathingSettlement.plan(

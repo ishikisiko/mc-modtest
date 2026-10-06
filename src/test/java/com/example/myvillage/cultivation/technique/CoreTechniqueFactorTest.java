@@ -46,9 +46,9 @@ class CoreTechniqueFactorTest {
     void gradeTwoUsesTheXuanMultiplierAndTheElementBonusOnlyAtTheThreshold() {
         TechniqueDefinition xuan = technique(2, List.of(METAL));
         assertEquals(13_000, factor(xuan, root(1_499, 8_501)));
-        assertEquals(14_950, factor(xuan, root(1_500, 8_500)));
+        assertEquals(14_500, factor(xuan, root(1_500, 8_500)));
         assertEquals(13_000, factor(xuan, Optional.empty()));
-        assertEquals(14_950, factor(technique(2, List.of(FIRE, METAL)), root(0, 10_000)));
+        assertEquals(14_500, factor(technique(2, List.of(FIRE, METAL)), root(0, 10_000)));
         assertEquals(13_000, factor(technique(2, List.of()), root(5_000, 5_000)));
         assertEquals(23_000, factor(technique(4, List.of()), Optional.empty()));
     }
@@ -65,7 +65,7 @@ class CoreTechniqueFactorTest {
 
         assertEquals(10_000, CoreTechniqueFactor.progressBasisPoints(none, techniques::get, Optional.of(RULES)));
         assertEquals(10_000, CoreTechniqueFactor.progressBasisPoints(breathing, techniques::get, Optional.of(RULES)));
-        assertEquals(14_950, CoreTechniqueFactor.progressBasisPoints(xuan, techniques::get, Optional.of(RULES)));
+        assertEquals(14_500, CoreTechniqueFactor.progressBasisPoints(xuan, techniques::get, Optional.of(RULES)));
         assertEquals(10_000, CoreTechniqueFactor.progressBasisPoints(xuan, techniques::get, Optional.empty()));
         assertEquals(10_000, CoreTechniqueFactor.progressBasisPoints(xuan, id -> null, Optional.of(RULES)));
     }
@@ -74,9 +74,9 @@ class CoreTechniqueFactorTest {
     void applyRoundsDownAndLeavesUnitFactorUntouched() {
         assertEquals(10, CoreTechniqueFactor.apply(10, 10_000));
         assertEquals(50, CoreTechniqueFactor.apply(50, 10_000));
-        assertEquals(14, CoreTechniqueFactor.apply(10, 14_950));
-        assertEquals(74, CoreTechniqueFactor.apply(50, 14_950));
-        assertEquals(0, CoreTechniqueFactor.apply(0, 14_950));
+        assertEquals(14, CoreTechniqueFactor.apply(10, 14_500));
+        assertEquals(72, CoreTechniqueFactor.apply(50, 14_500));
+        assertEquals(0, CoreTechniqueFactor.apply(0, 14_500));
         assertTrue(CoreTechniqueFactor.elementMatch(technique(1, List.of(METAL)), root(1_500, 8_500), RULES.roots()));
         assertFalse(CoreTechniqueFactor.elementMatch(technique(1, List.of(METAL)), Optional.empty(), RULES.roots()));
     }
