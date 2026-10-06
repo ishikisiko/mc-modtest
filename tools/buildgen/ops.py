@@ -18,6 +18,7 @@ import warnings
 from typing import Any, Callable, Dict, Iterable, List, Optional, Tuple
 
 from . import plaque_bindings
+from .contact import is_full_block
 from .grid import AIR, BlockGrid, PRIORITY
 from .massing import INWARD_FACING, OUTWARD_FACING, Node, WALL_OUTWARD
 from .orientation import orient_block
@@ -123,13 +124,31 @@ def canopy_roof_state(style: Style, facing: str,
     return stair_state(style, facing), "ROOF_DARK"
 
 
-def roof_stair_state(style: Style, facing: str,
-                     half: str = "bottom") -> Tuple[str, str]:
+def roof_stair_state(style: Style, facing: str, half: str = "bottom",
+                     shape: str = "straight") -> Tuple[str, str]:
     base = style.optional_slot_entry("ROOF_TILE", "_stairs")
     if base:
         return (orient_block("vanilla_stairs", _block_id(base), "roof_tile",
-                             facing=facing, half=half), "ROOF_TILE")
-    return stair_state(style, facing, half), "ROOF_DARK"
+                             facing=facing, half=half, shape=shape), "ROOF_TILE")
+    base = style.slot_entry("ROOF_DARK", "_stairs")
+    return (orient_block("vanilla_stairs", _block_id(base), "stair",
+                         facing=facing, half=half, shape=shape), "ROOF_DARK")
+
+
+def upturned_corner_stair(style: Style, sx: int, sz: int) -> Tuple[str, str]:
+    """Bottom outer-corner stair whose raised quarter sits on the outer tip.
+
+    ``sx``/``sz`` are -1 for the low (west/north) side of the eave ring and +1
+    for the high (east/south) side. The stair stays on the eave's own level,
+    so the corner rises half a block (翘角) while its bottom half stays flush
+    with the neighbouring eave slabs: attached, never hovering above them.
+    """
+    if sz < 0:   # north edge: facing north, left hand is west
+        return roof_stair_state(style, "north",
+                                shape="outer_left" if sx < 0 else "outer_right")
+    # south edge: facing south, left hand is east
+    return roof_stair_state(style, "south",
+                            shape="outer_left" if sx > 0 else "outer_right")
 
 
 def roof_slab_state(style: Style, kind: str = "bottom") -> Tuple[str, str]:
@@ -1352,16 +1371,21 @@ def _pagoda_roof_handler(grid: BlockGrid, style: Style, rng: random.Random,
         vol.z1 - top_inset + overhang,
     )
     base = _ring_roof(grid, style, crown_bounds, wall_top + 1, crown=True)
-    crown_slab, crown_slot = roof_slab_state(style, "top")
+    # Upturn the four crown eave corners in place: the corner stair of the
+    # lowest roof ring turns into an outer-corner stair whose raised quarter
+    # is on the outer tip, so the corner lifts half a block while staying
+    # joined to the eave stairs beside it.
     crown_corners: List[Pos] = []
     for x, z in (
             (crown_bounds[0], crown_bounds[2]),
             (crown_bounds[0], crown_bounds[3]),
             (crown_bounds[1], crown_bounds[2]),
             (crown_bounds[1], crown_bounds[3])):
-        pos = (x, wall_top + 2, z)
-        if grid.set(pos, crown_slab, ["ROOF", "DETAIL"], PRIORITY["ROOF"],
-                    crown_slot):
+        pos = (x, wall_top + 1, z)
+        state, slot = upturned_corner_stair(
+            style, -1 if x == crown_bounds[0] else 1,
+            -1 if z == crown_bounds[2] else 1)
+        if grid.set(pos, state, ["ROOF", "DETAIL"], PRIORITY["ROOF"], slot):
             crown_corners.append(pos)
     peak_y = int(base.get("peak_y", wall_top + 1))
     cx = (vol.x0 + vol.x1) // 2
@@ -1866,10 +1890,11 @@ def dougong_brackets(grid: BlockGrid, style: Style, rng: random.Random,
             cap_axis = "x" if axis == "x" else "z"
             head = wall_pos(vol, wall, along, wall_top, depth_offset=1)
             outer = wall_pos(vol, wall, along, wall_top, depth_offset=2)
-            upper = wall_pos(vol, wall, along, wall_top + 1, depth_offset=2)
+            # No cap slab one block above the outer arm: a bottom slab over a
+            # bottom slab leaves half a block of air and reads as floating.
             if column:
                 grid.set(head, column, ["DETAIL", "STRUCTURE"], p, column_slot)
-            for pos in (head, outer, upper):
+            for pos in (head, outer):
                 if grid.set(pos, bracket, ["DETAIL"], p, "DETAIL_WOOD"):
                     placed += 1
             for side in (-1, 1):
@@ -1894,19 +1919,43 @@ def colonnade(grid: BlockGrid, style: Style, rng: random.Random,
         "top_y", vol.meta["foundation_h"] + vol.meta["wall_h"] - 1))
     door = node.meta.get("door_x")
     p = PRIORITY["DETAIL"]
+    beams: List[Tuple[str, List[int]]] = []
     for wall in sides:
         _axis, _fixed, (a0, a1), _outward = wall_info(vol, wall)
         positions = list(range(a0 + 1, a1, 3))
         for corner in (a0 + 1, a1 - 1):
             if a0 < corner < a1 and corner not in positions:
                 positions.append(corner)
+        posts: List[int] = []
         for along in sorted(set(positions)):
             if wall == "front" and door is not None and abs(along - int(door)) <= 1:
                 continue
+            posts.append(along)
             for y in range(start_y, wall_top + 1):
                 grid.set(wall_pos(vol, wall, along, y, depth_offset=2),
                          column, ["DETAIL", "STRUCTURE"], p, slot)
+        beams.append((wall, posts))
     dougong_brackets(grid, style, rng, vol, sides, top_y=wall_top)
+    # 额枋: a FRAME_WOOD beam along the post line, one block under the bracket
+    # row, spanning post to post so the canopy slabs above rest on wood
+    # instead of hanging off the thin posts. The posts themselves stay.
+    if wall_top - 1 <= start_y:
+        return
+    for wall, posts in beams:
+        if len(posts) < 2:
+            continue
+        axis = "x" if wall in ("front", "back") else "z"
+        beam = log_state(style, axis)
+        for along in range(min(posts), max(posts) + 1):
+            if along in posts:
+                continue
+            pos = wall_pos(vol, wall, along, wall_top - 1, depth_offset=2)
+            behind = grid.state_at(
+                wall_pos(vol, wall, along, wall_top - 1, depth_offset=1))
+            if any(t in behind for t in ("plaque", "sign", "banner")):
+                continue  # never hide a plaque or sign behind the beam
+            if grid.is_empty(pos):
+                grid.set(pos, beam, ["DETAIL", "STRUCTURE"], p, "FRAME_WOOD")
 
 
 def balustrade(grid: BlockGrid, style: Style, node: Node) -> None:
@@ -1917,16 +1966,25 @@ def balustrade(grid: BlockGrid, style: Style, node: Node) -> None:
     gap_wall = node.meta.get("gap_wall")
     gap_center = node.meta.get("gap_center")
     p = PRIORITY["DETAIL"]
+
+    def put(pos: Pos) -> None:
+        # A pagoda eave band already laid its solid beam ring here: the slab
+        # ring must keep resting on that, not on a thin rail.
+        cell = grid.get(pos)
+        if cell is not None and not cell.is_air and "ROOF" in cell.tags:
+            return
+        grid.set(pos, rail, ["DETAIL", "STRUCTURE"], p, slot)
+
     for x in range(node.x0, node.x1 + 1):
         for z, wall in ((node.z0, "front"), (node.z1, "back")):
             if wall == gap_wall and gap_center is not None and abs(x - int(gap_center)) <= 1:
                 continue
-            grid.set((x, y, z), rail, ["DETAIL", "STRUCTURE"], p, slot)
+            put((x, y, z))
     for z in range(node.z0 + 1, node.z1):
         for x, wall in ((node.x0, "west"), (node.x1, "east")):
             if wall == gap_wall and gap_center is not None and abs(z - int(gap_center)) <= 1:
                 continue
-            grid.set((x, y, z), rail, ["DETAIL", "STRUCTURE"], p, slot)
+            put((x, y, z))
 
 
 def courtyard_enclosure(grid: BlockGrid, style: Style, node: Node) -> None:
@@ -1970,7 +2028,16 @@ def courtyard_enclosure(grid: BlockGrid, style: Style, node: Node) -> None:
 def _pagoda_eave_band(grid: BlockGrid, style: Style,
                       bounds: Tuple[int, int, int, int], y: int,
                       projection: int) -> Tuple[List[Pos], List[Pos], List[Pos]]:
-    """Emit a shallow two-band skirt between occupied pagoda storeys."""
+    """Emit a shallow two-band skirt between occupied pagoda storeys.
+
+    Level ``y``: an outer ring of bottom slabs ``projection`` cells out from
+    the storey below, backed by a solid ring of FRAME_WOOD beams (额枋) that
+    fills the cells between that storey's wall and the slab ring, on fence
+    brackets one block below. Level ``y + 1``: an inner ring of stairs on the
+    beams. Each corner of the slab ring is an outer-corner stair on the ring's
+    own level (a half-block upturn that stays attached to the ring), never a
+    slab lifted one block up with air under it.
+    """
     x0, x1, z0, z1 = bounds
     projection = max(2, int(projection))
     ox0, ox1 = x0 - projection, x1 + projection
@@ -1978,15 +2045,39 @@ def _pagoda_eave_band(grid: BlockGrid, style: Style,
     slab, slab_slot = roof_slab_state(style, "bottom")
     p_roof = PRIORITY["ROOF"]
     cells: List[Pos] = []
+    corner_cells = {(ox0, oz0), (ox0, oz1), (ox1, oz0), (ox1, oz1)}
 
     for x in range(ox0, ox1 + 1):
         for pos in ((x, y, oz0), (x, y, oz1)):
+            if (pos[0], pos[2]) in corner_cells:
+                continue
             if grid.set(pos, slab, ["ROOF", "DETAIL"], p_roof, slab_slot):
                 cells.append(pos)
     for z in range(oz0 + 1, oz1):
         for pos in ((ox0, y, z), (ox1, y, z)):
             if grid.set(pos, slab, ["ROOF", "DETAIL"], p_roof, slab_slot):
                 cells.append(pos)
+
+    # Beam rings between the storey wall and the slab ring. A full block
+    # already there (the wall of an inset storey below) is kept; shutters,
+    # sills and other thin trim are replaced by the beam.
+    p_beam = PRIORITY["STRUCTURE"]
+
+    def put_beam(pos: Pos, axis: str) -> None:
+        cell = grid.get(pos)
+        if cell is not None and not cell.is_air and is_full_block(cell.state):
+            return
+        grid.set(pos, log_state(style, axis), ["ROOF", "STRUCTURE"], p_beam,
+                 "FRAME_WOOD")
+
+    for ring in range(1, projection):
+        bx0, bx1, bz0, bz1 = x0 - ring, x1 + ring, z0 - ring, z1 + ring
+        for x in range(bx0, bx1 + 1):
+            put_beam((x, y, bz0), "x")
+            put_beam((x, y, bz1), "x")
+        for z in range(bz0 + 1, bz1):
+            put_beam((bx0, y, z), "z")
+            put_beam((bx1, y, z), "z")
 
     ix0, ix1 = ox0 + 1, ox1 - 1
     iz0, iz1 = oz0 + 1, oz1 - 1
@@ -2007,12 +2098,12 @@ def _pagoda_eave_band(grid: BlockGrid, style: Style,
             if grid.set(pos, state, ["ROOF", "DETAIL"], p_roof, slot):
                 cells.append(pos)
 
-    corner_slab, corner_slot = roof_slab_state(style, "top")
     corners: List[Pos] = []
-    for x, z in ((ox0, oz0), (ox0, oz1), (ox1, oz0), (ox1, oz1)):
-        pos = (x, y + 1, z)
-        if grid.set(pos, corner_slab, ["ROOF", "DETAIL"], p_roof,
-                    corner_slot):
+    for x, z in sorted(corner_cells):
+        state, slot = upturned_corner_stair(style, -1 if x == ox0 else 1,
+                                            -1 if z == oz0 else 1)
+        pos = (x, y, z)
+        if grid.set(pos, state, ["ROOF", "DETAIL"], p_roof, slot):
             corners.append(pos)
             cells.append(pos)
 
@@ -2170,6 +2261,16 @@ def mountain_gate_detail(grid: BlockGrid, style: Style, rng: random.Random,
         for along in range(vol.x0 + 1, vol.x1):
             grid.set(wall_pos(vol, "front", along, wall_top, depth_offset=zoff),
                      beam, ["DETAIL", "STRUCTURE"], p, "FRAME_WOOD")
+    # The door hood stair over the carved passage has lost the wall it was
+    # mounted on: drop it rather than leave it hanging in the opening.
+    for along in range(vol.x0 + 1, vol.x1):
+        for y in range(fh, wall_top):
+            hood = wall_pos(vol, "front", along, y, depth_offset=1)
+            cell = grid.get(hood)
+            if (cell is not None and "_stairs" in cell.state
+                    and grid.is_empty(wall_pos(vol, "front", along, y))):
+                grid.set(hood, AIR, ["AIR_CARVE"], PRIORITY["AIR_CARVE"],
+                         force=True)
     prune_unbacked_shutters(grid)
 
 

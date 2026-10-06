@@ -9,7 +9,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from buildgen import ops  # noqa: E402
+from buildgen import contact, ops  # noqa: E402
 from buildgen.compound import generate_subbuilding  # noqa: E402
 from buildgen.grid import BlockGrid  # noqa: E402
 from buildgen.massing import Node  # noqa: E402
@@ -78,6 +78,42 @@ def volume(size: tuple[int, int, int]) -> Node:
     )
 
 
+def detached_corners(grid: BlockGrid, corners) -> list:
+    """Upturned corners that hover: not a slab/stair touching a neighbour."""
+    return [tuple(c) for c in corners
+            if not contact.is_attached_upturn(grid.state_at, tuple(c))]
+
+
+def corner_upturn_errors(grid: BlockGrid, corners, edge_x: tuple[int, int],
+                         edge_z: tuple[int, int]) -> list[str]:
+    """Each ring corner rises half a block on its own level, joined to the ring.
+
+    The corner's outer faces must reach the full block height (the raised
+    quarter of an outer-corner stair) while the next eave cell along each edge
+    stays half a block lower there, and nothing may sit one block above the
+    corner (the old lifted top slab).
+    """
+    errors = []
+    for x, y, z in corners:
+        state = grid.state_at((x, y, z))
+        ns = "north" if z == edge_z[0] else "south"
+        we = "west" if x == edge_x[0] else "east"
+        step_x = 1 if x == edge_x[0] else -1
+        step_z = 1 if z == edge_z[0] else -1
+        along_x = grid.state_at((x + step_x, y, z))
+        along_z = grid.state_at((x, y, z + step_z))
+        if not contact.is_attached_upturn(grid.state_at, (x, y, z)):
+            errors.append(f"corner {(x, y, z)} is not attached: {state}")
+        if contact.face_height(state, ns) != 2 or contact.face_height(state, we) != 2:
+            errors.append(f"corner {(x, y, z)} does not rise on its outer tip: {state}")
+        if (contact.face_height(along_x, ns) >= 2
+                or contact.face_height(along_z, we) >= 2):
+            errors.append(f"corner {(x, y, z)} is not higher than the eave beside it")
+        if not grid.is_empty((x, y + 1, z)):
+            errors.append(f"corner {(x, y, z)} still carries a lifted piece above it")
+    return errors
+
+
 def invoked_forms(ctx) -> set[str]:
     roofs = {info.get("roof_type") for info in ctx.roof_info if info.get("roof_type")}
     motifs = set(ctx.decoration_motifs)
@@ -92,6 +128,10 @@ def main() -> int:
         sweep_grid, style, rng, volume((11, 5, 11)), None)
     if len(sweeping.get("upturned_corners", [])) < 4:
         print(f"FAIL sweeping_eave_roof missing upturned corners: {sweeping}")
+        return 1
+    if detached_corners(sweep_grid, sweeping["upturned_corners"]):
+        print("FAIL sweeping_eave_roof upturned corners hover: "
+              f"{detached_corners(sweep_grid, sweeping['upturned_corners'])}")
         return 1
     if not sweeping.get("eave_brackets"):
         print(f"FAIL sweeping_eave_roof placed no dougong eave brackets: {sweeping}")
@@ -119,13 +159,18 @@ def main() -> int:
     if not pyramid.get("ridge_ornaments"):
         print(f"FAIL pyramidal_roof did not place a finial: {pyramid}")
         return 1
+    tiered_grid = BlockGrid()
     large_info = ops.roof_handler("tiered_eave_roof")(
-        BlockGrid(), style, rng, volume((11, 5, 11)), None)
+        tiered_grid, style, rng, volume((11, 5, 11)), None)
     if large_info.get("tier_count") < 2:
         print(f"FAIL tiered_eave_roof did not produce two tiers: {large_info}")
         return 1
     if len(large_info.get("upturned_corners", [])) < 8:
         print(f"FAIL tiered_eave_roof tiers are not sweeping eaves: {large_info}")
+        return 1
+    if detached_corners(tiered_grid, large_info["upturned_corners"]):
+        print("FAIL tiered_eave_roof upturned corners hover: "
+              f"{detached_corners(tiered_grid, large_info['upturned_corners'])}")
         return 1
     small_info = ops.roof_handler("tiered_eave_roof")(
         BlockGrid(), style, random.Random(42), volume((7, 5, 7)), None)
@@ -135,15 +180,50 @@ def main() -> int:
 
     # Vertical-landmark forms resolve through the registry from the existing
     # terrace + tiered_eave_roof vocabulary (no string-prefix dispatch).
+    pagoda_grid = BlockGrid()
     pagoda_info = ops.roof_handler("pagoda")(
-        BlockGrid(), style, rng, volume((11, 5, 11)), None)
+        pagoda_grid, style, rng, volume((11, 5, 11)), None)
     if pagoda_info.get("roof_type") != "pagoda" or not pagoda_info.get("spire_cells"):
         print(f"FAIL pagoda form did not place a finial spire: {pagoda_info}")
         return 1
+    cb = pagoda_info["crown_bounds"]
+    crown_corners = pagoda_info.get("upturned_corners", [])
+    crown_errors = corner_upturn_errors(pagoda_grid, crown_corners,
+                                        (cb[0], cb[1]), (cb[2], cb[3]))
+    if len(crown_corners) != 4 or crown_errors:
+        print(f"FAIL pagoda crown corners are not contiguous upturns: "
+              f"{crown_corners} {crown_errors}")
+        return 1
+    # Storey eave band (腰檐): slab ring on a beam ring, corners upturned on
+    # the ring's own level, every slab/stair touching a neighbour.
+    band_grid = BlockGrid()
+    band_y, projection = 5, 2
+    band_cells, band_corners, band_brackets = ops._pagoda_eave_band(
+        band_grid, style, (0, 8, 0, 8), band_y, projection)
+    band_errors = corner_upturn_errors(
+        band_grid, band_corners, (-projection, 8 + projection),
+        (-projection, 8 + projection))
+    if len(band_corners) != 4 or any(c[1] != band_y for c in band_corners):
+        band_errors.append(f"corners not on the ring level: {band_corners}")
+    band_blocks = {pos: cell.state for pos, cell in band_grid.iter_cells()
+                   if not cell.is_air}
+    loose = contact.detached_partials(band_blocks, ground_y=None)
+    if loose:
+        band_errors.append(f"band cells touching nothing: {loose[:4]}")
+    if not band_brackets or not band_cells:
+        band_errors.append("band placed no slabs or brackets")
+    if band_errors:
+        print(f"FAIL pagoda eave band corners: {band_errors}")
+        return 1
+    pavilion_grid = BlockGrid()
     pavilion_info = ops.roof_handler("pavilion")(
-        BlockGrid(), style, rng, volume((11, 5, 11)), None)
+        pavilion_grid, style, rng, volume((11, 5, 11)), None)
     if pavilion_info.get("roof_type") != "pavilion" or not pavilion_info.get("upturned_corners"):
         print(f"FAIL pavilion form missing sweeping upturned corners: {pavilion_info}")
+        return 1
+    if detached_corners(pavilion_grid, pavilion_info["upturned_corners"]):
+        print("FAIL pavilion upturned corners hover: "
+              f"{detached_corners(pavilion_grid, pavilion_info['upturned_corners'])}")
         return 1
     tower_info = ops.roof_handler("bell_drum_tower")(
         BlockGrid(), style, rng, volume((11, 5, 11)), None)

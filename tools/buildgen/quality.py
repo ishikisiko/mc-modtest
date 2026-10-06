@@ -11,6 +11,7 @@ import os
 from typing import Dict, List, Optional, Tuple
 
 from .archetypes import variant_index
+from .contact import is_attached_upturn
 from .grid import AIR
 from .massing import WALL_OUTWARD
 from .ops import wall_info
@@ -174,6 +175,20 @@ def quality_check(ctx: BuildContext, structure_id: str) -> dict:
             errors.append("pagoda_missing_spire")
         if info.get("roof_type") == "bell_drum_tower" and not info.get("belfry_bell"):
             errors.append("bell_drum_tower_missing_bell")
+
+    # 5b. upturned eave corners (飞檐翘角) stay attached: each reported corner
+    # is a slab/stair cell touching a neighbour face to face, never a slab
+    # lifted a block above the eave line with air under it.
+    corner_cells = set()
+    for info in ctx.roof_info:
+        corner_cells.update(tuple(p) for p in info.get("upturned_corners", []))
+    for vol in graph.volumes():
+        corner_cells.update(tuple(p) for p in vol.meta.get("pagoda_lifted_corners", []))
+    detached_corners = sorted(p for p in corner_cells
+                              if not is_attached_upturn(grid.state_at, p))
+    if detached_corners:
+        errors.append(f"upturned_corner_detached: {len(detached_corners)} "
+                      f"(e.g. {detached_corners[0]})")
 
     # 6. entrance clear
     if ctx.door_info:
