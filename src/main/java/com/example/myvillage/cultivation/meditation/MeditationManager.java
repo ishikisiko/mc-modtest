@@ -9,7 +9,11 @@ import com.example.myvillage.cultivation.data.AdvancementKind;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.data.RealmDefinition;
 import com.example.myvillage.cultivation.data.RealmStageDefinition;
+import com.example.myvillage.cultivation.data.SpiritualElementDefinition;
 import com.example.myvillage.cultivation.data.TechniqueDefinition;
+import com.example.myvillage.cultivation.study.ManualStacks;
+import com.example.myvillage.cultivation.study.StudyMessages;
+import com.example.myvillage.cultivation.study.StudyStep;
 import com.example.myvillage.cultivation.technique.CoreTechniqueFactor;
 import com.example.myvillage.cultivation.time.CultivationServerConfig;
 import com.example.myvillage.cultivation.time.CultivationTimeMath;
@@ -19,6 +23,7 @@ import com.example.myvillage.item.ModItems;
 import com.example.myvillage.sim.SimData;
 import com.example.myvillage.sim.runtime.WorldSimRuntime;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import org.slf4j.Logger;
@@ -33,6 +38,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.BiConsumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
 
 public final class MeditationManager {
     public static final int PREPARATION_TICKS = 40;
@@ -75,6 +82,9 @@ public final class MeditationManager {
     public static MeditationStatus requestStart(ServerPlayer player, MeditationMode mode) {
         Objects.requireNonNull(player, "player");
         Objects.requireNonNull(mode, "mode");
+        if (mode == MeditationMode.STUDY) {
+            throw new IllegalArgumentException("Study sessions start through requestStudy");
+        }
         MeditationSession existing = SESSIONS.get(player.getUUID());
         if (existing != null) {
             return duplicateStatus(player, existing);
@@ -100,9 +110,48 @@ public final class MeditationManager {
                 player.getY(),
                 player.getZ(),
                 player.level().dimension());
+        return begin(player, session, MeditationStopReason.START_ACCEPTED);
+    }
+
+    /**
+     * Starts a study (研读) session reading the manual in inventory {@code slot}, which must teach
+     * {@code techniqueId}. The item-side checks are {@code StudyStart}'s (in {@code ManualStudy.use}); this
+     * applies the same running-session, eligibility and physical checks as meditation. Unlike meditation it
+     * does not need a stage that still gains progress.
+     */
+    public static MeditationStatus requestStudy(
+            ServerPlayer player, int slot, ResourceLocation techniqueId, StudyProgress initial) {
+        Objects.requireNonNull(player, "player");
+        MeditationSession.StudyTarget target = new MeditationSession.StudyTarget(slot, techniqueId);
+        MeditationSession existing = SESSIONS.get(player.getUUID());
+        if (existing != null) {
+            return duplicateStatus(player, existing);
+        }
+        MeditationStopReason rejection = eligibilityFailure(player);
+        if (rejection != MeditationStopReason.NONE) {
+            return reject(player, rejection);
+        }
+        MeditationSession session = MeditationSession.study(
+                target,
+                initial,
+                player.getX(),
+                player.getY(),
+                player.getZ(),
+                player.level().dimension());
+        return begin(player, session, MeditationStopReason.STUDY_ACCEPTED);
+    }
+
+    /** True while the player has any session (preparing, meditating, studying or advancing). */
+    public static boolean active(ServerPlayer player) {
+        Objects.requireNonNull(player, "player");
+        return SESSIONS.containsKey(player.getUUID());
+    }
+
+    private static MeditationStatus begin(
+            ServerPlayer player, MeditationSession session, MeditationStopReason acceptedReason) {
         CombatSessionManager.interrupt(player, CombatStopReason.CULTIVATION_STARTED, true);
         SESSIONS.put(player.getUUID(), session);
-        MeditationStatus accepted = session.status(MeditationStopReason.START_ACCEPTED);
+        MeditationStatus accepted = session.status(acceptedReason);
         notifyStatus(player, accepted);
         return accepted;
     }
@@ -226,7 +275,11 @@ public final class MeditationManager {
                 }
             } else if (session.state().meditating()) {
                 if (session.advanceMeditationTick()) {
-                    settleMeditation(player, session);
+                    if (session.studying()) {
+                        settleStudy(player, session);
+                    } else {
+                        settleMeditation(player, session);
+                    }
                 }
             } else if (session.state().advancing()) {
                 if (session.advanceAdvancementTick()) {
@@ -415,6 +468,92 @@ public final class MeditationManager {
         }
     }
 
+    private static void settleStudy(ServerPlayer player, MeditationSession session) {
+        UUID playerId = player.getUUID();
+        if (!beginSettlement(playerId)) {
+            LOGGER.error("Reentrant study settlement rejected for {}",
+                    player.getGameProfile().getName());
+            return;
+        }
+        try {
+            settleStudyGuarded(player, session);
+        } finally {
+            endSettlement(playerId);
+        }
+    }
+
+    /** One study batch: the manual slot is re-read, profile changes go through CultivationService. */
+    private static void settleStudyGuarded(ServerPlayer player, MeditationSession session) {
+        MeditationSession.StudyTarget target = session.studyTarget().orElseThrow();
+        Optional<Registry<TechniqueDefinition>> techniques =
+                player.registryAccess().registry(ModCultivationRegistries.TECHNIQUES);
+        if (techniques.isEmpty()) {
+            requestStop(player, MeditationStopReason.SETTLEMENT_FAILED);
+            return;
+        }
+        Function<ResourceLocation, TechniqueDefinition> lookup = techniques.get()::get;
+        StudyStep.Result result;
+        try {
+            result = StudyStep.settle(
+                    target.techniqueId(),
+                    ManualStacks.slot(player.getInventory(), target.slot(), lookup),
+                    CultivationService.getProfile(player),
+                    lookup,
+                    realmLookup(player),
+                    elementLookup(player),
+                    WorldSimRuntime.data().map(SimData::rules),
+                    replacement -> CultivationService.replaceProfile(player, replacement).success());
+        } catch (IllegalArgumentException | ArithmeticException exception) {
+            LOGGER.warn("Study settlement validation failed for {}",
+                    player.getGameProfile().getName(), exception);
+            requestStop(player, MeditationStopReason.SETTLEMENT_FAILED);
+            return;
+        }
+        TechniqueDefinition definition = lookup.apply(target.techniqueId());
+        switch (result.outcome()) {
+            case CONTINUE -> {
+                session.updateStudyProgress(result.progress().orElseThrow());
+                if (result.gatesPaid() > 0) {
+                    StudyMessages.gatePassed(player, result.gatesPaid());
+                }
+                notifyStatus(player, session.status(MeditationStopReason.NONE));
+            }
+            case GATE_BLOCKED -> {
+                session.updateStudyProgress(result.progress().orElseThrow());
+                StudyMessages.gateBlocked(player, result.gateCost(), result.shortfall());
+                requestStop(player, MeditationStopReason.STUDY_GATE);
+            }
+            case COMPLETE -> {
+                if (definition != null) {
+                    StudyMessages.completed(player, definition);
+                }
+                requestStop(player, MeditationStopReason.STUDY_COMPLETE);
+            }
+            case MANUAL_LOST -> requestStop(player, MeditationStopReason.MANUAL_LOST);
+            case REQUIREMENTS -> requestStop(player, MeditationStopReason.STUDY_REQUIREMENTS);
+            case COMMIT_FAILED -> {
+                LOGGER.warn("Study settlement commit failed for {}", player.getGameProfile().getName());
+                requestStop(player, MeditationStopReason.SETTLEMENT_FAILED);
+            }
+        }
+    }
+
+    /** The realm registry as a lookup; an absent registry resolves nothing. */
+    public static Function<ResourceLocation, RealmDefinition> realmLookup(ServerPlayer player) {
+        Optional<Registry<RealmDefinition>> realms =
+                player.registryAccess().registry(ModCultivationRegistries.REALMS);
+        return realms.<Function<ResourceLocation, RealmDefinition>>map(registry -> registry::get)
+                .orElse(id -> null);
+    }
+
+    /** Whether a spiritual element is registered; an absent registry knows none. */
+    public static Predicate<ResourceLocation> elementLookup(ServerPlayer player) {
+        Optional<Registry<SpiritualElementDefinition>> elements =
+                player.registryAccess().registry(ModCultivationRegistries.SPIRITUAL_ELEMENTS);
+        return elements.<Predicate<ResourceLocation>>map(registry -> registry::containsKey)
+                .orElse(id -> false);
+    }
+
     private static void completeAdvancement(ServerPlayer player, MeditationSession session) {
         AdvancementContext context = session.advancementContext().orElseThrow();
         CultivationProfile current = CultivationService.getProfile(player);
@@ -600,6 +739,7 @@ public final class MeditationManager {
             return MeditationStopReason.PROFILE_INVALIDATED;
         }
         if (session.state().meditating()
+                && !session.studying()
                 && (resolved == null || resolved.stage().cultivationCap().isEmpty())) {
             return MeditationStopReason.STAGE_NOT_CULTIVATABLE;
         }
