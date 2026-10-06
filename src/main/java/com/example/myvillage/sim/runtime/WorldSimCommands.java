@@ -10,6 +10,7 @@ import com.example.myvillage.sim.SimDate;
 import com.example.myvillage.sim.SimEvent;
 import com.example.myvillage.sim.WorldSim;
 import com.example.myvillage.sim.runtime.avatar.GateBuilder;
+import com.example.myvillage.sim.runtime.avatar.GateRealizerCommands;
 import com.example.myvillage.sim.runtime.net.WorldSimSnapshots;
 import com.example.myvillage.sim.runtime.player.WorldSimPlayers;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -104,7 +105,8 @@ public final class WorldSimCommands {
                 .then(Commands.literal("resume").executes(ctx -> setPaused(ctx.getSource(), false)))
                 .then(Commands.literal("advance")
                         .then(Commands.argument("days", IntegerArgumentType.integer(1, WorldSimDriver.MAX_ADVANCE_DAYS))
-                                .executes(ctx -> advance(ctx.getSource(), IntegerArgumentType.getInteger(ctx, "days")))));
+                                .executes(ctx -> advance(ctx.getSource(), IntegerArgumentType.getInteger(ctx, "days")))))
+                .then(GateRealizerCommands.node());
     }
 
     // ------------------------------------------------------------------ views
