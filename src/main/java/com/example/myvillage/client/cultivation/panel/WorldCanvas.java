@@ -63,6 +63,11 @@ final class WorldCanvas {
         }
     }
 
+    /** True while measuring: nothing is drawn. */
+    boolean measuring() {
+        return dry;
+    }
+
     /** A titled card around {@code body}, at least {@code minHeight} tall; returns its height. */
     int card(int x, int y, int width, int minHeight, Component title, Body body) {
         int innerX = x + PAD;

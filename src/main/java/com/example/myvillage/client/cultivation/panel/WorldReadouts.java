@@ -72,28 +72,42 @@ public final class WorldReadouts {
         return largest;
     }
 
-    /** Filled pixels of a bar {@code width} wide for {@code basisPoints} out of {@link #ROOT_TOTAL}. */
-    public static int rootWidth(int basisPoints, int width) {
-        if (width <= 0) {
-            return 0;
+    /**
+     * Segment widths of a stacked root bar {@code width} pixels wide, one per element in order.
+     * Each element gets its basis-point share rounded down; the pixels left over go to the
+     * largest element (the first of equals), so the segments add up to exactly {@code width}.
+     * All zero when the root is empty or the width is not positive.
+     */
+    public static int[] rootSegments(List<Integer> basisPoints, int width) {
+        int[] segments = new int[basisPoints.size()];
+        long total = 0;
+        int largest = -1;
+        int largestValue = 0;
+        for (int index = 0; index < segments.length; index++) {
+            int value = basisPoints.get(index) == null ? 0 : Math.max(0, basisPoints.get(index));
+            total += value;
+            if (value > largestValue) {
+                largestValue = value;
+                largest = index;
+            }
         }
-        return (int) Math.round(width * share(basisPoints, ROOT_TOTAL));
+        if (width <= 0 || total <= 0) {
+            return segments;
+        }
+        int used = 0;
+        for (int index = 0; index < segments.length; index++) {
+            int value = basisPoints.get(index) == null ? 0 : Math.max(0, basisPoints.get(index));
+            segments[index] = (int) (width * (long) value / total);
+            used += segments[index];
+        }
+        segments[largest] += width - used;
+        return segments;
     }
 
-    /** One filled width per element in a five-element root, each against the same bar width. */
-    public static int[] rootWidths(List<Integer> basisPoints, int width) {
-        int[] widths = new int[basisPoints.size()];
-        for (int index = 0; index < widths.length; index++) {
-            Integer value = basisPoints.get(index);
-            widths[index] = rootWidth(value == null ? 0 : value, width);
-        }
-        return widths;
-    }
-
-    /** Basis points as a percent string with one decimal ("12.5%"). */
-    public static String rootPercent(int basisPoints) {
+    /** Basis points as a whole percent, rounded half up and clamped to 0..100. */
+    public static int rootPercentWhole(int basisPoints) {
         int clamped = Math.max(0, Math.min(ROOT_TOTAL, basisPoints));
-        return clamped / 100 + "." + clamped % 100 / 10 + "%";
+        return (clamped + 50) / 100;
     }
 
     /**

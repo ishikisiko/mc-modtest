@@ -5,12 +5,10 @@ import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.sim.runtime.WorldSimText;
 import com.example.myvillage.sim.runtime.net.WorldSimQuery;
 import com.example.myvillage.sim.runtime.net.WorldSimSnapshot;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
-import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -87,7 +85,7 @@ public final class WorldPage extends PanelPage {
     private static boolean scrollToTop;
 
     private final Map<Section, PanelButton> buttons = new EnumMap<>(Section.class);
-    private EditBox search;
+    private WorldSearchBox search;
     /** The last search answer, shown while a newer search is on its way so typing does not flicker. */
     private WorldSimSnapshot lastSearch;
     private List<WorldCanvas.Hot> hots = List.of();
@@ -132,7 +130,7 @@ public final class WorldPage extends PanelPage {
 
         int searchX = twoRows ? x : x + width - searchWidth;
         int searchY = twoRows ? top + BUTTON_HEIGHT + GAP : top;
-        search = new EditBox(
+        search = new WorldSearchBox(
                 font,
                 searchX,
                 searchY,
@@ -140,8 +138,7 @@ public final class WorldPage extends PanelPage {
                 BUTTON_HEIGHT,
                 Component.translatable("screen.myvillage.cultivation.world.search"));
         search.setMaxLength(WorldSimQuery.MAX_TEXT);
-        search.setHint(Component.translatable("screen.myvillage.cultivation.world.search_hint")
-                .withStyle(ChatFormatting.DARK_GRAY));
+        search.setPanelHint(Component.translatable("screen.myvillage.cultivation.world.search_hint"));
         search.setValue(searchText);
         search.setResponder(WorldPage::onSearch);
         widgets.accept(search);
@@ -549,22 +546,23 @@ public final class WorldPage extends PanelPage {
         int height = ROW * 2 + 3;
         c.link(x - 2, y - 1, x + width + 2, y + height - 1, toSect(sect.id()));
         int top = y + 2;
-        String chip = sect.active()
-                ? WorldReadouts.unbracket(text(sect.gateRealized()
-                        ? "commands.myvillage.world.gate.realized"
-                        : "commands.myvillage.world.gate.unrealized"))
-                : WorldSimText.sectState("destroyed").getString();
+        String chip = sect.active() ? gateChip(sect) : WorldSimText.sectState("destroyed").getString();
         int chipColor = sect.active() && sect.gateRealized() ? PanelTheme.JADE : PanelTheme.MUTED;
         int chipWidth = Math.min(c.chipWidth(chip), width / 3);
         c.chip(chip, x + width - chipWidth, y, chipWidth, chipColor);
         c.text("#" + sect.id() + " " + sect.name(), x, top, width - chipWidth - 6,
                 sect.active() ? PanelTheme.GOLD_BRIGHT : PanelTheme.MUTED);
         String master = sect.masterName().isEmpty() ? text("screen.myvillage.cultivation.world.none") : sect.masterName();
-        String line = withDistance
-                ? text("screen.myvillage.cultivation.world.here_sect_line",
-                        master, sect.memberCount(), sect.gateX(), sect.gateZ(), sect.distance())
-                : text("screen.myvillage.cultivation.world.sect_line",
-                        sect.regionName(), master, sect.memberCount(), realmText(sect.topRealmId()), sect.prestige());
+        String line;
+        if (withDistance && sect.distance() >= 0) {
+            line = text("screen.myvillage.cultivation.world.here_sect_line",
+                    sect.distance(), master, sect.memberCount());
+        } else if (withDistance) {
+            line = text("screen.myvillage.cultivation.world.here_sect_line_plain", master, sect.memberCount());
+        } else {
+            line = text("screen.myvillage.cultivation.world.sect_line",
+                    sect.regionName(), master, sect.memberCount(), realmText(sect.topRealmId()), sect.prestige());
+        }
         c.text(line, x + 6, top + ROW + 1, width - 6, sect.active() ? PanelTheme.MUTED : PanelTheme.FAINT);
         return height;
     }
@@ -624,13 +622,22 @@ public final class WorldPage extends PanelPage {
                 x, cursor, width);
         cursor += pair(c, "screen.myvillage.cultivation.world.sect_technique",
                 orNone(d.signatureTechniqueName()), x, cursor, width);
-        String gate = sect.gateX() + ", " + sect.gateZ() + " " + text(sect.gateRealized()
-                ? "commands.myvillage.world.gate.realized"
-                : "commands.myvillage.world.gate.unrealized");
-        c.pair(text("screen.myvillage.cultivation.world.gate"), gate, x, cursor, width,
+        // Coordinates as the value, and the same gate chip as the sect list at the right.
+        String gateChip = gateChip(sect);
+        int gateChipWidth = Math.min(c.chipWidth(gateChip), width / 3);
+        c.chip(gateChip, x + width - gateChipWidth, cursor, gateChipWidth,
                 sect.gateRealized() ? PanelTheme.JADE : PanelTheme.MUTED);
-        cursor += ROW;
+        c.pair(text("screen.myvillage.cultivation.world.gate"), sect.gateX() + ", " + sect.gateZ(),
+                x, cursor + 2, width - gateChipWidth - 6, PanelTheme.TEXT);
+        cursor += PanelTheme.CHIP_HEIGHT;
         return cursor - y;
+    }
+
+    /** 已立 / 未立 without the brackets the command keys carry. */
+    private static String gateChip(WorldSimSnapshot.SectSummary sect) {
+        return WorldReadouts.unbracket(text(sect.gateRealized()
+                ? "commands.myvillage.world.gate.realized"
+                : "commands.myvillage.world.gate.unrealized"));
     }
 
     private int sectRelations(WorldCanvas c, WorldSimSnapshot.SectDetail d, int x, int y, int width) {
@@ -757,25 +764,68 @@ public final class WorldPage extends PanelPage {
         return cursor - 1 - y;
     }
 
-    /** Five thin bars, metal to earth, each filled to the element's share of the root. */
+    /**
+     * The root as one stacked bar, metal to earth, each segment the element's share, with a
+     * legend under it: name in the element's colour, whole percent muted. When the legend is too
+     * wide it drops the percent signs, then the numbers.
+     */
     private int rootBars(WorldCanvas c, PanelContext context, List<Integer> root, int x, int y, int width) {
-        int gap = 4;
-        for (int index = 0; index < ELEMENTS.size(); index++) {
-            int left = x + index * (width + gap) / ELEMENTS.size();
-            int right = x + (index + 1) * (width + gap) / ELEMENTS.size() - gap;
-            int cell = right - left;
-            int basisPoints = root.get(index) == null ? 0 : root.get(index);
-            int color = context.elementColor(ELEMENTS.get(index));
-            String name = text(ELEMENT_KEYS.get(index));
-            String percent = WorldReadouts.rootPercent(basisPoints);
-            int nameWidth = c.text(name, left, y, cell, PanelTheme.TEXT);
-            if (nameWidth + 4 + c.width(percent) <= cell) {
-                c.textRight(percent, right, y, cell - nameWidth - 4, PanelTheme.MUTED);
-            }
-            c.fill(left, y + ROW, right, y + ROW + 3, PanelTheme.BAR_TRACK);
-            c.fill(left, y + ROW, left + WorldReadouts.rootWidth(basisPoints, cell), y + ROW + 3, color);
+        int count = ELEMENTS.size();
+        int[] colors = new int[count];
+        String[] names = new String[count];
+        String[] numbers = new String[count];
+        String[] bare = new String[count];
+        for (int index = 0; index < count; index++) {
+            colors[index] = context.elementColor(ELEMENTS.get(index));
+            names[index] = text(ELEMENT_KEYS.get(index));
+            int percent = WorldReadouts.rootPercentWhole(root.get(index) == null ? 0 : root.get(index));
+            bare[index] = Integer.toString(percent);
+            numbers[index] = percent + "%";
         }
-        return ROW + 3;
+
+        c.fill(x, y, x + width, y + 5, PanelTheme.BAR_TRACK);
+        int inner = Math.max(0, width - 2);
+        int[] segments = WorldReadouts.rootSegments(root, inner);
+        int from = x + 1;
+        for (int index = 0; index < count; index++) {
+            if (segments[index] > 0) {
+                c.fill(from, y + 1, from + segments[index], y + 4, colors[index]);
+            }
+            from += segments[index];
+        }
+        if (!c.measuring()) {
+            c.graphics.renderOutline(x, y, width, 5, PanelTheme.CARD_BORDER);
+        }
+
+        int legendY = y + 8;
+        int nameGap = 1;
+        int entryGap = c.width("  ");
+        String[] shown = numbers;
+        if (legendWidth(c, names, numbers, nameGap, entryGap) > width) {
+            shown = legendWidth(c, names, bare, nameGap, entryGap) <= width ? bare : null;
+        }
+        int cursorX = x;
+        for (int index = 0; index < count; index++) {
+            int room = x + width - cursorX;
+            if (room <= 0) {
+                break;
+            }
+            cursorX += c.text(names[index], cursorX, legendY, room, colors[index]);
+            if (shown != null) {
+                cursorX += nameGap;
+                cursorX += c.text(shown[index], cursorX, legendY, x + width - cursorX, PanelTheme.MUTED);
+            }
+            cursorX += entryGap;
+        }
+        return 8 + ROW;
+    }
+
+    private static int legendWidth(WorldCanvas c, String[] names, String[] numbers, int nameGap, int entryGap) {
+        int total = 0;
+        for (int index = 0; index < names.length; index++) {
+            total += c.width(names[index]) + nameGap + c.width(numbers[index]);
+        }
+        return total + entryGap * (names.length - 1);
     }
 
     private int personRelations(WorldCanvas c, WorldSimSnapshot.PersonDetail d, int x, int y, int width) {

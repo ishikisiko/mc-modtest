@@ -64,16 +64,29 @@ class WorldReadoutsTest {
     }
 
     @Test
-    void rootBasisPointsBecomeBarWidths() {
+    void rootSegmentsAddUpToTheBarWithTheRemainderOnTheLargest() {
         assertArrayEquals(
                 new int[] {40, 0, 20, 10, 30},
-                WorldReadouts.rootWidths(List.of(4000, 0, 2000, 1000, 3000), 100));
-        assertEquals(0, WorldReadouts.rootWidth(5000, 0));
-        assertEquals(37, WorldReadouts.rootWidth(10_000, 37));
-        assertEquals(37, WorldReadouts.rootWidth(12_000, 37));
-        assertEquals("12.5%", WorldReadouts.rootPercent(1250));
-        assertEquals("100.0%", WorldReadouts.rootPercent(10_000));
-        assertEquals("0.0%", WorldReadouts.rootPercent(-4));
+                WorldReadouts.rootSegments(List.of(4000, 0, 2000, 1000, 3000), 100));
+        // 420/3100/1200/2000/3280 of 10000 over 37 px: floors 1+11+4+7+12 = 35, earth takes the 2 left.
+        int[] segments = WorldReadouts.rootSegments(List.of(420, 3100, 1200, 2000, 3280), 37);
+        assertArrayEquals(new int[] {1, 11, 4, 7, 14}, segments);
+        assertEquals(37, java.util.Arrays.stream(segments).sum());
+        // Equal largest shares: the first one takes the remainder.
+        assertArrayEquals(new int[] {4, 3, 3, 0, 0}, WorldReadouts.rootSegments(List.of(1, 1, 1, 0, 0), 10));
+        assertArrayEquals(new int[5], WorldReadouts.rootSegments(List.of(0, 0, 0, 0, 0), 50));
+        assertArrayEquals(new int[5], WorldReadouts.rootSegments(List.of(2000, 2000, 2000, 2000, 2000), 0));
+        assertArrayEquals(new int[] {0, 0, 9}, WorldReadouts.rootSegments(List.of(-5, 0, 10), 9));
+    }
+
+    @Test
+    void rootPercentRoundsToWholeNumbers() {
+        assertEquals(4, WorldReadouts.rootPercentWhole(420));
+        assertEquals(31, WorldReadouts.rootPercentWhole(3100));
+        assertEquals(33, WorldReadouts.rootPercentWhole(3280));
+        assertEquals(13, WorldReadouts.rootPercentWhole(1250));
+        assertEquals(100, WorldReadouts.rootPercentWhole(10_000));
+        assertEquals(0, WorldReadouts.rootPercentWhole(-4));
     }
 
     @Test
