@@ -481,63 +481,63 @@ Confirm the jar contains the structure resources (name the versioned jar:
 `build/libs/` keeps the jars of earlier versions):
 
 ```bash
-jar tf build/libs/myvillage-0.40.0.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/textures/painting/inscription"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
-jar tf build/libs/myvillage-0.40.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "data/myvillage/beast/demon_wolf.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/beast/demon_wolf_model.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/beast/demon_wolf_animations.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/textures/entity/demon_wolf/demon_wolf_eyes.png"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/npc/cultivator_model.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/npc/cultivator_animations.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/textures/entity/cultivator/cultivator.png"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/combat/qingfeng_first_person.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/models/item/lingxiao_spear.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/models/item/lingxiao_spear_3d.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear.png"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear_model.png"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/combat/lingxiao_spear_geometry.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/combat/lingxiao_spear_first_person.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet_3d.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet.png"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet_model.png"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_geometry.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_first_person.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/player_animations/sword_combat.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/player_animations/spear_combat.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/player_animations/fist_combat.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "data/minecraft/tags/item/swords.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/guides/myvillage/cultivation/index.md"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/models/item/manual_core_huang.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/textures/item/manual_core_tint.png"
+jar tf build/libs/myvillage-0.41.0.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
+jar tf build/libs/myvillage-0.41.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "data/myvillage/beast/demon_wolf.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/beast/demon_wolf_model.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/beast/demon_wolf_animations.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/textures/entity/demon_wolf/demon_wolf_eyes.png"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/npc/cultivator_model.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/npc/cultivator_animations.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/textures/entity/cultivator/cultivator.png"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/combat/qingfeng_first_person.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/models/item/lingxiao_spear.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/models/item/lingxiao_spear_3d.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear.png"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear_model.png"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/combat/lingxiao_spear_geometry.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/combat/lingxiao_spear_first_person.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet_3d.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet.png"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet_model.png"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_geometry.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_first_person.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/player_animations/sword_combat.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/player_animations/spear_combat.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/player_animations/fist_combat.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "data/minecraft/tags/item/swords.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/guides/myvillage/cultivation/index.md"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/models/item/manual_core_huang.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/textures/item/manual_core_tint.png"
 ```
 
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.40.0.jar
+build/libs/myvillage-0.41.0.jar
 ```
 
 ## Versioning And Changelog
@@ -633,61 +633,61 @@ python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 
 python3 tools/write_visual_acceptance_report.py
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.40.0.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.40.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.40.0.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/textures/painting/inscription"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
-jar tf build/libs/myvillage-0.40.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "data/myvillage/beast/demon_wolf.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/beast/demon_wolf_model.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/beast/demon_wolf_animations.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/textures/entity/demon_wolf/demon_wolf_eyes.png"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/npc/cultivator_model.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/npc/cultivator_animations.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/textures/entity/cultivator/cultivator.png"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/combat/qingfeng_first_person.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/models/item/lingxiao_spear.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/models/item/lingxiao_spear_3d.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear.png"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear_model.png"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/combat/lingxiao_spear_geometry.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/combat/lingxiao_spear_first_person.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet_3d.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet.png"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet_model.png"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_geometry.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_first_person.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "data/myvillage/combat/"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/player_animations/sword_combat.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/player_animations/spear_combat.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/player_animations/fist_combat.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "data/minecraft/tags/item/swords.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/textures/item/low_grade_spirit_stone.png"
-jar tf build/libs/myvillage-0.40.0.jar | grep "data/myvillage/worldgen/configured_feature/spirit_stone_ore.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "data/myvillage/myvillage/realm/qi_refining.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/guides/myvillage/cultivation"
-jar tf build/libs/myvillage-0.40.0.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.41.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.41.0.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
+jar tf build/libs/myvillage-0.41.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "data/myvillage/beast/demon_wolf.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/beast/demon_wolf_model.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/beast/demon_wolf_animations.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/textures/entity/demon_wolf/demon_wolf_eyes.png"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/npc/cultivator_model.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/npc/cultivator_animations.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/textures/entity/cultivator/cultivator.png"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/combat/qingfeng_first_person.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/models/item/lingxiao_spear.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/models/item/lingxiao_spear_3d.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear.png"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear_model.png"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/combat/lingxiao_spear_geometry.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/combat/lingxiao_spear_first_person.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet_3d.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet.png"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet_model.png"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_geometry.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_first_person.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "data/myvillage/combat/"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/player_animations/sword_combat.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/player_animations/spear_combat.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/player_animations/fist_combat.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "data/minecraft/tags/item/swords.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/textures/item/low_grade_spirit_stone.png"
+jar tf build/libs/myvillage-0.41.0.jar | grep "data/myvillage/worldgen/configured_feature/spirit_stone_ore.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "data/myvillage/myvillage/realm/qi_refining.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/guides/myvillage/cultivation"
+jar tf build/libs/myvillage-0.41.0.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -942,6 +942,63 @@ has not been observed, and every surface the owner did not speak to stays
 | Frame rate with several cultivators on a real GPU | `not_verified` |
 | Owner verdict on the 0.34.1 cultivator's look as a whole | `not_verified` |
 
+### Looks (0.41.0)
+
+The one entity type `myvillage:cultivator` now wears one of three looks
+(`docs/female-cultivator-brief.md`), each its own model, clips, and texture
+on the same body bones and hitbox:
+
+| Look | Who | Design |
+|---|---|---|
+| `default` | the male disciple described above | unchanged |
+| `f_novice` | 女·刚入门, a woman just through the door | low ponytail tied with a ribbon, a plain waist-high ru skirt (襦裙) under a half-sleeved jacket (半臂) |
+| `f_adept` | 女·小有所成, a woman who has made her name | high bun with a 步摇 hairpin, a wide-sleeved coat, a 披帛 drape, a two-layer skirt; palette A (crimson-purple coat, moon-white skirt, gold) |
+
+```mcfunction
+/summon myvillage:cultivator ~ ~ ~ {Look:"f_novice"}
+/summon myvillage:cultivator ~ ~ ~ {Look:"f_adept"}
+```
+
+The look is synced to clients and saved as `Look` only when it is not
+`default`; a name the type does not list is ignored. A spawn egg picks one
+of the three at random. A world-ledger avatar wears the look of its person:
+a woman at or below Qi Refining `f_novice`, above it `f_adept`, a man
+`default`.
+
+Each look is one `tools/npcgen` definition (`defs/cultivator.py`,
+`defs/cultivator_f_novice.py`, `defs/cultivator_f_adept.py`) writing
+`npc/cultivator[_<look>]_model.json`, `..._animations.json`, and
+`textures/entity/cultivator/cultivator[_<look>].png`; the contract's
+`looks:` list names them and `tools/validate_custom_entities.py` checks each.
+
+```bash
+python3 -m tools.npcgen build cultivator_f_novice [--check]
+python3 -m tools.npcgen build cultivator_f_adept [--check]
+python3 -m tools.npcgen preview cultivator_f_novice [--only face]   # out/preview/cultivator_f_novice/
+python3 -m tools.npcgen preview cultivator_f_adept [--only face]    # out/preview/cultivator_f_adept/
+python3 -m tools.combat_capture npc --look f_novice                 # out/preview/cultivator/ingame_f_novice/
+python3 -m tools.combat_capture npc --look f_adept                  # out/preview/cultivator/ingame_f_adept/
+python3 tools/npc_looks_page.py                                     # out/preview/cultivator/looks/index.html
+```
+
+The comparison page sets the three looks side by side: offline turnaround,
+face sheet, close-ups and walk GIFs, then the headless stills from four
+sides, close-ups, and walk videos (a missing file shows as 未采集).
+
+| Cultivator looks (0.41.0) real-client acceptance surface | Result |
+|---|---|
+| `f_novice` look: reads as a woman and a novice, plain and old-style, from the front, sides, and three-quarter views | `not_verified` |
+| `f_novice` face up close and at ten blocks | `not_verified` |
+| `f_novice` walk and idle (hip sway, folded hands, ponytail and skirt ties trailing) | `not_verified` |
+| `f_novice` name tag height on an avatar | `not_verified` |
+| `f_adept` look: reads as a woman of standing, richer than the novice, from the front, sides, and three-quarter views | `not_verified` |
+| `f_adept` face up close and at ten blocks | `not_verified` |
+| `f_adept` walk and idle (drape, hairpin pendant, back hair trailing) | `not_verified` |
+| `f_adept` name tag height on an avatar | `not_verified` |
+| Spawn egg random look; `/summon` with `Look`; look kept across save and reload | `not_verified` |
+| Avatars wear the look of their person's gender and realm | `not_verified` |
+| Owner verdict on palette A, the low ponytail, and both faces | `not_verified` |
+
 ## World Simulation (世界模拟 / 命簿)
 
 Since 0.35.0 every world keeps a ledger (命簿) of sects and named cultivators
@@ -973,6 +1030,10 @@ Commands (permission 2):
 /myvillage world sect <id|name>  # one sect: founding, master, resources, prestige, signature technique, heritage (传承), gate, relations, members at the sect
 /myvillage world sect <id> build        # build the sect's compound (山门) at its ledger gate
 /myvillage world sect <id> build here   # move the sect's gate to you first, then build at your feet
+/myvillage world sect <id> join <player>    # 0.41.0: admin join, skipping the admission rules
+/myvillage world sect <id> leave <player>   # 0.41.0: the player leaves that sect (penalty and cooldown)
+/myvillage world player <player>            # 0.41.0: a player's sect record and standings
+/myvillage world gates [retry]              # 0.41.0: framed gate builder state; retry gates given up
 /myvillage world person <name>   # up to five people whose name or Daoist title contains the text, living first
 /myvillage world chronicle [1-50]   # the latest notable and major events (default 10)
 /myvillage world here            # your region: tier, qi, danger, sects seated there with gate distance, people present, recent events
@@ -1071,7 +1132,8 @@ ground as cultivators named 姓名 · 境界 · 宗门 (the realm in the client'
 language): the master first, then the elders, then by realm, up to the caps,
 one entity per person, at least two blocks apart. They look around and at
 players but do not walk, cannot be hurt (only damage that bypasses
-invulnerability, such as `/kill` or the void, reaches them), do not burn, cannot be pushed, and do nothing when used. They are
+invulnerability, such as `/kill` or the void, reaches them), do not burn, cannot be pushed, and do nothing when used (since 0.41.0 the gate
+steward and the elders talk; see [Player sect entry](#player-sect-entry-0410)). They are
 never saved: when every player has moved away they are withdrawn, and on the
 way back new ones are projected from the ledger. After each settled day the
 set follows the ledger (people who left, died, or went travelling disappear;
@@ -1135,6 +1197,138 @@ owner's verdict.
 | Multiplayer: several players querying, per-player throttle | `not_verified` (throttle unit-tested) |
 | Hover, click, and wheel feel on a physical mouse | `not_verified` |
 | The owner's verdict on the page's look and amount of information | `not_verified` |
+
+### Player sect entry (0.41.0)
+
+Slice 1 of 拜入宗门 (`docs/player-sect-entry-brief.md`): the player gets a
+record in the ledger and can join a sect at its gate, leave it, and rise by
+the yearly review. The player is never a ledger person: they do not count
+as a sect's people, resources, or prestige, and the engine never moves them.
+Slices 2 to 4 (scripture hall, contribution and tasks, masters, the world's
+response) are not built; contribution stays 0 and no manual can be borrowed.
+
+A walk through it:
+
+1. On the H panel's 天下 page, 此地 lists the sects seated in your region
+   with the distance to each gate and its bearing (北, 东北, ...).
+2. Walk toward a gate. When you come within `gates.realize_radius` blocks
+   (planar) of an active sect whose gate is not built, the compound is built
+   for you, a few chunks per tick, one compound at a time (nearest first),
+   while avatars are enabled. Players within that radius read
+   "…的山门正在显形……" and then "…的山门已然落成。" The build goes on if
+   you walk away. `world sect <id> build` still works and is refused while
+   the same gate is being built this way.
+3. Within `avatar_spawn_radius` the avatars appear as before. The gate
+   steward (守山执事) is the member at the sect of the lowest rank (outer,
+   inner, elder, master) and then the lowest id; it is always shown first,
+   stands on the lowest terrace on the free cell nearest the axis and the
+   gate opening, and its name tag has a fourth part: 姓名 · 境界 · 宗门 · 守山执事.
+4. Right-click the steward (within `steward.interact_range`). The dialogue
+   screen shows a greeting, the sect's prestige, people at the gate and
+   master, and either an invitation (拜入 / 告辞) or the reason you are
+   turned away. Elders and the master also talk (a greeting; to a
+   non-member, a pointer to the steward) but take no requests. Other
+   avatars still do nothing when used.
+5. 拜入: you become an outer disciple (外门弟子), with a chat line, a
+   chronicle line ("…拜入…，为外门弟子。"), and a 我的宗门 card on the 天下
+   overview (sect, rank, joining date, master, contribution, standing). Your
+   own sect's page shows your rank, joining date, and standing.
+6. At the start of each sim year your rank rises one step (inner, then
+   elder; never master) if your realm meets the `promotion` bar, with a chat
+   and chronicle line. Negative standings recover toward 0. If your sect is
+   destroyed you become a rogue cultivator without a penalty.
+7. To leave, talk to the steward again and pick 退宗. Your standing with
+   that sect drops by `leave.standing_penalty`, and you cannot rejoin it for
+   `leave.rejoin_years` nor while that standing is below
+   `leave.rejoin_standing_at_least`. Other sects are open to you.
+
+Admission is checked in this order, and the dialogue states the first
+refusal: `sect_inactive`, `already_member` / `member_elsewhere`,
+`rejoin_cooldown`, `standing_too_low`, `not_awakened`, `realm_too_low`,
+`selective`. The server decides everything: the client sends only the chosen
+option (JOIN, LEAVE, FAREWELL) with the avatar's entity id and the sect id,
+and the server checks the level, the distance, the avatar's role and its
+sect again before changing the ledger. Payload protocol is `13`, so client
+and server need the same jar. Ledger saves gain the optional
+`player_members` (payload version 3); older saves load with no players.
+
+The numbers are data, the `player` section of
+`src/main/resources/data/myvillage/world_sim/rules.json`:
+
+| Key | Meaning |
+|---|---|
+| `admission.require_awakened_root` | A spiritual root must be awakened to join |
+| `admission.min_realm`, `admission.min_stage` | Lowest realm (player registry path; `mortal` is below every ledger realm) and 0-based stage to join |
+| `admission.join_standing` | Standing (交情) gained with the sect on joining |
+| `admission.selective.prestige_at_least` | Sects at or above this prestige are selective |
+| `admission.selective.root_peak_bp_at_least`, `admission.selective.or_min_realm` | What a selective sect wants: a highest single-element root affinity of at least this many basis points, or at least this realm |
+| `leave.standing_penalty` | Standing change on leaving |
+| `leave.rejoin_years` | Years before the same sect takes you back |
+| `leave.rejoin_standing_at_least` | Least standing a sect needs to take you |
+| `leave.standing_recovery_per_year` | Yearly recovery of each negative standing toward 0 |
+| `promotion.inner`, `promotion.elder` | Realm, 0-based stage, and contribution for the yearly rise to inner disciple and to elder |
+| `scripture_hall.borrow_cost_by_grade` | Read, not used until the scripture hall (slice 2) |
+| `steward.interact_range` | Blocks within which a steward or elder will talk |
+| `gates.realize_radius` | Planar blocks from a player at which an unbuilt gate is built |
+| `gates.clips_per_tick` | Chunk clips built per server tick |
+
+Commands (permission 2):
+
+| Command | Does |
+|---|---|
+| `/myvillage world sect <id> join <player>` | Join the player to the sect without the admission rules (the sect must be active and not already theirs; a member elsewhere leaves that sect first, without penalty or event) |
+| `/myvillage world sect <id> leave <player>` | The player leaves that sect, exactly as through the steward (penalty and cooldown) |
+| `/myvillage world player <player>` | The player's record: sect and rank, joining date, master, contribution, standing with each sect, the sect they last left |
+| `/myvillage world gates` | The framed builder's state: `idle`, `building sect <id> clip <i>/<n>`, and the gates given up this session |
+| `/myvillage world gates retry` | Let the gates given up this session be tried again |
+
+Log lines (INFO; the evidence script reads them):
+
+```text
+GATE_REALIZE sect=<id> state=queued gate=<x> <z> distance=<n> chunks=<n>
+GATE_REALIZE sect=<id> state=started anchor=<x> <y> <z> clips=<n> seed=<n> variant=<v> load_ticks=<n> preloaded=<a>/<b>
+GATE_REALIZE sect=<id> state=clip <i>/<n>
+GATE_REALIZE sect=<id> state=done seconds=<s> clips=<n> blocks~=<n> written=<n>
+GATE_REALIZE sect=<id> state=cancelled reason=<server_stopping|ledger_changed|sect_changed|already_realized>
+GATE_REALIZE sect=<id> state=failed reason=<exception class>
+SECT_DIALOGUE option=<JOIN|LEAVE|FAREWELL> x=<px> y=<px> w=<px> h=<px>
+SECT_ENTRY player=<name> intent=<JOIN|LEAVE> sect=<id> result=<ok|reason>
+```
+
+`SECT_DIALOGUE` is the client's, one line per button in screen pixels each
+time the dialogue lays out; the other two are the server's. A failed build
+releases its chunks, leaves the gate unbuilt (blocks already placed stay),
+and is not retried until `world gates retry` or a restart. Details:
+`docs/ai-kb/43_player_sect_entry.md`.
+
+Headless evidence (fresh superflat world, creative, settlement paused; about
+15 to 25 minutes; holds the heavy-work lock itself):
+
+```bash
+python3 tools/world_sim_entry_evidence.py [--sect ID] [--distance 140] [--realize-timeout 600] [--skip-promotion]
+```
+
+It walks the player 140 blocks from an unbuilt gate and waits for
+`GATE_REALIZE ... state=done`, finds the steward, right-clicks it and clicks
+JOIN, reads `world player` and the chronicle, photographs the 我的宗门 card,
+advances a year below and at the promotion bar, leaves and tries to rejoin,
+and runs the admin join and leave. Output in `out/preview/world_sim/entry/`
+(`index.html`, `evidence.json`, `commands.txt`, `server_log.txt`,
+`client_log.txt`, screenshots). Developer evidence, not owner acceptance.
+
+| Player sect entry (0.41.0) acceptance surface | Result | Notes |
+|---|---|---|
+| Auto gate realization near a player (framed, no server stall) | `not_verified` | headless: TODO-EVIDENCE |
+| Steward name tag (four parts, 守山执事) and its place by the gate | `not_verified` | headless: TODO-EVIDENCE |
+| Dialogue screen: lines, buttons, refresh in place, closing | `not_verified` | headless: TODO-EVIDENCE |
+| Join through the steward (outer disciple, chat and chronicle line) | `not_verified` | headless: TODO-EVIDENCE |
+| Leave through the steward (standing penalty) | `not_verified` | headless: TODO-EVIDENCE |
+| Rejoin cooldown refusal | `not_verified` | headless: TODO-EVIDENCE |
+| Admin commands `world sect <id> join/leave <player>`, `world player`, `world gates` | `not_verified` | headless: TODO-EVIDENCE |
+| 我的宗门 card and the own-sect rank row on the 天下 page | `not_verified` | headless: TODO-EVIDENCE |
+| Gate bearings on 此地 | `not_verified` | headless: TODO-EVIDENCE |
+| Yearly promotion to inner disciple and elder | `not_verified` | headless: TODO-EVIDENCE |
+| Sect destroyed → the player becomes a rogue | `not_verified` | headless: TODO-EVIDENCE |
 
 ## Rideable Flying Sword Smoke Test
 

@@ -7,6 +7,226 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.41.0
+
+Two pieces of work share this version (branch `feat/sect-entry`): the first
+slice of player sect entry (拜入宗门), which puts the player into the world
+ledger and lets them join a sect through its gate steward, and two female
+looks for the cultivator NPC. Designs: `docs/player-sect-entry-brief.md`
+(slices 2 to 4, scripture hall, tasks and world response, are not done) and
+`docs/female-cultivator-brief.md`; package breakdowns with the defaults the
+owner may overturn: `docs/sect-entry-slice1-tasks.md`,
+`docs/female-cultivator-tasks.md`. The owner's PC was not available this
+round, so only automated checks and headless captures ran.
+
+### Added: player sect entry, slice 1 (拜入宗门)
+
+- Ledger record for players. A player is never a `Person`:
+  `WorldState.playerMembers` (by UUID string) holds a `PlayerMember` with
+  `playerId`, `playerName`, `sectId`, `rank` (`outer`, `inner`, `elder`),
+  `joinedDay`, `masterId`, `contribution`, `borrowed`, `standings` (交情, one
+  -100..100 value per sect), `leftSectId`, `leftDay`, and a qualification
+  snapshot (`realmId`, `stageIndex`, `awakened`, `rootPeakBp`, the highest
+  single-element root affinity). Players are not in `SimContext.members()`
+  or `membersAt`, so they never count as a sect's people. `StateCodec`
+  `VERSION` 2 → 3 adds the optional top-level `player_members`; a version-2
+  payload reads with none. `WorldSimSavedData.FORMAT` is unchanged.
+- `rules.json` section `player` (`Rules.Player`): `admission`
+  (`require_awakened_root`, `min_realm`, `min_stage`, `join_standing`,
+  `selective` with `prestige_at_least`, `root_peak_bp_at_least`,
+  `or_min_realm`), `leave` (`standing_penalty`, `rejoin_standing_at_least`,
+  `rejoin_years`, `standing_recovery_per_year`), `promotion` (`inner` and
+  `elder`, each `realm`, `stage`, `contribution`), `scripture_hall`
+  (`borrow_cost_by_grade`, read but unused until slice 2), `steward`
+  (`interact_range`), `gates` (`realize_radius`, `clips_per_tick`). Realms
+  are player-registry paths; `mortal` ranks below every ledger realm and
+  stages are 0-based.
+- `WorldSim` facade: `playerMember`, `playerMembers`, `stewardOf`,
+  `admission`, `joinSect` (with a `force` overload), `leaveSect`,
+  `promotePlayer`, `updatePlayerQualification`, all in
+  `sim/engine/PlayerAffairs`. `admission` checks in this order and returns
+  the first refusal (`sim/Admission`): `sect_inactive`, `already_member` or
+  `member_elsewhere`, `rejoin_cooldown` (same sect within `rejoin_years`),
+  `standing_too_low`, `not_awakened`, `realm_too_low`, `selective` (sects at
+  or above the prestige bar want a root peak or a realm); otherwise `ok`.
+- Joining makes the player an outer disciple, adds `join_standing` and
+  records `player_join`; leaving applies `standing_penalty`, starts the
+  rejoin cooldown, keeps contribution and borrowed manuals, and records
+  `player_leave`. At the start of each sim year `PlayerAffairs.yearly` (run
+  right after `SectAffairs.yearly`) promotes a member one rank (outer →
+  inner → elder, never to sect master) when the snapshot meets the
+  `promotion` bar (`player_promotion`), moves every negative standing
+  toward 0 by `standing_recovery_per_year`, and drops a master who died or
+  left. When a sect is dissolved (`SectPolitics.dissolve` →
+  `PlayerAffairs.sectDissolved`) its players become rogues without a
+  penalty (`player_leave` with the `sect_gone` line).
+- Event types `player_join`, `player_leave`, `player_promotion`, all
+  importance 2, actors empty, player name as the first param; lines
+  `world_sim.event.player.join.*`, `.leave.*`, `.leave.sect_gone.*`,
+  `.promote.inner.*`, `.promote.elder.*` in both language files, registered
+  in `TextKeys`.
+- Gate steward (守山执事), derived and never stored: of the members at the
+  sect, the lowest rank (outer, inner, elder, master) and then the lowest
+  id. `AvatarPlanner.select` puts the steward first;
+  `AvatarPlanner.stewardCell` stands it on the lowest terrace, on the free
+  cell nearest the axis and then nearest the gate opening. Its name tag is
+  `entity.myvillage.cultivator.avatar.steward`, the usual three parts plus
+  a fourth, 守山执事. A steward handover withdraws both avatars so they
+  respawn on the right cells.
+- `NpcEntity.DATA_LEDGER_ROLE` (`none`, `steward`, `elder`; synced, never
+  saved), set by `WorldSimAvatars` on spawn and reconcile. Right-clicking a
+  steward or an elder (the master included) avatar opens the sect dialogue;
+  other avatars still pass.
+- Server-authoritative sect dialogue (`sim/runtime/player/SectDialogue`):
+  on opening and on every choice the server checks the overworld, the same
+  level, `steward.interact_range`, an active ledger, a living person of an
+  active sect, and that the person still has the role by the ledger, then
+  builds the page from the ledger. `SectDialoguePayload` (clientbound
+  `myvillage:sect_dialogue`: entity, sect, names, role, prestige, members,
+  master, region, the player's rank and standing, the admission and its
+  reason, at most 8 translatable lines and 4 option ids, bounded strings)
+  and `SectIntentPayload` (serverbound `myvillage:sect_intent`: kind byte
+  0 JOIN, 1 LEAVE, 2 FAREWELL, entity id, sect id; nothing else). An intent
+  is also refused when its sect differs from the avatar's, when it was not
+  an option of the current page, or when it comes under 4 ticks after the
+  last one. Scenes (`SectDialogueScenes`, pure): a steward greets and
+  introduces the sect, then invites (JOIN, FAREWELL), states the refusal
+  reason (FAREWELL), or greets a member by rank and offers LEAVE; after a
+  choice it shows the welcome, the farewell, or the refusal. An elder
+  greets (and points a non-member to the steward). Text is
+  `world_sim.dialogue.<scene>.<n>` with variant and param counts in
+  `SectDialogueKeys`; there is no `dialogue.json`.
+- `ModPayloads.PROTOCOL_VERSION` `12` → `13`; client and server need the
+  same jar.
+- `client/sim/SectDialogueScreen` (vanilla buttons, panel colours): title
+  avatar · role · sect, a line with the region and standing, the wrapped
+  lines, one button per option; a new page from the same avatar refreshes
+  it in place; FAREWELL and Esc close it, and so does walking 10 blocks
+  away. Each layout logs `SECT_DIALOGUE option=<JOIN|LEAVE|FAREWELL> x= y=
+  w= h=` per button in screen pixels.
+- `sim/runtime/player/WorldSimPlayers`: the qualification from the
+  cultivation profile (realm path, stage index, awakened, root peak); join
+  and leave through the facade, saved data marked dirty, a chat line
+  (`message.myvillage.world.sect.joined` / `.left`) and
+  `SECT_ENTRY player=<name> intent=JOIN|LEAVE sect=<id> result=ok|<reason>`
+  at INFO. It refreshes snapshots on login and after each settled day, and
+  sends an online player the day's `player_*` events that name them.
+- 天下 page: an overview card 我的宗门 (sect, rank, joining date, master,
+  contribution, standing; without a sect, a pointer to the gate steward);
+  the player's own sect page shows rank, joining date and standing; each
+  sect on 此地 shows the gate's eight-way bearing beside its distance
+  (`world_sim.bearing.*`). Snapshot fields `WorldSimSnapshot.mine`
+  (`MySect`) and `SectSummary.bearing`; `WorldSimSnapshots.bearing` is pure.
+- Commands (permission 2): `/myvillage world sect <id> join <player>`
+  (forced: only an active sect the player is not in; a member elsewhere
+  leaves that sect first without penalty or event),
+  `/myvillage world sect <id> leave <player>` (as if the player left),
+  `/myvillage world player <player>` (sect, rank, joining date, master,
+  contribution, standings, the last sect left), and
+  `/myvillage world gates [retry]` (the realizer's state; `retry` clears the
+  gates given up this session).
+- P4-lite: `sim/runtime/avatar/GateRealizer` builds an unrealized gate when
+  a player comes within `gates.realize_radius` (planar) of it, while the
+  ledger is active and avatars are enabled. One compound at a time, nearest
+  first (`GateRealizePlan`, pure). The build area (site plus mountain
+  margin, `SectGenerator.worldgenBuildArea`) gets non-persistent chunk
+  tickets and loads in the background; then `SectGenerator.prepare` plans
+  the compound and samples the natural surface once, and each tick runs
+  `clips_per_tick` chunk clips (`FramedSite.realizeClip`, the worldgen
+  slicing), with the same seed and variant as the build command. On
+  completion the tickets go, the `GateRealizations` record is written, the
+  gate is marked realized and the avatars are told. Players within the
+  radius get `message.myvillage.world.gate.forming`, `.formed` or
+  `.failed`. `GATE_REALIZE sect=<id> state=queued|started|clip i/n|done|cancelled|failed`
+  lines at INFO. A failure releases the tickets, rolls the gate back to
+  unrealized, and is not retried this session (blocks already written
+  stay). A player leaving does not stop a build.
+- `tools/world_sim_entry_evidence.py`: one headless session (auto gate
+  realization, the steward's name tag, the dialogue and JOIN, `world
+  player`, the chronicle, the 我的宗门 card, a year of `advance` with and
+  without the promotion bar, LEAVE and the cooldown refusal, the admin join
+  and leave) into `out/preview/world_sim/entry/`.
+- Tests: `WorldSimPlayerMembersTest`, `PlayerAffairsTest`,
+  `AvatarPlannerTest` (steward order and cell), `GateRealizePlanTest`,
+  `SectDialoguePayloadTest`, `SectDialogueScenesTest`,
+  `SectDialogueKeysTest`, `BearingTest`, `WorldSimSnapshotsTest` and
+  `WorldSimPayloadCodecTest` (mine, bearing), `CombatPayloadTest` (protocol
+  `13`), `tools/tests/test_world_sim_entry_evidence.py`.
+
+### Changed: player sect entry
+
+- `AvatarPlanner.select` takes the steward id and puts the steward before
+  the master and elders; `WorldSimAvatars` also refreshes roles and name
+  tags on reconcile.
+- `WorldSimSnapshots.build` takes the asking player's id (`playerId`) for
+  `mine`; `WorldSimSnapshotCodec` carries the two new fields.
+- `/myvillage world sect <id> build` (`GateBuilder`) is refused while the
+  realizer is building that sect's gate (`commands.myvillage.world.gates.busy`).
+- `SectGenerator` exposes `baseFor`, `worldgenBuildArea`, `prepare` and
+  `FramedSite`; the synchronous `generateForcedAt` is unchanged.
+
+### Added: cultivator looks (女修两套造型)
+
+- One entity, several looks. `NpcEntity.DATA_LOOK` (synced, default
+  `default`), saved as `Look` only when not the default
+  (`/summon myvillage:cultivator ~ ~ ~ {Look:"f_novice"}`; an unknown name
+  is ignored); a spawn egg draws one of the type's looks at random, the
+  default included. `CultivatorEntity.LOOKS` = `default`, `f_novice`,
+  `f_adept`.
+- `NpcRenderer` loads a model, layer, texture and walk rate per look and
+  swaps the model per frame by the synced look; the default look reads the
+  plain files, any other `npc/<entity>_<look>_model.json`,
+  `<entity>_<look>_animations.json` and
+  `textures/entity/<entity>/<entity>_<look>.png`. Layers are
+  `<entity>#main` and `<entity>#<look>`. An unknown look draws the default
+  and warns once.
+- Avatars wear a look by the ledger person (`CultivatorLooks.forPerson`, set
+  at spawn): a woman at or below Qi Refining `f_novice`, above it `f_adept`,
+  a man `default`.
+- `tools/npcgen/humanoid.py`: the parts that do not depend on one set of
+  clothes (box and mirror helpers, paint maths, gait functions, the
+  `HumanoidPaint` base with the skin materials), shared by every cultivator
+  definition; the male output is byte-identical.
+- `tools/npcgen/build.py`: `DEFINITIONS` lists one definition per look; a
+  definition declares `ENTITY` (texture directory), `NAME` (file prefix) and
+  `LOOK`, and writes `npc/<NAME>_model.json`, `npc/<NAME>_animations.json`
+  and `textures/entity/<ENTITY>/<NAME>.png`. The male definition is
+  `ENTITY = "cultivator"`, `LOOK = "default"`.
+- Definitions `tools/npcgen/defs/cultivator_f_novice.py` and
+  `cultivator_f_adept.py` with their generated files: the novice wears a
+  low ponytail with a ribbon, a plain waist-high ru skirt and a half
+  jacket (低马尾发带、素雅襦裙半臂); the adept a high bun with a 步摇
+  hairpin, a wide-sleeved coat, a 披帛 drape and a two-layer skirt in
+  palette A (高髻步摇、广袖披帛、两层裙). Same body bones and hitbox as the
+  male look, with extra bones of their own.
+- `genops/contracts/entities/cultivator.yaml` gains a `looks:` list (model,
+  animations, texture, definition and layer per look) and the synced
+  `look` and `ledger_role` fields. `tools/validate_custom_entities.py`
+  checks every look: three files, model schema, look bone `head`, the
+  humanoid body bones, the default look's scale, clips, texture size and
+  binary alpha; the contract against the npcgen definitions and
+  `CultivatorEntity.LOOKS`; and one renderer and layer registration per
+  look in `MyVillageClient`.
+- Release gate steps `npcgen_check("cultivator_f_novice")` and
+  `npcgen_check("cultivator_f_adept")`.
+- `python3 -m tools.combat_capture npc --look <look>` summons with
+  `{Look:"<look>"}` and writes `out/preview/cultivator/ingame_<look>/`;
+  `tools/npc_looks_page.py` writes the three-look comparison page
+  `out/preview/cultivator/looks/index.html` (offline turnaround, face, close-ups
+  and walk GIFs; headless stills and walk videos).
+- Tests: `CultivatorLooksTest`, `NpcAssetFilesTest` over every look,
+  `tools/tests/test_validate_custom_entities.py`,
+  `tools/tests/test_npc_capture.py`, `tools/tests/test_npc_looks_page.py`.
+
+### Not verified
+
+- Everything on a physical client: auto gate realization and its stutter,
+  the steward's name tag, the dialogue screen, joining, leaving, the rejoin
+  cooldown, the admin commands, the 我的宗门 card and bearings, yearly
+  promotion, a destroyed sect turning the player rogue, both female looks
+  (look, face, walk, name tag), multiplayer, and the owner's verdict. See the
+  README ledgers "Player sect entry (0.41.0)" and "Looks (0.41.0)".
+
 ## 0.40.0
 
 The first runtime for 身法 (movement) techniques: a server-decided dodge with

@@ -1,6 +1,6 @@
 # 女修两套造型 · 拆包说明（0.41.0）
 
-状态（2026-10-07 06:00）：开工。计划见 `docs/female-cultivator-brief.md`；本文是执行用的拆包说明。分支 `feat/sect-entry`（与入世切片 1 共用，文件不相交，版本 0.41.0）。本轮只做离线预览与服务器无头采集，真机判断留待以后。
+状态（2026-10-07）：已落地于 0.41.0，待 owner 验收；证据见 README "Looks (0.41.0)" 的 ledger、对比页 `out/preview/cultivator/looks/index.html`、`out/preview/cultivator_f_novice/`、`out/preview/cultivator_f_adept/` 与 `out/preview/cultivator/ingame_f_*/`。计划见 `docs/female-cultivator-brief.md`；本文是执行用的拆包说明。分支 `feat/sect-entry`（与入世切片 1 共用，文件不相交，版本 0.41.0）。本轮只做离线预览与服务器无头采集，真机判断留待以后。
 
 ## 0. 统筹已定的默认值（owner 未反对即照此执行，写在这里以便推翻）
 

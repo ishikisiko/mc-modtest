@@ -12,7 +12,9 @@ caller of the region query interface (see
 player can read the ledger in game on the H panel's 天下 page ("In-game panel"
 below). Since 0.37.0 a sect can hold a heritage (传承), a chain of techniques
 from the shared technique catalogue ("Heritages" below,
-[41_technique_system.md](41_technique_system.md)).
+[41_technique_system.md](41_technique_system.md)). Since 0.41.0 players have
+a ledger record, join sects through a gate steward, and unbuilt gates near a
+player are built in frames: [43_player_sect_entry.md](43_player_sect_entry.md).
 
 There is no capability spec for the world sim; this note and the code are the
 reference. The design that came before the code is
@@ -22,14 +24,15 @@ reference. The design that came before the code is
 
 | Package | Holds |
 |---|---|
-| `sim` | The facade `WorldSim` and its immutable view records (`Overview`, `SectView`, `PersonView`, `RegionView`, `SimEvent`, `SimDate`); `SettlementScheduler`, `SimRng`, `SimObserver`, `SimData`, `SimDataException`, `SimFormatException` |
-| `sim.model` | The ledger records (`WorldState`, `Person`, `Sect`, `Tombstone`, `Relation`, `SectRelation`, `Boon`, `RegionState`, `LostHeritage`) and `StateCodec`, the save payload |
-| `sim.engine` | One class per mechanic (table below), `Engine` (the order of a day), `Genesis`, `GatePlacement`, `SimContext` (working set and derived indices), `Chronicle`, `TextKeys`, `Anchor`, `Purpose`, `Rates`, `Naming`, `People`, `Roots` |
+| `sim` | The facade `WorldSim` and its immutable view records (`Overview`, `SectView`, `PersonView`, `RegionView`, `SimEvent`, `SimDate`; since 0.41.0 `PlayerMemberView`, `PlayerQualification`, `Admission`); `SettlementScheduler`, `SimRng`, `SimObserver`, `SimData`, `SimDataException`, `SimFormatException` |
+| `sim.model` | The ledger records (`WorldState`, `Person`, `Sect`, `Tombstone`, `Relation`, `SectRelation`, `Boon`, `RegionState`, `LostHeritage`, and since 0.41.0 `PlayerMember`) and `StateCodec`, the save payload |
+| `sim.engine` | One class per mechanic (table below; players' business is `PlayerAffairs`, 0.41.0), `Engine` (the order of a day), `Genesis`, `GatePlacement`, `SimContext` (working set and derived indices), `Chronicle`, `TextKeys`, `Anchor`, `Purpose`, `Rates`, `Naming`, `People`, `Roots` |
 | `sim.data` | Strict loaders: `SimDataLoader`, `Rules`, `RealmTable`, `EncounterTable`, `ContentTables`, `SimJson` |
 | `sim.cli` | The offline runner `SimCli` with `ChronicleWriter`, `Lang`, `ChineseNumerals` |
 | `sim.runtime` | Everything that touches Minecraft: `WorldSimRuntime`, `WorldSimDriver`, `WorldSimSavedData`, `WorldSimServerConfig`, `WorldSimCommands`, `WorldSimRumors`, `RumorBoard`, `WorldSimText` |
-| `sim.runtime.net` | The 天下 page's networking (0.36.0): `WorldSimQuery`, `WorldSimSnapshot` (the contract), `WorldSimSnapshots` (pure builder), `WorldSimQueryPayload`, `WorldSimSnapshotPayload`, `WorldSimSnapshotCodec`, `WorldSimPayloads` (registration and the per-player throttle). The client cache is `client/sim/ClientWorldSimState` |
-| `sim.runtime.avatar` | Compounds and avatars (P3): `GateBuilder`, `GateRealizations`, `WorldSimAvatars`, `AvatarPlanner`; with `sect/SectCourtyard` and the avatar mode of `entity/npc/NpcEntity` |
+| `sim.runtime.net` | The 天下 page's networking (0.36.0): `WorldSimQuery`, `WorldSimSnapshot` (the contract), `WorldSimSnapshots` (pure builder), `WorldSimQueryPayload`, `WorldSimSnapshotPayload`, `WorldSimSnapshotCodec`, `WorldSimPayloads` (registration and the per-player throttle); since 0.41.0 the sect dialogue's `SectDialoguePayload` and `SectIntentPayload`. The client cache is `client/sim/ClientWorldSimState`; the dialogue screen is `client/sim/SectDialogueScreen` |
+| `sim.runtime.avatar` | Compounds and avatars (P3): `GateBuilder`, `GateRealizations`, `WorldSimAvatars`, `AvatarPlanner`; since 0.41.0 the framed builder `GateRealizer`, `GateRealizePlan`, `GateRealizerCommands`; with `sect/SectCourtyard` and the avatar mode of `entity/npc/NpcEntity` |
+| `sim.runtime.player` | 0.41.0 player sect entry: `WorldSimPlayers` (qualification, join and leave, chat lines, `SECT_ENTRY`), `SectDialogue` (server checks and pages), `SectDialogueScenes` (pure scenes and options), `SectDialogueKeys` (dialogue text keys); see [43](43_player_sect_entry.md) |
 
 Everything except `sim.runtime` is the pure core. It imports only `java.*`,
 Gson, its own package, and the pure region classes `RegionGraph`,
@@ -53,6 +56,11 @@ limit, filter)`; `realmIds` in ladder order; `nameOf` and `sectOf` for the
 living and the dead; `livingIn(regionId)`; `hasRegion`), and two mutations, `markGateRealized` and
 `moveGate` (admin and test only; it rejects a point outside every region and
 moves the sect's home region and its members who are at the sect).
+Since 0.41.0 the player interface (only `sim.runtime.player.WorldSimPlayers`
+mutates through it): `playerMember`, `playerMembers`, `stewardOf`,
+`admission`, `joinSect` (with a `force` overload for admin commands),
+`leaveSect`, `promotePlayer`, and `updatePlayerQualification`
+([43_player_sect_entry.md](43_player_sect_entry.md)).
 `SimEvent` carries `id`, `day`, `type`, `importance`, `actors` (subject
 first), `sects`, `regionId`, `causeId` (-1 for none), `textKey`, and
 `params`; a param that starts with `@` is itself a language key.
@@ -70,7 +78,7 @@ copying values.
 
 | File | Holds |
 |---|---|
-| `rules.json` | All balance numbers, by section: `time` (prehistory years, default days per year), `tiers` (`small`, `medium`, `large`: population, sects, rogue share), `chronicle`, `scheduler`, `roots`, `techniques` (grade factors, element match), `cultivation`, `breakthrough`, `injury`, `death_importance_by_rank`, `entrants`, `sects` (recruitment, promotion, mentoring, income, upkeep, pills), `genesis`, `gates`, `naming`, `importance`, `travel`, `seclusion`, `danger`, `fortune`, `artifact_power`, `meetings`, `combat`, `revenge`, `sect_relations`, `succession`, `decline`, `founding`. Rates are per year |
+| `rules.json` | All balance numbers, by section: `time` (prehistory years, default days per year), `tiers` (`small`, `medium`, `large`: population, sects, rogue share), `chronicle`, `scheduler`, `roots`, `techniques` (grade factors, element match), `cultivation`, `breakthrough`, `injury`, `death_importance_by_rank`, `entrants`, `sects` (recruitment, promotion, mentoring, income, upkeep, pills), `genesis`, `gates`, `naming`, `importance`, `travel`, `seclusion`, `danger`, `fortune`, `artifact_power`, `meetings`, `combat`, `revenge`, `sect_relations`, `succession`, `decline`, `founding`, and since 0.41.0 `player` (admission, leave and standings, promotion, scripture hall, steward range, gate realization; [43](43_player_sect_entry.md)). Rates are per year |
 | `realms.json` | The sim's own realm ladder: 炼气, 筑基, 金丹, 元婴, each with lifespan, prestige, death importance, title suffix (真人, 真君), stages, and breakthrough parameters. Separate from the player realm registry; realms that exist in both must have equal lifespans |
 | `encounters.json` | Fortunes: weight, rarity, importance, the text-key suffix, optional site kind, danger and tier bounds, realms, statuses, a contested flag, and effects (`progress`, `technique`, `breakthrough_pill`, `lifespan`, `root`, `artifact`, `injury`, `death`, and since 0.37.0 `heritage`) |
 | `names.json` | Surnames, given names (male, female, neutral), Daoist titles, sect prefixes, weighted sect suffixes |
@@ -223,12 +231,13 @@ Health bands are unchanged and pass. After genesis and prehistory, small seed
   kept forever, so later events can still name them.
 - **Payload.** `StateCodec` writes canonical compact UTF-8 JSON (fixed key
   order, maps in id order) with `"format": "myvillage:world_sim"` and
-  `"version": 2` (2 since 0.37.0, which added the sect field `heritage` and
-  the top-level `lost_heritages`; a version-1 payload loads with no heritages),
-  so equal states give equal bytes. It holds the seed, tier,
-  genesis days per year, prehistory days, day, id counters, the scheduler's
-  state, region richness, sects, persons, tombstones, the lost heritages, and
-  the kept chronicle.
+  `"version": 3` (2 since 0.37.0, which added the sect field `heritage` and
+  the top-level `lost_heritages`; a version-1 payload loads with no heritages;
+  3 since 0.41.0, which added the top-level `player_members`; a version-2
+  payload loads with no players), so equal states give equal bytes. It holds
+  the seed, tier, genesis days per year, prehistory days, day, id counters,
+  the scheduler's state, region richness, sects, persons, tombstones, the
+  lost heritages, the players' sect records, and the kept chronicle.
   A reader ignores unknown fields and defaults missing optional ones; an
   unknown format, malformed JSON, an unknown realm, a region missing from the
   graph, or a tier missing from the rules throws `SimFormatException`, and a
@@ -277,6 +286,13 @@ settles at most one pending day:
 - `advance <days>` settles days now, even while paused, and leaves the
   scheduler alone.
 
+`WorldSimRuntime.register()` also registers, since 0.41.0,
+`WorldSimPlayers` (refreshes players' qualification snapshots on login and
+after each settled day, and tells an online player the day's `player_*`
+events about them) and `GateRealizer` (a server-tick listener that builds
+unbuilt gates near a player in frames); see
+[43_player_sect_entry.md](43_player_sect_entry.md).
+
 The save data is marked dirty after every settled day, scheduler change,
 pause, and advance. If settlement throws, the ledger goes inactive until
 restart and the save keeps the last checkpoint, never a half-settled day.
@@ -291,7 +307,10 @@ All under `/myvillage world`, permission 2; output goes through
 | `/myvillage world` or `world info` | Era date, sim day, calendar day, pending days, running or paused, tier, population against target, deaths, living per realm, sects, event count, the five foremost people |
 | `world sects [all]` | Active sects (with `all`, the destroyed too): region, master, members, top realm, prestige, gate coordinate, whether the gate is realized |
 | `world sect <id\|name>` | One sect: founding, parent sect, master, members, resources, prestige, signature technique (镇派功法), heritage (传承, `commands.myvillage.world.sect.heritage`, 0.37.0), gate, relations to other sects, strongest members at the sect |
-| `world sect <id> build [here]` | Build the sect's compound (山门) at its ledger gate, or with `here` move the gate to the caller first; synchronous (see "P3" below) |
+| `world sect <id> build [here]` | Build the sect's compound (山门) at its ledger gate, or with `here` move the gate to the caller first; synchronous (see "P3" below); refused while `GateRealizer` is building that gate |
+| `world sect <id> join <player>` / `leave <player>` | 0.41.0: admin membership; join is forced past the admission rules, leave is the ordinary leave ([43](43_player_sect_entry.md)) |
+| `world player <player>` | 0.41.0: a player's record: sect and rank, joining date, master, contribution, standings, the last sect left |
+| `world gates [retry]` | 0.41.0: the framed gate builder's state; `retry` lets the gates given up this session be tried again |
 | `world person <name>` | Up to five people whose name or Daoist title contains the text, living first: realm and stage, root grade, age, sect and rank, place and status, technique, master, relation counts; for the dead, death date, cause, and killer |
 | `world chronicle [1-50]` | The latest notable and major events (importance 2+), oldest first; default 10 |
 | `world here` | The caller's region (`RegionRuntimeService.currentRegion`): tier, qi, danger, living count, seated sects with gate distance, the strongest people present, recent notable events. Players only |
@@ -349,7 +368,13 @@ member; a person's are any importance with the person among the actors; the
 chronicle is `recentEvents(2, MAX_CHRONICLE)`; `causes` holds only the kept
 events that `events` point at (`WorldSim.event`), and `subjectId` is the
 first actor. Since 0.37.0 `SectDetail.heritageName` carries the sect's
-heritage (null for none), shown as a 传承 row on the page. Every person, sect,
+heritage (null for none), shown as a 传承 row on the page. Since 0.41.0
+`WorldSimSnapshots.build` takes the asking player's UUID string: `mine`
+(`MySect`, the player's own record) is filled for `OVERVIEW` while the
+player is in a sect and for `SECT` only on the player's own sect, and drawn
+as the 我的宗门 card and a 我在此宗 row; `SectSummary.bearing` (one of
+`n ne e se s sw w nw`, `WorldSimSnapshots.bearing`) is filled in `HERE` and
+drawn beside each gate distance. Every person, sect,
 technique, heritage, and region name is resolved to a
 literal; prose stays as language keys with params (event lines, realm ids,
 ranks, statuses, causes) so each client reads its own language. Events go
@@ -368,8 +393,9 @@ Transport: `WorldSimQueryPayload` (serverbound; kind as an unsigned byte with
 fixed ids, an unknown id throws, id varint, text `writeUtf(32)`) and
 `WorldSimSnapshotPayload` (clientbound, `WorldSimSnapshotCodec`; nullable
 sections behind a boolean). `WorldSimPayloads.register`, called from
-`ModPayloads`, registers both and installs the cache's sender; payload
-protocol `8` (`10` since 0.37.0). On the server thread a player's query that comes less than 4
+`ModPayloads`, registers both (and since 0.41.0 the two sect dialogue
+payloads) and installs the cache's sender; payload protocol `8` (`10` since
+0.37.0, `13` since 0.41.0). On the server thread a player's query that comes less than 4
 ticks after their previous answered one is dropped without an answer;
 otherwise the answer is built and sent to that player. While the ledger is
 inactive every query is answered `inactive` with
@@ -551,18 +577,24 @@ all 17 checks; it is developer evidence, not an owner verdict.
 
 - P4 is not done: worldgen does not place compounds at ledger gates, so a
   ledger sect has no compound until one is built with
-  `/myvillage world sect <id> build`. The `myvillage:sect` compounds that
+  `/myvillage world sect <id> build` or, since 0.41.0, by `GateRealizer`
+  when a player comes near (P4-lite,
+  [43_player_sect_entry.md](43_player_sect_entry.md)). The `myvillage:sect` compounds that
   `worldgen/structure_set/sect.json` scatters at random (biome tag
   `has_sect`) are unrelated to the ledger, empty, and unknown to
   `/myvillage world`.
-- Every avatar uses the one cultivator look; there are no per-person or
-  per-sect variants.
-- Avatars are neutral: no combat, dialogue, trade, or other interaction, and
-  nothing a player does to one reaches the ledger.
+- Avatars wear one of three cultivator looks by gender and realm (0.41.0,
+  [39_humanoid_npcs.md](39_humanoid_npcs.md) "Looks"); there are no per-sect
+  variants.
+- Avatars do not fight or trade. Since 0.41.0 the gate steward and the
+  elders open the sect dialogue; every other avatar does nothing when
+  used.
 - `build` without `here`, on real terrain far from the player, has not been
   run; it loads or generates the gate chunk and builds synchronously, and a
   long build may trip a production server's `max-tick-time` watchdog.
-- The player is not in the ledger and has no relation to its people.
+- Since 0.41.0 the player has a sect record in the ledger but is not a
+  person: no relations, masters, or tasks yet (slices 2 to 4 of
+  `docs/player-sect-entry-brief.md`).
 - The health bands are checked at 24 and 6 days per year only; other values
   (12 in the determinism test) are tested for determinism, not for the
   long-run shape. `Rates.perDay` keeps the chance of at least one event per
@@ -644,7 +676,9 @@ ordinary NPC). An avatar is never saved with its chunk (`shouldBeSaved`
 false); it is not attackable and takes no damage except from sources that
 bypass invulnerability (`/kill`, the void); it is fire immune and not
 pushable; its stroll goal is removed (it still looks at players and around);
-`mobInteract` passes without effect. Its name tag is always visible:
+`mobInteract` passes without effect unless the avatar has a dialogue role
+(`DATA_LEDGER_ROLE`, 0.41.0: the steward, elders, and the master open the
+sect dialogue, [43](43_player_sect_entry.md)). Its name tag is always visible:
 `entity.myvillage.cultivator.avatar` = `%1$s · %2$s · %3$s` (name, realm
 through `world_sim.realm.*`, sect), so each client reads the realm in its
 own language. A summoned or spawn-egg cultivator is unchanged. If a copy
@@ -658,7 +692,9 @@ with (sect active, gate realized, same x/z):
 - the distance to the nearest player is measured to the compound's site
   rectangle, not to the gate;
 - within `avatar_spawn_radius`, the members at the sect (`WorldSim.membersAt`)
-  are chosen by `AvatarPlanner.select`: master, then elders, then the rest,
+  are chosen by `AvatarPlanner.select`: since 0.41.0 the gate steward
+  (`WorldSim.stewardOf`) first, on `AvatarPlanner.stewardCell` by the gate
+  opening, then master, then elders, then the rest,
   each group by realm and stage, up to the per-sect cap, with the global cap
   served nearest compound first; each gets a courtyard cell
   (`AvatarPlanner.pickCell`: lowest terrace with room, at least two blocks
@@ -710,5 +746,6 @@ owner verdict.
 - Deferred region consumers: [14_deferred_roadmap.md](14_deferred_roadmap.md) §A
 - Shared calendar and personal lifespan: [30_cultivation_playable_loop.md](30_cultivation_playable_loop.md), [`cultivation-lifespan-calendar`](../../openspec/specs/cultivation-lifespan-calendar/spec.md)
 - The cultivator body used by avatars: [39_humanoid_npcs.md](39_humanoid_npcs.md), [`humanoid-npc-runtime`](../../openspec/specs/humanoid-npc-runtime/spec.md), `genops/contracts/entities/cultivator.yaml`
+- Player sect entry, the gate steward, and framed gate realization: [43_player_sect_entry.md](43_player_sect_entry.md)
 - Sect compounds: [`sect-compound-realization`](../../openspec/specs/sect-compound-realization/spec.md), [`sect-worldgen-structure`](../../openspec/specs/sect-worldgen-structure/spec.md)
 - Knowledge-base index: [INDEX.md](INDEX.md)

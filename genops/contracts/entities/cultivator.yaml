@@ -266,6 +266,9 @@ acceptance:
     - python3 -m tools.npcgen preview cultivator --only face # the head from six angles, large and at in-game size
     - python3 -m tools.combat_capture npc   # parts idle, walk; out/preview/cultivator/ingame/
     - python3 tools/world_sim_avatar_evidence.py   # world-sim avatars on a built compound; out/preview/world_sim/avatars/
+    - python3 -m tools.combat_capture npc --look f_novice   # out/preview/cultivator/ingame_f_novice/
+    - python3 -m tools.combat_capture npc --look f_adept    # out/preview/cultivator/ingame_f_adept/
+    - python3 tools/npc_looks_page.py   # three looks side by side; out/preview/cultivator/looks/index.html
   visual_views:
     - front
     - side
@@ -278,7 +281,7 @@ acceptance:
     - death
   human_verdict_required: true
   human_verdict_status: not_verified
-  human_verdict_note: owner on 0.34.0, own PC, 2026-10-06 — clothes, back view, poses seen from behind and the walk accepted; the face rejected (像大佛的脸，没有俊朗英气). The 0.34.1 face and every other surface are not_verified; see the README ledger.
+  human_verdict_note: owner on 0.34.0, own PC, 2026-10-06 — clothes, back view, poses seen from behind and the walk accepted; the face rejected (像大佛的脸，没有俊朗英气). The 0.34.1 face and every other surface are not_verified; see the README ledger. The 0.41.0 looks f_novice and f_adept were judged only from offline previews and headless captures (owner's PC unavailable) and are not_verified; see the README "Looks (0.41.0)" ledger.
 
 assumptions:
   - 当前仓库基线为 Minecraft 1.21.1、NeoForge 21.1.233、Java 21，mod id 为 myvillage，Java 包根为 com.example.myvillage。

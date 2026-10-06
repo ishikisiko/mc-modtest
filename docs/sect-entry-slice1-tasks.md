@@ -1,6 +1,6 @@
 # 拜入宗门 · 切片 1 拆包说明（0.41.0）
 
-状态（2026-10-07 06:00）：开工。方案见 `docs/player-sect-entry-brief.md`；本文是执行用的拆包说明，不是 OpenSpec。分支 `feat/sect-entry`（自 main 41c5b74）。0.41.0 同时含 `docs/female-cultivator-tasks.md` 的女修两套造型（文件不相交，共用一个版本号）。
+状态（2026-10-07）：已落地于 0.41.0，待 owner 验收；证据见 README "Player sect entry (0.41.0)" 的 ledger、`out/preview/world_sim/entry/`（`python3 tools/world_sim_entry_evidence.py`）与 `docs/ai-kb/43_player_sect_entry.md`。方案见 `docs/player-sect-entry-brief.md`；本文是执行用的拆包说明，不是 OpenSpec。分支 `feat/sect-entry`（自 main 41c5b74）。0.41.0 同时含 `docs/female-cultivator-tasks.md` 的女修两套造型（文件不相交，共用一个版本号）。
 
 owner 2026-10-07："有什么你自己决定就行，我回来直接验收结果"。本轮 owner 电脑不可用：所有验收只做无头采集，README ledger 一律 `not_verified`。
 
