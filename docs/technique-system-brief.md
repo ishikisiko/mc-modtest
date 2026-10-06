@@ -128,6 +128,8 @@
 
 服务端决定的冲量（和 step 一样 `setDeltaMovement` + `hurtMarked`），无敌窗口服务端判。没有闪避的战斗只有一半，这是第二阶段最先做的东西。
 
+已落地：0.40.0（见 docs/movement-dodge-brief.md、docs/ai-kb/42_movement_dodge.md）
+
 ### 3.4 炼体 effects（任一阶段可塞）
 
 ```json

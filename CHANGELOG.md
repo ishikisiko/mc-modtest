@@ -9,6 +9,71 @@ together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
 ## 0.40.0
 
+The first runtime for 身法 (movement) techniques: a server-decided dodge with
+an invulnerable window, the first item of the technique brief's second phase
+("手感", `docs/technique-system-brief.md` 3.3). The owner asked to try it
+(2026-10-07, "先做做看看"); the defaults are in `docs/movement-dodge-brief.md`
+and are open to change.
+
+### Added
+
+- Key `key.myvillage.dodge` (身法闪避 / Movement Dodge, default Left Alt,
+  rebindable). In cultivation combat mode, alive, with no screen open and not
+  meditating, a press sends `CombatDodgeIntentPayload`: one byte, the eight-way
+  `DodgeDirection` of the held movement input (`NONE` is a back step), at most
+  one every 4 `ClientCombatClock` ticks. It carries no authority.
+- `CombatDodgeService` (server): preconditions (`STATE`: dead, spectating,
+  sleeping, using an item, riding or meditating; `MODE`: not cultivation mode;
+  `AIRBORNE`), then the highest-grade learned movement technique with an
+  `effects.movement` block (ties to the smaller id; `NO_TECHNIQUE`), the
+  per-player cooldown (`COOLDOWN`), the recovery-only cancel rule (`TIMING`),
+  and a collision- and footing-safe distance shared with action steps
+  (`CombatStepService.safeDistance`, support depth 1.0; `BLOCKED`). A started
+  dodge interrupts a recovery with the new stop reason `DODGED` (appended last;
+  combo reset, no recovery lock), applies the impulse, opens the invulnerable
+  window `[now, now + invulnerable_ticks)` and the cooldown, and adds one
+  mastery point. No weapon is needed and `qi_cost` is not charged.
+- Inside the window `LivingIncomingDamageEvent` is cancelled for the player
+  unless the source is tagged `bypasses_invulnerability`, and attack intents
+  are refused.
+- `CombatDodgeStartPayload` (entity, start tick, direction yaw, distance,
+  invulnerable, duration and cooldown ticks, technique) to the player and its
+  trackers, presentation only. `CombatDodgeFx`: cloud afterimages at the heels
+  for every dodging player (a 4 CLOUD + 1 POOF burst, then 2 per tick through
+  the first half and 1 after), a 6° FOV surge and a 1.2° sideways lean for the
+  local player. Server side: 8 CLOUD particles at the feet and
+  `combat.sword.thrust` at volume 0.6, pitch 0.75 (`CombatFeedbackService.dodge`).
+- `DODGE_DEBUG` INFO lines (`result=started`, `result=rejected reason=...`,
+  `cancelled_damage=... source=...`) and `/myvillage combat dodge status [player]`.
+- Techniques `myvillage:liuyun_bu` 流云步 (黄 1, water; 3.5 blocks, 5
+  invulnerable ticks, qi 6, cooldown 30) and `myvillage:taxue_wuhen` 踏雪无痕
+  (玄 2, water, after 流云步; 4.5 blocks, 7 ticks, qi 10, cooldown 24), in the
+  registry, the manuals and the world ledger's technique pool (129 → 131).
+- `tools/technique_catalogue`: a row's optional `effects` overrides the
+  category default per effect kind and a `movement` block is checked against
+  the Java shape; names with 步, 身法, 无痕 or 遁 classify as movement.
+- `python3 -m tools.combat_capture dodge`: dodge trials against the demon wolf
+  (bite and pounce at several move ticks, cooldown, recovery cancel) into
+  `out/preview/movement_dodge/`.
+- Tests: `DodgeDirectionTest`, `CombatDodgeServiceTest`,
+  `CombatDodgeCancelTest`, `CombatDodgeFxTest`, two more payloads in
+  `CombatPayloadTest`, `RowEffectsTest` in
+  `tools/tests/test_gen_technique_catalogue.py`, and
+  `tools/tests/test_combat_capture_dodge.py`.
+
+### Changed
+
+- `ModPayloads.PROTOCOL_VERSION` `11` → `12` (the two dodge payloads); client
+  and server need the same jar.
+- Movement techniques are no longer data only: the dodge reads their
+  `effects.movement`. Active and body effects still have no runtime.
+
+### Fixed
+
+- The dodge direction's dead zone is 0.2, below vanilla's 0.3 sneaking input
+  scale; with the first 0.3 a sneaking player's held key read as no input and
+  every sneaking dodge became a back step.
+
 ## 0.39.1
 
 The Xuantie Gauntlet after the owner's first look (2026-10-07: the moves are

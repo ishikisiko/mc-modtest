@@ -44,7 +44,10 @@ technique file in the datapack directory is removed.
 
 Shipped catalogue: 129 generated techniques (core 116, body 10, active 3;
 grades 1/2/3/4 = 41/36/30/22) plus `basic_breathing`, so 130 in the registry
-and 129 in the ledger. Four schools: `sword`, `spear`, `fist` (kind `weapon`,
+and 129 in the ledger. 0.40.0 adds the movement techniques `liuyun_bu` 流云步
+(1) and `taxue_wuhen` 踏雪无痕 (2, `previous` 流云步), both water: 131
+generated (movement 2; grades 42/37/30/22), 132 in the registry, 131 in the
+ledger ([42_movement_dodge.md](42_movement_dodge.md)). Four schools: `sword`, `spear`, `fist` (kind `weapon`,
 `weapon_family` of the same name) and `flying_sword` (kind `special`,
 `runtime: flying_sword`). Four techniques carry `school: sword` (the core
 庚金引气法 and the three active 剑诀/剑典/剑经). Three heritages, four
@@ -59,9 +62,11 @@ techniques each, one element each:
 Requirements by grade (`rules.json` `requirements.by_grade`): 1 → Qi
 Refining I, 2 → Qi Refining IV, 3 and 4 → Foundation early; a technique of
 grade ≥ 2 with an element also requires that element's affinity ≥ 1500 basis
-points. Only core techniques get an `effects` block
-(`{"core": {"meditation_route": "xiaozhoutian"}}`); active and body rows ship
-without one.
+points. The category default from `rules.json` gives core techniques
+`{"core": {"meditation_route": "xiaozhoutian"}}`; active and body rows ship
+without one. Since 0.40.0 a catalogue row may carry its own `effects`, laid
+over the default per kind, and the generator checks a `movement` block
+against the Java shape; the two movement rows use it.
 
 ## Registries and JSON shapes
 
@@ -97,8 +102,10 @@ stay valid:
   category is a decode error). `core {meditation_route}`; `active {skill,
   qi_cost ≥ 0, slots ≥ 1}`; `movement {dash_distance > 0, invulnerable_ticks,
   qi_cost, cooldown_ticks ≥ 0}`; `body {attributes: {attribute id: amount},
-  stagger_resistance ≥ 0}` (needs one of the two). Only `core` drives anything
-  (the meridian route); the other three are decoded and validated only.
+  stagger_resistance ≥ 0}` (needs one of the two). `core` drives the meridian
+  route and, since 0.40.0, `movement` drives the dodge
+  ([42_movement_dodge.md](42_movement_dodge.md)); `active` and `body` are
+  decoded and validated only.
 
 At server start (`ModCultivationRegistries.validateRequiredEntries`, which logs the
 school and heritage counts) a school's `element_lean`
@@ -156,8 +163,10 @@ technique only scales the gain.
   calls only `CultivationService.switchCoreTechnique`. A refusal sends
   nothing back; a success pushes the usual snapshot. Sent only by
   `ClientCultivationIntentSender.sendCoreSwitch`.
-- `ModPayloads.PROTOCOL_VERSION` is `11` since 0.38.0 (the meditation status
-  carries study progress); it was `10` in 0.37.0 (was `9`).
+- `ModPayloads.PROTOCOL_VERSION` is `12` since 0.40.0 (the two dodge
+  payloads `CombatDodgeIntentPayload` and `CombatDodgeStartPayload`, see
+  [42_movement_dodge.md](42_movement_dodge.md)); it was `11` in 0.38.0 (the
+  meditation status carries study progress) and `10` in 0.37.0 (was `9`).
 - `/myvillage cultivation|xiulian core|xinfa <target> <technique_id>`
   (permission 2, suggestions are the registered core techniques) calls the
   same service; `info` prints `running core technique: <id>` or `none`.
@@ -207,7 +216,7 @@ falls back to it. Details: [37_cultivation_panel.md](37_cultivation_panel.md).
   down), and `右键盘坐研读`; a blank manual says it is blank, a damaged one gives
   its reason and that it cannot be read.
 - Creative tab `myvillage:main`: the 16 blank manuals, then one manual per
-  registered technique of grade 1..4 (129 today), by category, grade, id
+  registered technique of grade 1..4 (131 since 0.40.0), by category, grade, id
   (`TechniqueManualItem.creativeStacks`, read from the tab's
   `HolderLookup.Provider`).
 - Art: four 16x16 icons, one per category (`manual_core` 线装书,
@@ -321,7 +330,8 @@ and 天 Foundation early, which play cannot reach in this release (only
 `points`, `totalPoints`, `nextGatePoints` or `-1` when none is left,
 `gateStabilityCost`), present only while a study session runs;
 `status.studying()` tests it. `MeditationStatusPayload` carries it, so
-`ModPayloads.PROTOCOL_VERSION` is `11`. Client input is unchanged: the four
+`ModPayloads.PROTOCOL_VERSION` became `11` (`12` since 0.40.0, for the two
+dodge payloads `CombatDodgeIntentPayload` and `CombatDodgeStartPayload`). Client input is unchanged: the four
 meditation intents, and STOP (key X or the 修炼 page button) ends a study like
 any session. Starting is item use, not a payload. The 修炼 page shows a study
 card while it runs ([37_cultivation_panel.md](37_cultivation_panel.md)).
@@ -404,8 +414,10 @@ and "Technique manuals (0.38.0)".
 
 ## Not implemented yet
 
-- Runtimes for active (绝技), movement (身法) and body (炼体) effects; their
-  techniques can be learned and shown but do nothing.
+- Runtimes for active (绝技) and body (炼体) effects; their techniques can
+  be learned and shown but do nothing. ~~Movement (身法)~~: since 0.40.0 the
+  dodge reads `effects.movement` ([42_movement_dodge.md](42_movement_dodge.md));
+  its `qi_cost` is not charged.
 - Mastery tiers, and mastery carried over when switching within a chain.
 - A breakthrough multiplier from the running core technique (player
   advancement is deterministic).
@@ -419,6 +431,6 @@ and "Technique manuals (0.38.0)".
 ## See also
 
 - Design brief: `docs/technique-system-brief.md`; manuals and study: `docs/technique-manual-brief.md`
-- [28_cultivation_core.md](28_cultivation_core.md), [30_cultivation_playable_loop.md](30_cultivation_playable_loop.md), [37_cultivation_panel.md](37_cultivation_panel.md), [40_world_sim.md](40_world_sim.md)
+- [28_cultivation_core.md](28_cultivation_core.md), [30_cultivation_playable_loop.md](30_cultivation_playable_loop.md), [37_cultivation_panel.md](37_cultivation_panel.md), [40_world_sim.md](40_world_sim.md), [42_movement_dodge.md](42_movement_dodge.md)
 - [cultivation-definition-registries](../../openspec/specs/cultivation-definition-registries/spec.md), [cultivation-player-profile](../../openspec/specs/cultivation-player-profile/spec.md), [cultivation-state-synchronization](../../openspec/specs/cultivation-state-synchronization/spec.md), [cultivation-debug-commands](../../openspec/specs/cultivation-debug-commands/spec.md), [cultivation-meditation](../../openspec/specs/cultivation-meditation/spec.md), [cultivation-core-validation](../../openspec/specs/cultivation-core-validation/spec.md)
 - Knowledge-base index: [INDEX.md](INDEX.md)

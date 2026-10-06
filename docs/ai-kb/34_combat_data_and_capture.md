@@ -168,6 +168,14 @@ animation ids, and validator finding codes keep their names.
   backwards for the client.
 - Network: `CombatImpactPayload` carries `moveId`; payload protocol is `7`.
   The two client-to-server combat payloads are still empty.
+- Dodge (0.40.0): a third client-to-server payload, `CombatDodgeIntentPayload`,
+  carries one byte of eight-way input and no authority; `CombatDodgeService`
+  decides the dash, a short invulnerable window and the cooldown from the
+  learned 身法 technique. A dodge in an action's recovery interrupts it with
+  the stop reason `DODGED` (appended last; combo reset, no recovery lock);
+  wind-up and strike refuse it, and attack intents are refused inside the
+  window. Payload protocol `12`. Details in
+  [Movement Dodge](42_movement_dodge.md).
 - Client: `FirstPersonSwingResources` loads one rig and geometry per weapon on
   every resource reload and logs
   `Loaded first-person swing rig <rig> (<n> moves) with weapon geometry <geometry>`
@@ -313,6 +321,7 @@ the headless host. It uses the Python standard library plus `Xvfb`, `xdotool`,
 | `check`, `ticks` | Host programs and the weapon's data (held length, default views, rig); the moves and key ticks. |
 | `reload` | Copies changed combat client resources into `build/resources/main`, presses F3+T, waits for the rig-loaded log line. |
 | `compare A B --label L` | Pairs two capture sets by weapon, move, key, and view. |
+| `dodge [--beast ID] [--technique ID] [--out DIR]` | Player movement dodge (0.40.0) against a beast (default `myvillage:demon_wolf`, technique `myvillage:taxue_wuhen`) at `/tick rate 5`: bite and pounce without a dodge, with back steps at several move ticks and one left dodge; a cooldown pair; a press at action tick 3 and in the recovery of a sword swing. Health, distance, `DODGE_DEBUG` and the beast's hit lines per trial, one F5-back video per move, into `out/preview/movement_dodge/` (see [Movement Dodge](42_movement_dodge.md)). |
 
 Facts that matter when using it:
 

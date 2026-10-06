@@ -1214,7 +1214,9 @@ beside MyVillage in the instance `mods/` directory for play. PAL is not bundled
 in the MyVillage jar, and the supplied root jar remains untracked.
 
 Obtain the independent functional sword and switch modes with the configurable
-`Switch Combat Mode` control (default `R`):
+`Switch Combat Mode` control (default `R`). Since 0.40.0 `Movement Dodge`
+(default Left Alt) dashes with a learned 身法 technique in cultivation mode
+(see "Movement Dodge (0.40.0)" below):
 
 ```mcfunction
 /give @s myvillage:qingfeng_sword
@@ -1396,6 +1398,7 @@ authority:
 /myvillage combat debug on
 /myvillage combat debug status
 /myvillage combat debug off
+/myvillage combat dodge status [player]   # 0.40.0: chosen 身法, cooldown and window left
 ```
 
 For client-side pose review only, a developer client can play each full-body
@@ -1781,6 +1784,111 @@ sheets and candidates for the owner: `out/preview/xuantie_gauntlet/index.html`.
 | A second client (remote poses, impact freeze, one stop per action) | `not_verified` |
 | Frame rates on a real GPU | `not_verified` |
 | Qingfeng and Lingxiao regression after the shared first-person changes (keyed rest, free off hand, grip diagonal range) | `not_verified` in game (parity golden and Java tests unchanged for both) |
+
+### Movement Dodge (0.40.0)
+
+A learned 身法 (movement) technique gives a short dash with an invulnerable
+window. Press `Movement Dodge` (身法闪避, `key.myvillage.dodge`, default Left
+Alt, rebindable under the MyVillage key category) in cultivation combat mode.
+The movement keys held at that moment pick one of eight directions relative to
+the view; with none held the dodge is a back step. A sneaking player's held key
+still counts as a direction (dead zone 0.2, below vanilla's 0.3 sneak input
+scale). No weapon has to be in hand.
+
+The client sends only the key press and that one-byte direction
+(`CombatDodgeIntentPayload`); the server decides everything else, in this
+order, and refuses at the first failed check:
+
+1. State: alive, not spectating, sleeping, using an item, riding, or
+   meditating (`STATE`); cultivation combat mode (`MODE`); on the ground
+   (`AIRBORNE`).
+2. Technique: the highest-grade learned movement technique with an
+   `effects.movement` block; equal grades go to the smaller id
+   (`NO_TECHNIQUE` without one). Its data gives the distance, the
+   invulnerable ticks, and the cooldown.
+3. Cooldown since the last dodge (`COOLDOWN`).
+4. A running attack can only be dodged out of its recovery (action tick past
+   the move's last active tick); during the wind-up or the strike the press
+   is refused (`TIMING`) and not queued.
+5. The dash distance is shortened to a collision- and footing-safe one, as for
+   an action step (ground within one block below); none left is `BLOCKED`.
+
+Then a recovery in progress stops with the new stop reason `DODGED` (combo
+back to the first move, no recovery lock), the server applies the dash
+impulse (`setDeltaMovement` + `hurtMarked`, sprint off), and opens the
+invulnerable window: for that many ticks every incoming damage is cancelled
+except sources tagged `bypasses_invulnerability` (`/kill`, the void), and
+attack intents are refused, so an attack after a dodge starts when the window
+ends. Each dodge adds one mastery point to the technique. Everyone nearby gets
+a low thrust whoosh and a puff of cloud at the feet; `CombatDodgeStartPayload`
+tells the dodging player and everyone tracking it to draw cloud afterimages at
+the heels for at least six ticks, and gives the dodging player a 6° FOV surge
+(plus a 1.2° lean on a sideways dodge). The motion itself is the vanilla
+motion packet; the client predicts no movement. There is no dedicated dash
+pose. `qi_cost` is in the data but no qi is spent. Payload protocol is `12`,
+so client and server need the same jar.
+
+Two water movement techniques ship (the catalogue now has 131):
+
+| Technique | Grade | `previous` | Distance | Invulnerable | `qi_cost` (not spent) | Cooldown |
+|---|---|---|---:|---:|---:|---:|
+| `myvillage:liuyun_bu` 流云步 | 黄 1 | none | 3.5 blocks | 5 ticks | 6 | 30 ticks |
+| `myvillage:taxue_wuhen` 踏雪无痕 | 玄 2 | 流云步 | 4.5 blocks | 7 ticks | 10 | 24 ticks |
+
+Learn one by studying its manual (`manual_movement_huang` / `_xuan`; the
+usual realm, affinity, and `previous` requirements apply) or, for testing,
+with the debug command, which checks only that the technique is registered:
+
+```mcfunction
+/myvillage cultivation manual @s myvillage:liuyun_bu
+/myvillage cultivation learn @s myvillage:taxue_wuhen
+/myvillage combat dodge status [player]
+```
+
+`combat dodge status` prints the technique a dodge would use (grade,
+distance, invulnerable ticks, cooldown), the cooldown and window ticks left,
+and whether the player is dodging. The server logs every press at INFO:
+
+```text
+DODGE_DEBUG player=<name> t=<tick> result=started technique=<id> dir=<DIR> yaw=<f> distance=<f> invuln=<n> cooldown=<n>
+DODGE_DEBUG player=<name> t=<tick> result=rejected reason=<STATE|MODE|AIRBORNE|NO_TECHNIQUE|COOLDOWN|TIMING|BLOCKED>
+DODGE_DEBUG player=<name> t=<tick> cancelled_damage=<amount> source=<damage type id>
+```
+
+Movement data comes from the catalogue: a row's optional `effects` object in
+`tools/technique_catalogue/catalogue.json` overrides the category default and
+is checked against the Java shape; names containing 步, 身法, 无痕, or 遁 are
+classified as movement. Regenerate with `tools/gen_technique_catalogue.py`.
+Both techniques are also in the world ledger's pool, so sects, rogue
+cultivators, and fortunes can now draw a 身法. Details:
+`docs/ai-kb/42_movement_dodge.md`; brief: `docs/movement-dodge-brief.md`.
+
+Headless evidence against the demon wolf (bite and pounce at several move
+ticks, cooldown, recovery cancel; health, distance, server lines, F5-back
+videos) into `out/preview/movement_dodge/`:
+
+```bash
+python3 -m tools.combat_capture dodge [--beast ID] [--technique ID] [--out DIR]
+```
+
+<!-- DODGE_CAPTURE_RESULTS --> Capture results: pending (the headless run against
+the built 0.40.0 jar and the deployment to the owner's PC have not been
+recorded yet).
+
+| Movement Dodge (0.40.0) real-client acceptance surface | Result |
+|---|---|
+| A dodge cancels a demon wolf bite and a pounce inside the window (health unchanged, `cancelled_damage` or no accepted hit) | `not_verified` (capture pending) |
+| `COOLDOWN` on a second press inside the cooldown; `TIMING` during an attack's strike and `started` in its recovery | `not_verified` (capture pending) |
+| Feel: dash distance (3.5 / 4.5 blocks), invulnerable window (5 / 7 ticks), cooldown (30 / 24 ticks) | `not_verified` |
+| Key: Left Alt by default, rebinding, eight directions and the back step from real WASD input, sneaking | `not_verified` |
+| Cloud afterimages and the puff at the feet, seen by the dodger and by a second client | `not_verified` |
+| Camera: FOV surge and sideways lean on the dodging player | `not_verified` |
+| Animation after `DODGED`: stop of the recovery, combo back to the first move, ready idle re-entered, no dash pose | `not_verified` |
+| Attack right after the window; a click inside the window is not predicted locally | `not_verified` |
+| Sound (the thrust whoosh at volume 0.6, pitch 0.75) | `not_verified` |
+| Learning through a manual and the 功法 page's 身法 card; mastery rising per dodge | `not_verified` |
+| Edges and walls (`BLOCKED`), slopes, water, riding, meditation, mid-air presses | `not_verified` |
+| Frame rates on a real GPU | `not_verified` |
 
 ## GuideME Cultivation Guide
 
@@ -2193,7 +2301,7 @@ specs; do not run their old change names as though they were still active.
 
 One technique catalogue feeds both the player's technique registry and the
 world ledger: 129 techniques (心法 core, 绝技 active, 炼体 body; grades 黄 玄
-地 天) plus the hand-written 凡阶 Basic Breathing, four schools (流派: sword,
+地 天; 131 since 0.40.0 added two 身法 movement techniques) plus the hand-written 凡阶 Basic Breathing, four schools (流派: sword,
 spear, fist, flying sword), and three heritages (传承: 太白剑脉, 青帝木脉,
 万劫金身脉), each a chain of four techniques. Edit the source tables in
 `tools/technique_catalogue/` and regenerate; the datapack files under
@@ -2223,10 +2331,11 @@ matching root turns a normal batch of 10 into 14 and a spirit batch of 50 into
 
 costs `techniques.switch_progress_loss` (0.3) of the current progress (散功),
 except between two techniques of one heritage chain; switching to the running
-one changes nothing. `info` shows the running core technique. Active,
-movement, and body techniques can be learned and are listed, but have no
-effect yet. Payload protocol is `10` (`11` since 0.38.0), so client and server
-need the same jar.
+one changes nothing. `info` shows the running core technique. Active and
+body techniques can be learned and are listed, but have no effect yet; since
+0.40.0 movement techniques drive the dodge key (see "Movement Dodge (0.40.0)").
+Payload protocol is `10` (`11` since 0.38.0, `12` since 0.40.0), so client and
+server need the same jar.
 
 In the world ledger, some sects hold a heritage from genesis, `world sect`
 and the 天下 sect detail show it as 传承, a sect that ends loses it, a later
@@ -2256,7 +2365,7 @@ lists category and grade, school, elements, heritage position (such as
 玄阶`); a technique that does not exist or does not match the item's category
 or grade makes a red `残损秘籍` that cannot be read. The `myvillage:main`
 creative tab lists the 16 blank manuals and then one manual per technique
-(129). Other ways to get one:
+(129; 131 since 0.40.0). Other ways to get one:
 
 ```mcfunction
 /myvillage cultivation manual @s myvillage:gengjin_jianjue
