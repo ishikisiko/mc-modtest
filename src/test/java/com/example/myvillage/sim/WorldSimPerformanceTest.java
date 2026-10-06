@@ -7,10 +7,11 @@ import org.junit.jupiter.api.Test;
 /**
  * Performance (design §7): a day at about 300 people costs on the order of a millisecond and 1000
  * people leaves headroom. Measured after a warm-up; the limits are several times the observed cost
- * so a slow CI host does not flake.
+ * so a slow CI host does not flake. Measured at 24 days per year (the default); yearly business
+ * runs on one day in 24, so a day costs no more than at the legacy 6.
  */
 class WorldSimPerformanceTest {
-    private static final int DPY = 6;
+    private static final int DPY = WorldSimHealthTest.DPY;
 
     private static double msPerDay(String tier, long seed, int days) {
         WorldSim sim = SimFixtures.genesis(seed, tier, DPY);

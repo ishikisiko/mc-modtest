@@ -96,6 +96,25 @@ disciples of mixed ages, a few rogues), then runs `time.prehistory_years ×
 days_per_year` ordinary steps before handing the world over, so a new world
 already has lineages, grudges, and sects of different standing.
 
+`days_per_year` is the cultivation calendar's (`CultivationServerConfig`),
+24 by default since 2026-10-06 (it was 6); one sim day is one calendar day,
+so at the default the prehistory is 100 × 24 = 2400 days. `rules.json`
+`time.default_days_per_year` (24) is only what the offline CLI and report
+use when `--days-per-year` is not given; the server always passes the
+calendar's value.
+
+The ledger counts days, not years: birth days, founding days, journey and
+tribute ends, and the prehistory length are stored as day numbers, and every
+age, remaining lifespan, and era year is that day count divided by the
+`days_per_year` passed in now. Nothing is rescaled when the value changes
+after genesis (the save keeps `genesis_days_per_year`, but only as a
+fallback). A world created at 6 and then run at 24 is reinterpreted: a
+120-year-old reads as 30 and now lives four times as many days before old
+age, the 600-day prehistory becomes 25 years so the 启元 year jumps back, and
+a journey of 2 to 8 years already under way ends after a quarter of the
+years. Changing `days_per_year` on a world with a ledger is a reinterpretation,
+not a migration.
+
 Dates use the 启元 era (`SimDate`): a day at or after the end of prehistory is
 启元 N 年 (`world_sim.date.era`), an earlier one 启元前 N 年
 (`world_sim.date.before_era`); in `en_us` they read "Year N of Qiyuan" and
@@ -340,7 +359,8 @@ is newer (`--rebuild` as the first argument forces it), then runs `SimCli`:
 it builds the seed's region graph from the source tree, runs genesis and N
 more years, and writes one JSON document with `config`, `final_state` (the
 save payload), `census` (day 0, then every year), and `events` (every event
-ever emitted, with rendered text). Options: `--days-per-year N`,
+ever emitted, with rendered text). Options: `--days-per-year N` (default
+`time.default_days_per_year`, 24),
 `--resources DIR` (searched before `src/main/resources`, for trying data
 variants), `--lang zh_cn|en_us` (default `zh_cn`). `--text` writes the
 chronicle as prose: notable and major events by year, then biographies of
@@ -410,21 +430,34 @@ per person, the name tag, per-sect build seed and variant),
 the record), and `sect/SectCourtyardTest` (cells against the real plan).
 
 `WorldSimHealthTest` runs small seeds 1 to 3, medium seeds 1 and 2, and
-large seed 1 for 300 years after prehistory at 6 days per year, and checks
+large seed 1 for 300 years after prehistory, once at 24 days per year (the
+default) and once at 6 (the old default, kept as a regression), the runs of
+a set in parallel, and checks
 for each run: population within a band of the tier's target; an averaged
 realm pyramid (炼气 > 筑基 > 金丹 ≥ 元婴) with 元婴 at most 2 % of the target;
 someone reaching 金丹; at least five successions; active sects never below a
 per-tier minimum; on the small tier no sect holding over 60 % of all members
 for more than 100 years running; importance-3 events per year within a band
 and importance-2 events per year under a cap; and, across the set, sects
-both founded and destroyed. The bands, pinned from observed runs with a
-margin, are in the test's `BANDS`:
+both founded and destroyed. The bands, pinned from observed runs at 6 days
+per year with a margin, are in the test's `BANDS`; every row is checked at
+both 24 and 6 days per year, unchanged:
 
-| Tier | Population (× target) | Importance 3 per year | Importance 2 per year | Min active sects |
-|---|---|---|---|---|
-| small | 0.80 to 1.15 | 0.15 to 3.0 | at most 8 | 2 |
-| medium | 0.85 to 1.12 | 0.4 to 10 | at most 25 | 5 |
-| large | 0.88 to 1.10 | 1.0 to 20 | at most 60 | 10 |
+| Tier | Population (× target) | Importance 3 per year | Importance 2 per year | Min active sects | Pinned at |
+|---|---|---|---|---|---|
+| small | 0.80 to 1.15 | 0.15 to 3.0 | at most 8 | 2 | 24 and 6 |
+| medium | 0.85 to 1.12 | 0.4 to 10 | at most 25 | 5 | 24 and 6 |
+| large | 0.88 to 1.10 | 1.0 to 20 | at most 60 | 10 | 24 and 6 |
+
+Observed at 24 days per year (2026-10-06): population 0.91 to 1.04 of
+target, importance 3 at 0.19 to 0.30 per year on small (seed 3 nearest the
+0.15 floor), 0.57 to 0.68 on medium, 1.84 on large; 9 to 78 successions;
+元婴 at most 0.19 % of target; no sect over 60 %. 元婴 is rarer at 24 than
+at 6 (medium seeds 1 and 2 average none at 24, 0.5 and 1.4 at 6).
+`WorldSimLivenessTest` runs its three small seeds at 24 and at 6;
+`WorldSimPerformanceTest`, the determinism and prehistory cases, and the
+paused-world scheduler case run at 24 (determinism and prehistory also at 6,
+plus 12), and `eraDates` has a 24-day-year twin (prehistory 2400 days).
 
 A deliberate retune that moves a run outside a band updates the band in the
 same change.
@@ -472,8 +505,16 @@ all 17 checks; it is developer evidence, not an owner verdict.
   run; it loads or generates the gate chunk and builds synchronously, and a
   long build may trip a production server's `max-tick-time` watchdog.
 - The player is not in the ledger and has no relation to its people.
-- The health bands are pinned at 6 days per year only; another days-per-year
-  value is tested for determinism, not for the long-run shape.
+- The health bands are checked at 24 and 6 days per year only; other values
+  (12 in the determinism test) are tested for determinism, not for the
+  long-run shape. `Rates.perDay` keeps the chance of at least one event per
+  year fixed, not the expected count, so a repeatable high-rate event (the
+  desperate breakthrough attempt, 0.9 per year) happens about 15 % more often
+  at 24 than at 6; the per-year rates with a `min(1.0, …)` clamp would turn
+  into one event every day if data pushed them to 1.
+- Changing `days_per_year` after genesis reinterprets every age and date
+  (see Time and dating); worlds whose ledger began at 6 keep running at the
+  new value with ages divided by four.
 - `/reload` does not re-read the data; it is read once at server start.
 - The 天下 page: a capped list carries no "more" marker (only the search
   hints when it returns exactly `MAX_SEARCH`); a throttled query gets no

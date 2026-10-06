@@ -7,9 +7,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 class WorldSimDeterminismTest {
-    private static final int DPY = 6;
+    private static final int DPY = WorldSimHealthTest.DPY;
 
     private static SimFixtures.Collector runCollect(long seed, String tier, int dpy, int years, byte[][] bytesOut) {
         SimFixtures.Collector c = new SimFixtures.Collector();
@@ -19,12 +21,13 @@ class WorldSimDeterminismTest {
         return c;
     }
 
-    @Test
-    void sameInputsGiveIdenticalBytesAndEvents() {
+    @ParameterizedTest(name = "{0} days per year")
+    @ValueSource(ints = {24, 6})
+    void sameInputsGiveIdenticalBytesAndEvents(int dpy) {
         byte[][] a = new byte[1][];
         byte[][] b = new byte[1][];
-        SimFixtures.Collector ea = runCollect(7, "small", DPY, 60, a);
-        SimFixtures.Collector eb = runCollect(7, "small", DPY, 60, b);
+        SimFixtures.Collector ea = runCollect(7, "small", dpy, 60, a);
+        SimFixtures.Collector eb = runCollect(7, "small", dpy, 60, b);
         assertArrayEquals(a[0], b[0]);
         assertEquals(ea.events, eb.events);
         assertTrue(ea.events.size() > 100, "a living world emits events, got " + ea.events.size());
@@ -39,13 +42,14 @@ class WorldSimDeterminismTest {
         assertFalse(Arrays.equals(a[0], b[0]));
     }
 
-    @Test
-    void genesisRunsThePrehistory() {
-        WorldSim sim = SimFixtures.genesis(3, "small", DPY);
-        long prehistory = (long) SimFixtures.data().rules().time().prehistoryYears() * DPY;
+    @ParameterizedTest(name = "{0} days per year")
+    @ValueSource(ints = {24, 6})
+    void genesisRunsThePrehistory(int dpy) {
+        WorldSim sim = SimFixtures.genesis(3, "small", dpy);
+        long prehistory = (long) SimFixtures.data().rules().time().prehistoryYears() * dpy;
         assertEquals(prehistory, sim.day());
         assertEquals(prehistory, sim.prehistoryDays());
-        SimDate date = sim.date(DPY);
+        SimDate date = sim.date(dpy);
         assertFalse(date.beforeEra());
         assertEquals(1, date.year());
         assertEquals(0, date.dayOfYear());
@@ -70,5 +74,23 @@ class WorldSimDeterminismTest {
         assertEquals(new SimDate(600, false, 1, 0), SimDate.of(600, 600, 6));
         assertEquals(new SimDate(605, false, 1, 5), SimDate.of(605, 600, 6));
         assertEquals(new SimDate(606, false, 2, 0), SimDate.of(606, 600, 6));
+    }
+
+    /** 24 days per year, the default: 100 prehistory years are 2400 days. */
+    @Test
+    void eraDatesAtTwentyFourDaysPerYear() {
+        long prehistory = (long) SimFixtures.data().rules().time().prehistoryYears() * 24;
+        assertEquals(2400, prehistory);
+        assertEquals(new SimDate(0, true, 100, 0), SimDate.of(0, 2400, 24));
+        assertEquals(new SimDate(23, true, 100, 23), SimDate.of(23, 2400, 24));
+        assertEquals(new SimDate(24, true, 99, 0), SimDate.of(24, 2400, 24));
+        assertEquals(new SimDate(2399, true, 1, 23), SimDate.of(2399, 2400, 24));
+        assertEquals(new SimDate(2376, true, 1, 0), SimDate.of(2376, 2400, 24));
+        assertEquals(new SimDate(2375, true, 2, 23), SimDate.of(2375, 2400, 24));
+        assertEquals(new SimDate(2400, false, 1, 0), SimDate.of(2400, 2400, 24));
+        assertEquals(new SimDate(2423, false, 1, 23), SimDate.of(2423, 2400, 24));
+        assertEquals(new SimDate(2424, false, 2, 0), SimDate.of(2424, 2400, 24));
+        assertEquals(-100, SimDate.of(0, 2400, 24).signedYear());
+        assertEquals(300, SimDate.of(2400 + 299 * 24 + 23, 2400, 24).year());
     }
 }

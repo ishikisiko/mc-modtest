@@ -69,7 +69,7 @@ class SettlementSchedulerTest {
     /** Pausing a world through the scheduler delays it but does not change a single step. */
     @Test
     void pausedWorldResumesIdenticallyOnlyLater() {
-        int dpy = 6;
+        int dpy = WorldSimHealthTest.DPY;
         long seed = 5;
         WorldSim straight = SimFixtures.genesis(seed, "small", dpy);
         WorldSim paused = SimFixtures.genesis(seed, "small", dpy);

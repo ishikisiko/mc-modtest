@@ -11,9 +11,15 @@ import org.junit.jupiter.api.Test;
 /**
  * Long-run health (design §7): several seeds on all three tiers, 300 years after prehistory. The
  * bands were chosen from observed runs (see the checkpoint-2 report) with a margin, then pinned.
+ * They are checked at 24 days per year (the cultivation calendar's default since 2026-10-06) and,
+ * as a regression for servers that configure the old value, at 6. The runs are independent worlds,
+ * so they run in parallel; each one is deterministic regardless of the thread it runs on.
  */
 class WorldSimHealthTest {
-    private static final int DPY = 6;
+    /** The cultivation calendar's default days per year; the ledger settles one sim day per calendar day. */
+    static final int DPY = 24;
+    /** The default before 2026-10-06, kept as a regression. */
+    static final int LEGACY_DPY = 6;
     private static final int YEARS = 300;
 
     /** Band per tier: population fraction of target, imp-3 and imp-2 events per year. */
@@ -26,14 +32,14 @@ class WorldSimHealthTest {
             "large", new Band(0.88, 1.10, 1.0, 20.0, 60.0, 10));
 
     /** Observations of one run. */
-    record Run(String tier, long seed, int popMin, int popMax, Map<String, Double> realmAvg, int successions,
+    record Run(String tier, long seed, int dpy, int popMin, int popMax, Map<String, Double> realmAvg, int successions,
                int founded, int destroyed, int minActiveSects, int longestMonopolyYears, double imp3PerYear,
                double imp2PerYear, int coresReached) {
     }
 
-    static Run run(String tier, long seed) {
+    static Run run(String tier, long seed, int dpy) {
         SimFixtures.Collector c = new SimFixtures.Collector();
-        WorldSim sim = WorldSim.genesis(seed, SimFixtures.graph(seed), SimFixtures.data(), tier, DPY, c);
+        WorldSim sim = WorldSim.genesis(seed, SimFixtures.graph(seed), SimFixtures.data(), tier, dpy, c);
         long start = sim.day();
         int popMin = Integer.MAX_VALUE;
         int popMax = 0;
@@ -42,8 +48,8 @@ class WorldSimHealthTest {
         int longest = 0;
         Map<String, Double> realmSum = new TreeMap<>();
         for (int year = 0; year < YEARS; year++) {
-            SimFixtures.run(sim, DPY, DPY);
-            Overview o = sim.overview(DPY);
+            SimFixtures.run(sim, dpy, dpy);
+            Overview o = sim.overview(dpy);
             popMin = Math.min(popMin, o.population());
             popMax = Math.max(popMax, o.population());
             minSects = Math.min(minSects, o.activeSects());
@@ -85,20 +91,32 @@ class WorldSimHealthTest {
                 cores++;
             }
         }
-        return new Run(tier, seed, popMin, popMax, avg, succ, founded, destroyed, minSects, longest,
+        return new Run(tier, seed, dpy, popMin, popMax, avg, succ, founded, destroyed, minSects, longest,
                 imp3 / (double) YEARS, imp2 / (double) YEARS, cores);
+    }
+
+    /** Small seeds 1 to 3, medium seeds 1 and 2, large seed 1, at {@code dpy} days per year, in parallel. */
+    private static List<Run> runSet(int dpy) {
+        record Spec(String tier, long seed) {
+        }
+        List<Spec> specs = List.of(new Spec("small", 1), new Spec("small", 2), new Spec("small", 3),
+                new Spec("medium", 1), new Spec("medium", 2), new Spec("large", 1));
+        SimFixtures.data();
+        specs.forEach(s -> SimFixtures.graph(s.seed()));
+        return specs.parallelStream().map(s -> run(s.tier(), s.seed(), dpy)).toList();
     }
 
     @Test
     void worldsStayHealthyForThreeHundredYears() {
-        List<Run> runs = new ArrayList<>();
-        for (long seed : new long[] {1, 2, 3}) {
-            runs.add(run("small", seed));
-        }
-        for (long seed : new long[] {1, 2}) {
-            runs.add(run("medium", seed));
-        }
-        runs.add(run("large", 1));
+        check(runSet(DPY));
+    }
+
+    @Test
+    void worldsStayHealthyAtTheLegacySixDaysPerYear() {
+        check(runSet(LEGACY_DPY));
+    }
+
+    private static void check(List<Run> runs) {
         List<String> problems = new ArrayList<>();
         int founded = 0;
         int destroyed = 0;
@@ -106,7 +124,7 @@ class WorldSimHealthTest {
             System.out.println("health " + r);
             Band b = BANDS.get(r.tier());
             int target = SimFixtures.data().rules().tier(r.tier()).population();
-            String id = r.tier() + "/" + r.seed() + ": ";
+            String id = r.tier() + "/" + r.seed() + " at " + r.dpy() + " days per year: ";
             if (r.popMin() < b.popLo() * target || r.popMax() > b.popHi() * target) {
                 problems.add(id + "population " + r.popMin() + ".." + r.popMax() + " outside band of " + target);
             }
