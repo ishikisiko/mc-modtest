@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import org.slf4j.Logger;
@@ -158,7 +159,7 @@ public final class SectGenerator {
     private static int buildAt(CommandSourceStack source, long seed, String featureOverride,
                                boolean worldgenStyle, BlockPos anchor) {
         ServerLevel level = source.getLevel();
-        BlockPos base = anchor.offset(-SITE_WIDTH / 2, 0, -SITE_DEPTH / 2);
+        BlockPos base = baseFor(anchor);
 
         SectPlan plan = plan(seed, base, featureOverride);
         List<String> validationErrors = validatePlan(plan);
@@ -1312,6 +1313,163 @@ public final class SectGenerator {
             }
         }
         return cells;
+    }
+
+    // --- framed build (P4-lite: a ledger gate realized a few chunk clips per tick) -----------
+
+    /** Inclusive-origin x/z area (world coords) of a build: {@code width} x {@code depth} columns from (x0, z0). */
+    public record BuildArea(int x0, int z0, int width, int depth) {
+    }
+
+    /** The compound's base (local origin) for a gate anchor; every build path places the site this way. */
+    public static BlockPos baseFor(BlockPos anchor) {
+        return anchor.offset(-SITE_WIDTH / 2, 0, -SITE_DEPTH / 2);
+    }
+
+    /**
+     * Every column a worldgen-style build at {@code base} may write: the site plus the derived
+     * mountain's margin on all sides (the area the forced build loads).
+     */
+    public static BuildArea worldgenBuildArea(BlockPos base) {
+        return new BuildArea(base.getX() - MOUNTAIN_MARGIN, base.getZ() - MOUNTAIN_MARGIN,
+                SITE_WIDTH + 2 * MOUNTAIN_MARGIN, SITE_DEPTH + 2 * MOUNTAIN_MARGIN);
+    }
+
+    /**
+     * Plans a worldgen-style compound (derived mountain) at a gate anchor for a framed build: the
+     * same plan, mountain and seeds as {@link #generateForcedAt}, but realized one clip at a time
+     * through {@link FramedSite#realizeClip}. The natural surface of the whole build area is
+     * sampled now, once (the caller loads its chunks first; any that are not loaded load here), so
+     * every clip rests on the same silhouette however long the build takes and whatever happens to
+     * the terrain meanwhile.
+     *
+     * @throws IllegalStateException when the plan fails validation
+     */
+    public static FramedSite prepare(ServerLevel level, long seed, String variant, BlockPos anchor) {
+        BlockPos base = baseFor(anchor);
+        SectPlan plan = plan(seed, base, variant);
+        List<String> validationErrors = validatePlan(plan);
+        if (!validationErrors.isEmpty()) {
+            throw new IllegalStateException("sect plan failed validation: " + validationErrors);
+        }
+        BuildArea area = worldgenBuildArea(base);
+        int[] natural = new int[area.width() * area.depth()];
+        for (int i = 0; i < area.width(); i++) {
+            for (int j = 0; j < area.depth(); j++) {
+                natural[i * area.depth() + j] = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                        area.x0() + i, area.z0() + j);
+            }
+        }
+        SectMountain mountain = buildMountain(seed, plan, (x, z) -> {
+            int i = base.getX() + x - area.x0();
+            int j = base.getZ() + z - area.z0();
+            if (i >= 0 && i < area.width() && j >= 0 && j < area.depth()) {
+                return natural[i * area.depth() + j];
+            }
+            return level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, base.getX() + x, base.getZ() + z);
+        });
+        return new FramedSite(level, seed, base, plan, mountain);
+    }
+
+    /**
+     * A planned worldgen-style compound being realized clip by clip. Each clip runs the whole
+     * realizer (mountain, then compound) restricted to its x/z box, exactly as a worldgen chunk
+     * does ({@link SectStructurePiece}): loops are tightened to the clip, every write outside it is
+     * dropped by the sink, and templates are placed with the clip as their bounding box. Clips that
+     * tile the build area without overlap build the same compound as one unbounded pass.
+     */
+    public static final class FramedSite {
+        private final ServerLevel level;
+        private final long seed;
+        private final BlockPos base;
+        private final SectPlan plan;
+        private final SectMountain mountain;
+        private final BuildStats stats = new BuildStats();
+        private long written;
+
+        private FramedSite(ServerLevel level, long seed, BlockPos base, SectPlan plan, SectMountain mountain) {
+            this.level = level;
+            this.seed = seed;
+            this.base = base;
+            this.plan = plan;
+            this.mountain = mountain;
+        }
+
+        public BlockPos base() {
+            return base;
+        }
+
+        /** Block writes the realizer asked for so far (the {@code blocks~=} of a whole build, summed over clips). */
+        public int blocksPlaced() {
+            return stats.blocksPlaced;
+        }
+
+        /** Block writes that landed inside their clip (templates not counted). */
+        public long blocksWritten() {
+            return written;
+        }
+
+        /** Realizes the columns x0..x1, z0..z1 (inclusive, world coords), all heights. */
+        public void realizeClip(int x0, int z0, int x1, int z1) {
+            BoundingBox box = new BoundingBox(x0, level.getMinBuildHeight(), z0, x1, level.getMaxBuildHeight() - 1, z1);
+            ClippedServerLevelSink sink = new ClippedServerLevelSink(level, base, mountain, box);
+            // the same top-level random as the forced build; rebuilt per clip so no clip depends on another
+            RandomSource templateRandom = RandomSource.create(mixSeed(seed, base));
+            writeMountain(sink, plan, mountain, stats);
+            realizeCompound(sink, plan, templateRandom, seed, stats);
+            written += sink.written;
+        }
+    }
+
+    /**
+     * Writes to a live {@link ServerLevel} inside one clip (all heights of an x/z box), resting on
+     * the derived mountain: {@link SectStructurePiece}'s worldgen sink for an already-loaded world.
+     */
+    private static final class ClippedServerLevelSink implements SectSink {
+        private final ServerLevel level;
+        private final BlockPos base;
+        private final SectMountain mountain;
+        private final BoundingBox box;
+        private long written;
+
+        ClippedServerLevelSink(ServerLevel level, BlockPos base, SectMountain mountain, BoundingBox box) {
+            this.level = level;
+            this.base = base;
+            this.mountain = mountain;
+            this.box = box;
+        }
+
+        @Override
+        public void set(BlockPos pos, BlockState state) {
+            // the realizer tightens its loops to clip(), but whole-volume writes (clearing a building's
+            // volume, the bridge deck's side fences) reach past it: those cells belong to another clip
+            if (box.isInside(pos)) {
+                level.setBlock(pos, state, BLOCK_FLAGS);
+                written++;
+            }
+        }
+
+        @Override
+        public Clip clip() {
+            return new Clip(box.minX(), box.minZ(), box.maxX(), box.maxZ());
+        }
+
+        @Override
+        public int surfaceY(int worldX, int worldZ) {
+            return mountain.height(worldX - base.getX(), worldZ - base.getZ());
+        }
+
+        @Override
+        public Optional<ModBlockFallback.LoadedTemplate> loadTemplate(ResourceLocation id) {
+            return ModBlockFallback.loadTemplate(level, id);
+        }
+
+        @Override
+        public boolean placeTemplate(StructureTemplate template, BlockPos origin, RandomSource random) {
+            StructurePlaceSettings settings = new StructurePlaceSettings().setBoundingBox(box)
+                    .addProcessor(DropIsolatedBlocks.INSTANCE);
+            return template.placeInWorld(level, origin, origin, settings, random, BLOCK_FLAGS);
+        }
     }
 
     // --- command sink (live world) ------------------------------------------

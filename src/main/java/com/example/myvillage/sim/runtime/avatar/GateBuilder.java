@@ -60,6 +60,10 @@ public final class GateBuilder {
             return 0;
         }
         SectView sect = found.get();
+        if (GateRealizer.busy(sectId)) {
+            source.sendFailure(WorldSimText.line("gates.busy", sect.name()));
+            return 0;
+        }
         if (!sect.state().equals("active")) {
             source.sendFailure(WorldSimText.line("sect_build.destroyed", sect.name()));
             return 0;
