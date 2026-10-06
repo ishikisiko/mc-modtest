@@ -4,7 +4,9 @@
 ledger (命簿), joins a sect through its gate steward (守山执事) in a
 server-authoritative dialogue, leaves it, rises by a yearly review, and
 becomes a rogue when the sect is destroyed. Unbuilt gates near a player are
-built in frames (P4-lite). The design is `docs/player-sect-entry-brief.md`
+built in frames (P4-lite). 0.42.0, slice 2, adds the scripture hall (藏经阁):
+shelves in the compound's pavilions lending the sect's manuals by rank
+("Scripture hall" below). The design is `docs/player-sect-entry-brief.md`
 (slices 2 to 4: scripture hall, contribution and tasks, masters, the world's
 response); the package breakdown with the defaults the owner may overturn is
 `docs/sect-entry-slice1-tasks.md`. There is no capability spec; this note,
@@ -45,7 +47,7 @@ Docs point at `rules.json` rather than copying its numbers.
 `playerId`, `playerName` (last known, for chronicle text), `sectId` (-1 when
 in none), `rank` (`outer`, `inner`, `elder`), `joinedDay`, `masterId` (-1;
 no way to take a master yet), `contribution` (0; nothing earns it yet),
-`borrowed` (manual ids; empty until slice 2), `standings` (交情: sect id →
+`borrowed` (technique ids borrowed from the scripture hall, 0.42.0), `standings` (交情: sect id →
 -100..100), `leftSectId` and `leftDay` (the last sect left), and a
 qualification snapshot `realmId` (player realm registry path: `mortal`,
 `qi_refining`, `foundation_establishment`, ...), `stageIndex` (0-based within
@@ -302,7 +304,119 @@ measured one compound on superflat: 135 clips, started → done 3.9 s, 7.1 ms
 per tick from `tick query` during the build. Whether it stutters on a real
 server and client is open.
 
-## Evidence
+## Scripture hall (藏经阁, 0.42.0)
+
+Slice 2: members borrow their sect's manuals by rank. Breakdown and defaults:
+`docs/sect-entry-slice2-tasks.md`.
+
+| Fact | Source of truth |
+|---|---|
+| Borrow cost per manual grade (all 0 now; read and shown, never charged) | `player.scripture_hall.borrow_cost_by_grade` in `rules.json` |
+| Reach | `player.steward.interact_range` (shared with the steward) |
+| Borrowable list, borrow record, `player_borrow` | `sim/engine/PlayerAffairs.borrowable` / `borrow`; facade `WorldSim.borrowable`, `hasBorrowed`, `recordBorrow`; `SectView.basicTechniqueId` |
+| Block and owner | `block/ScriptureShelfBlock`, `block/entity/ScriptureShelfBlockEntity` (`Sect` tag), `block/ModBlockEntities` |
+| Sites and placement | `sect/SectCourtyard.scriptureShelfSites`, `sim/runtime/avatar/ScriptureShelves`, `ScriptureShelfCommands` |
+| Server service, refusal reasons, rows | `sim/runtime/player/ScriptureHall`, `ScriptureHallList` (pure) |
+| Payloads | `sim/runtime/net/ScriptureHallPayload`, `ScriptureBorrowPayload` |
+| Client | `client/sim/ScriptureHallScreen`, `ClientScriptureHall` |
+
+**Placement.** `scriptureShelfSites(seed, anchor, variant)` plans the
+compound and returns, for each slot on the `scripture` terrace whose role
+starts with `flank_` (the two scripture pavilions, sorted by role), the
+slot's centre column at the terrace elevation. The pavilion's own floor is
+higher, so `ScriptureShelves.place` scans that world column from one block
+below the site to 12 above for the first block with a sturdy top face
+(`isFaceSturdy` up, not a shelf) and two free blocks over it (air or a
+shelf), and stands the shelf on it; a shelf already there is reused and only
+re-owned. Called after every ledger build: `GateBuilder.build` after the
+gate record and before `markGateRealized`, and `GateRealizer` before it
+releases its chunk tickets; an exception is logged and never fails the
+build. `world sect <id> shelves` surveys the sites (`ScriptureShelves.survey`),
+`shelves place` places them again for compounds built before 0.42.0.
+
+**List** (`PlayerAffairs.borrowable`; empty without a living sect): a
+heritage sect lends its chain (`heritages.json`), outer the first technique,
+inner the first two, elder all; a sect without a heritage lends
+`basicTechniqueId` to outer and basic plus `signatureTechniqueId` to inner
+and elder. Empty ids and `basic_breathing` (mortal grade, no manual) are
+dropped; duplicates removed, chain order kept. The screen shows a hint that
+mortal-grade methods come from the inheritance stele.
+
+**Borrow.** `ScriptureHall.handleBorrow`, server thread, in this order (first
+failure wins, each logs `result=<reason>`, sends a chat line, and resends the
+hall when there is one):
+
+1. Throttle: under 4 ticks since the player's last handled borrow → dropped
+   silently.
+2. The shelf: the overworld and the player's level (`inactive`), within
+   reach (`too_far`), a loaded shelf block entity with an owner
+   (`unowned`), an active ledger and an active owning sect (`inactive`).
+3. Membership: no record or no sect (`not_member`), another sect
+   (`member_elsewhere`).
+4. The technique id in `borrowable` (`not_borrowable`).
+5. A manual exists (`TechniqueManualItem.manualFor` not empty; `no_manual`).
+6. `WorldSim.recordBorrow`: `not_member`, `not_borrowable`,
+   `already_borrowed` in that order; adds the id to `borrowed` and records
+   `player_borrow` (importance 2, player, sect, technique name; the chronicle
+   refuses an importance-1 event without a person subject, and a player is
+   never one), closing the open day like a join.
+7. Save dirty, the manual into the inventory (dropped at the feet when full),
+   `message.myvillage.world.scripture.borrowed`, `SCRIPTURE_HALL ... result=ok`,
+   the refreshed hall.
+
+`ScriptureHall.open` makes the same shelf checks (failure: one chat line, no
+screen); a non-member or member elsewhere gets the hall with `member=false`,
+the reason, and no entries. Logs:
+
+```text
+SCRIPTURE_SHELF sect=<id> placed=<n>/<m> at=<x y z;...>
+SCRIPTURE_HALL player=<name> intent=OPEN sect=<id> member=<true|false> entries=<n>
+SCRIPTURE_HALL player=<name> intent=BORROW sect=<id> technique=<id> result=<ok|reason>
+SCRIPTURE_HALL_UI technique=<id> borrowed=<true|false> x=<px> y=<px> w=<px> h=<px>   # client, per borrow button per layout
+```
+
+| Payload | Direction | Fields and bounds |
+|---|---|---|
+| `ScriptureHallPayload` `myvillage:scripture_hall` | server → client | shelf `pos`, `sectId`, `sectName` (64), `myRank` (16), `member`, `reason` (32), at most 16 `Entry(techniqueId (64), name component, grade 0..4, category (16), borrowed, cost ≥ 0)` |
+| `ScriptureBorrowPayload` `myvillage:scripture_borrow` | client → server | shelf `pos`, `techniqueId` (64); nothing else |
+
+`ModPayloads.PROTOCOL_VERSION` is `14` since 0.42.0. The screen refreshes in
+place when a new hall for the same shelf arrives and closes 10 blocks from
+the shelf; a borrowed row's button is disabled and reads 已借.
+
+**Exclusive heritages.** This slice only makes the scripture hall the
+player's single in-game source of sect manuals: an exclusive heritage's
+chain reaches a player through their sect's hall (an elder of the sect that
+holds it can borrow the whole chain, `WorldSimScriptureTest`). The creative
+tab, `/myvillage cultivation manual`, and `/give` are unchanged (admin and
+development), and `HeritageDefinition.exclusive` still has no runtime
+reader; `StudyStart` does not look at where a manual came from.
+
+**Commands.** `world sect <id> rank <player> <outer|inner|elder>` calls
+`WorldSim.promotePlayer` (target must be a member of that sect; a rise
+records `player_promotion` and tells the player; a lowered rank changes the
+record without an event; output `commands.myvillage.world.sect_rank.*`).
+`world sect <id> shelves [place]` as above (`commands.myvillage.world.shelves.*`).
+
+**Evidence.** `python3 tools/world_sim_scripture_evidence.py [--sect ID]
+[--distance 140] [--realize-timeout 600] [--shelf-distance 3.0] [--ui-scale 1]`
+(holds the heavy-work lock itself): a heritage sect's gate built by walking
+near it (both shelves placed), admin join, the hall as an outer disciple, a
+borrow and the manual's `myvillage:technique` component in the inventory,
+the button disabled on reopening, `rank inner` and the second entry, `leave`
+and `member=false`. Output `out/preview/world_sim/scripture/`. Results:
+TODO-EVIDENCE
+
+**Tests.** `WorldSimScriptureTest`, `SectCourtyardScriptureTest`,
+`SectCourtyardTest` (sites), `ScriptureHallPayloadTest`,
+`ScriptureHallListTest`, `CombatPayloadTest` (protocol `14`),
+`tools/tests/test_world_sim_scripture_evidence.py`.
+
+**Open (owner).** The borrow cost (free now); the shelf's model (a
+bookshelf-textured cube); whether one copy per technique is enough (a lost
+manual can only be replaced by an admin).
+
+## Evidence (slice 1)
 
 ```bash
 python3 tools/world_sim_entry_evidence.py [--sect ID] [--distance 140] [--realize-timeout 600] [--skip-promotion] [--dialogue-scale 1]
@@ -397,14 +511,14 @@ and the Chinese text on a real client.
    `SECT_ENTRY ... result=rejoin_cooldown` line is only seen when JOIN is
    pressed on a stale page.
 
-Not built in this slice: the scripture hall (`borrowed`, `scripture_hall`),
-contribution and sect tasks, taking a master, sect-event notifications
+Not built yet: contribution and sect tasks, taking a master, sect-event notifications
 beyond the player's own lines, becoming sect master, and true P4 (compounds
 placed at ledger gates by worldgen).
 
 ## See also
 
 - [40_world_sim.md](40_world_sim.md) (the ledger, avatars, compounds, the 天下 page), [39_humanoid_npcs.md](39_humanoid_npcs.md) (the cultivator body, `DATA_LEDGER_ROLE`, looks), [37_cultivation_panel.md](37_cultivation_panel.md) (the H panel), [28_cultivation_core.md](28_cultivation_core.md) (profile, realms, spiritual root)
-- Briefs: `docs/player-sect-entry-brief.md`, `docs/sect-entry-slice1-tasks.md`
+- Briefs: `docs/player-sect-entry-brief.md`, `docs/sect-entry-slice1-tasks.md`, `docs/sect-entry-slice2-tasks.md`
+- Manuals and study: [41_technique_system.md](41_technique_system.md) ("Manuals and study")
 - [humanoid-npc-runtime](../../openspec/specs/humanoid-npc-runtime/spec.md), [sect-compound-realization](../../openspec/specs/sect-compound-realization/spec.md), [sect-worldgen-structure](../../openspec/specs/sect-worldgen-structure/spec.md)
 - Knowledge-base index: [INDEX.md](INDEX.md)

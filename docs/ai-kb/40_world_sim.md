@@ -310,6 +310,8 @@ All under `/myvillage world`, permission 2; output goes through
 | `world sect <id> build [here]` | Build the sect's compound (山门) at its ledger gate, or with `here` move the gate to the caller first; synchronous (see "P3" below); refused while `GateRealizer` is building that gate |
 | `world sect <id> join <player>` / `leave <player>` | 0.41.0: admin membership; join is forced past the admission rules, leave is the ordinary leave ([43](43_player_sect_entry.md)) |
 | `world player <player>` | 0.41.0: a player's record: sect and rank, joining date, master, contribution, standings, the last sect left |
+| `world sect <id> rank <player> <outer\|inner\|elder>` | 0.42.0: set a member's rank (`WorldSim.promotePlayer`; a rise records `player_promotion`) |
+| `world sect <id> shelves [place]` | 0.42.0: the scripture shelf sites of a built compound and the shelf at each; `place` places them again ([43](43_player_sect_entry.md) "Scripture hall") |
 | `world gates [retry]` | 0.41.0: the framed gate builder's state; `retry` lets the gates given up this session be tried again |
 | `world person <name>` | Up to five people whose name or Daoist title contains the text, living first: realm and stage, root grade, age, sect and rank, place and status, technique, master, relation counts; for the dead, death date, cause, and killer |
 | `world chronicle [1-50]` | The latest notable and major events (importance 2+), oldest first; default 10 |
@@ -394,8 +396,8 @@ fixed ids, an unknown id throws, id varint, text `writeUtf(32)`) and
 `WorldSimSnapshotPayload` (clientbound, `WorldSimSnapshotCodec`; nullable
 sections behind a boolean). `WorldSimPayloads.register`, called from
 `ModPayloads`, registers both (and since 0.41.0 the two sect dialogue
-payloads) and installs the cache's sender; payload protocol `8` (`10` since
-0.37.0, `13` since 0.41.0). On the server thread a player's query that comes less than 4
+payloads, since 0.42.0 the two scripture hall payloads) and installs the cache's sender; payload protocol `8` (`10` since
+0.37.0, `13` since 0.41.0, `14` since 0.42.0). On the server thread a player's query that comes less than 4
 ticks after their previous answered one is dropped without an answer;
 otherwise the answer is built and sent to that player. While the ledger is
 inactive every query is answered `inactive` with
@@ -593,8 +595,9 @@ all 17 checks; it is developer evidence, not an owner verdict.
   run; it loads or generates the gate chunk and builds synchronously, and a
   long build may trip a production server's `max-tick-time` watchdog.
 - Since 0.41.0 the player has a sect record in the ledger but is not a
-  person: no relations, masters, or tasks yet (slices 2 to 4 of
-  `docs/player-sect-entry-brief.md`).
+  person: no relations, masters, or tasks yet (slices 3 and 4 of
+  `docs/player-sect-entry-brief.md`; the scripture hall, slice 2, is in
+  0.42.0).
 - The health bands are checked at 24 and 6 days per year only; other values
   (12 in the determinism test) are tested for determinism, not for the
   long-run shape. `Rates.perDay` keeps the chance of at least one event per

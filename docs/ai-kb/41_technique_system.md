@@ -233,6 +233,13 @@ falls back to it. Details: [37_cultivation_panel.md](37_cultivation_panel.md).
   dropped at the target); an unknown technique or grade 0 is refused. Vanilla
   `/give @s myvillage:manual_active_xuan[myvillage:technique="myvillage:gengjin_jianjue"]`
   works too; a component that does not match the item makes a damaged manual.
+- Sources (0.42.0): in survival the only in-game source of a sect's manuals
+  is its scripture hall (藏经阁): a member borrows the manuals of the sect's
+  heritage chain or basic and signature techniques by rank, one copy each
+  ([43_player_sect_entry.md](43_player_sect_entry.md), "Scripture hall").
+  The creative tab, the `manual` command, and `/give` stay as they are, and
+  `exclusive` is still not read at runtime; studying does not check where a
+  manual came from.
 
 ### Study numbers
 
@@ -424,7 +431,7 @@ and "Technique manuals (0.38.0)".
 - Mastery-tier requirements for the next technique of a chain (study asks
   only that the previous one is learned), manuals from loot, sects, NPCs or
   the scripture hall, a reading visual, and any player route into a ledger
-  sect or its heritage; a heritage's `exclusive` flag is data only.
+  sect or its heritage; a heritage's `exclusive` flag is data only (0.42.0: the scripture hall is the player's in-game source of sect manuals, but nothing reads the flag).
 - Weapon `family` fields and anything that ties a school to combat styles.
 - Meridian routes other than `xiaozhoutian`.
 
