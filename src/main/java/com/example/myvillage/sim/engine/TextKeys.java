@@ -108,6 +108,14 @@ public final class TextKeys {
     public static final String PLAYER_PROMOTE_ELDER = P + "player.promote.elder";
     /** The player borrowed a manual from the scripture hall (slice 2). Params: player, sect, technique name. */
     public static final String PLAYER_BORROW = P + "player.borrow";
+    /** The player took a sect task (slice 3). Params: player, sect, task name ({@link #taskName}). */
+    public static final String PLAYER_TASK_ACCEPT = P + "player.task.accept";
+    /** The player turned in a sect task. Params: player, sect, task name. */
+    public static final String PLAYER_TASK_DONE = P + "player.task.done";
+    /** The player took an elder as master. Params: player, sect, master name. */
+    public static final String PLAYER_APPRENTICE = P + "player.apprentice";
+    /** The player's master died or left the sect. Params: player, master name. */
+    public static final String PLAYER_MASTER_LOST = P + "player.master_lost";
 
     /** Slain variants by fight kind. */
     public static final List<String> SLAIN_KINDS = List.of(
@@ -251,6 +259,10 @@ public final class TextKeys {
         f.put(PLAYER_PROMOTE_INNER, new int[] {2, 1});
         f.put(PLAYER_PROMOTE_ELDER, new int[] {2, 1});
         f.put(PLAYER_BORROW, new int[] {3, 1});
+        f.put(PLAYER_TASK_ACCEPT, new int[] {3, 1});
+        f.put(PLAYER_TASK_DONE, new int[] {3, 1});
+        f.put(PLAYER_APPRENTICE, new int[] {3, 1});
+        f.put(PLAYER_MASTER_LOST, new int[] {2, 1});
         for (RealmTable.Realm realm : data.realms().realms()) {
             if (realm.breakthrough() == null) {
                 continue;

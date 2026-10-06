@@ -160,22 +160,56 @@ class PlayerAffairsTest {
         Sect sect = home(ctx);
         PlayerAffairs.join(ctx, ALICE, "Alice", sect.id, ABLE);
         PlayerMember m = ctx.state.playerMembers.get(ALICE);
+        Engine.step(ctx); // past the year start, so the daily check (not the yearly backstop) decides
         Person stranger = ctx.state.persons.values().stream().filter(p -> p.sectId != sect.id).findFirst()
                 .orElseThrow();
         m.masterId = stranger.id;
-        Engine.step(ctx);
+        List<SimEvent> lost = ofType(Engine.step(ctx), "player_master_lost");
         assertEquals(-1, m.masterId, "a master of another sect is no master");
+        assertEquals(1, lost.size(), "losing the master is told the same day");
+        assertEquals(List.of("Alice", stranger.name()), lost.get(0).params());
+        assertEquals(TextKeys.PLAYER_MASTER_LOST + ".1", lost.get(0).textKey());
+        assertEquals(List.of(stranger.id), lost.get(0).actors());
 
         m.masterId = 1_000_000;
-        nextYearStart(ctx);
+        lost = ofType(Engine.step(ctx), "player_master_lost");
         assertEquals(-1, m.masterId, "a master nobody knows (or dead) is no master");
+        assertEquals(1, lost.size());
+        assertTrue(lost.get(0).actors().isEmpty(), "an unknown id is not named as an actor");
 
         Person fellow = ctx.members(sect.id).stream().filter(ctx::alive).findFirst().orElseThrow();
         m.masterId = fellow.id;
-        nextYearStart(ctx);
+        lost = ofType(Engine.step(ctx), "player_master_lost");
         if (ctx.alive(fellow) && fellow.sectId == sect.id) {
             assertEquals(fellow.id, m.masterId, "a living master of the same sect stays");
+            assertTrue(lost.isEmpty());
         }
+        nextYearStart(ctx);
+        if (ctx.alive(fellow) && fellow.sectId == sect.id) {
+            assertEquals(fellow.id, m.masterId, "the yearly backstop keeps a living master of the same sect");
+        }
+    }
+
+    @Test
+    void theDailyCheckTellsOfADeadMasterOnTheDayOfDeath() {
+        SimContext ctx = ctx();
+        Sect sect = home(ctx);
+        PlayerAffairs.join(ctx, ALICE, "Alice", sect.id, ABLE);
+        PlayerMember m = ctx.state.playerMembers.get(ALICE);
+        Engine.step(ctx);
+        Person master = ctx.members(sect.id).stream()
+                .filter(p -> ctx.alive(p) && !p.rank.equals("sect_master")).findFirst().orElseThrow();
+        m.masterId = master.id;
+        String name = master.name();
+        Deaths.bury(ctx, master, "old_age", -1, -1);
+        List<SimEvent> today = Engine.step(ctx);
+        assertEquals(-1, m.masterId);
+        List<SimEvent> lost = ofType(today, "player_master_lost");
+        assertEquals(1, lost.size());
+        assertEquals(List.of("Alice", name), lost.get(0).params(), "a dead master is named from the tombstone");
+        assertEquals(List.of(sect.id), lost.get(0).sects());
+        assertEquals(2, lost.get(0).importance());
+        assertTrue(ofType(Engine.step(ctx), "player_master_lost").isEmpty(), "told once");
     }
 
     @Test

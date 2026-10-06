@@ -7,9 +7,9 @@ import java.util.List;
 /**
  * One sim day (design §4). Yearly business first on the first day of a year (sect economy and
  * ranks, sect politics, fortune regrowth, new blood), then every living person in id order
- * (cultivate, break through, age, travel, beasts, fortunes, revenge, meetings), then the
- * successions the day's deaths left to settle. People who arrive today act
- * from tomorrow; people who die today stop acting at once.
+ * (cultivate, break through, age, travel, beasts, fortunes, revenge, meetings), then the players
+ * whose master is gone, then the successions the day's deaths left to settle. People who arrive
+ * today act from tomorrow; people who die today stop acting at once.
  */
 public final class Engine {
     private Engine() {
@@ -58,6 +58,7 @@ public final class Engine {
                 Meetings.daily(ctx, p);
             }
         }
+        PlayerAffairs.daily(ctx);
         Succession.settle(ctx);
         List<SimEvent> today = ctx.chronicle.endDay();
         ctx.state.day++;

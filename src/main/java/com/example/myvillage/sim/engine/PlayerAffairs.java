@@ -3,6 +3,8 @@ package com.example.myvillage.sim.engine;
 import com.example.myvillage.sim.Admission;
 import com.example.myvillage.sim.PlayerQualification;
 import com.example.myvillage.sim.SimEvent;
+import com.example.myvillage.sim.SimRng;
+import com.example.myvillage.sim.TaskView;
 import com.example.myvillage.sim.data.ContentTables;
 import com.example.myvillage.sim.data.RealmTable;
 import com.example.myvillage.sim.data.Rules;
@@ -21,11 +23,12 @@ import java.util.Optional;
  * {@link Person}: their record is a {@link PlayerMember} in {@code WorldState.playerMembers}.
  *
  * <p>Two kinds of entry point. The player actions ({@link #admission}, {@link #join}, {@link #leave},
- * {@link #promote}, {@link #borrow}) are called by the {@code WorldSim} facade between settled days; their event goes
- * into the chronicle at once and the open day is closed ({@code Chronicle.endDay}) so the next
- * {@link Engine#step} neither returns it again nor loses it. The yearly review ({@link #yearly}, run
- * by {@link Engine#step} right after {@link SectAffairs#yearly}) and {@link #sectDissolved} run inside
- * a step, so their events are that day's events like any other.
+ * {@link #promote}, {@link #borrow}, the sect tasks and {@link #apprentice}) are called by the
+ * {@code WorldSim} facade between settled days; their event goes into the chronicle at once and the
+ * open day is closed ({@code Chronicle.endDay}) so the next {@link Engine#step} neither returns it
+ * again nor loses it. The yearly review ({@link #yearly}, run by {@link Engine#step} right after
+ * {@link SectAffairs#yearly}), {@link #daily} and {@link #sectDissolved} run inside a step, so their
+ * events are that day's events like any other.
  */
 public final class PlayerAffairs {
     public static final String OUTER = "outer";
@@ -246,6 +249,172 @@ public final class PlayerAffairs {
         return closeDay(ctx, id);
     }
 
+    // ------------------------------------------------------------------ sect tasks and masters (slice 3)
+
+    public static final String TASK_ACTIVE = "task_active";
+    public static final String TASK_DONE_THIS_YEAR = "task_done_this_year";
+    public static final String NO_TASK = "no_task";
+    public static final String NOT_READY = "not_ready";
+    public static final String RANK_TOO_LOW = "rank_too_low";
+    public static final String HAS_MASTER = "has_master";
+    public static final String MASTER_NOT_HERE = "master_not_here";
+
+    /**
+     * The sim year of the day the ledger stands at: {@code floorDiv(day, dpy)}, the same boundary as
+     * {@link SimContext#newYear} (a year starts on a day with {@code day % dpy == 0}). Between
+     * settled days this is the year of the next day to settle.
+     */
+    public static long year(SimContext ctx) {
+        return Math.floorDiv(ctx.day(), (long) ctx.dpy);
+    }
+
+    /**
+     * The task the steward would hand the player now; computed, never recorded. Empty for a player
+     * in no sect, with an open task, who already took one this year, or when there is nothing to give.
+     *
+     * <p>The pick is fixed for the whole year: one rng {@code SimRng.at(seed, first day of the year,
+     * playerId.hashCode(), Purpose.PLAYER_TASK, year)} draws a row of {@code sect_tasks.json}
+     * uniformly in file order; a courier then draws its destination from the other active sects in
+     * id order with the same rng, and with no other active sect the rng draws again among the
+     * non-courier rows (none: empty).
+     */
+    public static Optional<TaskView> offerTask(SimContext ctx, String playerId) {
+        PlayerMember m = ctx.state.playerMembers.get(playerId);
+        long year = year(ctx);
+        if (m == null || !m.inSect() || !m.taskId.isEmpty() || m.taskYear == year) {
+            return Optional.empty();
+        }
+        List<ContentTables.SectTask> tasks = ctx.data.sectTasks();
+        if (tasks.isEmpty()) {
+            return Optional.empty();
+        }
+        SimRng rng = SimRng.at(ctx.state.seed, year * ctx.dpy, playerId.hashCode(), Purpose.PLAYER_TASK, year);
+        ContentTables.SectTask t = tasks.get(rng.nextInt(tasks.size()));
+        int target = -1;
+        if (ContentTables.TASK_COURIER.equals(t.kind())) {
+            List<Integer> others = new ArrayList<>();
+            for (Sect s : ctx.state.sects.values()) {
+                if (s.active() && s.id != m.sectId) {
+                    others.add(s.id);
+                }
+            }
+            others.sort(Integer::compare);
+            if (!others.isEmpty()) {
+                target = others.get(rng.nextInt(others.size()));
+            } else {
+                List<ContentTables.SectTask> plain = tasks.stream()
+                        .filter(x -> !ContentTables.TASK_COURIER.equals(x.kind())).toList();
+                if (plain.isEmpty()) {
+                    return Optional.empty();
+                }
+                t = plain.get(rng.nextInt(plain.size()));
+            }
+        }
+        return Optional.of(new TaskView(t.id(), t.kind(), t.count(), t.contribution(), 0, target,
+                target < 0 ? "" : ctx.sectName(target), year, false));
+    }
+
+    /**
+     * Records the task {@link #offerTask} gives (progress 0, {@code taskYear} this year) and a
+     * {@code player_task_accept} event (timed like {@link #join}). Throws IllegalArgumentException
+     * with {@code not_member}, {@code task_active}, {@code task_done_this_year} or {@code no_task},
+     * checked in that order.
+     */
+    public static SimEvent acceptTask(SimContext ctx, String playerId, String playerName) {
+        PlayerMember m = requireMember(ctx, playerId);
+        if (!m.taskId.isEmpty()) {
+            throw new IllegalArgumentException(TASK_ACTIVE);
+        }
+        if (m.taskYear == year(ctx)) {
+            throw new IllegalArgumentException(TASK_DONE_THIS_YEAR);
+        }
+        TaskView offer = offerTask(ctx, playerId).orElseThrow(() -> new IllegalArgumentException(NO_TASK));
+        Sect sect = ctx.sect(m.sectId);
+        m.playerName = playerName;
+        m.taskId = offer.id();
+        m.taskProgress = 0;
+        m.taskTargetSectId = offer.targetSectId();
+        m.taskYear = offer.year();
+        long id = ctx.chronicle.event("player_task_accept", 2).sects(m.sectId)
+                .region(sect == null ? "" : sect.homeRegionId)
+                .say(TextKeys.PLAYER_TASK_ACCEPT, playerName, ctx.sectName(m.sectId), TextKeys.taskName(offer.id()));
+        return closeDay(ctx, id);
+    }
+
+    /**
+     * Adds {@code amount} to the open task's progress, capped at its count; no event. False (nothing
+     * changes) for a player in no sect, without an open task, or whose task is not of {@code kind}.
+     */
+    public static boolean advanceTask(SimContext ctx, String playerId, String kind, int amount) {
+        PlayerMember m = ctx.state.playerMembers.get(playerId);
+        if (m == null || !m.inSect() || m.taskId.isEmpty()) {
+            return false;
+        }
+        ContentTables.SectTask t = ctx.data.sectTask(m.taskId);
+        if (t == null || !t.kind().equals(kind)) {
+            return false;
+        }
+        m.taskProgress = (int) Math.max(0, Math.min((long) t.count(), (long) m.taskProgress + amount));
+        return true;
+    }
+
+    /**
+     * Turns in the open task: contribution += its contribution, the task cleared ({@code taskYear}
+     * kept: one task a year) and a {@code player_task_done} event (timed like {@link #join}). Tribute
+     * is judged by the caller, who has already checked and taken the stones; other kinds need
+     * {@code progress >= count}. Throws IllegalArgumentException with {@code not_member},
+     * {@code no_task} or {@code not_ready}, checked in that order.
+     */
+    public static SimEvent completeTask(SimContext ctx, String playerId, String playerName) {
+        PlayerMember m = requireMember(ctx, playerId);
+        ContentTables.SectTask t = m.taskId.isEmpty() ? null : ctx.data.sectTask(m.taskId);
+        if (t == null) {
+            throw new IllegalArgumentException(NO_TASK);
+        }
+        if (!ContentTables.TASK_TRIBUTE.equals(t.kind()) && m.taskProgress < t.count()) {
+            throw new IllegalArgumentException(NOT_READY);
+        }
+        Sect sect = ctx.sect(m.sectId);
+        m.playerName = playerName;
+        m.contribution += t.contribution();
+        m.taskId = "";
+        m.taskProgress = 0;
+        m.taskTargetSectId = -1;
+        long id = ctx.chronicle.event("player_task_done", 2).sects(m.sectId)
+                .region(sect == null ? "" : sect.homeRegionId)
+                .say(TextKeys.PLAYER_TASK_DONE, playerName, ctx.sectName(m.sectId), TextKeys.taskName(t.id()));
+        return closeDay(ctx, id);
+    }
+
+    /**
+     * Takes {@code masterId} as the player's master and records {@code player_apprentice} (timed like
+     * {@link #join}). The master must be a living elder or sect master of the player's sect who is at
+     * the sect. Players do not take a {@code disciplesPerMaster} place. Throws
+     * IllegalArgumentException with {@code not_member}, {@code rank_too_low} (outer disciple),
+     * {@code has_master} or {@code master_not_here}, checked in that order.
+     */
+    public static SimEvent apprentice(SimContext ctx, String playerId, String playerName, int masterId) {
+        PlayerMember m = requireMember(ctx, playerId);
+        if (m.rank.equals(OUTER)) {
+            throw new IllegalArgumentException(RANK_TOO_LOW);
+        }
+        if (m.masterId >= 0) {
+            throw new IllegalArgumentException(HAS_MASTER);
+        }
+        Person master = ctx.state.persons.get(masterId);
+        if (master == null || master.sectId != m.sectId || !master.status.equals("at_sect")
+                || !(master.rank.equals("elder") || master.rank.equals("sect_master"))) {
+            throw new IllegalArgumentException(MASTER_NOT_HERE);
+        }
+        Sect sect = ctx.sect(m.sectId);
+        m.playerName = playerName;
+        m.masterId = masterId;
+        long id = ctx.chronicle.event("player_apprentice", 2).actors(masterId).sects(m.sectId)
+                .region(sect == null ? "" : sect.homeRegionId)
+                .say(TextKeys.PLAYER_APPRENTICE, playerName, ctx.sectName(m.sectId), master.name());
+        return closeDay(ctx, id);
+    }
+
     // ------------------------------------------------------------------ inside a step
 
     /** Called once at the start of every sim year. */
@@ -286,6 +455,33 @@ public final class PlayerAffairs {
                     e.setValue(Math.min(0, e.getValue() + recovery));
                 }
             }
+        }
+    }
+
+    /**
+     * Called every settled day after the people have acted: a player whose master died or left the
+     * player's sect loses the master, with a {@code player_master_lost} line. (The yearly review still
+     * clears such a master silently, as a backstop.)
+     */
+    public static void daily(SimContext ctx) {
+        for (PlayerMember m : ctx.state.playerMembers.values()) {
+            if (!m.inSect() || m.masterId < 0) {
+                continue;
+            }
+            Person master = ctx.state.persons.get(m.masterId);
+            if (master != null && master.sectId == m.sectId) {
+                continue;
+            }
+            int lost = m.masterId;
+            m.masterId = -1;
+            Sect sect = ctx.sect(m.sectId);
+            Chronicle.Builder b = ctx.chronicle.event("player_master_lost", 2).sects(m.sectId)
+                    .region(sect == null ? "" : sect.homeRegionId);
+            String masterName = ctx.nameOf(lost);
+            if (!masterName.isEmpty()) {
+                b.actors(lost);
+            }
+            b.say(TextKeys.PLAYER_MASTER_LOST, m.playerName, masterName);
         }
     }
 

@@ -573,12 +573,13 @@ public final class WorldSim {
     /**
      * The task the steward would hand this player now; computed, never recorded. One task a sim
      * year: empty for a player in no sect, with an open task, who already took one this year, or
-     * when there is nothing to give. The pick is {@code SimRng.at(seed, day, hash(playerId),
-     * Purpose.PLAYER_TASK)} over {@code sect_tasks.json}; a courier's destination is another active
-     * sect from the same rng (no other active sect: no courier). {@link #acceptTask} records it.
+     * when there is nothing to give. The pick is {@code SimRng.at(seed, first day of the year,
+     * hash(playerId), Purpose.PLAYER_TASK, year)} over {@code sect_tasks.json}, so it holds for the
+     * whole year; a courier's destination is another active sect from the same rng (no other active
+     * sect: no courier). {@link #acceptTask} records it.
      */
     public Optional<TaskView> offerTask(String playerId) {
-        throw new UnsupportedOperationException("slice 3 package S3-A");
+        return PlayerAffairs.offerTask(ctx, playerId);
     }
 
     /**
@@ -587,7 +588,7 @@ public final class WorldSim {
      * {@code not_member}, {@code task_active}, {@code task_done_this_year} or {@code no_task}.
      */
     public SimEvent acceptTask(String playerId, String playerName) {
-        throw new UnsupportedOperationException("slice 3 package S3-A");
+        return PlayerAffairs.acceptTask(ctx, playerId, playerName);
     }
 
     /**
@@ -595,7 +596,7 @@ public final class WorldSim {
      * when the player has no open task or its kind is not {@code kind}.
      */
     public boolean advanceTask(String playerId, String kind, int amount) {
-        throw new UnsupportedOperationException("slice 3 package S3-A");
+        return PlayerAffairs.advanceTask(ctx, playerId, kind, amount);
     }
 
     /**
@@ -605,7 +606,7 @@ public final class WorldSim {
      * with the reason {@code no_task} or {@code not_ready}.
      */
     public SimEvent completeTask(String playerId, String playerName) {
-        throw new UnsupportedOperationException("slice 3 package S3-A");
+        return PlayerAffairs.completeTask(ctx, playerId, playerName);
     }
 
     /**
@@ -615,7 +616,7 @@ public final class WorldSim {
      * {@code has_master} or {@code master_not_here}.
      */
     public SimEvent apprentice(String playerId, String playerName, int masterId) {
-        throw new UnsupportedOperationException("slice 3 package S3-A");
+        return PlayerAffairs.apprentice(ctx, playerId, playerName, masterId);
     }
 
     private PlayerMemberView playerMemberView(PlayerMember m) {
