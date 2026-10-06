@@ -24,8 +24,8 @@ import org.slf4j.LoggerFactory;
  * sect's record, never the other way round, and {@code here} moves the ledger's gate first.
  *
  * <p>At the gate, the anchor's y is the surface (motion-blocking, leaves ignored) at the gate x/z,
- * sampled after loading that chunk. The compound is the worldgen-style one (derived mountain, cloud
- * sea, terraces and buildings; {@link SectGenerator#generateForcedAt}); its seed hashes the world
+ * sampled after loading that chunk. The compound is the worldgen-style one (derived mountain,
+ * terraces, grand stairs and buildings; {@link SectGenerator#generateForcedAt}); its seed hashes the world
  * seed with the sect id and its spire variant is picked per sect by hash, so a rebuild at the same
  * place builds the same compound. The build is synchronous on the server thread.
  */

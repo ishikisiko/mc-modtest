@@ -7,6 +7,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 import net.minecraft.world.level.levelgen.structure.pieces.StructurePieceType;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureProcessorType;
 
 public final class SectStructures {
     private static final DeferredRegister<StructureType<?>> STRUCTURE_TYPES =
@@ -21,11 +22,20 @@ public final class SectStructures {
     public static final DeferredHolder<StructurePieceType, StructurePieceType> SECT_PIECE =
             STRUCTURE_PIECE_TYPES.register("sect", () -> (StructurePieceType.ContextlessType) SectStructurePiece::new);
 
+    private static final DeferredRegister<StructureProcessorType<?>> STRUCTURE_PROCESSORS =
+            DeferredRegister.create(Registries.STRUCTURE_PROCESSOR, MyVillageMod.MOD_ID);
+
+    /** {@link DropIsolatedBlocks}: every sect template placement runs it. */
+    public static final DeferredHolder<StructureProcessorType<?>, StructureProcessorType<DropIsolatedBlocks>>
+            DROP_ISOLATED_BLOCKS = STRUCTURE_PROCESSORS.register("drop_isolated_blocks",
+                    () -> () -> DropIsolatedBlocks.CODEC);
+
     private SectStructures() {
     }
 
     public static void register(IEventBus modEventBus) {
         STRUCTURE_TYPES.register(modEventBus);
         STRUCTURE_PIECE_TYPES.register(modEventBus);
+        STRUCTURE_PROCESSORS.register(modEventBus);
     }
 }

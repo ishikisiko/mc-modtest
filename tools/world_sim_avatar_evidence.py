@@ -221,9 +221,12 @@ def run(args: argparse.Namespace, results: list[dict[str, Any]]) -> dict[str, An
         check(results, "gate_realized_in_ledger", f"x={ax} z={az} (built)" in gate,
               next((x for x in gate.splitlines() if x.startswith("Mountain gate")), "no gate line"))
         bx, bz = ax - SITE_W // 2, az - SITE_D // 2
-        # The courtyard behind the gate on the lowest terrace: local x 22..40, z 21..30 (SectCourtyardTest).
+        # The courtyard behind the gate on the lowest terrace: local x 22..40, z 21..27 (SectCourtyardTest),
+        # in front of the grand stair (x 26..36 from z 29) and with avatars either side of the axis
+        # corridor (x 28..34), where the player stands.
         court = (bx + 31 + 0.5, float(SURFACE_Y), bz + 25 + 0.5)
-        court_box = (bx + 22, bz + 21, bx + 40, bz + 30)
+        court_box = (bx + 22, bz + 21, bx + 40, bz + 27)
+        back_z = bz + 27.5  # the back of the courtyard, the row before the stair's first tread
 
         # ------------------------------------------------------------ near
         t.note("near: the player stands in the courtyard behind the gate")
@@ -255,20 +258,20 @@ def run(args: argparse.Namespace, results: list[dict[str, Any]]) -> dict[str, An
         cy = group[0]["pos"][1]
         facts["camera_target"] = [round(cx, 2), cy, round(cz, 2), len(group)]
         # first person, from the back of the courtyard toward the gate
-        eye = (cx, cy + EYE, bz + 30.5)
+        eye = (cx, cy + EYE, back_z)
         yaw, pitch = look(eye, (cx, cy + 1.2, cz))
         tp(eye[0], cy, eye[2], yaw, pitch)
         press_f5_to(s, "first")
         shot("courtyard_close", "first person at the back of the courtyard behind the gate, facing the avatars")
         # the same from three blocks up (one barrier block), so the name tags separate by depth
         ny = cy + 3
-        rc(f"setblock {math.floor(cx)} {math.floor(ny) - 1} {math.floor(bz + 30.5)} minecraft:barrier")
-        yaw, pitch = look((math.floor(cx) + 0.5, ny + EYE, bz + 30.5), (cx, cy + 1.0, cz))
-        tp(math.floor(cx) + 0.5, ny, bz + 30.5, yaw, pitch)
+        rc(f"setblock {math.floor(cx)} {math.floor(ny) - 1} {math.floor(back_z)} minecraft:barrier")
+        yaw, pitch = look((math.floor(cx) + 0.5, ny + EYE, back_z), (cx, cy + 1.0, cz))
+        tp(math.floor(cx) + 0.5, ny, back_z, yaw, pitch)
         shot("courtyard_names", "first person from three blocks up at the back of the courtyard: the name tags")
-        rc(f"setblock {math.floor(cx)} {math.floor(ny) - 1} {math.floor(bz + 30.5)} minecraft:air")
+        rc(f"setblock {math.floor(cx)} {math.floor(ny) - 1} {math.floor(back_z)} minecraft:air")
         # third person (F5, camera behind and above the player)
-        px, pz = cx, min(bz + 28.5, cz + 6.0)
+        px, pz = cx, min(back_z, cz + 6.0)
         tp(px, cy, pz, 180.0, 22.0)
         press_f5_to(s, "back")
         shot("courtyard_third_person", "third person (F5): the player among the avatars on the courtyard ground")
@@ -329,7 +332,7 @@ def run(args: argparse.Namespace, results: list[dict[str, Any]]) -> dict[str, An
         master = MASTER.search(reply)
         if master and master.group(1) != "none":
             facts["master"] = master.group(1)
-        tp(court[0], court[1], bz + 28.5, 180.0, 22.0)
+        tp(court[0], court[1], back_z, 180.0, 22.0)
         press_f5_to(s, "back")
         shot("after_advance", "third person after 60 sim days: the courtyard shows the ledger's current members")
         press_f5_to(s, "first")
@@ -338,7 +341,7 @@ def run(args: argparse.Namespace, results: list[dict[str, Any]]) -> dict[str, An
         t.note("neutral avatars; the summoned cultivator is unchanged; an escaped avatar copy is refused")
         hurt = rc(f"damage @e[type=myvillage:cultivator,limit=1,sort=nearest] 5 minecraft:player_attack by {PLAYER}")
         check(results, "avatar_invulnerable", "invulnerable" in hurt.lower(), hurt.strip())
-        sx, sz = court[0] + 3, court[2] + 4
+        sx, sz = court[0] + 7, court[2]  # a courtyard cell right of the corridor
         rc(f"summon myvillage:cultivator {sx:.1f} {SURFACE_Y} {sz:.1f} {{Tags:[\"plain\"]}}")
         plain = rc("damage @e[type=myvillage:cultivator,tag=plain,limit=1] 5 minecraft:player_attack")
         health = rc("data get entity @e[type=myvillage:cultivator,tag=plain,limit=1] Health")

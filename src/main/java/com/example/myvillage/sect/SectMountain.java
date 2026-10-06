@@ -6,12 +6,15 @@ import java.util.List;
  * Deterministic 反推山形 mountain derivation from a sect terrace profile.
  *
  * Mirrors the offline planner/validator in {@code tools/buildgen/sect_mountain.py}:
- * the compound's terrace elevations + bounds are the mountain's skeleton, the
- * slopes beneath and between terraces are filled with seed-driven value noise,
- * an outer blend skirt grades the man-made relief into the surrounding natural
- * heightmap, a sheer cliff face rises behind the summit, and — when the compound
- * selects the detached-spire feature — a solitary peak (孤峰) is raised one
- * terrace-rise above the summit under the detached volume.
+ * the compound's terrace elevations + bounds are the mountain's skeleton. Inside the
+ * compound core (the terraces' bounding box) and on the forecourt in front of the
+ * gate there is no noise: terraces and the forecourt sit at their floor, the band
+ * between two terraces at the upper floor within the upper terrace's width (else the
+ * lower floor), and the taper strips beside the narrower terraces slope down one block
+ * per block from the nearest terrace. Outside the core a seed-driven noisy flank grades
+ * through an outer blend skirt into the natural heightmap, a sheer cliff face rises
+ * behind the summit, and, when the compound builds the detached-spire feature, a
+ * solitary peak (孤峰) is raised one terrace-rise above the summit under it.
  *
  * Coordinates are LOCAL to the compound base (x cross-slope, z fall-line); the
  * returned height is the absolute world Y of the derived ground surface. A
@@ -21,6 +24,7 @@ import java.util.List;
 public final class SectMountain {
     public static final int SKIRT_RADIUS = 24;
     public static final int OUTER_SLOPE = 1;
+    /** Former band-noise amplitude; unused since the core went noise-free (0.35.1), kept in {@link #PARITY}. */
     public static final int NOISE_AMP_INTER = 3;
     public static final int NOISE_AMP_OUTER = 5;
     public static final int SEAM_SLOPE_LIMIT = 6;
@@ -54,14 +58,15 @@ public final class SectMountain {
     private final int coreX1;
     private final int coreZ1;
     private final int rise;
-    private final int cloudSeaY;
+    private final int[] apron;
     private final int cliffBackTop;
     private final SpirePeak spire;
     private final NaturalHeight natural;
 
     private SectMountain(long seed, List<TerraceBox> terraces, int rise, int cliffBackHeight,
-                         int[] detachedBounds, NaturalHeight natural) {
+                         int[] detachedBounds, int[] apron, NaturalHeight natural) {
         this.seed = seed;
+        this.apron = apron;
         this.terraces = terraces;
         this.rise = rise;
         this.natural = natural;
@@ -79,9 +84,6 @@ public final class SectMountain {
         this.coreZ0 = z0;
         this.coreX1 = x1;
         this.coreZ1 = z1;
-        TerraceBox gate = terraces.get(0);
-        TerraceBox disciple = terraces.size() > 1 ? terraces.get(1) : gate;
-        this.cloudSeaY = (gate.elevation + disciple.elevation) / 2;
         TerraceBox summit = terraces.get(terraces.size() - 1);
         this.cliffBackTop = summit.elevation + cliffBackHeight;
         if (detachedBounds != null) {
@@ -92,14 +94,14 @@ public final class SectMountain {
         }
     }
 
+    /**
+     * @param detachedBounds {x0, z0, x1, z1} of a detached spire that is built, else null
+     * @param apron {x0, z0, x1, z1} of the forecourt in front of the gate terrace, else null
+     */
     public static SectMountain derive(long seed, List<TerraceBox> terraces, int rise,
-                                      int cliffBackHeight, int[] detachedBounds,
+                                      int cliffBackHeight, int[] detachedBounds, int[] apron,
                                       NaturalHeight natural) {
-        return new SectMountain(seed, terraces, rise, cliffBackHeight, detachedBounds, natural);
-    }
-
-    public int cloudSeaY() {
-        return cloudSeaY;
+        return new SectMountain(seed, terraces, rise, cliffBackHeight, detachedBounds, apron, natural);
     }
 
     public int cliffBackTop() {
@@ -131,18 +133,12 @@ public final class SectMountain {
         return natural.at(x, z);
     }
 
-    /** Deterministic feathering noise for the cloud-sea edge, in [-amp, amp]. */
-    public int featherNoise(int x, int z, int amp) {
-        return noise(seed ^ 0x5DEECE66DL, x / 2, z / 2, amp);
+    private boolean inCore(int x, int z) {
+        return x >= coreX0 && x <= coreX1 && z >= coreZ0 && z <= coreZ1;
     }
 
-    private boolean onPlatform(int x, int z) {
-        for (TerraceBox t : terraces) {
-            if (t.contains(x, z)) {
-                return true;
-            }
-        }
-        return false;
+    private boolean onApron(int x, int z) {
+        return apron != null && x >= apron[0] && x <= apron[2] && z >= apron[1] && z <= apron[3];
     }
 
     /** Derived absolute world Y of the mountain surface at local (x, z). */
@@ -163,16 +159,16 @@ public final class SectMountain {
             return Math.max(dropped, natural.at(x, z));
         }
 
+        if (onApron(x, z)) {
+            return terraces.get(0).elevation - 1;  // the forecourt is level with the gate floor
+        }
+        if (inCore(x, z)) {
+            return coreHeight(x, z);
+        }
+
         long[] skel = nearestTerraceHeight(x, z);
         int h = (int) skel[0];
         int dist = (int) skel[1];
-        if (dist == 0) {
-            if (onPlatform(x, z)) {
-                return h;                        // platforms stay flat at elevation-1
-            }
-            return h + noise(seed, x, z, NOISE_AMP_INTER);
-        }
-
         int flank = h - OUTER_SLOPE * dist + noise(seed, x, z, NOISE_AMP_OUTER);
         int nat = natural.at(x, z);
         if (dist >= SKIRT_RADIUS) {
@@ -183,23 +179,46 @@ public final class SectMountain {
         return Math.max(blended, nat);
     }
 
-    private long[] nearestTerraceHeight(int x, int z) {
+    /**
+     * Noise-free height inside the core: a terrace's floor; in the band in front of a terrace,
+     * the upper floor within the upper terrace's width and the lower floor within the lower
+     * one's; elsewhere (the taper strips beside the narrower terraces) the nearest terrace's floor
+     * minus the distance to it, ties to the higher floor.
+     */
+    private int coreHeight(int x, int z) {
         for (TerraceBox t : terraces) {
             if (t.contains(x, z)) {
-                return new long[]{t.elevation - 1, 0};
+                return t.elevation - 1;
             }
         }
         for (int i = 0; i < terraces.size() - 1; i++) {
             TerraceBox lower = terraces.get(i);
             TerraceBox upper = terraces.get(i + 1);
-            if (z > lower.z1 && z < upper.z0 && x >= coreX0 && x <= coreX1) {
-                int span = upper.z0 - lower.z1;
-                double frac = (double) (z - lower.z1) / span;
-                int hh = (int) Math.round((lower.elevation - 1) * (1 - frac)
-                        + (upper.elevation - 1) * frac);
-                return new long[]{hh, 0};
+            if (z > lower.z1 && z < upper.z0) {
+                if (x >= upper.x0 && x <= upper.x1) {
+                    return upper.elevation - 1;
+                }
+                if (x >= lower.x0 && x <= lower.x1) {
+                    return lower.elevation - 1;
+                }
             }
         }
+        int best = Integer.MIN_VALUE;
+        int bestDist = Integer.MAX_VALUE;
+        for (TerraceBox t : terraces) {
+            int dx = Math.max(Math.max(t.x0 - x, 0), x - t.x1);
+            int dz = Math.max(Math.max(t.z0 - z, 0), z - t.z1);
+            int d = Math.max(dx, dz);
+            int h = t.elevation - 1 - OUTER_SLOPE * d;
+            if (d < bestDist || (d == bestDist && h > best)) {
+                bestDist = d;
+                best = h;
+            }
+        }
+        return best;
+    }
+
+    private long[] nearestTerraceHeight(int x, int z) {
         int dx = Math.max(Math.max(coreX0 - x, 0), x - coreX1);
         int dz = Math.max(Math.max(coreZ0 - z, 0), z - coreZ1);
         int dist = Math.max(dx, dz);

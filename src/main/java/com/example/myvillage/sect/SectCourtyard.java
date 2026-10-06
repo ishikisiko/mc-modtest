@@ -13,10 +13,11 @@ import net.minecraft.core.BlockPos;
  * commands use), so it holds for any compound built by {@code generateForcedAt(source, seed,
  * variant, anchor)}.
  *
- * <p>A terrace's cells are its floor rectangle minus its edge row (retaining walls, the cliff
+ * <p>A terrace's cells are its floor rectangle minus its edge row (retaining faces, the cliff
  * back), minus every building slot on it (the larger of the slot bounds and the template's own
- * footprint, plus {@value #BUILDING_MARGIN} block), minus the covered-gallery cells, minus the
- * detached spire's volume and its flying bridge (plus {@value #BUILDING_MARGIN} block). The
+ * footprint, plus {@value #BUILDING_MARGIN} block), minus every grand stair with its cheek walls
+ * (plus {@value #BUILDING_MARGIN} block), minus the axis corridor (kept clear for walking), minus
+ * a built detached spire's volume and its flying bridge (plus {@value #BUILDING_MARGIN} block). The
  * position is the block above the floor, {@code terrace elevation}, i.e. terrace floor + 1.
  */
 public final class SectCourtyard {
@@ -50,21 +51,26 @@ public final class SectCourtyard {
     public static List<BlockPos> cells(long seed, BlockPos anchor, String variant) {
         BlockPos base = base(anchor);
         SectGenerator.SectPlan plan = SectGenerator.plan(seed, base, variant);
-        Set<Long> spire = new HashSet<>();
+        Set<Long> common = new HashSet<>();
         SectGenerator.FlyingBridgeFeature feature = plan.feature();
-        if (feature != null) {
+        if (feature != null && SectGenerator.featureBuildable(plan)) {
             SectGenerator.Rect detached = feature.detachedBounds();
             int[] fp = SectGenerator.templateFootprint(feature.detachedTemplate());
-            block(spire, union(detached, detached.x0(), detached.z0(), fp), BUILDING_MARGIN);
+            block(common, union(detached, detached.x0(), detached.z0(), fp), BUILDING_MARGIN);
             SectGenerator.GalleryLink bridge = feature.bridge();
             for (SectGenerator.Cell cell : SectGenerator.bresenham(bridge.fromCell(), bridge.toCell())) {
-                block(spire, new SectGenerator.Rect(cell.x(), cell.z(), cell.x(), cell.z()),
+                block(common, new SectGenerator.Rect(cell.x(), cell.z(), cell.x(), cell.z()),
                         BUILDING_MARGIN + 1); // the deck spans x ± 1
             }
         }
+        for (SectGenerator.AxisStair stair : plan.stairs()) {
+            block(common, stair.withCheeks(), BUILDING_MARGIN);
+        }
+        block(common, new SectGenerator.Rect(SectGenerator.AXIS_X0, SectGenerator.APRON_Z0,
+                SectGenerator.AXIS_X1, plan.axisEndZ()), 0);
         List<BlockPos> out = new ArrayList<>();
         for (SectGenerator.Terrace terrace : plan.terraces()) {
-            Set<Long> blocked = new HashSet<>(spire);
+            Set<Long> blocked = new HashSet<>(common);
             for (SectGenerator.Slot slot : plan.slots()) {
                 if (slot.terraceIndex() != terrace.index()) {
                     continue;
@@ -72,14 +78,6 @@ public final class SectCourtyard {
                 SectGenerator.Rect bounds = slot.bounds();
                 int[] fp = SectGenerator.templateFootprint(slot.templateId());
                 block(blocked, union(bounds, bounds.x0(), bounds.z0(), fp), BUILDING_MARGIN);
-            }
-            for (SectGenerator.GalleryLink gallery : plan.galleries()) {
-                if (gallery.terraceIndices()[0] != terrace.index()) {
-                    continue;
-                }
-                for (SectGenerator.Cell cell : SectGenerator.bresenham(gallery.fromCell(), gallery.toCell())) {
-                    blocked.add(key(cell.x(), cell.z()));
-                }
             }
             SectGenerator.Rect r = terrace.bounds();
             for (int z = r.z0() + 1; z <= r.z1() - 1; z++) {

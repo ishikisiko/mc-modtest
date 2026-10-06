@@ -108,16 +108,14 @@ public final class SectStructurePiece extends StructurePiece {
         WorldGenSink sink = new WorldGenSink(level, box, base, mountain);
         SectGenerator.writeMountain(sink, plan, mountain, stats);
         long tMountain = System.nanoTime();
-        SectGenerator.placeCloudSea(sink, plan, mountain, siteSeed, stats);
-        long tCloud = System.nanoTime();
         SectGenerator.realizeCompound(sink, plan, templateRandom, siteSeed, stats);
         long tCompound = System.nanoTime();
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Sect postProcess chunk={} site={} natural_queries={} phases μs "
-                            + "plan={} mountain={} cloud={} compound={} total={}",
+                            + "plan={} mountain={} compound={} total={} feature_skipped={}",
                     chunkPos, siteSeed, natMemo.size(),
-                    us(tPlan, t0), us(tMountain, tPlan), us(tCloud, tMountain),
-                    us(tCompound, tCloud), us(tCompound, t0));
+                    us(tPlan, t0), us(tMountain, tPlan),
+                    us(tCompound, tMountain), us(tCompound, t0), stats.featuresSkipped > 0);
         }
     }
 
@@ -170,7 +168,8 @@ public final class SectStructurePiece extends StructurePiece {
 
         @Override
         public boolean placeTemplate(StructureTemplate template, BlockPos origin, RandomSource random) {
-            StructurePlaceSettings settings = new StructurePlaceSettings().setBoundingBox(box);
+            StructurePlaceSettings settings = new StructurePlaceSettings().setBoundingBox(box)
+                    .addProcessor(DropIsolatedBlocks.INSTANCE);
             return template.placeInWorld(level, origin, origin, settings, random, Block.UPDATE_CLIENTS);
         }
     }

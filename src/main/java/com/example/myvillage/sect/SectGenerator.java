@@ -14,16 +14,16 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Half;
-import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -36,33 +36,74 @@ import java.util.Set;
  * Runtime terraced cultivation-sect realizer.
  *
  * Produces a terraced axial sect compound structurally equivalent to the Python
- * planner in tools/buildgen/sect.py (gate / disciple / assembly / scripture /
- * summit terrace stack, single fall-line ritual axis, mirrored flanks joined by
- * covered galleries, cliff-backed summit, optional detached-spire flying-bridge
- * feature). Block writes route through a {@link SectSink} so the same plan and
- * realizer serve both the on-the-spot {@code /myvillage sect} command and
- * worldgen ({@link SectStructurePiece}). For worldgen / force-generate the
- * mountain is first derived from the terrace profile (反推山形, {@link SectMountain})
- * and the realizer rests the compound on it; the on-the-spot command rests it on
- * the live world surface, unchanged.
+ * planner in tools/buildgen/sect.py: a gate / disciple / assembly / scripture /
+ * summit terrace stack symmetric about one fall-line ritual axis; a paved axis
+ * corridor (御道) from a levelled forecourt through a passage in the gate building
+ * up to the principal hall; grand stairs with a landing and cheek walls between
+ * terraces, cut into solid stone-brick retaining bands; mirrored flank buildings
+ * beside the axis; a cliff-backed summit; and an optional detached-spire
+ * flying-bridge feature (built only where it clears the compound). Block writes
+ * route through a {@link SectSink} so the same plan and realizer serve both the
+ * on-the-spot {@code /myvillage sect} command and worldgen
+ * ({@link SectStructurePiece}). For worldgen / force-generate the mountain is
+ * first derived from the terrace profile (反推山形, {@link SectMountain}) and the
+ * realizer rests the compound on it; the on-the-spot command rests it on the live
+ * world surface.
  *
  * Geometry mirrors sect.py with no shared RNG: every cell derives from seed xor
  * coordinates, so the same seed + site yields the same compound (Python/Java
  * parity is asserted by validate_sect_generation.py).
  */
 public final class SectGenerator {
+    private static final Logger LOGGER = LoggerFactory.getLogger(SectGenerator.class);
+
     static final int TERRACE_COUNT = 5;
     static final int TERRACE_RISE = 8;
     static final int TERRACE_DEPTH = 28;
-    static final int TERRACE_WIDTH = 58;
-    static final int SUMMIT_TAPER = 4;
-    static final int AXIS_STAIR_W = 5;
+    /** Gate-terrace width; the stack is symmetric about {@link #AXIS_X} and narrows 2 per terrace. */
+    static final int TERRACE_WIDTH = 59;
+    /** Total narrowing from the gate terrace to the summit (59/57/55/53/51). */
+    static final int SUMMIT_TAPER = 8;
     static final int CLIFF_BACK_HEIGHT = 12;
     static final int Z_MARGIN = 4;
 
-    static final int SITE_WIDTH = TERRACE_WIDTH + 6;
+    static final int SITE_WIDTH = 64;
     static final int SITE_DEPTH = 2 * Z_MARGIN + TERRACE_COUNT * TERRACE_DEPTH
             + (TERRACE_COUNT - 1) * TERRACE_RISE;
+
+    /** Local x of the ritual axis; every terrace, the corridor and the stairs are symmetric about it. */
+    static final int AXIS_X = 31;
+    /** Width of the paved axis corridor (御道), x 28..34. */
+    static final int AXIS_W = 7;
+    /** Width of the grand stair treads between terraces, x 27..35 (cheek walls at x 26 and x 36). */
+    static final int STAIR_W = 9;
+    /** Rows the grand stair projects forward onto the lower terrace. */
+    static final int STAIR_PROJECT = 3;
+    /** Inner (axis-side) edge of the left flank buildings. */
+    static final int FLANK_INNER_LEFT_X1 = 25;
+    /** Inner (axis-side) edge of the right flank buildings. */
+    static final int FLANK_INNER_RIGHT_X0 = 37;
+    /** Rows of the levelled forecourt in front of the gate terrace, z -12..-1 relative to it (z -8..3). */
+    static final int APRON_ROWS = 12;
+    /** Width of the forecourt, x 21..41 (the gate building's width). */
+    static final int APRON_W = 21;
+    /** Width of the through-passage cut along the axis through the gate building, x 30..32. */
+    static final int GATE_PASSAGE_W = 3;
+    /** Air rows of the gate passage above its floor. */
+    static final int GATE_PASSAGE_H = 4;
+    /** Air rows the final corridor pass guarantees above the corridor floor. */
+    static final int CORRIDOR_HEADROOM = 5;
+    /** Air rows kept above every stair tread and landing. */
+    static final int STAIR_HEADROOM = 4;
+
+    static final int AXIS_X0 = AXIS_X - AXIS_W / 2;
+    static final int AXIS_X1 = AXIS_X + AXIS_W / 2;
+    static final int STAIR_X0 = AXIS_X - STAIR_W / 2;
+    static final int STAIR_X1 = AXIS_X + STAIR_W / 2;
+    static final int APRON_X0 = AXIS_X - APRON_W / 2;
+    static final int APRON_X1 = AXIS_X + APRON_W / 2;
+    static final int APRON_Z0 = Z_MARGIN - APRON_ROWS;
+    static final int APRON_Z1 = Z_MARGIN - 1;
 
     static final int TEMPLATE_GROUND_LAYER = 0;
     static final int BLOCK_FLAGS = Block.UPDATE_CLIENTS;
@@ -136,10 +177,11 @@ public final class SectGenerator {
                                 base.getX() + x, base.getZ() + z));
                 ServerLevelSink sink = new ServerLevelSink(level, base, mountain);
                 writeMountain(sink, plan, mountain, stats);
-                placeCloudSea(sink, plan, mountain, seed, stats);
                 realizeCompound(sink, plan, templateRandom, seed, stats);
             } else {
-                forceLoadFootprint(level, base, SITE_WIDTH, SITE_DEPTH, forcedChunks, loadFailures);
+                // the forecourt lies in front of the site (negative local z)
+                forceLoadFootprint(level, base.offset(0, 0, APRON_Z0), SITE_WIDTH, SITE_DEPTH - APRON_Z0,
+                        forcedChunks, loadFailures);
                 ServerLevelSink sink = new ServerLevelSink(level, base, null);
                 realizeCompound(sink, plan, templateRandom, seed, stats);
             }
@@ -149,6 +191,10 @@ public final class SectGenerator {
             }
         }
 
+        if (stats.featuresSkipped > 0) {
+            LOGGER.info("Sect seed={}: detached spire {} not built, its bounds overlap the compound",
+                    seed, plan.feature.variant);
+        }
         if (!loadFailures.isEmpty()) {
             source.sendSuccess(
                     () -> Component.literal("Unable to force-load regions: " + loadFailures),
@@ -162,9 +208,8 @@ public final class SectGenerator {
                         + " terraces=" + plan.terraces.size()
                         + " placed=" + stats.placedSlots
                         + " skipped=" + stats.skippedSlots
-                        + " galleries=" + stats.galleriesPlaced
                         + " feature=" + (plan.feature == null ? "none"
-                                : plan.feature.variant)
+                                : plan.feature.variant + (stats.featuresSkipped > 0 ? " (skipped)" : ""))
                         + (stats.fallbackSubstitutions > 0
                                 ? " fallback_substitutions=" + stats.fallbackSubstitutions
                                 : "")
@@ -211,11 +256,14 @@ public final class SectGenerator {
                     t.bounds.x0, t.bounds.z0, t.bounds.x2(), t.bounds.z1, t.cliffBack));
         }
         int[] detached = null;
-        if (plan.feature != null) {
+        // the solitary peak only rises under a spire that is actually built
+        if (featureBuildable(plan)) {
             Rect d = plan.feature.detachedBounds;
             detached = new int[]{d.x0, d.z0, d.x2(), d.z1};
         }
-        return SectMountain.derive(seed, boxes, TERRACE_RISE, CLIFF_BACK_HEIGHT, detached, natural);
+        Rect a = plan.apron;
+        return SectMountain.derive(seed, boxes, TERRACE_RISE, CLIFF_BACK_HEIGHT, detached,
+                new int[]{a.x0, a.z0, a.x2(), a.z1}, natural);
     }
 
     /**
@@ -244,45 +292,6 @@ public final class SectGenerator {
                 // clear terrain that would bury the derived silhouette
                 for (int y = top + 1; y <= nat; y++) {
                     place(sink, at(plan.base, x, y, z), air, stats);
-                }
-            }
-        }
-    }
-
-    /**
-     * Lay the horizontal cloud-sea (云海面) sheet of translucent glass at the
-     * configured Y in the open air between the gate and disciple terraces, with
-     * feathered edges and occasional powder-snow (云絮) wisps at the terrace edges.
-     */
-    static void placeCloudSea(SectSink sink, SectPlan plan, SectMountain m, long seed, BuildStats stats) {
-        Terrace gate = plan.terraces.get(0);
-        Terrace disciple = plan.terraces.size() > 1 ? plan.terraces.get(1) : gate;
-        int y = m.cloudSeaY();
-        int z0 = gate.bounds.z1 + 1;
-        int z1 = disciple.bounds.z0 - 1;
-        if (z1 < z0) {
-            return;
-        }
-        BlockState cloud = Blocks.WHITE_STAINED_GLASS.defaultBlockState();
-        BlockState wisp = Blocks.POWDER_SNOW.defaultBlockState();
-        Clip clip = sink.clip();
-        int bx = plan.base.getX();
-        int bz = plan.base.getZ();
-        for (int x = clipLo(m.coreX0(), clip.x0(), bx); x <= clipHi(m.coreX1(), clip.x1(), bx); x++) {
-            int edge = Math.min(x - m.coreX0(), m.coreX1() - x);
-            for (int z = clipLo(z0, clip.z0(), bz); z <= clipHi(z1, clip.z1(), bz); z++) {
-                if (m.height(x, z) >= y) {
-                    continue;  // only float cloud over open air below the terraces
-                }
-                int zEdge = Math.min(z - z0, z1 - z);
-                // feather the rim: thin out cells near the sheet's edges
-                if ((edge <= 1 || zEdge == 0) && m.featherNoise(x, z, 4) < 1) {
-                    continue;
-                }
-                if (zEdge == 0 && m.featherNoise(x, z, 3) > 1) {
-                    place(sink, at(plan.base, x, y, z), wisp, stats);
-                } else {
-                    place(sink, at(plan.base, x, y, z), cloud, stats);
                 }
             }
         }
@@ -332,14 +341,15 @@ public final class SectGenerator {
     private static SectPlan computePlan(long seed, BlockPos base, String featureOverride) {
         int count = TERRACE_COUNT;
         String[] names = skeletonNames(count);
-        int axisHalf = AXIS_STAIR_W / 2;
         int xAnchor = (SITE_WIDTH - TERRACE_WIDTH) / 2;
 
         List<Terrace> terraces = new ArrayList<>();
         int z = Z_MARGIN;
         for (int i = 0; i < count; i++) {
-            int width = TERRACE_WIDTH - Math.floorDiv(SUMMIT_TAPER * i, count - 1);
-            int x0 = xAnchor + (TERRACE_WIDTH - width) / 2;
+            // per-side inset, so every terrace stays centred on AXIS_X
+            int inset = Math.floorDiv(SUMMIT_TAPER * i, 2 * (count - 1));
+            int width = TERRACE_WIDTH - 2 * inset;
+            int x0 = xAnchor + inset;
             int x1 = x0 + width - 1;
             int z0 = z;
             int z1 = z + TERRACE_DEPTH - 1;
@@ -352,54 +362,65 @@ public final class SectGenerator {
         List<Slot> slots = new ArrayList<>();
         for (Terrace terrace : terraces) {
             SlotSpec[] specs = slotRoster(terrace.name);
-            SlotSpec onAxisSpec = null;
-            for (SlotSpec s : specs) if (s.role.equals("on_axis")) onAxisSpec = s;
-            int[] onAxisSpan = null;
-            if (onAxisSpec != null) onAxisSpan = onAxisXSpan(terrace, onAxisSpec.archetype);
+            Rect onAxis = null;
+            // the on-axis building first, so the flanks can stand clear of it
             for (SlotSpec spec : specs) {
-                Rect bounds = slotBounds(terrace, spec, axisHalf, onAxisSpan);
-                String template = spec.archetype.equals("pagoda") && spec.role.startsWith("flank")
-                        ? "pagoda_001"
-                        : templateFor(spec.archetype, seed, terrace.index);
-                slots.add(new Slot(
-                        "slot_" + terrace.name + "_" + spec.role + "_" + terrace.index,
-                        terrace.index, terrace.name, spec.role, spec.archetype, template,
-                        archetypeImportance(spec.archetype), bounds,
-                        terrace.name.equals("summit") && spec.role.equals("on_axis")));
+                if (!spec.role.equals("on_axis")) continue;
+                String template = templateFor(spec.archetype, seed, terrace.index);
+                onAxis = slotBounds(terrace, spec, templateFootprint(template), null);
+                slots.add(slot(terrace, spec, template, onAxis));
+            }
+            for (SlotSpec spec : specs) {
+                if (spec.role.equals("on_axis")) continue;
+                String template = templateFor(spec.archetype, seed, terrace.index);
+                slots.add(slot(terrace, spec, template,
+                        slotBounds(terrace, spec, templateFootprint(template), onAxis)));
             }
         }
 
         Terrace first = terraces.get(0);
         Terrace last = terraces.get(terraces.size() - 1);
-        int cx = (first.bounds.x0 + first.bounds.x2()) / 2;
-        int axisX0 = cx - axisHalf;
-        int axisX1 = cx + axisHalf;
-        int axisZ0 = first.bounds.z0;
-        int axisZ1 = last.bounds.z1;
-        Set<Cell> axisCells = rect(axisX0, axisZ0, axisX1, axisZ1);
+        Set<Cell> axisCells = rect(AXIS_X0, APRON_Z0, AXIS_X1, corridorEndZ(last));
 
         List<RetainingFace> retaining = new ArrayList<>();
         List<AxisStair> stairs = new ArrayList<>();
         for (int i = 0; i < terraces.size() - 1; i++) {
             Terrace lower = terraces.get(i);
             Terrace upper = terraces.get(i + 1);
-            int stairZ0 = lower.bounds.z1 + 1;
-            int stairZ1 = upper.bounds.z0 - 1;
+            int bandZ0 = upper.bounds.z0 - TERRACE_RISE;
+            int bandZ1 = upper.bounds.z0 - 1;
             stairs.add(new AxisStair("stair_" + i + "_" + (i + 1), i, i + 1,
-                    new Rect(axisX0, stairZ0, axisX1, stairZ1)));
+                    new Rect(STAIR_X0, bandZ0 - STAIR_PROJECT, STAIR_X1, bandZ1), lower.elevation - 1));
             retaining.add(new RetainingFace("retain_" + i + "_" + (i + 1), i, i + 1,
-                    new Rect(upper.bounds.x0, stairZ0, upper.bounds.x2(), stairZ1), TERRACE_RISE));
+                    new Rect(upper.bounds.x0, bandZ0, upper.bounds.x2(), bandZ1), TERRACE_RISE));
         }
+        Rect apron = new Rect(APRON_X0, APRON_Z0, APRON_X1, APRON_Z1);
 
-        List<GalleryLink> galleries = buildGalleries(terraces, slots);
         FlyingBridgeFeature feature = buildFeature(seed, terraces, slots, featureOverride);
 
-        return new SectPlan(base, terraces, axisCells, slots, galleries, retaining, stairs, feature);
+        return new SectPlan(base, terraces, axisCells, slots, List.of(), retaining, stairs, apron, feature);
+    }
+
+    /** Last corridor row: the row in front of the principal hall (the summit's first row + 2). */
+    private static int corridorEndZ(Terrace summit) {
+        return summit.bounds.z0 + 2;
+    }
+
+    private static Slot slot(Terrace terrace, SlotSpec spec, String template, Rect bounds) {
+        return new Slot(
+                "slot_" + terrace.name + "_" + spec.role + "_" + terrace.index,
+                terrace.index, terrace.name, spec.role, spec.archetype, template,
+                archetypeImportance(spec.archetype), bounds,
+                terrace.name.equals("summit") && spec.role.equals("on_axis"));
     }
 
     private record SlotSpec(String archetype, String role, String align) {
     }
 
+    /**
+     * Buildings per terrace. Only the gate and the principal hall stand on the axis; everything
+     * else is a mirrored pair beside it.
+     */
     private static SlotSpec[] slotRoster(String terraceName) {
         switch (terraceName) {
             case "gate" -> {
@@ -407,12 +428,6 @@ public final class SectGenerator {
                         new SlotSpec("sect_gate", "on_axis", "front"),
                         new SlotSpec("bell_drum_tower", "flank_left", "back"),
                         new SlotSpec("bell_drum_tower", "flank_right", "back"),
-                };
-            }
-            case "disciple" -> {
-                return new SlotSpec[]{
-                        new SlotSpec("disciple_quarters", "flank_left", "center"),
-                        new SlotSpec("disciple_quarters", "flank_right", "center"),
                 };
             }
             case "assembly" -> {
@@ -423,9 +438,8 @@ public final class SectGenerator {
             }
             case "scripture" -> {
                 return new SlotSpec[]{
-                        new SlotSpec("scripture_pavilion", "on_axis", "center"),
-                        new SlotSpec("pagoda", "flank_left", "back"),
-                        new SlotSpec("pagoda", "flank_right", "back"),
+                        new SlotSpec("scripture_pavilion", "flank_left", "center"),
+                        new SlotSpec("scripture_pavilion", "flank_right", "center"),
                 };
             }
             case "summit" -> {
@@ -440,35 +454,29 @@ public final class SectGenerator {
         }
     }
 
-    private static int[] onAxisXSpan(Terrace terrace, String archetype) {
-        int cx = (terrace.bounds.x0 + terrace.bounds.x2()) / 2;
-        int tw = Math.min(maxFootprint(archetype)[0],
-                terrace.bounds.x2() - terrace.bounds.x0 + 1);
-        int sx0 = cx - tw / 2;
-        return new int[]{sx0, sx0 + tw - 1};
-    }
-
-    private static Rect slotBounds(Terrace terrace, SlotSpec spec, int axisHalf, int[] onAxisSpan) {
+    /**
+     * Slot rectangle sized by the slot's actual template. On-axis buildings are centred on
+     * {@link #AXIS_X}; flanks keep their inner edge at {@link #FLANK_INNER_LEFT_X1} /
+     * {@link #FLANK_INNER_RIGHT_X0}, or one block clear of the terrace's on-axis building when that
+     * reaches further out, so the pair mirrors about the axis.
+     */
+    private static Rect slotBounds(Terrace terrace, SlotSpec spec, int[] footprint, Rect onAxis) {
         int x0 = terrace.bounds.x0;
         int x1 = terrace.bounds.x2();
         int z0 = terrace.bounds.z0;
         int z1 = terrace.bounds.z1();
-        int cx = (x0 + x1) / 2;
-        int[] fp = maxFootprint(spec.archetype);
-        int tw = Math.min(fp[0], x1 - x0 + 1);
-        int td = Math.min(fp[1], z1 - z0 + 1);
+        int tw = Math.min(footprint[0], x1 - x0 + 1);
+        int td = Math.min(footprint[1], z1 - z0 + 1);
         int sx0;
         int sx1;
         if (spec.role.equals("on_axis")) {
-            sx0 = cx - tw / 2;
+            sx0 = AXIS_X - tw / 2;
             sx1 = sx0 + tw - 1;
         } else if (spec.role.equals("flank_left")) {
-            int inner = (onAxisSpan == null ? cx - axisHalf : onAxisSpan[0]) - 1;
-            sx1 = inner;
+            sx1 = onAxis == null ? FLANK_INNER_LEFT_X1 : Math.min(FLANK_INNER_LEFT_X1, onAxis.x0 - 1);
             sx0 = sx1 - tw + 1;
         } else {
-            int inner = (onAxisSpan == null ? cx + axisHalf : onAxisSpan[1]) + 1;
-            sx0 = inner;
+            sx0 = onAxis == null ? FLANK_INNER_RIGHT_X0 : Math.max(FLANK_INNER_RIGHT_X0, onAxis.x2() + 1);
             sx1 = sx0 + tw - 1;
         }
         sx0 = Math.max(sx0, x0);
@@ -487,33 +495,6 @@ public final class SectGenerator {
             sz0 = z0 + Math.max(0, (terraceDepth - td) / 2);
         }
         return new int[]{sz0, sz0 + td - 1};
-    }
-
-    private static List<GalleryLink> buildGalleries(List<Terrace> terraces, List<Slot> slots) {
-        List<GalleryLink> links = new ArrayList<>();
-        for (Terrace terrace : terraces) {
-            Slot onAxis = slotByRole(slots, terrace.index, "on_axis");
-            Slot left = slotByRole(slots, terrace.index, "flank_left");
-            Slot right = slotByRole(slots, terrace.index, "flank_right");
-            if (onAxis != null) {
-                Cell onCenter = onAxis.center();
-                for (Slot flank : new Slot[]{left, right}) {
-                    if (flank == null) continue;
-                    links.add(new GalleryLink(
-                            "gallery_" + terrace.name + "_" + flank.role + "_" + terrace.index,
-                            "covered_gallery", onAxis.id, flank.id,
-                            edgeFacing(onAxis, flank.center()), edgeFacing(flank, onCenter),
-                            new int[]{terrace.index, terrace.index}));
-                }
-            } else if (left != null && right != null) {
-                links.add(new GalleryLink(
-                        "gallery_" + terrace.name + "_cross_" + terrace.index,
-                        "covered_gallery", left.id, right.id,
-                        edgeFacing(left, right.center()), edgeFacing(right, left.center()),
-                        new int[]{terrace.index, terrace.index}));
-            }
-        }
-        return links;
     }
 
     private static FlyingBridgeFeature buildFeature(long seed, List<Terrace> terraces, List<Slot> slots,
@@ -640,18 +621,6 @@ public final class SectGenerator {
         };
     }
 
-    private static int[] maxFootprint(String archetype) {
-        String[] variants = variantsOf(archetype);
-        int maxW = 0;
-        int maxD = 0;
-        for (String v : variants) {
-            int[] fp = templateFootprint(v);
-            maxW = Math.max(maxW, fp[0]);
-            maxD = Math.max(maxD, fp[1]);
-        }
-        return new int[]{maxW, maxD};
-    }
-
     static int[] templateFootprint(String id) {
         return switch (id) {
             case "sect_gate", "sect_gate_001", "sect_gate_002" -> new int[]{21, 16};
@@ -672,10 +641,6 @@ public final class SectGenerator {
         };
     }
 
-    private static Cell edgeFacing(Slot slot, Cell toward) {
-        return edgeFacingRect(toward, slot.bounds);
-    }
-
     private static Slot slotByRole(List<Slot> slots, int terraceIndex, String role) {
         for (Slot s : slots) if (s.terraceIndex == terraceIndex && s.role.equals(role)) return s;
         return null;
@@ -683,7 +648,7 @@ public final class SectGenerator {
 
     // --- validation (mirrors validate_sect_plan) ----------------------------
 
-    private static List<String> validatePlan(SectPlan plan) {
+    static List<String> validatePlan(SectPlan plan) {
         List<String> errors = new ArrayList<>();
         if (plan.terraces.isEmpty()) {
             errors.add("missing_terraces");
@@ -744,6 +709,17 @@ public final class SectGenerator {
             }
         }
 
+        // only the gate and the principal hall stand on the axis; no building on a stair
+        Rect corridor = new Rect(AXIS_X0, APRON_Z0, AXIS_X1, corridorEndZ(summit));
+        for (Slot s : plan.slots) {
+            boolean axial = s.role.equals("on_axis")
+                    && (s.archetype.equals("sect_gate") || s.archetype.equals("sect_main_hall"));
+            if (!axial && s.bounds.overlaps(corridor)) errors.add("slot_on_axis_corridor:" + s.id);
+            for (AxisStair st : plan.stairs) {
+                if (s.bounds.overlaps(st.withCheeks())) errors.add("slot_on_stair:" + s.id + ":" + st.id);
+            }
+        }
+
         // gallery + bridge endpoints on volumes/terraces
         List<GalleryLink> allLinks = new ArrayList<>(plan.galleries);
         if (plan.feature != null) allLinks.add(plan.feature.bridge);
@@ -772,108 +748,161 @@ public final class SectGenerator {
 
     // --- realization (shared command + worldgen) ----------------------------
 
-    /** The terrace + axis + volume + gallery + feature realizer, sink-targeted. */
+    /**
+     * The terrace + stair + volume + feature realizer, sink-targeted. Order matters: the grand
+     * stairs are the last terrace element (nothing later writes onto a tread or its headroom except
+     * the corridor pass, which only adds air), buildings come after the terraces, the gate passage
+     * is cut through the gate building after it is placed, and {@link #clearAxisCorridor} runs last.
+     */
     static void realizeCompound(SectSink sink, SectPlan plan, RandomSource templateRandom,
                                 long seed, BuildStats stats) {
         carveTerraces(sink, plan, stats);
-        placeAxisStairs(sink, plan, stats);
-        placeRetainingFaces(sink, plan, stats);
+        levelApron(sink, plan, stats);
+        fillBands(sink, plan, stats);
+        placeGrandStairs(sink, plan, stats);
         placeCliffBack(sink, plan, stats);
         realizeSlots(sink, plan, templateRandom, seed, stats);
-        placeCoveredGalleries(sink, plan, stats);
+        cutGatePassage(sink, plan, stats);
         realizeFeature(sink, plan, templateRandom, seed, stats);
+        clearAxisCorridor(sink, plan, stats);
     }
 
     /**
      * Carve and retain each terrace against the surface so platforms step the
-     * slope with no sub-footprint air gap (no floating or buried terraces).
+     * slope with no sub-footprint air gap (no floating or buried terraces). The
+     * axis corridor is paved in polished andesite with a chiseled centre line.
      */
     private static void carveTerraces(SectSink sink, SectPlan plan, BuildStats stats) {
         Clip clip = sink.clip();
         int bx = plan.base.getX();
         int bz = plan.base.getZ();
+        int corridorEnd = corridorEndZ(plan.terraces.get(plan.terraces.size() - 1));
         for (Terrace terrace : plan.terraces) {
             int floorY = terrace.elevation - 1;
             for (int x = clipLo(terrace.bounds.x0, clip.x0(), bx); x <= clipHi(terrace.bounds.x2(), clip.x1(), bx); x++) {
                 for (int z = clipLo(terrace.bounds.z0, clip.z0(), bz); z <= clipHi(terrace.bounds.z1, clip.z1(), bz); z++) {
-                    int natural = surfaceY(sink, plan.base, x, z);
-                    // platform surface
-                    place(sink, at(plan.base, x, floorY, z), Blocks.STONE_BRICKS.defaultBlockState(), stats);
-                    // fill down to natural ground so no air gap beneath the platform
-                    for (int y = floorY - 1; y >= natural && y > floorY - 40; y--) {
-                        place(sink, at(plan.base, x, y, z), Blocks.STONE_BRICKS.defaultBlockState(), stats);
-                    }
-                    // carve headroom above (terrace reads as an open platform)
-                    int topClear = Math.max(floorY + 4, natural + 1);
-                    for (int y = floorY + 1; y <= topClear; y++) {
-                        place(sink, at(plan.base, x, y, z), Blocks.AIR.defaultBlockState(), stats);
-                    }
+                    BlockState floor = z <= corridorEnd ? groundBlock(x) : Blocks.STONE_BRICKS.defaultBlockState();
+                    groundColumn(sink, plan.base, x, z, floorY, floor, 4, stats);
                 }
             }
         }
     }
 
-    private static void placeAxisStairs(SectSink sink, SectPlan plan, BuildStats stats) {
+    /** Floor block at local x: the corridor paving on the axis, stone bricks elsewhere. */
+    private static BlockState groundBlock(int x) {
+        if (x == AXIS_X) return Blocks.CHISELED_STONE_BRICKS.defaultBlockState();
+        if (x >= AXIS_X0 && x <= AXIS_X1) return Blocks.POLISHED_ANDESITE.defaultBlockState();
+        return Blocks.STONE_BRICKS.defaultBlockState();
+    }
+
+    /**
+     * One platform column: {@code floor} at {@code floorY}, stone bricks down to the natural
+     * ground (so nothing floats over a hollow), and at least {@code headroom} blocks of air above
+     * (more where natural ground stood higher, so the platform reads as an open level).
+     */
+    private static void groundColumn(SectSink sink, BlockPos base, int x, int z, int floorY, BlockState floor,
+                                     int headroom, BuildStats stats) {
+        int natural = surfaceY(sink, base, x, z);
+        place(sink, at(base, x, floorY, z), floor, stats);
+        for (int y = floorY - 1; y >= natural && y > floorY - 40; y--) {
+            place(sink, at(base, x, y, z), Blocks.STONE_BRICKS.defaultBlockState(), stats);
+        }
+        int topClear = Math.max(floorY + headroom, natural + 1);
+        for (int y = floorY + 1; y <= topClear; y++) {
+            place(sink, at(base, x, y, z), Blocks.AIR.defaultBlockState(), stats);
+        }
+    }
+
+    /** The forecourt in front of the gate: level with the gate terrace's floor, paved on the axis. */
+    private static void levelApron(SectSink sink, SectPlan plan, BuildStats stats) {
         Clip clip = sink.clip();
         int bx = plan.base.getX();
         int bz = plan.base.getZ();
-        for (AxisStair stair : plan.stairs) {
-            Terrace lower = plan.terraces.get(stair.lower);
-            int rows = stair.bounds.z1 - stair.bounds.z0 + 1;
-            for (int zi = 0; zi < rows; zi++) {
-                int z = stair.bounds.z0 + zi;
-                if (bz + z < clip.z0() || bz + z > clip.z1()) {
-                    continue;
-                }
-                int stepY = lower.elevation + zi;   // each row rises one block toward the summit
-                for (int x = clipLo(stair.bounds.x0, clip.x0(), bx); x <= clipHi(stair.bounds.x2(), clip.x1(), bx); x++) {
-                    BlockPos stairPos = at(plan.base, x, stepY - 1, z);
-                    BlockState stairState = Blocks.STONE_BRICK_STAIRS.defaultBlockState()
-                            .setValue(StairBlock.FACING, Direction.NORTH)
-                            .setValue(StairBlock.HALF, Half.BOTTOM);
-                    place(sink, stairPos, stairState, stats);
-                    place(sink, stairPos.above(), Blocks.AIR.defaultBlockState(), stats);
-                    place(sink, stairPos.above(2), Blocks.AIR.defaultBlockState(), stats);
-                }
+        Rect r = plan.apron;
+        int floorY = plan.terraces.get(0).elevation - 1;
+        for (int x = clipLo(r.x0, clip.x0(), bx); x <= clipHi(r.x2(), clip.x1(), bx); x++) {
+            for (int z = clipLo(r.z0, clip.z0(), bz); z <= clipHi(r.z1, clip.z1(), bz); z++) {
+                groundColumn(sink, plan.base, x, z, floorY, groundBlock(x), CORRIDOR_HEADROOM, stats);
             }
         }
     }
 
-    private static void placeRetainingFaces(SectSink sink, SectPlan plan, BuildStats stats) {
+    /**
+     * The band between two terraces (the 8 rows in front of the upper one) is solid ground up to
+     * the upper floor: stone inside, a stone-brick face toward the lower terrace with a chiseled
+     * coping course, stone-brick sides. Band cells inside the lower terrace's width but outside the
+     * upper one's (the one-block taper strip) are lower floor. No wall blocks.
+     */
+    private static void fillBands(SectSink sink, SectPlan plan, BuildStats stats) {
         Clip clip = sink.clip();
         int bx = plan.base.getX();
         int bz = plan.base.getZ();
         for (RetainingFace r : plan.retaining) {
-            Rect bounds = r.bounds;
-            int innerMin = stairInnerMin(r, plan);
-            int innerMax = stairInnerMax(r, plan);
-            for (int z = clipLo(bounds.z0, clip.z0(), bz); z <= clipHi(bounds.z1, clip.z1(), bz); z++) {
-                for (int h = 0; h < r.height; h++) {
-                    int y = plan.terraces.get(r.upper).elevation - 1 - h;
-                    for (int x = clipLo(bounds.x0, clip.x0(), bx); x <= clipHi(innerMin, clip.x1(), bx); x++) {
-                        place(sink, at(plan.base, x, y, z), Blocks.STONE_BRICK_WALL.defaultBlockState(), stats);
+            Terrace lower = plan.terraces.get(r.lower);
+            Terrace upper = plan.terraces.get(r.upper);
+            int lowY = lower.elevation - 1;
+            int topY = upper.elevation - 1;
+            for (int x = clipLo(lower.bounds.x0, clip.x0(), bx); x <= clipHi(lower.bounds.x2(), clip.x1(), bx); x++) {
+                boolean inUpper = x >= upper.bounds.x0 && x <= upper.bounds.x2();
+                boolean side = x == upper.bounds.x0 || x == upper.bounds.x2();
+                for (int z = clipLo(r.bounds.z0, clip.z0(), bz); z <= clipHi(r.bounds.z1, clip.z1(), bz); z++) {
+                    if (!inUpper) {
+                        groundColumn(sink, plan.base, x, z, lowY, Blocks.STONE_BRICKS.defaultBlockState(), 4, stats);
+                        continue;
                     }
-                    for (int x = clipLo(innerMax, clip.x0(), bx); x <= clipHi(bounds.x2(), clip.x1(), bx); x++) {
-                        place(sink, at(plan.base, x, y, z), Blocks.STONE_BRICK_WALL.defaultBlockState(), stats);
+                    boolean face = z == r.bounds.z0;
+                    groundColumn(sink, plan.base, x, z, topY,
+                            face ? Blocks.CHISELED_STONE_BRICKS.defaultBlockState()
+                                    : Blocks.STONE_BRICKS.defaultBlockState(), 4, stats);
+                    // the exposed shell is stone brick, the core plain stone
+                    BlockState body = face || side ? Blocks.STONE_BRICKS.defaultBlockState()
+                            : Blocks.STONE.defaultBlockState();
+                    for (int y = topY - 1; y > lowY; y--) {
+                        place(sink, at(plan.base, x, y, z), body, stats);
                     }
                 }
             }
         }
     }
 
-    private static int stairInnerMin(RetainingFace retaining, SectPlan plan) {
-        AxisStair stair = findStair(plan, retaining.lower, retaining.upper);
-        return stair == null ? retaining.bounds.x2() : stair.bounds.x0;
-    }
-
-    private static int stairInnerMax(RetainingFace retaining, SectPlan plan) {
-        AxisStair stair = findStair(plan, retaining.lower, retaining.upper);
-        return stair == null ? retaining.bounds.x0 : stair.bounds.x2();
-    }
-
-    private static AxisStair findStair(SectPlan plan, int lower, int upper) {
-        for (AxisStair s : plan.stairs) if (s.lower == lower && s.upper == upper) return s;
-        return null;
+    /**
+     * Grand stair between two terraces, {@link #STAIR_W} wide on the axis: four south-facing rises
+     * projecting {@link #STAIR_PROJECT} rows onto the lower terrace plus the band's first row, a
+     * three-row landing, and four more rises to the upper floor. Every tread stands on solid stone
+     * brick down to the lower floor with {@link #STAIR_HEADROOM} air above; cheek walls flank it one
+     * block higher than the treads. Written after the bands so nothing overwrites it.
+     */
+    private static void placeGrandStairs(SectSink sink, SectPlan plan, BuildStats stats) {
+        Clip clip = sink.clip();
+        int bx = plan.base.getX();
+        int bz = plan.base.getZ();
+        BlockState tread = Blocks.STONE_BRICK_STAIRS.defaultBlockState()
+                .setValue(StairBlock.FACING, Direction.SOUTH)
+                .setValue(StairBlock.HALF, Half.BOTTOM);
+        BlockState solid = Blocks.STONE_BRICKS.defaultBlockState();
+        BlockState air = Blocks.AIR.defaultBlockState();
+        for (AxisStair stair : plan.stairs) {
+            Rect cheeks = stair.withCheeks();
+            for (int z = clipLo(cheeks.z0, clip.z0(), bz); z <= clipHi(cheeks.z1, clip.z1(), bz); z++) {
+                int treadY = stair.treadY(z);
+                boolean landing = stair.isLanding(z);
+                for (int x = clipLo(cheeks.x0, clip.x0(), bx); x <= clipHi(cheeks.x2(), clip.x1(), bx); x++) {
+                    if (x == cheeks.x0 || x == cheeks.x2()) {
+                        for (int y = stair.lowerFloorY; y <= treadY + 1; y++) {
+                            place(sink, at(plan.base, x, y, z), solid, stats);
+                        }
+                        continue;
+                    }
+                    for (int y = stair.lowerFloorY; y < treadY; y++) {
+                        place(sink, at(plan.base, x, y, z), solid, stats);
+                    }
+                    place(sink, at(plan.base, x, treadY, z), landing ? solid : tread, stats);
+                    for (int y = treadY + 1; y <= treadY + STAIR_HEADROOM; y++) {
+                        place(sink, at(plan.base, x, y, z), air, stats);
+                    }
+                }
+            }
+        }
     }
 
     private static void placeCliffBack(SectSink sink, SectPlan plan, BuildStats stats) {
@@ -949,51 +978,124 @@ public final class SectGenerator {
     }
 
     /**
-     * Covered galleries (廊) as block-placed roofed walks between recorded
-     * endpoints: floor + side posts + slab roof, leaving walking headroom.
+     * Cut a {@link #GATE_PASSAGE_W}-wide, {@link #GATE_PASSAGE_H}-high through-passage along the axis
+     * through the gate building (doors, back wall and furniture go), pave its floor on the gate's
+     * plinth top, and set a row of polished-andesite stairs in front of and behind it so the
+     * plinth's one-block step is walkable.
      */
-    private static void placeCoveredGalleries(SectSink sink, SectPlan plan, BuildStats stats) {
+    private static void cutGatePassage(SectSink sink, SectPlan plan, BuildStats stats) {
+        Slot gate = gateSlot(plan);
+        if (gate == null) return;
         Clip clip = sink.clip();
         int bx = plan.base.getX();
         int bz = plan.base.getZ();
-        for (GalleryLink g : plan.galleries) {
-            if (!g.kind.equals("covered_gallery")) continue;
-            Terrace terrace = findTerrace(plan, g.terraceIndices[0]);
-            if (terrace == null) continue;
-            int floorY = terrace.elevation - 1;
-            if (!clipHitsLocal(clip, plan.base,
-                    Math.min(g.fromCell.x, g.toCell.x), Math.min(g.fromCell.z, g.toCell.z),
-                    Math.max(g.fromCell.x, g.toCell.x), Math.max(g.fromCell.z, g.toCell.z))) {
-                continue;
-            }
-            List<Cell> line = bresenham(g.fromCell, g.toCell);
-            for (int i = 0; i < line.size(); i++) {
-                Cell c = line.get(i);
-                if (bx + c.x < clip.x0() || bx + c.x > clip.x1()
-                        || bz + c.z < clip.z0() || bz + c.z > clip.z1()) {
-                    continue;
-                }
-                BlockPos ground = at(plan.base, c.x, floorY, c.z);
-                place(sink, ground, Blocks.STONE_BRICKS.defaultBlockState(), stats);
-                place(sink, ground.above(), Blocks.AIR.defaultBlockState(), stats);
-                place(sink, ground.above(2), Blocks.AIR.defaultBlockState(), stats);
-                place(sink, ground.above(3), Blocks.STONE_BRICK_SLAB.defaultBlockState()
-                        .setValue(SlabBlock.TYPE, SlabType.TOP), stats);
-                if (i % 3 == 0) {
-                    place(sink, ground.above(), Blocks.OAK_FENCE.defaultBlockState(), stats);
+        int plinthY = plan.terraces.get(gate.terraceIndex).elevation;
+        int px0 = AXIS_X - GATE_PASSAGE_W / 2;
+        int px1 = AXIS_X + GATE_PASSAGE_W / 2;
+        BlockState air = Blocks.AIR.defaultBlockState();
+        for (int x = clipLo(px0, clip.x0(), bx); x <= clipHi(px1, clip.x1(), bx); x++) {
+            for (int z = clipLo(gate.bounds.z0, clip.z0(), bz); z <= clipHi(gate.bounds.z1, clip.z1(), bz); z++) {
+                place(sink, at(plan.base, x, plinthY, z), groundBlock(x), stats);
+                for (int y = plinthY + 1; y <= plinthY + GATE_PASSAGE_H; y++) {
+                    place(sink, at(plan.base, x, y, z), air, stats);
                 }
             }
-            stats.galleriesPlaced++;
+            int front = gate.bounds.z0 - 1;
+            int back = gate.bounds.z1 + 1;
+            if (bz + front >= clip.z0() && bz + front <= clip.z1()) {
+                place(sink, at(plan.base, x, plinthY, front), passageStair(Direction.SOUTH), stats);
+            }
+            if (bz + back >= clip.z0() && bz + back <= clip.z1()) {
+                place(sink, at(plan.base, x, plinthY, back), passageStair(Direction.NORTH), stats);
+            }
         }
+    }
+
+    private static BlockState passageStair(Direction facing) {
+        return Blocks.POLISHED_ANDESITE_STAIRS.defaultBlockState()
+                .setValue(StairBlock.FACING, facing)
+                .setValue(StairBlock.HALF, Half.BOTTOM);
+    }
+
+    static Slot gateSlot(SectPlan plan) {
+        for (Slot s : plan.slots) {
+            if (s.role.equals("on_axis") && s.archetype.equals("sect_gate")) return s;
+        }
+        return null;
+    }
+
+    /**
+     * Local y of the walking surface block under the axis corridor at row z (x 28..34): the
+     * forecourt or terrace floor, a stair tread or landing, or, at the gate passage's end stairs
+     * (x 30..32 only), the stair block.
+     */
+    static int corridorFloorY(SectPlan plan, int x, int z) {
+        Slot gate = gateSlot(plan);
+        if (gate != null && Math.abs(x - AXIS_X) <= GATE_PASSAGE_W / 2) {
+            if (z >= gate.bounds.z0 - 1 && z <= gate.bounds.z1 + 1) {
+                return plan.terraces.get(gate.terraceIndex).elevation;
+            }
+        }
+        for (AxisStair st : plan.stairs) {
+            if (z >= st.bounds.z0 && z <= st.bounds.z1) return st.treadY(z);
+        }
+        for (Terrace t : plan.terraces) {
+            if (z >= t.bounds.z0 && z <= t.bounds.z1) return t.elevation - 1;
+        }
+        return plan.terraces.get(0).elevation - 1;   // the forecourt
+    }
+
+    /**
+     * Final pass: guarantee {@link #CORRIDOR_HEADROOM} blocks of air above the axis corridor from
+     * the forecourt's front row to the row before the principal hall, everywhere except the gate
+     * building (the passage handles that). Only writes air.
+     */
+    private static void clearAxisCorridor(SectSink sink, SectPlan plan, BuildStats stats) {
+        Clip clip = sink.clip();
+        int bx = plan.base.getX();
+        int bz = plan.base.getZ();
+        Slot gate = gateSlot(plan);
+        int zEnd = corridorEndZ(plan.terraces.get(plan.terraces.size() - 1));
+        BlockState air = Blocks.AIR.defaultBlockState();
+        for (int z = clipLo(APRON_Z0, clip.z0(), bz); z <= clipHi(zEnd, clip.z1(), bz); z++) {
+            if (gate != null && z >= gate.bounds.z0 && z <= gate.bounds.z1) continue;
+            for (int x = clipLo(AXIS_X0, clip.x0(), bx); x <= clipHi(AXIS_X1, clip.x1(), bx); x++) {
+                int floorY = corridorFloorY(plan, x, z);
+                for (int y = floorY + 1; y <= floorY + CORRIDOR_HEADROOM; y++) {
+                    place(sink, at(plan.base, x, y, z), air, stats);
+                }
+            }
+        }
+    }
+
+    /**
+     * Whether the detached spire can be built: its bounds plus one block must stay clear of every
+     * building slot, terrace and stair. None of the three current variants does (each would stand
+     * inside the summit), so the feature stays in the plan but is not built until it gets a real
+     * outcrop of its own.
+     */
+    static boolean featureBuildable(SectPlan plan) {
+        if (plan.feature == null) return false;
+        Rect d = plan.feature.detachedBounds;
+        Rect grown = new Rect(d.x0 - 1, d.z0 - 1, d.x2() + 1, d.z1 + 1);
+        for (Slot s : plan.slots) if (grown.overlaps(s.bounds)) return false;
+        for (Terrace t : plan.terraces) if (grown.overlaps(t.bounds)) return false;
+        for (AxisStair st : plan.stairs) if (grown.overlaps(st.withCheeks())) return false;
+        return true;
     }
 
     /**
      * Detached-spire flying bridge: place the detached volume on the surface
      * (the derived spire top in worldgen, the live surface for the on-the-spot
      * command) and span a roofed bridge deck between summit and detached volume.
+     * Skipped (and counted) unless {@link #featureBuildable}.
      */
     private static void realizeFeature(SectSink sink, SectPlan plan, RandomSource random, long seed, BuildStats stats) {
         if (plan.feature == null) return;
+        if (!featureBuildable(plan)) {
+            stats.featuresSkipped++;
+            return;
+        }
         FlyingBridgeFeature f = plan.feature;
         Clip clip = sink.clip();
         int bx = plan.base.getX();
@@ -1034,7 +1136,7 @@ public final class SectGenerator {
             place(sink, deck.east(), Blocks.DARK_OAK_FENCE.defaultBlockState(), stats);
             place(sink, deck.west(), Blocks.DARK_OAK_FENCE.defaultBlockState(), stats);
         }
-        stats.galleriesPlaced++;
+        stats.featuresBuilt++;
     }
 
     private static Terrace findTerrace(SectPlan plan, int index) {
@@ -1191,7 +1293,8 @@ public final class SectGenerator {
 
         @Override
         public boolean placeTemplate(StructureTemplate template, BlockPos origin, RandomSource random) {
-            return template.placeInWorld(level, origin, origin, new StructurePlaceSettings(), random, BLOCK_FLAGS);
+            StructurePlaceSettings settings = new StructurePlaceSettings().addProcessor(DropIsolatedBlocks.INSTANCE);
+            return template.placeInWorld(level, origin, origin, settings, random, BLOCK_FLAGS);
         }
     }
 
@@ -1248,10 +1351,37 @@ public final class SectGenerator {
                        Cell fromCell, Cell toCell, int[] terraceIndices) {
     }
 
-    private record RetainingFace(String id, int lower, int upper, Rect bounds, int height) {
+    record RetainingFace(String id, int lower, int upper, Rect bounds, int height) {
     }
 
-    private record AxisStair(String id, int lower, int upper, Rect bounds) {
+    /**
+     * Grand stair between terraces {@code lower} and {@code upper}: treads over {@code bounds}
+     * (x 27..35, from {@link #STAIR_PROJECT} rows in front of the band to the band's last row),
+     * cheek walls one column either side. {@code lowerFloorY} is the lower terrace's floor block y.
+     */
+    record AxisStair(String id, int lower, int upper, Rect bounds, int lowerFloorY) {
+        /** Rises per flight; two flights climb one terrace rise. */
+        static final int FLIGHT = TERRACE_RISE / 2;
+        /** Rows of the landing between the two flights. */
+        static final int LANDING = TERRACE_RISE + STAIR_PROJECT - 2 * FLIGHT;
+
+        /** Treads plus the cheek walls. */
+        Rect withCheeks() {
+            return new Rect(bounds.x0 - 1, bounds.z0, bounds.x2() + 1, bounds.z1);
+        }
+
+        /** Block y of the tread (or landing) in row z. */
+        int treadY(int z) {
+            int r = z - bounds.z0;
+            if (r < FLIGHT) return lowerFloorY + 1 + r;
+            if (r < FLIGHT + LANDING) return lowerFloorY + FLIGHT;
+            return lowerFloorY + FLIGHT + 1 + (r - FLIGHT - LANDING);
+        }
+
+        boolean isLanding(int z) {
+            int r = z - bounds.z0;
+            return r >= FLIGHT && r < FLIGHT + LANDING;
+        }
     }
 
     record FlyingBridgeFeature(String variant, String detachedArchetype, String detachedTemplate,
@@ -1262,13 +1392,18 @@ public final class SectGenerator {
 
     record SectPlan(BlockPos base, List<Terrace> terraces, Set<Cell> axisCells, List<Slot> slots,
                     List<GalleryLink> galleries, List<RetainingFace> retaining,
-                    List<AxisStair> stairs, FlyingBridgeFeature feature) {
+                    List<AxisStair> stairs, Rect apron, FlyingBridgeFeature feature) {
+        /** Last row of the axis corridor, the row in front of the principal hall. */
+        int axisEndZ() {
+            return corridorEndZ(terraces.get(terraces.size() - 1));
+        }
     }
 
     static final class BuildStats {
         int placedSlots;
         int skippedSlots;
-        int galleriesPlaced;
+        int featuresBuilt;
+        int featuresSkipped;
         int blocksPlaced;
         int fallbackSubstitutions;
         final List<String> skippedSlotIds = new ArrayList<>();
