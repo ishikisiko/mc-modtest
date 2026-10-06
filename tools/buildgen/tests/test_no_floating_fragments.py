@@ -6,10 +6,18 @@ stair runs touching only at their edges, shutters left on a carved wall,
 lanterns and bells hanging from nothing. The bottom layer (y=0) replaces the
 terrain block when a template is placed, so it is always supported from below.
 
+A second, stricter rule covers every slab, stairs and trapdoor cell: it must
+physically touch a neighbour face to face (``buildgen.contact``). A bottom slab
+or stair beside another bottom slab/stair on the same level counts, as does a
+full block beside, below or above it; a top slab one block above a bottom slab
+does not (half a block of air between them), and thin posts (walls, fences)
+are not support. This catches the eave corner slab lifted a block above its
+ring and the bracket cap slab stacked on a bottom slab.
+
 Run from the repository root (after regenerating the structures):
     python3 tools/buildgen/tests/test_no_floating_fragments.py
     python3 tools/buildgen/tests/test_no_floating_fragments.py --all
-``--all`` also lists the count for every other template (informational only).
+``--all`` also lists the counts for every other template (informational only).
 """
 
 from __future__ import annotations
@@ -24,6 +32,7 @@ if str(_TOOLS_DIR) not in sys.path:
     sys.path.insert(0, str(_TOOLS_DIR))
 
 from buildgen import ops  # noqa: E402
+from buildgen.contact import detached_partials  # noqa: E402
 from buildgen.grid import BlockGrid  # noqa: E402
 from buildgen.massing import Node  # noqa: E402
 from buildgen.nbtread import read_gzipped_nbt, state_string  # noqa: E402
@@ -118,10 +127,33 @@ def test_sect_family_templates_have_no_floating_fragments(show_all: bool = False
             + "\n  ".join(failures))
 
 
+def test_sect_family_partials_touch_a_neighbour(show_all: bool = False) -> None:
+    """Every slab/stairs/trapdoor cell shares face area with a neighbour."""
+    paths = sorted(STRUCTURE_DIR.glob("*.nbt"))
+    family = [p for p in paths if is_sect_family(p.stem)]
+    _assert(len(family) >= 21, f"sect-family templates missing: {[p.stem for p in family]}")
+    failures = []
+    for path in paths:
+        in_family = is_sect_family(path.stem)
+        if not in_family and not show_all:
+            continue
+        loose = detached_partials(template_cells(path))
+        if show_all:
+            mark = "" if in_family else "  (outside the sect family)"
+            print(f"contact {path.stem}: {len(loose)}{mark}")
+        if in_family and loose:
+            failures.append(f"{path.stem}: {len(loose)} e.g. {loose[:3]}")
+    _assert(not failures, "slab/stairs/trapdoor cells touching nothing in "
+            "sect-family templates:\n  " + "\n  ".join(failures))
+
+
 def main(argv: List[str]) -> int:
+    show_all = "--all" in argv
     test_sweeping_eave_has_no_unsupported_corner_pieces()
-    test_sect_family_templates_have_no_floating_fragments(show_all="--all" in argv)
+    test_sect_family_templates_have_no_floating_fragments(show_all=show_all)
     print("OK sect-family templates have no floating fragments")
+    test_sect_family_partials_touch_a_neighbour(show_all=show_all)
+    print("OK sect-family slab/stairs/trapdoor cells all touch a neighbour")
     return 0
 
 
