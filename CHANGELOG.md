@@ -7,6 +7,70 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.35.1
+
+The sect compound (山门) rework, after the owner walked the 0.35.0 compound
+built by `/myvillage world sect <id> build here` and rejected it. The two
+things the owner asked for come first.
+
+### Fixed
+
+- Floating fragments are gone. The covered galleries (廊), one-block lines of
+  stone-brick floor with a top half-slab two blocks up and a lone oak fence
+  every third block, are removed entirely, so no half-slab hangs in the air
+  around the buildings and no fence stands on the axis. Every sect template
+  placement now drops any template block that touches no other template block
+  on any face (a new `myvillage:drop_isolated_blocks` structure processor),
+  as a safety net for lone eave stairs and trapdoors; the templates are fixed
+  at the source separately.
+- The axis is connected front to back. A paved corridor (御道, 7 wide, polished
+  andesite with a chiseled centre line) runs from a new levelled forecourt in
+  front of the gate to the row before the principal hall; a 3-wide, 4-high
+  passage is cut through the gate building with stairs in front and behind;
+  no building other than the gate and the principal hall stands on the axis;
+  and a final pass keeps 5 blocks of air above the corridor. Between terraces
+  there are proper grand stairs (9 wide, 4 rises, a 3-row landing, 4 rises,
+  facing the right way, solid underneath, cheek walls either side) cut into
+  solid retaining bands with a stone-brick face and chiseled coping. The
+  13,000-odd stone-brick wall blocks that used to fill the bands are gone;
+  the generator writes no wall block anywhere.
+
+### Changed
+
+- Terraces are symmetric about the axis (59/57/55/53/51 wide). Flank
+  buildings are mirrored pairs beside the axis, sized and aligned by their
+  actual template; the bell and drum towers stand clear of the gate. The
+  scripture terrace holds two scripture pavilions instead of an on-axis
+  pavilion boxed in by two pagodas; pagodas no longer stand on terraces.
+- The derived mountain has no noise inside the compound core or on the
+  forecourt, so no stray stone rises onto terraces, bands, stairs or the
+  ground in front of the gate; the taper strips beside the narrower terraces
+  slope down one block per block. The outer skirt is unchanged.
+- The detached spire is built only where it clears every building, terrace
+  and stair. None of the three variants does yet (each would stand inside
+  the summit), so it is skipped and logged, and its peak is not raised; the
+  variants stay in the plan and in the ledger's records.
+- The cloud sea is removed (it sat under the old retaining fill and was never
+  visible).
+- `SectCourtyard` keeps avatars off the stairs and the axis corridor; on seed
+  7 the gate terrace has 272 courtyard cells, still room for forty avatars.
+  `tools/world_sim_avatar_evidence.py` moves its courtyard box and camera
+  rows off the stair.
+
+### Tests
+
+- `SectCompoundRealizationTest` builds whole compounds (seeds 7, -123456789,
+  20260618) with the real templates into an in-memory world, on the command
+  path and the worldgen path (also chunk by chunk), and checks that the axis
+  is walkable from the forecourt to the hall, nothing floats, the generator
+  writes no wall block, only the gate and the hall stand on the axis and the
+  flanks mirror, every stair climbs one terrace in single steps, courtyard
+  cells are open ground, chunk slices join, and the core has no noise.
+  `DropIsolatedBlocksTest`; `SectCourtyardTest` re-derived from the new plan.
+- Specs `sect-compound-layout`, `sect-compound-realization`,
+  `sect-mountain-derivation`, and `sect-worldgen-structure` describe the new
+  behaviour.
+
 ## 0.35.0
 
 The world simulation (世界模拟): every world now keeps a ledger, the 命簿, of
