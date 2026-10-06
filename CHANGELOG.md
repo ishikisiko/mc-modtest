@@ -7,6 +7,8 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.40.0
+
 ## 0.39.1
 
 The Xuantie Gauntlet after the owner's first look (2026-10-07: the moves are
