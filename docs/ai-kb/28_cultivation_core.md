@@ -14,7 +14,9 @@ deterministic advancement through Qi IV; see
 [Cultivation Playable Loop](30_cultivation_playable_loop.md). The 0.37.0
 technique system adds profile v4 (a running core technique), the school and
 heritage registries, optional technique fields, and the `core`/`xinfa`
-command; see [Technique System](41_technique_system.md). Power recovery,
+command; see [Technique System](41_technique_system.md). 0.38.0 adds technique
+manuals (秘籍) as items, studying them as a meditation mode, the optional
+technique `study` field, and the `manual`/`miji` command (same note). Power recovery,
 combat attributes, equipment slots, a mutable cultivation UI, region qi,
 sect/worldgen cultivation integration, and flying-sword restrictions remain
 outside these foundation contracts.
@@ -104,7 +106,10 @@ A technique file has `translation_key`, `category` (`core`, `active`,
 and `requirements`, and since 0.37.0 three optional fields: `school` (a school
 id), `lineage.previous` (the technique before it in a chain), and `effects`
 (one block matching the category; only `core.meditation_route` drives
-anything yet). At server start the registries check that schools,
+anything yet). Since 0.38.0 it may also carry `study` (`points` > 0, `gates`
+≥ 0, `gate_stability_cost` ≥ 0; default `{4000, 0, 0}`), the cost of reading
+its manual, which the catalogue generator writes per grade from
+`study_by_grade`. At server start the registries check that schools,
 `lineage.previous` ids, and heritage members exist. Shapes and rules are in
 [Technique System](41_technique_system.md).
 
@@ -179,6 +184,7 @@ Targets use the standard single-player argument.
 /myvillage cultivation forget <target> <technique_id>
 /myvillage cultivation setmastery <target> <technique_id> <amount>
 /myvillage cultivation core <target> <technique_id>
+/myvillage cultivation manual <target> <technique_id>
 /myvillage cultivation awaken [target]
 /myvillage cultivation initiate [target]
 ```
@@ -191,7 +197,7 @@ Both roots expose both names in every pair: `info` / `chakan`, `reset` /
 `chongzhi`, `setrealm` / `shezhijingjie`, `setprogress` / `shezhixiuwei`,
 `setstability` / `shezhiwendingdu`, `setpower` / `shezhilingli`, `setroot` /
 `shezhilinggen`, `clearroot` / `qingchulinggen`, `learn` / `xuexi`, `forget` /
-`yiwang`, `setmastery` / `shezhishuliandu`, `core` / `xinfa` (0.37.0), rules-based `awaken` / `juexing`, and
+`yiwang`, `setmastery` / `shezhishuliandu`, `core` / `xinfa` (0.37.0), `manual` / `miji` (0.38.0), rules-based `awaken` / `juexing`, and
 rules-based `initiate` / `rumen`. English and pinyin routes share the same argument
 types, registry suggestions, permission boundary, handlers, diagnostics, atomic
 mutation behavior, and synchronization effects. Each of the two initiation pairs
@@ -207,7 +213,11 @@ with mastery, and since 0.37.0 `running core technique: <id>` or `none`; it
 preserves and marks unavailable raw ids. `core` / `xinfa` switches the running
 core technique through `CultivationService.switchCoreTechnique` (learned and
 `core` only; outside one heritage chain it costs `techniques.switch_progress_loss`
-of the progress, see note 41); its suggestions are the registered core techniques. `awaken`/`juexing`
+of the progress, see note 41); its suggestions are the registered core techniques.
+`manual` / `miji` (0.38.0) gives the target the technique manual of that
+technique's category and grade, carrying it in the `myvillage:technique`
+component (into the inventory, dropped at the target when full); it changes
+no profile, and a grade-0 or unregistered technique is refused. `awaken`/`juexing`
 calls the ordinary deterministic awakening service, while `initiate`/`rumen`
 calls normal-rules basic-breathing inheritance. Neither route accepts seed,
 element, affinity, count, technique-id, reroll, force, or bypass input.

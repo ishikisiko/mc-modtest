@@ -523,6 +523,8 @@ jar tf build/libs/myvillage-0.37.0.jar | grep "assets/myvillage/blockstates/tech
 jar tf build/libs/myvillage-0.37.0.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
 jar tf build/libs/myvillage-0.37.0.jar | grep "assets/myvillage/guides/myvillage/cultivation/index.md"
 jar tf build/libs/myvillage-0.37.0.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
+jar tf build/libs/myvillage-0.37.0.jar | grep "assets/myvillage/models/item/manual_core_huang.json"
+jar tf build/libs/myvillage-0.37.0.jar | grep "assets/myvillage/textures/item/manual_core_tint.png"
 ```
 
 The expected jar is:
@@ -1804,7 +1806,7 @@ every page, and a body that scrolls when a small window cannot hold a page:
 | Page (zh / en) | Shows |
 |---|---|
 | 内视 / Profile | The current realm's stage ladder, progress and stability bars, power, spiritual affinity, calendar and lifespan, the spiritual root's shares, and the next advancement's target and conditions. |
-| 修炼 / Meditation | A meridian diagram: a figure seated cross-legged with the small circuit (督脉 up the back, 任脉 down the front), its acupoints, and the lower dantian, lit and animated for the session state (0.32.0). Beside it: what normal and spirit meditation yield and cost, backpack spirit stones, the advancement's target, conditions, duration, stability cost and interruption loss, and the normal, spirit, advance, and stop buttons labelled with their bound keys. |
+| 修炼 / Meditation | A meridian diagram: a figure seated cross-legged with the small circuit (督脉 up the back, 任脉 down the front), its acupoints, and the lower dantian, lit and animated for the session state (0.32.0). Beside it: what normal and spirit meditation yield and cost, backpack spirit stones, the advancement's target, conditions, duration, stability cost and interruption loss, and the normal, spirit, advance, and stop buttons labelled with their bound keys. While you study a manual (0.38.0) a 研读《功法名》 card with the comprehension bar, the next gate, and the stop key takes the place of the normal and spirit cards (see [Technique Manuals](#technique-manuals-0380)). |
 | 功法 / Techniques | Learned techniques grouped into 心法, 绝技, 身法, and 炼体 cards (0.37.0), each with mastery, chips for category, grade (凡阶..天阶), school, heritage and its position (such as `太白剑脉 2/4`), and elements, and its requirement. The running core technique is marked 运转中; every other learned core technique has a 运转此心法 button (see [Techniques And Heritages](#techniques-and-heritages-0370)). |
 | 天下 / World | The world ledger (命簿, see [World Simulation](#world-simulation-世界模拟--命簿)), read-only, in five sub-views chosen from the buttons under the body (0.36.0): 总览 (era date, settlement state, population, realms, sects, the five foremost people), 宗门 (every sect, active first), 人物 (search by name or Daoist title as you type), 纪事 (the latest notable and major events, newest first, with their causes), and 此地 (your region, the sects seated there with the distance to their gate, the strongest people present, recent events). Click a sect or person row, or a name inside a detail, to open it; 「← 返回」 goes back. |
 
@@ -2000,6 +2002,7 @@ requirement. The existing administrator surface remains available:
 /myvillage cultivation forget <target> <technique_id>
 /myvillage cultivation setmastery <target> <technique_id> <amount>
 /myvillage cultivation core <target> <technique_id>     # run another learned core technique (心法); 0.37.0
+/myvillage cultivation manual <target> <technique_id>   # give that technique's manual (秘籍); 0.38.0
 ```
 
 `setstability` accepts a non-negative integer. The profile schema has no fixed
@@ -2038,6 +2041,7 @@ Both command roots continue to accept either literal in every pair:
 | `forget` | `yiwang` |
 | `setmastery` | `shezhishuliandu` |
 | `core` | `xinfa` |
+| `manual` | `miji` |
 | `awaken` | `juexing` |
 | `initiate` | `rumen` |
 
@@ -2108,13 +2112,83 @@ costs `techniques.switch_progress_loss` (0.3) of the current progress (散功),
 except between two techniques of one heritage chain; switching to the running
 one changes nothing. `info` shows the running core technique. Active,
 movement, and body techniques can be learned and are listed, but have no
-effect yet. Payload protocol is `10`, so client and server need the same jar.
+effect yet. Payload protocol is `10` (`11` since 0.38.0), so client and server
+need the same jar.
 
 In the world ledger, some sects hold a heritage from genesis, `world sect`
 and the 天下 sect detail show it as 传承, a sect that ends loses it, a later
 founder who practises one of its techniques can revive it, and its manuals
 turn up in ruins while it is lost. Details:
 `docs/ai-kb/41_technique_system.md`; design: `docs/technique-system-brief.md`.
+
+### Technique Manuals (0.38.0)
+
+A technique is learned by reading its manual (秘籍). There are 16 manual
+items, one per category and grade, and the technique a manual teaches is a
+data component on the stack, like the enchantment on an enchanted book:
+
+| Item | Category | Grades |
+|---|---|---|
+| `myvillage:manual_core_<grade>` | 心法 core, thread-bound book | `huang` 黄, `xuan` 玄, `di` 地, `tian` 天 |
+| `myvillage:manual_active_<grade>` | 绝技 active, scroll | same |
+| `myvillage:manual_movement_<grade>` | 身法 movement, folded book | same |
+| `myvillage:manual_body_<grade>` | 炼体 body, jade slip | same |
+
+The icon of a category is tinted by grade (yellow, blue, brown, pale gold);
+rarity runs common, uncommon, rare, epic, and 天阶 manuals glint. A manual
+with a technique is named `《功法名》` (`Manual: …` in English) and its tooltip
+lists category and grade, school, elements, heritage position (such as
+`太白剑脉 2/4`), requirement, `参悟 n%` once you have read some of it, and
+`右键盘坐研读`. Without a technique it is a blank manual (`空白秘籍 · 绝技 ·
+玄阶`); a technique that does not exist or does not match the item's category
+or grade makes a red `残损秘籍` that cannot be read. The `myvillage:main`
+creative tab lists the 16 blank manuals and then one manual per technique
+(129). Other ways to get one:
+
+```mcfunction
+/myvillage cultivation manual @s myvillage:gengjin_jianjue
+/myvillage xiulian miji @s myvillage:gengjin_jianjue
+/give @s myvillage:manual_active_xuan[myvillage:technique="myvillage:gengjin_jianjue"]
+```
+
+The command picks the right item for the technique (Basic Breathing, 凡阶, has
+no manual). With `/give`, the item and the technique must agree or the manual
+is damaged; add `myvillage:comprehension=<points>` to start part-read. The
+icons come from `python3 tools/gen_manual_textures.py` (`--check` is a
+release-gate step); never edit the PNGs.
+
+Studying (研读) is a third kind of meditation. In survival or adventure, with
+an awakened root and Basic Breathing learned, right-click a manual of a
+technique you have not learned and whose requirements you meet (realm, stage,
+element affinity; for a chain technique, the previous one learned). Each
+refusal is a chat line. You sit down: 40 ticks of preparation, then every 10
+ticks the manual gains `spiritual affinity × (1 + element bonus)` points,
+rounded down; the bonus is 0.15 when your root has at least 15 % in one of
+the technique's elements, and the grade does not multiply study. Keep the
+manual in the slot you used it from; moving it ends the study. Higher grades
+have gates: crossing one costs stability once, and with too little stability
+the study stops on the gate (`参悟至此，神思不济`) until you have more. At the
+total the technique is learned (a core technique starts running if none was), the
+manual is used up, and the study ends. Anything that interrupts meditation
+(moving, damage, the stop key `X`, the stop button, logging out) interrupts
+study, and the points read so far stay on the manual; right-click again to go
+on. Right-clicking a manual during another session first ends that session.
+
+| Grade | Points | Gates (at points) | Stability per gate | Time at affinity 10 | With an element match |
+|---|---:|---|---:|---:|---:|
+| 黄 | 4000 | none | 0 | 3 min 20 s | about 3 min |
+| 玄 | 12000 | 6000 | 50 | 10 min | about 9 min |
+| 地 | 36000 | 12000, 24000 | 100 | 30 min | about 27 min |
+| 天 | 96000 | 24000, 48000, 72000 | 150 | 80 min | about 73 min |
+
+Times are real minutes at 20 TPS without the preparation or gate stops. The
+numbers are data (`study_by_grade` in `tools/technique_catalogue/rules.json`,
+written into each technique file). 地 and 天 techniques need Foundation early,
+which play cannot reach in this release. While you study, the 修炼 page shows
+a 研读《功法名》 card and the session reads 研读中. The meditation status
+carries the study progress, so the payload protocol is `11`. Details:
+`docs/ai-kb/41_technique_system.md` ("Manuals and study"); brief:
+`docs/technique-manual-brief.md`.
 
 ### In-Game Acceptance
 
@@ -2230,6 +2304,27 @@ cultivation validators, and the Gradle tests.
 | Heritage chronicle lines (genesis, lost, rekindled, ruin find) in a real client and as rumors | `not_verified` |
 | The owner's verdict on the page and the switch rules | `not_verified` |
 
+Nothing of the technique manuals has been looked at in a real client yet; the
+automated checks are the catalogue and manual-texture `--check`s, the
+cultivation validators, and the Gradle tests (item rules, study start checks,
+settlement and gates, status codec, panel readouts).
+
+| Technique manuals (0.38.0) surface | Result |
+|---|---|
+| Manual validity, names, creative variants, study numbers, start checks, settlement, gates, completion, status codec, command, panel readouts | `pass` (automated) |
+| The four icons and their grade tints, rarity colours, and the 天阶 glint in the inventory and in hand | `not_verified` |
+| Tooltip lines (category · grade, school, elements, heritage, requirement, `参悟 n%`, use hint) and the blank and damaged names | `not_verified` |
+| Creative tab: 16 blank manuals, then the 129 technique manuals | `not_verified` |
+| Right-click starts a study (preparation, then 研读中) without a hand swing; each refusal message | `not_verified` |
+| Interruption (move, damage, `X`, logout) keeps the points on the manual; right-click continues | `not_verified` |
+| Moving the manual out of its slot stops with the manual-lost message | `not_verified` |
+| Gate: stability paid once when enough; stop on the gate with the cost and shortfall message when not | `not_verified` |
+| Completion learns the technique, consumes the manual, and a core technique starts running if none was | `not_verified` |
+| 修炼 page study card (title, bar, percent, gate line, stop hint) at GUI 480x270, 427x240, and 320x240 in Chinese and English | `not_verified` |
+| `X` and the stop button end a study; the start buttons are disabled while studying | `not_verified` |
+| `/myvillage cultivation manual` / `xiulian miji` and the `/give` component form | `not_verified` |
+| The owner's verdict on the study durations, the gate (神思) rule, and the art | `not_verified` |
+
 Use only `pass`, `fail`, or `not_verified`. A `fail` records the observed mismatch
 and reproduction steps; `not_verified` means the surface was not directly
 observed and does not block truthful reporting of automated results.
@@ -2240,7 +2335,8 @@ intent enum used by both keys and H buttons, which carries no identity,
 coordinate, velocity, affinity, resource count, rate, profile value, target
 stage, or result, and (0.37.0) the core-technique switch, which carries only a
 technique id; the server decides whether the switch is allowed and what it
-costs. Client caches and button state are presentation-only and clear on
+costs. A study (0.38.0) starts by using a manual, which is ordinary item use,
+and stops with the existing stop intent. Client caches and button state are presentation-only and clear on
 disconnect. The 天下 page's world query (0.36.0) is a separate read-only
 payload of the world simulation, not a cultivation payload.
 

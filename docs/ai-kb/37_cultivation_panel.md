@@ -12,7 +12,8 @@ Since 0.36.0 it also has a 天下 page that reads the world ledger (命簿) of
 [40_world_sim.md](40_world_sim.md) through its own read-only query. Since
 0.37.0 the 功法 page groups techniques and can switch the running core
 technique, and the meridian diagram follows that technique's route
-([41_technique_system.md](41_technique_system.md)).
+([41_technique_system.md](41_technique_system.md)). Since 0.38.0 the 修炼 page
+shows a study card while a technique manual is read (研读; "Study card" below).
 
 ## Layout
 
@@ -42,7 +43,7 @@ page (0.32.0), which has one generated texture and its own vector drawing; see
 | Tab (zh / en) | Class | Content |
 |---|---|---|
 | 内视 / Profile | `OverviewPage` | Stage ladder of the current realm, progress and stability bars, power, affinity; calendar and lifespan; root shares; the next advancement's target and conditions. |
-| 修炼 / Meditation | `MeditationPage` | The meridian diagram (seated figure, small circuit, acupoints, dantian) lit and animated for the session state; beside it (below it when narrow) progress and stability, what normal and spirit meditation yield and cost, advancement target, conditions, duration, stability cost, interruption loss; and the four action buttons with their bound keys. |
+| 修炼 / Meditation | `MeditationPage` | The meridian diagram (seated figure, small circuit, acupoints, dantian) lit and animated for the session state; beside it (below it when narrow) progress and stability, what normal and spirit meditation yield and cost, advancement target, conditions, duration, stability cost, interruption loss; and the four action buttons with their bound keys. While a study session runs (0.38.0) a study card replaces the normal and spirit cards. |
 | 功法 / Techniques | `TechniquesPage` | Since 0.37.0 one card per category, 心法 / 绝技 / 身法 / 炼体 (Core Methods / Battle Arts / Movement Arts / Body Tempering), empty ones left out, plus a last 未知功法 card for learned ids the synchronized registry does not know; inside a card highest grade first, then by name. Each entry: name, mastery, chips (category, grade name 凡阶..天阶, school, each heritage with the technique's position such as `太白剑脉 2/4`, elements; up to three chip rows), and its stated requirement. The running core technique carries a jade 运转中 (Running) chip; every other learned core technique a 运转此心法 (Run this method) button. With nothing learned, an empty card with a hint. |
 | 天下 / World | `WorldPage` | The world ledger, read-only, in five sub-views chosen from the dock: 总览 (era date, settlement running or paused with pending days, tier, living against target, dead, sects active and destroyed, event count; living per realm as bars; the five foremost people), 宗门 (every sect, active first, with master, members, top realm, prestige, gate built or not), 人物 (live search by name or Daoist title, living first), 纪事 (latest notable and major events, newest first, each with the line it answers), 此地 (the player's region, the sects seated there with gate distance, the strongest people present, recent events). Rows drill down into a sect (founding, parent, master, resources, prestige, signature technique, its 传承 when it holds one (0.37.0), gate, relations, members at the sect, recent events) or a person (realm and progress, root grade and five-element shares, age, master, sect and rank, whereabouts, technique, injury or death, relations by kind, recent events); a back row returns. |
 
@@ -57,7 +58,7 @@ cultivation cap nor an advancement into it (Qi Refining V to IX today).
 | `client/cultivation/CultivationProfileScreen.java` | The hub: frame, header, footer, rail, page switching (`View`, `setView`), body scissor and scrolling. Reopening H returns to the last page. Each frame it passes the pointer to the open page before drawing it, forwards clicks inside the body viewport to it, and resets its scroll when the page asks. While a text field has focus, keys go to the field before the H close key (Escape still closes). |
 | `client/cultivation/panel/PanelPage.java` | What a page implements: `init` (dock widgets, returns the dock height), `setVisible`, `refresh`, `render` (returns the body height). Optional hooks, no-ops by default (0.36.0): `pointer(mouseX, mouseY)` (screen coordinates before each frame, -1, -1 outside the body viewport), `mouseClicked` (a click inside the viewport; true when used), `takeScrollToTop` (true once to scroll the body back to the top). |
 | `panel/PanelContext.java` | One frame's read of `ClientCultivationState` and the synchronized registries, with the shared readouts (progress, stability, calendar, lifespan, session). |
-| `panel/PanelReadouts.java` | Display arithmetic without Minecraft rendering; covered by `PanelReadoutsTest`. |
+| `panel/PanelReadouts.java` | Display arithmetic without Minecraft rendering (since 0.38.0 also the session-text key, study percent and bar fraction, gate key, and whether stability is short of the next gate); covered by `PanelReadoutsTest`. |
 | `panel/PanelTheme.java`, `panel/PanelButton.java` | Colors, card/bar/chip/ladder primitives, and the themed vanilla `Button`. |
 | `panel/MeridianChart.java` | The diagram as data: acupoints and channels in the figure texture's normalised square. Holds no player state. |
 | `panel/MeridianPath.java` | A channel route smoothed into a polyline measured by arc length. |
@@ -123,6 +124,42 @@ To move a point or reshape a channel, edit `MeridianChart` and look at
 the chart read from the Java source on the texture. To change the figure, edit
 the script and regenerate; the chart's coordinates are in the texture's square.
 
+## Study card
+
+0.38.0. A study (研读) session is meditation's third mode
+([41_technique_system.md](41_technique_system.md), "Manuals and study"); its
+states are the normal ones (`PREPARING_NORMAL`, `MEDITATING_NORMAL`), and
+`MeditationStatus.study()` carries a `StudyProgress`. While that is present
+(`PanelContext.study()`), `MeditationPage` draws one more card:
+
+- title `研读《功法名》` (`screen.myvillage.cultivation.study.title`; the name
+  from the synchronized technique registry, the raw id with the unavailable
+  marker when it is missing), accented in the diagram's colour, with the
+  whole percent comprehended (rounded down, as the manual's tooltip) as its
+  chip;
+- a 参悟 meter, `points / totalPoints`;
+- `下一关 n 点 · 耗稳定度 m` (n is the gate's point value), amber when the
+  synced stability is below m, or `无关卡` when `nextGatePoints` is -1;
+- `按 X 停止` with the bound stop key.
+
+It takes the place of the normal and spirit cards for the length of the
+session (they describe modes that are not running) and sits at the top of the
+readout column beside the figure, above the progress and stability meters and
+the advancement card. Below the wide threshold (330 px of body) it goes above
+the figure, so the progress shows without scrolling at 320x240, and the figure
+and the other cards follow and scroll. With the two mode cards gone the column
+is shorter than in normal meditation, so the page still fits 480x270 and
+427x240 without scrolling (by arithmetic; not looked at yet).
+
+The session text in the footer, the 内视 session row, and the diagram's caption
+reads 准备研读 during the preparation and 研读中 afterwards
+(`screen.myvillage.cultivation.study.preparing|reading`, chosen by
+`PanelReadouts.sessionKey`); the colour stays amber while preparing and jade
+while reading. The diagram looks as in normal meditation. The buttons behave
+as in any session: stop enabled, the three starts disabled. Nothing new is
+sent: a study starts by using the manual (item use, not a panel payload) and
+the stop button sends the existing STOP intent.
+
 ## World page (天下)
 
 0.36.0. The page is a reader of the world ledger, which lives only on the
@@ -168,7 +205,9 @@ Unchanged since 0.31.0, with the 天下 page's additions:
 - The cultivation pages read only the three clientbound cultivation caches
   and synchronized registries; the 天下 page's data comes only from
   `ClientWorldSimState`. No page writes profile or ledger data.
-- Two bounded serverbound cultivation payloads exist. The meditation intent:
+- Two bounded serverbound cultivation payloads exist (unchanged in 0.38.0:
+  starting a study is a right-click on a manual, which is item use, and the
+  study card adds no input). The meditation intent:
   each of the four actions is bound to exactly one button, in
   `MeditationPage`. The core-technique switch (0.37.0,
   `myvillage:core_technique_switch`, a technique id and nothing else): sent
@@ -236,6 +275,11 @@ client yet; layout at GUI 480x270, 427x240, and 320x240 in both languages,
 the switch button, and the unchanged diagram are `not_verified` (README
 ledger "Technique system (0.37.0)").
 
-The owner's verdict on the panel, the meridian diagram, the 天下 page, and the
-功法 page, and hover, focus, and click feel on a physical mouse, are
-`not_verified` (README ledger).
+0.38.0 study card: not looked at on any client yet; its layout at GUI
+480x270, 427x240, and 320x240 in both languages, the session text, and the
+stop button ending a study are `not_verified` (README ledger "Technique
+manuals (0.38.0)").
+
+The owner's verdict on the panel, the meridian diagram, the 天下 page, the
+功法 page, and the study card, and hover, focus, and click feel on a physical
+mouse, are `not_verified` (README ledger).

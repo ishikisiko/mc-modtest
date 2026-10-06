@@ -24,6 +24,11 @@ src/main/resources/data/myvillage/recipe/
 src/main/resources/data/*/tags/item/
 ```
 
+Technique manuals (秘籍, 0.38.0) are 16 items, one per category and grade,
+told apart per technique by the `myvillage:technique` data component (like
+enchanted books); their textures come only from `tools/gen_manual_textures.py`
+(see [Technique System](41_technique_system.md), "Manuals and study").
+
 The project-local skill `.codex/skills/mod-item-creation/SKILL.md` is the
 procedural entry point. The CRAFT pipeline is
 `genops/pipelines/mod-item.full.yaml`. JSON contracts use

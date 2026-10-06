@@ -7,6 +7,9 @@ scales meditation progress and can be switched; the H panel's 功法 page groups
 techniques and switches the running one; ledger sects can hold a heritage that
 is lost with them and found again. The design, with the owner's decisions and
 the later phases, is `docs/technique-system-brief.md` (Chinese, owner-facing).
+0.38.0 adds technique manuals (秘籍) as items and studying them (研读) as a
+third meditation mode, brought forward from the third phase; its brief is
+`docs/technique-manual-brief.md`, and "Manuals and study" below describes it.
 There is no capability spec for it; this note and the code are the reference.
 
 ## Where each fact lives
@@ -18,12 +21,15 @@ There is no capability spec for it; this note and the code are the reference.
 | Heritages | `tools/technique_catalogue/heritages.json` | the generator |
 | Grade → requirement, element-affinity rule, the core `effects` block, the classification used for the initial import, hand-written ids | `tools/technique_catalogue/rules.json` | the generator (`importer.py` used the classification once to seed `catalogue.json`) |
 | `basic_breathing` (grade 0, 凡阶) | `data/myvillage/myvillage/technique/basic_breathing.json`, hand-written | never touched by the generator |
-| Grade multipliers, element bonus, `switch_progress_loss`, `roots.element_threshold_bp`, `genesis.heritage_chance` | `data/myvillage/world_sim/rules.json` | the ledger, `CoreTechniqueFactor`, `CultivationService.switchCoreTechnique` |
+| Grade multipliers, element bonus, `switch_progress_loss`, `roots.element_threshold_bp`, `genesis.heritage_chance` | `data/myvillage/world_sim/rules.json` | the ledger, `CoreTechniqueFactor`, `CultivationService.switchCoreTechnique`, the study element bonus (`StudyRules`) |
+| Study points, gates and gate cost per grade (0.38.0) | `tools/technique_catalogue/rules.json` `study_by_grade` | the generator writes each technique's `study` block |
+| Manual item art (0.38.0) | `tools/gen_manual_textures.py` (character grids in the script) | the eight `textures/item/manual_<category>[_tint].png` |
 
 Generator outputs, never edited by hand (`--check` fails on any difference):
 `data/myvillage/myvillage/technique/*.json` except the hand-written ids,
 `data/myvillage/myvillage/school/*.json`, `data/myvillage/myvillage/heritage/*.json`,
-`data/myvillage/world_sim/techniques.json`, `data/myvillage/world_sim/heritages.json`,
+`data/myvillage/world_sim/techniques.json`, `data/myvillage/world_sim/heritages.json`
+(each generated technique file carries a `study` block since 0.38.0),
 and the keys `cultivation.technique.myvillage.*`,
 `cultivation.school.myvillage.*`, `cultivation.heritage.myvillage.*` in both
 `en_us.json` and `zh_cn.json` (Chinese literal names in both languages, as for
@@ -150,7 +156,8 @@ technique only scales the gain.
   calls only `CultivationService.switchCoreTechnique`. A refusal sends
   nothing back; a success pushes the usual snapshot. Sent only by
   `ClientCultivationIntentSender.sendCoreSwitch`.
-- `ModPayloads.PROTOCOL_VERSION` is `10` (was `9`).
+- `ModPayloads.PROTOCOL_VERSION` is `11` since 0.38.0 (the meditation status
+  carries study progress); it was `10` in 0.37.0 (was `9`).
 - `/myvillage cultivation|xiulian core|xinfa <target> <technique_id>`
   (permission 2, suggestions are the registered core techniques) calls the
   same service; `info` prints `running core technique: <id>` or `none`.
@@ -169,6 +176,162 @@ reads only `PanelContext`. On the 修炼 page `MeridianRoute` maps the running
 core technique's `meditation_route` to the circuit and lit channels; only
 `xiaozhoutian` exists and looks as before, and an unknown or absent route
 falls back to it. Details: [37_cultivation_panel.md](37_cultivation_panel.md).
+
+## Manuals and study (秘籍 / 研读, 0.38.0)
+
+### Items
+
+- 16 items `myvillage:manual_<category>_<grade>`, category `core`, `active`,
+  `movement`, `body`, grade `huang`, `xuan`, `di`, `tian` (1..4; 凡阶 has no
+  manual), class `item/TechniqueManualItem`, registered in `ModItems`
+  (`ModItems.MANUALS`, `ModItems.manual(category, grade)`), stack size 1.
+  Vanilla `Rarity` by grade: COMMON, UNCOMMON, RARE, EPIC; 天阶 has the foil.
+- The technique is data, as an enchanted book's enchantment
+  (`item/ModDataComponents`, both persistent and synced):
+
+  | Component | Type | Meaning |
+  |---|---|---|
+  | `myvillage:technique` | `ResourceLocation` | the technique this manual teaches; absent = blank |
+  | `myvillage:comprehension` | int ≥ 0 | study points already read; absent = 0 |
+
+- Validity, `TechniqueManualItem.check`: empty when readable, otherwise the
+  first `Mismatch`: `NOT_A_MANUAL`, `BLANK` (no component), `UNKNOWN_TECHNIQUE`,
+  `WRONG_CATEGORY`, `WRONG_GRADE` (the technique must match the item's
+  category and grade). The last three are "damaged".
+- Name: `《功法名》` (`item.myvillage.manual.named`; English `Manual: …`) for a
+  valid manual, `空白秘籍 · 绝技 · 玄阶` for a blank one, red `残损秘籍` for a
+  damaged one.
+- Tooltip: category · grade; then for a valid manual school, elements, each
+  heritage with its position (`太白剑脉 2/4`), the requirement as the 功法 page
+  states it, `参悟 n%` when the manual has points (whole percent, rounded
+  down), and `右键盘坐研读`; a blank manual says it is blank, a damaged one gives
+  its reason and that it cannot be read.
+- Creative tab `myvillage:main`: the 16 blank manuals, then one manual per
+  registered technique of grade 1..4 (129 today), by category, grade, id
+  (`TechniqueManualItem.creativeStacks`, read from the tab's
+  `HolderLookup.Provider`).
+- Art: four 16x16 icons, one per category (`manual_core` 线装书,
+  `manual_active` 卷轴, `manual_movement` 折页, `manual_body` 玉简), each an
+  untinted detail layer `manual_<category>.png` and a tint mask
+  `manual_<category>_tint.png`; a shared model per category (`layer0` detail,
+  `layer1` mask), the 16 item models parent to it. `MyVillageClient` tints
+  layer 1 by grade (黄 `0xC9A227`, 玄 `0x3F6FB5`, 地 `0x8B5A2B`, 天 `0xE8D9A0`).
+  The PNGs come only from `tools/gen_manual_textures.py` (standard library;
+  `--check` is the release-gate step `gen-manual-textures-check`, `--preview
+  DIR` draws every icon in the four colours); never edit them by hand.
+- Command `/myvillage cultivation|xiulian manual|miji <target> <technique_id>`
+  (permission 2) gives the manual of that technique (into the inventory, else
+  dropped at the target); an unknown technique or grade 0 is refused. Vanilla
+  `/give @s myvillage:manual_active_xuan[myvillage:technique="myvillage:gengjin_jianjue"]`
+  works too; a component that does not match the item makes a damaged manual.
+
+### Study numbers
+
+`TechniqueDefinition.study` is `TechniqueStudy(points > 0, gates ≥ 0,
+gate_stability_cost ≥ 0)`, optional in JSON with the default `{4000, 0, 0}`
+(`basic_breathing` has none). The generator writes it from
+`study_by_grade`; change the table there and regenerate:
+
+| Grade | `points` | `gates` | `gate_stability_cost` | Gates at |
+|---|---:|---:|---:|---|
+| 黄 | 4000 | 0 | 0 | none |
+| 玄 | 12000 | 1 | 50 | 6000 |
+| 地 | 36000 | 2 | 100 | 12000, 24000 |
+| 天 | 96000 | 3 | 150 | 24000, 48000, 72000 |
+
+### Starting
+
+Right-click (server `TechniqueManualItem.use` → `cultivation/study/ManualStudy.use`).
+The client predicts `consume` for a valid manual and `pass` otherwise, never
+`success`: a hand swing reaches the server and would stop the session that just
+started. Checks in order, each refusal a chat line
+(`message.myvillage.cultivation.study.*`), nothing started:
+
+1. a valid manual (`StudyStart.Refusal.INVALID_MANUAL`);
+2. the technique is not learned yet (`ALREADY_LEARNED`);
+3. an awakened root (`NOT_AWAKENED`), the technique's realm, stage and element
+   requirements through `TechniqueRequirementEvaluator` (`REALM_TOO_LOW`,
+   `AFFINITY_TOO_LOW`, `REQUIREMENTS_UNAVAILABLE`);
+4. its `lineage.previous`, when it has one, is learned (`PREVIOUS_REQUIRED`;
+   mastery tiers do not exist yet);
+5. `MeditationManager.requestStudy`: meditation's eligibility and physical
+   checks (survival or adventure, Basic Breathing learned, lifespan left, on
+   the ground, not mounted, swimming, flying, sleeping or using an item, no
+   damage in the last 100 ticks). Unlike meditation it does not need a stage
+   that still gains progress.
+
+Right-clicking a manual while any session runs first ends that session
+(`INTERACTED`, from `CultivationEvents` on `RightClickItem`), so the `BUSY`
+refusal does not occur in play; right-click again to start reading. A start
+replies `STUDY_ACCEPTED`. The session is `MeditationMode.STUDY` with
+meditation's 40-tick preparation and anchor and remembers the inventory slot
+(the held hotbar slot or the offhand) and the technique id. Its states are
+`PREPARING_NORMAL` and `MEDITATING_NORMAL`; only `MeditationStatus.study()`
+tells it apart.
+
+### Settlement
+
+Every 10 meditating ticks (meditation's batch), in `MeditationManager` through
+the pure `StudyStep` and `StudySettlement`, with no randomness:
+
+- The remembered slot must still hold a valid manual of the same technique,
+  else stop `MANUAL_LOST`; the technique must still be learnable (rules 2–4
+  above), else stop `STUDY_REQUIREMENTS`.
+- Gain `affinity × (10000 + element bonus bp) / 10000`, rounded down;
+  `affinity` is the profile's `spiritualAffinity`, the bonus is
+  `techniques.element_match_bonus` (0.15 = 1500 bp) when the root reaches
+  `roots.element_threshold_bp` in one of the technique's elements, both from
+  `world_sim/rules.json` (`StudyRules`; 0 without world-sim data). No grade
+  multiplier. At affinity 10 that is 10 per batch, 11 with a match.
+- Gates sit at `floor(points × k / (gates + 1))`, k = 1..gates; a gate is
+  passed once the points are above it. A batch that would cross an unpassed
+  gate pays `gate_stability_cost` once and goes on (chat line
+  `gate_passed`), or, with too little stability, stops on the gate with
+  `STUDY_GATE` and a line naming the cost and the shortfall. Nothing else is
+  stored: the points say which gates are behind.
+- Stability and the learned technique change in one profile replacement
+  through `CultivationService.replaceProfile`; the points are written to the
+  manual's `comprehension` only after that commit succeeds.
+- Reaching `points` learns the technique (a core technique starts running
+  when none runs, as for any learn), consumes the manual and stops
+  `STUDY_COMPLETE`.
+
+Interruption is meditation's (movement, jump, damage, attack or swing, mining,
+use, mount, dimension change, death, logout, the stop key or button, a config
+or definition reload); the points already written stay on the manual, so the
+next right-click continues. New stop reasons: `STUDY_ACCEPTED`, `MANUAL_LOST`,
+`STUDY_GATE`, `STUDY_COMPLETE`, `STUDY_REQUIREMENTS`.
+
+At affinity 10 and 20 TPS, without the 40-tick preparation and gate stops:
+
+| Grade | Batches | Real time | With an element match (11 per batch) | Stability for all gates |
+|---|---:|---:|---:|---:|
+| 黄 | 400 | 3 min 20 s | 364 batches, about 3 min 2 s | 0 |
+| 玄 | 1200 | 10 min | 1091, about 9 min 6 s | 50 |
+| 地 | 3600 | 30 min | 3273, about 27 min 17 s | 200 |
+| 天 | 9600 | 80 min | 8728, about 72 min 44 s | 450 |
+
+The requirements still apply: 黄 needs Qi Refining I, 玄 Qi Refining IV, 地
+and 天 Foundation early, which play cannot reach in this release (only
+`setrealm`).
+
+### Status and network
+
+`MeditationStatus.study()` is an `Optional<StudyProgress>` (`techniqueId`,
+`points`, `totalPoints`, `nextGatePoints` or `-1` when none is left,
+`gateStabilityCost`), present only while a study session runs;
+`status.studying()` tests it. `MeditationStatusPayload` carries it, so
+`ModPayloads.PROTOCOL_VERSION` is `11`. Client input is unchanged: the four
+meditation intents, and STOP (key X or the 修炼 page button) ends a study like
+any session. Starting is item use, not a payload. The 修炼 page shows a study
+card while it runs ([37_cultivation_panel.md](37_cultivation_panel.md)).
+
+### Not done
+
+No held-book or floating-page visual while reading, no mastery tiers (the
+lineage rule asks only that the previous technique is learned), and no
+manuals from loot, sects, the scripture hall or NPCs; manuals come from the
+creative tab, `/give`, and the `manual` command.
 
 ## World ledger (命簿)
 
@@ -212,9 +375,10 @@ Health bands are unchanged and pass. After genesis and prehistory, small seed
 
 ```bash
 /usr/bin/python3 tools/gen_technique_catalogue.py --check
+/usr/bin/python3 tools/gen_manual_textures.py --check
 /usr/bin/python3 tools/validate_world_sim.py
 /usr/bin/python3 tools/validate_cultivation_core.py   # and the other four cultivation validators
-/usr/bin/python3 -m unittest tools.tests.test_gen_technique_catalogue tools.tests.test_validate_world_sim
+/usr/bin/python3 -m unittest tools.tests.test_gen_technique_catalogue tools.tests.test_gen_manual_textures tools.tests.test_validate_world_sim
 ./gradlew test   # under the heavy-work lock
 ```
 
@@ -229,8 +393,14 @@ decodes), `CultivationProfileTest` (v4, migrations), `technique/CoreTechniqueSwi
 `network/CoreTechniqueSwitchPayloadTest`, `CultivationCommandsTest`,
 `client/cultivation/panel/TechniqueShelfTest`, `MeridianRouteTest`,
 `sim/WorldSimHeritageTest`, `SimDataLoaderTest`, `WorldSimSnapshotsTest`,
-`WorldSimPayloadCodecTest`. Nothing of this release has been seen in a real
-client; see the README ledger "Technique system (0.37.0)".
+`WorldSimPayloadCodecTest`. Manuals and study (0.38.0):
+`item/TechniqueManualItemTest`, `cultivation/data/TechniqueStudyDefinitionTest`,
+`cultivation/study/{StudyStartTest,StudySettlementTest,StudyStepTest}`,
+`meditation/{MeditationSessionTest,MeditationStatusStudyTest}`,
+`network/MeditationStatusPayloadTest`, `CultivationCommandsTest`,
+`client/cultivation/panel/PanelReadoutsTest`. Nothing of either release has
+been seen in a real client; see the README ledgers "Technique system (0.37.0)"
+and "Technique manuals (0.38.0)".
 
 ## Not implemented yet
 
@@ -239,15 +409,16 @@ client; see the README ledger "Technique system (0.37.0)".
 - Mastery tiers, and mastery carried over when switching within a chain.
 - A breakthrough multiplier from the running core technique (player
   advancement is deterministic).
-- Requirements to learn the next technique of a chain, manuals as items,
-  reading as a meditation mode, the scripture hall, and any player route into
-  a ledger sect or its heritage; a heritage's `exclusive` flag is data only.
+- Mastery-tier requirements for the next technique of a chain (study asks
+  only that the previous one is learned), manuals from loot, sects, NPCs or
+  the scripture hall, a reading visual, and any player route into a ledger
+  sect or its heritage; a heritage's `exclusive` flag is data only.
 - Weapon `family` fields and anything that ties a school to combat styles.
 - Meridian routes other than `xiaozhoutian`.
 
 ## See also
 
-- Design brief: `docs/technique-system-brief.md`
+- Design brief: `docs/technique-system-brief.md`; manuals and study: `docs/technique-manual-brief.md`
 - [28_cultivation_core.md](28_cultivation_core.md), [30_cultivation_playable_loop.md](30_cultivation_playable_loop.md), [37_cultivation_panel.md](37_cultivation_panel.md), [40_world_sim.md](40_world_sim.md)
 - [cultivation-definition-registries](../../openspec/specs/cultivation-definition-registries/spec.md), [cultivation-player-profile](../../openspec/specs/cultivation-player-profile/spec.md), [cultivation-state-synchronization](../../openspec/specs/cultivation-state-synchronization/spec.md), [cultivation-debug-commands](../../openspec/specs/cultivation-debug-commands/spec.md), [cultivation-meditation](../../openspec/specs/cultivation-meditation/spec.md), [cultivation-core-validation](../../openspec/specs/cultivation-core-validation/spec.md)
 - Knowledge-base index: [INDEX.md](INDEX.md)

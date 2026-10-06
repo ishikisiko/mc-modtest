@@ -132,6 +132,7 @@ One UUID-keyed server manager owns both modes:
 IDLE
   -> PREPARING_NORMAL (40 eligible ticks) -> MEDITATING_NORMAL
   -> PREPARING_SPIRIT (40 eligible ticks) -> MEDITATING_SPIRIT
+  (0.38.0 study: PREPARING_NORMAL -> MEDITATING_NORMAL with study progress)
 ```
 
 The configurable controls are V normal, B spirit, X stop, N advancement, and H
@@ -141,6 +142,19 @@ item-use conflict, and no positive damage in the previous 100 ticks. Server-
 observed movement beyond `0.01` block on any axis, jump, damage, attack/swing,
 mining, use, mount, swim/flight/sleep/mode conflict, dimension change, death,
 logout, or explicit stop interrupts. Yaw/pitch and opening H are allowed.
+
+Since 0.38.0 the manager has a third mode, `MeditationMode.STUDY` (研读): reading
+a technique manual. It is started only by right-clicking a manual (item use,
+no new intent), runs through the same 40-tick preparation, anchor, eligibility
+and interruption set, and reuses the states `PREPARING_NORMAL` and
+`MEDITATING_NORMAL`; the status tells it apart by its optional study progress.
+Unlike normal and spirit meditation it does not need a stage that still gains
+progress, and its ten-tick batch adds study points to the manual instead of
+cultivation progress (gates cost stability). New stop reasons:
+`STUDY_ACCEPTED`, `MANUAL_LOST`, `STUDY_GATE`, `STUDY_COMPLETE`,
+`STUDY_REQUIREMENTS`. Because the status payload carries the study progress,
+the payload protocol is `11`. Rules and numbers:
+[Technique System](41_technique_system.md), "Manuals and study".
 
 Active Basic Breathing settles progress every `10` continuously eligible ticks.
 Normal mode adds the current non-negative `spiritualAffinity`; default profiles
