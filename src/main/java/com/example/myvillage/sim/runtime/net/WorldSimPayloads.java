@@ -4,6 +4,7 @@ import com.example.myvillage.client.sim.ClientWorldSimState;
 import com.example.myvillage.region.runtime.RegionRuntimeService;
 import com.example.myvillage.sim.runtime.WorldSimDriver;
 import com.example.myvillage.sim.runtime.WorldSimRuntime;
+import com.example.myvillage.sim.runtime.player.ScriptureHall;
 import com.example.myvillage.sim.runtime.player.SectDialogue;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -58,6 +59,14 @@ public final class WorldSimPayloads {
                 SectIntentPayload.TYPE,
                 SectIntentPayload.STREAM_CODEC,
                 WorldSimPayloads::handleSectIntent);
+        registrar.playToClient(
+                ScriptureHallPayload.TYPE,
+                ScriptureHallPayload.STREAM_CODEC,
+                WorldSimPayloads::handleScriptureHall);
+        registrar.playToServer(
+                ScriptureBorrowPayload.TYPE,
+                ScriptureBorrowPayload.STREAM_CODEC,
+                WorldSimPayloads::handleScriptureBorrow);
         // ClientWorldSimState holds no client-only types; on a dedicated server the sender is never invoked.
         ClientWorldSimState.installSender(query -> PacketDistributor.sendToServer(new WorldSimQueryPayload(query)));
     }
@@ -71,6 +80,17 @@ public final class WorldSimPayloads {
             return;
         }
         context.enqueueWork(() -> SectDialogue.handleIntent(player, payload));
+    }
+
+    private static void handleScriptureHall(ScriptureHallPayload payload, IPayloadContext context) {
+        context.enqueueWork(() -> ScriptureHallPayload.receive(payload));
+    }
+
+    private static void handleScriptureBorrow(ScriptureBorrowPayload payload, IPayloadContext context) {
+        if (!(context.player() instanceof ServerPlayer player)) {
+            return;
+        }
+        context.enqueueWork(() -> ScriptureHall.handleBorrow(player, payload));
     }
 
     private static void handleQuery(WorldSimQueryPayload payload, IPayloadContext context) {

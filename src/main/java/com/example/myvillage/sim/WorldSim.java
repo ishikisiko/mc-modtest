@@ -219,7 +219,7 @@ public final class WorldSim {
         ContentTables.Heritage heritage = ctx.data.heritage(s.heritageId);
         return new SectView(s.id, s.name, s.homeRegionId, s.gateX, s.gateZ, s.gateRealized, s.founderId,
                 ctx.nameOf(s.founderId), s.foundedDay, s.masterId, ctx.nameOf(s.masterId), members.size(),
-                top == null ? "" : ctx.realm(top).id(), s.resources, s.prestige, s.signatureTechniqueId,
+                top == null ? "" : ctx.realm(top).id(), s.resources, s.prestige, s.basicTechniqueId, s.signatureTechniqueId,
                 sig == null ? "" : sig.name(), heritage == null ? "" : heritage.id(),
                 heritage == null ? "" : heritage.name(), s.state, s.destroyedDay, s.parentSectId,
                 List.copyOf(relations));
@@ -503,6 +503,35 @@ public final class WorldSim {
      */
     public Optional<SimEvent> promotePlayer(String playerId, String playerName, String rank) {
         return PlayerAffairs.promote(ctx, playerId, playerName, rank);
+    }
+
+    // ------------------------------------------------------------------ scripture hall (sect entry, slice 2)
+
+    /**
+     * The techniques (ledger ids, paths without namespace) this player may borrow from their sect's
+     * scripture hall at their rank, in chain order without duplicates: outer the heritage chain's
+     * first technique (no heritage: the sect's basic technique), inner the first two (no heritage:
+     * basic and signature), elder the whole chain (no heritage: basic and signature). Empty ids and
+     * {@code basic_breathing} (mortal grade, no manual) are left out. Empty when the player is in
+     * no sect.
+     */
+    public List<String> borrowable(String playerId) {
+        throw new UnsupportedOperationException("slice 2 package S-A");
+    }
+
+    /** Whether the player has borrowed this technique's manual (the record outlives membership). */
+    public boolean hasBorrowed(String playerId, String techniqueId) {
+        PlayerMember m = ctx.state.playerMembers.get(playerId);
+        return m != null && m.borrowed.contains(techniqueId);
+    }
+
+    /**
+     * Records that the player borrowed this technique's manual and a {@code player_borrow} event
+     * (timed like {@link #joinSect}). Throws IllegalArgumentException with the reason
+     * {@code not_member}, {@code not_borrowable} or {@code already_borrowed}, checked in that order.
+     */
+    public SimEvent recordBorrow(String playerId, String playerName, String techniqueId) {
+        throw new UnsupportedOperationException("slice 2 package S-A");
     }
 
     /** Refreshes a player's name and qualification snapshot; does nothing when the player has no record. */

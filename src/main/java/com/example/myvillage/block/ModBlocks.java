@@ -52,6 +52,9 @@ public final class ModBlocks {
             BLOCKS.registerBlock("technique_inheritance_stele",
                     TechniqueInheritanceSteleBlock::new,
                     steleProperties(SoundType.STONE));
+    // 经架 (scripture shelf): the scripture hall's shelf; its block entity holds the owning sect.
+    public static final DeferredBlock<ScriptureShelfBlock> SCRIPTURE_SHELF =
+            BLOCKS.registerBlock("scripture_shelf", ScriptureShelfBlock::new, scriptureShelfProperties());
     public static final DeferredBlock<Block> SPIRIT_STONE_ORE =
             BLOCKS.registerBlock("spirit_stone_ore", Block::new, spiritStoneOreProperties());
     public static final DeferredBlock<Block> DEEPSLATE_SPIRIT_STONE_ORE =
@@ -69,6 +72,7 @@ public final class ModBlocks {
             "test_item_block",
             "spirit_testing_stele",
             "technique_inheritance_stele",
+            "scripture_shelf",
             "spirit_stone_ore",
             "deepslate_spirit_stone_ore");
 
@@ -124,6 +128,13 @@ public final class ModBlocks {
                 .requiresCorrectToolForDrops()
                 .sound(soundType)
                 .noOcclusion();
+    }
+
+    private static BlockBehaviour.Properties scriptureShelfProperties() {
+        return BlockBehaviour.Properties.of()
+                .mapColor(MapColor.WOOD)
+                .strength(1.5F)
+                .sound(SoundType.WOOD);
     }
 
     private static BlockBehaviour.Properties spiritStoneOreProperties() {

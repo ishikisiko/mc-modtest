@@ -1,5 +1,6 @@
 package com.example.myvillage;
 
+import com.example.myvillage.block.ModBlockEntities;
 import com.example.myvillage.block.ModBlocks;
 import com.example.myvillage.combat.CombatAttachments;
 import com.example.myvillage.combat.CombatCommands;
@@ -93,6 +94,7 @@ public final class MyVillageMod {
         modEventBus.addListener(CultivationServerConfig::onConfigReloading);
         ModEntities.register(modEventBus);
         ModBlocks.register(modEventBus);
+        ModBlockEntities.register(modEventBus);
         ModItems.register(modEventBus);
         ModDataComponents.register(modEventBus);
         CombatSounds.register(modEventBus);

@@ -5,6 +5,7 @@ import java.util.List;
 /**
  * Read-only sect record. {@code topRealmId} is empty when the sect has no living member.
  *
+ * @param basicTechniqueId the sect's basic (entry) technique, a ledger technique path; "" for none
  * @param heritageId   the heritage (传承) the sect holds or, once destroyed, held; "" for none
  * @param heritageName its Chinese name, "" for none
  * @param state        "active" or "destroyed"
@@ -25,6 +26,7 @@ public record SectView(
         String topRealmId,
         double resources,
         double prestige,
+        String basicTechniqueId,
         String signatureTechniqueId,
         String signatureTechniqueName,
         String heritageId,

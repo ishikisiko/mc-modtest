@@ -61,6 +61,10 @@ public final class ModItems {
             ITEMS.registerItem("technique_inheritance_stele",
                     props -> new BlockItem(ModBlocks.TECHNIQUE_INHERITANCE_STELE.get(), props));
 
+    public static final DeferredItem<BlockItem> SCRIPTURE_SHELF_ITEM =
+            ITEMS.registerItem("scripture_shelf",
+                    props -> new BlockItem(ModBlocks.SCRIPTURE_SHELF.get(), props));
+
     public static final DeferredItem<CultivationHandbookItem> CULTIVATION_HANDBOOK =
             ITEMS.registerItem("cultivation_handbook",
                     props -> new CultivationHandbookItem(props.stacksTo(1)));
@@ -238,6 +242,7 @@ public final class ModItems {
                         output.accept(TEST_ITEM_BLOCK_ITEM.get());
                         output.accept(SPIRIT_TESTING_STELE_ITEM.get());
                         output.accept(TECHNIQUE_INHERITANCE_STELE_ITEM.get());
+                        output.accept(SCRIPTURE_SHELF_ITEM.get());
                         output.accept(CULTIVATION_HANDBOOK.get());
                         output.accept(SIMPLE_FOX_SPAWN_EGG.get());
                         output.accept(DEMON_WOLF_SPAWN_EGG.get());

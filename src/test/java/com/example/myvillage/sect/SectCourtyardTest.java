@@ -148,6 +148,25 @@ class SectCourtyardTest {
     }
 
     @Test
+    void scriptureShelfSitesStandInTheScripturePavilionsAtTheTerraceElevation() {
+        List<BlockPos> sites = SectCourtyard.scriptureShelfSites(7L, ANCHOR, SectCourtyard.NO_SPIRE);
+        assertEquals(2, sites.size(), "one shelf per scripture pavilion");
+        // flank_left then flank_right, mirrored about the axis x 31, in the scripture band (terrace 3)
+        assertEquals(List.of(local(17, 3, 125), local(45, 3, 125)), sites);
+        assertEquals(sites, SectCourtyard.scriptureShelfSites(7L, ANCHOR, SectCourtyard.NO_SPIRE));
+        SectCourtyard.Footprint f = SectCourtyard.footprint(ANCHOR);
+        int scriptureY = ANCHOR.getY() + SectGenerator.TERRACE_RISE * 3;
+        List<BlockPos> cells = SectCourtyard.cells(7L, ANCHOR, SectCourtyard.NO_SPIRE);
+        for (BlockPos site : sites) {
+            assertTrue(site.getX() >= f.minX() && site.getX() <= f.maxX()
+                    && site.getZ() >= f.minZ() && site.getZ() <= f.maxZ(), "inside the compound: " + site);
+            assertEquals(scriptureY, site.getY(), "at the scripture terrace's elevation: " + site);
+            assertFalse(cells.contains(site), "inside a pavilion, not in the open courtyard: " + site);
+        }
+        assertTrue(!sites.get(0).equals(sites.get(1)), "two pavilions, two sites");
+    }
+
+    @Test
     void variantsStartWithNoSpire() {
         List<String> variants = SectCourtyard.variants();
         assertEquals(SectCourtyard.NO_SPIRE, variants.get(0));

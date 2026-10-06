@@ -1,6 +1,7 @@
 package com.example.myvillage.sect;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -87,6 +88,37 @@ public final class SectCourtyard {
                     }
                 }
             }
+        }
+        return List.copyOf(out);
+    }
+
+    /**
+     * Where the scripture shelves (经架) of the compound built at {@code anchor} with {@code seed}
+     * and {@code variant} go: one per scripture pavilion (the {@code scripture} terrace's
+     * {@code flank_*} slots), at the slot's centre column and the terrace elevation (floor + 1),
+     * in role order. The pavilion's own floor is higher; the placer scans upward from here in the
+     * world. Deterministic.
+     */
+    public static List<BlockPos> scriptureShelfSites(long seed, BlockPos anchor, String variant) {
+        BlockPos base = base(anchor);
+        SectGenerator.SectPlan plan = SectGenerator.plan(seed, base, variant);
+        List<SectGenerator.Slot> pavilions = new ArrayList<>();
+        for (SectGenerator.Slot slot : plan.slots()) {
+            if ("scripture".equals(slot.terraceName()) && slot.role().startsWith("flank_")) {
+                pavilions.add(slot);
+            }
+        }
+        pavilions.sort(Comparator.comparing(SectGenerator.Slot::role));
+        List<BlockPos> out = new ArrayList<>();
+        for (SectGenerator.Slot slot : pavilions) {
+            int elevation = -1;
+            for (SectGenerator.Terrace terrace : plan.terraces()) {
+                if (terrace.index() == slot.terraceIndex()) {
+                    elevation = terrace.elevation();
+                }
+            }
+            SectGenerator.Cell centre = slot.center();
+            out.add(new BlockPos(base.getX() + centre.x(), elevation, base.getZ() + centre.z()));
         }
         return List.copyOf(out);
     }
