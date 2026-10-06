@@ -482,8 +482,10 @@ def cmd_npc(a):
     unknown = sorted(set(parts) - set(npc.NPC_PARTS))
     if unknown:
         raise UsageError(f"unknown parts {unknown} (choose from {', '.join(npc.NPC_PARTS)})")
+    if a.look not in npc.LOOKS:
+        raise UsageError(f"unknown look {a.look!r} (choose from {', '.join(npc.LOOKS)})")
     path = a.npc.split(":", 1)[-1]
-    out = a.out or (REPO / "out/preview" / path / "ingame")
+    out = a.out or (REPO / "out/preview" / path / npc.ingame_dir_name(a.look))
     out.mkdir(parents=True, exist_ok=True)
     started = False
     try:
@@ -492,7 +494,7 @@ def cmd_npc(a):
             session.start(session_config(a), wait_timeout=a.timeout, log=log)
             started = True
         s = Session.attach(ui_check=not a.no_ui_check, log=log)
-        npc.run_npc(s, a.npc, out, parts, log=log)
+        npc.run_npc(s, a.npc, out, parts, log=log, look=a.look)
         log(f"page: {out / 'index.html'}")
     finally:
         if started:
@@ -629,7 +631,10 @@ def build_parser() -> argparse.ArgumentParser:
     session_opts(p)
     p.add_argument("--npc", default="myvillage:cultivator")
     p.add_argument("--parts", default="idle,walk", help="comma list of: idle, walk")
-    p.add_argument("--out", type=Path, default=None, help="output directory (default out/preview/<name>/ingame)")
+    p.add_argument("--look", default="default",
+                   help="outfit (Look save tag): default, f_novice, f_adept; a non-default look writes ingame_<look>")
+    p.add_argument("--out", type=Path, default=None,
+                   help="output directory (default out/preview/<name>/ingame, or ingame_<look>)")
     p.add_argument("--no-ui-check", action="store_true", help="send keys without the in-game check (unsafe)")
     p.set_defaults(func=cmd_npc)
 

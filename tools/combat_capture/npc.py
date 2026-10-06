@@ -7,6 +7,10 @@ ffmpeg) for an entity that has no moves and no server data file.
 (face, collar, belt, sleeve, hem, back), and a scale still beside the player.
 ``walk``: video of two NPCs strolling in a barrier pen, front and side cameras.
 
+``look`` picks the outfit (``NpcEntity``'s ``Look`` save tag): ``default`` summons
+exactly as before and writes ``ingame/``; any other look adds ``Look:"<look>"`` to
+every summon and writes ``ingame_<look>/``.
+
 Developer evidence only; the look and the motion remain the owner's verdict.
 """
 from __future__ import annotations
@@ -15,11 +19,14 @@ import time
 from pathlib import Path
 
 from . import scene
-from .beast import TAG, VIEW_TITLES, WOLF_POS, BeastCapture, camera_pose, summon
+from .beast import TAG, VIEW_TITLES, WOLF_POS, BeastCapture, camera_pose, summon, write_page
 from .capture import press_f5_to
 from .session import Session
 
 NPC_PARTS = ("idle", "walk")
+# CultivatorEntity.LOOKS; the entity ignores an unknown Look tag, so the CLI refuses one
+LOOKS = ("default", "f_novice", "f_adept")
+DEFAULT_LOOK = "default"
 # name, title, view, distance, eye height, aim height (blocks above the feet)
 CLOSEUPS = (
     ("face_front", "face, front", "front", 1.0, 1.72, 1.68),
@@ -33,17 +40,46 @@ CLOSEUPS = (
 )
 
 
+def look_nbt(look: str = DEFAULT_LOOK) -> str:
+    """Extra summon NBT for a look; empty for the default so its summons stay as they were."""
+    return "" if look == DEFAULT_LOOK else f',Look:"{look}"'
+
+
+def summon_npc(npc: str, pos, yaw: float, tag: str = TAG, look: str = DEFAULT_LOOK) -> str:
+    return summon(npc, pos, yaw, tag=tag, extra=look_nbt(look))
+
+
+def ingame_dir_name(look: str = DEFAULT_LOOK) -> str:
+    """Output folder under out/preview/<npc>/: ``ingame`` for the default look, else ``ingame_<look>``."""
+    return "ingame" if look == DEFAULT_LOOK else f"ingame_{look}"
+
+
 class NpcCapture(BeastCapture):
-    def __init__(self, session: Session, npc: str, out: Path, log=print):
+    def __init__(self, session: Session, npc: str, out: Path, log=print, look: str = DEFAULT_LOOK):
         self.s = session
         self.g = session.game
         self.beast = npc
+        self.look = look
         self.data = {}
         self.out = out
         self.log = log
         self.user = session.username
-        self.manifest = {"beast": npc, "stills": [], "videos": [], "notes": []}
+        self.manifest = {"beast": npc, "look": look, "stills": [], "videos": [], "notes": []}
+        if look != DEFAULT_LOOK:
+            self.manifest["notes"].append(f'look: {look} (summoned with {{Look:"{look}"}})')
         self.hud_hidden = False
+
+    def fresh_beast(self, pos=WOLF_POS, yaw=0.0):
+        self.remove(TAG)
+        self.run("kill @e[type=minecraft:item]", "kill @e[type=minecraft:experience_orb]")
+        self.run(summon_npc(self.beast, pos, yaw, look=self.look))
+        self.run("tick step 3")
+        time.sleep(0.8)
+
+    def finish(self):
+        super().finish()
+        if self.look != DEFAULT_LOOK:  # the page title carries the look
+            write_page(self.out, {**self.manifest, "beast": f"{self.beast} · {self.look}"})
 
     def setup_world(self):
         self.s.view = "first"  # the client joins in first person
@@ -92,7 +128,7 @@ class NpcCapture(BeastCapture):
         # Pen: inside x -4..5, z 7..9.
         self.run(f"fill -5 {y} 6 6 {y + 2} 10 minecraft:barrier", f"fill -4 {y} 7 5 {y + 2} 9 minecraft:air")
         for i, x in enumerate((-2.5, 3.5)):
-            self.run(summon(self.beast, (x, y, 8.5), 90.0 if i else -90.0, tag=f"{TAG}_{i}"))
+            self.run(summon_npc(self.beast, (x, y, 8.5), 90.0 if i else -90.0, tag=f"{TAG}_{i}", look=self.look))
         for name, view, distance, title in (("walk_front", "front", 5.5, "strolling in a barrier pen, front camera"),
                                             ("walk_end", "side", 7.5, "the same pen from its end")):
             x, cy, z, yaw, pitch = camera_pose((0.5, y, 8.5), 0.0, view, distance, 1.4, 0.9)
@@ -103,8 +139,9 @@ class NpcCapture(BeastCapture):
         self.hide_hud(False)
 
 
-def run_npc(session: Session, npc: str, out: Path, parts: list[str], log=print) -> dict:
-    cap = NpcCapture(session, npc, out, log=log)
+def run_npc(session: Session, npc: str, out: Path, parts: list[str], log=print,
+            look: str = DEFAULT_LOOK) -> dict:
+    cap = NpcCapture(session, npc, out, log=log, look=look)
     try:
         cap.setup_world()
         if "idle" in parts:
