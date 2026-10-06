@@ -18,15 +18,35 @@ NPC = "myvillage:cultivator"
 RESOURCES = ROOT / "src/main/resources"
 
 
+LOOKS = ["default", "f_novice", "f_adept"]
+
+
 def load(relative: str):
     return json.loads((RESOURCES / relative).read_text(encoding="utf-8"))
+
+
+def pending_looks() -> list[str]:
+    """Cultivator looks whose generated files are not written yet (the female looks land with their npcgen
+    definitions); the validator reports exactly their missing files. Empty once every look is built."""
+    return [look for look in LOOKS[1:]
+            if not all((RESOURCES / path).is_file() for path in MODULE.npc_look_files(NPC, look).values())]
+
+
+def unexpected_errors(report) -> list[str]:
+    """The report's errors less the ``missing_file`` errors of pending looks and their unwritten definitions."""
+    pending = pending_looks()
+
+    def expected(error: str) -> bool:
+        return error.startswith("missing_file:") and any(f"cultivator_{look}" in error for look in pending)
+
+    return [error for error in report["errors"] if not expected(error)]
 
 
 class CustomEntityValidationTest(unittest.TestCase):
     def test_simple_fox_surface_is_complete(self) -> None:
         report = MODULE.validate(ROOT)
-        self.assertEqual([], report["errors"])
-        self.assertEqual("pass", report["status"])
+        self.assertEqual([], unexpected_errors(report))
+        self.assertEqual("pass" if not pending_looks() else "fail", report["status"])
         self.assertEqual([48, 32], report["texture"]["dimensions"])
         self.assertEqual(998, report["texture"]["used_texels"])
 
@@ -203,14 +223,118 @@ class NpcValidationTest(unittest.TestCase):
 
     def test_every_generated_npc_is_validated(self) -> None:
         report = MODULE.validate(ROOT)
+        # One entity, one npcgen definition per look: the definitions group by ENTITY into looks.
         self.assertEqual([NPC], MODULE.npc_ids(ROOT))
         self.assertEqual([NPC], list(report["npcs"]))
-        self.assertIn(NPC, report["entities"])
+        self.assertEqual(1, report["entities"].count(NPC))
         npc = report["npcs"][NPC]
-        self.assertEqual(0, npc["errors"])
+        self.assertEqual(LOOKS, list(npc["looks"]))
+        self.assertEqual([], unexpected_errors(report))
         self.assertEqual(["idle", "walk"], npc["clips"])
         self.assertEqual(self.model["scale"], npc["scale"])
         self.assertEqual([self.model["texture"]["width"], self.model["texture"]["height"]], npc["texture"])
+        for look in LOOKS:
+            if look in pending_looks():
+                self.assertEqual(3, npc["looks"][look]["errors"], look)  # model, clips, texture missing
+                continue
+            self.assertEqual(0, npc["looks"][look]["errors"], look)
+            self.assertEqual(["idle", "walk"], npc["looks"][look]["clips"], look)
+            self.assertEqual(self.model["scale"], npc["looks"][look]["scale"], look)
+
+    def test_definitions_group_by_entity_and_a_missing_module_is_a_missing_file(self) -> None:
+        groups, errors = MODULE.npc_definitions(ROOT)
+        self.assertEqual([NPC], list(groups))
+        written = {look: f"cultivator_{look}" for look in LOOKS[1:] if (ROOT / f"{MODULE.NPCGEN_DEFS}/cultivator_{look}.py").is_file()}
+        self.assertEqual({"default": "cultivator", **written}, groups[NPC])
+        self.assertEqual(len(LOOKS) - 1 - len(written), len(errors))
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            defs = root / MODULE.NPCGEN_DEFS
+            defs.mkdir(parents=True)
+            (root / MODULE.NPCGEN_BUILD).write_text('DEFINITIONS = ("monk", "monk_old", "nun", "ghost")\n', encoding="utf-8")
+            (defs / "monk.py").write_text('ENTITY = "monk"\nLOOK = "default"\n', encoding="utf-8")
+            (defs / "monk_old.py").write_text('ENTITY = "monk"  # dir\nLOOK = "old"\n', encoding="utf-8")
+            (defs / "nun.py").write_text('ENTITY = "nun"\n', encoding="utf-8")
+            groups, errors = MODULE.npc_definitions(root)
+            self.assertEqual({"myvillage:monk": {"default": "monk", "old": "monk_old"}}, groups)
+            self.assertEqual(["npc_definition_without_entity_or_look:nun", f"missing_file:{defs / 'ghost.py'}"], errors)
+            self.assertEqual(["myvillage:monk"], MODULE.npc_ids(root))
+
+    def test_look_files_follow_the_renderer(self) -> None:
+        self.assertEqual({"model": "assets/myvillage/npc/cultivator_model.json",
+                          "animations": "assets/myvillage/npc/cultivator_animations.json",
+                          "texture": "assets/myvillage/textures/entity/cultivator/cultivator.png"},
+                         MODULE.npc_look_files(NPC, "default"))
+        self.assertEqual({"model": "assets/myvillage/npc/cultivator_f_adept_model.json",
+                          "animations": "assets/myvillage/npc/cultivator_f_adept_animations.json",
+                          "texture": "assets/myvillage/textures/entity/cultivator/cultivator_f_adept.png"},
+                         MODULE.npc_look_files(NPC, "f_adept"))
+
+    def test_contract_looks_equal_definitions_and_java(self) -> None:
+        java = (ROOT / "src/main/java/com/example/myvillage/entity/npc/CultivatorEntity.java").read_text(encoding="utf-8")
+        self.assertEqual(LOOKS, MODULE.java_looks(java))
+        self.assertIsNone(MODULE.java_looks("class Plain {}"))
+        defined = {"default": "cultivator", "f_novice": "cultivator_f_novice", "f_adept": "cultivator_f_adept"}
+        errors, looks = MODULE.check_npc_looks(ROOT, self.contract, NPC, defined, LOOKS)
+        self.assertEqual([], errors)
+        self.assertEqual(LOOKS, looks)
+        self.assertEqual(["default", "f_novice", "f_adept"],
+                         [e["id"] for e in MODULE.yaml_list_entries("looks:\n" + MODULE.yaml_block(self.contract, "looks"), "looks")])
+        # A look the Java list lacks, a look the contract lacks, a file path or layer off the renderer's.
+        self.assertIn("java_looks_differ_from_contract:['default', 'f_novice']!=['default', 'f_novice', 'f_adept']",
+                      MODULE.check_npc_looks(ROOT, self.contract, NPC, defined, LOOKS[:2])[0])
+        self.assertIn("java_looks_must_start_with_default:['f_novice', 'default', 'f_adept']",
+                      MODULE.check_npc_looks(ROOT, self.contract, NPC, defined, ["f_novice", "default", "f_adept"])[0])
+        head, _, tail = self.contract.partition("  - id: f_adept\n")
+        without_adept = head + tail[tail.index("\n\ntexture_art_direction:"):]
+        self.assertIn("contract_looks_differ_from_definitions:['default', 'f_novice']!=['default', 'f_adept', 'f_novice']",
+                      MODULE.check_npc_looks(ROOT, without_adept, NPC, defined, LOOKS[:2])[0])
+        moved = self.contract.replace("textures/entity/cultivator/cultivator_f_novice.png",
+                                      "textures/entity/cultivator_f_novice/cultivator_f_novice.png")
+        self.assertTrue(any(e.startswith("contract_look_texture:f_novice:")
+                            for e in MODULE.check_npc_looks(ROOT, moved, NPC, defined, LOOKS)[0]))
+        layer = self.contract.replace("myvillage:cultivator#f_adept", "myvillage:cultivator#main")
+        self.assertTrue(any(e.startswith("contract_look_model_layer:f_adept:")
+                            for e in MODULE.check_npc_looks(ROOT, layer, NPC, defined, LOOKS)[0]))
+        stray = self.contract.replace("defs/cultivator_f_adept.py", "defs/somebody_else.py")
+        self.assertIn("contract_look_definition_not_in_npcgen:f_adept:tools/npcgen/defs/somebody_else.py",
+                      MODULE.check_npc_looks(ROOT, stray, NPC, {"default": "cultivator", "f_novice": "cultivator_f_novice"}, LOOKS)[0])
+
+    def test_a_look_whose_definition_is_not_written_yet_is_pending(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            (root / MODULE.NPCGEN_DEFS).mkdir(parents=True)
+            (root / MODULE.NPCGEN_BUILD).write_text((ROOT / MODULE.NPCGEN_BUILD).read_text(encoding="utf-8"), encoding="utf-8")
+            (root / MODULE.NPCGEN_DEFS / "cultivator.py").write_text('ENTITY = "cultivator"\nLOOK = "default"\n', encoding="utf-8")
+            groups, errors = MODULE.npc_definitions(root)
+            self.assertEqual({NPC: {"default": "cultivator"}}, groups)
+            self.assertEqual([f"missing_file:{root / MODULE.NPCGEN_DEFS / f'cultivator_{look}.py'}" for look in LOOKS[1:]], errors)
+            # Only the missing modules are reported; the contract's looks still name every look to check.
+            self.assertEqual(([], LOOKS), MODULE.check_npc_looks(root, self.contract, NPC, groups[NPC], LOOKS))
+
+    def test_every_look_keeps_the_body_scale_and_look_bone(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            files = MODULE.npc_look_files(NPC, "f_test")
+            for kind, path in MODULE.npc_look_files(NPC, "default").items():
+                target = root / MODULE.RESOURCE_ROOT / files[kind]
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes((RESOURCES / path).read_bytes())
+            default = {"scale": self.model["scale"]}
+            self.assertEqual([], MODULE.check_npc_look(root, NPC, "f_test", "head", default)[0])
+            model = copy.deepcopy(self.model)
+            model["scale"] = 0.25
+            model["look"]["bone"] = "body"
+            model["bones"] = [b for b in model["bones"] if b["name"] != "hair_back"]
+            (root / MODULE.RESOURCE_ROOT / files["model"]).write_text(json.dumps(model), encoding="utf-8")
+            errors, report = MODULE.check_npc_look(root, NPC, "f_test", "head", default)
+            self.assertIn("npc_look_bone_differs_from_contract:f_test:body!=head", errors)
+            self.assertIn("npc_body_bones_missing:f_test:['hair_back']", errors)
+            self.assertIn("npc_scale_differs_from_default:f_test:0.25!=0.5", errors)
+            self.assertEqual(len(errors), report["errors"])
+            (root / MODULE.RESOURCE_ROOT / files["texture"]).unlink()
+            self.assertIn(f"missing_file:{root / MODULE.RESOURCE_ROOT / files['texture']}",
+                          MODULE.check_npc_look(root, NPC, "f_test", "head", default)[0])
 
     def test_model_scale_is_optional_and_positive(self) -> None:
         errors, bones = MODULE.check_beast_model(self.model, NPC)

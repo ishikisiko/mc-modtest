@@ -30,6 +30,12 @@ CLIP_LENGTH_TOLERANCE = 1.0e-4
 RESERVED_CLIPS = ("idle", "walk", "run")
 NPC_CLIPS = ("idle", "walk")
 NPCGEN_BUILD = "tools/npcgen/build.py"
+NPCGEN_DEFS = "tools/npcgen/defs"
+NPC_LOOK_DEFAULT = "default"
+# The humanoid body every look of an NPC keeps (NpcModel, animateWalk and the avatar cells rely on it);
+# a look may add bones (a ponytail, a drape), never drop one of these.
+NPC_BODY_BONES = frozenset({"root", "body", "head", "arm_right", "arm_left", "forearm_right", "forearm_left",
+                            "leg_right", "leg_left", "hair_back"})
 NAME_PATTERN = re.compile(r"^[a-z0-9_]+$")
 ID_PATTERN = re.compile(r"^[a-z0-9_.-]+:[a-z0-9_./-]+$")
 # Field sets of schema 1 (mirroring BeastDataLoader, BeastModelFile, BeastAnimationFile).
@@ -1013,13 +1019,52 @@ def validate_beast(root: Path, entity_id: str, errors: list[str]) -> dict[str, A
     }
 
 
-def npc_ids(root: Path) -> list[str]:
-    """Entity ids of the NPCs ``tools/npcgen`` builds (its ``DEFINITIONS``), in the mod's namespace."""
+def npc_definition_names(root: Path) -> list[str]:
+    """The names in ``tools/npcgen``'s ``DEFINITIONS`` (one per look, not per entity)."""
     build = root / NPCGEN_BUILD
     if not build.is_file():
         return []
     match = re.search(r"^DEFINITIONS\s*=\s*\(([^)]*)\)", build.read_text(encoding="utf-8"), re.MULTILINE)
-    return [f"myvillage:{name}" for name in re.findall(r"\"([a-z0-9_]+)\"", match.group(1))] if match else []
+    return re.findall(r"\"([a-z0-9_]+)\"", match.group(1)) if match else []
+
+
+def npc_definitions(root: Path) -> tuple[dict[str, dict[str, str]], list[str]]:
+    """``({entity id: {look: definition name}}, errors)``: every ``DEFINITIONS`` module grouped by its
+    ``ENTITY``, keyed by its ``LOOK``. A module not written yet is a ``missing_file`` error and is skipped."""
+    groups: dict[str, dict[str, str]] = {}
+    errors: list[str] = []
+    for name in npc_definition_names(root):
+        path = root / NPCGEN_DEFS / f"{name}.py"
+        if not path.is_file():
+            errors.append(f"missing_file:{path}")
+            continue
+        text = path.read_text(encoding="utf-8")
+        entity = re.search(r'^ENTITY\s*=\s*"([a-z0-9_]+)"', text, re.MULTILINE)
+        look = re.search(r'^LOOK\s*=\s*"([a-z0-9_]+)"', text, re.MULTILINE)
+        if not entity or not look:
+            errors.append(f"npc_definition_without_entity_or_look:{name}")
+            continue
+        looks = groups.setdefault(f"myvillage:{entity.group(1)}", {})
+        if look.group(1) in looks:
+            errors.append(f"npc_definition_duplicate_look:{entity.group(1)}:{look.group(1)}:{looks[look.group(1)]},{name}")
+            continue
+        looks[look.group(1)] = name
+    return groups, errors
+
+
+def npc_ids(root: Path) -> list[str]:
+    """Entity ids of the NPCs ``tools/npcgen`` builds (the ``ENTITY`` of its definitions), in the mod's namespace."""
+    return list(npc_definitions(root)[0])
+
+
+def npc_look_files(entity_id: str, look: str) -> dict[str, str]:
+    """A look's three generated files, relative to the resources root: ``<name>`` for the default look,
+    ``<name>_<look>`` otherwise, every texture in the entity's directory (as ``NpcRenderer`` reads them)."""
+    namespace, name = split_id(entity_id)
+    stem = name if look == NPC_LOOK_DEFAULT else f"{name}_{look}"
+    return {"model": f"assets/{namespace}/npc/{stem}_model.json",
+            "animations": f"assets/{namespace}/npc/{stem}_animations.json",
+            "texture": f"assets/{namespace}/textures/entity/{name}/{stem}.png"}
 
 
 def check_npc_contract(contract: str, entity_id: str, lang: dict[str, dict]) -> list[str]:
@@ -1101,27 +1146,34 @@ def check_npc_state(contract: str, sources: dict[str, str]) -> list[str]:
     return errors
 
 
-def validate_npc(root: Path, entity_id: str, errors: list[str]) -> dict[str, Any]:
-    """One humanoid NPC: generated client files, contract, registration, resources, spawning."""
-    namespace, name = split_id(entity_id)
-    const = constant_name(name)
-    java_root = root / JAVA_ROOT
-    assets = root / RESOURCE_ROOT / f"assets/{namespace}"
+def check_npc_look(root: Path, entity_id: str, look: str, look_bone: str | None,
+                   default: dict[str, Any] | None) -> tuple[list[str], dict[str, Any]]:
+    """One look's generated files: the model (schema, ``look_bone``, the humanoid body bones, and the
+    ``default`` look's scale), clips on its bones with ``idle`` and ``walk`` looping, and a texture the
+    atlas size with binary alpha. Returns (errors, report)."""
+    resources = root / RESOURCE_ROOT
+    files = npc_look_files(entity_id, look)
     found: list[str] = []
-
-    model = require_json(assets / f"npc/{name}_model.json", found)
+    model = require_json(resources / files["model"], found)
     bones: set[str] = set()
     if model:
         model_errors, bones = check_beast_model(model, entity_id)
-        found.extend(f"npc_model:{problem}" for problem in model_errors)
-    animations = require_json(assets / f"npc/{name}_animations.json", found)
+        found.extend(f"npc_model:{look}:{problem}" for problem in model_errors)
+        bone = model.get("look", {}).get("bone") if isinstance(model.get("look"), dict) else None
+        if look_bone is not None and bone != look_bone:
+            found.append(f"npc_look_bone_differs_from_contract:{look}:{bone}!={look_bone}")
+        if bones and not NPC_BODY_BONES <= bones:
+            found.append(f"npc_body_bones_missing:{look}:{sorted(NPC_BODY_BONES - bones)}")
+        if default is not None and model.get("scale", 1.0) != default.get("scale"):
+            found.append(f"npc_scale_differs_from_default:{look}:{model.get('scale', 1.0)}!={default.get('scale')}")
+    animations = require_json(resources / files["animations"], found)
     if animations:
-        found.extend(f"npc_animations:{problem}"
+        found.extend(f"npc_animations:{look}:{problem}"
                      for problem in check_beast_animations(animations, entity_id, bones, None, looping=NPC_CLIPS))
 
     texture_report: list[int] = []
     cutout_texels = 0
-    texture_path = assets / f"textures/entity/{name}/{name}.png"
+    texture_path = resources / files["texture"]
     if not texture_path.is_file():
         found.append(f"missing_file:{texture_path}")
     else:
@@ -1130,49 +1182,137 @@ def validate_npc(root: Path, entity_id: str, errors: list[str]) -> dict[str, Any
             texture_report = [width, height]
             atlas = model.get("texture") if isinstance(model, dict) else None
             if isinstance(atlas, dict) and (width, height) != (atlas.get("width"), atlas.get("height")):
-                found.append(f"npc_texture_size_differs_from_model:{width}x{height}")
+                found.append(f"npc_texture_size_differs_from_model:{look}:{width}x{height}")
             alphas = rgba[3::4]
             if any(alpha not in (0, 255) for alpha in alphas):
-                found.append("npc_texture_alpha_must_be_binary")  # the cut-out render type has no blending
+                found.append(f"npc_texture_alpha_must_be_binary:{look}")  # the cut-out render type has no blending
             cutout_texels = sum(1 for alpha in alphas if alpha == 0)
         except ValueError as exc:
             found.append(str(exc))
+    return found, {
+        "clips": sorted(animations.get("clips", {})) if isinstance(animations, dict) and isinstance(animations.get("clips"), dict) else [],
+        "bones": len(bones),
+        "scale": model.get("scale", 1.0) if model and isinstance(model, dict) else None,
+        "texture": texture_report,
+        "transparent_texels": cutout_texels,
+        "errors": len(found),
+    }
 
-    if not (root / f"tools/npcgen/defs/{name}.py").is_file():
-        found.append(f"missing_file:{root / f'tools/npcgen/defs/{name}.py'}")
+
+JAVA_LOOKS = re.compile(r"\bLOOKS\s*=\s*List\.of\(([^)]*)\)")
+
+
+def java_looks(source: str) -> list[str] | None:
+    """The string literals of a class's ``LOOKS = List.of(...)``; None when it declares none."""
+    match = JAVA_LOOKS.search(source)
+    return re.findall(r'"([a-z0-9_]+)"', match.group(1)) if match else None
+
+
+def check_npc_looks(root: Path, contract: str, entity_id: str, looks: dict[str, str],
+                    java: list[str] | None) -> tuple[list[str], list[str]]:
+    """The contract's ``looks`` list against the npcgen definitions of the entity (``looks``: look ->
+    definition name) and the Java class's ``LOOKS``. A contract look whose definition module is not
+    written yet (but is in ``DEFINITIONS``) is pending: it counts as defined, and its files are
+    still checked. Returns (errors, every look to check, default first)."""
+    errors: list[str] = []
+    entries = yaml_list_entries("looks:\n" + yaml_block(contract, "looks"), "looks")
+    names = npc_definition_names(root)
+    pending: list[str] = []
+    for entry in entries:
+        look = entry.get("id", "")
+        if not NAME_PATTERN.match(look):
+            errors.append(f"contract_look_id:{look}")
+            continue
+        definition = looks.get(look)
+        declared = entry.get("definition", "")
+        if definition is None:
+            stem = Path(declared).stem
+            if declared != f"{NPCGEN_DEFS}/{stem}.py" or stem not in names:
+                errors.append(f"contract_look_definition_not_in_npcgen:{look}:{declared}")
+            elif not (root / declared).is_file():
+                pending.append(look)
+            definition = stem
+        expected = {**npc_look_files(entity_id, look), "definition": f"{NPCGEN_DEFS}/{definition}.py",
+                    "model_layer": f"{entity_id}#{'main' if look == NPC_LOOK_DEFAULT else look}"}
+        for field, value in expected.items():
+            if entry.get(field) != value:
+                errors.append(f"contract_look_{field}:{look}:{entry.get(field)}!={value}")
+    contracted = [entry.get("id", "") for entry in entries]
+    defined = set(looks) | set(pending)
+    if NPC_LOOK_DEFAULT not in defined:
+        errors.append(f"npc_without_default_look:{entity_id}")
+    if len(set(contracted)) != len(contracted):
+        errors.append(f"contract_looks_repeat:{contracted}")
+    if set(contracted) != defined:
+        errors.append(f"contract_looks_differ_from_definitions:{sorted(contracted)}!={sorted(defined)}")
+    java_list = java if java is not None else [NPC_LOOK_DEFAULT]
+    if set(java_list) != set(contracted) or len(java_list) != len(set(java_list)):
+        errors.append(f"java_looks_differ_from_contract:{java_list}!={contracted}")
+    if java_list[:1] != [NPC_LOOK_DEFAULT]:
+        errors.append(f"java_looks_must_start_with_default:{java_list}")
+    ordered = [NPC_LOOK_DEFAULT] + sorted((defined | set(contracted)) - {NPC_LOOK_DEFAULT, ""},
+                                          key=lambda look: (contracted + [look]).index(look))
+    return errors, [look for look in ordered if NAME_PATTERN.match(look)]
+
+
+def validate_npc(root: Path, entity_id: str, errors: list[str],
+                 looks: dict[str, str] | None = None) -> dict[str, Any]:
+    """One humanoid NPC entity and every look of it: generated client files per look, contract (with
+    its ``looks``), registration, resources, spawning. ``looks`` maps look -> npcgen definition name."""
+    namespace, name = split_id(entity_id)
+    const = constant_name(name)
+    java_root = root / JAVA_ROOT
+    looks = looks if looks is not None else {NPC_LOOK_DEFAULT: name}
+    found: list[str] = []
 
     lang, loot = check_entity_resources(root, entity_id, found)
     contract = require_text(root / f"genops/contracts/entities/{name}.yaml", [], found)
+    sources: dict[str, str] = {}
+    java_class = yaml_scalar(yaml_block(contract, "entity"), "java_class") or ""
+    for key in ("base_class", "java_class"):
+        cls = yaml_scalar(yaml_block(contract, "entity"), key) or ""
+        path = root / "src/main/java" / (cls.replace(".", "/") + ".java")
+        if cls and path.is_file():
+            sources[cls] = path.read_text(encoding="utf-8")
+    declared_looks = java_looks(sources.get(java_class, ""))
+    to_check = sorted(looks, key=lambda look: look != NPC_LOOK_DEFAULT)
     if contract:
         found.extend(f"npc_contract:{problem}" for problem in check_npc_contract(contract, entity_id, lang))
         if "pools: []" in yaml_block(contract, "loot") and loot and loot.get("pools") != []:
             found.append("loot_table_not_empty_as_contracted")
-        sources = {}
-        for key in ("base_class", "java_class"):
-            cls = yaml_scalar(yaml_block(contract, "entity"), key) or ""
-            path = root / "src/main/java" / (cls.replace(".", "/") + ".java")
-            if cls and path.is_file():
-                sources[cls] = path.read_text(encoding="utf-8")
         found.extend(f"npc_contract:{problem}" for problem in check_npc_state(contract, sources))
+        look_errors, to_check = check_npc_looks(root, contract, entity_id, looks, declared_looks)
+        found.extend(f"npc_looks:{problem}" for problem in look_errors)
+
+    look_bone = yaml_scalar(yaml_block(contract, "rendering"), "look_bone")
+    look_reports: dict[str, dict[str, Any]] = {}
+    for look in to_check:
+        look_errors, report = check_npc_look(root, entity_id, look, look_bone, look_reports.get(NPC_LOOK_DEFAULT))
+        found.extend(look_errors)
+        look_reports[look] = report
 
     found.extend(check_entity_registration(root, entity_id, contract))
-    java_class = yaml_scalar(yaml_block(contract, "entity"), "java_class") or ""
     class_path = root / "src/main/java" / (java_class.replace(".", "/") + ".java")
     require_text(class_path, ["extends NpcEntity", f'"{name}"'], found)
     require_text(java_root / "entity/ModEntityEvents.java", [f"event.put(ModEntities.{const}.get()"], found)
     found.extend(check_spawn_egg(root, entity_id, contract))
+    # One renderer and one layer per look: a type with LOOKS hands that list to both registrations.
+    simple = java_class.rpartition(".")[2]
+    looks_arg = f", {simple}.LOOKS" if declared_looks is not None else ""
     require_text(java_root / "client/MyVillageClient.java",
-                 ["value = Dist.CLIENT", f"NpcRenderer.register(event, ModEntities.{const})",
-                  f"NpcRenderer.registerLayer(event, ModEntities.{const}.getId())"], found)
+                 ["value = Dist.CLIENT", f"NpcRenderer.register(event, ModEntities.{const}{looks_arg})",
+                  f"NpcRenderer.registerLayer(event, ModEntities.{const}.getId(){looks_arg})"], found)
     found.extend(check_no_natural_spawning(root, entity_id, contract, "npc"))
 
     errors.extend(found)
+    default = look_reports.get(NPC_LOOK_DEFAULT, {})
     return {
-        "clips": sorted(animations.get("clips", {})) if isinstance(animations, dict) and isinstance(animations.get("clips"), dict) else [],
-        "bones": len(bones),
-        "scale": model.get("scale", 1.0) if isinstance(model, dict) else None,
-        "texture": texture_report,
-        "transparent_texels": cutout_texels,
+        "clips": default.get("clips", []),
+        "bones": default.get("bones", 0),
+        "scale": default.get("scale"),
+        "texture": default.get("texture", []),
+        "transparent_texels": default.get("transparent_texels", 0),
+        "looks": look_reports,
         "errors": len(found),
     }
 
@@ -1182,13 +1322,15 @@ def validate(root: Path = ROOT) -> dict[str, Any]:
     texture = validate_simple_fox(root, errors)
     beasts = validate_beast_framework(root, errors)
     beast_reports = {entity_id: validate_beast(root, entity_id, errors) for entity_id in beasts}
-    npcs = npc_ids(root)
+    npc_groups, npc_errors = npc_definitions(root)
+    errors.extend(npc_errors)
+    npcs = list(npc_groups)
     if npcs and not beasts:
         # validate_beast_framework scans entity/** for client imports; without beasts, do it here.
         common = sorted((root / JAVA_ROOT / "entity").rglob("*.java"))
         errors.extend(scan_sources(common, ["import net.minecraft.client", "import com.example.myvillage.client"],
                                    root, "client_import_in_common_source"))
-    npc_reports = {entity_id: validate_npc(root, entity_id, errors) for entity_id in npcs}
+    npc_reports = {entity_id: validate_npc(root, entity_id, errors, looks) for entity_id, looks in npc_groups.items()}
     return {
         "schema_version": 1,
         "entities": ["myvillage:simple_fox", *beasts, *npcs],

@@ -137,6 +137,7 @@ rendering:
   model_class: com.example.myvillage.client.entity.npc.NpcModel
   renderer_class: com.example.myvillage.client.entity.npc.NpcRenderer
   model_layer: myvillage:cultivator#main
+  looks: see looks (the files below are the default look's; NpcRenderer draws the synced look's set and falls back to default for a name it does not know)
   geo: myvillage:npc/cultivator_model.json
   animation: myvillage:npc/cultivator_animations.json
   base_texture: myvillage:textures/entity/cultivator/cultivator.png
@@ -173,6 +174,30 @@ rendering:
     - id: death
       loop: false
       source: vanilla_living_entity_render_state
+
+# One entity type, several looks (外观): each look is its own tools/npcgen definition with its own
+# three files, sharing the body skeleton (the default look's body bones, look bone head, scale) so
+# animateWalk, the name tag and the avatar cells stay the same. The ids must equal
+# CultivatorEntity.LOOKS and the LOOK of the npcgen definitions whose ENTITY is cultivator.
+looks:
+  - id: default
+    model: assets/myvillage/npc/cultivator_model.json
+    animations: assets/myvillage/npc/cultivator_animations.json
+    texture: assets/myvillage/textures/entity/cultivator/cultivator.png
+    definition: tools/npcgen/defs/cultivator.py
+    model_layer: myvillage:cultivator#main
+  - id: f_novice
+    model: assets/myvillage/npc/cultivator_f_novice_model.json
+    animations: assets/myvillage/npc/cultivator_f_novice_animations.json
+    texture: assets/myvillage/textures/entity/cultivator/cultivator_f_novice.png
+    definition: tools/npcgen/defs/cultivator_f_novice.py
+    model_layer: myvillage:cultivator#f_novice
+  - id: f_adept
+    model: assets/myvillage/npc/cultivator_f_adept_model.json
+    animations: assets/myvillage/npc/cultivator_f_adept_animations.json
+    texture: assets/myvillage/textures/entity/cultivator/cultivator_f_adept.png
+    definition: tools/npcgen/defs/cultivator_f_adept.py
+    model_layer: myvillage:cultivator#f_adept
 
 texture_art_direction:
   silhouette: 修长人形，束发戴冠，斜肩盖袖，广袖垂袋，腰封收腰，裙摆两层外扩
@@ -268,4 +293,3 @@ out_of_scope:
   - drops
   - custom_audio
   - held_items
-  - visual_variants
