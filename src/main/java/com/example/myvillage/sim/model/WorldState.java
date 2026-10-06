@@ -25,7 +25,7 @@ public final class WorldState {
     public final List<LostHeritage> lostHeritages = new ArrayList<>();
     /**
      * Players' ledger records by UUID string (player sect entry, slice 1). Players are not persons.
-     * TODO(slice 1 package A): saved by StateCodec version 3 as {@code player_members}.
+     * Saved by StateCodec version 3 as {@code player_members}.
      */
     public final TreeMap<String, PlayerMember> playerMembers = new TreeMap<>();
     /** Kept chronicle entries in id order (pruned per design §3.5). */

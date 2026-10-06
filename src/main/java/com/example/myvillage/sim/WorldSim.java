@@ -472,7 +472,18 @@ public final class WorldSim {
      * returned again by the next {@link #step}.
      */
     public SimEvent joinSect(String playerId, String playerName, int sectId, PlayerQualification q) {
-        return PlayerAffairs.join(ctx, playerId, playerName, sectId, q);
+        return joinSect(playerId, playerName, sectId, q, false);
+    }
+
+    /**
+     * As {@link #joinSect(String, String, int, PlayerQualification)}; {@code force} (admin commands
+     * only) needs just an active sect the player is not already in (else IllegalArgumentException
+     * "sect_inactive" or "already_member") and skips cooldown, standing, awakening, realm and the
+     * selective bar. A forced player in another sect leaves it first with no standing penalty and no
+     * {@code player_leave} event. The join standing, snapshot and {@code player_join} event apply.
+     */
+    public SimEvent joinSect(String playerId, String playerName, int sectId, PlayerQualification q, boolean force) {
+        return PlayerAffairs.join(ctx, playerId, playerName, sectId, q, force);
     }
 
     /**

@@ -296,6 +296,64 @@ class WorldSimPlayerMembersTest {
     }
 
     @Test
+    void forcedJoinSkipsTheCooldownButNotALivingSect() {
+        WorldSim sim = world();
+        int[] ids = twoActiveSects(sim);
+        sim = ordinary(sim, ids[0], ids[1]);
+        int a = ids[0];
+        sim.joinSect(ALICE, "Alice", a, PLAIN);
+        sim.leaveSect(ALICE, "Alice");
+        assertEquals(Admission.REJOIN_COOLDOWN, reason(sim, ALICE, a, PLAIN));
+        PlayerQualification unawakened = new PlayerQualification("mortal", 0, false, 0);
+        WorldSim fsim = sim;
+        assertEquals(Admission.REJOIN_COOLDOWN, assertThrows(IllegalArgumentException.class,
+                () -> fsim.joinSect(ALICE, "Alice", a, unawakened, false)).getMessage());
+
+        SimEvent e = sim.joinSect(ALICE, "Alice", a, unawakened, true);
+        assertEquals("player_join", e.type());
+        assertEquals(List.of(a), e.sects());
+        assertEquals(e, sim.recentEvents(2, 1).get(0));
+        PlayerMemberView v = sim.playerMember(ALICE).orElseThrow();
+        assertEquals(a, v.sectId());
+        assertEquals("outer", v.rank());
+        assertFalse(v.awakened(), "the snapshot is written as given");
+        assertEquals(0, v.standings().get(a), "-20 plus the join standing");
+
+        assertEquals(Admission.ALREADY_MEMBER, assertThrows(IllegalArgumentException.class,
+                () -> fsim.joinSect(ALICE, "Alice", a, PLAIN, true)).getMessage());
+        assertEquals(Admission.SECT_INACTIVE, assertThrows(IllegalArgumentException.class,
+                () -> fsim.joinSect(BOB, "Bob", 9999, PLAIN, true)).getMessage());
+        WorldSim razed = editSect(sim, ids[1], s -> s.addProperty("state", "destroyed"));
+        assertEquals(Admission.SECT_INACTIVE, assertThrows(IllegalArgumentException.class,
+                () -> razed.joinSect(ALICE, "Alice", ids[1], PLAIN, true)).getMessage());
+        assertEquals(a, razed.playerMember(ALICE).orElseThrow().sectId(), "a refused force changes nothing");
+    }
+
+    @Test
+    void forcedJoinFromAnotherSectLeavesItWithoutPenalty() {
+        WorldSim sim = world();
+        int[] ids = twoActiveSects(sim);
+        sim = ordinary(sim, ids[0], ids[1]);
+        sim.joinSect(ALICE, "Alice", ids[0], PLAIN);
+        sim.promotePlayer(ALICE, "Alice", "inner");
+        long before = sim.recentEvents(1, Integer.MAX_VALUE).size();
+
+        SimEvent e = sim.joinSect(ALICE, "Alice", ids[1], PLAIN, true);
+
+        PlayerMemberView v = sim.playerMember(ALICE).orElseThrow();
+        assertEquals(ids[1], v.sectId());
+        assertEquals("outer", v.rank());
+        assertEquals(ids[0], v.leftSectId());
+        assertEquals(sim.day(), v.leftDay());
+        assertEquals(Map.of(ids[0], 20, ids[1], 20), v.standings(), "no penalty for the sect left");
+        List<SimEvent> added = sim.recentEvents(1, Integer.MAX_VALUE).subList((int) before,
+                sim.recentEvents(1, Integer.MAX_VALUE).size());
+        assertEquals(List.of(e), added, "only the join is recorded, no player_leave");
+        assertEquals("player_join", e.type());
+        assertFalse(sim.step(DPY).contains(e));
+    }
+
+    @Test
     void adminPromotion() {
         WorldSim sim = world();
         int a = twoActiveSects(sim)[0];

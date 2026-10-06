@@ -81,12 +81,35 @@ public final class PlayerAffairs {
      */
     public static SimEvent join(SimContext ctx, String playerId, String playerName, int sectId,
                                 PlayerQualification q) {
-        Admission a = admission(ctx, playerId, sectId, q);
-        if (!a.ok()) {
-            throw new IllegalArgumentException(a.reason());
-        }
+        return join(ctx, playerId, playerName, sectId, q, false);
+    }
+
+    /**
+     * As {@link #join(SimContext, String, String, int, PlayerQualification)}; {@code force} (admin
+     * commands) skips every admission rule but a living sect the player is not already in. A forced
+     * player in another sect first leaves it without penalty or event ({@code leftSectId/leftDay}
+     * still recorded). The join standing, the snapshot and the {@code player_join} event are as usual.
+     */
+    public static SimEvent join(SimContext ctx, String playerId, String playerName, int sectId,
+                                PlayerQualification q, boolean force) {
         Sect sect = ctx.sect(sectId);
         PlayerMember m = ctx.state.playerMembers.get(playerId);
+        if (force) {
+            if (sect == null || !sect.active()) {
+                throw new IllegalArgumentException(Admission.SECT_INACTIVE);
+            }
+            if (m != null && m.sectId == sectId) {
+                throw new IllegalArgumentException(Admission.ALREADY_MEMBER);
+            }
+            if (m != null && m.inSect()) {
+                releaseQuietly(ctx, m);
+            }
+        } else {
+            Admission a = admission(ctx, playerId, sectId, q);
+            if (!a.ok()) {
+                throw new IllegalArgumentException(a.reason());
+            }
+        }
         if (m == null) {
             m = new PlayerMember();
             m.playerId = playerId;
