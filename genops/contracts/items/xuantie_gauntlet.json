@@ -5,7 +5,7 @@
     "en_us": "Xuantie Gauntlet",
     "zh_design_name": "玄铁拳套"
   },
-  "owner_facing_goal": "Add the 拳掌 (fist) school's weapon: a dark-iron plated gauntlet worn on the right hand, a diamond-tier CombatWeaponItem with fast, light attributes whose cultivation combat comes entirely from data (myvillage:basic_fist: straight punch, horizontal palm, uppercut, chopping palm, step-in double strike), with mapped vanilla behavior in vanilla mode.",
+  "owner_facing_goal": "Add the 拳掌 (fist) school's weapon: a pair of dark-iron gauntlets in one item, worn on both hands, a diamond-tier CombatWeaponItem with fast, light attributes whose cultivation combat comes entirely from data (myvillage:basic_fist: straight punch, horizontal palm, uppercut, chopping palm, step-in double strike), with mapped vanilla behavior in vanilla mode.",
   "creative_tab": {
     "visibility": "visible",
     "tab_id": "myvillage:main",
@@ -35,7 +35,7 @@
   "behavior": {
     "type": "functional",
     "server_client_boundary": "In vanilla mode the item follows the Minecraft SwordItem path; CombatWeaponItem only keeps a durability-only stack change from replaying the equip animation. In cultivation mode the combat runtime finds the item through data/myvillage/combat/weapon/xuantie_gauntlet.json (family fist); no Java code names the item, and the server owns mode, move, timing, hit volume, targets, damage, step movement, recovery, and synchronization exactly as for other data-registered weapons.",
-    "interaction": "Mapped vanilla left-click attack/mining outside cultivation mode; the five myvillage:basic_fist moves inside it. No right-click behavior. Worn on the main hand: the third-person model sits over the fist, and in first person the bare off hand guards while the off-hand slot is empty.",
+    "interaction": "Mapped vanilla left-click attack/mining outside cultivation mode; the five myvillage:basic_fist moves inside it. No right-click behavior. Worn on the main hand, and as a pair (weapon file paired) mirrored on the off hand while the off-hand slot is empty: the third-person model sits over each fist, and in first person the off hand guards wearing the mirrored gauntlet.",
     "cooldown_or_durability": "Diamond-tier durability 1561 and max stack size 1 from the tier. Held attack damage 5.0 and attack speed 2.2 (SwordItem.createAttributes(Tiers.DIAMOND, 1, -1.8F)). Cultivation timing is move-owned by the style data.",
     "data_components": [
       "SwordItem diamond-tier tool component",
@@ -76,7 +76,7 @@
   "non_goals": [
     "Crafting recipe, loot acquisition, natural generation, or advancement hook",
     "Any Java hook that names the item outside ModItems",
-    "A second (left-hand) gauntlet or a paired item; the off hand stays bare",
+    "A separate left-hand item or slot logic: the left gauntlet is presentation only and never touches the off-hand slot",
     "School-specific runtime behaviour from the weapon family (data only for now)",
     "New sound assets, projectiles, special arts, or spiritual-power cost"
   ]

@@ -7,6 +7,54 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.39.1
+
+The Xuantie Gauntlet after the owner's first look (2026-10-07: the moves are
+fine; the model and icon are ugly, it reads as a big ski glove, and one item
+should be a pair with the left hand wearing one too). Move data, hit samples,
+timing and the pose clips are unchanged.
+
+### Changed
+
+- `tools/gen_xuantie_gauntlet_model.py`: a slimmer articulated iron fist in
+  place of the 42-element mitten. 26 elements: a cuff flush with the glove and
+  a 0.25 px rim (no flare), a thin bronze trim, the glove 0.1 px over the
+  skin's outer layer, three overlapping back lames no thicker than 0.5 px with
+  a low ridge, four separate finger plates (0.6 px gaps) each with a curl down
+  the palm side and a raised knuckle cap on the back, the thumb folded across
+  the curls, and a plain leather palm. 12.5 x 11.0 x 10.25 model px against
+  16.5 x 12.8 x 11.9 (24 % shorter, 14 % slimmer both ways; 6.25 x 5.5 x 5.1
+  player px in third person). Still 2 model px per player px, `rig.weapon_scale`
+  0.3 and the third-person display unchanged, grip error 0. The texture gives
+  every visible face its own region at two texels per model px (no stretched
+  texels) with a bled gutter, so thin faces never sample a transparent edge.
+- The contract follows the new parts: butt `y 1..4.4` (cuff), handle
+  `4.4..11.4`, collar `11.4..12.6` (the knuckle ridge), head `12.6..13.5`
+  (finger plates and knuckle tops), trail `11.4..13.5`.
+- Inventory icon: a hand-authored three-quarter (斜着) fist turned 26.57
+  degrees, knuckles up and right, cuff down and left, lit from the upper left,
+  in place of the upright front view.
+
+### Added
+
+- Weapon files take an optional boolean `paired` (`CombatDataLoader`,
+  `WeaponDefinition.paired`, `tools/combat_data.py`); the gauntlet sets it.
+  The validator (`COMBAT_WEAPON_PAIRED`) requires a paired weapon's rig to keep
+  `rig.off_hand.free` and its contract to have no `off_hand_grip_center`.
+- A paired weapon is drawn a second time, mirrored, on the empty off hand
+  (presentation only, resolved through `CombatStyles`): in third person by
+  `PairedWeaponLayer` (a player render layer that places it like vanilla's
+  off-hand item, so the PAL left arm carries it through the guard, chamber and
+  strike roles), in first person over the free off hand's fist
+  (`FirstPersonWeaponTransform.pairedItem`, scaled by the off arm's
+  thickness). An item in the off-hand slot hides it. `PairedWeapons` reverses
+  each quad's vertices under a mirroring pose so faces stay outward.
+- Offline previews show the pair: `fp` (port `paired_item_matrix`, checked
+  against the golden's new `paired_item`), `pose` (`--paired auto|on|off`) and
+  `model` (`tp_pair`). `FirstPersonPairedHandTest` pins the first-person
+  placement; the parity golden is rewritten (sword and spear entries
+  unchanged).
+
 ## 0.39.0
 
 The 拳掌 (fist) school gets its weapon: the Xuantie Gauntlet (玄铁拳套), worn

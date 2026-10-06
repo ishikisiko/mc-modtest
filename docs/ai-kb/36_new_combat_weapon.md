@@ -282,3 +282,29 @@ The steps held; what a worn weapon with a free off hand needed beyond them:
   on a sampled frame time (chop contact 5.3 + 1.2); the contact moved to 5.4.
 
 Not rehearsed: steps 21 and 22 (owner review, release) for the gauntlet.
+
+### 0.39.1: the owner's first look
+
+The owner accepted the moves and rejected the look: the model and icon were
+ugly, the gauntlet read as a big ski glove, and one item should be a pair.
+
+- Model (step 6): the generator now builds parts with materials and gives
+  every visible face its own texture region at a fixed density (two texels per
+  model px), packed with a bled one-texel gutter; a face whose rectangle lies on
+  or inside an opaque part (glove, cuff) gets no face. Rejected on the way: a
+  cuff wider than the hand (the fist sat on it like a pedestal), a mirrored
+  engraving on the back plate (it read as a face), 0.25 px finger gaps
+  (invisible in game), and dropping a knuckle cap's inner face because it lay
+  on the glove plane (it rises above the glove; the gap showed the sky).
+- Icon: rasterising the model at 32 px gave a box or mud at every angle tried;
+  the shipped icon is a hand-authored grid (`ICON_ROWS`), first laid out as
+  flat upright shapes rotated 26.57 degrees (a 2:1 slope keeps every edge a
+  regular staircase) and then finished by hand.
+- Pair: a weapon file's `paired` makes the client draw the same model mirrored
+  on an empty off hand (`PairedWeapons`, `PairedWeaponLayer`,
+  `FirstPersonWeaponTransform.pairedItem`), checked by the validator
+  (`COMBAT_WEAPON_PAIRED`), the parity golden (`paired_item`) and the three
+  preview tools. A mirroring pose reverses each quad's vertex order, or culling
+  shows the inside of every box. The third-person left hand needs no pose
+  change: vanilla's left-hand item frame is the right's mirror image, so
+  reflecting the right-hand display transform inside it gives the left glove.
