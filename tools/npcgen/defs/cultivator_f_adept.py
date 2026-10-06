@@ -7,8 +7,8 @@ the jade pendant. Palette A: 绛紫 silk coat, 月白 skirt, gold, a pale-gold s
 the number of layers and ornaments, not in colour: from the neck down a stand collar (中衣, one line
 above the coat), the open coat with gold-bordered edges, the skirt tied high on the chest under a
 gold band (齐胸), the waist cord with a jade pendant and tassel, two skirts (outer short with a woven
-gold fret, inner long and wider with a wave-scroll band), the shawl across the back and down behind
-the arms; on the head a high bun leaning to her left, a gold flower, the hairpin (步摇) on the right
+gold fret, inner long and wider with a wave-scroll band), the shawl in a flat V across the back and
+down the outer backs of the sleeves, opening 6 degrees, to the knees; on the head a low wide bun set back on the crown, a gold flower, the hairpin (步摇) on the right
 with a three-texel drop, hair loops behind the ears (垂鬟), jade earrings, hair down to the waist.
 
 Design space and units are the default look's: ground h = 0, front -Z, the figure's left +X, one unit
@@ -24,7 +24,8 @@ Female geometry against the default look (texels):
                                                          16 -> inner skirt 20: narrow above, wide below)
     hip / knee                 HIP 29, robe tiers 8 / 9  HIP 28, outer skirt 8 per leg (h 9..28),
                                per leg                   inner skirt 10 per leg (h 0.75..8.75)
-    head top                   60 (hair 61, crown 64)    58 (hair cap 59, bun lobe ~66)
+    head top                   60 (hair 61, crown 64)    58 (hair cap 59; bun 7 x 3 x 6 at h 59..62,
+                                                         z 1.5..7.5, cap 5 x 1 x 4 to h 63)
     neck (chin underside)      48                        46; shoulder pivots 4 below as before
     face widths                13 / 11 / 9 / 7           11 / 9 / 7 / 5 (skull, jaw, jaw_low, chin):
                                                          12 rows tall, 11 wide, pointed chin
@@ -73,6 +74,9 @@ HEAD_TOP = 58.0        # the cranium's top; the hair cap adds one, the high bun 
 COAT = (33.25, 44.25)  # the wide-sleeved coat (大袖衫): bottom, top
 CORD = (31.0, 33.0)    # the thin waist cord (腰间细带) the coat ends over
 CHEST_BAND = (38.25, 40.25)   # the skirt's band tied high on the chest (齐胸)
+BUN = (59.0, 63.0, 1.5)  # the bun's bottom, the top of its cap, the front of the bun (back half of the crown)
+DRAPE_TOP = (14.0, 40.0, 2.0)  # the shawl ends' pivots: |x| just outside the sleeve, h, z behind the arm
+DRAPE_FLARE = 6.0        # degrees the shawl ends open outward
 OUTER_HEM = 9.0        # the outer skirt's hem; the inner skirt hangs below it
 INNER_HEM = 0.75
 FRET_ROWS = 4          # the woven gold band above the outer hem
@@ -149,8 +153,8 @@ def build_model():
     _pair(b, "coat_edge_{}", "body", (-3.5, -(COAT[1] - 0.25), -5.5), rot=(0.0, 0.0, -5.0),
           boxes=[("coat_edge_{}_band", (-1.0, -0.5, -0.5), (2, 11, 1))], local=True)
     # the shawl (披帛) across the upper back; its two ends hang on their own bones
-    _pair(b, "drape_sag_{}", "body", (-10.0, -40.0, 5.75), rot=(0.0, 0.0, -42.0),
-          boxes=[("drape_sag_{}_band", (-1.0, -0.5, -0.5), (2, 12, 1))], local=True)
+    _pair(b, "drape_sag_{}", "body", (-12.5, -40.5, 5.6), rot=(0.0, 0.0, -62.0),
+          boxes=[("drape_sag_{}_band", (-1.0, -0.5, -0.5), (2, 13, 1))], local=True)
 
     # ---- head: 11 texels wide, the jaw stepping in to a pointed chin (11/9/7/5), a cut-out hair shell
     # with a stepped top, a high bun set back, a gold comb, the hairpin (步摇) with its drop, two side
@@ -163,16 +167,16 @@ def build_model():
     _box(b, "head", "nose", -0.5, 50, -6.5, 1, 1, 1)
     _box(b, "head", "hair", -6.5, 46, -6.5, 13, 12, 14)
     _box(b, "head", "hair_cap", -5.5, 58, -5.5, 11, 1, 12)
-    _box(b, "head", "bun", -4.5, 59, 0.5, 9, 2, 6)
-    b.bone("bun_lobe", "head", at=(0.5, -60.5, 3.5), rot=(18.0, 0.0, 16.0))
-    b.box_local("bun_lobe", "bun_lobe_top", (-2.5, -5.0, -2.0), (5, 5, 4))
-    _box(b, "head", "flower", 1.5, 59.5, -0.25, 2, 2, 1)
+    # a low, wide bun over the back half of the crown, rounded by a smaller cap
+    _box(b, "head", "bun", -3.5, BUN[0], BUN[2], 7, 3, 6)
+    _box(b, "head", "bun_top", -2.5, BUN[0] + 3, BUN[2] + 1, 5, 1, 4)
+    _box(b, "head", "flower", 1.0, 59.5, BUN[2] - 0.75, 2, 2, 1)
     for side, x0 in (("right", -7.25), ("left", 6.25)):
         kw = {} if side == "right" else {"mirror": True, "uv_from": "loop_right"}
         _box(b, "head", f"loop_{side}", x0, 46, 2.5, 1, 6, 4, **kw)
     _pair(b, "earring_{}", "head", (-5.5, -50.5, -1.0),
           boxes=[("earring_{}_drop", (-0.5, 0.0, -0.5), (1, 3, 1))], local=True)
-    b.bone("pin", "head", at=(-2.5, -61.0, 2.0), rot=(0.0, 24.0, 22.0))
+    b.bone("pin", "head", at=(-2.5, -61.0, BUN[2] + 2.5), rot=(0.0, 24.0, 22.0))
     b.box_local("pin", "pin_rod", (-5.0, -0.5, -0.5), (5, 1, 1))
     b.box_local("pin", "pin_head", (-7.0, -1.0, -1.0), (2, 2, 2))
     b.bone("pin_drop", "pin", at_local=(-6.0, 1.0, 0.0), rot=_plumb(b, "pin"))
@@ -213,13 +217,13 @@ def build_model():
     b.box_local("pendant", "pendant_tassel", (-1.0, 11.0, -0.5), (2, 5, 1))
 
     # ---- the shawl's two ends, hanging behind the arms to the knees
-    _pair(b, "drape_{}", "body", (-10.0, -38.5, 4.75), rot=(4.0, 0.0, -2.0),
+    _pair(b, "drape_{}", "body", (-DRAPE_TOP[0], -DRAPE_TOP[1], DRAPE_TOP[2]), rot=(4.0, 0.0, DRAPE_FLARE),
           boxes=[("drape_{}_strip", (-1.0, -0.5, -0.5), (2, 14, 1))], local=True)
     for side, s in (("right", 1.0), ("left", -1.0)):
         b.bone(f"drape_{side}_low", f"drape_{side}", at_local=(0.0, 13.0, 0.0), rot=(-3.0, 0.0, -3.0 * s))
         kw = {} if side == "right" else {"mirror": True, "uv_from": "drape_right_low_strip"}
         b.box_local(f"drape_{side}_low", f"drape_{side}_low_strip", (-1.5 if side == "right" else -1.5, 0.0, -0.5),
-                    (3, 14, 1), **kw)
+                    (3, 16, 1), **kw)
 
     # ---- legs: each carries half of the two skirts (outer short, inner long and wider) and a shoe
     _pair(b, "leg_{}", "root", (-3.0, -HIP, 0.0),
@@ -246,7 +250,7 @@ class _Paint(HumanoidPaint):
             "coat": self.coat, "neck": self.neck, "collar": self.collar, "coat_edge_right_band": self.coat_edge,
             "drape_sag_right_band": self.drape, "drape_right_strip": self.drape, "drape_right_low_strip": self.drape,
             "skull": self.skull, "jaw": self.jaw, "jaw_low": self.jaw, "chin": self.jaw, "nose": self.nose,
-            "hair": self.hair, "hair_cap": self.hair, "bun": self.bun, "bun_lobe_top": self.bun_lobe, "flower": self.flower,
+            "hair": self.hair, "hair_cap": self.hair, "bun": self.bun, "bun_top": self.bun, "flower": self.flower,
             "loop_right": self.loop, "earring_right_drop": self.earring,
             "pin_rod": self.pin, "pin_head": self.pin, "pin_bead": self.bead,
             "hair_back_main": self.hair_back, "hair_back_tip": self.hair_back,
@@ -353,23 +357,11 @@ class _Paint(HumanoidPaint):
         if f in ("NORTH", "SOUTH", "WEST", "EAST"):
             # wound hair: diagonal coils with a sheen high on the bun
             coil = math.sin((h + (x if abs(t.n[2]) > 0.5 else z) * 0.8) * 1.7)
-            top = 61.0
+            top = BUN[0] + 3.0 if t.cube == "bun" else BUN[1]
             tone = 2.6 + 0.6 * coil + _form(t, 1.3) + 1.4 * _clamp(1.0 - abs(h - top + 1.2) / 0.8)
         else:
             tone = 3.0 + _form(t, 1.0) + (_hash(int(round(x)), int(round(z)), 9) - 0.5) * 1.2
         return _tone(HAIR, tone - 1.0 * self.occ.contact(t) - 0.8 * self.occ.overhang(t))
-
-    def bun_lobe(self, t):
-        """The high lobe of the bun (高髻), leaning back over the base: coiled hair with a sheen band."""
-        lx, ly, lz = t.local
-        f = t.face
-        if f == "UP":
-            return _tone(HAIR, 1.4)
-        if f == "DOWN":
-            return _tone(HAIR, 3.4 + _form(t, 0.8))
-        coil = math.sin((ly + (lx if f in ("NORTH", "SOUTH") else lz) * 0.7) * 1.6)
-        sheen = 1.5 * _clamp(1.0 - abs(ly + 2.6) / 0.8)
-        return _tone(HAIR, 2.5 + 0.5 * coil + sheen + _form(t, 1.2) - 0.8 * self.occ.contact(t))
 
     def loop(self, t):
         """垂鬟: a loop of hair behind each ear, its side faces cut through in the middle."""
@@ -561,7 +553,7 @@ class _Paint(HumanoidPaint):
         tone = 3.9 + (1.2 if edge < 0.6 else 0.0) + 0.3 * math.sin(ly * 0.6) - 0.7 * self.occ.overhang(t)
         if edge > 0.6 and int(math.floor(ly)) % 4 == 1:
             return _tone(GOLD, 3.6)                      # a sparse woven gold dot down the middle
-        if t.cube == "drape_right_low_strip" and ly > 11.5:
+        if t.cube == "drape_right_low_strip" and ly > 13.5:
             return _tone(GOLD, 3.0 + (0.8 if int(math.floor(u)) % 2 == 0 else 0.0))   # a gold-tipped end
         return _tone(DRAPE, tone)
 

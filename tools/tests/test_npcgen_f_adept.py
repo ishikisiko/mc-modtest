@@ -240,8 +240,19 @@ class FemaleAdeptTest(unittest.TestCase):
         _, (_, male_top), _ = bounds(self.male, "skull")
         self.assertAlmostEqual(58.0, top)
         self.assertAlmostEqual(male_top - 2.0, top)
-        _, (_, bun_top), _ = self.box("bun_lobe_top")
-        self.assertGreater(bun_top, top + 5.0, "the high bun stands well above the cranium")
+        # a low, wide bun over the back half of the crown, rounded by a cap two texels smaller
+        (x0, x1), (bottom, bun_high), (z0, z1) = self.box("bun")
+        (cx0, cx1), (_, cap_high), (cz0, cz1) = self.box("bun_top")
+        _, _, (sz0, sz1) = self.box("skull")
+        self.assertTrue(3.0 <= cap_high - bottom <= 4.0, "a bun 3 to 4 texels high")
+        self.assertTrue(6.0 <= x1 - x0 <= 7.0 and 5.0 <= z1 - z0 <= 6.0)
+        self.assertAlmostEqual((x1 - x0) - 2.0, cx1 - cx0)
+        self.assertAlmostEqual((z1 - z0) - 2.0, cz1 - cz0)
+        self.assertAlmostEqual(bun_high, self.box("bun_top")[1][0])
+        self.assertGreaterEqual(z0, (sz0 + sz1) / 2.0 + 1.0, "its front behind the crown's centre")
+        self.assertTrue(0.0 < z1 - sz1 <= 2.0, "set back a little past the cranium")
+        self.assertTrue(x0 <= self.box("flower")[0][0] and self.box("flower")[0][1] <= x1)
+        self.assertTrue(x0 - 0.5 <= self.box("pin_rod")[0][1], "the hairpin goes into the bun")
 
     def test_hands_smaller_and_half_under_the_cuff(self):
         _, hand = self.built.model.cube("hand_right")
@@ -321,6 +332,21 @@ class FemaleAdeptTest(unittest.TestCase):
             moved = reach * math.sin(math.radians(swing))
             self.assertTrue(0.4 <= moved <= 1.6, f"{bone}: {moved:.2f} texels")
         self.assertGreater(length, 0.0)
+
+    def test_drapes_hang_outside_the_sleeves_and_flare(self):
+        """The shawl's ends hang from behind the upper arms, just outside the sleeves, opening outward
+        a few degrees, down to the knees; the band across the back is a flat V close to the back."""
+        (sx0, _), _, (_, sz1) = self.box("sleeve_upper_right")
+        (dx0, dx1), (_, dtop), (dz0, _) = self.box("drape_right_strip")
+        self.assertLessEqual(dx1, sx0 + 0.5, "outside the sleeve's outer face")
+        self.assertGreater(dz0, 0.0, "behind the arm's axis")
+        self.assertTrue(6.0 <= fa.DRAPE_FLARE <= 8.0)
+        _, (bottom, _), _ = self.box("drape_right_low_strip")
+        self.assertTrue(9.0 <= bottom <= 13.0, bottom)
+        _, (vb, vt), (vz0, _) = self.box("drape_sag_right_band")
+        _, _, (_, coat_back) = self.box("coat")
+        self.assertTrue(0.0 < vz0 - coat_back <= 0.25, "lying on the back")
+        self.assertLess(vt - vb, 9.0, "a flat V")
 
     def test_drapes_and_hair_trail_the_walk(self):
         """The shawl's ends and the back hair have their own rotation channels in walk, a quarter beat
