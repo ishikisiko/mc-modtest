@@ -902,5 +902,13 @@
   "tooltip.myvillage.manual.damaged.unknown_technique": "The technique it records is unknown: %1$s",
   "tooltip.myvillage.manual.damaged.wrong_category": "It records %1$s, a %2$s technique, which this manual cannot hold",
   "tooltip.myvillage.manual.damaged.wrong_grade": "It records %1$s, of %2$s, which this manual cannot hold",
-  "tooltip.myvillage.manual.damaged.unreadable": "Damaged; it cannot be studied"
+  "tooltip.myvillage.manual.damaged.unreadable": "Damaged; it cannot be studied",
+  "screen.myvillage.cultivation.study.title": "Studying %1$s",
+  "screen.myvillage.cultivation.study.percent": "%1$s%%",
+  "screen.myvillage.cultivation.study.comprehension": "Comprehension",
+  "screen.myvillage.cultivation.study.gate": "Next gate %1$s · %2$s stability",
+  "screen.myvillage.cultivation.study.no_gate": "No gate ahead",
+  "screen.myvillage.cultivation.study.stop_hint": "Press %1$s to stop",
+  "screen.myvillage.cultivation.study.preparing": "Preparing: study",
+  "screen.myvillage.cultivation.study.reading": "Studying"
 }

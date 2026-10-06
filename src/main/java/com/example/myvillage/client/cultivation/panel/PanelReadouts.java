@@ -1,13 +1,58 @@
 package com.example.myvillage.client.cultivation.panel;
 
 import com.example.myvillage.cultivation.data.RealmStageDefinition;
+import com.example.myvillage.cultivation.meditation.MeditationStatus;
+import com.example.myvillage.cultivation.meditation.StudyProgress;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.List;
+import java.util.Locale;
 
 /** Display arithmetic for the cultivation panel. It derives nothing the server did not send. */
 public final class PanelReadouts {
+    public static final String SESSION_KEY = "screen.myvillage.cultivation.session.";
+    public static final String WAITING_KEY = "screen.myvillage.cultivation.time_waiting";
+    public static final String STUDY_KEY = "screen.myvillage.cultivation.study.";
+
     private PanelReadouts() {
+    }
+
+    /**
+     * The translation key of the session state: the waiting text before the first status, the study keys
+     * ({@code study.preparing}, {@code study.reading}) while a study session runs (its states are the normal
+     * meditation ones), otherwise {@code session.<state>}.
+     */
+    public static String sessionKey(MeditationStatus status) {
+        if (status == null) {
+            return WAITING_KEY;
+        }
+        if (status.studying()) {
+            return STUDY_KEY + (status.state().preparing() ? "preparing" : "reading");
+        }
+        return SESSION_KEY + status.state().name().toLowerCase(Locale.ROOT);
+    }
+
+    /** Whole percent of the manual comprehended, 0..100, rounded down (as the manual's tooltip). */
+    public static int studyPercent(StudyProgress progress) {
+        if (progress.points() <= 0) {
+            return 0;
+        }
+        return (int) Math.min(100L, (long) progress.points() * 100L / progress.totalPoints());
+    }
+
+    /** Points over the total, for the study bar. */
+    public static double studyFraction(StudyProgress progress) {
+        return fraction(progress.points(), progress.totalPoints());
+    }
+
+    /** {@code study.gate} (next gate and its stability cost) or {@code study.no_gate} when none is left. */
+    public static String studyGateKey(StudyProgress progress) {
+        return STUDY_KEY + (progress.nextGatePoints() == StudyProgress.NO_GATE ? "no_gate" : "gate");
+    }
+
+    /** True when a gate lies ahead and the synced stability would not pay for it. */
+    public static boolean studyGateShort(StudyProgress progress, int stability) {
+        return progress.nextGatePoints() != StudyProgress.NO_GATE && stability < progress.gateStabilityCost();
     }
 
     /** {@code value / cap} clamped to 0..1; 0 when the cap is not positive. */

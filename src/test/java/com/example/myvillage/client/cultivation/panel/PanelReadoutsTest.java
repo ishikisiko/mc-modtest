@@ -2,11 +2,18 @@ package com.example.myvillage.client.cultivation.panel;
 
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.data.RealmStageDefinition;
+import com.example.myvillage.cultivation.meditation.MeditationState;
+import com.example.myvillage.cultivation.meditation.MeditationStatus;
+import com.example.myvillage.cultivation.meditation.MeditationStopReason;
+import com.example.myvillage.cultivation.meditation.StudyProgress;
+import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PanelReadoutsTest {
     private static final long TICKS_PER_DAY = 24_000;
@@ -89,5 +96,50 @@ class PanelReadoutsTest {
         assertEquals(1, PanelReadouts.stageIndex(stages, ModCultivationRegistries.QI_REFINING_2_STAGE_ID));
         assertEquals(-1, PanelReadouts.stageIndex(stages, ModCultivationRegistries.QI_REFINING_3_STAGE_ID));
         assertEquals(-1, PanelReadouts.stageIndex(List.of(), ModCultivationRegistries.QI_REFINING_1_STAGE_ID));
+    }
+
+    private static final ResourceLocation STUDIED = ResourceLocation.fromNamespaceAndPath("myvillage", "gengjin_jianjue");
+
+    @Test
+    void studyPercentRoundsDownLikeTheManualTooltip() {
+        assertEquals(0, PanelReadouts.studyPercent(new StudyProgress(STUDIED, 0, 12_000, 6_000, 50)));
+        assertEquals(0, PanelReadouts.studyPercent(new StudyProgress(STUDIED, 119, 12_000, 6_000, 50)));
+        assertEquals(1, PanelReadouts.studyPercent(new StudyProgress(STUDIED, 120, 12_000, 6_000, 50)));
+        assertEquals(37, PanelReadouts.studyPercent(new StudyProgress(STUDIED, 4_479, 12_000, 6_000, 50)));
+        assertEquals(99, PanelReadouts.studyPercent(new StudyProgress(STUDIED, 95_999, 96_000, StudyProgress.NO_GATE, 150)));
+        assertEquals(100, PanelReadouts.studyPercent(new StudyProgress(STUDIED, 4_000, 4_000, StudyProgress.NO_GATE, 0)));
+        assertEquals(0.5D, PanelReadouts.studyFraction(new StudyProgress(STUDIED, 6_000, 12_000, 6_000, 50)));
+    }
+
+    @Test
+    void studyGateTextNamesTheNextGateOrNone() {
+        StudyProgress gated = new StudyProgress(STUDIED, 5_990, 12_000, 6_000, 50);
+        StudyProgress passed = new StudyProgress(STUDIED, 6_010, 12_000, StudyProgress.NO_GATE, 50);
+        StudyProgress gateless = new StudyProgress(STUDIED, 100, 4_000, StudyProgress.NO_GATE, 0);
+
+        assertEquals("screen.myvillage.cultivation.study.gate", PanelReadouts.studyGateKey(gated));
+        assertEquals("screen.myvillage.cultivation.study.no_gate", PanelReadouts.studyGateKey(passed));
+        assertEquals("screen.myvillage.cultivation.study.no_gate", PanelReadouts.studyGateKey(gateless));
+        assertTrue(PanelReadouts.studyGateShort(gated, 49));
+        assertFalse(PanelReadouts.studyGateShort(gated, 50));
+        assertFalse(PanelReadouts.studyGateShort(passed, 0));
+        assertFalse(PanelReadouts.studyGateShort(gateless, 0));
+    }
+
+    @Test
+    void sessionTextReadsStudyWhileAManualIsRead() {
+        StudyProgress progress = new StudyProgress(STUDIED, 0, 12_000, 6_000, 50);
+
+        assertEquals("screen.myvillage.cultivation.time_waiting", PanelReadouts.sessionKey(null));
+        assertEquals("screen.myvillage.cultivation.study.preparing", PanelReadouts.sessionKey(MeditationStatus.study(
+                MeditationState.PREPARING_NORMAL, 40, MeditationStopReason.STUDY_ACCEPTED, progress)));
+        assertEquals("screen.myvillage.cultivation.study.reading", PanelReadouts.sessionKey(MeditationStatus.study(
+                MeditationState.MEDITATING_NORMAL, 0, MeditationStopReason.NONE, progress)));
+        assertEquals("screen.myvillage.cultivation.session.preparing_normal", PanelReadouts.sessionKey(
+                new MeditationStatus(MeditationState.PREPARING_NORMAL, 40, MeditationStopReason.START_ACCEPTED)));
+        assertEquals("screen.myvillage.cultivation.session.meditating_normal", PanelReadouts.sessionKey(
+                new MeditationStatus(MeditationState.MEDITATING_NORMAL, 0, MeditationStopReason.NONE)));
+        assertEquals("screen.myvillage.cultivation.session.idle", PanelReadouts.sessionKey(
+                MeditationStatus.idle(MeditationStopReason.STUDY_COMPLETE)));
     }
 }

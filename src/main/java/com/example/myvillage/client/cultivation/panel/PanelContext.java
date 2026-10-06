@@ -8,6 +8,7 @@ import com.example.myvillage.cultivation.data.RealmStageDefinition;
 import com.example.myvillage.cultivation.data.SpiritualElementDefinition;
 import com.example.myvillage.cultivation.data.TechniqueDefinition;
 import com.example.myvillage.cultivation.meditation.MeditationStatus;
+import com.example.myvillage.cultivation.meditation.StudyProgress;
 import com.example.myvillage.cultivation.network.CultivationTimeSnapshotPayload;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -18,7 +19,6 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 
 /**
@@ -163,12 +163,24 @@ public record PanelContext(
                 .orElse(0.0D);
     }
 
-    /** The session state's display name, or the waiting text before the first status arrives. */
+    /**
+     * The session state's display name (研读中 while a study session runs), or the waiting text before
+     * the first status arrives.
+     */
     public String sessionText() {
-        return meditation == null
-                ? text("screen.myvillage.cultivation.time_waiting")
-                : text("screen.myvillage.cultivation.session."
-                        + meditation.state().name().toLowerCase(Locale.ROOT));
+        return text(PanelReadouts.sessionKey(meditation));
+    }
+
+    /** The running study session's progress; empty without a status or outside a study session. */
+    public Optional<StudyProgress> study() {
+        return meditation == null ? Optional.empty() : meditation.study();
+    }
+
+    /** A technique's name, or its raw id with the unavailable marker when the registry does not know it. */
+    public Component techniqueName(ResourceLocation techniqueId) {
+        return technique(techniqueId)
+                .<Component>map(definition -> Component.translatable(definition.translationKey()))
+                .orElseGet(() -> unavailable(techniqueId));
     }
 
     public int sessionColor() {

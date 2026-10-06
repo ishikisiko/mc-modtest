@@ -886,5 +886,13 @@
   "tooltip.myvillage.manual.damaged.unknown_technique": "所载功法不存于世：%1$s",
   "tooltip.myvillage.manual.damaged.wrong_category": "所载《%1$s》是%2$s，与此书不符",
   "tooltip.myvillage.manual.damaged.wrong_grade": "所载《%1$s》为%2$s，与此书不符",
-  "tooltip.myvillage.manual.damaged.unreadable": "书已残损，无法研读"
+  "tooltip.myvillage.manual.damaged.unreadable": "书已残损，无法研读",
+  "screen.myvillage.cultivation.study.title": "研读《%1$s》",
+  "screen.myvillage.cultivation.study.percent": "%1$s%%",
+  "screen.myvillage.cultivation.study.comprehension": "参悟",
+  "screen.myvillage.cultivation.study.gate": "下一关 %1$s 点 · 耗稳定度 %2$s",
+  "screen.myvillage.cultivation.study.no_gate": "无关卡",
+  "screen.myvillage.cultivation.study.stop_hint": "按 %1$s 停止",
+  "screen.myvillage.cultivation.study.preparing": "准备研读",
+  "screen.myvillage.cultivation.study.reading": "研读中"
 }

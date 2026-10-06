@@ -10,6 +10,7 @@ import com.example.myvillage.cultivation.data.RealmStageDefinition;
 import com.example.myvillage.cultivation.data.TechniqueDefinition;
 import com.example.myvillage.cultivation.meditation.MeditationState;
 import com.example.myvillage.cultivation.meditation.MeditationStatus;
+import com.example.myvillage.cultivation.meditation.StudyProgress;
 import com.example.myvillage.cultivation.network.MeditationIntentAction;
 import com.example.myvillage.item.ModItems;
 import net.minecraft.client.KeyMapping;
@@ -32,6 +33,12 @@ import java.util.function.Consumer;
  * narrow) are cards for progress and stability, what each mode yields and costs, and the next
  * advancement's conditions; the four action buttons are docked under the body. The buttons send
  * the same bounded intents as the keys; every decision stays with the server.
+ *
+ * <p>While a study (研读) session runs, a study card (technique, comprehension bar, next gate, stop
+ * hint) takes the place of the normal and spirit cards, which describe modes that are not running:
+ * at the top of the readout column beside the figure, or above the figure when narrow. It reads
+ * only the synced {@link StudyProgress}; starting a study is a right-click on the manual, not a
+ * button, and the stop button ends it like any session.
  */
 public final class MeditationPage extends PanelPage {
     private static final int GAP = 4;
@@ -152,19 +159,29 @@ public final class MeditationPage extends PanelPage {
             int stageWidth = Math.max(STAGE_MIN, Math.min(Math.round(width * STAGE_SHARE),
                     MeridianView.preferredWidth(context, look, route, stageHeight) + STAGE_AIR));
             int infoWidth = width - stageWidth - GAP;
-            List<Card> cards = cards(context, look, infoWidth);
+            List<Card> cards = new ArrayList<>();
+            studyCard(context, look).ifPresent(cards::add);
+            cards.addAll(cards(context, look, infoWidth));
             int infoHeight = Math.max(stageHeight, naturalHeight(context.font(), cards, infoWidth));
             MeridianView.render(graphics, context, look, route, x, y, stageWidth, stageHeight);
             drawCards(graphics, context.font(), cards, x + stageWidth + GAP, y, infoWidth, infoHeight);
             return infoHeight;
         }
-        // narrow: the figure fills the first screen, the readouts follow below it
+        // narrow: the figure fills the first screen, the readouts follow below it; a study card
+        // goes above the figure so its progress shows without scrolling
+        int top = y;
+        Optional<Card> study = studyCard(context, look);
+        if (study.isPresent()) {
+            int studyHeight = cardHeight(context.font(), study.get(), width);
+            drawCard(graphics, context.font(), study.get(), x, top, width, studyHeight, 0);
+            top += studyHeight + GAP;
+        }
         int stageHeight = Math.max(STAGE_MIN_HEIGHT, Math.min(STAGE_MAX_HEIGHT, viewportHeight));
-        MeridianView.render(graphics, context, look, route, x, y, width, stageHeight);
+        MeridianView.render(graphics, context, look, route, x, top, width, stageHeight);
         List<Card> cards = cards(context, look, width);
         int infoHeight = naturalHeight(context.font(), cards, width);
-        drawCards(graphics, context.font(), cards, x, y + stageHeight + GAP, width, infoHeight);
-        return stageHeight + GAP + infoHeight;
+        drawCards(graphics, context.font(), cards, x, top + stageHeight + GAP, width, infoHeight);
+        return top - y + stageHeight + GAP + infoHeight;
     }
 
     /** The running core technique's meditation route; the small circuit when there is none. */
@@ -192,7 +209,7 @@ public final class MeditationPage extends PanelPage {
         }
     }
 
-    private sealed interface Row permits Single, Twin, Note, Meters {
+    private sealed interface Row permits Single, Twin, Note, Meters, Gauge {
     }
 
     private record Single(Item item) implements Row {
@@ -211,6 +228,10 @@ public final class MeditationPage extends PanelPage {
                           String stabilityLabel, String stabilityValue, double stability) implements Row {
     }
 
+    /** One full-width meter: a label and value over a bar. */
+    private record Gauge(String label, String value, double fraction, int top, int bottom) implements Row {
+    }
+
     /** A readout card; a null title draws a bare card without a title row. */
     private record Card(String title, int accent, String chip, List<Row> rows) {
     }
@@ -227,6 +248,11 @@ public final class MeditationPage extends PanelPage {
                 context.text("screen.myvillage.cultivation.progress"), context.progressValue(), context.progressFraction(),
                 context.text("screen.myvillage.cultivation.stability"), context.stabilityValue(),
                 context.stabilityFraction()))));
+        if (context.study().isPresent()) {
+            // the study card stands in for the two meditation modes while a manual is read
+            cards.add(advancementCard(context, look, state));
+            return cards;
+        }
 
         boolean normalActive = state == MeditationState.PREPARING_NORMAL || state == MeditationState.MEDITATING_NORMAL;
         cards.add(new Card(context.text("screen.myvillage.cultivation.button.normal"),
@@ -254,6 +280,32 @@ public final class MeditationPage extends PanelPage {
 
         cards.add(advancementCard(context, look, state));
         return cards;
+    }
+
+    /** The study (研读) card while a study session runs: title, comprehension bar, next gate, stop hint. */
+    private static Optional<Card> studyCard(PanelContext context, MeridianLook look) {
+        Optional<StudyProgress> study = context.study();
+        if (study.isEmpty()) {
+            return Optional.empty();
+        }
+        StudyProgress progress = study.get();
+        String title = context.text("screen.myvillage.cultivation.study.title",
+                context.techniqueName(progress.techniqueId()));
+        String percent = context.text("screen.myvillage.cultivation.study.percent",
+                PanelReadouts.studyPercent(progress));
+        String gate = context.text(PanelReadouts.studyGateKey(progress),
+                progress.nextGatePoints(), progress.gateStabilityCost());
+        int gateColor = progress.nextGatePoints() == StudyProgress.NO_GATE
+                ? PanelTheme.MUTED
+                : PanelReadouts.studyGateShort(progress, context.profile().stability()) ? PanelTheme.AMBER : PanelTheme.TEXT;
+        String hint = context.text("screen.myvillage.cultivation.study.stop_hint",
+                ClientCultivationKeyMappings.STOP_MEDITATION.getTranslatedKeyMessage());
+        return Optional.of(new Card(title, look.color(), percent, List.of(
+                new Gauge(context.text("screen.myvillage.cultivation.study.comprehension"),
+                        progress.points() + " / " + progress.totalPoints(),
+                        PanelReadouts.studyFraction(progress), PanelTheme.AMBER, PanelTheme.AMBER_DARK),
+                new Note(gate, gateColor, "", 0),
+                new Note(hint, PanelTheme.MUTED, "", 0))));
     }
 
     private Card advancementCard(PanelContext context, MeridianLook look, MeditationState state) {
@@ -324,6 +376,7 @@ public final class MeditationPage extends PanelPage {
             case Meters meters -> metersFit(font, meters, innerWidth)
                     ? PanelTheme.METER_HEIGHT + 1
                     : PanelTheme.METER_HEIGHT * 2 + 4;
+            case Gauge gauge -> PanelTheme.METER_HEIGHT + 1;
         };
     }
 
@@ -415,6 +468,8 @@ public final class MeditationPage extends PanelPage {
                         side ? x + width - meterWidth : x, side ? y : y + PanelTheme.METER_HEIGHT + 3, meterWidth,
                         meters.stability(), PanelTheme.GOLD_BRIGHT, PanelTheme.GOLD_DIM);
             }
+            case Gauge gauge -> PanelTheme.meter(graphics, font, gauge.label(), gauge.value(), x, y, width,
+                    gauge.fraction(), gauge.top(), gauge.bottom());
         }
     }
 
