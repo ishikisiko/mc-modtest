@@ -16,13 +16,14 @@ mortal_qi_sensed so the player can be admitted.
 3. ``world sect <id> join <player>`` (admin join): ``SECT_ENTRY ... intent=JOIN ... result=ok``.
 4. The player stands 2.5 blocks from the first shelf's face (3 blocks centre to centre, +z/-z/+x/-x, open floor,
    clear line) and looks at its centre; a right click. The server logs
-   ``SCRIPTURE_HALL player=<p> intent=OPEN sect=<id> [member=<bool>] entries=<n>``, the client one
-   ``SCRIPTURE_HALL_UI technique=<id> x= y= w= h=`` per borrow button (screen pixels). An outer disciple sees one.
+   ``SCRIPTURE_HALL player=<p> intent=OPEN sect=<id> member=<bool> entries=<n>``, the client one
+   ``SCRIPTURE_HALL_UI technique=<id> borrowed=<bool> x= y= w= h=`` per entry button (screen pixels). An outer
+   disciple sees one.
 5. A click on the first button: ``intent=BORROW ... technique=<id> result=ok``; Escape;
    ``data get entity <player> Inventory`` holds a ``myvillage:manual_*`` whose ``myvillage:technique`` component
    is that technique; ``world player <player>`` is recorded.
-6. Right click again: the borrowed book is refused (``result=already_borrowed``) or offers no active button
-   (no UI line for it, or a click that logs no BORROW); the inventory still holds exactly one copy.
+6. Right click again: the borrowed book's UI line says ``borrowed=true`` (a disabled button; it is not clicked);
+   the inventory still holds exactly one copy.
 7. ``world sect <id> rank <player> inner``: the hall lists two entries; the second one is borrowed.
 8. ``world sect <id> leave <player>``: the hall answers ``member=false`` (not_member).
 
@@ -64,7 +65,8 @@ NS = "myvillage:"
 NUM = r"-?\d+(?:\.\d+)?"
 SHELF = re.compile(r"SCRIPTURE_SHELF sect=(\d+) placed=(\d+)/(\d+) at=(.*)$")
 HALL = re.compile(r"SCRIPTURE_HALL player=(\S+) intent=(OPEN|BORROW) sect=(-?\d+)((?:\s+\w+=\S*)*)")
-HALL_UI = re.compile(rf"SCRIPTURE_HALL_UI technique=(\S+) x=({NUM}) y=({NUM}) w=({NUM}) h=({NUM})")
+HALL_UI = re.compile(rf"SCRIPTURE_HALL_UI technique=(\S+)(?: borrowed=(true|false))? x=({NUM}) y=({NUM}) "
+                     rf"w=({NUM}) h=({NUM})")
 KV = re.compile(r"(\w+)=(\S*)")
 REFUSALS = ("not_member", "member_elsewhere")
 
@@ -123,8 +125,9 @@ def parse_hall_ui(line: str) -> dict[str, Any] | None:
     m = HALL_UI.search(line)
     if not m:
         return None
-    x, y, w, h = (float(v) for v in m.groups()[1:])
-    return {"technique": tech_path(m.group(1)), "x": x, "y": y, "w": w, "h": h}
+    x, y, w, h = (float(v) for v in m.groups()[2:])
+    borrowed = None if m.group(2) is None else m.group(2) == "true"
+    return {"technique": tech_path(m.group(1)), "borrowed": borrowed, "x": x, "y": y, "w": w, "h": h}
 
 
 def tech_path(tid: str) -> str:
@@ -450,7 +453,8 @@ class Run(entry.Run):
             if p:
                 buttons.append(p)
                 self.clog.cursor = i + 1
-        self.facts.setdefault("ui", []).append([[b["technique"], b["x"], b["y"], b["w"], b["h"]] for b in buttons])
+        self.facts.setdefault("ui", []).append([[b["technique"], b["borrowed"], b["x"], b["y"], b["w"], b["h"]]
+                                                for b in buttons])
         return buttons
 
     def open_hall(self, label: str, ui_timeout: float = 6.0, tries: int = 2) \
@@ -503,15 +507,16 @@ class Run(entry.Run):
         if not opened:
             return
         self.shot("hall_outer", "the hall for an outer disciple: one entry", screen_open=True)
-        if not buttons:
-            self.check("borrow_ok", False, "no SCRIPTURE_HALL_UI button line")
+        free = [x for x in buttons if not x["borrowed"]]
+        if not free:
+            self.check("borrow_ok", False, f"no SCRIPTURE_HALL_UI line of a book not yet borrowed ({len(buttons)} lines)")
             self.close_screen()
             return
-        b = self.borrow(buttons[0])
+        b = self.borrow(free[0])
         ok = bool(b and b.get("result") == "ok" and b["sect"] == self.sect_id
-                  and tech_path(b.get("technique", "")) == buttons[0]["technique"])
-        self.check("borrow_ok", ok, f"clicked {buttons[0]['technique']}: {json.dumps(b)}")
-        tech = tech_path(b["technique"]) if b and b.get("technique") else buttons[0]["technique"]
+                  and tech_path(b.get("technique", "")) == free[0]["technique"])
+        self.check("borrow_ok", ok, f"clicked {free[0]['technique']}: {json.dumps(b)}")
+        tech = tech_path(b["technique"]) if b and b.get("technique") else free[0]["technique"]
         if b and b.get("result") == "ok":
             self.facts["borrowed"].append(tech)
         time.sleep(1.0)
@@ -529,27 +534,16 @@ class Run(entry.Run):
             self.note("`world player` shows no borrow line (none expected by the task list; recorded only)")
 
     def again_step(self) -> None:
-        self.t.note("again: right click again, the borrowed book is refused")
+        self.t.note("again: right click again, the borrowed book's button is disabled (borrowed=true, no click)")
         tech = self.facts["borrowed"][0] if self.facts["borrowed"] else None
-        opened, buttons = self.open_hall("again", ui_timeout=4.0)
+        opened, buttons = self.open_hall("again")
         if not opened:
-            self.check("borrow_again_refused", False, "the hall did not open")
+            self.check("borrowed_button_disabled", False, "the hall did not open")
             return
         same = [b for b in buttons if b["technique"] == tech]
-        if not tech:
-            self.check("borrow_again_refused", False, "nothing was borrowed before")
-        elif not same:
-            self.check("borrow_again_refused", True,
-                       f"button disabled: no SCRIPTURE_HALL_UI line for {tech} (buttons "
-                       f"{[b['technique'] for b in buttons]}); OPEN entries={opened.get('entries')}")
-        else:
-            b = self.borrow(same[0], timeout=6.0)
-            if b:
-                self.check("borrow_again_refused", b.get("result") == "already_borrowed", json.dumps(b))
-            else:
-                self.check("borrow_again_refused", True,
-                           f"button disabled: the click on {tech} logged no BORROW line; OPEN entries="
-                           f"{opened.get('entries')}")
+        self.check("borrowed_button_disabled", bool(tech and same and all(b["borrowed"] is True for b in same)),
+                   f"{tech or 'nothing borrowed before'}: UI lines "
+                   f"{[(b['technique'], b['borrowed']) for b in buttons]}; OPEN entries={opened.get('entries')}")
         self.shot("hall_borrowed", "the hall after the borrow: the book is marked borrowed", screen_open=True)
         self.close_screen()
         if tech:
@@ -570,7 +564,7 @@ class Run(entry.Run):
         if not opened:
             return
         self.shot("hall_inner", "the hall for an inner disciple: two entries", screen_open=True)
-        fresh = [b for b in buttons if b["technique"] not in self.facts["borrowed"]]
+        fresh = [b for b in buttons if not b["borrowed"] and b["technique"] not in self.facts["borrowed"]]
         if not fresh:
             self.check("borrow_second_ok", False, f"no button for a book not yet borrowed ({len(buttons)} buttons)")
             self.close_screen()

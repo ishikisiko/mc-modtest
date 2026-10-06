@@ -48,8 +48,13 @@ class HallLineTest(unittest.TestCase):
         self.assertIsNone(ev.parse_hall("SCRIPTURE_HALL_UI technique=a x=1 y=2 w=3 h=4"))
 
     def test_ui(self):
-        p = ev.parse_hall_ui(CLIENT + "SCRIPTURE_HALL_UI technique=myvillage:azure_breath x=600 y=180 w=80 h=40")
-        self.assertEqual(p, {"technique": "azure_breath", "x": 600.0, "y": 180.0, "w": 80.0, "h": 40.0})
+        p = ev.parse_hall_ui(CLIENT + "SCRIPTURE_HALL_UI technique=myvillage:azure_breath borrowed=false "
+                                      "x=600 y=180 w=80 h=40")
+        self.assertEqual(p, {"technique": "azure_breath", "borrowed": False,
+                             "x": 600.0, "y": 180.0, "w": 80.0, "h": 40.0})
+        self.assertIs(ev.parse_hall_ui("SCRIPTURE_HALL_UI technique=a borrowed=true x=1 y=2 w=3 h=4")["borrowed"],
+                      True)
+        self.assertIsNone(ev.parse_hall_ui("SCRIPTURE_HALL_UI technique=a x=1 y=2 w=3 h=4")["borrowed"])
         self.assertEqual(ev.parse_hall_ui("SCRIPTURE_HALL_UI technique=b x=1.5 y=2 w=3 h=4")["x"], 1.5)
         self.assertIsNone(ev.parse_hall_ui("SCRIPTURE_HALL_UI technique=b x=1 y=2"))
         self.assertIsNone(ev.HALL.search("SCRIPTURE_HALL_UI technique=b x=1 y=2 w=3 h=4"))
