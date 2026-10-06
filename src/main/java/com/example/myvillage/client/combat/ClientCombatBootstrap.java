@@ -31,6 +31,7 @@ public final class ClientCombatBootstrap {
         modEventBus.addListener(ClientCombatBootstrap::onRegisterClientExtensions);
         modEventBus.addListener(ClientCombatBootstrap::onRegisterReloadListeners);
         modEventBus.addListener(ClientCombatBootstrap::onRegisterParticleProviders);
+        modEventBus.addListener(PairedWeaponLayer::onAddLayers);
         // The arm is drawn first so the translucent 剑光 blends over it.
         NeoForge.EVENT_BUS.addListener(FirstPersonArmRenderer::onRenderHand);
         NeoForge.EVENT_BUS.addListener(FirstPersonWeaponTrail::onRenderHand);

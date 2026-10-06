@@ -13,7 +13,10 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.PlayerModelPart;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.event.RenderHandEvent;
+import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -30,6 +33,10 @@ import java.util.Optional;
  * {@link FirstPersonArmIk#solveOffHand}), drawn with the off arm's skin and sleeve, but only while
  * the off-hand slot is empty: an off-hand item keeps its own vanilla hand pass and the second arm
  * is not drawn. The off arm takes no lag, so its hand never leaves the shaft.
+ *
+ * <p>With {@code rig.off_hand.free} the off hand is bare and drawn at its keyed rest; for a
+ * {@code paired} weapon (0.39.1) the same item model is drawn over that fist as well, mirrored on a
+ * left hand ({@link FirstPersonWeaponTransform#pairedItem}).
  */
 public final class FirstPersonArmRenderer {
     /**
@@ -96,7 +103,33 @@ public final class FirstPersonArmRenderer {
             render(event.getPoseStack(), event.getMultiBufferSource(), event.getPackedLight(),
                     skin.texture(), model(skin.model() == PlayerSkin.Model.SLIM, offArm), swing.get().rig().offArm(),
                     offHand.get().arm(), player.isModelPartShown(offSleeve));
+            if (offHand.get().free() && PairedWeapons.isPaired(event.getItemStack())) {
+                renderPaired(event, player, arm, swing.get(), offHand.get().arm());
+            }
         }
+    }
+
+    /**
+     * A paired weapon's second on the free off hand (see {@link PairedWeapons} and
+     * {@link FirstPersonWeaponTransform#pairedItem}): the same item model, mirrored for a left off
+     * hand, over the fist just drawn.
+     */
+    private static void renderPaired(
+            RenderHandEvent event,
+            LocalPlayer player,
+            HumanoidArm mainArm,
+            FirstPersonSwing swing,
+            FirstPersonArmIk.Solution offArm) {
+        ItemStack stack = event.getItemStack();
+        Matrix4f placement = FirstPersonWeaponTransform.pairedItem(mainArm, swing, offArm);
+        PoseStack poseStack = event.getPoseStack();
+        poseStack.pushPose();
+        poseStack.mulPose(placement);
+        PairedWeapons.renderModel(stack,
+                PairedWeapons.model(stack, player, ItemDisplayContext.FIRST_PERSON_RIGHT_HAND),
+                placement.determinant() < 0.0F, poseStack, event.getMultiBufferSource(),
+                event.getPackedLight(), OverlayTexture.NO_OVERLAY);
+        poseStack.popPose();
     }
 
     /**

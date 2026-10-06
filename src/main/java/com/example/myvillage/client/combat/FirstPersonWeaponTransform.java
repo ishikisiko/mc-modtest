@@ -3,6 +3,7 @@ package com.example.myvillage.client.combat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.world.entity.HumanoidArm;
+import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
@@ -77,6 +78,34 @@ final class FirstPersonWeaponTransform {
             result.mul(new Matrix4f(display).invert());
         }
         return result;
+    }
+
+    /**
+     * Where a paired weapon's second (see {@link PairedWeapons}) sits on the free off hand: item quad
+     * coordinates (blocks, the model's 16 px cube as 0..1) to hand-render space. The off fist wears
+     * it as the main fist wears the weapon at {@code grip_diagonal} 90 and no grip roll: model +X on
+     * the palm, +Y from the wrist to the knuckles, -Z toward the thumb, the contract's
+     * {@code grip_center} on the off fist's grip point, scaled by {@code weapon_scale} times the off
+     * arm's thickness over the main arm's (the fist it wraps is that much smaller or larger). The
+     * off fist is solved as a right hand and reflected for a right main arm, and so is this
+     * placement: for a right main arm the determinant is negative and the model is mirrored, a left
+     * gauntlet on the left hand.
+     */
+    static Matrix4f pairedItem(HumanoidArm mainArm, FirstPersonSwing swing, FirstPersonArmIk.Solution offArm) {
+        boolean mirror = mainArm == HumanoidArm.RIGHT;
+        FirstPersonArmIk.Solution asRight = mirror ? offArm.mirrored() : offArm;
+        Vector3f thumb = asRight.fistRotation().transform(new Vector3f(1.0F, 0.0F, 0.0F));
+        Vector3f hand = asRight.fistRotation().transform(new Vector3f(0.0F, 1.0F, 0.0F));
+        Vector3f palm = asRight.fistRotation().transform(new Vector3f(0.0F, 0.0F, 1.0F));
+        FirstPersonSwing.Rig rig = swing.rig();
+        float scale = rig.weaponScale() * rig.offArm().thickness() / rig.arm().thickness();
+        Vector3f grip = swing.weapon().gripCenter().div(16.0F);
+        Matrix4f placed = new Matrix4f()
+                .translate(asRight.grip())
+                .mul(new Matrix4f(new Matrix3f(palm, hand, thumb.negate())))
+                .scale(scale)
+                .translate(-grip.x, -grip.y, -grip.z);
+        return mirror ? new Matrix4f().scale(-1.0F, 1.0F, 1.0F).mul(placed) : placed;
     }
 
     /** The grip frame (see {@link #applyGripFrame}) relative to the hand-render pose stack. */

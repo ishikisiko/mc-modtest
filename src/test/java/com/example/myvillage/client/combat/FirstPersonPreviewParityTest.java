@@ -37,7 +37,7 @@ import org.junit.jupiter.api.Test;
  * ({@code tools/tests/test_combat_preview_parity.py}). For every shipped weapon, every move, the
  * rig's key ticks, strike window and contact plus a regular step, and both main arms, it records the
  * sampled pose, the arm lag, the grip frame, the main arm solved with that lag (as the arm renderer
- * draws it) and the off arm where the rig has one.
+ * draws it), the off arm where the rig has one, and a paired weapon's second on a free off hand.
  *
  * <p>A deliberate change to the solver, a rig, or a geometry contract rewrites the golden:
  * {@code ./gradlew test --tests com.example.myvillage.client.combat.FirstPersonPreviewParityTest
@@ -81,6 +81,7 @@ final class FirstPersonPreviewParityTest {
                 "the golden's weapons are not the shipped weapons; rewrite it with " + UPDATE_COMMAND);
         int compared = 0;
         int offHands = 0;
+        int paired = 0;
         for (int w = 0; w < actualWeapons.size(); w++) {
             JsonObject expectedWeapon = expectedWeapons.get(w).getAsJsonObject();
             JsonArray expectedMoves = expectedWeapon.getAsJsonArray("moves");
@@ -109,6 +110,13 @@ final class FirstPersonPreviewParityTest {
                             assertEquals(e.getAsJsonObject("off").has("free"), a.getAsJsonObject("off").has("free"),
                                     at + " free off hand");
                             assertArm(e.getAsJsonObject("off"), a.getAsJsonObject("off"), tolerance, at + " off arm");
+                            assertEquals(e.getAsJsonObject("off").has("paired_item"),
+                                    a.getAsJsonObject("off").has("paired_item"), at + " paired second drawn");
+                            if (a.getAsJsonObject("off").has("paired_item")) {
+                                near(e.getAsJsonObject("off"), a.getAsJsonObject("off"), "paired_item",
+                                        tolerance.get("position").getAsFloat(), at + " paired second");
+                                paired++;
+                            }
                             offHands++;
                         }
                         compared++;
@@ -116,7 +124,8 @@ final class FirstPersonPreviewParityTest {
                 }
             }
         }
-        assertTrue(compared > 0 && offHands > 0, "nothing compared (" + compared + " arms, " + offHands + " off arms)");
+        assertTrue(compared > 0 && offHands > 0 && paired > 0,
+                "nothing compared (" + compared + " arms, " + offHands + " off arms, " + paired + " paired seconds)");
     }
 
     private static void assertArm(JsonObject expected, JsonObject actual, JsonObject tolerance, String where) {
@@ -187,7 +196,8 @@ final class FirstPersonPreviewParityTest {
         root.addProperty("schema", 1);
         root.addProperty("about", "First-person solver golden: FirstPersonPreviewParityTest (Java) writes and "
                 + "checks it; tools/tests/test_combat_preview_parity.py checks the Python port against it. "
-                + "Rotations are quaternions (x, y, z, w); grip_frame is the 3x4 affine, row-major.");
+                + "Rotations are quaternions (x, y, z, w); grip_frame and a paired weapon's paired_item "
+                + "are 3x4 affines, row-major.");
         root.addProperty("regenerate", UPDATE_COMMAND);
         root.add("tick_step", number(TICK_STEP));
         JsonObject tolerance = new JsonObject();
@@ -217,7 +227,7 @@ final class FirstPersonPreviewParityTest {
             entry.addProperty("id", move.id().toString());
             JsonArray samples = new JsonArray();
             for (float tick : ticks(move)) {
-                samples.add(sample(swing, move, tick));
+                samples.add(sample(swing, move, tick, weapon.paired()));
             }
             entry.add("samples", samples);
             moves.add(entry);
@@ -239,7 +249,7 @@ final class FirstPersonPreviewParityTest {
         return List.copyOf(ticks);
     }
 
-    private static JsonObject sample(FirstPersonSwing swing, FirstPersonSwing.Move move, float tick) {
+    private static JsonObject sample(FirstPersonSwing swing, FirstPersonSwing.Move move, float tick, boolean paired) {
         FirstPersonSwing.Pose pose = move.sample(tick);
         Vector3f lag = FirstPersonArmLag.offset(swing, move, tick);
         JsonObject out = new JsonObject();
@@ -261,6 +271,11 @@ final class FirstPersonPreviewParityTest {
                 JsonObject offJson = solution(off.get().arm());
                 if (off.get().free()) {
                     offJson.addProperty("free", true);
+                    if (paired) {
+                        // A paired weapon's second on the free off hand (item quad blocks to hand space).
+                        offJson.add("paired_item", gripFrame(
+                                FirstPersonWeaponTransform.pairedItem(arm, swing, off.get().arm())));
+                    }
                 } else {
                     offJson.add("grip_y", number(off.get().gripY()));
                     offJson.add("wanted_grip_y", number(off.get().wantedGripY()));
