@@ -450,6 +450,28 @@ def cmd_beast(a):
 BEAST_PARTS = ("idle", "moves", "locomotion", "fight", "dodge", "slowmo")
 
 
+def cmd_dodge(a):
+    """Player movement dodge trials against a beast in a session; starts and
+    stops its own session unless one is already running (then leaves it running)."""
+    from . import dodge, session
+    from .session import Session
+    require_programs()
+    out = a.out or dodge.DEFAULT_OUT
+    out.mkdir(parents=True, exist_ok=True)
+    started = False
+    try:
+        st = session.read_state()
+        if not (st and st.get("phase") == "ready" and session.supervisor_alive(st)):
+            session.start(session_config(a), wait_timeout=a.timeout, log=log)
+            started = True
+        s = Session.attach(ui_check=not a.no_ui_check, log=log)
+        dodge.run_dodge(s, a.beast, a.technique, out, log=log)
+        log(f"page: {out / 'index.html'}")
+    finally:
+        if started:
+            session.stop(log=log)
+
+
 def cmd_npc(a):
     """NPC evidence (stills, walk footage) in a session; starts and stops its own
     session unless one is already running (then leaves it running)."""
@@ -594,6 +616,14 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--out", type=Path, default=None, help="output directory (default out/preview/<name>/ingame)")
     p.add_argument("--no-ui-check", action="store_true", help="send keys without the in-game check (unsafe)")
     p.set_defaults(func=cmd_beast)
+
+    p = sub.add_parser("dodge", help="player movement dodge trials against a beast: server lines, health, videos")
+    session_opts(p)
+    p.add_argument("--beast", default="myvillage:demon_wolf")
+    p.add_argument("--technique", default="myvillage:taxue_wuhen", help="movement technique the player learns")
+    p.add_argument("--out", type=Path, default=None, help="output directory (default out/preview/movement_dodge)")
+    p.add_argument("--no-ui-check", action="store_true", help="send keys without the in-game check (unsafe)")
+    p.set_defaults(func=cmd_dodge)
 
     p = sub.add_parser("npc", help="NPC evidence: full-figure and close-up stills, walk videos")
     session_opts(p)
