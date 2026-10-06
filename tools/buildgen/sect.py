@@ -12,10 +12,19 @@ Coordinate convention (shared with the Java realizer):
 - The mountain gate sits at the lowest ``z`` (foot/south); the principal hall
   backs the cliff at the highest ``z`` (summit/north).
 - Terrace ``i`` occupies a contiguous z-band; its platform elevation is
-  ``site.base_y + i * terrace_rise``. Terrace width (x-extent) is non-increasing
-  from foot to summit per the taper parameter.
-- An on-axis stair band of ``axis_stair_w`` cells wide and ``terrace_rise`` cells
-  deep climbs the fall-line between adjacent terrace platforms.
+  ``site.base_y + i * terrace_rise``. Terrace width (x-extent) narrows from foot
+  to summit by one cell per side per terrace on the default stack (59/57/55/53/51,
+  x 2..60 / 3..59 / 4..58 / 5..57 / 6..56), always symmetric about the axis x=31.
+- The ritual axis is a clear corridor ``AXIS_W`` (7) cells wide (x 28..34) from
+  the gate terrace to the summit; only the gate and the principal hall stand on
+  it. Flank pairs keep their inner edges at x=25 / x=37.
+- Between adjacent terraces a band of ``terrace_rise`` rows holds the retaining
+  face; an axis stair ``STAIR_W`` (9) cells wide (x 27..35) climbs it and
+  projects ``STAIR_PROJECT`` (3) rows onto the lower terrace.
+- An apron of ``APRON_ROWS`` (12) rows lies in front of the gate (x 21..41) at the
+  gate terrace's floor.
+- There are no covered galleries; the only link is the optional flying bridge to
+  a detached spire.
 """
 
 from __future__ import annotations
@@ -32,14 +41,23 @@ MIN_TERRACE_COUNT = 4
 MAX_TERRACE_COUNT = 6
 DEFAULT_TERRACE_RISE = 8
 DEFAULT_TERRACE_DEPTH = 28
-DEFAULT_TERRACE_WIDTH = 58          # foot-terrace x-extent (fits gate + flanks)
-DEFAULT_SUMMIT_TAPER = 4            # summit narrows by this many blocks (x)
-DEFAULT_AXIS_STAIR_W = 5
+DEFAULT_TERRACE_WIDTH = 59          # foot-terrace x-extent, odd so x=31 is the centre
+DEFAULT_SUMMIT_TAPER = 8            # summit narrows by this many blocks (x), one per side per terrace
 DEFAULT_CLIFF_BACK_HEIGHT = 12
 Z_MARGIN = 4                        # margin before gate / behind summit cliff
 
+# Cross-slope layout (absolute x on the default site; the axis centre is x=31).
+AXIS_CENTER_X = 31
+AXIS_W = 7                          # clear ritual corridor x 28..34
+STAIR_W = 9                         # axis stair x 27..35
+STAIR_PROJECT = 3                   # stair rows projecting onto the lower terrace
+FLANK_INNER_LEFT_X1 = 25            # left flank volumes end here
+FLANK_INNER_RIGHT_X0 = 37           # right flank volumes start here
+APRON_ROWS = 12                     # rows of apron in front of the gate terrace
+SITE_X_ANCHOR = 2                   # foot terrace starts at x=2
+
 # Default site dimensions (must hold the default-parameter footprint).
-DEFAULT_SITE_WIDTH = DEFAULT_TERRACE_WIDTH + 6
+DEFAULT_SITE_WIDTH = DEFAULT_TERRACE_WIDTH + 2 * SITE_X_ANCHOR + 1
 DEFAULT_SITE_DEPTH = (2 * Z_MARGIN + DEFAULT_TERRACE_COUNT * DEFAULT_TERRACE_DEPTH
                       + (DEFAULT_TERRACE_COUNT - 1) * DEFAULT_TERRACE_RISE)
 
@@ -179,7 +197,6 @@ class SectGeometry:
     terrace_depth: int
     terrace_width: int
     summit_taper: int
-    axis_stair_w: int
     cliff_back_height: int
 
 
@@ -215,7 +232,7 @@ class Slot:
 @dataclass(frozen=True)
 class GalleryLink:
     id: str
-    kind: str                         # "covered_gallery" | "flying_bridge"
+    kind: str                         # "flying_bridge" (the only link kind)
     from_slot: str
     to_slot: str
     from_cell: Cell2
@@ -292,9 +309,9 @@ class SectPlan:
     terraces: List[Terrace]
     axis_cells: List[Cell2]
     slots: List[Slot]
-    gallery_links: List[GalleryLink]
     retaining_faces: List[RetainingFace]
     axis_stairs: List[AxisStair]
+    apron: Rect
     feature: Optional[FlyingBridgeFeature]
     # Explicit terrace-profile export for add-sect-worldgen (反推山形 contract).
     terrace_profile: Dict[str, object] = field(default_factory=dict)
@@ -314,7 +331,10 @@ class SectPlan:
                 "terrace_depth": self.geometry.terrace_depth,
                 "terrace_width": self.geometry.terrace_width,
                 "summit_taper": self.geometry.summit_taper,
-                "axis_stair_w": self.geometry.axis_stair_w,
+                "axis_w": AXIS_W,
+                "stair_w": STAIR_W,
+                "stair_project": STAIR_PROJECT,
+                "apron_rows": APRON_ROWS,
                 "cliff_back_height": self.geometry.cliff_back_height,
             },
             "terraces": [
@@ -344,18 +364,6 @@ class SectPlan:
                 }
                 for s in self.slots
             ],
-            "gallery_links": [
-                {
-                    "id": g.id,
-                    "kind": g.kind,
-                    "from_slot": g.from_slot,
-                    "to_slot": g.to_slot,
-                    "from_cell": list(g.from_cell),
-                    "to_cell": list(g.to_cell),
-                    "terrace_indices": list(g.terrace_indices),
-                }
-                for g in self.gallery_links
-            ],
             "retaining_faces": [
                 {
                     "id": r.id,
@@ -375,6 +383,7 @@ class SectPlan:
                 }
                 for a in self.axis_stairs
             ],
+            "apron": list(self.apron),
             "feature": _feature_to_dict(self.feature),
             "terrace_profile": self.terrace_profile,
         }
@@ -419,8 +428,9 @@ def _slot_roster(terrace_name: str) -> Tuple[_SlotSpec, ...]:
     """Volume roster placed on a terrace of ``terrace_name``.
 
     Building-piece selection is driven by terrace level (not random), per the
-    layout spec. Each terrace carries either a single on-axis volume, a mirrored
-    flank pair, or both.
+    layout spec. Only the gate and the principal hall stand on the axis; every
+    other terrace carries a mirrored flank pair outside the axis corridor.
+    Pagodas never stand on a terrace; they appear only as a detached spire.
     """
     if terrace_name == "gate":
         return (
@@ -440,9 +450,8 @@ def _slot_roster(terrace_name: str) -> Tuple[_SlotSpec, ...]:
         )
     if terrace_name == "scripture":
         return (
-            _SlotSpec("scripture_pavilion", "on_axis", "center"),
-            _SlotSpec("pagoda", "flank_left", "back"),
-            _SlotSpec("pagoda", "flank_right", "back"),
+            _SlotSpec("scripture_pavilion", "flank_left", "center"),
+            _SlotSpec("scripture_pavilion", "flank_right", "center"),
         )
     if terrace_name == "summit":
         # Principal hall pinned on-axis against the cliff-back edge.
@@ -473,52 +482,39 @@ def _z_span(terrace_depth: int, td: int, align: str, z0: int, z1: int) -> Tuple[
     return sz0, sz0 + td - 1
 
 
-def _slot_bounds(
-    terrace: Terrace,
-    spec: _SlotSpec,
-    axis_half: int,
-    on_axis_span: Optional[Tuple[int, int]],
-) -> Rect:
-    """Compute a slot's footprint bounds on its terrace.
+def _slot_bounds(terrace: Terrace, spec: _SlotSpec, template_id: str,
+                 axis_cx: int) -> Rect:
+    """A slot's footprint on its terrace, sized by the chosen template.
 
-    ``on_axis_span`` is the (x0, x1) of the terrace's on-axis volume when one is
-    present, so flanks clear it (footprints must not overlap). When the terrace
-    has no on-axis volume, flanks clear the axis-stair column instead.
+    On-axis volumes are centred on ``axis_cx``; flank volumes keep their inner
+    edge on ``FLANK_INNER_LEFT_X1`` / ``FLANK_INNER_RIGHT_X0`` (shifted with the
+    axis when a non-default width moves it) and grow outward. Bounds are not
+    clamped: a template that does not fit its terrace is a validation error.
     """
-    x0, z0, x1, z1 = terrace.bounds
-    cx = (x0 + x1) // 2
-    tw, td = max_archetype_footprint(spec.archetype)
-    tw = min(tw, x1 - x0 + 1)
-    td = min(td, z1 - z0 + 1)
-
+    _x0, z0, _x1, z1 = terrace.bounds
+    tw, td = template_footprint(template_id)
+    shift = axis_cx - AXIS_CENTER_X
     if spec.role == "on_axis":
-        sx0 = cx - tw // 2
+        sx0 = axis_cx - tw // 2
         sx1 = sx0 + tw - 1
-    else:
-        # flank: sit outside the on-axis volume (or the axis stair), mirrored.
-        if spec.role == "flank_left":
-            inner = (on_axis_span[0] if on_axis_span else cx - axis_half) - 1
-            sx1 = inner
-            sx0 = sx1 - tw + 1
-        else:  # flank_right
-            inner = (on_axis_span[1] if on_axis_span else cx + axis_half) + 1
-            sx0 = inner
-            sx1 = sx0 + tw - 1
-        sx0 = max(sx0, x0)
-        sx1 = min(sx1, x1)
-
+    elif spec.role == "flank_left":
+        sx1 = FLANK_INNER_LEFT_X1 + shift
+        sx0 = sx1 - tw + 1
+    else:  # flank_right
+        sx0 = FLANK_INNER_RIGHT_X0 + shift
+        sx1 = sx0 + tw - 1
     sz0, sz1 = _z_span(terrace.depth, td, spec.align, z0, z1)
     return (sx0, sz0, sx1, sz1)
 
 
-def _on_axis_x_span(terrace: Terrace, archetype: str) -> Tuple[int, int]:
-    """The (x0, x1) an on-axis volume of ``archetype`` would occupy, centered."""
-    x0, _, x1, _ = terrace.bounds
-    cx = (x0 + x1) // 2
-    tw, _ = max_archetype_footprint(archetype)
-    tw = min(tw, x1 - x0 + 1)
-    sx0 = cx - tw // 2
-    return (sx0, sx0 + tw - 1)
+def axis_x_span(axis_cx: int) -> Tuple[int, int]:
+    """The clear ritual corridor (x0, x1), ``AXIS_W`` cells centred on the axis."""
+    return (axis_cx - AXIS_W // 2, axis_cx + AXIS_W // 2)
+
+
+def stair_x_span(axis_cx: int) -> Tuple[int, int]:
+    """The axis stair (x0, x1), ``STAIR_W`` cells centred on the axis."""
+    return (axis_cx - STAIR_W // 2, axis_cx + STAIR_W // 2)
 
 
 def _base_archetype_template(archetype: str) -> str:
@@ -557,18 +553,17 @@ def generate_sect_plan(
         terrace_depth=int(p.get("terrace_depth", DEFAULT_TERRACE_DEPTH)),
         terrace_width=int(p.get("terrace_width", DEFAULT_TERRACE_WIDTH)),
         summit_taper=int(p.get("summit_taper", DEFAULT_SUMMIT_TAPER)),
-        axis_stair_w=int(p.get("axis_stair_w", DEFAULT_AXIS_STAIR_W)),
         cliff_back_height=int(p.get("cliff_back_height", DEFAULT_CLIFF_BACK_HEIGHT)),
     )
     names = skeleton_names(geometry.terrace_count)
-    axis_half = geometry.axis_stair_w // 2
 
     # footprint depth along the fall-line
     footprint_depth = 2 * Z_MARGIN + geometry.terrace_count * geometry.terrace_depth \
         + (geometry.terrace_count - 1) * geometry.terrace_rise
     # default site auto-fits the requested params; an explicit site must fit too.
     if site is None:
-        site = SectSite(width=geometry.terrace_width + 6, depth=footprint_depth)
+        site = SectSite(width=geometry.terrace_width + 2 * SITE_X_ANCHOR + 1,
+                        depth=footprint_depth)
     if site.depth < footprint_depth or site.width < geometry.terrace_width:
         raise ValueError(
             f"site {site.width}x{site.depth} too small for sect footprint "
@@ -580,10 +575,13 @@ def generate_sect_plan(
     terraces: List[Terrace] = []
     z = Z_MARGIN
     for i in range(geometry.terrace_count):
-        # floor division so the Java realizer mirrors width exactly via
-        # Math.floorDiv(summit_taper * i, count - 1).
-        width = geometry.terrace_width - (geometry.summit_taper * i) // (geometry.terrace_count - 1)
-        x0 = x_anchor + (geometry.terrace_width - width) // 2
+        # Inset per side, floor division so the Java realizer mirrors it via
+        # Math.floorDiv(summit_taper * i, 2 * (count - 1)). Insetting both sides
+        # equally keeps every terrace symmetric about the axis (59/57/55/53/51
+        # on the default 5-stack).
+        inset = (geometry.summit_taper * i) // (2 * (geometry.terrace_count - 1))
+        width = geometry.terrace_width - 2 * inset
+        x0 = x_anchor + inset
         x1 = x0 + width - 1
         z0 = z
         z1 = z + geometry.terrace_depth - 1
@@ -594,25 +592,12 @@ def generate_sect_plan(
             cliff_back=(i == geometry.terrace_count - 1)))
         z = z1 + 1 + geometry.terrace_rise   # platform + stair band to next terrace
 
-    # slots (on-axis placed first so flanks can clear its x-extent)
+    axis_cx = (terraces[0].bounds[0] + terraces[0].bounds[2]) // 2
+
     slots: List[Slot] = []
     for terrace in terraces:
-        specs = _slot_roster(terrace.name)
-        on_axis_spec = next((s for s in specs if s.role == "on_axis"), None)
-        on_axis_span: Optional[Tuple[int, int]] = None
-        if on_axis_spec is not None:
-            on_axis_span = _on_axis_x_span(terrace, on_axis_spec.archetype)
-        for spec in specs:
-            bounds = _slot_bounds(terrace, spec, axis_half, on_axis_span)
-            # Paired scripture-terrace flanks have 19 cells beside the on-axis
-            # pavilion, so they intentionally use the compact pagoda profile.
-            # Larger profiles remain eligible for detached-spire features and
-            # direct placement, where their full footprint is available.
-            template = (
-                "pagoda_001"
-                if spec.archetype == "pagoda" and spec.role.startswith("flank")
-                else _template_for(spec.archetype, seed, terrace.index)
-            )
+        for spec in _slot_roster(terrace.name):
+            template = _template_for(spec.archetype, seed, terrace.index)
             slots.append(Slot(
                 id=f"slot_{terrace.name}_{spec.role}_{terrace.index}",
                 terrace_index=terrace.index,
@@ -621,50 +606,45 @@ def generate_sect_plan(
                 archetype=spec.archetype,
                 template_id=template,
                 importance_tier=archetype_importance(spec.archetype),
-                bounds=bounds,
+                bounds=_slot_bounds(terrace, spec, template, axis_cx),
                 against_cliff_back=(terrace.name == "summit" and spec.role == "on_axis"),
             ))
 
-    # ritual axis: cross-slope centerline of width axis_stair_w, foot→summit
-    cx = (terraces[0].bounds[0] + terraces[0].bounds[2]) // 2
-    axis_x0 = cx - axis_half
-    axis_x1 = cx + axis_half
-    axis_z0 = terraces[0].bounds[1]
-    axis_z1 = terraces[-1].bounds[3]
-    axis_cells = _rect(axis_x0, axis_z0, axis_x1, axis_z1)
+    # ritual axis: the clear corridor AXIS_W wide, gate terrace front -> summit back
+    axis_x0, axis_x1 = axis_x_span(axis_cx)
+    axis_cells = _rect(axis_x0, terraces[0].bounds[1], axis_x1, terraces[-1].bounds[3])
 
-    # retaining faces + on-axis stairs between adjacent terraces
+    # retaining faces + axis stairs between adjacent terraces. The band between
+    # two terraces is terrace_rise rows deep; bf is its first row (the foot of the
+    # retaining face). The stair climbs the band and projects STAIR_PROJECT rows
+    # onto the lower terrace.
+    stair_x0, stair_x1 = stair_x_span(axis_cx)
     retaining_faces: List[RetainingFace] = []
     axis_stairs: List[AxisStair] = []
     for i in range(len(terraces) - 1):
-        lower = terraces[i]
         upper = terraces[i + 1]
-        # the stair band spans lower.z1+1 .. upper.z0-1
-        stair_z0 = lower.bounds[3] + 1
-        stair_z1 = upper.bounds[1] - 1
-        stair_bounds = (axis_x0, stair_z0, axis_x1, stair_z1)
+        bf = upper.bounds[1] - geometry.terrace_rise
         axis_stairs.append(AxisStair(
             id=f"stair_{i}_{i+1}",
             lower_terrace=i, upper_terrace=i + 1,
-            bounds=stair_bounds))
-        # retaining face: the full width of the upper terrace's front edge,
-        # height = inter-terrace rise, minus the stair opening
+            bounds=(stair_x0, bf - STAIR_PROJECT, stair_x1, bf + geometry.terrace_rise - 1)))
         retaining_faces.append(RetainingFace(
             id=f"retain_{i}_{i+1}",
             lower_terrace=i, upper_terrace=i + 1,
-            bounds=(upper.bounds[0], stair_z0, upper.bounds[2], stair_z1),
+            bounds=(upper.bounds[0], bf, upper.bounds[2], upper.bounds[1] - 1),
             height=geometry.terrace_rise))
 
-    # covered galleries: link flanks to their on-axis volume on the same terrace,
-    # and left↔right where there is no on-axis volume. Endpoints rest on the
-    # facing slot edges so the gallery is a circulation link, not decoration.
-    gallery_links: List[GalleryLink] = _build_galleries(terraces, slots, axis_half)
+    # apron in front of the gate, as wide as the gate template, at the gate floor
+    gate_w = template_footprint(_base_archetype_template("sect_gate"))[0]
+    gate_z0 = terraces[0].bounds[1]
+    apron = (axis_cx - gate_w // 2, gate_z0 - APRON_ROWS,
+             axis_cx - gate_w // 2 + gate_w - 1, gate_z0 - 1)
 
     # detached-spire flying-bridge feature (per-seed, may be absent)
     feature = _build_feature(seed, terraces, slots, geometry)
 
     terrace_profile = _export_terrace_profile(
-        site, geometry, terraces, footprint_depth)
+        site, geometry, terraces, footprint_depth, apron)
 
     return SectPlan(
         seed=seed,
@@ -673,9 +653,9 @@ def generate_sect_plan(
         terraces=terraces,
         axis_cells=axis_cells,
         slots=slots,
-        gallery_links=gallery_links,
         retaining_faces=retaining_faces,
         axis_stairs=axis_stairs,
+        apron=apron,
         feature=feature,
         terrace_profile=terrace_profile,
     )
@@ -695,44 +675,6 @@ def _edge_facing(slot: Slot, toward: Cell2) -> Cell2:
     ex = min(x1, max(x0, tx))
     ez = min(z1, max(z0, tz))
     return (ex, ez)
-
-
-def _build_galleries(
-    terraces: Sequence[Terrace],
-    slots: Sequence[Slot],
-    axis_half: int,
-) -> List[GalleryLink]:
-    links: List[GalleryLink] = []
-    for terrace in terraces:
-        on_axis = _slot_by_role(slots, terrace.index, "on_axis")
-        left = _slot_by_role(slots, terrace.index, "flank_left")
-        right = _slot_by_role(slots, terrace.index, "flank_right")
-        if on_axis is not None:
-            cx_on = on_axis.center
-            for flank in (left, right):
-                if flank is None:
-                    continue
-                links.append(GalleryLink(
-                    id=f"gallery_{terrace.name}_{flank.role}_{terrace.index}",
-                    kind="covered_gallery",
-                    from_slot=on_axis.id,
-                    to_slot=flank.id,
-                    from_cell=_edge_facing(on_axis, flank.center),
-                    to_cell=_edge_facing(flank, cx_on),
-                    terrace_indices=(terrace.index, terrace.index),
-                ))
-        elif left is not None and right is not None:
-            # no on-axis volume: covered cross-gallery joining the two flanks
-            links.append(GalleryLink(
-                id=f"gallery_{terrace.name}_cross_{terrace.index}",
-                kind="covered_gallery",
-                from_slot=left.id,
-                to_slot=right.id,
-                from_cell=_edge_facing(left, right.center),
-                to_cell=_edge_facing(right, left.center),
-                terrace_indices=(terrace.index, terrace.index),
-            ))
-    return links
 
 
 def _build_feature(
@@ -817,16 +759,17 @@ def _export_terrace_profile(
     geometry: SectGeometry,
     terraces: Sequence[Terrace],
     footprint_depth: int,
+    apron: Rect,
 ) -> Dict[str, object]:
     """Export the terrace skeleton + geometry parameters for add-sect-worldgen.
 
     This is the 反推山形 contract: worldgen derives the man-made mountain from
     exactly these values (terrace elevations as skeleton, rise/depth/taper for
-    slopes, axis_stair_w for the processional cut, cliff_back_height for the
-    summit sheer face). Do not re-derive these downstream.
+    the core, the apron in front of the gate, cliff_back_height for the summit
+    sheer face). Do not re-derive these downstream.
     """
     return {
-        "contract_version": 1,
+        "contract_version": 2,
         "seed_note": "elevations are absolute world Y given site.base_y; worldgen sites the compound then derives slopes beneath",
         "footprint": {
             "width": geometry.terrace_width,
@@ -840,8 +783,15 @@ def _export_terrace_profile(
             "terrace_depth": geometry.terrace_depth,
             "terrace_width_foot": geometry.terrace_width,
             "summit_taper": geometry.summit_taper,
-            "axis_stair_w": geometry.axis_stair_w,
+            "axis_w": AXIS_W,
+            "stair_w": STAIR_W,
+            "stair_project": STAIR_PROJECT,
+            "apron_rows": APRON_ROWS,
             "cliff_back_height": geometry.cliff_back_height,
+        },
+        "apron": {
+            "bounds": list(apron),
+            "elevation": terraces[0].elevation,
         },
         "terraces": [
             {
@@ -877,6 +827,14 @@ def _terraces_ascend(plan: SectPlan) -> List[str]:
     return errors
 
 
+def _plan_axis_cx(plan: SectPlan) -> int:
+    return (plan.terraces[0].bounds[0] + plan.terraces[0].bounds[2]) // 2
+
+
+def _overlaps(a: Rect, b: Rect) -> bool:
+    return a[2] >= b[0] and b[2] >= a[0] and a[3] >= b[1] and b[3] >= a[1]
+
+
 def _validate_axis(plan: SectPlan) -> List[str]:
     errors: List[str] = []
     if not plan.axis_cells:
@@ -892,10 +850,24 @@ def _validate_axis(plan: SectPlan) -> List[str]:
         errors.append("axis_not_on_summit_terrace")
     # axis is traversable foot→summit along z (contiguous column)
     zs = sorted({z for _, z in plan.axis_cells})
-    if zs:
-        gaps = [z for a, b in zip(zs, zs[1:]) if b - a > 1]
-        if gaps:
-            errors.append(f"axis_not_contiguous:gap_after_z={gaps[0]}")
+    gaps = [z for a, b in zip(zs, zs[1:]) if b - a > 1]
+    if gaps:
+        errors.append(f"axis_not_contiguous:gap_after_z={gaps[0]}")
+    # the corridor is AXIS_W wide on the centre line and clear of every volume
+    # except the gate (foot) and the principal hall (summit)
+    cx = _plan_axis_cx(plan)
+    ax0, ax1 = axis_x_span(cx)
+    xs = sorted({x for x, _ in plan.axis_cells})
+    if xs != list(range(ax0, ax1 + 1)):
+        errors.append(f"axis_corridor_wrong_x:{xs[0]}..{xs[-1]}!={ax0}..{ax1}")
+    corridor = (ax0, zs[0], ax1, zs[-1])
+    for s in plan.slots:
+        if not _overlaps(s.bounds, corridor):
+            continue
+        is_gate = s.terrace_index == gate.index and s.archetype == "sect_gate"
+        is_hall = s.terrace_index == summit.index and s.archetype == "sect_main_hall"
+        if not (is_gate or is_hall):
+            errors.append(f"axis_corridor_blocked:{s.id}:{s.archetype}")
     # gate terrace name and summit hall
     if gate.name != "gate":
         errors.append(f"foot_terrace_not_gate:{gate.name}")
@@ -920,16 +892,15 @@ def _validate_importance(plan: SectPlan) -> List[str]:
             errors.append(
                 f"importance_decreases_at_terrace:{t.name}:{floor}<preceding_max_{max_tier}")
         max_tier = max(max_tier, max(tiers))
-    # principal hall + scripture pagoda at top tiers
+    # principal hall at the top tier; pagodas only as a detached spire
     hall = next((s for s in plan.slots if s.archetype == "sect_main_hall"), None)
-    pagoda = next((s for s in plan.slots if s.archetype == "pagoda"), None)
     if hall is None:
         errors.append("missing_principal_hall")
     elif hall.importance_tier < MAX_IMPORTANCE_TIER:
         errors.append(f"principal_hall_not_top_tier:{hall.importance_tier}")
-    # pagoda may be absent only on the 4-terrace skeleton (no scripture tier)
-    if pagoda is not None and pagoda.importance_tier < 2:
-        errors.append(f"pagoda_not_top_tier:{pagoda.importance_tier}")
+    for s in plan.slots:
+        if s.archetype == "pagoda":
+            errors.append(f"pagoda_on_terrace:{s.id}")
     return errors
 
 
@@ -948,7 +919,19 @@ def _validate_symmetry(plan: SectPlan) -> List[str]:
             rights = [s for s in flanks if s.role == "flank_right"]
             if len(lefts) != len(rights):
                 errors.append(f"flank_pair_unbalanced:{t.name}:L{len(lefts)}R{len(rights)}")
-            # bell/drum flank the gate symmetrically
+                continue
+            # each pair mirrors about the axis
+            cx = _plan_axis_cx(plan)
+            for left, right in zip(lefts, rights):
+                lx0, lz0, lx1, lz1 = left.bounds
+                rx0, rz0, rx1, rz1 = right.bounds
+                if (lx0 + rx1 != 2 * cx or lx1 + rx0 != 2 * cx
+                        or (lz0, lz1) != (rz0, rz1)):
+                    errors.append(f"flank_pair_not_mirrored:{t.name}:{left.bounds}:{right.bounds}")
+        for s in on_axis:
+            sx0, _, sx1, _ = s.bounds
+            if sx0 + sx1 != 2 * _plan_axis_cx(plan):
+                errors.append(f"on_axis_volume_off_centre:{s.id}:{s.bounds}")
     return errors
 
 
@@ -996,18 +979,14 @@ def _endpoint_on_slot_or_terrace(cell: Cell2, plan: SectPlan, slot_id: str) -> b
 
 
 def _validate_links(plan: SectPlan) -> List[str]:
+    """The flying bridge (when present) rests on the volumes it joins."""
     errors: List[str] = []
-    all_links: List[GalleryLink] = list(plan.gallery_links)
     if plan.feature is not None:
-        all_links.append(plan.feature.bridge_link)
-    for g in all_links:
+        g = plan.feature.bridge_link
         if not _endpoint_on_slot_or_terrace(g.from_cell, plan, g.from_slot):
             errors.append(f"link_from_endpoint_off_volume:{g.id}")
         if not _endpoint_on_slot_or_terrace(g.to_cell, plan, g.to_slot):
             errors.append(f"link_to_endpoint_off_volume:{g.id}")
-    # at least one covered gallery
-    if not any(g.kind == "covered_gallery" for g in plan.gallery_links):
-        errors.append("missing_covered_gallery")
     return errors
 
 
@@ -1020,6 +999,31 @@ def _validate_retaining_and_stairs(plan: SectPlan) -> List[str]:
     for r in plan.retaining_faces:
         if r.height != plan.geometry.terrace_rise:
             errors.append(f"retaining_height_not_rise:{r.id}:{r.height}")
+    # each axis stair is STAIR_W wide on the axis, climbs its whole band and
+    # projects STAIR_PROJECT rows onto the lower terrace, clear of every volume
+    by_index = {t.index: t for t in plan.terraces}
+    sx0, sx1 = stair_x_span(_plan_axis_cx(plan))
+    rise = plan.geometry.terrace_rise
+    for a in plan.axis_stairs:
+        lower = by_index[a.lower_terrace]
+        upper = by_index[a.upper_terrace]
+        bf = upper.bounds[1] - rise
+        expected = (sx0, bf - STAIR_PROJECT, sx1, bf + rise - 1)
+        if a.bounds != expected:
+            errors.append(f"axis_stair_wrong_bounds:{a.id}:{a.bounds}!={expected}")
+        if bf != lower.bounds[3] + 1:
+            errors.append(f"axis_stair_band_not_after_lower:{a.id}")
+        for s in plan.slots:
+            if _overlaps(s.bounds, a.bounds):
+                errors.append(f"axis_stair_blocked:{a.id}:{s.id}")
+    # the apron spans the gate's width in front of the gate terrace
+    ax0, az0, ax1, az1 = plan.apron
+    gate_z0 = plan.terraces[0].bounds[1]
+    if az1 != gate_z0 - 1 or az1 - az0 + 1 != APRON_ROWS:
+        errors.append(f"apron_wrong_rows:{plan.apron}")
+    gate = next((s for s in plan.slots if s.archetype == "sect_gate"), None)
+    if gate is not None and (ax0, ax1) != (gate.bounds[0], gate.bounds[2]):
+        errors.append(f"apron_not_gate_width:{plan.apron}:{gate.bounds}")
     # summit declares cliff-back
     if not plan.terraces[-1].cliff_back:
         errors.append("summit_missing_cliff_back")
@@ -1036,8 +1040,13 @@ def _validate_width_taper(plan: SectPlan) -> List[str]:
         if b > a:
             errors.append(f"terrace_width_increases_up_stack:{b}>{a}")
             break
+    cx = _plan_axis_cx(plan)
+    for t in plan.terraces:
+        if t.bounds[0] + t.bounds[2] != 2 * cx:
+            errors.append(f"terrace_not_symmetric:{t.name}:{t.bounds}")
     for required in ("terrace_rise", "terrace_depth", "summit_taper",
-                     "axis_stair_w", "cliff_back_height"):
+                     "axis_w", "stair_w", "stair_project", "apron_rows",
+                     "cliff_back_height"):
         if required not in plan.terrace_profile.get("geometry", {}):
             errors.append(f"terrace_profile_missing_param:{required}")
     return errors
@@ -1087,7 +1096,6 @@ def validate_sect_plan(plan: SectPlan) -> dict:
     stats = {
         "terrace_count": len(plan.terraces),
         "slot_count": len(plan.slots),
-        "gallery_count": len(plan.gallery_links),
         "retaining_count": len(plan.retaining_faces),
         "axis_stair_count": len(plan.axis_stairs),
         "feature_present": plan.feature is not None,
@@ -1120,7 +1128,7 @@ def validate_feature_variants() -> dict:
 
 
 def validate_sect_reproducibility(seeds: Sequence[int]) -> dict:
-    """Same seed + site yields identical terraces/axis/slots/links/feature."""
+    """Same seed + site yields identical terraces/axis/slots/stairs/feature."""
     errors: List[str] = []
     for seed in seeds:
         a = generate_sect_plan(seed)
@@ -1133,9 +1141,9 @@ def validate_sect_reproducibility(seeds: Sequence[int]) -> dict:
         if [(s.id, s.archetype, s.template_id, s.bounds, s.importance_tier) for s in a.slots] != \
                 [(s.id, s.archetype, s.template_id, s.bounds, s.importance_tier) for s in b.slots]:
             errors.append(f"slots_not_reproducible:{seed}")
-        if [(g.id, g.from_slot, g.to_slot, g.from_cell, g.to_cell) for g in a.gallery_links] != \
-                [(g.id, g.from_slot, g.to_slot, g.from_cell, g.to_cell) for g in b.gallery_links]:
-            errors.append(f"gallery_links_not_reproducible:{seed}")
+        if [st.bounds for st in a.axis_stairs] != [st.bounds for st in b.axis_stairs] \
+                or a.apron != b.apron:
+            errors.append(f"stairs_not_reproducible:{seed}")
         fa = a.feature.variant if a.feature else None
         fb = b.feature.variant if b.feature else None
         if fa != fb:

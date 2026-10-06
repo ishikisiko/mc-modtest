@@ -2,8 +2,8 @@
 """Generate deterministic terraced sect-compound plan dumps and top-down previews.
 
 Mirrors generate_town_plan_preview.py: dumps the plan JSON, renders a top-down
-PNG (terraces by elevation tier, ritual axis, slotted volumes by archetype,
-covered galleries, and the detached-spire flying-bridge feature), writes a
+PNG (terraces by elevation tier, the apron, the ritual axis, the axis stairs,
+slotted volumes by archetype, and the detached-spire flying-bridge feature), writes a
 viewer.html, and merges into the shared preview aggregate index.
 """
 
@@ -54,7 +54,8 @@ COLORS: Dict[str, RGBA] = {
     "pagoda": (180, 120, 60, 255),
     "pavilion": (180, 120, 60, 255),
     "bell_drum_tower": (120, 110, 130, 255),
-    "gallery": (110, 80, 50, 255),
+    "stair": (60, 70, 80, 255),
+    "apron": (214, 210, 196, 255),
     "detached": (140, 60, 130, 255),
     "bridge": (200, 130, 40, 255),
 }
@@ -87,9 +88,17 @@ def fill_rect(buf: bytearray, width: int, rect, scale: int, color: RGBA) -> None
 
 
 def render_plan_png(plan, path: Path, scale: int = 6) -> None:
+    # the apron lies in front of the gate terrace (negative z); shift the canvas
+    z_off = max(0, -plan.apron[1])
     width = plan.site.width * scale
-    height = plan.site.depth * scale
+    height = (plan.site.depth + z_off) * scale
     buf = bytearray(COLORS["background"] * (width * height))
+
+    def shifted(rect):
+        x0, z0, x1, z1 = rect
+        return (x0, z0 + z_off, x1, z1 + z_off)
+
+    fill_rect(buf, width, shifted(plan.apron), scale, COLORS["apron"])
 
     # terraces painted by the highest importance tier they carry
     tier_by_terrace: Dict[int, int] = {}
@@ -97,29 +106,29 @@ def render_plan_png(plan, path: Path, scale: int = 6) -> None:
         tier_by_terrace[s.terrace_index] = max(
             tier_by_terrace.get(s.terrace_index, 0), s.importance_tier)
     for terrace in plan.terraces:
-        fill_rect(buf, width, terrace.bounds, scale,
+        fill_rect(buf, width, shifted(terrace.bounds), scale,
                   _tier_color(tier_by_terrace.get(terrace.index, 0)))
 
     # ritual axis
     for x, z in plan.axis_cells:
-        fill_cell(buf, width, x, z, scale, COLORS["axis"])
+        fill_cell(buf, width, x, z + z_off, scale, COLORS["axis"])
 
-    # covered galleries (lines between endpoints)
-    for g in plan.gallery_links:
-        for x, z in _bresenham(g.from_cell, g.to_cell):
-            fill_cell(buf, width, x, z, scale, COLORS["gallery"])
+    # axis stairs (band + projection onto the lower terrace)
+    for stair in plan.axis_stairs:
+        fill_rect(buf, width, shifted(stair.bounds), scale, COLORS["stair"])
 
     # slotted volumes by archetype
     for slot in plan.slots:
         color = COLORS.get(slot.archetype, COLORS["terrace2"])
-        fill_rect(buf, width, slot.bounds, scale, color)
+        fill_rect(buf, width, shifted(slot.bounds), scale, color)
 
     # detached-spire feature
     if plan.feature is not None:
-        fill_rect(buf, width, plan.feature.detached_bounds, scale, COLORS["detached"])
+        fill_rect(buf, width, shifted(plan.feature.detached_bounds), scale, COLORS["detached"])
         for x, z in _bresenham(plan.feature.bridge_link.from_cell,
                                plan.feature.bridge_link.to_cell):
-            fill_cell(buf, width, x, z, scale, COLORS["bridge"])
+            if 0 <= x < plan.site.width and 0 <= z < plan.site.depth:
+                fill_cell(buf, width, x, z + z_off, scale, COLORS["bridge"])
 
     write_png(path, width, height, bytes(buf))
 
@@ -136,8 +145,8 @@ def _height_color(y: int, lo: int, hi: int) -> RGBA:
 
 def render_mountain_png(plan, mountain, base_y: int, path: Path, scale: int = 5) -> None:
     """Top-down derived-mountain heightfield (反推山形): each footprint+skirt cell
-    shaded by derived ground Y, with the cloud-sea sheet, cliff-back, and spire
-    overlaid, so the man-made mountain + blend skirt read at a glance."""
+    shaded by derived ground Y, with the spire overlaid, so the noise-free core,
+    the apron, the cliff-back and the blend skirt read at a glance."""
     margin = SKIRT_RADIUS + 4
     minx = mountain.core_x0 - margin
     minz = mountain.core_z0 - margin
@@ -155,17 +164,6 @@ def render_mountain_png(plan, mountain, base_y: int, path: Path, scale: int = 5)
     for cx in range(gw):
         for cz in range(gh):
             fill_cell(buf, width, cx, cz, scale, _height_color(heights[cx][cz], lo, hi))
-
-    # cloud sea: translucent white where the sheet floats above open air
-    gate = plan.terraces[0]
-    disciple = plan.terraces[1] if len(plan.terraces) > 1 else gate
-    y_cloud = mountain.cloud_sea_y
-    for cx in range(gw):
-        for cz in range(gh):
-            x, z = minx + cx, minz + cz
-            if gate.bounds[3] < z < disciple.bounds[1] and mountain.core_x0 <= x <= mountain.core_x1:
-                if heights[cx][cz] < y_cloud:
-                    fill_cell(buf, width, cx, cz, scale, (236, 240, 248, 255))
 
     # spire footprint (孤峰) highlighted
     if mountain.spire is not None:
@@ -227,10 +225,9 @@ def write_viewer(plan, out_dir: Path, mountain=None) -> Path:
             "<div class=\"legend\">"
             "<div><span class=\"swatch\" style=\"background:#60784e\"></span>low derived ground</div>"
             "<div><span class=\"swatch\" style=\"background:#e0dad2\"></span>high derived ground</div>"
-            "<div><span class=\"swatch\" style=\"background:#ecf0f8\"></span>cloud sea (云海面)</div>"
             "<div><span class=\"swatch\" style=\"background:#8c3c82\"></span>solitary peak (孤峰)</div>"
             "</div>"
-            f"<ul><li>cloud-sea Y: {mountain.cloud_sea_y}</li>"
+            f"<ul><li>apron Y: {mountain.apron_y}</li>"
             f"<li>cliff-back top Y: {mountain.cliff_back_top}</li>"
             f"<li>spire: {html.escape(spire)}</li></ul>")
     else:
@@ -259,11 +256,11 @@ h2 {{ margin-top: 1.4em; }}
 <div><span class="swatch" style="background:#9d6338"></span>mountain gate</div>
 <div><span class="swatch" style="background:#7a2c2c"></span>principal hall (summit)</div>
 <div><span class="swatch" style="background:#5a4e8e"></span>scripture pavilion</div>
-<div><span class="swatch" style="background:#b4783c"></span>pagoda</div>
 <div><span class="swatch" style="background:#96786e"></span>disciple quarters</div>
 <div><span class="swatch" style="background:#608456"></span>alchemy room</div>
 <div><span class="swatch" style="background:#786e82"></span>bell/drum tower</div>
-<div><span class="swatch" style="background:#6e5032"></span>covered gallery (廊)</div>
+<div><span class="swatch" style="background:#3c4650"></span>axis stair (踏道)</div>
+<div><span class="swatch" style="background:#d6d2c4"></span>apron (山门前坪)</div>
 <div><span class="swatch" style="background:#8c3c82"></span>detached spire</div>
 <div><span class="swatch" style="background:#c88228"></span>flying bridge (飞桥)</div>
 </div>
@@ -301,7 +298,7 @@ def main() -> int:
                         help="skip the cleanup of previous sect_plan_s* dumps in --out")
     args = parser.parse_args()
 
-    out_root = Path(args.out)
+    out_root = Path(args.out).resolve()
     if not args.keep_existing:
         purged = purge_old_plan_previews(out_root, "sect_plan")
         if purged:
@@ -322,7 +319,7 @@ def main() -> int:
         mountain = derive_mountain(seed, plan.terrace_profile,
                                    flat_natural(plan.site.base_y), feature=feature)
         (out_dir / "mountain.json").write_text(json.dumps({
-            "cloud_sea_y": mountain.cloud_sea_y,
+            "apron_y": mountain.apron_y,
             "cliff_back_top": mountain.cliff_back_top,
             "spire": (None if mountain.spire is None
                       else {"bounds": [mountain.spire.x0, mountain.spire.z0,
@@ -333,7 +330,7 @@ def main() -> int:
         viewer = write_viewer(plan, out_dir, mountain)
         print(f"OK sect_plan_s{seed}: {viewer.relative_to(REPO_ROOT)} "
               f"feature={plan.feature.variant if plan.feature else 'none'} "
-              f"cloud_y={mountain.cloud_sea_y}")
+              f"apron_y={mountain.apron_y}")
     index_path = write_index(out_root)
     print(f"index: {index_path.relative_to(REPO_ROOT)}")
     print("hint: run preview_structure.py --all to merge index categories")

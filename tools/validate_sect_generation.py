@@ -5,11 +5,15 @@ The Java ``SectGenerator`` re-derives a plan structurally equivalent to the
 Python planner in ``buildgen.sect``. This validator drives that plan and
 asserts:
 
-  * the terrace stack ascends a single fall-line ritual axis gate→summit;
-  * slot importance is non-decreasing up the stack with the principal hall and
-    scripture pagoda at the top tiers;
-  * every covered gallery and any flying-bridge feature has both endpoints
-    resting on the volumes/terraces it joins;
+  * the terrace stack ascends a single fall-line ritual axis gate→summit, and
+    the axis corridor (x 28..34) is clear of every volume except the gate and
+    the principal hall;
+  * slot importance is non-decreasing up the stack with the principal hall at
+    the top tier and no pagoda on a terrace;
+  * the axis stairs (x 27..35) climb each band clear of every volume and the
+    apron spans the gate in front of the gate terrace;
+  * any flying-bridge feature has both endpoints resting on the volumes it
+    joins (there are no covered galleries);
   * the three detached-spire feature variants are pairwise distinct and a
     feature-absent plan is still complete;
   * every slot's referenced structure template fits inside the slot and inside
@@ -43,7 +47,8 @@ from buildgen.sect_mountain import (  # noqa: E402
     validate_mountain_reproducibility,
 )
 from buildgen.sect import (  # noqa: E402
-    DEFAULT_AXIS_STAIR_W,
+    APRON_ROWS,
+    AXIS_W,
     DEFAULT_CLIFF_BACK_HEIGHT,
     DEFAULT_TERRACE_COUNT,
     DEFAULT_TERRACE_DEPTH,
@@ -52,8 +57,12 @@ from buildgen.sect import (  # noqa: E402
     DEFAULT_SUMMIT_TAPER,
     FEATURE_PERIOD,
     FEATURE_VARIANTS,
+    FLANK_INNER_LEFT_X1,
+    FLANK_INNER_RIGHT_X0,
     MAX_TERRACE_COUNT,
     MIN_TERRACE_COUNT,
+    STAIR_PROJECT,
+    STAIR_W,
     Z_MARGIN,
     SectSite,
     generate_sect_plan,
@@ -95,7 +104,12 @@ PARITY_CONSTANTS = {
     "TERRACE_DEPTH": DEFAULT_TERRACE_DEPTH,
     "TERRACE_WIDTH": DEFAULT_TERRACE_WIDTH,
     "SUMMIT_TAPER": DEFAULT_SUMMIT_TAPER,
-    "AXIS_STAIR_W": DEFAULT_AXIS_STAIR_W,
+    "AXIS_W": AXIS_W,
+    "STAIR_W": STAIR_W,
+    "STAIR_PROJECT": STAIR_PROJECT,
+    "FLANK_INNER_LEFT_X1": FLANK_INNER_LEFT_X1,
+    "FLANK_INNER_RIGHT_X0": FLANK_INNER_RIGHT_X0,
+    "APRON_ROWS": APRON_ROWS,
     "CLIFF_BACK_HEIGHT": DEFAULT_CLIFF_BACK_HEIGHT,
     "Z_MARGIN": Z_MARGIN,
     "MIN_TERRACE_COUNT": MIN_TERRACE_COUNT,
@@ -169,9 +183,14 @@ def validate_parity_constants() -> List[str]:
         "TERRACE_COUNT": 5,
         "TERRACE_RISE": 8,
         "TERRACE_DEPTH": 28,
-        "TERRACE_WIDTH": 58,
-        "SUMMIT_TAPER": 4,
-        "AXIS_STAIR_W": 5,
+        "TERRACE_WIDTH": 59,
+        "SUMMIT_TAPER": 8,
+        "AXIS_W": 7,
+        "STAIR_W": 9,
+        "STAIR_PROJECT": 3,
+        "FLANK_INNER_LEFT_X1": 25,
+        "FLANK_INNER_RIGHT_X0": 37,
+        "APRON_ROWS": 12,
         "CLIFF_BACK_HEIGHT": 12,
         "Z_MARGIN": 4,
     }
@@ -233,8 +252,8 @@ def validate_worldgen_data() -> List[str]:
 
 def validate_worldgen_mountain(seeds) -> List[str]:
     """Derive the mountain per seed and assert the 反推山形 contract: terraces at
-    planned elevations, blend-skirt seam-free, cliff-back sheer, cloud-sea
-    placed, spire deterministic — over both flat and rolling natural terrain."""
+    planned elevations, core and apron noise-free, blend-skirt seam-free,
+    cliff-back sheer, spire deterministic — over flat and rolling terrain."""
     errors: List[str] = []
     for seed in seeds:
         plan = generate_sect_plan(seed)
@@ -349,8 +368,8 @@ def main() -> int:
     if mountain_errors:
         print("FAIL derived mountain (反推山形)")
     else:
-        print("OK derived mountain: terraces at elevation, skirt seam-free, "
-              "cliff-back sheer, cloud-sea placed, spire deterministic")
+        print("OK derived mountain: terraces at elevation, core and apron noise-free, "
+              "skirt seam-free, cliff-back sheer, spire deterministic")
 
     worldgen_survey = survey_worldgen(32)
     print(f"survey: feature present {worldgen_survey['feature_present']}/"

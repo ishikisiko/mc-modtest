@@ -1,15 +1,22 @@
 """Deterministic 反推山形 mountain derivation from a sect terrace profile.
 
 `build-sect-compound` (``buildgen.sect``) exports a terrace profile — terrace
-elevations + bounds as the mountain skeleton, plus rise/depth/taper/axis-stair
-width/cliff-back-height geometry. ``add-sect-worldgen`` derives the man-made
-mountain from exactly that profile rather than searching for matching natural
-terrain (反推山形): the terraces are fixed, then the slopes beneath and between
-them are filled with seed-driven noise, an outer blend skirt grades the relief
-into the surrounding natural heightmap, a sheer cliff face rises behind the
-summit, a translucent cloud-sea surface is laid between the gate and disciple
-terraces, and — when the compound selects the detached-spire feature — a
-solitary peak is raised under the detached volume.
+elevations + bounds as the mountain skeleton, the apron in front of the gate,
+plus rise/depth/taper/cliff-back-height geometry. ``add-sect-worldgen`` derives
+the man-made mountain from exactly that profile rather than searching for
+matching natural terrain (反推山形):
+
+* the core (the terraces' union box, x 2..60 × z 4..175 by default) carries no
+  noise: terrace cells sit at ``elevation - 1``; a band cell between two
+  terraces sits at the upper floor when it lies within the upper terrace's
+  width, else at the lower floor; the taper slivers left beside the narrower
+  terraces drop one block per cell (Chebyshev) from the nearest platform;
+* the apron (x 21..41 × z -8..3 by default) sits flat at the gate floor;
+* outside them a seed-noised outer flank grades into the natural heightmap
+  across the blend skirt;
+* a sheer cliff face rises behind the summit, and — when the compound selects
+  the detached-spire feature — a solitary peak is raised under the detached
+  volume.
 
 This module is the offline mirror/validation of the runtime Java derivation in
 ``SectMountain.java``: both consume the same terrace profile and produce the
@@ -37,7 +44,6 @@ DEFAULT_OUTER_SLOPE = 1            # blocks dropped per cell on the bare outer f
 DEFAULT_NOISE_AMP_INTER = 3        # noise amplitude between terraces (slope texture)
 DEFAULT_NOISE_AMP_OUTER = 5        # noise amplitude on the outer flank
 SEAM_SLOPE_LIMIT = 6               # max |Δheight| per cell allowed in the skirt
-DEFAULT_CLOUD_SEA_INSET = 0        # cloud Y = midpoint(gate, disciple) + inset
 DEFAULT_SPIRE_GAP = 3              # min air gap between spire and main mountain (cells)
 
 # Constants the Java derivation hardcodes; the validator asserts they agree.
@@ -119,7 +125,6 @@ class MountainParams:
     outer_slope: int = DEFAULT_OUTER_SLOPE
     noise_amp_inter: int = DEFAULT_NOISE_AMP_INTER
     noise_amp_outer: int = DEFAULT_NOISE_AMP_OUTER
-    cloud_sea_inset: int = DEFAULT_CLOUD_SEA_INSET
     spire_gap: int = DEFAULT_SPIRE_GAP
 
 
@@ -137,40 +142,46 @@ class DerivedMountain:
     core_z0: int
     core_x1: int
     core_z1: int
-    cloud_sea_y: int
+    apron: Optional[Tuple[int, int, int, int]]   # x0, z0, x1, z1
+    apron_y: int
     cliff_back_top: int
     rise: int
     spire: Optional["SpirePeak"]
     natural_fn: Callable[[int, int], int]
 
-    def _nearest_terrace_height(self, x: int, z: int) -> Tuple[int, int]:
-        """Skeleton height at (x,z) and the chebyshev distance to the core.
+    def in_core(self, x: int, z: int) -> bool:
+        return self.core_x0 <= x <= self.core_x1 and self.core_z0 <= z <= self.core_z1
 
-        On a terrace footprint -> that terrace's surface (elevation-1), dist 0.
-        In an inter-terrace stair band (same x-extent, z between two terraces) ->
-        linear ramp between the two surfaces. Otherwise -> nearest terrace
-        surface, with the distance to the core used by the slope/skirt blend.
-        """
+    def in_apron(self, x: int, z: int) -> bool:
+        a = self.apron
+        return a is not None and a[0] <= x <= a[2] and a[1] <= z <= a[3]
+
+    def _sliver_height(self, x: int, z: int) -> int:
+        """One block down per cell (Chebyshev) from the nearest platform; ties go
+        to the lower terrace index."""
+        best = None
+        best_dist = None
+        for t in self.terraces:
+            dx = max(t.x0 - x, 0, x - t.x1)
+            dz = max(t.z0 - z, 0, z - t.z1)
+            dist = max(dx, dz)
+            if best_dist is None or dist < best_dist:
+                best, best_dist = t, dist
+        return best.elevation - 1 - best_dist
+
+    def core_height(self, x: int, z: int) -> int:
+        """Noise-free core height (callers check ``in_core`` first)."""
         for t in self.terraces:
             if t.contains(x, z):
-                return t.elevation - 1, 0
-        # inter-terrace ramp along the fall line
+                return t.elevation - 1
         for lower, upper in zip(self.terraces, self.terraces[1:]):
-            if lower.z1 < z < upper.z0 and self.core_x0 <= x <= self.core_x1:
-                span = upper.z0 - lower.z1
-                frac = (z - lower.z1) / span
-                h = round((lower.elevation - 1) * (1 - frac) + (upper.elevation - 1) * frac)
-                return h, 0
-        # outer flank: nearest terrace surface, distance = chebyshev to core box
-        dx = max(self.core_x0 - x, 0, x - self.core_x1)
-        dz = max(self.core_z0 - z, 0, z - self.core_z1)
-        dist = max(dx, dz)
-        # pick the terrace whose band the column is nearest to in z
-        nearest = min(self.terraces, key=lambda t: min(abs(z - t.z0), abs(z - t.z1)))
-        return nearest.elevation - 1, dist
-
-    def _on_platform(self, x: int, z: int) -> bool:
-        return any(t.contains(x, z) for t in self.terraces)
+            if lower.z1 < z < upper.z0:
+                if upper.x0 <= x <= upper.x1:
+                    return upper.elevation - 1
+                if lower.x0 <= x <= lower.x1:
+                    return lower.elevation - 1
+                break
+        return self._sliver_height(x, z)
 
     def height(self, x: int, z: int) -> int:
         """Derived absolute world Y of the mountain surface at local (x, z)."""
@@ -195,17 +206,20 @@ class DerivedMountain:
             dropped = self.cliff_back_top - self.params.outer_slope * 2 * (back_dist - 2)
             return max(dropped, self.natural_fn(x, z))
 
-        skel, dist = self._nearest_terrace_height(x, z)
-        if dist == 0:
-            # on a terrace platform or stair band: exact skeleton, light noise on
-            # the stair band only (platforms stay flat at elevation-1)
-            if self._on_platform(x, z):
-                return skel
-            return skel + _noise(self.seed, x, z, self.params.noise_amp_inter)
+        # core and apron: exact, no noise
+        if self.in_core(x, z):
+            return self.core_height(x, z)
+        if self.in_apron(x, z):
+            return self.apron_y
 
-        # outer flank: drop from the skeleton along the slope, add flank noise,
-        # then blend into the natural heightmap across the skirt radius.
-        flank = skel - self.params.outer_slope * dist
+        # outer flank: drop from the nearest terrace surface (by z) along the
+        # slope, add flank noise, then blend into the natural heightmap across
+        # the skirt radius.
+        dx = max(self.core_x0 - x, 0, x - self.core_x1)
+        dz = max(self.core_z0 - z, 0, z - self.core_z1)
+        dist = max(dx, dz)
+        nearest = min(self.terraces, key=lambda t: min(abs(z - t.z0), abs(z - t.z1)))
+        flank = nearest.elevation - 1 - self.params.outer_slope * dist
         flank += _noise(self.seed, x, z, self.params.noise_amp_outer)
         natural = self.natural_fn(x, z)
         if dist >= self.params.skirt_radius:
@@ -278,9 +292,13 @@ def derive_mountain(
     core_x1 = max(t.x1 for t in terraces)
     core_z1 = max(t.z1 for t in terraces)
 
-    gate = terraces[0]
-    disciple = terraces[1] if len(terraces) > 1 else terraces[0]
-    cloud_sea_y = (gate.elevation + disciple.elevation) // 2 + params.cloud_sea_inset
+    apron_spec = profile.get("apron") if isinstance(profile, Mapping) else None
+    apron = None
+    apron_y = terraces[0].elevation - 1
+    if apron_spec:
+        ax0, az0, ax1, az1 = (int(v) for v in apron_spec["bounds"])  # type: ignore[index]
+        apron = (ax0, az0, ax1, az1)
+        apron_y = int(apron_spec["elevation"]) - 1  # type: ignore[index]
 
     cliff_back_height = int(profile["geometry"]["cliff_back_height"])  # type: ignore[index]
     rise = int(profile["geometry"]["terrace_rise"])  # type: ignore[index]
@@ -297,7 +315,7 @@ def derive_mountain(
     return DerivedMountain(
         seed=seed, profile=profile, params=params, terraces=terraces,
         core_x0=core_x0, core_z0=core_z0, core_x1=core_x1, core_z1=core_z1,
-        cloud_sea_y=cloud_sea_y, cliff_back_top=cliff_back_top, rise=rise,
+        apron=apron, apron_y=apron_y, cliff_back_top=cliff_back_top, rise=rise,
         spire=spire, natural_fn=natural_fn)
 
 
@@ -307,11 +325,13 @@ def derive_mountain(
 def validate_mountain(mountain: DerivedMountain) -> dict:
     """Assert the derivation honors the 反推山形 contract.
 
-      * terraces rest at their planned elevations (no float/bury);
-      * the inter-terrace/outer slopes are noise-textured, not bare steps;
+      * every terrace cell rests at its planned elevation (no float/bury);
+      * the core and the apron carry no noise: bands follow the upper/lower
+        floor rule, the apron sits at the gate floor, and the whole core+apron
+        is identical for any seed;
+      * the outer slopes are noise-textured, not bare steps;
       * the outer blend skirt has no abrupt seam (except the intended cliff-back);
       * a sheer cliff face stands behind the summit;
-      * the cloud sea sits between the gate and disciple terraces;
       * a spire (when the feature is present) stands under the detached volume,
         separated from the main mountain by a gap.
     """
@@ -325,15 +345,61 @@ def validate_mountain(mountain: DerivedMountain) -> dict:
         return sp is not None and sp.x0 <= x <= sp.x1 and sp.z0 <= z <= sp.z1
 
     for t in terraces:
-        cx, cz = (t.x0 + t.x1) // 2, (t.z0 + t.z1) // 2
-        for (sx, sz) in ((t.x0, t.z0), (t.x1, t.z1), (cx, cz)):
-            if _under_spire(sx, sz):
+        bad = [(x, z) for x in range(t.x0, t.x1 + 1) for z in range(t.z0, t.z1 + 1)
+               if not _under_spire(x, z) and mountain.height(x, z) != t.elevation - 1]
+        if bad:
+            x, z = bad[0]
+            errors.append(f"terrace_not_at_elevation:{t.name}:{(x, z)}:"
+                          f"{mountain.height(x, z)}!={t.elevation - 1}")
+
+    # bands: upper floor within the upper width, else lower floor within the lower
+    for lower, upper in zip(terraces, terraces[1:]):
+        for z in range(lower.z1 + 1, upper.z0):
+            for x in range(lower.x0, lower.x1 + 1):
+                if _under_spire(x, z):
+                    continue
+                want = (upper.elevation - 1 if upper.x0 <= x <= upper.x1
+                        else lower.elevation - 1)
+                got = mountain.height(x, z)
+                if got != want:
+                    errors.append(f"band_floor_wrong:{lower.name}->{upper.name}:{(x, z)}:{got}!={want}")
+                    break
+            else:
                 continue
-            h = mountain.height(sx, sz)
-            if h != t.elevation - 1:
-                errors.append(
-                    f"terrace_not_at_elevation:{t.name}:{(sx, sz)}:{h}!={t.elevation - 1}")
-                break
+            break
+
+    # apron flat at the gate floor
+    if mountain.apron is not None:
+        ax0, az0, ax1, az1 = mountain.apron
+        for x in range(ax0, ax1 + 1):
+            for z in range(az0, az1 + 1):
+                if mountain.height(x, z) != mountain.apron_y:
+                    errors.append(f"apron_not_flat:{(x, z)}:{mountain.height(x, z)}!={mountain.apron_y}")
+                    break
+            else:
+                continue
+            break
+    else:
+        errors.append("apron_missing_from_profile")
+
+    # no noise in the core or the apron: a different seed yields the same heights
+    other = DerivedMountain(
+        seed=mountain.seed ^ 0x5A5A5A5A, profile=mountain.profile,
+        params=mountain.params, terraces=mountain.terraces,
+        core_x0=mountain.core_x0, core_z0=mountain.core_z0,
+        core_x1=mountain.core_x1, core_z1=mountain.core_z1,
+        apron=mountain.apron, apron_y=mountain.apron_y,
+        cliff_back_top=mountain.cliff_back_top, rise=mountain.rise,
+        spire=mountain.spire, natural_fn=mountain.natural_fn)
+    cells = [(x, z) for x in range(mountain.core_x0, mountain.core_x1 + 1)
+             for z in range(mountain.core_z0, mountain.core_z1 + 1)]
+    if mountain.apron is not None:
+        ax0, az0, ax1, az1 = mountain.apron
+        cells += [(x, z) for x in range(ax0, ax1 + 1) for z in range(az0, az1 + 1)]
+    for x, z in cells:
+        if mountain.height(x, z) != other.height(x, z):
+            errors.append(f"core_has_noise:{(x, z)}")
+            break
 
     # slopes are textured (noise present on the tall side flank near the summit,
     # where the mountain actually has relief above natural ground)
@@ -369,14 +435,6 @@ def validate_mountain(mountain: DerivedMountain) -> dict:
         if face < summit.elevation + 1:
             errors.append(f"cliff_back_not_sheer:{face}<{summit.elevation + 1}")
 
-    # cloud sea between gate and disciple elevations
-    gate = terraces[0]
-    disciple = terraces[1] if len(terraces) > 1 else terraces[0]
-    if not (gate.elevation <= mountain.cloud_sea_y <= disciple.elevation
-            or disciple.elevation <= mountain.cloud_sea_y <= gate.elevation):
-        errors.append(
-            f"cloud_sea_outside_gate_disciple:{mountain.cloud_sea_y}")
-
     # spire: a pillar rising one rise above the summit under the detached volume,
     # standing clear of the platform around it (a solitary peak reached only by
     # the bridge). The volume rests on the pillar top (no float).
@@ -398,7 +456,7 @@ def validate_mountain(mountain: DerivedMountain) -> dict:
             errors.append("spire_not_isolated")
 
     return {"passed": not errors, "errors": errors,
-            "cloud_sea_y": mountain.cloud_sea_y,
+            "apron_y": mountain.apron_y,
             "cliff_back_top": mountain.cliff_back_top,
             "spire": (sp_to_dict(mountain.spire) if mountain.spire else None)}
 
