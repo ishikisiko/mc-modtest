@@ -160,6 +160,39 @@ class BasicBreathingSettlementTest {
         assertFalse(plan.downgradeToNormal());
     }
 
+    @Test
+    void coreTechniqueFactorScalesProgressOnlyAndStillClampsAtTheCap() {
+        CultivationProfile current = profile(100, 10, 0, 4);
+
+        BasicBreathingSettlement.Plan unit = BasicBreathingSettlement.plan(
+                current, 1000, MeditationMode.NORMAL, accrual(1), false, 10_000);
+        assertEquals(BasicBreathingSettlement.plan(
+                current, 1000, MeditationMode.NORMAL, accrual(1), false), unit);
+        assertEquals(10, unit.progressApplied());
+
+        BasicBreathingSettlement.Plan xuan = BasicBreathingSettlement.plan(
+                current, 1000, MeditationMode.NORMAL, accrual(1), false, 14_950);
+        assertEquals(14, xuan.progressApplied());
+        assertEquals(114, xuan.replacement().cultivationProgress());
+        assertEquals(5, xuan.replacement().learnedTechniques()
+                .get(ModCultivationRegistries.BASIC_BREATHING_TECHNIQUE_ID).masteryPoints());
+
+        BasicBreathingSettlement.Plan spirit = BasicBreathingSettlement.plan(
+                current, 1000, MeditationMode.SPIRIT, accrual(0), true, 14_950);
+        assertEquals(74, spirit.progressApplied());
+        assertTrue(spirit.consumeSpiritStones());
+
+        BasicBreathingSettlement.Plan nearCap = BasicBreathingSettlement.plan(
+                profile(990, 0, 0, 0), 1000, MeditationMode.SPIRIT, accrual(0), true, 23_000);
+        assertEquals(10, nearCap.progressApplied());
+        assertEquals(1000, nearCap.replacement().cultivationProgress());
+
+        BasicBreathingSettlement.Plan capped = BasicBreathingSettlement.plan(
+                profile(1000, 10, 0, 0), 1000, MeditationMode.NORMAL, accrual(0), false, 23_000);
+        assertEquals(0, capped.progressApplied());
+        assertEquals(10, capped.stabilityApplied());
+    }
+
     private static CultivationProfile profile(
             long progress, int stability, long reserve, long mastery) {
         return CultivationProfile.defaultProfile()

@@ -10,11 +10,14 @@ import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.data.RealmDefinition;
 import com.example.myvillage.cultivation.data.RealmStageDefinition;
 import com.example.myvillage.cultivation.data.TechniqueDefinition;
+import com.example.myvillage.cultivation.technique.CoreTechniqueFactor;
 import com.example.myvillage.cultivation.time.CultivationServerConfig;
 import com.example.myvillage.cultivation.time.CultivationTimeMath;
 import com.example.myvillage.cultivation.time.CultivationTimeRuntime;
 import com.example.myvillage.cultivation.time.CultivationTimeStatus;
 import com.example.myvillage.item.ModItems;
+import com.example.myvillage.sim.SimData;
+import com.example.myvillage.sim.runtime.WorldSimRuntime;
 import net.minecraft.core.Registry;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -346,7 +349,8 @@ public final class MeditationManager {
                     cap,
                     session.mode(),
                     accrual,
-                    spiritStonesAvailable);
+                    spiritStonesAvailable,
+                    coreTechniqueFactor(player, current));
         } catch (IllegalArgumentException | ArithmeticException exception) {
             LOGGER.warn("Cultivation settlement validation failed for {}",
                     player.getGameProfile().getName(), exception);
@@ -610,6 +614,19 @@ public final class MeditationManager {
             }
         }
         return physicalFailure(player);
+    }
+
+    /** The running core technique's gain factor; rule numbers come only from the world-sim data. */
+    private static int coreTechniqueFactor(ServerPlayer player, CultivationProfile profile) {
+        Optional<Registry<TechniqueDefinition>> techniques =
+                player.registryAccess().registry(ModCultivationRegistries.TECHNIQUES);
+        if (techniques.isEmpty()) {
+            return CoreTechniqueFactor.UNIT_BASIS_POINTS;
+        }
+        return CoreTechniqueFactor.progressBasisPoints(
+                profile,
+                techniques.get()::get,
+                WorldSimRuntime.data().map(SimData::rules));
     }
 
     private static boolean basicBreathingDefinitionEligible(

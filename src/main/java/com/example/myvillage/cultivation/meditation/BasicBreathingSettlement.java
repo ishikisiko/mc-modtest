@@ -4,6 +4,7 @@ import com.example.myvillage.cultivation.CultivationProfile;
 import com.example.myvillage.cultivation.TechniqueProgress;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.data.RealmStageDefinition;
+import com.example.myvillage.cultivation.technique.CoreTechniqueFactor;
 import com.example.myvillage.cultivation.time.CultivationTimeMath;
 
 import java.util.Objects;
@@ -33,6 +34,22 @@ public final class BasicBreathingSettlement {
             MeditationMode mode,
             Accrual accrual,
             boolean spiritStonesAvailable) {
+        return plan(current, cultivationCap, mode, accrual, spiritStonesAvailable,
+                CoreTechniqueFactor.UNIT_BASIS_POINTS);
+    }
+
+    /**
+     * Plans one ten-tick batch. {@code progressFactorBasisPoints} is the running core technique's
+     * gain factor ({@link CoreTechniqueFactor}, 10000 = ×1.0); it scales progress only, rounded
+     * down, and never stability or mastery.
+     */
+    public static Plan plan(
+            CultivationProfile current,
+            long cultivationCap,
+            MeditationMode mode,
+            Accrual accrual,
+            boolean spiritStonesAvailable,
+            int progressFactorBasisPoints) {
         Objects.requireNonNull(current, "current");
         Objects.requireNonNull(mode, "mode");
         Objects.requireNonNull(accrual, "accrual");
@@ -58,7 +75,8 @@ public final class BasicBreathingSettlement {
         long requestedProgress = spiritBatch
                 ? SPIRIT_PROGRESS_PER_SETTLEMENT
                 : current.spiritualAffinity();
-        long progressApplied = Math.min(requestedProgress, remainingCapacity);
+        long scaledProgress = CoreTechniqueFactor.apply(requestedProgress, progressFactorBasisPoints);
+        long progressApplied = Math.min(scaledProgress, remainingCapacity);
         long finalProgress = current.cultivationProgress();
         if (current.cultivationProgress() <= cultivationCap) {
             finalProgress = Math.min(
