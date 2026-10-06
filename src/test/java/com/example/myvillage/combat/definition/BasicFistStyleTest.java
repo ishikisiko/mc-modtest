@@ -93,7 +93,9 @@ class BasicFistStyleTest {
         }
         List<MoveFeedback> feedback = STYLE.moves().stream().map(AttackMoveDefinition::feedback).toList();
         assertEquals(List.of(false, false, false, false, true), feedback.stream().map(MoveFeedback::heavyHit).toList());
-        assertEquals(List.of(1.0F, 1.5F, 1.5F, 2.0F, 3.0F), feedback.stream().map(MoveFeedback::hitStopTicks).toList());
+        // Every stop leaves the first-person swing room to catch up before the server total
+        // (SwingClock: contact + stop + 2 ticks); a 3-tick stop on the 11-tick finisher was dropped in capture.
+        assertEquals(List.of(1.0F, 1.5F, 1.5F, 2.0F, 2.0F), feedback.stream().map(MoveFeedback::hitStopTicks).toList());
         assertEquals(List.of(0.18F, 0.22F, 0.25F, 0.32F, 0.6F), feedback.stream().map(MoveFeedback::cameraTrauma).toList());
         // Each fist move is shorter than the sword move at its combo position.
         for (int index = 0; index < 5; index++) {

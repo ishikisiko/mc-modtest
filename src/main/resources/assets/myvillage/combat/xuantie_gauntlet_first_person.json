@@ -61,7 +61,7 @@
     },
     "myvillage:basic_fist_05_step_double_strike": {
       "strike": [5.4, 7.8],
-      "contact": 6.3,
+      "contact": 6.4,
       "keys": [
         {"tick": 0, "pose": "neutral"},
         {"tick": 3.0, "ease": "out_cubic", "sweep": 0, "reach": 0.36, "lift": -70, "twist": 80, "offset": [0.03, -0.04, 0.05], "elbow": 30, "off_hand_rest": [0.2, -0.6, -0.4], "off_hand_reach": 0.6},

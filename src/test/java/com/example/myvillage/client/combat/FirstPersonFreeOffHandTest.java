@@ -113,6 +113,28 @@ final class FirstPersonFreeOffHandTest {
         assertThrows(IllegalArgumentException.class, () -> parse(tooFar));
     }
 
+    @Test
+    void everyShippedMoveLeavesRoomForItsFirstPersonHitStop() throws IOException {
+        // SwingClock.beginHitStop drops a stop that cannot catch up before the server total; a stop
+        // confirmed at the rig's contact tick must fit (found on the gauntlet's finisher in capture).
+        for (com.example.myvillage.combat.definition.WeaponDefinition weapon : CombatTestData.styles().weapons()) {
+            com.example.myvillage.combat.definition.CombatStyleDefinition style =
+                    CombatTestData.styles().style(weapon.style()).orElseThrow();
+            FirstPersonSwing swing = FirstPersonSwing.parse(
+                    JsonParser.parseString(Files.readString(CombatTestData.assetPath(weapon.firstPersonRig())))
+                            .getAsJsonObject(),
+                    style,
+                    WeaponGeometry.parse(JsonParser.parseString(
+                            Files.readString(CombatTestData.assetPath(weapon.geometry()))).getAsJsonObject()));
+            for (int index = 0; index < style.moves().size(); index++) {
+                FirstPersonSwing.Move move = swing.move(index);
+                SwingClock clock = new SwingClock(move.totalTicks());
+                assertTrue(clock.beginHitStop(move.contactTick(), style.move(index).feedback().hitStopTicks()),
+                        weapon.item() + " " + move.id() + ": the hit-stop at the contact tick cannot catch up");
+            }
+        }
+    }
+
     private static FirstPersonArmIk.OffHandSolution solve(FirstPersonSwing swing, FirstPersonSwing.Pose pose) {
         return FirstPersonArmIk.solveOffHand(HumanoidArm.RIGHT, 0.0F, swing, pose).orElseThrow();
     }
