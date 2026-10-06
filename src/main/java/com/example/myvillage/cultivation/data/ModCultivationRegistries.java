@@ -25,11 +25,15 @@ public final class ModCultivationRegistries {
     public static final ResourceKey<Registry<SpiritualElementDefinition>> SPIRITUAL_ELEMENTS =
             registryKey("spiritual_element");
     public static final ResourceKey<Registry<TechniqueDefinition>> TECHNIQUES = registryKey("technique");
+    public static final ResourceKey<Registry<SchoolDefinition>> SCHOOLS = registryKey("school");
+    public static final ResourceKey<Registry<HeritageDefinition>> HERITAGES = registryKey("heritage");
 
     public static final ResourceKey<Registry<RealmDefinition>> REALM_REGISTRY_KEY = REALMS;
     public static final ResourceKey<Registry<SpiritualElementDefinition>> SPIRITUAL_ELEMENT_REGISTRY_KEY =
             SPIRITUAL_ELEMENTS;
     public static final ResourceKey<Registry<TechniqueDefinition>> TECHNIQUE_REGISTRY_KEY = TECHNIQUES;
+    public static final ResourceKey<Registry<SchoolDefinition>> SCHOOL_REGISTRY_KEY = SCHOOLS;
+    public static final ResourceKey<Registry<HeritageDefinition>> HERITAGE_REGISTRY_KEY = HERITAGES;
 
     public static final ResourceLocation MORTAL_REALM_ID = id("mortal");
     public static final ResourceLocation QI_REFINING_REALM_ID = id("qi_refining");
@@ -96,6 +100,47 @@ public final class ModCultivationRegistries {
                 SpiritualElementDefinition.CODEC,
                 SpiritualElementDefinition.CODEC);
         event.dataPackRegistry(TECHNIQUES, TechniqueDefinition.CODEC, TechniqueDefinition.CODEC);
+        event.dataPackRegistry(SCHOOLS, SchoolDefinition.CODEC, SchoolDefinition.CODEC);
+        event.dataPackRegistry(HERITAGES, HeritageDefinition.CODEC, HeritageDefinition.CODEC);
+    }
+
+    /** The technique {@code id} in the current registries, if registered. */
+    public static Optional<TechniqueDefinition> technique(RegistryAccess registryAccess, ResourceLocation id) {
+        return lookup(registryAccess, TECHNIQUES, id);
+    }
+
+    /** The school {@code id} in the current registries, if registered. */
+    public static Optional<SchoolDefinition> school(RegistryAccess registryAccess, ResourceLocation id) {
+        return lookup(registryAccess, SCHOOLS, id);
+    }
+
+    /** The heritage {@code id} in the current registries, if registered. */
+    public static Optional<HeritageDefinition> heritage(RegistryAccess registryAccess, ResourceLocation id) {
+        return lookup(registryAccess, HERITAGES, id);
+    }
+
+    /** Every heritage whose chain contains {@code techniqueId}, ordered by heritage id. */
+    public static List<Map.Entry<ResourceLocation, HeritageDefinition>> heritagesContaining(
+            RegistryAccess registryAccess, ResourceLocation techniqueId) {
+        Objects.requireNonNull(registryAccess, "registryAccess");
+        if (techniqueId == null) {
+            return List.of();
+        }
+        return registryAccess.registry(HERITAGES)
+                .map(registry -> sortedIds(registry).stream()
+                        .filter(id -> registry.get(id).contains(techniqueId))
+                        .<Map.Entry<ResourceLocation, HeritageDefinition>>map(id -> Map.entry(id, registry.get(id)))
+                        .toList())
+                .orElse(List.of());
+    }
+
+    private static <T> Optional<T> lookup(
+            RegistryAccess registryAccess, ResourceKey<Registry<T>> key, ResourceLocation id) {
+        Objects.requireNonNull(registryAccess, "registryAccess");
+        if (id == null) {
+            return Optional.empty();
+        }
+        return registryAccess.registry(key).flatMap(registry -> registry.getOptional(id));
     }
 
     public static RegistrySummary validateRequiredEntries(RegistryAccess registryAccess) {
@@ -103,6 +148,8 @@ public final class ModCultivationRegistries {
         Registry<RealmDefinition> realms = registryAccess.registryOrThrow(REALMS);
         Registry<SpiritualElementDefinition> elements = registryAccess.registryOrThrow(SPIRITUAL_ELEMENTS);
         Registry<TechniqueDefinition> techniques = registryAccess.registryOrThrow(TECHNIQUES);
+        Registry<SchoolDefinition> schools = registryAccess.registryOrThrow(SCHOOLS);
+        Registry<HeritageDefinition> heritages = registryAccess.registryOrThrow(HERITAGES);
         List<String> errors = new ArrayList<>();
 
         requireIds("realm", realms, REQUIRED_REALM_IDS, errors);
@@ -110,6 +157,7 @@ public final class ModCultivationRegistries {
         requireIds("technique", techniques, REQUIRED_TECHNIQUE_IDS, errors);
         validateRealmDefinitions(realms, errors);
         validateTechniqueDefinitions(realms, elements, techniques, errors);
+        validateSchoolsAndHeritages(elements, techniques, schools, heritages, errors);
 
         for (Map.Entry<ResourceLocation, ResourceLocation> entry : REQUIRED_STAGE_OWNERS.entrySet()) {
             RealmDefinition realm = realms.get(entry.getValue());
@@ -133,8 +181,11 @@ public final class ModCultivationRegistries {
         Registry<RealmDefinition> realms = registryAccess.registryOrThrow(REALMS);
         Registry<SpiritualElementDefinition> elements = registryAccess.registryOrThrow(SPIRITUAL_ELEMENTS);
         Registry<TechniqueDefinition> techniques = registryAccess.registryOrThrow(TECHNIQUES);
+        int schoolCount = registryAccess.registry(SCHOOLS).map(Registry::size).orElse(0);
+        int heritageCount = registryAccess.registry(HERITAGES).map(Registry::size).orElse(0);
         int stageCount = realms.stream().mapToInt(realm -> realm.stages().size()).sum();
-        return new RegistrySummary(realms.size(), stageCount, elements.size(), techniques.size());
+        return new RegistrySummary(
+                realms.size(), stageCount, elements.size(), techniques.size(), schoolCount, heritageCount);
     }
 
     public static String summaryText(RegistryAccess registryAccess) {
@@ -218,6 +269,49 @@ public final class ModCultivationRegistries {
         }
     }
 
+    private static void validateSchoolsAndHeritages(
+            Registry<SpiritualElementDefinition> elements,
+            Registry<TechniqueDefinition> techniques,
+            Registry<SchoolDefinition> schools,
+            Registry<HeritageDefinition> heritages,
+            List<String> errors) {
+        for (ResourceLocation schoolId : sortedIds(schools)) {
+            for (ResourceLocation elementId : schools.get(schoolId).elementLean()) {
+                if (!elements.containsKey(elementId)) {
+                    errors.add("school " + schoolId + " references missing element_lean element " + elementId);
+                }
+            }
+        }
+        for (ResourceLocation techniqueId : sortedIds(techniques)) {
+            TechniqueDefinition technique = techniques.get(techniqueId);
+            technique.school().ifPresent(schoolId -> {
+                if (!schools.containsKey(schoolId)) {
+                    errors.add("technique " + techniqueId + " references missing school " + schoolId);
+                }
+            });
+            technique.previous().ifPresent(previous -> {
+                if (previous.equals(techniqueId)) {
+                    errors.add("technique " + techniqueId + " names itself as lineage.previous");
+                } else if (!techniques.containsKey(previous)) {
+                    errors.add("technique " + techniqueId + " references missing lineage.previous " + previous);
+                }
+            });
+        }
+        for (ResourceLocation heritageId : sortedIds(heritages)) {
+            HeritageDefinition heritage = heritages.get(heritageId);
+            heritage.school().ifPresent(schoolId -> {
+                if (!schools.containsKey(schoolId)) {
+                    errors.add("heritage " + heritageId + " references missing school " + schoolId);
+                }
+            });
+            for (ResourceLocation techniqueId : heritage.techniques()) {
+                if (!techniques.containsKey(techniqueId)) {
+                    errors.add("heritage " + heritageId + " references missing technique " + techniqueId);
+                }
+            }
+        }
+    }
+
     private static <T> void requireIds(
             String definitionType,
             Registry<T> registry,
@@ -270,11 +364,18 @@ public final class ModCultivationRegistries {
         return ResourceKey.createRegistryKey(id(path));
     }
 
-    public record RegistrySummary(int realmCount, int stageCount, int elementCount, int techniqueCount) {
+    public record RegistrySummary(
+            int realmCount,
+            int stageCount,
+            int elementCount,
+            int techniqueCount,
+            int schoolCount,
+            int heritageCount) {
         @Override
         public String toString() {
             return "realms=" + realmCount + ", stages=" + stageCount
-                    + ", elements=" + elementCount + ", techniques=" + techniqueCount;
+                    + ", elements=" + elementCount + ", techniques=" + techniqueCount
+                    + ", schools=" + schoolCount + ", heritages=" + heritageCount;
         }
     }
 }
