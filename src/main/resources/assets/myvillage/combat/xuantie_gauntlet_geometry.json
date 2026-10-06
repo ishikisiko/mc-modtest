@@ -1,0 +1,18 @@
+{
+  "format": 2,
+  "units": "model_pixels",
+  "generator": "tools/gen_xuantie_gauntlet_model.py",
+  "model": "myvillage:item/xuantie_gauntlet_3d",
+  "axes": {"length": "+y", "flat_normal": "x", "edge": "z", "center_x": 8.0, "center_z": 8.0},
+  "grip_center": [8.0, 8.0, 8.0],
+  "handle": {"y": [4.0, 11.0], "half_width": 4.75, "half_thickness": 4.75},
+  "collar": {"y": [11.0, 13.3], "half_width": 5.15, "half_thickness": 6.05},
+  "butt": {"y": [-1.6, 4.0], "half_width": 5.9, "half_thickness": 5.9},
+  "head": {"half_width": 4.55, "half_thickness": 5.6, "ridge_half_thickness": 5.6, "taper_start_y": 14.3},
+  "head_base": [8.0, 13.3, 8.0],
+  "head_tip": [8.0, 14.9, 8.0],
+  "trail": {"base": [8.0, 11.0, 8.0], "tip": [8.0, 14.9, 8.0]},
+  "edge_axis": [0.0, 0.0, 1.0],
+  "flat_axis": [1.0, 0.0, 0.0],
+  "overall_y": [-1.6, 14.9]
+}
