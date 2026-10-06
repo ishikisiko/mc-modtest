@@ -20,17 +20,18 @@ stage 1).
    shows an outer disciple, ``world chronicle 5`` the join.
 4. H panel: the 天下 tab is clicked at the position the panel layout gives at GUI scale 2 (960x540, guiScale
    auto); the shot shows the 我的宗门 card. Not machine-checked (no log line): the shot is the evidence.
-5. ``world advance 24`` (one year): no promotion below the threshold; then ``cultivation setrealm`` to
-   qi_refining_5 and another year: ``player.promote.inner`` (skip with ``--skip-promotion``).
-6. Right click -> LEAVE -> ``intent=LEAVE result=ok``; right click again -> JOIN -> ``result=rejoin_cooldown``
+5. ``world advance <days per year>`` (one year; the length is read from ``world``): no promotion below the
+   threshold; then ``cultivation setrealm`` to qi_refining_5 and another year: ``player.promote.inner`` (skip with
+   ``--skip-promotion``). The years actually advanced go into ``evidence.json`` (``advances``).
+6. The steward is found again (an advance can withdraw and respawn the avatars), right click -> LEAVE -> ``intent=LEAVE result=ok``; right click again -> JOIN -> ``result=rejoin_cooldown``
    (or no JOIN button offered at all, which is also a refusal; recorded as such).
-7. ``world sect <id> join <player>`` forces the join past the cooldown; ``world sect <id> leave <player>``.
+7. ``world sect <id> leave <player>`` first if still a member, then ``join`` forces the join past the cooldown; ``world sect <id> leave <player>``.
 
 Output in ``out/preview/world_sim/entry/`` (publicly served: no paths, ports or passwords): ``commands.txt``,
 ``server_log.txt``, ``client_log.txt``, the PNGs, ``evidence.json`` and ``index.html``.
 
     python3 tools/world_sim_entry_evidence.py [--sect ID] [--distance 140] [--realize-timeout 600]
-                                              [--skip-promotion] [--dialogue-scale 1]
+                                              [--skip-promotion] [--dialogue-scale 1] [--lock-wait 1800]
 """
 
 from __future__ import annotations
@@ -182,6 +183,29 @@ def panel_tab_center(tab: str, screen: tuple[int, int] = SCREEN, scale: int = GU
     return (left + 3 + 20) * scale, y * scale
 
 
+DAY_OF = re.compile(r"day \d+ of (\d+)")
+ADVANCED = re.compile(r"Advanced (\d+) day\(s\) to Year (\d+)")
+YEAR_NOW = re.compile(r"World ledger: Year (\d+)")
+
+
+def days_per_year(world_reply: str, default: int = 24) -> int:
+    """The ledger's days per year from `world` ("World ledger: Year 1 of Qiyuan, day 1 of 6 (sim day 600)")."""
+    m = DAY_OF.search(world_reply)
+    return int(m.group(1)) if m and int(m.group(1)) > 0 else default
+
+
+def advanced_to_year(reply: str) -> int | None:
+    m = ADVANCED.search(reply)
+    return int(m.group(2)) if m else None
+
+
+def is_member(record: str, sect_name: str) -> bool:
+    """`world player` names the sect on its first line while the player is a member
+    ("CaptureDev: outer disciple of 玄黄阁")."""
+    first = record.strip().splitlines()[0] if record.strip() else ""
+    return bool(sect_name) and sect_name in first
+
+
 def parse_mspt(reply: str) -> float | None:
     m = MSPT.search(reply)
     return float(m.group(1)) if m else None
@@ -274,6 +298,7 @@ class Run:
         self.client_lines: list[str] = []
         self.window: str | None = None
         self.sect_id = -1
+        self.dpy = 24
         self.steward_uuid: str | None = None
 
     # ------------------------------------------------------------ plumbing
@@ -469,6 +494,9 @@ class Run:
             self.rc(cmd)
         info = self.rc(W)
         self.check("world_ledger_active", "World ledger:" in info, info.split("\n")[0])
+        self.dpy = days_per_year(info)
+        y = YEAR_NOW.search(info)
+        self.facts["ledger_start"] = {"year": int(y.group(1)) if y else None, "days_per_year": self.dpy}
         root = self.rc(f"myvillage cultivation setroot {PLAYER} 4000 1500 1500 1500 1500")
         realm = self.rc(f"myvillage cultivation setrealm {PLAYER} myvillage:mortal myvillage:mortal_qi_sensed")
         self.check("player_qualified_setup", "Cultivation update for" in root and "Cultivation update for" in realm,
@@ -622,9 +650,18 @@ class Run:
         self.shot("panel_after_join", "H panel, 天下 page after joining: the 我的宗门 card", screen_open=True)
         self.close_screen()
 
+    def advance_year(self) -> int | None:
+        before = YEAR_NOW.search(self.rc(W))
+        reply = self.rc(f"{W} advance {self.dpy}", timeout=180.0)
+        to = advanced_to_year(reply)
+        self.facts.setdefault("advances", []).append(
+            {"days": self.dpy, "from_year": int(before.group(1)) if before else None, "to_year": to,
+             "years": (to - int(before.group(1))) if before and to is not None else None})
+        return to
+
     def year(self) -> None:
-        self.t.note("advance: one year (24 days) below the promotion threshold")
-        self.rc(f"{W} advance 24", timeout=180.0)
+        self.t.note(f"advance: one year ({self.dpy} days) below the promotion threshold")
+        self.advance_year()
         chron = self.rc(f"{W} chronicle 5")
         promo = mentions(chron, PLAYER, r"promot|inner|内门|elder|长老")
         self.check("no_promotion_below_threshold", not promo,
@@ -638,16 +675,42 @@ class Run:
             self.facts["promotion"] = f"not_captured (setrealm failed: {realm.strip()[:160]})"
             self.note(self.facts["promotion"])
             return
-        self.rc(f"{W} advance 24", timeout=180.0)
+        # The qualification snapshot is refreshed after a settlement day, and the yearly assessment runs on the
+        # year's first day: one day first so the new realm is in the snapshot before the next year starts.
+        self.facts.setdefault("advances", []).append({"days": 1, "why": "refresh the qualification snapshot",
+                                                      "to_year": advanced_to_year(self.rc(f"{W} advance 1"))})
+        self.advance_year()
         chron = self.rc(f"{W} chronicle 5")
         promo = mentions(chron, PLAYER, r"promot|inner|内门")
         rec = self.rc(f"{W} player {PLAYER}")
         self.facts["promotion"] = promo[0] if promo else None
+        years = [a.get("years") for a in self.facts.get("advances", []) if "years" in a]
         self.check("promoted_inner_at_threshold", bool(promo) and bool(re.search(r"inner|内门", rec, re.I)),
-                   (promo[0] if promo else "no promotion line") + " | " + rec.strip()[:200])
+                   (promo[0] if promo else "no promotion line") + " | " + rec.strip()[:200]
+                   + f" | advanced {self.dpy} days per step, years per step {years}")
+
+    def await_steward(self, label: str, timeout: float = 30.0, settle: float = 3.0) -> bool:
+        """Find the steward again (the ledger moved: the avatars may have been withdrawn and respawned, or the
+        steward role passed to someone else) and remember its UUID."""
+        time.sleep(settle)  # let the avatar manager reconcile after an advance
+        deadline = time.time() + timeout
+        while True:
+            found = self.find_steward()
+            if found:
+                old, (self.steward_uuid, pos) = self.steward_uuid, found
+                self.facts.setdefault("steward_refound", []).append(
+                    {"at": label, "uuid": self.steward_uuid, "same": old == self.steward_uuid,
+                     "pos": [round(v, 2) for v in pos]})
+                return True
+            if time.time() >= deadline:
+                self.note(f"{label}: no steward within {timeout:.0f} s")
+                return False
+            time.sleep(2.0)
 
     def leave_and_rejoin(self) -> None:
-        self.t.note("leave: right click the steward, click LEAVE")
+        self.t.note("leave: find the steward again after the advance, right click it, click LEAVE")
+        self.check("steward_present_after_advance", self.await_steward("leave"),
+                   json.dumps((self.facts.get("steward_refound") or [None])[-1]))
         opts = self.open_dialogue("leave")
         self.check("dialogue_offers_leave", "LEAVE" in opts, f"options {sorted(opts)}")
         if "LEAVE" in opts:
@@ -663,6 +726,7 @@ class Run:
         rec = self.rc(f"{W} player {PLAYER}")
         self.facts["player_after_leave"] = rec
         self.t.note("rejoin: right click again, JOIN must be refused (rejoin_cooldown)")
+        self.await_steward("rejoin", settle=0.5)
         opts = self.open_dialogue("rejoin")
         if "JOIN" in opts:
             self.click_at(*button_center(opts["JOIN"], self.a.dialogue_scale))
@@ -682,12 +746,17 @@ class Run:
             self.close_screen()
 
     def admin(self) -> None:
-        self.t.note("admin: forced join past the cooldown, then leave")
+        self.t.note("admin: leave first if still a member, forced join past the cooldown, then leave")
+        if is_member(self.rc(f"{W} player {PLAYER}"), self.facts["sect_name"]):
+            reply = self.rc(f"{W} sect {self.sect_id} leave {PLAYER}")
+            e = self.wait_entry("LEAVE")
+            self.check("admin_leave_before_join", bool(e and e["result"] == "ok"),
+                       f"still a member before the admin join: {json.dumps(e)} | {reply.strip()[:200]}")
         reply = self.rc(f"{W} sect {self.sect_id} join {PLAYER}")
         e = self.wait_entry("JOIN")
         self.check("admin_join_forced", bool(e and e["result"] == "ok"), f"{json.dumps(e)} | {reply.strip()[:200]}")
         rec = self.rc(f"{W} player {PLAYER}")
-        self.check("admin_join_record", self.facts["sect_name"] in rec, rec.strip()[:200])
+        self.check("admin_join_record", is_member(rec, self.facts["sect_name"]), rec.strip()[:200])
         reply = self.rc(f"{W} sect {self.sect_id} leave {PLAYER}")
         e = self.wait_entry("LEAVE")
         self.check("admin_leave", bool(e and e["result"] == "ok"), f"{json.dumps(e)} | {reply.strip()[:200]}")
@@ -712,8 +781,13 @@ class Run:
         from tools.combat_capture.xgame import LogTail
 
         lock = procs.default_lock_path(REPO)
-        if not procs.lock_is_free(lock):
-            raise SystemExit(f"the heavy-work lock {lock.name} is held by another job; run again when it is free")
+        deadline = time.time() + self.a.lock_wait
+        while not procs.lock_is_free(lock):
+            if time.time() >= deadline:
+                raise SystemExit(f"the heavy-work lock {lock.name} stayed held for {self.a.lock_wait:.0f} s; "
+                                 f"run again when it is free")
+            log(f"waiting for the heavy lock {lock.name} (held by another job; up to {self.a.lock_wait:.0f} s)")
+            time.sleep(10.0)
         try:
             log("starting the capture session (Xvfb + acceptance server + client); it takes the heavy lock")
             self.st = cs.start(cs.SessionConfig(session_id=secrets.token_hex(6), lock=str(lock)), log=log)
@@ -746,6 +820,8 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--skip-promotion", action="store_true", help="skip the setrealm + second year step")
     ap.add_argument("--dialogue-scale", type=float, default=1.0,
                     help="multiply SECT_DIALOGUE coordinates (1: logged in screen pixels; 2: logged in GUI px)")
+    ap.add_argument("--lock-wait", type=float, default=1800.0,
+                    help="seconds to wait for the heavy-work lock (polled every 10 s) before giving up")
     a = ap.parse_args(argv)
     OUT.mkdir(parents=True, exist_ok=True)
     evidence: dict[str, Any] = {"started": now()}

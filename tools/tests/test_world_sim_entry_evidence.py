@@ -106,6 +106,23 @@ class PanelAndTextTest(unittest.TestCase):
                          ["CaptureDev拜入青云宗，为外门弟子。"])
 
 
+class LedgerTextTest(unittest.TestCase):
+    def test_days_per_year(self):
+        self.assertEqual(ev.days_per_year("World ledger: Year 1 of Qiyuan, day 1 of 6 (sim day 600)"), 6)
+        self.assertEqual(ev.days_per_year("World ledger: inactive"), 24)
+
+    def test_advanced_to_year(self):
+        self.assertEqual(ev.advanced_to_year(
+            "Advanced 24 day(s) to Year 5 of Qiyuan (sim day 624): 79 events, 3 notable, 50 ms"), 5)
+        self.assertIsNone(ev.advanced_to_year("Advance failed: x"))
+
+    def test_is_member(self):
+        rec = "CaptureDev: inner disciple of 玄黄阁\nJoined: Year 1 of Qiyuan\nStanding with 玄黄阁: +20"
+        self.assertTrue(ev.is_member(rec, "玄黄阁"))
+        self.assertFalse(ev.is_member("CaptureDev: no sect\nStanding with 玄黄阁: -20", "玄黄阁"))
+        self.assertFalse(ev.is_member("", "玄黄阁"))
+
+
 class IndexTest(unittest.TestCase):
     def test_render_has_no_paths_and_escapes(self):
         evidence = {
