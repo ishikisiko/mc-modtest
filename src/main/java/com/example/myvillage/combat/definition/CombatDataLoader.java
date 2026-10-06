@@ -62,7 +62,7 @@ public final class CombatDataLoader {
             "camera_trauma", "cut_roll_degrees");
     private static final Set<String> CAMERA_FIELDS = Set.of(
             "hit_pitch_kick", "hit_roll_kick", "hit_fov_punch", "swing_lean_degrees", "step_fov_surge");
-    private static final Set<String> WEAPON_FIELDS = Set.of("schema", "item", "style", "first_person_rig", "geometry");
+    private static final Set<String> WEAPON_FIELDS = Set.of("schema", "item", "style", "first_person_rig", "geometry", "family");
 
     /** Opens one data path (relative, no leading slash); returns null when it does not exist. */
     @FunctionalInterface
@@ -166,11 +166,15 @@ public final class CombatDataLoader {
     public static WeaponDefinition parseWeapon(String file, JsonObject json) {
         Fields root = new Fields(file, "", json, WEAPON_FIELDS);
         root.schema();
-        return new WeaponDefinition(
-                root.id("item"),
-                root.id("style"),
-                root.id("first_person_rig"),
-                root.id("geometry"));
+        ResourceLocation item = root.id("item");
+        ResourceLocation style = root.id("style");
+        ResourceLocation rig = root.id("first_person_rig");
+        ResourceLocation geometry = root.id("geometry");
+        Optional<String> family = root.optionalString("family");
+        if (family.isPresent() && !WeaponDefinition.FAMILY.matcher(family.get()).matches()) {
+            throw root.error("family", "must be a lower_snake_case weapon family like fist, got \"" + family.get() + "\"");
+        }
+        return new WeaponDefinition(item, style, rig, geometry, family);
     }
 
     private static AttackMoveDefinition parseMove(Fields move) {
@@ -580,6 +584,14 @@ public final class CombatDataLoader {
 
         ResourceLocation id(String key) {
             return parseId(key, string(key));
+        }
+
+        Optional<String> optionalString(String key) {
+            JsonElement element = json.get(key);
+            if (element == null || element.isJsonNull()) {
+                return Optional.empty();
+            }
+            return Optional.of(string(key));
         }
 
         Optional<ResourceLocation> optionalId(String key) {

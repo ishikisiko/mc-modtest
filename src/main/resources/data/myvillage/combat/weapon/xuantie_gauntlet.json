@@ -1,6 +1,7 @@
 {
   "schema": 1,
   "item": "myvillage:xuantie_gauntlet",
+  "family": "fist",
   "style": "myvillage:basic_fist",
   "first_person_rig": "myvillage:combat/xuantie_gauntlet_first_person.json",
   "geometry": "myvillage:combat/xuantie_gauntlet_geometry.json"

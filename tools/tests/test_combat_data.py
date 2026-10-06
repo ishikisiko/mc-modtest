@@ -105,9 +105,11 @@ class CombatDataTest(unittest.TestCase):
     def test_committed_data_is_valid(self) -> None:
         data = combat_data.load()
         self.assertEqual((), data.issues)
-        self.assertEqual(["myvillage:basic_sword", "myvillage:basic_spear"], list(data.styles))
-        self.assertEqual(["myvillage:qingfeng_sword", "myvillage:lingxiao_spear"], list(data.weapons))
-        self.assertEqual(10, len(list(data.moves())))
+        self.assertEqual(["myvillage:basic_sword", "myvillage:basic_spear", "myvillage:basic_fist"], list(data.styles))
+        self.assertEqual(["myvillage:qingfeng_sword", "myvillage:lingxiao_spear", "myvillage:xuantie_gauntlet"],
+                         list(data.weapons))
+        self.assertEqual(15, len(list(data.moves())))
+        self.assertEqual(["sword", "spear", "fist"], [weapon.get("family") for weapon in data.weapons.values()])
         self.assertEqual(combat_data.ROOT / STYLE, data.files["myvillage:basic_sword"])
         self.assertEqual(combat_data.ROOT / SPEAR_STYLE, data.files["myvillage:basic_spear"])
 

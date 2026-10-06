@@ -57,7 +57,8 @@ class BasicSwordStyleTest {
         WeaponDefinition qingfeng = CombatTestData.qingfeng();
         assertEquals(new WeaponDefinition(
                 id("qingfeng_sword"), id("basic_sword"),
-                id("combat/qingfeng_first_person.json"), id("combat/qingfeng_sword_geometry.json")), qingfeng);
+                id("combat/qingfeng_first_person.json"), id("combat/qingfeng_sword_geometry.json"),
+                Optional.of("sword")), qingfeng);
 
         List<String> paths = List.of(
                 "basic_sword_01_thrust", "basic_sword_02_horizontal_cut", "basic_sword_03_rising_cut",

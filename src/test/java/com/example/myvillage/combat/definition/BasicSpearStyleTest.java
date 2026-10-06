@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.example.myvillage.combat.session.CombatSession;
 import java.util.List;
+import java.util.Optional;
 import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.Test;
 
@@ -48,7 +49,8 @@ class BasicSpearStyleTest {
     void resolvesByTheSpearItemId() {
         assertEquals(new WeaponDefinition(
                 id("lingxiao_spear"), id("basic_spear"),
-                id("combat/lingxiao_spear_first_person.json"), id("combat/lingxiao_spear_geometry.json")),
+                id("combat/lingxiao_spear_first_person.json"), id("combat/lingxiao_spear_geometry.json"),
+                Optional.of("spear")),
                 CombatTestData.lingxiao());
         assertSame(STYLE, STYLES.styleForItem(CombatTestData.LINGXIAO_SPEAR).orElseThrow());
         assertNotSame(STYLE, STYLES.styleForItem(CombatTestData.QINGFENG_SWORD).orElseThrow());

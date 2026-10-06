@@ -279,6 +279,18 @@ def resource_id(c: _Checker, value: Any, path: str) -> bool:
     return True
 
 
+FAMILY_PATTERN = re.compile(r"[a-z][a-z0-9_]*\Z")
+
+
+def weapon_family(c: _Checker, value: Any, path: str) -> bool:
+    """A weapon family (``WeaponDefinition.family``): lower_snake_case, like ``fist``.  Whether a
+    school names it is checked by the validator, which reads the school files."""
+    if not isinstance(value, str) or not FAMILY_PATTERN.match(value):
+        c.fail("SCHEMA", path, f"must be a lower_snake_case weapon family like 'fist', got {value!r}")
+        return False
+    return True
+
+
 def one_of(*values: str) -> Rule:
     def rule(c: _Checker, value: Any, path: str) -> bool:
         if value not in values:
@@ -441,6 +453,9 @@ WEAPON = obj({
     "style": resource_id,
     "first_person_rig": resource_id,
     "geometry": resource_id,
+}, {
+    # The weapon family a school's weapon_family names (sword, spear, fist); no runtime reads it yet.
+    "family": weapon_family,
 })
 
 INDEX = obj({"schema": constant(SCHEMA_VERSION), "styles": id_list, "weapons": id_list})
