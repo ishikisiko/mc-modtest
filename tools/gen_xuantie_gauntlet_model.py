@@ -229,8 +229,8 @@ def paint_region(name: str, i: int, j: int, w: int, h: int, x: int, y: int):
         elif d > 0.8:
             c = IRON["deep"]
         else:
-            c = _leather(i, j, w, h, x, y)
-            c = _shade(c, 0.55 + 0.4 * d)
+            c = _shade(IRON["dark"], 0.45 + 0.55 * d)   # the dark iron inside of the cuff
+            c = _clamp(tuple(c[k] + _noise(x, y, 2.0) for k in range(3)))
         return (*c, 255)
     if name == "cuff_top":
         cx, cy = (w - 1) / 2.0, (h - 1) / 2.0
