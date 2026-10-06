@@ -26,7 +26,9 @@ public final class StateCodec {
     /**
      * 2 (0.37.0): sects carry {@code heritage}, the state carries {@code lost_heritages}.
      * 3 (0.41.0): the state carries {@code player_members} (players' sect records by player id);
-     * an older payload reads with none.
+     * an older payload reads with none. 0.43.0 adds the player task fields ({@code task},
+     * {@code task_progress}, {@code task_target}, {@code task_year}) without a version change: they
+     * are always written, read as optional, and an older payload reads with no task.
      */
     public static final int VERSION = 3;
 
@@ -129,6 +131,10 @@ public final class StateCodec {
         o.addProperty("stage", m.stageIndex);
         o.addProperty("awakened", m.awakened);
         o.addProperty("root_peak_bp", m.rootPeakBp);
+        o.addProperty("task", m.taskId);
+        o.addProperty("task_progress", m.taskProgress);
+        o.addProperty("task_target", m.taskTargetSectId);
+        o.addProperty("task_year", m.taskYear);
         return o;
     }
 
@@ -405,6 +411,10 @@ public final class StateCodec {
         m.stageIndex = o.optInt("stage", 0);
         m.awakened = o.optBool("awakened", false);
         m.rootPeakBp = o.optInt("root_peak_bp", 0);
+        m.taskId = o.optStr("task", "");
+        m.taskProgress = o.optInt("task_progress", 0);
+        m.taskTargetSectId = o.optInt("task_target", -1);
+        m.taskYear = o.optLong("task_year", -1);
         return m;
     }
 

@@ -47,6 +47,15 @@ public final class PlayerMember {
     /** Qualification snapshot: the highest single-element affinity of the root, in basis points. */
     public int rootPeakBp;
 
+    /** The open sect task (an id in {@code sect_tasks.json}), or "" (slice 3). */
+    public String taskId = "";
+    /** Progress on the open task (beasts slain, letters delivered); tribute keeps none. */
+    public int taskProgress;
+    /** The courier task's destination sect, or -1. */
+    public int taskTargetSectId = -1;
+    /** The sim year the last task was taken, or -1; kept after completion (one task a year). */
+    public long taskYear = -1;
+
     public boolean inSect() {
         return sectId >= 0;
     }

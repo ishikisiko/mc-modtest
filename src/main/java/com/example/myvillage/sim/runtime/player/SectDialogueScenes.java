@@ -19,7 +19,7 @@ public final class SectDialogueScenes {
 
     /** A choice offered to the player; {@link #id()} is its fixed network id, shared with {@code SectIntentPayload.kind}. */
     public enum Option {
-        JOIN(0), LEAVE(1), FAREWELL(2);
+        JOIN(0), LEAVE(1), FAREWELL(2), APPRENTICE(3), TASK_ACCEPT(4), TASK_TURN_IN(5);
 
         private final int id;
 

@@ -10,7 +10,7 @@ import java.util.List;
 
 /**
  * Everything the world sim reads from {@code data/myvillage/world_sim/}: the core's rules, realms
- * and encounters plus the content tables (names, techniques, lore, heritages). Load it with
+ * and encounters plus the content tables (names, techniques, lore, heritages, sect tasks). Load it with
  * {@link WorldSim#loadData}; it is immutable.
  */
 public record SimData(
@@ -20,7 +20,8 @@ public record SimData(
         ContentTables.Names names,
         List<ContentTables.Technique> techniques,
         ContentTables.Lore lore,
-        List<ContentTables.Heritage> heritages) {
+        List<ContentTables.Heritage> heritages,
+        List<ContentTables.SectTask> sectTasks) {
 
     public static final String DIRECTORY = "data/myvillage/world_sim/";
 
@@ -64,6 +65,19 @@ public record SimData(
         for (ContentTables.Heritage h : heritages) {
             if (h.techniques().contains(techniqueId)) {
                 return h;
+            }
+        }
+        return null;
+    }
+
+    /** Sect task by id, or null. */
+    public ContentTables.SectTask sectTask(String id) {
+        if (id == null || id.isEmpty()) {
+            return null;
+        }
+        for (ContentTables.SectTask t : sectTasks) {
+            if (t.id().equals(id)) {
+                return t;
             }
         }
         return null;

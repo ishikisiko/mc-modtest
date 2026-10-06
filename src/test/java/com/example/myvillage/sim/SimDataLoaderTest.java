@@ -38,6 +38,9 @@ class SimDataLoaderTest {
         assertTrue(data.rules().tiers().keySet().containsAll(java.util.List.of("small", "medium", "large")));
         assertFalse(data.encounters().encounters().isEmpty());
         assertFalse(data.techniques().isEmpty());
+        assertEquals(java.util.List.of("patrol_beasts", "tribute_stones", "courier_letter"),
+                data.sectTasks().stream().map(com.example.myvillage.sim.data.ContentTables.SectTask::id).toList());
+        assertEquals("courier", data.sectTask("courier_letter").kind());
     }
 
     @Test
@@ -76,6 +79,22 @@ class SimDataLoaderTest {
                 patched(SimDataLoader.HERITAGES, t -> t.replaceFirst(
                         "\\[\"gengjin_yinqi_fa\"[^\\]]*\\]", "[\"gengjin_yinqi_fa\"]"))));
         assertTrue(shortChain.field().endsWith("techniques"), shortChain.field());
+    }
+
+    @Test
+    void missingSectTasksFileIsRejected() {
+        SimData.ResourceOpener base = SimFixtures.opener();
+        SimDataException e = assertThrows(SimDataException.class, () -> WorldSim.loadData(
+                path -> path.equals(SimDataLoader.SECT_TASKS) ? null : base.open(path)));
+        assertEquals(SimDataLoader.SECT_TASKS, e.file());
+    }
+
+    @Test
+    void sectTaskWithAnUnknownKindIsRejected() {
+        SimDataException e = assertThrows(SimDataException.class, () -> WorldSim.loadData(
+                patched(SimDataLoader.SECT_TASKS, t -> t.replaceFirst("\"kind\": \"patrol\"", "\"kind\": \"hunt\""))));
+        assertEquals(SimDataLoader.SECT_TASKS, e.file());
+        assertEquals("tasks[0].kind", e.field());
     }
 
     @Test

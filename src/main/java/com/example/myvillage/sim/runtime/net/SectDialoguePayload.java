@@ -17,11 +17,11 @@ import net.minecraft.resources.ResourceLocation;
  * Clientbound: one page of the sect dialogue, built by the server ({@code SectDialogue}) from the
  * ledger. The client only draws it: {@code lines} are translatable components (each client reads
  * its own language), {@code options} the buttons in order as option ids (0 JOIN, 1 LEAVE,
- * 2 FAREWELL). Names are literals. {@code myRank} is "" for a player who is not of this sect;
+ * 2 FAREWELL, 3 APPRENTICE, 4 TASK_ACCEPT, 5 TASK_TURN_IN). Names are literals. {@code myRank} is "" for a player who is not of this sect;
  * {@code admissible}/{@code reason} are the ledger's admission of this player to this sect.
  *
  * <p>Bounds (encoder and decoder): {@link #MAX_LINES} lines, {@link #MAX_OPTIONS} options each
- * 0..2, names {@value #MAX_NAME} chars, role and rank {@value #MAX_WORD}, reason
+ * 0..{@value #MAX_OPTION_ID}, names {@value #MAX_NAME} chars, role and rank {@value #MAX_WORD}, reason
  * {@value #MAX_REASON}; out-of-range input is rejected with a {@link DecoderException}.
  */
 public record SectDialoguePayload(
@@ -43,7 +43,7 @@ public record SectDialoguePayload(
 
     public static final int MAX_LINES = 8;
     public static final int MAX_OPTIONS = 4;
-    public static final int MAX_OPTION_ID = 2;
+    public static final int MAX_OPTION_ID = 5;
     public static final int MAX_NAME = 64;
     public static final int MAX_WORD = 16;
     public static final int MAX_REASON = 32;

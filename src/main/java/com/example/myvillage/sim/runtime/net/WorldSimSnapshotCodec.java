@@ -295,6 +295,9 @@ public final class WorldSimSnapshotCodec {
         buf.writeVarInt(m.standing());
         buf.writeVarInt(m.borrowedCount());
         buf.writeBoolean(m.sectActive());
+        buf.writeUtf(m.taskName(), MAX_MINE_TEXT);
+        buf.writeVarInt(m.taskProgress());
+        buf.writeVarInt(m.taskCount());
     }
 
     private static WorldSimSnapshot.MySect readMine(FriendlyByteBuf buf) {
@@ -307,8 +310,11 @@ public final class WorldSimSnapshotCodec {
         int standing = buf.readVarInt();
         int borrowed = buf.readVarInt();
         boolean sectActive = buf.readBoolean();
+        String taskName = buf.readUtf(MAX_MINE_TEXT);
+        int taskProgress = buf.readVarInt();
+        int taskCount = buf.readVarInt();
         return new WorldSimSnapshot.MySect(sectId, sectName, rank, joinedDay, masterName, contribution, standing,
-                borrowed, sectActive);
+                borrowed, sectActive, taskName, taskProgress, taskCount);
     }
 
     private static WorldSimSnapshot.Region readRegion(FriendlyByteBuf buf) {

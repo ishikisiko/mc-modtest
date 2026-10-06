@@ -268,6 +268,10 @@ public record WorldSimSnapshot(
      * @param standing      the player's standing (交情, -100..100) with this sect
      * @param borrowedCount techniques borrowed from the sect's scripture hall
      * @param sectActive    false once the sect is destroyed
+     * @param taskName      the open sect task's id in {@code sect_tasks.json} (the client shows
+     *                      {@code world_sim.task.<id>.name} in its own language), or "" without one
+     * @param taskProgress  progress on it (tribute: 0)
+     * @param taskCount     what it asks for, 0 without a task
      */
     public record MySect(
             int sectId,
@@ -278,9 +282,13 @@ public record WorldSimSnapshot(
             int contribution,
             int standing,
             int borrowedCount,
-            boolean sectActive) {
+            boolean sectActive,
+            String taskName,
+            int taskProgress,
+            int taskCount) {
         public MySect {
             sectName = sectName == null ? "" : sectName;
+            taskName = taskName == null ? "" : taskName;
             rank = rank == null ? "" : rank;
             masterName = masterName == null ? "" : masterName;
         }

@@ -103,7 +103,8 @@ public final class SectDialogue {
         Optional<PlayerMemberView> me = s.sim().playerMember(playerId);
         boolean here = me.isPresent() && me.get().inSect() && me.get().sectId() == s.sect().id();
         boolean offered = SectDialogueScenes.ROLE_STEWARD.equals(s.role())
-                && (option == SectDialogueScenes.Option.JOIN ? !here : here);
+                && (option == SectDialogueScenes.Option.JOIN ? !here
+                        : option == SectDialogueScenes.Option.LEAVE && here);
         if (!offered) {
             // not an option this page offered: show the page as it stands now
             Admission admission = admission(s.sim(), player, s.sect().id());

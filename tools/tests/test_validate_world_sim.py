@@ -122,7 +122,27 @@ class WorldSimValidatorTest(unittest.TestCase):
         self.edit_data("names.json", bad)
         self.assert_new("sect_suffixes[0].weight must be a positive integer", "surnames has the duplicate")
 
+    def test_sect_tasks_need_known_kinds_positive_numbers_and_unique_ids(self) -> None:
+        def bad(d):
+            d["tasks"][0]["kind"] = "hunt"
+            d["tasks"][1]["count"] = 0
+            d["tasks"][2]["contribution"] = True
+            d["tasks"].append(dict(d["tasks"][1]))
+        self.edit_data("sect_tasks.json", bad)
+        self.assert_new("data: sect_tasks.json: tasks[0].kind must be one of",
+                        "data: sect_tasks.json: tasks[1].count must be a positive integer",
+                        "data: sect_tasks.json: tasks[2].contribution must be a positive integer",
+                        "data: sect_tasks.json: tasks[].id has the duplicate")
+
+    def test_sect_tasks_file_is_required(self) -> None:
+        self.data_path("sect_tasks.json").unlink()
+        self.assert_new("data: sect_tasks.json: is missing")
+
     # ------------------------------------------------------------------ language keys
+    def test_a_sect_task_line_missing_in_one_language(self) -> None:
+        self.edit_lang("en_us", lambda d: d.pop("world_sim.task.patrol_beasts.brief"))
+        self.assert_new("keys: en_us.json: world_sim.task.patrol_beasts.brief is missing")
+
     def test_an_encounter_line_missing_in_one_language(self) -> None:
         text = json.loads(self.data_path("encounters.json").read_text(encoding="utf-8"))["encounters"][0]["text"]
         base = f"world_sim.event.fortune.{text}"

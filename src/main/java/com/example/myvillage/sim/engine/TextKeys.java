@@ -159,6 +159,26 @@ public final class TextKeys {
         return "@world_sim.grade." + grade;
     }
 
+    /** A sect task's name as an {@code @} param (巡山除兽); no params of its own. */
+    public static String taskName(String taskId) {
+        return "@world_sim.task." + taskId + ".name";
+    }
+
+    /** A sect task's brief line; its one param is the count, or the courier's destination sect name. */
+    public static String taskBrief(String taskId) {
+        return "world_sim.task." + taskId + ".brief";
+    }
+
+    /** The name (0 params) and brief (1 param) of every task in {@code sect_tasks.json}. */
+    public static Map<String, Integer> taskKeys(SimData data) {
+        TreeMap<String, Integer> keys = new TreeMap<>();
+        for (ContentTables.SectTask t : data.sectTasks()) {
+            keys.put(taskName(t.id()).substring(1), 0);
+            keys.put(taskBrief(t.id()), 1);
+        }
+        return keys;
+    }
+
     /** Why an avenger acts (relation reason): 师仇, 徒仇, 友仇, 同门之仇, 旧怨. */
     public static String reason(String reason) {
         return "@world_sim.reason." + (REASONS.contains(reason) ? reason : "self");
@@ -357,6 +377,7 @@ public final class TextKeys {
         TreeMap<String, Integer> all = new TreeMap<>(legacyKeys(data));
         all.putAll(eventKeys(data));
         all.putAll(wordKeys(data));
+        all.putAll(taskKeys(data));
         return all;
     }
 }

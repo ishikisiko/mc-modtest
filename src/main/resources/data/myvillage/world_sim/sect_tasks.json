@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "tasks": [
+    {"id": "patrol_beasts", "kind": "patrol", "count": 3, "contribution": 10},
+    {"id": "tribute_stones", "kind": "tribute", "count": 5, "contribution": 10},
+    {"id": "courier_letter", "kind": "courier", "count": 1, "contribution": 15}
+  ]
+}

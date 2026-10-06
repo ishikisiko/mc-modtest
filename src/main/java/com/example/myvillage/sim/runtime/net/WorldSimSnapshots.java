@@ -266,7 +266,7 @@ public final class WorldSimSnapshots {
             String name = m.sectName().isEmpty() ? sect.map(SectView::name).orElse("") : m.sectName();
             return new WorldSimSnapshot.MySect(m.sectId(), name, m.rank(), m.joinedDay(), m.masterName(),
                     m.contribution(), m.standings().getOrDefault(m.sectId(), 0), m.borrowed().size(),
-                    sect.map(WorldSimSnapshots::isActive).orElse(false));
+                    sect.map(WorldSimSnapshots::isActive).orElse(false), "", 0, 0); // task line: slice 3 package S3-C
         }
 
         WorldSimSnapshot.SectDetail sectDetail(SectView s) {

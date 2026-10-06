@@ -207,8 +207,9 @@ class WorldSimPayloadCodecTest {
                 List.of(cause),
                 new WorldSimSnapshot.Region("zhongzhou", "中州", 5, -1, 99, 0, 100, true, 0),
                 heritage == null
-                        ? new WorldSimSnapshot.MySect(4, "青云宫", "inner", Long.MAX_VALUE, "", 0, -100, 0, false)
-                        : new WorldSimSnapshot.MySect(4, "青云宫", "elder", 0, "韩清漪", Integer.MAX_VALUE, 100, 7, true));
+                        ? new WorldSimSnapshot.MySect(4, "青云宫", "inner", Long.MAX_VALUE, "", 0, -100, 0, false, "", 0, 0)
+                        : new WorldSimSnapshot.MySect(4, "青云宫", "elder", 0, "韩清漪", Integer.MAX_VALUE, 100, 7, true,
+                                "patrol_beasts", 2, 3));
         assertRoundTrips(full);
         assertEquals(cause, full.causeOf(line));
         }

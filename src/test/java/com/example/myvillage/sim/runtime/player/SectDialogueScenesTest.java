@@ -21,7 +21,7 @@ class SectDialogueScenesTest {
 
     private static Optional<PlayerMemberView> memberOf(int sectId) {
         return Optional.of(new PlayerMemberView("uuid", "Dev", sectId, sectId < 0 ? "" : "青云宗", "outer", 12, -1, "",
-                0, List.of(), Map.of(SECT, 20), -1, -1, "mortal", 1, true, 4000));
+                0, List.of(), Map.of(SECT, 20), -1, -1, "mortal", 1, true, 4000, "", 0, -1, -1));
     }
 
     @Test
@@ -109,10 +109,13 @@ class SectDialogueScenesTest {
         assertEquals(0, Option.JOIN.id());
         assertEquals(1, Option.LEAVE.id());
         assertEquals(2, Option.FAREWELL.id());
+        assertEquals(3, Option.APPRENTICE.id());
+        assertEquals(4, Option.TASK_ACCEPT.id());
+        assertEquals(5, Option.TASK_TURN_IN.id());
         for (Option o : Option.values()) {
             assertEquals(o, Option.of(o.id()));
         }
-        assertThrows(IllegalArgumentException.class, () -> Option.of(3));
+        assertThrows(IllegalArgumentException.class, () -> Option.of(6));
     }
 
     @Test

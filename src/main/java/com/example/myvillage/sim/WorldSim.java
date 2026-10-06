@@ -547,11 +547,82 @@ public final class WorldSim {
         m.rootPeakBp = q.rootPeakBp();
     }
 
+    // ------------------------------------------------------------------ tasks and masters (sect entry, slice 3)
+
+    /**
+     * The player's open sect task joined with its row of {@code sect_tasks.json}, or empty when the
+     * player has no record, no open task, or a task id the data no longer has. {@code ready} is
+     * {@code progress >= count}, except tribute, which the ledger never calls ready (the runtime
+     * checks the inventory at turn-in).
+     */
+    public Optional<TaskView> task(String playerId) {
+        PlayerMember m = ctx.state.playerMembers.get(playerId);
+        if (m == null || m.taskId.isEmpty()) {
+            return Optional.empty();
+        }
+        ContentTables.SectTask t = ctx.data.sectTask(m.taskId);
+        if (t == null) {
+            return Optional.empty();
+        }
+        boolean ready = !ContentTables.TASK_TRIBUTE.equals(t.kind()) && m.taskProgress >= t.count();
+        String target = m.taskTargetSectId < 0 ? "" : ctx.sectName(m.taskTargetSectId);
+        return Optional.of(new TaskView(t.id(), t.kind(), t.count(), t.contribution(), m.taskProgress,
+                m.taskTargetSectId, target, m.taskYear, ready));
+    }
+
+    /**
+     * The task the steward would hand this player now; computed, never recorded. One task a sim
+     * year: empty for a player in no sect, with an open task, who already took one this year, or
+     * when there is nothing to give. The pick is {@code SimRng.at(seed, day, hash(playerId),
+     * Purpose.PLAYER_TASK)} over {@code sect_tasks.json}; a courier's destination is another active
+     * sect from the same rng (no other active sect: no courier). {@link #acceptTask} records it.
+     */
+    public Optional<TaskView> offerTask(String playerId) {
+        throw new UnsupportedOperationException("slice 3 package S3-A");
+    }
+
+    /**
+     * Records the task {@link #offerTask} gives (progress 0, {@code taskYear} this year) and its
+     * event (timed like {@link #joinSect}). Throws IllegalArgumentException with the reason
+     * {@code not_member}, {@code task_active}, {@code task_done_this_year} or {@code no_task}.
+     */
+    public SimEvent acceptTask(String playerId, String playerName) {
+        throw new UnsupportedOperationException("slice 3 package S3-A");
+    }
+
+    /**
+     * Adds {@code amount} to the open task's progress, capped at its count. False (nothing changes)
+     * when the player has no open task or its kind is not {@code kind}.
+     */
+    public boolean advanceTask(String playerId, String kind, int amount) {
+        throw new UnsupportedOperationException("slice 3 package S3-A");
+    }
+
+    /**
+     * Turns in the open task: contribution += its contribution, a {@code player_task_done} event
+     * (timed like {@link #joinSect}), the task cleared but {@code taskYear} kept. Tribute is judged
+     * by the caller, who has already checked and taken the stones. Throws IllegalArgumentException
+     * with the reason {@code no_task} or {@code not_ready}.
+     */
+    public SimEvent completeTask(String playerId, String playerName) {
+        throw new UnsupportedOperationException("slice 3 package S3-A");
+    }
+
+    /**
+     * Takes {@code masterId} (an elder or the sect master at the sect) as the player's master and
+     * records {@code player_apprentice} (timed like {@link #joinSect}). Throws
+     * IllegalArgumentException with the reason {@code not_member}, {@code rank_too_low},
+     * {@code has_master} or {@code master_not_here}.
+     */
+    public SimEvent apprentice(String playerId, String playerName, int masterId) {
+        throw new UnsupportedOperationException("slice 3 package S3-A");
+    }
+
     private PlayerMemberView playerMemberView(PlayerMember m) {
         return new PlayerMemberView(m.playerId, m.playerName, m.sectId, m.sectId < 0 ? "" : ctx.sectName(m.sectId),
                 m.rank, m.joinedDay, m.masterId, m.masterId < 0 ? "" : ctx.nameOf(m.masterId), m.contribution,
                 m.borrowed, m.standings, m.leftSectId, m.leftDay, m.realmId, m.stageIndex, m.awakened,
-                m.rootPeakBp);
+                m.rootPeakBp, m.taskId, m.taskProgress, m.taskTargetSectId, m.taskYear);
     }
 
     // ------------------------------------------------------------------ mutations

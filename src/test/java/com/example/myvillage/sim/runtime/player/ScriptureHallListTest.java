@@ -28,7 +28,7 @@ class ScriptureHallListTest {
 
     private static Optional<PlayerMemberView> memberOf(int sectId) {
         return Optional.of(new PlayerMemberView("uuid", "Dev", sectId, sectId < 0 ? "" : "青云宗", "outer", 12, -1, "",
-                0, List.of(), Map.of(), -1, -1, "mortal", 1, true, 4000));
+                0, List.of(), Map.of(), -1, -1, "mortal", 1, true, 4000, "", 0, -1, -1));
     }
 
     @Test

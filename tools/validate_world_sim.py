@@ -3,14 +3,15 @@
 
 Checks, each failure printed as ``<check>: <file>: <detail>``:
 
-- data: every file under ``data/myvillage/world_sim/`` parses and has ``"schema": 1``; the seven known files
-  (rules, realms, encounters, names, techniques, heritages, lore) have their required fields, enum values, positive
+- data: every file under ``data/myvillage/world_sim/`` parses and has ``"schema": 1``; the eight known files
+  (rules, realms, encounters, names, techniques, heritages, lore, sect_tasks) have their required fields, enum values, positive
   weights and unique ids, and agree with each other (realm ids and stages named by rules and encounters,
   site kinds named by encounters exist in lore, every technique/artifact grade an encounter or genesis can
   grant has at least one entry, sim realm lifespans equal the player realm files' for shared ids). The
   runtime's config tiers (small, medium, large) must exist in rules. Heritages have unique ids and names,
   a non-empty technique list of ledger techniques that share one element, a school that is ``none`` or a
-  datapack school, and no technique in two heritages.
+  datapack school, and no technique in two heritages. Sect tasks have unique ``[a-z0-9_]+`` ids, a kind of
+  patrol, tribute or courier, and a positive integer count and contribution.
 - datapack: every ledger technique has ``data/myvillage/myvillage/technique/<id>.json`` whose integer grade
   and elements agree with the ledger's grade and element; every ``lineage.previous`` names a datapack
   technique and no chain is a cycle; each heritage's techniques carry its school (none: no school) and
@@ -19,7 +20,7 @@ Checks, each failure printed as ``<check>: <file>: <detail>``:
 - keys: every ``world_sim.`` key the core can emit exists in both ``en_us`` and ``zh_cn``: string literals and
   ``String`` constants built from literals in ``sim/**`` (a family base is satisfied by its ``.1`` variant),
   plus the data-derived keys (realm, stage, rank, root grade, technique grade, the breakthrough lines of every
-  realm with a breakthrough, the fortune line of every encounter). Every ``world_sim.*`` key in either file is
+  realm with a breakthrough, the fortune line of every encounter, the name and brief of every sect task). Every ``world_sim.*`` key in either file is
   in the other with the same ``%n$s`` slots, numbered 1..n; a family's variants run .1..n in both files.
   The runtime's ``commands.myvillage.world.*`` / ``message.myvillage.world.*`` keys used in ``sim/runtime/**``
   exist in both files with the same slots.
@@ -48,7 +49,9 @@ SIM_REL = Path("src/main/java/com/example/myvillage/sim")
 
 SCHEMA = 1
 KNOWN_FILES = ("rules.json", "realms.json", "encounters.json", "names.json", "techniques.json", "heritages.json",
-               "lore.json")
+               "lore.json", "sect_tasks.json")
+TASK_KINDS = ("patrol", "tribute", "courier")
+TASK_ID = re.compile(r"[a-z0-9_]+")
 GRADES = ("huang", "xuan", "di", "tian")
 GRADE_NUMBERS = {"huang": 1, "xuan": 2, "di": 3, "tian": 4}  # the player registry's integer grade
 ELEMENTS_OR_NONE = ("metal", "wood", "water", "fire", "earth", "none")
@@ -565,6 +568,32 @@ def check_encounters(doc: Any, realms: dict[str, dict], technique_grades: set[st
     return good
 
 
+def check_sect_tasks(doc: Any, report: Report) -> list[str]:
+    """The player sect tasks; returns the ids of the well-formed ones (for their language keys)."""
+    f = "sect_tasks.json"
+    items = require(doc, "tasks", f, "", report)
+    if not isinstance(items, list):
+        report.error("data", f, "tasks must be a list")
+        return []
+    check_unique([t.get("id") for t in items if isinstance(t, dict)], f, "tasks[].id", report)
+    ids: list[str] = []
+    for i, t in enumerate(items):
+        if not isinstance(t, dict):
+            report.error("data", f, f"tasks[{i}] must be an object")
+            continue
+        tid = t.get("id")
+        if not isinstance(tid, str) or not TASK_ID.fullmatch(tid):
+            report.error("data", f, f"tasks[{i}].id must be a non-empty string matching [a-z0-9_]+")
+        elif tid not in ids:
+            ids.append(tid)
+        if t.get("kind") not in TASK_KINDS:
+            report.error("data", f, f"tasks[{i}].kind must be one of {list(TASK_KINDS)}")
+        for key in ("count", "contribution"):
+            if not positive_int(t.get(key)):
+                report.error("data", f, f"tasks[{i}].{key} must be a positive integer")
+    return ids
+
+
 def check_data(root: Path, report: Report) -> dict:
     directory = root / DATA_REL
     facts: dict = {"realms": {}, "encounters": [], "root_grades": [], "tiers": []}
@@ -598,6 +627,7 @@ def check_data(root: Path, report: Report) -> dict:
                                    if "lore.json" in docs else (set(), set()))
     if "names.json" in docs:
         check_names(docs["names.json"], report)
+    sect_tasks = check_sect_tasks(docs["sect_tasks.json"], report) if "sect_tasks.json" in docs else []
     for g in rules.get("signature_grades", []):
         if g not in technique_grades:
             report.error("data", "rules.json", f"genesis.signature_grades needs a {g} technique; techniques.json has none")
@@ -613,7 +643,8 @@ def check_data(root: Path, report: Report) -> dict:
                              for e in encounters for fx in (e.get("effects") or [])):
         report.error("data", "encounters.json", "a heritage effect needs at least one heritage in heritages.json")
     facts.update(realms=realms, encounters=encounters, root_grades=rules.get("root_grades", []),
-                 tiers=rules.get("tiers", []), files=len(docs), heritages=heritages, datapack_matched=matched)
+                 tiers=rules.get("tiers", []), files=len(docs), heritages=heritages, datapack_matched=matched,
+                 sect_tasks=sect_tasks)
     return facts
 
 
@@ -795,6 +826,9 @@ def check_keys(root: Path, facts: dict, report: Report) -> int:
                          f"world_sim.event.breakthrough_death.{rid}"):
                 need(base, "realms.json breakthrough")
                 families.add(base)
+    for tid in facts.get("sect_tasks", []):
+        need(f"world_sim.task.{tid}.name", "sect_tasks.json")
+        need(f"world_sim.task.{tid}.brief", "sect_tasks.json")
     for rank in RANKS:
         need(f"world_sim.rank.{rank}", "ranks")
     for grade in facts.get("root_grades", []):

@@ -7,8 +7,9 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * The content worker's files ({@code names.json}, {@code techniques.json}, {@code lore.json}) and the
- * generated {@code heritages.json}, parsed against fixed schemas (design §6.1).
+ * The content worker's files ({@code names.json}, {@code techniques.json}, {@code lore.json}), the
+ * generated {@code heritages.json} and the player sect tasks ({@code sect_tasks.json}), parsed against
+ * fixed schemas (design §6.1).
  */
 public final class ContentTables {
     public static final Set<String> GRADES = Set.of("huang", "xuan", "di", "tian");
@@ -16,6 +17,11 @@ public final class ContentTables {
     public static final List<String> GRADE_ORDER = List.of("huang", "xuan", "di", "tian");
     public static final Set<String> ELEMENTS_OR_NONE = Set.of("metal", "wood", "water", "fire", "earth", "none");
     public static final Set<String> SITE_KINDS = Set.of("ruin", "cave", "secret_realm", "battlefield", "tomb");
+    /** Sect task kinds: slay beasts in the sect's region, hand in spirit stones, reach another sect's gate. */
+    public static final String TASK_PATROL = "patrol";
+    public static final String TASK_TRIBUTE = "tribute";
+    public static final String TASK_COURIER = "courier";
+    public static final Set<String> TASK_KINDS = Set.of(TASK_PATROL, TASK_TRIBUTE, TASK_COURIER);
 
     private ContentTables() {
     }
@@ -68,6 +74,17 @@ public final class ContentTables {
     }
 
     public record Lore(List<Artifact> artifacts, List<Site> sites, List<Beast> beasts) {
+    }
+
+    /**
+     * A sect task (宗门事务) a steward hands a player member. Text: {@code world_sim.task.<id>.name}
+     * and {@code .brief} in both language files.
+     *
+     * @param kind         {@link #TASK_PATROL}, {@link #TASK_TRIBUTE} or {@link #TASK_COURIER}
+     * @param count        beasts to slay, stones to hand in, letters to deliver
+     * @param contribution contribution paid on completion
+     */
+    public record SectTask(String id, String kind, int count, int contribution) {
     }
 
     static Names parseNames(SimJson.Fields root) {
@@ -182,6 +199,23 @@ public final class ContentTables {
             beasts.add(new Beast(uniqueId(b, beastIds), b.nonEmptyString("name"), b.integer("rank", 1, 4)));
         }
         return new Lore(List.copyOf(artifacts), List.copyOf(sites), List.copyOf(beasts));
+    }
+
+    static List<SectTask> parseSectTasks(SimJson.Fields root) {
+        root.schema();
+        JsonArray array = root.array("tasks");
+        List<SectTask> out = new ArrayList<>();
+        Set<String> ids = new HashSet<>();
+        for (int i = 0; i < array.size(); i++) {
+            SimJson.Fields t = root.element("tasks", array, i, Set.of("id", "kind", "count", "contribution"));
+            String id = uniqueId(t, ids);
+            if (!id.matches("[a-z0-9_]+")) {
+                throw t.error("id", "must match [a-z0-9_]+, got \"" + id + "\"");
+            }
+            out.add(new SectTask(id, t.oneOf("kind", TASK_KINDS), t.positiveInteger("count"),
+                    t.positiveInteger("contribution")));
+        }
+        return List.copyOf(out);
     }
 
     private static String uniqueId(SimJson.Fields f, Set<String> ids) {

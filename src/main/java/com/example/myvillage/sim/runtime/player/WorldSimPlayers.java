@@ -129,6 +129,18 @@ public final class WorldSimPlayers {
         return WorldSimRuntime.sim().flatMap(sim -> sim.playerMember(player.getUUID().toString()));
     }
 
+    // ------------------------------------------------------------------ master guidance (slice 3)
+
+    /**
+     * The meditation progress factor the player's master gives, in basis points (10000 = none):
+     * {@code 10000 × (1 + rules.cultivation.master_guidance)} while the player has a master who is
+     * alive and still in the player's sect, else 10000. {@code MeditationManager} multiplies it into
+     * its progress factor.
+     */
+    public static int masterGuidanceBasisPoints(ServerPlayer player) {
+        return 10_000; // slice 3 package S3-B
+    }
+
     // ------------------------------------------------------------------ join and leave
 
     /**

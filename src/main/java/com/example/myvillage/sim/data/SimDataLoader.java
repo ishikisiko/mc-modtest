@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 /**
- * Reads the seven world-sim data files through a caller-supplied opener, so the same code reads the
+ * Reads the eight world-sim data files through a caller-supplied opener, so the same code reads the
  * mod jar at runtime and the source tree in tests and the CLI. Any problem throws a
  * {@link SimDataException} naming the file and field; there is no partial result.
  */
@@ -23,6 +23,7 @@ public final class SimDataLoader {
     public static final String TECHNIQUES = SimData.DIRECTORY + "techniques.json";
     public static final String LORE = SimData.DIRECTORY + "lore.json";
     public static final String HERITAGES = SimData.DIRECTORY + "heritages.json";
+    public static final String SECT_TASKS = SimData.DIRECTORY + "sect_tasks.json";
 
     private SimDataLoader() {
     }
@@ -40,6 +41,8 @@ public final class SimDataLoader {
                 SimJson.Fields.root(LORE, read(opener, LORE), Set.of("schema", "artifacts", "sites", "beasts")));
         var heritages = ContentTables.parseHeritages(
                 SimJson.Fields.root(HERITAGES, read(opener, HERITAGES), Set.of("schema", "heritages")), techniques);
+        var sectTasks = ContentTables.parseSectTasks(
+                SimJson.Fields.root(SECT_TASKS, read(opener, SECT_TASKS), Set.of("schema", "tasks")));
         for (int i = 0; i < encounters.encounters().size(); i++) {
             EncounterTable.Encounter e = encounters.encounters().get(i);
             if (e.siteKind() != null && lore.sites().stream().noneMatch(s -> s.kind().equals(e.siteKind()))) {
@@ -50,7 +53,7 @@ public final class SimDataLoader {
         if (heritages.isEmpty() && encounters.encounters().stream().anyMatch(e -> e.has("heritage"))) {
             throw new SimDataException(ENCOUNTERS, "effects", "a heritage effect needs at least one heritage in " + HERITAGES);
         }
-        return new SimData(rules, realms, encounters, names, techniques, lore, heritages);
+        return new SimData(rules, realms, encounters, names, techniques, lore, heritages, sectTasks);
     }
 
     private static JsonObject read(SimData.ResourceOpener opener, String file) {

@@ -70,4 +70,8 @@ public final class Purpose {
 
     // Heritage additions (0.37.0)
     public static final int GENESIS_HERITAGE = 109;
+
+    // Player sect entry additions (0.43.0), world range 4xx
+    /** A player's sect task: the steward's pick and a courier's destination sect. */
+    public static final int PLAYER_TASK = 405;
 }

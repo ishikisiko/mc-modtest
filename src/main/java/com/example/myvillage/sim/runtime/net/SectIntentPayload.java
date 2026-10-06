@@ -10,8 +10,9 @@ import net.minecraft.resources.ResourceLocation;
 
 /**
  * Serverbound: the player chose an option in the sect dialogue. Intent only: which option
- * ({@code kind}: {@link #JOIN}, {@link #LEAVE}, {@link #FAREWELL}, the ids of
- * {@link SectDialogueScenes.Option}), the avatar spoken to and the sect it claims. The server
+ * ({@code kind}: {@link #JOIN}, {@link #LEAVE}, {@link #FAREWELL}, {@link #APPRENTICE},
+ * {@link #TASK_ACCEPT}, {@link #TASK_TURN_IN}, the ids of {@link SectDialogueScenes.Option}), the
+ * avatar spoken to and the sect it claims. The server
  * finds the entity again, checks range, dimension, role and sect, and only then asks the ledger.
  * Wire: kind as an unsigned byte (an unknown kind is rejected), entity and sect ids as varints.
  */
@@ -19,6 +20,11 @@ public record SectIntentPayload(byte kind, int entityId, int sectId) implements 
     public static final byte JOIN = 0;
     public static final byte LEAVE = 1;
     public static final byte FAREWELL = 2;
+    public static final byte APPRENTICE = 3;
+    public static final byte TASK_ACCEPT = 4;
+    public static final byte TASK_TURN_IN = 5;
+    /** The highest kind; anything above is rejected. */
+    public static final byte MAX_KIND = TASK_TURN_IN;
 
     public static final Type<SectIntentPayload> TYPE = new Type<>(
             ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID, "sect_intent"));
@@ -26,7 +32,7 @@ public record SectIntentPayload(byte kind, int entityId, int sectId) implements 
         @Override
         public SectIntentPayload decode(FriendlyByteBuf buffer) {
             int kind = buffer.readUnsignedByte();
-            if (kind > FAREWELL) {
+            if (kind > MAX_KIND) {
                 throw new DecoderException("unknown sect intent kind " + kind);
             }
             return new SectIntentPayload((byte) kind, buffer.readVarInt(), buffer.readVarInt());
@@ -41,7 +47,7 @@ public record SectIntentPayload(byte kind, int entityId, int sectId) implements 
     };
 
     public SectIntentPayload {
-        if (kind < JOIN || kind > FAREWELL) {
+        if (kind < JOIN || kind > MAX_KIND) {
             throw new IllegalArgumentException("unknown sect intent kind " + kind);
         }
     }

@@ -82,7 +82,7 @@ class SectDialoguePayloadTest {
         assertThrows(IllegalArgumentException.class,
                 () -> page(Collections.nCopies(SectDialoguePayload.MAX_LINES + 1, Component.literal("x")), List.of()));
         assertThrows(IllegalArgumentException.class, () -> page(List.of(), List.of(0, 1, 2, 2, 2)));
-        assertThrows(IllegalArgumentException.class, () -> page(List.of(), List.of(3)));
+        assertThrows(IllegalArgumentException.class, () -> page(List.of(), List.of(SectDialoguePayload.MAX_OPTION_ID + 1)));
         assertThrows(IllegalArgumentException.class, () -> page(List.of(), List.of(-1)));
         assertThrows(IllegalArgumentException.class, () -> new SectDialoguePayload(1, 1, "x".repeat(65), "steward",
                 "", 0, 0, "", "", "", 0, false, "ok", List.of(), List.of()));
@@ -126,7 +126,7 @@ class SectDialoguePayloadTest {
             head(badOption);
             badOption.writeVarInt(0);
             badOption.writeVarInt(1);
-            badOption.writeByte(3);
+            badOption.writeByte(SectDialoguePayload.MAX_OPTION_ID + 1);
             assertThrows(DecoderException.class, () -> SectDialoguePayload.STREAM_CODEC.decode(badOption));
         } finally {
             badOption.release();
@@ -168,6 +168,10 @@ class SectDialoguePayloadTest {
         assertEquals(SectDialogueScenes.Option.JOIN.id(), SectIntentPayload.JOIN);
         assertEquals(SectDialogueScenes.Option.LEAVE.id(), SectIntentPayload.LEAVE);
         assertEquals(SectDialogueScenes.Option.FAREWELL.id(), SectIntentPayload.FAREWELL);
+        assertEquals(SectDialogueScenes.Option.APPRENTICE.id(), SectIntentPayload.APPRENTICE);
+        assertEquals(SectDialogueScenes.Option.TASK_ACCEPT.id(), SectIntentPayload.TASK_ACCEPT);
+        assertEquals(SectDialogueScenes.Option.TASK_TURN_IN.id(), SectIntentPayload.TASK_TURN_IN);
+        assertEquals(SectDialoguePayload.MAX_OPTION_ID, SectIntentPayload.MAX_KIND);
         assertEquals(List.of("kind", "entityId", "sectId"),
                 java.util.Arrays.stream(SectIntentPayload.class.getRecordComponents())
                         .map(java.lang.reflect.RecordComponent::getName).toList(),
@@ -176,9 +180,9 @@ class SectDialoguePayloadTest {
 
     @Test
     void anUnknownIntentKindIsRejected() {
-        assertThrows(IllegalArgumentException.class, () -> new SectIntentPayload((byte) 3, 1, 1));
+        assertThrows(IllegalArgumentException.class, () -> new SectIntentPayload((byte) 6, 1, 1));
         assertThrows(IllegalArgumentException.class, () -> new SectIntentPayload((byte) -1, 1, 1));
-        for (int kind : new int[] {3, 255}) {
+        for (int kind : new int[] {6, 255}) {
             RegistryFriendlyByteBuf buf = buffer();
             try {
                 buf.writeByte(kind);
