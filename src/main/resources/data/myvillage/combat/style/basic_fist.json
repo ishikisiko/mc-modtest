@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "id": "myvillage:basic_fist",
-  "combo_timeout_ticks": 14,
-  "minimum_intent_interval_ticks": 2,
+  "combo_timeout_ticks": 10,
+  "minimum_intent_interval_ticks": 1,
   "animations": {
     "ready_idle": "myvillage:basic_fist_ready_idle",
     "mode_enter": "myvillage:basic_fist_mode_enter"
@@ -12,28 +12,28 @@
       "id": "myvillage:basic_fist_01_straight_punch",
       "display_key": "combat.myvillage.move.basic_fist_01_straight_punch",
       "kind": "thrust",
-      "total_ticks": 11,
+      "total_ticks": 9,
       "active_ticks": [3, 4],
       "buffer_start_tick": 3,
-      "chain_tick": 7,
-      "damage_multiplier": 0.90,
+      "chain_tick": 6,
+      "damage_multiplier": 0.80,
       "maximum_targets": 1,
-      "range": 3.0,
-      "reaction": {"hitstun_ticks": 9, "slide_distance": 0.30, "lift": 0.00, "lateral_bias": 0.0},
+      "range": 1.9,
+      "reaction": {"hitstun_ticks": 7, "slide_distance": 0.2, "lift": 0.0, "lateral_bias": 0.0},
       "hitbox": {
-        "shape_family": "center_thrust",
+        "shape_family": "straight_punch",
         "horizontal_tolerance": 0.20,
         "vertical_tolerance": 0.12,
-        "samples": {"generator": "thrust", "first_range": 2.55, "final_range": 2.95, "radius": 0.16}
+        "samples": {"generator": "thrust", "first_range": 1.55, "final_range": 1.9, "radius": 0.16}
       },
-      "step": {"tick": 2, "maximum_distance": 0.30, "support_depth": 0.35},
+      "step": {"tick": 2, "maximum_distance": 0.25, "support_depth": 0.35},
       "feedback": {
         "swing_sound": "myvillage:combat.sword.thrust",
-        "swing_pitch": 1.25,
+        "swing_pitch": 1.40,
         "hit_sound": "myvillage:combat.sword.hit",
         "heavy_hit": false,
-        "hit_stop_ticks": 1.5,
-        "camera_trauma": 0.25,
+        "hit_stop_ticks": 1.00,
+        "camera_trauma": 0.18,
         "cut_roll_degrees": 0.0
       },
       "camera": {"hit_pitch_kick": 0.0, "hit_roll_kick": 0.0, "hit_fov_punch": 0.0, "swing_lean_degrees": 0.0, "step_fov_surge": 0.0}
@@ -42,123 +42,144 @@
       "id": "myvillage:basic_fist_02_horizontal_palm",
       "display_key": "combat.myvillage.move.basic_fist_02_horizontal_palm",
       "kind": "cut",
-      "total_ticks": 13,
-      "active_ticks": [4, 6],
+      "total_ticks": 10,
+      "active_ticks": [4, 5],
       "buffer_start_tick": 4,
-      "chain_tick": 8,
-      "damage_multiplier": 0.95,
-      "maximum_targets": 3,
-      "range": 2.8,
-      "reaction": {"hitstun_ticks": 9, "slide_distance": 0.35, "lift": 0.00, "lateral_bias": 0.3},
+      "chain_tick": 7,
+      "damage_multiplier": 0.85,
+      "maximum_targets": 2,
+      "range": 1.9,
+      "reaction": {"hitstun_ticks": 8, "slide_distance": 0.25, "lift": 0.0, "lateral_bias": -0.35},
       "hitbox": {
-        "shape_family": "horizontal_arc_110",
+        "shape_family": "horizontal_palm_right_to_left",
         "horizontal_tolerance": 0.20,
         "vertical_tolerance": 0.12,
-        "samples": {"generator": "arc", "range": 2.8, "start_angle": 55.0, "end_angle": -55.0, "height": 1.15, "radius": 0.18}
+        "samples": [
+          {"tick": 4, "start": [-0.39, 1.35, 0.225], "end": [-1.645, 1.35, 0.95], "horizontal_radius": 0.2, "vertical_radius": 0.2},
+          {"tick": 4, "start": [-0.277, 1.35, 0.355], "end": [-1.17, 1.35, 1.497], "horizontal_radius": 0.2, "vertical_radius": 0.2},
+          {"tick": 4, "start": [-0.124, 1.35, 0.433], "end": [-0.524, 1.35, 1.826], "horizontal_radius": 0.2, "vertical_radius": 0.2},
+          {"tick": 5, "start": [0.047, 1.35, 0.448], "end": [0.199, 1.35, 1.89], "horizontal_radius": 0.2, "vertical_radius": 0.2},
+          {"tick": 5, "start": [0.211, 1.35, 0.397], "end": [0.892, 1.35, 1.678], "horizontal_radius": 0.2, "vertical_radius": 0.2},
+          {"tick": 5, "start": [0.345, 1.35, 0.289], "end": [1.455, 1.35, 1.221], "horizontal_radius": 0.2, "vertical_radius": 0.2}
+        ]
       },
-      "step": {"tick": 3, "maximum_distance": 0.25, "support_depth": 0.35},
+      "step": {"tick": 3, "maximum_distance": 0.2, "support_depth": 0.35},
       "feedback": {
         "swing_sound": "myvillage:combat.sword.cut",
-        "swing_pitch": 1.10,
+        "swing_pitch": 1.35,
         "hit_sound": "myvillage:combat.sword.hit",
         "heavy_hit": false,
-        "hit_stop_ticks": 2.0,
-        "camera_trauma": 0.30,
+        "hit_stop_ticks": 1.50,
+        "camera_trauma": 0.22,
         "cut_roll_degrees": 0.0
       },
-      "camera": {"hit_pitch_kick": 0.0, "hit_roll_kick": 0.5, "hit_fov_punch": 0.0, "swing_lean_degrees": 0.3, "step_fov_surge": 0.0}
+      "camera": {"hit_pitch_kick": 0.0, "hit_roll_kick": -0.4, "hit_fov_punch": 0.0, "swing_lean_degrees": -0.3, "step_fov_surge": 0.0}
     },
     {
       "id": "myvillage:basic_fist_03_uppercut",
       "display_key": "combat.myvillage.move.basic_fist_03_uppercut",
       "kind": "cut",
-      "total_ticks": 15,
-      "active_ticks": [5, 7],
-      "buffer_start_tick": 5,
-      "chain_tick": 10,
-      "damage_multiplier": 1.00,
-      "maximum_targets": 2,
-      "range": 2.8,
-      "reaction": {"hitstun_ticks": 10, "slide_distance": 0.30, "lift": 0.20, "lateral_bias": 0.0},
+      "total_ticks": 10,
+      "active_ticks": [4, 5],
+      "buffer_start_tick": 4,
+      "chain_tick": 7,
+      "damage_multiplier": 0.90,
+      "maximum_targets": 1,
+      "range": 1.8,
+      "reaction": {"hitstun_ticks": 9, "slide_distance": 0.15, "lift": 0.3, "lateral_bias": 0.0},
       "hitbox": {
-        "shape_family": "rising_diagonal",
+        "shape_family": "rising_uppercut",
         "horizontal_tolerance": 0.20,
         "vertical_tolerance": 0.12,
-        "samples": {"generator": "diagonal", "descending": false, "radius": 0.20}
+        "samples": [
+          {"tick": 4, "start": [-0.15, 0.95, 0.45], "end": [-0.25, 0.55, 1.55], "horizontal_radius": 0.2, "vertical_radius": 0.2},
+          {"tick": 4, "start": [-0.12, 1.0, 0.45], "end": [-0.15, 0.95, 1.75], "horizontal_radius": 0.2, "vertical_radius": 0.2},
+          {"tick": 5, "start": [-0.08, 1.05, 0.45], "end": [-0.05, 1.35, 1.8], "horizontal_radius": 0.2, "vertical_radius": 0.2},
+          {"tick": 5, "start": [-0.05, 1.1, 0.45], "end": [0.05, 1.8, 1.6], "horizontal_radius": 0.2, "vertical_radius": 0.2}
+        ]
       },
-      "step": {"tick": 4, "maximum_distance": 0.30, "support_depth": 0.35},
+      "step": {"tick": 3, "maximum_distance": 0.2, "support_depth": 0.35},
       "feedback": {
         "swing_sound": "myvillage:combat.sword.cut",
-        "swing_pitch": 1.20,
+        "swing_pitch": 1.25,
         "hit_sound": "myvillage:combat.sword.hit",
         "heavy_hit": false,
-        "hit_stop_ticks": 2.0,
-        "camera_trauma": 0.30,
-        "cut_roll_degrees": -35.0
+        "hit_stop_ticks": 1.50,
+        "camera_trauma": 0.25,
+        "cut_roll_degrees": -70.0
       },
-      "camera": {"hit_pitch_kick": 0.6, "hit_roll_kick": 0.0, "hit_fov_punch": 0.0, "swing_lean_degrees": -0.3, "step_fov_surge": 0.0}
+      "camera": {"hit_pitch_kick": 0.6, "hit_roll_kick": 0.0, "hit_fov_punch": 0.0, "swing_lean_degrees": 0.0, "step_fov_surge": 0.0}
     },
     {
       "id": "myvillage:basic_fist_04_chop",
       "display_key": "combat.myvillage.move.basic_fist_04_chop",
       "kind": "cut",
-      "total_ticks": 17,
-      "active_ticks": [6, 8],
-      "buffer_start_tick": 6,
-      "chain_tick": 13,
-      "damage_multiplier": 1.10,
-      "maximum_targets": 3,
-      "range": 3.0,
-      "reaction": {"hitstun_ticks": 13, "slide_distance": 0.60, "lift": 0.00, "lateral_bias": 0.0},
+      "total_ticks": 11,
+      "active_ticks": [5, 6],
+      "buffer_start_tick": 5,
+      "chain_tick": 8,
+      "damage_multiplier": 1.00,
+      "maximum_targets": 2,
+      "range": 2.0,
+      "reaction": {"hitstun_ticks": 10, "slide_distance": 0.3, "lift": 0.0, "lateral_bias": -0.1},
       "hitbox": {
-        "shape_family": "descending_diagonal_thick",
+        "shape_family": "descending_chop",
         "horizontal_tolerance": 0.20,
         "vertical_tolerance": 0.12,
-        "samples": {"generator": "diagonal", "descending": true, "radius": 0.28}
+        "samples": [
+          {"tick": 5, "start": [-0.2, 1.5, 0.45], "end": [-0.45, 2.0, 1.5], "horizontal_radius": 0.24, "vertical_radius": 0.24},
+          {"tick": 5, "start": [-0.18, 1.45, 0.45], "end": [-0.3, 1.65, 1.75], "horizontal_radius": 0.24, "vertical_radius": 0.24},
+          {"tick": 6, "start": [-0.15, 1.4, 0.45], "end": [-0.12, 1.2, 1.9], "horizontal_radius": 0.24, "vertical_radius": 0.24},
+          {"tick": 6, "start": [-0.1, 1.35, 0.45], "end": [0.05, 0.75, 1.8], "horizontal_radius": 0.24, "vertical_radius": 0.24}
+        ]
       },
-      "step": {"tick": 5, "maximum_distance": 0.45, "support_depth": 0.35},
+      "step": {"tick": 4, "maximum_distance": 0.3, "support_depth": 0.35},
       "feedback": {
         "swing_sound": "myvillage:combat.sword.cut",
-        "swing_pitch": 0.95,
-        "hit_sound": "myvillage:combat.sword.hit_heavy",
-        "heavy_layer_sound": "myvillage:combat.sword.impact_heavy",
-        "heavy_hit": true,
-        "hit_stop_ticks": 3.0,
-        "camera_trauma": 0.50,
-        "cut_roll_degrees": 40.0
+        "swing_pitch": 1.10,
+        "hit_sound": "myvillage:combat.sword.hit",
+        "heavy_hit": false,
+        "hit_stop_ticks": 2.00,
+        "camera_trauma": 0.32,
+        "cut_roll_degrees": 70.0
       },
-      "camera": {"hit_pitch_kick": -0.8, "hit_roll_kick": 0.4, "hit_fov_punch": 0.0, "swing_lean_degrees": 0.3, "step_fov_surge": 0.0}
+      "camera": {"hit_pitch_kick": -0.7, "hit_roll_kick": 0.0, "hit_fov_punch": 0.0, "swing_lean_degrees": 0.0, "step_fov_surge": 0.0}
     },
     {
       "id": "myvillage:basic_fist_05_step_double_strike",
       "display_key": "combat.myvillage.move.basic_fist_05_step_double_strike",
       "kind": "thrust",
-      "total_ticks": 20,
-      "active_ticks": [7, 9],
-      "buffer_start_tick": 7,
-      "chain_tick": 20,
+      "total_ticks": 11,
+      "active_ticks": [6, 7],
+      "buffer_start_tick": 6,
+      "chain_tick": 11,
       "damage_multiplier": 1.25,
       "maximum_targets": 2,
-      "range": 3.5,
-      "reaction": {"hitstun_ticks": 16, "slide_distance": 2.00, "lift": 0.25, "lateral_bias": 0.0},
+      "range": 2.2,
+      "reaction": {"hitstun_ticks": 13, "slide_distance": 1.1, "lift": 0.1, "lateral_bias": 0.0},
       "hitbox": {
-        "shape_family": "long_lunge_thrust",
+        "shape_family": "double_strike",
         "horizontal_tolerance": 0.20,
         "vertical_tolerance": 0.12,
-        "samples": {"generator": "thrust", "first_range": 2.8, "final_range": 3.5, "radius": 0.19}
+        "samples": [
+          {"tick": 6, "start": [0.3, 1.15, 0.5], "end": [0.28, 1.2, 1.85], "horizontal_radius": 0.22, "vertical_radius": 0.22},
+          {"tick": 6, "start": [-0.3, 1.15, 0.5], "end": [-0.28, 1.2, 1.85], "horizontal_radius": 0.22, "vertical_radius": 0.22},
+          {"tick": 7, "start": [0.3, 1.15, 0.5], "end": [0.26, 1.2, 2.2], "horizontal_radius": 0.22, "vertical_radius": 0.22},
+          {"tick": 7, "start": [-0.3, 1.15, 0.5], "end": [-0.26, 1.2, 2.2], "horizontal_radius": 0.22, "vertical_radius": 0.22}
+        ]
       },
-      "step": {"tick": 6, "maximum_distance": 1.40, "support_depth": 0.35},
+      "step": {"tick": 5, "maximum_distance": 0.9, "support_depth": 0.35},
       "feedback": {
         "swing_sound": "myvillage:combat.sword.thrust",
-        "swing_pitch": 0.90,
+        "swing_pitch": 0.95,
         "hit_sound": "myvillage:combat.sword.hit_heavy",
         "heavy_layer_sound": "myvillage:combat.sword.impact_heavy",
         "heavy_hit": true,
-        "hit_stop_ticks": 4.0,
-        "camera_trauma": 0.80,
+        "hit_stop_ticks": 3.00,
+        "camera_trauma": 0.60,
         "cut_roll_degrees": 0.0
       },
-      "camera": {"hit_pitch_kick": -1.2, "hit_roll_kick": 0.0, "hit_fov_punch": -3.0, "swing_lean_degrees": 0.0, "step_fov_surge": 2.0}
+      "camera": {"hit_pitch_kick": -1.0, "hit_roll_kick": 0.0, "hit_fov_punch": -2.0, "swing_lean_degrees": 0.0, "step_fov_surge": 1.5}
     }
   ]
 }
