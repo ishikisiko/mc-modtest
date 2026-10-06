@@ -46,8 +46,8 @@ import java.util.function.Function;
  * registered technique of the item's own category and grade; a manual without the component is
  * blank, any other mismatch makes it damaged (残损秘籍), which cannot be read.
  *
- * <p>Using it hands over to {@link ManualStudy#use} on the server; the client only predicts a
- * success for a valid manual so the hand does not swing on a blank or damaged one.
+ * <p>Using it hands over to {@link ManualStudy#use} on the server; the client predicts CONSUME for a
+ * valid manual (no hand swing, which would interrupt the study) and PASS for a blank or damaged one.
  */
 public class TechniqueManualItem extends Item {
     public static final int MIN_GRADE = 1;
@@ -254,9 +254,15 @@ public class TechniqueManualItem extends Item {
         if (player instanceof ServerPlayer serverPlayer) {
             return ManualStudy.use(serverPlayer, hand);
         }
-        return check(stack, level.registryAccess()).isEmpty()
-                ? InteractionResultHolder.sidedSuccess(stack, true)
-                : InteractionResultHolder.pass(stack);
+        return clientUse(stack, check(stack, level.registryAccess()).isEmpty());
+    }
+
+    /**
+     * The client's prediction: CONSUME for a valid manual, PASS otherwise. Never SUCCESS, which swings
+     * the hand; the swing reaches the server and stops the study session that just started.
+     */
+    static InteractionResultHolder<ItemStack> clientUse(ItemStack stack, boolean valid) {
+        return valid ? InteractionResultHolder.consume(stack) : InteractionResultHolder.pass(stack);
     }
 
     @Override

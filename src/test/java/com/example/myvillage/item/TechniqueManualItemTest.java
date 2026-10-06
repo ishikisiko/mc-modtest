@@ -29,6 +29,8 @@ import net.minecraft.network.chat.TextColor;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.Bootstrap;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.neoforged.fml.loading.LoadingModList;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -135,6 +137,13 @@ final class TechniqueManualItemTest {
         Component unresolved = TechniqueManualItem.name(TechniqueCategory.ACTIVE, 2, SWORD_ART, null);
         assertEquals("item.myvillage.manual.named", key(unresolved));
         assertEquals("cultivation.technique.myvillage.gengjin_jianjue", key((Component) args(unresolved)[0]));
+    }
+
+    @Test
+    void clientUseConsumesAValidManualWithoutSwingingAndPassesOtherwise() {
+        assertEquals(InteractionResult.CONSUME, TechniqueManualItem.clientUse(ItemStack.EMPTY, true).getResult());
+        assertFalse(TechniqueManualItem.clientUse(ItemStack.EMPTY, true).getResult().shouldSwing());
+        assertEquals(InteractionResult.PASS, TechniqueManualItem.clientUse(ItemStack.EMPTY, false).getResult());
     }
 
     @Test
