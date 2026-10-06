@@ -26,9 +26,9 @@ See also:
 | Move timing, damage, hit shape, step, reaction, sounds, hit-stop, camera cues | `data/<ns>/combat/style/<path>.json` |
 | Which item uses which style, rig, and geometry | `data/<ns>/combat/weapon/<path>.json` |
 | Which styles and weapons exist | `data/myvillage/combat/index.json` |
-| Third-person poses | one pose table per style in `tools/gen_sword_pal_anims.py`, each generated into its own file (`player_animations/sword_combat.json`, `spear_combat.json`) |
+| Third-person poses | one pose table per style in `tools/gen_sword_pal_anims.py`, each generated into its own file (`player_animations/sword_combat.json`, `spear_combat.json`, `fist_combat.json`) |
 | First-person keys, strike window, contact tick, off hand | the rig named by the weapon file |
-| Weapon geometry (grip, off-hand grip, head, trail span) | the geometry contract (format 2) named by the weapon file, written by the model generator its `generator` field names (`tools/gen_qingfeng_sword_model.py`, `tools/gen_lingxiao_spear_model.py`) |
+| Weapon geometry (grip, off-hand grip, head, trail span) | the geometry contract (format 2) named by the weapon file, written by the model generator its `generator` field names (`tools/gen_qingfeng_sword_model.py`, `tools/gen_lingxiao_spear_model.py`, `tools/gen_xuantie_gauntlet_model.py`) |
 | Item class | `CombatWeaponItem` for every item with a weapon file (`item/ModItems.java`) |
 | Accepted Qingfeng numbers (regression pin) | `tools/tests/test_combat_style_baseline.py` and the Java equivalence test |
 
@@ -101,7 +101,12 @@ can join `samples`.
 
 ## Weapon file (schema 1)
 
-`schema`, `item`, `style`, `first_person_rig`, `geometry`. Two weapons may
+`schema`, `item`, `style`, `first_person_rig`, `geometry`, and since 0.39.0 an
+optional `family` (lower_snake_case: `sword`, `spear`, `fist`), which must name
+the `weapon_family` of a school in `data/myvillage/myvillage/school/`
+(validator, `COMBAT_WEAPON_FAMILY`); it is the hook a school's techniques will use
+to ask for a weapon of their family without naming an item, and nothing reads it
+at runtime yet (`WeaponDefinition.family`). Two weapons may
 share a style and a rig and differ only in geometry. An item belongs to at most
 one weapon. A main-hand item with no weapon entry is not a combat weapon. The
 item itself must be registered as `CombatWeaponItem` (0.29.0): a landed hit
@@ -224,7 +229,11 @@ each hold first removes any fade modifier left from an earlier hand-over.
   `cut_paths`, and output file; grip compensation, forward kinematics, and the
   reach and cut-path checks use that table's weapon. A `two_handed` table
   solves the left arm onto the shaft (`larm=ON_SHAFT`), and long-weapon rules
-  check ground, hand-separation, and body clearance. The generator fails if a
+  check ground, hand-separation, and body clearance. A `worn` table (the
+  gauntlet, 0.39.0) keeps the item at rest on the hand at every key (`fist_key`)
+  so its blade is the right arm; a `free_off_hand` table names each move's left
+  hand role (`chamber`, `guard`, `strike`), checked by the `free_*` rules, and
+  `arm_body_clearance_px` keeps both rigid arms out of the torso and head. The generator fails if a
   pose table and its style disagree on the set of moves. `--check` and
   `--report` cover every table.
 - `tools/validate_sword_combat_foundation.py` validates the data files, then

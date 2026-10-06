@@ -257,5 +257,28 @@ On a scratch copy of the repository at the 0.30.0 release commit:
 - On the repository itself both shipped weapons report every checked step
   `DONE` (Qingfeng after its rig's `jar tf` line was added to the README).
 
-Not rehearsed: authoring a third weapon through steps 3 to 22. The checks the
-steps rely on are the ones the spear passed.
+## Third weapon: the Xuantie gauntlet (0.39.0)
+
+`myvillage:xuantie_gauntlet` (玄铁拳套, style `myvillage:basic_fist`) went through
+steps 2 to 20 from `scaffold --from myvillage:qingfeng_sword --style
+myvillage:basic_fist --moves straight_punch,horizontal_palm,uppercut,chop,step_double_strike`.
+The steps held; what a worn weapon with a free off hand needed beyond them:
+
+- Contract: the format 2 names read for a gauntlet as cuff (`butt`), the hand
+  inside the glove (`handle`, `grip_center` at the fist centre), knuckle bar
+  (`collar`), knuckle studs (`head`), with `axes.length` the punch direction
+  and the `trail` from the knuckle line to the stud tips
+  (`tools/gen_xuantie_gauntlet_model.py`). The third-person display lays the
+  punch axis along the arm, so the model sits on the fist with `right_item` at rest.
+- First person: `rig.arm.grip_diagonal` now runs to 90, where the weapon's +Y
+  lies along the hand; `rig.off_hand.free` draws a bare guard hand with no
+  contract point; per-key `off_hand_rest` / `off_hand_reach` move it (all in
+  Java, the `fp` port, the parity golden, and the validator; schema in
+  [35](35_lingxiao_spear.md#rig-off-hand-schema)).
+- Pose generator: `worn` and `free_off_hand` table flags with their rules (see
+  [34](34_combat_data_and_capture.md), Tools).
+- A weapon `family` field, checked against the schools.
+- `LiveSwingTimingTest` caught a contact tick whose hit-stop freeze ended exactly
+  on a sampled frame time (chop contact 5.3 + 1.2); the contact moved to 5.4.
+
+Not rehearsed: steps 21 and 22 (owner review, release) for the gauntlet.

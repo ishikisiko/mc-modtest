@@ -7,6 +7,74 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.39.0
+
+The 拳掌 (fist) school gets its weapon: the Xuantie Gauntlet (玄铁拳套), worn
+on the main hand, with its own five-move style and a pose set where both hands
+work. Built along the new-weapon playbook (`docs/ai-kb/36_new_combat_weapon.md`,
+"Third weapon").
+
+### Added
+
+- Item `myvillage:xuantie_gauntlet`: `CombatWeaponItem` on `Tiers.DIAMOND`,
+  `createAttributes(DIAMOND, 1, -1.8F)` (tooltip 5 damage, 2.2 speed), in
+  `myvillage:main` after the Lingxiao Spear and in `#minecraft:swords`; names
+  玄铁拳套 / Xuantie Gauntlet; item contract
+  `genops/contracts/items/xuantie_gauntlet.json`.
+- `tools/gen_xuantie_gauntlet_model.py`: the 3D gauntlet (42 elements: flared
+  cuff with a bronze 回 band and rivets, wrist strap, back lames and plate with
+  a ridge and engraved 云纹, finger-edge lames, stitched leather palm, the thumb
+  across the curled fingers, knuckle bar and four studs), a 128x128 texture
+  painted per texel (form light, bevels, chipped edges, cold sheen on dark
+  iron), a 32-grid pixel-art icon, the `separate_transforms` wrapper whose
+  third-person display puts the gauntlet on the fist, and the format 2
+  contract (cuff = butt, hand = handle with the grip at the fist centre,
+  knuckle bar = collar, studs = head, trail from the knuckle line).
+- Style `myvillage:basic_fist`: 冲拳 straight punch, 横掌 horizontal palm
+  (right to left), 上勾 uppercut, 劈掌 chopping palm, 踏步双撞 step-in double
+  strike; 9 to 11 ticks, two-tick active windows, range 1.8 to 2.2, one or two
+  targets, chain `6/7/7/8`, combo timeout 10, minimum intent interval 1; the
+  finisher steps 0.9 block on tick 5 and is the only heavy hit. Hit-stops
+  1.0 to 2.0 ticks (the finisher 1.5): captures showed 3- and 2-tick stops on
+  the 11-tick finisher dropped in first person (`ignored_too_late_to_catch_up`,
+  the hit is confirmed about 7.1 ticks in), so a test now requires every
+  shipped move's stop to fit when confirmed on its last active tick.
+- Third-person poses `player_animations/fist_combat.json` from the new
+  `BASIC_FIST` table: a 三体式-like left-lead guard, a 抱拳礼 mode entry, and
+  five strikes with hip turn and stance change; the free left hand pulls back
+  to the waist on the punch and chop, guards on the palm and uppercut, and
+  strikes level with the right on the step-in.
+- First-person rig `combat/xuantie_gauntlet_first_person.json` with a bare
+  left guard hand that counter-moves.
+- Weapon files take an optional `family` (`sword`, `spear`, `fist` set on the
+  three weapons), validated against the schools' `weapon_family`
+  (`COMBAT_WEAPON_FAMILY`); no runtime reads it yet.
+- First-person rig fields: `rig.off_hand.free` (a bare off hand, no
+  `off_hand_grip_center` needed), per-key `off_hand_rest` / `off_hand_reach`
+  (the released or free hand's rest, defaulting to the block's), and
+  `rig.arm.grip_diagonal` up to 90 (a weapon worn along the hand). Java,
+  `tools/combat_preview` port, parity golden and validator updated together.
+- Pose generator: `worn` and `free_off_hand` tables, off-hand roles
+  (`chamber`, `guard`, `strike`), the free-hand guard and role rules, and
+  `arm_body_clearance_px` (rigid arms kept out of the torso and head at and
+  between keys).
+- Tests: `BasicFistStyleTest`, `FirstPersonFreeOffHandTest`,
+  `tools/tests/test_gen_xuantie_gauntlet_model.py`, fist table and rule tests in
+  `test_gen_sword_pal_anims`, the fist baseline in
+  `test_combat_style_baseline`, family and free-hand validator tests.
+- Release gate step `gen-xuantie-gauntlet-model-check`.
+
+### Changed
+
+- `tools/validate_mod_items.py` pins the gauntlet; the creative-order message
+  reads `...->lingxiao->xuantie->spirit_stone`.
+
+### Not verified
+
+- Every look and feel item (model, icon, poses, first-person rig, trails,
+  sound pitch), real keyboard play, multiplayer, and the owner's verdict; see
+  the README "Xuantie Gauntlet (0.39.0)" ledger.
+
 ## 0.38.0
 
 Technique manuals (秘籍) and studying them (研读): a technique is now learned

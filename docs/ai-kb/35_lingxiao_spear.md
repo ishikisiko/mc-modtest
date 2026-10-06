@@ -113,6 +113,7 @@ First person (rig data, `FirstPersonArmIk` two-bone solve):
 | `upper_arm`, `forearm` | The off arm's bone lengths in blocks, 0.1 to 0.6, as `rig.arm`. Default: the main arm's. |
 | `rest_direction` | `[x, y, z]`, any non-zero length (normalised on load): the way the released hand rests from the off shoulder, in the off arm's frame (+x outward, +y up, -z forward). Default `[0.15, -1, -0.2]`: down beside the body, a little out and forward. |
 | `rest_reach` | How far the released wrist rests from the off shoulder, as a share of the off arm's length (upper arm plus forearm), 0.3 to 0.97 (the solver's reach clamp, so the rest never moves the shoulder). Default `0.9`. |
+| `free` | 0.39.0, default false. A bare off hand that never holds the weapon (the Xuantie gauntlet's guard hand): the contract needs no `off_hand_grip_center`, the hand is drawn at its keyed rest (`off_hand_rest`, `off_hand_reach`) whenever the off-hand slot is empty, as a fist pointing along the rest direction with the thumb toward the viewer (up when that is degenerate), `off_hand_roll` turns it about its own axis, `off_hand_elbow` swivels the elbow; `off_hand_slide` and `off_hand_hold` have no effect (the validator reports them). |
 
 `Rig.offArm()` builds the off arm from the block (bones, thickness, grip
 diagonal, shoulder offset, with the main arm's follow-through); the rest is
@@ -135,7 +136,9 @@ Per-key fields (interpolated like the others, ignored without the block):
 | `off_hand_slide` | 0 | Model px along the shaft from `off_hand_grip_center`, + toward the tip. Must keep the hand on the handle. |
 | `off_hand_roll` | 0 | Degrees the hand turns about the shaft from its natural reach. |
 | `off_hand_elbow` | 0 | Off elbow swivel, as `elbow`. |
-| `off_hand_hold` | 1 | 1 holds the shaft, 0 lets go; between, the hand moves toward its rest (`rest_direction`, `rest_reach`). At 0 the arm is not drawn. |
+| `off_hand_hold` | 1 | 1 holds the shaft, 0 lets go; between, the hand moves toward its rest (`off_hand_rest`, `off_hand_reach`). At 0 the arm is not drawn. |
+| `off_hand_rest` | the block's `rest_direction` | 0.39.0: `[x, y, z]`, the released (or free) hand's direction from the off shoulder in the off arm's frame; interpolated per component, normalised when used. |
+| `off_hand_reach` | the block's `rest_reach` | 0.39.0: the released (or free) wrist's distance as a share of the off arm's length, 0.3 to 0.97. |
 
 A point out of reach slides the hand to the nearest reachable shaft point,
 never off the shaft or into the main fist. The off arm takes no lag. A rig with
