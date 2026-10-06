@@ -6,6 +6,7 @@ import com.example.myvillage.sim.SectView;
 import com.example.myvillage.sim.WorldSim;
 import com.example.myvillage.sim.runtime.WorldSimRuntime;
 import com.example.myvillage.sim.runtime.WorldSimSavedData;
+import com.example.myvillage.sim.runtime.WorldSimServerConfig;
 import com.example.myvillage.sim.runtime.WorldSimText;
 import java.util.List;
 import java.util.Optional;
@@ -112,7 +113,7 @@ public final class GateBuilder {
         LOGGER.info("World sim: built the compound of sect {} ({}) at {} {} {}, seed {}, variant {}, in {} s",
                 sectId, sect.name(), anchor.getX(), anchor.getY(), anchor.getZ(), seed, variant, seconds);
         source.sendSuccess(() -> WorldSimText.line("sect_build.done", sect.name(), anchor.getX(), anchor.getY(),
-                anchor.getZ(), seconds, WorldSimAvatarConfig.spawnRadius()), true);
+                anchor.getZ(), seconds, WorldSimServerConfig.avatarSpawnRadius()), true);
         return 1;
     }
 

@@ -652,7 +652,7 @@ public final class SectGenerator {
         return new int[]{maxW, maxD};
     }
 
-    private static int[] templateFootprint(String id) {
+    static int[] templateFootprint(String id) {
         return switch (id) {
             case "sect_gate", "sect_gate_001", "sect_gate_002" -> new int[]{21, 16};
             case "sect_main_hall", "sect_main_hall_001" -> new int[]{27, 25};
@@ -1042,7 +1042,7 @@ public final class SectGenerator {
         return null;
     }
 
-    private static List<Cell> bresenham(Cell a, Cell b) {
+    static List<Cell> bresenham(Cell a, Cell b) {
         List<Cell> out = new ArrayList<>();
         int x0 = a.x;
         int z0 = a.z;
@@ -1212,7 +1212,7 @@ public final class SectGenerator {
         }
     }
 
-    private record Cell(int x, int z) {
+    record Cell(int x, int z) {
     }
 
     record Rect(int x0, int z0, int x2, int z1) {
@@ -1237,15 +1237,15 @@ public final class SectGenerator {
                    boolean cliffBack) {
     }
 
-    private record Slot(String id, int terraceIndex, String terraceName, String role, String archetype,
-                        String templateId, int importanceTier, Rect bounds, boolean againstCliffBack) {
+    record Slot(String id, int terraceIndex, String terraceName, String role, String archetype,
+                String templateId, int importanceTier, Rect bounds, boolean againstCliffBack) {
         Cell center() {
             return new Cell((bounds.x0 + bounds.x2()) / 2, (bounds.z0 + bounds.z1) / 2);
         }
     }
 
-    private record GalleryLink(String id, String kind, String fromSlot, String toSlot,
-                               Cell fromCell, Cell toCell, int[] terraceIndices) {
+    record GalleryLink(String id, String kind, String fromSlot, String toSlot,
+                       Cell fromCell, Cell toCell, int[] terraceIndices) {
     }
 
     private record RetainingFace(String id, int lower, int upper, Rect bounds, int height) {
@@ -1254,10 +1254,10 @@ public final class SectGenerator {
     private record AxisStair(String id, int lower, int upper, Rect bounds) {
     }
 
-    private record FlyingBridgeFeature(String variant, String detachedArchetype, String detachedTemplate,
-                                       String detachedSlotId, Rect detachedBounds, int[] spireOffset,
-                                       String bearing, int bridgeSpan, String bridgeShape,
-                                       GalleryLink bridge) {
+    record FlyingBridgeFeature(String variant, String detachedArchetype, String detachedTemplate,
+                               String detachedSlotId, Rect detachedBounds, int[] spireOffset,
+                               String bearing, int bridgeSpan, String bridgeShape,
+                               GalleryLink bridge) {
     }
 
     record SectPlan(BlockPos base, List<Terrace> terraces, Set<Cell> axisCells, List<Slot> slots,

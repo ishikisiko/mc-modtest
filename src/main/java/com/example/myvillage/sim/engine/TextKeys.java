@@ -19,7 +19,7 @@ import java.util.TreeMap;
  * with n variants emitted as {@code <base>.1 .. <base>.n}, the variant chosen by hash so a common
  * event does not repeat one sentence. Most families start with one or more <em>who</em> blocks of
  * {@link #WHO} params (sect, rank key, name) so each person is anchored on first mention; a rogue's
- * sect is "" and the rank key reads 散修.
+ * sect and rank are {@link #ROGUE_SECT} and {@link #ROGUE_RANK}.
  *
  * <p>{@link #legacyKeys} are the keys checkpoint-1 builds emitted. Nothing emits them any more, but
  * saved chronicles may contain them, so they stay in the language files.
@@ -29,8 +29,14 @@ public final class TextKeys {
     }
 
     public static final String P = "world_sim.event.";
-    /** Params in one who block: sect name (or ""), rank key, person name. */
+    /** Params in one who block: sect name, rank key, person name. */
     public static final int WHO = 3;
+    /**
+     * A rogue's who-block sect and rank slots. English anchors read {@code (rank sect)} and Chinese
+     * {@code sect+rank}, so the pair renders "rogue cultivator" and "" + 散修 without a stray space.
+     */
+    public static final String ROGUE_SECT = "@world_sim.anchor.rogue_sect";
+    public static final String ROGUE_RANK = "@world_sim.anchor.rogue";
 
     public static final String GENESIS_SECT = P + "genesis.sect";
 
@@ -305,6 +311,8 @@ public final class TextKeys {
         for (String rank : Rules.RANKS) {
             keys.put(rank(rank).substring(1), 0);
         }
+        keys.put(ROGUE_SECT.substring(1), 0);
+        keys.put(ROGUE_RANK.substring(1), 0);
         for (Rules.RootGrade g : data.rules().roots().grades()) {
             keys.put(rootGrade(g.id()).substring(1), 0);
         }

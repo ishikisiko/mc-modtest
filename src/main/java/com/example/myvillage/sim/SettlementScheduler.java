@@ -27,7 +27,8 @@ public final class SettlementScheduler {
     /**
      * Observes the calendar's current day index; call it whenever the calendar may have moved.
      *
-     * @param maxPending the cap on accumulated days (rules {@code scheduler.max_pending_days})
+     * @param maxPending the cap on accumulated days: rules {@code scheduler.max_pending_days} is the
+     *     ceiling; the runtime passes the smaller of it and the server config's {@code catch_up_cap_days}
      */
     public void observe(long calendarDay, int maxPending) {
         if (lastCalendarDay == UNANCHORED || paused || calendarDay < lastCalendarDay) {

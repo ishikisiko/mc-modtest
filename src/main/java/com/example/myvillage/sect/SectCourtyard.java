@@ -1,8 +1,5 @@
 package com.example.myvillage.sect;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.RecordComponent;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -21,10 +18,6 @@ import net.minecraft.core.BlockPos;
  * footprint, plus {@value #BUILDING_MARGIN} block), minus the covered-gallery cells, minus the
  * detached spire's volume and its flying bridge (plus {@value #BUILDING_MARGIN} block). The
  * position is the block above the floor, {@code terrace elevation}, i.e. terrace floor + 1.
- *
- * <p>The plan's slot, gallery and feature records are private to {@link SectGenerator}; they are
- * read here by their record component names. {@code SectCourtyardTest} pins the result against
- * the real plan, so a change of those records fails the test rather than this class silently.
  */
 public final class SectCourtyard {
     /** The {@code variant} that builds no detached spire. */
@@ -58,36 +51,34 @@ public final class SectCourtyard {
         BlockPos base = base(anchor);
         SectGenerator.SectPlan plan = SectGenerator.plan(seed, base, variant);
         Set<Long> spire = new HashSet<>();
-        Object feature = plan.feature();
+        SectGenerator.FlyingBridgeFeature feature = plan.feature();
         if (feature != null) {
-            SectGenerator.Rect detached = (SectGenerator.Rect) component(feature, "detachedBounds");
-            int[] fp = templateFootprint((String) component(feature, "detachedTemplate"));
+            SectGenerator.Rect detached = feature.detachedBounds();
+            int[] fp = SectGenerator.templateFootprint(feature.detachedTemplate());
             block(spire, union(detached, detached.x0(), detached.z0(), fp), BUILDING_MARGIN);
-            Object bridge = component(feature, "bridge");
-            for (Object cell : line(component(bridge, "fromCell"), component(bridge, "toCell"))) {
-                int x = (int) component(cell, "x");
-                int z = (int) component(cell, "z");
-                block(spire, new SectGenerator.Rect(x, z, x, z), BUILDING_MARGIN + 1); // the deck spans x ± 1
+            SectGenerator.GalleryLink bridge = feature.bridge();
+            for (SectGenerator.Cell cell : SectGenerator.bresenham(bridge.fromCell(), bridge.toCell())) {
+                block(spire, new SectGenerator.Rect(cell.x(), cell.z(), cell.x(), cell.z()),
+                        BUILDING_MARGIN + 1); // the deck spans x ± 1
             }
         }
         List<BlockPos> out = new ArrayList<>();
         for (SectGenerator.Terrace terrace : plan.terraces()) {
             Set<Long> blocked = new HashSet<>(spire);
-            for (Object slot : plan.slots()) {
-                if ((int) component(slot, "terraceIndex") != terrace.index()) {
+            for (SectGenerator.Slot slot : plan.slots()) {
+                if (slot.terraceIndex() != terrace.index()) {
                     continue;
                 }
-                SectGenerator.Rect bounds = (SectGenerator.Rect) component(slot, "bounds");
-                int[] fp = templateFootprint((String) component(slot, "templateId"));
+                SectGenerator.Rect bounds = slot.bounds();
+                int[] fp = SectGenerator.templateFootprint(slot.templateId());
                 block(blocked, union(bounds, bounds.x0(), bounds.z0(), fp), BUILDING_MARGIN);
             }
-            for (Object gallery : plan.galleries()) {
-                int[] terraces = (int[]) component(gallery, "terraceIndices");
-                if (terraces[0] != terrace.index()) {
+            for (SectGenerator.GalleryLink gallery : plan.galleries()) {
+                if (gallery.terraceIndices()[0] != terrace.index()) {
                     continue;
                 }
-                for (Object cell : line(component(gallery, "fromCell"), component(gallery, "toCell"))) {
-                    blocked.add(key((int) component(cell, "x"), (int) component(cell, "z")));
+                for (SectGenerator.Cell cell : SectGenerator.bresenham(gallery.fromCell(), gallery.toCell())) {
+                    blocked.add(key(cell.x(), cell.z()));
                 }
             }
             SectGenerator.Rect r = terrace.bounds();
@@ -132,40 +123,5 @@ public final class SectCourtyard {
 
     private static long key(int x, int z) {
         return ((long) x << 32) ^ (z & 0xffffffffL);
-    }
-
-    // --- the generator's private plan records ---------------------------------
-
-    private static Object component(Object record, String name) {
-        for (RecordComponent rc : record.getClass().getRecordComponents()) {
-            if (rc.getName().equals(name)) {
-                try {
-                    Method accessor = rc.getAccessor();
-                    accessor.setAccessible(true);
-                    return accessor.invoke(record);
-                } catch (IllegalAccessException | InvocationTargetException e) {
-                    throw new IllegalStateException("cannot read " + record.getClass().getSimpleName() + "." + name, e);
-                }
-            }
-        }
-        throw new IllegalStateException(record.getClass().getSimpleName() + " has no component " + name);
-    }
-
-    private static int[] templateFootprint(String templateId) {
-        return (int[]) invoke("templateFootprint", new Class<?>[]{String.class}, templateId);
-    }
-
-    private static List<?> line(Object from, Object to) {
-        return (List<?>) invoke("bresenham", new Class<?>[]{from.getClass(), to.getClass()}, from, to);
-    }
-
-    private static Object invoke(String method, Class<?>[] types, Object... args) {
-        try {
-            Method m = SectGenerator.class.getDeclaredMethod(method, types);
-            m.setAccessible(true);
-            return m.invoke(null, args);
-        } catch (ReflectiveOperationException e) {
-            throw new IllegalStateException("cannot call SectGenerator." + method, e);
-        }
     }
 }

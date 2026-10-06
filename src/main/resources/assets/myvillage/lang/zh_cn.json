@@ -256,6 +256,8 @@
   "world_sim.rank.inner": "内门弟子",
   "world_sim.rank.outer": "外门弟子",
   "world_sim.rank.rogue": "散修",
+  "world_sim.anchor.rogue": "散修",
+  "world_sim.anchor.rogue_sect": "",
   "world_sim.root.heaven": "天灵根",
   "world_sim.root.dual": "双灵根",
   "world_sim.root.triple": "三灵根",

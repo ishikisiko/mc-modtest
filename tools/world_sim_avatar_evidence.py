@@ -57,7 +57,7 @@ W = "myvillage world"
 CULT = "@e[type=myvillage:cultivator]"
 SURFACE_Y = -60
 EYE = 1.62
-MAX_PER_SECT = 12  # WorldSimAvatarConfig.DEFAULT_MAX_PER_SECT
+MAX_PER_SECT = 12  # WorldSimServerConfig.DEFAULT_MAX_AVATARS_PER_SECT
 SITE_W, SITE_D = 64, 180  # SectGenerator.SITE_WIDTH / SITE_DEPTH: base = anchor - (32, 0, 90)
 
 SECT_LINE = re.compile(r"^#(\d+) (\S+) \| .*? \| (\d+) members \|", re.MULTILINE)

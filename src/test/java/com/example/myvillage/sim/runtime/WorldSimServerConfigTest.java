@@ -19,6 +19,10 @@ class WorldSimServerConfigTest {
         assertEquals(30, config.<Integer>get("world_sim.catch_up_cap_days"));
         assertEquals(true, config.get("rumors.rumors_enabled"));
         assertEquals(2, config.<Integer>get("rumors.rumors_per_minute"));
+        assertEquals(true, config.get("avatars.avatars_enabled"));
+        assertEquals(64, config.<Integer>get("avatars.avatar_spawn_radius"));
+        assertEquals(12, config.<Integer>get("avatars.max_avatars_per_sect"));
+        assertEquals(40, config.<Integer>get("avatars.max_avatars"));
     }
 
     @Test

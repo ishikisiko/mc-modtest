@@ -169,7 +169,8 @@ public final class WorldSimRuntime {
         CultivationServerConfig.Scale scale = CultivationServerConfig.scale();
         List<SimEvent> events;
         try {
-            events = d.tick(calendarDay(s), WorldSimServerConfig.catchUpCapDays(), scale.daysPerYear());
+            events = d.tick(calendarDay(s), WorldSimDriver.pendingCap(WorldSimServerConfig.catchUpCapDays(), data),
+                    scale.daysPerYear());
         } catch (RuntimeException ex) {
             fail("settlement", ex);
             return;

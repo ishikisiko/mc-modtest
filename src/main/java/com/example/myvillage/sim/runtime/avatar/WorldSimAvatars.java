@@ -9,6 +9,7 @@ import com.example.myvillage.sim.SectView;
 import com.example.myvillage.sim.SimEvent;
 import com.example.myvillage.sim.WorldSim;
 import com.example.myvillage.sim.runtime.WorldSimRuntime;
+import com.example.myvillage.sim.runtime.WorldSimServerConfig;
 import com.example.myvillage.sim.runtime.WorldSimText;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -52,7 +53,7 @@ import org.slf4j.LoggerFactory;
  *       {@code avatar_spawn_radius} of the compound's site, the selected members
  *       ({@link AvatarPlanner#select}: master, elders, then by realm, up to the per-sect cap and the
  *       global cap, nearest compound first) get an avatar on a free cell whose chunk is loaded; once
- *       no player is within the radius + {@value WorldSimAvatarConfig#WITHDRAW_MARGIN}, the gate's
+ *       no player is within the radius + {@value WorldSimServerConfig#AVATAR_WITHDRAW_MARGIN}, the gate's
  *       avatars are discarded. Between the two radii nothing is spawned or withdrawn.</li>
  *   <li>Each pass and after every settled sim day, avatars of people no longer selected (dead, left,
  *       travelling, secluded, displaced by the cap) are discarded and names are refreshed.</li>
@@ -150,14 +151,14 @@ public final class WorldSimAvatars {
     private static void pass(MinecraftServer server) {
         AVATARS.values().removeIf(a -> a.entity().isRemoved()); // killed or otherwise gone: respawned below
         Optional<WorldSim> active = WorldSimRuntime.sim();
-        if (active.isEmpty() || !WorldSimAvatarConfig.enabled()) {
+        if (active.isEmpty() || !WorldSimServerConfig.avatarsEnabled()) {
             discardAll(active.isEmpty() ? "the ledger is inactive" : "avatars are disabled");
             return;
         }
         WorldSim sim = active.get();
         ServerLevel level = server.overworld();
-        int spawnRadius = WorldSimAvatarConfig.spawnRadius();
-        int withdrawRadius = WorldSimAvatarConfig.withdrawRadius();
+        int spawnRadius = WorldSimServerConfig.avatarSpawnRadius();
+        int withdrawRadius = WorldSimServerConfig.avatarWithdrawRadius();
         List<Near> near = new ArrayList<>();
         Set<Integer> valid = new HashSet<>();
         for (GateRealizations.Gate gate : GateRealizations.get(level).all()) {
@@ -207,7 +208,7 @@ public final class WorldSimAvatars {
     private static List<PersonView> selected(WorldSim sim, int sectId) {
         List<String> realmOrder = new ArrayList<>();
         WorldSimRuntime.data().ifPresent(d -> d.realms().realms().forEach(r -> realmOrder.add(r.id())));
-        return AvatarPlanner.select(sim.membersAt(sectId), realmOrder, WorldSimAvatarConfig.maxPerSect());
+        return AvatarPlanner.select(sim.membersAt(sectId), realmOrder, WorldSimServerConfig.maxAvatarsPerSect());
     }
 
     /** Discards the avatars of people no longer selected; refreshes the names of the rest. */
@@ -253,7 +254,7 @@ public final class WorldSimAvatars {
         }
         int spawned = 0;
         for (PersonView p : selected(sim, sectId)) {
-            if (AVATARS.size() >= WorldSimAvatarConfig.maxTotal()) {
+            if (AVATARS.size() >= WorldSimServerConfig.maxAvatars()) {
                 break;
             }
             if (AVATARS.containsKey(p.id())) {

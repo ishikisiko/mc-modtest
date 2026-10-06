@@ -66,6 +66,20 @@ class WorldSimDriverTest {
     }
 
     @Test
+    void theRulesPendingCapIsACeilingTheConfigMayLower() {
+        int rulesCap = RuntimeFixtures.data().rules().scheduler().maxPendingDays();
+        assertEquals(rulesCap, WorldSimDriver.pendingCap(rulesCap + 100, RuntimeFixtures.data()));
+        assertEquals(5, WorldSimDriver.pendingCap(5, RuntimeFixtures.data()));
+        WorldSimDriver driver = new WorldSimDriver(RuntimeFixtures.world());
+        long start = driver.sim().day();
+        int cap = WorldSimDriver.pendingCap(5, RuntimeFixtures.data());
+        driver.tick(0, cap, DPY);
+        driver.tick(1000, cap, DPY);
+        assertEquals(4, driver.pendingDays(), "five days capped, one settled on the jump's tick");
+        assertEquals(start + 1, driver.sim().day());
+    }
+
+    @Test
     void pauseStopsSettlementAndResumeDoesNotCatchUp() {
         WorldSimDriver driver = new WorldSimDriver(RuntimeFixtures.world());
         long start = driver.sim().day();

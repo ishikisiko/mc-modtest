@@ -113,7 +113,7 @@ world_sim_avatar:
     - water_avoiding_random_stroll
   interaction: none (mobInteract passes without effect)
   name_tag: name · realm · sect (entity.myvillage.cultivator.avatar; the realm through world_sim.realm.<id>), always visible
-  config: myvillage-world_sim_avatars-server.toml (avatars_enabled, avatar_spawn_radius, max_avatars_per_sect, max_avatars)
+  config: myvillage-world_sim-server.toml [avatars] (avatars_enabled, avatar_spawn_radius, max_avatars_per_sect, max_avatars)
 
 rendering:
   route: vanilla

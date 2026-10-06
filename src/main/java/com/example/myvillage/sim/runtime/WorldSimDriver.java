@@ -1,6 +1,7 @@
 package com.example.myvillage.sim.runtime;
 
 import com.example.myvillage.sim.SettlementScheduler;
+import com.example.myvillage.sim.SimData;
 import com.example.myvillage.sim.SimEvent;
 import com.example.myvillage.sim.WorldSim;
 import java.util.List;
@@ -31,6 +32,14 @@ public final class WorldSimDriver {
 
     public WorldSim sim() {
         return sim;
+    }
+
+    /**
+     * The pending-day cap the runtime passes to {@link #tick}: the rules' {@code
+     * scheduler.max_pending_days} is a hard ceiling, the config's {@code catch_up_cap_days} may lower it.
+     */
+    public static int pendingCap(int configCapDays, SimData data) {
+        return Math.min(configCapDays, data.rules().scheduler().maxPendingDays());
     }
 
     /**
