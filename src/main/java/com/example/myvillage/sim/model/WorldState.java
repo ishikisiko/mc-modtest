@@ -21,6 +21,8 @@ public final class WorldState {
     public final TreeMap<Integer, Tombstone> tombstones = new TreeMap<>();
     public final TreeMap<Integer, Sect> sects = new TreeMap<>();
     public final TreeMap<String, RegionState> regions = new TreeMap<>();
+    /** Heritages whose sect was destroyed, in the order they were lost. */
+    public final List<LostHeritage> lostHeritages = new ArrayList<>();
     /** Kept chronicle entries in id order (pruned per design §3.5). */
     public final List<SimEvent> chronicle = new ArrayList<>();
     public SettlementScheduler scheduler = new SettlementScheduler();

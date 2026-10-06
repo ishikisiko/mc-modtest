@@ -23,7 +23,8 @@ import java.util.List;
  */
 public final class StateCodec {
     public static final String FORMAT = "myvillage:world_sim";
-    public static final int VERSION = 1;
+    /** 2 (0.37.0): sects carry {@code heritage}, the state carries {@code lost_heritages}. */
+    public static final int VERSION = 2;
 
     private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
 
@@ -66,6 +67,15 @@ public final class StateCodec {
             sects.add(sect(sect));
         }
         o.add("sects", sects);
+        JsonArray lost = new JsonArray();
+        for (LostHeritage h : s.lostHeritages) {
+            JsonObject lo = new JsonObject();
+            lo.addProperty("heritage", h.heritageId());
+            lo.addProperty("sect", h.sectId());
+            lo.addProperty("day", h.day());
+            lost.add(lo);
+        }
+        o.add("lost_heritages", lost);
         JsonArray persons = new JsonArray();
         for (Person p : s.persons.values()) {
             persons.add(person(p, realms));
@@ -100,6 +110,7 @@ public final class StateCodec {
         o.addProperty("prestige", s.prestige);
         o.addProperty("signature_technique", s.signatureTechniqueId);
         o.addProperty("basic_technique", s.basicTechniqueId);
+        o.addProperty("heritage", s.heritageId);
         JsonArray rel = new JsonArray();
         for (SectRelation r : s.relations.values()) {
             JsonObject ro = new JsonObject();
@@ -301,6 +312,9 @@ public final class StateCodec {
             Sect sect = readSect(so);
             s.sects.put(sect.id, sect);
         }
+        for (Obj lo : o.optObjects("lost_heritages")) {
+            s.lostHeritages.add(new LostHeritage(lo.str("heritage"), lo.optInt("sect", -1), lo.lng("day")));
+        }
         for (Obj po : o.objects("persons")) {
             Person p = readPerson(po, realms);
             s.persons.put(p.id, p);
@@ -340,6 +354,7 @@ public final class StateCodec {
         s.prestige = o.optDouble("prestige", 0.0);
         s.signatureTechniqueId = o.optStr("signature_technique", "");
         s.basicTechniqueId = o.optStr("basic_technique", "");
+        s.heritageId = o.optStr("heritage", "");
         for (Obj r : o.optObjects("relations")) {
             SectRelation rel = new SectRelation(r.integer("other"));
             rel.value = r.optInt("value", 0);

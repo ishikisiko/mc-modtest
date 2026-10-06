@@ -24,6 +24,8 @@ public final class Sect {
     public double prestige;
     public String signatureTechniqueId = "";
     public String basicTechniqueId = "";
+    /** The heritage (传承) the sect holds, or "" for none. Kept after destruction, for history. */
+    public String heritageId = "";
     public final TreeMap<Integer, SectRelation> relations = new TreeMap<>();
     public String state = ACTIVE;
     public long destroyedDay = -1;
