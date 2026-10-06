@@ -12,6 +12,7 @@ import com.example.myvillage.sim.WorldSim;
 import com.example.myvillage.sim.engine.PlayerAffairs;
 import com.example.myvillage.sim.runtime.avatar.GateBuilder;
 import com.example.myvillage.sim.runtime.avatar.GateRealizerCommands;
+import com.example.myvillage.sim.runtime.avatar.ScriptureShelfCommands;
 import com.example.myvillage.sim.runtime.net.WorldSimSnapshots;
 import com.example.myvillage.sim.runtime.player.WorldSimPlayers;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -84,6 +85,7 @@ public final class WorldSimCommands {
                                         .executes(ctx -> buildGate(ctx.getSource(), IntegerArgumentType.getInteger(ctx, "id"), false))
                                         .then(Commands.literal("here")
                                                 .executes(ctx -> buildGate(ctx.getSource(), IntegerArgumentType.getInteger(ctx, "id"), true))))
+                                .then(ScriptureShelfCommands.node())
                                 .then(Commands.literal("join")
                                         .then(Commands.argument("player", EntityArgument.player())
                                                 .executes(ctx -> joinPlayer(ctx.getSource(), IntegerArgumentType.getInteger(ctx, "id"),

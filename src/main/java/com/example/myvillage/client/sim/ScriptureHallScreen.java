@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  * hall, shown in place by {@link #update}). Esc or the leave button closes. It does not pause.
  *
  * <p>After every layout each borrow button is logged as
- * {@code SCRIPTURE_HALL_UI technique=<id> x= y= w= h=} in screen pixels (GUI coordinates times
+ * {@code SCRIPTURE_HALL_UI technique=<id> borrowed=<true|false> x= y= w= h=} in screen pixels (GUI coordinates times
  * the GUI scale), for the headless evidence script to click.
  */
 public final class ScriptureHallScreen extends Screen {
@@ -119,8 +119,8 @@ public final class ScriptureHallScreen extends Screen {
                         .build();
                 button.active = !entry.borrowed();
                 addRenderableWidget(button);
-                LOGGER.info("SCRIPTURE_HALL_UI technique={} x={} y={} w={} h={}", entry.techniqueId(),
-                        Math.round(button.getX() * scale), Math.round(button.getY() * scale),
+                LOGGER.info("SCRIPTURE_HALL_UI technique={} borrowed={} x={} y={} w={} h={}", entry.techniqueId(),
+                        entry.borrowed(), Math.round(button.getX() * scale), Math.round(button.getY() * scale),
                         Math.round(button.getWidth() * scale), Math.round(button.getHeight() * scale));
                 y += ROW_HEIGHT;
             }
