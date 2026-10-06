@@ -94,4 +94,31 @@ public final class CombatFeedbackService {
                         struckEntityIds,
                         contactPoints));
     }
+
+    /**
+     * A started dodge: a low thrust whoosh for everyone nearby and a puff of cloud at the feet,
+     * spread along the travel direction {@code forward} (a horizontal unit vector).
+     */
+    public static void dodge(ServerPlayer player, Vec3 forward) {
+        ServerLevel level = player.serverLevel();
+        level.playSound(
+                null,
+                player.getX(),
+                player.getY(),
+                player.getZ(),
+                CombatSounds.SWORD_THRUST.get(),
+                SoundSource.PLAYERS,
+                0.6F,
+                0.75F);
+        level.sendParticles(
+                ParticleTypes.CLOUD,
+                player.getX(),
+                player.getY() + 0.1,
+                player.getZ(),
+                8,
+                0.1 + Math.abs(forward.x) * 0.6,
+                0.05,
+                0.1 + Math.abs(forward.z) * 0.6,
+                0.02);
+    }
 }

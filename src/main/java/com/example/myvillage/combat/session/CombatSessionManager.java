@@ -10,6 +10,7 @@ import com.example.myvillage.combat.network.CombatAttackStartPayload;
 import com.example.myvillage.combat.network.CombatAttackStopPayload;
 import com.example.myvillage.combat.runtime.CombatDamageService;
 import com.example.myvillage.combat.runtime.CombatDebugService;
+import com.example.myvillage.combat.runtime.CombatDodgeService;
 import com.example.myvillage.combat.runtime.CombatFeedbackService;
 import com.example.myvillage.combat.runtime.CombatHitResolver;
 import com.example.myvillage.combat.runtime.CombatStepService;
@@ -49,6 +50,11 @@ public final class CombatSessionManager {
     }
 
     public static boolean handleAttackIntent(ServerPlayer player) {
+        // No attack inside a dodge's invulnerable window; once it closes, dodge-into-attack is fine.
+        if (CombatDodgeService.isDodging(player)) {
+            sendRejection(player);
+            return false;
+        }
         long tick = player.serverLevel().getGameTime();
         if (MeditationManager.status(player).state().active()) {
             MeditationManager.requestStop(player, MeditationStopReason.ATTACKED);
@@ -155,6 +161,40 @@ public final class CombatSessionManager {
             ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
             return player == null || player.serverLevel().getGameTime() >= entry.getValue();
         });
+    }
+
+    /**
+     * Whether a dodge may start now as far as the attack session is concerned: true with no action
+     * running, or once the action is past its last active tick (its recovery). Has no side effect.
+     */
+    public static boolean canDodgeCancel(ServerPlayer player) {
+        return dodgeCancelAllowed(SESSIONS.get(player.getUUID()), player.serverLevel().getGameTime());
+    }
+
+    /**
+     * Makes room for a dodge: true with no action running; in an action's recovery
+     * ({@code actionTick > activeEndTick}) the action is interrupted with {@link CombatStopReason#DODGED}
+     * (combo reset, no recovery block) and true is returned; during anticipation or the strike the
+     * dodge is refused (false) and nothing changes.
+     */
+    public static boolean tryDodgeCancel(ServerPlayer player) {
+        CombatSession session = SESSIONS.get(player.getUUID());
+        long tick = player.serverLevel().getGameTime();
+        if (!dodgeCancelAllowed(session, tick)) {
+            return false;
+        }
+        if (session != null && session.hasActiveAction()) {
+            interrupt(player, CombatStopReason.DODGED, false);
+        }
+        return true;
+    }
+
+    /** The recovery-only dodge-cancel rule: no action, or {@code actionTick > move.activeEndTick()}. */
+    static boolean dodgeCancelAllowed(CombatSession session, long serverTick) {
+        if (session == null || !session.hasActiveAction()) {
+            return true;
+        }
+        return session.actionTick(serverTick) > session.currentMove().activeEndTick();
     }
 
     public static void interrupt(

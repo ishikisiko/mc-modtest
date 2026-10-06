@@ -63,10 +63,7 @@ public final class CombatStepService {
         if (!(planned > 0.0)) {
             return Optional.empty();
         }
-        double safeDistance = chooseSafeDistance(
-                planned,
-                SAMPLE_INCREMENT,
-                distance -> isSafeDestination(player, forward.scale(distance), step.supportDepth()));
+        double safeDistance = safeDistance(player, forward, planned, step.supportDepth());
         if (safeDistance <= 0.0) {
             return Optional.empty();
         }
@@ -76,6 +73,19 @@ public final class CombatStepService {
         player.hurtMarked = true;
         return Optional.of(new CombatHitResolver.StepSweep(
                 start, start.add(forward.scale(safeDistance)), step.actionTick()));
+    }
+
+    /**
+     * Longest distance up to {@code maximumDistance} (in {@value #SAMPLE_INCREMENT}-block samples) that
+     * the player can slide along the horizontal unit vector {@code forward} without hitting a collider
+     * and still with ground within {@code supportDepth} below the destination; 0 when none is safe.
+     * Shared by action steps and the 身法 dodge.
+     */
+    static double safeDistance(ServerPlayer player, Vec3 forward, double maximumDistance, double supportDepth) {
+        return chooseSafeDistance(
+                maximumDistance,
+                SAMPLE_INCREMENT,
+                distance -> isSafeDestination(player, forward.scale(distance), supportDepth));
     }
 
     /** Initial ground speed (blocks per tick) that slides a grounded entity {@code distance}. */

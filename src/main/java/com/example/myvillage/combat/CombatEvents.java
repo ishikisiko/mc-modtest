@@ -3,6 +3,7 @@ package com.example.myvillage.combat;
 import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.combat.definition.CombatStyles;
 import com.example.myvillage.combat.runtime.CombatDamageService;
+import com.example.myvillage.combat.runtime.CombatDodgeService;
 import com.example.myvillage.combat.runtime.CombatReactionService;
 import com.example.myvillage.combat.session.CombatSessionManager;
 import com.example.myvillage.combat.session.CombatStopReason;
@@ -47,6 +48,7 @@ public final class CombatEvents {
         NeoForge.EVENT_BUS.addListener(CombatEvents::onLivingKnockBack);
         NeoForge.EVENT_BUS.addListener(CombatReactionService::onEntityTickPre);
         NeoForge.EVENT_BUS.addListener(CombatReactionService::onIncomingDamage);
+        NeoForge.EVENT_BUS.addListener(CombatDodgeService::onIncomingDamage);
         NeoForge.EVENT_BUS.addListener(CombatEvents::onEntityLeaveLevel);
     }
 
@@ -55,6 +57,7 @@ public final class CombatEvents {
         CombatService.clearRuntime();
         CombatSessionManager.clearAll(event.getServer(), CombatStopReason.SERVER_STOPPING);
         CombatReactionService.clearAll();
+        CombatDodgeService.clearAll();
         CombatStyles styles = CombatStyles.bundled();
         LOGGER.info(
                 "Combat foundation registered: attachment={}, styles={} ({} moves), weapons={} {}",
@@ -87,6 +90,7 @@ public final class CombatEvents {
         if (event.getEntity() instanceof ServerPlayer player) {
             CombatSessionManager.interrupt(player, CombatStopReason.DIMENSION_CHANGED, false);
             CombatSessionManager.removeRuntime(player.getUUID(), true);
+            CombatDodgeService.clear(player.getUUID());
             CombatService.syncToClient(player);
         }
     }
@@ -95,6 +99,7 @@ public final class CombatEvents {
         if (event.getEntity() instanceof ServerPlayer player) {
             CombatSessionManager.interrupt(player, CombatStopReason.LOGOUT, false);
             CombatSessionManager.removeRuntime(player.getUUID(), true);
+            CombatDodgeService.clear(player.getUUID());
             CombatService.onPlayerRemoved(player.getUUID());
         }
     }
@@ -104,6 +109,7 @@ public final class CombatEvents {
         if (event.getEntity() instanceof ServerPlayer player) {
             CombatSessionManager.interrupt(player, CombatStopReason.DEATH, false);
             CombatSessionManager.removeRuntime(player.getUUID(), true);
+            CombatDodgeService.clear(player.getUUID());
         }
     }
 
@@ -116,11 +122,13 @@ public final class CombatEvents {
     private static void onServerTick(ServerTickEvent.Post event) {
         CombatSessionManager.tick(event.getServer());
         CombatReactionService.tick();
+        CombatDodgeService.tick(event.getServer());
     }
 
     private static void onServerStopping(ServerStoppingEvent event) {
         CombatSessionManager.clearAll(event.getServer(), CombatStopReason.SERVER_STOPPING);
         CombatReactionService.clearAll();
+        CombatDodgeService.clearAll();
         CombatService.clearRuntime();
     }
 

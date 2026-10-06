@@ -1,9 +1,11 @@
 package com.example.myvillage.combat.network;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.example.myvillage.combat.CombatMode;
+import com.example.myvillage.combat.DodgeDirection;
 import com.example.myvillage.combat.session.CombatStopReason;
 import com.example.myvillage.network.ModPayloads;
 import io.netty.buffer.Unpooled;
@@ -109,6 +111,71 @@ class CombatPayloadTest {
                         1,
                         1,
                         Float.NaN));
+    }
+
+    @Test
+    void dodgeIntentIsOneByteOfMovementInput() {
+        assertEquals(
+                List.of("direction"),
+                java.util.Arrays.stream(CombatDodgeIntentPayload.class.getRecordComponents())
+                        .map(java.lang.reflect.RecordComponent::getName)
+                        .toList());
+        for (DodgeDirection direction : DodgeDirection.values()) {
+            RegistryFriendlyByteBuf buffer = buffer();
+            try {
+                CombatDodgeIntentPayload payload = new CombatDodgeIntentPayload(direction);
+                CombatDodgeIntentPayload.STREAM_CODEC.encode(buffer, payload);
+                assertEquals(1, buffer.readableBytes());
+                assertEquals(payload, CombatDodgeIntentPayload.STREAM_CODEC.decode(buffer));
+                assertEquals(0, buffer.readableBytes());
+            } finally {
+                buffer.release();
+            }
+        }
+        assertThrows(NullPointerException.class, () -> new CombatDodgeIntentPayload(null));
+        RegistryFriendlyByteBuf malformed = buffer();
+        try {
+            malformed.writeByte(DodgeDirection.values().length);
+            assertThrows(
+                    IllegalArgumentException.class,
+                    () -> CombatDodgeIntentPayload.STREAM_CODEC.decode(malformed));
+        } finally {
+            malformed.release();
+        }
+    }
+
+    @Test
+    void dodgeStartRoundTripsAndRejectsOutOfBoundsFields() {
+        ResourceLocation technique = ResourceLocation.fromNamespaceAndPath("myvillage", "taxue_wuhen");
+        CombatDodgeStartPayload start = new CombatDodgeStartPayload(42, 1_234L, -135.0F, 4.5F, 7, 7, 24, technique);
+        assertRoundTrip(start, CombatDodgeStartPayload.STREAM_CODEC);
+        assertRoundTrip(
+                new CombatDodgeStartPayload(0, 0L, 180.0F, 0.1F, 0, 6, 0, technique),
+                CombatDodgeStartPayload.STREAM_CODEC);
+        assertNotNull(start.type());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> new CombatDodgeStartPayload(-1, 1L, 0.0F, 3.5F, 5, 6, 30, technique));
+        assertThrows(IllegalArgumentException.class,
+                () -> new CombatDodgeStartPayload(42, -1L, 0.0F, 3.5F, 5, 6, 30, technique));
+        assertThrows(IllegalArgumentException.class,
+                () -> new CombatDodgeStartPayload(42, 1L, 0.0F, 0.0F, 5, 6, 30, technique));
+        assertThrows(IllegalArgumentException.class,
+                () -> new CombatDodgeStartPayload(42, 1L, 0.0F, Float.NaN, 5, 6, 30, technique));
+        assertThrows(IllegalArgumentException.class,
+                () -> new CombatDodgeStartPayload(42, 1L, 0.0F, Float.POSITIVE_INFINITY, 5, 6, 30, technique));
+        assertThrows(IllegalArgumentException.class,
+                () -> new CombatDodgeStartPayload(42, 1L, Float.NaN, 3.5F, 5, 6, 30, technique));
+        assertThrows(IllegalArgumentException.class,
+                () -> new CombatDodgeStartPayload(42, 1L, 0.0F, 3.5F, -1, 6, 30, technique));
+        assertThrows(IllegalArgumentException.class,
+                () -> new CombatDodgeStartPayload(42, 1L, 0.0F, 3.5F, 5, 6, -1, technique));
+        assertThrows(IllegalArgumentException.class,
+                () -> new CombatDodgeStartPayload(42, 1L, 0.0F, 3.5F, 7, 6, 30, technique));
+        assertThrows(IllegalArgumentException.class,
+                () -> new CombatDodgeStartPayload(42, 1L, 0.0F, 3.5F, 0, 0, 30, technique));
+        assertThrows(NullPointerException.class,
+                () -> new CombatDodgeStartPayload(42, 1L, 0.0F, 3.5F, 5, 6, 30, null));
     }
 
     @Test
