@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNotSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.example.myvillage.cultivation.data.TechniqueCategory;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.Codec;
@@ -18,10 +19,10 @@ import org.junit.jupiter.api.Test;
 
 class CultivationProfileTest {
     @Test
-    void defaultProfileHasExactVersionThreeValues() {
+    void defaultProfileHasExactVersionFourValues() {
         CultivationProfile profile = CultivationProfile.defaultProfile();
 
-        assertEquals(3, profile.schemaVersion());
+        assertEquals(4, profile.schemaVersion());
         assertEquals(id("myvillage", "mortal"), profile.realmId());
         assertEquals(id("myvillage", "mortal_unawakened"), profile.stageId());
         assertEquals(0L, profile.cultivationProgress());
@@ -33,6 +34,7 @@ class CultivationProfileTest {
         assertTrue(profile.spiritualRoot().isEmpty());
         assertFalse(profile.awakened());
         assertTrue(profile.learnedTechniques().isEmpty());
+        assertTrue(profile.activeCoreTechnique().isEmpty());
     }
 
     @Test
@@ -41,7 +43,7 @@ class CultivationProfileTest {
                 id("myvillage", "fire"), 6_250,
                 id("addon", "lightning"), 3_750));
         CultivationProfile profile = new CultivationProfile(
-                3,
+                4,
                 id("addon", "lost_realm"),
                 id("addon", "lost_stage"),
                 9_876_543_210L,
@@ -53,7 +55,8 @@ class CultivationProfileTest {
                 Optional.of(root),
                 Map.of(
                         id("myvillage", "basic_breathing"), new TechniqueProgress(41),
-                        id("addon", "forgotten_art"), new TechniqueProgress(99)));
+                        id("addon", "forgotten_art"), new TechniqueProgress(99)),
+                Optional.of(id("myvillage", "basic_breathing")));
 
         assertEquals(profile, roundTrip(CultivationProfile.CODEC, profile));
     }
@@ -178,7 +181,7 @@ class CultivationProfileTest {
         Map<ResourceLocation, TechniqueProgress> learned = new LinkedHashMap<>();
         learned.put(technique, new TechniqueProgress(7));
         CultivationProfile profile = new CultivationProfile(
-                3,
+                4,
                 CultivationProfile.DEFAULT_REALM_ID,
                 CultivationProfile.DEFAULT_STAGE_ID,
                 0,
@@ -188,7 +191,8 @@ class CultivationProfileTest {
                 11,
                 12,
                 Optional.of(root),
-                learned);
+                learned,
+                Optional.empty());
 
         affinities.clear();
         learned.clear();
@@ -271,7 +275,8 @@ class CultivationProfileTest {
         assertEquals(id("removed_pack", "lost_realm"), decoded.realmId());
         assertEquals(id("removed_pack", "lost_stage"), decoded.stageId());
         assertEquals(9_876_543_210L, decoded.cultivationProgress());
-        assertEquals(3, decoded.schemaVersion());
+        assertEquals(4, decoded.schemaVersion());
+        assertTrue(decoded.activeCoreTechnique().isEmpty());
         assertEquals(10, decoded.spiritualAffinity());
         assertEquals(0L, decoded.lifespanConsumedTicks());
         assertEquals(0L, decoded.meditationQiReserve());
@@ -285,14 +290,14 @@ class CultivationProfileTest {
                 .encodeStart(JsonOps.INSTANCE, decoded)
                 .getOrThrow()
                 .getAsJsonObject();
-        assertEquals(3, reencoded.get("schema_version").getAsInt());
+        assertEquals(4, reencoded.get("schema_version").getAsInt());
         assertEquals(10, reencoded.get("spiritual_affinity").getAsInt());
         assertEquals(0, reencoded.get("lifespan_consumed_ticks").getAsLong());
         assertEquals(0, reencoded.get("meditation_qi_reserve").getAsLong());
     }
 
     @Test
-    void versionTwoMigrationPreservesAllLegacyValuesAndEncodesOnlyVersionThree() {
+    void versionTwoMigrationPreservesAllLegacyValuesAndEncodesOnlyVersionFour() {
         CultivationProfile decoded = CultivationProfile.CODEC.parse(
                         JsonOps.INSTANCE,
                         JsonParser.parseString("""
@@ -319,7 +324,7 @@ class CultivationProfileTest {
                                 """))
                 .getOrThrow();
 
-        assertEquals(3, decoded.schemaVersion());
+        assertEquals(4, decoded.schemaVersion());
         assertEquals(10, decoded.spiritualAffinity());
         assertEquals(1_234, decoded.cultivationProgress());
         assertEquals(56, decoded.stability());
@@ -333,7 +338,7 @@ class CultivationProfileTest {
                 .encodeStart(JsonOps.INSTANCE, decoded)
                 .getOrThrow()
                 .getAsJsonObject();
-        assertEquals(3, reencoded.get("schema_version").getAsInt());
+        assertEquals(4, reencoded.get("schema_version").getAsInt());
         assertEquals(10, reencoded.get("spiritual_affinity").getAsInt());
         assertEquals(9_012, reencoded.get("lifespan_consumed_ticks").getAsLong());
         assertEquals(345, reencoded.get("meditation_qi_reserve").getAsLong());
@@ -356,7 +361,7 @@ class CultivationProfileTest {
                 }
                 """;
 
-        assertDecodeError(profileJson.formatted(4, 0, 0, 0, 10, 0, 0));
+        assertDecodeError(profileJson.formatted(5, 0, 0, 0, 10, 0, 0));
         assertDecodeError(profileJson.formatted(3, -1, 0, 0, 10, 0, 0));
         assertDecodeError(profileJson.formatted(3, 0, -1, 0, 10, 0, 0));
         assertDecodeError(profileJson.formatted(3, 0, 0, -1, 10, 0, 0));
@@ -376,7 +381,116 @@ class CultivationProfileTest {
                         0,
                         0,
                         Optional.empty(),
-                        Map.of()));
+                        Map.of(),
+                        Optional.empty()));
+    }
+
+    @Test
+    void versionThreeMigrationRunsBasicBreathingWhenItIsLearned() {
+        String v3 = """
+                {
+                  "schema_version": 3,
+                  "realm_id": "myvillage:qi_refining",
+                  "stage_id": "myvillage:qi_refining_2",
+                  "cultivation_progress": 640,
+                  "stability": 12,
+                  "current_spiritual_power": 3,
+                  "spiritual_affinity": 17,
+                  "lifespan_consumed_ticks": 4321,
+                  "meditation_qi_reserve": 9,
+                  "learned_techniques": %s
+                }
+                """;
+        CultivationProfile withBreathing = decode(v3.formatted("""
+                { "myvillage:basic_breathing": { "mastery_points": 5 },
+                  "addon:other_core": { "mastery_points": 1 } }
+                """));
+        assertEquals(4, withBreathing.schemaVersion());
+        assertEquals(Optional.of(id("myvillage", "basic_breathing")), withBreathing.activeCoreTechnique());
+        assertEquals(640, withBreathing.cultivationProgress());
+        assertEquals(17, withBreathing.spiritualAffinity());
+        assertEquals(4_321, withBreathing.lifespanConsumedTicks());
+        assertEquals(new TechniqueProgress(5),
+                withBreathing.learnedTechniques().get(id("myvillage", "basic_breathing")));
+
+        CultivationProfile withoutBreathing = decode(v3.formatted("""
+                { "addon:other_core": { "mastery_points": 1 } }
+                """));
+        assertEquals(4, withoutBreathing.schemaVersion());
+        assertTrue(withoutBreathing.activeCoreTechnique().isEmpty());
+
+        JsonObject reencoded = CultivationProfile.CODEC
+                .encodeStart(JsonOps.INSTANCE, withBreathing)
+                .getOrThrow()
+                .getAsJsonObject();
+        assertEquals(4, reencoded.get("schema_version").getAsInt());
+        assertEquals("myvillage:basic_breathing", reencoded.get("active_core_technique").getAsString());
+        assertFalse(CultivationProfile.CODEC
+                .encodeStart(JsonOps.INSTANCE, withoutBreathing)
+                .getOrThrow()
+                .getAsJsonObject()
+                .has("active_core_technique"));
+        assertEquals(withBreathing, roundTrip(CultivationProfile.CODEC, withBreathing));
+    }
+
+    @Test
+    void versionFourDecodeKeepsTheRunningCoreAndDropsOneThatIsNotLearned() {
+        String v4 = """
+                {
+                  "schema_version": 4,
+                  "realm_id": "myvillage:mortal",
+                  "stage_id": "myvillage:mortal_qi_sensed",
+                  "cultivation_progress": 0,
+                  "stability": 0,
+                  "current_spiritual_power": 0,
+                  "spiritual_affinity": 10,
+                  "lifespan_consumed_ticks": 0,
+                  "meditation_qi_reserve": 0,
+                  "learned_techniques": { "myvillage:basic_breathing": { "mastery_points": 0 },
+                                          "myvillage:gengjin_yinqi_fa": { "mastery_points": 0 } },
+                  "active_core_technique": "%s"
+                }
+                """;
+        assertEquals(Optional.of(id("myvillage", "gengjin_yinqi_fa")),
+                decode(v4.formatted("myvillage:gengjin_yinqi_fa")).activeCoreTechnique());
+        assertTrue(decode(v4.formatted("myvillage:forgotten")).activeCoreTechnique().isEmpty());
+    }
+
+    @Test
+    void runningCoreTechniqueFollowsLearnForgetAndMastery() {
+        ResourceLocation breathing = id("myvillage", "basic_breathing");
+        ResourceLocation other = id("myvillage", "gengjin_yinqi_fa");
+        ResourceLocation sword = id("myvillage", "gengjin_jianjue");
+        CultivationProfile initial = CultivationProfile.defaultProfile();
+
+        CultivationProfile first = initial.learnTechnique(breathing, TechniqueCategory.CORE);
+        assertEquals(Optional.of(breathing), first.activeCoreTechnique());
+        CultivationProfile second = first.learnTechnique(other, TechniqueCategory.CORE);
+        assertEquals(Optional.of(breathing), second.activeCoreTechnique());
+        CultivationProfile active = second.learnTechnique(sword, TechniqueCategory.ACTIVE);
+        assertEquals(Optional.of(breathing), active.activeCoreTechnique());
+        assertTrue(initial.learnTechnique(sword, TechniqueCategory.ACTIVE).activeCoreTechnique().isEmpty());
+        assertTrue(initial.learnTechnique(breathing).activeCoreTechnique().isEmpty());
+
+        CultivationProfile mastered = active.withTechniqueMastery(breathing, 9)
+                .withCultivationProgress(77)
+                .withStability(3)
+                .withSpiritualAffinity(12);
+        assertEquals(Optional.of(breathing), mastered.activeCoreTechnique());
+        CultivationProfile switched = mastered.withActiveCoreTechnique(other);
+        assertEquals(Optional.of(other), switched.activeCoreTechnique());
+        assertEquals(Optional.of(breathing), mastered.activeCoreTechnique());
+
+        CultivationProfile forgotOther = switched.forgetTechnique(breathing);
+        assertEquals(Optional.of(other), forgotOther.activeCoreTechnique());
+        assertTrue(switched.forgetTechnique(other).activeCoreTechnique().isEmpty());
+
+        assertThrows(IllegalArgumentException.class, () -> initial.withActiveCoreTechnique(breathing));
+        assertTrue(CultivationProfile.defaultProfile().activeCoreTechnique().isEmpty());
+    }
+
+    private static CultivationProfile decode(String json) {
+        return CultivationProfile.CODEC.parse(JsonOps.INSTANCE, JsonParser.parseString(json)).getOrThrow();
     }
 
     private static void assertDecodeError(String json) {

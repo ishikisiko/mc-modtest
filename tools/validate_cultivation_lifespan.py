@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate cultivation profile-v3, lifespan, and shared-calendar contracts."""
+"""Validate cultivation profile-v4, lifespan, and shared-calendar contracts."""
 
 from __future__ import annotations
 
@@ -109,15 +109,21 @@ class CultivationLifespanValidator:
             ("long lifespanConsumedTicks", "profile must store lifespanConsumedTicks as long"),
             ("long meditationQiReserve", "profile must store meditationQiReserve as long"),
             ("int spiritualAffinity", "profile must store spiritualAffinity as an integer"),
-            ("CURRENT_SCHEMA_VERSION = 3", "current profile schema must be version 3"),
+            ("CURRENT_SCHEMA_VERSION = 4", "current profile schema must be version 4"),
             ("DEFAULT_SPIRITUAL_AFFINITY = 10", "default spiritual affinity must be 10"),
             ("Codec<SerializedV1Profile> V1_CODEC", "explicit v1 DTO codec is missing"),
             ("Codec<SerializedV2Profile> V2_CODEC", "explicit v2 DTO codec is missing"),
             ("Codec<SerializedV3Profile> V3_CODEC", "explicit v3 DTO codec is missing"),
+            ("Codec<SerializedV4Profile> V4_CODEC", "explicit v4 DTO codec is missing"),
             ("Codec.either(V3_CODEC, Codec.either(V2_CODEC, V1_CODEC))", "profile codec must dispatch among v3 and retained v1/v2"),
+            ("V4_CODEC, Codec.either(V3_CODEC", "profile codec must dispatch v4 ahead of the retained v1/v2/v3 shapes"),
+            (".validate(SerializedV4Profile::requireVersion)", "v4 codec must be selected by schema version"),
             ("SerializedV1Profile::migrate", "profile codec must invoke explicit v1 migration"),
             ("SerializedV2Profile::migrate", "profile codec must invoke explicit v2 migration"),
-            ("Either.left(profile.serializeV3())", "profile encoder must emit only the v3 shape"),
+            ("SerializedV3Profile::migrate", "profile codec must invoke explicit v3 migration"),
+            ("Either.left(profile.serializeV4())", "profile encoder must emit only the v4 shape"),
+            ('optionalFieldOf("active_core_technique")', "v4 codec omits the optional active_core_technique"),
+            ("migratedActiveCoreTechnique(learnedTechniques)", "v3 migration must derive the running core technique"),
             ('fieldOf("spiritual_affinity")', "v3 codec omits spiritual_affinity"),
             ('fieldOf("lifespan_consumed_ticks")', "v2/v3 codecs omit lifespan_consumed_ticks"),
             ('fieldOf("meditation_qi_reserve")', "v2/v3 codecs omit meditation_qi_reserve"),
@@ -164,14 +170,24 @@ class CultivationLifespanValidator:
         ) is None:
             self.error(profile_path, "v1 migration must preserve old fields, initialize v2 counters to zero, and continue through v2 migration")
         if re.search(
-            r"CURRENT_SCHEMA_VERSION\s*,\s*realmId\s*,\s*stageId\s*,\s*"
+            r"new\s+SerializedV3Profile\s*\(\s*3\s*,\s*realmId\s*,\s*stageId\s*,\s*"
             r"cultivationProgress\s*,\s*stability\s*,\s*currentSpiritualPower\s*,\s*"
             r"DEFAULT_SPIRITUAL_AFFINITY\s*,\s*lifespanConsumedTicks\s*,\s*"
-            r"meditationQiReserve\s*,\s*spiritualRoot\s*,\s*learnedTechniques",
+            r"meditationQiReserve\s*,\s*spiritualRoot\s*,\s*learnedTechniques\s*\)\.migrate\(\)",
             profile,
             re.DOTALL,
         ) is None:
             self.error(profile_path, "v2 migration must preserve lifespan/reserve and default affinity to 10")
+        if re.search(
+            r"CURRENT_SCHEMA_VERSION\s*,\s*realmId\s*,\s*stageId\s*,\s*"
+            r"cultivationProgress\s*,\s*stability\s*,\s*currentSpiritualPower\s*,\s*"
+            r"spiritualAffinity\s*,\s*lifespanConsumedTicks\s*,\s*"
+            r"meditationQiReserve\s*,\s*spiritualRoot\s*,\s*learnedTechniques\s*,\s*"
+            r"migratedActiveCoreTechnique\(learnedTechniques\)",
+            profile,
+            re.DOTALL,
+        ) is None:
+            self.error(profile_path, "v3 migration must preserve every v3 field and add the running core technique")
 
         attachments_path = JAVA / "cultivation/CultivationAttachments.java"
         attachments = self.read(attachments_path)
@@ -394,7 +410,7 @@ def main() -> int:
         return 1
     print(
         "cultivation lifespan validation passed: "
-        f"checked_files={result.checked_files}; schema=3; affinity_default=10; realm_years=80/120/240; batch_ticks=600; "
+        f"checked_files={result.checked_files}; schema=4; affinity_default=10; realm_years=80/120/240; batch_ticks=600; "
         "scale=24000 ticks/day, 24 days/year, 6 days/week"
     )
     return 0

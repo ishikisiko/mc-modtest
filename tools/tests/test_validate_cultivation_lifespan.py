@@ -73,6 +73,17 @@ class CultivationLifespanValidationTest(unittest.TestCase):
 
         self.assert_error_contains(result, "dispatch among v3 and retained v1/v2")
 
+    def test_v3_migration_without_running_core_is_rejected(self) -> None:
+        self.mutate_text(
+            "src/main/java/com/example/myvillage/cultivation/CultivationProfile.java",
+            "migratedActiveCoreTechnique(learnedTechniques)));",
+            "Optional.empty()));",
+        )
+
+        result = self.validate()
+
+        self.assert_error_contains(result, "v3 migration must preserve every v3 field and add the running core technique")
+
     def test_v2_migration_affinity_default_removal_is_rejected(self) -> None:
         relative = "src/main/java/com/example/myvillage/cultivation/CultivationProfile.java"
         path = self.fixture_root / relative

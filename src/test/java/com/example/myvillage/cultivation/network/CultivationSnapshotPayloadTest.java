@@ -33,7 +33,8 @@ class CultivationSnapshotPayloadTest {
                         id("removed_pack", "storm"), 3_000))),
                 Map.of(
                         id("myvillage", "basic_breathing"), new TechniqueProgress(17),
-                        id("removed_pack", "lost_art"), new TechniqueProgress(23)));
+                        id("removed_pack", "lost_art"), new TechniqueProgress(23)),
+                Optional.of(id("myvillage", "basic_breathing")));
         CultivationSnapshotPayload payload = new CultivationSnapshotPayload(profile);
         RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(
                 Unpooled.buffer(),

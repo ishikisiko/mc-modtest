@@ -58,7 +58,8 @@ class TechniqueRequirementEvaluatorTest {
         CultivationProfile ambiguousProfile = new CultivationProfile(
                 CultivationProfile.CURRENT_SCHEMA_VERSION,
                 ambiguousId, id("ambiguous_stage"), 0, 0, 0, 10, 0, 0,
-                Optional.of(root(1)), Map.of());
+                Optional.of(root(1)), Map.of(),
+                Optional.empty());
         assertEquals(
                 TechniqueRequirementEvaluator.Status.AMBIGUOUS_REALM_ORDER,
                 TechniqueRequirementEvaluator.evaluate(
@@ -116,7 +117,8 @@ class TechniqueRequirementEvaluatorTest {
                 0,
                 0,
                 Optional.of(root(1)),
-                Map.of());
+                Map.of(),
+                Optional.empty());
 
         assertEquals(
                 TechniqueRequirementEvaluator.Status.DEFINITION_UNAVAILABLE,

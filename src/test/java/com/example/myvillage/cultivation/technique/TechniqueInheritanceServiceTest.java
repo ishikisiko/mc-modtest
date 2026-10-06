@@ -45,7 +45,8 @@ class TechniqueInheritanceServiceTest {
                 1234,
                 56,
                 Optional.of(TechniqueRequirementEvaluatorTest.root(3)),
-                learned);
+                learned,
+                Optional.empty());
         AtomicInteger commits = new AtomicInteger();
         AtomicReference<CultivationProfile> committed = new AtomicReference<>();
 
@@ -76,6 +77,8 @@ class TechniqueInheritanceServiceTest {
         assertEquals(current.lifespanConsumedTicks(), outcome.profile().lifespanConsumedTicks());
         assertEquals(current.meditationQiReserve(), outcome.profile().meditationQiReserve());
         assertEquals(current.spiritualRoot(), outcome.profile().spiritualRoot());
+        assertEquals(Optional.of(ModCultivationRegistries.BASIC_BREATHING_TECHNIQUE_ID),
+                outcome.profile().activeCoreTechnique());
     }
 
     @Test

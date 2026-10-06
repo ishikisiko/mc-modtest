@@ -77,7 +77,7 @@ public final class TechniqueInheritanceService {
         }
 
         try {
-            CultivationProfile replacement = current.learnTechnique(techniqueId);
+            CultivationProfile replacement = current.learnTechnique(techniqueId, definition.category());
             if (!committer.commit(replacement)) {
                 return new Outcome(Status.UPDATE_REJECTED, current);
             }

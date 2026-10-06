@@ -5,8 +5,10 @@ import com.example.myvillage.cultivation.data.RealmDefinition;
 import com.example.myvillage.cultivation.data.SpiritualElementDefinition;
 import com.example.myvillage.cultivation.data.TechniqueDefinition;
 import com.example.myvillage.cultivation.network.CultivationSnapshotPayload;
+import com.example.myvillage.cultivation.technique.CoreTechniqueSwitch;
 import com.example.myvillage.cultivation.time.CultivationTimeMath;
 import com.example.myvillage.cultivation.time.CultivationTimeRuntime;
+import com.example.myvillage.sim.runtime.WorldSimRuntime;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
@@ -173,11 +175,54 @@ public final class CultivationService {
         if (oldProfile.learnedTechniques().containsKey(techniqueId)) {
             return Result.failure("Technique is already learned: " + techniqueId, oldProfile);
         }
+        TechniqueDefinition definition = player.registryAccess()
+                .registryOrThrow(ModCultivationRegistries.TECHNIQUES).get(techniqueId);
         return constructAndCommit(
                 player,
                 oldProfile,
-                profile -> profile.learnTechnique(techniqueId),
+                profile -> profile.learnTechnique(techniqueId, definition.category()),
                 "learned technique " + techniqueId);
+    }
+
+    /**
+     * Changes the running core technique (心法). This is the only entry point: the technique must be
+     * learned and of category core; the current one again succeeds without a change; otherwise
+     * {@code rules.json techniques.switch_progress_loss} of the cultivation progress is lost (散功)
+     * unless both techniques lie on one heritage chain. Without world-sim data nothing is lost.
+     */
+    public static Result switchCoreTechnique(ServerPlayer player, ResourceLocation techniqueId) {
+        Objects.requireNonNull(player, "player");
+        CultivationProfile oldProfile = getProfile(player);
+        Optional<Registry<TechniqueDefinition>> registry =
+                player.registryAccess().registry(ModCultivationRegistries.TECHNIQUES);
+        if (registry.isEmpty()) {
+            return Result.failure("Cultivation technique registry is unavailable", oldProfile);
+        }
+        int lossBasisPoints = WorldSimRuntime.data()
+                .map(data -> CoreTechniqueSwitch.basisPoints(data.rules().techniques().switchProgressLoss()))
+                .orElse(0);
+        CoreTechniqueSwitch.Plan plan;
+        try {
+            plan = CoreTechniqueSwitch.plan(oldProfile, techniqueId, registry.get()::get, lossBasisPoints);
+        } catch (IllegalArgumentException | NullPointerException exception) {
+            return Result.failure(message(exception), oldProfile);
+        }
+        return switch (plan.status()) {
+            case UNKNOWN_TECHNIQUE -> Result.failure("Unknown cultivation technique: " + techniqueId, oldProfile);
+            case NOT_LEARNED -> Result.failure("Technique is not learned: " + techniqueId, oldProfile);
+            case NOT_CORE -> Result.failure("Technique is not a core technique: " + techniqueId, oldProfile);
+            case ALREADY_ACTIVE -> Result.success("core technique " + techniqueId + " is already running", oldProfile);
+            case SWITCHED -> {
+                Result result = replaceProfile(player, plan.replacement());
+                yield result.success()
+                        ? Result.success("running core technique " + techniqueId
+                                + (plan.sameLineage()
+                                        ? " (same heritage, no progress lost)"
+                                        : ", progress lost " + plan.progressLost()),
+                                result.profile())
+                        : result;
+            }
+        };
     }
 
     public static Result forgetTechnique(ServerPlayer player, ResourceLocation techniqueId) {
@@ -296,6 +341,20 @@ public final class CultivationService {
                 if (!elements.get().containsKey(elementId)) {
                     return Optional.of("Unknown spiritual element: " + elementId);
                 }
+            }
+        }
+
+        if (!oldProfile.activeCoreTechnique().equals(replacement.activeCoreTechnique())
+                && replacement.activeCoreTechnique().isPresent()) {
+            ResourceLocation activeId = replacement.activeCoreTechnique().get();
+            Optional<String> techniqueError = validateTechnique(registryAccess, activeId);
+            if (techniqueError.isPresent()) {
+                return techniqueError;
+            }
+            TechniqueDefinition active = registryAccess
+                    .registryOrThrow(ModCultivationRegistries.TECHNIQUES).get(activeId);
+            if (active == null || !active.isCore()) {
+                return Optional.of("Technique is not a core technique: " + activeId);
             }
         }
 

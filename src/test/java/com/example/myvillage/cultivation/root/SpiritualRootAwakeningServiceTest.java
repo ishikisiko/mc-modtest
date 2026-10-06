@@ -34,7 +34,8 @@ class SpiritualRootAwakeningServiceTest {
                 1234,
                 56,
                 Optional.empty(),
-                Map.of(id("other_technique"), new TechniqueProgress(12)));
+                Map.of(id("other_technique"), new TechniqueProgress(12)),
+                Optional.empty());
         AtomicInteger commits = new AtomicInteger();
         AtomicReference<CultivationProfile> committed = new AtomicReference<>();
 
