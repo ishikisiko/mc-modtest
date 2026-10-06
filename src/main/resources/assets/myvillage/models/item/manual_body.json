@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "myvillage:item/manual_body",
+    "layer1": "myvillage:item/manual_body_tint"
+  }
+}

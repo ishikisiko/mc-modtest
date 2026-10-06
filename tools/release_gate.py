@@ -294,6 +294,7 @@ STEPS: tuple[Step, ...] = (
     tool("validate_cultivation_advancement"),
     tool("validate_region_topology"),
     generator_check("gen_technique_catalogue"),
+    generator_check("gen_manual_textures"),
     tool("validate_world_sim"),
     Step(GENERATE, func=generate_structures),
     tool("validate_generated_structures", "src/main/resources/data/myvillage/structure", after=GENERATE),

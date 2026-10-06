@@ -2,6 +2,7 @@ package com.example.myvillage.item;
 
 import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.block.ModBlocks;
+import com.example.myvillage.cultivation.data.TechniqueCategory;
 import com.example.myvillage.entity.ModEntities;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -16,6 +17,8 @@ import net.neoforged.neoforge.common.DeferredSpawnEggItem;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
+
+import java.util.List;
 
 /**
  * Items registry for the myvillage mod. Exposes hand-placeable decor and the
@@ -131,6 +134,91 @@ public final class ModItems {
             ITEMS.registerItem("deepslate_spirit_stone_ore",
                     props -> new BlockItem(ModBlocks.DEEPSLATE_SPIRIT_STONE_ORE.get(), props));
 
+    // Technique manuals (秘籍): one item per category x grade (黄 玄 地 天); the technique is a data
+    // component (ModDataComponents.TECHNIQUE). Order: category (core, active, movement, body), then grade.
+    public static final DeferredItem<TechniqueManualItem> MANUAL_CORE_HUANG =
+            ITEMS.registerItem("manual_core_huang",
+                    props -> new TechniqueManualItem(TechniqueCategory.CORE, 1, props));
+
+    public static final DeferredItem<TechniqueManualItem> MANUAL_CORE_XUAN =
+            ITEMS.registerItem("manual_core_xuan",
+                    props -> new TechniqueManualItem(TechniqueCategory.CORE, 2, props));
+
+    public static final DeferredItem<TechniqueManualItem> MANUAL_CORE_DI =
+            ITEMS.registerItem("manual_core_di",
+                    props -> new TechniqueManualItem(TechniqueCategory.CORE, 3, props));
+
+    public static final DeferredItem<TechniqueManualItem> MANUAL_CORE_TIAN =
+            ITEMS.registerItem("manual_core_tian",
+                    props -> new TechniqueManualItem(TechniqueCategory.CORE, 4, props));
+
+    public static final DeferredItem<TechniqueManualItem> MANUAL_ACTIVE_HUANG =
+            ITEMS.registerItem("manual_active_huang",
+                    props -> new TechniqueManualItem(TechniqueCategory.ACTIVE, 1, props));
+
+    public static final DeferredItem<TechniqueManualItem> MANUAL_ACTIVE_XUAN =
+            ITEMS.registerItem("manual_active_xuan",
+                    props -> new TechniqueManualItem(TechniqueCategory.ACTIVE, 2, props));
+
+    public static final DeferredItem<TechniqueManualItem> MANUAL_ACTIVE_DI =
+            ITEMS.registerItem("manual_active_di",
+                    props -> new TechniqueManualItem(TechniqueCategory.ACTIVE, 3, props));
+
+    public static final DeferredItem<TechniqueManualItem> MANUAL_ACTIVE_TIAN =
+            ITEMS.registerItem("manual_active_tian",
+                    props -> new TechniqueManualItem(TechniqueCategory.ACTIVE, 4, props));
+
+    public static final DeferredItem<TechniqueManualItem> MANUAL_MOVEMENT_HUANG =
+            ITEMS.registerItem("manual_movement_huang",
+                    props -> new TechniqueManualItem(TechniqueCategory.MOVEMENT, 1, props));
+
+    public static final DeferredItem<TechniqueManualItem> MANUAL_MOVEMENT_XUAN =
+            ITEMS.registerItem("manual_movement_xuan",
+                    props -> new TechniqueManualItem(TechniqueCategory.MOVEMENT, 2, props));
+
+    public static final DeferredItem<TechniqueManualItem> MANUAL_MOVEMENT_DI =
+            ITEMS.registerItem("manual_movement_di",
+                    props -> new TechniqueManualItem(TechniqueCategory.MOVEMENT, 3, props));
+
+    public static final DeferredItem<TechniqueManualItem> MANUAL_MOVEMENT_TIAN =
+            ITEMS.registerItem("manual_movement_tian",
+                    props -> new TechniqueManualItem(TechniqueCategory.MOVEMENT, 4, props));
+
+    public static final DeferredItem<TechniqueManualItem> MANUAL_BODY_HUANG =
+            ITEMS.registerItem("manual_body_huang",
+                    props -> new TechniqueManualItem(TechniqueCategory.BODY, 1, props));
+
+    public static final DeferredItem<TechniqueManualItem> MANUAL_BODY_XUAN =
+            ITEMS.registerItem("manual_body_xuan",
+                    props -> new TechniqueManualItem(TechniqueCategory.BODY, 2, props));
+
+    public static final DeferredItem<TechniqueManualItem> MANUAL_BODY_DI =
+            ITEMS.registerItem("manual_body_di",
+                    props -> new TechniqueManualItem(TechniqueCategory.BODY, 3, props));
+
+    public static final DeferredItem<TechniqueManualItem> MANUAL_BODY_TIAN =
+            ITEMS.registerItem("manual_body_tian",
+                    props -> new TechniqueManualItem(TechniqueCategory.BODY, 4, props));
+
+    /** The 16 manuals, ordered by category then grade; see {@link #manual}. */
+    public static final List<DeferredItem<TechniqueManualItem>> MANUALS = List.of(
+            MANUAL_CORE_HUANG,
+            MANUAL_CORE_XUAN,
+            MANUAL_CORE_DI,
+            MANUAL_CORE_TIAN,
+            MANUAL_ACTIVE_HUANG,
+            MANUAL_ACTIVE_XUAN,
+            MANUAL_ACTIVE_DI,
+            MANUAL_ACTIVE_TIAN,
+            MANUAL_MOVEMENT_HUANG,
+            MANUAL_MOVEMENT_XUAN,
+            MANUAL_MOVEMENT_DI,
+            MANUAL_MOVEMENT_TIAN,
+            MANUAL_BODY_HUANG,
+            MANUAL_BODY_XUAN,
+            MANUAL_BODY_DI,
+            MANUAL_BODY_TIAN);
+
     /**
      * The {@code myvillage:main} creative tab. Icon + content is the rockery
      * item; the tab groups all hand-placeable myvillage blocks together.
@@ -157,10 +245,23 @@ public final class ModItems {
                         output.accept(LOW_GRADE_SPIRIT_STONE.get());
                         output.accept(SPIRIT_STONE_ORE_ITEM.get());
                         output.accept(DEEPSLATE_SPIRIT_STONE_ORE_ITEM.get());
+                        for (DeferredItem<TechniqueManualItem> manual : MANUALS) {
+                            output.accept(manual.get());
+                        }
+                        // then, like enchanted books, one manual per registered technique of grade 1..4
+                        TechniqueManualItem.creativeStacks(params.holders()).forEach(output::accept);
                     })
                     .build());
 
     private ModItems() {
+    }
+
+    /** The manual item of {@code category} and {@code grade} (1 黄 .. 4 天). */
+    public static DeferredItem<TechniqueManualItem> manual(TechniqueCategory category, int grade) {
+        if (grade < TechniqueManualItem.MIN_GRADE || grade > TechniqueManualItem.MAX_GRADE) {
+            throw new IllegalArgumentException("Manual grade must be in 1..4, got " + grade);
+        }
+        return MANUALS.get(category.ordinal() * TechniqueManualItem.MAX_GRADE + grade - 1);
     }
 
     public static void register(IEventBus modEventBus) {
