@@ -284,6 +284,8 @@ STEPS: tuple[Step, ...] = (
     generator_check("gen_meridian_figure"),
     beastgen_check("demon_wolf"),
     npcgen_check("cultivator"),
+    npcgen_check("cultivator_f_novice"),
+    npcgen_check("cultivator_f_adept"),
     tool("validate_mod_items"),
     tool("validate_custom_entities"),
     tool("validate_rideable_flying_sword"),
