@@ -33,11 +33,17 @@ def luma(rgb):
 
 
 def shoulder_width(model):
-    """Across the shoulders: twice the right arm pivot's distance from the centre plus the widest cube on
-    the arm bone, measured in the arm's own frame so a posed arm does not change it."""
+    """Across the shoulders: twice the right arm pivot's distance from the centre plus the furthest
+    reach of the arm's shoulder cubes (on the arm bone and the bones hung from it, not the forearm),
+    measured in the arm's own frame so a posed arm does not change it."""
     arm = model.bone("arm_right")
     pivot_x = model.rest_matrices()["body"][0][3] + arm.pivot[0]
-    reach = max(-c.origin[0] for c in arm.cubes)
+    reach = max(-c.origin[0] for c in arm.cubes) if arm.cubes else 0.0
+    for b in model.bones:
+        if b.parent == "arm_right" and not b.name.startswith("forearm"):
+            m = b.rest_matrix()
+            for c in b.cubes:
+                reach = max(reach, max(-cuboid.mat_apply(m, p)[0] for p in corners(c)))
     return 2.0 * (abs(pivot_x) + reach)
 
 
@@ -152,7 +158,7 @@ class FemaleNoviceTest(unittest.TestCase):
 
     def test_cloth_is_not_painted_flat(self):
         """The large cloth faces carry shading and weave: several tones each, not one fill."""
-        # the narrow upper sleeve is 4 texels wide and half under the short sleeve, so it gets 5
+        # the narrow upper sleeve is 4 texels wide and a third under the short sleeve, so it gets 5
         for name, face, least in (("sleeve_upper_right", "WEST", 5), ("sleeve_lower_right", "WEST", 6),
                                   ("skirt_hem_right", "NORTH", 10), ("skirt_knee_right", "WEST", 7),
                                   ("skirt_hip_right", "NORTH", 7), ("jacket", "SOUTH", 8),
@@ -179,6 +185,17 @@ class FemaleNoviceTest(unittest.TestCase):
         bottom = [luma(self.pixel(t)) for t in front if int(GROUND - t.p[1]) == int(novice.HEM)]
         above = [luma(self.pixel(t)) for t in front if int(GROUND - t.p[1]) == int(novice.HEM) + 2]
         self.assertGreater(sum(bottom) / len(bottom), sum(above) / len(above) + 10)
+
+    def test_tier_seams_are_not_painted_as_edges(self):
+        """Where a tier widens, its up-facing ledge is painted about as dark as the lit cloth beside it
+        looks (up faces draw at full brightness, sides at about 60 %), not as a pale or black line."""
+        for name in ("skirt_knee_right", "skirt_hem_right"):
+            ledge = [luma(self.pixel(t)) for t in self.by_cube[name] if t.face == "DOWN"]
+            side = [luma(self.pixel(t)) for t in self.by_cube[name] if t.face == "NORTH"]
+            self.assertAlmostEqual(0.6 * sum(side) / len(side), sum(ledge) / len(ledge), delta=18.0, msg=name)
+        knee = {self.pixel(t)[:3] for t in self.by_cube["skirt_knee_right"] if t.face == "NORTH"}
+        self.assertFalse(knee & {novice._tone(novice.EDGE, k / 2.0) for k in range(0, 8)},
+                         "only the hem carries the pale edge")
 
     # -------------------------------------------------------------- layers
     def test_layers_stack_outward_on_the_chest(self):
@@ -215,7 +232,7 @@ class FemaleNoviceTest(unittest.TestCase):
 
     # -------------------------------------------------------------- female geometry
     def test_shoulders_two_texels_narrower_than_the_male(self):
-        self.assertAlmostEqual(shoulder_width(self.male.model) - 2.0, shoulder_width(self.built.model))
+        self.assertAlmostEqual(shoulder_width(self.male.model) - 2.0, shoulder_width(self.built.model), delta=0.3)
 
     def test_waist_drawn_in_at_the_band(self):
         band, jacket, torso = self.width("band"), self.width("jacket"), self.width("torso")
@@ -224,18 +241,19 @@ class FemaleNoviceTest(unittest.TestCase):
         self.assertLessEqual(band, torso)
         self.assertLess(self.width("skirt_top"), band)
 
-    def test_skirt_narrow_above_wide_below(self):
-        """Hips flare past the waist and each tier is wider than the one above it down to the hem."""
-        def across(name):
-            (x0, _), _, _ = self.box(name)
-            return 2.0 * -x0   # the right half's outer edge, mirrored
-
-        hip, knee, hem = across("skirt_hip_right"), across("skirt_knee_right"), across("skirt_hem_right")
-        self.assertGreater(hip, self.width("skirt_top"))
-        self.assertGreater(hip, self.width("band"))
-        self.assertLess(hip, knee)
-        self.assertLess(knee, hem)
-        self.assertGreaterEqual(hem - self.width("band"), 6.0)
+    def test_skirt_flares_in_small_tucked_steps(self):
+        """Hips flare past the waist, and each tier is one texel wider a side (and half a texel deeper a
+        side) than the one above, its top tucked one to two texels up inside the tier above, so the skirt
+        reads as one cloth flaring out, not stacked boxes: 14 / 16 / 18 across."""
+        tiers = [self.box(f"skirt_{tier}_right") for tier in ("hip", "knee", "hem")]
+        across = [2.0 * -x0 for (x0, _), _, _ in tiers]   # the right half's outer edge, mirrored
+        self.assertEqual([14.0, 16.0, 18.0], across)
+        self.assertGreater(across[0], self.width("skirt_top"))
+        self.assertGreater(across[0], self.width("band"))
+        self.assertGreaterEqual(across[-1] - self.width("band"), 6.0)
+        for (_, (upper_bottom, _), (uz0, _)), (_, (_, lower_top), (lz0, _)) in zip(tiers, tiers[1:]):
+            self.assertTrue(1.0 <= lower_top - upper_bottom <= 2.0, (upper_bottom, lower_top))
+            self.assertAlmostEqual(0.5, uz0 - lz0)
         _, (bottom, _), _ = self.box("skirt_hem_right")
         _, (_, shoe_top), (shoe_z0, _) = self.box("shoe_right")
         self.assertLess(bottom, shoe_top, "the skirt reaches the ankle")

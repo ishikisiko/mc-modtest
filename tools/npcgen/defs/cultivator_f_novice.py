@@ -12,9 +12,9 @@ Design facts (texels; one texel = 1/32 block), against the male default:
 
 | Part           | Male default                          | Female novice                                        |
 |----------------|---------------------------------------|------------------------------------------------------|
-| Shoulders      | 28 (arm pivots +-11, sleeve 6), sloped vest caps | 26 (pivots +-10.5, short sleeve 5 over a 4 sleeve), no caps |
+| Shoulders      | 28 (arm pivots +-11, sleeve 6), sloped vest caps | 26 at the arm (pivots +-10.5, 4 sleeve; 5 x 3 short sleeve hinged at its inner top edge, outer side tipped down 12 deg), no caps |
 | Chest / waist  | robe 14, vest 16, belt 18 (proud)     | ru 12, half jacket 13, skirt band 11 (in 1 a side), skirt top 10 |
-| Skirt          | two tiers 16 / 18 on the legs: a column | three tiers 14 / 16 / 20 (hip 19..28, knee 10..20, hem 2..10): narrow above, wide below |
+| Skirt          | two tiers 16 / 18 on the legs: a column | three tiers 14 / 16 / 18, depth 9 / 10 / 11 (hip 18..28, knee 9..20, hem 2..11): one texel wider a side per tier, each top tucked two up inside the tier above, ledges painted as the cloth, pleats running through |
 | Height         | cranium top 60, hair 61, neck at 48   | cranium top 58, hair cap 59, chin at 46              |
 | Head           | cranium 13 x 8 x 13                   | cranium 11 x 8 x 12: narrower, longer                |
 | Jaw steps      | 13 / 11 / 9 / 7                       | 11 / 9 / 7 / 5: a pointed chin                       |
@@ -62,8 +62,9 @@ CHEST = (33.0, 43.0)    # the ru's body, under the half jacket
 JACKET = (33.5, 43.5)   # the half jacket's shell
 BAND = (31.0, 33.0)     # the skirt's cloth band at the waist
 SKIRT_TOP = 26.0        # the skirt's top piece on the body runs from here up under the band
-HIP_TIER = 19.0         # the skirt's tiers on the legs: hip 19..28, knee 10..19, hem 2..10
-KNEE_TIER = 10.0
+HIP_TIER = 19.0         # seams between the skirt's tiers on the legs; each lower tier's top tucks two
+KNEE_TIER = 10.0        # units up inside the tier above: hip 18..28, knee 9..20, hem 2..11
+TUCK = 1.0              # how far either side of a seam the tiers overlap
 HEM = 2.0
 COLLAR_TOP = 43.0       # where the crossed collar bands start
 OPENING = 3.5           # half width of the half jacket's front opening
@@ -89,6 +90,8 @@ BROW = "#3E3032"
 MOUTH = "#DA918A"        # pale warm lips
 MOUTH_MID = "#C47670"    # the middle texel a little deeper
 NOSE_TOP_RGB = "#977768" # the nose's up-facing top, matched to how dark the lit face draws
+
+SKIRT_TIERS = tuple(f"skirt_{tier}_{side}" for tier in ("hip", "knee", "hem") for side in ("right", "left"))
 
 # The hair and the half jacket are shells whose texture is partly cut out, so they cast no baked shadow.
 HOLLOW = ("hair", "jacket")
@@ -149,8 +152,15 @@ def build_model():
     # ---- arms: a narrow sleeve to the wrist under the half jacket's short sleeve; the forearm's sleeve
     # covers half the small hand. The rest pose folds the hands at the belly, the right over the left.
     _pair(b, "arm_{}", "body", (-ARM_X, -SHOULDER, 0.0), rot=ARM_ROT,
-          boxes=[("sleeve_upper_{}", (-2.0, -1.0, -2.0), (4, 10, 4)),
-                 ("short_sleeve_{}", (-2.5, -1.5, -2.5), (5, 4, 5))], local=True)
+          boxes=[("sleeve_upper_{}", (-2.0, 0.0, -2.0), (4, 9, 4))], local=True)
+    # the half jacket's short sleeve: three units deep, on a bone of its own that tips its outer side
+    # down so the shoulder line runs on from the jacket instead of squaring off like a pad
+    for side, sign in (("right", 1.0), ("left", -1.0)):
+        kw = {} if side == "right" else {"mirror": True, "uv_from": "short_sleeve_right"}
+        b.bone(f"short_sleeve_{side}_bone", f"arm_{side}", at_local=(2.5 * sign, -1.25, 0.0),
+               rot=(0.0, 0.0, -SLEEVE_TIP * sign))     # hinged at its inner top edge, by the jacket
+        b.box_local(f"short_sleeve_{side}_bone", f"short_sleeve_{side}", (-5.0 if sign > 0 else 0.0, 0.0, -2.5),
+                    (5, 3, 5), **kw)
     for side, rot in (("right", FOREARM_ROT_RIGHT), ("left", FOREARM_ROT_LEFT)):
         own = side == "right"
         fore = b.bone(f"forearm_{side}", f"arm_{side}", at_local=(0.0, 9.0, 0.0), rot=rot)
@@ -165,17 +175,18 @@ def build_model():
     # trousers and the shoe steps out from under it. The knee tier reaches one unit up inside the hip
     # tier so no gap opens at the seam when it turns.
     _pair(b, "leg_{}", "root", (-3.5, -HIP, 0.0),
-          boxes=[("skirt_hip_{}", (-7.0, HIP_TIER, -4.5), (7, HIP - HIP_TIER, 9)),
+          boxes=[("skirt_hip_{}", (-7.0, HIP_TIER - TUCK, -4.5), (7, HIP - HIP_TIER + TUCK, 9)),
                  ("shoe_{}", (-6.0, 0.0, -7.0), (5, 3, 9))])
     _pair(b, "skirt_low_{}", "leg_{}", (-3.5, -(HIP_TIER + 0.5), 0.0),
-          boxes=[("skirt_knee_{}", (-8.0, KNEE_TIER, -5.0), (8, HIP_TIER + 1.0 - KNEE_TIER, 10)),
-                 ("skirt_hem_{}", (-10.0, HEM, -6.0), (10, KNEE_TIER - HEM, 12))])
+          boxes=[("skirt_knee_{}", (-8.0, KNEE_TIER - TUCK, -5.0), (8, HIP_TIER - KNEE_TIER + 2 * TUCK, 10)),
+                 ("skirt_hem_{}", (-9.0, HEM, -5.5), (9, KNEE_TIER + TUCK - HEM, 11))])
     return b.model
 
 
 # The rest pose: upper arms drawn in and a little forward, forearms raised and turned toward the middle
 # so the hands meet at the belly, the right one in front.
 ARM_ROT = (-12.0, 0.0, -9.0)
+SLEEVE_TIP = 12.0   # degrees the short sleeve's outer side tips down from the arm
 FOREARM_ROT_RIGHT = (-88.0, -58.0, 0.0)
 FOREARM_ROT_LEFT = (-83.0, 61.0, 0.0)
 
@@ -405,11 +416,11 @@ class _Paint(HumanoidPaint):
         f = t.face
         if f == "UP":
             # the short sleeve's opening: a pale edge round the dark inside, the sleeve under it
-            edge = min(lx + 2.5, 2.5 - lx, lz + 2.5, 2.5 - lz)
+            edge = min(lx + 5.0, -lx, lz + 2.5, 2.5 - lz)
             return _tone(EDGE, 1.6) if edge < 0.5 else _tone(JACKET_CLOTH, 0.4)
         if f == "DOWN":
             return _tone(JACKET_CLOTH, 4.0 + _weave(t, 0.4))
-        if ly > 1.5:
+        if ly > 2.0:
             return _tone(EDGE, 2.2 + _form(t, 0.8))       # pale edge at the short sleeve's end
         return self.cloth(t, JACKET_CLOTH, 3.9, 1.0, exclude=("sleeve_upper_right",))
 
@@ -477,11 +488,15 @@ class _Paint(HumanoidPaint):
         f = t.face
         if f == "UP":
             return _tone(SKIRT, 0.4)
-        if f == "DOWN":
-            return _tone(SKIRT, 0.6)  # the tiers' ledges face the light, so they are painted darker
         inner = f == "EAST"  # the face between the legs: the same cloth in shadow, seen mid-stride
         # four soft vertical pleats across the front and back, two down each side, the same columns on
         # every tier so they run on from the hip to the hem
+        if f == "DOWN":
+            # the one-unit ledge where a tier widens faces up, so it draws at full brightness: paint it
+            # as dark as the cloth beside it looks, pleats and all, so the seam does not read as a step
+            front = abs(z) > 4.4
+            pleat = math.cos(((x + 0.5) if front else z) * 2.0 * math.pi / (4.5 if front else 5.5))
+            return _tone(SKIRT, 1.2 + 0.6 * math.tanh(2.2 * pleat))
         if f in ("NORTH", "SOUTH"):
             pleat = math.cos((x + 0.5) * 2.0 * math.pi / 4.5)
         else:
@@ -490,7 +505,8 @@ class _Paint(HumanoidPaint):
         pleat = math.tanh(2.2 * pleat)                                    # soft-edged bands, not a ripple
         depth = 0.6 + 0.4 * _clamp((HIP - h) / 14.0)
         tone = 4.8 + _weave(t, 0.6, 0.9, 3)
-        tone += (-1.3 - 0.8 * _clamp((h - 16.0) / 8.0)) if inner else self.light(t, 0.6, cast=2.2)
+        # the tiers do not shade each other: the skirt is one cloth flaring out, not stacked boxes
+        tone += (-1.3 - 0.8 * _clamp((h - 16.0) / 8.0)) if inner else self.light(t, 0.4, cast=2.2, exclude=SKIRT_TIERS)
         tone += depth * (0.8 * pleat + 0.45 * crest)                    # each fold rounds to a crest
         tone -= 0.9 * _clamp((HEM + 7.0 - h) / 7.0)                     # a little darker toward the hem
         if int(h - HEM) == 0:
