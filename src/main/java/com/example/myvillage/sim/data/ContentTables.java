@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * The content worker's three files ({@code names.json}, {@code techniques.json}, {@code lore.json}),
- * parsed against the fixed schemas of design §6.1.
+ * The content worker's files ({@code names.json}, {@code techniques.json}, {@code lore.json}) and the
+ * generated {@code heritages.json}, parsed against fixed schemas (design §6.1).
  */
 public final class ContentTables {
     public static final Set<String> GRADES = Set.of("huang", "xuan", "di", "tian");
@@ -36,6 +36,22 @@ public final class ContentTables {
     public record Technique(String id, String name, String grade, String element) {
         public int gradeRank() {
             return GRADE_ORDER.indexOf(grade);
+        }
+    }
+
+    /**
+     * A heritage (传承): an ordered chain of techniques, weakest first. A sect holds at most one; its
+     * basic technique is the first and its signature the last.
+     *
+     * @param school the school id from the technique catalogue ({@code none} for none)
+     */
+    public record Heritage(String id, String name, String school, List<String> techniques) {
+        public String first() {
+            return techniques.get(0);
+        }
+
+        public String last() {
+            return techniques.get(techniques.size() - 1);
         }
     }
 
@@ -99,6 +115,45 @@ public final class ContentTables {
             if (out.stream().noneMatch(t -> t.grade().equals(grade))) {
                 throw root.error("techniques", "needs at least one technique of grade " + grade);
             }
+        }
+        return List.copyOf(out);
+    }
+
+    static List<Heritage> parseHeritages(SimJson.Fields root, List<Technique> techniques) {
+        root.schema();
+        JsonArray array = root.array("heritages");
+        Set<String> known = new HashSet<>();
+        for (Technique t : techniques) {
+            known.add(t.id());
+        }
+        List<Heritage> out = new ArrayList<>();
+        Set<String> ids = new HashSet<>();
+        Set<String> names = new HashSet<>();
+        Set<String> claimed = new HashSet<>();
+        for (int i = 0; i < array.size(); i++) {
+            SimJson.Fields h = root.element("heritages", array, i, Set.of("id", "name", "school", "techniques"));
+            String id = uniqueId(h, ids);
+            String name = h.nonEmptyString("name");
+            if (!names.add(name)) {
+                throw h.error("name", "repeats \"" + name + "\"");
+            }
+            String school = h.nonEmptyString("school");
+            if (!school.matches("[a-z0-9_]+")) {
+                throw h.error("school", "must match [a-z0-9_]+, got \"" + school + "\"");
+            }
+            List<String> chain = h.stringList("techniques");
+            if (chain.size() < 2) {
+                throw h.error("techniques", "needs at least two techniques");
+            }
+            for (String t : chain) {
+                if (!known.contains(t)) {
+                    throw h.error("techniques", "names \"" + t + "\", which is not in techniques.json");
+                }
+                if (!claimed.add(t)) {
+                    throw h.error("techniques", "\"" + t + "\" is already in another heritage or repeated");
+                }
+            }
+            out.add(new Heritage(id, name, school, List.copyOf(chain)));
         }
         return List.copyOf(out);
     }

@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 /**
- * Reads the six world-sim data files through a caller-supplied opener, so the same code reads the
+ * Reads the seven world-sim data files through a caller-supplied opener, so the same code reads the
  * mod jar at runtime and the source tree in tests and the CLI. Any problem throws a
  * {@link SimDataException} naming the file and field; there is no partial result.
  */
@@ -22,6 +22,7 @@ public final class SimDataLoader {
     public static final String NAMES = SimData.DIRECTORY + "names.json";
     public static final String TECHNIQUES = SimData.DIRECTORY + "techniques.json";
     public static final String LORE = SimData.DIRECTORY + "lore.json";
+    public static final String HERITAGES = SimData.DIRECTORY + "heritages.json";
 
     private SimDataLoader() {
     }
@@ -37,6 +38,8 @@ public final class SimDataLoader {
                 SimJson.Fields.root(TECHNIQUES, read(opener, TECHNIQUES), Set.of("schema", "techniques")));
         ContentTables.Lore lore = ContentTables.parseLore(
                 SimJson.Fields.root(LORE, read(opener, LORE), Set.of("schema", "artifacts", "sites", "beasts")));
+        var heritages = ContentTables.parseHeritages(
+                SimJson.Fields.root(HERITAGES, read(opener, HERITAGES), Set.of("schema", "heritages")), techniques);
         for (int i = 0; i < encounters.encounters().size(); i++) {
             EncounterTable.Encounter e = encounters.encounters().get(i);
             if (e.siteKind() != null && lore.sites().stream().noneMatch(s -> s.kind().equals(e.siteKind()))) {
@@ -44,7 +47,10 @@ public final class SimDataLoader {
                         "no site of kind " + e.siteKind() + " in " + LORE);
             }
         }
-        return new SimData(rules, realms, encounters, names, techniques, lore);
+        if (heritages.isEmpty() && encounters.encounters().stream().anyMatch(e -> e.has("heritage"))) {
+            throw new SimDataException(ENCOUNTERS, "effects", "a heritage effect needs at least one heritage in " + HERITAGES);
+        }
+        return new SimData(rules, realms, encounters, names, techniques, lore, heritages);
     }
 
     private static JsonObject read(SimData.ResourceOpener opener, String file) {
