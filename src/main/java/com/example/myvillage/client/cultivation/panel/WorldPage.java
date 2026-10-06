@@ -627,6 +627,8 @@ public final class WorldPage extends PanelPage {
                 x, cursor, width);
         cursor += pair(c, "screen.myvillage.cultivation.world.sect_technique",
                 orNone(d.signatureTechniqueName()), x, cursor, width);
+        cursor += pair(c, "screen.myvillage.cultivation.world.sect_heritage",
+                orNone(d.heritageName()), x, cursor, width);
         // Coordinates as the value, and the same gate chip as the sect list at the right.
         String gateChip = gateChip(sect);
         int gateChipWidth = Math.min(c.chipWidth(gateChip), width / 3);
