@@ -24,8 +24,14 @@ import org.junit.jupiter.api.Test;
 /** Heritages (传承): genesis assignment, the lost pool, rekindling, the save format. */
 class WorldSimHeritageTest {
     private static final int DPY = 6;
-    /** With every genesis sect rolling a heritage, seed 2 loses two and founders rekindle them within 150 years. */
-    private static final long SEED = 2;
+    /**
+     * With every genesis sect rolling a heritage, seed 7 loses a heritage in year 77 and a founder
+     * rekindles it in year 87. The history depends on the shipped data (the technique pool size
+     * among other things): when a data change breaks this, scan seeds for one that loses and
+     * rekindles a heritage within 150 years and record it here (seed 2 did until 0.40.0 added two
+     * movement techniques).
+     */
+    private static final long SEED = 7;
     private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
     private static SimData always;
 
