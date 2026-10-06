@@ -56,6 +56,8 @@ class SectCompoundRealizationTest {
     private static final long[] SEEDS = {7L, -123456789L, 20260618L};
     private static final Map<String, Optional<StructureTemplate>> TEMPLATES = new HashMap<>();
     private static final Set<String> RAW_STONE_BRICK_WALL = new HashSet<>();
+    /** Template-relative positions of {@code myvillage:hanging_plaque} blocks, per template. */
+    private static final Map<String, List<BlockPos>> PLAQUES = new HashMap<>();
     private static Map<String, String> fallbacks;
 
     @BeforeAll
@@ -167,16 +169,28 @@ class SectCompoundRealizationTest {
                 ListTag palette = tag.contains("palette", Tag.TAG_LIST)
                         ? tag.getList("palette", Tag.TAG_COMPOUND)
                         : tag.getList("palettes", Tag.TAG_LIST).getList(0);
+                Set<Integer> plaqueStates = new HashSet<>();
                 for (int i = 0; i < palette.size(); i++) {
                     CompoundTag entry = palette.getCompound(i);
                     String id = entry.getString("Name");
                     if (id.equals("minecraft:stone_brick_wall")) RAW_STONE_BRICK_WALL.add(n);
+                    if (id.equals("myvillage:hanging_plaque")) plaqueStates.add(i);
                     if (!BuiltInRegistries.BLOCK.containsKey(ResourceLocation.parse(id))) {
                         String fb = fallbacks.getOrDefault(id, "minecraft:cobblestone");
                         entry.putString("Name", fb.contains("[") ? fb.substring(0, fb.indexOf('[')) : fb);
                         entry.remove("Properties");
                     }
                 }
+                List<BlockPos> plaques = new ArrayList<>();
+                ListTag blockList = tag.getList("blocks", Tag.TAG_COMPOUND);
+                for (int i = 0; i < blockList.size(); i++) {
+                    CompoundTag b = blockList.getCompound(i);
+                    if (plaqueStates.contains(b.getInt("state"))) {
+                        ListTag pos = b.getList("pos", Tag.TAG_INT);
+                        plaques.add(new BlockPos(pos.getInt(0), pos.getInt(1), pos.getInt(2)));
+                    }
+                }
+                PLAQUES.put(n, List.copyOf(plaques));
                 StructureTemplate t = new StructureTemplate();
                 t.load(BuiltInRegistries.BLOCK.asLookup(), tag);
                 return Optional.of(t);
@@ -191,6 +205,8 @@ class SectCompoundRealizationTest {
     private static final Ground FLAT = (x, z) -> E - 1;
     /** Rolling natural ground for the worldgen path: below the gate in front, rising behind. */
     private static final Ground ROLLING = (x, z) -> E - 6 + Math.floorDiv(z, 9) + (int) Math.round(3 * Math.sin(x / 7.0));
+    /** Flat natural ground far below the compound, so the skirt has to fall the whole way. */
+    private static final Ground LOW_FLAT = (x, z) -> E - 14;
 
     private static MemorySink commandBuild(long seed, String variant) {
         SectGenerator.SectPlan plan = SectGenerator.plan(seed, BASE, variant);
@@ -465,6 +481,191 @@ class SectCompoundRealizationTest {
             for (int x = 2; x < summit.bounds().x0(); x++) {
                 assertEquals(summit.elevation() - 1 - (summit.bounds().x0() - x), m.height(x, 160), "strip x " + x);
             }
+        }
+    }
+
+    // --- the gate passage keeps the plaque ---------------------------------------
+
+    @Test
+    void theGatePassageKeepsTheHangingPlaque() {
+        for (long seed : SEEDS) {
+            SectGenerator.SectPlan plan = SectGenerator.plan(seed, BASE, null);
+            SectGenerator.Slot gate = SectGenerator.gateSlot(plan);
+            for (MemorySink w : allBuilds(seed)) {
+                List<BlockPos> plaques = PLAQUES.get(gate.templateId());
+                assertTrue(plaques != null && !plaques.isEmpty(), "gate template " + gate.templateId() + " has a plaque");
+                BlockPos origin = new BlockPos(BASE.getX() + gate.bounds().x0(), E - 1, BASE.getZ() + gate.bounds().z0());
+                for (BlockPos rel : plaques) {
+                    BlockPos p = origin.offset(rel);
+                    assertTrue(w.fromTemplate.contains(p) && !w.get(p).isAir(),
+                            "seed " + seed + ": plaque block " + rel + " of " + gate.templateId() + " survives, got " + w.get(p));
+                }
+                // the passage itself: GATE_PASSAGE_H air rows over the paved plinth
+                for (int x = SectGenerator.AXIS_X - 1; x <= SectGenerator.AXIS_X + 1; x++) {
+                    for (int z = gate.bounds().z0(); z <= gate.bounds().z1(); z++) {
+                        for (int y = E + 1; y <= E + SectGenerator.GATE_PASSAGE_H; y++) {
+                            assertTrue(w.get(local(x, y, z)).isAir(), "passage air " + x + "," + y + "," + z);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // --- retaining-face pilasters -------------------------------------------------
+
+    @Test
+    void retainingFacesCarrySymmetricPilasters() {
+        for (long seed : SEEDS) {
+            SectGenerator.SectPlan plan = SectGenerator.plan(seed, BASE, null);
+            Set<BlockPos> courtyard = new HashSet<>(SectCourtyard.cells(seed, ANCHOR, null));
+            for (MemorySink w : allBuilds(seed)) {
+                for (SectGenerator.RetainingFace f : plan.retaining()) {
+                    SectGenerator.Terrace lower = plan.terraces().get(f.lower());
+                    SectGenerator.Terrace upper = plan.terraces().get(f.upper());
+                    List<Integer> xs = SectGenerator.pilasterXs(plan, f);
+                    String at = "seed " + seed + " " + f.id();
+                    assertTrue(xs.size() >= 2, at + ": pilasters " + xs);
+                    Set<Integer> mirrored = new HashSet<>();
+                    for (int x : xs) mirrored.add(2 * SectGenerator.AXIS_X - x);
+                    assertEquals(new HashSet<>(xs), mirrored, at + ": symmetric about the axis");
+                    int pz = f.bounds().z0() - 1;
+                    assertEquals(lower.bounds().z1(), pz, at + ": on the lower terrace's last row");
+                    for (int x : xs) {
+                        assertTrue(Math.abs(x - SectGenerator.AXIS_X) > SectGenerator.STAIR_W / 2 + 1,
+                                at + ": clear of the stair and cheeks, x " + x);
+                        assertEquals(0, (x - SectGenerator.AXIS_X) % SectGenerator.PILASTER_SPACING, at + " x " + x);
+                        for (int y = lower.elevation(); y < upper.elevation() - 1; y++) {
+                            assertEquals(Blocks.STONE_BRICKS, w.get(local(x, y, pz)).getBlock(), at + " pilaster " + x + "," + y);
+                        }
+                        assertEquals(Blocks.CHISELED_STONE_BRICKS, w.get(local(x, upper.elevation() - 1, pz)).getBlock(),
+                                at + " pilaster top " + x);
+                        assertTrue(w.get(local(x, upper.elevation(), pz)).isAir(), at + " nothing on the pilaster " + x);
+                        assertTrue(!courtyard.contains(local(x, lower.elevation(), pz)), at + " not a courtyard cell " + x);
+                    }
+                }
+                // behind the gate terrace the bell and drum towers (x4..20 / x42..58) stand against the
+                // face and hide four; the other faces carry all six
+                assertEquals(List.of(23, 39), SectGenerator.pilasterXs(plan, plan.retaining().get(0)));
+                for (int i = 1; i < plan.retaining().size(); i++) {
+                    assertEquals(List.of(7, 15, 23, 39, 47, 55), SectGenerator.pilasterXs(plan, plan.retaining().get(i)));
+                }
+            }
+        }
+    }
+
+    // --- the mountain skirt is smooth ---------------------------------------------
+
+    private static boolean cliffBack(SectGenerator.SectPlan plan, int x, int z) {
+        SectGenerator.Terrace summit = plan.terraces().get(plan.terraces().size() - 1);
+        return z > summit.bounds().z1() && x >= summit.bounds().x0() && x <= summit.bounds().x2();
+    }
+
+    /** The noise-free core rule: terrace floor, band at the upper floor within its width, else the taper slope. */
+    private static int expectedCore(SectGenerator.SectPlan plan, int x, int z) {
+        List<SectGenerator.Terrace> ts = plan.terraces();
+        for (SectGenerator.Terrace t : ts) {
+            SectGenerator.Rect r = t.bounds();
+            if (x >= r.x0() && x <= r.x2() && z >= r.z0() && z <= r.z1()) return t.elevation() - 1;
+        }
+        for (int i = 0; i < ts.size() - 1; i++) {
+            SectGenerator.Rect lo = ts.get(i).bounds();
+            SectGenerator.Rect up = ts.get(i + 1).bounds();
+            if (z > lo.z1() && z < up.z0()) {
+                if (x >= up.x0() && x <= up.x2()) return ts.get(i + 1).elevation() - 1;
+                if (x >= lo.x0() && x <= lo.x2()) return ts.get(i).elevation() - 1;
+            }
+        }
+        int best = Integer.MIN_VALUE;
+        int bestDist = Integer.MAX_VALUE;
+        for (SectGenerator.Terrace t : ts) {
+            SectGenerator.Rect r = t.bounds();
+            int d = Math.max(Math.max(Math.max(r.x0() - x, 0), x - r.x2()), Math.max(Math.max(r.z0() - z, 0), z - r.z1()));
+            int h = t.elevation() - 1 - d;
+            if (d < bestDist || (d == bestDist && h > best)) {
+                bestDist = d;
+                best = h;
+            }
+        }
+        return best;
+    }
+
+    @Test
+    void theMountainSkirtIsSmoothAndTheCoreUnchanged() {
+        long[] seeds = {7L, -123456789L, 20260618L, 1L, 424242L, Long.MIN_VALUE + 5};
+        for (long seed : seeds) {
+            SectGenerator.SectPlan plan = SectGenerator.plan(seed, BASE, null);
+            for (Ground ground : List.of(ROLLING, LOW_FLAT)) {
+                SectMountain m = SectGenerator.buildMountain(seed, plan, ground::top);
+                int mm = SectGenerator.MOUNTAIN_MARGIN;
+                int x0 = m.coreX0() - mm;
+                int x1 = m.coreX1() + mm;
+                int z0 = m.coreZ0() - mm;
+                int z1 = m.coreZ1() + mm;
+                int worst = 0;
+                String worstAt = "";
+                Set<Integer> sideHeights = new HashSet<>();
+                for (int x = x0; x <= x1; x++) {
+                    for (int z = z0; z <= z1; z++) {
+                        boolean core = x >= m.coreX0() && x <= m.coreX1() && z >= m.coreZ0() && z <= m.coreZ1();
+                        boolean apron = x >= SectGenerator.APRON_X0 && x <= SectGenerator.APRON_X1
+                                && z >= SectGenerator.APRON_Z0 && z <= SectGenerator.APRON_Z1;
+                        int h = m.height(x, z);
+                        if (apron) {
+                            assertEquals(E - 1, h, "forecourt " + x + "," + z);
+                        } else if (core) {
+                            assertEquals(expectedCore(plan, x, z), h, "core " + x + "," + z);
+                        }
+                        if (core || cliffBack(plan, x, z)) continue;
+                        assertTrue(h >= ground.top(x, z), "never below natural ground " + x + "," + z);
+                        for (int[] n : new int[][]{{x + 1, z}, {x, z + 1}}) {
+                            int nx = n[0];
+                            int nz = n[1];
+                            if (nx > x1 || nz > z1) continue;
+                            boolean nCore = nx >= m.coreX0() && nx <= m.coreX1() && nz >= m.coreZ0() && nz <= m.coreZ1();
+                            if (nCore || cliffBack(plan, nx, nz)) continue;
+                            int dh = Math.abs(h - m.height(nx, nz));
+                            if (dh > worst) {
+                                worst = dh;
+                                worstAt = x + "," + z + " -> " + nx + "," + nz;
+                            }
+                        }
+                    }
+                }
+                assertTrue(worst <= SectMountain.SKIRT_SLOPE_LIMIT,
+                        "seed " + seed + ": skirt step " + worst + " at " + worstAt);
+                // the skirt has relief, not a bare cone: the tall side beside the summit varies
+                SectGenerator.Terrace summit = plan.terraces().get(4);
+                for (int z = summit.bounds().z0(); z <= summit.bounds().z1(); z += 3) {
+                    sideHeights.add(m.height(m.coreX1() + 6, z) - ground.top(m.coreX1() + 6, z));
+                }
+                assertTrue(sideHeights.size() > 1, "seed " + seed + ": textured flank " + sideHeights);
+                // and it meets natural ground by the skirt's edge
+                for (int z = z0; z <= z1; z += 7) {
+                    assertEquals(ground.top(x0, z), m.height(x0, z), "edge meets natural ground at z " + z);
+                }
+            }
+        }
+    }
+
+    @Test
+    void skirtColumnsAreMostlyStoneWithAFewOtherStones() {
+        SectGenerator.SectPlan plan = SectGenerator.plan(7L, BASE, null);
+        MemorySink w = worldgenBuild(7L, null, false);
+        SectMountain m = SectGenerator.buildMountain(7L, plan, ROLLING::top);
+        Map<net.minecraft.world.level.block.Block, Integer> tops = new HashMap<>();
+        int skirt = 0;
+        for (int x = m.coreX0() - 20; x <= m.coreX1() + 20; x++) {
+            for (int z = m.coreZ0() - 20; z <= m.coreZ1() + 20; z++) {
+                if (!m.isSkirt(x, z)) continue;
+                skirt++;
+                tops.merge(w.get(local(x, m.height(x, z), z)).getBlock(), 1, Integer::sum);
+                assertEquals(Blocks.STONE, w.get(local(x, m.height(x, z) - 1, z)).getBlock(), "stone under the top " + x + "," + z);
+            }
+        }
+        assertTrue(tops.getOrDefault(Blocks.STONE, 0) > skirt / 2, "mostly stone: " + tops);
+        for (net.minecraft.world.level.block.Block b : List.of(Blocks.ANDESITE, Blocks.TUFF, Blocks.COBBLED_DEEPSLATE)) {
+            assertTrue(tops.getOrDefault(b, 0) > skirt / 20, b + " present: " + tops);
         }
     }
 }

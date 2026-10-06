@@ -89,8 +89,13 @@ public final class SectGenerator {
     static final int APRON_W = 21;
     /** Width of the through-passage cut along the axis through the gate building, x 30..32. */
     static final int GATE_PASSAGE_W = 3;
-    /** Air rows of the gate passage above its floor. */
-    static final int GATE_PASSAGE_H = 4;
+    /**
+     * Air rows of the gate passage above its floor: the door rows and one above, which keeps the
+     * gate's two-row hanging plaque (one row higher) intact.
+     */
+    static final int GATE_PASSAGE_H = 3;
+    /** Spacing in x of the pilasters on each retaining face, counted out from {@link #AXIS_X}. */
+    static final int PILASTER_SPACING = 8;
     /** Air rows the final corridor pass guarantees above the corridor floor. */
     static final int CORRIDOR_HEADROOM = 5;
     /** Air rows kept above every stair tread and landing. */
@@ -266,11 +271,23 @@ public final class SectGenerator {
                 new int[]{a.x0, a.z0, a.x2(), a.z1}, natural);
     }
 
+    /** Top-block material of a skirt column for a {@link SectMountain#surfaceVariant}. */
+    private static BlockState skirtSurface(int variant) {
+        return switch (variant) {
+            case 1 -> Blocks.ANDESITE.defaultBlockState();
+            case 2 -> Blocks.TUFF.defaultBlockState();
+            case 3 -> Blocks.COBBLED_DEEPSLATE.defaultBlockState();
+            default -> Blocks.STONE.defaultBlockState();
+        };
+    }
+
     /**
      * Bake the derived mountain as solid stone: each footprint+skirt column is
      * filled from the natural surface up to the derived height, and burying
      * terrain above the derived silhouette is cleared. Cliff-back and spire
-     * pillars come for free from {@link SectMountain#height}.
+     * pillars come for free from {@link SectMountain#height}. The top block of a
+     * skirt column is stone, andesite, tuff or cobbled deepslate by a hash
+     * (mostly stone); everything below it stays stone.
      */
     static void writeMountain(SectSink sink, SectPlan plan, SectMountain m, BuildStats stats) {
         int minX = m.coreX0() - MOUNTAIN_MARGIN;
@@ -286,8 +303,9 @@ public final class SectGenerator {
             for (int z = clipLo(minZ, clip.z0(), bz); z <= clipHi(maxZ, clip.z1(), bz); z++) {
                 int top = m.height(x, z);
                 int nat = m.naturalAt(x, z);
+                BlockState surface = m.isSkirt(x, z) ? skirtSurface(m.surfaceVariant(x, z)) : stone;
                 for (int y = Math.min(nat, top); y <= top; y++) {
-                    place(sink, at(plan.base, x, y, z), stone, stats);
+                    place(sink, at(plan.base, x, y, z), y == top ? surface : stone, stats);
                 }
                 // clear terrain that would bury the derived silhouette
                 for (int y = top + 1; y <= nat; y++) {
@@ -831,7 +849,9 @@ public final class SectGenerator {
      * The band between two terraces (the 8 rows in front of the upper one) is solid ground up to
      * the upper floor: stone inside, a stone-brick face toward the lower terrace with a chiseled
      * coping course, stone-brick sides. Band cells inside the lower terrace's width but outside the
-     * upper one's (the one-block taper strip) are lower floor. No wall blocks.
+     * upper one's (the one-block taper strip) are lower floor. One-deep stone-brick pilasters with a
+     * chiseled top stand against the face on the lower terrace's last row ({@link #pilasterXs}).
+     * No wall blocks.
      */
     private static void fillBands(SectSink sink, SectPlan plan, BuildStats stats) {
         Clip clip = sink.clip();
@@ -862,7 +882,52 @@ public final class SectGenerator {
                     }
                 }
             }
+            // pilasters standing on the lower floor against the face, full height, chiseled top
+            int pz = r.bounds.z0 - 1;
+            if (bz + pz < clip.z0() || bz + pz > clip.z1()) continue;
+            for (int x : pilasterXs(plan, r)) {
+                if (bx + x < clip.x0() || bx + x > clip.x1()) continue;
+                for (int y = lowY + 1; y < topY; y++) {
+                    place(sink, at(plan.base, x, y, pz), Blocks.STONE_BRICKS.defaultBlockState(), stats);
+                }
+                place(sink, at(plan.base, x, topY, pz), Blocks.CHISELED_STONE_BRICKS.defaultBlockState(), stats);
+            }
         }
+    }
+
+    /**
+     * Local x of the pilasters on a retaining face: every {@link #PILASTER_SPACING} blocks out from
+     * {@link #AXIS_X} on both sides, clear of the grand stair and its cheeks (x 26..36), inside the
+     * upper terrace's width short of its corners, and not where a building on the lower terrace
+     * stands against the face (its slot or template footprint covers the row in front of it).
+     * Symmetric about the axis because the flanks mirror.
+     */
+    static List<Integer> pilasterXs(SectPlan plan, RetainingFace r) {
+        Terrace upper = plan.terraces.get(r.upper);
+        int pz = r.bounds.z0 - 1;
+        List<Integer> out = new ArrayList<>();
+        for (int off = PILASTER_SPACING; off <= SITE_WIDTH; off += PILASTER_SPACING) {
+            if (off <= STAIR_W / 2 + 1) continue;
+            for (int x : new int[]{AXIS_X - off, AXIS_X + off}) {
+                if (x <= upper.bounds.x0 || x >= upper.bounds.x2()) continue;
+                boolean covered = false;
+                for (Slot s : plan.slots) {
+                    if (s.terraceIndex != r.lower) continue;
+                    int[] fp = templateFootprint(s.templateId);
+                    int x0 = s.bounds.x0;
+                    int x1 = Math.max(s.bounds.x2(), s.bounds.x0 + fp[0] - 1);
+                    int z0 = s.bounds.z0;
+                    int z1 = Math.max(s.bounds.z1, s.bounds.z0 + fp[1] - 1);
+                    if (x >= x0 && x <= x1 && pz >= z0 && pz <= z1) {
+                        covered = true;
+                        break;
+                    }
+                }
+                if (!covered) out.add(x);
+            }
+        }
+        out.sort(null);
+        return out;
     }
 
     /**

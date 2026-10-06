@@ -25,7 +25,7 @@ things the owner asked for come first.
   at the source separately.
 - The axis is connected front to back. A paved corridor (御道, 7 wide, polished
   andesite with a chiseled centre line) runs from a new levelled forecourt in
-  front of the gate to the row before the principal hall; a 3-wide, 4-high
+  front of the gate to the row before the principal hall; a 3-wide, 3-high
   passage is cut through the gate building with stairs in front and behind;
   no building other than the gate and the principal hall stands on the axis;
   and a final pass keeps 5 blocks of air above the corridor. Between terraces
@@ -34,6 +34,9 @@ things the owner asked for come first.
   solid retaining bands with a stone-brick face and chiseled coping. The
   13,000-odd stone-brick wall blocks that used to fill the bands are gone;
   the generator writes no wall block anywhere.
+- The gate passage is 3 blocks high (the door rows and one above) instead of
+  4, so it no longer cuts away the lower row of the gate's two-row hanging
+  plaque (牌匾); it still leaves 3 blocks of air over the floor.
 
 ### Changed
 
@@ -45,7 +48,19 @@ things the owner asked for come first.
 - The derived mountain has no noise inside the compound core or on the
   forecourt, so no stray stone rises onto terraces, bands, stairs or the
   ground in front of the gate; the taper strips beside the narrower terraces
-  slope down one block per block. The outer skirt is unchanged.
+  slope down one block per block.
+- The outer skirt no longer reads as a forest of 1x1 stone spikes. It is a
+  cone falling one block per block from the terraces and the forecourt, with
+  smooth value-noise relief (±4 on a 6-cell lattice plus ±1 on a 2-cell
+  lattice, smoothstep-blended, faded in over 4 cells from the core) instead
+  of ±5 per-cell noise, slope-limited so neighbouring skirt columns differ by
+  at most 2 (except at the cliff back), and graded into natural ground by 24
+  cells. Its top blocks are mostly stone with some andesite, tuff and cobbled
+  deepslate; the interior stays stone.
+- Each retaining face carries one-deep stone-brick pilasters with a chiseled
+  top, full face height, every 8 blocks out from the axis (clear of the
+  stair and its cheeks, and left out where a building stands against the
+  face), standing on the lower terrace's last row.
 - The detached spire is built only where it clears every building, terrace
   and stair. None of the three variants does yet (each would stand inside
   the summit), so it is skipped and logged, and its peak is not raised; the
@@ -65,7 +80,12 @@ things the owner asked for come first.
   is walkable from the forecourt to the hall, nothing floats, the generator
   writes no wall block, only the gate and the hall stand on the axis and the
   flanks mirror, every stair climbs one terrace in single steps, courtyard
-  cells are open ground, chunk slices join, and the core has no noise.
+  cells are open ground, chunk slices join, and the core has no noise. It
+  also checks that the gate's hanging plaque survives the passage cut, that
+  the pilasters stand where planned and mirror about the axis, that for six
+  seeds on rolling and on low flat ground no two neighbouring skirt columns
+  differ by more than 2 while the core and forecourt heights are unchanged,
+  and that skirt tops are mostly stone with the other three stones present.
   `DropIsolatedBlocksTest`; `SectCourtyardTest` re-derived from the new plan.
 - Specs `sect-compound-layout`, `sect-compound-realization`,
   `sect-mountain-derivation`, and `sect-worldgen-structure` describe the new
