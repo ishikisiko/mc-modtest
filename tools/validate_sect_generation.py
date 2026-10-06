@@ -5,18 +5,31 @@ The Java ``SectGenerator`` re-derives a plan structurally equivalent to the
 Python planner in ``buildgen.sect``. This validator drives that plan and
 asserts:
 
-  * the terrace stack ascends a single fall-line ritual axis gate→summit;
-  * slot importance is non-decreasing up the stack with the principal hall and
-    scripture pagoda at the top tiers;
-  * every covered gallery and any flying-bridge feature has both endpoints
-    resting on the volumes/terraces it joins;
+  * the terrace stack ascends a single fall-line ritual axis gate→summit and
+    the terraces are symmetric about the axis column;
+  * the axis corridor (x 28..34 on the default site) runs from the forecourt
+    to the row before the principal hall and carries no building except the
+    gate and the hall; slots never overlap and never stand on a grand stair;
+  * every flank pair mirrors about the axis, each slot is exactly its
+    template's footprint and aligned as the roster says;
+  * the forecourt is APRON_ROWS rows in front of the gate terrace;
+  * the grand stairs climb each band in single steps with a landing, and the
+    retaining bands keep their count and height; no galleries are planned;
+  * slot importance is non-decreasing up the stack with the principal hall at
+    the top tier;
+  * the flying-bridge feature has both endpoints resting on the volumes/terraces
+    it joins;
   * the three detached-spire feature variants are pairwise distinct and a
     feature-absent plan is still complete;
-  * every slot's referenced structure template fits inside the slot and inside
-    its terrace (catches .nbt/footprint drift between planner and shipped pieces);
+  * every slot's referenced structure template is exactly the slot's size and
+    inside its terrace (catches .nbt/footprint drift between planner and
+    shipped pieces);
   * the plan is reproducible for a fixed seed + site;
   * the geometry constants the Java realizer hardcodes (PARITY_CONSTANTS) match
-    the Python planner defaults, so the two stay in lock-step (Python/Java parity).
+    the Python planner defaults, so the two stay in lock-step (Python/Java parity);
+    when SectGenerator.java is present its ``static final int`` values are read
+    and compared too;
+  * the derived mountain keeps the core and forecourt noise-free.
 
 Emits ``reports/sect_generation_validation.json``.
 """
@@ -24,6 +37,7 @@ Emits ``reports/sect_generation_validation.json``.
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Dict, List, Set, Tuple
@@ -43,7 +57,8 @@ from buildgen.sect_mountain import (  # noqa: E402
     validate_mountain_reproducibility,
 )
 from buildgen.sect import (  # noqa: E402
-    DEFAULT_AXIS_STAIR_W,
+    APRON_ROWS,
+    AXIS_W,
     DEFAULT_CLIFF_BACK_HEIGHT,
     DEFAULT_TERRACE_COUNT,
     DEFAULT_TERRACE_DEPTH,
@@ -52,10 +67,14 @@ from buildgen.sect import (  # noqa: E402
     DEFAULT_SUMMIT_TAPER,
     FEATURE_PERIOD,
     FEATURE_VARIANTS,
+    FLANK_INNER_LEFT_X1,
+    FLANK_INNER_RIGHT_X0,
     MAX_TERRACE_COUNT,
     MIN_TERRACE_COUNT,
+    STAIR_PROJECT,
+    STAIR_W,
     Z_MARGIN,
-    SectSite,
+    feature_buildable,
     generate_sect_plan,
     validate_feature_variants,
     validate_sect_plan,
@@ -63,6 +82,8 @@ from buildgen.sect import (  # noqa: E402
 )
 
 REPORT_PATH = REPO_ROOT / "reports" / "sect_generation_validation.json"
+JAVA_GENERATOR = (REPO_ROOT / "src" / "main" / "java" / "com" / "example" / "myvillage"
+                  / "sect" / "SectGenerator.java")
 STRUCTURE_DIR = REPO_ROOT / "src" / "main" / "resources" / "data" / "myvillage" / "structure"
 WORLDGEN_DIR = REPO_ROOT / "src" / "main" / "resources" / "data" / "myvillage" / "worldgen"
 BIOME_TAG_PATH = (REPO_ROOT / "src" / "main" / "resources" / "data" / "myvillage"
@@ -95,9 +116,14 @@ PARITY_CONSTANTS = {
     "TERRACE_DEPTH": DEFAULT_TERRACE_DEPTH,
     "TERRACE_WIDTH": DEFAULT_TERRACE_WIDTH,
     "SUMMIT_TAPER": DEFAULT_SUMMIT_TAPER,
-    "AXIS_STAIR_W": DEFAULT_AXIS_STAIR_W,
     "CLIFF_BACK_HEIGHT": DEFAULT_CLIFF_BACK_HEIGHT,
     "Z_MARGIN": Z_MARGIN,
+    "AXIS_W": AXIS_W,
+    "STAIR_W": STAIR_W,
+    "STAIR_PROJECT": STAIR_PROJECT,
+    "FLANK_INNER_LEFT_X1": FLANK_INNER_LEFT_X1,
+    "FLANK_INNER_RIGHT_X0": FLANK_INNER_RIGHT_X0,
+    "APRON_ROWS": APRON_ROWS,
     "MIN_TERRACE_COUNT": MIN_TERRACE_COUNT,
     "MAX_TERRACE_COUNT": MAX_TERRACE_COUNT,
 }
@@ -119,8 +145,9 @@ def _rect_set(x0: int, z0: int, x1: int, z1: int) -> Set[Tuple[int, int]]:
 
 
 def validate_template_fit(plan) -> List[str]:
-    """Every slot's referenced .nbt fits inside the slot and the terrace, with a
-    non-empty ground layer so realized volumes neither float nor bury."""
+    """Every slot's referenced .nbt is exactly the slot's size (slots are sized by
+    their own template) and inside the terrace, with a non-empty ground layer so
+    realized volumes neither float nor bury."""
     errors: List[str] = []
     terrace_by_index = {t.index: t for t in plan.terraces}
     for slot in plan.slots:
@@ -130,10 +157,11 @@ def validate_template_fit(plan) -> List[str]:
             errors.append(f"template_missing:{slot.id}:{slot.template_id}")
             continue
         sx0, sz0, sx1, sz1 = slot.bounds
-        # the planner sizes the slot to the footprint; the real .nbt must fit it
-        if tw > (sx1 - sx0 + 1) or td > (sz1 - sz0 + 1):
+        # the planner sizes the slot by the template's footprint table; the real
+        # .nbt must match it exactly (catches footprint-table drift)
+        if tw != (sx1 - sx0 + 1) or td != (sz1 - sz0 + 1):
             errors.append(
-                f"template_larger_than_slot:{slot.id}:{slot.template_id}:"
+                f"template_size_not_slot_size:{slot.id}:{slot.template_id}:"
                 f"tpl={tw}x{td} slot={sx1 - sx0 + 1}x{sz1 - sz0 + 1}")
         terrace = terrace_by_index.get(slot.terrace_index)
         if terrace is not None:
@@ -160,6 +188,14 @@ def validate_template_fit(plan) -> List[str]:
     return errors
 
 
+def java_int_constants(path: Path = JAVA_GENERATOR) -> Dict[str, int]:
+    """``static final int NAME = <literal>;`` values from SectGenerator.java."""
+    if not path.exists():
+        return {}
+    pattern = re.compile(r"static final int (\w+) = (-?\d+);")
+    return {name: int(value) for name, value in pattern.findall(path.read_text(encoding="utf-8"))}
+
+
 def validate_parity_constants() -> List[str]:
     """Confirm the Java-hardcoded geometry matches the Python planner defaults."""
     errors: List[str] = []
@@ -169,22 +205,35 @@ def validate_parity_constants() -> List[str]:
         "TERRACE_COUNT": 5,
         "TERRACE_RISE": 8,
         "TERRACE_DEPTH": 28,
-        "TERRACE_WIDTH": 58,
-        "SUMMIT_TAPER": 4,
-        "AXIS_STAIR_W": 5,
+        "TERRACE_WIDTH": 59,
+        "SUMMIT_TAPER": 8,
         "CLIFF_BACK_HEIGHT": 12,
         "Z_MARGIN": 4,
+        "AXIS_W": 7,
+        "STAIR_W": 9,
+        "STAIR_PROJECT": 3,
+        "FLANK_INNER_LEFT_X1": 25,
+        "FLANK_INNER_RIGHT_X0": 37,
+        "APRON_ROWS": 12,
     }
     for key, value in expected.items():
         py = PARITY_CONSTANTS.get(key)
         if py != value:
             errors.append(f"parity_constant_mismatch:{key}:python={py}!=java={value}")
+    java = java_int_constants()
+    if java:
+        for key, value in expected.items():
+            if key in java and java[key] != value:
+                errors.append(f"parity_constant_java_source:{key}:java={java[key]}!=table={value}")
+            elif key not in java:
+                errors.append(f"parity_constant_missing_in_java:{key}")
     return errors
 
 
 def _feature_dict(plan):
+    """The spire input for the mountain: only a detached spire that is built."""
     return ({"detached_bounds": list(plan.feature.detached_bounds)}
-            if plan.feature is not None else None)
+            if feature_buildable(plan) else None)
 
 
 def validate_worldgen_data() -> List[str]:
@@ -233,8 +282,9 @@ def validate_worldgen_data() -> List[str]:
 
 def validate_worldgen_mountain(seeds) -> List[str]:
     """Derive the mountain per seed and assert the 反推山形 contract: terraces at
-    planned elevations, blend-skirt seam-free, cliff-back sheer, cloud-sea
-    placed, spire deterministic — over both flat and rolling natural terrain."""
+    planned elevations, core and forecourt noise-free, blend-skirt seam-free,
+    cliff-back sheer, spire deterministic — over both flat and rolling natural
+    terrain."""
     errors: List[str] = []
     for seed in seeds:
         plan = generate_sect_plan(seed)
@@ -349,8 +399,8 @@ def main() -> int:
     if mountain_errors:
         print("FAIL derived mountain (反推山形)")
     else:
-        print("OK derived mountain: terraces at elevation, skirt seam-free, "
-              "cliff-back sheer, cloud-sea placed, spire deterministic")
+        print("OK derived mountain: terraces at elevation, core and forecourt "
+              "noise-free, skirt seam-free, cliff-back sheer, spire deterministic")
 
     worldgen_survey = survey_worldgen(32)
     print(f"survey: feature present {worldgen_survey['feature_present']}/"
