@@ -839,5 +839,19 @@
   "world_sim.event.sect.heritage_lost.2": "The %2$s heritage sinks into oblivion with %1$s.",
   "world_sim.event.sect.heritage_rekindled.1": "Building on %3$s, %2$s revives in %1$s the %4$s heritage that was lost with %5$s.",
   "world_sim.event.fortune.heritage.1": "Among the ruins of %5$s in %4$s, %3$s (%2$s %1$s) finds %6$s, a manual of the lost %7$s heritage, and takes it up.",
-  "commands.myvillage.world.sect.heritage": "Heritage: %1$s"
+  "commands.myvillage.world.sect.heritage": "Heritage: %1$s",
+  "screen.myvillage.cultivation.technique_group.core": "Core Methods",
+  "screen.myvillage.cultivation.technique_group.active": "Battle Arts",
+  "screen.myvillage.cultivation.technique_group.movement": "Movement Arts",
+  "screen.myvillage.cultivation.technique_group.body": "Body Tempering",
+  "screen.myvillage.cultivation.technique_group.unresolved": "Unknown Techniques",
+  "screen.myvillage.cultivation.grade_name.0": "Mortal grade",
+  "screen.myvillage.cultivation.grade_name.1": "Yellow grade",
+  "screen.myvillage.cultivation.grade_name.2": "Mystic grade",
+  "screen.myvillage.cultivation.grade_name.3": "Earth grade",
+  "screen.myvillage.cultivation.grade_name.4": "Heaven grade",
+  "screen.myvillage.cultivation.technique_running": "Running",
+  "screen.myvillage.cultivation.technique_run": "Run this method",
+  "screen.myvillage.cultivation.heritage_position": "%1$s %2$s",
+  "screen.myvillage.cultivation.world.sect_heritage": "Heritage"
 }

@@ -823,5 +823,19 @@
   "world_sim.event.sect.heritage_lost.2": "%2$s随%1$s一同湮没，世间再无人以此脉传道。",
   "world_sim.event.sect.heritage_rekindled.1": "%2$s以所习《%3$s》为根基，令随%5$s失传的%4$s在%1$s重续香火。",
   "world_sim.event.fortune.heritage.1": "%1$s%2$s%3$s在%4$s%5$s的断壁残垣间寻得%7$s遗下的《%6$s》，自此改修此法。",
-  "commands.myvillage.world.sect.heritage": "传承：%1$s"
+  "commands.myvillage.world.sect.heritage": "传承：%1$s",
+  "screen.myvillage.cultivation.technique_group.core": "心法",
+  "screen.myvillage.cultivation.technique_group.active": "绝技",
+  "screen.myvillage.cultivation.technique_group.movement": "身法",
+  "screen.myvillage.cultivation.technique_group.body": "炼体",
+  "screen.myvillage.cultivation.technique_group.unresolved": "未知功法",
+  "screen.myvillage.cultivation.grade_name.0": "凡阶",
+  "screen.myvillage.cultivation.grade_name.1": "黄阶",
+  "screen.myvillage.cultivation.grade_name.2": "玄阶",
+  "screen.myvillage.cultivation.grade_name.3": "地阶",
+  "screen.myvillage.cultivation.grade_name.4": "天阶",
+  "screen.myvillage.cultivation.technique_running": "运转中",
+  "screen.myvillage.cultivation.technique_run": "运转此心法",
+  "screen.myvillage.cultivation.heritage_position": "%1$s %2$s",
+  "screen.myvillage.cultivation.world.sect_heritage": "传承"
 }
