@@ -38,26 +38,37 @@ final class MeridianView {
     private static final int CAPTION_ROW = 10;
     private static final String SEPARATOR = " · ";
 
-    private static final MeridianPath CIRCUIT;
     private static final Map<String, MeridianPath> CHANNEL_PATHS = new LinkedHashMap<>();
-    private static final float BARRIER_AT;
+    /** Each route's circulation loop, by route id. */
+    private static final Map<String, Circuit> CIRCUITS = new LinkedHashMap<>();
 
     static {
-        List<MeridianChart.Channel> loop = new ArrayList<>();
-        for (String id : MeridianChart.smallCircuit()) {
-            loop.add(MeridianChart.channel(id).orElseThrow());
-        }
-        CIRCUIT = MeridianPath.of(loop);
         for (MeridianChart.Channel channel : MeridianChart.channels()) {
             CHANNEL_PATHS.put(channel.id(), MeridianPath.of(channel));
         }
-        BARRIER_AT = CIRCUIT.fractionOf(MeridianChart.YUZHEN).orElse(0.5F);
+        for (MeridianRoute route : MeridianRoute.all()) {
+            List<MeridianChart.Channel> loop = new ArrayList<>();
+            for (String id : route.circuit()) {
+                loop.add(MeridianChart.channel(id).orElseThrow());
+            }
+            MeridianPath path = MeridianPath.of(loop);
+            CIRCUITS.put(route.id(), new Circuit(path, path.fractionOf(MeridianChart.YUZHEN).orElse(0.5F)));
+        }
+    }
+
+    /** A route's loop and where on it a bottleneck holds the motes back. */
+    private record Circuit(MeridianPath path, float barrierAt) {
+    }
+
+    private static Circuit circuit(MeridianRoute route) {
+        Circuit circuit = CIRCUITS.get(route.id());
+        return circuit != null ? circuit : CIRCUITS.get(MeridianRoute.SMALL_CIRCUIT.id());
     }
 
     private MeridianView() {
     }
 
-    static void render(GuiGraphics graphics, PanelContext context, MeridianLook look,
+    static void render(GuiGraphics graphics, PanelContext context, MeridianLook look, MeridianRoute route,
                        int x, int y, int width, int height) {
         Font font = context.font();
         double seconds = (Util.getMillis() % 3_600_000L) / 1000.0D;
@@ -82,21 +93,22 @@ final class MeridianView {
         int light = Math.round(255 * look.figureLight());
         VectorBrush.texture(graphics, FIGURE, box.x, box.y, box.x + size, box.y + size,
                 0xFF000000 | light << 16 | light << 8 | light);
-        double[] motes = motePositions(look, seconds);
-        drawChannels(graphics, box, look);
-        drawFlow(graphics, box, look, motes, seconds);
-        drawPoints(graphics, box, look, motes, seconds);
+        Circuit circuit = circuit(route);
+        double[] motes = motePositions(look, circuit, seconds);
+        drawChannels(graphics, box, look, route);
+        drawFlow(graphics, box, look, route, circuit, motes, seconds);
+        drawPoints(graphics, box, look, route, circuit, motes, seconds);
         drawDantian(graphics, context, box, look, seconds);
         drawLabels(graphics, font, box, look, x, x + width);
 
         // title and caption; a long title gives way to the advancement halo rather than cross it
-        String title = context.text("screen.myvillage.cultivation.meridian.title");
+        String title = context.text(route.titleKey());
         float haloLeft = box.px(HEAD_X - HALO_RADIUS) - 3.0F;
         if (!look.halo() || x + 14 + font.width(title) <= haloLeft) {
             PanelTheme.diamond(graphics, x + 8, y + 7, 2, PanelTheme.GOLD);
             graphics.drawString(font, title, x + 14, y + 3, PanelTheme.GOLD_BRIGHT, false);
         }
-        String flow = context.text("screen.myvillage.cultivation.meridian.flow");
+        String flow = context.text(route.flowKey());
         if (!look.halo() && font.width(title) + font.width(flow) + 30 <= width) {
             graphics.drawString(font, flow, x + width - 6 - font.width(flow), y + 3, PanelTheme.FAINT, false);
         }
@@ -152,10 +164,10 @@ final class MeridianView {
     }
 
     /** The stage width the figure and its labels need at {@code height}, before any margin. */
-    static int preferredWidth(PanelContext context, MeridianLook look, int height) {
+    static int preferredWidth(PanelContext context, MeridianLook look, MeridianRoute route, int height) {
         Font font = context.font();
         float[] extent = extent(font, figureSize(height, 1));
-        int title = 20 + font.width(context.text("screen.myvillage.cultivation.meridian.title"));
+        int title = 20 + font.width(context.text(route.titleKey()));
         return (int) Math.ceil(Math.max(extent[1] - extent[0], title));
     }
 
@@ -236,12 +248,13 @@ final class MeridianView {
         glow.end(true);
     }
 
-    private static void drawChannels(GuiGraphics graphics, Box box, MeridianLook look) {
+    private static void drawChannels(GuiGraphics graphics, Box box, MeridianLook look, MeridianRoute route) {
         VectorBrush core = new VectorBrush(graphics).begin();
         VectorBrush glow = new VectorBrush(graphics);
         boolean anyGlow = false;
         for (MeridianChart.Channel channel : MeridianChart.channels()) {
-            float level = look.level(channel.vessel());
+            // a channel off the running route stays a faint line
+            float level = route.lights(channel.id()) ? look.level(channel.vessel()) : 0.0F;
             MeridianPath path = CHANNEL_PATHS.get(channel.id());
             float[] xs = new float[path.size()];
             float[] ys = new float[path.size()];
@@ -264,27 +277,34 @@ final class MeridianView {
         }
     }
 
-    /** Positions of the circuit motes, 0..1 along the small circuit from the perineum. */
-    private static double[] motePositions(MeridianLook look, double seconds) {
+    /** Positions of the circuit motes, 0..1 along the route's loop from its first stop. */
+    private static double[] motePositions(MeridianLook look, Circuit circuit, double seconds) {
         double[] positions = new double[look.flowing() ? look.circuitMotes() : 0];
         for (int mote = 0; mote < positions.length; mote++) {
-            positions[mote] = look.circuitPosition(seconds, mote, BARRIER_AT);
+            positions[mote] = look.circuitPosition(seconds, mote, circuit.barrierAt());
         }
         return positions;
     }
 
-    private static void drawFlow(GuiGraphics graphics, Box box, MeridianLook look, double[] motes, double seconds) {
-        boolean limbFlow = look.limbMotes() > 0;
+    private static void drawFlow(GuiGraphics graphics, Box box, MeridianLook look, MeridianRoute route,
+                                 Circuit circuit, double[] motes, double seconds) {
+        List<String> limbs = new ArrayList<>(2);
+        for (String id : List.of("hand", "foot")) {
+            if (route.lights(id)) {
+                limbs.add(id);
+            }
+        }
+        boolean limbFlow = look.limbMotes() > 0 && !limbs.isEmpty();
         if (motes.length == 0 && !look.gathering() && !limbFlow) {
             return;
         }
         VectorBrush brush = new VectorBrush(graphics).begin();
         int bright = brighten(look.color(), 0.55F);
         for (double position : motes) {
-            mote(brush, box, CIRCUIT, position, TAIL, true, look.color(), bright, 1.0F);
+            mote(brush, box, circuit.path(), position, TAIL, true, look.color(), bright, 1.0F);
         }
         if (limbFlow) {
-            for (String id : List.of("hand", "foot")) {
+            for (String id : limbs) {
                 MeridianPath path = CHANNEL_PATHS.get(id);
                 for (int mote = 0; mote < look.limbMotes(); mote++) {
                     double lap = seconds / 2.4D + mote / (double) look.limbMotes() + (id.equals("foot") ? 0.37D : 0.0D);
@@ -373,7 +393,8 @@ final class MeridianView {
         return strongest;
     }
 
-    private static void drawPoints(GuiGraphics graphics, Box box, MeridianLook look, double[] motes, double seconds) {
+    private static void drawPoints(GuiGraphics graphics, Box box, MeridianLook look, MeridianRoute route,
+                                   Circuit circuit, double[] motes, double seconds) {
         VectorBrush nodes = new VectorBrush(graphics).begin();
         VectorBrush glow = new VectorBrush(graphics).begin();
         float lit = look.circuitLevel();
@@ -384,7 +405,7 @@ final class MeridianView {
             }
             float px = box.px(point.x());
             float py = box.py(point.y());
-            float flare = CIRCUIT.fractionOf(point.id())
+            float flare = circuit.path().fractionOf(point.id())
                     .map(at -> flare(at, motes))
                     .orElse(0.0F);
             if (point.tier() == MeridianChart.Tier.MAJOR) {
@@ -400,8 +421,11 @@ final class MeridianView {
             }
         }
         if (look.limbMotes() > 0) {
-            // spirit-stone qi enters at the palm and the sole
+            // spirit-stone qi enters at the palm and the sole, where the route lights that limb
             for (String id : List.of("laogong", "yongquan")) {
+                if (!route.lights(id.equals("laogong") ? "hand" : "foot")) {
+                    continue;
+                }
                 MeridianChart.Acupoint point = MeridianChart.point(id).orElseThrow();
                 float beat = pulse(seconds + (id.equals("yongquan") ? 0.6D : 0.0D), 1.4D);
                 float px = box.px(point.x());

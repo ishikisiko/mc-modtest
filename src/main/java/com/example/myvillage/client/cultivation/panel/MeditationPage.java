@@ -7,6 +7,7 @@ import com.example.myvillage.cultivation.TechniqueProgress;
 import com.example.myvillage.cultivation.data.AdvancementDefinition;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.data.RealmStageDefinition;
+import com.example.myvillage.cultivation.data.TechniqueDefinition;
 import com.example.myvillage.cultivation.meditation.MeditationState;
 import com.example.myvillage.cultivation.meditation.MeditationStatus;
 import com.example.myvillage.cultivation.network.MeditationIntentAction;
@@ -144,25 +145,33 @@ public final class MeditationPage extends PanelPage {
     public int render(GuiGraphics graphics, PanelContext context, int x, int y, int width, int viewportHeight) {
         MeditationStatus status = context.meditation();
         MeridianLook look = MeridianLook.of(status == null ? null : status.state(), channelsOpen(context.profile()));
+        MeridianRoute route = runningRoute(context);
         if (width >= WIDE) {
             int stageHeight = Math.max(STAGE_MIN_HEIGHT, viewportHeight);
             // the figure takes the width its drawing and labels need; the readouts get the rest
             int stageWidth = Math.max(STAGE_MIN, Math.min(Math.round(width * STAGE_SHARE),
-                    MeridianView.preferredWidth(context, look, stageHeight) + STAGE_AIR));
+                    MeridianView.preferredWidth(context, look, route, stageHeight) + STAGE_AIR));
             int infoWidth = width - stageWidth - GAP;
             List<Card> cards = cards(context, look, infoWidth);
             int infoHeight = Math.max(stageHeight, naturalHeight(context.font(), cards, infoWidth));
-            MeridianView.render(graphics, context, look, x, y, stageWidth, stageHeight);
+            MeridianView.render(graphics, context, look, route, x, y, stageWidth, stageHeight);
             drawCards(graphics, context.font(), cards, x + stageWidth + GAP, y, infoWidth, infoHeight);
             return infoHeight;
         }
         // narrow: the figure fills the first screen, the readouts follow below it
         int stageHeight = Math.max(STAGE_MIN_HEIGHT, Math.min(STAGE_MAX_HEIGHT, viewportHeight));
-        MeridianView.render(graphics, context, look, x, y, width, stageHeight);
+        MeridianView.render(graphics, context, look, route, x, y, width, stageHeight);
         List<Card> cards = cards(context, look, width);
         int infoHeight = naturalHeight(context.font(), cards, width);
         drawCards(graphics, context.font(), cards, x, y + stageHeight + GAP, width, infoHeight);
         return stageHeight + GAP + infoHeight;
+    }
+
+    /** The running core technique's meditation route; the small circuit when there is none. */
+    private static MeridianRoute runningRoute(PanelContext context) {
+        return MeridianRoute.of(context.profile().activeCoreTechnique()
+                .flatMap(context::technique)
+                .flatMap(TechniqueDefinition::meditationRoute));
     }
 
     private static boolean channelsOpen(CultivationProfile profile) {
