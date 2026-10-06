@@ -45,11 +45,11 @@ class BasicFistStyleTest {
     }
 
     @Test
-    void resolvesByTheGauntletItemIdWithTheFistFamily() {
+    void resolvesByTheGauntletItemIdWithTheFistFamilyAsAPair() {
         assertEquals(new WeaponDefinition(
                 id("xuantie_gauntlet"), id("basic_fist"),
                 id("combat/xuantie_gauntlet_first_person.json"), id("combat/xuantie_gauntlet_geometry.json"),
-                Optional.of("fist")), CombatTestData.xuantie());
+                Optional.of("fist"), true), CombatTestData.xuantie());
         assertSame(STYLE, STYLES.styleForItem(CombatTestData.XUANTIE_GAUNTLET).orElseThrow());
         assertSame(CombatTestData.basicSword(), STYLES.styleForItem(CombatTestData.QINGFENG_SWORD).orElseThrow());
     }

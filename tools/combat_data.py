@@ -456,6 +456,8 @@ WEAPON = obj({
 }, {
     # The weapon family a school's weapon_family names (sword, spear, fist); no runtime reads it yet.
     "family": weapon_family,
+    # 0.39.1: one item worn as a pair (the gauntlet); the client mirrors it onto an empty off hand.
+    "paired": boolean,
 })
 
 INDEX = obj({"schema": constant(SCHEMA_VERSION), "styles": id_list, "weapons": id_list})

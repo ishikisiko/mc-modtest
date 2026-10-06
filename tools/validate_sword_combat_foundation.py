@@ -611,6 +611,29 @@ def validate_weapon_families(root: Path, data: combat_data.CombatData, findings:
                                     f"({', '.join(sorted(families)) or 'no schools'}) in {SCHOOL_DIR}"))
 
 
+def validate_paired_weapons(root: Path, data: combat_data.CombatData, contracts: dict[str, dict],
+                            findings: list[Finding]) -> None:
+    """A ``paired`` weapon (0.39.1, one item worn on both hands) is drawn mirrored on the empty off
+    hand, so its first-person rig must keep that hand free (``rig.off_hand.free``) and its contract
+    must not put the off hand on the weapon (no ``off_hand_grip_center``)."""
+    for weapon_id, weapon in data.weapons.items():
+        if weapon.get("paired") is not True:
+            continue
+        rig = read_json(combat_data.asset_file(root, weapon["first_person_rig"]), root,
+                        "COMBAT_WEAPON_PAIRED", findings)
+        settings = rig.get("rig") if isinstance(rig, dict) else None
+        block = settings.get("off_hand") if isinstance(settings, dict) else None
+        if not (isinstance(block, dict) and block.get("free") is True):
+            findings.append(Finding("COMBAT_WEAPON_PAIRED",
+                                    f"{weapon_id}: paired, but {weapon['first_person_rig']} has no free "
+                                    f"rig.off_hand to wear the second one"))
+        contract = contracts.get(weapon["geometry"])
+        if contract is not None and contract.get("off_hand_grip_center") is not None:
+            findings.append(Finding("COMBAT_WEAPON_PAIRED",
+                                    f"{weapon_id}: paired, but {weapon['geometry']} holds the off hand on "
+                                    f"the weapon (off_hand_grip_center)"))
+
+
 def validate_weapon_items(root: Path, data: combat_data.CombatData, findings: list[Finding]) -> None:
     """A weapon's item is registered in Java under its id and has an item model."""
     sources = [content for _, content in java_sources(root, "")]
@@ -1507,6 +1530,7 @@ def validate(root: Path = ROOT, run_generators: bool = True) -> list[Finding]:
     contracts = read_geometry_contracts(root, data)
     validate_weapon_items(root, data, findings)
     validate_weapon_families(root, data, findings)
+    validate_paired_weapons(root, data, contracts, findings)
     validate_weapon_models(root, data, contracts, findings)
     validate_first_person_rigs(root, data, contracts, findings)
     validate_geometry_contracts(root, data, findings)

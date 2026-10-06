@@ -62,7 +62,8 @@ public final class CombatDataLoader {
             "camera_trauma", "cut_roll_degrees");
     private static final Set<String> CAMERA_FIELDS = Set.of(
             "hit_pitch_kick", "hit_roll_kick", "hit_fov_punch", "swing_lean_degrees", "step_fov_surge");
-    private static final Set<String> WEAPON_FIELDS = Set.of("schema", "item", "style", "first_person_rig", "geometry", "family");
+    private static final Set<String> WEAPON_FIELDS = Set.of(
+            "schema", "item", "style", "first_person_rig", "geometry", "family", "paired");
 
     /** Opens one data path (relative, no leading slash); returns null when it does not exist. */
     @FunctionalInterface
@@ -174,7 +175,8 @@ public final class CombatDataLoader {
         if (family.isPresent() && !WeaponDefinition.FAMILY.matcher(family.get()).matches()) {
             throw root.error("family", "must be a lower_snake_case weapon family like fist, got \"" + family.get() + "\"");
         }
-        return new WeaponDefinition(item, style, rig, geometry, family);
+        boolean paired = root.optionalBool("paired", false);
+        return new WeaponDefinition(item, style, rig, geometry, family, paired);
     }
 
     private static AttackMoveDefinition parseMove(Fields move) {
@@ -556,6 +558,14 @@ public final class CombatDataLoader {
 
         float floatNumber(String key) {
             return (float) number(key);
+        }
+
+        boolean optionalBool(String key, boolean fallback) {
+            JsonElement element = json.get(key);
+            if (element == null || element.isJsonNull()) {
+                return fallback;
+            }
+            return bool(key);
         }
 
         boolean bool(String key) {

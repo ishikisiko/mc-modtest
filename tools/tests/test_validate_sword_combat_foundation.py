@@ -534,6 +534,24 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
         self.write_json(path, weapon)
         self.assertIn("COMBAT_DATA_SCHEMA", self.codes())
 
+    def test_paired_weapon_needs_a_free_off_hand(self) -> None:
+        self.assertEqual([], self.details("COMBAT_WEAPON_PAIRED"))
+        path = f"{DATA}/weapon/xuantie_gauntlet.json"
+        self.assertIs(True, self.read_json(path)["paired"])
+        rig_path = f"{RESOURCES}/assets/myvillage/combat/xuantie_gauntlet_first_person.json"
+        rig = self.read_json(rig_path)
+        rig["rig"]["off_hand"]["free"] = False
+        self.write_json(rig_path, rig)
+        self.assert_finding("COMBAT_WEAPON_PAIRED", "myvillage:xuantie_gauntlet", "free")
+        spear = f"{DATA}/weapon/lingxiao_spear.json"
+        weapon = self.read_json(spear)
+        weapon["paired"] = True
+        self.write_json(spear, weapon)
+        self.assert_finding("COMBAT_WEAPON_PAIRED", SPEAR_WEAPON_ID, "off_hand_grip_center")
+        weapon["paired"] = "yes"
+        self.write_json(spear, weapon)
+        self.assertIn("COMBAT_DATA_SCHEMA", self.codes())
+
     def test_free_off_hand_needs_no_off_hand_grip(self) -> None:
         self.assertEqual([], self.details("COMBAT_FIRST_PERSON_RIG_OFF_HAND"))
         path = f"{RESOURCES}/assets/myvillage/combat/xuantie_gauntlet_first_person.json"

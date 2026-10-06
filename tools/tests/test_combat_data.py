@@ -110,6 +110,7 @@ class CombatDataTest(unittest.TestCase):
                          list(data.weapons))
         self.assertEqual(15, len(list(data.moves())))
         self.assertEqual(["sword", "spear", "fist"], [weapon.get("family") for weapon in data.weapons.values()])
+        self.assertEqual([False, False, True], [weapon.get("paired", False) for weapon in data.weapons.values()])
         self.assertEqual(combat_data.ROOT / STYLE, data.files["myvillage:basic_sword"])
         self.assertEqual(combat_data.ROOT / SPEAR_STYLE, data.files["myvillage:basic_spear"])
 

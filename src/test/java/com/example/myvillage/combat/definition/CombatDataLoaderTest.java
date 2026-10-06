@@ -387,6 +387,18 @@ final class CombatDataLoaderTest {
     }
 
     @Test
+    void pairedIsAnOptionalBoolean() {
+        Files files = Files.bundled();
+        CombatStyles styles = files.load();
+        assertFalse(styles.weapon(CombatTestData.QINGFENG_SWORD).orElseThrow().paired(), "defaults to false");
+        assertTrue(styles.weapon(CombatTestData.XUANTIE_GAUNTLET).orElseThrow().paired());
+        files.edit(WEAPON, weapon -> weapon.addProperty("paired", true));
+        assertTrue(files.load().weapon(CombatTestData.QINGFENG_SWORD).orElseThrow().paired());
+        assertRejected(WEAPON, "paired", "true or false",
+                bad -> bad.edit(WEAPON, weapon -> weapon.addProperty("paired", "yes")));
+    }
+
+    @Test
     void twoWeaponsMayShareAStyle() {
         Files files = Files.bundled();
         String twin = "data/myvillage/combat/weapon/twin.json";
