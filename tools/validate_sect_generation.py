@@ -82,8 +82,9 @@ from buildgen.sect import (  # noqa: E402
 )
 
 REPORT_PATH = REPO_ROOT / "reports" / "sect_generation_validation.json"
-JAVA_GENERATOR = (REPO_ROOT / "src" / "main" / "java" / "com" / "example" / "myvillage"
-                  / "sect" / "SectGenerator.java")
+JAVA_SECT_DIR = REPO_ROOT / "src" / "main" / "java" / "com" / "example" / "myvillage" / "sect"
+JAVA_GENERATOR = JAVA_SECT_DIR / "SectGenerator.java"
+JAVA_MOUNTAIN = JAVA_SECT_DIR / "SectMountain.java"
 STRUCTURE_DIR = REPO_ROOT / "src" / "main" / "resources" / "data" / "myvillage" / "structure"
 WORLDGEN_DIR = REPO_ROOT / "src" / "main" / "resources" / "data" / "myvillage" / "worldgen"
 BIOME_TAG_PATH = (REPO_ROOT / "src" / "main" / "resources" / "data" / "myvillage"
@@ -103,9 +104,14 @@ MOUNTAIN_PARITY_EXPECTED = {
     "SKIRT_RADIUS": 24,
     "OUTER_SLOPE": 1,
     "NOISE_AMP_INTER": 3,
-    "NOISE_AMP_OUTER": 5,
+    "NOISE_AMP_OUTER": 4,
     "SEAM_SLOPE_LIMIT": 6,
     "SPIRE_GAP": 3,
+    "SKIRT_LATTICE": 6,
+    "NOISE_AMP_FINE": 1,
+    "SKIRT_FINE_LATTICE": 2,
+    "SKIRT_SLOPE_LIMIT": 2,
+    "SKIRT_NOISE_TAPER": 4,
 }
 
 # Geometry constants the Java realizer hardcodes. These MUST match the Python
@@ -282,9 +288,9 @@ def validate_worldgen_data() -> List[str]:
 
 def validate_worldgen_mountain(seeds) -> List[str]:
     """Derive the mountain per seed and assert the 反推山形 contract: terraces at
-    planned elevations, core and forecourt noise-free, blend-skirt seam-free,
-    cliff-back sheer, spire deterministic — over both flat and rolling natural
-    terrain."""
+    planned elevations, core and forecourt noise-free, the skirt slope-limited
+    (|Δ| <= 2 between neighbours) and seam-free, cliff-back sheer, spire
+    deterministic — over both flat and rolling natural terrain."""
     errors: List[str] = []
     for seed in seeds:
         plan = generate_sect_plan(seed)
@@ -300,10 +306,17 @@ def validate_worldgen_mountain(seeds) -> List[str]:
     if not repro["passed"]:
         errors.extend(f"repro:{e}" for e in repro["errors"])
     # mountain-derivation parity constants Python vs Java
+    if set(MOUNTAIN_PARITY) != set(MOUNTAIN_PARITY_EXPECTED):
+        errors.append(f"mountain_parity_keys:{sorted(set(MOUNTAIN_PARITY) ^ set(MOUNTAIN_PARITY_EXPECTED))}")
     for key, value in MOUNTAIN_PARITY_EXPECTED.items():
         if MOUNTAIN_PARITY.get(key) != value:
             errors.append(
                 f"mountain_parity_mismatch:{key}:python={MOUNTAIN_PARITY.get(key)}!=java={value}")
+    java = java_int_constants(JAVA_MOUNTAIN)
+    if java:
+        for key, value in MOUNTAIN_PARITY_EXPECTED.items():
+            if java.get(key) != value:
+                errors.append(f"mountain_parity_java_source:{key}:java={java.get(key)}!=table={value}")
     return errors
 
 
@@ -400,7 +413,8 @@ def main() -> int:
         print("FAIL derived mountain (反推山形)")
     else:
         print("OK derived mountain: terraces at elevation, core and forecourt "
-              "noise-free, skirt seam-free, cliff-back sheer, spire deterministic")
+              "noise-free, skirt slope-limited and seam-free, cliff-back sheer, "
+              "spire deterministic")
 
     worldgen_survey = survey_worldgen(32)
     print(f"survey: feature present {worldgen_survey['feature_present']}/"

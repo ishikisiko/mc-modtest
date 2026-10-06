@@ -9,9 +9,11 @@ and on the forecourt there is no noise: terraces and the forecourt sit at their
 floor, the band between two terraces at the upper floor within the upper
 terrace's width (else the lower floor), and the taper strips beside the
 narrower terraces slope down one block per block from the nearest terrace.
-Outside the core a seed-driven noisy flank grades through an outer blend skirt
-into the surrounding natural heightmap, a sheer cliff face rises behind the
-summit, and — when the compound builds the detached-spire feature — a solitary
+Outside the core the skirt is a smooth cone falling one block per block from
+the terraces (and the forecourt), with coarse-lattice value-noise relief,
+slope-limited so no two 4-neighbouring skirt columns differ by more than
+``SKIRT_SLOPE_LIMIT``, and graded into the natural heightmap by
+``SKIRT_RADIUS``; a sheer cliff face rises behind the summit, and — when the compound builds the detached-spire feature — a solitary
 peak is raised under the detached volume. (The cloud sea is gone: the retaining
 bands used to bury it anyway.)
 
@@ -30,6 +32,7 @@ no float, no bury.
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass, field
 from typing import Callable, Dict, List, Mapping, Optional, Tuple
 
@@ -39,9 +42,19 @@ Cell2 = Tuple[int, int]
 DEFAULT_SKIRT_RADIUS = 24          # cells over which derived height grades to natural
 DEFAULT_OUTER_SLOPE = 1            # blocks dropped per cell on the bare outer flank
 DEFAULT_NOISE_AMP_INTER = 3        # former band-noise amplitude; unused since the core went noise-free
-DEFAULT_NOISE_AMP_OUTER = 5        # noise amplitude on the outer flank
-SEAM_SLOPE_LIMIT = 6               # max |Δheight| per cell allowed in the skirt
+DEFAULT_NOISE_AMP_OUTER = 4        # amplitude of the skirt's coarse relief (value noise)
+SEAM_SLOPE_LIMIT = 6               # max |Δheight| per cell allowed in a smoothed skirt transect
 DEFAULT_SPIRE_GAP = 3              # min air gap between spire and main mountain (cells)
+SKIRT_LATTICE = 6                  # lattice spacing (cells) of the coarse relief
+NOISE_AMP_FINE = 1                 # amplitude of the fine relief octave
+SKIRT_FINE_LATTICE = 2             # lattice spacing (cells) of the fine octave
+SKIRT_SLOPE_LIMIT = 2              # max |Δh| between 4-neighbouring skirt columns
+SKIRT_NOISE_TAPER = 4              # cells over which the relief fades in from the core/forecourt edge
+
+_MASK64 = 0xFFFFFFFFFFFFFFFF
+SALT_COARSE = 0x5EC75C1A7E00C0A5
+SALT_FINE = 0x5EC75C1A7E00F1E5
+SALT_SURFACE = 0x5EC75C1A7E005EED
 
 # Constants the Java derivation hardcodes; the validator asserts they agree.
 MOUNTAIN_PARITY: Dict[str, int] = {
@@ -51,6 +64,11 @@ MOUNTAIN_PARITY: Dict[str, int] = {
     "NOISE_AMP_OUTER": DEFAULT_NOISE_AMP_OUTER,
     "SEAM_SLOPE_LIMIT": SEAM_SLOPE_LIMIT,
     "SPIRE_GAP": DEFAULT_SPIRE_GAP,
+    "SKIRT_LATTICE": SKIRT_LATTICE,
+    "NOISE_AMP_FINE": NOISE_AMP_FINE,
+    "SKIRT_FINE_LATTICE": SKIRT_FINE_LATTICE,
+    "SKIRT_SLOPE_LIMIT": SKIRT_SLOPE_LIMIT,
+    "SKIRT_NOISE_TAPER": SKIRT_NOISE_TAPER,
 }
 
 
@@ -85,6 +103,66 @@ def _noise(seed: int, x: int, z: int, amp: int) -> int:
         return 0
     span = 2 * amp + 1
     return (_hash2(seed, x, z) % span) - amp
+
+
+def _smoothstep(t: float) -> float:
+    return t * t * (3 - 2 * t)
+
+
+class _Lattice:
+    """Memoised lattice values ``(hash2(seed ^ salt, i, j) mod 2001 - 1000) / 1000``."""
+
+    def __init__(self, seed: int, salt: int) -> None:
+        self.key = (seed ^ salt) & _MASK64
+        self.cache: Dict[Tuple[int, int], float] = {}
+
+    def value(self, i: int, j: int) -> float:
+        v = self.cache.get((i, j))
+        if v is None:
+            v = (_hash2(self.key, i, j) % 2001 - 1000) / 1000.0
+            self.cache[(i, j)] = v
+        return v
+
+
+def _value_noise(lattice: _Lattice, x: int, z: int, spacing: int) -> float:
+    """Smooth value noise in [-1, 1] (mirrors ``SectMountain.valueNoise``)."""
+    i = x // spacing
+    j = z // spacing
+    sx = _smoothstep((x - i * spacing) / spacing)
+    sz = _smoothstep((z - j * spacing) / spacing)
+    v00 = lattice.value(i, j)
+    v10 = lattice.value(i + 1, j)
+    v01 = lattice.value(i, j + 1)
+    v11 = lattice.value(i + 1, j + 1)
+    a = v00 + (v10 - v00) * sx
+    b = v01 + (v11 - v01) * sx
+    return a + (b - a) * sz
+
+
+def value_noise(seed: int, salt: int, x: int, z: int, spacing: int) -> float:
+    return _value_noise(_Lattice(seed, salt), x, z, spacing)
+
+
+def _box_dist(box: Tuple[int, int, int, int], x: int, z: int) -> Tuple[int, int]:
+    x0, z0, x1, z1 = box
+    return max(x0 - x, 0, x - x1), max(z0 - z, 0, z - z1)
+
+
+# slope-limited skirt grids, keyed by everything they depend on (never natural ground)
+_GRID_CACHE: Dict[tuple, "_SkirtGrid"] = {}
+_GRID_CACHE_MAX = 8
+
+
+@dataclass(frozen=True)
+class _SkirtGrid:
+    x0: int
+    z0: int
+    w: int
+    d: int
+    h: Tuple[int, ...]
+
+    def at(self, x: int, z: int) -> int:
+        return self.h[(z - self.z0) * self.w + (x - self.x0)]
 
 
 # --- profile access --------------------------------------------------------
@@ -183,14 +261,154 @@ class DerivedMountain:
                 best = h
         return int(best)
 
-    def _nearest_terrace_height(self, x: int, z: int) -> Tuple[int, int]:
-        """Outer-flank skeleton: the surface of the terrace whose z-band the
-        column is nearest to, and the Chebyshev distance to the core box."""
-        dx = max(self.core_x0 - x, 0, x - self.core_x1)
-        dz = max(self.core_z0 - z, 0, z - self.core_z1)
-        dist = max(dx, dz)
-        nearest = min(self.terraces, key=lambda t: min(abs(z - t.z0), abs(z - t.z1)))
-        return nearest.elevation - 1, dist
+    def core_distance(self, x: int, z: int) -> int:
+        """Chebyshev distance from (x, z) to the core box (0 inside)."""
+        return max(max(self.core_x0 - x, 0, x - self.core_x1),
+                   max(self.core_z0 - z, 0, z - self.core_z1))
+
+    def in_cliff_back(self, x: int, z: int) -> bool:
+        summit = self.terraces[-1]
+        return summit.cliff_back and z > summit.z1 and summit.x0 <= x <= summit.x1
+
+    def _in_spire(self, x: int, z: int) -> bool:
+        sp = self.spire
+        return sp is not None and sp.x0 <= x <= sp.x1 and sp.z0 <= z <= sp.z1
+
+    def is_skirt(self, x: int, z: int) -> bool:
+        """A skirt column: outside the core, the forecourt, the cliff back and the spire."""
+        return not (self.in_core(x, z) or self.on_apron(x, z)
+                    or self.in_cliff_back(x, z) or self._in_spire(x, z))
+
+    def surface_variant(self, x: int, z: int) -> int:
+        """Skirt top block: 0 stone (10 in 16), 1 andesite, 2 tuff, 3 cobbled
+        deepslate (2 in 16 each). Mirrors ``SectMountain.surfaceVariant``."""
+        r = _hash2((self.seed ^ SALT_SURFACE) & _MASK64, x, z) % 16
+        if r < 10:
+            return 0
+        if r < 12:
+            return 1
+        if r < 14:
+            return 2
+        return 3
+
+    def _sources(self) -> List[Tuple[int, int, int, int, int]]:
+        """Skeleton sources (x0, z0, x1, z1, floor): each terrace widened over
+        the bands on either side (at its own width and floor), plus the
+        forecourt at the gate floor."""
+        out = []
+        ts = self.terraces
+        for i, t in enumerate(ts):
+            z0 = ts[i - 1].z1 + 1 if i > 0 else t.z0
+            z1 = ts[i + 1].z0 - 1 if i < len(ts) - 1 else t.z1
+            out.append((t.x0, z0, t.x1, z1, t.elevation - 1))
+        if self.apron is not None:
+            a = self.apron
+            out.append((a[0], a[1], a[2], a[3], ts[0].elevation - 1))
+        return out
+
+    def _raw_relief(self, x: int, z: int, sources, coarse: _Lattice, fine: _Lattice) -> int:
+        """Unlimited skirt relief: the skeleton (highest source floor minus the
+        Euclidean distance to it) plus two value-noise octaves faded in over
+        SKIRT_NOISE_TAPER cells from the core and the forecourt; floored."""
+        skel = -math.inf
+        for x0, z0, x1, z1, floor in sources:
+            dx = max(x0 - x, 0, x - x1)
+            dz = max(z0 - z, 0, z - z1)
+            skel = max(skel, floor - math.sqrt(float(dx * dx + dz * dz)))
+        edge = self.core_distance(x, z)
+        if self.apron is not None:
+            dx, dz = _box_dist(self.apron, x, z)
+            edge = min(edge, max(dx, dz))
+        w = min(1.0, edge / float(SKIRT_NOISE_TAPER))
+        relief = (self.params.noise_amp_outer * _value_noise(coarse, x, z, SKIRT_LATTICE)
+                  + NOISE_AMP_FINE * _value_noise(fine, x, z, SKIRT_FINE_LATTICE))
+        return math.floor(skel + w * relief)
+
+    def skirt_grid(self) -> _SkirtGrid:
+        """The slope-limited skirt relief (mirrors ``SectMountain.buildGrid``).
+
+        Over the core box grown by SKIRT_RADIUS: spire and cliff-back cells are
+        excluded, the forecourt is fixed at the gate floor, the core is excluded,
+        every other cell is free. A free cell starts at its raw relief raised to
+        at least ``gate floor - SKIRT_SLOPE_LIMIT * (Manhattan distance to the
+        forecourt)``, then takes the min-plus closure ``h(p) = min(h(p), h(q) +
+        SKIRT_SLOPE_LIMIT)`` over free/fixed 4-neighbours (raster sweeps to the
+        fixpoint). Depends only on the plan and the seed.
+        """
+        radius = self.params.skirt_radius
+        key = (self.seed, tuple(self.terraces), self.cliff_back_top, self.rise,
+               None if self.spire is None else (self.spire.x0, self.spire.z0,
+                                                 self.spire.x1, self.spire.z1),
+               self.apron, radius, self.params.noise_amp_outer)
+        grid = _GRID_CACHE.get(key)
+        if grid is not None:
+            return grid
+        x0 = self.core_x0 - radius
+        z0 = self.core_z0 - radius
+        w = self.core_x1 - self.core_x0 + 1 + 2 * radius
+        d = self.core_z1 - self.core_z0 + 1 + 2 * radius
+        h = [0] * (w * d)
+        kind = bytearray(w * d)          # 0 none, 1 free, 2 fixed (forecourt)
+        apron_floor = self.terraces[0].elevation - 1
+        sources = self._sources()
+        coarse = _Lattice(self.seed, SALT_COARSE)
+        fine = _Lattice(self.seed, SALT_FINE)
+        limit = SKIRT_SLOPE_LIMIT
+        for j in range(d):
+            z = z0 + j
+            for i in range(w):
+                x = x0 + i
+                k = j * w + i
+                if self._in_spire(x, z) or self.in_cliff_back(x, z):
+                    continue
+                if self.on_apron(x, z):
+                    kind[k] = 2
+                    h[k] = apron_floor
+                    continue
+                if self.in_core(x, z):
+                    continue
+                kind[k] = 1
+                v = self._raw_relief(x, z, sources, coarse, fine)
+                if self.apron is not None:
+                    dx, dz = _box_dist(self.apron, x, z)
+                    v = max(v, apron_floor - limit * (dx + dz))
+                h[k] = v
+        changed = True
+        while changed:
+            changed = False
+            for j in range(d):
+                row = j * w
+                for i in range(w):
+                    k = row + i
+                    if kind[k] != 1:
+                        continue
+                    v = h[k]
+                    if i > 0 and kind[k - 1] and h[k - 1] + limit < v:
+                        v = h[k - 1] + limit
+                    if j > 0 and kind[k - w] and h[k - w] + limit < v:
+                        v = h[k - w] + limit
+                    if v != h[k]:
+                        h[k] = v
+                        changed = True
+            for j in range(d - 1, -1, -1):
+                row = j * w
+                for i in range(w - 1, -1, -1):
+                    k = row + i
+                    if kind[k] != 1:
+                        continue
+                    v = h[k]
+                    if i < w - 1 and kind[k + 1] and h[k + 1] + limit < v:
+                        v = h[k + 1] + limit
+                    if j < d - 1 and kind[k + w] and h[k + w] + limit < v:
+                        v = h[k + w] + limit
+                    if v != h[k]:
+                        h[k] = v
+                        changed = True
+        grid = _SkirtGrid(x0, z0, w, d, tuple(h))
+        if len(_GRID_CACHE) >= _GRID_CACHE_MAX:
+            _GRID_CACHE.pop(next(iter(_GRID_CACHE)))
+        _GRID_CACHE[key] = grid
+        return grid
 
     def height(self, x: int, z: int) -> int:
         """Derived absolute world Y of the mountain surface at local (x, z)."""
@@ -221,18 +439,16 @@ class DerivedMountain:
         if self.in_core(x, z):
             return self.core_height(x, z)
 
-        # outer flank: drop from the skeleton along the slope, add flank noise,
-        # then blend into the natural heightmap across the skirt radius.
-        skel, dist = self._nearest_terrace_height(x, z)
-        flank = skel - self.params.outer_slope * dist
-        flank += _noise(self.seed, x, z, self.params.noise_amp_outer)
+        # skirt: the slope-limited relief, capped so it can still fall to natural
+        # ground by the skirt's edge at SKIRT_SLOPE_LIMIT per cell, and never
+        # below natural ground (the mountain only adds relief)
+        dist = self.core_distance(x, z)
         natural = self.natural_fn(x, z)
-        if dist >= self.params.skirt_radius:
+        radius = self.params.skirt_radius
+        if dist >= radius:
             return natural
-        frac = dist / self.params.skirt_radius
-        blended = round(flank * (1 - frac) + natural * frac)
-        # never sink below natural ground (the mountain only adds relief)
-        return max(blended, natural)
+        relief = self.skirt_grid().at(x, z)
+        return max(natural, min(relief, natural + SKIRT_SLOPE_LIMIT * (radius - dist)))
 
 
 @dataclass(frozen=True)
@@ -337,7 +553,10 @@ def validate_mountain(mountain: DerivedMountain) -> dict:
         floor, taper strips sloping one block per block from the nearest
         terrace, and none of it changes with the seed;
       * the outer flank is noise-textured, not bare steps;
-      * the outer blend skirt has no abrupt seam (except the intended cliff-back);
+      * the outer blend skirt has no abrupt seam (except the intended cliff-back):
+        no two 4-neighbouring skirt columns (or a skirt column and the
+        forecourt) differ by more than SKIRT_SLOPE_LIMIT where natural ground
+        is level between them;
       * a sheer cliff face stands behind the summit;
       * a spire (when the feature is built) stands under the detached volume,
         separated from the main mountain by a gap.
@@ -387,6 +606,8 @@ def validate_mountain(mountain: DerivedMountain) -> dict:
         mountain.core_x1 + mountain.params.skirt_radius + 4, transect_z)
     if abs(edge - natural_edge) > mountain.params.noise_amp_outer:
         errors.append(f"skirt_edge_not_natural:{edge}!={natural_edge}")
+
+    errors.extend(_validate_skirt_slope(mountain))
 
     # cliff-back: a sheer face stands directly behind the summit
     if summit.cliff_back:
@@ -455,6 +676,43 @@ def _validate_core(mountain: DerivedMountain, under_spire) -> List[str]:
             errors.append(f"core_not_noise_free:{(x, z)}")
             reported.add("seed")
     return errors
+
+
+def _validate_skirt_slope(mountain: DerivedMountain) -> List[str]:
+    """The relief the mountain adds is slope-limited: |Δ| <= SKIRT_SLOPE_LIMIT
+    between 4-neighbouring skirt columns and between a skirt column and the
+    forecourt, over the skirt radius.
+
+    Compared value per skirt column: ``min(relief, natural + LIMIT * (radius -
+    dist))``, i.e. the derived height before ``max(natural, ...)``; where
+    natural ground stands higher than that it is the terrain's own relief, not
+    the mountain's. Pairs across a step in the natural heightmap are skipped.
+    The cliff back, the spire and the core are not skirt. On level natural
+    ground this is exactly the derived height.
+    """
+    radius = mountain.params.skirt_radius
+    nat = mountain.natural_fn
+    grid = mountain.skirt_grid()
+    gate_floor = mountain.terraces[0].elevation - 1
+    x_lo, x_hi = mountain.core_x0 - radius, mountain.core_x1 + radius
+    z_lo, z_hi = mountain.core_z0 - radius, mountain.core_z1 + radius
+    values: Dict[Tuple[int, int], Tuple[int, bool]] = {}
+    for x in range(x_lo, x_hi + 1):
+        for z in range(z_lo, z_hi + 1):
+            if mountain.on_apron(x, z):
+                values[(x, z)] = (gate_floor, False)
+            elif mountain.is_skirt(x, z):
+                dist = mountain.core_distance(x, z)
+                values[(x, z)] = (min(grid.at(x, z),
+                                      nat(x, z) + SKIRT_SLOPE_LIMIT * (radius - dist)), True)
+    for (x, z), (h, skirt) in values.items():
+        for q in ((x + 1, z), (x, z + 1)):
+            other = values.get(q)
+            if other is None or not (skirt or other[1]) or nat(x, z) != nat(*q):
+                continue
+            if abs(h - other[0]) > SKIRT_SLOPE_LIMIT:
+                return [f"skirt_slope:{(x, z)}->{q}:|Δ|={abs(h - other[0])}"]
+    return []
 
 
 def _core_expectation(terraces: List[TerraceBox], x: int, z: int) -> Tuple[str, Optional[int]]:
