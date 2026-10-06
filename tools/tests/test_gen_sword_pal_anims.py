@@ -171,7 +171,7 @@ class StyleBindingTest(unittest.TestCase):
             self.assertEqual(source.get("step", {}).get("tick"), m.step_tick)
 
     def test_pose_table_carries_no_timing(self) -> None:
-        self.assertEqual({"keys", "lunge", "cut_path"}, {f.name for f in dataclasses.fields(gen.MovePoses)})
+        self.assertEqual({"keys", "lunge", "cut_path", "off_hand"}, {f.name for f in dataclasses.fields(gen.MovePoses)})
 
     def test_retimed_style_changes_the_bound_move(self) -> None:
         data = style()
@@ -1078,6 +1078,101 @@ class ArmBranchTest(unittest.TestCase):
     def test_the_sword_is_resolved_as_before(self) -> None:
         for m in gen.moves():
             self.assertEqual(gen.resolve(m.keys), gen._settle_arm_branches(m.keys, gen.resolve(m.keys), gen.BASIC_SWORD))
+
+
+FIST = gen.BASIC_FIST
+
+
+class FistTableTest(unittest.TestCase):
+    """The committed Xuantie gauntlet table (myvillage:basic_fist): a worn weapon, both hands free."""
+
+    def test_table_binds_to_the_fist_style(self) -> None:
+        self.assertIn(FIST, gen.POSE_TABLES)
+        self.assertTrue(FIST.worn)
+        self.assertTrue(FIST.free_off_hand)
+        self.assertFalse(FIST.two_handed)
+        self.assertEqual("fist_combat.json", FIST.output.name)
+        self.assertEqual("xuantie_gauntlet_geometry.json", FIST.geometry.name)
+        bound = gen.moves(FIST)
+        self.assertEqual(["thrust", "cut", "cut", "cut", "thrust"], [m.kind for m in bound])
+        self.assertEqual([None, "right_to_left", "uppercut", "chop", None], [m.cut_path for m in bound])
+        self.assertEqual(["chamber", "guard", "guard", "chamber", "strike"], [m.off_hand for m in bound])
+        self.assertEqual([False, False, False, False, True], [m.lunge for m in bound])
+
+    def test_committed_json_matches_generator(self) -> None:
+        self.assertEqual(gen.render(gen.build_document(FIST)), FIST.output.read_text(encoding="utf-8"),
+                         "fist_combat.json drifted; run python3 tools/gen_sword_pal_anims.py")
+
+    def test_self_checks_pass(self) -> None:
+        self.assertEqual([], gen.check_document(gen.build_document(FIST), FIST))
+
+    def test_gauntlet_stays_on_the_fist_and_points_along_the_arm(self) -> None:
+        for move in gen.moves(FIST):
+            for k, pose in zip(move.keys, gen.resolve(move.keys, FIST)):
+                self.assertEqual(gen.WORN_ITEM, k.item)
+                self.assertEqual([0.0, 0.0, 0.0], pose["right_item_pos"])
+                sk = gen.skeleton(pose, FIST)
+                self.assertLess(math.dist(sk["grip"], sk["fist"]) * 16, 0.1)
+                self.assertLess(gen.angle_between(k.rarm, gen.direction_angles(sk["grip"], sk["tip"])), 1.0,
+                                "the punch axis is the arm's own direction")
+
+    def test_guard_is_up_and_the_off_hand_counter_moves(self) -> None:
+        self.assertEqual([], gen.free_guard_errors(FIST))
+        guard = gen.skeleton(gen.canonical_guard(FIST), FIST)
+        self.assertGreater(guard["left_fist"][1], 1.0)
+        punch = gen.moves(FIST)[0]
+        sk = gen.measure(punch, FIST)["skeletons"][3]  # contact
+        self.assertGreater(sk["fist"][2] - sk["left_fist"][2], 0.45, "the left fist pulls back as the right punches")
+        double = gen.moves(FIST)[4]
+        sk = gen.measure(double, FIST)["skeletons"][3]
+        self.assertLess(abs(sk["fist"][2] - sk["left_fist"][2]), 0.2, "both fists strike together")
+
+    def test_weight_transfer(self) -> None:
+        punch, palm, uppercut, chop, double = gen.moves(FIST)
+        yaws = [k.body[1] for k in punch.keys]
+        self.assertGreater(max(yaws) - min(yaws), 50.0, "the hips turn through the punch")
+        self.assertLessEqual(double.keys[3].pos[1], -5.0, "the step-in drives the hips forward")
+        self.assertEqual(double.step_tick, double.keys[2].tick, "the coil is held until the server step")
+        self.assertGreater(double.keys[3].stance[1], FIST.guard["stance"][1] + 10, "a deep bow stance on the step")
+
+
+class FistRuleNegativeTest(unittest.TestCase):
+    def test_free_table_needs_an_off_hand_role(self) -> None:
+        moves = dict(FIST.moves)
+        first = next(iter(moves))
+        moves[first] = dataclasses.replace(moves[first], off_hand=None)
+        with self.assertRaises(gen.PoseTableError) as raised:
+            gen.bind(dataclasses.replace(FIST, moves=moves), gen.combat_styles()[FIST.style_id])
+        self.assertIn("off_hand role", str(raised.exception))
+
+    def test_off_hand_role_needs_a_free_table(self) -> None:
+        moves = dict(gen.BASIC_SWORD.moves)
+        first = next(iter(moves))
+        moves[first] = dataclasses.replace(moves[first], off_hand="guard")
+        with self.assertRaises(gen.PoseTableError):
+            gen.bind(dataclasses.replace(gen.BASIC_SWORD, moves=moves), style())
+
+    def test_turned_gauntlet_is_rejected(self) -> None:
+        punch = gen.moves(FIST)[0]
+        keys = list(punch.keys)
+        keys[3] = dataclasses.replace(keys[3], item=(30.0, 0.0, 0.0))
+        errors = gen.check_keys(punch.animation_id, tuple(keys), FIST)
+        self.assertTrue(any("never turns on the hand" in e for e in errors), errors)
+
+    def test_off_hand_left_out_in_front_on_a_punch_is_rejected(self) -> None:
+        punch = gen.moves(FIST)[0]
+        keys = tuple(dataclasses.replace(k, larm=FIST.guard["larm"]) if k.phase in ("contact", "through", "hold")
+                     else k for k in punch.keys)
+        errors = gen.check_move(dataclasses.replace(punch, keys=keys), FIST)
+        self.assertTrue(any("not pulled back" in e for e in errors), errors)
+
+    def test_arm_through_the_chest_is_rejected(self) -> None:
+        guard = gen.fist_guard(0, "guard", "linear")
+        across = gen.fist_key(4, "probe", "easeinoutsine", FIST.guard["body"], FIST.guard["stance"], (-95, -20),
+                              FIST.guard["larm"])
+        errors = gen.check_keys("probe", (guard, across, gen.fist_guard(8, "recovery", "easeinoutsine")), FIST)
+        self.assertTrue(any("right arm / torso" in e for e in errors), errors)
+
 
 
 if __name__ == "__main__":

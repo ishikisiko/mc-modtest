@@ -77,6 +77,15 @@ Adding a pose table for another weapon (e.g. the two-handed spear)
    names the move and the tick to add an ``ON_SHAFT`` key at.  ``--report``
    prints, for a two-handed table, the shaft y of the left hand and its offset
    from the shaft in px for every key (``free`` for a release).
+
+4. A worn weapon (the gauntlet, ``worn=True``) never turns on the hand: write its keys with
+   ``fist_key``, which fixes the item at ``WORN_ITEM`` and takes the blade from the right arm.
+   ``free_off_hand=True`` means both hands are free: the left hand holds nothing, every move names
+   its ``off_hand`` role (``chamber`` pulls it back to the waist, ``guard`` keeps it up in front,
+   ``strike`` drives it level with the right), and ``PoseRules``' ``free_*`` thresholds check the
+   guard and the roles; ``arm_body_clearance_px`` keeps both rigid arms out of the torso and head
+   at and between keys.  ``--report`` adds each move's role, its smallest arm-body gap and the
+   fist's distance from the world trail head.
 """
 
 from __future__ import annotations
@@ -182,6 +191,16 @@ class MovePoses:
     keys: tuple[Key, ...]
     lunge: bool = False
     cut_path: str | None = None
+    off_hand: str | None = None  # a free_off_hand table's role of the left hand, one of OFF_HAND_ROLES
+
+
+# What the free left hand of a free_off_hand table does while the right hand strikes (checked at the
+# contact, follow-through and hold keys):
+#   chamber  拉回: pulled back to the waist, well behind the striking fist (the reaction pull of a
+#            punch or chop);
+#   guard    护: held up in front of the chest or face;
+#   strike   双: driving forward with the right hand, level with it (a two-handed strike).
+OFF_HAND_ROLES = ("chamber", "guard", "strike")
 
 
 @dataclass(frozen=True)
@@ -236,6 +255,17 @@ class PoseRules:
     weapon_ground_clearance: float | None = None   # min height (blocks) of the weapon model's lowest corner
     min_hand_separation_px: float | None = None    # min contract px from the grip to an ON_SHAFT left hand
     shaft_body_clearance_px: float | None = None   # min player-model px from the weapon axis to torso, head, legs
+    # Free-off-hand rules (off for the sword and the spear; see OFF_HAND_ROLES).  Heights are blocks
+    # above the feet, z blocks forward of the feet, both of the fist centre:
+    free_guard_height: tuple[float, float] | None = None  # the guard's left fist (guard up)
+    free_guard_forward: float | None = None         # min z of the guard's left fist (out in front)
+    free_chamber_behind: float | None = None        # chamber: min right fist z minus left fist z
+    free_chamber_height: tuple[float, float] | None = None  # chamber: the left fist at the waist
+    free_strike_level: float | None = None          # strike: max |left - right| fist height and depth
+    # Both arms, at every key and sampled between keys: min player-model px from the forearm and fist
+    # centre line (4 to 10 px down the arm) to the torso and the head, each with its skin layer.  An
+    # arm swung across the chest must not pass through it.
+    arm_body_clearance_px: float | None = None
 
 
 SWORD_RULES = PoseRules()
@@ -258,6 +288,12 @@ class PoseTable:
     rules: PoseRules
     cut_paths: dict[str, CutPath]
     two_handed: bool = False
+    # A worn weapon (the gauntlet): it never turns on the hand, so every key's item rotation is
+    # WORN_ITEM and its blade is the right arm's own direction (see fist_key).
+    worn: bool = False
+    # Both hands free: the left hand guards and counter-moves with no weapon; every move names its
+    # off_hand role (OFF_HAND_ROLES) and the table's free-hand rules check it.
+    free_off_hand: bool = False
 
 
 @dataclass(frozen=True)
@@ -275,6 +311,7 @@ class Move:
     keys: tuple[Key, ...] = field(default_factory=tuple)
     lunge: bool = False
     cut_path: str | None = None
+    off_hand: str | None = None
     samples: str = "[]"  # the style's hitbox samples as JSON (a list or one generator object)
     trail_samples: str | None = None  # the move's optional trail.samples as JSON (the world trail's path)
 
@@ -685,10 +722,189 @@ BASIC_SPEAR = PoseTable(
 )
 
 
+# ---------------------------------------------------------------------------------------------
+# Pose table of myvillage:basic_fist (the Xuantie gauntlet, worn on the right hand; both hands
+# free).  The gauntlet never turns on the hand (WORN_ITEM), so its punch axis is the right arm's
+# own direction and fist_key derives the blade from rarm.  The left hand holds nothing: it guards in
+# the stance and counter-moves on every strike (free_off_hand; each move names its role):
+#   guard    三体式-like stance: left foot and left hand lead (body turned right), the lead arm out
+#            at chest height, the gauntlet fist at the dantian, weight sunk on the back leg.
+#   冲拳     the hips turn from the right through square to the left (right shoulder driving), the
+#            back leg extends into a bow stance, the right fist drives out at chest height while
+#            the left fist pulls back to the waist (chamber).
+#   横掌     wind the palm out to the right with the body turned right, then whip it across to the
+#            left at shoulder height as the hips turn through; the left hand stays up (guard).
+#   上勾     sink and drop the right fist by the hip, then rise and turn into a short uppercut
+#            through the centre line, leaning back a little; the left hand guards the face.
+#   劈掌     rear back with the right hand high over the right shoulder, then chop down through the
+#            centre line as the body folds forward; the left hand pulls down to the waist.
+#   踏步双撞 draw both fists to the hips and sink (coil), step in on the server step tick into a
+#            deep bow stance with the hips driven forward and both fists striking level (strike).
+# Cut senses follow the style's hit samples: 横掌 sweeps right -> left, 上勾 rises through the
+# centre, 劈掌 descends from high right through the centre.  PAL arms are rigid, so a fist "at the
+# waist" is an arm pointing down and back, and a guard is a straight arm held out.
+# ---------------------------------------------------------------------------------------------
+
+FIST_GEOMETRY = ROOT / "src/main/resources/assets/myvillage/combat/xuantie_gauntlet_geometry.json"
+FIST_MODEL_3D = ROOT / "src/main/resources/assets/myvillage/models/item/xuantie_gauntlet_3d.json"
+FIST_OUTPUT = ROOT / "src/main/resources/assets/myvillage/player_animations/fist_combat.json"
+WORN_ITEM = (0.0, 0.0, 0.0)
+
+
+def fist_key(tick, phase, easing, body, stance, rarm, larm, pos=(0.0, 0.0)) -> Key:
+    """A key of a worn-weapon table: the item rests on the hand and the blade is the right arm."""
+    return key(tick, phase, easing, body, stance, rarm, larm, WORN_ITEM, rarm, pos)
+
+
+FIST_RULES = replace(
+    SWORD_RULES,
+    # A stance sunk lower than the sword's, deepest on the step-in finisher.
+    hip_drop_px=(1.6, 4.2),
+    # Fist cuts are short arcs driven by the hips: less turn than a sword's full cut.
+    cut_turn_deg=(40.0, 105.0),
+    cut_end_hand_lateral=None,
+    cut_end_blade_yaw=None,
+    cut_end_tip_lateral=None,
+    # The rear (right) hand punches: the right shoulder drives through, so the body ends turned left.
+    thrust_body_yaw=(None, -10.0),
+    # The double strike is square to the target.
+    lunge_body_yaw=(-15.0, 20.0),
+    thrust_left_hand_lateral=None,
+    thrust_arm_level=15.0,
+    # Knuckles out at arm's length: about 0.8 block, the step-in about 1.1 with the hips driven forward.
+    thrust_reach=(0.72, 1.0),
+    free_guard_height=(1.05, 1.5),
+    free_guard_forward=0.35,
+    free_chamber_behind=0.45,
+    free_chamber_height=(0.55, 1.2),
+    free_strike_level=0.2,
+    arm_body_clearance_px=0.5,
+)
+
+FIST_CUT_PATHS: dict[str, CutPath] = {
+    "right_to_left": CutPath((
+        PathRule("palm must wind up on the player's right (tip x {0:+.2f})", (("wind", "tip_x", ">", 0.35),)),
+        PathRule("palm must finish on the player's left (tip x {0:+.2f})", (("hold", "tip_x", "<", -0.15),)),
+        PathRule("palm crosses the centre at yaw {0:.0f} on the middle active tick",
+                 (("mid_active", "blade_yaw", "abs<=", 30.0),)),
+        PathRule("palm must stay between chest and shoulder height (tip y {0:.2f})",
+                 (("mid_active", "tip_y", ">=", 1.0), ("mid_active", "tip_y", "<=", 1.7))),
+    ), side_finish=False),
+    "uppercut": CutPath((
+        PathRule("uppercut must start low (tip y {0:.2f})", (("contact", "tip_y", "<", 1.15),)),
+        PathRule("uppercut must finish high in front of the face (tip y {0:.2f}, x {1:+.2f})",
+                 (("hold", "tip_y", ">", 1.6), ("hold", "tip_x", "abs<=", 0.45))),
+        PathRule("uppercut rises through the middle active tick (elevation {0:.0f})",
+                 (("mid_active", "blade_elevation", ">", -10.0),)),
+    ), side_finish=False),
+    "chop": CutPath((
+        PathRule("chop must rear back high (tip y {0:.2f})", (("wind", "tip_y", ">", 1.75),)),
+        PathRule("chop must finish low in front (tip y {0:.2f}, z {1:+.2f})",
+                 (("hold", "tip_y", "<", 1.15), ("hold", "tip_z", ">", 0.35))),
+        PathRule("chop crosses the centre line at yaw {0:.0f} on the middle active tick",
+                 (("mid_active", "blade_yaw", "abs<=", 30.0),)),
+    ), side_finish=False),
+}
+
+FIST_GUARD = dict(body=(8, 25, 0), stance=("L", 32, 0), rarm=(-20, -55), larm=(-4, -10),
+                  item=WORN_ITEM, blade=(-20, -55))
+
+
+def fist_guard(tick: int, phase: str, easing: str) -> Key:
+    return key(tick, phase, easing, **FIST_GUARD)
+
+
+BASIC_FIST_MOVES: dict[str, MovePoses] = {
+    "myvillage:basic_fist_01_straight_punch": MovePoses((
+        fist_guard(0, "guard", "linear"),
+        fist_key(1, "anticipation", "easeinoutsine", (6, 34, 0), ("L", 33, 0), (12, -72), (-6, -8), pos=(0, 0.5)),
+        fist_key(2, "coil", "linear", (6, 38, 0), ("L", 34, 0), (16, -76), (-8, -6), pos=(0, 0.6)),
+        fist_key(3, "contact", "easeoutcubic", (12, -25, 0), ("L", 40, 0), (-16, -3), (-115, -65), pos=(0, -1.5)),
+        fist_key(4, "through", "easeoutsine", (13, -30, 0), ("L", 41, 0), (-16, -4), (-125, -65), pos=(0, -2)),
+        fist_key(7, "hold", "linear", (13, -31, 0), ("L", 41, 0), (-16, -5), (-126, -65), pos=(0, -2)),
+        fist_guard(9, "recovery", "easeinoutsine"),
+    ), off_hand="chamber"),
+    "myvillage:basic_fist_02_horizontal_palm": MovePoses((
+        fist_guard(0, "guard", "linear"),
+        fist_key(2, "anticipation", "easeinoutsine", (6, 48, 0), ("L", 33, 0), (75, -10), (8, 8)),
+        fist_key(3, "coil", "linear", (6, 54, 0), ("L", 34, 0), (86, -8), (5, 8)),
+        fist_key(4, "contact", "easeoutquad", (10, 12, 0), ("L", 38, 0), (35, -5), (-10, 10), pos=(0, -1)),
+        fist_key(5, "through", "easeoutsine", (12, -42, 0), ("L", 40, 0), (-50, -7), (-18, 0), pos=(0, -1.5)),
+        fist_key(8, "hold", "linear", (12, -44, 0), ("L", 40, 0), (-52, -8), (-19, 0), pos=(0, -1.5)),
+        fist_guard(10, "recovery", "easeinoutsine"),
+    ), cut_path="right_to_left", off_hand="guard"),
+    "myvillage:basic_fist_03_uppercut": MovePoses((
+        fist_guard(0, "guard", "linear"),
+        fist_key(2, "anticipation", "easeinoutsine", (14, 30, 0), ("L", 40, 0), (20, -80), (-6, 12), pos=(0, 0.5)),
+        fist_key(3, "coil", "linear", (16, 32, 0), ("L", 41, 0), (25, -82), (-6, 14), pos=(0, 0.6)),
+        fist_key(4, "contact", "easeoutcubic", (4, 5, 0), ("L", 36, 0), (-2, -30), (-12, 12), pos=(0, -1)),
+        fist_key(5, "through", "easeoutsine", (-6, -10, 0), ("L", 35, 0), (-11, 42), (-18, 10), pos=(0, -1.2)),
+        fist_key(8, "hold", "linear", (-7, -12, 0), ("L", 35, 0), (-11, 45), (-18, 10), pos=(0, -1.2)),
+        fist_guard(10, "recovery", "easeinoutsine"),
+    ), cut_path="uppercut", off_hand="guard"),
+    "myvillage:basic_fist_04_chop": MovePoses((
+        fist_guard(0, "guard", "linear"),
+        fist_key(2, "anticipation", "easeinoutsine", (-6, 35, 0), ("L", 32, 0), (25, 70), (-5, -15)),
+        fist_key(4, "coil", "linear", (-8, 38, 0), ("L", 33, 0), (20, 78), (-5, -12)),
+        fist_key(5, "contact", "easeoutcubic", (8, 10, 0), ("L", 38, 0), (5, 25), (-120, -70), pos=(0, -1)),
+        fist_key(6, "through", "easeoutsine", (18, -15, 0), ("L", 42, 0), (-12, -35), (-150, -70), pos=(0, -1.5)),
+        fist_key(9, "hold", "linear", (19, -16, 0), ("L", 42, 0), (-12, -37), (-151, -70), pos=(0, -1.5)),
+        fist_guard(11, "recovery", "easeinoutsine"),
+    ), cut_path="chop", off_hand="chamber"),
+    "myvillage:basic_fist_05_step_double_strike": MovePoses((
+        fist_guard(0, "guard", "linear"),
+        fist_key(3, "anticipation", "easeinoutsine", (4, 10, 0), ("L", 36, 0), (20, -75), (-20, -75), pos=(0, 1.5)),
+        fist_key(5, "coil", "linear", (6, 8, 0), ("L", 38, 0), (22, -78), (-22, -78), pos=(0, 2)),
+        fist_key(6, "contact", "easeoutquart", (16, 0, 0), ("L", 48, 0), (-8, -8), (8, -8), pos=(0, -6)),
+        fist_key(7, "through", "easeoutsine", (18, 0, 0), ("L", 49, 0), (-8, -9), (8, -9), pos=(0, -6.5)),
+        fist_key(10, "hold", "linear", (18, 0, 0), ("L", 49, 0), (-8, -10), (8, -10), pos=(0, -6.5)),
+        fist_guard(11, "recovery", "easeinoutsine"),
+    ), lunge=True, off_hand="strike"),
+}
+
+
+def fist_idle_keys() -> tuple[Key, ...]:
+    return (
+        fist_guard(0, "guard", "linear"),
+        fist_key(12, "breath", "easeinoutsine", (9, 23, 0), ("L", 33, 0), (-20, -53), (-4, -7)),
+        fist_guard(24, "guard", "easeinoutsine"),
+    )
+
+
+def fist_enter_keys() -> tuple[Key, ...]:
+    # From the vanilla pose, a 抱拳礼 (the two fists meet in front of the chest with a small bow),
+    # then step back into the guard.
+    return (
+        fist_key(0, "vanilla", "linear", (0, 0, 0), ("L", 0, 0), (0, -90), (0, -90)),
+        fist_key(4, "salute", "easeoutcubic", (10, 0, 0), ("L", 10, 0), (-30, -28), (30, -28)),
+        fist_key(8, "bow", "easeinoutsine", (14, 0, 0), ("L", 12, 0), (-30, -30), (30, -30)),
+        fist_key(12, "settle", "easeinoutsine", (8, 18, 0), ("L", 26, 0), (-15, -50), (-6, -14)),
+        fist_guard(16, "guard", "easeinoutsine"),
+    )
+
+
+BASIC_FIST = PoseTable(
+    style_id="myvillage:basic_fist",
+    output=FIST_OUTPUT,
+    guard=FIST_GUARD,
+    mode_enter=fist_enter_keys(),
+    mode_enter_ticks=16,  # 0.8 s
+    ready_idle=fist_idle_keys(),
+    ready_idle_ticks=24,  # 1.2 s loop
+    moves=BASIC_FIST_MOVES,
+    geometry=FIST_GEOMETRY,
+    item_model=FIST_MODEL_3D,
+    rules=FIST_RULES,
+    cut_paths=FIST_CUT_PATHS,
+    worn=True,
+    free_off_hand=True,
+)
+
+
 # One pose table per combat style.  A second style is an added table with its own output file and
 # weapon rig (see the module docstring); its guard must be the guard its keys are built from,
 # because guard keys resolve to it exactly.
-POSE_TABLES: tuple[PoseTable, ...] = (BASIC_SWORD, BASIC_SPEAR)
+POSE_TABLES: tuple[PoseTable, ...] = (BASIC_SWORD, BASIC_SPEAR, BASIC_FIST)
 
 
 # ---------------------------------------------------------------------------------------------
@@ -713,6 +929,13 @@ def bind(table: PoseTable, style: dict) -> tuple[Move, ...]:
     for move_id, poses in table.moves.items():
         if poses.cut_path is not None and poses.cut_path not in table.cut_paths:
             problems.append(f"{move_id}: unknown cut_path {poses.cut_path!r}")
+        if table.free_off_hand and poses.off_hand not in OFF_HAND_ROLES:
+            problems.append(f"{move_id}: a free_off_hand table names each move's off_hand role "
+                            f"({', '.join(OFF_HAND_ROLES)}), not {poses.off_hand!r}")
+        if not table.free_off_hand and poses.off_hand is not None:
+            problems.append(f"{move_id}: off_hand {poses.off_hand!r} needs a free_off_hand table")
+    if table.free_off_hand and table.two_handed:
+        problems.append(f"pose table of {table.style_id} cannot be both two_handed and free_off_hand")
     problems += _hand_problems(table)
     if problems:
         raise PoseTableError("; ".join(problems))
@@ -732,6 +955,7 @@ def bind(table: PoseTable, style: dict) -> tuple[Move, ...]:
             keys=poses.keys,
             lunge=poses.lunge,
             cut_path=poses.cut_path,
+            off_hand=poses.off_hand,
             samples=json.dumps(data["hitbox"]["samples"], sort_keys=True),
             trail_samples=None if "trail" not in data else json.dumps(data["trail"]["samples"], sort_keys=True),
         ))
@@ -1765,6 +1989,95 @@ def _check_long_weapon(name: str, keys: tuple[Key, ...], poses, table: PoseTable
     return errors
 
 
+# The forearm and fist part of a rigid arm (px down the arm from the shoulder pivot), on the arm's
+# centre line (x -1 right, +1 left, as RIGHT_FIST / LEFT_FIST), tested against the torso and the head.
+ARM_LINE_PX = (4.0, 10.0)
+ARM_LINE_SAMPLES = 12
+
+
+def arm_body_gaps(pose: dict[str, list[float]]) -> dict[str, float]:
+    """Smallest distance in player-model px from each arm's forearm-and-fist centre line to the torso
+    and to the head (skin layers included); 0 when the line is inside the box."""
+    root = _root_frame(pose)
+    gaps = {}
+    for side, pivot, bone, x in (("right arm", RIGHT_ARM_PIVOT, "right_arm", RIGHT_FIST[0]),
+                                 ("left arm", LEFT_ARM_PIVOT, "left_arm", LEFT_FIST[0])):
+        frame = _part_frame(root, pivot, pose[bone])
+        low, high = ARM_LINE_PX
+        points = [_apply(frame, (x, (low + (high - low) * i / ARM_LINE_SAMPLES) / 16, 0.0))
+                  for i in range(ARM_LINE_SAMPLES + 1)]
+        for label, body_bone, body_pivot, box_low, box_high in BODY_BOXES[:2]:
+            gaps[f"{side} / {label}"] = _box_gap(_part_frame(root, body_pivot, pose[body_bone]), points,
+                                                 box_low, box_high)
+    return gaps
+
+
+def _check_free_arms(name: str, keys: tuple[Key, ...], poses, table: PoseTable) -> list[str]:
+    """``arm_body_clearance_px``: neither arm passes through the torso or the head, at every key and
+    at seven samples between keys (a free arm swung across the chest is the risk)."""
+    limit = table.rules.arm_body_clearance_px
+    if limit is None:
+        return []
+    worst: dict[str, tuple[float, float]] = {}
+    for i, k in enumerate(keys):
+        ticks = [k.tick] + ([k.tick + (keys[i + 1].tick - k.tick) * s / 8 for s in range(1, 8)]
+                            if i + 1 < len(keys) else [])
+        for tick in ticks:
+            for where, gap in arm_body_gaps(sample(keys, poses, tick)).items():
+                if where not in worst or gap < worst[where][0]:
+                    worst[where] = (gap, tick)
+    return [f"{name}: {where} only {gap:.2f} px apart near tick {tick:.2f} (< {limit:g}; inside at 0)"
+            for where, (gap, tick) in sorted(worst.items()) if gap < limit]
+
+
+def free_guard_errors(table: PoseTable) -> list[str]:
+    """A free_off_hand table's guard holds the left fist up and out in front (guard up)."""
+    rules = table.rules
+    if not table.free_off_hand or rules.free_guard_height is None:
+        return []
+    fist = skeleton(canonical_guard(table), table)["left_fist"]
+    low, high = rules.free_guard_height
+    errors = []
+    if not low <= fist[1] <= high:
+        errors.append(f"guard: left fist at height {fist[1]:.2f} (guard up: {low:g}..{high:g})")
+    if rules.free_guard_forward is not None and fist[2] < rules.free_guard_forward:
+        errors.append(f"guard: left fist only {fist[2]:+.2f} block forward (>= {rules.free_guard_forward:g})")
+    return errors
+
+
+def off_hand_role_errors(move: Move, skeletons, indices, table: PoseTable) -> list[str]:
+    """The free left hand does what the move's off_hand role says at contact, through and hold."""
+    rules = table.rules
+    errors = []
+    for index in indices:
+        sk = skeletons[index]
+        tick = move.keys[index].tick
+        left, right = sk["left_fist"], sk["fist"]
+        if move.off_hand == "chamber":
+            behind = right[2] - left[2]
+            if rules.free_chamber_behind is not None and behind < rules.free_chamber_behind:
+                errors.append(f"left hand not pulled back at tick {tick}: {behind:.2f} block behind the "
+                              f"striking fist (>= {rules.free_chamber_behind:g})")
+            if rules.free_chamber_height is not None and \
+                    not rules.free_chamber_height[0] <= left[1] <= rules.free_chamber_height[1]:
+                errors.append(f"left hand not at the waist at tick {tick}: height {left[1]:.2f} "
+                              f"({rules.free_chamber_height[0]:g}..{rules.free_chamber_height[1]:g})")
+        elif move.off_hand == "guard":
+            if rules.free_guard_height is not None:
+                low, high = rules.free_guard_height
+                if not low - 0.15 <= left[1] <= high + 0.15:
+                    errors.append(f"left hand drops its guard at tick {tick}: height {left[1]:.2f} "
+                                  f"({low - 0.15:g}..{high + 0.15:g})")
+            if rules.free_guard_forward is not None and left[2] < rules.free_guard_forward - 0.1:
+                errors.append(f"left hand guard not in front at tick {tick}: z {left[2]:+.2f}")
+        elif move.off_hand == "strike":
+            level = rules.free_strike_level
+            if level is not None and (abs(left[1] - right[1]) > level or abs(left[2] - right[2]) > level):
+                errors.append(f"left fist not level with the right at tick {tick}: "
+                              f"dy {left[1] - right[1]:+.2f} dz {left[2] - right[2]:+.2f} (<= {level:g})")
+    return errors
+
+
 def long_weapon_margins(keys: tuple[Key, ...], table: PoseTable) -> dict[str, float]:
     """Smallest butt/tip height (blocks), hand separation (contract px) and shaft-body clearance
     (player-model px) over the keys and eight samples between keys, for --report."""
@@ -1863,7 +2176,12 @@ def check_keys(name: str, keys: tuple[Key, ...], table: PoseTable = BASIC_SWORD)
 
     if table.two_handed:
         errors.extend(_check_off_hand(name, keys, poses, skeletons, table))
+    if table.worn:
+        for k in keys:
+            if k.item != WORN_ITEM:
+                fail(f"a worn weapon never turns on the hand: item {k.item} at tick {k.tick} (use fist_key)")
     errors.extend(_check_long_weapon(name, keys, poses, table))
+    errors.extend(_check_free_arms(name, keys, poses, table))
     return errors
 
 
@@ -1988,6 +2306,11 @@ def check_move(move: Move, table: PoseTable = BASIC_SWORD) -> list[str]:
             if sk["tip"][2] < (rules.thrust_reach[1] if move.lunge else rules.thrust_reach[0]):
                 fail(f"thrust reach {sk['tip'][2]:.2f} too short at tick {keys[index].tick}")
 
+    # The free left hand's counter-move.
+    if table.free_off_hand:
+        for message in off_hand_role_errors(move, skeletons, (contact, through, hold), table):
+            fail(message)
+
     # Cut directions shared with the server hitboxes.
     if path is not None:
         where = {"wind": skeletons[contact - 1], "contact": skeletons[contact], "through": skeletons[through],
@@ -2068,6 +2391,7 @@ def check_document(document: dict, table: PoseTable = BASIC_SWORD, style: dict |
         errors.append(f"{enter_id} must end on the canonical guard")
     errors.extend(check_keys(idle_id, table.ready_idle, table))
     errors.extend(check_keys(enter_id, table.mode_enter, table))
+    errors.extend(f"{table.style_id} {message}" for message in free_guard_errors(table))
     for move in bound:
         errors.extend(check_move(move, table))
     return errors
@@ -2099,6 +2423,20 @@ def report(table: PoseTable = BASIC_SWORD, style: dict | None = None) -> None:
             worst_time, worst = max(residuals, key=lambda r: r[1])
             mean = sum(r[1] for r in residuals) / len(residuals)
             print(f"  trail: tip to trail head max {worst:.2f} block near tick {worst_time:.2f}, mean {mean:.2f} "
+                  f"(radius {trail_tip_radius(table):.3f})")
+        if table.free_off_hand:
+            poses = resolve(move.keys, table)
+            gaps = {}
+            for i, k in enumerate(move.keys):
+                ticks = [k.tick] + ([k.tick + (move.keys[i + 1].tick - k.tick) * s / 8 for s in range(1, 8)]
+                                    if i + 1 < len(move.keys) else [])
+                for tick in ticks:
+                    for where, gap in arm_body_gaps(sample(move.keys, poses, tick)).items():
+                        gaps[where] = min(gaps.get(where, math.inf), gap)
+            residuals = trail_residuals(move, table)
+            worst_time, worst = max(residuals, key=lambda r: r[1])
+            print(f"  off hand {move.off_hand}; arms >= {min(gaps.values()):.2f} px from torso and head; trail: "
+                  f"fist to trail head max {worst:.2f} block near tick {worst_time:.2f} "
                   f"(radius {trail_tip_radius(table):.3f})")
 
 
