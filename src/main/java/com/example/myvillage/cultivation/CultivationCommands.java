@@ -6,6 +6,7 @@ import com.example.myvillage.cultivation.data.SpiritualElementDefinition;
 import com.example.myvillage.cultivation.data.TechniqueDefinition;
 import com.example.myvillage.cultivation.root.SpiritualRootAwakeningService;
 import com.example.myvillage.cultivation.technique.TechniqueInheritanceService;
+import com.example.myvillage.item.TechniqueManualItem;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.LongArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -19,10 +20,13 @@ import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -66,6 +70,8 @@ public final class CultivationCommands {
                 .then(techniqueCommand("yiwang", CultivationCommands::forgetTechnique))
                 .then(coreTechniqueCommand("core"))
                 .then(coreTechniqueCommand("xinfa"))
+                .then(manualCommand("manual"))
+                .then(manualCommand("miji"))
                 .then(masteryCommand("setmastery"))
                 .then(masteryCommand("shezhishuliandu"))
                 .then(awakenCommand("awaken"))
@@ -261,6 +267,50 @@ public final class CultivationCommands {
                                 })));
     }
 
+    /** Gives the target a technique manual (秘籍) of the technique's category and grade. */
+    private static LiteralArgumentBuilder<CommandSourceStack> manualCommand(String literal) {
+        return Commands.literal(literal)
+                .then(Commands.argument("target", EntityArgument.player())
+                        .then(Commands.argument("technique_id", ResourceLocationArgument.id())
+                                .suggests(CultivationCommands::suggestManualTechniques)
+                                .executes(context -> giveManual(
+                                        context.getSource(),
+                                        EntityArgument.getPlayer(context, "target"),
+                                        ResourceLocationArgument.getId(context, "technique_id")))));
+    }
+
+    private static int giveManual(CommandSourceStack source, ServerPlayer target, ResourceLocation techniqueId) {
+        Optional<TechniqueDefinition> technique = ModCultivationRegistries.technique(source.registryAccess(), techniqueId);
+        if (technique.isEmpty()) {
+            source.sendFailure(Component.literal("Unknown technique " + techniqueId));
+            return 0;
+        }
+        if (technique.get().grade() < TechniqueManualItem.MIN_GRADE) {
+            source.sendFailure(Component.literal(
+                    "Technique " + techniqueId + " is grade " + technique.get().grade() + " and has no manual"));
+            return 0;
+        }
+        ItemStack manual = TechniqueManualItem.manualFor(source.registryAccess(), techniqueId);
+        if (manual.isEmpty()) {
+            source.sendFailure(Component.literal("No manual item for technique " + techniqueId));
+            return 0;
+        }
+        ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(manual.getItem());
+        ItemStack given = manual.copy();
+        if (!target.getInventory().add(given) || !given.isEmpty()) {
+            ItemEntity dropped = target.drop(given, false);
+            if (dropped != null) {
+                dropped.setNoPickUpDelay();
+                dropped.setTarget(target.getUUID());
+            }
+        }
+        source.sendSuccess(
+                () -> Component.literal("Gave " + target.getGameProfile().getName() + " a manual of "
+                        + techniqueId + " (" + itemId + ")"),
+                true);
+        return 1;
+    }
+
     private static LiteralArgumentBuilder<CommandSourceStack> masteryCommand(String literal) {
         return Commands.literal(literal)
                 .then(Commands.argument("target", EntityArgument.player())
@@ -419,6 +469,18 @@ public final class CultivationCommands {
                 .map(registry -> SharedSuggestionProvider.suggestResource(
                         registry.keySet().stream()
                                 .filter(id -> registry.get(id).isCore())
+                                .sorted(java.util.Comparator.comparing(ResourceLocation::toString)),
+                        builder))
+                .orElseGet(builder::buildFuture);
+    }
+
+    private static CompletableFuture<Suggestions> suggestManualTechniques(
+            CommandContext<CommandSourceStack> context,
+            SuggestionsBuilder builder) {
+        return context.getSource().registryAccess().registry(ModCultivationRegistries.TECHNIQUES)
+                .map(registry -> SharedSuggestionProvider.suggestResource(
+                        registry.keySet().stream()
+                                .filter(id -> registry.get(id).grade() >= TechniqueManualItem.MIN_GRADE)
                                 .sorted(java.util.Comparator.comparing(ResourceLocation::toString)),
                         builder))
                 .orElseGet(builder::buildFuture);

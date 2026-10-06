@@ -24,6 +24,7 @@ class CultivationCommandsTest {
             Map.entry("learn", "xuexi"),
             Map.entry("forget", "yiwang"),
             Map.entry("core", "xinfa"),
+            Map.entry("manual", "miji"),
             Map.entry("setmastery", "shezhishuliandu"),
             Map.entry("awaken", "juexing"),
             Map.entry("initiate", "rumen"));
@@ -62,6 +63,22 @@ class CultivationCommandsTest {
                 assertEquals(true, command.getCommand() != null);
                 assertEquals(true, command.getChild("target").getCommand() != null);
                 assertEquals(Set.of(), childNames(command.getChild("target")));
+            }
+        }
+    }
+
+    @Test
+    void manualCommandsTakeOneTargetAndOneTechnique() {
+        for (CommandNode<CommandSourceStack> root : List.of(
+                CultivationCommands.command().build(),
+                CultivationCommands.pinyinCommand().build())) {
+            for (String literal : List.of("manual", "miji")) {
+                CommandNode<CommandSourceStack> command = root.getChild(literal);
+                assertEquals(Set.of("target"), childNames(command));
+                assertEquals(Set.of("technique_id"), childNames(command.getChild("target")));
+                CommandNode<CommandSourceStack> technique = command.getChild("target").getChild("technique_id");
+                assertEquals(true, technique.getCommand() != null);
+                assertEquals(Set.of(), childNames(technique));
             }
         }
     }
