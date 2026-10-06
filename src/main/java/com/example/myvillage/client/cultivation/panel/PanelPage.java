@@ -28,6 +28,29 @@ public abstract class PanelPage {
     }
 
     /**
+     * Where the mouse is, in screen coordinates, before the page is drawn each frame; -1, -1 when
+     * it is outside the body viewport. A page with clickable rows uses it for hover feedback.
+     */
+    public void pointer(int mouseX, int mouseY) {
+    }
+
+    /**
+     * A click inside the body viewport, in screen coordinates. Returns true when the page used it;
+     * otherwise the screen handles the click as usual.
+     */
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        return false;
+    }
+
+    /**
+     * Returns true once when the page's content has changed enough that the body should scroll
+     * back to the top (the screen asks before drawing the page).
+     */
+    public boolean takeScrollToTop() {
+        return false;
+    }
+
+    /**
      * Draws the body with its top-left at {@code (x, y)} and returns its full height. The profile
      * is never null here. {@code viewportHeight} is the visible height, which a page may use to
      * stretch short content.

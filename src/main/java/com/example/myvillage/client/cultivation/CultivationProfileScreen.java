@@ -7,8 +7,10 @@ import com.example.myvillage.client.cultivation.panel.PanelContext;
 import com.example.myvillage.client.cultivation.panel.PanelPage;
 import com.example.myvillage.client.cultivation.panel.PanelTheme;
 import com.example.myvillage.client.cultivation.panel.TechniquesPage;
+import com.example.myvillage.client.cultivation.panel.WorldPage;
 import com.example.myvillage.cultivation.CultivationProfile;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.PlayerFaceRenderer;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -20,7 +22,8 @@ import java.util.Map;
  * The cultivation panel (H): a framed hub with a page rail on the left. The screen owns the
  * frame, the header and footer status, page switching, and body scrolling; each page under
  * {@code panel/} draws one system. It is read-only apart from the meditation page's four
- * bounded intents.
+ * bounded intents. Pages may take clicks and hover inside the body (the 天下 page drills down
+ * through rows); the screen only forwards them.
  */
 public final class CultivationProfileScreen extends Screen {
     private static final int MAX_PANEL_WIDTH = 480;
@@ -53,11 +56,14 @@ public final class CultivationProfileScreen extends Screen {
     private int bodyWidth;
     private int bodyHeight;
     private int contentHeight;
+    /** Whether the open page was drawn this frame (it is not while no profile has arrived). */
+    private boolean pageShown;
 
     private enum View {
         PROFILE("screen.myvillage.cultivation.tab.profile"),
         MEDITATION("screen.myvillage.cultivation.tab.meditation"),
-        TECHNIQUES("screen.myvillage.cultivation.tab.techniques");
+        TECHNIQUES("screen.myvillage.cultivation.tab.techniques"),
+        WORLD("screen.myvillage.cultivation.tab.world");
 
         private final String titleKey;
 
@@ -79,6 +85,7 @@ public final class CultivationProfileScreen extends Screen {
         pages.put(View.PROFILE, new OverviewPage());
         pages.put(View.MEDITATION, new MeditationPage());
         pages.put(View.TECHNIQUES, new TechniquesPage());
+        pages.put(View.WORLD, new WorldPage());
 
         int tabY = panelTop + HEADER_HEIGHT + BODY_GAP;
         for (View candidate : View.values()) {
@@ -158,7 +165,8 @@ public final class CultivationProfileScreen extends Screen {
         PanelContext context = PanelContext.capture(minecraft, font);
         drawHeader(graphics, context, right);
         drawFooter(graphics, context, right, footerTop);
-        if (context.profile() == null) {
+        pageShown = context.profile() != null;
+        if (!pageShown) {
             graphics.drawCenteredString(
                     font,
                     Component.translatable("screen.myvillage.cultivation.no_snapshot"),
@@ -166,18 +174,24 @@ public final class CultivationProfileScreen extends Screen {
                     bodyY + bodyHeight / 2 - 4,
                     PanelTheme.MUTED);
         } else {
-            drawPage(graphics, context);
+            drawPage(graphics, context, mouseX, mouseY);
         }
 
         refreshWidgets(context);
         super.render(graphics, mouseX, mouseY, partialTick);
     }
 
-    private void drawPage(GuiGraphics graphics, PanelContext context) {
+    private void drawPage(GuiGraphics graphics, PanelContext context, int mouseX, int mouseY) {
+        PanelPage page = pages.get(view);
+        if (page.takeScrollToTop()) {
+            scrolls.put(view, 0);
+        }
         int viewport = viewportHeight();
         int scroll = Math.min(scrolls.getOrDefault(view, 0), Math.max(0, contentHeight - viewport));
+        boolean inside = insideViewport(mouseX, mouseY);
+        page.pointer(inside ? mouseX : -1, inside ? mouseY : -1);
         graphics.enableScissor(bodyX, bodyY, bodyX + bodyWidth, bodyY + viewport);
-        contentHeight = pages.get(view).render(graphics, context, bodyX, bodyY - scroll, bodyWidth, viewport);
+        contentHeight = page.render(graphics, context, bodyX, bodyY - scroll, bodyWidth, viewport);
         graphics.disableScissor();
 
         int maxScroll = Math.max(0, contentHeight - viewport);
@@ -195,6 +209,23 @@ public final class CultivationProfileScreen extends Screen {
     /** The body's visible height: the page rectangle less what the open page docks under it. */
     private int viewportHeight() {
         return Math.max(1, bodyHeight - docks.getOrDefault(view, 0));
+    }
+
+    private boolean insideViewport(double mouseX, double mouseY) {
+        return mouseX >= bodyX
+                && mouseX < bodyX + bodyWidth
+                && mouseY >= bodyY
+                && mouseY < bodyY + viewportHeight();
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        PanelPage page = pages.get(view);
+        if (pageShown && page != null && insideViewport(mouseX, mouseY)
+                && page.mouseClicked(mouseX, mouseY, button)) {
+            return true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     @Override
@@ -286,6 +317,10 @@ public final class CultivationProfileScreen extends Screen {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        // While a text field (the 天下 page's search) has focus, H types an h instead of closing.
+        if (getFocused() instanceof EditBox field && field.canConsumeInput()) {
+            return super.keyPressed(keyCode, scanCode, modifiers);
+        }
         if (ClientCultivationKeyMappings.OPEN_PROFILE.matches(keyCode, scanCode)) {
             onClose();
             return true;

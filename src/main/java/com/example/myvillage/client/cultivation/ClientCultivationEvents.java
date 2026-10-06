@@ -1,6 +1,7 @@
 package com.example.myvillage.client.cultivation;
 
 import com.example.myvillage.MyVillageMod;
+import com.example.myvillage.client.sim.ClientWorldSimState;
 import com.example.myvillage.cultivation.network.CultivationSnapshotReceiver;
 import com.example.myvillage.cultivation.network.CultivationTimeSnapshotReceiver;
 import com.example.myvillage.cultivation.network.MeditationStatusReceiver;
@@ -33,6 +34,7 @@ public final class ClientCultivationEvents {
     @SubscribeEvent
     static void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
         ClientCultivationState.clear();
+        ClientWorldSimState.clear();
     }
 
     @SubscribeEvent
