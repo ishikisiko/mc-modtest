@@ -43,7 +43,7 @@ owner 回来会直接进游戏看，不看文档。验收标准是：从门前�
 - 走廊 x28..34，从 z=−8 到 z=150（主殿 slot 前一行），在每级台地上与地面同高，铺 `POLISHED_ANDESITE`，x=31 一列 `CHISELED_STONE_BRICKS` 作中线。台地其余地面仍是 `STONE_BRICKS`。
 - 走廊上方 5 格（地面方块之上 y+1..y+5）必须是空气。做成 `realizeCompound` 的**最后一个 pass**（`clearAxisCorridor`），在所有模板和台阶之后执行；它跳过山门殿 slot 的 z 范围（那里由穿堂处理）。
 - 门前空地 x21..41 × z−8..3 整平到 E−1（`STONE_BRICKS`），上方 5 格清空；走廊部分照常铺御道。山体在这个矩形里不许高出 E−1。
-- 山门殿穿堂：在 gate slot 内沿 x30..32、z 从 slot.z0 到 slot.z1、y 从 E+1 到 E+4 全部置空气（去掉门、后墙、任何家具），地面（E 层，即模板台基顶）若非实心则补 `STONE_BRICKS`。穿堂前（z=slot.z0−1）和后（z=slot.z1+1）各放一行 3 格 `POLISHED_ANDESITE_STAIRS`（前 `facing=south`、后 `facing=north`，`half=bottom`）让 1 格的台基高差可走。放完模板后再切，切完再放台阶。
+- 山门殿穿堂：在 gate slot 内沿 x30..32、z 从 slot.z0 到 slot.z1、y 从 E+1 到 E+3 全部置空气（去掉门、后墙、任何家具；匾额挂在 E+4..E+5，不碰），地面（E 层，即模板台基顶）若非实心则补 `STONE_BRICKS`。穿堂前（z=slot.z0−1）和后（z=slot.z1+1）各放一行 3 格 `POLISHED_ANDESITE_STAIRS`（前 `facing=south`、后 `facing=north`，`half=bottom`）让 1 格的台基高差可走。放完模板后再切，切完再放台阶。
 
 ### 3.3 台地之间：大台阶 + 挡土面
 
