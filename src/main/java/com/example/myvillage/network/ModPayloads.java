@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 public final class ModPayloads {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModPayloads.class);
     /** Payload protocol; bump it whenever a payload layout changes (11: meditation status carries study progress; 10: profile v4 with the running core technique, and the serverbound core-technique switch). */
-    public static final String PROTOCOL_VERSION = "11";
+    public static final String PROTOCOL_VERSION = "12";
 
     private ModPayloads() {
     }

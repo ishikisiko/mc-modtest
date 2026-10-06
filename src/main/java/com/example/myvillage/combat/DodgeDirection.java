@@ -35,10 +35,16 @@ public enum DodgeDirection {
         return left;
     }
 
-    /** Quantises vanilla's {@code forwardImpulse}/{@code leftImpulse} (dead zone 0.3). */
+    /**
+     * Dead zone of the quantisation, strictly below vanilla's sneaking input scale (0.3), so a
+     * sneaking player's held key still reads as a direction instead of a back step.
+     */
+    public static final float DEAD_ZONE = 0.2F;
+
+    /** Quantises vanilla's {@code forwardImpulse}/{@code leftImpulse} (dead zone {@link #DEAD_ZONE}). */
     public static DodgeDirection fromInput(float forwardImpulse, float leftImpulse) {
-        int f = forwardImpulse > 0.3F ? 1 : forwardImpulse < -0.3F ? -1 : 0;
-        int l = leftImpulse > 0.3F ? 1 : leftImpulse < -0.3F ? -1 : 0;
+        int f = forwardImpulse > DEAD_ZONE ? 1 : forwardImpulse < -DEAD_ZONE ? -1 : 0;
+        int l = leftImpulse > DEAD_ZONE ? 1 : leftImpulse < -DEAD_ZONE ? -1 : 0;
         for (DodgeDirection direction : values()) {
             if (direction.forward == f && direction.left == l) {
                 return direction;

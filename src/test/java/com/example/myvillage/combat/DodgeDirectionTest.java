@@ -59,9 +59,12 @@ class DodgeDirectionTest {
         assertEquals(DodgeDirection.FORWARD_RIGHT, DodgeDirection.fromInput(0.31F, -0.31F));
         assertEquals(DodgeDirection.BACK_LEFT, DodgeDirection.fromInput(-1.0F, 1.0F));
         assertEquals(DodgeDirection.BACK_RIGHT, DodgeDirection.fromInput(-0.5F, -0.5F));
-        // The dead zone is strict: exactly 0.3 (and anything inside) reads as no input.
-        assertEquals(DodgeDirection.NONE, DodgeDirection.fromInput(0.3F, -0.3F));
-        assertEquals(DodgeDirection.NONE, DodgeDirection.fromInput(0.29F, 0.0F));
+        // The dead zone is strict: exactly DEAD_ZONE (and anything inside) reads as no input.
+        assertEquals(DodgeDirection.NONE, DodgeDirection.fromInput(0.2F, -0.2F));
+        assertEquals(DodgeDirection.NONE, DodgeDirection.fromInput(0.19F, 0.0F));
         assertEquals(DodgeDirection.LEFT, DodgeDirection.fromInput(0.2F, 0.9F));
+        // Sneaking scales vanilla's input by 0.3; a held key must still read as its direction.
+        assertEquals(DodgeDirection.FORWARD, DodgeDirection.fromInput(0.3F, 0.0F));
+        assertEquals(DodgeDirection.FORWARD_RIGHT, DodgeDirection.fromInput(0.3F, -0.3F));
     }
 }
