@@ -3,6 +3,7 @@ package com.example.myvillage.network;
 import com.example.myvillage.combat.network.CombatPayloads;
 import com.example.myvillage.cultivation.network.CultivationPayloads;
 import com.example.myvillage.entity.RideableFlyingSwordEntity;
+import com.example.myvillage.sim.runtime.net.WorldSimPayloads;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -13,8 +14,8 @@ import org.slf4j.LoggerFactory;
 
 public final class ModPayloads {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModPayloads.class);
-    /** Payload protocol; bump it whenever a payload layout changes (7: impact carries the move id). */
-    public static final String PROTOCOL_VERSION = "7";
+    /** Payload protocol; bump it whenever a payload layout changes (8: world-sim query/snapshot for the 天下 page). */
+    public static final String PROTOCOL_VERSION = "8";
 
     private ModPayloads() {
     }
@@ -31,8 +32,9 @@ public final class ModPayloads {
                 ModPayloads::handleFlyingSwordInput);
         CultivationPayloads.register(registrar);
         CombatPayloads.register(registrar);
+        WorldSimPayloads.register(registrar);
         LOGGER.info(
-                "Payload handlers registered: flying-sword input, cultivation snapshots/intents, and combat intents/snapshots/actions (protocol {})",
+                "Payload handlers registered: flying-sword input, cultivation snapshots/intents, combat intents/snapshots/actions, and world-sim queries/snapshots (protocol {})",
                 PROTOCOL_VERSION);
     }
 

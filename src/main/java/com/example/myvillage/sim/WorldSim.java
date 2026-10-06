@@ -20,6 +20,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * The world ledger (命簿): the only authority on who lives, where sects stand and what happened.
@@ -256,15 +257,83 @@ public final class WorldSim {
 
     /** The latest {@code limit} kept events of at least {@code minImportance}, oldest first. */
     public List<SimEvent> recentEvents(int minImportance, int limit) {
+        return recentEvents(minImportance, limit, e -> true);
+    }
+
+    /**
+     * The latest {@code limit} kept events of at least {@code minImportance} that pass
+     * {@code filter}, oldest first.
+     */
+    public List<SimEvent> recentEvents(int minImportance, int limit, Predicate<SimEvent> filter) {
         List<SimEvent> out = new ArrayList<>();
         List<SimEvent> all = ctx.state.chronicle;
         for (int i = all.size() - 1; i >= 0 && out.size() < limit; i--) {
-            if (all.get(i).importance() >= minImportance) {
-                out.add(all.get(i));
+            SimEvent e = all.get(i);
+            if (e.importance() >= minImportance && filter.test(e)) {
+                out.add(e);
             }
         }
         java.util.Collections.reverse(out);
         return out;
+    }
+
+    /** The kept event with this id, or empty when there is none or it has been pruned. */
+    public Optional<SimEvent> event(long id) {
+        List<SimEvent> all = ctx.state.chronicle;
+        int lo = 0;
+        int hi = all.size() - 1;
+        while (lo <= hi) {
+            int mid = (lo + hi) >>> 1;
+            long midId = all.get(mid).id();
+            if (midId < id) {
+                lo = mid + 1;
+            } else if (midId > id) {
+                hi = mid - 1;
+            } else {
+                return Optional.of(all.get(mid));
+            }
+        }
+        return Optional.empty();
+    }
+
+    /** The sim's realm ids, weakest first. */
+    public List<String> realmIds() {
+        List<String> out = new ArrayList<>();
+        for (var realm : ctx.realms.realms()) {
+            out.add(realm.id());
+        }
+        return List.copyOf(out);
+    }
+
+    /** The name of a person, living or dead, or "" when the id is unknown. */
+    public String nameOf(int personId) {
+        return ctx.nameOf(personId);
+    }
+
+    /** The sect a person, living or dead, belongs (or last belonged) to, or -1. */
+    public int sectOf(int personId) {
+        Person p = ctx.state.persons.get(personId);
+        if (p != null) {
+            return p.sectId;
+        }
+        Tombstone t = ctx.state.tombstones.get(personId);
+        return t == null ? -1 : t.sectId;
+    }
+
+    /** Living people now in a region, in id order. */
+    public List<PersonView> livingIn(String regionId) {
+        List<PersonView> out = new ArrayList<>();
+        for (Person p : ctx.state.persons.values()) {
+            if (p.regionId.equals(regionId)) {
+                out.add(personView(p));
+            }
+        }
+        return out;
+    }
+
+    /** True when the region graph has this region (so {@link #region} will not throw). */
+    public boolean hasRegion(String regionId) {
+        return ctx.hasRegion(regionId);
     }
 
     public RegionView region(String regionId, int daysPerYear) {

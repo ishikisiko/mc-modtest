@@ -19,7 +19,12 @@ public final class WorldSimText {
 
     /** One chronicle event as prose. */
     public static MutableComponent event(SimEvent event) {
-        return Component.translatable(event.textKey(), params(event.params()));
+        return event(event.textKey(), event.params());
+    }
+
+    /** A chronicle line from its key and params, as carried by the 天下 page's snapshot. */
+    public static MutableComponent event(String textKey, List<String> params) {
+        return Component.translatable(textKey, params(params));
     }
 
     static Object[] params(List<String> params) {

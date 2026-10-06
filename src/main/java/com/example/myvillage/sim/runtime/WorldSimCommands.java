@@ -9,11 +9,11 @@ import com.example.myvillage.sim.SimDate;
 import com.example.myvillage.sim.SimEvent;
 import com.example.myvillage.sim.WorldSim;
 import com.example.myvillage.sim.runtime.avatar.GateBuilder;
+import com.example.myvillage.sim.runtime.net.WorldSimSnapshots;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -419,13 +419,8 @@ public final class WorldSimCommands {
 
     /** Living people sorted by realm, then stage, strongest first; ties by id. */
     private static List<PersonView> strongestFirst(List<PersonView> people) {
-        List<String> order = new ArrayList<>();
-        WorldSimRuntime.data().ifPresent(d -> d.realms().realms().forEach(realm -> order.add(realm.id())));
-        List<PersonView> sorted = new ArrayList<>(people);
-        sorted.sort(Comparator.<PersonView>comparingInt(p -> order.indexOf(p.realmId())).reversed()
-                .thenComparing(Comparator.comparingInt(PersonView::stage).reversed())
-                .thenComparingInt(PersonView::id));
-        return sorted;
+        List<String> order = WorldSimRuntime.sim().map(WorldSim::realmIds).orElse(List.of());
+        return WorldSimSnapshots.strongestFirst(people, order);
     }
 
     private static Component nameOf(WorldSim sim, int personId) {
