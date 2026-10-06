@@ -11,7 +11,10 @@ and their administrator routes without changing the then-current v1 profile shap
 The later playable-loop and affinity/UI slices add profile v3,
 lifespan/calendar, meditation, affinity/direct-stone Basic Breathing gain, and
 deterministic advancement through Qi IV; see
-[Cultivation Playable Loop](30_cultivation_playable_loop.md). Power recovery,
+[Cultivation Playable Loop](30_cultivation_playable_loop.md). The 0.37.0
+technique system adds profile v4 (a running core technique), the school and
+heritage registries, optional technique fields, and the `core`/`xinfa`
+command; see [Technique System](41_technique_system.md). Power recovery,
 combat attributes, equipment slots, a mutable cultivation UI, region qi,
 sect/worldgen cultivation integration, and flying-sword restrictions remain
 outside these foundation contracts.
@@ -56,9 +59,12 @@ have been removed. Such ids remain unchanged in saves and snapshots and are show
 as `unavailable`; login does not delete or repair them. Runtime mutations still
 resolve against the current registries, so an administrator cannot install an
 unknown realm/stage/root element or technique. `reset` is the explicit recovery
-route. The current codec retains explicit v1 and v2 shapes. It preserves every
-v1 field, initializes lifespan consumption and meditation reserve to zero, then
-migrates v1 or v2 to v3 with spiritual affinity `10`; it writes only v3. Any
+route. The current codec retains explicit v1, v2, and v3 shapes. It preserves every
+v1 field, initializes lifespan consumption and meditation reserve to zero,
+migrates v1 or v2 to v3 with spiritual affinity `10`, then v3 to v4 (0.37.0),
+which adds the optional `active_core_technique`: `myvillage:basic_breathing`
+when that is learned, otherwise empty. It writes only v4; a v4 running id that
+is no longer learned reads as empty. Any
 other schema version is a controlled codec error, not an
 implicit reset. Future schema changes must keep version-specific decoders and
 apply explicit, validated `vN -> vN+1` migrations before writing the new shape.
@@ -69,25 +75,40 @@ datapack definitions.
 
 ## Definition Registries
 
-`DataPackRegistryEvent.NewRegistry` registers three registries with persistent
-and network codecs:
+`DataPackRegistryEvent.NewRegistry` registers five registries with persistent
+and network codecs (school and heritage since 0.37.0):
 
 | Definition | Registry key | Shipped resource root |
 |---|---|---|
 | Realm | `myvillage:realm` | `src/main/resources/data/myvillage/myvillage/realm/` |
 | Spiritual element | `myvillage:spiritual_element` | `src/main/resources/data/myvillage/myvillage/spiritual_element/` |
 | Technique | `myvillage:technique` | `src/main/resources/data/myvillage/myvillage/technique/` |
+| School (流派) | `myvillage:school` | `src/main/resources/data/myvillage/myvillage/school/` |
+| Heritage (传承) | `myvillage:heritage` | `src/main/resources/data/myvillage/myvillage/heritage/` |
 
 The doubled namespace is intentional. Minecraft 1.21.1 resolves custom registry
 entries as `data/<entry_namespace>/<registry_namespace>/<registry_path>/`; an
 entry `<pack_namespace>:example` in `myvillage:technique` therefore lives at
 `data/<pack_namespace>/myvillage/technique/example.json`.
 
-The shipped data is deliberately small: metal, wood, water, fire, and earth;
-the mortal, qi-refining, and foundation-establishment realms; mortal-unawakened,
-mortal-qi-sensed, qi-refining stages 1 through 9, and foundation-early; and the
-executor-free `myvillage:basic_breathing` technique with its initiation realm/stage
-requirements. Spiritual-element definitions now expose optional/defaulted
+The shipped realm and element data is deliberately small: metal, wood, water,
+fire, and earth; the mortal, qi-refining, and foundation-establishment realms;
+mortal-unawakened, mortal-qi-sensed, qi-refining stages 1 through 9, and
+foundation-early. Techniques are the hand-written grade-0
+`myvillage:basic_breathing` with its initiation realm/stage requirements plus,
+since 0.37.0, 129 catalogue techniques, four schools, and three heritages
+written by `tools/gen_technique_catalogue.py` (never edited by hand).
+
+A technique file has `translation_key`, `category` (`core`, `active`,
+`movement`, `body`), `grade` (0..4; 0 凡阶 is only Basic Breathing), `elements`,
+and `requirements`, and since 0.37.0 three optional fields: `school` (a school
+id), `lineage.previous` (the technique before it in a chain), and `effects`
+(one block matching the category; only `core.meditation_route` drives
+anything yet). At server start the registries check that schools,
+`lineage.previous` ids, and heritage members exist. Shapes and rules are in
+[Technique System](41_technique_system.md).
+
+Spiritual-element definitions now expose optional/defaulted
 `awakening_weight`; the initiation generator consumes the current positive-weight
 set rather than a Java element table. Definitions contain no technique executor.
 Runtime lookups and command suggestions use the current `RegistryAccess`, not Java
@@ -110,7 +131,10 @@ uses `enqueueWork`; the client stores only the latest immutable snapshot and
 clears it on disconnect. The playable loop adds only bounded action-intent C2S
 payloads for meditation and advancement, shared by keys and H buttons; no
 profile field, coordinate, velocity, affinity, rate, cost, target stage, or
-success value is client-authored. Common/server registration does
+success value is client-authored. Since 0.37.0 the one other cultivation
+C2S payload is `myvillage:core_technique_switch`, whose only data is a
+technique id; its handler calls only `CultivationService.switchCoreTechnique`.
+Common/server registration does
 not classload client-only types.
 
 ## Diagnostic Profile Screen
@@ -154,6 +178,7 @@ Targets use the standard single-player argument.
 /myvillage cultivation learn <target> <technique_id>
 /myvillage cultivation forget <target> <technique_id>
 /myvillage cultivation setmastery <target> <technique_id> <amount>
+/myvillage cultivation core <target> <technique_id>
 /myvillage cultivation awaken [target]
 /myvillage cultivation initiate [target]
 ```
@@ -166,7 +191,7 @@ Both roots expose both names in every pair: `info` / `chakan`, `reset` /
 `chongzhi`, `setrealm` / `shezhijingjie`, `setprogress` / `shezhixiuwei`,
 `setstability` / `shezhiwendingdu`, `setpower` / `shezhilingli`, `setroot` /
 `shezhilinggen`, `clearroot` / `qingchulinggen`, `learn` / `xuexi`, `forget` /
-`yiwang`, `setmastery` / `shezhishuliandu`, rules-based `awaken` / `juexing`, and
+`yiwang`, `setmastery` / `shezhishuliandu`, `core` / `xinfa` (0.37.0), rules-based `awaken` / `juexing`, and
 rules-based `initiate` / `rumen`. English and pinyin routes share the same argument
 types, registry suggestions, permission boundary, handlers, diagnostics, atomic
 mutation behavior, and synchronization effects. Each of the two initiation pairs
@@ -178,7 +203,11 @@ points in `0..10000` and must total exactly `10000`; this convenience command
 does not narrow the generic profile model. Technique mutation requires a current
 registered technique, and `setmastery` does not implicitly learn one. `info`
 prints all current profile fields, `unawakened` or the root affinities, and every learned id
-with mastery; it preserves and marks unavailable raw ids. `awaken`/`juexing`
+with mastery, and since 0.37.0 `running core technique: <id>` or `none`; it
+preserves and marks unavailable raw ids. `core` / `xinfa` switches the running
+core technique through `CultivationService.switchCoreTechnique` (learned and
+`core` only; outside one heritage chain it costs `techniques.switch_progress_loss`
+of the progress, see note 41); its suggestions are the registered core techniques. `awaken`/`juexing`
 calls the ordinary deterministic awakening service, while `initiate`/`rumen`
 calls normal-rules basic-breathing inheritance. Neither route accepts seed,
 element, affinity, count, technique-id, reroll, force, or bypass input.
@@ -213,7 +242,7 @@ in a real client/server session and recorded as pass or fail:
 
 | # | Manual acceptance item | Current documentation status |
 |---|---|---|
-| 1 | A new player's `info` shows the exact default v3 profile and affinity 10. | `not_verified` |
+| 1 | A new player's `info` shows the exact default profile (v4 since 0.37.0, no running core technique) and affinity 10. | `not_verified` |
 | 2 | A valid five-element `setroot` succeeds. | `not_verified` |
 | 3 | A root total other than 10000 is rejected and the profile is unchanged. | `not_verified` |
 | 4 | A valid registered realm-stage pair succeeds. | `not_verified` |
@@ -249,6 +278,7 @@ them; note 30 records their shipped boundary.
 - [cultivation-debug-commands](../../openspec/specs/cultivation-debug-commands/spec.md)
 - [cultivation-core-validation](../../openspec/specs/cultivation-core-validation/spec.md)
 - [Cultivation Initiation Ritual](29_cultivation_initiation_ritual.md)
+- [Technique System](41_technique_system.md)
 - [cultivation-initiation-ritual](../../openspec/specs/cultivation-initiation-ritual/spec.md)
 - [Archived initiation change](../../openspec/changes/archive/2026-07-13-add-cultivation-initiation-ritual/proposal.md)
 - [Validation Checklist](09_validation_checklist.md)

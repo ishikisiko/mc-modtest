@@ -9,7 +9,10 @@ the panel may read and send is unchanged and stays specified in
 [cultivation-lifespan-calendar](../../openspec/specs/cultivation-lifespan-calendar/spec.md),
 and [cultivation-core-validation](../../openspec/specs/cultivation-core-validation/spec.md).
 Since 0.36.0 it also has a 天下 page that reads the world ledger (命簿) of
-[40_world_sim.md](40_world_sim.md) through its own read-only query.
+[40_world_sim.md](40_world_sim.md) through its own read-only query. Since
+0.37.0 the 功法 page groups techniques and can switch the running core
+technique, and the meridian diagram follows that technique's route
+([41_technique_system.md](41_technique_system.md)).
 
 ## Layout
 
@@ -40,8 +43,8 @@ page (0.32.0), which has one generated texture and its own vector drawing; see
 |---|---|---|
 | 内视 / Profile | `OverviewPage` | Stage ladder of the current realm, progress and stability bars, power, affinity; calendar and lifespan; root shares; the next advancement's target and conditions. |
 | 修炼 / Meditation | `MeditationPage` | The meridian diagram (seated figure, small circuit, acupoints, dantian) lit and animated for the session state; beside it (below it when narrow) progress and stability, what normal and spirit meditation yield and cost, advancement target, conditions, duration, stability cost, interruption loss; and the four action buttons with their bound keys. |
-| 功法 / Techniques | `TechniquesPage` | Each learned technique's category, grade, elements, mastery, and stated requirements. |
-| 天下 / World | `WorldPage` | The world ledger, read-only, in five sub-views chosen from the dock: 总览 (era date, settlement running or paused with pending days, tier, living against target, dead, sects active and destroyed, event count; living per realm as bars; the five foremost people), 宗门 (every sect, active first, with master, members, top realm, prestige, gate built or not), 人物 (live search by name or Daoist title, living first), 纪事 (latest notable and major events, newest first, each with the line it answers), 此地 (the player's region, the sects seated there with gate distance, the strongest people present, recent events). Rows drill down into a sect (founding, parent, master, resources, prestige, signature technique, gate, relations, members at the sect, recent events) or a person (realm and progress, root grade and five-element shares, age, master, sect and rank, whereabouts, technique, injury or death, relations by kind, recent events); a back row returns. |
+| 功法 / Techniques | `TechniquesPage` | Since 0.37.0 one card per category, 心法 / 绝技 / 身法 / 炼体 (Core Methods / Battle Arts / Movement Arts / Body Tempering), empty ones left out, plus a last 未知功法 card for learned ids the synchronized registry does not know; inside a card highest grade first, then by name. Each entry: name, mastery, chips (category, grade name 凡阶..天阶, school, each heritage with the technique's position such as `太白剑脉 2/4`, elements; up to three chip rows), and its stated requirement. The running core technique carries a jade 运转中 (Running) chip; every other learned core technique a 运转此心法 (Run this method) button. With nothing learned, an empty card with a hint. |
+| 天下 / World | `WorldPage` | The world ledger, read-only, in five sub-views chosen from the dock: 总览 (era date, settlement running or paused with pending days, tier, living against target, dead, sects active and destroyed, event count; living per realm as bars; the five foremost people), 宗门 (every sect, active first, with master, members, top realm, prestige, gate built or not), 人物 (live search by name or Daoist title, living first), 纪事 (latest notable and major events, newest first, each with the line it answers), 此地 (the player's region, the sects seated there with gate distance, the strongest people present, recent events). Rows drill down into a sect (founding, parent, master, resources, prestige, signature technique, its 传承 when it holds one (0.37.0), gate, relations, members at the sect, recent events) or a person (realm and progress, root grade and five-element shares, age, master, sect and rank, whereabouts, technique, injury or death, relations by kind, recent events); a back row returns. |
 
 A ladder node is solid for a passed stage, a gem for the current one, an
 outline for a later one, and a small faint outline for a stage with neither a
@@ -63,6 +66,9 @@ cultivation cap nor an advancement into it (Qi Refining V to IX today).
 | `panel/WorldPage.java` | The 天下 page: dock (five sub-view buttons and the 人物 search box), navigation state (sub-view, open detail, back stack; static so it survives the hub rebuilding pages on resize), the query for the open view, and the cards of each view. |
 | `panel/WorldCanvas.java` | One frame of drawing for the 天下 page: cards measured by the same code that fills them, wrapped text, clickable rows recorded as screen-space hit boxes with a hover tint. |
 | `panel/WorldReadouts.java` | The 天下 page's arithmetic without Minecraft rendering (ages, era dates, shares, root bar widths, relation grouping, newest-first order, colours); covered by `WorldReadoutsTest`. |
+| `panel/TechniquesPage.java` | The 功法 page (0.37.0): group cards, entries, chips, and the per-technique 运转此心法 buttons, drawn in the body (not the dock) at the entry's position each frame; only buttons drawn this frame take clicks. |
+| `panel/TechniqueShelf.java` | The 功法 page's arithmetic without Minecraft rendering: grouping and order, grade-name keys, chain position `n/m`, chip rows; covered by `TechniqueShelfTest`. |
+| `panel/MeridianRoute.java` | Which circuit and channels the diagram lights for a running core technique's `meditation_route` (0.37.0); covered by `MeridianRouteTest`. |
 | `tools/gen_meridian_figure.py` | Generates `textures/gui/cultivation/meridian_figure.png` (standard library only; `--check` fails when the file on disk differs, `--preview` overlays the chart). |
 
 To add a system: write a `PanelPage`, add a `View` constant with its tab
@@ -94,6 +100,15 @@ circuit; spirit-stone meditation is blue, faster, and adds motes running inward
 from palm and sole; an ordinary advancement is gold with the halo; a bottleneck
 advancement is red-orange and the motes bunch at 玉枕. Mote counts and speeds
 are decoration and stand for no value.
+
+Since 0.37.0 the lit route follows the running core technique:
+`MeditationPage` reads its `effects.core.meditation_route` from the synced
+profile and registry, and `MeridianRoute.of` maps it to a circuit (the loop
+the motes run on, where a bottleneck holds them back) and the set of lit
+channels; an unlit channel would stay a faint line. Only `xiaozhoutian` (the
+small circuit with every channel lit, the look above) exists, and an unknown
+route, a technique without one (Basic Breathing), or no running technique
+falls back to it, so the diagram looks as it did in 0.32.0.
 
 No meridian state exists on the server. There is deliberately no "channels
 opened n/m" readout. A later meridian system can light channels one by one by
@@ -153,14 +168,20 @@ Unchanged since 0.31.0, with the 天下 page's additions:
 - The cultivation pages read only the three clientbound cultivation caches
   and synchronized registries; the 天下 page's data comes only from
   `ClientWorldSimState`. No page writes profile or ledger data.
-- The only serverbound cultivation traffic is still the existing bounded
-  meditation intent. Each of the four actions is bound to exactly one button,
-  in `MeditationPage`; switching pages sends nothing. The world query is a
+- Two bounded serverbound cultivation payloads exist. The meditation intent:
+  each of the four actions is bound to exactly one button, in
+  `MeditationPage`. The core-technique switch (0.37.0,
+  `myvillage:core_technique_switch`, a technique id and nothing else): sent
+  only from the 功法 page's 运转此心法 buttons through
+  `ClientCultivationIntentSender.sendCoreSwitch`; the server checks it in
+  `CultivationService.switchCoreTechnique`, answers a success with a new
+  snapshot and a refusal with nothing. Switching pages sends nothing. The world query is a
   separate read-only payload (`WorldSimQueryPayload`, registered by
   `sim/runtime/net/WorldSimPayloads`, not under `cultivation/`) that the cache
   sends on the page's behalf.
 - Pages may take hover and clicks through the `pointer` and `mouseClicked`
-  hooks; the 天下 page uses them only to navigate between its own views.
+  hooks; the 天下 page uses them only to navigate between its own views, the
+  功法 page only for its 运转此心法 buttons.
 - Button enablement is advisory. The server decides every start, stop, cost,
   and result.
 - The legacy meditation reserve is not shown.
@@ -210,6 +231,11 @@ two-row dock below 300 wide. English at narrow widths, multiplayer, the
 ledger-inactive card on a real client, and feel on a physical mouse were not
 looked at. Stills are in `out/preview/world_sim_panel/pc/` (untracked).
 
-The owner's verdict on the panel, the meridian diagram, and the 天下 page, and
-hover, focus, and click feel on a physical mouse, are `not_verified` (README
-ledger).
+0.37.0 功法 page and route-driven meridian diagram: not looked at on any
+client yet; layout at GUI 480x270, 427x240, and 320x240 in both languages,
+the switch button, and the unchanged diagram are `not_verified` (README
+ledger "Technique system (0.37.0)").
+
+The owner's verdict on the panel, the meridian diagram, the 天下 page, and the
+功法 page, and hover, focus, and click feel on a physical mouse, are
+`not_verified` (README ledger).
