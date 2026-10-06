@@ -5,25 +5,33 @@ Standard library only, like tools/beastgen/build.py, whose JSON layout and PNG e
 from __future__ import annotations
 
 import importlib
+import importlib.util
 
 from .. import gen_qingfeng_sword_model as pngio
 from ..beastgen import anim, cuboid, paint
 from ..beastgen.build import REPO, RESOURCES, dumps, same_file
 
-DEFINITIONS = ("cultivator",)
+# One definition per look: `defs/<name>.py` declares ENTITY (the entity's texture directory), NAME
+# (the files' name prefix) and LOOK (NpcEntity's look id), so several looks of one entity type share
+# its texture directory.
+DEFINITIONS = ("cultivator", "cultivator_f_novice", "cultivator_f_adept")
 
 
 def definition(name):
     if name not in DEFINITIONS:
         raise SystemExit(f"unknown npc {name!r}; known: {', '.join(DEFINITIONS)}")
-    return importlib.import_module(f"{__package__}.defs.{name}")
+    module = f"{__package__}.defs.{name}"
+    if importlib.util.find_spec(module) is None:
+        raise SystemExit(f"definition tools/npcgen/defs/{name}.py is not written yet")
+    return importlib.import_module(module)
 
 
 def paths(name):
+    d = definition(name)
     return {
-        "model": RESOURCES / f"assets/myvillage/npc/{name}_model.json",
-        "animations": RESOURCES / f"assets/myvillage/npc/{name}_animations.json",
-        "texture": RESOURCES / f"assets/myvillage/textures/entity/{name}/{name}.png",
+        "model": RESOURCES / f"assets/myvillage/npc/{d.NAME}_model.json",
+        "animations": RESOURCES / f"assets/myvillage/npc/{d.NAME}_animations.json",
+        "texture": RESOURCES / f"assets/myvillage/textures/entity/{d.ENTITY}/{d.NAME}.png",
     }
 
 

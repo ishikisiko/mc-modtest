@@ -19,13 +19,15 @@ from __future__ import annotations
 
 import math
 
-from ...beastgen import anim
 from ...beastgen.builder import Builder
 from ...beastgen.paint import ramp, value_noise
-from ..shade import Occluders
+from ..humanoid import (HumanoidPaint, _box, _clamp, _form, _fret, _hash, _leg_angle, _loop, _mix, _pair,
+                        _rgb, _rx, _sole_low, _tone, _weave, _xhz)
 
 ID = "myvillage:cultivator"
-NAME = "cultivator"
+ENTITY = "cultivator"  # the entity's texture directory
+NAME = "cultivator"    # file name prefix of the three generated files
+LOOK = "default"       # NpcEntity's look id this definition draws
 HITBOX = (0.6, 1.9)   # width, height in blocks (server registration)
 SCALE = 0.5           # one model unit is 1/32 block
 
@@ -67,36 +69,7 @@ BROW = "#262733"
 HOLLOW = ("hair", "vest")
 
 
-def _rgb(hex_colour):
-    s = hex_colour.lstrip("#")
-    return tuple(int(s[i:i + 2], 16) for i in (0, 2, 4))
-
-
 # ------------------------------------------------------------------------------------ model
-def _box(b, bone, name, x0, h0, z0, w, h, d, **kw):
-    """A design-space box from its right (-X), bottom, front corner."""
-    b.box(bone, name, (x0, -(h0 + h), z0), (w, h, d), **kw)
-
-
-def _pair(b, bone_fmt, parent, at, rot=(0.0, 0.0, 0.0), boxes=(), local=False):
-    """A right (-X) bone and its mirrored left twin. `at` and `rot` are the right side's; boxes are
-    (name_fmt, origin, size): design-space (x0, h0, z0) corners, or bone-local origins with local=True.
-    The right side owns the UV islands and the left reuses them mirrored."""
-    for side, s in (("right", -1.0), ("left", 1.0)):
-        own = side == "right"
-        bone = bone_fmt.format(side)
-        par = parent.format(side)
-        b.bone(bone, par, at=(at[0] if own else -at[0], at[1], at[2]),
-               rot=(rot[0], rot[1] if own else -rot[1], rot[2] if own else -rot[2]))
-        for name_fmt, origin, size in boxes:
-            kw = {} if own else {"mirror": True, "uv_from": name_fmt.format("right")}
-            x0 = origin[0] if own else -(origin[0] + size[0])
-            if local:
-                b.box_local(bone, name_fmt.format(side), (x0, origin[1], origin[2]), size, **kw)
-            else:
-                _box(b, bone, name_fmt.format(side), x0, origin[1], origin[2], *size, **kw)
-
-
 def build_model():
     b = Builder(ID, look={"bone": "head", "max_yaw": 60.0, "max_pitch": 35.0}, shadow_radius=0.4)
     b.model.scale = SCALE
@@ -182,71 +155,19 @@ def build_model():
     return b.model
 
 
-# ------------------------------------------------------------------------------------ paint helpers
-def _clamp(x, lo=0.0, hi=1.0):
-    return lo if x < lo else hi if x > hi else x
+class _Paint(HumanoidPaint):
+    """The painter: one method per material, dispatched by cube name. Skin, hands, nose, cranium and jaw
+    come from `HumanoidPaint`; the face, the hair and the clothes are the cultivator's own."""
 
-
-def _mix(a, b, f):
-    return tuple(int(round(a[k] + (b[k] - a[k]) * f)) for k in range(3))
-
-
-def _tone(ramp_, tone):
-    """A ramp sampled at a fractional index, in half steps so shading stays banded, not airbrushed."""
-    tone = _clamp(round(tone * 2.0) / 2.0, 0.0, len(ramp_) - 1.0)
-    i = int(math.floor(tone))
-    if i >= len(ramp_) - 1:
-        return ramp_[-1]
-    return _mix(ramp_[i], ramp_[i + 1], tone - i)
-
-
-def _hash(a, b, seed=0):
-    h = (int(a) * 374761393 + int(b) * 668265263 + seed * 2147483647) & 0xFFFFFFFF
-    h = ((h ^ (h >> 13)) * 1274126177) & 0xFFFFFFFF
-    return ((h ^ (h >> 16)) & 0xFFFF) / 65535.0
-
-
-def _xhz(t):
-    """Rest-pose design coordinates of a texel: x (left +), height above the ground, z (front -)."""
-    return t.p[0], 24.0 - t.p[1], t.p[2]
-
-
-def _form(t, roundness=1.0):
-    """Light from above on a box shaded as if it were round: tops bright, undersides dark, vertical
-    faces falling off toward their side edges and a little toward the back."""
-    ny = t.n[1]
-    if ny < -0.5:
-        return 0.6
-    if ny > 0.5:
-        return -2.0
-    edge = abs(2.0 * t.fu - 1.0)
-    s = -roundness * edge * edge
-    if t.n[2] > 0.5:
-        s -= 0.3
-    elif abs(t.n[0]) > 0.5:
-        s -= 0.2
-    return s
-
-
-def _weave(t, amount=0.5, cell=1.1, seed=3):
-    return (value_noise(t.p, cell, seed) - 0.5) * 2.0 * amount
-
-
-def _fret(row, across):
-    """A woven band four rows deep (row 0 at one edge): a line, two offset rows that step into a
-    fret, a line. Returns "line", "fret" or None (the ground between the fret's steps)."""
-    if row in (0, 3):
-        return "line"
-    a = int(math.floor(across)) + (1 if row == 2 else 0)
-    return "fret" if a % 3 != 0 else None
-
-
-class _Paint:
-    """The painter: one method per material, dispatched by cube name."""
+    SKIN = SKIN
+    HAIR = HAIR
+    NOSE_TOP = 53.0                          # the nose box spans h 51..53
+    FINGER_ROW = 13.5                        # the hand's last row, bone-local
+    HAND_EXCLUDE = ("sleeve_drape_right",)
+    JAW_BACK = 2.5                           # the jaw box's back face
 
     def __init__(self, model):
-        self.occ = Occluders(model, HOLLOW)
-        self.by_cube = {
+        super().__init__(model, HOLLOW, {
             "torso": self.torso, "vest": self.vest, "neck": self.neck, "belt": self.belt, "buckle": self.buckle,
             "collar_over_band": self.collar, "collar_under_band": self.collar,
             "vest_edge_right_band": self.vest_edge, "vest_cap_right_shell": self.vest_cap,
@@ -260,68 +181,7 @@ class _Paint:
             "sash_long": self.sash, "sash_short": self.sash,
             "pendant_cord": self.cord, "pendant_jade": self.jade_ring, "pendant_tassel": self.tassel,
             "robe_upper_right": self.skirt, "robe_lower_right": self.skirt, "boot_right": self.boot,
-        }
-
-    def __call__(self, t):
-        return self.by_cube[t.cube](t)
-
-    # ---- shared light
-    def light(self, t, roundness=1.0, cast=2.0, crevice=1.1, exclude=()):
-        return (_form(t, roundness) - cast * self.occ.overhang(t, exclude)
-                - crevice * self.occ.contact(t, exclude))
-
-    # ---- skin
-    def skin(self, t, tone=4.4, roundness=0.8, **kw):
-        return _tone(SKIN, tone + self.light(t, roundness, cast=1.5, crevice=0.8, **kw) + _weave(t, 0.12, 1.6, 21))
-
-    def neck(self, t):
-        return self.skin(t, 3.4)
-
-    def hand(self, t):
-        lx, ly, lz = t.local
-        tone = 4.3
-        if t.face in ("NORTH", "SOUTH", "WEST", "EAST") and ly > 13.5:
-            # fingers: the last row breaks into darker gaps
-            along = lx if t.face in ("NORTH", "SOUTH") else lz + 0.5
-            if int(math.floor(along)) % 2 == 0:
-                tone -= 1.0
-        if t.face == "UP":
-            tone -= 0.6
-        return self.skin(t, tone, exclude=("sleeve_drape_right",))
-
-    def nose(self, t):
-        row = int(53.0 - (24.0 - t.p[1]))  # 0 bridge, 1 tip
-        if t.face == "NORTH":
-            return _tone(SKIN, (4.9, 4.7)[row])
-        if t.face == "UP":
-            return _tone(SKIN, 2.0)  # under the tip
-        if t.face == "DOWN":
-            return _tone(SKIN, 1.0)  # faces up, so it draws at full brightness: as dark as the lit front
-        return _tone(SKIN, 3.4)
-
-    def skull(self, t):
-        """The cranium: face rows r0..r7, temple and ear on the sides, a ring of underside round the jaw."""
-        x, h, z = _xhz(t)
-        f = t.face
-        if f == "NORTH":
-            return self.face(t)
-        if f in ("WEST", "EAST") and not _hair_on_side(z, h):
-            return self.head_side(t, z, h)
-        if f == "UP":
-            # the underside beside and behind the jaw sits under the sideburn and the hair
-            return _tone(HAIR, 1.4) if z < 2.5 else _tone(HAIR, 1.2)
-        return _tone(HAIR, 1.6)      # scalp under the hair shell
-
-    def jaw(self, t):
-        """jaw, jaw_low, chin: face rows r8..r11 in front, sides in the cranium's shadow, under-chin below."""
-        f = t.face
-        if f == "NORTH":
-            return self.face(t)
-        if f in ("WEST", "EAST"):
-            return self.skin(t, 4.0)
-        if f == "UP":
-            return _tone(SKIN, 3.6)  # under the chin and the jaw steps
-        return _tone(SKIN, 3.4)      # hidden: the top under the cranium, the back inside the hair
+        })
 
     def face(self, t):
         """The front of the head as a symmetric texel map, keyed on (a, r): a columns from the centre
@@ -350,6 +210,9 @@ class _Paint:
         if r == 11 and a == 3:
             return skin(-0.5)
         return skin(-0.7 * self.occ.contact(t) - 1.1 * self.occ.overhang(t))
+
+    def hair_on_side(self, z, h):
+        return _hair_on_side(z, h)
 
     def head_side(self, t, z, h):
         """Skin where the hair shell is cut away on the cranium's side: temple and ear."""
@@ -783,34 +646,17 @@ WALK_SWING = 26.0     # degrees each leg swings either way
 IDLE_LENGTH = 4.0
 
 
-def _rx(deg):
-    return {"rotation": (deg, 0.0, 0.0)}
-
-
 SOLE_Z = (-7.0, 3.0)  # the boot sole's toe and heel, from the leg's axis
 SWING_LIFT = 2.0      # how far the swinging foot clears the ground
 
 
-def _leg_angle(phase):
-    """Leg x rotation (positive = back) through a stride: the foot travels at an even speed while it
-    is planted, so a body moving at a steady speed does not slide over it."""
-    tri = 2.0 / math.pi * math.asin(max(-1.0, min(1.0, math.sin(phase))))
-    return math.degrees(math.asin(math.sin(math.radians(WALK_SWING)) * tri))
-
-
-def _sole_low(angle):
-    """Height of the sole's lowest corner above the ground for a leg turned by `angle`, hip unmoved."""
-    a = math.radians(angle)
-    return min(HIP * (1.0 - math.cos(a)) + z * math.sin(a) for z in SOLE_Z)
-
-
 def _walk_pose(phase):
-    right = _leg_angle(phase)                         # negative x rotation brings a limb forward
+    right = _leg_angle(phase, WALK_SWING)             # negative x rotation brings a limb forward
     left = -right
     right_plants = math.cos(phase) >= 0.0             # the leg moving back carries the weight
     stance, swing = (right, left) if right_plants else (left, right)
-    drop = _sole_low(stance)                          # the hips ride on the planted foot
-    lift = SWING_LIFT * abs(math.cos(phase)) + max(0.0, drop - _sole_low(swing))
+    drop = _sole_low(stance, HIP, SOLE_Z)             # the hips ride on the planted foot
+    lift = SWING_LIFT * abs(math.cos(phase)) + max(0.0, drop - _sole_low(swing, HIP, SOLE_Z))
     forward_right, forward_left = max(0.0, -right), max(0.0, -left)
     back = max(0.0, right, left)
     s = right / WALK_SWING
@@ -862,12 +708,6 @@ def _idle_pose(phase):
         "vest_front_left": _rx(0.5 * math.sin(phase - 1.3)),
         "vest_back": _rx(-0.5 * slow),
     }
-
-
-def _loop(name, length, pose_at, steps):
-    keys = [anim.Key(length * i / steps, pose_at(2.0 * math.pi * i / steps)) for i in range(steps)]
-    keys.append(anim.Key(length, pose_at(0.0)))
-    return anim.Clip(name, length, True, keys)
 
 
 def clips(model):

@@ -19,9 +19,12 @@ Outputs (the beast schema-1 formats, read by `NpcRenderer`):
 
 | File | Content |
 |---|---|
-| `assets/myvillage/npc/<npc>_model.json` | bones (parents first), cubes, and `scale` |
-| `assets/myvillage/npc/<npc>_animations.json` | looping `idle` and `walk` clips |
-| `assets/myvillage/textures/entity/<npc>/<npc>.png` | the painted atlas; zero alpha is a hole |
+| `assets/myvillage/npc/<NAME>_model.json` | bones (parents first), cubes, and `scale` |
+| `assets/myvillage/npc/<NAME>_animations.json` | looping `idle` and `walk` clips |
+| `assets/myvillage/textures/entity/<ENTITY>/<NAME>.png` | the painted atlas; zero alpha is a hole |
+
+`ENTITY` and `NAME` are the definition's: the default cultivator is `cultivator`/`cultivator`, a
+second look of it `cultivator`/`cultivator_<look>`.
 
 Never hand-edit them; change the definition and rebuild.
 
@@ -29,16 +32,22 @@ Never hand-edit them; change the definition and rebuild.
 
 | Module | Role |
 |---|---|
-| `build.py` | builds a definition in memory, writes or checks the three files; `DEFINITIONS` lists the NPCs |
+| `build.py` | builds a definition in memory, writes or checks the three files; `DEFINITIONS` lists the definitions (one per look), and the file paths come from each definition's `ENTITY` and `NAME` |
+| `humanoid.py` | parts shared by every humanoid look: `_box`, `_pair`, `_rgb`; paint maths (`_clamp`, `_mix`, `_tone`, `_hash`, `_xhz`, `_form`, `_weave`, `_fret`); clip helpers `_rx`, `_loop` and the gait `_leg_angle(phase, swing)`, `_sole_low(angle, hip, sole_z)`; `HumanoidPaint`, the painter base with the skin materials (`light`, `skin`, `neck`, `hand`, `nose`, `skull`, `jaw`) |
 | `shade.py` | `Occluders`: baked contact shading from the rest-pose geometry (`overhang`: what sticks out above a texel; `contact`: raised geometry beside it); cubes named hollow cast nothing |
 | `preview.py` | turnaround, close-ups, face sheet, scale beside the player, atlas, clip sheets, GIFs, index page, through `tools/beastgen/preview.py`'s rasteriser with `cull=False`: `NpcModel` draws with `entityCutoutNoCull`, so back faces are drawn and the inside of a cut-out shell shows through its holes as in game |
-| `defs/<npc>.py` | the NPC: `build_model()`, `painter(model)`, `clips(model)`, and `ID`, `HITBOX`, `HOLLOW` |
+| `defs/<npc>.py` | one look of an NPC: `build_model()`, `painter(model)`, `clips(model)`, and `ID`, `ENTITY`, `NAME`, `LOOK`, `HITBOX`, `HOLLOW` |
 
 The cuboid model, box-UV packer, texel sampler and clip classes are `tools/beastgen`'s
 (`cuboid.py`, `builder.py`, `paint.py`, `anim.py`).
 
 ## Writing a definition
 
+- **Start from the shared parts.** A new look imports `_box`, `_pair`, the paint maths, the gait
+  functions and `HumanoidPaint` from `humanoid` instead of copying them, and declares `ENTITY` (the
+  entity's texture directory), `NAME` (the files' prefix, also its entry in `build.DEFINITIONS`) and
+  `LOOK` (the `NpcEntity` look id). Its painter subclasses `HumanoidPaint`, sets the `SKIN`/`HAIR`
+  ramps and head measurements, and adds the face, the hair and the clothes.
 - **Units.** Set `model.scale = 0.5` and author in units of 1/32 block: a 60-unit figure is 1.875
   blocks tall. Cube sizes stay whole numbers (one texel per unit); origins may be fractional, which
   is how a band sits a fraction behind the shell in front of it without two faces sharing a plane.
@@ -66,5 +75,5 @@ The cuboid model, box-UV packer, texel sampler and clip classes are `tools/beast
   nose) draw at full brightness, so paint them darker than the face.
 - **Walk on a planted foot.** `NpcRenderer` measures how fast the lowest sole corner moves back and
   sets the `animateWalk` rate from it. Author the walk so the planted foot stays on the ground and
-  travels evenly (`_leg_angle`, `_sole_low` in the cultivator), and turn hanging panels with the leg
+  travels evenly (`_leg_angle`, `_sole_low` in `humanoid`), and turn hanging panels with the leg
   under them.
