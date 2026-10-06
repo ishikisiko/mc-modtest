@@ -1,0 +1,23 @@
+{
+  "translation_key": "cultivation.technique.myvillage.jiayi_changsheng_jing",
+  "category": "core",
+  "grade": 3,
+  "elements": [
+    "myvillage:wood"
+  ],
+  "requirements": {
+    "minimum_realm": "myvillage:foundation_establishment",
+    "minimum_stage": "myvillage:foundation_early",
+    "minimum_element_affinity": {
+      "myvillage:wood": 1500
+    }
+  },
+  "lineage": {
+    "previous": "myvillage:yimu_shenghua_jue"
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian"
+    }
+  }
+}

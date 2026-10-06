@@ -1,0 +1,10 @@
+{
+  "translation_key": "cultivation.heritage.myvillage.wanjie_jinshen_mai",
+  "techniques": [
+    "myvillage:tiegu_gong",
+    "myvillage:jinlin_cuiti_jue",
+    "myvillage:gengjin_bumie_ti",
+    "myvillage:wanjie_jinshen_jue"
+  ],
+  "exclusive": false
+}

@@ -1,0 +1,15 @@
+{
+  "translation_key": "cultivation.technique.myvillage.zhoutian_banyun_fa",
+  "category": "core",
+  "grade": 2,
+  "elements": [],
+  "requirements": {
+    "minimum_realm": "myvillage:qi_refining",
+    "minimum_stage": "myvillage:qi_refining_4"
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian"
+    }
+  }
+}

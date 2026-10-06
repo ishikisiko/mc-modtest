@@ -1,0 +1,20 @@
+{
+  "translation_key": "cultivation.technique.myvillage.chidi_fenyuan_jing",
+  "category": "core",
+  "grade": 3,
+  "elements": [
+    "myvillage:fire"
+  ],
+  "requirements": {
+    "minimum_realm": "myvillage:foundation_establishment",
+    "minimum_stage": "myvillage:foundation_early",
+    "minimum_element_affinity": {
+      "myvillage:fire": 1500
+    }
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian"
+    }
+  }
+}

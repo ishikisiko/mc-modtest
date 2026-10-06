@@ -1,0 +1,18 @@
+{
+  "translation_key": "cultivation.technique.myvillage.wanjie_jinshen_jue",
+  "category": "body",
+  "grade": 4,
+  "elements": [
+    "myvillage:metal"
+  ],
+  "requirements": {
+    "minimum_realm": "myvillage:foundation_establishment",
+    "minimum_stage": "myvillage:foundation_early",
+    "minimum_element_affinity": {
+      "myvillage:metal": 1500
+    }
+  },
+  "lineage": {
+    "previous": "myvillage:gengjin_bumie_ti"
+  }
+}

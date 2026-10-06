@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "schools": [
+    {"id": "sword", "zh": "剑", "kind": "weapon", "weapon_family": "sword", "runtime": null, "element_lean": []},
+    {"id": "spear", "zh": "枪", "kind": "weapon", "weapon_family": "spear", "runtime": null, "element_lean": []},
+    {"id": "fist", "zh": "拳掌", "kind": "weapon", "weapon_family": "fist", "runtime": null, "element_lean": []},
+    {"id": "flying_sword", "zh": "御剑", "kind": "special", "weapon_family": null, "runtime": "flying_sword", "element_lean": []}
+  ]
+}

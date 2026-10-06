@@ -1,0 +1,15 @@
+{
+  "translation_key": "cultivation.technique.myvillage.shijia_xuangong",
+  "category": "body",
+  "grade": 2,
+  "elements": [
+    "myvillage:earth"
+  ],
+  "requirements": {
+    "minimum_realm": "myvillage:qi_refining",
+    "minimum_stage": "myvillage:qi_refining_4",
+    "minimum_element_affinity": {
+      "myvillage:earth": 1500
+    }
+  }
+}

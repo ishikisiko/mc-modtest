@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "namespace": "myvillage",
+  "grades": {"huang": 1, "xuan": 2, "di": 3, "tian": 4},
+  "hand_written_techniques": ["basic_breathing"],
+  "requirements": {
+    "by_grade": {
+      "1": {"realm": "qi_refining", "stage_number": 1},
+      "2": {"realm": "qi_refining", "stage_number": 4},
+      "3": {"realm": "foundation_establishment", "stage_number": 1},
+      "4": {"realm": "foundation_establishment", "stage_number": 1}
+    },
+    "element_affinity": {"minimum_grade": 2, "basis_points": 1500}
+  },
+  "effects": {
+    "core": {"core": {"meditation_route": "xiaozhoutian"}}
+  },
+  "classification": {
+    "default": {"category": "core", "school": null},
+    "rules": [
+      {"name_contains": ["剑诀", "剑典", "剑经", "剑章"], "category": "active", "school": "sword"},
+      {"name_contains": ["锻体", "淬体", "护体", "不灭体", "金身", "铁骨", "金刚功", "磐石功", "岩甲", "石甲"], "category": "body", "school": null}
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "heritages": [
+    {"id": "taibai_jianmai", "name": "太白剑脉", "school": "sword", "techniques": ["gengjin_yinqi_fa", "gengjin_jianjue", "tiangang_jiandian", "taibai_jianjing"]},
+    {"id": "qingdi_mumai", "name": "青帝木脉", "school": "none", "techniques": ["qingmu_changchun_gong", "yimu_shenghua_jue", "jiayi_changsheng_jing", "qingdi_daozang"]},
+    {"id": "wanjie_jinshen_mai", "name": "万劫金身脉", "school": "none", "techniques": ["tiegu_gong", "jinlin_cuiti_jue", "gengjin_bumie_ti", "wanjie_jinshen_jue"]}
+  ]
+}

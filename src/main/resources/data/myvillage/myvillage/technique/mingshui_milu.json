@@ -1,0 +1,20 @@
+{
+  "translation_key": "cultivation.technique.myvillage.mingshui_milu",
+  "category": "core",
+  "grade": 2,
+  "elements": [
+    "myvillage:water"
+  ],
+  "requirements": {
+    "minimum_realm": "myvillage:qi_refining",
+    "minimum_stage": "myvillage:qi_refining_4",
+    "minimum_element_affinity": {
+      "myvillage:water": 1500
+    }
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian"
+    }
+  }
+}

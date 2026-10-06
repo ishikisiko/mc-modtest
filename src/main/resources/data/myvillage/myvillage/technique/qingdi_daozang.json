@@ -1,0 +1,23 @@
+{
+  "translation_key": "cultivation.technique.myvillage.qingdi_daozang",
+  "category": "core",
+  "grade": 4,
+  "elements": [
+    "myvillage:wood"
+  ],
+  "requirements": {
+    "minimum_realm": "myvillage:foundation_establishment",
+    "minimum_stage": "myvillage:foundation_early",
+    "minimum_element_affinity": {
+      "myvillage:wood": 1500
+    }
+  },
+  "lineage": {
+    "previous": "myvillage:jiayi_changsheng_jing"
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian"
+    }
+  }
+}

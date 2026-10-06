@@ -1,0 +1,19 @@
+{
+  "translation_key": "cultivation.technique.myvillage.tiangang_jiandian",
+  "category": "active",
+  "grade": 3,
+  "elements": [
+    "myvillage:metal"
+  ],
+  "school": "myvillage:sword",
+  "requirements": {
+    "minimum_realm": "myvillage:foundation_establishment",
+    "minimum_stage": "myvillage:foundation_early",
+    "minimum_element_affinity": {
+      "myvillage:metal": 1500
+    }
+  },
+  "lineage": {
+    "previous": "myvillage:gengjin_jianjue"
+  }
+}

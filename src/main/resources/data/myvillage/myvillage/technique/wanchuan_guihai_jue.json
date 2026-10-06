@@ -1,0 +1,20 @@
+{
+  "translation_key": "cultivation.technique.myvillage.wanchuan_guihai_jue",
+  "category": "core",
+  "grade": 3,
+  "elements": [
+    "myvillage:water"
+  ],
+  "requirements": {
+    "minimum_realm": "myvillage:foundation_establishment",
+    "minimum_stage": "myvillage:foundation_early",
+    "minimum_element_affinity": {
+      "myvillage:water": 1500
+    }
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian"
+    }
+  }
+}

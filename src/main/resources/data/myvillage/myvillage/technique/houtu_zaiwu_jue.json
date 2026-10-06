@@ -1,0 +1,20 @@
+{
+  "translation_key": "cultivation.technique.myvillage.houtu_zaiwu_jue",
+  "category": "core",
+  "grade": 2,
+  "elements": [
+    "myvillage:earth"
+  ],
+  "requirements": {
+    "minimum_realm": "myvillage:qi_refining",
+    "minimum_stage": "myvillage:qi_refining_4",
+    "minimum_element_affinity": {
+      "myvillage:earth": 1500
+    }
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian"
+    }
+  }
+}

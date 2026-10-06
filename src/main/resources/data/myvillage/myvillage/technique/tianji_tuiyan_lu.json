@@ -1,0 +1,15 @@
+{
+  "translation_key": "cultivation.technique.myvillage.tianji_tuiyan_lu",
+  "category": "core",
+  "grade": 3,
+  "elements": [],
+  "requirements": {
+    "minimum_realm": "myvillage:foundation_establishment",
+    "minimum_stage": "myvillage:foundation_early"
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian"
+    }
+  }
+}

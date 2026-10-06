@@ -1,0 +1,23 @@
+{
+  "translation_key": "cultivation.technique.myvillage.yimu_shenghua_jue",
+  "category": "core",
+  "grade": 2,
+  "elements": [
+    "myvillage:wood"
+  ],
+  "requirements": {
+    "minimum_realm": "myvillage:qi_refining",
+    "minimum_stage": "myvillage:qi_refining_4",
+    "minimum_element_affinity": {
+      "myvillage:wood": 1500
+    }
+  },
+  "lineage": {
+    "previous": "myvillage:qingmu_changchun_gong"
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian"
+    }
+  }
+}

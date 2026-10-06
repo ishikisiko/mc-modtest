@@ -1,0 +1,12 @@
+{
+  "translation_key": "cultivation.technique.myvillage.yanjia_jue",
+  "category": "body",
+  "grade": 1,
+  "elements": [
+    "myvillage:earth"
+  ],
+  "requirements": {
+    "minimum_realm": "myvillage:qi_refining",
+    "minimum_stage": "myvillage:qi_refining_1"
+  }
+}

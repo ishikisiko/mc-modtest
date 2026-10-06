@@ -1,0 +1,10 @@
+{
+  "translation_key": "cultivation.technique.myvillage.duanti_jue",
+  "category": "body",
+  "grade": 1,
+  "elements": [],
+  "requirements": {
+    "minimum_realm": "myvillage:qi_refining",
+    "minimum_stage": "myvillage:qi_refining_1"
+  }
+}

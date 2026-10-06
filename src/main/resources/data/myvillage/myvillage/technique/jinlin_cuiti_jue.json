@@ -1,0 +1,18 @@
+{
+  "translation_key": "cultivation.technique.myvillage.jinlin_cuiti_jue",
+  "category": "body",
+  "grade": 2,
+  "elements": [
+    "myvillage:metal"
+  ],
+  "requirements": {
+    "minimum_realm": "myvillage:qi_refining",
+    "minimum_stage": "myvillage:qi_refining_4",
+    "minimum_element_affinity": {
+      "myvillage:metal": 1500
+    }
+  },
+  "lineage": {
+    "previous": "myvillage:tiegu_gong"
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "translation_key": "cultivation.technique.myvillage.gengjin_yinqi_fa",
+  "category": "core",
+  "grade": 1,
+  "elements": [
+    "myvillage:metal"
+  ],
+  "school": "myvillage:sword",
+  "requirements": {
+    "minimum_realm": "myvillage:qi_refining",
+    "minimum_stage": "myvillage:qi_refining_1"
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "translation_key": "cultivation.technique.myvillage.qingxi_jue",
+  "category": "core",
+  "grade": 1,
+  "elements": [
+    "myvillage:water"
+  ],
+  "requirements": {
+    "minimum_realm": "myvillage:qi_refining",
+    "minimum_stage": "myvillage:qi_refining_1"
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian"
+    }
+  }
+}

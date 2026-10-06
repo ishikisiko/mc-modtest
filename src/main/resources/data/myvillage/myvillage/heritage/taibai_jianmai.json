@@ -1,0 +1,11 @@
+{
+  "translation_key": "cultivation.heritage.myvillage.taibai_jianmai",
+  "school": "myvillage:sword",
+  "techniques": [
+    "myvillage:gengjin_yinqi_fa",
+    "myvillage:gengjin_jianjue",
+    "myvillage:tiangang_jiandian",
+    "myvillage:taibai_jianjing"
+  ],
+  "exclusive": true
+}

@@ -1,0 +1,20 @@
+{
+  "translation_key": "cultivation.technique.myvillage.xuanhuang_zhenshi_jing",
+  "category": "core",
+  "grade": 3,
+  "elements": [
+    "myvillage:earth"
+  ],
+  "requirements": {
+    "minimum_realm": "myvillage:foundation_establishment",
+    "minimum_stage": "myvillage:foundation_early",
+    "minimum_element_affinity": {
+      "myvillage:earth": 1500
+    }
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian"
+    }
+  }
+}

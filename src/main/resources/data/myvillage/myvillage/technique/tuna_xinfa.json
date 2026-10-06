@@ -1,0 +1,15 @@
+{
+  "translation_key": "cultivation.technique.myvillage.tuna_xinfa",
+  "category": "core",
+  "grade": 1,
+  "elements": [],
+  "requirements": {
+    "minimum_realm": "myvillage:qi_refining",
+    "minimum_stage": "myvillage:qi_refining_1"
+  },
+  "effects": {
+    "core": {
+      "meditation_route": "xiaozhoutian"
+    }
+  }
+}
