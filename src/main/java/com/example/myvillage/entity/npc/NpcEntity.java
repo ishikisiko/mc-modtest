@@ -1,5 +1,6 @@
 package com.example.myvillage.entity.npc;
 
+import com.example.myvillage.sim.runtime.player.SectDialogue;
 import java.util.List;
 import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
@@ -7,6 +8,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.InteractionHand;
@@ -37,7 +39,8 @@ import net.minecraft.world.level.ServerLevelAccessor;
  * ({@link #becomeLedgerAvatar}). Such an avatar belongs to the simulation, which spawns, renames and
  * withdraws it: it is never saved with its chunk, cannot be attacked or hurt (except by what bypasses
  * invulnerability, such as {@code /kill} or the void), does not burn, is not pushed, does not stroll
- * (it still looks at players and around), and does nothing when a player interacts with it. Its
+ * (it still looks at players and around), and does nothing when a player interacts with it unless
+ * it has a dialogue role (below), when the server opens the sect dialogue ({@link SectDialogue}). Its
  * ledger person id is synced to clients. An NPC summoned by a command or a spawn egg has id
  * {@link #NO_LEDGER_PERSON} and behaves exactly as described above.
  *
@@ -192,7 +195,16 @@ public abstract class NpcEntity extends PathfinderMob {
 
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand hand) {
-        return isLedgerAvatar() ? InteractionResult.PASS : super.mobInteract(player, hand);
+        if (!isLedgerAvatar()) {
+            return super.mobInteract(player, hand);
+        }
+        if (ROLE_NONE.equals(ledgerRole())) {
+            return InteractionResult.PASS;
+        }
+        if (player instanceof ServerPlayer serverPlayer) {
+            SectDialogue.open(serverPlayer, this); // checks everything itself; a refusal is a chat line or nothing
+        }
+        return InteractionResult.CONSUME;
     }
 
     @Override

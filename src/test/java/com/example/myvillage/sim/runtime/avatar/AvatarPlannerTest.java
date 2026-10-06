@@ -93,6 +93,86 @@ class AvatarPlannerTest {
     }
 
     @Test
+    void theStewardComesFirstOfAllAndTheRestKeepTheirOrder() {
+        List<PersonView> members = List.of(
+                person(1, "outer", "qi_refining", 8),
+                person(2, "inner", "foundation_establishment", 0),
+                person(3, "elder", "foundation_establishment", 2),
+                person(4, "sect_master", "golden_core", 0),
+                person(5, "elder", "golden_core", 1),
+                person(6, "inner", "foundation_establishment", 0),
+                person(7, "outer", "qi_refining", 8));
+        assertEquals(List.of(7, 4, 5, 3, 2, 6, 1),
+                AvatarPlanner.select(members, REALMS, 10, 7).stream().map(PersonView::id).toList());
+        assertEquals(List.of(7, 4),
+                AvatarPlanner.select(members, REALMS, 2, 7).stream().map(PersonView::id).toList(),
+                "the steward is shown even under a tight cap");
+        assertEquals(AvatarPlanner.select(members, REALMS, 10),
+                AvatarPlanner.select(members, REALMS, 10, -1), "no steward: the old order");
+        assertEquals(AvatarPlanner.select(members, REALMS, 10),
+                AvatarPlanner.select(members, REALMS, 10, 99), "a steward not at the sect changes nothing");
+    }
+
+    @Test
+    void theAxisIsTheMiddleColumnOfTheSite() {
+        BlockPos anchor = new BlockPos(100, -60, -40);
+        assertEquals(99, AvatarPlanner.axisX(anchor));
+        SectCourtyard.Footprint site = SectCourtyard.footprint(anchor);
+        assertEquals(site.maxX() - AvatarPlanner.axisX(anchor), AvatarPlanner.axisX(anchor) - site.minX() + 1);
+    }
+
+    @Test
+    void theStewardStandsOnTheGateTerraceNearestTheAxisTowardsTheGate() {
+        BlockPos anchor = new BlockPos(0, -60, 0);
+        List<BlockPos> cells = SectCourtyard.cells(11L, anchor, SectCourtyard.NO_SPIRE);
+        int axis = AvatarPlanner.axisX(anchor);
+        int lowest = cells.get(0).getY();
+        BlockPos steward = AvatarPlanner.stewardCell(5, cells, List.of(), axis);
+        assertNotNull(steward);
+        assertEquals(lowest, steward.getY());
+        for (BlockPos c : cells) {
+            if (c.getY() != lowest) {
+                continue;
+            }
+            int dc = Math.abs(c.getX() - axis);
+            int ds = Math.abs(steward.getX() - axis);
+            assertTrue(dc > ds || (dc == ds && c.getZ() >= steward.getZ()), c + " is nearer the gate than " + steward);
+        }
+        assertEquals(steward, AvatarPlanner.stewardCell(42, cells, List.of(), axis), "the same cell for anyone");
+        // once taken, the next steward cell keeps its spacing on the same terrace
+        BlockPos next = AvatarPlanner.stewardCell(5, cells, List.of(steward), axis);
+        assertNotNull(next);
+        assertEquals(lowest, next.getY());
+        assertTrue(Math.max(Math.abs(next.getX() - steward.getX()), Math.abs(next.getZ() - steward.getZ()))
+                >= AvatarPlanner.MIN_SPACING);
+    }
+
+    @Test
+    void aFullGateTerraceSendsTheStewardUpwardAndAFullCompoundReturnsNull() {
+        List<BlockPos> cells = List.of(new BlockPos(0, 0, 0), new BlockPos(1, 0, 0), new BlockPos(0, 8, 0));
+        assertEquals(new BlockPos(0, 0, 0), AvatarPlanner.stewardCell(1, cells, List.of(), 0));
+        assertEquals(new BlockPos(0, 8, 0), AvatarPlanner.stewardCell(1, cells, List.of(new BlockPos(0, 0, 0)), 0));
+        assertNull(AvatarPlanner.stewardCell(1, cells, List.of(new BlockPos(0, 0, 0), new BlockPos(0, 8, 0)), 0));
+        assertNull(AvatarPlanner.stewardCell(1, List.of(), List.of(), 0));
+    }
+
+    @Test
+    void theStewardsTagHasItsOwnKeyAndRolesFollowTheLedger() {
+        PersonView outer = person(9, "outer", "qi_refining", 1);
+        TranslatableContents steward = (TranslatableContents) WorldSimAvatars.name(outer, "steward").getContents();
+        assertEquals(WorldSimAvatars.STEWARD_NAME_KEY, steward.getKey());
+        assertEquals(3, steward.getArgs().length);
+        assertEquals(WorldSimAvatars.NAME_KEY,
+                ((TranslatableContents) WorldSimAvatars.name(outer, "none").getContents()).getKey());
+        assertEquals("steward", WorldSimAvatars.role(outer, 9));
+        assertEquals("none", WorldSimAvatars.role(outer, 3));
+        assertEquals("elder", WorldSimAvatars.role(person(3, "elder", "golden_core", 1), 9));
+        assertEquals("elder", WorldSimAvatars.role(person(4, "sect_master", "golden_core", 1), -1));
+        assertEquals("steward", WorldSimAvatars.role(person(3, "elder", "golden_core", 1), 3),
+                "an elder who is the steward (nobody lower at the gate) is the steward");
+    }
+
+    @Test
     void theBuildSeedAndVariantArePerSectAndStable() {
         assertEquals(GateBuilder.seed(42L, 3), GateBuilder.seed(42L, 3));
         assertTrue(GateBuilder.seed(42L, 3) != GateBuilder.seed(42L, 4));

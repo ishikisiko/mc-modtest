@@ -1,5 +1,6 @@
 package com.example.myvillage.sim.runtime.avatar;
 
+import com.example.myvillage.sect.SectCourtyard;
 import com.example.myvillage.sim.PersonView;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,8 +27,18 @@ final class AvatarPlanner {
      * first), then the lower id.
      */
     static List<PersonView> select(List<PersonView> atSect, List<String> realmOrder, int max) {
+        return select(atSect, realmOrder, max, -1);
+    }
+
+    /**
+     * As {@link #select(List, List, int)}, but the sect's steward ({@code stewardId}, the
+     * {@code WorldSim.stewardOf} person; negative for none) comes first of all, so the steward is
+     * shown whenever anyone is.
+     */
+    static List<PersonView> select(List<PersonView> atSect, List<String> realmOrder, int max, int stewardId) {
         List<PersonView> sorted = new ArrayList<>(atSect);
-        sorted.sort(Comparator.<PersonView>comparingInt(p -> rankOrder(p.rank()))
+        sorted.sort(Comparator.<PersonView>comparingInt(p -> p.id() == stewardId && stewardId >= 0 ? 0 : 1)
+                .thenComparingInt(p -> rankOrder(p.rank()))
                 .thenComparing(Comparator.<PersonView>comparingInt(p -> realmOrder.indexOf(p.realmId())).reversed())
                 .thenComparing(Comparator.comparingInt(PersonView::stage).reversed())
                 .thenComparingInt(PersonView::id));
@@ -66,6 +77,55 @@ final class AvatarPlanner {
             }
         }
         return null;
+    }
+
+    /**
+     * The steward's cell (守山执事 stands at the gate): on the lowest terrace, the free cell
+     * ({@link #MIN_SPACING} from every occupied cell there) nearest the axis {@code axisX} (the
+     * corridor itself is not courtyard ground), then with the least z (towards the gate opening),
+     * then the least x. Falls back to {@link #pickCell} when the lowest terrace is full; null when
+     * every terrace is.
+     */
+    static BlockPos stewardCell(int personId, List<BlockPos> cells, Collection<BlockPos> occupied, int axisX) {
+        if (cells.isEmpty()) {
+            return null;
+        }
+        int lowest = Integer.MAX_VALUE;
+        for (BlockPos c : cells) {
+            lowest = Math.min(lowest, c.getY());
+        }
+        BlockPos best = null;
+        for (BlockPos c : cells) {
+            if (c.getY() != lowest || !spaced(c, occupied)) {
+                continue;
+            }
+            if (best == null || closerToTheGate(c, best, axisX)) {
+                best = c;
+            }
+        }
+        return best != null ? best : pickCell(personId, cells, occupied);
+    }
+
+    private static boolean closerToTheGate(BlockPos a, BlockPos b, int axisX) {
+        int da = Math.abs(a.getX() - axisX);
+        int db = Math.abs(b.getX() - axisX);
+        if (da != db) {
+            return da < db;
+        }
+        if (a.getZ() != b.getZ()) {
+            return a.getZ() < b.getZ();
+        }
+        return a.getX() < b.getX();
+    }
+
+    /**
+     * World x of the compound's axis for a build anchored at {@code anchor}: the middle column of
+     * the site rectangle ({@code SectGenerator.AXIS_X} from the base, one block west of the anchor,
+     * since the site is an even 64 wide and the axis sits at column 31).
+     */
+    static int axisX(BlockPos anchor) {
+        SectCourtyard.Footprint site = SectCourtyard.footprint(anchor);
+        return Math.floorDiv(site.minX() + site.maxX(), 2);
     }
 
     /** A body yaw for the avatar, by hash so it is stable per person. */

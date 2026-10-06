@@ -78,7 +78,8 @@ behavior:
     breedable: false
     rideable: false
     trade: false
-    dialogue: false
+    dialogue: true
+    dialogue_note: only a world-sim avatar whose ledger role is steward or elder talks (right click opens the server-authoritative sect dialogue, SectDialogue); a summoned cultivator and every other avatar have none
   combat:
     mode: none
     statement: It never attacks. A summoned cultivator can be hurt and killed like any mob and does not react to it; a world-sim avatar cannot be attacked or hurt (see world_sim_avatar).
@@ -125,7 +126,7 @@ world_sim_avatar:
   pushable: false
   goals_removed:
     - water_avoiding_random_stroll
-  interaction: none (mobInteract passes without effect)
+  interaction: the steward (守山执事) and elder avatars open the sect dialogue on right click (mobInteract consumes; the server checks range, dimension, ledger role and sect, then sends SectDialoguePayload); every other avatar passes without effect
   name_tag: name · realm · sect (entity.myvillage.cultivator.avatar; the realm through world_sim.realm.<id>), always visible
   config: myvillage-world_sim-server.toml [avatars] (avatars_enabled, avatar_spawn_radius, max_avatars_per_sect, max_avatars)
 

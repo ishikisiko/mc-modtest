@@ -4,6 +4,7 @@ import com.example.myvillage.client.sim.ClientWorldSimState;
 import com.example.myvillage.region.runtime.RegionRuntimeService;
 import com.example.myvillage.sim.runtime.WorldSimDriver;
 import com.example.myvillage.sim.runtime.WorldSimRuntime;
+import com.example.myvillage.sim.runtime.player.SectDialogue;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -49,8 +50,27 @@ public final class WorldSimPayloads {
                 WorldSimSnapshotPayload.TYPE,
                 WorldSimSnapshotPayload.STREAM_CODEC,
                 WorldSimPayloads::handleSnapshot);
+        registrar.playToClient(
+                SectDialoguePayload.TYPE,
+                SectDialoguePayload.STREAM_CODEC,
+                WorldSimPayloads::handleSectDialogue);
+        registrar.playToServer(
+                SectIntentPayload.TYPE,
+                SectIntentPayload.STREAM_CODEC,
+                WorldSimPayloads::handleSectIntent);
         // ClientWorldSimState holds no client-only types; on a dedicated server the sender is never invoked.
         ClientWorldSimState.installSender(query -> PacketDistributor.sendToServer(new WorldSimQueryPayload(query)));
+    }
+
+    private static void handleSectDialogue(SectDialoguePayload payload, IPayloadContext context) {
+        context.enqueueWork(() -> SectDialoguePayload.receive(payload));
+    }
+
+    private static void handleSectIntent(SectIntentPayload payload, IPayloadContext context) {
+        if (!(context.player() instanceof ServerPlayer player)) {
+            return;
+        }
+        context.enqueueWork(() -> SectDialogue.handleIntent(player, payload));
     }
 
     private static void handleQuery(WorldSimQueryPayload payload, IPayloadContext context) {

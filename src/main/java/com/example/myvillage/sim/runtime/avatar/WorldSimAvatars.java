@@ -2,6 +2,7 @@ package com.example.myvillage.sim.runtime.avatar;
 
 import com.example.myvillage.entity.ModEntities;
 import com.example.myvillage.entity.npc.CultivatorEntity;
+import com.example.myvillage.entity.npc.CultivatorLooks;
 import com.example.myvillage.entity.npc.NpcEntity;
 import com.example.myvillage.sect.SectCourtyard;
 import com.example.myvillage.sim.PersonView;
@@ -51,12 +52,16 @@ import org.slf4j.LoggerFactory;
  *   <li>Every {@value #PASS_TICKS} ticks, for each gate the ledger agrees is realized (sect active,
  *       gate realized, same x/z as the {@link GateRealizations} record): if a player is within
  *       {@code avatar_spawn_radius} of the compound's site, the selected members
- *       ({@link AvatarPlanner#select}: master, elders, then by realm, up to the per-sect cap and the
- *       global cap, nearest compound first) get an avatar on a free cell whose chunk is loaded; once
+ *       ({@link AvatarPlanner#select}: the steward ({@code WorldSim.stewardOf}), master, elders, then by
+ *       realm, up to the per-sect cap and the global cap, nearest compound first) get an avatar on a
+ *       free cell whose chunk is loaded (the steward on {@link AvatarPlanner#stewardCell}, by the gate
+ *       opening); once
  *       no player is within the radius + {@value WorldSimServerConfig#AVATAR_WITHDRAW_MARGIN}, the gate's
  *       avatars are discarded. Between the two radii nothing is spawned or withdrawn.</li>
  *   <li>Each pass and after every settled sim day, avatars of people no longer selected (dead, left,
- *       travelling, secluded, displaced by the cap) are discarded and names are refreshed.</li>
+ *       travelling, secluded, displaced by the cap) are discarded and names and dialogue roles
+ *       ({@link NpcEntity#ledgerRole()}: steward, elder for elders and the master, none) are
+ *       refreshed; a steward handover discards both avatars so they respawn on the right cells.</li>
  *   <li>Everything is discarded when the ledger is inactive, avatars are disabled, and on server stop.</li>
  * </ul>
  */
@@ -64,8 +69,15 @@ public final class WorldSimAvatars {
     private static final Logger LOGGER = LoggerFactory.getLogger(WorldSimAvatars.class);
     static final int PASS_TICKS = 20;
     static final String NAME_KEY = "entity.myvillage.cultivator.avatar";
+    /** The steward's name tag: the same three params, with a fixed fourth part "守山执事" in the language file. */
+    static final String STEWARD_NAME_KEY = "entity.myvillage.cultivator.avatar.steward";
 
-    private record Avatar(int personId, int sectId, CultivatorEntity entity, BlockPos cell) {
+    /** {@code role} is the dialogue role last set on the entity ({@link NpcEntity#ledgerRole()}). */
+    private record Avatar(int personId, int sectId, CultivatorEntity entity, BlockPos cell, String role) {
+    }
+
+    /** Who of a sect is shown, in priority order, and the sect's steward (-1 for none). */
+    private record Selection(List<PersonView> people, int stewardId, List<String> realmOrder) {
     }
 
     private static final Map<Integer, Avatar> AVATARS = new HashMap<>();
@@ -204,40 +216,63 @@ public final class WorldSimAvatars {
         return best;
     }
 
-    /** The members of the sect that should have an avatar now, in priority order. */
-    private static List<PersonView> selected(WorldSim sim, int sectId) {
-        List<String> realmOrder = new ArrayList<>();
-        WorldSimRuntime.data().ifPresent(d -> d.realms().realms().forEach(r -> realmOrder.add(r.id())));
-        return AvatarPlanner.select(sim.membersAt(sectId), realmOrder, WorldSimServerConfig.maxAvatarsPerSect());
+    /** The members of the sect that should have an avatar now, the steward first, then in priority order. */
+    private static Selection selected(WorldSim sim, int sectId) {
+        List<String> realmOrder = sim.realmIds();
+        int stewardId = sim.stewardOf(sectId).map(PersonView::id).orElse(-1);
+        return new Selection(AvatarPlanner.select(sim.membersAt(sectId), realmOrder,
+                WorldSimServerConfig.maxAvatarsPerSect(), stewardId), stewardId, List.copyOf(realmOrder));
     }
 
-    /** Discards the avatars of people no longer selected; refreshes the names of the rest. */
-    private static void reconcile(int sectId, List<PersonView> selected) {
+    /** The dialogue role of a selected person: the steward, an elder (the master included), or none. */
+    static String role(PersonView p, int stewardId) {
+        if (stewardId >= 0 && p.id() == stewardId) {
+            return NpcEntity.ROLE_STEWARD;
+        }
+        return switch (p.rank()) {
+            case "elder", "sect_master" -> NpcEntity.ROLE_ELDER;
+            default -> NpcEntity.ROLE_NONE;
+        };
+    }
+
+    /**
+     * Discards the avatars of people no longer selected; refreshes the names and roles of the rest.
+     * An avatar that becomes or stops being the steward is discarded too, so that it is spawned again
+     * on the steward's cell (or off it) by the next pass.
+     */
+    private static void reconcile(int sectId, Selection selection) {
         Map<Integer, PersonView> byId = new HashMap<>();
-        for (PersonView p : selected) {
+        for (PersonView p : selection.people()) {
             byId.put(p.id(), p);
         }
-        Iterator<Avatar> it = AVATARS.values().iterator();
+        Iterator<Map.Entry<Integer, Avatar>> it = AVATARS.entrySet().iterator();
         int discarded = 0;
         while (it.hasNext()) {
-            Avatar a = it.next();
+            Map.Entry<Integer, Avatar> entry = it.next();
+            Avatar a = entry.getValue();
             if (a.sectId() != sectId) {
                 continue;
             }
             PersonView p = byId.get(a.personId());
-            if (p == null) {
+            String role = p == null ? NpcEntity.ROLE_NONE : role(p, selection.stewardId());
+            boolean stewardChanged = NpcEntity.ROLE_STEWARD.equals(role) != NpcEntity.ROLE_STEWARD.equals(a.role());
+            if (p == null || stewardChanged) {
                 a.entity().discard();
                 it.remove();
                 discarded++;
                 continue;
             }
-            Component name = name(p);
+            if (!role.equals(a.role())) {
+                a.entity().setLedgerRole(role);
+                entry.setValue(new Avatar(a.personId(), a.sectId(), a.entity(), a.cell(), role));
+            }
+            Component name = name(p, role);
             if (!Objects.equals(a.entity().getCustomName(), name)) {
                 a.entity().setCustomName(name);
             }
         }
         if (discarded > 0) {
-            LOGGER.info("World sim avatars: sect {} withdrew {} avatar(s) no longer at the gate; {} remain",
+            LOGGER.info("World sim avatars: sect {} withdrew {} avatar(s) no longer at the gate or whose steward role changed; {} remain",
                     sectId, discarded, count(sectId));
         }
     }
@@ -253,21 +288,26 @@ public final class WorldSimAvatars {
             }
         }
         int spawned = 0;
-        for (PersonView p : selected(sim, sectId)) {
+        Selection selection = selected(sim, sectId);
+        int axisX = AvatarPlanner.axisX(gate.anchor());
+        for (PersonView p : selection.people()) {
             if (AVATARS.size() >= WorldSimServerConfig.maxAvatars()) {
                 break;
             }
             if (AVATARS.containsKey(p.id())) {
                 continue;
             }
-            BlockPos cell = AvatarPlanner.pickCell(p.id(), cells, occupied);
+            String role = role(p, selection.stewardId());
+            BlockPos cell = NpcEntity.ROLE_STEWARD.equals(role)
+                    ? AvatarPlanner.stewardCell(p.id(), cells, occupied, axisX)
+                    : AvatarPlanner.pickCell(p.id(), cells, occupied);
             if (cell == null) {
                 break;
             }
             if (!level.isLoaded(cell) || !level.areEntitiesLoaded(ChunkPos.asLong(cell))) {
                 continue; // spawned on a later pass, once a player has loaded that part of the compound
             }
-            if (spawn(level, p, sectId, cell)) {
+            if (spawn(level, p, sectId, cell, role, selection.realmOrder())) {
                 occupied.add(cell);
                 spawned++;
             }
@@ -277,7 +317,8 @@ public final class WorldSimAvatars {
         }
     }
 
-    private static boolean spawn(ServerLevel level, PersonView p, int sectId, BlockPos cell) {
+    private static boolean spawn(ServerLevel level, PersonView p, int sectId, BlockPos cell, String role,
+                                 List<String> realmOrder) {
         CultivatorEntity entity = ModEntities.CULTIVATOR.get().create(level);
         if (entity == null) {
             return false;
@@ -287,9 +328,11 @@ public final class WorldSimAvatars {
         entity.moveTo(cell.getX() + 0.5, cell.getY(), cell.getZ() + 0.5, yaw, 0.0F);
         entity.setYHeadRot(yaw);
         entity.setYBodyRot(yaw);
-        entity.setCustomName(name(p));
+        entity.setLedgerRole(role);
+        entity.setLook(CultivatorLooks.forPerson(p, realmOrder));
+        entity.setCustomName(name(p, role));
         entity.setCustomNameVisible(true);
-        Avatar avatar = new Avatar(p.id(), sectId, entity, cell);
+        Avatar avatar = new Avatar(p.id(), sectId, entity, cell, role);
         AVATARS.put(p.id(), avatar); // before adding, so the join check knows it
         if (!level.addFreshEntity(entity)) {
             AVATARS.remove(p.id());
@@ -300,7 +343,13 @@ public final class WorldSimAvatars {
 
     /** {@code name · realm · sect}; the realm through its language key, so each client reads its own language. */
     static Component name(PersonView p) {
-        return Component.translatable(NAME_KEY, p.name(), WorldSimText.realm(p.realmId()), p.sectName());
+        return name(p, NpcEntity.ROLE_NONE);
+    }
+
+    /** As {@link #name(PersonView)}; the steward's tag adds "守山执事" through {@link #STEWARD_NAME_KEY}. */
+    static Component name(PersonView p, String role) {
+        String key = NpcEntity.ROLE_STEWARD.equals(role) ? STEWARD_NAME_KEY : NAME_KEY;
+        return Component.translatable(key, p.name(), WorldSimText.realm(p.realmId()), p.sectName());
     }
 
     // ------------------------------------------------------------------ withdrawal
