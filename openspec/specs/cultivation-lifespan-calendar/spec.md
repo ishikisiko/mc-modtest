@@ -47,18 +47,27 @@ player's lifespan. Dimension and ordinary activity SHALL not change the rate.
 
 ### Requirement: Cultivation time scale is configurable and reinterprets raw ticks
 Server configuration SHALL default to `24000` effective ticks per cultivation
-day and `6` cultivation days per year. Values SHALL be positive and all derived
-products SHALL use checked arithmetic. Raw calendar and lifespan counters SHALL
-not be rescaled when either setting changes; the new scale SHALL intentionally
-reinterpret all existing raw ticks and SHALL emit an explicit operator warning.
+day (one Minecraft day-night length), `24` cultivation days per year, and `6`
+cultivation days per week. The week is a display unit between day and year;
+weeks SHALL be counted within each year and restart with every year. Values
+SHALL be positive and all derived products SHALL use checked arithmetic. Raw
+calendar and lifespan counters SHALL not be rescaled when any setting changes;
+the new scale SHALL intentionally reinterpret all existing raw ticks and SHALL
+emit an explicit operator warning. A year that is not a whole number of weeks
+SHALL be allowed with one operator warning, its last week being shorter.
 
 #### Scenario: Default scale is used
 - **WHEN** configuration retains its defaults
-- **THEN** one cultivation year SHALL equal `144000` effective ticks
-- **AND** an 80-year mortal maximum SHALL equal `11520000` consumed ticks
+- **THEN** one cultivation year SHALL equal `576000` effective ticks (four 6-day weeks)
+- **AND** an 80-year mortal maximum SHALL equal `46080000` consumed ticks
+
+#### Scenario: Days per year is not a multiple of days per week
+- **WHEN** an operator configures, for example, 10 days per year and 4 days per week
+- **THEN** the server SHALL load the configuration and warn once per load or reload
+- **AND** each year SHALL show weeks of 4, 4, and 2 days, restarting at week 1 on the next year
 
 #### Scenario: An operator changes the scale
-- **WHEN** either configured value changes for an existing world
+- **WHEN** any configured value changes for an existing world
 - **THEN** prior raw calendar and lifespan ticks SHALL be converted with the new values
 - **AND** the server SHALL warn that displayed dates, remaining life, and exhaustion can change retroactively
 
@@ -130,14 +139,15 @@ valid result exists and SHALL never wrap to a negative value.
 - **THEN** that counter SHALL remain `Long.MAX_VALUE` and derived exhaustion SHALL remain safe
 
 ### Requirement: The H screen displays read-only cultivation time status
-The non-pausing H screen SHALL display 1-based cultivation year/day, consumed
+The non-pausing H screen SHALL display 1-based cultivation year/week/day, consumed
 lifespan, remaining/current maximum lifespan, meditation reserve, and exhausted
 or unavailable state from immutable client caches. At elapsed tick zero it SHALL
-show year 1 day 1. It SHALL not send a mutation or expose controls.
+show year 1 week 1 day 1. The time snapshot SHALL carry the configured days per
+week next to days per year. It SHALL not send a mutation or expose controls.
 
 #### Scenario: The default mortal profile is viewed
 - **WHEN** current snapshots are present at raw calendar tick zero
-- **THEN** H SHALL show year 1 day 1, consumed 0, remaining `80 / 80`, reserve 0, and not exhausted
+- **THEN** H SHALL show year 1 week 1 day 1, consumed 0, remaining `80 / 80`, reserve 0, and not exhausted
 
 #### Scenario: Time status has not arrived
 - **WHEN** the profile exists but no time snapshot is cached

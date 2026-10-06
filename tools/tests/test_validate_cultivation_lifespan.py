@@ -114,6 +114,39 @@ class CultivationLifespanValidationTest(unittest.TestCase):
 
         self.assert_error_contains(result, "maximum_lifespan_years must be integer 80")
 
+    def test_days_per_year_default_drift_is_rejected(self) -> None:
+        self.mutate_text(
+            "src/main/java/com/example/myvillage/cultivation/time/CultivationServerConfig.java",
+            "DEFAULT_DAYS_PER_YEAR = 24;",
+            "DEFAULT_DAYS_PER_YEAR = 6;",
+        )
+
+        result = self.validate()
+
+        self.assert_error_contains(result, "default days-per-year must be 24")
+
+    def test_days_per_week_config_removal_is_rejected(self) -> None:
+        self.mutate_text(
+            "src/main/java/com/example/myvillage/cultivation/time/CultivationServerConfig.java",
+            '.defineInRange("days_per_week", DEFAULT_DAYS_PER_WEEK, 1, Integer.MAX_VALUE)',
+            '.defineInRange("days_per_week", DEFAULT_DAYS_PER_WEEK, 0, Integer.MAX_VALUE)',
+        )
+
+        result = self.validate()
+
+        self.assert_error_contains(result, "days_per_week must be a positive server config")
+
+    def test_time_snapshot_without_week_is_rejected(self) -> None:
+        self.mutate_text(
+            "src/main/java/com/example/myvillage/cultivation/network/CultivationTimeSnapshotPayload.java",
+            "buffer.writeVarInt(payload.daysPerWeek());",
+            "",
+        )
+
+        result = self.validate()
+
+        self.assert_error_contains(result, "time snapshot must encode days-per-week as a varint")
+
     def test_batch_interval_drift_is_rejected(self) -> None:
         self.mutate_text(
             "src/main/java/com/example/myvillage/cultivation/time/CultivationTimeRuntime.java",

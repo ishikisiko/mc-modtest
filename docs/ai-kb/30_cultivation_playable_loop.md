@@ -100,13 +100,18 @@ survival/adventure. Creative, spectator, dead, and offline players do not age;
 sleep, vanilla time, `/time set`, daylight-cycle rules, weather, and dimension
 do not change either clock.
 
-Defaults are `24000` effective ticks/day and `6` days/year, or `144000` ticks per
-year. Realm definitions own required positive maximum lifespans: mortal `80`,
+Defaults (`cultivation_time` server config) are `ticks_per_day = 24000` (one
+Minecraft day-night length), `days_per_year = 24` and `days_per_week = 6`, or
+`576000` ticks per year (four weeks). The week is a display unit only: dates
+read year, week and day, weeks restart with each year, and a year that is not a
+whole number of weeks is allowed with a load/reload warning. At 20 TPS with
+someone online, 1 day = 20 real minutes, 1 week = 2 h, 1 year = 8 h, and the
+mortal `80` years = 640 h. The time snapshot carries all three values. Realm definitions own required positive maximum lifespans: mortal `80`,
 Qi Refining `120`, and Foundation Establishment `240` years. Remaining lifespan,
 the `10/5/1`-year warnings, and exhaustion are derived from the current realm and
 raw consumed ticks; they are not persisted flags.
 
-Changing either scale value deliberately reinterprets all prior raw calendar and
+Changing any scale value deliberately reinterprets all prior raw calendar and
 lifespan ticks. Data is not rescaled, so displayed dates, warnings, and
 exhaustion can move in either direction. Config load/reload logs an operator
 warning. Lifespan commits are batched at a bounded `600`-tick cadence and forced

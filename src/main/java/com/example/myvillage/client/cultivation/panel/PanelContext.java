@@ -181,15 +181,18 @@ public record PanelContext(
         return meditation.state().preparing() ? PanelTheme.AMBER : PanelTheme.JADE;
     }
 
-    /** "1 年第 1 日", or the waiting text before the first time snapshot arrives. */
+    /** "1 年 第 1 周 第 1 日", or the waiting text before the first time snapshot arrives. */
     public String calendarValue() {
         if (time == null) {
             return text("screen.myvillage.cultivation.time_waiting");
         }
+        long elapsed = time.elapsedCalendarTicks();
         return text(
                 "screen.myvillage.cultivation.calendar_value",
-                PanelReadouts.calendarYear(time.elapsedCalendarTicks(), time.ticksPerDay(), time.daysPerYear()),
-                PanelReadouts.calendarDay(time.elapsedCalendarTicks(), time.ticksPerDay(), time.daysPerYear()));
+                PanelReadouts.calendarYear(elapsed, time.ticksPerDay(), time.daysPerYear()),
+                PanelReadouts.calendarWeek(elapsed, time.ticksPerDay(), time.daysPerYear(), time.daysPerWeek()),
+                PanelReadouts.calendarDayOfWeek(
+                        elapsed, time.ticksPerDay(), time.daysPerYear(), time.daysPerWeek()));
     }
 
     /** Remaining over maximum lifespan in years; exhaustion and unavailability are spelled out. */

@@ -212,9 +212,13 @@ class CultivationLifespanValidator:
         config = self.read(config_path)
         for fragment, message in (
             ("DEFAULT_TICKS_PER_DAY = 24_000", "default ticks-per-day must be 24000"),
-            ("DEFAULT_DAYS_PER_YEAR = 6", "default days-per-year must be 6"),
+            ("DEFAULT_DAYS_PER_YEAR = 24", "default days-per-year must be 24"),
+            ("DEFAULT_DAYS_PER_WEEK = 6", "default days-per-week must be 6"),
             ('.defineInRange("ticks_per_day", DEFAULT_TICKS_PER_DAY, 1, Integer.MAX_VALUE)', "ticks_per_day must be a positive server config"),
             ('.defineInRange("days_per_year", DEFAULT_DAYS_PER_YEAR, 1, Integer.MAX_VALUE)', "days_per_year must be a positive server config"),
+            ('.defineInRange("days_per_week", DEFAULT_DAYS_PER_WEEK, 1, Integer.MAX_VALUE)', "days_per_week must be a positive server config"),
+            ("scale.daysPerWeek()", "config load/reload must log days_per_week with the other scale values"),
+            ("daysPerYear % daysPerWeek", "config must detect a year that is not a whole number of weeks"),
             ("Stored calendar/lifespan values are raw ticks and are not rescaled", "config load/reload must warn about raw-tick reinterpretation"),
             ("onConfigReloading", "time-scale reload hook is missing"),
         ):
@@ -317,6 +321,8 @@ class CultivationLifespanValidator:
             ("long lifespanConsumedTicks", "time snapshot must carry effective consumed lifespan"),
             ("long ticksPerDay", "time snapshot must carry active ticks-per-day"),
             ("int daysPerYear", "time snapshot must carry active days-per-year"),
+            ("int daysPerWeek", "time snapshot must carry active days-per-week"),
+            ("buffer.writeVarInt(payload.daysPerWeek())", "time snapshot must encode days-per-week as a varint"),
             ("long remainingLifespanTicks", "time snapshot must carry server-derived remaining lifespan"),
             ("boolean exhausted", "time snapshot must carry server-derived exhaustion"),
         ):
@@ -330,7 +336,8 @@ class CultivationLifespanValidator:
         screen = self.read_h_screen(screen_path)
         for fragment, message in (
             ("spiritualAffinity()", "H screen must show spiritual affinity"),
-            ("calendarValue", "H screen must show cultivation calendar year/day"),
+            ("calendarValue", "H screen must show cultivation calendar year/week/day"),
+            ("calendarWeek(", "H screen calendar must show the week within the year"),
             ("lifespanConsumedTicks()", "H screen must show consumed lifespan"),
             ("remainingLifespanTicks()", "H screen must show remaining lifespan"),
             ("exhausted()", "H screen must show lifespan exhaustion"),
@@ -387,7 +394,8 @@ def main() -> int:
         return 1
     print(
         "cultivation lifespan validation passed: "
-        f"checked_files={result.checked_files}; schema=3; affinity_default=10; realm_years=80/120/240; batch_ticks=600"
+        f"checked_files={result.checked_files}; schema=3; affinity_default=10; realm_years=80/120/240; batch_ticks=600; "
+        "scale=24000 ticks/day, 24 days/year, 6 days/week"
     )
     return 0
 

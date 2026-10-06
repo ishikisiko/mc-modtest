@@ -17,10 +17,11 @@ class CultivationTimeSnapshotPayloadTest {
                 3_456_789L,
                 1_234_567L,
                 24_000L,
+                24,
                 6,
                 80,
-                11_520_000L,
-                10_285_433L,
+                46_080_000L,
+                44_845_433L,
                 false);
         RegistryFriendlyByteBuf buffer = buffer();
         try {
@@ -35,7 +36,7 @@ class CultivationTimeSnapshotPayloadTest {
     @Test
     void streamCodecRoundTripsUnavailableRealmStatus() {
         CultivationTimeSnapshotPayload payload = new CultivationTimeSnapshotPayload(
-                0, 42, 24_000, 6, -1, -1, -1, false);
+                0, 42, 24_000, 24, 6, -1, -1, -1, false);
         RegistryFriendlyByteBuf buffer = buffer();
         try {
             CultivationTimeSnapshotPayload.STREAM_CODEC.encode(buffer, payload);
@@ -48,21 +49,24 @@ class CultivationTimeSnapshotPayloadTest {
     @Test
     void rejectsPartialOrExhaustedUnavailableStatus() {
         assertThrows(IllegalArgumentException.class, () -> new CultivationTimeSnapshotPayload(
-                0, 0, 24_000, 6, -1, 0, -1, false));
+                0, 0, 24_000, 24, 6, -1, 0, -1, false));
         assertThrows(IllegalArgumentException.class, () -> new CultivationTimeSnapshotPayload(
-                0, 0, 24_000, 6, -1, -1, -1, true));
+                0, 0, 24_000, 24, 6, -1, -1, -1, true));
+        assertThrows(IllegalArgumentException.class, () -> new CultivationTimeSnapshotPayload(
+                0, 0, 24_000, 24, 0, -1, -1, -1, false));
     }
 
     @Test
     void mapsAuthoritativeResolvedAndUnresolvedStatuses() {
         CultivationTimeSnapshotPayload resolved = CultivationTimeSnapshotPayload.fromStatus(
                 new CultivationTimeStatus(
-                        100, 200, 24_000, 6, true, 11_520_000, 11_519_800, false));
+                        100, 200, 24_000, 24, 6, true, 46_080_000, 46_079_800, false));
         assertEquals(80, resolved.maximumLifespanYears());
-        assertEquals(11_519_800, resolved.remainingLifespanTicks());
+        assertEquals(46_079_800, resolved.remainingLifespanTicks());
+        assertEquals(6, resolved.daysPerWeek());
 
         CultivationTimeSnapshotPayload unresolved = CultivationTimeSnapshotPayload.fromStatus(
-                new CultivationTimeStatus(100, 200, 24_000, 6, false, 0, 0, false));
+                new CultivationTimeStatus(100, 200, 24_000, 24, 6, false, 0, 0, false));
         assertEquals(-1, unresolved.maximumLifespanYears());
         assertEquals(-1, unresolved.remainingLifespanTicks());
     }

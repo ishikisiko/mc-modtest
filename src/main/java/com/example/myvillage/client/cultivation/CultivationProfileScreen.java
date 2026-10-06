@@ -36,6 +36,8 @@ public final class CultivationProfileScreen extends Screen {
     private static final int TAB_HEIGHT = 18;
     private static final int TAB_GAP = 3;
     private static final int FACE_SIZE = 22;
+    /** Width the header keeps for the player's name and standing before it shortens the date. */
+    private static final int HEADER_NAME_ROOM = 130;
     private static final int SCROLL_STEP = 14;
 
     /** The page the panel was last left on; reopening H returns to it. */
@@ -244,12 +246,17 @@ public final class CultivationProfileScreen extends Screen {
         }
 
         CultivationProfile profile = context.profile();
-        String calendar = context.text("screen.myvillage.cultivation.calendar") + " " + context.calendarValue();
         String lifespan = context.text("screen.myvillage.cultivation.card.lifespan")
                 + " " + context.remainingLifespanValue();
-        int statusWidth = Math.max(font.width(calendar), font.width(lifespan));
         int textX = faceX + FACE_SIZE + 7;
         int textWidth = right - 9 - textX;
+        // The date leads with its label when the name and standing keep room beside it; on a narrow
+        // panel (English at GUI 320) it drops the label and shows only year, week and day.
+        String calendar = context.text("screen.myvillage.cultivation.calendar") + " " + context.calendarValue();
+        if (Math.max(font.width(calendar), font.width(lifespan)) + HEADER_NAME_ROOM > textWidth) {
+            calendar = context.calendarValue();
+        }
+        int statusWidth = Math.max(font.width(calendar), font.width(lifespan));
         boolean showStatus = profile != null && statusWidth + 60 <= textWidth;
         if (showStatus) {
             graphics.drawString(font, calendar, right - 9 - font.width(calendar), panelTop + 7, PanelTheme.MUTED, false);

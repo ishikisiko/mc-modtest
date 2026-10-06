@@ -12,6 +12,7 @@ public record CultivationTimeSnapshotPayload(
         long lifespanConsumedTicks,
         long ticksPerDay,
         int daysPerYear,
+        int daysPerWeek,
         int maximumLifespanYears,
         long maximumLifespanTicks,
         long remainingLifespanTicks,
@@ -29,6 +30,7 @@ public record CultivationTimeSnapshotPayload(
                             buffer.readLong(),
                             buffer.readVarInt(),
                             buffer.readVarInt(),
+                            buffer.readVarInt(),
                             buffer.readLong(),
                             buffer.readLong(),
                             buffer.readBoolean());
@@ -40,6 +42,7 @@ public record CultivationTimeSnapshotPayload(
                     buffer.writeLong(payload.lifespanConsumedTicks());
                     buffer.writeLong(payload.ticksPerDay());
                     buffer.writeVarInt(payload.daysPerYear());
+                    buffer.writeVarInt(payload.daysPerWeek());
                     buffer.writeVarInt(payload.maximumLifespanYears());
                     buffer.writeLong(payload.maximumLifespanTicks());
                     buffer.writeLong(payload.remainingLifespanTicks());
@@ -48,7 +51,8 @@ public record CultivationTimeSnapshotPayload(
             };
 
     public CultivationTimeSnapshotPayload {
-        if (elapsedCalendarTicks < 0 || lifespanConsumedTicks < 0 || ticksPerDay <= 0 || daysPerYear <= 0) {
+        if (elapsedCalendarTicks < 0 || lifespanConsumedTicks < 0 || ticksPerDay <= 0 || daysPerYear <= 0
+                || daysPerWeek <= 0) {
             throw new IllegalArgumentException("Cultivation time counters and scale must be non-negative and positive");
         }
         boolean unavailable = maximumLifespanYears == -1
@@ -80,6 +84,7 @@ public record CultivationTimeSnapshotPayload(
                     status.effectiveLifespanConsumedTicks(),
                     status.ticksPerDay(),
                     status.daysPerYear(),
+                    status.daysPerWeek(),
                     -1,
                     -1,
                     -1,
@@ -96,6 +101,7 @@ public record CultivationTimeSnapshotPayload(
                 status.effectiveLifespanConsumedTicks(),
                 status.ticksPerDay(),
                 status.daysPerYear(),
+                status.daysPerWeek(),
                 (int) maximumYears,
                 status.maximumLifespanTicks(),
                 status.remainingLifespanTicks(),

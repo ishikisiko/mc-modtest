@@ -14,8 +14,8 @@ import org.slf4j.LoggerFactory;
 
 public final class ModPayloads {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModPayloads.class);
-    /** Payload protocol; bump it whenever a payload layout changes (8: world-sim query/snapshot for the 天下 page). */
-    public static final String PROTOCOL_VERSION = "8";
+    /** Payload protocol; bump it whenever a payload layout changes (9: the cultivation time snapshot carries days per week). */
+    public static final String PROTOCOL_VERSION = "9";
 
     private ModPayloads() {
     }
@@ -34,7 +34,7 @@ public final class ModPayloads {
         CombatPayloads.register(registrar);
         WorldSimPayloads.register(registrar);
         LOGGER.info(
-                "Payload handlers registered: flying-sword input, cultivation snapshots/intents, combat intents/snapshots/actions, and world-sim queries/snapshots (protocol {})",
+                "Payload handlers registered: flying-sword input, cultivation snapshots (time with week)/intents, combat intents/snapshots/actions, and world-sim queries/snapshots (protocol {})",
                 PROTOCOL_VERSION);
     }
 

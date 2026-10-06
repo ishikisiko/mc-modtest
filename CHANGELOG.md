@@ -7,6 +7,49 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.36.1
+
+The cultivation calendar gets a longer year and a week. One cultivation day
+stays one Minecraft day-night length (`24000` ticks, 20 real minutes online);
+a year is now `24` days (was `6`), and a new week of `6` days sits between day
+and year, so a year is four weeks (8 real hours online; the mortal 80 years
+are 640 hours).
+
+### Changed
+
+- Server config `cultivation_time`: `days_per_year` defaults to `24` (was
+  `6`); new `days_per_week` (default `6`, at least `1`). All three values are
+  logged on load and reload; a `days_per_year` that is not a multiple of
+  `days_per_week` loads with one operator warning, and its last week is
+  shorter. Weeks restart with every year. `CultivationServerConfig.Scale`
+  gains `daysPerWeek` (the two-value constructor keeps the default week).
+- The cultivation time status and its snapshot payload carry `daysPerWeek`
+  (a positive varint after `daysPerYear`); payload protocol `9` (was `8`).
+- Panel dates read year, week and day: the H header and the 内视 calendar
+  card show `1 年 第 1 周 第 1 日` / `Year 1, Week 1, Day 1`
+  (`screen.myvillage.cultivation.calendar_value` now has three parameters;
+  the header drops its 宗历 label when the panel is too narrow, as English is
+  at GUI 320), and the 天下 总览 date row shows `启元N年 第W周第D日` once the
+  time snapshot has arrived (new key
+  `screen.myvillage.cultivation.world.date_week_value`), otherwise the old
+  form. `PanelReadouts.calendarWeek`/`calendarDayOfWeek` derive them.
+- World sim: `rules.json` `time.default_days_per_year` is `24`.
+- `validate_cultivation_lifespan.py` pins `24` days per year, the
+  `days_per_week` config, and the snapshot's `daysPerWeek`.
+- Docs: `cultivation-lifespan-calendar` spec (576000 ticks per year, the week,
+  the divisibility warning), KB 30 and 37, README `cultivation_time` with a
+  conversion table.
+
+### Existing worlds
+
+Stored calendar and lifespan values are raw ticks and are not rescaled, so an
+existing world is reinterpreted under the new scale at once: the calendar year
+and day change, each player's consumed and remaining lifespan in years shrink
+to a quarter (a year now takes four times as many ticks), and lifespan warnings
+move accordingly. The world ledger counts days, so its ages and dates are
+read with 24 days per year as well: every age in the ledger shrinks by a
+factor of four.
+
 ## 0.36.0
 
 The world ledger (命簿) in game: the H panel gets a fourth page, 天下 (World),

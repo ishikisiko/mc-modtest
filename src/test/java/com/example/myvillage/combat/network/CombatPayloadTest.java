@@ -93,7 +93,7 @@ class CombatPayloadTest {
                 java.util.Arrays.stream(CombatImpactPayload.class.getRecordComponents())
                         .map(java.lang.reflect.RecordComponent::getName)
                         .toList());
-        assertEquals("8", ModPayloads.PROTOCOL_VERSION);
+        assertEquals("9", ModPayloads.PROTOCOL_VERSION);
     }
 
     @Test

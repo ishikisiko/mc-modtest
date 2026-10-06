@@ -293,7 +293,7 @@ public final class WorldPage extends PanelPage {
                     PanelTheme.AMBER);
         }
         int height = switch (snapshot.query().kind()) {
-            case OVERVIEW -> overview(c, snapshot, x, cursor, width);
+            case OVERVIEW -> overview(c, context, snapshot, x, cursor, width);
             case SECTS -> sectList(c, snapshot, x, cursor, width);
             case SECT -> sectDetail(c, snapshot, x, cursor, width);
             case PERSON_SEARCH -> searchResults(c, snapshot, x, cursor, width);
@@ -352,7 +352,7 @@ public final class WorldPage extends PanelPage {
 
     // --- 总览 ---------------------------------------------------------------------------------
 
-    private int overview(WorldCanvas c, WorldSimSnapshot s, int x, int y, int width) {
+    private int overview(WorldCanvas c, PanelContext context, WorldSimSnapshot s, int x, int y, int width) {
         WorldSimSnapshot.Overview o = s.overview();
         if (o == null) {
             return message(c, x, y, width, tr("screen.myvillage.cultivation.world.card.ledger"),
@@ -360,7 +360,7 @@ public final class WorldPage extends PanelPage {
         }
         Component ledgerTitle = tr("screen.myvillage.cultivation.world.card.ledger");
         Component realmsTitle = tr("screen.myvillage.cultivation.world.card.realms");
-        WorldCanvas.Body ledger = (bx, by, bw) -> ledgerBody(c, s, o, bx, by, bw);
+        WorldCanvas.Body ledger = (bx, by, bw) -> ledgerBody(c, context, s, o, bx, by, bw);
         WorldCanvas.Body realms = (bx, by, bw) -> realmsBody(c, o, bx, by, bw);
         int top;
         if (width >= WIDE) {
@@ -382,12 +382,17 @@ public final class WorldPage extends PanelPage {
         return cursor - y;
     }
 
-    private int ledgerBody(
-            WorldCanvas c, WorldSimSnapshot s, WorldSimSnapshot.Overview o, int x, int y, int width) {
+    private int ledgerBody(WorldCanvas c, PanelContext context, WorldSimSnapshot s,
+            WorldSimSnapshot.Overview o, int x, int y, int width) {
         int cursor = y;
-        String date = text("screen.myvillage.cultivation.world.date_value",
-                dateText(s, s.day()),
-                WorldReadouts.dayOfYear(s.day(), s.prehistoryDays(), s.daysPerYear()));
+        int dayOfYear = WorldReadouts.dayOfYear(s.day(), s.prehistoryDays(), s.daysPerYear());
+        // The week length is a cultivation-time setting, so it comes with the time snapshot.
+        String date = context.time() == null
+                ? text("screen.myvillage.cultivation.world.date_value", dateText(s, s.day()), dayOfYear)
+                : text("screen.myvillage.cultivation.world.date_week_value",
+                        dateText(s, s.day()),
+                        PanelReadouts.weekOfYear(dayOfYear, context.time().daysPerWeek()),
+                        PanelReadouts.dayOfWeek(dayOfYear, context.time().daysPerWeek()));
         c.pair(text("screen.myvillage.cultivation.world.date"), date, x, cursor, width, PanelTheme.TEXT);
         cursor += ROW + 2;
 
