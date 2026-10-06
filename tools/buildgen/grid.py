@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from copy import deepcopy
-from typing import Dict, FrozenSet, Iterable, Iterator, List, Optional, Tuple
+from typing import Dict, FrozenSet, Iterable, Iterator, List, Optional, Set, Tuple
 
 Pos = Tuple[int, int, int]
 
@@ -58,6 +58,10 @@ class BlockGrid:
     def __init__(self) -> None:
         self.cells: Dict[Pos, Cell] = {}
         self.entities: List[dict] = []
+        # Positions that count toward the exported structure size without
+        # holding a block, so dropping an outermost ornament does not shrink
+        # (and re-origin) a template that placement tables already size.
+        self.extent: Set[Pos] = set()
 
     def set(self, pos: Pos, state: str, tags: Iterable[str], priority: int,
             slot: Optional[str] = None, force: bool = False) -> bool:
@@ -71,6 +75,14 @@ class BlockGrid:
             return False
         self.cells[pos] = Cell(state, tags, priority, slot)
         return True
+
+    def reserve_extent(self, pos: Pos) -> None:
+        """Keep ``pos`` inside ``bounds()`` without writing a block there."""
+        self.extent.add(pos)
+
+    def remove(self, pos: Pos) -> bool:
+        """Forget a cell entirely (exported as nothing, not as air)."""
+        return self.cells.pop(pos, None) is not None
 
     def carve_air(self, pos: Pos, tags: Iterable[str] = ("AIR_CARVE",),
                   priority: int = PRIORITY["AIR_CARVE"]) -> bool:
@@ -128,13 +140,15 @@ class BlockGrid:
     def bounds(self) -> Tuple[Pos, Pos]:
         if not self.cells:
             return (0, 0, 0), (0, 0, 0)
-        xs = [p[0] for p in self.cells]
-        ys = [p[1] for p in self.cells]
-        zs = [p[2] for p in self.cells]
+        points = list(self.cells) + list(self.extent)
+        xs = [p[0] for p in points]
+        ys = [p[1] for p in points]
+        zs = [p[2] for p in points]
         return (min(xs), min(ys), min(zs)), (max(xs), max(ys), max(zs))
 
     def shift(self, dx: int, dy: int, dz: int) -> None:
         self.cells = {(x + dx, y + dy, z + dz): c for (x, y, z), c in self.cells.items()}
+        self.extent = {(x + dx, y + dy, z + dz) for (x, y, z) in self.extent}
         for entity in self.entities:
             self._shift_entity(entity, dx, dy, dz)
 

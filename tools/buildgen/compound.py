@@ -395,6 +395,8 @@ def _translate_context(compound: CompoundGraph, slot_id: str, ctx: BuildContext,
     for (x, y, z), cell in list(ctx.grid.iter_cells()):
         compound.grid.set((x + dx, y + dy, z + dz), cell.state, cell.tags,
                           cell.priority, cell.slot)
+    for (x, y, z) in ctx.grid.extent:
+        compound.grid.reserve_extent((x + dx, y + dy, z + dz))
     for entity in ctx.grid.entities:
         compound.grid.add_entity(entity, (dx, dy, dz))
 
@@ -6347,6 +6349,8 @@ def _copy_compound_into(parent: CompoundGraph, child: CompoundGraph,
     for (x, y, z), cell in list(child.grid.iter_cells()):
         parent.grid.set((x + dx, y, z + dz), cell.state, cell.tags,
                         cell.priority, cell.slot)
+    for (x, y, z) in child.grid.extent:
+        parent.grid.reserve_extent((x + dx, y, z + dz))
     for entity in child.grid.entities:
         parent.grid.add_entity(entity, (dx, 0, dz))
     for node in child.parcel_nodes:

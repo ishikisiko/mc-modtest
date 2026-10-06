@@ -232,6 +232,69 @@ def door_states(style: Style, facing: str, hinge: str) -> Tuple[str, str]:
     return (f"{base}[{common},half=lower]", f"{base}[{common},half=upper]")
 
 
+def _state_prop(state: str, key: str) -> Optional[str]:
+    if "[" not in state:
+        return None
+    for part in state.split("[", 1)[1].rstrip("]").split(","):
+        k, _, v = part.partition("=")
+        if k == key:
+            return v
+    return None
+
+
+def prune_unbacked_shutters(grid: BlockGrid) -> List[Pos]:
+    """Drop open trapdoor trim (shutters, sills, bracket trim) whose wall is gone.
+
+    An open trapdoor written by ``window_kit`` or a bracket op faces outward
+    and leans on the wall cell behind it. When a later op carves that wall
+    (a pagoda storey inset, a gate opening) the trim is left hanging in the
+    air; this removes exactly those cells.
+    """
+    removed: List[Pos] = []
+    for pos, cell in list(grid.iter_cells()):
+        if "_trapdoor" not in cell.state or _state_prop(cell.state, "open") != "true":
+            continue
+        vec = DIR_VEC.get(_state_prop(cell.state, "facing") or "")
+        if vec is None:
+            continue
+        behind = (pos[0] - vec[0], pos[1], pos[2] - vec[1])
+        if grid.is_empty(behind) and grid.remove(pos):
+            removed.append(pos)
+    return removed
+
+
+def _first_solid_above(grid: BlockGrid, pos: Pos, limit: int) -> Optional[int]:
+    x, y, z = pos
+    for yy in range(y + 1, y + limit + 1):
+        if not grid.is_empty((x, yy, z)):
+            return yy
+    return None
+
+
+def hang_from_ceiling(grid: BlockGrid, style: Style, pos: Pos, state: str,
+                      tags, priority: int, slot: Optional[str],
+                      max_chain: int = 3, max_drop: int = 16) -> bool:
+    """Hang a lantern at ``pos`` from the ceiling above it on a short chain.
+
+    The first solid cell above ``pos`` is the ceiling (a floor, beam or the
+    roof skin). The lantern moves up so at most ``max_chain`` chain links sit
+    between it and the ceiling, and the gap is filled with a vertical chain,
+    so it never hangs from nothing. Places nothing when no ceiling is found
+    within ``max_drop`` cells.
+    """
+    ceiling = _first_solid_above(grid, pos, max_drop)
+    if ceiling is None:
+        return False
+    pos = (pos[0], max(pos[1], ceiling - 1 - max(0, max_chain)), pos[2])
+    if not grid.set(pos, state, tags, priority, slot):
+        return False
+    chain = style.optional_slot_entry("LIGHTING", "chain") or "minecraft:chain"
+    chain = f"{_block_id(chain)}[axis=y,waterlogged=false]"
+    for yy in range(pos[1] + 1, ceiling):
+        grid.set((pos[0], yy, pos[2]), chain, ["DETAIL"], priority, slot)
+    return True
+
+
 def wall_info(vol: Node, wall: str):
     """Returns (along_axis, fixed_coord, span(lo,hi), outward_name)."""
     if wall == "front":
@@ -498,6 +561,7 @@ def stairwell(grid: BlockGrid, style: Style, vol: Node, opening: dict) -> None:
     fh = vol.meta["foundation_h"]
     story_wall_h = vol.meta.get("story_wall_h", vol.meta["wall_h"])
     stair_x = opening["x0"]
+    stringer = style.slot_entry("ROOF_DARK", "_planks", style.primary("WALL_MAIN"))
     z_values = list(range(opening["z0"], opening["z1"] + 1))
     if opening.get("direction") == "south":
         facing = "south"
@@ -521,6 +585,15 @@ def stairwell(grid: BlockGrid, style: Style, vol: Node, opening: dict) -> None:
             grid.set((stair_x, base_y + step, z),
                      stair_state(style, facing), ["STRUCTURE", "INTERIOR"],
                      PRIORITY["INTERIOR"], "ROOF_DARK")
+            # A solid block under every tread above the first turns the
+            # diagonal run (treads touching only at their edges) into a
+            # stringer: each tread rests on a block that sits beside the tread
+            # below. One block, not a full fill down to the floor, so the
+            # flight stacked directly below keeps its headroom.
+            under = (stair_x, base_y + step - 1, z)
+            if step > 0 and grid.is_empty(under):
+                grid.set(under, stringer, ["STRUCTURE", "INTERIOR"],
+                         PRIORITY["INTERIOR"], "ROOF_DARK", force=True)
 
 
 # ---------------------------------------------------------------------------
@@ -736,38 +809,57 @@ def _eave_corner_lift(along: int, span_lo: int, span_hi: int,
     return int(round(max_lift * curve))
 
 
-def _place_eave_corners(grid: BlockGrid, style: Style, ridge_axis: str,
-                        bounds: Tuple[int, int, int, int], span_lo: int,
-                        span_hi: int, base: int, max_lift: int,
-                        min_run: int) -> List[Pos]:
-    """Crisp upturned finial plus an outward wing at each eave corner."""
+def _eave_lift_profile(span_lo: int, span_hi: int, max_lift: int,
+                       lift_cap: int) -> Dict[int, int]:
+    """Per-column eave lift along the ridge span.
+
+    Follows ``_eave_corner_lift`` (capped at ``lift_cap``), except that a lone
+    column lower than both neighbours is raised to the lower neighbour. On an
+    odd span the rounded curve leaves exactly the centre column one block
+    down, and its outermost eave stair then touches the rest of the roof only
+    at its edges: a half block floating under the eave line.
+    """
+    lifts = {a: min(_eave_corner_lift(a, span_lo, span_hi, max_lift), lift_cap)
+             for a in range(span_lo, span_hi + 1)}
+    for a in range(span_lo + 1, span_hi):
+        floor_lift = min(lifts[a - 1], lifts[a + 1])
+        if lifts[a] < floor_lift:
+            lifts[a] = floor_lift
+    return lifts
+
+
+def _eave_corner_cells(grid: BlockGrid, ridge_axis: str,
+                       bounds: Tuple[int, int, int, int], span_lo: int,
+                       span_hi: int, perp_lo: int, perp_hi: int, base: int,
+                       lifts: Dict[int, int]) -> List[Pos]:
+    """The four eave-corner cells, lifted by the span curve.
+
+    The corners end the eave line straight: no extra cap stair or outward
+    wing slab is added (those sat on nothing and read as floating half
+    blocks). The cells they used to occupy stay reserved in the grid extent,
+    so template sizes and origins do not move. The lifted corner stairs
+    themselves are reported so callers can still count the upturned corners.
+    """
     x0, x1, z0, z1 = bounds
-    p = PRIORITY["ROOF"]
-    placed: List[Pos] = []
-    lift_cap = max(0, min_run - 1)
-    if ridge_axis == "x":
-        perp_edges = [(z0, "south"), (z1, "north")]
-    else:
-        perp_edges = [(x0, "east"), (x1, "west")]
-    slab, slab_slot = roof_slab_state(style, "top")
-    for sx in (-1, 1):
-        along_edge = span_lo if sx < 0 else span_hi
-        lift = min(_eave_corner_lift(along_edge, span_lo, span_hi, max_lift),
-                   lift_cap)
-        eave_y = base + lift
-        for perp_edge, facing in perp_edges:
-            stair, stair_slot = roof_stair_state(style, facing, half="top")
-            cap = ((along_edge, eave_y + 1, perp_edge) if ridge_axis == "x"
-                   else (perp_edge, eave_y + 1, along_edge))
-            if grid.set(cap, stair, ["ROOF", "DETAIL"], p, stair_slot):
-                placed.append(cap)
-            sz = -1 if perp_edge in (z0, x0) else 1
-            wing_perp = perp_edge + sz
-            wing = ((along_edge, eave_y + 1, wing_perp) if ridge_axis == "x"
-                    else (wing_perp, eave_y + 1, along_edge))
-            if grid.set(wing, slab, ["ROOF", "DETAIL"], p, slab_slot):
-                placed.append(wing)
-    return placed
+    edges = (z0, z1) if ridge_axis == "x" else (x0, x1)
+    for along in (span_lo, span_hi):
+        y = base + lifts[along] + 1
+        for edge in edges:
+            outward = -1 if edge == edges[0] else 1
+            for perp in (edge, edge + outward):
+                pos = (along, y, perp) if ridge_axis == "x" else (perp, y, along)
+                cell = grid.get(pos)
+                if cell is None or not cell.protected:
+                    grid.reserve_extent(pos)
+    cells: List[Pos] = []
+    for along in (span_lo, span_hi):
+        y = base + lifts[along]
+        for perp in (perp_lo, perp_hi):
+            pos = (along, y, perp) if ridge_axis == "x" else (perp, y, along)
+            cell = grid.get(pos)
+            if cell is not None and not cell.is_air and "ROOF" in cell.tags:
+                cells.append(pos)
+    return cells
 
 
 def _add_eave_brackets(grid: BlockGrid, style: Style, vol: Node,
@@ -849,6 +941,7 @@ def sweeping_eave_roof(grid: BlockGrid, style: Style, rng: random.Random,
     ridge_y = base + max(0, min_run)
     max_lift = min(3, max(2, (span_hi - span_lo) // 6))
     lift_cap = max(0, min_run - 1)
+    lifts = _eave_lift_profile(span_lo, span_hi, max_lift, lift_cap)
 
     lo_stair, lo_slot = roof_stair_state(style, lo_face)
     hi_stair, hi_slot = roof_stair_state(style, hi_face)
@@ -866,7 +959,7 @@ def sweeping_eave_roof(grid: BlockGrid, style: Style, rng: random.Random,
 
     # Curved eave surface, built per span column so the eave can lift at corners.
     for along in range(span_lo, span_hi + 1):
-        lift = min(_eave_corner_lift(along, span_lo, span_hi, max_lift), lift_cap)
+        lift = lifts[along]
         eave_y = base + lift
         rise = max(0, min_run - lift)          # climbing rows on the short side
         # LO side: perpendicular coord walks from the eave (lo) toward the ridge.
@@ -946,8 +1039,8 @@ def sweeping_eave_roof(grid: BlockGrid, style: Style, rng: random.Random,
                                 "WALL_MAIN"):
                         gable_cells.append(pos)
 
-    corners = _place_eave_corners(grid, style, ridge_axis, (x0, x1, z0, z1),
-                                  span_lo, span_hi, base, max_lift, min_run)
+    corners = _eave_corner_cells(grid, ridge_axis, (x0, x1, z0, z1), span_lo,
+                                 span_hi, lo, hi, base, lifts)
     brackets = _add_eave_brackets(grid, style, vol, ridge_axis, wall_top)
     ornaments = _place_ridge_ornaments(grid, style, ridge_cells)
     return {
@@ -1336,11 +1429,14 @@ def _bell_drum_tower_roof_handler(grid: BlockGrid, style: Style, rng: random.Ran
     peak_y = int(base.get("peak_y", vol.meta["foundation_h"] + vol.meta["wall_h"]))
     cx = (vol.x0 + vol.x1) // 2
     cz = (vol.z0 + vol.z1) // 2
-    bell = _bell_state(style, "north", "ceiling")
+    # The crown bell stands in its floor frame on top of the ridge (or the
+    # ridge ornament): the first empty cell above a solid one.
+    bell = _bell_state(style, "north", "floor")
     bell_cells: List[Pos] = []
-    for dy in (2, 3, 4, 5):
+    for dy in (1, 2, 3, 4, 5):
         pos = (cx, peak_y + dy, cz)
-        if grid.is_empty(pos):
+        below = (cx, peak_y + dy - 1, cz)
+        if grid.is_empty(pos) and not grid.is_empty(below):
             if grid.set(pos, bell, ["INTERIOR", "DETAIL", "ROOF", "PROTECTED"],
                         PRIORITY["DETAIL"], "INTERIOR_CIVIC"):
                 bell_cells.append(pos)
@@ -1696,8 +1792,8 @@ def porch(grid: BlockGrid, style: Style, rng: random.Random, node: Node,
     door_x = node.meta.get("door_x", (node.x0 + node.x1) // 2)
     lpos = (door_x, roof_y - 1, node.z0 + node.size[2] // 2)
     if grid.is_empty(lpos):
-        grid.set(lpos, lantern_state(style, hanging=True), ["DETAIL"], p,
-                 "LIGHTING")
+        hang_from_ceiling(grid, style, lpos, lantern_state(style, hanging=True),
+                          ["DETAIL"], p, "LIGHTING")
     # porch floor pad; all entry hardscape sits one block below the stair.
     for x in range(node.x0, node.x1 + 1):
         for z in range(node.z0, node.z1 + 1):
@@ -2038,6 +2134,7 @@ def pagoda_story_insets(grid: BlockGrid, style: Style, vol: Node) -> None:
         upper_window_count += _pagoda_upper_openings(
             grid, style, (nx0, nx1, nz0, nz1), y0, y1)
 
+    prune_unbacked_shutters(grid)
     vol.meta["pagoda_eave_levels"] = eave_levels
     vol.meta["pagoda_eave_cell_count"] = len(set(eave_cells))
     vol.meta["pagoda_lifted_corners"] = lifted_corners
@@ -2073,6 +2170,7 @@ def mountain_gate_detail(grid: BlockGrid, style: Style, rng: random.Random,
         for along in range(vol.x0 + 1, vol.x1):
             grid.set(wall_pos(vol, "front", along, wall_top, depth_offset=zoff),
                      beam, ["DETAIL", "STRUCTURE"], p, "FRAME_WOOD")
+    prune_unbacked_shutters(grid)
 
 
 def alchemy_furnace(grid: BlockGrid, style: Style, node: Node) -> None:
@@ -2340,7 +2438,13 @@ def belfry_bell(grid: BlockGrid, style: Style, vol: Node) -> bool:
     wall_top = vol.meta["foundation_h"] + vol.meta["wall_h"] - 1
     for y in range(wall_top + 3, vol.meta["foundation_h"] - 1, -1):
         if grid.is_empty((x, y, z)):
-            return grid.set((x, y, z), _bell_state(style, "north", "ceiling"),
+            # Hang the bell directly under the beam/floor above it rather than
+            # in mid-air at a fixed height.
+            ceiling = _first_solid_above(grid, (x, y, z), 16)
+            if ceiling is None:
+                return False
+            return grid.set((x, ceiling - 1, z),
+                            _bell_state(style, "north", "ceiling"),
                             ["INTERIOR", "DETAIL", "PROTECTED"],
                             PRIORITY["INTERIOR"], "INTERIOR_CIVIC")
     return False
@@ -2525,8 +2629,8 @@ def interior_zone(grid: BlockGrid, style: Style, rng: random.Random, vol: Node,
         cy = min(fy + story_wall_h - 1, vol.meta.get("foundation_h", 1) + vol.meta.get("wall_h", 3) - 1)
         cpos = ((zone.x0 + zone.x1) // 2, cy, (zone.z0 + zone.z1) // 2)
         if grid.is_empty(cpos):
-            grid.set(cpos, lantern_state(style, hanging=True),
-                     ["INTERIOR", "DETAIL"], p, "LIGHTING")
+            hang_from_ceiling(grid, style, cpos, lantern_state(style, hanging=True),
+                              ["INTERIOR", "DETAIL"], p, "LIGHTING")
     return placed
 
 def exterior_decoration_patch(grid: BlockGrid, style: Style, rng: random.Random,
