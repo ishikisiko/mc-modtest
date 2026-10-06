@@ -8,6 +8,7 @@ import com.example.myvillage.sim.SectView;
 import com.example.myvillage.sim.SimDate;
 import com.example.myvillage.sim.SimEvent;
 import com.example.myvillage.sim.WorldSim;
+import com.example.myvillage.sim.runtime.avatar.GateBuilder;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -34,6 +35,9 @@ import net.minecraft.server.level.ServerPlayer;
  *   <li>{@code info} — era date, sim day, calendar day, pending days, paused?, population, sects, tier</li>
  *   <li>{@code sects [all]} — active sects (or all, with the destroyed)</li>
  *   <li>{@code sect <id|name>} — one sect in detail</li>
+ *   <li>{@code sect <id> build [here]} — build the sect's compound (山门) at its ledger gate, or move the gate
+ *       to the caller first ({@code here}), record the realization, and let its avatars appear
+ *       ({@link GateBuilder}); synchronous, it can take a minute</li>
  *   <li>{@code person <name>} — people whose name or Daoist title contains the text, living first</li>
  *   <li>{@code chronicle [n]} — the latest n notable events (importance 2+), newest last</li>
  *   <li>{@code here} — the caller's region: sects seated there, notable people present, recent events</li>
@@ -60,6 +64,13 @@ public final class WorldSimCommands {
                         .executes(ctx -> sects(ctx.getSource(), false))
                         .then(Commands.literal("all").executes(ctx -> sects(ctx.getSource(), true))))
                 .then(Commands.literal("sect")
+                        // before "query": for "sect 3 build" brigadier keeps the first of two full parses
+                        .then(Commands.argument("id", IntegerArgumentType.integer(0))
+                                .executes(ctx -> sect(ctx.getSource(), String.valueOf(IntegerArgumentType.getInteger(ctx, "id"))))
+                                .then(Commands.literal("build")
+                                        .executes(ctx -> buildGate(ctx.getSource(), IntegerArgumentType.getInteger(ctx, "id"), false))
+                                        .then(Commands.literal("here")
+                                                .executes(ctx -> buildGate(ctx.getSource(), IntegerArgumentType.getInteger(ctx, "id"), true)))))
                         .then(Commands.argument("query", StringArgumentType.greedyString())
                                 .executes(ctx -> sect(ctx.getSource(), StringArgumentType.getString(ctx, "query")))))
                 .then(Commands.literal("person")
@@ -337,6 +348,10 @@ public final class WorldSimCommands {
         send(source, () -> WorldSimText.line("advance.done", days, WorldSimText.date(sim.date(dpy)), sim.day(),
                 total, notable[0], ms), true);
         return days;
+    }
+
+    private static int buildGate(CommandSourceStack source, int sectId, boolean here) {
+        return GateBuilder.build(source, sectId, here);
     }
 
     // ------------------------------------------------------------------ helpers

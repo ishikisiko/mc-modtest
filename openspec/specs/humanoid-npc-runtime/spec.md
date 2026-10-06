@@ -5,15 +5,23 @@ Define the humanoid NPC framework (a body without a disposition, generated layer
 
 ## Requirements
 ### Requirement: An NPC is a body without a disposition
-`NpcEntity` SHALL extend `PathfinderMob` and give an NPC only a body in the world: it floats, strolls, looks at nearby players, and looks around. It MUST NOT register a target goal, an attack, a trade, or a dialogue; friend-or-foe behaviour SHALL be added by a later design, not assumed by this framework. An NPC SHALL NOT despawn by distance, SHALL NOT accept a leash, and SHALL be removed by nothing but death or a command.
+`NpcEntity` SHALL extend `PathfinderMob` and give an NPC only a body in the world: it floats, strolls, looks at nearby players, and looks around. It MUST NOT register a target goal, an attack, a trade, or a dialogue; friend-or-foe behaviour SHALL be added by a later design, not assumed by this framework. An NPC SHALL NOT despawn by distance, SHALL NOT accept a leash, and SHALL be removed by nothing but death, a command, or the world simulation withdrawing an avatar it projected. An avatar is an NPC carrying a world-ledger person id (synced to clients; -1 for a summoned NPC): it SHALL NOT be saved with its chunk, SHALL NOT stroll (it still looks at players and around), SHALL NOT be attackable or take damage except from a source that bypasses invulnerability, SHALL NOT burn or be pushed, and SHALL do nothing when a player interacts with it. Only the world simulation SHALL make an NPC an avatar; a summoned NPC SHALL behave as described without it.
 
 #### Scenario: A cultivator ignores an attacker
-- **WHEN** a player hits `myvillage:cultivator`
+- **WHEN** a player hits a summoned `myvillage:cultivator`
 - **THEN** it takes the damage and neither targets nor attacks the player
 
-#### Scenario: A cultivator stays when the player leaves
+#### Scenario: A summoned cultivator stays when the player leaves
 - **WHEN** every player moves beyond the despawn distance and returns
-- **THEN** the cultivator is still there
+- **THEN** the summoned cultivator is still there
+
+#### Scenario: An avatar follows the ledger, not the chunk
+- **WHEN** every player moves away from a realized sect compound and later returns
+- **THEN** its avatars are withdrawn while no player is near, none is saved with its chunk, and on the return there is again exactly one avatar per shown ledger member
+
+#### Scenario: An avatar cannot be hurt
+- **WHEN** a player hits an avatar
+- **THEN** the avatar takes no damage and does not react
 
 ### Requirement: NPC client files are generated and layered
 For an NPC `ns:name` the client SHALL read `assets/ns/npc/name_model.json`, `assets/ns/npc/name_animations.json`, and `textures/entity/name/name.png`. These three files SHALL be written only by `tools/npcgen` from `tools/npcgen/defs/<name>.py` and MUST NOT be hand-edited. The model and animation files SHALL use the beast schema-1 formats. The look SHALL come from real geometry layers (a cube per garment layer, band, or ornament that stands proud of what is under it) and from a texture painted per texel from its position on the model: form light, shadows cast by the layer above, crevices beside raised bands, folds, dye, and trim. A large cloth face MUST NOT be one flat fill.
@@ -58,12 +66,16 @@ NPC renderers and layer definitions SHALL be registered only from the client-dis
 - **WHEN** the mod starts on a dedicated server
 - **THEN** the NPC's entity type and attributes load without resolving any client class
 
-### Requirement: The cultivator is summoned only
-`myvillage:cultivator` SHALL be registered in mob category `misc` with a 0.6 by 1.9 block hitbox and an eye height of 1.67, with English and Chinese entity and spawn-egg names, a spawn egg `myvillage:cultivator_spawn_egg` in `myvillage:main`, and an empty loot table. It SHALL have no natural spawning: no spawn placement, biome modifier, or spawn biome tag.
+### Requirement: The cultivator is summoned or projected, never spawned naturally
+`myvillage:cultivator` SHALL be registered in mob category `misc` with a 0.6 by 1.9 block hitbox and an eye height of 1.67, with English and Chinese entity and spawn-egg names, a spawn egg `myvillage:cultivator_spawn_egg` in `myvillage:main`, and an empty loot table. It SHALL have no natural spawning: no spawn placement, biome modifier, or spawn biome tag. A cultivator SHALL appear only when summoned by a command or a spawn egg, or when the world simulation projects a ledger member who is at a realized sect gate as an avatar while a player is near; an avatar SHALL stand on the compound's open courtyard ground and show its name, realm, and sect.
 
 #### Scenario: Operator summons the cultivator
 - **WHEN** an operator runs `/summon myvillage:cultivator ~ ~ ~`
 - **THEN** a cultivator appears in any difficulty, stands, strolls, and looks at nearby players
+
+#### Scenario: The simulation projects a sect's members
+- **WHEN** a player stands in the courtyard of a compound built with `/myvillage world sect <id> build`
+- **THEN** the sect's ledger members who are at the sect, up to the configured cap, stand on the courtyard ground as cultivators named name · realm · sect
 
 ### Requirement: NPC validation and evidence
 `tools/validate_custom_entities.py` SHALL validate every NPC that `tools/npcgen` builds: the model and animation schemas, the required clips, a texture whose size equals the model's atlas and whose alpha is binary, the generator definition, names in both languages, the spawn egg and its colours, the loot table, the Java registration against the Entity Contract, renderer registration in the client class, and the absence of natural spawning. `python3 -m tools.combat_capture npc` SHALL collect in-game stills and walk footage as developer evidence. The look, the motion, and every real-client surface SHALL remain `not_verified` until the owner observes them.

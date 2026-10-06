@@ -597,5 +597,13 @@
   "world_sim.event.breakthrough_fail.nascent_soul.3": "%3$s (%2$s %1$s) fails to reach a Nascent Soul.",
   "world_sim.event.feud.death.named.1": "%6$s (%5$s %4$s) dies at the hands of %3$s (%2$s %1$s); the two sects become enemies.",
   "world_sim.event.feud.death.named.2": "%6$s (%5$s %4$s) dies at the hands of %3$s (%2$s %1$s); the two sects become enemies.",
-  "world_sim.event.feud.injury.named.1": "%3$s (%2$s %1$s) badly wounds %6$s (%5$s %4$s); the two sects fall out."
+  "world_sim.event.feud.injury.named.1": "%3$s (%2$s %1$s) badly wounds %6$s (%5$s %4$s); the two sects fall out.",
+  "commands.myvillage.world.sect_build.start": "Building the compound of %1$s at %2$s %3$s %4$s (seed %5$s, spire %6$s). The build runs on the server thread and can take a minute; the server does not respond until it is done.",
+  "commands.myvillage.world.sect_build.moved": "Moved the gate of %1$s to x=%2$s z=%3$s (%4$s).",
+  "commands.myvillage.world.sect_build.done": "Built the compound of %1$s at %2$s %3$s %4$s in %5$s s; its gate is now realized. Its members at the sect appear on the courtyards while a player is within %6$s blocks.",
+  "commands.myvillage.world.sect_build.failed": "The compound of %1$s was not built (see above); its gate is not realized.",
+  "commands.myvillage.world.sect_build.destroyed": "%1$s is destroyed; there is no one to build for.",
+  "commands.myvillage.world.sect_build.outside": "Cannot move the gate of %1$s to x=%2$s z=%3$s: that point is outside every region.",
+  "commands.myvillage.world.sect_build.overworld_only": "Sect compounds are built in the overworld only.",
+  "entity.myvillage.cultivator.avatar": "%1$s · %2$s · %3$s"
 }

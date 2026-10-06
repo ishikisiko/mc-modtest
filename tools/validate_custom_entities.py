@@ -1052,6 +1052,55 @@ def check_npc_contract(contract: str, entity_id: str, lang: dict[str, dict]) -> 
     return errors
 
 
+def yaml_list_entries(block: str, key: str) -> list[dict[str, str]]:
+    """The entries of the block list under ``key:`` in ``block`` as {field: scalar}; [] for ``key: []`` or absent."""
+    lines = block.splitlines()
+    for start, line in enumerate(lines):
+        match = re.match(rf"^(\s*){re.escape(key)}:\s*(\[\])?\s*$", line)
+        if not match:
+            continue
+        if match.group(2):
+            return []
+        indent = len(match.group(1))
+        entries: list[dict[str, str]] = []
+        for following in lines[start + 1:]:
+            if following.strip() and len(following) - len(following.lstrip()) <= indent:
+                break
+            item = re.match(r"^\s*-\s+(.*)$", following)
+            if item:
+                entries.append({})
+                following = item.group(1)
+            field = re.match(r"^\s*([A-Za-z_]+):[ \t]*(\S[^\n]*?)\s*$", following)
+            if field and entries:
+                entries[-1][field.group(1)] = field.group(2).strip("\"'")
+        return entries
+    return []
+
+
+SYNCED_FIELD = re.compile(r"EntityDataAccessor<[^;=]*?>\s+(\w+)\s*=\s*SynchedEntityData\.defineId\(")
+
+
+def check_npc_state(contract: str, sources: dict[str, str]) -> list[str]:
+    """``state.synced`` lists exactly the synced fields the NPC's classes define (by ``source: Class#FIELD``),
+    and every ``state.persisted`` tag is the value of the constant its ``source`` names."""
+    errors: list[str] = []
+    state = yaml_block(contract, "state")
+    defined = {(cls, field) for cls, text in sources.items() for field in SYNCED_FIELD.findall(text)}
+    listed = set()
+    for entry in yaml_list_entries(state, "synced"):
+        cls, _, field = entry.get("source", "").partition("#")
+        listed.add((cls, field))
+        if (cls, field) not in defined:
+            errors.append(f"contract_synced_without_java_field:{entry.get('source', entry.get('id'))}")
+    errors.extend(f"java_synced_data_not_in_contract:{cls}#{field}" for cls, field in sorted(defined - listed))
+    for entry in yaml_list_entries(state, "persisted"):
+        cls, _, const = entry.get("source", "").partition("#")
+        tag = entry.get("id", "")
+        if not const or not re.search(rf'\b{re.escape(const)}\s*=\s*"{re.escape(tag)}"', sources.get(cls, "")):
+            errors.append(f"contract_persisted_tag_not_in_java:{tag}")
+    return errors
+
+
 def validate_npc(root: Path, entity_id: str, errors: list[str]) -> dict[str, Any]:
     """One humanoid NPC: generated client files, contract, registration, resources, spawning."""
     namespace, name = split_id(entity_id)
@@ -1098,6 +1147,13 @@ def validate_npc(root: Path, entity_id: str, errors: list[str]) -> dict[str, Any
         found.extend(f"npc_contract:{problem}" for problem in check_npc_contract(contract, entity_id, lang))
         if "pools: []" in yaml_block(contract, "loot") and loot and loot.get("pools") != []:
             found.append("loot_table_not_empty_as_contracted")
+        sources = {}
+        for key in ("base_class", "java_class"):
+            cls = yaml_scalar(yaml_block(contract, "entity"), key) or ""
+            path = root / "src/main/java" / (cls.replace(".", "/") + ".java")
+            if cls and path.is_file():
+                sources[cls] = path.read_text(encoding="utf-8")
+        found.extend(f"npc_contract:{problem}" for problem in check_npc_state(contract, sources))
 
     found.extend(check_entity_registration(root, entity_id, contract))
     java_class = yaml_scalar(yaml_block(contract, "entity"), "java_class") or ""

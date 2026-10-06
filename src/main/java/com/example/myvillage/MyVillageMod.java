@@ -23,6 +23,7 @@ import com.example.myvillage.sect.SectStructures;
 import com.example.myvillage.sim.runtime.WorldSimCommands;
 import com.example.myvillage.sim.runtime.WorldSimRuntime;
 import com.example.myvillage.sim.runtime.WorldSimServerConfig;
+import com.example.myvillage.sim.runtime.avatar.WorldSimAvatarConfig;
 import com.example.myvillage.town.TownGenerator;
 import com.example.myvillage.town.ModBlockFallback;
 import com.mojang.brigadier.arguments.LongArgumentType;
@@ -88,6 +89,7 @@ public final class MyVillageMod {
         LOGGER.info("MyVillage resource mod loaded");
         modContainer.registerConfig(ModConfig.Type.SERVER, CultivationServerConfig.SPEC);
         modContainer.registerConfig(ModConfig.Type.SERVER, WorldSimServerConfig.SPEC, WorldSimServerConfig.FILE_NAME);
+        modContainer.registerConfig(ModConfig.Type.SERVER, WorldSimAvatarConfig.SPEC, WorldSimAvatarConfig.FILE_NAME);
         modEventBus.addListener(CultivationServerConfig::onConfigLoading);
         modEventBus.addListener(CultivationServerConfig::onConfigReloading);
         ModEntities.register(modEventBus);

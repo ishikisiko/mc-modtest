@@ -24,7 +24,7 @@ entity:
   display_name:
     zh_cn: 修仙者
     en_us: Cultivator
-  fantasy_role: 宗门弟子模样的人形 NPC；月白长袍外罩藏青对襟长比甲，束发戴冠。敌友未定，本版本只是一个能站、能走、会看人的身体
+  fantasy_role: 宗门弟子模样的人形 NPC；月白长袍外罩藏青对襟长比甲，束发戴冠。敌友未定，本版本只是一个能站、能走、会看人的身体；世界模拟也用它作命簿人物在山门院中的临时化身（见 world_sim_avatar）
   kind: npc
   base_class: com.example.myvillage.entity.npc.NpcEntity
   java_class: com.example.myvillage.entity.npc.CultivatorEntity
@@ -37,6 +37,8 @@ entity:
     subclass_adds:
       - entity id (selects the client asset files)
       - plain-body attributes (health, movement speed) and the stroll speed modifier
+    framework_adds:
+      - the ledger avatar mode (NpcEntity#becomeLedgerAvatar), used only by the world simulation; see world_sim_avatar
 
 physical:
   width: 0.6
@@ -47,6 +49,7 @@ physical:
   fire_immune: false
   summonable: true
   saveable: true
+  saveable_note: the entity type is saveable and a summoned cultivator is saved with its chunk; a world-sim avatar overrides shouldBeSaved() to false and is never stored (see world_sim_avatar)
   client_tracking_range: 10
   despawn_when_far_away: false
   leashable: false
@@ -78,13 +81,39 @@ behavior:
     dialogue: false
   combat:
     mode: none
-    statement: It never attacks. It can be hurt and killed like any mob and does not react to it.
+    statement: It never attacks. A summoned cultivator can be hurt and killed like any mob and does not react to it; a world-sim avatar cannot be attacked or hurt (see world_sim_avatar).
 
 state:
-  synced: []
-  persisted: []
+  synced:
+    - id: ledger_person_id
+      type: int
+      default: -1
+      source: com.example.myvillage.entity.npc.NpcEntity#DATA_LEDGER_PERSON
+      meaning: the world-ledger person a world-sim avatar projects; -1 for a summoned cultivator
+  persisted:
+    - id: WorldSimPerson
+      type: int
+      source: com.example.myvillage.entity.npc.NpcEntity#LEDGER_PERSON_TAG
+      written: only for a world-sim avatar, which is never stored with its chunk; a copy that escapes some other way (a structure template, data copied by command) loads as an avatar its manager does not know and is refused when it joins a level
   custom_state:
-    statement: No custom state; saved state is vanilla Mob state only.
+    statement: A summoned cultivator saves vanilla Mob state only (ledger_person_id stays -1 and is not written).
+
+world_sim_avatar:
+  statement: The world simulation projects ledger members who are at a realized sect gate as cultivators while a player is near; the ledger stays the only authority and the avatar is a temporary projection of it.
+  manager: com.example.myvillage.sim.runtime.avatar.WorldSimAvatars
+  mode: NpcEntity#becomeLedgerAvatar (ledger_person_id >= 0), set before the entity is added; irreversible
+  spawned_by: the manager only, on courtyard cells from com.example.myvillage.sect.SectCourtyard#cells, one entity per person id
+  removed_by: the manager (players gone, member no longer at the sect, ledger inactive, server stop), death from an invulnerability-bypassing source, or a command
+  saveable: false
+  attackable: false
+  invulnerable: true (only sources that bypass invulnerability, such as /kill or the void, hurt it)
+  fire_immune: true
+  pushable: false
+  goals_removed:
+    - water_avoiding_random_stroll
+  interaction: none (mobInteract passes without effect)
+  name_tag: name · realm · sect (entity.myvillage.cultivator.avatar; the realm through world_sim.realm.<id>), always visible
+  config: myvillage-world_sim_avatars-server.toml (avatars_enabled, avatar_spawn_radius, max_avatars_per_sect, max_avatars)
 
 rendering:
   route: vanilla
@@ -176,6 +205,7 @@ spawn:
   routes:
     - /summon myvillage:cultivator
     - myvillage:cultivator_spawn_egg
+    - world-sim avatar (not a spawn route a player uses; see world_sim_avatar)
 
 acceptance:
   build: true
@@ -195,6 +225,7 @@ acceptance:
     - python3 -m tools.npcgen preview cultivator             # drawn without back-face culling, as entityCutoutNoCull does
     - python3 -m tools.npcgen preview cultivator --only face # the head from six angles, large and at in-game size
     - python3 -m tools.combat_capture npc   # parts idle, walk; out/preview/cultivator/ingame/
+    - python3 tools/world_sim_avatar_evidence.py   # world-sim avatars on a built compound; out/preview/world_sim/avatars/
   visual_views:
     - front
     - side
@@ -213,7 +244,7 @@ assumptions:
   - 当前仓库基线为 Minecraft 1.21.1、NeoForge 21.1.233、Java 21，mod id 为 myvillage，Java 包根为 com.example.myvillage。
   - 不使用玩家模型和玩家皮肤格式；模型、动画与贴图由 tools/npcgen 生成，复用妖兽的模型/动画文件 schema 与原版 ModelPart、AnimationDefinition，不引入 GeckoLib 或新依赖。
   - 敌友未定：本版本没有目标、攻击、交易、对话；后续设计在 NpcEntity 子类上添加，或把美术文件交给敌对框架使用。
-  - 本版本不自然生成，没有掉落：只能 /summon 或刷怪蛋。
+  - 本版本不自然生成，没有掉落：只能 /summon 或刷怪蛋；另由世界模拟在玩家靠近已具现的山门时临时投影为化身，化身不存盘、不可伤害、不可对话。
 
 out_of_scope:
   - disposition_friend_or_foe

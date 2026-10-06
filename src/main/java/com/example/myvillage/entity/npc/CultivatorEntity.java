@@ -11,7 +11,8 @@ import net.minecraft.world.level.Level;
 /**
  * 修仙者: a sect disciple in a layered robe. Its disposition is not decided yet, so it only stands,
  * strolls and looks at players; the attributes below are a plain body's until a friend or foe
- * design replaces them.
+ * design replaces them. The world simulation also uses this type for the avatars of its ledger
+ * persons (see {@link NpcEntity#becomeLedgerAvatar}); the summoned cultivator is unchanged by that.
  */
 public final class CultivatorEntity extends NpcEntity {
     public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID, "cultivator");

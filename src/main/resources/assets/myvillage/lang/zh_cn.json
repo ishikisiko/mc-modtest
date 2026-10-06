@@ -581,5 +581,13 @@
   "world_sim.event.breakthrough_fail.nascent_soul.3": "%1$s%2$s%3$s碎丹之际元神不稳，只得强行收功。",
   "world_sim.event.feud.death.named.1": "%4$s%5$s%6$s死于%1$s%2$s%3$s之手，两宗结下血仇。",
   "world_sim.event.feud.death.named.2": "%1$s%2$s%3$s斩%4$s%5$s%6$s，两宗自此势同水火。",
-  "world_sim.event.feud.injury.named.1": "%1$s%2$s%3$s重伤%4$s%5$s%6$s之事传开，两宗自此交恶。"
+  "world_sim.event.feud.injury.named.1": "%1$s%2$s%3$s重伤%4$s%5$s%6$s之事传开，两宗自此交恶。",
+  "commands.myvillage.world.sect_build.start": "正在为%1$s营建山门于 %2$s %3$s %4$s（种子 %5$s，孤峰 %6$s）。营建在服务器主线程上同步进行，可能要一分钟左右，其间服务器不会响应。",
+  "commands.myvillage.world.sect_build.moved": "已将%1$s的山门迁至 x=%2$s z=%3$s（%4$s）。",
+  "commands.myvillage.world.sect_build.done": "%1$s山门落成于 %2$s %3$s %4$s，用时 %5$s 秒，山门已具现。玩家在 %6$s 格之内时，身在山门的门人现身院中。",
+  "commands.myvillage.world.sect_build.failed": "%1$s的山门未能建成（见上文），山门仍未具现。",
+  "commands.myvillage.world.sect_build.destroyed": "%1$s已经覆灭，无人可为之建山门。",
+  "commands.myvillage.world.sect_build.outside": "无法将%1$s的山门迁至 x=%2$s z=%3$s：此处不在任何域内。",
+  "commands.myvillage.world.sect_build.overworld_only": "山门只能建在主世界。",
+  "entity.myvillage.cultivator.avatar": "%1$s · %2$s · %3$s"
 }

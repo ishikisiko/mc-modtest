@@ -252,6 +252,30 @@ class NpcValidationTest(unittest.TestCase):
         self.assertTrue(any(e.startswith("contract_rendering_clips_missing")
                             for e in MODULE.check_npc_contract(without_walk, NPC, self.lang)))
 
+    def test_state_names_the_synced_field_and_the_persisted_tag(self) -> None:
+        java = ROOT / "src/main/java/com/example/myvillage/entity/npc"
+        base, cls = "com.example.myvillage.entity.npc.NpcEntity", "com.example.myvillage.entity.npc.CultivatorEntity"
+        sources = {base: (java / "NpcEntity.java").read_text(encoding="utf-8"),
+                   cls: (java / "CultivatorEntity.java").read_text(encoding="utf-8")}
+        self.assertEqual([], MODULE.check_npc_state(self.contract, sources))
+        self.assertEqual(["ledger_person_id"],
+                         [e["id"] for e in MODULE.yaml_list_entries(MODULE.yaml_block(self.contract, "state"), "synced")])
+
+        def state(synced: str, persisted: str) -> str:
+            head, _, rest = self.contract.partition("\nstate:\n")
+            tail = rest[rest.index("  custom_state:"):]
+            return f"{head}\nstate:\n  synced:{synced}\n  persisted:{persisted}\n{tail}"
+
+        empty = state(" []", " []")
+        self.assertEqual([f"java_synced_data_not_in_contract:{base}#DATA_LEDGER_PERSON"],
+                         MODULE.check_npc_state(empty, sources))
+        renamed = self.contract.replace("NpcEntity#DATA_LEDGER_PERSON", "NpcEntity#DATA_PERSON")
+        self.assertIn(f"contract_synced_without_java_field:{base}#DATA_PERSON", MODULE.check_npc_state(renamed, sources))
+        wrong_tag = self.contract.replace("    - id: WorldSimPerson\n", "    - id: LedgerPerson\n")
+        self.assertIn("contract_persisted_tag_not_in_java:LedgerPerson", MODULE.check_npc_state(wrong_tag, sources))
+        plain = {base: sources[base].replace("DATA_LEDGER_PERSON =", "DATA_X ="), cls: sources[cls]}
+        self.assertIn(f"java_synced_data_not_in_contract:{base}#DATA_X", MODULE.check_npc_state(self.contract, plain))
+
 
 class SourceScanTest(unittest.TestCase):
     def test_scan_reports_each_forbidden_needle(self) -> None:
