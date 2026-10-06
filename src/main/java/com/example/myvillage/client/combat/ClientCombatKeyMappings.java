@@ -16,6 +16,12 @@ public final class ClientCombatKeyMappings {
             InputConstants.Type.KEYSYM,
             GLFW.GLFW_KEY_R,
             "key.categories.myvillage");
+    /** 身法闪避: the direction comes from the movement keys held when it is pressed. */
+    public static final KeyMapping DODGE = new KeyMapping(
+            "key.myvillage.dodge",
+            InputConstants.Type.KEYSYM,
+            GLFW.GLFW_KEY_LEFT_ALT,
+            "key.categories.myvillage");
 
     public ClientCombatKeyMappings(IEventBus modEventBus) {
         modEventBus.addListener(ClientCombatKeyMappings::registerKeyMappings);
@@ -23,5 +29,6 @@ public final class ClientCombatKeyMappings {
 
     private static void registerKeyMappings(RegisterKeyMappingsEvent event) {
         event.register(TOGGLE_COMBAT_MODE);
+        event.register(DODGE);
     }
 }

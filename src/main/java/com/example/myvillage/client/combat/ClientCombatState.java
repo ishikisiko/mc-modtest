@@ -39,6 +39,8 @@ final class ClientCombatState {
     private static boolean chainPrediction;
     private static long chainSourceRevision = -1L;
     private static long chainSourceStoppedTick = Long.MIN_VALUE;
+    /** Local tick until which the local player's dodge protects (the server's window, mapped once). */
+    private static long localDodgeProtectedUntil = Long.MIN_VALUE;
 
     private ClientCombatState() {
     }
@@ -58,6 +60,7 @@ final class ClientCombatState {
             readyAnimation = false;
             readyIdleAnimation = null;
             localActionActive = false;
+            localDodgeProtectedUntil = Long.MIN_VALUE;
             clearLocalAction();
         }
         return changed;
@@ -334,6 +337,18 @@ final class ClientCombatState {
         return readyIdleAnimation;
     }
 
+    /**
+     * The local player's dodge started; until local tick {@code protectedUntil} (exclusive) the
+     * server rejects attack intents, so a click there is sent but not predicted.
+     */
+    static void markLocalDodge(long protectedUntil) {
+        localDodgeProtectedUntil = protectedUntil;
+    }
+
+    static boolean localDodgeProtects(long tick) {
+        return localDodgeProtectedUntil != Long.MIN_VALUE && tick < localDodgeProtectedUntil;
+    }
+
     static CombatMode mode() {
         return mode;
     }
@@ -370,6 +385,7 @@ final class ClientCombatState {
         lastCompletedActionTick = Long.MIN_VALUE;
         readyAnimation = false;
         localActionActive = false;
+        localDodgeProtectedUntil = Long.MIN_VALUE;
         clearLocalAction();
     }
 }

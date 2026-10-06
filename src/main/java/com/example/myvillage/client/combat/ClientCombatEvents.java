@@ -2,12 +2,16 @@ package com.example.myvillage.client.combat;
 
 import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.combat.CombatMode;
+import com.example.myvillage.combat.DodgeDirection;
 import com.example.myvillage.combat.definition.AttackMoveDefinition;
 import com.example.myvillage.combat.definition.CombatStyleDefinition;
 import com.example.myvillage.combat.definition.CombatStyles;
 import com.example.myvillage.combat.network.CombatAttackReceiver;
 import com.example.myvillage.combat.network.CombatAttackStartPayload;
 import com.example.myvillage.combat.network.CombatAttackStopPayload;
+import com.example.myvillage.combat.network.CombatDodgeIntentPayload;
+import com.example.myvillage.combat.network.CombatDodgeReceiver;
+import com.example.myvillage.combat.network.CombatDodgeStartPayload;
 import com.example.myvillage.combat.network.CombatHitConfirmPayload;
 import com.example.myvillage.combat.network.CombatImpactPayload;
 import com.example.myvillage.combat.network.CombatModeSnapshotPayload;
@@ -46,6 +50,7 @@ public final class ClientCombatEvents {
      */
     private static final int CHAIN_CONFIRM_GRACE_TICKS = 2;
     private static long lastAttackIntentTick = Long.MIN_VALUE;
+    private static long lastDodgeIntentTick = Long.MIN_VALUE;
 
     static {
         CombatModeSnapshotReceiver.install(ClientCombatEvents::receiveModeSnapshot);
@@ -54,6 +59,7 @@ public final class ClientCombatEvents {
                 ClientCombatEvents::receiveAttackStop,
                 ClientCombatEvents::receiveHitConfirm,
                 ClientCombatEvents::receiveImpact);
+        CombatDodgeReceiver.install(ClientCombatEvents::receiveDodgeStart);
     }
 
     private ClientCombatEvents() {
@@ -82,9 +88,13 @@ public final class ClientCombatEvents {
                 PacketDistributor.sendToServer(CombatModeTogglePayload.INSTANCE);
             }
         }
+        while (ClientCombatKeyMappings.DODGE.consumeClick()) {
+            sendDodgeIntent(minecraft, player);
+        }
         if (player == null || minecraft.level == null) {
             return;
         }
+        CombatDodgeFx.clientTick(minecraft.level, ClientCombatClock.ticks());
 
         FirstPersonWeaponAnimator.clientTick(player);
         // Prediction, buffering and chain ticks are local ticks; server ticks are mapped on arrival.
@@ -133,6 +143,28 @@ public final class ClientCombatEvents {
         }
     }
 
+    /**
+     * The dodge key: sends the movement input held now as an intent. The server decides whether,
+     * how far and how long; nothing moves here (its impulse arrives as the vanilla motion packet).
+     */
+    private static void sendDodgeIntent(Minecraft minecraft, LocalPlayer player) {
+        if (player == null
+                || minecraft.level == null
+                || !player.isAlive()
+                || minecraft.screen != null
+                || ClientCombatState.mode() != CombatMode.CULTIVATION
+                || ClientCultivationState.meditation().map(status -> status.state().active()).orElse(false)) {
+            return;
+        }
+        long tick = ClientCombatClock.ticks();
+        if (!CombatDodgeFx.intentDue(lastDodgeIntentTick, tick)) {
+            return;
+        }
+        lastDodgeIntentTick = tick;
+        DodgeDirection direction = DodgeDirection.fromInput(player.input.forwardImpulse, player.input.leftImpulse);
+        PacketDistributor.sendToServer(new CombatDodgeIntentPayload(direction));
+    }
+
     @SubscribeEvent
     static void onAttackInput(InputEvent.InteractionKeyMappingTriggered event) {
         Minecraft minecraft = Minecraft.getInstance();
@@ -162,6 +194,10 @@ public final class ClientCombatEvents {
         }
         lastAttackIntentTick = tick;
         PacketDistributor.sendToServer(SwordAttackIntentPayload.INSTANCE);
+        if (ClientCombatState.localDodgeProtects(tick)) {
+            // The server rejects attacks inside the dodge's window: send, but do not predict.
+            return;
+        }
 
         if (ClientCombatState.localActionActive() || ClientCombatState.predictionPending()) {
             // The server holds one click from the move's bufferStartTick; remember it here too so
@@ -235,7 +271,9 @@ public final class ClientCombatEvents {
         CombatWorldTrails.clear();
         CombatImpactFx.clear();
         CombatCameraFx.clear();
+        CombatDodgeFx.clear();
         lastAttackIntentTick = Long.MIN_VALUE;
+        lastDodgeIntentTick = Long.MIN_VALUE;
         ClientCombatClock.forgetGameTime();
     }
 
@@ -248,6 +286,10 @@ public final class ClientCombatEvents {
         CombatImpactFx.forgetAttacker(event.getNewPlayer().getId());
         ClientCombatClock.forgetGameTime();
         lastAttackIntentTick = Long.MIN_VALUE;
+        // A new level: its entity ids are not the old ones (the server also clears the dodge).
+        CombatDodgeFx.clear();
+        ClientCombatState.markLocalDodge(Long.MIN_VALUE);
+        lastDodgeIntentTick = Long.MIN_VALUE;
     }
 
     private static void receiveModeSnapshot(CombatModeSnapshotPayload payload) {
@@ -341,6 +383,33 @@ public final class ClientCombatEvents {
         }
     }
 
+    /**
+     * A dodge the server started, for the local player or one this client tracks: the local
+     * player's FOV surge and lean, and everyone's afterimages for its duration. The server's
+     * start enters the local clock here, once.
+     */
+    private static void receiveDodgeStart(CombatDodgeStartPayload payload) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.level == null) {
+            return;
+        }
+        Entity entity = minecraft.level.getEntity(payload.entityId());
+        if (!(entity instanceof AbstractClientPlayer player)) {
+            return;
+        }
+        long elapsed = ClientCombatClock.elapsedSinceServer(payload.startTick());
+        long localStart = ClientCombatClock.localTickAgo(elapsed);
+        if (CombatDodgeFx.remainingTicks(localStart, payload.durationTicks(), ClientCombatClock.ticks()) <= 0) {
+            return;
+        }
+        CombatDodgeFx.start(player.getId(), localStart, payload.durationTicks(), payload.directionYaw());
+        if (player == minecraft.player) {
+            ClientCombatState.markLocalDodge(localStart + payload.invulnerableTicks());
+            CombatCameraFx.stepSurge(CombatDodgeFx.LOCAL_FOV_SURGE);
+            CombatCameraFx.swingLean(CombatDodgeFx.leanFor(payload.directionYaw(), player.getYRot()));
+        }
+    }
+
     private static void receiveHitConfirm(CombatHitConfirmPayload payload) {
         Minecraft minecraft = Minecraft.getInstance();
         LocalPlayer player = minecraft.player;
@@ -360,7 +429,8 @@ public final class ClientCombatEvents {
         CombatImpactFx.receive(payload);
     }
 
-    private static boolean resetsServerSession(CombatStopReason reason) {
+    /** Stops after which the server restarts the player's revisions; a dodge (DODGED) keeps the session. */
+    static boolean resetsServerSession(CombatStopReason reason) {
         return reason == CombatStopReason.DEATH
                 || reason == CombatStopReason.LOGOUT
                 || reason == CombatStopReason.DIMENSION_CHANGED
