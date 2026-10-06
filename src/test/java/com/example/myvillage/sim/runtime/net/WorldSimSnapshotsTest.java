@@ -179,6 +179,14 @@ class WorldSimSnapshotsTest {
     }
 
     @Test
+    void sectDetailCarriesTheHeritageNameOrNull() {
+        for (SectView v : sim.sects(true)) {
+            WorldSimSnapshot.SectDetail d = build(WorldSimQuery.sect(v.id())).sect();
+            assertEquals(v.heritageName().isEmpty() ? null : v.heritageName(), d.heritageName(), v.name());
+        }
+    }
+
+    @Test
     void sectDetailResolvesNamesAndListsMembersStrongestFirst() {
         SectView busiest = sim.sects(false).stream()
                 .max(Comparator.comparingInt((SectView v) -> sim.membersAt(v.id()).size())

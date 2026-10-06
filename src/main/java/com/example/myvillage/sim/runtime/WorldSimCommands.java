@@ -163,6 +163,7 @@ public final class WorldSimCommands {
                 s.topRealmId().isEmpty() ? WorldSimText.line("none") : WorldSimText.realm(s.topRealmId()),
                 fmt(s.resources()), fmt(s.prestige())));
         send(source, () -> WorldSimText.line("sect.technique", orNone(s.signatureTechniqueName())));
+        send(source, () -> WorldSimText.line("sect.heritage", orNone(s.heritageName())));
         send(source, () -> WorldSimText.line("sect.gate", s.gateX(), s.gateZ(),
                 WorldSimText.line(s.gateRealized() ? "gate.realized" : "gate.unrealized")));
         for (SectView.Relation r : s.relations()) {

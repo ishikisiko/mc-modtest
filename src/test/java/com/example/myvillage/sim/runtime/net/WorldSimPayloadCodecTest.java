@@ -145,6 +145,7 @@ class WorldSimPayloadCodecTest {
                 "world_sim.event.x.1", List.of("@world_sim.rank.elder", "", "韩清漪"), 12);
         WorldSimSnapshot.EventLine cause = new WorldSimSnapshot.EventLine(12, 0, 1, 9, "world_sim.event.y.2",
                 List.of(), -1);
+        for (String heritage : java.util.Arrays.asList("太白剑脉", null)) {
         WorldSimSnapshot full = new WorldSimSnapshot(
                 new WorldSimQuery(WorldSimQuery.Kind.SECT, 4, ""), true, "", 7_000_000_000L, 600, 6,
                 new WorldSimSnapshot.Overview("small", 120, 130,
@@ -152,7 +153,7 @@ class WorldSimPayloadCodecTest {
                                 new WorldSimSnapshot.RealmCount("nascent_soul", 0)),
                         3, 1, 400, 9_999_999_999L, true, 365, Long.MAX_VALUE),
                 List.of(summary, summary),
-                new WorldSimSnapshot.SectDetail(summary, 0, -1, "", 9, 2, "玄天宗", 777, Integer.MIN_VALUE, "焚天诀",
+                new WorldSimSnapshot.SectDetail(summary, 0, -1, "", 9, 2, "玄天宗", 777, Integer.MIN_VALUE, "焚天诀", heritage,
                         List.of(new WorldSimSnapshot.SectRelation(2, "玄天宗", -100, "war"),
                                 new WorldSimSnapshot.SectRelation(5, "", 0, "none"))),
                 List.of(someone),
@@ -164,5 +165,6 @@ class WorldSimPayloadCodecTest {
                 new WorldSimSnapshot.Region("zhongzhou", "中州", 5, -1, 99, 0, 100, true, 0));
         assertRoundTrips(full);
         assertEquals(cause, full.causeOf(line));
+        }
     }
 }

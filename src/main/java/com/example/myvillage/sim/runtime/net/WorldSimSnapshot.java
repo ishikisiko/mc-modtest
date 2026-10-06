@@ -144,6 +144,8 @@ public record WorldSimSnapshot(
      * @param parentSectId   -1 when the sect did not split from another
      * @param destroyedDay   -1 while active
      * @param resources      rounded
+     * @param heritageName   the Chinese name of the heritage (传承) the sect holds or, once destroyed,
+     *                       held; null for none
      */
     public record SectDetail(
             SectSummary summary,
@@ -156,6 +158,7 @@ public record WorldSimSnapshot(
             long destroyedDay,
             int resources,
             String signatureTechniqueName,
+            String heritageName,
             List<SectRelation> relations) {
         public SectDetail {
             relations = relations == null ? List.of() : List.copyOf(relations);

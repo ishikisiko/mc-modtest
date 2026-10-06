@@ -235,7 +235,7 @@ public final class WorldSimSnapshots {
             return new WorldSimSnapshot.SectDetail(sectSummary(s, -1), s.foundedDay(), s.founderId(),
                     s.founderName(), s.masterId(), s.parentSectId(), sectName(s.parentSectId()),
                     isActive(s) ? -1 : s.destroyedDay(), (int) Math.round(s.resources()),
-                    s.signatureTechniqueName(), relations);
+                    s.signatureTechniqueName(), s.heritageName().isEmpty() ? null : s.heritageName(), relations);
         }
 
         WorldSimSnapshot.PersonSummary personSummary(PersonView p) {

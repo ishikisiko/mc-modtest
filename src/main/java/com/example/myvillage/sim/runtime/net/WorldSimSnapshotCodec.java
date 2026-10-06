@@ -139,6 +139,7 @@ public final class WorldSimSnapshotCodec {
         buf.writeVarLong(d.destroyedDay());
         buf.writeVarInt(d.resources());
         buf.writeUtf(d.signatureTechniqueName());
+        writeNullable(buf, d.heritageName(), FriendlyByteBuf::writeUtf);
         buf.writeCollection(d.relations(), (b, r) -> {
             b.writeVarInt(r.otherSectId());
             b.writeUtf(r.otherSectName());
@@ -158,10 +159,11 @@ public final class WorldSimSnapshotCodec {
         long destroyedDay = buf.readVarLong();
         int resources = buf.readVarInt();
         String technique = buf.readUtf();
+        String heritage = buf.readBoolean() ? buf.readUtf() : null;
         var relations = buf.readList(b -> new WorldSimSnapshot.SectRelation(b.readVarInt(), b.readUtf(),
                 b.readVarInt(), b.readUtf()));
         return new WorldSimSnapshot.SectDetail(summary, foundedDay, founderId, founderName, masterId, parentId,
-                parentName, destroyedDay, resources, technique, relations);
+                parentName, destroyedDay, resources, technique, heritage, relations);
     }
 
     // ------------------------------------------------------------------ persons
