@@ -7,6 +7,126 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.37.0
+
+The technique system (功法 / 流派 / 传承), first phase: one technique
+catalogue now feeds both the player's technique registry and the world ledger
+(命簿); schools and heritages are datapack registries; the running core
+technique (心法) scales meditation progress and can be switched; the H panel's
+功法 page groups techniques; ledger sects can hold a heritage that is lost
+with them and found again. Design: `docs/technique-system-brief.md`; how it
+works: `docs/ai-kb/41_technique_system.md`.
+
+### Added
+
+- Technique catalogue: source tables `tools/technique_catalogue/`
+  (`catalogue.json`, `schools.json`, `heritages.json`, `rules.json`) and the
+  generator `tools/gen_technique_catalogue.py`, which owns
+  `data/myvillage/myvillage/technique/*.json` (all but the hand-written
+  `basic_breathing.json`), `school/*.json`, `heritage/*.json`,
+  `world_sim/techniques.json`, the new `world_sim/heritages.json`, and the
+  `cultivation.technique.`, `cultivation.school.`, and
+  `cultivation.heritage.myvillage.*` keys in both language files (Chinese
+  names in both). It ships 129 techniques (core 116, body 10, active 3;
+  grades 1..4 = 41/36/30/22), four schools (`sword`, `spear`, `fist` of kind
+  `weapon`; `flying_sword` of kind `special`), and three four-technique
+  heritages (太白剑脉 sword/metal, 青帝木脉 wood core chain, 万劫金身脉 metal
+  body chain). Requirements follow the grade (黄 Qi Refining I, 玄 Qi
+  Refining IV, 地/天 Foundation early; an element technique of grade 2 or
+  more also needs 1500 bp affinity in its element).
+- Registries `myvillage:school` (`SchoolDefinition`) and
+  `myvillage:heritage` (`HeritageDefinition`), synced like techniques, with
+  reference checks at server start. `TechniqueDefinition` gains optional
+  `school`, `lineage.previous`, and `effects` (one block matching the
+  category: `core.meditation_route`; `active`, `movement`, and `body` are
+  decoded and validated only); `grade` is 0..4 (0 凡阶, Basic Breathing only).
+- Running core technique: `CultivationService.switchCoreTechnique` (pure
+  rules in `cultivation/technique/CoreTechniqueSwitch`). The technique must be
+  learned and `core`; the running one again is a no-op; otherwise
+  `techniques.switch_progress_loss` (0.3, new in `world_sim/rules.json`) of
+  the progress is lost (散功) unless both techniques are on one lineage
+  chain. The first learned core technique starts running; forgetting the
+  running one clears it.
+- Meditation progress factor `CoreTechniqueFactor`: the running technique's
+  grade cultivation multiplier plus the element match bonus when the root
+  has at least `roots.element_threshold_bp` in one of its elements, read from
+  `world_sim/rules.json`; progress only, rounded down. Grade 0, no running
+  technique, or no ledger data give ×1.0, so Basic Breathing is unchanged;
+  玄阶 with a match is ×1.45 (normal batch 10 → 14, spirit batch 50 → 72).
+- Serverbound `CoreTechniqueSwitchPayload` (`myvillage:core_technique_switch`,
+  a technique id only); its handler calls only the service, a refusal gets
+  no reply, a success pushes the snapshot.
+- Commands `/myvillage cultivation|xiulian core|xinfa <target>
+  <technique_id>`; `info` prints the running core technique.
+- 功法 page: 心法 / 绝技 / 身法 / 炼体 cards (plus 未知功法 for unknown ids)
+  through the pure `TechniqueShelf`; chips for category, grade name
+  (凡阶..天阶), school, heritage with position (`太白剑脉 2/4`), and elements;
+  the running core technique marked 运转中, the other core techniques with a
+  运转此心法 button. `MeridianRoute` picks the meridian circuit from the
+  running technique's `meditation_route`; only `xiaozhoutian` exists, so the
+  diagram looks as before.
+- World ledger heritages: `heritages.json` in `SimData`
+  (`ContentTables.Heritage`, `heritage(id)`, `heritageOfTechnique(id)`),
+  `Sect.heritageId`, `WorldState.lostHeritages`. At genesis each sect takes an
+  unused heritage with `genesis.heritage_chance` 0.25 (`Purpose` 109); its
+  signature is the chain's last technique, its basic the first, and ranks
+  practise the chain up to the second-to-last. A sect that ends loses its
+  heritage to the lost pool; a founder who practises one of its techniques
+  rekindles it; the new fortune `lost_heritage` (ruin, tier 8+, travelling;
+  effect kind `heritage`) hands out its manuals while it is lost. New
+  chronicle lines `genesis.sect.heritage`, `sect.heritage_lost.1..2`,
+  `sect.heritage_rekindled.1`, `fortune.heritage.1`.
+- `world sect <id>` prints 传承; `SectView` and
+  `WorldSimSnapshot.SectDetail.heritageName` carry it and the 天下 sect detail
+  shows a 传承 row; the chronicle report's sect timeline shows heritages.
+- Release-gate step `gen-technique-catalogue-check` before
+  `validate-world-sim`. `validate_world_sim.py` checks every ledger technique
+  against its datapack file (grade, element), heritage consistency, and
+  acyclic `lineage.previous`.
+- Tests: `TechniqueCatalogueDefinitionTest`, `CoreTechniqueSwitchTest`,
+  `CoreTechniqueFactorTest`, `CoreTechniqueSwitchPayloadTest`,
+  `TechniqueShelfTest`, `MeridianRouteTest`, `WorldSimHeritageTest`, more
+  cases in `CultivationProfileTest`, `BasicBreathingSettlementTest`, and
+  `SimDataLoaderTest`; `tools/tests/test_gen_technique_catalogue.py`.
+
+### Changed
+
+- Profile schema `4` adds the optional `active_core_technique`; v3 saves
+  migrate with Basic Breathing running when it is learned (v1 and v2 go
+  through v3); only v4 is written; a running id that is no longer learned
+  reads as none.
+- Payload protocol is now `10` (was `9`): the profile snapshot is v4 and the
+  switch payload is new, so client and server need the same jar.
+- World-sim save payload `version` `2` (was `1`), additive: sect `heritage`
+  and top-level `lost_heritages`; version-1 saves load with no heritages.
+- The 功法 category chips read 心法 / 绝技 / 身法 / 炼体 in Chinese (were 主修 /
+  主动 for the first two).
+- Docs: KB note 41 (new, in the index), notes 28, 37 (the panel now has two
+  bounded serverbound cultivation payloads), and 40, README (commands, the
+  techniques-and-heritages section, the 0.37.0 ledger), AGENTS.
+
+### Deferred
+
+- Runtimes for active, movement, and body effects (绝技, 身法, 炼体); such
+  techniques can be learned and listed but do nothing.
+- Mastery tiers and mastery carried over within a chain; a breakthrough
+  multiplier from the running technique (player advancement is
+  deterministic).
+- Manuals as items, reading as a meditation mode, the scripture hall, and any
+  player route into a ledger sect or heritage; weapon `family` fields;
+  meridian routes other than the small circuit.
+
+### Verification
+
+- Automated: `gen_technique_catalogue.py --check`, `validate_world_sim.py`,
+  the five cultivation validators, their Python tests, and the Gradle tests;
+  the world-sim health bands are unchanged and pass (after prehistory, small
+  seed 1 has 3 of 5 genesis sects with a heritage, small seed 5 none).
+- Not verified: everything in a real client (page layout at the three GUI
+  sizes in both languages, the switch button, 散功, the meridian diagram,
+  the 传承 row and `world sect` line, old-save migration, chronicle lines).
+  See the README ledger "Technique system (0.37.0)".
+
 ## 0.36.1
 
 The cultivation calendar gets a longer year and a week. One cultivation day
