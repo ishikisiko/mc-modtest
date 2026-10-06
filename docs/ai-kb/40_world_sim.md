@@ -8,7 +8,9 @@ player is near. The ledger is the only authority. Entities seen in the world
 sect exists in the ledger whether or not a compound has been built, and its
 record says where the compound belongs. The world sim is also the first real
 caller of the region query interface (see
-[14_deferred_roadmap.md](14_deferred_roadmap.md) §A).
+[14_deferred_roadmap.md](14_deferred_roadmap.md) §A). Since 0.36.0 every
+player can read the ledger in game on the H panel's 天下 page ("In-game panel"
+below).
 
 There is no capability spec for the world sim; this note and the code are the
 reference. The design that came before the code is
@@ -24,6 +26,7 @@ reference. The design that came before the code is
 | `sim.data` | Strict loaders: `SimDataLoader`, `Rules`, `RealmTable`, `EncounterTable`, `ContentTables`, `SimJson` |
 | `sim.cli` | The offline runner `SimCli` with `ChronicleWriter`, `Lang`, `ChineseNumerals` |
 | `sim.runtime` | Everything that touches Minecraft: `WorldSimRuntime`, `WorldSimDriver`, `WorldSimSavedData`, `WorldSimServerConfig`, `WorldSimCommands`, `WorldSimRumors`, `RumorBoard`, `WorldSimText` |
+| `sim.runtime.net` | The 天下 page's networking (0.36.0): `WorldSimQuery`, `WorldSimSnapshot` (the contract), `WorldSimSnapshots` (pure builder), `WorldSimQueryPayload`, `WorldSimSnapshotPayload`, `WorldSimSnapshotCodec`, `WorldSimPayloads` (registration and the per-player throttle). The client cache is `client/sim/ClientWorldSimState` |
 | `sim.runtime.avatar` | Compounds and avatars (P3): `GateBuilder`, `GateRealizations`, `WorldSimAvatars`, `AvatarPlanner`; with `sect/SectCourtyard` and the avatar mode of `entity/npc/NpcEntity` |
 
 Everything except `sim.runtime` is the pure core. It imports only `java.*`,
@@ -42,7 +45,10 @@ tuned without Gradle.
 (optionally with a `SimObserver`), `fromBytes`/`toBytes`, `step`, `day`,
 `date`, `tierId`, `prehistoryDays`, `seed`, `scheduler`, the views
 (`overview`, `sects`, `sect`, `findPersons`, `person`, `membersAt`,
-`recentEvents`, `region`), and two mutations, `markGateRealized` and
+`recentEvents`, `region`), the lookups added in 0.36.0 for the panel
+(`event(id)`, a kept event by id, empty once pruned; `recentEvents(minImportance,
+limit, filter)`; `realmIds` in ladder order; `nameOf` and `sectOf` for the
+living and the dead; `livingIn(regionId)`; `hasRegion`), and two mutations, `markGateRealized` and
 `moveGate` (admin and test only; it rejects a point outside every region and
 moves the sect's home region and its members who are at the sect).
 `SimEvent` carries `id`, `day`, `type`, `importance`, `actors` (subject
@@ -242,6 +248,70 @@ in a world's `serverconfig/` overrides it):
 
 The values other than `tier` are read on use.
 
+The 天下 page of the H panel shows the same views as `info`, `sects`, `sect`,
+`person`, `chronicle`, and `here`, read-only and to every player; `pause`,
+`resume`, `advance`, and `build` stay commands.
+
+## In-game panel (天下)
+
+0.36.0. The H panel's 天下 page
+([37_cultivation_panel.md](37_cultivation_panel.md), "World page") asks the
+server one bounded question at a time and draws the answer; the client keeps
+no ledger. The contract is `sim/runtime/net/WorldSimQuery` (kind, an id for
+`SECT`/`PERSON`, a search text of at most 32 characters for
+`PERSON_SEARCH`; normalised in the constructor, so equal queries are equal
+cache keys) and `WorldSimSnapshot` (the answer, with the query it answers).
+Which sections each kind fills (from the `WorldSimSnapshot` javadoc):
+
+```text
+kind           overview sects                 sect  persons                 person events                  causes region
+OVERVIEW       yes      -                     -     the five foremost       -      -                       -      -
+SECTS          -        all, active first     -     -                       -      -                       -      -
+SECT           -        -                     yes   members at the sect     -      the sect's recent       yes    -
+PERSON_SEARCH  -        -                     -     matches, living first   -      -                       -      -
+PERSON         -        -                     -     -                       yes    the person's recent     yes    -
+CHRONICLE      -        -                     -     -                       -      latest notable + major  yes    -
+HERE           -        seated here           -     strongest present       -      recent here             yes    yes
+```
+
+`WorldSimSnapshots.build` (pure, unit-tested against a genesis world) fills
+them: members and people present strongest first
+(`WorldSimSnapshots.strongestFirst`, which the commands use too); a sect's
+events are importance 2+ with the sect in `SimEvent.sects` or its subject a
+member; a person's are any importance with the person among the actors; the
+chronicle is `recentEvents(2, MAX_CHRONICLE)`; `causes` holds only the kept
+events that `events` point at (`WorldSim.event`), and `subjectId` is the
+first actor. Every person, sect, technique, and region name is resolved to a
+literal; prose stays as language keys with params (event lines, realm ids,
+ranks, statuses, causes) so each client reads its own language. Events go
+oldest first; the page shows the chronicle newest first.
+
+| Cap (`WorldSimSnapshot`) | Value | Applies to |
+|---|---|---|
+| `MAX_SECTS` | 96 | `SECTS` list, sects seated in a region |
+| `MAX_MEMBERS` | 24 | Members at the sect (`SECT`) |
+| `MAX_SEARCH` | 10 | Search matches |
+| `MAX_PRESENT` | 10 | People present in a region; the foremost (five today) |
+| `MAX_CHRONICLE` | 40 | `CHRONICLE` lines |
+| `MAX_RELATED` | 10 | Recent events of a sect, person, or region |
+
+Transport: `WorldSimQueryPayload` (serverbound; kind as an unsigned byte with
+fixed ids, an unknown id throws, id varint, text `writeUtf(32)`) and
+`WorldSimSnapshotPayload` (clientbound, `WorldSimSnapshotCodec`; nullable
+sections behind a boolean). `WorldSimPayloads.register`, called from
+`ModPayloads`, registers both and installs the cache's sender; payload
+protocol `8`. On the server thread a player's query that comes less than 4
+ticks after their previous answered one is dropped without an answer;
+otherwise the answer is built and sent to that player. While the ledger is
+inactive every query is answered `inactive` with
+`WorldSimRuntime.inactiveReason()`. `HERE` uses
+`RegionRuntimeService.currentRegion(player)`; outside every region `region`
+is null and the other sections are empty. Gate distances are from the
+player to the gate column. On the client, `ClientWorldSimState.request`
+sends the same query at most once per 2.5 s and `receive` stores the answer
+under its query; logout clears it. There is no permission check: the ledger
+is public lore, and nothing in a query changes it.
+
 ## Rumors (江湖传闻)
 
 `WorldSimRumors` listens to every settled day (from the tick and from
@@ -323,6 +393,13 @@ slots), `WorldSimLivenessTest` (small tier, three seeds, 400 years),
 `WorldSimHealthTest`, and `WorldSimPerformanceTest` (ms per day on the medium
 and large tiers, with limits several times the observed cost).
 
+Panel queries (0.36.0): `WorldSimQueriesTest` (`event`, filtered
+`recentEvents`, `realmIds`, names and sects of the living and the dead,
+`livingIn`), `runtime/net/WorldSimSnapshotsTest` (each kind's sections, caps,
+resolved names, causes, subject), `runtime/net/WorldSimPayloadCodecTest`
+(every kind and the inactive answer round trip, fixed kind ids, unknown kind
+and overlong text rejected), and `runtime/net/WorldSimPayloadThrottleTest`.
+
 Runtime (`sim/runtime/`, no Minecraft server needed): `WorldSimDriverTest`,
 `RumorBoardTest`, `WorldSimSavedDataTest` (newer format written back
 untouched, detach keeps the last checkpoint), `WorldSimServerConfigTest`,
@@ -398,8 +475,16 @@ all 17 checks; it is developer evidence, not an owner verdict.
 - The health bands are pinned at 6 days per year only; another days-per-year
   value is tested for determinism, not for the long-run shape.
 - `/reload` does not re-read the data; it is read once at server start.
-- How the chronicle, rumors, and avatars look on a physical client (zh_cn
-  especially), and multiplayer, have not been observed; see the README ledger.
+- The 天下 page: a capped list carries no "more" marker (only the search
+  hints when it returns exactly `MAX_SEARCH`); a throttled query gets no
+  answer, so the page keeps showing the last one until the next request;
+  there are no admin actions (pause, resume, advance, build) in the panel;
+  clicking a person does not lead anywhere in the world (no waypoint or
+  teleport).
+- How rumors and avatars look on a physical client, and multiplayer, have not
+  been observed. The chronicle's Chinese text has been seen on a physical
+  client only on the 天下 page (owner's PC, 2026-10-06); see the README
+  ledger.
 
 ## P3: sect compounds and avatars
 

@@ -7,6 +7,96 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.36.0
+
+The world ledger (命簿) in game: the H panel gets a fourth page, 天下 (World),
+where every player can read the ledger that until now only
+`/myvillage world` (permission 2) and the offline report showed. The page is
+read-only; pause, resume, and advance stay admin commands.
+
+### Added
+
+- The 天下 / World page (`client/cultivation/panel/WorldPage`) after 功法 in
+  the H panel, with five sub-views switched from a dock of buttons:
+  总览 (era date and day, settlement running or paused with pending days,
+  tier, living against target, dead, sects active and destroyed, events so
+  far; living per realm as bars; the five foremost people), 宗门 (every sect,
+  active first: master, members, top realm, prestige, gate built or not),
+  人物 (a live search by name or Daoist title, up to 10 matches, living
+  first), 纪事 (the latest 40 notable and major events, newest first, each
+  with the line it answers when that is still kept), and 此地 (the player's
+  region: tier, qi, danger, cultivators, whether a sect may be founded; the
+  sects seated there with the distance to their gate; the strongest people
+  present; recent events there). Rows open a sect (founding and founder,
+  parent sect, master, resources, prestige, signature technique, gate,
+  relations with feud and war, members at the sect, recent events) or a
+  person (realm and stage with progress, root grade and five-element shares,
+  age, master, sect and rank, whereabouts and status, technique, injury; for
+  the dead the death date, cause, and killer; relations grouped by kind;
+  recent events), and names inside those open the next one; a back row
+  returns. Loading, ledger-inactive (with the server's reason), outside every
+  region, and empty states each have a card. Below 300 GUI pixels of body
+  width the cards stack in one column and the dock takes two rows.
+  `WorldCanvas` (cards measured by the code that draws them, hit boxes,
+  hover tint) and `WorldReadouts` (ages, dates, relation grouping, root bar
+  widths, colours; `WorldReadoutsTest`). 88 new keys in `zh_cn` and
+  `en_us`: `screen.myvillage.cultivation.tab.world` and 87 under
+  `screen.myvillage.cultivation.world.*`.
+- A bounded read-only query and its answer (`sim/runtime/net/`):
+  `WorldSimQuery` (kind, id, text up to 32 characters) goes serverbound in
+  `WorldSimQueryPayload`; the server answers with a `WorldSimSnapshot` in
+  `WorldSimSnapshotPayload` (hand-written `WorldSimSnapshotCodec`), built by
+  the pure `WorldSimSnapshots` with every person, sect, technique, and
+  region name resolved and each list capped (`MAX_SECTS` 96, `MAX_MEMBERS`
+  24, `MAX_SEARCH` 10, `MAX_PRESENT` 10, `MAX_CHRONICLE` 40, `MAX_RELATED`
+  10). `WorldSimPayloads` registers both, answers at most one query per
+  player every 4 server ticks (a faster one is dropped unanswered), and
+  answers "inactive" with the reason while the ledger is down. The client
+  cache `client/sim/ClientWorldSimState` sends the same query at most once
+  per 2.5 s and is cleared on logout.
+- `WorldSim.event(id)`, `recentEvents(minImportance, limit, filter)`,
+  `realmIds()`, `nameOf`, `sectOf`, `livingIn`, and `hasRegion` (pure core);
+  `WorldSimText.event(key, params)`.
+- H-panel hub hooks on `PanelPage`: `pointer` (mouse position before each
+  frame, -1,-1 outside the body), `mouseClicked` (clicks inside the body),
+  and `takeScrollToTop`; all no-ops by default, so the other pages are
+  unchanged.
+- Tests `WorldSimQueriesTest`, `WorldSimSnapshotsTest` (each kind's sections
+  against a genesis world, caps, resolved names, causes),
+  `WorldSimPayloadCodecTest` (round trip of every kind and the inactive
+  answer, unknown kind rejected), `WorldSimPayloadThrottleTest`, and
+  `WorldReadoutsTest`.
+
+### Changed
+
+- Payload protocol is now `8` (`ModPayloads.PROTOCOL_VERSION`, was `7`), so
+  the client and server need the same jar.
+- `WorldSimCommands` sorts people strongest first through the shared
+  `WorldSimSnapshots.strongestFirst`, so `/myvillage world` and the panel
+  list members in the same order.
+- While a text field in the panel has focus (the 人物 search), H types a
+  letter instead of closing the panel; Escape still closes it.
+- `docs/ai-kb/37_cultivation_panel.md` and `docs/ai-kb/40_world_sim.md`
+  describe the page, the query, and its limits.
+
+### Verification
+
+- Automated: the world-sim validator and its Python tests, the five
+  cultivation validators (they read the screen and every `panel/` file as one
+  source, the 天下 page included), and the Gradle tests for `sim.*` and
+  `client.*`.
+- On the owner's PC (real GPU, Chinese client, singleplayer world
+  `agent-test`, GUI 534x300 at scale 3, then 480x270, 427x240, and 320x240
+  by resizing the window): all five sub-views, the live person search,
+  cause lines in the chronicle, drilling into a sect and a person and back,
+  hover highlight, one-column stacking, and the two-row dock below 300
+  wide. Stills in `out/preview/world_sim_panel/pc/` (untracked). Developer
+  evidence, not an owner verdict.
+- Not verified: English text at narrow widths, multiplayer, the
+  ledger-inactive card on a real client, mouse feel on a physical mouse, and
+  the owner's verdict on the look and the amount of information. See the
+  README ledger "天下 page (0.36.0)".
+
 ## 0.35.1
 
 The sect compound (山门) rework, after the owner walked the 0.35.0 compound
