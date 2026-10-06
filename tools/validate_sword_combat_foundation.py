@@ -585,6 +585,32 @@ def weapon_resource_files(root: Path, data: combat_data.CombatData) -> list[Path
     return files
 
 
+SCHOOL_DIR = "src/main/resources/data/myvillage/myvillage/school"
+
+
+def school_weapon_families(root: Path, findings: list[Finding]) -> set[str]:
+    """The ``weapon_family`` of every weapon school (``data/myvillage/myvillage/school/*.json``)."""
+    families: set[str] = set()
+    for path in sorted((root / SCHOOL_DIR).glob("*.json")):
+        school = read_json(path, root, "COMBAT_WEAPON_FAMILY", findings)
+        if isinstance(school, dict) and isinstance(school.get("weapon_family"), str):
+            families.add(school["weapon_family"])
+    return families
+
+
+def validate_weapon_families(root: Path, data: combat_data.CombatData, findings: list[Finding]) -> None:
+    """A weapon's optional ``family`` names the ``weapon_family`` of a school (technique-system brief
+    2.1), so a school's techniques can later ask for a weapon of their family without naming an item.
+    No runtime reads the field yet."""
+    families = school_weapon_families(root, findings)
+    for weapon_id, weapon in data.weapons.items():
+        family = weapon.get("family")
+        if family is not None and family not in families:
+            findings.append(Finding("COMBAT_WEAPON_FAMILY",
+                                    f"{weapon_id}: family {family!r} is no school's weapon_family "
+                                    f"({', '.join(sorted(families)) or 'no schools'}) in {SCHOOL_DIR}"))
+
+
 def validate_weapon_items(root: Path, data: combat_data.CombatData, findings: list[Finding]) -> None:
     """A weapon's item is registered in Java under its id and has an item model."""
     sources = [content for _, content in java_sources(root, "")]
@@ -653,7 +679,9 @@ def validate_first_person_rigs(root: Path, data: combat_data.CombatData, contrac
         # off_hand_grip_center describes a one-handed weapon.
         settings = rig.get("rig") if isinstance(rig, dict) else None
         contract = contracts.get(weapon["geometry"])
-        if (isinstance(settings, dict) and settings.get("off_hand") is not None and contract is not None
+        block = settings.get("off_hand") if isinstance(settings, dict) else None
+        free = isinstance(block, dict) and block.get("free") is True
+        if (block is not None and not free and contract is not None
                 and contract.get("off_hand_grip_center") is None):
             findings.append(Finding(
                 "COMBAT_FIRST_PERSON_RIG_OFF_HAND",
@@ -665,6 +693,8 @@ def validate_first_person_rigs(root: Path, data: combat_data.CombatData, contrac
 
 
 OFF_HAND_POSE_FIELDS = ("off_hand_slide", "off_hand_roll", "off_hand_elbow", "off_hand_hold")
+# FirstPersonSwing.Arm.MAXIMUM_GRIP_DIAGONAL: 90 lays a worn weapon (the gauntlet) along the hand.
+MAX_GRIP_DIAGONAL = 90
 # FirstPersonArmIk.MINIMUM_REACH_FRACTION..REACH_FRACTION: a released off hand's rest stays reachable.
 OFF_HAND_REST_REACH = (0.30, 0.97)
 
@@ -673,12 +703,15 @@ def off_hand_problems(rig, contract) -> list[str]:
     """What FirstPersonSwing would reject in the rig.off_hand block and the per-key off-hand fields.
 
     The key fields are numbers and ``off_hand_hold`` is within 0..1 in any rig (Java parses them
-    either way); with the block, ``shoulder_offset`` is three numbers, ``grip_diagonal`` 0..50,
+    either way), a key's ``off_hand_rest`` a non-zero [x, y, z] and ``off_hand_reach`` within the
+    reach clamp 0.3..0.97; with the block, ``shoulder_offset`` is three numbers, ``grip_diagonal`` 0..90,
     ``thickness`` 0.2..1.2, ``upper_arm`` and ``forearm`` 0.1..0.6 (as ``rig.arm``),
     ``rest_direction`` a non-zero [x, y, z], ``rest_reach`` within the solver's reach clamp
     0.3..0.97, and each key's ``off_hand_slide`` (inherited from the previous key) keeps the
-    contract's ``off_hand_grip_center`` on the handle. Unknown fields are ignored, as everywhere in
-    the rig.
+    contract's ``off_hand_grip_center`` on the handle. ``free`` is true or false; a free off hand
+    (bare, never on the weapon) needs no ``off_hand_grip_center``, and ``off_hand_slide`` and
+    ``off_hand_hold`` keyed on it are reported because they have no effect. Unknown fields are
+    ignored, as everywhere in the rig.
     """
     if not isinstance(rig, dict) or not isinstance(rig.get("rig"), dict):
         return []
@@ -697,6 +730,15 @@ def off_hand_problems(rig, contract) -> list[str]:
             problems.append(f"{where}: {', '.join(bad)} must be numbers")
         elif "off_hand_hold" in pose and not 0 <= pose["off_hand_hold"] <= 1:
             problems.append(f"{where}: off_hand_hold {pose['off_hand_hold']} must be within 0..1")
+        rest = pose.get("off_hand_rest")
+        if rest is not None and (not isinstance(rest, list) or len(rest) != 3 or not all(is_number(v) for v in rest)
+                                 or math.sqrt(sum(v * v for v in rest)) < 1.0e-3):
+            problems.append(f"{where}: off_hand_rest {rest!r} must be a non-zero [x, y, z]")
+        reach = pose.get("off_hand_reach")
+        if reach is not None and (not is_number(reach)
+                                  or not OFF_HAND_REST_REACH[0] <= reach <= OFF_HAND_REST_REACH[1]):
+            problems.append(f"{where}: off_hand_reach {reach!r} must be within "
+                            f"{OFF_HAND_REST_REACH[0]:g}..{OFF_HAND_REST_REACH[1]:g}")
 
     block = rig["rig"].get("off_hand")
     if block is None:
@@ -707,8 +749,11 @@ def off_hand_problems(rig, contract) -> list[str]:
     if not isinstance(offset, list) or len(offset) != 3 or not all(is_number(v) for v in offset):
         problems.append(f"rig.off_hand.shoulder_offset {offset!r} must be [x, y, z]")
     diagonal = block.get("grip_diagonal", 0)
-    if not is_number(diagonal) or not 0 <= diagonal <= 50:
-        problems.append(f"rig.off_hand.grip_diagonal {diagonal!r} must be within 0..50")
+    if not is_number(diagonal) or not 0 <= diagonal <= MAX_GRIP_DIAGONAL:
+        problems.append(f"rig.off_hand.grip_diagonal {diagonal!r} must be within 0..{MAX_GRIP_DIAGONAL}")
+    free = block.get("free", False)
+    if not isinstance(free, bool):
+        problems.append(f"rig.off_hand.free {free!r} must be true or false")
     thickness = block.get("thickness", 0.5)
     if not is_number(thickness) or not 0.2 <= thickness <= 1.2:
         problems.append(f"rig.off_hand.thickness {thickness!r} must be within 0.2..1.2")
@@ -724,6 +769,12 @@ def off_hand_problems(rig, contract) -> list[str]:
     if not is_number(reach) or not OFF_HAND_REST_REACH[0] <= reach <= OFF_HAND_REST_REACH[1]:
         problems.append(f"rig.off_hand.rest_reach {reach!r} must be within "
                         f"{OFF_HAND_REST_REACH[0]:g}..{OFF_HAND_REST_REACH[1]:g}")
+    if free is True:
+        for where, pose in poses:
+            unused = [field for field in ("off_hand_slide", "off_hand_hold") if isinstance(pose, dict) and field in pose]
+            if unused:
+                problems.append(f"{where}: {', '.join(unused)} has no effect on a free off hand")
+        return problems
     point = contract.get("off_hand_grip_center") if isinstance(contract, dict) else None
     handle = contract.get("handle", {}).get("y") if isinstance(contract, dict) else None
     if not (isinstance(point, list) and len(point) == 3 and is_number(point[1])
@@ -769,7 +820,7 @@ def validate_rig(rig, name: str, style: dict, findings: list[Finding]) -> None:
             or any(not is_number(arm.get(field, 0))
                    for field in ("upper_arm", "forearm", "thickness", "grip_diagonal", "follow_through"))
             or not 0.2 <= arm.get("thickness", 0.5) <= 1.2
-            or not 0 <= arm.get("grip_diagonal", 40) <= 50):
+            or not 0 <= arm.get("grip_diagonal", 40) <= MAX_GRIP_DIAGONAL):
         findings.append(Finding("COMBAT_FIRST_PERSON_RIG_ARM", f"{name}: rig.weapon_scale/rig.arm"))
     poses = [neutral] + [key for move in moves.values() if isinstance(move, dict)
                          for key in move.get("keys", []) if isinstance(key, dict)]
@@ -1455,6 +1506,7 @@ def validate(root: Path = ROOT, run_generators: bool = True) -> list[Finding]:
     validate_translations_and_sounds(root, data, findings)
     contracts = read_geometry_contracts(root, data)
     validate_weapon_items(root, data, findings)
+    validate_weapon_families(root, data, findings)
     validate_weapon_models(root, data, contracts, findings)
     validate_first_person_rigs(root, data, contracts, findings)
     validate_geometry_contracts(root, data, findings)

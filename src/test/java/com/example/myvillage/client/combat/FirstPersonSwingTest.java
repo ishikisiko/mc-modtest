@@ -355,7 +355,7 @@ final class FirstPersonSwingTest {
         both.getAsJsonObject("rig").addProperty("sword_scale", 0.6F);
         assertThrows(IllegalArgumentException.class, () -> parse(both));
         JsonObject straight = rigJson();
-        straight.getAsJsonObject("rig").getAsJsonObject("arm").addProperty("grip_diagonal", 80.0F);
+        straight.getAsJsonObject("rig").getAsJsonObject("arm").addProperty("grip_diagonal", 95.0F);
         assertThrows(IllegalArgumentException.class, () -> parse(straight));
     }
 

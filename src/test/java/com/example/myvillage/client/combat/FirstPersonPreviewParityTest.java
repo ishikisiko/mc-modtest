@@ -106,6 +106,8 @@ final class FirstPersonPreviewParityTest {
                         assertArm(e.getAsJsonObject("main"), a.getAsJsonObject("main"), tolerance, at + " main arm");
                         assertEquals(e.get("off").isJsonNull(), a.get("off").isJsonNull(), at + " off arm drawn");
                         if (!a.get("off").isJsonNull()) {
+                            assertEquals(e.getAsJsonObject("off").has("free"), a.getAsJsonObject("off").has("free"),
+                                    at + " free off hand");
                             assertArm(e.getAsJsonObject("off"), a.getAsJsonObject("off"), tolerance, at + " off arm");
                             offHands++;
                         }
@@ -244,7 +246,8 @@ final class FirstPersonPreviewParityTest {
         out.add("tick", new JsonPrimitive(new BigDecimal(Float.toString(tick))));
         out.add("pose", numbers(pose.plane(), pose.sweep(), pose.reach(), pose.lead(), pose.lift(), pose.twist(),
                 pose.x(), pose.y(), pose.z(), pose.gripRoll(), pose.elbow(),
-                pose.offHandSlide(), pose.offHandRoll(), pose.offHandElbow(), pose.offHandHold()));
+                pose.offHandSlide(), pose.offHandRoll(), pose.offHandElbow(), pose.offHandHold(),
+                pose.offHandRestX(), pose.offHandRestY(), pose.offHandRestZ(), pose.offHandReach()));
         out.add("lag", vector(lag));
         for (HumanoidArm arm : new HumanoidArm[] {HumanoidArm.RIGHT, HumanoidArm.LEFT}) {
             JsonObject side = new JsonObject();
@@ -256,8 +259,12 @@ final class FirstPersonPreviewParityTest {
             Optional<FirstPersonArmIk.OffHandSolution> off = FirstPersonArmIk.solveOffHand(arm, 0.0F, swing, pose);
             if (off.isPresent()) {
                 JsonObject offJson = solution(off.get().arm());
-                offJson.add("grip_y", number(off.get().gripY()));
-                offJson.add("wanted_grip_y", number(off.get().wantedGripY()));
+                if (off.get().free()) {
+                    offJson.addProperty("free", true);
+                } else {
+                    offJson.add("grip_y", number(off.get().gripY()));
+                    offJson.add("wanted_grip_y", number(off.get().wantedGripY()));
+                }
                 offJson.add("hold", number(off.get().hold()));
                 side.add("off", offJson);
             } else {

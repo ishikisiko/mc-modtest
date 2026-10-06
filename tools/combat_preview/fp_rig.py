@@ -36,7 +36,10 @@ Transform chain (ported from client/combat in the mod and vanilla 1.21.1 / NeoFo
   off arm = FirstPersonArmIk.solveOffHand (only with rig.off_hand, off-hand slot empty): the main arm's
             solve mirrored, fist on the shaft at off_hand_grip_center + off_hand_slide (slid along the
             shaft into reach when needed), auto roll + off_hand_roll, off_hand_elbow swivel, no lag,
-            off_hand_hold < 1 blends toward a rest below the view; drawn with the off arm's skin/sleeve.
+            off_hand_hold < 1 blends toward the keyed rest (off_hand_rest, off_hand_reach; by default
+            rig.off_hand.rest_direction/rest_reach, below the view); with rig.off_hand.free the bare
+            hand is always at that keyed rest (FirstPersonArmIk.solveFreeHand); drawn with the off
+            arm's skin/sleeve.
   trail   = FirstPersonWeaponTrail: thrust -> one streak (alpha 0.8 fading over 3 ticks from
             strike start), cut -> 24-segment ribbon over the last 1.2 ticks of the strike window,
             fading 2.4 ticks after it.  Drawn over the contract's trail span (WeaponGeometry.trailBase/
@@ -140,12 +143,18 @@ def load_weapon(data, weapon_id):
 
 # ============================================================================ rig (FirstPersonSwing port)
 OFF_POSE_FIELDS = ("off_hand_slide", "off_hand_roll", "off_hand_elbow", "off_hand_hold")
-POSE_FIELDS = ("plane", "sweep", "reach", "lead", "lift", "twist", "x", "y", "z", "grip_roll", "elbow") + OFF_POSE_FIELDS
-POSE_KEYS = {"plane", "sweep", "reach", "lead", "lift", "twist", "offset", "grip_roll", "elbow", *OFF_POSE_FIELDS}
+# The released (or free) off hand's keyed rest: direction [x, y, z] in the off arm's frame and reach.
+REST_POSE_FIELDS = ("off_hand_rest_x", "off_hand_rest_y", "off_hand_rest_z", "off_hand_reach")
+POSE_FIELDS = (("plane", "sweep", "reach", "lead", "lift", "twist", "x", "y", "z", "grip_roll", "elbow")
+               + OFF_POSE_FIELDS + REST_POSE_FIELDS)
+POSE_KEYS = {"plane", "sweep", "reach", "lead", "lift", "twist", "offset", "grip_roll", "elbow", *OFF_POSE_FIELDS,
+             "off_hand_rest", "off_hand_reach"}
 KEY_KEYS = POSE_KEYS | {"tick", "ease", "pose"}
 MOVE_KEYS = {"strike", "contact", "keys"}
 RIG_KEYS = {"shoulder", "weapon_scale", "arm", "off_hand"}
-OFF_HAND_KEYS = {"shoulder_offset", "grip_diagonal", "thickness", "upper_arm", "forearm", "rest_direction", "rest_reach"}
+OFF_HAND_KEYS = {"shoulder_offset", "grip_diagonal", "thickness", "upper_arm", "forearm", "rest_direction", "rest_reach",
+                 "free"}
+MAX_GRIP_DIAGONAL = 90.0  # FirstPersonSwing.Arm.MAXIMUM_GRIP_DIAGONAL: 90 lays the weapon along the hand
 ARM_KEYS = {"shoulder_offset", "upper_arm", "forearm", "thickness", "grip_diagonal", "follow_through"}
 TOP_KEYS = {"rig", "neutral", "moves"}
 BACK_OVERSHOOT = 1.9
@@ -201,10 +210,21 @@ class Pose(tuple):
 
     def describe_off(self):
         return (f"off hand slide {self.off_hand_slide:.1f} px roll {self.off_hand_roll:.1f} "
-                f"elbow {self.off_hand_elbow:.1f} hold {self.off_hand_hold:.2f}")
+                f"elbow {self.off_hand_elbow:.1f} hold {self.off_hand_hold:.2f} rest "
+                f"({self.off_hand_rest_x:.2f}, {self.off_hand_rest_y:.2f}, {self.off_hand_rest_z:.2f}) "
+                f"reach {self.off_hand_reach:.2f}")
+
+    def with_rest(self, direction, reach):
+        """Pose.withOffHandRest."""
+        return Pose(list(self[:15]) + [float(direction[0]), float(direction[1]), float(direction[2]), float(reach)])
+
+    def rest_direction(self):
+        """Pose.offHandRest(): the keyed rest direction, unit length."""
+        return _norm(np.array([self.off_hand_rest_x, self.off_hand_rest_y, self.off_hand_rest_z], float))
 
 
-ZERO = Pose([0.0] * 14 + [1.0])  # Pose.ZERO: off hand at its default point, holding the shaft
+# Pose.ZERO: off hand at its default point, holding the shaft; released rest at the default.
+ZERO = Pose([0.0] * 14 + [1.0] + list(DEFAULT_REST_DIRECTION) + [DEFAULT_REST_REACH])
 
 
 class RigError(Exception):
@@ -233,6 +253,14 @@ def parse_pose(obj, fallback, where):
     if not 0.0 <= hold <= 1.0:
         raise RigError(f"{where}: off_hand_hold must be within 0..1")
     vals += [float(obj.get(k, getattr(fallback, k))) for k in OFF_POSE_FIELDS[:3]] + [hold]
+    rest = _vec(obj["off_hand_rest"], f"{where}.off_hand_rest") if "off_hand_rest" in obj else \
+        [fallback.off_hand_rest_x, fallback.off_hand_rest_y, fallback.off_hand_rest_z]
+    if not math.sqrt(sum(v * v for v in rest)) >= 1e-3:
+        raise RigError(f"{where}: off_hand_rest must be a non-zero direction")
+    reach = float(obj.get("off_hand_reach", fallback.off_hand_reach))
+    if not MIN_REACH_FRACTION <= reach <= REACH_FRACTION:
+        raise RigError(f"{where}: off_hand_reach must be within {MIN_REACH_FRACTION}..{REACH_FRACTION}")
+    vals += rest + [reach]
     if not all(math.isfinite(v) for v in vals):
         raise RigError(f"{where}: swing pose values must be finite")
     return Pose(vals)
@@ -286,8 +314,8 @@ class Rig:
             raise RigError("rig.arm bone lengths must be within 0.1..0.6")
         if not (0.2 <= self.thickness <= 1.2):
             raise RigError("rig.arm.thickness must be within 0.2..1.2")
-        if not (0.0 <= self.grip_diagonal <= 50.0):
-            raise RigError("rig.arm.grip_diagonal must be within 0..50")
+        if not (0.0 <= self.grip_diagonal <= MAX_GRIP_DIAGONAL):
+            raise RigError("rig.arm.grip_diagonal must be within 0..90")
         if not (0.0 <= self.follow_through <= 2.0):
             raise RigError("rig.arm.follow_through must be within 0..2")
         self.off_hand = None  # FirstPersonSwing.OffHand
@@ -295,9 +323,10 @@ class Rig:
             oj = rj["off_hand"]
             if not isinstance(oj, dict):
                 raise RigError("rig.off_hand must be an object")
-            if geo is None or geo.off_hand is None:
-                raise RigError("rig.off_hand needs a weapon geometry with off_hand_grip_center")
             _unknown(oj, OFF_HAND_KEYS, f"{where}.rig.off_hand")
+            free = bool(oj.get("free", False))
+            if not free and (geo is None or geo.off_hand is None):
+                raise RigError("rig.off_hand needs a weapon geometry with off_hand_grip_center (or free: true)")
             rest = _vec(oj["rest_direction"], "rig.off_hand.rest_direction") if "rest_direction" in oj \
                 else list(DEFAULT_REST_DIRECTION)
             self.off_hand = {
@@ -308,9 +337,10 @@ class Rig:
                 "upper_arm": float(oj.get("upper_arm", self.upper_arm)),
                 "forearm": float(oj.get("forearm", self.forearm)),
                 "rest_reach": float(oj.get("rest_reach", DEFAULT_REST_REACH)),
+                "free": free,
             }
-            if not 0.0 <= self.off_hand["grip_diagonal"] <= 50.0:
-                raise RigError("rig.off_hand.grip_diagonal must be within 0..50")
+            if not 0.0 <= self.off_hand["grip_diagonal"] <= MAX_GRIP_DIAGONAL:
+                raise RigError("rig.off_hand.grip_diagonal must be within 0..90")
             if not 0.2 <= self.off_hand["thickness"] <= 1.2:
                 raise RigError("rig.off_hand.thickness must be within 0.2..1.2")
             if not (0.1 <= self.off_hand["upper_arm"] <= 0.6 and 0.1 <= self.off_hand["forearm"] <= 0.6):
@@ -323,7 +353,9 @@ class Rig:
         self.geo = geo
         nj = doc.get("neutral")
         _unknown(nj or {}, POSE_KEYS, f"{where}.neutral")
-        self.neutral = parse_pose(nj, ZERO, "neutral")
+        base = ZERO if self.off_hand is None else ZERO.with_rest(self.off_hand["rest_direction"],
+                                                                     self.off_hand["rest_reach"])
+        self.neutral = parse_pose(nj, base, "neutral")
         self._check_off_hand(self.neutral, "neutral")
         mj = doc.get("moves")
         if mj is None:
@@ -342,7 +374,7 @@ class Rig:
                            + ", ".join(k for k in mj if k not in {d['id'] for d in style['moves']}))
 
     def _check_off_hand(self, pose, where):
-        if self.off_hand is None:
+        if self.off_hand is None or self.off_hand["free"]:
             return
         y = self.geo.off_hand[1] + pose.off_hand_slide
         if not self.geo.handle[0] <= y <= self.geo.handle[1]:
@@ -646,6 +678,7 @@ class _OffArmRig:
         self.grip_diagonal = oh["grip_diagonal"]
         self.shoulder_offset = oh["shoulder_offset"]
         self.rest_direction, self.rest_reach = oh["rest_direction"], oh["rest_reach"]
+        self.free = oh["free"]
 
 
 def _quat_from(Rm):
@@ -687,8 +720,43 @@ def _slerp(a, b, t):
     return a * s0 + b * s1
 
 
+def _finish_off_arm(side, c, arm, wrist, hand, extra):
+    grip = wrist + hand * wrist_to_grip(arm)
+    upper_axis = _norm(c["elbow"] - c["shoulder"])
+    fore_R = basis(c["thumb"], c["fa"])
+    sol = dict(shoulder=c["shoulder"], elbow=c["elbow"], wrist=c["wrist"], grip=grip,
+               upper_R=basis(fore_R[:, 0], upper_axis), fore_R=fore_R, fist_R=basis(c["thumb"], c["hand"]),
+               flex=c["flex"], dev=c["dev"], lag_scale=0.0, clamped=c["clamped"], reach=c["reach"], lag=None, **extra)
+    if side > 0:  # mirrored back into the right-handed scene; a left main arm keeps the mirror image
+        for key in ("shoulder", "elbow", "wrist", "grip"):
+            sol[key] = MIRROR @ sol[key]
+        for key in ("upper_R", "fore_R", "fist_R"):
+            sol[key] = MIRROR @ sol[key] @ MIRROR
+    return sol
+
+
+def solve_free_off_arm(side, rig, pose, equip=0.0):
+    """FirstPersonArmIk.solveFreeHand: the bare off hand of a free rig.off_hand at the keyed rest."""
+    arm = _OffArmRig(rig)
+    so = arm.shoulder_offset
+    s = rig.shoulder
+    shoulder = np.array([s[0] + so[0] - pose.x, s[1] + pose.y - equip * EQUIP_DROP + so[1], s[2] + pose.z + so[2]])
+    hand = pose.rest_direction()
+    wrist = shoulder + hand * pose.off_hand_reach * (arm.upper_arm + arm.forearm)
+    thumb = perp(np.array([0.0, 0.0, 1.0]), hand)
+    if thumb is None:
+        thumb = perp(np.array([0.0, 1.0, 0.0]), hand)
+    thumb = rotate_axis(thumb, math.radians(pose.off_hand_roll), hand)
+    palm = np.cross(thumb, hand)
+    c = _bones(shoulder, arm, wrist, thumb, hand, palm, pose.off_hand_elbow, None)
+    return _finish_off_arm(side, c, arm, wrist, hand,
+                           dict(grip_y=0.0, wanted_y=0.0, slid=False, hold=1.0, free=True))
+
+
 def solve_off_arm(side, rig, geo, pose, equip=0.0):
     """FirstPersonArmIk.solveOffHand: None without rig.off_hand or at off_hand_hold 0."""
+    if rig.off_hand is not None and rig.off_hand["free"]:
+        return solve_free_off_arm(side, rig, pose, equip)
     hold = max(0.0, min(1.0, pose.off_hand_hold))
     if rig.off_hand is None or geo.off_hand is None or hold <= 0.0:
         return None
@@ -748,27 +816,16 @@ def solve_off_arm(side, rig, geo, pose, equip=0.0):
             y = reached
     wrist, thumb, hand, palm = grasp(y)
     if hold < 1.0:
-        rest_hand = arm.rest_direction.copy()
-        rest_wrist = shoulder + rest_hand * arm.rest_reach * total
+        rest_hand = pose.rest_direction()
+        rest_wrist = shoulder + rest_hand * pose.off_hand_reach * total
         rest_thumb = perp(np.array([0, 0, -1.0]), rest_hand)
         q = _slerp(_quat_from(basis(rest_thumb, rest_hand)), _quat_from(basis(thumb, hand)), hold)
         Rq = _quat_rot(q)
         wrist = rest_wrist + (wrist - rest_wrist) * hold
         thumb, hand, palm = Rq[:, 0], Rq[:, 1], Rq[:, 2]
     c = _bones(shoulder, arm, wrist, thumb, hand, palm, pose.off_hand_elbow, None)
-    grip = wrist + hand * wrist_to_grip(arm)
-    upper_axis = _norm(c["elbow"] - c["shoulder"])
-    fore_R = basis(c["thumb"], c["fa"])
-    sol = dict(shoulder=c["shoulder"], elbow=c["elbow"], wrist=c["wrist"], grip=grip,
-               upper_R=basis(fore_R[:, 0], upper_axis), fore_R=fore_R, fist_R=basis(c["thumb"], c["hand"]),
-               flex=c["flex"], dev=c["dev"], lag_scale=0.0, clamped=c["clamped"], reach=c["reach"], lag=None,
-               grip_y=y, wanted_y=wanted, slid=abs(y - wanted) > 1e-3, hold=hold)
-    if side > 0:  # mirrored back into the right-handed scene; a left main arm keeps the mirror image
-        for key in ("shoulder", "elbow", "wrist", "grip"):
-            sol[key] = MIRROR @ sol[key]
-        for key in ("upper_R", "fore_R", "fist_R"):
-            sol[key] = MIRROR @ sol[key] @ MIRROR
-    return sol
+    return _finish_off_arm(side, c, arm, wrist, hand,
+                           dict(grip_y=y, wanted_y=wanted, slid=abs(y - wanted) > 1e-3, hold=hold, free=False))
 
 
 # ============================================================================ arm mesh (FirstPersonArmModel / Renderer port)
@@ -1288,7 +1345,7 @@ def measure(scene, frame, pts, sol, move, tick, pose):
     off = sol.get("off")
     if off is not None:
         out["off_ik"] = {"grip_y_px": round(off["grip_y"], 3), "wanted_grip_y_px": round(off["wanted_y"], 3),
-                         "slid": bool(off["slid"]), "hold": round(off["hold"], 3),
+                         "slid": bool(off["slid"]), "hold": round(off["hold"], 3), "free": bool(off.get("free")),
                          "wrist_flexion": round(off["flex"], 1), "wrist_deviation": round(off["dev"], 1),
                          "shoulder_clamped": bool(off["clamped"]), "shoulder_to_wrist": round(off["reach"], 4)}
         out["cover_off_fist"] = float((ids == 7).sum()) / tot
@@ -1366,7 +1423,8 @@ def build_sheet(scene, a):
                      + (" · SHOULDER CLAMPED" if sol["clamped"] else "")]
             if "off_ik" in m:
                 o = m["off_ik"]
-                lines.append(f"{pose.describe_off()} · held at y {o['grip_y_px']:.1f}"
+                lines.append(f"{pose.describe_off()} · "
+                             + ("free (bare guard hand)" if o.get("free") else f"held at y {o['grip_y_px']:.1f}")
                              + (f" (SLID from {o['wanted_grip_y_px']:.1f})" if o["slid"] else "")
                              + f" · wrist flex {o['wrist_flexion']:.0f} dev {o['wrist_deviation']:.0f}"
                              + (" · OFF SHOULDER CLAMPED" if o["shoulder_clamped"] else ""))

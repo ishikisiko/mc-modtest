@@ -56,6 +56,7 @@ FIXTURE = (
     "src/main/java",
     f"{RESOURCES}/META-INF/neoforge.mods.toml",
     DATA,
+    validator.SCHOOL_DIR,
     f"{RESOURCES}/assets/myvillage/combat",
     f"{RESOURCES}/assets/myvillage/player_animations",
     f"{RESOURCES}/assets/myvillage/lang",
@@ -181,8 +182,8 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
 
     def test_valid_repository_fixture_passes(self) -> None:
         data = validator.combat_data.load(self.root)
-        self.assertEqual(["myvillage:qingfeng_sword", SPEAR_WEAPON_ID], list(data.weapons))
-        self.assertEqual(["myvillage:basic_sword", "myvillage:basic_spear"], list(data.styles))
+        self.assertEqual(["myvillage:qingfeng_sword", SPEAR_WEAPON_ID, "myvillage:xuantie_gauntlet"], list(data.weapons))
+        self.assertEqual(["myvillage:basic_sword", "myvillage:basic_spear", "myvillage:basic_fist"], list(data.styles))
         self.assertTrue((self.root / ANIMATIONS).is_file() and (self.root / SPEAR_ANIMATIONS).is_file())
         self.assertEqual([], [str(f) for f in self.findings()])
 
@@ -519,6 +520,32 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
         self.write_json(SPEAR_RIG, rig)
         self.assertFalse(any(SPEAR_WEAPON_ID in d for d in self.details("COMBAT_FIRST_PERSON_RIG_OFF_HAND")))
 
+    def test_weapon_family_must_name_a_school(self) -> None:
+        path = f"{DATA}/weapon/xuantie_gauntlet.json"
+        weapon = self.read_json(path)
+        self.assertEqual("fist", weapon["family"])
+        weapon["family"] = "staff"
+        self.write_json(path, weapon)
+        self.assert_finding("COMBAT_WEAPON_FAMILY", "myvillage:xuantie_gauntlet", "'staff'")
+        del weapon["family"]
+        self.write_json(path, weapon)
+        self.assertEqual([], self.details("COMBAT_WEAPON_FAMILY"), "the family is optional")
+        weapon["family"] = "Fist"
+        self.write_json(path, weapon)
+        self.assertIn("COMBAT_DATA_SCHEMA", self.codes())
+
+    def test_free_off_hand_needs_no_off_hand_grip(self) -> None:
+        self.assertEqual([], self.details("COMBAT_FIRST_PERSON_RIG_OFF_HAND"))
+        path = f"{RESOURCES}/assets/myvillage/combat/xuantie_gauntlet_first_person.json"
+        rig = self.read_json(path)
+        rig["rig"]["off_hand"]["free"] = False
+        self.write_json(path, rig)
+        self.assert_finding("COMBAT_FIRST_PERSON_RIG_OFF_HAND", "myvillage:xuantie_gauntlet", "off_hand_grip_center")
+        rig["rig"]["off_hand"]["free"] = True
+        next(iter(rig["moves"].values()))["keys"][1]["off_hand_hold"] = 0.5
+        self.write_json(path, rig)
+        self.assert_finding("COMBAT_FIRST_PERSON_RIG_OFF_HAND", "myvillage:xuantie_gauntlet", "no effect on a free")
+
     def test_off_hand_block_content_has_named_failure(self) -> None:
         good = self.read_json(SPEAR_RIG)
         good["rig"]["off_hand"] = {"shoulder_offset": [0.03, -0.02, -0.12], "grip_diagonal": 30, "thickness": 0.6,
@@ -531,7 +558,10 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
         self.assertEqual([], self.details("COMBAT_FIRST_PERSON_RIG_OFF_HAND"))
         cases = {
             "shoulder_offset": lambda rig: rig["rig"]["off_hand"].update(shoulder_offset=[0.1, 0.2]),
-            "grip_diagonal": lambda rig: rig["rig"]["off_hand"].update(grip_diagonal=70),
+            "grip_diagonal": lambda rig: rig["rig"]["off_hand"].update(grip_diagonal=95),
+            "rig.off_hand.free": lambda rig: rig["rig"]["off_hand"].update(free="yes"),
+            "off_hand_rest": lambda rig: next(iter(rig["moves"].values()))["keys"][1].update(off_hand_rest=[0, 0, 0]),
+            "off_hand_reach": lambda rig: next(iter(rig["moves"].values()))["keys"][1].update(off_hand_reach=1.1),
             "thickness": lambda rig: rig["rig"]["off_hand"].update(thickness=1.5),
             "rig.off_hand.upper_arm 0.8": lambda rig: rig["rig"]["off_hand"].update(upper_arm=0.8),
             "rig.off_hand.forearm 0.05": lambda rig: rig["rig"]["off_hand"].update(forearm=0.05),

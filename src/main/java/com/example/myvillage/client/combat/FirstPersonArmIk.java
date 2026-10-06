@@ -36,8 +36,14 @@ import java.util.Optional;
  * about the shaft from there. A point out of reach slides the hand along the shaft to the nearest
  * reachable point, never off the shaft or into the main fist. The off arm takes no lag: the lag
  * never moves the weapon, so the off hand stays locked to the shaft. {@code off_hand_hold} below 1
- * moves the hand from the shaft toward its released rest ({@code rig.off_hand.rest_direction} and
- * {@code rest_reach}; by default beside the body, below the view at 0).
+ * moves the hand from the shaft toward its released rest (the pose's {@code off_hand_rest} and
+ * {@code off_hand_reach}, by default the block's {@code rest_direction} and {@code rest_reach}: beside
+ * the body, below the view at 0).
+ *
+ * <p>A free off hand ({@code rig.off_hand.free}, a gauntlet's bare guard hand) holds nothing: its
+ * wrist is at the keyed rest, the fist points along the rest direction with the thumb toward the
+ * viewer (straight up when the fist points at the viewer's back or front), turned by
+ * {@code off_hand_roll} about its own axis, and the same two-bone solve reaches it.
  */
 final class FirstPersonArmIk {
     /** Anatomical wrist limits in degrees: flexion/extension, radial and ulnar deviation. */
@@ -237,6 +243,9 @@ final class FirstPersonArmIk {
             FirstPersonSwing.Pose pose) {
         FirstPersonSwing.Rig rig = swing.rig();
         FirstPersonSwing.OffHand offHand = rig.offHand();
+        if (offHand != null && offHand.free()) {
+            return Optional.of(solveFreeHand(mainArm, equipProgress, rig, offHand, pose));
+        }
         Optional<Vector3f> center = swing.weapon().offHandGripCenter();
         float hold = Math.max(0.0F, Math.min(1.0F, pose.offHandHold()));
         if (offHand == null || center.isEmpty() || hold <= 0.0F) {
@@ -277,9 +286,9 @@ final class FirstPersonArmIk {
         if (hold < 1.0F) {
             // Let go: the wrist travels toward the rig's rest (by default beside the body) and the
             // fist turns with it.
-            Vector3f restHand = offHand.restDirection();
+            Vector3f restHand = pose.offHandRest();
             Vector3f restWrist = new Vector3f(shaft.shoulder)
-                    .add(new Vector3f(restHand).mul(offHand.restReach() * (armRig.upperArm() + armRig.forearm())));
+                    .add(new Vector3f(restHand).mul(pose.offHandReach() * (armRig.upperArm() + armRig.forearm())));
             Vector3f restThumb = perpendicular(new Vector3f(0.0F, 0.0F, -1.0F), restHand);
             Quaternionf rotation = basis(restThumb, restHand).slerp(basis(thumb, hand), hold);
             wrist = new Vector3f(restWrist).lerp(wrist, hold);
@@ -292,7 +301,37 @@ final class FirstPersonArmIk {
         Solution mirrored = solved.toSolution(
                 new Frame(grip, shaft.blade, shaft.shoulder, armRig), pose.offHandRoll(), pose.offHandElbow(), 0.0F);
         Solution solution = mainArm == HumanoidArm.RIGHT ? mirrored.mirrored() : mirrored;
-        return Optional.of(new OffHandSolution(solution, gripY, wanted, hold));
+        return Optional.of(new OffHandSolution(solution, gripY, wanted, hold, false));
+    }
+
+    /** The bare off hand of a free {@code rig.off_hand}, at the pose's rest (see the class comment). */
+    private static OffHandSolution solveFreeHand(
+            HumanoidArm mainArm,
+            float equipProgress,
+            FirstPersonSwing.Rig rig,
+            FirstPersonSwing.OffHand offHand,
+            FirstPersonSwing.Pose pose) {
+        FirstPersonSwing.Arm armRig = rig.offArm();
+        Vector3f shoulder = new Vector3f(
+                rig.shoulderX() + offHand.shoulderOffsetX() - pose.x(),
+                rig.shoulderY() + pose.y() - equipProgress * FirstPersonWeaponTransform.EQUIP_DROP
+                        + offHand.shoulderOffsetY(),
+                rig.shoulderZ() + pose.z() + offHand.shoulderOffsetZ());
+        Vector3f hand = pose.offHandRest();
+        Vector3f wrist = new Vector3f(shoulder)
+                .add(new Vector3f(hand).mul(pose.offHandReach() * (armRig.upperArm() + armRig.forearm())));
+        Vector3f thumb = perpendicular(new Vector3f(0.0F, 0.0F, 1.0F), hand);
+        if (thumb == null) {
+            thumb = perpendicular(new Vector3f(0.0F, 1.0F, 0.0F), hand);
+        }
+        thumb.rotateAxis((float) Math.toRadians(pose.offHandRoll()), hand.x, hand.y, hand.z);
+        Vector3f palm = new Vector3f(thumb).cross(hand);
+        Candidate solved = bones(shoulder, armRig, wrist, thumb, hand, palm, pose.offHandElbow(), null);
+        Vector3f grip = new Vector3f(wrist).add(new Vector3f(hand).mul(wristToGrip(armRig)));
+        Solution mirrored = solved.toSolution(
+                new Frame(grip, hand, shoulder, armRig), pose.offHandRoll(), pose.offHandElbow(), 0.0F);
+        Solution solution = mainArm == HumanoidArm.RIGHT ? mirrored.mirrored() : mirrored;
+        return new OffHandSolution(solution, 0.0F, 0.0F, 1.0F, true);
     }
 
     /**
@@ -393,10 +432,11 @@ final class FirstPersonArmIk {
      * @param wantedGripY model height the pose asked for ({@code off_hand_grip_center} plus slide,
      *     within the hand's range)
      * @param hold how firmly the hand is on the shaft: 1 holds, below 1 it is moving to its rest
+     * @param free a bare off hand that holds nothing ({@code rig.off_hand.free}); its grip heights are 0
      */
-    record OffHandSolution(Solution arm, float gripY, float wantedGripY, float hold) {
+    record OffHandSolution(Solution arm, float gripY, float wantedGripY, float hold, boolean free) {
         boolean slid() {
-            return Math.abs(gripY - wantedGripY) > 1.0E-3F;
+            return !free && Math.abs(gripY - wantedGripY) > 1.0E-3F;
         }
     }
 

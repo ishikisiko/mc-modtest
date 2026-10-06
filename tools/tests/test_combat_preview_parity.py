@@ -109,8 +109,11 @@ class FirstPersonSolverParityTest(unittest.TestCase):
                         if off is not None:
                             e = expected["off"]
                             self.check_arm(e, off, f"{at} off arm")
-                            self.near(e["grip_y"], off["grip_y"], t["model_px"], f"{at} off grip y")
-                            self.near(e["wanted_grip_y"], off["wanted_y"], t["model_px"], f"{at} off wanted grip y")
+                            self.assertEqual(bool(e.get("free")), bool(off.get("free")), f"{at} free off hand")
+                            if not e.get("free"):
+                                self.near(e["grip_y"], off["grip_y"], t["model_px"], f"{at} off grip y")
+                                self.near(e["wanted_grip_y"], off["wanted_y"], t["model_px"],
+                                          f"{at} off wanted grip y")
                             self.near(e["hold"], off["hold"], t["scale"], f"{at} off hold")
                             off_arms += 1
                         arms += 1

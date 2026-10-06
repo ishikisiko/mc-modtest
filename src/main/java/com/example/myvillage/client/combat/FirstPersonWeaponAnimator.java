@@ -403,7 +403,11 @@ public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
                 pose.offHandSlide(),
                 pose.offHandRoll(),
                 pose.offHandElbow(),
-                pose.offHandHold());
+                pose.offHandHold(),
+                pose.offHandRestX(),
+                pose.offHandRestY(),
+                pose.offHandRestZ(),
+                pose.offHandReach());
     }
 
     /**
@@ -428,7 +432,11 @@ public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
                 pose.offHandSlide(),
                 pose.offHandRoll(),
                 pose.offHandElbow(),
-                pose.offHandHold());
+                pose.offHandHold(),
+                pose.offHandRestX(),
+                pose.offHandRestY(),
+                pose.offHandRestZ(),
+                pose.offHandReach());
     }
 
     private void clear() {

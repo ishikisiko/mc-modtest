@@ -120,7 +120,7 @@ final class FirstPersonOffHandTest {
         assertNotEquals(0.6F, tunedRig.arm().thickness());
 
         JsonObject steep = twoHandedJson();
-        steep.getAsJsonObject("rig").getAsJsonObject("off_hand").addProperty("grip_diagonal", 70.0F);
+        steep.getAsJsonObject("rig").getAsJsonObject("off_hand").addProperty("grip_diagonal", 95.0F);
         assertThrows(IllegalArgumentException.class, () -> parse(steep, spearGeometry()));
         JsonObject shortOffset = twoHandedJson();
         shortOffset.getAsJsonObject("rig").getAsJsonObject("off_hand").add("shoulder_offset", new JsonArray());
@@ -525,7 +525,8 @@ final class FirstPersonOffHandTest {
     private static FirstPersonSwing.Pose withOffHand(
             FirstPersonSwing.Pose pose, float slide, float roll, float elbow, float hold) {
         return new FirstPersonSwing.Pose(pose.plane(), pose.sweep(), pose.reach(), pose.lead(), pose.lift(),
-                pose.twist(), pose.x(), pose.y(), pose.z(), pose.gripRoll(), pose.elbow(), slide, roll, elbow, hold);
+                pose.twist(), pose.x(), pose.y(), pose.z(), pose.gripRoll(), pose.elbow(), slide, roll, elbow, hold,
+                pose.offHandRestX(), pose.offHandRestY(), pose.offHandRestZ(), pose.offHandReach());
     }
 
     private static void assertBones(FirstPersonSwing.Arm arm, FirstPersonArmIk.Solution solution, String where) {
