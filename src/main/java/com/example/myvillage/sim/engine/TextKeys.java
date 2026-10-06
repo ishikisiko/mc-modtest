@@ -99,6 +99,14 @@ public final class TextKeys {
     public static final String SLAIN_BATTLE = P + "slain.battle";
     public static final String SLAIN_BATTLE_AGAIN = P + "slain.battle.again";
 
+    // Player sect membership (sect entry, slice 1). Params: player name, sect name.
+    public static final String PLAYER_JOIN = P + "player.join";
+    public static final String PLAYER_LEAVE = P + "player.leave";
+    /** The player's sect was destroyed and the player is a rogue again. */
+    public static final String PLAYER_LEAVE_SECT_GONE = P + "player.leave.sect_gone";
+    public static final String PLAYER_PROMOTE_INNER = P + "player.promote.inner";
+    public static final String PLAYER_PROMOTE_ELDER = P + "player.promote.elder";
+
     /** Slain variants by fight kind. */
     public static final List<String> SLAIN_KINDS = List.of(
             "duel", "rob", "revenge", "revenge_late", "revenge_failed", "war", "contest", "succession");
@@ -215,6 +223,11 @@ public final class TextKeys {
         f.put(WAR_CLASH_AGAIN, new int[] {3 + 2 * w, 1});
         f.put(SLAIN_BATTLE, new int[] {3 + 2 * w, 2});
         f.put(SLAIN_BATTLE_AGAIN, new int[] {3 + 2 * w, 1});
+        f.put(PLAYER_JOIN, new int[] {2, 2});
+        f.put(PLAYER_LEAVE, new int[] {2, 2});
+        f.put(PLAYER_LEAVE_SECT_GONE, new int[] {2, 1});
+        f.put(PLAYER_PROMOTE_INNER, new int[] {2, 1});
+        f.put(PLAYER_PROMOTE_ELDER, new int[] {2, 1});
         for (RealmTable.Realm realm : data.realms().realms()) {
             if (realm.breakthrough() == null) {
                 continue;

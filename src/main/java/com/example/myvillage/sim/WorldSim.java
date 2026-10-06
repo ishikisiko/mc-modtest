@@ -6,6 +6,7 @@ import com.example.myvillage.region.runtime.RegionQueries;
 import com.example.myvillage.sim.data.ContentTables;
 import com.example.myvillage.sim.data.SimDataLoader;
 import com.example.myvillage.sim.engine.Engine;
+import com.example.myvillage.sim.engine.PlayerAffairs;
 import com.example.myvillage.sim.engine.SimContext;
 import com.example.myvillage.sim.model.Person;
 import com.example.myvillage.sim.model.PlayerMember;
@@ -458,26 +459,39 @@ public final class WorldSim {
      * qualification and {@code rules.player.admission}/{@code leave}. Does not change the ledger.
      */
     public Admission admission(String playerId, int sectId, PlayerQualification q) {
-        throw new UnsupportedOperationException("slice 1 package A");
+        return PlayerAffairs.admission(ctx, playerId, sectId, q);
     }
 
     /**
      * Joins the player to the sect as an outer disciple and records a {@code player_join} event.
      * Throws IllegalArgumentException with the {@link Admission} reason when the player may not
      * join.
+     *
+     * <p>Called between settled days: the event is dated {@link #day()} (the day the next
+     * {@link #step} settles), is in the chronicle at once ({@link #recentEvents}), and is not
+     * returned again by the next {@link #step}.
      */
     public SimEvent joinSect(String playerId, String playerName, int sectId, PlayerQualification q) {
-        throw new UnsupportedOperationException("slice 1 package A");
+        return PlayerAffairs.join(ctx, playerId, playerName, sectId, q);
     }
 
-    /** The player leaves their sect (standing penalty, rejoin cooldown); records {@code player_leave}. */
+    /**
+     * The player leaves their sect (standing penalty, rejoin cooldown); records {@code player_leave}
+     * (timed like {@link #joinSect}). Throws IllegalArgumentException("not_member") when the player
+     * is in no sect.
+     */
     public SimEvent leaveSect(String playerId, String playerName) {
-        throw new UnsupportedOperationException("slice 1 package A");
+        return PlayerAffairs.leave(ctx, playerId, playerName);
     }
 
-    /** Admin: sets a member's rank and records {@code player_promotion}; empty when the rank is unchanged. */
+    /**
+     * Admin: sets a member's rank ({@code outer}, {@code inner} or {@code elder}). A rise records
+     * {@code player_promotion} (timed like {@link #joinSect}); empty when the rank is unchanged or
+     * lowered. Throws IllegalArgumentException for an unknown rank or ("not_member") a player in no
+     * sect.
+     */
     public Optional<SimEvent> promotePlayer(String playerId, String playerName, String rank) {
-        throw new UnsupportedOperationException("slice 1 package A");
+        return PlayerAffairs.promote(ctx, playerId, playerName, rank);
     }
 
     /** Refreshes a player's name and qualification snapshot; does nothing when the player has no record. */

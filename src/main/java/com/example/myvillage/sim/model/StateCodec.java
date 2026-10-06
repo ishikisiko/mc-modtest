@@ -23,8 +23,12 @@ import java.util.List;
  */
 public final class StateCodec {
     public static final String FORMAT = "myvillage:world_sim";
-    /** 2 (0.37.0): sects carry {@code heritage}, the state carries {@code lost_heritages}. */
-    public static final int VERSION = 2;
+    /**
+     * 2 (0.37.0): sects carry {@code heritage}, the state carries {@code lost_heritages}.
+     * 3 (0.41.0): the state carries {@code player_members} (players' sect records by player id);
+     * an older payload reads with none.
+     */
+    public static final int VERSION = 3;
 
     private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
 
@@ -76,6 +80,11 @@ public final class StateCodec {
             lost.add(lo);
         }
         o.add("lost_heritages", lost);
+        JsonArray players = new JsonArray();
+        for (PlayerMember m : s.playerMembers.values()) {
+            players.add(playerMember(m));
+        }
+        o.add("player_members", players);
         JsonArray persons = new JsonArray();
         for (Person p : s.persons.values()) {
             persons.add(person(p, realms));
@@ -91,6 +100,35 @@ public final class StateCodec {
             chronicle.add(event(e));
         }
         o.add("chronicle", chronicle);
+        return o;
+    }
+
+    private static JsonObject playerMember(PlayerMember m) {
+        JsonObject o = new JsonObject();
+        o.addProperty("player", m.playerId);
+        o.addProperty("name", m.playerName);
+        o.addProperty("sect", m.sectId);
+        o.addProperty("rank", m.rank);
+        o.addProperty("joined_day", m.joinedDay);
+        o.addProperty("master", m.masterId);
+        o.addProperty("contribution", m.contribution);
+        JsonArray borrowed = new JsonArray();
+        m.borrowed.forEach(borrowed::add);
+        o.add("borrowed", borrowed);
+        JsonArray standings = new JsonArray();
+        m.standings.forEach((sect, value) -> {
+            JsonObject so = new JsonObject();
+            so.addProperty("sect", sect);
+            so.addProperty("value", value);
+            standings.add(so);
+        });
+        o.add("standings", standings);
+        o.addProperty("left_sect", m.leftSectId);
+        o.addProperty("left_day", m.leftDay);
+        o.addProperty("realm", m.realmId);
+        o.addProperty("stage", m.stageIndex);
+        o.addProperty("awakened", m.awakened);
+        o.addProperty("root_peak_bp", m.rootPeakBp);
         return o;
     }
 
@@ -315,6 +353,12 @@ public final class StateCodec {
         for (Obj lo : o.optObjects("lost_heritages")) {
             s.lostHeritages.add(new LostHeritage(lo.str("heritage"), lo.optInt("sect", -1), lo.lng("day")));
         }
+        for (Obj mo : o.optObjects("player_members")) {
+            PlayerMember m = readPlayerMember(mo);
+            if (s.playerMembers.put(m.playerId, m) != null) {
+                throw new SimFormatException("player_members lists player \"" + m.playerId + "\" twice");
+            }
+        }
         for (Obj po : o.objects("persons")) {
             Person p = readPerson(po, realms);
             s.persons.put(p.id, p);
@@ -336,6 +380,32 @@ public final class StateCodec {
             throw new SimFormatException("next_event_id " + s.nextEventId + " is not above the last event " + lastId);
         }
         return s;
+    }
+
+    private static PlayerMember readPlayerMember(Obj o) {
+        PlayerMember m = new PlayerMember();
+        m.playerId = o.str("player");
+        m.playerName = o.optStr("name", "");
+        m.sectId = o.optInt("sect", -1);
+        m.rank = o.optStr("rank", "outer");
+        m.joinedDay = o.optLong("joined_day", -1);
+        m.masterId = o.optInt("master", -1);
+        m.contribution = o.optInt("contribution", 0);
+        if (o.has("borrowed")) {
+            for (JsonElement b : o.arr("borrowed")) {
+                m.borrowed.add(b.getAsString());
+            }
+        }
+        for (Obj so : o.optObjects("standings")) {
+            m.standings.put(so.integer("sect"), so.integer("value"));
+        }
+        m.leftSectId = o.optInt("left_sect", -1);
+        m.leftDay = o.optLong("left_day", -1);
+        m.realmId = o.optStr("realm", "mortal");
+        m.stageIndex = o.optInt("stage", 0);
+        m.awakened = o.optBool("awakened", false);
+        m.rootPeakBp = o.optInt("root_peak_bp", 0);
+        return m;
     }
 
     private static Sect readSect(Obj o) {

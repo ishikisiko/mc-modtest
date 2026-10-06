@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.example.myvillage.sim.data.ContentTables;
 import com.example.myvillage.sim.data.SimDataLoader;
+import com.example.myvillage.sim.model.StateCodec;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -141,7 +142,7 @@ class WorldSimHeritageTest {
     void aVersionOnePayloadWithoutHeritagesLoads() {
         WorldSim sim = WorldSim.genesis(SEED, SimFixtures.graph(SEED), always(), "small", DPY);
         JsonObject json = JsonParser.parseString(new String(sim.toBytes(), StandardCharsets.UTF_8)).getAsJsonObject();
-        assertEquals(2, json.get("version").getAsInt());
+        assertEquals(StateCodec.VERSION, json.get("version").getAsInt());
         json.addProperty("version", 1);
         json.remove("lost_heritages");
         for (JsonElement s : json.getAsJsonArray("sects")) {
@@ -156,7 +157,7 @@ class WorldSimHeritageTest {
         }
         assertTrue(old.lostHeritageIds().isEmpty());
         JsonObject resaved = JsonParser.parseString(new String(old.toBytes(), StandardCharsets.UTF_8)).getAsJsonObject();
-        assertEquals(2, resaved.get("version").getAsInt());
+        assertEquals(StateCodec.VERSION, resaved.get("version").getAsInt());
         SimFixtures.run(old, 5L * DPY, DPY);
     }
 

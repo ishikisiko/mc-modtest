@@ -275,6 +275,7 @@ public final class SectPolitics {
             }
         }
         ctx.membershipChanged();
+        PlayerAffairs.sectDissolved(ctx, sect, cause);
         loseHeritage(ctx, sect, cause);
     }
 
