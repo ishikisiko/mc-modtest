@@ -39,8 +39,10 @@ def rows_from_world_sim(doc: dict, rules: dict) -> list[dict]:
 
 
 def catalogue_text(rows: list[dict]) -> str:
-    """The catalogue's layout: one row per line, fields in ``CATALOGUE_KEYS`` order."""
-    ordered = [{k: row[k] for k in CATALOGUE_KEYS} for row in rows]
+    """The catalogue's layout: one row per line, fields in ``CATALOGUE_KEYS`` order, then the optional
+    hand-set ``effects`` override when the row has one."""
+    ordered = [{k: row[k] for k in CATALOGUE_KEYS} | ({"effects": row["effects"]} if "effects" in row else {})
+               for row in rows]
     return generator._listing("techniques", ordered)
 
 

@@ -146,6 +146,111 @@ class GenerationTest(Fixture):
         self.assertEqual(self.run_cli(), 2)
 
 
+
+class RowEffectsTest(Fixture):
+    """The optional per-row ``effects`` object laid over the rules.json default of the category."""
+
+    MOVEMENT = {"dash_distance": 3.5, "invulnerable_ticks": 5, "qi_cost": 6, "cooldown_ticks": 30}
+
+    def technique(self, tid: str) -> dict:
+        return json.loads((self.root / generator.TECHNIQUE_REL / f"{tid}.json").read_text("utf-8"))
+
+    def edit_row(self, tid: str, change) -> None:
+        def apply(doc):
+            change(next(r for r in doc["techniques"] if r["id"] == tid))
+        self.edit_source("catalogue.json", apply)
+
+    def problems(self) -> str:
+        with self.assertRaises(generator.CatalogueError) as caught:
+            generator.plan(self.root, self.src)
+        return "\n".join(caught.exception.problems)
+
+    def test_the_movement_rows_carry_their_dash_block(self) -> None:
+        self.write()
+        liuyun = self.technique("liuyun_bu")
+        self.assertEqual(liuyun["category"], "movement")
+        self.assertEqual(liuyun["effects"], {"movement": self.MOVEMENT})
+        self.assertEqual(list(liuyun["effects"]["movement"]), list(generator.MOVEMENT_FIELDS))
+        taxue = self.technique("taxue_wuhen")
+        self.assertEqual(taxue["lineage"], {"previous": "myvillage:liuyun_bu"})
+        self.assertEqual(taxue["effects"], {"movement": {"dash_distance": 4.5, "invulnerable_ticks": 7,
+                                                         "qi_cost": 10, "cooldown_ticks": 24}})
+        self.assertEqual(list(taxue), ["translation_key", "category", "grade", "elements", "requirements",
+                                       "lineage", "effects", "study"])
+
+    def test_a_row_block_overrides_the_category_default_and_others_keep_it(self) -> None:
+        self.edit_row("yinqi_jue", lambda r: r.update(effects={"core": {"meditation_route": "dazhoutian"}}))
+        self.write()
+        self.assertEqual(self.technique("yinqi_jue")["effects"], {"core": {"meditation_route": "dazhoutian"}})
+        self.assertEqual(self.technique("tuna_xinfa")["effects"], {"core": {"meditation_route": "xiaozhoutian"}})
+
+    def test_merge_is_shallow_per_effect_kind_and_row_wins(self) -> None:
+        def defaults(d):
+            d["effects"]["movement"] = {"movement": dict(self.MOVEMENT)}
+        self.edit_source("rules.json", defaults)
+        self.edit_row("liuyun_bu", lambda r: r.pop("effects"))
+        self.edit_row("taxue_wuhen", lambda r: r["effects"].update(
+            movement={"cooldown_ticks": 1, "qi_cost": 2, "invulnerable_ticks": 3, "dash_distance": 4}))
+        self.write()
+        self.assertEqual(self.technique("liuyun_bu")["effects"], {"movement": self.MOVEMENT})
+        self.assertEqual(self.technique("taxue_wuhen")["effects"], {"movement": {
+            "dash_distance": 4, "invulnerable_ticks": 3, "qi_cost": 2, "cooldown_ticks": 1}})
+
+    def test_bad_movement_blocks_are_refused(self) -> None:
+        cases = {
+            "dash_distance": (0, "dash_distance must be a finite number > 0"),
+            "invulnerable_ticks": (-1, "invulnerable_ticks must be an integer >= 0"),
+            "qi_cost": (True, "qi_cost must be an integer >= 0"),
+            "cooldown_ticks": (2.5, "cooldown_ticks must be an integer >= 0"),
+        }
+        for key, (value, message) in cases.items():
+            with self.subTest(key=key):
+                shutil.copy(generator.SOURCE_DIR / "catalogue.json", self.src / "catalogue.json")
+                self.edit_row("liuyun_bu", lambda r: r["effects"]["movement"].update({key: value}))
+                self.assertIn(f"catalogue.json: liuyun_bu: effects.movement.{message}", self.problems())
+                self.assertEqual(self.run_cli(), 2)
+        for value in (float("nan"), float("inf"), -3.5, "3.5", False):
+            with self.subTest(dash=value):
+                shutil.copy(generator.SOURCE_DIR / "catalogue.json", self.src / "catalogue.json")
+                self.edit_row("liuyun_bu", lambda r: r["effects"]["movement"].update(dash_distance=value))
+                self.assertIn("effects.movement.dash_distance must be a finite number > 0", self.problems())
+
+    def test_unknown_missing_and_misplaced_effects_are_refused(self) -> None:
+        def bad(d):
+            rows = {r["id"]: r for r in d["techniques"]}
+            rows["liuyun_bu"]["effects"]["movement"]["speed"] = 2
+            del rows["liuyun_bu"]["effects"]["movement"]["qi_cost"]
+            rows["taxue_wuhen"]["effects"]["dash"] = {}
+            rows["yinqi_jue"]["effects"] = {"movement": dict(self.MOVEMENT)}
+            rows["ruijin_jue"]["effects"] = ["core"]
+            rows["qingxi_jue"]["extra"] = 1
+        self.edit_source("catalogue.json", bad)
+        text = self.problems()
+        self.assertIn("liuyun_bu: effects.movement: unknown fields ['speed']", text)
+        self.assertIn("liuyun_bu: effects.movement: missing fields ['qi_cost']", text)
+        self.assertIn("taxue_wuhen: effects: unknown effect kind 'dash'", text)
+        self.assertIn("yinqi_jue: effects: a movement block is only accepted on a movement technique, not core", text)
+        self.assertIn("ruijin_jue: effects must be an object keyed by effect kind", text)
+        self.assertIn("qingxi_jue: unknown fields ['extra']", text)
+
+    def test_a_bad_movement_default_in_rules_is_refused(self) -> None:
+        self.edit_source("rules.json", lambda d: d["effects"].update(
+            movement={"movement": {**self.MOVEMENT, "cooldown_ticks": -1}}))
+        self.assertIn("rules.json: effects.movement.movement.cooldown_ticks must be an integer >= 0", self.problems())
+
+    def test_row_effects_stay_idempotent_under_check(self) -> None:
+        self.edit_row("yinqi_jue", lambda r: r.update(effects={"core": {"meditation_route": "dazhoutian"}}))
+        self.assertEqual(self.run_cli(), 0)
+        self.assertEqual(self.write(), [])
+        self.assertEqual(self.run_cli("--check"), 0)
+        self.edit_row("liuyun_bu", lambda r: r["effects"]["movement"].update(dash_distance=3.75))
+        self.assertEqual(generator.check(self.root, self.src),
+                         [f"{(generator.TECHNIQUE_REL / 'liuyun_bu.json').as_posix()}: differs from the "
+                          f"generated content"])
+        self.assertEqual(self.run_cli(), 0)
+        self.assertEqual(self.run_cli("--check"), 0)
+        self.assertEqual(self.technique("liuyun_bu")["effects"]["movement"]["dash_distance"], 3.75)
+
 class CheckTest(Fixture):
     def test_check_fails_on_a_tampered_output(self) -> None:
         self.assertEqual(self.run_cli(), 0)
@@ -233,6 +338,8 @@ class ClassificationTest(unittest.TestCase):
             "铁骨功": ("body", None), "金刚功": ("body", None), "磐石功": ("body", None), "岩甲诀": ("body", None),
             "石甲玄功": ("body", None), "元神不灭诀": ("core", None), "青木长春功": ("core", None),
             "白虎锻金功": ("core", None), "七杀金章": ("core", None),
+            "流云步": ("movement", None), "踏雪无痕": ("movement", None), "某某身法": ("movement", None),
+            "土遁诀": ("movement", None),
         }
         for name, expected in cases.items():
             self.assertEqual(importer.classify(name, self.rules), expected, name)

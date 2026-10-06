@@ -6,7 +6,9 @@
 - ``data/myvillage/myvillage/technique/<id>.json`` for every catalogue row (hand-written techniques named
   in ``rules.json`` ``hand_written_techniques`` are never written or removed); any other JSON file in that
   directory is stale and removed. Each file ends with the manual ``study`` block of its grade
-  (``rules.json`` ``study_by_grade``).
+  (``rules.json`` ``study_by_grade``). Its ``effects`` are the ``rules.json`` default for the category,
+  overridden per effect kind (core/active/movement/body) by the row's optional ``effects`` object; a
+  ``movement`` block is validated like the Java ``TechniqueEffects.Movement``.
 - ``data/myvillage/myvillage/school/<id>.json`` and ``heritage/<id>.json``: the whole directories.
 - ``data/myvillage/world_sim/techniques.json`` and ``heritages.json``.
 - In ``assets/myvillage/lang/{en_us,zh_cn}.json``: the keys ``cultivation.technique.myvillage.<id>``,
@@ -18,6 +20,7 @@
 from __future__ import annotations
 
 import json
+import math
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -46,6 +49,9 @@ HERITAGE_LENGTH = range(2, 5)
 ID = re.compile(r"[a-z0-9_]+")
 LANG_SECTIONS = ("technique", "school", "heritage")
 STUDY_FIELDS = ("points", "gates", "gate_stability_cost")
+CATALOGUE_FIELDS = ("id", "zh", "category", "grade", "element", "school", "previous", "effects")
+MOVEMENT_FIELDS = ("dash_distance", "invulnerable_ticks", "qi_cost", "cooldown_ticks")
+JAVA_INT_MAX = 2**31 - 1
 
 
 class CatalogueError(Exception):
@@ -165,6 +171,9 @@ def validate_sources(s: Sources) -> list[str]:
                                 "and gate_stability_cost >= 0")
     if not isinstance(rules.get("effects"), dict) or any(k not in CATEGORIES for k in rules["effects"]):
         problems.append(f"rules.json: effects keys must be categories {list(CATEGORIES)}")
+    else:
+        for category, effects in sorted(rules["effects"].items()):
+            problems.extend(effects_problems(effects, category, f"rules.json: effects.{category}"))
     hand_written = rules.get("hand_written_techniques")
     if not isinstance(hand_written, list) or not all(isinstance(h, str) for h in hand_written):
         problems.append("rules.json: hand_written_techniques must be a list of ids")
@@ -202,9 +211,11 @@ def validate_sources(s: Sources) -> list[str]:
         prev = row.get("previous")
         if prev is not None and (prev not in techniques or prev == tid):
             problems.append(f"{where}: previous {prev!r} is not another catalogue technique")
-        unknown = set(row) - {"id", "zh", "category", "grade", "element", "school", "previous"}
+        unknown = set(row) - set(CATALOGUE_FIELDS)
         if unknown:
             problems.append(f"{where}: unknown fields {sorted(unknown)}")
+        if "effects" in row and row.get("category") in CATEGORIES:
+            problems.extend(effects_problems(row["effects"], row["category"], f"{where}: effects"))
     problems.extend(lineage_cycles({t: r.get("previous") for t, r in techniques.items()}, "catalogue.json"))
 
     heritages = _check_ids(s.heritages, "heritages.json", problems)
@@ -238,6 +249,58 @@ def validate_sources(s: Sources) -> list[str]:
             if techniques[t].get("previous") != prev:
                 problems.append(f"{where}: {t} must have previous {prev!r}, has {techniques[t].get('previous')!r}")
     return problems
+
+
+def effects_problems(effects: Any, category: str, where: str) -> list[str]:
+    """An effects object keyed by effect kind; Java accepts only the kind matching ``category``."""
+    if not isinstance(effects, dict):
+        return [f"{where} must be an object keyed by effect kind"]
+    problems: list[str] = []
+    for kind, block in effects.items():
+        if kind not in CATEGORIES:
+            problems.append(f"{where}: unknown effect kind {kind!r} (one of {list(CATEGORIES)})")
+        elif kind != category:
+            problems.append(f"{where}: a {kind} block is only accepted on a {kind} technique, not {category}")
+        elif not isinstance(block, dict):
+            problems.append(f"{where}.{kind} must be an object")
+        elif kind == "movement":
+            problems.extend(movement_problems(block, f"{where}.movement"))
+    return problems
+
+
+def _is_int(value: Any) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool)
+
+
+def movement_problems(block: dict, where: str) -> list[str]:
+    """The Java ``TechniqueEffects.Movement`` shape: every field present, nothing else."""
+    problems: list[str] = []
+    unknown = set(block) - set(MOVEMENT_FIELDS)
+    if unknown:
+        problems.append(f"{where}: unknown fields {sorted(unknown)}")
+    missing = [k for k in MOVEMENT_FIELDS if k not in block]
+    if missing:
+        problems.append(f"{where}: missing fields {missing}")
+    if "dash_distance" in block:
+        dash = block["dash_distance"]
+        if isinstance(dash, bool) or not isinstance(dash, (int, float)) or not math.isfinite(dash) or dash <= 0:
+            problems.append(f"{where}.dash_distance must be a finite number > 0, got {dash!r}")
+    for key in MOVEMENT_FIELDS[1:]:
+        if key in block and not (_is_int(block[key]) and 0 <= block[key] <= JAVA_INT_MAX):
+            problems.append(f"{where}.{key} must be an integer >= 0, got {block[key]!r}")
+    return problems
+
+
+def technique_effects(row: dict, s: Sources) -> dict:
+    """The category default from ``rules.json`` with the row's blocks laid over it, kinds in canonical order."""
+    merged = {**(s.rules["effects"].get(row["category"]) or {}), **(row.get("effects") or {})}
+    out: dict[str, Any] = {}
+    for kind in CATEGORIES:
+        if kind not in merged:
+            continue
+        block = merged[kind]
+        out[kind] = {k: block[k] for k in MOVEMENT_FIELDS} if kind == "movement" else block
+    return out
 
 
 def lineage_cycles(previous: dict[str, str | None], file: str) -> list[str]:
@@ -306,7 +369,7 @@ def technique_doc(row: dict, s: Sources, requirements: dict[int, tuple[str, str]
     doc["requirements"] = req
     if row.get("previous") is not None:
         doc["lineage"] = {"previous": s.rid(row["previous"])}
-    effects = s.rules["effects"].get(row["category"])
+    effects = technique_effects(row, s)
     if effects:
         doc["effects"] = effects
     study = s.rules["study_by_grade"][str(grade)]

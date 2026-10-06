@@ -25,7 +25,8 @@
     "default": {"category": "core", "school": null},
     "rules": [
       {"name_contains": ["剑诀", "剑典", "剑经", "剑章"], "category": "active", "school": "sword"},
-      {"name_contains": ["锻体", "淬体", "护体", "不灭体", "金身", "铁骨", "金刚功", "磐石功", "岩甲", "石甲"], "category": "body", "school": null}
+      {"name_contains": ["锻体", "淬体", "护体", "不灭体", "金身", "铁骨", "金刚功", "磐石功", "岩甲", "石甲"], "category": "body", "school": null},
+      {"name_contains": ["步", "身法", "无痕", "遁"], "category": "movement", "school": null}
     ]
   }
 }

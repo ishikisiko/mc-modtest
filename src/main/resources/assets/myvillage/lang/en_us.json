@@ -917,5 +917,7 @@
   "combat.myvillage.move.basic_fist_02_horizontal_palm": "Horizontal Palm",
   "combat.myvillage.move.basic_fist_03_uppercut": "Uppercut",
   "combat.myvillage.move.basic_fist_04_chop": "Chopping Palm",
-  "combat.myvillage.move.basic_fist_05_step_double_strike": "Step-in Double Strike"
+  "combat.myvillage.move.basic_fist_05_step_double_strike": "Step-in Double Strike",
+  "cultivation.technique.myvillage.liuyun_bu": "流云步",
+  "cultivation.technique.myvillage.taxue_wuhen": "踏雪无痕"
 }

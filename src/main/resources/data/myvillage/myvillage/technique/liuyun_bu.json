@@ -1,0 +1,25 @@
+{
+  "translation_key": "cultivation.technique.myvillage.liuyun_bu",
+  "category": "movement",
+  "grade": 1,
+  "elements": [
+    "myvillage:water"
+  ],
+  "requirements": {
+    "minimum_realm": "myvillage:qi_refining",
+    "minimum_stage": "myvillage:qi_refining_1"
+  },
+  "effects": {
+    "movement": {
+      "dash_distance": 3.5,
+      "invulnerable_ticks": 5,
+      "qi_cost": 6,
+      "cooldown_ticks": 30
+    }
+  },
+  "study": {
+    "points": 4000,
+    "gates": 0,
+    "gate_stability_cost": 0
+  }
+}
