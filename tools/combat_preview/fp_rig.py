@@ -753,6 +753,22 @@ def solve_free_off_arm(side, rig, pose, equip=0.0):
                            dict(grip_y=0.0, wanted_y=0.0, slid=False, hold=1.0, free=True))
 
 
+def paired_item_matrix(side, rig, geo, off):
+    """FirstPersonWeaponTransform.pairedItem: a paired weapon's second on the free off hand, item quad
+    coordinates (blocks, the model's 16 px cube as 0..1) to view space.  Model +X on the off palm, +Y
+    wrist to knuckles, -Z toward the thumb, grip_center on the off fist's grip point, scaled by
+    weapon_scale times the off arm's thickness over the main arm's; for a right main arm the
+    right-hand placement reflected (a left gauntlet, determinant < 0)."""
+    mirror = side > 0
+    R, g = off["fist_R"], off["grip"]
+    if mirror:
+        R, g = MIRROR @ R @ MIRROR, MIRROR @ g
+    thumb, hand, palm = R[:, 0], R[:, 1], R[:, 2]
+    scale = rig.weapon_scale * _OffArmRig(rig).thickness / rig.thickness
+    M = A(np.c_[palm, hand, -thumb] * scale, g) @ A(t=-geo.grip / 16.0)
+    return A(MIRROR) @ M if mirror else M
+
+
 def solve_off_arm(side, rig, geo, pose, equip=0.0):
     """FirstPersonArmIk.solveOffHand: None without rig.off_hand or at off_hand_hold 0."""
     if rig.off_hand is not None and rig.off_hand["free"]:
@@ -1033,7 +1049,8 @@ def trail_quads(side, rig, geo, move, now):
 
 
 # ============================================================================ raster
-TAGS = {"bg": 0, "weapon": 1, "upper": 2, "forearm": 3, "fist": 4, "off_upper": 5, "off_forearm": 6, "off_fist": 7}
+TAGS = {"bg": 0, "weapon": 1, "upper": 2, "forearm": 3, "fist": 4, "off_upper": 5, "off_forearm": 6, "off_fist": 7,
+        "paired": 8}
 
 
 class Frame:
@@ -1211,6 +1228,8 @@ class Scene:
             if msg.startswith("ERROR"):
                 loud(f"item model: {msg}")
         self.side = 1.0 if a.main_arm == "right" else -1.0
+        # 0.39.1: a paired weapon (one item worn on both hands) also draws its second on the free off hand.
+        self.paired = bool(w["weapon"].get("paired")) and not getattr(a, "no_paired", False)
         self.skin, self.arms, self.skin_label = load_skin(a.skin, a.arms, a.vanilla_jar)
         self.width_px = 3.0 if self.arms == "slim" else 4.0
         self.markers = []
@@ -1251,11 +1270,12 @@ class Scene:
             if self.a.sleeve:
                 for P, uv, tag in arm_polys(off, off_rig, self.width_px, -self.side, True, SLEEVE_INFLATION_PX, "off_"):
                     frame.poly(P, np.array(uv), "cutout_blend", self.skin, shade_of(P), TAGS[tag])
-        for q in self.variant.quads:
-            P = q.pos @ M[:3, :3].T + M[:3, 3]
-            uv = np.array([(u / 16.0, v / 16.0) for u, v in q.uv]) if q.uv else np.zeros((4, 2))
-            tex = q.tex if q.tex is not None else np.array([[[*q.color, 1.0]]], np.float32)
-            frame.poly(P, uv, "cutout", tex, shade_of(P) if q.shade else 1.0, TAGS["weapon"])
+        if off is not None and off.get("free") and self.paired:
+            # A paired weapon's second on the free off hand (PairedWeapons / FirstPersonArmRenderer):
+            # the same model, mirrored on a left hand, its quads reversed to keep their fronts out.
+            Mp = paired_item_matrix(self.side, self.rig, self.geo, off) @ A(np.eye(3) / 16.0)
+            self._draw_item(frame, Mp, TAGS["paired"])
+        self._draw_item(frame, M, TAGS["weapon"])
         for P, uv, tag in arm_polys(sol, self.rig, self.width_px, self.side, False, 0.0):
             frame.poly(P, np.array(uv), "solid", self.skin, shade_of(P), TAGS[tag])
         if self.a.sleeve:
@@ -1265,6 +1285,16 @@ class Scene:
             for P, rgba in trail_quads(self.side, self.rig, self.geo, move, tick):
                 frame.poly(P, rgba, "blend", cull=False)
         return pose, sol, M
+
+    def _draw_item(self, frame, M, tag):
+        flip = np.linalg.det(M[:3, :3]) < 0
+        for q in self.variant.quads:
+            P = q.pos @ M[:3, :3].T + M[:3, 3]
+            uv = np.array([(u / 16.0, v / 16.0) for u, v in q.uv]) if q.uv else np.zeros((4, 2))
+            if flip:
+                P, uv = P[::-1], uv[::-1]
+            tex = q.tex if q.tex is not None else np.array([[[*q.color, 1.0]]], np.float32)
+            frame.poly(P, uv, "cutout", tex, shade_of(P) if q.shade else 1.0, tag)
 
     def points(self, M, sol):
         pts = {"grip_center": pt(M, self.geo.grip), "head_tip": pt(M, self.geo.tip),
@@ -1335,7 +1365,9 @@ def measure(scene, frame, pts, sol, move, tick, pose):
     ids = frame.id
     out = {"move": scene.rig.moves.index(move) + 1, "move_id": move.id, "tick": tick,
            "pose": dict(zip(POSE_FIELDS, [round(v, 4) for v in pose])),
-           "cover_weapon": float((ids == 1).sum()) / tot, "cover_arm": float((ids >= 2).sum()) / tot,
+           "cover_weapon": float((ids == 1).sum()) / tot,
+           "cover_arm": float(((ids >= 2) & (ids <= 7)).sum()) / tot,
+           "cover_paired": float((ids == 8).sum()) / tot,
            "cover_fist": float((ids == 4).sum()) / tot,
            "ik": {"wrist_flexion": round(sol["flex"], 1), "wrist_deviation": round(sol["dev"], 1),
                   "lag_scale": round(sol["lag_scale"], 3), "shoulder_clamped": bool(sol["clamped"]),

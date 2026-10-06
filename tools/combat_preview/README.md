@@ -13,9 +13,9 @@ python3 -m tools.combat_preview fp|pose|model|sweep|diff [options]    # <tool> -
 
 | Tool | What it draws |
 |---|---|
-| `fp` | First-person frames of a weapon's rig at any tick: item model, main arm, off arm (`rig.off_hand`), trail, crosshair and HUD outline, as the client's freeze probe shows them. A port of `FirstPersonSwing`, `FirstPersonWeaponTransform`, `FirstPersonArmIk`, `FirstPersonArmLag`, `FirstPersonArmRenderer`/`FirstPersonArmModel`, `FirstPersonWeaponTrail` and `WeaponGeometry`. |
-| `pose` | Third-person PAL poses from a `player_animations` file with the item model in the right hand: F5 back and front cameras as the capture tool frames them, orthographic side and top. |
-| `model` | An item model in each display context (front, side, iso, hilt, tip, third-person hand, GUI), with the geometry contract's points marked. |
+| `fp` | First-person frames of a weapon's rig at any tick: item model, main arm, off arm (`rig.off_hand`), a `paired` weapon's mirrored second on the free off hand (0.39.1, `FirstPersonWeaponTransform.pairedItem`, in the parity golden as `paired_item`), trail, crosshair and HUD outline, as the client's freeze probe shows them. A port of `FirstPersonSwing`, `FirstPersonWeaponTransform`, `FirstPersonArmIk`, `FirstPersonArmLag`, `FirstPersonArmRenderer`/`FirstPersonArmModel`, `FirstPersonWeaponTrail` and `WeaponGeometry`. |
+| `pose` | Third-person PAL poses from a `player_animations` file with the item model in the right hand (and, for a `paired` weapon, its mirror image on the left hand as `PairedWeaponLayer` draws it; `--paired auto|on|off`): F5 back and front cameras as the capture tool frames them, orthographic side and top. |
+| `model` | An item model in each display context (front, side, iso, hilt, tip, third-person hand, GUI), with the geometry contract's points marked; `tp_pair` (both hands, added by default for a `paired` weapon). |
 | `sweep` | Candidate values for rig fields side by side: `fp` frames for each value, close-ups where they differ, changed pixels against the shipped value, and a rig file per candidate. See "Tuning a rig value". |
 | `diff` | Before/after evidence from two sets of stills (capture directories or PNG folders): side-by-side sheet, changed pixels and their bounding box per frame, close-ups. See "Tuning a rig value". |
 

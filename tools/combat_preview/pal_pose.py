@@ -352,7 +352,7 @@ def _fill(vals, default):
 class Rig:
     """Posed figure + item at one tick: world-space triangles and measurement points."""
 
-    def __init__(self, anim, tick, item, geo, markers, pitch_deg=0.0, slim=False):
+    def __init__(self, anim, tick, item, geo, markers, pitch_deg=0.0, slim=False, paired=False):
         self.tick = tick
         parts = dict(PARTS, **SLIM_ARMS) if slim else PARTS
         hand_shift = 0.5 if slim else 0.0
@@ -399,6 +399,21 @@ class Rig:
             flip = np.linalg.det(self.item_m[:3, :3]) < 0
             for q in v.quads:
                 self._add_quad(_apply(self.item_m, q.pos), q.uv, q.tex, q.color, q.shade, flip)
+        self.paired_m = None
+        if item is not None and paired:
+            # 0.39.1 PairedWeaponLayer: a paired weapon's second on the empty left hand, placed as
+            # ItemInHandLayer places a left-hand item, then the right-hand display reflected across the
+            # arm's side (S(-1, 1, 1)) so the left hand wears the mirror image.  No left_item bone.
+            Ml, lscl, lpx, lrot = self.parts["left_arm"]
+            lhand = (root @ mat_t((lpx[0] - hand_shift) / 16, lpx[1] / 16, lpx[2] / 16)
+                     @ mat_zyx(lrot[2], lrot[1], lrot[0])
+                     @ mat_t(0, (lscl[1] - 1) * 0.609375, (lscl[2] - 1) * 0.0625))
+            v = item.variant("thirdperson_righthand")
+            self.paired_m = (lhand @ mat_r("x", -math.pi / 2) @ mat_r("y", math.pi) @ mat_t(-1 / 16, 0.125, -0.625)
+                             @ mat_s(-1, 1, 1) @ pim.display_matrix(v.display("thirdperson_righthand")))
+            flip = np.linalg.det(self.paired_m[:3, :3]) < 0
+            for q in v.quads:
+                self._add_quad(_apply(self.paired_m, q.pos), q.uv, q.tex, q.color, q.shade, flip)
         # measurement points (world)
         Mr_arm = Marm @ mat_s(PX, PX, PX)
         Ml_arm = self.parts["left_arm"][0] @ mat_s(PX, PX, PX)
@@ -726,6 +741,7 @@ def build(a):
     item = None
     if a.item and a.item != "none":
         item = pim.ItemModel(assets, a.item)
+    paired = item is not None and (a.paired == "on" or (a.paired == "auto" and pim.paired_weapon(a.root, a.item)))
     geo, geo_src = load_geometry(assets, a.geometry, a.item if a.item != "none" else None)
     markers = parse_markers(a.marker, geo)
     cap = {"fov": a.fov, "back_pitch": a.back_pitch, "front_pitch": a.front_pitch, "back_wall": a.wall,
@@ -733,12 +749,14 @@ def build(a):
     views = [v for v in a.views.split(",") if v]
     cw, ch = (int(x) for x in a.cell.lower().split("x"))
     rows, row_labels, report = [], [], {"animation": anim.id, "length_ticks": anim.length, "ticks": ticks,
-                                        "item": a.item, "geometry": geo_src, "views": {}, "measure": []}
+                                        "item": a.item, "paired": paired, "geometry": geo_src, "views": {},
+                                        "measure": []}
     measured = False
     notes = []
     for vname in views:
         view = make_view(vname, cap)
-        rigs = [Rig(anim, t, item, geo, markers, pitch_deg=view.pitch, slim=a.arms == "slim") for t in ticks]
+        rigs = [Rig(anim, t, item, geo, markers, pitch_deg=view.pitch, slim=a.arms == "slim", paired=paired)
+                for t in ticks]
         if view.fov and item is not None:
             near = min(float((np.vstack([t.p for t in r.tris]) - view.pos).dot(view.f).min()) for r in rigs)
             if near < FIT_MIN_DEPTH:
@@ -822,6 +840,9 @@ def main(argv=None):
                     help="x,y,z in item-model px, or a point name of the contract (e.g. off_hand_grip_center); "
                          "repeatable. Prints the left-fist distance to it and to the weapon axis per tick")
     ap.add_argument("--show-axis", action="store_true", help="draw left fist → weapon axis even without --marker")
+    ap.add_argument("--paired", choices=("auto", "on", "off"), default="auto",
+                    help="draw a paired weapon's mirrored second on the left hand (auto: when the weapon file of "
+                         "--item sets paired)")
     ap.add_argument("--views", default="back,front,side,top")
     ap.add_argument("--frame", choices=("fit", "game"), default="fit",
                     help="back/front: crop to figure+item (fit) or the full 960x540 game frame (game)")

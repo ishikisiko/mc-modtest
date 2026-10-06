@@ -82,9 +82,11 @@ class FirstPersonSolverParityTest(unittest.TestCase):
 
     def test_python_port_matches_the_java_golden(self):
         fp, t = self.fp, self.tol
-        arms = off_arms = 0
+        arms = off_arms = paired = 0
         for entry in self.golden["weapons"]:
             rig, geo = self.load(entry)
+            ns, path = entry["weapon"].split(":", 1)
+            weapon = json.loads((ROOT / f"src/main/resources/data/{ns}/combat/weapon/{path}.json").read_text())
             self.assertEqual([m.id for m in rig.moves], [m["id"] for m in entry["moves"]],
                              f"{entry['weapon']}: the rig's moves differ from the golden's")
             for move, expected_move in zip(rig.moves, entry["moves"]):
@@ -115,10 +117,18 @@ class FirstPersonSolverParityTest(unittest.TestCase):
                                 self.near(e["wanted_grip_y"], off["wanted_y"], t["model_px"],
                                           f"{at} off wanted grip y")
                             self.near(e["hold"], off["hold"], t["scale"], f"{at} off hold")
+                            # 0.39.1: a paired weapon's second on the free off hand.
+                            drawn = bool(weapon.get("paired")) and bool(off.get("free"))
+                            self.assertEqual("paired_item" in e, drawn, f"{at} paired second drawn")
+                            if drawn:
+                                self.near(e["paired_item"], fp.paired_item_matrix(side, rig, geo, off)[:3, :4],
+                                          t["position"], f"{at} paired second")
+                                paired += 1
                             off_arms += 1
                         arms += 1
         self.assertGreater(arms, 0)
         self.assertGreater(off_arms, 0, "no off-arm sample was compared")
+        self.assertGreater(paired, 0, "no paired second was compared")
 
     def test_off_arm_overrides_match_the_shared_fixture(self):
         # No shipped rig uses rig.off_hand upper_arm/forearm/rest_direction/rest_reach, so the golden

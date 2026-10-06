@@ -392,6 +392,30 @@ def display_matrix(d):
     return A
 
 
+def paired_weapon(roots, model_ref) -> bool:
+    """0.39.1: true when a combat weapon file under the roots (directories) names the item whose model
+    is ``model_ref`` (``ns:item/name``) and sets ``paired``: the game then draws the same model a second
+    time, mirrored, on an empty left hand (client/combat PairedWeaponLayer, FirstPersonArmRenderer)."""
+    if not isinstance(model_ref, str) or ":" not in model_ref or Path(model_ref).suffix == ".json":
+        return False
+    ns, path = model_ref.split(":", 1)
+    if not path.startswith("item/"):
+        return False
+    item = f"{ns}:{path[len('item/'):]}"
+    for root in roots:
+        base = Path(root)
+        if not base.is_dir():
+            continue
+        for f in sorted(base.glob("data/*/combat/weapon/*.json")):
+            try:
+                weapon = json.loads(f.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                continue
+            if isinstance(weapon, dict) and weapon.get("item") == item:
+                return weapon.get("paired") is True
+    return False
+
+
 ARM_PIVOT = np.array([-5.0, 2.0, 0.0]) / 16.0  # PlayerModel right arm (wide), entity space px -> blocks
 ARM_XROT = -math.pi / 10  # HumanoidModel ArmPose.ITEM at rest
 FIST_BOX = ((-3.0, 6.0, -2.0), (1.0, 10.0, 2.0))  # bottom 4 px of the arm box, arm-local px
@@ -422,10 +446,17 @@ def box_quads(lo, hi, color, tag):
 
 
 def transform_quads(quads, A):
+    """Quads through the affine A; a mirroring A reverses each quad's vertices (as PairedWeapons does)
+    so its front face stays outward for back-face culling."""
+    flip = np.linalg.det(A[:3, :3]) < 0
     out = []
     for q in quads:
-        P = np.c_[q.pos, np.ones(4)] @ A.T
-        out.append(Quad(P[:, :3], q.uv, q.tex, q.color, q.shade, q.tag))
+        P = (np.c_[q.pos, np.ones(4)] @ A.T)[:, :3]
+        uv = q.uv
+        if flip:
+            P = P[::-1]
+            uv = list(uv)[::-1] if uv is not None else None
+        out.append(Quad(P, uv, q.tex, q.color, q.shade, q.tag))
     return out
 
 
@@ -669,6 +700,21 @@ def tp_scene(model, geo, schematic=True):
     return quads, marks, info
 
 
+def tp_pair_view(model, cdir, size, geo):
+    """0.39.1: a paired weapon on both hands in the rest pose: the right-hand scene and its mirror image
+    across the body's middle (PairedWeaponLayer draws the left one exactly so for a symmetric pose)."""
+    quads, marks, info = tp_scene(model, geo)
+    mirror = ENTITY_TO_WORLD @ affine(np.diag([-1.0, 1.0, 1.0])) @ np.linalg.inv(ENTITY_TO_WORLD)
+    body = [q for q in quads if q.tag == "body"]
+    quads = [q for q in quads if q.tag != "body"]
+    quads = quads + transform_quads(quads, mirror) + body
+    cam = Camera(cdir)
+    im, to_s, k = render(quads, cam, size)
+    draw_marks(im, to_s, marks, labels=False)
+    draw_ruler(im, k / 16.0, "模型像素(玩家)")
+    return im, info
+
+
 def tp_view(model, cdir, size, geo):
     quads, marks, info = tp_scene(model, geo)
     cam = Camera(cdir)
@@ -689,10 +735,12 @@ def gui_view(model, size):
     return im, {"display": v.display("gui"), "variant": v.res.chain[0]}
 
 
+DEFAULT_VIEWS = "front,side,iso,hilt,tip,tp_right,tp_front,tp_iso,gui"
 VIEW_TITLES = {
     "front": "正面（看剑面，+X 侧）", "side": "侧面（看刃口，+Z 侧）", "iso": "45° 斜视",
     "hilt": "剑柄近景（剑格/柄/剑首）", "tip": "剑尖近景", "tp_right": "thirdperson_righthand · 右侧",
     "tp_front": "thirdperson_righthand · 正面", "tp_iso": "thirdperson_righthand · 斜前", "gui": "gui（物品栏）",
+    "tp_pair": "成对（paired）· 左手镜像",
 }
 
 
@@ -702,6 +750,8 @@ def build(args):
     model = ItemModel(assets, args.model)
     geo, geo_src = geometry_for(assets, args.geometry)
     views = args.views.split(",")
+    if args.views == DEFAULT_VIEWS and paired_weapon(args.root, args.model):
+        views.append("tp_pair")   # a paired weapon (0.39.1) shows both hands by default
     size = args.size
     ys = [q.pos[:, 1] for q in model.base.quads]
     ymin, ymax = (float(min(y.min() for y in ys)), float(max(y.max() for y in ys))) if ys else (0.0, 16.0)
@@ -730,6 +780,8 @@ def build(args):
             im, info = tp_view(model, (0.1, 0.25, -1), size, geo)
         elif vname == "tp_iso":
             im, info = tp_view(model, (0.8, 0.45, -0.7), size, geo)
+        elif vname == "tp_pair":
+            im, info = tp_pair_view(model, (0.1, 0.3, -1), size, geo)
         elif vname == "gui":
             im, info = gui_view(model, size)
         else:
@@ -785,7 +837,8 @@ def main(argv=None):
     ap.add_argument("--vanilla-jar", default=str(VANILLA_JAR))
     ap.add_argument("--no-vanilla", action="store_true")
     ap.add_argument("--geometry", help="geometry contract JSON; 'none' to disable (default: looked up in the roots)")
-    ap.add_argument("--views", default="front,side,iso,hilt,tip,tp_right,tp_front,tp_iso,gui")
+    ap.add_argument("--views", default=DEFAULT_VIEWS,
+                    help="comma list; tp_pair (both hands) is added to the default for a paired weapon")
     ap.add_argument("--size", type=int, default=420, help="pixels per view (square)")
     ap.add_argument("--cols", type=int, default=3)
     ap.add_argument("--scale", type=float, help="fixed screen px per model px for front/side/iso (for A/B comparisons)")
