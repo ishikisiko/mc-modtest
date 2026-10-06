@@ -3,12 +3,19 @@
 
 Checks, each failure printed as ``<check>: <file>: <detail>``:
 
-- data: every file under ``data/myvillage/world_sim/`` parses and has ``"schema": 1``; the six known files
-  (rules, realms, encounters, names, techniques, lore) have their required fields, enum values, positive
+- data: every file under ``data/myvillage/world_sim/`` parses and has ``"schema": 1``; the seven known files
+  (rules, realms, encounters, names, techniques, heritages, lore) have their required fields, enum values, positive
   weights and unique ids, and agree with each other (realm ids and stages named by rules and encounters,
   site kinds named by encounters exist in lore, every technique/artifact grade an encounter or genesis can
   grant has at least one entry, sim realm lifespans equal the player realm files' for shared ids). The
-  runtime's config tiers (small, medium, large) must exist in rules.
+  runtime's config tiers (small, medium, large) must exist in rules. Heritages have unique ids and names,
+  a non-empty technique list of ledger techniques that share one element, a school that is ``none`` or a
+  datapack school, and no technique in two heritages.
+- datapack: every ledger technique has ``data/myvillage/myvillage/technique/<id>.json`` whose integer grade
+  and elements agree with the ledger's grade and element; every ``lineage.previous`` names a datapack
+  technique and no chain is a cycle; each heritage's techniques carry its school (none: no school) and
+  follow one another by ``lineage.previous``, the first having none. ``tools/gen_technique_catalogue.py``
+  writes both sides from one catalogue.
 - keys: every ``world_sim.`` key the core can emit exists in both ``en_us`` and ``zh_cn``: string literals and
   ``String`` constants built from literals in ``sim/**`` (a family base is satisfied by its ``.1`` variant),
   plus the data-derived keys (realm, stage, rank, root grade, technique grade, the breakthrough lines of every
@@ -33,12 +40,17 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 DATA_REL = Path("src/main/resources/data/myvillage/world_sim")
 PLAYER_REALM_REL = Path("src/main/resources/data/myvillage/myvillage/realm")
+TECHNIQUE_REL = Path("src/main/resources/data/myvillage/myvillage/technique")
+SCHOOL_REL = Path("src/main/resources/data/myvillage/myvillage/school")
+DATAPACK_NAMESPACE = "myvillage"
 LANG_REL = Path("src/main/resources/assets/myvillage/lang")
 SIM_REL = Path("src/main/java/com/example/myvillage/sim")
 
 SCHEMA = 1
-KNOWN_FILES = ("rules.json", "realms.json", "encounters.json", "names.json", "techniques.json", "lore.json")
+KNOWN_FILES = ("rules.json", "realms.json", "encounters.json", "names.json", "techniques.json", "heritages.json",
+               "lore.json")
 GRADES = ("huang", "xuan", "di", "tian")
+GRADE_NUMBERS = {"huang": 1, "xuan": 2, "di": 3, "tian": 4}  # the player registry's integer grade
 ELEMENTS_OR_NONE = ("metal", "wood", "water", "fire", "earth", "none")
 SITE_KINDS = ("ruin", "cave", "secret_realm", "battlefield", "tomb")
 EFFECT_KINDS = ("progress", "technique", "breakthrough_pill", "lifespan", "root", "artifact", "injury", "death")
@@ -288,6 +300,132 @@ def check_techniques(doc: Any, report: Report) -> set[str]:
     return grades
 
 
+def datapack_id(path: str) -> str:
+    return f"{DATAPACK_NAMESPACE}:{path}"
+
+
+def load_datapack_dir(root: Path, rel: Path, report: Report) -> dict[str, dict] | None:
+    directory = root / rel
+    if not directory.is_dir():
+        report.error("datapack", str(rel), "directory is missing")
+        return None
+    out: dict[str, dict] = {}
+    for path in sorted(directory.glob("*.json")):
+        doc = load_json(path, report, "datapack")
+        if isinstance(doc, dict):
+            out[path.stem] = doc
+    return out
+
+
+def lineage_previous(doc: dict) -> Any:
+    lineage = doc.get("lineage")
+    return lineage.get("previous") if isinstance(lineage, dict) else None
+
+
+def check_datapack_techniques(sim_items: Any, datapack: dict[str, dict], report: Report) -> int:
+    """Ledger techniques against their datapack files; lineage.previous references and cycles."""
+    matched = 0
+    for t in sim_items if isinstance(sim_items, list) else []:
+        if not isinstance(t, dict) or not isinstance(t.get("id"), str):
+            continue
+        tid, where = t["id"], f"technique/{t['id']}.json"
+        doc = datapack.get(tid)
+        if doc is None:
+            report.error("datapack", "techniques.json", f"{tid} has no datapack file {where}")
+            continue
+        expected_grade = GRADE_NUMBERS.get(t.get("grade"))
+        grade = doc.get("grade")
+        if expected_grade is not None and (not is_int(grade) or grade != expected_grade):
+            report.error("datapack", where, f"grade {grade!r} disagrees with the ledger's {t.get('grade')} "
+                                            f"({expected_grade})")
+        element = t.get("element")
+        expected_elements = [] if element == "none" else [datapack_id(element)]
+        if element in ELEMENTS_OR_NONE and doc.get("elements") != expected_elements:
+            report.error("datapack", where, f"elements {doc.get('elements')!r} disagree with the ledger's element "
+                                            f"{element} ({expected_elements})")
+        matched += 1
+    previous: dict[str, str] = {}
+    for tid, doc in datapack.items():
+        prev = lineage_previous(doc)
+        if prev is None:
+            continue
+        name = prev[len(DATAPACK_NAMESPACE) + 1:] if isinstance(prev, str) and prev.startswith(
+            DATAPACK_NAMESPACE + ":") else None
+        if name is None or name not in datapack:
+            report.error("datapack", f"technique/{tid}.json", f"lineage.previous {prev!r} is not a datapack technique")
+            continue
+        previous[tid] = name
+    reported: set[frozenset[str]] = set()
+    for start in sorted(previous):
+        seen: list[str] = []
+        node: str | None = start
+        while node is not None and node not in seen:
+            seen.append(node)
+            node = previous.get(node)
+        if node is not None:
+            cycle = frozenset(seen[seen.index(node):])
+            if cycle not in reported:
+                reported.add(cycle)
+                report.error("datapack", f"technique/{min(cycle)}.json",
+                             f"lineage.previous cycle through {sorted(cycle)}")
+    return matched
+
+
+def check_heritages(doc: Any, sim_items: Any, datapack: dict[str, dict] | None, schools: dict[str, dict] | None,
+                    report: Report) -> int:
+    f = "heritages.json"
+    items = require(doc, "heritages", f, "", report)
+    if not isinstance(items, list):
+        report.error("data", f, "heritages must be a list")
+        return 0
+    sim = {t["id"]: t for t in sim_items if isinstance(t, dict) and isinstance(t.get("id"), str)} \
+        if isinstance(sim_items, list) else {}
+    check_unique([h.get("id") for h in items if isinstance(h, dict)], f, "heritages[].id", report)
+    check_unique([h.get("name") for h in items if isinstance(h, dict)], f, "heritages[].name", report)
+    owner: dict[str, str] = {}
+    for i, h in enumerate(items):
+        where = f"heritages[{i}]"
+        if not isinstance(h, dict):
+            report.error("data", f, f"{where} must be an object")
+            continue
+        for key in ("id", "name", "school"):
+            if not isinstance(h.get(key), str) or not h.get(key):
+                report.error("data", f, f"{where}.{key} must be a non-empty string")
+        school = h.get("school")
+        if isinstance(school, str) and school != "none" and schools is not None and school not in schools:
+            report.error("data", f, f"{where}.school {school!r} is not none or a datapack school")
+        chain = h.get("techniques")
+        if not isinstance(chain, list) or not chain or not all(isinstance(t, str) for t in chain):
+            report.error("data", f, f"{where}.techniques must be a non-empty list of technique ids")
+            continue
+        unknown = [t for t in chain if t not in sim]
+        for t in unknown:
+            report.error("data", f, f"{where}.techniques names {t!r}, which is not in techniques.json")
+        for t in chain:
+            if t in owner:
+                report.error("data", f, f"{where}.techniques: {t} already belongs to heritage {owner[t]}")
+            owner.setdefault(t, str(h.get("id")))
+        elements = sorted({sim[t].get("element") for t in chain if t in sim})
+        if len(elements) > 1:
+            report.error("data", f, f"{where} mixes the elements {elements}; a heritage shares one element")
+        if datapack is None:
+            continue
+        expected_school = None if school == "none" else datapack_id(str(school))
+        for n, t in enumerate(chain):
+            doc = datapack.get(t)
+            if doc is None:
+                continue  # reported against techniques.json
+            if doc.get("school") != expected_school:
+                report.error("datapack", f"technique/{t}.json",
+                             f"school {doc.get('school')!r} is not heritage {h.get('id')}'s {school!r}")
+            expected_prev = datapack_id(chain[n - 1]) if n else None
+            if lineage_previous(doc) != expected_prev:
+                report.error("datapack", f"technique/{t}.json",
+                             f"lineage.previous {lineage_previous(doc)!r} breaks heritage {h.get('id')} "
+                             f"(expected {expected_prev!r})")
+    return len(items)
+
+
 def check_lore(doc: Any, report: Report) -> tuple[set[str], set[str]]:
     f = "lore.json"
     artifact_grades: set[str] = set()
@@ -456,8 +594,14 @@ def check_data(root: Path, report: Report) -> dict:
             report.error("data", "rules.json", f"genesis.signature_grades needs a {g} technique; techniques.json has none")
     encounters = (check_encounters(docs.get("encounters.json"), realms, technique_grades, artifact_grades,
                                    site_kinds, report) if "encounters.json" in docs else [])
+    sim_techniques = (docs.get("techniques.json") or {}).get("techniques")
+    datapack = load_datapack_dir(root, TECHNIQUE_REL, report)
+    schools = load_datapack_dir(root, SCHOOL_REL, report)
+    matched = check_datapack_techniques(sim_techniques, datapack, report) if datapack is not None else 0
+    heritages = (check_heritages(docs["heritages.json"], sim_techniques, datapack, schools, report)
+                 if "heritages.json" in docs else 0)
     facts.update(realms=realms, encounters=encounters, root_grades=rules.get("root_grades", []),
-                 tiers=rules.get("tiers", []), files=len(docs))
+                 tiers=rules.get("tiers", []), files=len(docs), heritages=heritages, datapack_matched=matched)
     return facts
 
 
@@ -730,7 +874,8 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     f = report.facts  # type: ignore[attr-defined]
     print(f"world-sim validation passed: {f.get('files', 0)} data files, {len(f.get('realms', {}))} realms, "
-          f"{len(f.get('encounters', []))} encounters, {f['keys_checked']} required language keys in both files, "
+          f"{len(f.get('encounters', []))} encounters, {f.get('heritages', 0)} heritages, "
+          f"{f.get('datapack_matched', 0)} techniques agree with the datapack, {f['keys_checked']} required language keys in both files, "
           f"{f['core_sources']} core sources pure")
     return 0
 

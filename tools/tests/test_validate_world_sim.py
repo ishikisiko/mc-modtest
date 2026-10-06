@@ -19,7 +19,8 @@ class WorldSimValidatorTest(unittest.TestCase):
     def setUp(self) -> None:
         self.temp_dir = tempfile.TemporaryDirectory()
         self.root = Path(self.temp_dir.name)
-        for rel in (validator.DATA_REL, validator.PLAYER_REALM_REL, validator.LANG_REL, validator.SIM_REL):
+        for rel in (validator.DATA_REL, validator.PLAYER_REALM_REL, validator.TECHNIQUE_REL, validator.SCHOOL_REL,
+                    validator.LANG_REL, validator.SIM_REL):
             shutil.copytree(validator.ROOT / rel, self.root / rel)
         self.baseline = set(validator.validate(self.root).errors)
 
