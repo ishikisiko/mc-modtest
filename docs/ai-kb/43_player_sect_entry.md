@@ -404,8 +404,19 @@ record without an event; output `commands.myvillage.world.sect_rank.*`).
 near it (both shelves placed), admin join, the hall as an outer disciple, a
 borrow and the manual's `myvillage:technique` component in the inventory,
 the button disabled on reopening, `rank inner` and the second entry, `leave`
-and `member=false`. Output `out/preview/world_sim/scripture/`. Results:
-TODO-EVIDENCE
+and `member=false`. Output `out/preview/world_sim/scripture/`. The
+2026-10-07 run (script `23d8ecb`, 0.42.0 tree) passed 19 of 19: 明心宗
+(heritage 太白剑脉) built itself near the player (started → done 3.3 s, 135
+clips, 9.7 ms per tick) and got both shelves, at (553, -35, -805) and
+(581, -35, -805); the outer disciple's hall listed one entry,
+`gengjin_yinqi_fa`, borrowed into a `manual_core_huang` with that technique;
+on reopening the button read `borrowed=true` and the inventory held one
+copy; after `rank inner` the hall listed two and `gengjin_jianjue` was
+borrowed (`manual_active_xuan`); after `leave` the hall answered
+`member=false entries=0`. Screenshots `hall_outer.png`, `hall_borrowed.png`,
+`hall_inner.png`, `hall_refused.png`. Not captured: `shelves place`, the
+chat and chronicle lines, an `already_borrowed` refusal (the disabled
+button is not clicked). Slice 1's script passed 20/20 again on the same code.
 
 **Tests.** `WorldSimScriptureTest`, `SectCourtyardScriptureTest`,
 `SectCourtyardTest` (sites), `ScriptureHallPayloadTest`,

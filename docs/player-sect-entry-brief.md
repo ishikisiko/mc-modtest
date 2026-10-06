@@ -1,6 +1,6 @@
 # 玩家入世方案：拜入宗门（0.41 → 0.44）
 
-状态（2026-10-07）：切片 1 已落地于 0.41.0（无头采集 20/20 通过，`out/preview/world_sim/entry/`）；切片 2 藏经阁已落地于 0.42.0（待采集结论，`docs/sect-entry-slice2-tasks.md`）；切片 3 任务书 `docs/sect-entry-slice3-tasks.md` 待开工；切片 4 未做。分支 feat/sect-entry，待 owner 验收。实现与偏差见 `docs/ai-kb/43_player_sect_entry.md`。
+状态（2026-10-07）：切片 1 已落地于 0.41.0（无头采集 20/20 通过，`out/preview/world_sim/entry/`）；切片 2 藏经阁已落地于 0.42.0（无头采集 19/19，`out/preview/world_sim/scripture/`）；切片 3 任务书 `docs/sect-entry-slice3-tasks.md` 待开工；切片 4 未做。分支 feat/sect-entry，待 owner 验收。实现与偏差见 `docs/ai-kb/43_player_sect_entry.md`。
 
 owner 2026-10-07："好，写一个方案看看"。这是设计方案，不是任务书；每个切片开工前另写拆包说明。不建 OpenSpec。
 

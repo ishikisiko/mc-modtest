@@ -1,6 +1,6 @@
 # 拜入宗门 · 切片 2 藏经阁 拆包说明（0.42.0）
 
-状态（2026-10-07 07:10）：开工。方案见 `docs/player-sect-entry-brief.md` §4.3 与 §5；切片 1 已落地于 0.41.0（`docs/sect-entry-slice1-tasks.md`）。分支 `feat/sect-entry` 继续。本轮 owner 电脑不可用：只做无头采集，README ledger 一律 `not_verified`。
+状态（2026-10-07）：已落地于 0.42.0，待 owner 验收；证据 19/19（`python3 tools/world_sim_scripture_evidence.py`，`out/preview/world_sim/scripture/`），见 README "Scripture hall (0.42.0)" 的 ledger 与 `docs/ai-kb/43_player_sect_entry.md`。方案见 `docs/player-sect-entry-brief.md` §4.3 与 §5；切片 1 已落地于 0.41.0（`docs/sect-entry-slice1-tasks.md`）。分支 `feat/sect-entry` 继续。本轮 owner 电脑不可用：只做无头采集，README ledger 一律 `not_verified`。
 
 ## 0. 统筹已定的默认值（owner 未反对即照此执行）
 

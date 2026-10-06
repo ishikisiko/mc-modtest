@@ -987,14 +987,14 @@ sides, close-ups, and walk videos (a missing file shows as 未采集).
 
 | Cultivator looks (0.41.0) real-client acceptance surface | Result |
 |---|---|
-| `f_novice` look: reads as a woman and a novice, plain and old-style, from the front, sides, and three-quarter views | `not_verified` (offline preview only; in-game capture pending) |
-| `f_novice` face up close and at ten blocks | `not_verified` (offline preview only; in-game capture pending) |
-| `f_novice` walk and idle (hip sway, folded hands, ponytail and skirt ties trailing) | `not_verified` (offline preview only; in-game capture pending) |
-| `f_novice` name tag height on an avatar | `not_verified` (offline preview only; in-game capture pending) |
-| `f_adept` look: reads as a woman of standing, richer than the novice, from the front, sides, and three-quarter views | `not_verified` (offline preview only; in-game capture pending) |
-| `f_adept` face up close and at ten blocks | `not_verified` (offline preview only; in-game capture pending) |
-| `f_adept` walk and idle (drape, hairpin pendant, back hair trailing) | `not_verified` (offline preview only; in-game capture pending) |
-| `f_adept` name tag height on an avatar | `not_verified` (offline preview only; in-game capture pending) |
+| `f_novice` look: reads as a woman and a novice, plain and old-style, from the front, sides, and three-quarter views | `not_verified` (headless capture done: `ingame_<look>/`, `looks/index.html`; owner verdict pending) |
+| `f_novice` face up close and at ten blocks | `not_verified` (headless capture done: `ingame_<look>/`, `looks/index.html`; owner verdict pending) |
+| `f_novice` walk and idle (hip sway, folded hands, ponytail and skirt ties trailing) | `not_verified` (headless capture done: `ingame_<look>/`, `looks/index.html`; owner verdict pending) |
+| `f_novice` name tag height on an avatar | `not_verified` (headless capture done: `ingame_<look>/`, `looks/index.html`; owner verdict pending) |
+| `f_adept` look: reads as a woman of standing, richer than the novice, from the front, sides, and three-quarter views | `not_verified` (headless capture done: `ingame_<look>/`, `looks/index.html`; owner verdict pending) |
+| `f_adept` face up close and at ten blocks | `not_verified` (headless capture done: `ingame_<look>/`, `looks/index.html`; owner verdict pending) |
+| `f_adept` walk and idle (drape, hairpin pendant, back hair trailing) | `not_verified` (headless capture done: `ingame_<look>/`, `looks/index.html`; owner verdict pending) |
+| `f_adept` name tag height on an avatar | `not_verified` (headless capture done: `ingame_<look>/`, `looks/index.html`; owner verdict pending) |
 | Spawn egg random look; `/summon` with `Look`; look kept across save and reload | `not_verified` |
 | Avatars wear the look of their person's gender and realm | `not_verified` |
 | Owner verdict on palette A, the low ponytail, and both faces | `not_verified` |
@@ -1419,15 +1419,23 @@ technique), and leaves (refused as a non-member). Output in
 `commands.txt`, `server_log.txt`, `client_log.txt`, screenshots). Developer
 evidence, not owner acceptance.
 
+Its 2026-10-07 run (capture script of `23d8ecb`, on the 0.42.0 tree) passed
+all 19 checks with 明心宗 (heritage 太白剑脉): both shelves placed, the outer
+disciple saw and borrowed `gengjin_yinqi_fa` and held its manual, the
+reopened hall showed it borrowed with one copy in the inventory, `rank inner`
+added `gengjin_jianjue` (borrowed too), and after `leave` the hall answered
+`member=false`. On the same code `world_sim_entry_evidence.py` passed 20/20
+and `world_sim_avatar_evidence.py` 19/19.
+
 | Scripture hall (0.42.0) acceptance surface | Result | Notes |
 |---|---|---|
-| A shelf on the hall floor of both scripture pavilions of a built compound | `not_verified` | headless: TODO-EVIDENCE |
-| Outer disciple's list (first technique of the chain, or the basic technique) | `not_verified` | headless: TODO-EVIDENCE |
-| Borrowing gives the manual into the inventory, chat and chronicle line | `not_verified` | headless: TODO-EVIDENCE |
-| A borrowed technique cannot be borrowed again (button disabled, `already_borrowed`) | `not_verified` | headless: TODO-EVIDENCE |
-| Inner disciple sees the second technique | `not_verified` | headless: TODO-EVIDENCE |
-| A non-member is refused | `not_verified` | headless: TODO-EVIDENCE |
-| Admin commands `world sect <id> rank` and `shelves [place]` | `not_verified` | headless: TODO-EVIDENCE |
+| A shelf on the hall floor of both scripture pavilions of a built compound | `not_verified` | headless (`world_sim_scripture_evidence`, 19/19 checks): `shelves_placed` 2/2 at (553, -35, -805) and (581, -35, -805) after the gate of 明心宗 built itself (started→done 3.3 s, 135 clips, 9.7 ms/tick); `shelves_listed_for_sect` (2 of 2). How the shelf looks in the pavilion not judged |
+| Outer disciple's list (first technique of the chain, or the basic technique) | `not_verified` | headless (`world_sim_scripture_evidence`, 19/19 checks): `hall_opens_for_outer`: one entry, `gengjin_yinqi_fa` (first of 太白剑脉); `hall_outer.png` |
+| Borrowing gives the manual into the inventory, chat and chronicle line | `not_verified` | headless (`world_sim_scripture_evidence`, 19/19 checks): `borrow_ok` (`intent=BORROW ... result=ok`), `manual_in_inventory` (`manual_core_huang` with that technique). Chat and chronicle line not machine-checked |
+| A borrowed technique cannot be borrowed again (button disabled, `already_borrowed`) | `not_verified` | headless (`world_sim_scripture_evidence`, 19/19 checks): `borrowed_button_disabled` (`borrowed=true` on reopening), `no_second_copy` (one manual); `hall_borrowed.png`. The button is not clicked, so no `already_borrowed` line (unit-tested) |
+| Inner disciple sees the second technique | `not_verified` | headless (`world_sim_scripture_evidence`, 19/19 checks): `rank_inner`, `hall_inner_sees_two` (`gengjin_yinqi_fa`, `gengjin_jianjue`), `borrow_second_ok`, `second_manual_in_inventory` (`manual_active_xuan`); `hall_inner.png` |
+| A non-member is refused | `not_verified` | headless (`world_sim_scripture_evidence`, 19/19 checks): after `admin_leave_ok`, `hall_refuses_non_member` (`member=false entries=0`); `hall_refused.png` |
+| Admin commands `world sect <id> rank` and `shelves [place]` | `not_verified` | headless (`world_sim_scripture_evidence`, 19/19 checks): `rank_inner` and `shelves` pass; `shelves place` not exercised |
 
 ## Rideable Flying Sword Smoke Test
 

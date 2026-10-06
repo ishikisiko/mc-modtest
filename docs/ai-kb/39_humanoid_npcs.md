@@ -228,12 +228,16 @@ owner may overturn (palette A, the low ponytail): `docs/female-cultivator-tasks.
   every look.
 - **Capture.** `python3 -m tools.combat_capture npc --look <look>` summons
   with `{Look:"<look>"}` and writes `out/preview/cultivator/ingame_<look>/`
-  (the default still writes `ingame/`).
+  (the default still writes `ingame/`). Both female looks were captured on
+  2026-10-07: four-side stills, eight close-ups, a scale still, and the two
+  walk videos each in `ingame_f_novice/` and `ingame_f_adept/`; the
+  `idle_q_front` still showed the look drawn from the `Look` tag.
 - **Comparison page.** `python3 tools/npc_looks_page.py` writes
   `out/preview/cultivator/looks/index.html`: one column per look, rows of the
   offline turnaround, face sheet, close-ups, and walk GIFs
   (`out/preview/<definition>/`) and the headless stills, close-ups, and walk
-  videos; a file not captured yet shows as 未采集.
+  videos; a file not captured yet shows as 未采集. On 2026-10-07 all 21 cells
+  had content.
 
 ## A second NPC, a variant, a disposition
 
@@ -303,7 +307,9 @@ README ledger "Cultivator NPC real-client acceptance surface" records each
 surface.
 
 The two female looks (0.41.0) were judged only from offline previews and
-headless captures; the owner's PC was not available. `f_novice` and
+headless captures (`out/preview/cultivator/ingame_f_novice/`,
+`ingame_f_adept/`, the comparison page `looks/index.html`); the owner's PC
+was not available. `f_novice` and
 `f_adept` look, face, walk and idle, name tag, the random spawn-egg look, and
 the avatars' look by gender and realm are `not_verified` (README ledger
 "Looks (0.41.0)").
