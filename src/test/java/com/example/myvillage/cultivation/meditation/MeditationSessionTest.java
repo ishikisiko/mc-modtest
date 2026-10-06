@@ -4,16 +4,18 @@ import com.example.myvillage.cultivation.data.AdvancementDefinition;
 import com.example.myvillage.cultivation.data.AdvancementKind;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import net.minecraft.world.level.Level;
+import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MeditationSessionTest {
     @Test
     void normalAndSpiritPreparationTakeExactlyFortyTicks() {
-        for (MeditationMode mode : MeditationMode.values()) {
+        for (MeditationMode mode : new MeditationMode[]{MeditationMode.NORMAL, MeditationMode.SPIRIT}) {
             MeditationSession session = new MeditationSession(mode, 1, 2, 3, Level.OVERWORLD);
 
             assertEquals(MeditationState.preparing(mode), session.state());
@@ -111,5 +113,52 @@ class MeditationSessionTest {
         }
         assertTrue(session.advanceAdvancementTick());
         assertEquals(0, session.advancementTicksRemaining());
+    }
+
+    @Test
+    void studySitsLikeNormalMeditationAndCarriesItsProgressInTheStatus() {
+        ResourceLocation technique = ResourceLocation.fromNamespaceAndPath("myvillage", "gengjin_jianjue");
+        StudyProgress initial = new StudyProgress(technique, 120, 12_000, 6_000, 50);
+        MeditationSession session = MeditationSession.study(
+                new MeditationSession.StudyTarget(3, technique), initial, 0, 64, 0, Level.OVERWORLD);
+
+        assertTrue(session.studying());
+        assertEquals(MeditationMode.STUDY, session.mode());
+        assertEquals(MeditationState.PREPARING_NORMAL, session.state());
+        MeditationStatus accepted = session.status(MeditationStopReason.STUDY_ACCEPTED);
+        assertEquals(40, accepted.preparationTicksRemaining());
+        assertEquals(initial, accepted.study().orElseThrow());
+        assertTrue(accepted.studying());
+        assertEquals(3, session.studyTarget().orElseThrow().slot());
+
+        for (int tick = 1; tick < MeditationManager.PREPARATION_TICKS; tick++) {
+            assertFalse(session.advancePreparation());
+        }
+        assertTrue(session.advancePreparation());
+        assertEquals(MeditationState.MEDITATING_NORMAL, session.state());
+        for (int tick = 1; tick < BasicBreathingSettlement.SETTLEMENT_INTERVAL_TICKS; tick++) {
+            assertFalse(session.advanceMeditationTick());
+        }
+        assertTrue(session.advanceMeditationTick());
+
+        StudyProgress later = new StudyProgress(technique, 131, 12_000, 6_000, 50);
+        session.updateStudyProgress(later);
+        assertEquals(later, session.status(MeditationStopReason.NONE).study().orElseThrow());
+        assertThrows(IllegalArgumentException.class, () -> session.updateStudyProgress(
+                new StudyProgress(ResourceLocation.fromNamespaceAndPath("myvillage", "other"), 0, 4_000, -1, 0)));
+        assertThrows(IllegalStateException.class, session::downgradeToNormal);
+    }
+
+    @Test
+    void studyStartsOnlyThroughItsOwnFactoryAndOtherSessionsCarryNoStudy() {
+        assertThrows(IllegalArgumentException.class,
+                () -> new MeditationSession(MeditationMode.STUDY, 0, 0, 0, Level.OVERWORLD));
+        assertThrows(IllegalArgumentException.class,
+                () -> new MeditationSession.StudyTarget(-1, ResourceLocation.fromNamespaceAndPath("myvillage", "x")));
+        MeditationSession normal = new MeditationSession(MeditationMode.NORMAL, 0, 0, 0, Level.OVERWORLD);
+        assertFalse(normal.studying());
+        assertTrue(normal.status(MeditationStopReason.NONE).study().isEmpty());
+        assertThrows(IllegalStateException.class, () -> normal.updateStudyProgress(
+                new StudyProgress(ResourceLocation.fromNamespaceAndPath("myvillage", "x"), 0, 4_000, -1, 0)));
     }
 }

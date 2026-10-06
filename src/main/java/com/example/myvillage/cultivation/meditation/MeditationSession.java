@@ -12,6 +12,8 @@ final class MeditationSession {
     private MeditationState state;
     private MeditationMode mode;
     private final AdvancementContext advancement;
+    private final StudyTarget study;
+    private StudyProgress studyProgress;
     private final ResourceLocation sourceRealm;
     private final ResourceLocation sourceStage;
     private final double anchorX;
@@ -43,7 +45,11 @@ final class MeditationSession {
             double anchorZ,
             ResourceKey<Level> dimension) {
         this.mode = Objects.requireNonNull(mode, "mode");
+        if (mode == MeditationMode.STUDY) {
+            throw new IllegalArgumentException("Study sessions start through MeditationSession.study");
+        }
         this.advancement = null;
+        this.study = null;
         this.sourceRealm = sourceRealm;
         this.sourceStage = sourceStage;
         this.state = MeditationState.preparing(mode);
@@ -61,6 +67,7 @@ final class MeditationSession {
             ResourceKey<Level> dimension) {
         this.mode = null;
         this.advancement = Objects.requireNonNull(advancement, "advancement");
+        this.study = null;
         this.sourceRealm = advancement.sourceRealm();
         this.sourceStage = advancement.sourceStage();
         this.state = advancement.definition().kind() == AdvancementKind.ORDINARY
@@ -70,6 +77,37 @@ final class MeditationSession {
         this.anchorY = anchorY;
         this.anchorZ = anchorZ;
         this.dimension = Objects.requireNonNull(dimension, "dimension");
+    }
+
+    private MeditationSession(
+            StudyTarget study,
+            StudyProgress progress,
+            double anchorX,
+            double anchorY,
+            double anchorZ,
+            ResourceKey<Level> dimension) {
+        this.mode = MeditationMode.STUDY;
+        this.advancement = null;
+        this.study = Objects.requireNonNull(study, "study");
+        this.studyProgress = requireMatchingProgress(study, progress);
+        this.sourceRealm = null;
+        this.sourceStage = null;
+        this.state = MeditationState.preparing(MeditationMode.STUDY);
+        this.anchorX = anchorX;
+        this.anchorY = anchorY;
+        this.anchorZ = anchorZ;
+        this.dimension = Objects.requireNonNull(dimension, "dimension");
+    }
+
+    /** A study (研读) session reading the manual in inventory slot {@code study.slot()}. */
+    static MeditationSession study(
+            StudyTarget study,
+            StudyProgress progress,
+            double anchorX,
+            double anchorY,
+            double anchorZ,
+            ResourceKey<Level> dimension) {
+        return new MeditationSession(study, progress, anchorX, anchorY, anchorZ, dimension);
     }
 
     static MeditationSession advancement(
@@ -91,6 +129,33 @@ final class MeditationSession {
 
     Optional<AdvancementContext> advancementContext() {
         return Optional.ofNullable(advancement);
+    }
+
+    Optional<StudyTarget> studyTarget() {
+        return Optional.ofNullable(study);
+    }
+
+    boolean studying() {
+        return study != null;
+    }
+
+    Optional<StudyProgress> studyProgress() {
+        return Optional.ofNullable(studyProgress);
+    }
+
+    void updateStudyProgress(StudyProgress progress) {
+        if (study == null) {
+            throw new IllegalStateException("Only study sessions carry study progress");
+        }
+        studyProgress = requireMatchingProgress(study, progress);
+    }
+
+    private static StudyProgress requireMatchingProgress(StudyTarget study, StudyProgress progress) {
+        Objects.requireNonNull(progress, "progress");
+        if (!progress.techniqueId().equals(study.techniqueId())) {
+            throw new IllegalArgumentException("Study progress must describe the studied technique");
+        }
+        return progress;
     }
 
     boolean matchesSource(ResourceLocation realm, ResourceLocation stage) {
@@ -197,6 +262,19 @@ final class MeditationSession {
                     advancement.definition().durationTicks(),
                     advancementTicksRemaining());
         }
+        if (study != null) {
+            return MeditationStatus.study(state, preparationTicksRemaining(), reason, studyProgress);
+        }
         return new MeditationStatus(state, preparationTicksRemaining(), reason);
+    }
+
+    /** The manual a study session reads: an inventory slot index and the technique it must teach. */
+    record StudyTarget(int slot, ResourceLocation techniqueId) {
+        StudyTarget {
+            if (slot < 0) {
+                throw new IllegalArgumentException("Inventory slot must be non-negative, got " + slot);
+            }
+            Objects.requireNonNull(techniqueId, "techniqueId");
+        }
     }
 }

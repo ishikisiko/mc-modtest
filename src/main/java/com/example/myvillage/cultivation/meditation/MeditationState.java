@@ -9,12 +9,19 @@ public enum MeditationState {
     ADVANCING_ORDINARY,
     ADVANCING_BOTTLENECK;
 
+    /** Study sits like normal meditation; its status carries the study progress instead. */
     public static MeditationState preparing(MeditationMode mode) {
-        return mode == MeditationMode.NORMAL ? PREPARING_NORMAL : PREPARING_SPIRIT;
+        return switch (mode) {
+            case NORMAL, STUDY -> PREPARING_NORMAL;
+            case SPIRIT -> PREPARING_SPIRIT;
+        };
     }
 
     public static MeditationState meditating(MeditationMode mode) {
-        return mode == MeditationMode.NORMAL ? MEDITATING_NORMAL : MEDITATING_SPIRIT;
+        return switch (mode) {
+            case NORMAL, STUDY -> MEDITATING_NORMAL;
+            case SPIRIT -> MEDITATING_SPIRIT;
+        };
     }
 
     public boolean preparing() {

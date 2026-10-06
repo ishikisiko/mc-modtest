@@ -5,6 +5,7 @@ import com.example.myvillage.cultivation.data.AdvancementKind;
 import com.example.myvillage.cultivation.meditation.MeditationState;
 import com.example.myvillage.cultivation.meditation.MeditationStatus;
 import com.example.myvillage.cultivation.meditation.MeditationStopReason;
+import com.example.myvillage.cultivation.meditation.StudyProgress;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -19,7 +20,8 @@ public record MeditationStatusPayload(
         MeditationStopReason reason,
         Optional<AdvancementKind> advancementKind,
         int advancementDurationTicks,
-        int advancementTicksRemaining) implements CustomPacketPayload {
+        int advancementTicksRemaining,
+        Optional<StudyProgress> study) implements CustomPacketPayload {
     public static final Type<MeditationStatusPayload> TYPE = new Type<>(
             ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID, "meditation_status"));
     public static final StreamCodec<RegistryFriendlyByteBuf, MeditationStatusPayload> STREAM_CODEC =
@@ -32,7 +34,8 @@ public record MeditationStatusPayload(
                             decodeEnum(buffer.readVarInt(), MeditationStopReason.values(), "meditation reason"),
                             decodeAdvancementKind(buffer.readVarInt()),
                             buffer.readVarInt(),
-                            buffer.readVarInt());
+                            buffer.readVarInt(),
+                            decodeStudy(buffer));
                 }
 
                 @Override
@@ -45,18 +48,32 @@ public record MeditationStatusPayload(
                             .orElse(0));
                     buffer.writeVarInt(payload.advancementDurationTicks());
                     buffer.writeVarInt(payload.advancementTicksRemaining());
+                    encodeStudy(buffer, payload.study());
                 }
             };
 
     public MeditationStatusPayload {
         advancementKind = Objects.requireNonNull(advancementKind, "advancementKind");
+        study = Objects.requireNonNull(study, "study");
         new MeditationStatus(
                 state,
                 preparationTicksRemaining,
                 reason,
                 advancementKind,
                 advancementDurationTicks,
-                advancementTicksRemaining);
+                advancementTicksRemaining,
+                study);
+    }
+
+    public MeditationStatusPayload(
+            MeditationState state,
+            int preparationTicksRemaining,
+            MeditationStopReason reason,
+            Optional<AdvancementKind> advancementKind,
+            int advancementDurationTicks,
+            int advancementTicksRemaining) {
+        this(state, preparationTicksRemaining, reason, advancementKind,
+                advancementDurationTicks, advancementTicksRemaining, Optional.empty());
     }
 
     public MeditationStatusPayload(
@@ -73,7 +90,8 @@ public record MeditationStatusPayload(
                 status.reason(),
                 status.advancementKind(),
                 status.advancementDurationTicks(),
-                status.advancementTicksRemaining());
+                status.advancementTicksRemaining(),
+                status.study());
     }
 
     public MeditationStatus status() {
@@ -83,7 +101,34 @@ public record MeditationStatusPayload(
                 reason,
                 advancementKind,
                 advancementDurationTicks,
-                advancementTicksRemaining);
+                advancementTicksRemaining,
+                study);
+    }
+
+    /** A presence flag, then technique id, points, total, next gate + 1 (0 = none) and the gate cost. */
+    private static void encodeStudy(RegistryFriendlyByteBuf buffer, Optional<StudyProgress> study) {
+        buffer.writeBoolean(study.isPresent());
+        if (study.isEmpty()) {
+            return;
+        }
+        StudyProgress progress = study.get();
+        buffer.writeResourceLocation(progress.techniqueId());
+        buffer.writeVarInt(progress.points());
+        buffer.writeVarInt(progress.totalPoints());
+        buffer.writeVarInt(progress.nextGatePoints() + 1);
+        buffer.writeVarInt(progress.gateStabilityCost());
+    }
+
+    private static Optional<StudyProgress> decodeStudy(RegistryFriendlyByteBuf buffer) {
+        if (!buffer.readBoolean()) {
+            return Optional.empty();
+        }
+        return Optional.of(new StudyProgress(
+                buffer.readResourceLocation(),
+                buffer.readVarInt(),
+                buffer.readVarInt(),
+                buffer.readVarInt() - 1,
+                buffer.readVarInt()));
     }
 
     private static Optional<AdvancementKind> decodeAdvancementKind(int value) {
