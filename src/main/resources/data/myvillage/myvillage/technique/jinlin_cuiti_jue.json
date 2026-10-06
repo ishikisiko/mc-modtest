@@ -14,5 +14,10 @@
   },
   "lineage": {
     "previous": "myvillage:tiegu_gong"
+  },
+  "study": {
+    "points": 12000,
+    "gates": 1,
+    "gate_stability_cost": 50
   }
 }

@@ -14,5 +14,10 @@
   },
   "lineage": {
     "previous": "myvillage:jinlin_cuiti_jue"
+  },
+  "study": {
+    "points": 36000,
+    "gates": 2,
+    "gate_stability_cost": 100
   }
 }

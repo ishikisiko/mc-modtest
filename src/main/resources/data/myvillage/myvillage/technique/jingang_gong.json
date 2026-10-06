@@ -8,5 +8,10 @@
   "requirements": {
     "minimum_realm": "myvillage:qi_refining",
     "minimum_stage": "myvillage:qi_refining_1"
+  },
+  "study": {
+    "points": 4000,
+    "gates": 0,
+    "gate_stability_cost": 0
   }
 }

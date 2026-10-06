@@ -14,5 +14,10 @@
   },
   "lineage": {
     "previous": "myvillage:gengjin_bumie_ti"
+  },
+  "study": {
+    "points": 96000,
+    "gates": 3,
+    "gate_stability_cost": 150
   }
 }

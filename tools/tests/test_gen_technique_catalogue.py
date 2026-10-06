@@ -73,7 +73,8 @@ class GenerationTest(Fixture):
         self.write()
         doc = json.loads((self.root / generator.TECHNIQUE_REL / "tiangang_jiandian.json").read_text("utf-8"))
         self.assertEqual(list(doc), ["translation_key", "category", "grade", "elements", "school", "requirements",
-                                     "lineage"])
+                                     "lineage", "study"])
+        self.assertEqual(doc["study"], {"points": 36000, "gates": 2, "gate_stability_cost": 100})
         self.assertEqual(doc["requirements"], {
             "minimum_realm": "myvillage:foundation_establishment", "minimum_stage": "myvillage:foundation_early",
             "minimum_element_affinity": {"myvillage:metal": 1500}})
@@ -84,6 +85,42 @@ class GenerationTest(Fixture):
         self.assertEqual(core["effects"], {"core": {"meditation_route": "xiaozhoutian"}})
         self.assertEqual(core["requirements"], {"minimum_realm": "myvillage:qi_refining",
                                                 "minimum_stage": "myvillage:qi_refining_1"})
+        self.assertEqual(core["study"], {"points": 4000, "gates": 0, "gate_stability_cost": 0})
+
+    def test_every_generated_technique_carries_the_study_block_of_its_grade(self) -> None:
+        self.write()
+        expected = {1: (4000, 0, 0), 2: (12000, 1, 50), 3: (36000, 2, 100), 4: (96000, 3, 150)}
+        files = sorted((self.root / generator.TECHNIQUE_REL).glob("*.json"))
+        self.assertGreater(len(files), 100)
+        for path in files:
+            doc = json.loads(path.read_text("utf-8"))
+            if path == self.root / BASIC:
+                self.assertNotIn("study", doc)
+                continue
+            study = doc["study"]
+            self.assertEqual((study["points"], study["gates"], study["gate_stability_cost"]),
+                             expected[doc["grade"]], path.name)
+
+    def test_study_table_follows_rules_json(self) -> None:
+        self.edit_source("rules.json", lambda d: d["study_by_grade"]["1"].update(points=5000))
+        self.write()
+        doc = json.loads((self.root / generator.TECHNIQUE_REL / "yinqi_jue.json").read_text("utf-8"))
+        self.assertEqual(doc["study"]["points"], 5000)
+
+    def test_bad_study_table_is_refused(self) -> None:
+        def bad(d):
+            del d["study_by_grade"]["4"]
+            d["study_by_grade"]["1"]["points"] = 0
+        self.edit_source("rules.json", bad)
+        with self.assertRaises(generator.CatalogueError) as caught:
+            generator.plan(self.root, self.src)
+        self.assertIn("study_by_grade needs exactly the grades 1..4", "\n".join(caught.exception.problems))
+        self.edit_source("rules.json", lambda d: d["study_by_grade"].update({"4": {"points": 1, "gates": -1,
+                                                                                   "gate_stability_cost": 0}}))
+        with self.assertRaises(generator.CatalogueError) as caught:
+            generator.plan(self.root, self.src)
+        self.assertIn("study_by_grade.1 needs integer points > 0", "\n".join(caught.exception.problems))
+        self.assertIn("study_by_grade.4 needs integer points > 0", "\n".join(caught.exception.problems))
 
     def test_removed_rows_leave_no_stale_outputs(self) -> None:
         self.write()

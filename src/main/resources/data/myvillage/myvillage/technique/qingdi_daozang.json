@@ -19,5 +19,10 @@
     "core": {
       "meditation_route": "xiaozhoutian"
     }
+  },
+  "study": {
+    "points": 96000,
+    "gates": 3,
+    "gate_stability_cost": 150
   }
 }

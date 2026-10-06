@@ -5,7 +5,8 @@
 
 - ``data/myvillage/myvillage/technique/<id>.json`` for every catalogue row (hand-written techniques named
   in ``rules.json`` ``hand_written_techniques`` are never written or removed); any other JSON file in that
-  directory is stale and removed.
+  directory is stale and removed. Each file ends with the manual ``study`` block of its grade
+  (``rules.json`` ``study_by_grade``).
 - ``data/myvillage/myvillage/school/<id>.json`` and ``heritage/<id>.json``: the whole directories.
 - ``data/myvillage/world_sim/techniques.json`` and ``heritages.json``.
 - In ``assets/myvillage/lang/{en_us,zh_cn}.json``: the keys ``cultivation.technique.myvillage.<id>``,
@@ -44,6 +45,7 @@ GRADE_RANGE = range(1, 5)
 HERITAGE_LENGTH = range(2, 5)
 ID = re.compile(r"[a-z0-9_]+")
 LANG_SECTIONS = ("technique", "school", "heritage")
+STUDY_FIELDS = ("points", "gates", "gate_stability_cost")
 
 
 class CatalogueError(Exception):
@@ -151,6 +153,16 @@ def validate_sources(s: Sources) -> list[str]:
     if not isinstance(affinity, dict) or not isinstance(affinity.get("minimum_grade"), int) \
             or not isinstance(affinity.get("basis_points"), int) or not 0 <= affinity["basis_points"] <= 10000:
         problems.append("rules.json: requirements.element_affinity needs minimum_grade and basis_points 0..10000")
+    study = rules.get("study_by_grade")
+    if not isinstance(study, dict) or sorted(study) != [str(g) for g in GRADE_RANGE]:
+        problems.append("rules.json: study_by_grade needs exactly the grades 1..4")
+    else:
+        for grade_key, block in sorted(study.items()):
+            if not isinstance(block, dict) or set(block) != set(STUDY_FIELDS) \
+                    or not all(isinstance(block[k], int) and not isinstance(block[k], bool) for k in STUDY_FIELDS) \
+                    or block["points"] <= 0 or block["gates"] < 0 or block["gate_stability_cost"] < 0:
+                problems.append(f"rules.json: study_by_grade.{grade_key} needs integer points > 0, gates >= 0 "
+                                "and gate_stability_cost >= 0")
     if not isinstance(rules.get("effects"), dict) or any(k not in CATEGORIES for k in rules["effects"]):
         problems.append(f"rules.json: effects keys must be categories {list(CATEGORIES)}")
     hand_written = rules.get("hand_written_techniques")
@@ -297,6 +309,8 @@ def technique_doc(row: dict, s: Sources, requirements: dict[int, tuple[str, str]
     effects = s.rules["effects"].get(row["category"])
     if effects:
         doc["effects"] = effects
+    study = s.rules["study_by_grade"][str(grade)]
+    doc["study"] = {k: study[k] for k in STUDY_FIELDS}
     return doc
 
 

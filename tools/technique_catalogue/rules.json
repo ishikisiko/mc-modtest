@@ -12,6 +12,12 @@
     },
     "element_affinity": {"minimum_grade": 2, "basis_points": 1500}
   },
+  "study_by_grade": {
+    "1": {"points": 4000, "gates": 0, "gate_stability_cost": 0},
+    "2": {"points": 12000, "gates": 1, "gate_stability_cost": 50},
+    "3": {"points": 36000, "gates": 2, "gate_stability_cost": 100},
+    "4": {"points": 96000, "gates": 3, "gate_stability_cost": 150}
+  },
   "effects": {
     "core": {"core": {"meditation_route": "xiaozhoutian"}}
   },

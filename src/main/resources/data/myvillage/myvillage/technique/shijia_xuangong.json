@@ -11,5 +11,10 @@
     "minimum_element_affinity": {
       "myvillage:earth": 1500
     }
+  },
+  "study": {
+    "points": 12000,
+    "gates": 1,
+    "gate_stability_cost": 50
   }
 }

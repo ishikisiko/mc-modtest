@@ -15,5 +15,10 @@
   },
   "lineage": {
     "previous": "myvillage:gengjin_yinqi_fa"
+  },
+  "study": {
+    "points": 12000,
+    "gates": 1,
+    "gate_stability_cost": 50
   }
 }

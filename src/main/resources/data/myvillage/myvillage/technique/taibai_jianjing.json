@@ -15,5 +15,10 @@
   },
   "lineage": {
     "previous": "myvillage:tiangang_jiandian"
+  },
+  "study": {
+    "points": 96000,
+    "gates": 3,
+    "gate_stability_cost": 150
   }
 }
