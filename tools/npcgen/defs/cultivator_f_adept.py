@@ -8,7 +8,7 @@ the number of layers and ornaments, not in colour: from the neck down a stand co
 above the coat), the open coat with gold-bordered edges, the skirt tied high on the chest under a
 gold band (齐胸), the waist cord with a jade pendant and tassel, two skirts (outer short with a woven
 gold fret, inner long and wider with a wave-scroll band), the shawl in a flat V across the back and
-down the outer backs of the sleeves, opening 6 degrees, to the knees; on the head a low wide bun set back on the crown, a gold flower, the hairpin (步摇) on the right
+down the outer backs of the sleeves, opening 3 degrees and turning back in below, to the knees; on the head a low wide bun set back on the crown, a gold flower, the hairpin (步摇) on the right
 with a three-texel drop, hair loops behind the ears (垂鬟), jade earrings, hair down to the waist.
 
 Design space and units are the default look's: ground h = 0, front -Z, the figure's left +X, one unit
@@ -76,7 +76,8 @@ CORD = (31.0, 33.0)    # the thin waist cord (腰间细带) the coat ends over
 CHEST_BAND = (38.25, 40.25)   # the skirt's band tied high on the chest (齐胸)
 BUN = (59.0, 63.0, 1.5)  # the bun's bottom, the top of its cap, the front of the bun (back half of the crown)
 DRAPE_TOP = (14.0, 40.0, 2.0)  # the shawl ends' pivots: |x| just outside the sleeve, h, z behind the arm
-DRAPE_FLARE = 6.0        # degrees the shawl ends open outward
+DRAPE_FLARE = 3.0        # degrees the shawl ends open outward
+DRAPE_TUCK = 8.0         # degrees their lower segments turn back in, so the ends stay close to the skirt
 OUTER_HEM = 9.0        # the outer skirt's hem; the inner skirt hangs below it
 INNER_HEM = 0.75
 FRET_ROWS = 4          # the woven gold band above the outer hem
@@ -220,9 +221,9 @@ def build_model():
     _pair(b, "drape_{}", "body", (-DRAPE_TOP[0], -DRAPE_TOP[1], DRAPE_TOP[2]), rot=(4.0, 0.0, DRAPE_FLARE),
           boxes=[("drape_{}_strip", (-1.0, -0.5, -0.5), (2, 14, 1))], local=True)
     for side, s in (("right", 1.0), ("left", -1.0)):
-        b.bone(f"drape_{side}_low", f"drape_{side}", at_local=(0.0, 13.0, 0.0), rot=(-3.0, 0.0, -3.0 * s))
+        b.bone(f"drape_{side}_low", f"drape_{side}", at_local=(0.0, 13.0, 0.0), rot=(-3.0, 0.0, -DRAPE_TUCK * s))
         kw = {} if side == "right" else {"mirror": True, "uv_from": "drape_right_low_strip"}
-        b.box_local(f"drape_{side}_low", f"drape_{side}_low_strip", (-1.5 if side == "right" else -1.5, 0.0, -0.5),
+        b.box_local(f"drape_{side}_low", f"drape_{side}_low_strip", (-1.0 if side == "right" else -2.0, 0.0, -0.5),
                     (3, 16, 1), **kw)
 
     # ---- legs: each carries half of the two skirts (outer short, inner long and wider) and a shoe

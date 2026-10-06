@@ -340,8 +340,12 @@ class FemaleAdeptTest(unittest.TestCase):
         (dx0, dx1), (_, dtop), (dz0, _) = self.box("drape_right_strip")
         self.assertLessEqual(dx1, sx0 + 0.5, "outside the sleeve's outer face")
         self.assertGreater(dz0, 0.0, "behind the arm's axis")
-        self.assertTrue(6.0 <= fa.DRAPE_FLARE <= 8.0)
+        self.assertTrue(2.0 <= fa.DRAPE_FLARE <= 4.0)
         _, (bottom, _), _ = self.box("drape_right_low_strip")
+        bone, cube = self.built.model.cube("drape_right_low_strip")
+        m = self.built.model.rest_matrices()[bone.name]
+        end = [cuboid.mat_apply(m, c)[0] for c in corners(cube) if c[1] > cube.origin[1] + cube.size[1] - 0.01]
+        self.assertGreaterEqual(min(end), -15.0, "the lower end stays close to the skirt")
         self.assertTrue(9.0 <= bottom <= 13.0, bottom)
         _, (vb, vt), (vz0, _) = self.box("drape_sag_right_band")
         _, _, (_, coat_back) = self.box("coat")

@@ -462,7 +462,7 @@
       "name": "drape_right",
       "parent": "body",
       "pivot": [-14.0, -12.0, 2.0],
-      "rotation": [4.0, 0.0, 6.0],
+      "rotation": [4.0, 0.0, 3.0],
       "cubes": [
         {
           "origin": [-1.0, -0.5, -0.5],
@@ -477,7 +477,7 @@
       "name": "drape_left",
       "parent": "body",
       "pivot": [14.0, -12.0, 2.0],
-      "rotation": [4.0, 0.0, -6.0],
+      "rotation": [4.0, 0.0, -3.0],
       "cubes": [
         {
           "origin": [-1.0, -0.5, -0.5],
@@ -492,10 +492,10 @@
       "name": "drape_right_low",
       "parent": "drape_right",
       "pivot": [0.0, 13.0, 0.0],
-      "rotation": [-3.0, 0.0, -3.0],
+      "rotation": [-3.0, 0.0, -8.0],
       "cubes": [
         {
-          "origin": [-1.5, 0.0, -0.5],
+          "origin": [-1.0, 0.0, -0.5],
           "size": [3.0, 16.0, 1.0],
           "uv": [118, 57],
           "inflate": 0.0,
@@ -507,10 +507,10 @@
       "name": "drape_left_low",
       "parent": "drape_left",
       "pivot": [0.0, 13.0, 0.0],
-      "rotation": [-3.0, 0.0, 3.0],
+      "rotation": [-3.0, 0.0, 8.0],
       "cubes": [
         {
-          "origin": [-1.5, 0.0, -0.5],
+          "origin": [-2.0, 0.0, -0.5],
           "size": [3.0, 16.0, 1.0],
           "uv": [118, 57],
           "inflate": 0.0,
