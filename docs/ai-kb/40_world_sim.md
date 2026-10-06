@@ -24,6 +24,7 @@ reference. The design that came before the code is
 | `sim.data` | Strict loaders: `SimDataLoader`, `Rules`, `RealmTable`, `EncounterTable`, `ContentTables`, `SimJson` |
 | `sim.cli` | The offline runner `SimCli` with `ChronicleWriter`, `Lang`, `ChineseNumerals` |
 | `sim.runtime` | Everything that touches Minecraft: `WorldSimRuntime`, `WorldSimDriver`, `WorldSimSavedData`, `WorldSimServerConfig`, `WorldSimCommands`, `WorldSimRumors`, `RumorBoard`, `WorldSimText` |
+| `sim.runtime.avatar` | Compounds and avatars (P3): `GateBuilder`, `GateRealizations`, `WorldSimAvatars`, `AvatarPlanner`; with `sect/SectCourtyard` and the avatar mode of `entity/npc/NpcEntity` |
 
 Everything except `sim.runtime` is the pure core. It imports only `java.*`,
 Gson, its own package, and the pure region classes `RegionGraph`,
@@ -91,7 +92,8 @@ already has lineages, grudges, and sects of different standing.
 
 Dates use the 启元 era (`SimDate`): a day at or after the end of prehistory is
 启元 N 年 (`world_sim.date.era`), an earlier one 启元前 N 年
-(`world_sim.date.before_era`). A fresh world that was never paused shows the
+(`world_sim.date.before_era`); in `en_us` they read "Year N of Qiyuan" and
+"Year N before Qiyuan". A fresh world that was never paused shows the
 same year number as the cultivation calendar (修仙历). The ledger keeps its own
 day count; ages and chronicle dates use it, so after a pause it lags the
 calendar.
@@ -187,8 +189,10 @@ Each server tick, `WorldSimDriver` feeds the calendar's day index
 (`elapsedCalendarTicks / ticks_per_day`) to `SettlementScheduler.observe` and
 settles at most one pending day:
 
-- each new calendar day adds one pending day, capped at `catch_up_cap_days`
-  from the server config, so a jump of the day index (a smaller
+- each new calendar day adds one pending day, capped at
+  `WorldSimDriver.pendingCap`: the smaller of the config's
+  `catch_up_cap_days` and `rules.json` `scheduler.max_pending_days` (the
+  rules value is a hard ceiling the config can only lower), so a jump of the day index (a smaller
   `ticks_per_day`) cannot stall the server; a day index that moves backwards
   adds nothing and re-anchors;
 - the calendar advances on every tick with at least one player online, in any
@@ -203,8 +207,6 @@ settles at most one pending day:
 The save data is marked dirty after every settled day, scheduler change,
 pause, and advance. If settlement throws, the ledger goes inactive until
 restart and the save keeps the last checkpoint, never a half-settled day.
-`rules.json` `scheduler.max_pending_days` is loaded and validated, but the
-runtime passes the config's `catch_up_cap_days` instead.
 
 ## Commands and config
 
@@ -216,6 +218,7 @@ All under `/myvillage world`, permission 2; output goes through
 | `/myvillage world` or `world info` | Era date, sim day, calendar day, pending days, running or paused, tier, population against target, deaths, living per realm, sects, event count, the five foremost people |
 | `world sects [all]` | Active sects (with `all`, the destroyed too): region, master, members, top realm, prestige, gate coordinate, whether the gate is realized |
 | `world sect <id\|name>` | One sect: founding, parent sect, master, members, resources, prestige, signature technique (镇派功法), gate, relations to other sects, strongest members at the sect |
+| `world sect <id> build [here]` | Build the sect's compound (山门) at its ledger gate, or with `here` move the gate to the caller first; synchronous (see "P3" below) |
 | `world person <name>` | Up to five people whose name or Daoist title contains the text, living first: realm and stage, root grade, age, sect and rank, place and status, technique, master, relation counts; for the dead, death date, cause, and killer |
 | `world chronicle [1-50]` | The latest notable and major events (importance 2+), oldest first; default 10 |
 | `world here` | The caller's region (`RegionRuntimeService.currentRegion`): tier, qi, danger, living count, seated sects with gate distance, the strongest people present, recent notable events. Players only |
@@ -228,10 +231,14 @@ in a world's `serverconfig/` overrides it):
 | Key | Default | Meaning |
 |---|---|---|
 | `world_sim.tier` | `small` | `small` (about 80 people), `medium` (about 300), `large` (about 1000); read only at genesis |
-| `world_sim.catch_up_cap_days` | 30 | Most pending sim days (1 to 3650) |
+| `world_sim.catch_up_cap_days` | 30 | Most pending sim days (1 to 3650), never above `rules.json` `scheduler.max_pending_days` |
 | `rumors.rumors_enabled` | true | Rumors on or off |
 | `rumors.rumors_per_minute` | 2 | Most rumors one player receives per real minute |
 | `rumors.rumor_queue_cap` | 6 | Most rumors waiting per player; the oldest is dropped on overflow |
+| `avatars.avatars_enabled` | true | Project avatars at all |
+| `avatars.avatar_spawn_radius` | 64 | Avatars appear while a player is within this many blocks (8 to 128) of a realized compound's site; they are withdrawn beyond this radius plus 32 |
+| `avatars.max_avatars_per_sect` | 12 | Most avatars per compound (0 to 64) |
+| `avatars.max_avatars` | 40 | Most avatars in the world (0 to 256); the compound nearest a player is served first |
 
 The values other than `tier` are read on use.
 
@@ -319,7 +326,11 @@ and large tiers, with limits several times the observed cost).
 Runtime (`sim/runtime/`, no Minecraft server needed): `WorldSimDriverTest`,
 `RumorBoardTest`, `WorldSimSavedDataTest` (newer format written back
 untouched, detach keeps the last checkpoint), `WorldSimServerConfigTest`,
-`WorldSimTextTest`.
+`WorldSimTextTest`; for P3, `avatar/AvatarPlannerTest` (selection order,
+lowest terrace first with spacing, a full terrace spills upward, stable cell
+per person, the name tag, per-sect build seed and variant),
+`avatar/GateRealizationsTest` (round trip in sect order, a rebuild replaces
+the record), and `sect/SectCourtyardTest` (cells against the real plan).
 
 `WorldSimHealthTest` runs small seeds 1 to 3, medium seeds 1 and 2, and
 large seed 1 for 300 years after prehistory at 6 days per year, and checks
@@ -370,28 +381,132 @@ all 17 checks; it is developer evidence, not an owner verdict.
 
 ## Known limits
 
-- Sects placed by the ledger are not generated by worldgen. The `myvillage:sect`
-  compounds that `worldgen/structure_set/sect.json` scatters at random are
-  unrelated to the ledger, ownerless, and `/myvillage world` does not know
-  them; placing compounds at ledger gates in worldgen is the deferred P4.
-- Every avatar uses the one cultivator look, and avatars are neutral.
-  <!-- P3: pending -->
+- P4 is not done: worldgen does not place compounds at ledger gates, so a
+  ledger sect has no compound until one is built with
+  `/myvillage world sect <id> build`. The `myvillage:sect` compounds that
+  `worldgen/structure_set/sect.json` scatters at random (biome tag
+  `has_sect`) are unrelated to the ledger, empty, and unknown to
+  `/myvillage world`.
+- Every avatar uses the one cultivator look; there are no per-person or
+  per-sect variants.
+- Avatars are neutral: no combat, dialogue, trade, or other interaction, and
+  nothing a player does to one reaches the ledger.
+- `build` without `here`, on real terrain far from the player, has not been
+  run; it loads or generates the gate chunk and builds synchronously, and a
+  long build may trip a production server's `max-tick-time` watchdog.
 - The player is not in the ledger and has no relation to its people.
 - The health bands are pinned at 6 days per year only; another days-per-year
   value is tested for determinism, not for the long-run shape.
 - `/reload` does not re-read the data; it is read once at server start.
-- How the chronicle and rumors read on a physical client (zh_cn especially)
-  has not been observed; see the README ledger.
+- How the chronicle, rumors, and avatars look on a physical client (zh_cn
+  especially), and multiplayer, have not been observed; see the README ledger.
 
 ## P3: sect compounds and avatars
 
-<!-- P3: pending -->
+### Building a compound at a ledger gate
+
+`/myvillage world sect <id> build [here]` (`sim/runtime/avatar/GateBuilder`,
+overworld only, active sects only) builds the worldgen-style compound
+(derived mountain, cloud sea, terraces, buildings;
+`SectGenerator.generateForcedAt`) where the ledger puts the gate. Without
+`here` it loads (or generates) the gate's chunk and takes the anchor's y from
+the surface there (`MOTION_BLOCKING_NO_LEAVES`); with `here` it first moves
+the ledger gate to the caller (`WorldSim.moveGate`, refused outside every
+region) and builds at the caller's feet. The build seed hashes the world seed
+with the sect id and the spire variant is picked per sect from that seed, so
+a rebuild at the same place builds the same compound. The build runs on the
+server thread and blocks it until done; the start message says so. On
+success it records the anchor (with y), seed, variant, and sim day in
+overworld SavedData `myvillage_world_sim_gates` (`GateRealizations`, one
+record per sect, a rebuild replaces it) and calls `markGateRealized`. The
+ledger stays the authority: the build follows its record, never the reverse.
+
+### Courtyard ground
+
+`sect/SectCourtyard.cells(seed, anchor, variant)` derives, from the same plan
+the generator builds, where a figure can stand in the open: each terrace's
+floor rectangle minus its edge row (retaining walls, cliff back), minus every
+building slot (the larger of slot bounds and template footprint, plus a
+one-block margin), minus the roofed gallery cells, minus the detached spire
+and its flying bridge (with margin). Positions are terrace floor + 1, lowest
+terrace first, then by z and x, deterministic. `SectCourtyard.footprint`
+gives the compound's whole site rectangle. `SectCourtyardTest` pins the cells
+against the real plan.
+
+### Avatars (化身)
+
+An avatar is a `myvillage:cultivator` made a ledger avatar by
+`NpcEntity.becomeLedgerAvatar(personId)` before it is added (irreversible).
+The ledger person id is synced to clients (`DATA_LEDGER_PERSON`, -1 for an
+ordinary NPC). An avatar is never saved with its chunk (`shouldBeSaved`
+false); it is not attackable and takes no damage except from sources that
+bypass invulnerability (`/kill`, the void); it is fire immune and not
+pushable; its stroll goal is removed (it still looks at players and around);
+`mobInteract` passes without effect. Its name tag is always visible:
+`entity.myvillage.cultivator.avatar` = `%1$s · %2$s · %3$s` (name, realm
+through `world_sim.realm.*`, sect), so each client reads the realm in its
+own language. A summoned or spawn-egg cultivator is unchanged. If a copy
+escapes some other way it carries the `WorldSimPerson` tag, loads as an
+avatar its manager does not know, and is refused.
+
+`sim/runtime/avatar/WorldSimAvatars` is the only thing that spawns, renames,
+or withdraws avatars. Every 20 ticks, for each gate record the ledger agrees
+with (sect active, gate realized, same x/z):
+
+- the distance to the nearest player is measured to the compound's site
+  rectangle, not to the gate;
+- within `avatar_spawn_radius`, the members at the sect (`WorldSim.membersAt`)
+  are chosen by `AvatarPlanner.select`: master, then elders, then the rest,
+  each group by realm and stage, up to the per-sect cap, with the global cap
+  served nearest compound first; each gets a courtyard cell
+  (`AvatarPlanner.pickCell`: lowest terrace with room, at least two blocks
+  from the other avatars on that terrace, starting from a cell hashed from
+  the person id so a person tends to stand in the same place), once its chunk
+  is loaded;
+- beyond the spawn radius plus 32 blocks, the gate's avatars are discarded;
+  between the two radii nothing changes.
+
+Each pass and after every settled day, avatars of people no longer selected
+(dead, left, travelling, secluded, displaced by the cap) are discarded and
+names refreshed. Everything is withdrawn when the ledger is inactive, when
+avatars are disabled, on server stop, and if a pass throws. One entity per
+person id: the manager keeps the entities themselves, so it can discard one
+even in a chunk that has since unloaded, and on `EntityJoinLevelEvent` it
+cancels any avatar it did not spawn.
+
+The `humanoid-npc-runtime` spec and `genops/contracts/entities/cultivator.yaml`
+describe avatars: the contract's `state.synced` lists `ledger_person_id`,
+`state.persisted` lists `WorldSimPerson`, and a `world_sim_avatar` section
+records the mode; `tools/validate_custom_entities.py` (`check_npc_state`)
+checks the synced fields and persisted tags against the Java.
+
+### Avatar evidence
+
+```bash
+python3 tools/world_sim_avatar_evidence.py [--x 200 --z 200]   # out/preview/world_sim/avatars/
+```
+
+One headless session (about 8 to 12 minutes, holds the heavy-work lock
+itself; superflat, creative, settlement paused) builds the compound of the
+sect with the most members at the gate with `build here`, then checks the
+avatars on the courtyard, withdraws them by moving the player 300 blocks away
+with the courtyard chunks force-loaded, returns, runs `advance 60`, and tries
+`/damage` on an avatar and on a summoned cultivator. The 2026-10-06 run
+passed all 19 checks: 12 named avatars (the cap; 14 members were at the gate)
+on the stone-brick floor of the lowest terrace with open sky above; 0 at 300
+blocks; 12 again on return, all with new UUIDs; after `advance 60` the set
+followed the ledger (11 at the sect: 3 left, 2 arrived) with no duplicates;
+avatars invulnerable, the summoned cultivator damaged; an escaped avatar copy
+refused. Screenshots and `index.html` are in
+`out/preview/world_sim/avatars/`. RCON renders the name tags in `en_us`
+without the client's translation of the realm. Developer evidence, not an
+owner verdict.
 
 ## See Also
 
 - Region runtime and its query API: [13_region_topology.md](13_region_topology.md), [`region-runtime-binding`](../../openspec/specs/region-runtime-binding/spec.md)
 - Deferred region consumers: [14_deferred_roadmap.md](14_deferred_roadmap.md) §A
 - Shared calendar and personal lifespan: [30_cultivation_playable_loop.md](30_cultivation_playable_loop.md), [`cultivation-lifespan-calendar`](../../openspec/specs/cultivation-lifespan-calendar/spec.md)
-- The cultivator body used by avatars: [39_humanoid_npcs.md](39_humanoid_npcs.md), [`humanoid-npc-runtime`](../../openspec/specs/humanoid-npc-runtime/spec.md)
+- The cultivator body used by avatars: [39_humanoid_npcs.md](39_humanoid_npcs.md), [`humanoid-npc-runtime`](../../openspec/specs/humanoid-npc-runtime/spec.md), `genops/contracts/entities/cultivator.yaml`
 - Sect compounds: [`sect-compound-realization`](../../openspec/specs/sect-compound-realization/spec.md), [`sect-worldgen-structure`](../../openspec/specs/sect-worldgen-structure/spec.md)
 - Knowledge-base index: [INDEX.md](INDEX.md)

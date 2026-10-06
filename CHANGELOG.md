@@ -41,7 +41,8 @@ projections. It is the first real caller of the region query interface.
 - Runtime `sim/runtime/`: overworld SavedData `myvillage_world_sim` holding
   the core payload; genesis once per world after the region runtime (old
   worlds included), with the tier then fixed in the save; one settled sim day
-  per tick while days are pending, capped by `catch_up_cap_days`; pause and
+  per tick while days are pending, capped by the smaller of the config's
+  `catch_up_cap_days` and the rules' `scheduler.max_pending_days`; pause and
   resume without catch-up; the ledger stays inactive and its save untouched
   when the region runtime or the data fails to load or the save cannot be
   read.
@@ -51,23 +52,53 @@ projections. It is the first real caller of the region query interface.
 - Rumors (江湖传闻): major events reach every online player in chat, players in
   the event's region first; notable events reach only that region; at most
   `rumors_per_minute` per player, the rest in a capped queue.
-- Server config `myvillage-world_sim-server.toml`: `tier` (default `small`),
-  `catch_up_cap_days`, `rumors_enabled`, `rumors_per_minute`,
-  `rumor_queue_cap`.
+- Server config `myvillage-world_sim-server.toml`: `[world_sim]` `tier`
+  (default `small`) and `catch_up_cap_days`; `[rumors]` `rumors_enabled`,
+  `rumors_per_minute`, `rumor_queue_cap`; `[avatars]` `avatars_enabled`,
+  `avatar_spawn_radius`, `max_avatars_per_sect`, `max_avatars`.
 - `tools/world_sim_cli.py` (offline runner: JSON dump and prose chronicle),
   `tools/world_sim_report.py` (chronicle pages with population, realm, and
   sect-timeline charts and biographies in `out/preview/world_sim/`), and
   `tools/world_sim_evidence.py` (headless creative-mode session and restart,
   output in `out/preview/world_sim/evidence/`).
 - `tools/validate_world_sim.py`: data structure and cross-references, both
-  languages' keys and slots, and core purity.
+  languages' keys and slots, and core purity. `tools/validate_custom_entities.py`
+  gains `check_npc_state`: an NPC contract's `state.synced` fields and
+  `state.persisted` tags must match the Java.
 - Tests under `src/test/java/com/example/myvillage/sim/`: determinism,
   save/load, scheduler, purity guard, realm lifespan agreement, text-key
   coverage, genesis, liveness, long-run health bands per tier, performance,
   and the runtime's driver, rumor board, save wrapper, config, and text.
+- `/myvillage world sect <id> build [here]`: builds the sect's compound (山门,
+  the worldgen-style compound with its derived mountain) at the ledger gate,
+  on the surface of the loaded gate chunk, or with `here` moves the ledger
+  gate to the caller first and builds at the caller's feet; seed and spire
+  variant are hashed from the world seed and the sect id; the build is
+  synchronous and the reply warns that the server waits for it. It records
+  the anchor, seed, variant, and sim day in overworld SavedData
+  `myvillage_world_sim_gates` and marks the gate realized.
+- `sect/SectCourtyard`: the open courtyard ground of a compound from its plan
+  (terrace floors + 1, lowest terrace first, minus edge rows, buildings with
+  a margin, roofed galleries, the detached spire and its bridge) and the
+  compound's site rectangle.
+- Ledger avatars (化身): while a player is within `avatar_spawn_radius` of a
+  built compound's site, the sect's members at the sect stand on its
+  courtyard as `myvillage:cultivator` avatars named 姓名 · 境界 · 宗门
+  (`entity.myvillage.cultivator.avatar`, the realm through
+  `world_sim.realm.*`): master, then elders, then by realm, capped per sect
+  and in total, one entity per person, two blocks apart; withdrawn beyond the
+  radius plus 32 blocks, reconciled after every settled day, discarded when
+  the ledger is inactive or the server stops. `NpcEntity.becomeLedgerAvatar`
+  gives an avatar a synced ledger person id (-1 for ordinary NPCs); an avatar
+  is never saved with its chunk, cannot be attacked or hurt except by damage
+  that bypasses invulnerability, is fire immune and not pushable, does not
+  stroll, and ignores interaction; a copy the manager did not spawn is
+  refused when it joins a level. `/summon` and the spawn egg are unchanged.
+- `tools/world_sim_avatar_evidence.py` (headless compound build and avatar
+  checks, output in `out/preview/world_sim/avatars/`).
+- Tests `SectCourtyardTest` (courtyard cells against the real plan),
+  `AvatarPlannerTest`, and `GateRealizationsTest`.
 - `docs/ai-kb/40_world_sim.md`.
-
-<!-- P3: pending (sect compounds by command, avatars) -->
 
 ### Changed
 
@@ -80,7 +111,19 @@ projections. It is the first real caller of the region query interface.
   scenarios now describe online-player presence in any game mode (a new
   scenario for creative or spectator players only, and one for no player
   online); the personal-lifespan requirement is unchanged.
-- Spec `humanoid-npc-runtime`: <!-- P3: pending -->
+- Spec `humanoid-npc-runtime`: the requirement "An NPC is a body without a
+  disposition" now also allows removal by the world simulation withdrawing an
+  avatar and states the avatar's behaviour (synced ledger person id, never
+  saved, no stroll, not attackable or hurt except by invulnerability-bypassing
+  damage, no burning or pushing, no interaction); the scenario "A cultivator
+  stays when the player leaves" becomes "A summoned cultivator stays…"; new
+  scenarios "An avatar follows the ledger, not the chunk" and "An avatar
+  cannot be hurt". The requirement "The cultivator is summoned only" becomes
+  "The cultivator is summoned or projected, never spawned naturally", with a
+  new scenario "The simulation projects a sect's members".
+- Entity contract `genops/contracts/entities/cultivator.yaml`: `state.synced`
+  lists `ledger_person_id`, `state.persisted` lists `WorldSimPerson`, and a
+  new `world_sim_avatar` section describes the avatar mode.
 - `tools/release_gate.py` runs `tools/validate_world_sim.py`.
 - `docs/ai-kb/14_deferred_roadmap.md` §A records the world sim as the region
   query interface's first caller.
@@ -94,11 +137,18 @@ projections. It is the first real caller of the region query interface.
   (`out/preview/world_sim/evidence/summary.md`) passed all 17 checks:
   every command, calendar and ledger advancing in creative, pause and resume
   without catch-up, restart keeping the ledger with genesis once and a later
-  tier change ignored, `advance` bounds, and rate-limited rumors.
-- Not verified: the Chinese chronicle and rumor text on a zh_cn client, how
-  rumors look in chat on a physical client, genesis on an existing old world
-  in game, the inactive and untouched-save paths in game, and the calendar
-  acceptance step 9 under the new rule. See the README ledger "World
+  tier change ignored, `advance` bounds, and rate-limited rumors. The avatar
+  session (`out/preview/world_sim/avatars/`) passed all 19 checks: 12 named
+  avatars on the courtyard floor under open sky, 0 with the player 300 blocks
+  away, 12 again on return with new UUIDs, the set following the ledger after
+  `advance 60`, no duplicates, avatars invulnerable while a summoned
+  cultivator still takes damage.
+- Not verified: the Chinese chronicle, rumor, and name-tag text on a zh_cn
+  client, how rumors and avatars look on a physical client, multiplayer,
+  `sect <id> build` without `here` on real terrain far away, the gate record
+  surviving a restart in game, genesis on an existing old world in game, the
+  inactive and untouched-save paths in game, and the calendar acceptance step
+  9 under the new rule. See the README ledger "World
   simulation (0.35.0)".
 
 ## 0.34.1

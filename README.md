@@ -834,7 +834,9 @@ tied in a bun under a small crown. It has no disposition yet: it stands,
 strolls, and looks at nearby players, and never attacks; friend or foe is a
 later decision. It appears in any difficulty, does not despawn by distance,
 and cannot be leashed. There is no natural spawning and no drop: summon it or
-use the spawn egg (in `myvillage:main` after the demon wolf egg).
+use the spawn egg (in `myvillage:main` after the demon wolf egg). Since 0.35.0 the
+world simulation also projects ledger members as cultivator avatars on a
+built sect compound (see [World Simulation](#world-simulation-世界模拟--命簿)).
 
 ```mcfunction
 /summon myvillage:cultivator ~ ~ ~
@@ -953,6 +955,8 @@ Commands (permission 2):
 /myvillage world info            # era date, sim and calendar day, pending days, paused?, population, realms, sects, foremost people
 /myvillage world sects [all]     # active sects (all: with the destroyed): region, master, members, top realm, prestige, gate
 /myvillage world sect <id|name>  # one sect: founding, master, resources, prestige, signature technique, gate, relations, members at the sect
+/myvillage world sect <id> build        # build the sect's compound (山门) at its ledger gate
+/myvillage world sect <id> build here   # move the sect's gate to you first, then build at your feet
 /myvillage world person <name>   # up to five people whose name or Daoist title contains the text, living first
 /myvillage world chronicle [1-50]   # the latest notable and major events (default 10)
 /myvillage world here            # your region: tier, qi, danger, sects seated there with gate distance, people present, recent events
@@ -972,10 +976,14 @@ Server config `config/myvillage-world_sim-server.toml` (a copy in a world's
 | Key | Default | Meaning |
 |---|---|---|
 | `world_sim.tier` | `small` | `small` (about 80 people), `medium` (about 300), or `large` (about 1000); read only at genesis, then fixed in the save |
-| `world_sim.catch_up_cap_days` | `30` | Most sim days that may be pending at once (one is settled per tick) |
+| `world_sim.catch_up_cap_days` | `30` | Most sim days that may be pending at once (one is settled per tick); `rules.json` `scheduler.max_pending_days` is a ceiling this can only lower |
 | `rumors.rumors_enabled` | `true` | Rumors in chat on or off |
 | `rumors.rumors_per_minute` | `2` | Most rumors per player per real minute |
 | `rumors.rumor_queue_cap` | `6` | Most rumors waiting per player; the oldest is dropped |
+| `avatars.avatars_enabled` | `true` | Avatars on or off |
+| `avatars.avatar_spawn_radius` | `64` | Avatars appear while a player is within this many blocks (8–128) of a built compound's site, and are withdrawn beyond it plus 32 |
+| `avatars.max_avatars_per_sect` | `12` | Most avatars per compound (0–64): the master first, then the elders, then by realm |
+| `avatars.max_avatars` | `40` | Most avatars in the world (0–256); the compound nearest a player is served first |
 
 Every balance number, name, technique, artifact, site, beast, and fortune is
 data in `src/main/resources/data/myvillage/world_sim/` (`rules.json`,
@@ -1013,7 +1021,42 @@ and resume, rumors and their rate limit) and then restarts a kept world
 passed all 17 checks (`summary.md`); that is developer evidence, not owner
 acceptance.
 
-<!-- P3: pending -->
+### Sect compounds and avatars (化身)
+
+A ledger sect has no compound in the world until one is built for it (worldgen
+does not place compounds at ledger gates yet; the randomly scattered
+`myvillage:sect` compounds are unrelated to the ledger and stay empty).
+`/myvillage world sect <id> build` loads the gate's chunk and builds the
+worldgen-style compound (derived mountain, terraces, buildings) on the surface
+at the ledger's gate coordinate; `build here` first moves the sect's gate (and
+its seat) to your position, which must be inside a region, and builds at your
+feet. The compound's seed and spire variant come from the world seed and the
+sect id, so a rebuild at the same place is identical. The build runs on the
+server thread and the server does not respond until it is done (the reply
+warns; it can take a minute). The gate is then marked realized, and the build
+is recorded in `data/myvillage_world_sim_gates.dat`.
+
+While a player is within `avatar_spawn_radius` of a built compound, the
+sect's members who are at the sect in the ledger stand on its open courtyard
+ground as cultivators named 姓名 · 境界 · 宗门 (the realm in the client's
+language): the master first, then the elders, then by realm, up to the caps,
+one entity per person, at least two blocks apart. They look around and at
+players but do not walk, cannot be hurt (only damage that bypasses
+invulnerability, such as `/kill` or the void, reaches them), do not burn, cannot be pushed, and do nothing when used. They are
+never saved: when every player has moved away they are withdrawn, and on the
+way back new ones are projected from the ledger. After each settled day the
+set follows the ledger (people who left, died, or went travelling disappear;
+arrivals appear). A cultivator from `/summon` or the spawn egg is unchanged.
+
+```bash
+python3 tools/world_sim_avatar_evidence.py    # out/preview/world_sim/avatars/ (holds the heavy-work lock itself)
+```
+
+It builds one sect's compound with `build here` in a fresh superflat world
+and checks the avatars on the courtyard, their withdrawal 300 blocks away
+(with the chunks force-loaded), their return, `advance 60`, and damage on an
+avatar and on a summoned cultivator. Its 2026-10-06 run passed all 19 checks
+(`index.html`, screenshots); developer evidence, not owner acceptance.
 
 | World simulation (0.35.0) acceptance surface | Result |
 |---|---|
@@ -1023,12 +1066,23 @@ acceptance.
 | Pause holds the ledger while the calendar runs; resume does not catch up | `pass` |
 | Restart keeps the ledger; genesis once; later config tier change ignored | `pass` |
 | `advance` bounds | `pass` |
-| Rumors reach an online player, rate-limited, own region first | `pass` (headless) |
+| Rumors reach an online player, rate-limited, own region first | `pass` (headless; own-region priority unit-tested only) |
 | Chinese chronicle/rumor text on a zh_cn client | `not_verified` |
-| Sim inactive when the region runtime failed to load | `not_verified` (unit-tested) |
-| Newer-format or unreadable save left untouched | `not_verified` in game (unit-tested) |
+| Sim inactive when the region runtime failed to load | `not_verified` |
+| Newer-format save left untouched | `not_verified` in game (unit-tested) |
+| Unreadable save left untouched | `not_verified` |
 | Genesis on an existing old world | `not_verified` in game |
 | How rumors look in chat on a physical client | `not_verified` |
+| Named avatars with realm stand on the courtyard ground of a built compound | `pass` (headless) |
+| Avatar count near the compound, zero far away, back on return | `pass` |
+| Avatars follow `advance` (left and arrived members) | `pass` |
+| No duplicate avatars | `pass` |
+| Avatars invulnerable; a `/summon` cultivator unchanged | `pass` |
+| Avatar look, motion, and name-tag legibility on a physical client | `not_verified` |
+| Chinese avatar name tags on a zh_cn client | `not_verified` |
+| Avatars in multiplayer | `not_verified` |
+| `sect <id> build` without `here` on real terrain far away (only `build here` ran; a long synchronous build may trip a production server's max-tick-time watchdog) | `not_verified` |
+| The gate record surviving a restart in game (save round trip unit-tested only) | `not_verified` |
 
 ## Rideable Flying Sword Smoke Test
 
@@ -2477,7 +2531,8 @@ Included:
 - `myvillage:demon_wolf` (妖狼): hostile beast with its own generated model and clips and two data-driven moves; summon and spawn egg only, no drop
 - /myvillage beast move <targets> <move_id> | status <targets> | debug on|off
 - the world ledger (命簿): sects and named cultivators simulated by the day, saved per world, with chat rumors
-- /myvillage world [info] | sects [all] | sect <id|name> | person <name> | chronicle [1-50] | here | pause | resume | advance <1-3650>
+- /myvillage world [info] | sects [all] | sect <id|name> | sect <id> build [here] | person <name> | chronicle [1-50] | here | pause | resume | advance <1-3650>
+- world-sim avatars: ledger members shown as never-saved, invulnerable cultivators on a built compound's courtyard while a player is near
 - `myvillage:rideable_flying_sword`: transient, one-player, server-authoritative flying-sword vehicle and creative-tab item
 - NBT integrity validation for roof/top-layer/function-block/signature checks
 - deterministic town-plan and sect-plan/sect-generation validation with top-down previews

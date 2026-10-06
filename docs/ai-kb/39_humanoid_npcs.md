@@ -10,7 +10,10 @@ without redoing the art. The normative rules are in
 Entity Contract is `genops/contracts/entities/cultivator.yaml`.
 
 No natural spawning and no drop: `/summon` and
-`myvillage:cultivator_spawn_egg` only.
+`myvillage:cultivator_spawn_egg` only. Since 0.35.0 the world simulation also
+projects ledger members as never-saved, invulnerable cultivator avatars on a
+built sect compound while a player is near; see
+[40_world_sim.md](40_world_sim.md).
 
 ## Where each fact lives
 
