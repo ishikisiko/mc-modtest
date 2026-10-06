@@ -7,6 +7,101 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.38.0
+
+Technique manuals (秘籍) and studying them (研读): a technique is now learned
+by reading its manual, an item whose technique is a data component like an
+enchanted book's enchantment, in a sitting session that can be interrupted,
+keeps its progress on the book, and passes gates that cost stability. Brought
+forward from the technique system's third phase. Brief:
+`docs/technique-manual-brief.md`; how it works:
+`docs/ai-kb/41_technique_system.md` ("Manuals and study").
+
+### Added
+
+- 16 items `myvillage:manual_<core|active|movement|body>_<huang|xuan|di|tian>`
+  (`TechniqueManualItem`, stack 1, rarity common/uncommon/rare/epic by grade,
+  天阶 foil) and two synced data components, `myvillage:technique` (the
+  technique taught) and `myvillage:comprehension` (points read). A manual is
+  valid when its technique is registered and of the item's category and grade
+  (`TechniqueManualItem.check`); without the component it is blank
+  (`空白秘籍 · 绝技 · 玄阶`), any other mismatch makes a red `残损秘籍` that
+  cannot be read. Valid manuals are named `《功法名》` (`Manual: …`). Tooltip:
+  category · grade, school, elements, heritage position, requirement,
+  `参悟 n%`, `右键盘坐研读`. The `myvillage:main` tab lists the 16 blank
+  manuals, then one per technique of grade 1..4 (129).
+- Item art from the new `tools/gen_manual_textures.py` (standard library):
+  a detail layer and a tint mask for each of the four categories (线装书,
+  卷轴, 折页, 玉简), one shared model per category, tinted by grade in
+  `MyVillageClient`; release-gate step `gen-manual-textures-check`.
+- `/myvillage cultivation|xiulian manual|miji <target> <technique_id>` gives
+  the manual of a technique (grade 0 and unknown ids refused); the vanilla
+  form `/give @s myvillage:manual_active_xuan[myvillage:technique="myvillage:gengjin_jianjue"]`
+  works as well.
+- Optional technique field `study` (`TechniqueStudy`: `points`, `gates`,
+  `gate_stability_cost`; default 4000/0/0), written for every generated
+  technique from the new `study_by_grade` table in
+  `tools/technique_catalogue/rules.json`: 黄 4000/0/0, 玄 12000/1/50,
+  地 36000/2/100, 天 96000/3/150 (the `gen-technique-catalogue-check` step
+  covers the new blocks).
+- Study (研读), `MeditationMode.STUDY`: right-clicking a manual
+  (`ManualStudy.use`) checks a valid manual, the technique not learned, an
+  awakened root and its requirements, the previous technique of its chain,
+  then meditation's eligibility and physical checks, and starts a session
+  with meditation's 40-tick preparation and anchor that remembers the slot.
+  Every 10 ticks it adds `affinity × (10000 + element bonus bp) / 10000`
+  points (no grade multiplier; the bonus is `element_match_bonus` from
+  `world_sim/rules.json`), writes them to the manual after the profile
+  commit, pays a gate's stability once when crossing it or stops on it, and
+  at the total learns the technique and consumes the manual. No randomness.
+  Interruptions are meditation's; the points stay on the manual. At
+  affinity 10 the grades take 3 min 20 s, 10, 30, and 80 minutes.
+- Stop reasons `STUDY_ACCEPTED`, `MANUAL_LOST`, `STUDY_GATE`,
+  `STUDY_COMPLETE`, `STUDY_REQUIREMENTS`; chat lines
+  `message.myvillage.cultivation.study.*`.
+- `MeditationStatus.study()` (`StudyProgress`: technique, points, total,
+  next gate or -1, gate cost), present only while a study session runs.
+- 修炼 page study card: `研读《功法名》` with the percent as its chip, a
+  comprehension bar, `下一关 n 点 · 耗稳定度 m` (amber when stability is
+  short; `无关卡` when none is left), and `按 X 停止`; it replaces the normal
+  and spirit cards during the session, at the top of the readout column (above
+  the figure when narrow). The session text reads 准备研读 / 研读中.
+- Tests: `TechniqueManualItemTest`, `TechniqueStudyDefinitionTest`,
+  `StudyStartTest`, `StudySettlementTest`, `StudyStepTest`,
+  `MeditationStatusStudyTest`, more cases in `MeditationSessionTest`,
+  `MeditationStatusPayloadTest`, `CultivationCommandsTest`, and
+  `PanelReadoutsTest`; `tools/tests/test_gen_manual_textures.py` and more
+  cases in `test_gen_technique_catalogue.py`.
+
+### Changed
+
+- Payload protocol is now `11` (was `10`): the meditation status carries the
+  study progress, so client and server need the same jar.
+- Study states reuse `PREPARING_NORMAL` and `MEDITATING_NORMAL`; client input
+  is unchanged (four meditation intents; stop ends a study). Right-clicking a
+  manual during any session ends that session first.
+- Docs: KB note 41 ("Manuals and study"), notes 22, 28, 30, 37 and the index,
+  README (command, the "Technique Manuals (0.38.0)" section, the 0.38.0
+  ledger), AGENTS.
+
+### Deferred
+
+- A visual of the book while reading (held book, floating pages), mastery
+  tiers (a chain asks only that the previous technique is learned), and
+  manuals from loot, sects, the scripture hall, or NPCs.
+- 地 and 天 manuals need Foundation early, which play cannot reach yet.
+
+### Verification
+
+- Automated: `gen_technique_catalogue.py --check`, `gen_manual_textures.py
+  --check`, the six cultivation validators, their Python tests, and the Gradle
+  tests.
+- Not verified: everything in a real client (icons and tints, tooltip,
+  creative tab, right-click start without a swing, interruption keeping
+  progress, the gate stop message, completion learning and consuming, the
+  study card at GUI 480x270, 427x240, and 320x240, `X` stopping a study, the
+  `/give` component form). See the README ledger "Technique manuals (0.38.0)".
+
 ## 0.37.0
 
 The technique system (功法 / 流派 / 传承), first phase: one technique
