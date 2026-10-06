@@ -1,6 +1,7 @@
 package com.example.myvillage.combat.network;
 
 import com.example.myvillage.combat.CombatMode;
+import com.example.myvillage.combat.DodgeDirection;
 import com.example.myvillage.combat.session.CombatStopReason;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -9,6 +10,8 @@ final class CombatNetworkCodecs {
     static final StreamCodec<ByteBuf, CombatMode> COMBAT_MODE = enumCodec(CombatMode.values(), "combat mode");
     static final StreamCodec<ByteBuf, CombatStopReason> STOP_REASON =
             enumCodec(CombatStopReason.values(), "combat stop reason");
+    static final StreamCodec<ByteBuf, DodgeDirection> DODGE_DIRECTION =
+            enumCodec(DodgeDirection.values(), "dodge direction");
 
     private CombatNetworkCodecs() {
     }

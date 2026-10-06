@@ -11,5 +11,7 @@ public enum CombatStopReason {
     MOUNTED,
     CULTIVATION_STARTED,
     DISALLOWED,
-    SERVER_STOPPING
+    SERVER_STOPPING,
+    /** The player dodged (身法) out of the action's recovery. Appended last: the wire codec sends ordinals. */
+    DODGED
 }

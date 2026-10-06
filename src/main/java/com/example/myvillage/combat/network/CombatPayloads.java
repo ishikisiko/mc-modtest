@@ -1,6 +1,7 @@
 package com.example.myvillage.combat.network;
 
 import com.example.myvillage.combat.CombatService;
+import com.example.myvillage.combat.runtime.CombatDodgeService;
 import com.example.myvillage.combat.session.CombatSessionManager;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
@@ -39,6 +40,28 @@ public final class CombatPayloads {
                 CombatImpactPayload.TYPE,
                 CombatImpactPayload.STREAM_CODEC,
                 CombatPayloads::handleImpact);
+        registrar.playToServer(
+                CombatDodgeIntentPayload.TYPE,
+                CombatDodgeIntentPayload.STREAM_CODEC,
+                CombatPayloads::handleDodgeIntent);
+        registrar.playToClient(
+                CombatDodgeStartPayload.TYPE,
+                CombatDodgeStartPayload.STREAM_CODEC,
+                CombatPayloads::handleDodgeStart);
+    }
+
+    private static void handleDodgeIntent(
+            CombatDodgeIntentPayload payload,
+            IPayloadContext context) {
+        if (context.player() instanceof ServerPlayer player) {
+            context.enqueueWork(() -> CombatDodgeService.handleIntent(player, payload.direction()));
+        }
+    }
+
+    private static void handleDodgeStart(
+            CombatDodgeStartPayload payload,
+            IPayloadContext context) {
+        context.enqueueWork(() -> CombatDodgeReceiver.receiveStart(payload));
     }
 
     private static void handleModeToggle(
