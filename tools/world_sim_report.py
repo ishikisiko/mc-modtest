@@ -67,6 +67,7 @@ SECT_MARKERS = [
     ("destroy", "end", "✕", "覆灭"), ("annex", "end", "✕", "覆灭"), ("decline", "decl", "▼", "衰落"),
     ("battle", "war", "▲", "战事"), ("sect_found", "found", "●", "开宗"), ("sect_split", "split", "⑂", "分裂"),
     ("sect_decline", "decl", "▼", "衰落"), ("sect_revival", "found", "●", "中兴"),
+    ("heritage_lost", "end", "◇", "传承失落"), ("heritage_rekindled", "found", "◇", "传承重续"),
 ]
 
 
@@ -188,11 +189,13 @@ class Lang:
 # ------------------------------------------------------------------------------------------- content
 
 class Content:
-    """Static sim data the report needs: realm order and lifespans, technique grades, root rules."""
+    """Static sim data the report needs: realm order and lifespans, technique grades, root rules, heritages."""
 
-    def __init__(self, realms=None, techniques=None, root_threshold=1500, root_grades=None, tiers=None):
+    def __init__(self, realms=None, techniques=None, root_threshold=1500, root_grades=None, tiers=None,
+                 heritages=None):
         self.realms = realms or [{"id": r} for r in DEFAULT_REALMS]
         self.techniques = techniques or {}
+        self.heritages = heritages or {}
         self.root_threshold = root_threshold
         self.root_grades = root_grades or ROOT_ORDER
         self.tiers = tiers or {}
@@ -209,7 +212,9 @@ class Content:
         rules = read("rules.json")
         roots = rules.get("roots", {})
         grades = [g.get("id") for g in roots.get("grades", [])] or None
-        return cls(realms, techniques, roots.get("element_threshold_bp", 1500), grades, rules.get("tiers"))
+        heritages = {h["id"]: h for h in read("heritages.json").get("heritages", []) if "id" in h}
+        return cls(realms, techniques, roots.get("element_threshold_bp", 1500), grades, rules.get("tiers"),
+                   heritages)
 
 
 # -------------------------------------------------------------------------------------------- model
@@ -932,6 +937,9 @@ def sect_timeline(run: Run) -> str:
         name = s.get("name", f"宗门{sid}")
         info = f"{name}：" + (f"创于{run.date(fd)}" if fd >= 0 else f"创派早于记载（{run.date(fd)}）") + \
             (f"，{run.date(end)}覆灭" if destroyed else "，至今存续")
+        if s.get("heritage"):
+            heritage = run.content.heritages.get(s["heritage"], {}).get("name") or s["heritage"]
+            info += f"，传承{heritage}"
         parts.append(f'<g class="{cls}"><title>{esc(info)}</title>')
         parts.append(f'<text class="row-label" x="{ax.left - 8}" y="{cy + 5:.1f}" text-anchor="end">{esc(name)}</text>')
         parts.append(f'<line class="bar" x1="{x0:.1f}" x2="{x1:.1f}" y1="{cy:.1f}" y2="{cy:.1f}"/>')
