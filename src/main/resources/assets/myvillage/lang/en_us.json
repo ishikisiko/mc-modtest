@@ -923,6 +923,7 @@
   "world_sim.event.player.leave.sect_gone.1": "%2$s is no more; %1$s goes on as a rogue cultivator.",
   "world_sim.event.player.promote.inner.1": "%1$s becomes an inner disciple of %2$s.",
   "world_sim.event.player.promote.elder.1": "%1$s is raised to elder of %2$s.",
+  "world_sim.event.player.borrow.1": "%1$s borrows %3$s from the scripture hall of %2$s.",
   "commands.myvillage.world.sect.heritage": "Heritage: %1$s",
   "screen.myvillage.cultivation.technique_group.core": "Core Methods",
   "screen.myvillage.cultivation.technique_group.active": "Battle Arts",

@@ -516,7 +516,7 @@ public final class WorldSim {
      * no sect.
      */
     public List<String> borrowable(String playerId) {
-        throw new UnsupportedOperationException("slice 2 package S-A");
+        return PlayerAffairs.borrowable(ctx, playerId);
     }
 
     /** Whether the player has borrowed this technique's manual (the record outlives membership). */
@@ -531,7 +531,7 @@ public final class WorldSim {
      * {@code not_member}, {@code not_borrowable} or {@code already_borrowed}, checked in that order.
      */
     public SimEvent recordBorrow(String playerId, String playerName, String techniqueId) {
-        throw new UnsupportedOperationException("slice 2 package S-A");
+        return PlayerAffairs.borrow(ctx, playerId, playerName, techniqueId);
     }
 
     /** Refreshes a player's name and qualification snapshot; does nothing when the player has no record. */

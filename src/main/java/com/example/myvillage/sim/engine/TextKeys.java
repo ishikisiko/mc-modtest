@@ -106,6 +106,8 @@ public final class TextKeys {
     public static final String PLAYER_LEAVE_SECT_GONE = P + "player.leave.sect_gone";
     public static final String PLAYER_PROMOTE_INNER = P + "player.promote.inner";
     public static final String PLAYER_PROMOTE_ELDER = P + "player.promote.elder";
+    /** The player borrowed a manual from the scripture hall (slice 2). Params: player, sect, technique name. */
+    public static final String PLAYER_BORROW = P + "player.borrow";
 
     /** Slain variants by fight kind. */
     public static final List<String> SLAIN_KINDS = List.of(
@@ -228,6 +230,7 @@ public final class TextKeys {
         f.put(PLAYER_LEAVE_SECT_GONE, new int[] {2, 1});
         f.put(PLAYER_PROMOTE_INNER, new int[] {2, 1});
         f.put(PLAYER_PROMOTE_ELDER, new int[] {2, 1});
+        f.put(PLAYER_BORROW, new int[] {3, 1});
         for (RealmTable.Realm realm : data.realms().realms()) {
             if (realm.breakthrough() == null) {
                 continue;

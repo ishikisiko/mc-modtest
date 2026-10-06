@@ -3,13 +3,17 @@ package com.example.myvillage.sim.engine;
 import com.example.myvillage.sim.Admission;
 import com.example.myvillage.sim.PlayerQualification;
 import com.example.myvillage.sim.SimEvent;
+import com.example.myvillage.sim.data.ContentTables;
 import com.example.myvillage.sim.data.RealmTable;
 import com.example.myvillage.sim.data.Rules;
 import com.example.myvillage.sim.model.Person;
 import com.example.myvillage.sim.model.PlayerMember;
 import com.example.myvillage.sim.model.Sect;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Optional;
 
 /**
@@ -17,7 +21,7 @@ import java.util.Optional;
  * {@link Person}: their record is a {@link PlayerMember} in {@code WorldState.playerMembers}.
  *
  * <p>Two kinds of entry point. The player actions ({@link #admission}, {@link #join}, {@link #leave},
- * {@link #promote}) are called by the {@code WorldSim} facade between settled days; their event goes
+ * {@link #promote}, {@link #borrow}) are called by the {@code WorldSim} facade between settled days; their event goes
  * into the chronicle at once and the open day is closed ({@code Chronicle.endDay}) so the next
  * {@link Engine#step} neither returns it again nor loses it. The yearly review ({@link #yearly}, run
  * by {@link Engine#step} right after {@link SectAffairs#yearly}) and {@link #sectDissolved} run inside
@@ -31,6 +35,10 @@ public final class PlayerAffairs {
     public static final List<String> RANKS = List.of(OUTER, INNER, ELDER);
 
     public static final String NOT_MEMBER = "not_member";
+    public static final String NOT_BORROWABLE = "not_borrowable";
+    public static final String ALREADY_BORROWED = "already_borrowed";
+    /** The mortal-grade breathing method: no manual exists, so the scripture hall never lends it. */
+    public static final String BASIC_BREATHING = "basic_breathing";
 
     private static final int STANDING_MIN = -100;
     private static final int STANDING_MAX = 100;
@@ -167,6 +175,75 @@ public final class PlayerAffairs {
             return Optional.empty();
         }
         return Optional.of(closeDay(ctx, promotionEvent(ctx, m, ctx.sect(m.sectId))));
+    }
+
+    // ------------------------------------------------------------------ scripture hall (slice 2)
+
+    /**
+     * The techniques the player may borrow from their sect's scripture hall at their rank (ledger
+     * ids, chain order, no duplicates). A heritage sect lends its chain: outer the first technique,
+     * inner the first two, elder the whole chain. A sect without one lends its basic technique to
+     * outer disciples and basic plus signature to inner disciples and elders. Empty ids and
+     * {@link #BASIC_BREATHING} are left out. Empty when the player is in no living sect.
+     */
+    public static List<String> borrowable(SimContext ctx, String playerId) {
+        PlayerMember m = ctx.state.playerMembers.get(playerId);
+        if (m == null || !m.inSect()) {
+            return List.of();
+        }
+        Sect sect = ctx.sect(m.sectId);
+        if (sect == null || !sect.active()) {
+            return List.of();
+        }
+        List<String> raw = new ArrayList<>();
+        ContentTables.Heritage heritage = ctx.data.heritage(sect.heritageId);
+        if (heritage != null) {
+            List<String> chain = heritage.techniques();
+            int n = switch (m.rank) {
+                case OUTER -> 1;
+                case INNER -> 2;
+                default -> chain.size();
+            };
+            raw.addAll(chain.subList(0, Math.min(n, chain.size())));
+        } else {
+            raw.add(sect.basicTechniqueId);
+            if (!m.rank.equals(OUTER)) {
+                raw.add(sect.signatureTechniqueId);
+            }
+        }
+        Set<String> out = new LinkedHashSet<>();
+        for (String id : raw) {
+            if (id != null && !id.isEmpty() && !id.equals(BASIC_BREATHING)) {
+                out.add(id);
+            }
+        }
+        return List.copyOf(out);
+    }
+
+    /**
+     * Records that the player borrowed this technique's manual and a {@code player_borrow} event
+     * (timed like {@link #join}). Throws IllegalArgumentException with {@code not_member},
+     * {@code not_borrowable} or {@code already_borrowed}, checked in that order.
+     *
+     * <p>Importance 2 like the other player events: the chronicle keeps importance-1 events per
+     * person subject (a minor event without an actor is refused), and a player is never a person.
+     */
+    public static SimEvent borrow(SimContext ctx, String playerId, String playerName, String techniqueId) {
+        PlayerMember m = requireMember(ctx, playerId);
+        if (!borrowable(ctx, playerId).contains(techniqueId)) {
+            throw new IllegalArgumentException(NOT_BORROWABLE);
+        }
+        if (m.borrowed.contains(techniqueId)) {
+            throw new IllegalArgumentException(ALREADY_BORROWED);
+        }
+        Sect sect = ctx.sect(m.sectId);
+        m.playerName = playerName;
+        m.borrowed.add(techniqueId);
+        ContentTables.Technique t = ctx.data.technique(techniqueId);
+        String techniqueName = t == null ? techniqueId : t.name();
+        long id = ctx.chronicle.event("player_borrow", 2).sects(sect.id).region(sect.homeRegionId)
+                .say(TextKeys.PLAYER_BORROW, playerName, sect.name, techniqueName);
+        return closeDay(ctx, id);
     }
 
     // ------------------------------------------------------------------ inside a step

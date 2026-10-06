@@ -907,6 +907,7 @@
   "world_sim.event.player.leave.sect_gone.1": "%2$s覆灭，%1$s自此成了散修。",
   "world_sim.event.player.promote.inner.1": "%1$s修为渐进，晋为%2$s内门弟子。",
   "world_sim.event.player.promote.elder.1": "%1$s修为日深，擢为%2$s长老。",
+  "world_sim.event.player.borrow.1": "%1$s自%2$s藏经阁借得《%3$s》。",
   "commands.myvillage.world.sect.heritage": "传承：%1$s",
   "screen.myvillage.cultivation.technique_group.core": "心法",
   "screen.myvillage.cultivation.technique_group.active": "绝技",
