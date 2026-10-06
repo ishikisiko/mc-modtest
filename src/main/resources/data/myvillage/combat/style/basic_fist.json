@@ -175,7 +175,7 @@
         "hit_sound": "myvillage:combat.sword.hit_heavy",
         "heavy_layer_sound": "myvillage:combat.sword.impact_heavy",
         "heavy_hit": true,
-        "hit_stop_ticks": 2.00,
+        "hit_stop_ticks": 1.50,
         "camera_trauma": 0.60,
         "cut_roll_degrees": 0.0
       },

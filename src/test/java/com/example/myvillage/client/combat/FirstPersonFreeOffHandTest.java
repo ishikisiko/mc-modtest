@@ -128,9 +128,14 @@ final class FirstPersonFreeOffHandTest {
                             Files.readString(CombatTestData.assetPath(weapon.geometry()))).getAsJsonObject()));
             for (int index = 0; index < style.moves().size(); index++) {
                 FirstPersonSwing.Move move = swing.move(index);
-                SwingClock clock = new SwingClock(move.totalTicks());
-                assertTrue(clock.beginHitStop(move.contactTick(), style.move(index).feedback().hitStopTicks()),
+                float stop = style.move(index).feedback().hitStopTicks();
+                // A confirmation lands between the rig's contact and half a tick after the last active
+                // tick (a hit on that tick, read a fraction of a tick later).
+                float latest = Math.max(move.contactTick(), style.move(index).activeEndTick() + 0.5F);
+                assertTrue(new SwingClock(move.totalTicks()).beginHitStop(move.contactTick(), stop),
                         weapon.item() + " " + move.id() + ": the hit-stop at the contact tick cannot catch up");
+                assertTrue(new SwingClock(move.totalTicks()).beginHitStop(latest, stop),
+                        weapon.item() + " " + move.id() + ": a hit-stop confirmed on the last active tick cannot catch up");
             }
         }
     }
