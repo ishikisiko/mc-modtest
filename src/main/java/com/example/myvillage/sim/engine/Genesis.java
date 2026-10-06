@@ -10,6 +10,7 @@ import com.example.myvillage.sim.model.RegionState;
 import com.example.myvillage.sim.model.Sect;
 import com.example.myvillage.sim.model.Tombstone;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,8 +34,9 @@ public final class Genesis {
         int sectPopulation = (int) Math.round(tier.population() * (1.0 - tier.rogueShare()));
         int[] sizes = sectSizes(ctx, sectPopulation, tier.sects());
         Set<String> signatureUsed = new HashSet<>();
+        Set<String> heritageUsed = new HashSet<>();
         for (int rank = 0; rank < tier.sects(); rank++) {
-            Sect sect = foundSect(ctx, rank, sectRegions.get(rank), signatureUsed);
+            Sect sect = foundSect(ctx, rank, sectRegions.get(rank), signatureUsed, heritageUsed);
             staff(ctx, sect, rank, sizes[rank]);
         }
         int rogues = Math.max(0, tier.population() - ctx.state.persons.size());
@@ -49,10 +51,19 @@ public final class Genesis {
             }
             Person master = ctx.state.persons.get(sect.masterId);
             long age = -sect.foundedDay / ctx.dpy;
-            ctx.chronicle.event("genesis", 3).actors(master.id).sects(sect.id).region(sect.homeRegionId)
-                    .text(TextKeys.GENESIS_SECT, sect.name, ctx.regionName(sect.homeRegionId), master.name(),
-                            TextKeys.stage(ctx.realm(master).id(), master.stage), ctx.nameOf(sect.founderId),
-                            String.valueOf(age));
+            ContentTables.Heritage heritage = ctx.data.heritage(sect.heritageId);
+            Chronicle.Builder event = ctx.chronicle.event("genesis", 3).actors(master.id).sects(sect.id)
+                    .region(sect.homeRegionId);
+            String[] params = {sect.name, ctx.regionName(sect.homeRegionId), master.name(),
+                    TextKeys.stage(ctx.realm(master).id(), master.stage), ctx.nameOf(sect.founderId),
+                    String.valueOf(age)};
+            if (heritage == null) {
+                event.text(TextKeys.GENESIS_SECT, params);
+            } else {
+                String[] withHeritage = Arrays.copyOf(params, params.length + 1);
+                withHeritage[params.length] = heritage.name();
+                event.text(TextKeys.GENESIS_SECT_HERITAGE, withHeritage);
+            }
         }
     }
 
@@ -117,7 +128,8 @@ public final class Genesis {
         return sizes;
     }
 
-    private static Sect foundSect(SimContext ctx, int rank, String regionId, Set<String> signatureUsed) {
+    private static Sect foundSect(SimContext ctx, int rank, String regionId, Set<String> signatureUsed,
+                                  Set<String> heritageUsed) {
         Rules.Genesis g = ctx.rules.genesis();
         Sect sect = new Sect();
         sect.id = ctx.state.nextSectId++;
@@ -130,14 +142,45 @@ public final class Genesis {
         }
         sect.gateX = gate[0];
         sect.gateZ = gate[1];
-        SimRng rng = ctx.rng(sect.id, Purpose.GENESIS_TECHNIQUE);
-        String grade = g.signatureGrades().get(Math.min(rank, g.signatureGrades().size() - 1));
-        sect.signatureTechniqueId = pickTechnique(ctx, rng, grade, signatureUsed);
-        sect.basicTechniqueId = pickTechnique(ctx, rng, ContentTables.GRADE_ORDER.get(0), signatureUsed);
+        ContentTables.Heritage heritage = pickHeritage(ctx, sect, heritageUsed);
+        if (heritage != null) {
+            sect.heritageId = heritage.id();
+            sect.signatureTechniqueId = heritage.last();
+            sect.basicTechniqueId = heritage.first();
+            signatureUsed.addAll(heritage.techniques());
+        } else {
+            SimRng rng = ctx.rng(sect.id, Purpose.GENESIS_TECHNIQUE);
+            String grade = g.signatureGrades().get(Math.min(rank, g.signatureGrades().size() - 1));
+            sect.signatureTechniqueId = pickTechnique(ctx, rng, grade, signatureUsed);
+            sect.basicTechniqueId = pickTechnique(ctx, rng, ContentTables.GRADE_ORDER.get(0), signatureUsed);
+        }
         int ageYears = ctx.rng(sect.id, Purpose.GENESIS_FOUNDER).range(g.sectAgeYears()[0], g.sectAgeYears()[1]);
         sect.foundedDay = -(long) ageYears * ctx.dpy;
         ctx.state.sects.put(sect.id, sect);
         return sect;
+    }
+
+    /**
+     * With {@code genesis.heritage_chance}, one heritage no other genesis sect holds (each goes to at
+     * most one sect), else null.
+     */
+    private static ContentTables.Heritage pickHeritage(SimContext ctx, Sect sect, Set<String> used) {
+        SimRng rng = ctx.rng(sect.id, Purpose.GENESIS_HERITAGE);
+        if (!rng.chance(ctx.rules.genesis().heritageChance())) {
+            return null;
+        }
+        List<ContentTables.Heritage> options = new ArrayList<>();
+        for (ContentTables.Heritage h : ctx.data.heritages()) {
+            if (!used.contains(h.id())) {
+                options.add(h);
+            }
+        }
+        if (options.isEmpty()) {
+            return null;
+        }
+        ContentTables.Heritage h = options.get(rng.nextInt(options.size()));
+        used.add(h.id());
+        return h;
     }
 
     private static String pickTechnique(SimContext ctx, SimRng rng, String grade, Set<String> used) {
@@ -220,7 +263,7 @@ public final class Genesis {
         People.join(ctx, p, sect, rank);
         p.joinedDay = -(long) rng.range(0, (int) Math.max(0, ctx.ageYears(p) - ctx.rules.entrants().age()[1])) * ctx.dpy;
         p.progress = rng.nextDouble() * ctx.realms.get(realm).stage(stage).cap();
-        p.techniqueId = People.sectTechnique(sect, rank);
+        p.techniqueId = People.sectTechnique(ctx, sect, rank);
         if (ctx.realms.get(realm).titleSuffix() != null || titledBelow(ctx, realm)) {
             p.daoName = Naming.daoName(ctx, rng);
         }

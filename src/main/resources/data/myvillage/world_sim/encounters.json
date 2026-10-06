@@ -198,6 +198,21 @@
       "effects": [{"kind": "technique", "grade": "di"}, {"kind": "progress", "amount": 5}]
     },
     {
+      "id": "lost_heritage",
+      "weight": 3,
+      "rarity": 2,
+      "importance": 2,
+      "text": "heritage",
+      "site_kind": "ruin",
+      "min_danger": 0,
+      "max_danger": 10,
+      "min_tier": 8,
+      "realms": [],
+      "statuses": ["travelling"],
+      "contested": false,
+      "effects": [{"kind": "heritage"}]
+    },
+    {
       "id": "ancient_treasure",
       "weight": 3,
       "rarity": 2,

@@ -39,6 +39,8 @@ public final class TextKeys {
     public static final String ROGUE_RANK = "@world_sim.anchor.rogue";
 
     public static final String GENESIS_SECT = P + "genesis.sect";
+    /** The genesis line of a sect that holds a heritage: {@link #GENESIS_SECT}'s params plus the heritage name. */
+    public static final String GENESIS_SECT_HERITAGE = P + "genesis.sect.heritage";
 
     // Families (bases); emitted as <base>.<variant>.
     public static final String STAGE_UP = P + "stage_up";
@@ -75,6 +77,10 @@ public final class TextKeys {
     public static final String SECT_REVIVAL = P + "sect.revival";
     public static final String SECT_DESERT = P + "sect.desert";
     public static final String SECT_RUIN = P + "sect.ruin";
+    /** A destroyed sect's heritage is lost: sect name, heritage name. */
+    public static final String SECT_HERITAGE_LOST = P + "sect.heritage_lost";
+    /** A new sect takes up a lost heritage: sect, founder, technique, heritage, the sect that lost it. */
+    public static final String SECT_HERITAGE_REKINDLED = P + "sect.heritage_rekindled";
     public static final String ROGUE_JOIN = P + "rogue.join";
     public static final String FEUD = P + "feud";
     public static final String FEUD_WOUND = P + "feud.wound";
@@ -195,6 +201,8 @@ public final class TextKeys {
         f.put(SECT_REVIVAL, new int[] {w, 1});
         f.put(SECT_DESERT, new int[] {w, 1});
         f.put(SECT_RUIN, new int[] {3, 1});
+        f.put(SECT_HERITAGE_LOST, new int[] {2, 2});
+        f.put(SECT_HERITAGE_REKINDLED, new int[] {5, 1});
         f.put(ROGUE_JOIN, new int[] {w + 1, 1});
         f.put(FEUD_DEATH_NAMED, new int[] {2 * w, 2});
         f.put(FEUD_INJURY_NAMED, new int[] {2 * w, 1});
@@ -225,8 +233,7 @@ public final class TextKeys {
             f.put(breakthroughDeath(realm.id(), "desperate"), new int[] {w + 1, 2});
         }
         for (EncounterTable.Encounter e : data.encounters().encounters()) {
-            f.put(fortune(e), new int[] {w + 1 + (e.siteKind() != null ? 1 : 0)
-                    + (e.has("technique") || e.has("artifact") ? 1 : 0), 1});
+            f.put(fortune(e), new int[] {w + 1 + e.extraParams(), 1});
         }
         return f;
     }
@@ -252,6 +259,7 @@ public final class TextKeys {
         keys.put(SimDate.KEY_ERA, 1);
         keys.put(SimDate.KEY_BEFORE_ERA, 1);
         keys.put(GENESIS_SECT, 6);
+        keys.put(GENESIS_SECT_HERITAGE, 7);
         for (Map.Entry<String, int[]> e : families(data).entrySet()) {
             for (int v = 1; v <= e.getValue()[1]; v++) {
                 keys.put(e.getKey() + "." + v, e.getValue()[0]);
@@ -289,7 +297,10 @@ public final class TextKeys {
             keys.put(breakthroughDeath(realm.id(), "desperate"), 1);
         }
         for (EncounterTable.Encounter e : data.encounters().encounters()) {
-            keys.put(e.textKey(), e.paramCount());
+            // Checkpoint-1 builds had no heritages, so no heritage encounter has an unnumbered line.
+            if (!e.has("heritage")) {
+                keys.put(e.textKey(), e.paramCount());
+            }
         }
         for (Map.Entry<String, int[]> e : retiredFamilies().entrySet()) {
             for (int v = 1; v <= e.getValue()[1]; v++) {

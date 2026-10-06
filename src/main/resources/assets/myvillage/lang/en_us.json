@@ -833,5 +833,11 @@
   "cultivation.school.myvillage.flying_sword": "御剑",
   "cultivation.heritage.myvillage.taibai_jianmai": "太白剑脉",
   "cultivation.heritage.myvillage.qingdi_mumai": "青帝木脉",
-  "cultivation.heritage.myvillage.wanjie_jinshen_mai": "万劫金身脉"
+  "cultivation.heritage.myvillage.wanjie_jinshen_mai": "万劫金身脉",
+  "world_sim.event.genesis.sect.heritage": "%1$s, founded by %5$s, has stood in %2$s for %6$s years and keeps the %7$s heritage; its master %3$s stands at %4$s.",
+  "world_sim.event.sect.heritage_lost.1": "With %1$s gone, the %2$s heritage is lost; its manuals lie scattered in the ruins.",
+  "world_sim.event.sect.heritage_lost.2": "The %2$s heritage sinks into oblivion with %1$s.",
+  "world_sim.event.sect.heritage_rekindled.1": "Building on %3$s, %2$s revives in %1$s the %4$s heritage that was lost with %5$s.",
+  "world_sim.event.fortune.heritage.1": "Among the ruins of %5$s in %4$s, %3$s (%2$s %1$s) finds %6$s, a manual of the lost %7$s heritage, and takes it up.",
+  "commands.myvillage.world.sect.heritage": "Heritage: %1$s"
 }

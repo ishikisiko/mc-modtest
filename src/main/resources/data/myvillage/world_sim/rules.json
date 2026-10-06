@@ -109,7 +109,8 @@
       "nascent_soul": [400, 800]
     },
     "rogue_foundation_chance": 0.12,
-    "founder_realm_bonus": 1
+    "founder_realm_bonus": 1,
+    "heritage_chance": 0.25
   },
   "gates": {"max_radius": 3700, "min_spacing": 320, "max_offset": 1500, "retries": 200},
   "naming": {"surname_rank_scale": 20.0, "banned_name_prefixes": ["朱德"]},

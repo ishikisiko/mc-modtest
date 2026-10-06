@@ -11,18 +11,21 @@ import java.util.Set;
  * Fortunes (奇遇) a person can stumble on ({@code encounters.json}). Each entry has a draw weight,
  * conditions on where and who, and effects. Its chronicle line is
  * {@code world_sim.event.fortune.<text>} with params (name, region[, site][, item]): the site when
- * {@code site_kind} is set, the item (technique or artifact name) when an effect grants one.
+ * {@code site_kind} is set, the item (technique or artifact name) when an effect grants one. A
+ * {@code heritage} effect (a manual of a lost heritage) adds two: the technique and the heritage name;
+ * such an encounter only happens while a heritage is lost.
  */
 public record EncounterTable(List<Encounter> encounters) {
     public static final String TEXT_PREFIX = "world_sim.event.fortune.";
     public static final Set<String> EFFECT_KINDS = Set.of(
-            "progress", "technique", "breakthrough_pill", "lifespan", "root", "artifact", "injury", "death");
+            "progress", "technique", "breakthrough_pill", "lifespan", "root", "artifact", "injury", "death",
+            "heritage");
     public static final Set<String> STATUSES = Set.of("at_sect", "travelling", "secluded");
 
     /**
      * @param kind   one of {@link #EFFECT_KINDS}
      * @param amount progress years, pill bonus, lifespan years, root basis points, injury points,
-     *               or death chance; 0 for technique/artifact
+     *               or death chance; 0 for technique/artifact/heritage
      * @param grade  technique/artifact grade, else null
      */
     public record Effect(String kind, double amount, String grade) {
@@ -58,7 +61,13 @@ public record EncounterTable(List<Encounter> encounters) {
 
         /** Params of the chronicle line: name, region, then site and item when used. */
         public int paramCount() {
-            return 2 + (siteKind != null ? 1 : 0) + (has("technique") || has("artifact") ? 1 : 0);
+            return 2 + extraParams();
+        }
+
+        /** Params after the who block and region: site, item, and the heritage name. */
+        public int extraParams() {
+            return (siteKind != null ? 1 : 0) + (has("technique") || has("artifact") ? 1 : 0)
+                    + (has("heritage") ? 2 : 0);
         }
 
         public boolean has(String kind) {
@@ -123,6 +132,10 @@ public record EncounterTable(List<Encounter> encounters) {
                     if (f.has("amount")) {
                         throw f.error("amount", "is not used by " + kind);
                     }
+                } else if (kind.equals("heritage")) {
+                    if (f.has("amount") || f.has("grade")) {
+                        throw f.error(f.has("amount") ? "amount" : "grade", "is not used by heritage");
+                    }
                 } else {
                     amount = kind.equals("death") || kind.equals("breakthrough_pill")
                             ? f.fraction("amount") : f.positiveNumber("amount");
@@ -132,9 +145,10 @@ public record EncounterTable(List<Encounter> encounters) {
                 }
                 effects.add(new Effect(kind, amount, grade));
             }
-            long items = effects.stream().filter(x -> x.kind().equals("technique") || x.kind().equals("artifact")).count();
+            long items = effects.stream().filter(x -> x.kind().equals("technique") || x.kind().equals("artifact")
+                    || x.kind().equals("heritage")).count();
             if (items > 1) {
-                throw e.error("effects", "may grant at most one technique or artifact (the text names one item)");
+                throw e.error("effects", "may grant at most one technique, artifact or heritage (the text names one item)");
             }
             out.add(new Encounter(id, e.positiveInteger("weight"), e.integer("rarity", 0, 3),
                     e.integer("importance", 1, 3), text, siteKind, minDanger, maxDanger,

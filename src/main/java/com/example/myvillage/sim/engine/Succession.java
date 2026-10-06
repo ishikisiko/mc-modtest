@@ -50,9 +50,9 @@ public final class Succession {
         }
         Person heir = elders.isEmpty() ? strongestWithTime(ctx, ctx.members(sect.id), r) : elders.get(0);
         if (heir == null) {
-            ctx.chronicle.event("sect_extinct", 3).sects(sect.id).region(sect.homeRegionId).cause(cause)
+            long id = ctx.chronicle.event("sect_extinct", 3).sects(sect.id).region(sect.homeRegionId).cause(cause)
                     .say(TextKeys.SECT_EXTINCT, sect.name, ctx.nameOf(predecessorId));
-            SectPolitics.dissolve(ctx, sect, true);
+            SectPolitics.dissolve(ctx, sect, true, id);
             return;
         }
         Person rival = null;
@@ -88,6 +88,10 @@ public final class Succession {
     private static long install(SimContext ctx, Sect sect, Person heir, long cause, String family, Anchor params) {
         String[] built = params.build();
         heir.rank = "sect_master";
+        if (!sect.heritageId.isEmpty()) {
+            // A heritage sect's master practises the chain's senior technique (People.sectTechnique).
+            heir.techniqueId = SectAffairs.upgradeTechnique(ctx, heir, People.sectTechnique(ctx, sect, heir.rank));
+        }
         sect.masterId = heir.id;
         sect.masterSinceDay = ctx.day();
         sect.vacancyCauseEventId = -1;

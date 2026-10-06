@@ -67,6 +67,26 @@ class SimDataLoaderTest {
     }
 
     @Test
+    void heritageNamingAnUnknownTechniqueOrTooShortIsRejected() {
+        SimDataException unknown = assertThrows(SimDataException.class, () -> WorldSim.loadData(
+                patched(SimDataLoader.HERITAGES, t -> t.replaceFirst("\"gengjin_yinqi_fa\"", "\"no_such_art\""))));
+        assertEquals(SimDataLoader.HERITAGES, unknown.file());
+        assertTrue(unknown.field().endsWith("techniques"), unknown.field());
+        SimDataException shortChain = assertThrows(SimDataException.class, () -> WorldSim.loadData(
+                patched(SimDataLoader.HERITAGES, t -> t.replaceFirst(
+                        "\\[\"gengjin_yinqi_fa\"[^\\]]*\\]", "[\"gengjin_yinqi_fa\"]"))));
+        assertTrue(shortChain.field().endsWith("techniques"), shortChain.field());
+    }
+
+    @Test
+    void heritageEffectTakesNoGradeOrAmount() {
+        SimDataException e = assertThrows(SimDataException.class, () -> WorldSim.loadData(
+                patched(SimDataLoader.ENCOUNTERS, t -> t.replaceFirst("\\{\"kind\": \"heritage\"\\}",
+                        "{\"kind\": \"heritage\", \"grade\": \"di\"}"))));
+        assertEquals(SimDataLoader.ENCOUNTERS, e.file());
+    }
+
+    @Test
     void encounterNamingAnUnknownRealmIsRejected() throws IOException {
         SimDataException e = assertThrows(SimDataException.class, () -> WorldSim.loadData(
                 patched(SimDataLoader.ENCOUNTERS, t -> t.replaceFirst("\"realms\": \\[\\]", "\"realms\": [\"immortal\"]"))));

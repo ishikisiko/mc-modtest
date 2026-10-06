@@ -53,7 +53,8 @@ GRADES = ("huang", "xuan", "di", "tian")
 GRADE_NUMBERS = {"huang": 1, "xuan": 2, "di": 3, "tian": 4}  # the player registry's integer grade
 ELEMENTS_OR_NONE = ("metal", "wood", "water", "fire", "earth", "none")
 SITE_KINDS = ("ruin", "cave", "secret_realm", "battlefield", "tomb")
-EFFECT_KINDS = ("progress", "technique", "breakthrough_pill", "lifespan", "root", "artifact", "injury", "death")
+EFFECT_KINDS = ("progress", "technique", "breakthrough_pill", "lifespan", "root", "artifact", "injury", "death",
+                "heritage")
 STATUSES = ("at_sect", "travelling", "secluded")
 RANKS = ("sect_master", "elder", "inner", "outer", "rogue")
 RUNTIME_TIERS = ("small", "medium", "large")  # WorldSimServerConfig.TIERS
@@ -267,6 +268,9 @@ def check_rules(rules: Any, realms: dict[str, dict], report: Report) -> dict:
         for realm in (genesis.get("ages") or {}):
             if realm not in realms:
                 report.error("data", f, f"genesis.ages.{realm} is not a realm")
+        chance = genesis.get("heritage_chance")
+        if not is_number(chance) or not 0 <= chance <= 1:
+            report.error("data", f, "genesis.heritage_chance must be a number in 0..1")
         sig = genesis.get("signature_grades") or []
         for g in sig:
             if g not in GRADES:
@@ -542,6 +546,11 @@ def check_encounters(doc: Any, realms: dict[str, dict], technique_grades: set[st
                     report.error("data", f, f"{fw} grants a {grade} artifact but lore.json has none")
                 if "amount" in fx:
                     report.error("data", f, f"{fw}.amount is not used by {kind}")
+            elif kind == "heritage":
+                items_granted += 1
+                for key in ("amount", "grade"):
+                    if key in fx:
+                        report.error("data", f, f"{fw}.{key} is not used by heritage")
             else:
                 amount = fx.get("amount")
                 if not is_number(amount) or amount <= 0:
@@ -551,7 +560,7 @@ def check_encounters(doc: Any, realms: dict[str, dict], technique_grades: set[st
                 if "grade" in fx:
                     report.error("data", f, f"{fw}.grade is only used by technique and artifact")
         if items_granted > 1:
-            report.error("data", f, f"{where}.effects may grant at most one technique or artifact")
+            report.error("data", f, f"{where}.effects may grant at most one technique, artifact or heritage")
         good.append(e)
     return good
 
@@ -600,6 +609,9 @@ def check_data(root: Path, report: Report) -> dict:
     matched = check_datapack_techniques(sim_techniques, datapack, report) if datapack is not None else 0
     heritages = (check_heritages(docs["heritages.json"], sim_techniques, datapack, schools, report)
                  if "heritages.json" in docs else 0)
+    if not heritages and any(isinstance(fx, dict) and fx.get("kind") == "heritage"
+                             for e in encounters for fx in (e.get("effects") or [])):
+        report.error("data", "encounters.json", "a heritage effect needs at least one heritage in heritages.json")
     facts.update(realms=realms, encounters=encounters, root_grades=rules.get("root_grades", []),
                  tiers=rules.get("tiers", []), files=len(docs), heritages=heritages, datapack_matched=matched)
     return facts

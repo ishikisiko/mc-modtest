@@ -67,4 +67,7 @@ public final class Purpose {
     public static final int SECT_BATTLE = 310;
     public static final int SECT_TRUCE = 311;
     public static final int SECT_FOUND_REGION = 312;
+
+    // Heritage additions (0.37.0)
+    public static final int GENESIS_HERITAGE = 109;
 }

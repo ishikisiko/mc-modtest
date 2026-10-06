@@ -155,7 +155,8 @@ public record Rules(
             double regionCrowding,
             Map<String, int[]> ages,
             double rogueFoundationChance,
-            int founderRealmBonus) {
+            int founderRealmBonus,
+            double heritageChance) {
     }
 
     public record Gates(int maxRadius, int minSpacing, int maxOffset, int retries) {
@@ -448,7 +449,7 @@ public record Rules(
 
         SimJson.Fields g = root.object("genesis", Set.of("sect_age_years", "masters", "size_weights",
                 "signature_grades", "elder_share", "inner_share", "region_qi_exponent", "region_crowding", "ages",
-                "rogue_foundation_chance", "founder_realm_bonus"));
+                "rogue_foundation_chance", "founder_realm_bonus", "heritage_chance"));
         JsonArray mastersJson = g.nonEmptyArray("masters");
         List<RealmStage> masters = new ArrayList<>();
         for (int i = 0; i < mastersJson.size(); i++) {
@@ -486,7 +487,8 @@ public record Rules(
                 g.nonNegativeNumber("region_crowding"),
                 Collections.unmodifiableMap(ages),
                 g.fraction("rogue_foundation_chance"),
-                g.nonNegativeInteger("founder_realm_bonus"));
+                g.nonNegativeInteger("founder_realm_bonus"),
+                g.fraction("heritage_chance"));
 
         SimJson.Fields ga = root.object("gates", Set.of("max_radius", "min_spacing", "max_offset", "retries"));
         Gates gates = new Gates(ga.positiveInteger("max_radius"), ga.positiveInteger("min_spacing"),

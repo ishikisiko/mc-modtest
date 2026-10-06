@@ -87,8 +87,25 @@ public final class People {
         return out;
     }
 
-    /** Technique taught by a sect to a rank: the signature for inner and up, the basic one for outer. */
-    public static String sectTechnique(Sect sect, String rank) {
-        return rank.equals("outer") ? sect.basicTechniqueId : sect.signatureTechniqueId;
+    /**
+     * Technique taught by a sect to a rank: the signature for inner and up, the basic one for outer.
+     * A sect with a heritage teaches its chain step by step instead: outer disciples the first
+     * technique, inner the second, elders and the master the one before the last. The last, the
+     * signature, is the heritage's crown that the sect is known by and no rank is taught (a tian
+     * technique on every heritage master pushed nascent souls past the health bands).
+     */
+    public static String sectTechnique(SimContext ctx, Sect sect, String rank) {
+        ContentTables.Heritage heritage = ctx.data.heritage(sect.heritageId);
+        if (heritage == null) {
+            return rank.equals("outer") ? sect.basicTechniqueId : sect.signatureTechniqueId;
+        }
+        List<String> chain = heritage.techniques();
+        int last = chain.size() - 1;
+        int step = switch (rank) {
+            case "outer" -> 0;
+            case "inner" -> Math.min(1, last);
+            default -> Math.max(Math.min(1, last), last - 1);
+        };
+        return chain.get(step);
     }
 }

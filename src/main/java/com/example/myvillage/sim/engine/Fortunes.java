@@ -6,6 +6,7 @@ import com.example.myvillage.sim.data.ContentTables;
 import com.example.myvillage.sim.data.EncounterTable;
 import com.example.myvillage.sim.data.Rules;
 import com.example.myvillage.sim.model.Boon;
+import com.example.myvillage.sim.model.LostHeritage;
 import com.example.myvillage.sim.model.Person;
 import com.example.myvillage.sim.model.RegionState;
 import java.util.ArrayList;
@@ -71,6 +72,9 @@ public final class Fortunes {
             if (!e.statuses().isEmpty() && !e.statuses().contains(p.status)) {
                 continue;
             }
+            if (e.has("heritage") && lostPool(ctx).isEmpty()) {
+                continue; // a lost heritage's manual turns up only while a heritage is lost
+            }
             options.add(e);
             weights.add(e.weight() * StrictMath.pow(f.rarityBoost() * quality, e.rarity()));
         }
@@ -98,18 +102,25 @@ public final class Fortunes {
         ContentTables.Site site = e.siteKind() == null ? null : pickSite(ctx, rng, e.siteKind());
         ContentTables.Technique technique = null;
         ContentTables.Artifact artifact = null;
+        ContentTables.Heritage heritage = null;
         for (EncounterTable.Effect fx : e.effects()) {
             if (fx.kind().equals("technique")) {
                 technique = pickTechnique(ctx, p, rng, fx.grade());
             } else if (fx.kind().equals("artifact")) {
                 artifact = pickArtifact(ctx, rng, fx.grade());
+            } else if (fx.kind().equals("heritage")) {
+                List<ContentTables.Heritage> pool = lostPool(ctx);
+                heritage = pool.get(rng.nextInt(pool.size()));
+                technique = heritageTechnique(ctx, p, heritage);
             }
         }
         Anchor params = Anchor.of(ctx).who(p).region(p.regionId);
         if (site != null) {
             params.add(site.name());
         }
-        if (technique != null) {
+        if (heritage != null) {
+            params.add(technique.name(), heritage.name());
+        } else if (technique != null) {
             params.add(technique.name());
         } else if (artifact != null) {
             params.add(artifact.name());
@@ -164,6 +175,14 @@ public final class Fortunes {
             case "technique" -> {
                 ContentTables.Technique current = ctx.technique(p);
                 if (technique != null && (current == null || technique.gradeRank() > current.gradeRank())) {
+                    p.techniqueId = technique.id();
+                    p.techniqueEventId = eventId;
+                }
+            }
+            case "heritage" -> {
+                // The manual of a lost heritage: taken up even when it is no stronger than what the
+                // finder knows, since it is the only way back to the heritage (heritageTechnique).
+                if (technique != null) {
                     p.techniqueId = technique.id();
                     p.techniqueEventId = eventId;
                 }
@@ -242,6 +261,36 @@ public final class Fortunes {
         }
         List<ContentTables.Technique> pool = suited.isEmpty() ? all : suited;
         return pool.get(rng.nextInt(pool.size()));
+    }
+
+    /** Lost heritages the data still knows, in the order they were lost. */
+    static List<ContentTables.Heritage> lostPool(SimContext ctx) {
+        List<ContentTables.Heritage> out = new ArrayList<>();
+        for (LostHeritage lost : ctx.state.lostHeritages) {
+            ContentTables.Heritage h = ctx.data.heritage(lost.heritageId());
+            if (h != null) {
+                out.add(h);
+            }
+        }
+        return out;
+    }
+
+    /**
+     * The technique of a lost heritage a finder takes up: the strongest of its chain that is not
+     * stronger than what the finder already knows, and at least the first, so the find never makes
+     * anyone weaker than the chain's entry.
+     */
+    static ContentTables.Technique heritageTechnique(SimContext ctx, Person p, ContentTables.Heritage heritage) {
+        ContentTables.Technique current = ctx.technique(p);
+        int cap = current == null ? -1 : current.gradeRank();
+        ContentTables.Technique chosen = ctx.data.technique(heritage.first());
+        for (String id : heritage.techniques()) {
+            ContentTables.Technique t = ctx.data.technique(id);
+            if (t != null && t.gradeRank() <= cap && t.gradeRank() >= chosen.gradeRank()) {
+                chosen = t;
+            }
+        }
+        return chosen;
     }
 
     static ContentTables.Artifact pickArtifact(SimContext ctx, SimRng rng, String grade) {

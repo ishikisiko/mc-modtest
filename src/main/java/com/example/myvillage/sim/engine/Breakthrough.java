@@ -124,7 +124,7 @@ public final class Breakthrough {
     private static double fallbackTechniqueFactor(SimContext ctx, Person p) {
         Rules.Techniques rules = ctx.rules.techniques();
         Sect sect = p.sectId >= 0 ? ctx.sect(p.sectId) : null;
-        ContentTables.Technique t = sect == null ? null : ctx.data.technique(People.sectTechnique(sect, p.rank));
+        ContentTables.Technique t = sect == null ? null : ctx.data.technique(People.sectTechnique(ctx, sect, p.rank));
         if (t == null) {
             return rules.none().breakthrough();
         }

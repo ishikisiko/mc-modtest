@@ -247,18 +247,23 @@ class WorldSimSnapshotsTest {
         assertOnly(build(WorldSimQuery.personSearch("")));
         assertOnly(build(WorldSimQuery.personSearch("   ")));
 
-        // the most common character in names: enough matches to hit the cap
+        // the most common character in names: enough matches to hit the cap. A medium world, since the
+        // small fixture's few names need not share any character often enough.
+        WorldSim big = WorldSim.genesis(NetFixtures.SEED, NetFixtures.graph(), NetFixtures.data(), "medium", DPY);
         Map<Integer, Integer> counts = new HashMap<>();
-        for (PersonView p : everyone()) {
+        for (PersonView p : big.findPersons("", Integer.MAX_VALUE)) {
             (p.name() + p.title()).codePoints().distinct().forEach(c -> counts.merge(c, 1, Integer::sum));
         }
         int common = counts.entrySet().stream().max(Map.Entry.comparingByValue()).orElseThrow().getKey();
         String text = new String(Character.toChars(common));
-        List<PersonView> all = sim.findPersons(text, Integer.MAX_VALUE);
+        List<PersonView> all = big.findPersons(text, Integer.MAX_VALUE);
         assertTrue(all.size() > WorldSimSnapshot.MAX_SEARCH,
                 "the search cap is exercised: '" + text + "' matches " + all.size());
 
-        WorldSimSnapshot s = build(WorldSimQuery.personSearch(text));
+        WorldSimQuery q = WorldSimQuery.personSearch(text);
+        WorldSimSnapshot s = WorldSimSnapshots.build(big, DPY, 1234L, true, 7, NetFixtures.REGION_NAME,
+                Optional.empty(), 0, 0, q);
+        assertEquals(q, s.query());
         assertOnly(s, "persons");
         assertEquals(WorldSimSnapshot.MAX_SEARCH, s.persons().size());
         assertEquals(viewIds(all.subList(0, WorldSimSnapshot.MAX_SEARCH)), ids(s.persons()));

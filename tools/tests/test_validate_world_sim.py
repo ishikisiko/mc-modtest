@@ -92,6 +92,16 @@ class WorldSimValidatorTest(unittest.TestCase):
                        lambda d: d.update(techniques=[t for t in d["techniques"] if t["grade"] != "xuan"]))
         self.assert_new("grants a xuan technique but techniques.json has none")
 
+    def test_heritage_effect_and_chance(self) -> None:
+        def bad_encounter(d):
+            fx = next(e for e in d["encounters"] if any(f["kind"] == "heritage" for f in e["effects"]))["effects"]
+            fx[0]["grade"] = "di"
+        self.edit_data("encounters.json", bad_encounter)
+        self.edit_data("rules.json", lambda d: d["genesis"].update(heritage_chance=1.5))
+        self.edit_data("heritages.json", lambda d: d.update(heritages=[]))
+        self.assert_new(".grade is not used by heritage", "genesis.heritage_chance must be a number in 0..1",
+                        "a heritage effect needs at least one heritage in heritages.json")
+
     def test_rules_reference_realms_and_runtime_tiers(self) -> None:
         def bad(d):
             del d["tiers"]["medium"]

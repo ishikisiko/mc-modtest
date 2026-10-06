@@ -51,12 +51,15 @@ public final class SectAffairs {
             if (p.rank.equals("outer") && reached(ctx, p, r.promoteInner())) {
                 String[] before = Anchor.of(ctx).who(p).build();
                 p.rank = "inner";
-                p.techniqueId = upgradeTechnique(ctx, p, sect.signatureTechniqueId);
+                p.techniqueId = upgradeTechnique(ctx, p, People.sectTechnique(ctx, sect, p.rank));
                 ctx.chronicle.event("promotion", 1).actors(p.id).sects(sect.id).region(p.regionId)
                         .say(TextKeys.PROMOTE_INNER, before);
             } else if (p.rank.equals("inner") && reached(ctx, p, r.promoteElder())) {
                 Anchor before = Anchor.of(ctx).who(p).add(TextKeys.stage(ctx.realm(p).id(), p.stage));
                 p.rank = "elder";
+                if (!sect.heritageId.isEmpty()) {
+                    p.techniqueId = upgradeTechnique(ctx, p, People.sectTechnique(ctx, sect, p.rank));
+                }
                 ctx.chronicle.event("promotion", 1).actors(p.id).sects(sect.id).region(p.regionId)
                         .say(TextKeys.PROMOTE_ELDER, before);
             }

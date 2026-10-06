@@ -5,7 +5,9 @@ import java.util.List;
 /**
  * Read-only sect record. {@code topRealmId} is empty when the sect has no living member.
  *
- * @param state "active" or "destroyed"
+ * @param heritageId   the heritage (传承) the sect holds or, once destroyed, held; "" for none
+ * @param heritageName its Chinese name, "" for none
+ * @param state        "active" or "destroyed"
  */
 public record SectView(
         int id,
@@ -25,6 +27,8 @@ public record SectView(
         double prestige,
         String signatureTechniqueId,
         String signatureTechniqueName,
+        String heritageId,
+        String heritageName,
         String state,
         long destroyedDay,
         int parentSectId,

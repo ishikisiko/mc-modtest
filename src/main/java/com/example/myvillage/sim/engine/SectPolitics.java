@@ -4,6 +4,7 @@ import com.example.myvillage.region.runtime.GenRegion;
 import com.example.myvillage.sim.SimRng;
 import com.example.myvillage.sim.data.ContentTables;
 import com.example.myvillage.sim.data.Rules;
+import com.example.myvillage.sim.model.LostHeritage;
 import com.example.myvillage.sim.model.Person;
 import com.example.myvillage.sim.model.Relation;
 import com.example.myvillage.sim.model.Sect;
@@ -237,22 +238,26 @@ public final class SectPolitics {
     private static void conquer(SimContext ctx, Sect victor, Sect loser, long cause) {
         List<Person> members = new ArrayList<>(ctx.members(loser.id));
         if (members.isEmpty()) {
-            ctx.chronicle.event("sect_destroyed", 3).sects(loser.id, victor.id).region(loser.homeRegionId)
+            long id = ctx.chronicle.event("sect_destroyed", 3).sects(loser.id, victor.id).region(loser.homeRegionId)
                     .cause(cause).say(TextKeys.WAR_DESTROY, victor.name, loser.name);
-            dissolve(ctx, loser, false);
+            dissolve(ctx, loser, false, id);
             return;
         }
-        ctx.chronicle.event("sect_destroyed", 3).sects(loser.id, victor.id).region(loser.homeRegionId).cause(cause)
-                .say(TextKeys.WAR_ANNEX, victor.name, loser.name, String.valueOf(members.size()));
+        long id = ctx.chronicle.event("sect_destroyed", 3).sects(loser.id, victor.id).region(loser.homeRegionId)
+                .cause(cause).say(TextKeys.WAR_ANNEX, victor.name, loser.name, String.valueOf(members.size()));
         for (Person p : members) {
             String rank = p.rank.equals("sect_master") ? "elder" : p.rank;
             People.join(ctx, p, victor, rank);
         }
-        dissolve(ctx, loser, false);
+        dissolve(ctx, loser, false, id);
     }
 
-    /** Ends a sect; remaining members become rogues unless {@code keepMembers}. */
-    static void dissolve(SimContext ctx, Sect sect, boolean keepMembers) {
+    /**
+     * Ends a sect; remaining members become rogues unless {@code keepMembers}. A heritage it held
+     * goes to the lost pool (the sect keeps the id for history), and the chronicle says so with
+     * {@code cause}, the event that ended the sect.
+     */
+    static void dissolve(SimContext ctx, Sect sect, boolean keepMembers, long cause) {
         sect.state = Sect.DESTROYED;
         sect.destroyedDay = ctx.day();
         sect.masterId = -1;
@@ -270,6 +275,17 @@ public final class SectPolitics {
             }
         }
         ctx.membershipChanged();
+        loseHeritage(ctx, sect, cause);
+    }
+
+    private static void loseHeritage(SimContext ctx, Sect sect, long cause) {
+        ContentTables.Heritage heritage = ctx.data.heritage(sect.heritageId);
+        if (heritage == null) {
+            return;
+        }
+        ctx.state.lostHeritages.add(new LostHeritage(heritage.id(), sect.id, ctx.day()));
+        ctx.chronicle.event("heritage_lost", 2).sects(sect.id).region(sect.homeRegionId).cause(cause)
+                .say(TextKeys.SECT_HERITAGE_LOST, sect.name, heritage.name());
     }
 
     static void makeRogue(SimContext ctx, Person p) {
@@ -326,9 +342,9 @@ public final class SectPolitics {
             if (master != null) {
                 event.actors(master.id);
             }
-            event.say(TextKeys.SECT_RUIN, sect.name, ctx.regionName(sect.homeRegionId),
+            long id = event.say(TextKeys.SECT_RUIN, sect.name, ctx.regionName(sect.homeRegionId),
                     master == null ? "" : master.name());
-            dissolve(ctx, sect, false);
+            dissolve(ctx, sect, false, id);
         }
     }
 
@@ -437,7 +453,7 @@ public final class SectPolitics {
             Sect sect = pool.get(rng.nextInt(pool.size()));
             String rank = rankFor(ctx, p);
             People.join(ctx, p, sect, rank);
-            p.techniqueId = SectAffairs.upgradeTechnique(ctx, p, People.sectTechnique(sect, rank));
+            p.techniqueId = SectAffairs.upgradeTechnique(ctx, p, People.sectTechnique(ctx, sect, rank));
             ctx.chronicle.event("rogue_join", 1).actors(p.id).sects(sect.id).region(sect.homeRegionId)
                     .say(TextKeys.ROGUE_JOIN, Anchor.of(ctx).who(p, "rogue").add(sect.name));
         }
@@ -540,6 +556,7 @@ public final class SectPolitics {
         List<ContentTables.Technique> basics = People.techniquesOfGrade(ctx, ContentTables.GRADE_ORDER.get(0));
         sect.basicTechniqueId = basics.get(rng.nextInt(basics.size())).id();
         sect.signatureTechniqueId = own != null ? own.id() : sect.basicTechniqueId;
+        LostHeritage rekindled = rekindle(ctx, sect, leader);
         ctx.state.sects.put(sect.id, sect);
 
         // A splinter takes a stake of the parent's wealth and standing in proportion to the people it takes.
@@ -553,7 +570,7 @@ public final class SectPolitics {
             if (ctx.alive(f)) {
                 String rank = rankFor(ctx, f);
                 People.join(ctx, f, sect, rank);
-                f.techniqueId = SectAffairs.upgradeTechnique(ctx, f, People.sectTechnique(sect, rank));
+                f.techniqueId = SectAffairs.upgradeTechnique(ctx, f, People.sectTechnique(ctx, sect, rank));
             }
         }
         Chronicle.Builder event = ctx.chronicle.event(parent == null ? "sect_founded" : "sect_split", 3)
@@ -581,6 +598,12 @@ public final class SectPolitics {
                 id = event.cause(-1).say(TextKeys.SECT_FOUNDED, params.add(sect.name, ctx.regionName(region)));
             }
         }
+        if (rekindled != null) {
+            ctx.chronicle.event("heritage_rekindled", 2).actors(leader.id).sects(sect.id, rekindled.sectId())
+                    .region(region).cause(id).say(TextKeys.SECT_HERITAGE_REKINDLED, sect.name, leader.name(),
+                            own.name(), ctx.data.heritage(rekindled.heritageId()).name(),
+                            ctx.sectName(rekindled.sectId()));
+        }
         sect.resources = ctx.rules.sects().incomeBase();
         if (parent != null) {
             double stake = Math.min(1.0, share);
@@ -591,6 +614,28 @@ public final class SectPolitics {
         }
         SectAffairs.economy(ctx, sect);
         return sect;
+    }
+
+    /**
+     * A founder who learned a technique of a lost heritage takes the heritage up: it leaves the lost
+     * pool and the new sect teaches its chain. Returns the pool entry, or null.
+     */
+    private static LostHeritage rekindle(SimContext ctx, Sect sect, Person leader) {
+        ContentTables.Heritage heritage = ctx.data.heritageOfTechnique(leader.techniqueId);
+        if (heritage == null) {
+            return null;
+        }
+        for (int i = 0; i < ctx.state.lostHeritages.size(); i++) {
+            LostHeritage lost = ctx.state.lostHeritages.get(i);
+            if (lost.heritageId().equals(heritage.id())) {
+                ctx.state.lostHeritages.remove(i);
+                sect.heritageId = heritage.id();
+                sect.signatureTechniqueId = heritage.last();
+                sect.basicTechniqueId = heritage.first();
+                return lost;
+            }
+        }
+        return null;
     }
 
     /** The leader's region first when it admits sects, then the others by qi and crowding. */

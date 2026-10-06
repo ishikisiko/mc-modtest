@@ -189,6 +189,13 @@ public final class WorldSim {
         return out;
     }
 
+    /** Ids of the heritages lost with their sects and not yet rekindled, in the order they were lost. */
+    public List<String> lostHeritageIds() {
+        List<String> out = new ArrayList<>();
+        ctx.state.lostHeritages.forEach(h -> out.add(h.heritageId()));
+        return out;
+    }
+
     public Optional<SectView> sect(int sectId) {
         Sect s = ctx.state.sects.get(sectId);
         return s == null ? Optional.empty() : Optional.of(sectView(s));
@@ -207,10 +214,13 @@ public final class WorldSim {
             relations.add(new SectView.Relation(r.other, r.value, r.state, r.causeEventId));
         }
         ContentTables.Technique sig = ctx.data.technique(s.signatureTechniqueId);
+        ContentTables.Heritage heritage = ctx.data.heritage(s.heritageId);
         return new SectView(s.id, s.name, s.homeRegionId, s.gateX, s.gateZ, s.gateRealized, s.founderId,
                 ctx.nameOf(s.founderId), s.foundedDay, s.masterId, ctx.nameOf(s.masterId), members.size(),
                 top == null ? "" : ctx.realm(top).id(), s.resources, s.prestige, s.signatureTechniqueId,
-                sig == null ? "" : sig.name(), s.state, s.destroyedDay, s.parentSectId, List.copyOf(relations));
+                sig == null ? "" : sig.name(), heritage == null ? "" : heritage.id(),
+                heritage == null ? "" : heritage.name(), s.state, s.destroyedDay, s.parentSectId,
+                List.copyOf(relations));
     }
 
     /** Living first, then the dead, each in id order; matches name or Daoist title. */
