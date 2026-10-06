@@ -56,7 +56,9 @@ class CultivationCoreValidationTest(unittest.TestCase):
         self.assertEqual(3, result.realm_count)
         self.assertGreaterEqual(result.stage_count, 12)
         self.assertEqual(5, result.element_count)
-        self.assertEqual(1, result.technique_count)
+        shipped = len(list((ROOT / RESOURCE_ROOT / "technique").glob("*.json")))
+        self.assertEqual(shipped, result.technique_count)
+        self.assertGreater(shipped, 1)  # basic_breathing plus the generated catalogue
 
     def test_missing_element_reference_is_rejected(self) -> None:
         path = RESOURCE_ROOT / "technique/basic_breathing.json"
