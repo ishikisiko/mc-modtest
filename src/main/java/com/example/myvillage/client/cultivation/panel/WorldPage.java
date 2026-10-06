@@ -377,6 +377,8 @@ public final class WorldPage extends PanelPage {
             top += GAP + c.card(x, y + top + GAP, width, realmsTitle, realms);
         }
         int cursor = y + top + GAP;
+        cursor += c.card(x, cursor, width, tr("screen.myvillage.cultivation.world.card.mine"),
+                (bx, by, bw) -> mineBody(c, s, bx, by, bw)) + GAP;
         cursor += c.card(x, cursor, width, tr("screen.myvillage.cultivation.world.card.foremost"),
                 (bx, by, bw) -> personList(c, s.persons(), bx, by, bw));
         return cursor - y;
@@ -423,6 +425,33 @@ public final class WorldPage extends PanelPage {
         c.pair(text("screen.myvillage.cultivation.world.events"),
                 text("screen.myvillage.cultivation.world.events_value", o.eventCount()),
                 x, cursor, width, PanelTheme.TEXT);
+        cursor += ROW;
+        return cursor - y;
+    }
+
+    /** 我的宗门: the player's own record, or a pointer to the gate steward when there is none. */
+    private int mineBody(WorldCanvas c, WorldSimSnapshot s, int x, int y, int width) {
+        WorldSimSnapshot.MySect mine = s.mine();
+        if (mine == null) {
+            return c.wrapped(tr("screen.myvillage.cultivation.world.mine_none"), x, y + 1, width, PanelTheme.MUTED)
+                    + 2;
+        }
+        int cursor = y;
+        String sectName = mine.sectActive()
+                ? mine.sectName()
+                : mine.sectName() + " · " + WorldSimText.sectState("destroyed").getString();
+        cursor += linkPair(c, "screen.myvillage.cultivation.world.sect", orNone(sectName),
+                toSect(mine.sectId()), x, cursor, width);
+        cursor += pair(c, "screen.myvillage.cultivation.world.mine_rank",
+                WorldSimText.rank(mine.rank()).getString(), x, cursor, width);
+        cursor += pair(c, "screen.myvillage.cultivation.world.mine_joined", dateText(s, mine.joinedDay()),
+                x, cursor, width);
+        cursor += pair(c, "screen.myvillage.cultivation.world.mine_master", orNone(mine.masterName()),
+                x, cursor, width);
+        cursor += pair(c, "screen.myvillage.cultivation.world.mine_contribution",
+                Integer.toString(mine.contribution()), x, cursor, width);
+        c.pair(text("screen.myvillage.cultivation.world.mine_standing"), signed(mine.standing()),
+                x, cursor, width, mine.standing() < 0 ? PanelTheme.RED : PanelTheme.TEXT);
         cursor += ROW;
         return cursor - y;
     }
@@ -561,7 +590,7 @@ public final class WorldPage extends PanelPage {
         String line;
         if (withDistance && sect.distance() >= 0) {
             line = text("screen.myvillage.cultivation.world.here_sect_line",
-                    sect.distance(), master, sect.memberCount());
+                    sect.distance(), bearingText(sect.bearing()), master, sect.memberCount());
         } else if (withDistance) {
             line = text("screen.myvillage.cultivation.world.here_sect_line_plain", master, sect.memberCount());
         } else {
@@ -637,7 +666,28 @@ public final class WorldPage extends PanelPage {
         c.pair(text("screen.myvillage.cultivation.world.gate"), sect.gateX() + ", " + sect.gateZ(),
                 x, cursor + 2, width - gateChipWidth - 6, PanelTheme.TEXT);
         cursor += PanelTheme.CHIP_HEIGHT;
+        WorldSimSnapshot.MySect mine = s.mine();
+        if (mine != null && mine.sectId() == sect.id()) {
+            cursor += 2;
+            c.pair(text("screen.myvillage.cultivation.world.mine_here"),
+                    text("screen.myvillage.cultivation.world.mine_rank_value",
+                            WorldSimText.rank(mine.rank()), dateText(s, mine.joinedDay()), signed(mine.standing())),
+                    x, cursor, width, PanelTheme.JADE);
+            cursor += ROW;
+        }
         return cursor - y;
+    }
+
+    /** 北 / 东北 ...; "-" when the server sent no bearing. */
+    private static String bearingText(String bearing) {
+        return bearing == null || bearing.isEmpty()
+                ? "-"
+                : Component.translatableWithFallback("world_sim.bearing." + bearing, bearing).getString();
+    }
+
+    /** A standing with its sign: "+20", "0", "-40". */
+    private static String signed(int value) {
+        return (value > 0 ? "+" : "") + value;
     }
 
     /** 已立 / 未立 without the brackets the command keys carry. */

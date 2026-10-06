@@ -3,6 +3,7 @@ package com.example.myvillage.sim.runtime;
 import com.example.myvillage.region.runtime.RegionRuntimeService;
 import com.example.myvillage.sim.Overview;
 import com.example.myvillage.sim.PersonView;
+import com.example.myvillage.sim.PlayerMemberView;
 import com.example.myvillage.sim.RegionView;
 import com.example.myvillage.sim.SectView;
 import com.example.myvillage.sim.SimDate;
@@ -10,6 +11,7 @@ import com.example.myvillage.sim.SimEvent;
 import com.example.myvillage.sim.WorldSim;
 import com.example.myvillage.sim.runtime.avatar.GateBuilder;
 import com.example.myvillage.sim.runtime.net.WorldSimSnapshots;
+import com.example.myvillage.sim.runtime.player.WorldSimPlayers;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -21,6 +23,7 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.EntityArgument;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerPlayer;
@@ -38,6 +41,11 @@ import net.minecraft.server.level.ServerPlayer;
  *   <li>{@code sect <id> build [here]} — build the sect's compound (山门) at its ledger gate, or move the gate
  *       to the caller first ({@code here}), record the realization, and let its avatars appear
  *       ({@link GateBuilder}); synchronous, it can take a minute</li>
+ *   <li>{@code sect <id> join <player>} / {@code sect <id> leave <player>} — admin membership: join skips the
+ *       admission rules (only the sect must be active), leave works as if the player left
+ *       ({@link WorldSimPlayers})</li>
+ *   <li>{@code player <player>} — a player's ledger record: sect, rank, joining date, master, contribution,
+ *       standing with each sect, the sect they last left</li>
  *   <li>{@code person <name>} — people whose name or Daoist title contains the text, living first</li>
  *   <li>{@code chronicle [n]} — the latest n notable events (importance 2+), newest last</li>
  *   <li>{@code here} — the caller's region: sects seated there, notable people present, recent events</li>
@@ -70,12 +78,23 @@ public final class WorldSimCommands {
                                 .then(Commands.literal("build")
                                         .executes(ctx -> buildGate(ctx.getSource(), IntegerArgumentType.getInteger(ctx, "id"), false))
                                         .then(Commands.literal("here")
-                                                .executes(ctx -> buildGate(ctx.getSource(), IntegerArgumentType.getInteger(ctx, "id"), true)))))
+                                                .executes(ctx -> buildGate(ctx.getSource(), IntegerArgumentType.getInteger(ctx, "id"), true))))
+                                .then(Commands.literal("join")
+                                        .then(Commands.argument("player", EntityArgument.player())
+                                                .executes(ctx -> joinPlayer(ctx.getSource(), IntegerArgumentType.getInteger(ctx, "id"),
+                                                        EntityArgument.getPlayer(ctx, "player")))))
+                                .then(Commands.literal("leave")
+                                        .then(Commands.argument("player", EntityArgument.player())
+                                                .executes(ctx -> leavePlayer(ctx.getSource(), IntegerArgumentType.getInteger(ctx, "id"),
+                                                        EntityArgument.getPlayer(ctx, "player"))))))
                         .then(Commands.argument("query", StringArgumentType.greedyString())
                                 .executes(ctx -> sect(ctx.getSource(), StringArgumentType.getString(ctx, "query")))))
                 .then(Commands.literal("person")
                         .then(Commands.argument("name", StringArgumentType.greedyString())
                                 .executes(ctx -> person(ctx.getSource(), StringArgumentType.getString(ctx, "name")))))
+                .then(Commands.literal("player")
+                        .then(Commands.argument("player", EntityArgument.player())
+                                .executes(ctx -> player(ctx.getSource(), EntityArgument.getPlayer(ctx, "player")))))
                 .then(Commands.literal("chronicle")
                         .executes(ctx -> chronicle(ctx.getSource(), DEFAULT_CHRONICLE))
                         .then(Commands.argument("count", IntegerArgumentType.integer(1, MAX_CHRONICLE))
@@ -241,6 +260,41 @@ public final class WorldSimCommands {
         return found.size();
     }
 
+    private static int player(CommandSourceStack source, ServerPlayer target) {
+        Optional<WorldSimDriver> active = active(source);
+        if (active.isEmpty()) {
+            return 0;
+        }
+        WorldSim sim = active.get().sim();
+        int dpy = WorldSimRuntime.daysPerYear();
+        String name = target.getGameProfile().getName();
+        Optional<PlayerMemberView> found = WorldSimPlayers.member(target);
+        if (found.isEmpty()) {
+            send(source, () -> WorldSimText.line("player.none", name));
+            return 0;
+        }
+        PlayerMemberView m = found.get();
+        if (m.inSect()) {
+            String sectName = m.sectName().isEmpty() ? sectName(sim, m.sectId()) : m.sectName();
+            send(source, () -> WorldSimText.line("player.header", name, sectName, WorldSimText.rank(m.rank())));
+            send(source, () -> WorldSimText.line("player.joined", dateOf(sim, m.joinedDay(), dpy)));
+            send(source, () -> WorldSimText.line("player.master", orNone(m.masterName())));
+            send(source, () -> WorldSimText.line("player.contribution", m.contribution()));
+        } else {
+            send(source, () -> WorldSimText.line("player.header_rogue", name, WorldSimText.rank("rogue")));
+        }
+        for (Map.Entry<Integer, Integer> standing : m.standings().entrySet()) {
+            String other = sectName(sim, standing.getKey());
+            int value = standing.getValue();
+            send(source, () -> WorldSimText.line("player.standing", other, (value > 0 ? "+" : "") + value));
+        }
+        if (m.leftSectId() >= 0) {
+            String left = sectName(sim, m.leftSectId());
+            send(source, () -> WorldSimText.line("player.left", left, dateOf(sim, m.leftDay(), dpy)));
+        }
+        return 1;
+    }
+
     private static int chronicle(CommandSourceStack source, int count) {
         Optional<WorldSimDriver> active = active(source);
         if (active.isEmpty()) {
@@ -355,6 +409,57 @@ public final class WorldSimCommands {
         return GateBuilder.build(source, sectId, here);
     }
 
+    /** Joins {@code target} to the sect, skipping the admission rules ({@code force}). */
+    private static int joinPlayer(CommandSourceStack source, int sectId, ServerPlayer target) {
+        Optional<WorldSimDriver> active = active(source);
+        if (active.isEmpty()) {
+            return 0;
+        }
+        String name = target.getGameProfile().getName();
+        WorldSimPlayers.Result result;
+        try {
+            result = WorldSimPlayers.join(target, sectId, true);
+        } catch (RuntimeException ex) {
+            result = new WorldSimPlayers.Result(false, String.valueOf(ex.getMessage()));
+        }
+        if (!result.ok()) {
+            String reason = result.reason();
+            source.sendFailure(WorldSimText.line("sect_join.failed", reason));
+            return 0;
+        }
+        String sectName = sectName(active.get().sim(), sectId);
+        send(source, () -> WorldSimText.line("sect_join.done", name, sectName), true);
+        return 1;
+    }
+
+    /** Takes {@code target} out of their sect; {@code sectId} must be that sect. */
+    private static int leavePlayer(CommandSourceStack source, int sectId, ServerPlayer target) {
+        Optional<WorldSimDriver> active = active(source);
+        if (active.isEmpty()) {
+            return 0;
+        }
+        String name = target.getGameProfile().getName();
+        Optional<PlayerMemberView> member = WorldSimPlayers.member(target);
+        if (member.isEmpty() || member.get().sectId() != sectId) {
+            source.sendFailure(WorldSimText.line("sect_leave.failed", "not_member"));
+            return 0;
+        }
+        WorldSimPlayers.Result result;
+        try {
+            result = WorldSimPlayers.leave(target);
+        } catch (RuntimeException ex) {
+            result = new WorldSimPlayers.Result(false, String.valueOf(ex.getMessage()));
+        }
+        if (!result.ok()) {
+            String reason = result.reason();
+            source.sendFailure(WorldSimText.line("sect_leave.failed", reason));
+            return 0;
+        }
+        String sectName = sectName(active.get().sim(), sectId);
+        send(source, () -> WorldSimText.line("sect_leave.done", name, sectName), true);
+        return 1;
+    }
+
     // ------------------------------------------------------------------ helpers
 
     private static Optional<WorldSimDriver> active(CommandSourceStack source) {
@@ -422,6 +527,10 @@ public final class WorldSimCommands {
     private static List<PersonView> strongestFirst(List<PersonView> people) {
         List<String> order = WorldSimRuntime.sim().map(WorldSim::realmIds).orElse(List.of());
         return WorldSimSnapshots.strongestFirst(people, order);
+    }
+
+    private static String sectName(WorldSim sim, int sectId) {
+        return sim.sect(sectId).map(SectView::name).orElse("#" + sectId);
     }
 
     private static Component nameOf(WorldSim sim, int personId) {

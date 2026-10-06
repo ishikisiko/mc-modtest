@@ -9,6 +9,11 @@ import net.minecraft.network.FriendlyByteBuf;
  * {@link FriendlyByteBuf}.
  */
 public final class WorldSimSnapshotCodec {
+    /** Longest string in a {@link WorldSimSnapshot.MySect} (names and the rank). */
+    static final int MAX_MINE_TEXT = 64;
+    /** Longest bearing ({@code nw}). */
+    static final int MAX_BEARING = 2;
+
     private WorldSimSnapshotCodec() {
     }
 
@@ -27,6 +32,7 @@ public final class WorldSimSnapshotCodec {
         buf.writeCollection(s.events(), WorldSimSnapshotCodec::writeEvent);
         buf.writeCollection(s.causes(), WorldSimSnapshotCodec::writeEvent);
         writeNullable(buf, s.region(), WorldSimSnapshotCodec::writeRegion);
+        writeNullable(buf, s.mine(), WorldSimSnapshotCodec::writeMine);
     }
 
     public static WorldSimSnapshot read(FriendlyByteBuf buf) {
@@ -44,8 +50,9 @@ public final class WorldSimSnapshotCodec {
         var events = buf.readList(WorldSimSnapshotCodec::readEvent);
         var causes = buf.readList(WorldSimSnapshotCodec::readEvent);
         WorldSimSnapshot.Region region = buf.readBoolean() ? readRegion(buf) : null;
+        WorldSimSnapshot.MySect mine = buf.readBoolean() ? readMine(buf) : null;
         return new WorldSimSnapshot(query, active, inactiveReason, day, prehistoryDays, daysPerYear, overview, sects,
-                sect, persons, person, events, causes, region);
+                sect, persons, person, events, causes, region, mine);
     }
 
     private interface Writer<T> {
@@ -109,6 +116,7 @@ public final class WorldSimSnapshotCodec {
         buf.writeBoolean(s.gateRealized());
         buf.writeBoolean(s.active());
         buf.writeVarInt(s.distance());
+        buf.writeUtf(s.bearing(), MAX_BEARING);
     }
 
     private static WorldSimSnapshot.SectSummary readSectSummary(FriendlyByteBuf buf) {
@@ -124,8 +132,9 @@ public final class WorldSimSnapshotCodec {
         boolean realized = buf.readBoolean();
         boolean active = buf.readBoolean();
         int distance = buf.readVarInt();
+        String bearing = buf.readUtf(MAX_BEARING);
         return new WorldSimSnapshot.SectSummary(id, name, regionName, masterName, members, topRealm, prestige, gateX,
-                gateZ, realized, active, distance);
+                gateZ, realized, active, distance, bearing);
     }
 
     private static void writeSectDetail(FriendlyByteBuf buf, WorldSimSnapshot.SectDetail d) {
@@ -274,6 +283,32 @@ public final class WorldSimSnapshotCodec {
         buf.writeVarInt(r.dangerHi());
         buf.writeBoolean(r.admitsSects());
         buf.writeVarInt(r.livingCount());
+    }
+
+    private static void writeMine(FriendlyByteBuf buf, WorldSimSnapshot.MySect m) {
+        buf.writeVarInt(m.sectId());
+        buf.writeUtf(m.sectName(), MAX_MINE_TEXT);
+        buf.writeUtf(m.rank(), MAX_MINE_TEXT);
+        buf.writeVarLong(m.joinedDay());
+        buf.writeUtf(m.masterName(), MAX_MINE_TEXT);
+        buf.writeVarInt(m.contribution());
+        buf.writeVarInt(m.standing());
+        buf.writeVarInt(m.borrowedCount());
+        buf.writeBoolean(m.sectActive());
+    }
+
+    private static WorldSimSnapshot.MySect readMine(FriendlyByteBuf buf) {
+        int sectId = buf.readVarInt();
+        String sectName = buf.readUtf(MAX_MINE_TEXT);
+        String rank = buf.readUtf(MAX_MINE_TEXT);
+        long joinedDay = buf.readVarLong();
+        String masterName = buf.readUtf(MAX_MINE_TEXT);
+        int contribution = buf.readVarInt();
+        int standing = buf.readVarInt();
+        int borrowed = buf.readVarInt();
+        boolean sectActive = buf.readBoolean();
+        return new WorldSimSnapshot.MySect(sectId, sectName, rank, joinedDay, masterName, contribution, standing,
+                borrowed, sectActive);
     }
 
     private static WorldSimSnapshot.Region readRegion(FriendlyByteBuf buf) {

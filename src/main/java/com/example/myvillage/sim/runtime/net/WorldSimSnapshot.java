@@ -21,6 +21,10 @@ import java.util.Objects;
  * HERE           -        seated here           -     strongest present       -      recent here             yes    yes
  * </pre>
  *
+ * <p>{@code mine} (the asking player's own sect record, 0.41.0) is filled for {@code OVERVIEW} while the
+ * player belongs to a sect, and for {@code SECT} only when the sect asked about is the player's own;
+ * it is null otherwise. A {@link SectSummary#bearing()} is filled only in {@code HERE}.
+ *
  * @param query          the query answered; the client caches by it
  * @param active         false while the ledger is inactive; then only {@code inactiveReason} is meaningful
  * @param inactiveReason the server's reason (English, for {@code commands.myvillage.world.inactive}), "" when active
@@ -29,6 +33,7 @@ import java.util.Objects;
  * @param daysPerYear    the calendar's current days per year
  * @param events         chronicle lines, oldest first
  * @param causes         the events that {@code events} point at through {@code causeId}, when still kept
+ * @param mine           the asking player's sect membership (see above), or null
  */
 public record WorldSimSnapshot(
         WorldSimQuery query,
@@ -44,7 +49,8 @@ public record WorldSimSnapshot(
         PersonDetail person,
         List<EventLine> events,
         List<EventLine> causes,
-        Region region) {
+        Region region,
+        MySect mine) {
 
     /** Most sects in a {@link WorldSimQuery.Kind#SECTS} answer. */
     public static final int MAX_SECTS = 96;
@@ -71,7 +77,7 @@ public record WorldSimSnapshot(
     /** The answer while the ledger is inactive. */
     public static WorldSimSnapshot inactive(WorldSimQuery query, String reason) {
         return new WorldSimSnapshot(query, false, reason, 0, 0, 1, null, List.of(), null, List.of(), null,
-                List.of(), List.of(), null);
+                List.of(), List.of(), null, null);
     }
 
     /** The cause line for an event, or null when it has none or it is no longer kept. */
@@ -121,6 +127,8 @@ public record WorldSimSnapshot(
      * @param topRealmId "" when the sect has no living member
      * @param prestige   rounded
      * @param distance   blocks from the asking player to the gate ({@link WorldSimQuery.Kind#HERE}); -1 otherwise
+     * @param bearing    the gate's direction from the asking player, one of {@code n ne e se s sw w nw}
+     *                   ({@link WorldSimQuery.Kind#HERE}); "" otherwise
      */
     public record SectSummary(
             int id,
@@ -134,7 +142,11 @@ public record WorldSimSnapshot(
             int gateZ,
             boolean gateRealized,
             boolean active,
-            int distance) {
+            int distance,
+            String bearing) {
+        public SectSummary {
+            bearing = bearing == null ? "" : bearing;
+        }
     }
 
     /**
@@ -244,6 +256,33 @@ public record WorldSimSnapshot(
             long causeId) {
         public EventLine {
             params = params == null ? List.of() : List.copyOf(params);
+        }
+    }
+
+    /**
+     * The asking player's record in their sect (拜入宗门).
+     *
+     * @param rank          outer, inner or elder
+     * @param joinedDay     sim day of joining
+     * @param masterName    "" without a master
+     * @param standing      the player's standing (交情, -100..100) with this sect
+     * @param borrowedCount techniques borrowed from the sect's scripture hall
+     * @param sectActive    false once the sect is destroyed
+     */
+    public record MySect(
+            int sectId,
+            String sectName,
+            String rank,
+            long joinedDay,
+            String masterName,
+            int contribution,
+            int standing,
+            int borrowedCount,
+            boolean sectActive) {
+        public MySect {
+            sectName = sectName == null ? "" : sectName;
+            rank = rank == null ? "" : rank;
+            masterName = masterName == null ? "" : masterName;
         }
     }
 

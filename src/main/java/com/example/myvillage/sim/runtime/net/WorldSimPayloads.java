@@ -99,6 +99,6 @@ public final class WorldSimPayloads {
                 : Optional.empty();
         return WorldSimSnapshots.build(driver.sim(), WorldSimRuntime.daysPerYear(),
                 WorldSimRuntime.calendarDay(server), driver.paused(), driver.pendingDays(),
-                WorldSimRuntime::regionName, here, player.getX(), player.getZ(), query);
+                WorldSimRuntime::regionName, here, player.getX(), player.getZ(), player.getUUID().toString(), query);
     }
 }

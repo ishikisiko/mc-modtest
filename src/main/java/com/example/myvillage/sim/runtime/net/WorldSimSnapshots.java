@@ -2,6 +2,7 @@ package com.example.myvillage.sim.runtime.net;
 
 import com.example.myvillage.sim.Overview;
 import com.example.myvillage.sim.PersonView;
+import com.example.myvillage.sim.PlayerMemberView;
 import com.example.myvillage.sim.RegionView;
 import com.example.myvillage.sim.SectView;
 import com.example.myvillage.sim.SimEvent;
@@ -25,6 +26,8 @@ import java.util.function.Function;
 public final class WorldSimSnapshots {
     /** Least importance of a chronicle line or of a sect's recent events (notable and major). */
     static final int NOTABLE = 2;
+    /** The eight bearings clockwise from north, the tails of {@code world_sim.bearing.*}. */
+    public static final List<String> BEARINGS = List.of("n", "ne", "e", "se", "s", "sw", "w", "nw");
 
     private WorldSimSnapshots() {
     }
@@ -45,14 +48,16 @@ public final class WorldSimSnapshots {
      * @param hereRegionId the asking player's region ({@link WorldSimQuery.Kind#HERE}); empty outside every region
      * @param playerX      the asking player's x, for the distance to a gate
      * @param playerZ      the asking player's z
+     * @param playerId     the asking player's UUID string, for {@link WorldSimSnapshot#mine()}; "" or null for none
      */
     public static WorldSimSnapshot build(WorldSim sim, int daysPerYear, long calendarDay, boolean paused,
                                          int pendingDays, Function<String, String> regionName,
                                          Optional<String> hereRegionId, double playerX, double playerZ,
-                                         WorldSimQuery query) {
+                                         String playerId, WorldSimQuery query) {
         Objects.requireNonNull(sim, "sim");
         Objects.requireNonNull(query, "query");
         Builder b = new Builder(sim, regionName);
+        WorldSimSnapshot.MySect mine = null;
         WorldSimSnapshot.Overview overview = null;
         List<WorldSimSnapshot.SectSummary> sects = List.of();
         WorldSimSnapshot.SectDetail sect = null;
@@ -73,13 +78,14 @@ public final class WorldSimSnapshots {
                     sim.person(id).ifPresent(p -> top.add(b.personSummary(p)));
                 }
                 persons = top;
+                mine = b.mySect(playerId);
             }
             case SECTS -> {
                 List<SectView> all = new ArrayList<>(sim.sects(true));
                 all.sort(Comparator.comparing((SectView s) -> !isActive(s)).thenComparingInt(SectView::id));
                 List<WorldSimSnapshot.SectSummary> out = new ArrayList<>();
                 for (int i = 0; i < Math.min(WorldSimSnapshot.MAX_SECTS, all.size()); i++) {
-                    out.add(b.sectSummary(all.get(i), -1));
+                    out.add(b.sectSummary(all.get(i), -1, ""));
                 }
                 sects = out;
             }
@@ -93,6 +99,8 @@ public final class WorldSimSnapshots {
                     int sectId = s.id();
                     events = sim.recentEvents(NOTABLE, WorldSimSnapshot.MAX_RELATED,
                             e -> e.sects().contains(sectId) || (e.subject() >= 0 && sim.sectOf(e.subject()) == sectId));
+                    WorldSimSnapshot.MySect own = b.mySect(playerId);
+                    mine = own != null && own.sectId() == sectId ? own : null;
                 }
             }
             case PERSON_SEARCH -> {
@@ -123,7 +131,8 @@ public final class WorldSimSnapshots {
                         if (seated.size() >= WorldSimSnapshot.MAX_SECTS) {
                             break;
                         }
-                        sim.sect(id).ifPresent(s -> seated.add(b.sectSummary(s, distance(s, playerX, playerZ))));
+                        sim.sect(id).ifPresent(s -> seated.add(b.sectSummary(s, distance(s, playerX, playerZ),
+                                bearing(s.gateX() + 0.5 - playerX, s.gateZ() + 0.5 - playerZ))));
                     }
                     sects = seated;
                     persons = b.personSummaries(strongestFirst(sim.livingIn(r.id()), sim.realmIds()),
@@ -152,7 +161,7 @@ public final class WorldSimSnapshots {
             causes.add(eventLine(e));
         }
         return new WorldSimSnapshot(query, true, "", sim.day(), sim.prehistoryDays(), daysPerYear, overview, sects,
-                sect, persons, person, lines, causes, region);
+                sect, persons, person, lines, causes, region, mine);
     }
 
     /**
@@ -171,6 +180,23 @@ public final class WorldSimSnapshots {
     public static WorldSimSnapshot.EventLine eventLine(SimEvent e) {
         return new WorldSimSnapshot.EventLine(e.id(), e.day(), e.importance(), e.subject(), e.textKey(), e.params(),
                 e.causeId());
+    }
+
+    /**
+     * The eight-way bearing of an offset, one of {@link #BEARINGS}: {@code dx} east, {@code dz} south
+     * (Minecraft's +x and +z), measured clockwise from north, each bearing covering 45 degrees centred
+     * on its direction; on a boundary the clockwise neighbour wins. No offset reads {@code "n"}.
+     */
+    public static String bearing(double dx, double dz) {
+        if (dx == 0 && dz == 0) {
+            return BEARINGS.get(0);
+        }
+        double degrees = Math.toDegrees(Math.atan2(dx, -dz));
+        if (degrees < 0) {
+            degrees += 360;
+        }
+        int sector = (int) Math.floor(degrees / 45.0 + 0.5) % BEARINGS.size();
+        return BEARINGS.get(sector);
     }
 
     /** Blocks from (x, z) to the centre of the sect's gate column, rounded. */
@@ -220,10 +246,27 @@ public final class WorldSimSnapshots {
                     calendarDay);
         }
 
-        WorldSimSnapshot.SectSummary sectSummary(SectView s, int distance) {
+        WorldSimSnapshot.SectSummary sectSummary(SectView s, int distance, String bearing) {
             return new WorldSimSnapshot.SectSummary(s.id(), s.name(), regionName(s.regionId()), s.masterName(),
                     s.memberCount(), s.topRealmId(), (int) Math.round(s.prestige()), s.gateX(), s.gateZ(),
-                    s.gateRealized(), isActive(s), distance);
+                    s.gateRealized(), isActive(s), distance, bearing);
+        }
+
+        /** The player's record in their sect, or null without a record, a sect, or a player. */
+        WorldSimSnapshot.MySect mySect(String playerId) {
+            if (playerId == null || playerId.isEmpty()) {
+                return null;
+            }
+            Optional<PlayerMemberView> found = sim.playerMember(playerId);
+            if (found.isEmpty() || !found.get().inSect()) {
+                return null;
+            }
+            PlayerMemberView m = found.get();
+            Optional<SectView> sect = sim.sect(m.sectId());
+            String name = m.sectName().isEmpty() ? sect.map(SectView::name).orElse("") : m.sectName();
+            return new WorldSimSnapshot.MySect(m.sectId(), name, m.rank(), m.joinedDay(), m.masterName(),
+                    m.contribution(), m.standings().getOrDefault(m.sectId(), 0), m.borrowed().size(),
+                    sect.map(WorldSimSnapshots::isActive).orElse(false));
         }
 
         WorldSimSnapshot.SectDetail sectDetail(SectView s) {
@@ -232,7 +275,7 @@ public final class WorldSimSnapshots {
                 relations.add(new WorldSimSnapshot.SectRelation(r.otherSectId(), sectName(r.otherSectId()),
                         r.value(), r.state()));
             }
-            return new WorldSimSnapshot.SectDetail(sectSummary(s, -1), s.foundedDay(), s.founderId(),
+            return new WorldSimSnapshot.SectDetail(sectSummary(s, -1, ""), s.foundedDay(), s.founderId(),
                     s.founderName(), s.masterId(), s.parentSectId(), sectName(s.parentSectId()),
                     isActive(s) ? -1 : s.destroyedDay(), (int) Math.round(s.resources()),
                     s.signatureTechniqueName(), s.heritageName().isEmpty() ? null : s.heritageName(), relations);

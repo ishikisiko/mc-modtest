@@ -3,8 +3,10 @@ package com.example.myvillage.sim.runtime.net;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.example.myvillage.sim.PersonView;
+import com.example.myvillage.sim.PlayerQualification;
 import com.example.myvillage.sim.SectView;
 import com.example.myvillage.sim.WorldSim;
 import io.netty.buffer.Unpooled;
@@ -19,6 +21,8 @@ import org.junit.jupiter.api.Test;
 
 /** Hand-written codecs of the 天下 page's query and snapshot round-trip every shape. */
 class WorldSimPayloadCodecTest {
+    private static final String PLAYER = "00000000-0000-0000-0000-00000000c0de";
+
     private static <T> T roundTrip(StreamCodec<FriendlyByteBuf, T> codec, T value) {
         FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
         try {
@@ -128,17 +132,56 @@ class WorldSimPayloadCodecTest {
         for (WorldSimQuery q : queries) {
             Optional<String> here = q.kind() == WorldSimQuery.Kind.HERE ? Optional.of(sect.regionId()) : Optional.empty();
             WorldSimSnapshot s = WorldSimSnapshots.build(sim, NetFixtures.DAYS_PER_YEAR, 4321, false, 2,
-                    NetFixtures.REGION_NAME, here, -1234.75, 98.5, q);
+                    NetFixtures.REGION_NAME, here, -1234.75, 98.5, PLAYER, q);
             assertRoundTrips(s);
+            if (q.kind() == WorldSimQuery.Kind.HERE) {
+                assertTrue(s.sects().stream().allMatch(x -> !x.bearing().isEmpty()), "HERE carries bearings");
+            }
         }
         assertRoundTrips(WorldSimSnapshots.build(sim, NetFixtures.DAYS_PER_YEAR, 0, true, 0, NetFixtures.REGION_NAME,
-                Optional.empty(), 0, 0, WorldSimQuery.here()));
+                Optional.empty(), 0, 0, PLAYER, WorldSimQuery.here()));
+    }
+
+    @Test
+    void theLiveOverviewAndOwnSectWithMineRoundTrip() {
+        WorldSim sim = NetFixtures.world();
+        SectView sect = sim.sects(false).get(0);
+        boolean joinWorked;
+        try {
+            sim.joinSect(PLAYER, "试剑客", sect.id(), new PlayerQualification("foundation_establishment", 0, true, 6000));
+            joinWorked = true;
+        } catch (UnsupportedOperationException notYet) {
+            joinWorked = false;
+        }
+        assumeTrue(joinWorked, "WorldSim.joinSect is not implemented yet (slice 1 package A)");
+        for (WorldSimQuery q : List.of(WorldSimQuery.overview(), WorldSimQuery.sect(sect.id()))) {
+            WorldSimSnapshot s = WorldSimSnapshots.build(sim, NetFixtures.DAYS_PER_YEAR, 0, false, 0,
+                    NetFixtures.REGION_NAME, Optional.empty(), 0, 0, PLAYER, q);
+            assertTrue(s.mine() != null, q.kind().name());
+            assertRoundTrips(s);
+        }
+    }
+
+    @Test
+    void anOverlongBearingIsRejectedOnDecode() {
+        WorldSimSnapshot.SectSummary wrong = new WorldSimSnapshot.SectSummary(1, "青云宫", "", "", 0, "", 0, 0, 0,
+                false, true, 3, "north");
+        WorldSimSnapshot s = new WorldSimSnapshot(WorldSimQuery.here(), true, "", 0, 0, 6, null, List.of(wrong), null,
+                List.of(), null, List.of(), List.of(), null, null);
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        try {
+            assertThrows(RuntimeException.class, () -> WorldSimSnapshotCodec.write(buf, s));
+        } finally {
+            buf.release();
+        }
     }
 
     @Test
     void aHandMadeSnapshotWithEverySectionAndEdgeValuesRoundTrips() {
         WorldSimSnapshot.SectSummary summary = new WorldSimSnapshot.SectSummary(4, "青云宫", "中州", "", 0, "", -3,
-                -100_008, 2_000_008, true, false, -1);
+                -100_008, 2_000_008, true, false, -1, "");
+        WorldSimSnapshot.SectSummary seated = new WorldSimSnapshot.SectSummary(5, "玄天宗", "中州", "某掌门", 30,
+                "golden_core", 77, 12, -40, false, true, 1_234, "nw");
         WorldSimSnapshot.PersonSummary someone = new WorldSimSnapshot.PersonSummary(9, "韩清漪", "清漪真人", false,
                 "golden_core", 2, -1, "", "rogue");
         WorldSimSnapshot.EventLine line = new WorldSimSnapshot.EventLine(Long.MAX_VALUE, -5, 3, -1,
@@ -152,7 +195,7 @@ class WorldSimPayloadCodecTest {
                         List.of(new WorldSimSnapshot.RealmCount("qi_refining", 100),
                                 new WorldSimSnapshot.RealmCount("nascent_soul", 0)),
                         3, 1, 400, 9_999_999_999L, true, 365, Long.MAX_VALUE),
-                List.of(summary, summary),
+                List.of(summary, seated, summary),
                 new WorldSimSnapshot.SectDetail(summary, 0, -1, "", 9, 2, "玄天宗", 777, Integer.MIN_VALUE, "焚天诀", heritage,
                         List.of(new WorldSimSnapshot.SectRelation(2, "玄天宗", -100, "war"),
                                 new WorldSimSnapshot.SectRelation(5, "", 0, "none"))),
@@ -162,7 +205,10 @@ class WorldSimPayloadCodecTest {
                         List.of(new WorldSimSnapshot.PersonRelation(3, "师父", "master", -7))),
                 List.of(line),
                 List.of(cause),
-                new WorldSimSnapshot.Region("zhongzhou", "中州", 5, -1, 99, 0, 100, true, 0));
+                new WorldSimSnapshot.Region("zhongzhou", "中州", 5, -1, 99, 0, 100, true, 0),
+                heritage == null
+                        ? new WorldSimSnapshot.MySect(4, "青云宫", "inner", Long.MAX_VALUE, "", 0, -100, 0, false)
+                        : new WorldSimSnapshot.MySect(4, "青云宫", "elder", 0, "韩清漪", Integer.MAX_VALUE, 100, 7, true));
         assertRoundTrips(full);
         assertEquals(cause, full.causeOf(line));
         }

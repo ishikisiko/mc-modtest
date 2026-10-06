@@ -5,9 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import com.example.myvillage.sim.Overview;
 import com.example.myvillage.sim.PersonView;
+import com.example.myvillage.sim.PlayerMemberView;
+import com.example.myvillage.sim.PlayerQualification;
 import com.example.myvillage.sim.RegionView;
 import com.example.myvillage.sim.SectView;
 import com.example.myvillage.sim.SimEvent;
@@ -26,6 +29,7 @@ import org.junit.jupiter.api.Test;
 /** The snapshot builder against a genesis world: sections per kind, caps, names and causes. */
 class WorldSimSnapshotsTest {
     private static final int DPY = NetFixtures.DAYS_PER_YEAR;
+    private static final String PLAYER = "00000000-0000-0000-0000-00000000c0de";
     private static WorldSim sim;
 
     @BeforeAll
@@ -38,7 +42,8 @@ class WorldSimSnapshotsTest {
     }
 
     private static WorldSimSnapshot build(WorldSimQuery q, Optional<String> here, double x, double z) {
-        WorldSimSnapshot s = WorldSimSnapshots.build(sim, DPY, 1234L, true, 7, NetFixtures.REGION_NAME, here, x, z, q);
+        WorldSimSnapshot s = WorldSimSnapshots.build(sim, DPY, 1234L, true, 7, NetFixtures.REGION_NAME, here, x, z,
+                PLAYER, q);
         assertEquals(q, s.query());
         assertTrue(s.active());
         assertEquals("", s.inactiveReason());
@@ -98,6 +103,7 @@ class WorldSimSnapshotsTest {
         assertEquals(f.contains("person"), s.person() != null, "person");
         assertEquals(f.contains("events"), !s.events().isEmpty(), "events");
         assertEquals(f.contains("region"), s.region() != null, "region");
+        assertEquals(f.contains("mine"), s.mine() != null, "mine");
         if (!f.contains("events")) {
             assertTrue(s.causes().isEmpty(), "no causes without events");
         }
@@ -175,6 +181,7 @@ class WorldSimSnapshotsTest {
             assertEquals(v.masterName(), summary.masterName());
             assertEquals(Math.round(v.prestige()), summary.prestige());
             assertEquals(-1, summary.distance());
+            assertEquals("", summary.bearing(), "only HERE carries a bearing");
         }
     }
 
@@ -270,7 +277,7 @@ class WorldSimSnapshotsTest {
 
         WorldSimQuery q = WorldSimQuery.personSearch(text);
         WorldSimSnapshot s = WorldSimSnapshots.build(big, DPY, 1234L, true, 7, NetFixtures.REGION_NAME,
-                Optional.empty(), 0, 0, q);
+                Optional.empty(), 0, 0, PLAYER, q);
         assertEquals(q, s.query());
         assertOnly(s, "persons");
         assertEquals(WorldSimSnapshot.MAX_SEARCH, s.persons().size());
@@ -348,7 +355,7 @@ class WorldSimSnapshotsTest {
         int kept = 0;
         for (PersonView p : everyone()) {
             WorldSimSnapshot s = WorldSimSnapshots.build(sim, DPY, 0, false, 0, NetFixtures.REGION_NAME,
-                    Optional.empty(), 0, 0, WorldSimQuery.person(p.id()));
+                    Optional.empty(), 0, 0, PLAYER, WorldSimQuery.person(p.id()));
             assertCausesAreReferencedAndKept(s);
             kept += s.causes().size();
         }
@@ -382,6 +389,11 @@ class WorldSimSnapshotsTest {
         assertEquals(r.sectIds(), s.sects().stream().map(WorldSimSnapshot.SectSummary::id).toList());
         WorldSimSnapshot.SectSummary mine = s.sects().stream().filter(x -> x.id() == seat.id()).findFirst().orElseThrow();
         assertEquals(50, mine.distance(), "a 30/40 offset is 50 blocks");
+        assertEquals("sw", mine.bearing(), "the gate lies 30 west and 40 south of the player");
+        for (WorldSimSnapshot.SectSummary seated : s.sects()) {
+            SectView v = sim.sect(seated.id()).orElseThrow();
+            assertEquals(WorldSimSnapshots.bearing(v.gateX() + 0.5 - px, v.gateZ() + 0.5 - pz), seated.bearing());
+        }
 
         List<PersonView> present = WorldSimSnapshots.strongestFirst(sim.livingIn(regionId), sim.realmIds());
         assertEquals(r.livingCount(), present.size());
@@ -426,6 +438,104 @@ class WorldSimSnapshotsTest {
         assertNull(s.overview());
         assertTrue(s.events().isEmpty());
         assertEquals("?", WorldSimSnapshots.inactive(WorldSimQuery.here(), null).inactiveReason());
+    }
+
+    // ------------------------------------------------------------------ the player's own sect
+
+    @Test
+    void withoutARecordThereIsNoMineAnywhere() {
+        assertOnly(build(WorldSimQuery.overview()), "overview", "persons");
+        for (SectView v : sim.sects(true)) {
+            assertNull(build(WorldSimQuery.sect(v.id())).mine());
+        }
+        WorldSimSnapshot anonymous = WorldSimSnapshots.build(sim, DPY, 0, false, 0, NetFixtures.REGION_NAME,
+                Optional.empty(), 0, 0, null, WorldSimQuery.overview());
+        assertNull(anonymous.mine());
+        assertNull(WorldSimSnapshots.inactive(WorldSimQuery.overview(), "x").mine());
+    }
+
+    /** A fresh world with {@link #PLAYER} joined to its first active sect; skipped until the ledger can join. */
+    private static WorldSim joinedWorld() {
+        WorldSim world = NetFixtures.world();
+        SectView sect = world.sects(false).get(0);
+        boolean joinWorked;
+        try {
+            world.joinSect(PLAYER, "试剑客", sect.id(),
+                    new PlayerQualification("foundation_establishment", 0, true, 6000));
+            joinWorked = true;
+        } catch (UnsupportedOperationException notYet) {
+            joinWorked = false;
+        }
+        assumeTrue(joinWorked, "WorldSim.joinSect is not implemented yet (slice 1 package A)");
+        return world;
+    }
+
+    @Test
+    void theOverviewCarriesThePlayersOwnSect() {
+        WorldSim world = joinedWorld();
+        PlayerMemberView m = world.playerMember(PLAYER).orElseThrow();
+        assertTrue(m.inSect());
+        WorldSimSnapshot s = WorldSimSnapshots.build(world, DPY, 0, false, 0, NetFixtures.REGION_NAME,
+                Optional.empty(), 0, 0, PLAYER, WorldSimQuery.overview());
+        WorldSimSnapshot.MySect mine = s.mine();
+        assertNotNull(mine);
+        SectView sect = world.sect(m.sectId()).orElseThrow();
+        assertEquals(m.sectId(), mine.sectId());
+        assertEquals(sect.name(), mine.sectName());
+        assertEquals(m.rank(), mine.rank());
+        assertEquals("outer", mine.rank());
+        assertEquals(m.joinedDay(), mine.joinedDay());
+        assertEquals(world.day(), mine.joinedDay());
+        assertEquals(m.masterName(), mine.masterName());
+        assertEquals(m.contribution(), mine.contribution());
+        assertEquals(m.standings().get(m.sectId()), mine.standing());
+        assertTrue(mine.standing() > 0, "joining raises the standing");
+        assertEquals(m.borrowed().size(), mine.borrowedCount());
+        assertTrue(mine.sectActive());
+
+        WorldSimSnapshot other = WorldSimSnapshots.build(world, DPY, 0, false, 0, NetFixtures.REGION_NAME,
+                Optional.empty(), 0, 0, "someone-else", WorldSimQuery.overview());
+        assertNull(other.mine(), "only the asking player's record");
+    }
+
+    @Test
+    void aSectDetailCarriesMineOnlyForThePlayersOwnSect() {
+        WorldSim world = joinedWorld();
+        int own = world.playerMember(PLAYER).orElseThrow().sectId();
+        int checked = 0;
+        for (SectView v : world.sects(true)) {
+            WorldSimSnapshot s = WorldSimSnapshots.build(world, DPY, 0, false, 0, NetFixtures.REGION_NAME,
+                    Optional.empty(), 0, 0, PLAYER, WorldSimQuery.sect(v.id()));
+            if (v.id() == own) {
+                assertNotNull(s.mine());
+                assertEquals(own, s.mine().sectId());
+            } else {
+                assertNull(s.mine(), v.name());
+                checked++;
+            }
+        }
+        assertTrue(checked > 0, "some other sect was asked about");
+        for (WorldSimQuery q : List.of(WorldSimQuery.sects(), WorldSimQuery.chronicle(), WorldSimQuery.here(),
+                WorldSimQuery.personSearch("a"), WorldSimQuery.sect(99_999))) {
+            assertNull(WorldSimSnapshots.build(world, DPY, 0, false, 0, NetFixtures.REGION_NAME, Optional.empty(), 0,
+                    0, PLAYER, q).mine(), q.kind().name());
+        }
+    }
+
+    @Test
+    void aPlayerWhoLeftHasNoMine() {
+        WorldSim world = joinedWorld();
+        boolean leaveWorked;
+        try {
+            world.leaveSect(PLAYER, "试剑客");
+            leaveWorked = true;
+        } catch (UnsupportedOperationException notYet) {
+            leaveWorked = false;
+        }
+        assumeTrue(leaveWorked, "WorldSim.leaveSect is not implemented yet (slice 1 package A)");
+        assertTrue(world.playerMember(PLAYER).isPresent(), "the record stays");
+        assertNull(WorldSimSnapshots.build(world, DPY, 0, false, 0, NetFixtures.REGION_NAME, Optional.empty(), 0, 0,
+                PLAYER, WorldSimQuery.overview()).mine());
     }
 
     @Test
