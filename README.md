@@ -987,14 +987,14 @@ sides, close-ups, and walk videos (a missing file shows as 未采集).
 
 | Cultivator looks (0.41.0) real-client acceptance surface | Result |
 |---|---|
-| `f_novice` look: reads as a woman and a novice, plain and old-style, from the front, sides, and three-quarter views | `not_verified` |
-| `f_novice` face up close and at ten blocks | `not_verified` |
-| `f_novice` walk and idle (hip sway, folded hands, ponytail and skirt ties trailing) | `not_verified` |
-| `f_novice` name tag height on an avatar | `not_verified` |
-| `f_adept` look: reads as a woman of standing, richer than the novice, from the front, sides, and three-quarter views | `not_verified` |
-| `f_adept` face up close and at ten blocks | `not_verified` |
-| `f_adept` walk and idle (drape, hairpin pendant, back hair trailing) | `not_verified` |
-| `f_adept` name tag height on an avatar | `not_verified` |
+| `f_novice` look: reads as a woman and a novice, plain and old-style, from the front, sides, and three-quarter views | `not_verified` (offline preview only; in-game capture pending) |
+| `f_novice` face up close and at ten blocks | `not_verified` (offline preview only; in-game capture pending) |
+| `f_novice` walk and idle (hip sway, folded hands, ponytail and skirt ties trailing) | `not_verified` (offline preview only; in-game capture pending) |
+| `f_novice` name tag height on an avatar | `not_verified` (offline preview only; in-game capture pending) |
+| `f_adept` look: reads as a woman of standing, richer than the novice, from the front, sides, and three-quarter views | `not_verified` (offline preview only; in-game capture pending) |
+| `f_adept` face up close and at ten blocks | `not_verified` (offline preview only; in-game capture pending) |
+| `f_adept` walk and idle (drape, hairpin pendant, back hair trailing) | `not_verified` (offline preview only; in-game capture pending) |
+| `f_adept` name tag height on an avatar | `not_verified` (offline preview only; in-game capture pending) |
 | Spawn egg random look; `/summon` with `Look`; look kept across save and reload | `not_verified` |
 | Avatars wear the look of their person's gender and realm | `not_verified` |
 | Owner verdict on palette A, the low ponytail, and both faces | `not_verified` |
@@ -1316,19 +1316,29 @@ and runs the admin join and leave. Output in `out/preview/world_sim/entry/`
 (`index.html`, `evidence.json`, `commands.txt`, `server_log.txt`,
 `client_log.txt`, screenshots). Developer evidence, not owner acceptance.
 
+Its 2026-10-07 run (capture script of `225c5b3`) passed all 20 checks: the
+gate 140 blocks away built itself in 3.9 s (135 chunk clips) while `tick
+query` read 7.1 ms per tick; the steward stood with its 守山执事 tag; JOIN
+through the dialogue made the player an outer disciple of 玄黄阁 with a
+chronicle line and the 我的宗门 card; a mortal was not promoted after a year,
+and at 炼气五层 the next yearly review made them an inner disciple; LEAVE
+succeeded and, within the cooldown, the steward offered no JOIN button; the
+admin join went past the cooldown and the admin leave worked. Not captured:
+bearings, `world gates`, promotion to elder, a destroyed sect.
+
 | Player sect entry (0.41.0) acceptance surface | Result | Notes |
 |---|---|---|
-| Auto gate realization near a player (framed, no server stall) | `not_verified` | headless: TODO-EVIDENCE |
-| Steward name tag (four parts, 守山执事) and its place by the gate | `not_verified` | headless: TODO-EVIDENCE |
-| Dialogue screen: lines, buttons, refresh in place, closing | `not_verified` | headless: TODO-EVIDENCE |
-| Join through the steward (outer disciple, chat and chronicle line) | `not_verified` | headless: TODO-EVIDENCE |
-| Leave through the steward (standing penalty) | `not_verified` | headless: TODO-EVIDENCE |
-| Rejoin cooldown refusal | `not_verified` | headless: TODO-EVIDENCE |
-| Admin commands `world sect <id> join/leave <player>`, `world player`, `world gates` | `not_verified` | headless: TODO-EVIDENCE |
-| 我的宗门 card and the own-sect rank row on the 天下 page | `not_verified` | headless: TODO-EVIDENCE |
-| Gate bearings on 此地 | `not_verified` | headless: TODO-EVIDENCE |
-| Yearly promotion to inner disciple and elder | `not_verified` | headless: TODO-EVIDENCE |
-| Sect destroyed → the player becomes a rogue | `not_verified` | headless: TODO-EVIDENCE |
+| Auto gate realization near a player (framed, no server stall) | `not_verified` | headless (`world_sim_entry_evidence`, 20/20 checks): `gate_realized_automatically`: player 140 blocks from the gate, `GATE_REALIZE` started→done 3.9 s, 135 chunk clips; `server_responsive_while_building`: `tick query` 7.1 ms/tick during the build; `gate_realized_in_ledger`: `world sect` shows (built); `gate_far.png`. Stutter on a real client not judged |
+| Steward name tag (four parts, 守山执事) and its place by the gate | `not_verified` | headless (`world_sim_entry_evidence`, 20/20 checks): `steward_present` (name tag with the 守山执事 part), `player_faces_steward`; `steward_nameplate.png` |
+| Dialogue screen: lines, buttons, refresh in place, closing | `not_verified` | headless (`world_sim_entry_evidence`, 20/20 checks): `dialogue_opens_with_join` (options JOIN, FAREWELL), `dialogue_offers_leave` for a member; `dialogue_open.png`, `dialogue_member.png`; the welcome and farewell pages after JOIN and LEAVE (`dialogue_welcome.png`, `dialogue_left.png`). Look and readability on a physical client not judged |
+| Join through the steward (outer disciple, chat and chronicle line) | `not_verified` | headless (`world_sim_entry_evidence`, 20/20 checks): `join_ok` (`SECT_ENTRY ... intent=JOIN ... result=ok`), `player_record_outer` (`world player`: outer disciple of 玄黄阁, standing +20), `chronicle_has_join`; `dialogue_welcome.png` |
+| Leave through the steward (standing penalty) | `not_verified` | headless (`world_sim_entry_evidence`, 20/20 checks): `leave_ok` (`intent=LEAVE result=ok`); `dialogue_left.png` |
+| Rejoin cooldown refusal | `not_verified` | headless (`world_sim_entry_evidence`, 20/20 checks): `rejoin_refused_cooldown`: within the cooldown the dialogue offers only FAREWELL (no JOIN button, so no `result=rejoin_cooldown` line; the refusal line is in `dialogue_rejoin_refused.png`) |
+| Admin commands `world sect <id> join/leave <player>`, `world player`, `world gates` | `not_verified` | headless (`world_sim_entry_evidence`, 20/20 checks): `admin_join_forced` (join past the cooldown, `result=ok`), `admin_join_record`, `admin_leave`; `world player` read throughout. `world gates [retry]` not exercised |
+| 我的宗门 card and the own-sect rank row on the 天下 page | `not_verified` | headless (`world_sim_entry_evidence`, 20/20 checks): `panel_after_join.png` shows the 我的宗门 card with 玄黄阁 / 外门弟子 (screenshot only, no log check); the own-sect row not captured |
+| Gate bearings on 此地 | `not_verified` | headless: not captured (unit-tested only, `BearingTest`) |
+| Yearly promotion to inner disciple and elder | `not_verified` | headless (`world_sim_entry_evidence`, 20/20 checks): `no_promotion_below_threshold` (a mortal stays outer after a year), `promoted_inner_at_threshold` (realm set to 炼气五层, one day advanced to refresh the snapshot, then a year: `player.promote.inner`, `world player` shows inner; that world has 6 days a year). Elder not captured |
+| Sect destroyed → the player becomes a rogue | `not_verified` | headless: not captured (unit-tested only, `PlayerAffairsTest`) |
 
 ## Rideable Flying Sword Smoke Test
 

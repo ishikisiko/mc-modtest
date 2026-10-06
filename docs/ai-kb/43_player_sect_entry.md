@@ -294,11 +294,13 @@ GATE_REALIZE sect=<id> state=cancelled reason=<server_stopping|ledger_changed|se
 GATE_REALIZE sect=<id> state=failed reason=<exception class>
 ```
 
-Cost per tick, an estimate from the implementer's offline count (not a
-measurement on a running server): a compound is about 144 clips; the median
-clip writes about 1k blocks and the 90th percentile about 18k, so at the
-default clips per tick a whole compound should take roughly 4 to 10
-seconds. Whether that stutters on a real server is open.
+Cost per tick, an estimate from the implementer's offline count: a
+compound is about 144 clips; the median clip writes about 1k blocks and the
+90th percentile about 18k, so at the default clips per tick a whole compound
+should take roughly 4 to 10 seconds. The headless capture (Evidence below)
+measured one compound on superflat: 135 clips, started → done 3.9 s, 7.1 ms
+per tick from `tick query` during the build. Whether it stutters on a real
+server and client is open.
 
 ## Evidence
 
@@ -323,7 +325,31 @@ join past the cooldown and admin leave. Output
 `commands.txt`, `server_log.txt`, `client_log.txt`, screenshots. Pure helpers
 are tested in `tools/tests/test_world_sim_entry_evidence.py`.
 
-Results: TODO-EVIDENCE
+Run of 2026-10-07 (capture script of `225c5b3`; developer evidence, not
+owner acceptance): 20 of 20 checks passed. Files in
+`out/preview/world_sim/entry/`.
+
+| Check | Result |
+|---|---|
+| `world_ledger_active`, `player_qualified_setup` | ledger active; root and realm set for the player |
+| `gate_realized_automatically` | player 140 blocks from the gate of 玄黄阁 (sect 3); `GATE_REALIZE` started → done 3.9 s by the log, 135 chunk clips, all preloaded; `gate_far.png` |
+| `server_responsive_while_building` | `tick query` during the build: 7.1 ms per tick |
+| `gate_realized_in_ledger` | `world sect` shows the gate (built) |
+| `steward_present`, `player_faces_steward` | an avatar whose name tag has the 守山执事 part; `steward_nameplate.png` |
+| `dialogue_opens_with_join` | options JOIN, FAREWELL; `dialogue_open.png` |
+| `join_ok`, `player_record_outer`, `chronicle_has_join` | `SECT_ENTRY ... intent=JOIN ... result=ok`; `world player`: outer disciple of 玄黄阁, standing +20; the join in `world chronicle`; `dialogue_welcome.png` |
+| (no check) | `panel_after_join.png`: the 我的宗门 card with 玄黄阁 / 外门弟子 |
+| `no_promotion_below_threshold` | a year at `mortal_qi_sensed`: still outer |
+| `promoted_inner_at_threshold` | realm set to 炼气五层, one day advanced (the snapshot refreshes after a settled day), then a year: `player.promote.inner`, `world player` shows inner |
+| `steward_present_after_advance`, `dialogue_offers_leave` | the steward re-found after the advances; options LEAVE, FAREWELL; `dialogue_member.png` |
+| `leave_ok` | `intent=LEAVE result=ok`; `dialogue_left.png` |
+| `rejoin_refused_cooldown` | within the cooldown the dialogue offers only FAREWELL, so there is no JOIN to press and no `result=rejoin_cooldown` line; the refusal line is in `dialogue_rejoin_refused.png` |
+| `admin_join_forced`, `admin_join_record`, `admin_leave` | `world sect 3 join` past the cooldown (`result=ok`, outer, standing 0); `world sect 3 leave` (`result=ok`) |
+
+The capture world runs 6 days a year. Not captured: bearings on 此地 (unit
+test only), `world gates [retry]`, promotion to elder, a destroyed sect
+turning the player rogue (unit test only), and how any of it looks or feels
+on a physical client.
 
 ## Tests
 
@@ -345,8 +371,8 @@ Results: TODO-EVIDENCE
 
 ## Verified and not verified
 
-Gradle tests and the headless capture above are developer evidence. The
-owner's PC was not available for 0.41.0, so every surface in the README
+Gradle tests and the headless capture above (20 of 20 checks on
+2026-10-07) are developer evidence. The owner's PC was not available for 0.41.0, so every surface in the README
 ledger "Player sect entry (0.41.0)" is `not_verified`: auto realization and
 whether it stutters, the steward's tag and place, the dialogue screen, join,
 leave, the rejoin cooldown, the admin commands, the 我的宗门 card, bearings,
@@ -362,6 +388,14 @@ and the Chinese text on a real client.
 3. The realize radius and clips per tick (stutter can only be judged on a
    real machine).
 4. The dialogue screen's style (plain vanilla buttons now).
+5. Snapshot timing: the qualification snapshot is refreshed after each
+   settled day (and on login, join, leave), and the yearly review reads it at
+   the start of the year, so a player who breaks through on the last day
+   before the new year is reviewed only a year later. Refreshing all online
+   players' snapshots right before the review would close the gap.
+6. A refused rejoin shows no JOIN button (the refusal line explains), so the
+   `SECT_ENTRY ... result=rejoin_cooldown` line is only seen when JOIN is
+   pressed on a stale page.
 
 Not built in this slice: the scripture hall (`borrowed`, `scripture_hall`),
 contribution and sect tasks, taking a master, sect-event notifications
