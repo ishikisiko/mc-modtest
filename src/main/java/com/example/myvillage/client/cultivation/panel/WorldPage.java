@@ -36,6 +36,14 @@ public final class WorldPage extends PanelPage {
     private static final int MAX_BACK = 32;
     /** From this width a person row fits on one line. */
     private static final int ONE_LINE_PERSON = 240;
+    /** A person row's thumbnail and the room it takes before the row's text. */
+    private static final int THUMB = 16;
+    private static final int THUMB_ROOM = 20;
+    /** The person card's portrait and the indent of the rows beside it. */
+    private static final int PORTRAIT = 64;
+    private static final int PORTRAIT_ROOM = 70;
+    /** Below this many pixels beside the portrait, the card's rows start under it instead. */
+    private static final int MIN_BESIDE_PORTRAIT = 60;
     /** Narrower than this, an event's text starts under its date instead of beside it. */
     private static final int MIN_EVENT_TEXT = 90;
     private static final int PAD = PanelTheme.CARD_PADDING;
@@ -509,26 +517,33 @@ public final class WorldPage extends PanelPage {
         return cursor - 2 - y;
     }
 
-    /** A clickable person: name and title, stage, sect and rank; the dead are muted and tagged. */
+    /**
+     * A clickable person: the 16-px portrait thumbnail, then name and title, stage, sect and rank;
+     * the dead are muted and tagged. One-line rows centre the text on the thumbnail.
+     */
     private int personRow(WorldCanvas c, WorldSimSnapshot.PersonSummary p, int x, int y, int width) {
         boolean oneLine = width >= ONE_LINE_PERSON;
-        int height = oneLine ? ROW + 2 : ROW * 2 + 2;
+        int height = Math.max(oneLine ? ROW + 2 : ROW * 2 + 2, THUMB + 2);
         c.link(x - 2, y - 1, x + width + 2, y + height - 1, toPerson(p.id()));
+        c.image(p.portrait(), x, y, THUMB);
         int nameColor = p.alive() ? PanelTheme.GOLD_BRIGHT : PanelTheme.MUTED;
         int plainColor = p.alive() ? PanelTheme.TEXT : PanelTheme.MUTED;
         String stage = WorldSimText.stage(p.realmId(), p.stage()).getString();
         String standing = standing(p.sectId(), p.sectName(), p.rank());
-        int nameWidth = oneLine ? width * 2 / 5 : width * 3 / 5;
-        int used = nameLine(c, p, x, y + 1, nameWidth, nameColor, plainColor);
+        int tx = x + THUMB_ROOM;
+        int tw = Math.max(1, width - THUMB_ROOM);
+        int ty = oneLine ? y + (THUMB - 8) / 2 : y + 1;
+        int nameWidth = oneLine ? tw * 2 / 5 : tw * 3 / 5;
+        int used = nameLine(c, p, tx, ty, nameWidth, nameColor, plainColor);
         if (oneLine) {
-            int stageX = x + Math.max(used + 8, width * 2 / 5);
-            int standingWidth = Math.max(0, Math.min(c.width(standing), width - (stageX - x) - 50));
-            int stageWidth = x + width - standingWidth - 8 - stageX;
-            c.text(stage, stageX, y + 1, stageWidth, plainColor);
-            c.textRight(standing, x + width, y + 1, standingWidth, PanelTheme.MUTED);
+            int stageX = tx + Math.max(used + 8, tw * 2 / 5);
+            int standingWidth = Math.max(0, Math.min(c.width(standing), tw - (stageX - tx) - 50));
+            int stageWidth = tx + tw - standingWidth - 8 - stageX;
+            c.text(stage, stageX, ty, stageWidth, plainColor);
+            c.textRight(standing, tx + tw, ty, standingWidth, PanelTheme.MUTED);
         } else {
-            c.textRight(stage, x + width, y + 1, width - used - 8, plainColor);
-            c.text(standing, x + 6, y + 1 + ROW, width - 6, PanelTheme.MUTED);
+            c.textRight(stage, tx + tw, ty, tw - used - 8, plainColor);
+            c.text(standing, tx + 6, ty + ROW, tw - 6, PanelTheme.MUTED);
         }
         return height;
     }
@@ -775,60 +790,85 @@ public final class WorldPage extends PanelPage {
             int y,
             int width) {
         WorldSimSnapshot.PersonSummary p = d.summary();
-        int cursor = y + 2;
-        nameLine(c, p, x, cursor, width, p.alive() ? PanelTheme.GOLD_BRIGHT : PanelTheme.MUTED,
+        // The portrait sits at the card's top-left; rows that start beside it are indented by
+        // PORTRAIT_ROOM, the rest run full width below it. A card too narrow for a column beside
+        // the portrait starts its rows under it.
+        int portraitTop = y + 2;
+        int portraitEnd = portraitTop + PORTRAIT + 2;
+        c.image(p.portrait(), x, portraitTop, PORTRAIT);
+        boolean beside = width - PORTRAIT_ROOM >= MIN_BESIDE_PORTRAIT;
+        int cursor = beside ? portraitTop : portraitEnd;
+        int rx = beside(cursor, portraitEnd, x);
+        nameLine(c, p, rx, cursor, x + width - rx, p.alive() ? PanelTheme.GOLD_BRIGHT : PanelTheme.MUTED,
                 p.alive() ? PanelTheme.TEXT : PanelTheme.MUTED);
         cursor += ROW + 2;
 
         String stage = WorldSimText.stage(p.realmId(), p.stage()).getString();
+        rx = beside(cursor, portraitEnd, x);
         if (p.alive()) {
             double progress = WorldReadouts.progress(d.progress());
-            c.pair(stage, WorldReadouts.percent(d.progress()) + "%", x, cursor, width, PanelTheme.TEXT);
-            c.bar(x, cursor + ROW, width, 5, progress, PanelTheme.JADE, PanelTheme.JADE_DARK);
+            c.pair(stage, WorldReadouts.percent(d.progress()) + "%", rx, cursor, x + width - rx, PanelTheme.TEXT);
+            c.bar(rx, cursor + ROW, x + width - rx, 5, progress, PanelTheme.JADE, PanelTheme.JADE_DARK);
             cursor += PanelTheme.METER_HEIGHT + 3;
         } else {
-            cursor += pair(c, "screen.myvillage.cultivation.world.realm", stage, x, cursor, width);
+            cursor += pair(c, "screen.myvillage.cultivation.world.realm", stage, rx, cursor, x + width - rx);
         }
 
         if (!d.rootGrade().isEmpty()) {
+            rx = beside(cursor, portraitEnd, x);
             cursor += pair(c, "screen.myvillage.cultivation.world.root",
-                    WorldSimText.rootGrade(d.rootGrade()).getString(), x, cursor, width);
+                    WorldSimText.rootGrade(d.rootGrade()).getString(), rx, cursor, x + width - rx);
         }
         if (d.root().size() == ELEMENTS.size()) {
-            cursor += rootBars(c, context, d.root(), x, cursor, width) + 2;
+            rx = beside(cursor, portraitEnd, x);
+            cursor += rootBars(c, context, d.root(), rx, cursor, x + width - rx) + 2;
         }
 
+        rx = beside(cursor, portraitEnd, x);
         cursor += pair(c, "screen.myvillage.cultivation.world.age",
                 text("screen.myvillage.cultivation.world.age_value",
                         WorldReadouts.age(p.alive(), d.birthDay(), d.deathDay(), s.day(), s.daysPerYear())),
-                x, cursor, width);
+                rx, cursor, x + width - rx);
+        rx = beside(cursor, portraitEnd, x);
         cursor += linkPair(c, "screen.myvillage.cultivation.world.lineage", orNone(d.masterName()),
-                toPerson(d.masterId()), x, cursor, width);
+                toPerson(d.masterId()), rx, cursor, x + width - rx);
+        rx = beside(cursor, portraitEnd, x);
         cursor += linkPair(c, "screen.myvillage.cultivation.world.sect",
-                standing(p.sectId(), p.sectName(), p.rank()), toSect(p.sectId()), x, cursor, width);
+                standing(p.sectId(), p.sectName(), p.rank()), toSect(p.sectId()), rx, cursor, x + width - rx);
         if (p.alive()) {
             String where = text("screen.myvillage.cultivation.world.whereabouts_value",
                     orNone(d.regionName()), WorldSimText.status(d.status()));
-            cursor += pair(c, "screen.myvillage.cultivation.world.whereabouts", where, x, cursor, width);
+            rx = beside(cursor, portraitEnd, x);
+            cursor += pair(c, "screen.myvillage.cultivation.world.whereabouts", where, rx, cursor, x + width - rx);
+            rx = beside(cursor, portraitEnd, x);
             cursor += pair(c, "screen.myvillage.cultivation.world.technique", orNone(d.techniqueName()),
-                    x, cursor, width);
+                    rx, cursor, x + width - rx);
             if (d.injury() > 0) {
+                rx = beside(cursor, portraitEnd, x);
                 c.pair(text("screen.myvillage.cultivation.world.injury"), Integer.toString(d.injury()),
-                        x, cursor, width, PanelTheme.RED);
+                        rx, cursor, x + width - rx, PanelTheme.RED);
                 cursor += ROW + 1;
             }
         } else {
+            rx = beside(cursor, portraitEnd, x);
             cursor += pair(c, "screen.myvillage.cultivation.world.died", dateText(s, d.deathDay()),
-                    x, cursor, width);
+                    rx, cursor, x + width - rx);
+            rx = beside(cursor, portraitEnd, x);
             c.pair(text("screen.myvillage.cultivation.world.death_cause"),
-                    WorldSimText.cause(d.deathCause()).getString(), x, cursor, width, PanelTheme.RED);
+                    WorldSimText.cause(d.deathCause()).getString(), rx, cursor, x + width - rx, PanelTheme.RED);
             cursor += ROW + 1;
             if (d.killerId() >= 0 || !d.killerName().isEmpty()) {
+                rx = beside(cursor, portraitEnd, x);
                 cursor += linkPair(c, "screen.myvillage.cultivation.world.killer", orNone(d.killerName()),
-                        toPerson(d.killerId()), x, cursor, width);
+                        toPerson(d.killerId()), rx, cursor, x + width - rx);
             }
         }
-        return cursor - 1 - y;
+        return Math.max(cursor - 1 - y, portraitTop + PORTRAIT - y);
+    }
+
+    /** Where a person-card row starting at {@code cursor} begins: beside the portrait, or at {@code x}. */
+    private static int beside(int cursor, int portraitEnd, int x) {
+        return cursor < portraitEnd ? x + PORTRAIT_ROOM : x;
     }
 
     /**

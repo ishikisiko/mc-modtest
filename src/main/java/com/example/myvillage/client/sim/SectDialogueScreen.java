@@ -1,6 +1,7 @@
 package com.example.myvillage.client.sim;
 
 import com.example.myvillage.client.cultivation.panel.PanelTheme;
+import com.example.myvillage.client.portrait.PortraitTextures;
 import com.example.myvillage.sim.runtime.net.SectDialoguePayload;
 import com.example.myvillage.sim.runtime.net.SectIntentPayload;
 import com.example.myvillage.sim.runtime.player.SectDialogueScenes;
@@ -18,9 +19,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The sect dialogue (守山执事 / 长老): draws one {@link SectDialoguePayload} page the server built,
- * the title {@code avatar · role · sect}, a muted line with the region and the player's standing,
- * the wrapped lines, and one button per offered option. JOIN and LEAVE send a
+ * The sect dialogue (守山执事 / 长老): draws one {@link SectDialoguePayload} page the server built.
+ * The left column holds the avatar's 64-px portrait with the name and role under it; the right
+ * column the title {@code avatar · role · sect}, a muted line with the region and the player's
+ * standing, and the wrapped lines; under both, one button per offered option. JOIN and LEAVE send a
  * {@link SectIntentPayload} (the server checks it and answers with a new page, shown in place by
  * {@link #update}); FAREWELL tells the server and closes. Esc closes. It does not pause the game.
  *
@@ -31,7 +33,9 @@ import org.slf4j.LoggerFactory;
 public final class SectDialogueScreen extends Screen {
     private static final Logger LOGGER = LoggerFactory.getLogger(SectDialogueScreen.class);
     private static final String KEY = "screen.myvillage.sect_dialogue.";
-    static final int MAX_PANEL_WIDTH = 320;
+    static final int MAX_PANEL_WIDTH = 400;
+    static final int PORTRAIT = 64;
+    static final int COLUMN_GAP = 10;
     static final int PADDING = 10;
     static final int BUTTON_WIDTH = 80;
     static final int BUTTON_HEIGHT = 20;
@@ -47,6 +51,8 @@ public final class SectDialogueScreen extends Screen {
     private int panelTop;
     private int panelWidth;
     private int panelHeight;
+    private String portraitName = "";
+    private String portraitRole = "";
 
     public SectDialogueScreen(SectDialoguePayload page) {
         super(Component.translatable(KEY + "title", page.avatarName(), role(page.role()), page.sectName()));
@@ -73,7 +79,10 @@ public final class SectDialogueScreen extends Screen {
         heading = Component.translatable(KEY + "title", page.avatarName(), role(page.role()), page.sectName());
         subheading = subheading(page);
         panelWidth = Math.min(MAX_PANEL_WIDTH, width - 16);
-        int textWidth = panelWidth - 2 * PADDING;
+        int textWidth = Math.max(40, panelWidth - 2 * PADDING - PORTRAIT - COLUMN_GAP);
+        int columnWidth = PORTRAIT + COLUMN_GAP - 4;
+        portraitName = PanelTheme.fit(font, page.avatarName(), columnWidth);
+        portraitRole = PanelTheme.fit(font, role(page.role()).getString(), columnWidth);
         List<List<FormattedCharSequence>> wrapped = new ArrayList<>();
         int bodyHeight = 0;
         for (Component line : page.lines()) {
@@ -82,7 +91,9 @@ public final class SectDialogueScreen extends Screen {
             bodyHeight += rows.size() * LINE_HEIGHT + PARAGRAPH_GAP;
         }
         paragraphs = wrapped;
-        panelHeight = PADDING + LINE_HEIGHT + 2 + LINE_HEIGHT + 6 + bodyHeight + 6 + BUTTON_HEIGHT + PADDING;
+        int leftHeight = PORTRAIT + 4 + LINE_HEIGHT + LINE_HEIGHT;
+        int rightHeight = LINE_HEIGHT + 2 + LINE_HEIGHT + 6 + bodyHeight;
+        panelHeight = PADDING + Math.max(leftHeight, rightHeight) + 6 + BUTTON_HEIGHT + PADDING;
         panelLeft = (width - panelWidth) / 2;
         panelTop = Math.max(4, (height - panelHeight) / 2);
 
@@ -137,8 +148,15 @@ public final class SectDialogueScreen extends Screen {
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         super.render(graphics, mouseX, mouseY, partialTick);
-        int x = panelLeft + PADDING;
-        int y = panelTop + PADDING;
+        int left = panelLeft + PADDING;
+        int top = panelTop + PADDING;
+        PortraitTextures.draw(graphics, page.portrait(), left, top, PORTRAIT);
+        int nameY = top + PORTRAIT + 4;
+        graphics.drawString(font, portraitName, left, nameY, PanelTheme.GOLD_BRIGHT, false);
+        graphics.drawString(font, portraitRole, left, nameY + LINE_HEIGHT, PanelTheme.MUTED, false);
+
+        int x = left + PORTRAIT + COLUMN_GAP;
+        int y = top;
         graphics.drawString(font, heading, x, y, PanelTheme.GOLD_BRIGHT, false);
         y += LINE_HEIGHT + 2;
         graphics.drawString(font, subheading, x, y, PanelTheme.MUTED, false);

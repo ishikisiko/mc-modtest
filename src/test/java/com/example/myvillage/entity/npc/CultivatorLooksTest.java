@@ -53,6 +53,6 @@ final class CultivatorLooksTest {
 
     private static PersonView person(String gender, String realm) {
         return new PersonView(1, "林一", "", gender, true, -100, -1, "", -1, List.of(2000, 2000, 2000, 2000, 2000),
-                "mixed", realm, 0, 0.0, 1, "青云宗", "outer", -1, "r0", "at_sect", "", "", 0, List.of());
+                "mixed", realm, 0, 0.0, 1, "青云宗", "outer", -1, "r0", "at_sect", "", "", 0, List.of(50, 50, 50, 50, 50), List.of());
     }
 }

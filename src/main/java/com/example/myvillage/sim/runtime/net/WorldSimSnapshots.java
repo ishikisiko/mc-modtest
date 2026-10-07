@@ -1,5 +1,6 @@
 package com.example.myvillage.sim.runtime.net;
 
+import com.example.myvillage.portrait.PortraitAssign;
 import com.example.myvillage.sim.Overview;
 import com.example.myvillage.sim.PersonView;
 import com.example.myvillage.sim.PlayerMemberView;
@@ -58,7 +59,7 @@ public final class WorldSimSnapshots {
                                          String playerId, WorldSimQuery query) {
         Objects.requireNonNull(sim, "sim");
         Objects.requireNonNull(query, "query");
-        Builder b = new Builder(sim, regionName);
+        Builder b = new Builder(sim, daysPerYear, regionName);
         WorldSimSnapshot.MySect mine = null;
         WorldSimSnapshot.Overview overview = null;
         List<WorldSimSnapshot.SectSummary> sects = List.of();
@@ -215,10 +216,13 @@ public final class WorldSimSnapshots {
     /** Resolves names against one ledger. */
     private static final class Builder {
         private final WorldSim sim;
+        /** For the ages the portraits are drawn at. */
+        private final int daysPerYear;
         private final Function<String, String> regionNames;
 
-        Builder(WorldSim sim, Function<String, String> regionNames) {
+        Builder(WorldSim sim, int daysPerYear, Function<String, String> regionNames) {
             this.sim = sim;
+            this.daysPerYear = daysPerYear;
             this.regionNames = regionNames == null ? id -> id : regionNames;
         }
 
@@ -291,7 +295,8 @@ public final class WorldSimSnapshots {
 
         WorldSimSnapshot.PersonSummary personSummary(PersonView p) {
             return new WorldSimSnapshot.PersonSummary(p.id(), p.name(), p.title(), p.alive(), p.realmId(), p.stage(),
-                    p.sectId(), p.sectId() >= 0 ? p.sectName() : "", p.rank());
+                    p.sectId(), p.sectId() >= 0 ? p.sectName() : "", p.rank(),
+                    PortraitAssign.of(p, sim.day(), daysPerYear));
         }
 
         List<WorldSimSnapshot.PersonSummary> personSummaries(List<PersonView> people, int cap) {

@@ -3,6 +3,8 @@ package com.example.myvillage.sim.runtime.net;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import com.example.myvillage.portrait.PortraitAssign;
+import com.example.myvillage.portrait.PortraitSpec;
 import com.example.myvillage.sim.runtime.player.SectDialogueScenes;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.DecoderException;
@@ -51,9 +53,12 @@ class SectDialoguePayloadTest {
         }
     }
 
+    private static final PortraitSpec PORTRAIT = PortraitAssign.of(4711, true, "golden_core", "elder", 7, 120.5,
+            new int[] {1000, 4000, 2000, 2000, 1000}, new int[] {20, 30, 75, 40, 60}, 25, true);
+
     private static SectDialoguePayload page(List<Component> lines, List<Integer> options) {
-        return new SectDialoguePayload(4711, 7, "青云宗", "steward", "李三", 61, 14, "韩立", "云山", "outer", -20,
-                true, "ok", lines, options);
+        return new SectDialoguePayload(4711, 7, "青云宗", "steward", "李三", PORTRAIT, 61, 14, "韩立", "云山", "outer",
+                -20, true, "ok", lines, options);
     }
 
     private static List<Component> lines() {
@@ -69,8 +74,8 @@ class SectDialoguePayloadTest {
     void aPageRoundTrips() {
         SectDialoguePayload payload = page(lines(), List.of(0, 2));
         assertEquals(payload, roundTrip(SectDialoguePayload.STREAM_CODEC, payload));
-        SectDialoguePayload empty = new SectDialoguePayload(0, 0, "", "elder", "", 0, 0, "", "", "", 0, false,
-                "selective", List.of(), List.of());
+        SectDialoguePayload empty = new SectDialoguePayload(0, 0, "", "elder", "", PORTRAIT, 0, 0, "", "", "", 0,
+                false, "selective", List.of(), List.of());
         assertEquals(empty, roundTrip(SectDialoguePayload.STREAM_CODEC, empty));
         SectDialoguePayload full = page(Collections.nCopies(SectDialoguePayload.MAX_LINES, Component.literal("x")),
                 List.of(0, 1, 2, 2));
@@ -85,7 +90,9 @@ class SectDialoguePayloadTest {
         assertThrows(IllegalArgumentException.class, () -> page(List.of(), List.of(SectDialoguePayload.MAX_OPTION_ID + 1)));
         assertThrows(IllegalArgumentException.class, () -> page(List.of(), List.of(-1)));
         assertThrows(IllegalArgumentException.class, () -> new SectDialoguePayload(1, 1, "x".repeat(65), "steward",
-                "", 0, 0, "", "", "", 0, false, "ok", List.of(), List.of()));
+                "", PORTRAIT, 0, 0, "", "", "", 0, false, "ok", List.of(), List.of()));
+        assertThrows(NullPointerException.class, () -> new SectDialoguePayload(1, 1, "s", "steward", "", null, 0, 0,
+                "", "", "", 0, false, "ok", List.of(), List.of()));
         assertEquals("x".repeat(64), SectDialoguePayload.clip("x".repeat(70), SectDialoguePayload.MAX_NAME));
         assertEquals("", SectDialoguePayload.clip(null, 4));
     }
@@ -97,6 +104,7 @@ class SectDialoguePayloadTest {
         buf.writeUtf("s");
         buf.writeUtf("steward");
         buf.writeUtf("a");
+        PORTRAIT.write(buf);
         buf.writeVarInt(0);
         buf.writeVarInt(0);
         buf.writeUtf("");
@@ -142,6 +150,19 @@ class SectDialoguePayloadTest {
             assertThrows(DecoderException.class, () -> SectDialoguePayload.STREAM_CODEC.decode(tooManyOptions));
         } finally {
             tooManyOptions.release();
+        }
+        RegistryFriendlyByteBuf badPortrait = buffer();
+        try {
+            badPortrait.writeVarInt(1);
+            badPortrait.writeVarInt(2);
+            badPortrait.writeUtf("s");
+            badPortrait.writeUtf("steward");
+            badPortrait.writeUtf("a");
+            badPortrait.writeByte(0);
+            badPortrait.writeByte(PortraitSpec.Face.values().length); // one past the last face
+            assertThrows(DecoderException.class, () -> SectDialoguePayload.STREAM_CODEC.decode(badPortrait));
+        } finally {
+            badPortrait.release();
         }
         RegistryFriendlyByteBuf longName = buffer();
         try {

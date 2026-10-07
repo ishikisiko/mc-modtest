@@ -10,6 +10,8 @@ import java.util.List;
  * @param stage   0-based stage within the realm
  * @param status  at_sect, travelling or secluded; "dead" for the dead
  * @param rank    sect_master, elder, inner, outer or rogue
+ * @param traits  ambition, aggression, caution, wanderlust, loyalty (0..100); empty for the dead,
+ *                whose tombstone keeps none (the portrait reads them for the mood)
  */
 public record PersonView(
         int id,
@@ -35,6 +37,7 @@ public record PersonView(
         String techniqueId,
         String techniqueName,
         int injury,
+        List<Integer> traits,
         List<Relation> relations) {
 
     /** A relation to another person; {@code causeEventId} is -1 when it has no recorded cause. */

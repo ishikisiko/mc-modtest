@@ -1,6 +1,7 @@
 package com.example.myvillage.sim.runtime.net;
 
 import com.example.myvillage.MyVillageMod;
+import com.example.myvillage.portrait.PortraitSpec;
 import io.netty.handler.codec.DecoderException;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,7 @@ import net.minecraft.resources.ResourceLocation;
  * its own language), {@code options} the buttons in order as option ids (0 JOIN, 1 LEAVE,
  * 2 FAREWELL, 3 APPRENTICE, 4 TASK_ACCEPT, 5 TASK_TURN_IN). Names are literals. {@code myRank} is "" for a player who is not of this sect;
  * {@code admissible}/{@code reason} are the ledger's admission of this player to this sect.
+ * {@code portrait} is the speaker's portrait parts (the client composes the picture; twelve bytes).
  *
  * <p>Bounds (encoder and decoder): {@link #MAX_LINES} lines, {@link #MAX_OPTIONS} options each
  * 0..{@value #MAX_OPTION_ID}, names {@value #MAX_NAME} chars, role and rank {@value #MAX_WORD}, reason
@@ -30,6 +32,7 @@ public record SectDialoguePayload(
         String sectName,
         String role,
         String avatarName,
+        PortraitSpec portrait,
         int prestige,
         int memberCount,
         String masterName,
@@ -58,6 +61,7 @@ public record SectDialoguePayload(
             String sectName = buffer.readUtf(MAX_NAME);
             String role = buffer.readUtf(MAX_WORD);
             String avatarName = buffer.readUtf(MAX_NAME);
+            PortraitSpec portrait = PortraitSpec.read(buffer);
             int prestige = buffer.readVarInt();
             int memberCount = buffer.readVarInt();
             String masterName = buffer.readUtf(MAX_NAME);
@@ -86,8 +90,8 @@ public record SectDialoguePayload(
                 }
                 options.add(option);
             }
-            return new SectDialoguePayload(entityId, sectId, sectName, role, avatarName, prestige, memberCount,
-                    masterName, regionName, myRank, myStanding, admissible, reason, lines, options);
+            return new SectDialoguePayload(entityId, sectId, sectName, role, avatarName, portrait, prestige,
+                    memberCount, masterName, regionName, myRank, myStanding, admissible, reason, lines, options);
         }
 
         @Override
@@ -97,6 +101,7 @@ public record SectDialoguePayload(
             buffer.writeUtf(p.sectName(), MAX_NAME);
             buffer.writeUtf(p.role(), MAX_WORD);
             buffer.writeUtf(p.avatarName(), MAX_NAME);
+            p.portrait().write(buffer);
             buffer.writeVarInt(p.prestige());
             buffer.writeVarInt(p.memberCount());
             buffer.writeUtf(p.masterName(), MAX_NAME);
@@ -124,6 +129,7 @@ public record SectDialoguePayload(
         sectName = bounded(sectName, MAX_NAME, "sectName");
         role = bounded(role, MAX_WORD, "role");
         avatarName = bounded(avatarName, MAX_NAME, "avatarName");
+        Objects.requireNonNull(portrait, "portrait");
         masterName = bounded(masterName, MAX_NAME, "masterName");
         regionName = bounded(regionName, MAX_NAME, "regionName");
         myRank = bounded(myRank, MAX_WORD, "myRank");

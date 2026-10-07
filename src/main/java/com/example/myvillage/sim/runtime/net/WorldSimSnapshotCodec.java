@@ -1,5 +1,6 @@
 package com.example.myvillage.sim.runtime.net;
 
+import com.example.myvillage.portrait.PortraitSpec;
 import net.minecraft.network.FriendlyByteBuf;
 
 /**
@@ -187,6 +188,7 @@ public final class WorldSimSnapshotCodec {
         buf.writeVarInt(p.sectId());
         buf.writeUtf(p.sectName());
         buf.writeUtf(p.rank());
+        p.portrait().write(buf);
     }
 
     private static WorldSimSnapshot.PersonSummary readPersonSummary(FriendlyByteBuf buf) {
@@ -199,7 +201,9 @@ public final class WorldSimSnapshotCodec {
         int sectId = buf.readVarInt();
         String sectName = buf.readUtf();
         String rank = buf.readUtf();
-        return new WorldSimSnapshot.PersonSummary(id, name, title, alive, realmId, stage, sectId, sectName, rank);
+        PortraitSpec portrait = PortraitSpec.read(buf);
+        return new WorldSimSnapshot.PersonSummary(id, name, title, alive, realmId, stage, sectId, sectName, rank,
+                portrait);
     }
 
     private static void writePersonDetail(FriendlyByteBuf buf, WorldSimSnapshot.PersonDetail d) {

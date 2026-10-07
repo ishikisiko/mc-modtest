@@ -395,13 +395,14 @@ public final class WorldSim {
         return new PersonView(p.id, p.name(), ctx.title(p), p.gender, true, p.birthDay, -1, "", -1,
                 rootList(p.root), ctx.rootGrade(p).id(), ctx.realm(p).id(), p.stage, p.progress, p.sectId,
                 ctx.sectName(p.sectId), p.rank, p.masterId, p.regionId, p.status, p.techniqueId,
-                t == null ? "" : t.name(), p.injury, List.copyOf(relations));
+                t == null ? "" : t.name(), p.injury,
+                List.of(p.ambition, p.aggression, p.caution, p.wanderlust, p.loyalty), List.copyOf(relations));
     }
 
     private PersonView tombView(Tombstone t) {
         return new PersonView(t.id, t.name, t.title, t.gender, false, t.birthDay, t.deathDay, t.cause, t.killerId,
                 List.of(), t.rootGrade, ctx.realms.get(t.realm).id(), t.stage, 0.0, t.sectId, ctx.sectName(t.sectId),
-                t.rank, t.masterId, "", "dead", t.techniqueId, techniqueName(t.techniqueId), 0, List.of());
+                t.rank, t.masterId, "", "dead", t.techniqueId, techniqueName(t.techniqueId), 0, List.of(), List.of());
     }
 
     private String techniqueName(String id) {

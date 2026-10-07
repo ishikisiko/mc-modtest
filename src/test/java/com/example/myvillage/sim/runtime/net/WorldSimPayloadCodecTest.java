@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+import com.example.myvillage.portrait.PortraitSpec;
 import com.example.myvillage.sim.PersonView;
 import com.example.myvillage.sim.PlayerQualification;
 import com.example.myvillage.sim.SectView;
@@ -182,8 +183,14 @@ class WorldSimPayloadCodecTest {
                 -100_008, 2_000_008, true, false, -1, "");
         WorldSimSnapshot.SectSummary seated = new WorldSimSnapshot.SectSummary(5, "玄天宗", "中州", "某掌门", 30,
                 "golden_core", 77, 12, -40, false, true, 1_234, "nw");
+        // the portrait at its edges: every flag, the last value of every enum, the rogue accent
+        PortraitSpec edge = new PortraitSpec(true, PortraitSpec.Face.SHARP, PortraitSpec.Skin.TAN,
+                PortraitSpec.HairColour.GREY_CHESTNUT, PortraitSpec.Front.SPIKY, PortraitSpec.Back.BUN,
+                PortraitSpec.EyeShape.DROOPY, PortraitSpec.EyeColour.SPIRIT, PortraitSpec.Brow.WORRIED,
+                PortraitSpec.Mouth.OPEN, true, true, PortraitSpec.Robe.COURT, PortraitSpec.MAX_ACCENT,
+                PortraitSpec.Headwear.JADE_PIN, true, true, true, true);
         WorldSimSnapshot.PersonSummary someone = new WorldSimSnapshot.PersonSummary(9, "韩清漪", "清漪真人", false,
-                "golden_core", 2, -1, "", "rogue");
+                "golden_core", 2, -1, "", "rogue", edge);
         WorldSimSnapshot.EventLine line = new WorldSimSnapshot.EventLine(Long.MAX_VALUE, -5, 3, -1,
                 "world_sim.event.x.1", List.of("@world_sim.rank.elder", "", "韩清漪"), 12);
         WorldSimSnapshot.EventLine cause = new WorldSimSnapshot.EventLine(12, 0, 1, 9, "world_sim.event.y.2",

@@ -1,6 +1,7 @@
 package com.example.myvillage.sim.runtime.player;
 
 import com.example.myvillage.entity.npc.NpcEntity;
+import com.example.myvillage.portrait.PortraitAssign;
 import com.example.myvillage.sim.Admission;
 import com.example.myvillage.sim.PersonView;
 import com.example.myvillage.sim.PlayerMemberView;
@@ -342,6 +343,7 @@ public final class SectDialogue {
                 SectDialoguePayload.clip(sect.name(), SectDialoguePayload.MAX_NAME),
                 s.role(),
                 SectDialoguePayload.clip(s.person().name(), SectDialoguePayload.MAX_NAME),
+                PortraitAssign.of(s.person(), s.sim().day(), WorldSimRuntime.daysPerYear()),
                 prestige, sect.memberCount(),
                 SectDialoguePayload.clip(sect.masterName(), SectDialoguePayload.MAX_NAME),
                 SectDialoguePayload.clip(WorldSimRuntime.regionName(sect.regionId()), SectDialoguePayload.MAX_NAME),

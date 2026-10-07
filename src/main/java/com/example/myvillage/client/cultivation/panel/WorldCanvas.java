@@ -1,5 +1,7 @@
 package com.example.myvillage.client.cultivation.panel;
 
+import com.example.myvillage.client.portrait.PortraitTextures;
+import com.example.myvillage.portrait.PortraitSpec;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -170,6 +172,13 @@ final class WorldCanvas {
     void bar(int x, int y, int width, int height, double fraction, int top, int bottom) {
         if (!dry && width > 2) {
             PanelTheme.bar(graphics, x, y, width, height, fraction, top, bottom);
+        }
+    }
+
+    /** A person's portrait, {@code size} GUI pixels square (the 16-px thumbnail at 16 and below). */
+    void image(PortraitSpec spec, int x, int y, int size) {
+        if (!dry && spec != null) {
+            PortraitTextures.draw(graphics, spec, x, y, size);
         }
     }
 

@@ -23,7 +23,8 @@ class AvatarPlannerTest {
 
     private static PersonView person(int id, String rank, String realm, int stage) {
         return new PersonView(id, "李" + id, "", "male", true, -100, -1, "", -1, List.of(2000, 2000, 2000, 2000, 2000),
-                "five", realm, stage, 0.0, 3, "青云宗", rank, -1, "r", "at_sect", "t", "青木长春功", 0, List.of());
+                "five", realm, stage, 0.0, 3, "青云宗", rank, -1, "r", "at_sect", "t", "青木长春功", 0, List.of(50, 50, 50, 50, 50),
+                List.of());
     }
 
     @Test

@@ -1,5 +1,6 @@
 package com.example.myvillage.sim.runtime.net;
 
+import com.example.myvillage.portrait.PortraitSpec;
 import java.util.List;
 import java.util.Objects;
 
@@ -188,6 +189,7 @@ public record WorldSimSnapshot(
      * @param stage    0-based stage within the realm
      * @param sectId   -1 for a rogue
      * @param rank     sect_master, elder, inner, outer or rogue
+     * @param portrait the parts of the person's 64x64 portrait ({@code PortraitAssign}); the client composes it
      */
     public record PersonSummary(
             int id,
@@ -198,7 +200,11 @@ public record WorldSimSnapshot(
             int stage,
             int sectId,
             String sectName,
-            String rank) {
+            String rank,
+            PortraitSpec portrait) {
+        public PersonSummary {
+            Objects.requireNonNull(portrait, "portrait");
+        }
     }
 
     /**
