@@ -1590,15 +1590,23 @@ rogue, the chronicle and the chat line, and A's avatars withdrawing (about
 15 to 30 minutes; two gates are built). Output in
 `out/preview/world_sim/news/`. Developer evidence, not owner acceptance.
 
+Its 2026-10-07 run (script `c1d8af3`) passed all 15 checks with A = 玄黄阁
+and B = 明心宗: both gates built themselves (4.3 s and 3.4 s); the war news
+reached the player 4534 blocks from A's gate at once; 明心宗's steward
+offered only 告辞 with the at-war refusal; the destruction made the player a
+rogue, wrote the ruin line, sent the two chat lines at once, and A's 12
+avatars were gone within 6 s. Not captured: an elder's refusal and the
+standing bar. `world_sim_tasks_evidence.py` passed 21/21 on the same code.
+
 | World response (0.44.0) acceptance surface | Result | Notes |
 |---|---|---|
-| News of the player's own sect reaches them anywhere (【宗门】) | `not_verified` | headless: TODO-EVIDENCE |
-| A hostile (at war) sect's steward turns the player away | `not_verified` | headless: TODO-EVIDENCE |
-| A hostile sect's elder turns the player away | `not_verified` | headless: TODO-EVIDENCE |
-| Admin war `world sect <a> war <b>` | `not_verified` | headless: TODO-EVIDENCE |
-| Admin destruction `world sect <id> destroy` | `not_verified` | headless: TODO-EVIDENCE |
-| The player becomes a rogue with a chat line when the sect is destroyed | `not_verified` | headless: TODO-EVIDENCE |
-| A destroyed sect's avatars withdraw | `not_verified` | headless: TODO-EVIDENCE |
+| News of the player's own sect reaches them anywhere (【宗门】) | `not_verified` | headless (`world_sim_news_evidence`, 15/15 checks): `sect_news_delivered`: right after `war`, with the player 4534 blocks from 玄黄阁's gate (at 明心宗's), the line "[Sect] 金萝 (sect master 玄黄阁) declares war on 明心宗." (en_us client); `SECT_NEWS` lines for `war`, a following `battle`, and `sect_destroyed`; `news_chat.png`, `news_chat_open.png` |
+| A hostile (at war) sect's steward turns the player away | `not_verified` | headless (`world_sim_news_evidence`, 15/15 checks): `b_steward_present`, `hostile_steward_refuses` (明心宗's steward 郑湘灵: client options FAREWELL only, no JOIN), `hostile_reason_at_war` (`steward.refuse.at_war`); `hostile_refused.png`. A standing below the hostile bar is not reachable with the shipped numbers and was not captured |
+| A hostile sect's elder turns the player away | `not_verified` | headless: not captured (the script talks only to the steward; unit-tested in `SectDialogueScenesTest`) |
+| Admin war `world sect <a> war <b>` | `not_verified` | headless (`world_sim_news_evidence`, 15/15 checks): `war_declared` (玄黄阁 declared war on 明心宗) |
+| Admin destruction `world sect <id> destroy` | `not_verified` | headless (`world_sim_news_evidence`, 15/15 checks): `sect_destroyed` (玄黄阁), `chronicle_sect_gone` ("玄黄阁 in 灵岳, last held by 金萝, falls apart.") |
+| The player becomes a rogue with a chat line when the sect is destroyed | `not_verified` | headless (`world_sim_news_evidence`, 15/15 checks): `player_now_rogue` (`world player`: rogue cultivator, left 玄黄阁), `destroy_news_delivered` (two lines at once: "[Sect] 玄黄阁 … falls apart." and "玄黄阁 is no more; CaptureDev goes on as a rogue cultivator."); `destroy_chat_open.png` |
+| A destroyed sect's avatars withdraw | `not_verified` | headless (`world_sim_news_evidence`, 15/15 checks): `avatars_withdrawn_after_destroy` (12 → 0 at 玄黄阁's site within 5.9 s); `destroyed_court.png` |
 
 ## Rideable Flying Sword Smoke Test
 

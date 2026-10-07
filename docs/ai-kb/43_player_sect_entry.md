@@ -646,7 +646,21 @@ line in the client's chat (`【宗门】`, `[Sect]` in en_us; again after
 `world sect A destroy`, `world player` a rogue, the chronicle and chat line,
 and A's avatars counted down to 0. The elder's refusal is not in the
 script.
-Output `out/preview/world_sim/news/`. Results: TODO-EVIDENCE
+Output `out/preview/world_sim/news/`. The 2026-10-07 run (script `c1d8af3`) passed 15 of 15 with A =
+玄黄阁 (sect 3) and B = 明心宗 (sect 1): A's gate built in 4.3 s, B's in
+3.4 s; `war_declared`; `sect_news_delivered` (one line at once, the player
+4534 blocks from A's gate: "[Sect] 金萝 (sect master 玄黄阁) declares war on
+明心宗." on the en_us client; the server logged `SECT_NEWS` for `war`, then
+a `battle` and later `sect_destroyed`); `hostile_steward_refuses` and
+`hostile_reason_at_war` (steward 郑湘灵, FAREWELL only,
+`steward.refuse.at_war`); `sect_destroyed`, `player_now_rogue`,
+`chronicle_sect_gone` ("玄黄阁 in 灵岳, last held by 金萝, falls apart."),
+`destroy_news_delivered` (the news line and the `sect_gone` line at once),
+`avatars_withdrawn_after_destroy` (12 → 0 in 5.9 s). Shots `news_chat.png`,
+`news_chat_open.png`, `hostile_refused.png`, `destroy_chat_open.png`,
+`destroyed_court.png` in `out/preview/world_sim/news/`. Not captured: an
+elder's refusal (unit-tested) and the standing bar (unreachable with the
+shipped numbers, Open 2).
 
 **Tests.** `WorldSimAdminActsTest` (war line and both relations, refusals,
 destruction making members and players rogues), `SectNewsTest` (own sect,
