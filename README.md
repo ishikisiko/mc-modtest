@@ -1511,18 +1511,29 @@ photographs the panel. Output in `out/preview/world_sim/tasks/`
 (`index.html`, `evidence.json`, `commands.txt`, `server_log.txt`,
 `client_log.txt`, screenshots). Developer evidence, not owner acceptance.
 
+Its 2026-10-07 run (script `6806fe7`) passed all 21 checks with 明心宗: the
+gate built itself in 3.8 s (135 clips, 6.3 ms per tick); after the admin join
+and `rank inner` the steward offered the year's task, which the draw made
+the tribute (供奉灵石); with 5 stones given the steward offered 交事务, the
+turn-in took the 5 stones and raised contribution from 0 to 10, and the
+steward then offered no second task; the elder 侯南枝 offered 拜师, which
+recorded the master and a chronicle line. Not captured: the patrol and
+courier tasks (not drawn), a master's loss, and the meditation factor (both
+samples gained no progress). `world_sim_entry_evidence.py` passed 20/20 on
+the same code.
+
 | Sect tasks and apprenticeship (0.43.0) acceptance surface | Result | Notes |
 |---|---|---|
-| Taking the year's task at the steward (领事务) | `not_verified` | headless: TODO-EVIDENCE |
-| Patrol progress from beast kills in the sect's region | `not_verified` | headless: TODO-EVIDENCE |
-| Tribute: stones taken at turn-in | `not_verified` | headless: TODO-EVIDENCE |
-| Courier: arrival at the other sect's compound | `not_verified` | headless: TODO-EVIDENCE |
-| Turning in adds the contribution (交事务) | `not_verified` | headless: TODO-EVIDENCE |
-| No second task this year | `not_verified` | headless: TODO-EVIDENCE |
-| Apprenticeship at an elder (拜师) | `not_verified` | headless: TODO-EVIDENCE |
-| Losing a master who died or left | `not_verified` | headless: TODO-EVIDENCE |
-| Meditation gain with a master (about ×1.15) | `not_verified` | headless: TODO-EVIDENCE |
-| The task row on the 我的宗门 card | `not_verified` | headless: TODO-EVIDENCE |
+| Taking the year's task at the steward (领事务) | `not_verified` | headless (`world_sim_tasks_evidence`, 21/21 checks): `dialogue_offers_task` (options TASK_ACCEPT, LEAVE, FAREWELL; `task_offer.png`), `task_accepted` (`intent=TASK_ACCEPT result=ok`; chronicle "takes a sect task from 明心宗: Spirit Stone Tribute") |
+| Patrol progress from beast kills in the sect's region | `not_verified` | headless: not captured (the year's draw was the tribute; unit-tested only) |
+| Tribute: stones taken at turn-in | `not_verified` | headless (`world_sim_tasks_evidence`, 21/21 checks): `tribute_stones_given` (0 → 5), `dialogue_offers_turn_in` (`task_ready.png`), `tribute_taken` (5 → 0) |
+| Courier: arrival at the other sect's compound | `not_verified` | headless: not captured (the year's draw was the tribute; unit-tested only) |
+| Turning in adds the contribution (交事务) | `not_verified` | headless (`world_sim_tasks_evidence`, 21/21 checks): `task_turned_in` (`intent=TASK_TURN_IN result=ok`), `contribution_awarded` (0 → 10); `task_done.png` |
+| No second task this year | `not_verified` | headless (`world_sim_tasks_evidence`, 21/21 checks): `no_second_task_this_year` (options LEAVE, FAREWELL only); `task_again.png` |
+| Apprenticeship at an elder (拜师) | `not_verified` | headless (`world_sim_tasks_evidence`, 21/21 checks): `dialogue_offers_apprentice` (elder 侯南枝; `apprentice_offer.png`), `apprenticed` (`intent=APPRENTICE result=ok`), `master_recorded` (`world player`: Master 侯南枝), `chronicle_has_apprentice` |
+| Losing a master who died or left | `not_verified` | headless: not captured (unit-tested only, `PlayerAffairsTest`, `WorldSimTasksTest`) |
+| Meditation gain with a master (about ×1.15) | `not_verified` | headless: not captured (both meditation samples gained 0 progress, so they show nothing; unit-tested only) |
+| The task row on the 我的宗门 card | `not_verified` | headless: `panel_task.png` shows the card with contribution, master and task rows (screenshot only, no log check) |
 
 ## Rideable Flying Sword Smoke Test
 

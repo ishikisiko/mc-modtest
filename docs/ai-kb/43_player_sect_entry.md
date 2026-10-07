@@ -541,7 +541,20 @@ steward, the task done by whichever kind was drawn (wolves summoned and
 killed by the player, stones given, or a walk to other sects' gates), the
 turn-in and contribution, no second offer, APPRENTICE at an elder, optional
 meditation samples without and with the master, the panel. Output
-`out/preview/world_sim/tasks/`. Results: TODO-EVIDENCE
+`out/preview/world_sim/tasks/`. The 2026-10-07 run (script `6806fe7`)
+passed 21 of 21 with 明心宗 (6 days a year): gate built in 3.8 s (135 clips,
+6.3 ms per tick); admin join, `rank inner`; the steward offered TASK_ACCEPT
+(`task_offer.png`) and the year's draw was `tribute_stones` (chronicle
+"takes a sect task from 明心宗: Spirit Stone Tribute"); 5 stones given, the
+page offered TASK_TURN_IN (`task_ready.png`), the turn-in took them (5 → 0)
+and contribution went 0 → 10; reopened, the steward offered only LEAVE and
+FAREWELL; the elder 侯南枝 offered APPRENTICE (`apprentice_offer.png`),
+`world player` then named the master and the chronicle had the line; the
+我的宗门 card with the task row is in `panel_task.png` (not machine-checked).
+Not captured: patrol and courier (not drawn this run), `player_master_lost`,
+and the guidance factor (both meditation samples gained 0, so the ratio
+says nothing). These rest on `WorldSimTasksTest`, `PlayerAffairsTest`, and
+`SectTasksTest`.
 
 **Tests.** `WorldSimTasksTest`, `PlayerAffairsTest`, `SectDialogueScenesTest`,
 `SectTasksTest`, `WorldSimSnapshotsTest`, `SimDataLoaderTest`,
