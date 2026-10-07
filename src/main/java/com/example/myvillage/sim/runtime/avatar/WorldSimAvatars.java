@@ -236,7 +236,8 @@ public final class WorldSimAvatars {
     }
 
     /**
-     * Discards the avatars of people no longer selected; refreshes the names and roles of the rest.
+     * Discards the avatars of people no longer selected; refreshes the names, roles and looks (the
+     * look follows the realm, {@link CultivatorLooks#forPerson}) of the rest.
      * An avatar that becomes or stops being the steward is discarded too, so that it is spawned again
      * on the steward's cell (or off it) by the next pass.
      */
@@ -269,6 +270,10 @@ public final class WorldSimAvatars {
             Component name = name(p, role);
             if (!Objects.equals(a.entity().getCustomName(), name)) {
                 a.entity().setCustomName(name);
+            }
+            String look = CultivatorLooks.forPerson(p, selection.realmOrder());
+            if (!look.equals(a.entity().look())) {
+                a.entity().setLook(look);
             }
         }
         if (discarded > 0) {

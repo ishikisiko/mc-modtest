@@ -21,6 +21,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import org.slf4j.Logger;
@@ -52,10 +53,14 @@ public final class SectTasks {
 
     // ------------------------------------------------------------------ progress hooks
 
-    /** A beast died: one step of the killer's patrol when the killer stands in their sect's region. */
+    /**
+     * A beast died: one step of the killer's patrol when the killer stands in their sect's region
+     * in the overworld (the ledger's regions are overworld regions).
+     */
     static void onLivingDeath(LivingDeathEvent event) {
         if (!(event.getEntity() instanceof BeastEntity)
-                || !(event.getSource().getEntity() instanceof ServerPlayer player)) {
+                || !(event.getSource().getEntity() instanceof ServerPlayer player)
+                || player.level().dimension() != Level.OVERWORLD) {
             return;
         }
         Optional<WorldSim> active = WorldSimRuntime.sim();
@@ -89,7 +94,7 @@ public final class SectTasks {
         }
     }
 
-    /** One courier check over the online players. */
+    /** One courier check over the online players; a letter to a sect that is no longer active waits. */
     static void tick(MinecraftServer server) {
         Optional<WorldSim> active = WorldSimRuntime.sim();
         if (active.isEmpty()) {
@@ -107,7 +112,7 @@ public final class SectTasks {
                     continue;
                 }
                 Optional<SectView> target = sim.sect(task.get().targetSectId());
-                if (target.isEmpty()) {
+                if (target.isEmpty() || !target.get().state().equals("active")) {
                     continue;
                 }
                 SectCourtyard.Footprint site = SectCourtyard.footprint(
@@ -298,7 +303,8 @@ public final class SectTasks {
     /**
      * The meditation factor of a master, in basis points: {@code round((1 + guidance) × 10000)}
      * when the player is in a sect, has a master, and the master is alive and of the same sect;
-     * 10000 otherwise.
+     * 10000 otherwise. Clamped to {@code 0..}{@value #GUIDANCE_BP_MAX} (the rules already cap
+     * {@code master_guidance} at 10).
      */
     static int guidanceBasisPoints(int memberSectId, int masterId, boolean masterAlive, int masterSectId,
                                    double guidance) {
@@ -306,8 +312,11 @@ public final class SectTasks {
                 || !Double.isFinite(guidance) || guidance <= -1.0) {
             return 10_000;
         }
-        return (int) Math.round((1.0 + guidance) * 10_000);
+        return (int) Math.max(0L, Math.min(GUIDANCE_BP_MAX, Math.round((1.0 + guidance) * 10_000)));
     }
+
+    /** Largest guidance factor in basis points (×100). */
+    static final long GUIDANCE_BP_MAX = 1_000_000L;
 
     // ------------------------------------------------------------------ text
 

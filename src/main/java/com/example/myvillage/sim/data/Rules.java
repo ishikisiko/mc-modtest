@@ -359,7 +359,13 @@ public record Rules(
     public record Steward(double interactRange) {
     }
 
-    public record PlayerGates(int realizeRadius, int clipsPerTick) {
+    /**
+     * Framed gate realization. A build area chunk inhabited for more than {@code inhabitedTicksMax}
+     * ticks, or holding more than {@code playerBlockEntitiesMax} vanilla block entities worldgen
+     * does not place (or any other mod's), keeps the automatic build away.
+     */
+    public record PlayerGates(int realizeRadius, int clipsPerTick, long inhabitedTicksMax,
+                              int playerBlockEntitiesMax) {
     }
 
     public Tier tier(String id) {
@@ -440,7 +446,7 @@ public record Rules(
                 numberMap(c.object("rank", Set.copyOf(RANKS)), RANKS),
                 c.nonNegativeNumber("resource_bonus"),
                 c.positiveNumber("resource_reference_per_member"),
-                c.nonNegativeNumber("master_guidance"),
+                masterGuidance(c),
                 c.nonNegativeNumber("injury_per_point"),
                 c.fraction("injury_floor"));
 
@@ -666,6 +672,17 @@ public record Rules(
                 decline, founding, player(root, realms));
     }
 
+    /** Largest {@code cultivation.master_guidance}: a master at most multiplies meditation by 11. */
+    static final double MASTER_GUIDANCE_MAX = 10.0;
+
+    private static double masterGuidance(SimJson.Fields c) {
+        double value = c.nonNegativeNumber("master_guidance");
+        if (value > MASTER_GUIDANCE_MAX) {
+            throw c.error("master_guidance", "must be at most " + MASTER_GUIDANCE_MAX + ", got " + value);
+        }
+        return value;
+    }
+
     private static Player player(SimJson.Fields root, RealmTable realms) {
         SimJson.Fields pl = root.object("player", Set.of("admission", "leave", "promotion", "scripture_hall",
                 "steward", "gates"));
@@ -702,8 +719,10 @@ public record Rules(
 
         Steward steward = new Steward(pl.object("steward", Set.of("interact_range")).positiveNumber("interact_range"));
 
-        SimJson.Fields gt = pl.object("gates", Set.of("realize_radius", "clips_per_tick"));
-        PlayerGates gates = new PlayerGates(gt.positiveInteger("realize_radius"), gt.positiveInteger("clips_per_tick"));
+        SimJson.Fields gt = pl.object("gates", Set.of("realize_radius", "clips_per_tick", "inhabited_ticks_max",
+                "player_block_entities_max"));
+        PlayerGates gates = new PlayerGates(gt.positiveInteger("realize_radius"), gt.positiveInteger("clips_per_tick"),
+                gt.nonNegativeInteger("inhabited_ticks_max"), gt.nonNegativeInteger("player_block_entities_max"));
 
         return new Player(admission, leave, promotion, new ScriptureHall(Collections.unmodifiableMap(borrowCost)),
                 steward, gates);

@@ -25,6 +25,7 @@ public final class WorldSimServerConfig {
     public static final int AVATAR_WITHDRAW_MARGIN = 32;
     public static final int DEFAULT_MAX_AVATARS_PER_SECT = 12;
     public static final int DEFAULT_MAX_AVATARS = 40;
+    public static final boolean DEFAULT_AUTO_REALIZE_GATES = true;
 
     public static final ModConfigSpec SPEC;
     private static final ModConfigSpec.ConfigValue<String> TIER;
@@ -36,6 +37,7 @@ public final class WorldSimServerConfig {
     private static final ModConfigSpec.IntValue AVATAR_SPAWN_RADIUS;
     private static final ModConfigSpec.IntValue MAX_AVATARS_PER_SECT;
     private static final ModConfigSpec.IntValue MAX_AVATARS;
+    private static final ModConfigSpec.BooleanValue AUTO_REALIZE_GATES;
 
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -77,6 +79,11 @@ public final class WorldSimServerConfig {
         MAX_AVATARS = builder
                 .comment("Most avatars in the world at once; the compound nearest a player is served first.")
                 .defineInRange("max_avatars", DEFAULT_MAX_AVATARS, 0, 256);
+        AUTO_REALIZE_GATES = builder
+                .comment("Build an unbuilt sect gate automatically, in chunk clips, when a player comes near it. "
+                        + "A build area where players have lived or built is left alone either way. The admin "
+                        + "command '/myvillage world sect <id> build' works regardless.")
+                .define("auto_realize_gates", DEFAULT_AUTO_REALIZE_GATES);
         builder.pop();
         SPEC = builder.build();
     }
@@ -122,5 +129,9 @@ public final class WorldSimServerConfig {
 
     public static int maxAvatars() {
         return SPEC.isLoaded() ? MAX_AVATARS.getAsInt() : DEFAULT_MAX_AVATARS;
+    }
+
+    public static boolean autoRealizeGates() {
+        return SPEC.isLoaded() ? AUTO_REALIZE_GATES.getAsBoolean() : DEFAULT_AUTO_REALIZE_GATES;
     }
 }

@@ -63,8 +63,13 @@ public final class SectDialogue {
     /**
      * A player right-clicked an avatar with a dialogue role: checks and sends the opening page.
      * Returns whether a page was sent; when the ledger cannot answer, the player gets one chat line.
+     * Opening shares the intents' rate limit ({@link #allow}): a right-click within
+     * {@link #MIN_TICKS_BETWEEN} ticks of the last open or choice is ignored.
      */
     public static boolean open(ServerPlayer player, NpcEntity npc) {
+        if (!allow(player.getUUID(), player.getServer() == null ? 0 : player.getServer().getTickCount())) {
+            return false;
+        }
         Optional<Speaker> speaker = check(player, npc);
         if (speaker.isEmpty()) {
             return false;

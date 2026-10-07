@@ -23,6 +23,7 @@ class WorldSimServerConfigTest {
         assertEquals(64, config.<Integer>get("avatars.avatar_spawn_radius"));
         assertEquals(12, config.<Integer>get("avatars.max_avatars_per_sect"));
         assertEquals(40, config.<Integer>get("avatars.max_avatars"));
+        assertEquals(true, config.get("avatars.auto_realize_gates"));
     }
 
     @Test

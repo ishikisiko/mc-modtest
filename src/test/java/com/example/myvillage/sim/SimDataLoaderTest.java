@@ -82,6 +82,24 @@ class SimDataLoaderTest {
     }
 
     @Test
+    void masterGuidanceIsCappedAtTen() {
+        SimDataException e = assertThrows(SimDataException.class, () -> WorldSim.loadData(
+                patched(SimDataLoader.RULES, t -> t.replaceFirst("\"master_guidance\": [0-9.]+", "\"master_guidance\": 10.5"))));
+        assertEquals(SimDataLoader.RULES, e.file());
+        assertEquals("cultivation.master_guidance", e.field());
+        assertEquals(10.0, WorldSim.loadData(patched(SimDataLoader.RULES,
+                t -> t.replaceFirst("\"master_guidance\": [0-9.]+", "\"master_guidance\": 10.0")))
+                .rules().cultivation().masterGuidance(), 0.0);
+    }
+
+    @Test
+    void gateRealizationGuardsLoad() {
+        com.example.myvillage.sim.data.Rules.PlayerGates gates = SimFixtures.data().rules().player().gates();
+        assertEquals(3600L, gates.inhabitedTicksMax());
+        assertEquals(0, gates.playerBlockEntitiesMax());
+    }
+
+    @Test
     void missingSectTasksFileIsRejected() {
         SimData.ResourceOpener base = SimFixtures.opener();
         SimDataException e = assertThrows(SimDataException.class, () -> WorldSim.loadData(

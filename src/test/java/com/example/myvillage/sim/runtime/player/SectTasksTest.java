@@ -71,5 +71,7 @@ class SectTasksTest {
         assertEquals(10_000, SectTasks.guidanceBasisPoints(-1, 42, true, -1, 0.15));
         assertEquals(10_000, SectTasks.guidanceBasisPoints(7, 42, true, 7, 0.0));
         assertEquals(10_000, SectTasks.guidanceBasisPoints(7, 42, true, 7, Double.NaN));
+        assertEquals(110_000, SectTasks.guidanceBasisPoints(7, 42, true, 7, 10.0), "the rules' largest guidance");
+        assertEquals(1_000_000, SectTasks.guidanceBasisPoints(7, 42, true, 7, 1e12), "clamped, never overflowing");
     }
 }

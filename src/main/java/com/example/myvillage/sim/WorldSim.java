@@ -108,6 +108,16 @@ public final class WorldSim {
         return StateCodec.toBytes(ctx.state, ctx.realms);
     }
 
+    /**
+     * Sets the days per year the ledger counts with between steps (player task years, offers),
+     * as {@link #step} does. A restored world starts with the genesis value; the runtime calls this
+     * with the current calendar right after {@link #fromBytes}.
+     */
+    public void setDaysPerYear(int daysPerYear) {
+        requireDaysPerYear(daysPerYear);
+        ctx.dpy = daysPerYear;
+    }
+
     /** Advances exactly one sim day; returns the events of that day in order. */
     public List<SimEvent> step(int daysPerYear) {
         requireDaysPerYear(daysPerYear);

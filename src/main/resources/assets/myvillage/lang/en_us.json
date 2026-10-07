@@ -564,6 +564,7 @@
   "message.myvillage.world.gate.forming": "The gate of %1$s is taking shape nearby…",
   "message.myvillage.world.gate.formed": "The gate of %1$s stands complete.",
   "message.myvillage.world.gate.failed": "The gate of %1$s failed to take shape.",
+  "message.myvillage.world.gate.skipped": "The gate of %1$s will not take shape here: someone has made a home on that ground.",
   "commands.myvillage.world.gates.status": "Gate realization: %1$s",
   "commands.myvillage.world.gates.retry": "%1$s failed gate(s) may be tried again.",
   "commands.myvillage.world.gates.busy": "The gate of %1$s is being realized near a player; wait for it to finish.",

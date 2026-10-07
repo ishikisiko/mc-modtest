@@ -1346,6 +1346,19 @@ public final class SectGenerator {
      * @throws IllegalStateException when the plan fails validation
      */
     public static FramedSite prepare(ServerLevel level, long seed, String variant, BlockPos anchor) {
+        return prepare(level, seed, variant, anchor,
+                (x, z) -> level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z));
+    }
+
+    /**
+     * As {@link #prepare(ServerLevel, long, String, BlockPos)}, with the natural surface read from
+     * {@code worldSurface}, which is called with <b>world</b> x/z (not the site-local coordinates
+     * {@link SectMountain.NaturalHeight} uses elsewhere). The framed realizer passes the chunk
+     * generator's own surface ({@link #generatorSurface}), so blocks a broken-off earlier build
+     * left behind do not lift the compound on a retry.
+     */
+    public static FramedSite prepare(ServerLevel level, long seed, String variant, BlockPos anchor,
+                                     SectMountain.NaturalHeight worldSurface) {
         BlockPos base = baseFor(anchor);
         SectPlan plan = plan(seed, base, variant);
         List<String> validationErrors = validatePlan(plan);
@@ -1356,8 +1369,7 @@ public final class SectGenerator {
         int[] natural = new int[area.width() * area.depth()];
         for (int i = 0; i < area.width(); i++) {
             for (int j = 0; j < area.depth(); j++) {
-                natural[i * area.depth() + j] = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
-                        area.x0() + i, area.z0() + j);
+                natural[i * area.depth() + j] = worldSurface.at(area.x0() + i, area.z0() + j);
             }
         }
         SectMountain mountain = buildMountain(seed, plan, (x, z) -> {
@@ -1366,9 +1378,19 @@ public final class SectGenerator {
             if (i >= 0 && i < area.width() && j >= 0 && j < area.depth()) {
                 return natural[i * area.depth() + j];
             }
-            return level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, base.getX() + x, base.getZ() + z);
+            return worldSurface.at(base.getX() + x, base.getZ() + z);
         });
         return new FramedSite(level, seed, base, plan, mountain);
+    }
+
+    /**
+     * The surface the chunk generator produces at world column x/z ({@code WORLD_SURFACE_WG}, as
+     * {@link SectStructurePiece} reads it): the ground before anything was built on it. It samples
+     * the generator's noise, so it is slow; callers memo it.
+     */
+    public static int generatorSurface(ServerLevel level, int x, int z) {
+        return level.getChunkSource().getGenerator().getBaseHeight(x, z, Heightmap.Types.WORLD_SURFACE_WG, level,
+                level.getChunkSource().randomState());
     }
 
     /**

@@ -7,8 +7,9 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Pure decisions of {@link GateRealizer}: which gate to realize next and how a build area is cut
- * into chunk clips. No world access, so it is unit-tested directly.
+ * Pure decisions of {@link GateRealizer}: which gate to realize next, how a build area is cut
+ * into chunk clips, and whether players' traces keep a build away. No world access, so it is
+ * unit-tested directly.
  */
 public final class GateRealizePlan {
     /** Chunk edge in blocks. */
@@ -38,6 +39,43 @@ public final class GateRealizePlan {
         public int z1() {
             return chunkZ * CHUNK + CHUNK - 1;
         }
+    }
+
+    /** Why a build area is left alone: a player has lived there, or built with block entities. */
+    public static final String INHABITED = "inhabited";
+    public static final String PLAYER_BLOCKS = "player_blocks";
+
+    /**
+     * What one existing chunk of a build area tells about players: how long players have been near
+     * it ({@code inhabited}, ticks, {@code LevelChunk.getInhabitedTime}), and its block entities
+     * that worldgen does not place on its own, split into vanilla ({@code minecraft:}) ones and those
+     * of other mods (neither {@code minecraft:} nor {@code myvillage:}).
+     */
+    public record ChunkFacts(long inhabited, int vanillaBlockEntities, int modBlockEntities) {
+    }
+
+    /** The first chunk (index into the list given) that keeps a build away, and why. */
+    public record Presence(int index, String reason) {
+    }
+
+    /**
+     * Whether players have left their mark on a build area, judged chunk by chunk in list order:
+     * a chunk inhabited for more than {@code inhabitedTicksMax} ticks ({@link #INHABITED}), or with
+     * any other mod's block entity or more than {@code vanillaBlockEntitiesMax} vanilla ones
+     * ({@link #PLAYER_BLOCKS}). The first such chunk is returned; empty means the area may be built.
+     */
+    public static Optional<Presence> playerPresence(List<ChunkFacts> chunks, long inhabitedTicksMax,
+                                                    int vanillaBlockEntitiesMax) {
+        for (int i = 0; i < chunks.size(); i++) {
+            ChunkFacts c = chunks.get(i);
+            if (c.inhabited() > inhabitedTicksMax) {
+                return Optional.of(new Presence(i, INHABITED));
+            }
+            if (c.modBlockEntities() > 0 || c.vanillaBlockEntities() > vanillaBlockEntitiesMax) {
+                return Optional.of(new Presence(i, PLAYER_BLOCKS));
+            }
+        }
+        return Optional.empty();
     }
 
     /** Planar (x/z) distance from a point to a gate column. */

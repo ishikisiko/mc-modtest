@@ -207,6 +207,73 @@ class WorldSimTasksTest {
         assertEquals(before + open.contribution(), sim.playerMember(p).orElseThrow().contribution());
     }
 
+    /** The open task, its progress and destination are gone; the year of the task stays. */
+    private static void assertNoTask(WorldSim sim, String p, long year) {
+        PlayerMemberView m = sim.playerMember(p).orElseThrow();
+        assertEquals("", m.taskId());
+        assertEquals(0, m.taskProgress());
+        assertEquals(-1, m.taskTargetSectId());
+        assertEquals(year, m.taskYear(), "taskYear is kept: leaving buys no second task this year");
+        assertEquals(Optional.empty(), sim.task(p));
+    }
+
+    @Test
+    void leavingTheSectDropsTheOpenTask() {
+        WorldSim sim = world();
+        SectView sect = home(sim);
+        String p = memberOffered(sim, sect.id(), ContentTables.TASK_PATROL);
+        sim.acceptTask(p, "Pat");
+        sim.advanceTask(p, ContentTables.TASK_PATROL, 1);
+        long year = sim.task(p).orElseThrow().year();
+
+        sim.leaveSect(p, "Pat");
+        assertNoTask(sim, p, year);
+        assertNoTask(reload(sim), p, year);
+        assertFalse(sim.advanceTask(p, ContentTables.TASK_PATROL, 1));
+
+        sim.joinSect(p, "Pat", sect.id(), PLAIN, true);
+        assertNoTask(sim, p, year);
+        assertEquals(PlayerReasons.NO_TASK, reason(() -> sim.completeTask(p, "Pat")),
+                "back in the sect the old task is not turned in");
+        assertEquals(Optional.empty(), sim.offerTask(p), "nor a new one this year");
+    }
+
+    @Test
+    void aForcedMoveToAnotherSectDropsTheOpenTask() {
+        WorldSim sim = world();
+        SectView sect = home(sim);
+        String p = memberOffered(sim, sect.id(), ContentTables.TASK_COURIER);
+        sim.acceptTask(p, "Cou");
+        TaskView open = sim.task(p).orElseThrow();
+        int target = open.targetSectId();
+        assertNotEquals(sect.id(), target);
+
+        sim.joinSect(p, "Cou", target, PLAIN, true); // admin move to the courier's own destination
+        assertEquals(target, sim.playerMember(p).orElseThrow().sectId());
+        assertNoTask(sim, p, open.year());
+        assertFalse(sim.advanceTask(p, ContentTables.TASK_COURIER, open.count()));
+        assertEquals(PlayerReasons.NO_TASK, reason(() -> sim.completeTask(p, "Cou")));
+    }
+
+    @Test
+    void aCourierToTheOwnSectIsNeverReady() {
+        WorldSim sim = world();
+        SectView sect = home(sim);
+        String p = memberOffered(sim, sect.id(), ContentTables.TASK_COURIER);
+        sim.acceptTask(p, "Cou");
+        TaskView open = sim.task(p).orElseThrow();
+        // a record from before tasks were dropped on a move: the letter is addressed to the own sect
+        JsonObject json = json(sim);
+        for (JsonElement m : json.getAsJsonArray("player_members")) {
+            if (m.getAsJsonObject().get("player").getAsString().equals(p)) {
+                m.getAsJsonObject().addProperty("task_target", sect.id());
+            }
+        }
+        WorldSim stale = load(json, SimFixtures.data());
+        assertTrue(stale.advanceTask(p, ContentTables.TASK_COURIER, open.count()));
+        assertEquals(PlayerReasons.NOT_READY, reason(() -> stale.completeTask(p, "Cou")));
+    }
+
     @Test
     void aTributeIsTurnedInWithoutProgress() {
         WorldSim sim = world();

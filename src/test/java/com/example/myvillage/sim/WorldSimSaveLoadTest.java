@@ -103,6 +103,24 @@ class WorldSimSaveLoadTest {
     }
 
     @Test
+    void aRestoredWorldCountsYearsWithTheCalendarItIsGiven() {
+        WorldSim restored = load(world(3).toBytes());
+        assertThrows(IllegalArgumentException.class, () -> restored.setDaysPerYear(0));
+        int dpy = 9; // the calendar changed since genesis (DPY 6)
+        restored.setDaysPerYear(dpy);
+        long day = restored.day();
+        assertTrue(Math.floorDiv(day, DPY) != Math.floorDiv(day, dpy), "the two calendars disagree on day " + day);
+        String player = "00000000-0000-0000-0000-00000000000a";
+        restored.joinSect(player, "Alice", restored.sects(false).get(0).id(),
+                new PlayerQualification("mortal", 1, true, 2500), true);
+        TaskView offer = restored.offerTask(player).orElseThrow();
+        assertEquals(Math.floorDiv(day, dpy), offer.year(), "the task year follows the calendar set after loading");
+        SimDate date = restored.date(dpy);
+        assertEquals(Math.floorMod(day - restored.prehistoryDays(), dpy), date.dayOfYear(),
+                "and so does the displayed date");
+    }
+
+    @Test
     void unknownRealmIsAFormatError() {
         JsonObject json = json(world(1).toBytes());
         json.getAsJsonArray("persons").get(0).getAsJsonObject().addProperty("realm", "immortal");

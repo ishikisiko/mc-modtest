@@ -548,6 +548,7 @@
   "message.myvillage.world.gate.forming": "%1$s的山门正在显形……",
   "message.myvillage.world.gate.formed": "%1$s的山门已然落成。",
   "message.myvillage.world.gate.failed": "%1$s的山门显形未成，已撤回。",
+  "message.myvillage.world.gate.skipped": "%1$s的山门未在此显形：此地已有人居住营造。",
   "commands.myvillage.world.gates.status": "山门显形：%1$s",
   "commands.myvillage.world.gates.retry": "已放开 %1$s 座显形失败的山门，可再次尝试。",
   "commands.myvillage.world.gates.busy": "%1$s的山门正在玩家附近显形，请等它完成。",

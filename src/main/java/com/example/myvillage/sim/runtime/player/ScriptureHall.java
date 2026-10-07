@@ -80,8 +80,15 @@ public final class ScriptureHall {
         }
     }
 
-    /** A player used the scripture shelf at {@code pos}: checks and sends the hall, or one chat line. */
+    /**
+     * A player used the scripture shelf at {@code pos}: checks and sends the hall, or one chat line.
+     * Opening shares the borrows' rate limit ({@link #allow}): a use within
+     * {@link #MIN_TICKS_BETWEEN} ticks of the last open or borrow is ignored.
+     */
     public static void open(ServerPlayer player, ServerLevel level, BlockPos pos) {
+        if (!allow(player.getUUID(), player.getServer() == null ? 0 : player.getServer().getTickCount())) {
+            return;
+        }
         Checked checked = check(player, level, pos);
         if (checked.hall().isEmpty()) {
             LOGGER.info("ScriptureHall: {} at shelf {} (sect {}) gets no hall: {}", name(player), pos.toShortString(),

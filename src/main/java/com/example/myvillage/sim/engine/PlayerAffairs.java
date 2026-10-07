@@ -140,7 +140,8 @@ public final class PlayerAffairs {
 
     /**
      * The player leaves their sect: the standing penalty, the rejoin cooldown from today, rank back
-     * to outer, no master; contribution and borrowed manuals stay on the record. Records
+     * to outer, no master, no open task ({@code taskYear} kept); contribution and borrowed manuals
+     * stay on the record. Records
      * {@code player_leave}. Throws IllegalArgumentException("not_member") when not in a sect.
      */
     public static SimEvent leave(SimContext ctx, String playerId, String playerName) {
@@ -153,6 +154,7 @@ public final class PlayerAffairs {
         m.sectId = -1;
         m.rank = OUTER;
         m.masterId = -1;
+        clearTask(m);
         addStanding(m, old, ctx.rules.player().leave().standingPenalty());
         long id = ctx.chronicle.event("player_leave", 2).sects(old).region(sect == null ? "" : sect.homeRegionId)
                 .say(TextKeys.PLAYER_LEAVE, playerName, sect == null ? "" : sect.name);
@@ -362,7 +364,8 @@ public final class PlayerAffairs {
      * Turns in the open task: contribution += its contribution, the task cleared ({@code taskYear}
      * kept: one task a year) and a {@code player_task_done} event (timed like {@link #join}). Tribute
      * is judged by the caller, who has already checked and taken the stones; other kinds need
-     * {@code progress >= count}. Throws IllegalArgumentException with {@code not_member},
+     * {@code progress >= count}, and a courier addressed to the player's own sect is never ready.
+     * Throws IllegalArgumentException with {@code not_member},
      * {@code no_task} or {@code not_ready}, checked in that order.
      */
     public static SimEvent completeTask(SimContext ctx, String playerId, String playerName) {
@@ -374,12 +377,14 @@ public final class PlayerAffairs {
         if (!ContentTables.TASK_TRIBUTE.equals(t.kind()) && m.taskProgress < t.count()) {
             throw new IllegalArgumentException(NOT_READY);
         }
+        if (ContentTables.TASK_COURIER.equals(t.kind()) && m.taskTargetSectId == m.sectId) {
+            // a letter to one's own sect (a task carried over from another sect) is never delivered
+            throw new IllegalArgumentException(NOT_READY);
+        }
         Sect sect = ctx.sect(m.sectId);
         m.playerName = playerName;
         m.contribution += t.contribution();
-        m.taskId = "";
-        m.taskProgress = 0;
-        m.taskTargetSectId = -1;
+        clearTask(m);
         long id = ctx.chronicle.event("player_task_done", 2).sects(m.sectId)
                 .region(sect == null ? "" : sect.homeRegionId)
                 .say(TextKeys.PLAYER_TASK_DONE, playerName, ctx.sectName(m.sectId), TextKeys.taskName(t.id()));
@@ -525,12 +530,21 @@ public final class PlayerAffairs {
                 .say(TextKeys.PLAYER_LEAVE_SECT_GONE, m.playerName, sect.name);
     }
 
+    /** Out of the sect without an event (a forced move, the sect gone): no rank, master or open task. */
     private static void releaseQuietly(SimContext ctx, PlayerMember m) {
         m.leftSectId = m.sectId;
         m.leftDay = ctx.day();
         m.sectId = -1;
         m.rank = OUTER;
         m.masterId = -1;
+        clearTask(m);
+    }
+
+    /** No open task; {@code taskYear} is kept, so leaving does not buy a second task this year. */
+    private static void clearTask(PlayerMember m) {
+        m.taskId = "";
+        m.taskProgress = 0;
+        m.taskTargetSectId = -1;
     }
 
     private static long promotionEvent(SimContext ctx, PlayerMember m, Sect sect) {

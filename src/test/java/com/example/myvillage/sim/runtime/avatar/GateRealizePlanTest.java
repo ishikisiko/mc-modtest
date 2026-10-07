@@ -2,15 +2,18 @@ package com.example.myvillage.sim.runtime.avatar;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.example.myvillage.sect.SectCourtyard;
 import com.example.myvillage.sect.SectGenerator;
+import com.example.myvillage.sect.SectMountain;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import org.junit.jupiter.api.Test;
 
 /** Which gate is realized next, and how its build area is cut into chunk clips. */
@@ -85,6 +88,40 @@ class GateRealizePlanTest {
         long holding = clips.stream().filter(c -> c.x0() <= anchor.getX() && anchor.getX() <= c.x1()
                 && c.z0() <= anchor.getZ() && anchor.getZ() <= c.z1()).count();
         assertEquals(1, holding);
+    }
+
+    @Test
+    void theFramedBuildCanRestOnTheGeneratorsSurface() throws NoSuchMethodException {
+        // a ChunkGenerator cannot be started in a unit test; the overloads the realizer uses must exist
+        assertNotNull(SectGenerator.class.getMethod("prepare", ServerLevel.class, long.class, String.class,
+                BlockPos.class, SectMountain.NaturalHeight.class));
+        assertNotNull(SectGenerator.class.getMethod("generatorSurface", ServerLevel.class, int.class, int.class));
+    }
+
+    @Test
+    void playersTracesKeepTheBuildAway() {
+        GateRealizePlan.ChunkFacts wild = new GateRealizePlan.ChunkFacts(120, 0, 0);
+        assertEquals(Optional.empty(), GateRealizePlan.playerPresence(List.of(), 3600, 0), "no chunk, no trace");
+        assertEquals(Optional.empty(), GateRealizePlan.playerPresence(List.of(wild, wild), 3600, 0));
+        assertEquals(Optional.empty(), GateRealizePlan.playerPresence(
+                List.of(new GateRealizePlan.ChunkFacts(3600, 0, 0)), 3600, 0), "the inhabited bar is inclusive");
+
+        assertEquals(Optional.of(new GateRealizePlan.Presence(1, GateRealizePlan.INHABITED)),
+                GateRealizePlan.playerPresence(List.of(wild, new GateRealizePlan.ChunkFacts(3601, 0, 0)), 3600, 0));
+        assertEquals(Optional.of(new GateRealizePlan.Presence(0, GateRealizePlan.PLAYER_BLOCKS)),
+                GateRealizePlan.playerPresence(List.of(new GateRealizePlan.ChunkFacts(0, 1, 0), wild), 3600, 0),
+                "a chest a player placed");
+        assertEquals(Optional.empty(), GateRealizePlan.playerPresence(
+                List.of(new GateRealizePlan.ChunkFacts(0, 2, 0)), 3600, 2), "vanilla ones up to the bar");
+        assertEquals(Optional.of(new GateRealizePlan.Presence(0, GateRealizePlan.PLAYER_BLOCKS)),
+                GateRealizePlan.playerPresence(List.of(new GateRealizePlan.ChunkFacts(0, 0, 1)), 3600, 99),
+                "any other mod's block entity, whatever the vanilla bar");
+        assertEquals(Optional.of(new GateRealizePlan.Presence(0, GateRealizePlan.INHABITED)),
+                GateRealizePlan.playerPresence(List.of(new GateRealizePlan.ChunkFacts(9000, 5, 5)), 3600, 0),
+                "inhabited is named first within a chunk");
+        assertEquals(Optional.of(new GateRealizePlan.Presence(0, GateRealizePlan.PLAYER_BLOCKS)),
+                GateRealizePlan.playerPresence(List.of(new GateRealizePlan.ChunkFacts(0, 1, 0),
+                        new GateRealizePlan.ChunkFacts(9000, 0, 0)), 3600, 0), "the first chunk in order wins");
     }
 
     private static int ceilDiv(int a, int b) {

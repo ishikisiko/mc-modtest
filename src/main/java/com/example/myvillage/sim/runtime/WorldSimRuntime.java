@@ -118,6 +118,7 @@ public final class WorldSimRuntime {
             long t0 = System.nanoTime();
             try {
                 sim = WorldSim.fromBytes(saved.payload(), graph.get(), data);
+                sim.setDaysPerYear(daysPerYear);
             } catch (RuntimeException ex) {
                 deactivate("the saved ledger cannot be restored: " + ex.getMessage());
                 LOGGER.error("World sim inactive this session: the saved ledger (tier {}) cannot be restored; "
