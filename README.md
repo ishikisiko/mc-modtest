@@ -1077,6 +1077,7 @@ Server config `config/myvillage-world_sim-server.toml` (a copy in a world's
 | `avatars.avatar_spawn_radius` | `64` | Avatars appear while a player is within this many blocks (8–128) of a built compound's site, and are withdrawn beyond it plus 32 |
 | `avatars.max_avatars_per_sect` | `12` | Most avatars per compound (0–64): the master first, then the elders, then by realm |
 | `avatars.max_avatars` | `40` | Most avatars in the world (0–256); the compound nearest a player is served first |
+| `avatars.auto_realize_gates` | `true` | 0.44.0: build an unbuilt sect gate automatically, in chunk clips, when a player comes near (see [Player sect entry](#player-sect-entry-0410)); an area where players have lived or built is left alone either way; `world sect <id> build` works regardless |
 
 Every balance number, name, technique, artifact, site, beast, and fortune is
 data in `src/main/resources/data/myvillage/world_sim/` (`rules.json`,
@@ -1220,10 +1221,19 @@ A walk through it:
 2. Walk toward a gate. When you come within `gates.realize_radius` blocks
    (planar) of an active sect whose gate is not built, the compound is built
    for you, a few chunks per tick, one compound at a time (nearest first),
-   while avatars are enabled. Players within that radius read
-   "…的山门正在显形……" and then "…的山门已然落成。" The build goes on if
-   you walk away. `world sect <id> build` still works and is refused while
-   the same gate is being built this way.
+   while avatars are enabled and `avatars.auto_realize_gates` is on. Its
+   chunks load in the background and it rests on the ground the chunk
+   generator made (so a retry after a broken-off attempt does not stack on
+   the leftovers); chunks not loaded within 1200 ticks fail the build.
+   Players within that radius read "…的山门正在显形……" and then
+   "…的山门已然落成。" The build goes on if you walk away. Since 0.44.0 it
+   never levels what players made: if any chunk of the area has had a player
+   nearby for more than `gates.inhabited_ticks_max` ticks, holds a block
+   entity of another mod, or more than `gates.player_block_entities_max`
+   vanilla block entities that worldgen does not place itself, the gate is
+   skipped ("…的山门未在此显形：此地已有人居住营造。") until `world gates
+   retry` or a restart. `world sect <id> build` still works and is refused
+   while the same gate is being built this way.
 3. Within `avatar_spawn_radius` the avatars appear as before. The gate
    steward (守山执事) is the member at the sect of the lowest rank (outer,
    inner, elder, master) and then the lowest id; it is always shown first,
@@ -1277,6 +1287,8 @@ The numbers are data, the `player` section of
 | `steward.interact_range` | Blocks within which a steward or elder will talk |
 | `gates.realize_radius` | Planar blocks from a player at which an unbuilt gate is built |
 | `gates.clips_per_tick` | Chunk clips built per server tick |
+| `gates.inhabited_ticks_max` | A build-area chunk with players nearby for longer than this (ticks) keeps the automatic build away |
+| `gates.player_block_entities_max` | A build-area chunk with more vanilla block entities than this (worldgen's own not counted), or any other mod's, keeps the automatic build away |
 
 Commands (permission 2):
 
@@ -1296,15 +1308,17 @@ GATE_REALIZE sect=<id> state=started anchor=<x> <y> <z> clips=<n> seed=<n> varia
 GATE_REALIZE sect=<id> state=clip <i>/<n>
 GATE_REALIZE sect=<id> state=done seconds=<s> clips=<n> blocks~=<n> written=<n>
 GATE_REALIZE sect=<id> state=cancelled reason=<server_stopping|ledger_changed|sect_changed|already_realized>
-GATE_REALIZE sect=<id> state=failed reason=<exception class>
+GATE_REALIZE sect=<id> state=skipped reason=<inhabited|player_blocks> chunk=<cx> <cz>
+GATE_REALIZE sect=<id> state=failed reason=<chunks_not_loaded|exception class>
 SECT_DIALOGUE option=<JOIN|LEAVE|FAREWELL> x=<px> y=<px> w=<px> h=<px>
 SECT_ENTRY player=<name> intent=<JOIN|LEAVE> sect=<id> result=<ok|reason>
 ```
 
 `SECT_DIALOGUE` is the client's, one line per button in screen pixels each
-time the dialogue lays out; the other two are the server's. A failed build
-releases its chunks, leaves the gate unbuilt (blocks already placed stay),
-and is not retried until `world gates retry` or a restart. Details:
+time the dialogue lays out; the other two are the server's. A failed or
+skipped build releases its chunks, leaves the gate unbuilt (blocks already
+placed stay; only `world sect <id> build` replaces a half-built site), and
+is not retried until `world gates retry` or a restart. Details:
 `docs/ai-kb/43_player_sect_entry.md`.
 
 Headless evidence (fresh superflat world, creative, settlement paused; about
@@ -1334,6 +1348,7 @@ bearings, `world gates`, promotion to elder, a destroyed sect.
 
 | Player sect entry (0.41.0) acceptance surface | Result | Notes |
 |---|---|---|
+| Player-build guard: the automatic build skips an area where players have lived or built (0.44.0) | `not_verified` | headless: not captured (the captures built only on untouched superflat ground; unit-tested in `GateRealizePlanTest`) |
 | Auto gate realization near a player (framed, no server stall) | `not_verified` | headless (`world_sim_entry_evidence`, 20/20 checks): `gate_realized_automatically`: player 140 blocks from the gate, `GATE_REALIZE` started→done 3.9 s, 135 chunk clips; `server_responsive_while_building`: `tick query` 7.1 ms/tick during the build; `gate_realized_in_ledger`: `world sect` shows (built); `gate_far.png`. Stutter on a real client not judged |
 | Steward name tag (four parts, 守山执事) and its place by the gate | `not_verified` | headless (`world_sim_entry_evidence`, 20/20 checks): `steward_present` (name tag with the 守山执事 part), `player_faces_steward`; `steward_nameplate.png` |
 | Dialogue screen: lines, buttons, refresh in place, closing | `not_verified` | headless (`world_sim_entry_evidence`, 20/20 checks): `dialogue_opens_with_join` (options JOIN, FAREWELL), `dialogue_offers_leave` for a member; `dialogue_open.png`, `dialogue_member.png`; the welcome and farewell pages after JOIN and LEAVE (`dialogue_welcome.png`, `dialogue_left.png`). Look and readability on a physical client not judged |

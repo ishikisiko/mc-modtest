@@ -336,6 +336,7 @@ in a world's `serverconfig/` overrides it):
 | `avatars.avatar_spawn_radius` | 64 | Avatars appear while a player is within this many blocks (8 to 128) of a realized compound's site; they are withdrawn beyond this radius plus 32 |
 | `avatars.max_avatars_per_sect` | 12 | Most avatars per compound (0 to 64) |
 | `avatars.max_avatars` | 40 | Most avatars in the world (0 to 256); the compound nearest a player is served first |
+| `avatars.auto_realize_gates` | true | 0.44.0: build an unbuilt gate automatically when a player comes near (`GateRealizer`, [43](43_player_sect_entry.md)); a build area with players' traces is skipped either way; `world sect <id> build` works regardless |
 
 The values other than `tier` are read on use.
 

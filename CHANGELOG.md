@@ -68,12 +68,59 @@ automated checks and a headless capture ran.
   bar; `decide` checks them before every other scene. Payload protocol
   unchanged (`15`).
 
+### Fixed / hardening
+
+After a review of slices 1 to 4:
+
+- Automatic gate building no longer levels players' work. New server config
+  `avatars.auto_realize_gates` (default true; `world sect <id> build` works
+  either way). Before loading and again once every chunk is in, each chunk
+  of the build area is checked: inhabited for more than
+  `player.gates.inhabited_ticks_max` ticks, any block entity of another mod,
+  or more than `player.gates.player_block_entities_max` vanilla block
+  entities (spawners, trial spawners, vaults, bee nests and hives,
+  suspicious sand and gravel, sculk blocks and unopened loot containers not
+  counted) skips the gate: `GATE_REALIZE ... state=skipped
+  reason=inhabited|player_blocks chunk=<cx> <cz>`, the failed set
+  (`world gates retry` clears it), and `message.myvillage.world.gate.skipped`
+  to nearby players. Both keys are new in `rules.json` `player.gates`;
+  `GateRealizePlan.playerPresence` is the pure rule.
+- The automatic build's anchor y and natural surface come from the chunk
+  generator (`SectGenerator.generatorSurface`, `WORLD_SURFACE_WG`, sampled at
+  most 8 ms per tick; new `SectGenerator.prepare` overload taking the
+  surface), so a retry after a broken-off attempt no longer stacks on its
+  leftovers. The synchronous `world sect <id> build` is unchanged.
+- Chunks of the build area still not loaded after 1200 ticks fail the
+  build (`chunks_not_loaded`) instead of being loaded synchronously.
+- Leaving a sect, or being released from one, clears the open sect task
+  (`taskYear` kept, so no second task that year); a courier addressed to
+  the player's own sect is never ready.
+- The client opens the sect dialogue and the scripture hall only when no
+  screen or a screen of the same kind is open; a page arriving over the
+  inventory, chat or pause menu is dropped.
+- Patrol kills count only in the overworld.
+- A courier waits while its destination sect is not active.
+- The master's guidance is clamped to 0..1,000,000 basis points, and
+  `cultivation.master_guidance` is refused above 10.0 when the rules load.
+- After a save is read the runtime sets the ledger's days per year from the
+  calendar (`WorldSim.setDaysPerYear`), so task years between settled days
+  use the current value.
+- An avatar's look follows its person's realm on every reconcile, not only
+  at spawn.
+- Opening the sect dialogue or the scripture hall shares the 4-tick limit of
+  their choices.
+- Tests: `GateRealizePlanTest` (player presence), `WorldSimTasksTest`
+  (task cleared on leave, courier to the own sect), `WorldSimSaveLoadTest`
+  (days per year after reading), `SimDataLoaderTest` (the new keys and the
+  guidance cap), `WorldSimServerConfigTest`, `SectTasksTest` (clamp).
+
 ### Not verified
 
 - Everything on a physical client: the news lines and how many arrive, the
   refusal at a hostile steward and elder, the admin war and destruction, the
-  chat line on becoming a rogue, the avatars withdrawing, multiplayer, and
-  the owner's verdict. See the README ledger "World response (0.44.0)".
+  chat line on becoming a rogue, the avatars withdrawing, the player-build
+  guard (the captures built only on untouched ground), multiplayer, and the
+  owner's verdict. See the README ledger "World response (0.44.0)".
 
 ## 0.43.0
 

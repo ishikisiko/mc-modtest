@@ -255,23 +255,34 @@ gone).
 `GateRealizer` (registered by `WorldSimRuntime.register()`, server tick
 listener):
 
-- **Candidates.** With no job, every 20 ticks, while the ledger is active and
-  `avatars_enabled`: each active sect whose gate is not realized and not
+- **Candidates.** With no job, every 20 ticks, while the ledger is active,
+  `avatars_enabled`, and `avatars.auto_realize_gates` (server config, default
+  true, read on use; off, nothing new is queued, a running build finishes,
+  and `world sect <id> build` works either way): each active sect whose gate is not realized and not
   failed this session, with the planar distance from the gate column to the
   nearest overworld player at most `gates.realize_radius`.
   `GateRealizePlan.pick` takes the nearest (ties to the smaller id). One job
   at a time.
-- **Tickets.** The build area is the worldgen-style site plus the mountain
-  margin (`SectGenerator.worldgenBuildArea`), cut into whole-chunk clips
-  (`GateRealizePlan.clips`, row by row, each column in exactly one clip).
-  Each clip's chunk gets a non-persistent region ticket
-  (`myvillage_gate_realize`, distance 1) and loads in the background; after
-  1200 ticks any still missing load in place.
-- **Start.** Anchor y from the surface at the gate
-  (`MOTION_BLOCKING_NO_LEAVES`, as `GateBuilder`); `SectGenerator.prepare`
-  plans the compound with the build command's seed and variant, derives the
-  mountain, and samples the natural surface of the whole area once, so every
-  clip rests on the same silhouette.
+- **First look.** The build area is the worldgen-style site plus the
+  mountain margin (`SectGenerator.worldgenBuildArea`), cut into whole-chunk
+  clips (`GateRealizePlan.clips`, row by row, each column in exactly one
+  clip). Its chunks that are loaded now are checked for players' traces
+  ("Player-build guard" below) before anything is loaded.
+- **Tickets and surface.** Each clip's chunk gets a non-persistent region
+  ticket (`myvillage_gate_realize`, distance 1) and loads in the background.
+  Meanwhile the chunk generator's own surface of the whole area
+  (`SectGenerator.generatorSurface`, `WORLD_SURFACE_WG`, the ground before
+  anything was built) is sampled at most 8 ms per tick. Chunks still missing
+  after 1200 ticks fail the build (`chunks_not_loaded`); nothing is loaded
+  synchronously. Once every chunk is in and the surface sampled, the guard
+  looks at all chunks again.
+- **Start.** The anchor's y is the generator's surface at the gate;
+  `SectGenerator.prepare(level, seed, variant, anchor, surface)` plans the
+  compound with the build command's seed and variant, derives the mountain,
+  and takes the natural surface from those samples, so every clip rests on
+  the same silhouette and the blocks of a broken-off earlier attempt do not
+  lift the compound when it is retried. The synchronous `world sect <id>
+  build` still reads `MOTION_BLOCKING_NO_LEAVES` in the world.
 - **Clips.** Each tick `gates.clips_per_tick` clips run
   `FramedSite.realizeClip`: the whole realizer (mountain, then compound)
   restricted to the clip, as a worldgen chunk does in `SectStructurePiece`.
@@ -283,10 +294,12 @@ listener):
 - **Cancel.** The ledger replaced, the sect gone or its gate moved, or the
   gate realized meanwhile (`already_realized`), or the server stopping:
   tickets released, nothing recorded. A player walking away does not cancel.
-- **Failure.** Any exception: tickets released, the gate rolled back to
-  unrealized (`markGateRealized(false)`, the record removed), the sect added
-  to the session's failed set (`world gates retry` clears it). Blocks
-  already written stay.
+- **Failure.** Any exception, or chunks not loaded in time: tickets
+  released, the gate rolled back to unrealized (`markGateRealized(false)`,
+  the record removed), the sect added to the session's failed set (`world
+  gates retry` clears it). Blocks already written stay; only a manual
+  `world sect <id> build` (synchronous, on the world's current surface)
+  clears a half-built site.
 - **With the build command.** `world sect <id> build` is refused while the
   realizer is building that sect (`commands.myvillage.world.gates.busy`);
   building another sect synchronously meanwhile is allowed. A job whose gate
@@ -298,8 +311,34 @@ GATE_REALIZE sect=<id> state=started anchor=<x> <y> <z> clips=<n> seed=<n> varia
 GATE_REALIZE sect=<id> state=clip <i>/<n>          # every 8 clips and the last
 GATE_REALIZE sect=<id> state=done seconds=<s> clips=<n> blocks~=<n> written=<n>
 GATE_REALIZE sect=<id> state=cancelled reason=<server_stopping|ledger_changed|sect_changed|already_realized>
-GATE_REALIZE sect=<id> state=failed reason=<exception class>
+GATE_REALIZE sect=<id> state=skipped reason=<inhabited|player_blocks> chunk=<cx> <cz>
+GATE_REALIZE sect=<id> state=failed reason=<chunks_not_loaded|exception class>
 ```
+
+### Player-build guard
+
+0.44.0, after review: the automatic build never levels what players made. A
+chunk of the build area keeps the build away when (`GateRealizePlan.playerPresence`,
+pure, first chunk in clip order wins):
+
+- it has been inhabited (`LevelChunk.getInhabitedTime`, ticks with a player
+  nearby) for more than `player.gates.inhabited_ticks_max` → `inhabited`;
+- it holds any block entity of a mod other than `minecraft` and `myvillage`,
+  or more than `player.gates.player_block_entities_max` vanilla block
+  entities → `player_blocks`. Vanilla block entities worldgen places by
+  itself are not counted: spawners, trial spawners, vaults, bee nests and
+  hives, suspicious sand and gravel (`brushable_block`), sculk sensors,
+  catalysts and shriekers, and any container whose loot table has not been
+  rolled yet (dungeon, temple and ruin chests, decorated pots).
+
+The guard runs twice: on the chunks already loaded when the gate is picked,
+and on all chunks once they are loaded. A gate kept away logs
+`state=skipped`, tells the players within the radius
+(`message.myvillage.world.gate.skipped`, "此地已有人居住营造"), and joins the
+session's failed set (`world gates retry` clears it; it will be skipped
+again while the traces are there). Numbers: `rules.json` `player.gates`.
+The headless captures only built on untouched superflat ground; the guard
+is unit-tested (`GateRealizePlanTest`) but has not been seen in a world.
 
 Cost per tick, an estimate from the implementer's offline count: a
 compound is about 144 clips; the median clip writes about 1k blocks and the
@@ -818,6 +857,15 @@ and the Chinese text on a real client.
 6. A refused rejoin shows no JOIN button (the refusal line explains), so the
    `SECT_ENTRY ... result=rejoin_cooldown` line is only seen when JOIN is
    pressed on a stale page.
+7. The player-build guard's thresholds: more than 3600 inhabited ticks (three
+   minutes of a player nearby) or a single non-worldgen vanilla block entity
+   keeps the automatic build away; whether that is too strict or too loose
+   is untested in real worlds.
+8. A half-built compound left by a failed automatic build is not cleaned up;
+   only a manual `world sect <id> build` replaces it.
+9. Borrowed manuals stay on the record across sects (one copy of a
+   technique per player for life, whichever sect lends it), and the rejoin
+   cooldown applies only to the sect left, not to joining another one.
 
 Not built yet: becoming sect master, news kept for offline players, and
 real P4 (compounds placed at ledger gates by worldgen; assessed above).

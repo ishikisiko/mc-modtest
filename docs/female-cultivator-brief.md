@@ -1,6 +1,6 @@
 # 女修造型计划：两套女性修仙者（刚入门 / 小有所成）
 
-状态（2026-10-07）：两套外观已落地于 0.41.0（分支 feat/sect-entry），待 owner 验收。机制见 `docs/ai-kb/39_humanoid_npcs.md` 的 Looks 一节。
+状态（2026-10-07）：两套外观 `f_novice`、`f_adept` 已落地于 0.41.0（分支 feat/sect-entry，未合并、未 push）；离线预览（`out/preview/cultivator_f_novice/`、`out/preview/cultivator_f_adept/`）与无头采集（`out/preview/cultivator/ingame_f_novice/`、`ingame_f_adept/`）齐全，三套对比页 `out/preview/cultivator/looks/index.html`；待 owner 验收。机制见 `docs/ai-kb/39_humanoid_npcs.md` 的 Looks 一节。
 
 owner 2026-10-07："npc 和妖兽建模，修仙者女性增加两个不同的建模，一个是偏向普通古风意味刚刚踏入门道；一个是更华丽一些的意味小有所成，并且女性特征要和男性区分。"本文是计划，开工前另写拆包说明。与 `docs/player-sect-entry-brief.md` 并行，文件不相交。本轮 owner 电脑不可用，只做离线预览与服务器无头采集，真机判断留待以后。
 
