@@ -1,6 +1,6 @@
 # 拜入宗门 · 切片 4 世界回应 拆包说明（0.44.0）
 
-状态（2026-10-07 08:00）：待开工（等切片 3 合入后再动 `WorldSimPlayers`/`SectDialogueScenes`）。方案见 `docs/player-sect-entry-brief.md` §4.6、§5 切片 4。分支 `feat/sect-entry` 继续。只做无头采集，ledger 一律 `not_verified`。
+状态（2026-10-07）：已落地于 0.44.0，待采集结论与 owner 验收；真 P4 评估见 `docs/ai-kb/43_player_sect_entry.md`，文档见 README "World response (0.44.0)"。方案见 `docs/player-sect-entry-brief.md` §4.6、§5 切片 4。分支 `feat/sect-entry` 继续。只做无头采集，ledger 一律 `not_verified`。
 
 ## 0. 统筹已定的默认值
 

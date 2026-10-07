@@ -7,6 +7,74 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.44.0
+
+Slice 4 of player sect entry, the last: the world answers the player. News
+of the player's sect reaches them wherever they are, a sect at war with
+theirs (or one they have fallen out with) turns them away at the gate, and
+two admin commands make a war or a destruction happen now. Real P4
+(compounds placed by worldgen at ledger gates) was assessed, not built.
+Design: `docs/player-sect-entry-brief.md` §4.6 and §5; package breakdown:
+`docs/sect-entry-slice4-tasks.md`. The owner's PC was not available; only
+automated checks and a headless capture ran.
+
+### Added
+
+- Sect news (宗门消息): after every settled day, and right after the admin
+  acts below, each online player is told in chat
+  (`message.myvillage.world.sect.news`, "【宗门】" and the event's line)
+  every event of importance 2 or more about their sect (`SimEvent.sects`
+  holds it), wherever they stand; a player with no sect hears the `sect*`
+  events of the sect they last left (so the day it is destroyed they hear
+  it). `player_*` events still reach only the player they name. The rule is
+  the pure `sim/runtime/player/SectNews.relevant`; `WorldSimPlayers.announce`
+  sends the lines and logs `SECT_NEWS player=<name> event=<id> type=<type> sects=<ids>`.
+  Offline players are not told later.
+- Hostile sects turn visitors away: a steward or elder whose sect is at war
+  with the player's sect says `steward|elder.refuse.at_war` (FAREWELL
+  only); otherwise a standing with the speaker's sect below
+  `rules.player.admission.hostile_standing_below` gives
+  `steward|elder.refuse.hostile`. Rogues are never refused for a war;
+  members of the speaker's own sect are never turned away. The refusal is
+  said without a greeting, and a JOIN sent to a hostile steward anyway is
+  not an offered option, so the server answers with the refusal page.
+- `rules.json` key `player.admission.hostile_standing_below`
+  (`Rules.PlayerAdmission.hostileStandingBelow`).
+- Admin acts (`sim/engine/AdminActs`, facade `WorldSim.declareWar` and
+  `destroySect`), with commands (permission 2):
+  `/myvillage world sect <a> war <b>` declares war through the yearly
+  politics' own path (`SectPolitics.declare`, the `war` event and its line,
+  both relations at war; refusals `no_sect`, `same_sect`, `sect_inactive`,
+  `already_at_war`), and `/myvillage world sect <id> destroy` records
+  `sect_destroyed` with the ruin line and then dissolves the sect
+  (`SectPolitics.dissolve`: members become rogues, players are released
+  with `player_leave` / `sect_gone`, a held heritage is lost; refusals
+  `no_sect`, `sect_inactive`). Both announce their events to online players
+  at once; a destroyed sect's avatars withdraw on the next avatar pass.
+- `tools/world_sim_news_evidence.py`: headless war, news, refusal at the
+  enemy's gate, and destruction into `out/preview/world_sim/news/`.
+- KB 43 "Real P4 (worldgen placement) assessment": what placing ledger
+  compounds during world generation would need, for the owner's decision.
+- Tests: `WorldSimAdminActsTest`, `SectNewsTest`, `SectDialogueScenesTest`
+  (at war, hostile, rogue at war, own sect).
+
+### Changed
+
+- `SectPolitics`: the war declaration is a method of its own
+  (`declare`) shared by the yearly politics and the admin act.
+- `WorldSimPlayers.onDaySettled` sends the day's lines through `announce`
+  (the `player_*` lines as before, plus sect news).
+- `SectDialogueScenes.Affairs` carries `atWar`, `standing` and the hostile
+  bar; `decide` checks them before every other scene. Payload protocol
+  unchanged (`15`).
+
+### Not verified
+
+- Everything on a physical client: the news lines and how many arrive, the
+  refusal at a hostile steward and elder, the admin war and destruction, the
+  chat line on becoming a rogue, the avatars withdrawing, multiplayer, and
+  the owner's verdict. See the README ledger "World response (0.44.0)".
+
 ## 0.43.0
 
 Slice 3 of player sect entry: sect tasks (宗门事务) for contribution, and

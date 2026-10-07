@@ -8,7 +8,10 @@ built in frames (P4-lite). 0.42.0, slice 2, adds the scripture hall (藏经阁):
 shelves in the compound's pavilions lending the sect's manuals by rank
 ("Scripture hall" below). 0.43.0, slice 3, adds sect tasks for contribution
 and apprenticeship with a master's guidance ("Sect tasks and
-apprenticeship" below). The design is `docs/player-sect-entry-brief.md`
+apprenticeship" below). 0.44.0, slice 4, the last, adds news of the
+player's sect, hostile gates, and admin war and destruction ("World
+response"), and assesses real P4 ("Real P4 (worldgen placement)
+assessment"). The design is `docs/player-sect-entry-brief.md`
 (slices 2 to 4: scripture hall, contribution and tasks, masters, the world's
 response); the package breakdown with the defaults the owner may overturn is
 `docs/sect-entry-slice1-tasks.md`. There is no capability spec; this note,
@@ -573,6 +576,140 @@ says nothing). These rest on `WorldSimTasksTest`, `PlayerAffairsTest`, and
    `player.promotion`), so contribution buys nothing yet.
 5. A player does not take one of the master's `disciplesPerMaster` places.
 
+## World response (0.44.0)
+
+Slice 4: news of the player's sect, hostile gates, and two admin acts.
+Breakdown: `docs/sect-entry-slice4-tasks.md`.
+
+| Fact | Source of truth |
+|---|---|
+| Which events are news | `sim/runtime/player/SectNews.relevant` (pure) |
+| Sending news and `player_*` lines | `WorldSimPlayers.announce` (settled days and admin acts) |
+| Hostile bar | `player.admission.hostile_standing_below` in `rules.json` (`Rules.PlayerAdmission.hostileStandingBelow`) |
+| Turning visitors away | `SectDialogueScenes.turnedAway`, `Affairs.visitor` / `hostile()`; `SectDialogue.visitor` computes war and standing |
+| Admin war and destruction | `sim/engine/AdminActs`, facade `WorldSim.declareWar` / `destroySect`; `SectPolitics.declare` / `dissolve`; commands in `WorldSimCommands` |
+
+**News.** `SectNews.relevant(event, member)`: importance at least 2; not a
+`player_*` event (those go only to the player whose name is `params[0]`);
+for a member, `event.sects()` holds their sect; for a player in no sect,
+`event.sects()` holds `leftSectId` and the type starts with `sect` (so a
+rogue hears the destruction of the sect they just lost, but not its wars).
+Region plays no part, unlike rumors. `WorldSimPlayers.announce(server, sim,
+events)` walks the online players and the events in order, sends each
+`player_*` line to its player and each relevant event as
+`message.myvillage.world.sect.news` ("【宗门】%1$s" around the event line),
+and logs `SECT_NEWS player=<name> event=<id> type=<type> sects=<[ids]>`. It
+runs for every settled day (from `onDaySettled`) and after each admin act,
+whose events a settled day never returns. Offline players are not told
+later. A news line and a rumor of the same event can both arrive.
+
+**Hostile gates.** `SectDialogue` computes, for a player who is not of the
+speaker's sect, `atWar` (the player is in a sect whose relation to the
+speaker's sect has state `war`; never for a rogue) and the standing with the
+speaker's sect, and passes the hostile bar from the rules
+(`Integer.MIN_VALUE`, never hostile, without rules).
+`SectDialogueScenes.turnedAway`, checked by `decide` before every other
+scene, gives `steward|elder.refuse.at_war` for a war, else
+`steward|elder.refuse.hostile` for a standing below the bar, each with
+FAREWELL only and said without the greeting and introduction. A member of
+the speaker's sect is never turned away. `handleIntent` does not count JOIN
+as offered while the visitor is turned away, so a forged JOIN gets the
+refusal page back and the ledger is not asked.
+
+**Admin acts** (between settled days, the open day closed like a player
+action):
+
+- `declareWar(a, b)`: refusals `no_sect`, `same_sect`, `sect_inactive`,
+  `already_at_war`, first wins; then `SectPolitics.declare(ctx, a, b, -1)`,
+  the same path as a war of the yearly politics (the declarer's master
+  speaks the `world_sim.event.war.declare` line, both relations at war from
+  today). The war then runs its yearly course.
+- `destroySect(id)`: `no_sect`, `sect_inactive`; then a `sect_destroyed`
+  event (importance 3, the master as subject, the ruin line
+  `TextKeys.SECT_RUIN`) and `SectPolitics.dissolve(ctx, sect, false, id)`:
+  members become rogues, players are released with the `sect_gone` line
+  (`PlayerAffairs.sectDissolved`), a held heritage goes to the lost pool,
+  all caused by the destruction event.
+- Commands `world sect <a> war <b>` and `world sect <id> destroy`
+  (`commands.myvillage.world.sect_war.*`, `.sect_destroy.*`) mark the save
+  dirty and call `WorldSimPlayers.announce` with the act's events (for a
+  destruction, every kept event from the destruction on). A destroyed
+  sect's avatars are withdrawn by the next avatar pass, which drops gates
+  the ledger no longer agrees with.
+
+**Evidence.** `python3 tools/world_sim_news_evidence.py [--sect-a ID]
+[--sect-b ID] [--news-timeout 10] [--withdraw-timeout 10]` (S4-E): admin join
+of sect A; at sect B's gate, far from A, `world sect A war B` and the news
+line in the client's chat (`【宗门】`, `[Sect]` in en_us; again after
+`world advance 1` if needed); B's steward offering only FAREWELL
+(`SECT_DIALOGUE` lines, the server's `steward.refuse.at_war`); back at A,
+`world sect A destroy`, `world player` a rogue, the chronicle and chat line,
+and A's avatars counted down to 0. The elder's refusal is not in the
+script.
+Output `out/preview/world_sim/news/`. Results: TODO-EVIDENCE
+
+**Tests.** `WorldSimAdminActsTest` (war line and both relations, refusals,
+destruction making members and players rogues), `SectNewsTest` (own sect,
+minor and other sects and `player_*` excluded, a rogue's last sect, the
+line), `SectDialogueScenesTest` (at war, hostile before any invitation,
+rogues and own members).
+
+**Open (owner).**
+
+1. Should news be kept for offline players and told at login?
+2. The hostile bar. With the shipped `player` numbers no play path reaches
+   it: a join gives +20 and a leave -40, so one cycle bottoms out at -20,
+   standings recover by 10 a year, and a sect only takes a player back at a
+   standing of at least 0 after the cooldown. Only a war turns a player away
+   today.
+3. Real P4 (next section).
+
+## Real P4 (worldgen placement) assessment
+
+Not built. P4-lite (`GateRealizer`) builds a ledger sect's compound when a
+player comes near, on terrain that already exists. Real P4 would have world
+generation place the compound at the ledger gate, so a new world has every
+gate standing from the start. What it would take:
+
+- **Gate coordinates before chunks generate.** A structure is decided per
+  chunk by its `StructurePlacement`. The ledger's gates (`GatePlacement`,
+  one chunk-centred point per sect) would have to reach a custom
+  `StructurePlacement` type (registered `StructurePlacementType`) that
+  answers "is this a gate chunk" from an immutable snapshot of the gate
+  chunks, readable from the worldgen threads, and a structure set using it.
+- **Genesis comes too late.** The ledger is created on `ServerStartedEvent`
+  (`WorldSimRuntime.onServerStarted`), after the region runtime, which also
+  binds on `ServerStartedEvent`; the spawn area's chunks are generated
+  before that event. Genesis (and the region graph it needs) would have to
+  move to `ServerAboutToStartEvent`, using the seed from the world's
+  generation options, or be written into SavedData when the world is
+  created, before any chunk exists.
+- **The random `myvillage:sect` structure.** `worldgen/structure_set/sect.json`
+  scatters anonymous, empty compounds by `random_spread`. With real P4 they
+  would compete with ledger compounds for the same look. Suggested: turn the
+  random ones into abandoned gates (废弃山门: ruined, no avatars, maybe loot),
+  or remove the structure set.
+- **Old worlds.** Chunks already generated are never generated again, so a
+  gate in explored land would get no compound from worldgen. P4-lite stays
+  as the fallback for old worlds, for gates in chunks generated before the
+  ledger existed, and for sects founded later (founding happens in play,
+  long after their region was generated).
+- **Reuse.** `SectStructurePiece` already builds a compound chunk by chunk
+  with clips (the same slicing `GateRealizer` uses), so the piece can stay;
+  what is new is the placement and the timing of genesis.
+- **Risks.** `WorldSim.moveGate` (`world sect <id> build here`) moves a gate
+  after its compound may already exist in generated chunks, leaving a
+  compound the ledger no longer points to; a destroyed sect's compound
+  stays in the world; `GateRealizations` would also have to learn of
+  compounds worldgen built (today it is written only by the two build
+  paths), or avatars and shelves would not find them. The scripture shelves
+  (`ScriptureShelves.place`) run after a build and would need a worldgen
+  equivalent (a post-processing step on the piece, or placement when the
+  gate is first visited).
+
+Decision for the owner: keep P4-lite only, or build real P4 for new worlds
+with P4-lite as the fallback.
+
 ## Evidence (slice 1)
 
 ```bash
@@ -668,13 +805,13 @@ and the Chinese text on a real client.
    `SECT_ENTRY ... result=rejoin_cooldown` line is only seen when JOIN is
    pressed on a stale page.
 
-Not built yet: sect-event notifications beyond the player's own lines, becoming sect master, and true P4 (compounds
-placed at ledger gates by worldgen).
+Not built yet: becoming sect master, news kept for offline players, and
+real P4 (compounds placed at ledger gates by worldgen; assessed above).
 
 ## See also
 
 - [40_world_sim.md](40_world_sim.md) (the ledger, avatars, compounds, the 天下 page), [39_humanoid_npcs.md](39_humanoid_npcs.md) (the cultivator body, `DATA_LEDGER_ROLE`, looks), [37_cultivation_panel.md](37_cultivation_panel.md) (the H panel), [28_cultivation_core.md](28_cultivation_core.md) (profile, realms, spiritual root)
-- Briefs: `docs/player-sect-entry-brief.md`, `docs/sect-entry-slice1-tasks.md`, `docs/sect-entry-slice2-tasks.md`, `docs/sect-entry-slice3-tasks.md`
+- Briefs: `docs/player-sect-entry-brief.md`, `docs/sect-entry-slice1-tasks.md`, `docs/sect-entry-slice2-tasks.md`, `docs/sect-entry-slice3-tasks.md`, `docs/sect-entry-slice4-tasks.md`
 - Manuals and study: [41_technique_system.md](41_technique_system.md) ("Manuals and study")
 - [humanoid-npc-runtime](../../openspec/specs/humanoid-npc-runtime/spec.md), [sect-compound-realization](../../openspec/specs/sect-compound-realization/spec.md), [sect-worldgen-structure](../../openspec/specs/sect-worldgen-structure/spec.md)
 - Knowledge-base index: [INDEX.md](INDEX.md)

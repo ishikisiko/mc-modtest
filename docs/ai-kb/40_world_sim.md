@@ -312,6 +312,8 @@ All under `/myvillage world`, permission 2; output goes through
 | `world sect <id> join <player>` / `leave <player>` | 0.41.0: admin membership; join is forced past the admission rules, leave is the ordinary leave ([43](43_player_sect_entry.md)) |
 | `world player <player>` | 0.41.0: a player's record: sect and rank, joining date, master, contribution, standings, the last sect left |
 | `world sect <id> rank <player> <outer\|inner\|elder>` | 0.42.0: set a member's rank (`WorldSim.promotePlayer`; a rise records `player_promotion`) |
+| `world sect <a> war <b>` | 0.44.0: admin: sect a declares war on sect b now (`WorldSim.declareWar`, the yearly politics' path); members hear it as sect news ([43](43_player_sect_entry.md) "World response") |
+| `world sect <id> destroy` | 0.44.0: admin: the sect is destroyed now (`WorldSim.destroySect`: ruin line, then dissolution; members rogues, players released, heritage lost) |
 | `world sect <id> shelves [place]` | 0.42.0: the scripture shelf sites of a built compound and the shelf at each; `place` places them again ([43](43_player_sect_entry.md) "Scripture hall") |
 | `world gates [retry]` | 0.41.0: the framed gate builder's state; `retry` lets the gates given up this session be tried again |
 | `world person <name>` | Up to five people whose name or Daoist title contains the text, living first: realm and stage, root grade, age, sect and rank, place and status, technique, master, relation counts; for the dead, death date, cause, and killer |
@@ -578,7 +580,7 @@ all 17 checks; it is developer evidence, not an owner verdict.
 
 ## Known limits
 
-- P4 is not done: worldgen does not place compounds at ledger gates, so a
+- P4 is not done (assessed in [43](43_player_sect_entry.md) "Real P4"): worldgen does not place compounds at ledger gates, so a
   ledger sect has no compound until one is built with
   `/myvillage world sect <id> build` or, since 0.41.0, by `GateRealizer`
   when a player comes near (P4-lite,
@@ -597,9 +599,8 @@ all 17 checks; it is developer evidence, not an owner verdict.
   long build may trip a production server's `max-tick-time` watchdog.
 - Since 0.41.0 the player has a sect record in the ledger but is not a
   person: no relations; since 0.42.0 and 0.43.0 they borrow manuals, take
-  sect tasks, and may have a master (slices 2 and 3 of
-  `docs/player-sect-entry-brief.md`); the world's response (slice 4) is not
-  built.
+  sect tasks, may have a master, and hear their sect's news (slices 2 to 4
+  of `docs/player-sect-entry-brief.md`, 0.42.0 to 0.44.0).
 - The health bands are checked at 24 and 6 days per year only; other values
   (12 in the determinism test) are tested for determinism, not for the
   long-run shape. `Rates.perDay` keeps the chance of at least one event per
