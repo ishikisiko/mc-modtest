@@ -4,6 +4,7 @@ import com.example.myvillage.entity.ModEntities;
 import com.example.myvillage.entity.npc.CultivatorEntity;
 import com.example.myvillage.entity.npc.CultivatorLooks;
 import com.example.myvillage.entity.npc.NpcEntity;
+import com.example.myvillage.portrait.NpcColours;
 import com.example.myvillage.sect.SectCourtyard;
 import com.example.myvillage.sim.PersonView;
 import com.example.myvillage.sim.SectView;
@@ -62,6 +63,11 @@ import org.slf4j.LoggerFactory;
  *       travelling, secluded, displaced by the cap) are discarded and names and dialogue roles
  *       ({@link NpcEntity#ledgerRole()}: steward, elder for elders and the master, none) are
  *       refreshed; a steward handover discards both avatars so they respawn on the right cells.</li>
+ *   <li>An avatar wears its person's portrait hair and eye colours ({@link AvatarColours}:
+ *       {@code PortraitAssign.of(person, sim.day(), WorldSimRuntime.daysPerYear())}, synced through
+ *       {@link NpcEntity#setColours}), set at spawn and refreshed on every reconcile so the hair greys
+ *       with age as the portrait does. A person whose portrait cannot be derived keeps the look's
+ *       baked colours; the failure is logged once per server run.</li>
  *   <li>Everything is discarded when the ledger is inactive, avatars are disabled, and on server stop.</li>
  * </ul>
  */
@@ -76,14 +82,20 @@ public final class WorldSimAvatars {
     private record Avatar(int personId, int sectId, CultivatorEntity entity, BlockPos cell, String role) {
     }
 
-    /** Who of a sect is shown, in priority order, and the sect's steward (-1 for none). */
-    private record Selection(List<PersonView> people, int stewardId, List<String> realmOrder) {
+    /**
+     * Who of a sect is shown, in priority order, and the sect's steward (-1 for none); {@code day} and
+     * {@code daysPerYear} date the portrait colours.
+     */
+    private record Selection(List<PersonView> people, int stewardId, List<String> realmOrder, long day,
+                             int daysPerYear) {
     }
 
     private static final Map<Integer, Avatar> AVATARS = new HashMap<>();
     /** Courtyard cells per gate record (recomputed when the record changes). */
     private static final Map<GateRealizations.Gate, List<BlockPos>> CELLS = new HashMap<>();
     private static int ticks;
+    /** Whether a portrait-colour failure has been logged this server run. */
+    private static boolean coloursFailureLogged;
 
     private WorldSimAvatars() {
     }
@@ -102,6 +114,7 @@ public final class WorldSimAvatars {
         AVATARS.clear();
         CELLS.clear();
         ticks = 0;
+        coloursFailureLogged = false;
     }
 
     static void onServerStopping(ServerStoppingEvent event) {
@@ -221,7 +234,8 @@ public final class WorldSimAvatars {
         List<String> realmOrder = sim.realmIds();
         int stewardId = sim.stewardOf(sectId).map(PersonView::id).orElse(-1);
         return new Selection(AvatarPlanner.select(sim.membersAt(sectId), realmOrder,
-                WorldSimServerConfig.maxAvatarsPerSect(), stewardId), stewardId, List.copyOf(realmOrder));
+                WorldSimServerConfig.maxAvatarsPerSect(), stewardId), stewardId, List.copyOf(realmOrder), sim.day(),
+                WorldSimRuntime.daysPerYear());
     }
 
     /** The dialogue role of a selected person: the steward, an elder (the master included), or none. */
@@ -236,8 +250,9 @@ public final class WorldSimAvatars {
     }
 
     /**
-     * Discards the avatars of people no longer selected; refreshes the names, roles and looks (the
-     * look follows the realm, {@link CultivatorLooks#forPerson}) of the rest.
+     * Discards the avatars of people no longer selected; refreshes the names, roles, looks (the
+     * look follows the realm, {@link CultivatorLooks#forPerson}) and colours ({@link AvatarColours}) of
+     * the rest.
      * An avatar that becomes or stops being the steward is discarded too, so that it is spawned again
      * on the steward's cell (or off it) by the next pass.
      */
@@ -275,6 +290,7 @@ public final class WorldSimAvatars {
             if (!look.equals(a.entity().look())) {
                 a.entity().setLook(look);
             }
+            applyColours(a.entity(), p, selection);
         }
         if (discarded > 0) {
             LOGGER.info("World sim avatars: sect {} withdrew {} avatar(s) no longer at the gate or whose steward role changed; {} remain",
@@ -312,7 +328,7 @@ public final class WorldSimAvatars {
             if (!level.isLoaded(cell) || !level.areEntitiesLoaded(ChunkPos.asLong(cell))) {
                 continue; // spawned on a later pass, once a player has loaded that part of the compound
             }
-            if (spawn(level, p, sectId, cell, role, selection.realmOrder())) {
+            if (spawn(level, p, sectId, cell, role, selection)) {
                 occupied.add(cell);
                 spawned++;
             }
@@ -323,7 +339,7 @@ public final class WorldSimAvatars {
     }
 
     private static boolean spawn(ServerLevel level, PersonView p, int sectId, BlockPos cell, String role,
-                                 List<String> realmOrder) {
+                                 Selection selection) {
         CultivatorEntity entity = ModEntities.CULTIVATOR.get().create(level);
         if (entity == null) {
             return false;
@@ -334,7 +350,8 @@ public final class WorldSimAvatars {
         entity.setYHeadRot(yaw);
         entity.setYBodyRot(yaw);
         entity.setLedgerRole(role);
-        entity.setLook(CultivatorLooks.forPerson(p, realmOrder));
+        entity.setLook(CultivatorLooks.forPerson(p, selection.realmOrder()));
+        applyColours(entity, p, selection);
         entity.setCustomName(name(p, role));
         entity.setCustomNameVisible(true);
         Avatar avatar = new Avatar(p.id(), sectId, entity, cell, role);
@@ -344,6 +361,29 @@ public final class WorldSimAvatars {
             return false;
         }
         return true;
+    }
+
+    /**
+     * Sets the person's portrait colours on the avatar when they differ from what it wears. When the
+     * portrait cannot be derived the avatar stays as it is (baked colours at spawn) and the failure is
+     * logged once per server run.
+     */
+    private static void applyColours(NpcEntity entity, PersonView p, Selection selection) {
+        NpcColours wanted;
+        try {
+            wanted = AvatarColours.of(p, selection.day(), selection.daysPerYear());
+        } catch (RuntimeException ex) {
+            if (!coloursFailureLogged) {
+                coloursFailureLogged = true;
+                LOGGER.warn("World sim avatars: no portrait colours for person {} (day {}, {} days a year); "
+                        + "keeping the baked colours (logged once)", p.id(), selection.day(), selection.daysPerYear(), ex);
+            }
+            return;
+        }
+        NpcColours change = AvatarColours.change(entity.colours(), wanted);
+        if (change != null) {
+            entity.setColours(change);
+        }
     }
 
     /** {@code name · realm · sect}; the realm through its language key, so each client reads its own language. */

@@ -117,8 +117,13 @@ def beastgen_check(beast: str) -> Step:
 
 
 def npcgen_check(npc: str) -> Step:
-    """``python3 -m tools.npcgen build <npc> --check``: the NPC's three generated files are current."""
+    """``python3 -m tools.npcgen build <npc> --check``: the NPC's four generated files (model, clips, texture, role map) are current."""
     return Step(f"npcgen-{npc.replace('_', '-')}-check", (PY, "-m", "tools.npcgen", "build", npc, "--check"))
+
+
+def npcgen_goldens_check() -> Step:
+    """``python3 -m tools.npcgen goldens --check``: the recoloured-skin goldens the Java composer test pins are current."""
+    return Step("npcgen-goldens-check", (PY, "-m", "tools.npcgen", "goldens", "--check"))
 
 
 def needs_program(program: str) -> Callable[[Path], str | None]:
@@ -286,6 +291,7 @@ STEPS: tuple[Step, ...] = (
     npcgen_check("cultivator"),
     npcgen_check("cultivator_f_novice"),
     npcgen_check("cultivator_f_adept"),
+    npcgen_goldens_check(),
     tool("validate_mod_items"),
     tool("validate_custom_entities"),
     tool("validate_rideable_flying_sword"),

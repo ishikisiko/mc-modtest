@@ -48,6 +48,10 @@ import org.slf4j.LoggerFactory;
  * a hole, which is how a shell layer (hair, an open vest) shows the layer under it. Like the beast
  * renderer, the layer definitions read the model files on every resource reload, and a missing or
  * invalid file of any registered look is a startup or reload error naming the file and field.
+ *
+ * <p><b>Colours.</b> An NPC with {@link NpcEntity#colours()} is drawn with its look's texture
+ * recoloured to those hair and eye colours ({@link NpcSkins}, from the look's {@link #roleMap}); a
+ * look drawn as the default reads the default's role map.
  */
 public class NpcRenderer<T extends NpcEntity> extends MobRenderer<T, NpcModel<T>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(NpcRenderer.class);
@@ -82,7 +86,8 @@ public class NpcRenderer<T extends NpcEntity> extends MobRenderer<T, NpcModel<T>
 
     @Override
     public ResourceLocation getTextureLocation(T npc) {
-        return loaded(npc).texture();
+        Loaded<T> loaded = loaded(npc);
+        return NpcSkins.texture(npcId, loaded.look(), npc.packedColours(), loaded.texture());
     }
 
     @Override
@@ -177,6 +182,14 @@ public class NpcRenderer<T extends NpcEntity> extends MobRenderer<T, NpcModel<T>
         return npcId.withPath("textures/entity/" + npcId.getPath() + "/" + fileName(npcId, look) + ".png");
     }
 
+    /**
+     * A look's role map, {@code npc/<prefix>_roles.png}: which texels take the portrait's hair and eye
+     * colours ({@link NpcSkins}). Written by {@code tools/npcgen}; a look without one keeps its baked colours.
+     */
+    public static ResourceLocation roleMap(ResourceLocation npcId, String look) {
+        return npcId.withPath("npc/" + fileName(npcId, look) + "_roles.png");
+    }
+
     /** The file name prefix of a look: {@code name} for the default, {@code name_<look>} otherwise. */
     static String fileName(ResourceLocation npcId, String look) {
         return NpcEntity.LOOK_DEFAULT.equals(look) ? npcId.getPath() : npcId.getPath() + "_" + look;
@@ -222,7 +235,7 @@ public class NpcRenderer<T extends NpcEntity> extends MobRenderer<T, NpcModel<T>
         return footSpeed > 1.0E-6 ? (float) (5.0 / footSpeed) : 1.0F;
     }
 
-    private record Loaded<T extends NpcEntity>(NpcModel<T> model, float shadowRadius, float scale,
+    private record Loaded<T extends NpcEntity>(String look, NpcModel<T> model, float shadowRadius, float scale,
             ResourceLocation texture) {
     }
 
@@ -251,7 +264,7 @@ public class NpcRenderer<T extends NpcEntity> extends MobRenderer<T, NpcModel<T>
                 npcId, look, modelFile.scale(), walkRate, Math.round(footSpeed * 1000.0) / 1000.0);
         NpcModel<T> model = new NpcModel<>(context.bakeLayer(layer(npcId, look)), modelFile,
                 clips.get(NpcEntity.IDLE_CLIP), clips.get(NpcEntity.WALK_CLIP), walkRate);
-        return new Loaded<>(model, modelFile.shadowRadius(), modelFile.scale(), texture(npcId, look));
+        return new Loaded<>(look, model, modelFile.shadowRadius(), modelFile.scale(), texture(npcId, look));
     }
 
     /** A look's model file; every look's file declares the entity id. */

@@ -4,10 +4,11 @@ Builds a humanoid NPC's layered cuboid model, cut-out texture and keyframe clips
 definition, and renders offline previews of them. Run from the repository root:
 
 ```bash
-python3 -m tools.npcgen build cultivator            # write the three runtime files
+python3 -m tools.npcgen build cultivator            # write the four runtime files
 python3 -m tools.npcgen build cultivator --check    # fail when the files on disk differ
+python3 -m tools.npcgen goldens [--check]           # recolour goldens for NpcSkinComposer
 python3 -m tools.npcgen preview cultivator          # out/preview/cultivator/ (sheets, GIFs, index.html)
-/usr/bin/python3 -m unittest tools.tests.test_npcgen
+/usr/bin/python3 -m unittest tools.tests.test_npcgen tools.tests.test_npcgen_roles
 ```
 
 `build` and the tests use the standard library only. `preview` needs numpy and Pillow and re-runs
@@ -22,18 +23,39 @@ Outputs (the beast schema-1 formats, read by `NpcRenderer`):
 | `assets/myvillage/npc/<NAME>_model.json` | bones (parents first), cubes, and `scale` |
 | `assets/myvillage/npc/<NAME>_animations.json` | looping `idle` and `walk` clips |
 | `assets/myvillage/textures/entity/<ENTITY>/<NAME>.png` | the painted atlas; zero alpha is a hole |
+| `assets/myvillage/npc/<NAME>_roles.png` | the role map: which texels are hair or iris (see below) |
 
 `ENTITY` and `NAME` are the definition's: the default cultivator is `cultivator`/`cultivator`, a
 second look of it `cultivator`/`cultivator_<look>`.
 
 Never hand-edit them; change the definition and rebuild.
 
+## Role map and per-person colours
+
+A ledger person's 3D avatar wears the hair and eye colours of their portrait (`tools/portraitgen`).
+The client recolours the baked atlas through the look's role map (Java `portrait/NpcSkinComposer`):
+
+- `roles.py` finds the role texels by probing: it paints the look again with `HAIR` (the def's
+  global and the painter's attribute) swapped for grey probe ramps and with `IRIS_TOP`/`IRIS`/
+  `IRIS_LOW` swapped for probe colours, and records which texels changed and to what. A role pixel
+  with alpha 0 keeps the baked texel; `(1, i, 0, 255)` is hair at half-step tone `i` (0..12) on the
+  7-step ramp; `(2, i, 0, 255)` is iris row `i` (0..2, dark to pale), or 3 for the pale row mixed
+  half way toward `EYE_WHITE` (`#F8FAFF` in every def). Hair must only ever be `_tone(HAIR, ...)`
+  and the iris only the three constants (or that one white mix): anything else raises.
+- `recolour.py` is the rule the Java composer implements: the portrait's 5-step hair ramp resampled
+  to 7 steps (`hair_ramp7`), the iris rows from its eye ramp, every mix rounding half to even.
+- `python3 -m tools.npcgen goldens` writes `src/test/resources/npc_skin_goldens/` (12 recoloured
+  atlases covering every hair and eye colour, plus the `ramp7`/`iris` vectors) that pin the Java
+  side pixel for pixel. Rebuild them after any change to a look's texture.
+
 ## Modules
 
 | Module | Role |
 |---|---|
-| `build.py` | builds a definition in memory, writes or checks the three files; `DEFINITIONS` lists the definitions (one per look), and the file paths come from each definition's `ENTITY` and `NAME` |
+| `build.py` | builds a definition in memory, writes or checks the four files; `DEFINITIONS` lists the definitions (one per look), and the file paths come from each definition's `ENTITY` and `NAME` |
 | `humanoid.py` | parts shared by every humanoid look: `_box`, `_pair`, `_rgb`; paint maths (`_clamp`, `_mix`, `_tone`, `_hash`, `_xhz`, `_form`, `_weave`, `_fret`); clip helpers `_rx`, `_loop` and the gait `_leg_angle(phase, swing)`, `_sole_low(angle, hip, sole_z)`; `HumanoidPaint`, the painter base with the skin materials (`light`, `skin`, `neck`, `hand`, `nose`, `skull`, `jaw`) |
+| `roles.py` | the role map of a built look, by probing the painter (`export`), and `repaint` with other ramps |
+| `recolour.py` | the per-person recolour (`compose`, `hair_ramp7`, `iris`) and the goldens writer |
 | `shade.py` | `Occluders`: baked contact shading from the rest-pose geometry (`overhang`: what sticks out above a texel; `contact`: raised geometry beside it); cubes named hollow cast nothing |
 | `preview.py` | turnaround, close-ups, face sheet, scale beside the player, atlas, clip sheets, GIFs, index page, through `tools/beastgen/preview.py`'s rasteriser with `cull=False`: `NpcModel` draws with `entityCutoutNoCull`, so back faces are drawn and the inside of a cut-out shell shows through its holes as in game |
 | `defs/<npc>.py` | one look of an NPC: `build_model()`, `painter(model)`, `clips(model)`, and `ID`, `ENTITY`, `NAME`, `LOOK`, `HITBOX`, `HOLLOW` |

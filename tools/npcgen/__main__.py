@@ -1,7 +1,8 @@
-"""python3 -m tools.npcgen build <npc> [--check] | preview <npc> [options]
+"""python3 -m tools.npcgen build <npc> [--check] | goldens [--check] | preview <npc> [options]
 
-build writes (or with --check verifies) the NPC's model JSON, animations JSON and texture under
-src/main/resources; standard library only. preview renders the offline sheets, GIFs and index.html
+build writes (or with --check verifies) the NPC's model JSON, animations JSON, texture and role map
+under src/main/resources; standard library only. goldens writes (or verifies) the recolour goldens
+for the Java NpcSkinComposer under src/test/resources/npc_skin_goldens/; standard library only. preview renders the offline sheets, GIFs and index.html
 under out/preview/<npc>/; it needs numpy and Pillow and re-runs itself under the preview interpreter
 (.venv-preview, or $MC_PREVIEW_PYTHON) when the current one lacks them.
 """
@@ -18,6 +19,8 @@ def main(argv=None):
     b = sub.add_parser("build", help="write or check the runtime files")
     b.add_argument("npc")
     b.add_argument("--check", action="store_true", help="fail when the files on disk differ")
+    g = sub.add_parser("goldens", help="write or check the NpcSkinComposer goldens")
+    g.add_argument("--check", action="store_true", help="fail when the files on disk differ")
     p = sub.add_parser("preview", help="offline renders under out/preview/<npc>/")
     p.add_argument("npc")
     p.add_argument("--only", help="comma list of parts: views,closeups,face,atlas,sheets,gifs,index")
@@ -25,6 +28,9 @@ def main(argv=None):
     if a.cmd == "build":
         from .build import run
         return run(a.npc, check=a.check)
+    if a.cmd == "goldens":
+        from .recolour import write_goldens
+        return write_goldens(check=a.check)
     _ensure_preview_interpreter(argv)
     from .preview import run as preview_run
     return preview_run(a.npc, only=a.only)

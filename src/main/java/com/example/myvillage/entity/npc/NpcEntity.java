@@ -1,5 +1,6 @@
 package com.example.myvillage.entity.npc;
 
+import com.example.myvillage.portrait.NpcColours;
 import com.example.myvillage.sim.runtime.player.SectDialogue;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -51,6 +52,13 @@ import net.minecraft.world.level.ServerLevelAccessor;
  * saved name the type does not list is ignored. An NPC from a spawn egg draws a random look from
  * {@link #looks()} (the default included); an avatar's look is set by the world simulation.
  *
+ * <p><b>Colours (发色瞳色).</b> An avatar's hair and eye colours follow its person's portrait
+ * ({@link NpcColours}, synced as one int): the client recolours the look's texture with them. They
+ * are set by the world simulation when it spawns or reconciles the avatar, and saved as
+ * {@value #COLOURS_TAG} (the packed int) when set, so a summoned NPC can wear them too
+ * ({@code /summon myvillage:cultivator ~ ~ ~ {Colours:68}}); an NPC without them keeps the colours
+ * baked into its texture.
+ *
  * <p><b>Ledger role (命簿角色).</b> An avatar may carry a dialogue role ({@link #ledgerRole()}:
  * {@link #ROLE_NONE}, {@link #ROLE_STEWARD} or {@link #ROLE_ELDER}), synced to clients and set by
  * the world simulation whenever it spawns or reconciles the avatar. It is never saved; a summoned
@@ -75,6 +83,8 @@ public abstract class NpcEntity extends PathfinderMob {
     public static final String LOOK_DEFAULT = "default";
     /** Saved only when the look is not {@link #LOOK_DEFAULT}. */
     public static final String LOOK_TAG = "Look";
+    /** The packed {@link NpcColours}; saved only when set. */
+    public static final String COLOURS_TAG = "Colours";
     /** No dialogue role (every summoned NPC, and avatars without a role). */
     public static final String ROLE_NONE = "none";
     /** The sect's steward (守山执事), who receives players at the gate. */
@@ -88,6 +98,8 @@ public abstract class NpcEntity extends PathfinderMob {
             SynchedEntityData.defineId(NpcEntity.class, EntityDataSerializers.STRING);
     private static final EntityDataAccessor<String> DATA_LEDGER_ROLE =
             SynchedEntityData.defineId(NpcEntity.class, EntityDataSerializers.STRING);
+    private static final EntityDataAccessor<Integer> DATA_COLOURS =
+            SynchedEntityData.defineId(NpcEntity.class, EntityDataSerializers.INT);
 
     private final AnimationState idleAnimationState = new AnimationState();
     private Goal strollGoal;
@@ -105,6 +117,7 @@ public abstract class NpcEntity extends PathfinderMob {
         builder.define(DATA_LEDGER_PERSON, NO_LEDGER_PERSON);
         builder.define(DATA_LOOK, LOOK_DEFAULT);
         builder.define(DATA_LEDGER_ROLE, ROLE_NONE);
+        builder.define(DATA_COLOURS, NpcColours.NONE);
     }
 
     /** The looks this type can wear, {@link #LOOK_DEFAULT} first. Subclasses with more looks list them. */
@@ -120,6 +133,22 @@ public abstract class NpcEntity extends PathfinderMob {
     /** Sets the look; null or empty means {@link #LOOK_DEFAULT}. */
     public void setLook(String look) {
         entityData.set(DATA_LOOK, look == null || look.isEmpty() ? LOOK_DEFAULT : look);
+    }
+
+    /** The hair and eye colours (synced), or null when the NPC keeps its texture's baked colours. */
+    @Nullable
+    public NpcColours colours() {
+        return NpcColours.unpack(entityData.get(DATA_COLOURS));
+    }
+
+    /** The packed form of {@link #colours()}: {@link NpcColours#NONE} when unset. */
+    public int packedColours() {
+        return entityData.get(DATA_COLOURS);
+    }
+
+    /** Sets the hair and eye colours; null clears them. */
+    public void setColours(@Nullable NpcColours colours) {
+        entityData.set(DATA_COLOURS, colours == null ? NpcColours.NONE : colours.pack());
     }
 
     /** The avatar's dialogue role (synced, never saved): none, steward or elder. */
@@ -216,6 +245,9 @@ public abstract class NpcEntity extends PathfinderMob {
         if (!LOOK_DEFAULT.equals(look())) {
             tag.putString(LOOK_TAG, look());
         }
+        if (colours() != null) {
+            tag.putInt(COLOURS_TAG, packedColours());
+        }
     }
 
     @Override
@@ -226,6 +258,9 @@ public abstract class NpcEntity extends PathfinderMob {
         }
         if (tag.contains(LOOK_TAG, Tag.TAG_STRING) && looks().contains(tag.getString(LOOK_TAG))) {
             setLook(tag.getString(LOOK_TAG));
+        }
+        if (tag.contains(COLOURS_TAG, Tag.TAG_INT)) {
+            setColours(NpcColours.unpack(tag.getInt(COLOURS_TAG))); // an invalid value clears them
         }
     }
 

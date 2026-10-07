@@ -382,7 +382,7 @@ class NpcValidationTest(unittest.TestCase):
         sources = {base: (java / "NpcEntity.java").read_text(encoding="utf-8"),
                    cls: (java / "CultivatorEntity.java").read_text(encoding="utf-8")}
         self.assertEqual([], MODULE.check_npc_state(self.contract, sources))
-        self.assertEqual(["ledger_person_id", "look", "ledger_role"],
+        self.assertEqual(["ledger_person_id", "look", "ledger_role", "colours"],
                          [e["id"] for e in MODULE.yaml_list_entries(MODULE.yaml_block(self.contract, "state"), "synced")])
 
         def state(synced: str, persisted: str) -> str:
@@ -392,7 +392,7 @@ class NpcValidationTest(unittest.TestCase):
 
         empty = state(" []", " []")
         self.assertEqual([f"java_synced_data_not_in_contract:{base}#{field}"
-                          for field in ("DATA_LEDGER_PERSON", "DATA_LEDGER_ROLE", "DATA_LOOK")],
+                          for field in ("DATA_COLOURS", "DATA_LEDGER_PERSON", "DATA_LEDGER_ROLE", "DATA_LOOK")],
                          MODULE.check_npc_state(empty, sources))
         renamed = self.contract.replace("NpcEntity#DATA_LEDGER_PERSON", "NpcEntity#DATA_PERSON")
         self.assertIn(f"contract_synced_without_java_field:{base}#DATA_PERSON", MODULE.check_npc_state(renamed, sources))

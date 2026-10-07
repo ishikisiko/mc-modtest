@@ -1,0 +1,234 @@
+{
+ "note": "tools/npcgen/recolour.py compose of the baked texture and role map (paths under src/main/resources); NpcSkinComposer must match pixel for pixel. Regenerate with python3 -m tools.npcgen goldens",
+ "cases": [
+  {
+   "look": "default",
+   "name": "cultivator",
+   "hair": "ink_blue",
+   "eye": "water",
+   "file": "default_ink_blue_water.png",
+   "texture": "assets/myvillage/textures/entity/cultivator/cultivator.png",
+   "roles": "assets/myvillage/npc/cultivator_roles.png"
+  },
+  {
+   "look": "default",
+   "name": "cultivator",
+   "hair": "silver",
+   "eye": "spirit",
+   "file": "default_silver_spirit.png",
+   "texture": "assets/myvillage/textures/entity/cultivator/cultivator.png",
+   "roles": "assets/myvillage/npc/cultivator_roles.png"
+  },
+  {
+   "look": "default",
+   "name": "cultivator",
+   "hair": "grey_chestnut",
+   "eye": "fire",
+   "file": "default_grey_chestnut_fire.png",
+   "texture": "assets/myvillage/textures/entity/cultivator/cultivator.png",
+   "roles": "assets/myvillage/npc/cultivator_roles.png"
+  },
+  {
+   "look": "default",
+   "name": "cultivator",
+   "hair": "dark_brown",
+   "eye": "earth",
+   "file": "default_dark_brown_earth.png",
+   "texture": "assets/myvillage/textures/entity/cultivator/cultivator.png",
+   "roles": "assets/myvillage/npc/cultivator_roles.png"
+  },
+  {
+   "look": "f_novice",
+   "name": "cultivator_f_novice",
+   "hair": "ink_violet",
+   "eye": "metal",
+   "file": "f_novice_ink_violet_metal.png",
+   "texture": "assets/myvillage/textures/entity/cultivator/cultivator_f_novice.png",
+   "roles": "assets/myvillage/npc/cultivator_f_novice_roles.png"
+  },
+  {
+   "look": "f_novice",
+   "name": "cultivator_f_novice",
+   "hair": "grey_ink_blue",
+   "eye": "wood",
+   "file": "f_novice_grey_ink_blue_wood.png",
+   "texture": "assets/myvillage/textures/entity/cultivator/cultivator_f_novice.png",
+   "roles": "assets/myvillage/npc/cultivator_f_novice_roles.png"
+  },
+  {
+   "look": "f_novice",
+   "name": "cultivator_f_novice",
+   "hair": "chestnut",
+   "eye": "spirit",
+   "file": "f_novice_chestnut_spirit.png",
+   "texture": "assets/myvillage/textures/entity/cultivator/cultivator_f_novice.png",
+   "roles": "assets/myvillage/npc/cultivator_f_novice_roles.png"
+  },
+  {
+   "look": "f_novice",
+   "name": "cultivator_f_novice",
+   "hair": "grey_dark_brown",
+   "eye": "water",
+   "file": "f_novice_grey_dark_brown_water.png",
+   "texture": "assets/myvillage/textures/entity/cultivator/cultivator_f_novice.png",
+   "roles": "assets/myvillage/npc/cultivator_f_novice_roles.png"
+  },
+  {
+   "look": "f_adept",
+   "name": "cultivator_f_adept",
+   "hair": "grey_ink_violet",
+   "eye": "earth",
+   "file": "f_adept_grey_ink_violet_earth.png",
+   "texture": "assets/myvillage/textures/entity/cultivator/cultivator_f_adept.png",
+   "roles": "assets/myvillage/npc/cultivator_f_adept_roles.png"
+  },
+  {
+   "look": "f_adept",
+   "name": "cultivator_f_adept",
+   "hair": "silver",
+   "eye": "fire",
+   "file": "f_adept_silver_fire.png",
+   "texture": "assets/myvillage/textures/entity/cultivator/cultivator_f_adept.png",
+   "roles": "assets/myvillage/npc/cultivator_f_adept_roles.png"
+  },
+  {
+   "look": "f_adept",
+   "name": "cultivator_f_adept",
+   "hair": "ink_blue",
+   "eye": "metal",
+   "file": "f_adept_ink_blue_metal.png",
+   "texture": "assets/myvillage/textures/entity/cultivator/cultivator_f_adept.png",
+   "roles": "assets/myvillage/npc/cultivator_f_adept_roles.png"
+  },
+  {
+   "look": "f_adept",
+   "name": "cultivator_f_adept",
+   "hair": "chestnut",
+   "eye": "wood",
+   "file": "f_adept_chestnut_wood.png",
+   "texture": "assets/myvillage/textures/entity/cultivator/cultivator_f_adept.png",
+   "roles": "assets/myvillage/npc/cultivator_f_adept_roles.png"
+  }
+ ],
+ "ramp7": {
+  "ink_violet": [
+   "#1A1236",
+   "#291E4F",
+   "#392B68",
+   "#4A3880",
+   "#6755A3",
+   "#8B79C4",
+   "#B4A4E4"
+  ],
+  "ink_blue": [
+   "#121A3A",
+   "#1D2953",
+   "#27396E",
+   "#324A8A",
+   "#4D66AB",
+   "#7189CB",
+   "#A0B4E8"
+  ],
+  "dark_brown": [
+   "#2A1410",
+   "#3F2319",
+   "#563224",
+   "#6E4230",
+   "#8B5A40",
+   "#AC795B",
+   "#D0A080"
+  ],
+  "chestnut": [
+   "#301408",
+   "#572913",
+   "#7A3D1D",
+   "#9A5028",
+   "#B66C3B",
+   "#D18C57",
+   "#EAB07C"
+  ],
+  "silver": [
+   "#4A4E6A",
+   "#757A96",
+   "#99A0B9",
+   "#B8C0D4",
+   "#D0D7E5",
+   "#E6EAF4",
+   "#FAFAFF"
+  ],
+  "grey_ink_violet": [
+   "#2C294A",
+   "#45416A",
+   "#5D5787",
+   "#746CA0",
+   "#8F87BC",
+   "#AEA4D6",
+   "#CFC5EE"
+  ],
+  "grey_ink_blue": [
+   "#272E4C",
+   "#3E476D",
+   "#53608B",
+   "#6577A6",
+   "#7E91C1",
+   "#9DAEDA",
+   "#C2CFF1"
+  ],
+  "grey_dark_brown": [
+   "#362A32",
+   "#534449",
+   "#6F5C5D",
+   "#8A726E",
+   "#A5897F",
+   "#C2A495",
+   "#E0C2B0"
+  ],
+  "grey_chestnut": [
+   "#3A2A2D",
+   "#624844",
+   "#866358",
+   "#A57B69",
+   "#C0957C",
+   "#D9B093",
+   "#F0CCAE"
+  ]
+ },
+ "iris": {
+  "metal": [
+   "#3C4454",
+   "#7E8AA0",
+   "#C4CCD8",
+   "#DEE3EC"
+  ],
+  "wood": [
+   "#1C5A3A",
+   "#3E9A62",
+   "#96DEB0",
+   "#C7ECD8"
+  ],
+  "water": [
+   "#1E3A8A",
+   "#3C78D8",
+   "#8CCCF4",
+   "#C2E3FA"
+  ],
+  "fire": [
+   "#7A2A14",
+   "#C86A2C",
+   "#F0B878",
+   "#F4D9BC"
+  ],
+  "earth": [
+   "#4A3018",
+   "#8C6230",
+   "#D2A868",
+   "#E5D1B4"
+  ],
+  "spirit": [
+   "#3A1C6E",
+   "#7A48C2",
+   "#B48CEC",
+   "#D6C3F6"
+  ]
+ }
+}

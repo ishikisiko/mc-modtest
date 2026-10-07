@@ -6,15 +6,19 @@ import com.example.myvillage.client.entity.RideableFlyingSwordRenderer;
 import com.example.myvillage.client.entity.SimpleFoxRenderer;
 import com.example.myvillage.client.entity.beast.BeastRenderer;
 import com.example.myvillage.client.entity.npc.NpcRenderer;
+import com.example.myvillage.client.entity.npc.NpcSkins;
+import com.example.myvillage.client.portrait.PortraitTextures;
 import com.example.myvillage.entity.ModEntities;
 import com.example.myvillage.entity.npc.CultivatorEntity;
 import com.example.myvillage.item.ModItems;
 import com.example.myvillage.item.TechniqueManualItem;
 import net.minecraft.client.renderer.BiomeColors;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.registries.DeferredItem;
 
@@ -50,6 +54,18 @@ public final class MyVillageClient {
     static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
         BeastRenderer.registerLayer(event, ModEntities.DEMON_WOLF.getId());
         NpcRenderer.registerLayer(event, ModEntities.CULTIVATOR.getId(), CultivatorEntity.LOOKS);
+    }
+
+    /**
+     * Composed textures (recoloured NPC skins, ledger portraits) are built from resources on first
+     * use; a resource reload releases them so the next frame rebuilds them from the new files.
+     */
+    @SubscribeEvent
+    static void registerReloadListeners(RegisterClientReloadListenersEvent event) {
+        event.registerReloadListener((ResourceManagerReloadListener) resources -> {
+            NpcSkins.clear();
+            PortraitTextures.clear();
+        });
     }
 
     @SubscribeEvent

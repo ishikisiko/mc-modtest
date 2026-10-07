@@ -1,4 +1,4 @@
-"""Writes an NPC's three runtime files (model JSON, animations JSON, texture) or checks them.
+"""Writes an NPC's four runtime files (model JSON, animations JSON, texture, role map) or checks them.
 
 Standard library only, like tools/beastgen/build.py, whose JSON layout and PNG encoder it shares.
 """
@@ -10,6 +10,7 @@ import importlib.util
 from .. import gen_qingfeng_sword_model as pngio
 from ..beastgen import anim, cuboid, paint
 from ..beastgen.build import REPO, RESOURCES, dumps, same_file
+from . import roles
 
 # One definition per look: `defs/<name>.py` declares ENTITY (the entity's texture directory), NAME
 # (the files' name prefix) and LOOK (NpcEntity's look id), so several looks of one entity type share
@@ -32,6 +33,8 @@ def paths(name):
         "model": RESOURCES / f"assets/myvillage/npc/{d.NAME}_model.json",
         "animations": RESOURCES / f"assets/myvillage/npc/{d.NAME}_animations.json",
         "texture": RESOURCES / f"assets/myvillage/textures/entity/{d.ENTITY}/{d.NAME}.png",
+        # hair and iris texels for the client's per-person recolour (roles.py, NpcSkinComposer)
+        "roles": RESOURCES / f"assets/myvillage/npc/{d.NAME}_roles.png",
     }
 
 
@@ -49,6 +52,7 @@ class Built:
         # NPC painters shade from tools/npcgen/shade.py, so the crease distance is skipped for every cube.
         self.texels = paint.texels(self.model, {c.name for _, c in self.model.cubes()})
         self.texture = paint.image(self.model, self.d.painter(self.model), self.texels)
+        self.roles = roles.export(self)
         self.clips = self.d.clips(self.model)
         self.model_doc = cuboid.model_json(self.model)
         self.anim_doc = anim.clips_json(self.model.id, self.clips)
@@ -59,6 +63,7 @@ class Built:
             p["model"]: (dumps(self.model_doc) + "\n").encode("utf-8"),
             p["animations"]: (dumps(self.anim_doc) + "\n").encode("utf-8"),
             p["texture"]: pngio.encode_png(self.texture),
+            p["roles"]: pngio.encode_png(self.roles),
         }
 
 
