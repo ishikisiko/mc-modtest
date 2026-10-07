@@ -1,6 +1,6 @@
 # 拜入宗门 · 切片 3 品阶与事务 拆包说明（0.43.0）
 
-状态（2026-10-07 07:45）：待开工（等切片 2 的采集链跑完再动 Java）。方案见 `docs/player-sect-entry-brief.md` §4.4 与 §5。分支 `feat/sect-entry` 继续。本轮 owner 电脑不可用：只做无头采集，README ledger 一律 `not_verified`。
+状态（2026-10-07）：已落地于 0.43.0，待采集结论与 owner 验收；文档见 README "Sect tasks and apprenticeship (0.43.0)" 与 `docs/ai-kb/43_player_sect_entry.md`。方案见 `docs/player-sect-entry-brief.md` §4.4 与 §5。分支 `feat/sect-entry` 继续。本轮 owner 电脑不可用：只做无头采集，README ledger 一律 `not_verified`。
 
 ## 0. 统筹已定的默认值
 

@@ -6,7 +6,9 @@ server-authoritative dialogue, leaves it, rises by a yearly review, and
 becomes a rogue when the sect is destroyed. Unbuilt gates near a player are
 built in frames (P4-lite). 0.42.0, slice 2, adds the scripture hall (藏经阁):
 shelves in the compound's pavilions lending the sect's manuals by rank
-("Scripture hall" below). The design is `docs/player-sect-entry-brief.md`
+("Scripture hall" below). 0.43.0, slice 3, adds sect tasks for contribution
+and apprenticeship with a master's guidance ("Sect tasks and
+apprenticeship" below). The design is `docs/player-sect-entry-brief.md`
 (slices 2 to 4: scripture hall, contribution and tasks, masters, the world's
 response); the package breakdown with the defaults the owner may overturn is
 `docs/sect-entry-slice1-tasks.md`. There is no capability spec; this note,
@@ -46,7 +48,7 @@ Docs point at `rules.json` rather than copying its numbers.
 **Record.** `PlayerMember`, keyed by the player's UUID string:
 `playerId`, `playerName` (last known, for chronicle text), `sectId` (-1 when
 in none), `rank` (`outer`, `inner`, `elder`), `joinedDay`, `masterId` (-1;
-no way to take a master yet), `contribution` (0; nothing earns it yet),
+set by apprenticeship since 0.43.0), `contribution` (earned by sect tasks since 0.43.0),
 `borrowed` (technique ids borrowed from the scripture hall, 0.42.0), `standings` (交情: sect id →
 -100..100), `leftSectId` and `leftDay` (the last sect left), and a
 qualification snapshot `realmId` (player realm registry path: `mortal`,
@@ -427,6 +429,137 @@ button is not clicked). Slice 1's script passed 20/20 again on the same code.
 bookshelf-textured cube); whether one copy per technique is enough (a lost
 manual can only be replaced by an admin).
 
+## Sect tasks and apprenticeship (0.43.0)
+
+Slice 3: one sect task a year for contribution, and a master whose guidance
+speeds meditation. Breakdown and defaults: `docs/sect-entry-slice3-tasks.md`.
+
+| Fact | Source of truth |
+|---|---|
+| Task rows (id, kind, count, contribution) | `data/myvillage/world_sim/sect_tasks.json`, loaded as `sim/data/ContentTables.SectTask` (`SimData.sectTasks`, `sectTask`); checked by `tools/validate_world_sim.py` `check_sect_tasks` |
+| Task names and briefs | `world_sim.task.<id>.name` / `.brief`, registered by `TextKeys.taskKeys` |
+| Guidance factor | `cultivation.master_guidance` in `rules.json` (the ledger's own mentoring value) |
+| Offer, accept, progress, turn-in, apprenticeship, master loss | `sim/engine/PlayerAffairs` (`offerTask`, `acceptTask`, `advanceTask`, `completeTask`, `apprentice`, `daily`); facade `WorldSim.task`, `offerTask`, `acceptTask`, `advanceTask`, `completeTask`, `apprentice`; view `sim/TaskView` |
+| World hooks, tribute stones, guidance math | `sim/runtime/player/SectTasks`; `WorldSimPlayers.masterGuidanceBasisPoints` |
+| Dialogue scenes and keys | `SectDialogueScenes` (`Affairs`, `memberScene`, `canApprentice`, `taskReady`), `SectDialogueKeys` (`steward.task.*`, `elder.apprentice.*`) |
+| Meditation | `cultivation/meditation/MeditationManager.progressFactorBasisPoints` |
+| Panel | `WorldSimSnapshot.MySect.taskName/taskProgress/taskCount`, `WorldPage` |
+
+**Record.** `PlayerMember` gains `taskId` ("" for none), `taskProgress`,
+`taskTargetSectId` (courier destination, -1), `taskYear` (the year of the
+last task taken, -1). Saved as `task`, `task_progress`, `task_target`,
+`task_year`, always written and read as optional; the payload stays version
+3 and an older one reads with no task.
+
+**Offer** (`offerTask`, never stored). Empty for a player in no sect, with an
+open task, or whose `taskYear` is this year. The year is
+`floorDiv(day, days_per_year)` (between settled days, the year of the next
+day to settle). One rng, `SimRng.at(seed, year × days_per_year,
+playerId.hashCode(), Purpose.PLAYER_TASK (405), salt year)`, draws a row of
+`sect_tasks.json` uniformly in file order, so the offer is the same all year;
+a courier then draws its destination from the other active sects in id
+order with the same rng, and with no other active sect the rng draws again
+among the non-courier rows.
+
+**Accept** (`acceptTask`): `not_member`, `task_active`, `task_done_this_year`,
+`no_task`, first wins; records the offer with progress 0 and `taskYear`,
+and a `player_task_accept` event.
+
+**Progress** (`advanceTask(playerId, kind, amount)`, no event; false when
+there is no open task of that kind; capped at the count), pushed by
+`SectTasks`:
+
+- patrol: `LivingDeathEvent` of a `BeastEntity` whose source entity is the
+  player, while `RegionRuntimeService.currentRegion(player)` is the sect's
+  home region, +1;
+- courier: every 20 server ticks, an overworld player with a pending courier
+  standing inside `SectCourtyard.footprint` of the destination's gate gets
+  the full count;
+- tribute: no progress; at turn-in `SectTasks.turnIn` counts the
+  `low_grade_spirit_stone`s in the inventory (`tribute_short` if too few),
+  asks the ledger to complete, then takes them slot by slot on the same tick.
+
+Each patrol or courier step sends `message.myvillage.world.sect.task_progress`
+and logs `SECT_TASK player=<name> kind=<kind> progress=<p>/<n>`.
+
+**Turn-in** (`completeTask`): `not_member`, `no_task`, `not_ready` (a
+non-tribute below its count), first wins; contribution += the row's
+`contribution`, the task cleared, `taskYear` kept (no second task this
+year), `player_task_done` event.
+
+**Apprenticeship** (`apprentice(playerId, name, masterId)`): `not_member`,
+`rank_too_low` (outer), `has_master`, `master_not_here` (the person is not a
+living elder or sect master of the player's sect with status `at_sect`),
+first wins; records `masterId` and `player_apprentice` with the master as
+actor. In the dialogue the master is the elder avatar spoken to.
+
+**Master loss** (`PlayerAffairs.daily`, run by `Engine.step` after the
+people act, before successions): a member whose master is no longer a living
+person of the player's sect loses the master that day, with
+`player_master_lost` (the master as actor when the name is known). The
+yearly review's silent clearing stays as a backstop. Since every `player_*`
+event naming an online player is sent to them after the settled day, the
+player reads it in chat.
+
+**Guidance.** `masterGuidanceBasisPoints(player)` = `round((1 +
+master_guidance) × 10000)` while the player is in a sect and the master is
+alive and of the same sect, else 10000; `MeditationManager` settles with
+`core technique factor × guidance / 10000` (unchanged when 10000).
+
+**Dialogue.** For a member of the steward's sect the page is greeting,
+introduction, `steward.member`, a task line, `steward.leave_ask`:
+
+| State | Task line | Options |
+|---|---|---|
+| No open task, an offer | `steward.task.offer` (name, brief) | TASK_ACCEPT, LEAVE, FAREWELL |
+| Open task, not ready | `steward.task.progress` (name, progress, count) | LEAVE, FAREWELL |
+| Open task ready (tribute: stones in the inventory) | `steward.task.ready` | TASK_TURN_IN, LEAVE, FAREWELL |
+| No open task, no offer, a task taken before | `steward.task.none_this_year` | LEAVE, FAREWELL |
+| Never had a task and no offer | none (the 0.41.0 member page) | LEAVE, FAREWELL |
+
+An elder (or the master) at the sect speaking to an inner disciple or elder
+of the sect without a master shows `elder.apprentice.offer` (APPRENTICE,
+FAREWELL); otherwise the elder pages are as before. Answers:
+`steward.task.accepted`, `steward.task.done` (with the contribution
+gained), `elder.apprentice.done`, or the refusal scene
+(`steward.task.refuse.<reason>`, `elder.apprentice.refuse.<reason>`).
+`handleIntent` accepts TASK_ACCEPT and TASK_TURN_IN only at a steward for a
+member of its sect, APPRENTICE only at an elder for a member; anything else
+gets the current page back. Option ids 3 `APPRENTICE`, 4 `TASK_ACCEPT`,
+5 `TASK_TURN_IN`; `SectIntentPayload` kinds 0..5 and
+`SectDialoguePayload.MAX_OPTION_ID` 5; protocol `15` since 0.43.0. Every
+action logs `SECT_ENTRY player=<name> intent=TASK_ACCEPT|TASK_TURN_IN|APPRENTICE sect=<id> result=ok|<reason>`.
+
+**Panel.** `MySect.taskName` carries the task id (the client shows
+`world_sim.task.<id>.name`), `taskProgress` (0 for a tribute) and
+`taskCount`; the 我的宗门 card has a 事务 row.
+
+**Evidence.** `python3 tools/world_sim_tasks_evidence.py [--sect ID]
+[--courier-tries 6] [--courier-timeout 15] [--skip-meditation]
+[--meditation-seconds 10]`: admin join and `rank inner`, TASK_ACCEPT at the
+steward, the task done by whichever kind was drawn (wolves summoned and
+killed by the player, stones given, or a walk to other sects' gates), the
+turn-in and contribution, no second offer, APPRENTICE at an elder, optional
+meditation samples without and with the master, the panel. Output
+`out/preview/world_sim/tasks/`. Results: TODO-EVIDENCE
+
+**Tests.** `WorldSimTasksTest`, `PlayerAffairsTest`, `SectDialogueScenesTest`,
+`SectTasksTest`, `WorldSimSnapshotsTest`, `SimDataLoaderTest`,
+`SectDialoguePayloadTest`, `WorldSimPayloadCodecTest`, `CombatPayloadTest`
+(protocol `15`), `tools/tests/test_validate_world_sim.py`,
+`tools/tests/test_world_sim_tasks_evidence.py`.
+
+**Open (owner).**
+
+1. Task counts and rewards (`sect_tasks.json`).
+2. One task a year: enough? An unfinished task does not expire at the new
+   year; it blocks the next offer until it is turned in.
+3. Apprenticeship does not ask the master to be of a higher realm than the
+   player.
+4. The contribution bars for promotion are still 0 (`rules.json`
+   `player.promotion`), so contribution buys nothing yet.
+5. A player does not take one of the master's `disciplesPerMaster` places.
+
 ## Evidence (slice 1)
 
 ```bash
@@ -522,14 +655,13 @@ and the Chinese text on a real client.
    `SECT_ENTRY ... result=rejoin_cooldown` line is only seen when JOIN is
    pressed on a stale page.
 
-Not built yet: contribution and sect tasks, taking a master, sect-event notifications
-beyond the player's own lines, becoming sect master, and true P4 (compounds
+Not built yet: sect-event notifications beyond the player's own lines, becoming sect master, and true P4 (compounds
 placed at ledger gates by worldgen).
 
 ## See also
 
 - [40_world_sim.md](40_world_sim.md) (the ledger, avatars, compounds, the 天下 page), [39_humanoid_npcs.md](39_humanoid_npcs.md) (the cultivator body, `DATA_LEDGER_ROLE`, looks), [37_cultivation_panel.md](37_cultivation_panel.md) (the H panel), [28_cultivation_core.md](28_cultivation_core.md) (profile, realms, spiritual root)
-- Briefs: `docs/player-sect-entry-brief.md`, `docs/sect-entry-slice1-tasks.md`, `docs/sect-entry-slice2-tasks.md`
+- Briefs: `docs/player-sect-entry-brief.md`, `docs/sect-entry-slice1-tasks.md`, `docs/sect-entry-slice2-tasks.md`, `docs/sect-entry-slice3-tasks.md`
 - Manuals and study: [41_technique_system.md](41_technique_system.md) ("Manuals and study")
 - [humanoid-npc-runtime](../../openspec/specs/humanoid-npc-runtime/spec.md), [sect-compound-realization](../../openspec/specs/sect-compound-realization/spec.md), [sect-worldgen-structure](../../openspec/specs/sect-worldgen-structure/spec.md)
 - Knowledge-base index: [INDEX.md](INDEX.md)

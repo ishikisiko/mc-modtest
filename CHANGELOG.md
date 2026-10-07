@@ -7,6 +7,104 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.43.0
+
+Slice 3 of player sect entry: sect tasks (宗门事务) for contribution, and
+apprenticeship (拜师) with a master's guidance in meditation. Design:
+`docs/player-sect-entry-brief.md` §4.4; package breakdown with the defaults
+the owner may overturn: `docs/sect-entry-slice3-tasks.md`. The owner's PC
+was not available; only automated checks and a headless capture ran.
+
+### Added
+
+- Data file `data/myvillage/world_sim/sect_tasks.json` (schema 1): rows of
+  `id`, `kind` (`patrol`, `tribute`, `courier`), `count`, `contribution`;
+  three rows ship (`patrol_beasts`, `tribute_stones`, `courier_letter`).
+  Loaded as `ContentTables.SectTask` (`SimData.sectTasks()`,
+  `sectTask(id)`); names and briefs `world_sim.task.<id>.name` / `.brief` in
+  both language files, registered through `TextKeys.taskKeys`.
+  `tools/validate_world_sim.py` `check_sect_tasks` (known kinds, positive
+  `count` and `contribution`, unique ids, the language keys).
+- Ledger record fields `taskId`, `taskProgress`, `taskTargetSectId`,
+  `taskYear`, saved as `task`, `task_progress`, `task_target`, `task_year`
+  (optional; payload version stays 3, an older payload reads with no task).
+  View `sim/TaskView`.
+- `WorldSim` facade: `task`, `offerTask` (computed, never stored),
+  `acceptTask` (`not_member`, `task_active`, `task_done_this_year`,
+  `no_task`), `advanceTask` (capped at the count; false when the kind does
+  not match), `completeTask` (`not_member`, `no_task`, `not_ready`;
+  contribution added, the task cleared, `taskYear` kept so no second task
+  this year), `apprentice` (`not_member`, `rank_too_low`, `has_master`,
+  `master_not_here`: the master must be a living elder or sect master of
+  the player's sect who is at the sect). The yearly pick is fixed for the
+  whole year: `SimRng.at(seed, first day of the year, playerId.hashCode(),
+  Purpose.PLAYER_TASK (405), year)` draws a row; a courier draws its
+  destination from the other active sects with the same rng, or, with none,
+  a non-courier row.
+- `PlayerAffairs.daily`, run by `Engine.step` after the people act: a
+  player whose master died or left the sect loses the master the same day
+  (`player_master_lost`); the yearly review still clears one silently as a
+  backstop.
+- Events `player_task_accept`, `player_task_done`, `player_apprentice`
+  (master as actor), `player_master_lost`, all importance 2; lines
+  `world_sim.event.player.task.accept.1`, `.task.done.1`, `.apprentice.1`,
+  `.master_lost.1`.
+- `sim/runtime/player/SectTasks`: patrol progress on `LivingDeathEvent` when
+  a beast (`BeastEntity`) is killed by the player standing in their sect's
+  home region; courier completion every 20 ticks when the player stands on
+  the destination sect's compound site (`SectCourtyard.footprint`); tribute
+  keeps no progress: at turn-in the low-grade spirit stones are counted,
+  the ledger completes the task, then the stones are taken, on the same
+  tick. Progress chat line `message.myvillage.world.sect.task_progress` and
+  `SECT_TASK player=<name> kind=<patrol|courier> progress=<p>/<n>` at INFO.
+- Dialogue: options `APPRENTICE` (3), `TASK_ACCEPT` (4), `TASK_TURN_IN` (5)
+  (`screen.myvillage.sect_dialogue.option.*`). A member at the steward hears
+  about their task between the greeting and the leave line: an offer
+  (领事务), progress, ready (交事务), or none left this year; an elder or
+  the master at the sect offers apprenticeship (拜师) to an inner disciple
+  or elder of the sect without a master. Results and refusals have their own
+  scenes (`world_sim.dialogue.steward.task.*`, `elder.apprentice.*`; a
+  tribute turn-in without the stones is `tribute_short`). The server checks
+  that the option fits the speaker's role and membership as before and logs
+  `SECT_ENTRY player=<name> intent=TASK_ACCEPT|TASK_TURN_IN|APPRENTICE sect=<id> result=ok|<reason>`.
+- Master's guidance: `WorldSimPlayers.masterGuidanceBasisPoints` gives
+  `10000 × (1 + rules.cultivation.master_guidance)` while the player's
+  master is alive and in the player's sect, else 10000;
+  `MeditationManager.progressFactorBasisPoints` multiplies it into the core
+  technique's factor.
+- 天下 page: the 我的宗门 card shows the open task (name and
+  progress/count; a tribute shows no progress). `WorldSimSnapshot.MySect`
+  gains `taskName` (the task id), `taskProgress`, `taskCount`.
+- `tools/world_sim_tasks_evidence.py`: one headless session (admin join and
+  inner rank, taking the year's task at the steward, doing it whichever kind
+  it is, turning it in, no second task, apprenticeship at an elder, optional
+  meditation samples with and without a master, the panel) into
+  `out/preview/world_sim/tasks/`.
+- Tests: `WorldSimTasksTest`, `PlayerAffairsTest` (master loss events),
+  `SectDialogueScenesTest`, `SectTasksTest`, `WorldSimSnapshotsTest`,
+  `SimDataLoaderTest`, `SectDialoguePayloadTest`, `WorldSimPayloadCodecTest`,
+  `CombatPayloadTest` (protocol `15`),
+  `tools/tests/test_validate_world_sim.py`,
+  `tools/tests/test_world_sim_tasks_evidence.py`.
+
+### Changed
+
+- `ModPayloads.PROTOCOL_VERSION` `14` → `15`: `SectIntentPayload` kinds up
+  to 5, `SectDialoguePayload` option ids up to 5, `MySect` task fields.
+  Client and server need the same jar.
+- The ledger's data is eight files (`sect_tasks.json` added).
+- `MeditationManager` settles with the core technique factor times the
+  master's guidance instead of the core factor alone.
+
+### Not verified
+
+- Everything on a physical client: the task lines and buttons, patrol kills
+  in the sect's region, a tribute's stones taken, a courier's arrival, the
+  turn-in and contribution, no second task this year, apprenticeship, a
+  master's loss, the meditation gain with a master, the panel's task row,
+  multiplayer, and the owner's verdict. See the README ledger "Sect tasks
+  and apprenticeship (0.43.0)".
+
 ## 0.42.0
 
 Slice 2 of player sect entry: the scripture hall (藏经阁). A ledger sect's
