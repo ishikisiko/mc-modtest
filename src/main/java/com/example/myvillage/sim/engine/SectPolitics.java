@@ -129,11 +129,18 @@ public final class SectPolitics {
         Person ma = ctx.state.persons.get(a.masterId);
         Person mb = ctx.state.persons.get(b.masterId);
         boolean aDeclares = mb == null || (ma != null && ma.aggression >= mb.aggression);
-        Sect declarer = aDeclares ? a : b;
-        Sect target = aDeclares ? b : a;
-        Person master = aDeclares ? ma : mb;
+        declare(ctx, aDeclares ? a : b, aDeclares ? b : a, ab.causeEventId);
+    }
+
+    /**
+     * {@code declarer} declares war on {@code target}: the {@code war} event (its master speaks)
+     * and both relations at war from today; returns the event id. Also the admin act
+     * ({@link AdminActs#declareWar}).
+     */
+    static long declare(SimContext ctx, Sect declarer, Sect target, long cause) {
+        Person master = ctx.state.persons.get(declarer.masterId);
         Chronicle.Builder event = ctx.chronicle.event("war", 3).sects(declarer.id, target.id)
-                .region(declarer.homeRegionId).cause(ab.causeEventId);
+                .region(declarer.homeRegionId).cause(cause);
         Anchor params = Anchor.of(ctx);
         if (master != null) {
             event.actors(master.id);
@@ -143,12 +150,13 @@ public final class SectPolitics {
         }
         params.add(target.name);
         long id = event.say(TextKeys.WAR_DECLARE, params);
-        for (SectRelation rel : new SectRelation[] {ab, ba}) {
+        for (SectRelation rel : new SectRelation[] {declarer.relationTo(target.id), target.relationTo(declarer.id)}) {
             rel.state = SectRelation.WAR;
             rel.causeEventId = id;
             rel.sinceDay = ctx.day();
             rel.score = 0;
         }
+        return id;
     }
 
     private static void war(SimContext ctx, Sect a, Sect b, SectRelation ab, SectRelation ba) {

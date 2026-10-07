@@ -251,4 +251,62 @@ class SectDialogueScenesTest {
         assertThrows(IllegalArgumentException.class, () -> SectDialogueKeys.key("steward.greet", 3));
         assertThrows(IllegalArgumentException.class, () -> SectDialogueKeys.pick("nobody.says", 0));
     }
+
+    // ------------------------------------------------------------------ hostile sects (slice 4)
+
+    private static Affairs visitor(boolean atWar, int standing) {
+        return Affairs.NONE.visitor(atWar, standing, -50);
+    }
+
+    @Test
+    void aSectAtWarTurnsTheEnemysPeopleAway() {
+        // a member of sect 3, at war with SECT, whom the steward would otherwise just turn away as a member elsewhere
+        Scene steward = SectDialogueScenes.decide(STEWARD, memberOf(3), Admission.admitted(), SECT, visitor(true, 20));
+        assertEquals(List.of("steward.refuse.at_war"), steward.lines());
+        assertEquals(List.of(Option.FAREWELL), steward.options());
+        assertEquals(List.of("steward.refuse.at_war"), SectDialogueScenes.openingLines(STEWARD, steward),
+                "no greeting, no introduction");
+        Scene elder = SectDialogueScenes.decide(ELDER, memberOf(3), Admission.admitted(), SECT, visitor(true, 20));
+        assertEquals(List.of("elder.refuse.at_war"), elder.lines());
+        assertEquals(List.of(Option.FAREWELL), elder.options());
+        assertEquals(List.of("elder.refuse.at_war"), SectDialogueScenes.openingLines(ELDER, elder));
+        // war outranks a hostile standing
+        assertEquals("steward.refuse.at_war",
+                SectDialogueScenes.decide(STEWARD, memberOf(3), Admission.admitted(), SECT, visitor(true, -80)).key());
+    }
+
+    @Test
+    void aHostileStandingIsTurnedAwayBeforeAnyInvitation() {
+        Scene steward = SectDialogueScenes.decide(STEWARD, memberOf(-1), Admission.admitted(), SECT, visitor(false, -51));
+        assertEquals(List.of("steward.refuse.hostile"), steward.lines());
+        assertEquals(List.of(Option.FAREWELL), steward.options());
+        assertEquals("elder.refuse.hostile",
+                SectDialogueScenes.decide(ELDER, memberOf(-1), Admission.admitted(), SECT, visitor(false, -51)).key());
+        assertEquals("steward.refuse.hostile",
+                SectDialogueScenes.decide(STEWARD, memberOf(3), Admission.admitted(), SECT, visitor(false, -100)).key());
+        // at the bar is not below it: invited as usual
+        assertEquals("steward.invite",
+                SectDialogueScenes.decide(STEWARD, memberOf(-1), Admission.admitted(), SECT, visitor(false, -50)).key());
+        assertEquals("elder.greet",
+                SectDialogueScenes.decide(ELDER, memberOf(-1), Admission.admitted(), SECT, visitor(false, -50)).key());
+    }
+
+    @Test
+    void roguesAreNotAtWarAndMembersAreNeverTurnedAway() {
+        // a rogue (no sect) is never at war, whatever the flag says
+        assertEquals("steward.invite",
+                SectDialogueScenes.decide(STEWARD, memberOf(-1), Admission.admitted(), SECT, visitor(true, 0)).key());
+        assertEquals("steward.invite",
+                SectDialogueScenes.decide(STEWARD, Optional.empty(), Admission.admitted(), SECT, visitor(true, 0)).key());
+        // this sect's own member: neither war nor standing applies
+        Scene member = SectDialogueScenes.decide(STEWARD, memberOf(SECT), Admission.refused(Admission.ALREADY_MEMBER),
+                SECT, visitor(true, -100));
+        assertEquals(List.of("steward.member", "steward.leave_ask"), member.lines());
+        assertEquals("elder.member", SectDialogueScenes.decide(ELDER, memberOf(SECT),
+                Admission.refused(Admission.ALREADY_MEMBER), SECT, visitor(true, -100)).key());
+        assertTrue(SectDialogueScenes.turnedAway(STEWARD, memberOf(SECT), SECT, visitor(true, -100)).isEmpty());
+        // without the slice-4 facts (the four-field affairs) nobody is hostile
+        assertFalse(Affairs.NONE.hostile());
+        assertFalse(new Affairs(Optional.empty(), Optional.empty(), false, false).atWar());
+    }
 }

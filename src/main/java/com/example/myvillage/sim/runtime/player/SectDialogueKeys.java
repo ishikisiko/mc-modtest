@@ -39,6 +39,12 @@ public final class SectDialogueKeys {
     public static final String APPRENTICE_DONE = "elder.apprentice.done";
     public static final String APPRENTICE_REFUSE = "elder.apprentice.refuse.";
 
+    // hostile sects turn visitors away, slice 4
+    public static final String STEWARD_REFUSE_AT_WAR = "steward.refuse.at_war";
+    public static final String STEWARD_REFUSE_HOSTILE = "steward.refuse.hostile";
+    public static final String ELDER_REFUSE_AT_WAR = "elder.refuse.at_war";
+    public static final String ELDER_REFUSE_HOSTILE = "elder.refuse.hostile";
+
     /** A join or leave refused for want of an active ledger (not an {@link Admission} reason). */
     public static final String INACTIVE = "inactive";
     /** A leave from someone who is not in a sect (not an {@link Admission} reason). */
@@ -98,6 +104,10 @@ public final class SectDialogueKeys {
         for (String reason : APPRENTICE_REFUSALS) {
             put(variants, params, APPRENTICE_REFUSE + reason, 1, 0);
         }
+        put(variants, params, STEWARD_REFUSE_AT_WAR, 1, 0);
+        put(variants, params, STEWARD_REFUSE_HOSTILE, 1, 0);
+        put(variants, params, ELDER_REFUSE_AT_WAR, 1, 0);
+        put(variants, params, ELDER_REFUSE_HOSTILE, 1, 0);
         VARIANTS = Collections.unmodifiableMap(variants);
         PARAMS = Collections.unmodifiableMap(params);
     }

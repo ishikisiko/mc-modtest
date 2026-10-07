@@ -325,9 +325,13 @@ public record Rules(
         public static final String MORTAL = "mortal";
     }
 
-    /** {@code min} comes from the flat {@code min_realm}/{@code min_stage} fields. */
+    /**
+     * {@code min} comes from the flat {@code min_realm}/{@code min_stage} fields. A visitor whose
+     * standing with a sect is below {@code hostileStandingBelow} is turned away by its steward and
+     * elders (slice 4).
+     */
     public record PlayerAdmission(boolean requireAwakenedRoot, PlayerRealmStage min, int joinStanding,
-                                  PlayerSelective selective) {
+                                  PlayerSelective selective, int hostileStandingBelow) {
     }
 
     /**
@@ -667,7 +671,7 @@ public record Rules(
                 "steward", "gates"));
 
         SimJson.Fields ad = pl.object("admission", Set.of("require_awakened_root", "min_realm", "min_stage",
-                "join_standing", "selective"));
+                "join_standing", "selective", "hostile_standing_below"));
         SimJson.Fields sel = ad.object("selective", Set.of("prestige_at_least", "root_peak_bp_at_least",
                 "or_min_realm"));
         PlayerAdmission admission = new PlayerAdmission(
@@ -676,7 +680,8 @@ public record Rules(
                 ad.integer("join_standing", -100, 100),
                 new PlayerSelective(sel.nonNegativeNumber("prestige_at_least"),
                         sel.integer("root_peak_bp_at_least", 0, 10000),
-                        playerRealm(sel, "or_min_realm", realms)));
+                        playerRealm(sel, "or_min_realm", realms)),
+                ad.integer("hostile_standing_below", -100, 100));
 
         SimJson.Fields lv = pl.object("leave", Set.of("standing_penalty", "rejoin_standing_at_least", "rejoin_years",
                 "standing_recovery_per_year"));

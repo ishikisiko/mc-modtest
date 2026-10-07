@@ -5,6 +5,7 @@ import com.example.myvillage.region.runtime.RegionGraph;
 import com.example.myvillage.region.runtime.RegionQueries;
 import com.example.myvillage.sim.data.ContentTables;
 import com.example.myvillage.sim.data.SimDataLoader;
+import com.example.myvillage.sim.engine.AdminActs;
 import com.example.myvillage.sim.engine.Engine;
 import com.example.myvillage.sim.engine.PlayerAffairs;
 import com.example.myvillage.sim.engine.SimContext;
@@ -627,6 +628,28 @@ public final class WorldSim {
     }
 
     // ------------------------------------------------------------------ mutations
+
+    /**
+     * Admin: {@code sectA} declares war on {@code sectB} now. Both relations are at war from today
+     * and the {@code war} event (the declarer's master speaks, as in a war of the yearly politics)
+     * is recorded, timed like {@link #joinSect}; the war then runs its yearly course. Throws
+     * IllegalArgumentException with the reason {@code no_sect}, {@code same_sect},
+     * {@code sect_inactive} or {@code already_at_war}.
+     */
+    public SimEvent declareWar(int sectA, int sectB) {
+        return AdminActs.declareWar(ctx, sectA, sectB);
+    }
+
+    /**
+     * Admin: the sect is destroyed now, as by ruin: the {@code sect_destroyed} event (the ruin
+     * line) and then the dissolution's own (members become rogues, its players are released with
+     * {@code player_leave} lines, a held heritage is lost), timed like {@link #joinSect}. Returns the
+     * {@code sect_destroyed} event; the others follow it in the chronicle with it as their cause.
+     * Throws IllegalArgumentException with the reason {@code no_sect} or {@code sect_inactive}.
+     */
+    public SimEvent destroySect(int sectId) {
+        return AdminActs.destroySect(ctx, sectId);
+    }
 
     public void markGateRealized(int sectId, boolean realized) {
         requireSect(sectId).gateRealized = realized;

@@ -50,6 +50,10 @@ import net.minecraft.server.level.ServerPlayer;
  *       ({@link WorldSimPlayers})</li>
  *   <li>{@code sect <id> rank <player> <outer|inner|elder>} — admin: set a member's rank (a rise records
  *       {@code player_promotion})</li>
+ *   <li>{@code sect <a> war <b>} — admin: sect a declares war on sect b now ({@code WorldSim.declareWar});
+ *       members of both hear it as sect news</li>
+ *   <li>{@code sect <id> destroy} — admin: the sect is destroyed now ({@code WorldSim.destroySect}); its people
+ *       become rogues, its players are released and told, its avatars withdraw on the next pass</li>
  *   <li>{@code player <player>} — a player's ledger record: sect, rank, joining date, master, contribution,
  *       standing with each sect, the sect they last left</li>
  *   <li>{@code person <name>} — people whose name or Daoist title contains the text, living first</li>
@@ -65,6 +69,8 @@ public final class WorldSimCommands {
     private static final int MAX_CHRONICLE = 50;
     private static final int PERSON_MATCHES = 5;
     private static final int LIST_PEOPLE = 8;
+    /** Most events one admin act is followed by (a destruction: the ruin, released players, a lost heritage). */
+    private static final int MAX_ADMIN_EVENTS = 256;
 
     private WorldSimCommands() {
     }
@@ -102,7 +108,15 @@ public final class WorldSimCommands {
                                                         .executes(ctx -> rankPlayer(ctx.getSource(),
                                                                 IntegerArgumentType.getInteger(ctx, "id"),
                                                                 EntityArgument.getPlayer(ctx, "player"),
-                                                                StringArgumentType.getString(ctx, "rank")))))))
+                                                                StringArgumentType.getString(ctx, "rank"))))))
+                                .then(Commands.literal("war")
+                                        .then(Commands.argument("other", IntegerArgumentType.integer(0))
+                                                .executes(ctx -> declareWar(ctx.getSource(),
+                                                        IntegerArgumentType.getInteger(ctx, "id"),
+                                                        IntegerArgumentType.getInteger(ctx, "other")))))
+                                .then(Commands.literal("destroy")
+                                        .executes(ctx -> destroySect(ctx.getSource(),
+                                                IntegerArgumentType.getInteger(ctx, "id")))))
                         .then(Commands.argument("query", StringArgumentType.greedyString())
                                 .executes(ctx -> sect(ctx.getSource(), StringArgumentType.getString(ctx, "query")))))
                 .then(Commands.literal("person")
@@ -512,6 +526,57 @@ public final class WorldSimCommands {
         WorldSimSavedData.get(source.getServer().overworld()).setDirty();
         send(source, () -> WorldSimText.line("sect_rank.done", name, sectName, WorldSimText.rank(rank)), true);
         event.ifPresent(e -> target.sendSystemMessage(WorldSimText.event(e)));
+        return 1;
+    }
+
+    /**
+     * Admin: {@code sectA} declares war on {@code sectB} ({@code WorldSim.declareWar}); online members
+     * of both are told at once ({@link WorldSimPlayers#announce}).
+     */
+    private static int declareWar(CommandSourceStack source, int sectA, int sectB) {
+        Optional<WorldSimDriver> active = active(source);
+        if (active.isEmpty()) {
+            return 0;
+        }
+        WorldSim sim = active.get().sim();
+        SimEvent event;
+        try {
+            event = sim.declareWar(sectA, sectB);
+        } catch (IllegalArgumentException ex) {
+            source.sendFailure(WorldSimText.line("sect_war.failed", String.valueOf(ex.getMessage())));
+            return 0;
+        }
+        WorldSimSavedData.get(source.getServer().overworld()).setDirty();
+        WorldSimPlayers.announce(source.getServer(), sim, List.of(event));
+        String a = sectName(sim, sectA);
+        String b = sectName(sim, sectB);
+        send(source, () -> WorldSimText.line("sect_war.done", a, b), true);
+        return 1;
+    }
+
+    /**
+     * Admin: the sect is destroyed ({@code WorldSim.destroySect}); the destruction and the
+     * dissolution's events are announced at once ({@link WorldSimPlayers#announce}: released players
+     * hear their {@code player_leave} line and the news). The avatars withdraw on the next avatar pass,
+     * which drops every sect whose ledger no longer agrees with its gate.
+     */
+    private static int destroySect(CommandSourceStack source, int sectId) {
+        Optional<WorldSimDriver> active = active(source);
+        if (active.isEmpty()) {
+            return 0;
+        }
+        WorldSim sim = active.get().sim();
+        SimEvent event;
+        try {
+            event = sim.destroySect(sectId);
+        } catch (IllegalArgumentException ex) {
+            source.sendFailure(WorldSimText.line("sect_destroy.failed", String.valueOf(ex.getMessage())));
+            return 0;
+        }
+        WorldSimSavedData.get(source.getServer().overworld()).setDirty();
+        WorldSimPlayers.announce(source.getServer(), sim, sim.recentEvents(1, MAX_ADMIN_EVENTS, e -> e.id() >= event.id()));
+        String name = sectName(sim, sectId);
+        send(source, () -> WorldSimText.line("sect_destroy.done", name), true);
         return 1;
     }
 

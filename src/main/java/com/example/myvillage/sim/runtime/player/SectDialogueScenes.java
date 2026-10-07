@@ -19,6 +19,10 @@ public final class SectDialogueScenes {
     /** Dialogue roles (the avatar's {@code NpcEntity#ledgerRole()}). */
     public static final String ROLE_STEWARD = "steward";
     public static final String ROLE_ELDER = "elder";
+    /** The scenes of {@link #turnedAway}. */
+    private static final List<String> HOSTILE_REFUSALS = List.of(SectDialogueKeys.STEWARD_REFUSE_AT_WAR,
+            SectDialogueKeys.STEWARD_REFUSE_HOSTILE, SectDialogueKeys.ELDER_REFUSE_AT_WAR,
+            SectDialogueKeys.ELDER_REFUSE_HOSTILE);
 
     /** A choice offered to the player; {@link #id()} is its fixed network id, shared with {@code SectIntentPayload.kind}. */
     public enum Option {
@@ -89,20 +93,41 @@ public final class SectDialogueScenes {
     }
 
     /**
-     * What the dialogue knows about the player's sect task and master, for {@link #decide}.
+     * What the dialogue knows about the player's sect task and master, and how the speaker's sect
+     * stands with them as a visitor, for {@link #decide}.
      *
      * @param task          the player's open task
      * @param offer         the task the steward would hand out now ({@code WorldSim.offerTask})
      * @param tributeReady  the inventory holds the stones an open tribute task asks for
      * @param canApprentice the speaker may take the player as disciple ({@link #canApprentice})
+     * @param atWar         the player's sect is at war with the speaker's (never for a rogue)
+     * @param standing      the player's standing (交情) with the speaker's sect
+     * @param hostileBelow  {@code rules.player.admission.hostile_standing_below}: a standing below
+     *                      it is hostile ({@link Integer#MIN_VALUE}: never)
      */
     public record Affairs(Optional<TaskView> task, Optional<TaskView> offer, boolean tributeReady,
-                          boolean canApprentice) {
+                          boolean canApprentice, boolean atWar, int standing, int hostileBelow) {
         public static final Affairs NONE = new Affairs(Optional.empty(), Optional.empty(), false, false);
 
         public Affairs {
             Objects.requireNonNull(task, "task");
             Objects.requireNonNull(offer, "offer");
+        }
+
+        /** Affairs of a visitor at peace and not hostile. */
+        public Affairs(Optional<TaskView> task, Optional<TaskView> offer, boolean tributeReady,
+                       boolean canApprentice) {
+            this(task, offer, tributeReady, canApprentice, false, 0, Integer.MIN_VALUE);
+        }
+
+        /** These affairs with how the speaker's sect stands with the player. */
+        public Affairs visitor(boolean atWar, int standing, int hostileBelow) {
+            return new Affairs(task, offer, tributeReady, canApprentice, atWar, standing, hostileBelow);
+        }
+
+        /** The player's standing with the speaker's sect is below the hostile bar. */
+        public boolean hostile() {
+            return standing < hostileBelow;
         }
     }
 
@@ -129,7 +154,8 @@ public final class SectDialogueScenes {
      * The task line comes between {@code steward.member} and {@code steward.leave_ask}. Elder: a
      * greeting (FAREWELL); a member of this sect whom the elder may take as disciple is offered
      * apprenticeship ({@code elder.apprentice.offer}: APPRENTICE, FAREWELL), any other member is
-     * greeted by rank.
+     * greeted by rank. Before all that, a player who is not of this sect is turned away
+     * ({@link #turnedAway}) when their sect is at war with this one or their standing is hostile.
      */
     public static Scene decide(String role, Optional<PlayerMemberView> me, Admission admission, int sectId,
                                Affairs affairs) {
@@ -137,6 +163,13 @@ public final class SectDialogueScenes {
         Objects.requireNonNull(affairs, "affairs");
         boolean here = me.isPresent() && me.get().inSect() && me.get().sectId() == sectId;
         boolean elsewhere = me.isPresent() && me.get().inSect() && me.get().sectId() != sectId;
+        if (!ROLE_ELDER.equals(role) && !ROLE_STEWARD.equals(role)) {
+            throw new IllegalArgumentException("no dialogue for role " + role);
+        }
+        Optional<Scene> away = turnedAway(role, me, sectId, affairs);
+        if (away.isPresent()) {
+            return away.get();
+        }
         if (ROLE_ELDER.equals(role)) {
             if (here && affairs.canApprentice()) {
                 return new Scene(List.of(SectDialogueKeys.APPRENTICE_OFFER), List.of(Option.APPRENTICE, Option.FAREWELL));
@@ -157,6 +190,31 @@ public final class SectDialogueScenes {
             return new Scene(List.of(SectDialogueKeys.STEWARD_INVITE), List.of(Option.JOIN, Option.FAREWELL));
         }
         return refused(admission.reason());
+    }
+
+    /**
+     * The scene of a hostile sect's steward or elder for a player who is not of it, or empty:
+     * their sect at war with this one ({@code affairs.atWar()}, never for a rogue) →
+     * {@code steward|elder.refuse.at_war}; else a standing below the hostile bar
+     * ({@code affairs.hostile()}) → {@code steward|elder.refuse.hostile}; FAREWELL only.
+     */
+    public static Optional<Scene> turnedAway(String role, Optional<PlayerMemberView> me, int sectId,
+                                             Affairs affairs) {
+        boolean here = me.isPresent() && me.get().inSect() && me.get().sectId() == sectId;
+        if (here) {
+            return Optional.empty();
+        }
+        boolean steward = ROLE_STEWARD.equals(role);
+        boolean atWar = affairs.atWar() && me.isPresent() && me.get().inSect();
+        if (atWar) {
+            return Optional.of(new Scene(List.of(steward ? SectDialogueKeys.STEWARD_REFUSE_AT_WAR
+                    : SectDialogueKeys.ELDER_REFUSE_AT_WAR), List.of(Option.FAREWELL)));
+        }
+        if (affairs.hostile()) {
+            return Optional.of(new Scene(List.of(steward ? SectDialogueKeys.STEWARD_REFUSE_HOSTILE
+                    : SectDialogueKeys.ELDER_REFUSE_HOSTILE), List.of(Option.FAREWELL)));
+        }
+        return Optional.empty();
     }
 
     private static Scene memberScene(PlayerMemberView me, Affairs affairs) {
@@ -252,10 +310,13 @@ public final class SectDialogueScenes {
     /**
      * The lines an opened dialogue shows: the steward greets and
      * introduces the sect before the scene; an elder introduces it to a non-member after a greeting.
+     * A hostile sect's refusal ({@link #turnedAway}) is said without greeting or introduction.
      */
     public static List<String> openingLines(String role, Scene scene) {
         List<String> out = new ArrayList<>();
-        if (ROLE_STEWARD.equals(role)) {
+        if (HOSTILE_REFUSALS.contains(scene.key())) {
+            out.addAll(scene.lines());
+        } else if (ROLE_STEWARD.equals(role)) {
             out.add(SectDialogueKeys.STEWARD_GREET);
             out.add(SectDialogueKeys.STEWARD_INTRO);
             out.addAll(scene.lines());

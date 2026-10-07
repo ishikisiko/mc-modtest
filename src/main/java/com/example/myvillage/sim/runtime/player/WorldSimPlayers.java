@@ -32,7 +32,8 @@ import org.slf4j.LoggerFactory;
  * facade, marks {@code WorldSimSavedData} dirty, sends the player's chat lines and logs
  * {@code SECT_ENTRY player=<name> intent=JOIN|LEAVE sect=<id> result=ok|<reason>}.
  * {@link #register()} refreshes snapshots on login and on settlement days, and tells an online
- * player the day's {@code player_*} events about them.
+ * player the day's {@code player_*} events about them and the day's news of their sect
+ * ({@link SectNews}, slice 4) wherever they are ({@link #announce}).
  *
  * <p>Admission is the ledger's ({@code WorldSim.joinSect}, with {@code force} for the admin
  * command); the command path logs the same {@code SECT_ENTRY} line as the dialogue. Sect tasks and
@@ -91,14 +92,31 @@ public final class WorldSimPlayers {
         if (members) {
             markDirty(server);
         }
-        for (SimEvent e : events) {
-            if (!e.type().startsWith(PLAYER_EVENT_PREFIX) || e.params().isEmpty()) {
-                continue;
-            }
-            String name = e.params().get(0);
-            for (ServerPlayer player : online) {
-                if (player.getGameProfile().getName().equals(name)) {
-                    player.sendSystemMessage(WorldSimText.event(e));
+        announce(server, sim, events);
+    }
+
+    /**
+     * Tells each online player, in event order, the {@code player_*} events that name them
+     * ({@code params[0]}) and, as a {@link SectNews#NEWS_KEY} line, the events that are news of
+     * their sect ({@link SectNews#relevant}), wherever they are. Called for every settled day and
+     * by the admin acts ({@code world sect <a> war <b>}, {@code world sect <id> destroy}), whose
+     * events no settled day returns. Offline players are not told later.
+     */
+    public static void announce(MinecraftServer server, WorldSim sim, List<SimEvent> events) {
+        if (events.isEmpty()) {
+            return;
+        }
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            String name = player.getGameProfile().getName();
+            Optional<PlayerMemberView> me = sim.playerMember(player.getUUID().toString());
+            for (SimEvent e : events) {
+                if (e.type().startsWith(PLAYER_EVENT_PREFIX)) {
+                    if (!e.params().isEmpty() && e.params().get(0).equals(name)) {
+                        player.sendSystemMessage(WorldSimText.event(e));
+                    }
+                } else if (me.isPresent() && SectNews.relevant(e, me.get())) {
+                    player.sendSystemMessage(Component.translatable(SectNews.NEWS_KEY, WorldSimText.event(e)));
+                    LOGGER.info("SECT_NEWS player={} event={} type={} sects={}", name, e.id(), e.type(), e.sects());
                 }
             }
         }

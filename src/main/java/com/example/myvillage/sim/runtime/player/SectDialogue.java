@@ -43,6 +43,8 @@ public final class SectDialogue {
     static final String UNAVAILABLE_KEY = "message.myvillage.world.sect.unavailable";
     static final String NONE_KEY = "screen.myvillage.sect_dialogue.none";
     private static final int MAX_TRACKED_PLAYERS = 256;
+    /** {@code SectView.Relation.state} of two sects at war. */
+    static final String WAR = "war";
 
     private static final Map<UUID, Integer> LAST_INTENT_TICK = new LinkedHashMap<>(16, 0.75f, true) {
         @Override
@@ -70,7 +72,7 @@ public final class SectDialogue {
         Speaker s = speaker.get();
         Optional<PlayerMemberView> me = s.sim().playerMember(player.getUUID().toString());
         Admission admission = admission(s.sim(), player, s.sect().id());
-        SectDialogueScenes.Affairs affairs = affairs(s, player, me);
+        SectDialogueScenes.Affairs affairs = visitor(s, me, affairs(s, player, me));
         SectDialogueScenes.Scene scene = SectDialogueScenes.decide(s.role(), me, admission, s.sect().id(), affairs);
         send(player, s, me, admission, SectDialogueScenes.openingLines(s.role(), scene), scene.options(),
                 shownTask(affairs));
@@ -111,8 +113,10 @@ public final class SectDialogue {
         Optional<PlayerMemberView> me = s.sim().playerMember(playerId);
         boolean here = me.isPresent() && me.get().inSect() && me.get().sectId() == s.sect().id();
         boolean steward = SectDialogueScenes.ROLE_STEWARD.equals(s.role());
+        boolean away = SectDialogueScenes.turnedAway(s.role(), me, s.sect().id(),
+                visitor(s, me, SectDialogueScenes.Affairs.NONE)).isPresent();
         boolean offered = switch (option) {
-            case JOIN -> steward && !here;
+            case JOIN -> steward && !here && !away;
             case LEAVE, TASK_ACCEPT, TASK_TURN_IN -> steward && here;
             case APPRENTICE -> SectDialogueScenes.ROLE_ELDER.equals(s.role()) && here;
             case FAREWELL -> false;
@@ -120,7 +124,7 @@ public final class SectDialogue {
         if (!offered) {
             // not an option this page offered: show the page as it stands now
             Admission admission = admission(s.sim(), player, s.sect().id());
-            SectDialogueScenes.Affairs affairs = affairs(s, player, me);
+            SectDialogueScenes.Affairs affairs = visitor(s, me, affairs(s, player, me));
             SectDialogueScenes.Scene scene = SectDialogueScenes.decide(s.role(), me, admission, s.sect().id(),
                     affairs);
             send(player, s, me, admission, scene.lines(), scene.options(), shownTask(affairs));
@@ -190,6 +194,25 @@ public final class SectDialogue {
         boolean tributeReady = task.filter(t -> ContentTables.TASK_TRIBUTE.equals(t.kind()))
                 .map(t -> SectTasks.tributeReady(player, t)).orElse(false);
         return new SectDialogueScenes.Affairs(task, offer, tributeReady, false);
+    }
+
+    /**
+     * The affairs with how the speaker's sect stands with the player (slice 4): at war when the
+     * player is in another sect whose relation to this one is {@code war}; the player's standing
+     * with this sect; the hostile bar of {@code rules.player.admission} (none without rules).
+     */
+    private static SectDialogueScenes.Affairs visitor(Speaker s, Optional<PlayerMemberView> me,
+                                                      SectDialogueScenes.Affairs affairs) {
+        int sectId = s.sect().id();
+        boolean atWar = me.isPresent() && me.get().inSect() && me.get().sectId() != sectId
+                && s.sim().sect(me.get().sectId())
+                        .map(mine -> mine.relations().stream().anyMatch(r -> r.otherSectId() == sectId
+                                && WAR.equals(r.state())))
+                        .orElse(false);
+        int standing = me.map(m -> m.standings().getOrDefault(sectId, 0)).orElse(0);
+        int below = WorldSimRuntime.data().map(d -> d.rules().player().admission().hostileStandingBelow())
+                .orElse(Integer.MIN_VALUE);
+        return affairs.visitor(atWar, standing, below);
     }
 
     /** The task an opened page talks about: the open one, else the offer. */
