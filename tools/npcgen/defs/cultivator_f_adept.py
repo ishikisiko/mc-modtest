@@ -27,22 +27,24 @@ Female geometry against the default look (texels):
     head top                   60 (hair 61, crown 64)    58 (hair cap 59; bun 7 x 3 x 6 at h 59..62,
                                                          z 1.5..7.5, cap 5 x 1 x 4 to h 63)
     neck (chin underside)      48                        46; shoulder pivots 4 below as before
-    face widths                13 / 11 / 9 / 7           11 / 9 / 7 / 5 (skull, jaw, jaw_low, chin):
-                                                         12 rows tall, 11 wide, pointed chin
+    head                       one cube 13 wide,         one cube 11 wide, 12 tall, 12 deep (h 46..58),
+                               12 tall (h 48..60)        as the anime skins' heads: the face shape
+                                                         comes from the fringe and the side hair
     hand                       4 x 5 x 4                 3 x 4 x 2, half of it inside the cuff
     leg swing                  26 deg                    20 deg, hips sway 1.5 deg (body z)
     arms                       hanging                   hands folded before the belly, right over
                                                          left, in the rest pose itself
 
-Face (columns a from the centre column, rows r down from the cranium's top at h 58):
-    r0 hair across; r1 temple corners (a = 4) hair; sideburns a = 5 down to the cranium's bottom
-    (r7); open forehead, straight hairline, no fringe, no forehead mark.
-    r3 willow brow: a1 faint, a2 mid, a3 full, a4 fading on the same row into the sideburn.
-    r4 eye, upper row: white a2, dark iris top a3, the lash lifting at the outer corner a4 (1 texel).
-    r5 eye, lower row: white a2, bright amber iris a3, white a4.
-    r7 a one-texel nose standing proud, its up-facing top painted dark.
-    r9 lips: three warm texels, the middle one deeper.
-    Jaw contour one tone darker at (4, r8-9), (3, r10), (2, r11).
+Face (columns a from the centre column, rows r down from the cranium's top at h 58), copied from the
+anime skins (二次元皮肤) as the default look's is: pale flat skin, no brow, no nose, no contour marks.
+    r0-r3 the fringe, parted in the middle but covering the top half in strands of alternating tone:
+    r0..r3 at the parting (a = 0), to r4 at a = 2 and 4, the strand tips to r5 on the odd columns;
+    the side hair a = 6 (the hair shell's edge column) down to the chin: the head is one plain cube
+    (11 x 12 face) like the skins' heads, its shape framed by the fringe and the side hair.
+    r5 the lash's inner corner a = 2, one row up.   r6 the lash line a = 2..4, its tail a = 5 fainter.
+    r7-9 the eye: a violet iris a = 2..3 running dark to light downward, a white column a = 4
+    outside it (r7..r8), a faint blush under it at r9.
+    r10 a small rouged mouth a = 0..1.
 
 Motion: idle 4 s (breathing +-0.25, the drops swing about a texel at their ends, the shawl drifts,
 legs untouched); walk with the planted foot travelling evenly (`_leg_angle`/`_sole_low`), the
@@ -95,16 +97,17 @@ DRAPE = ramp("#A88C58", "#C2A770", "#D8C08C", "#E8D5A8", "#F4E6C6", "#FCF5E4")
 JADE = ramp("#22665A", "#338C7A", "#52B09A", "#84D6BA", "#BCF0DB", "#E6FCF1")
 PEARL = ramp("#A9A39C", "#CFC9C2", "#ECE8E2", "#FFFFFF")
 CORAL = ramp("#6E1A26", "#9A2834", "#C23D44", "#DF6460")
-SKIN = ramp("#AC7E69", "#C79A83", "#DFB59D", "#EFCAB4", "#F8DCCA", "#FFEADC", "#FFF5EE")
+SKIN = ramp("#B88A70", "#D4A68A", "#EAC3A8", "#F6D8C2", "#FDE6D4", "#FFF0E3", "#FFF7EE")
 HAIR = ramp("#0A0A11", "#13151F", "#1C202D", "#282E40", "#373F56", "#4C5672", "#66718F")
 SHOE = ramp("#2E1222", "#45192F", "#5E2441", "#7A3256")
 LIP = "#C46A6E"
 LIP_DEEP = "#A44F5A"
-EYE_WHITE = "#F5F2F0"
-IRIS_TOP = "#6A4232"
-IRIS = "#A8744A"
-LASH = "#1A1216"
-BROW = "#47333A"
+BLUSH = "#F2A0A0"        # the cheek texel under the eye's white column
+EYE_WHITE = "#F8FAFF"    # the eye's outer column, white as in the skins
+IRIS_TOP = "#4A1F6B"     # the iris, dark violet at the top ...
+IRIS = "#8E4FC4"         # ... through the mid violet (the coat's dye family) ...
+IRIS_LOW = "#D9A8F0"     # ... to light at the bottom (the skins' vertical gradient)
+LASH = "#171522"         # the lash line over the eye and its rising inner corner
 
 # Shells whose texture is partly cut out: they cast no baked shadow, and only they have holes.
 HOLLOW = ("hair", "coat", "loop_right", "loop_left", "hair_back_tip")
@@ -157,15 +160,12 @@ def build_model():
     _pair(b, "drape_sag_{}", "body", (-12.5, -40.5, 5.6), rot=(0.0, 0.0, -62.0),
           boxes=[("drape_sag_{}_band", (-1.0, -0.5, -0.5), (2, 13, 1))], local=True)
 
-    # ---- head: 11 texels wide, the jaw stepping in to a pointed chin (11/9/7/5), a cut-out hair shell
-    # with a stepped top, a high bun set back, a gold comb, the hairpin (步摇) with its drop, two side
+    # ---- head: one cube 11 texels wide from the chin to the crown, as the anime skins' heads are (the
+    # stepped jaw to a pointed chin read as uncanny); the face shape comes from the fringe and the side
+    # hair that frame it; a cut-out hair shell with a stepped top, a high bun set back, a gold comb, the hairpin (步摇) with its drop, two side
     # loops (垂鬟), earrings
     b.bone("head", "body", at=(0.0, -NECK, 0.0))
-    _box(b, "head", "skull", -5.5, 50, -5.5, 11, 8, 12)
-    _box(b, "head", "jaw", -4.5, 48, -5.5, 9, 2, 8)
-    _box(b, "head", "jaw_low", -3.5, 47, -5.5, 7, 1, 7)
-    _box(b, "head", "chin", -2.5, 46, -5.5, 5, 1, 5)
-    _box(b, "head", "nose", -0.5, 50, -6.5, 1, 1, 1)
+    _box(b, "head", "skull", -5.5, 46, -5.5, 11, 12, 12)
     _box(b, "head", "hair", -6.5, 46, -6.5, 13, 12, 14)
     _box(b, "head", "hair_cap", -5.5, 58, -5.5, 11, 1, 12)
     # a low, wide bun over the back half of the crown, rounded by a smaller cap
@@ -240,17 +240,15 @@ class _Paint(HumanoidPaint):
 
     SKIN = SKIN
     HAIR = HAIR
-    NOSE_TOP = 51.0                  # the nose box spans h 50..51
     FINGER_ROW = 12.0                # the hand's last row, bone-local
     HAND_EXCLUDE = ("cuff_right", "sleeve_lower_right")
-    JAW_BACK = 2.5                   # the jaw box's back face
 
     def __init__(self, model):
         super().__init__(model, HOLLOW, {
             "torso": self.torso, "skirt_top": self.skirt_top, "chest_band": self.chest_band, "cord": self.cord,
             "coat": self.coat, "neck": self.neck, "collar": self.collar, "coat_edge_right_band": self.coat_edge,
             "drape_sag_right_band": self.drape, "drape_right_strip": self.drape, "drape_right_low_strip": self.drape,
-            "skull": self.skull, "jaw": self.jaw, "jaw_low": self.jaw, "chin": self.jaw, "nose": self.nose,
+            "skull": self.skull,
             "hair": self.hair, "hair_cap": self.hair, "bun": self.bun, "bun_top": self.bun, "flower": self.flower,
             "loop_right": self.loop, "earring_right_drop": self.earring,
             "pin_rod": self.pin, "pin_head": self.pin, "pin_bead": self.bead,
@@ -264,46 +262,47 @@ class _Paint(HumanoidPaint):
 
     # ---- face
     def face(self, t):
-        """The front of the head as a symmetric texel map keyed on (a, r): a columns from the centre
-        column, r rows down from the cranium's top."""
+        """The front of the head as a symmetric texel map copied from the anime skins (二次元皮肤),
+        keyed on (a, r): a columns from the centre column, r rows down from the cranium's top. The
+        parted fringe covers the top half in strands; the eyes sit in the lower half, each a violet
+        iris two columns wide running dark to light downward with a white column outside it, a lash
+        line on top whose inner corner rises a row; no brow (under the fringe), no nose, a faint blush
+        under the white column, and a small rouged mouth on pale flat skin."""
         x, h, _ = _xhz(t)
         a = abs(int(round(x)))            # 0..5
         r = int(HEAD_TOP - h)             # 0..11
         if h >= _hairline(a):
             return _tone(HAIR, 1.6)
-        tone = 4.7 - 0.8 * _clamp(1.5 - (_hairline(a) - h))
+        tone = 5.5 - 0.4 * _clamp(1.5 - (_hairline(a) - h))   # the fringe's shadow, soft
         skin = lambda d=0.0: _tone(SKIN, tone + d)  # noqa: E731  (no cloth noise: the face stays symmetric)
-        if r == 3:                                   # 柳叶眉: thin at the head, full in the middle,
-            if a == 1:                               # its tail fading into the sideburn on the same row
-                return _mix(_rgb(BROW), skin(), 0.7)
-            if a == 2:
-                return _mix(_rgb(BROW), skin(), 0.25)
-            if a == 3:
-                return _rgb(BROW)
+        if r == 5 and a == 2:
+            return _rgb(LASH)                               # the lash's inner corner, one row up
+        if r == 6:
+            if 2 <= a <= 4:
+                return _rgb(LASH)                           # the lash line
+            if a == 5:
+                return _mix(_rgb(LASH), skin(), 0.45)       # its tail toward the sideburn
+        if r in (7, 8, 9):
+            if a in (2, 3):
+                return _rgb((IRIS_TOP, IRIS, IRIS_LOW)[r - 7])   # the iris, dark to light downward
             if a == 4:
-                return _mix(_rgb(BROW), skin(), 0.45)
-        if r == 4:
-            if a == 2:
-                return _rgb(EYE_WHITE)
-            if a == 3:
-                return _rgb(IRIS_TOP)
-            if a == 4:
-                return _rgb(LASH)                    # the lash line lifting at the outer corner
-        if r == 5:
-            if a == 2:
-                return _rgb(EYE_WHITE)
-            if a == 3:
-                return _rgb(IRIS)
-            if a == 4:
-                return _rgb(EYE_WHITE)
-        if r == 9 and a <= 1:
-            return _rgb(LIP_DEEP if a == 0 else LIP)
-        if (a, r) in ((4, 8), (4, 9), (3, 10), (2, 11)):
-            return skin(-0.5)                        # the jaw's contour
-        return skin(-0.7 * self.occ.contact(t) - 1.1 * self.occ.overhang(t))
+                return _rgb(EYE_WHITE) if r < 9 else _mix(skin(), _rgb(BLUSH), 0.3)   # white, a blush under it
+        if r == 10:
+            if a == 0:
+                return _rgb(LIP_DEEP)                       # a small rouged mouth
+            if a == 1:
+                return _mix(skin(), _rgb(LIP), 0.7)
+        return skin(-0.5 * self.occ.contact(t) - 0.8 * self.occ.overhang(t))
 
     def hair_on_side(self, z, h):
         return _hair_on_side(z, h)
+
+    def skull(self, t):
+        if t.face == "UP":
+            # the underside: under the chin in front, in shadow; under the back hair behind
+            _, _, z = _xhz(t)
+            return _tone(SKIN, 3.4) if z < 2.5 else _tone(HAIR, 1.2)
+        return super().skull(t)
 
     def head_side(self, t, z, h):
         """Skin where the hair shell is cut away on the cranium's side: temple and ear."""
@@ -346,8 +345,11 @@ class _Paint(HumanoidPaint):
             if f in ("WEST", "EAST") and not _hair_on_side(z, h):
                 return None
         tone = self.hair_tone(t)
-        if f == "NORTH":
-            tone -= 0.7 * _clamp(1.5 - (h - _hairline(a)))  # darker at the root line over the forehead
+        if f == "NORTH" and t.cube == "hair" and a <= 5:
+            # the fringe in strands: a tone per column as the skins stripe their bangs, lighter at the tips
+            tone += (1.1, -0.3, 0.7, -0.5, 1.0, -0.1)[a] + 0.4 * _clamp(1.5 - (h - _hairline(a)))
+        elif f == "NORTH":
+            tone -= 0.7 * _clamp(1.5 - (h - _hairline(a)))  # darker at the root line beside the face
         if f == "DOWN":
             tone -= 1.2 * self.occ.contact(t)
         return _tone(HAIR, tone)
@@ -666,21 +668,21 @@ class _Paint(HumanoidPaint):
 
 # ------------------------------------------------------------------------------------ shapes
 def _hairline(a):
-    """Height of the front hairline `a` columns from the centre: a straight line one row down over an
-    open forehead, the temple corners a row lower, the sideburn down to the cranium's bottom at the
-    face's edge column (a = 5) and the shell's edge (a = 6)."""
-    if a >= 5:
-        return 50.0
-    if a == 4:
-        return 56.0
-    return 57.0
+    """Height of the front hairline `a` columns from the centre: a fringe parted in the middle but
+    covering the top half of the face as in the anime skins, four rows deep at the parting (a = 0),
+    five at a = 2 and 4 and its strand tips six rows deep on the odd columns (so the lash's raised
+    inner corner shows at a = 2 between two tips); the side hair runs down to the chin at the hair
+    shell's edge column (a = 6), framing the face."""
+    if a >= 6:
+        return 46.0                       # the side hair frames the face down to the chin
+    return {0: 54.0, 1: 52.0, 2: 53.0, 3: 52.0, 4: 53.0, 5: 52.0}[a]
 
 
 def _hair_on_side(z, h):
-    """Hair on the side of the head: the sideburn's strip in front, the window over temple and ear,
-    the strip behind the ear, and everything behind that down to the nape."""
+    """Hair on the side of the head: the side lock's strip in front down to the chin, the window over
+    temple and ear, the strip behind the ear, and everything behind that down to the nape."""
     if z < -4.5:
-        return h >= 50.0
+        return True
     if z < 0.5:
         return h >= 55.0
     if z < 2.5:

@@ -8,11 +8,12 @@ The look is built from real layers instead of one painted box: a crossed robe co
 border bands lie on the chest, the belt wraps over both, sleeves come out from under shoulder wings and
 widen to an open cuff with a hanging drape, the skirt flares in two tiers, vest panels, sash ends and a
 jade pendant hang from the belt, and the hair is a cut-out shell with a bun, a crown, a pin, ribbons
-and two loose strands. The head is a cranium over a jaw that steps in twice toward a narrow chin, so
-the face is taller than wide; the hair leaves the forehead open under a straight hairline, with
-sideburns down to the cranium's bottom, and the face is a plain symmetric texel map: a brow lying
-directly on a one-row eye (white either side of the iris) whose tail fades into the sideburn on the
-same row, a jaw contour and a small muted mouth. The painter then shades every texel from where it sits in 3D (form light,
+and two loose strands. The head is a cranium over a jaw that steps in three times to a pointed chin, so
+the face is taller than wide; the face is a symmetric texel map drawn as the anime skins (二次元皮肤)
+draw theirs: the fringe covers the top half in strands of alternating tone, the eyes sit in the lower
+half (an iris two columns wide shading dark to light downward, a white column outside it, a lash line
+on top rising at the inner corner), no brow, no nose, a blush texel, a small pink mouth, and the
+sideburns run down to the cranium's bottom. The painter then shades every texel from where it sits in 3D (form light,
 shadows cast by the layer above, crevices beside raised bands) and adds cloth folds, dye and trim.
 """
 from __future__ import annotations
@@ -54,16 +55,19 @@ GOLD = ramp("#7A6432", "#9E8444", "#C4A75C", "#E2C97F", "#F6E6AC")
 JADE = ramp("#22665A", "#338C7A", "#52B09A", "#84D6BA", "#BCF0DB", "#E6FCF1")
 SILVER = ramp("#7A8492", "#9BA5B2", "#BEC7D1", "#DDE3EA", "#F6F8FA")
 BELT_CLOTH = ramp("#16121E", "#221D2D", "#302A3D", "#40394F", "#534B63")
-SKIN = ramp("#A87C64", "#C4977A", "#DDB394", "#EEC9AC", "#F8DAC2", "#FFE9D6", "#FFF4EA")
+SKIN = ramp("#B88A70", "#D4A68A", "#EAC3A8", "#F6D8C2", "#FDE6D4", "#FFF0E3", "#FFF7EE")
 HAIR = ramp("#0B0C13", "#141823", "#1E2433", "#2B3346", "#3B465E", "#525F7B", "#6C7A97")
 BOOT = ramp("#14151B", "#20222A", "#2E313B", "#40444F")
 SOLE = ramp("#A8A8A0", "#CECEC5", "#ECECE4")
 TASSEL = ramp("#6A1A1A", "#9C2A2A", "#C8413A", "#E36354")
 CORD = ramp("#665030", "#8A6E3E", "#B08E50")
-MOUTH = "#B98377"
-EYE_WHITE = "#F4F5F7"
-IRIS = "#2B5F7A"
-BROW = "#262733"
+MOUTH = "#E08A8A"        # pink, mixed into the skin: a small mouth
+BLUSH = "#F2A0A0"        # the cheek texel under the eye's outer corner
+EYE_WHITE = "#F8FAFF"    # the eye's outer column, white as in the skins
+IRIS_TOP = "#1E3F8F"     # the iris column, dark at the top ...
+IRIS = "#3D7BD9"         # ... through the mid blue ...
+IRIS_LOW = "#8FD0F5"     # ... to light at the bottom (the skins' vertical gradient)
+LASH = "#171522"         # the lash line over the eye and its rising inner corner
 
 # The hair and the vest are shells whose texture is partly cut out, so they cast no baked shadow.
 HOLLOW = ("hair", "vest")
@@ -92,18 +96,14 @@ def build_model():
     _pair(b, "vest_cap_{}", "body", (-8.0, -47.0, 0.0), rot=(0.0, 0.0, -CAP_SLOPE),
           boxes=[("vest_cap_{}_shell", (-6.5, 0.0, -3.5), (7, 3, 7))], local=True)
 
-    # ---- head, an odd number of texels wide so the face has a centre column: the cranium, then a jaw
-    # in three steps that narrow toward the chin from the front and rise toward the ear from the side
-    # (all flush with the face plane), cut-out hair shell with a stepped-in top, nose, bun with crown
-    # and pin, ribbons, two loose strands
+    # ---- head, an odd number of texels wide so the face has a centre column: one cube from the chin
+    # to the crown, as the anime skins' heads are (the stepped jaw of 0.34.1 to 0.44.1 read as a wedge
+    # under the low eyes); the face shape comes from the fringe and the side hair that frame it; a
+    # cut-out hair shell with a stepped-in top, bun with crown and pin, ribbons, two loose strands
     b.bone("head", "body", at=(0.0, -NECK, 0.0))
-    _box(b, "head", "skull", -6.5, 52, -6.5, 13, 8, 13)
-    _box(b, "head", "jaw", -5.5, 50, -6.5, 11, 2, 9)
-    _box(b, "head", "jaw_low", -4.5, 49, -6.5, 9, 1, 8)
-    _box(b, "head", "chin", -3.5, 48, -6.5, 7, 1, 6)
+    _box(b, "head", "skull", -6.5, 48, -6.5, 13, 12, 13)
     _box(b, "head", "hair", -7.5, 48, -7.5, 15, 12, 15)
     _box(b, "head", "hair_cap", -6.5, 60, -6.5, 13, 1, 13)
-    _box(b, "head", "nose", -0.5, 51, -7.5, 1, 2, 1)
     _box(b, "head", "bun", -2.5, 61, -1.5, 5, 4, 5)
     _box(b, "head", "crown", -3.5, 62, -2.5, 7, 2, 7)
     _box(b, "head", "pin", -6.5, 62.5, 0.5, 13, 1, 1)
@@ -161,17 +161,15 @@ class _Paint(HumanoidPaint):
 
     SKIN = SKIN
     HAIR = HAIR
-    NOSE_TOP = 53.0                          # the nose box spans h 51..53
     FINGER_ROW = 13.5                        # the hand's last row, bone-local
     HAND_EXCLUDE = ("sleeve_drape_right",)
-    JAW_BACK = 2.5                           # the jaw box's back face
 
     def __init__(self, model):
         super().__init__(model, HOLLOW, {
             "torso": self.torso, "vest": self.vest, "neck": self.neck, "belt": self.belt, "buckle": self.buckle,
             "collar_over_band": self.collar, "collar_under_band": self.collar,
             "vest_edge_right_band": self.vest_edge, "vest_cap_right_shell": self.vest_cap,
-            "skull": self.skull, "jaw": self.jaw, "jaw_low": self.jaw, "chin": self.jaw, "hair": self.hair, "hair_cap": self.hair, "nose": self.nose, "bun": self.bun,
+            "skull": self.skull, "jaw": self.jaw, "jaw_low": self.jaw, "chin": self.jaw, "hair": self.hair, "hair_cap": self.hair, "bun": self.bun,
             "crown": self.crown, "pin": self.pin, "pin_knob": self.pin,
             "ribbon_root_right": self.ribbon, "ribbon_right_tail": self.ribbon,
             "strand_right_lock": self.strand, "hair_back_main": self.hair_back, "hair_back_tip": self.hair_back,
@@ -184,35 +182,49 @@ class _Paint(HumanoidPaint):
         })
 
     def face(self, t):
-        """The front of the head as a symmetric texel map, keyed on (a, r): a columns from the centre
-        column, r rows down from the cranium's top. Skin is plain apart from the hairline's shadow and
-        the baked occlusion beside and under the nose."""
+        """The front of the head as a symmetric texel map copied from the anime skins (二次元皮肤) the
+        owner pointed at, keyed on (a, r): a columns from the centre column, r rows down from the
+        cranium's top. The fringe covers the top half in strands; the eyes sit in the lower half, each
+        an iris two columns wide that runs dark to light downward with a white column outside it, a
+        lash line on top whose inner corner rises a row; no brow (under the fringe), no nose, a blush
+        texel under the eye's outer corner, and a small pink mouth on pale flat skin."""
         x, h, _ = _xhz(t)
         a = abs(int(round(x)))            # column from the centre column, 0..6
         r = int(HEAD_TOP - h)             # row from the top of the cranium, 0..11
         if h >= _hairline(a):
             return _tone(HAIR, 1.6)
-        tone = 4.6 - 0.8 * _clamp(1.5 - (_hairline(a) - h))   # the hairline's shadow
+        tone = 5.5 - 0.4 * _clamp(1.5 - (_hairline(a) - h))   # the fringe's shadow, soft
         skin = lambda d=0.0: _tone(SKIN, tone + d)  # noqa: E731  (no cloth noise: the face stays symmetric)
-        if r == 4 and 2 <= a <= 4:
-            return _rgb(BROW)                           # the brow lies directly on the eye
-        if r == 4 and a == 5:
-            return _mix(_rgb(BROW), skin(), 0.5)        # its tail fades into the sideburn (剑眉入鬓)
-        if r == 5 and 2 <= a <= 4:
-            return _rgb(IRIS) if a == 3 else _rgb(EYE_WHITE)
-        if a == 5 and r in (8, 9):
-            return skin(-0.5)                           # the jaw's contour
-        if r == 10:
-            if a <= 1:
-                return _rgb(MOUTH)
+        if r == 5 and a == 2:
+            return _rgb(LASH)                               # the lash's inner corner, one row up
+        if r == 6:
+            if 2 <= a <= 4:
+                return _rgb(LASH)                           # the lash line
+            if a == 5:
+                return _mix(_rgb(LASH), skin(), 0.45)       # its tail toward the sideburn
+        if r in (7, 8, 9):
+            if a in (2, 3):
+                return _rgb((IRIS_TOP, IRIS, IRIS_LOW)[r - 7])   # the iris, dark to light downward
             if a == 4:
-                return skin(-0.5)
-        if r == 11 and a == 3:
-            return skin(-0.5)
-        return skin(-0.7 * self.occ.contact(t) - 1.1 * self.occ.overhang(t))
+                return _rgb(EYE_WHITE) if r < 9 else _mix(_rgb(IRIS_LOW), _rgb(EYE_WHITE), 0.5)
+        if r == 9 and a == 5:
+            return _mix(skin(), _rgb(BLUSH), 0.25)          # a faint blush at the outer corner
+        if r == 10:
+            if a == 0:
+                return _mix(skin(), _rgb(MOUTH), 0.8)
+            if a == 1:
+                return _mix(skin(), _rgb(MOUTH), 0.45)
+        return skin(-0.5 * self.occ.contact(t) - 0.8 * self.occ.overhang(t))
 
     def hair_on_side(self, z, h):
         return _hair_on_side(z, h)
+
+    def skull(self, t):
+        if t.face == "UP":
+            # the underside: under the chin in front, in shadow; under the back hair behind
+            _, _, z = _xhz(t)
+            return _tone(SKIN, 3.4) if z < 1.5 else _tone(HAIR, 1.2)
+        return super().skull(t)
 
     def head_side(self, t, z, h):
         """Skin where the hair shell is cut away on the cranium's side: temple and ear."""
@@ -255,8 +267,11 @@ class _Paint(HumanoidPaint):
             if f in ("WEST", "EAST") and not _hair_on_side(z, h):
                 return None
         tone = self.hair_tone(t)
-        if f == "NORTH":
-            tone -= 0.7 * _clamp(1.5 - (h - _hairline(a)))  # darker at the root line over the forehead
+        if f == "NORTH" and t.cube == "hair" and a <= 5:
+            # the fringe in strands: a tone per column as the skins stripe their bangs, lighter at the tips
+            tone += (1.1, -0.3, 0.7, -0.5, 1.0, -0.1)[a] + 0.4 * _clamp(1.5 - (h - _hairline(a)))
+        elif f == "NORTH":
+            tone -= 0.7 * _clamp(1.5 - (h - _hairline(a)))  # darker at the root line beside the face
         if f == "DOWN":
             tone -= 1.4 * self.occ.contact(t)
         return _tone(HAIR, tone)
@@ -594,20 +609,20 @@ class _Paint(HumanoidPaint):
 
 # ------------------------------------------------------------------------------------ shapes
 def _hairline(a):
-    """Height of the front hairline `a` columns from the centre: a straight hairline one row down over
-    an open forehead, the temple corners one row lower, and the sideburn down to the cranium's
-    bottom at the edge (also the shell's edge column, a = 7)."""
+    """Height of the front hairline `a` columns from the centre: the fringe covers the top half of the
+    face as in the anime skins, its strand tips one row deeper on the odd columns (h 54, the sixth row)
+    than on the even ones (h 55); the side hair runs down to the chin at the edge columns (a = 6 and
+    the shell's edge column, a = 7)."""
     if a >= 6:
-        return 52.0
-    if a == 5:
-        return 58.0
-    return 59.0
+        return 48.0                       # the side hair frames the face down to the chin
+    return 54.0 if a % 2 == 1 else 55.0
 
 
 def _hair_on_side(z, h):
-    """Hair on the side of the head: sideburn, over the ear, and everything behind it down to the nape."""
+    """Hair on the side of the head: the side lock down to the chin, over the ear, and everything behind
+    it down to the nape."""
     if z < -5.5:
-        return h >= 52.0
+        return True
     if z < -0.5:
         return h >= 56.0
     if z < 1.5:

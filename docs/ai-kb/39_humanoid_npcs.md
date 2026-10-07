@@ -68,30 +68,65 @@ cloth beside them.
 
 ## Faces
 
-The owner rejected the 0.34.0 face as a Buddha's face without a cultivator's
-handsome spirit (俊朗英气); 0.34.1 rebuilt it. What the rebuild settled:
+Three rounds of owner feedback shaped the face. 0.34.0 was rejected as a
+Buddha's face without a cultivator's handsome spirit (俊朗英气); 0.34.1
+rebuilt it realistically (tapering jaw, open forehead, brow on a one-row eye,
+no mark). On 2026-10-07 the owner found that still ugly and asked for 二次元
+faces; a first anime draft (thin brow a row above a big eye with a
+highlight, a dot nose, an M fringe) was rejected from the offline previews
+the same day ("不行还是不好看，你去照着仿照一些皮肤看看"), so 0.44.1 copies
+real anime-style skins instead. What holds now:
 
-- **Taper in geometry.** The jaw narrows toward the chin in real cubes (13,
-  11, 9, 7 texels wide), each flush with the face plane and shallower than the
-  one above, so the face is taller than wide and the jaw line rises toward the
-  ear. Painting a taper on a square block still reads square.
-- **Brow on the eye.** The brow lies directly on a one-row eye with white
-  either side of the iris, and its tail fades into the sideburn on the same
-  row (剑眉入鬓). A brow stepping up over three texels reads as an angry
-  zigzag at in-game size, a tail tip one row up as a detached dot, and a
-  separate lash bar under a brow bar as two heavy lids.
-- **Open forehead, plain hairline.** No fringe, no centre parting, no widow's
-  peak (it made an M-shaped hairline); the sideburns run to the cranium's
-  bottom, so no cheek texel pokes out beside them.
-- **No forehead mark, a muted mouth.** A dot between the brows reads as an
-  urna. The mouth is three texels of one muted colour.
-- **Up-facing faces draw at full brightness.** The top of the nose is painted
-  as dark as the lit front looks (far below the face's own tone), or it shows
-  as a light line on the bridge.
+- **The study.** 119 skins tagged anime/kawaii/genshin/chibi/vtuber were
+  pulled from the MineSkin index (`api.mineskin.org/get/list/<page>?filter=`,
+  textures at `textures.minecraft.net`) and their 8 x 8 faces with the hat
+  layer laid over them were put on one sheet
+  (`out/preview/cultivator/anime_refs/index.html`, sources in `index.json`).
+  Nearly all of them do the same five things: the bangs (hat layer) cover
+  the top half of the face in strands of two or three tones with pointed
+  tips; each eye is two pixels wide in the lower half, the inner pixel an
+  iris that shades dark at the top to light at the bottom and the outer
+  pixel white, with a dark lash row on top (often only its inner pixel one
+  row higher, a slant); there is no brow (under the bangs) and no nose; the
+  mouth is one or two pink pixels or absent; a pink blush pixel sits under
+  the eye's outer corner; the skin is a very pale, flat peach.
+- **The texel map (0.44.1).** Rows `r` from the cranium's top, columns `a`
+  from the centre, scaled from 8 x 8 to the 13 x 12 face: the fringe
+  (`_hairline(a)`) covers r0..r4 with tips to r5 on the odd columns (the
+  adept parted in the middle: a 0 to r3, a 1/3/5 to r4, a 2/4 to r5), and
+  the `hair()` NORTH branch stripes its columns
+  (`(1.1, -0.3, 0.7, -0.5, 1.0, -0.1)[a]`, lighter at the tips); r5 a 2 the
+  lash's rising inner corner; r6 a 2..4 the lash line (`LASH`), a 5 its
+  tail; r7..r9 a 2..3 the iris (`IRIS_TOP`, `IRIS`, `IRIS_LOW`) and a 4
+  white (`EYE_WHITE`) on r7..r8; a blush under the outer corner (male r9
+  a 5; the women r9 a 4, since their jaw row has no a 5); r10 a 0..1 a small
+  mouth mixed into the skin (the adept's rouge is `LIP_DEEP`); every other
+  texel plain skin at base tone 5.5 on a pale ramp. No nose cube and no jaw
+  cubes on any look: the head is one cube. Eye colours: the male blue (`#1E3F8F` to `#8FD0F5`), the novice warm
+  amber, the adept violet; the gradient must stay bright enough to read as
+  a spot of colour at 70 pixels wide.
+- **Why the earlier faces failed.** Realistic proportions (small eyes high
+  on the face, heavy brows, an open forehead) read as crude at 13 x 12
+  texels; the first anime draft kept the eyes in the middle of the face with
+  white on both sides, a brow and a nose, which is not what the skins do.
+  Big low eyes, a covered forehead and almost nothing else is the style.
+- **One cube, no taper.** 0.34.1's stepped jaw (three cubes narrowing to
+  the chin, "taper in geometry") was kept under the first skin-style face
+  and the owner found the face shape uncanny on their PC ("脸型有点诡异了"):
+  with the eyes low on the face the steps sat right under them and read as
+  a wedge. The skins' heads are plain cubes, so the head is now one cube
+  from chin to crown and the face shape comes from the fringe and the side
+  hair of the shell, which runs down to the chin (`_hairline(a >= 6)` is the
+  chin height, `_hair_on_side` keeps the front strip). The skull's underside
+  is skin in front of z 1.5 and hair behind (the `skull()` override).
+- **No forehead mark.** A dot between the brows reads as an urna.
 - **Undersides belong to what is above them.** The cranium's underside beside
   the jaw is painted as hair, since it sits under the sideburn, and the jaw's
   steps are a light skin tone underneath; painted as shadowed skin they drew
   brown patches round the lower face from below.
+- **Tests.** `tools/tests/test_npcgen.py` pins this face (gradient eyes
+  with the white outside, the fringe's rows and stripes, the small mouth,
+  no brow, mark or nose); change the tests with the face.
 
 Judge a face at in-game size: `python3 -m tools.npcgen preview <npc> --only
 face` draws the head large from six angles and again at about 70 pixels wide.
@@ -300,7 +335,8 @@ evidence. The capture showed the model at the intended size beside the player,
 the cut-outs and layers drawing as in the preview, and NPCs strolling with the
 walk clip. The owner observed 0.34.0 on their own PC on 2026-10-06 and
 accepted the clothes, the back view, the poses seen from behind, and the walk
-(`pass`), and rejected the face (`fail`). The 0.34.1 face, and everything the
+(`pass`), and rejected the face (`fail`); on 2026-10-07 they found the 0.34.1
+and 0.41.0 faces still ugly, so 0.44.1 redrew them after real anime skins (unverified). The 0.34.1 face, and everything the
 owner did not speak to (`F3+T` reload, save and reload, multiplayer, frame
 rate, night and indoor lighting, hurt and death), are `not_verified`. The
 README ledger "Cultivator NPC real-client acceptance surface" records each

@@ -260,12 +260,15 @@ class FemaleNoviceTest(unittest.TestCase):
         self.assertLess(shoe_z0, self.box("skirt_hem_right")[2][0], "the shoe's toe peeks out")
 
     def test_head_lower_and_jaw_narrower_than_the_male(self):
-        _, (_, top), _ = self.box("skull")
+        # 0.44.1: both heads are one cube from chin to crown, 12 tall; hers is lower and narrower
+        (x0, x1), (bottom, top), _ = self.box("skull")
+        (mx0, mx1), (mbottom, mtop), _ = self.box("skull", self.male)
         self.assertAlmostEqual(58.0, top)
-        self.assertAlmostEqual(60.0, self.box("skull", self.male)[1][1])
-        widths = [self.width(n) for n in ("skull", "jaw", "jaw_low", "chin")]
-        self.assertEqual([11.0, 9.0, 7.0, 5.0], widths)
-        self.assertEqual([w + 2.0 for w in widths], [self.width(n, self.male) for n in ("skull", "jaw", "jaw_low", "chin")])
+        self.assertAlmostEqual(60.0, mtop)
+        self.assertAlmostEqual(11.0, x1 - x0)
+        self.assertAlmostEqual(13.0, mx1 - mx0)
+        self.assertAlmostEqual(12.0, top - bottom)
+        self.assertAlmostEqual(12.0, mtop - mbottom)
         skull = self.box("skull")
         self.assertLess(skull[0][1] - skull[0][0], skull[2][1] - skull[2][0], "the cranium is longer than wide")
 
@@ -296,11 +299,10 @@ class FemaleNoviceTest(unittest.TestCase):
         self.assertLess(centres["right"][2], centres["left"][2], "the right hand lies over the left")
 
     # -------------------------------------------------------------- face
-    FACE_CUBES = ("skull", "jaw", "jaw_low", "chin")
+    FACE_CUBES = ("skull",)   # 0.44.1: one cube from chin to crown, as the skins' heads are
 
     def face(self):
-        """Front texels of the cranium and the three jaw steps by (column from the centre, row from the
-        top of the cranium)."""
+        """Front texels of the head cube by (column from the centre, row from the top of the cranium)."""
         out = {}
         for name in self.FACE_CUBES:
             for t in self.by_cube[name]:
@@ -312,71 +314,73 @@ class FemaleNoviceTest(unittest.TestCase):
 
     def test_face_has_a_centre_column_and_is_symmetric(self):
         face = self.face()
-        self.assertEqual(11 * 8 + 9 * 2 + 7 + 5, len(face))
+        self.assertEqual(11 * 12, len(face))
         for (col, row), colour in face.items():
             self.assertEqual(face[(-col, row)], colour, f"face is not symmetric at {(col, row)}")
 
-    def test_face_rows_narrow_toward_the_chin(self):
+    def test_face_is_one_full_cube_like_the_skins(self):
         face = self.face()
-        for row, half in ((0, 5), (7, 5), (8, 4), (9, 4), (10, 3), (11, 2)):
+        for row in range(12):
             cols = sorted(col for col, r in face if r == row)
-            self.assertEqual(list(range(-half, half + 1)), cols, f"row {row}")
+            self.assertEqual(list(range(-5, 6)), cols, f"row {row}")
+        names = {c.name for _, c in self.built.model.cubes()}
+        for name in ("jaw", "jaw_low", "chin"):
+            self.assertNotIn(name, names)
+        (_, _), (bottom, top), (z0, z1) = self.box("skull")
+        self.assertAlmostEqual(novice.NECK, bottom)
+        self.assertAlmostEqual(novice.HEAD_TOP, top)
+        self.assertAlmostEqual(12.0, z1 - z0)
 
-    def test_jaw_tapers_in_steps_flush_with_the_face(self):
-        boxes = [self.box(name) for name in self.FACE_CUBES]
-        widths = [x1 - x0 for (x0, x1), _, _ in boxes]
-        self.assertEqual(sorted(widths, reverse=True), widths)
-        self.assertEqual(len(set(widths)), len(widths))
-        depths = [z1 - z0 for _, _, (z0, z1) in boxes]
-        self.assertEqual(len(set(depths)), len(depths))
-        self.assertEqual(sorted(depths, reverse=True), depths)
-        for _, _, (z0, _) in boxes:
-            self.assertAlmostEqual(boxes[0][2][0], z0)
-        for (_, (bottom, _), _), (_, (_, top), _) in zip(boxes, boxes[1:]):
-            self.assertAlmostEqual(bottom, top)
-        self.assertAlmostEqual(novice.NECK, boxes[-1][1][0])
-
-    def test_eyes_are_two_rows_with_a_bright_iris_and_an_upswept_lash(self):
+    def test_eyes_copy_the_anime_skins(self):
+        """0.44.1: an iris two columns wide shading dark to light down r7..r9, a white column outside
+        it on r7..r8 and a blush under that, nothing white inside, a lash line on r6 rising at a 2."""
         face = self.face()
-        white = novice._rgb(novice.EYE_WHITE)
+        white, lash = novice._rgb(novice.EYE_WHITE), novice._rgb(novice.LASH)
+        gradient = [novice._rgb(c) for c in (novice.IRIS_TOP, novice.IRIS, novice.IRIS_LOW)]
+        self.assertLess(luma(gradient[0]), luma(gradient[1]))
+        self.assertLess(luma(gradient[1]), luma(gradient[2]))
         for sign in (1, -1):
-            for row in (5, 6):
-                self.assertEqual(white, face[(2 * sign, row)])
-                self.assertEqual(white, face[(4 * sign, row)])
-            self.assertEqual(novice._rgb(novice.PUPIL), face[(3 * sign, 5)])
-            self.assertEqual(novice._rgb(novice.IRIS), face[(3 * sign, 6)])
-            self.assertEqual(novice._rgb(novice.LASH), face[(5 * sign, 5)], "lash at the outer corner")
-            self.assertNotEqual(novice._rgb(novice.LASH), face[(5 * sign, 6)], "the lash sweeps up, not down")
-        self.assertGreater(luma(novice._rgb(novice.IRIS)), luma(male._rgb(male.IRIS)))
+            for row, iris in zip((7, 8, 9), gradient):
+                self.assertEqual(iris, face[(2 * sign, row)], row)
+                self.assertEqual(iris, face[(3 * sign, row)], row)
+            self.assertEqual(white, face[(4 * sign, 7)])
+            self.assertEqual(white, face[(4 * sign, 8)])
+            self.assertNotIn(face[(1 * sign, 7)], gradient + [white], "no white inside the eye")
+            for col in (2, 3, 4):
+                self.assertEqual(lash, face[(col * sign, 6)])
+            self.assertEqual(lash, face[(2 * sign, 5)], "the lash's inner corner rises a row")
+            tail = face[(5 * sign, 6)]
+            self.assertNotEqual(lash, tail)
+            self.assertLess(luma(tail), luma(face[(1 * sign, 7)]), "the lash's tail is darker than skin")
 
-    def test_willow_brow_lies_on_the_eye_and_its_tail_fades_on_the_same_row(self):
+    def test_no_brow_under_the_fringe(self):
+        """0.44.1: the fringe covers rows r0..r4 (and r5 on the odd columns); there is no brow."""
+        self.assertFalse(hasattr(novice, "BROW"))
         face = self.face()
-        brow = novice._rgb(novice.BROW)
-        plain = face[(1, 4)]
-        for sign in (1, -1):
-            self.assertEqual(brow, face[(3 * sign, 4)])
-            self.assertEqual(brow, face[(4 * sign, 4)])
-            head, tail = face[(2 * sign, 4)], face[(5 * sign, 4)]
-            for end in (head, tail):
-                self.assertNotEqual(brow, end)
-                self.assertNotEqual(plain, end)
-                self.assertGreater(luma(end), luma(brow), "the ends are thinner (lighter) than the middle")
-        row3 = {face[(col, 3)] for col in range(-5, 6)}
-        self.assertEqual(1, len(row3), "nothing of the brow on the row above it: no stairs")
-        self.assertNotIn(brow, row3)
+        hair = novice._tone(novice.HAIR, 1.6)
+        for row in range(0, 5):
+            for col in range(-5, 6):
+                self.assertEqual(hair, face[(col, row)], f"r{row} a={col}")
+        for col in (1, 3, 5):
+            self.assertEqual(hair, face[(col, 5)], f"strand tip a={col}")
+            self.assertEqual(hair, face[(-col, 5)], f"strand tip a={-col}")
+        for col in (0, 4):
+            self.assertNotEqual(hair, face[(col, 5)], f"r5 a={col}")
 
-    def test_mouth_is_three_warm_texels_the_middle_deeper(self):
+    def test_mouth_is_small_and_pink(self):
+        """0.44.1: the mouth is the centre texel of r10 and its two neighbours, pink mixed into the
+        skin and deepest in the middle; only the blush texels are otherwise tinted."""
         face = self.face()
-        mid, side = novice._rgb(novice.MOUTH_MID), novice._rgb(novice.MOUTH)
-        self.assertEqual(mid, face[(0, 10)])
-        self.assertEqual(side, face[(1, 10)])
+        pink = lambda c: c[0] - (c[1] + c[2]) / 2.0  # noqa: E731
+        plain, centre, side = face[(2, 10)], face[(0, 10)], face[(1, 10)]
         self.assertEqual(side, face[(-1, 10)])
-        self.assertEqual({(-1, 10), (0, 10), (1, 10)}, {k for k, v in face.items() if v in (mid, side)})
-        self.assertLess(luma(mid), luma(side))
-        for c in (mid, side):
-            self.assertGreater(c[0], c[1] + 40, "warm lips")
-            self.assertGreater(c[0], c[2] + 40)
-        self.assertGreater(luma(side), luma(male._rgb(male.MOUTH)), "pale lips for the novice")
+        self.assertGreater(pink(centre), pink(side))
+        self.assertGreater(pink(side), pink(plain) + 10)
+        for (col, row), colour in face.items():
+            if (row != 10 or abs(col) > 1) and not (2 <= abs(col) <= 3 and 7 <= row <= 9):  # her amber iris is warm too
+                self.assertLessEqual(pink(colour), pink(side), f"mouth-pink texel at {(col, row)}")
+        for sign in (1, -1):
+            self.assertGreater(pink(face[(4 * sign, 9)]), pink(plain) + 8, "a blush under the eye's outer corner")
 
     def test_no_forehead_mark(self):
         face = self.face()
@@ -384,46 +388,45 @@ class FemaleNoviceTest(unittest.TestCase):
         self.assertEqual(face[(0, 2)], face[(0, 4)])
         self.assertFalse(hasattr(novice, "MARK"))
 
-    def test_open_forehead_and_sideburn_to_the_cranium_bottom(self):
+    def test_fringe_covers_the_top_half_and_side_hair_to_the_chin(self):
+        """0.44.1: the hair shell's front is opaque over r0..r4, strand tips on r5 at the odd columns,
+        open from r6 down inside the side hair (a = 6), which runs down to the chin."""
         face = self.face()
         hair = novice._tone(novice.HAIR, 1.6)
-        for col in range(-5, 6):
-            self.assertEqual(hair, face[(col, 0)], f"r0 a={col}")
-        for col in (5, -5):
-            self.assertEqual(hair, face[(col, 1)])
-            for row in range(2, 8):
-                self.assertNotEqual(hair, face[(col, row)], f"r{row} a={col}")
-        for row, half in ((1, 4), (2, 5), (5, 5), (7, 5), (8, 4), (10, 3), (11, 2)):
-            for col in range(-half, half + 1):
+        for row in range(6, 12):
+            for col in range(-5, 6):
                 self.assertNotEqual(hair, face[(col, row)], f"r{row} a={col}")
         shell = {}
         for t in self.by_cube["hair"]:
             if t.face == "NORTH":
-                shell[(int(round(t.p[0])), int(novice.HEAD_TOP - (GROUND - t.p[1])))] = self.pixel(t)[3]
-        for col in range(-4, 5):
-            self.assertEqual(0, shell[(col, 1)], f"fringe at a={col}")
-        for col in (5, 6, -5, -6):
-            self.assertEqual(255, shell[(col, 1)])
-        for row in range(0, 8):
-            self.assertEqual(255, shell[(6, row)], f"sideburn r{row}")
-            self.assertEqual(255, shell[(-6, row)], f"sideburn r{row}")
-        self.assertEqual(0, shell[(6, 9)], "the sideburn stops at the cranium's bottom")
+                shell[(int(round(t.p[0])), int(novice.HEAD_TOP - (GROUND - t.p[1])))] = self.pixel(t)
+        for row in range(0, 5):
+            for col in range(-6, 7):
+                self.assertEqual(255, shell[(col, row)][3], f"fringe r{row} a={col}")
+        for col in (1, 3, 5):
+            self.assertEqual(255, shell[(col, 5)][3], col)
+            self.assertEqual(255, shell[(-col, 5)][3], -col)
+        for col in (0, 2, 4):
+            self.assertEqual(0, shell[(col, 5)][3], col)
+        for row in range(6, 12):
+            for col in range(-5, 6):
+                self.assertEqual(0, shell[(col, row)][3], f"r{row} a={col}")
+        for row in range(0, 12):
+            self.assertEqual(255, shell[(6, row)][3], f"side hair r{row}")
+            self.assertEqual(255, shell[(-6, row)][3], f"side hair r{row}")
+        self.assertGreaterEqual(len({shell[(col, 2)][:3] for col in range(-5, 6)}), 3, "the fringe is striped")
 
-    def test_nose_stands_proud_and_its_top_is_dark(self):
-        face_z = self.box("skull")[2][0]
-        self.assertLess(self.box("nose")[2][0], face_z - 0.9)
-        (x0, x1), (bottom, top), _ = self.box("nose")
-        self.assertAlmostEqual(0.0, (x0 + x1) / 2.0)
-        self.assertAlmostEqual(1.0, top - bottom)
-        texels = {t.face: self.pixel(t)[:3] for t in self.by_cube["nose"]}
-        # up-facing faces draw at full brightness, the front at about 60 %: paint the top that dark
-        self.assertLess(luma(texels["DOWN"]), 0.7 * luma(texels["NORTH"]))
+    def test_no_nose(self):
+        # 0.44.1: the anime face has no nose cube, as the skins it copies have none
+        self.assertNotIn("nose", {c.name for _, c in self.built.model.cubes()})
+        for name in ("NOSE_TOP", "NOSE_TOP_RGB", "PUPIL", "IRIS_HI", "IRIS_DK"):
+            self.assertFalse(hasattr(novice, name), name)
 
     def test_hair_shell_is_cut_away_round_the_face_and_whole_behind(self):
         front = [t for t in self.by_cube["hair"] if t.face == "NORTH"]
         open_ = [t for t in front if self.pixel(t)[3] == 0]
-        self.assertGreater(len(open_), 80)
-        self.assertTrue(all(GROUND - t.p[1] < 57.0 for t in open_), "the top row of hair must stay")
+        self.assertEqual(13 * 12 - (5 * 13 + 8 + 6 * 2), len(open_), "open below the fringe and inside the side hair")
+        self.assertTrue(all(GROUND - t.p[1] < 53.0 for t in open_), "the fringe's rows must stay")
         back = [t for t in self.by_cube["hair"] if t.face == "SOUTH"]
         self.assertTrue(all(self.pixel(t)[3] == 255 for t in back))
 
