@@ -25,7 +25,8 @@ PRESETS = {
     "client": [["python3", "-m", "tools.combat_capture", "sword-qi", "--trials", "tap_hit,charged_hit", "--out", "out/preview/modal_sword_qi"]],
 }
 ARTIFACT_ROOTS = ("build/libs", "build/test-results", "build/reports", "reports",
-                  "out/preview", "run-acceptance/logs", "run-combat-capture/logs")
+                  "out/preview", "run-acceptance/logs", "run-acceptance/acceptance-server-stdout.log",
+                  "run-combat-capture/logs")
 MAX_ARTIFACT_BYTES = 2 * 1024 ** 3
 
 
@@ -53,7 +54,8 @@ def sha256(path: Path) -> str:
 def package(repo: Path, evidence: Path, output: Path) -> dict:
     paths = list(evidence.rglob("*"))
     for root in ARTIFACT_ROOTS:
-        paths.extend((repo / root).rglob("*"))
+        path = repo / root
+        paths.extend([path] if path.is_file() else path.rglob("*"))
     selected, total = [], 0
     for p in sorted(set(paths)):
         if not p.is_file() or p.is_symlink():

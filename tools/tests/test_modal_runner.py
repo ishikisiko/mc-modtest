@@ -72,12 +72,14 @@ class ArchiveTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             repo, evidence = root / "repo", root / "evidence"
-            for path in (repo / "run-acceptance/world/secret", repo / "credentials", repo / "build/libs/mod.jar", evidence / "result.json"):
+            for path in (repo / "run-acceptance/world/secret", repo / "credentials", repo / "build/libs/mod.jar",
+                         repo / "run-acceptance/acceptance-server-stdout.log", evidence / "result.json"):
                 path.parent.mkdir(parents=True, exist_ok=True)
                 path.write_text("fixture")
             remote.package(repo, evidence, root / "artifacts.tar.gz")
             with tarfile.open(root / "artifacts.tar.gz") as tf:
-                self.assertEqual(set(tf.getnames()), {"build/libs/mod.jar", "evidence/result.json"})
+                self.assertEqual(set(tf.getnames()), {"build/libs/mod.jar", "evidence/result.json",
+                                                     "run-acceptance/acceptance-server-stdout.log"})
             with patch.object(remote, "MAX_ARTIFACT_BYTES", 1):
                 with self.assertRaises(ValueError):
                     remote.package(repo, evidence, root / "too-large.tar.gz")
