@@ -7,6 +7,15 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.46.1
+
+- Added an on-demand Modal test runner for a fixed repository commit, with
+  bounded resources, execution time, retries and cleanup of temporary workers.
+- Runner evidence retains logs, test durations, environment and cache context,
+  including failed attempts, for comparison with the local testing baseline.
+- Cloud execution remains unverified pending Modal authentication; local checks
+  and packaging do not establish a successful cloud smoke test.
+
 ## 0.46.0
 
 - Spiritual power now has synchronized realm-stage capacity, data-backed server

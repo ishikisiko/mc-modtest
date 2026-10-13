@@ -38,6 +38,8 @@ Spend time on thinking; you do not need to use the commentary channel to report 
 
 ## Probes
 
+- Modal test runner (0.46.1): `docs/ai-kb/46_modal_test_runner.md`, `tools/modal_runner/`, active change `add-modal-test-runner`; fixed-commit upload with explicit PAL hash, ephemeral worlds, dependency-only cache, bounded cleanup, no DevBridge. Keep local contract tests and real authenticated cloud evidence separate.
+
 - Spiritual power / sword qi (0.46.0): `docs/ai-kb/45_spiritual_power_sword_qi.md`, `spiritual-power-pool`, `sword-qi-technique`; `python3 -m tools.combat_capture sword-qi` uses mapped input without DevBridge. Record test duration/environment/cache context and retain failed attempts; owner look/feel/FPS verdict remains separate. Run clean stage-1 acceptance before capture persistence checks: it clears shared `run-acceptance`; `--no-clean` preserves state but is not the clean baseline, and `--reuse-world` requires the capture world to exist.
 
 - KB/governance: `docs/ai-kb/INDEX.md`, `openspec/specs/docs-knowledge-base/spec.md`.

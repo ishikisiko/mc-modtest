@@ -43,3 +43,6 @@ run-combat-capture/
 
 # tools/combat_preview interpreter (numpy + pillow; see tools/combat_preview/README.md).
 .venv-preview/
+
+# Isolated Modal SDK; credentials remain outside the repository.
+.venv-modal/

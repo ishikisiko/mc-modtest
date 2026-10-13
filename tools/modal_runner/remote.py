@@ -1,0 +1,167 @@
+"""Uploaded independently of the tested commit; standard library only."""
+from __future__ import annotations
+
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import platform
+import signal
+import subprocess
+import tarfile
+import time
+from threading import Event, Thread
+
+PAL = "PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar"
+PRESETS = {
+    "smoke": [["java", "-version"], ["python3", "-c", "import yaml, numpy, PIL; print('python dependencies OK')"],
+              ["xvfb-run", "-a", "glxinfo", "-B"]],
+    "python": [["python3", "-m", "unittest", "discover", "-s", "tools/tests"]],
+    "build": [["./gradlew", "test", "build", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"]],
+    "server": [["python3", "tools/run_chunky_acceptance.py", "--stage", "1"]],
+    "client": [["python3", "-m", "tools.combat_capture", "sword-qi", "--trials", "tap_hit,charged_hit", "--out", "out/preview/modal_sword_qi"]],
+}
+ARTIFACT_ROOTS = ("build/libs", "build/test-results", "build/reports", "reports",
+                  "out/preview", "run-acceptance/logs", "run-combat-capture/logs")
+MAX_ARTIFACT_BYTES = 2 * 1024 ** 3
+
+
+def safe_extract(archive: Path, destination: Path) -> None:
+    """No links/devices/absolute paths or traversal, even in a trusted Git archive."""
+    with tarfile.open(archive) as tf:
+        members = tf.getmembers()
+        if sum(m.size for m in members) > MAX_ARTIFACT_BYTES:
+            raise ValueError("Archive uncompressed content exceeds 2 GiB")
+        for m in members:
+            p = Path(m.name)
+            if p.is_absolute() or ".." in p.parts or not (m.isfile() or m.isdir()):
+                raise ValueError(f"Unsafe archive member: {m.name}")
+        tf.extractall(destination, members=members, filter="data")
+
+
+def sha256(path: Path) -> str:
+    h = hashlib.sha256()
+    with path.open("rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def package(repo: Path, evidence: Path, output: Path) -> dict:
+    paths = list(evidence.rglob("*"))
+    for root in ARTIFACT_ROOTS:
+        paths.extend((repo / root).rglob("*"))
+    selected, total = [], 0
+    for p in sorted(set(paths)):
+        if not p.is_file() or p.is_symlink():
+            continue
+        # A symlinked parent could otherwise export files outside the workspace.
+        base = evidence if p.is_relative_to(evidence) else repo
+        if not p.resolve().is_relative_to(base.resolve()):
+            continue
+        size = p.stat().st_size
+        total += size
+        if total > MAX_ARTIFACT_BYTES:
+            raise ValueError("Artifacts exceed 2 GiB; narrow the preset/output before rerunning")
+        name = ("evidence/" + str(p.relative_to(evidence))) if base == evidence else str(p.relative_to(repo))
+        selected.append((p, name, size))
+    with tarfile.open(output, "w:gz") as tf:
+        for p, name, _ in selected:
+            tf.add(p, arcname=name, recursive=False)
+    return {"files": len(selected), "uncompressed_bytes": total,
+            "archive_bytes": output.stat().st_size, "sha256": sha256(output)}
+
+
+def run_step(command: list[str], repo: Path, log: Path, timeout: float) -> dict:
+    start = time.monotonic()
+    result = {"command": command, "started_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
+    with log.open("w") as stream:
+        p = subprocess.Popen(command, cwd=repo, stdout=stream, stderr=subprocess.STDOUT,
+                             start_new_session=True)
+        try:
+            result["exit_code"] = p.wait(timeout=max(0.1, timeout))
+        except subprocess.TimeoutExpired:
+            result["timed_out"] = True
+            os.killpg(p.pid, signal.SIGKILL)
+            p.wait()
+            result["exit_code"] = 124
+    result["wall_seconds"] = round(time.monotonic() - start, 3)
+    return result
+
+
+def sample_rss(stop: Event, measurements: dict) -> None:
+    """All visible Sandbox processes, including detached Gradle JVMs; shared pages counted per process."""
+    while not stop.is_set():
+        total = count = 0
+        for path in Path("/proc").glob("[0-9]*/status"):
+            try:
+                for line in path.read_text().splitlines():
+                    if line.startswith("VmRSS:"):
+                        total += int(line.split()[1])
+                        count += 1
+            except (OSError, ValueError):
+                continue
+        measurements["peak_rss_sum_kib"] = max(total, measurements.get("peak_rss_sum_kib", 0))
+        measurements["peak_processes"] = max(count, measurements.get("peak_processes", 0))
+        stop.wait(0.5)
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--preset", choices=PRESETS, required=True)
+    parser.add_argument("--timeout", type=int, required=True)
+    args = parser.parse_args()
+    repo, evidence = Path("/workspace/repo"), Path("/workspace/evidence")
+    repo.mkdir(parents=True, exist_ok=True)
+    evidence.mkdir(exist_ok=True)
+    start = time.monotonic()
+    result = {"preset": args.preset, "steps": [], "platform": platform.platform(),
+              "python": platform.python_version(), "cpu_count": os.cpu_count(),
+              "renderer": "software requested; see glxinfo for observed renderer",
+              "cache": "persistent Gradle cache; workspace/worlds are ephemeral"}
+    cache = Path(os.environ.get("GRADLE_USER_HOME", "/cache/gradle"))
+    result["cache_before"] = {"exists": cache.exists(), "entries": sorted(p.name for p in cache.iterdir()) if cache.exists() else []}
+    result["meminfo"] = Path("/proc/meminfo").read_text()
+    result["java_version"] = subprocess.run(["java", "-version"], capture_output=True, text=True).stderr.strip()
+    measurements = {"scope": "Sandbox /proc RSS sum; shared pages counted per process; sampled every 0.5s"}
+    stop = Event()
+    monitor = Thread(target=sample_rss, args=(stop, measurements), daemon=True)
+    monitor.start()
+    code = 1
+    try:
+        request = json.loads(Path("/workspace/request.json").read_text())
+        result["request"] = request
+        for name, digest in request["inputs"].items():
+            if sha256(Path("/workspace") / name) != digest:
+                raise ValueError(f"Input hash mismatch: {name}")
+        safe_extract(Path("/workspace/source.tar"), repo)
+        (repo / PAL).write_bytes((Path("/workspace") / PAL).read_bytes())
+        os.chmod(repo / "gradlew", 0o755)
+        for i, command in enumerate(PRESETS[args.preset]):
+            step = run_step(command, repo, evidence / f"step-{i}.log", args.timeout - (time.monotonic() - start))
+            result["steps"].append(step)
+            print(json.dumps(step), flush=True)
+            code = step["exit_code"]
+            if code:
+                break
+    except Exception as exc:
+        result["error"] = f"{type(exc).__name__}: {exc}"
+    finally:
+        stop.set()
+        monitor.join(timeout=2)
+        result["resources"] = measurements
+        result["exit_code"] = code
+        result["wall_seconds"] = round(time.monotonic() - start, 3)
+        result["ended_utc"] = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+        for name in ("memory.peak", "memory.max", "cpu.max", "cpu.stat"):
+            p = Path("/sys/fs/cgroup") / name
+            result["cgroup_" + name] = p.read_text().strip() if p.exists() else None
+        (evidence / "result.json").write_text(json.dumps(result, indent=2) + "\n")
+        meta = package(repo, evidence, Path("/workspace/artifacts.tar.gz"))
+        Path("/workspace/artifacts.json").write_text(json.dumps(meta))
+    return code
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
