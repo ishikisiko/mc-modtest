@@ -50,6 +50,10 @@ public final class CombatSessionManager {
     }
 
     public static boolean handleAttackIntent(ServerPlayer player) {
+        if (CombatSkillActions.has(player)) {
+            sendRejection(player);
+            return false;
+        }
         // No attack inside a dodge's invulnerable window; once it closes, dodge-into-attack is fine.
         if (CombatDodgeService.isDodging(player)) {
             sendRejection(player);
@@ -99,6 +103,54 @@ public final class CombatSessionManager {
         return true;
     }
 
+    public static boolean handleChargeIntent(ServerPlayer player) {
+        long tick = player.serverLevel().getGameTime();
+        if (eligibilityFailure(player, null) != null || CombatDodgeService.isDodging(player)) {
+            return CombatSkillActions.reject(player, "STATE");
+        }
+        CombatSession session = SESSIONS.get(player.getUUID());
+        if (CombatSkillActions.has(player) || (session != null && session.hasActiveAction())
+                || !CombatTimingPolicy.recoveryComplete(tick,
+                BLOCKED_UNTIL_TICKS.getOrDefault(player.getUUID(), Long.MIN_VALUE))) {
+            return CombatSkillActions.reject(player, "BUSY");
+        }
+        CombatStyleDefinition style = CombatStyles.bundled().styleFor(player.getMainHandItem()).orElseThrow();
+        Long last = LAST_INTENT_TICKS.get(player.getUUID());
+        if (!CombatTimingPolicy.allowsIntent(last, tick, style.minimumIntentIntervalTicks())) {
+            return CombatSkillActions.reject(player, "BUSY");
+        }
+        session = SESSIONS.computeIfAbsent(player.getUUID(), ignored -> new CombatSession(style));
+        session.useStyle(style);
+        boolean accepted = CombatSkillActions.start(player, session);
+        if (accepted) LAST_INTENT_TICKS.put(player.getUUID(), tick);
+        return accepted;
+    }
+
+    public static boolean handleReleaseIntent(ServerPlayer player) {
+        CombatSession session = SESSIONS.get(player.getUUID());
+        if (session == null || !CombatSkillActions.charging(player)) return false;
+        if (eligibilityFailure(player, session) != null || !CombatSkillActions.valid(player)
+                || CombatDodgeService.isDodging(player)) {
+            interrupt(player, CombatStopReason.CHARGE_CANCELLED, false);
+            return false;
+        }
+        Optional<CombatSession.StartEvent> start = CombatSkillActions.release(player, session);
+        start.ifPresent(value -> beginAction(player, value));
+        return start.isPresent();
+    }
+
+    /** Menu/focus cancellation is input intent only: it cannot cancel or refund a released action. */
+    public static boolean handleChargeCancelIntent(ServerPlayer player) {
+        if (!CombatSkillActions.charging(player)) return false;
+        interrupt(player, CombatStopReason.CHARGE_CANCELLED, false);
+        return true;
+    }
+
+    /** Positive resolved damage interrupts charge/action without refunding an already released skill. */
+    public static void onSkillDamage(ServerPlayer player) {
+        if (CombatSkillActions.has(player)) interrupt(player, CombatStopReason.CHARGE_CANCELLED, true);
+    }
+
     public static void tick(MinecraftServer server) {
         for (UUID playerId : SESSIONS.keySet().toArray(UUID[]::new)) {
             ServerPlayer player = server.getPlayerList().getPlayer(playerId);
@@ -108,11 +160,13 @@ public final class CombatSessionManager {
             }
             CombatSession session = SESSIONS.get(playerId);
             CombatStopReason failure = eligibilityFailure(player, session);
+            if (failure == null && !CombatSkillActions.valid(player)) failure = CombatStopReason.WEAPON_CHANGED;
             if (failure != null) {
                 interrupt(player, failure, preservesRecovery(failure));
                 continue;
             }
 
+            CombatSkillActions.tickCharge(player);
             long tick = player.serverLevel().getGameTime();
             if (session.hasActiveAction()) {
                 AttackMoveDefinition move = session.currentMove();
@@ -128,7 +182,9 @@ public final class CombatSessionManager {
                 if (actionTick == move.activeStartTick() - 1) {
                     CombatFeedbackService.swing(player, move);
                 }
-                if (move.isActiveTick(actionTick)) {
+                if (session.isExternal()) {
+                    CombatSkillActions.resolve(player, session);
+                } else if (move.isActiveTick(actionTick)) {
                     Optional<CombatHitResolver.StepSweep> sweep = Optional.ofNullable(STEP_SWEEPS.get(playerId))
                             .filter(record -> record.revision() == session.revision())
                             .map(StepRecord::sweep);
@@ -153,6 +209,7 @@ public final class CombatSessionManager {
                 STEP_SWEEPS.remove(playerId);
                 beginAction(player, transition.start().orElseThrow());
             } else if (transition.stop().isPresent()) {
+                CombatSkillActions.stop(player, "COMPLETED");
                 STEP_SWEEPS.remove(playerId);
                 clearCommitment(player);
             }
@@ -183,7 +240,7 @@ public final class CombatSessionManager {
         if (!dodgeCancelAllowed(session, tick)) {
             return false;
         }
-        if (session != null && session.hasActiveAction()) {
+        if (CombatSkillActions.has(player) || (session != null && session.hasActiveAction())) {
             interrupt(player, CombatStopReason.DODGED, false);
         }
         return true;
@@ -201,10 +258,14 @@ public final class CombatSessionManager {
             ServerPlayer player,
             CombatStopReason reason,
             boolean preserveRecovery) {
+        boolean cancelledCharge = CombatSkillActions.charging(player);
+        CombatSkillActions.stop(player, reason.name());
         CombatSession session = SESSIONS.get(player.getUUID());
         if (session == null) {
+            clearCommitment(player);
             return;
         }
+        if (cancelledCharge) session.discardPendingAction();
         session.interrupt(reason).ifPresent(stop -> {
             if (preserveRecovery) {
                 BLOCKED_UNTIL_TICKS.merge(
@@ -244,7 +305,7 @@ public final class CombatSessionManager {
         setCommitment(player, amount);
     }
 
-    private static void setCommitment(ServerPlayer player, double amount) {
+    static void setCommitment(ServerPlayer player, double amount) {
         AttributeInstance speed = player.getAttribute(Attributes.MOVEMENT_SPEED);
         if (speed == null) {
             return;
@@ -270,6 +331,7 @@ public final class CombatSessionManager {
     }
 
     public static void removeRuntime(UUID playerId, boolean discardRecovery) {
+        CombatSkillActions.remove(playerId);
         SESSIONS.remove(playerId);
         STEP_SWEEPS.remove(playerId);
         LAST_INTENT_TICKS.remove(playerId);
@@ -291,6 +353,7 @@ public final class CombatSessionManager {
                 interrupt(player, reason, false);
             }
         }
+        CombatSkillActions.clear();
         SESSIONS.clear();
         BLOCKED_UNTIL_TICKS.clear();
         LAST_INTENT_TICKS.clear();

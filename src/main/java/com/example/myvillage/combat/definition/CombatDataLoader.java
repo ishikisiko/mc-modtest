@@ -38,7 +38,7 @@ public final class CombatDataLoader {
     public static final int SCHEMA_VERSION = 1;
     public static final String INDEX_PATH = "data/myvillage/combat/index.json";
 
-    private static final Set<String> INDEX_FIELDS = Set.of("schema", "styles", "weapons");
+    private static final Set<String> INDEX_FIELDS = Set.of("schema", "styles", "weapons", "skills");
     private static final Set<String> STYLE_FIELDS = Set.of(
             "schema", "id", "combo_timeout_ticks", "minimum_intent_interval_ticks", "animations", "moves");
     private static final Set<String> ANIMATION_FIELDS = Set.of("ready_idle", "mode_enter");
@@ -121,7 +121,14 @@ public final class CombatDataLoader {
             }
             weapons.add(weapon);
         }
-        return new CombatStyles(styles, weapons);
+        List<CombatSkillDefinition> skills = new ArrayList<>();
+        if (indexJson.has("skills")) {
+            for (ResourceLocation skillId : index.idList("skills", false)) {
+                String file = "data/" + skillId.getNamespace() + "/combat/skill/" + skillId.getPath() + ".json";
+                skills.add(parseSkill(file, skillId, read(opener, file, INDEX_PATH, "skills")));
+            }
+        }
+        return new CombatStyles(styles, weapons, skills);
     }
 
     public static String stylePath(ResourceLocation styleId) {
@@ -177,6 +184,25 @@ public final class CombatDataLoader {
         }
         boolean paired = root.optionalBool("paired", false);
         return new WeaponDefinition(item, style, rig, geometry, family, paired);
+    }
+
+    public static CombatSkillDefinition parseSkill(String file, ResourceLocation expectedId, JsonObject json) {
+        Fields root = new Fields(file, "", json, Set.of("schema", "id", "school", "charge_ticks",
+                "release_ticks", "recovery_ticks", "speed", "range", "half_width", "half_height",
+                "maximum_targets", "damage_multiplier", "charge_scale", "movement_multiplier",
+                "launch_height", "feedback_move"));
+        root.schema();
+        if (!root.id("id").equals(expectedId)) {
+            throw root.error("id", "does not match the index id " + expectedId);
+        }
+        return build(root, () -> new CombatSkillDefinition(expectedId, root.id("school"),
+                root.positiveInteger("charge_ticks"), root.positiveInteger("release_ticks"),
+                root.positiveInteger("recovery_ticks"), root.positiveNumber("speed"),
+                root.positiveNumber("range"), root.positiveNumber("half_width"),
+                root.positiveNumber("half_height"), root.positiveInteger("maximum_targets"),
+                root.positiveNumber("damage_multiplier"), root.positiveNumber("charge_scale"),
+                root.positiveNumber("movement_multiplier"), root.positiveNumber("launch_height"),
+                root.id("feedback_move")));
     }
 
     private static AttackMoveDefinition parseMove(Fields move) {

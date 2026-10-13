@@ -4,6 +4,8 @@
 
 Define the synced datapack registries, codecs, paths, and minimal shipped data
 for cultivation realms, spiritual elements, and techniques.
+See also: [Spiritual Power and Sword Qi](../../../docs/ai-kb/45_spiritual_power_sword_qi.md).
+
 ## Requirements
 ### Requirement: Cultivation definitions are loaded from three datapack registries
 The mod SHALL register synced datapack registries with keys `myvillage:realm`, `myvillage:spiritual_element`, and `myvillage:technique` by handling `DataPackRegistryEvent.NewRegistry` on the mod event bus. Each registry SHALL use a persistent `Codec` and a non-null network `Codec`. Realm, element, and technique definitions SHALL NOT be implemented as hard-coded Java tables or definition enums.
@@ -32,7 +34,8 @@ For entries whose namespace is `myvillage`, realm JSON SHALL load from `data/myv
 ### Requirement: Realm definitions expose only foundation metadata
 `RealmDefinition` SHALL retain its translation, ordering, stages, optional
 next-realm, and positive maximum-lifespan fields. Each `RealmStageDefinition`
-SHALL retain id, translation, order, and optional positive cultivation cap and
+SHALL retain id, translation, order, optional positive cultivation cap, and
+non-negative `spiritual_power_cap` (omitted values default to zero), and
 MAY add one optional `advancement` record containing explicit target realm and
 stage ids, stable-string kind, positive duration ticks, required stability,
 stability cost, and interruption stability loss. Definitions SHALL contain no
@@ -50,6 +53,10 @@ environment, or tribulation effects.
 #### Scenario: A stage is checked against a realm
 - **WHEN** a service validates a requested realm-stage pair
 - **THEN** it SHALL accept the pair only when the selected realm contains the exact stage id
+
+#### Scenario: A stage power capacity round-trips
+- **WHEN** a valid stage declares a spiritual power cap
+- **THEN** the codec SHALL preserve it without embedding recovery or combat execution in the definition
 
 ### Requirement: Spiritual-element definitions are extensible and non-combat
 `SpiritualElementDefinition` SHALL contain a non-empty translation key, a non-negative sort order, an optional display color from `0x000000` through `0xFFFFFF`, and an integer `awakening_weight` from `0` through `1_000_000`. The codec SHALL treat omitted `awakening_weight` as `1` so existing datapacks remain loadable. Weight `0` SHALL exclude the element from ordinary awakening and positive weight SHALL make it eligible for weighted selection. The definition SHALL NOT contain element matchups, damage multipliers, cultivation multipliers, root-quality ranks, or combat bonuses, and the registry SHALL permit datapacks to add elements beyond the five shipped entries.
@@ -76,7 +83,7 @@ environment, or tribulation effects.
 - **AND** ordinary awakening SHALL not select it
 
 ### Requirement: Technique definitions carry metadata but no executor
-`TechniqueDefinition` SHALL contain a non-empty translation key, a stable-string category, a non-negative grade, a duplicate-free list of element `ResourceLocation` values, and `TechniqueRequirements`. The initial category codec SHALL encode `core`, `active`, `movement`, and `body` as strings and SHALL NOT encode enum ordinals. A technique definition SHALL NOT contain execution code, qi cost, cooldown, damage, projectile, buff, effect-script, or equipment-slot data.
+`TechniqueDefinition` SHALL contain a non-empty translation key, a stable-string category, a non-negative grade, a duplicate-free list of element `ResourceLocation` values, and `TechniqueRequirements`. The initial category codec SHALL encode `core`, `active`, `movement`, and `body` as strings and SHALL NOT encode enum ordinals. A technique definition SHALL remain declarative and contain no executable code or effect script. Its category-matched `effects.active` block MAY carry a skill reference, non-negative `qi_cost` and positive `slots`; execution SHALL be resolved by the registered combat runtime rather than embedded in the definition. Existing category-matched core, movement and body declarations SHALL retain their codec and eligibility rules.
 
 #### Scenario: A technique definition round-trips
 - **WHEN** a valid technique with category, grade, elements, and requirements is encoded and decoded
@@ -224,3 +231,10 @@ omit cap and advancement.
 - **WHEN** deterministic cultivation data validation runs
 - **THEN** it SHALL find exactly those four ordered source-target transitions and numeric rules
 - **AND** it SHALL find no rule or cap at Qi IV or later
+
+### Requirement: Definitions expose power capacity and executable sword qi
+Realm stages SHALL decode non-negative `spiritual_power_cap` values. The generated sword-qi active technique SHALL point to a registered matching-family combat skill. Existing inactive active-technique data SHALL remain data unless an executable skill is registered.
+
+#### Scenario: Invalid stage capacity
+- **WHEN** a stage declares a negative power cap
+- **THEN** definition loading or validation SHALL reject it with a controlled diagnostic

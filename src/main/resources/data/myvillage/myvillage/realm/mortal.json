@@ -6,7 +6,8 @@
     {
       "id": "myvillage:mortal_unawakened",
       "translation_key": "cultivation.stage.myvillage.mortal_unawakened",
-      "sort_order": 0
+      "sort_order": 0,
+      "spiritual_power_cap": 0
     },
     {
       "id": "myvillage:mortal_qi_sensed",
@@ -22,7 +23,8 @@
         "required_stability": 500,
         "stability_cost": 250,
         "interruption_stability_loss": 0
-      }
+      },
+      "spiritual_power_cap": 20
     }
   ],
   "next_realm": "myvillage:qi_refining"

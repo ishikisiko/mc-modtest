@@ -1064,5 +1064,8 @@
   "combat.myvillage.move.basic_fist_04_chop": "劈掌",
   "combat.myvillage.move.basic_fist_05_step_double_strike": "踏步双撞",
   "cultivation.technique.myvillage.liuyun_bu": "流云步",
-  "cultivation.technique.myvillage.taxue_wuhen": "踏雪无痕"
+  "cultivation.technique.myvillage.taxue_wuhen": "踏雪无痕",
+  "cultivation.technique.myvillage.jianqi_jue": "剑气诀",
+  "hud.myvillage.qi": "灵力 %s / %s",
+  "hud.myvillage.qi.charging": "凝聚剑气…"
 }

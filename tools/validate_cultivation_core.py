@@ -337,6 +337,10 @@ class CultivationValidator:
                     stage, "sort_order", stage_location, 0
                 )
 
+                qi_cap = self.required_integer(stage, "spiritual_power_cap", stage_location, 0)
+                if qi_cap is not None and qi_cap > 2**63 - 1:
+                    self.error(stage_location, "spiritual_power_cap exceeds Java long range")
+
                 cultivation_cap: int | None = None
                 if "cultivation_cap" in stage:
                     cultivation_cap = self.required_integer(
@@ -774,8 +778,24 @@ class CultivationValidator:
                         f"translation {key!r} must be a non-empty string",
                     )
 
+    def validate_qi_rules(self) -> None:
+        path = self.root / "src/main/resources/data/myvillage/qi/rules.json"
+        rules = self.load_object(path)
+        if rules is None:
+            return
+        location = self.path_label(path)
+        fields = {"regen_interval_ticks": 1, "regen_amount": 1, "meditation_multiplier": 1, "spend_delay_ticks": 0}
+        for unknown in sorted(set(rules) - set(fields)):
+            self.error(location, f"unknown qi rule {unknown!r}")
+        for key, minimum in fields.items():
+            value = self.required_integer(rules, key, location, minimum)
+            maximum = 2**63 - 1 if key == "regen_amount" else 2**31 - 1
+            if value is not None and value > maximum:
+                self.error(location, f"field {key!r} exceeds Java integer range")
+
     def validate(self) -> ValidationResult:
         self.validate_realms()
+        self.validate_qi_rules()
         self.validate_elements()
         self.validate_techniques()
         self.validate_required_foundation()

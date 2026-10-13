@@ -104,8 +104,10 @@ stay valid:
   qi_cost, cooldown_ticks ≥ 0}`; `body {attributes: {attribute id: amount},
   stagger_resistance ≥ 0}` (needs one of the two). `core` drives the meridian
   route and, since 0.40.0, `movement` drives the dodge
-  ([42_movement_dodge.md](42_movement_dodge.md)); `active` and `body` are
-  decoded and validated only.
+  ([42_movement_dodge.md](42_movement_dodge.md)). Since 0.46.0, the registered
+  `jianqi_jue` active skill executes sword qi
+  ([45_spiritual_power_sword_qi.md](45_spiritual_power_sword_qi.md)); other active
+  techniques and body effects remain decoded and validated only.
 
 At server start (`ModCultivationRegistries.validateRequiredEntries`, which logs the
 school and heritage counts) a school's `element_lean`
@@ -421,8 +423,11 @@ and "Technique manuals (0.38.0)".
 
 ## Not implemented yet
 
-- Runtimes for active (绝技) and body (炼体) effects; their techniques can
-  be learned and shown but do nothing. ~~Movement (身法)~~: since 0.40.0 the
+- Active runtime beyond the single `jianqi_jue` sword skill, and body (炼体)
+  runtime. Since 0.46.0, the catalogue has 132 generated techniques (133 registry
+  entries with Basic Breathing); the public grade-one sword-qi manual can be
+  borrowed and studied, and its learned effect casts through the sword family
+  ([45_spiritual_power_sword_qi.md](45_spiritual_power_sword_qi.md)). Since 0.40.0 the
   dodge reads `effects.movement` ([42_movement_dodge.md](42_movement_dodge.md));
   its `qi_cost` is not charged.
 - Mastery tiers, and mastery carried over when switching within a chain.
@@ -432,7 +437,8 @@ and "Technique manuals (0.38.0)".
   only that the previous one is learned), manuals from loot, sects, NPCs or
   the scripture hall, a reading visual, and any player route into a ledger
   sect or its heritage; a heritage's `exclusive` flag is data only (0.42.0: the scripture hall is the player's in-game source of sect manuals, but nothing reads the flag).
-- Weapon `family` fields and anything that ties a school to combat styles.
+- Active skills for weapon families beyond sword; `family` and the school
+  `weapon_family` now resolve the sword-qi action (note 45).
 - Meridian routes other than `xiaozhoutian`.
 
 ## See also

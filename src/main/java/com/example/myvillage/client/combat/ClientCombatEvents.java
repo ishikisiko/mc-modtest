@@ -333,7 +333,9 @@ public final class ClientCombatEvents {
                 player.setSprinting(false);
             }
             ClientCombatState.trackLocalAction(style, moveIndex, ClientCombatClock.localTickAgo(elapsed), payload.revision());
-            ClientCombatState.confirmPrediction((moveIndex + 1) % style.moves().size());
+            var skillMove = ClientSwordQi.releasedMove(player.getId(), payload.revision());
+            skillMove.ifPresent(ClientCombatState::externalMove);
+            ClientCombatState.confirmPrediction(skillMove.isPresent() ? 0 : (moveIndex + 1) % style.moves().size());
         }
     }
 
@@ -373,6 +375,7 @@ public final class ClientCombatEvents {
             // The server restarts this player's revisions: a reused one must start its stop again.
             CombatImpactFx.forgetAttacker(payload.attackerEntityId());
             ClientCombatState.resetActionRevision(payload.attackerEntityId());
+            ClientSwordQi.forgetEntity(payload.attackerEntityId());
         }
         if (player == minecraft.player) {
             if (payload.reason() == CombatStopReason.COMPLETED) {

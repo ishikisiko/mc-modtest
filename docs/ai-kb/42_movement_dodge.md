@@ -253,8 +253,9 @@ The first run (flat impulse) measured 5.39 blocks for the back step and an
 
 ## Not implemented
 
-- Qi: `qi_cost` is not charged; there is no qi pool (maximum, regeneration,
-  HUD bar) yet.
+- Dodge `qi_cost` is deliberately not charged. The power pool, recovery and
+  HUD now exist for sword qi ([45](45_spiritual_power_sword_qi.md)); this slice
+  leaves movement free.
 - A dash pose, a HUD cooldown readout, mastery tiers, and a chosen-technique
   slot (the highest grade is always used).
 - Owner decisions still open: the Left Alt default, whether to charge qi,

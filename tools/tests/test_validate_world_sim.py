@@ -50,6 +50,14 @@ class WorldSimValidatorTest(unittest.TestCase):
         for fragment in fragments:
             self.assertTrue(any(fragment in e for e in errors), f"no new error with {fragment!r} in {sorted(errors)}")
 
+    def test_public_scripture_references_are_checked(self) -> None:
+        self.edit_data("rules.json", lambda d: d["player"]["scripture_hall"].update(public_techniques=["missing_art"]))
+        self.assert_new("public_techniques names unknown technique")
+
+    def test_public_scripture_duplicates_are_rejected(self) -> None:
+        self.edit_data("rules.json", lambda d: d["player"]["scripture_hall"].update(public_techniques=["jianqi_jue"] * 2))
+        self.assert_new("public_techniques must contain distinct")
+
     # ------------------------------------------------------------------ the working tree
     def test_copy_matches_the_working_tree(self) -> None:
         self.assertEqual(set(validator.validate(validator.ROOT).errors), self.baseline)

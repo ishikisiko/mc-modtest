@@ -19,6 +19,7 @@ class CultivationCommandsTest {
             Map.entry("setprogress", "shezhixiuwei"),
             Map.entry("setstability", "shezhiwendingdu"),
             Map.entry("setpower", "shezhilingli"),
+            Map.entry("qi", "lingli"),
             Map.entry("setroot", "shezhilinggen"),
             Map.entry("clearroot", "qingchulinggen"),
             Map.entry("learn", "xuexi"),

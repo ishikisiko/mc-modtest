@@ -4,6 +4,7 @@ import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.meditation.MeditationManager;
 import com.example.myvillage.cultivation.meditation.MeditationStopReason;
 import com.example.myvillage.cultivation.network.CultivationSnapshotPayload;
+import com.example.myvillage.cultivation.qi.SpiritualPowerRuntime;
 import com.example.myvillage.cultivation.time.CultivationTimeRuntime;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
@@ -66,10 +67,12 @@ public final class CultivationEvents {
                 CultivationSnapshotPayload.TYPE.id());
         CultivationTimeRuntime.onServerStarted(event.getServer());
         MeditationManager.onServerStarted();
+        SpiritualPowerRuntime.onServerStarted(event.getServer());
     }
 
     private static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
+            SpiritualPowerRuntime.initialize(player);
             CultivationService.syncToClient(player);
             CultivationTimeRuntime.onPlayerLoggedIn(player);
             MeditationManager.notifyStatus(player);
@@ -79,6 +82,7 @@ public final class CultivationEvents {
     private static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
             CultivationTimeRuntime.onPlayerRespawn(player);
+            SpiritualPowerRuntime.initialize(player);
             CultivationService.syncToClient(player);
             MeditationManager.notifyStatus(player);
         }
@@ -88,12 +92,14 @@ public final class CultivationEvents {
         if (event.getEntity() instanceof ServerPlayer player) {
             MeditationManager.requestStop(player, MeditationStopReason.DIMENSION_CHANGED);
             CultivationTimeRuntime.onPlayerChangedDimension(player);
+            SpiritualPowerRuntime.initialize(player);
             CultivationService.syncToClient(player);
         }
     }
 
     private static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
+            SpiritualPowerRuntime.forget(player);
             MeditationManager.onPlayerLoggedOut(player);
             CultivationTimeRuntime.onPlayerLoggedOut(player);
         }
@@ -102,9 +108,11 @@ public final class CultivationEvents {
     private static void onServerTick(ServerTickEvent.Post event) {
         CultivationTimeRuntime.tick(event.getServer());
         MeditationManager.tick(event.getServer());
+        SpiritualPowerRuntime.tick(event.getServer());
     }
 
     private static void onServerStopping(ServerStoppingEvent event) {
+        SpiritualPowerRuntime.stop();
         MeditationManager.onServerStopping(event.getServer());
         CultivationTimeRuntime.onServerStopping(event.getServer());
     }
@@ -130,6 +138,7 @@ public final class CultivationEvents {
 
     private static void onLivingDeath(LivingDeathEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
+            SpiritualPowerRuntime.forget(player);
             MeditationManager.requestStop(player, MeditationStopReason.DIED);
             CultivationTimeRuntime.onPlayerDeath(player);
         }
@@ -190,6 +199,7 @@ public final class CultivationEvents {
 
     private static void onDatapackSync(OnDatapackSyncEvent event) {
         if (event.getPlayer() == null) {
+            SpiritualPowerRuntime.reload(event.getPlayerList().getServer());
             MeditationManager.cancelAllAdministrative(
                     event.getPlayerList().getServer(),
                     MeditationStopReason.DEFINITION_RELOADED);

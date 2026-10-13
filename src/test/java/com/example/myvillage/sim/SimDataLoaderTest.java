@@ -44,6 +44,17 @@ class SimDataLoaderTest {
     }
 
     @Test
+    void publicScriptureReferencesAreValidatedAndMayBeDisabled() {
+        SimDataException unknown = assertThrows(SimDataException.class, () -> WorldSim.loadData(
+                patched(SimDataLoader.RULES, t -> t.replace("[\"jianqi_jue\"]", "[\"missing_art\"]"))));
+        assertEquals("player.scripture_hall.public_techniques", unknown.field());
+        assertThrows(SimDataException.class, () -> WorldSim.loadData(
+                patched(SimDataLoader.RULES, t -> t.replace("[\"jianqi_jue\"]", "[\"jianqi_jue\", \"jianqi_jue\"]"))));
+        assertTrue(WorldSim.loadData(patched(SimDataLoader.RULES,
+                t -> t.replace("[\"jianqi_jue\"]", "[]"))).rules().player().scriptureHall().publicTechniques().isEmpty());
+    }
+
+    @Test
     void unknownFieldNamesFileAndField() {
         SimDataException e = assertThrows(SimDataException.class, () -> WorldSim.loadData(
                 patched(SimDataLoader.RULES, t -> t.replaceFirst("\"chronicle\": \\{", "\"chronicle\": {\"bogus\": 1, "))));

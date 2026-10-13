@@ -3,6 +3,8 @@
 ## Purpose
 Define what the focused combat validator, the animation generator, and the regression tests must prove about the combat data files and their consistency with other resources. See-also `docs/ai-kb/34_combat_data_and_capture.md`.
 
+See also: [Spiritual Power and Sword Qi](../../../docs/ai-kb/45_spiritual_power_sword_qi.md).
+
 ## Requirements
 ### Requirement: Validator checks combat data files
 `tools/validate_sword_combat_foundation.py` SHALL validate every style and weapon file listed in the combat index against the version 1 schema and the move invariants, SHALL reject unknown fields, and SHALL report a file that exists in the style or weapon directory but is missing from the index, or the reverse.
@@ -47,3 +49,9 @@ One Python regression test SHALL pin the accepted `myvillage:basic_sword` timing
 - **WHEN** the style defines a move that has no pose table
 - **THEN** the generator exits with an error naming the move
 
+### Requirement: Skill geometry and input authority are validated
+Combat validation SHALL reject invalid charge bounds, costs, timing, wave geometry, family references and target limits; it SHALL verify charge, release and charge-cancel serverbound payloads remain empty and existing melee baselines remain pinned.
+
+#### Scenario: A client-authoritative field is introduced
+- **WHEN** a charge, release or charge-cancel payload declares duration, cost, position or damage
+- **THEN** the authority validation SHALL fail

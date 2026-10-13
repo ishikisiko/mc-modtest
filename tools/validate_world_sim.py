@@ -634,6 +634,17 @@ def check_data(root: Path, report: Report) -> dict:
     encounters = (check_encounters(docs.get("encounters.json"), realms, technique_grades, artifact_grades,
                                    site_kinds, report) if "encounters.json" in docs else [])
     sim_techniques = (docs.get("techniques.json") or {}).get("techniques")
+    public = ((docs.get("rules.json") or {}).get("player") or {}).get("scripture_hall", {}).get("public_techniques")
+    public_where = "player.scripture_hall.public_techniques"
+    if not isinstance(public, list) or any(not isinstance(t, str) or not t for t in public):
+        report.error("data", "rules.json", f"{public_where} must be a list of technique ids")
+    elif len(set(public)) != len(public):
+        report.error("data", "rules.json", f"{public_where} must contain distinct technique ids")
+    else:
+        known = {t.get("id") for t in (sim_techniques or []) if isinstance(t, dict)}
+        for tid in public:
+            if tid not in known:
+                report.error("data", "rules.json", f"{public_where} names unknown technique {tid!r}")
     datapack = load_datapack_dir(root, TECHNIQUE_REL, report)
     schools = load_datapack_dir(root, SCHOOL_REL, report)
     matched = check_datapack_techniques(sim_techniques, datapack, report) if datapack is not None else 0

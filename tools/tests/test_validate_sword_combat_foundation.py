@@ -812,6 +812,16 @@ class SwordCombatFoundationValidatorTest(unittest.TestCase):
         self.assertFalse(any("ProbeInputPayload" in d for d in details), details)
         self.assertTrue(any("ProbeMixedPayload(DodgeDirection direction, int ticks)" in d for d in details), details)
 
+    def test_charge_release_and_cancel_remain_empty_intents(self) -> None:
+        for name in ("CombatChargeIntentPayload", "CombatReleaseIntentPayload", "CombatCancelChargeIntentPayload"):
+            path = COMBAT_JAVA + "network/" + name + ".java"
+            text = (self.root / path).read_text(encoding="utf-8")
+            self.assertRegex(text, rf"record\s+{name}\s*\(\s*\)")
+            self.assertFalse(any(name in d for d in self.details("COMBAT_C2S_AUTHORITY_FIELD")))
+            self.write_java(path, text.replace(name + "()", name + "(int chargeTicks)", 1))
+            self.assertTrue(any(name in d for d in self.details("COMBAT_C2S_AUTHORITY_FIELD")))
+            self.write_java(path, text)
+
     def test_serverbound_registrations_are_required(self) -> None:
         for path in (self.root / COMBAT_JAVA).rglob("*.java"):
             content = path.read_text(encoding="utf-8")

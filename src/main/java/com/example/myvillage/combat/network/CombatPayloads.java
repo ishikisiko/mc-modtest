@@ -12,6 +12,26 @@ public final class CombatPayloads {
     }
 
     public static void register(PayloadRegistrar registrar) {
+        registrar.playToServer(CombatChargeIntentPayload.TYPE, CombatChargeIntentPayload.STREAM_CODEC,
+                (payload, context) -> {
+                    if (context.player() instanceof ServerPlayer player) {
+                        context.enqueueWork(() -> CombatSessionManager.handleChargeIntent(player));
+                    }
+                });
+        registrar.playToServer(CombatReleaseIntentPayload.TYPE, CombatReleaseIntentPayload.STREAM_CODEC,
+                (payload, context) -> {
+                    if (context.player() instanceof ServerPlayer player) {
+                        context.enqueueWork(() -> CombatSessionManager.handleReleaseIntent(player));
+                    }
+                });
+        registrar.playToServer(CombatCancelChargeIntentPayload.TYPE, CombatCancelChargeIntentPayload.STREAM_CODEC,
+                (payload, context) -> {
+                    if (context.player() instanceof ServerPlayer player) {
+                        context.enqueueWork(() -> CombatSessionManager.handleChargeCancelIntent(player));
+                    }
+                });
+        registrar.playToClient(CombatSkillStatePayload.TYPE, CombatSkillStatePayload.STREAM_CODEC,
+                (payload, context) -> context.enqueueWork(() -> CombatSkillReceiver.receive(payload)));
         registrar.playToServer(
                 CombatModeTogglePayload.TYPE,
                 CombatModeTogglePayload.STREAM_CODEC,

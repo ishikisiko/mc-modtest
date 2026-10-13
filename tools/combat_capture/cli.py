@@ -84,7 +84,7 @@ def capture_dir(root: Path, label: str) -> Path:
 def session_config(a) -> SessionConfig:
     return SessionConfig(session_id=secrets.token_hex(6), username=a.username,
                          lock=str(a.lock or procs.default_lock_path(REPO)), lock_timeout=a.lock_timeout,
-                         settle=a.settle, gradle_jvmargs=a.gradle_jvmargs)
+                         settle=a.settle, gradle_jvmargs=a.gradle_jvmargs, reuse_world=a.reuse_world, language=a.language)
 
 
 # ---------------------------------------------------------------- commands
@@ -472,6 +472,33 @@ def cmd_dodge(a):
             session.stop(log=log)
 
 
+def cmd_sword_qi(a):
+    from . import session, sword_qi
+    from .session import Session
+    require_programs()
+    started = False
+    try:
+        st = session.read_state()
+        if not (st and st.get("phase") == "ready" and session.supervisor_alive(st)):
+            session.start(session_config(a), wait_timeout=a.timeout, log=log)
+            started = True
+        s = Session.attach(ui_check=not a.no_ui_check, log=log)
+        if a.hud:
+            sword_qi.capture_hud(s, a.out or sword_qi.DEFAULT_OUT / "hud", log)
+            return
+        if a.journey:
+            from .sword_qi_journey import run_journey
+            run_journey(s, a.out or sword_qi.DEFAULT_OUT / "journey", log)
+            return
+        m = sword_qi.run_sword_qi(s, a.out or sword_qi.DEFAULT_OUT, log,
+                                 trials=a.trials.split(",") if a.trials else None)
+        if not m["passed"]:
+            raise UsageError("sword qi trial failed; inspect manifest.json and per-trial logs")
+    finally:
+        if started:
+            session.stop(log=log)
+
+
 def cmd_npc(a):
     """NPC evidence (stills, walk footage) in a session; starts and stops its own
     session unless one is already running (then leaves it running)."""
@@ -508,6 +535,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     def session_opts(p):
         p.add_argument("--username", default="CaptureDev")
+        p.add_argument("--language", choices=("en_us", "zh_cn"), default="en_us", help="capture client language (default en_us)")
+        p.add_argument("--reuse-world", action="store_true", help="keep the isolated combat_capture_world for save/restart evidence; default creates a fresh world")
         p.add_argument("--lock", help="heavy-work lock file (default $MC_HEAVY_LOCK or .mc-heavy.lock beside the main checkout)")
         p.add_argument("--lock-timeout", type=float, default=5400.0, help="seconds to wait for the lock")
         p.add_argument("--timeout", type=float, default=7800.0, help="seconds to wait for the session to be ready")
@@ -626,6 +655,15 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--out", type=Path, default=None, help="output directory (default out/preview/movement_dodge)")
     p.add_argument("--no-ui-check", action="store_true", help="send keys without the in-game check (unsafe)")
     p.set_defaults(func=cmd_dodge)
+
+    p = sub.add_parser("sword-qi", help="mapped-right-mouse sword qi boundary trials, video and server evidence")
+    session_opts(p)
+    p.add_argument("--out", type=Path, default=None)
+    p.add_argument("--trials", help="comma-separated trial ids (default all)")
+    p.add_argument("--hud", action="store_true", help="capture idle/charge HUD at three real window sizes")
+    p.add_argument("--journey", action="store_true", help="eligible prospect: mapped steward join, borrow, study and cast (fresh player)")
+    p.add_argument("--no-ui-check", action="store_true")
+    p.set_defaults(func=cmd_sword_qi)
 
     p = sub.add_parser("npc", help="NPC evidence: full-figure and close-up stills, walk videos")
     session_opts(p)

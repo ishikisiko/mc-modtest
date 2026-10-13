@@ -11,6 +11,7 @@ import java.util.Set;
 
 public final class CombatSession {
     private CombatStyleDefinition style;
+    private AttackMoveDefinition externalMove;
     private final Set<Integer> attemptedEntityIds = new HashSet<>();
 
     private int nextMoveIndex;
@@ -59,6 +60,7 @@ public final class CombatSession {
         Objects.requireNonNull(currentWorldId, "currentWorldId");
         expireCombo(serverTick);
         if (hasActiveAction()) {
+            if (externalMove != null) return IntentResult.rejected(IntentDecision.REJECTED_TIMING);
             int actionTick = actionTick(serverTick);
             // A click on the completion tick itself (handled before this tick's session update)
             // is held too, so it starts the next move instead of being dropped.
@@ -99,9 +101,10 @@ public final class CombatSession {
         }
 
         StopEvent stop = stopEvent(CombatStopReason.COMPLETED);
+        boolean external = externalMove != null;
         int completedIndex = currentMoveIndex;
         clearAction();
-        nextMoveIndex = completedIndex + 1;
+        nextMoveIndex = external ? 0 : completedIndex + 1;
         if (nextMoveIndex >= style.moves().size()) {
             nextMoveIndex = 0;
         }
@@ -116,7 +119,7 @@ public final class CombatSession {
             return new TickResult(Optional.of(stop), Optional.of(start));
         }
 
-        comboDeadline = completedIndex == style.moves().size() - 1
+        comboDeadline = external || completedIndex == style.moves().size() - 1
                 ? Long.MIN_VALUE
                 : saturatedAdd(serverTick, style.comboTimeoutTicks());
         return new TickResult(Optional.of(stop), Optional.empty());
@@ -185,7 +188,7 @@ public final class CombatSession {
         if (!hasActiveAction()) {
             throw new IllegalStateException("No active combat action");
         }
-        return style.move(currentMoveIndex);
+        return externalMove != null ? externalMove : style.move(currentMoveIndex);
     }
 
     public int actionTick(long serverTick) {
@@ -234,6 +237,26 @@ public final class CombatSession {
         return lastStopReason;
     }
 
+    /** A single external skill action shares revision, hit bookkeeping and interruption; never chains. */
+    public StartEvent startExternal(AttackMoveDefinition move, long tick, ResourceLocation weapon,
+                                    ResourceLocation world, float yaw) {
+        if (hasActiveAction()) throw new IllegalStateException("Action already owned");
+        externalMove = Objects.requireNonNull(move);
+        resetCombo(CombatStopReason.COMPLETED);
+        return start(0, tick, weapon, world, yaw);
+    }
+
+    public long nextRevision() { return revision == Long.MAX_VALUE ? 1 : revision + 1; }
+
+    /** Consume a cancelled charge's advertised revision so it cannot be reused by a later action. */
+    public void discardPendingAction() {
+        if (hasActiveAction()) throw new IllegalStateException("Cannot discard a running action");
+        revision = nextRevision();
+        resetCombo(CombatStopReason.CHARGE_CANCELLED);
+    }
+
+    public boolean isExternal() { return externalMove != null; }
+
     private StartEvent start(
             int moveIndex,
             long serverTick,
@@ -263,6 +286,7 @@ public final class CombatSession {
 
     private void clearAction() {
         currentMoveIndex = -1;
+        externalMove = null;
         bufferedIntent = false;
         attemptedEntityIds.clear();
         durabilityCharged = false;

@@ -4,6 +4,8 @@
 
 Define owning-client snapshot delivery, read-only client caching, payload
 direction, mutation authority, and dedicated-server side safety.
+See also: [Spiritual Power and Sword Qi](../../../docs/ai-kb/45_spiritual_power_sword_qi.md).
+
 ## Requirements
 ### Requirement: Cultivation snapshots flow only from server to owning client
 The mod SHALL keep `myvillage:cultivation_snapshot` play-to-client and SHALL
@@ -310,3 +312,10 @@ or install inventory, progress, mode, or advancement outcomes.
 #### Scenario: The client disconnects with the Meditation tab open
 - **WHEN** logout clears client cultivation caches
 - **THEN** a later connection SHALL not display the prior profile or runtime session as current
+
+### Requirement: Power and sword-qi presentation consume server state
+The power HUD SHALL derive its current value from the owning-client cultivation snapshot and its cap from synchronized stage definitions. Charge and advancing-wave presentation SHALL consume bounded server-authored state; clients SHALL NOT author resource balances, cast duration, hit positions, or damage. Disconnect and world changes SHALL clear transient presentation.
+
+#### Scenario: Power changes after a cast
+- **WHEN** the server accepts a cast and publishes the changed profile
+- **THEN** the HUD SHALL display the server balance without committing a predicted balance

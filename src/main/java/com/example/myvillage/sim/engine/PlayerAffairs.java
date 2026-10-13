@@ -189,7 +189,7 @@ public final class PlayerAffairs {
      * ids, chain order, no duplicates). A heritage sect lends its chain: outer the first technique,
      * inner the first two, elder the whole chain. A sect without one lends its basic technique to
      * outer disciples and basic plus signature to inner disciples and elders. Empty ids and
-     * {@link #BASIC_BREATHING} are left out. Empty when the player is in no living sect.
+     * {@link #BASIC_BREATHING} are left out. The data-defined public techniques are appended for every rank. Empty when the player is in no living sect.
      */
     public static List<String> borrowable(SimContext ctx, String playerId) {
         PlayerMember m = ctx.state.playerMembers.get(playerId);
@@ -216,6 +216,7 @@ public final class PlayerAffairs {
                 raw.add(sect.signatureTechniqueId);
             }
         }
+        raw.addAll(ctx.data.rules().player().scriptureHall().publicTechniques());
         Set<String> out = new LinkedHashSet<>();
         for (String id : raw) {
             if (id != null && !id.isEmpty() && !id.equals(BASIC_BREATHING)) {

@@ -49,6 +49,24 @@ final class ClientCombatStateTest {
     }
 
     @Test
+    void externalSkillKeepsItsTimelineAndCannotPredictAWeaponCombo() {
+        var registry = com.example.myvillage.combat.definition.CombatStyles.bundled();
+        var skill = registry.skill(net.minecraft.resources.ResourceLocation.parse("myvillage:jianqi_jue")).orElseThrow();
+        var reference = registry.move(skill.feedbackMove()).orElseThrow();
+        var move = skill.releaseMove(registry, 255);
+        ClientCombatState.trackLocalAction(reference.style(), reference.index(), 100, 7);
+        ClientCombatState.externalMove(move);
+        ClientCombatState.confirmPrediction(0);
+        assertEquals(move, ClientCombatState.localMove().orElseThrow());
+        assertEquals(move, ClientCombatState.localMoveFor(7).orElseThrow());
+        assertFalse(ClientCombatState.bufferClick(100 + move.totalTicks(), reference.style()));
+        assertEquals(-1, ClientCombatState.chainDue(100 + move.totalTicks(), reference.style()));
+        ClientCombatState.completeAction(100 + move.totalTicks());
+        assertTrue(ClientCombatState.localMove().isEmpty());
+        assertEquals(0, ClientCombatState.preparePrediction(121, reference.style().comboTimeoutTicks()));
+    }
+
+    @Test
     void aHitConfirmationBelongsOnlyToTheActionWithItsRevision() {
         var spear = CombatTestData.basicSpear();
         ClientCombatState.beginPrediction(100);

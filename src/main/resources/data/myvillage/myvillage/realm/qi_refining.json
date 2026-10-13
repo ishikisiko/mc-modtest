@@ -17,7 +17,8 @@
         "required_stability": 550,
         "stability_cost": 275,
         "interruption_stability_loss": 0
-      }
+      },
+      "spiritual_power_cap": 30
     },
     {
       "id": "myvillage:qi_refining_2",
@@ -33,7 +34,8 @@
         "required_stability": 600,
         "stability_cost": 300,
         "interruption_stability_loss": 0
-      }
+      },
+      "spiritual_power_cap": 40
     },
     {
       "id": "myvillage:qi_refining_3",
@@ -49,43 +51,50 @@
         "required_stability": 650,
         "stability_cost": 325,
         "interruption_stability_loss": 5
-      }
+      },
+      "spiritual_power_cap": 50
     },
     {
       "id": "myvillage:qi_refining_4",
       "translation_key": "cultivation.stage.myvillage.qi_refining_4",
       "sort_order": 3,
-      "spirit_stone_cost": 4
+      "spirit_stone_cost": 4,
+      "spiritual_power_cap": 60
     },
     {
       "id": "myvillage:qi_refining_5",
       "translation_key": "cultivation.stage.myvillage.qi_refining_5",
       "sort_order": 4,
-      "spirit_stone_cost": 5
+      "spirit_stone_cost": 5,
+      "spiritual_power_cap": 70
     },
     {
       "id": "myvillage:qi_refining_6",
       "translation_key": "cultivation.stage.myvillage.qi_refining_6",
       "sort_order": 5,
-      "spirit_stone_cost": 6
+      "spirit_stone_cost": 6,
+      "spiritual_power_cap": 80
     },
     {
       "id": "myvillage:qi_refining_7",
       "translation_key": "cultivation.stage.myvillage.qi_refining_7",
       "sort_order": 6,
-      "spirit_stone_cost": 7
+      "spirit_stone_cost": 7,
+      "spiritual_power_cap": 90
     },
     {
       "id": "myvillage:qi_refining_8",
       "translation_key": "cultivation.stage.myvillage.qi_refining_8",
       "sort_order": 7,
-      "spirit_stone_cost": 8
+      "spirit_stone_cost": 8,
+      "spiritual_power_cap": 100
     },
     {
       "id": "myvillage:qi_refining_9",
       "translation_key": "cultivation.stage.myvillage.qi_refining_9",
       "sort_order": 8,
-      "spirit_stone_cost": 9
+      "spirit_stone_cost": 9,
+      "spiritual_power_cap": 110
     }
   ],
   "next_realm": "myvillage:foundation_establishment"

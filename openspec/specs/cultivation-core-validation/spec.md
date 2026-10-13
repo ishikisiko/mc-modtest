@@ -4,6 +4,8 @@
 
 Define the automated, dedicated-server, documentation, and manual acceptance
 evidence required for the foundation-only cultivation runtime.
+See also: [Spiritual Power and Sword Qi](../../../docs/ai-kb/45_spiritual_power_sword_qi.md).
+
 ## Requirements
 ### Requirement: Java tests cover profile defaults, codecs, invariants, and immutable updates
 The automated Java test suite SHALL cover the exact default profile, full `CultivationProfile.CODEC` round trip, valid spiritual-root total, invalid spiritual-root total, per-affinity range rejection, stability range rejection, negative progress/power/mastery rejection, immutable update behavior, unknown `ResourceLocation` decoding, realm-stage membership validation, and learn/forget/mastery transitions.
@@ -463,3 +465,10 @@ block completion, archive, merge, and push as a successful release.
 #### Scenario: One playable-loop regression fails
 - **WHEN** any of the five focused change validators, foundation/initiation validator, test, build, jar, server-smoke, or governance gate exits nonzero
 - **THEN** the change SHALL not be reported complete or closeout-ready
+
+### Requirement: Power and learned-skill data are validated
+Cultivation validation SHALL check stage power-cap bounds, power-rule bounds, generated sword-qi learning requirements, and its registered active-skill reference. Existing profile, learning, meditation and authority checks SHALL remain in force.
+
+#### Scenario: An executable active reference is broken
+- **WHEN** the sword-qi catalogue references an absent registered skill
+- **THEN** validation SHALL fail with a specific reference diagnostic

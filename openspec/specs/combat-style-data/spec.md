@@ -3,6 +3,8 @@
 ## Purpose
 Define how combat move sets and weapons are stored as bundled data, loaded on both sides, selected by held item, and kept server-authoritative, and how the client smoke probes follow the held weapon. See-also `docs/ai-kb/34_combat_data_and_capture.md` and `docs/ai-kb/32_pal_combat_integration.md`.
 
+See also: [Spiritual Power and Sword Qi](../../../docs/ai-kb/45_spiritual_power_sword_qi.md).
+
 ## Requirements
 ### Requirement: Combat styles and weapons are bundled data
 The mod SHALL define each combat move set in a style file and each combat weapon in a weapon file under `data/<namespace>/combat/`, listed by `data/myvillage/combat/index.json`. The runtime SHALL load these files from the mod's own resources on both the client and the dedicated server and MUST NOT keep a second copy of any move's timing, hit shape, step, reaction, feedback, or camera values in Java source.
@@ -84,3 +86,9 @@ The client smoke command SHALL resolve move indexes against the style of the mai
 - **WHEN** the main-hand item has no weapon entry
 - **THEN** the probe returns failure and changes no pose
 
+### Requirement: Skills declare charge and wave behavior as data
+Registered combat skill data and its linked active-technique definition SHALL define the weapon family, bounded charge window, power cost, action timing, advancing-wave dimensions, travel speed, target limit, and damage parameters. Runtime code SHALL NOT duplicate balance values in weapon-specific branches. Existing melee move definitions SHALL retain their accepted behavior.
+
+#### Scenario: A sword-qi tuning field is changed
+- **WHEN** a valid skill data value changes and the resources are reloaded or the runtime is restarted as supported
+- **THEN** the runtime SHALL obtain that value from the registered skill definition

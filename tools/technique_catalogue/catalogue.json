@@ -1,6 +1,7 @@
 {
   "schema": 1,
   "techniques": [
+    {"id": "jianqi_jue", "zh": "剑气诀", "category": "active", "grade": 1, "element": "none", "school": "sword", "previous": null, "effects": {"active": {"skill": "myvillage:jianqi_jue", "qi_cost": 8, "slots": 1}}},
     {"id": "jingang_gong", "zh": "金刚功", "category": "body", "grade": 1, "element": "metal", "school": null, "previous": null},
     {"id": "ruijin_jue", "zh": "锐金诀", "category": "core", "grade": 1, "element": "metal", "school": null, "previous": null},
     {"id": "gengjin_yinqi_fa", "zh": "庚金引气法", "category": "core", "grade": 1, "element": "metal", "school": "sword", "previous": null},

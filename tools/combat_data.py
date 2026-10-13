@@ -96,6 +96,7 @@ class CombatData:
     weapons: dict[str, dict] = field(default_factory=dict)
     files: dict[str, Path] = field(default_factory=dict)
     issues: tuple[Issue, ...] = ()
+    skills: dict[str, dict] = field(default_factory=dict)
 
     def moves(self) -> Iterator[tuple[str, dict]]:
         """Every move of every valid style as ``(style_id, move)``, in index and combo order."""
@@ -145,6 +146,11 @@ def style_file(root: Path, style_id: str) -> Path:
 
 def weapon_file(root: Path, weapon_id: str) -> Path:
     return root / RESOURCES / weapon_rel(weapon_id)
+
+
+def skill_file(root: Path, skill_id: str) -> Path:
+    namespace, path = split_id(skill_id)
+    return root / RESOURCES / "data" / namespace / "combat/skill" / f"{path}.json"
 
 
 def asset_file(root: Path, asset_id: str) -> Path:
@@ -460,7 +466,16 @@ WEAPON = obj({
     "paired": boolean,
 })
 
-INDEX = obj({"schema": constant(SCHEMA_VERSION), "styles": id_list, "weapons": id_list})
+SKILL = obj({
+    "schema": constant(SCHEMA_VERSION), "id": resource_id, "school": resource_id,
+    "charge_ticks": integer(1), "release_ticks": integer(1), "recovery_ticks": integer(1),
+    "speed": number(positive=True), "range": number(positive=True),
+    "half_width": number(positive=True), "half_height": number(positive=True),
+    "maximum_targets": integer(1), "damage_multiplier": number(positive=True),
+    "charge_scale": number(1), "movement_multiplier": number(positive=True),
+    "launch_height": number(positive=True), "feedback_move": resource_id,
+})
+INDEX = obj({"schema": constant(SCHEMA_VERSION), "styles": id_list, "weapons": id_list}, {"skills": id_list})
 
 
 def _move_invariants(c: _Checker, move: dict, path: str) -> None:
@@ -590,6 +605,21 @@ def validate_weapon(document: Any, file: str) -> list[Issue]:
     return c.issues
 
 
+def validate_skill(document: Any, file: str) -> list[Issue]:
+    c = _Checker(file)
+    if SKILL(c, document, ""):
+        maximums = {"charge_ticks": 1200, "release_ticks": 1200, "recovery_ticks": 1200,
+                    "maximum_targets": 64, "speed": 16, "range": 64, "half_width": 8,
+                    "half_height": 8, "damage_multiplier": 100, "charge_scale": 4,
+                    "movement_multiplier": 1, "launch_height": 3}
+        for key, maximum in maximums.items():
+            if document[key] > maximum:
+                c.fail("INVARIANT", key, f"must be <= {maximum}")
+        if document["range"] / document["speed"] > 1200:
+            c.fail("INVARIANT", "speed", "travel time must be <= 1200 ticks")
+    return c.issues
+
+
 # ---------------------------------------------------------------------------------------------
 # Loading.
 # ---------------------------------------------------------------------------------------------
@@ -650,11 +680,12 @@ def load(root: Path = ROOT) -> CombatData:
         return CombatData(root, index if isinstance(index, dict) else {}, issues=tuple(issues))
 
     files: dict[str, Path] = {}
-    documents: dict[str, dict[str, Any]] = {"styles": {}, "weapons": {}}
+    documents: dict[str, dict[str, Any]] = {"styles": {}, "weapons": {}, "skills": {}}
     for key, kind, resolve, validate in (
             ("styles", "style", style_file, validate_style),
-            ("weapons", "weapon", weapon_file, validate_weapon)):
-        listed = index[key]
+            ("weapons", "weapon", weapon_file, validate_weapon),
+            ("skills", "skill", skill_file, validate_skill)):
+        listed = index.get(key, [])
         disk = _on_disk(root, kind)
         for unlisted in sorted(set(disk) - set(listed)):
             issues.append(Issue("INDEX", _relative(root, disk[unlisted]), "",
@@ -670,7 +701,7 @@ def load(root: Path = ROOT) -> CombatData:
             if document is None:
                 continue
             found = validate(document, _relative(root, path))
-            if kind == "style" and isinstance(document, dict) and document.get("id") != item_id \
+            if kind in ("style", "skill") and isinstance(document, dict) and document.get("id") != item_id \
                     and not any(issue.field == "id" for issue in found):
                 found.append(Issue("INDEX", _relative(root, path), "id",
                                    f"is {document.get('id')!r} but the index lists the file as {item_id}"))
@@ -703,7 +734,11 @@ def load(root: Path = ROOT) -> CombatData:
             issues.append(Issue("DUPLICATE", file, "item", f"{weapon['item']} is also the item of weapon {other}"))
         items.setdefault(weapon["item"], weapon_id)
 
-    return CombatData(root, index, styles, weapons, files, tuple(issues))
+    for skill_id, skill in documents["skills"].items():
+        if skill["feedback_move"] not in owners:
+            issues.append(Issue("REFERENCE", _relative(root, files[skill_id]), "feedback_move",
+                                f"{skill['feedback_move']} is not a loaded move"))
+    return CombatData(root, index, styles, weapons, files, tuple(issues), documents["skills"])
 
 
 def load_strict(root: Path = ROOT) -> CombatData:

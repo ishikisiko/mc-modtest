@@ -22,6 +22,8 @@ class CultivationCoreValidationTest(unittest.TestCase):
             ROOT / RESOURCE_ROOT,
             self.fixture_root / RESOURCE_ROOT,
         )
+        qi = Path("src/main/resources/data/myvillage/qi")
+        shutil.copytree(ROOT / qi, self.fixture_root / qi)
         (self.fixture_root / LANG_ROOT).mkdir(parents=True)
         for locale in ("en_us", "zh_cn"):
             shutil.copy2(
@@ -48,6 +50,22 @@ class CultivationCoreValidationTest(unittest.TestCase):
             any(expected in error for error in result.errors),
             f"expected an error containing {expected!r}, got {result.errors!r}",
         )
+
+    def test_spiritual_power_caps_must_be_nonnegative_integers(self) -> None:
+        path = RESOURCE_ROOT / "realm/mortal.json"
+        data = self.load_json(path)
+        data["stages"][0]["spiritual_power_cap"] = -1
+        self.write_json(path, data)
+        self.assert_error_contains(self.validate(), "spiritual_power_cap")
+
+    def test_qi_rules_reject_zero_interval_and_unknown_fields(self) -> None:
+        path = Path("src/main/resources/data/myvillage/qi/rules.json")
+        data = self.load_json(path)
+        data.update(regen_interval_ticks=0, mystery=1)
+        self.write_json(path, data)
+        result = self.validate()
+        self.assert_error_contains(result, "regen_interval_ticks")
+        self.assert_error_contains(result, "unknown qi rule")
 
     def test_complete_shipped_fixture_passes(self) -> None:
         result = self.validate()

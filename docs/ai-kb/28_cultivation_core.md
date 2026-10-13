@@ -1,5 +1,8 @@
 # Cultivation Core Foundation
 
+Current power-pool and sword-qi extension (0.46.0): see
+[45_spiritual_power_sword_qi.md](45_spiritual_power_sword_qi.md).
+
 This note records the first cultivation runtime slice and the invariants later
 features continue to use. That slice established the infrastructure. It provides
 data-driven definitions, an immutable player profile, persistence, server-to-client

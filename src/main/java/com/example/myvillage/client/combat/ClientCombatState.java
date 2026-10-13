@@ -30,6 +30,7 @@ final class ClientCombatState {
      */
     private static CombatStyleDefinition localStyle;
     private static int localMoveIndex = -1;
+    private static AttackMoveDefinition externalMove;
     private static long localStartTick;
     private static long localRevision = -1L;
     private static int localCueTick = -1;
@@ -101,6 +102,7 @@ final class ClientCombatState {
      * swing lean and step surge never play twice.
      */
     static void trackLocalAction(CombatStyleDefinition style, int moveIndex, long startTick, long revision) {
+        externalMove = null;
         boolean samePredictedMove = style.equals(localStyle)
                 && moveIndex == localMoveIndex && localRevision < 0L && revision >= 0L;
         if (!samePredictedMove) {
@@ -118,6 +120,7 @@ final class ClientCombatState {
      * the server session: from {@code bufferStartTick} to the end of the move, one slot.
      */
     static boolean bufferClick(long tick, CombatStyleDefinition style) {
+        if (externalMove != null) return false;
         if (localMoveIndex < 0 || bufferedClick || (!localActionActive && !predictionPending)) {
             return false;
         }
@@ -136,6 +139,7 @@ final class ClientCombatState {
      * it holds a buffered intent.
      */
     static int chainDue(long tick, CombatStyleDefinition style) {
+        if (externalMove != null) return -1;
         if (!bufferedClick || !localActionActive || predictionPending || localMoveIndex < 0) {
             return -1;
         }
@@ -201,7 +205,8 @@ final class ClientCombatState {
     /** The move of the local action with this server revision, if any. */
     static Optional<AttackMoveDefinition> localMoveFor(long revision) {
         int index = localMoveIndexFor(revision);
-        return index >= 0 && localStyle != null ? Optional.of(localStyle.move(index)) : Optional.empty();
+        return index >= 0 && localStyle != null
+                ? Optional.of(externalMove != null ? externalMove : localStyle.move(index)) : Optional.empty();
     }
 
     static int localMoveIndex() {
@@ -216,8 +221,13 @@ final class ClientCombatState {
     /** The move of the local action, if any. */
     static Optional<AttackMoveDefinition> localMove() {
         return localMoveIndex >= 0 && localStyle != null
-                ? Optional.of(localStyle.move(localMoveIndex))
+                ? Optional.of(externalMove != null ? externalMove : localStyle.move(localMoveIndex))
                 : Optional.empty();
+    }
+
+    static void externalMove(AttackMoveDefinition move) {
+        externalMove = move;
+        bufferedClick = false;
     }
 
     /** Whole ticks since the local action started; -1 without one. */
@@ -311,6 +321,7 @@ final class ClientCombatState {
     }
 
     private static void clearLocalAction() {
+        externalMove = null;
         localStyle = null;
         localMoveIndex = -1;
         localStartTick = 0L;

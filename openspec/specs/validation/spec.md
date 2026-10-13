@@ -5,6 +5,8 @@
 This spec captures the current validation baseline. It is temporary and mutable; proposed changes to hard gates, warnings, or acceptance criteria should be discussed with the project owner first.
 
 See also (narrative + acceptance checklist): [docs/ai-kb/09_validation_checklist.md](../../../docs/ai-kb/09_validation_checklist.md).
+See also: [Spiritual Power and Sword Qi](../../../docs/ai-kb/45_spiritual_power_sword_qi.md).
+
 ## Requirements
 ### Requirement: Structure JSON validation checks schema, bounds, metadata, and modset-aware block ids
 The Structure JSON validator SHALL check JSON shape, size and coordinate bounds, palette resolution, supported operations, metadata rules, and block id existence relative to the active modset profile. Under the `vanilla` profile only Minecraft `1.21.1` vanilla block ids and the project-owned `myvillage` self-namespace are accepted. Under the `full` profile a non-`minecraft` block id is accepted when its namespace is `myvillage` or when its namespace is in the catalog's confirmed mod set and the id exists in `exmod/mod_block_catalog.json`; vanilla `minecraft` id existence is still checked against the `1.21.1` registry.
@@ -620,3 +622,10 @@ even when validators or server startup pass.
 #### Scenario: A lifecycle path is not exercised
 - **WHEN** save migration, relog, death, or dimension behavior was not directly observed
 - **THEN** its ledger entry SHALL remain `not_verified`
+
+### Requirement: Spiritual power and sword qi use layered acceptance
+Acceptance SHALL include focused pure rules and data tests, affected cultivation and combat regression validators, Gradle tests/build, jar resource inspection, bounded server lifecycle checks, real-client mapped input and a normal acquisition/study/use loop. Each executed test SHALL retain duration and result evidence. Unexecuted multiplayer, owner look/feel/FPS, and lifecycle checks SHALL be `not_verified`; startup alone SHALL NOT count as gameplay evidence.
+
+#### Scenario: Only server startup is observed
+- **WHEN** an acceptance server reaches readiness without a client action
+- **THEN** the ledger SHALL record startup success and leave unobserved gameplay checks `not_verified`

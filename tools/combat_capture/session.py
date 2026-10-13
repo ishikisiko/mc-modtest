@@ -194,6 +194,8 @@ class SessionConfig:
     ingame_timeout: float = 240.0
     settle: float = 10.0
     gradle_jvmargs: str = "-Xmx1g"
+    reuse_world: bool = False
+    language: str = "en_us"
 
 
 class StopRequested(Exception):
@@ -277,6 +279,8 @@ class Supervisor:
         raise RuntimeError(f"Xvfb on {display} did not come up within 20 s")
 
     def write_server_config(self):
+        if self.cfg.reuse_world and not (SERVER_DIR / LEVEL_NAME).is_dir():
+            raise RuntimeError("--reuse-world requested but combat_capture_world is absent; stage-1 acceptance cleans run-acceptance by default. Run stage 1 before capture, or preserve its profile with --no-clean.")
         SERVER_DIR.mkdir(parents=True, exist_ok=True)
         props = SERVER_DIR / "server.properties"
         # Keep the checkout's own acceptance config; restore() puts it back.
@@ -297,7 +301,9 @@ class Supervisor:
         if not eula.is_file():
             eula.write_text("eula=true\n", encoding="utf-8")
         world = SERVER_DIR / LEVEL_NAME
-        if world.exists():
+        self.state["reuse_world"] = self.cfg.reuse_world
+        self.state["world_existed"] = world.exists()
+        if world.exists() and not self.cfg.reuse_world:
             shutil.rmtree(world)
         write_state(self.state)
 
@@ -321,7 +327,8 @@ class Supervisor:
 
     def start_client(self):
         self.set_phase("starting_client")
-        merge_options(CLIENT_DIR / "options.txt", CLIENT_OPTIONS)
+        merge_options(CLIENT_DIR / "options.txt", {**CLIENT_OPTIONS, "lang": self.cfg.language})
+        self.state["language"] = self.cfg.language
         env = dict(os.environ, DISPLAY=self.state["display"])
         self.state["client_log"] = str(CLIENT_DIR / "logs" / "latest.log")
         t0 = time.time()

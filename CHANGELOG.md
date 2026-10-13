@@ -7,6 +7,24 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.46.0
+
+- Spiritual power now has synchronized realm-stage capacity, data-backed server
+  recovery, atomic spending, a HUD, and equivalent `qi` / `lingli` commands.
+  Existing saves retain profile v4; over-cap values normalize through the service.
+- Sword-family cultivators can borrow the public yellow-grade Sword Qi Art
+  manual from their sect, study it, then hold and release use to cast a charged
+  wave. Charge/release packets carry no authority; the existing combat session
+  owns timing, cost, damage, target limits, interruption and recovery. Swept
+  collision stops the entire wave at walls, including its wide edges.
+- Melee and dodge remain free. The first skill reuses the existing diagonal-cut
+  presentation and adds a server-positioned crescent and charge indicator;
+  bleed, further weapon skills and general projectiles remain future work.
+- Added no-DevBridge mapped-input capture, optional isolated capture-world reuse
+  for persistence checks, and a separate normal borrow-study-cast journey.
+  Validation evidence records test durations, failures/retries, cache context and
+  host resources; owner visual, feel and physical-client verdicts remain separate.
+
 ## 0.45.1
 
 The 3D cultivator avatars wear their portrait's hair and eye colours. The owner

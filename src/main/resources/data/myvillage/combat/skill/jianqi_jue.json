@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "id": "myvillage:jianqi_jue",
+  "school": "myvillage:sword",
+  "charge_ticks": 20,
+  "release_ticks": 6,
+  "recovery_ticks": 10,
+  "speed": 2.0,
+  "range": 8.0,
+  "half_width": 1.1,
+  "half_height": 0.25,
+  "maximum_targets": 3,
+  "damage_multiplier": 0.9,
+  "charge_scale": 1.5,
+  "movement_multiplier": 0.6,
+  "launch_height": 1.2,
+  "feedback_move": "myvillage:basic_sword_04_diagonal_cut"
+}

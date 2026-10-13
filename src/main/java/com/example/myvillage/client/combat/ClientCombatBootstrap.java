@@ -32,10 +32,13 @@ public final class ClientCombatBootstrap {
         modEventBus.addListener(ClientCombatBootstrap::onRegisterReloadListeners);
         modEventBus.addListener(ClientCombatBootstrap::onRegisterParticleProviders);
         modEventBus.addListener(PairedWeaponLayer::onAddLayers);
+        modEventBus.addListener(com.example.myvillage.client.cultivation.QiBarLayer::register);
+        ClientSwordQi.install();
         // The arm is drawn first so the translucent 剑光 blends over it.
         NeoForge.EVENT_BUS.addListener(FirstPersonArmRenderer::onRenderHand);
         NeoForge.EVENT_BUS.addListener(FirstPersonWeaponTrail::onRenderHand);
         NeoForge.EVENT_BUS.addListener(CombatWorldTrails::onRenderLevelStage);
+        NeoForge.EVENT_BUS.addListener(SwordQiWaveRenderer::render);
         NeoForge.EVENT_BUS.addListener(CombatCameraFx::onComputeCameraAngles);
         NeoForge.EVENT_BUS.addListener(CombatCameraFx::onComputeFov);
         NeoForge.EVENT_BUS.addListener(CombatCameraFx::onComputeFovModifier);

@@ -27,12 +27,18 @@ public final class CombatStyles {
 
     private final List<CombatStyleDefinition> styles;
     private final List<WeaponDefinition> weapons;
+    private final Map<ResourceLocation, CombatSkillDefinition> skillsById = new LinkedHashMap<>();
     private final Map<ResourceLocation, CombatStyleDefinition> stylesById = new LinkedHashMap<>();
     private final Map<ResourceLocation, WeaponDefinition> weaponsByItem = new LinkedHashMap<>();
     private final Map<ResourceLocation, MoveRef> movesById = new HashMap<>();
     private final Set<ResourceLocation> readyIdleAnimations;
 
     public CombatStyles(List<CombatStyleDefinition> styles, List<WeaponDefinition> weapons) {
+        this(styles, weapons, List.of());
+    }
+
+    public CombatStyles(List<CombatStyleDefinition> styles, List<WeaponDefinition> weapons,
+                        List<CombatSkillDefinition> skills) {
         this.styles = List.copyOf(Objects.requireNonNull(styles, "styles"));
         this.weapons = List.copyOf(Objects.requireNonNull(weapons, "weapons"));
         if (this.styles.isEmpty()) {
@@ -57,6 +63,14 @@ public final class CombatStyles {
             }
             if (weaponsByItem.putIfAbsent(weapon.item(), weapon) != null) {
                 throw new IllegalArgumentException("Duplicate weapon entry for item " + weapon.item());
+            }
+        }
+        for (CombatSkillDefinition skill : skills) {
+            if (skillsById.putIfAbsent(skill.id(), skill) != null) {
+                throw new IllegalArgumentException("Duplicate skill " + skill.id());
+            }
+            if (!movesById.containsKey(skill.feedbackMove())) {
+                throw new IllegalArgumentException("Unknown feedback move " + skill.feedbackMove());
             }
         }
         readyIdleAnimations = this.styles.stream()
@@ -88,6 +102,14 @@ public final class CombatStyles {
 
     public List<CombatStyleDefinition> styles() {
         return styles;
+    }
+
+    public Optional<CombatSkillDefinition> skill(ResourceLocation id) {
+        return Optional.ofNullable(skillsById.get(id));
+    }
+
+    public List<CombatSkillDefinition> skills() {
+        return List.copyOf(skillsById.values());
     }
 
     public List<WeaponDefinition> weapons() {

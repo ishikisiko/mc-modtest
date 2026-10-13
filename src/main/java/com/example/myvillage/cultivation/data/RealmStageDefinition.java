@@ -14,14 +14,16 @@ public record RealmStageDefinition(
         int sortOrder,
         Optional<Long> cultivationCap,
         Optional<Integer> spiritStoneCost,
-        Optional<AdvancementDefinition> advancement) {
+        Optional<AdvancementDefinition> advancement,
+        long spiritualPowerCap) {
     private static final Codec<SerializedStage> SERIALIZED_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             ResourceLocation.CODEC.fieldOf("id").forGetter(SerializedStage::id),
             Codec.STRING.fieldOf("translation_key").forGetter(SerializedStage::translationKey),
             Codec.INT.fieldOf("sort_order").forGetter(SerializedStage::sortOrder),
             Codec.LONG.optionalFieldOf("cultivation_cap").forGetter(SerializedStage::cultivationCap),
             Codec.INT.optionalFieldOf("spirit_stone_cost").forGetter(SerializedStage::spiritStoneCost),
-            AdvancementDefinition.CODEC.optionalFieldOf("advancement").forGetter(SerializedStage::advancement)
+            AdvancementDefinition.CODEC.optionalFieldOf("advancement").forGetter(SerializedStage::advancement),
+            Codec.LONG.optionalFieldOf("spiritual_power_cap", 0L).forGetter(SerializedStage::spiritualPowerCap)
     ).apply(instance, SerializedStage::new));
 
     public static final Codec<RealmStageDefinition> CODEC = SERIALIZED_CODEC
@@ -32,6 +34,9 @@ public record RealmStageDefinition(
         requireTranslationKey(translationKey);
         if (sortOrder < 0) {
             throw new IllegalArgumentException("Realm stage sort_order must be non-negative, got " + sortOrder);
+        }
+        if (spiritualPowerCap < 0) {
+            throw new IllegalArgumentException("Realm stage spiritual_power_cap must be non-negative");
         }
         cultivationCap = Objects.requireNonNull(cultivationCap, "cultivationCap");
         cultivationCap.ifPresent(cap -> {
@@ -70,6 +75,12 @@ public record RealmStageDefinition(
         }
     }
 
+    public RealmStageDefinition(ResourceLocation id, String translationKey, int sortOrder,
+            Optional<Long> cultivationCap, Optional<Integer> spiritStoneCost,
+            Optional<AdvancementDefinition> advancement) {
+        this(id, translationKey, sortOrder, cultivationCap, spiritStoneCost, advancement, 0L);
+    }
+
     public RealmStageDefinition(ResourceLocation id, String translationKey, int sortOrder) {
         this(id, translationKey, sortOrder, Optional.empty(), Optional.empty(), Optional.empty());
     }
@@ -100,7 +111,7 @@ public record RealmStageDefinition(
     }
 
     private SerializedStage serialize() {
-        return new SerializedStage(id, translationKey, sortOrder, cultivationCap, spiritStoneCost, advancement);
+        return new SerializedStage(id, translationKey, sortOrder, cultivationCap, spiritStoneCost, advancement, spiritualPowerCap);
     }
 
     private record SerializedStage(
@@ -109,11 +120,12 @@ public record RealmStageDefinition(
             int sortOrder,
             Optional<Long> cultivationCap,
             Optional<Integer> spiritStoneCost,
-            Optional<AdvancementDefinition> advancement) {
+            Optional<AdvancementDefinition> advancement,
+            long spiritualPowerCap) {
         private DataResult<RealmStageDefinition> decode() {
             try {
                 return DataResult.success(new RealmStageDefinition(
-                        id, translationKey, sortOrder, cultivationCap, spiritStoneCost, advancement));
+                        id, translationKey, sortOrder, cultivationCap, spiritStoneCost, advancement, spiritualPowerCap));
             } catch (IllegalArgumentException | NullPointerException exception) {
                 return DataResult.error(exception::getMessage);
             }

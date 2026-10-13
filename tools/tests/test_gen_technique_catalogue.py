@@ -27,7 +27,7 @@ class Fixture(unittest.TestCase):
         self.src.mkdir()
         for name in SOURCES:
             shutil.copy(generator.SOURCE_DIR / name, self.src / name)
-        for rel in (generator.REALM_REL, generator.WORLD_SIM_REL, generator.LANG_REL):
+        for rel in (generator.REALM_REL, generator.WORLD_SIM_REL, generator.LANG_REL, generator.COMBAT_REL):
             shutil.copytree(generator.ROOT / rel, self.root / rel)
         (self.root / BASIC).parent.mkdir(parents=True)
         shutil.copy(generator.ROOT / BASIC, self.root / BASIC)
@@ -164,6 +164,35 @@ class RowEffectsTest(Fixture):
         with self.assertRaises(generator.CatalogueError) as caught:
             generator.plan(self.root, self.src)
         return "\n".join(caught.exception.problems)
+
+    def test_sword_qi_is_an_initial_public_grade_one_manual(self) -> None:
+        self.write()
+        technique = self.technique("jianqi_jue")
+        self.assertEqual(technique["effects"], {"active": {"skill": "myvillage:jianqi_jue", "qi_cost": 8, "slots": 1}})
+        self.assertEqual(technique["grade"], 1)
+        self.assertEqual(technique["requirements"]["minimum_stage"], "myvillage:qi_refining_1")
+        self.assertNotIn("lineage", technique)
+        self.assertNotIn("minimum_element_affinity", technique["requirements"])
+
+    def test_active_runtime_reference_and_fields_are_checked(self) -> None:
+        self.edit_row("jianqi_jue", lambda r: r["effects"]["active"].update(skill="myvillage:missing"))
+        self.assertIn("is not a registered skill", self.problems())
+        self.edit_row("jianqi_jue", lambda r: r["effects"]["active"].update(skill="bad id", qi_cost=-1, slots=0))
+        text = self.problems()
+        self.assertIn("skill must be a namespaced resource id", text)
+        self.assertIn("qi_cost must be an integer >= 0", text)
+        self.assertIn("slots must be an integer >= 1", text)
+
+    def test_active_school_must_match_skill_school(self) -> None:
+        self.edit_row("jianqi_jue", lambda r: r.update(school=None))
+        self.assertIn("active skill school does not match", self.problems())
+
+    def test_active_missing_unknown_and_boolean_fields_are_rejected(self) -> None:
+        self.edit_row("jianqi_jue", lambda r: r.update(effects={"active": {"qi_cost": True, "slots": 1, "extra": 3}}))
+        text = self.problems()
+        self.assertIn("unknown fields ['extra']", text)
+        self.assertIn("missing fields ['skill']", text)
+        self.assertIn("qi_cost must be an integer >= 0", text)
 
     def test_the_movement_rows_carry_their_dash_block(self) -> None:
         self.write()

@@ -25,15 +25,31 @@ class CombatPayloadTest {
     void c2sIntentsCarryNoAuthorityFieldsOrBytes() {
         assertEquals(0, CombatModeTogglePayload.class.getRecordComponents().length);
         assertEquals(0, SwordAttackIntentPayload.class.getRecordComponents().length);
+        assertEquals(0, CombatChargeIntentPayload.class.getRecordComponents().length);
+        assertEquals(0, CombatReleaseIntentPayload.class.getRecordComponents().length);
+        assertEquals(0, CombatCancelChargeIntentPayload.class.getRecordComponents().length);
 
         RegistryFriendlyByteBuf buffer = buffer();
         try {
             CombatModeTogglePayload.STREAM_CODEC.encode(buffer, CombatModeTogglePayload.INSTANCE);
             SwordAttackIntentPayload.STREAM_CODEC.encode(buffer, SwordAttackIntentPayload.INSTANCE);
+            CombatChargeIntentPayload.STREAM_CODEC.encode(buffer, CombatChargeIntentPayload.INSTANCE);
+            CombatReleaseIntentPayload.STREAM_CODEC.encode(buffer, CombatReleaseIntentPayload.INSTANCE);
+            CombatCancelChargeIntentPayload.STREAM_CODEC.encode(buffer, CombatCancelChargeIntentPayload.INSTANCE);
             assertEquals(0, buffer.readableBytes());
         } finally {
             buffer.release();
         }
+    }
+
+    @Test
+    void skillStateRoundTripsEveryPhaseAndRejectsNonFiniteOrUnboundedValues() {
+        for (CombatSkillStatePayload.Phase phase : CombatSkillStatePayload.Phase.values()) {
+            assertRoundTrip(new CombatSkillStatePayload(42, MOVE, 5, 200, phase,
+                    new Vec3(1, 2, 3), new Vec3(0, .6, .8), 255), CombatSkillStatePayload.STREAM_CODEC);
+        }
+        assertThrows(IllegalArgumentException.class, () -> new CombatSkillStatePayload(42, MOVE, 5, 200,
+                CombatSkillStatePayload.Phase.WAVE, Vec3.ZERO, Vec3.ZERO, 256));
     }
 
     @Test
@@ -95,7 +111,7 @@ class CombatPayloadTest {
                 java.util.Arrays.stream(CombatImpactPayload.class.getRecordComponents())
                         .map(java.lang.reflect.RecordComponent::getName)
                         .toList());
-        assertEquals("15", ModPayloads.PROTOCOL_VERSION);
+        assertEquals("17", ModPayloads.PROTOCOL_VERSION);
     }
 
     @Test

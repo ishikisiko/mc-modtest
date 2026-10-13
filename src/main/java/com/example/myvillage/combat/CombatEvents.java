@@ -13,6 +13,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.EntityMountEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDeathEvent;
+import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingKnockBackEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
@@ -42,6 +43,7 @@ public final class CombatEvents {
         NeoForge.EVENT_BUS.addListener(CombatEvents::onPlayerChangedDimension);
         NeoForge.EVENT_BUS.addListener(CombatEvents::onPlayerLoggedOut);
         NeoForge.EVENT_BUS.addListener(CombatEvents::onLivingDeath);
+        NeoForge.EVENT_BUS.addListener(CombatEvents::onLivingDamage);
         NeoForge.EVENT_BUS.addListener(CombatEvents::onEntityMount);
         NeoForge.EVENT_BUS.addListener(CombatEvents::onServerTick);
         NeoForge.EVENT_BUS.addListener(CombatEvents::onServerStopping);
@@ -101,6 +103,12 @@ public final class CombatEvents {
             CombatSessionManager.removeRuntime(player.getUUID(), true);
             CombatDodgeService.clear(player.getUUID());
             CombatService.onPlayerRemoved(player.getUUID());
+        }
+    }
+
+    private static void onLivingDamage(LivingDamageEvent.Post event) {
+        if (event.getNewDamage() > 0 && event.getEntity() instanceof ServerPlayer player) {
+            CombatSessionManager.onSkillDamage(player);
         }
     }
 

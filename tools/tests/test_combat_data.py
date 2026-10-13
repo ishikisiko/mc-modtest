@@ -76,6 +76,29 @@ class CombatDataTest(unittest.TestCase):
         self.root = Path(self.temp_dir.name)
         shutil.copytree(combat_data.ROOT / DATA, self.root / DATA)
 
+    def test_skill_bounds_and_reference_are_checked(self) -> None:
+        path = f"{DATA}/skill/jianqi_jue.json"
+        skill = self.read(path)
+        skill.update(speed=0, charge_ticks=True, maximum_targets=0)
+        self.write(path, skill)
+        fields = {issue.field for issue in self.issues()}
+        self.assertTrue({"speed", "charge_ticks", "maximum_targets"}.issubset(fields))
+        skill = json.loads((combat_data.ROOT / path).read_text())
+        skill.update(feedback_move="myvillage:missing")
+        self.write(path, skill)
+        self.assertTrue(any(i.field == "feedback_move" and i.code == "REFERENCE" for i in self.issues()))
+
+    def test_skill_limits_and_unlisted_files_are_checked(self) -> None:
+        path = f"{DATA}/skill/jianqi_jue.json"
+        skill = self.read(path)
+        skill.update(range=65, speed=0.0001, movement_multiplier=1.1)
+        self.write(path, skill)
+        self.assertTrue({"range", "speed", "movement_multiplier"}.issubset({i.field for i in self.issues()}))
+        index = self.read(combat_data.INDEX_FILE)
+        index["skills"] = []
+        self.write(combat_data.INDEX_FILE, index)
+        self.assertTrue(any(i.code == "INDEX" and "skill file is not listed" in i.message for i in self.issues()))
+
     def tearDown(self) -> None:
         self.temp_dir.cleanup()
 
@@ -446,8 +469,10 @@ class CombatDataTest(unittest.TestCase):
         self.edit_style(lambda style: style["moves"][1].update(chain_tick=6, unknown=1))
         with self.assertRaises(combat_data.CombatDataError) as raised:
             combat_data.load_strict(self.root)
-        self.assertEqual(2, len(raised.exception.issues))
+        self.assertEqual({"UNKNOWN_FIELD", "REFERENCE"}, {i.code for i in raised.exception.issues})
+        self.assertEqual(3, len(raised.exception.issues))
         self.assertIn("moves[1].unknown", str(raised.exception))
+        self.assertIn("feedback_move", str(raised.exception))
 
 
 if __name__ == "__main__":

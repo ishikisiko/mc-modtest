@@ -1,0 +1,23 @@
+{
+  "translation_key": "cultivation.technique.myvillage.jianqi_jue",
+  "category": "active",
+  "grade": 1,
+  "elements": [],
+  "school": "myvillage:sword",
+  "requirements": {
+    "minimum_realm": "myvillage:qi_refining",
+    "minimum_stage": "myvillage:qi_refining_1"
+  },
+  "effects": {
+    "active": {
+      "skill": "myvillage:jianqi_jue",
+      "qi_cost": 8,
+      "slots": 1
+    }
+  },
+  "study": {
+    "points": 4000,
+    "gates": 0,
+    "gate_stability_cost": 0
+  }
+}

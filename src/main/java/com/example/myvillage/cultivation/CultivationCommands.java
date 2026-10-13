@@ -5,6 +5,7 @@ import com.example.myvillage.cultivation.data.RealmDefinition;
 import com.example.myvillage.cultivation.data.SpiritualElementDefinition;
 import com.example.myvillage.cultivation.data.TechniqueDefinition;
 import com.example.myvillage.cultivation.root.SpiritualRootAwakeningService;
+import com.example.myvillage.cultivation.qi.SpiritualPowerRuntime;
 import com.example.myvillage.cultivation.technique.TechniqueInheritanceService;
 import com.example.myvillage.item.TechniqueManualItem;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -60,6 +61,8 @@ public final class CultivationCommands {
                 .then(stabilityCommand("shezhiwendingdu"))
                 .then(powerCommand("setpower"))
                 .then(powerCommand("shezhilingli"))
+                .then(qiCommand("qi"))
+                .then(qiCommand("lingli"))
                 .then(setRootCommand("setroot"))
                 .then(setRootCommand("shezhilinggen"))
                 .then(clearRootCommand("clearroot"))
@@ -178,6 +181,40 @@ public final class CultivationCommands {
                                             CultivationService.setSpiritualPower(
                                                     target, LongArgumentType.getLong(context, "amount")));
                                 })));
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> qiCommand(String literal) {
+        return Commands.literal(literal)
+                .executes(context -> qiInfo(context.getSource(), context.getSource().getPlayerOrException()))
+                .then(Commands.argument("target", EntityArgument.player())
+                        .executes(context -> qiInfo(context.getSource(), EntityArgument.getPlayer(context, "target"))))
+                .then(qiSetCommand("set"))
+                .then(qiSetCommand("shezhi"))
+                .then(qiFillCommand("fill"))
+                .then(qiFillCommand("buman"));
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> qiSetCommand(String literal) {
+        return powerCommand(literal);
+    }
+
+    private static LiteralArgumentBuilder<CommandSourceStack> qiFillCommand(String literal) {
+        return Commands.literal(literal)
+                .then(Commands.argument("target", EntityArgument.player())
+                        .executes(context -> {
+                            ServerPlayer player = EntityArgument.getPlayer(context, "target");
+                            return report(context.getSource(), player, CultivationService.setSpiritualPower(
+                                    player, CultivationService.spiritualPowerCap(player)));
+                        }));
+    }
+
+    private static int qiInfo(CommandSourceStack source, ServerPlayer player) {
+        CultivationProfile profile = CultivationService.getProfile(player);
+        source.sendSuccess(() -> Component.literal("Spiritual power " + player.getGameProfile().getName()
+                + ": current=" + profile.currentSpiritualPower()
+                + ", cap=" + CultivationService.spiritualPowerCap(player)
+                + ", recovery_ticks=" + SpiritualPowerRuntime.recoveryTicksRemaining(player)), false);
+        return 1;
     }
 
     private static LiteralArgumentBuilder<CommandSourceStack> setRootCommand(String literal) {
@@ -397,6 +434,7 @@ public final class CultivationCommands {
                 + "\ncultivation progress: " + profile.cultivationProgress()
                 + "\nstability: " + profile.stability()
                 + "\ncurrent spiritual power: " + profile.currentSpiritualPower()
+                + "/" + CultivationService.spiritualPowerCap(target)
                 + "\nspiritual affinity: " + profile.spiritualAffinity()
                 + "\nlifespan consumed ticks: " + profile.lifespanConsumedTicks()
                 + "\nspiritual root: " + root

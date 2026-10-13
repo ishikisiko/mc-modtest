@@ -1,0 +1,6 @@
+{
+  "regen_interval_ticks": 20,
+  "regen_amount": 1,
+  "meditation_multiplier": 3,
+  "spend_delay_ticks": 60
+}

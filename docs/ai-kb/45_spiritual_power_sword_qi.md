@@ -1,0 +1,141 @@
+# Spiritual Power and Sword Qi (0.46.0)
+
+The first active-technique runtime connects a bounded spiritual-power pool to
+one learned sword-family skill. Melee and movement dodge remain free. The
+broader ranged-combat brief is background; this slice does not implement its
+bleed, additional skills, spell projectiles, or flying-sword control.
+
+## Sources of truth
+
+| Fact | Owner |
+|---|---|
+| Stage capacity | `data/myvillage/myvillage/realm/*.json`, stage `spiritual_power_cap` |
+| Recovery schedule and factors | `data/myvillage/qi/rules.json` |
+| Technique, learning requirements, base cost | `tools/technique_catalogue/catalogue.json`, generated `technique/jianqi_jue.json` |
+| Charge, travel, geometry, damage and feedback | `data/myvillage/combat/skill/jianqi_jue.json`, indexed by `combat/index.json` |
+| Starter scripture availability | `world_sim/rules.json` `player.scripture_hall.public_techniques`, consumed by the existing scripture offering rules |
+| Persistent balance | Existing profile v4 `currentSpiritualPower`; mutations only through `CultivationService` |
+
+The new technique uses the existing grade/category manual item and its
+technique component. It creates no item per technique. It is public, grade one,
+has no elemental prerequisite, and requires Qi Refining I for normal study.
+The generated catalogue now has 132 techniques; Basic Breathing remains the
+separate hand-written registry entry. Other active techniques and body effects
+remain data without an executable runtime.
+
+## Power lifecycle
+
+`cultivation/qi/SpiritualPower`, `QiRules`, `QiRegeneration` and
+`SpiritualPowerRuntime` separate pure arithmetic from server lifecycle work.
+Spending is atomic; insufficient or invalid costs leave the profile unchanged.
+Recovery uses the running core-technique factor, accumulates fractional gain,
+and discards gain at capacity rather than banking it. The meditation multiplier
+applies only during actual meditation, not study, preparation or advancement.
+The legacy reserve and cultivation gain remain separate.
+
+A successful spend delays the next recovery; a rejected spend does not.
+Login, respawn and dimension changes restart the full recovery delay. Logout
+and death clear transient clocks. There is no offline gain or free refill.
+Legacy values above the stage cap and stage reductions are clamped through the
+service; explicit out-of-cap administration is rejected. The profile codec is
+unchanged. Invalid startup power rules fail loading; invalid reloads retain the
+last valid rules, and valid reloads clamp and restart the delay.
+
+`QiBarLayer` reads only the existing profile snapshot and synchronized realm
+registry. It shows current/capacity above the hotbar in cultivation combat mode
+or briefly after a balance change, with a charge indicator and refusal flash.
+`QiBarLayout` contains the separately tested screen arithmetic.
+
+## Learned sword skill
+
+`CombatSkillDefinition` is bundled skill data. The linked active technique owns
+its base cost; charge scales cost, width and damage. Weapon and school family
+resolution authorizes the action, without a named-item branch. `CombatSkillSession`
+tracks charge/release and wave travel alongside the existing `CombatSession`.
+`CombatWaveResolver` handles advancing collision, and the existing damage policy,
+dodge window and per-session target bookkeeping remain authoritative.
+
+`CombatChargeIntentPayload`, `CombatReleaseIntentPayload` and
+`CombatCancelChargeIntentPayload` are empty. The
+server determines elapsed charge, direction, cost, damage and collision. Release
+or full charge starts one action; a duplicate release cannot deduct twice.
+Invalidating the charge cancels without spending. Opening a GUI or losing
+window focus sends one cancel intent; `QiUseLatch` requires a key-up before
+another charge press. The server cancels only a still-charging session, never
+refunds a released action, and never lets this intent interrupt its wave. Client input intercepts the
+use action only for a learned matching skill in cultivation combat mode;
+ordinary scripture and NPC interactions retain their existing path. Presentation
+uses server state and `ClientCombatClock`, never a client damage calculation.
+Protocol 17 adds the clientbound skill phases. `SwordQiWaveRenderer` draws a
+crescent mesh between received positions without extrapolating through a wall.
+Charge uses enchant particles and the HUD; release reuses the existing diagonal
+first/third-person attack clip. Direction (yaw and pitch) is frozen at release.
+The full swept envelope is conservative near oblique walls; an edge obstruction
+stops the whole wave. Received damage, weapon/slot changes and incompatible
+actions cancel a charge; cancellation after release does not refund the cost.
+
+## Commands and evidence
+
+All four cultivation/xiulian and qi/lingli route combinations are equivalent:
+
+```mcfunction
+/myvillage cultivation qi [target]
+/myvillage cultivation qi set <target> <amount>
+/myvillage cultivation qi fill <target>
+/myvillage xiulian lingli shezhi <target> <amount>
+/myvillage xiulian lingli buman <target>
+/myvillage cultivation manual @s myvillage:jianqi_jue
+```
+
+The manual command is an administrator fixture. Normal play borrows the public
+manual from the sect scripture shelf, studies it to completion, equips a
+sword-family weapon, enters cultivation combat mode, then holds and releases
+use (default right mouse). Holding to full charge releases automatically.
+
+```bash
+python3 -m tools.combat_capture sword-qi --journey --language en_us --out out/preview/sword_qi_journey
+python3 -m tools.combat_capture sword-qi --hud --language en_us --out out/preview/sword_qi
+python3 -m tools.combat_capture sword-qi --hud --reuse-world --language zh_cn --out out/preview/sword_qi_zh
+```
+
+This capture uses real mapped mouse input, RCON fixtures/readback, server
+`SWORD_QI` logs and MP4 recordings, without DevBridge. Its manifest distinguishes
+admin-prepared boundary trials from the acquisition loop. `--journey` uses
+real dialogue, borrowing and study after preparing an eligible prospect,
+without admin join, manual grant or learn commands. Run it before boundary
+fixtures. `--hud` captures idle/charge at three window sizes; session language
+defaults to `en_us`, with explicit `--language zh_cn`. `--reuse-world` preserves
+only the isolated capture world between sessions, enabling restart checks,
+and fails early when it is absent. Capture and stage-1 preparation share
+`run-acceptance`: clean stage-1 must run before the save/restart sequence.
+Its default cleanup removes the whole profile, including the capture world;
+`--no-clean` preserves state but does not prove a clean startup baseline. A pose probe
+or server-ready line is not evidence of a successful cast.
+
+The persistent [test-environment and timing report](../testing/2026-10-14-spiritual-power.md)
+summarizes measurements, failures, reruns and memory-sampling limits.
+The run's measured command ledger is `reports/qi-sword-wave-tests/timings.jsonl`.
+It records UTC boundaries, command, wall time, status, cache context, CPU time
+and peak RSS where measurable, keeping failures and reruns. Session and trial
+manifests separately retain readiness and action durations. RSS scope and warm
+caches must accompany any machine comparison; the measurements are observations
+of this host, not a hardware capacity guarantee.
+
+Observed developer evidence includes the acquired-skill loop, 11 boundary
+trials, final menu cancellation, exact-zero melee/dodge, 12 bilingual HUD PNGs,
+resource reload, two-client release/wave presentation and same-world restart.
+The restart uses a separate labelled admin lifecycle fixture because clean
+acceptance preparation deleted the original capture world; it is not a
+continuous restart of the natural-acquisition journey. See the timing report
+for that failed attempt, rerun and the distinction between command and phase
+times. Observer charge-particle clarity remains unverified because target
+cleanup particles contaminated the image.
+
+The README acceptance ledger is the user-facing result. Owner look, sound,
+feel, FPS and unobserved multiplayer/lifecycle behavior remain `not_verified`.
+
+## See also
+
+- [41_technique_system.md](41_technique_system.md), [42_movement_dodge.md](42_movement_dodge.md), [43_player_sect_entry.md](43_player_sect_entry.md), [34_combat_data_and_capture.md](34_combat_data_and_capture.md)
+- [spiritual-power-pool](../../openspec/specs/spiritual-power-pool/spec.md), [sword-qi-technique](../../openspec/specs/sword-qi-technique/spec.md), [cultivation-player-profile](../../openspec/specs/cultivation-player-profile/spec.md), [combat-capture-tooling](../../openspec/specs/combat-capture-tooling/spec.md), [validation](../../openspec/specs/validation/spec.md)
+- [INDEX.md](INDEX.md)

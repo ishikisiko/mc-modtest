@@ -13,8 +13,8 @@ import java.util.regex.Pattern;
  *
  * <p>{@code family} (optional, lower_snake_case) is the weapon family a school's
  * {@code weapon_family} names ({@code sword}, {@code spear}, {@code fist}); the data validator
- * checks it against the school files. Nothing reads it at runtime yet: it is the hook a school's
- * techniques will use to ask for "a weapon of my family" without naming an item.
+ * checks it against the school files. Active skills resolve the school's weapon family at runtime
+ * to require a compatible held weapon without naming an item.
  *
  * <p>{@code paired} (optional, default false; 0.39.1) means one item is a pair worn on both hands,
  * like the Xuantie gauntlet: the client draws the same item model mirrored on the off hand while

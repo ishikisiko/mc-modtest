@@ -1,5 +1,8 @@
 # Combat Data and Capture Tooling
 
+Current power-pool and sword-qi extension (0.46.0): see
+[45_spiritual_power_sword_qi.md](45_spiritual_power_sword_qi.md).
+
 Factual note for the 0.28.0 combat infrastructure: move sets and weapons are
 bundled data, the runtime picks a style by held item, the validator checks the
 data, and the capture workflow lives in the repository. Qingfeng's five moves

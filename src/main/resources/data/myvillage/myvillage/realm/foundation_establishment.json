@@ -6,7 +6,8 @@
     {
       "id": "myvillage:foundation_early",
       "translation_key": "cultivation.stage.myvillage.foundation_early",
-      "sort_order": 0
+      "sort_order": 0,
+      "spiritual_power_cap": 200
     }
   ]
 }

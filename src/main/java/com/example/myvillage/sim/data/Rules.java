@@ -353,7 +353,7 @@ public record Rules(
     }
 
     /** Borrow cost by technique grade ("1".."4"). */
-    public record ScriptureHall(Map<String, Integer> borrowCostByGrade) {
+    public record ScriptureHall(Map<String, Integer> borrowCostByGrade, List<String> publicTechniques) {
     }
 
     public record Steward(double interactRange) {
@@ -710,7 +710,7 @@ public record Rules(
         PlayerPromotion promotion = new PlayerPromotion(playerThreshold(pr.object("inner", THRESHOLD_FIELDS), realms),
                 playerThreshold(pr.object("elder", THRESHOLD_FIELDS), realms));
 
-        SimJson.Fields sh = pl.object("scripture_hall", Set.of("borrow_cost_by_grade"));
+        SimJson.Fields sh = pl.object("scripture_hall", Set.of("borrow_cost_by_grade", "public_techniques"));
         SimJson.Fields costs = sh.object("borrow_cost_by_grade", Set.copyOf(MANUAL_GRADES));
         Map<String, Integer> borrowCost = new LinkedHashMap<>();
         for (String grade : MANUAL_GRADES) {
@@ -724,7 +724,8 @@ public record Rules(
         PlayerGates gates = new PlayerGates(gt.positiveInteger("realize_radius"), gt.positiveInteger("clips_per_tick"),
                 gt.nonNegativeInteger("inhabited_ticks_max"), gt.nonNegativeInteger("player_block_entities_max"));
 
-        return new Player(admission, leave, promotion, new ScriptureHall(Collections.unmodifiableMap(borrowCost)),
+        return new Player(admission, leave, promotion, new ScriptureHall(Collections.unmodifiableMap(borrowCost),
+                sh.array("public_techniques").isEmpty() ? List.of() : sh.stringList("public_techniques")),
                 steward, gates);
     }
 

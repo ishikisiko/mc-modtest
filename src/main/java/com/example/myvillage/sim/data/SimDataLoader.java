@@ -53,6 +53,12 @@ public final class SimDataLoader {
         if (heritages.isEmpty() && encounters.encounters().stream().anyMatch(e -> e.has("heritage"))) {
             throw new SimDataException(ENCOUNTERS, "effects", "a heritage effect needs at least one heritage in " + HERITAGES);
         }
+        for (String id : rules.player().scriptureHall().publicTechniques()) {
+            if (techniques.stream().noneMatch(t -> t.id().equals(id))) {
+                throw new SimDataException(RULES, "player.scripture_hall.public_techniques",
+                        "unknown technique " + id);
+            }
+        }
         return new SimData(rules, realms, encounters, names, techniques, lore, heritages, sectTasks);
     }
 

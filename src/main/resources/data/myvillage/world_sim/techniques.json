@@ -1,6 +1,7 @@
 {
   "schema": 1,
   "techniques": [
+    {"id": "jianqi_jue", "name": "剑气诀", "grade": "huang", "element": "none"},
     {"id": "jingang_gong", "name": "金刚功", "grade": "huang", "element": "metal"},
     {"id": "ruijin_jue", "name": "锐金诀", "grade": "huang", "element": "metal"},
     {"id": "gengjin_yinqi_fa", "name": "庚金引气法", "grade": "huang", "element": "metal"},

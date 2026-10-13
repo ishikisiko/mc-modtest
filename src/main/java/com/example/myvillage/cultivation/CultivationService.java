@@ -5,6 +5,8 @@ import com.example.myvillage.cultivation.data.RealmDefinition;
 import com.example.myvillage.cultivation.data.SpiritualElementDefinition;
 import com.example.myvillage.cultivation.data.TechniqueDefinition;
 import com.example.myvillage.cultivation.network.CultivationSnapshotPayload;
+import com.example.myvillage.cultivation.qi.SpiritualPower;
+import com.example.myvillage.cultivation.qi.SpiritualPowerRuntime;
 import com.example.myvillage.cultivation.technique.CoreTechniqueSwitch;
 import com.example.myvillage.cultivation.time.CultivationTimeMath;
 import com.example.myvillage.cultivation.time.CultivationTimeRuntime;
@@ -114,10 +116,50 @@ public final class CultivationService {
     }
 
     public static Result setSpiritualPower(ServerPlayer player, long amount) {
+        long cap = spiritualPowerCap(player);
+        if (amount < 0 || amount > cap) {
+            return Result.failure("Spiritual power must be in 0.." + cap, getProfile(player));
+        }
         return updateScalar(
                 player,
                 profile -> profile.withCurrentSpiritualPower(amount),
                 "set current spiritual power=" + amount);
+    }
+
+    /** The stage cap is definition data and is shared with the owning client's synced registry. */
+    public static long spiritualPowerCap(ServerPlayer player) {
+        return spiritualPowerCap(player.registryAccess(), getProfile(player));
+    }
+
+    public static long spiritualPowerCap(RegistryAccess registries, CultivationProfile profile) {
+        return SpiritualPower.cap(registries, profile);
+    }
+
+    /** Server-thread atomic check-and-commit: insufficient qi never changes the profile or timer. */
+    public static boolean spendSpiritualPower(ServerPlayer player, long amount) {
+        CultivationProfile oldProfile = getProfile(player);
+        var remaining = SpiritualPower.spend(oldProfile.currentSpiritualPower(), spiritualPowerCap(player), amount);
+        if (remaining.isEmpty()) return false;
+        if (amount == 0) return true;
+        Result result = commit(player, oldProfile.withCurrentSpiritualPower(remaining.getAsLong()),
+                "spent spiritual power=" + amount);
+        if (result.success()) SpiritualPowerRuntime.spent(player);
+        return result.success();
+    }
+
+    public static Result recoverSpiritualPower(ServerPlayer player, long amount) {
+        return updateScalar(player, profile -> profile.withCurrentSpiritualPower(SpiritualPower.recover(
+                profile.currentSpiritualPower(), spiritualPowerCap(player.registryAccess(), profile), amount)),
+                "recovered spiritual power=" + amount);
+    }
+
+    /** Normalize legacy values without sending an unchanged snapshot every server tick. */
+    public static void clampSpiritualPower(ServerPlayer player) {
+        CultivationProfile profile = getProfile(player);
+        long bounded = SpiritualPower.clamp(profile.currentSpiritualPower(), spiritualPowerCap(player));
+        if (bounded != profile.currentSpiritualPower()) {
+            commit(player, profile.withCurrentSpiritualPower(bounded), "clamped spiritual power to stage cap");
+        }
     }
 
     public static Result addLifespanConsumedTicks(ServerPlayer player, long amount) {
@@ -301,6 +343,8 @@ public final class CultivationService {
             CultivationProfile replacement,
             String successMessage) {
         CultivationProfile previous = getProfile(player);
+        replacement = replacement.withCurrentSpiritualPower(SpiritualPower.clamp(
+                replacement.currentSpiritualPower(), spiritualPowerCap(player.registryAccess(), replacement)));
         player.setData(CultivationAttachments.PROFILE.get(), replacement);
         try {
             syncToClient(player, replacement);

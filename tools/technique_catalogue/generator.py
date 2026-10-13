@@ -50,6 +50,8 @@ ID = re.compile(r"[a-z0-9_]+")
 LANG_SECTIONS = ("technique", "school", "heritage")
 STUDY_FIELDS = ("points", "gates", "gate_stability_cost")
 CATALOGUE_FIELDS = ("id", "zh", "category", "grade", "element", "school", "previous", "effects")
+COMBAT_REL = Path("src/main/resources/data/myvillage/combat")
+ACTIVE_FIELDS = ("skill", "qi_cost", "slots")
 MOVEMENT_FIELDS = ("dash_distance", "invulnerable_ticks", "qi_cost", "cooldown_ticks")
 JAVA_INT_MAX = 2**31 - 1
 
@@ -263,6 +265,8 @@ def effects_problems(effects: Any, category: str, where: str) -> list[str]:
             problems.append(f"{where}: a {kind} block is only accepted on a {kind} technique, not {category}")
         elif not isinstance(block, dict):
             problems.append(f"{where}.{kind} must be an object")
+        elif kind == "active":
+            problems.extend(active_problems(block, f"{where}.active"))
         elif kind == "movement":
             problems.extend(movement_problems(block, f"{where}.movement"))
     return problems
@@ -270,6 +274,55 @@ def effects_problems(effects: Any, category: str, where: str) -> list[str]:
 
 def _is_int(value: Any) -> bool:
     return isinstance(value, int) and not isinstance(value, bool)
+
+
+def active_problems(block: dict, where: str) -> list[str]:
+    problems: list[str] = []
+    unknown = set(block) - set(ACTIVE_FIELDS)
+    if unknown:
+        problems.append(f"{where}: unknown fields {sorted(unknown)}")
+    missing = [k for k in ACTIVE_FIELDS if k not in block]
+    if missing:
+        problems.append(f"{where}: missing fields {missing}")
+    if "skill" in block and (not isinstance(block["skill"], str)
+            or not re.fullmatch(r"[a-z0-9_.-]+:[a-z0-9_./-]+", block["skill"])):
+        problems.append(f"{where}.skill must be a namespaced resource id")
+    for key, minimum in (("qi_cost", 0), ("slots", 1)):
+        if key in block and not (_is_int(block[key]) and minimum <= block[key] <= JAVA_INT_MAX):
+            problems.append(f"{where}.{key} must be an integer >= {minimum}")
+    return problems
+
+
+def validate_skill_references(root: Path, s: Sources) -> None:
+    """Only populated active blocks need a runtime; future catalogue rows may remain data-only."""
+    active = [(row["id"], technique_effects(row, s).get("active")) for row in s.techniques]
+    active = [(tid, block) for tid, block in active if block is not None]
+    if not active:
+        return
+    try:
+        index = _read_json(root / COMBAT_REL / "index.json")
+    except (OSError, ValueError) as exc:
+        raise CatalogueError([f"combat/index.json: cannot read skill references ({exc})"]) from exc
+    if not isinstance(index, dict) or not isinstance(index.get("skills"), list):
+        raise CatalogueError(["combat/index.json: skills must be a list"])
+    problems = []
+    for tid, block in active:
+        skill = block["skill"]
+        namespace, path = skill.split(":", 1)
+        rel = Path("src/main/resources/data") / namespace / "combat/skill" / f"{path}.json"
+        if skill not in index.get("skills", []) or not (root / rel).is_file():
+            problems.append(f"catalogue.json: {tid}: effects.active.skill {skill!r} is not a registered skill")
+        else:
+            try:
+                definition = _read_json(root / rel)
+                row = next(t for t in s.techniques if t["id"] == tid)
+                school = s.rid(row["school"]) if row.get("school") else None
+                if not isinstance(definition, dict) or definition.get("school") != school:
+                    problems.append(f"catalogue.json: {tid}: active skill school does not match technique school")
+            except (OSError, ValueError) as exc:
+                problems.append(f"{rel}: cannot read skill definition ({exc})")
+    if problems:
+        raise CatalogueError(problems)
 
 
 def movement_problems(block: dict, where: str) -> list[str]:
@@ -460,6 +513,7 @@ def merge_lang(text: str, entries: dict[str, str], namespace: str, preserved: se
 
 def plan(root: Path = ROOT, source_dir: Path = SOURCE_DIR) -> Plan:
     s = load_sources(source_dir)
+    validate_skill_references(root, s)
     requirements = resolve_requirements(root, s)
     result = Plan()
     hand_written = set(s.rules["hand_written_techniques"])

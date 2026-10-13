@@ -211,6 +211,9 @@ def parse_mspt(reply: str) -> float | None:
     return float(m.group(1)) if m else None
 
 
+JOIN_CHRONICLE = r"join|taken in as an outer disciple|拜入"
+
+
 def mentions(text: str, name: str, pattern: str) -> list[str]:
     """Lines of `text` that hold `name` and match `pattern` (case-insensitive)."""
     rx = re.compile(pattern, re.IGNORECASE)
@@ -631,7 +634,7 @@ class Run:
         self.check("player_record_outer", bool(re.search(r"outer|外门", rec, re.I))
                    and self.facts["sect_name"] in rec, rec.strip()[:300])
         chron = self.rc(f"{W} chronicle 5")
-        hits = mentions(chron, PLAYER, r"join|拜入")
+        hits = mentions(chron, PLAYER, JOIN_CHRONICLE)
         self.check("chronicle_has_join", bool(hits), hits[0] if hits else "no chronicle line names the player")
 
     def panel(self) -> None:

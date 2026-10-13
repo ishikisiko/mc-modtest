@@ -74,7 +74,9 @@ class WorldSimScriptureTest {
 
     private static List<String> clean(List<String> ids) {
         List<String> out = new ArrayList<>();
-        for (String id : ids) {
+        List<String> all = new ArrayList<>(ids);
+        all.addAll(SimFixtures.data().rules().player().scriptureHall().publicTechniques());
+        for (String id : all) {
             if (!id.isEmpty() && !id.equals("basic_breathing") && !out.contains(id)) {
                 out.add(id);
             }
@@ -122,11 +124,26 @@ class WorldSimScriptureTest {
         WorldSim mortal = editSect(sim, sect.id(), s -> s.addProperty("basic_technique", "basic_breathing"));
         assertEquals(clean(List.of(sect.signatureTechniqueId())), mortal.borrowable(ALICE));
         mortal.promotePlayer(ALICE, "Alice", "outer");
-        assertEquals(List.of(), mortal.borrowable(ALICE));
+        assertEquals(clean(List.of()), mortal.borrowable(ALICE));
 
         // A destroyed sect lends nothing.
         WorldSim razed = editSect(sim, sect.id(), s -> s.addProperty("state", "destroyed"));
         assertEquals(List.of(), razed.borrowable(ALICE));
+    }
+
+    @Test
+    void initialSwordQiManualIsAvailableToOuterMembersAndBorrowPersists() {
+        WorldSim sim = world();
+        for (SectView sect : sim.sects(false)) {
+            String player = String.format("00000000-0000-0000-0000-%012d", sect.id());
+            sim.joinSect(player, player, sect.id(), PLAIN, true);
+            assertTrue(sim.borrowable(player).contains("jianqi_jue"), sect.name());
+            assertEquals(1, sim.borrowable(player).stream().filter("jianqi_jue"::equals).count());
+            sim.recordBorrow(player, player, "jianqi_jue");
+            assertTrue(reload(sim).hasBorrowed(player, "jianqi_jue"));
+            assertEquals("already_borrowed", assertThrows(IllegalArgumentException.class,
+                    () -> sim.recordBorrow(player, player, "jianqi_jue")).getMessage());
+        }
     }
 
     @Test

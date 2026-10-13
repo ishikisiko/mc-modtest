@@ -98,6 +98,12 @@ class PanelAndTextTest(unittest.TestCase):
         self.assertEqual(ev.parse_mspt("Average time per tick: 12.5ms (Target: 50.0ms)"), 12.5)
         self.assertIsNone(ev.parse_mspt("Unknown command"))
 
+    def test_current_join_chronicle_and_player_guard(self):
+        line = "[Year 1 of Qiyuan] CaptureDev climbs to the gate of 明心宗 and is taken in as an outer disciple."
+        text = line + "\nOtherPlayer is taken in as an outer disciple.\nCaptureDev visits the gate."
+        self.assertEqual(ev.mentions(text, "CaptureDev", ev.JOIN_CHRONICLE), [line])
+        self.assertEqual(ev.mentions(text, "MissingPlayer", ev.JOIN_CHRONICLE), [])
+
     def test_mentions(self):
         text = "Chronicle:\nCaptureDev joined Azure Cloud as an outer disciple.\nLi Qing joined Red Peak."
         self.assertEqual(ev.mentions(text, "CaptureDev", r"join|拜入"),

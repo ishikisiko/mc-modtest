@@ -32,6 +32,16 @@ final class CombatDataLoaderTest {
     private static final ResourceLocation QINGFENG_FILE = ResourceLocation.fromNamespaceAndPath("myvillage", "qingfeng_sword");
 
     @Test
+    void skillSchemaRejectsUnknownUnboundedAndMissingReferences() {
+        String file = "data/myvillage/combat/skill/jianqi_jue.json";
+        assertRejected(file, "unknown", "unknown field", files -> files.edit(file,
+                skill -> skill.addProperty("unknown", 1)));
+        assertRejected(file, "<root>", "bounded", files -> files.edit(file,
+                skill -> skill.addProperty("range", 100000)));
+        assertRejected(INDEX, "skills", "missing", files -> files.remove(file));
+    }
+
+    @Test
     void loadsTheBundledIndexStyleAndWeapon() {
         CombatStyles styles = CombatDataLoader.load(CombatTestData::open);
         // Every listed style and weapon loads, in the order the index lists them.
@@ -461,6 +471,10 @@ final class CombatDataLoaderTest {
             }
             for (JsonElement weapon : index.getAsJsonArray("weapons")) {
                 files.copy(CombatDataLoader.weaponPath(ResourceLocation.parse(weapon.getAsString())));
+            }
+            for (JsonElement skill : index.getAsJsonArray("skills")) {
+                ResourceLocation id = ResourceLocation.parse(skill.getAsString());
+                files.copy("data/" + id.getNamespace() + "/combat/skill/" + id.getPath() + ".json");
             }
             for (String path : List.of(STYLE, WEAPON)) {
                 if (!files.contents.containsKey(path)) {

@@ -3,6 +3,8 @@
 ## Purpose
 
 This spec captures the current resource export baseline for structure resources that are expected to grow into a broader town-generation pipeline. It is temporary and mutable; proposed changes to output paths, namespaces, target Minecraft version, or generated resource types should be discussed with the project owner first.
+See also: [Spiritual Power and Sword Qi](../../../docs/ai-kb/45_spiritual_power_sword_qi.md).
+
 ## Requirements
 ### Requirement: NBT export writes vanilla structure templates
 The exporter SHALL write gzipped Java NBT structure templates containing `DataVersion`, `author`, `size`, `palette`, `blocks`, and an empty `entities` list.
@@ -218,3 +220,10 @@ generation limitation before handoff.
 #### Scenario: A reviewer receives the artifact
 - **WHEN** the spirit-stone jar is prepared for review
 - **THEN** the documented command surface SHALL be sufficient to obtain and test all three entries
+
+### Requirement: Sword-qi resources ship with the practical jar
+The practical mod jar SHALL include the generated sword-qi technique and both language entries, the indexed skill resource, and stage/power rule data. Catalogue outputs SHALL be regenerated from their authored inputs, never edited independently; current user-facing usage SHALL describe learning and casting.
+
+#### Scenario: The built jar is inspected
+- **WHEN** the release candidate jar is opened after a fresh build
+- **THEN** its resources SHALL contain the same indexed skill and generated technique validated from source

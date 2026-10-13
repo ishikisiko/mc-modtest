@@ -4,6 +4,8 @@
 
 Define the permissioned `/myvillage cultivation` diagnostics and mutation
 commands used to inspect and validate server-authoritative player profiles.
+See also: [Spiritual Power and Sword Qi](../../../docs/ai-kb/45_spiritual_power_sword_qi.md).
+
 ## Requirements
 ### Requirement: Cultivation commands extend the existing protected root
 `CultivationCommands` SHALL provide `cultivation` and pinyin `xiulian` subtrees delegated from the existing `/myvillage` command registration. Both subtrees SHALL inherit the root's permission-level-2 requirement. Adding them SHALL NOT refactor or change existing town, sect, gallery, spawn, structure-placement, or flying-sword behavior.
@@ -210,3 +212,10 @@ The command tree SHALL provide `initiate` and `rumen` under both `cultivation` a
 - **WHEN** both cultivation roots are inspected after this change
 - **THEN** they SHALL expose the existing diagnostics/mutation commands plus only the new awakening and basic-inheritance normal-rules routes
 - **AND** they SHALL NOT expose meditation, cultivation-gain, breakthrough, technique-execution, recovery, equipment, combat, reroll, or force-awaken commands
+
+### Requirement: Power commands have equivalent language aliases
+Power administration SHALL expose `qi` and `lingli` under both `cultivation` and `xiulian`, with equivalent permission checks, target selection, set and fill behavior. Set SHALL reject values outside the resolved cap; fill SHALL use the resolved cap. Info SHALL report current power and capacity.
+
+#### Scenario: Alias routes fill the same profile
+- **WHEN** an administrator executes any equivalent English or pinyin fill route
+- **THEN** the service SHALL apply the same capped immutable power update

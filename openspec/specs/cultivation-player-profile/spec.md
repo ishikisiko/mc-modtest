@@ -4,6 +4,8 @@
 
 Define the immutable version-1 cultivation profile, spiritual-root and
 technique-progress values, invariants, defaults, and unknown-id behavior.
+See also: [Spiritual Power and Sword Qi](../../../docs/ai-kb/45_spiritual_power_sword_qi.md).
+
 ## Requirements
 ### Requirement: Profile identifiers remain stable and definition-independent
 The profile SHALL encode realm, stage, spiritual-element, and technique identifiers as `ResourceLocation` values. Profile persistence SHALL NOT encode Java enum ordinals, registry numeric ids, holders, or resolved definition objects. The profile codec SHALL validate identifier syntax without requiring the referenced definition to exist in the current registry.
@@ -135,20 +137,20 @@ without normalizing it.
 - **THEN** settlement SHALL preserve the raw value and add no further progress
 
 ### Requirement: Meditation reserve is a separate durable balance
-`meditationQiReserve` SHALL remain a non-negative persistent meditation-only
-balance. It SHALL NOT be read as, converted to, or substituted for
-`currentSpiritualPower`; meditation gain SHALL NOT spend or restore current
-spiritual power. Every successful profile replacement and interruption SHALL
-preserve unspent reserve exactly.
+`meditationQiReserve` SHALL remain a non-negative persistent meditation-only balance. It SHALL NOT be read as, converted to, or substituted for `currentSpiritualPower`; cultivation gain settlement SHALL NOT spend or restore current spiritual power. Separate spiritual-power regeneration MAY use meditation session state to select a data-defined recovery factor, but SHALL commit only through `CultivationService`. Every successful profile replacement and interruption SHALL preserve unspent reserve exactly.
 
 #### Scenario: Spirit meditation spends reserve
-- **WHEN** an applicable spirit bonus point is settled
+- **WHEN** an applicable legacy spirit bonus point is settled
 - **THEN** reserve SHALL decrease by exactly one for that bonus point
-- **AND** current spiritual power SHALL remain unchanged
+- **AND** that gain settlement SHALL leave current spiritual power unchanged
 
 #### Scenario: Meditation stops with reserve remaining
 - **WHEN** a session is interrupted or stopped after a prior stone conversion
 - **THEN** the unspent reserve SHALL remain in the persistent profile
+
+#### Scenario: Power recovery is settled during meditation
+- **WHEN** the separate server power-recovery schedule becomes due
+- **THEN** recovery SHALL use the meditation factor without consuming or converting reserve
 
 ### Requirement: A gain settlement installs one immutable profile replacement
 A successful cultivation settlement SHALL compute progress, stability, Basic
@@ -266,3 +268,10 @@ exactly. Client input SHALL NOT supply affinity or directly install a profile.
 #### Scenario: A profile mutation fails validation
 - **WHEN** any proposed replacement violates a v3 invariant
 - **THEN** `CultivationService` SHALL leave the old attachment equal and send no changed snapshot
+
+### Requirement: Power updates preserve the profile schema and unrelated state
+Power recovery, spending, and cap normalization SHALL reuse `currentSpiritualPower` and submit complete immutable replacements through `CultivationService`. They SHALL preserve learning, reserve, progress, stability, affinity, lifespan, root and running core technique; this feature SHALL NOT require a new persistent resource field.
+
+#### Scenario: A cast spends power
+- **WHEN** the service accepts a valid power cost
+- **THEN** only the current power balance SHALL change in the persistent profile
