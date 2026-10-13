@@ -15,7 +15,7 @@ import tarfile
 import time
 import uuid
 
-from .remote import PAL, PRESETS, safe_extract, sha256
+from .remote import PAL, CATALOG, DEPENDENCIES, PRESETS, safe_extract, sha256
 
 REPO = Path(__file__).resolve().parents[2]
 APP = "myvillage-tests"
@@ -58,22 +58,25 @@ def prepare(repo: Path, ref: str, preset: str, timeout: int, out: Path) -> dict:
     if ref.startswith("-") or not 180 <= timeout <= 7200 or preset not in PRESETS:
         raise ValueError("Invalid ref/preset or timeout (allowed 180..7200 seconds)")
     commit = subprocess.check_output(["git", "rev-parse", "--verify", ref + "^{commit}"], cwd=repo, text=True).strip()
-    pal = repo / PAL
-    if not pal.is_file():
-        raise FileNotFoundError(f"Required dependency missing: {pal}")
+    for name in DEPENDENCIES:
+        if not (repo / name).is_file():
+            raise FileNotFoundError(f"Required dependency missing: {repo / name}")
     out.mkdir(parents=True, exist_ok=False)
     archive = out / "source.tar"
     with archive.open("wb") as stream:
         subprocess.run(["git", "archive", "--format=tar", commit], cwd=repo, stdout=stream, check=True)
     inspect_source(archive)
-    shutil.copyfile(pal, out / PAL)
+    for name in DEPENDENCIES:
+        target = out / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(repo / name, target)
     shutil.copyfile(Path(__file__).with_name("remote.py"), out / "remote.py")
     request = {"format": 1, "run_id": out.name, "commit": commit, "requested_ref": ref,
                "preset": preset, "timeout_seconds": timeout, "cpu": [4, 4], "memory_mib": [16384, 16384],
                "sdk_version": SDK_VERSION, "image_base": IMAGE, "automatic_retries": 0,
                "controller_sha256": sha256(Path(__file__)),
-               "source_policy": "git archive only; PAL jar is the sole untracked dependency",
-               "inputs": {"source.tar": sha256(archive), PAL: sha256(out / PAL),
+               "source_policy": "git archive plus exactly the required PAL jar and block catalog",
+               "inputs": {"source.tar": sha256(archive), **{name: sha256(out / name) for name in DEPENDENCIES},
                           "remote.py": sha256(out / "remote.py")},
                "commands": PRESETS[preset]}
     request["archive_seconds"] = round(time.monotonic() - started, 3)
@@ -120,7 +123,7 @@ def execute(modal, request: dict, out: Path, repo: Path) -> int:
         state["phases_seconds"]["create_including_image"] = round(time.monotonic() - start, 3)
         write_json(out / "state.json", state)
         phase = time.monotonic()
-        for name in ("source.tar", PAL, "remote.py", "request.json"):
+        for name in ("source.tar", *DEPENDENCIES, "remote.py", "request.json"):
             sb.filesystem.copy_from_local(out / name, "/workspace/" + name)
         state["phases_seconds"]["upload"] = round(time.monotonic() - phase, 3)
         phase = time.monotonic()
@@ -202,8 +205,9 @@ def main(argv=None) -> int:
         if args.command == "doctor":
             modal = sdk()
             modal.Client.from_env()  # SDK verifies the active profile; never print its token.
-            print(json.dumps({"sdk": modal.__version__, "authentication": "verified", "pal_present": (REPO / PAL).is_file()}))
-            return 0
+            dependencies = {name: (REPO / name).is_file() for name in DEPENDENCIES}
+            print(json.dumps({"sdk": modal.__version__, "authentication": "verified", "dependencies": dependencies}))
+            return 0 if all(dependencies.values()) else 1
         if args.command in ("status", "terminate"):
             if not args.run:
                 raise ValueError("--run is required")

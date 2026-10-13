@@ -30,6 +30,8 @@ class ArchiveTests(unittest.TestCase):
             (repo / "source.txt").write_text("dirty")
             (repo / "secret.txt").write_text("do not upload")
             (repo / remote.PAL).write_bytes(b"pal")
+            (repo / remote.CATALOG).parent.mkdir()
+            (repo / remote.CATALOG).write_text("{}")
             out = root / "plan"
             req = runner.prepare(repo, "HEAD", "smoke", 180, out)
             with tarfile.open(out / "source.tar") as tf:

@@ -14,6 +14,8 @@ import time
 from threading import Event, Thread
 
 PAL = "PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar"
+CATALOG = "exmod/mod_block_catalog.json"
+DEPENDENCIES = (PAL, CATALOG)
 PRESETS = {
     "smoke": [["java", "-version"], ["python3", "-c", "import yaml, numpy, PIL; print('python dependencies OK')"],
               ["xvfb-run", "-a", "glxinfo", "-B"]],
@@ -136,7 +138,10 @@ def main() -> int:
             if sha256(Path("/workspace") / name) != digest:
                 raise ValueError(f"Input hash mismatch: {name}")
         safe_extract(Path("/workspace/source.tar"), repo)
-        (repo / PAL).write_bytes((Path("/workspace") / PAL).read_bytes())
+        for name in DEPENDENCIES:
+            target = repo / name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes((Path("/workspace") / name).read_bytes())
         os.chmod(repo / "gradlew", 0o755)
         for i, command in enumerate(PRESETS[args.preset]):
             step = run_step(command, repo, evidence / f"step-{i}.log", args.timeout - (time.monotonic() - start))
