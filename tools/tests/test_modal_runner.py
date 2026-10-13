@@ -4,6 +4,7 @@ import io
 import json
 from pathlib import Path
 import subprocess
+import sys
 import tarfile
 import tempfile
 import unittest
@@ -92,9 +93,17 @@ class ArchiveTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 runner.prepare(Path("/missing"), ref, "smoke", timeout, Path("/missing"))
 
+    def test_timed_out_process_is_killed_and_recorded(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            result = remote.run_step([sys.executable, "-c", "import time; time.sleep(60)"], root, root / "log", 0.1)
+            self.assertEqual(result["exit_code"], 124)
+            self.assertTrue(result["timed_out"])
+            self.assertLess(result["wall_seconds"], 5)
+
 
 class LifecycleTests(unittest.TestCase):
-    def exercise(self, *, exit_code=0, upload_error=False, download_error=False, terminate_error=False, create_error=False):
+    def exercise(self, *, exit_code=0, upload_error=False, download_error=False, terminate_error=False, create_error=False, interrupt=False, corrupt=False):
         with tempfile.TemporaryDirectory() as directory:
             out = Path(directory)
             modal, sb = MagicMock(), MagicMock()
@@ -106,6 +115,8 @@ class LifecycleTests(unittest.TestCase):
             process = sb.exec.return_value
             process.stdout, process.stderr = [], []
             process.wait.return_value = exit_code
+            if interrupt:
+                process.wait.side_effect = KeyboardInterrupt("cancelled")
             if upload_error:
                 sb.filesystem.copy_from_local.side_effect = RuntimeError("upload failed")
             if terminate_error:
@@ -114,6 +125,8 @@ class LifecycleTests(unittest.TestCase):
             evidence.mkdir()
             (evidence / "result.json").write_text("{}")
             metadata = remote.package(out / "repo", evidence, out / "source-artifacts.tar.gz")
+            if corrupt:
+                metadata["sha256"] = "invalid"
             def download(source, dest):
                 if download_error:
                     raise RuntimeError("download failed")
@@ -166,6 +179,16 @@ class LifecycleTests(unittest.TestCase):
         code, state = self.exercise(create_error=True)
         self.assertNotEqual(code, 0)
         self.assertEqual(state["termination"], "not_created")
+
+    def test_cancellation_collects_and_terminates(self):
+        code, state = self.exercise(interrupt=True)
+        self.assertNotEqual(code, 0)
+        self.assertEqual(state["termination"], "confirmed")
+
+    def test_corrupt_download_cannot_pass(self):
+        code, state = self.exercise(corrupt=True)
+        self.assertNotEqual(code, 0)
+        self.assertIn("checksum", state["artifact_error"])
 
 
 if __name__ == "__main__":

@@ -71,6 +71,7 @@ def prepare(repo: Path, ref: str, preset: str, timeout: int, out: Path) -> dict:
     request = {"format": 1, "run_id": out.name, "commit": commit, "requested_ref": ref,
                "preset": preset, "timeout_seconds": timeout, "cpu": [4, 4], "memory_mib": [16384, 16384],
                "sdk_version": SDK_VERSION, "image_base": IMAGE, "automatic_retries": 0,
+               "controller_sha256": sha256(Path(__file__)),
                "source_policy": "git archive only; PAL jar is the sole untracked dependency",
                "inputs": {"source.tar": sha256(archive), PAL: sha256(out / PAL),
                           "remote.py": sha256(out / "remote.py")},
@@ -108,12 +109,14 @@ def execute(modal, request: dict, out: Path, repo: Path) -> int:
     try:
         app = modal.App.lookup(APP, create_if_missing=True)
         volume = modal.Volume.from_name("myvillage-gradle-cache-v1", create_if_missing=True)
+        container_image = image(modal)
         with modal.enable_output():
             sb = modal.Sandbox.create("sleep", "infinity", app=app, name=SANDBOX_NAME,
-                                     image=image(modal), cpu=(4, 4), memory=(16384, 16384),
+                                     image=container_image, cpu=(4, 4), memory=(16384, 16384),
                                      timeout=request["timeout_seconds"], volumes={"/cache": volume},
                                      tags={"run_id": request["run_id"], "commit": request["commit"]})
         state.update(sandbox_id=sb.object_id, status="uploading", termination="pending")
+        state["image_id"] = getattr(container_image, "object_id", None)
         state["phases_seconds"]["create_including_image"] = round(time.monotonic() - start, 3)
         write_json(out / "state.json", state)
         phase = time.monotonic()
