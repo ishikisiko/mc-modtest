@@ -7,6 +7,8 @@ This spec captures the current validation baseline. It is temporary and mutable;
 See also (narrative + acceptance checklist): [docs/ai-kb/09_validation_checklist.md](../../../docs/ai-kb/09_validation_checklist.md).
 See also: [Spiritual Power and Sword Qi](../../../docs/ai-kb/45_spiritual_power_sword_qi.md).
 
+See also: [Modal Test Runner](../../../docs/ai-kb/46_modal_test_runner.md).
+
 ## Requirements
 ### Requirement: Structure JSON validation checks schema, bounds, metadata, and modset-aware block ids
 The Structure JSON validator SHALL check JSON shape, size and coordinate bounds, palette resolution, supported operations, metadata rules, and block id existence relative to the active modset profile. Under the `vanilla` profile only Minecraft `1.21.1` vanilla block ids and the project-owned `myvillage` self-namespace are accepted. Under the `full` profile a non-`minecraft` block id is accepted when its namespace is `myvillage` or when its namespace is in the catalog's confirmed mod set and the id exists in `exmod/mod_block_catalog.json`; vanilla `minecraft` id existence is still checked against the `1.21.1` registry.
@@ -629,3 +631,16 @@ Acceptance SHALL include focused pure rules and data tests, affected cultivation
 #### Scenario: Only server startup is observed
 - **WHEN** an acceptance server reaches readiness without a client action
 - **THEN** the ledger SHALL record startup success and leave unobserved gameplay checks `not_verified`
+
+### Requirement: Remote test evidence identifies provenance and measured phases
+Remote test evidence SHALL record the tested commit, source archive hash, explicit dependency hashes, executor identity, requested resources, observed environment, cache context, UTC timing boundaries, per-phase durations and final exit/timeout/cleanup status. Setup, upload, execution, download and termination SHALL remain distinguishable where observable. Failed attempts SHALL be retained without automatic retries. Local contract tests, real cloud smoke and owner gameplay acceptance SHALL be separate verdicts.
+
+#### Scenario: A cached remote build completes
+- **WHEN** a remote build uses a persistent dependency cache and produces test reports
+- **THEN** the handoff SHALL disclose the cache and identify the exact source/executor
+- **AND** it SHALL NOT present total runner duration as pure test execution time or call the run a cold benchmark
+
+#### Scenario: Authentication prevents real cloud execution
+- **WHEN** local tests pass but the real cloud smoke cannot authenticate
+- **THEN** the acceptance ledger SHALL record local pass and cloud `not_verified`
+- **AND** the change SHALL remain active rather than claim a completed cloud integration

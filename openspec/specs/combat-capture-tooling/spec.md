@@ -5,6 +5,8 @@ Define the in-repository workflow for collecting combat presentation evidence on
 
 See also: [Spiritual Power and Sword Qi](../../../docs/ai-kb/45_spiritual_power_sword_qi.md).
 
+See also: [Modal Test Runner](../../../docs/ai-kb/46_modal_test_runner.md).
+
 ## Requirements
 ### Requirement: Capture tooling lives in the repository
 The repository SHALL provide `tools/combat_capture/` for collecting combat presentation evidence on a headless host. It SHALL use only the Python standard library and the host programs `Xvfb`, `xdotool`, `ffmpeg`, and ImageMagick, SHALL drive the repository's own acceptance-server and smoke-client run tasks, and MUST NOT depend on files outside the repository.
@@ -81,3 +83,14 @@ Capture sessions SHALL default to `en_us` and support explicit `zh_cn` for bilin
 - **WHEN** reuse is requested after clean stage-1 preparation deleted the shared profile
 - **THEN** capture SHALL fail with a missing-world diagnostic before starting the server
 - **AND** evidence SHALL NOT present the new world's defaults as a product persistence failure or successful same-world restart
+
+### Requirement: Remote capture keeps evidence and world isolation boundaries
+A Modal client/capture run SHALL reuse the repository's mapped-input evidence workflow without DevBridge and SHALL keep all world state in an ephemeral run workspace, outside the persistent dependency cache. Remote client capture SHALL be advertised as experimental until validated in a real authenticated Sandbox. Software-rendered output SHALL remain developer evidence and SHALL NOT establish owner physical-client sound, FPS or look/feel acceptance.
+
+#### Scenario: Remote client startup succeeds without mapped actions
+- **WHEN** a remote Minecraft client reaches readiness but mapped capture has not been exercised
+- **THEN** the ledger SHALL record startup only and leave interaction/capture unverified
+
+#### Scenario: A run finishes after modifying a capture world
+- **WHEN** remote capture cleanup terminates its Sandbox
+- **THEN** that run's world SHALL NOT be retained in the dependency cache or reused as a later run's starting world

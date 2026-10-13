@@ -1,12 +1,20 @@
-## ADDED Requirements
+# modal-test-runner Specification
+
+## Purpose
+
+Define fixed-commit on-demand remote tests, bounded Sandbox lifecycles, explicit input provenance, scoped dependency caching and separately measured cloud evidence.
+
+See also: [Modal Test Runner](../../../docs/ai-kb/46_modal_test_runner.md).
+
+## Requirements
 
 ### Requirement: A remote run identifies immutable source and explicit dependencies
-The runner SHALL resolve the requested ref to a fixed Git commit and upload its archive rather than the worktree. It SHALL record the full commit and archive hash. Generic untracked files, credentials and local worlds SHALL NOT be uploaded. The exact root `PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar` SHALL be the explicit additional dependency, with its own recorded hash. Any separately uploaded runner bootstrap SHALL have a separately recorded identity and hash.
+The runner SHALL resolve the requested ref to a fixed Git commit and upload its archive rather than the worktree. It SHALL record the full commit and archive hash. Generic untracked files, credentials and local worlds SHALL NOT be uploaded. The exact root `PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar` and `exmod/mod_block_catalog.json` SHALL be the only additional local dependencies; each SHALL be frozen into the run input directory and independently hashed. No other `exmod` file or mod jar SHALL be implicitly uploaded. Any separately uploaded runner bootstrap SHALL have a separately recorded identity and hash.
 
 #### Scenario: Local changes exist when a commit is planned
 - **WHEN** tracked modifications and unrelated untracked files are present
 - **THEN** the planned source SHALL remain the selected committed tree
-- **AND** none of those local changes SHALL enter the upload except the declared exact PAL dependency
+- **AND** none of those local changes SHALL enter the upload except the two declared exact dependency files
 
 #### Scenario: An upload contains forbidden private material
 - **WHEN** pre-upload inspection detects credentials or forbidden private configuration

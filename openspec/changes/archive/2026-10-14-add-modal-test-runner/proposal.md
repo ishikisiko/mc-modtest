@@ -5,7 +5,7 @@ The local Minecraft build and client-capture workload competes for a small host'
 ## What Changes
 
 - Add a Modal Sandbox runner for offline planning, authentication diagnostics, bounded remote runs, status and explicit termination.
-- Upload a fixed Git commit archive plus only the exact required local PAL jar, recording content hashes; keep generic untracked files, credentials and local worlds out of the upload.
+- Upload a fixed Git commit archive plus only the exact required root PAL jar and `exmod/mod_block_catalog.json`, recording content hashes; keep generic untracked files, credentials and local worlds out of the upload.
 - Separately identify and hash the runner bootstrap so it can test an older source commit without concealing which executor was used.
 - Serialize local runner launches, use one named Sandbox identity, request bounded CPU/memory, disable automatic retries, and terminate after success, failure or cancellation with a provider TTL as a crash backstop.
 - Preserve only a dedicated Gradle dependency cache; source, worlds and test state remain ephemeral.

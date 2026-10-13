@@ -550,21 +550,26 @@ authentication. Credentials stay outside the source archive and test logs.
 ```bash
 python3 -m venv .venv-modal
 .venv-modal/bin/python -m pip install -r tools/modal_runner/requirements.txt
+# First authentication, or renewal after the token expires:
+.venv-modal/bin/modal token new --profile myvillage --expires-in 7d
 .venv-modal/bin/python -m tools.modal_runner doctor
 .venv-modal/bin/python -m tools.modal_runner plan --preset build --ref HEAD --timeout 1800
 .venv-modal/bin/python -m tools.modal_runner run --preset smoke --ref HEAD --timeout 1800
 ```
 
 `HEAD` means the last commit: uncommitted code is not tested. The exact root PAL
-jar is the only extra local dependency; it and the independently uploaded
-runner bootstrap have separate hashes. Generic untracked files, local worlds
+jar and `exmod/mod_block_catalog.json` are the only extra local dependencies;
+each frozen input and the independent runner bootstrap have separate hashes.
+This does not upload the rest of `exmod` or any other mod jars. Generic untracked files, local worlds
 and credentials are excluded. The optional SDK is pinned to 1.6.1.
 
 Presets are `smoke` (environment), `python` (tool tests), `build` (Gradle tests
 and jar), `server` (stage-1 acceptance) and `client` (sword-qi mapped-input
-capture). Server/client remain experimental until their real cloud checks
-pass; client capture uses no DevBridge. The timeout defaults to 1800 seconds,
-with an allowed range of 180–7200. Automatic retries are zero. The SDK resource
+capture). The verified server/client scope is listed below; client capture
+uses no DevBridge. The timeout defaults to 1800 seconds,
+with an allowed range of 180–7200. This bounds Sandbox lifetime after creation;
+image preparation before creation is outside that timeout, so it is not a
+whole-run billing cap. Automatic retries are zero. The SDK resource
 request is CPU `(4, 4)` and memory `(16384, 16384)`; observed resources belong in
 the result, not in assumptions about performance.
 
@@ -578,16 +583,22 @@ local controller. Recover an uncertain remote state using its recorded run:
 .venv-modal/bin/python -m tools.modal_runner terminate --run reports/modal-runs/<run-id>
 ```
 
+A terminated Sandbox can report entrypoint return code `137` because cleanup
+kills its `sleep` process; use the recorded remote test exit code and confirmed
+termination state to assess the run. These are distinct results.
+
 `reports/modal-runs/<run-id>/` records source/executor identity, input hashes,
 phase durations, logs, termination status and downloaded artifacts. Local
 contract tests and offline planning do not establish cloud startup or cleanup.
 
 | Modal runner acceptance surface | Result |
 |---|---|
-| Local archive/lifecycle tests and offline plan | `not_verified` (implementation checks pending) |
-| Authenticated cloud smoke and confirmed termination | `not_verified` |
-| Remote Python and Gradle/build presets | `not_verified` |
-| Remote server/client capture and artifact collection | Experimental, `not_verified` |
+| Local archive/lifecycle tests and offline plan | `pass` (15 local tests; latest timed command 0.380 s) |
+| Authenticated cloud smoke and confirmed termination | `pass` (second attempt 17.626 s; Java/Python dependencies/software GL, downloaded evidence and confirmed cleanup; initial hash-mismatch failure retained) |
+| Remote Gradle/build preset | `pass` (913 tests, 0 failures/errors/skips; fresh 0.46.1 jar fetched; 190.077 s total, 165.328 s Gradle command) |
+| Remote Python preset | `pass` (1053 tests; command 137.520 s, runner total 156.217 s; downloaded evidence and confirmed termination) |
+| Remote bounded stage-1 server | `pass` (commands/save/stop report; 116.757 s command, 143.870 s runner total; confirmed termination) |
+| Remote client capture and artifact collection | `pass` for mapped-input `tap_hit` / `charged_hit` (129.723 s command, 150.015 s total; videos/logs/manifest fetched; termination confirmed). Other client scenarios remain `not_verified`. |
 | Owner physical-client look, sound, feel and FPS | Separate from this runner and from its cloud checks |
 
 Details: [Modal test runner](docs/ai-kb/46_modal_test_runner.md).
