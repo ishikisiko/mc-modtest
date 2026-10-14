@@ -12,6 +12,11 @@
       ],
       "conditions": [
         {
+          "condition": "minecraft:block_state_property",
+          "block": "myvillage:scripture_shelf",
+          "properties": { "half": "lower" }
+        },
+        {
           "condition": "minecraft:survives_explosion"
         }
       ]

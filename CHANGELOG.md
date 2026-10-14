@@ -7,6 +7,23 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.46.2
+
+- Replaced the vanilla-bookshelf appearance with a generated two-block-high
+  scripture stand, using its own wood, books, scrolls and jade-slip materials.
+  Both halves open the existing server-owned borrowing flow; safe legacy repair
+  preserves sect ownership, avoids occupied upper cells, and matches collision
+  to the furnishing.
+- Moved the spiritual-power HUD to the upper-left corner with a jade emblem,
+  power bar and charge accent, and made the sword-qi wave a thicker, brighter
+  three-dimensional crescent. Server hit geometry, damage, range and costs are
+  unchanged.
+- Reduced beginner yellow-grade manual study to 160 study ticks, approximately
+  10 seconds including preparation at default affinity. Affinity pacing and
+  higher-grade study rules remain in effect.
+- Implementation direction is approved; physical-client appearance, interaction,
+  timing and gameplay acceptance remain pending owner review.
+
 ## 0.46.1
 
 - Added an on-demand Modal test runner for a fixed repository commit, with

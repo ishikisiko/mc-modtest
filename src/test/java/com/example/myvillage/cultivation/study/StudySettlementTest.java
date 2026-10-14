@@ -98,7 +98,7 @@ class StudySettlementTest {
     }
 
     @Test
-    void fullStudyOfAHuangManualTakesFourHundredBatchesAtAffinityTen() {
+    void legacyFourThousandPointRulesStillTakeFourHundredBatchesAtAffinityTen() {
         int points = 0;
         int batches = 0;
         StudySettlement.Plan plan;

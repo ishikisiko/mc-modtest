@@ -14,8 +14,10 @@ response"), and assesses real P4 ("Real P4 (worldgen placement)
 assessment"). The design is `docs/player-sect-entry-brief.md`
 (slices 2 to 4: scripture hall, contribution and tasks, masters, the world's
 response); the package breakdown with the defaults the owner may overturn is
-`docs/sect-entry-slice1-tasks.md`. There is no capability spec; this note,
-[40_world_sim.md](40_world_sim.md), and the code are the reference.
+`docs/sect-entry-slice1-tasks.md`. There is no standalone world-simulation
+capability spec; this note, [40_world_sim.md](40_world_sim.md), and the code
+are the reference. The compound furnishing lifecycle is covered in
+[sect-compound-realization](../../openspec/specs/sect-compound-realization/spec.md).
 
 A player is never a ledger `Person`. The engine settles persons every day
 (cultivation, travel, death, succession); a player must not be moved by it.
@@ -371,12 +373,44 @@ slot's centre column at the terrace elevation. The pavilion's own floor is
 higher, so `ScriptureShelves.place` scans that world column from one block
 below the site to 12 above for the first block with a sturdy top face
 (`isFaceSturdy` up, not a shelf) and two free blocks over it (air or a
-shelf), and stands the shelf on it; a shelf already there is reused and only
-re-owned. Called after every ledger build: `GateBuilder.build` after the
+shelf), and stands the shelf on it. Since 0.46.2 the furnishing occupies two
+vertical cells (`half=lower|upper`, horizontal `facing`); only the lower half
+has the `Sect` block entity. Both halves open the same hall through the lower
+root, with the server's existing range and membership checks. Breaking either
+half removes its partner and survival yields one shelf item; creative yields
+none. An orphan upper half is cleaned up instead of becoming a second owner.
+Legacy one-cell shelves keep the lower root's sect ownership and are repaired
+on server ticks, interaction or the placement path when upper space is free.
+If upper space is blocked, the legacy root and its ownership remain intact.
+Blocked new sites are skipped
+rather than overwriting other blocks. Called after every ledger build:
+`GateBuilder.build` after the
 gate record and before `markGateRealized`, and `GateRealizer` before it
 releases its chunk tickets; an exception is logged and never fails the
 build. `world sect <id> shelves` surveys the sites (`ScriptureShelves.survey`),
-`shelves place` places them again for compounds built before 0.42.0.
+`shelves place` places them again for old compounds and repairs legacy shelves.
+The custom furnishing is a 1.72-block-high reading stand with an open book,
+scrolls, jade slips and open wooden feet; it does not reuse the vanilla
+bookshelf model or texture. All models, blockstates and the atlas come from
+`python3 tools/gen_scripture_shelf_model.py`; `--check` detects stale outputs.
+`/usr/bin/python3 tools/validate_scripture_shelf.py` checks the eight half/facing
+states, model bounds, custom resources and lower-only one-item loot; both are
+release-gate steps. Runtime break/repair and saved sect ownership still need
+separate game evidence.
+Optional offline previews use
+`.venv-preview/bin/python tools/gen_scripture_shelf_model.py --preview`.
+
+```mcfunction
+/myvillage world sects
+/myvillage world sect <id> shelves
+/myvillage world sect <id> shelves place
+/give @s myvillage:scripture_shelf
+```
+
+The survey reports lower-root coordinates. A hand-placed stand has no sect
+owner and cannot lend manuals. The repair command requires a built ledger
+compound and touches only that compound's planned shelf columns; a hand-placed
+stand elsewhere cannot acquire a sect owner through this command.
 
 **List** (`PlayerAffairs.borrowable`; empty without a living sect): a
 heritage sect lends its chain (`heritages.json`), outer the first technique,
@@ -467,9 +501,11 @@ button is not clicked). Slice 1's script passed 20/20 again on the same code.
 `ScriptureHallListTest`, `CombatPayloadTest` (protocol `14`),
 `tools/tests/test_world_sim_scripture_evidence.py`.
 
-**Open (owner).** The borrow cost (free now); the shelf's model (a
-bookshelf-textured cube); whether one copy per technique is enough (a lost
-manual can only be replaced by an admin).
+**Open (owner).** The borrow cost (free now); the new 0.46.2 stand's in-game
+appearance, interaction with either half, break/repair and reload behavior;
+whether one copy per technique is enough (a lost manual can only be replaced
+by an admin). Direction approval and an offline preview do not constitute
+physical-client acceptance; these surfaces remain `not_verified`.
 
 ## Sect tasks and apprenticeship (0.43.0)
 
@@ -876,4 +912,5 @@ real P4 (compounds placed at ledger gates by worldgen; assessed above).
 - Briefs: `docs/player-sect-entry-brief.md`, `docs/sect-entry-slice1-tasks.md`, `docs/sect-entry-slice2-tasks.md`, `docs/sect-entry-slice3-tasks.md`, `docs/sect-entry-slice4-tasks.md`
 - Manuals and study: [41_technique_system.md](41_technique_system.md) ("Manuals and study")
 - [humanoid-npc-runtime](../../openspec/specs/humanoid-npc-runtime/spec.md), [sect-compound-realization](../../openspec/specs/sect-compound-realization/spec.md), [sect-worldgen-structure](../../openspec/specs/sect-worldgen-structure/spec.md)
+- Furnishing resources and acceptance: [resource-export](../../openspec/specs/resource-export/spec.md), [validation](../../openspec/specs/validation/spec.md)
 - Knowledge-base index: [INDEX.md](INDEX.md)

@@ -4,7 +4,7 @@
 
 Define the synced datapack registries, codecs, paths, and minimal shipped data
 for cultivation realms, spiritual elements, and techniques.
-See also: [Spiritual Power and Sword Qi](../../../docs/ai-kb/45_spiritual_power_sword_qi.md).
+See also: [Spiritual Power and Sword Qi](../../../docs/ai-kb/45_spiritual_power_sword_qi.md), [Technique System and Study](../../../docs/ai-kb/41_technique_system.md).
 
 ## Requirements
 ### Requirement: Cultivation definitions are loaded from three datapack registries
@@ -238,3 +238,31 @@ Realm stages SHALL decode non-negative `spiritual_power_cap` values. The generat
 #### Scenario: Invalid stage capacity
 - **WHEN** a stage declares a negative power cap
 - **THEN** definition loading or validation SHALL reject it with a controlled diagnostic
+
+### Requirement: Generated beginner manuals keep an affinity-paced short study
+Generated grade-one technique `study` blocks SHALL come from `study_by_grade`
+in `tools/technique_catalogue/rules.json`, with 160 required points, no gates
+and no gate stability cost. At default affinity 10 and 20 TPS without an
+element match, the existing preparation and settlement schedule SHALL complete
+a fresh manual in approximately 10 seconds including preparation. Higher
+grades, element matching, affinity-based gain and the omitted-`study` codec
+fallback SHALL remain unchanged. This retune SHALL NOT change ordinary
+cultivation gain or generate a new manual item per technique.
+
+#### Scenario: A fresh beginner manual is studied at default affinity
+- **WHEN** an eligible affinity-10 player starts a fresh grade-one manual
+  without an element match
+- **THEN** 40 preparation ticks and sixteen ten-tick gain settlements SHALL
+  satisfy the study threshold
+- **AND** the existing service-owned completion path SHALL learn the technique
+  and consume the manual
+
+#### Scenario: A beginner manual was partly read before the retune
+- **WHEN** an eligible player resumes an old manual whose stored comprehension
+  already meets the new threshold
+- **THEN** the next eligible study settlement SHALL complete the manual
+- **AND** no save migration SHALL reset its comprehension or alter other books
+
+#### Scenario: Spiritual affinity is zero
+- **WHEN** a player with zero affinity studies a beginner manual below its cap
+- **THEN** the shorter threshold SHALL NOT bypass the existing zero-gain rule

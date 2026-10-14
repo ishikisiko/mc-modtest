@@ -42,8 +42,9 @@ unchanged. Invalid startup power rules fail loading; invalid reloads retain the
 last valid rules, and valid reloads clamp and restart the delay.
 
 `QiBarLayer` reads only the existing profile snapshot and synchronized realm
-registry. It shows current/capacity above the hotbar in cultivation combat mode
-or briefly after a balance change, with a charge indicator and refusal flash.
+registry. Since 0.46.2 it shows a jade seal, current/capacity and power bar in
+the upper-left corner in cultivation combat mode or briefly after a balance
+change, with a gold charge indicator and refusal flash.
 `QiBarLayout` contains the separately tested screen arithmetic.
 
 ## Learned sword skill
@@ -68,6 +69,9 @@ ordinary scripture and NPC interactions retain their existing path. Presentation
 uses server state and `ClientCombatClock`, never a client damage calculation.
 Protocol 17 adds the clientbound skill phases. `SwordQiWaveRenderer` draws a
 crescent mesh between received positions without extrapolating through a wall.
+Since 0.46.2 its thicker body and brighter leading edge improve visibility;
+the mesh stays inside the received authoritative wave bounds. This changes
+presentation only, not damage, collision, charge cost, speed or range.
 Charge uses enchant particles and the HUD; release reuses the existing diagonal
 first/third-person attack clip. Direction (yaw and pitch) is frozen at release.
 The full swept envelope is conservative near oblique walls; an edge obstruction
@@ -91,6 +95,8 @@ The manual command is an administrator fixture. Normal play borrows the public
 manual from the sect scripture shelf, studies it to completion, equips a
 sword-family weapon, enters cultivation combat mode, then holds and releases
 use (default right mouse). Holding to full charge releases automatically.
+Grade-one study now takes about 10 seconds including preparation at default
+affinity and 20 TPS; see [Study numbers](41_technique_system.md#study-numbers).
 
 ```bash
 python3 -m tools.combat_capture sword-qi --journey --language en_us --out out/preview/sword_qi_journey
@@ -133,6 +139,10 @@ cleanup particles contaminated the image.
 
 The README acceptance ledger is the user-facing result. Owner look, sound,
 feel, FPS and unobserved multiplayer/lifecycle behavior remain `not_verified`.
+The older developer observations above describe 0.46.0. The 0.46.2 furnishing,
+HUD and crescent polish requires a separate owner review; building the jar
+does not establish their in-game appearance. No game is launched as part of
+the owner's build-only request.
 
 ## See also
 

@@ -287,6 +287,8 @@ STEPS: tuple[Step, ...] = (
     generator_check("gen_lingxiao_spear_model"),
     generator_check("gen_xuantie_gauntlet_model"),
     generator_check("gen_meridian_figure"),
+    generator_check("gen_scripture_shelf_model"),
+    tool("validate_scripture_shelf"),
     beastgen_check("demon_wolf"),
     npcgen_check("cultivator"),
     npcgen_check("cultivator_f_novice"),

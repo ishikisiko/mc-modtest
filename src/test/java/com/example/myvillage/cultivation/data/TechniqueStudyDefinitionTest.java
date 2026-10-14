@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 /** The optional {@code study} block of a technique (docs/technique-manual-brief.md section 4). */
 class TechniqueStudyDefinitionTest {
     private static final Map<Integer, TechniqueStudy> STUDY_BY_GRADE = Map.of(
-            1, new TechniqueStudy(4000, 0, 0),
+            1, new TechniqueStudy(160, 0, 0),
             2, new TechniqueStudy(12000, 1, 50),
             3, new TechniqueStudy(36000, 2, 100),
             4, new TechniqueStudy(96000, 3, 150));

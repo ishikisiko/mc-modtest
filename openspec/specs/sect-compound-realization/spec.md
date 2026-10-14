@@ -4,6 +4,8 @@
 
 This spec captures the live-world realization of a sect compound: the `/myvillage sect` command that builds the planned terraced compound against terrain, solid retaining bands and grand stairs, the walkable axis corridor and gate passage, guarded template and feature placement, runtime palette resolution through the mod-fallback resolver, and a validator that enforces the compound invariants.
 
+See also: [Player Sect Entry and Scripture Hall](../../../docs/ai-kb/43_player_sect_entry.md), [resource-export](../resource-export/spec.md).
+
 ## Requirements
 
 ### Requirement: A command builds a sect compound in the live world against terrain
@@ -121,3 +123,46 @@ The sect compound realizer SHALL be reusable by the worldgen path: given a terra
 - **WHEN** the worldgen path supplies a terrace profile and its derived mountain
 - **THEN** the compound realizer SHALL place the same volumes, stairs, corridor, and feature it would for `/myvillage sect [seed]`, sat on the derived terrain
 - **AND** the on-the-spot `/myvillage sect [seed]` build SHALL remain unchanged when no derived terrain is supplied.
+
+### Requirement: Ledger compound scripture stands have one authoritative root
+Scripture furnishings placed for a built ledger compound SHALL occupy lower
+and upper vertical block cells with matching horizontal facing. Only the lower
+cell SHALL create and persist the owning `Sect` block entity. Interaction with
+either cell SHALL resolve to that root before existing server-owned distance,
+sect and membership checks; an upper half SHALL NOT create another owner or
+client-authored borrow authority. Anonymous compounds and hand-placed stands
+SHALL NOT gain a ledger sect owner from placement alone.
+
+#### Scenario: A member uses the upper half
+- **WHEN** a member interacts with a valid stand's upper half
+- **THEN** the server SHALL open the same hall and borrow path as the lower root
+- **AND** it SHALL still apply its existing eligibility and range checks
+
+### Requirement: Scripture furnishing removal and repair preserve ownership safely
+Breaking either half SHALL remove its partner, yield at most one shelf item
+in survival and none in creative, and never leave an independently usable
+orphan. Repair placement SHALL require free or compatible shelf space for both
+cells, preserve or refresh the lower root's owning sect, and skip blocked
+new sites without overwriting unrelated blocks. A legacy root whose upper
+space is blocked SHALL retain its existing ownership until repair is possible;
+it SHALL NOT be discarded as an orphan upper half. Loaded roots SHALL attempt
+bounded server-side upper repair without creating another block entity or
+rewriting the world ledger. Existing one-cell roots SHALL
+remain repairable through `/myvillage world sect <id> shelves place` for a built
+ledger compound. The survey SHALL report root coordinates rather than count
+the upper half as another stand.
+
+#### Scenario: A legacy one-cell shelf is repaired
+- **WHEN** repair runs for a built ledger compound with an existing lower root
+  and free upper space
+- **THEN** it SHALL install the matching upper half and retain the sect owner
+- **AND** a second repair SHALL reuse the same stand instead of duplicating it
+
+#### Scenario: The upper space is obstructed
+- **WHEN** a planned stand's upper cell holds an unrelated nonreplaceable block
+- **THEN** placement SHALL skip that site and leave the obstruction intact
+
+#### Scenario: A survival player breaks the upper half
+- **WHEN** a complete stand's upper half is broken
+- **THEN** both halves SHALL disappear with exactly one shelf-item drop
+- **AND** the upper half SHALL never drop a second item or retain an owner

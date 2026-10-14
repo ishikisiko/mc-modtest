@@ -146,6 +146,25 @@ class SelectionTest(unittest.TestCase):
             self.assertEqual((gate.PY, "-m", "tools.beastgen", "build", beast, "--check"), step.argv)
             self.assertLess(list(steps).index(step.name), list(steps).index(gate.BUILD))
 
+    def test_scripture_shelf_resource_check_runs_before_build_without_preview_dependencies(self):
+        selected, notes = gate.select_steps(gate.STEPS, ["gen-scripture-shelf-model-check"])
+        self.assertEqual(notes, [])
+        self.assertEqual(len(selected), 1)
+        step = selected[0]
+        self.assertEqual(step.argv, (gate.PY, "tools/gen_scripture_shelf_model.py", "--check"))
+        self.assertIs(step.python, gate.suite_python)
+        self.assertIsNone(step.requires)
+        self.assertLess(list(gate.STEPS).index(step),
+                        next(i for i, candidate in enumerate(gate.STEPS) if candidate.name == gate.BUILD))
+
+    def test_scripture_shelf_semantic_validator_is_a_separate_cheap_gate(self):
+        selected, notes = gate.select_steps(gate.STEPS, ["validate-scripture-shelf"])
+        self.assertEqual(notes, [])
+        self.assertEqual([step.argv for step in selected],
+                         [(gate.PY, "tools/validate_scripture_shelf.py")])
+        self.assertLess(list(gate.STEPS).index(selected[0]),
+                        next(i for i, step in enumerate(gate.STEPS) if step.name == gate.BUILD))
+
 
 class RunTest(TempRoot):
     def test_all_passing_exits_zero(self):

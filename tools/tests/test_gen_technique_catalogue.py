@@ -85,11 +85,11 @@ class GenerationTest(Fixture):
         self.assertEqual(core["effects"], {"core": {"meditation_route": "xiaozhoutian"}})
         self.assertEqual(core["requirements"], {"minimum_realm": "myvillage:qi_refining",
                                                 "minimum_stage": "myvillage:qi_refining_1"})
-        self.assertEqual(core["study"], {"points": 4000, "gates": 0, "gate_stability_cost": 0})
+        self.assertEqual(core["study"], {"points": 160, "gates": 0, "gate_stability_cost": 0})
 
     def test_every_generated_technique_carries_the_study_block_of_its_grade(self) -> None:
         self.write()
-        expected = {1: (4000, 0, 0), 2: (12000, 1, 50), 3: (36000, 2, 100), 4: (96000, 3, 150)}
+        expected = {1: (160, 0, 0), 2: (12000, 1, 50), 3: (36000, 2, 100), 4: (96000, 3, 150)}
         files = sorted((self.root / generator.TECHNIQUE_REL).glob("*.json"))
         self.assertGreater(len(files), 100)
         for path in files:

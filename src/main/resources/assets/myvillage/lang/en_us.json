@@ -1083,5 +1083,7 @@
   "cultivation.technique.myvillage.taxue_wuhen": "踏雪无痕",
   "cultivation.technique.myvillage.jianqi_jue": "剑气诀",
   "hud.myvillage.qi": "Qi %s / %s",
-  "hud.myvillage.qi.charging": "Gathering qi…"
+  "hud.myvillage.qi.charging": "Charging",
+  "hud.myvillage.qi.label": "Qi",
+  "hud.myvillage.qi.seal": "Qi"
 }

@@ -8,6 +8,7 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -134,7 +135,9 @@ public final class ModBlocks {
         return BlockBehaviour.Properties.of()
                 .mapColor(MapColor.WOOD)
                 .strength(1.5F)
-                .sound(SoundType.WOOD);
+                .sound(SoundType.WOOD)
+                .noOcclusion()
+                .pushReaction(PushReaction.BLOCK);
     }
 
     private static BlockBehaviour.Properties spiritStoneOreProperties() {

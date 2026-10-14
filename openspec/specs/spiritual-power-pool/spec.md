@@ -33,3 +33,17 @@ Existing melee attacks and dodge SHALL NOT spend spiritual power or acquire a ne
 #### Scenario: A learned dodge is used at zero power
 - **WHEN** all existing dodge eligibility checks pass and power is zero
 - **THEN** dodge SHALL remain usable with its existing timing and cooldown rules
+
+### Requirement: The spiritual-power HUD is a bounded read-only corner overlay
+The client SHALL present current power, capacity and a jade-seal power bar in
+the upper-left corner, with a separate charging indicator and refusal feedback.
+The HUD SHALL read existing synchronized profile, realm definitions and action
+state only; layout or charge feedback SHALL NOT mutate power, calculate a new
+authoritative cap or decide release eligibility. The overlay SHALL fit GUI
+480×270, 427×240 and 320×240 in English and Chinese.
+
+#### Scenario: The player charges with the small Chinese GUI
+- **WHEN** a valid synchronized action is charging at GUI 320×240 in Chinese
+- **THEN** label, seal, current/capacity and charging feedback SHALL remain
+  within the upper-left overlay bounds without covering the hotbar
+- **AND** all displayed power SHALL still come from synchronized server state

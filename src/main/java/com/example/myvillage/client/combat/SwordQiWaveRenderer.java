@@ -12,7 +12,8 @@ import java.util.Map;
 
 /** A luminous crescent between received server positions; never extrapolates through a wall. */
 final class SwordQiWaveRenderer {
-    private record Wave(Vec3 previous, Vec3 current, Vec3 direction, double width, double updated) { }
+    private record Wave(Vec3 previous, Vec3 current, Vec3 direction, long revision,
+                        java.util.List<SwordQiWaveShape.Quad> mesh, double updated) { }
     private static final Map<Integer, Wave> WAVES = new HashMap<>();
     private SwordQiWaveRenderer() { }
 
@@ -20,9 +21,15 @@ final class SwordQiWaveRenderer {
         var skill = CombatStyles.bundled().skill(payload.skillId()).orElse(null);
         if (skill == null) return;
         var prior = WAVES.get(payload.attackerEntityId());
-        Vec3 previous = prior == null ? payload.origin() : prior.current();
+        double now = ClientCombatClock.ticks();
+        if (prior != null && payload.revision() < prior.revision()) return;
+        Vec3 previous = prior != null && SwordQiWaveShape.continuous(prior.revision(), payload.revision(), prior.updated(), now)
+                ? prior.current() : payload.origin();
+        double scale = skill.scale(payload.chargeLevel());
+        var mesh = prior != null && prior.revision() == payload.revision() ? prior.mesh()
+                : SwordQiWaveShape.mesh(skill.halfWidth() * scale, skill.halfHeight() * scale);
         WAVES.put(payload.attackerEntityId(), new Wave(previous, payload.origin(), payload.direction().normalize(),
-                skill.halfWidth() * skill.scale(payload.chargeLevel()), ClientCombatClock.ticks()));
+                payload.revision(), mesh, now));
     }
 
     static void stop(int entityId) { WAVES.remove(entityId); }
@@ -41,32 +48,23 @@ final class SwordQiWaveRenderer {
             double age = Math.max(0, now - wave.updated());
             if (age > 4 || mc.level.getEntity(entry.getKey()) == null) return true;
             float alpha = (float) Math.clamp((4 - age) / 3, 0, 1);
-            Vec3 center = wave.previous().lerp(wave.current(), Math.min(1, age)).subtract(camera);
-            Vec3 right = wave.direction().cross(new Vec3(0, 1, 0));
-            if (right.lengthSqr() < 1.0e-8) right = new Vec3(1, 0, 0);
-            right = right.normalize();
-            for (int i = 0; i < 32; i++) {
-                double a = i / 16.0 - 1;
-                double b = (i + 1) / 16.0 - 1;
-                Vec3 frontA = center.add(right.scale(a * wave.width())).subtract(wave.direction().scale(a * a * 0.35));
-                Vec3 frontB = center.add(right.scale(b * wave.width())).subtract(wave.direction().scale(b * b * 0.35));
-                Vec3 innerA = frontA.subtract(wave.direction().scale(0.42 * (1 - a * a)));
-                Vec3 innerB = frontB.subtract(wave.direction().scale(0.42 * (1 - b * b)));
-                quad(vertices, innerA, frontA, frontB, innerB, alpha);
+            Vec3 center = wave.previous().lerp(wave.current(), SwordQiWaveShape.interpolationFraction(age)).subtract(camera);
+            var frame = SwordQiWaveShape.frame(wave.direction().x, wave.direction().y, wave.direction().z);
+            for (var quad : wave.mesh()) {
+                vertex(vertices, quad.a(), center, frame, alpha);
+                vertex(vertices, quad.b(), center, frame, alpha);
+                vertex(vertices, quad.c(), center, frame, alpha);
+                vertex(vertices, quad.d(), center, frame, alpha);
             }
             return false;
         });
         buffers.endBatch(CombatRenderTypes.WEAPON_TRAIL_TRANSLUCENT);
     }
 
-    private static void quad(VertexConsumer out, Vec3 innerA, Vec3 frontA, Vec3 frontB, Vec3 innerB, float alpha) {
-        vertex(out, innerA, 110, 203, 232, 0);
-        vertex(out, frontA, 220, 254, 255, Math.round(230 * alpha));
-        vertex(out, frontB, 220, 254, 255, Math.round(230 * alpha));
-        vertex(out, innerB, 110, 203, 232, 0);
-    }
-
-    private static void vertex(VertexConsumer out, Vec3 p, int r, int g, int b, int a) {
-        out.addVertex((float) p.x, (float) p.y, (float) p.z).setColor(r, g, b, a);
+    private static void vertex(VertexConsumer out, SwordQiWaveShape.Vertex v, Vec3 center,
+                               SwordQiWaveShape.Frame frame, float alpha) {
+        var p = frame.orient(v);
+        out.addVertex((float) (center.x + p.x()), (float) (center.y + p.y()), (float) (center.z + p.z()))
+                .setColor(v.red(), v.green(), v.blue(), Math.round(v.alpha() * alpha));
     }
 }

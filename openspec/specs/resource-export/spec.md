@@ -3,7 +3,7 @@
 ## Purpose
 
 This spec captures the current resource export baseline for structure resources that are expected to grow into a broader town-generation pipeline. It is temporary and mutable; proposed changes to output paths, namespaces, target Minecraft version, or generated resource types should be discussed with the project owner first.
-See also: [Spiritual Power and Sword Qi](../../../docs/ai-kb/45_spiritual_power_sword_qi.md).
+See also: [Spiritual Power and Sword Qi](../../../docs/ai-kb/45_spiritual_power_sword_qi.md), [Scripture Hall Furnishing](../../../docs/ai-kb/43_player_sect_entry.md).
 
 ## Requirements
 ### Requirement: NBT export writes vanilla structure templates
@@ -153,6 +153,22 @@ Before a staged manual acceptance pass, contributors SHALL prepare both the buil
 - **THEN** the repository SHOULD have a current mod jar build path documented
 - **AND** README and AGENTS guidance SHALL identify the available debug commands
 - **AND** relevant specs SHALL state that command documentation is part of acceptance prep, not an optional afterthought.
+
+### Requirement: Scripture stand resources come from their dedicated generator
+The scripture stand SHALL use its own model and texture, not the vanilla
+bookshelf model or texture. `tools/gen_scripture_shelf_model.py` SHALL own the
+`scripture_shelf` blockstate, lower and upper block models, item model and
+texture atlas under `assets/myvillage/`. Its `--check` mode SHALL detect stale
+generated outputs, and the practical jar SHALL package both halves and all
+referenced assets. README SHALL document generation/check and the `/give` and
+built-compound `shelves [place]` acquisition/repair commands before owner review.
+
+#### Scenario: A stand artifact is handed off
+- **WHEN** a fresh jar is prepared for scripture furnishing acceptance
+- **THEN** it SHALL contain four horizontal facing variants for each half,
+  both half models, the item model and the custom atlas
+- **AND** documented repair SHALL address old one-cell roots without claiming
+  that a hand-placed stand can lend from a ledger sect
 
 ### Requirement: Worldgen resources are not currently exported
 The current export pipeline SHALL NOT claim support for worldgen, jigsaw pools, structure sets, biome placement, entities, villagers, loot tables, or complex block entity NBT.

@@ -47,3 +47,16 @@ The wave SHALL advance over server ticks from a server-chosen origin and directi
 #### Scenario: A target intersects several wave samples
 - **WHEN** one launch intersects the same target on several ticks or samples
 - **THEN** that target SHALL receive at most one successful damage application
+
+### Requirement: A brighter thicker crescent remains presentation only
+The client wave SHALL show a thick crescent body and bright leading edge to
+improve visibility. Its vertices SHALL remain within the authoritative wave
+width and height received for that action, and movement SHALL follow received
+positions without extrapolation through a blocking wall. Presentation polish
+SHALL NOT change server hit geometry, range, speed, damage, target limit,
+charge timing or spiritual-power cost.
+
+#### Scenario: A crescent approaches a wall at an oblique angle
+- **WHEN** the server stops a released wave at blocking geometry
+- **THEN** the brighter presentation SHALL stop at the authoritative position
+- **AND** a target behind the wall SHALL remain unharmed by that release

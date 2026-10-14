@@ -632,6 +632,25 @@ Acceptance SHALL include focused pure rules and data tests, affected cultivation
 - **WHEN** an acceptance server reaches readiness without a client action
 - **THEN** the ledger SHALL record startup success and leave unobserved gameplay checks `not_verified`
 
+### Requirement: Cultivation polish separates build evidence from owner acceptance
+The scripture stand, corner power HUD, beginner-study retune and brighter wave SHALL
+include the stand generator `--check`,
+`tools/validate_scripture_shelf.py` (eight half/facing states, own assets,
+two-cell geometry and lower-only one-item loot), focused geometry/layout and study
+regression checks, affected validators, a practical jar build and resource
+inspection. The manual ledger SHALL separately cover both stand halves,
+single-item removal and old-world repair; bilingual corner HUD at GUI
+480×270, 427×240 and 320×240; fresh and resumed beginner study; and first-/third-
+person wave visibility with unchanged wall blocking and costs. Owner model,
+HUD, sound, feel, physical-client FPS, reload and multiplayer verdicts SHALL
+remain `not_verified` until observed. A build-only request that defers game
+startup SHALL NOT be treated as authorization to launch a client for review.
+
+#### Scenario: The owner asks for a jar but defers entering the game
+- **WHEN** the build and static resource checks pass without a game session
+- **THEN** the handoff SHALL identify the artifact and runnable manual checks
+- **AND** it SHALL leave every unobserved physical-client verdict `not_verified`
+
 ### Requirement: Remote test evidence identifies provenance and measured phases
 Remote test evidence SHALL record the tested commit, source archive hash, explicit dependency hashes, executor identity, requested resources, observed environment, cache context, UTC timing boundaries, per-phase durations and final exit/timeout/cleanup status. Setup, upload, execution, download and termination SHALL remain distinguishable where observable. Failed attempts SHALL be retained without automatic retries. Local contract tests, real cloud smoke and owner gameplay acceptance SHALL be separate verdicts.
 

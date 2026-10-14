@@ -252,10 +252,19 @@ gate_stability_cost ≥ 0)`, optional in JSON with the default `{4000, 0, 0}`
 
 | Grade | `points` | `gates` | `gate_stability_cost` | Gates at |
 |---|---:|---:|---:|---|
-| 黄 | 4000 | 0 | 0 | none |
+| 黄 | 160 | 0 | 0 | none |
 | 玄 | 12000 | 1 | 50 | 6000 |
 | 地 | 36000 | 2 | 100 | 12000, 24000 |
 | 天 | 96000 | 3 | 150 | 24000, 48000, 72000 |
+
+Since 0.46.2, generated grade-one manuals take approximately 10 seconds at
+20 TPS with the default affinity 10 and no element match: 40 preparation ticks
+plus 16 ten-tick settlements. Element matches and higher affinity remain
+faster; affinity zero still gains no points. Higher grades and the omitted
+JSON `study` fallback remain unchanged. Existing books keep their comprehension;
+one already at or above the new threshold completes through the next eligible
+study settlement, not a save migration. This changes manual study, not ordinary
+core-technique cultivation gain.
 
 ### Starting
 
@@ -324,7 +333,7 @@ At affinity 10 and 20 TPS, without the 40-tick preparation and gate stops:
 
 | Grade | Batches | Real time | With an element match (11 per batch) | Stability for all gates |
 |---|---:|---:|---:|---:|
-| 黄 | 400 | 3 min 20 s | 364 batches, about 3 min 2 s | 0 |
+| 黄 | 16 | 8 s | 15 batches, 7.5 s | 0 |
 | 玄 | 1200 | 10 min | 1091, about 9 min 6 s | 50 |
 | 地 | 3600 | 30 min | 3273, about 27 min 17 s | 200 |
 | 天 | 9600 | 80 min | 8728, about 72 min 44 s | 450 |
