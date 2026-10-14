@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.WeakHashMap;
+import java.util.function.ToDoubleFunction;
 import net.minecraft.core.Holder;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -189,7 +190,7 @@ public final class StatsRuntime {
         DamageMath.Mitigation mitigation = null;
         if (type.isPresent()) {
             double penetration = source.getEntity() instanceof LivingEntity attacker
-                    ? value(attacker, ModStatsAttributes.RESISTANCE_PENETRATION) : 0;
+                    ? selectedPenetration(type.get(), attribute -> value(attacker, attribute)) : 0;
             mitigation = DamageMath.mitigate(Math.max(0, postVanilla),
                     value(target, resistance(type.get())), penetration, StatsRules.bundled());
             event.setNewDamage((float) mitigation.damage());
@@ -253,6 +254,21 @@ public final class StatsRuntime {
             case FIRE -> ModStatsAttributes.FIRE_RESISTANCE;
             case EARTH -> ModStatsAttributes.EARTH_RESISTANCE;
         };
+    }
+
+    public static Holder<Attribute> penetration(DamageType type) {
+        return switch (type) {
+            case PHYSICAL -> ModStatsAttributes.PHYSICAL_RESISTANCE_PENETRATION;
+            case METAL -> ModStatsAttributes.METAL_RESISTANCE_PENETRATION;
+            case WOOD -> ModStatsAttributes.WOOD_RESISTANCE_PENETRATION;
+            case WATER -> ModStatsAttributes.WATER_RESISTANCE_PENETRATION;
+            case FIRE -> ModStatsAttributes.FIRE_RESISTANCE_PENETRATION;
+            case EARTH -> ModStatsAttributes.EARTH_RESISTANCE_PENETRATION;
+        };
+    }
+
+    static double selectedPenetration(DamageType type, ToDoubleFunction<Holder<Attribute>> reader) {
+        return reader.applyAsDouble(penetration(type));
     }
 
     public static double value(LivingEntity entity, Holder<Attribute> attribute) {

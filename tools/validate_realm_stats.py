@@ -640,6 +640,162 @@ def check_armor_contract(root: Path, jar: Path | None = None) -> list[str]:
     return errors
 
 
+
+PENETRATION_IDS = {'PHYSICAL': 'resistance_penetration', **{
+    element.upper(): f'{element}_resistance_penetration' for element in ('metal', 'wood', 'water', 'fire', 'earth')}}
+
+
+def check_penetration_sources(attributes: str, runtime: str) -> list[str]:
+    """Small structural checks reuse the existing source reader; numerical behavior stays in Java tests."""
+    errors = []
+    raw = java_text(attributes)
+    registrations = re.findall(r'DeferredHolder\s*<\s*Attribute\s*,\s*Attribute\s*>\s+([\w$]+)\s*=\s*([\w$]+)\s*\(\s*"([^"]+)"\s*\)\s*;', raw)
+    registrations = [(field, factory, rid) for field, factory, rid in registrations
+                     if rid == 'resistance_penetration' or rid.endswith('_resistance_penetration')]
+    by_id = {rid: field for field, _factory, rid in registrations}
+    if len(registrations) != 6 or set(by_id) != set(PENETRATION_IDS.values()) or len(set(by_id.values())) != 6:
+        errors.append('PENETRATION_IDS:six independent IDs required; legacy resistance_penetration remains physical-only')
+    all_match = re.search(r'\bALL\s*=\s*List\s*\.\s*of\s*\(', raw)
+    members = java_args(raw[all_match.end():closing(java_text(attributes, mask_strings=True), all_match.end() - 1)]) if all_match else []
+    if any(members.count(field) != 1 for field in by_id.values()) or not all_match:
+        errors.append('PENETRATION_ALL:every penetration holder must appear exactly once in synchronized diagnostics/attachment list')
+    methods = {name: (params, body) for name, params, body, _at in java_methods(attributes)}
+    factories = {factory for _field, factory, _rid in registrations}
+    factory = methods.get(next(iter(factories))) if len(factories) == 1 else None
+    leaf = None
+    if factory and len(factory[0]) == 1:
+        id_name = factory[0][0][1]
+        registry = re.search(r'\b([\w$]+)\s*\.\s*register\s*\(', java_text(factory[1], mask_strings=True))
+        registered = calls(factory[1], registry.group(1), 'register') if registry else []
+        supplier = re.fullmatch(r'\(\)->([\w$]+)\(' + re.escape(id_name) + r'\)', compact(registered[0][1])) if len(registered) == 1 and len(registered[0]) == 2 and compact(registered[0][0]) == id_name else None
+        leaf = methods.get(supplier.group(1)) if supplier else None
+    if leaf is None or len(leaf[0]) != 1:
+        errors.append('PENETRATION_FACTORY:all six independent registrations must use one data-bounded factory without alias copying')
+    else:
+        leaf_body = leaf[1]
+        constructor = re.search(r'\bnew\s+RangedAttribute\s*\(', java_text(leaf_body, mask_strings=True))
+        args = java_args(leaf_body[constructor.end():closing(java_text(leaf_body, mask_strings=True), constructor.end() - 1)]) if constructor else []
+        limits = re.search(r'StatsRules\s*\.\s*Limits\s+([\w$]+)\s*=\s*StatsRules\s*\.\s*bundled\s*\(\s*\)\s*\.\s*limits\s*\(\s*\)', raw)
+        numeric_zero = lambda value: compact(value) in {'0', '0.0', '0D', '0d', '0.0D', '0.0d'}
+        if len(args) != 4 or not numeric_zero(args[1]) or not numeric_zero(args[2]) or not limits or compact(args[3]) != f'{limits.group(1)}.maxPenetration()':
+            errors.append('PENETRATION_BOUNDS:independent defaults/minimum are zero and maximum must use bundled limits.maxPenetration')
+        if len(args) != 4 or compact(args[0]) != f'"attribute.myvillage."+{leaf[0][0][1]}':
+            errors.append('PENETRATION_TRANSLATION_FLOW:registered labels must use the independent registry ID')
+        local = re.search(r'\bRangedAttribute\s+([\w$]+)\s*=\s*new\s+RangedAttribute', java_text(leaf_body, mask_strings=True))
+        if local:
+            sync = calls(leaf_body, local.group(1), 'setSyncable')
+            returns = re.findall(r'\breturn\s+([^;]+);', java_text(leaf_body, mask_strings=True))
+            synchronized = sync == [['true']] and bool(returns) and compact(returns[-1]) == local.group(1)
+        else:
+            synchronized = bool(re.search(r'\.\s*setSyncable\s*\(\s*true\s*\)', java_text(leaf_body, mask_strings=True)))
+        if not synchronized:
+            errors.append('PENETRATION_SYNC:the registered bounded attribute must be synchronized')
+    attach = methods.get('attach')
+    attached = re.search(r'for\s*\(\s*var\s+([\w$]+)\s*:\s*ALL\s*\)', java_text(attach[1], mask_strings=True)) if attach else None
+    added = calls(attach[1], attach[0][0][1], 'add') if attach and len(attach[0]) == 1 else []
+    if attached is None or not any(len(args) == 2 and compact(args[1]) == attached.group(1) for args in added):
+        errors.append('PENETRATION_ATTACH:attach every ALL entry rather than a physical-only subset')
+    for source in (attributes, runtime):
+        for _name, _params, body, _at in java_methods(source):
+            code = java_text(body, mask_strings=True)
+            if re.search(r'\b[\w$]*RESISTANCE_PENETRATION\b', code) and re.search(r'\b(?:setBaseValue|addPermanentModifier|addTransientModifier|addOrReplacePermanentModifier)\s*\(', code):
+                errors.append('PENETRATION_COPY:do not migrate or duplicate saved physical penetration into elemental attributes')
+    runtime_methods = {name: (params, body) for name, params, body, _at in java_methods(runtime)}
+    selector = runtime_methods.get('penetration')
+    cases = re.findall(r'\bcase\s+([A-Z_]+)\s*->\s*ModStatsAttributes\s*\.\s*([\w$]+)\s*;', java_text(selector[1], mask_strings=True)) if selector else []
+    expected = {kind: by_id.get(rid) for kind, rid in PENETRATION_IDS.items()}
+    if len(cases) != 6 or dict(cases) != expected or any(value is None for value in expected.values()) or (selector and re.search(r'\bdefault\b', java_text(selector[1], mask_strings=True))):
+        errors.append('PENETRATION_CHANNEL:each classified DamageType must select only its own independent holder; no shared/default fallback')
+    single_read = runtime_methods.get('selectedPenetration')
+    if not single_read or len(single_read[0]) != 2:
+        errors.append('PENETRATION_SINGLE_READ:one holder read per classified hit required')
+    else:
+        damage_type, reader = [name for _kind, name in single_read[0]]
+        body = compact(java_text(single_read[1], mask_strings=True))
+        if body != f'return{reader}.applyAsDouble(penetration({damage_type}));':
+            errors.append('PENETRATION_SINGLE_READ:read only the selected holder once without shared addition or cross-channel reads')
+    pre = runtime_methods.get('beforeDamage')
+    pre_body = pre[1] if pre else ''
+    selected = re.search(r'\bdouble\s+([\w$]+)\s*=\s*([\w$]+)\s*\.\s*getEntity\s*\(\s*\)\s+instanceof\s+LivingEntity\s+([\w$]+)\s*\?\s*selectedPenetration\s*\(', java_text(pre_body, mask_strings=True))
+    typed = re.search(r'Optional\s*<\s*DamageType\s*>\s+([\w$]+)\s*=', java_text(pre_body, mask_strings=True))
+    if not selected or not typed:
+        errors.append('PENETRATION_DAMAGE_FLOW:living attacker must use the classified channel and nonliving sources must use zero')
+    else:
+        start = selected.end() - 1
+        end = closing(java_text(pre_body, mask_strings=True), start)
+        args = java_args(pre_body[start + 1:end])
+        reader = re.fullmatch(r'([\w$]+)->value\(' + re.escape(selected.group(3)) + r',([\w$]+)\)', compact(args[1])) if len(args) == 2 else None
+        if len(args) != 2 or compact(args[0]) != f'{typed.group(1)}.get()' or reader is None or reader.group(1) != reader.group(2) or not re.match(r'\s*:\s*0(?:\.0)?\s*;', pre_body[end + 1:]):
+            errors.append('PENETRATION_DAMAGE_FLOW:one matching attacker holder contributes; do not combine generic or unrelated penetration')
+        mitigation_calls = calls(pre_body, 'DamageMath', 'mitigate')
+        reads = re.findall(r'\bselectedPenetration\s*\(', java_text(pre_body, mask_strings=True))
+        if len(reads) != 1 or len(mitigation_calls) != 1 or len(mitigation_calls[0]) != 4 or compact(mitigation_calls[0][2]) != selected.group(1):
+            errors.append('PENETRATION_DAMAGE_FLOW:apply exactly the selected scalar once, without additions or a substituted value')
+    if re.search(r'\bModStatsAttributes\s*\.\s*RESISTANCE_PENETRATION\b', java_text(runtime, mask_strings=True)):
+        errors.append('PENETRATION_LEGACY_SHARED:the old registry ID is physical-only, never a shared damage scalar')
+    return errors
+
+
+def check_penetration_languages(languages: dict[str, Any]) -> list[str]:
+    errors = []
+    for locale in ('en_us', 'zh_cn'):
+        table = languages.get(locale)
+        for rid in PENETRATION_IDS.values():
+            key = f'attribute.myvillage.{rid}'
+            value = table.get(key) if isinstance(table, dict) else None
+            if not isinstance(value, str) or not value.strip():
+                errors.append(f'PENETRATION_LANG:{locale}:{key}:missing nonempty channel label')
+        physical = table.get('attribute.myvillage.resistance_penetration', '') if isinstance(table, dict) else ''
+        label = 'physical' if locale == 'en_us' else '物理'
+        if not isinstance(physical, str) or label not in physical.lower():
+            errors.append(f'PENETRATION_PHYSICAL_LABEL:{locale}:legacy registry ID must be labeled explicitly physical')
+    return errors
+
+
+def check_penetration_contract(root: Path, jar: Path | None = None) -> list[str]:
+    errors = []
+    paths = [JAVA_ROOT / 'stats/runtime/ModStatsAttributes.java', JAVA_ROOT / 'stats/runtime/StatsRuntime.java']
+    try:
+        attributes, runtime = [(root / path).read_text(encoding='utf-8') for path in paths]
+        errors.extend(check_penetration_sources(attributes, runtime))
+    except (OSError, ValueError) as exc:
+        errors.append(f'PENETRATION_SOURCE:{exc}')
+    languages = {locale: read_json(root, Path(f'src/main/resources/assets/myvillage/lang/{locale}.json'), errors)
+                 for locale in ('en_us', 'zh_cn')}
+    errors.extend(check_penetration_languages(languages))
+    if jar is not None:
+        try:
+            with zipfile.ZipFile(jar) as archive:
+                for locale in ('en_us', 'zh_cn'):
+                    entry = f'assets/myvillage/lang/{locale}.json'
+                    if archive.namelist().count(entry) != 1:
+                        errors.append(f'PENETRATION_JAR:{entry}:must occur exactly once')
+                        continue
+                    packed = json.loads(archive.read(entry), object_pairs_hook=unique_object)
+                    for rid in PENETRATION_IDS.values():
+                        key = f'attribute.myvillage.{rid}'
+                        if not isinstance(packed, dict) or packed.get(key) != languages[locale].get(key):
+                            errors.append(f'PENETRATION_JAR:{entry}:{key}:missing or stale channel label')
+                entry = 'com/example/myvillage/stats/runtime/ModStatsAttributes.class'
+                if entry not in archive.namelist():
+                    errors.append(f'PENETRATION_JAR:{entry}:missing')
+                else:
+                    registry = archive.read(entry)
+                    if not registry.startswith(b'\xca\xfe\xba\xbe') or any(rid.encode() not in registry for rid in PENETRATION_IDS.values()):
+                        errors.append('PENETRATION_JAR:compiled registry is missing independent penetration IDs')
+                entry = 'com/example/myvillage/stats/runtime/StatsRuntime.class'
+                if archive.namelist().count(entry) != 1:
+                    errors.append(f'PENETRATION_JAR:{entry}:must occur exactly once')
+                else:
+                    runtime = archive.read(entry)
+                    required_symbols = ['selectedPenetration', *(kind + '_RESISTANCE_PENETRATION' for kind in PENETRATION_IDS)]
+                    if not runtime.startswith(b'\xca\xfe\xba\xbe') or any(symbol.encode() not in runtime for symbol in required_symbols):
+                        errors.append('PENETRATION_JAR:compiled damage runtime is missing independent typed selection')
+        except (OSError, ValueError, zipfile.BadZipFile) as exc:
+            errors.append(f'PENETRATION_JAR:{jar}:{exc}')
+    return errors
+
+
 def validate(root: Path = ROOT, jar: Path | None = None) -> dict[str, Any]:
     errors: list[str] = []
     rules = read_json(root, DATA / 'stats/rules.json', errors)
@@ -676,6 +832,7 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict[str, Any]:
         errors.append('WILDERNESS_REGION_COVERAGE:no region profiles found')
     errors.extend(check_wilderness(wilderness, rules, region_ids))
     errors.extend(check_armor_contract(root, jar))
+    errors.extend(check_penetration_contract(root, jar))
     return {'schema_version': 1, 'status': 'fail' if errors else 'pass', 'errors': errors,
             'armor_jar': str(jar) if jar is not None else 'not_checked'}
 
@@ -684,7 +841,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--root', type=Path, default=ROOT)
     parser.add_argument('--report', type=Path, default=Path('reports/realm_stats_validation.json'))
-    parser.add_argument('--jar', type=Path, help='also inspect packaged armor hook resources and classes in this jar')
+    parser.add_argument('--jar', type=Path, help='also inspect packaged armor hooks and typed penetration registry/lang resources in this jar')
     args = parser.parse_args()
     root = args.root.resolve()
     jar = args.jar if args.jar is None or args.jar.is_absolute() else root / args.jar

@@ -63,6 +63,28 @@ activation policy connects them. The ledger's abstract duel power is also
 unchanged: physical avatar attributes are derived from the person's realm,
 while simulated off-screen outcomes still use `world_sim/realms.json`.
 
+### Independent penetration (0.48.2)
+
+`StatsRuntime.penetration(DamageType)` resolves exactly one of the synchronized
+penetration attributes. Metal, wood, water, fire and earth each use
+`<element>_resistance_penetration`; physical retains the old
+`resistance_penetration` registry ID so saved physical bases and modifiers remain
+readable. That ID is now physical-only, with explicit English/Chinese labels.
+Old values are not copied into elemental attributes; every new channel starts
+at zero. Their common limits still come from `StatsRules.limits`.
+
+The selected attacker's value subtracts percentage points from the selected
+resistance once, with no negative effective resistance. An absent living
+attacker contributes zero. Source classification and armor remain unchanged:
+physical and fire currently have live mappings; the four other elemental
+attack routes are not implemented by this attribute split. The preview command
+still accepts an explicit scalar; live `stats trace` records the selected type
+and penetration, and `stats info` exposes all six values and modifiers.
+
+Run `tools/elemental_penetration_evidence.py` after clean stage-1 acceptance for
+bounded physical/fire isolation, mapped attacks and native save/restart of
+independent bases/modifiers. See [the verification report](../testing/2026-10-15-elemental-penetration.md).
+
 ### Defender-normalized armor pressure (0.48.1)
 
 `CombatRulesMixin` changes only the first armor clamp's input in vanilla
@@ -87,7 +109,7 @@ required mixin configuration is packaged and registered in mod metadata.
 
 No equipment or innate armor is added. `tools/realm_armor_evidence.py` exercises
 explicit fixtures and mapped client attacks; `validate_realm_stats.py --jar
-build/libs/myvillage-0.48.1.jar` also verifies packaged hooks. Keep owner combat
+build/libs/myvillage-0.48.2.jar` also verifies packaged hooks. Keep owner combat
 feel, multiplayer and third-party damage-overhaul compatibility unverified
 until observed. See [the armor verification report](../testing/2026-10-15-realm-armor.md).
 

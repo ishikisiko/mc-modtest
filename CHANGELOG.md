@@ -7,6 +7,17 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.48.2
+
+- Split elemental resistance penetration into independent metal, wood, water,
+  fire and earth attributes, each synchronized with zero default and the
+  existing configured bounds. Damage reads only its matching channel.
+- Retain the old resistance_penetration registry ID as physical-only for saved
+  attributes; label it explicitly in both languages. Existing bonuses no longer
+  penetrate fire, which uses its own attribute. No elemental attacks are added.
+- Extend channel-isolation, packaging and real-client/save-restart evidence,
+  with current command documentation and unchanged armor-pressure behavior.
+
 ## 0.48.1
 
 - Normalize vanilla armor pressure by the defender's existing realm growth while

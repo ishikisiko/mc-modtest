@@ -403,5 +403,164 @@ class RealmArmorContractTest(unittest.TestCase):
         self.assert_code('ARMOR_JAR', validator.check_armor_packaging(self.root, invalid))
 
 
+class ElementalPenetrationContractTest(unittest.TestCase):
+    def setUp(self):
+        self.attributes = (ROOT / validator.JAVA_ROOT / 'stats/runtime/ModStatsAttributes.java').read_text()
+        self.runtime = (ROOT / validator.JAVA_ROOT / 'stats/runtime/StatsRuntime.java').read_text()
+        self.languages = {locale: json.loads((ROOT / f'src/main/resources/assets/myvillage/lang/{locale}.json').read_text())
+                          for locale in ('en_us', 'zh_cn')}
+
+    def errors(self, attributes=None, runtime=None):
+        return validator.check_penetration_sources(self.attributes if attributes is None else attributes,
+                                                  self.runtime if runtime is None else runtime)
+
+    def assert_code(self, code, errors):
+        self.assertTrue(any(error.startswith(code + ':') for error in errors), errors)
+
+    def test_six_independent_channels_and_bilingual_labels_pass(self):
+        self.assertEqual([], self.errors())
+        self.assertEqual([], validator.check_penetration_languages(self.languages))
+
+    def test_legacy_id_cannot_be_replaced_and_elemental_ids_cannot_alias(self):
+        self.assert_code('PENETRATION_IDS', self.errors(attributes=self.attributes.replace(
+            'penetration("resistance_penetration")', 'penetration("physical_resistance_penetration")')))
+        self.assert_code('PENETRATION_IDS', self.errors(attributes=self.attributes.replace(
+            'penetration("fire_resistance_penetration")', 'penetration("resistance_penetration")')))
+        self.assert_code('PENETRATION_IDS', self.errors(attributes=self.attributes.replace(
+            'penetration("metal_resistance_penetration")', 'PHYSICAL_RESISTANCE_PENETRATION')))
+
+    def test_every_registered_penetration_must_be_present_once_in_all(self):
+        for kind in validator.PENETRATION_IDS:
+            field = kind + '_RESISTANCE_PENETRATION'
+            source = self.attributes
+            head, sep, tail = source.partition('ALL = List.of(')
+            self.assertTrue(sep)
+            missing = head + sep + tail.replace(field, '', 1)
+            self.assert_code('PENETRATION_ALL', self.errors(attributes=missing))
+        doubled = self.attributes.replace('EARTH_RESISTANCE_PENETRATION);',
+                                           'EARTH_RESISTANCE_PENETRATION, FIRE_RESISTANCE_PENETRATION);')
+        self.assert_code('PENETRATION_ALL', self.errors(attributes=doubled))
+
+    def test_default_zero_and_upper_bound_are_not_copied_or_hardcoded(self):
+        for old, new in ((' + id, 0, 0, LIMITS.maxPenetration()', ' + id, 0.1, 0, LIMITS.maxPenetration()'),
+                         (' + id, 0, 0, LIMITS.maxPenetration()', ' + id, 0, -1, LIMITS.maxPenetration()'),
+                         ('LIMITS.maxPenetration()', '0.8'),
+                         ('LIMITS.maxPenetration()', 'LIMITS.maxResistance()')):
+            self.assertIn(old, self.attributes)
+            self.assert_code('PENETRATION_BOUNDS', self.errors(attributes=self.attributes.replace(old, new)))
+
+    def test_common_factory_remains_registered_and_syncable(self):
+        self.assert_code('PENETRATION_FACTORY', self.errors(attributes=self.attributes.replace(
+            'REGISTRY.register(id, () -> penetrationAttribute(id))', 'REGISTRY.register("resistance_penetration", () -> penetrationAttribute(id))')))
+        self.assert_code('PENETRATION_SYNC', self.errors(attributes=self.attributes.replace(
+            'attribute.setSyncable(true)', 'attribute.setSyncable(false)')))
+        self.assert_code('PENETRATION_TRANSLATION_FLOW', self.errors(attributes=self.attributes.replace(
+            '"attribute.myvillage." + id, 0, 0, LIMITS.maxPenetration()', '"attribute.myvillage.resistance_penetration", 0, 0, LIMITS.maxPenetration()')))
+
+    def test_all_attributes_are_attached_and_physical_values_are_not_migrated(self):
+        self.assert_code('PENETRATION_ATTACH', self.errors(attributes=self.attributes.replace(
+            'for (var attribute : ALL)', 'for (var attribute : List.of(PHYSICAL_RESISTANCE_PENETRATION))')))
+        mutation = self.runtime + '\nclass DuplicateLegacy { void copy() { entity.getAttribute(ModStatsAttributes.FIRE_RESISTANCE_PENETRATION).setBaseValue(entity.getAttribute(ModStatsAttributes.PHYSICAL_RESISTANCE_PENETRATION).getValue()); } }\n'
+        self.assert_code('PENETRATION_COPY', self.errors(runtime=mutation))
+
+    def test_each_switch_case_selects_its_own_holder_and_never_physical_fallback(self):
+        for kind in ('METAL', 'WOOD', 'WATER', 'FIRE', 'EARTH'):
+            old = f'case {kind} -> ModStatsAttributes.{kind}_RESISTANCE_PENETRATION;'
+            wrong = f'case {kind} -> ModStatsAttributes.PHYSICAL_RESISTANCE_PENETRATION;'
+            self.assertIn(old, self.runtime)
+            self.assert_code('PENETRATION_CHANNEL', self.errors(runtime=self.runtime.replace(old, wrong)))
+        source = self.runtime.replace('case EARTH -> ModStatsAttributes.EARTH_RESISTANCE_PENETRATION;',
+                                      'default -> ModStatsAttributes.PHYSICAL_RESISTANCE_PENETRATION;')
+        self.assert_code('PENETRATION_CHANNEL', self.errors(runtime=source))
+
+    def test_single_read_helper_cannot_sum_channels_or_read_twice(self):
+        original = 'reader.applyAsDouble(penetration(type))'
+        for replacement in (original + ' + reader.applyAsDouble(ModStatsAttributes.PHYSICAL_RESISTANCE_PENETRATION)',
+                            original + ' + ' + original,
+                            'reader.applyAsDouble(ModStatsAttributes.FIRE_RESISTANCE_PENETRATION)'):
+            self.assert_code('PENETRATION_SINGLE_READ', self.errors(runtime=self.runtime.replace(original, replacement)))
+
+    def test_damage_bridge_uses_classified_type_and_the_matching_attacker_only(self):
+        for old, new in (('selectedPenetration(type.get(), attribute -> value(attacker, attribute))',
+                         'selectedPenetration(DamageType.PHYSICAL, attribute -> value(attacker, attribute))'),
+                        ('selectedPenetration(type.get(), attribute -> value(attacker, attribute))',
+                         'selectedPenetration(type.get(), attribute -> value(target, attribute))'),
+                        ('selectedPenetration(type.get(), attribute -> value(attacker, attribute))',
+                         'selectedPenetration(type.get(), attribute -> value(attacker, attribute)) + value(attacker, ModStatsAttributes.PHYSICAL_RESISTANCE_PENETRATION)'),
+                        ('attribute -> value(attacker, attribute)) : 0', 'attribute -> value(attacker, attribute)) : 0.2')):
+            self.assertIn(old, self.runtime)
+            self.assert_code('PENETRATION_DAMAGE_FLOW', self.errors(runtime=self.runtime.replace(old, new)))
+
+    def test_selected_scalar_cannot_be_discarded_or_summed_at_the_mitigation_call(self):
+        original = 'value(target, resistance(type.get())), penetration, StatsRules.bundled()'
+        for replacement in ('value(target, resistance(type.get())), 0, StatsRules.bundled()',
+                            'value(target, resistance(type.get())), penetration + value(attacker, ModStatsAttributes.PHYSICAL_RESISTANCE_PENETRATION), StatsRules.bundled()'):
+            self.assertIn(original, self.runtime)
+            self.assert_code('PENETRATION_DAMAGE_FLOW', self.errors(runtime=self.runtime.replace(original, replacement)))
+
+    def test_old_generic_java_holder_cannot_become_a_shared_scalar_again(self):
+        source = self.runtime.replace('selectedPenetration(type.get(), attribute -> value(attacker, attribute))',
+                                      'value(attacker, ModStatsAttributes.RESISTANCE_PENETRATION)')
+        self.assert_code('PENETRATION_LEGACY_SHARED', self.errors(runtime=source))
+
+    def test_local_identifiers_and_formatting_can_change_without_weakening_the_contract(self):
+        attributes = self.attributes
+        for old, new in (('LIMITS', 'BOUNDS'), ('id', 'registryName'), ('attribute', 'entry')):
+            attributes = re.sub(r'\b' + old + r'\b', new, attributes)
+        # Keep the translation prefix (a literal), while changing only the local parameter names.
+        attributes = attributes.replace('"entry.myvillage."', '"attribute.myvillage."')
+        runtime = self.runtime
+        for old, new in (('reader', 'lookup'), ('attacker', 'hitter'), ('attribute', 'chosenHolder')):
+            runtime = re.sub(r'\b' + old + r'\b', new, runtime)
+        self.assertEqual([], self.errors(attributes=attributes, runtime=runtime))
+
+    def test_missing_blank_and_wrong_physical_labels_fail_in_each_language(self):
+        for locale in ('en_us', 'zh_cn'):
+            for rid in validator.PENETRATION_IDS.values():
+                languages = copy.deepcopy(self.languages)
+                languages[locale].pop('attribute.myvillage.' + rid)
+                self.assert_code('PENETRATION_LANG', validator.check_penetration_languages(languages))
+            languages = copy.deepcopy(self.languages)
+            languages[locale]['attribute.myvillage.resistance_penetration'] = 'Resistance Penetration' if locale == 'en_us' else '抗性穿透'
+            self.assert_code('PENETRATION_PHYSICAL_LABEL', validator.check_penetration_languages(languages))
+            languages[locale]['attribute.myvillage.fire_resistance_penetration'] = ' '
+            self.assert_code('PENETRATION_LANG', validator.check_penetration_languages(languages))
+
+    def test_jar_requires_current_labels_and_independent_compiled_registry_ids(self):
+        # This is an entry/content fixture, not a claim that fake class bytes can execute.
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            for relative in (validator.JAVA_ROOT / 'stats/runtime/ModStatsAttributes.java',
+                             validator.JAVA_ROOT / 'stats/runtime/StatsRuntime.java'):
+                target = root / relative
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(ROOT / relative, target)
+            for locale, table in self.languages.items():
+                path = root / f'src/main/resources/assets/myvillage/lang/{locale}.json'
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text(json.dumps(table))
+
+            def packed(*, missing_id=None, missing_label=None, stale_runtime=False):
+                jar = root / 'fixture.jar'
+                with zipfile.ZipFile(jar, 'w') as archive:
+                    for locale, table in self.languages.items():
+                        values = dict(table)
+                        if missing_label:
+                            values.pop('attribute.myvillage.' + missing_label)
+                        archive.writestr(f'assets/myvillage/lang/{locale}.json', json.dumps(values))
+                    ids = [rid for rid in validator.PENETRATION_IDS.values() if rid != missing_id]
+                    archive.writestr('com/example/myvillage/stats/runtime/ModStatsAttributes.class',
+                                     b'\xca\xfe\xba\xbe' + '\n'.join(ids).encode())
+                    symbols = ['selectedPenetration', *(kind + '_RESISTANCE_PENETRATION' for kind in validator.PENETRATION_IDS)]
+                    archive.writestr('com/example/myvillage/stats/runtime/StatsRuntime.class',
+                                     b'\xca\xfe\xba\xbe' + (b'old' if stale_runtime else '\n'.join(symbols).encode()))
+                return jar
+
+            self.assertEqual([], validator.check_penetration_contract(root, packed()))
+            self.assert_code('PENETRATION_JAR', validator.check_penetration_contract(root, packed(missing_id='fire_resistance_penetration')))
+            self.assert_code('PENETRATION_JAR', validator.check_penetration_contract(root, packed(missing_label='metal_resistance_penetration')))
+            self.assert_code('PENETRATION_JAR', validator.check_penetration_contract(root, packed(stale_runtime=True)))
+
+
 if __name__ == '__main__':
     unittest.main()

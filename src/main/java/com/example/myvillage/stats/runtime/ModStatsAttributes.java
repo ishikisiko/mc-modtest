@@ -29,12 +29,25 @@ public final class ModStatsAttributes {
     public static final DeferredHolder<Attribute, Attribute> WATER_RESISTANCE = resistance("water");
     public static final DeferredHolder<Attribute, Attribute> FIRE_RESISTANCE = resistance("fire");
     public static final DeferredHolder<Attribute, Attribute> EARTH_RESISTANCE = resistance("earth");
-    public static final DeferredHolder<Attribute, Attribute> RESISTANCE_PENETRATION =
-            attribute("resistance_penetration", 0, 0, LIMITS.maxPenetration());
+    // Keep the saved registry identity; the formerly shared value now applies only to physical hits.
+    public static final DeferredHolder<Attribute, Attribute> PHYSICAL_RESISTANCE_PENETRATION =
+            penetration("resistance_penetration");
+    public static final DeferredHolder<Attribute, Attribute> METAL_RESISTANCE_PENETRATION =
+            penetration("metal_resistance_penetration");
+    public static final DeferredHolder<Attribute, Attribute> WOOD_RESISTANCE_PENETRATION =
+            penetration("wood_resistance_penetration");
+    public static final DeferredHolder<Attribute, Attribute> WATER_RESISTANCE_PENETRATION =
+            penetration("water_resistance_penetration");
+    public static final DeferredHolder<Attribute, Attribute> FIRE_RESISTANCE_PENETRATION =
+            penetration("fire_resistance_penetration");
+    public static final DeferredHolder<Attribute, Attribute> EARTH_RESISTANCE_PENETRATION =
+            penetration("earth_resistance_penetration");
     public static final List<DeferredHolder<Attribute, Attribute>> ALL = List.of(
             DAMAGE_FLAT, DAMAGE_BONUS, DAMAGE_MULTIPLIER, PHYSICAL_RESISTANCE,
             METAL_RESISTANCE, WOOD_RESISTANCE, WATER_RESISTANCE, FIRE_RESISTANCE,
-            EARTH_RESISTANCE, RESISTANCE_PENETRATION);
+            EARTH_RESISTANCE, PHYSICAL_RESISTANCE_PENETRATION, METAL_RESISTANCE_PENETRATION,
+            WOOD_RESISTANCE_PENETRATION, WATER_RESISTANCE_PENETRATION,
+            FIRE_RESISTANCE_PENETRATION, EARTH_RESISTANCE_PENETRATION);
 
     private ModStatsAttributes() {}
 
@@ -58,6 +71,16 @@ public final class ModStatsAttributes {
 
     private static DeferredHolder<Attribute, Attribute> resistance(String type) {
         return attribute(type + "_resistance", 0, LIMITS.minResistance(), LIMITS.maxResistance());
+    }
+
+    private static DeferredHolder<Attribute, Attribute> penetration(String id) {
+        return REGISTRY.register(id, () -> penetrationAttribute(id));
+    }
+
+    static RangedAttribute penetrationAttribute(String id) {
+        RangedAttribute attribute = new RangedAttribute("attribute.myvillage." + id, 0, 0, LIMITS.maxPenetration());
+        attribute.setSyncable(true);
+        return attribute;
     }
 
     private static DeferredHolder<Attribute, Attribute> attribute(
