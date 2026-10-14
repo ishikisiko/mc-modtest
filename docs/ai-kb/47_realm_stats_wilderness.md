@@ -63,6 +63,34 @@ activation policy connects them. The ledger's abstract duel power is also
 unchanged: physical avatar attributes are derived from the person's realm,
 while simulated off-screen outcomes still use `world_sim/realms.json`.
 
+### Defender-normalized armor pressure (0.48.1)
+
+`CombatRulesMixin` changes only the first armor clamp's input in vanilla
+`CombatRules.getDamageAfterAbsorb`. `D_atArmor / defender_factor` supplies
+pressure; full `D_atArmor` still supplies final damage. The original constants,
+clamp bounds, weapon enchantment call and native armor/toughness limits remain
+Minecraft-owned. Server realm assignment resolves through the existing rules;
+missing, malformed or invalid assignment falls back to scale one. Scale one
+preserves the original float without arithmetic reconstruction.
+
+Vanilla armor bypass, shields, armor wear, invulnerability-frame differences,
+potion resistance, Protection, typed resistance and absorption keep their native
+ordering. Normalization applies to every source reaching armor, including an
+otherwise unmapped damage type. Breach changes the normalized armor reduction
+once. The base armor cap does not cap combined reduction across other layers.
+
+Armor observations use the current NeoForge damage container identity so
+nested damage cannot reuse another hit's values. The trace exposes actual armor
+input, defender scale, pressure, effective armor before enchantment and the
+actual armor-stage output; skipped armor has no fabricated input. The common
+required mixin configuration is packaged and registered in mod metadata.
+
+No equipment or innate armor is added. `tools/realm_armor_evidence.py` exercises
+explicit fixtures and mapped client attacks; `validate_realm_stats.py --jar
+build/libs/myvillage-0.48.1.jar` also verifies packaged hooks. Keep owner combat
+feel, multiplayer and third-party damage-overhaul compatibility unverified
+until observed. See [the armor verification report](../testing/2026-10-15-realm-armor.md).
+
 ## Regions and wildlife
 
 `data/myvillage/wilderness/rules.json` maps region IDs to inclusive beast and

@@ -4,13 +4,16 @@ license = "MIT"
 
 [[mods]]
 modId = "myvillage"
-version = "0.48.0"
+version = "0.48.1"
 displayName = "MyVillage"
 description = '''
 Resource-validation mod shipping myvillage structure templates, debug commands,
 generated placement functions, and an on-demand runtime town command for
 staged manual acceptance.
 '''
+
+[[mixins]]
+config = "myvillage.mixins.json"
 
 [[dependencies.myvillage]]
 modId = "neoforge"

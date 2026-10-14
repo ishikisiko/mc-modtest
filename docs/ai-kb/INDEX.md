@@ -59,7 +59,7 @@ When a doc here and a spec cover the same topic they carry **see-also** links to
 | 45 | [Spiritual Power and Sword Qi](45_spiritual_power_sword_qi.md) | 0.46.0 bounded power and the first active sword skill, service-owned recovery and spending, empty charge/release intents, public sect manual learning, mapped-input capture without DevBridge, measured test timings, and separate owner acceptance; see-also `spiritual-power-pool`, `sword-qi-technique`, `combat-capture-tooling`, and `validation`. |
 
 | 46 | [Modal Test Runner](46_modal_test_runner.md) | Optional on-demand fixed-commit cloud tests, explicit dependency/bootstrap hashes, bounded lifecycle and cleanup, dependency-only cache, phase timings and separate local/cloud/owner verdicts; see-also `modal-test-runner`. |
-| 47 | [Realm Statistics and Wilderness](47_realm_stats_wilderness.md) | Shared exponential-major/linear-minor growth, server attributes, damage stages and typed resistance; explicit regional realm ranges, persistent natural beast births and ledger-owned rogue projections; see-also `realm-combat-stats` and `regional-wilderness`. |
+| 47 | [Realm Statistics and Wilderness](47_realm_stats_wilderness.md) | Shared exponential-major/linear-minor growth, server attributes, defender-normalized armor pressure, damage stages and typed resistance; explicit regional realm ranges, persistent natural beast births and ledger-owned rogue projections; see-also `realm-combat-stats` and `regional-wilderness`. |
 
 Test evidence: [Modal runner verification](../testing/2026-10-14-modal-test-runner.md); [2026-10-14 spiritual power and sword qi environment/timings](../testing/2026-10-14-spiritual-power.md).
 

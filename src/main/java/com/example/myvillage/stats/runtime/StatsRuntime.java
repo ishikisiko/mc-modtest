@@ -7,8 +7,6 @@ import com.example.myvillage.stats.DamageType;
 import com.example.myvillage.stats.RealmKey;
 import com.example.myvillage.stats.RealmStats;
 import com.example.myvillage.stats.StatsRules;
-import java.util.ArrayDeque;
-import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +25,7 @@ import net.minecraft.world.entity.ai.attributes.Attribute;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.damagesource.DamageContainer;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -45,7 +44,7 @@ public final class StatsRuntime {
     private static final Map<LivingEntity, DamageTrace> LAST_DAMAGE = new WeakHashMap<>();
     private static final Map<LivingEntity, Outgoing> OUTGOING = new WeakHashMap<>();
     private static final ThreadLocal<Scope> ACTIVE = new ThreadLocal<>();
-    private static final ThreadLocal<Deque<PendingDamage>> INCOMING = ThreadLocal.withInitial(ArrayDeque::new);
+    private static final Map<DamageContainer, DamageTrace> INCOMING = new WeakHashMap<>();
 
     private StatsRuntime() {}
 
@@ -86,7 +85,8 @@ public final class StatsRuntime {
         LAST_DAMAGE.clear();
         OUTGOING.clear();
         ACTIVE.remove();
-        INCOMING.remove();
+        INCOMING.clear();
+        RealmArmorRuntime.clear();
     }
 
     public static void refreshPlayer(ServerPlayer player) {
@@ -165,7 +165,8 @@ public final class StatsRuntime {
         Scope previous = ACTIVE.get();
         DamageMath.Trace calculation = outgoing != null && outgoing.tick() == attacker.level().getGameTime()
                 ? outgoing.calculation() : null;
-        ACTIVE.set(new Scope(target, source, calculation));
+        int depth = target instanceof LivingEntity living ? RealmArmorRuntime.containerDepth(living) + 1 : 0;
+        ACTIVE.set(new Scope(target, source, calculation, depth));
         try {
             return target.hurt(source, requestedDamage);
         } finally {
@@ -195,13 +196,18 @@ public final class StatsRuntime {
         }
         Scope scope = ACTIVE.get();
         DamageMath.Trace calculation = scope != null && scope.target() == target && scope.source() == source
+                && scope.containerDepth() == RealmArmorRuntime.containerDepth(target)
                 ? scope.calculation() : null;
+        RealmArmorRuntime.ArmorTrace armor = RealmArmorRuntime.take(event.getContainer());
+        if (armor != null) {
+            armor = armor.completed(armor.damageAtArmor() - event.getContainer().getReduction(DamageContainer.Reduction.ARMOR));
+        }
         DamageTrace trace = new DamageTrace(target.level().getGameTime(),
                 source.typeHolder().unwrapKey().map(key -> key.location().toString()).orElse("unregistered"),
                 type.map(DamageType::id).orElse("untouched"), calculation, event.getOriginalDamage(),
                 postVanilla, event.getNewDamage(), mitigation, null, null, null,
-                target.getHealth(), null, StatsRules.bundled().ruleHash());
-        INCOMING.get().push(new PendingDamage(target, source, trace));
+                target.getHealth(), null, StatsRules.bundled().ruleHash(), armor);
+        INCOMING.put(event.getContainer(), trace);
         LAST_DAMAGE.put(target, trace);
     }
 
@@ -209,23 +215,17 @@ public final class StatsRuntime {
         if (event.getEntity().level().isClientSide()) {
             return;
         }
-        Deque<PendingDamage> stack = INCOMING.get();
-        PendingDamage pending = stack.peek();
-        if (pending == null || pending.target() != event.getEntity() || pending.source() != event.getSource()) {
+        DamageTrace trace = INCOMING.remove(RealmArmorRuntime.currentContainer(event.getEntity()));
+        if (trace == null) {
             return;
         }
-        stack.pop();
-        if (stack.isEmpty()) {
-            INCOMING.remove();
-        }
-        DamageTrace trace = pending.trace();
         float healthAfter = event.getEntity().getHealth();
         LAST_DAMAGE.put(event.getEntity(), new DamageTrace(trace.tick(), trace.sourceId(), trace.type(),
                 trace.outgoing(), trace.requestedDamage(), trace.postVanilla(), trace.afterResistance(),
                 trace.mitigation(), (double) event.getReduction(
                         net.neoforged.neoforge.common.damagesource.DamageContainer.Reduction.ABSORPTION),
                 (double) event.getNewDamage(), (double) Math.max(0, trace.healthBefore() - healthAfter),
-                trace.healthBefore(), (double) healthAfter, trace.ruleHash()));
+                trace.healthBefore(), (double) healthAfter, trace.ruleHash(), trace.armor()));
     }
 
     /** Only explicitly mapped attack/fire sources participate; environmental/unknown damage does not. */
@@ -322,12 +322,12 @@ public final class StatsRuntime {
     }
 
     private record Outgoing(long tick, DamageMath.Trace calculation) {}
-    private record Scope(Entity target, DamageSource source, DamageMath.Trace calculation) {}
-    private record PendingDamage(LivingEntity target, DamageSource source, DamageTrace trace) {}
+    private record Scope(Entity target, DamageSource source, DamageMath.Trace calculation, int containerDepth) {}
 
     public record DamageTrace(long tick, String sourceId, String type, DamageMath.Trace outgoing,
                               double requestedDamage, double postVanilla, double afterResistance,
                               DamageMath.Mitigation mitigation, Double absorptionReduction,
                               Double appliedToHealth, Double actualHealthLoss,
-                              double healthBefore, Double healthAfter, String ruleHash) {}
+                              double healthBefore, Double healthAfter, String ruleHash,
+                              RealmArmorRuntime.ArmorTrace armor) {}
 }

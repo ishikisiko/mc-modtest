@@ -7,6 +7,15 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.48.1
+
+- Normalize vanilla armor pressure by the defender's existing realm growth while
+  retaining full incoming damage, native caps and a single enchantment pass.
+  Unassigned or invalid realms retain vanilla behavior; no innate armor or
+  equipment is added.
+- Extend server damage traces with invocation-specific armor inputs and verify
+  realm scaling, equipment wear, native mitigation layers and mapped combat.
+
 ## 0.48.0
 
 - Open normal player cultivation through Qi Refining IX, Foundation early/middle/late
