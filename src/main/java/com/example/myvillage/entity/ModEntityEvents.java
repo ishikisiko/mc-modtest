@@ -5,6 +5,8 @@ import com.example.myvillage.entity.beast.BeastDefinitions;
 import com.example.myvillage.entity.beast.BeastEntity;
 import com.example.myvillage.entity.beast.DemonWolfEntity;
 import com.example.myvillage.entity.npc.CultivatorEntity;
+import com.example.myvillage.wilderness.WildernessRules;
+import com.example.myvillage.wilderness.runtime.WildernessRuntime;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.animal.Fox;
@@ -21,6 +23,7 @@ public final class ModEntityEvents {
 
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {
+        WildernessRules.bundled(); // reject malformed encounter ranges at startup
         event.put(ModEntities.SIMPLE_FOX.get(), Fox.createAttributes().build());
         // Beast data loads here on both sides; a broken file stops startup.
         event.put(ModEntities.DEMON_WOLF.get(),
@@ -30,6 +33,9 @@ public final class ModEntityEvents {
 
     @SubscribeEvent
     public static void registerSpawnPlacements(RegisterSpawnPlacementsEvent event) {
+        event.register(ModEntities.DEMON_WOLF.get(), SpawnPlacementTypes.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, WildernessRuntime::checkWolfSpawnRules,
+                RegisterSpawnPlacementsEvent.Operation.REPLACE);
         event.register(
                 ModEntities.SIMPLE_FOX.get(),
                 SpawnPlacementTypes.NO_RESTRICTIONS,

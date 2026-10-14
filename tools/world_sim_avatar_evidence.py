@@ -54,7 +54,8 @@ OUT = REPO / "out" / "preview" / "world_sim" / "avatars"
 SERVER_LOG = REPO / "run-acceptance" / "logs" / "latest.log"
 PLAYER = "CaptureDev"
 W = "myvillage world"
-CULT = "@e[type=myvillage:cultivator]"
+# Wilderness projections share the entity type but are not compound evidence.
+CULT = "@e[type=myvillage:cultivator,nbt=!{Tags:[\"myvillage:wild_avatar\"]}]"
 SURFACE_Y = -60
 EYE = 1.62
 MAX_PER_SECT = 12  # WorldSimServerConfig.DEFAULT_MAX_AVATARS_PER_SECT

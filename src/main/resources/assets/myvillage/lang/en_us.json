@@ -1085,5 +1085,15 @@
   "hud.myvillage.qi": "Qi %s / %s",
   "hud.myvillage.qi.charging": "Charging",
   "hud.myvillage.qi.label": "Qi",
-  "hud.myvillage.qi.seal": "Qi"
+  "hud.myvillage.qi.seal": "Qi",
+  "attribute.myvillage.damage_flat": "Flat Damage",
+  "attribute.myvillage.damage_bonus": "Damage Bonus",
+  "attribute.myvillage.damage_multiplier": "Total Damage Multiplier",
+  "attribute.myvillage.resistance_penetration": "Resistance Penetration",
+  "attribute.myvillage.physical_resistance": "Physical Resistance",
+  "attribute.myvillage.metal_resistance": "Metal Resistance",
+  "attribute.myvillage.wood_resistance": "Wood Resistance",
+  "attribute.myvillage.water_resistance": "Water Resistance",
+  "attribute.myvillage.fire_resistance": "Fire Resistance",
+  "attribute.myvillage.earth_resistance": "Earth Resistance"
 }

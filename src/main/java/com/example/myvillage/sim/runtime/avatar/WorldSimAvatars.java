@@ -13,6 +13,9 @@ import com.example.myvillage.sim.WorldSim;
 import com.example.myvillage.sim.runtime.WorldSimRuntime;
 import com.example.myvillage.sim.runtime.WorldSimServerConfig;
 import com.example.myvillage.sim.runtime.WorldSimText;
+import com.example.myvillage.stats.runtime.StatsRuntime;
+import com.example.myvillage.wilderness.WildernessRules;
+import com.example.myvillage.wilderness.runtime.WildernessRuntime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -24,11 +27,15 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
@@ -79,7 +86,8 @@ public final class WorldSimAvatars {
     static final String STEWARD_NAME_KEY = "entity.myvillage.cultivator.avatar.steward";
 
     /** {@code role} is the dialogue role last set on the entity ({@link NpcEntity#ledgerRole()}). */
-    private record Avatar(int personId, int sectId, CultivatorEntity entity, BlockPos cell, String role) {
+    private record Avatar(int personId, int sectId, CultivatorEntity entity, BlockPos cell, String role, String wildRegion) {
+        boolean wild() { return wildRegion != null; }
     }
 
     /**
@@ -93,6 +101,8 @@ public final class WorldSimAvatars {
     private static final Map<Integer, Avatar> AVATARS = new HashMap<>();
     /** Courtyard cells per gate record (recomputed when the record changes). */
     private static final Map<GateRealizations.Gate, List<BlockPos>> CELLS = new HashMap<>();
+    /** Presentation-only retry progress. Neither identities nor already occupied cells depend on it. */
+    private static final Map<String, Integer> WILD_RETRY_CURSORS = new HashMap<>();
     private static int ticks;
     /** Whether a portrait-colour failure has been logged this server run. */
     private static boolean coloursFailureLogged;
@@ -113,6 +123,7 @@ public final class WorldSimAvatars {
     static void onServerStarted(ServerStartedEvent event) {
         AVATARS.clear();
         CELLS.clear();
+        WILD_RETRY_CURSORS.clear();
         ticks = 0;
         coloursFailureLogged = false;
     }
@@ -120,6 +131,7 @@ public final class WorldSimAvatars {
     static void onServerStopping(ServerStoppingEvent event) {
         discardAll("the server is stopping");
         CELLS.clear();
+        WILD_RETRY_CURSORS.clear();
     }
 
     static void onServerTick(ServerTickEvent.Post event) {
@@ -153,7 +165,7 @@ public final class WorldSimAvatars {
         }
         Set<Integer> sects = new HashSet<>();
         for (Avatar a : AVATARS.values()) {
-            sects.add(a.sectId());
+            if (!a.wild()) sects.add(a.sectId());
         }
         for (int sectId : sects) {
             Optional<SectView> sect = sim.sect(sectId);
@@ -163,6 +175,7 @@ public final class WorldSimAvatars {
             }
             reconcile(sectId, selected(sim, sectId));
         }
+        reconcileWild(server.overworld(), sim);
     }
 
     /** The build command changed this sect's gate: its avatars and cached cells are stale. */
@@ -210,6 +223,10 @@ public final class WorldSimAvatars {
         near.sort(Comparator.comparingDouble(Near::distance).thenComparingInt(n -> n.gate().sectId()));
         for (Near n : near) {
             ensure(level, sim, n.gate());
+        }
+        if (ticks % WildernessRules.bundled().rogues().intervalTicks() == 0) {
+            reconcileWild(level, sim);
+            ensureWild(level, sim);
         }
     }
 
@@ -280,7 +297,7 @@ public final class WorldSimAvatars {
             }
             if (!role.equals(a.role())) {
                 a.entity().setLedgerRole(role);
-                entry.setValue(new Avatar(a.personId(), a.sectId(), a.entity(), a.cell(), role));
+                entry.setValue(new Avatar(a.personId(), a.sectId(), a.entity(), a.cell(), role, null));
             }
             Component name = name(p, role);
             if (!Objects.equals(a.entity().getCustomName(), name)) {
@@ -291,6 +308,7 @@ public final class WorldSimAvatars {
                 a.entity().setLook(look);
             }
             applyColours(a.entity(), p, selection);
+            StatsRuntime.applyRealm(a.entity(), p.realmId(), p.stage());
         }
         if (discarded > 0) {
             LOGGER.info("World sim avatars: sect {} withdrew {} avatar(s) no longer at the gate or whose steward role changed; {} remain",
@@ -328,7 +346,7 @@ public final class WorldSimAvatars {
             if (!level.isLoaded(cell) || !level.areEntitiesLoaded(ChunkPos.asLong(cell))) {
                 continue; // spawned on a later pass, once a player has loaded that part of the compound
             }
-            if (spawn(level, p, sectId, cell, role, selection)) {
+            if (spawn(level, p, sectId, cell, role, selection, null)) {
                 occupied.add(cell);
                 spawned++;
             }
@@ -339,22 +357,27 @@ public final class WorldSimAvatars {
     }
 
     private static boolean spawn(ServerLevel level, PersonView p, int sectId, BlockPos cell, String role,
-                                 Selection selection) {
+                                 Selection selection, String wildRegion) {
+        if (AVATARS.containsKey(p.id()) || AVATARS.size() >= WorldSimServerConfig.maxAvatars()) return false;
         CultivatorEntity entity = ModEntities.CULTIVATOR.get().create(level);
         if (entity == null) {
             return false;
         }
         entity.becomeLedgerAvatar(p.id());
+        if (wildRegion != null) entity.addTag("myvillage:wild_avatar"); // diagnostic only; AVATARS owns identity and caps
         float yaw = AvatarPlanner.yaw(p.id());
         entity.moveTo(cell.getX() + 0.5, cell.getY(), cell.getZ() + 0.5, yaw, 0.0F);
         entity.setYHeadRot(yaw);
         entity.setYBodyRot(yaw);
+        if (wildRegion != null && (!loadedArea(level, entity.getBoundingBox()) || !level.noCollision(entity))) return false;
         entity.setLedgerRole(role);
         entity.setLook(CultivatorLooks.forPerson(p, selection.realmOrder()));
         applyColours(entity, p, selection);
         entity.setCustomName(name(p, role));
         entity.setCustomNameVisible(true);
-        Avatar avatar = new Avatar(p.id(), sectId, entity, cell, role);
+        StatsRuntime.applyRealm(entity, p.realmId(), p.stage());
+        entity.setHealth(entity.getMaxHealth());
+        Avatar avatar = new Avatar(p.id(), sectId, entity, cell, role, wildRegion);
         AVATARS.put(p.id(), avatar); // before adding, so the join check knows it
         if (!level.addFreshEntity(entity)) {
             AVATARS.remove(p.id());
@@ -394,7 +417,125 @@ public final class WorldSimAvatars {
     /** As {@link #name(PersonView)}; the steward's tag adds "守山执事" through {@link #STEWARD_NAME_KEY}. */
     static Component name(PersonView p, String role) {
         String key = NpcEntity.ROLE_STEWARD.equals(role) ? STEWARD_NAME_KEY : NAME_KEY;
-        return Component.translatable(key, p.name(), WorldSimText.realm(p.realmId()), p.sectName());
+        return Component.translatable(key, p.name(), WorldSimText.realm(p.realmId()),
+                p.sectId() == -1 && p.rank().equals("rogue") ? WorldSimText.rank("rogue") : p.sectName());
+    }
+
+    // ------------------------------------------------------------------ wilderness
+
+    /** Read-only diagnostics; the same global person map owns sect and rogue projections. */
+    public static int totalCount() { return AVATARS.size(); }
+
+    public static int wildCount(String region) {
+        int n = 0;
+        for (Avatar a : AVATARS.values()) if (a.wild() && (region == null || region.equals(a.wildRegion()))) n++;
+        return n;
+    }
+
+    /** Check every chunk collision code can inspect, including its one-block border, without requesting it. */
+    public static boolean loadedArea(ServerLevel level, AABB box) {
+        AABB probe = box.inflate(1.0);
+        int minX = Math.floorDiv((int) Math.floor(probe.minX), 16), maxX = Math.floorDiv((int) Math.floor(probe.maxX), 16);
+        int minZ = Math.floorDiv((int) Math.floor(probe.minZ), 16), maxZ = Math.floorDiv((int) Math.floor(probe.maxZ), 16);
+        for (int x = minX; x <= maxX; x++) for (int z = minZ; z <= maxZ; z++) {
+            if (level.getChunkSource().getChunkNow(x, z) == null || !level.areEntitiesLoaded(ChunkPos.asLong(x, z))) return false;
+        }
+        return true;
+    }
+
+    private static double nearestWildPlayer(ServerLevel level, BlockPos cell) {
+        double distance = Double.POSITIVE_INFINITY;
+        for (ServerPlayer player : level.players()) {
+            if (player.isSpectator()) continue;
+            double dx = player.getX() - cell.getX() - .5, dz = player.getZ() - cell.getZ() - .5;
+            distance = Math.min(distance, Math.hypot(dx, dz));
+        }
+        return distance;
+    }
+
+    /** Day settlement and wilderness passes both withdraw changes; no sect cleanup touches this branch. */
+    private static void reconcileWild(ServerLevel level, WorldSim sim) {
+        WildernessRules rules = WildernessRules.bundled();
+        Selection presentation = new Selection(List.of(), -1, sim.realmIds(), sim.day(), WorldSimRuntime.daysPerYear());
+        Iterator<Avatar> it = AVATARS.values().iterator();
+        while (it.hasNext()) {
+            Avatar a = it.next();
+            if (!a.wild()) continue;
+            PersonView person = sim.person(a.personId()).orElse(null);
+            Optional<WildernessRules.Region> region = rules.region(a.wildRegion());
+            boolean eligible = person != null && region.isPresent()
+                    && WildAvatarPlanner.eligible(person, a.wildRegion(), region.get().rogue());
+            BlockPos cell = a.entity().blockPosition();
+            if (!eligible || a.entity().isRemoved() || !a.entity().level().dimension().equals(Level.OVERWORLD)
+                    || !WildernessRuntime.regionAt(level, cell).filter(a.wildRegion()::equals).isPresent()
+                    || !loadedArea(level, a.entity().getBoundingBox())
+                    || nearestWildPlayer(level, cell) > rules.rogues().withdrawRadius()) {
+                a.entity().discard(); it.remove(); continue;
+            }
+            a.entity().setLedgerRole(NpcEntity.ROLE_NONE);
+            a.entity().setCustomName(name(person));
+            a.entity().setLook(CultivatorLooks.forPerson(person, presentation.realmOrder()));
+            applyColours(a.entity(), person, presentation);
+            StatsRuntime.applyRealm(a.entity(), person.realmId(), person.stage());
+        }
+    }
+
+    private static void ensureWild(ServerLevel level, WorldSim sim) {
+        if (!level.dimension().equals(Level.OVERWORLD)) return;
+        WildernessRules rules = WildernessRules.bundled();
+        WildernessRules.Rogues settings = rules.rogues();
+        int attempts = settings.attemptsPerPass();
+        Selection presentation = new Selection(List.of(), -1, sim.realmIds(), sim.day(), WorldSimRuntime.daysPerYear());
+        List<ServerPlayer> players = new ArrayList<>(level.players());
+        players.removeIf(ServerPlayer::isSpectator);
+        players.sort(Comparator.comparing(p -> p.getUUID().toString()));
+        Map<String, List<PersonView>> candidates = new HashMap<>();
+        Map<String, Integer> passCursors = new HashMap<>();
+        for (ServerPlayer player : players) {
+            Optional<String> at = WildernessRuntime.regionAt(level, player.blockPosition());
+            if (at.isEmpty()) continue;
+            String region = at.get();
+            List<PersonView> eligible = candidates.computeIfAbsent(region, id -> WildAvatarPlanner.candidates(
+                    sim.livingIn(id), id, rules.region(id).orElseThrow().rogue(), sim.seed()));
+            // Advance once per region per pass, even when all its attempted columns are obstructed.
+            // Several nearby players use the same starting cursor and the shared occupied-person map.
+            int cursor = passCursors.computeIfAbsent(region, id -> {
+                int current = WILD_RETRY_CURSORS.getOrDefault(id, 0);
+                WILD_RETRY_CURSORS.put(id, eligible.isEmpty() ? 0 : (current + 1) % eligible.size());
+                return current;
+            });
+            List<PersonView> selected = WildAvatarPlanner.select(eligible, AVATARS.keySet(), wildCount(region),
+                    wildCount(null), AVATARS.size(), settings.maxPerRegion(), settings.maxTotal(), WorldSimServerConfig.maxAvatars(), cursor);
+            int anchorX = Math.floorDiv(player.blockPosition().getX(), 16) * 16 + 8;
+            int anchorZ = Math.floorDiv(player.blockPosition().getZ(), 16) * 16 + 8;
+            for (PersonView person : selected) {
+                for (WildAvatarPlanner.Column column : WildAvatarPlanner.columns(sim.seed(), person.id(), anchorX, anchorZ, settings)) {
+                    if (attempts-- <= 0) return;
+                    double distance = Math.hypot(column.x() + .5 - player.getX(), column.z() + .5 - player.getZ());
+                    if (distance < settings.minDistance() || distance > settings.spawnRadius()) continue;
+                    BlockPos cell = wildGround(level, column, region);
+                    if (cell != null && spawn(level, person, -1, cell, NpcEntity.ROLE_NONE, presentation, region)) {
+                        LOGGER.info("World sim avatars: projected wilderness rogue {} in {} at {}", person.id(), region, cell);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    /** Surface lookup only after every possibly inspected chunk is loaded; solid floor, dry free body. */
+    private static BlockPos wildGround(ServerLevel level, WildAvatarPlanner.Column column, String region) {
+        BlockPos horizontal = new BlockPos(column.x(), 0, column.z());
+        if (!WildernessRuntime.regionAt(level, horizontal).filter(region::equals).isPresent()
+                || !loadedArea(level, new AABB(column.x(), 0, column.z(), column.x() + 1, 2, column.z() + 1))) return null;
+        int y = level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, column.x(), column.z());
+        if (y <= level.getMinBuildHeight() || y + 2 >= level.getMaxBuildHeight()) return null;
+        BlockPos cell = new BlockPos(column.x(), y, column.z());
+        if (!level.getBlockState(cell.below()).isFaceSturdy(level, cell.below(), Direction.UP)
+                || !level.getFluidState(cell.below()).isEmpty() || !level.getFluidState(cell).isEmpty()
+                || !level.getFluidState(cell.above()).isEmpty()) return null;
+        AABB body = new AABB(column.x() + .2, y, column.z() + .2, column.x() + .8, y + 1.9, column.z() + .8);
+        return level.getWorldBorder().isWithinBounds(body) && level.noCollision(body) ? cell : null;
     }
 
     // ------------------------------------------------------------------ withdrawal
@@ -430,7 +571,7 @@ public final class WorldSimAvatars {
     private static Set<Integer> sectsWithAvatars() {
         Set<Integer> out = new HashSet<>();
         for (Avatar a : AVATARS.values()) {
-            out.add(a.sectId());
+            if (!a.wild()) out.add(a.sectId());
         }
         return out;
     }

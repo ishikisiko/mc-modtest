@@ -123,11 +123,11 @@ state:
     statement: A summoned cultivator saves vanilla Mob state plus Look when its look is not default and Colours when colours are set (ledger_person_id stays -1 and is not written; ledger_role is never written).
 
 world_sim_avatar:
-  statement: The world simulation projects ledger members who are at a realized sect gate as cultivators while a player is near; the ledger stays the only authority and the avatar is a temporary projection of it.
+  statement: The world simulation projects sect members at realized gates and eligible living unsected rogues near players; the ledger stays the only authority and the avatar is a temporary projection of it.
   manager: com.example.myvillage.sim.runtime.avatar.WorldSimAvatars
   mode: NpcEntity#becomeLedgerAvatar (ledger_person_id >= 0), set before the entity is added; irreversible
-  spawned_by: the manager only, on courtyard cells from com.example.myvillage.sect.SectCourtyard#cells, one entity per person id
-  removed_by: the manager (players gone, member no longer at the sect, ledger inactive, server stop), death from an invulnerability-bypassing source, or a command
+  spawned_by: WorldSimAvatars only; sect members on SectCourtyard cells, eligible living unsected rogues in their local configured wilderness range; one entity per person id globally
+  removed_by: the manager (players gone, member no longer at the sect, rogue outside withdrawal radius, dead or ineligible ledger person, ledger inactive, server stop), death from an invulnerability-bypassing source, or a command
   saveable: false
   attackable: false
   invulnerable: true (only sources that bypass invulnerability, such as /kill or the void, hurt it)
@@ -138,6 +138,7 @@ world_sim_avatar:
   interaction: the steward (守山执事) and elder avatars open the sect dialogue on right click (mobInteract consumes; the server checks range, dimension, ledger role and sect, then sends SectDialoguePayload); every other avatar passes without effect
   name_tag: name · realm · sect (entity.myvillage.cultivator.avatar; the realm through world_sim.realm.<id>), always visible
   config: myvillage-world_sim-server.toml [avatars] (avatars_enabled, avatar_spawn_radius, max_avatars_per_sect, max_avatars)
+  wilderness_rules: data/myvillage/wilderness/rules.json (region ranges, local/global caps, bounded attempts and loaded-chunk probes); no independent natural spawn route
 
 rendering:
   route: vanilla
@@ -254,7 +255,7 @@ spawn:
   routes:
     - /summon myvillage:cultivator
     - myvillage:cultivator_spawn_egg
-    - world-sim avatar (not a spawn route a player uses; see world_sim_avatar)
+    - world-sim sect and wilderness rogue avatar (ledger projection only; see world_sim_avatar)
 
 acceptance:
   build: true
@@ -296,7 +297,7 @@ assumptions:
   - 当前仓库基线为 Minecraft 1.21.1、NeoForge 21.1.233、Java 21，mod id 为 myvillage，Java 包根为 com.example.myvillage。
   - 不使用玩家模型和玩家皮肤格式；模型、动画与贴图由 tools/npcgen 生成，复用妖兽的模型/动画文件 schema 与原版 ModelPart、AnimationDefinition，不引入 GeckoLib 或新依赖。
   - 敌友未定：本版本没有目标、攻击、交易、对话；后续设计在 NpcEntity 子类上添加，或把美术文件交给敌对框架使用。
-  - 本版本不自然生成，没有掉落：只能 /summon 或刷怪蛋；另由世界模拟在玩家靠近已具现的山门时临时投影为化身，化身不存盘、不可伤害、不可对话。
+  - 本版本不自然生成，没有掉落：只能 /summon 或刷怪蛋；另由 WorldSimAvatars 在山门内或玩家附近的有效区域投影符合条件的命簿人物为临时化身，化身不存盘、不可伤害；宗门执事和长老的对话仍由服务器验证，散修化身不新增自主敌友行为。
 
 out_of_scope:
   - disposition_friend_or_foe

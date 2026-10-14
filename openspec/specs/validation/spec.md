@@ -8,7 +8,6 @@ See also (narrative + acceptance checklist): [docs/ai-kb/09_validation_checklist
 See also: [Spiritual Power and Sword Qi](../../../docs/ai-kb/45_spiritual_power_sword_qi.md).
 
 See also: [Modal Test Runner](../../../docs/ai-kb/46_modal_test_runner.md).
-
 ## Requirements
 ### Requirement: Structure JSON validation checks schema, bounds, metadata, and modset-aware block ids
 The Structure JSON validator SHALL check JSON shape, size and coordinate bounds, palette resolution, supported operations, metadata rules, and block id existence relative to the active modset profile. Under the `vanilla` profile only Minecraft `1.21.1` vanilla block ids and the project-owned `myvillage` self-namespace are accepted. Under the `full` profile a non-`minecraft` block id is accepted when its namespace is `myvillage` or when its namespace is in the catalog's confirmed mod set and the id exists in `exmod/mod_block_catalog.json`; vanilla `minecraft` id existence is still checked against the `1.21.1` registry.
@@ -663,3 +662,10 @@ Remote test evidence SHALL record the tested commit, source archive hash, explic
 - **WHEN** local tests pass but the real cloud smoke cannot authenticate
 - **THEN** the acceptance ledger SHALL record local pass and cloud `not_verified`
 - **AND** the change SHALL remain active rather than claim a completed cloud integration
+
+### Requirement: Realm statistics and regional wildlife have layered verification
+The repository SHALL validate numerical rules, stage aliases and region ranges, test growth, damage bucket ordering, invalid data, deterministic sampling, persistence and modifier idempotence, and provide server diagnostic commands and a bounded server evidence workflow. Evidence SHALL report phase durations and distinguish automation from owner acceptance.
+
+#### Scenario: Automated checks pass
+- **WHEN** validators, tests, build and bounded server checks pass without an owner gameplay session
+- **THEN** numerical and observed runtime results are recorded while feel, density and unobserved client lifecycle items remain not_verified

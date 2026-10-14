@@ -93,6 +93,11 @@ before the final neutral key.
   free ports from 25610 upwards (never 8765), rcon enabled with a random
   password, `broadcast-rcon-to-ops=false`, difficulty normal (husk targets
   despawn on peaceful).
+  Natural monsters are disabled by default. `session start --natural-monsters`
+  (also available on `run`) permits them in this isolated server; the game rule
+  `doMobSpawning` still controls spawning during a trial. `tools/realm_stats_evidence.py`
+  opts in for its actual natural-birth checks. The flag is recorded in session
+  state, and the original server properties are restored at stop as usual.
   `--reuse-world` fails before writing server configuration if that world is
   missing. `python3 tools/run_chunky_acceptance.py --stage 1` cleans the shared
   `run-acceptance/` directory by default: run it before capture, or use its

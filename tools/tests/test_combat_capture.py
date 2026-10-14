@@ -492,6 +492,13 @@ class SessionPureTest(unittest.TestCase):
         self.assertEqual(props["broadcast-rcon-to-ops"], "false")
         self.assertNotEqual(props["difficulty"], "peaceful")  # husk targets despawn on peaceful
 
+    def test_natural_monsters_require_an_explicit_capture_opt_in(self):
+        self.assertEqual(server_properties(25611, 25612, "pw")["spawn-monsters"], "false")
+        enabled = server_properties(25611, 25612, "pw", natural_monsters=True)
+        self.assertEqual(enabled["spawn-monsters"], "true")
+        self.assertEqual(enabled["spawn-animals"], "false")
+        self.assertEqual(enabled["server-ip"], "127.0.0.1")
+
     def test_merge_options(self):
         with tempfile.TemporaryDirectory() as td:
             p = Path(td) / "options.txt"

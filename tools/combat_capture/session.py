@@ -72,7 +72,7 @@ CLIENT_OPTIONS = {
 }
 
 
-def server_properties(server_port: int, rcon_port: int, password: str) -> dict:
+def server_properties(server_port: int, rcon_port: int, password: str, *, natural_monsters: bool = False) -> dict:
     return {
         "server-ip": "127.0.0.1",
         "server-port": str(server_port),
@@ -95,7 +95,7 @@ def server_properties(server_port: int, rcon_port: int, password: str) -> dict:
         "force-gamemode": "true",
         "difficulty": "normal",
         "spawn-protection": "0",
-        "spawn-monsters": "false",
+        "spawn-monsters": "true" if natural_monsters else "false",
         "spawn-animals": "false",
         "spawn-npcs": "false",
         "pvp": "false",
@@ -196,6 +196,7 @@ class SessionConfig:
     gradle_jvmargs: str = "-Xmx1g"
     reuse_world: bool = False
     language: str = "en_us"
+    natural_monsters: bool = False
 
 
 class StopRequested(Exception):
@@ -292,7 +293,8 @@ class Supervisor:
         server_port, rcon_port = procs.free_ports(2)
         password = secrets.token_urlsafe(18)
         self.state.update(server_port=server_port, rcon_port=rcon_port, rcon_password=password)
-        values = server_properties(server_port, rcon_port, password)
+        values = server_properties(server_port, rcon_port, password, natural_monsters=self.cfg.natural_monsters)
+        self.state["natural_monsters"] = self.cfg.natural_monsters
         fd = os.open(str(props), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             f.write("# written by tools/combat_capture for a capture session; the original is restored at stop\n")

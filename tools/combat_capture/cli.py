@@ -84,7 +84,8 @@ def capture_dir(root: Path, label: str) -> Path:
 def session_config(a) -> SessionConfig:
     return SessionConfig(session_id=secrets.token_hex(6), username=a.username,
                          lock=str(a.lock or procs.default_lock_path(REPO)), lock_timeout=a.lock_timeout,
-                         settle=a.settle, gradle_jvmargs=a.gradle_jvmargs, reuse_world=a.reuse_world, language=a.language)
+                         settle=a.settle, gradle_jvmargs=a.gradle_jvmargs, reuse_world=a.reuse_world, language=a.language,
+                         natural_monsters=a.natural_monsters)
 
 
 # ---------------------------------------------------------------- commands
@@ -536,6 +537,7 @@ def build_parser() -> argparse.ArgumentParser:
     def session_opts(p):
         p.add_argument("--username", default="CaptureDev")
         p.add_argument("--language", choices=("en_us", "zh_cn"), default="en_us", help="capture client language (default en_us)")
+        p.add_argument("--natural-monsters", action="store_true", help="allow natural monster spawning for wilderness evidence (off by default)")
         p.add_argument("--reuse-world", action="store_true", help="keep the isolated combat_capture_world for save/restart evidence; default creates a fresh world")
         p.add_argument("--lock", help="heavy-work lock file (default $MC_HEAVY_LOCK or .mc-heavy.lock beside the main checkout)")
         p.add_argument("--lock-timeout", type=float, default=5400.0, help="seconds to wait for the lock")

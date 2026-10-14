@@ -2,6 +2,7 @@ package com.example.myvillage.combat.runtime;
 
 import com.example.myvillage.combat.definition.AttackMoveDefinition;
 import com.example.myvillage.combat.session.CombatSession;
+import com.example.myvillage.stats.runtime.StatsRuntime;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -37,7 +38,7 @@ public final class CombatDamageService {
         ItemStack weapon = attacker.getMainHandItem();
         DamageSource source = attacker.damageSources().playerAttack(attacker);
         float attributeDamage = (float) attacker.getAttributeValue(Attributes.ATTACK_DAMAGE);
-        float damage = (float) (attributeDamage * move.damageMultiplier());
+        float damage = StatsRuntime.outgoing(attacker, attributeDamage, move.damageMultiplier());
         damage += weapon.getItem().getAttackDamageBonus(target, attributeDamage, source);
         damage = EnchantmentHelper.modifyDamage(level, weapon, target, source, damage);
         if (!(damage > 0.0F) || target.isInvulnerableTo(source)) {
@@ -56,7 +57,7 @@ public final class CombatDamageService {
         RESOLVING_TARGET.set(target);
         boolean hurt;
         try {
-            hurt = target.hurt(source, damage);
+            hurt = StatsRuntime.hurt(attacker, target, source, damage);
         } finally {
             RESOLVING_TARGET.remove();
             target.invulnerableTime = Math.max(previousInvulnerableTime, target.invulnerableTime);

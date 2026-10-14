@@ -1,0 +1,44 @@
+{
+  "schema": 1,
+  "growth": {
+    "entry_multiplier": 1.5,
+    "major_ratio": 2.0,
+    "minor_slope": 0.05
+  },
+  "realms": [
+    {"id": "myvillage:mortal", "order": -1, "stages": 2, "mortal": true, "aliases": ["mortal"]},
+    {"id": "myvillage:qi_refining", "order": 0, "stages": 9, "mortal": false, "aliases": ["qi_refining"]},
+    {"id": "myvillage:foundation_establishment", "order": 1, "stages": 3, "mortal": false, "aliases": ["foundation_establishment"]},
+    {"id": "myvillage:golden_core", "order": 2, "stages": 3, "mortal": false, "aliases": ["golden_core"]},
+    {"id": "myvillage:nascent_soul", "order": 3, "stages": 3, "mortal": false, "aliases": ["nascent_soul"]}
+  ],
+  "player_stage_aliases": [
+    {"id": "myvillage:mortal_unawakened", "realm": "myvillage:mortal", "stage": 0},
+    {"id": "myvillage:mortal_qi_sensed", "realm": "myvillage:mortal", "stage": 1},
+    {"id": "myvillage:qi_refining_1", "realm": "myvillage:qi_refining", "stage": 0},
+    {"id": "myvillage:qi_refining_2", "realm": "myvillage:qi_refining", "stage": 1},
+    {"id": "myvillage:qi_refining_3", "realm": "myvillage:qi_refining", "stage": 2},
+    {"id": "myvillage:qi_refining_4", "realm": "myvillage:qi_refining", "stage": 3},
+    {"id": "myvillage:qi_refining_5", "realm": "myvillage:qi_refining", "stage": 4},
+    {"id": "myvillage:qi_refining_6", "realm": "myvillage:qi_refining", "stage": 5},
+    {"id": "myvillage:qi_refining_7", "realm": "myvillage:qi_refining", "stage": 6},
+    {"id": "myvillage:qi_refining_8", "realm": "myvillage:qi_refining", "stage": 7},
+    {"id": "myvillage:qi_refining_9", "realm": "myvillage:qi_refining", "stage": 8},
+    {"id": "myvillage:foundation_early", "realm": "myvillage:foundation_establishment", "stage": 0}
+  ],
+  "damage_types": ["physical", "metal", "wood", "water", "fire", "earth"],
+  "limits": {
+    "max_base_health": 70.0,
+    "max_base_attack": 16.0,
+    "max_health": 1024.0,
+    "max_attack": 2048.0,
+    "min_resistance": 0.0,
+    "max_resistance": 0.8,
+    "max_bonus": 10.0,
+    "max_flat_damage": 2048.0,
+    "max_move_multiplier": 100.0,
+    "max_total_multiplier": 100.0,
+    "max_penetration": 0.8,
+    "max_damage": 1000000000.0
+  }
+}

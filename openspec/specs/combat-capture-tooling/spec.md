@@ -6,7 +6,6 @@ Define the in-repository workflow for collecting combat presentation evidence on
 See also: [Spiritual Power and Sword Qi](../../../docs/ai-kb/45_spiritual_power_sword_qi.md).
 
 See also: [Modal Test Runner](../../../docs/ai-kb/46_modal_test_runner.md).
-
 ## Requirements
 ### Requirement: Capture tooling lives in the repository
 The repository SHALL provide `tools/combat_capture/` for collecting combat presentation evidence on a headless host. It SHALL use only the Python standard library and the host programs `Xvfb`, `xdotool`, `ffmpeg`, and ImageMagick, SHALL drive the repository's own acceptance-server and smoke-client run tasks, and MUST NOT depend on files outside the repository.
@@ -94,3 +93,14 @@ A Modal client/capture run SHALL reuse the repository's mapped-input evidence wo
 #### Scenario: A run finishes after modifying a capture world
 - **WHEN** remote capture cleanup terminates its Sandbox
 - **THEN** that run's world SHALL NOT be retained in the dependency cache or reused as a later run's starting world
+
+### Requirement: Natural monster evidence is an explicit capture option
+Capture sessions SHALL disable natural monsters by default and SHALL offer an explicit `--natural-monsters` option that enables the isolated server's monster spawning setting. The session state SHALL record the option, and stopping SHALL restore the prior server properties. The wilderness evidence script SHALL enable this option before claiming observed natural births; a game-rule change alone MUST NOT be treated as enabling a disabled server setting.
+
+#### Scenario: Existing capture behavior
+- **WHEN** a capture session is started without the option
+- **THEN** natural monster spawning remains disabled
+
+#### Scenario: Wilderness trial
+- **WHEN** a wilderness evidence session explicitly enables natural monsters and its trial enables the spawning game rule
+- **THEN** the normal server spawn path can produce entities, with observed births distinguished from administrator fixtures

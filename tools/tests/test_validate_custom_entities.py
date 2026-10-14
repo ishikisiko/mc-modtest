@@ -415,5 +415,104 @@ class SourceScanTest(unittest.TestCase):
             self.assertEqual(["leak:combat/Leak.java:entity.beast", "leak:combat/Leak.java:BeastEntity"], errors)
 
 
+class NaturalSpawnPolicyTest(unittest.TestCase):
+    """A declaration is permission only when its placement and data routes agree."""
+    MODIFIER = 'src/main/resources/data/myvillage/neoforge/biome_modifier/add_demon_wolf_spawns.json'
+    TAG = 'src/main/resources/data/myvillage/tags/worldgen/biome/has_demon_wolf.json'
+    EVENTS = MODULE.JAVA_ROOT + '/entity/ModEntityEvents.java'
+
+    def setUp(self):
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name)
+        self.contract = (ROOT / 'genops/contracts/entities/demon_wolf.yaml').read_text()
+        for relative in (self.MODIFIER, self.TAG, self.EVENTS):
+            path = self.root / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text((ROOT / relative).read_text())
+
+    def errors(self, contract=None, kind='beast', entity=WOLF):
+        return MODULE.check_no_natural_spawning(self.root, entity, self.contract if contract is None else contract, kind)
+
+    def modifier(self, change):
+        path = self.root / self.MODIFIER
+        data = json.loads(path.read_text())
+        change(data)
+        path.write_text(json.dumps(data))
+
+    def test_declared_natural_route_is_complete(self):
+        self.assertEqual([], self.errors())
+
+    def test_missing_or_malformed_modifier_fails(self):
+        path = self.root / self.MODIFIER
+        for content in (None, '{broken', '[]'):
+            if content is None:
+                path.unlink()
+            else:
+                path.write_text(content)
+            self.assertTrue(any(e.startswith(('missing_file:', 'beast_natural_biome_modifier_invalid'))
+                                or 'invalid JSON' in e for e in self.errors()), self.errors())
+
+    def test_contract_modifier_and_actual_entity_must_agree(self):
+        self.assertIn('beast_natural_biome_modifier_mismatch',
+                      self.errors(self.contract.replace('myvillage:add_demon_wolf_spawns', 'myvillage:wrong_route')))
+        self.modifier(lambda d: d['spawners'].update(type='myvillage:other'))
+        self.assertIn('beast_natural_spawner_entity_mismatch', self.errors())
+
+    def test_modifier_type_and_tag_are_checked(self):
+        self.modifier(lambda d: d.update(type='neoforge:remove_spawns'))
+        self.assertIn('beast_natural_biome_modifier_invalid', self.errors())
+        self.modifier(lambda d: d.update(type='neoforge:add_spawns', biomes='#myvillage:wrong_tag'))
+        self.assertIn('beast_natural_biome_tag_mismatch', self.errors())
+
+    def test_spawner_requires_positive_weight_and_ordered_positive_counts(self):
+        original = (ROOT / self.MODIFIER).read_text()
+        for key, value in (('weight', 0), ('weight', True), ('weight', float('inf')),
+                            ('minCount', 0), ('minCount', 3), ('maxCount', True), ('maxCount', -1)):
+            with self.subTest(key=key, value=value):
+                (self.root / self.MODIFIER).write_text(original)
+                self.modifier(lambda d: d['spawners'].update({key: value}))
+                self.assertIn('beast_natural_spawner_bounds_invalid', self.errors())
+
+    def test_tag_must_exist_and_have_valid_biome_identifiers(self):
+        path = self.root / self.TAG
+        path.unlink()
+        self.assertTrue(any(e.startswith('missing_file:') for e in self.errors()))
+        for values in ([], [True], ['bogus'], [{'id': True}], [{'id': '#minecraft:is_overworld', 'required': 1}]):
+            path.write_text(json.dumps({'replace': False, 'values': values}))
+            self.assertIn('beast_natural_biome_tag_invalid', self.errors())
+        path.write_text(json.dumps({'values': [{'id': '#minecraft:is_overworld', 'required': False}]}))
+        self.assertEqual([], self.errors())
+
+    def test_actual_placement_heightmap_and_predicate_must_match_contract(self):
+        path = self.root / self.EVENTS
+        original = path.read_text()
+        for before, after in (('SpawnPlacementTypes.ON_GROUND', 'SpawnPlacementTypes.NO_RESTRICTIONS'),
+                              ('WildernessRuntime::checkWolfSpawnRules', 'Monster::checkMonsterSpawnRules'),
+                              ('ModEntities.DEMON_WOLF.get()', 'ModEntities.SIMPLE_FOX.get()')):
+            path.write_text(original.replace(before, after))
+            self.assertIn('beast_natural_spawn_placement_mismatch', self.errors())
+
+    def test_undeclared_natural_routes_remain_forbidden(self):
+        contract = self.contract.replace('  natural: true', '  natural: false')
+        errors = self.errors(contract)
+        self.assertIn('beast_has_spawn_placement', errors)
+        self.assertIn('beast_has_spawn_biome_tag', errors)
+        self.assertTrue(any(e.startswith('beast_has_biome_modifier:') for e in errors))
+        self.assertIn('beast_spawn_contract_inconsistent:spawn_placement', errors)
+
+    def test_npc_natural_generation_remains_forbidden_even_if_declared(self):
+        contract = (ROOT / 'genops/contracts/entities/cultivator.yaml').read_text()
+        self.assertEqual([], self.errors(contract, kind='npc', entity=NPC))
+        self.assertIn('npc_natural_spawning_forbidden',
+                      self.errors(contract.replace('  natural: false', '  natural: true'), kind='npc', entity=NPC))
+
+    def test_second_undeclared_modifier_cannot_add_a_hidden_route(self):
+        extra = self.root / self.MODIFIER
+        extra = extra.with_name('second_route.json')
+        extra.write_text((ROOT / self.MODIFIER).read_text())
+        self.assertIn('beast_natural_biome_modifier_mismatch', self.errors())
+
+
 if __name__ == "__main__":
     unittest.main()

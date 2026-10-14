@@ -693,7 +693,12 @@ escapes some other way it carries the `WorldSimPerson` tag, loads as an
 avatar its manager does not know, and is refused.
 
 `sim/runtime/avatar/WorldSimAvatars` is the only thing that spawns, renames,
-or withdraws avatars. Every 20 ticks, for each gate record the ledger agrees
+or withdraws avatars. Since 0.47.0 it also projects eligible local rogue people
+within the regional ranges, identity map and shared caps described in
+[47_realm_stats_wilderness.md](47_realm_stats_wilderness.md). These are existing
+ledger people, not newly fabricated population; their physical attributes
+derive from their realm while the ledger's abstract duel power is unchanged.
+The sect branch runs every 20 ticks, for each gate record the ledger agrees
 with (sect active, gate realized, same x/z):
 
 - the distance to the nearest player is measured to the compound's site

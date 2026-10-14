@@ -3,6 +3,10 @@ package com.example.myvillage.entity.beast;
 import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.combat.runtime.CombatReactionService;
 import com.example.myvillage.combat.runtime.StaggerResistant;
+import com.example.myvillage.stats.StatsRules;
+import com.example.myvillage.stats.runtime.StatsRuntime;
+import com.example.myvillage.wilderness.BeastBirth;
+import net.minecraft.nbt.CompoundTag;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -119,6 +123,7 @@ public abstract class BeastEntity extends Monster implements StaggerResistant {
     private int forcedMove = NO_MOVE;
     private int staggerShowTicks;
     private boolean wasStunned;
+    private BeastBirth wildernessBirth;
 
     protected BeastEntity(EntityType<? extends BeastEntity> entityType, Level level) {
         super(entityType, level);
@@ -186,10 +191,49 @@ public abstract class BeastEntity extends Monster implements StaggerResistant {
         return new BeastBodyRotationControl(this);
     }
 
-    /** Summoned and egg-spawned beasts stay; there is no natural spawning to replace them. */
+    /** Only naturally born beasts use vanilla monster distance despawning. Legacy summons stay. */
     @Override
     public boolean removeWhenFarAway(double distanceToClosestPlayer) {
-        return false;
+        return wildernessBirth != null && wildernessBirth.natural();
+    }
+
+    public Optional<BeastBirth> wildernessBirth() {
+        return Optional.ofNullable(wildernessBirth);
+    }
+
+    /** First assignment only. Diagnostic assignments retain the summoned distance policy. */
+    public boolean assignWildernessBirth(BeastBirth birth) {
+        if (wildernessBirth != null || level().isClientSide()) return false;
+        StatsRules.bundled().realmKey(birth.realm().realmId(), birth.realm().stage());
+        wildernessBirth = birth;
+        StatsRuntime.applyRealm(this, birth.realm().realmId(), birth.realm().stage());
+        setHealth(getMaxHealth()); // a newly born entity starts full; restore never heals
+        return true;
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag tag) {
+        super.addAdditionalSaveData(tag);
+        if (wildernessBirth == null) return;
+        CompoundTag birth = new CompoundTag();
+        birth.putString("realm", wildernessBirth.realm().realmId());
+        birth.putInt("stage", wildernessBirth.realm().stage());
+        birth.putString("region", wildernessBirth.region());
+        birth.putInt("x", wildernessBirth.x()); birth.putInt("y", wildernessBirth.y()); birth.putInt("z", wildernessBirth.z());
+        birth.putBoolean("natural", wildernessBirth.natural());
+        tag.put("wilderness_birth", birth);
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag tag) {
+        // Permanent realm modifiers are restored by LivingEntity before it reads Health.
+        super.readAdditionalSaveData(tag);
+        wildernessBirth = null;
+        if (!tag.contains("wilderness_birth", 10)) return;
+        CompoundTag birth = tag.getCompound("wilderness_birth");
+        wildernessBirth = new BeastBirth(StatsRules.bundled().realmKey(birth.getString("realm"), birth.getInt("stage")),
+                birth.getString("region"), birth.getInt("x"), birth.getInt("y"), birth.getInt("z"), birth.getBoolean("natural"));
+        if (!level().isClientSide()) StatsRuntime.applyRealm(this, wildernessBirth.realm().realmId(), wildernessBirth.realm().stage());
     }
 
     // ---- Client presentation -------------------------------------------------------------
@@ -550,12 +594,12 @@ public abstract class BeastEntity extends Monster implements StaggerResistant {
     /** A normal mob attack (shields, armour and enchantments apply) with the move's own knockback. */
     private void hitVictim(BeastMoveDefinition move, LivingEntity victim) {
         DamageSource source = damageSources().mobAttack(this);
-        float damage = (float) (getAttributeValue(Attributes.ATTACK_DAMAGE) * move.damageMultiplier());
+        float damage = StatsRuntime.outgoing(this, getAttributeValue(Attributes.ATTACK_DAMAGE), move.damageMultiplier());
         ServerLevel serverLevel = (ServerLevel) level();
         damage = EnchantmentHelper.modifyDamage(serverLevel, getWeaponItem(), victim, source, damage);
         Vec3 before = victim.getDeltaMovement();
         float health = victim.getHealth();
-        boolean hurt = victim.hurt(source, damage);
+        boolean hurt = StatsRuntime.hurt(this, victim, source, damage);
         debug("hit {} with {} at move tick {}: damage {} accepted={} hp {} -> {}", EntityType.getKey(victim.getType()),
                 move.id(), moveTick, damage, hurt, health, victim.getHealth());
         if (!hurt) {

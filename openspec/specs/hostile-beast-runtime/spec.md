@@ -2,7 +2,6 @@
 
 ## Purpose
 Define the hostile beast framework (data-driven attack moves, stagger immunity, generated client model and animation files, debug commands, validation) and its first beast `myvillage:demon_wolf`. See-also `docs/ai-kb/38_hostile_beasts.md`, `genops/contracts/entities/demon_wolf.yaml`, and `custom-entity-runtime` for the vanilla-route fox.
-
 ## Requirements
 ### Requirement: Beast moves and tuning are bundled data
 Each beast SHALL have one schema-1 data file at `data/<namespace>/beast/<name>.json`, listed by entity id in `data/myvillage/beast/index.json`, holding its attributes, chase settings, stagger clip name, and attack moves. The runtime SHALL load these files from the mod's own resources on both sides and MUST NOT keep a second copy of any move timing, range, cooldown, weight, hit box, lunge, knockback, immunity window, or attribute value in Java source. Loading SHALL reject an unknown or missing field, a move whose ticks violate `0 <= turn_lock_tick <= windup_ticks <= first active tick <= last active tick < total_ticks`, an `immune_ticks` window outside the move, a lunge tick outside `[turn_lock_tick, last active tick]`, a duplicate move id across beasts, and a move or stagger clip name that is reserved (`idle`, `walk`, `run`) or reused.
@@ -66,17 +65,6 @@ Beast renderers and layer definitions SHALL be registered only from the client-d
 - **WHEN** the mod starts on a dedicated server
 - **THEN** the beast's entity type, attributes, and data load without resolving any client class
 
-### Requirement: The demon wolf is summoned only
-`myvillage:demon_wolf` SHALL be registered as a `monster` with a 1.3 by 1.45 block hitbox and an eye height of 1.2, with English and Chinese entity and spawn-egg names, a spawn egg `myvillage:demon_wolf_spawn_egg` in `myvillage:main`, and an empty loot table. It SHALL have no natural spawning: no spawn placement, biome modifier, or spawn biome tag. Summoned and egg-spawned wolves SHALL NOT despawn by distance.
-
-#### Scenario: Operator summons the wolf
-- **WHEN** an operator runs `/summon myvillage:demon_wolf ~ ~ ~` in a difficulty above Peaceful
-- **THEN** a demon wolf appears with the attributes from its data file and targets the nearest player it can see
-
-#### Scenario: No natural spawn resource exists
-- **WHEN** the custom-entity validator inspects the wolf
-- **THEN** it finds no spawn placement, biome modifier, or biome tag for it
-
 ### Requirement: Beast debug commands are server probes
 The mod SHALL provide `/myvillage beast move <targets> <move_id>`, `/myvillage beast status <targets>`, and `/myvillage beast debug on|off` at permission level 2. `move` SHALL start the named move on the selected beasts on their next AI step regardless of range, cooldown, and gap; `status` SHALL print each selected beast's move state; `debug` SHALL toggle `BEAST_DEBUG` server-log lines for move starts, ends, staggers, and hits. These commands SHALL NOT be presented as gameplay or owner acceptance.
 
@@ -85,8 +73,19 @@ The mod SHALL provide `/myvillage beast move <targets> <move_id>`, `/myvillage b
 - **THEN** the wolf runs the pounce from tick 0 and its client clip shows the server's move tick on each step
 
 ### Requirement: Beast validation and acceptance stay separate
-`tools/validate_custom_entities.py` SHALL validate every beast in the data index: data invariants, model and clip files and their cross-file rules, texture and glow sizes, generator ownership, translations, spawn egg, loot table, Java registration against the Entity Contract, client-only renderer registration, the beast-neutral combat package, and the absence of natural spawning. The Entity Contract SHALL name tuned fields and refer to the data file instead of repeating tuned values. The release gate SHALL run the validator and each beast's generator `--check`. Headless capture output SHALL be developer evidence, and every look, feel, sound, reload, and multiplayer surface SHALL stay `not_verified` in the README ledger until the owner observes it on a physical client.
+`tools/validate_custom_entities.py` SHALL validate every beast in the data index: data invariants, model and clip files and their cross-file rules, texture and glow sizes, generator ownership, translations, spawn egg, loot table, Java registration against the Entity Contract, client-only renderer registration, the beast-neutral combat package, and the declared natural spawning contract. The Entity Contract SHALL name tuned fields and refer to the data file instead of repeating tuned values. The release gate SHALL run the validator and each beast's generator `--check`. Headless capture output SHALL be developer evidence, and every look, feel, sound, reload, and multiplayer surface SHALL stay `not_verified` in the README ledger until the owner observes it on a physical client.
 
 #### Scenario: Automation passes without an owner session
 - **WHEN** the validator, tests, generator check, build, and headless capture pass but the owner has not played against the wolf
 - **THEN** the README ledger keeps the look, fight feel, sound, `F3+T` reload, and multiplayer rows `not_verified`
+
+### Requirement: The demon wolf supports regional natural spawning
+`myvillage:demon_wolf` SHALL be registered as a `monster` with a 1.3 by 1.45 block hitbox and an eye height of 1.2, with English and Chinese entity and spawn-egg names, a spawn egg `myvillage:demon_wolf_spawn_egg` in `myvillage:main`, and an empty loot table. Natural spawning SHALL use a biome modifier, spawn placement, overworld region eligibility and persistent realm assignment under regional-wilderness. Summoned and egg-spawned wolves SHALL NOT despawn by distance.
+
+#### Scenario: Operator summons the wolf
+- **WHEN** an operator runs `/summon myvillage:demon_wolf ~ ~ ~` in a difficulty above Peaceful
+- **THEN** a demon wolf appears with the attributes from its data file and targets the nearest player it can see
+
+#### Scenario: Natural spawn resources agree
+- **WHEN** the custom-entity validator inspects the wolf
+- **THEN** it validates the declared natural spawning resources and placement rather than forbidding them

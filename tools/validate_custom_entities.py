@@ -855,23 +855,97 @@ def check_spawn_egg(root: Path, entity_id: str, contract: str) -> list[str]:
 
 
 def check_no_natural_spawning(root: Path, entity_id: str, contract: str, kind: str) -> list[str]:
-    """No spawn placement, biome modifier or spawn biome tag; the contract must say ``natural: false``."""
+    """Validate the declared spawn policy, including every natural route when enabled.
+
+    NPCs remain manager projections: declaring natural spawning never authorizes a second source.
+    The historical function name is retained for callers outside this file.
+    """
     namespace, name = split_id(entity_id)
     const = constant_name(name)
     resources = root / RESOURCE_ROOT
     found: list[str] = []
-    if yaml_scalar(yaml_block(contract, "spawn"), "natural") != "false":
-        found.append(f"{kind}_natural_spawning_not_supported_by_validator")
+    spawn = yaml_block(contract, "spawn")
+    natural = yaml_scalar(spawn, "natural")
     events = root / JAVA_ROOT / "entity/ModEntityEvents.java"
     events_text = events.read_text(encoding="utf-8") if events.is_file() else ""
     placements = events_text[events_text.find("RegisterSpawnPlacementsEvent event"):]
-    if f"ModEntities.{const}" in placements:
-        found.append(f"{kind}_has_spawn_placement")
-    for modifier in sorted((resources / "data").glob("*/neoforge/biome_modifier/*.json")):
-        if entity_id in modifier.read_text(encoding="utf-8"):
-            found.append(f"{kind}_has_biome_modifier:{modifier.relative_to(root)}")
-    if (resources / f"data/{namespace}/tags/worldgen/biome/has_{name}.json").is_file():
-        found.append(f"{kind}_has_spawn_biome_tag")
+    registrations = re.findall(r"event\.register\s*\((.*?)RegisterSpawnPlacementsEvent\.Operation\.\w+\s*\);",
+                               placements, re.DOTALL)
+    registered = [block for block in registrations if f"ModEntities.{const}.get()" in block]
+    modifiers = [path for path in sorted((resources / "data").glob("*/neoforge/biome_modifier/**/*.json"))
+                 if entity_id in path.read_text(encoding="utf-8")]
+    default_tag = resources / f"data/{namespace}/tags/worldgen/biome/has_{name}.json"
+    if natural not in {"true", "false"}:
+        found.append(f"{kind}_spawn_policy_missing_or_invalid")
+    if natural != "true":
+        if f"ModEntities.{const}" in placements:
+            found.append(f"{kind}_has_spawn_placement")
+        found.extend(f"{kind}_has_biome_modifier:{path.relative_to(root)}" for path in modifiers)
+        if default_tag.is_file():
+            found.append(f"{kind}_has_spawn_biome_tag")
+        for key in ("biome_modifier", "spawn_placement"):
+            if yaml_scalar(spawn, key) != "null":
+                found.append(f"{kind}_spawn_contract_inconsistent:{key}")
+        return found
+    if kind != "beast":
+        found.append(f"{kind}_natural_spawning_forbidden")
+        return found
+
+    def declared_id(key: str) -> tuple[str, str] | None:
+        value = yaml_scalar(spawn, key)
+        if not value or not ID_PATTERN.fullmatch(value):
+            found.append(f"{kind}_natural_contract_invalid:{key}")
+            return None
+        return split_id(value)
+
+    modifier_id = declared_id("biome_modifier")
+    tag_id = declared_id("spawn_biome_tag")
+    placement = yaml_scalar(spawn, "spawn_placement")
+    heightmap = yaml_scalar(spawn, "heightmap")
+    predicate = yaml_scalar(spawn, "spawn_predicate")
+    if not placement or not heightmap or not predicate:
+        found.append(f"{kind}_natural_contract_invalid:placement/heightmap/predicate")
+    elif len(registered) != 1 or any(token not in registered[0] for token in
+                                   (f"SpawnPlacementTypes.{placement}", f"Heightmap.Types.{heightmap}", predicate)):
+        found.append(f"{kind}_natural_spawn_placement_mismatch")
+    if modifier_id is not None:
+        mod_namespace, mod_name = modifier_id
+        expected = resources / f"data/{mod_namespace}/neoforge/biome_modifier/{mod_name}.json"
+        if modifiers != [expected]:
+            found.append(f"{kind}_natural_biome_modifier_mismatch")
+        modifier = require_json(expected, found)
+        if not isinstance(modifier, dict) or modifier.get("type") != "neoforge:add_spawns":
+            found.append(f"{kind}_natural_biome_modifier_invalid")
+        else:
+            expected_tag = "#" + ":".join(tag_id) if tag_id else None
+            if modifier.get("biomes") != expected_tag:
+                found.append(f"{kind}_natural_biome_tag_mismatch")
+            spawners = modifier.get("spawners")
+            spawners = [spawners] if isinstance(spawners, dict) else spawners
+            if not isinstance(spawners, list) or not spawners:
+                found.append(f"{kind}_natural_spawner_invalid")
+            else:
+                for spawner in spawners:
+                    if not isinstance(spawner, dict) or spawner.get("type") != entity_id:
+                        found.append(f"{kind}_natural_spawner_entity_mismatch")
+                        continue
+                    weight, low, high = (spawner.get(key) for key in ("weight", "minCount", "maxCount"))
+                    if any(type(v) is not int for v in (weight, low, high)) or not (1 <= weight <= 2147483647 and 1 <= low <= high <= 2147483647):
+                        found.append(f"{kind}_natural_spawner_bounds_invalid")
+    if tag_id is not None:
+        tag_namespace, tag_name = tag_id
+        tag = require_json(resources / f"data/{tag_namespace}/tags/worldgen/biome/{tag_name}.json", found)
+        values = tag.get("values") if isinstance(tag, dict) else None
+        if not isinstance(tag, dict) or type(tag.get("replace", False)) is not bool or not isinstance(values, list) or not values:
+            found.append(f"{kind}_natural_biome_tag_invalid")
+        else:
+            for value in values:
+                if isinstance(value, dict):
+                    if set(value) - {"id", "required"} or type(value.get("required", True)) is not bool:
+                        found.append(f"{kind}_natural_biome_tag_invalid")
+                    value = value.get("id")
+                if not isinstance(value, str) or not ID_PATTERN.fullmatch(value.removeprefix("#")):
+                    found.append(f"{kind}_natural_biome_tag_invalid")
     return found
 
 
@@ -1005,7 +1079,7 @@ def validate_beast(root: Path, entity_id: str, errors: list[str]) -> dict[str, A
                  ["value = Dist.CLIENT", f"BeastRenderer.register(event, ModEntities.{const})",
                   f"BeastRenderer.registerLayer(event, ModEntities.{const}.getId())"], found)
 
-    # No natural spawning unless the contract says so (and then this validator must learn it).
+    # Spawn declarations must match the registered placement, biome modifier and biome tag.
     found.extend(check_no_natural_spawning(root, entity_id, contract, "beast"))
 
     errors.extend(found)

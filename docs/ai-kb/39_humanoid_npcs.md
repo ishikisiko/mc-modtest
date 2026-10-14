@@ -12,8 +12,11 @@ Entity Contract is `genops/contracts/entities/cultivator.yaml`.
 No natural spawning and no drop: `/summon` and
 `myvillage:cultivator_spawn_egg` only. Since 0.35.0 the world simulation also
 projects ledger members as never-saved, invulnerable cultivator avatars on a
-built sect compound while a player is near; see
-[40_world_sim.md](40_world_sim.md).
+built sect compound while a player is near. Since 0.47.0 the same avatar manager
+also projects eligible local rogue ledger people in wilderness regions; it does
+not create independent naturally spawned NPC identities or add hostility. See
+[40_world_sim.md](40_world_sim.md) and
+[47_realm_stats_wilderness.md](47_realm_stats_wilderness.md).
 
 ## Where each fact lives
 

@@ -1069,5 +1069,15 @@
   "hud.myvillage.qi": "灵力 %s / %s",
   "hud.myvillage.qi.charging": "蓄力",
   "hud.myvillage.qi.label": "灵力",
-  "hud.myvillage.qi.seal": "灵"
+  "hud.myvillage.qi.seal": "灵",
+  "attribute.myvillage.damage_flat": "固定伤害加成",
+  "attribute.myvillage.damage_bonus": "伤害加成",
+  "attribute.myvillage.damage_multiplier": "伤害总倍率",
+  "attribute.myvillage.resistance_penetration": "抗性穿透",
+  "attribute.myvillage.physical_resistance": "物理抗性",
+  "attribute.myvillage.metal_resistance": "金行抗性",
+  "attribute.myvillage.wood_resistance": "木行抗性",
+  "attribute.myvillage.water_resistance": "水行抗性",
+  "attribute.myvillage.fire_resistance": "火行抗性",
+  "attribute.myvillage.earth_resistance": "土行抗性"
 }

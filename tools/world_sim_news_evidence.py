@@ -386,7 +386,7 @@ class Run(tasks.Run):
     def count_avatars(self, row: dict[str, Any]) -> dict[str, int]:
         """Cultivators in the compound's footprint, and loaded avatars whose name tag names the sect."""
         bx, bz, dx, dz = site_box(row["gate"])
-        site = count_of(self.rc(f"execute if entity @e[type=myvillage:cultivator,x={bx},y={SURFACE_Y - 8},"
+        site = count_of(self.rc(f"execute if entity @e[type=myvillage:cultivator,nbt=!{{Tags:[\"myvillage:wild_avatar\"]}},x={bx},y={SURFACE_Y - 8},"
                                 f"z={bz},dx={dx},dy=72,dz={dz}]"))
         named = f"execute as {CULT} if data entity @s CustomName run data get entity @s"
         tagged = avatars_of(avatar_names(self.rc(f"{named} CustomName")), row["name"])

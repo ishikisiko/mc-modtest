@@ -1,0 +1,191 @@
+{
+  "schema": 1,
+  "rogues": {
+    "interval_ticks": 100,
+    "spawn_radius": 64,
+    "withdraw_radius": 96,
+    "min_distance": 20,
+    "max_per_region": 3,
+    "max_total": 12,
+    "attempts_per_pass": 24,
+    "probes_per_person": 8
+  },
+  "regions": {
+    "ximo": {
+      "beast": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 3
+        }
+      },
+      "rogue": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 3
+        }
+      }
+    },
+    "donghai": {
+      "beast": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 2
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 8
+        }
+      },
+      "rogue": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 2
+        },
+        "max": {
+          "realm": "myvillage:qi_refining",
+          "stage": 8
+        }
+      }
+    },
+    "nanjiang": {
+      "beast": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 4
+        },
+        "max": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 0
+        }
+      },
+      "rogue": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 4
+        },
+        "max": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 0
+        }
+      }
+    },
+    "beiyuan": {
+      "beast": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 6
+        },
+        "max": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 1
+        }
+      },
+      "rogue": {
+        "min": {
+          "realm": "myvillage:qi_refining",
+          "stage": 6
+        },
+        "max": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 1
+        }
+      }
+    },
+    "donghuang": {
+      "beast": {
+        "min": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 2
+        }
+      },
+      "rogue": {
+        "min": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 2
+        }
+      }
+    },
+    "lingyue": {
+      "beast": {
+        "min": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 1
+        },
+        "max": {
+          "realm": "myvillage:golden_core",
+          "stage": 2
+        }
+      },
+      "rogue": {
+        "min": {
+          "realm": "myvillage:foundation_establishment",
+          "stage": 1
+        },
+        "max": {
+          "realm": "myvillage:golden_core",
+          "stage": 2
+        }
+      }
+    },
+    "moyu": {
+      "beast": {
+        "min": {
+          "realm": "myvillage:golden_core",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:nascent_soul",
+          "stage": 1
+        }
+      },
+      "rogue": {
+        "min": {
+          "realm": "myvillage:golden_core",
+          "stage": 0
+        },
+        "max": {
+          "realm": "myvillage:nascent_soul",
+          "stage": 1
+        }
+      }
+    },
+    "zhongzhou": {
+      "beast": {
+        "min": {
+          "realm": "myvillage:golden_core",
+          "stage": 1
+        },
+        "max": {
+          "realm": "myvillage:nascent_soul",
+          "stage": 2
+        }
+      },
+      "rogue": {
+        "min": {
+          "realm": "myvillage:golden_core",
+          "stage": 1
+        },
+        "max": {
+          "realm": "myvillage:nascent_soul",
+          "stage": 2
+        }
+      }
+    }
+  }
+}

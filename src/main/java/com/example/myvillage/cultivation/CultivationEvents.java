@@ -6,6 +6,8 @@ import com.example.myvillage.cultivation.meditation.MeditationStopReason;
 import com.example.myvillage.cultivation.network.CultivationSnapshotPayload;
 import com.example.myvillage.cultivation.qi.SpiritualPowerRuntime;
 import com.example.myvillage.cultivation.time.CultivationTimeRuntime;
+import com.example.myvillage.stats.runtime.StatsRuntime;
+import com.example.myvillage.stats.runtime.RealmHealthPolicy;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
@@ -72,6 +74,7 @@ public final class CultivationEvents {
 
     private static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
+            StatsRuntime.refreshPlayer(player);
             SpiritualPowerRuntime.initialize(player);
             CultivationService.syncToClient(player);
             CultivationTimeRuntime.onPlayerLoggedIn(player);
@@ -81,6 +84,11 @@ public final class CultivationEvents {
 
     private static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
+            float previousHealth = player.getHealth();
+            float previousMaximum = player.getMaxHealth();
+            StatsRuntime.refreshPlayer(player);
+            player.setHealth(RealmHealthPolicy.respawned(
+                    previousHealth, previousMaximum, player.getMaxHealth(), event.isEndConquered()));
             CultivationTimeRuntime.onPlayerRespawn(player);
             SpiritualPowerRuntime.initialize(player);
             CultivationService.syncToClient(player);
@@ -90,6 +98,7 @@ public final class CultivationEvents {
 
     private static void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
+            StatsRuntime.refreshPlayer(player);
             MeditationManager.requestStop(player, MeditationStopReason.DIMENSION_CHANGED);
             CultivationTimeRuntime.onPlayerChangedDimension(player);
             SpiritualPowerRuntime.initialize(player);

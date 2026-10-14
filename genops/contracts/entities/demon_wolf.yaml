@@ -51,7 +51,8 @@ physical:
   summonable: true
   saveable: true
   client_tracking_range: 10
-  despawn_when_far_away: false
+  despawn_when_far_away: source_dependent
+  despawn_policy: natural births use normal Monster distance despawn; command, egg and diagnostic births remain persistent
 
 attributes:
   source: data/myvillage/beast/demon_wolf.json#attributes
@@ -145,7 +146,16 @@ state:
       type: int
       default: -1
       purpose: the move tick the server last ran, so client clips re-anchor to it
-  persisted: []
+  persisted:
+    - name: wilderness_birth
+      type: compound
+      purpose: immutable realm, region, birth coordinates and natural versus diagnostic provenance
+    - name: attributes
+      type: vanilla saved attributes
+      purpose: permanent realm modifiers restore derived maximum health before Health is read
+    - name: myvillage:stats_realm
+      type: compound in persistent entity data
+      purpose: diagnostic realm identity used by the shared statistics runtime
   transient:
     - move index, move tick, aim lock, locked yaw and aim point
     - victims of the running move
@@ -153,7 +163,9 @@ state:
     - forced debug move
     - stagger display ticks
   custom_state:
-    statement: Move state is transient and never saved; saved state is vanilla Mob/Monster state only.
+    statement: >-
+      Move state is transient and never saved. Regional birth and realm-derived attributes
+      persist alongside vanilla Mob/Monster state; relocation and reload never reroll birth.
 
 rendering:
   route: vanilla
@@ -251,10 +263,18 @@ loot:
   pools: []
 
 spawn:
-  natural: false
-  biome_modifier: null
-  spawn_placement: null
+  natural: true
+  biome_modifier: myvillage:add_demon_wolf_spawns
+  spawn_biome_tag: myvillage:has_demon_wolf
+  spawn_placement: ON_GROUND
+  heightmap: MOTION_BLOCKING_NO_LEAVES
+  spawn_predicate: WildernessRuntime::checkWolfSpawnRules
+  realm_rules: data/myvillage/wilderness/rules.json
+  birth_record: wilderness_birth (realm, stage, region, x, y, z, natural); assigned once, saved, never rerolled
+  natural_sources: NATURAL and CHUNK_GENERATION only
+  unassigned_sources: command and spawn egg keep baseline stats until an explicit diagnostic assignment
   routes:
+    - overworld natural spawning in an explicitly configured runtime region
     - /summon myvillage:demon_wolf
     - myvillage:demon_wolf_spawn_egg
 
@@ -271,7 +291,7 @@ acceptance:
   summon_test: true
   spawn_egg_test: true
   save_reload_test: true
-  natural_spawn_test: false
+  natural_spawn_test: true
   multiplayer_observer_test: true
   automated:
     - python3 tools/validate_custom_entities.py
@@ -304,10 +324,9 @@ assumptions:
   - 妖狼不继承原版 Wolf；模型、动画、AI 与攻击状态机都是自有的，复用原版 ModelPart、AnimationDefinition 与 Goal 系统，不引入 GeckoLib 或新依赖。
   - 招式时序与数值只存在于 data/myvillage/beast/demon_wolf.json，Java 与动画生成器都从它读取。
   - 声音直接复用原版狼的 SoundEvent，降低音高；不创建 sounds.json 条目或 OGG 文件。
-  - 本版本不自然生成，没有特殊掉落：只能 /summon 或刷怪蛋。
+  - 自然生成只在主世界有效运行时区域内发生；出生境界存盘且不随移动或重载重抽，命令与刷怪蛋保留未分配的基线属性。
 
 out_of_scope:
-  - natural_spawning
   - special_drops
   - custom_audio
   - geckolib

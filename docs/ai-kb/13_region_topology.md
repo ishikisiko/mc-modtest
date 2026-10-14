@@ -190,6 +190,10 @@ existing custom spawns.
 
 ### Deferred consumers
 
+Implemented consumer since 0.47.0: [regional wilderness encounters](47_realm_stats_wilderness.md)
+read `regionAt` without changing this passive region service. Their explicit
+region-to-realm ranges do not reinterpret a region tier as a realm index.
+
 This change lands the runtime **data layer only**. The downstream systems that
 will consume it are separate future changes:
 

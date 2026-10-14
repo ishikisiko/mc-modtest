@@ -7,6 +7,21 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.47.0
+
+- Added shared server-side realm statistics: exponential major-realm growth,
+  linear minor-stage growth, explicit player/ledger stage mapping, stable saved
+  health/attack modifiers, damage buckets, typed resistances and penetration.
+  Melee, sword qi and beast moves share the outgoing numerical policy;
+  additional resistance follows vanilla mitigation once.
+- Added regional wilderness realm ranges, natural wolf spawning with saved
+  birth realms, and bounded projections of eligible existing rogue cultivators
+  through the world ledger's avatar manager. Rogue projections retain their
+  existing noncombatant behavior.
+- Added numerical and regional diagnostics, validation and save/restart evidence
+  tooling. Owner combat feel, natural encounter density and multiplayer remain
+  separate from automated results.
+
 ## 0.46.2
 
 - Replaced the vanilla-bookshelf appearance with a generated two-block-high

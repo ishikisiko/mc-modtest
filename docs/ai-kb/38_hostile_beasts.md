@@ -10,8 +10,10 @@ files, and needs no new dependency (no GeckoLib). The normative rules are in
 [hostile-beast-runtime](../../openspec/specs/hostile-beast-runtime/spec.md);
 the Entity Contract is `genops/contracts/entities/demon_wolf.yaml`.
 
-The wolf has no natural spawning and no special drop: `/summon` and
-`myvillage:demon_wolf_spawn_egg` only.
+Since 0.47.0 the wolf has regional natural spawning with a saved birth realm;
+`/summon` and `myvillage:demon_wolf_spawn_egg` retain the unscaled baseline.
+The loot table remains empty. See [47_realm_stats_wilderness.md](47_realm_stats_wilderness.md)
+for the numerical rules, spawn contract and evidence commands.
 
 ## Where each fact lives
 

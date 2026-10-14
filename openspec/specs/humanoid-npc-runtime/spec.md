@@ -2,7 +2,6 @@
 
 ## Purpose
 Define the humanoid NPC framework (a body without a disposition, generated layered model, cut-out texture and clips at twice the vanilla texel density, validation) and its first NPC `myvillage:cultivator` (修仙者). See-also `docs/ai-kb/39_humanoid_npcs.md`, `genops/contracts/entities/cultivator.yaml`, `tools/npcgen/README.md`, and `hostile-beast-runtime` for the model and animation file schemas this framework shares.
-
 ## Requirements
 ### Requirement: An NPC is a body without a disposition
 `NpcEntity` SHALL extend `PathfinderMob` and give an NPC only a body in the world: it floats, strolls, looks at nearby players, and looks around. It MUST NOT register a target goal, an attack, a trade, or a dialogue; friend-or-foe behaviour SHALL be added by a later design, not assumed by this framework. An NPC SHALL NOT despawn by distance, SHALL NOT accept a leash, and SHALL be removed by nothing but death, a command, or the world simulation withdrawing an avatar it projected. An avatar is an NPC carrying a world-ledger person id (synced to clients; -1 for a summoned NPC): it SHALL NOT be saved with its chunk, SHALL NOT stroll (it still looks at players and around), SHALL NOT be attackable or take damage except from a source that bypasses invulnerability, SHALL NOT burn or be pushed, and SHALL do nothing when a player interacts with it. Only the world simulation SHALL make an NPC an avatar; a summoned NPC SHALL behave as described without it.
@@ -67,7 +66,7 @@ NPC renderers and layer definitions SHALL be registered only from the client-dis
 - **THEN** the NPC's entity type and attributes load without resolving any client class
 
 ### Requirement: The cultivator is summoned or projected, never spawned naturally
-`myvillage:cultivator` SHALL be registered in mob category `misc` with a 0.6 by 1.9 block hitbox and an eye height of 1.67, with English and Chinese entity and spawn-egg names, a spawn egg `myvillage:cultivator_spawn_egg` in `myvillage:main`, and an empty loot table. It SHALL have no natural spawning: no spawn placement, biome modifier, or spawn biome tag. A cultivator SHALL appear only when summoned by a command or a spawn egg, or when the world simulation projects a ledger member who is at a realized sect gate as an avatar while a player is near; an avatar SHALL stand on the compound's open courtyard ground and show its name, realm, and sect.
+`myvillage:cultivator` SHALL be registered in mob category `misc` with a 0.6 by 1.9 block hitbox and an eye height of 1.67, with English and Chinese entity and spawn-egg names, a spawn egg `myvillage:cultivator_spawn_egg` in `myvillage:main`, and an empty loot table. It SHALL have no natural spawning: no spawn placement, biome modifier, or spawn biome tag. A cultivator SHALL appear only when summoned by a command or a spawn egg, or when WorldSimAvatars projects a ledger member at a realized sect gate or an eligible rogue in a configured wilderness region while a player is near; a sect avatar SHALL stand on the compound's open courtyard ground and show its name, realm, and sect. A wilderness avatar SHALL stand on safe loaded ground in the matching region and show its ledger name, realm, and rogue rank.
 
 #### Scenario: Operator summons the cultivator
 - **WHEN** an operator runs `/summon myvillage:cultivator ~ ~ ~`
@@ -76,6 +75,10 @@ NPC renderers and layer definitions SHALL be registered only from the client-dis
 #### Scenario: The simulation projects a sect's members
 - **WHEN** a player stands in the courtyard of a compound built with `/myvillage world sect <id> build`
 - **THEN** the sect's ledger members who are at the sect, up to the configured cap, stand on the courtyard ground as cultivators named name · realm · sect
+
+#### Scenario: Wilderness rogue
+- **WHEN** a local living rogue meets the configured regional realm range and a loaded safe placement is available
+- **THEN** the ledger avatar manager may project that person within its bounded caps without adding a second identity or making the avatar persistent
 
 ### Requirement: NPC validation and evidence
 `tools/validate_custom_entities.py` SHALL validate every NPC that `tools/npcgen` builds: the model and animation schemas, the required clips, a texture whose size equals the model's atlas and whose alpha is binary, the generator definition, names in both languages, the spawn egg and its colours, the loot table, the Java registration against the Entity Contract, renderer registration in the client class, and the absence of natural spawning. `python3 -m tools.combat_capture npc` SHALL collect in-game stills and walk footage as developer evidence. The look, the motion, and every real-client surface SHALL remain `not_verified` until the owner observes them.

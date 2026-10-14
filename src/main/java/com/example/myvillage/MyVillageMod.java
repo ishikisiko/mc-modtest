@@ -25,6 +25,10 @@ import com.example.myvillage.sect.SectStructures;
 import com.example.myvillage.sim.runtime.WorldSimCommands;
 import com.example.myvillage.sim.runtime.WorldSimRuntime;
 import com.example.myvillage.sim.runtime.WorldSimServerConfig;
+import com.example.myvillage.stats.runtime.ModStatsAttributes;
+import com.example.myvillage.stats.runtime.StatsCommands;
+import com.example.myvillage.stats.runtime.StatsRuntime;
+import com.example.myvillage.wilderness.runtime.WildernessRuntime;
 import com.example.myvillage.town.TownGenerator;
 import com.example.myvillage.town.ModBlockFallback;
 import com.mojang.brigadier.arguments.LongArgumentType;
@@ -99,6 +103,7 @@ public final class MyVillageMod {
         ModDataComponents.register(modEventBus);
         CombatSounds.register(modEventBus);
         CombatParticles.register(modEventBus);
+        ModStatsAttributes.register(modEventBus);
         ModPayloads.register(modEventBus);
         ModCultivationRegistries.register(modEventBus);
         CultivationAttachments.register(modEventBus);
@@ -111,6 +116,8 @@ public final class MyVillageMod {
         NeoForge.EVENT_BUS.addListener(RegionRuntimeService::onServerStarted);
         NeoForge.EVENT_BUS.addListener(RegionRuntimeService::onServerStopping);
         WorldSimRuntime.register(); // after the region runtime: genesis needs its graph
+        StatsRuntime.register();
+        WildernessRuntime.register();
         NeoForge.EVENT_BUS.addListener(this::onPlayerLoggedOut);
         NeoForge.EVENT_BUS.addListener(this::onPlayerChangedDimension);
     }
@@ -236,6 +243,7 @@ public final class MyVillageMod {
                         .then(CultivationCommands.pinyinCommand())
                         .then(CombatCommands.command())
                         .then(BeastCommands.command())
+                        .then(StatsCommands.command())
                         .then(WorldSimCommands.command()));
     }
 

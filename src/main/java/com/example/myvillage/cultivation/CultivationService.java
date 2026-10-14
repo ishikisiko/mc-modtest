@@ -1,5 +1,7 @@
 package com.example.myvillage.cultivation;
 
+import com.example.myvillage.stats.runtime.StatsRuntime;
+
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.data.RealmDefinition;
 import com.example.myvillage.cultivation.data.SpiritualElementDefinition;
@@ -346,6 +348,10 @@ public final class CultivationService {
         replacement = replacement.withCurrentSpiritualPower(SpiritualPower.clamp(
                 replacement.currentSpiritualPower(), spiritualPowerCap(player.registryAccess(), replacement)));
         player.setData(CultivationAttachments.PROFILE.get(), replacement);
+        if (!previous.realmId().equals(replacement.realmId())
+                || !previous.stageId().equals(replacement.stageId())) {
+            StatsRuntime.refreshPlayer(player);
+        }
         try {
             syncToClient(player, replacement);
         } catch (RuntimeException exception) {
