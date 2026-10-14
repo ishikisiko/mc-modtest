@@ -7,6 +7,17 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.49.0
+
+- Add the first eight innate fates with server-owned six-to-three selection,
+  one lock, configurable point budget and a permanent confirmation in H → Fates.
+- Persist choices and cooldowns independently with copy-on-death; preserve old
+  cultivation profiles and roots and allow existing awakened players one choice.
+- Implement health/movement, cultivation/study, fire, low-health defense,
+  alchemist recovery and hostile-kill qi recovery. Remaining designs stay deferred.
+- Add synchronized definitions, bounded intent protocol 18, bilingual commands,
+  validation and developer evidence without claiming owner feel acceptance.
+
 ## 0.48.2
 
 - Split elemental resistance penetration into independent metal, wood, water,

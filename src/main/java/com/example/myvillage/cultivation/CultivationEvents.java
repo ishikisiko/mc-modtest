@@ -35,6 +35,7 @@ public final class CultivationEvents {
     }
 
     public static void register() {
+        com.example.myvillage.cultivation.fate.FateRuntime.register();
         NeoForge.EVENT_BUS.addListener(CultivationEvents::onServerStarted);
         NeoForge.EVENT_BUS.addListener(CultivationEvents::onPlayerLoggedIn);
         NeoForge.EVENT_BUS.addListener(CultivationEvents::onPlayerRespawn);
@@ -84,6 +85,7 @@ public final class CultivationEvents {
 
     private static void onPlayerRespawn(PlayerEvent.PlayerRespawnEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
+            if (!event.isEndConquered()) com.example.myvillage.cultivation.fate.FateRuntime.respawn(player);
             float previousHealth = player.getHealth();
             float previousMaximum = player.getMaxHealth();
             StatsRuntime.refreshPlayer(player);
@@ -108,6 +110,7 @@ public final class CultivationEvents {
 
     private static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
+            com.example.myvillage.cultivation.fate.FateService.forget(player);
             SpiritualPowerRuntime.forget(player);
             MeditationManager.onPlayerLoggedOut(player);
             CultivationTimeRuntime.onPlayerLoggedOut(player);
@@ -121,6 +124,7 @@ public final class CultivationEvents {
     }
 
     private static void onServerStopping(ServerStoppingEvent event) {
+        com.example.myvillage.cultivation.fate.FateService.stop();
         SpiritualPowerRuntime.stop();
         MeditationManager.onServerStopping(event.getServer());
         CultivationTimeRuntime.onServerStopping(event.getServer());
@@ -147,6 +151,7 @@ public final class CultivationEvents {
 
     private static void onLivingDeath(LivingDeathEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
+            com.example.myvillage.cultivation.fate.FateService.forget(player);
             SpiritualPowerRuntime.forget(player);
             MeditationManager.requestStop(player, MeditationStopReason.DIED);
             CultivationTimeRuntime.onPlayerDeath(player);

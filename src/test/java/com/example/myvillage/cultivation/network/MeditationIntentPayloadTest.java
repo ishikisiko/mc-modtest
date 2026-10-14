@@ -63,7 +63,7 @@ class MeditationIntentPayloadTest {
                 1, 2, 24_000, 24, 6, -1, -1, -1, false);
         MeditationStatus meditation = MeditationStatus.idle(MeditationStopReason.NONE);
 
-        invokeClientState("replace", CultivationProfile.class, profile);
+        invokeClientState("replace", CultivationSnapshotPayload.class, new CultivationSnapshotPayload(profile));
         invokeClientState("replaceTime", CultivationTimeSnapshotPayload.class, time);
         invokeClientState("replaceMeditation", MeditationStatus.class, meditation);
         assertEquals(profile, ClientCultivationState.latest().orElseThrow());
@@ -73,6 +73,8 @@ class MeditationIntentPayloadTest {
         invokeClientState("clear", null, null);
 
         assertTrue(ClientCultivationState.latest().isEmpty());
+        assertEquals(com.example.myvillage.cultivation.fate.FateState.empty(), ClientCultivationState.fates());
+        assertEquals(8, ClientCultivationState.fateBudget());
         assertTrue(ClientCultivationState.time().isEmpty());
         assertTrue(ClientCultivationState.meditation().isEmpty());
     }

@@ -503,6 +503,7 @@ public final class MeditationManager {
                     realmLookup(player),
                     elementLookup(player),
                     WorldSimRuntime.data().map(SimData::rules),
+                    (int) Math.round(com.example.myvillage.cultivation.fate.FateService.effect(player, "study") * 10000),
                     replacement -> CultivationService.replaceProfile(player, replacement).success());
         } catch (IllegalArgumentException | ArithmeticException exception) {
             LOGGER.warn("Study settlement validation failed for {}",
@@ -765,11 +766,9 @@ public final class MeditationManager {
     private static int progressFactorBasisPoints(ServerPlayer player, CultivationProfile profile) {
         int core = coreTechniqueFactor(player, profile);
         int master = WorldSimPlayers.masterGuidanceBasisPoints(player);
-        if (master == CoreTechniqueFactor.UNIT_BASIS_POINTS) {
-            return core;
-        }
+        double fate = 1 + com.example.myvillage.cultivation.fate.FateService.effect(player, "gain");
         return (int) Math.min(Integer.MAX_VALUE,
-                Math.round(core * (double) master / CoreTechniqueFactor.UNIT_BASIS_POINTS));
+                Math.round(core * (double) master / CoreTechniqueFactor.UNIT_BASIS_POINTS * fate));
     }
 
     /** The running core technique's gain factor; rule numbers come only from the world-sim data. */

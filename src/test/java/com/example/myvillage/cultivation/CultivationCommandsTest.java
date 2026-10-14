@@ -14,6 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class CultivationCommandsTest {
     private static final Map<String, String> PINYIN_ALIASES = Map.ofEntries(
             Map.entry("info", "chakan"),
+            Map.entry("fate", "mingge"),
             Map.entry("reset", "chongzhi"),
             Map.entry("setrealm", "shezhijingjie"),
             Map.entry("setprogress", "shezhixiuwei"),

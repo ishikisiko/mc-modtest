@@ -33,6 +33,16 @@ public final class CultivationService {
     private CultivationService() {
     }
 
+    /** The sole writer of the independent immutable innate-fate attachment. */
+    public static void replaceFates(ServerPlayer player, com.example.myvillage.cultivation.fate.FateState replacement, boolean synchronize) {
+        Objects.requireNonNull(replacement, "replacement");
+        player.setData(CultivationAttachments.FATES.get(), replacement);
+        if (synchronize) {
+            com.example.myvillage.cultivation.fate.FateRuntime.refresh(player);
+            syncToClient(player);
+        }
+    }
+
     public static CultivationProfile getProfile(ServerPlayer player) {
         Objects.requireNonNull(player, "player");
         return player.getData(CultivationAttachments.PROFILE.get());
@@ -314,7 +324,7 @@ public final class CultivationService {
     }
 
     private static void syncToClient(ServerPlayer player, CultivationProfile profile) {
-        PacketDistributor.sendToPlayer(player, new CultivationSnapshotPayload(profile));
+        PacketDistributor.sendToPlayer(player, new CultivationSnapshotPayload(profile, com.example.myvillage.cultivation.fate.FateService.state(player), com.example.myvillage.cultivation.fate.FateService.budget()));
     }
 
     private static Result updateScalar(

@@ -749,3 +749,10 @@ Bounded developer evidence SHALL exercise currently mapped physical and fire sou
 - **WHEN** metal, wood, water or earth passes registration, synchronization or deterministic routing tests without a shipped mapped attack
 - **THEN** the report SHALL identify those tested surfaces and leave actual elemental attack gameplay `not_verified`
 - **AND** the change SHALL add no attack or source mapping to turn that test into an apparent gameplay pass
+
+### Requirement: Innate fate foundation gates
+Fate changes SHALL validate data, selection rules, bounded payloads, persistence, effect boundaries, server-only authority and generated resources; run focused tests and a fresh build, then bounded acceptance-server and real-client evidence. Layouts SHALL be checked at 480x270, 427x240 and 320x240 in both languages. Unobserved owner feel and multiplayer surfaces SHALL remain not_verified.
+
+#### Scenario: First-batch handoff
+- **WHEN** the initial innate-fate batch is handed off
+- **THEN** evidence separates automated lifecycle and effect checks, physical-client interaction and owner acceptance, and does not count the other 28 designs as implemented

@@ -297,6 +297,7 @@ STEPS: tuple[Step, ...] = (
     tool("validate_mod_items"),
     tool("validate_custom_entities"),
     tool("validate_realm_stats"),
+    tool("validate_innate_fates"),
     tool("validate_rideable_flying_sword"),
     tool("validate_cultivation_core"),
     tool("validate_cultivation_initiation"),

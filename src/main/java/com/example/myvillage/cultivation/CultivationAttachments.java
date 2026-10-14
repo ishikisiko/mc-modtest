@@ -18,6 +18,11 @@ public final class CultivationAttachments {
                     .copyOnDeath()
                     .build());
 
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<com.example.myvillage.cultivation.fate.FateState>> FATES =
+            ATTACHMENT_TYPES.register("innate_fates", () -> AttachmentType
+                    .builder(com.example.myvillage.cultivation.fate.FateState::empty)
+                    .serialize(com.example.myvillage.cultivation.fate.FateState.CODEC).copyOnDeath().build());
+
     private CultivationAttachments() {
     }
 

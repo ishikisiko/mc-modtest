@@ -136,7 +136,7 @@ class CultivationAdvancementValidator:
 
     def validate_intent_and_keys(self) -> None:
         network_sources = self.read_tree(JAVA / "cultivation/network")
-        action_text = "\n".join(network_sources.values())
+        action_text = "\n".join(text for path, text in network_sources.items() if path.name != "FateIntentPayload.java")
         if "START_NORMAL" not in action_text or "START_SPIRIT" not in action_text:
             self.error(JAVA / "cultivation/network", "missing extended meditation intent action definition")
         else:

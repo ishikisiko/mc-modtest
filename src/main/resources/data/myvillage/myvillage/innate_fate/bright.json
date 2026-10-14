@@ -1,0 +1,11 @@
+{
+  "translation_key": "fate.myvillage.bright",
+  "description_key": "fate.myvillage.bright.description",
+  "tier": 0,
+  "cost": 1,
+  "group": "bright",
+  "effects": {
+    "gain": 0.12,
+    "study": 0.1
+  }
+}

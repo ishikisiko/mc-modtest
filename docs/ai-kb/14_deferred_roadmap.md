@@ -294,3 +294,7 @@ that explicitly supersedes the Non-Goal.
 - **When adding a new deferral:** cite the source artifact precisely (change
   name + file + section) and verify it is not already realized in code before
   listing — this note must not drift into aspirational wishlist.
+
+## Innate fates: later batches
+
+See [the retained catalogue](../innate-fates-design.json), [first-batch KB](48_innate_fates.md) and `innate-fates`. Only eight entries have runtime effects in 0.49.0. The other 28, root rerolling and creation-wide purity/body matching, Phoenix/other awakening, orbiting blades, skill copying, giant forms, domains, ruins/treasure guidance, custom healing pills and herbs, escorts and hidden归元 remain deferred. Do not infer implementation from the browser design.

@@ -65,6 +65,14 @@ public final class StudyStep {
             Predicate<ResourceLocation> elementAvailable,
             Optional<Rules> rules,
             ProfileCommitter committer) {
+        return settle(techniqueId, slot, profile, techniques, realms, elementAvailable, rules, 0, committer);
+    }
+
+    public static Result settle(ResourceLocation techniqueId, ManualSlot slot, CultivationProfile profile,
+            Function<ResourceLocation, TechniqueDefinition> techniques,
+            Function<ResourceLocation, RealmDefinition> realms, Predicate<ResourceLocation> elementAvailable,
+            Optional<Rules> rules, int fateBonusBasisPoints, ProfileCommitter committer) {
+        if (fateBonusBasisPoints < 0) throw new IllegalArgumentException("Negative fate study bonus");
         Objects.requireNonNull(techniqueId, "techniqueId");
         Objects.requireNonNull(slot, "slot");
         Objects.requireNonNull(profile, "profile");
@@ -90,7 +98,7 @@ public final class StudyStep {
                 study.gateStabilityCost(),
                 Math.max(0, profile.stability()),
                 Math.max(0, profile.spiritualAffinity()),
-                StudyRules.elementBonusBasisPoints(definition, profile.spiritualRoot(), rules));
+                (int) Math.min(Integer.MAX_VALUE, (long) fateBonusBasisPoints + StudyRules.elementBonusBasisPoints(definition, profile.spiritualRoot(), rules)));
 
         CultivationProfile replacement = profile;
         if (plan.stabilityCost() > 0) {

@@ -1,0 +1,12 @@
+{
+  "translation_key": "fate.myvillage.unyielding",
+  "description_key": "fate.myvillage.unyielding.description",
+  "tier": 2,
+  "cost": 3,
+  "group": "unyielding",
+  "effects": {
+    "low_threshold": 0.35,
+    "low_reduction": 0.2,
+    "low_knockback": 0.3
+  }
+}

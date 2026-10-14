@@ -15,6 +15,11 @@ public final class CultivationPayloads {
     }
 
     public static void register(PayloadRegistrar registrar) {
+        registrar.playToServer(FateIntentPayload.TYPE, FateIntentPayload.STREAM_CODEC, (payload, context) -> {
+            if (context.player() instanceof ServerPlayer player) context.enqueueWork(() ->
+                    com.example.myvillage.cultivation.fate.FateService.intent(player, Byte.toUnsignedInt(payload.action()),
+                            payload.revision(), Byte.toUnsignedInt(payload.value())));
+        });
         CultivationTimeRuntime.installStatusListener((player, status) ->
                 PacketDistributor.sendToPlayer(player, CultivationTimeSnapshotPayload.fromStatus(status)));
         MeditationManager.installStatusListener((player, status) ->
@@ -44,7 +49,7 @@ public final class CultivationPayloads {
     private static void handleSnapshot(
             CultivationSnapshotPayload payload,
             IPayloadContext context) {
-        context.enqueueWork(() -> CultivationSnapshotReceiver.receive(payload.profile()));
+        context.enqueueWork(() -> CultivationSnapshotReceiver.receive(payload));
     }
 
     private static void handleTimeSnapshot(

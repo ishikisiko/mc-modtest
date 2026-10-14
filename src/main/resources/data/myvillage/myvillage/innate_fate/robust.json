@@ -1,0 +1,11 @@
+{
+  "translation_key": "fate.myvillage.robust",
+  "description_key": "fate.myvillage.robust.description",
+  "tier": 0,
+  "cost": 1,
+  "group": "robust",
+  "effects": {
+    "health": 0.15,
+    "knockback": 0.2
+  }
+}

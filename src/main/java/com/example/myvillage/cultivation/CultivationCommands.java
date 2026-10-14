@@ -49,6 +49,8 @@ public final class CultivationCommands {
 
     private static LiteralArgumentBuilder<CommandSourceStack> commandTree(String rootLiteral) {
         return Commands.literal(rootLiteral)
+                .then(com.example.myvillage.cultivation.fate.FateCommands.tree("fate"))
+                .then(com.example.myvillage.cultivation.fate.FateCommands.tree("mingge"))
                 .then(infoCommand("info"))
                 .then(infoCommand("chakan"))
                 .then(resetCommand("reset"))

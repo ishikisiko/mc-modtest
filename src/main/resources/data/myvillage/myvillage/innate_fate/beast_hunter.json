@@ -1,0 +1,12 @@
+{
+  "translation_key": "fate.myvillage.beast_hunter",
+  "description_key": "fate.myvillage.beast_hunter.description",
+  "tier": 2,
+  "cost": 3,
+  "group": "beast_hunter",
+  "effects": {
+    "hunter_bonus": 0.15,
+    "hunter_recovery": 0.08,
+    "hunter_cooldown": 40
+  }
+}

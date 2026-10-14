@@ -46,6 +46,11 @@ public record PanelContext(
                 ClientCultivationState.meditation().orElse(null));
     }
 
+    public com.example.myvillage.cultivation.fate.FateState fates() { return ClientCultivationState.fates(); }
+    public int fateBudget() { return ClientCultivationState.fateBudget(); }
+    public java.util.Map<String, com.example.myvillage.cultivation.fate.FateDefinition> fateDefinitions() {
+        return com.example.myvillage.cultivation.fate.FateService.definitions(registries);
+    }
     public String text(String key, Object... arguments) {
         return Component.translatable(key, arguments).getString();
     }

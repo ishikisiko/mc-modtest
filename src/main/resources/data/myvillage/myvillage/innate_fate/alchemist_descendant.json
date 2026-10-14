@@ -1,0 +1,13 @@
+{
+  "translation_key": "fate.myvillage.alchemist_descendant",
+  "description_key": "fate.myvillage.alchemist_descendant.description",
+  "tier": 1,
+  "cost": 2,
+  "group": "alchemist_descendant",
+  "effects": {
+    "recovery_threshold": 0.35,
+    "recovery_fraction": 0.3,
+    "recovery_ticks": 100,
+    "recovery_cooldown": 1200
+  }
+}

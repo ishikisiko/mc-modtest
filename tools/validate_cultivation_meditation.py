@@ -183,6 +183,7 @@ class CultivationMeditationValidator:
             (path, text)
             for path, text in network_sources.items()
             if "CustomPacketPayload" in text
+            and path.name != "FateIntentPayload.java"
             and re.search(r"record\s+\w*IntentPayload\s*\(", text)
         ]
         if len(candidates) != 1:

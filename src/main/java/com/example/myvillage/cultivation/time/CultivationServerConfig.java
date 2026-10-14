@@ -13,6 +13,7 @@ public final class CultivationServerConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(CultivationServerConfig.class);
 
     public static final ModConfigSpec SPEC;
+    private static final ModConfigSpec.IntValue FATE_BUDGET;
     private static final ModConfigSpec.IntValue TICKS_PER_DAY;
     private static final ModConfigSpec.IntValue DAYS_PER_YEAR;
     private static final ModConfigSpec.IntValue DAYS_PER_WEEK;
@@ -31,11 +32,17 @@ public final class CultivationServerConfig {
                         + "reinterprets stored raw ticks; days_per_year should be a multiple of it.")
                 .defineInRange("days_per_week", DEFAULT_DAYS_PER_WEEK, 1, Integer.MAX_VALUE);
         builder.pop();
+        builder.push("innate_fates");
+        FATE_BUDGET = builder.comment("Point limit for new fate confirmations; confirmed choices remain fixed.")
+                .defineInRange("point_budget", 8, 3, 18);
+        builder.pop();
         SPEC = builder.build();
     }
 
     private CultivationServerConfig() {
     }
+
+    public static int fateBudget() { return FATE_BUDGET.getAsInt(); }
 
     public static Scale scale() {
         return new Scale(TICKS_PER_DAY.getAsInt(), DAYS_PER_YEAR.getAsInt(), DAYS_PER_WEEK.getAsInt());

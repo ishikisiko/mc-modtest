@@ -1,0 +1,13 @@
+{
+  "translation_key": "fate.myvillage.burning_star",
+  "description_key": "fate.myvillage.burning_star.description",
+  "tier": 3,
+  "cost": 4,
+  "group": "burning_star",
+  "effects": {
+    "damage_bonus": 0.3,
+    "health": -0.2,
+    "low_speed_threshold": 0.3,
+    "low_speed": 0.15
+  }
+}

@@ -7,23 +7,17 @@ direction, mutation authority, and dedicated-server side safety.
 See also: [Spiritual Power and Sword Qi](../../../docs/ai-kb/45_spiritual_power_sword_qi.md).
 ## Requirements
 ### Requirement: Cultivation snapshots flow only from server to owning client
-The mod SHALL keep `myvillage:cultivation_snapshot` play-to-client and SHALL
-carry an immutable current-v3 profile containing every v3 field, including
-spiritual affinity and inert legacy reserve. Separate time and runtime-status
-payloads SHALL remain clientbound-only. The bounded action-intent payload SHALL be
-play-to-server but MUST NOT carry or write realm, stage, root, affinity,
-progress, stability, power, lifespan, reserve, techniques, mastery, cost, rate,
-target, or result.
+The mod SHALL keep `myvillage:cultivation_snapshot` play-to-client and carry the immutable current-v4 cultivation profile, the independent immutable fate state and the server fate point budget. Time and runtime-status payloads SHALL remain clientbound-only. Cultivation serverbound inputs SHALL be limited to the bounded meditation action, a core-technique switch ID and a fate intent carrying action, seen draft revision and a bounded slot or six-bit selection mask. None SHALL carry client-authored realm, stage, root, affinity, progress, stability, power, lifespan, effect value, cost, rate or result. The server SHALL resolve and validate all replacements.
 
 #### Scenario: The server synchronizes one player
 - **WHEN** `CultivationService#syncToClient` is called for a `ServerPlayer`
-- **THEN** the current v3 profile SHALL be sent only to that owning player
-- **AND** it SHALL not broadcast another player's private profile
+- **THEN** the current profile, fate state and point budget SHALL be sent only to that owning player
+- **AND** another player's private profile SHALL not be broadcast
 
 #### Scenario: A client submits a cultivation action
 - **WHEN** registered payload directions and fields are inspected
-- **THEN** the only cultivation serverbound data SHALL be one bounded enumerated action
-- **AND** the server attachment and resolved gameplay numbers SHALL remain authoritative
+- **THEN** only the bounded meditation action, core switch ID and bounded fate selection intent SHALL be registered as cultivation serverbound inputs
+- **AND** the server attachment, candidate eligibility and resolved gameplay numbers SHALL remain authoritative
 
 ### Requirement: Definition registries are not duplicated in profile snapshots
 `CultivationSnapshotPayload` SHALL NOT contain complete realm, spiritual-element, or technique definition records. Client definition lookup SHALL use the network-synchronized datapack registries, while the snapshot SHALL preserve the profile's raw `ResourceLocation` references.

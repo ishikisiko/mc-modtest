@@ -13,6 +13,12 @@ public final class ClientCultivationIntentSender {
     private ClientCultivationIntentSender() {
     }
 
+    public static boolean sendFate(int action, long revision, int value) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.player == null || minecraft.getConnection() == null) return false;
+        PacketDistributor.sendToServer(new com.example.myvillage.cultivation.network.FateIntentPayload((byte) action, revision, (byte) value));
+        return true;
+    }
     public static boolean send(MeditationIntentAction action) {
         Objects.requireNonNull(action, "action");
         Minecraft minecraft = Minecraft.getInstance();

@@ -1,0 +1,11 @@
+{
+  "translation_key": "fate.myvillage.fire_affinity",
+  "description_key": "fate.myvillage.fire_affinity.description",
+  "tier": 1,
+  "cost": 2,
+  "group": "fire_affinity",
+  "effects": {
+    "fire_bonus": 0.15,
+    "environment_fire_reduction": 0.5
+  }
+}

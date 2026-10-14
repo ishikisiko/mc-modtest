@@ -303,6 +303,7 @@ class CultivationInitiationValidationTest(unittest.TestCase):
             package com.example.myvillage.cultivation.network;
             public final class CultivationPayloads {
                 public static void register(PayloadRegistrar registrar) {
+                    registrar.playToServer(FateIntentPayload.TYPE, FateIntentPayload.STREAM_CODEC, CultivationPayloads::handleFate);
                     registrar.playToClient(CultivationSnapshotPayload.TYPE,
                             CultivationSnapshotPayload.STREAM_CODEC, CultivationPayloads::handle);
                     registrar.playToClient(CultivationTimeSnapshotPayload.TYPE,

@@ -1,0 +1,11 @@
+{
+  "translation_key": "fate.myvillage.lightfoot",
+  "description_key": "fate.myvillage.lightfoot.description",
+  "tier": 0,
+  "cost": 1,
+  "group": "movement",
+  "effects": {
+    "speed": 0.1,
+    "fall_reduction": 0.3
+  }
+}

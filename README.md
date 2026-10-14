@@ -481,63 +481,63 @@ Confirm the jar contains the structure resources (name the versioned jar:
 `build/libs/` keeps the jars of earlier versions):
 
 ```bash
-jar tf build/libs/myvillage-0.48.2.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/textures/painting/inscription"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
-jar tf build/libs/myvillage-0.48.2.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "data/myvillage/beast/demon_wolf.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/beast/demon_wolf_model.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/beast/demon_wolf_animations.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/textures/entity/demon_wolf/demon_wolf_eyes.png"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/npc/cultivator_model.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/npc/cultivator_animations.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/textures/entity/cultivator/cultivator.png"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/combat/qingfeng_first_person.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/models/item/lingxiao_spear.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/models/item/lingxiao_spear_3d.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/textures/item/lingxiao_spear.png"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/textures/item/lingxiao_spear_model.png"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/combat/lingxiao_spear_geometry.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/combat/lingxiao_spear_first_person.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/models/item/xuantie_gauntlet.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/models/item/xuantie_gauntlet_3d.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet.png"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet_model.png"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/combat/xuantie_gauntlet_geometry.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/combat/xuantie_gauntlet_first_person.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/player_animations/sword_combat.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/player_animations/spear_combat.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/player_animations/fist_combat.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "data/minecraft/tags/item/swords.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/guides/myvillage/cultivation/index.md"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/models/item/manual_core_huang.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/textures/item/manual_core_tint.png"
+jar tf build/libs/myvillage-0.49.0.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
+jar tf build/libs/myvillage-0.49.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "data/myvillage/beast/demon_wolf.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/beast/demon_wolf_model.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/beast/demon_wolf_animations.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/textures/entity/demon_wolf/demon_wolf_eyes.png"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/npc/cultivator_model.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/npc/cultivator_animations.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/textures/entity/cultivator/cultivator.png"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/combat/qingfeng_first_person.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/models/item/lingxiao_spear.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/models/item/lingxiao_spear_3d.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear.png"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear_model.png"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/combat/lingxiao_spear_geometry.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/combat/lingxiao_spear_first_person.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet_3d.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet.png"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet_model.png"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_geometry.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_first_person.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/player_animations/sword_combat.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/player_animations/spear_combat.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/player_animations/fist_combat.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "data/minecraft/tags/item/swords.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/guides/myvillage/cultivation/index.md"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/models/item/manual_core_huang.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/textures/item/manual_core_tint.png"
 ```
 
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.48.2.jar
+build/libs/myvillage-0.49.0.jar
 ```
 
 ## On-Demand Modal Test Runner (0.46.1)
@@ -697,61 +697,61 @@ python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 
 python3 tools/write_visual_acceptance_report.py
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.48.2.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.48.2.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.48.2.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/textures/painting/inscription"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
-jar tf build/libs/myvillage-0.48.2.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "data/myvillage/beast/demon_wolf.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/beast/demon_wolf_model.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/beast/demon_wolf_animations.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/textures/entity/demon_wolf/demon_wolf_eyes.png"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/npc/cultivator_model.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/npc/cultivator_animations.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/textures/entity/cultivator/cultivator.png"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/combat/qingfeng_first_person.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/models/item/lingxiao_spear.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/models/item/lingxiao_spear_3d.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/textures/item/lingxiao_spear.png"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/textures/item/lingxiao_spear_model.png"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/combat/lingxiao_spear_geometry.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/combat/lingxiao_spear_first_person.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/models/item/xuantie_gauntlet.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/models/item/xuantie_gauntlet_3d.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet.png"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet_model.png"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/combat/xuantie_gauntlet_geometry.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/combat/xuantie_gauntlet_first_person.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "data/myvillage/combat/"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/player_animations/sword_combat.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/player_animations/spear_combat.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/player_animations/fist_combat.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "data/minecraft/tags/item/swords.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/textures/item/low_grade_spirit_stone.png"
-jar tf build/libs/myvillage-0.48.2.jar | grep "data/myvillage/worldgen/configured_feature/spirit_stone_ore.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "data/myvillage/myvillage/realm/qi_refining.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/guides/myvillage/cultivation"
-jar tf build/libs/myvillage-0.48.2.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.49.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.49.0.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
+jar tf build/libs/myvillage-0.49.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "data/myvillage/beast/demon_wolf.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/beast/demon_wolf_model.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/beast/demon_wolf_animations.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/textures/entity/demon_wolf/demon_wolf_eyes.png"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/npc/cultivator_model.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/npc/cultivator_animations.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/textures/entity/cultivator/cultivator.png"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/combat/qingfeng_first_person.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/models/item/lingxiao_spear.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/models/item/lingxiao_spear_3d.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear.png"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear_model.png"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/combat/lingxiao_spear_geometry.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/combat/lingxiao_spear_first_person.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet_3d.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet.png"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet_model.png"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_geometry.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_first_person.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "data/myvillage/combat/"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/player_animations/sword_combat.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/player_animations/spear_combat.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/player_animations/fist_combat.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "data/minecraft/tags/item/swords.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/textures/item/low_grade_spirit_stone.png"
+jar tf build/libs/myvillage-0.49.0.jar | grep "data/myvillage/worldgen/configured_feature/spirit_stone_ore.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "data/myvillage/myvillage/realm/qi_refining.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/guides/myvillage/cultivation"
+jar tf build/libs/myvillage-0.49.0.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -890,7 +890,7 @@ python3 tools/realm_stats_evidence.py
 python3 tools/realm_armor_evidence.py
 # Independent elemental penetration and save/restart:
 python3 tools/elemental_penetration_evidence.py
-/usr/bin/python3 tools/validate_realm_stats.py --jar build/libs/myvillage-0.48.2.jar
+/usr/bin/python3 tools/validate_realm_stats.py --jar build/libs/myvillage-0.49.0.jar
 ```
 
 Run clean stage 1 before the evidence script: it clears `run-acceptance`.
@@ -4091,3 +4091,81 @@ acceptance still needs a v0.9 mod jar plus in-game visual inspection with
 simple-fox slice completed its summon, spawn-egg, save/reload,
 natural-frequency, multiplayer, and multi-view Minecraft acceptance on
 2026-07-12.
+
+
+### Innate Fates / 先天气运 (0.49.0)
+
+After using the testing stele, press **H → Fates / 先天**, reroll six candidates,
+select three, then click Confirm and Finalize. Existing awakened saves may choose
+once. The inheritance stele remains separate. This batch preserves existing roots;
+it only rerolls traits. Only the eight implemented traits appear. The
+[36-trait catalogue](docs/innate-fates-design.json) retains later designs.
+
+| Trait | Runtime ID | Tier / points |
+|---|---|---|
+| 身强体健 / Robust | `myvillage:robust` | white / 1 |
+| 脚步轻快 / Lightfoot | `myvillage:lightfoot` | white / 1 |
+| 天资聪颖 / Bright Aptitude | `myvillage:bright` | white / 1 |
+| 亲火 / Fire Affinity | `myvillage:fire_affinity` | green / 2 |
+| 丹师之后 / Alchemist Descendant | `myvillage:alchemist_descendant` | green / 2 |
+| 猎妖老手 / Beast Hunter | `myvillage:beast_hunter` | blue / 3 |
+| 不屈 / Unyielding | `myvillage:unyielding` | blue / 3 |
+| 燃命凶星 / Burning Star | `myvillage:burning_star` | purple / 4 |
+
+The page displays current effect values from synchronized data. Locking preserves
+one candidate but does not force selection. Confirmed choices cannot be rerolled
+by ordinary players, including after death or reconnect. Budget is server-owned:
+set `[innate_fates] point_budget = 8` in the world's `serverconfig/myvillage-server.toml`
+(3–18). The default is 8; one purple-or-higher and group exclusions remain separate.
+A changed budget does not revoke confirmed builds. A datapack-disabled/missing
+confirmed definition stops granting its effect without silently replacing it.
+
+Normal commands mirror the page. Both `cultivation` and `xiulian` accept both
+`fate` and `mingge`; each subcommand has the following structurally identical alias:
+
+| English | Pinyin | Use |
+|---|---|---|
+| `status [player]` | `chakan [player]` | Inspect own state; targeting another player requires operator permission. |
+| `roll [player]` | `chongzhi [player]` | Reroll unconfirmed choices; targeting requires operator permission. |
+| `lock <slot>` | `suoding <slot>` | Slots 1–6; 0 unlocks. |
+| `confirm <mask>` | `queren <mask>` | Three bits from slots 0–5; prefer the H page. |
+| `confirm <player> <mask>` | `queren <player> <mask>` | Operator fixture; normal eligibility still applies. |
+| `reset <player>` | `qingchu <player>` | Operator-only removal/reselection; cooldown deadlines remain. |
+
+```mcfunction
+/myvillage cultivation fate status
+/myvillage xiulian mingge chongzhi
+/myvillage cultivation fate lock 1
+/myvillage cultivation fate lock 0
+/myvillage cultivation fate confirm 7
+/myvillage cultivation fate reset @s
+```
+
+Mask 7 selects the first three slots and is rejected if the actual combination is
+invalid. Each action is server-throttled. There is no client-provided seed, cost,
+effect number, health, mana or cooldown. See [KB 48](docs/ai-kb/48_innate_fates.md).
+
+```bash
+/usr/bin/python3 tools/validate_innate_fates.py
+/usr/bin/python3 -m unittest tools.tests.test_validate_innate_fates
+./gradlew test --tests 'com.example.myvillage.cultivation.*' --tests 'com.example.myvillage.client.cultivation.*'
+/usr/bin/python3 tools/release_gate.py
+/usr/bin/python3 tools/validate_innate_fates.py --jar build/libs/myvillage-0.49.0.jar
+python3 tools/run_chunky_acceptance.py --stage 1
+python3 tools/innate_fates_evidence.py
+```
+
+Run clean stage 1 before capture; it clears the shared acceptance directory.
+The evidence script owns the heavy-work lock and uses mapped client input with
+RCON fixtures/readback, not DevBridge. Do not run another Gradle/Minecraft job
+while it is active. A numerical or scripted pass is not owner combat-feel acceptance.
+
+| Acceptance surface | State |
+|---|---|
+| Data/rules/payload and persistence tests | pass: focused rules/codecs and validator mutations; full Java 999 |
+| Clean acceptance server / fresh jar | pass: clean stage 1, final 57-step release gate, all 817 tested class files match the jar |
+| Mapped H-page confirmation and six bilingual layouts | pass: actual mouse input; 12 draft/confirmed PNGs across six language/size combinations |
+| Actual effects and same-world restart | pass: 23 checks; see [measured evidence](docs/testing/2026-10-15-innate-fates.md) for scope and retained retries |
+| Owner balance, usability, effects feel | not_verified |
+| Two-player multiplayer | not_verified |
+| Other 28 planned traits and root rerolls | not_implemented |

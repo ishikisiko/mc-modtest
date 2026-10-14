@@ -91,6 +91,7 @@ public final class StatsRuntime {
     }
 
     public static void refreshPlayer(ServerPlayer player) {
+        com.example.myvillage.cultivation.fate.FateRuntime.refresh(player);
         var profile = CultivationService.getProfile(player);
         try {
             RealmKey key = StatsRules.bundled().playerKey(

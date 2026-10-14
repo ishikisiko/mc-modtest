@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public final class ModCultivationRegistries {
+    public static final ResourceKey<Registry<com.example.myvillage.cultivation.fate.FateDefinition>> INNATE_FATES = registryKey("innate_fate");
     public static final ResourceKey<Registry<RealmDefinition>> REALMS = registryKey("realm");
     public static final ResourceKey<Registry<SpiritualElementDefinition>> SPIRITUAL_ELEMENTS =
             registryKey("spiritual_element");
@@ -109,6 +110,7 @@ public final class ModCultivationRegistries {
         event.dataPackRegistry(TECHNIQUES, TechniqueDefinition.CODEC, TechniqueDefinition.CODEC);
         event.dataPackRegistry(SCHOOLS, SchoolDefinition.CODEC, SchoolDefinition.CODEC);
         event.dataPackRegistry(HERITAGES, HeritageDefinition.CODEC, HeritageDefinition.CODEC);
+        event.dataPackRegistry(INNATE_FATES, com.example.myvillage.cultivation.fate.FateDefinition.CODEC, com.example.myvillage.cultivation.fate.FateDefinition.CODEC);
     }
 
     /** The technique {@code id} in the current registries, if registered. */

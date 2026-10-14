@@ -6,17 +6,17 @@ import java.util.Objects;
 import java.util.function.Consumer;
 
 public final class CultivationSnapshotReceiver {
-    private static final Consumer<CultivationProfile> NO_OP = ignored -> { };
-    private static volatile Consumer<CultivationProfile> sink = NO_OP;
+    private static final Consumer<CultivationSnapshotPayload> NO_OP = ignored -> { };
+    private static volatile Consumer<CultivationSnapshotPayload> sink = NO_OP;
 
     private CultivationSnapshotReceiver() {
     }
 
-    public static void install(Consumer<CultivationProfile> newSink) {
+    public static void install(Consumer<CultivationSnapshotPayload> newSink) {
         sink = Objects.requireNonNull(newSink, "newSink");
     }
 
-    static void receive(CultivationProfile profile) {
+    static void receive(CultivationSnapshotPayload profile) {
         sink.accept(Objects.requireNonNull(profile, "profile"));
     }
 }

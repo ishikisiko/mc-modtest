@@ -138,7 +138,7 @@ class CultivationAdvancementValidationTest(unittest.TestCase):
         payload = next(
             path
             for path in network_root.rglob("*.java")
-            if re.search(r"record\s+\w*IntentPayload\s*\(", path.read_text(encoding="utf-8"))
+            if path.name == "MeditationIntentPayload.java" and re.search(r"record\s+\w*IntentPayload\s*\(", path.read_text(encoding="utf-8"))
         )
         text = payload.read_text(encoding="utf-8")
         text, count = re.subn(
