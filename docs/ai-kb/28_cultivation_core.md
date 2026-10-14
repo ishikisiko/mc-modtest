@@ -13,7 +13,7 @@ spiritual-root awakening, rules-based `basic_breathing` inheritance, two steles,
 and their administrator routes without changing the then-current v1 profile shape.
 The later playable-loop and affinity/UI slices add profile v3,
 lifespan/calendar, meditation, affinity/direct-stone Basic Breathing gain, and
-deterministic advancement through Qi IV; see
+deterministic advancement (extended through Golden Core late in 0.48.0); see
 [Cultivation Playable Loop](30_cultivation_playable_loop.md). The 0.37.0
 technique system adds profile v4 (a running core technique), the school and
 heritage registries, optional technique fields, and the `core`/`xinfa`
@@ -96,10 +96,11 @@ entries as `data/<entry_namespace>/<registry_namespace>/<registry_path>/`; an
 entry `<pack_namespace>:example` in `myvillage:technique` therefore lives at
 `data/<pack_namespace>/myvillage/technique/example.json`.
 
-The shipped realm and element data is deliberately small: metal, wood, water,
-fire, and earth; the mortal, qi-refining, and foundation-establishment realms;
+The shipped realm and element data includes metal, wood, water, fire and earth;
+the mortal, qi-refining, foundation-establishment and golden-core player realms;
 mortal-unawakened, mortal-qi-sensed, qi-refining stages 1 through 9, and
-foundation-early. Techniques are the hand-written grade-0
+early/middle/late stages in Foundation and Golden Core (17 stages total).
+Techniques are the hand-written grade-0
 `myvillage:basic_breathing` with its initiation realm/stage requirements plus,
 since 0.37.0, 129 catalogue techniques, four schools, and three heritages
 written by `tools/gen_technique_catalogue.py` (never edited by hand).

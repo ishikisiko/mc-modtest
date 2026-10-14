@@ -12,6 +12,12 @@ from pathlib import Path
 from typing import Any
 
 
+if __package__:
+    from .cultivation_progression_contract import REALM_LIFESPANS
+else:
+    from cultivation_progression_contract import REALM_LIFESPANS
+
+
 ROOT = Path(__file__).resolve().parents[1]
 JAVA = Path("src/main/java/com/example/myvillage")
 REALMS = Path("src/main/resources/data/myvillage/myvillage/realm")
@@ -210,12 +216,8 @@ class CultivationLifespanValidator:
         ):
             self.require(definition_path, definition, fragment, message)
 
-        for realm, expected in (
-            ("mortal", 80),
-            ("qi_refining", 120),
-            ("foundation_establishment", 240),
-        ):
-            path = REALMS / f"{realm}.json"
+        for realm_id, expected in REALM_LIFESPANS.items():
+            path = REALMS / f"{realm_id.split(':')[1]}.json"
             value = self.load_json(path)
             if value is None:
                 continue
@@ -410,7 +412,7 @@ def main() -> int:
         return 1
     print(
         "cultivation lifespan validation passed: "
-        f"checked_files={result.checked_files}; schema=4; affinity_default=10; realm_years=80/120/240; batch_ticks=600; "
+        f"checked_files={result.checked_files}; schema=4; affinity_default=10; realm_years=80/120/240/500; batch_ticks=600; "
         "scale=24000 ticks/day, 24 days/year, 6 days/week"
     )
     return 0

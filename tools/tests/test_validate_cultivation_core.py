@@ -24,6 +24,11 @@ class CultivationCoreValidationTest(unittest.TestCase):
         )
         qi = Path("src/main/resources/data/myvillage/qi")
         shutil.copytree(ROOT / qi, self.fixture_root / qi)
+        for relative in ("src/main/resources/data/myvillage/stats/rules.json",
+                         "src/main/resources/data/myvillage/world_sim/realms.json"):
+            target = self.fixture_root / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(ROOT / relative, target)
         (self.fixture_root / LANG_ROOT).mkdir(parents=True)
         for locale in ("en_us", "zh_cn"):
             shutil.copy2(
@@ -71,8 +76,8 @@ class CultivationCoreValidationTest(unittest.TestCase):
         result = self.validate()
 
         self.assertEqual((), result.errors)
-        self.assertEqual(3, result.realm_count)
-        self.assertGreaterEqual(result.stage_count, 12)
+        self.assertEqual(4, result.realm_count)
+        self.assertEqual(17, result.stage_count)
         self.assertEqual(5, result.element_count)
         shipped = len(list((ROOT / RESOURCE_ROOT / "technique").glob("*.json")))
         self.assertEqual(shipped, result.technique_count)
@@ -172,17 +177,11 @@ class CultivationCoreValidationTest(unittest.TestCase):
         )
 
     def test_release_ceiling_rejects_extra_stage_cap(self) -> None:
-        path = RESOURCE_ROOT / "realm/qi_refining.json"
+        path = RESOURCE_ROOT / "realm/golden_core.json"
         realm = self.load_json(path)
-        realm["stages"][3]["cultivation_cap"] = 1400
+        realm["stages"][2]["cultivation_cap"] = 8400
         self.write_json(path, realm)
-
-        result = self.validate()
-
-        self.assert_error_contains(
-            result,
-            "release-ceiling stage myvillage:qi_refining_4 must omit cultivation_cap",
-        )
+        self.assert_error_contains(self.validate(), "myvillage:golden_late must omit cultivation_cap and advancement")
 
     def test_cultivatable_stage_requires_positive_spirit_stone_cost(self) -> None:
         path = RESOURCE_ROOT / "realm/qi_refining.json"
@@ -215,7 +214,7 @@ class CultivationCoreValidationTest(unittest.TestCase):
         )
         self.assert_error_contains(
             result,
-            "stage myvillage:qi_refining_1 advancement must be",
+            "PROGRESSION_BASELINE: myvillage:qi_refining_1 advancement must be",
         )
 
     def test_advancement_stability_ratio_drift_is_rejected(self) -> None:
@@ -230,6 +229,22 @@ class CultivationCoreValidationTest(unittest.TestCase):
             result,
             "required_stability must equal half of cultivation_cap",
         )
+
+    def test_core_gate_rejects_missing_new_player_alias(self) -> None:
+        path = Path("src/main/resources/data/myvillage/stats/rules.json")
+        rules = self.load_json(path)
+        rules["player_stage_aliases"] = [a for a in rules["player_stage_aliases"]
+                                       if a["id"] != "myvillage:golden_late"]
+        self.write_json(path, rules)
+        self.assert_error_contains(self.validate(), "PROGRESSION_ALIAS")
+
+    def test_core_gate_rejects_premature_foundation_terminal(self) -> None:
+        path = RESOURCE_ROOT / "realm/foundation_establishment.json"
+        realm = self.load_json(path)
+        del realm["stages"][1]["advancement"]
+        self.write_json(path, realm)
+        self.assert_error_contains(self.validate(), "PROGRESSION_TERMINAL")
+        self.assert_error_contains(self.validate(), "PROGRESSION_REACHABILITY")
 
     def test_missing_required_id_is_rejected(self) -> None:
         (self.fixture_root / RESOURCE_ROOT / "spiritual_element/metal.json").unlink()

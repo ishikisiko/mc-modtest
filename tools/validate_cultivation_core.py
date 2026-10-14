@@ -12,6 +12,17 @@ from pathlib import Path
 from typing import Any
 
 
+if __package__:
+    from .cultivation_progression_contract import (
+        PLAYABLE_CHAIN, REALM_LIFESPANS, STAGE_OWNERS, TERMINAL, validate_progression,
+    )
+else:
+    from cultivation_progression_contract import (
+        PLAYABLE_CHAIN, REALM_LIFESPANS, STAGE_OWNERS, TERMINAL, validate_progression,
+    )
+
+
+
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY_ROOT = Path("src/main/resources/data/myvillage/myvillage")
 LANG_ROOT = Path("src/main/resources/assets/myvillage/lang")
@@ -30,79 +41,11 @@ REQUIRED_ELEMENTS = frozenset(
         "myvillage:earth",
     }
 )
-REQUIRED_REALMS = frozenset(
-    {
-        "myvillage:mortal",
-        "myvillage:qi_refining",
-        "myvillage:foundation_establishment",
-    }
-)
-REQUIRED_STAGE_OWNERS = {
-    "myvillage:mortal_unawakened": "myvillage:mortal",
-    "myvillage:mortal_qi_sensed": "myvillage:mortal",
-    **{
-        f"myvillage:qi_refining_{index}": "myvillage:qi_refining"
-        for index in range(1, 10)
-    },
-    "myvillage:foundation_early": "myvillage:foundation_establishment",
-}
+REQUIRED_REALMS = frozenset(REALM_LIFESPANS)
+REQUIRED_STAGE_OWNERS = STAGE_OWNERS
 REQUIRED_TECHNIQUE = "myvillage:basic_breathing"
 MAX_AWAKENING_WEIGHT = 1_000_000
-REQUIRED_REALM_LIFESPANS = {
-    "myvillage:mortal": 80,
-    "myvillage:qi_refining": 120,
-    "myvillage:foundation_establishment": 240,
-}
-REQUIRED_STAGE_CAPS = {
-    "myvillage:mortal_qi_sensed": 1000,
-    "myvillage:qi_refining_1": 1100,
-    "myvillage:qi_refining_2": 1200,
-    "myvillage:qi_refining_3": 1300,
-}
-REQUIRED_STAGE_SPIRIT_STONE_COSTS = {
-    "myvillage:mortal_qi_sensed": 1,
-    "myvillage:qi_refining_1": 1,
-    "myvillage:qi_refining_2": 2,
-    "myvillage:qi_refining_3": 3,
-}
-REQUIRED_ADVANCEMENTS = {
-    "myvillage:mortal_qi_sensed": {
-        "target_realm": "myvillage:qi_refining",
-        "target_stage": "myvillage:qi_refining_1",
-        "kind": "ordinary",
-        "duration_ticks": 100,
-        "required_stability": 500,
-        "stability_cost": 250,
-        "interruption_stability_loss": 0,
-    },
-    "myvillage:qi_refining_1": {
-        "target_realm": "myvillage:qi_refining",
-        "target_stage": "myvillage:qi_refining_2",
-        "kind": "ordinary",
-        "duration_ticks": 100,
-        "required_stability": 550,
-        "stability_cost": 275,
-        "interruption_stability_loss": 0,
-    },
-    "myvillage:qi_refining_2": {
-        "target_realm": "myvillage:qi_refining",
-        "target_stage": "myvillage:qi_refining_3",
-        "kind": "ordinary",
-        "duration_ticks": 120,
-        "required_stability": 600,
-        "stability_cost": 300,
-        "interruption_stability_loss": 0,
-    },
-    "myvillage:qi_refining_3": {
-        "target_realm": "myvillage:qi_refining",
-        "target_stage": "myvillage:qi_refining_4",
-        "kind": "bottleneck",
-        "duration_ticks": 200,
-        "required_stability": 650,
-        "stability_cost": 325,
-        "interruption_stability_loss": 5,
-    },
-}
+REQUIRED_REALM_LIFESPANS = REALM_LIFESPANS
 
 
 class DuplicateJsonKey(ValueError):
@@ -709,53 +652,9 @@ class CultivationValidator:
                     "foundation definitions",
                     f"realm {realm} maximum_lifespan_years must be {expected}, got {actual!r}",
                 )
-        for stage, expected in REQUIRED_STAGE_CAPS.items():
-            actual = self.stage_caps.get(stage)
-            if actual != expected:
-                self.error(
-                    "foundation definitions",
-                    f"stage {stage} cultivation_cap must be {expected}, got {actual!r}",
-                )
-        for stage, expected in REQUIRED_STAGE_SPIRIT_STONE_COSTS.items():
-            actual = self.stage_spirit_stone_costs.get(stage)
-            if actual != expected:
-                self.error(
-                    "foundation definitions",
-                    f"stage {stage} spirit_stone_cost must be {expected}, got {actual!r}",
-                )
-        for stage in sorted(set(self.stage_caps) - set(REQUIRED_STAGE_CAPS)):
-            self.error(
-                "foundation definitions",
-                f"release-ceiling stage {stage} must omit cultivation_cap",
-            )
-        for stage, expected in REQUIRED_ADVANCEMENTS.items():
-            actual = self.stage_advancements.get(stage)
-            if actual != expected:
-                self.error(
-                    "foundation definitions",
-                    f"stage {stage} advancement must be {expected!r}, got {actual!r}",
-                )
-        for stage in sorted(set(self.stage_advancements) - set(REQUIRED_ADVANCEMENTS)):
-            self.error(
-                "foundation definitions",
-                f"release-ceiling stage {stage} must omit advancement",
-            )
-
-        for stage, expected_realm in sorted(REQUIRED_STAGE_OWNERS.items()):
-            if stage in self.realm_stages.get(expected_realm, set()):
-                continue
-            owners = self.stage_owners.get(stage, [])
-            if owners:
-                self.error(
-                    "foundation definitions",
-                    f"required stage {stage} must belong to {expected_realm}; found in "
-                    f"{', '.join(owners)}",
-                )
-            else:
-                self.error(
-                    "foundation definitions",
-                    f"missing required stage {stage} in realm {expected_realm}",
-                )
+        progression_errors, _checked = validate_progression(self.root, cross_files=True)
+        for path, message in progression_errors:
+            self.error(self.path_label(path), message)
 
     def validate_translations(self) -> None:
         for locale in ("en_us", "zh_cn"):
@@ -840,13 +739,10 @@ def main() -> int:
         f"elements={result.element_count}, techniques={result.technique_count}"
     )
     print(
-        "required foundation ids present: mortal -> qi_refining -> "
-        "foundation_establishment; mortal stages, qi_refining_1..9, "
-        "foundation_early; metal/wood/water/fire/earth; basic_breathing; "
-        "realm lifespans=80/120/240; caps=1000/1100/1200/1300; "
-        "stability=500/550/600/650; spirit-stone costs=1/1/2/3; "
-        "four deterministic half-retention advancement rules; "
-        "en_us/zh_cn translations"
+        "complete release ladder present: mortal -> qi_refining -> foundation_establishment -> golden_core; "
+        f"transitions={len(PLAYABLE_CHAIN) - 1}; endpoint={TERMINAL}; "
+        "legacy first-four baseline preserved; deterministic half retention; "
+        "stage aliases, power capacities, ledger lifespans and en_us/zh_cn translations checked"
     )
     return 0
 

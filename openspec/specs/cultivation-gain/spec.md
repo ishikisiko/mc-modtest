@@ -19,21 +19,23 @@ SHALL be preserved but receive no further progress.
 - **THEN** raw progress SHALL remain unchanged and no progress or stone cost SHALL be applied
 
 #### Scenario: A stage has no cap in this release
-- **WHEN** a player at Qi IV or later attempts cultivation gain
+- **WHEN** a player at terminal Golden Core late attempts cultivation gain
 - **THEN** settlement SHALL reject the stage without gain, item cost, or synthesized future cap
 
+#### Scenario: A newly supported stage cultivates
+- **WHEN** an otherwise eligible Qi-IV through IX, Foundation, or Golden-Core-early/middle profile completes a due normal or spirit settlement
+- **THEN** settlement SHALL use its current authored cap and cost under the existing arithmetic, never infer a future-stage cap
+
 ### Requirement: Stability and mastery remain one-times rate at the progress cap
-Stability SHALL increase toward its existing maximum 100 and Basic Breathing
-mastery SHALL increase at 10/year in both modes even when progress is capped.
-Spirit mode SHALL not multiply either value.
+Stability SHALL consolidate only after full progress, at current spiritual affinity per eligible ten-tick settlement, up to integer-floor half the source cultivation cap. Basic Breathing mastery SHALL remain on the independent `10/year` clock in both modes even when progress is capped. Spirit mode SHALL multiply neither stability nor mastery, and SHALL charge no stone for stability work.
 
 #### Scenario: A capped player stabilizes normally
 - **WHEN** progress is capped and stability or mastery can still increase
-- **THEN** applicable stability/mastery SHALL accrue at the ordinary rate
+- **THEN** applicable stability SHALL accrue at current affinity up to its derived cap and mastery SHALL accrue on its unchanged configured-year clock
 
-#### Scenario: Stability is already 100
+#### Scenario: Stability is already at its derived cap
 - **WHEN** another stability point becomes due
-- **THEN** stability SHALL remain 100 without blocking applicable mastery
+- **THEN** stability SHALL remain at its stage-derived cap without blocking applicable mastery
 
 ### Requirement: Stone conversion is server-authoritative and logically atomic
 For each due non-capped spirit batch, the server SHALL derive the cost from the
@@ -129,7 +131,7 @@ the server SHALL derive a complete cost from the authoritative source stage's
 optional positive `spirit_stone_cost` definition field and,
 when funded, remove that many `myvillage:low_grade_spirit_stone` items and add
 exactly `50` total progress when at least 50 capacity remains. Qi-sensed mortal
-and Qi I SHALL cost `1`, Qi II SHALL cost `2`, and Qi III SHALL cost `3`. A
+and Qi I SHALL cost `1`, Qi II SHALL cost `2`, and Qi III SHALL cost `3`. Newly cultivatable higher stages SHALL declare their own positive source-stage costs; the server SHALL read them from current data, never derive them from an id prefix or reuse a lower-stage Java constant. A
 nonempty final batch with less than 50 remaining capacity SHALL pay the same
 complete cost and clamp output to the exact cap. Affinity SHALL not alter spirit
 gain or cost.
@@ -153,6 +155,10 @@ gain or cost.
 #### Scenario: A cultivatable stage omits its spirit cost
 - **WHEN** a registered source stage has a cultivation cap but no positive `spirit_stone_cost`
 - **THEN** definition validation SHALL reject the inconsistent stage rather than infer a cost from its id
+
+#### Scenario: A higher-stage spirit batch is funded
+- **WHEN** a supported Foundation or Golden Core source has remaining progress capacity and its complete data-defined cost is present in ordinary inventory
+- **THEN** one due spirit settlement SHALL consume exactly that complete cost and add `50` or the exact remaining capacity, preserving the existing atomic commit and downgrade rules
 
 ### Requirement: Stability consolidates only after full progress at the affinity rate
 Every cultivatable source stage SHALL derive a stability cap as integer-floor

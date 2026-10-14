@@ -23,8 +23,8 @@ requires the next realm's first stage to exceed the preceding realm's last.
 Only maximum health and attack damage receive realm growth. Speed, vanilla
 armor, percentage resistance and the existing spiritual-power caps do not
 silently acquire the same multiplier. Player stage IDs are explicitly mapped:
-the player's incomplete advancement ladder is not expanded by the numerical
-ladder used for higher-realm ledger avatars and beasts. Original entity base
+the playable player ladder now reaches Golden Core late (0.48.0), while
+Nascent Soul remains available only to ledger avatars and beasts. Original entity base
 attributes remain in their existing definitions, including beast JSON and
 vanilla item attributes; the common layer composes their effective values.
 

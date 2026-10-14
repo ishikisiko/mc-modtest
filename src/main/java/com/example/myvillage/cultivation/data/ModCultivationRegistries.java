@@ -38,6 +38,7 @@ public final class ModCultivationRegistries {
     public static final ResourceLocation MORTAL_REALM_ID = id("mortal");
     public static final ResourceLocation QI_REFINING_REALM_ID = id("qi_refining");
     public static final ResourceLocation FOUNDATION_ESTABLISHMENT_REALM_ID = id("foundation_establishment");
+    public static final ResourceLocation GOLDEN_CORE_REALM_ID = id("golden_core");
 
     public static final ResourceLocation MORTAL_UNAWAKENED_STAGE_ID = id("mortal_unawakened");
     public static final ResourceLocation MORTAL_QI_SENSED_STAGE_ID = id("mortal_qi_sensed");
@@ -51,6 +52,11 @@ public final class ModCultivationRegistries {
     public static final ResourceLocation QI_REFINING_8_STAGE_ID = id("qi_refining_8");
     public static final ResourceLocation QI_REFINING_9_STAGE_ID = id("qi_refining_9");
     public static final ResourceLocation FOUNDATION_EARLY_STAGE_ID = id("foundation_early");
+    public static final ResourceLocation FOUNDATION_MIDDLE_STAGE_ID = id("foundation_middle");
+    public static final ResourceLocation FOUNDATION_LATE_STAGE_ID = id("foundation_late");
+    public static final ResourceLocation GOLDEN_EARLY_STAGE_ID = id("golden_early");
+    public static final ResourceLocation GOLDEN_MIDDLE_STAGE_ID = id("golden_middle");
+    public static final ResourceLocation GOLDEN_LATE_STAGE_ID = id("golden_late");
 
     public static final ResourceLocation METAL_ELEMENT_ID = id("metal");
     public static final ResourceLocation WOOD_ELEMENT_ID = id("wood");
@@ -74,7 +80,8 @@ public final class ModCultivationRegistries {
     public static final Set<ResourceLocation> REQUIRED_REALM_IDS = orderedSet(List.of(
             MORTAL_REALM_ID,
             QI_REFINING_REALM_ID,
-            FOUNDATION_ESTABLISHMENT_REALM_ID));
+            FOUNDATION_ESTABLISHMENT_REALM_ID,
+            GOLDEN_CORE_REALM_ID));
     public static final Set<ResourceLocation> REQUIRED_ELEMENT_IDS = orderedSet(List.of(
             METAL_ELEMENT_ID,
             WOOD_ELEMENT_ID,
@@ -168,6 +175,7 @@ public final class ModCultivationRegistries {
 
         validateNextRealm(realms, MORTAL_REALM_ID, QI_REFINING_REALM_ID, errors);
         validateNextRealm(realms, QI_REFINING_REALM_ID, FOUNDATION_ESTABLISHMENT_REALM_ID, errors);
+        validateNextRealm(realms, FOUNDATION_ESTABLISHMENT_REALM_ID, GOLDEN_CORE_REALM_ID, errors);
 
         if (!errors.isEmpty()) {
             errors.sort(String::compareTo);
@@ -349,6 +357,11 @@ public final class ModCultivationRegistries {
             result.put(stageId, QI_REFINING_REALM_ID);
         }
         result.put(FOUNDATION_EARLY_STAGE_ID, FOUNDATION_ESTABLISHMENT_REALM_ID);
+        result.put(FOUNDATION_MIDDLE_STAGE_ID, FOUNDATION_ESTABLISHMENT_REALM_ID);
+        result.put(FOUNDATION_LATE_STAGE_ID, FOUNDATION_ESTABLISHMENT_REALM_ID);
+        result.put(GOLDEN_EARLY_STAGE_ID, GOLDEN_CORE_REALM_ID);
+        result.put(GOLDEN_MIDDLE_STAGE_ID, GOLDEN_CORE_REALM_ID);
+        result.put(GOLDEN_LATE_STAGE_ID, GOLDEN_CORE_REALM_ID);
         return Collections.unmodifiableMap(result);
     }
 

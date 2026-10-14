@@ -1,6 +1,7 @@
 package com.example.myvillage.client.cultivation.panel;
 
 import com.example.myvillage.cultivation.data.RealmStageDefinition;
+import com.example.myvillage.cultivation.data.RealmDefinition;
 import com.example.myvillage.cultivation.meditation.MeditationStatus;
 import com.example.myvillage.cultivation.meditation.StudyProgress;
 import net.minecraft.resources.ResourceLocation;
@@ -15,6 +16,15 @@ public final class PanelReadouts {
     public static final String STUDY_KEY = "screen.myvillage.cultivation.study.";
 
     private PanelReadouts() {
+    }
+
+    /** Only the final stage of a final realm, with no further gain or rule, is the release ceiling. */
+    public static boolean releaseCeiling(RealmDefinition realm, ResourceLocation stageId) {
+        if (realm == null || realm.nextRealm().isPresent()) {
+            return false;
+        }
+        RealmStageDefinition last = realm.stages().get(realm.stages().size() - 1);
+        return last.id().equals(stageId) && last.cultivationCap().isEmpty() && last.advancement().isEmpty();
     }
 
     /**

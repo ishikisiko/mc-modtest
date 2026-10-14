@@ -2,6 +2,9 @@ package com.example.myvillage.client.cultivation.panel;
 
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.data.RealmStageDefinition;
+import com.example.myvillage.cultivation.data.RealmDefinition;
+import com.example.myvillage.cultivation.data.AdvancementDefinition;
+import com.example.myvillage.cultivation.data.AdvancementKind;
 import com.example.myvillage.cultivation.meditation.MeditationState;
 import com.example.myvillage.cultivation.meditation.MeditationStatus;
 import com.example.myvillage.cultivation.meditation.MeditationStopReason;
@@ -10,12 +13,39 @@ import net.minecraft.resources.ResourceLocation;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PanelReadoutsTest {
+    @Test
+    void releaseCeilingFollowsSyncedDefinitionsRatherThanAStageId() {
+        ResourceLocation firstId = ResourceLocation.parse("addon:first");
+        ResourceLocation lastId = ResourceLocation.parse("addon:last");
+        RealmStageDefinition first = new RealmStageDefinition(firstId, "stage.first", 0);
+        RealmStageDefinition last = new RealmStageDefinition(lastId, "stage.last", 1);
+        RealmDefinition finalRealm = new RealmDefinition("realm.final", 9, 500,
+                List.of(first, last), Optional.empty());
+        assertTrue(PanelReadouts.releaseCeiling(finalRealm, lastId));
+        assertFalse(PanelReadouts.releaseCeiling(finalRealm, firstId));
+        assertFalse(PanelReadouts.releaseCeiling(finalRealm, ResourceLocation.parse("addon:unknown")));
+        assertFalse(PanelReadouts.releaseCeiling(null, lastId));
+        assertFalse(PanelReadouts.releaseCeiling(new RealmDefinition("realm.next", 9, 500,
+                List.of(first, last), Optional.of(ResourceLocation.parse("addon:next"))), lastId));
+        RealmStageDefinition capped = new RealmStageDefinition(lastId, "stage.last", 1,
+                Optional.of(1000L), Optional.of(1), Optional.empty());
+        assertFalse(PanelReadouts.releaseCeiling(new RealmDefinition("realm.capped", 9, 500,
+                List.of(first, capped), Optional.empty()), lastId));
+        RealmStageDefinition advancing = new RealmStageDefinition(lastId, "stage.last", 1,
+                Optional.empty(), Optional.empty(), Optional.of(new AdvancementDefinition(
+                        ResourceLocation.parse("addon:next"), ResourceLocation.parse("addon:next_stage"),
+                        AdvancementKind.ORDINARY, 100, 0, 0, 0)));
+        assertFalse(PanelReadouts.releaseCeiling(new RealmDefinition("realm.advancing", 9, 500,
+                List.of(first, advancing), Optional.empty()), lastId));
+    }
+
     private static final long TICKS_PER_DAY = 24_000;
     private static final int DAYS_PER_YEAR = 24;
     private static final int DAYS_PER_WEEK = 6;

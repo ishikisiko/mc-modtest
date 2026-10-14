@@ -79,7 +79,7 @@ SHALL be allowed with one operator warning, its last week being shorter.
 The maximum lifespan for a player SHALL be resolved dynamically from the
 current registered realm and SHALL not be stored in the profile or a Java
 constant. The shipped values SHALL be mortal `80`, qi refining `120`, and
-foundation establishment `240` cultivation years.
+foundation establishment `240`, and golden core `500` cultivation years.
 
 #### Scenario: A player enters qi refining
 - **WHEN** the authoritative realm changes from mortal to qi refining
@@ -89,6 +89,11 @@ foundation establishment `240` cultivation years.
 - **WHEN** the profile names a realm absent from current registry access
 - **THEN** the raw profile and consumed ticks SHALL remain unchanged
 - **AND** maximum, remaining, and exhaustion presentation SHALL be unavailable rather than guessed
+
+#### Scenario: Foundation late advances to Golden Core early
+- **WHEN** one successful server-owned transition changes the player's realm to Golden Core
+- **THEN** maximum lifespan SHALL resolve as 500 cultivation years from the current registry
+- **AND** the profile's consumed raw lifespan ticks SHALL remain unchanged
 
 ### Requirement: Warnings and exhaustion are derived from remaining lifespan
 The service SHALL derive warnings at 10, 5, and 1 remaining cultivation years

@@ -198,7 +198,7 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
             ---
             # 修行入门录
             先测灵唤醒灵根，再传承吐纳诀。之后依次积累进度、巩固稳定度并确定性冲关。
-            当前发布上限是炼气四层；炼气五层与筑基尚未实现，属于后续内容。
+            当前可通过炼气九层和筑基初中后期修炼至金丹后期；金丹后期是发布上限，元婴尚未开放，属于后续内容。
             [入门仪式](getting_started/initiation.md)
             [打坐与冲关](getting_started/cultivation_loop.md)
             <SubPages icons={true} />
@@ -213,8 +213,8 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
             ---
             # Cultivation Primer
             Awaken a spiritual root, inherit Basic Breathing, fill progress, consolidate stability,
-            and use deterministic advancement. Qi Refining IV is the release ceiling.
-            Qi Refining V and Foundation Establishment are deferred and not yet playable.
+            and use deterministic advancement through Qi Refining IX and Foundation Establishment.
+            Golden Core late is the release ceiling. Nascent Soul is deferred and not yet playable.
             [Initiation](getting_started/initiation.md)
             [Cultivation Loop](getting_started/cultivation_loop.md)
             <SubPages icons={true} />
@@ -268,7 +268,7 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
             阶段灵石成本为 1 / 1 / 2 / 3。进度达到上限后才增加稳定度。
             上限依次为 1000/500、1100/550、1200/600、1300/650；冲关时长 100/100/120/200。
             成功后稳定度整数除以 2；最后一次中断损失 5。凡人寿元 80，炼气寿元 120。
-            移动、跳跃、受伤或互动会中断。寿元耗尽会阻止开始。炼气四层是当前上限。
+            移动、跳跃、受伤或互动会中断。寿元耗尽会阻止开始。金丹后期是当前上限。
             <ItemLink id="myvillage:low_grade_spirit_stone" />
             <Row><BlockImage id="myvillage:spirit_stone_ore" />
             <BlockImage id="myvillage:deepslate_spirit_stone_ore" /></Row>
@@ -291,7 +291,7 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
             Progress must be full before stability grows. Caps are 1000/500, 1100/550, 1200/600,
             and 1300/650; durations are 100/100/120/200. Success retains integer-floor half stability.
             The last interruption costs 5. Mortal lifespan is 80 and Qi Refining lifespan is 120.
-            Movement, jumping, damage, or interaction interrupts the session. Qi Refining IV is the ceiling.
+            Movement, jumping, damage, or interaction interrupts the session. Golden Core late is the ceiling.
             <ItemLink id="myvillage:low_grade_spirit_stone" />
             <Row><BlockImage id="myvillage:spirit_stone_ore" />
             <BlockImage id="myvillage:deepslate_spirit_stone_ore" /></Row>
@@ -412,6 +412,27 @@ class GuideMECultivationGuideValidationTest(unittest.TestCase):
 
         result = self.validate()
         self.assertEqual((), result.errors)
+
+    def test_current_terminal_is_required_in_both_languages(self) -> None:
+        for relative, terminal in (("guidebook/index.md", "金丹后期"),
+                                   ("guidebook/_en_us/index.md", "Golden Core late")):
+            with self.subTest(relative=relative):
+                path = self.root / relative
+                original = path.read_text(encoding="utf-8")
+                path.write_text(original.replace(terminal, "unknown terminal"), encoding="utf-8")
+                self.assert_error_contains(self.validate(), "Golden Core late release ceiling")
+                path.write_text(original, encoding="utf-8")
+
+    def test_new_terminal_cannot_coexist_with_stale_old_ceiling_claim(self) -> None:
+        path = self.root / "guidebook/_en_us/getting_started/cultivation_loop.md"
+        path.write_text(path.read_text(encoding="utf-8") + "\nQi Refining IV is the ceiling.\n", encoding="utf-8")
+        self.assert_error_contains(self.validate(), "obsolete Qi Refining IV release ceiling")
+
+    def test_english_terminal_word_order_matches_the_actual_guide(self) -> None:
+        for relative in ("guidebook/_en_us/index.md", "guidebook/_en_us/getting_started/cultivation_loop.md"):
+            path = self.root / relative
+            path.write_text(path.read_text(encoding="utf-8").replace("Golden Core late", "Late Golden Core"), encoding="utf-8")
+        self.assertEqual((), self.validate().errors)
 
     def test_local_jar_dependency_is_rejected(self) -> None:
         path = self.root / "build.gradle"

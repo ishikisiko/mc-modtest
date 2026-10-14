@@ -214,7 +214,7 @@ class CultivationGainValidationTest(unittest.TestCase):
 
         result = self.validate()
 
-        self.assert_error_contains(result, "myvillage:qi_refining_2 spirit_stone_cost must be integer 2")
+        self.assert_error_contains(result, "PROGRESSION_BASELINE: stage myvillage:qi_refining_2 spirit_stone_cost must be 2")
 
     def test_legacy_reserve_use_is_rejected(self) -> None:
         path = self.find_java(r"class\s+BasicBreathingSettlement")

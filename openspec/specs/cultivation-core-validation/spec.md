@@ -5,7 +5,6 @@
 Define the automated, dedicated-server, documentation, and manual acceptance
 evidence required for the foundation-only cultivation runtime.
 See also: [Spiritual Power and Sword Qi](../../../docs/ai-kb/45_spiritual_power_sword_qi.md).
-
 ## Requirements
 ### Requirement: Java tests cover profile defaults, codecs, invariants, and immutable updates
 The automated Java test suite SHALL cover the exact default profile, full `CultivationProfile.CODEC` round trip, valid spiritual-root total, invalid spiritual-root total, per-affinity range rejection, stability range rejection, negative progress/power/mastery rejection, immutable update behavior, unknown `ResourceLocation` decoding, realm-stage membership validation, and learn/forget/mastery transitions.
@@ -114,22 +113,12 @@ The same change SHALL add `docs/ai-kb/28_cultivation_core.md`, list it in `docs/
 - **AND** they SHALL distinguish implemented infrastructure from future gameplay
 
 ### Requirement: Regression validation protects explicit non-goals
-Validation SHALL preserve the flying-sword protocol, clientbound-only
-profile/time/status authority, immutable v2 profile replacement,
-server-authoritative cultivation intents, read-only H screen, two independent
-initiation rituals, lifespan invariance, stage-local caps, and declared Basic
-Breathing settlement. This change MAY add only the fourth bounded action,
-definition-owned four-transition sequence, transient advancement states,
-deterministic success costs, and exact Qi-III bottleneck loss. It SHALL add no
-client target/result, random success, overflow/chaining, Qi IV+ gain or
-advancement, Foundation Establishment process, major-realm rule, pill/facility/
-environment requirement, tribulation, or reincarnation behavior. Release
-metadata SHALL follow `openspec/config.yaml`.
+Validation SHALL preserve the flying-sword protocol, clientbound-only profile/time/status authority, immutable current-profile replacement through CultivationService, server-authoritative four cultivation intents, read-only H views, two independent initiation rituals, consumed-lifespan invariance, stage-local caps, and existing Basic Breathing settlement. This extension SHALL admit only the explicit fifteen-transition player chain through Golden Core late with data-owned costs, transient ordinary/bottleneck advancement, deterministic half-retention and authored interruption losses. It SHALL add no client target/result, random success, overflow/chaining, Nascent Soul player advancement, new advancement kind, pill/facility/environment requirement, tribulation, or reincarnation behavior. Release metadata SHALL follow openspec/config.yaml.
 
 #### Scenario: Scope is reviewed before closeout
 - **WHEN** final code, data, payload registrations, and validation evidence are inspected
-- **THEN** every transition SHALL map to one of the four declared source-stage rules
-- **AND** every deferred later-stage, major-realm, material, random, and client-authority surface SHALL remain absent
+- **THEN** every transition SHALL map to one of the fifteen declared immediate source-stage rules
+- **AND** every deferred post-Golden-Core stage, material, random, and client-authority surface SHALL remain absent
 
 #### Scenario: Protocol regression is inspected
 - **WHEN** all payload codecs and directions are enumerated
@@ -337,15 +326,16 @@ feel observations SHALL remain explicit pass/fail/`not_verified` evidence.
 - **AND** no unobserved in-game result SHALL be reported as verified
 
 ### Requirement: Automated tests pin every advancement rule and gate
-Java tests and a focused deterministic validator SHALL cover all four source,
-target, cap, kind, duration, requirement, success-cost, and interruption-loss
-tuples; missing/invalid/self/mismatched targets; unsupported kinds; every start
-gate; completion revalidation; and Qi-IV release-ceiling rejection.
+Java tests and focused deterministic validators SHALL cover all fifteen source, target, cap, kind, duration, derived requirement, compatibility-cost, and interruption-loss tuples; missing/invalid/self/mismatched/cyclic/skipped targets; unsupported kinds; every start gate; completion revalidation; and Golden-Core-late release-ceiling rejection. Tests SHALL preserve all first-four transition values and prove the three Foundation and three Golden Core stage ids resolve in order. Every registered player stage SHALL have exactly one matching numerical-stat alias, and shared player/ledger realms SHALL agree on lifespan. Static source checks SHALL NOT substitute for behavioral arithmetic and lifecycle tests.
 
 #### Scenario: The shipped advancement matrix is tested
-- **WHEN** data validation enumerates qi-sensed through Qi IV
-- **THEN** it SHALL find ordinary `100/10/5/0`, ordinary `100/20/10/0`, ordinary `120/30/15/0`, and bottleneck `200/80/30/5`
-- **AND** it SHALL find no fifth rule
+- **WHEN** data validation enumerates qi-sensed through Golden Core late
+- **THEN** it SHALL find the full fifteen-transition chain with the existing initial durations, caps, derived requirements, costs and losses unchanged
+- **AND** it SHALL find no rule at terminal Golden Core late and no player Nascent Soul entry
+
+#### Scenario: A stage alias points at the wrong minor stage
+- **WHEN** a newly registered player stage is absent from numerical-stat aliases or maps to a different realm or index
+- **THEN** deterministic validation SHALL fail with the stage id before startup or handoff
 
 ### Requirement: Automated tests prove interruption and atomicity
 Tests SHALL exercise every shared interruption, allowed yaw/pitch, idempotent
@@ -396,8 +386,7 @@ integration paths without substituting source matching for codec behavior.
 
 ### Requirement: Automated tests pin ten-tick gain and direct item costs
 Tests SHALL prove eligible-tick counting, partial-session discard, normal gain
-for default, zero, and non-default affinity, fixed spirit gain, exact sensed/Qi
-I/Qi II/Qi III costs, near-cap clamping, no overflow, no charge at cap or
+for default, zero, and non-default affinity, fixed spirit gain, exact source-stage costs from qi-sensed through Golden Core middle, near-cap clamping, no overflow, no charge at cap or
 unsupported stages, pre-cap stability lock, next-batch affinity stability in
 both modes, 50% dynamic stability caps, unchanged `10/year` mastery, inert
 reserve, and insufficient-cost downgrade to the normal result. Tests SHALL prove the client

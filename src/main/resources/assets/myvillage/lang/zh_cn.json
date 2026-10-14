@@ -182,7 +182,7 @@
   "screen.myvillage.cultivation.advancement_runtime_value": "剩余 %s / %s tick",
   "screen.myvillage.cultivation.advancement_kind.ordinary": "普通晋层",
   "screen.myvillage.cultivation.advancement_kind.bottleneck": "阶段瓶颈",
-  "screen.myvillage.cultivation.advancement_release_ceiling": "炼气四层为当前版本上限。",
+  "screen.myvillage.cultivation.advancement_release_ceiling": "已到达当前版本的修炼上限。",
   "screen.myvillage.cultivation.advancement_unavailable": "当前没有晋层规则。",
   "screen.myvillage.cultivation.spiritual_root": "灵根",
   "screen.myvillage.cultivation.unawakened": "未觉醒",
@@ -1079,5 +1079,11 @@
   "attribute.myvillage.wood_resistance": "木行抗性",
   "attribute.myvillage.water_resistance": "水行抗性",
   "attribute.myvillage.fire_resistance": "火行抗性",
-  "attribute.myvillage.earth_resistance": "土行抗性"
+  "attribute.myvillage.earth_resistance": "土行抗性",
+  "cultivation.realm.myvillage.golden_core": "金丹",
+  "cultivation.stage.myvillage.foundation_middle": "筑基中期",
+  "cultivation.stage.myvillage.foundation_late": "筑基后期",
+  "cultivation.stage.myvillage.golden_early": "金丹初期",
+  "cultivation.stage.myvillage.golden_middle": "金丹中期",
+  "cultivation.stage.myvillage.golden_late": "金丹后期"
 }

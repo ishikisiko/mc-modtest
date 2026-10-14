@@ -96,7 +96,7 @@ class CultivationAdvancementValidationTest(unittest.TestCase):
 
         result = self.validate()
 
-        self.assert_error_contains(result, "required_stability must be half of cultivation_cap")
+        self.assert_error_contains(result, "required_stability must equal half of cultivation_cap")
 
     def test_success_halving_removal_is_rejected(self) -> None:
         transition = (

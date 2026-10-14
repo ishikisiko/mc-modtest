@@ -7,6 +7,18 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.48.0
+
+- Open normal player cultivation through Qi Refining IX, Foundation early/middle/late
+  and Golden Core early/middle/late; retain the original four advancement rules
+  and saved stage IDs. Late Golden Core is the progression ceiling.
+- Author every new progress cap, stone cost, deterministic bottleneck, lifespan
+  and spiritual-power capacity in realm data; add all five missing statistics
+  aliases without changing the shared exponential/linear attribute policy.
+- Derive the panel ceiling from synchronized definitions, update the bilingual
+  cultivation guide and command tables, and validate the full reachable chain
+  with mutation tests and bounded mapped-client/restart evidence.
+
 ## 0.47.0
 
 - Added shared server-side realm statistics: exponential major-realm growth,

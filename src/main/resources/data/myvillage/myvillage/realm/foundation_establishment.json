@@ -7,7 +7,53 @@
       "id": "myvillage:foundation_early",
       "translation_key": "cultivation.stage.myvillage.foundation_early",
       "sort_order": 0,
-      "spiritual_power_cap": 200
+      "spiritual_power_cap": 200,
+      "cultivation_cap": 3000,
+      "spirit_stone_cost": 20,
+      "advancement": {
+        "target_realm": "myvillage:foundation_establishment",
+        "target_stage": "myvillage:foundation_middle",
+        "kind": "ordinary",
+        "duration_ticks": 200,
+        "required_stability": 1500,
+        "stability_cost": 750,
+        "interruption_stability_loss": 0
+      }
+    },
+    {
+      "id": "myvillage:foundation_middle",
+      "translation_key": "cultivation.stage.myvillage.foundation_middle",
+      "sort_order": 1,
+      "cultivation_cap": 3600,
+      "spirit_stone_cost": 24,
+      "spiritual_power_cap": 250,
+      "advancement": {
+        "target_realm": "myvillage:foundation_establishment",
+        "target_stage": "myvillage:foundation_late",
+        "kind": "ordinary",
+        "duration_ticks": 240,
+        "required_stability": 1800,
+        "stability_cost": 900,
+        "interruption_stability_loss": 0
+      }
+    },
+    {
+      "id": "myvillage:foundation_late",
+      "translation_key": "cultivation.stage.myvillage.foundation_late",
+      "sort_order": 2,
+      "cultivation_cap": 4200,
+      "spirit_stone_cost": 28,
+      "spiritual_power_cap": 300,
+      "advancement": {
+        "target_realm": "myvillage:golden_core",
+        "target_stage": "myvillage:golden_early",
+        "kind": "bottleneck",
+        "duration_ticks": 600,
+        "required_stability": 2100,
+        "stability_cost": 1050,
+        "interruption_stability_loss": 20
+      }
     }
-  ]
+  ],
+  "next_realm": "myvillage:golden_core"
 }

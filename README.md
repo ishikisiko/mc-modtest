@@ -481,63 +481,63 @@ Confirm the jar contains the structure resources (name the versioned jar:
 `build/libs/` keeps the jars of earlier versions):
 
 ```bash
-jar tf build/libs/myvillage-0.47.0.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/textures/painting/inscription"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
-jar tf build/libs/myvillage-0.47.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "data/myvillage/beast/demon_wolf.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/beast/demon_wolf_model.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/beast/demon_wolf_animations.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/textures/entity/demon_wolf/demon_wolf_eyes.png"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/npc/cultivator_model.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/npc/cultivator_animations.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/textures/entity/cultivator/cultivator.png"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/combat/qingfeng_first_person.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/models/item/lingxiao_spear.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/models/item/lingxiao_spear_3d.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear.png"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear_model.png"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/combat/lingxiao_spear_geometry.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/combat/lingxiao_spear_first_person.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet_3d.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet.png"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet_model.png"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_geometry.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_first_person.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/player_animations/sword_combat.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/player_animations/spear_combat.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/player_animations/fist_combat.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "data/minecraft/tags/item/swords.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/guides/myvillage/cultivation/index.md"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/models/item/manual_core_huang.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/textures/item/manual_core_tint.png"
+jar tf build/libs/myvillage-0.48.0.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
+jar tf build/libs/myvillage-0.48.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "data/myvillage/beast/demon_wolf.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/beast/demon_wolf_model.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/beast/demon_wolf_animations.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/textures/entity/demon_wolf/demon_wolf_eyes.png"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/npc/cultivator_model.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/npc/cultivator_animations.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/textures/entity/cultivator/cultivator.png"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/combat/qingfeng_first_person.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/models/item/lingxiao_spear.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/models/item/lingxiao_spear_3d.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear.png"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear_model.png"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/combat/lingxiao_spear_geometry.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/combat/lingxiao_spear_first_person.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet_3d.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet.png"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet_model.png"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_geometry.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_first_person.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/player_animations/sword_combat.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/player_animations/spear_combat.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/player_animations/fist_combat.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "data/minecraft/tags/item/swords.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/guides/myvillage/cultivation/index.md"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/models/item/manual_core_huang.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/textures/item/manual_core_tint.png"
 ```
 
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.47.0.jar
+build/libs/myvillage-0.48.0.jar
 ```
 
 ## On-Demand Modal Test Runner (0.46.1)
@@ -697,61 +697,61 @@ python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 
 python3 tools/write_visual_acceptance_report.py
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.47.0.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.47.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.47.0.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/textures/painting/inscription"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
-jar tf build/libs/myvillage-0.47.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "data/myvillage/beast/demon_wolf.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/beast/demon_wolf_model.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/beast/demon_wolf_animations.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/textures/entity/demon_wolf/demon_wolf_eyes.png"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/npc/cultivator_model.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/npc/cultivator_animations.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/textures/entity/cultivator/cultivator.png"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/combat/qingfeng_first_person.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/models/item/lingxiao_spear.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/models/item/lingxiao_spear_3d.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear.png"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear_model.png"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/combat/lingxiao_spear_geometry.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/combat/lingxiao_spear_first_person.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet_3d.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet.png"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet_model.png"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_geometry.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_first_person.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "data/myvillage/combat/"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/player_animations/sword_combat.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/player_animations/spear_combat.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/player_animations/fist_combat.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "data/minecraft/tags/item/swords.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/textures/item/low_grade_spirit_stone.png"
-jar tf build/libs/myvillage-0.47.0.jar | grep "data/myvillage/worldgen/configured_feature/spirit_stone_ore.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "data/myvillage/myvillage/realm/qi_refining.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/guides/myvillage/cultivation"
-jar tf build/libs/myvillage-0.47.0.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.48.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.48.0.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
+jar tf build/libs/myvillage-0.48.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "data/myvillage/beast/demon_wolf.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/beast/demon_wolf_model.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/beast/demon_wolf_animations.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/textures/entity/demon_wolf/demon_wolf_eyes.png"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/npc/cultivator_model.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/npc/cultivator_animations.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/textures/entity/cultivator/cultivator.png"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/combat/qingfeng_first_person.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/models/item/lingxiao_spear.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/models/item/lingxiao_spear_3d.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear.png"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear_model.png"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/combat/lingxiao_spear_geometry.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/combat/lingxiao_spear_first_person.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet_3d.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet.png"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet_model.png"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_geometry.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_first_person.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "data/myvillage/combat/"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/player_animations/sword_combat.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/player_animations/spear_combat.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/player_animations/fist_combat.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "data/minecraft/tags/item/swords.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/textures/item/low_grade_spirit_stone.png"
+jar tf build/libs/myvillage-0.48.0.jar | grep "data/myvillage/worldgen/configured_feature/spirit_stone_ore.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "data/myvillage/myvillage/realm/qi_refining.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/guides/myvillage/cultivation"
+jar tf build/libs/myvillage-0.48.0.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -2890,7 +2890,7 @@ fix, the post-fix hotkey behavior remains `not_verified` until retested.
 
 ## Cultivation Playable Loop
 
-**当前已实现“测灵觉醒 -> 基础吐纳诀传承 -> 普通/灵石打坐 -> 修为结算 -> 确定性冲关”的第一段可玩循环；炼气四层是本版终点，不代表炼气后续层级与筑基已经开放。**
+**0.48.0 的正常修炼链已开放到金丹后期：测灵与传承 -> 炼气一至九层 -> 筑基初中后期 -> 金丹初中后期。沿用确定性单阶段突破；金丹后期为当前终点，元婴玩家突破尚未开放。**
 
 The foundation provides a server-authoritative immutable player profile (v4 since 0.37.0),
 codec-backed Data Attachment persistence, synced definition registries,
@@ -3012,7 +3012,7 @@ derived on the logical server.
 |---|---|
 | `V` | Start normal meditation |
 | `B` | Start spirit-stone meditation |
-| `G` | Stop meditation or advancement |
+| `X` | Stop meditation or advancement |
 | `N` | Start the current definition-owned advancement |
 | `H` | Open/close the Profile and Meditation panel |
 
@@ -3023,7 +3023,7 @@ ground, no mount/swimming/flight/sleep/item use/conflicting session, and no
 positive damage during the previous `100` server ticks. Moving more than `0.01`
 block on any axis, jumping, damage, attack/swing, mining, block/entity/item use,
 mounting, swimming/flying/sleeping, incompatible game mode, dimension change,
-death, logout, or `G` interrupts the session. Camera yaw and pitch, opening H,
+death, logout, or `X` interrupts the session. Camera yaw and pitch, opening H,
 and switching between its tabs are allowed.
 
 The time defaults under server config section `cultivation_time` are
@@ -3047,7 +3047,7 @@ server tick while at least one player is online, in any game mode. A player's
 lifespan advances only while that player is online, alive, and in
 survival/adventure. Sleep, `/time set`, daylight-cycle rules, dimension, and
 offline wall time do not drive either clock. Realm definitions currently grant
-maximum lifespans of `80` mortal, `120` Qi Refining, and `240` Foundation years;
+maximum lifespans of `80` mortal, `120` Qi Refining, `240` Foundation and `500` Golden Core years;
 warnings are derived at `10`, `5`, and `1` remaining years.
 
 Both counters store raw effective ticks. Changing any time-scale setting does
@@ -3066,10 +3066,21 @@ from ordinary inventory:
 
 | Current source stage | Low-grade stones / 10 ticks | Progress / 10 ticks |
 |---|---:|---:|
-| Mortal, qi sensed | 1 | 50 |
+| Qi-Sensing Mortal | 1 | 50 |
 | Qi Refining I | 1 | 50 |
 | Qi Refining II | 2 | 50 |
 | Qi Refining III | 3 | 50 |
+| Qi Refining IV | 4 | 50 |
+| Qi Refining V | 5 | 50 |
+| Qi Refining VI | 6 | 50 |
+| Qi Refining VII | 7 | 50 |
+| Qi Refining VIII | 8 | 50 |
+| Qi Refining IX | 9 | 50 |
+| Early Foundation | 20 | 50 |
+| Middle Foundation | 24 | 50 |
+| Late Foundation | 28 | 50 |
+| Early Golden Core | 40 | 50 |
+| Middle Golden Core | 48 | 50 |
 
 The final nonempty batch pays the full item cost even when fewer than `50`
 points remain; its output is clamped to the cap. At the cap, no stone is scanned
@@ -3087,13 +3098,24 @@ The shipped stage-local caps are:
 
 | Stage | Progress cap | Stability cap |
 |---|---:|---:|
-| Mortal, qi sensed | 1000 | 500 |
+| Qi-Sensing Mortal | 1000 | 500 |
 | Qi Refining I | 1100 | 550 |
 | Qi Refining II | 1200 | 600 |
 | Qi Refining III | 1300 | 650 |
+| Qi Refining IV | 1400 | 700 |
+| Qi Refining V | 1500 | 750 |
+| Qi Refining VI | 1600 | 800 |
+| Qi Refining VII | 1700 | 850 |
+| Qi Refining VIII | 1800 | 900 |
+| Qi Refining IX | 1900 | 950 |
+| Early Foundation | 3000 | 1500 |
+| Middle Foundation | 3600 | 1800 |
+| Late Foundation | 4200 | 2100 |
+| Early Golden Core | 6000 | 3000 |
+| Middle Golden Core | 7200 | 3600 |
 
-Unawakened mortal, Qi Refining IV-IX, and Foundation Early have no cultivation
-cap in this release and cannot gain progress. `cultivationProgress` is always
+Unawakened mortal and terminal Late Golden Core have no cultivation
+cap and cannot gain progress. All fifteen source stages above are playable. `cultivationProgress` is always
 the current stage's progress; successful advancement resets it to zero and never
 transfers overflow.
 
@@ -3106,21 +3128,39 @@ interruption set.
 
 | Transition | Required progress | Duration | Required stability | Stability after success | Interrupt loss |
 |---|---:|---:|---:|---:|---:|
-| Qi-sensed mortal -> Qi Refining I | 1000 | 100 ticks | 500 | 250 | 0 |
-| Qi Refining I -> II | 1100 | 100 ticks | 550 | 275 | 0 |
-| Qi Refining II -> III | 1200 | 120 ticks | 600 | 300 | 0 |
-| Qi Refining III -> IV bottleneck | 1300 | 200 ticks | 650 | 325 | 5 |
+| Qi-Sensing Mortal -> Qi Refining I (ordinary) | 1000 | 100 ticks | 500 | 250 | 0 |
+| Qi Refining I -> Qi Refining II (ordinary) | 1100 | 100 ticks | 550 | 275 | 0 |
+| Qi Refining II -> Qi Refining III (ordinary) | 1200 | 120 ticks | 600 | 300 | 0 |
+| Qi Refining III -> Qi Refining IV (bottleneck) | 1300 | 200 ticks | 650 | 325 | 5 |
+| Qi Refining IV -> Qi Refining V (ordinary) | 1400 | 140 ticks | 700 | 350 | 0 |
+| Qi Refining V -> Qi Refining VI (ordinary) | 1500 | 160 ticks | 750 | 375 | 0 |
+| Qi Refining VI -> Qi Refining VII (bottleneck) | 1600 | 240 ticks | 800 | 400 | 5 |
+| Qi Refining VII -> Qi Refining VIII (ordinary) | 1700 | 180 ticks | 850 | 425 | 0 |
+| Qi Refining VIII -> Qi Refining IX (ordinary) | 1800 | 200 ticks | 900 | 450 | 0 |
+| Qi Refining IX -> Early Foundation (bottleneck) | 1900 | 400 ticks | 950 | 475 | 10 |
+| Early Foundation -> Middle Foundation (ordinary) | 3000 | 200 ticks | 1500 | 750 | 0 |
+| Middle Foundation -> Late Foundation (ordinary) | 3600 | 240 ticks | 1800 | 900 | 0 |
+| Late Foundation -> Early Golden Core (bottleneck) | 4200 | 600 ticks | 2100 | 1050 | 20 |
+| Early Golden Core -> Middle Golden Core (ordinary) | 6000 | 300 ticks | 3000 | 1500 | 0 |
+| Middle Golden Core -> Late Golden Core (ordinary) | 7200 | 360 ticks | 3600 | 1800 | 0 |
 
 The result column assumes advancement starts at the ordinary stage cap. Runtime
 always retains integer-floor half of actual current stability; it does not
 subtract a fixed absolute cost.
 
 Ordinary advancement loses no stability when interrupted. A player/world
-interruption during the Qi III bottleneck loses exactly `5` stability, clamped
+interruption applies only the authored bottleneck loss in the table, clamped
 at zero; clean server shutdown or registry-reload teardown has no penalty. One
-completed process advances exactly one stage. Qi Refining IV is the release
-ceiling: Qi IV-IX cultivation, Foundation breakthrough, pills, facilities,
-environment rules, tribulation, and reincarnation remain deferred.
+completed process advances exactly one stage. Late Golden Core is the release
+ceiling. Nascent Soul player advancement, pills, facilities, environment rules,
+tribulation, and reincarnation remain deferred.
+
+Foundation stages have spiritual-power capacities `200/250/300`; Golden Core
+stages have `400/500/600`. Increased maximum health, power and lifespan are
+resolved from the new stage/realm without healing wounds, refilling power or
+resetting consumed age. Existing saves keep their original IDs, counters and
+profile v4; no payload shape changes. Numeric defaults are tunable in the
+authored realm JSON and do not imply owner approval of progression pacing.
 
 Lifespan exhaustion is a derived state, not a death loop. At or beyond the
 current realm maximum the player cannot start meditation or advancement and sees
@@ -3382,14 +3422,17 @@ pass, and record the exact game/version/config used.
    downgrades once. Before progress is full, confirm stability never changes,
    including the batch that fills progress. On the next normal and spirit
    batches, confirm stability gains current affinity, consumes no stone, and
-   clamps at `500/550/600/650`; mastery must remain at 10 per configured year.
+   clamps at the current data-defined stability cap; mastery must remain at 10 per configured year.
    Legacy reserve must remain unchanged and inert.
 8. Use the administrator setters to prepare each row of the advancement table.
    Press `N`, remain eligible for its exact duration, and confirm one transition,
    zero progress, integer-floor half of prior stability, and preservation of root, power,
    techniques, mastery, lifespan, affinity, and inert reserve. Interrupt an ordinary attempt and
    confirm zero loss; interrupt Qi III -> IV and confirm exactly five stability
-   loss. At Qi IV, `N` and cultivation gain must report the release limit.
+   loss. Repeat at the Qi VI, Qi IX and Foundation-late bottlenecks using their
+   authored losses. At Late Golden Core, `N` and cultivation gain must report
+   the release limit. Across major realms confirm new health/power/lifespan
+   maxima without refilling or resetting the existing counters.
 9. With one survival/adventure player, observe shared calendar and personal age
    advance independently of sleep and `/time set`. Switch the only player to
    creative/spectator and confirm the shared calendar keeps advancing while
@@ -3407,7 +3450,8 @@ pass, and record the exact game/version/config used.
     kill the player or clear the profile, and restoring the old scale may make the
     same raw counter non-exhausted again.
 
-Owner real-client verdict recorded on 2026-07-13: `pass`.
+Historical owner real-client verdict recorded on 2026-07-13: `pass` for the
+original Qi-IV slice only. These passes do not cover the new 0.48.0 stages.
 
 | Manual acceptance surface | Result |
 |---|---|
@@ -3423,6 +3467,23 @@ Owner real-client verdict recorded on 2026-07-13: `pass`.
 | `1000/1100/1200/1300` advancement rules, stability halving, interruption, Qi-IV ceiling | `pass` |
 | Shared calendar, personal online lifespan, lifecycle persistence, multiplayer | `not_verified` (the 2026-07-13 `pass` covered the old rule; on 2026-10-06 the shared calendar began advancing in every game mode, so step 9 must be redone in game) |
 | Config reinterpretation warning and non-lethal exhaustion | `pass` |
+
+The 0.48.0 progression extension has its own ledger:
+
+| Surface | Developer evidence | Owner verdict |
+|---|---|---|
+| Complete fifteen-transition chain and cross-realm state preservation | `pass` (mapped N, 15 successive stages; admin near-cap fixtures) | `not_verified` |
+| Golden-Core-late terminal and direct-world save/restart | `pass` (V/B/N refused; stage, stability, wounds and age preserved) | `not_verified` |
+| Higher-stage spirit costs and interruption losses | `pass` (V/B at every source, exact inventory costs; all four bottleneck losses) | `not_verified` |
+| Higher-stage H values, bilingual text and guide rendering | English 480x270 terminal panel and English guide index observed; remaining surfaces `not_verified` | `not_verified` |
+| New-stage death/End/dimension and multiplayer behavior | `not_verified` | `not_verified` |
+| Progression pacing and combat feel | `not_verified` | `not_verified` |
+
+For bounded developer reproduction, run clean stage 1 first, then
+`python3 tools/golden_core_evidence.py`; the script uses mapped client controls
+with administrator-prepared near-cap fixtures, and keeps two sessions for a
+direct save/restart. It does not prove natural acquisition or the full time
+needed to cultivate from zero. See [phase timings and evidence](docs/testing/2026-10-14-golden-core.md).
 
 The 0.31.0 panel replaced the screen that verdict covered. Its own surfaces:
 
@@ -3492,9 +3553,9 @@ payload of the world simulation, not a cultivation payload.
 The serial dependency is intentional: spirit resources -> profile v3/time ->
 meditation state -> affinity/direct-stone Basic Breathing settlement ->
 advancement. Later work must
-treat Qi IV+, Foundation breakthrough, generic technique execution, spiritual-
-power recovery, pills/facilities, combat/exploration rewards, and reincarnation
-as separate boundaries.
+treat Nascent Soul player advancement, additional technique execution,
+pills/facilities, combat/exploration rewards, and reincarnation as separate
+boundaries. Spiritual-power recovery is already implemented (note 45).
 
 ## Available Commands
 

@@ -3,7 +3,6 @@ package com.example.myvillage.client.cultivation.panel;
 import com.example.myvillage.cultivation.CultivationProfile;
 import com.example.myvillage.cultivation.SpiritualRoot;
 import com.example.myvillage.cultivation.data.AdvancementDefinition;
-import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.data.RealmStageDefinition;
 import com.example.myvillage.cultivation.network.CultivationTimeSnapshotPayload;
 import net.minecraft.client.gui.Font;
@@ -353,7 +352,7 @@ public final class OverviewPage extends PanelPage {
         AdvancementDefinition advancement = stage.advancement().orElse(null);
         if (advancement == null) {
             Component message = Component.translatable(
-                    stage.id().equals(ModCultivationRegistries.QI_REFINING_4_STAGE_ID)
+                    context.releaseCeiling()
                             ? "screen.myvillage.cultivation.advancement_release_ceiling"
                             : "screen.myvillage.cultivation.advancement_unavailable");
             for (FormattedCharSequence line : font.split(message, innerWidth)) {

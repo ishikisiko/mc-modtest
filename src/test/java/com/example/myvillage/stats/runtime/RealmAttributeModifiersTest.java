@@ -3,6 +3,7 @@ package com.example.myvillage.stats.runtime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import com.mojang.serialization.Lifecycle;
+import com.example.myvillage.stats.StatsRules;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.SharedConstants;
@@ -59,6 +60,25 @@ class RealmAttributeModifiersTest {
         RealmAttributeModifiers.replace(restored, REALM, 3);
         assertEquals(60, restored.getValue());
         assertEquals(1, restored.getModifiers().size());
+    }
+
+    @Test
+    void goldenLateModifiersRestoreHighMaximumBeforeWoundedHealthAndRemainIdempotent() {
+        var rules = StatsRules.bundled();
+        double factor = rules.growth(rules.playerKey("golden_core", "golden_late"));
+        Holder<Attribute> holder = holder();
+        AttributeInstance old = instance(holder);
+        RealmAttributeModifiers.replace(old, REALM, factor);
+        assertEquals(132, old.getValue(), 1e-9);
+        AttributeInstance restored = instance(holder);
+        restored.load(old.save());
+        assertEquals(132, restored.getValue(), 1e-9);
+        assertEquals(123, RealmHealthPolicy.refreshed(123, (float) old.getValue(), (float) restored.getValue()));
+        RealmAttributeModifiers.replace(restored, REALM, factor);
+        assertEquals(132, restored.getValue(), 1e-9);
+        assertEquals(1, restored.getModifiers().size());
+        assertEquals(132, RealmHealthPolicy.respawned(20, 20, (float) restored.getValue(), false));
+        assertEquals(123, RealmHealthPolicy.respawned(123, 132, (float) restored.getValue(), true));
     }
 
     private static Holder<Attribute> holder() {

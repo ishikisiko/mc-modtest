@@ -622,6 +622,15 @@ class GuideMECultivationGuideValidator:
                 self.error(GUIDEBOOK / page.path, f"missing factual anchor: {description}")
 
     def _validate_content(self, pages: dict[str, Page]) -> None:
+        # A new terminal mention must not coexist with an obsolete release-ceiling claim.
+        stale_boundary = re.compile(
+            r"(?:Qi Refining IV|炼气(?:四层|\s*IV))[^.。\n]{0,100}(?:ceiling|上限)|"
+            r"(?:ceiling|上限)[^.。\n]{0,100}(?:Qi Refining IV|炼气(?:四层|\s*IV))",
+            re.IGNORECASE,
+        )
+        for path, page in pages.items():
+            if stale_boundary.search(page.body):
+                self.error(GUIDEBOOK / path, "obsolete Qi Refining IV release ceiling; current terminal is Golden Core late")
         self._require_terms(
             pages.get("index.md"),
             (
@@ -630,9 +639,10 @@ class GuideMECultivationGuideValidator:
                 ("progress", r"(?:进度|修为)"),
                 ("stability", r"稳定"),
                 ("advancement", r"冲关"),
-                ("Qi Refining IV release ceiling", r"炼气(?:四层|\s*IV)"),
-                ("deferred Qi Refining V", r"炼气(?:五层|\s*V)"),
-                ("deferred Foundation Establishment", r"筑基"),
+                ("Golden Core late release ceiling", r"金丹后期"),
+                ("released Qi Refining ladder", r"炼气"),
+                ("released Foundation Establishment", r"筑基"),
+                ("deferred Nascent Soul", r"元婴"),
                 ("unavailable/deferred boundary", r"(?:未实现|未开放|暂不可|后续|延期)"),
             ),
         )
@@ -644,10 +654,11 @@ class GuideMECultivationGuideValidator:
                 ("progress", r"\bprogress\b"),
                 ("stability", r"\bstability\b"),
                 ("deterministic advancement", r"deterministic.{0,30}advancement|advancement.{0,30}deterministic"),
-                ("Qi Refining IV release ceiling", r"Qi Refining IV"),
-                ("deferred Qi Refining V", r"Qi Refining V"),
-                ("deferred Foundation Establishment", r"Foundation Establishment"),
-                ("unavailable/deferred boundary", r"(?:not (?:yet )?(?:playable|implemented|available)|deferred)"),
+                ("Golden Core late release ceiling", r"(?:Golden Core late|Late Golden Core)"),
+                ("released Qi Refining ladder", r"Qi Refining"),
+                ("released Foundation Establishment", r"Foundation Establishment"),
+                ("deferred Nascent Soul", r"Nascent Soul"),
+                ("unavailable/deferred boundary", r"(?:not (?:yet )?(?:playable|implemented|available)|deferred|unavailable)"),
             ),
         )
 
@@ -698,7 +709,7 @@ class GuideMECultivationGuideValidator:
                 ("eligibility preparation", r"准备"),
                 ("normal affinity gain", r"普通打坐.{0,120}亲和|亲和.{0,120}普通打坐"),
                 ("spirit-stone direct mode", r"灵石"),
-                ("stage costs 1/1/2/3", r"1\s*[/／,，]\s*1\s*[/／,，]\s*2\s*[/／,，]\s*3"),
+                ("source-stage spirit-stone costs", r"(?:每批灵石|灵石成本|阶段.{0,20}(?:成本|费用))"),
                 (
                     "progress before stability",
                     r"(?:进度|修为).{0,120}(?:满|上限|圆满).{0,120}稳定",
@@ -709,7 +720,7 @@ class GuideMECultivationGuideValidator:
                 ),
                 ("interruptions", r"中断"),
                 ("lifespan gating", r"寿元"),
-                ("Qi Refining IV ceiling", r"炼气(?:四层|\s*IV)"),
+                ("Golden Core late ceiling", r"金丹后期"),
             ),
         )
         self._require_terms(
@@ -718,7 +729,7 @@ class GuideMECultivationGuideValidator:
                 ("eligibility preparation", r"prepar"),
                 ("normal affinity gain", r"normal.{0,120}affinity|affinity.{0,120}normal"),
                 ("spirit-stone direct mode", r"spirit[- ]stone"),
-                ("stage costs 1/1/2/3", r"1\s*[/,]\s*1\s*[/,]\s*2\s*[/,]\s*3"),
+                ("source-stage spirit-stone costs", r"(?:Stones per batch|stage.{0,30}cost)"),
                 ("progress before stability", r"progress.{0,100}(?:full|cap).{0,100}stability"),
                 (
                     "integer-floor half stability",
@@ -728,7 +739,7 @@ class GuideMECultivationGuideValidator:
                 ),
                 ("interruptions", r"interrupt"),
                 ("lifespan gating", r"lifespan"),
-                ("Qi Refining IV ceiling", r"Qi Refining IV"),
+                ("Golden Core late ceiling", r"(?:Golden Core late|Late Golden Core)"),
             ),
         )
 

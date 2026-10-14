@@ -1,7 +1,7 @@
 # Cultivation Playable Loop
 
 This note records the first playable cultivation loop, its five serial
-foundation changes, and the current affinity/UI revision. It extends the
+foundation changes, the affinity/UI revision, and the 0.48.0 progression extension through Golden Core late. It extends the
 foundation and initiation work; it does not replace the
 profile, registry, persistence, command, or two-stele contracts described in
 [Cultivation Core Foundation](28_cultivation_core.md) and
@@ -18,17 +18,18 @@ spirit-stone resources
   -> profile v3, lifespan, and shared calendar
   -> transient meditation state
   -> affinity/direct-stone Basic Breathing settlement
-  -> deterministic advancement through Qi Refining IV
+  -> deterministic advancement through Golden Core late
 ```
 
 The original resource change introduced stones without consumption; the current
 gain revision makes them direct server-owned meditation inputs. The time change
 does not start meditation, the shared state machine owns eligibility, gain stops
-at the cap, and advancement performs exactly one transition. Qi Refining IV is
-the release ceiling; Qi IV-IX gain, Foundation
-breakthrough, generic technique execution, spiritual-power recovery, pills,
-facilities, environment requirements, combat/exploration rewards, tribulation,
-death from old age, and reincarnation are not implemented here.
+at the cap, and advancement performs exactly one transition. Golden Core late is
+the release ceiling. The player chain contains fifteen transitions through
+Qi I-IX and early/middle/late Foundation and Golden Core. Nascent Soul player
+advancement, pills, facilities, environment requirements, combat/exploration
+rewards, tribulation, death from old age and reincarnation remain outside this
+loop. Spiritual-power recovery is implemented separately in note 45.
 
 ## Authority And Persistence
 
@@ -107,7 +108,7 @@ read year, week and day, weeks restart with each year, and a year that is not a
 whole number of weeks is allowed with a load/reload warning. At 20 TPS with
 someone online, 1 day = 20 real minutes, 1 week = 2 h, 1 year = 8 h, and the
 mortal `80` years = 640 h. The time snapshot carries all three values. Realm definitions own required positive maximum lifespans: mortal `80`,
-Qi Refining `120`, and Foundation Establishment `240` years. Remaining lifespan,
+Qi Refining `120`, Foundation Establishment `240`, and Golden Core `500` years. Remaining lifespan,
 the `10/5/1`-year warnings, and exhaustion are derived from the current realm and
 raw consumed ticks; they are not persisted flags.
 
@@ -189,9 +190,13 @@ per configured cultivation year with one transient remainder.
 | Qi II | 1200 | 600 |
 | Qi III | 1300 | 650 |
 
-These progress caps correspond to target layers I through IV. Unawakened
-mortal, Qi IV-IX, and Foundation Early cannot gain progress in this release. No
-progress or stability overflow is stored or transferred.
+The first four rows are preserved regression anchors. The 0.48.0 extension
+adds Qi-IV..IX caps 1400..1900, Foundation caps 3000/3600/4200 and Golden
+early/middle caps 6000/7200. All stability caps remain half of current progress
+caps. Each source authors its positive spirit cost; the complete cost/cap and
+advancement tables are in the [README](../../README.md#cultivation-playable-loop).
+Only unawakened mortal and terminal Golden Core late have no cultivation cap.
+No progress or stability overflow is stored or transferred.
 
 ## Advancement
 
@@ -211,11 +216,22 @@ Completion is deterministic and revalidated on the final tick. It performs one
 immutable replacement, changes realm/stage, resets progress to zero, retains
 integer-floor half of actual current stability, preserves every unrelated v3
 field, synchronizes once, and returns to idle. The authored compatibility cost
-equals half the required cap but is not used as a fixed runtime subtraction.
+equals required stability minus its floor-half, but is not used as a fixed
+runtime subtraction.
 There is no random failure, overflow transfer, or chained
-multi-stage advancement. Ordinary interruption costs nothing; only a
-player/world interruption of the Qi III bottleneck costs five stability. Clean
+multi-stage advancement. Ordinary interruption costs nothing; a
+player/world interruption of an authored bottleneck costs its data-defined
+loss. The preserved Qi-III and new Qi-VI losses are 5, Qi-IX to Foundation is
+10, and Foundation-late to Golden Core is 20. Clean
 server stop and registry-reload teardown are penalty-free.
+
+The added stage IDs are `foundation_middle`, `foundation_late`, `golden_early`,
+`golden_middle`, and `golden_late`; existing IDs remain unchanged. Profile v4
+and payload forms are unchanged. The player statistics aliases cover every
+registered stage, with health/attack policy in [note 47](47_realm_stats_wilderness.md).
+The panel derives terminal status from synchronized definitions. Capacity
+changes preserve wounds, current spiritual power and consumed age; Golden
+Core late remains usable for power and study even though progression stops.
 
 ## Validation And Manual Evidence
 
@@ -244,3 +260,10 @@ stone costs, multiplayer clocks, persistence, and advancement remain
 - Advancement: [proposal](../../openspec/changes/add-qi-refining-advancement/proposal.md) and [delta spec](../../openspec/changes/add-qi-refining-advancement/specs/cultivation-advancement/spec.md).
 - Affinity/UI revision: [proposal](../../openspec/changes/revise-cultivation-affinity-meditation-ui/proposal.md) and [delta specs](../../openspec/changes/revise-cultivation-affinity-meditation-ui/specs/).
 - GuideME summary: [GuideME Cultivation Guide](31_guideme_cultivation_guide.md) and its [change spec](../../openspec/changes/add-guideme-cultivation-guide-slice/specs/guideme-cultivation-guide/spec.md).
+
+The 0.48.0 chain contract is shared by the core/gain/advancement Python validators
+through `tools/cultivation_progression_contract.py`. It checks the complete
+ordered player chain, required old IDs, no skips/cycles/premature terminal,
+source bounds and the original four transition baselines.
+Bounded mapped-client evidence is `python3 tools/golden_core_evidence.py`; run
+clean acceptance stage 1 first. See [the measured report](../testing/2026-10-14-golden-core.md).

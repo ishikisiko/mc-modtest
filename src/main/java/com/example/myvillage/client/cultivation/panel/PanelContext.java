@@ -78,6 +78,12 @@ public record PanelContext(
         return stage(profile.realmId(), profile.stageId());
     }
 
+    public boolean releaseCeiling() {
+        return profile != null && realm(profile.realmId())
+                .map(realm -> PanelReadouts.releaseCeiling(realm, profile.stageId()))
+                .orElse(false);
+    }
+
     public Optional<SpiritualElementDefinition> element(ResourceLocation elementId) {
         return registries.registry(ModCultivationRegistries.SPIRITUAL_ELEMENTS)
                 .flatMap(registry -> registry.getOptional(elementId));
@@ -128,7 +134,7 @@ public record PanelContext(
                     profile.cultivationProgress(),
                     stage.cultivationCap().orElseThrow());
         }
-        String suffix = stage.id().equals(ModCultivationRegistries.QI_REFINING_4_STAGE_ID)
+        String suffix = releaseCeiling()
                 ? text("screen.myvillage.cultivation.progress_release_ceiling")
                 : text("screen.myvillage.cultivation.progress_unsupported");
         return profile.cultivationProgress() + " / " + suffix;

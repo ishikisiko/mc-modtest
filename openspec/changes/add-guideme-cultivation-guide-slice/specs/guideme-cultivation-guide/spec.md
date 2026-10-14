@@ -38,12 +38,12 @@ The mod SHALL define the data-driven guide `myvillage:cultivation` at `src/main/
 - **THEN** `cultivation.json` SHALL contain no `custom_colors` member
 - **AND** no page SHALL depend on a custom color id
 
-### Requirement: The three pages describe the released 0.25.0 cultivation loop
-The paired pages SHALL describe only implemented MyVillage 0.25.0 behavior. `index.md` SHALL present the order from spiritual-root awakening and Basic Breathing inheritance through meditation, sequential progress/stability growth, and deterministic advancement, and SHALL identify Qi Refining IV as the release ceiling. `getting_started/initiation.md` SHALL explain the independent testing-stele then inheritance-stele interactions and the non-rerolling/non-resetting repeat boundary. `getting_started/cultivation_loop.md` SHALL combine the Profile/Meditation H-screen surface, normal and direct-spirit-stone modes, current eligibility/interruption boundaries, spirit-stone acquisition and stage-owned costs, progress-before-stability ordering, lifespan gating, and one-stage deterministic advancement with retained integer-floor half stability.
+### Requirement: The three pages describe the current released cultivation loop
+The paired pages SHALL describe only currently implemented MyVillage behavior, including the 0.48.0 progression extension. `index.md` SHALL present the order from spiritual-root awakening and Basic Breathing inheritance through meditation, sequential progress/stability growth, and deterministic advancement, and SHALL identify Golden Core late as the release ceiling. `getting_started/initiation.md` SHALL explain the independent testing-stele then inheritance-stele interactions and the non-rerolling/non-resetting repeat boundary. `getting_started/cultivation_loop.md` SHALL combine the Profile/Meditation H-screen surface, normal and direct-spirit-stone modes, current eligibility/interruption boundaries, spirit-stone acquisition and stage-owned costs, progress-before-stability ordering, lifespan gating, and one-stage deterministic advancement with retained integer-floor half stability.
 
 #### Scenario: A new player follows the Chinese guide
 - **WHEN** the player reads `index.md`, `getting_started/initiation.md`, and `getting_started/cultivation_loop.md` in order
-- **THEN** the described sequence SHALL be sufficient to reach each currently released advancement through Qi Refining IV
+- **THEN** the described sequence SHALL be sufficient to reach each currently released advancement through Golden Core late
 - **AND** it SHALL distinguish awakening, inheritance, cultivation progress, stability consolidation, and advancement as separate steps
 
 #### Scenario: The English pair is compared with the Chinese source
@@ -52,7 +52,7 @@ The paired pages SHALL describe only implemented MyVillage 0.25.0 behavior. `ind
 
 #### Scenario: Deferred cultivation systems are searched
 - **WHEN** the guide describes the current version boundary
-- **THEN** it SHALL NOT present Qi Refining V or later gain, Foundation Establishment gameplay, pills, facilities, tribulation, old-age death, or reincarnation as playable
+- **THEN** it SHALL NOT present Nascent Soul player advancement, pills, facilities, tribulation, old-age death, or reincarnation as playable
 
 ### Requirement: Guide controls and indexed resources resolve live shipped entries
 Every player-facing control instruction SHALL render the existing configurable mappings `key.myvillage.open_cultivation_profile`, `key.myvillage.start_normal_meditation`, `key.myvillage.start_spirit_meditation`, `key.myvillage.stop_meditation`, and `key.myvillage.start_advancement` through GuideME key-binding components rather than treating their default letters as fixed controls. The initiation page SHALL index both stele ids, and the cultivation-loop page SHALL index the low-grade spirit stone and both spirit-stone ore ids. Representative `ItemLink` and `BlockImage` components SHALL reference fully qualified shipped `myvillage:` ids.

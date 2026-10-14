@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate deterministic Qi-sensed through Qi-IV advancement contracts."""
+"""Validate deterministic Qi-sensed through Golden Core late advancement contracts."""
 
 from __future__ import annotations
 
@@ -12,56 +12,22 @@ from pathlib import Path
 from typing import Any
 
 
+if __package__:
+    from .cultivation_progression_contract import (
+        PLAYABLE_CHAIN, TERMINAL, validate_progression,
+    )
+else:
+    from cultivation_progression_contract import (
+        PLAYABLE_CHAIN, TERMINAL, validate_progression,
+    )
+
+
+
 ROOT = Path(__file__).resolve().parents[1]
 JAVA = Path("src/main/java/com/example/myvillage")
 REALMS = Path("src/main/resources/data/myvillage/myvillage/realm")
 LANG = Path("src/main/resources/assets/myvillage/lang")
 
-EXPECTED_CAPS = {
-    "myvillage:mortal_qi_sensed": 1000,
-    "myvillage:qi_refining_1": 1100,
-    "myvillage:qi_refining_2": 1200,
-    "myvillage:qi_refining_3": 1300,
-}
-
-EXPECTED_RULES = {
-    "myvillage:mortal_qi_sensed": {
-        "target_realm": "myvillage:qi_refining",
-        "target_stage": "myvillage:qi_refining_1",
-        "kind": "ordinary",
-        "duration_ticks": 100,
-        "required_stability": 500,
-        "stability_cost": 250,
-        "interruption_stability_loss": 0,
-    },
-    "myvillage:qi_refining_1": {
-        "target_realm": "myvillage:qi_refining",
-        "target_stage": "myvillage:qi_refining_2",
-        "kind": "ordinary",
-        "duration_ticks": 100,
-        "required_stability": 550,
-        "stability_cost": 275,
-        "interruption_stability_loss": 0,
-    },
-    "myvillage:qi_refining_2": {
-        "target_realm": "myvillage:qi_refining",
-        "target_stage": "myvillage:qi_refining_3",
-        "kind": "ordinary",
-        "duration_ticks": 120,
-        "required_stability": 600,
-        "stability_cost": 300,
-        "interruption_stability_loss": 0,
-    },
-    "myvillage:qi_refining_3": {
-        "target_realm": "myvillage:qi_refining",
-        "target_stage": "myvillage:qi_refining_4",
-        "kind": "bottleneck",
-        "duration_ticks": 200,
-        "required_stability": 650,
-        "stability_cost": 325,
-        "interruption_stability_loss": 5,
-    },
-}
 
 
 @dataclass(frozen=True)
@@ -163,74 +129,10 @@ class CultivationAdvancementValidator:
                 self.error(registries_path, message)
 
     def validate_rules(self) -> None:
-        seen: dict[str, tuple[Path, Any, Any]] = {}
-        realm_root = self.root / REALMS
-        if not realm_root.is_dir():
-            self.error(REALMS, "missing realm definitions")
-            return
-        for path in sorted(realm_root.glob("*.json")):
-            self.checked_files.add(path)
-            try:
-                realm = json.loads(path.read_text(encoding="utf-8"))
-            except (OSError, UnicodeError, json.JSONDecodeError) as exc:
-                self.error(path, f"invalid realm JSON: {exc}")
-                continue
-            stages = realm.get("stages") if isinstance(realm, dict) else None
-            if not isinstance(stages, list):
-                continue
-            for stage in stages:
-                if isinstance(stage, dict) and isinstance(stage.get("id"), str):
-                    seen[stage["id"]] = (
-                        path,
-                        stage.get("cultivation_cap"),
-                        stage.get("advancement"),
-                    )
-
-        targets: set[tuple[str, str]] = set()
-        for source_id, expected in EXPECTED_RULES.items():
-            if source_id not in seen:
-                self.error(REALMS, f"missing shipped advancement source {source_id}")
-                continue
-            path, actual_cap, actual = seen[source_id]
-            expected_cap = EXPECTED_CAPS[source_id]
-            if type(actual_cap) is not int or actual_cap != expected_cap:
-                self.error(
-                    path,
-                    f"{source_id} cultivation_cap must be integer {expected_cap}, got {actual_cap!r}",
-                )
-            if isinstance(actual, dict) and type(actual_cap) is int:
-                expected_stability = actual_cap // 2
-                if actual.get("required_stability") != expected_stability:
-                    self.error(
-                        path,
-                        f"{source_id} required_stability must be half of cultivation_cap",
-                    )
-                expected_cost = expected_stability - expected_stability // 2
-                if actual.get("stability_cost") != expected_cost:
-                    self.error(
-                        path,
-                        f"{source_id} stability_cost must retain half of required stability",
-                    )
-            if actual != expected:
-                self.error(path, f"{source_id} advancement must be {expected!r}, got {actual!r}")
-                continue
-            target = (actual["target_realm"], actual["target_stage"])
-            if target in targets:
-                self.error(path, f"duplicate advancement target {target[0]}/{target[1]}")
-            targets.add(target)
-            if actual["target_stage"] == source_id:
-                self.error(path, f"advancement source {source_id} must not target itself")
-
-        for stage_id, (path, cap, advancement) in seen.items():
-            if stage_id not in EXPECTED_RULES and advancement is not None:
-                self.error(path, f"release-ceiling stage {stage_id} must omit advancement metadata")
-            if stage_id not in EXPECTED_CAPS and cap is not None:
-                self.error(path, f"release-ceiling stage {stage_id} must omit cultivation_cap")
-        qi4 = seen.get("myvillage:qi_refining_4")
-        if qi4 is None:
-            self.error(REALMS, "missing Qi Refining IV release endpoint")
-        elif qi4[1] is not None or qi4[2] is not None:
-            self.error(qi4[0], "Qi Refining IV must be an advancement endpoint with no further rule")
+        progression_errors, checked = validate_progression(self.root)
+        self.checked_files.update(checked)
+        for path, message in progression_errors:
+            self.error(path, message)
 
     def validate_intent_and_keys(self) -> None:
         network_sources = self.read_tree(JAVA / "cultivation/network")
@@ -415,9 +317,8 @@ def main() -> int:
         return 1
     print(
         "cultivation advancement validation passed: "
-        f"checked_files={result.checked_files}; caps=1000/1100/1200/1300; "
-        "stability=500/550/600/650; retention=50pct; transitions=4; "
-        "endpoint=qi_refining_4; random=none"
+        f"checked_files={result.checked_files}; retention=50pct; "
+        f"transitions={len(PLAYABLE_CHAIN) - 1}; endpoint={TERMINAL}; random=none"
     )
     return 0
 

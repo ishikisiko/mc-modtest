@@ -317,7 +317,7 @@ public final class MeditationPage extends PanelPage {
             String message;
             if (stage == null) {
                 message = context.unavailableText();
-            } else if (stage.id().equals(ModCultivationRegistries.QI_REFINING_4_STAGE_ID)) {
+            } else if (context.releaseCeiling()) {
                 message = context.text("screen.myvillage.cultivation.advancement_release_ceiling");
             } else {
                 message = context.text("screen.myvillage.cultivation.advancement_unavailable");

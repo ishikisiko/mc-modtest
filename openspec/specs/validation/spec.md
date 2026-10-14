@@ -564,9 +564,9 @@ initiation and flying-sword regressions SHALL remain green.
 The repository SHALL add or revise deterministic validators with negative
 fixtures for profile v3/migrations, affinity preservation, ten-tick cadence,
 normal and spirit arithmetic, direct layer-priced costs, transaction rollback,
-inert reserve, four progress/stability caps, pre-cap stability lock, post-cap
-affinity consolidation, success halving, Qi-IV ceiling, tabbed H presentation,
-bounded button intents, bilingual resources, documentation, version `0.25.0`,
+inert reserve, every released source progress/stability cap, pre-cap stability lock, post-cap
+affinity consolidation, success halving, Golden-Core-late ceiling and complete chain reachability, tabbed H presentation,
+bounded button intents, bilingual resources, documentation, release metadata following openspec/config.yaml,
 and practical-jar inclusion. Behavioral codec, transaction, and widget routing
 claims MUST be proven by Java tests where static source inspection is
 insufficient.
@@ -582,6 +582,10 @@ insufficient.
 #### Scenario: A negative fixture exposes reserve in H
 - **WHEN** the tabbed profile or meditation UI still renders the legacy reserve
 - **THEN** validation SHALL fail with the stale-reserve presentation path
+
+#### Scenario: A shipped higher-stage resource is inconsistent
+- **WHEN** a source loses its spirit cost, exact next-stage target, derived stability requirement, matching statistics alias, bilingual label or shared-ledger lifespan
+- **THEN** the owning focused validator SHALL reject the resource rather than treating the player chain as complete
 
 ### Requirement: Revised-loop acceptance separates automation visual review and gameplay
 The acceptance handoff SHALL run the strict baseline plus all five playable-loop
@@ -606,9 +610,8 @@ README acceptance SHALL record `pass`, `fail`, or `not_verified` for v1/v2 save
 migration, default affinity `10`, Profile/Meditation tabs, all four buttons and
 V/B/X/N parity, normal ten-tick gain, each released spirit cost, insufficient
 stone downgrade, no progress-cap charge, pre-cap stability lock, post-cap
-affinity stability in both modes, all four dynamic stability caps, success
-halving, unchanged mastery clock, all four new progress thresholds, Qi-IV
-ceiling, interruption, relog/death/dimension preservation, and existing
+affinity stability in both modes, all released dynamic stability caps, success
+halving, unchanged mastery clock, all released progress thresholds, Golden-Core-late ceiling and both cultivated cross-realm bottlenecks, interruption, relog/death/dimension preservation, and existing
 initiation/flying-sword regressions. Unobserved items SHALL remain `not_verified`
 even when validators or server startup pass.
 
@@ -623,6 +626,16 @@ even when validators or server startup pass.
 #### Scenario: A lifecycle path is not exercised
 - **WHEN** save migration, relog, death, or dimension behavior was not directly observed
 - **THEN** its ledger entry SHALL remain `not_verified`
+
+#### Scenario: A major-realm transition is exercised through mapped input
+- **WHEN** administrator fixture setup provides valid progress/stability and a real client starts a Qi-IX or Foundation-late bottleneck through the mapped advancement control
+- **THEN** developer evidence SHALL separately record source and target realm/stage, zero target progress, half retained stability, unchanged current power, consumed lifespan and wounds, and updated capacities
+- **AND** fixture setup SHALL NOT count as natural acquisition or an owner gameplay verdict
+
+#### Scenario: Higher-stage lifecycle evidence is prepared
+- **WHEN** a high-stage player is saved and restored or returned from the End
+- **THEN** the evidence SHALL compare realm/stage, progress, stability, current power and current health before and after
+- **AND** every lifecycle path not actually exercised SHALL remain not_verified
 
 ### Requirement: Spiritual power and sword qi use layered acceptance
 Acceptance SHALL include focused pure rules and data tests, affected cultivation and combat regression validators, Gradle tests/build, jar resource inspection, bounded server lifecycle checks, real-client mapped input and a normal acquisition/study/use loop. Each executed test SHALL retain duration and result evidence. Unexecuted multiplayer, owner look/feel/FPS, and lifecycle checks SHALL be `not_verified`; startup alone SHALL NOT count as gameplay evidence.
@@ -669,3 +682,15 @@ The repository SHALL validate numerical rules, stage aliases and region ranges, 
 #### Scenario: Automated checks pass
 - **WHEN** validators, tests, build and bounded server checks pass without an owner gameplay session
 - **THEN** numerical and observed runtime results are recorded while feel, density and unobserved client lifecycle items remain not_verified
+
+### Requirement: Bilingual progression guidance follows the terminal player chain
+README and the root-authored GuideME pages SHALL describe the current chain through Qi IX, Foundation early/middle/late and Golden Core early/middle/late, with Golden Core late as the terminal stage. The Chinese index and cultivation-loop pages and their _en_us counterparts SHALL agree on reachable stages, data-owned caps/costs, progress-before-stability order, deterministic one-stage advancement, half-retention, cross-realm bottlenecks and the current terminal result. Command usage SHALL preserve structurally equivalent English and pinyin aliases. Existing archived evidence SHALL retain its historical scope; current acceptance claims SHALL NOT inherit historical passes for newly opened stages. No second authored guide tree or GuideME-specific payload/key interception SHALL be added.
+
+#### Scenario: Guide languages are compared after the chain extension
+- **WHEN** the four affected GuideME pages and README are checked against shipped player realm data
+- **THEN** they SHALL identify Golden Core late as the terminal playable stage and SHALL NOT describe Qi IV or Foundation as still blocked
+- **AND** Nascent Soul player advancement, pills, tribulation and reincarnation SHALL remain explicitly outside this extension
+
+#### Scenario: Guide content reaches the practical jar
+- **WHEN** the practical artifact is built
+- **THEN** its packaged cultivation guide and higher-stage registry/language resources SHALL match the root-authored pages and current source data

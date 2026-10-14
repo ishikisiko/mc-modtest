@@ -24,7 +24,12 @@
     {"id": "myvillage:qi_refining_7", "realm": "myvillage:qi_refining", "stage": 6},
     {"id": "myvillage:qi_refining_8", "realm": "myvillage:qi_refining", "stage": 7},
     {"id": "myvillage:qi_refining_9", "realm": "myvillage:qi_refining", "stage": 8},
-    {"id": "myvillage:foundation_early", "realm": "myvillage:foundation_establishment", "stage": 0}
+    {"id": "myvillage:foundation_early", "realm": "myvillage:foundation_establishment", "stage": 0},
+    {"id": "myvillage:foundation_middle", "realm": "myvillage:foundation_establishment", "stage": 1},
+    {"id": "myvillage:foundation_late", "realm": "myvillage:foundation_establishment", "stage": 2},
+    {"id": "myvillage:golden_early", "realm": "myvillage:golden_core", "stage": 0},
+    {"id": "myvillage:golden_middle", "realm": "myvillage:golden_core", "stage": 1},
+    {"id": "myvillage:golden_late", "realm": "myvillage:golden_core", "stage": 2}
   ],
   "damage_types": ["physical", "metal", "wood", "water", "fire", "earth"],
   "limits": {

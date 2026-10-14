@@ -1,0 +1,47 @@
+{
+  "translation_key": "cultivation.realm.myvillage.golden_core",
+  "sort_order": 3,
+  "maximum_lifespan_years": 500,
+  "stages": [
+    {
+      "id": "myvillage:golden_early",
+      "translation_key": "cultivation.stage.myvillage.golden_early",
+      "sort_order": 0,
+      "spiritual_power_cap": 400,
+      "cultivation_cap": 6000,
+      "spirit_stone_cost": 40,
+      "advancement": {
+        "target_realm": "myvillage:golden_core",
+        "target_stage": "myvillage:golden_middle",
+        "kind": "ordinary",
+        "duration_ticks": 300,
+        "required_stability": 3000,
+        "stability_cost": 1500,
+        "interruption_stability_loss": 0
+      }
+    },
+    {
+      "id": "myvillage:golden_middle",
+      "translation_key": "cultivation.stage.myvillage.golden_middle",
+      "sort_order": 1,
+      "spiritual_power_cap": 500,
+      "cultivation_cap": 7200,
+      "spirit_stone_cost": 48,
+      "advancement": {
+        "target_realm": "myvillage:golden_core",
+        "target_stage": "myvillage:golden_late",
+        "kind": "ordinary",
+        "duration_ticks": 360,
+        "required_stability": 3600,
+        "stability_cost": 1800,
+        "interruption_stability_loss": 0
+      }
+    },
+    {
+      "id": "myvillage:golden_late",
+      "translation_key": "cultivation.stage.myvillage.golden_late",
+      "sort_order": 2,
+      "spiritual_power_cap": 600
+    }
+  ]
+}

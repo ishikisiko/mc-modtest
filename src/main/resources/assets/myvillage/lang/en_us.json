@@ -190,7 +190,7 @@
   "screen.myvillage.cultivation.advancement_runtime_value": "%s / %s ticks left",
   "screen.myvillage.cultivation.advancement_kind.ordinary": "Ordinary",
   "screen.myvillage.cultivation.advancement_kind.bottleneck": "Bottleneck",
-  "screen.myvillage.cultivation.advancement_release_ceiling": "Qi Refining IV is the current release ceiling.",
+  "screen.myvillage.cultivation.advancement_release_ceiling": "The current cultivation release ceiling has been reached.",
   "screen.myvillage.cultivation.advancement_unavailable": "No advancement rule is available.",
   "screen.myvillage.cultivation.spiritual_root": "Spiritual Root",
   "screen.myvillage.cultivation.unawakened": "Unawakened",
@@ -1095,5 +1095,11 @@
   "attribute.myvillage.wood_resistance": "Wood Resistance",
   "attribute.myvillage.water_resistance": "Water Resistance",
   "attribute.myvillage.fire_resistance": "Fire Resistance",
-  "attribute.myvillage.earth_resistance": "Earth Resistance"
+  "attribute.myvillage.earth_resistance": "Earth Resistance",
+  "cultivation.realm.myvillage.golden_core": "Golden Core",
+  "cultivation.stage.myvillage.foundation_middle": "Middle Foundation",
+  "cultivation.stage.myvillage.foundation_late": "Late Foundation",
+  "cultivation.stage.myvillage.golden_early": "Early Golden Core",
+  "cultivation.stage.myvillage.golden_middle": "Middle Golden Core",
+  "cultivation.stage.myvillage.golden_late": "Late Golden Core"
 }

@@ -6,6 +6,12 @@ loop. The guide summarizes shipped behavior; runtime truth remains in
 integration contract is the active
 [`guideme-cultivation-guide` change spec](../../openspec/changes/add-guideme-cultivation-guide-slice/specs/guideme-cultivation-guide/spec.md).
 
+Since 0.48.0 the four Chinese/English index and loop pages describe the
+complete player chain through Golden Core late. Their current behavioral
+boundary is also enforced by the [validation spec](../../openspec/specs/validation/spec.md);
+the active GuideME integration contract is synchronized to that boundary so
+its later archive cannot restore the superseded Qi-IV ceiling.
+
 ## Dependency Boundary
 
 MyVillage 0.25.1-fix1 requires GuideME on client and server with NeoForge range

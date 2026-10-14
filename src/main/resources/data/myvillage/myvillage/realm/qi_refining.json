@@ -59,42 +59,102 @@
       "translation_key": "cultivation.stage.myvillage.qi_refining_4",
       "sort_order": 3,
       "spirit_stone_cost": 4,
-      "spiritual_power_cap": 60
+      "spiritual_power_cap": 60,
+      "cultivation_cap": 1400,
+      "advancement": {
+        "target_realm": "myvillage:qi_refining",
+        "target_stage": "myvillage:qi_refining_5",
+        "kind": "ordinary",
+        "duration_ticks": 140,
+        "required_stability": 700,
+        "stability_cost": 350,
+        "interruption_stability_loss": 0
+      }
     },
     {
       "id": "myvillage:qi_refining_5",
       "translation_key": "cultivation.stage.myvillage.qi_refining_5",
       "sort_order": 4,
       "spirit_stone_cost": 5,
-      "spiritual_power_cap": 70
+      "spiritual_power_cap": 70,
+      "cultivation_cap": 1500,
+      "advancement": {
+        "target_realm": "myvillage:qi_refining",
+        "target_stage": "myvillage:qi_refining_6",
+        "kind": "ordinary",
+        "duration_ticks": 160,
+        "required_stability": 750,
+        "stability_cost": 375,
+        "interruption_stability_loss": 0
+      }
     },
     {
       "id": "myvillage:qi_refining_6",
       "translation_key": "cultivation.stage.myvillage.qi_refining_6",
       "sort_order": 5,
       "spirit_stone_cost": 6,
-      "spiritual_power_cap": 80
+      "spiritual_power_cap": 80,
+      "cultivation_cap": 1600,
+      "advancement": {
+        "target_realm": "myvillage:qi_refining",
+        "target_stage": "myvillage:qi_refining_7",
+        "kind": "bottleneck",
+        "duration_ticks": 240,
+        "required_stability": 800,
+        "stability_cost": 400,
+        "interruption_stability_loss": 5
+      }
     },
     {
       "id": "myvillage:qi_refining_7",
       "translation_key": "cultivation.stage.myvillage.qi_refining_7",
       "sort_order": 6,
       "spirit_stone_cost": 7,
-      "spiritual_power_cap": 90
+      "spiritual_power_cap": 90,
+      "cultivation_cap": 1700,
+      "advancement": {
+        "target_realm": "myvillage:qi_refining",
+        "target_stage": "myvillage:qi_refining_8",
+        "kind": "ordinary",
+        "duration_ticks": 180,
+        "required_stability": 850,
+        "stability_cost": 425,
+        "interruption_stability_loss": 0
+      }
     },
     {
       "id": "myvillage:qi_refining_8",
       "translation_key": "cultivation.stage.myvillage.qi_refining_8",
       "sort_order": 7,
       "spirit_stone_cost": 8,
-      "spiritual_power_cap": 100
+      "spiritual_power_cap": 100,
+      "cultivation_cap": 1800,
+      "advancement": {
+        "target_realm": "myvillage:qi_refining",
+        "target_stage": "myvillage:qi_refining_9",
+        "kind": "ordinary",
+        "duration_ticks": 200,
+        "required_stability": 900,
+        "stability_cost": 450,
+        "interruption_stability_loss": 0
+      }
     },
     {
       "id": "myvillage:qi_refining_9",
       "translation_key": "cultivation.stage.myvillage.qi_refining_9",
       "sort_order": 8,
       "spirit_stone_cost": 9,
-      "spiritual_power_cap": 110
+      "spiritual_power_cap": 110,
+      "cultivation_cap": 1900,
+      "advancement": {
+        "target_realm": "myvillage:foundation_establishment",
+        "target_stage": "myvillage:foundation_early",
+        "kind": "bottleneck",
+        "duration_ticks": 400,
+        "required_stability": 950,
+        "stability_cost": 475,
+        "interruption_stability_loss": 10
+      }
     }
   ],
   "next_realm": "myvillage:foundation_establishment"

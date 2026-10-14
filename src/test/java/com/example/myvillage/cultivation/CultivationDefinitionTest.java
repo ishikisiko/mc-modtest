@@ -292,7 +292,8 @@ class CultivationDefinitionTest {
         Map<String, Integer> expected = Map.of(
                 "mortal", 80,
                 "qi_refining", 120,
-                "foundation_establishment", 240);
+                "foundation_establishment", 240,
+                "golden_core", 500);
 
         for (Map.Entry<String, Integer> entry : expected.entrySet()) {
             Path path = Path.of(
@@ -306,7 +307,7 @@ class CultivationDefinitionTest {
     }
 
     @Test
-    void shippedStagesDeclareExactPlayableAdvancementMatrixAndQiFourCeiling() throws Exception {
+    void shippedStagesPreserveTheOriginalFourAdvancementsAndLayerStoneCosts() throws Exception {
         RealmDefinition mortal = readRealm("mortal");
         RealmDefinition qi = readRealm("qi_refining");
         Map<ResourceLocation, RealmStageDefinition> stages = new LinkedHashMap<>();
@@ -344,8 +345,6 @@ class CultivationDefinitionTest {
         }
         for (int level = 4; level <= 9; level++) {
             RealmStageDefinition stage = stages.get(id("qi_refining_" + level));
-            assertTrue(stage.cultivationCap().isEmpty());
-            assertTrue(stage.advancement().isEmpty());
             assertEquals(Optional.of(level), stage.spiritStoneCost());
         }
     }

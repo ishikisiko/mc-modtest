@@ -125,6 +125,13 @@ class CultivationLifespanValidationTest(unittest.TestCase):
 
         self.assert_error_contains(result, "maximum_lifespan_years must be integer 80")
 
+    def test_golden_core_lifespan_is_required_and_cannot_drift(self) -> None:
+        path = self.fixture_root / "src/main/resources/data/myvillage/myvillage/realm/golden_core.json"
+        realm = json.loads(path.read_text(encoding="utf-8"))
+        realm["maximum_lifespan_years"] = 499
+        path.write_text(json.dumps(realm), encoding="utf-8")
+        self.assert_error_contains(self.validate(), "maximum_lifespan_years must be integer 500")
+
     def test_days_per_year_default_drift_is_rejected(self) -> None:
         self.mutate_text(
             "src/main/java/com/example/myvillage/cultivation/time/CultivationServerConfig.java",

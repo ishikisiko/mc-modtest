@@ -12,23 +12,22 @@ from pathlib import Path
 from typing import Any
 
 
+if __package__:
+    from .cultivation_progression_contract import (
+        PLAYABLE_CHAIN, validate_progression,
+    )
+else:
+    from cultivation_progression_contract import (
+        PLAYABLE_CHAIN, validate_progression,
+    )
+
+
+
 ROOT = Path(__file__).resolve().parents[1]
 JAVA = Path("src/main/java/com/example/myvillage")
 REALMS = Path("src/main/resources/data/myvillage/myvillage/realm")
 LANG = Path("src/main/resources/assets/myvillage/lang")
 
-EXPECTED_CAPS = {
-    "myvillage:mortal_qi_sensed": 1000,
-    "myvillage:qi_refining_1": 1100,
-    "myvillage:qi_refining_2": 1200,
-    "myvillage:qi_refining_3": 1300,
-}
-EXPECTED_SPIRIT_STONE_COSTS = {
-    "myvillage:mortal_qi_sensed": 1,
-    "myvillage:qi_refining_1": 1,
-    "myvillage:qi_refining_2": 2,
-    "myvillage:qi_refining_3": 3,
-}
 
 
 @dataclass(frozen=True)
@@ -116,46 +115,10 @@ class CultivationGainValidator:
                 self.error(stage_path, "stability cap must derive as integer-floor half of cultivation_cap")
 
         seen: dict[str, tuple[Path, Any, Any]] = {}
-        realm_root = self.root / REALMS
-        if not realm_root.is_dir():
-            self.error(REALMS, "missing realm definitions")
-            return
-        for path in sorted(realm_root.glob("*.json")):
-            self.checked_files.add(path)
-            try:
-                realm = json.loads(path.read_text(encoding="utf-8"))
-            except (OSError, UnicodeError, json.JSONDecodeError) as exc:
-                self.error(path, f"invalid realm JSON: {exc}")
-                continue
-            stages = realm.get("stages") if isinstance(realm, dict) else None
-            if not isinstance(stages, list):
-                continue
-            for stage_value in stages:
-                if isinstance(stage_value, dict) and isinstance(stage_value.get("id"), str):
-                    seen[stage_value["id"]] = (
-                        path,
-                        stage_value.get("cultivation_cap"),
-                        stage_value.get("spirit_stone_cost"),
-                    )
-
-        for stage_id, expected in EXPECTED_CAPS.items():
-            if stage_id not in seen:
-                self.error(REALMS, f"missing shipped stage {stage_id}")
-                continue
-            path, actual, _cost = seen[stage_id]
-            if type(actual) is not int or actual != expected:
-                self.error(path, f"{stage_id} cultivation_cap must be integer {expected}, got {actual!r}")
-        for stage_id, expected in EXPECTED_SPIRIT_STONE_COSTS.items():
-            if stage_id not in seen:
-                continue
-            path, cap, actual = seen[stage_id]
-            if type(actual) is not int or actual != expected:
-                self.error(path, f"{stage_id} spirit_stone_cost must be integer {expected}, got {actual!r}")
-            if cap is not None and (type(actual) is not int or actual <= 0):
-                self.error(path, f"cultivatable stage {stage_id} must declare positive spirit_stone_cost")
-        for stage_id, (path, actual, _cost) in seen.items():
-            if stage_id not in EXPECTED_CAPS and actual is not None:
-                self.error(path, f"release-ceiling stage {stage_id} must omit cultivation_cap")
+        progression_errors, checked = validate_progression(self.root)
+        self.checked_files.update(checked)
+        for path, message in progression_errors:
+            self.error(path, message)
 
     def _gain_sources(self, sources: dict[Path, str]) -> dict[Path, str]:
         needles = (
@@ -464,7 +427,7 @@ def main() -> int:
     print(
         "cultivation gain validation passed: "
         f"checked_files={result.checked_files}; settlement_ticks=10; normal=affinity; "
-        "spirit=50; costs=1/1/2/3; caps=1000/1100/1200/1300; "
+        f"spirit=50; source_stages={len(PLAYABLE_CHAIN) - 1}; caps/costs=authored-data; "
         "stability=post-cap-affinity@50pct"
     )
     return 0
