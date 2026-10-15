@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "use_ticks": 32,
+  "shared_cooldown_ticks": 600,
+  "recipes": [
+    {
+      "id": "huiling",
+      "formula": "myvillage:formula_huiling",
+      "ingredients": ["myvillage:spirit_leaf", "myvillage:dew_blossom"],
+      "fuel_count": 1,
+      "duration_ticks": 400,
+      "output": "myvillage:pill_huiling",
+      "output_count": 2
+    },
+    {
+      "id": "yangyuan",
+      "formula": "myvillage:formula_yangyuan",
+      "ingredients": ["myvillage:sunroot", "myvillage:blood_berry"],
+      "fuel_count": 1,
+      "duration_ticks": 400,
+      "output": "myvillage:pill_yangyuan",
+      "output_count": 2
+    },
+    {
+      "id": "ningshen",
+      "formula": "myvillage:formula_ningshen",
+      "ingredients": ["myvillage:cloud_fungus", "myvillage:calm_lotus"],
+      "fuel_count": 1,
+      "duration_ticks": 400,
+      "output": "myvillage:pill_ningshen",
+      "output_count": 2
+    }
+  ],
+  "effects": {
+    "huiling": {"power_fraction": 0.25},
+    "yangyuan": {"duration_ticks": 200, "interval_ticks": 20, "heal_fraction": 0.02},
+    "ningshen": {"duration_ticks": 1200, "stability_multiplier": 1.5}
+  }
+}

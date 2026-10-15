@@ -1,6 +1,7 @@
 package com.example.myvillage.cultivation.meditation;
 
 import com.example.myvillage.cultivation.CultivationProfile;
+import com.example.myvillage.alchemy.MedicineEffects;
 import com.example.myvillage.cultivation.TechniqueProgress;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.data.RealmStageDefinition;
@@ -50,6 +51,19 @@ public final class BasicBreathingSettlement {
             Accrual accrual,
             boolean spiritStonesAvailable,
             int progressFactorBasisPoints) {
+        return plan(current, cultivationCap, mode, accrual, spiritStonesAvailable,
+                progressFactorBasisPoints, 1.0);
+    }
+
+    /** Medicine scales only the stability gain in an already post-cap meditation batch. */
+    public static Plan plan(
+            CultivationProfile current,
+            long cultivationCap,
+            MeditationMode mode,
+            Accrual accrual,
+            boolean spiritStonesAvailable,
+            int progressFactorBasisPoints,
+            double stabilityMultiplier) {
         Objects.requireNonNull(current, "current");
         Objects.requireNonNull(mode, "mode");
         Objects.requireNonNull(accrual, "accrual");
@@ -87,9 +101,10 @@ public final class BasicBreathingSettlement {
         int finalStability = current.stability();
         if (current.cultivationProgress() >= cultivationCap
                 && current.stability() < stabilityCap) {
-            stabilityApplied = Math.min(
-                    (long) current.spiritualAffinity(),
-                    (long) stabilityCap - current.stability());
+            stabilityApplied = MedicineEffects.stabilityGain(
+                    current.spiritualAffinity(),
+                    (long) stabilityCap - current.stability(),
+                    mode == MeditationMode.STUDY ? 1.0 : stabilityMultiplier);
             finalStability = (int) CultivationTimeMath.saturatingAdd(
                     current.stability(), stabilityApplied);
         }

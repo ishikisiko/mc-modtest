@@ -24,6 +24,20 @@ STONE_ITEM = "low_grade_spirit_stone"
 ORES = ("spirit_stone_ore", "deepslate_spirit_stone_ore")
 ORE_IDS = tuple(f"myvillage:{ore}" for ore in ORES)
 
+# These later-capability recipes consume an existing plain stone; none creates stones or processes ore.
+ALCHEMY_STONE_CONSUMERS = {
+    "spirit_leaf": ("minecraft:fern",),
+    "dew_blossom": ("minecraft:blue_orchid",),
+    "sunroot": ("minecraft:carrot",),
+    "blood_berry": ("minecraft:sweet_berries",),
+    "cloud_fungus": ("minecraft:brown_mushroom",),
+    "calm_lotus": ("minecraft:lily_pad",),
+    "formula_huiling": ("minecraft:paper", "myvillage:spirit_leaf", "myvillage:dew_blossom"),
+    "formula_yangyuan": ("minecraft:paper", "myvillage:sunroot", "myvillage:blood_berry"),
+    "formula_ningshen": ("minecraft:paper", "myvillage:cloud_fungus", "myvillage:calm_lotus"),
+}
+
+
 CONFIGURED_FEATURES = {
     "spirit_stone_ore": 6,
     "spirit_stone_ore_small": 3,
@@ -106,6 +120,30 @@ def _reject_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
             raise DuplicateJsonKey(f"duplicate JSON key {key!r}")
         result[key] = value
     return result
+
+
+def _approved_alchemy_consumption(relative: Path, recipe: Any) -> bool:
+    """Authorize only the nine fixed infusion/formula recipes, independent of generator output."""
+    if relative.parent != DATA_ROOT / "recipe" or relative.suffix != ".json":
+        return False
+    item = relative.stem
+    expected_inputs = ALCHEMY_STONE_CONSUMERS.get(item)
+    if expected_inputs is None or not isinstance(recipe, dict):
+        return False
+    if set(recipe) != {"type", "category", "ingredients", "result"}:
+        return False
+    if recipe["type"] != "minecraft:crafting_shapeless" or recipe["category"] != "misc":
+        return False
+    result = recipe["result"]
+    if (not isinstance(result, dict) or set(result) != {"id", "count"}
+            or result["id"] != f"myvillage:{item}" or type(result["count"]) is not int or result["count"] != 1):
+        return False
+    ingredients = recipe["ingredients"]
+    if not isinstance(ingredients, list) or any(
+        not isinstance(i, dict) or set(i) != {"item"} or not isinstance(i["item"], str) for i in ingredients
+    ):
+        return False
+    return sorted(i["item"] for i in ingredients) == sorted((*expected_inputs, f"myvillage:{STONE_ITEM}"))
 
 
 def _strip_java_comments(source: str) -> str:
@@ -626,11 +664,19 @@ class SpiritStoneResourcesValidator:
                 except (OSError, UnicodeError) as exc:
                     self.error(path, f"cannot inspect recipe: {exc}")
                     continue
-                lowered = text.lower()
-                if "spirit_stone" in path.name.lower() or any(
-                    identifier in lowered for identifier in (f"myvillage:{STONE_ITEM}", *ORE_IDS)
-                ):
-                    self.error(path, "spirit-stone recipe or smelting chain is forbidden in this slice")
+                try:
+                    recipe = json.loads(text, object_pairs_hook=_reject_duplicate_keys)
+                except (ValueError, TypeError) as exc:
+                    self.error(path, f"cannot inspect recipe JSON: {exc}")
+                    continue
+                # Decode references before inspecting them, so escaped JSON ids cannot hide processing.
+                lowered = json.dumps(recipe, ensure_ascii=False).lower()
+                stone_related = "spirit_stone" in path.name.lower() or any(
+                    identifier in lowered for identifier in (f"myvillage:{STONE_ITEM}", *ORE_IDS, *FORBIDDEN_ITEM_IDS)
+                )
+                if stone_related and not _approved_alchemy_consumption(path.relative_to(self.root), recipe):
+                    self.error(path, "spirit-stone recipe or smelting chain is forbidden in this slice; "
+                               "only the nine exact alchemy consumption recipes are allowed")
 
         for forbidden in FORBIDDEN_ITEM_IDS:
             for base in (self.root / ASSET_ROOT, self.root / DATA_ROOT):

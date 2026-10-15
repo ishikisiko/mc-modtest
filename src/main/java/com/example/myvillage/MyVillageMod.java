@@ -1,6 +1,9 @@
 package com.example.myvillage;
 
 import com.example.myvillage.block.ModBlockEntities;
+import com.example.myvillage.alchemy.AlchemyMenus;
+import com.example.myvillage.alchemy.AlchemyRules;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import com.example.myvillage.block.ModBlocks;
 import com.example.myvillage.combat.CombatAttachments;
 import com.example.myvillage.combat.CombatCommands;
@@ -99,6 +102,8 @@ public final class MyVillageMod {
         ModEntities.register(modEventBus);
         ModBlocks.register(modEventBus);
         ModBlockEntities.register(modEventBus);
+        AlchemyMenus.register(modEventBus);
+        modEventBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(() -> { AlchemyRules.get(); }));
         ModItems.register(modEventBus);
         ModDataComponents.register(modEventBus);
         CombatSounds.register(modEventBus);

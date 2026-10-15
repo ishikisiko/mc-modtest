@@ -2,6 +2,7 @@ package com.example.myvillage.block;
 
 import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.block.entity.ScriptureShelfBlockEntity;
+import com.example.myvillage.block.entity.AlchemyFurnaceBlockEntity;
 import java.util.function.Supplier;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -18,6 +19,11 @@ public final class ModBlockEntities {
             BLOCK_ENTITIES.register("scripture_shelf",
                     () -> BlockEntityType.Builder.of(ScriptureShelfBlockEntity::new,
                             ModBlocks.SCRIPTURE_SHELF.get()).build(null));
+
+    @SuppressWarnings("DataFlowIssue")
+    public static final Supplier<BlockEntityType<AlchemyFurnaceBlockEntity>> ALCHEMY_FURNACE =
+            BLOCK_ENTITIES.register("alchemy_furnace", () -> BlockEntityType.Builder.of(
+                    AlchemyFurnaceBlockEntity::new, ModBlocks.ALCHEMY_FURNACE.get()).build(null));
 
     private ModBlockEntities() {
     }

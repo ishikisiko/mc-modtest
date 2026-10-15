@@ -228,6 +228,15 @@ def generate_structures(gate: "Gate") -> Outcome:
     return gate.run_argv(GENERATE, [interpreter.path, *GENERATE_ARGS], interpreter.note)
 
 
+def check_alchemy_jar(gate: "Gate") -> Outcome:
+    """Alchemy resources in this run's freshly built jar match their validated source files."""
+    from tools.validate_alchemy import validate
+    if gate.built_jar is None:
+        return Outcome(FAIL, "no jar was written by this run")
+    errors = validate(gate.root, gate.built_jar)["errors"]
+    return Outcome(FAIL, "; ".join(errors)) if errors else Outcome(PASS, "alchemy source and jar resources agree")
+
+
 def check_generated_resources(gate: "Gate") -> Outcome:
     """The generator runs (this gate's and the build's) left src/main/resources as committed."""
     after = generated_snapshot(gate.root)
@@ -289,6 +298,8 @@ STEPS: tuple[Step, ...] = (
     generator_check("gen_meridian_figure"),
     generator_check("gen_scripture_shelf_model"),
     tool("validate_scripture_shelf"),
+    generator_check("gen_alchemy_assets"),
+    tool("validate_alchemy"),
     beastgen_check("demon_wolf"),
     npcgen_check("cultivator"),
     npcgen_check("cultivator_f_novice"),
@@ -344,6 +355,7 @@ STEPS: tuple[Step, ...] = (
     tool("validate_sword_combat_foundation", after=BUILD),
     tool("validate_spirit_stone_resources", "--require-current-jar", after=BUILD),
     tool("validate_guideme_cultivation_guide", "--require-current-jar", after=BUILD),
+    Step("validate-alchemy-jar", func=check_alchemy_jar, after=BUILD),
     Step("readme-jar-listing", func=check_readme_jar_listing, after=BUILD),
 )
 

@@ -135,6 +135,61 @@ class CultivationGainValidator:
             if any(needle in text for needle in needles)
         }
 
+    def validate_medicine_stability(self, sources: dict[Path, str]) -> None:
+        """Follow the medicine integration without accepting loss of the original affinity/cap guard."""
+        path = self.root / JAVA / "cultivation/meditation/BasicBreathingSettlement.java"
+        settlement = sources.get(path, "")
+        call = re.search(
+            r"stabilityApplied\s*=\s*MedicineEffects\.stabilityGain\(\s*"
+            r"(?P<affinity>[^,;]+),\s*(?P<remaining>[^,;]+),\s*(?P<multiplier>[^;]+)\);",
+            settlement,
+            re.DOTALL,
+        )
+        if call is None or re.fullmatch(r"current\.spiritualAffinity\(\)", call["affinity"].strip()) is None:
+            self.error(path, "post-cap stability must use current spiritual affinity")
+        if call is None or re.fullmatch(
+            r"\(long\)\s*stabilityCap\s*-\s*current\.stability\(\)", call["remaining"].strip()
+        ) is None:
+            self.error(path, "medicine stability gain must receive remaining dynamic stage capacity")
+        if call is None or re.fullmatch(
+            r"mode\s*==\s*MeditationMode\.STUDY\s*\?\s*1\.0\s*:\s*stabilityMultiplier",
+            call["multiplier"].strip(),
+        ) is None:
+            self.error(path, "medicine multiplier must apply only outside study settlement")
+        guard = re.search(
+            r"if\s*\(\s*current\.cultivationProgress\(\)\s*>=\s*cultivationCap\s*"
+            r"&&\s*current\.stability\(\)\s*<\s*stabilityCap\s*\)\s*\{\s*"
+            r"stabilityApplied\s*=\s*MedicineEffects\.stabilityGain\(",
+            settlement,
+            re.DOTALL,
+        )
+        if guard is None:
+            self.error(path, "medicine stability call must stay inside the already-full progress guard")
+        # Only its declaration and the bounded stability calculation may use this multiplier.
+        if len(re.findall(r"\bstabilityMultiplier\b", settlement)) != 2:
+            self.error(path, "medicine multiplier must affect stability only, never progress or mastery")
+        if re.search(
+            r"return\s+plan\(\s*current\s*,\s*cultivationCap\s*,\s*mode\s*,\s*accrual\s*,"
+            r"\s*spiritStonesAvailable\s*,\s*progressFactorBasisPoints\s*,\s*1\.0\s*\);",
+            settlement,
+        ) is None:
+            self.error(path, "ordinary settlement overload must retain the medicine multiplier 1.0 baseline")
+        effects_path = JAVA / "alchemy/MedicineEffects.java"
+        effects = self.read(effects_path)
+        if effects is not None and re.search(
+            r"return\s+Math\.min\(\s*remaining\s*,\s*\(long\)\s*Math\.floor\(\s*ordinary\s*\*\s*multiplier\s*\)\s*\);",
+            effects,
+        ) is None:
+            self.error(effects_path, "medicine stability helper must clamp multiplied affinity to remaining stage capacity")
+        runtime_path = JAVA / "alchemy/MedicineRuntime.java"
+        runtime = self.read(runtime_path)
+        if runtime is not None and re.search(
+            r'return\s+current\.effect\(\)\.equals\("ningshen"\)\s*&&\s*current\.effectTicks\(\)\s*>\s*0\s*'
+            r'\?\s*AlchemyRules\.get\(\)\.effects\(\)\.ningshen\(\)\.stabilityMultiplier\(\)\s*:\s*1\.0\s*;',
+            runtime,
+        ) is None:
+            self.error(runtime_path, "only active ningshen may supply the authored multiplier; otherwise use baseline 1.0")
+
     def validate_settlement(self) -> None:
         sources = self.read_tree(JAVA / "cultivation")
         gain_sources = self._gain_sources(sources)
@@ -214,12 +269,7 @@ class CultivationGainValidator:
             re.DOTALL,
         ) is None:
             self.error(JAVA / "cultivation", "stability must remain locked until progress was already full")
-        if re.search(
-            r"stabilityApplied\s*=\s*Math\.min\s*\(.*?current\.spiritualAffinity\(\)",
-            combined,
-            re.DOTALL,
-        ) is None:
-            self.error(JAVA / "cultivation", "post-cap stability must use current spiritual affinity")
+        self.validate_medicine_stability(sources)
         if "STABILITY_PER_YEAR" in combined:
             self.error(JAVA / "cultivation", "stability must not retain the old configured-year rate")
         if "meditationQiReserve" in combined:

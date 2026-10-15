@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.50.0
+
+- Add a modeled bronze alchemy furnace with a synchronized five-slot screen, deterministic brewing, reusable formula sheets, saved partial batches, and bounded inventory/drop handling.
+- Add six distinct herb items, three formula items, and Huiling/Yangyuan/Ningshen pills, all survival-accessible through initial plant-infusion and crafting recipes.
+- Centralize recipes and medication balance in alchemy rules; add server-owned power recovery, interrupted gradual healing and post-cap meditation support, persistent shared medication spacing and visible cooldowns.
+- Ship generated furnace/item assets, bilingual descriptions, focused validation and a repeatable mapped-client/restart evidence tool; owner appearance, balance and multiplayer remain separate acceptance surfaces.
+
 ## 0.49.2
 
 - Remove the separate high-tier fate count limit from shared selection rules.

@@ -21,6 +21,7 @@ class CultivationGainValidationTest(unittest.TestCase):
     def build_fixture(self) -> None:
         paths = (
             "src/main/java/com/example/myvillage/cultivation",
+            "src/main/java/com/example/myvillage/alchemy",
             "src/main/java/com/example/myvillage/client/cultivation",
             "src/main/resources/data/myvillage/myvillage/realm",
             "src/main/resources/assets/myvillage/lang",
@@ -158,21 +159,63 @@ class CultivationGainValidationTest(unittest.TestCase):
 
         self.assert_error_contains(result, "stability must remain locked until progress was already full")
 
+    def mutate_medicine_source(self, relative, before, after):
+        path = self.fixture_root / "src/main/java/com/example/myvillage" / relative
+        source = path.read_text(encoding="utf-8")
+        self.assertIn(before, source)
+        path.write_text(source.replace(before, after, 1), encoding="utf-8")
+        return self.validate()
+
     def test_post_cap_stability_affinity_drift_is_rejected(self) -> None:
-        path = self.find_java(r"\(long\)\s*current\.spiritualAffinity\(\)")
-        text = path.read_text(encoding="utf-8")
-        path.write_text(
-            text.replace(
-                "(long) current.spiritualAffinity()",
-                "(long) SPIRIT_PROGRESS_PER_SETTLEMENT",
-                1,
-            ),
-            encoding="utf-8",
+        path = self.find_java(r"MedicineEffects\.stabilityGain")
+        text, count = re.subn(
+            r"(MedicineEffects\.stabilityGain\(\s*)current\.spiritualAffinity\(\)",
+            r"\g<1>SPIRIT_PROGRESS_PER_SETTLEMENT", path.read_text(encoding="utf-8"), count=1,
         )
+        self.assertEqual(1, count)
+        path.write_text(text, encoding="utf-8")
+        self.assert_error_contains(self.validate(), "post-cap stability must use current spiritual affinity")
 
-        result = self.validate()
+    def test_medicine_stability_requires_remaining_stage_capacity(self):
+        result = self.mutate_medicine_source(
+            "cultivation/meditation/BasicBreathingSettlement.java",
+            "(long) stabilityCap - current.stability()", "(long) stabilityCap",
+        )
+        self.assert_error_contains(result, "medicine stability gain must receive remaining dynamic stage capacity")
 
-        self.assert_error_contains(result, "post-cap stability must use current spiritual affinity")
+    def test_medicine_helper_cannot_drop_remaining_capacity_clamp(self):
+        result = self.mutate_medicine_source(
+            "alchemy/MedicineEffects.java", "Math.min(remaining,", "Math.max(remaining,",
+        )
+        self.assert_error_contains(result, "medicine stability helper must clamp multiplied affinity")
+
+    def test_medicine_multiplier_cannot_apply_to_study(self):
+        result = self.mutate_medicine_source(
+            "cultivation/meditation/BasicBreathingSettlement.java",
+            "mode == MeditationMode.STUDY ? 1.0 : stabilityMultiplier", "stabilityMultiplier",
+        )
+        self.assert_error_contains(result, "medicine multiplier must apply only outside study settlement")
+
+    def test_medicine_multiplier_cannot_leak_into_progress(self):
+        result = self.mutate_medicine_source(
+            "cultivation/meditation/BasicBreathingSettlement.java",
+            "CoreTechniqueFactor.apply(requestedProgress, progressFactorBasisPoints)",
+            "CoreTechniqueFactor.apply((long) (requestedProgress * stabilityMultiplier), progressFactorBasisPoints)",
+        )
+        self.assert_error_contains(result, "medicine multiplier must affect stability only, never progress or mastery")
+
+    def test_unmedicated_planner_must_retain_one_multiplier(self):
+        result = self.mutate_medicine_source(
+            "cultivation/meditation/BasicBreathingSettlement.java",
+            "progressFactorBasisPoints, 1.0);", "progressFactorBasisPoints, 1.5);",
+        )
+        self.assert_error_contains(result, "ordinary settlement overload must retain the medicine multiplier 1.0 baseline")
+
+    def test_expired_medicine_must_retain_one_multiplier(self):
+        result = self.mutate_medicine_source(
+            "alchemy/MedicineRuntime.java", "stabilityMultiplier() : 1.0;", "stabilityMultiplier() : 1.5;",
+        )
+        self.assert_error_contains(result, "only active ningshen may supply the authored multiplier")
 
     def test_commit_rollback_removal_is_rejected(self) -> None:
         path = self.find_java(r"LOW_GRADE_SPIRIT_STONE.*CultivationService|CultivationService.*LOW_GRADE_SPIRIT_STONE")

@@ -404,7 +404,8 @@ public final class MeditationManager {
                     session.mode(),
                     accrual,
                     spiritStonesAvailable,
-                    progressFactorBasisPoints(player, current));
+                    progressFactorBasisPoints(player, current),
+                    com.example.myvillage.alchemy.MedicineRuntime.stabilityMultiplier(player));
         } catch (IllegalArgumentException | ArithmeticException exception) {
             LOGGER.warn("Cultivation settlement validation failed for {}",
                     player.getGameProfile().getName(), exception);

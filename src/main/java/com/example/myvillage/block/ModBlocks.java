@@ -63,7 +63,14 @@ public final class ModBlocks {
                     Block::new,
                     deepslateSpiritStoneOreProperties());
 
+    public static final DeferredBlock<AlchemyFurnaceBlock> ALCHEMY_FURNACE =
+            BLOCKS.registerBlock("alchemy_furnace", AlchemyFurnaceBlock::new,
+                    BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(3.5F).sound(SoundType.COPPER)
+                            .noOcclusion().pushReaction(PushReaction.BLOCK)
+                            .lightLevel(state -> state.getValue(AlchemyFurnaceBlock.LIT) ? 9 : 0));
+
     private static final List<String> BLOCK_IDS = List.of(
+            "alchemy_furnace",
             "wall_plaque",
             "wall_plaque_vertical",
             "hanging_plaque",

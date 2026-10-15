@@ -1,10 +1,11 @@
+import copy
 import json
 import shutil
 import tempfile
 import unittest
 from pathlib import Path
 
-from tools.validate_spirit_stone_resources import SpiritStoneResourcesValidator
+from tools.validate_spirit_stone_resources import ALCHEMY_STONE_CONSUMERS, SpiritStoneResourcesValidator
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -58,6 +59,78 @@ class SpiritStoneResourcesValidationTest(unittest.TestCase):
 
         self.assertEqual((), result.errors)
         self.assertIn("skipped_unresolved", result.jar_status)
+
+    def processing_errors(self):
+        validator = SpiritStoneResourcesValidator(self.fixture_root)
+        validator.validate_no_processing_chain()
+        return validator.errors
+
+    def assert_processing_forbidden(self):
+        errors = self.processing_errors()
+        self.assertTrue(any("spirit-stone recipe or smelting chain is forbidden" in e for e in errors), errors)
+
+    def test_nine_approved_alchemy_recipes_consume_existing_stone_in_either_input_order(self):
+        self.assertEqual(9, len(ALCHEMY_STONE_CONSUMERS))
+        for item in ALCHEMY_STONE_CONSUMERS:
+            relative = f"src/main/resources/data/myvillage/recipe/{item}.json"
+            recipe = self.load_json(relative)
+            self.assertEqual(f"myvillage:{item}", recipe["result"]["id"])
+            self.assertEqual(1, sum(i == {"item": "myvillage:low_grade_spirit_stone"}
+                                    for i in recipe["ingredients"]))
+            recipe["ingredients"].reverse()
+            self.write_json(relative, recipe)
+        self.assertEqual([], self.processing_errors())
+
+    def test_approved_name_cannot_create_stones_or_new_grades(self):
+        relative = "src/main/resources/data/myvillage/recipe/formula_huiling.json"
+        original = self.load_json(relative)
+        for output in ("low_grade_spirit_stone", "spirit_stone_ore", "medium_grade_spirit_stone"):
+            with self.subTest(output=output):
+                recipe = copy.deepcopy(original)
+                recipe["result"]["id"] = f"myvillage:{output}"
+                self.write_json(relative, recipe)
+                self.assert_processing_forbidden()
+
+    def test_approved_name_cannot_hide_smelting_or_altered_schema(self):
+        relative = "src/main/resources/data/myvillage/recipe/spirit_leaf.json"
+        original = self.load_json(relative)
+        mutations = (
+            lambda d: d.update(type="minecraft:smelting"),
+            lambda d: d["result"].update(count=2),
+            lambda d: d["result"].update(count=True),
+            lambda d: d["ingredients"].append({"item": "myvillage:low_grade_spirit_stone"}),
+            lambda d: d["ingredients"][0].update(item="myvillage:spirit_stone_ore"),
+            lambda d: d["ingredients"][0].update(item="minecraft:diamond"),
+            lambda d: d["ingredients"][0].update(tag="minecraft:flowers"),
+            lambda d: d.update(conditions=[]),
+        )
+        for mutation in mutations:
+            recipe = copy.deepcopy(original)
+            mutation(recipe)
+            self.write_json(relative, recipe)
+            self.assert_processing_forbidden()
+
+    def test_unapproved_path_does_not_gain_consumption_permission(self):
+        source = self.load_json("src/main/resources/data/myvillage/recipe/spirit_leaf.json")
+        for suffix in ("recipe/unapproved.json", "recipe/nested/spirit_leaf.json", "recipes/spirit_leaf.json"):
+            path = self.fixture_root / "src/main/resources/data/myvillage" / suffix
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text(json.dumps(source))
+            self.assert_processing_forbidden()
+            path.unlink()
+
+    def test_ore_smelting_and_escaped_stone_creation_remain_forbidden(self):
+        relative = "src/main/resources/data/myvillage/recipe/processing.json"
+        recipe = {"type": "minecraft:smelting", "ingredient": {"item": "myvillage:spirit_stone_ore"},
+                  "result": {"id": "myvillage:low_grade_spirit_stone"}, "experience": 0.7, "cookingtime": 200}
+        self.write_json(relative, recipe)
+        self.assert_processing_forbidden()
+        recipe = {"type": "minecraft:crafting_shapeless", "ingredients": [{"item": "minecraft:dirt"}],
+                  "result": {"id": "myvillage:low_grade_spirit_stone", "count": 1}}
+        raw = json.dumps(recipe).replace("low_grade_spirit_stone", "\\u006cow_grade_spirit_stone")
+        (self.fixture_root / relative).write_text(raw)
+        self.assertNotIn("low_grade_spirit_stone", raw)
+        self.assert_processing_forbidden()
 
     def test_missing_fortune_ore_drops_is_rejected(self) -> None:
         relative = (

@@ -133,6 +133,21 @@ public final class ModItems {
                             Tiers.DIAMOND,
                             props.attributes(SwordItem.createAttributes(Tiers.DIAMOND, 1, -1.8F))));
 
+    public static final DeferredItem<BlockItem> ALCHEMY_FURNACE = ITEMS.registerItem("alchemy_furnace",
+            props -> new BlockItem(ModBlocks.ALCHEMY_FURNACE.get(), props));
+    public static final DeferredItem<Item> SPIRIT_LEAF = ITEMS.registerSimpleItem("spirit_leaf");
+    public static final DeferredItem<Item> DEW_BLOSSOM = ITEMS.registerSimpleItem("dew_blossom");
+    public static final DeferredItem<Item> SUNROOT = ITEMS.registerSimpleItem("sunroot");
+    public static final DeferredItem<Item> BLOOD_BERRY = ITEMS.registerSimpleItem("blood_berry");
+    public static final DeferredItem<Item> CLOUD_FUNGUS = ITEMS.registerSimpleItem("cloud_fungus");
+    public static final DeferredItem<Item> CALM_LOTUS = ITEMS.registerSimpleItem("calm_lotus");
+    public static final DeferredItem<FormulaItem> FORMULA_HUILING = ITEMS.registerItem("formula_huiling", props -> new FormulaItem(props, "huiling"));
+    public static final DeferredItem<AlchemyPillItem> PILL_HUILING = ITEMS.registerItem("pill_huiling", props -> new AlchemyPillItem(props.stacksTo(16), "huiling"));
+    public static final DeferredItem<FormulaItem> FORMULA_YANGYUAN = ITEMS.registerItem("formula_yangyuan", props -> new FormulaItem(props, "yangyuan"));
+    public static final DeferredItem<AlchemyPillItem> PILL_YANGYUAN = ITEMS.registerItem("pill_yangyuan", props -> new AlchemyPillItem(props.stacksTo(16), "yangyuan"));
+    public static final DeferredItem<FormulaItem> FORMULA_NINGSHEN = ITEMS.registerItem("formula_ningshen", props -> new FormulaItem(props, "ningshen"));
+    public static final DeferredItem<AlchemyPillItem> PILL_NINGSHEN = ITEMS.registerItem("pill_ningshen", props -> new AlchemyPillItem(props.stacksTo(16), "ningshen"));
+
     public static final DeferredItem<Item> LOW_GRADE_SPIRIT_STONE =
             ITEMS.registerSimpleItem("low_grade_spirit_stone");
 
@@ -255,6 +270,20 @@ public final class ModItems {
                         output.accept(LINGXIAO_SPEAR.get());
                         output.accept(XUANTIE_GAUNTLET.get());
                         output.accept(LOW_GRADE_SPIRIT_STONE.get());
+                        output.accept(ALCHEMY_FURNACE.get());
+                        output.accept(SPIRIT_LEAF.get());
+                        output.accept(DEW_BLOSSOM.get());
+                        output.accept(SUNROOT.get());
+                        output.accept(BLOOD_BERRY.get());
+                        output.accept(CLOUD_FUNGUS.get());
+                        output.accept(CALM_LOTUS.get());
+                        output.accept(FORMULA_HUILING.get());
+                        output.accept(FORMULA_YANGYUAN.get());
+                        output.accept(FORMULA_NINGSHEN.get());
+                        output.accept(PILL_HUILING.get());
+                        output.accept(PILL_YANGYUAN.get());
+                        output.accept(PILL_NINGSHEN.get());
+
                         output.accept(SPIRIT_STONE_ORE_ITEM.get());
                         output.accept(DEEPSLATE_SPIRIT_STONE_ORE_ITEM.get());
                         for (DeferredItem<TechniqueManualItem> manual : MANUALS) {

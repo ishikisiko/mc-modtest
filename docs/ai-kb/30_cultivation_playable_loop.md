@@ -88,8 +88,10 @@ targets and size `6`; the deep-small feature has the same targets and size `3`.
 
 A NeoForge biome modifier injects all three into Overworld biomes at
 `underground_ores`. Existing generated chunks are not retrofitted. There is no
-raw ore, smelting chain, recipe, higher grade, storage block, fragment, refining
-machine, or currency layer.
+raw ore, smelting chain, stone-manufacturing recipe, higher grade, storage block,
+fragment, refining machine, or currency layer. Since 0.50.0, the six herb infusions
+and three formula-sheet recipes consume existing low-grade stones; these are
+explicit alchemy consumers, not ore-processing recipes (see [alchemy](49_alchemy.md)).
 
 ## Calendar And Lifespan
 
@@ -180,7 +182,10 @@ Stability is sequential consolidation rather than a parallel year-rate bar. It
 does not grow while progress is below cap, including the batch that first fills
 progress. Beginning with the next ten-tick batch, either mode adds current
 `spiritualAffinity` stability without a stone cost and clamps to integer-floor
-half of the current progress cap. Basic Breathing mastery alone remains at `10`
+half of the current progress cap. Since 0.50.0, active Ningshen medicine scales
+only this post-cap affinity gain by its bundled multiplier, rounded down and
+clamped to the same cap; no medicine keeps the original result (see [alchemy](49_alchemy.md)).
+Basic Breathing mastery alone remains at `10`
 per configured cultivation year with one transient remainder.
 
 | Source stage | Progress cap | Stability cap |
