@@ -15,6 +15,7 @@ import secrets
 import struct
 import sys
 import time
+from types import SimpleNamespace
 import zlib
 
 ROOT=Path(__file__).resolve().parents[1]
@@ -22,7 +23,7 @@ sys.path.insert(0,str(ROOT))
 from tools.combat_capture import session as cs, scene, procs
 from tools.combat_capture.rcon import Rcon
 from tools.realm_stats_evidence import Evidence
-from tools.alchemy_quality_evidence import read_data
+from tools.alchemy_quality_evidence import read_data, SecondClient
 from tools.buildgen.nbtread import _read_utf, _read_payload, TAG_COMPOUND
 
 RULES=json.loads((ROOT/'src/main/resources/data/myvillage/ruins/danxia.json').read_text())
@@ -54,7 +55,7 @@ class RuinEvidence(Evidence):
     def __init__(self,out):
         super().__init__(out)
         self.report.update(kind='danxia_ruin', natural_terrain=True,
-                           selected=['natural_generation','mapped_garden','mapped_vault','modified_target','repeat','restart'],
+                           selected=['natural_generation','mapped_garden','mapped_vault','modified_target','two_client_authority','repeat','restart'],
                            completed=[], appearance='not_verified',combat_balance='not_verified',multiplayer='not_verified')
         self.report.pop('natural_encounter_density',None)
         self.sites={}
@@ -94,21 +95,21 @@ class RuinEvidence(Evidence):
 
     def choice(self,site): return read_data(self.rc(f'data get block {self.coords(site["core"])} Choice'))
 
-    def look(self,pos,target,mode='survival'):
-        user=self.s.username
+    def look(self,pos,target,mode='survival',game=None,user=None):
+        user=user or self.s.username; game=game or self.s.game
         self.rc(f'gamemode {mode} {user}')
         self.rc(f'tp {user} {self.coords(pos)} facing {self.coords(target)}')
-        self.s.game.key('1')
+        game.key('1')
         time.sleep(.5)
-        self.s.game.require_ingame('ruin mapped input')
+        game.require_ingame('ruin mapped input')
 
     def approach(self,site):
         p=self.map(site,(20,3,27)); c=site['core']
         self.rc(f'clear {self.s.username}')
         self.look((p[0]+.5,p[1],p[2]+.5),(c[0]+.5,c[1]+.6,c[2]+.5))
 
-    def click(self,sneak=False):
-        game=self.s.game; game.require_ingame('ruin right click')
+    def click(self,sneak=False,game=None):
+        game=game or self.s.game; game.require_ingame('ruin right click')
         if sneak: game.xdo('keydown','Shift_L'); time.sleep(.15)
         try: game.xdo('click','3')
         finally:
@@ -194,7 +195,21 @@ class RuinEvidence(Evidence):
         self.must('occupied_archive_preserves_charge',self.choice(site)=='CHARGED',self.choice(site))
         self.must('occupied_archive_preserves_items',read_data(self.rc(f'data get block {self.coords(v)} Items'))[0]['id']=='minecraft:stone',str(v))
         self.rc(f'item replace block {self.coords(v)} container.0 with minecraft:air')
-        self.click(True); self.click(True)
+        adapter=SimpleNamespace(out=self.out,s=self.s,report=self.report,rc=self.rc,check=self.check,
+            poll=lambda fn,predicate,timeout,name:self.poll(name,lambda:predicate(fn()),timeout))
+        with SecondClient(adapter) as guest:
+            self.rc(f'op {guest.username}'); self.rc(f'clear {guest.username}')
+            p=self.map(site,(22,3,29)); c=site['core']
+            self.look((p[0]+.5,p[1],p[2]+.5),(c[0]+.5,c[1]+.6,c[2]+.5),game=guest.game,user=guest.username)
+            self.click(True)
+            self.click(True,guest.game)
+            self.must('another_player_cannot_confirm_first_players_preview',self.choice(site)=='CHARGED',self.choice(site))
+            self.click(True,guest.game)
+            self.must('guest_commits_shared_choice',self.choice(site)=='VAULT',self.choice(site))
+            self.click(); self.click()
+            self.must('first_player_cannot_spend_shared_charge_again',self.choice(site)=='VAULT',self.choice(site))
+        self.report['multiplayer']='two_real_clients_mapped_authority_observed; owner_acceptance_not_verified'
+        self.report['completed'].append('two_client_authority'); self.save()
         self.must('mapped_rotated_vault_commit',self.choice(site)=='VAULT',self.choice(site))
         items=read_data(self.rc(f'data get block {self.coords(v)} Items'))
         self.must('archive_contains_readable_manual',any(i.get('components',{}).get('myvillage:technique')==RULES['manual'] for i in items),items)

@@ -60,6 +60,8 @@ class DanxiaRuinTest(unittest.TestCase):
         files=gen.outputs()
         structure=json.loads(files[gen.DATA/'worldgen/structure/danxia_ruin.json'])
         self.assertEqual(structure['type'],'minecraft:jigsaw')
+        # Vanilla JigsawPlacement adds even the root piece only when depth > 0.
+        self.assertGreater(structure['size'],0)
         self.assertEqual(structure['start_height']['absolute'],-self.rules['surface_y'])
         self.assertIn(gen.DATA/'worldgen/template_pool/danxia_ruin.json',files)
         self.assertIn(gen.DATA/'structure/danxia_ruin.nbt',files)

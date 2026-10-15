@@ -235,7 +235,7 @@ def outputs():
     emit(DATA/'worldgen/structure/danxia_ruin.json',{
         'type':'minecraft:jigsaw','biomes':'#myvillage:has_danxia_ruin','step':'surface_structures',
         'terrain_adaptation':'beard_thin','spawn_overrides':{},'start_pool':'myvillage:danxia_ruin',
-        'size':0,'start_height':{'absolute':-r['surface_y']},'project_start_to_heightmap':'WORLD_SURFACE_WG',
+        'size':1,'start_height':{'absolute':-r['surface_y']},'project_start_to_heightmap':'WORLD_SURFACE_WG',
         'max_distance_from_center':64,'use_expansion_hack':False})
     emit(DATA/'worldgen/template_pool/danxia_ruin.json',{
         'name':'myvillage:danxia_ruin','fallback':'minecraft:empty','elements':[{'weight':1,'element':{
