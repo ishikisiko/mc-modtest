@@ -197,8 +197,7 @@ def template_bytes(data, bes, entities):
     import tempfile
     with tempfile.TemporaryDirectory() as tmp:
         path=Path(tmp)/'structure.nbt'; nbt.write_gzipped_nbt(root,str(path))
-        raw=gzip.decompress(path.read_bytes())
-    return gzip.compress(raw,mtime=0)
+        return path.read_bytes()
 
 
 MESSAGES={
