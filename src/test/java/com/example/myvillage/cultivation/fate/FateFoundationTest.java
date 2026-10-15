@@ -92,6 +92,34 @@ class FateFoundationTest {
         assertEquals("budget", FateSelection.validate(List.of("myvillage:burning_star", "myvillage:robust", "myvillage:bright"), defs, 3, true));
         assertThrows(IllegalArgumentException.class, () -> FateSelection.transition(s, 99, s.revision(), 0, defs, 8, FateRules.bundled(), new Random()));
     }
+    @Test void multipleHighTierFatesConfirmWhenBudgetAndGroupsAllow() {
+        Map<String, FateDefinition> pool = new TreeMap<>(defs);
+        for (int tier = 3; tier <= 5; tier++) {
+            pool.put("test:high_" + tier, new FateDefinition("name", "description", tier, tier + 1,
+                    "high_group_" + tier, true, Map.of("gain", .1), Optional.empty(), 0, 5));
+        }
+        List<String> candidates = List.of("test:high_3", "test:high_4", "test:high_5",
+                "myvillage:robust", "myvillage:lightfoot", "myvillage:bright");
+        FateState draft = FateState.empty().choice(candidates, "", List.of(), false, 1);
+        var twoHigh = FateSelection.transition(draft, 2, draft.revision(), 11, pool, 10,
+                FateRules.bundled(), new Random(1));
+        assertTrue(twoHigh.confirmed());
+        assertEquals(List.of("test:high_3", "test:high_4", "myvillage:robust"), twoHigh.selected());
+        var threeHigh = FateSelection.transition(draft, 2, draft.revision(), 7, pool, 15,
+                FateRules.bundled(), new Random(1));
+        assertTrue(threeHigh.confirmed());
+        assertEquals(candidates.subList(0, 3), threeHigh.selected());
+        assertEquals("budget", assertThrows(IllegalArgumentException.class, () ->
+                FateSelection.transition(draft, 2, draft.revision(), 7, pool, 14,
+                        FateRules.bundled(), new Random(1))).getMessage());
+        assertEquals("count", FateSelection.validate(candidates.subList(0, 2), pool, 18, true));
+        var sameGroup = new TreeMap<>(pool);
+        sameGroup.put("test:high_4", new FateDefinition("name", "description", 4, 5,
+                "high_group_3", true, Map.of("gain", .1), Optional.empty(), 0, 5));
+        assertEquals("exclusive", assertThrows(IllegalArgumentException.class, () ->
+                FateSelection.transition(draft, 2, draft.revision(), 7, sameGroup, 18,
+                        FateRules.bundled(), new Random(1))).getMessage());
+    }
     @Test void serializationRetainsDraftConfirmedAndCooldownState() {
         var draft = roll();
         var done = FateSelection.transition(draft, 2, draft.revision(), validMask(draft, 8), defs, 8, FateRules.bundled(), new Random())

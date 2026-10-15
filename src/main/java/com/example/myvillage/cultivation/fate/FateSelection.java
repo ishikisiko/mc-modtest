@@ -41,7 +41,6 @@ public final class FateSelection {
         if (ids.stream().anyMatch(id -> !available.containsKey(id))) return "unavailable";
         var definitions = ids.stream().map(available::get).toList();
         if (definitions.stream().mapToInt(FateDefinition::cost).sum() > budget) return "budget";
-        if (definitions.stream().filter(t -> t.tier() >= 3).count() > 1) return "high";
         if (definitions.stream().map(FateDefinition::group).distinct().count() != definitions.size()) return "exclusive";
         return "";
     }

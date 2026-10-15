@@ -81,7 +81,7 @@ public final class FateService {
                 return true;
             }
         } catch (IllegalArgumentException | ArithmeticException e) {
-            error = Set.of("confirmed", "stale", "count", "budget", "high", "exclusive", "intent", "locked", "unavailable")
+            error = Set.of("confirmed", "stale", "count", "budget", "exclusive", "intent", "locked", "unavailable")
                     .contains(String.valueOf(e.getMessage())) ? e.getMessage() : "unavailable";
         }
         player.displayClientMessage(Component.translatable("fate.myvillage.error." + error), false);

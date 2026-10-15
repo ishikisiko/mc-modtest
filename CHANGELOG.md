@@ -7,6 +7,14 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.49.2
+
+- Remove the separate high-tier fate count limit from shared selection rules.
+  Multiple high-tier choices can be confirmed when the three-choice count,
+  configured point budget and exclusive-group rules are satisfied.
+- Align awakening text and capture selection with the rule, and cover multi-high
+  confirmation plus remaining budget/group rejection in regression tests.
+
 ## 0.49.1
 
 - Move innate-fate selection to a dedicated testing-stele awakening screen:

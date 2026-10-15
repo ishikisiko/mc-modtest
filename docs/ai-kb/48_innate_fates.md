@@ -24,8 +24,9 @@ requests carry it, and an old close token cannot end a newer session.
 `CultivationServerConfig` adds `[innate_fates] point_budget` in the existing
 `myvillage-server.toml` server config (3..18, default 8). The owning snapshot
 carries the actual server budget. A later budget reduction applies to future
-confirmations; it does not revoke confirmed builds. High-tier/group constraints
-remain independent. Candidate generation ensures two ordinary entries and
+confirmations; it does not revoke confirmed builds. Since 0.49.2 there is no high-tier count cap; the three-choice count,
+point budget and exclusive-group constraints still apply. See the
+[0.49.2 rule-change validation](../testing/2026-10-15-fate-tier-cap.md). Candidate generation ensures two ordinary entries and
 adds further ordinary entries if needed to guarantee a legal low-budget triple.
 
 ## Ownership and persistence

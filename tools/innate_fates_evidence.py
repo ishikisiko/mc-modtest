@@ -114,7 +114,7 @@ class FateEvidence(Evidence):
         definitions={"myvillage:"+p.stem:json.loads(p.read_text()) for p in (ROOT/'src/main/resources/data/myvillage/myvillage/innate_fate').glob('*.json')}
         for slots in combinations(range(len(state['candidates'])),3):
             values=[definitions[state['candidates'][i]] for i in slots]
-            if sum(d['cost'] for d in values)<=state['budget'] and sum(d['tier']>=3 for d in values)<=1 and len({d['group'] for d in values})==3:
+            if sum(d['cost'] for d in values)<=state['budget'] and len({d['group'] for d in values})==3:
                 return slots
         raise RuntimeError('Server draft has no legal triple')
     def mapped_confirm(self,state):

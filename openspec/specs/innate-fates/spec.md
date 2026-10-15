@@ -11,7 +11,7 @@ The system SHALL store immutable fate state with copy-on-death and replace it on
 - **THEN** selected IDs, roll sequence and cooldowns remain, modifiers do not stack, and ordinary refresh grants no healing
 
 ### Requirement: Bounded synchronized selection
-The server SHALL offer six unique eligible candidates, allow one lock, require three selections within the configurable point budget, and enforce high-tier and exclusive-group limits. Client messages SHALL contain only bounded intent, slot or selection mask, and seen revision. The server SHALL reject stale, malformed, throttled and already-confirmed mutations.
+The server SHALL offer six unique eligible candidates, allow one lock, require three selections within the configurable point budget, and enforce exclusive-group limits. There SHALL be no additional limit on how many selected fates are high tier. Client messages SHALL contain only bounded intent, slot or selection mask, and seen revision. The server SHALL reject stale, malformed, throttled and already-confirmed mutations.
 
 #### Scenario: Low budget with expensive lock
 - **WHEN** a player locks an expensive candidate and the server budget is reduced
@@ -20,6 +20,11 @@ The server SHALL offer six unique eligible candidates, allow one lock, require t
 #### Scenario: Forged confirmation
 - **WHEN** a client submits an old revision or a mask outside the six current slots
 - **THEN** the server rejects the request without changing state or granting any effect
+
+#### Scenario: Multiple high-tier fates fit the budget
+- **WHEN** a current three-fate selection contains multiple high-tier definitions in distinct groups and its total cost fits the server budget
+- **THEN** both client eligibility and server confirmation SHALL accept it without a rarity-count rejection
+- **AND** insufficient budget, duplicate groups, stale state and invalid sessions SHALL still be rejected
 
 ### Requirement: Data-owned first-batch effects
 The first pool SHALL contain only implemented definitions. Balance numbers SHALL live in data. Effects SHALL remain server-authoritative, with each damage contribution applied once, stable attribute replacement and no modification of bypass damage.
