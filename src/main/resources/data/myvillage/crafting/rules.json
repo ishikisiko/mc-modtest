@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "initial_roll": {"min": 0, "max": 100},
+  "quality_thresholds": [
+    {"quality": 1, "minimum": 0},
+    {"quality": 2, "minimum": 40},
+    {"quality": 3, "minimum": 70},
+    {"quality": 4, "minimum": 90}
+  ]
+}

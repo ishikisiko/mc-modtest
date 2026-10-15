@@ -523,6 +523,30 @@ class CultivationInitiationValidationTest(unittest.TestCase):
         self.assertEqual((), result.errors)
         self.assertGreaterEqual(result.checked_files, 30)
 
+    def test_crafting_snapshot_accessors_remain_read_only(self):
+        path = self.root / "src/main/java/com/example/myvillage/client/cultivation/ClientCultivationState.java"
+        source = path.read_text(encoding="utf-8")
+        accessors = """
+            public static Optional<Snapshot> snapshot() { return Optional.empty(); }
+            public static CraftingAptitudes crafting() { return CraftingAptitudes.EMPTY; }
+            public static int alchemyQualityCap() { return 0; }
+            public static int forgingQualityCap() { return 0; }
+        """
+        path.write_text(source.replace("static void clear() {}", accessors + "static void clear() {}"))
+        self.assertEqual((), self.validate().errors)
+
+    def test_new_crafting_accessor_does_not_allow_public_cache_mutation(self):
+        path = self.root / "src/main/java/com/example/myvillage/client/cultivation/ClientCultivationState.java"
+        source = path.read_text(encoding="utf-8")
+        path.write_text(source.replace("static void replace(Profile profile)", "public static void replace(Profile profile)"))
+        self.assert_error_contains(self.validate(), "client cultivation cache must expose no public mutation API")
+
+    def test_read_only_accessor_name_cannot_hide_network_mutation(self):
+        path = self.root / "src/main/java/com/example/myvillage/client/cultivation/ClientCultivationState.java"
+        source = path.read_text(encoding="utf-8")
+        path.write_text(source.replace("static void clear() {}", "public static int alchemyQualityCap() { sendToServer(99); return 4; }"))
+        self.assert_error_contains(self.validate(), "client cultivation cache must remain read-only")
+
     def test_missing_block_resource_is_rejected(self) -> None:
         (self.root / "src/main/resources/assets/myvillage/models/item/spirit_testing_stele.json").unlink()
 

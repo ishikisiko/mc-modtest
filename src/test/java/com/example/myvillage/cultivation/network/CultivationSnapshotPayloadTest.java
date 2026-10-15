@@ -2,6 +2,9 @@ package com.example.myvillage.cultivation.network;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import com.example.myvillage.cultivation.crafting.CraftingAptitudes;
+import com.example.myvillage.cultivation.fate.FateState;
 
 import com.example.myvillage.cultivation.CultivationProfile;
 import com.example.myvillage.cultivation.SpiritualRoot;
@@ -54,6 +57,39 @@ class CultivationSnapshotPayloadTest {
         } finally {
             buffer.release();
         }
+    }
+
+    @Test
+    void snapshotTransmitsActualInitializedScoresAndServerDerivedCaps() {
+        var crafting = new CraftingAptitudes(1, true, 39, 90);
+        var payload = new CultivationSnapshotPayload(CultivationProfile.defaultProfile(), FateState.empty(), 8,
+                crafting, 1, 4);
+        var buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), RegistryAccess.EMPTY, ConnectionType.NEOFORGE);
+        try {
+            CultivationSnapshotPayload.STREAM_CODEC.encode(buffer, payload);
+            var decoded = CultivationSnapshotPayload.STREAM_CODEC.decode(buffer);
+            assertEquals(payload, decoded);
+            assertEquals(crafting, decoded.crafting());
+            assertEquals(1, decoded.alchemyQualityCap());
+            assertEquals(4, decoded.forgingQualityCap());
+            assertEquals(0, buffer.readableBytes());
+        } finally { buffer.release(); }
+    }
+
+    @Test
+    void pendingAndInitializedCapBoundsAreValidatedWithoutClientRuleRecalculation() {
+        var profile = CultivationProfile.defaultProfile();
+        var fates = FateState.empty();
+        assertEquals(0, new CultivationSnapshotPayload(profile).alchemyQualityCap());
+        assertThrows(IllegalArgumentException.class,
+                () -> new CultivationSnapshotPayload(profile, fates, 8, CraftingAptitudes.EMPTY, 1, 0));
+        var initialized = new CraftingAptitudes(1, true, 0, 100);
+        assertThrows(IllegalArgumentException.class,
+                () -> new CultivationSnapshotPayload(profile, fates, 8, initialized, 0, 4));
+        assertThrows(IllegalArgumentException.class,
+                () -> new CultivationSnapshotPayload(profile, fates, 8, initialized, 1, 5));
+        assertThrows(NullPointerException.class,
+                () -> new CultivationSnapshotPayload(profile, fates, 8, null, 0, 0));
     }
 
     private static ResourceLocation id(String namespace, String path) {

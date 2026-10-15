@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.51.0
+
+- Add independent, persistent alchemy and forging aptitudes, generated once on awakening and initialized safely for awakened legacy players.
+- Map aptitude to a server-owned maximum product quality (lower/middle/upper/perfect), distinct from recipe grade; current ungraded pills and furnace production stay unchanged.
+- Add the read-only H → Crafting page, bilingual status/set administrator aliases and protocol20 snapshot support without changing cultivation profile v4.
+- Validate deterministic generation, save/codecs, quality boundaries, immutable authority and client readouts; provide mapped awakening, lifecycle and bilingual panel evidence.
+
 ## 0.50.0
 
 - Add a modeled bronze alchemy furnace with a synchronized five-slot screen, deterministic brewing, reusable formula sheets, saved partial batches, and bounded inventory/drop handling.

@@ -1,6 +1,9 @@
 package com.example.myvillage.cultivation;
 
 import com.example.myvillage.stats.runtime.StatsRuntime;
+import com.example.myvillage.cultivation.crafting.CraftingAptitudes;
+import com.example.myvillage.cultivation.crafting.CraftingGenerator;
+import com.example.myvillage.cultivation.crafting.CraftingRules;
 
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.data.RealmDefinition;
@@ -40,6 +43,33 @@ public final class CultivationService {
         if (synchronize) {
             com.example.myvillage.cultivation.fate.FateRuntime.refresh(player);
             syncToClient(player);
+        }
+    }
+
+    public static CraftingAptitudes craftingAptitudes(ServerPlayer player) {
+        return Objects.requireNonNull(player, "player").getData(CultivationAttachments.CRAFTING.get());
+    }
+
+    /** Sole installer; already-generated scores survive all profile/root lifecycle changes. */
+    public static void initializeCraftingAptitudes(ServerPlayer player) {
+        CraftingAptitudes current = craftingAptitudes(player);
+        if (current.initialized() || getProfile(player).spiritualRoot().isEmpty()) return;
+        CraftingAptitudes replacement = CraftingGenerator.ensure(current, true,
+                player.getServer().overworld().getSeed(), player.getUUID(), CraftingRules.get());
+        player.setData(CultivationAttachments.CRAFTING.get(), replacement);
+    }
+
+    public static Result setCraftingAptitude(ServerPlayer player, CraftingAptitudes.Profession profession, int score) {
+        CraftingAptitudes current = craftingAptitudes(player);
+        if (!current.initialized() || getProfile(player).spiritualRoot().isEmpty())
+            return Result.failure("Target must have initialized awakened crafting aptitudes", getProfile(player));
+        try {
+            CraftingAptitudes replacement = current.withScore(profession, score);
+            player.setData(CultivationAttachments.CRAFTING.get(), replacement);
+            syncToClient(player);
+            return Result.success("Updated crafting aptitude", getProfile(player));
+        } catch (IllegalArgumentException | NullPointerException exception) {
+            return Result.failure(message(exception), getProfile(player));
         }
     }
 
@@ -324,7 +354,14 @@ public final class CultivationService {
     }
 
     private static void syncToClient(ServerPlayer player, CultivationProfile profile) {
-        PacketDistributor.sendToPlayer(player, new CultivationSnapshotPayload(profile, com.example.myvillage.cultivation.fate.FateService.state(player), com.example.myvillage.cultivation.fate.FateService.budget()));
+        initializeCraftingAptitudes(player);
+        CraftingAptitudes crafting = craftingAptitudes(player);
+        CraftingRules rules = CraftingRules.get();
+        PacketDistributor.sendToPlayer(player, new CultivationSnapshotPayload(profile,
+                com.example.myvillage.cultivation.fate.FateService.state(player),
+                com.example.myvillage.cultivation.fate.FateService.budget(), crafting,
+                crafting.qualityCap(CraftingAptitudes.Profession.ALCHEMY, rules),
+                crafting.qualityCap(CraftingAptitudes.Profession.FORGING, rules)));
     }
 
     private static Result updateScalar(

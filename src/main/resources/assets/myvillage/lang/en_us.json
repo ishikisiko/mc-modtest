@@ -1232,5 +1232,21 @@
   "item.myvillage.formula_ningshen": "Mind Calming Formula",
   "item.myvillage.pill_huiling": "Spirit Recovery Pill",
   "item.myvillage.pill_yangyuan": "Vitality Nourishing Pill",
-  "item.myvillage.pill_ningshen": "Mind Calming Pill"
+  "item.myvillage.pill_ningshen": "Mind Calming Pill",
+  "screen.myvillage.cultivation.tab.crafting": "Crafting",
+  "screen.myvillage.crafting.meaning": "Aptitude sets the highest quality made from the same recipe.",
+  "screen.myvillage.crafting.awaken": "Awaken at a testing stele to discover your crafting aptitudes.",
+  "screen.myvillage.crafting.alchemy": "Alchemy",
+  "screen.myvillage.crafting.forging": "Forging",
+  "screen.myvillage.crafting.aptitude": "Aptitude",
+  "screen.myvillage.crafting.quality_cap": "Quality ceiling",
+  "screen.myvillage.crafting.pending": "Pending",
+  "screen.myvillage.crafting.foundation": "Current pills are ungraded. Forging is not available.",
+  "crafting.myvillage.quality.pending": "Pending",
+  "crafting.myvillage.quality.lower": "Lower",
+  "crafting.myvillage.quality.middle": "Middle",
+  "crafting.myvillage.quality.upper": "Upper",
+  "crafting.myvillage.quality.perfect": "Perfect",
+  "command.myvillage.crafting.not_ready": "Target must be awakened and have initialized crafting aptitudes",
+  "command.myvillage.crafting.updated": "Updated %s crafting aptitude"
 }

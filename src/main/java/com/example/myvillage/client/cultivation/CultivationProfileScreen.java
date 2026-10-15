@@ -66,7 +66,8 @@ public final class CultivationProfileScreen extends Screen {
         MEDITATION("screen.myvillage.cultivation.tab.meditation"),
         TECHNIQUES("screen.myvillage.cultivation.tab.techniques"),
         WORLD("screen.myvillage.cultivation.tab.world"),
-        FATES("screen.myvillage.cultivation.tab.fates");
+        FATES("screen.myvillage.cultivation.tab.fates"),
+        CRAFTING("screen.myvillage.cultivation.tab.crafting");
 
         private final String titleKey;
 
@@ -90,6 +91,7 @@ public final class CultivationProfileScreen extends Screen {
         pages.put(View.TECHNIQUES, new TechniquesPage());
         pages.put(View.WORLD, new WorldPage());
         pages.put(View.FATES, new com.example.myvillage.client.cultivation.panel.FatesPage());
+        pages.put(View.CRAFTING, new com.example.myvillage.client.cultivation.panel.CraftingPage());
 
         int tabY = panelTop + HEADER_HEIGHT + BODY_GAP;
         for (View candidate : View.values()) {

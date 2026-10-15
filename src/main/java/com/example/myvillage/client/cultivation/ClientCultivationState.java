@@ -15,6 +15,19 @@ public final class ClientCultivationState {
     private ClientCultivationState() {
     }
 
+    /** The single owning snapshot, captured once when a panel frame needs several sections. */
+    public static Optional<com.example.myvillage.cultivation.network.CultivationSnapshotPayload> snapshot() {
+        return Optional.ofNullable(LATEST.get());
+    }
+
+    public static com.example.myvillage.cultivation.crafting.CraftingAptitudes crafting() {
+        var value = LATEST.get();
+        return value == null ? com.example.myvillage.cultivation.crafting.CraftingAptitudes.EMPTY : value.crafting();
+    }
+
+    public static int alchemyQualityCap() { var value = LATEST.get(); return value == null ? 0 : value.alchemyQualityCap(); }
+    public static int forgingQualityCap() { var value = LATEST.get(); return value == null ? 0 : value.forgingQualityCap(); }
+
     public static Optional<CultivationProfile> latest() {
         return Optional.ofNullable(LATEST.get()).map(com.example.myvillage.cultivation.network.CultivationSnapshotPayload::profile);
     }

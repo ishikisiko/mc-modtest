@@ -65,6 +65,8 @@ public final class CultivationEvents {
                 ModCultivationRegistries.validateRequiredEntries(event.getServer().registryAccess());
         LOGGER.info("Cultivation definition registries loaded: {}", summary);
         CultivationAttachments.PROFILE.get();
+        CultivationAttachments.CRAFTING.get();
+        com.example.myvillage.cultivation.crafting.CraftingRules.get();
         LOGGER.info(
                 "Cultivation runtime registered: attachment={}, snapshot={}",
                 CultivationAttachments.PROFILE.getId(),
@@ -76,6 +78,7 @@ public final class CultivationEvents {
 
     private static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
+            CultivationService.initializeCraftingAptitudes(player);
             StatsRuntime.refreshPlayer(player);
             SpiritualPowerRuntime.initialize(player);
             CultivationService.syncToClient(player);

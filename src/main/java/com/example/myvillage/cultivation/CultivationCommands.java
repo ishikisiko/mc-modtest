@@ -51,6 +51,8 @@ public final class CultivationCommands {
         return Commands.literal(rootLiteral)
                 .then(com.example.myvillage.cultivation.fate.FateCommands.tree("fate"))
                 .then(com.example.myvillage.cultivation.fate.FateCommands.tree("mingge"))
+                .then(com.example.myvillage.cultivation.crafting.CraftingCommands.tree("crafting"))
+                .then(com.example.myvillage.cultivation.crafting.CraftingCommands.tree("jiyi"))
                 .then(infoCommand("info"))
                 .then(infoCommand("chakan"))
                 .then(resetCommand("reset"))

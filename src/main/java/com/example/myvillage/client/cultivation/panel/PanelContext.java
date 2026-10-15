@@ -2,6 +2,7 @@ package com.example.myvillage.client.cultivation.panel;
 
 import com.example.myvillage.client.cultivation.ClientCultivationState;
 import com.example.myvillage.cultivation.CultivationProfile;
+import com.example.myvillage.cultivation.crafting.CraftingAptitudes;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.data.RealmDefinition;
 import com.example.myvillage.cultivation.data.RealmStageDefinition;
@@ -32,18 +33,25 @@ public record PanelContext(
         RegistryAccess registries,
         CultivationProfile profile,
         CultivationTimeSnapshotPayload time,
-        MeditationStatus meditation) {
+        MeditationStatus meditation,
+        CraftingAptitudes crafting,
+        int alchemyQualityCap,
+        int forgingQualityCap) {
     public static PanelContext capture(Minecraft minecraft, Font font) {
         RegistryAccess registries = minecraft != null && minecraft.level != null
                 ? minecraft.level.registryAccess()
                 : RegistryAccess.EMPTY;
+        var snapshot = ClientCultivationState.snapshot().orElse(null);
         return new PanelContext(
                 minecraft,
                 font,
                 registries,
-                ClientCultivationState.latest().orElse(null),
+                snapshot == null ? null : snapshot.profile(),
                 ClientCultivationState.time().orElse(null),
-                ClientCultivationState.meditation().orElse(null));
+                ClientCultivationState.meditation().orElse(null),
+                snapshot == null ? CraftingAptitudes.EMPTY : snapshot.crafting(),
+                snapshot == null ? 0 : snapshot.alchemyQualityCap(),
+                snapshot == null ? 0 : snapshot.forgingQualityCap());
     }
 
     public com.example.myvillage.cultivation.fate.FateState fates() { return ClientCultivationState.fates(); }

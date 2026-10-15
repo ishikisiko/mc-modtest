@@ -1216,5 +1216,21 @@
   "item.myvillage.formula_ningshen": "凝神丹方",
   "item.myvillage.pill_huiling": "回灵丹",
   "item.myvillage.pill_yangyuan": "养元丹",
-  "item.myvillage.pill_ningshen": "凝神丹"
+  "item.myvillage.pill_ningshen": "凝神丹",
+  "screen.myvillage.cultivation.tab.crafting": "技艺",
+  "screen.myvillage.crafting.meaning": "天资决定同一配方的成品品质上限。",
+  "screen.myvillage.crafting.awaken": "前往测灵碑觉醒灵根，测定炼丹与炼器天资。",
+  "screen.myvillage.crafting.alchemy": "炼丹",
+  "screen.myvillage.crafting.forging": "炼器",
+  "screen.myvillage.crafting.aptitude": "天资",
+  "screen.myvillage.crafting.quality_cap": "成品品质上限",
+  "screen.myvillage.crafting.pending": "未测定",
+  "screen.myvillage.crafting.foundation": "现有丹药尚不区分品质，炼器尚未开放。",
+  "crafting.myvillage.quality.pending": "待测定",
+  "crafting.myvillage.quality.lower": "下品",
+  "crafting.myvillage.quality.middle": "中品",
+  "crafting.myvillage.quality.upper": "上品",
+  "crafting.myvillage.quality.perfect": "极品",
+  "command.myvillage.crafting.not_ready": "目标必须已觉醒灵根并拥有已初始化的技艺资质",
+  "command.myvillage.crafting.updated": "已更新 %s 的技艺资质"
 }

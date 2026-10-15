@@ -237,6 +237,15 @@ def check_alchemy_jar(gate: "Gate") -> Outcome:
     return Outcome(FAIL, "; ".join(errors)) if errors else Outcome(PASS, "alchemy source and jar resources agree")
 
 
+def check_crafting_aptitudes_jar(gate: "Gate") -> Outcome:
+    """Crafting aptitude rules, bilingual quality names and runtime classes are packaged in this run's jar."""
+    from tools.validate_crafting_aptitudes import validate
+    if gate.built_jar is None:
+        return Outcome(FAIL, "no jar was written by this run")
+    errors = validate(gate.root, gate.built_jar)["errors"]
+    return Outcome(FAIL, "; ".join(errors)) if errors else Outcome(PASS, "crafting source and jar resources agree")
+
+
 def check_generated_resources(gate: "Gate") -> Outcome:
     """The generator runs (this gate's and the build's) left src/main/resources as committed."""
     after = generated_snapshot(gate.root)
@@ -309,6 +318,7 @@ STEPS: tuple[Step, ...] = (
     tool("validate_custom_entities"),
     tool("validate_realm_stats"),
     tool("validate_innate_fates"),
+    tool("validate_crafting_aptitudes"),
     tool("validate_rideable_flying_sword"),
     tool("validate_cultivation_core"),
     tool("validate_cultivation_initiation"),
@@ -356,6 +366,7 @@ STEPS: tuple[Step, ...] = (
     tool("validate_spirit_stone_resources", "--require-current-jar", after=BUILD),
     tool("validate_guideme_cultivation_guide", "--require-current-jar", after=BUILD),
     Step("validate-alchemy-jar", func=check_alchemy_jar, after=BUILD),
+    Step("validate-crafting-aptitudes-jar", func=check_crafting_aptitudes_jar, after=BUILD),
     Step("readme-jar-listing", func=check_readme_jar_listing, after=BUILD),
 )
 

@@ -912,7 +912,10 @@ class CultivationInitiationValidator:
             public_methods = set(
                 re.findall(r"\bpublic\s+static\s+[\w<>?,. ]+\s+(\w+)\s*\(", source)
             )
-            if public_methods - {"latest", "time", "meditation", "fates", "fateBudget"}:
+            if public_methods - {
+                "latest", "time", "meditation", "fates", "fateBudget",
+                "snapshot", "crafting", "alchemyQualityCap", "forgingQualityCap",
+            }:
                 self.error(path, "client cultivation cache must expose no public mutation API")
             if re.search(r"\b(?:PacketDistributor|sendToServer|setData)\b", source):
                 self.error(path, "client cultivation cache must remain read-only")
