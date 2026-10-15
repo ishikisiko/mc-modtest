@@ -29,6 +29,9 @@ public final class BattleReceipts extends SavedData {
         var data=get(server); UUID id=event.getEntity().getUUID();
         if(data.receipts.containsKey(id)){data.receipts.put(id,"dead");data.setDirty();}
     }
+    public static void conversion(net.neoforged.neoforge.event.entity.living.LivingConversionEvent.Pre event){
+        if(event.getEntity().level() instanceof ServerLevel server && get(server).status(event.getEntity().getUUID()).equals("alive"))event.setCanceled(true);
+    }
     public static void leave(EntityLeaveLevelEvent event){
         if(!(event.getLevel() instanceof ServerLevel server) || server.getDifficulty()!=Difficulty.PEACEFUL
             || event.getEntity().getRemovalReason()!=Entity.RemovalReason.DISCARDED)return;

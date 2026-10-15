@@ -73,6 +73,8 @@ artifacts and confirmed cleanup are recorded.
 | `smoke` | Java version, Python dependency imports, Xvfb `glxinfo` | `pass` (authenticated second attempt; downloaded evidence and confirmed termination) |
 | `python` | `python3 -m unittest discover -s tools/tests` | `pass` (1053 tests) |
 | `crops-build` | SpiritCropsTest and jar build only | Per-run result required |
+| `combat-ruins-build` | Combat ruin generation/path checks, ruins Java tests and committed-resource jar | Per-run result required |
+| `combat-ruins-runtime` | Above checks plus natural worldgen, mapped combat/cache, multiplayer and restart evidence | Per-run result required |
 | `danxia-build` | Ruin generator/path and affected tooling tests, ruins Java tests and jar build | Per-run result required |
 | `danxia-runtime` | Generated-resource check, committed-resource jar, natural-world ruins and mapped interaction/restart evidence | Per-run result required |
 | `alchemy-build` | Alchemy Java tests and jar build only | Per-run result required; no full game evidence |

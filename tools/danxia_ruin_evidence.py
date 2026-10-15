@@ -29,7 +29,7 @@ from tools.buildgen.nbtread import _read_utf, _read_payload, TAG_COMPOUND
 RULES=json.loads((ROOT/'src/main/resources/data/myvillage/ruins/danxia.json').read_text())
 
 
-def saved_cores(region_dir, center, radius=4):
+def saved_cores(region_dir, center, radius=4, block_entity_id="myvillage:ruin_core"):
     """Read only flushed chunks around the located structure; no world mutation or broad scan."""
     result=[]; cx,cz=center[0]//16,center[1]//16
     for x in range(cx-radius,cx+radius+1):
@@ -47,7 +47,7 @@ def saved_cores(region_dir, center, radius=4):
                 if data.read(1)!=b'\x0a': raise ValueError('Not a chunk compound')
                 _read_utf(data); chunk=_read_payload(data,TAG_COMPOUND)
                 for be in chunk.get('block_entities',[]):
-                    if be.get('id')=='myvillage:ruin_core': result.append(be)
+                    if be.get('id')==block_entity_id: result.append(be)
     return result
 
 

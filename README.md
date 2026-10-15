@@ -16,6 +16,27 @@ systems when the data and runtime pipeline are ready.
 > technical notes and [technical contracts](docs/contracts/README.md).
 > **Workflow:** [docs/WORKFLOW.md](docs/WORKFLOW.md); [CRAFT](CRAFT.md) is optional.
 
+
+### 战斗遗迹（0.55.0）
+
+- **断戈营垒**：建议炼气一至三层，从残门向主台推进，依次击败三处守军，主台宝箱解封。
+- **伏妖残殿**：建议炼气四至六层，沿台阶进入下沉大殿，右击封印宝箱启动三波妖兽挑战。
+- 通关宝箱为整座遗迹共享的一份奖励：营垒含剑气诀秘籍，残殿含流云步秘籍，另有灵石与丹药。
+- 可撤退、死亡后返回或保存退出继续；普通重启不刷新奖励。和平难度暂停挑战，移除的守卫不计为击败。
+- 箱体不可挖掘或搬运，不支持漏斗。箱体封印由红转青后，右击打开并手动取出奖励。
+- 新结构仅在新生成区块出现；旧区块不回填。
+
+```mcfunction
+/locate structure myvillage:duange_ruin
+/locate structure myvillage:fuyao_ruin
+```
+
+管理员可在空旷测试区用 `/place template myvillage:duange_ruin ~ ~ ~` 或
+`/place template myvillage:fuyao_ruin ~ ~ ~` 放置同一模板；模板原点位于基础底部，
+自然生成会自动扣除各自基础深度。纯创造模式靠近不会自动触发营垒，试玩需切换生存。
+技术入口：[战斗遗迹 KB53](docs/ai-kb/53_combat_ruins.md)。
+
+
 ## 丹霞旧观 · 遗迹探索（0.54.0）
 
 在新生成的森林、桦木林、草甸、平原或樱花林中寻找破损道观。沿铜渠下到地下丹室，

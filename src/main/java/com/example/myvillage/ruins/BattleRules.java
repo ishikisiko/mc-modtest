@@ -54,7 +54,7 @@ public record BattleRules(String id, String mode, RuinRules.Pos cache, RuinRules
         List<RuinRules.Reward> rewards=new ArrayList<>();
         for (var v:r.getAsJsonArray("rewards")) {
             var x=v.getAsJsonObject(); int count=integer(x.get("count"));
-            if (count<1 || count>16) throw new IllegalArgumentException("Reward bounds");
+            if (count<1 || count>64) throw new IllegalArgumentException("Reward bounds");
             rewards.add(new RuinRules.Reward(x.get("id").getAsString(),count));
         }
         int interval=integer(r.get("tick_interval")), delay=integer(r.get("wave_delay_ticks"));

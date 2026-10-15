@@ -123,7 +123,9 @@ public final class BattleCacheBlockEntity extends BlockEntity implements Worldly
         var rewards=NonNullList.withSize(27,ItemStack.EMPTY);rewards.set(0,manual);int slot=1;
         for(var reward:r.rewards()){
             var key=ResourceLocation.parse(reward.id());if(!BuiltInRegistries.ITEM.containsKey(key))return;
-            rewards.set(slot++,new ItemStack(BuiltInRegistries.ITEM.get(key),reward.count()));
+            ItemStack stack=new ItemStack(BuiltInRegistries.ITEM.get(key),reward.count());
+            if(stack.getCount()>stack.getMaxStackSize())return;
+            rewards.set(slot++,stack);
         }
         if(!progress.reward())return;
         items=rewards;setChanged();
