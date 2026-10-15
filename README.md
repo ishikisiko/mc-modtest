@@ -16,6 +16,22 @@ systems when the data and runtime pipeline are ready.
 > technical notes and [technical contracts](docs/contracts/README.md).
 > **Workflow:** [docs/WORKFLOW.md](docs/WORKFLOW.md); [CRAFT](CRAFT.md) is optional.
 
+## 丹霞旧观 · 遗迹探索（0.54.0）
+
+在新生成的森林、桦木林、草甸、平原或樱花林中寻找破损道观。沿铜渠下到地下丹室，
+空手右击丹霞残阵预览药园收益；潜行并空手右击预览内库收益。再次执行同一动作确认。
+每座遗迹仅有一次残泉，所有玩家共享选择；离开或正常重启不会恢复。
+
+- 药园：复苏成熟的六种灵植和灵土，可采收后带回种植。
+- 内库：在地下木桶中复原《青木长春功》秘籍、凝神丹方与灵石。
+- 外围有少量补给，两只固定境界的妖狼分别栖于地表和内库。后殿塌洞提供第二条路线。
+- 方块可挖掘；残阵破坏后不掉落。阵位被修改时交互会拒绝，不消耗残泉。
+- 旧区块不会回填。管理员定位：`/locate structure myvillage:danxia_ruin`。
+  模板预览：`/place template myvillage:danxia_ruin ~ ~-9 ~`，当前站位对应地表。
+
+构建与游戏检查在 Modal：`--preset danxia-build` / `--preset danxia-runtime`。
+技术说明见 [KB52](docs/ai-kb/52_danxia_ruins.md)；外观、平衡、音效/FPS 和多人接受度另行验收。
+
 ## 云山巨城 · Browser Voxel Artwork
 
 `web/yunshan-city/` is a standalone browser project (independent of the mod

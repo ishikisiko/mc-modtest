@@ -60,6 +60,7 @@ impact-based checks in the workflow.
 | 49 | [Alchemy Foundation](49_alchemy.md) | Modeled furnace, six herbs and permanently learned formulas with per-player recipe lists and inventory autofill; manual attributed single batches, saved bounded pill quality, persistent quality-scaled medicines and Modal evidence; see `alchemy-foundation`, `alchemy-quality`, `resource-export`, `validation`. |
 | 50 | [Crafting Aptitudes](50_crafting_aptitudes.md) | Independent saved alchemy/forging aptitudes and same-recipe product-quality ceilings, once-only generation, protocol21 snapshot and read-only H page; alchemy freezes its ceiling at manual start, forging production remains future work; see `crafting-aptitudes`, `alchemy-quality`. |
 | 51 | [Spirit Farming](51_spirit_farming.md) | Permanent spirit-only soil, six existing herbs as planting/harvest items, three growth stages and authored 3D models/loot. |
+| 52 | [Danxia Ruins](52_danxia_ruins.md) | Natural ruined monastery, herb garden and underground archive, shared persistent array choice, structure guardians, generated resources and focused cloud evidence. |
 
 Test evidence: [Historical Modal runner verification](../testing/2026-10-14-modal-test-runner.md); [2026-10-14 spiritual power and sword qi environment/timings](../testing/2026-10-14-spiritual-power.md).
 
