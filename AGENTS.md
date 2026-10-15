@@ -26,6 +26,8 @@
 
 - 天命局部构建可用 Modal `--preset fates`：仅 FateFoundationTest 与 jar build，不运行游戏或全量 release。
 
+- 炼丹学习/补料局部构建可用 Modal `--preset alchemy-build`；旧实体丹方槽采集器需迁移后才能用于新版完整验收。
+
 ## 按需查阅
 
 | 范围 | 技术约束 | 主要实现说明 |

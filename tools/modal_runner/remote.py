@@ -21,6 +21,7 @@ PRESETS = {
               ["xvfb-run", "-a", "glxinfo", "-B"]],
     "python": [["python3", "-m", "unittest", "discover", "-s", "tools/tests"]],
     "build": [["./gradlew", "test", "build", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"]],
+    "alchemy-build": [["./gradlew", "test", "--tests", "com.example.myvillage.alchemy.*", "build", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"]],
     "fates": [["./gradlew", "test", "--tests", "com.example.myvillage.cultivation.fate.FateFoundationTest", "build", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"]],
     "release": [["python3", "tools/release_gate.py"]],
     "server": [["python3", "tools/run_chunky_acceptance.py", "--stage", "1"]],

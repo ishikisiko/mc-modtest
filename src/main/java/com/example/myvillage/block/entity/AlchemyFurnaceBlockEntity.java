@@ -28,16 +28,17 @@ public final class AlchemyFurnaceBlockEntity extends BlockEntity implements Cont
     private final NonNullList<ItemStack> identities = NonNullList.withSize(4, ItemStack.EMPTY);
     private final BrewingProgress progress = new BrewingProgress();
     private AlchemyBatch batch;
+    private String selectedRecipe = "";
     private int duration;
     private int status;
     public final ContainerData data = new ContainerData() {
         public int get(int index) { return switch (index) {
             case 0 -> progress.ticks(); case 1 -> duration; case 2 -> status;
             case 3 -> batch == null ? 0 : batch.score(); case 4 -> batch == null ? 0 : batch.cap();
-            case 5 -> batch == null ? 0 : 1; default -> 0;
+            case 5 -> batch == null ? 0 : 1; case 6 -> recipeIndex(); default -> 0;
         }; }
         public void set(int index, int value) { }
-        public int getCount() { return 6; }
+        public int getCount() { return 7; }
     };
     public AlchemyFurnaceBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlockEntities.ALCHEMY_FURNACE.get(), pos, state);
@@ -46,9 +47,44 @@ public final class AlchemyFurnaceBlockEntity extends BlockEntity implements Cont
         return stack.isEmpty() ? "" : BuiltInRegistries.ITEM.getKey(stack.getItem()).toString();
     }
     public boolean active() { return batch != null; }
+    private int recipeIndex() {
+        var recipes = AlchemyRules.get().recipes();
+        for (int i = 0; i < recipes.size(); i++) if (recipes.get(i).id().equals(selectedRecipe)) return i + 1;
+        return 0;
+    }
     private AlchemyRules.Recipe matching() {
-        return AlchemyRules.get().recipes().stream().filter(r -> r.matches(id(items.get(0)), id(items.get(1)), id(items.get(2))))
-                .findFirst().orElse(null);
+        return AlchemyRules.get().recipe(selectedRecipe)
+                .filter(r -> r.matches(r.formula(), id(items.get(1)), id(items.get(2)))).orElse(null);
+    }
+    private boolean validActor(ServerPlayer player, AlchemyMenu menu) {
+        return level != null && !level.isClientSide() && player.level() == level
+                && player.isAlive() && !player.isSpectator() && player.containerMenu == menu
+                && menu.isFor(this) && stillValid(player);
+    }
+    /** Selection is an intent: check this player's knowledge and plan all transfers before committing. */
+    public boolean select(ServerPlayer player, AlchemyMenu menu, int index) {
+        var recipes = AlchemyRules.get().recipes();
+        if (!validActor(player, menu) || active() || index < 0 || index >= recipes.size()) return false;
+        var recipe = recipes.get(index);
+        if (!AlchemyKnowledge.knows(player, recipe.id())) return false;
+        var plan = AlchemyAutofill.plan(player.getInventory().items,
+                java.util.List.of(items.get(1), items.get(2), items.get(3)),
+                java.util.List.of(recipe.ingredients().get(0), recipe.ingredients().get(1), AlchemyRules.FUEL),
+                java.util.List.of(1, 1, recipe.fuelCount()));
+        if (plan.isEmpty()) {
+            player.displayClientMessage(Component.translatable("message.myvillage.alchemy.inventory_full"), true);
+            return false;
+        }
+        var transfer = plan.get();
+        for (int i = 0; i < transfer.inventory().size(); i++) player.getInventory().items.set(i, transfer.inventory().get(i));
+        for (int i = 0; i < 3; i++) items.set(i + 1, transfer.inputs().get(i));
+        selectedRecipe = recipe.id(); captureInputChanges(); super.setChanged();
+        player.getInventory().setChanged(); updateIdleStatus(); menu.broadcastChanges(); return true;
+    }
+    private void updateIdleStatus() {
+        var recipe = matching(); duration = AlchemyRules.get().recipe(selectedRecipe).map(AlchemyRules.Recipe::durationTicks).orElse(0);
+        status = recipe == null ? (selectedRecipe.isEmpty() ? 0 : 1)
+                : !hasFuel(recipe) ? 2 : !items.get(4).isEmpty() ? 3 : 5;
     }
     private boolean hasFuel(AlchemyRules.Recipe recipe) {
         return recipe != null && id(items.get(3)).equals(AlchemyRules.FUEL) && items.get(3).getCount() >= recipe.fuelCount();
@@ -66,9 +102,10 @@ public final class AlchemyFurnaceBlockEntity extends BlockEntity implements Cont
     public boolean start(ServerPlayer player, AlchemyMenu menu) {
         AlchemyRules.Recipe recipe = matching();
         CraftingAptitudes aptitude = CultivationService.craftingAptitudes(player);
-        boolean validActor = level != null && !level.isClientSide() && player.level() == level
-                && player.isAlive() && !player.isSpectator() && player.containerMenu == menu
-                && menu.isFor(this) && stillValid(player);
+        boolean validActor = validActor(player, menu);
+        if (validActor && !active() && !AlchemyKnowledge.knows(player, selectedRecipe)) {
+            player.displayClientMessage(Component.translatable("message.myvillage.alchemy.formula_unknown"), true); return false;
+        }
         AlchemyBatch.Rejection rejection = AlchemyBatch.rejection(validActor, active(),
                 aptitude.initialized() && CultivationService.getProfile(player).spiritualRoot().isPresent(),
                 recipe != null, hasFuel(recipe), items.get(4).isEmpty());
@@ -98,8 +135,7 @@ public final class AlchemyFurnaceBlockEntity extends BlockEntity implements Cont
         duration = recipe == null ? 0 : recipe.durationTicks();
         boolean complete = false;
         if (!active()) {
-            status = recipe == null ? (AlchemyRules.get().recipeForFormula(id(items.get(0))).isPresent() ? 1 : 0)
-                    : !hasFuel(recipe) ? 2 : !items.get(4).isEmpty() ? 3 : 5;
+            updateIdleStatus();
         } else {
             ItemStack result = new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(recipe.output())), recipe.outputCount());
             PillQuality.apply(result, batch.quality());
@@ -109,7 +145,7 @@ public final class AlchemyFurnaceBlockEntity extends BlockEntity implements Cont
             status = space ? 4 : 3;
             complete = progress.advance(recipe.id(), duration, false, space);
             if (complete) {
-                // Commit once on this server tick, then require a new attributed start. Formula is retained.
+                // Commit once on this server tick, then require a new attributed start. Knowledge is retained.
                 items.get(1).shrink(1); items.get(2).shrink(1); items.get(3).shrink(recipe.fuelCount());
                 if (out.isEmpty()) items.set(4, result); else out.grow(result.getCount());
                 clearBatch(); captureInputChanges(); status = 3;
@@ -148,7 +184,7 @@ public final class AlchemyFurnaceBlockEntity extends BlockEntity implements Cont
     @Override public boolean canPlaceItem(int slot, ItemStack stack) {
         if (active() && slot < 4) return false;
         return switch (slot) {
-            case 0 -> AlchemyRules.get().recipeForFormula(id(stack)).isPresent();
+            case 0 -> false; // Legacy return-only slot; no physical credential is accepted.
             case 1, 2 -> AlchemyRules.get().isHerb(id(stack));
             case 3 -> AlchemyRules.FUEL.equals(id(stack));
             default -> false;
@@ -163,12 +199,16 @@ public final class AlchemyFurnaceBlockEntity extends BlockEntity implements Cont
     @Override protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries); ContainerHelper.saveAllItems(tag, items, registries);
         tag.putInt("Progress", progress.ticks()); tag.putString("Recipe", progress.recipe());
+        tag.putString("SelectedRecipe", selectedRecipe);
         if (batch != null) tag.put("Batch", batch.save()); else tag.remove("Batch");
     }
     @Override protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         items = NonNullList.withSize(SLOT_COUNT, ItemStack.EMPTY); ContainerHelper.loadAllItems(tag, items, registries);
         clearBatch(); captureInputChanges();
+        selectedRecipe = tag.getString("SelectedRecipe");
+        if (selectedRecipe.isEmpty()) selectedRecipe = AlchemyRules.get().recipeForFormula(id(items.get(0)))
+                .map(AlchemyRules.Recipe::id).orElse("");
         AlchemyRules.Recipe recipe = matching();
         AlchemyBatch restored = tag.contains("Batch", Tag.TAG_COMPOUND) ? AlchemyBatch.read(tag.getCompound("Batch")).orElse(null) : null;
         if (restored != null && recipe != null && hasFuel(recipe) && recipe.id().equals(restored.recipe())
@@ -177,6 +217,6 @@ public final class AlchemyFurnaceBlockEntity extends BlockEntity implements Cont
             batch = restored; progress.restore(recipe.id(), tag.getInt("Progress"), recipe.durationTicks());
         }
         duration = recipe == null ? 0 : recipe.durationTicks();
-        status = active() ? 4 : 0;
+        if (active()) status = 4; else updateIdleStatus();
     }
 }

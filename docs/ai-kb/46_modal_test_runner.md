@@ -72,6 +72,7 @@ artifacts and confirmed cleanup are recorded.
 |---|---|---|
 | `smoke` | Java version, Python dependency imports, Xvfb `glxinfo` | `pass` (authenticated second attempt; downloaded evidence and confirmed termination) |
 | `python` | `python3 -m unittest discover -s tools/tests` | `pass` (1053 tests) |
+| `alchemy-build` | Alchemy Java tests and jar build only | Per-run result required; no full game evidence |
 | `fates` | FateFoundationTest and jar build only; no game/full release | Per-run result required |
 | `build` | `./gradlew test build --no-daemon -Dorg.gradle.jvmargs=-Xmx2g --max-workers=4` | `pass` (913 tests; fresh 0.46.1 jar downloaded) |
 | `release` | `python3 tools/release_gate.py` once (complete release checks, fresh jar) | See current workflow record |
@@ -163,3 +164,7 @@ run, and the report explicitly distinguishes partial from full acceptance.
 
 [Current workflow evidence](../testing/2026-10-16-acceptance-workflow.md) is the
 single record for this tooling revision; historical rows above are not current passes.
+
+0.52.3 changes the formula menu: old `alchemy-quality` / `release-alchemy` game
+fixtures require migration before use. `alchemy-build` is the focused current
+build path; prior captures remain historical.

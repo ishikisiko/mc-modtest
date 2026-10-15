@@ -1,7 +1,7 @@
-# Alchemy (0.52.0)
+# Alchemy (0.52.3)
 
 The thirteen existing items remain a modeled furnace, six infused herbs, three
-reusable physical formulas and three pills. Survival acquisition uses vanilla
+learnable physical formulas and three pills. Survival acquisition uses vanilla
 plants plus spirit stones. [README](../../README.md#alchemy-炼丹-0520) documents
 controls, quality probabilities, effects and administrator fixtures.
 
@@ -11,23 +11,28 @@ controls, quality probabilities, effects and administrator fixtures.
   output counts, shared interval, base effects, quality weights by ceiling and
   strength multipliers. `AlchemyRules` rejects malformed/out-of-bounds data;
   rebuild/restart for changes (not datapack hot reload).
-- `AlchemyFurnaceBlockEntity` owns five saved `Items` slots, `Progress`, `Recipe`
-  and an additive `Batch` compound. `AlchemyBatch` stores version, brewer UUID,
-  recipe, aptitude score, ceiling and outcome. Vanilla menu button0 carries only
-  start intent; the server checks the current nearby menu, living non-spectator
-  actor, awakened initialized aptitude, recipe, fuel, idle state and empty output.
-  Each start freezes these values and rolls once. The client receives progress,
-  duration, status, frozen score/ceiling and active flag, never the hidden outcome.
-- Active formula/herb/fuel slots are locked, including shift-click transfers.
-  Another viewer cannot replace inputs or restart the batch. Formula is retained;
-  herbs/fuel are deducted once, atomically with output. Completion requires a new
-  start even if more ingredients remain. Full/incompatible output pauses without
-  costs or reroll. Changed/invalid inputs defensively abandon the batch.
-- Unload pauses; valid saved batches resume without offline work. Brewer death,
-  logout and later aptitude changes do not alter the frozen batch. Breaking drops
-  held inventory once and abandons unfinished output. Legacy progress without a
-  complete valid batch resets to idle while preserving all items. No hopper
-  capability is advertised.
+- `LearnedFormulas` is immutable, persisted with an additive `learned_formulas`
+  attachment and `copyOnDeath`. `AlchemyKnowledge` alone writes it on the server.
+  Using a FormulaItem learns its recipe; survival consumes one copy on first
+  learning only. Knowledge does not depend on cultivation-profile reset/root state.
+- The furnace menu privately synchronizes each viewer's knowledge with vanilla
+  DataSlots; the learned list sends only a bounded menu button index. Selection
+  and start recheck the current nearby menu, living non-spectator player, recipe
+  knowledge and idle state. No client-authored inventory or learned IDs are accepted.
+- `AlchemyAutofill` plans transfers on copies. Incompatible existing ingredients
+  return to the actor's main inventory/hotbar; full inventory rejects the whole
+  switch. It fills one batch's deficit, preserves stack components, and leaves
+  missing ingredients empty. One server-thread commit updates both inventories.
+- `AlchemyFurnaceBlockEntity` retains five saved Items indices for compatibility:
+  index0 is return-only legacy formula storage; 1/2 herbs, 3 fuel, 4 output.
+  `SelectedRecipe` is additive; old saves infer it from their legacy formula.
+  Valid existing Batch decisions resume without relearning or rerolling; the
+  next start requires the initiating player's knowledge.
+- Batch still freezes brewer UUID, recipe, aptitude, cap and outcome. Active
+  inputs/selection are locked. Ingredients/fuel commit once with output; output
+  blockage pauses without cost or reroll. Completion requires another manual start.
+  Unload pauses; breaking preserves held items but abandons unfinished output.
+  No hopper capability is advertised. Client and server require protocol22.
 - `PillQuality` uses bounded persistent/networked `myvillage:pill_quality`, integers
   1..4 (lower/middle/upper/perfect), on the three existing pill IDs. Missing is
   lower; ordinary new lower pills omit it and stack with legacy pills. Explicit
@@ -43,26 +48,19 @@ controls, quality probabilities, effects and administrator fixtures.
   remaining counters/quality. Vanilla cooldown shading is presentation only.
 - Power replacement stays behind `CultivationService`. Ningshen affects only
   post-cap normal/spirit meditation stability, never progress, study, mastery or
-  advancement. Profile remains v4. Client and server require protocol21.
+  advancement. Profile remains v4. Client and server require protocol22.
 - `tools/gen_alchemy_assets.py` owns models, textures, bilingual keys, recipes,
   loot and tags. Never hand-edit generated outputs. `--check` is deterministic;
   `--preview` writes actual-model previews to `out/preview/alchemy/`.
 
 ## Gates and evidence
 
-Local focused checks: generator, `tools/validate_alchemy.py` and relevant Python
-validators. Heavy full release/build/jar, clean stage1 and real-client/two-client
-checks default to Modal; cloud failure does not automatically fall back locally.
-Prefer `release-alchemy` for one-Sandbox full delivery; use `alchemy-quality --cases`
-for an independently prepared diagnostic subset, explicitly not full acceptance.
-Separate fixed-source `release` / `alchemy-quality` runs still require
-explicit product/build equivalence for evidence-only follow-ups (see
-[note46](46_modal_test_runner.md)). The latter runs clean stage1 then
-`tools/alchemy_quality_evidence.py`, which owns capture sessions/shared heavy
-lock, mapped start/input/use, bilingual layouts, restart and a second isolated
-real client. RCON is fixture setup/readback only. Preserve failures and timings.
-Legacy `alchemy_evidence.py` is historical foundation evidence; `--visual-only`
-establishes model/menu presentation only, never current quality behavior.
+Use generator `--check`, `tools/validate_alchemy.py`, related Python tests and
+Modal `--preset alchemy-build` for the affected Java tests and practical jar.
+This focused path has no game or full release suite. The old physical-formula
+capture fixtures/coordinates in `alchemy_evidence.py` and
+`alchemy_quality_evidence.py` need migration before running their complete
+presets against 0.52.3; retain their historical evidence as historical.
 
 The 0.50.0 foundation and 0.51.0 aptitude results are historical, not evidence
 for 0.52.0. Current Modal evidence passes 62 release gates and 42 mapped
@@ -70,7 +68,7 @@ quality/effect/restart/two-client checks; 15 screenshots were inspected.
 See [recorded runs and retries](../testing/2026-10-16-alchemy-quality.md). Owner appearance, feel,
 balance and wider multiplayer remain `not_verified`. Natural acquisition,
 cold legacy-save migration and other unobserved lifecycle surfaces remain
-`not_verified`. Wild plants/farming, formula learning, skill XP, toxicity,
+`not_verified`. Wild plants/farming, skill XP, toxicity,
 furnace failure and forging production remain outside this slice.
 
 See also: [alchemy-foundation](../contracts/cultivation.md#alchemy-foundation),

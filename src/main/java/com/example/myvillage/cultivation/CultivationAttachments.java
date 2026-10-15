@@ -29,6 +29,11 @@ public final class CultivationAttachments {
                     .serialize(com.example.myvillage.cultivation.crafting.CraftingAptitudes.CODEC)
                     .copyOnDeath().build());
 
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<com.example.myvillage.alchemy.LearnedFormulas>> FORMULAS =
+            ATTACHMENT_TYPES.register("learned_formulas", () -> AttachmentType
+                    .builder(() -> com.example.myvillage.alchemy.LearnedFormulas.EMPTY)
+                    .serialize(com.example.myvillage.alchemy.LearnedFormulas.CODEC).copyOnDeath().build());
+
     private CultivationAttachments() {
     }
 

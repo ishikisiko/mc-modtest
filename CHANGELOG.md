@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.52.3
+
+- Learn formula sheets permanently as player knowledge, retained on death/reconnect; survival consumes only the first learned copy.
+- Show each viewer’s learned recipes in the furnace and refill one batch from their inventory on selection, with atomic return of incompatible ingredients and no loss on a full inventory.
+- Preserve old furnace items and active batches, add return-only legacy formula storage, and require protocol22 for the revised synchronized menu.
+
 ## 0.52.2
 
 - Equalize fate tier weights and expose 17 purple/gold/red selectable placeholders with explicit no-effect labels; retain the eight working traits, point budget, ordinary guarantees and saved choices.

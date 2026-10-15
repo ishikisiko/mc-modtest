@@ -18,7 +18,8 @@ DATA = RESOURCES / 'data/myvillage'
 RULES = DATA / 'alchemy/rules.json'
 JAVA = Path('src/main/java/com/example/myvillage')
 SOURCE_FILES = tuple(JAVA / f'{name}.java' for name in (
-    'alchemy/AlchemyMenu', 'alchemy/AlchemyBatch', 'alchemy/PillQuality', 'alchemy/MedicineState',
+    'alchemy/LearnedFormulas', 'alchemy/AlchemyKnowledge', 'alchemy/AlchemyAutofill',
+    'item/FormulaItem', 'alchemy/AlchemyMenu', 'alchemy/AlchemyBatch', 'alchemy/PillQuality', 'alchemy/MedicineState',
     'alchemy/MedicineRuntime', 'block/entity/AlchemyFurnaceBlockEntity',
     'item/AlchemyPillItem', 'item/ModDataComponents', 'client/alchemy/AlchemyScreen',
 ))
@@ -29,6 +30,7 @@ PLANTS = ('fern', 'blue_orchid', 'carrot', 'sweet_berries', 'brown_mushroom', 'l
 FUEL = 'myvillage:low_grade_spirit_stone'
 PAIRS = dict(zip(KINDS, zip(HERBS[::2], HERBS[1::2])))
 JAR_CLASSES = tuple(f'com/example/myvillage/{name}.class' for name in (
+    'alchemy/LearnedFormulas', 'alchemy/AlchemyKnowledge', 'alchemy/AlchemyAutofill',
     'alchemy/AlchemyRules', 'alchemy/BrewingProgress', 'alchemy/AlchemyMenu', 'alchemy/AlchemyMenus',
     'block/AlchemyFurnaceBlock', 'block/entity/AlchemyFurnaceBlockEntity', 'client/alchemy/AlchemyScreen',
     'item/AlchemyPillItem', 'item/FormulaItem', 'alchemy/MedicineEffects', 'alchemy/MedicineState',
