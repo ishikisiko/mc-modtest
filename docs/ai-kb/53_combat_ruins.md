@@ -66,4 +66,6 @@ paths. Players can retreat, die or log out and resume later. The server does not
 
 Owner appearance, combat balance/feel, audio/FPS and multiplayer experience remain
 `not_verified` until the owner plays the delivered build. Runtime evidence is recorded under
-`docs/testing/` after an actual completed run, not inferred from the preset definition.
+[the 0.55.0 delivery record](../testing/2026-10-16-combat-ruins.md): 76 actual-game checks,
+including two real clients and two normal restarts, passed. The preset definition alone is
+not evidence of acceptance.
