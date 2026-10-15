@@ -679,6 +679,9 @@ class QualityEvidence(AlchemyEvidence):
     def prepare_restart(self):
         recipe = self.rules['recipes'][0]
         # Persistence must work without first running the medicine or UI cases.
+        stage = json.loads((ROOT/'src/main/resources/data/myvillage/myvillage/realm/qi_refining.json').read_text())['stages'][0]
+        self.rc(f'myvillage cultivation setprogress {self.s.username} {stage["cultivation_cap"]}')
+        self.rc(f'myvillage cultivation setstability {self.s.username} 0')
         count = self.held_quality('ningshen', 4)
         medication = self.med()
         self.check('persistence_fixture_mapped_quality4_use', count == 1 and medication['quality'] == 4
