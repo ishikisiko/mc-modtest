@@ -12,7 +12,7 @@
 ## 3. Release and evidence
 - [x] 3.1 Synchronize README commands/usage, AGENTS, KB and normative specs; version0.52.0 per openspec/config.yaml rules.tasks.
 - [x] 3.2 Run lightweight local focused checks and commit exact source for remote execution.
-- [ ] 3.3 Run complete release gate/build/tests on Modal; download and inspect the matching jar/resources and cleanup record.
-- [ ] 3.4 Run clean acceptance server and one-/two-client quality/use/persistence/UI checks on Modal; retain failed attempts and phase/memory evidence.
-- [ ] 3.5 Inspect representative bilingual screenshots and serve preview with owner verdict pending.
-- [ ] 3.6 Reconcile CRAFT evidence, commit delivery docs, fast-forward main and push; distinguish developer checks from owner acceptance.
+- [x] 3.3 Run complete release gate/build/tests on Modal; download and inspect the matching jar/resources and cleanup record.
+- [x] 3.4 Run clean acceptance server and one-/two-client quality/use/persistence/UI checks on Modal; retain failed attempts and phase/memory evidence.
+- [x] 3.5 Inspect representative bilingual screenshots and serve preview with owner verdict pending.
+- [x] 3.6 Reconcile CRAFT evidence, commit delivery docs, fast-forward main and push; distinguish developer checks from owner acceptance.

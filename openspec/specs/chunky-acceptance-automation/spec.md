@@ -18,6 +18,13 @@ The acceptance automation SHALL run Chunky in explicit stages. Stage 1 SHALL val
 - **THEN** it SHALL start the server, connect by RCON, run a bounded `chunky start` task, poll `chunky progress` until completion, save the world, stop the server cleanly, and record Stage 1 as passed.
 - **AND** only after Stage 1 passes SHALL the workflow continue to MyVillage command stages.
 
+#### Scenario: Asynchronous start initially reports idle
+
+- **WHEN** progress polling reports no running task before the newly started task finishes
+- **THEN** Stage 1 SHALL continue polling within its existing timeout
+- **AND** it SHALL require a new finish log entry for the selected world after the recorded pre-start log offset before save/stop
+- **AND** stale entries, another world's finish, and rounded 100% progress SHALL NOT establish completion.
+
 #### Scenario: Stage 1 failure blocks later stages
 
 - **WHEN** the server fails to start, RCON cannot connect, Chunky is absent, or the Chunky task times out during Stage 1

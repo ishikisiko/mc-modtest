@@ -32,6 +32,11 @@ save-all
 stop
 ```
 
+Stage 1 records the log offset before `chunky start` and waits for a new
+`Task finished` entry for the selected world. An initial `No tasks running`,
+a stale finish entry or rounded 100% progress does not establish completion.
+The report retains the matching line and offset before save/stop.
+
 Stage 2 then runs:
 
 ```text

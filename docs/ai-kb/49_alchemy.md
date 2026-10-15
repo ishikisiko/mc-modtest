@@ -53,7 +53,8 @@ controls, quality probabilities, effects and administrator fixtures.
 Local focused checks: generator, `tools/validate_alchemy.py` and relevant Python
 validators. Heavy full release/build/jar, clean stage1 and real-client/two-client
 checks default to Modal; cloud failure does not automatically fall back locally.
-Use the same committed source for `release` and `alchemy-quality` presets (see
+Use fixed committed sources for `release` and `alchemy-quality` presets, with
+explicit product/build equivalence for evidence-only follow-ups (see
 [note46](46_modal_test_runner.md)). The latter runs clean stage1 then
 `tools/alchemy_quality_evidence.py`, which owns capture sessions/shared heavy
 lock, mapped start/input/use, bilingual layouts, restart and a second isolated
@@ -62,8 +63,9 @@ Legacy `alchemy_evidence.py` is historical foundation evidence; `--visual-only`
 establishes model/menu presentation only, never current quality behavior.
 
 The 0.50.0 foundation and 0.51.0 aptitude results are historical, not evidence
-for 0.52.0. Current build, server, quality/effect/restart and two-client evidence
-remain pending until the recorded Modal runs complete. Owner appearance, feel,
+for 0.52.0. Current Modal evidence passes 62 release gates and 42 mapped
+quality/effect/restart/two-client checks; 15 screenshots were inspected.
+See [recorded runs and retries](../testing/2026-10-16-alchemy-quality.md). Owner appearance, feel,
 balance and wider multiplayer remain `not_verified`. Natural acquisition,
 cold legacy-save migration and other unobserved lifecycle surfaces remain
 `not_verified`. Wild plants/farming, formula learning, skill XP, toxicity,

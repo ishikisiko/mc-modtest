@@ -50,8 +50,9 @@ mapped awakening, six bilingual H layouts, read-only clicks, admin boundary
 fixtures, death, root/profile resets and save/restart. Legacy live migration and
 unobserved lifecycle/owner surfaces remain not_verified. No DevBridge.
 
-The 0.51.0 passing evidence is historical. Current protocol21 and quality
-integration checks are pending until recorded Modal runs complete; owner balance,
+The 0.51.0 passing evidence is historical. Current protocol21 build and quality
+integration pass recorded Modal runs (62 release gates, 42 mapped checks).
+H-page layouts were not recaptured for 0.52.0 and remain `not_verified`; owner balance,
 appearance and wider multiplayer remain `not_verified`.
 
 See [alchemy-quality](../../openspec/specs/alchemy-quality/spec.md),

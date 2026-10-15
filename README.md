@@ -3839,6 +3839,9 @@ and fallback behavior but can be driven from RCON or the server console.
 
 Staged Chunky/RCON automation:
 
+Stage 1 waits for the current world task's new completion log entry before saving
+and stopping; an initial idle response is not completion.
+
 ```bash
 python3 tools/run_chunky_acceptance.py --stage 1   # Chunky/RCON/server lifecycle
 python3 tools/run_chunky_acceptance.py --stage 2   # plus myvillage ...at command smoke
@@ -4380,11 +4383,14 @@ restarts the capture world. A second isolated real client attempts to interfere
 with the active batch. No DevBridge is used. Cloud failures remain explicit;
 there is no automatic local heavy-test fallback.
 
-Current 0.52.0 evidence is **pending**: release/jar, clean server, quality rolls,
-medicine strength/restart, layouts and bounded two-client authority checks.
+Current 0.52.0 developer evidence **passes**: 62 release gates, 1062 Java tests,
+1297 Python tests, clean server and 42 mapped one-/two-client quality, medicine
+and persistence checks on Modal. Six bilingual layouts and six pill tooltips
+were captured and inspected. See [timings and retained retries](docs/testing/2026-10-16-alchemy-quality.md).
 Owner appearance/feel/balance and wider multiplayer remain `not_verified`.
 
-Preview: [炼丹基础](http://43.156.135.198:8765/alchemy/index.html).
+Preview: [成丹品质运行验证](http://43.156.135.198:8765/alchemy/quality/index.html) ·
+[炼丹基础](http://43.156.135.198:8765/alchemy/index.html).
 See [implementation boundaries](docs/ai-kb/49_alchemy.md),
 [alchemy-quality specification](openspec/specs/alchemy-quality/spec.md), and
 [historical 0.50.0 developer validation](docs/testing/2026-10-15-alchemy.md).
@@ -4462,9 +4468,10 @@ procedure remains an advanced remote-workspace reference: after clean stage1,
 it owns mapped stele/H input and two sessions for lifecycle/restart, with RCON
 fixtures/readback only. It does not use DevBridge.
 
-Current protocol21, quality integration and H-layout evidence is pending until
-recorded Modal runs complete. The following results are **historical 0.51.0**,
-not a pass for this version.
+Current protocol21 build and alchemy quality integration passed recorded Modal
+runs (62 release gates and 42 mapped quality checks). Current H-page layouts
+were not recaptured and remain `not_verified`. The following results are
+**historical 0.51.0**, not a pass for this version.
 
 Preview: [技艺资质](http://43.156.135.198:8765/crafting_aptitudes/index.html).
 See [implementation](docs/ai-kb/50_crafting_aptitudes.md) and

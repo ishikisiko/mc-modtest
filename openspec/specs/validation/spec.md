@@ -237,6 +237,9 @@ The staged acceptance checklist SHALL include an optional Chunky automation path
 - **THEN** the documented checklist SHALL run the standalone Chunky/RCON/server lifecycle stage before any MyVillage command integration stage
 - **AND** it SHALL identify later full optional-mod and natural sect worldgen stages separately.
 
+Stage 1 completion SHALL be tied to a new finish log for the selected world
+after the task start boundary; an initial idle response SHALL NOT trigger save/stop.
+
 ### Requirement: Chunky acceptance report participates in validation handoff
 When the Chunky acceptance workflow is run, `reports/chunky_acceptance_report.json` SHALL be treated as the handoff artifact for in-game automation status. The report SHALL NOT replace offline validator reports or the public preview server; it SHALL supplement them.
 
