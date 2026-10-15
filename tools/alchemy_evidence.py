@@ -32,6 +32,27 @@ POS = '0 -60 3'
 MEDICINE = 'NeoForgeData.myvillage_medicine'
 
 
+def meditation_bindings(options, registration):
+    """Fresh options files can omit custom keys; Minecraft uses the registered defaults."""
+    verified = {}
+    for action, expected in [('start_normal_meditation', 'v'), ('stop_meditation', 'x')]:
+        option = 'key_key.myvillage.' + action
+        actual = options.get(option)
+        source = 'options'
+        if actual is None:
+            pattern = (r'"key\.myvillage\.' + re.escape(action)
+                       + r'"\s*,\s*InputConstants\.Type\.KEYSYM\s*,\s*GLFW\.GLFW_KEY_([A-Z])\s*,')
+            match = re.search(pattern, registration)
+            if match is None:
+                raise RuntimeError('Cannot establish registered default for ' + action)
+            actual = 'key.keyboard.' + match.group(1).lower()
+            source = 'registered_default'
+        if actual != 'key.keyboard.' + expected:
+            raise RuntimeError('Unexpected mapped key for ' + action + ': ' + actual)
+        verified[action] = {'key': expected, 'source': source}
+    return verified
+
+
 def stacks(reply: str) -> dict[int, dict]:
     """Decode only vanilla ItemStack Slot/id/count triples, rejecting partial evidence."""
     if 'data: ' not in reply:
@@ -85,9 +106,8 @@ class AlchemyEvidence(Evidence):
         self.s = cs.Session.attach(ui_check=True)
         options = ROOT/'run-combat-capture/client/options.txt'
         bindings = dict(line.split(':', 1) for line in options.read_text().splitlines() if ':' in line)
-        for action, key in [('start_normal_meditation', 'v'), ('stop_meditation', 'x')]:
-            if bindings.get('key_key.myvillage.'+action) != 'key.keyboard.'+key:
-                raise RuntimeError('Unexpected mapped key for '+action)
+        registration = (ROOT/'src/main/java/com/example/myvillage/client/cultivation/ClientCultivationKeyMappings.java').read_text()
+        self.report['binding_sources'] = meditation_bindings(bindings, registration)
         self.report['verified_bindings'] = {'start_normal_meditation': 'v', 'stop_meditation': 'x'}
         self.sessions += 1
         self.report['phases'].append({'phase': 'restart_setup' if reuse else 'initial_setup',

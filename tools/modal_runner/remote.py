@@ -32,7 +32,7 @@ PRESETS = {
 }
 ARTIFACT_ROOTS = ("build/libs", "build/test-results", "build/reports", "reports",
                   "out/preview", "run-acceptance/logs", "run-acceptance/acceptance-server-stdout.log",
-                  "run-combat-capture/logs")
+                  "run-combat-capture/logs", "run-combat-capture/client/options.txt")
 MAX_ARTIFACT_BYTES = 2 * 1024 ** 3
 
 
@@ -185,6 +185,12 @@ def main() -> int:
     finally:
         stop.set()
         monitor.join(timeout=2)
+        classes = repo / "build/classes/java/main"
+        if classes.is_dir():
+            hashes = {path.relative_to(classes).as_posix(): sha256(path)
+                      for path in sorted(classes.rglob("*.class"))}
+            (evidence / "runtime_classes.json").write_text(json.dumps(hashes, indent=2) + "\n")
+            result["compiled_main_classes"] = len(hashes)
         result["resources"] = measurements
         result["exit_code"] = code
         result["wall_seconds"] = round(time.monotonic() - start, 3)

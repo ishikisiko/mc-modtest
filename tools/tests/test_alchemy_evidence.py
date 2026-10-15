@@ -1,7 +1,22 @@
 import unittest
-from tools.alchemy_evidence import stacks, medicine
+from tools.alchemy_evidence import stacks, medicine, meditation_bindings, ROOT
 
 class AlchemyEvidenceTest(unittest.TestCase):
+    def test_fresh_options_use_actual_registered_defaults(self):
+        source = (ROOT/'src/main/java/com/example/myvillage/client/cultivation/ClientCultivationKeyMappings.java').read_text()
+        self.assertEqual(meditation_bindings({}, source), {
+            'start_normal_meditation': {'key': 'v', 'source': 'registered_default'},
+            'stop_meditation': {'key': 'x', 'source': 'registered_default'},
+        })
+        changed = source.replace('GLFW.GLFW_KEY_V,', 'GLFW.GLFW_KEY_Z,')
+        with self.assertRaisesRegex(RuntimeError, 'Unexpected mapped key'):
+            meditation_bindings({}, changed)
+        with self.assertRaisesRegex(RuntimeError, 'Cannot establish'):
+            meditation_bindings({}, '')
+        options = {'key_key.myvillage.start_normal_meditation': 'key.keyboard.z'}
+        with self.assertRaisesRegex(RuntimeError, 'Unexpected mapped key'):
+            meditation_bindings(options, source)
+
     def test_reads_block_and_player_stacks_with_typed_slots(self):
         value = '[{Slot: 0b, id: "myvillage:formula_huiling", count: 1}, {count: 2, Slot: 4b, id: "myvillage:pill_huiling"}]'
         for prefix in ('0, -60, 3 has the following block data: ', 'Player has the following entity data: '):
