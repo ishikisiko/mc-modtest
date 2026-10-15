@@ -30,6 +30,8 @@ from tools.realm_stats_evidence import close
 
 QUALITY = 'myvillage:pill_quality'
 SLOTS = ((16, 38), (52, 38), (76, 38), (112, 38), (178, 38))
+MAIN_VIEW = '.5 -60 .5 0 20.5'
+GUEST_VIEW = '-1.5 -60 1.5 -45 21.6'
 
 
 class Snbt:
@@ -336,10 +338,16 @@ class QualityEvidence(AlchemyEvidence):
 
     def open_furnace(self, game=None, username=None):
         game, username = game or self.s.game, username or self.s.username
-        position = '.5 -60 .5 0 20.5' if username == self.s.username else '-1.5 -60 1.5 -45 21.6'
+        position = MAIN_VIEW if username == self.s.username else GUEST_VIEW
         self.rc(f'tp {username} {position}'); time.sleep(.4)
         game.require_ingame('mapped quality furnace right click'); game.xdo('click', '3')
-        self.poll(game.pointer_grabbed, lambda value: value is False, 10, 'mapped furnace menu')
+        try:
+            self.poll(game.pointer_grabbed, lambda value: value is False, 10, 'mapped furnace menu')
+        except Exception:
+            window = game.xdo('search', '--name', 'Minecraft').split()[0]
+            subprocess.run(['import', '-silent', '-window', window,
+                            str(self.out/f'failed-menu-{username}.png')], env=game.env, check=False, timeout=15)
+            raise
 
     def close_menu(self, game=None):
         game = game or self.s.game; game.xdo('key', 'Escape'); time.sleep(.35)
@@ -560,10 +568,14 @@ class QualityEvidence(AlchemyEvidence):
         self.slot(4, 'minecraft:air')
         with SecondClient(self) as guest:
             for command in (*scene.player_setup(guest.username, 'minecraft:air'),
+                            f'tp {guest.username} {GUEST_VIEW}',
                             f'myvillage cultivation awaken {guest.username}',
                             f'myvillage cultivation crafting set {guest.username} alchemy 100',
                             f'myvillage cultivation crafting set {user} alchemy 0'):
                 self.rc(command)
+            guest_position = read_data(self.rc(f'data get entity {guest.username} Pos'))
+            self.check('guest_stands_clear_of_main_furnace_ray', guest_position[0] < -1,
+                       {'guest': guest_position, 'main_view': MAIN_VIEW})
             self.fixture(recipe)
             main_batch = self.begin()
             self.open_furnace(guest.game, guest.username)
