@@ -28,10 +28,38 @@ public final class AlchemyRules {
     private final int sharedCooldownTicks;
     private final List<Recipe> recipes;
     private final Effects effects;
+    private final int[][] qualityWeights = new int[4][4];
+    private final double[] qualityMultipliers = new double[4];
 
     private AlchemyRules(JsonObject root) {
-        fields(root, "version", "use_ticks", "shared_cooldown_ticks", "recipes", "effects");
-        if (integer(root, "version", 1, 1) != 1) throw invalid("version", "unsupported");
+        fields(root, "version", "use_ticks", "shared_cooldown_ticks", "recipes", "effects", "quality");
+        if (integer(root, "version", 2, 2) != 2) throw invalid("version", "unsupported");
+        JsonObject quality = object(root.get("quality"), "quality");
+        fields(quality, "weights_by_cap", "strength_multipliers");
+        JsonElement weights = quality.get("weights_by_cap"), factors = quality.get("strength_multipliers");
+        if (!weights.isJsonArray() || weights.getAsJsonArray().size() != 4
+                || !factors.isJsonArray() || factors.getAsJsonArray().size() != 4)
+            throw invalid("quality", "four ceilings and four multipliers required");
+        for (int cap = 1; cap <= 4; cap++) {
+            JsonElement row = weights.getAsJsonArray().get(cap - 1);
+            if (!row.isJsonArray() || row.getAsJsonArray().size() != 4)
+                throw invalid("quality.weights_by_cap", "four weights per ceiling required");
+            int total = 0;
+            for (int q = 1; q <= 4; q++) {
+                int weight = integerValue(row.getAsJsonArray().get(q - 1), "quality weight", 0, 1000000);
+                if (q <= cap && weight == 0) throw invalid("quality weight", "eligible outcome must have positive weight");
+                if (q > cap && weight != 0) throw invalid("quality weight", "above ceiling");
+                qualityWeights[cap - 1][q - 1] = weight;
+                total += weight;
+            }
+            if (total == 0) throw invalid("quality weights", "positive total required");
+            JsonObject factor = new JsonObject();
+            factor.add("value", factors.getAsJsonArray().get(cap - 1));
+            double multiplier = number(factor, "value", 0, 16);
+            if ((cap == 1 && multiplier != 1) || (cap > 1 && multiplier <= qualityMultipliers[cap - 2]))
+                throw invalid("quality.strength_multipliers", "baseline one and strictly increasing required");
+            qualityMultipliers[cap - 1] = multiplier;
+        }
         useTicks = integer(root, "use_ticks", 1, 72000);
         sharedCooldownTicks = integer(root, "shared_cooldown_ticks", 1, 1200000);
         if (!root.get("recipes").isJsonArray()) throw invalid("recipes", "array required");
@@ -97,6 +125,24 @@ public final class AlchemyRules {
     public int sharedCooldownTicks() { return sharedCooldownTicks; }
     public List<Recipe> recipes() { return recipes; }
     public Effects effects() { return effects; }
+    public double qualityMultiplier(int quality) { return qualityMultipliers[requireQuality(quality) - 1]; }
+    public int qualityWeightTotal(int cap) {
+        return Arrays.stream(qualityWeights[requireQuality(cap) - 1]).sum();
+    }
+    /** Deterministic inverse weighted draw; RNG and saved outcome belong to the server batch. */
+    public int rollQuality(int cap, int draw) {
+        int total = qualityWeightTotal(cap);
+        if (draw < 0 || draw >= total) throw invalid("quality draw", "outside weighted range");
+        for (int q = 1; q <= cap; q++) {
+            draw -= qualityWeights[cap - 1][q - 1];
+            if (draw < 0) return q;
+        }
+        throw new IllegalStateException("Validated quality weights did not resolve");
+    }
+    private static int requireQuality(int quality) {
+        if (quality < 1 || quality > 4) throw invalid("quality", "must be one through four");
+        return quality;
+    }
     public Optional<Recipe> recipe(String id) { return recipes.stream().filter(r -> r.id().equals(id)).findFirst(); }
     public Optional<Recipe> recipeForFormula(String id) { return recipes.stream().filter(r -> r.formula().equals(id)).findFirst(); }
     public boolean isHerb(String id) { return recipes.stream().anyMatch(r -> r.ingredients().contains(id)); }
@@ -120,7 +166,9 @@ public final class AlchemyRules {
         return e.getAsString();
     }
     private static int integer(JsonObject o, String field, int min, int max) {
-        JsonElement e = o.get(field);
+        return integerValue(o.get(field), field, min, max);
+    }
+    private static int integerValue(JsonElement e, String field, int min, int max) {
         if (e == null || !e.isJsonPrimitive() || !e.getAsJsonPrimitive().isNumber()) throw invalid(field, "integer required");
         try { int n = e.getAsBigDecimal().intValueExact(); if (n < min || n > max) throw invalid(field, "out of range"); return n; }
         catch (ArithmeticException ex) { throw invalid(field, "integer required"); }

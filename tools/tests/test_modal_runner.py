@@ -14,6 +14,23 @@ from tools.modal_runner import remote, runner
 
 
 class ArchiveTests(unittest.TestCase):
+    def test_release_archive_baseline_detects_generated_drift(self):
+        with tempfile.TemporaryDirectory() as directory:
+            repo = Path(directory)
+            generated = repo / "src/main/resources/data/myvillage/example.json"
+            generated.parent.mkdir(parents=True)
+            generated.write_text("original")
+            (repo / ".gitignore").write_text("src/main/resources/\n")
+            baseline = remote.initialize_archive_git(repo)
+            self.assertTrue(baseline["synthetic"])
+            self.assertIn("request.commit", baseline["purpose"])
+            status_command = ["git", "status", "--porcelain=v1", "--untracked-files=all", "--", "src/main/resources"]
+            self.assertEqual(subprocess.check_output(status_command, cwd=repo), b"")
+            generated.write_text("changed by generator")
+            self.assertIn(b" M src/main/resources/data/myvillage/example.json", subprocess.check_output(status_command, cwd=repo))
+            with self.assertRaisesRegex(ValueError, "unexpectedly contains .git"):
+                remote.initialize_archive_git(repo)
+
     def test_fixed_commit_excludes_worktree_and_untracked(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -40,6 +57,8 @@ class ArchiveTests(unittest.TestCase):
             (repo / remote.PAL).write_bytes(b"changed later")
             self.assertEqual(remote.sha256(out / remote.PAL), req["inputs"][remote.PAL])
             self.assertEqual(remote.sha256(out / "remote.py"), req["inputs"]["remote.py"])
+            self.assertEqual(req["image_tools"]["node"], runner.NODE_VERSION)
+            self.assertEqual(req["image_tools"]["openspec"], runner.OPENSPEC_VERSION)
 
     def test_private_paths_and_symlinks_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -107,6 +126,30 @@ class ArchiveTests(unittest.TestCase):
 
 
 class LifecycleTests(unittest.TestCase):
+    def test_remote_release_and_alchemy_quality_commands(self):
+        self.assertEqual(remote.PRESETS["release"], [
+            ["./gradlew", "test", "--tests", "com.example.myvillage.alchemy.*",
+             "--tests", "com.example.myvillage.combat.network.CombatPayloadTest",
+             "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
+            ["python3", "tools/release_gate.py"],
+        ])
+        self.assertEqual(remote.PRESETS["alchemy-quality"], [
+            ["python3", "tools/run_chunky_acceptance.py", "--stage", "1"],
+            ["python3", "tools/alchemy_quality_evidence.py"],
+        ])
+
+    def test_image_contains_pinned_node_openspec_and_preview_interpreter(self):
+        modal = MagicMock()
+        base = modal.Image.from_registry.return_value
+        runner.image(modal)
+        commands = base.apt_install.return_value.run_commands.call_args.args
+        self.assertTrue(any(f"node-v{runner.NODE_VERSION}-linux-x64.tar.gz" in command for command in commands))
+        self.assertTrue(any(runner.NODE_SHA256 in command and "sha256sum --check" in command for command in commands))
+        self.assertTrue(any(f"@fission-ai/openspec@{runner.OPENSPEC_VERSION}" in command for command in commands))
+        env = base.apt_install.return_value.run_commands.return_value.env.call_args.args[0]
+        self.assertEqual(env["MC_PREVIEW_PYTHON"], "/usr/bin/python3")
+        self.assertEqual(env["LIBGL_ALWAYS_SOFTWARE"], "1")
+
     def exercise(self, *, exit_code=0, upload_error=False, download_error=False, terminate_error=False, create_error=False, interrupt=False, corrupt=False):
         with tempfile.TemporaryDirectory() as directory:
             out = Path(directory)

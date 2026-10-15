@@ -481,69 +481,76 @@ Confirm the jar contains the structure resources (name the versioned jar:
 `build/libs/` keeps the jars of earlier versions):
 
 ```bash
-jar tf build/libs/myvillage-0.51.0.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/textures/painting/inscription"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
-jar tf build/libs/myvillage-0.51.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "data/myvillage/beast/demon_wolf.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/beast/demon_wolf_model.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/beast/demon_wolf_animations.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/textures/entity/demon_wolf/demon_wolf_eyes.png"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/npc/cultivator_model.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/npc/cultivator_animations.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/textures/entity/cultivator/cultivator.png"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/combat/qingfeng_first_person.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/models/item/lingxiao_spear.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/models/item/lingxiao_spear_3d.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear.png"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear_model.png"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/combat/lingxiao_spear_geometry.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/combat/lingxiao_spear_first_person.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet_3d.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet.png"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet_model.png"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_geometry.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_first_person.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/player_animations/sword_combat.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/player_animations/spear_combat.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/player_animations/fist_combat.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "data/minecraft/tags/item/swords.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/guides/myvillage/cultivation/index.md"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/models/item/manual_core_huang.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/textures/item/manual_core_tint.png"
+jar tf build/libs/myvillage-0.52.0.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
+jar tf build/libs/myvillage-0.52.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "data/myvillage/beast/demon_wolf.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/beast/demon_wolf_model.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/beast/demon_wolf_animations.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/textures/entity/demon_wolf/demon_wolf_eyes.png"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/npc/cultivator_model.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/npc/cultivator_animations.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/textures/entity/cultivator/cultivator.png"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/combat/qingfeng_first_person.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/models/item/lingxiao_spear.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/models/item/lingxiao_spear_3d.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear.png"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear_model.png"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/combat/lingxiao_spear_geometry.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/combat/lingxiao_spear_first_person.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet_3d.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet.png"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet_model.png"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_geometry.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_first_person.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/player_animations/sword_combat.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/player_animations/spear_combat.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/player_animations/fist_combat.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "data/minecraft/tags/item/swords.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/guides/myvillage/cultivation/index.md"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/models/item/manual_core_huang.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/textures/item/manual_core_tint.png"
 ```
 
 The expected jar is:
 
 ```text
-build/libs/myvillage-0.51.0.jar
+build/libs/myvillage-0.52.0.jar
 ```
 
-## On-Demand Modal Test Runner (0.46.1)
+## On-Demand Modal Test Runner (default heavy-test workflow)
 
-The optional runner uploads a fixed Git commit, runs a bounded test preset in a
-Modal Sandbox, downloads evidence, and terminates the Sandbox. `plan` is local
+Full release/build, acceptance-server, client and two-client tests default to
+**Modal** to isolate memory pressure from this host. Local work is editing,
+planning and focused lightweight checks. Heavy commands elsewhere in this README
+are remote-workspace or advanced references; they are not instructions to start
+local Gradle/Minecraft jobs by default. Cloud failure does not automatically
+fall back to local heavy execution.
+
+The runner uploads a fixed Git commit, runs a bounded test preset in a Modal
+Sandbox, downloads evidence, and terminates the Sandbox. `plan` is local
 and allocates no cloud compute; real execution requires your Modal account's
 authentication. Credentials stay outside the source archive and test logs.
 
@@ -553,8 +560,11 @@ python3 -m venv .venv-modal
 # First authentication, or renewal after the token expires:
 .venv-modal/bin/modal token new --profile myvillage --expires-in 7d
 .venv-modal/bin/python -m tools.modal_runner doctor
-.venv-modal/bin/python -m tools.modal_runner plan --preset build --ref HEAD --timeout 1800
-.venv-modal/bin/python -m tools.modal_runner run --preset smoke --ref HEAD --timeout 1800
+# Commit intended source first; use the same full commit for both runs:
+test_commit=$(git rev-parse HEAD)
+.venv-modal/bin/python -m tools.modal_runner plan --preset release --ref "$test_commit" --timeout 3600
+.venv-modal/bin/python -m tools.modal_runner run --preset release --ref "$test_commit" --timeout 3600
+.venv-modal/bin/python -m tools.modal_runner run --preset alchemy-quality --ref "$test_commit" --timeout 3600
 ```
 
 `HEAD` means the last commit: uncommitted code is not tested. The exact root PAL
@@ -564,14 +574,17 @@ This does not upload the rest of `exmod` or any other mod jars. Generic untracke
 and credentials are excluded. The optional SDK is pinned to 1.6.1.
 
 Presets are `smoke` (environment), `python` (tool tests), `build` (Gradle tests
-and jar), `server` (stage-1 acceptance) and `client` (sword-qi mapped-input
-capture). The verified server/client scope is listed below; client capture
+and jar), `release` (the complete `tools/release_gate.py`), `server` (stage1),
+`client` (sword-qi capture), and `alchemy-quality` (clean stage1 followed by
+`tools/alchemy_quality_evidence.py`: mapped brewing/use, restart, bilingual
+layouts and a second isolated client for attribution). Historical verified scope
+is listed below; client capture
 uses no DevBridge. The timeout defaults to 1800 seconds,
 with an allowed range of 180–7200. This bounds Sandbox lifetime after creation;
 image preparation before creation is outside that timeout, so it is not a
 whole-run billing cap. Automatic retries are zero. The SDK resource
-request is CPU `(4, 4)` and memory `(16384, 16384)`; observed resources belong in
-the result, not in assumptions about performance.
+request is CPU `(4, 4)` and memory `(16384, 16384)` MiB (16 GiB request/hard limit);
+observed resources belong in the result, not in assumptions about performance.
 
 Only the dedicated Gradle dependency cache persists. Source, worlds and test
 state remain ephemeral. One local lock serializes launches; every completion
@@ -591,7 +604,11 @@ termination state to assess the run. These are distinct results.
 phase durations, logs, termination status and downloaded artifacts. Local
 contract tests and offline planning do not establish cloud startup or cleanup.
 
-| Modal runner acceptance surface | Result |
+The following results are **historical 0.46.1 evidence**, not checks of the
+current source. Current `release` and `alchemy-quality` results remain pending
+until their fetched artifacts, source commit and confirmed cleanup are verified.
+
+| Modal runner acceptance surface | Historical result |
 |---|---|
 | Local archive/lifecycle tests and offline plan | `pass` (15 local tests; latest timed command 0.380 s) |
 | Authenticated cloud smoke and confirmed termination | `pass` (second attempt 17.626 s; Java/Python dependencies/software GL, downloaded evidence and confirmed cleanup; initial hash-mismatch failure retained) |
@@ -697,61 +714,61 @@ python3 tools/generate_region_topology_preview.py --count 6   # offline 洲/域 
 python3 tools/write_visual_acceptance_report.py
 python3 -m http.server 8765 --bind 0.0.0.0 --directory out/preview
 ./gradlew build
-jar tf build/libs/myvillage-0.51.0.jar | grep "data/myvillage/structure"
-jar tf build/libs/myvillage-0.51.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/textures/block/plaque"
-jar tf build/libs/myvillage-0.51.0.jar | grep "data/myvillage/painting_variant/inscription"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/textures/painting/inscription"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
-jar tf build/libs/myvillage-0.51.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "data/myvillage/beast/demon_wolf.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/beast/demon_wolf_model.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/beast/demon_wolf_animations.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/textures/entity/demon_wolf/demon_wolf_eyes.png"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/npc/cultivator_model.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/npc/cultivator_animations.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/textures/entity/cultivator/cultivator.png"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/combat/qingfeng_first_person.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/models/item/lingxiao_spear.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/models/item/lingxiao_spear_3d.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear.png"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear_model.png"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/combat/lingxiao_spear_geometry.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/combat/lingxiao_spear_first_person.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet_3d.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet.png"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet_model.png"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_geometry.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_first_person.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "data/myvillage/combat/"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/player_animations/sword_combat.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/player_animations/spear_combat.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/player_animations/fist_combat.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "data/minecraft/tags/item/swords.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/textures/item/low_grade_spirit_stone.png"
-jar tf build/libs/myvillage-0.51.0.jar | grep "data/myvillage/worldgen/configured_feature/spirit_stone_ore.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "data/myvillage/myvillage/realm/qi_refining.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/guides/myvillage/cultivation"
-jar tf build/libs/myvillage-0.51.0.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "data/myvillage/structure"
+jar tf build/libs/myvillage-0.52.0.jar | grep "data/myvillage/mod_block_fallbacks.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/blockstates/wall_plaque.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/textures/block/plaque"
+jar tf build/libs/myvillage-0.52.0.jar | grep "data/myvillage/painting_variant/inscription"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/textures/painting/inscription"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/textures/entity/simple_fox/simple_fox.png"
+jar tf build/libs/myvillage-0.52.0.jar | grep "data/myvillage/neoforge/biome_modifier/add_simple_fox_spawns.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "data/myvillage/beast/demon_wolf.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/beast/demon_wolf_model.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/beast/demon_wolf_animations.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/textures/entity/demon_wolf/demon_wolf_eyes.png"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/npc/cultivator_model.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/npc/cultivator_animations.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/textures/entity/cultivator/cultivator.png"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/models/item/rideable_flying_sword.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/textures/item/rideable_flying_sword.png"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/models/item/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword.png"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/models/item/qingfeng_sword_3d.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/textures/item/qingfeng_sword_model.png"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/combat/qingfeng_sword_geometry.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/combat/qingfeng_first_person.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/models/item/lingxiao_spear.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/models/item/lingxiao_spear_3d.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear.png"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/textures/item/lingxiao_spear_model.png"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/combat/lingxiao_spear_geometry.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/combat/lingxiao_spear_first_person.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/models/item/xuantie_gauntlet_3d.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet.png"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/textures/item/xuantie_gauntlet_model.png"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_geometry.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/combat/xuantie_gauntlet_first_person.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "data/myvillage/combat/"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/models/item/xuanyue_zhenshan_sword.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/textures/item/xuanyue_zhenshan_sword.png"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/models/item/chilian_lihuo_sword.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/textures/item/chilian_lihuo_sword.png"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/models/item/qingxiao_liuyun_sword.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/textures/item/qingxiao_liuyun_sword.png"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/player_animations/sword_combat.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/player_animations/spear_combat.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/player_animations/fist_combat.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "data/myvillage/recipe/qingfeng_sword.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "data/minecraft/tags/item/swords.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/blockstates/spirit_testing_stele.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/blockstates/technique_inheritance_stele.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/textures/item/low_grade_spirit_stone.png"
+jar tf build/libs/myvillage-0.52.0.jar | grep "data/myvillage/worldgen/configured_feature/spirit_stone_ore.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "data/myvillage/myvillage/realm/qi_refining.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/guideme_guides/cultivation.json"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/guides/myvillage/cultivation"
+jar tf build/libs/myvillage-0.52.0.jar | grep "assets/myvillage/models/item/cultivation_handbook.json"
 ```
 
 Use the command list below as the acceptance script. Update this README,
@@ -890,7 +907,7 @@ python3 tools/realm_stats_evidence.py
 python3 tools/realm_armor_evidence.py
 # Independent elemental penetration and save/restart:
 python3 tools/elemental_penetration_evidence.py
-/usr/bin/python3 tools/validate_realm_stats.py --jar build/libs/myvillage-0.51.0.jar
+/usr/bin/python3 tools/validate_realm_stats.py --jar build/libs/myvillage-0.52.0.jar
 ```
 
 Run clean stage 1 before the evidence script: it clears `run-acceptance`.
@@ -4166,7 +4183,7 @@ effect number, health, mana or cooldown. See [KB 48](docs/ai-kb/48_innate_fates.
 /usr/bin/python3 -m unittest tools.tests.test_validate_innate_fates
 ./gradlew test --tests 'com.example.myvillage.cultivation.*' --tests 'com.example.myvillage.client.cultivation.*'
 /usr/bin/python3 tools/release_gate.py
-/usr/bin/python3 tools/validate_innate_fates.py --jar build/libs/myvillage-0.51.0.jar
+/usr/bin/python3 tools/validate_innate_fates.py --jar build/libs/myvillage-0.52.0.jar
 python3 tools/run_chunky_acceptance.py --stage 1
 python3 tools/innate_fates_evidence.py --ui-only --out out/preview/stele_awakening
 ```
@@ -4222,7 +4239,7 @@ The preview screenshots remain 0.49.1 layout evidence; their old high-tier-limit
 caption has been removed in the current jar.
 
 
-## Alchemy Foundation (炼丹, 0.50.0)
+## Alchemy (炼丹, 0.52.0)
 
 One **青铜丹炉** (`alchemy_furnace`), six herb items, three reusable formula
 sheets and three pill items form the first survival preparation loop. The furnace
@@ -4252,10 +4269,15 @@ stone (shapeless). Place the furnace and right-click it. Its slots from left to
 right are **formula → herb A → herb B → spirit stone → output**. Herb order is
 interchangeable. One of each herb and one spirit stone yields two pills in
 20 seconds at 20 TPS. The formula stays in the furnace and can be reused; it is
-not consumed or permanently learned. More ingredients automatically brew the
-next batch. Shift-click moves items between the furnace and inventory.
+not consumed or permanently learned. **Empty the output, then press 开始炼制 /
+Start brewing for each batch.** The initiating player must be alive,
+non-spectator and awakened with initialized alchemy aptitude. The server records
+that brewer and freezes their aptitude/quality ceiling. While brewing, formula,
+herbs and fuel are locked, including shift-click; other viewers cannot restart
+or replace the active batch. The furnace stops after one batch even when more
+materials remain. Shift-click transfers items while idle.
 
-| Formula / pill IDs | Herbs | Initial medicine effect |
+| Formula / pill IDs | Herbs | Lower-quality baseline effect |
 |---|---|---|
 | `formula_huiling` / `pill_huiling` (回灵) | 聚灵叶 + 凝露花 | Restores 25% of maximum spiritual power, rounded down with minimum one and capped at capacity |
 | `formula_yangyuan` / `pill_yangyuan` (养元) | 赤阳根 + 血朱果 | Restores 2% of maximum health each second for 10 seconds; received damage cancels further healing |
@@ -4270,13 +4292,49 @@ stage's cultivation cap, and still needs stability. It does not start meditation
 use `V` or the existing H-page control afterwards. No medicine stacks, advances
 a realm, grants permanent attributes or changes breakthrough conditions.
 
-A full or incompatible output slot pauses brewing without cost. Changing input
-item identity resets the current progress. Saved partial work resumes after
-restart; unloaded chunks do not brew. Breaking the furnace drops its inventory
-and the furnace, but loses brewing progress. Hopper automation is not exposed.
+The output must be empty before starting, so it cannot reveal the hidden roll
+through stack compatibility. A full/incompatible output during an active batch
+pauses without cost or reroll. The server rolls one quality at start and saves
+it with the brewer, score and ceiling; only the frozen score/ceiling is shown
+before completion. Unload/restart, brewer logout/death and later aptitude changes
+do not reroll or change that batch. Saved valid work resumes; unloaded chunks
+do not brew. Legacy progress without valid batch data resets to idle and
+retains every item, requiring a new manual start. Breaking the furnace drops its
+inventory and the furnace, but loses brewing progress. Hopper automation is not exposed.
 Medication timers advance only while alive and online. Logout/restart preserves
 the remaining time; death clears sustained benefits and preserves the shared
 interval.
+
+### Pill quality and strength
+
+The same three pill IDs carry 下品 / Lower, 中品 / Middle, 上品 / Upper or
+极品 / Perfect quality. The current values below come from `alchemy/rules.json`;
+probability and balance have not received owner acceptance.
+
+| Frozen quality ceiling | Lower | Middle | Upper | Perfect |
+|---|---:|---:|---:|---:|
+| Lower | 100% | 0% | 0% | 0% |
+| Middle | 70% | 30% | 0% | 0% |
+| Upper | 55% | 30% | 15% | 0% |
+| Perfect | 45% | 30% | 20% | 5% |
+
+| Quality | Strength factor | Huiling: maximum power restored | Yangyuan: maximum health each second | Ningshen: post-cap stability factor |
+|---|---:|---:|---:|---:|
+| Lower | 1 | 25% | 2% | 1.5 |
+| Middle | 1.25 | 31.25% | 2.5% | 1.625 |
+| Upper | 1.5 | 37.5% | 3% | 1.75 |
+| Perfect | 2 | 50% | 4% | 2 |
+
+Recovery retains rounding/cap rules. Yangyuan lasts 10 seconds; Ningshen lasts 60
+seconds, and scales only the stability **bonus**:
+`1 + (base multiplier - 1) × strength factor`. Quality does not shorten the
+shared interval or change eligibility. Names/tooltips show quality and actual
+strength. Sustained-effect quality and remaining online time survive restart.
+
+`myvillage:pill_quality` is a saved/networked integer component 1..4. Old pills
+without it retain lower-quality effects; newly brewed lower pills also omit it
+and stack with old pills. Other qualities use vanilla component-sensitive
+stacking. Explicit component 1 has lower effects but a distinct component map.
 
 ### Administrator setup and developer verification
 
@@ -4296,30 +4354,42 @@ All thirteen items appear in the MyVillage creative tab. Example fixtures:
 /give @s myvillage:pill_huiling 2
 /give @s myvillage:pill_yangyuan 2
 /give @s myvillage:pill_ningshen 2
+# Quality fixtures: 2=Middle, 3=Upper, 4=Perfect; omitted component=Lower
+/give @s myvillage:pill_huiling[myvillage:pill_quality=2] 2
+/give @s myvillage:pill_yangyuan[myvillage:pill_quality=3] 2
+/give @s myvillage:pill_ningshen[myvillage:pill_quality=4] 2
 /give @s myvillage:low_grade_spirit_stone 8
 ```
+
+Lightweight local checks and optional offline art preview:
 
 ```bash
 python3 tools/gen_alchemy_assets.py --check
 .venv-preview/bin/python tools/gen_alchemy_assets.py --preview
 python3 tools/validate_alchemy.py
-/usr/bin/python3 -m unittest tools.tests.test_validate_alchemy tools.tests.test_gen_alchemy_assets tools.tests.test_alchemy_evidence
-python3 tools/release_gate.py
-python3 tools/validate_alchemy.py --jar build/libs/myvillage-0.51.0.jar
-python3 tools/run_chunky_acceptance.py --stage 1
-python3 tools/alchemy_evidence.py --language zh_cn
-python3 tools/alchemy_evidence.py --visual-only --language en_us --out out/preview/alchemy/visual-runtime
+/usr/bin/python3 -m unittest tools.tests.test_validate_alchemy tools.tests.test_gen_alchemy_assets tools.tests.test_alchemy_quality_evidence
 ```
 
-Run the clean stage-1 acceptance before the evidence tool: it clears the shared
-acceptance profile. The evidence tool owns the heavy-work lock, launches an
-isolated real client/server, uses mapped clicks/held use and administrator
-fixtures/readback, and restarts the same capture world. Do not run another
-Gradle/Minecraft job concurrently. No DevBridge is used.
+Run full release and game checks through the [Modal workflow](#on-demand-modal-test-runner-default-heavy-test-workflow)
+using the same committed source. `release` builds/inspects the fresh jar;
+`alchemy-quality` runs clean stage1 then the quality evidence tool. Clean stage1
+clears the shared acceptance profile. The evidence tool owns capture sessions,
+uses mapped start/slot/use input with administrator fixtures/readback and
+restarts the capture world. A second isolated real client attempts to interfere
+with the active batch. No DevBridge is used. Cloud failures remain explicit;
+there is no automatic local heavy-test fallback.
+
+Current 0.52.0 evidence is **pending**: release/jar, clean server, quality rolls,
+medicine strength/restart, layouts and bounded two-client authority checks.
+Owner appearance/feel/balance and wider multiplayer remain `not_verified`.
 
 Preview: [炼丹基础](http://43.156.135.198:8765/alchemy/index.html).
-See [implementation boundaries](docs/ai-kb/49_alchemy.md) and
-[developer validation](docs/testing/2026-10-15-alchemy.md).
+See [implementation boundaries](docs/ai-kb/49_alchemy.md),
+[alchemy-quality specification](openspec/specs/alchemy-quality/spec.md), and
+[historical 0.50.0 developer validation](docs/testing/2026-10-15-alchemy.md).
+
+The following table is **historical 0.50.0 foundation evidence**. It does not
+validate the new manual-start/quality behavior.
 
 | Acceptance surface | State |
 |---|---|
@@ -4331,16 +4401,17 @@ See [implementation boundaries](docs/ai-kb/49_alchemy.md) and
 | Natural survival acquisition journey | not_verified (recipes shipped; runtime fixtures are administrator-prepared) |
 | Owner model, texture, interface, pacing and balance | not_verified |
 | Two-player multiplayer | not_verified |
-| Herb planting/worldgen, quality/failure, optional herbs, trading | not_implemented |
+| Herb planting/worldgen, furnace failure, optional herbs, trading | not_implemented |
 
 
-## Crafting Aptitudes (炼丹／炼器资质, 0.51.0)
+## Crafting Aptitudes (炼丹／炼器资质, 0.52.0)
 
 Press **H → 技艺 / Crafting** to see two independent innate aptitudes and the
 highest product quality each allows. These ceilings concern **the quality of an
 item made from the same recipe**; they do not restrict 黄/玄/地/天 recipe grade.
-Current pills still have fixed effects and no quality field, and forging
-production is not implemented. This is the attribute/ceiling foundation.
+Alchemy freezes the initiating player's ceiling for each manually started batch
+and rolls only within it (see [alchemy](#alchemy-炼丹-0520)). Forging production
+is not implemented. The H page displays this boundary and remains read-only.
 
 | Aptitude | Maximum product quality |
 |---|---|
@@ -4358,7 +4429,7 @@ death, reconnect, restart, dimension changes, clearing/reawakening the root and
 resetting the cultivation profile. Ordinary practice cannot exceed the quality
 ceiling; no training or natural aptitude-upgrade mechanic is added in this slice.
 
-Both client and server need 0.51.0 (protocol20). The server sends the quality
+Both client and server need 0.52.0 (protocol21). The server sends the quality
 ceilings with the existing owning cultivation snapshot; H cannot modify them.
 
 Administrator diagnostics (permission2) support both command roots and aliases:
@@ -4376,20 +4447,23 @@ A setter requires an awakened target with initialized aptitudes, accepts0..100,
 and preserves the other profession. These are administrator fixtures, not
 survival aptitude upgrades. The status command returns a `CRAFTING` JSON row.
 
+Lightweight local checks:
+
 ```bash
 python3 tools/validate_crafting_aptitudes.py
 /usr/bin/python3 -m unittest tools.tests.test_validate_crafting_aptitudes tools.tests.test_validate_cultivation_initiation
-python3 tools/release_gate.py
-python3 tools/validate_crafting_aptitudes.py --jar build/libs/myvillage-0.51.0.jar
-python3 tools/run_chunky_acceptance.py --stage 1
-python3 tools/crafting_aptitude_evidence.py
 ```
 
-Run clean stage1 before the evidence script; it clears the shared acceptance
-profile. The script owns the heavy-work lock, uses mapped testing-stele and H
-input, administrator fixtures/readback, and two isolated client/server sessions
-for save/restart. It does not use DevBridge. No other Gradle/Minecraft job may
-run during it.
+Full release/build, clean stage1, client and two-client checks default to Modal,
+with no automatic local fallback. Use `release` and `alchemy-quality` for the
+current quality integration. The historical `crafting_aptitude_evidence.py`
+procedure remains an advanced remote-workspace reference: after clean stage1,
+it owns mapped stele/H input and two sessions for lifecycle/restart, with RCON
+fixtures/readback only. It does not use DevBridge.
+
+Current protocol21, quality integration and H-layout evidence is pending until
+recorded Modal runs complete. The following results are **historical 0.51.0**,
+not a pass for this version.
 
 Preview: [技艺资质](http://43.156.135.198:8765/crafting_aptitudes/index.html).
 See [implementation](docs/ai-kb/50_crafting_aptitudes.md) and
@@ -4403,4 +4477,6 @@ See [implementation](docs/ai-kb/50_crafting_aptitudes.md) and
 | Mapped awakening, H read-only, lifecycle/restart, six bilingual layouts | pass: 37 checks; isolated retry exited0; first wrapper anomaly retained |
 | Owner appearance, aptitude distribution/balance and multiplayer | not_verified |
 | Legacy save live migration and dimension-change capture | not_verified (covered by source/codec guards, not this capture) |
-| Quality-bearing pills, forging production, training, natural aptitude upgrades | not_implemented |
+| Forging production, training, natural aptitude upgrades | not_implemented |
+
+Current quality validation: [0.52.0 developer evidence](docs/testing/2026-10-16-alchemy-quality.md).

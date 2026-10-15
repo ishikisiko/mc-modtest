@@ -5,6 +5,7 @@ import com.example.myvillage.cultivation.CultivationService;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.data.RealmStageDefinition;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.network.chat.Component;
@@ -39,7 +40,9 @@ public final class MedicineRuntime {
         if (remaining == 0) return new MedicineState(cooldown, "", 0, 0);
         int elapsed = effect.equals("yangyuan")
                 ? bound(tag.getInt("healing_elapsed"), rules.effects().yangyuan().intervalTicks() - 1) : 0;
-        return new MedicineState(cooldown, effect, remaining, elapsed);
+        int quality = tag.contains("quality", Tag.TAG_INT) ? tag.getInt("quality") : 1;
+        if (quality < 1 || quality > 4) quality = 1;
+        return new MedicineState(cooldown, effect, remaining, elapsed, quality);
     }
 
     static CompoundTag write(MedicineState state) {
@@ -48,6 +51,7 @@ public final class MedicineRuntime {
         tag.putString("effect", state.effect());
         tag.putInt("effect_ticks", state.effectTicks());
         tag.putInt("healing_elapsed", state.healingElapsed());
+        tag.putInt("quality", state.quality());
         return tag;
     }
 
@@ -91,6 +95,11 @@ public final class MedicineRuntime {
     }
 
     public static boolean consume(ServerPlayer player, String id) {
+        return consume(player, id, 1);
+    }
+
+    public static boolean consume(ServerPlayer player, String id, int quality) {
+        PillQuality.require(quality);
         String rejected = rejection(player, id);
         if (rejected != null) {
             player.displayClientMessage(Component.translatable(rejected), true);
@@ -104,10 +113,10 @@ public final class MedicineRuntime {
         };
         if (id.equals("huiling")) {
             long amount = MedicineEffects.recoveredPower(CultivationService.spiritualPowerCap(player),
-                    rules.effects().huiling().powerFraction());
+                    rules.effects().huiling().powerFraction() * rules.qualityMultiplier(quality));
             if (!CultivationService.recoverSpiritualPower(player, amount).success()) return false;
         }
-        MedicineState applied = state(player).begin(id, rules.sharedCooldownTicks(), duration);
+        MedicineState applied = state(player).begin(id, rules.sharedCooldownTicks(), duration, quality);
         store(player, applied);
         syncCooldown(player, applied);
         return true;
@@ -117,7 +126,8 @@ public final class MedicineRuntime {
     public static double stabilityMultiplier(ServerPlayer player) {
         MedicineState current = state(player);
         return current.effect().equals("ningshen") && current.effectTicks() > 0
-                ? AlchemyRules.get().effects().ningshen().stabilityMultiplier() : 1.0;
+                ? MedicineEffects.qualityStabilityMultiplier(AlchemyRules.get().effects().ningshen().stabilityMultiplier(),
+                        AlchemyRules.get().qualityMultiplier(current.quality())) : 1.0;
     }
 
     @SubscribeEvent
@@ -127,7 +137,7 @@ public final class MedicineRuntime {
         if (current.equals(MedicineState.EMPTY)) return;
         var effect = AlchemyRules.get().effects().yangyuan();
         MedicineState.Tick tick = current.tick(effect.intervalTicks());
-        if (tick.heal()) player.heal((float) (player.getMaxHealth() * effect.healFraction()));
+        if (tick.heal()) player.heal((float) (player.getMaxHealth() * effect.healFraction() * AlchemyRules.get().qualityMultiplier(current.quality())));
         store(player, tick.next());
     }
 

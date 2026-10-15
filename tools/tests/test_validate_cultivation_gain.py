@@ -213,9 +213,40 @@ class CultivationGainValidationTest(unittest.TestCase):
 
     def test_expired_medicine_must_retain_one_multiplier(self):
         result = self.mutate_medicine_source(
-            "alchemy/MedicineRuntime.java", "stabilityMultiplier() : 1.0;", "stabilityMultiplier() : 1.5;",
+            "alchemy/MedicineRuntime.java", "qualityMultiplier(current.quality())) : 1.0;",
+            "qualityMultiplier(current.quality())) : 1.5;",
         )
         self.assert_error_contains(result, "only active ningshen may supply the authored multiplier")
+
+    def test_quality_multiplier_requires_ningshen_effect(self):
+        result = self.mutate_medicine_source(
+            "alchemy/MedicineRuntime.java",
+            'return current.effect().equals("ningshen") && current.effectTicks() > 0',
+            'return current.effectTicks() > 0',
+        )
+        self.assert_error_contains(result, "only active ningshen may supply the authored multiplier")
+
+    def test_quality_multiplier_requires_positive_remaining_effect_ticks(self):
+        result = self.mutate_medicine_source(
+            "alchemy/MedicineRuntime.java",
+            'return current.effect().equals("ningshen") && current.effectTicks() > 0',
+            'return current.effect().equals("ningshen")',
+        )
+        self.assert_error_contains(result, "only active ningshen may supply the authored multiplier")
+
+    def test_quality_multiplier_must_use_saved_medication_quality(self):
+        result = self.mutate_medicine_source(
+            "alchemy/MedicineRuntime.java", "qualityMultiplier(current.quality())) : 1.0;",
+            "qualityMultiplier(4)) : 1.0;",
+        )
+        self.assert_error_contains(result, "using saved quality")
+
+    def test_quality_cannot_multiply_the_ordinary_stability_baseline(self):
+        result = self.mutate_medicine_source(
+            "alchemy/MedicineEffects.java", "return 1 + (base - 1) * qualityMultiplier;",
+            "return base * qualityMultiplier;",
+        )
+        self.assert_error_contains(result, "quality must scale only the stability bonus above baseline one")
 
     def test_commit_rollback_removal_is_rejected(self) -> None:
         path = self.find_java(r"LOW_GRADE_SPIRIT_STONE.*CultivationService|CultivationService.*LOW_GRADE_SPIRIT_STONE")

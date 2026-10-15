@@ -2,6 +2,8 @@ package com.example.myvillage.item;
 
 import com.example.myvillage.alchemy.AlchemyRules;
 import com.example.myvillage.alchemy.MedicineRuntime;
+import com.example.myvillage.alchemy.MedicineEffects;
+import com.example.myvillage.alchemy.PillQuality;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -50,22 +52,29 @@ public final class AlchemyPillItem extends Item {
 
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
-        if (entity instanceof ServerPlayer player && MedicineRuntime.consume(player, effectId)) {
+        if (entity instanceof ServerPlayer player && MedicineRuntime.consume(player, effectId, PillQuality.get(stack))) {
             if (!player.getAbilities().instabuild) stack.shrink(1);
         }
         return stack;
     }
 
     @Override
+    public Component getName(ItemStack stack) {
+        return Component.translatable("item.myvillage.alchemy.quality_name", PillQuality.name(PillQuality.get(stack)),
+                super.getName(stack));
+    }
+
+    @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> lines, TooltipFlag flag) {
         super.appendHoverText(stack, context, lines, flag);
         var rules = AlchemyRules.get();
+        double factor = rules.qualityMultiplier(PillQuality.get(stack));
         Object[] arguments = switch (effectId) {
-            case "huiling" -> new Object[] {number(rules.effects().huiling().powerFraction() * 100)};
-            case "yangyuan" -> new Object[] {number(rules.effects().yangyuan().healFraction() * 100),
+            case "huiling" -> new Object[] {number(rules.effects().huiling().powerFraction() * factor * 100)};
+            case "yangyuan" -> new Object[] {number(rules.effects().yangyuan().healFraction() * factor * 100),
                     number(rules.effects().yangyuan().intervalTicks() / 20.0),
                     number(rules.effects().yangyuan().durationTicks() / 20.0)};
-            case "ningshen" -> new Object[] {number(rules.effects().ningshen().stabilityMultiplier()),
+            case "ningshen" -> new Object[] {number(MedicineEffects.qualityStabilityMultiplier(rules.effects().ningshen().stabilityMultiplier(), factor)),
                     number(rules.effects().ningshen().durationTicks() / 20.0)};
             default -> new Object[0];
         };

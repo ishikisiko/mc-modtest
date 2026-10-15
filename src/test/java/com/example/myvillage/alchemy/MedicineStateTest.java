@@ -53,4 +53,24 @@ class MedicineStateTest {
         assertThrows(IllegalArgumentException.class, () -> new MedicineState(0, "huiling", 4, 0));
         assertThrows(IllegalArgumentException.class, () -> new MedicineState(0, "ningshen", 4, 1));
     }
+    @Test void qualityChangesNeitherTimingNorBenefitInterruptionRules() {
+        var rules = AlchemyRules.get();
+        var healing = rules.effects().yangyuan();
+        for (int quality = 1; quality <= 4; quality++) {
+            MedicineState state = MedicineState.EMPTY.begin("yangyuan", rules.sharedCooldownTicks(), healing.durationTicks(), quality);
+            int heals = 0;
+            for (int i = 0; i < healing.durationTicks(); i++) {
+                assertEquals(quality, state.quality());
+                var tick = state.tick(healing.intervalTicks());
+                if (tick.heal()) heals++;
+                state = tick.next();
+            }
+            assertEquals(healing.durationTicks() / healing.intervalTicks(), heals);
+            assertEquals(new MedicineState(rules.sharedCooldownTicks() - healing.durationTicks(), "", 0, 0), state);
+        }
+        assertThrows(IllegalArgumentException.class, () -> MedicineState.EMPTY.begin("yangyuan", 600, 200, 0));
+        assertThrows(IllegalArgumentException.class, () -> new MedicineState(600, "", 0, 0, 4));
+        assertThrows(IllegalArgumentException.class, () -> new MedicineState(600, "yangyuan", 200, 0, 5));
+    }
+
 }

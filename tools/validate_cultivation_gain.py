@@ -181,14 +181,22 @@ class CultivationGainValidator:
             effects,
         ) is None:
             self.error(effects_path, "medicine stability helper must clamp multiplied affinity to remaining stage capacity")
+        if effects is not None and re.search(
+            r"qualityStabilityMultiplier\s*\(\s*double\s+base\s*,\s*double\s+qualityMultiplier\s*\)\s*\{"
+            r"[^{}]*\breturn\s+1(?:\.0)?\s*\+\s*\(\s*base\s*-\s*1(?:\.0)?\s*\)\s*\*\s*qualityMultiplier\s*;",
+            effects,
+        ) is None:
+            self.error(effects_path, "medicine quality must scale only the stability bonus above baseline one")
         runtime_path = JAVA / "alchemy/MedicineRuntime.java"
         runtime = self.read(runtime_path)
         if runtime is not None and re.search(
             r'return\s+current\.effect\(\)\.equals\("ningshen"\)\s*&&\s*current\.effectTicks\(\)\s*>\s*0\s*'
-            r'\?\s*AlchemyRules\.get\(\)\.effects\(\)\.ningshen\(\)\.stabilityMultiplier\(\)\s*:\s*1\.0\s*;',
+            r'\?\s*MedicineEffects\.qualityStabilityMultiplier\(\s*'
+            r'AlchemyRules\.get\(\)\.effects\(\)\.ningshen\(\)\.stabilityMultiplier\(\)\s*,\s*'
+            r'AlchemyRules\.get\(\)\.qualityMultiplier\(\s*current\.quality\(\)\s*\)\s*\)\s*:\s*1\.0\s*;',
             runtime,
         ) is None:
-            self.error(runtime_path, "only active ningshen may supply the authored multiplier; otherwise use baseline 1.0")
+            self.error(runtime_path, "only active ningshen may supply the authored multiplier using saved quality; otherwise use baseline 1.0")
 
     def validate_settlement(self) -> None:
         sources = self.read_tree(JAVA / "cultivation")

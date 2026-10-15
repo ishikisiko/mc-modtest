@@ -188,7 +188,8 @@ class AlchemyEvidence(Evidence):
         self.open_furnace()
         self.capture('furnace-ready.png')
         self.menu_click(26, 198, shift=True)
-        self.poll(self.progress, lambda n: n > 0, 8, 'mapped fuel shift-click starts brewing')
+        self.menu_click(98, 105)  # Start button centre (106,113), no implicit auto-start.
+        self.poll(self.progress, lambda n: n > 0, 8, 'mapped start begins brewing')
         self.capture('furnace-brewing.png')
         completed = self.poll(self.block_items, lambda rows: rows.get(4, {}).get('count') == recipe['output_count'],
                               recipe['duration_ticks']/20 + 15, 'first batch')
@@ -207,18 +208,19 @@ class AlchemyEvidence(Evidence):
         for recipe in self.rules['recipes'][1:]:
             self.fixture(recipe)
             self.slot(1, recipe['ingredients'][1]); self.slot(2, recipe['ingredients'][0])
+            self.open_furnace(); self.menu_click(98, 105); self.close_menu()
             done = self.poll(self.block_items, lambda rows: rows.get(4, {}).get('id') == recipe['output'], 30, recipe['id'])
             self.check('reverse_herbs_'+recipe['id'], done == {0: {'id': recipe['formula'], 'count': 1},
                          4: {'id': recipe['output'], 'count': recipe['output_count']}}, done)
         self.rc('tick rate 20')
         recipe = self.rules['recipes'][0]
         self.fixture(recipe)
+        self.open_furnace(); self.menu_click(98, 105); self.close_menu()
         self.poll(self.progress, lambda p: p >= 30, 10, 'partial progress')
+        before_inputs = self.block_items()
         self.slot(1, 'myvillage:sunroot')
-        self.check('wrong_herb_resets_without_cost', self.progress() == 0 and self.block_items().get(3, {}).get('count') == 1,
+        self.check('active_inputs_reject_admin_container_replace', self.block_items() == before_inputs,
                    self.block_items())
-        self.slot(1, recipe['ingredients'][0])
-        self.poll(self.progress, lambda p: p >= 30, 10, 'resume valid herbs')
         self.slot(4, recipe['output'], 16)
         paused = self.progress(); before = self.block_items()
         time.sleep(1)
@@ -295,6 +297,7 @@ class AlchemyEvidence(Evidence):
     def prepare_restart(self):
         recipe = self.rules['recipes'][0]
         self.fixture(recipe)
+        self.open_furnace(); self.menu_click(98, 105); self.close_menu()
         self.poll(self.progress, lambda p: p >= 40, 10, 'restart partial brew')
         self.slot(4, recipe['output'], 16)  # pause through the entire restart, no admin input after load
         self.report['before_restart'] = {'items': self.block_items(), 'progress': self.progress(), 'medicine': self.med()}
@@ -335,8 +338,10 @@ class AlchemyEvidence(Evidence):
             self.rc(cmd)
         time.sleep(2)
         self.capture('furnace-in-world-unlit.png')
+        self.rc(f'myvillage cultivation awaken {user}')
         self.fixture(self.rules['recipes'][0], herbs=64)
         self.slot(3, 'myvillage:low_grade_spirit_stone', 64)
+        self.open_furnace(); self.menu_click(98, 105); self.close_menu()
         self.poll(self.progress, lambda n: n > 0, 10, 'visible burning furnace')
         time.sleep(1)
         self.capture('furnace-in-world-lit.png')

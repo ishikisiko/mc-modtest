@@ -21,8 +21,14 @@ PRESETS = {
               ["xvfb-run", "-a", "glxinfo", "-B"]],
     "python": [["python3", "-m", "unittest", "discover", "-s", "tools/tests"]],
     "build": [["./gradlew", "test", "build", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"]],
+    "release": [["./gradlew", "test", "--tests", "com.example.myvillage.alchemy.*",
+                 "--tests", "com.example.myvillage.combat.network.CombatPayloadTest",
+                 "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
+                ["python3", "tools/release_gate.py"]],
     "server": [["python3", "tools/run_chunky_acceptance.py", "--stage", "1"]],
     "client": [["python3", "-m", "tools.combat_capture", "sword-qi", "--trials", "tap_hit,charged_hit", "--out", "out/preview/modal_sword_qi"]],
+    "alchemy-quality": [["python3", "tools/run_chunky_acceptance.py", "--stage", "1"],
+                        ["python3", "tools/alchemy_quality_evidence.py"]],
 }
 ARTIFACT_ROOTS = ("build/libs", "build/test-results", "build/reports", "reports",
                   "out/preview", "run-acceptance/logs", "run-acceptance/acceptance-server-stdout.log",
@@ -49,6 +55,26 @@ def sha256(path: Path) -> str:
         for chunk in iter(lambda: f.read(1024 * 1024), b""):
             h.update(chunk)
     return h.hexdigest()
+
+
+def initialize_archive_git(repo: Path) -> dict:
+    """Make an explicitly synthetic baseline so release generator drift is checked.
+
+    Git archives intentionally contain no original .git history. This local-only
+    commit tracks exactly their extracted source, including ignored tracked files,
+    before runtime dependencies or test outputs are added. The real tested commit
+    remains request['commit']; this baseline must never replace that provenance.
+    """
+    if (repo / ".git").exists():
+        raise ValueError("Extracted archive unexpectedly contains .git")
+    commands = (["git", "init", "--quiet"], ["git", "add", "--all", "--force", "--", "."],
+                ["git", "-c", "user.name=Modal Archive Baseline", "-c", "user.email=modal-baseline@example.invalid",
+                 "commit", "--quiet", "--no-gpg-sign", "--no-verify", "-m", "Synthetic archive validation baseline"])
+    for command in commands:
+        subprocess.run(command, cwd=repo, check=True, capture_output=True, timeout=120)
+    commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=repo, text=True, timeout=10).strip()
+    return {"synthetic": True, "head": commit,
+            "purpose": "generator drift comparison only; tested commit is request.commit"}
 
 
 def package(repo: Path, evidence: Path, output: Path) -> dict:
@@ -140,6 +166,8 @@ def main() -> int:
             if sha256(Path("/workspace") / name) != digest:
                 raise ValueError(f"Input hash mismatch: {name}")
         safe_extract(Path("/workspace/source.tar"), repo)
+        if args.preset == "release":
+            result["archive_git_baseline"] = initialize_archive_git(repo)
         for name in DEPENDENCIES:
             target = repo / name
             target.parent.mkdir(parents=True, exist_ok=True)

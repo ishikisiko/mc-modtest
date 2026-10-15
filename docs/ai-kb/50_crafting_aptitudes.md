@@ -1,9 +1,11 @@
-# Crafting Aptitudes (0.51.0)
+# Crafting Aptitudes (0.52.0)
 
 The owner selected a hard ceiling on **same-recipe product quality**, not on
 Huang/Xuan/Di/Tian recipe grade. This foundation adds two persistent player
-aptitudes and authoritative ceilings. It does not yet grade the existing pills,
-change furnace transactions, implement forging, or award crafting experience.
+aptitudes and authoritative ceilings. Alchemy now freezes the initiating player's
+ceiling at each manual furnace start and produces bounded quality-bearing pills
+(see [alchemy](49_alchemy.md)); forging production and crafting experience remain
+unimplemented.
 
 ## Sources and boundaries
 
@@ -22,11 +24,11 @@ change furnace transactions, implement forging, or award crafting experience.
   legitimately maps to lower quality. Rebuild/restart for rule changes.
 - `CultivationSnapshotPayload`: existing clientbound snapshot includes crafting
   state and two server-computed caps (0 pending,1..4 lower/middle/upper/perfect).
-  Protocol20; no new payload or cache. `ClientCultivationState` keeps the same
+  Protocol21; no new payload or cache. `ClientCultivationState` keeps the same
   three caches and clears the added state with the owning snapshot on disconnect.
 - `CraftingPage` through `PanelContext`/`PanelTheme`: read-only H page, appended
-  View. Page-local diagnostic `CRAFTING_UI` records geometry/visibility for
-  mapped evidence, not a client result authority.
+  View. It describes alchemy quality as implemented and forging as pending.
+  Page-local diagnostic `CRAFTING_UI` records geometry/visibility for mapped evidence, not a client result authority.
 - `cultivation crafting` / `xiulian jiyi`: shared status/set command trees with
   English/pinyin aliases; setters require initialized awakened target and keep
   the other aptitude. Exact commands and initial thresholds are in README.
@@ -39,13 +41,21 @@ codecs/bounds, all score-to-quality boundaries, snapshot roundtrip, aliases and
 read-only client access. Do not weaken the initiation validator's client guard
 when adding a legitimate getter; mutation paths must still fail.
 
-Run focused checks then the release build and clean stage1 server. Afterwards
+Run focused Python checks locally. Full build/release, server, client and
+two-client checks default to Modal with no automatic local fallback (see
+[note46](46_modal_test_runner.md)). The following foundation procedure is an
+advanced remote-workspace reference: after release build and clean stage1,
 `python3 tools/crafting_aptitude_evidence.py` owns two capture sessions and tests
 mapped awakening, six bilingual H layouts, read-only clicks, admin boundary
 fixtures, death, root/profile resets and save/restart. Legacy live migration and
 unobserved lifecycle/owner surfaces remain not_verified. No DevBridge.
 
-See [crafting-aptitudes](../../openspec/specs/crafting-aptitudes/spec.md),
+The 0.51.0 passing evidence is historical. Current protocol21 and quality
+integration checks are pending until recorded Modal runs complete; owner balance,
+appearance and wider multiplayer remain `not_verified`.
+
+See [alchemy-quality](../../openspec/specs/alchemy-quality/spec.md),
+[crafting-aptitudes](../../openspec/specs/crafting-aptitudes/spec.md),
 [cultivation-state-synchronization](../../openspec/specs/cultivation-state-synchronization/spec.md),
 [cultivation-persistence-lifecycle](../../openspec/specs/cultivation-persistence-lifecycle/spec.md),
 [cultivation-debug-commands](../../openspec/specs/cultivation-debug-commands/spec.md),

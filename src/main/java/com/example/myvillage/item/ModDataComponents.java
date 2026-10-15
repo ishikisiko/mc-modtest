@@ -1,6 +1,7 @@
 package com.example.myvillage.item;
 
 import com.mojang.serialization.Codec;
+import com.example.myvillage.alchemy.PillQuality;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -9,7 +10,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-/** Data components carried by technique manuals (秘籍): which technique, and how far it has been studied. */
+/** Persistent synchronized metadata for manuals and quality-bearing medicines. */
 public final class ModDataComponents {
     public static final DeferredRegister.DataComponents DATA_COMPONENTS =
             DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, "myvillage");
@@ -25,6 +26,12 @@ public final class ModDataComponents {
             DATA_COMPONENTS.registerComponentType("comprehension", builder -> builder
                     .persistent(Codec.intRange(0, Integer.MAX_VALUE))
                     .networkSynchronized(ByteBufCodecs.VAR_INT));
+
+    /** Same-recipe pill quality; absence means the legacy lower-quality baseline. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> PILL_QUALITY =
+            DATA_COMPONENTS.registerComponentType("pill_quality", builder -> builder
+                    .persistent(PillQuality.CODEC)
+                    .networkSynchronized(PillQuality.STREAM_CODEC));
 
     private ModDataComponents() {
     }

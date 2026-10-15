@@ -47,4 +47,43 @@ class AlchemyRulesTest {
         rejects(j -> j.getAsJsonObject("effects").getAsJsonObject("ningshen").addProperty("stability_multiplier", 1));
         rejects(j -> j.getAsJsonObject("effects").getAsJsonObject("yangyuan").addProperty("interval_ticks", 999999));
     }
+    @Test void everyWeightedDrawStaysUnderItsCeilingAndMatchesData() {
+        AlchemyRules rules = AlchemyRules.get();
+        int[][] expected = {{100, 0, 0, 0}, {70, 30, 0, 0}, {55, 30, 15, 0}, {45, 30, 20, 5}};
+        for (int cap = 1; cap <= 4; cap++) {
+            int[] actual = new int[4];
+            for (int draw = 0; draw < rules.qualityWeightTotal(cap); draw++) {
+                int quality = rules.rollQuality(cap, draw);
+                assertTrue(quality >= 1 && quality <= cap);
+                actual[quality - 1]++;
+            }
+            assertArrayEquals(expected[cap - 1], actual);
+            final int ceiling = cap;
+            assertThrows(IllegalArgumentException.class, () -> rules.rollQuality(ceiling, -1));
+            assertThrows(IllegalArgumentException.class, () -> rules.rollQuality(ceiling, rules.qualityWeightTotal(ceiling)));
+        }
+        assertEquals(1.0, rules.qualityMultiplier(1));
+        assertEquals(1.25, rules.qualityMultiplier(2));
+        assertEquals(1.5, rules.qualityMultiplier(3));
+        assertEquals(2.0, rules.qualityMultiplier(4));
+        for (int invalid : new int[] {Integer.MIN_VALUE, 0, 5, Integer.MAX_VALUE}) {
+            assertThrows(IllegalArgumentException.class, () -> rules.qualityMultiplier(invalid));
+            assertThrows(IllegalArgumentException.class, () -> rules.qualityWeightTotal(invalid));
+        }
+    }
+
+    @Test void rejectsUnsafeQualityTablesAndMultipliers() throws IOException {
+        rejects(j -> j.addProperty("version", 1));
+        rejects(j -> j.getAsJsonObject("quality").getAsJsonArray("weights_by_cap").remove(0));
+        rejects(j -> j.getAsJsonObject("quality").getAsJsonArray("weights_by_cap").get(0).getAsJsonArray().set(1, new JsonPrimitive(1)));
+        for (JsonElement invalid : new JsonElement[] {new JsonPrimitive(-1), new JsonPrimitive(1000001),
+                new JsonPrimitive(1.5), new JsonPrimitive("100"), new JsonPrimitive(true), JsonNull.INSTANCE}) {
+            rejects(j -> j.getAsJsonObject("quality").getAsJsonArray("weights_by_cap").get(0).getAsJsonArray().set(0, invalid));
+        }
+        rejects(j -> j.getAsJsonObject("quality").getAsJsonArray("weights_by_cap").get(1).getAsJsonArray().set(1, new JsonPrimitive(0)));
+        rejects(j -> j.getAsJsonObject("quality").getAsJsonArray("strength_multipliers").set(0, new JsonPrimitive(1.1)));
+        rejects(j -> j.getAsJsonObject("quality").getAsJsonArray("strength_multipliers").set(2, new JsonPrimitive(1.25)));
+        rejects(j -> j.getAsJsonObject("quality").getAsJsonArray("strength_multipliers").set(3, new JsonPrimitive(17)));
+    }
+
 }

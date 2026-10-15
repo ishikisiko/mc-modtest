@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.52.0
+
+- Connect alchemy aptitude to lower/middle/upper/perfect pill quality, with authored weighted outcomes and strength multipliers on the existing three pill IDs.
+- Require one manual furnace start per batch; freeze the brewer, aptitude ceiling and result, lock active inputs and preserve the exact batch through chunk/server reload. Completed output must be taken before the next start.
+- Show quality-bearing pill names and actual effects, plus frozen furnace aptitude/ceiling. Preserve legacy lower-quality strength/stacking and sustained medication quality through save/restart; keep existing intervals, durations and interruption rules.
+- Add protocol21 compatibility, strict quality validation and fixed-commit Modal release/one-/two-client evidence presets. Heavy validation runs remotely with a 16 GiB Sandbox limit and no local fallback.
+
 ## 0.51.0
 
 - Add independent, persistent alchemy and forging aptitudes, generated once on awakening and initialized safely for awakened legacy players.

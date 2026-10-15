@@ -29,4 +29,32 @@ class MedicinePersistenceTest {
         assertEquals(AlchemyRules.get().effects().ningshen().durationTicks(), state.effectTicks());
         assertEquals(0, state.healingElapsed());
     }
+    @Test void sustainedQualitySurvivesSaveRestartAndOnlineTicks() {
+        for (String effect : new String[] {"yangyuan", "ningshen"}) {
+            for (int quality = 1; quality <= 4; quality++) {
+                MedicineState state = new MedicineState(452, effect, 52, effect.equals("yangyuan") ? 8 : 0, quality);
+                CompoundTag saved = MedicineRuntime.write(state);
+                assertEquals(quality, saved.getInt("quality"));
+                MedicineState loaded = MedicineRuntime.read(saved.copy(), AlchemyRules.get());
+                assertEquals(state, loaded);
+                assertEquals(quality, loaded.tick(20).next().quality());
+                assertEquals(1, loaded.clearBenefit().quality());
+            }
+        }
+    }
+
+    @Test void legacyAndCorruptQualityFallBackToBaseline() {
+        CompoundTag saved = MedicineRuntime.write(new MedicineState(452, "yangyuan", 52, 8, 4));
+        saved.remove("quality");
+        assertEquals(1, MedicineRuntime.read(saved, AlchemyRules.get()).quality());
+        for (int invalid : new int[] {Integer.MIN_VALUE, 0, 5, Integer.MAX_VALUE}) {
+            saved.putInt("quality", invalid);
+            assertEquals(1, MedicineRuntime.read(saved, AlchemyRules.get()).quality());
+        }
+        saved.putString("quality", "4");
+        assertEquals(1, MedicineRuntime.read(saved, AlchemyRules.get()).quality());
+        saved.putDouble("quality", 4.0);
+        assertEquals(1, MedicineRuntime.read(saved, AlchemyRules.get()).quality());
+    }
+
 }

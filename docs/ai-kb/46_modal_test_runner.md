@@ -1,10 +1,11 @@
-# Modal Test Runner (0.46.1)
+# Modal Test Runner (0.52.0 workflow)
 
-`tools/modal_runner/` is an optional on-demand cloud test controller. It tests a
-fixed committed source tree and downloads evidence before terminating its
-Sandbox. It does not replace local regression, owner gameplay acceptance, or
-the separate sword-qi review. Real cloud validation is tracked independently
-from local archive/lifecycle tests.
+`tools/modal_runner/` is the default controller for full release/build,
+acceptance-server, real-client and two-client checks. This isolates heavy memory
+use from the local host. It tests a fixed committed source tree and downloads
+evidence before terminating its Sandbox. Local focused checks and owner gameplay
+acceptance remain separate. A cloud failure is reported explicitly; it never
+automatically starts local Gradle or Minecraft jobs.
 
 ## Entry points and inputs
 
@@ -16,8 +17,10 @@ python3 -m venv .venv-modal
 # First authentication, or renewal after the token expires:
 .venv-modal/bin/modal token new --profile myvillage --expires-in 7d
 .venv-modal/bin/python -m tools.modal_runner doctor
-.venv-modal/bin/python -m tools.modal_runner plan --preset build --ref HEAD --timeout 1800
-.venv-modal/bin/python -m tools.modal_runner run --preset smoke --ref HEAD --timeout 1800
+test_commit=$(git rev-parse HEAD)
+.venv-modal/bin/python -m tools.modal_runner plan --preset release --ref "$test_commit" --timeout 3600
+.venv-modal/bin/python -m tools.modal_runner run --preset release --ref "$test_commit" --timeout 3600
+.venv-modal/bin/python -m tools.modal_runner run --preset alchemy-quality --ref "$test_commit" --timeout 3600
 ```
 
 `plan` resolves the ref, creates the archive and request manifest locally, and
@@ -54,13 +57,28 @@ recorded, so later local edits cannot change that run's uploaded inputs.
 
 ## Presets and isolation
 
+The `pass` rows below describe the **historical 0.46.1** runs, not validation of
+the current commit. New presets remain pending until their authenticated runs,
+artifacts and confirmed cleanup are recorded.
+
 | Preset | Command / role | Real cloud status |
 |---|---|---|
 | `smoke` | Java version, Python dependency imports, Xvfb `glxinfo` | `pass` (authenticated second attempt; downloaded evidence and confirmed termination) |
 | `python` | `python3 -m unittest discover -s tools/tests` | `pass` (1053 tests) |
 | `build` | `./gradlew test build --no-daemon -Dorg.gradle.jvmargs=-Xmx2g --max-workers=4` | `pass` (913 tests; fresh 0.46.1 jar downloaded) |
+| `release` | `python3 tools/release_gate.py` (complete release checks, fresh jar) | Current source: pending |
+| `alchemy-quality` | `python3 tools/run_chunky_acceptance.py --stage 1`, then `python3 tools/alchemy_quality_evidence.py` | Current source: pending; includes mapped one-client brewing/use/restart/bilingual layouts and a two-client attribution check |
 | `server` | `python3 tools/run_chunky_acceptance.py --stage 1` | `pass` (bounded stage-1 commands/save/stop; downloaded report and confirmed termination) |
 | `client` | Sword-qi `tap_hit,charged_hit` mapped-input capture | `pass` for these two trials, videos/logs/manifest and confirmed termination; no DevBridge. Other client scenarios remain `not_verified`. |
+
+Run `release` and `alchemy-quality` against the **same exact full source commit**.
+The latter starts a clean acceptance world, not the previous preset's world. Its
+second client has an isolated game directory/username. Check fetched jar hashes,
+source identity, report results and termination before claiming delivery.
+
+For release generator-drift checks, the executor creates a synthetic local Git
+baseline from the extracted archive before adding dependencies or outputs. This
+is disclosed in the result and never replaces the original `request.commit`.
 
 The app is `myvillage-tests`, with Sandbox name `myvillage-test-runner`.
 `reports/modal-runs/runner.lock` serializes local launches. All source and worlds
@@ -103,11 +121,19 @@ facts accompany any comparison with the [local sword-qi measurements](../testing
 Local unit tests can prove archive selection and cleanup control flow without
 paid compute. They cannot prove account authentication, image startup,
 network/dependency downloads, actual resource allocation, real graphics, cloud
-artifact transfer or confirmed provider cleanup. The authenticated environment smoke now passes, including artifact transfer
-and confirmed termination; the build preset also passed 913 tests and produced a fetched jar. The Python preset passed 1053 tests, and the bounded stage-1 server report passed commands/save/stop. The client preset also passed the two named mapped-input trials with server cost/hit evidence and fetched videos. This establishes that bounded preset only: natural acquisition, persistence and multiplayer were not exercised remotely. Unobserved surfaces remain `not_verified`. Owner PC sound, FPS, look/feel and the existing sword-qi acceptance are independent.
+artifact transfer or confirmed provider cleanup. Historical 0.46.1 authenticated environment smoke passed, including artifact transfer
+and confirmed termination; the historical build preset also passed 913 tests and produced a fetched jar. The Python preset passed 1053 tests, and the bounded stage-1 server report passed commands/save/stop. The client preset also passed the two named mapped-input trials with server cost/hit evidence and fetched videos. These historical results establish those bounded presets only: natural acquisition, persistence and multiplayer were not exercised remotely. Unobserved surfaces remain `not_verified`. Owner PC sound, FPS, look/feel and the existing sword-qi acceptance are independent.
+
+Current release/quality tests, wider multiplayer, owner appearance/feel/balance
+and any unobserved lifecycle surfaces remain pending or `not_verified` until
+separate evidence is recorded. GPU graphics are not enabled: this image uses
+software rendering, which does not establish owner PC FPS.
 
 ## See also
 
 - [Modal runner implementation and verification record](../testing/2026-10-14-modal-test-runner.md)
 - [modal-test-runner](../../openspec/specs/modal-test-runner/spec.md), [validation](../../openspec/specs/validation/spec.md), [combat-capture-tooling](../../openspec/specs/combat-capture-tooling/spec.md)
+- [Alchemy](49_alchemy.md), [Crafting Aptitudes](50_crafting_aptitudes.md), [alchemy-quality](../../openspec/specs/alchemy-quality/spec.md)
 - [34_combat_data_and_capture.md](34_combat_data_and_capture.md), [45_spiritual_power_sword_qi.md](45_spiritual_power_sword_qi.md), [INDEX.md](INDEX.md)
+
+The `release` preset first runs focused alchemy/protocol Gradle tests, then the full release gate in the same Sandbox; this reuses compiled classes and catches Java errors before the full Python discovery run.

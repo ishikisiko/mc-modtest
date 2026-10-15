@@ -28,6 +28,9 @@ class AlchemyRulesTest(unittest.TestCase):
         for mutation, code in (
             (lambda d: d.update(quality_chance=0.5), 'ALCHEMY_SCHEMA'),
             (lambda d: d.update(version=True), 'ALCHEMY_VERSION'),
+            (lambda d: d.update(version=1), 'ALCHEMY_VERSION'),
+            (lambda d: d.pop('quality'), 'ALCHEMY_SCHEMA'),
+            (lambda d: d['quality'].update(rolls=3), 'ALCHEMY_SCHEMA'),
             (lambda d: d['effects'].pop('ningshen'), 'ALCHEMY_SCHEMA'),
             (lambda d: d['recipes'][0].update(hidden_success=0.8), 'ALCHEMY_SCHEMA'),
             (lambda d: d['effects']['huiling'].update(progress=500), 'ALCHEMY_SCHEMA'),
@@ -35,6 +38,50 @@ class AlchemyRulesTest(unittest.TestCase):
             data = copy.deepcopy(self.rules)
             mutation(data)
             self.assert_code(code, validator.check_rules(data))
+
+    def test_quality_weight_matrix_requires_complete_rows_and_strict_integers(self):
+        for invalid in (None, {}, [], [[100, 0, 0, 0]] * 3, [[100, 0, 0, 0]] * 5):
+            data = copy.deepcopy(self.rules)
+            data['quality']['weights_by_cap'] = invalid
+            self.assert_code('ALCHEMY_QUALITY_WEIGHTS', validator.check_rules(data))
+        for invalid in (None, {}, [], [100, 0, 0], [100, 0, 0, 0, 0],
+                        [True, 0, 0, 0], [100.0, 0, 0, 0], ['100', 0, 0, 0],
+                        [None, 0, 0, 0], [-1, 0, 0, 0], [1000001, 0, 0, 0],
+                        [float('nan'), 0, 0, 0], [10 ** 400, 0, 0, 0]):
+            with self.subTest(invalid=invalid):
+                data = copy.deepcopy(self.rules)
+                data['quality']['weights_by_cap'][0] = invalid
+                self.assert_code('ALCHEMY_QUALITY_WEIGHTS', validator.check_rules(data))
+
+    def test_quality_weights_never_exceed_cap_and_each_eligible_quality_can_roll(self):
+        for cap in range(1, 5):
+            for quality in range(1, 5):
+                data = copy.deepcopy(self.rules)
+                # Zero below/equal cap removes an eligible outcome; nonzero above cap leaks it.
+                data['quality']['weights_by_cap'][cap - 1][quality - 1] = 0 if quality <= cap else 1
+                self.assert_code('ALCHEMY_QUALITY_WEIGHTS', validator.check_rules(data))
+        data = copy.deepcopy(self.rules)
+        data['quality']['weights_by_cap'] = [[1000000 if q <= cap else 0 for q in range(1, 5)]
+                                            for cap in range(1, 5)]
+        self.assertEqual([], validator.check_rules(data))
+
+    def test_quality_multipliers_reject_missing_nonfinite_nonmonotone_and_no_legacy_baseline(self):
+        for invalid in (None, {}, [], [1, 1.25, 1.5], [1, 1.25, 1.5, 2, 3],
+                        [True, 1.25, 1.5, 2], [0, 1.25, 1.5, 2], [1.1, 1.25, 1.5, 2],
+                        [1, 1.25, 1.25, 2], [1, 1.5, 1.25, 2], [1, 2, 3, 16.01],
+                        [1, 1.25, None, 2], [1, 1.25, '1.5', 2], [1, 1.25, -1, 2],
+                        [1, 1.25, float('nan'), 2], [1, 1.25, 2, float('inf')],
+                        [1, 1.25, 2, 10 ** 400]):
+            with self.subTest(invalid=invalid):
+                data = copy.deepcopy(self.rules)
+                data['quality']['strength_multipliers'] = invalid
+                self.assert_code('ALCHEMY_QUALITY_MULTIPLIERS', validator.check_rules(data))
+
+    def test_quality_balance_is_data_and_not_pinned_to_provisional_values(self):
+        data = copy.deepcopy(self.rules)
+        data['quality'] = {'weights_by_cap': [[3, 0, 0, 0], [3, 5, 0, 0], [1, 8, 2, 0], [9, 7, 5, 3]],
+                           'strength_multipliers': [1.0, 2, 4, 16]}
+        self.assertEqual([], validator.check_rules(data))
 
     def test_tick_and_count_fields_reject_nonintegers_nonfinite_and_out_of_bounds(self):
         for location, key, maximum in (
@@ -101,7 +148,7 @@ class AlchemyResourceTest(unittest.TestCase):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
         self.root = Path(self.temp.name)
-        for relative in self.report['checked_resources']:
+        for relative in (*self.report['checked_resources'], *self.report['checked_sources']):
             relative = Path(relative)
             source = ROOT / relative
             if source.is_file():
@@ -180,11 +227,48 @@ class AlchemyResourceTest(unittest.TestCase):
         package()
         self.assertEqual([], validator.validate(self.root, jar)['errors'])
         for options in ({'omit': validator.RULES}, {'stale': validator.ASSETS / 'models/item/pill_huiling.json'},
-                        {'omit_class': validator.JAR_CLASSES[0]}):
+                        *({'omit_class': name} for name in validator.JAR_CLASSES)):
             package(**options)
             self.assertTrue(any(e.startswith('ALCHEMY_JAR:') for e in validator.validate(self.root, jar)['errors']))
         jar.write_bytes(b'not zip')
         self.assertTrue(any(e.startswith('ALCHEMY_JAR:') for e in validator.validate(self.root, jar)['errors']))
+
+    def test_client_quality_authority_and_new_alchemy_payload_rejected(self):
+        client = self.root / validator.JAVA / 'client/alchemy/AlchemyScreen.java'
+        original = client.read_text()
+        for authority in ('rules.rollQuality(cap, draw);', 'PillQuality.apply(stack, 4);',
+                          'Math.random();', 'new java.util.Random();', 'level.getRandom();'):
+            with self.subTest(authority=authority):
+                client.write_text(original + '\nclass Bad { void bad() { ' + authority + ' } }')
+                self.assert_code('ALCHEMY_CLIENT_AUTHORITY')
+        client.write_text(original)
+        payload = self.root / validator.JAVA / 'alchemy/UnsafePayload.java'
+        payload.write_text('record UnsafePayload(int quality) implements CustomPacketPayload {}')
+        self.assert_code('ALCHEMY_PAYLOAD')
+
+    def test_hidden_outcome_cannot_be_added_to_vanilla_menu_data(self):
+        furnace = self.root / validator.JAVA / 'block/entity/AlchemyFurnaceBlockEntity.java'
+        furnace.write_text(furnace.read_text() + '''
+class UnsafeSync {
+    ContainerData data = new ContainerData() {
+        public int get(int index) { return batch.quality(); }
+        public void set(int index, int value) {}
+        public int getCount() { return 7; }
+    };
+}
+''')
+        self.assert_code('ALCHEMY_HIDDEN_QUALITY')
+
+    def test_common_sources_have_no_client_imports_and_comments_do_not_trip_guards(self):
+        pill = self.root / validator.JAVA / 'alchemy/PillQuality.java'
+        pill.write_text(pill.read_text() + '\nimport net.minecraft.client.Minecraft;\n')
+        self.assert_code('ALCHEMY_SIDE')
+        client = validator.JAVA / 'client/alchemy/AlchemyScreen.java'
+        self.assertEqual([], validator.check_sources({client: '''
+// Math.random(); rules.rollQuality(cap, draw); PillQuality.apply(stack, 4);
+/* record Fake(int quality) implements CustomPacketPayload {} */
+class Fine { String text = "Math.random()"; void label() { PillQuality.name(1); } }
+'''}))
 
 
 if __name__ == '__main__':

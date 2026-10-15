@@ -1,59 +1,79 @@
-# Alchemy Foundation (0.50.0)
+# Alchemy (0.52.0)
 
-The first alchemy slice contains thirteen distinct items: a modeled furnace,
-six infused herbs, three reusable physical formula sheets and three pills.
-Survival acquisition is vanilla-plant plus spirit-stone crafting, not herb
-world generation. User controls, recipes, initial balance and commands are in
-[README](../../README.md#alchemy-foundation-炼丹-0500).
+The thirteen existing items remain a modeled furnace, six infused herbs, three
+reusable physical formulas and three pills. Survival acquisition uses vanilla
+plants plus spirit stones. [README](../../README.md#alchemy-炼丹-0520) documents
+controls, quality probabilities, effects and administrator fixtures.
 
 ## Sources of truth
 
-- `data/myvillage/alchemy/rules.json`: recipes, costs, time, counts, use duration,
-  shared interval and medicine strengths. `AlchemyRules` reads bundled resources,
-  rejects malformed/duplicate/out-of-bounds data and loads during common setup.
-  Rebuild/restart for changes; this is not datapack hot reload.
-- `AlchemyFurnaceBlockEntity`: five saved slots (`Items`), `Progress`, `Recipe`.
-  `BrewingProgress` is the pure progress machine. The formula is retained;
-  inputs and fuel are deducted atomically only on completion. Output blockage
-  pauses without spending. Ingredient order is interchangeable; input identity
-  changes reset progress. Unloaded chunks pause; block removal drops and clears
-  inventory once. No hopper capability is advertised.
-- `AlchemyMenu` / `client/alchemy/AlchemyScreen`: vanilla container networking,
-  bounded slot policies and server progress synchronization. No custom result
-  or client-authoritative timer payload.
-- `MedicineRuntime` / `MedicineState` / `MedicineEffects`: server-only consumption,
-  eligibility and remaining online counters in `NeoForgeData.myvillage_medicine`
-  (`cooldown_ticks`, `effect`, `effect_ticks`, `healing_elapsed`). Active benefits
-  do not stack; death clears benefits but keeps interval; non-death clone and
-  logout/restart retain them. Vanilla cooldown shading is presentation only.
-- `CultivationService.recoverSpiritualPower`: clamped power recovery. Ningshen
-  passes its multiplier into `BasicBreathingSettlement` only from actual normal/
-  spirit meditation; progress, study, mastery, stage caps and advancement retain
-  existing rules. The cultivation profile schema is unchanged.
-- `tools/gen_alchemy_assets.py`: models, textures, bilingual alchemy keys,
-  acquisition recipes, furnace loot and pickaxe tag. Never hand-edit these outputs.
-  `--check` is deterministic; `--preview` renders the actual model JSON with the
-  existing CPU rasterizer and writes `out/preview/alchemy/`.
+- `data/myvillage/alchemy/rules.json` format2 owns recipes, costs, durations,
+  output counts, shared interval, base effects, quality weights by ceiling and
+  strength multipliers. `AlchemyRules` rejects malformed/out-of-bounds data;
+  rebuild/restart for changes (not datapack hot reload).
+- `AlchemyFurnaceBlockEntity` owns five saved `Items` slots, `Progress`, `Recipe`
+  and an additive `Batch` compound. `AlchemyBatch` stores version, brewer UUID,
+  recipe, aptitude score, ceiling and outcome. Vanilla menu button0 carries only
+  start intent; the server checks the current nearby menu, living non-spectator
+  actor, awakened initialized aptitude, recipe, fuel, idle state and empty output.
+  Each start freezes these values and rolls once. The client receives progress,
+  duration, status, frozen score/ceiling and active flag, never the hidden outcome.
+- Active formula/herb/fuel slots are locked, including shift-click transfers.
+  Another viewer cannot replace inputs or restart the batch. Formula is retained;
+  herbs/fuel are deducted once, atomically with output. Completion requires a new
+  start even if more ingredients remain. Full/incompatible output pauses without
+  costs or reroll. Changed/invalid inputs defensively abandon the batch.
+- Unload pauses; valid saved batches resume without offline work. Brewer death,
+  logout and later aptitude changes do not alter the frozen batch. Breaking drops
+  held inventory once and abandons unfinished output. Legacy progress without a
+  complete valid batch resets to idle while preserving all items. No hopper
+  capability is advertised.
+- `PillQuality` uses bounded persistent/networked `myvillage:pill_quality`, integers
+  1..4 (lower/middle/upper/perfect), on the three existing pill IDs. Missing is
+  lower; ordinary new lower pills omit it and stack with legacy pills. Explicit
+  component1 has baseline strength but vanilla component equality still controls
+  stacking. Invalid data rejects or safely falls back to lower, never higher.
+- `MedicineRuntime` / `MedicineState` / `MedicineEffects` own consumption,
+  eligibility and online counters in `NeoForgeData.myvillage_medicine`, including
+  sustained-effect `quality`. Recovery and each healing tick multiply base
+  strength by quality. Ningshen scales only the bonus above1:
+  `1 + (baseStabilityMultiplier - 1) * qualityMultiplier`. Duration, interval,
+  eligibility and interruption rules remain; missing saved quality is lower.
+  Death clears benefits but keeps interval; non-death clone/logout/restart retain
+  remaining counters/quality. Vanilla cooldown shading is presentation only.
+- Power replacement stays behind `CultivationService`. Ningshen affects only
+  post-cap normal/spirit meditation stability, never progress, study, mastery or
+  advancement. Profile remains v4. Client and server require protocol21.
+- `tools/gen_alchemy_assets.py` owns models, textures, bilingual keys, recipes,
+  loot and tags. Never hand-edit generated outputs. `--check` is deterministic;
+  `--preview` writes actual-model previews to `out/preview/alchemy/`.
 
 ## Gates and evidence
 
-Run the generator check, `tools/validate_alchemy.py`, focused Python tests and
-Java `alchemy.*` plus affected cultivation/item tests; full build/release includes
-jar resource/class verification. New asset files must be packed into the jar.
-`python3 tools/alchemy_evidence.py` follows clean stage-1 acceptance and owns its
-capture sessions/shared heavy lock. Mapped input tests the menu and timed item
-use; RCON is only fixture setup/readback. Save/restart is a second session reusing
-that capture world. `--visual-only --language en_us --out out/preview/alchemy/visual-runtime`
-starts a separate fresh session for the placed model and three menu sizes only.
-Keep failures and phase timing in evidence JSON.
+Local focused checks: generator, `tools/validate_alchemy.py` and relevant Python
+validators. Heavy full release/build/jar, clean stage1 and real-client/two-client
+checks default to Modal; cloud failure does not automatically fall back locally.
+Use the same committed source for `release` and `alchemy-quality` presets (see
+[note46](46_modal_test_runner.md)). The latter runs clean stage1 then
+`tools/alchemy_quality_evidence.py`, which owns capture sessions/shared heavy
+lock, mapped start/input/use, bilingual layouts, restart and a second isolated
+real client. RCON is fixture setup/readback only. Preserve failures and timings.
+Legacy `alchemy_evidence.py` is historical foundation evidence; `--visual-only`
+establishes model/menu presentation only, never current quality behavior.
 
-Offline art, developer captures and automated checks do not establish owner
-appearance/feel/balance or multiplayer acceptance. Wild plants, farming, optional
-herbs, formula learning, quality gambling and sect trading are not implemented.
+The 0.50.0 foundation and 0.51.0 aptitude results are historical, not evidence
+for 0.52.0. Current build, server, quality/effect/restart and two-client evidence
+remain pending until the recorded Modal runs complete. Owner appearance, feel,
+balance and wider multiplayer remain `not_verified`. Natural acquisition,
+cold legacy-save migration and other unobserved lifecycle surfaces remain
+`not_verified`. Wild plants/farming, formula learning, skill XP, toxicity,
+furnace failure and forging production remain outside this slice.
 
 See also: [alchemy-foundation](../../openspec/specs/alchemy-foundation/spec.md),
+[alchemy-quality](../../openspec/specs/alchemy-quality/spec.md),
+[crafting-aptitudes](../../openspec/specs/crafting-aptitudes/spec.md),
 [resource-export](../../openspec/specs/resource-export/spec.md),
 [validation](../../openspec/specs/validation/spec.md),
-[mod item workflow](22_mod_item_creation.md),
+[item workflow](22_mod_item_creation.md), [aptitudes](50_crafting_aptitudes.md),
 [meditation](30_cultivation_playable_loop.md),
 [spiritual power](45_spiritual_power_sword_qi.md).

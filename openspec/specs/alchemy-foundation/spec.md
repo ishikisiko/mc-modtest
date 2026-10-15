@@ -14,11 +14,11 @@ The mod SHALL expose a modeled placeable furnace, six herb items, three distinct
 - **THEN** every input needed for brewing is obtainable without administrator commands
 
 ### Requirement: Server-owned deterministic brewing
-The furnace SHALL own five saved slots and brew from bundled validated rules. A formula is reusable, herb order is interchangeable, and herbs/fuel SHALL be consumed exactly once with output creation. Changed inputs reset progress; full output pauses without consuming ingredients. Chunk unload SHALL pause production; breaking SHALL drop held inventory exactly once.
+The furnace SHALL own five saved slots and brew from bundled validated rules after a manual one-batch start. A formula is reusable, herb order is interchangeable, and herbs/fuel SHALL be consumed exactly once with output creation. Active input slots SHALL be locked; invalidated inputs cancel progress, while full or incompatible output pauses without consuming ingredients. Chunk unload SHALL pause production; breaking SHALL drop held inventory exactly once. Owner, aptitude ceiling and rolled result SHALL persist with progress.
 
 #### Scenario: Interrupted brew
 - **WHEN** a valid partly brewed furnace is saved and reloaded
-- **THEN** its inventory and matching progress resume without duplicate costs or offline catch-up
+- **THEN** its inventory, fixed result and matching progress resume without duplicate costs or offline catch-up
 
 #### Scenario: Invalid or obstructed brew
 - **WHEN** ingredients mismatch or output is full
@@ -38,3 +38,5 @@ Pills SHALL use server-owned bounded effects and a shared persistent use interva
 #### Scenario: Stability support
 - **WHEN** an active stability medicine is evaluated during progress gain, study or advancement
 - **THEN** it grants no extra progress, study points or bypass of advancement conditions
+
+See also: [alchemy-foundation technical note](../../../docs/ai-kb/49_alchemy.md), [alchemy-quality](../alchemy-quality/spec.md).

@@ -7,6 +7,7 @@ import hashlib
 import json
 import math
 from pathlib import Path
+import re
 import struct
 import zipfile
 
@@ -15,6 +16,12 @@ RESOURCES = Path('src/main/resources')
 ASSETS = RESOURCES / 'assets/myvillage'
 DATA = RESOURCES / 'data/myvillage'
 RULES = DATA / 'alchemy/rules.json'
+JAVA = Path('src/main/java/com/example/myvillage')
+SOURCE_FILES = tuple(JAVA / f'{name}.java' for name in (
+    'alchemy/AlchemyMenu', 'alchemy/AlchemyBatch', 'alchemy/PillQuality', 'alchemy/MedicineState',
+    'alchemy/MedicineRuntime', 'block/entity/AlchemyFurnaceBlockEntity',
+    'item/AlchemyPillItem', 'item/ModDataComponents', 'client/alchemy/AlchemyScreen',
+))
 HERBS = ('spirit_leaf', 'dew_blossom', 'sunroot', 'blood_berry', 'cloud_fungus', 'calm_lotus')
 KINDS = ('huiling', 'yangyuan', 'ningshen')
 ITEMS = ('alchemy_furnace', *HERBS, *(f'formula_{k}' for k in KINDS), *(f'pill_{k}' for k in KINDS))
@@ -25,7 +32,7 @@ JAR_CLASSES = tuple(f'com/example/myvillage/{name}.class' for name in (
     'alchemy/AlchemyRules', 'alchemy/BrewingProgress', 'alchemy/AlchemyMenu', 'alchemy/AlchemyMenus',
     'block/AlchemyFurnaceBlock', 'block/entity/AlchemyFurnaceBlockEntity', 'client/alchemy/AlchemyScreen',
     'item/AlchemyPillItem', 'item/FormulaItem', 'alchemy/MedicineEffects', 'alchemy/MedicineState',
-    'alchemy/MedicineRuntime',
+    'alchemy/MedicineRuntime', 'alchemy/AlchemyBatch', 'alchemy/PillQuality', 'item/ModDataComponents',
 ))
 
 
@@ -61,12 +68,36 @@ def check_rules(data) -> list[str]:
             valid = False
         if not valid:
             error('ALCHEMY_BOUNDS', f'{where}.{key}: invalid number {value!r}')
-    if not keys(data, ('version', 'use_ticks', 'shared_cooldown_ticks', 'recipes', 'effects'), 'rules'):
+    if not keys(data, ('version', 'use_ticks', 'shared_cooldown_ticks', 'recipes', 'effects', 'quality'), 'rules'):
         return errors
-    if type(data['version']) is not int or data['version'] != 1:
-        error('ALCHEMY_VERSION', 'rules version must be integer 1')
+    if type(data['version']) is not int or data['version'] != 2:
+        error('ALCHEMY_VERSION', 'rules version must be integer 2')
     number(data, 'use_ticks', 1, 72000, 'rules', True)
     number(data, 'shared_cooldown_ticks', 1, 1200000, 'rules', True)
+    quality = data['quality']
+    if keys(quality, ('weights_by_cap', 'strength_multipliers'), 'quality'):
+        weights = quality['weights_by_cap']
+        if not isinstance(weights, list) or len(weights) != 4:
+            error('ALCHEMY_QUALITY_WEIGHTS', 'quality.weights_by_cap must have exactly four cap rows')
+        else:
+            for cap, row in enumerate(weights, 1):
+                if (not isinstance(row, list) or len(row) != 4
+                        or any(type(weight) is not int or not 0 <= weight <= 1000000 for weight in row)):
+                    error('ALCHEMY_QUALITY_WEIGHTS', f'cap {cap}: four integer weights in 0..1000000 required')
+                elif any(weight <= 0 for weight in row[:cap]) or any(row[cap:]):
+                    error('ALCHEMY_QUALITY_WEIGHTS', f'cap {cap}: eligible qualities need positive weights; qualities above cap need zero')
+        multipliers = quality['strength_multipliers']
+        valid = isinstance(multipliers, list) and len(multipliers) == 4
+        if valid:
+            try:
+                valid = (all(type(value) in (int, float) and math.isfinite(value) and 1 <= value <= 16
+                             for value in multipliers)
+                         and multipliers[0] == 1
+                         and all(a < b for a, b in zip(multipliers, multipliers[1:])))
+            except OverflowError:
+                valid = False
+        if not valid:
+            error('ALCHEMY_QUALITY_MULTIPLIERS', 'four finite strength multipliers must start at 1 and strictly increase up to 16')
     recipes = data['recipes']
     if not isinstance(recipes, list) or len(recipes) != 3:
         error('ALCHEMY_RECIPES', 'exactly three brewing recipes required')
@@ -115,6 +146,35 @@ def check_rules(data) -> list[str]:
     return errors
 
 
+def _java_code(source: str) -> str:
+    """Ignore comments and literals when checking code-level authority boundaries."""
+    tokens = re.compile(r'"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'|//[^\n]*|/\*[\s\S]*?\*/')
+    return tokens.sub(' ', source)
+
+
+def check_sources(sources: dict[Path, str]) -> list[str]:
+    """Guard side and transport boundaries; runtime tests prove batch transactions."""
+    errors = []
+    for relative, raw in sources.items():
+        source = _java_code(raw)
+        if 'client' not in relative.parts and re.search(r'\bimport\s+(?:static\s+)?(?:net\.minecraft|net\.neoforged\.neoforge)\.client\.', source):
+            errors.append(f'ALCHEMY_SIDE: {relative}: common alchemy code imports client types')
+        if 'client' in relative.parts and re.search(
+                r'\brollQuality\s*\(|\bPillQuality\s*\.\s*apply\s*\(|\bMath\s*\.\s*random\s*\(|'
+                r'\bnew\s+(?:java\.util\.)?(?:Random|SplittableRandom)\s*\(|\bRandomSource\b|\bgetRandom\s*\(', source):
+            errors.append(f'ALCHEMY_CLIENT_AUTHORITY: {relative}: the client cannot choose or assign pill quality')
+        if re.search(r'\bimplements\s+[^\{;]*\bCustomPacketPayload\b', source):
+            errors.append(f'ALCHEMY_PAYLOAD: {relative}: alchemy uses vanilla menu start intent and synchronization')
+        for match in re.finditer(r'\bnew\s+ContainerData\s*\(\s*\)\s*\{', source):
+            start, depth, end = match.end(), 1, match.end()
+            while end < len(source) and depth:
+                depth += (source[end] == '{') - (source[end] == '}')
+                end += 1
+            if re.search(r'\.\s*(?:quality|rollQuality)\s*\(|\bPillQuality\b', source[start:end]):
+                errors.append(f'ALCHEMY_HIDDEN_QUALITY: {relative}: menu data exposes the hidden batch outcome')
+    return errors
+
+
 def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
     root = Path(root)
     errors = []
@@ -133,6 +193,16 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
             return {}
     rules = read(RULES)
     errors.extend(check_rules(rules))
+    sources = {}
+    source_paths = set(SOURCE_FILES)
+    for directory in ('alchemy', 'client/alchemy'):
+        source_paths.update(path.relative_to(root) for path in (root / JAVA / directory).rglob('*.java'))
+    for relative in sorted(source_paths):
+        try:
+            sources[relative] = (root / relative).read_text(encoding='utf-8')
+        except (OSError, UnicodeError) as exc:
+            error('ALCHEMY_SOURCE', f'{relative}: {exc}')
+    errors.extend(check_sources(sources))
     icons = []
     for item in ITEMS:
         model = read(ASSETS / f'models/item/{item}.json')
@@ -263,7 +333,8 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
                         error('ALCHEMY_JAR', f'{name}: {exc}')
         except (OSError, zipfile.BadZipFile) as exc:
             error('ALCHEMY_JAR', str(exc))
-    return {'errors': errors, 'checked_resources': sorted(str(p) for p in checked)}
+    return {'errors': errors, 'checked_resources': sorted(str(p) for p in checked),
+            'checked_sources': sorted(str(p) for p in source_paths)}
 
 
 def main(argv=None):
