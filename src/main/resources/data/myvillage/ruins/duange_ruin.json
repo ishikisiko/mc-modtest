@@ -1,0 +1,198 @@
+{
+  "version": 1,
+  "tick_interval": 20,
+  "wave_delay_ticks": 100,
+  "interaction_distance": 5.0,
+  "leash_radius": 48.0,
+  "trigger_radius": 10.0,
+  "id": "duange_ruin",
+  "name": "断戈营垒",
+  "mode": "route",
+  "size": [
+    43,
+    23,
+    59
+  ],
+  "surface_y": 4,
+  "cache": [
+    21,
+    7,
+    51
+  ],
+  "entry": [
+    21,
+    5,
+    6
+  ],
+  "recommended": "建议炼气一至三层",
+  "manual": "myvillage:jianqi_jue",
+  "rewards": [
+    {
+      "id": "myvillage:low_grade_spirit_stone",
+      "count": 12
+    },
+    {
+      "id": "myvillage:pill_huiling",
+      "count": 3
+    }
+  ],
+  "placement": {
+    "spacing": 28,
+    "separation": 12,
+    "salt": 7241611
+  },
+  "biomes": [
+    "minecraft:plains",
+    "minecraft:meadow",
+    "minecraft:stony_peaks"
+  ],
+  "palette": {
+    "stone": "minecraft:stone_bricks",
+    "worn": "minecraft:cracked_stone_bricks",
+    "floor": "minecraft:polished_andesite",
+    "wall": "minecraft:andesite",
+    "timber": "minecraft:stripped_dark_oak_log[axis=y]",
+    "roof": "minecraft:deepslate_tiles"
+  },
+  "halls": [
+    {
+      "id": "gate",
+      "origin": [
+        14,
+        5,
+        7
+      ],
+      "size": [
+        15,
+        5,
+        7
+      ]
+    },
+    {
+      "id": "command_hall",
+      "origin": [
+        12,
+        7,
+        44
+      ],
+      "size": [
+        19,
+        6,
+        11
+      ]
+    }
+  ],
+  "waves": [
+    {
+      "trigger": [
+        21,
+        5,
+        17
+      ],
+      "guards": [
+        {
+          "entity": "minecraft:zombie",
+          "pos": [
+            15,
+            5,
+            18
+          ],
+          "realm": "myvillage:qi_refining",
+          "stage": 0,
+          "weapon": "minecraft:stone_sword",
+          "elite": false
+        },
+        {
+          "entity": "minecraft:zombie",
+          "pos": [
+            27,
+            5,
+            20
+          ],
+          "realm": "myvillage:qi_refining",
+          "stage": 0,
+          "weapon": "minecraft:stone_sword",
+          "elite": false
+        }
+      ]
+    },
+    {
+      "trigger": [
+        21,
+        5,
+        31
+      ],
+      "guards": [
+        {
+          "entity": "minecraft:skeleton",
+          "pos": [
+            12,
+            5,
+            34
+          ],
+          "realm": "myvillage:qi_refining",
+          "stage": 0,
+          "weapon": "minecraft:bow",
+          "elite": false
+        },
+        {
+          "entity": "minecraft:skeleton",
+          "pos": [
+            30,
+            5,
+            34
+          ],
+          "realm": "myvillage:qi_refining",
+          "stage": 0,
+          "weapon": "minecraft:bow",
+          "elite": false
+        },
+        {
+          "entity": "minecraft:zombie",
+          "pos": [
+            21,
+            5,
+            35
+          ],
+          "realm": "myvillage:qi_refining",
+          "stage": 1,
+          "weapon": "minecraft:iron_sword",
+          "elite": false
+        }
+      ]
+    },
+    {
+      "trigger": [
+        21,
+        7,
+        46
+      ],
+      "guards": [
+        {
+          "entity": "minecraft:wither_skeleton",
+          "pos": [
+            21,
+            7,
+            48
+          ],
+          "realm": "myvillage:qi_refining",
+          "stage": 2,
+          "weapon": "minecraft:iron_sword",
+          "elite": true
+        },
+        {
+          "entity": "minecraft:zombie",
+          "pos": [
+            15,
+            7,
+            48
+          ],
+          "realm": "myvillage:qi_refining",
+          "stage": 0,
+          "weapon": "minecraft:stone_sword",
+          "elite": false
+        }
+      ]
+    }
+  ]
+}

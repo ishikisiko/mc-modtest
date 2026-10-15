@@ -23,6 +23,16 @@ class SettlementGroup:
 
 
 GROUPS: Dict[str, SettlementGroup] = {
+    "duange_ruin": SettlementGroup(
+        group_id="duange_ruin", style_id="chinese_courtyard",
+        archetype_roster=("gate", "command_hall"), layout_strategy="ruined_garrison",
+        classifications={"gate": "infrastructure", "command_hall": "civic"},
+    ),
+    "fuyao_ruin": SettlementGroup(
+        group_id="fuyao_ruin", style_id="chinese_courtyard",
+        archetype_roster=("gate", "sanctum"), layout_strategy="sunken_sanctuary",
+        classifications={"gate": "infrastructure", "sanctum": "civic"},
+    ),
     "danxia_ruin": SettlementGroup(
         group_id="danxia_ruin", style_id="chinese_courtyard",
         archetype_roster=("gate", "main_hall", "east_wing"),

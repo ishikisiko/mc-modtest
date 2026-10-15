@@ -1310,5 +1310,17 @@
   "message.myvillage.ruin.vault_changed": "内库木桶已被移走或占用。请恢复原位的空木桶。残泉尚未消耗。",
   "message.myvillage.ruin.invalid": "传承数据不可用，残泉尚未消耗。",
   "message.myvillage.ruin.garden": "残泉流向地表，旧药园重新萌发。内库传承随余烬散去。",
-  "message.myvillage.ruin.vault": "墨迹在内库木桶中重新凝聚。药园的余根归于沉寂。"
+  "message.myvillage.ruin.vault": "墨迹在内库木桶中重新凝聚。药园的余根归于沉寂。",
+  "block.myvillage.battle_cache": "遗迹封印宝箱",
+  "structure.myvillage.duange_ruin": "断戈营垒",
+  "structure.myvillage.fuyao_ruin": "伏妖残殿",
+  "entity.myvillage.battle.guard": "%s守卫",
+  "entity.myvillage.battle.elite": "%s·精英",
+  "message.myvillage.battle.dormant": "这只宝箱没有可用的遗迹封印。",
+  "message.myvillage.battle.peaceful": "和平难度下试炼暂停。恢复难度后可继续，消失的守卫不计为击败。",
+  "message.myvillage.battle.start": "镇妖阵已启动！稍后妖兽将现身，击败全部三波即可开启宝箱。",
+  "message.myvillage.battle.locked": "宝箱仍有封印：请完成第%s/%s处战斗。",
+  "message.myvillage.battle.next": "此阵已破。准备迎战第%s波，营垒守军需向前推进。",
+  "message.myvillage.battle.clear": "守卫尽灭，遗迹宝箱已经解封！",
+  "message.myvillage.battle.progress": "%s · 第%s/%s阵 · 剩余%s名守卫"
 }

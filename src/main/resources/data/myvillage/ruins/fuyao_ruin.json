@@ -1,0 +1,202 @@
+{
+  "version": 1,
+  "tick_interval": 20,
+  "wave_delay_ticks": 100,
+  "interaction_distance": 5.0,
+  "leash_radius": 48.0,
+  "trigger_radius": 10.0,
+  "id": "fuyao_ruin",
+  "name": "伏妖残殿",
+  "mode": "arena",
+  "size": [
+    45,
+    27,
+    49
+  ],
+  "surface_y": 11,
+  "cache": [
+    22,
+    6,
+    38
+  ],
+  "entry": [
+    22,
+    12,
+    4
+  ],
+  "recommended": "建议炼气四至六层",
+  "manual": "myvillage:liuyun_bu",
+  "rewards": [
+    {
+      "id": "myvillage:low_grade_spirit_stone",
+      "count": 18
+    },
+    {
+      "id": "myvillage:pill_yangyuan",
+      "count": 3
+    },
+    {
+      "id": "myvillage:pill_huiling",
+      "count": 3
+    }
+  ],
+  "placement": {
+    "spacing": 32,
+    "separation": 14,
+    "salt": 7241617
+  },
+  "biomes": [
+    "minecraft:forest",
+    "minecraft:taiga",
+    "minecraft:dark_forest"
+  ],
+  "palette": {
+    "stone": "minecraft:deepslate_bricks",
+    "worn": "minecraft:cracked_deepslate_bricks",
+    "floor": "minecraft:polished_deepslate",
+    "wall": "minecraft:tuff_bricks",
+    "timber": "minecraft:stripped_dark_oak_log[axis=y]",
+    "roof": "minecraft:deepslate_tiles"
+  },
+  "halls": [
+    {
+      "id": "gate",
+      "origin": [
+        15,
+        12,
+        6
+      ],
+      "size": [
+        15,
+        5,
+        7
+      ]
+    },
+    {
+      "id": "sanctum",
+      "origin": [
+        8,
+        5,
+        23
+      ],
+      "size": [
+        29,
+        9,
+        20
+      ]
+    }
+  ],
+  "waves": [
+    {
+      "trigger": [
+        22,
+        5,
+        29
+      ],
+      "guards": [
+        {
+          "entity": "myvillage:demon_wolf",
+          "pos": [
+            14,
+            5,
+            27
+          ],
+          "realm": "myvillage:qi_refining",
+          "stage": 0,
+          "weapon": "",
+          "elite": false
+        },
+        {
+          "entity": "myvillage:demon_wolf",
+          "pos": [
+            30,
+            5,
+            27
+          ],
+          "realm": "myvillage:qi_refining",
+          "stage": 0,
+          "weapon": "",
+          "elite": false
+        }
+      ]
+    },
+    {
+      "trigger": [
+        22,
+        5,
+        29
+      ],
+      "guards": [
+        {
+          "entity": "myvillage:demon_wolf",
+          "pos": [
+            12,
+            5,
+            32
+          ],
+          "realm": "myvillage:qi_refining",
+          "stage": 1,
+          "weapon": "",
+          "elite": false
+        },
+        {
+          "entity": "myvillage:demon_wolf",
+          "pos": [
+            32,
+            5,
+            32
+          ],
+          "realm": "myvillage:qi_refining",
+          "stage": 1,
+          "weapon": "",
+          "elite": false
+        },
+        {
+          "entity": "myvillage:demon_wolf",
+          "pos": [
+            22,
+            5,
+            25
+          ],
+          "realm": "myvillage:qi_refining",
+          "stage": 0,
+          "weapon": "",
+          "elite": false
+        }
+      ]
+    },
+    {
+      "trigger": [
+        22,
+        5,
+        29
+      ],
+      "guards": [
+        {
+          "entity": "myvillage:demon_wolf",
+          "pos": [
+            22,
+            5,
+            32
+          ],
+          "realm": "myvillage:qi_refining",
+          "stage": 5,
+          "weapon": "",
+          "elite": true
+        },
+        {
+          "entity": "myvillage:demon_wolf",
+          "pos": [
+            13,
+            5,
+            27
+          ],
+          "realm": "myvillage:qi_refining",
+          "stage": 1,
+          "weapon": "",
+          "elite": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "structures": [
+    {
+      "structure": "myvillage:duange_ruin",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 28,
+    "separation": 12,
+    "salt": 7241611
+  }
+}

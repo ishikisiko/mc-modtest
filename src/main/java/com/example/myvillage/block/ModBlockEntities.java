@@ -15,6 +15,11 @@ public final class ModBlockEntities {
             DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, MyVillageMod.MOD_ID);
 
     @SuppressWarnings("DataFlowIssue")
+    public static final Supplier<BlockEntityType<com.example.myvillage.ruins.BattleCacheBlockEntity>> BATTLE_CACHE =
+            BLOCK_ENTITIES.register("battle_cache", () -> BlockEntityType.Builder.of(
+                    com.example.myvillage.ruins.BattleCacheBlockEntity::new, ModBlocks.BATTLE_CACHE.get()).build(null));
+
+    @SuppressWarnings("DataFlowIssue")
     public static final Supplier<BlockEntityType<com.example.myvillage.ruins.RuinCoreBlockEntity>> RUIN_CORE =
             BLOCK_ENTITIES.register("ruin_core", () -> BlockEntityType.Builder.of(
                     com.example.myvillage.ruins.RuinCoreBlockEntity::new, ModBlocks.RUIN_CORE.get()).build(null));

@@ -1326,5 +1326,17 @@
   "message.myvillage.ruin.vault_changed": "Restore an empty barrel at the original archive position. No charge spent.",
   "message.myvillage.ruin.invalid": "The heritage data is unavailable. No charge spent.",
   "message.myvillage.ruin.garden": "The old garden blooms again. The archive has lost its remaining power.",
-  "message.myvillage.ruin.vault": "The archive barrel holds the restored writings. The old garden falls dormant."
+  "message.myvillage.ruin.vault": "The archive barrel holds the restored writings. The old garden falls dormant.",
+  "block.myvillage.battle_cache": "Sealed Ruin Cache",
+  "structure.myvillage.duange_ruin": "Duange Garrison",
+  "structure.myvillage.fuyao_ruin": "Fuyao Sanctuary",
+  "entity.myvillage.battle.guard": "%s Guardian",
+  "entity.myvillage.battle.elite": "%s Elite",
+  "message.myvillage.battle.dormant": "This cache has no active ruin seal.",
+  "message.myvillage.battle.peaceful": "Trials pause in Peaceful. Removed guardians are not defeats; change difficulty to resume.",
+  "message.myvillage.battle.start": "The trial has begun! Defeat all three waves to unlock the cache.",
+  "message.myvillage.battle.locked": "Sealed: complete encounter %s/%s.",
+  "message.myvillage.battle.next": "Encounter cleared. Prepare for wave %s; advance through the garrison to meet its defenders.",
+  "message.myvillage.battle.clear": "All guardians defeated. The ruin cache is unlocked!",
+  "message.myvillage.battle.progress": "%s · Encounter %s/%s · %s guardians remain"
 }
