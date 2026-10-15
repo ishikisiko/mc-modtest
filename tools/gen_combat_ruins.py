@@ -170,7 +170,7 @@ def outputs():
         r,data,bes,entities=blueprint(identity)
         files[DATA/f'structure/{identity}.nbt']=template_bytes(data,bes,entities)
         emit(DATA/f'worldgen/structure/{identity}.json',dict(type='minecraft:jigsaw',biomes=f'#myvillage:has_{identity}',step='surface_structures',terrain_adaptation='beard_thin',spawn_overrides={},start_pool=f'myvillage:{identity}',size=1,start_height={'absolute':-r['surface_y']},project_start_to_heightmap='WORLD_SURFACE_WG',max_distance_from_center=80,use_expansion_hack=False))
-        emit(DATA/f'worldgen/template_pool/{identity}.json',{'name':f'myvillage:{identity}','fallback':'minecraft:empty','elements':[{'weight':1,'element':{'element_type':'minecraft:single_pool_element','location':f'myvillage:{identity}','processors':'minecraft:empty','projection':'rigid'}}]})
+        emit(DATA/f'worldgen/template_pool/{identity}.json',{'name':f'myvillage:{identity}','fallback':'minecraft:empty','elements':[{'weight':1,'element':{'element_type':'minecraft:single_pool_element','location':f'myvillage:{identity}','processors':'minecraft:empty','projection':'rigid','override_liquid_settings':r['liquid_settings']}}]})
         emit(DATA/f'worldgen/structure_set/{identity}.json',{'structures':[{'structure':f'myvillage:{identity}','weight':1}],'placement':{'type':'minecraft:random_spread',**r['placement']}})
         emit(DATA/f'tags/worldgen/biome/has_{identity}.json',{'replace':False,'values':r['biomes']})
     for lit in (False,True):

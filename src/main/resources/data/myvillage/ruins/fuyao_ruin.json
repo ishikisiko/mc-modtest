@@ -198,5 +198,6 @@
         }
       ]
     }
-  ]
+  ],
+  "liquid_settings": "ignore_waterlogging"
 }

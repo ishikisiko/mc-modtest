@@ -11,7 +11,8 @@ Both are native Overworld jigsaw structures, found in newly generated chunks via
 `data/myvillage/ruins/{duange_ruin,fuyao_ruin}.json` owns enemy definitions, realms, spawn and
 trigger positions, stage delays, radii, rewards, geometry anchors, palettes and worldgen.
 `tools/gen_combat_ruins.py` owns both templates, structure/pool/set/biome tags, the cache models
-and bilingual text. Its groups are registered in `tools/buildgen/groups.py`; halls use semantic
+and bilingual text. Native pool placement explicitly ignores inherited waterlogging, so
+buried fences/stairs do not retain old pond water as sources inside the combat floor. Its groups are registered in `tools/buildgen/groups.py`; halls use semantic
 Nodes and the registered Chinese roof handler. `generate_all_structures.py` regenerates them
 after cleanup. All four native rotations are supported; mirrored admin placement is not an
 advertised entry point. Do not edit generated NBT, models or language entries directly.

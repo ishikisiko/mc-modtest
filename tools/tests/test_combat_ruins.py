@@ -17,6 +17,8 @@ class CombatRuinsTest(unittest.TestCase):
             cache=b[tuple(r['cache'])];self.assertEqual(cache['BattleState'],'READY');self.assertNotIn('Items',cache)
             for block in d['blocks']:self.assertTrue(all(0<=v<limit for v,limit in zip(block['pos'],r['size'])))
             structure=json.loads(files[gen.DATA/f'worldgen/structure/{name}.json'])
+            pool=json.loads(files[gen.DATA/f'worldgen/template_pool/{name}.json'])
+            self.assertEqual(pool['elements'][0]['element']['override_liquid_settings'],'ignore_waterlogging')
             self.assertGreater(structure['size'],0);self.assertEqual(structure['start_height']['absolute'],-r['surface_y'])
             for path in [f'worldgen/template_pool/{name}.json',f'worldgen/structure_set/{name}.json',f'tags/worldgen/biome/has_{name}.json']:self.assertIn(gen.DATA/path,files)
     def test_entry_every_spawn_and_cache_reachable_without_breaking_blocks(self):

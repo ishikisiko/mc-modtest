@@ -8,7 +8,8 @@
         "element_type": "minecraft:single_pool_element",
         "location": "myvillage:duange_ruin",
         "processors": "minecraft:empty",
-        "projection": "rigid"
+        "projection": "rigid",
+        "override_liquid_settings": "ignore_waterlogging"
       }
     }
   ]

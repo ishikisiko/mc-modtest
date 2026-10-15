@@ -70,6 +70,11 @@ class BattleEvidence(RuinEvidence):
         aims=([(21,7,32),(21,7,20),(21,9,51)] if kind=='duange_ruin' else [(22,11,28),(22,12,12),(22,7,38)])
         for label,p,t in zip(['overview','entry','arena'],views,aims):
             pp=self.map(site,p);tt=self.map(site,t);self.look((pp[0]+.5,pp[1],pp[2]+.5),(tt[0]+.5,tt[1],tt[2]+.5),'spectator');self.capture(kind+'-'+label+'.png')
+        for wave in RULES[kind]['waves']:
+            for guard in wave['guards']:
+                p=self.map(site,guard['pos'])
+                reply=self.rc(f'execute if block {self.coords(p)} minecraft:air')
+                self.must(kind+'_dry_spawn_'+str(guard['pos']),'passed' in reply,reply)
         return site
     def locked(self,site):
         # Main-hand item interaction must reach the seal too.
@@ -102,10 +107,19 @@ class BattleEvidence(RuinEvidence):
         self.rc(f'gamemode spectator {self.s.username}');self.rc('forceload add 1200 1200 1215 1215')
         self.rc('fill 1200 99 1200 1208 99 1208 minecraft:stone')
         self.rc(f'tp {self.s.username} 1204 102 1204');self.rc(f'tp {entity} 1204 100 1204')
+        def at_pad():
+            reply=self.rc(f'data get entity {entity} Pos')
+            return 'data: ' in reply and abs(read_data(reply)[0]-1204.5)<1
+        self.poll('guard reaches loaded remote chunk',at_pad,10)
+        # Give the entity section manager a server tick before removing its old chunk ticket.
+        time.sleep(1)
+        self.must('guard_still_at_remote_pad',at_pad(),entity)
+        self.rc('save-all flush')
         self.rc('forceload remove '+' '.join(map(str,site['bounds'])))
         self.poll('cache actually unloaded',lambda:not self.loaded(site),40)
         # This single remote death uses a command, explicitly separate from mapped combat.
-        self.rc(f'kill {entity}')
+        result=self.rc(f'kill {entity}')
+        self.must('remote_guard_death_command_applied','Killed' in result,result)
         self.rc('forceload add '+' '.join(map(str,site['bounds'])))
         self.poll('late death receipt applied',lambda:self.loaded(site) and self.data(site).get('Wave')==1,45)
         self.must('unloaded_cache_received_bound_death',self.data(site)['Wave']==1,self.data(site));self.report['completed'].append('unloaded_cache_death');self.save()
