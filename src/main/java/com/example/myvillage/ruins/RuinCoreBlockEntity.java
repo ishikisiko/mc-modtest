@@ -27,8 +27,8 @@ public final class RuinCoreBlockEntity extends BlockEntity {
         var d = canonical.subtract(RuinRules.get().core()).rotate(turns);
         return worldPosition.offset(d.x(),d.y(),d.z());
     }
-    private void message(ServerPlayer player, String key) {
-        player.displayClientMessage(Component.translatable("message.myvillage.ruin."+key), false);
+    private void message(ServerPlayer player, String key, Object... arguments) {
+        player.displayClientMessage(Component.translatable("message.myvillage.ruin."+key,arguments), false);
     }
     public void use(ServerPlayer player) {
         if (!(level instanceof ServerLevel server) || player.level() != level || player.isSpectator()
@@ -38,7 +38,7 @@ public final class RuinCoreBlockEntity extends BlockEntity {
         if (!choice.charged()) { message(player,"spent"); return; }
         var request = player.isShiftKeyDown() ? RuinChoice.Choice.VAULT : RuinChoice.Choice.GARDEN;
         if (!choice.confirm(player.getUUID(), request, server.getGameTime(), rules.confirmationTicks())) {
-            message(player,request == RuinChoice.Choice.GARDEN ? "confirm_garden" : "confirm_vault"); return;
+            message(player,request == RuinChoice.Choice.GARDEN ? "confirm_garden" : "confirm_vault",rules.garden().size()); return;
         }
         BlockPos vault = target(rules.vault());
         BarrelBlockEntity chest = null;

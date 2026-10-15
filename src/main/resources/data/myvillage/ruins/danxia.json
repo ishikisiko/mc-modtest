@@ -11,6 +11,12 @@
     {"id": "myvillage:formula_ningshen", "count": 1},
     {"id": "myvillage:low_grade_spirit_stone", "count": 8}
   ],
+  "outer_loot": [
+    {"id": "myvillage:low_grade_spirit_stone", "count": 3},
+    {"id": "myvillage:spirit_leaf", "count": 2},
+    {"id": "myvillage:dew_blossom", "count": 2}
+  ],
+  "outer_loot_rolls": 2,
   "garden": [
     {"pos": [8, 10, 18], "crop": "myvillage:spirit_leaf_crop"},
     {"pos": [10, 10, 18], "crop": "myvillage:dew_blossom_crop"},

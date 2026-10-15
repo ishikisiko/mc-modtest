@@ -156,6 +156,13 @@ def blueprint():
     vx,vy,vz=r['vault']; put(vx,vy,vz,'minecraft:barrel[facing=up,open=false]')
     bes[(vx,vy,vz)]={'id':'minecraft:barrel'}
     put(24,10,36,'myvillage:alchemy_furnace[facing=north,lit=false]')
+    # A working old furnace and a broken vat give the underground room its alchemy identity.
+    put(19,3,35,'myvillage:alchemy_furnace[facing=north,lit=false]')
+    put(23,3,35,'minecraft:cauldron')
+    for x in (18,20,22,24): put(x,3,36,p['cracked'])
+    for x,z in [(18,27),(22,27),(18,31),(22,31)]: put(x,2,z,'minecraft:oxidized_cut_copper')
+    for x in (30,31):
+        put(x,3,37,'minecraft:bookshelf'); put(x,4,37,'minecraft:bookshelf')
     put(31,10,18,'minecraft:barrel[facing=up,open=false]')
     bes[(31,10,18)]={'id':'minecraft:barrel','LootTable':'myvillage:chests/danxia_outer'}
     def sign(pos, lines):
@@ -163,9 +170,11 @@ def blueprint():
         put(x,y,z,'minecraft:oak_sign[rotation=8,waterlogged=false]')
         put(x,y-1,z,p['stone'])
         bes[pos]={'id':'minecraft:sign','is_waxed':True,'front_text':{'messages':[json.dumps({'text':s},ensure_ascii=False) for s in lines],'color':'black','has_glowing_text':False}}
-    sign((18,10,11),['丹霞旧观','荒园尚存余根','丹室深藏残阵','循铜渠下行'])
+    sign((18,10,11),['丹霞旧观','荒园尚存余根','地下妖狼盘踞','循铜渠下行'])
     sign((22,3,28),['残泉仅余一用','空手右击：药园','潜行右击：内库','再次同击确认'])
-    sign((28,3,35),['内库墨迹已散','引残泉可复原','青木长春功','凝神丹方'])
+    language=json.loads((ASSETS/'lang/zh_cn.json').read_text())
+    technique=json.loads((DATA/'myvillage/technique'/f'{r["manual"].split(":")[1]}.json').read_text())
+    sign((28,3,35),['内库墨迹已散','引残泉可复原',language[technique['translation_key']],'功法与丹方'])
     # Deterministic low-frequency decay only after architectural collapse.
     protected = set(bes) | {tuple(e['pos']) for e in r['garden']}
     for pos, cell in list(g.iter_cells()):
@@ -203,8 +212,8 @@ def template_bytes(data, bes, entities):
 MESSAGES={
  'zh_cn': {
   'block.myvillage.ruin_core':'丹霞残阵',
-  'message.myvillage.ruin.confirm_garden':'残泉仅余一次：复苏药园，得到十二株成熟灵植与灵土。空手再次右击确认；潜行右击可改选内库。',
-  'message.myvillage.ruin.confirm_vault':'残泉仅余一次：复原内库中的《青木长春功》、凝神丹方与灵石。保持潜行，空手再次右击确认；松开潜行可改选药园。',
+  'message.myvillage.ruin.confirm_garden':'残泉仅余一次：复苏药园，得到%s株成熟灵植与灵土。空手再次右击确认；潜行右击可改选内库。',
+  'message.myvillage.ruin.confirm_vault':'残泉仅余一次：复原内库中的功法秘籍、丹方与灵石。保持潜行，空手再次右击确认；松开潜行可改选药园。',
   'message.myvillage.ruin.spent':'残阵灵气已尽，无法再次激活。',
   'message.myvillage.ruin.unloaded':'灵路远端尚未加载。请先走近药园与内库，再返回残阵。',
   'message.myvillage.ruin.garden_changed':'药园阵位已被改动：请恢复枯株下的砂土，并清空株位。残泉尚未消耗。',
@@ -215,8 +224,8 @@ MESSAGES={
  },
  'en_us': {
   'block.myvillage.ruin_core':'Danxia Residual Array',
-  'message.myvillage.ruin.confirm_garden':'One charge remains: restore twelve mature spirit plants and their soil. Right-click again with an empty hand to confirm; sneak-right-click to choose the archive instead.',
-  'message.myvillage.ruin.confirm_vault':'One charge remains: restore the Qingmu Changchun manual, Ningshen formula and spirit stones in the archive. Sneak-right-click again with an empty hand to confirm.',
+  'message.myvillage.ruin.confirm_garden':'One charge remains: restore %s mature spirit plants and their soil. Right-click again with an empty hand to confirm; sneak-right-click to choose the archive instead.',
+  'message.myvillage.ruin.confirm_vault':'One charge remains: restore a technique manual, a formula and spirit stones in the archive. Sneak-right-click again with an empty hand to confirm.',
   'message.myvillage.ruin.spent':'The array is exhausted. It cannot be activated again.',
   'message.myvillage.ruin.unloaded':'The far end is not loaded. Visit the garden and archive before returning.',
   'message.myvillage.ruin.garden_changed':'Garden sites were altered. Restore the coarse dirt beneath the withered plants and clear their spaces. No charge spent.',
@@ -245,9 +254,9 @@ def outputs():
         'structures':[{'structure':'myvillage:danxia_ruin','weight':1}],
         'placement':{'type':'minecraft:random_spread',**r['placement']}})
     emit(DATA/'tags/worldgen/biome/has_danxia_ruin.json',{'replace':False,'values':r['biomes']})
-    emit(DATA/'loot_table/chests/danxia_outer.json',{'type':'minecraft:chest','pools':[{'rolls':2,'entries':[
-        {'type':'minecraft:item','name':name,'functions':[{'function':'minecraft:set_count','count':count}]}
-        for name,count in [('myvillage:low_grade_spirit_stone',3),('myvillage:spirit_leaf',2),('myvillage:dew_blossom',2)]]}]})
+    emit(DATA/'loot_table/chests/danxia_outer.json',{'type':'minecraft:chest','pools':[{'rolls':r['outer_loot_rolls'],'entries':[
+        {'type':'minecraft:item','name':e['id'],'functions':[{'function':'minecraft:set_count','count':e['count']}]}
+        for e in r['outer_loot']]}]})
     for lit in (False,True):
         elements=[]
         for a,b,texture in [([0,0,0],[16,3,16],'base'),([2,3,2],[14,9,14],'stone'),

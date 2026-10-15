@@ -98,8 +98,11 @@ class RuinEvidence(Evidence):
     def look(self,pos,target,mode='survival',game=None,user=None):
         user=user or self.s.username; game=game or self.s.game
         self.rc(f'gamemode {mode} {user}')
-        self.rc(f'tp {user} {self.coords(pos)} facing {self.coords(target)}')
-        game.key('1')
+        # Teleport's default command anchor is feet; calculate the actual eye ray explicitly.
+        dx,dy,dz=target[0]-pos[0],target[1]-(pos[1]+1.62),target[2]-pos[2]
+        yaw=math.degrees(math.atan2(-dx,dz)); pitch=-math.degrees(math.atan2(dy,math.hypot(dx,dz)))
+        self.rc(f'tp {user} {self.coords(pos)} {yaw} {pitch}')
+        if mode!='spectator': game.key('1')
         time.sleep(.5)
         game.require_ingame('ruin mapped input')
 
@@ -117,7 +120,9 @@ class RuinEvidence(Evidence):
         time.sleep(.3)
 
     def capture(self,name):
-        self.s.game.shot(self.out/name,max_wait=3)
+        self.s.game.key('F1')
+        try: self.s.game.shot(self.out/name,max_wait=3)
+        finally: self.s.game.key('F1')
 
     def natural(self):
         user=self.s.username
@@ -151,9 +156,10 @@ class RuinEvidence(Evidence):
             marker=data.get('NeoForgeData',{}).get('myvillage:ruin_guardian',{})
             realm=data.get('NeoForgeData',{}).get('myvillage:stats_realm',{})
             self.must(f'guardian_{index}_initialized_once',marker.get('pending')==0 and realm.get('realm')==RULES['guardians'][index]['realm'],{'marker':marker,'realm':realm})
-        for point in [(5,10,15),(20,3,29),(29,3,34),(31,10,18)]:
+        for point,block in [((5,10,15),'minecraft:mossy_stone_bricks'),((20,3,29),'myvillage:ruin_core'),
+                            ((29,3,34),'minecraft:barrel'),((31,10,18),'minecraft:barrel')]:
             pos=self.map(site,point)
-            reply=self.rc(f'execute unless block {self.coords(pos)} minecraft:air run data get block {self.coords(core)} Choice')
+            reply=self.rc(f'execute if block {self.coords(pos)} {block} run data get block {self.coords(core)} Choice')
             self.must(f'cross_chunk_landmark_{point}','CHARGED' in reply,{'pos':pos,'reply':reply})
         for name,pos,target in [('natural-overview.png',(0,29,1),(20,10,25)),
                                 ('natural-entry.png',(20,12,0),(20,12,25)),
@@ -165,7 +171,9 @@ class RuinEvidence(Evidence):
 
     def garden(self,site):
         self.approach(site)
+        self.s.game.shot(self.out/'core-before-use.png',max_wait=3)
         self.click(); self.must('first_click_only_previews',self.choice(site)=='CHARGED',self.choice(site))
+        self.poll('first mapped preview reaches client',lambda:'残泉仅余一次' in self.s.game.client_log.read_text(),5)
         self.click(); self.must('mapped_garden_commit',self.choice(site)=='GARDEN',self.choice(site))
         for plant in RULES['garden']:
             p=self.map(site,plant['pos'])
