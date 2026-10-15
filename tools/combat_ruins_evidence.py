@@ -143,6 +143,7 @@ class BattleEvidence(RuinEvidence):
         self.poll('late death receipt applied',lambda:self.loaded(site) and self.data(site).get('Wave')==1,45)
         self.must('unloaded_cache_received_bound_death',self.data(site)['Wave']==1,self.data(site));self.report['completed'].append('unloaded_cache_death');self.save()
     def partial_restart(self,camp,temple,alive):
+        self.poll('defeat receipt committed before restart baseline',lambda:any(g.get('Dead') for g in self.data(camp)['Guards']),10)
         self.rc(f'damage {alive} 1 minecraft:generic');before=read_data(self.rc(f'data get entity {alive} Health'));saved=self.data(camp)
         self.rc('save-all flush');self.stop();self.start(reuse=True);self.setup_player()
         self.poll('saved camp loaded',lambda:self.loaded(camp))
