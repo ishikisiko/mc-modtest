@@ -232,7 +232,7 @@ class RuinEvidence(Evidence):
         self.s.game.xdo('mousemove','336','156'); self.s.game.xdo('keydown','Shift_L')
         try: self.s.game.xdo('click','1')
         finally: self.s.game.xdo('keyup','Shift_L')
-        time.sleep(.4); self.s.game.key('Escape'); self.s.game.require_ingame('close archive')
+        time.sleep(.4); self.s.game.xdo('key','Escape'); self.s.game.require_ingame('close archive')
         inv=read_data(self.rc(f'data get entity {self.s.username} Inventory'))
         self.must('mapped_manual_pickup',any(i.get('components',{}).get('myvillage:technique')==RULES['manual'] for i in inv),inv)
         self.report['completed']+=['mapped_vault','modified_target']; self.save()
