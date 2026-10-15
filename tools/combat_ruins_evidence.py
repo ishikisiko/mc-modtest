@@ -40,7 +40,10 @@ class BattleEvidence(RuinEvidence):
     def guard_ids(self,site):return [entity_uuid(g['Id']) for g in self.data(site).get('Guards',[]) if 'Id' in g and not g.get('Dead')]
     def loaded(self,site):return 'passed' in self.rc(f'execute if loaded {self.coords(site["core"])}')
     def approach_cache(self,site,game=None,user=None):
-        x,y,z=RULES[site['kind']]['cache'];p=self.map(site,(x+2,y,z));c=site['core']
+        x,y,z=RULES[site['kind']]['cache']
+        # Distinct supported sides keep two real players from pushing each other's eye rays.
+        side=-2 if user is not None and user!=self.s.username else 2
+        p=self.map(site,(x+side,y,z));c=site['core']
         self.look((p[0]+.5,p[1],p[2]+.5),(c[0]+.5,c[1]+.6,c[2]+.5),game=game,user=user)
     def trigger(self,site,wave):
         p=self.map(site,RULES[site['kind']]['waves'][wave]['trigger']);c=site['core']
