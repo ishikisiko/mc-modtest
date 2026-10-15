@@ -1,7 +1,7 @@
 # cultivation-initiation-ritual Specification
 
 ## Purpose
-TBD - created by archiving change add-cultivation-initiation-ritual. Update Purpose after archive.
+Define deterministic server-owned spiritual-root awakening, testing-stele presentation and independent technique inheritance. See also: [Cultivation Initiation Ritual](../../../docs/ai-kb/29_cultivation_initiation_ritual.md).
 ## Requirements
 ### Requirement: Spiritual-root generation is a pure deterministic server algorithm
 The system SHALL provide a pure `SpiritualRootGenerator` whose result depends only on the Overworld seed, player UUID, fixed mod salt, code-only algorithm version, and the complete sorted set of eligible spiritual-element ids and awakening weights. It SHALL use a repository-owned fixed 64-bit mixing and bounded-draw algorithm rather than Minecraft/JDK random behavior, registry iteration order, Java `String.hashCode` alone, current time/tick, position, current dimension, biome, weather, moon phase, player/level random, or client state. The Overworld seed MUST NOT be persisted in the profile, sent to the client, written to player chat, or emitted to ordinary logs.
@@ -112,7 +112,7 @@ lifespan consumed, meditation reserve, and learned techniques.
 - **THEN** no intermediate profile, changed counter, or changed snapshot SHALL be observable
 
 ### Requirement: Awakening is one-time and existing roots are never migrated automatically
-If a profile already contains any spiritual root, including one installed by an administrator, ordinary awakening SHALL return `ALREADY_AWAKENED` without generation, overwrite, stage repair, snapshot, or complete success effect. Registry/datapack or generator changes SHALL affect only future generation; already persisted roots, including unknown element ids, SHALL remain unchanged and SHALL NOT be automatically recalculated, deleted, or migrated.
+If a profile already contains any spiritual root, including one installed by an administrator, ordinary awakening SHALL return `ALREADY_AWAKENED` without generation, overwrite, stage repair, mutation snapshot, or complete success effect. The testing-stele presentation path SHALL be allowed to synchronize that unchanged profile and open the awakening screen for an existing rooted character at any later stage; that resynchronization SHALL NOT count as a new awakening commit. Registry/datapack or generator changes SHALL affect only future generation; already persisted roots, including unknown element ids, SHALL remain unchanged and SHALL NOT be automatically recalculated, deleted, or migrated.
 
 #### Scenario: An awakened player repeats the ritual
 - **WHEN** a profile with a spiritual root invokes awakening again
@@ -185,18 +185,20 @@ The system SHALL provide a reusable `TechniqueRequirementEvaluator` that resolve
 - **AND** the unknown saved id and its mastery SHALL remain unchanged
 
 ### Requirement: Two independent steles expose the two server services
-The mod SHALL register `myvillage:spirit_testing_stele` and `myvillage:technique_inheritance_stele` as two separate blocks with matching BlockItems, `myvillage:main` creative-tab entries, `ModBlocks.verifyRegistered` coverage, complete blockstate/block-model/item-model/loot-table/tool-tag and bilingual language resources, and jar inclusion. They SHALL use current vanilla block interaction, execute only on the logical server, prevent main/off-hand double submission, own no BlockEntity/menu/player data, have no recipe or natural generation, and be obtainable through `/give`.
+The mod SHALL register `myvillage:spirit_testing_stele` and `myvillage:technique_inheritance_stele` as two separate blocks with matching BlockItems, `myvillage:main` creative-tab entries, `ModBlocks.verifyRegistered` coverage, complete blockstate/block-model/item-model/loot-table/tool-tag and bilingual language resources, and jar inclusion. They SHALL use current vanilla block interaction, execute only on the logical server, prevent main/off-hand double submission, own no BlockEntity/menu/block-local player data, have no recipe or natural generation, and be obtainable through `/give`.
 
 #### Scenario: The testing stele is used successfully
-- **WHEN** an eligible player uses `spirit_testing_stele`
+- **WHEN** an eligible rootless player uses `spirit_testing_stele`
 - **THEN** the block SHALL call `SpiritualRootAwakeningService` exactly once
 - **AND** only a committed `SUCCESS` SHALL produce the full vanilla sound/particle feedback
 - **AND** the translatable success message SHALL list affinities descending by value then ascending by id
+- **AND** the server SHALL synchronize the final root and open the independent root-first awakening screen for that player
 
 #### Scenario: The inheritance stele is used successfully
 - **WHEN** an eligible awakened player uses `technique_inheritance_stele`
 - **THEN** the block SHALL call `TechniqueInheritanceService` exactly once
-- **AND** the translatable feedback SHALL state that `basic_breathing` was learned, the `H` profile can show it, and the current version cannot execute it
+- **AND** the translatable feedback SHALL state that `basic_breathing` was learned and the `H` profile can show it
+- **AND** inheritance SHALL not automatically start execution or meditation
 
 #### Scenario: A translated element label is unavailable
 - **WHEN** affinity feedback cannot resolve an element translation key
@@ -206,14 +208,18 @@ The mod SHALL register `myvillage:spirit_testing_stele` and `myvillage:technique
 - **WHEN** registrations, resources, recipes, and worldgen are validated
 - **THEN** neither stele SHALL have a BlockEntity, menu, recipe, natural placement, structure integration, or block-local profile storage
 
+
+#### Scenario: An existing root resumes awakening presentation
+- **WHEN** a living non-spectator player with an existing root uses the testing stele, including at a later stage or after inheritance
+- **THEN** the server SHALL preserve that root, skip root generation, synchronize the current unchanged profile, establish a valid interaction session and open the awakening screen without replaying a fresh-awakening success effect
+- **AND** fate draft/result resumption SHALL follow `innate-fates`
+
 ### Requirement: Initiation reuses the existing one-way snapshot and read-only profile screen
 Successful initiation mutations SHALL synchronize through the current
 clientbound profile snapshot. Initiation SHALL add no awaken, root-generation,
 affinity-selection, inheritance, or technique-learning serverbound payload. The
 separate meditation capability MAY register bounded normal/spirit/stop intent
-that carries no profile value and cannot bypass either ritual. H SHALL remain
-read-only and SHALL not generate roots, evaluate inheritance, choose ids or
-affinities, or submit profile changes.
+that carries no profile value and cannot bypass either ritual. H SHALL remain read-only for root and fate results and SHALL not generate roots, evaluate inheritance, choose fate ids or affinities, or submit ritual/fate changes. A separate clientbound notification SHALL open the awakening screen after the server validates a testing-stele interaction; only the separately specified bounded fate intents SHALL mutate its fate choice.
 
 #### Scenario: Awakening succeeds then inheritance succeeds
 - **WHEN** the owning client receives each final ritual snapshot
@@ -225,8 +231,8 @@ affinities, or submit profile changes.
 
 #### Scenario: Payload registrations are inspected
 - **WHEN** initiation is validated alongside meditation
-- **THEN** no initiation-specific serverbound payload SHALL exist
-- **AND** only the separately specified meditation intent and existing flying-sword input SHALL be permitted serverbound
+- **THEN** no awaken, root-generation, affinity-selection, inheritance or technique-learning serverbound payload SHALL exist
+- **AND** only separately specified bounded gameplay intents, including fate selection and session closure, SHALL be permitted serverbound; none SHALL generate or install a client-authored root
 
 ### Requirement: Initiation does not implement cultivation execution or progression
 The awakening and inheritance ritual actions SHALL NOT themselves execute Basic

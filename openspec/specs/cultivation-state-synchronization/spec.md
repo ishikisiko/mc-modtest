@@ -7,7 +7,7 @@ direction, mutation authority, and dedicated-server side safety.
 See also: [Spiritual Power and Sword Qi](../../../docs/ai-kb/45_spiritual_power_sword_qi.md).
 ## Requirements
 ### Requirement: Cultivation snapshots flow only from server to owning client
-The mod SHALL keep `myvillage:cultivation_snapshot` play-to-client and carry the immutable current-v4 cultivation profile, the independent immutable fate state and the server fate point budget. Time and runtime-status payloads SHALL remain clientbound-only. Cultivation serverbound inputs SHALL be limited to the bounded meditation action, a core-technique switch ID and a fate intent carrying action, seen draft revision and a bounded slot or six-bit selection mask. None SHALL carry client-authored realm, stage, root, affinity, progress, stability, power, lifespan, effect value, cost, rate or result. The server SHALL resolve and validate all replacements.
+The mod SHALL keep `myvillage:cultivation_snapshot` play-to-client and carry the immutable current-v4 cultivation profile, the independent immutable fate state and the server fate point budget. Time and runtime-status payloads SHALL remain clientbound-only. Cultivation serverbound inputs SHALL be limited to the bounded meditation action, a core-technique switch ID and a fate intent carrying action, seen draft revision, a bounded slot or six-bit selection mask and a server-issued session token, plus a close intent carrying only that token. None SHALL carry client-authored realm, stage, root, affinity, progress, stability, power, lifespan, effect value, cost, rate or result. The server SHALL resolve and validate all replacements.
 
 #### Scenario: The server synchronizes one player
 - **WHEN** `CultivationService#syncToClient` is called for a `ServerPlayer`
@@ -16,7 +16,7 @@ The mod SHALL keep `myvillage:cultivation_snapshot` play-to-client and carry the
 
 #### Scenario: A client submits a cultivation action
 - **WHEN** registered payload directions and fields are inspected
-- **THEN** only the bounded meditation action, core switch ID and bounded fate selection intent SHALL be registered as cultivation serverbound inputs
+- **THEN** only the bounded meditation action, core switch ID, bounded fate selection intent and session close token SHALL be registered as cultivation serverbound inputs
 - **AND** the server attachment, candidate eligibility and resolved gameplay numbers SHALL remain authoritative
 
 ### Requirement: Definition registries are not duplicated in profile snapshots
@@ -171,7 +171,7 @@ The initiation change SHALL reuse the existing `CultivationSnapshotPayload` prof
 #### Scenario: Payload registration is inspected after initiation integration
 - **WHEN** the registered payload types and directions are enumerated
 - **THEN** `myvillage:cultivation_snapshot` SHALL remain clientbound-only
-- **AND** no cultivation play-to-server mutation payload SHALL exist
+- **AND** separately specified bounded meditation/core-switch/fate intents and session closure SHALL remain the only cultivation serverbound inputs, with no client-authored root or inheritance result
 - **AND** the flying-sword input payload SHALL remain the existing independent serverbound payload
 
 ### Requirement: The time snapshot is compact clientbound and side safe
@@ -317,3 +317,18 @@ The power HUD SHALL derive its current value from the owning-client cultivation 
 #### Scenario: Power changes after a cast
 - **WHEN** the server accepts a cast and publishes the changed profile
 - **THEN** the HUD SHALL display the server balance without committing a predicted balance
+
+### Requirement: Awakening opening is server-authorized and side safe
+A bounded clientbound awakening-open notification carrying the server anchor block position and strictly positive session token SHALL be sent only to the player whose valid testing-stele interaction established a live server session. The owning cultivation snapshot SHALL provide the root, fate draft/result and server budget; the opening notification SHALL not duplicate definition registries or reveal the world seed. Client handling SHALL enqueue work behind a physical-client-only bridge. Session closure SHALL carry only the server-issued token as bounded close intent, never a client-authored anchor, authority, root or effect. Common payload and server code SHALL remain dedicated-server safe.
+
+#### Scenario: Stele interaction opens the client screen
+- **WHEN** the server accepts a testing-stele interaction for an awakened living player
+- **THEN** it SHALL send current synchronized state before the clientbound opening notification to that player only
+
+#### Scenario: A client closes the awakening screen
+- **WHEN** the player leaves the awakening screen
+- **THEN** a bounded close intent SHALL invalidate their server session without mutating the root or fate draft
+
+#### Scenario: Dedicated server registers the new notification
+- **WHEN** all cultivation payloads register on a dedicated server
+- **THEN** registration SHALL load no Minecraft client class and SHALL preserve existing payload directions and bounded fate intent fields

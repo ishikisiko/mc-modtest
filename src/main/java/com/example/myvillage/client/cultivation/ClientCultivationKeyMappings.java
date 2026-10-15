@@ -38,6 +38,7 @@ public final class ClientCultivationKeyMappings {
             "key.categories.myvillage");
 
     public ClientCultivationKeyMappings(IEventBus modEventBus) {
+        ClientCultivationEvents.initialize();
         modEventBus.addListener(ClientCultivationKeyMappings::registerKeyMappings);
     }
 

@@ -18,7 +18,13 @@ public final class CultivationPayloads {
         registrar.playToServer(FateIntentPayload.TYPE, FateIntentPayload.STREAM_CODEC, (payload, context) -> {
             if (context.player() instanceof ServerPlayer player) context.enqueueWork(() ->
                     com.example.myvillage.cultivation.fate.FateService.intent(player, Byte.toUnsignedInt(payload.action()),
-                            payload.revision(), Byte.toUnsignedInt(payload.value())));
+                            payload.revision(), Byte.toUnsignedInt(payload.value()), payload.sessionToken()));
+        });
+        registrar.playToClient(AwakeningOpenPayload.TYPE, AwakeningOpenPayload.STREAM_CODEC, (payload, context) ->
+                context.enqueueWork(() -> AwakeningScreenReceiver.receive(payload)));
+        registrar.playToServer(AwakeningClosePayload.TYPE, AwakeningClosePayload.STREAM_CODEC, (payload, context) -> {
+            if (context.player() instanceof ServerPlayer player) context.enqueueWork(() ->
+                    com.example.myvillage.cultivation.fate.SteleAwakeningSessions.close(player, payload.sessionToken()));
         });
         CultivationTimeRuntime.installStatusListener((player, status) ->
                 PacketDistributor.sendToPlayer(player, CultivationTimeSnapshotPayload.fromStatus(status)));

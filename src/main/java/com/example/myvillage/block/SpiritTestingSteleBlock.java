@@ -1,6 +1,10 @@
 package com.example.myvillage.block;
 
 import com.example.myvillage.cultivation.CultivationInitiationMessages;
+import com.example.myvillage.cultivation.CultivationService;
+import com.example.myvillage.cultivation.fate.FateService;
+import com.example.myvillage.cultivation.fate.SteleAwakeningSessions;
+import com.example.myvillage.cultivation.network.AwakeningOpenPayload;
 import com.example.myvillage.cultivation.root.SpiritualRootAwakeningService;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
@@ -20,6 +24,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public final class SpiritTestingSteleBlock extends Block {
     public static final MapCodec<SpiritTestingSteleBlock> CODEC =
@@ -46,13 +51,22 @@ public final class SpiritTestingSteleBlock extends Block {
             Player player,
             BlockHitResult hitResult) {
         if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
-            SpiritualRootAwakeningService.Outcome outcome =
-                    SpiritualRootAwakeningService.awaken(serverPlayer);
-            CultivationInitiationMessages.awakening(serverPlayer, outcome)
-                    .forEach(message -> serverPlayer.displayClientMessage(message, false));
-            if (outcome.success()) {
+            long token = SteleAwakeningSessions.open(serverPlayer, pos);
+            if (token == 0) return InteractionResult.FAIL;
+            if (CultivationService.getProfile(serverPlayer).spiritualRoot().isEmpty()) {
+                SpiritualRootAwakeningService.Outcome outcome =
+                        SpiritualRootAwakeningService.awaken(serverPlayer);
+                CultivationInitiationMessages.awakening(serverPlayer, outcome)
+                        .forEach(message -> serverPlayer.displayClientMessage(message, false));
+                if (!outcome.success()) {
+                    SteleAwakeningSessions.close(serverPlayer, token);
+                    return InteractionResult.FAIL;
+                }
                 playSuccessEffects((ServerLevel) level, pos);
             }
+            FateService.initializeDraft(serverPlayer);
+            CultivationService.syncToClient(serverPlayer);
+            PacketDistributor.sendToPlayer(serverPlayer, new AwakeningOpenPayload(pos, token));
         }
         return InteractionResult.sidedSuccess(level.isClientSide());
     }

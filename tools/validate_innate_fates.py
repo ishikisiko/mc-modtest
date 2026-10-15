@@ -8,6 +8,10 @@ from pathlib import Path
 import re
 import zipfile
 
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from tools.validate_cultivation_initiation import _strip_java_comments, _method_body
+
 ROOT = Path(__file__).resolve().parents[1]
 JAVA = 'src/main/java/com/example/myvillage/'
 DATA = 'src/main/resources/data/myvillage/myvillage/innate_fate'
@@ -59,22 +63,53 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> list[str]:
     attachment=read(JAVA+'cultivation/CultivationAttachments.java')
     need('FateState.CODEC).copyOnDeath()' in attachment,'FATE_PERSISTENCE: copyOnDeath required')
     payload=read(JAVA+'cultivation/network/FateIntentPayload.java')
-    need('byte action, long revision, byte value' in payload,'FATE_INTENT: intent-only bounded fields required')
+    need(bool(re.search(r'record\s+FateIntentPayload\s*\(\s*byte action,\s*long revision,\s*byte value,\s*long sessionToken\s*\)', _strip_java_comments(payload))), 'FATE_INTENT: only action/revision/value/sessionToken fields allowed')
     runtime=read(JAVA+'cultivation/fate/FateRuntime.java')
     for token in ('BYPASSES_INVULNERABILITY','LivingDropsEvent','recoverSpiritualPower','replaceFates','addPermanentModifier'):
         need(token in runtime,'FATE_RUNTIME: '+token)
     need('FateSelection.transition' in read(JAVA+'cultivation/fate/FateService.java'),'FATE_AUTHORITY: production must use tested transition')
-    page=read(JAVA+'client/cultivation/panel/FatesPage.java')
-    need('extends PanelPage' in page and 'PanelContext' in page and 'sendFate' in page,'FATE_PANEL')
-    for p in (root/(JAVA+'cultivation/fate')).glob('*.java'):
-        need('net.minecraft.client' not in p.read_text(),'FATE_CLIENT_IMPORT: '+p.name)
+    page=_strip_java_comments(read(JAVA+'client/cultivation/panel/FatesPage.java'))
+    need('extends PanelPage' in page and 'PanelContext' in page, 'FATE_PANEL')
+    need(not re.search(r'sendFate|ClientCultivationIntentSender|FateIntentPayload|new PanelButton|selection\s*\^=', page), 'FATE_PANEL_READONLY: H page must only show results')
+    screen=_strip_java_comments(read(JAVA+'client/cultivation/AwakeningScreen.java'))
+    need('extends Screen' in screen and 'sessionToken' in screen and 'sendFate' in screen, 'FATE_AWAKENING_SCREEN: independent session-bound screen required')
+    need('AwakeningClosePayload' in screen or 'sendAwakeningClose' in screen, 'FATE_SESSION_CLOSE: screen must close the session')
+    sessions=_strip_java_comments(read(JAVA+'cultivation/fate/SteleAwakeningSessions.java'))
+    valid=_method_body(sessions, 'valid') or ''
+    # Pure numeric transitions are tested in Java; these checks enforce the world authority boundary.
+    for token in ('SPIRIT_TESTING_STELE', 'isAlive', 'isRemoved', 'isSpectator', 'dimension', 'hasChunkAt', 'canInteractWithBlock'):
+        need(token in sessions, 'FATE_STELE_GATE: '+token)
+    need(bool(valid) and ('token' in valid.lower()), 'FATE_STELE_GATE: validate the submitted token')
+    for token in ('PlayerLoggedOutEvent','PlayerChangedDimensionEvent','LivingDeathEvent','EntityTeleportEvent','ServerStoppingEvent','ServerTickEvent'):
+        need(token in sessions, 'FATE_SESSION_LIFECYCLE: '+token)
+    service_source=_strip_java_comments(read(JAVA+'cultivation/fate/FateService.java'))
+    intent=_method_body(service_source, 'intent') or ''
+    need('SteleAwakeningSessions.valid' in intent, 'FATE_SESSION_AUTHORITY: network intent must revalidate stele session')
+    need('FateSelection.transition' not in intent or intent.find('SteleAwakeningSessions.valid') < intent.find('FateSelection.transition'), 'FATE_SESSION_AUTHORITY: validate session before transition')
+    for name, fields in (('AwakeningOpenPayload', r'BlockPos stelePos,\s*long sessionToken'), ('AwakeningClosePayload', r'long sessionToken')):
+        source=_strip_java_comments(read(JAVA+'cultivation/network/'+name+'.java'))
+        need(bool(re.search(r'record\s+'+name+r'\s*\(\s*'+fields+r'\s*\)',source)), 'FATE_SESSION_PAYLOAD: '+name)
+    opener=_strip_java_comments(read(JAVA+'block/SpiritTestingSteleBlock.java'))
+    for token in ('SteleAwakeningSessions.open', 'AwakeningOpenPayload', 'spiritualRoot().isEmpty()', 'FateService.initializeDraft', 'syncToClient'):
+        need(token in opener, 'FATE_STELE_OPEN: '+token)
+    request=_method_body(service_source, 'request') or ''
+    need('if (!authorized)' in request and 'FateSelection.transition' in request, 'FATE_SESSION_AUTHORITY: shared transition must reject unauthorized requests')
+    diagnostic=_method_body(service_source, 'diagnosticIntent') or ''
+    need('source.hasPermission(2)' in diagnostic, 'FATE_DIAGNOSTIC_PERMISSION: fixture bypass requires permission source')
+    network=_strip_java_comments(read(JAVA+'cultivation/network/CultivationPayloads.java'))
+    need('diagnosticIntent' not in network, 'FATE_DIAGNOSTIC_NETWORK: network cannot call fixture bypass')
+    for p in (root/(JAVA+'cultivation')).rglob('*.java'):
+        need(not re.search(r'import\s+(?:net\.minecraft\.client|com\.example\.myvillage\.client)\.', _strip_java_comments(p.read_text())), 'FATE_CLIENT_IMPORT: '+p.name)
     if jar:
         try:
             with zipfile.ZipFile(jar) as z:
                 files=[*sorted((root/DATA).glob('*.json')),root/'src/main/resources/data/myvillage/fates/rules.json']
                 for p in files:need(z.read(p.relative_to(root/'src/main/resources').as_posix())==p.read_bytes(),'FATE_JAR_RESOURCE: '+p.name)
-                for name in ('FateState','FateService','FateRuntime','FateSelection'):
+                for name in ('FateState','FateService','FateRuntime','FateSelection','SteleAwakeningSessions'):
                     need(f'com/example/myvillage/cultivation/fate/{name}.class' in z.namelist(),'FATE_JAR_CLASS: '+name)
+                for name in ('AwakeningOpenPayload','AwakeningClosePayload'):
+                    need(f'com/example/myvillage/cultivation/network/{name}.class' in z.namelist(), 'FATE_JAR_CLASS: '+name)
+                need('com/example/myvillage/client/cultivation/AwakeningScreen.class' in z.namelist(), 'FATE_JAR_CLASS: AwakeningScreen')
         except (OSError,KeyError,zipfile.BadZipFile) as e:errors.append('FATE_JAR: '+str(e))
     return errors
 

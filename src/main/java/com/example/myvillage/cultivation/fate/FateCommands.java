@@ -20,7 +20,7 @@ public final class FateCommands {
         for (String alias : new String[]{"roll", "chongzhi"}) root.then(Commands.literal(alias)
                 .executes(c -> act(c.getSource().getPlayerOrException(), 0, 0))
                 .then(Commands.argument("player", EntityArgument.player()).requires(s -> s.hasPermission(2))
-                        .executes(c -> act(EntityArgument.getPlayer(c, "player"), 0, 0))));
+                        .executes(c -> diagnostic(c.getSource(), EntityArgument.getPlayer(c, "player"), 0, 0))));
         for (String alias : new String[]{"lock", "suoding"}) root.then(Commands.literal(alias)
                 .then(Commands.argument("slot", IntegerArgumentType.integer(0, 6))
                         .executes(c -> act(c.getSource().getPlayerOrException(), 1, slot(IntegerArgumentType.getInteger(c, "slot"))))));
@@ -29,7 +29,7 @@ public final class FateCommands {
                         .executes(c -> act(c.getSource().getPlayerOrException(), 2, IntegerArgumentType.getInteger(c, "mask"))))
                 .then(Commands.argument("player", EntityArgument.player()).requires(s -> s.hasPermission(2))
                         .then(Commands.argument("mask", IntegerArgumentType.integer(0, 63))
-                                .executes(c -> act(EntityArgument.getPlayer(c, "player"), 2, IntegerArgumentType.getInteger(c, "mask"))))));
+                                .executes(c -> diagnostic(c.getSource(), EntityArgument.getPlayer(c, "player"), 2, IntegerArgumentType.getInteger(c, "mask"))))));
         for (String alias : new String[]{"reset", "qingchu"}) root.then(Commands.literal(alias).requires(s -> s.hasPermission(2))
                 .then(Commands.argument("player", EntityArgument.player()).executes(c -> {
                     ServerPlayer p = EntityArgument.getPlayer(c, "player");
@@ -45,7 +45,11 @@ public final class FateCommands {
     }
     private static int slot(int value) { return value == 0 ? 255 : value - 1; }
     private static int act(ServerPlayer p, int action, int value) {
-        return FateService.intent(p, action, FateService.state(p).revision(), value) ? 1 : 0;
+        return FateService.intent(p, action, FateService.state(p).revision(), value,
+                SteleAwakeningSessions.currentToken(p)) ? 1 : 0;
+    }
+    private static int diagnostic(CommandSourceStack source, ServerPlayer p, int action, int value) {
+        return FateService.diagnosticIntent(source, p, action, FateService.state(p).revision(), value) ? 1 : 0;
     }
     private static int info(CommandSourceStack source, ServerPlayer p) {
         FateState s = FateService.state(p);
@@ -53,6 +57,8 @@ public final class FateCommands {
         json.addProperty("player", p.getGameProfile().getName());
         json.addProperty("budget", FateService.budget());
         json.addProperty("now", p.getServer().overworld().getGameTime());
+        long token = SteleAwakeningSessions.currentToken(p);
+        json.addProperty("awakening_session", SteleAwakeningSessions.valid(p, token) ? token : 0);
         String text = "FATES " + json;
         source.sendSuccess(() -> Component.literal(text), false); return 1;
     }

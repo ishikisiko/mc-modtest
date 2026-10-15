@@ -304,6 +304,8 @@ class CultivationInitiationValidationTest(unittest.TestCase):
             public final class CultivationPayloads {
                 public static void register(PayloadRegistrar registrar) {
                     registrar.playToServer(FateIntentPayload.TYPE, FateIntentPayload.STREAM_CODEC, CultivationPayloads::handleFate);
+                    registrar.playToServer(AwakeningClosePayload.TYPE, AwakeningClosePayload.STREAM_CODEC, CultivationPayloads::handleAwakeningClose);
+                    registrar.playToClient(AwakeningOpenPayload.TYPE, AwakeningOpenPayload.STREAM_CODEC, CultivationPayloads::handleAwakeningOpen);
                     registrar.playToClient(CultivationSnapshotPayload.TYPE,
                             CultivationSnapshotPayload.STREAM_CODEC, CultivationPayloads::handle);
                     registrar.playToClient(CultivationTimeSnapshotPayload.TYPE,
@@ -705,6 +707,16 @@ class CultivationInitiationValidationTest(unittest.TestCase):
 
         self.assert_error_contains(result, "jar-name example version 0.22.2 does not match 0.23.0")
 
+
+    def test_awakening_opener_registration_required(self) -> None:
+        path=self.root / "src/main/java/com/example/myvillage/cultivation/network/CultivationPayloads.java"
+        path.write_text(path.read_text().replace("AwakeningOpenPayload.TYPE", "MissingOpenPayload.TYPE"))
+        self.assert_error_contains(self.validate(), "missing clientbound registration for AwakeningOpenPayload")
+
+    def test_awakening_close_registration_required(self) -> None:
+        path=self.root / "src/main/java/com/example/myvillage/cultivation/network/CultivationPayloads.java"
+        path.write_text(path.read_text().replace("AwakeningClosePayload.TYPE", "MissingClosePayload.TYPE"))
+        self.assert_error_contains(self.validate(), "C2S registration must include token-only AwakeningClosePayload")
 
 if __name__ == "__main__":
     unittest.main()

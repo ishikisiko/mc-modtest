@@ -5,6 +5,8 @@ import com.example.myvillage.cultivation.SpiritualRoot;
 import com.example.myvillage.cultivation.CultivationProfile;
 import com.example.myvillage.cultivation.network.CultivationSnapshotPayload;
 import com.example.myvillage.cultivation.network.FateIntentPayload;
+import com.example.myvillage.cultivation.network.AwakeningOpenPayload;
+import com.example.myvillage.cultivation.network.AwakeningClosePayload;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.JsonOps;
 import io.netty.buffer.Unpooled;
@@ -13,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.Bootstrap;
@@ -54,6 +57,15 @@ class FateFoundationTest {
                 ResourceLocation.parse("myvillage:earth"), c)));
     }
     private static FateState roll() { return FateSelection.transition(FateState.empty(), 0, 0, 0, defs, 8, FateRules.bundled(), new Random(1)); }
+    @Test void steleInitializesOnlyAbsentDraftAndPreservesLockedOrConfirmedChoices() {
+        var draft = FateSelection.initializeDraft(FateState.empty(), defs, 8, FateRules.bundled(), new Random(1));
+        assertEquals(1, draft.rolls());
+        assertEquals(6, draft.candidates().size());
+        var locked = FateSelection.transition(draft, 1, draft.revision(), 0, defs, 8, FateRules.bundled(), new Random());
+        var confirmed = FateSelection.transition(locked, 2, locked.revision(), validMask(locked, 8), defs, 8, FateRules.bundled(), new Random());
+        for (var state : List.of(draft, locked, confirmed))
+            assertSame(state, FateSelection.initializeDraft(state, Map.of(), 3, FateRules.bundled(), new Random(99)));
+    }
     private static int validMask(FateState state, int budget) {
         for (int mask = 0; mask < 64; mask++) if (Integer.bitCount(mask) == 3
                 && FateSelection.validate(FateSelection.mask(state.candidates(), mask), defs, budget, true).isEmpty()) return mask;
@@ -113,9 +125,15 @@ class FateFoundationTest {
     @Test void actualNetworkCodecsCarryOnlyIntentAndOwningSnapshot() {
         var buffer = new RegistryFriendlyByteBuf(Unpooled.buffer(), RegistryAccess.EMPTY, ConnectionType.NEOFORGE);
         try {
-            var intent = new FateIntentPayload((byte) 2, 50, (byte) 7);
-            FateIntentPayload.STREAM_CODEC.encode(buffer, intent); assertEquals(3, buffer.readableBytes());
+            var intent = new FateIntentPayload((byte) 2, 50, (byte) 7, 9);
+            FateIntentPayload.STREAM_CODEC.encode(buffer, intent); assertEquals(4, buffer.readableBytes());
             assertEquals(intent, FateIntentPayload.STREAM_CODEC.decode(buffer));
+            var open = new AwakeningOpenPayload(new BlockPos(-32, 80, 64), 9);
+            AwakeningOpenPayload.STREAM_CODEC.encode(buffer, open);
+            assertEquals(open, AwakeningOpenPayload.STREAM_CODEC.decode(buffer));
+            var close = new AwakeningClosePayload(9);
+            AwakeningClosePayload.STREAM_CODEC.encode(buffer, close);
+            assertEquals(close, AwakeningClosePayload.STREAM_CODEC.decode(buffer));
             var snapshot = new CultivationSnapshotPayload(CultivationProfile.defaultProfile(), roll(), 12);
             CultivationSnapshotPayload.STREAM_CODEC.encode(buffer, snapshot);
             assertEquals(snapshot, CultivationSnapshotPayload.STREAM_CODEC.decode(buffer)); assertEquals(0, buffer.readableBytes());

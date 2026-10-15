@@ -6,6 +6,7 @@ The implemented initiation slice is a two-step, server-authoritative flow:
 mortal_unawakened
   -> spirit_testing_stele: deterministic spiritual-root awakening
   -> mortal_qi_sensed
+  -> independent awakening screen: root result, then innate-fate choice
   -> technique_inheritance_stele: definition-gated basic-breathing inheritance
   -> myvillage:basic_breathing at mastery 0
 ```
@@ -120,7 +121,11 @@ Both are in `myvillage:main`. Creative inventory and `/give` are the only curren
 acquisition paths: neither has a recipe, natural generation, sect/worldgen
 placement, BlockEntity, menu, or block-local player state. Their vanilla block
 interactions call their corresponding service only on the logical server, and
-full sounds/particles occur only after a successful commit.
+full sounds/particles occur only after a successful commit. The testing stele
+then opens the independent root-first awakening screen; an existing root opens
+the same screen without root generation or a fresh success effect. Empty
+unconfirmed fate candidates initialize once, drafts resume and confirmed choices
+remain unchanged. See [48](48_innate_fates.md) for session authority and fate rules.
 
 All eight permission-level-2 administrator routes use the same ordinary rules as
 the corresponding block service:
@@ -139,12 +144,18 @@ the corresponding block service:
 Omitting `target` uses the executing player. These routes accept no seed,
 element, affinity, count, technique id, reroll, force, or bypass argument. The
 existing low-level `setroot`, `clearroot`, and `learn` administrator tools remain
-separate. Blocks and command handlers never write the attachment directly.
+separate. `awaken`/`juexing` still only run the root service; they do not establish
+a testing-stele session or open the choice screen. Blocks and command handlers
+never write the attachment directly.
 
 Successful actions reuse the existing clientbound-only
 `myvillage:cultivation_snapshot`. The `H` profile screen remains a non-pausing,
 read-only view of the latest snapshot: it generates no root, evaluates no
-requirements, exposes no mutation control, and sends no cultivation payload.
+requirements, exposes no root/fate mutation control. Other H pages retain their
+separately specified bounded meditation and core-switch intents. The separate awakening
+screen sends only bounded fate intents with a server-issued session token, and
+closure sends that token to end the session; no client request generates roots
+or inherits techniques.
 
 ## Validation And Manual Evidence
 
@@ -167,8 +178,10 @@ scope, release synchronization, and jar packaging. Java tests own golden-vector,
 affinity-math, atomic-transition, repeat, and mastery-preservation proof. Stage 1
 is bounded dedicated-server lifecycle/registration/side-safety evidence only.
 
-No real client/server interaction was observed for this documentation update.
-Every final manual item therefore remains `not_verified`:
+The table below is the original initiation manual ledger. It is not acceptance
+evidence for the revised awakening screen; current entry/layout/session evidence
+is recorded separately in README and [48](48_innate_fates.md). Unobserved manual
+items remain `not_verified`:
 
 The Java service tests exercise the atomic `ProfileCommitter` seam, not a live
 Attachment plus `PacketDistributor` path. Static validation likewise checks
@@ -208,6 +221,8 @@ separate changes; see
 
 ## See Also
 
+- [Innate Fates](48_innate_fates.md)
+- [innate-fates](../../openspec/specs/innate-fates/spec.md)
 - [Cultivation Core Foundation](28_cultivation_core.md)
 - [cultivation-initiation-ritual](../../openspec/specs/cultivation-initiation-ritual/spec.md)
 - [Archived initiation change](../../openspec/changes/archive/2026-07-13-add-cultivation-initiation-ritual/proposal.md)

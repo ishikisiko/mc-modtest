@@ -26,7 +26,11 @@ public final class ClientCultivationEvents {
         CultivationSnapshotReceiver.install(ClientCultivationState::replace);
         CultivationTimeSnapshotReceiver.install(ClientCultivationState::replaceTime);
         MeditationStatusReceiver.install(ClientCultivationEvents::receiveMeditationStatus);
+        com.example.myvillage.cultivation.network.AwakeningScreenReceiver.install(ClientAwakening::open);
     }
+
+    /** Eagerly installs owning-client receivers from the actual client mod entry point. */
+    public static void initialize() { }
 
     private ClientCultivationEvents() {
     }
@@ -34,6 +38,7 @@ public final class ClientCultivationEvents {
     @SubscribeEvent
     static void onLoggingOut(ClientPlayerNetworkEvent.LoggingOut event) {
         ClientCultivationState.clear();
+        ClientAwakening.clear();
         ClientWorldSimState.clear();
     }
 

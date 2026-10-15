@@ -5,6 +5,7 @@ import com.example.myvillage.cultivation.CultivationService;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.time.CultivationServerConfig;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import java.util.*;
@@ -32,8 +33,34 @@ public final class FateService {
         return state.selected().stream().map(definitions::get).filter(Objects::nonNull)
                 .mapToDouble(d -> d.effect(effect)).sum();
     }
+    /** Only the server-side stele interaction initializes a missing draft, never an existing one. */
+    public static void initializeDraft(ServerPlayer player) {
+        if (!SteleAwakeningSessions.valid(player, SteleAwakeningSessions.currentToken(player))
+                || CultivationService.getProfile(player).spiritualRoot().isEmpty()) return;
+        FateState current = state(player);
+        if (current.confirmed() || !current.candidates().isEmpty()) return;
+        try {
+            FateState replacement = FateSelection.initializeDraft(current, eligible(player), budget(),
+                    FateRules.bundled(), random(player, current));
+            if (replacement != current) CultivationService.replaceFates(player, replacement, true);
+        } catch (IllegalArgumentException | ArithmeticException e) {
+            player.displayClientMessage(Component.translatable("fate.myvillage.error.unavailable"), false);
+        }
+    }
+
     /** A server chooses all values; value is only a slot, unlock sentinel or six-bit mask. */
-    public static boolean intent(ServerPlayer player, int action, long revision, int value) {
+    public static boolean intent(ServerPlayer player, int action, long revision, int value, long sessionToken) {
+        return request(player, action, revision, value, SteleAwakeningSessions.valid(player, sessionToken));
+    }
+
+    /** Explicit permission-checked administrator fixture path; never called by a network handler. */
+    public static boolean diagnosticIntent(CommandSourceStack source, ServerPlayer player,
+            int action, long revision, int value) {
+        if (!source.hasPermission(2)) return false;
+        return request(player, action, revision, value, true);
+    }
+
+    private static boolean request(ServerPlayer player, int action, long revision, int value, boolean authorized) {
         long now = player.getServer().overworld().getGameTime();
         long next = REQUESTS.getOrDefault(player.getUUID(), Long.MIN_VALUE);
         if (now < next) return false;
@@ -41,17 +68,15 @@ public final class FateService {
         String error = "";
         FateState current = state(player);
         try {
-            if (!player.isAlive() || player.isSpectator()) error = "state";
+            if (!authorized) error = "session";
+            else if (!player.isAlive() || player.isRemoved() || player.isSpectator()) error = "state";
             else if (current.confirmed()) error = "confirmed";
             else if (revision != current.revision()) error = "stale";
             else if (CultivationService.getProfile(player).spiritualRoot().isEmpty()) error = "root";
             else {
                 Map<String, FateDefinition> pool = eligible(player);
-                long sequence = Math.addExact(current.rolls(), 1);
-                long seed = player.getServer().overworld().getSeed() ^ player.getUUID().getMostSignificantBits()
-                        ^ Long.rotateLeft(player.getUUID().getLeastSignificantBits(), 17) ^ sequence * 0x9E3779B97F4A7C15L;
                 FateState replacement = FateSelection.transition(current, action, revision, value,
-                        pool, budget(), FateRules.bundled(), new Random(seed));
+                        pool, budget(), FateRules.bundled(), random(player, current));
                 CultivationService.replaceFates(player, replacement, true);
                 return true;
             }
@@ -63,6 +88,15 @@ public final class FateService {
         CultivationService.syncToClient(player);
         return false;
     }
-    public static void forget(ServerPlayer player) { REQUESTS.remove(player.getUUID()); }
+    private static Random random(ServerPlayer player, FateState current) {
+        long sequence = Math.addExact(current.rolls(), 1);
+        long seed = player.getServer().overworld().getSeed() ^ player.getUUID().getMostSignificantBits()
+                ^ Long.rotateLeft(player.getUUID().getLeastSignificantBits(), 17) ^ sequence * 0x9E3779B97F4A7C15L;
+        return new Random(seed);
+    }
+    public static void forget(ServerPlayer player) {
+        REQUESTS.remove(player.getUUID());
+        SteleAwakeningSessions.forget(player);
+    }
     public static void stop() { REQUESTS.clear(); }
 }

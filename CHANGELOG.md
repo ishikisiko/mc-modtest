@@ -7,6 +7,18 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.49.1
+
+- Move innate-fate selection to a dedicated testing-stele awakening screen:
+  reveal the spiritual root, compare six compact candidates, then bind three.
+  H → Fates now shows results and directs unfinished characters to the stele.
+- Resume existing roots, drafts, locks and confirmed choices without rerolling;
+  keep Basic Breathing inheritance at its separate stele.
+- Validate fate requests against a transient server-owned stele session, with
+  bounded protocol 19 opening/closing and explicit operator fixture commands.
+- Add bilingual layout and mapped-interaction evidence tooling; developer
+  checks remain separate from owner appearance, usability and multiplayer review.
+
 ## 0.49.0
 
 - Add the first eight innate fates with server-owned six-to-three selection,

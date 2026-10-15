@@ -62,17 +62,21 @@ ALLOWED_CULTIVATION_PAYLOADS = frozenset(
         "MeditationIntentPayload.java",
         "CoreTechniqueSwitchPayload.java",
         "FateIntentPayload.java",
+        "AwakeningOpenPayload.java",
+        "AwakeningClosePayload.java",
     }
 )
 SERVERBOUND_CULTIVATION_PAYLOADS = (
     "MeditationIntentPayload",
     "CoreTechniqueSwitchPayload",
     "FateIntentPayload",
+    "AwakeningClosePayload",
 )
 CLIENTBOUND_CULTIVATION_PAYLOADS = (
     "CultivationSnapshotPayload",
     "CultivationTimeSnapshotPayload",
     "MeditationStatusPayload",
+    "AwakeningOpenPayload",
 )
 MAX_AWAKENING_WEIGHT = 1_000_000
 
@@ -800,7 +804,7 @@ class CultivationInitiationValidator:
             if clientbound_count != len(CLIENTBOUND_CULTIVATION_PAYLOADS):
                 self.error(
                     path,
-                    "cultivation networking must register exactly three clientbound snapshots",
+                    "cultivation networking must register three snapshots and the awakening opener",
                 )
             for payload_name in CLIENTBOUND_CULTIVATION_PAYLOADS:
                 if f"{payload_name}.TYPE" not in register:
@@ -809,7 +813,7 @@ class CultivationInitiationValidator:
                 self.error(
                     path,
                     "cultivation networking must register exactly the bounded meditation intent "
-                    "the core-technique switch and the bounded fate intent as C2S payloads",
+                    "the core-technique switch, bounded fate intent and awakening close as C2S payloads",
                 )
             if "MeditationIntentPayload.TYPE" not in register:
                 self.error(path, "C2S registration must be MeditationIntentPayload")
@@ -817,6 +821,8 @@ class CultivationInitiationValidator:
                 self.error(path, "C2S registration must include CoreTechniqueSwitchPayload")
             if "FateIntentPayload.TYPE" not in register:
                 self.error(path, "C2S registration must include bounded FateIntentPayload")
+            if "AwakeningClosePayload.TYPE" not in register:
+                self.error(path, "C2S registration must include token-only AwakeningClosePayload")
             switch_handler = _method_body(source, "handleCoreTechniqueSwitch")
             if switch_handler is not None:
                 if "context.enqueueWork" not in switch_handler:
@@ -1086,7 +1092,7 @@ def main() -> int:
     print(
         "cultivation initiation validation passed: "
         f"checked_files={result.checked_files}; blocks=2; elements=5; "
-        "profile_schema=4; cultivation_c2s=bounded-meditation+core-switch+fate-intent; h_tabs=profile+meditation; h_actions=4"
+        "profile_schema=4; cultivation_c2s=bounded-meditation+core-switch+session-fate-intent+awakening-close; h_tabs=profile+meditation; h_actions=4"
     )
     print(
         "algorithm determinism, affinity arithmetic, atomic transitions, and repeat "

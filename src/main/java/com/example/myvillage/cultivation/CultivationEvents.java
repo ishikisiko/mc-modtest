@@ -35,6 +35,7 @@ public final class CultivationEvents {
     }
 
     public static void register() {
+        com.example.myvillage.cultivation.fate.SteleAwakeningSessions.register();
         com.example.myvillage.cultivation.fate.FateRuntime.register();
         NeoForge.EVENT_BUS.addListener(CultivationEvents::onServerStarted);
         NeoForge.EVENT_BUS.addListener(CultivationEvents::onPlayerLoggedIn);

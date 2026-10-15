@@ -6,12 +6,20 @@ The browser prototype remains a design playground; it is not the game's registry
 
 ## Entry and selection
 
-After the testing stele awakens a root, open H → Fates/先天. Existing awakened
-characters also start with an unconfirmed fate attachment. This slice rerolls
-only fates, never the persisted root. The inheritance stele remains a separate
-step. Pick three of six candidates and confirm twice in the page. Confirmation
-is permanent for ordinary players; locking preserves one candidate, not a
-mandatory selection. The server checks the seen revision and current slots.
+Right-click the testing stele to open the independent awakening screen. It
+presents the synchronized spiritual root first, then the six candidates in the
+same screen. An empty unconfirmed pool is rolled automatically once. Choose
+three and confirm twice; reopening preserves the root, candidates, revision and
+lock. Existing awakened saves may choose once; confirmed saves show their stored
+result. H → Fates/先天 is a read-only result page, with a stele instruction for
+unconfirmed players. Inheritance remains a separate stele step. Locking preserves
+one candidate, not a mandatory selection.
+
+Ordinary network and self-command roll/lock/confirm require a live server-owned
+stele session: same dimension, alive, not removed/spectating, exact loaded block
+and vanilla interaction range. Close, teleport, logout, death, dimension change,
+reset and server stop invalidate it. The server issues a positive session token;
+requests carry it, and an old close token cannot end a newer session.
 
 `CultivationServerConfig` adds `[innate_fates] point_budget` in the existing
 `myvillage-server.toml` server config (3..18, default 8). The owning snapshot
@@ -26,13 +34,16 @@ adds further ordinary entries if needed to guarantee a legal low-budget triple.
   `FateDefinition`. Numeric effects are in this data, not per-ID Java branches.
 - Startup-only tier weights and request throttle: `data/myvillage/fates/rules.json`.
 - `FateSelection` is the actual pure transition/roll/validation path used by
-  `FateService`; client intent is action + seen revision + slot/mask only.
+  `FateService`; client intent is action + seen revision + bounded slot/mask +
+  server-issued session token only.
 - `FateState` is a separate immutable `copyOnDeath` attachment. Only
   `CultivationService.replaceFates` writes it. Cultivation profile v4 and its
-  old-save migration are unchanged; payload protocol 18 extends its snapshot.
+  old-save migration are unchanged; protocol 19 retains its snapshot and adds
+  the server-authorized opening/close session path.
 - The three client caches remain profile, time, and meditation; fate state and
   budget are part of the latest profile snapshot. `FatesPage` reads PanelContext
-  and uses PanelPage pointer/click hooks, without page-specific hub input code.
+  and uses PanelPage pointer/click hooks for result viewing, without
+  page-specific hub input code. `AwakeningScreen` owns the interactive choice.
 - Confirmed unknown/disabled definitions are retained by ID and stop granting
   effects; they do not create a new roll. Restore the data or use operator reset.
 
@@ -70,18 +81,59 @@ rounding, study gates and atomic profile/manual commit ordering remain intact.
 
 ## Commands and checks
 
-README contains normal H usage and matching `fate`/`mingge` command aliases.
-`status` prints bounded `FATES` JSON for diagnostics. Only operators can target
-another player or reset a selection; regular commands use the same transition
-and throttle as the page. The diagnostic confirm mask uses bits 0..5, exactly
+README contains testing-stele entry, read-only H usage and matching
+`fate`/`mingge` command aliases. `status` prints bounded `FATES` JSON for
+diagnostics. Only permission-level-2 command sources can use the targeted roll/confirm
+diagnostic fixture paths or reset. Those targeted forms bypass the stele session
+only; normal fate eligibility, immutable confirmation and throttle still apply.
+Ordinary self forms require a live session even for operators. Reset invalidates
+the session; status remains read-only. The diagnostic confirm mask uses bits
+0..5, exactly
 three set bits (for example 7 means the first three candidates).
 
 Run `tools/validate_innate_fates.py` (also a release-gate step), its mutation tests,
 Java `cultivation.*` and `client.cultivation.*`, the existing cultivation/combat
-validators, full tests/build and `--jar` packaging inspection. Runtime evidence
-uses `tools/innate_fates_evidence.py` after clean stage-1 acceptance. The README
-ledger separates automated input/lifecycle evidence from owner feel/multiplayer.
+validators, full tests/build and `--jar` packaging inspection. After clean
+stage-1 acceptance, the recommended awakening handoff is:
+
+```bash
+python3 tools/innate_fates_evidence.py --ui-only --out out/preview/stele_awakening
+```
+
+This uses mapped input for a fresh testing-stele interaction, root-first flow,
+draft resumption, confirmation and read-only H results; it captures 18 images
+across English/Chinese and the three supported GUI sizes. It checks session
+closure, leaving range, removing the stele and death. The save/restart phase
+checks the root and confirmed draft stay unchanged and the transient session
+returns to zero. `--ui-only` skips the existing numerical effects suite; the
+default command without that flag runs the full stele UI, existing effects and
+restart suite. The README ledger separates automated input/lifecycle evidence
+from owner feel/multiplayer.
 
 The other 28 designs, root rerolls, Phoenix revival, orbiting swords, perfect
 counterattacks, companions and treasure routes remain unimplemented. See
 [deferred roadmap](14_deferred_roadmap.md); do not expose placeholders as effects.
+
+## Awakening protocol and evidence
+
+`AwakeningOpenPayload` is clientbound and carries the server anchor position and
+session token after the current profile snapshot. `AwakeningClosePayload` carries
+only the token. `FateIntentPayload` contains action, seen revision, bounded
+slot/mask and that token; it never carries a root, balance value or client anchor.
+Common code remains physical-side safe. The independent screen is reviewed at
+480×270, 427×240 and 320×240 in English and Chinese with fixed candidate/action
+regions. Root generation and inheritance remain documented in
+[29](29_cultivation_initiation_ritual.md).
+
+The 0.49.0 H-selection screenshots and runtime report are historical evidence.
+They do not validate this revised entry, session lifecycle or awakening layout.
+The current README ledger records those surfaces separately. The
+[0.49.1 awakening report](../testing/2026-10-15-stele-awakening.md) records the
+29-check mapped capture, bilingual layout review, full test/build results,
+phase timing, retained failures and jar parity. Owner appearance/usability,
+feel and multiplayer remain `not_verified`; the separate inheritance-stele
+real-click regression was not observed in this capture.
+
+See also: [cultivation-initiation-ritual](../../openspec/specs/cultivation-initiation-ritual/spec.md),
+[cultivation-state-synchronization](../../openspec/specs/cultivation-state-synchronization/spec.md),
+[cultivation-core-validation](../../openspec/specs/cultivation-core-validation/spec.md).

@@ -6,6 +6,12 @@ import java.util.random.RandomGenerator;
 /** Pure draft/confirmation rules. A lock preserves a candidate, never forces its selection. */
 public final class FateSelection {
     private FateSelection() { }
+    /** The stele resumes existing choices; opening it never rerolls an existing draft. */
+    public static FateState initializeDraft(FateState current, Map<String, FateDefinition> pool,
+            int budget, FateRules rules, RandomGenerator random) {
+        if (current.confirmed() || !current.candidates().isEmpty()) return current;
+        return transition(current, 0, current.revision(), 0, pool, budget, rules, random);
+    }
     public static FateState transition(FateState current, int action, long revision, int value,
             Map<String, FateDefinition> pool, int budget, FateRules rules, RandomGenerator random) {
         if (current.confirmed()) throw new IllegalArgumentException("confirmed");

@@ -14,8 +14,8 @@ import org.slf4j.LoggerFactory;
 
 public final class ModPayloads {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModPayloads.class);
-    /** Protocol 18 adds fate state/budget to the profile snapshot and bounded fate intents. Payload protocol; bump it whenever a payload layout changes (17: empty charging-only cancellation intent; 16: qi status and charge/release intents with skill presentation; 15: sect dialogue options 3..5 (apprentice, take and turn in a task) and the my-sect task line; 14: the scripture hall; 13: the sect dialogue page and the serverbound sect intent; 11: meditation status carries study progress; 10: profile v4 with the running core technique, and the serverbound core-technique switch). */
-    public static final String PROTOCOL_VERSION = "18";
+    /** Protocol 19 adds stele screen open/close and a session token to bounded fate intents (18: fate snapshot/budget; 17: empty charging-only cancellation intent; 16: qi status and charge/release intents; 15: sect tasks; 14: scripture hall; 13: sect dialogue; 11: study progress; 10: core-technique switch). */
+    public static final String PROTOCOL_VERSION = "19";
 
     private ModPayloads() {
     }
