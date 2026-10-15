@@ -1,4 +1,4 @@
-# Modal Test Runner (0.52.0 workflow)
+# Modal Test Runner (0.52.1 workflow)
 
 `tools/modal_runner/` is the default controller for full release/build,
 acceptance-server, real-client and two-client checks. This isolates heavy memory
@@ -18,9 +18,10 @@ python3 -m venv .venv-modal
 .venv-modal/bin/modal token new --profile myvillage --expires-in 7d
 .venv-modal/bin/python -m tools.modal_runner doctor
 test_commit=$(git rev-parse HEAD)
-.venv-modal/bin/python -m tools.modal_runner plan --preset release --ref "$test_commit" --timeout 3600
-.venv-modal/bin/python -m tools.modal_runner run --preset release --ref "$test_commit" --timeout 3600
-.venv-modal/bin/python -m tools.modal_runner run --preset alchemy-quality --ref "$test_commit" --timeout 3600
+.venv-modal/bin/python -m tools.modal_runner plan --preset release-alchemy --ref "$test_commit" --timeout 3600
+.venv-modal/bin/python -m tools.modal_runner run --preset release-alchemy --ref "$test_commit" --timeout 3600
+# Focused diagnostic retry; not full delivery evidence:
+.venv-modal/bin/python -m tools.modal_runner run --preset alchemy-quality --cases medicine --ref "$test_commit" --timeout 1800
 ```
 
 `plan` resolves the ref, creates the archive and request manifest locally, and
@@ -66,12 +67,16 @@ artifacts and confirmed cleanup are recorded.
 | `smoke` | Java version, Python dependency imports, Xvfb `glxinfo` | `pass` (authenticated second attempt; downloaded evidence and confirmed termination) |
 | `python` | `python3 -m unittest discover -s tools/tests` | `pass` (1053 tests) |
 | `build` | `./gradlew test build --no-daemon -Dorg.gradle.jvmargs=-Xmx2g --max-workers=4` | `pass` (913 tests; fresh 0.46.1 jar downloaded) |
-| `release` | `python3 tools/release_gate.py` (complete release checks, fresh jar) | Current source: pending |
-| `alchemy-quality` | `python3 tools/run_chunky_acceptance.py --stage 1`, then `python3 tools/alchemy_quality_evidence.py` | Current source: pending; includes mapped one-client brewing/use/restart/bilingual layouts and a two-client attribution check |
+| `release` | `python3 tools/release_gate.py` once (complete release checks, fresh jar) | See current workflow record |
+| `release-alchemy` | release, clean stage1, all alchemy cases in one Sandbox/workspace | See current workflow record |
+| `alchemy-quality` | clean stage1, then selected cases (`--cases`, default all) | Subsets are partial diagnostic evidence; see current workflow record |
 | `server` | `python3 tools/run_chunky_acceptance.py --stage 1` | `pass` (bounded stage-1 commands/save/stop; downloaded report and confirmed termination) |
 | `client` | Sword-qi `tap_hit,charged_hit` mapped-input capture | `pass` for these two trials, videos/logs/manifest and confirmed termination; no DevBridge. Other client scenarios remain `not_verified`. |
 
-Prefer running `release` and `alchemy-quality` against the **same exact full source commit**.
+Prefer `release-alchemy`: one fixed source upload, full release once, then clean stage1
+and complete game validation in the same Sandbox. This reuses that run's compiled
+outputs without persisting them across runs. Separate `release` / `alchemy-quality`
+commands remain available against the **same exact full source commit**.
 If only evidence scripts/tests or delivery docs change afterwards, record both
 commits and an empty diff for `src/`, Gradle build inputs and generated-resource
 sources before reusing the release result. Run the changed evidence/parser tests;
@@ -140,4 +145,14 @@ software rendering, which does not establish owner PC FPS.
 - [Alchemy](49_alchemy.md), [Crafting Aptitudes](50_crafting_aptitudes.md), [alchemy-quality](../../openspec/specs/alchemy-quality/spec.md)
 - [34_combat_data_and_capture.md](34_combat_data_and_capture.md), [45_spiritual_power_sword_qi.md](45_spiritual_power_sword_qi.md), [INDEX.md](INDEX.md)
 
-The `release` preset first runs focused alchemy/protocol Gradle tests, then the full release gate in the same Sandbox; this reuses compiled classes and catches Java errors before the full Python discovery run.
+The generic `release` preset has no feature-specific preliminary Java selection.
+`alchemy-quality --cases medicine` runs only the selected game scenario after clean
+stage1; accepted names are `brewing,multiplayer,medicine,persistence,ui`, or `all`.
+Selection is validated before upload/allocation and recorded in the request and
+exact remote command. `release-alchemy` rejects `--cases`. Cases own their fixtures;
+persistence prepares its own mapped quality4 medicine use and component inventory.
+UI and persistence share one restart when both selected. A case failure stops the
+run, and the report explicitly distinguishes partial from full acceptance.
+
+[Current workflow evidence](../testing/2026-10-16-acceptance-workflow.md) is the
+single record for this tooling revision; historical rows above are not current passes.

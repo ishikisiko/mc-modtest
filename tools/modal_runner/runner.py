@@ -15,7 +15,7 @@ import tarfile
 import time
 import uuid
 
-from .remote import PAL, CATALOG, DEPENDENCIES, PRESETS, safe_extract, sha256
+from .remote import PAL, CATALOG, DEPENDENCIES, PRESETS, commands_for, select_cases, safe_extract, sha256
 
 REPO = Path(__file__).resolve().parents[2]
 APP = "myvillage-tests"
@@ -57,10 +57,11 @@ def lock(path: Path):
         yield
 
 
-def prepare(repo: Path, ref: str, preset: str, timeout: int, out: Path) -> dict:
+def prepare(repo: Path, ref: str, preset: str, timeout: int, out: Path, cases=None) -> dict:
     started = time.monotonic()
     if ref.startswith("-") or not 180 <= timeout <= 7200 or preset not in PRESETS:
         raise ValueError("Invalid ref/preset or timeout (allowed 180..7200 seconds)")
+    commands = commands_for(preset, cases)
     commit = subprocess.check_output(["git", "rev-parse", "--verify", ref + "^{commit}"], cwd=repo, text=True).strip()
     for name in DEPENDENCIES:
         if not (repo / name).is_file():
@@ -84,7 +85,8 @@ def prepare(repo: Path, ref: str, preset: str, timeout: int, out: Path) -> dict:
                "source_policy": "git archive plus exactly the required PAL jar and block catalog",
                "inputs": {"source.tar": sha256(archive), **{name: sha256(out / name) for name in DEPENDENCIES},
                           "remote.py": sha256(out / "remote.py")},
-               "commands": PRESETS[preset]}
+               "commands": commands,
+               "cases": select_cases(cases) if preset == "alchemy-quality" else None}
     request["archive_seconds"] = round(time.monotonic() - started, 3)
     write_json(out / "request.json", request)
     return request
@@ -147,8 +149,9 @@ def execute(modal, request: dict, out: Path, repo: Path) -> int:
             raise TimeoutError("Upload exhausted the job budget")
         state["status"] = "running"
         write_json(out / "state.json", state)
+        selection = ["--cases", ",".join(request["cases"])] if request.get("cases") is not None else []
         process = sb.exec("python3", "/workspace/remote.py", "--preset", request["preset"],
-                          "--timeout", str(int(remaining)), timeout=int(remaining) + 30)
+                          "--timeout", str(int(remaining)), *selection, timeout=int(remaining) + 30)
         # Both streams are drained independently to avoid a full stderr pipe deadlock.
         from threading import Thread
         stream_errors = []
@@ -214,6 +217,7 @@ def main(argv=None) -> int:
     parser.add_argument("--ref", default="HEAD")
     parser.add_argument("--preset", choices=PRESETS, default="smoke")
     parser.add_argument("--timeout", type=int, default=1800)
+    parser.add_argument("--cases", help="alchemy-quality only: all or comma-separated scenario names")
     parser.add_argument("--run", type=Path, help="Existing local run directory for status/terminate")
     args = parser.parse_args(argv)
     try:
@@ -238,7 +242,7 @@ def main(argv=None) -> int:
             return 0
         out = REPO / "reports/modal-runs" / (time.strftime("%Y%m%dT%H%M%SZ", time.gmtime()) + "-" + uuid.uuid4().hex[:8])
         with lock(REPO / "reports/modal-runs/runner.lock"):
-            request = prepare(REPO, args.ref, args.preset, args.timeout, out)
+            request = prepare(REPO, args.ref, args.preset, args.timeout, out, args.cases)
             print(json.dumps({"run": str(out), **request}, indent=2), flush=True)
             if args.command == "plan":
                 return 0

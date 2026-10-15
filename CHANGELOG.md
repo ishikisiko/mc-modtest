@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
 
+## 0.52.1
+
+- Add independently prepared alchemy acceptance cases with explicit partial coverage and fail-fast results.
+- Add one-Sandbox `release-alchemy` delivery: upload once, run the full release gate once, then clean server and complete game evidence in the same workspace.
+- Remove feature-specific preliminary tests from generic release; retain fixed sources, failure history, bounded cleanup and Modal-only heavy execution. Gameplay and save formats are unchanged.
+
 ## 0.52.0
 
 - Connect alchemy aptitude to lower/middle/upper/perfect pill quality, with authored weighted outcomes and strength multipliers on the existing three pill IDs.

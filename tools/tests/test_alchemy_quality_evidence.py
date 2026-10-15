@@ -7,6 +7,7 @@ from unittest.mock import Mock, patch
 from tools.alchemy_quality_evidence import (
     QUALITY, QualityEvidence, SecondClient, healing_delta, healing_snapshot, inventory_point, menu_point, pill_quality, quality_stacks, read_batch, read_data,
 )
+from tools.modal_runner.remote import ALCHEMY_CASES
 
 
 class QualityReadbackTest(unittest.TestCase):
@@ -114,6 +115,69 @@ class AtomicHealingTest(unittest.TestCase):
 
 
 class QualityCaptureContractTest(unittest.TestCase):
+    def mocked_evidence(self, path, cases):
+        evidence = QualityEvidence(path, cases)
+        for name in ('start', 'stop', 'prepare_scene', 'initial', 'two_clients', 'medicines',
+                     'capture_ui', 'prepare_restart', 'after_restart'):
+            setattr(evidence, name, Mock())
+        return evidence
+
+    def test_each_case_runs_without_unselected_gameplay_and_reports_partial(self):
+        with tempfile.TemporaryDirectory() as directory:
+            for selected in ALCHEMY_CASES:
+                with self.subTest(case=selected):
+                    evidence = self.mocked_evidence(Path(directory)/selected, selected)
+                    evidence.run_selected(); evidence.finish()
+                    self.assertEqual(evidence.report['completed_cases'], [selected])
+                    self.assertEqual(evidence.report['coverage'], 'partial')
+                    self.assertFalse(evidence.report['full_acceptance'])
+                    self.assertEqual(evidence.report['status'], 'pass')
+                    for case, method in (('brewing', 'initial'), ('multiplayer', 'two_clients'),
+                                         ('medicine', 'medicines'), ('persistence', 'prepare_restart')):
+                        self.assertEqual(getattr(evidence, method).call_count, int(selected == case))
+                    self.assertEqual(evidence.capture_ui.call_count, 2 if selected == 'ui' else 0)
+                    self.assertEqual(evidence.start.call_count, 2 if selected in ('ui', 'persistence') else 1)
+                    if selected != 'brewing': evidence.prepare_scene.assert_called()
+
+    def test_full_run_shares_one_restart_and_completes_every_case(self):
+        with tempfile.TemporaryDirectory() as directory:
+            evidence = self.mocked_evidence(Path(directory), None)
+            evidence.run_selected(); evidence.finish()
+            self.assertTrue(evidence.report['full_acceptance'])
+            self.assertEqual(set(evidence.report['completed_cases']), set(ALCHEMY_CASES))
+            self.assertEqual(evidence.start.call_count, 2)
+            self.assertEqual(evidence.stop.call_count, 1)
+
+    def test_failed_check_stops_following_cases_and_prevents_full_pass(self):
+        with tempfile.TemporaryDirectory() as directory:
+            evidence = self.mocked_evidence(Path(directory), 'medicine,ui')
+            evidence.medicines.side_effect = lambda: evidence.check('incorrect_strength', False, {})
+            with self.assertRaisesRegex(AssertionError, 'incorrect_strength'):
+                evidence.run_selected()
+            evidence.capture_ui.assert_not_called()
+            evidence.finish()
+            self.assertEqual(evidence.report['status'], 'fail')
+            self.assertEqual(evidence.report['case_status']['medicine'], 'fail')
+            self.assertEqual(evidence.report['case_status']['ui'], 'not_run')
+            self.assertFalse(evidence.report['full_acceptance'])
+
+    def test_persistence_sets_own_medicine_and_component_inventory_without_ui(self):
+        with tempfile.TemporaryDirectory() as directory:
+            evidence = QualityEvidence(Path(directory), 'persistence')
+            evidence.s = SimpleNamespace(username='CaptureDev')
+            for name in ('rc', 'fixture', 'slot', 'block_items', 'inventory', 'pill_tooltips'):
+                setattr(evidence, name, Mock(return_value={}))
+            evidence.held_quality = Mock(return_value=1)
+            evidence.med = Mock(return_value={'quality': 4, 'effect': 'ningshen', 'effect_ticks': 1100})
+            evidence.begin = Mock(return_value={'fixture': 'batch'})
+            evidence.progress = Mock(return_value=35)
+            evidence.prepare_restart()
+            evidence.held_quality.assert_called_once_with('ningshen', 4)
+            evidence.pill_tooltips.assert_not_called()
+            item_commands = [call.args[0] for call in evidence.rc.call_args_list if call.args[0].startswith('item replace entity')]
+            self.assertEqual(len(item_commands), 3)
+            self.assertTrue(all('[myvillage:pill_quality=4]' in command for command in item_commands))
+
     def test_start_coordinates_fit_all_required_gui_sizes(self):
         for size, expected in (((960, 540), (480, 274)), ((854, 480), (426, 244)), ((640, 480), (320, 244))):
             x, y = menu_point(size, 106, 113)

@@ -21,15 +21,35 @@ PRESETS = {
               ["xvfb-run", "-a", "glxinfo", "-B"]],
     "python": [["python3", "-m", "unittest", "discover", "-s", "tools/tests"]],
     "build": [["./gradlew", "test", "build", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"]],
-    "release": [["./gradlew", "test", "--tests", "com.example.myvillage.alchemy.*",
-                 "--tests", "com.example.myvillage.combat.network.CombatPayloadTest",
-                 "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
-                ["python3", "tools/release_gate.py"]],
+    "release": [["python3", "tools/release_gate.py"]],
     "server": [["python3", "tools/run_chunky_acceptance.py", "--stage", "1"]],
     "client": [["python3", "-m", "tools.combat_capture", "sword-qi", "--trials", "tap_hit,charged_hit", "--out", "out/preview/modal_sword_qi"]],
     "alchemy-quality": [["python3", "tools/run_chunky_acceptance.py", "--stage", "1"],
                         ["python3", "tools/alchemy_quality_evidence.py"]],
 }
+PRESETS["release-alchemy"] = PRESETS["release"] + PRESETS["alchemy-quality"]
+ALCHEMY_CASES = ("brewing", "multiplayer", "medicine", "persistence", "ui")
+
+
+def select_cases(value=None):
+    """Canonical bounded selection shared by local planning and game evidence."""
+    if value is None or value == "all":
+        return list(ALCHEMY_CASES)
+    names = [name.strip() for name in value.split(",")]
+    if not names or len(names) != len(set(names)) or any(name not in ALCHEMY_CASES for name in names):
+        raise ValueError("Cases must be all or unique names from: " + ",".join(ALCHEMY_CASES))
+    return [name for name in ALCHEMY_CASES if name in names]
+
+
+def commands_for(preset, cases=None):
+    if cases is not None and preset != "alchemy-quality":
+        raise ValueError("--cases is only supported by alchemy-quality; release-alchemy always runs all cases")
+    commands = [list(command) for command in PRESETS[preset]]
+    if preset == "alchemy-quality":
+        commands[-1] += ["--cases", ",".join(select_cases(cases))]
+    return commands
+
+
 ARTIFACT_ROOTS = ("build/libs", "build/test-results", "build/reports", "reports",
                   "out/preview", "run-acceptance/logs", "run-acceptance/acceptance-server-stdout.log",
                   "run-combat-capture/logs", "run-combat-capture/client/options.txt")
@@ -141,6 +161,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--preset", choices=PRESETS, required=True)
     parser.add_argument("--timeout", type=int, required=True)
+    parser.add_argument("--cases")
     args = parser.parse_args()
     repo, evidence = Path("/workspace/repo"), Path("/workspace/evidence")
     repo.mkdir(parents=True, exist_ok=True)
@@ -162,18 +183,21 @@ def main() -> int:
     try:
         request = json.loads(Path("/workspace/request.json").read_text())
         result["request"] = request
+        commands = commands_for(args.preset, args.cases)
+        if request["commands"] != commands:
+            raise ValueError("Requested commands differ from bounded preset selection")
         for name, digest in request["inputs"].items():
             if sha256(Path("/workspace") / name) != digest:
                 raise ValueError(f"Input hash mismatch: {name}")
         safe_extract(Path("/workspace/source.tar"), repo)
-        if args.preset == "release":
+        if args.preset in ("release", "release-alchemy"):
             result["archive_git_baseline"] = initialize_archive_git(repo)
         for name in DEPENDENCIES:
             target = repo / name
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes((Path("/workspace") / name).read_bytes())
         os.chmod(repo / "gradlew", 0o755)
-        for i, command in enumerate(PRESETS[args.preset]):
+        for i, command in enumerate(commands):
             step = run_step(command, repo, evidence / f"step-{i}.log", args.timeout - (time.monotonic() - start))
             result["steps"].append(step)
             print(json.dumps(step), flush=True)
@@ -181,6 +205,7 @@ def main() -> int:
             if code:
                 break
     except Exception as exc:
+        code = 1
         result["error"] = f"{type(exc).__name__}: {exc}"
     finally:
         stop.set()

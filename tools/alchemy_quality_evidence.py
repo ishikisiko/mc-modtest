@@ -27,6 +27,7 @@ from tools.alchemy_evidence import AlchemyEvidence, MEDICINE, POS
 from tools.combat_capture import procs, scene, session as cs
 from tools.combat_capture.xgame import Game
 from tools.realm_stats_evidence import close
+from tools.modal_runner.remote import ALCHEMY_CASES, select_cases
 
 QUALITY = 'myvillage:pill_quality'
 SLOTS = ((16, 38), (52, 38), (76, 38), (112, 38), (178, 38))
@@ -299,13 +300,91 @@ class SecondClient:
 
 
 class QualityEvidence(AlchemyEvidence):
-    def __init__(self, out):
+    def __init__(self, out, cases=None):
+        selected = select_cases(cases)
         if out.exists() and any(out.iterdir()):
             raise ValueError('Evidence directory must be empty; retain earlier runs: '+str(out))
         super().__init__(out, 'zh_cn')
         self.report.update(kind='alchemy_quality', method='real clients; mapped right-click/start/shift-click/pill use; RCON fixtures/readback only; no DevBridge',
             multiplayer='developer_mapped_two_client_checks_pending', legacy_save_live_migration='not_verified',
-            owner_feel='not_verified', owner_multiplayer='not_verified')
+            owner_feel='not_verified', owner_multiplayer='not_verified',
+            selected_cases=selected, completed_cases=[],
+            case_status={name: 'not_run' if name in selected else 'not_selected' for name in ALCHEMY_CASES},
+            coverage='full' if selected == list(ALCHEMY_CASES) else 'partial', full_acceptance=False)
+
+    def check(self, name, passed, detail):
+        super().check(name, passed, detail)
+        if not passed:
+            raise AssertionError(name)
+        return True
+
+    def case_phase(self, name, phase, operation):
+        started = time.monotonic()
+        row = {'phase': phase, 'case': name, 'status': 'running'}
+        self.report['phases'].append(row)
+        self.report['case_status'][name] = 'running'
+        self.save()
+        try:
+            operation()
+            row['status'] = 'pass'
+        except BaseException as error:
+            row.update(status='fail', error=type(error).__name__ + ': ' + str(error))
+            self.report['case_status'][name] = 'fail'
+            raise
+        finally:
+            row['wall_s'] = round(time.monotonic()-started, 3)
+            self.save()
+
+    def complete_case(self, name):
+        self.report['case_status'][name] = 'pass'
+        self.report['completed_cases'].append(name)
+        self.save()
+
+    def prepared_case(self, operation):
+        self.prepare_scene()
+        operation()
+
+    def run_selected(self):
+        selected = self.report['selected_cases']
+        self.start()
+        for name, operation in (('brewing', self.initial), ('multiplayer', self.two_clients), ('medicine', self.medicines)):
+            if name in selected:
+                self.case_phase(name, name, operation if name == 'brewing' else lambda op=operation: self.prepared_case(op))
+                self.complete_case(name)
+        if 'ui' in selected:
+            self.case_phase('ui', 'ui_zh_cn', lambda: self.prepared_case(lambda: self.capture_ui('zh_cn')))
+        if 'persistence' in selected:
+            self.case_phase('persistence', 'save_fixture', lambda: self.prepared_case(self.prepare_restart))
+        if 'persistence' in selected or 'ui' in selected:
+            # One actual restart serves persistence and the second UI language.
+            self.stop()
+            self.language = 'en_us'
+            self.start(reuse=True)
+        if 'persistence' in selected:
+            self.case_phase('persistence', 'restore_and_complete', self.after_restart)
+            self.complete_case('persistence')
+        if 'ui' in selected:
+            self.case_phase('ui', 'ui_en_us', lambda: self.prepared_case(lambda: self.capture_ui('en_us')))
+            self.complete_case('ui')
+
+    def capture_ui(self, language):
+        self.layouts(language)
+        self.pill_tooltips(language)
+
+    def prepare_scene(self, awakened=True):
+        user = self.s.username
+        for command in ('tick rate 20', f'setblock {POS} minecraft:air',
+                        *scene.world_rules(), *scene.player_setup(user, 'minecraft:air'),
+                        'gamerule naturalRegeneration false', 'myvillage world pause', 'forceload add -16 -16 32 32',
+                        f'setblock {POS} myvillage:alchemy_furnace[facing=north]'):
+            self.rc(command)
+        if awakened:
+            self.s.game.key('x')
+            self.wait_medication()
+            for command in (f'myvillage cultivation awaken {user}', f'myvillage cultivation initiate {user}',
+                            f'myvillage cultivation setrealm {user} myvillage:qi_refining myvillage:qi_refining_1',
+                            f'myvillage cultivation crafting set {user} alchemy 100'):
+                self.rc(command)
 
     def block_items(self):
         return quality_stacks(self.rc(f'data get block {POS} Items'))
@@ -375,10 +454,7 @@ class QualityEvidence(AlchemyEvidence):
 
     def initial(self):
         user = self.s.username; recipe = self.rules['recipes'][0]
-        for command in (*scene.world_rules(), *scene.player_setup(user, 'minecraft:air'),
-                        'gamerule naturalRegeneration false', 'myvillage world pause', 'forceload add -16 -16 32 32',
-                        f'setblock {POS} myvillage:alchemy_furnace[facing=north]'):
-            self.rc(command)
+        self.prepare_scene(awakened=False)
         self.fixture(recipe, herbs=2); self.slot(3, 'myvillage:low_grade_spirit_stone', 2)
         before = self.block_items(); time.sleep(1)
         self.check('ready_furnace_never_autostarts', self.batch() is None and self.progress() == 0 and self.block_items() == before, before)
@@ -602,11 +678,17 @@ class QualityEvidence(AlchemyEvidence):
 
     def prepare_restart(self):
         recipe = self.rules['recipes'][0]
+        # Persistence must work without first running the medicine or UI cases.
+        count = self.held_quality('ningshen', 4)
+        medication = self.med()
+        self.check('persistence_fixture_mapped_quality4_use', count == 1 and medication['quality'] == 4
+                   and medication['effect'] == 'ningshen' and medication['effect_ticks'] > 0, medication)
+        for slot, pill in enumerate(self.rules['recipes']):
+            self.rc(f'item replace entity {self.s.username} hotbar.{slot} with {pill["output"]}[{QUALITY}=4] 2')
         self.fixture(recipe); self.rc(f'myvillage cultivation crafting set {self.s.username} alchemy 100')
         batch = self.begin()
         self.poll(self.progress, lambda progress: progress >= 30, 10, 'saved partial quality batch')
         self.slot(4, 'minecraft:cobblestone', 64)
-        self.pill_tooltips('zh_cn')
         self.report['before_restart'] = {'items': self.block_items(), 'progress': self.progress(), 'batch': batch, 'medicine': self.med(), 'inventory': self.inventory()}
         self.rc('save-all flush'); self.save()
 
@@ -620,28 +702,37 @@ class QualityEvidence(AlchemyEvidence):
         self.check('restart_preserves_sustained_quality_and_online_counters', med['quality'] == 4 and med['effect'] == 'ningshen'
                    and 0 < med['effect_ticks'] <= before['medicine']['effect_ticks'] and med['effect_ticks'] >= before['medicine']['effect_ticks']-400,
                    {'before': before['medicine'], 'after': med})
-        self.pill_tooltips('en_us')
-        self.layouts('en_us')
         self.slot(4, 'minecraft:air'); self.rc('tick rate 80')
         rows = self.wait_complete(self.rules['recipes'][0]); self.rc('tick rate 20')
         self.assert_result(self.rules['recipes'][0], before['batch'], rows, 'saved_quality_is_exact_output_after_restart')
 
     def finish(self):
+        missing = [name for name in self.report['selected_cases'] if self.report['case_status'][name] != 'pass']
+        if missing and not self.report['failures']:
+            self.report['failures'].append('Selected cases incomplete: ' + ','.join(missing))
+        self.report['unrun_cases'] = [name for name in ALCHEMY_CASES if name not in self.report['completed_cases']]
+        self.report['full_acceptance'] = (self.report['coverage'] == 'full' and not missing
+                                          and not self.report['failures'] and all(row['pass'] for row in self.report['checks']))
         super().finish()
         page = self.out/'index.html'
         text = page.read_text().replace('Alchemy runtime evidence', 'Alchemy quality evidence').replace('炼丹运行验证', '成丹品质 · 运行验证')
         text = text.replace('玩家自然获取、外观、手感与多人验收未确认。', '真实双客户端交互仅为开发者证据；自然获取、外观、手感、平衡与玩家多人验收未确认。')
+        text = text.replace('<ul>', '<p>覆盖：'+self.report['coverage']+'；已完成：'
+                            +html.escape(', '.join(self.report['completed_cases']))+'。局部通过不能代替完整验收。</p><ul>', 1)
         page.write_text(text)
 
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out', type=Path, default=ROOT/'out/preview/alchemy/quality')
-    args = parser.parse_args(argv); evidence = QualityEvidence(args.out)
+    parser.add_argument('--cases', default='all', help='all or comma-separated: '+','.join(ALCHEMY_CASES))
+    args = parser.parse_args(argv)
     try:
-        evidence.start(); evidence.initial(); evidence.layouts('zh_cn'); evidence.two_clients(); evidence.medicines()
-        evidence.prepare_restart(); evidence.stop()
-        evidence.language = 'en_us'; evidence.start(reuse=True); evidence.after_restart()
+        evidence = QualityEvidence(args.out, args.cases)
+    except ValueError as error:
+        parser.error(str(error))
+    try:
+        evidence.run_selected()
     except BaseException as error:
         evidence.report['failures'].append(type(error).__name__ + ': ' + str(error)); raise
     finally:

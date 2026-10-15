@@ -127,16 +127,30 @@ class ArchiveTests(unittest.TestCase):
 
 class LifecycleTests(unittest.TestCase):
     def test_remote_release_and_alchemy_quality_commands(self):
-        self.assertEqual(remote.PRESETS["release"], [
-            ["./gradlew", "test", "--tests", "com.example.myvillage.alchemy.*",
-             "--tests", "com.example.myvillage.combat.network.CombatPayloadTest",
-             "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
-            ["python3", "tools/release_gate.py"],
-        ])
+        self.assertEqual(remote.PRESETS["release"], [["python3", "tools/release_gate.py"]])
         self.assertEqual(remote.PRESETS["alchemy-quality"], [
             ["python3", "tools/run_chunky_acceptance.py", "--stage", "1"],
             ["python3", "tools/alchemy_quality_evidence.py"],
         ])
+        combined = remote.commands_for('release-alchemy')
+        self.assertEqual(combined, remote.PRESETS['release'] + remote.PRESETS['alchemy-quality'])
+        self.assertEqual(sum('tools/release_gate.py' in command for command in combined), 1)
+        self.assertEqual(remote.commands_for('alchemy-quality', 'medicine')[-1][-2:], ['--cases', 'medicine'])
+        self.assertNotIn('--cases', remote.PRESETS['alchemy-quality'][-1])
+
+    def test_invalid_selection_rejected_before_git_and_allocation(self):
+        for preset, cases in (('alchemy-quality', ''), ('alchemy-quality', 'unknown'),
+                              ('alchemy-quality', 'medicine,medicine'), ('alchemy-quality', 'all,ui'),
+                              ('release-alchemy', 'medicine'), ('release', 'all')):
+            with self.subTest(preset=preset, cases=cases), patch.object(runner.subprocess, 'check_output') as git:
+                with self.assertRaises(ValueError):
+                    runner.prepare(Path('/missing'), 'HEAD', preset, 180, Path('/missing'), cases)
+                git.assert_not_called()
+
+    def test_selection_canonical_order_and_no_arbitrary_commands(self):
+        self.assertEqual(remote.select_cases('ui,medicine'), ['medicine', 'ui'])
+        for value in ('medicine,', 'medicine; echo x', 'all,medicine'):
+            with self.assertRaises(ValueError): remote.select_cases(value)
 
     def test_image_contains_pinned_node_openspec_and_preview_interpreter(self):
         modal = MagicMock()

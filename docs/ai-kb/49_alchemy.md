@@ -53,7 +53,9 @@ controls, quality probabilities, effects and administrator fixtures.
 Local focused checks: generator, `tools/validate_alchemy.py` and relevant Python
 validators. Heavy full release/build/jar, clean stage1 and real-client/two-client
 checks default to Modal; cloud failure does not automatically fall back locally.
-Use fixed committed sources for `release` and `alchemy-quality` presets, with
+Prefer `release-alchemy` for one-Sandbox full delivery; use `alchemy-quality --cases`
+for an independently prepared diagnostic subset, explicitly not full acceptance.
+Separate fixed-source `release` / `alchemy-quality` runs still require
 explicit product/build equivalence for evidence-only follow-ups (see
 [note46](46_modal_test_runner.md)). The latter runs clean stage1 then
 `tools/alchemy_quality_evidence.py`, which owns capture sessions/shared heavy
