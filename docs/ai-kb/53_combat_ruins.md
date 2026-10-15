@@ -13,7 +13,8 @@ trigger positions, stage delays, radii, rewards, geometry anchors, palettes and 
 `tools/gen_combat_ruins.py` owns both templates, structure/pool/set/biome tags, the cache models
 and bilingual text. Its groups are registered in `tools/buildgen/groups.py`; halls use semantic
 Nodes and the registered Chinese roof handler. `generate_all_structures.py` regenerates them
-after cleanup. Do not edit generated NBT, models or language entries directly.
+after cleanup. All four native rotations are supported; mirrored admin placement is not an
+advertised entry point. Do not edit generated NBT, models or language entries directly.
 
 The `battle_cache` block has no item, creative entry or drop. It is immovable, explosion-resistant
 and unbreakable in survival, including after completion. Its generated static coffer model has
@@ -42,7 +43,7 @@ non-Peaceful play resumes. No automatic duplicate spawn occurs merely because an
 unloaded. Conversion of registered guards (e.g. a zombie becoming drowned) is cancelled to
 preserve its identity. Active guards cannot naturally despawn, pick up gear, or drop their
 issued equipment. Helmets prevent sunlight from clearing the garrison for free. Existing
-vanilla mob and demon-wolf moves remain unchanged. Elite denotes a configured higher realm,
+vanilla mob and demon-wolf moves remain unchanged. Elite denotes a configured higher cultivation stage,
 not a new boss or new move set.
 
 Guard health/realm is initialized only on spawn; normal reload does not heal or reroll it.

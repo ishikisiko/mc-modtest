@@ -17,7 +17,7 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from tools.danxia_ruin_evidence import RuinEvidence, saved_cores
 from tools.alchemy_quality_evidence import read_data, SecondClient
-from tools.combat_capture import scene
+from tools.combat_capture import scene, session as cs
 
 RULES={name:json.loads((ROOT/f'src/main/resources/data/myvillage/ruins/{name}.json').read_text()) for name in ('duange_ruin','fuyao_ruin')}
 
@@ -57,7 +57,7 @@ class BattleEvidence(RuinEvidence):
         self.rc(f'tp {self.s.username} {x} 120 {z}')
         def find():
             self.rc('save-all flush')
-            rows=saved_cores(ROOT/'run-acceptance/world/region',(x,z),6,'myvillage:battle_cache')
+            rows=saved_cores(cs.SERVER_DIR/cs.LEVEL_NAME/'region',(x,z),6,'myvillage:battle_cache')
             rows=[row for row in rows if row.get('Kind')==kind]
             return min(rows,key=lambda b:(b['x']-x)**2+(b['z']-z)**2) if rows else None
         be=self.poll(kind+' natural cache',find,90);core=(be['x'],be['y'],be['z']);turn=None

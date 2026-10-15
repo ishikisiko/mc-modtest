@@ -16,8 +16,7 @@ systems when the data and runtime pipeline are ready.
 > technical notes and [technical contracts](docs/contracts/README.md).
 > **Workflow:** [docs/WORKFLOW.md](docs/WORKFLOW.md); [CRAFT](CRAFT.md) is optional.
 
-
-### 战斗遗迹（0.55.0）
+## 战斗遗迹（0.55.0）
 
 - **断戈营垒**：建议炼气一至三层，从残门向主台推进，依次击败三处守军，主台宝箱解封。
 - **伏妖残殿**：建议炼气四至六层，沿台阶进入下沉大殿，右击封印宝箱启动三波妖兽挑战。
