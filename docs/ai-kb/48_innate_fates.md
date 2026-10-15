@@ -143,3 +143,5 @@ real-click regression was not observed in this capture.
 See also: [cultivation-initiation-ritual](../contracts/cultivation.md#cultivation-initiation-ritual),
 [cultivation-state-synchronization](../contracts/cultivation.md#cultivation-state-synchronization),
 [cultivation-core-validation](../contracts/tooling.md#cultivation-core-validation).
+
+0.52.2 focused build and owner-PC deployment: [verification record](../testing/2026-10-16-fate-choice-pool.md).
