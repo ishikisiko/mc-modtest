@@ -224,6 +224,7 @@ def main() -> int:
             args.ganlan_stilted_house_base_seed, args.profile)
         if args.profile == "full":
             generate_mod_block_fallbacks()
+        subprocess.run([sys.executable, str(SCRIPT_DIR / "gen_danxia_ruin.py")], cwd=REPO_ROOT, check=True)
         copy_default_output(output_dir)
     except (OSError, ValueError, ValidationError, subprocess.CalledProcessError) as exc:
         print(f"GENERATION FAILED: {exc}", file=sys.stderr)

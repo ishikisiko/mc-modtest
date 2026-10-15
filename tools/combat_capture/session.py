@@ -72,8 +72,9 @@ CLIENT_OPTIONS = {
 }
 
 
-def server_properties(server_port: int, rcon_port: int, password: str, *, natural_monsters: bool = False) -> dict:
-    return {
+def server_properties(server_port: int, rcon_port: int, password: str, *, natural_monsters: bool = False,
+                      natural_terrain: bool = False) -> dict:
+    properties = {
         "server-ip": "127.0.0.1",
         "server-port": str(server_port),
         "online-mode": "false",
@@ -111,6 +112,9 @@ def server_properties(server_port: int, rcon_port: int, password: str, *, natura
         "white-list": "false",
         "sync-chunk-writes": "true",
     }
+    if natural_terrain:
+        properties.update({"level-type": "minecraft\\:normal", "generator-settings": "{}", "generate-structures": "true"})
+    return properties
 
 
 def merge_options(path: Path, forced: dict) -> None:
@@ -197,6 +201,7 @@ class SessionConfig:
     reuse_world: bool = False
     language: str = "en_us"
     natural_monsters: bool = False
+    natural_terrain: bool = False
 
 
 class StopRequested(Exception):
@@ -293,8 +298,10 @@ class Supervisor:
         server_port, rcon_port = procs.free_ports(2)
         password = secrets.token_urlsafe(18)
         self.state.update(server_port=server_port, rcon_port=rcon_port, rcon_password=password)
-        values = server_properties(server_port, rcon_port, password, natural_monsters=self.cfg.natural_monsters)
+        values = server_properties(server_port, rcon_port, password, natural_monsters=self.cfg.natural_monsters,
+                                   natural_terrain=self.cfg.natural_terrain)
         self.state["natural_monsters"] = self.cfg.natural_monsters
+        self.state["natural_terrain"] = self.cfg.natural_terrain
         fd = os.open(str(props), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             f.write("# written by tools/combat_capture for a capture session; the original is restored at stop\n")

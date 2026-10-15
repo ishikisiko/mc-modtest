@@ -23,6 +23,12 @@ class SettlementGroup:
 
 
 GROUPS: Dict[str, SettlementGroup] = {
+    "danxia_ruin": SettlementGroup(
+        group_id="danxia_ruin", style_id="chinese_courtyard",
+        archetype_roster=("gate", "main_hall", "east_wing"),
+        layout_strategy="ruined_monastery",
+        classifications={"gate": "infrastructure", "main_hall": "civic", "east_wing": "functional"},
+    ),
     "medieval_village": SettlementGroup(
         group_id="medieval_village",
         style_id="medieval_village",

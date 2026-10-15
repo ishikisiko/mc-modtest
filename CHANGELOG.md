@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.54.0
+
+- 新增主世界遗迹「丹霞旧观」：残院、荒芜药园、地下丹室、内库与可攀爬的塌洞，支持自然生成和 `/locate structure myvillage:danxia_ruin`。
+- 丹霞残阵在药园复苏和内库传承间提供全遗迹共享的一次性选择；空手重复交互确认，服务器校验目标并保存结果。原有方块可挖掘，残阵不掉落。
+- 配置驱动的两只妖狼守卫、外围补给，以及功法秘籍和凝神丹方的探索获取途径。新增局部 Modal 构建与遗迹验收工具。
+
 ## 0.53.0-fix1
 
 - Restore vanilla block item transforms for Spirit Soil: angled three-face inventory view, quarter-size dropped item, and standard hand/frame scale. Placed geometry is unchanged.

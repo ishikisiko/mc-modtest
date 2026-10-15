@@ -14,6 +14,11 @@ public final class ModBlockEntities {
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES =
             DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, MyVillageMod.MOD_ID);
 
+    @SuppressWarnings("DataFlowIssue")
+    public static final Supplier<BlockEntityType<com.example.myvillage.ruins.RuinCoreBlockEntity>> RUIN_CORE =
+            BLOCK_ENTITIES.register("ruin_core", () -> BlockEntityType.Builder.of(
+                    com.example.myvillage.ruins.RuinCoreBlockEntity::new, ModBlocks.RUIN_CORE.get()).build(null));
+
     @SuppressWarnings("DataFlowIssue") // a null data fixer type is the vanilla idiom for mod block entities
     public static final Supplier<BlockEntityType<ScriptureShelfBlockEntity>> SCRIPTURE_SHELF =
             BLOCK_ENTITIES.register("scripture_shelf",

@@ -22,6 +22,11 @@ public final class ModBlocks {
 
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MyVillageMod.MOD_ID);
 
+    public static final DeferredBlock<RuinCoreBlock> RUIN_CORE = BLOCKS.registerBlock("ruin_core", RuinCoreBlock::new,
+            BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).strength(3.0F).noOcclusion().noLootTable()
+                    .sound(SoundType.STONE).pushReaction(PushReaction.BLOCK)
+                    .lightLevel(state -> state.getValue(RuinCoreBlock.LIT) ? 8 : 0));
+
     public static final DeferredBlock<PlaqueBlock> WALL_PLAQUE =
             BLOCKS.registerBlock("wall_plaque", PlaqueBlock::new, plaqueProperties());
     public static final DeferredBlock<PlaqueBlock> WALL_PLAQUE_VERTICAL =
@@ -98,6 +103,7 @@ public final class ModBlocks {
                             .randomTicks().instabreak().sound(SoundType.CROP).pushReaction(PushReaction.DESTROY));
 
     private static final List<String> BLOCK_IDS = List.of(
+            "ruin_core",
             "spirit_soil", "spirit_leaf_crop", "dew_blossom_crop", "sunroot_crop", "blood_berry_crop", "cloud_fungus_crop", "calm_lotus_crop",
             "alchemy_furnace",
             "wall_plaque",

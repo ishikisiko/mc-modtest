@@ -122,6 +122,7 @@ public final class MyVillageMod {
         NeoForge.EVENT_BUS.addListener(RegionRuntimeService::onServerStopping);
         WorldSimRuntime.register(); // after the region runtime: genesis needs its graph
         StatsRuntime.register();
+        NeoForge.EVENT_BUS.addListener(com.example.myvillage.ruins.RuinGuardians::onJoin);
         WildernessRuntime.register();
         NeoForge.EVENT_BUS.addListener(this::onPlayerLoggedOut);
         NeoForge.EVENT_BUS.addListener(this::onPlayerChangedDimension);

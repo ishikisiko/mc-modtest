@@ -499,6 +499,16 @@ class SessionPureTest(unittest.TestCase):
         self.assertEqual(enabled["spawn-animals"], "false")
         self.assertEqual(enabled["server-ip"], "127.0.0.1")
 
+    def test_natural_terrain_requires_explicit_capture_opt_in(self):
+        default = server_properties(25611,25612,"pw")
+        self.assertEqual(default["generate-structures"],"false")
+        natural = server_properties(25611,25612,"pw",natural_terrain=True)
+        self.assertEqual(natural["level-type"],"minecraft\\:normal")
+        self.assertEqual(natural["generate-structures"],"true")
+        self.assertEqual(natural["generator-settings"],"{}")
+        for key in ("server-ip","level-name","level-seed","online-mode"):
+            self.assertEqual(default[key],natural[key])
+
     def test_merge_options(self):
         with tempfile.TemporaryDirectory() as td:
             p = Path(td) / "options.txt"

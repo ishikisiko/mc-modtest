@@ -1300,5 +1300,15 @@
   "block.myvillage.sunroot_crop": "赤阳根",
   "block.myvillage.blood_berry_crop": "血朱果",
   "block.myvillage.cloud_fungus_crop": "云芝",
-  "block.myvillage.calm_lotus_crop": "清心莲"
+  "block.myvillage.calm_lotus_crop": "清心莲",
+  "block.myvillage.ruin_core": "丹霞残阵",
+  "message.myvillage.ruin.confirm_garden": "残泉仅余一次：复苏药园，得到十二株成熟灵植与灵土。空手再次右击确认；潜行右击可改选内库。",
+  "message.myvillage.ruin.confirm_vault": "残泉仅余一次：复原内库中的《青木长春功》、凝神丹方与灵石。保持潜行，空手再次右击确认；松开潜行可改选药园。",
+  "message.myvillage.ruin.spent": "残阵灵气已尽，无法再次激活。",
+  "message.myvillage.ruin.unloaded": "灵路远端尚未加载。请先走近药园与内库，再返回残阵。",
+  "message.myvillage.ruin.garden_changed": "药园阵位已被改动：请恢复枯株下的砂土，并清空株位。残泉尚未消耗。",
+  "message.myvillage.ruin.vault_changed": "内库木桶已被移走或占用。请恢复原位的空木桶。残泉尚未消耗。",
+  "message.myvillage.ruin.invalid": "传承数据不可用，残泉尚未消耗。",
+  "message.myvillage.ruin.garden": "残泉流向地表，旧药园重新萌发。内库传承随余烬散去。",
+  "message.myvillage.ruin.vault": "墨迹在内库木桶中重新凝聚。药园的余根归于沉寂。"
 }
