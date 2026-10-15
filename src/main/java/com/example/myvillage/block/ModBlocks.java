@@ -69,7 +69,36 @@ public final class ModBlocks {
                             .noOcclusion().pushReaction(PushReaction.BLOCK)
                             .lightLevel(state -> state.getValue(AlchemyFurnaceBlock.LIT) ? 9 : 0));
 
+    public static final DeferredBlock<SpiritSoilBlock> SPIRIT_SOIL =
+            BLOCKS.registerBlock("spirit_soil", SpiritSoilBlock::new,
+                    BlockBehaviour.Properties.of().mapColor(MapColor.DIRT).strength(0.6F).sound(SoundType.GRAVEL));
+    public static final DeferredBlock<SpiritCropBlock> SPIRIT_LEAF_CROP =
+            BLOCKS.registerBlock("spirit_leaf_crop", SpiritCropBlock::new,
+                    BlockBehaviour.Properties.of().mapColor(MapColor.PLANT).noCollission().noOcclusion()
+                            .randomTicks().instabreak().sound(SoundType.CROP).pushReaction(PushReaction.DESTROY));
+    public static final DeferredBlock<SpiritCropBlock> DEW_BLOSSOM_CROP =
+            BLOCKS.registerBlock("dew_blossom_crop", SpiritCropBlock::new,
+                    BlockBehaviour.Properties.of().mapColor(MapColor.PLANT).noCollission().noOcclusion()
+                            .randomTicks().instabreak().sound(SoundType.CROP).pushReaction(PushReaction.DESTROY));
+    public static final DeferredBlock<SpiritCropBlock> SUNROOT_CROP =
+            BLOCKS.registerBlock("sunroot_crop", SpiritCropBlock::new,
+                    BlockBehaviour.Properties.of().mapColor(MapColor.PLANT).noCollission().noOcclusion()
+                            .randomTicks().instabreak().sound(SoundType.CROP).pushReaction(PushReaction.DESTROY));
+    public static final DeferredBlock<SpiritCropBlock> BLOOD_BERRY_CROP =
+            BLOCKS.registerBlock("blood_berry_crop", SpiritCropBlock::new,
+                    BlockBehaviour.Properties.of().mapColor(MapColor.PLANT).noCollission().noOcclusion()
+                            .randomTicks().instabreak().sound(SoundType.CROP).pushReaction(PushReaction.DESTROY));
+    public static final DeferredBlock<SpiritCropBlock> CLOUD_FUNGUS_CROP =
+            BLOCKS.registerBlock("cloud_fungus_crop", SpiritCropBlock::new,
+                    BlockBehaviour.Properties.of().mapColor(MapColor.PLANT).noCollission().noOcclusion()
+                            .randomTicks().instabreak().sound(SoundType.CROP).pushReaction(PushReaction.DESTROY));
+    public static final DeferredBlock<SpiritCropBlock> CALM_LOTUS_CROP =
+            BLOCKS.registerBlock("calm_lotus_crop", SpiritCropBlock::new,
+                    BlockBehaviour.Properties.of().mapColor(MapColor.PLANT).noCollission().noOcclusion()
+                            .randomTicks().instabreak().sound(SoundType.CROP).pushReaction(PushReaction.DESTROY));
+
     private static final List<String> BLOCK_IDS = List.of(
+            "spirit_soil", "spirit_leaf_crop", "dew_blossom_crop", "sunroot_crop", "blood_berry_crop", "cloud_fungus_crop", "calm_lotus_crop",
             "alchemy_furnace",
             "wall_plaque",
             "wall_plaque_vertical",

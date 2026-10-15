@@ -28,6 +28,8 @@
 
 - 炼丹学习/补料局部构建可用 Modal `--preset alchemy-build`；旧实体丹方槽采集器需迁移后才能用于新版完整验收。
 
+- 灵土/灵植：KB51；仅三阶段，六味药材兼作播种和收获。资源只改 `tools/gen_spirit_crops.py`，局部云端测试/构建用 `--preset crops-build`。
+
 ## 按需查阅
 
 | 范围 | 技术约束 | 主要实现说明 |

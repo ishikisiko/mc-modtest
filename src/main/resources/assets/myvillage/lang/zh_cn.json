@@ -1177,7 +1177,7 @@
   "alchemy.myvillage.formula_hint": "右键永久学习，炼丹不再需要携带丹方",
   "alchemy.myvillage.ingredients": "药材：%s + %s",
   "alchemy.myvillage.fuel_hint": "炉火：下品灵石",
-  "alchemy.myvillage.herb_hint": "炼丹药材 · 由常见植物注灵获得",
+  "alchemy.myvillage.herb_hint": "可直接种在灵土上，成熟收获同种药材",
   "alchemy.myvillage.huiling_hint": "恢复灵力",
   "alchemy.myvillage.yangyuan_hint": "缓慢恢复生命；受到伤害会中断药效",
   "alchemy.myvillage.ningshen_hint": "修为达到当前上限后，辅助打坐巩固稳定度",
@@ -1293,5 +1293,12 @@
   "screen.myvillage.alchemy.learn_hint": "手持丹方右键学习。点击已学丹方，自动补齐一炉材料。",
   "screen.myvillage.alchemy.autofill": "点击从背包补齐一炉药材和灵石",
   "screen.myvillage.alchemy.not_learned": "尚未学习此丹方",
-  "screen.myvillage.alchemy.legacy": "旧丹方"
+  "screen.myvillage.alchemy.legacy": "旧丹方",
+  "block.myvillage.spirit_soil": "灵土",
+  "block.myvillage.spirit_leaf_crop": "聚灵叶",
+  "block.myvillage.dew_blossom_crop": "凝露花",
+  "block.myvillage.sunroot_crop": "赤阳根",
+  "block.myvillage.blood_berry_crop": "血朱果",
+  "block.myvillage.cloud_fungus_crop": "云芝",
+  "block.myvillage.calm_lotus_crop": "清心莲"
 }

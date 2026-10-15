@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "myvillage:spirit_leaf_crop",
+    "myvillage:dew_blossom_crop",
+    "myvillage:sunroot_crop",
+    "myvillage:blood_berry_crop",
+    "myvillage:cloud_fungus_crop",
+    "myvillage:calm_lotus_crop"
+  ]
+}

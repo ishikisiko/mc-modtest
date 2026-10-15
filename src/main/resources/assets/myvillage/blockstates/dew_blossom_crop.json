@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "age=0": {
+      "model": "myvillage:block/dew_blossom_crop_0"
+    },
+    "age=1": {
+      "model": "myvillage:block/dew_blossom_crop_1"
+    },
+    "age=2": {
+      "model": "myvillage:block/dew_blossom_crop_2"
+    }
+  }
+}

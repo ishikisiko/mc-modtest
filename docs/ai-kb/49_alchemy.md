@@ -68,7 +68,7 @@ quality/effect/restart/two-client checks; 15 screenshots were inspected.
 See [recorded runs and retries](../testing/2026-10-16-alchemy-quality.md). Owner appearance, feel,
 balance and wider multiplayer remain `not_verified`. Natural acquisition,
 cold legacy-save migration and other unobserved lifecycle surfaces remain
-`not_verified`. Wild plants/farming, skill XP, toxicity,
+`not_verified`. Wild plant worldgen, skill XP, toxicity,
 furnace failure and forging production remain outside this slice.
 
 See also: [alchemy-foundation](../contracts/cultivation.md#alchemy-foundation),
@@ -81,3 +81,5 @@ See also: [alchemy-foundation](../contracts/cultivation.md#alchemy-foundation),
 [spiritual power](45_spiritual_power_sword_qi.md).
 
 0.52.3 focused tests, build and owner-client layout: [verification record](../testing/2026-10-16-learned-formulas.md).
+
+Six herb items are plantable on permanent Spirit Soil since 0.53.0; see [spirit farming](51_spirit_farming.md).

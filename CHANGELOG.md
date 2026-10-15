@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.53.0
+
+- Add permanent Spirit Soil dedicated to spirit plants, without watering, drying or farmland trampling.
+- Make the six existing alchemy herbs both planting materials and harvested produce, with exactly three growth stages, bone meal support and mature yields from generated loot.
+- Add distinct three-dimensional leaf, flower, root, berry, mushroom and lotus stage models, deterministic textures, soil acquisition and a focused cloud crop-test/build path.
+
 ## 0.52.3
 
 - Learn formula sheets permanently as player knowledge, retained on death/reconnect; survival consumes only the first learned copy.

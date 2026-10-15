@@ -307,6 +307,7 @@ STEPS: tuple[Step, ...] = (
     generator_check("gen_scripture_shelf_model"),
     tool("validate_scripture_shelf"),
     generator_check("gen_alchemy_assets"),
+    generator_check("gen_spirit_crops"),
     tool("validate_alchemy"),
     beastgen_check("demon_wolf"),
     npcgen_check("cultivator"),

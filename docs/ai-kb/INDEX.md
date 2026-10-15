@@ -68,6 +68,8 @@ Test evidence: [Historical Modal runner verification](../testing/2026-10-14-moda
 
 Topic notes: [Plaque Frame Brief](plaque-frame-brief.md), [Plaque Inscription Style](plaque-inscription-style.md). Reference material under [`references/`](references/), [`style_guides/`](style_guides/), [`examples/`](examples/).
 
+| 51 | [Spirit Farming](51_spirit_farming.md) | Permanent spirit-only soil, six existing herbs as planting/harvest items, three growth stages and authored 3D models/loot. |
+
 ## Technical contracts and maintenance
 
 See [contracts/README.md](../contracts/README.md) for the eight topic documents

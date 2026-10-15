@@ -1193,7 +1193,7 @@
   "alchemy.myvillage.formula_hint": "Use to learn permanently; brewing needs no formula item",
   "alchemy.myvillage.ingredients": "Ingredients: %s + %s",
   "alchemy.myvillage.fuel_hint": "Fuel: Low-grade Spirit Stone",
-  "alchemy.myvillage.herb_hint": "Alchemy ingredient · Infused from common plants",
+  "alchemy.myvillage.herb_hint": "Plant on Spirit Soil; harvest this same herb",
   "alchemy.myvillage.huiling_hint": "Restores spiritual power",
   "alchemy.myvillage.yangyuan_hint": "Slowly restores health; damage interrupts recovery",
   "alchemy.myvillage.ningshen_hint": "Assists stability meditation after reaching the stage cap",
@@ -1309,5 +1309,12 @@
   "screen.myvillage.alchemy.learn_hint": "Use a formula to learn it. Select a recipe here to fill one batch.",
   "screen.myvillage.alchemy.autofill": "Click to fill one batch from your inventory",
   "screen.myvillage.alchemy.not_learned": "Recipe not learned",
-  "screen.myvillage.alchemy.legacy": "Old copy"
+  "screen.myvillage.alchemy.legacy": "Old copy",
+  "block.myvillage.spirit_soil": "Spirit Soil",
+  "block.myvillage.spirit_leaf_crop": "Spirit Leaf",
+  "block.myvillage.dew_blossom_crop": "Dew Blossom",
+  "block.myvillage.sunroot_crop": "Sunroot",
+  "block.myvillage.blood_berry_crop": "Blood Berry",
+  "block.myvillage.cloud_fungus_crop": "Cloud Fungus",
+  "block.myvillage.calm_lotus_crop": "Calm Lotus"
 }

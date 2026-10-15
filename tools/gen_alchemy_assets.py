@@ -43,7 +43,7 @@ LANG = {
     "alchemy.myvillage.formula_hint": ("Use to learn permanently; brewing needs no formula item", "右键永久学习，炼丹不再需要携带丹方"),
     "alchemy.myvillage.ingredients": ("Ingredients: %s + %s", "药材：%s + %s"),
     "alchemy.myvillage.fuel_hint": ("Fuel: Low-grade Spirit Stone", "炉火：下品灵石"),
-    "alchemy.myvillage.herb_hint": ("Alchemy ingredient · Infused from common plants", "炼丹药材 · 由常见植物注灵获得"),
+    "alchemy.myvillage.herb_hint": ("Plant on Spirit Soil; harvest this same herb", "可直接种在灵土上，成熟收获同种药材"),
     "alchemy.myvillage.huiling_hint": ("Restores spiritual power", "恢复灵力"),
     "alchemy.myvillage.yangyuan_hint": ("Slowly restores health; damage interrupts recovery", "缓慢恢复生命；受到伤害会中断药效"),
     "alchemy.myvillage.ningshen_hint": ("Assists stability meditation after reaching the stage cap", "修为达到当前上限后，辅助打坐巩固稳定度"),

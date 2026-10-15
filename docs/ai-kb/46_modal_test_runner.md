@@ -72,6 +72,7 @@ artifacts and confirmed cleanup are recorded.
 |---|---|---|
 | `smoke` | Java version, Python dependency imports, Xvfb `glxinfo` | `pass` (authenticated second attempt; downloaded evidence and confirmed termination) |
 | `python` | `python3 -m unittest discover -s tools/tests` | `pass` (1053 tests) |
+| `crops-build` | SpiritCropsTest and jar build only | Per-run result required |
 | `alchemy-build` | Alchemy Java tests and jar build only | Per-run result required; no full game evidence |
 | `fates` | FateFoundationTest and jar build only; no game/full release | Per-run result required |
 | `build` | `./gradlew test build --no-daemon -Dorg.gradle.jvmargs=-Xmx2g --max-workers=4` | `pass` (913 tests; fresh 0.46.1 jar downloaded) |

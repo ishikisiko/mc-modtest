@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemNameBlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.Tiers;
@@ -133,14 +134,22 @@ public final class ModItems {
                             Tiers.DIAMOND,
                             props.attributes(SwordItem.createAttributes(Tiers.DIAMOND, 1, -1.8F))));
 
+    public static final DeferredItem<BlockItem> SPIRIT_SOIL = ITEMS.registerItem("spirit_soil",
+            props -> new BlockItem(ModBlocks.SPIRIT_SOIL.get(), props));
     public static final DeferredItem<BlockItem> ALCHEMY_FURNACE = ITEMS.registerItem("alchemy_furnace",
             props -> new BlockItem(ModBlocks.ALCHEMY_FURNACE.get(), props));
-    public static final DeferredItem<Item> SPIRIT_LEAF = ITEMS.registerSimpleItem("spirit_leaf");
-    public static final DeferredItem<Item> DEW_BLOSSOM = ITEMS.registerSimpleItem("dew_blossom");
-    public static final DeferredItem<Item> SUNROOT = ITEMS.registerSimpleItem("sunroot");
-    public static final DeferredItem<Item> BLOOD_BERRY = ITEMS.registerSimpleItem("blood_berry");
-    public static final DeferredItem<Item> CLOUD_FUNGUS = ITEMS.registerSimpleItem("cloud_fungus");
-    public static final DeferredItem<Item> CALM_LOTUS = ITEMS.registerSimpleItem("calm_lotus");
+    public static final DeferredItem<ItemNameBlockItem> SPIRIT_LEAF = ITEMS.registerItem("spirit_leaf",
+            props -> new ItemNameBlockItem(ModBlocks.SPIRIT_LEAF_CROP.get(), props));
+    public static final DeferredItem<ItemNameBlockItem> DEW_BLOSSOM = ITEMS.registerItem("dew_blossom",
+            props -> new ItemNameBlockItem(ModBlocks.DEW_BLOSSOM_CROP.get(), props));
+    public static final DeferredItem<ItemNameBlockItem> SUNROOT = ITEMS.registerItem("sunroot",
+            props -> new ItemNameBlockItem(ModBlocks.SUNROOT_CROP.get(), props));
+    public static final DeferredItem<ItemNameBlockItem> BLOOD_BERRY = ITEMS.registerItem("blood_berry",
+            props -> new ItemNameBlockItem(ModBlocks.BLOOD_BERRY_CROP.get(), props));
+    public static final DeferredItem<ItemNameBlockItem> CLOUD_FUNGUS = ITEMS.registerItem("cloud_fungus",
+            props -> new ItemNameBlockItem(ModBlocks.CLOUD_FUNGUS_CROP.get(), props));
+    public static final DeferredItem<ItemNameBlockItem> CALM_LOTUS = ITEMS.registerItem("calm_lotus",
+            props -> new ItemNameBlockItem(ModBlocks.CALM_LOTUS_CROP.get(), props));
     public static final DeferredItem<FormulaItem> FORMULA_HUILING = ITEMS.registerItem("formula_huiling", props -> new FormulaItem(props, "huiling"));
     public static final DeferredItem<AlchemyPillItem> PILL_HUILING = ITEMS.registerItem("pill_huiling", props -> new AlchemyPillItem(props.stacksTo(16), "huiling"));
     public static final DeferredItem<FormulaItem> FORMULA_YANGYUAN = ITEMS.registerItem("formula_yangyuan", props -> new FormulaItem(props, "yangyuan"));
@@ -270,6 +279,7 @@ public final class ModItems {
                         output.accept(LINGXIAO_SPEAR.get());
                         output.accept(XUANTIE_GAUNTLET.get());
                         output.accept(LOW_GRADE_SPIRIT_STONE.get());
+                        output.accept(SPIRIT_SOIL.get());
                         output.accept(ALCHEMY_FURNACE.get());
                         output.accept(SPIRIT_LEAF.get());
                         output.accept(DEW_BLOSSOM.get());
