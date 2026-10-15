@@ -75,6 +75,7 @@ artifacts and confirmed cleanup are recorded.
 | `crops-build` | SpiritCropsTest and jar build only | Per-run result required |
 | `alchemy-build` | Alchemy Java tests and jar build only | Per-run result required; no full game evidence |
 | `fates` | FateFoundationTest and jar build only; no game/full release | Per-run result required |
+| `jar` | `./gradlew jar` only, for resource/presentation-only delivery | Per-run result required; no tests/game |
 | `build` | `./gradlew test build --no-daemon -Dorg.gradle.jvmargs=-Xmx2g --max-workers=4` | `pass` (913 tests; fresh 0.46.1 jar downloaded) |
 | `release` | `python3 tools/release_gate.py` once (complete release checks, fresh jar) | See current workflow record |
 | `release-alchemy` | release, clean stage1, all alchemy cases in one Sandbox/workspace | See current workflow record |

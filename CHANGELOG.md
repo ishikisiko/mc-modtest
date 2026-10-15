@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.53.0-fix1
+
+- Restore vanilla block item transforms for Spirit Soil: angled three-face inventory view, quarter-size dropped item, and standard hand/frame scale. Placed geometry is unchanged.
+
 ## 0.53.0
 
 - Add permanent Spirit Soil dedicated to spirit plants, without watering, drying or farmland trampling.

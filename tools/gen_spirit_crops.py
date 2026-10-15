@@ -11,6 +11,8 @@ if str(ROOT) not in sys.path: sys.path.insert(0, str(ROOT))
 from tools.gen_alchemy_assets import png, HERBS, NAMES
 ASSET = Path('src/main/resources/assets/myvillage')
 DATA = Path('src/main/resources/data')
+# Minecraft 1.21.1 block/block.json item transforms; world geometry stays full size.
+BLOCK_ITEM_DISPLAY = {'gui': {'rotation': [30, 225, 0], 'translation': [0, 0, 0], 'scale': [0.625, 0.625, 0.625]}, 'ground': {'rotation': [0, 0, 0], 'translation': [0, 3, 0], 'scale': [0.25, 0.25, 0.25]}, 'fixed': {'rotation': [0, 0, 0], 'translation': [0, 0, 0], 'scale': [0.5, 0.5, 0.5]}, 'thirdperson_righthand': {'rotation': [75, 45, 0], 'translation': [0, 2.5, 0], 'scale': [0.375, 0.375, 0.375]}, 'firstperson_righthand': {'rotation': [0, 45, 0], 'translation': [0, 0, 0], 'scale': [0.4, 0.4, 0.4]}, 'firstperson_lefthand': {'rotation': [0, 225, 0], 'translation': [0, 0, 0], 'scale': [0.4, 0.4, 0.4]}}
 PARTS = ('stem', 'leaf', 'leaf_light', 'petal', 'heart', 'fruit', 'cap', 'root')
 PALETTES = {
  'spirit_leaf': ((49,86,45),(47,111,63),(113,169,89),(133,192,126),(180,211,130),(65,135,78),(80,138,94),(92,71,43)),
@@ -136,7 +138,7 @@ def outputs(root=ROOT):
     for face in ('top','side','bottom'):out[root/ASSET/f'textures/block/spirit_soil_{face}.png']=soil_texture(face)
     put(ASSET/'blockstates/spirit_soil.json',{'variants':{'':{'model':'myvillage:block/spirit_soil'}}})
     put(ASSET/'models/block/spirit_soil.json',{'textures':{'top':'myvillage:block/spirit_soil_top','bottom':'myvillage:block/spirit_soil_bottom','side':'myvillage:block/spirit_soil_side','particle':'myvillage:block/spirit_soil_top'},'elements':[{'from':[0,0,0],'to':[16,16,16],'faces':{face:{'texture':'#'+('top' if face=='up' else 'bottom' if face=='down' else 'side'),'cullface':face,'uv':[0,0,16,16]} for face in ('north','south','east','west','up','down')}}]})
-    put(ASSET/'models/item/spirit_soil.json',{'parent':'myvillage:block/spirit_soil'})
+    put(ASSET/'models/item/spirit_soil.json',{'parent':'myvillage:block/spirit_soil','gui_light':'side','display':BLOCK_ITEM_DISPLAY})
     put(DATA/'myvillage/loot_table/blocks/spirit_soil.json',{'type':'minecraft:block','pools':[{'rolls':1,'entries':[{'type':'minecraft:item','name':'myvillage:spirit_soil'}],'conditions':[{'condition':'minecraft:survives_explosion'}]}]})
     put(DATA/'myvillage/recipe/spirit_soil.json',{'type':'minecraft:crafting_shapeless','category':'misc','ingredients':[{'item':'minecraft:dirt'},{'item':'myvillage:low_grade_spirit_stone'}],'result':{'id':'myvillage:spirit_soil','count':1}})
     return out

@@ -20,6 +20,7 @@ PRESETS = {
     "smoke": [["java", "-version"], ["python3", "-c", "import yaml, numpy, PIL; print('python dependencies OK')"],
               ["xvfb-run", "-a", "glxinfo", "-B"]],
     "python": [["python3", "-m", "unittest", "discover", "-s", "tools/tests"]],
+    "jar": [["./gradlew", "jar", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"]],
     "build": [["./gradlew", "test", "build", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"]],
     "crops-build": [["./gradlew", "test", "--tests", "com.example.myvillage.block.SpiritCropsTest", "build", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"]],
     "alchemy-build": [["./gradlew", "test", "--tests", "com.example.myvillage.alchemy.*", "build", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"]],
