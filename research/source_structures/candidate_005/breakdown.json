@@ -44,7 +44,7 @@
     {
       "cue": "upstream Ganlan house, street, temple, shrine, and decor NBT files as shipped project prefabs",
       "rationale": "REJECTED for this decomposition pass. The source is MIT, but candidate_005 is still recorded as local_research, and a direct copy would import third-party geometry, jigsaw blocks, namespace assumptions, and a whole village pool before the project has a prefab quarantine policy.",
-      "downstream_route": "no_direct_component: keep the upstream NBTs as inspection-only evidence. A future prefab-import OpenSpec change would need isolated staging, attribution, jigsaw/entity/block audit, palette normalization, preview evidence, and owner verdict before any direct asset route is allowed.",
+      "downstream_route": "no_direct_component: keep the upstream NBTs as inspection-only evidence. A future prefab-import implementation task would need isolated staging, attribution, jigsaw/entity/block audit, palette normalization, preview evidence, and owner verdict before any direct asset route is allowed.",
       "review_needed": "Owner decision on whether this project should ever accept direct third-party prefab imports. Default: no direct copy; rebuild original Ganlan forms instead."
     }
   ],
@@ -78,7 +78,7 @@
     {
       "cue": "terrain- and water-adaptive raised-floor building slot",
       "rationale": "The core planner rule is to lift the occupied floor above wet or uneven ground, then derive post lengths from local terrain / water height. This is a generator rule, not a prefab shape.",
-      "downstream_route": "future ganlan-stilted-house OpenSpec change + building-generation + town-realization: implement raised_floor_y, post_to_ground, entry_stair, and underside-clearance parameters.",
+      "downstream_route": "future ganlan-stilted-house implementation task + building-generation + town-realization: implement raised_floor_y, post_to_ground, entry_stair, and underside-clearance parameters.",
       "review_needed": "Validator should check that the floor is elevated, posts reach support surfaces, stairs connect to the settlement path, and the underside remains mostly open."
     },
     {

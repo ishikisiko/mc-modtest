@@ -15,13 +15,11 @@ from typing import Any, Iterable
 
 ROOT = Path(__file__).resolve().parents[2]
 
-BOOTSTRAP_CHANGE = "openspec/changes/enforce-craft-frontdoor-governance"
-
 PROTECTED_PATTERNS: list[tuple[str, str]] = [
     (".codex/agents/**", "genops"),
     (".codex/skills/**", "skills"),
-    ("openspec/changes/**", "openspec"),
-    ("openspec/specs/**", "openspec"),
+    ("docs/contracts/**", "docs"),
+    ("docs/WORKFLOW.md", "docs"),
     ("docs/ai-kb/**", "docs"),
     ("genops/**", "genops"),
     ("tools/genops/**", "genops"),
@@ -41,7 +39,6 @@ PROTECTED_PATTERNS: list[tuple[str, str]] = [
 ]
 
 ROLE_ALLOWLIST: dict[str, set[str]] = {
-    "openspec": {"docs-steward", "spec-guardian", "regression-steward"},
     "docs": {"docs-steward", "release-steward", "spec-guardian"},
     "genops": {"manager", "pipeline-architect", "docs-steward", "regression-steward"},
     "skills": {"pipeline-architect", "docs-steward", "spec-guardian"},
@@ -118,11 +115,6 @@ def protected_match(path: str, root: Path = ROOT) -> ProtectedPath | None:
         if matches(normalized, pattern, root):
             return ProtectedPath(path=normalized, category=category, pattern=pattern)
     return None
-
-
-def is_bootstrap_path(path: str) -> bool:
-    normalized = normalize_path(path)
-    return normalized == BOOTSTRAP_CHANGE or normalized.startswith(f"{BOOTSTRAP_CHANGE}/")
 
 
 def git_status_paths(root: Path) -> list[str]:
@@ -330,23 +322,12 @@ def allowed_roles(path: ProtectedPath) -> set[str]:
 def validate(
     protected_paths: list[ProtectedPath],
     ownership: list[Ownership],
-    allow_bootstrap: bool,
     manifest: Path | None,
 ) -> dict[str, Any]:
     findings: list[dict[str, str]] = []
     accepted: list[dict[str, str]] = []
 
     for protected in protected_paths:
-        if allow_bootstrap and is_bootstrap_path(protected.path):
-            accepted.append(
-                {
-                    "path": protected.path,
-                    "reason": "bootstrap_exception",
-                    "category": protected.category,
-                }
-            )
-            continue
-
         if manifest is None:
             findings.append(
                 {
@@ -418,7 +399,6 @@ def run_check(
     root: Path,
     manifest: Path | None,
     paths: list[str] | None = None,
-    allow_bootstrap: bool = False,
 ) -> dict[str, Any]:
     protected = inspect_paths(root, paths)
     ownership: list[Ownership] = []
@@ -433,7 +413,7 @@ def run_check(
             "accepted": [],
             "findings": [{"path": str(manifest), "reason": "manifest_not_found"}],
         }
-    return validate(protected, ownership, allow_bootstrap, manifest_for_validation)
+    return validate(protected, ownership, manifest_for_validation)
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
@@ -441,7 +421,6 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("--root", type=Path, default=ROOT)
     parser.add_argument("--run-id", default="", help="GenOps run id under reports/agent_runs")
     parser.add_argument("--manifest", type=Path, help="Explicit run_manifest.json path")
-    parser.add_argument("--allow-bootstrap", action="store_true", help="Allow this change's narrow bootstrap exception")
     parser.add_argument("--paths", nargs="*", help="Explicit paths to inspect instead of git status")
     parser.add_argument("--json", action="store_true", help="Print machine-readable JSON")
     return parser.parse_args(argv)
@@ -468,7 +447,7 @@ def main(argv: list[str] | None = None) -> int:
         ownership = load_ownership(root, manifest)
         manifest_for_validation = manifest
 
-    result = validate(protected, ownership, args.allow_bootstrap, manifest_for_validation)
+    result = validate(protected, ownership, manifest_for_validation)
     if args.json:
         print(json.dumps(result, indent=2, ensure_ascii=False))
     else:

@@ -24,7 +24,7 @@ tasks:
       - "src/main/resources/META-INF/neoforge.mods.toml"
       - "README.md"
       - "CHANGELOG.md"
-      - "openspec/config.yaml"
+      - "docs/WORKFLOW.md"
     outputs: [patch.diff, task_result.json, evidence.json]
 
   - id: regression

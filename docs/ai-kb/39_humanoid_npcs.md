@@ -6,7 +6,7 @@ robe under a long sleeveless indigo vest. The cultivator has no disposition
 yet. It stands, strolls, and looks at players; whether it becomes a friend or a
 foe is a later decision, and this version is built so either can be added
 without redoing the art. The normative rules are in
-[humanoid-npc-runtime](../../openspec/specs/humanoid-npc-runtime/spec.md); the
+[humanoid-npc-runtime](../contracts/combat-entities.md#humanoid-npc-runtime); the
 Entity Contract is `genops/contracts/entities/cultivator.yaml`.
 
 No natural spawning and no drop: `/summon` and
@@ -355,8 +355,8 @@ the avatars' look by gender and realm are `not_verified` (README ledger
 
 ## See Also
 
-- Runtime spec: [`humanoid-npc-runtime`](../../openspec/specs/humanoid-npc-runtime/spec.md)
-- Shared model and animation schemas, beasts: [38_hostile_beasts.md](38_hostile_beasts.md), [`hostile-beast-runtime`](../../openspec/specs/hostile-beast-runtime/spec.md)
-- Custom entities and the fox route: [26_custom_entities.md](26_custom_entities.md), [`custom-entity-runtime`](../../openspec/specs/custom-entity-runtime/spec.md)
-- Capture tooling: [34_combat_data_and_capture.md](34_combat_data_and_capture.md), [`combat-capture-tooling`](../../openspec/specs/combat-capture-tooling/spec.md)
+- Runtime spec: [`humanoid-npc-runtime`](../contracts/combat-entities.md#humanoid-npc-runtime)
+- Shared model and animation schemas, beasts: [38_hostile_beasts.md](38_hostile_beasts.md), [`hostile-beast-runtime`](../contracts/combat-entities.md#hostile-beast-runtime)
+- Custom entities and the fox route: [26_custom_entities.md](26_custom_entities.md), [`custom-entity-runtime`](../contracts/combat-entities.md#custom-entity-runtime)
+- Capture tooling: [34_combat_data_and_capture.md](34_combat_data_and_capture.md), [`combat-capture-tooling`](../contracts/tooling.md#combat-capture-tooling)
 - Knowledge-base index: [INDEX.md](INDEX.md)

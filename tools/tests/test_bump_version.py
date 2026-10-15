@@ -43,7 +43,7 @@ CHANGELOG = '''# Changelog
 
 ## Versioning Rules
 
-See openspec/config.yaml.
+See docs/WORKFLOW.md.
 
 ## 0.29.0-fix1
 

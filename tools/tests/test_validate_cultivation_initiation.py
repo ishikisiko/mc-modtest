@@ -35,17 +35,6 @@ class CultivationInitiationValidationTest(unittest.TestCase):
 
     def build_complete_fixture(self) -> None:
         self.write(
-            "openspec/specs/cultivation-initiation-ritual/spec.md",
-            """
-            # cultivation-initiation-ritual Specification
-
-            ## Requirements
-
-            ### Requirement: Server-authoritative initiation
-            The system SHALL provide deterministic awakening and inheritance.
-            """,
-        )
-        self.write(
             "docs/ai-kb/29_cultivation_initiation_ritual.md",
             """
             # Cultivation Initiation Ritual

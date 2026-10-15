@@ -7,7 +7,7 @@ clips, AI, and data-driven attack moves, and its first beast,
 vanilla animal: the beast runs its own attack state machine on `Monster`,
 renders through vanilla `ModelPart` and `AnimationDefinition` built from JSON
 files, and needs no new dependency (no GeckoLib). The normative rules are in
-[hostile-beast-runtime](../../openspec/specs/hostile-beast-runtime/spec.md);
+[hostile-beast-runtime](../contracts/combat-entities.md#hostile-beast-runtime);
 the Entity Contract is `genops/contracts/entities/demon_wolf.yaml`.
 
 Since 0.47.0 the wolf has regional natural spawning with a saved birth realm;
@@ -260,8 +260,8 @@ Wolf (0.33.0)" records each surface. Offline previews are in
 
 ## See Also
 
-- Runtime spec: [`hostile-beast-runtime`](../../openspec/specs/hostile-beast-runtime/spec.md)
-- Custom entities and the fox route: [26_custom_entities.md](26_custom_entities.md), [`custom-entity-runtime`](../../openspec/specs/custom-entity-runtime/spec.md)
-- Humanoid NPCs, which share the model and animation schemas and add the model's optional `scale`: [39_humanoid_npcs.md](39_humanoid_npcs.md), [`humanoid-npc-runtime`](../../openspec/specs/humanoid-npc-runtime/spec.md)
-- Combat reactions and capture: [34_combat_data_and_capture.md](34_combat_data_and_capture.md), [`combat-style-data`](../../openspec/specs/combat-style-data/spec.md), [`combat-capture-tooling`](../../openspec/specs/combat-capture-tooling/spec.md)
+- Runtime spec: [`hostile-beast-runtime`](../contracts/combat-entities.md#hostile-beast-runtime)
+- Custom entities and the fox route: [26_custom_entities.md](26_custom_entities.md), [`custom-entity-runtime`](../contracts/combat-entities.md#custom-entity-runtime)
+- Humanoid NPCs, which share the model and animation schemas and add the model's optional `scale`: [39_humanoid_npcs.md](39_humanoid_npcs.md), [`humanoid-npc-runtime`](../contracts/combat-entities.md#humanoid-npc-runtime)
+- Combat reactions and capture: [34_combat_data_and_capture.md](34_combat_data_and_capture.md), [`combat-style-data`](../contracts/combat-entities.md#combat-style-data), [`combat-capture-tooling`](../contracts/tooling.md#combat-capture-tooling)
 - Knowledge-base index: [INDEX.md](INDEX.md)

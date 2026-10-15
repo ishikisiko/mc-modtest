@@ -754,10 +754,10 @@ owner verdict.
 
 ## See Also
 
-- Region runtime and its query API: [13_region_topology.md](13_region_topology.md), [`region-runtime-binding`](../../openspec/specs/region-runtime-binding/spec.md)
+- Region runtime and its query API: [13_region_topology.md](13_region_topology.md), [`region-runtime-binding`](../contracts/world.md#region-runtime-binding)
 - Deferred region consumers: [14_deferred_roadmap.md](14_deferred_roadmap.md) §A
-- Shared calendar and personal lifespan: [30_cultivation_playable_loop.md](30_cultivation_playable_loop.md), [`cultivation-lifespan-calendar`](../../openspec/specs/cultivation-lifespan-calendar/spec.md)
-- The cultivator body used by avatars: [39_humanoid_npcs.md](39_humanoid_npcs.md), [`humanoid-npc-runtime`](../../openspec/specs/humanoid-npc-runtime/spec.md), `genops/contracts/entities/cultivator.yaml`
+- Shared calendar and personal lifespan: [30_cultivation_playable_loop.md](30_cultivation_playable_loop.md), [`cultivation-lifespan-calendar`](../contracts/cultivation.md#cultivation-lifespan-calendar)
+- The cultivator body used by avatars: [39_humanoid_npcs.md](39_humanoid_npcs.md), [`humanoid-npc-runtime`](../contracts/combat-entities.md#humanoid-npc-runtime), `genops/contracts/entities/cultivator.yaml`
 - Player sect entry, the gate steward, and framed gate realization: [43_player_sect_entry.md](43_player_sect_entry.md)
-- Sect compounds: [`sect-compound-realization`](../../openspec/specs/sect-compound-realization/spec.md), [`sect-worldgen-structure`](../../openspec/specs/sect-worldgen-structure/spec.md)
+- Sect compounds: [`sect-compound-realization`](../contracts/world.md#sect-compound-realization), [`sect-worldgen-structure`](../contracts/world.md#sect-worldgen-structure)
 - Knowledge-base index: [INDEX.md](INDEX.md)

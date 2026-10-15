@@ -44,7 +44,7 @@
     {
       "cue": "yaodong_1.nbt as the lowest-risk bounded prefab candidate",
       "rationale": "The piece has no entities and is visually self-contained, but it still carries seven jigsaws, 31 block-entity payloads, 19 inventory payloads, six loot-table payloads, source DataVersion 3953, and upstream gameplay semantics. It is suitable only for an isolated sanitize-for-preview feasibility pass.",
-      "downstream_route": "future external-structure-quarantine OpenSpec capability and dedicated CRAFT pipeline; keep raw and sanitized binaries under ignored out/ only, require static audit, deterministic transformation ledger, paired previews, and owner feasibility verdict before any later shipping proposal",
+      "downstream_route": "future external-structure-quarantine technical contract and dedicated CRAFT pipeline; keep raw and sanitized binaries under ignored out/ only, require static audit, deterministic transformation ledger, paired previews, and owner feasibility verdict before any later shipping proposal",
       "review_needed": "Owner must decide whether the cleaned geometry is valuable enough to justify a separate import/shipping change. This pending decision is not permission to place the NBT under src/main/resources."
     },
     {

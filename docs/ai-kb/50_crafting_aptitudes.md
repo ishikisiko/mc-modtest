@@ -55,10 +55,10 @@ integration pass recorded Modal runs (62 release gates, 42 mapped checks).
 H-page layouts were not recaptured for 0.52.0 and remain `not_verified`; owner balance,
 appearance and wider multiplayer remain `not_verified`.
 
-See [alchemy-quality](../../openspec/specs/alchemy-quality/spec.md),
-[crafting-aptitudes](../../openspec/specs/crafting-aptitudes/spec.md),
-[cultivation-state-synchronization](../../openspec/specs/cultivation-state-synchronization/spec.md),
-[cultivation-persistence-lifecycle](../../openspec/specs/cultivation-persistence-lifecycle/spec.md),
-[cultivation-debug-commands](../../openspec/specs/cultivation-debug-commands/spec.md),
-[validation](../../openspec/specs/validation/spec.md), [panel](37_cultivation_panel.md)
+See [alchemy-quality](../contracts/cultivation.md#alchemy-quality),
+[crafting-aptitudes](../contracts/cultivation.md#crafting-aptitudes),
+[cultivation-state-synchronization](../contracts/cultivation.md#cultivation-state-synchronization),
+[cultivation-persistence-lifecycle](../contracts/cultivation.md#cultivation-persistence-lifecycle),
+[cultivation-debug-commands](../contracts/cultivation.md#cultivation-debug-commands),
+[validation](../contracts/tooling.md#validation), [panel](37_cultivation_panel.md)
 and [alchemy](49_alchemy.md).

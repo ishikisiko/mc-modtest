@@ -52,12 +52,12 @@ ground/path holes, material kind mismatches, plinth stair gaps, building-door
 overlaps, voxel reachability, and the path-surface-zoning-specific mansion
 checks.
 
-See also: [courtyard-ground-layer](../../openspec/specs/courtyard-ground-layer/spec.md),
-[courtyard-path-network](../../openspec/specs/courtyard-path-network/spec.md),
-[path-surface-zoning](../../openspec/specs/path-surface-zoning/spec.md),
-[courtyard-compound](../../openspec/specs/courtyard-compound/spec.md),
-[chinese-vernacular-roof-vocabulary](../../openspec/specs/chinese-vernacular-roof-vocabulary/spec.md),
-and [style-profile](../../openspec/specs/style-profile/spec.md).
+See also: [courtyard-ground-layer](../contracts/compounds.md#courtyard-ground-layer),
+[courtyard-path-network](../contracts/compounds.md#courtyard-path-network),
+[path-surface-zoning](../contracts/compounds.md#path-surface-zoning),
+[courtyard-compound](../contracts/compounds.md#courtyard-compound),
+[chinese-vernacular-roof-vocabulary](../contracts/buildings.md#chinese-vernacular-roof-vocabulary),
+and [style-profile](../contracts/buildings.md#style-profile).
 
 ## 江南大宅 (chinese_mansion) compound family
 
@@ -146,12 +146,12 @@ old 2D graph reachability check for both `chinese_courtyard` and
 shipped with the mod (not an external mod dependency). It is exempt from
 `mod_block_fallbacks.json` under the `myvillage:` self-namespace rule and is
 legal under both `vanilla` and `full` modset profiles. See
-[mod-decor-block-family](../../openspec/specs/mod-decor-block-family/spec.md)
+[mod-decor-block-family](../contracts/assets.md#mod-decor-block-family)
 for the registration scaffolding.
 
-See also: [chinese-mansion-compound](../../openspec/specs/chinese-mansion-compound/spec.md),
-[compound-enclosure-planning](../../openspec/specs/compound-enclosure-planning/spec.md),
-[building-orientation-variants](../../openspec/specs/building-orientation-variants/spec.md),
-[garden-rockery](../../openspec/specs/garden-rockery/spec.md),
-[courtyard-voxel-walkability](../../openspec/specs/courtyard-voxel-walkability/spec.md),
-and [validation](../../openspec/specs/validation/spec.md).
+See also: [chinese-mansion-compound](../contracts/compounds.md#chinese-mansion-compound),
+[compound-enclosure-planning](../contracts/compounds.md#compound-enclosure-planning),
+[building-orientation-variants](../contracts/buildings.md#building-orientation-variants),
+[garden-rockery](../contracts/compounds.md#garden-rockery),
+[courtyard-voxel-walkability](../contracts/compounds.md#courtyard-voxel-walkability),
+and [validation](../contracts/tooling.md#validation).

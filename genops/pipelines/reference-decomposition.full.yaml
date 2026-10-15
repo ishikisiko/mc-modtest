@@ -54,10 +54,10 @@ tasks:
       - "task_result.json"
       - "evidence.json"
 
-  - id: check-openspec-routes
+  - id: check-contract-routes
     agent: spec-guardian
     depends_on: [classify-buckets]
-    goal: "Verify each downstream_route points to a real OpenSpec capability, GenOps pipeline, buildgen form registry, compound planner, prefab library, validator, or visual review task. Flag any route that would require a new OpenSpec change."
+    goal: "Verify each downstream_route points to a real technical contract, GenOps pipeline, buildgen form registry, compound planner, prefab library, validator, or visual review task. Flag any route that needs a technical contract update."
     outputs:
       - "artifacts/route_review.json"
       - "task_result.json"
@@ -65,7 +65,7 @@ tasks:
 
   - id: write-breakdown-card
     agent: docs-steward
-    depends_on: [check-openspec-routes]
+    depends_on: [check-contract-routes]
     goal: "Write the Reference Breakdown Contract card at research/source_structures/<candidate>/breakdown.json with source_facts preserved verbatim, four buckets, downstream routes, and verdict_state=pending."
     allowed_files:
       - "research/source_structures/**"

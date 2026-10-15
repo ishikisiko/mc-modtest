@@ -1,3 +1,5 @@
+> 历史执行方案。本文中的旧 OpenSpec 命令和验收流程已退役；当前工作方式以 [WORKFLOW](WORKFLOW.md) 为准。
+
 # 世界模拟内核：过夜任务书
 
 > 状态：2026-10-06 晚写成，owner 已同意按此方向开工，细节可在实施中调整；同晚 owner 补充了四点（时钟不分模式、人数分档、spec 不是约束、山门是宗门的可视化），已并入正文。
@@ -156,12 +158,12 @@ owner 原本的设想是"玩家附近的 NPC 用正常实体 AI，远处用简�
 
 ## 9. 已经查过的事实和已知的坑
 
-- **修仙历"只在有生存或冒险模式玩家在线时前进"这条旧规则钉在四个地方**：`CultivationTimeRuntime.tick`、`tools/validate_cultivation_lifespan.py`（约 266 行的字符串检查）、`openspec/specs/cultivation-lifespan-calendar/spec.md` 的头两个场景、README 的日历说明和人工验收步骤（约 1682 行和 1904 行）。改成不分模式时四处一起改。同一份 spec 里个人寿元那条要求不要动。`ticks_per_day` 可热改，日序号可能跳变或倒退，补结算要有上限，不能倒着算。
+- **修仙历"只在有生存或冒险模式玩家在线时前进"这条旧规则钉在四个地方**：`CultivationTimeRuntime.tick`、`tools/validate_cultivation_lifespan.py`（约 266 行的字符串检查）、`docs/contracts/cultivation.md#cultivation-lifespan-calendar` 的头两个场景、README 的日历说明和人工验收步骤（约 1682 行和 1904 行）。改成不分模式时四处一起改。同一份 spec 里个人寿元那条要求不要动。`ticks_per_day` 可热改，日序号可能跳变或倒退，补结算要有上限，不能倒着算。
 - **境界注册表目前只有凡人、炼气、筑基**（筑基只有一个阶段）。它是同步给客户端的注册表，有七个修炼校验器和基线测试盯着。所以高境界放在模拟自己的数据里，不去扩注册表。
 - **现在的山门生成与命簿无关**：`worldgen/structure_set/sect.json` 按 48 区块间距随机散布，`#myvillage:has_sect` 只允许山地类生物群系，也不看域。照 owner 的模型，这些建筑应该由宗门数据决定位置。今晚 P3 用现成的运行时建造路径（`/myvillage sectat ... worldgen` 背后那套）按命令把山门建到宗门坐标上；P4 才去改世界生成。P4 没做的话，随机散布出来的山门仍是无主的空建筑，这一点在晨报里直说。
 - **P4 的难点**，动手前先想清楚：结构起点在区块生成的工作线程里判定，宗门坐标表必须在生成任何区块之前就准备好，并且只读；山地生物群系门槛会挡掉大多数坐标，要么放宽门槛（山门自带造山，但放在平原上好不好看没人验过），要么创世时给每个宗门几个候选点、由服务器挑生物群系合适的；换掉随机散布后 `/locate structure myvillage:sect` 很可能找不到了，需要用 `/myvillage world` 的命令报坐标；已生成的老区块不会补出山门。相关 spec 是 `sect-worldgen-structure`，校验器是 `tools/validate_sect_generation.py`。
 - **域的范围是以原点为中心、半径 4000 格的圆**，`region_at` 是最近中心的近似，圆外没有域。
-- **修仙者的现行 spec 与化身不一致**。`openspec/specs/humanoid-npc-runtime/spec.md` 规定 NPC 只会因死亡或命令而移除，并且修仙者只能被召唤出来；化身由模拟生成和收回。按第 4 节的做法处理：照新设计实现，再把这两条要求改成符合现状。手动召唤出来的修仙者行为保持原样。实现上我倾向在同一实体类型上加"受模拟管理"的标记，而不是新注册一个实体类型，因为新类型要补实体契约、语言、渲染注册和校验器。动 `entity/npc/` 之前先读这份 spec 和 `tools/validate_custom_entities.py`。
+- **修仙者的现行 spec 与化身不一致**。`docs/contracts/combat-entities.md#humanoid-npc-runtime` 规定 NPC 只会因死亡或命令而移除，并且修仙者只能被召唤出来；化身由模拟生成和收回。按第 4 节的做法处理：照新设计实现，再把这两条要求改成符合现状。手动召唤出来的修仙者行为保持原样。实现上我倾向在同一实体类型上加"受模拟管理"的标记，而不是新注册一个实体类型，因为新类型要补实体契约、语言、渲染注册和校验器。动 `entity/npc/` 之前先读这份 spec 和 `tools/validate_custom_entities.py`。
 - **化身不能存进区块**，否则卸载再加载会和命簿重复出人。化身的落脚点要在院落的地面上，直接取高度图会落到屋顶；`sect/SectGenerator.java` 和 `SectStructurePiece.java` 知道台地和院落的布局。
 - **现在只有一套修仙者模型**，所有化身长得一样。今晚不做外观变体。
 - **预览目录是公开的**：`out/preview/` 由 8766 端口对外提供，地址形如 `http://43.156.135.198:8766/world_sim/index.html`（今晚查过，8766 在监听；8765 只绑了本机回环，是别的服务）。`out/` 不进 git。
@@ -169,7 +171,7 @@ owner 原本的设想是"玩家附近的 NPC 用正常实体 AI，远处用简�
 
 ## 10. 收尾
 
-- 版本：0.34.1 → 0.35.0，用 `python3 tools/bump_version.py 0.35.0`，规则在 `openspec/config.yaml` 的 `rules.tasks`。今晚落地几期都只升这一次。
+- 版本：0.34.1 → 0.35.0，用 `python3 tools/bump_version.py 0.35.0`，规则在 `docs/WORKFLOW.md` 的 the version section。今晚落地几期都只升这一次。
 - 文档：新增一篇 KB（`docs/ai-kb/40_world_sim.md`，并登记到 `docs/ai-kb/INDEX.md`）；README 的命令说明和一张通过、失败、`not_verified` 的台账；`AGENTS.md` 加一条世界模拟的工作约定和一行 Probes；`CHANGELOG.md`；`docs/ai-kb/14_deferred_roadmap.md` §A 标注域接口有了第一个调用方。
 - spec：只改被新行为推翻的那几条原文（见第 4 节和第 9 节），不为世界模拟新写 spec。
 - 校验：给模拟数据写一个 `tools/validate_world_sim.py`（结构、引用、权重、两种语言的键齐全）并加进 `tools/release_gate.py`。

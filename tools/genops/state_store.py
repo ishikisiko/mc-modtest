@@ -6,9 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import re
 import sqlite3
-import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -260,8 +258,8 @@ def normalize_path(path: str | Path, root: Path) -> str:
 
 
 def classify_artifact(path: str) -> str:
-    if path.startswith("openspec/"):
-        return "openspec"
+    if path.startswith("docs/contracts/"):
+        return "contract"
     if path.startswith("docs/") or path in {"README.md", "AGENTS.md", "CRAFT.md"}:
         return "docs"
     if path.startswith("genops/") or path.startswith("tools/genops/"):
@@ -525,18 +523,6 @@ def iter_run_ids(root: Path) -> Iterable[str]:
     return sorted(path.name for path in base.iterdir() if (path / "run_manifest.json").exists())
 
 
-def run_openspec_list(root: Path) -> list[dict[str, Any]]:
-    proc = subprocess.run(["openspec", "list", "--json"], cwd=root, text=True, capture_output=True, check=False)
-    if proc.returncode != 0:
-        return []
-    try:
-        data = json.loads(proc.stdout)
-    except json.JSONDecodeError:
-        return []
-    changes = data.get("changes", [])
-    return changes if isinstance(changes, list) else []
-
-
 def manifest_artifact_paths(manifest: dict[str, Any]) -> list[str]:
     paths: set[str] = set()
     for item in manifest.get("artifact_index", []):
@@ -557,11 +543,7 @@ def change_names_from_manifest(manifest: dict[str, Any]) -> set[str]:
         value = manifest.get(key)
         if isinstance(value, str) and value:
             names.add(value)
-    for path in manifest_artifact_paths(manifest):
-        match = re.match(r"openspec/changes/(?!archive/)([^/]+)/", path)
-        if match:
-            names.add(match.group(1))
-    return names
+    return names or {str(manifest["run_id"])}
 
 
 def manifest_has_closeout_evidence(manifest: dict[str, Any], run_dir: Path) -> bool:
@@ -643,46 +625,16 @@ def closeout_candidates_by_change(conn: sqlite3.Connection, root: Path) -> dict[
 def index_closeout(conn: sqlite3.Connection, root: Path) -> None:
     now = utc_now()
     candidates = closeout_candidates_by_change(conn, root)
-    for change in run_openspec_list(root):
-        if not isinstance(change, dict):
-            continue
-        name = str(change.get("name") or "")
-        if not name:
-            continue
-        complete = change.get("completedTasks") == change.get("totalTasks") and change.get("status") == "complete"
-        blockers = [] if complete else ["tasks_incomplete"]
-        intent_id = None
-        run_id = None
-        if complete:
-            matching = candidates.get(name, [])
-            ready = next((candidate for candidate in matching if not candidate["blockers"]), None)
-            selected = ready or (matching[0] if matching else None)
-            if selected:
-                intent_id = selected["intent_id"]
-                run_id = selected["run_id"]
-                blockers.extend(selected["blockers"])
-            else:
-                blockers.append("needs_craft_closeout_evidence")
-        archive_ready = 1 if complete and not blockers else 0
+    for name, states in candidates.items():
+        selected = next((state for state in states if not state["blockers"]), states[0])
         conn.execute(
             """
             INSERT OR REPLACE INTO closeout(change_name, intent_id, run_id, archive_ready, archived, archive_path, blockers_json, updated_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
-            (name, intent_id, run_id, archive_ready, 0, None, json.dumps(blockers, ensure_ascii=False), now),
+            (name, selected["intent_id"], selected["run_id"], int(not selected["blockers"]),
+             0, None, json.dumps(selected["blockers"], ensure_ascii=False), now),
         )
-
-    archive_root = root / "openspec" / "changes" / "archive"
-    if archive_root.exists():
-        for path in sorted(item for item in archive_root.iterdir() if item.is_dir()):
-            name = path.name
-            conn.execute(
-                """
-                INSERT OR REPLACE INTO closeout(change_name, intent_id, run_id, archive_ready, archived, archive_path, blockers_json, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                (name, None, None, 0, 1, normalize_path(path, root), "[]", now),
-            )
     conn.commit()
 
 

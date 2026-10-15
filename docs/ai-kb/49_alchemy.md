@@ -73,11 +73,11 @@ cold legacy-save migration and other unobserved lifecycle surfaces remain
 `not_verified`. Wild plants/farming, formula learning, skill XP, toxicity,
 furnace failure and forging production remain outside this slice.
 
-See also: [alchemy-foundation](../../openspec/specs/alchemy-foundation/spec.md),
-[alchemy-quality](../../openspec/specs/alchemy-quality/spec.md),
-[crafting-aptitudes](../../openspec/specs/crafting-aptitudes/spec.md),
-[resource-export](../../openspec/specs/resource-export/spec.md),
-[validation](../../openspec/specs/validation/spec.md),
+See also: [alchemy-foundation](../contracts/cultivation.md#alchemy-foundation),
+[alchemy-quality](../contracts/cultivation.md#alchemy-quality),
+[crafting-aptitudes](../contracts/cultivation.md#crafting-aptitudes),
+[resource-export](../contracts/assets.md#resource-export),
+[validation](../contracts/tooling.md#validation),
 [item workflow](22_mod_item_creation.md), [aptitudes](50_crafting_aptitudes.md),
 [meditation](30_cultivation_playable_loop.md),
 [spiritual power](45_spiritual_power_sword_qi.md).

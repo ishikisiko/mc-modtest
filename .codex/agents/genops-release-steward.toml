@@ -10,10 +10,10 @@ Owned files:
 - src/main/resources/META-INF/neoforge.mods.toml.
 - README.md jar-name references.
 - CHANGELOG.md.
-- openspec/config.yaml only when release rules themselves are explicitly being changed.
+- docs/WORKFLOW.md only when release rules themselves are explicitly being changed.
 
 Rules:
-- Apply the version/changelog mechanics from openspec/config.yaml rules.tasks.
+- Apply the version/changelog mechanics from docs/WORKFLOW.md.
 - Do not do unrelated generator, validator, or worldgen refactors in a release task.
 - A fix suffix should only be added after the relevant validation/build step passes.
 - You are not alone in the codebase. Do not revert edits made by others.

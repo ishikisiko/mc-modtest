@@ -267,5 +267,5 @@ The first run (flat impulse) measured 5.39 blocks for the back step and an
 
 - [41_technique_system.md](41_technique_system.md) (catalogue, registries, manuals), [34_combat_data_and_capture.md](34_combat_data_and_capture.md) (combat runtime, steps, capture), [38_hostile_beasts.md](38_hostile_beasts.md) (the wolf's moves the trials dodge), [28_cultivation_core.md](28_cultivation_core.md) (profile and mastery)
 - Briefs: `docs/movement-dodge-brief.md`, `docs/technique-system-brief.md`
-- [combat-style-data](../../openspec/specs/combat-style-data/spec.md), [combat-capture-tooling](../../openspec/specs/combat-capture-tooling/spec.md), [hostile-beast-runtime](../../openspec/specs/hostile-beast-runtime/spec.md), [cultivation-definition-registries](../../openspec/specs/cultivation-definition-registries/spec.md)
+- [combat-style-data](../contracts/combat-entities.md#combat-style-data), [combat-capture-tooling](../contracts/tooling.md#combat-capture-tooling), [hostile-beast-runtime](../contracts/combat-entities.md#hostile-beast-runtime), [cultivation-definition-registries](../contracts/cultivation.md#cultivation-definition-registries)
 - Knowledge-base index: [INDEX.md](INDEX.md)

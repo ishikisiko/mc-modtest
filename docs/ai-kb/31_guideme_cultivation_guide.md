@@ -4,11 +4,11 @@ This note records the initial GuideME compatibility slice for the cultivation
 loop. The guide summarizes shipped behavior; runtime truth remains in
 [Cultivation Playable Loop](30_cultivation_playable_loop.md), and the normative
 integration contract is the active
-[`guideme-cultivation-guide` change spec](../../openspec/changes/add-guideme-cultivation-guide-slice/specs/guideme-cultivation-guide/spec.md).
+[`guideme-cultivation-guide` change spec](https://github.com/ishikisiko/mc-modtest/blob/1388f192f4dc723ed6393420ca6b0cb9664c5056/openspec/changes/add-guideme-cultivation-guide-slice/specs/guideme-cultivation-guide/spec.md).
 
 Since 0.48.0 the four Chinese/English index and loop pages describe the
 complete player chain through Golden Core late. Their current behavioral
-boundary is also enforced by the [validation spec](../../openspec/specs/validation/spec.md);
+boundary is also enforced by the [validation spec](../contracts/tooling.md#validation);
 the active GuideME integration contract is synchronized to that boundary so
 its later archive cannot restore the superseded Qi-IV ceiling.
 
@@ -96,5 +96,5 @@ H-screen/gameplay regression. Record every unobserved real-client surface as
 - [Validation Checklist](09_validation_checklist.md)
 - [Mod Item Creation](22_mod_item_creation.md)
 - [Cultivation Playable Loop](30_cultivation_playable_loop.md)
-- [GuideME cultivation change spec](../../openspec/changes/add-guideme-cultivation-guide-slice/specs/guideme-cultivation-guide/spec.md)
+- [GuideME cultivation change spec](https://github.com/ishikisiko/mc-modtest/blob/1388f192f4dc723ed6393420ca6b0cb9664c5056/openspec/changes/add-guideme-cultivation-guide-slice/specs/guideme-cultivation-guide/spec.md)
 - [Knowledge Base Map](INDEX.md)

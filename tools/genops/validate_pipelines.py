@@ -29,10 +29,9 @@ RELEASE_PATTERNS = [
     "gradle.properties",
     "src/main/resources/META-INF/neoforge.mods.toml",
     "CHANGELOG.md",
-    "openspec/config.yaml",
 ]
 
-OPENSPEC_FORBIDDEN_ALLOWED_PATTERNS = [
+PLAN_ONLY_FORBIDDEN_ALLOWED_PATTERNS = [
     "src/main/**",
     "src/main/java/**",
     "src/main/resources/**",
@@ -95,7 +94,7 @@ def known_roles(root: Path) -> set[str]:
 def is_write_task(task: TaskSpec) -> bool:
     if PATCH_OUTPUT in task.outputs:
         return True
-    return task.id.startswith("patch-") or task.id in {"docs-sync", "release-docs", "write-openspec-artifacts"}
+    return task.id.startswith("patch-") or task.id in {"docs-sync", "release-docs"}
 
 
 def human_review_config(pipeline: PipelineSpec) -> dict[str, Any]:
@@ -124,7 +123,7 @@ def is_visual_pipeline(pipeline: PipelineSpec) -> bool:
 def check_pipeline(pipeline: PipelineSpec, roles: set[str]) -> list[Finding]:
     findings: list[Finding] = []
     review = human_review_config(pipeline)
-    is_openspec = pipeline.id.startswith("openspec-") or bool(
+    is_plan_only = bool(
         pipeline.raw.get("constraints", {}).get("blocks_runtime_and_release_edits")
     )
 
@@ -188,15 +187,15 @@ def check_pipeline(pipeline: PipelineSpec, roles: set[str]) -> list[Finding]:
                 )
             )
 
-        if is_openspec:
+        if is_plan_only:
             for allowed in task.allowed_files:
-                if overlaps(allowed, OPENSPEC_FORBIDDEN_ALLOWED_PATTERNS):
+                if overlaps(allowed, PLAN_ONLY_FORBIDDEN_ALLOWED_PATTERNS):
                     findings.append(
                         Finding(
                             pipeline=pipeline.id,
                             task_id=task.id,
-                            rule="openspec_pipeline_allows_runtime_or_release",
-                            message=f"OpenSpec governance pipeline must not allow runtime/release/generated path: {allowed}",
+                            rule="plan_only_pipeline_allows_runtime_or_release",
+                            message=f"Plan-only pipeline must not allow runtime/release/generated path: {allowed}",
                         )
                     )
 

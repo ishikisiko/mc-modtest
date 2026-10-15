@@ -52,4 +52,4 @@ multiplayer remain unverified. Two 4-point fates and one 1-point fate require a
 budget of at least 9 even after the rarity-count cap is removed.
 
 See [KB 48](../ai-kb/48_innate_fates.md) and
-[innate-fates](../../openspec/specs/innate-fates/spec.md).
+[innate-fates](../contracts/cultivation.md#innate-fates).

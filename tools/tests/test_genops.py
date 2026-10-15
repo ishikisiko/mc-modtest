@@ -219,7 +219,7 @@ class GenOpsTests(unittest.TestCase):
                 json.dumps(
                     {
                         "run_id": "failed-run",
-                        "pipeline": "openspec-change.full",
+                        "pipeline": "release.full",
                         "status": "failed",
                         "goal": "failed validation",
                         "generated_at": "2026-07-06T00:00:00+00:00",
@@ -294,7 +294,7 @@ class GenOpsTests(unittest.TestCase):
         run_id = "genops-test-manual"
         rc = run_pipeline_main(
             [
-                "genops/pipelines/openspec-change.full.yaml",
+                "genops/pipelines/release.full.yaml",
                 "--run-id",
                 run_id,
                 "--goal",
@@ -383,7 +383,7 @@ class GenOpsTests(unittest.TestCase):
             manifest = self._write_frontdoor_manifest(root, "generator-engineer", ["tools/buildgen/sect.py"])
             protected = check_frontdoor.inspect_paths(root, ["tools/buildgen/sect.py"])
             owners = check_frontdoor.load_ownership(root, manifest)
-            result = check_frontdoor.validate(protected, owners, allow_bootstrap=False, manifest=manifest)
+            result = check_frontdoor.validate(protected, owners, manifest=manifest)
             self.assertEqual(result["status"], "pass")
             self.assertEqual(result["accepted"][0]["task_id"], "task-a")
 
@@ -391,7 +391,7 @@ class GenOpsTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             protected = check_frontdoor.inspect_paths(root, ["docs/ai-kb/19_genops.md"])
-            result = check_frontdoor.validate(protected, [], allow_bootstrap=False, manifest=None)
+            result = check_frontdoor.validate(protected, [], manifest=None)
             self.assertEqual(result["status"], "fail")
             self.assertEqual(result["findings"][0]["reason"], "missing_provenance")
 
@@ -401,7 +401,7 @@ class GenOpsTests(unittest.TestCase):
             manifest = self._write_frontdoor_manifest(root, "docs-steward", ["gradle.properties"])
             protected = check_frontdoor.inspect_paths(root, ["gradle.properties"])
             owners = check_frontdoor.load_ownership(root, manifest)
-            result = check_frontdoor.validate(protected, owners, allow_bootstrap=False, manifest=manifest)
+            result = check_frontdoor.validate(protected, owners, manifest=manifest)
             self.assertEqual(result["status"], "fail")
             self.assertEqual(result["findings"][0]["reason"], "mismatched_worker_ownership")
 
@@ -411,7 +411,7 @@ class GenOpsTests(unittest.TestCase):
             manifest = self._write_frontdoor_manifest(root, "release-steward", ["gradle.properties"])
             protected = check_frontdoor.inspect_paths(root, ["gradle.properties"])
             owners = check_frontdoor.load_ownership(root, manifest)
-            result = check_frontdoor.validate(protected, owners, allow_bootstrap=False, manifest=manifest)
+            result = check_frontdoor.validate(protected, owners, manifest=manifest)
             self.assertEqual(result["status"], "pass")
 
     def test_frontdoor_accepts_item_runtime_and_skill_roles(self) -> None:
@@ -427,7 +427,7 @@ class GenOpsTests(unittest.TestCase):
                 ["src/main/java/com/example/myvillage/item/ModItems.java"],
             )
             owners = check_frontdoor.load_ownership(root, manifest)
-            result = check_frontdoor.validate(protected, owners, allow_bootstrap=False, manifest=manifest)
+            result = check_frontdoor.validate(protected, owners, manifest=manifest)
             self.assertEqual(result["status"], "pass")
 
         with tempfile.TemporaryDirectory() as tmp:
@@ -443,7 +443,7 @@ class GenOpsTests(unittest.TestCase):
             )
             self.assertEqual(protected[0].category, "client-resource")
             owners = check_frontdoor.load_ownership(root, manifest)
-            result = check_frontdoor.validate(protected, owners, allow_bootstrap=False, manifest=manifest)
+            result = check_frontdoor.validate(protected, owners, manifest=manifest)
             self.assertEqual(result["status"], "pass")
 
         with tempfile.TemporaryDirectory() as tmp:
@@ -455,7 +455,7 @@ class GenOpsTests(unittest.TestCase):
             )
             protected = check_frontdoor.inspect_paths(root, [".codex/skills/mod-item-creation/SKILL.md"])
             owners = check_frontdoor.load_ownership(root, manifest)
-            result = check_frontdoor.validate(protected, owners, allow_bootstrap=False, manifest=manifest)
+            result = check_frontdoor.validate(protected, owners, manifest=manifest)
             self.assertEqual(result["status"], "pass")
 
     def test_frontdoor_requires_manifest_and_task_change_consistency(self) -> None:
@@ -482,24 +482,19 @@ class GenOpsTests(unittest.TestCase):
 
             protected = check_frontdoor.inspect_paths(root, ["docs/ai-kb/19_genops.md"])
             owners = check_frontdoor.load_ownership(root, manifest)
-            result = check_frontdoor.validate(protected, owners, allow_bootstrap=False, manifest=manifest)
+            result = check_frontdoor.validate(protected, owners, manifest=manifest)
             self.assertEqual(result["status"], "fail")
             self.assertEqual(result["findings"][0]["reason"], "missing_task_changed_file")
 
-    def test_frontdoor_bootstrap_exception_is_narrow(self) -> None:
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            protected = check_frontdoor.inspect_paths(
-                root,
-                [
-                    "openspec/changes/enforce-craft-frontdoor-governance/proposal.md",
-                    "openspec/changes/add-visual-reference-structure-pipeline/proposal.md",
-                ],
-            )
-            result = check_frontdoor.validate(protected, [], allow_bootstrap=True, manifest=None)
-            self.assertEqual(result["status"], "fail")
-            self.assertEqual(result["accepted"][0]["reason"], "bootstrap_exception")
-            self.assertEqual(result["findings"][0]["reason"], "missing_provenance")
+    def test_contracts_require_provenance_in_explicit_genops_run(self) -> None:
+        protected = check_frontdoor.inspect_paths(Path("."), ["docs/contracts/assets.md"])
+        result = check_frontdoor.validate(protected, [], manifest=None)
+        self.assertEqual(result["status"], "fail")
+        self.assertEqual(result["findings"][0]["reason"], "missing_provenance")
+
+    def test_ordinary_work_does_not_require_craft(self) -> None:
+        for goal in ("修复物品", "构建 jar", "实现变更", "视觉验收", "增加测试"):
+            self.assertFalse(commander.is_craft_required(goal), goal)
 
 
 if __name__ == "__main__":

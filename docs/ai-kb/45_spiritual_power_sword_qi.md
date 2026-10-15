@@ -147,5 +147,5 @@ the owner's build-only request.
 ## See also
 
 - [41_technique_system.md](41_technique_system.md), [42_movement_dodge.md](42_movement_dodge.md), [43_player_sect_entry.md](43_player_sect_entry.md), [34_combat_data_and_capture.md](34_combat_data_and_capture.md)
-- [spiritual-power-pool](../../openspec/specs/spiritual-power-pool/spec.md), [sword-qi-technique](../../openspec/specs/sword-qi-technique/spec.md), [cultivation-player-profile](../../openspec/specs/cultivation-player-profile/spec.md), [combat-capture-tooling](../../openspec/specs/combat-capture-tooling/spec.md), [validation](../../openspec/specs/validation/spec.md)
+- [spiritual-power-pool](../contracts/cultivation.md#spiritual-power-pool), [sword-qi-technique](../contracts/cultivation.md#sword-qi-technique), [cultivation-player-profile](../contracts/cultivation.md#cultivation-player-profile), [combat-capture-tooling](../contracts/tooling.md#combat-capture-tooling), [validation](../contracts/tooling.md#validation)
 - [INDEX.md](INDEX.md)

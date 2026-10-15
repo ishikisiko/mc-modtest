@@ -24,8 +24,8 @@ every existing invariant. It covers two independent, composable levers:
 **A** deform the perimeter wall, **B** de-grid the district boundaries. Both
 keep the internal street network orthogonal.
 
-See-also specs: [town-plan](../../openspec/specs/town-plan/spec.md),
-[town-districts](../../openspec/specs/town-districts/spec.md).
+See-also specs: [town-plan](../contracts/towns.md#town-plan),
+[town-districts](../contracts/towns.md#town-districts).
 
 ## Why the town is square today
 

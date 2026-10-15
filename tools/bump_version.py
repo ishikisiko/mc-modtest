@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Move the mod version in the four places the version rule names.
 
-The rule itself lives in ``openspec/config.yaml`` (``rules.tasks``): a version
+The rule itself lives in ``docs/WORKFLOW.md`` (Version and delivery): a version
 bump updates ``gradle.properties``, ``neoforge.mods.toml``, the README jar-name
 examples, and ``CHANGELOG.md`` together. This tool applies that mechanically:
 

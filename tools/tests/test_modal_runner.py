@@ -57,8 +57,7 @@ class ArchiveTests(unittest.TestCase):
             (repo / remote.PAL).write_bytes(b"changed later")
             self.assertEqual(remote.sha256(out / remote.PAL), req["inputs"][remote.PAL])
             self.assertEqual(remote.sha256(out / "remote.py"), req["inputs"]["remote.py"])
-            self.assertEqual(req["image_tools"]["node"], runner.NODE_VERSION)
-            self.assertEqual(req["image_tools"]["openspec"], runner.OPENSPEC_VERSION)
+            self.assertEqual(req["image_tools"]["preview_python"], "/usr/bin/python3")
 
     def test_private_paths_and_symlinks_rejected(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -152,17 +151,17 @@ class LifecycleTests(unittest.TestCase):
         for value in ('medicine,', 'medicine; echo x', 'all,medicine'):
             with self.assertRaises(ValueError): remote.select_cases(value)
 
-    def test_image_contains_pinned_node_openspec_and_preview_interpreter(self):
+    def test_image_keeps_runtime_dependencies_without_documentation_cli(self):
         modal = MagicMock()
         base = modal.Image.from_registry.return_value
         runner.image(modal)
-        commands = base.apt_install.return_value.run_commands.call_args.args
-        self.assertTrue(any(f"node-v{runner.NODE_VERSION}-linux-x64.tar.gz" in command for command in commands))
-        self.assertTrue(any(runner.NODE_SHA256 in command and "sha256sum --check" in command for command in commands))
-        self.assertTrue(any(f"@fission-ai/openspec@{runner.OPENSPEC_VERSION}" in command for command in commands))
-        env = base.apt_install.return_value.run_commands.return_value.env.call_args.args[0]
-        self.assertEqual(env["MC_PREVIEW_PYTHON"], "/usr/bin/python3")
-        self.assertEqual(env["LIBGL_ALWAYS_SOFTWARE"], "1")
+        packages = base.apt_install.call_args.args
+        for needed in ('python3', 'python3-yaml', 'python3-numpy', 'python3-pil', 'xvfb', 'xdotool'):
+            self.assertIn(needed, packages)
+        base.apt_install.return_value.run_commands.assert_not_called()
+        env = base.apt_install.return_value.env.call_args.args[0]
+        self.assertEqual(env['MC_PREVIEW_PYTHON'], '/usr/bin/python3')
+        self.assertEqual(env['LIBGL_ALWAYS_SOFTWARE'], '1')
 
     def exercise(self, *, exit_code=0, upload_error=False, download_error=False, terminate_error=False, create_error=False, interrupt=False, corrupt=False):
         with tempfile.TemporaryDirectory() as directory:

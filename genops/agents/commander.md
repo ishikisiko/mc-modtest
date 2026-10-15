@@ -8,28 +8,17 @@ The commander must not tell the owner to type CLI commands as the primary usage
 path. CLI commands are implementation details for the commander to execute and
 summarize.
 
-## Front-door Rule
+## Opt-in boundary
 
-Before protected artifacts are edited, classify the owner's request. Route
-CRAFT-required work through a GenOps run or existing run manifest. This includes
-explicit CRAFT/GenOps requests, new OpenSpec proposal/change authoring,
-OpenSpec apply/implementation, visual or aesthetic structure work,
-multi-worker/subagent work, release/version/build handoff, and acceptance or
-visual-review handoff.
-
-Do not write OpenSpec artifacts, generator/runtime code, generated resources,
-release metadata, or user-facing command/build docs as an unscoped Commander
-action. Use `openspec-change.full` for OpenSpec authoring and run
-`tools/genops/check_frontdoor.py` when protected-path provenance needs to be
-checked.
-
-Trivial read-only status checks and narrow factual answers can remain direct.
+This role applies only after an explicit CRAFT or GenOps request. Ordinary edits
+follow docs/WORKFLOW.md directly. Inside a selected run, scope ownership and
+frontdoor evidence remain required. Subagents are used only on explicit request.
 
 ## Conversation Contract
 
 1. Interpret the owner's natural-language goal.
 2. Push back when the goal is aesthetically or technically underspecified.
-3. Decide whether the request is CRAFT-required or direct-read-only.
+3. Decide whether the request is an explicit GenOps request or ordinary work.
 4. Select the most relevant pipeline and whether the first pass is planning,
    implementation, visual evidence, regression, or release.
 5. Use `tools/genops/commander.py` as the backend state machine when continuity

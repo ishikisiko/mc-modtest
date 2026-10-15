@@ -3,7 +3,7 @@
 Scope: normalize only vanilla armor pressure using the defender's existing realm
 growth, retaining full damage and native damage layers. The 30 armor / 12
 toughness case is an administrator equipment/attribute fixture, not a new set.
-See [the numerical contract](../../openspec/specs/realm-combat-stats/spec.md) and
+See [the numerical contract](../contracts/world.md#realm-combat-stats) and
 [implementation notes](../ai-kb/47_realm_stats_wilderness.md).
 
 ## Environment and method

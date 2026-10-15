@@ -38,7 +38,13 @@ image-build time before allocation or total billable work. Its resource request 
 `memory=(16384, 16384)`; these are requested SDK values, not measured remote
 hardware. No GPU or public port is requested. The base image is
 `eclipse-temurin:21-jdk-noble`, with Java 21, Python 3.12 and headless
-Xvfb/input/software-rendering tools.
+Xvfb/input/software-rendering tools. OpenSpec and its Node/npm bootstrap have
+been removed; image construction is covered by offline tests, not a new cloud
+bootstrap result. Select checks using [WORKFLOW](../WORKFLOW.md); complete presets
+are optional full-validation paths, not required for every change. OpenSpec and its Node/npm bootstrap have
+been removed; image construction is covered by offline tests, not a new cloud
+bootstrap result. Select checks using [WORKFLOW](../WORKFLOW.md); complete presets
+are optional full-validation paths, not required for every change.
 
 | Input | Provenance |
 |---|---|
@@ -141,8 +147,8 @@ software rendering, which does not establish owner PC FPS.
 ## See also
 
 - [Modal runner implementation and verification record](../testing/2026-10-14-modal-test-runner.md)
-- [modal-test-runner](../../openspec/specs/modal-test-runner/spec.md), [validation](../../openspec/specs/validation/spec.md), [combat-capture-tooling](../../openspec/specs/combat-capture-tooling/spec.md)
-- [Alchemy](49_alchemy.md), [Crafting Aptitudes](50_crafting_aptitudes.md), [alchemy-quality](../../openspec/specs/alchemy-quality/spec.md)
+- [modal-test-runner](../contracts/tooling.md#modal-test-runner), [validation](../contracts/tooling.md#validation), [combat-capture-tooling](../contracts/tooling.md#combat-capture-tooling)
+- [Alchemy](49_alchemy.md), [Crafting Aptitudes](50_crafting_aptitudes.md), [alchemy-quality](../contracts/cultivation.md#alchemy-quality)
 - [34_combat_data_and_capture.md](34_combat_data_and_capture.md), [45_spiritual_power_sword_qi.md](45_spiritual_power_sword_qi.md), [INDEX.md](INDEX.md)
 
 The generic `release` preset has no feature-specific preliminary Java selection.

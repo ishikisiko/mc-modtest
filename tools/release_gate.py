@@ -298,7 +298,6 @@ def gradle_build(gate: "Gate") -> Outcome:
 
 STEPS: tuple[Step, ...] = (
     Step("version-consistency", func=check_versions),
-    Step("openspec-specs", ("openspec", "validate", "--specs", "--strict"), requires=needs_program("openspec")),
     generator_check("gen_sword_pal_anims"),
     generator_check("gen_blade_cut_sprite"),
     generator_check("gen_qingfeng_sword_model"),

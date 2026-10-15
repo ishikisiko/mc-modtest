@@ -19,7 +19,7 @@ def build_shared_context(root: Path, run_dir: Path, repo: dict[str, Any], pipeli
                 "docs/ai-kb/INDEX.md",
                 "README.md",
                 "AGENTS.md",
-                "openspec/specs/",
+                "docs/contracts/",
                 "tools/",
                 "src/main/resources/data/myvillage/",
             ],
@@ -30,8 +30,8 @@ def build_shared_context(root: Path, run_dir: Path, repo: dict[str, Any], pipeli
         context_dir / "spec_map.md",
         "# Spec Map\n\n"
         "- Start at `docs/ai-kb/INDEX.md` for narrative docs and capability specs.\n"
-        "- Use `openspec/specs/validation/spec.md` for validation gates.\n"
-        "- Use `openspec/specs/resource-export/spec.md` for generated resource paths.\n",
+        "- Use `docs/WORKFLOW.md` for validation gates.\n"
+        "- Use `docs/contracts/assets.md` for generated resource paths.\n",
     )
     write_text(
         context_dir / "code_map.md",

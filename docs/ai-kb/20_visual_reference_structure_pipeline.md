@@ -3,12 +3,12 @@
 This note is the **factual technical memory** for the visual-reference
 decomposition workflow. The normative contract lives in the
 `visual-reference-structure-pipeline` capability spec added by change
-[`add-visual-reference-structure-pipeline`](../../openspec/changes/add-visual-reference-structure-pipeline/proposal.md).
+[`add-visual-reference-structure-pipeline`](https://github.com/ishikisiko/mc-modtest/blob/1388f192f4dc723ed6393420ca6b0cb9664c5056/openspec/changes/archive/2026-07-05-add-visual-reference-structure-pipeline/proposal.md).
 Read this page to learn *how the workflow operates*; read the spec for *what
 the workflow must guarantee*.
 
-See also: [19_genops.md](19_genops.md), [genops spec](../../openspec/specs/genops/spec.md),
-[huipai-tianjing-mansion spec](../../openspec/specs/huipai-tianjing-mansion/spec.md),
+See also: [19_genops.md](19_genops.md), [genops spec](../contracts/tooling.md#genops),
+[huipai-tianjing-mansion spec](../contracts/compounds.md#huipai-tianjing-mansion),
 [research/source_structures/README.md](../../research/source_structures/README.md).
 
 ## Purpose
@@ -18,7 +18,7 @@ import-ready structure library. It preserves source facts (license, source URL,
 attribution, usage decision) but contains **no** original `.nbt`, `.schem`,
 `.litematic`, or world-save assets. The useful operation is therefore
 **architectural translation**: observe a reference, decide what kind of project
-artifact it can inform, and route that result into OpenSpec/CRAFT work — without
+artifact it can inform, and route that result into scoped implementation work — without
 copying third-party geometry.
 
 The visual-reference pipeline is the **middle layer** between "this looks
@@ -32,7 +32,7 @@ version-metadata edit starts.
 - **No** direct copying of third-party structures into shipped resources.
 - **No** generator implementation of Hui-style mansions, pagodas, moon gates,
   or other reference-derived forms in this change.
-- **No** replacement for OpenSpec specs, style slots, form registries,
+- **No** replacement for technical contracts, style slots, form registries,
   validators, preview generation, or manual visual acceptance.
 - **No** new distributed service, daemon, queue, or external vision dependency.
 
@@ -103,7 +103,7 @@ paths or task ids.
 
 The pipeline lives at `genops/pipelines/reference-decomposition.full.yaml` with
 a seven-task DAG (intake-reference → draft-observations → classify-buckets →
-check-openspec-routes → write-breakdown-card → visual-evidence-pointers →
+check-contract-routes → write-breakdown-card → visual-evidence-pointers →
 record-verdict-state). The write task is scoped to `research/source_structures/**`
 and explicitly forbids generator, NBT, Java, and version files. Its gate runs
 `tools/check_reference_breakdown.py`. The pipeline's `human_review.required: true`
@@ -119,11 +119,11 @@ Candidate inspected
   -> breakdown card written under research/source_structures/<candidate>/
   -> lightweight fixture validates required fields and source-fact preservation
   -> human verdict recorded separately from task status
-  -> accepted cards feed future OpenSpec changes (e.g. rebuild-huipai-mansion)
+  -> accepted cards feed future implementation tasks (e.g. rebuild-huipai-mansion)
 ```
 
 Decomposition outputs **route** downstream work; they do not **implement** it.
-A breakdown card may recommend a future OpenSpec change, but actual generator
+A breakdown card may recommend a future implementation task, but actual generator
 edits still require their own proposal/tasks, validators, previews, and visual
 acceptance. This is design decision D5 in the change's `design.md`.
 

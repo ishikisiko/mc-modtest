@@ -162,7 +162,6 @@ or inherits techniques.
 Run the automated gates before handoff:
 
 ```bash
-openspec validate --specs --strict
 python3 tools/validate_cultivation_core.py
 python3 tools/validate_cultivation_initiation.py
 python3 -m unittest tools.tests.test_validate_cultivation_core
@@ -222,15 +221,15 @@ separate changes; see
 ## See Also
 
 - [Innate Fates](48_innate_fates.md)
-- [innate-fates](../../openspec/specs/innate-fates/spec.md)
+- [innate-fates](../contracts/cultivation.md#innate-fates)
 - [Cultivation Core Foundation](28_cultivation_core.md)
-- [cultivation-initiation-ritual](../../openspec/specs/cultivation-initiation-ritual/spec.md)
-- [Archived initiation change](../../openspec/changes/archive/2026-07-13-add-cultivation-initiation-ritual/proposal.md)
-- [cultivation-player-profile](../../openspec/specs/cultivation-player-profile/spec.md)
-- [cultivation-definition-registries](../../openspec/specs/cultivation-definition-registries/spec.md)
-- [cultivation-persistence-lifecycle](../../openspec/specs/cultivation-persistence-lifecycle/spec.md)
-- [cultivation-state-synchronization](../../openspec/specs/cultivation-state-synchronization/spec.md)
-- [cultivation-debug-commands](../../openspec/specs/cultivation-debug-commands/spec.md)
-- [cultivation-core-validation](../../openspec/specs/cultivation-core-validation/spec.md)
-- [resource-export](../../openspec/specs/resource-export/spec.md)
-- [validation](../../openspec/specs/validation/spec.md)
+- [cultivation-initiation-ritual](../contracts/cultivation.md#cultivation-initiation-ritual)
+- [Archived initiation change](https://github.com/ishikisiko/mc-modtest/blob/1388f192f4dc723ed6393420ca6b0cb9664c5056/openspec/changes/archive/2026-07-13-add-cultivation-initiation-ritual/proposal.md)
+- [cultivation-player-profile](../contracts/cultivation.md#cultivation-player-profile)
+- [cultivation-definition-registries](../contracts/cultivation.md#cultivation-definition-registries)
+- [cultivation-persistence-lifecycle](../contracts/cultivation.md#cultivation-persistence-lifecycle)
+- [cultivation-state-synchronization](../contracts/cultivation.md#cultivation-state-synchronization)
+- [cultivation-debug-commands](../contracts/cultivation.md#cultivation-debug-commands)
+- [cultivation-core-validation](../contracts/tooling.md#cultivation-core-validation)
+- [resource-export](../contracts/assets.md#resource-export)
+- [validation](../contracts/tooling.md#validation)

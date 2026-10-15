@@ -6,7 +6,7 @@ schema_status:
   reason: >-
     The available custom-entity schema requires LivingEntity attributes, AI,
     bones, and animations. Recording those for a plain Entity vehicle would be
-    false, so this vehicle contract and the OpenSpec capability are authoritative.
+    false, so this vehicle contract and the technical contract are authoritative.
 
 identity:
   entity_id: myvillage:rideable_flying_sword
@@ -117,7 +117,6 @@ side_safety:
 
 acceptance:
   automated:
-    - openspec validate add-rideable-flying-sword --type change --strict
     - python3 tools/validate_mod_items.py
     - ./gradlew test
     - ./gradlew build

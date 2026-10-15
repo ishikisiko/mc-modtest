@@ -29,7 +29,7 @@ A blueprint is a JSON document describing a structure using coordinates, block i
 
 ## See also
 
-- Spec: [blueprint-v1](../../openspec/specs/blueprint-v1/spec.md) — the normative blueprint contract.
-- Spec: [structure-json-dsl](../../openspec/specs/structure-json-dsl/spec.md) — the structure JSON DSL.
+- Spec: [blueprint-v1](../contracts/assets.md#blueprint-v1) — the normative blueprint contract.
+- Spec: [structure-json-dsl](../contracts/assets.md#structure-json-dsl) — the structure JSON DSL.
 - Index: [Knowledge Base Map](INDEX.md).
 

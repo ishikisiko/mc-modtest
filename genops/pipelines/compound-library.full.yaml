@@ -81,7 +81,7 @@ tasks:
   - id: docs-sync
     agent: docs-steward
     depends_on: [aesthetic-review]
-    allowed_files: ["README.md", "docs/ai-kb/**", "openspec/specs/**", "genops/**"]
+    allowed_files: ["README.md", "docs/ai-kb/**", "docs/contracts/**", "genops/**"]
     outputs: [patch.diff, task_result.json, evidence.json]
 
   - id: regression

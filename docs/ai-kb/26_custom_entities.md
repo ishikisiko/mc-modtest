@@ -97,8 +97,8 @@ accepted the simple fox on 2026-07-12.
 
 ## See Also
 
-- Runtime spec: [`custom-entity-runtime`](../../openspec/specs/custom-entity-runtime/spec.md)
-- Hostile beasts with their own model and moves (`myvillage:demon_wolf`): [38_hostile_beasts.md](38_hostile_beasts.md), [`hostile-beast-runtime`](../../openspec/specs/hostile-beast-runtime/spec.md)
-- Humanoid NPCs with a generated layered model (`myvillage:cultivator`): [39_humanoid_npcs.md](39_humanoid_npcs.md), [`humanoid-npc-runtime`](../../openspec/specs/humanoid-npc-runtime/spec.md)
+- Runtime spec: [`custom-entity-runtime`](../contracts/combat-entities.md#custom-entity-runtime)
+- Hostile beasts with their own model and moves (`myvillage:demon_wolf`): [38_hostile_beasts.md](38_hostile_beasts.md), [`hostile-beast-runtime`](../contracts/combat-entities.md#hostile-beast-runtime)
+- Humanoid NPCs with a generated layered model (`myvillage:cultivator`): [39_humanoid_npcs.md](39_humanoid_npcs.md), [`humanoid-npc-runtime`](../contracts/combat-entities.md#humanoid-npc-runtime)
 - Validation checklist: [09_validation_checklist.md](09_validation_checklist.md)
 - Knowledge-base index: [INDEX.md](INDEX.md)

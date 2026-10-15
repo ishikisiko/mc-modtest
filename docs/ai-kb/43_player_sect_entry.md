@@ -17,7 +17,7 @@ response); the package breakdown with the defaults the owner may overturn is
 `docs/sect-entry-slice1-tasks.md`. There is no standalone world-simulation
 capability spec; this note, [40_world_sim.md](40_world_sim.md), and the code
 are the reference. The compound furnishing lifecycle is covered in
-[sect-compound-realization](../../openspec/specs/sect-compound-realization/spec.md).
+[sect-compound-realization](../contracts/world.md#sect-compound-realization).
 
 A player is never a ledger `Person`. The engine settles persons every day
 (cultivation, travel, death, succession); a player must not be moved by it.
@@ -911,6 +911,6 @@ real P4 (compounds placed at ledger gates by worldgen; assessed above).
 - [40_world_sim.md](40_world_sim.md) (the ledger, avatars, compounds, the 天下 page), [39_humanoid_npcs.md](39_humanoid_npcs.md) (the cultivator body, `DATA_LEDGER_ROLE`, looks), [37_cultivation_panel.md](37_cultivation_panel.md) (the H panel), [28_cultivation_core.md](28_cultivation_core.md) (profile, realms, spiritual root)
 - Briefs: `docs/player-sect-entry-brief.md`, `docs/sect-entry-slice1-tasks.md`, `docs/sect-entry-slice2-tasks.md`, `docs/sect-entry-slice3-tasks.md`, `docs/sect-entry-slice4-tasks.md`
 - Manuals and study: [41_technique_system.md](41_technique_system.md) ("Manuals and study")
-- [humanoid-npc-runtime](../../openspec/specs/humanoid-npc-runtime/spec.md), [sect-compound-realization](../../openspec/specs/sect-compound-realization/spec.md), [sect-worldgen-structure](../../openspec/specs/sect-worldgen-structure/spec.md)
-- Furnishing resources and acceptance: [resource-export](../../openspec/specs/resource-export/spec.md), [validation](../../openspec/specs/validation/spec.md)
+- [humanoid-npc-runtime](../contracts/combat-entities.md#humanoid-npc-runtime), [sect-compound-realization](../contracts/world.md#sect-compound-realization), [sect-worldgen-structure](../contracts/world.md#sect-worldgen-structure)
+- Furnishing resources and acceptance: [resource-export](../contracts/assets.md#resource-export), [validation](../contracts/tooling.md#validation)
 - Knowledge-base index: [INDEX.md](INDEX.md)

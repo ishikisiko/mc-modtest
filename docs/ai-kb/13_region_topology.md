@@ -4,9 +4,9 @@ Implemented in 0.14.0 by change `add-region-topology`. The design reference is
 [`docs/otg_worldgen_philosophy.md`](../otg_worldgen_philosophy.md); this note
 records how that maps onto the implemented offline-first region layer. See-also
 [`07_neoforge_worldgen.md`](07_neoforge_worldgen.md) and the specs
-[`region-profile`](../../openspec/specs/region-profile/spec.md),
-[`region-topology`](../../openspec/specs/region-topology/spec.md),
-[`validation`](../../openspec/specs/validation/spec.md).
+[`region-profile`](../contracts/world.md#region-profile),
+[`region-topology`](../contracts/world.md#region-topology),
+[`validation`](../contracts/tooling.md#validation).
 
 ## What this layer is
 
@@ -96,7 +96,7 @@ offline generator to Java so the per-seed region graph is queryable in-game
 for downstream consumers). Parity between the Python source of truth and the
 Java port is enforced by **golden fixtures** the Python side exports and the
 Java port reproduces byte-identically. See-also the
-[`region-runtime-binding`](../../openspec/specs/region-runtime-binding/spec.md)
+[`region-runtime-binding`](../contracts/world.md#region-runtime-binding)
 spec, and `07_neoforge_worldgen.md` for the wider worldgen picture.
 
 ### Coordinate transform

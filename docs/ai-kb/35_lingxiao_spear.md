@@ -11,9 +11,9 @@ See also:
 - Data, registry, validator, capture tool: [Combat Data and Capture Tooling](34_combat_data_and_capture.md)
 - Runtime, rig, arm, trails, hit-stop: [PAL Sword Combat Integration](32_pal_combat_integration.md)
 - Specs: change `add-lingxiao-spear` (new capability `lingxiao-spear-weapon`;
-  deltas to [combat-style-data](../../openspec/specs/combat-style-data/spec.md),
-  [combat-data-validation](../../openspec/specs/combat-data-validation/spec.md),
-  [combat-capture-tooling](../../openspec/specs/combat-capture-tooling/spec.md));
+  deltas to [combat-style-data](../contracts/combat-entities.md#combat-style-data),
+  [combat-data-validation](../contracts/combat-entities.md#combat-data-validation),
+  [combat-capture-tooling](../contracts/tooling.md#combat-capture-tooling));
   its `design.md` holds the decisions and their reasons.
 
 ## Outcome

@@ -46,5 +46,5 @@ a silhouette descriptor. Calibration lives in
 in `src/test/resources/town_geometry_parity.json`.
 
 See also: [Town Shape Irregularity](11_town_shape_irregularity.md),
-[town-plan](../../openspec/specs/town-plan/spec.md), and
-[town-districts](../../openspec/specs/town-districts/spec.md).
+[town-plan](../contracts/towns.md#town-plan), and
+[town-districts](../contracts/towns.md#town-districts).

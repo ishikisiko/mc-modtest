@@ -4,10 +4,10 @@ The H screen since 0.31.0: a hub with a page rail, built to take one page per
 gameplay system. It replaces the two-tab screen of notes
 [28](28_cultivation_core.md) and [30](30_cultivation_playable_loop.md); what
 the panel may read and send is unchanged and stays specified in
-[cultivation-meditation](../../openspec/specs/cultivation-meditation/spec.md),
-[cultivation-state-synchronization](../../openspec/specs/cultivation-state-synchronization/spec.md),
-[cultivation-lifespan-calendar](../../openspec/specs/cultivation-lifespan-calendar/spec.md),
-and [cultivation-core-validation](../../openspec/specs/cultivation-core-validation/spec.md).
+[cultivation-meditation](../contracts/cultivation.md#cultivation-meditation),
+[cultivation-state-synchronization](../contracts/cultivation.md#cultivation-state-synchronization),
+[cultivation-lifespan-calendar](../contracts/cultivation.md#cultivation-lifespan-calendar),
+and [cultivation-core-validation](../contracts/tooling.md#cultivation-core-validation).
 Since 0.36.0 it also has a 天下 page that reads the world ledger (命簿) of
 [40_world_sim.md](40_world_sim.md) through its own read-only query. Since
 0.37.0 the 功法 page groups techniques and can switch the running core

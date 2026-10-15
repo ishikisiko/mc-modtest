@@ -13,6 +13,9 @@ __pycache__/
 !.codex/config.toml
 !.codex/agents/
 !.codex/agents/*.toml
+!.codex/skills/
+.codex/skills/*
+!.codex/skills/mod-item-creation/
 .genops/
 .opencode/
 .zcode

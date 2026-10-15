@@ -1,189 +1,54 @@
 version: 1
-
-principle: "Owner talks to the Commander Agent in natural language; Commander runs local tools."
-
+principle: 'Optional GenOps tools, enabled only by an explicit CRAFT or GenOps request.
+  Default workflow: docs/WORKFLOW.md.'
 owner_interface:
   primary: natural_language_conversation
   not_primary:
-    - "owner manually typing GenOps CLI commands"
-    - "owner choosing low-level task ids before the commander has mapped the goal"
-    - "owner-facing OpenSpec skill names or CLI commands as the first workflow step"
+  - owner manually typing GenOps CLI commands
+  - owner choosing low-level task ids before the commander has mapped the goal
   commander_responsibilities:
-    - "infer the pipeline from the stated goal"
-    - "classify whether the request is CRAFT-required before protected edits"
-    - "choose planning, implementation, visual review, regression, or release mode"
-    - "run tools/genops/run_pipeline.py when useful, including its embedded front-door check"
-    - "run tools/genops/validate_pipelines.py when pipeline governance changes"
-    - "execute task work directly when the owner asks to proceed"
-    - "run tools/genops/check_frontdoor.py for protected-path provenance checks"
-    - "summarize owner-facing state and keep complete audit evidence available"
-
+  - infer the pipeline from the stated goal
+  - classify whether the request is CRAFT-required before protected edits
+  - choose planning, implementation, visual review, regression, or release mode
+  - run tools/genops/run_pipeline.py when useful, including its embedded front-door
+    check
+  - run tools/genops/validate_pipelines.py when pipeline governance changes
+  - execute task work directly when the owner asks to proceed
+  - run tools/genops/check_frontdoor.py for protected-path provenance checks
+  - summarize owner-facing state and keep complete audit evidence available
 owner_decision_interface:
-  default_surface: "decision_only"
+  default_surface: decision_only
   owner_decides:
-    - "need and non-goals"
-    - "scope or depth when there are real alternatives"
-    - "implementation direction when trade-offs matter"
-    - "aesthetic or product verdict"
-    - "release-sensitive approval when required"
+  - need and non-goals
+  - scope or depth when there are real alternatives
+  - implementation direction when trade-offs matter
+  - aesthetic or product verdict
+  - release-sensitive approval when required
   commander_owns:
-    - "change names"
-    - "run ids"
-    - "pipeline selection"
-    - "task ids"
-    - "worker routing"
-    - "validation command selection"
-    - "archive and closeout mechanics"
-    - "evidence bookkeeping"
+  - change names
+  - run ids
+  - pipeline selection
+  - task ids
+  - worker routing
+  - validation command selection
+  - archive and closeout mechanics
+  - evidence bookkeeping
   default_summary:
-    - "goal_status"
-    - "scope_or_direction"
-    - "validation_state"
-    - "risk_or_blocker"
-    - "human_decision_needed"
-    - "next_decision"
-
-visibility_policy:
-  owner_visible:
-    - "goal_status"
-    - "scope_or_direction"
-    - "validation_state"
-    - "risk_or_blocker"
-    - "human_decision_needed"
-    - "next_decision"
-  audit_available:
-    - "run_id"
-    - "pipeline"
-    - "task_id"
-    - "worker_ownership"
-    - "artifacts"
-    - "gates"
-    - "raw_logs"
-    - "manifest_path"
-  backend_evidence:
-    - "OpenSpec skill names"
-    - "OpenSpec CLI commands"
-    - "spec file discovery"
-    - "validator/build commands"
-    - "pipeline YAML paths"
-    - "worker prompts and logs"
-  expose_backend_when:
-    - "owner asks for audit detail"
-    - "a backend failure is the decision blocker"
-
-subagent_execution_policy:
-  consequential_role_work_prefers_subagent: true
-  commander_self_execution_allowed_for:
-    - "lightweight read-only status checks"
-    - "manifest summarization"
-    - "subagent bridge unavailable"
-  self_execution_evidence_field: "commander_self_executed"
-  consequential_role_work:
-    - "OpenSpec artifact impact or authoring"
-    - "design judgment"
-    - "generator or runtime code edits"
-    - "generated resource edits"
-    - "validation or build gates"
-    - "release metadata"
-    - "human verdict handoff"
-
-auto_progression:
-  default_after_owner_accepts_direction: "continue_until_stop_condition"
-  implementation: "tools/genops/commander.py"
-  state_machine_states:
-    - "intake"
-    - "planning"
-    - "ready_for_direction"
-    - "implementation"
-    - "validation"
-    - "human_review_pending"
-    - "accepted"
-    - "rejected"
-    - "accepted_with_changes"
-    - "closeout_ready"
-    - "archived"
-  state_machine_commands:
-    - "classify"
-    - "start-run"
-    - "continue-current"
-    - "status"
-    - "next-decision"
-    - "record-verdict"
-    - "closeout"
-    - "summary"
-  stop_condition_source: "tools/genops/commander.py STOP_RULES"
-  stop_conditions:
-    - "unresolved scope conflict"
-    - "multiple valid aesthetic or product directions requiring owner judgment"
-    - "required visual verdict"
-    - "release/version/changelog approval"
-    - "destructive or broad generated-resource rewrite"
-    - "protected behavior boundary change outside accepted scope"
-    - "failing gate"
-    - "missing evidence"
-
-human_verdict_policy:
-  prompt_when_required: true
-  prompt_owner_for_pending_verdict: true
-  prompt_shape: "Ask whether the prepared evidence is OK, rejected, or accepted with changes."
-  no_silent_acceptance: true
-  verdicts:
-    - "pending"
-    - "accept"
-    - "reject"
-    - "accept_with_changes"
-    - "not_required"
-    - "pause"
-    - "reopen_discussion"
-
-archive_policy:
-  default: "auto_archive_when_green"
-  owner_initiated_archive_required: false
-  action_owner: "commander"
-  eligible_when:
-    - "all planning artifacts are complete"
-    - "all tasks are complete"
-    - "strict change validation passes"
-    - "front-door evidence is present and passing for protected paths"
-    - "closeout evidence is present"
-    - "required human verdict is recorded or not required"
-    - "no closeout stop condition is present"
-  stop_conditions:
-    - "human verdict required but pending"
-    - "release/version/changelog approval required"
-    - "failed validation, build, or front-door gate"
-    - "missing run evidence"
-    - "implementation not landed"
-    - "dirty unrelated protected paths"
-    - "spec baseline conflict"
-  post_archive_gates:
-    - "validate affected specs"
-    - "report archive path in Commander summary"
-
-craft_required_intents:
-  - "explicit CRAFT or GenOps request"
-  - "new OpenSpec change or proposal authoring"
-  - "OpenSpec apply or implementation work"
-  - "visual or aesthetic structure change"
-  - "multi-worker, subagent, or parallel work"
-  - "release, version, jar, build handoff"
-  - "acceptance or visual-review handoff"
-  - "mod item creation or item resource work"
-
-frontdoor_exempt_intents:
-  - "trivial read-only status checks"
-  - "direct factual answers with no protected file edits"
-  - "small command output relays with no protected file edits"
-
-craft_required_summary_fields:
   - goal_status
   - scope_or_direction
   - validation_state
   - risk_or_blocker
   - human_decision_needed
   - next_decision
-
-craft_required_audit_fields:
+visibility_policy:
+  owner_visible:
+  - goal_status
+  - scope_or_direction
+  - validation_state
+  - risk_or_blocker
+  - human_decision_needed
+  - next_decision
+  audit_available:
   - run_id
   - pipeline
   - task_id
@@ -192,50 +57,223 @@ craft_required_audit_fields:
   - gates
   - raw_logs
   - manifest_path
-
+  backend_evidence:
+  - spec file discovery
+  - validator/build commands
+  - pipeline YAML paths
+  - worker prompts and logs
+  expose_backend_when:
+  - owner asks for audit detail
+  - a backend failure is the decision blocker
+subagent_execution_policy:
+  consequential_role_work_prefers_subagent: false
+  commander_self_execution_allowed_for:
+  - all scoped work; spawn subagents only when explicitly requested
+  self_execution_evidence_field: commander_self_executed
+  consequential_role_work:
+  - design judgment
+  - generator or runtime code edits
+  - generated resource edits
+  - validation or build gates
+  - release metadata
+  - human verdict handoff
+auto_progression:
+  default_after_owner_accepts_direction: continue_until_stop_condition
+  implementation: tools/genops/commander.py
+  state_machine_states:
+  - intake
+  - planning
+  - ready_for_direction
+  - implementation
+  - validation
+  - human_review_pending
+  - accepted
+  - rejected
+  - accepted_with_changes
+  - closeout_ready
+  - archived
+  state_machine_commands:
+  - classify
+  - start-run
+  - continue-current
+  - status
+  - next-decision
+  - record-verdict
+  - closeout
+  - summary
+  stop_condition_source: tools/genops/commander.py STOP_RULES
+  stop_conditions:
+  - unresolved scope conflict
+  - multiple valid aesthetic or product directions requiring owner judgment
+  - required visual verdict
+  - release/version/changelog approval
+  - destructive or broad generated-resource rewrite
+  - protected behavior boundary change outside accepted scope
+  - failing gate
+  - missing evidence
+human_verdict_policy:
+  prompt_when_required: true
+  prompt_owner_for_pending_verdict: true
+  prompt_shape: Ask whether the prepared evidence is OK, rejected, or accepted with
+    changes.
+  no_silent_acceptance: true
+  verdicts:
+  - pending
+  - accept
+  - reject
+  - accept_with_changes
+  - not_required
+  - pause
+  - reopen_discussion
+archive_policy:
+  default: auto_archive_when_green
+  owner_initiated_archive_required: false
+  action_owner: commander
+  eligible_when:
+  - all tasks are complete
+  - front-door evidence is present and passing for protected paths
+  - closeout evidence is present
+  - required human verdict is recorded or not required
+  - no closeout stop condition is present
+  stop_conditions:
+  - human verdict required but pending
+  - release/version/changelog approval required
+  - failed validation, build, or front-door gate
+  - missing run evidence
+  - implementation not landed
+  - dirty unrelated protected paths
+  post_archive_gates:
+  - report the optional run closeout state
+craft_required_intents:
+- explicit CRAFT or GenOps request
+frontdoor_exempt_intents:
+- ordinary work without an explicit CRAFT or GenOps request
+craft_required_summary_fields:
+- goal_status
+- scope_or_direction
+- validation_state
+- risk_or_blocker
+- human_decision_needed
+- next_decision
+craft_required_audit_fields:
+- run_id
+- pipeline
+- task_id
+- worker_ownership
+- artifacts
+- gates
+- raw_logs
+- manifest_path
 intent_routing:
-  openspec_change:
-    pipeline: "genops/pipelines/openspec-change.full.yaml"
-    cues: ["OpenSpec", "openspec", "proposal", "change", "spec", "apply", "archive", "sync specs", "提案", "变更", "立项", "规格", "规约", "实现变更"]
   sect:
-    pipeline: "genops/pipelines/sect-worldgen.full.yaml"
-    cues: ["宗门", "sect", "山体", "远景", "剪影", "登山", "飞桥", "云海"]
+    pipeline: genops/pipelines/sect-worldgen.full.yaml
+    cues:
+    - 宗门
+    - sect
+    - 山体
+    - 远景
+    - 剪影
+    - 登山
+    - 飞桥
+    - 云海
   mansion:
-    pipeline: "genops/pipelines/mansion-visual.full.yaml"
-    cues: ["大宅", "江南", "花园", "月洞门", "水亭", "假山", "后院"]
+    pipeline: genops/pipelines/mansion-visual.full.yaml
+    cues:
+    - 大宅
+    - 江南
+    - 花园
+    - 月洞门
+    - 水亭
+    - 假山
+    - 后院
   compound:
-    pipeline: "genops/pipelines/compound-library.full.yaml"
-    cues: ["院落", "compound", "复合结构", "路径", "可达", "围合"]
+    pipeline: genops/pipelines/compound-library.full.yaml
+    cues:
+    - 院落
+    - compound
+    - 复合结构
+    - 路径
+    - 可达
+    - 围合
   building:
-    pipeline: "genops/pipelines/building-library.full.yaml"
-    cues: ["单体", "建筑", "示例建筑", "拆解", "建筑库", "屋顶", "门窗", "室内", "house", "building"]
+    pipeline: genops/pipelines/building-library.full.yaml
+    cues:
+    - 单体
+    - 建筑
+    - 示例建筑
+    - 拆解
+    - 建筑库
+    - 屋顶
+    - 门窗
+    - 室内
+    - house
+    - building
   mod_item:
-    pipeline: "genops/pipelines/mod-item.full.yaml"
-    cues: ["mod item", "item", "物品", "创造栏", "creative tab", "贴图", "模型", "item model", "recipe", "配方", "lang", "语言", "BlockItem", "DeferredRegister.Items"]
+    pipeline: genops/pipelines/mod-item.full.yaml
+    cues:
+    - mod item
+    - item
+    - 物品
+    - 创造栏
+    - creative tab
+    - 贴图
+    - 模型
+    - item model
+    - recipe
+    - 配方
+    - lang
+    - 语言
+    - BlockItem
+    - DeferredRegister.Items
   reference_decomposition:
-    pipeline: "genops/pipelines/reference-decomposition.full.yaml"
-    cues: ["视觉参考", "参考建筑", "分解", "拆解参考", "Reference Breakdown", "source_structures", "candidate_003", "candidate_", "reference decomposition", "breakdown card", "徽派参考", "马头墙参考", "宝塔参考", "月洞门参考"]
+    pipeline: genops/pipelines/reference-decomposition.full.yaml
+    cues:
+    - 视觉参考
+    - 参考建筑
+    - 分解
+    - 拆解参考
+    - Reference Breakdown
+    - source_structures
+    - candidate_003
+    - candidate_
+    - reference decomposition
+    - breakdown card
+    - 徽派参考
+    - 马头墙参考
+    - 宝塔参考
+    - 月洞门参考
   visual_acceptance:
-    pipeline: "genops/pipelines/visual-acceptance.full.yaml"
-    cues: ["视觉验收", "预览", "截图", "PNG", "报告", "人工验收"]
+    pipeline: genops/pipelines/visual-acceptance.full.yaml
+    cues:
+    - 视觉验收
+    - 预览
+    - 截图
+    - PNG
+    - 报告
+    - 人工验收
   release:
-    pipeline: "genops/pipelines/release.full.yaml"
-    cues: ["发布", "版本", "changelog", "jar", "release"]
-
+    pipeline: genops/pipelines/release.full.yaml
+    cues:
+    - 发布
+    - 版本
+    - changelog
+    - jar
+    - release
 default_modes:
-  visual_or_aesthetic_goal: "alignment_first"
-  mechanical_bug_or_failing_gate: "implementation_first"
-  unclear_scope: "planning_first"
-  final_acceptance: "run_gates_then_handoff"
-
+  visual_or_aesthetic_goal: alignment_first
+  mechanical_bug_or_failing_gate: implementation_first
+  unclear_scope: planning_first
+  final_acceptance: run_gates_then_handoff
 owner_examples:
-  - owner: "用 GenOps 规划一下宗门远景剪影怎么改，先别动代码。"
-    commander_action: "run planning pass on sect-worldgen.full, inspect artifacts, summarize proposed tasks"
-  - owner: "继续上次工作，把已确认的实现方向做完。"
-    commander_action: "resume the governed intent, implement the scoped task, run relevant gates"
-  - owner: "大宅花园不接受，太散。"
-    commander_action: "record/restate verdict, route to mansion-visual, produce a critique before generator edits"
-  - owner: "创建一个 OpenSpec 提案来拆解视觉参考图到建筑结构。"
-    commander_action: "route to openspec-change.full, create a run, then write proposal/design/spec/tasks through scoped worker evidence"
-  - owner: "用 CRAFT 拆解 candidate_003 这个徽派参考建筑。"
-    commander_action: "route to reference-decomposition.full, run planning pass, write breakdown card with four buckets, leave verdict pending"
+- owner: 用 GenOps 规划一下宗门远景剪影怎么改，先别动代码。
+  commander_action: run planning pass on sect-worldgen.full, inspect artifacts, summarize
+    proposed tasks
+- owner: 继续上次工作，把已确认的实现方向做完。
+  commander_action: resume the governed intent, implement the scoped task, run relevant
+    gates
+- owner: 大宅花园不接受，太散。
+  commander_action: record/restate verdict, route to mansion-visual, produce a critique
+    before generator edits
+- owner: 用 CRAFT 拆解 candidate_003 这个徽派参考建筑。
+  commander_action: route to reference-decomposition.full, run planning pass, write
+    breakdown card with four buckets, leave verdict pending

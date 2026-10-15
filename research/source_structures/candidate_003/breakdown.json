@@ -66,7 +66,7 @@
     {
       "cue": "\u5802\u2014\u4e95\u2014\u5802 vertical sequence (\u95e8\u5802 \u2192 \u5929\u4e95\u4e00 \u2192 \u4eab\u5802 \u2192 \u5929\u4e95\u4e8c \u2192 \u5bdd\u5802)",
       "rationale": "This is the load-bearing plan rule: a vertical sequence of halls separated by small sky-wells, NOT a horizontal yard sequence. It generalizes into a planner/layout rule that any future Huizhou compound would instantiate.",
-      "downstream_route": "future rebuild-huipai-mansion OpenSpec change + compound planner; see huipai-tianjing-mansion spec (FUTURE) for the canonical \u95e8\u5802\u2192\u5929\u4e95\u4e00\u2192\u4eab\u5802\u2192\u5929\u4e95\u4e8c\u2192\u5bdd\u5802 sequence.",
+      "downstream_route": "future rebuild-huipai-mansion implementation task + compound planner; see huipai-tianjing-mansion spec (FUTURE) for the canonical \u95e8\u5802\u2192\u5929\u4e95\u4e00\u2192\u4eab\u5802\u2192\u5929\u4e95\u4e8c\u2192\u5bdd\u5802 sequence.",
       "review_needed": "Layout validator + visual acceptance of the generated \u5802\u2014\u4e95 rhythm before any Huizhou compound family ships."
     },
     {

@@ -1,3 +1,5 @@
+> 历史执行方案。本文中的旧 OpenSpec 命令和验收流程已退役；当前工作方式以 [WORKFLOW](WORKFLOW.md) 为准。
+
 # 山门（宗门建筑）重构任务书
 
 > 2026-10-06 上午。owner 在 agent-test 里看过 0.35.0 用 `/myvillage world sect 1 build here` 建出的天池楼山门，判定不合格，授权任意规模的重构，不需要再确认。实施由 Opus 5.5 子代理完成，统筹者（Fable 会话）负责设计决定、派工、验收和部署。
@@ -90,7 +92,7 @@ owner 回来会直接进游戏看，不看文档。验收标准是：从门前�
 - `sim/runtime/avatar/GateBuilder.java` :39-117：命簿建造入口，锚点 y 取 MOTION_BLOCKING_NO_LEAVES，调 `generateForcedAt`。
 - 钉住几何的东西：`src/test/java/.../sect/SectCourtyardTest.java`（种子 7 的格数 355/507/627、具体格子、footprint）；`sim/runtime/avatar/AvatarPlannerTest.java` :46-106（最低台地放得下 40 个化身；40 个宗门覆盖所有变体）；`tools/world_sim_avatar_evidence.py` :61,:223-247（院落 x22..40 z21..30 必须是石砖地面且露天）；`tools/validate_sect_generation.py` 只跑 Python 镜像 `tools/buildgen/sect.py`（:867-1143 的 plan 校验、:121-160 模板尺寸、:163-182 parity 常量）和 `tools/buildgen/sect_mountain.py`（:307-408 山体契约：台地高度、裙摆坡度、崖、云海、spire）；`tools/buildgen/tests/test_pagoda_landmark.py` :124-155（正则读 Java 的 footprint 表）；发布闸门 `tools/release_gate.py` :298-316（generate-all-structures 重生成模板并要求 `src/main/resources` 无 git drift、各校验器、gradle build）。
 - 模板生成：`tools/generate_all_structures.py` → `tools/buildgen/archetypes.py`（`build_sect_gate`/`build_sect_main_hall`/`build_scripture_pavilion`/`build_alchemy_room`/`build_disciple_quarters` :2172-2293）→ `tools/buildgen/ops.py`（`_place_eave_corners` :739-771，`_add_eave_brackets` :773-799，`sweeping_eave_roof` :802-961，tiered/pagoda/pavilion/bell 屋顶 :1124/:1247/:1308/:1327）。NBT 读取器 `tools/buildgen/nbtread.py`、`tools/preview_structure.py`。
-- spec：`openspec/specs/sect-compound-layout/spec.md`、`sect-compound-realization/spec.md`、`sect-mountain-derivation/spec.md`、`sect-worldgen-structure/spec.md`。
+- spec：`docs/contracts/world.md#sect-compound-layout`、`sect-compound-realization/spec.md`、`sect-mountain-derivation/spec.md`、`sect-worldgen-structure/spec.md`。
 
 ## 5. 验收
 
@@ -131,7 +133,7 @@ owner 回来会直接进游戏看，不看文档。验收标准是：从门前�
 
 ### 工作包 A（Java，主工作树，分支 `feat/world-sim`）
 
-文件：`src/main/java/com/example/myvillage/sect/*`、`src/test/java/com/example/myvillage/sect/*`、`sim/runtime/avatar/GateBuilder.java`（如需）、`AvatarPlannerTest`（如需）、`tools/world_sim_avatar_evidence.py` 的院落矩形（如需）、`openspec/specs/sect-*/spec.md`、`docs/ai-kb/40_world_sim.md` 的 P3 段、`CHANGELOG.md`。
+文件：`src/main/java/com/example/myvillage/sect/*`、`src/test/java/com/example/myvillage/sect/*`、`sim/runtime/avatar/GateBuilder.java`（如需）、`AvatarPlannerTest`（如需）、`tools/world_sim_avatar_evidence.py` 的院落矩形（如需）、`docs/contracts/sect-*/spec.md`、`docs/ai-kb/40_world_sim.md` 的 P3 段、`CHANGELOG.md`。
 内容：3.1–3.6 全部、5.1 的测试、spec 原文修正。最后用 `python3 tools/bump_version.py 0.35.1` 升版本并在 CHANGELOG 新段落里写本次重构（owner 的两条原话对应的修正放最前）。跑 `flock ... ./gradlew build`（含测试）、`openspec validate --specs --strict`、`/usr/bin/python3 tools/buildgen/tests/test_pagoda_landmark.py`。**不要跑完整发布闸门**（Python 镜像由工作包 B 同步改，合并后由统筹者跑）。
 不碰：`tools/buildgen/*`（除上面提到的 evidence 脚本）、NBT 模板、`tools/validate_sect_generation.py`。
 

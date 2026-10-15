@@ -50,7 +50,6 @@
       "verify W/S, A/D, Space, and Shift while riding"
     ],
     "gates": [
-      "openspec validate add-rideable-flying-sword --type change --strict",
       "python3 tools/validate_mod_items.py",
       "./gradlew test",
       "./gradlew build",

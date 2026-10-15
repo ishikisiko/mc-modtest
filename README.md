@@ -13,9 +13,8 @@ types, functional buildings, roads and town pieces, and possible NPC-related
 systems when the data and runtime pipeline are ready.
 
 > **Knowledge base:** start at [docs/ai-kb/INDEX.md](docs/ai-kb/INDEX.md) — it maps the
-> `docs/ai-kb/` technical notes and the `openspec/specs/` capability index.
-> **CRAFT orchestration:** start at [CRAFT.md](CRAFT.md) for the Commander,
-> GenOps pipelines, project Codex subagents, evidence, and review gates.
+> technical notes and [technical contracts](docs/contracts/README.md).
+> **Workflow:** [docs/WORKFLOW.md](docs/WORKFLOW.md); [CRAFT](CRAFT.md) is optional.
 
 ## 云山巨城 · Browser Voxel Artwork
 
@@ -27,69 +26,18 @@ directly, or run `npm start` inside `web/yunshan-city/` and visit
 <http://localhost:8080/>. Controls and architecture are documented in
 [web/yunshan-city/README.md](web/yunshan-city/README.md).
 
-## GenOps Orchestration
+## Development Workflow
 
-Generator work is routed through a Commander Agent conversation. The project
-owner describes intent in natural language; the Commander chooses the pipeline,
-runs the local manager tools, and reports `goal_status`,
-`scope_or_direction`, `validation_state`, `risk_or_blocker`,
-`human_decision_needed`, and `next_decision`. Run ids, pipelines, task ids,
-worker ownership, artifacts, gates, raw logs, and manifest paths are available
-for audit, but they are not the normal user interface.
+Follow [docs/WORKFLOW.md](docs/WORKFLOW.md): scope the change, implement it,
+run the necessary checks, then commit and report. Expand checks only when a
+specific failure or affected boundary justifies them. Existing full checklists
+below document complete acceptance options and historical runs; they are not
+the default for every edit. Tooling and non-packaged documentation changes do
+not require a mod version bump, jar build, or game launch.
 
-CRAFT-required work now has to enter through GenOps before protected artifacts
-are edited. That includes explicit CRAFT/GenOps requests, OpenSpec proposal or
-apply work, visual/aesthetic structure changes, subagent or parallel work,
-release/version/build handoff, and acceptance handoff. Trivial read-only checks
-remain direct.
-
-Example owner messages:
-
-```text
-用 GenOps 规划一下宗门远景剪影怎么改，先别动代码。
-继续上次工作，把已确认的实现方向做完。
-跑完整回归并准备人工视觉验收。
-```
-
-The Commander uses `tools/genops/run_pipeline.py` when useful; no distributed
-service is added. Runs still write task contracts, prompts, patch-guard reports,
-gate evidence, structured aesthetic reviews when applicable, an embedded
-front-door check result, and a final manifest under `reports/agent_runs/<run_id>/`. See
-[`docs/ai-kb/19_genops.md`](docs/ai-kb/19_genops.md) and
-[`openspec/specs/genops/spec.md`](openspec/specs/genops/spec.md).
-
-OpenSpec proposal/design/spec/task authoring uses
-`genops/pipelines/openspec-change.full.yaml`. Protected-path provenance can be
-checked with `tools/genops/check_frontdoor.py`; `run_pipeline.py` runs the same
-check for run-owned protected artifacts before reporting a green final status.
-Protected categories distinguish Java runtime, client resources, data resources,
-generated NBT, release metadata, generator code, GenOps, docs, and OpenSpec
-paths instead of using a broad `src/main/**` bucket. Those backend details are
-Commander-owned unless audit detail is requested or a backend failure blocks a
-decision.
-
-Pipeline YAML governance is checked by `tools/genops/validate_pipelines.py`.
-That validator turns role/scope/review/gate/release-output mistakes into a
-non-zero compile step instead of soft convention drift.
-
-The Commander backend is stateful: `tools/genops/commander.py` supports
-`classify`, `start-run`, `continue-current`, `status`, `next-decision`,
-`record-verdict`, `closeout`, and `summary`, backed by the rebuildable
-`.genops/state.sqlite` index. Stop conditions are evaluated in code before the
-state machine advances. Rebuild derives verdict state from mirrored decision
-artifacts, and `closeout-ready` requires closeout evidence, front-door pass,
-validation pass, and an OK verdict.
-
-Mod item creation is also CRAFT-routed. The repo-local
-`.codex/skills/mod-item-creation` skill creates the Item Contract and routes
-work through `genops/pipelines/mod-item.full.yaml`, separating Java registration,
-resources, visual review, validation, docs, and regression evidence.
-
-GenOps worker roles are also registered as project-scoped Codex custom
-subagents under `.codex/agents/` (for example
-`genops-generator-engineer`, `genops-validator-engineer`, and
-`genops-visual-reviewer`). They are spawned only when the owner explicitly asks
-for subagents or parallel agent work.
+[GenOps](genops/README.md) is optional and used only on explicit request.
+Its pipelines, scoped roles, patch guards and run evidence remain available;
+ordinary work needs no proposal, CRAFT run, role approvals or archive ceremony.
 
 ## Resource Path
 
@@ -438,7 +386,7 @@ For acceptance handoff, serve `out/preview/` with a public HTTP server bound to
 `0.0.0.0:8765` and report `http://43.156.135.198:8765/index.html` while this
 host keeps that public IP, so review starts from an opened preview surface
 instead of a file list. Keep the preview server running until the reviewer says
-it can be closed, or until the related OpenSpec change is being archived.
+it can be closed, or until the relevant work is being closed.
 `tools/write_visual_acceptance_report.py` writes
 `reports/visual_acceptance_report.json` and `.md` after preview and Chunky prep,
 listing the representative PNGs and in-game Chunky targets that must be opened
@@ -638,7 +586,7 @@ Measured attempts: [runner verification record](docs/testing/2026-10-14-modal-te
 
 Maintain `CHANGELOG.md` whenever a version is prepared or a validated fix is
 accepted. The authoritative version increment and synchronized-file rule lives
-only in `openspec/config.yaml` under `rules.tasks`; apply that rule rather than
+in [docs/WORKFLOW.md](docs/WORKFLOW.md); apply that rule rather than
 duplicating its mechanics here.
 
 `tools/bump_version.py` applies the rule. It rewrites `mod_version` in
@@ -653,7 +601,8 @@ python3 tools/bump_version.py 0.30.0 --dry-run   # print the plan, write nothing
 python3 tools/bump_version.py 0.30.0
 ```
 
-Write the CHANGELOG entry by hand, then run the release gate:
+For an actual mod release, write the CHANGELOG entry by hand. Use the full
+release gate only when complete release validation is requested:
 
 ```bash
 python3 tools/release_gate.py                 # every step, with a fresh ./gradlew build
@@ -664,8 +613,7 @@ python3 tools/release_gate.py --only 'validate-cultivation-*'
 
 It prints one line per step and a summary, and exits non-zero if a step
 failed. The steps: the four version places agree and the newest CHANGELOG
-entry has a body; `openspec validate --specs --strict` (skipped without the
-CLI); the generator `--check`s (including `python3 -m tools.beastgen build demon_wolf
+entry has a body; the generator `--check`s (including `python3 -m tools.beastgen build demon_wolf
 --check` and `python3 -m tools.npcgen build cultivator --check`); the structure generator, then the validators
 from [Manual Acceptance Prep](#manual-acceptance-prep); `tools/tests`; the
 offline preview's numpy tests (solver parity, `sweep`/`diff` rendering) under
@@ -785,7 +733,7 @@ jar tf build/libs/myvillage-0.52.1.jar | grep "assets/myvillage/models/item/cult
 ```
 
 Use the command list below as the acceptance script. Update this README,
-`AGENTS.md`, and the relevant OpenSpec specs whenever commands or acceptance
+`AGENTS.md`, and the affected technical contracts whenever commands or acceptance
 prep steps change.
 
 ## Run Client
@@ -2863,7 +2811,7 @@ Implementation and data ownership: [45_spiritual_power_sword_qi.md](docs/ai-kb/4
 This build adds the custom two-cell reading stand, an upper-left jade power HUD,
 approximately 10-second grade-one manual study at default affinity, and a thicker
 brighter sword-qi crescent. The version and changelog workflow follows
-`openspec/config.yaml` `rules.tasks`. The 0.46.0 developer results above do not
+`docs/WORKFLOW.md` the version section. The 0.46.0 developer results above do not
 constitute acceptance of these revised visuals. Preparing the jar does not
 launch the game; enter it later to review the following checks.
 
@@ -3327,8 +3275,6 @@ Both command roots continue to accept either literal in every pair:
 Run the complete playable-loop and affinity/UI revision handoff gates:
 
 ```bash
-openspec validate --specs --strict
-for spec in spirit-stone-resources cultivation-lifespan-calendar cultivation-meditation cultivation-gain cultivation-advancement; do openspec validate "$spec" --type spec --strict; done
 python3 tools/validate_cultivation_core.py
 python3 tools/validate_cultivation_initiation.py
 python3 tools/validate_spirit_stone_resources.py
@@ -4406,7 +4352,7 @@ Owner appearance/feel/balance and wider multiplayer remain `not_verified`.
 Preview: [成丹品质运行验证](http://43.156.135.198:8765/alchemy/quality/index.html) ·
 [炼丹基础](http://43.156.135.198:8765/alchemy/index.html).
 See [implementation boundaries](docs/ai-kb/49_alchemy.md),
-[alchemy-quality specification](openspec/specs/alchemy-quality/spec.md), and
+[alchemy-quality specification](docs/contracts/cultivation.md#alchemy-quality), and
 [historical 0.50.0 developer validation](docs/testing/2026-10-15-alchemy.md).
 
 The following table is **historical 0.50.0 foundation evidence**. It does not

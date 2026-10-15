@@ -1,0 +1,7 @@
+interface:
+  display_name: "Mod Item Creation"
+  short_description: "MyVillage item implementation and focused checks"
+  default_prompt: "Use $mod-item-creation to create or revise a MyVillage mod item with the repository workflow and relevant asset contracts."
+
+policy:
+  allow_implicit_invocation: true

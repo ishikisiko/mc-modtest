@@ -1,300 +1,60 @@
-# Deferred Roadmap (Index of Designed-But-Unrealized Work)
+# 延期项与待确认验收
 
-Status: **living index** — updated whenever a deferred item is realized (mark ✅
-with the realizing change) or a new deferral is added by an accepted proposal.
-This note exists so the project's "written but not yet built" work is
-discoverable in one place, rather than scattered across the 28 folders under
-`openspec/changes/archive/`.
+这是历史设计中仍值得检索的索引，不是已承诺的下一批任务。选题前按当前代码
+复查；旧提案完整保留在 Git，见[清理记录](../maintenance/openspec-cleanup.md)。
 
-Each entry cites the **source** (proposal / design / tasks of an archived
-change) and the **current state** verified against shipped code/resources. The
-normative contract for any realized behavior remains in `openspec/specs/`; this
-note does not change specs — it indexes the gaps between them and the code.
+## 保留的设计方向
 
-Scope rule: an item belongs here only if (a) a proposal/design/tasks artifact
-explicitly named it as in-scope-of-the-project but deferred, **and** (b) it is
-not realized in `src/main/` or `src/main/resources/` today. Confirmed
-Non-Goals (deliberately rejected alternatives) live in §H and are kept for
-reference, not as work items.
-
-See-also (per section) — this note cross-links the specs each deferred item
-would extend if picked up.
-
-## At-a-glance map
-
-```
-                  wrote API hook / data field           wrote only design/vision
-                      
-   Region    ─────────────────►  🟡 world sim only ◄── §A  runtime-binding
-   Region    ─────────────────►  🔴 no terrain     ◄── §B  region-topology
-   Town      ─────────────────►  🔴 no worldgen    ◄── §C  living-town-generation
-   Subjects  ◄────────────────  🟡 admitted_subj   ◄── §A2 (sects ignore regions)
-   Cult-form ─────────────────►  🔴 魔修 flavor     ◄── §D  cultivation-style-system
-   Courtyard ─────────────────►  🔴 二进/三进       ◄── §E  chinese-courtyard-compound
-```
-
-Three "half-finished nets" carry the most leverage if picked up: §A (region
-consumers), §B (region terrain), §C (town worldgen). §A2 is the smallest
-bridge between §A and §B/C and probably the highest-value next change.
-
----
-
-## A. Region layer downstream consumers (API live, first caller: world sim)
-
-**Source:** `2026-06-21-add-region-runtime-binding/proposal.md` "What Changes"
-+ `design.md` "Non-Goals (deferred to future changes)".
-
-The runtime-binding change landed the graph in-world (`中州` at origin,
-~4000-block radius), bound spawn to the lowest-tier eligible region, and
-exposed `region_at` / `current_rung` / `next_rung_regions` via
-`RegionRuntimeService` + `RegionQueries`. Until 0.35.0 no downstream system
-read them.
-
-**First real caller (2026-10-06, 0.35.0): the world simulation**
-([40_world_sim.md](40_world_sim.md)). It takes the graph from
-`RegionRuntimeService.graph()`; places each sect's gate inside its home region
-with `RegionQueries.regionAt` (and `moveGate` rejects a point outside every
-region); moves travellers along the graph's 连 edges, entering a walled region
-only through its pass; reads region qi, danger, tier, and admitted subjects;
-and answers `/myvillage world here` and rumor audiences with
-`RegionRuntimeService.currentRegion`. It does not use `current_rung` or
-`next_rung_regions`, so the items below remain deferred.
-
-| Deferred item | Source quote | Current state |
-|---|---|---|
-| 罗盘 / 灵脉罗盘 / map / "next region" indicator | "Compass / map / 'next region' indicator form is explicitly deferred" | No item registered; vanilla compass still points to world spawn (now at periphery, so it no longer points at `中州` — see runtime-binding design "Compass semantics drift") |
-| 正道/魔道 alignment system | design: "A future 正道/魔道 alignment system resolves which member of the set is 'the' next destination" | `next_rung_regions` **intentionally** returns a set at tier ties (灵岳 + 西漠 both = 18) waiting for this system to resolve; downstream UI has no tie-breaker |
-| Mobility / fast-travel / flight gating (缩地 / 御剑 / 跨洲 teleport) | "Mobility / fast-travel / flight gating is explicitly deferred" | `current_rung` exposed; nothing gates movement |
-| 魔域 (walled regions) reachability via 魔道 path | design: "Reaching 魔域 (via 关隘) is a future alignment-system concern" | `next_rung_regions` excludes `walled`; no path in the API |
-| Region extents (precise coord→region) | design Open Risk: "extents deferred to the terrain-realization change" | `region_at` uses nearest-center as a known approximation |
-
-See-also specs: `region-runtime-binding`.
-
-## A2. Subjects are not placed by region (the bridge gap)
-
-**Source:** `2026-06-21-add-region-topology/proposal.md` "Enables (future,
-deferred): runtime placement of subjects into regions" + the
-`admitted_subjects` field defined by `region-profile`.
-
-`region_profile/*.json` declares `admitted_subjects` per region, and the field
-round-trips through `RegionProfile` → `GenRegion` → graph JSON. But it is
-**only consumed by `RegionSpawnSelector` to filter spawn candidates**. The sect
-worldgen itself ignores it:
-
-```
-src/main/resources/data/myvillage/worldgen/structure/sect.json:
-  "biomes": "#myvillage:has_sect"      ← biome-only gate, no region check
-```
-
-So today "which 洲 admits a sect" is data on the graph but does not influence
-where sects generate. (Since 0.35.0 the world sim's ledger honours
-`admitted_subjects` when it seats sects and their gates, but nothing builds
-those sects in worldgen yet; see [40_world_sim.md](40_world_sim.md) "Known
-limits".) Closing this loop is the smallest single change that
-makes the region layer *do something visible* in generated worlds.
-
-See-also specs: `region-profile`, `sect-worldgen-structure`.
-
-## B. 隔 edges have no terrain realization
-
-**Source:** `2026-06-21-add-region-topology/design.md` D5 + proposal
-"Enables (future, deferred)".
-
-The topology generator emits typed edges (`连` passable / `隔` separated) with
-a separator palette `{特殊山脉, 特殊海洋}`. Today these are **data only** —
-no chunk-gen, no biome override, no built ridge or water body realizes them.
-The proposal explicitly named this as the natural follow-on to the sect
-`反推山形` (extending single-peak derivation to a ridge range):
-
-| Edge data | Intended realization | Status |
-|---|---|---|
-| `隔=山脉` | real ridge terrain between two regions | unrealized |
-| `隔=海洋` | real water separating regions | unrealized |
-| `连=官道/关隘/渡口` | connector buildables on passable edges | unrealized (D5 named these as connector buildables, type only for now) |
-
-See-also specs: `region-topology`, `sect-mountain-derivation` (the existing
-single-peak derivation that a ridge-range change would extend).
-
-## C. Town worldgen + macro-engine modularity + sect↔town link
-
-**Source:** `2026-06-15-add-living-town-generation/design.md` "Current
-Shortcomings & Deferred Future Needs" + `2026-06-17-rebuild-cultivation-town-districts/design.md`
-("City-scale (256+) … explicitly deferred").
-
-Five interlocking deferrals from the original town-generation change, plus one
-from the districts rebuild. None have been touched.
-
-| Deferred item | Source | Current state |
-|---|---|---|
-| Pluggable macro engines (WFC / shape grammar / organic streets) | living-town D4 + Shortcomings §1 | Only the hand-written heuristic planner exists; no engine interface extracted (`grep` for `wfc\|shape_grammar` in `tools/buildgen/` returns nothing) |
-| Hard brief solver ("must have exactly these functions") | living-town Shortcomings §2 | Only `soft_functional_brief` guidance |
-| True terrain integration (retaining-terrace / 柱/桥 / 水边 docks) | living-town Shortcomings §3 | Bounded site-fit only; steep parcels are skipped, not terraced |
-| **Town as worldgen Structure** (passive spawn, `/locate` discovery) | living-town Shortcomings §4 | `worldgen/structure/` contains only `sect.json`; towns remain command-only via `/myvillage town` |
-| **Sect ↔ Town relationship** (神道 link, sect on adjacent high ground) | living-town Shortcomings §5 | Sect and town generators do not reference each other |
-| City-scale (256+) cross-tick / cross-chunk streaming | districts rebuild design "Non-Goal" | Hard cap remains `MAX_FOOTPRINT_AXIS = 160` |
-
-See-also specs: `town-plan`, `town-realization`, `settlement-group`.
-
-## D. Cultivation vocabulary residuals
-
-**Source:** `2026-06-14-add-cultivation-style-system/proposal.md` "Out of
-scope (deferred)" + `2026-06-15-add-external-mod-decor/design.md`.
-
-| Deferred item | Source quote | Current state |
-|---|---|---|
-| 仙宫 vs 魔修 sub-flavor split | "final sub-flavor split (仙宫 bright vs 魔修 dark — default to 仙宫)" | Only `cultivation_sect` 仙宫 profile exists; no 魔修 profile authored |
-| Spirit materials bleeding into town (小道观 / 坊市 法器铺) | "whether spirit materials may bleed into town — left as an open question" | `cultivation_town` `forbidden_blocks` still excludes 灵材 |
-| Real `fetzisasiandeco` curved roof + paper lantern family | `add-external-mod-decor` design: "swapping in real `fetzisasiandeco` roof/lantern families is deferred until those assets are staged" | Mod is still not in `exmod/`; eave curve is generated geometry, lanterns use `supplementaries` / `ars_nouveau` substitutes |
-
-See-also specs: `cultivation-form-vocabulary`, `style-profile`,
-`mod-decor-motif`.
-
-## E. Courtyard-form expansions
-
-**Source:** `2026-06-14-add-chinese-courtyard-compound/proposal.md` "Out of
-scope" + exploration captured during the `rebuild-chinese-courtyard` change
-(2026-06).
-
-The original courtyard-compound change shipped only a single-yard "one-courtyard"
-grammar. The follow-up work splits into two arcs:
-
-### E.1 — One-进 rebuild (realized)
-
-**Status:** ✅ realized by change `rebuild-chinese-courtyard`. Covers: real
-硬山/悬山/歇山/卷棚 roof forms; 台基 + 檐廊
-massing grammar fed back from `cultivation-massing-grammar`; outer-yard /
-main-yard split with 影壁 + 垂花门 + 抄手游廊 + 月台; new plan-level variant
-axes (`layout_type` / `main_orientation` / `main_bays` / `platform_tier` /
-`gate_type`). See the change's proposal + design for full scope.
-
-### E.2 — Multi-进 compounds (✅ partially realized; 4-进 still deferred)
-
-**Status:** ✅ **3-进 realized** by change `rebuild-jiangnan-mansion` (2026-06).
-The 江南大宅 `chinese_mansion` family implements `jin_count=3` as a distinct
-compound family (`generate_mansion` / `validate_mansion`) with its own band
-vocabulary: 前院 → 仪门 → 主院 → 二门 → 后院 → 花园. The `_compute_yard_bands`
-function now accepts `jin_count ∈ {1, 3}` and returns the ordered z-band list.
-
-The **ground + path per-jin caveat** described in this section is now covered by
-the `courtyard-voxel-walkability` spec: `_voxel_walk_bfs` BFS handles multi-band
-traversal without requiring a per-band rewrite of `_place_yard_ground`; the 3D
-BFS simply reaches across band boundaries following standable geometry. The
-validator (`validate_mansion`) seeds the BFS from the gate and checks all yard
-endpoints and door positions.
-
-**Still deferred:**
-
-| Deferred item | Current state |
+| 方向 | 历史保留范围与当前边界 |
 |---|---|
-| 二进 compound (前院 + 主院 + 后院 + 后罩房, 北京四合院 scale) | Not implemented; `chinese_mansion` is 江南大宅, not 北京二进 — different social context and lot scale |
-| 4-进 compound (大型府邸 / 多路跨院) | Not implemented; `_compute_yard_bands` has a sketch for `jin_count=4` but no layout functions |
-| Side 跨院 paths | Not implemented (original proposal's deferral) |
-| NPC systems | Not implemented; `README.md` still lists "possible NPC/villager-related behavior" under Future direction |
-| Cross-family: small-courtyard town unit inherits from the rebuilt 一进 | Not decided; the small-courtyard may stay simplified |
+| 区域后续消费 | 罗盘/下一地区提示、正魔阵营、移动门槛、关隘路径、精确地理边界；`next_rung_regions` 在同阶仍为集合。区域命簿和野外已有消费者，不能称整个区域层未接入。 |
+| 地形与城镇自然生成 | 隔边的山脉/河流等地形实现、区域形状及城镇自动选址属于待复查方向；不把命令建城当自然生成。 |
+| 建筑扩展 | 北京二进、四进/跨院、旧小院规划器是否迁移、魔修风格和额外装饰模组接入；徽派现状以 [note 21](21_huipai_reference_slice.md) 为准。 |
+| 表现与工具 | 预览 greedy meshing、招幌风动、体积云雾、区域规模配置、civic 北围墙、码头/演武场选址。按需求再确认价值，不自动启动。 |
+| 天命后续 | [设计目录](../innate-fates-design.json) 的 36 项中首批 8 项有运行时效果，其余 28 项及相关觉醒/领域/指引仍是设计。当前实现见 [note 48](48_innate_fates.md)。 |
 
-See-also specs: `courtyard-compound`, `chinese-mansion-compound`,
-`courtyard-voxel-walkability`.
+NPC、命簿、宗门投影和玩家入宗已存在，现状分别见 [39](39_humanoid_npcs.md)、
+[40](40_world_sim.md)、[43](43_player_sect_entry.md)。删除旧“NPC 未实现”“命簿不建宗门”的描述。
+通用炼丹已存在，不能把旧天命条目里的“丹药未实现”理解成整个丹药系统缺失。
 
-### E.3 — 徽派天井大屋 (huipai-tianjing-mansion) design retained
+历史未采用的方案：倾斜/弯曲街网、不对称东西区名册、宗门 jigsaw、区域层主动接管
+chunk/biome、资源库层复杂战利品/方块实体作者数据。它们不是待办；重新选择需要明确范围。
 
-**Source:** `rebuild-jiangnan-mansion` change's `specs/huipai-tianjing-mansion/`
-(designed but not yet implemented).
+## 原任务文件中未签收的验收
 
-The 徽派天井 layout (马头墙 + 天井院 + 内向围合, no outer perimeter wall, deep
-overhanging eaves closing the sky gap) was designed as a second `chinese_mansion`
-variant during the `rebuild-jiangnan-mansion` change but deferred to keep the
-scope bounded. The spec is retained in the change's `specs/` directory.
+以下全部保留 `not_verified`，不因任务文件删除而变为通过。旧汀步/峰顶亭等已被新设计
+替代的描述须按当前宅园设计复查，不要求恢复旧方案。其他版本的玩家验收仍以 README
+各模块记录为准；本表仅保存被删除任务文件中的未勾选项。
 
-| Deferred item | Current state |
-|---|---|
-| 天井 (interior lightwell replacing main-yard open sky) | Not implemented; current `chinese_mansion` uses an open main-yard |
-| 马头墙 (stepped gable parapet) form | Not implemented; existing `chinese_flush_gable` uses a flat gable — 马头墙 requires a per-step stair outline |
-| 内向 gate (no street-facing gate decoration) | Not implemented |
+```text
+openspec/changes/archive/2026-06-15-add-living-town-generation/tasks.md
+- [ ] 6.6 Staged manual acceptance: place a town in-game and inspect 层次 (spine + dominant landmark + gradient), 人烟味 (tissue/smoke/light), 真实市井 (active frontage + furnished street), closed enclosure, and site-fit on a slope
 
-See-also spec: [`huipai-tianjing-mansion`](../../openspec/specs/huipai-tianjing-mansion/spec.md) in `openspec/specs/` (retained there as design-only, all requirements `FUTURE:`-prefixed per `spec-baseline-governance`'s "current limitation is documented" allowance).
+openspec/changes/archive/2026-06-15-add-mod-runtime-fallback/tasks.md
+- [ ] 4.6 Stage manual acceptance: run `/myvillage town` and `/myvillage place` once with the decor mods installed and once without, confirm authored mod blocks place real-block / vanilla-fallback respectively with no air holes and no crash, and capture screenshots.
+- [ ] 5.3 Mark Phase 5 and Phase 6 `done` in `docs/external_mod_integration_plan.md` status, referencing change `add-mod-runtime-fallback`.
 
-### E.4 — Propagate enclosure + orientation skeleton to courtyard families
+openspec/changes/archive/2026-06-17-densify-cultivation-town/tasks.md
+- [ ] 1.4 Verify in-world: building floor is flush with the adjoining street/ground, neither sunk nor floating, no one-block hollow underneath.
+- [ ] 4.3 Verify dressed courtyards have an enclosing edge and props, with no prop on a street/alley/gate cell.
+- [ ] 5.3 Verify the spine reads as a market street and remains traversable end to end.
 
-**Source:** `rebuild-mansion-enclosure-plan` proposal/design/tasks.
+openspec/changes/archive/2026-06-19-fix-sect-worldgen-chunk-stall/tasks.md
+- [ ] 4.2 Force-generate the same seed + site with `/myvillage sect` and compare to the worldgen-generated sect — identical compound, with no mismatched halves across chunk seams
+- [ ] 5.2 Build the jar and confirm it loads; smoke-test `/locate` + approach once more on the release build
 
-The enclosure-planning skeleton is realized for `chinese_mansion` only:
-buildings are placed as form-rule-facing masses, yards are derived as enclosed
-negative space, the south entrance is a through-building, and every door-front
-is a path endpoint. The simpler `chinese_courtyard` and embedded
-`small_courtyard` families deliberately keep the older band-coupled planner in
-that change so the mansion rewrite can be proven first.
+openspec/changes/archive/2026-06-22-rebuild-chinese-courtyard/tasks.md
+- [ ] 4.6 Staged manual acceptance: place ≥2 of the rebuilt `chinese_courtyard_*` NBTs in-game and inspect (a) the silhouette reads 四合院 not "manor", (b) outer/main yard split with 影壁 blocking the sightline, (c) 垂花门 between yards, (d) 抄手游廊 connect 垂花门 to main hall, (e) main hall 台基 + 月台 + central-bay plaque, (f) the 6 NBTs visibly differ on plan and roofline. Capture screenshots; serve the preview aggregate over HTTP per `AGENTS.md` and report the host URL.
 
-| Deferred item | Current state |
-|---|---|
-| Apply door-wall facing variants to `chinese_courtyard` 正房 / 倒座 / 厢房 roles | Not implemented; 一进 courtyard still uses the legacy planner |
-| Replace carved gate / band placement with enclosure-derived yard planning for `chinese_courtyard` | Not implemented |
-| Propagate the same skeleton to `small_courtyard` embedded in cultivation town tissue | Not implemented |
+openspec/changes/archive/2026-06-28-rebuild-jiangnan-mansion/tasks.md
+- [ ] 10.3 Staged manual acceptance: place ≥2 `chinese_mansion_*` NBTs in-game and confirm (a) the entry sequence reads 江南 (照壁侧立 + 敞厅 + 楼阁 + 山水花园), (b) the player walks end-to-end from gate to 正房 to 楼阁 second story to 假山 mid-mountain to 水池 shore — no 影壁封轴, no 3-block cliffs, no dead ends, (c) 假山 variants render with sub-block detail (皱褶 / 孔洞), (d) 水池 has an irregular shoreline, (e) the 6 NBTs visibly differ on plan / roofline / 花园 scale. Capture screenshots; serve the preview aggregate over HTTP per `AGENTS.md` and report the host URL.
+- [ ] 10.4 Staged manual acceptance: place ≥1 regenerated `chinese_courtyard_*` NBT in-game and confirm the 影壁封轴 defect is gone (player walks from gate past the side-standing 照壁 into the main yard without detour-through-column). Capture screenshots.
+- [ ] 10.5 Staged manual acceptance: place a `chinese_mansion_*` with `garden_scale=large` and confirm the 假山 is partially climbable (player can stand on `slope` / `base` variant tops via autostep), the 汀步 crosses the pond, and the 亭 on the rockery peak is reachable. Capture screenshots.
 
-See-also specs: `compound-enclosure-planning`,
-`building-orientation-variants`,
-`courtyard-compound`.
+openspec/changes/archive/2026-06-28-rebuild-mansion-enclosure-plan/tasks.md
+- [ ] 9.2 Build the mod jar; confirm `chinese_mansion_001..006` load and place in-game.
+- [ ] 9.3 Staged manual acceptance: place ≥2 `chinese_mansion_*` NBTs in-game and confirm (a) the entrance reads as a real gate (门楼 + 门框 + through-passage, not a hole), (b) every building's door faces its yard (倒座 door toward 前院, 厢 doors inward, 正房 south), (c) the gravel path reaches every door, (d) the player walks end-to-end gate → 正房 → 楼阁 with no dead ends. Capture screenshots; serve the preview aggregate over HTTP per `AGENTS.md` and report the host URL.
+- [ ] 9.4 Staged manual acceptance: place the remaining mansion variants and confirm the 6 read as visibly distinct (plan / roofline / 花园 scale) AND all share the corrected entrance + facing + path form. Capture screenshots.
+```
 
-## F. Tooling / visual small deferrals
-
-Low-leverage but tracked. Each came from a design doc's "Open Questions" or
-"follow-up if needed" note.
-
-| Item | Source | Note |
-|---|---|---|
-| `viewer.html` greedy meshing / base64-packed payload | `add-interactive-3d-preview/design.md` | Largest compound viewers are multi-MB inline JSON; acceptable today, optimization held in reserve |
-| Hanging-plaque wind animation (招幌 / 酒幌 swing) | `add-custom-plaque-blocks/design.md` | v1 is static; blockstate space reserved for a future `wind_phase` |
-| True volumetric cloud-sea / biome fog | `add-sect-worldgen/proposal.md` | The manual glass + powder-snow cloud sea was removed in 0.35.1 (it sat under the retaining fill and was never visible); volumetric fog was out of scope |
-| Per-world tunable region scale (gamerule / serverconfig) | `add-region-runtime-binding/design.md` | Scale is a single Java constant today; promoting to data deferred until multiplayer tuning demands it |
-| `civic_core` north/back precinct wall | `add-civic-precinct/design.md` Open Questions | South + lateral walls shipped; north edge behind the shrine left optional |
-| Wharf (码头) / 演武场 fringe sub-districts | `rebuild-cultivation-town-districts/design.md` Open Questions | "needs water siting — deferred to follow-up"; `fringe` today is `spirit_field` / `药圃` only |
-
-See-also specs: `interactive-preview`, `plaque-block-family`,
-`sect-mountain-derivation`, `region-runtime-binding`, `civic-precinct-framing`,
-`town-districts`.
-
-## G. Unchecked staged-acceptance tasks
-
-These are not vision-level gaps — code is written, only the **manual in-game
-acceptance step** was never signed off. Listed for completeness; closing them
-is a review pass, not a code change.
-
-| Source change | Task | What it asks |
-|---|---|---|
-| `add-living-town-generation` | 6.6 | Place a town in-game and inspect 层次 / 人烟味 / 真实市井 / enclosure / site-fit on a slope |
-| `add-mod-runtime-fallback` | 4.6 | Run `/myvillage town` and `/place` with mods installed and uninstalled; confirm fallback |
-| `add-mod-runtime-fallback` | 5.3 | Mark Phase 5 / Phase 6 done in `docs/external_mod_integration_plan.md` |
-| `densify-cultivation-town` | 1.4 / 4.3 / 5.3 | In-world verification of floor-flush, courtyard enclosure, spine traversability |
-| `fix-sect-worldgen-chunk-stall` | 4.2 / 5.2 | Force-generate vs worldgen same-seed compare; release-build smoke test |
-
-## H. Confirmed Non-Goals (deliberate, not deferred)
-
-Recorded so they are not re-litigated. Picking one up requires a new proposal
-that explicitly supersedes the Non-Goal.
-
-| Non-Goal | Source | Reason it was rejected |
-|---|---|---|
-| Asymmetric west/east district rosters | `town-shape-irregularity/design.md` | "deliberately deferred — complicates the skyline-relief rule" |
-| Slanted or curved street grids (KB note 11 lever B2) | `town-shape-vocabulary/design.md` | "high-risk low-yield, deferred again" |
-| Jigsaw / template-pool generation for sects | `add-sect-worldgen/design.md` D1 | Custom `Structure` chosen instead; jigsaw rejected |
-| Runtime chunk-gen / biome takeover by the region layer | `add-region-topology/proposal.md` | Offline-first OTG §19; runtime is passive |
-| Loot tables / complex authored block-entity NBT | `README.md` "Not included" | Out of scope for the library layer |
-
----
-
-## How to use this index
-
-- **Picking the next change:** §A2 is the smallest high-leverage step (makes
-  the region layer visible by gating sect spawning on `admitted_subjects`).
-  §A consumers and §B terrain realization are the natural next arcs; §C
-  (town worldgen) is the largest single unlock.
-- **When realizing an item:** mark it ✅ with the realizing change name, move
-  it under a "Realized" sub-section, and remove any obsolete Non-Goal entries.
-  Per `docs-knowledge-base`, update this note + any same-topic spec in one
-  change.
-- **When adding a new deferral:** cite the source artifact precisely (change
-  name + file + section) and verify it is not already realized in code before
-  listing — this note must not drift into aspirational wishlist.
-
-## Innate fates: later batches
-
-See [the retained catalogue](../innate-fates-design.json), [first-batch KB](48_innate_fates.md) and `innate-fates`. Only eight entries have runtime effects in 0.49.0. The other 28, root rerolling and creation-wide purity/body matching, Phoenix/other awakening, orbiting blades, skill copying, giant forms, domains, ruins/treasure guidance, custom healing pills and herbs, escorts and hidden归元 remain deferred. Do not infer implementation from the browser design.
+相关约束：[world](../contracts/world.md)、[towns](../contracts/towns.md)、[compounds](../contracts/compounds.md)。

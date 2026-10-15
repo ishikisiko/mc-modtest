@@ -257,7 +257,7 @@ Manager 是唯一调度者。
 README.md
 docs/ai-kb/INDEX.md
 docs/ai-kb/*
-openspec/specs/*
+docs/contracts/*
 相关代码文件
 ```
 
@@ -269,7 +269,7 @@ context/spec_map.md
 context/impact_files.json
 ```
 
-当前仓库的 `docs/ai-kb/` 和 `openspec/specs/` 已经有明确分工：前者是叙述性技术笔记，后者是规范性能力规格。 GenOps 应该建立在这个分工之上，而不是替代它。
+当前仓库的 `docs/ai-kb/` 和 `docs/contracts/` 已经有明确分工：前者是叙述性技术笔记，后者是规范性能力规格。 GenOps 应该建立在这个分工之上，而不是替代它。
 
 ---
 
@@ -285,8 +285,8 @@ context/impact_files.json
   "requires_openspec_change": true,
   "requires_docs_ai_kb_change": true,
   "affected_specs": [
-    "openspec/specs/sect-worldgen-structure/spec.md",
-    "openspec/specs/sect-mountain-derivation/spec.md"
+    "docs/contracts/world.md#sect-worldgen-structure",
+    "docs/contracts/world.md#sect-mountain-derivation"
   ]
 }
 ```
@@ -484,7 +484,7 @@ genops/style_bibles/*.yaml
 ```text
 README.md
 docs/ai-kb/*.md
-openspec/specs/*/spec.md
+docs/contracts/*/spec.md
 genops/style_bibles/*.yaml
 genops/rubrics/*.yaml
 ```
@@ -625,7 +625,7 @@ tasks:
     allowed_files:
       - "README.md"
       - "docs/ai-kb/**"
-      - "openspec/specs/**"
+      - "docs/contracts/**"
       - "genops/**"
 
   - id: regression

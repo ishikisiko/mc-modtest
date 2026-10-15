@@ -7,4 +7,3 @@ offline previews, plan previews, Chunky handoff reports, contact sheets, and
 Record exact artifact paths and known renderer limits. Chunky path-traced PNGs
 do not prove custom `myvillage:` block appearance until a dedicated compatibility
 path exists.
-

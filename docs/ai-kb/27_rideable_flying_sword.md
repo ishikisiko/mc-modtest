@@ -95,7 +95,7 @@ horizontal view direction.
 
 ## See Also
 
-- Change spec: [rideable-flying-sword](../../openspec/changes/add-rideable-flying-sword/specs/rideable-flying-sword/spec.md)
+- Change spec: [rideable-flying-sword](https://github.com/ishikisiko/mc-modtest/blob/1388f192f4dc723ed6393420ca6b0cb9664c5056/openspec/changes/add-rideable-flying-sword/specs/rideable-flying-sword/spec.md)
 - Item workflow: [Mod Item Creation](22_mod_item_creation.md)
 - Entity boundary precedent: [Custom Entities](26_custom_entities.md)
 - Acceptance commands: [Validation Checklist](09_validation_checklist.md)

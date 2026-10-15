@@ -1,7 +1,7 @@
 # Innate Fates (先天气运)
 
 The first slice implements eight of the [retained 36-trait design](../innate-fates-design.json).
-The normative contract is [innate-fates](../../openspec/specs/innate-fates/spec.md).
+The normative contract is [innate-fates](../contracts/cultivation.md#innate-fates).
 The browser prototype remains a design playground; it is not the game's registry.
 
 ## Entry and selection
@@ -135,6 +135,6 @@ phase timing, retained failures and jar parity. Owner appearance/usability,
 feel and multiplayer remain `not_verified`; the separate inheritance-stele
 real-click regression was not observed in this capture.
 
-See also: [cultivation-initiation-ritual](../../openspec/specs/cultivation-initiation-ritual/spec.md),
-[cultivation-state-synchronization](../../openspec/specs/cultivation-state-synchronization/spec.md),
-[cultivation-core-validation](../../openspec/specs/cultivation-core-validation/spec.md).
+See also: [cultivation-initiation-ritual](../contracts/cultivation.md#cultivation-initiation-ritual),
+[cultivation-state-synchronization](../contracts/cultivation.md#cultivation-state-synchronization),
+[cultivation-core-validation](../contracts/tooling.md#cultivation-core-validation).

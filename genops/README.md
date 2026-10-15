@@ -1,6 +1,6 @@
 # MyVillage GenOps
 
-GenOps is the repo-local, artifact-first orchestration layer for generator work.
+GenOps is an optional orchestration tool. Normal work follows [WORKFLOW](../docs/WORKFLOW.md).
 It does not add a service, queue, or second repository. A single manager reads a
 pipeline contract, prepares atomic role tasks, writes prompts/evidence under
 `reports/agent_runs/<run_id>/`, checks patch scope, optionally runs gates, and
@@ -18,11 +18,8 @@ runs the backend tools.
 跑完整回归并准备人工视觉验收。
 ```
 
-CRAFT-required work must enter through this interface before protected files are
-edited. CRAFT-required work includes explicit CRAFT/GenOps requests, new
-OpenSpec changes, OpenSpec apply/implementation, visual or aesthetic structure
-changes, subagent/parallel work, release/version/build handoff, and
-acceptance/visual-review handoff. Direct read-only checks remain exempt.
+Only an explicit CRAFT or GenOps request enables this workflow. Ordinary edits,
+builds, items and visual reviews need no run manifest or role ceremony.
 
 The default owner surface is decision-only: confirm the need, scope/depth,
 implementation direction, aesthetic/product verdict, and release-sensitive
@@ -47,18 +44,6 @@ human patch workflow; those tasks are `manual_ready`. Real or delegated
 execution is the path that may report task `pass`/`fail`/`blocked`. Add
 `--run-gates` only when the Commander wants the declared validation/build
 commands to run. The owner should not need to type these commands in normal use.
-
-OpenSpec proposal/design/spec/task work uses its own front-door pipeline:
-
-```bash
-python3 tools/genops/run_pipeline.py genops/pipelines/openspec-change.full.yaml \
-  --goal "创建或更新某个 OpenSpec change" \
-  --run-id 20260705-openspec-change-example
-```
-
-The pre-existing `add-visual-reference-structure-pipeline` change was authored
-before this route existed. It must be re-entered through
-`openspec-change.full` before implementation continues.
 
 ## Commander State Machine
 
@@ -152,7 +137,7 @@ write sets.
   embeds this check for run-owned protected artifacts before writing a green
   final status, using granular categories for Java runtime, client resources,
   data resources, generated NBT, release metadata, generator code, GenOps,
-  docs, and OpenSpec paths.
+  docs and technical contracts.
 - `tools/genops/validate_pipelines.py` treats governance conventions as
   compile-time errors across all pipeline YAML files.
 - `tools/genops/commander.py` maintains the Commander state machine and uses
@@ -162,13 +147,11 @@ write sets.
 - `reports/agent_runs/<run_id>/` is deterministic evidence and remains ignored
   with the rest of `reports/`.
 
-GenOps complements OpenSpec: OpenSpec defines project capability behavior;
-GenOps defines who may change what, which gates block the change, and where
-review evidence lands.
+Technical invariants live in docs/contracts. GenOps supplies optional scoped execution and evidence.
 
 Mod item work uses `.codex/skills/mod-item-creation/SKILL.md` plus
 `genops/pipelines/mod-item.full.yaml`. The skill classifies item kind and
-requires an Item Contract; the pipeline splits Java registration, resources,
+uses an Item Contract only for the selected GenOps pipeline; the pipeline splits Java registration, resources,
 visual review, validation, docs, and regression into role-owned tasks.
 
 For CRAFT-required handoff, default Commander summaries should report

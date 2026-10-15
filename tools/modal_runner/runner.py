@@ -22,10 +22,6 @@ APP = "myvillage-tests"
 SANDBOX_NAME = "myvillage-test-runner"
 SDK_VERSION = "1.6.1"
 IMAGE = "eclipse-temurin:21-jdk-noble"
-NODE_VERSION = "22.22.3"
-# Official https://nodejs.org/dist/v22.22.3/SHASUMS256.txt, linux-x64 tar.gz.
-NODE_SHA256 = "c7a10d6816da8eaaa7534dd73c71c6e2b2c391dbbf845e364902d156615dd1b8"
-OPENSPEC_VERSION = "1.4.1"
 
 
 def inspect_source(archive: Path) -> None:
@@ -79,8 +75,7 @@ def prepare(repo: Path, ref: str, preset: str, timeout: int, out: Path, cases=No
     request = {"format": 1, "run_id": out.name, "commit": commit, "requested_ref": ref,
                "preset": preset, "timeout_seconds": timeout, "cpu": [4, 4], "memory_mib": [16384, 16384],
                "sdk_version": SDK_VERSION, "image_base": IMAGE, "automatic_retries": 0,
-               "image_tools": {"node": NODE_VERSION, "node_linux_x64_sha256": NODE_SHA256,
-                               "openspec": OPENSPEC_VERSION},
+               "image_tools": {"python": "system", "preview_python": "/usr/bin/python3"},
                "controller_sha256": sha256(Path(__file__)),
                "source_policy": "git archive plus exactly the required PAL jar and block catalog",
                "inputs": {"source.tar": sha256(archive), **{name: sha256(out / name) for name in DEPENDENCIES},
@@ -100,19 +95,11 @@ def sdk():
 
 
 def image(modal):
-    node_archive = f"node-v{NODE_VERSION}-linux-x64.tar.gz"
     return (modal.Image.from_registry(IMAGE)
             .apt_install("python3", "python3-yaml", "python3-numpy", "python3-pil", "git", "curl", "unzip",
                          "xvfb", "xauth", "xdotool", "ffmpeg", "imagemagick", "fonts-dejavu-core",
                          "mesa-utils", "libgl1-mesa-dri", "libglx-mesa0", "libopenal1", "libxrandr2",
                          "libxinerama1", "libxcursor1", "libxi6", "libxxf86vm1", "procps")
-            .run_commands(
-                f"curl --fail --silent --show-error --max-time 120 https://nodejs.org/dist/v{NODE_VERSION}/{node_archive} -o /tmp/node.tar.gz",
-                f"printf '%s  %s\\n' {NODE_SHA256} /tmp/node.tar.gz | sha256sum --check --strict -",
-                "tar -xzf /tmp/node.tar.gz -C /usr/local --strip-components=1",
-                "rm /tmp/node.tar.gz",
-                f"npm install --global --no-audit --no-fund --fetch-retries=1 --fetch-timeout=120000 @fission-ai/openspec@{OPENSPEC_VERSION}",
-                "node --version && npm --version && npx --version && openspec --version")
             .env({"GRADLE_USER_HOME": "/cache/gradle", "LIBGL_ALWAYS_SOFTWARE": "1",
                   "MC_PREVIEW_PYTHON": "/usr/bin/python3",
                   "MC_HEAVY_LOCK": "/workspace/.mc-heavy.lock", "PYTHONUNBUFFERED": "1"}))

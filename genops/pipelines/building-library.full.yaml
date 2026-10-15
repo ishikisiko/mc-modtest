@@ -71,7 +71,7 @@ tasks:
     allowed_files:
       - "README.md"
       - "docs/ai-kb/**"
-      - "openspec/specs/**"
+      - "docs/contracts/**"
       - "genops/**"
     outputs:
       - "patch.diff"

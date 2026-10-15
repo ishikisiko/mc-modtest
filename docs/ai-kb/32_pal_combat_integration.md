@@ -2,7 +2,7 @@
 
 Factual integration note for the Qingfeng sword combat. Its OpenSpec change
 `add-sword-combat-foundation` was deleted unarchived on 2026-10-02 and has no
-specs under `openspec/specs/`; the last tree that has it is commit `fb407f1`.
+specs under `docs/contracts/`; the last tree that has it is commit `fb407f1`.
 
 See also:
 
@@ -627,7 +627,6 @@ unzip -p PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar META-INF/neoforge.mods.t
 unzip -p PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar LICENSE
 javap -classpath PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar ...
 git clone --depth 1 --branch 1.21.1 https://github.com/ZigyTheBird/PlayerAnimationLibrary.git /tmp/player-animation-library-1.21.1
-openspec validate add-sword-combat-foundation --type change --strict
 python3 tools/genops/validate_pipelines.py
 ./gradlew compileJava
 ./gradlew runAcceptanceServer

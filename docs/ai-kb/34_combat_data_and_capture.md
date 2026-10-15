@@ -15,9 +15,9 @@ See also:
 - How the combat itself works: [PAL Sword Combat Integration](32_pal_combat_integration.md)
 - Why the route is self-developed: [Combat Framework Comparison](33_combat_framework_comparison.md)
 - The second weapon and the validation findings: [Lingxiao Spear](35_lingxiao_spear.md)
-- Specs: [combat-style-data](../../openspec/specs/combat-style-data/spec.md),
-  [combat-data-validation](../../openspec/specs/combat-data-validation/spec.md),
-  [combat-capture-tooling](../../openspec/specs/combat-capture-tooling/spec.md)
+- Specs: [combat-style-data](../contracts/combat-entities.md#combat-style-data),
+  [combat-data-validation](../contracts/combat-entities.md#combat-data-validation),
+  [combat-capture-tooling](../contracts/tooling.md#combat-capture-tooling)
   (archived change `add-combat-data-infrastructure`; 0.29.0 deltas in change
   `add-lingxiao-spear`)
 - Capture tool usage: `tools/combat_capture/README.md`

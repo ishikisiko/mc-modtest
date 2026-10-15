@@ -11,7 +11,7 @@
 候选**不应**直接进入 generator 编辑或 NBT 导入。它们先进视觉参考分解工作流
 （visual-reference structure pipeline），产出一份 Reference Breakdown
 Contract，把每个观察到的特征路由到下列四类桶之一，再决定是否触发后续
-OpenSpec 变更或 generator 工作：
+有明确范围的实现或 generator 工作：
 
 - `direct_component` — 可复用、边界的 prefab / NBT 候选
 - `atomic_component` — 小型可复用形式（马头墙、门墙、桥、月洞门等）

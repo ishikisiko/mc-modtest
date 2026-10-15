@@ -320,32 +320,6 @@ class CultivationInitiationValidator:
         return path, self._java_cache[path]
 
     def validate_artifacts(self) -> None:
-        spec_candidates = sorted(
-            path
-            for path in (self.root / "openspec").rglob("spec.md")
-            if path.parent.name == "cultivation-initiation-ritual"
-        )
-        if not spec_candidates:
-            self.error(
-                "openspec",
-                "missing cultivation-initiation-ritual capability specification",
-            )
-        else:
-            for path in spec_candidates:
-                self.checked_files.add(path)
-            if not any(
-                re.search(
-                    r"(?m)^[ \t]*##\s+(?:ADDED\s+)?Requirements\s*$",
-                    path.read_text(encoding="utf-8"),
-                )
-                and re.search(r"\bRequirement:\s*\S", path.read_text(encoding="utf-8"))
-                for path in spec_candidates
-            ):
-                self.error(
-                    self.label(spec_candidates[0]),
-                    "capability spec must contain normative requirements",
-                )
-
         kb_path = Path("docs/ai-kb/29_cultivation_initiation_ritual.md")
         kb = self.read_text(kb_path, "cultivation-initiation AI KB note")
         index = self.read_text(Path("docs/ai-kb/INDEX.md"), "AI KB index")

@@ -6,4 +6,3 @@ Owns validators, tests, quality gates, and defect-to-check conversion:
 
 Convert repeatable structural or aesthetic failures into hard errors, warnings,
 scores, or defect labels. Do not loosen validators to hide failures.
-

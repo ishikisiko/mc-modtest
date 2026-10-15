@@ -5,7 +5,7 @@ All notable project changes should be recorded here when a version is prepared.
 ## Versioning Rules
 
 The authoritative version-bump rule (increments and the files that must move
-together) lives in `openspec/config.yaml` (`rules.tasks`). Follow it there.
+together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
 ## 0.52.1
 
@@ -3193,7 +3193,7 @@ unchanged.
   shipped sect worldgen is listed as included and no longer excluded; split the two
   oversized `AGENTS.md` conventions (settlement composition into sect/worldgen/town
   sub-items, acceptance command checklist moved into `docs/ai-kb/09_validation_checklist.md`);
-  made the version-bump rule single-source in `openspec/config.yaml`, referenced from
+  made the version-bump rule single-source in `docs/WORKFLOW.md`, referenced from
   `AGENTS.md` and this changelog. Documentation-only; no code or asset changes.
 
 ## 0.11.0-fix1

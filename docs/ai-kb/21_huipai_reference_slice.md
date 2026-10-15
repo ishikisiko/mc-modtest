@@ -63,9 +63,9 @@ all pass.
 
 ## See also
 
-- Spec: [huipai-tianjing-mansion](../../openspec/specs/huipai-tianjing-mansion/spec.md)
-- Spec: [settlement-group](../../openspec/specs/settlement-group/spec.md)
-- Spec: [form-registry](../../openspec/specs/form-registry/spec.md)
-- Spec: [validation](../../openspec/specs/validation/spec.md)
+- Spec: [huipai-tianjing-mansion](../contracts/compounds.md#huipai-tianjing-mansion)
+- Spec: [settlement-group](../contracts/buildings.md#settlement-group)
+- Spec: [form-registry](../contracts/buildings.md#form-registry)
+- Spec: [validation](../contracts/tooling.md#validation)
 - KB: [Visual Reference Structure Pipeline](20_visual_reference_structure_pipeline.md)
 - KB: [Validation Checklist](09_validation_checklist.md)

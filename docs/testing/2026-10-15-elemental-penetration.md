@@ -3,7 +3,7 @@
 Scope: five independent elemental penetration attributes, with the existing
 `myvillage:resistance_penetration` ID retained as physical-only. No old value is
 copied into the new attributes, and no elemental attacks are introduced.
-See [the contract](../../openspec/specs/realm-combat-stats/spec.md) and
+See [the contract](../contracts/world.md#realm-combat-stats) and
 [implementation notes](../ai-kb/47_realm_stats_wilderness.md).
 
 ## Method and environment

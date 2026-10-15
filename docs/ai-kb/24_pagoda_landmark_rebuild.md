@@ -79,8 +79,8 @@ previews.
 ## See Also
 
 - Change: `rebuild-pagoda-landmark`
-- Spec: [vertical-landmark](../../openspec/specs/vertical-landmark/spec.md)
-- Spec: [cultivation-massing-grammar](../../openspec/specs/cultivation-massing-grammar/spec.md)
-- Spec: [validation](../../openspec/specs/validation/spec.md)
+- Spec: [vertical-landmark](../contracts/buildings.md#vertical-landmark)
+- Spec: [cultivation-massing-grammar](../contracts/buildings.md#cultivation-massing-grammar)
+- Spec: [validation](../contracts/tooling.md#validation)
 - KB: [Visual Reference Structure Pipeline](20_visual_reference_structure_pipeline.md)
 - KB: [Validation Checklist](09_validation_checklist.md)

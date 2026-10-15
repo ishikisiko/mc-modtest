@@ -47,7 +47,7 @@ tasks:
   - id: check-spec-impact
     agent: spec-guardian
     depends_on: [classify-item-contract]
-    goal: "Decide whether existing specs cover the item; require an OpenSpec change before functional behavior, new block/decor families, or changed resource contracts."
+    goal: "Decide whether existing specs cover the item; update affected technical contracts for functional behavior, new block/decor families, or changed resource contracts."
     outputs:
       - "artifacts/spec_impact.json"
       - "task_result.json"
@@ -124,12 +124,11 @@ tasks:
   - id: docs-sync
     agent: docs-steward
     depends_on: [visual-asset-review, patch-item-validation]
-    goal: "Sync README, KB, OpenSpec, CRAFT/GenOps docs, and short AGENTS probes only when item-facing behavior or acceptance commands change; otherwise record docs-sync no-op."
+    goal: "Sync README, KB, technical contracts, CRAFT/GenOps docs, and short AGENTS probes only when item-facing behavior or acceptance commands change; otherwise record docs-sync no-op."
     allowed_files:
       - "README.md"
       - "docs/ai-kb/**"
-      - "openspec/specs/**"
-      - "openspec/changes/**"
+      - "docs/contracts/**"
       - "CRAFT.md"
       - "AGENTS.md"
       - "genops/**"

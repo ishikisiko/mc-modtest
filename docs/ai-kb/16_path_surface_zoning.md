@@ -134,8 +134,8 @@ footprints so the 主院 heart falls through to `GROUND_YARD_OPEN` grass.
 
 ## See also
 
-- Specs: [`path-surface-zoning`](../../openspec/specs/path-surface-zoning/spec.md),
-  [`courtyard-ground-layer`](../../openspec/specs/courtyard-ground-layer/spec.md),
-  [`courtyard-path-network`](../../openspec/specs/courtyard-path-network/spec.md),
-  [`chinese-mansion-compound`](../../openspec/specs/chinese-mansion-compound/spec.md).
+- Specs: [`path-surface-zoning`](../contracts/compounds.md#path-surface-zoning),
+  [`courtyard-ground-layer`](../contracts/compounds.md#courtyard-ground-layer),
+  [`courtyard-path-network`](../contracts/compounds.md#courtyard-path-network),
+  [`chinese-mansion-compound`](../contracts/compounds.md#chinese-mansion-compound).
 - Index: [Knowledge Base Map](INDEX.md).

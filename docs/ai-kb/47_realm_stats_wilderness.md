@@ -1,8 +1,8 @@
 # Realm Statistics and Wilderness
 
 The numerical contract is shared by physical player combat and beasts. It is
-defined by [realm-combat-stats](../../openspec/specs/realm-combat-stats/spec.md)
-and [regional-wilderness](../../openspec/specs/regional-wilderness/spec.md).
+defined by [realm-combat-stats](../contracts/world.md#realm-combat-stats)
+and [regional-wilderness](../contracts/world.md#regional-wilderness).
 The pure code is in `stats/`; server adapters are in `stats/runtime/`.
 
 ## Growth and authority

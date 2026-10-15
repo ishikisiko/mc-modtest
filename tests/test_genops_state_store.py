@@ -20,7 +20,7 @@ class StateStoreTests(unittest.TestCase):
                 json.dumps(
                     {
                         "run_id": "run-1",
-                        "pipeline": "openspec-change.full",
+                        "pipeline": "release.full",
                         "status": "pass",
                         "goal": "test goal",
                         "generated_at": "2026-07-05T00:00:00+00:00",
@@ -64,7 +64,7 @@ class StateStoreTests(unittest.TestCase):
                 json.dumps(
                     {
                         "run_id": "run-2",
-                        "pipeline": "openspec-change.full",
+                        "pipeline": "release.full",
                         "status": "pass",
                         "goal": "closed goal",
                         "generated_at": "2026-07-05T00:01:00+00:00",
@@ -115,7 +115,8 @@ class StateStoreTests(unittest.TestCase):
                 json.dumps(
                     {
                         "run_id": "closeout-run",
-                        "pipeline": "openspec-change.full",
+                        "change_name": "ready-change",
+                        "pipeline": "release.full",
                         "status": "pass",
                         "goal": "ready change",
                         "generated_at": "2026-07-05T00:00:00+00:00",
@@ -127,7 +128,7 @@ class StateStoreTests(unittest.TestCase):
                                 "agent": "regression-steward",
                                 "status": "pass",
                                 "artifacts": [
-                                    "openspec/changes/ready-change/proposal.md",
+                                    "docs/contracts/tooling.md",
                                     "artifacts/closeout_readiness.json",
                                 ],
                             }
@@ -146,6 +147,7 @@ class StateStoreTests(unittest.TestCase):
                     {
                         "decision_id": "decision-not-required",
                         "run_id": "closeout-run",
+                        "change_name": "ready-change",
                         "kind": "not_required",
                         "summary": "nonvisual",
                         "created_at": "2026-07-05T00:01:00+00:00",
@@ -155,11 +157,7 @@ class StateStoreTests(unittest.TestCase):
             )
 
             conn = state_store.connect(root, ":memory:")
-            with patch.object(
-                state_store,
-                "run_openspec_list",
-                return_value=[{"name": "ready-change", "status": "complete", "completedTasks": 1, "totalTasks": 1}],
-            ):
+            with patch("subprocess.run", side_effect=AssertionError("indexing must not invoke a CLI")):
                 state_store.rebuild(conn, root)
 
             row = conn.execute("SELECT archive_ready, archived, run_id, blockers_json FROM closeout WHERE change_name = ?", ("ready-change",)).fetchone()

@@ -13,6 +13,7 @@ import argparse
 import contextlib
 import io
 import json
+import re
 import sqlite3
 import sys
 from dataclasses import dataclass
@@ -127,43 +128,8 @@ def classify_mode(goal: str, defaults: dict[str, str]) -> str:
 
 def is_craft_required(goal: str) -> bool:
     text = goal.lower()
-    cues = (
-        "craft",
-        "genops",
-        "openspec",
-        "proposal",
-        "change",
-        "apply",
-        "subagent",
-        "parallel",
-        "jar",
-        "item",
-        "mod item",
-        "build",
-        "release",
-        "changelog",
-        "acceptance",
-        "visual review",
-        "提案",
-        "变更",
-        "立项",
-        "实现",
-        "视觉",
-        "审美",
-        "预览",
-        "验收",
-        "发布",
-        "版本",
-        "构建",
-        "物品",
-        "创造栏",
-        "贴图",
-        "模型",
-        "配方",
-        "子代理",
-        "并行",
-    )
-    return any(cue in text for cue in cues)
+    # Retained field name for existing run consumers; opt-in is now explicit.
+    return bool(re.search(r"(?<![a-z])(?:craft|genops)(?![a-z])", text))
 
 
 def recommend(goal: str, config_path: Path = CONFIG) -> dict[str, Any]:
