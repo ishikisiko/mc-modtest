@@ -79,3 +79,5 @@ See also: [alchemy-foundation](../contracts/cultivation.md#alchemy-foundation),
 [item workflow](22_mod_item_creation.md), [aptitudes](50_crafting_aptitudes.md),
 [meditation](30_cultivation_playable_loop.md),
 [spiritual power](45_spiritual_power_sword_qi.md).
+
+0.52.3 focused tests, build and owner-client layout: [verification record](../testing/2026-10-16-learned-formulas.md).
