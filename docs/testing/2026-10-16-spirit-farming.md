@@ -26,3 +26,13 @@ models. No separate seed, wild spawning, water/hoe prerequisite or moisture time
 
 See [spirit farming](../ai-kb/51_spirit_farming.md) and
 [preview](http://43.156.135.198:8765/spirit_crops/index.html).
+
+## Spirit Soil item display fix (0.53.0-fix1)
+
+Adopt Minecraft 1.21.1 block item transforms: GUI 30/225/0 at 0.625 scale,
+ground 0.25 scale, and standard hand/frame transforms. Placed model is byte-identical.
+Generator/item checks and packaged-transform comparison passed. Modal jar-only
+run `20261015T200409Z-c2e6491e` on `2f77370` passed (71.480s Gradle,
+93.123s controller; termination confirmed); no gameplay tests rerun.
+Deployed and loaded 0.53.0-fix1 in the original world. The owner confirmed
+“ok了” for this display correction; broader farming acceptance is unchanged.
