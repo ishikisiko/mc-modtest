@@ -1,5 +1,5 @@
 {
-  "status": "retained design; not runtime balance data",
+  "status": "8 implemented effects, 17 selectable high-tier placeholders, 11 design-only traits",
   "source": "https://xiantian-fates-36.h905382624.chatgpt.site",
   "revision": "2.2",
   "tiers": [
@@ -348,8 +348,8 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "战斗",
-      "runtime_id": null,
-      "implementation": "planned"
+      "runtime_id": "myvillage:sword_obsession",
+      "implementation": "selectable_placeholder"
     },
     {
       "id": "fate-20",
@@ -364,8 +364,8 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "战斗",
-      "runtime_id": null,
-      "implementation": "planned"
+      "runtime_id": "myvillage:pill_aegis",
+      "implementation": "selectable_placeholder"
     },
     {
       "id": "fate-21",
@@ -380,8 +380,8 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "战斗",
-      "runtime_id": null,
-      "implementation": "planned"
+      "runtime_id": "myvillage:tempered_bones",
+      "implementation": "selectable_placeholder"
     },
     {
       "id": "fate-22",
@@ -396,8 +396,8 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "战斗",
-      "runtime_id": null,
-      "implementation": "planned"
+      "runtime_id": "myvillage:open_meridians",
+      "implementation": "selectable_placeholder"
     },
     {
       "id": "fate-23",
@@ -428,8 +428,8 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "探索",
-      "runtime_id": null,
-      "implementation": "planned"
+      "runtime_id": "myvillage:dragon_sight",
+      "implementation": "selectable_placeholder"
     },
     {
       "id": "fate-25",
@@ -444,8 +444,8 @@
       "min": 70,
       "maxRoots": 3,
       "focus": "战斗",
-      "runtime_id": null,
-      "implementation": "planned"
+      "runtime_id": "myvillage:fire_spirit_body",
+      "implementation": "selectable_placeholder"
     },
     {
       "id": "fate-26",
@@ -460,8 +460,8 @@
       "min": 70,
       "maxRoots": 3,
       "focus": "战斗",
-      "runtime_id": null,
-      "implementation": "planned"
+      "runtime_id": "myvillage:wood_spirit_body",
+      "implementation": "selectable_placeholder"
     },
     {
       "id": "fate-27",
@@ -476,8 +476,8 @@
       "min": 70,
       "maxRoots": 3,
       "focus": "战斗 · 探索",
-      "runtime_id": null,
-      "implementation": "planned"
+      "runtime_id": "myvillage:water_spirit_body",
+      "implementation": "selectable_placeholder"
     },
     {
       "id": "fate-28",
@@ -492,8 +492,8 @@
       "min": 70,
       "maxRoots": 3,
       "focus": "战斗",
-      "runtime_id": null,
-      "implementation": "planned"
+      "runtime_id": "myvillage:metal_spirit_body",
+      "implementation": "selectable_placeholder"
     },
     {
       "id": "fate-29",
@@ -508,8 +508,8 @@
       "min": 70,
       "maxRoots": 3,
       "focus": "战斗 · 探索",
-      "runtime_id": null,
-      "implementation": "planned"
+      "runtime_id": "myvillage:earth_spirit_body",
+      "implementation": "selectable_placeholder"
     },
     {
       "id": "fate-30",
@@ -524,8 +524,8 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "战斗",
-      "runtime_id": null,
-      "implementation": "planned"
+      "runtime_id": "myvillage:innate_sword_heart",
+      "implementation": "selectable_placeholder"
     },
     {
       "id": "fate-31",
@@ -540,8 +540,8 @@
       "min": 80,
       "maxRoots": 3,
       "focus": "战斗 · 探索",
-      "runtime_id": null,
-      "implementation": "planned"
+      "runtime_id": "myvillage:phoenix_body",
+      "implementation": "selectable_placeholder"
     },
     {
       "id": "fate-32",
@@ -556,8 +556,8 @@
       "min": 80,
       "maxRoots": 3,
       "focus": "战斗",
-      "runtime_id": null,
-      "implementation": "planned"
+      "runtime_id": "myvillage:primordial_sword_bone",
+      "implementation": "selectable_placeholder"
     },
     {
       "id": "fate-33",
@@ -572,8 +572,8 @@
       "min": 80,
       "maxRoots": 3,
       "focus": "战斗 · 探索",
-      "runtime_id": null,
-      "implementation": "planned"
+      "runtime_id": "myvillage:nether_body",
+      "implementation": "selectable_placeholder"
     },
     {
       "id": "fate-34",
@@ -588,8 +588,8 @@
       "min": 80,
       "maxRoots": 3,
       "focus": "战斗",
-      "runtime_id": null,
-      "implementation": "planned"
+      "runtime_id": "myvillage:everlasting_embryo",
+      "implementation": "selectable_placeholder"
     },
     {
       "id": "fate-35",
@@ -604,8 +604,8 @@
       "min": 80,
       "maxRoots": 3,
       "focus": "战斗",
-      "runtime_id": null,
-      "implementation": "planned"
+      "runtime_id": "myvillage:sacred_earth_embryo",
+      "implementation": "selectable_placeholder"
     },
     {
       "id": "fate-36",
@@ -620,8 +620,8 @@
       "min": 0,
       "maxRoots": 5,
       "focus": "战斗 · 探索",
-      "runtime_id": null,
-      "implementation": "planned"
+      "runtime_id": "myvillage:flawless_dao_heart",
+      "implementation": "selectable_placeholder"
     }
   ]
 }

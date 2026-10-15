@@ -1,0 +1,9 @@
+{
+  "translation_key": "fate.myvillage.sword_obsession",
+  "description_key": "fate.myvillage.sword_obsession.description",
+  "tier": 3,
+  "cost": 4,
+  "group": "sword_dao",
+  "placeholder": true,
+  "effects": {}
+}

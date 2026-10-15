@@ -1,0 +1,9 @@
+{
+  "translation_key": "fate.myvillage.phoenix_body",
+  "description_key": "fate.myvillage.phoenix_body.description",
+  "tier": 5,
+  "cost": 6,
+  "group": "spirit_body",
+  "placeholder": true,
+  "effects": {}
+}

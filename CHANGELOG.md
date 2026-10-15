@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.52.2
+
+- Equalize fate tier weights and expose 17 purple/gold/red selectable placeholders with explicit no-effect labels; retain the eight working traits, point budget, ordinary guarantees and saved choices.
+- Add a focused Modal fate-test/jar-build preset for rapid delivery.
+
 ## 0.52.1
 
 - Add independently prepared alchemy acceptance cases with explicit partial coverage and fail-fast results.

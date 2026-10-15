@@ -1,0 +1,9 @@
+{
+  "translation_key": "fate.myvillage.innate_sword_heart",
+  "description_key": "fate.myvillage.innate_sword_heart.description",
+  "tier": 4,
+  "cost": 5,
+  "group": "sword_dao",
+  "placeholder": true,
+  "effects": {}
+}

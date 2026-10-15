@@ -43,6 +43,29 @@ class FateFoundationTest {
             assertTrue(FateSelection.hasTriple(ids, defs, budget));
         }
     }
+    @Test void highTierPlaceholdersDecodeSelectAndHaveNoEffects() throws Exception {
+        Map<String, FateDefinition> pool = new TreeMap<>(defs);
+        for (String id : List.of("sword_obsession", "innate_sword_heart", "flawless_dao_heart")) {
+            try (var in = FateFoundationTest.class.getResourceAsStream("/data/myvillage/myvillage/innate_fate/" + id + ".json")) {
+                assertNotNull(in);
+                var definition = FateDefinition.CODEC.parse(JsonOps.INSTANCE,
+                        JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8))).getOrThrow();
+                assertTrue(definition.effects().isEmpty());
+                assertTrue(definition.eligible(root(2500, 2500, 2500, 2500)));
+                pool.put("myvillage:" + id, definition);
+            }
+        }
+        Set<String> seen = new HashSet<>();
+        Random random = new Random(73019);
+        for (int n = 0; n < 100; n++) {
+            var choices = FateSelection.roll(pool, "", 8, FateRules.bundled(), random);
+            assertTrue(FateSelection.hasTriple(choices, pool, 8));
+            seen.addAll(choices);
+        }
+        assertTrue(seen.containsAll(pool.keySet()));
+        assertEquals("", FateSelection.validate(List.of("myvillage:flawless_dao_heart",
+                "myvillage:robust", "myvillage:bright"), pool, 8, true));
+    }
     @Test void eligibilityRespectsPurityAndRootCount() {
         var def = new FateDefinition("name", "desc", 5, 6, "body", true, Map.of(),
                 Optional.of(ResourceLocation.parse("myvillage:fire")), 8000, 3);

@@ -1,0 +1,9 @@
+{
+  "translation_key": "fate.myvillage.water_spirit_body",
+  "description_key": "fate.myvillage.water_spirit_body.description",
+  "tier": 4,
+  "cost": 5,
+  "group": "spirit_body",
+  "placeholder": true,
+  "effects": {}
+}

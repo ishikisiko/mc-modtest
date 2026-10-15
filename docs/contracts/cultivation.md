@@ -61,3 +61,5 @@
 - 回灵不超容量、养元受伤中断、凝神仅影响满修为固本；拒绝使用不耗物品，不叠加活动效果。所有修炼数值变更仍走 CultivationService。
 
 技术细节：[核心](../ai-kb/28_cultivation_core.md)、[入门](../ai-kb/29_cultivation_initiation_ritual.md)、[循环](../ai-kb/30_cultivation_playable_loop.md)、[面板](../ai-kb/37_cultivation_panel.md)、[功法](../ai-kb/41_technique_system.md)、[灵力](../ai-kb/45_spiritual_power_sword_qi.md)、[天命](../ai-kb/48_innate_fates.md)、[炼丹](../ai-kb/49_alchemy.md)、[资质](../ai-kb/50_crafting_aptitudes.md)。
+
+天命快速开发占位：17 个紫/金/红候选可选、可保存，双语明确标注暂无效果，effects 为空；不伪装成已实现能力。六品阶权重相等，保留普通候选保底和预算。

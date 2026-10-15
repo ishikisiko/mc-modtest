@@ -1,0 +1,9 @@
+{
+  "translation_key": "fate.myvillage.dragon_sight",
+  "description_key": "fate.myvillage.dragon_sight.description",
+  "tier": 3,
+  "cost": 4,
+  "group": "dragon_sight",
+  "placeholder": true,
+  "effects": {}
+}

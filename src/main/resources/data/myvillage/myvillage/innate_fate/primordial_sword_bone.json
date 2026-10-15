@@ -1,0 +1,9 @@
+{
+  "translation_key": "fate.myvillage.primordial_sword_bone",
+  "description_key": "fate.myvillage.primordial_sword_bone.description",
+  "tier": 5,
+  "cost": 6,
+  "group": "spirit_body",
+  "placeholder": true,
+  "effects": {}
+}

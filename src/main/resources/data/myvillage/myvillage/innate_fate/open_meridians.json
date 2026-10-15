@@ -1,0 +1,9 @@
+{
+  "translation_key": "fate.myvillage.open_meridians",
+  "description_key": "fate.myvillage.open_meridians.description",
+  "tier": 3,
+  "cost": 4,
+  "group": "spirit_body",
+  "placeholder": true,
+  "effects": {}
+}

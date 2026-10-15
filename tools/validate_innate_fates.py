@@ -32,7 +32,7 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> list[str]:
         rules=json.loads(read('src/main/resources/data/myvillage/fates/rules.json'))
         langs=[json.loads(read('src/main/resources/assets/myvillage/lang/'+l+'.json')) for l in ('en_us','zh_cn')]
     except (ValueError,TypeError) as e:return ['Fate JSON: '+str(e)]
-    need(len(definitions)>=6,'FATE_POOL: at least six implemented definitions required')
+    need(len(definitions)>=6,'FATE_POOL: at least six selectable definitions required')
     ordinary=[]
     for name,d in definitions.items():
         tier=d.get('tier');need(type(tier) is int and 0<=tier<=5, 'FATE_TIER: '+name)
@@ -40,7 +40,14 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> list[str]:
         need(isinstance(d.get('group'),str) and bool(d['group']),'FATE_GROUP: '+name)
         if tier==0:ordinary.append(d.get('group'))
         for k in ('translation_key','description_key'):need(all(d.get(k) in lang for lang in langs),'FATE_LANG: '+name+' '+k)
-        effects=d.get('effects');need(isinstance(effects,dict) and bool(effects),'FATE_EFFECTS: '+name)
+        effects=d.get('effects')
+        placeholder=d.get('placeholder',False)
+        need(type(placeholder) is bool,'FATE_PLACEHOLDER: '+name)
+        need(isinstance(effects,dict) and (bool(effects) or placeholder is True),'FATE_EFFECTS: '+name)
+        if placeholder is True:
+            need(effects=={},'FATE_PLACEHOLDER_EFFECTS: '+name)
+            for lang,marker in zip(langs,('no gameplay effects','暂无实际效果')):
+                need(marker in lang.get(d.get('description_key'),''),'FATE_PLACEHOLDER_LABEL: '+name)
         if not isinstance(effects,dict):continue
         for k,v in effects.items():
             need(k in EFFECTS,'FATE_EFFECT_UNKNOWN: '+name+' '+k)

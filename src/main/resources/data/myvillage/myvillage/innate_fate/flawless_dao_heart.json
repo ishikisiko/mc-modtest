@@ -1,0 +1,9 @@
+{
+  "translation_key": "fate.myvillage.flawless_dao_heart",
+  "description_key": "fate.myvillage.flawless_dao_heart.description",
+  "tier": 5,
+  "cost": 6,
+  "group": "dao_heart",
+  "placeholder": true,
+  "effects": {}
+}

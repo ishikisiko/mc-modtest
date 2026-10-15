@@ -1,0 +1,9 @@
+{
+  "translation_key": "fate.myvillage.pill_aegis",
+  "description_key": "fate.myvillage.pill_aegis.description",
+  "tier": 3,
+  "cost": 4,
+  "group": "pill_dao",
+  "placeholder": true,
+  "effects": {}
+}

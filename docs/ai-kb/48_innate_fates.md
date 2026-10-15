@@ -1,6 +1,11 @@
 # Innate Fates (先天气运)
 
-The first slice implements eight of the [retained 36-trait design](../innate-fates-design.json).
+There are eight implemented effects, 17 selectable purple/gold/red placeholders,
+and 11 design-only traits in the [36-trait catalogue](../innate-fates-design.json).
+Placeholders use explicit `placeholder: true`, empty effects and bilingual no-effect
+labels. They keep tier costs and exclusive groups but temporarily omit root gates.
+All tier weights are equal; the two ordinary guarantees still bias the final draft.
+Restart and explicitly reroll to use the new pool; existing saved choices are preserved.
 The normative contract is [innate-fates](../contracts/cultivation.md#innate-fates).
 The browser prototype remains a design playground; it is not the game's registry.
 
@@ -111,9 +116,9 @@ default command without that flag runs the full stele UI, existing effects and
 restart suite. The README ledger separates automated input/lifecycle evidence
 from owner feel/multiplayer.
 
-The other 28 designs, root rerolls, Phoenix revival, orbiting swords, perfect
-counterattacks, companions and treasure routes remain unimplemented. See
-[deferred roadmap](14_deferred_roadmap.md); do not expose placeholders as effects.
+The other 28 effects remain unimplemented (17 have selectable placeholders). Root
+rerolls, Phoenix revival, orbiting swords, counterattacks, companions and treasure
+routes have no runtime effect. See [deferred roadmap](14_deferred_roadmap.md).
 
 ## Awakening protocol and evidence
 
