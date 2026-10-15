@@ -60,3 +60,6 @@ It retains commands, screenshots and failures; RCON setup/readback is not player
 `SessionConfig.natural_terrain=True` explicitly selects normal terrain/structure generation;
 existing capture sessions remain flat with structures off by default. No local game fallback.
 Owner appearance, exploration/combat balance, audio/FPS and multiplayer remain `not_verified`.
+
+0.54.0 [cloud evidence and delivery](../testing/2026-10-16-danxia-ruins.md): 42 runtime
+checks including two actual clients and restart passed; owner acceptance remains separate.
