@@ -5,7 +5,7 @@ from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 from tools.alchemy_quality_evidence import (
-    QUALITY, QualityEvidence, SecondClient, inventory_point, menu_point, pill_quality, quality_stacks, read_batch, read_data,
+    QUALITY, QualityEvidence, SecondClient, healing_delta, healing_snapshot, inventory_point, menu_point, pill_quality, quality_stacks, read_batch, read_data,
 )
 
 
@@ -64,6 +64,53 @@ class QualityReadbackTest(unittest.TestCase):
                 read_data(value)
         self.assertEqual(read_data('data: {quoted:\'x"y\', n:1.25f, z:-3L}'),
                          {'quoted': 'x"y', 'n': 1.25, 'z': -3})
+
+
+class AtomicHealingTest(unittest.TestCase):
+    @staticmethod
+    def snapshot(remaining, elapsed, health, quality=4, effect='yangyuan'):
+        return {'health': health, 'medicine': {'effect': effect, 'effect_ticks': remaining,
+                                             'healing_elapsed': elapsed, 'quality': quality}}
+
+    def test_whole_player_snapshot_keeps_health_and_medicine_at_same_tick(self):
+        import json
+        custom_name = json.dumps(json.dumps({'text': 'quote " and line\nnext'}))
+        reply = ('Player has the following entity data: {Health:12.5f, UUID:[I;1,-2,3,-4], '
+                 'CustomName:'+custom_name+', unused:NaNf, NeoForgeData:{myvillage_medicine:'
+                 '{effect:"yangyuan",effect_ticks:173,healing_elapsed:7,quality:4,cooldown_ticks:573}}}')
+        snapshot = healing_snapshot(reply)
+        self.assertEqual(snapshot['health'], 12.5)
+        self.assertEqual(snapshot['medicine']['healing_elapsed'], 7)
+        self.assertEqual(snapshot['medicine']['quality'], 4)
+        for value in ('data:{}', 'data:{Health:"NaN",NeoForgeData:{}}', 'data:{Health:12.0f}'):
+            with self.assertRaises(ValueError): healing_snapshot(value)
+
+    def test_nonzero_phase_and_multiple_intervals(self):
+        before = self.snapshot(173, 7, 10)
+        after = self.snapshot(126, 14, 11.6)
+        measured = healing_delta(before, after, 20)
+        self.assertEqual(measured['ticks'], 47)
+        self.assertEqual(measured['heals'], 2)
+        self.assertEqual(measured['before_phase'], 7)
+        self.assertEqual(measured['after_phase'], 14)
+        self.assertAlmostEqual(measured['health_gain'], 1.6)
+        # Sampling before the next boundary is allowed; the live poll requires >= one interval.
+        self.assertEqual(healing_delta(before, self.snapshot(172, 8, 10), 20)['heals'], 0)
+
+    def test_crossed_boundary_uses_initial_phase(self):
+        measured = healing_delta(self.snapshot(181, 19, 10, 1), self.snapshot(179, 1, 10.4, 1), 20)
+        self.assertEqual(measured['heals'], 1)
+        self.assertEqual(measured['ticks'], 2)
+
+    def test_expired_cancelled_changed_quality_and_wrong_phase_reject(self):
+        before = self.snapshot(173, 7, 10)
+        for after in (self.snapshot(0, 0, 12, effect=''), self.snapshot(150, 0, 10, effect='ningshen'),
+                      self.snapshot(153, 7, 10.8, quality=1), self.snapshot(153, 8, 10.8),
+                      self.snapshot(173, 7, 10), self.snapshot(174, 6, 10),
+                      self.snapshot(153, 20, 10), self.snapshot(153, 7, float('nan'))):
+            with self.subTest(after=after), self.assertRaises(ValueError):
+                healing_delta(before, after, 20)
+        with self.assertRaises(ValueError): healing_delta(before, self.snapshot(153, 7, 11), 0)
 
 
 class QualityCaptureContractTest(unittest.TestCase):

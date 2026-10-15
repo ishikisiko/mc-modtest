@@ -159,6 +159,51 @@ def read_batch(reply):
     return value
 
 
+def healing_snapshot(reply):
+    """Health and medication from ONE player serialization, never two RCON ticks."""
+    player = read_data(reply)
+    if not isinstance(player, dict):
+        raise ValueError('Expected atomic player compound')
+    health = player.get('Health')
+    if type(health) not in (int, float) or not math.isfinite(health) or health < 0:
+        raise ValueError('Missing or invalid atomic player health')
+    persistent = player.get('NeoForgeData')
+    medication = persistent.get('myvillage_medicine') if isinstance(persistent, dict) else None
+    if not isinstance(medication, dict):
+        raise ValueError('Missing atomic medication compound')
+    return {'health': health, 'medicine': medication}
+
+
+def healing_delta(before, after, interval):
+    """Count delivered heals by saved online counters, including a partial period.
+
+    Vanilla /tick freeze excludes players, so medicine continues even while the
+    world is frozen. Compare naturally running atomic snapshots instead.
+    """
+    if type(interval) is not int or interval <= 0:
+        raise ValueError('Healing interval must be positive')
+    for snapshot in (before, after):
+        health, med = snapshot['health'], snapshot['medicine']
+        if type(health) not in (int, float) or not math.isfinite(health) or health < 0:
+            raise ValueError('Invalid atomic health')
+        if (med.get('effect') != 'yangyuan' or type(med.get('effect_ticks')) is not int
+                or med['effect_ticks'] <= 0 or type(med.get('quality')) is not int
+                or not 1 <= med['quality'] <= 4 or type(med.get('healing_elapsed')) is not int
+                or not 0 <= med['healing_elapsed'] < interval):
+            raise ValueError('Healing snapshot must retain an active valid quality/phase')
+    first, last = before['medicine'], after['medicine']
+    if first['quality'] != last['quality']:
+        raise ValueError('Healing quality changed between atomic snapshots')
+    ticks = first['effect_ticks']-last['effect_ticks']
+    if ticks <= 0:
+        raise ValueError('Healing snapshots must advance online ticks')
+    heals, elapsed = divmod(first['healing_elapsed']+ticks, interval)
+    if last['healing_elapsed'] != elapsed:
+        raise ValueError('Healing phase disagrees with authoritative elapsed ticks')
+    return {'ticks': ticks, 'heals': heals, 'health_gain': after['health']-before['health'],
+            'quality': first['quality'], 'before_phase': first['healing_elapsed'], 'after_phase': elapsed}
+
+
 def menu_point(size, x, y):
     width, height = size
     scale = max(1, min(width//320, height//240))
@@ -467,20 +512,29 @@ class QualityEvidence(AlchemyEvidence):
         for quality in (None, 4):
             self.wait_medication(); self.rc(f'damage {user} 8 minecraft:generic')
             count = self.held_quality('yangyuan', quality)
-            self.rc('tick freeze')
-            try:
-                before = self.number(f'data get entity {user} Health'); medication = self.med()
-                interval = self.rules['effects']['yangyuan']['interval_ticks']
-                self.rc(f'tick step {interval}t')
-                self.poll(self.med, lambda med: med['effect_ticks'] == medication['effect_ticks']-interval, 8, 'exact healing interval')
-                after = self.number(f'data get entity {user} Health')
-                maximum = self.number(f'attribute {user} minecraft:generic.max_health get')
-                factor = self.rules['quality']['strength_multipliers'][(quality or 1)-1]
-                expected = maximum*self.rules['effects']['yangyuan']['heal_fraction']*factor
-                heals[str(quality)] = after-before
-                self.check('mapped_yangyuan_per_interval_'+str(quality or 'legacy'), count == 1 and close(after-before, expected)
-                           and medication['quality'] == (quality or 1), {'before': before, 'after': after, 'expected': expected, 'medicine': medication})
-            finally: self.rc('tick unfreeze')
+            interval = self.rules['effects']['yangyuan']['interval_ticks']
+            maximum = self.number(f'attribute {user} minecraft:generic.max_health get')
+            before = healing_snapshot(self.rc(f'data get entity {user}'))
+            def sampled():
+                snapshot = healing_snapshot(self.rc(f'data get entity {user}'))
+                med = snapshot['medicine']
+                if med.get('effect') != 'yangyuan' or med.get('effect_ticks', 0) <= 0:
+                    raise RuntimeError('Healing ended before atomic interval measurement')
+                return snapshot
+            after = self.poll(sampled,
+                              lambda sample: before['medicine']['effect_ticks']-sample['medicine']['effect_ticks'] >= interval,
+                              8, 'authoritative online healing interval')
+            measured = healing_delta(before, after, interval)
+            factor = self.rules['quality']['strength_multipliers'][(quality or 1)-1]
+            expected_per_heal = maximum*self.rules['effects']['yangyuan']['heal_fraction']*factor
+            expected = expected_per_heal*measured['heals']
+            heals[str(quality)] = measured['health_gain']/measured['heals']
+            self.check('mapped_yangyuan_per_interval_'+str(quality or 'legacy'), count == 1
+                       and measured['heals'] >= 1 and close(measured['health_gain'], expected)
+                       and measured['quality'] == (quality or 1),
+                       {'before_atomic': before, 'after_atomic': after, 'measured': measured,
+                        'expected_total': expected, 'expected_per_heal': expected_per_heal,
+                        'method': 'same-command Health+medicine snapshots; elapsed online counters; no tick freeze'})
         self.check('quality4_healing_stronger_than_legacy', heals['4'] > heals['None'], heals)
         # Exact readback checks below test multiplier, while pure Java tests cover rounding/cap edges.
         stage = json.loads((ROOT/'src/main/resources/data/myvillage/myvillage/realm/qi_refining.json').read_text())['stages'][0]
@@ -576,11 +630,11 @@ def main(argv=None):
         evidence.start(); evidence.initial(); evidence.layouts('zh_cn'); evidence.two_clients(); evidence.medicines()
         evidence.prepare_restart(); evidence.stop()
         evidence.language = 'en_us'; evidence.start(reuse=True); evidence.after_restart()
-    except Exception as error:
-        evidence.report['failures'].append(str(error)); raise
+    except BaseException as error:
+        evidence.report['failures'].append(type(error).__name__ + ': ' + str(error)); raise
     finally:
         if evidence.s is not None:
-            try: evidence.rc('tick unfreeze'); evidence.rc('tick rate 20')
+            try: evidence.rc('tick rate 20')
             except Exception as error: evidence.report['failures'].append('tick cleanup: '+str(error))
             try: evidence.stop()
             except Exception as error: evidence.report['failures'].append('session cleanup: '+str(error))
