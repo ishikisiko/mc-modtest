@@ -35,3 +35,12 @@ not_verified. Declared probability and strength values are provisional balance.
 Failures and retry reasons, remote timing/memory observations, source commits,
 artifact hashes and termination confirmation are retained in reports/modal-runs.
 Preview after evidence collection: http://43.156.135.198:8765/alchemy/quality/index.html
+
+## Fixed-source provenance
+
+The first cloud release tests commit `9728489`. A subsequent evidence-only
+revision adds three actual inventory-hover tooltip PNGs per language and its
+parser/geometry tests. Runtime execution will record that revision separately;
+product Java, resources, Gradle inputs and asset generators must be identical
+before reusing the release jar. This avoids repeating unaffected compilation
+while retaining the exact source of both checks.

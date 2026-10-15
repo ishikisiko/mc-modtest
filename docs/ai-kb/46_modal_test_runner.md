@@ -71,7 +71,11 @@ artifacts and confirmed cleanup are recorded.
 | `server` | `python3 tools/run_chunky_acceptance.py --stage 1` | `pass` (bounded stage-1 commands/save/stop; downloaded report and confirmed termination) |
 | `client` | Sword-qi `tap_hit,charged_hit` mapped-input capture | `pass` for these two trials, videos/logs/manifest and confirmed termination; no DevBridge. Other client scenarios remain `not_verified`. |
 
-Run `release` and `alchemy-quality` against the **same exact full source commit**.
+Prefer running `release` and `alchemy-quality` against the **same exact full source commit**.
+If only evidence scripts/tests or delivery docs change afterwards, record both
+commits and an empty diff for `src/`, Gradle build inputs and generated-resource
+sources before reusing the release result. Run the changed evidence/parser tests;
+never reuse a jar across changed product/build inputs.
 The latter starts a clean acceptance world, not the previous preset's world. Its
 second client has an isolated game directory/username. Check fetched jar hashes,
 source identity, report results and termination before claiming delivery.

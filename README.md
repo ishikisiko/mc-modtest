@@ -560,7 +560,7 @@ python3 -m venv .venv-modal
 # First authentication, or renewal after the token expires:
 .venv-modal/bin/modal token new --profile myvillage --expires-in 7d
 .venv-modal/bin/python -m tools.modal_runner doctor
-# Commit intended source first; use the same full commit for both runs:
+# Commit intended source first; normally use the same full commit for both runs:
 test_commit=$(git rev-parse HEAD)
 .venv-modal/bin/python -m tools.modal_runner plan --preset release --ref "$test_commit" --timeout 3600
 .venv-modal/bin/python -m tools.modal_runner run --preset release --ref "$test_commit" --timeout 3600
@@ -4371,7 +4371,8 @@ python3 tools/validate_alchemy.py
 ```
 
 Run full release and game checks through the [Modal workflow](#on-demand-modal-test-runner-default-heavy-test-workflow)
-using the same committed source. `release` builds/inspects the fresh jar;
+normally using the same committed source. Evidence-only follow-ups must record both
+commits and prove unchanged product/build inputs (see KB46). `release` builds/inspects the fresh jar;
 `alchemy-quality` runs clean stage1 then the quality evidence tool. Clean stage1
 clears the shared acceptance profile. The evidence tool owns capture sessions,
 uses mapped start/slot/use input with administrator fixtures/readback and

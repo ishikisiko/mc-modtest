@@ -2,10 +2,10 @@ import tempfile
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 from tools.alchemy_quality_evidence import (
-    QUALITY, QualityEvidence, SecondClient, menu_point, pill_quality, quality_stacks, read_batch, read_data,
+    QUALITY, QualityEvidence, SecondClient, inventory_point, menu_point, pill_quality, quality_stacks, read_batch, read_data,
 )
 
 
@@ -82,6 +82,44 @@ class QualityCaptureContractTest(unittest.TestCase):
             with patch('tools.alchemy_quality_evidence.time.sleep'):
                 evidence.mapped_start(game)
             self.assertEqual(calls, [('mousemove', '480', '274'), ('click', '1')])
+
+    def test_inventory_hover_follows_vanilla_recipe_book_shift(self):
+        self.assertEqual(inventory_point((960, 540), 0), (336, 404))
+        self.assertEqual(inventory_point((960, 540), 2), (408, 404))
+        self.assertEqual(inventory_point((960, 540), 0, True), (490, 404))
+        for slot in (-1, 9, True):
+            with self.assertRaises(ValueError): inventory_point((960, 540), slot)
+
+    def test_pill_tooltips_keep_hover_and_never_send_use_or_click(self):
+        with tempfile.TemporaryDirectory() as directory:
+            evidence = QualityEvidence(Path(directory)/'proof')
+            options = Path(directory)/'repo/run-combat-capture/client/options.txt'
+            options.parent.mkdir(parents=True); options.write_text('key_key.inventory:key.keyboard.e\n')
+            calls = []
+            def xdo(*args):
+                calls.append(args)
+                return '42' if args[0] == 'search' else ''
+            game = SimpleNamespace(size=(960, 540), env={}, xdo=xdo,
+                                   require_ingame=Mock(), key=Mock(), pointer_grabbed=lambda: False)
+            evidence.s = SimpleNamespace(username='CaptureDev', game=game)
+            inventory = {i: {'id': recipe['output'], 'count': 2, 'components': {QUALITY: 4}}
+                         for i, recipe in enumerate(evidence.rules['recipes'])}
+            evidence.inventory = Mock(return_value=inventory)
+            evidence.med = Mock(return_value={'cooldown_ticks': 400, 'effect_ticks': 1000, 'quality': 4})
+            evidence.rc = Mock(side_effect=lambda command: 'Player has the following entity data: 0b'
+                               if command.endswith('recipeBook.isGuiOpen') else 'fixture')
+            with patch('tools.alchemy_quality_evidence.ROOT', options.parents[2]), \
+                    patch('tools.alchemy_quality_evidence.time.sleep'), \
+                    patch('tools.alchemy_quality_evidence.subprocess.run') as capture:
+                evidence.pill_tooltips('zh_cn')
+            game.key.assert_called_once_with('e')
+            self.assertEqual(capture.call_count, 3)
+            self.assertEqual([args for args in calls if args[0] == 'mousemove'],
+                             [('mousemove', '336', '404'), ('mousemove', '372', '404'), ('mousemove', '408', '404')])
+            self.assertFalse(any(args[0] in ('click', 'mousedown', 'mouseup') for args in calls))
+            self.assertEqual(calls[-1], ('key', 'Escape'))
+            self.assertTrue(evidence.report['checks'][-1]['pass'])
+            self.assertEqual(evidence.report['phases'][-1]['phase'], 'pill_quality_tooltips')
 
     def test_existing_evidence_is_never_overwritten(self):
         with tempfile.TemporaryDirectory() as directory:

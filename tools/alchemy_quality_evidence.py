@@ -166,6 +166,20 @@ def menu_point(size, x, y):
     return scale*(left+x), scale*(top+y)
 
 
+def inventory_point(size, slot, recipe_book_open=False):
+    """Vanilla InventoryScreen hotbar centre, including a visible recipe book."""
+    if type(slot) is not int or not 0 <= slot <= 8:
+        raise ValueError('Expected vanilla hotbar slot 0..8')
+    width, height = size
+    scale = max(1, min(width//320, height//240))
+    gui_width, gui_height = width//scale, height//scale
+    left = (gui_width-176)//2
+    if recipe_book_open and gui_width >= 379:
+        left = 177+(gui_width-176-200)//2
+    top = (gui_height-166)//2
+    return scale*(left+16+18*slot), scale*(top+150)
+
+
 class SecondClient:
     """Only this actor's two spawned process trees are killed; lock stays with cs."""
     username = 'AlchemyGuest'
@@ -374,6 +388,57 @@ class QualityEvidence(AlchemyEvidence):
             try: self.wait_complete(self.rules['recipes'][0])
             finally: self.rc('tick rate 20')
 
+    def pill_tooltips(self, language):
+        """Actual E/hover, no item-use input; do not move cursor before capture."""
+        started = time.monotonic(); game = self.s.game; user = self.s.username
+        if language != self.language:
+            raise ValueError('Tooltip language does not match active capture session')
+        options = ROOT/'run-combat-capture/client/options.txt'
+        bindings = dict(line.split(':', 1) for line in options.read_text().splitlines() if ':' in line)
+        if bindings.get('key_key.inventory', 'key.keyboard.e') != 'key.keyboard.e':
+            raise RuntimeError('Inventory E binding differs; no binding changed')
+        self.report.setdefault('verified_bindings', {})['inventory'] = 'e'
+        for slot, recipe in enumerate(self.rules['recipes']):
+            self.rc(f'item replace entity {user} hotbar.{slot} with {recipe["output"]}[{QUALITY}=4] 2')
+        inventory = self.inventory(); medication = self.med()
+        self.check('tooltip_admin_quality4_fixtures_'+language,
+                   all(inventory.get(slot, {}).get('id') == recipe['output'] and
+                       inventory[slot]['count'] == 2 and pill_quality(inventory[slot]) == 4
+                       for slot, recipe in enumerate(self.rules['recipes'])), inventory)
+        game.require_ingame('mapped E opens pill tooltip inventory'); game.key('e')
+        self.poll(game.pointer_grabbed, lambda grabbed: grabbed is False, 8, 'mapped inventory screen')
+        images = []
+        try:
+            book_value = read_data(self.rc(f'data get entity {user} recipeBook.isGuiOpen'))
+            if type(book_value) is not int or book_value not in (0, 1):
+                raise ValueError('Invalid saved recipe-book visibility')
+            book = bool(book_value)
+            window = game.xdo('search', '--name', 'Minecraft').split()[0]
+            for slot, recipe in enumerate(self.rules['recipes']):
+                x, y = inventory_point(game.size, slot, book)
+                game.xdo('mousemove', str(x), str(y)); time.sleep(.6)
+                name = f'{language}_quality4_{recipe["id"]}_tooltip.png'
+                # capture() intentionally clears hover; a raw window grab retains it.
+                subprocess.run(['import', '-silent', '-window', window, str(self.out/name)],
+                               env=game.env, check=True, timeout=30)
+                images.append({'file': name, 'item': recipe['output'], 'quality': 4,
+                               'hover_pixels': [x, y], 'recipe_book_open': book})
+        finally:
+            game.xdo('key', 'Escape'); time.sleep(.3)
+            game.require_ingame('close pill tooltip inventory')
+        after, med_after = self.inventory(), self.med()
+        self.check('mapped_pill_tooltips_never_consume_'+language, after == inventory
+                   and med_after['cooldown_ticks'] <= medication['cooldown_ticks']
+                   and med_after['effect_ticks'] <= medication['effect_ticks']
+                   and med_after['quality'] == medication['quality'],
+                   {'before_inventory': inventory, 'after_inventory': after,
+                    'before_medicine': medication, 'after_medicine': med_after,
+                    'visual_name_effect_legibility': 'requires_downloaded_PNG_inspection'})
+        self.report['phases'].append({'phase': 'pill_quality_tooltips', 'language': language,
+                                     'wall_s': round(time.monotonic()-started, 3), 'images': images,
+                                     'fixtures': 'administrator quality4 items; actual mapped E and hover; no pill use'})
+        self.save()
+
     def held_quality(self, pill, quality=None):
         user = self.s.username
         suffix = '' if quality is None else '['+QUALITY+'='+str(quality)+']'
@@ -475,6 +540,7 @@ class QualityEvidence(AlchemyEvidence):
         batch = self.begin()
         self.poll(self.progress, lambda progress: progress >= 30, 10, 'saved partial quality batch')
         self.slot(4, 'minecraft:cobblestone', 64)
+        self.pill_tooltips('zh_cn')
         self.report['before_restart'] = {'items': self.block_items(), 'progress': self.progress(), 'batch': batch, 'medicine': self.med(), 'inventory': self.inventory()}
         self.rc('save-all flush'); self.save()
 
@@ -488,6 +554,7 @@ class QualityEvidence(AlchemyEvidence):
         self.check('restart_preserves_sustained_quality_and_online_counters', med['quality'] == 4 and med['effect'] == 'ningshen'
                    and 0 < med['effect_ticks'] <= before['medicine']['effect_ticks'] and med['effect_ticks'] >= before['medicine']['effect_ticks']-400,
                    {'before': before['medicine'], 'after': med})
+        self.pill_tooltips('en_us')
         self.layouts('en_us')
         self.slot(4, 'minecraft:air'); self.rc('tick rate 80')
         rows = self.wait_complete(self.rules['recipes'][0]); self.rc('tick rate 20')
