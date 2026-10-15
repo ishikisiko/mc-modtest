@@ -478,6 +478,18 @@ def chunky_progress_complete(response: str) -> bool:
     )
 
 
+def chunky_finished_since(log_path: Path, offset: int, world: str) -> str | None:
+    """Require this task's finish marker: initial idle RCON replies are asynchronous."""
+    try:
+        with log_path.open("rb") as handle:
+            handle.seek(offset)
+            text = handle.read().decode("utf-8", errors="replace")
+    except FileNotFoundError:
+        return None
+    marker = f"[Chunky] Task finished for {world}."
+    return next((line for line in text.splitlines() if marker in line), None)
+
+
 def parse_locate_response(response: str) -> tuple[int, int] | None:
     lower = response.lower()
     if "could not find" in lower or "not found" in lower:
@@ -594,6 +606,10 @@ def run_stage1_commands(args: argparse.Namespace, report: dict[str, Any], rcon: 
             if "unknown" in response.lower() or "incorrect" in response.lower():
                 raise RuntimeError(f"Chunky setup command failed ({setup_command}): {response}")
 
+        # Snapshot before start: a task can finish before the first progress poll,
+        # while an immediate "No tasks running" can precede its final log callback.
+        latest_log = PROFILE_DIR / "logs" / "latest.log"
+        log_offset = latest_log.stat().st_size if latest_log.exists() else 0
         response = send_command(stage, rcon, "chunky start")
         if response_looks_like_help(response, "chunky start"):
             raise RuntimeError(f"Chunky start returned help instead of starting a task: {response}")
@@ -603,12 +619,15 @@ def run_stage1_commands(args: argparse.Namespace, report: dict[str, Any], rcon: 
         deadline = time.monotonic() + args.chunky_timeout
         last_progress = ""
         while time.monotonic() < deadline:
-            time.sleep(args.progress_interval)
+            time.sleep(min(args.progress_interval, max(0, deadline - time.monotonic())))
             last_progress = send_command(stage, rcon, "chunky progress")
-            if chunky_progress_complete(last_progress):
+            completion_log = chunky_finished_since(latest_log, log_offset, args.chunky_world)
+            if completion_log is not None:
                 stage["chunky_completion"] = {
                     "complete": True,
                     "last_progress_response": last_progress,
+                    "completion_log": completion_log,
+                    "log_offset_before_start": log_offset,
                 }
                 break
         else:
@@ -616,6 +635,7 @@ def run_stage1_commands(args: argparse.Namespace, report: dict[str, Any], rcon: 
                 "complete": False,
                 "timeout_seconds": args.chunky_timeout,
                 "last_progress_response": last_progress,
+                "log_offset_before_start": log_offset,
             }
             raise RuntimeError("Chunky task timed out")
 
