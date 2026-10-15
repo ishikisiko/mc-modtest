@@ -35,3 +35,5 @@ appearance, growth pacing or multiplayer acceptance.
 
 See [asset contracts](../contracts/assets.md), [cultivation contracts](../contracts/cultivation.md),
 [alchemy](49_alchemy.md), [workflow](../WORKFLOW.md).
+
+0.53.0 focused build/deployment: [verification record](../testing/2026-10-16-spirit-farming.md).
