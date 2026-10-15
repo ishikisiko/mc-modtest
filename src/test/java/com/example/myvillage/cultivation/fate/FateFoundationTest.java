@@ -27,6 +27,8 @@ class FateFoundationTest {
     private static final String[] IDS = {"robust", "lightfoot", "bright", "fire_affinity", "alchemist_descendant", "beast_hunter", "unyielding", "burning_star"};
     private static Map<String, FateDefinition> defs;
     @BeforeAll static void setup() throws Exception {
+        if (net.neoforged.fml.loading.LoadingModList.get() == null)
+            net.neoforged.fml.loading.LoadingModList.of(List.of(), List.of(), List.of(), List.of(), Map.of());
         SharedConstants.tryDetectVersion(); Bootstrap.bootStrap();
         Map<String, FateDefinition> values = new TreeMap<>();
         for (String id : IDS) try (var in = FateFoundationTest.class.getResourceAsStream("/data/myvillage/myvillage/innate_fate/" + id + ".json")) {
