@@ -7,6 +7,7 @@ No direct calls to the interaction/completion/reward methods are used.
 from __future__ import annotations
 import argparse
 import json
+import math
 import re
 import sys
 import time
@@ -39,7 +40,7 @@ class BattleEvidence(RuinEvidence):
     def guard_ids(self,site):return [entity_uuid(g['Id']) for g in self.data(site).get('Guards',[]) if 'Id' in g and not g.get('Dead')]
     def loaded(self,site):return 'passed' in self.rc(f'execute if loaded {self.coords(site["core"])}')
     def approach_cache(self,site,game=None,user=None):
-        x,y,z=RULES[site['kind']]['cache'];p=self.map(site,(x,y,z-2));c=site['core']
+        x,y,z=RULES[site['kind']]['cache'];p=self.map(site,(x+2,y,z));c=site['core']
         self.look((p[0]+.5,p[1],p[2]+.5),(c[0]+.5,c[1]+.6,c[2]+.5),game=game,user=user)
     def trigger(self,site,wave):
         p=self.map(site,RULES[site['kind']]['waves'][wave]['trigger']);c=site['core']
@@ -86,13 +87,28 @@ class BattleEvidence(RuinEvidence):
         self.must(site['kind']+'_survival_mining_cannot_bypass',self.state(site) in ('READY','ACTIVE'),self.state(site))
     def wait_guards(self,site,wave):
         expected=len(RULES[site['kind']]['waves'][wave]['guards'])
-        ids=self.poll(site['kind']+f' wave {wave} bound',lambda: (ids if len(ids:=self.guard_ids(site))==expected else None),25)
+        def living_bound():
+            ids=self.guard_ids(site)
+            if len(ids)!=expected:return None
+            for entity in ids:
+                reply=self.rc(f'data get entity {entity} Health')
+                if 'data: ' not in reply or read_data(reply)<=0:return None
+            return ids
+        ids=self.poll(site['kind']+f' wave {wave} bound',living_bound,25)
         for entity in ids:self.rc(f'data merge entity {entity} {{NoAI:1b}}')
         self.must(site['kind']+f'_wave_{wave}_spawned',len(ids)==expected,ids)
         return ids
     def attack(self,entity):
         values=read_data(self.rc(f'data get entity {entity} Pos'));x,y,z=values
-        self.look((x,y,z-1.7),(x,y+.8,z))
+        # Select a clear stance instead of teleporting into a rotated sanctuary pillar.
+        stance=None
+        for dx,dz in [(0,-1.7),(0,1.7),(-1.7,0),(1.7,0)]:
+            px,py,pz=x+dx,y,z+dz;fx,fy,fz=math.floor(px),math.floor(py),math.floor(pz)
+            reply=self.rc(f'execute if block {fx} {fy} {fz} minecraft:air if block {fx} {fy+1} {fz} minecraft:air')
+            if 'passed' in reply:
+                stance=(px,py,pz);break
+        if stance is None:raise RuntimeError('No clear mapped attack stance for '+entity)
+        self.look(stance,(x,y+.8,z))
         for attempt in range(8):
             self.s.game.xdo('click','1');time.sleep(.65)
             reply=self.rc(f'data get entity {entity} Health')
