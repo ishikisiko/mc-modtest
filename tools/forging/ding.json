@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "palette": {
+    "iron": [
+      52,
+      61,
+      65
+    ],
+    "iron_edge": [
+      72,
+      82,
+      85
+    ],
+    "copper": [
+      145,
+      86,
+      53
+    ],
+    "copper_edge": [
+      181,
+      115,
+      67
+    ],
+    "dark": [
+      27,
+      34,
+      38
+    ],
+    "coal": [
+      48,
+      39,
+      32
+    ],
+    "fire": [
+      255,
+      120,
+      30
+    ],
+    "seal": [
+      94,
+      67,
+      43
+    ]
+  },
+  "feedback": {
+    "duration_ticks": 40,
+    "light_level": 10,
+    "spark_count": 10,
+    "spark_spread": 0.17,
+    "spark_speed": 0.025,
+    "ambient_probability": 0.35,
+    "sound_volume": 0.6,
+    "sound_pitch": 0.85
+  }
+}

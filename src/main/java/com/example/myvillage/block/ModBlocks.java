@@ -81,7 +81,10 @@ public final class ModBlocks {
 
     public static final DeferredBlock<ForgingTableBlock> FORGING_TABLE =
             BLOCKS.registerBlock("forging_table", ForgingTableBlock::new,
-                    BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(3.5F).sound(SoundType.METAL));
+                    BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(3.5F).sound(SoundType.METAL)
+                            .noOcclusion().pushReaction(PushReaction.BLOCK)
+                            .lightLevel(state -> state.getValue(ForgingTableBlock.LIT)
+                                    ? com.example.myvillage.forging.ForgingDingVisuals.get().feedback().lightLevel() : 0));
 
     public static final DeferredBlock<AlchemyFurnaceBlock> ALCHEMY_FURNACE =
             BLOCKS.registerBlock("alchemy_furnace", AlchemyFurnaceBlock::new,

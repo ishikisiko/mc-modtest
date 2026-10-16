@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
-"""Prototype forging resources: vanilla smithing-table/book visuals, independent owned IDs."""
+"""Forging resources: iron/copper ding, existing pattern books and acquisition assets."""
 import argparse
 import json
 from pathlib import Path
+import sys
 ROOT=Path(__file__).resolve().parents[1]
+if str(ROOT) not in sys.path:sys.path.insert(0,str(ROOT))
+from tools.forging import ding
 LANG={
- 'block.myvillage.forging_table':('Forging Table','炼器台'),
+ 'block.myvillage.forging_table':('Forging Ding','炼器鼎'),
  'item.myvillage.pattern_qingfeng_sword':('Pattern: Qingfeng Sword','青锋剑器谱'),
  'item.myvillage.pattern_lingxiao_spear':('Pattern: Lingxiao Spear','凌霄枪器谱'),
  'tooltip.myvillage.forging.pattern_learn':('Use to permanently learn this pattern.','右键使用，永久学会此器谱。'),
@@ -53,13 +56,16 @@ def outputs(root=ROOT):
         current=json.loads(path.read_text());current.update({k:v[i] for k,v in LANG.items()});files[path]=encoded(current)
     path=root/'src/main/resources/data/minecraft/tags/block/mineable/pickaxe.json'
     tag=json.loads(path.read_text());tag['values']=sorted(set(tag['values'])|{'myvillage:forging_table'});files[path]=encoded(tag)
+    files.update(ding.outputs(root))
     return files
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--check',action='store_true');a=p.parse_args();stale=[]
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--check',action='store_true');p.add_argument('--preview',action='store_true');a=p.parse_args();stale=[]
     for path,data in outputs().items():
         if a.check:
             if not path.exists() or path.read_bytes()!=data:stale.append(str(path.relative_to(ROOT)))
         else:path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(data)
     if stale:print('\n'.join(stale));return 1
-    print('Forging assets '+('match' if a.check else 'generated'));return 0
+    print('Forging assets '+('match' if a.check else 'generated'))
+    if a.preview:ding.preview()
+    return 0
 if __name__=='__main__':raise SystemExit(main())

@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.57.1
+
+- 炼器台升级为玄铁赤铜炼器鼎：宽腹三足、双立耳、敞口火膛，独立像素贴图、物品模型、四向摆放和同源碰撞；沿用 `myvillage:forging_table`，旧方块默认朝北、暗炉。
+- 成功炼制/维修后服务器触发短暂炉火、发光、火星与锻击声，随后自动熄灭；拒绝操作不点火，产物仍立即生成。外观反馈参数与模型碰撞由专用配置和生成器统一维护。
+- 新增方块状态，客户端/服务器兼容协议升为 24。
+
 ## 0.57.0
 
 - 新增炼器雏形：炼器台、永久学习的青锋剑/凌霄枪器谱、背包扣料、手动单件炼制与下中上极品。

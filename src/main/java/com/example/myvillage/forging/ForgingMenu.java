@@ -90,7 +90,10 @@ public final class ForgingMenu extends AbstractContainerMenu {
         for(int i=0;i<inventory.items.size();i++)inventory.items.set(i,plan.get().get(i));
         if(button==REPAIR)work.setItem(0,ItemStack.EMPTY);
         work.setItem(1,result);inventory.setChanged();data.set(2,button==FORGE?7:8);broadcastChanges();
-        access.execute((level,pos)->level.playSound(null,pos,net.minecraft.sounds.SoundEvents.ANVIL_USE,net.minecraft.sounds.SoundSource.BLOCKS,0.6F,1F));
+        access.execute((level,pos)-> {
+            if (level instanceof net.minecraft.server.level.ServerLevel serverLevel)
+                com.example.myvillage.block.ForgingTableBlock.completed(serverLevel,pos);
+        });
         return true;
     }
     @Override public void removed(Player p){super.removed(p);if(!p.level().isClientSide())clearContainer(p,work);}

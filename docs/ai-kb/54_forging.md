@@ -1,9 +1,8 @@
-# Forging prototype (0.57.0)
+# Forging prototype (0.57.1)
 
 The prototype closes learned patterns → material selection → one manually forged
 weapon → actual equipment effects → repair. It uses the existing Qingfeng Sword
-and Lingxiao Spear IDs, models, animations and combat registry. The table and
-patterns intentionally reference vanilla smithing-table/book visuals.
+and Lingxiao Spear IDs, models, animations and combat registry. The table now uses the approved iron/copper open ding model; pattern books still use vanilla book visuals.
 
 ## Sources and boundaries
 
@@ -19,7 +18,7 @@ patterns intentionally reference vanilla smithing-table/book visuals.
   at disconnect/death. No automation/hopper inventory exists.
 - Vanilla menu DataSlots carry per-viewer knowledge and quality cap; buttons carry
   bounded indices only. Every request checks the owning active menu, life,
-  spectator status, block and distance. Both sides require protocol23.
+  spectator status, block and distance. Both sides require protocol24.
 - `ForgingCosts.plan` works on copies of the main inventory/hotbar. Only after all
   preconditions and result construction succeed are costs and output committed
   together on the server. An occupied output blocks further crafting/repair.
@@ -61,3 +60,30 @@ reforging/ascension, profession XP, new ore generation or special boss materials
 are included. These are follow-up design scope, not hidden completed features.
 
 Current delivery evidence: [2026-10-16 forging prototype](../testing/2026-10-16-forging-prototype.md).
+
+
+## Ding presentation (0.57.1)
+
+The registry and recipe IDs remain `forging_table`; the displayed name is 炼器鼎 /
+Forging Ding. `tools/forging/ding.py` owns the approved wide iron belly, three low
+feet, two upright ears and open hearth. `tools/forging/ding.json` owns the palette
+and bounded feedback settings. `gen_forging_assets.py` exports both cold/lit models,
+the atlas, item transforms, eight facing/lit variants and `forging/ding.json`.
+Collision is derived from the same authored geometry; minor straps/rivets do not
+become separate collision pieces. Use `.venv-preview/bin/python
+ tools/gen_forging_assets.py --preview` for actual-model offline views.
+
+`ForgingDingVisuals` validates/loads the generated shape and feedback data and
+rotates collision to each horizontal direction. Propertyless old block states
+fall back to north/unlit. `ForgingTableBlock.completed` runs only after a successful
+server inventory transaction, synchronizing a bounded LIT pulse, light, sparks
+and sound to nearby clients. A vanilla scheduled block tick ends it; repeated
+successes during an existing pulse emit feedback without extending it indefinitely.
+Scheduled ticks survive ordinary world saving. The pulse owns no jobs, costs or
+items. Cold blocks produce no ambient particles. No BlockEntity was added.
+
+`--preset forging-ding` performs the generated-resource check, focused block /
+forging / protocol Java tests and jar, then mapped placement/forging/repair visual
+capture plus an actual saved lit pulse and restart. This is a presentation-focused
+run, not a repeat of all forging/multiplayer acceptance. Owner appearance, sound,
+feel and FPS remain `not_verified` until separately observed.

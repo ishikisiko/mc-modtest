@@ -33,3 +33,31 @@ class ForgingResourcesTest(unittest.TestCase):
         lifecycle=commands_for('forging-lifecycle')
         self.assertEqual(['python3','tools/forging_evidence.py','--lifecycle-only'],lifecycle[-1])
         self.assertNotIn('test',lifecycle[0])
+
+class DingGeometryTest(unittest.TestCase):
+    def test_open_hearth_and_three_feet_are_structural_and_lit_changes_no_geometry(self):
+        from tools.forging import ding
+        cold,shape=ding.geometry(False);hot,hot_shape=ding.geometry(True)
+        self.assertEqual(shape,hot_shape)
+        self.assertEqual([(e['name'],e['from'],e['to']) for e in cold],[(e['name'],e['from'],e['to']) for e in hot])
+        self.assertEqual(3,len([e for e in cold if e['name'].endswith('_foot')]))
+        self.assertEqual(2,len([e for e in cold if e['name'].endswith('_ear_top')]))
+        self.assertFalse(any(e['from'][0]<8<e['to'][0] and e['from'][2]<8<e['to'][2] and e['to'][1]>10.1 for e in cold))
+        for e in cold:
+            self.assertTrue(all(a<b for a,b in zip(e['from'],e['to'])),e['name'])
+            self.assertGreaterEqual(min(e['from']),0)
+            self.assertLessEqual(e['to'][0],16);self.assertLessEqual(e['to'][2],16)
+        self.assertLessEqual(len(cold),160)
+    def test_generated_collision_and_states_have_one_geometry_owner(self):
+        from tools.forging import ding
+        base=ROOT/'src/main/resources';generated=ding.outputs()
+        data=json.loads(generated[base/'data/myvillage/forging/ding.json'])
+        self.assertEqual(ding.geometry()[1],data['collision'])
+        states=json.loads(generated[base/'assets/myvillage/blockstates/forging_table.json'])['variants']
+        self.assertEqual(8,len(states))
+        for direction,angle in [('north',0),('east',90),('south',180),('west',270)]:
+            for lit in ['false','true']:
+                self.assertEqual(angle,states[f'facing={direction},lit={lit}']['y'])
+        for e in ding.geometry(True)[0]:
+            if e['name'].startswith(('ember_','fire_window_')):
+                self.assertTrue(all(f['neoforge_data']['block_light']==15 for f in e['faces'].values()))
