@@ -22,21 +22,29 @@ public final class PlannedBiomeSource extends BiomeSource {
     }));
     private final BiomeSource original;
     private final WorldPlanRules rules;
-    private final Map<String,Holder<Biome>> holders;
+    private volatile Map<String,Holder<Biome>> holders;
     private volatile WorldPlan plan;
     private volatile Climate.Sampler terrainSampler;
     private final Map<Long,WorldPlan.Context> columns=Collections.synchronizedMap(new LinkedHashMap<>(256,.75f,true){
         @Override protected boolean removeEldestEntry(Map.Entry<Long,WorldPlan.Context> entry){return size()>2048;}
     });
     public PlannedBiomeSource(BiomeSource original,WorldPlanRules rules){
-        this.original=original;this.rules=rules;Map<String,Holder<Biome>> entries=new HashMap<>();
+        this.original=original;this.rules=rules;
+    }
+    private synchronized Map<String,Holder<Biome>> resolvedHolders(){
+        if(holders!=null)return holders;
+        // Data-pack references are unbound while the preset Codec is decoding.
+        Map<String,Holder<Biome>> entries=new HashMap<>();
         for(Holder<Biome> b:original.possibleBiomes())b.unwrapKey().ifPresent(k->entries.put(k.location().toString(),b));
         Set<String> required=new HashSet<>(Set.of("minecraft:ocean","minecraft:deep_ocean","minecraft:beach"));
         rules.profiles.forEach(p->required.addAll(p.biomes()));
         if(!entries.keySet().containsAll(required)){required.removeAll(entries.keySet());throw new IllegalArgumentException("Worldplan delegate biome source is missing "+required);}
-        holders=Map.copyOf(entries);
+        holders=Map.copyOf(entries);return holders;
     }
-    void bind(WorldPlan plan,Climate.Sampler sampler){terrainSampler=sampler;columns.clear();this.plan=plan;}
+    void bind(WorldPlan plan,Climate.Sampler sampler){
+        if(sampler!=null)resolvedHolders();
+        terrainSampler=sampler;columns.clear();this.plan=plan;
+    }
     @Override protected MapCodec<? extends BiomeSource> codec(){return CODEC;}
     @Override protected Stream<Holder<Biome>> collectPossibleBiomes(){return original.possibleBiomes().stream();}
     @Override public Holder<Biome> getNoiseBiome(int x,int y,int z,Climate.Sampler sampler){
@@ -48,6 +56,6 @@ public final class PlannedBiomeSource extends BiomeSource {
             String name=cave.unwrapKey().map(k->k.location().toString()).orElse("");
             if(Set.of("minecraft:lush_caves","minecraft:dripstone_caves","minecraft:deep_dark").contains(name))return cave;
         }
-        return holders.get(column.biome());
+        return resolvedHolders().get(column.biome());
     }
 }

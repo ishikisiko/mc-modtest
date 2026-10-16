@@ -45,7 +45,7 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
     }
     private PlannedChunkGenerator(PlannedBiomeSource planned,BiomeSource source,Holder<NoiseGeneratorSettings> settings,WorldPlanRules rules,String expectedFingerprint,HolderGetter<NormalNoise.NoiseParameters> noises){
         super(planned);originalSource=source;plannedSource=planned;this.settings=settings;this.rules=rules;this.expectedFingerprint=expectedFingerprint;this.noises=noises;
-        if(settings.value().seaLevel()!=rules.seaLevel)throw new IllegalArgumentException("Worldplan sea level must match noise settings");
+        // Holder values are deliberately not accessed during registry decoding.
         terrain=new NoiseBasedChunkGenerator(planned,settings);
     }
     @Override protected MapCodec<? extends ChunkGenerator> codec(){return CODEC;}
@@ -56,6 +56,7 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
     @Override public synchronized ChunkGeneratorStructureState createState(HolderLookup<StructureSet> structures,RandomState ignored,long seed){
         if(plan!=null&&plan.seed()!=seed)throw new IllegalStateException("Cannot share a bound worldplan generator across different seeds");
         if(plan==null){
+            if(settings.value().seaLevel()!=rules.seaLevel)throw new IllegalArgumentException("Worldplan sea level must match noise settings");
             WorldPlan p=new WorldPlan(seed,rules);
             if(!expectedFingerprint.isEmpty()&&!expectedFingerprint.equals(p.fingerprint()))throw new IllegalStateException("Saved worldplan fingerprint mismatch; refusing to move existing geography. Restore the matching rules/algorithm version.");
             // ChunkMap supplies dummy noise for custom generators; build the real settings-backed state.
