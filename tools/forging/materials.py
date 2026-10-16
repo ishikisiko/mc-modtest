@@ -8,12 +8,13 @@ ROOT=Path(__file__).resolve().parents[2]
 def load(path=None):
     data=json.loads((path or ROOT/'tools/forging/materials.json').read_text())
     if set(data)!={'version','materials'} or data['version']!=4:raise ValueError('Material schema')
-    materials=data['materials'];ids=set();traits=set()
+    materials=data['materials'];ids=set();traits=set();tags=set()
     for m in materials:
         if set(m)!={'id','name','trait','description','acquisition','tag'}:raise ValueError('Material fields')
         if not re.fullmatch('[a-z0-9_]+',m['id']) or m['id'] in ids:raise ValueError('Material id')
         ids.add(m['id'])
-        if not re.fullmatch('[a-z0-9_.-]+:[a-z0-9_./-]+',m['tag']):raise ValueError('Material tag')
+        if not re.fullmatch('[a-z0-9_.-]+:[a-z0-9_./-]+',m['tag']) or any(part in ('','.','..') for part in m['tag'].split(':')[-1].split('/')) or m['tag'] in tags:raise ValueError('Material tag')
+        tags.add(m['tag'])
         if m['trait'] not in ('sharp','channeling','tough') or m['trait'] in traits:raise ValueError('Material trait')
         traits.add(m['trait'])
         for key in ('name','description','acquisition'):

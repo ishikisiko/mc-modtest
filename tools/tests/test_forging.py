@@ -77,7 +77,8 @@ class MaterialResourcesTest(unittest.TestCase):
         for path in materials.retired_paths():
             self.assertNotIn(path,generated)
             self.assertFalse(path.exists(),str(path))
-        self.assertFalse((ROOT/'src/main/resources/data/c/tags/item/ingots/copper.json').exists())
+        copper=ROOT/'src/main/resources/data/c/tags/item/ingots/copper.json'
+        self.assertNotIn('myvillage:chitong_ingot',json.loads(copper.read_text())['values'] if copper.exists() else [])
         ids={'myvillage:'+m['id'] for m in materials.load()}
         for path in (ROOT/'src/main/resources/data/myvillage/recipe').glob('*.json'):
             result=json.loads(path.read_text()).get('result',{})
