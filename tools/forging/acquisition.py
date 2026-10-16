@@ -1,5 +1,6 @@
 """Authored acquisition settings -> mining loot, worldgen, material UI and deposit textures."""
 import json
+import random
 from pathlib import Path
 from tools.gen_alchemy_assets import Canvas, png
 ROOT=Path(__file__).resolve().parents[2]
@@ -56,10 +57,10 @@ def ore_texture():
     return c.rows
 
 def sand_texture():
-    c=Canvas()
+    c=Canvas();rng=random.Random(391)
     for y in range(32):
         for x in range(32):
-            n=(x*13+y*29+x*y*5)%31-15
+            n=rng.randrange(-13,14)
             c.put(x,y,(142+n,133+n,108+n))
     for x,y in [(4,4),(15,3),(25,7),(8,14),(20,15),(3,25),(15,27),(28,25)]:
         c.poly([(x-2,y),(x,y-2),(x+3,y),(x+1,y+2)],(106,84,48))

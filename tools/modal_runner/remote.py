@@ -76,6 +76,7 @@ PRESETS["forging-ding"] = [["python3", "tools/gen_forging_assets.py", "--check"]
     ["python3", "tools/forging_ding_evidence.py"]]
 PRESETS["forging-lifecycle"] = [["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"]] + [["python3", "tools/forging_evidence.py", "--lifecycle-only"]]
 PRESETS["forging-runtime"] = PRESETS["forging-build"] + [["python3", "tools/forging_evidence.py"]]
+PRESETS["forging-acquisition"] = PRESETS["forging-build"] + [["python3", "tools/forging_acquisition_evidence.py"]]
 PRESETS["release-alchemy"] = PRESETS["release"] + PRESETS["alchemy-quality"]
 ALCHEMY_CASES = ("brewing", "multiplayer", "medicine", "persistence", "ui")
 
