@@ -19,6 +19,7 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT))
 from tools.forging_evidence import ForgingEvidence, MARK
 from tools.alchemy_quality_evidence import read_data,SecondClient
+from tools.golden_core_evidence import parse_profile
 from tools.combat_capture import scene,session as cs,procs
 from tools.buildgen.nbtread import _read_utf,_read_payload,TAG_COMPOUND
 
@@ -154,6 +155,13 @@ class AcquisitionEvidence(ForgingEvidence):
         self.rc(f'setblock {self.coords(pos)} {SAND}')
         self.mining(pos,SAND,'minecraft:iron_pickaxe','myvillage:edge_tempering_sand','sand-wrong-tool',False)
         self.report['completed'].append('tool_gates')
+    def fill_power(self,user=None):
+        u=user or self.s.username
+        cap=parse_profile(self.rc(f'myvillage cultivation info {u}'))['power_cap']
+        self.rc(f'myvillage cultivation setpower {u} {cap}')
+        actual=parse_profile(self.rc(f'myvillage cultivation info {u}'))['power']
+        if actual!=cap:raise RuntimeError(f'Power fixture rejected: {actual} != {cap}')
+        return cap
     def copper_stacks(self,user=None):return [s for s in self.inventory(user).values() if s['id']=='minecraft:copper_ingot']
     def copper_slot(self,user=None):return next(slot for slot,s in self.inventory(user).items() if s['id']=='minecraft:copper_ingot')
     def insert_copper(self,user=None,game=None):
@@ -167,25 +175,25 @@ class AcquisitionEvidence(ForgingEvidence):
         self.rc(f'myvillage cultivation awaken {u}')
         self.infusion();self.insert_copper();self.rc(f'myvillage cultivation setpower {u} 0');self.click(120,137);time.sleep(1.2);self.capture('insufficient-qi.png');self.close_menu()
         self.check('insufficient_qi_no_partial_pulse',self.copper_stacks()==original and self.count('myvillage:chitong_ingot')==0,self.copper_stacks())
-        self.rc(f'myvillage cultivation setpower {u} 30');self.infusion();self.insert_copper();self.click(120,137)
-        self.poll(lambda:self.profile()['power'],lambda n:n<=22,8,'two paid pulses');self.click(220,137);self.capture('paused-infusion-zh.png');self.close_menu()
+        cap=self.fill_power();self.infusion();self.insert_copper();self.click(120,137)
+        self.poll(lambda:self.profile()['power'],lambda n:n<=cap-8,8,'two paid pulses');self.click(220,137);self.capture('paused-infusion-zh.png');self.close_menu()
         stacks=self.copper_stacks();paid=stacks[0].get('components',{}).get(PROGRESS,0)
         self.check('pause_keeps_paid_batch',len(stacks)==1 and stacks[0]['count']==4 and 0<paid<self.acquisition['infusion']['qi_per_ingot'],stacks)
-        self.check('exact_qi_per_ingot',self.profile()['power']==30-4*paid,{'paid':paid,'power':self.profile()['power']})
+        self.check('exact_qi_per_ingot',self.profile()['power']==cap-4*paid,{'paid':paid,'power':self.profile()['power']})
         self.report['completed'].append('infusion_gates')
         before=self.inventory();self.rc('save-all flush');self.stop();self.language='en_us';self.start(reuse=True)
         self.check('partial_batch_survives_restart',self.inventory()==before,self.inventory());self.report['completed'].append('partial_restart')
         with SecondClient(self) as guest:
             v=guest.username;g=guest.game
-            self.rc(f'op {v}');self.rc(f'myvillage cultivation awaken {v}');self.rc(f'myvillage cultivation setpower {v} 30');self.rc(f'clear {v}')
+            self.rc(f'op {v}');self.rc(f'myvillage cultivation awaken {v}');self.fill_power(v);self.rc(f'clear {v}')
             self.rc(f'give {v} minecraft:copper_ingot 2')
             owner_before=self.inventory();self.infusion(g,v);self.insert_copper(v,g);self.click(120,137,game=g)
-            self.rc(f'myvillage cultivation setpower {u} 30');self.infusion();self.insert_copper();self.capture('resumed-infusion-en.png');self.click(120,137)
+            cap=self.fill_power();self.infusion();self.insert_copper();self.capture('resumed-infusion-en.png');self.click(120,137)
             remaining=4*(self.acquisition['infusion']['qi_per_ingot']-paid)
-            self.poll(lambda:self.profile()['power'],lambda n:n<=30-remaining,12,'owner resumed batch completed')
+            self.poll(lambda:self.profile()['power'],lambda n:n<=cap-remaining,12,'owner resumed batch completed')
             self.capture('completed-infusion-en.png');self.click(208,64,shift=True);self.close_menu()
             self.check('owner_exact_batch_output',self.count('myvillage:chitong_ingot')==4 and self.count('minecraft:copper_ingot')==0,self.inventory())
-            self.check('resume_pays_only_remaining',self.profile()['power']==30-remaining,{'power':self.profile()['power'],'remaining':remaining})
+            self.check('resume_pays_only_remaining',self.profile()['power']==cap-remaining,{'power':self.profile()['power'],'remaining':remaining})
             time.sleep(3);self.click(208,64,shift=True,game=g);self.close_menu(g)
             self.check('guest_exact_private_output',self.count('myvillage:chitong_ingot',v)==2 and self.count('minecraft:copper_ingot',v)==0,self.inventory(v))
             self.check('owner_natural_materials_not_shared',all(self.count(item)==sum(s['count'] for s in owner_before.values() if s['id']==item) for item in ['myvillage:xuantie_ingot','myvillage:edge_tempering_sand']),self.inventory())
