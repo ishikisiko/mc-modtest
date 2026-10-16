@@ -36,6 +36,9 @@ public final class ModItems {
     public static final DeferredRegister.Items ITEMS =
             DeferredRegister.createItems(MyVillageMod.MOD_ID);
 
+    public static final DeferredItem<QualityPickerItem> QUALITY_PICKER =
+            ITEMS.registerItem("quality_picker", QualityPickerItem::new);
+
     /** DeferredRegister for the {@code myvillage:main} creative tab. */
     public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS =
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, MyVillageMod.MOD_ID);
@@ -282,6 +285,7 @@ public final class ModItems {
                     .title(Component.translatable("itemGroup.myvillage.main"))
                     .icon(() -> new ItemStack(ROCKERY_BLOCK_ITEM.get()))
                     .displayItems((params, output) -> {
+                        output.accept(QUALITY_PICKER.get());
                         output.accept(ROCKERY_BLOCK_ITEM.get());
                         output.accept(TEST_ITEM_BLOCK_ITEM.get());
                         output.accept(SPIRIT_TESTING_STELE_ITEM.get());

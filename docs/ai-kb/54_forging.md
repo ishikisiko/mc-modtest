@@ -227,3 +227,20 @@ both weapons, hotbar/inventory/chest, renamed/enchanted/damaged items and saved
 component non-mutation. This is not a crafting or broad compatibility rerun.
 
 Delivery evidence: [2026-10-17 weapon quality colors and frames](../testing/2026-10-17-forging-quality.md).
+
+## Quality picker (0.58.4)
+
+`QualityPickerItem` is creative-tab/command acquisition only, with no recipe or
+loot. `client.item.QualityPickerScreen` opens from mapped use input while the item
+is held, including spectator mode; no game-mode or operator requirement is added.
+The client searches registered `myvillage` items locally and submits only item ID,
+quality, trait index and one/full-stack intent through `QualityPickerPayload`.
+Protocol 28 covers the added item/intent. The server requires a living holder,
+reconstructs the result using `PillQuality.apply` or `ForgedEquipment.apply`, and
+plans inventory insertion on copies. Unsupported quality/trait combinations and
+full inventories produce no item. Ordinary items are available only unchanged.
+
+`tools/gen_quality_picker_assets.py` owns the knowledge-book model alias and
+bilingual picker strings. Modal `--preset quality-picker-build` only compiles and
+packages committed resources. The user explicitly requested no tests or runtime
+validation for this delivery; gameplay/UI/multiplayer acceptance is `not_verified`.

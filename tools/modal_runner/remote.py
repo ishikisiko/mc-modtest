@@ -21,6 +21,7 @@ PRESETS = {
               ["xvfb-run", "-a", "glxinfo", "-B"]],
     "python": [["python3", "-m", "unittest", "discover", "-s", "tools/tests"]],
     "jar": [["./gradlew", "jar", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"]],
+    "quality-picker-build": [["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"]],
     "build": [["./gradlew", "test", "build", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"]],
     "crops-build": [["./gradlew", "test", "--tests", "com.example.myvillage.block.SpiritCropsTest", "build", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"]],
     "sword-qi-range": [["python3", "-m", "unittest", "tools.tests.test_combat_data", "tools.tests.test_sword_qi_capture"],

@@ -188,7 +188,7 @@ class CraftingAuthorityValidationTest(unittest.TestCase):
         self.assert_code('CRAFTING_SNAPSHOT_SENDER')
 
     def test_protocol_must_change_with_wire_format(self):
-        self.mutate('network/ModPayloads.java', 'PROTOCOL_VERSION = "27"', 'PROTOCOL_VERSION = "19"')
+        self.mutate('network/ModPayloads.java', 'PROTOCOL_VERSION = "28"', 'PROTOCOL_VERSION = "19"')
         self.assert_code('CRAFTING_PROTOCOL')
 
     def test_no_extra_crafting_payload_or_client_authority(self):

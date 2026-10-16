@@ -80,6 +80,7 @@ artifacts and confirmed cleanup are recorded.
 | `forging-tags` | Jar plus disposable datapack aliases, mapped tag costs/infusion, reload and restart; Java tests use forging-build | Per-run result required |
 | `forging-quality-preview` | Generated-resource check, jar and mapped UI captures of quality names, icon frames and tooltip borders across hotbar/inventory/chest | Per-run result required |
 | `pill-quality-preview` | PillQualityTest, jar and mapped UI captures of pill frames, tooltip borders, stack counts and adjacent weapon regression | Per-run result required |
+| `quality-picker-build` | Jar only using committed resources; no tests or game launch | Per-run result required |
 | `forging-acquisition-preview` | Jar and settled staged material screenshots only; no gameplay verdict | Per-run artifacts required |
 | `forging-acquisition` | Forging build, natural deposit readback, mapped mining and infusion, partial restart and two-client private batches | Per-run result required |
 | `forging-ding` | Ding geometry/state/protocol tests, jar, mapped placement and pulse/restart visual evidence | Per-run result required |

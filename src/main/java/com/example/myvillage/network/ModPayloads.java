@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 public final class ModPayloads {
     private static final Logger LOGGER = LoggerFactory.getLogger(ModPayloads.class);
     /** Protocol 20 adds saved crafting aptitudes and server-derived quality caps to the owning snapshot (19: stele sessions). Protocol 19 adds stele screen open/close and a session token to bounded fate intents (18: fate snapshot/budget; 17: empty charging-only cancellation intent; 16: qi status and charge/release intents; 15: sect tasks; 14: scripture hall; 13: sect dialogue; 11: study progress; 10: core-technique switch). */
-    public static final String PROTOCOL_VERSION = "27";
+    public static final String PROTOCOL_VERSION = "28";
 
     private ModPayloads() {
     }
@@ -26,6 +26,10 @@ public final class ModPayloads {
 
     private static void registerPayloadHandlers(RegisterPayloadHandlersEvent event) {
         PayloadRegistrar registrar = event.registrar(PROTOCOL_VERSION);
+        registrar.playToServer(QualityPickerPayload.TYPE, QualityPickerPayload.STREAM_CODEC, (payload, context) -> {
+            if (context.player() instanceof ServerPlayer player) context.enqueueWork(() ->
+                    com.example.myvillage.item.QualityPicker.give(player, payload.item(), payload.quality(), payload.trait(), payload.fullStack()));
+        });
         registrar.playToServer(
                 FlyingSwordInputPayload.TYPE,
                 FlyingSwordInputPayload.STREAM_CODEC,

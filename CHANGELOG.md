@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.58.4
+
+- 新增“品质取物器”：创造栏获取，持有后任意模式可右键打开；按名称或 ID 搜索模组物品，选择支持的品质、兵器专长，取一个或一组。
+- 取出的丹药和兵器使用现有品质与专长规则，普通材料按原样取出；无生存配方或掉落。新增取物意图，兼容协议升为 28。
+
 ## 0.58.3
 
 - 回灵丹、养元丹、凝神丹接入品质色框：下品绿、中品蓝、上品紫、极品金；物品图标、悬浮说明框和名称统一配色。
