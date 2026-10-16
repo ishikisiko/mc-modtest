@@ -126,10 +126,12 @@ class BuildingEvidence(Evidence):
             self.report['buildings'][name]={'name':d['presentation']['name'],'size':d['size'],'origin':origin,'screenshots':[],
                 'source_sha256':self.source_hashes[name]}
             reply=self.rc(f'place template {name} '+' '.join(map(str,origin)))
-            self.check(name+'_placed', 'Placed' in reply or '放置' in reply,reply)
             # Authoritative block probe; full-volume equality is checked after SAVE.
+            # The fresh sample floor is smooth_stone, so this is not satisfied
+            # by the pre-existing fixture. Do not infer placement from wording.
             x,y,z=origin
-            self.poll(lambda:self.rc(f'execute if block {x} {y} {z} minecraft:stone_bricks'),lambda s:'passed' in s,10,'placed foundation')
+            probe=self.poll(lambda:self.rc(f'execute if block {x} {y} {z} minecraft:stone_bricks'),lambda s:'passed' in s,10,'placed foundation')
+            self.check(name+'_placed',True,{'placement_reply':reply,'world_probe':probe})
         self.report['completed'].append('place_four');self.save()
 
     def walk(self,d,trial):
