@@ -198,3 +198,5 @@ animation/input regressions, then mapped casts/cancellations and a second client
 normal-speed charging/release observation. Actual evidence is recorded separately.
 
 Charging stance evidence: [0.56.0-fix3](../testing/2026-10-16-sword-qi-charge-stance.md).
+
+Waist-draw visual and parity evidence: [0.56.0-fix4](../testing/2026-10-16-sword-qi-waist-charge.md).
