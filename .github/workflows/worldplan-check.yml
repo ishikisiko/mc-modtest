@@ -1,0 +1,68 @@
+name: Worldplan verification
+on:
+  push:
+    branches: [feature/seeded-worldplan-20261017]
+    paths-ignore: ['docs/**', '.github/workflows/worldplan-source.yml']
+permissions:
+  contents: read
+concurrency:
+  group: worldplan-verification
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Verified exact PAL dependency
+        shell: bash
+        run: |
+          curl -fL --retry 3 'https://mediafilez.forgecdn.net/files/7611/367/PlayerAnimationLibNeoforge-1.1.4%2Bmc.1.21.1.jar' -o 'PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar'
+          echo 'b0836ad98db1e614f1e62cb40d5943eb4ba7d51f298e4b3ad0746770364ab072  PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar' | sha256sum -c -
+          chmod +x gradlew
+      - name: Focused checks
+        shell: bash
+        run: |
+          mkdir -p reports/worldplan
+          if test -f tools/worldplan/ci.py; then
+            python3 tools/worldplan/ci.py
+          else
+            ./gradlew compileJava -x generateAllStructures --no-daemon --max-workers=2 -Dorg.gradle.jvmargs=-Xmx3g 2>&1 | tee reports/worldplan/baseline-compile.log
+          fi
+      - name: Collect source API for reproducible development
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p reports/worldplan/api
+          python3 - <<'PY'
+          import pathlib, zipfile, shutil
+          dst=pathlib.Path('reports/worldplan/api')
+          names={'ChunkGenerator.java','NoiseBasedChunkGenerator.java','BiomeSource.java','ChunkGeneratorStructureState.java','StructurePlacement.java','RandomSpreadStructurePlacement.java','TemplateStructurePiece.java','WorldGenRegion.java','ChunkAccess.java','NoiseColumn.java','MultiNoiseBiomeSource.java','Heightmap.java','Structure.java','StructurePiece.java','RandomState.java','ServerLevel.java','ChunkMap.java'}
+          for p in pathlib.Path.home().joinpath('.gradle').rglob('*.jar'):
+              if p.name=='gson-2.10.1.jar': shutil.copy2(p,dst/p.name)
+              if 'sources' not in p.name: continue
+              try:
+                  with zipfile.ZipFile(p) as z:
+                      for n in z.namelist():
+                          if n.split('/')[-1] in names and n.startswith('net/minecraft/'):
+                              (dst/n.split('/')[-1]).write_bytes(z.read(n))
+              except zipfile.BadZipFile: pass
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: worldplan-verification-${{ github.run_number }}
+          path: |
+            reports/worldplan/
+            build/libs/*.jar
+            build/reports/tests/
+            build/test-results/
+            out/preview/worldplan/
+          retention-days: 7
