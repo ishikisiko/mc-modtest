@@ -69,6 +69,11 @@ class AcquisitionEvidence(ForgingEvidence):
         state=cs.start(cs.SessionConfig(session_id=secrets.token_hex(6),reuse_world=reuse,natural_terrain=True,language=self.language,lock=str(procs.default_lock_path(ROOT))))
         self.s=cs.Session.attach(ui_check=True);self.sessions+=1
         self.report['phases'].append({'phase':'restart_setup' if reuse else 'initial_setup','wall_s':round(time.monotonic()-t,3),'capture_timings':state.get('timings',{})});self.save()
+    def capture(self,name):
+        # A menu capture may move its cursor; a grabbed in-world cursor is the camera.
+        if self.s.game.pointer_grabbed():
+            self.s.game.save_png(self.s.game.grab_raw(),self.out/name)
+        else:super().capture(name)
     @staticmethod
     def coords(pos):return ' '.join(str(v) for v in pos)
     def look(self,pos,target,user=None,game=None,mode='survival'):

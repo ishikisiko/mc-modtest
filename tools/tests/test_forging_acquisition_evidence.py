@@ -19,3 +19,15 @@ class AcquisitionEvidenceTest(unittest.TestCase):
         self.assertEqual(['python3','tools/forging_acquisition_evidence.py'],commands[-1])
         self.assertFalse(any('release_gate.py' in ' '.join(c) for c in commands))
         self.assertIn('com.example.myvillage.forging.*',commands[-2])
+
+    def test_world_capture_never_moves_the_grabbed_camera_cursor(self):
+        from pathlib import Path
+        from types import SimpleNamespace
+        from unittest.mock import Mock
+        from tools.forging_acquisition_evidence import AcquisitionEvidence
+        evidence=object.__new__(AcquisitionEvidence)
+        game=Mock();game.pointer_grabbed.return_value=True;game.grab_raw.return_value=b'pixels'
+        evidence.s=SimpleNamespace(game=game);evidence.out=Path('/tmp/evidence')
+        evidence.capture('world.png')
+        game.save_png.assert_called_once_with(b'pixels',Path('/tmp/evidence/world.png'))
+        game.xdo.assert_not_called()
