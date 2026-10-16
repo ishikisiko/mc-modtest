@@ -59,3 +59,5 @@ Unobserved appearance, sound, feel, balance, owner FPS, broad multiplayer and
 natural survival acquisition stay `not_verified`. No timed crafting, minigame,
 reforging/ascension, profession XP, new ore generation or special boss materials
 are included. These are follow-up design scope, not hidden completed features.
+
+Current delivery evidence: [2026-10-16 forging prototype](../testing/2026-10-16-forging-prototype.md).
