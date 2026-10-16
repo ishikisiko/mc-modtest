@@ -200,8 +200,10 @@ class AcquisitionEvidence(ForgingEvidence):
         self.report['completed'].append('private_batches');self.report['multiplayer']='bounded two-client private-batch checks'
     def forge_acquired(self):
         u=self.s.username;self.rc(f'myvillage cultivation crafting set {u} forging 0')
-        self.rc(f'item replace entity {u} hotbar.8 with myvillage:pattern_qingfeng_sword')
-        self.look((.5,121,.5),(.5,130,-4));self.s.game.key('9');self.s.game.xdo('click','3')
+        self.rc(f'give {u} myvillage:pattern_qingfeng_sword')
+        pattern_slot=next(slot for slot,stack in self.inventory().items() if stack['id']=='myvillage:pattern_qingfeng_sword')
+        if not 0<=pattern_slot<9:raise RuntimeError('Pattern fixture needs a free hotbar slot')
+        self.look((.5,121,.5),(.5,130,-4));self.s.game.key(str(pattern_slot+1));self.s.game.xdo('click','3')
         self.poll(lambda:self.learned(),lambda ids:'qingfeng_sword' in ids,8,'mapped pattern use');self.s.game.key('1')
         for trait,material in [('sharp','edge_tempering_sand'),('channeling','chitong_ingot'),('tough','xuantie_ingot')]:
             rid='myvillage:'+material;before=self.count(rid)
