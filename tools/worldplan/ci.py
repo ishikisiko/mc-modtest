@@ -10,11 +10,11 @@ OUT=ROOT/'reports/worldplan';OUT.mkdir(parents=True,exist_ok=True)
 commands=[
     [sys.executable,'tools/worldplan/generate_assets.py'],
     [sys.executable,'tools/worldplan/generate_assets.py','--check'],
-    ['./gradlew','test','jar','--tests','*worldplan*','--tests','*region.runtime*','--tests','*WorldSimGenesisTest*','--tests','*SimPurityGuardTest*','-x','generateAllStructures','--no-daemon','--max-workers=2','-Dorg.gradle.jvmargs=-Xmx3g'],
+    ['./gradlew','test','--tests','*worldplan*','--tests','*region.runtime*','--tests','*WorldSimGenesisTest*','--tests','*SimPurityGuardTest*','jar','-x','generateAllStructures','--no-daemon','--max-workers=2','-Dorg.gradle.jvmargs=-Xmx3g'],
     [sys.executable,'tools/worldplan/preview.py','--seed','20261017'],
     [sys.executable,'tools/worldplan/preview.py','--seed','-9223372036854775808','--out','out/preview/worldplan/min-seed'],
+    [sys.executable,'tools/worldplan/acceptance.py'],
 ]
-if (ROOT/'tools/worldplan/acceptance.py').exists():commands.append([sys.executable,'tools/worldplan/acceptance.py'])
 result={'source':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'environment':'isolated GitHub Actions; Modal credentials unavailable; not owner PC','commands':[]}
 try:
     for i,cmd in enumerate(commands):
