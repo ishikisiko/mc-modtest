@@ -1,0 +1,79 @@
+name: Worldplan patch and verification
+on:
+  push:
+    branches: [feature/seeded-worldplan-20261017]
+    paths: [.worldplan-patch.b64]
+permissions:
+  contents: write
+concurrency:
+  group: worldplan-patch
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Apply development-clone patch
+        run: |
+          python3 - <<'PY'
+          import base64, gzip, hashlib, json, pathlib, subprocess
+          src=pathlib.Path('.worldplan-patch.b64')
+          lines=src.read_text().splitlines()
+          metadata=json.loads(lines[0])
+          packed=base64.b64decode(''.join(lines[1:]),validate=True)
+          assert hashlib.sha256(packed).hexdigest()==metadata['sha256']
+          patch=gzip.decompress(packed)
+          assert len(patch)<2000000
+          allowed_prefixes=('src/main/java/com/example/myvillage/', 'src/test/java/com/example/myvillage/', 'src/main/resources/', 'tools/worldplan/', 'blueprints/worldplan/', 'docs/')
+          allowed_files={'build.gradle','gradle.properties','README.md','CHANGELOG.md','tools/world_sim_cli.py'}
+          for line in patch.decode().splitlines():
+              if line.startswith('+++ b/') or line.startswith('--- a/'):
+                  name=line[6:]
+                  assert '..' not in pathlib.PurePosixPath(name).parts
+                  assert name in allowed_files or name.startswith(allowed_prefixes),name
+          if metadata.get('replace_baseline_probe'):
+              target=pathlib.Path('tools/worldplan/ci.py')
+              assert hashlib.sha256(target.read_bytes()).hexdigest()==metadata['baseline_probe_sha256']
+              target.unlink()
+          dest=pathlib.Path('/tmp/worldplan.patch');dest.write_bytes(patch)
+          subprocess.run(['git','apply','--check',str(dest)],check=True)
+          subprocess.run(['git','apply',str(dest)],check=True)
+          src.unlink()
+          PY
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'feat(worldplan): implement seed-driven cultivation continents and chunk-owned Yunshan district'
+          git push origin HEAD:feature/seeded-worldplan-20261017
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+      - name: Exact PAL dependency
+        run: |
+          curl -fL --retry 3 'https://mediafilez.forgecdn.net/files/7611/367/PlayerAnimationLibNeoforge-1.1.4%2Bmc.1.21.1.jar' -o 'PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar'
+          echo 'b0836ad98db1e614f1e62cb40d5943eb4ba7d51f298e4b3ad0746770364ab072  PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar' | sha256sum -c -
+          chmod +x gradlew
+      - name: Focused checks
+        run: python3 tools/worldplan/ci.py
+      - name: Export exact source and bounded logs
+        if: always()
+        run: |
+          mkdir -p reports/worldplan
+          git rev-parse HEAD > reports/worldplan/source-commit.txt
+          git bundle create reports/worldplan/source.bundle --all
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: worldplan-delivery-${{ github.run_number }}
+          path: |
+            reports/worldplan/
+            build/libs/*.jar
+            build/test-results/
+            build/reports/tests/
+            out/preview/worldplan/
+          retention-days: 7
