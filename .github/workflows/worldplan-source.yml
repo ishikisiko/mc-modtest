@@ -1,0 +1,37 @@
+name: Worldplan source checkout
+on:
+  push:
+    branches: [feature/seeded-worldplan-20261017]
+    paths: [.github/workflows/worldplan-source.yml]
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Export exact public source for offline work
+        env:
+          MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
+          MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
+        run: |
+          mkdir -p /tmp/worldplan-source
+          git bundle create /tmp/worldplan-source/source.bundle --all
+          git rev-parse HEAD > /tmp/worldplan-source/commit.txt
+          python3 - <<'PY'
+          import json, os
+          from pathlib import Path
+          Path('/tmp/worldplan-source/environment.json').write_text(json.dumps({
+              'modal_credentials_available': bool(os.environ.get('MODAL_TOKEN_ID') and os.environ.get('MODAL_TOKEN_SECRET')),
+              'heavy_work_executed': False
+          }, indent=2))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: worldplan-source
+          path: /tmp/worldplan-source/
+          retention-days: 3
