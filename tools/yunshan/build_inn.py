@@ -26,6 +26,48 @@ def canonical(state):
     return name + ('[' + ','.join(f'{k}={v}' for k, v in sorted(props.items())) + ']' if props else '')
 
 
+def check_roof(blocks, spec, size):
+    """Trace the roof shell in half-block cross sections, including stair shape.
+
+    Eight-neighbour connectivity allows the edge contact of normal stair roofs,
+    but rejects a real half-block air gap. This is not a lighting simulation.
+    """
+    xmin, xmax = spec['x_range']
+    checked = []
+    for z in range(spec['z_range'][0], spec['z_range'][1]+1):
+        solid = set()
+        for x in range(xmin, xmax+1):
+            for y in range(spec['min_y'], size[1]):
+                name, props = nbt.parse_block_state(blocks.get((x,y,z), 'minecraft:air'))
+                if name == 'minecraft:air':
+                    continue
+                for a in (0,1):
+                    for b in (0,1):
+                        if name.endswith('_slab') and props.get('type') != 'double':
+                            if b != (1 if props.get('type') == 'top' else 0):
+                                continue
+                        elif name.endswith('_stairs'):
+                            assert props.get('facing') in ('east','west'), 'unsupported roof stair axis'
+                            base = 1 if props.get('half') == 'top' else 0
+                            high_x = 1 if props.get('facing') == 'east' else 0
+                            if b != base and a != high_x:
+                                continue
+                        solid.add((2*x+a,2*y+b))
+        seen = {p for p in solid if p[0] == 2*xmin}
+        todo = deque(seen)
+        while todo:
+            x,y = todo.popleft()
+            for dx in (-1,0,1):
+                for dy in (-1,0,1):
+                    p = (x+dx,y+dy)
+                    if p in solid and p not in seen:
+                        seen.add(p)
+                        todo.append(p)
+        assert any(x == 2*xmax+1 for x,y in seen), f'roof shell gap at z={z}'
+        checked.append(z)
+    return {'connected_sections': checked, 'resolution_blocks': 0.5}
+
+
 def check_walks(blocks, targets, size):
     """Conservative two-block headroom, doors opened, stair-only elevation gain.
 
@@ -120,6 +162,7 @@ def build(source, out):
     data = json.loads(source.read_text())
     size, _, blocks, _ = nbt.expand_structure(data)
     walks = check_walks(blocks, data['walk_targets'], size)
+    roof = check_roof(blocks, data['roof_check'], size) if 'roof_check' in data else 'not_checked_legacy'
     structure = export.Structure(blocks)
     assert list(structure.size) == size
     out.mkdir(parents=True, exist_ok=True)
@@ -140,6 +183,7 @@ def build(source, out):
     report = {'id': data['id'], 'size': size, 'non_air_blocks': sum(s != 'minecraft:air' for s in blocks.values()),
               'source_sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
               'walk_targets': walks, 'walk_check': 'conservative block topology; doors assumed open; no jumping',
+              'roof_shell': roof,
               'export_roundtrip': 'all cells and sign text match in NBT and Sponge v2',
               'site': data['site'],
               'not_verified': ['actual_game_placement', 'player_collision', 'visual_acceptance', 'NPC_services', 'FPS']}
@@ -147,6 +191,12 @@ def build(source, out):
     # Preview renderer reads this normalized DSL, not the blueprint-v1 format.
     (out/'preview.json').write_text(json.dumps(data, ensure_ascii=False)+'\n')
     template = (ROOT/'tools/yunshan/inn_viewer.html').read_text()
+    version = data['id'].rsplit('_',1)[-1]
+    template = template.replace('yunshan_south_gate_inn_v1', data['id'].split(':')[1])
+    template = template.replace('独立蓝图 v1', '独立蓝图 ' + version)
+    template = template.replace('第一栋功能建筑 · v1', '第一栋功能建筑 · ' + version)
+    template = template.replace('href="yunshan_d1_before_inn_v1.zip"',
+                                'href="../yunshan-inn-v1/yunshan_d1_before_inn_v1.zip"')
     payload = {'blocks': [[*p, s] for p, s in blocks.items()], 'signs': data['signs']}
     html = template.replace('/*THREE*/', (ROOT/'tools/web/three.min.js').read_text())
     html = html.replace('/*ORBIT*/', (ROOT/'tools/web/OrbitControls.js').read_text())
@@ -158,7 +208,7 @@ def build(source, out):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--source', type=Path, default=ROOT/'blueprints/yunshan/south_gate_inn_v1.json')
-    parser.add_argument('--out', type=Path, default=ROOT/'out/preview/yunshan-inn-v1')
+    parser.add_argument('--source', type=Path, default=ROOT/'blueprints/yunshan/south_gate_inn_v2.json')
+    parser.add_argument('--out', type=Path, default=ROOT/'out/preview/yunshan-inn-v2')
     args = parser.parse_args()
     build(args.source.resolve(), args.out.resolve())

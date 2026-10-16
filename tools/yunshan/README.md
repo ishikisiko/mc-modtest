@@ -1,4 +1,8 @@
-# 云山 D1：南门客栈 v1
+# 云山 D1：南门客栈 v2
+
+v2 修复 v1 主屋顶两侧的半格贯通漏缝：将两侧 26 块下半砖改为上半砖，使檐口
+接上上坡瓦面；外檐和屋脊高度、地块、室内布局不变。v1 源文件和 `out/preview/yunshan-inn-v1/`
+交付保持原样。默认构建输出到 `out/preview/yunshan-inn-v2/`。
 
 第一栋功能建筑的独立建筑候选。它具有接待、用餐、后厨和两间客房的空间，
 原版床、木门、烟熏炉和储物桶使用原版方块；尚未接入收费住宿、任务或 NPC。
@@ -6,9 +10,9 @@
 
 ## 来源与另存
 
-- 唯一 authored input：`blueprints/yunshan/south_gate_inn_v1.json`，手工 JSON DSL。
+- 当前唯一 authored input：`blueprints/yunshan/south_gate_inn_v2.json`，手工 JSON DSL。
 - 使用已有 NBT 与 Sponge v2 exporter；没有新增 settlement family 或屋顶分派。
-- 输出：`out/preview/yunshan-inn-v1/yunshan_south_gate_inn_v1.{blueprint.json,nbt,schem}`。
+- 输出：`out/preview/yunshan-inn-v2/yunshan_south_gate_inn_v2.{blueprint.json,nbt,schem}`。
 - 预览：同目录 `index.html`，实际方块驱动的离线简化模型，可切换一、二层和入口视角。
 - 原资料：`out/yunshan-blueprint/`、`out/yunshan-d1-build/`、`out/yunshan-scale-probe/`。
   本次另存这些目录中的 140 个文件为
@@ -28,6 +32,8 @@ python3 -m unittest discover -s tools/tests -p test_yunshan_inn.py
 SCHEM 与源数据，核对招牌文字。门按打开处理，家具和薄装饰按完整障碍保守处理。
 该检查不替代游戏碰撞、格窗实际外观、光照、玩家手感和性能验收。
 负例测试验证封门、堵楼梯井和反向楼梯会失败。
+v2 新增半格分辨率的屋顶截面连接检查，覆盖整个主屋顶的 13 个截面；
+旧 v1 会触发漏缝失败。边接触按正常阶梯瓦面允许通过，不把此检查称为游戏光照验证。
 
 预览使用仓库内 vendored Three.js，不依赖 CDN。仅用于人工交付时复用正确的
 预览服务；不得在同端口覆盖其他接口。支持移动端和五个视角。
