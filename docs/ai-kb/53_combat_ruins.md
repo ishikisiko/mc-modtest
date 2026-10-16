@@ -92,3 +92,7 @@ rejections, shared admission, three mapped combat waves, reward extraction, clea
 re-use with another pearl and normal save/restart. Preset existence is not a pass;
 consult the delivery record for observed results. Appearance/balance remain
 `not_verified` until owner acceptance.
+
+Observed portable-trial evidence: [0.56.0 delivery record](../testing/2026-10-16-demon-trial.md).
+After a resource-only correction, `--preset demon-trial-build` packages the fixed source
+without repeating gameplay; runtime evidence and the final asset revision are recorded separately.
