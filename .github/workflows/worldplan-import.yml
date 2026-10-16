@@ -1,12 +1,13 @@
-name: Worldplan patch and verification
+name: Worldplan cloud acceptance
 on:
   push:
     branches: [feature/seeded-worldplan-20261017]
-    paths: [.worldplan-patch.b64]
+    paths-ignore: ['docs/**']
+  workflow_dispatch:
 permissions:
   contents: write
 concurrency:
-  group: worldplan-patch
+  group: worldplan-acceptance
   cancel-in-progress: false
 jobs:
   verify:
@@ -16,41 +17,16 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Apply development-clone patch
+      - name: Integrate checked development-clone edits once
         run: |
-          python3 - <<'PY'
-          import base64, gzip, hashlib, json, pathlib, subprocess
-          src=pathlib.Path('.worldplan-patch.b64')
-          lines=src.read_text().splitlines()
-          metadata=json.loads(lines[0])
-          parts=[pathlib.Path('.worldplan-part-'+str(i)+'.b64') for i in range(metadata.get('parts',0))]
-          encoded=''.join(p.read_text().strip() for p in parts) if parts else ''.join(lines[1:])
-          packed=base64.b64decode(encoded,validate=True)
-          assert hashlib.sha256(packed).hexdigest()==metadata['sha256']
-          patch=gzip.decompress(packed)
-          assert len(patch)<2000000
-          allowed_prefixes=('src/main/java/com/example/myvillage/', 'src/test/java/com/example/myvillage/', 'src/main/resources/', 'tools/worldplan/', 'blueprints/worldplan/', 'docs/')
-          allowed_files={'build.gradle','gradle.properties','README.md','CHANGELOG.md','tools/world_sim_cli.py'}
-          for line in patch.decode().splitlines():
-              if line.startswith('+++ b/') or line.startswith('--- a/'):
-                  name=line[6:]
-                  assert '..' not in pathlib.PurePosixPath(name).parts
-                  assert name in allowed_files or name.startswith(allowed_prefixes),name
-          if metadata.get('replace_baseline_probe'):
-              target=pathlib.Path('tools/worldplan/ci.py')
-              assert subprocess.check_output(['git','hash-object',str(target)],text=True).strip()=='2dfd6a6069c27470c6ae74e9ca152bc8fcb4cfa1'
-              target.unlink()
-          dest=pathlib.Path('/tmp/worldplan.patch');dest.write_bytes(patch)
-          subprocess.run(['git','apply','--check',str(dest)],check=True)
-          subprocess.run(['git','apply',str(dest)],check=True)
-          src.unlink()
-          for part in parts:part.unlink()
-          PY
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add -A
-          git commit -m 'feat(worldplan): implement seed-driven cultivation continents and chunk-owned Yunshan district'
-          git push origin HEAD:feature/seeded-worldplan-20261017
+          if test -f tools/worldplan/apply_integration.py; then
+            python3 tools/worldplan/apply_integration.py
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git add -A
+            git commit -m 'feat(worldplan): integrate frozen geography with generation, region queries and ecology'
+            git push origin HEAD:feature/seeded-worldplan-20261017
+          fi
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -63,7 +39,7 @@ jobs:
           chmod +x gradlew
       - name: Focused checks
         run: python3 tools/worldplan/ci.py
-      - name: Export exact source and bounded logs
+      - name: Export exact source and logs
         if: always()
         run: |
           mkdir -p reports/worldplan

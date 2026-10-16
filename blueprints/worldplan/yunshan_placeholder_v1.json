@@ -1,0 +1,21 @@
+{
+  "id": "myvillage:yunshan_placeholder_v1",
+  "name": "云山古城·功能街区占位",
+  "source_manifest": "blueprints/yunshan/functional_buildings_v1.json",
+  "source_origin": [2921, 67, 241],
+  "size": [80, 32, 112],
+  "terraces": [{"last_z": 37, "height": 3}, {"last_z": 63, "height": 2}, {"last_z": 64, "height": 1}, {"last_z": 111, "height": 0}],
+  "wall_inset": 3,
+  "wall_height": 6,
+  "gate": {"center_x": 40, "width": 7},
+  "roads": [
+    {"from": [40, 8], "to": [40, 108], "width": 5},
+    {"from": [30, 22], "to": [40, 22], "width": 3},
+    {"from": [40, 57], "to": [43, 57], "width": 3},
+    {"from": [31, 90], "to": [31, 98], "width": 3},
+    {"from": [56, 90], "to": [56, 98], "width": 3},
+    {"from": [29, 98], "to": [58, 98], "width": 5}
+  ],
+  "palette": {"foundation": "minecraft:stone", "ground": "minecraft:grass_block", "road": "minecraft:stone_bricks", "wall": "minecraft:stone_bricks", "wall_cap": "minecraft:stone_brick_slab[type=bottom,waterlogged=false]", "stairs": "minecraft:stone_brick_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"},
+  "description": "Uses the four tracked Yunshan source buildings at their original relative sites, elevations and orientations. New connecting streets, terraces and walls are a placement fixture, not the missing complete D1 city or a finished city art pass."
+}

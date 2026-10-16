@@ -1,24 +1,26 @@
-"""Temporary baseline probe; replaced by feature acceptance before delivery."""
-import pathlib
+"""Focused isolated-cloud worldplan checks. No unrelated release suite or source mutation."""
+from pathlib import Path
 import subprocess
 import sys
-import zipfile
+import json
+import time
 
-out = pathlib.Path('reports/worldplan')
-out.mkdir(parents=True, exist_ok=True)
-with (out/'baseline-compile.log').open('w') as log:
-    result = subprocess.run(['./gradlew','compileJava','-x','generateAllStructures','--no-daemon','--max-workers=2','-Dorg.gradle.jvmargs=-Xmx3g'], stdout=log, stderr=subprocess.STDOUT)
-api = out/'api'
-api.mkdir(exist_ok=True)
-classes = ['net.minecraft.world.level.chunk.ChunkGenerator','net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator','net.minecraft.world.level.biome.BiomeSource','net.minecraft.world.level.levelgen.RandomState','net.minecraft.world.level.chunk.ChunkGeneratorStructureState','net.minecraft.world.level.levelgen.structure.Structure','net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate','net.minecraft.server.level.WorldGenRegion','net.minecraft.world.level.chunk.ChunkAccess','net.minecraft.world.level.NoiseColumn']
-for p in pathlib.Path.home().joinpath('.gradle').rglob('*.jar'):
-    try:
-        with zipfile.ZipFile(p) as z:
-            if classes[0].replace('.','/')+'.class' not in z.namelist(): continue
-            for cls in classes:
-                with (api/(cls.split('.')[-1]+'.javap.txt')).open('w') as f:
-                    subprocess.run(['javap','-p','-c','-classpath',str(p),cls], stdout=f, stderr=subprocess.STDOUT)
-            break
-    except zipfile.BadZipFile:
-        continue
-sys.exit(result.returncode)
+ROOT=Path(__file__).resolve().parents[2]
+OUT=ROOT/'reports/worldplan';OUT.mkdir(parents=True,exist_ok=True)
+commands=[
+    [sys.executable,'tools/worldplan/generate_assets.py'],
+    [sys.executable,'tools/worldplan/generate_assets.py','--check'],
+    ['./gradlew','test','jar','--tests','*worldplan*','--tests','*region.runtime*','--tests','*WorldSimGenesisTest*','--tests','*SimPurityGuardTest*','-x','generateAllStructures','--no-daemon','--max-workers=2','-Dorg.gradle.jvmargs=-Xmx3g'],
+    [sys.executable,'tools/worldplan/preview.py','--seed','20261017'],
+    [sys.executable,'tools/worldplan/preview.py','--seed','-9223372036854775808','--out','out/preview/worldplan/min-seed'],
+]
+if (ROOT/'tools/worldplan/acceptance.py').exists():commands.append([sys.executable,'tools/worldplan/acceptance.py'])
+result={'source':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'environment':'isolated GitHub Actions; Modal credentials unavailable; not owner PC','commands':[]}
+try:
+    for i,cmd in enumerate(commands):
+        start=time.monotonic();print('RUN',cmd,flush=True)
+        with (OUT/f'{i:02}-command.log').open('w') as log:proc=subprocess.run(cmd,cwd=ROOT,stdout=log,stderr=subprocess.STDOUT)
+        entry={'command':cmd,'returncode':proc.returncode,'seconds':round(time.monotonic()-start,3)};result['commands'].append(entry);print(entry,flush=True)
+        if proc.returncode:
+            print((OUT/f'{i:02}-command.log').read_text()[-14000:],flush=True);raise SystemExit(proc.returncode)
+finally:(OUT/'checks.json').write_text(json.dumps(result,ensure_ascii=False,indent=2))
