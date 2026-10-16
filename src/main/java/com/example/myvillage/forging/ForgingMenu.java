@@ -39,7 +39,7 @@ public final class ForgingMenu extends AbstractContainerMenu {
             }:DataSlot.standalone();learned.add(known);addDataSlot(known);
         }
         cap=inventory.player instanceof ServerPlayer p?new DataSlot(){
-            public int get(){var a=p.getData(CultivationAttachments.CRAFTING.get());return a.initialized()?a.qualityCap(CraftingAptitudes.Profession.FORGING,CraftingRules.get()):0;}
+            public int get(){var a=p.getData(CultivationAttachments.CRAFTING.get());return a.initialized() && com.example.myvillage.cultivation.CultivationService.getProfile(p).awakened()?a.qualityCap(CraftingAptitudes.Profession.FORGING,CraftingRules.get()):0;}
             public void set(int v){}
         }:DataSlot.standalone();addDataSlot(cap);
     }

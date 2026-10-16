@@ -108,7 +108,8 @@ public final class ClientSwordQi {
         // Preserve the ordinary interaction path for shelves, steles and NPC dialogue.
         if (mc.hitResult != null && mc.hitResult.getType() != net.minecraft.world.phys.HitResult.Type.MISS) {
             if (mc.hitResult instanceof net.minecraft.world.phys.BlockHitResult block
-                    && mc.level != null && mc.level.getBlockState(block.getBlockPos()).hasBlockEntity()) return;
+                    && mc.level != null && (mc.level.getBlockState(block.getBlockPos()).hasBlockEntity()
+                    || mc.level.getBlockState(block.getBlockPos()).is(com.example.myvillage.block.ModBlocks.FORGING_TABLE.get()))) return;
             if (mc.hitResult instanceof net.minecraft.world.phys.EntityHitResult entity
                     && entity.getEntity() instanceof com.example.myvillage.entity.npc.NpcEntity) return;
         }
