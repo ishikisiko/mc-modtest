@@ -29,5 +29,5 @@ class AcquisitionEvidenceTest(unittest.TestCase):
         game=Mock();game.pointer_grabbed.return_value=True;game.grab_raw.return_value=b'pixels'
         evidence.s=SimpleNamespace(game=game);evidence.out=Path('/tmp/evidence')
         evidence.capture('world.png')
-        game.save_png.assert_called_once_with(b'pixels',Path('/tmp/evidence/world.png'))
+        game.shot.assert_called_once_with(Path('/tmp/evidence/world.png'),max_wait=8,settle=2)
         game.xdo.assert_not_called()

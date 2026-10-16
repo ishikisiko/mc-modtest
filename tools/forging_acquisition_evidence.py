@@ -73,7 +73,7 @@ class AcquisitionEvidence(ForgingEvidence):
     def capture(self,name):
         # A menu capture may move its cursor; a grabbed in-world cursor is the camera.
         if self.s.game.pointer_grabbed():
-            self.s.game.save_png(self.s.game.grab_raw(),self.out/name)
+            self.s.game.shot(self.out/name,max_wait=8,settle=2)
         else:super().capture(name)
     @staticmethod
     def coords(pos):return ' '.join(str(v) for v in pos)
@@ -212,6 +212,22 @@ class AcquisitionEvidence(ForgingEvidence):
             products=[s for s in self.inventory().values() if s['id']=='myvillage:qingfeng_sword' and s.get('components',{}).get(MARK,{}).get('trait')==trait]
             self.check('acquired_material_forges_'+trait,self.count(rid)==before-1 and len(products)==1,{'before':before,'after':self.count(rid),'products':products})
         self.report['completed'].append('mapped_additive_consumption')
+    def visual_preview(self):
+        self.report['selected']=['staged_visuals'];self.start();u=self.s.username
+        for cmd in scene.world_rules():self.rc(cmd)
+        self.rc('myvillage world pause');self.platform()
+        for cmd in ['fill -4 121 3 -2 121 5 myvillage:xuantie_ore',
+                    'setblock -3 122 4 myvillage:xuantie_ore',
+                    'fill 2 121 3 4 121 5 myvillage:edge_tempering_sand_deposit']:
+            self.rc(cmd)
+        for name,pos,target in [
+            ('material-display.png',(6,124,-4),(.5,121.7,4)),
+            ('xuantie-display.png',(-5,123,.5),(-2.5,121.7,4)),
+            ('sand-display.png',(4,123,.5),(3,121.3,4))]:
+            self.look(pos,target,mode='spectator');self.s.game.key('F1')
+            try:self.capture(name)
+            finally:self.s.game.key('F1')
+        self.report['completed']=['staged_visuals'];self.report['status']='pass'
     def run(self):
         self.start();u=self.s.username
         for cmd in scene.world_rules():self.rc(cmd)
@@ -221,8 +237,10 @@ class AcquisitionEvidence(ForgingEvidence):
         self.report['status']='pass'
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--out',type=Path,default=ROOT/'out/preview/forging_acquisition/runtime');a=p.parse_args();e=AcquisitionEvidence(a.out)
-    try:e.run()
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--visual-only',action='store_true');p.add_argument('--out',type=Path,default=ROOT/'out/preview/forging_acquisition/runtime');a=p.parse_args();e=AcquisitionEvidence(a.out)
+    try:
+        if a.visual_only:e.visual_preview()
+        else:e.run()
     except BaseException as error:e.report['status']='fail';e.report['failures'].append(repr(error));e.save();raise
     finally:
         if e.s:e.stop()
