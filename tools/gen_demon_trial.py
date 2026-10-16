@@ -51,7 +51,11 @@ def pearl(lit=False,stand=False):
     for y,lo,hi in [(3,5,11),(5,3,13),(7,2,14),(9,2,14),(11,3,13),(13,5,11)]:
         box([lo,y,lo],[hi,y+2,hi],'shell')
     # A jagged red fault line wraps the front; turns cyan after victory.
-    for a,b in [([7,4,4.8],[9,6,5.2]),([8,6,2.8],[10,8,3.2]),([6,8,1.8],[9,10,2.2]),([5,10,2.8],[7,12,3.2]),([6,12,4.8],[8,14,5.2])]:box(a,b,'seal')
+    for a,b in [([7,4,4.8],[9,6,5.2]),([8,6,2.8],[10,8,3.2]),([6,8,1.8],[9,10,2.2]),([5,10,2.8],[7,12,3.2]),([6,12,4.8],[8,14,5.2])]:
+        for _ in range(4):
+            box(a,b,'seal')
+            # Carry the status fault around every face so the reward state reads from any approach.
+            a,b=[16-b[2],a[1],a[0]],[16-a[2],b[1],b[0]]
     # Brass caps distinguish it from a pill; summoned form rests on a small runic base.
     box([6,2,6],[10,3,10],'metal');box([6,15,6],[10,16,10],'metal')
     if stand:box([1,0,1],[15,1,15],'base');box([3,1,3],[13,2,13],'metal')
