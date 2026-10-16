@@ -98,3 +98,5 @@ Modal `--preset pill-quality-preview` runs `PillQualityTest`, builds the jar, th
 captures mapped inventory/chest/hotbar views with all pill types and qualities,
 legacy/explicit lower and renamed items, count glyph preservation, and adjacent
 weapon frame checks. It does not repeat brewing or medicine-effect acceptance.
+
+Delivery evidence: [2026-10-17 pill quality frames](../testing/2026-10-17-pill-quality-frames.md).
