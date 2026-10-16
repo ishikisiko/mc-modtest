@@ -1,0 +1,70 @@
+{
+  "segments": 48,
+  "curvature": 0.5,
+  "bands": [
+    {
+      "depth": 0,
+      "thickness": 0.08,
+      "color": [
+        236,
+        255,
+        255,
+        245
+      ]
+    },
+    {
+      "depth": 0.025,
+      "thickness": 0.14,
+      "color": [
+        135,
+        235,
+        249,
+        180
+      ]
+    },
+    {
+      "depth": 0.13,
+      "thickness": 0.045,
+      "color": [
+        54,
+        164,
+        194,
+        48
+      ]
+    },
+    {
+      "depth": 0.21,
+      "thickness": 0,
+      "color": [
+        42,
+        125,
+        166,
+        0
+      ]
+    }
+  ],
+  "wisps": [
+    {
+      "start": -0.88,
+      "end": -0.4,
+      "depth": 0.3,
+      "height": 0.08,
+      "alpha": 58
+    },
+    {
+      "start": -0.27,
+      "end": 0.22,
+      "depth": 0.34,
+      "height": -0.06,
+      "alpha": 42
+    },
+    {
+      "start": 0.39,
+      "end": 0.87,
+      "depth": 0.29,
+      "height": 0.04,
+      "alpha": 48
+    }
+  ],
+  "wisp_half_thickness": 0.018
+}

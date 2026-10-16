@@ -133,7 +133,7 @@ class SwordQiCapture:
         elif trial.get('wall') == 'edge':
             self.run('fill 1 -60 3 1 -56 3 minecraft:stone')
         time.sleep(1.0)
-        self.run(f'tick rate {RATE}')
+        self.run(f'tick rate {trial.get("tick_rate", RATE)}')
 
     def one(self, trial):
         self.prepare(trial)

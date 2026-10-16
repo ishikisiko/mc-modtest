@@ -80,8 +80,16 @@ polish. Shape, damage, target cap, cost, speed and range retain their existing r
 Wider edges still stop at walls; the full-charge horizontal blade clears flat ground.
 `--preset sword-qi-area` tests authored collision/mesh bounds and mapped lateral,
 vertical, outside-envelope and wall cases without unrelated full-release scenarios.
-Charge uses enchant particles and the HUD; release reuses the existing diagonal
-first/third-person attack clip. Direction (yaw and pitch) is frozen at release.
+Charge uses enchant particles and the HUD; release originally reused the diagonal first/third-person attack clip. In
+0.56.0-fix2 it selects the existing horizontal cut and emits at tick 5, where the
+authored blade crosses forward. Optional `reaction_move` retains the previous
+hitstun/slide/lift independently from the animation; older skill files fall back
+to `feedback_move`. Java and Python data validation cover both references.
+The presentation-only profile `assets/myvillage/combat/sword_qi_wave.json` owns
+rim colors, thin cross-section, curve and three separated fading wisps. It replaces
+the swollen wedge while preserving fix1's authoritative width/height. RELEASED
+seeds the first visual segment from the server launch point; WAVE packets alone
+advance it, with no pre-release drawing or extrapolation beyond a wall. Direction (yaw and pitch) is frozen at release.
 The full swept envelope is conservative near oblique walls; an edge obstruction
 stops the whole wave. Received damage, weapon/slot changes and incompatible
 actions cancel a charge; cancellation after release does not refund the cost.

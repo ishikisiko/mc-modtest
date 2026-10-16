@@ -128,6 +128,7 @@ public final class ClientSwordQi {
             case RELEASED -> {
                 CHARGES.remove(payload.attackerEntityId());
                 RELEASES.put(payload.attackerEntityId(), payload);
+                SwordQiWaveRenderer.released(payload);
             }
             case WAVE -> SwordQiWaveRenderer.update(payload);
             case STOPPED -> {

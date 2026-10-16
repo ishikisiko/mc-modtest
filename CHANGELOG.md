@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.56.0-fix2
+
+- 剑气释放改为横斩，在剑刃扫过前方时出射；首帧从服务器出射点连续插值，避免直接跳到两格外。
+- 重做剑气为窄白青刃缘、薄层渐隐月牙及三段分离短尾，移除鼓起的楔形填充；外观参数独立配置。
+- 剑气尺寸沿用 fix1 的扩大范围。动作与受击反应引用分离，保留原有硬直与击退。
+
 ## 0.56.0-fix1
 
 - 剑气诀的命中与视觉同步扩大：点按宽 4 格、厚 0.9 格；满蓄力宽 6 格、厚 1.35 格。月牙形和现有蓄力缩放沿用同一尺寸配置。

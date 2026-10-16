@@ -18,7 +18,9 @@ class SwordQiWaveShapeTest {
                 assertTrue(v.alpha() >= 0 && v.alpha() <= 255);
             });
             assertEquals(width, vertices(width, height).mapToDouble(v -> Math.abs(v.x())).max().orElseThrow(), 1e-12);
-            assertTrue(vertices(width, height).mapToDouble(v -> Math.abs(v.y())).max().orElseThrow() >= height * .89);
+            double thickness = vertices(width, height).mapToDouble(v -> Math.abs(v.y())).max().orElseThrow();
+            assertTrue(thickness >= height * .08, "The edge must remain visible head-on");
+            assertTrue(thickness <= height * .2, "A thin blade must not become a swollen lens again");
         }
     }
 
@@ -29,8 +31,18 @@ class SwordQiWaveShapeTest {
         assertTrue(centerTail > tipTail, "The rear outline must be concave, not lens shaped");
         all.stream().filter(v -> Math.abs(v.x()) > 1.099).forEach(v -> assertEquals(0, v.y(), 1e-12));
         all.stream().filter(v -> v.red() > 220).forEach(v ->
-                assertEquals(-1.1 * .70 * Math.pow(v.x() / 1.1, 2), v.z(), 1e-12));
+                assertEquals(-1.1 * .50 * Math.pow(v.x() / 1.1, 2), v.z(), 1e-12));
         assertTrue(all.stream().anyMatch(v -> v.alpha() == 0 && v.red() < 100));
+    }
+
+    @Test void detachedTailStrandsHaveRealGapsAndFadedEnds() {
+        var all = vertices(2, .45).toList();
+        // The three short tail strands are deliberately separated from the continuous blade.
+        var tail = all.stream().filter(v -> Math.abs(v.x()) < .01 && v.z() < -.5).toList();
+        assertFalse(tail.isEmpty());
+        assertTrue(tail.stream().allMatch(v -> v.alpha() <= 100));
+        assertTrue(all.stream().anyMatch(v -> v.alpha() == 0 && Math.abs(v.x()) > .5 && Math.abs(v.y()) > 0));
+        assertTrue(all.stream().filter(v -> v.alpha() > 200).allMatch(v -> Math.abs(v.y()) <= .45 * .1));
     }
 
     @Test void freshRevisionAndStaleGapNeverInterpolateFromPreviousRelease() {

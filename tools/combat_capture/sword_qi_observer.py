@@ -9,13 +9,13 @@ from .sword_qi import DEFAULT_OUT,WEAPON,TARGET,parse_events
 from .xgame import Game
 
 
-def observe(session,out=DEFAULT_OUT/'observer',log=print,timeout=180):
+def observe(session,out=DEFAULT_OUT/'observer',log=print,timeout=180,tick_rate=10,hold_seconds=1.2):
     out=Path(out);out.mkdir(parents=True,exist_ok=True)
     display=f':{procs.free_display()}'
     game_dir=REPO/'run-combat-capture/observer';game_dir.mkdir(parents=True,exist_ok=True)
-    merge_options(game_dir/'options.txt',{**CLIENT_OPTIONS,'lang':'en_us','renderDistance':'4','simulationDistance':'3','maxFps':'20'})
+    merge_options(game_dir/'options.txt',{**CLIENT_OPTIONS,'lang':'en_us','renderDistance':'4','simulationDistance':'3','maxFps':'30'})
     env=dict(os.environ,DISPLAY=display,JAVA_TOOL_OPTIONS='-Xmx768m')
-    handles=[];owned=[];start=time.monotonic();report={'method':'second real Minecraft client on separate Xvfb, same dedicated server; actor uses mapped right mouse','owner_verdict':'not_verified','sound':'not_verified','observer_username':'CaptureWatch','minecraft_heap_cap':'768 MiB via JAVA_TOOL_OPTIONS','observer_max_fps':20}
+    handles=[];owned=[];start=time.monotonic();report={'method':'second real Minecraft client on separate Xvfb, same dedicated server; actor uses mapped right mouse','owner_verdict':'not_verified','sound':'not_verified','observer_username':'CaptureWatch','minecraft_heap_cap':'768 MiB via JAVA_TOOL_OPTIONS','observer_max_fps':30,'server_tick_rate':tick_rate,'hold_seconds':hold_seconds}
     try:
         procs.set_child_subreaper()
         xlog=open(out/'xvfb.log','w');handles.append(xlog)
@@ -41,17 +41,18 @@ def observe(session,out=DEFAULT_OUT/'observer',log=print,timeout=180):
         time.sleep(3)
         report['ingame_s']=round(time.monotonic()-start,3)
         u=session.username
-        session.run('tick rate 10','kill @e[tag=sword_qi_target]',f'tp {u} .5 -60 .5 0 0',
+        session.run(f'tick rate {tick_rate}','kill @e[tag=sword_qi_target]',f'tp {u} .5 -60 .5 0 0',
                     f'item replace entity {u} hotbar.0 with {WEAPON}',f'myvillage cultivation qi fill {u}',
                     'gamemode spectator CaptureWatch','tp CaptureWatch 5.5 -58 3.5 facing entity '+u+' eyes',
                     'summon minecraft:iron_golem .5 -60 6.5 {NoAI:1b,PersistenceRequired:1b,Tags:["sword_qi_target"]}',warn=False)
         session.game.key('1');scene.ensure_cultivation(session);time.sleep(1)
         before=scene.parse_float_data(session.run(f'data get entity {TARGET} Health',warn=False)[0]);mark=(LOG_DIR/'server.log').stat().st_size
         video=out/'observer_cast.mp4'
-        recorder=subprocess.Popen(ffmpeg_record_argv(display,video,9,fps=20),stdout=subprocess.DEVNULL,stderr=subprocess.PIPE)
+        recorder=subprocess.Popen(ffmpeg_record_argv(display,video,9,fps=30),stdout=subprocess.DEVNULL,stderr=subprocess.PIPE)
         try:
             time.sleep(.5);session.game.require_ingame('observer trial actor charge');session.game.xdo('mousedown','3')
-            time.sleep(1.2);game.shot(out/'observer_charging.png',max_wait=.3);session.game.xdo('mouseup','3')
+            time.sleep(min(.5,hold_seconds));game.shot(out/'observer_charging.png',max_wait=.3)
+            time.sleep(max(0,hold_seconds-.5));session.game.xdo('mouseup','3')
             time.sleep(2);rc=recorder.wait(timeout=20)
             if rc:raise RuntimeError(f'observer recording failed {rc}')
         finally:

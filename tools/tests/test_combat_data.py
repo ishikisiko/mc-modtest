@@ -76,6 +76,13 @@ class CombatDataTest(unittest.TestCase):
         self.root = Path(self.temp_dir.name)
         shutil.copytree(combat_data.ROOT / DATA, self.root / DATA)
 
+    def test_optional_skill_reaction_reference_and_legacy_fallback(self) -> None:
+        path = f"{DATA}/skill/jianqi_jue.json"
+        skill = self.read(path); skill.pop('reaction_move', None); self.write(path, skill)
+        self.assertFalse(self.issues())
+        skill['reaction_move']='myvillage:missing'; self.write(path, skill)
+        self.assertTrue(any(i.field == 'reaction_move' and i.code == 'REFERENCE' for i in self.issues()))
+
     def test_skill_bounds_and_reference_are_checked(self) -> None:
         path = f"{DATA}/skill/jianqi_jue.json"
         skill = self.read(path)
@@ -470,9 +477,10 @@ class CombatDataTest(unittest.TestCase):
         with self.assertRaises(combat_data.CombatDataError) as raised:
             combat_data.load_strict(self.root)
         self.assertEqual({"UNKNOWN_FIELD", "REFERENCE"}, {i.code for i in raised.exception.issues})
-        self.assertEqual(3, len(raised.exception.issues))
+        self.assertEqual(4, len(raised.exception.issues))
         self.assertIn("moves[1].unknown", str(raised.exception))
         self.assertIn("feedback_move", str(raised.exception))
+        self.assertIn("reaction_move", str(raised.exception))
 
 
 if __name__ == "__main__":

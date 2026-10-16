@@ -15,6 +15,11 @@ final class SwordQiWaveRenderer {
     private record Wave(Vec3 previous, Vec3 current, Vec3 direction, long revision,
                         java.util.List<SwordQiWaveShape.Quad> mesh, double updated) { }
     private static final Map<Integer, Wave> WAVES = new HashMap<>();
+    private static final Map<Integer, CombatSkillStatePayload> RELEASES = new HashMap<>();
+    static void released(CombatSkillStatePayload payload) {
+        WAVES.remove(payload.attackerEntityId());
+        RELEASES.put(payload.attackerEntityId(), payload);
+    }
     private SwordQiWaveRenderer() { }
 
     static void update(CombatSkillStatePayload payload) {
@@ -23,8 +28,11 @@ final class SwordQiWaveRenderer {
         var prior = WAVES.get(payload.attackerEntityId());
         double now = ClientCombatClock.ticks();
         if (prior != null && payload.revision() < prior.revision()) return;
+        var released = RELEASES.remove(payload.attackerEntityId());
+        Vec3 initial = released != null && released.revision() == payload.revision()
+                ? released.origin() : payload.origin();
         Vec3 previous = prior != null && SwordQiWaveShape.continuous(prior.revision(), payload.revision(), prior.updated(), now)
-                ? prior.current() : payload.origin();
+                ? prior.current() : initial;
         double scale = skill.scale(payload.chargeLevel());
         var mesh = prior != null && prior.revision() == payload.revision() ? prior.mesh()
                 : SwordQiWaveShape.mesh(skill.halfWidth() * scale, skill.halfHeight() * scale);
@@ -32,8 +40,8 @@ final class SwordQiWaveRenderer {
                 payload.revision(), mesh, now));
     }
 
-    static void stop(int entityId) { WAVES.remove(entityId); }
-    static void clear() { WAVES.clear(); }
+    static void stop(int entityId) { WAVES.remove(entityId); RELEASES.remove(entityId); }
+    static void clear() { WAVES.clear(); RELEASES.clear(); }
 
     static void render(RenderLevelStageEvent event) {
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_PARTICLES || WAVES.isEmpty()) return;

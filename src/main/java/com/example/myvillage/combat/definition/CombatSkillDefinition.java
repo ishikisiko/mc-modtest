@@ -8,9 +8,9 @@ import java.util.Optional;
 public record CombatSkillDefinition(ResourceLocation id, ResourceLocation school, int chargeTicks,
         int releaseTicks, int recoveryTicks, double speed, double range, double halfWidth,
         double halfHeight, int maximumTargets, double damageMultiplier, double chargeScale,
-        double movementMultiplier, double launchHeight, ResourceLocation feedbackMove) {
+        double movementMultiplier, double launchHeight, ResourceLocation feedbackMove, ResourceLocation reactionMove) {
     public CombatSkillDefinition {
-        Objects.requireNonNull(id); Objects.requireNonNull(school); Objects.requireNonNull(feedbackMove);
+        Objects.requireNonNull(id); Objects.requireNonNull(school); Objects.requireNonNull(feedbackMove); Objects.requireNonNull(reactionMove);
         if (chargeTicks < 1 || chargeTicks > 1200 || releaseTicks < 1 || releaseTicks > 1200
                 || recoveryTicks < 1 || recoveryTicks > 1200 || maximumTargets < 1 || maximumTargets > 64
                 || !bounded(speed, 0, 16) || !bounded(range, 0, 64) || !bounded(halfWidth, 0, 8)
@@ -40,10 +40,10 @@ public record CombatSkillDefinition(ResourceLocation id, ResourceLocation school
         AttackMoveDefinition template = registry.move(feedbackMove).orElseThrow().move();
         int end = releaseTicks + travelTicks() - 1;
         int total = end + 1 + recoveryTicks;
-        // The template supplies presentation and shared hit reactions, never its close-range hitbox.
+        // Presentation can change independently of the authored hit reaction; neither uses the melee hitbox.
         return new AttackMoveDefinition(template.id(), template.displayKey(), template.kind(), total,
                 releaseTicks, end, damageMultiplier * scale(level), maximumTargets, range,
-                end + 1, total, template.reaction(), new AnimationDefinition(template.id(), total),
+                end + 1, total, registry.move(reactionMove).orElseThrow().move().reaction(), new AnimationDefinition(template.id(), total),
                 template.hitbox(), Optional.empty(), template.feedback(),
                 new CameraCues(template.camera().hitPitchKick(), template.camera().hitRollKick(),
                         template.camera().hitFovPunch(), template.camera().swingLeanDegrees(), 0), Optional.empty());

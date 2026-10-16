@@ -12,6 +12,13 @@ class JianqiJueSkillTest {
     private static ResourceLocation id(String path) { return ResourceLocation.fromNamespaceAndPath("myvillage", path); }
     private CombatSkillSession charge() { return new CombatSkillSession(skill, skill.id(), 8, 100, 1); }
 
+    @Test void horizontalReleaseKeepsItsExistingHitReaction() {
+        var move = skill.releaseMove(styles, 0);
+        assertEquals(id("basic_sword_02_horizontal_cut"), move.animation().animationId());
+        assertEquals(styles.move(id("basic_sword_04_diagonal_cut")).orElseThrow().move().reaction(), move.reaction());
+        assertEquals(0, move.feedback().cutRollDegrees());
+    }
+
     @Test void serverClockBoundsChargeAndRoundsCostOnce() {
         CombatSkillSession charge = charge();
         assertEquals(8, charge.costAt(100));

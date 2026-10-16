@@ -69,6 +69,9 @@ public final class CombatStyles {
             if (skillsById.putIfAbsent(skill.id(), skill) != null) {
                 throw new IllegalArgumentException("Duplicate skill " + skill.id());
             }
+            if (!movesById.containsKey(skill.reactionMove())) {
+                throw new IllegalArgumentException("Unknown reaction move " + skill.reactionMove());
+            }
             if (!movesById.containsKey(skill.feedbackMove())) {
                 throw new IllegalArgumentException("Unknown feedback move " + skill.feedbackMove());
             }

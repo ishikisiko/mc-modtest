@@ -474,7 +474,7 @@ SKILL = obj({
     "maximum_targets": integer(1), "damage_multiplier": number(positive=True),
     "charge_scale": number(1), "movement_multiplier": number(positive=True),
     "launch_height": number(positive=True), "feedback_move": resource_id,
-})
+}, {"reaction_move": resource_id})
 INDEX = obj({"schema": constant(SCHEMA_VERSION), "styles": id_list, "weapons": id_list}, {"skills": id_list})
 
 
@@ -735,6 +735,9 @@ def load(root: Path = ROOT) -> CombatData:
         items.setdefault(weapon["item"], weapon_id)
 
     for skill_id, skill in documents["skills"].items():
+        if skill.get("reaction_move", skill["feedback_move"]) not in owners:
+            issues.append(Issue("REFERENCE", _relative(root, files[skill_id]), "reaction_move",
+                                f"{skill.get('reaction_move')} is not a loaded move"))
         if skill["feedback_move"] not in owners:
             issues.append(Issue("REFERENCE", _relative(root, files[skill_id]), "feedback_move",
                                 f"{skill['feedback_move']} is not a loaded move"))
