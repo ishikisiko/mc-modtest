@@ -31,6 +31,12 @@ def aim(pos,target):
     return math.degrees(math.atan2(-dx,dz)),math.degrees(-math.atan2(dy,math.hypot(dx,dz)))
 
 
+def teleport_command(username,pos,yaw=0,pitch=0):
+    # Vanilla Vec3 command arguments center integer X/Z literals by +0.5.
+    # Explicit decimals preserve the exact fixture and camera coordinates.
+    return f'tp {username} '+ ' '.join(f'{float(v):.6f}' for v in (*pos,yaw,pitch))
+
+
 class BuildingEvidence(Evidence):
     def __init__(self,manifest,out):
         super().__init__(out)
@@ -80,7 +86,7 @@ class BuildingEvidence(Evidence):
         return read_data(self.rc(f'data get entity {self.s.username} Pos'))
 
     def teleport(self,pos,yaw=0,pitch=0):
-        self.rc(f'tp {self.s.username} {pos[0]} {pos[1]} {pos[2]} {yaw} {pitch}')
+        self.rc(teleport_command(self.s.username,pos,yaw,pitch))
         self.poll(self.player_pos,lambda p:all(abs(p[i]-pos[i])<.2 for i in range(3)),8,'teleport fixture applied')
 
     def set_hud(self,hidden):

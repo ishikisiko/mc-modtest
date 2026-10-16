@@ -12,7 +12,7 @@ import json_to_nbt as nbt
 from yunshan.build_inn import check_walks,check_roof,check_wall_roof_joins
 from yunshan.build_functional import validate_site,validate_services
 from yunshan.game_export import read_typed,write_typed,convert_game_save,plain,compare_authored
-from tools.yunshan.game_evidence import BuildingEvidence
+from tools.yunshan.game_evidence import BuildingEvidence,teleport_command
 from tools.modal_runner.remote import commands_for
 
 SOURCE=ROOT/'blueprints/yunshan'
@@ -74,6 +74,10 @@ class ExpandedLayoutTests(unittest.TestCase):
             e=BuildingEvidence(self.manifest,Path(tmp))
             with patch('tools.yunshan.game_evidence.ROOT',Path('/not-modal')):
                 with self.assertRaisesRegex(RuntimeError,'Modal disposable'):e.start()
+
+    def test_teleport_uses_decimals_to_disable_integer_centering(self):
+        self.assertEqual(teleport_command('CaptureDev',[32,-60,-8]),
+                         'tp CaptureDev 32.000000 -60.000000 -8.000000 0.000000 0.000000')
 
 
 class ActualSaveExportTests(unittest.TestCase):
