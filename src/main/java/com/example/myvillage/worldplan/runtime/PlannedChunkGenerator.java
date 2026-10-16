@@ -98,8 +98,11 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
         }
     }
     @Override public void applyBiomeDecoration(WorldGenLevel level,ChunkAccess chunk,StructureManager structures){
-        super.applyBiomeDecoration(level,chunk,structures);
-        if(level.getLevel().getServer().getWorldData().worldGenOptions().generateStructures())PlannedCity.placeSlice(plan(),level,chunk);
+        // Scoped to this generation thread; ordinary player/world edits remain unrestricted.
+        try(var decoration=WorldPlanGuard.decorating(plan())){
+            super.applyBiomeDecoration(level,chunk,structures);
+            if(level.getLevel().getServer().getWorldData().worldGenOptions().generateStructures())PlannedCity.placeSlice(plan(),level,chunk);
+        }
     }
     @Override public void spawnOriginalMobs(WorldGenRegion region){terrain.spawnOriginalMobs(region);}
     @Override public int getGenDepth(){return terrain.getGenDepth();}

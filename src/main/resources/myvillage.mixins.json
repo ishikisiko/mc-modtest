@@ -6,7 +6,8 @@
   "mixins": [
     "CombatRulesMixin",
     "LivingDamageContainerAccess",
-    "WorldPlanReservationMixin"
+    "WorldPlanReservationMixin",
+    "WorldPlanOreMixin"
   ],
   "injectors": {
     "defaultRequire": 1
