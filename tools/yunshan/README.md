@@ -2,6 +2,10 @@
 
 ## 三格入口放大版与实际游戏导出
 
+本轮已经完成云端实机建造、通行、设施交互和结构方块保存，18 个检查通过。
+详见 [2026-10-17 实机记录](../../docs/testing/2026-10-17-yunshan-expanded-buildings.md)；
+[游戏截图与蓝图下载](http://43.156.135.198:8765/yunshan-functional-v2/runtime/)。
+
 放大版清单为 `blueprints/yunshan/functional_buildings_v2.json`，使用药铺 / 铁匠铺 /
 传功院 v2 和客栈 v4。主开间从约 13 格扩大到 19 格，主入口统一净高 3 格；
 床、门、炼丹炉等交互设施维持游戏本来的尺寸。客栈为两格宽楼梯、连续侧廊和

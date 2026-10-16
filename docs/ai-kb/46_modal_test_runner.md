@@ -163,6 +163,7 @@ software rendering, which does not establish owner PC FPS.
 
 ## See also
 
+- [云山四栋放大建筑实机证据](../testing/2026-10-17-yunshan-expanded-buildings.md)：模板放置、映射通行/交互、结构方块界面 SAVE 与原始 NBT 导出。
 - [Modal runner implementation and verification record](../testing/2026-10-14-modal-test-runner.md)
 - [modal-test-runner](../contracts/tooling.md#modal-test-runner), [validation](../contracts/tooling.md#validation), [combat-capture-tooling](../contracts/tooling.md#combat-capture-tooling)
 - [Alchemy](49_alchemy.md), [Crafting Aptitudes](50_crafting_aptitudes.md), [alchemy-quality](../contracts/cultivation.md#alchemy-quality)
