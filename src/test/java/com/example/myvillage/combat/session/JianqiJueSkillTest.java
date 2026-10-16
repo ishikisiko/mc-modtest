@@ -87,13 +87,41 @@ class JianqiJueSkillTest {
         CombatSkillSession charge = charge();
         charge.release(120, Vec3.ZERO, new Vec3(0, .6, .8));
         assertFalse(charge.waveActive(120 + skill.releaseDelay(charge.chargeLevel()) - 1));
-        for (int i = 0; i < skill.travelTicks(); i++) {
+        for (int i = 0; i < skill.travelTicks(charge.chargeLevel()); i++) {
             assertTrue(charge.waveActive(120 + skill.releaseDelay(charge.chargeLevel()) + i));
             charge.advance(charge.nextPosition(), false);
         }
-        assertEquals(skill.range(), charge.position().length(), 1.0E-8);
+        assertEquals(skill.range(charge.chargeLevel()), charge.position().length(), 1.0E-8);
         assertTrue(charge.position().y > 0);
         assertTrue(charge.waveStopped()); assertFalse(charge.waveActive(1000));
+    }
+
+    @Test void chargeScalesTravelAndKeepsExternalSessionAliveThroughTheLastStep() {
+        assertEquals(20, skill.range(0));
+        assertEquals(30, skill.range(255));
+        for (int elapsed = 0; elapsed <= skill.chargeTicks(); elapsed++) {
+            var state = charge();
+            long released = 100 + elapsed;
+            state.release(released, Vec3.ZERO, new Vec3(0, 0, 1));
+            int level = state.chargeLevel();
+            var move = skill.releaseMove(styles, level);
+            var action = new CombatSession(CombatTestData.basicSword());
+            action.startExternal(move, released, CombatTestData.QINGFENG_SWORD,
+                    ResourceLocation.withDefaultNamespace("overworld"), 0);
+            double range = skill.range(level);
+            assertEquals(range, move.range());
+            assertEquals(skill.travelTicks(level), move.activeEndTick() - move.activeStartTick() + 1);
+            for (int i = 0; i < skill.travelTicks(level); i++) {
+                long tick = released + move.activeStartTick() + i;
+                assertTrue(action.tick(tick).stop().isEmpty(), "action must not expire mid-flight");
+                assertTrue(state.waveActive(tick));
+                state.advance(state.nextPosition(), false);
+                assertTrue(state.position().length() <= range + 1e-8);
+            }
+            assertEquals(range, state.position().length(), 1e-8);
+            assertTrue(state.waveStopped());
+            assertFalse(state.waveActive(10000));
+        }
     }
 
     @Test void wallContactStopsRemainingTravelPermanently() {

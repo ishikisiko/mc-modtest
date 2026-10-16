@@ -4,7 +4,7 @@ import tempfile
 from pathlib import Path
 from unittest.mock import patch
 from tools.combat_capture import session
-from tools.combat_capture.sword_qi import expectation_met, parse_events, parse_power, trial_plan
+from tools.combat_capture.sword_qi import expectation_met, parse_events, parse_power, trial_plan, range_check_met
 from tools.combat_capture.cli import build_parser
 
 
@@ -17,6 +17,17 @@ class SwordQiEvidenceTest(unittest.TestCase):
             self.assertEqual(plan[name]['expect'],'range')
         self.assertTrue(plan['tap_high_edge']['no_gravity'])
         self.assertTrue(plan['charged_high_edge']['no_gravity'])
+
+    def test_range_checks_require_the_scaled_endpoint_and_release(self):
+        trial={'range_check':{'base':20,'scale':1.5,'origin':[.5,1.2,.5]}}
+        for level in (0,127,255):
+            end=.5+20*(1+.5*level/255)
+            events=[{'result':'released','charge':str(level)},
+                    {'result':'wave_stop','reason':'RANGE','x':'.5','y':'1.2','z':str(end)}]
+            self.assertTrue(range_check_met(trial,events))
+            events[-1]['z']=str(end-2)
+            self.assertFalse(range_check_met(trial,events))
+        self.assertFalse(range_check_met(trial,[]))
 
     def test_power_snapshot_and_client_gate(self):
         self.assertEqual(parse_power('Spiritual power CaptureDev: current=20, cap=40, recovery_ticks=5'),20)

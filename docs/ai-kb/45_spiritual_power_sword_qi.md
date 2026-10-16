@@ -50,7 +50,11 @@ change, with a gold charge indicator and refusal flash.
 ## Learned sword skill
 
 `CombatSkillDefinition` is bundled skill data. The linked active technique owns
-its base cost; charge scales cost, width and damage. Weapon and school family
+its base cost; charge scales cost, width, height, damage and range. Since 0.56.0-fix5,
+the configured base range is 20 blocks and the existing 1.5 charge scale gives
+30 blocks at full charge; intermediate charge interpolates continuously (quantized
+to the server charge byte). Travel ticks, external active window and final-step
+clamping use that same scaled range. The client still follows server positions. Weapon and school family
 resolution authorizes the action, without a named-item branch. `CombatSkillSession`
 tracks charge/release and wave travel alongside the existing `CombatSession`.
 `CombatWaveResolver` handles advancing collision, and the existing damage policy,

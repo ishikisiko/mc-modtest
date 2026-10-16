@@ -7,6 +7,10 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.56.0-fix5
+
+- 剑气基础射程提高到 20 格，满蓄力 30 格，中间随蓄力程度递增；服务器飞行时长、命中窗口及终点限位同步使用实际射程。
+
 ## 0.56.0-fix4
 
 - 剑气蓄力改为左腰收剑、剑身近水平向后；第一人称握柄留在左下方，修正回握手腕角度，释放衔接横斩。

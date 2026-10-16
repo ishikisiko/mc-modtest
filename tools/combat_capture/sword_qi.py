@@ -6,6 +6,7 @@ from __future__ import annotations
 import datetime
 import html
 import json
+import math
 import re
 import subprocess
 import time
@@ -37,7 +38,15 @@ def parse_power(reply):
 
 
 def trial_plan():
+    skill = json.loads((REPO / 'src/main/resources/data/myvillage/combat/skill/jianqi_jue.json').read_text())
+    base, full = skill['range'], skill['range'] * skill['charge_scale']
+    check = {'base': base, 'scale': skill['charge_scale'], 'origin': [.5, -60 + skill['launch_height'], .5]}
     return [
+        {'id': 'tap_far_hit', 'target_z': .5 + base, 'expect': 'hit', 'range_check': check},
+        {'id': 'tap_far_miss', 'target_z': .5 + (base + full) / 2, 'expect': 'range', 'range_check': check},
+        {'id': 'charged_extra_hit', 'target_z': .5 + (base + full) / 2, 'hold': 2.4, 'expect': 'hit', 'range_check': check},
+        {'id': 'charged_limit_hit', 'target_z': .5 + full, 'hold': 2.4, 'expect': 'hit', 'range_check': check},
+        {'id': 'charged_range_miss', 'target_z': .5 + full + 2, 'hold': 2.4, 'expect': 'range', 'range_check': check},
         {'id': 'not_learned', 'learned': False, 'expect': 'client_gate'},
         {'id': 'tap_hit', 'expect': 'hit'},
         {'id': 'charged_hit', 'hold': 2.4, 'expect': 'hit'},
@@ -50,7 +59,7 @@ def trial_plan():
         {'id': 'charged_high_edge', 'target_y': -58.2, 'no_gravity': True, 'hold': 2.4, 'expect': 'hit'},
         {'id': 'wall', 'wall': 'full', 'expect': 'wall'},
         {'id': 'edge_wall', 'wall': 'edge', 'target_x': 1.25, 'expect': 'wall'},
-        {'id': 'out_of_range', 'target_z': 11.5, 'expect': 'range'},
+        {'id': 'out_of_range', 'target_z': .5 + full + 3, 'expect': 'range'},
         {'id': 'same_weapon_slot_cancel', 'cancel': 'same_weapon', 'expect': 'cancel'},
         {'id': 'insufficient', 'power': 0, 'expect': 'POWER'},
         {'id': 'switch_cancel', 'cancel': 'switch', 'expect': 'cancel'},
@@ -84,6 +93,23 @@ def expectation_met(trial, events, health_before, health_after):
                ) and not released and not hits and health_after == health_before
 
 
+def range_check_met(trial, events):
+    check = trial.get('range_check')
+    if check is None:
+        return True
+    released = [e for e in events if e.get('result') == 'released']
+    stops = [e for e in events if e.get('result') == 'wave_stop' and e.get('reason') == 'RANGE']
+    if len(released) != 1 or len(stops) != 1:
+        return False
+    try:
+        level = int(released[0]['charge'])
+        expected = check['base'] * (1 + (check['scale'] - 1) * level / 255)
+        position = [float(stops[0][axis]) for axis in ('x', 'y', 'z')]
+        return 0 <= level <= 255 and math.isclose(math.dist(check['origin'], position), expected, abs_tol=1e-5)
+    except (KeyError, ValueError, TypeError):
+        return False
+
+
 class SwordQiCapture:
     def __init__(self, session, out, log=print):
         self.s, self.g, self.user, self.out, self.log = session, session.game, session.username, Path(out), log
@@ -91,7 +117,7 @@ class SwordQiCapture:
         skill = json.loads((REPO / 'src/main/resources/data/myvillage/combat/skill/jianqi_jue.json').read_text())
         self.manifest = {'kind': 'sword_qi', 'created_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
                          'method': 'mapped right mouse down/up; server RCON preparation and health; no DevBridge or pose probe',
-                         'wave_dimensions': {k: skill[k] for k in ('half_width', 'half_height', 'charge_scale')},
+                         'wave_dimensions': {k: skill[k] for k in ('range', 'speed', 'half_width', 'half_height', 'charge_scale')},
                          'preparation': 'admin boundary fixtures (learn/fill/targets); not natural acquisition evidence',
                          'owner_verdict': 'not_verified', 'natural_acquisition': 'not_verified',
                          'restart_persistence': 'not_verified', 'two_clients': 'not_verified',
@@ -190,7 +216,8 @@ class SwordQiCapture:
                        profile_before=before, profile_after=after_profile, profile_end=final_profile,
                        power_before=power_before, power_after=power_after,
                        expected_cost=sum(costs), cost_passed=cost_ok, events=events, video=video.name,
-                       passed=expectation_met(trial, events, hp, after) and cost_ok)
+                       range_passed=range_check_met(trial, events),
+                       passed=expectation_met(trial, events, hp, after) and cost_ok and range_check_met(trial, events))
             self.manifest['trials'].append(row)
             self.log(f'{name}: {"PASS" if row["passed"] else "FAIL"}, health {hp} -> {after}, {row["wall_s"]} s')
         finally:

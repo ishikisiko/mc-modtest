@@ -6,7 +6,7 @@
   "release_ticks": 5,
   "recovery_ticks": 10,
   "speed": 2.0,
-  "range": 8.0,
+  "range": 20.0,
   "half_width": 2.0,
   "half_height": 0.45,
   "maximum_targets": 3,

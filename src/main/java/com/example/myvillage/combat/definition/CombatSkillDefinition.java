@@ -18,7 +18,7 @@ public record CombatSkillDefinition(ResourceLocation id, ResourceLocation school
                 || !bounded(halfHeight, 0, 8) || !bounded(damageMultiplier, 0, 100)
                 || !bounded(chargeScale, 0, 4) || chargeScale < 1
                 || !bounded(movementMultiplier, 0, 1) || !bounded(launchHeight, 0, 3)
-                || range / speed > 1200) {
+                || range * chargeScale > 64 || range * chargeScale / speed > 1200) {
             throw new IllegalArgumentException("Skill numbers exceed bounded wave limits");
         }
     }
@@ -45,15 +45,16 @@ public record CombatSkillDefinition(ResourceLocation id, ResourceLocation school
         if (base < 0) throw new IllegalArgumentException("Negative qi cost");
         return (long) Math.ceil(base * scale(level));
     }
-    public int travelTicks() { return (int) Math.ceil(range / speed); }
+    public double range(int level) { return range * scale(level); }
+    public int travelTicks(int level) { return (int) Math.ceil(range(level) / speed); }
     public AttackMoveDefinition releaseMove(CombatStyles registry, int level) {
         AttackMoveDefinition template = registry.move(feedbackMove).orElseThrow().move();
         int delay = releaseDelay(level);
-        int end = delay + travelTicks() - 1;
+        int end = delay + travelTicks(level) - 1;
         int total = end + 1 + recoveryTicks;
         // Presentation can change independently of the authored hit reaction; neither uses the melee hitbox.
         return new AttackMoveDefinition(template.id(), template.displayKey(), template.kind(), total,
-                delay, end, damageMultiplier * scale(level), maximumTargets, range,
+                delay, end, damageMultiplier * scale(level), maximumTargets, range(level),
                 end + 1, total, registry.move(reactionMove).orElseThrow().move().reaction(), new AnimationDefinition(template.id(), total),
                 template.hitbox(), Optional.empty(), template.feedback(),
                 new CameraCues(template.camera().hitPitchKick(), template.camera().hitRollKick(),

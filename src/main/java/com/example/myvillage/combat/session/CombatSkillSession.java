@@ -53,11 +53,11 @@ public final class CombatSkillSession {
     }
     public boolean waveActive(long tick) {
         return !charging() && !waveStopped && tick >= releaseTick + skill.releaseDelay(chargeLevel)
-                && travelled < skill.range();
+                && travelled < skill.range(chargeLevel);
     }
-    public Vec3 nextPosition() { return origin.add(direction.scale(Math.min(skill.range(), travelled + skill.speed()))); }
+    public Vec3 nextPosition() { return origin.add(direction.scale(Math.min(skill.range(chargeLevel), travelled + skill.speed()))); }
     public void advance(Vec3 position, boolean blocked) {
-        travelled = Math.min(skill.range(), origin.distanceTo(position));
-        waveStopped = blocked || travelled >= skill.range() - 1.0E-8;
+        travelled = Math.min(skill.range(chargeLevel), origin.distanceTo(position));
+        waveStopped = blocked || travelled >= skill.range(chargeLevel) - 1.0E-8;
     }
 }

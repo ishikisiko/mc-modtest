@@ -618,7 +618,9 @@ def validate_skill(document: Any, file: str) -> list[Issue]:
         pose = document.get("charge_pose_ticks", 0)
         if pose >= document["release_ticks"] or pose > document["charge_ticks"] or (pose > 0 and document["charge_ticks"] > 255):
             c.fail("INVARIANT", "charge_pose_ticks", "must fit before release and charge, with charge <= 255 ticks")
-        if document["range"] / document["speed"] > 1200:
+        if document["range"] * document["charge_scale"] > 64:
+            c.fail("INVARIANT", "range", "fully charged range must be <= 64")
+        if document["range"] * document["charge_scale"] / document["speed"] > 1200:
             c.fail("INVARIANT", "speed", "travel time must be <= 1200 ticks")
     return c.issues
 
