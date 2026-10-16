@@ -1,29 +1,41 @@
 {
-  "version": 1,
+  "version": 2,
   "materials": [
     {
       "id": "xuantie_ingot",
-      "name": ["Dark Iron Ingot", "玄铁锭"],
+      "name": [
+        "Dark Iron Ingot",
+        "玄铁锭"
+      ],
       "trait": "tough",
-      "description": ["Reinforces a forged weapon's durability and repair yield.", "用于坚韧专长，提高成器耐久与维修效率。"],
-      "ingredients": {"minecraft:iron_ingot": 4, "minecraft:coal": 1, "myvillage:low_grade_spirit_stone": 1},
-      "output_count": 1
+      "description": [
+        "Reinforces a forged weapon's durability and repair yield.",
+        "用于坚韧专长，提高成器耐久与维修效率。"
+      ]
     },
     {
       "id": "chitong_ingot",
-      "name": ["Spirit Copper Ingot", "赤铜锭"],
+      "name": [
+        "Spirit Copper Ingot",
+        "赤铜锭"
+      ],
       "trait": "channeling",
-      "description": ["Conducts spiritual power, reducing learned Sword Qi costs.", "用于导灵专长，降低已学剑气的耗灵。"],
-      "ingredients": {"minecraft:copper_ingot": 4, "minecraft:lapis_lazuli": 4, "myvillage:low_grade_spirit_stone": 1},
-      "output_count": 1
+      "description": [
+        "Conducts spiritual power, reducing learned Sword Qi costs.",
+        "用于导灵专长，降低已学剑气的耗灵。"
+      ]
     },
     {
       "id": "edge_tempering_sand",
-      "name": ["Edge-tempering Sand", "淬锋砂"],
+      "name": [
+        "Edge-tempering Sand",
+        "淬锋砂"
+      ],
       "trait": "sharp",
-      "description": ["Tempers a keen edge, increasing forged weapon attack damage.", "用于锋锐专长，提高成器攻击伤害。"],
-      "ingredients": {"minecraft:quartz": 2, "minecraft:flint": 1, "myvillage:low_grade_spirit_stone": 1},
-      "output_count": 1
+      "description": [
+        "Tempers a keen edge, increasing forged weapon attack damage.",
+        "用于锋锐专长，提高成器攻击伤害。"
+      ]
     }
   ]
 }

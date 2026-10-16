@@ -54,7 +54,7 @@ def outputs(root=ROOT):
         shapeless(name,['minecraft:book',material,'myvillage:low_grade_spirit_stone'])
     for lang,i in [('en_us',0),('zh_cn',1)]:
         path=root/f'src/main/resources/assets/myvillage/lang/{lang}.json'
-        current=json.loads(path.read_text());current.update({k:v[i] for k,v in LANG.items()});files[path]=encoded(current)
+        current=json.loads(path.read_text());current.pop('tooltip.myvillage.forging_material.craft',None);current.update({k:v[i] for k,v in LANG.items()});files[path]=encoded(current)
     path=root/'src/main/resources/data/minecraft/tags/block/mineable/pickaxe.json'
     tag=json.loads(path.read_text());tag['values']=sorted(set(tag['values'])|{'myvillage:forging_table'});files[path]=encoded(tag)
     files.update(ding.outputs(root))
@@ -66,6 +66,10 @@ def main():
         if a.check:
             if not path.exists() or path.read_bytes()!=data:stale.append(str(path.relative_to(ROOT)))
         else:path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(data)
+    for path in materials.retired_paths(ROOT):
+        if path.exists():
+            if a.check:stale.append(str(path.relative_to(ROOT)))
+            else:path.unlink()
     if stale:print('\n'.join(stale));return 1
     print('Forging assets '+('match' if a.check else 'generated'))
     if a.preview:ding.preview()

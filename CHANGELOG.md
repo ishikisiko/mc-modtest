@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.57.3
+
+- 移除玄铁锭、赤铜锭、淬锋砂的工作台合成与配方书入口，清理错误的工作台获取提示；生成器检查旧配方不会残留。
+- 保留材料 ID、现有物品与专长用途。新生存获取来源尚未实现，当前不能在生存中补充三种材料。
+- 退役依赖旧合成方式的材料采集脚本与 Modal preset，历史验收仅适用于 0.57.2。
+
 ## 0.57.2
 
 - 新增玄铁锭、赤铜锭与淬锋砂，提供独立 32px 图标、双语用途提示、创造栏和可解锁的工作台配方。

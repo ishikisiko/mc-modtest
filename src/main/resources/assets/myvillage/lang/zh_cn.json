@@ -1380,11 +1380,11 @@
   "screen.myvillage.forging.status.6": "检查维修槽或专长。",
   "screen.myvillage.forging.status.7": "炼制完成，请取走。",
   "screen.myvillage.forging.status.8": "维修完成，请取走。",
-  "tooltip.myvillage.forging_material.craft": "工作台加工获得，在炼器鼎中用作辅材。",
   "item.myvillage.xuantie_ingot": "玄铁锭",
   "tooltip.myvillage.forging_material.xuantie_ingot": "用于坚韧专长，提高成器耐久与维修效率。",
   "item.myvillage.chitong_ingot": "赤铜锭",
   "tooltip.myvillage.forging_material.chitong_ingot": "用于导灵专长，降低已学剑气的耗灵。",
   "item.myvillage.edge_tempering_sand": "淬锋砂",
-  "tooltip.myvillage.forging_material.edge_tempering_sand": "用于锋锐专长，提高成器攻击伤害。"
+  "tooltip.myvillage.forging_material.edge_tempering_sand": "用于锋锐专长，提高成器攻击伤害。",
+  "tooltip.myvillage.forging_material.use": "在炼器鼎中用作辅材。"
 }

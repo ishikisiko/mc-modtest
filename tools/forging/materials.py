@@ -1,4 +1,4 @@
-"""Three authored forging materials, vanilla crafting recipes and 32px inventory sprites."""
+"""Three authored forging materials and 32px inventory sprites; no acquisition recipes."""
 import json
 import re
 from pathlib import Path
@@ -7,25 +7,21 @@ ROOT=Path(__file__).resolve().parents[2]
 
 def load(path=None):
     data=json.loads((path or ROOT/'tools/forging/materials.json').read_text())
-    if set(data)!={'version','materials'} or data['version']!=1:raise ValueError('Material schema')
+    if set(data)!={'version','materials'} or data['version']!=2:raise ValueError('Material schema')
     materials=data['materials'];ids=set();traits=set()
     for m in materials:
-        if set(m)!={'id','name','trait','description','ingredients','output_count'}:raise ValueError('Material fields')
+        if set(m)!={'id','name','trait','description'}:raise ValueError('Material fields')
         if not re.fullmatch('[a-z0-9_]+',m['id']) or m['id'] in ids:raise ValueError('Material id')
         ids.add(m['id'])
         if m['trait'] not in ('sharp','channeling','tough') or m['trait'] in traits:raise ValueError('Material trait')
         traits.add(m['trait'])
         for key in ('name','description'):
             if len(m[key])!=2 or not all(isinstance(s,str) and s.strip() for s in m[key]):raise ValueError('Bilingual material strings')
-        if type(m['output_count'])!=int or not 1<=m['output_count']<=64:raise ValueError('Material output count')
-        for item,n in m['ingredients'].items():
-            if not re.fullmatch('[a-z0-9_.-]+:[a-z0-9_./-]+',item) or type(n)!=int or n<1:raise ValueError('Material ingredient')
-        if not 1<=sum(m['ingredients'].values())<=9:raise ValueError('Crafting grid capacity')
     if len(materials)!=3 or traits!={'sharp','channeling','tough'}:raise ValueError('Three specialized materials required')
     return materials
 
 def lang():
-    strings={'tooltip.myvillage.forging_material.craft':('Craft at a crafting table; use as a forging additive.','工作台加工获得，在炼器鼎中用作辅材。')}
+    strings={'tooltip.myvillage.forging_material.use':('Use as a forging additive.','在炼器鼎中用作辅材。')}
     for m in load():
         strings['item.myvillage.'+m['id']]=m['name']
         strings['tooltip.myvillage.forging_material.'+m['id']]=m['description']
@@ -64,17 +60,17 @@ def outputs(root=ROOT):
     base=root/'src/main/resources';result={}
     encode=lambda v:(json.dumps(v,ensure_ascii=False,indent=2)+'\n').encode()
     for m in load(root/'tools/forging/materials.json'):
-        name=m['id'];rid='myvillage:'+name
+        name=m['id']
         result[base/f'assets/myvillage/textures/item/{name}.png']=png(icon(name))
         result[base/f'assets/myvillage/models/item/{name}.json']=encode({'parent':'minecraft:item/generated','textures':{'layer0':'myvillage:item/'+name}})
-        ingredients=[{'item':item} for item,n in m['ingredients'].items() for _ in range(n)]
-        result[base/f'data/myvillage/recipe/{name}.json']=encode({'type':'minecraft:crafting_shapeless','category':'misc','ingredients':ingredients,'result':{'id':rid,'count':m['output_count']}})
-        first=next(iter(m['ingredients']))
-        result[base/f'data/myvillage/advancement/recipes/misc/{name}.json']=encode({'parent':'minecraft:recipes/root','criteria':{
-            'has_raw_material':{'trigger':'minecraft:inventory_changed','conditions':{'items':[{'items':[first]}]}},
-            'has_the_recipe':{'trigger':'minecraft:recipe_unlocked','conditions':{'recipe':rid}}},
-            'requirements':[['has_raw_material','has_the_recipe']],'rewards':{'recipes':[rid]}})
     return result
+
+def retired_paths(root=ROOT):
+    """Only the six acquisition outputs owned by this generator in 0.57.2."""
+    base=root/'src/main/resources/data/myvillage'
+    return [base/f'{folder}/{name}.json'
+            for name in ('xuantie_ingot','chitong_ingot','edge_tempering_sand')
+            for folder in ('recipe','advancement/recipes/misc')]
 
 def preview(root=ROOT):
     from PIL import Image,ImageDraw,ImageFont

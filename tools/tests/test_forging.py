@@ -6,7 +6,7 @@ from tools.modal_runner.remote import commands_for
 
 ROOT=Path(__file__).resolve().parents[2]
 class ForgingResourcesTest(unittest.TestCase):
-    def test_generator_outputs_match_and_survival_routes_exist(self):
+    def test_generator_outputs_match_and_pattern_recipes_exist(self):
         generated=assets.outputs()
         for path,data in generated.items():self.assertEqual(data,path.read_bytes(),str(path))
         rules=json.loads((ROOT/'src/main/resources/data/myvillage/forging/rules.json').read_text())
@@ -63,36 +63,45 @@ class DingGeometryTest(unittest.TestCase):
                 self.assertTrue(all(f['neoforge_data']['block_light']==15 for f in e['faces'].values()))
 
 class MaterialResourcesTest(unittest.TestCase):
-    def test_each_material_has_a_real_consumer_and_exact_acquisition_recipe(self):
-        from collections import Counter
+    def test_materials_keep_consumers_but_have_no_acquisition_recipes(self):
         from tools.forging import materials
         rules=json.loads((ROOT/'src/main/resources/data/myvillage/forging/rules.json').read_text())
         generated=materials.outputs()
         registry=(ROOT/'src/main/java/com/example/myvillage/item/ModItems.java').read_text()
         for m in materials.load():
             rid='myvillage:'+m['id'];self.assertEqual({rid:1},rules['traits'][m['trait']]['costs'])
-            recipe=json.loads(generated[ROOT/f'src/main/resources/data/myvillage/recipe/{m["id"]}.json'])
-            self.assertEqual(m['ingredients'],Counter(i['item'] for i in recipe['ingredients']))
-            self.assertEqual({'id':rid,'count':m['output_count']},recipe['result'])
             self.assertIn('"'+m['id']+'"',registry)
             self.assertIn('output.accept('+m['id'].upper()+'.get())',registry)
-            unlock=json.loads(generated[ROOT/f'src/main/resources/data/myvillage/advancement/recipes/misc/{m["id"]}.json'])
-            self.assertEqual([rid],unlock['rewards']['recipes'])
-            self.assertIn('myvillage:low_grade_spirit_stone',m['ingredients'])
+        for path in materials.retired_paths():
+            self.assertNotIn(path,generated)
+            self.assertFalse(path.exists(),str(path))
+        ids={'myvillage:'+m['id'] for m in materials.load()}
+        for path in (ROOT/'src/main/resources/data/myvillage/recipe').glob('*.json'):
+            result=json.loads(path.read_text()).get('result',{})
+            if isinstance(result,dict):self.assertNotIn(result.get('id'),ids,str(path))
+
     def test_materials_do_not_change_base_weapon_or_repair_costs(self):
         rules=json.loads((ROOT/'src/main/resources/data/myvillage/forging/rules.json').read_text())
         self.assertEqual({'minecraft:iron_ingot':1,'myvillage:low_grade_spirit_stone':1},rules['repair']['costs'])
         for recipe in rules['recipes']:
             self.assertEqual({'minecraft:diamond','minecraft:stick','myvillage:low_grade_spirit_stone'},set(recipe['costs']))
-    def test_invalid_counts_and_overfull_crafting_grid_fail_before_generation(self):
+    def test_retired_recipes_fail_check_and_generation_cleans_only_owned_paths(self):
         import tempfile
+        from unittest.mock import patch
         from tools.forging import materials
-        original=json.loads((ROOT/'tools/forging/materials.json').read_text())
-        for key,n in [('minecraft:iron_ingot',0),('minecraft:iron_ingot',10),('minecraft:iron_ingot',1.5)]:
-            data=json.loads(json.dumps(original));data['materials'][0]['ingredients'][key]=n
-            with tempfile.TemporaryDirectory() as temp:
-                path=Path(temp)/'materials.json';path.write_text(json.dumps(data))
-                with self.assertRaises(ValueError):materials.load(path)
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp)
+            retired=materials.retired_paths(root)
+            for path in retired:path.parent.mkdir(parents=True,exist_ok=True);path.write_text('{}')
+            other=retired[0].with_name('unrelated.json');other.write_text('{}')
+            with patch.object(assets,'ROOT',root),patch.object(assets,'outputs',return_value={}):
+                with patch('sys.argv',['generator','--check']):self.assertEqual(1,assets.main())
+                self.assertTrue(all(p.exists() for p in retired))
+                with patch('sys.argv',['generator']):self.assertEqual(0,assets.main())
+                with patch('sys.argv',['generator','--check']):self.assertEqual(0,assets.main())
+            self.assertTrue(other.exists())
+            self.assertFalse(any(p.exists() for p in retired))
+
     def test_icons_are_distinct_transparent_sprites_with_visible_silhouettes(self):
         from tools.forging import materials
         from tools.gen_alchemy_assets import png
