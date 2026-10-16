@@ -59,6 +59,9 @@ class BuildingEvidence(Evidence):
         if ROOT!=Path('/workspace/repo'):
             raise RuntimeError('Actual game job is restricted to the Modal disposable /workspace/repo checkout')
         t=time.monotonic()
+        # A fresh options file omits unchanged vanilla defaults until a later
+        # save. Pin only the disposable test client's actual input bindings.
+        cs.merge_options(cs.CLIENT_DIR/'options.txt',{'key_key.forward':'key.keyboard.w','key_key.use':'key.mouse.right'})
         state=cs.start(cs.SessionConfig(session_id=secrets.token_hex(6),language='zh_cn',lock=str(procs.default_lock_path(ROOT))))
         self.s=cs.Session.attach(ui_check=True);self.sessions+=1
         self.report['phases'].append({'phase':'client_server_start','wall_s':round(time.monotonic()-t,3),'capture_timings':state.get('timings',{})})
