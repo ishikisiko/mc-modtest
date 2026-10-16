@@ -69,12 +69,15 @@ class MaterialResourcesTest(unittest.TestCase):
         generated=materials.outputs()
         registry=(ROOT/'src/main/java/com/example/myvillage/item/ModItems.java').read_text()
         for m in materials.load():
-            rid='myvillage:'+m['id'];self.assertEqual({rid:1},rules['traits'][m['trait']]['costs'])
+            rid='myvillage:'+m['id'];self.assertEqual({'#'+m['tag']:1},rules['traits'][m['trait']]['costs'])
+            namespace,tag=m['tag'].split(':')
+            self.assertEqual({'replace':False,'values':[rid]},json.loads(generated[ROOT/f'src/main/resources/data/{namespace}/tags/item/{tag}.json']))
             self.assertIn('"'+m['id']+'"',registry)
             self.assertIn('output.accept('+m['id'].upper()+'.get())',registry)
         for path in materials.retired_paths():
             self.assertNotIn(path,generated)
             self.assertFalse(path.exists(),str(path))
+        self.assertFalse((ROOT/'src/main/resources/data/c/tags/item/ingots/copper.json').exists())
         ids={'myvillage:'+m['id'] for m in materials.load()}
         for path in (ROOT/'src/main/resources/data/myvillage/recipe').glob('*.json'):
             result=json.loads(path.read_text()).get('result',{})

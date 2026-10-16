@@ -12,6 +12,7 @@ from tools.alchemy_evidence import AlchemyEvidence
 from tools.alchemy_quality_evidence import read_data,quality_stacks,SecondClient
 from tools.combat_capture import scene,session as cs
 from tools.combat_capture.sword_qi import parse_events
+from tools.forging.materials import load as material_definitions
 
 POS='0 -60 3'
 MARK='myvillage:forge_mark'
@@ -57,8 +58,13 @@ class ForgingEvidence(AlchemyEvidence):
         u=user or self.s.username;self.rc(f'clear {u}')
         costs=dict(recipe['costs'])
         for item,n in self.rules['traits'][trait]['costs'].items():costs[item]=costs.get(item,0)+n
-        for item,n in costs.items():self.rc(f'give {u} {item} {n*multiplier}')
-        return costs
+        tag_items={'#'+m['tag']:'myvillage:'+m['id'] for m in material_definitions()}
+        resolved={}
+        for reference,n in costs.items():
+            item=tag_items[reference] if reference.startswith('#') else reference
+            resolved[item]=resolved.get(item,0)+n
+        for item,n in resolved.items():self.rc(f'give {u} {item} {n*multiplier}')
+        return resolved
     def forge(self,index,trait,cap=1):
         r=self.rules['recipes'][index];u=self.s.username;costs=self.prepare_materials(r,trait,multiplier=2)
         before=self.inventory();self.open_table();self.click(50,40+index*24);self.click(50,94+['sharp','channeling','tough'].index(trait)*22)

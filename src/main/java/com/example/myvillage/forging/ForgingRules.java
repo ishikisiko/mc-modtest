@@ -25,7 +25,7 @@ public final class ForgingRules {
     private final double repairFraction;
     private ForgingRules(JsonObject root) {
         fields(root, "version", "recipes", "traits", "quality_weights", "repair");
-        integer(root,"version",1,1);
+        integer(root,"version",1,2);
         JsonObject definitions = object(root.get("traits"),"traits");
         fields(definitions, "sharp", "channeling", "tough");
         Map<String,Trait> parsed = new LinkedHashMap<>();
@@ -76,8 +76,7 @@ public final class ForgingRules {
         var o=object(input,"costs");Map<String,Integer> result=new TreeMap<>();
         if (o.size()<1 || o.size()>8) throw invalid("costs","one through eight entries required");
         for (var e:o.entrySet()) {
-            String id=itemId(new JsonPrimitive(e.getKey()),"cost item");
-            if (id.equals("minecraft:air")) throw invalid("costs","air");
+            String id=ForgingIngredients.validate(e.getKey());
             result.put(id,integerValue(e.getValue(),"count",1,64));
         }
         return Collections.unmodifiableMap(result);

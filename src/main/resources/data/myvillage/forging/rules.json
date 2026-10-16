@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "recipes": [
     {
       "id": "qingfeng_sword",
@@ -34,7 +34,7 @@
   "traits": {
     "sharp": {
       "costs": {
-        "myvillage:edge_tempering_sand": 1
+        "#myvillage:forging_materials/edge_tempering_sand": 1
       },
       "values": [
         1,
@@ -45,7 +45,7 @@
     },
     "channeling": {
       "costs": {
-        "myvillage:chitong_ingot": 1
+        "#myvillage:forging_materials/chitong": 1
       },
       "values": [
         0.1,
@@ -56,7 +56,7 @@
     },
     "tough": {
       "costs": {
-        "myvillage:xuantie_ingot": 1
+        "#myvillage:forging_materials/xuantie": 1
       },
       "values": [
         1.5,

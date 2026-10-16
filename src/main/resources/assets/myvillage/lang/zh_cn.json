@@ -1388,7 +1388,7 @@
   "tooltip.myvillage.forging_material.edge_tempering_sand": "用于锋锐专长，提高成器攻击伤害。",
   "tooltip.myvillage.forging_material.use": "在炼器鼎中用作辅材。",
   "tooltip.myvillage.forging_material.source.xuantie_ingot": "用铁镐开采深层洞穴中的玄铁矿脉。",
-  "tooltip.myvillage.forging_material.source.chitong_ingot": "在炼器鼎中向原版铜锭灌注自身灵力。",
+  "tooltip.myvillage.forging_material.source.chitong_ingot": "在炼器鼎中给铜锭灌灵，兼容通用铜锭标签。",
   "tooltip.myvillage.forging_material.source.edge_tempering_sand": "用铲采集河滩和浅水处可见的淬锋砂层。",
   "block.myvillage.xuantie_ore": "玄铁矿",
   "block.myvillage.edge_tempering_sand_deposit": "淬锋砂层",
@@ -1406,5 +1406,8 @@
   "screen.myvillage.infusion.status.4": "觉醒后才能灌灵。",
   "screen.myvillage.infusion.status.5": "灵力不足，已暂停；恢复后可继续。",
   "screen.myvillage.infusion.status.6": "灌灵完成，取走右槽赤铜锭。",
-  "tooltip.myvillage.infused_copper": "每锭已灌灵：%s / %s；可放回炼器鼎继续。"
+  "tooltip.myvillage.infused_copper": "每锭已灌灵：%s / %s；可放回炼器鼎继续。",
+  "tag.item.myvillage.forging_materials.xuantie": "玄铁",
+  "tag.item.myvillage.forging_materials.chitong": "赤铜锭",
+  "tag.item.myvillage.forging_materials.edge_tempering_sand": "淬锋砂"
 }

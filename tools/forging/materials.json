@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "materials": [
     {
       "id": "xuantie_ingot",
@@ -15,7 +15,8 @@
       "acquisition": [
         "Mine dark iron veins in deep caves with an iron pickaxe.",
         "用铁镐开采深层洞穴中的玄铁矿脉。"
-      ]
+      ],
+      "tag": "myvillage:forging_materials/xuantie"
     },
     {
       "id": "chitong_ingot",
@@ -29,9 +30,10 @@
         "用于导灵专长，降低已学剑气的耗灵。"
       ],
       "acquisition": [
-        "Infuse vanilla copper ingots with your qi at a forging ding.",
-        "在炼器鼎中向原版铜锭灌注自身灵力。"
-      ]
+        "Infuse copper ingots with your qi at a forging ding; accepts the common copper ingot tag.",
+        "在炼器鼎中给铜锭灌灵，兼容通用铜锭标签。"
+      ],
+      "tag": "myvillage:forging_materials/chitong"
     },
     {
       "id": "edge_tempering_sand",
@@ -47,7 +49,8 @@
       "acquisition": [
         "Dig visible deposits on riverbanks and in shallows with a shovel.",
         "用铲采集河滩和浅水处可见的淬锋砂层。"
-      ]
+      ],
+      "tag": "myvillage:forging_materials/edge_tempering_sand"
     }
   ]
 }

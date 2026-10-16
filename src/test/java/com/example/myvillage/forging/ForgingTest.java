@@ -45,7 +45,7 @@ class ForgingTest {
         assertThrows(IllegalArgumentException.class,()->rules.roll(4,rules.total(4)));
     }
     @Test void malformedConfigurationCannotProduceFreeOrAboveCapWeapons() throws Exception{
-        for(String malformed:List.of(source().replace("\"version\": 1","\"version\": 1, \"version\": 1"),
+        for(String malformed:List.of(source().replace("\"version\": 2","\"version\": 2, \"version\": 2"),
                 source().replace("\"minecraft:diamond\": 2","\"minecraft:diamond\": 0"),
                 source().replace("\"minecraft:diamond\": 2","\"minecraft:diamond\": 1.5"),source()+" {}"))
             assertThrows(IllegalArgumentException.class,()->ForgingRules.parse(new StringReader(malformed)));

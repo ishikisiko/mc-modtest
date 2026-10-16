@@ -48,7 +48,7 @@ public final class ForgingScreen extends AbstractContainerScreen<ForgingMenu> {
         repair=addRenderableWidget(Button.builder(Component.translatable(KEY+"repair"),b->send(ForgingMenu.REPAIR))
                 .bounds(leftPos+204,topPos+128,88,18).build());
         var hint=Component.translatable(KEY+"repair_hint");
-        ForgingRules.get().repairCosts().forEach((id,n)->hint.append("\n").append(itemName(id)).append(" ×"+n));
+        ForgingRules.get().repairCosts().forEach((id,n)->hint.append("\n").append(ForgingIngredients.description(id)).append(" ×"+n));
         repair.setTooltip(Tooltip.create(hint));updateButtons();
     }
     private void updateButtons(){
@@ -73,9 +73,10 @@ public final class ForgingScreen extends AbstractContainerScreen<ForgingMenu> {
         for(var s:menu.slots){g.fill(x+s.x-1,y+s.y-1,x+s.x+17,y+s.y+17,0xFF8B826C);g.fill(x+s.x,y+s.y,x+s.x+16,y+s.y+16,0xFF171D18);}
         int i=0;
         for(var e:ForgingRules.get().costs(menu.recipe(),menu.trait()).entrySet()){
-            ItemStack stack=new ItemStack(BuiltInRegistries.ITEM.get(ResourceLocation.parse(e.getKey())));
+            var inventory=menu.slots.subList(2,38).stream().map(s->s.getItem()).toList();
+            ItemStack stack=ForgingIngredients.display(e.getKey(),inventory);
             int px=x+116+(i++)*42;g.renderItem(stack,px,y+52);
-            long count=menu.slots.subList(2,38).stream().map(Slot->Slot.getItem()).filter(s->s.is(stack.getItem())).mapToLong(ItemStack::getCount).sum();
+            long count=inventory.stream().filter(s->ForgingIngredients.matches(e.getKey(),s)).mapToLong(ItemStack::getCount).sum();
             g.drawString(font,"×"+e.getValue(),px,y+71,count>=e.getValue()?0xFFC5D8B7:0xFFF08C76,false);
         }
     }
@@ -93,7 +94,7 @@ public final class ForgingScreen extends AbstractContainerScreen<ForgingMenu> {
         int i=0;
         for(var e:ForgingRules.get().costs(menu.recipe(),menu.trait()).entrySet()){
             int x=leftPos+116+(i++)*42,y=topPos+52;
-            if(mx>=x&&mx<x+32&&my>=y&&my<y+28)g.renderTooltip(font,itemName(e.getKey()).copy().append(" ×"+e.getValue()),mx,my);
+            if(mx>=x&&mx<x+32&&my>=y&&my<y+28)g.renderTooltip(font,ForgingIngredients.description(e.getKey()).copy().append(" ×"+e.getValue()),mx,my);
         }
     }
     @EventBusSubscriber(modid=MyVillageMod.MOD_ID,value=Dist.CLIENT)

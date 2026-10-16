@@ -13,7 +13,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 
 /** Private batch. Closing returns the paid copper, so no shared job or invisible block inventory exists. */
 public final class CopperInfusionMenu extends AbstractContainerMenu {
@@ -28,7 +27,7 @@ public final class CopperInfusionMenu extends AbstractContainerMenu {
         super(ForgingMenus.INFUSION.get(),id);this.inventory=inventory;this.access=access;
         if(!inventory.player.level().isClientSide()&&access==ContainerLevelAccess.NULL)throw new IllegalArgumentException("Placed ding required");
         addSlot(new Slot(work,0,88,56){
-            @Override public boolean mayPlace(ItemStack stack){return stack.is(Items.COPPER_INGOT);}
+            @Override public boolean mayPlace(ItemStack stack){return ForgingIngredients.infusionInput(stack);}
             @Override public int getMaxStackSize(){return InfusionRules.get().maxBatch();}
         });
         addSlot(new Slot(work,1,200,56){@Override public boolean mayPlace(ItemStack stack){return false;}});
@@ -40,7 +39,7 @@ public final class CopperInfusionMenu extends AbstractContainerMenu {
     public int status(){return data.get(1);}
     public int paidQi(){return work.getItem(0).getOrDefault(ModDataComponents.COPPER_INFUSION.get(),new CopperInfusion(0)).paidQi();}
     public int count(){return work.getItem(0).getCount();}
-    public boolean ready(){return work.getItem(0).is(Items.COPPER_INGOT)&&count()<=InfusionRules.get().maxBatch()&&work.getItem(1).isEmpty();}
+    public boolean ready(){return ForgingIngredients.infusionInput(work.getItem(0))&&count()<=InfusionRules.get().maxBatch()&&work.getItem(1).isEmpty();}
     private boolean authorized(Player p){return p==inventory.player&&p.containerMenu==this&&p.isAlive()&&!p.isSpectator()&&stillValid(p);}
     @Override public boolean stillValid(Player p){return p==inventory.player&&stillValid(access,p,ModBlocks.FORGING_TABLE.get());}
     private void pause(int status){data.set(0,0);data.set(1,status);}
@@ -84,7 +83,7 @@ public final class CopperInfusionMenu extends AbstractContainerMenu {
         Slot slot=slots.get(index);if(!slot.hasItem())return ItemStack.EMPTY;
         ItemStack stack=slot.getItem(),original=stack.copy();
         if(index<2){if(!moveItemStackTo(stack,2,38,true))return ItemStack.EMPTY;}
-        else if(stack.is(Items.COPPER_INGOT)){if(!moveItemStackTo(stack,0,1,false))return ItemStack.EMPTY;}
+        else if(ForgingIngredients.infusionInput(stack)){if(!moveItemStackTo(stack,0,1,false))return ItemStack.EMPTY;}
         else if(index<29){if(!moveItemStackTo(stack,29,38,false))return ItemStack.EMPTY;}
         else if(!moveItemStackTo(stack,2,29,false))return ItemStack.EMPTY;
         if(stack.getCount()==original.getCount())return ItemStack.EMPTY;

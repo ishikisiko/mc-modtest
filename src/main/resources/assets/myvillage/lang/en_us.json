@@ -1404,7 +1404,7 @@
   "tooltip.myvillage.forging_material.edge_tempering_sand": "Tempers a keen edge, increasing forged weapon attack damage.",
   "tooltip.myvillage.forging_material.use": "Use as a forging additive.",
   "tooltip.myvillage.forging_material.source.xuantie_ingot": "Mine dark iron veins in deep caves with an iron pickaxe.",
-  "tooltip.myvillage.forging_material.source.chitong_ingot": "Infuse vanilla copper ingots with your qi at a forging ding.",
+  "tooltip.myvillage.forging_material.source.chitong_ingot": "Infuse copper ingots with your qi at a forging ding; accepts the common copper ingot tag.",
   "tooltip.myvillage.forging_material.source.edge_tempering_sand": "Dig visible deposits on riverbanks and in shallows with a shovel.",
   "block.myvillage.xuantie_ore": "Dark Iron Ore",
   "block.myvillage.edge_tempering_sand_deposit": "Edge-tempering Sand Deposit",
@@ -1422,5 +1422,8 @@
   "screen.myvillage.infusion.status.4": "Awaken before infusing.",
   "screen.myvillage.infusion.status.5": "Not enough qi. Paused; recover and resume.",
   "screen.myvillage.infusion.status.6": "Complete. Take the spirit copper.",
-  "tooltip.myvillage.infused_copper": "Infused qi per ingot: %s / %s; resume at a forging ding."
+  "tooltip.myvillage.infused_copper": "Infused qi per ingot: %s / %s; resume at a forging ding.",
+  "tag.item.myvillage.forging_materials.xuantie": "Dark Iron",
+  "tag.item.myvillage.forging_materials.chitong": "Spirit Copper Ingot",
+  "tag.item.myvillage.forging_materials.edge_tempering_sand": "Edge-tempering Sand"
 }

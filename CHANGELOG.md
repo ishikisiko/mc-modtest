@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.58.1
+
+- 炼器支持物品 ID 与 `#标签` 用料，玄铁、赤铜、淬锋砂各有独立材料标签；标签重叠时统一分配库存，避免重复扣算或误报缺料。
+- 赤铜灌灵接受 `c:ingots/copper` 中的铜锭，第三方铜锭也可保存和继续灌灵进度；赤铜不加入普通铜锭标签。玄铁矿补充通用矿石分类标签。
+- 客户端按标签统计材料并显示可用替代品；空标签显示缺料，兼容协议升为 27。
+
 ## 0.58.0
 
 - 赤铜改为炼器鼎批量灌灵：放入原版铜锭，逐次消耗自身灵力，暂停、退出与重启保留已付进度；材料与结果按玩家独立。

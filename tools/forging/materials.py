@@ -7,12 +7,13 @@ ROOT=Path(__file__).resolve().parents[2]
 
 def load(path=None):
     data=json.loads((path or ROOT/'tools/forging/materials.json').read_text())
-    if set(data)!={'version','materials'} or data['version']!=3:raise ValueError('Material schema')
+    if set(data)!={'version','materials'} or data['version']!=4:raise ValueError('Material schema')
     materials=data['materials'];ids=set();traits=set()
     for m in materials:
-        if set(m)!={'id','name','trait','description','acquisition'}:raise ValueError('Material fields')
+        if set(m)!={'id','name','trait','description','acquisition','tag'}:raise ValueError('Material fields')
         if not re.fullmatch('[a-z0-9_]+',m['id']) or m['id'] in ids:raise ValueError('Material id')
         ids.add(m['id'])
+        if not re.fullmatch('[a-z0-9_.-]+:[a-z0-9_./-]+',m['tag']):raise ValueError('Material tag')
         if m['trait'] not in ('sharp','channeling','tough') or m['trait'] in traits:raise ValueError('Material trait')
         traits.add(m['trait'])
         for key in ('name','description','acquisition'):
@@ -24,6 +25,7 @@ def lang():
     strings={'tooltip.myvillage.forging_material.use':('Use as a forging additive.','在炼器鼎中用作辅材。')}
     for m in load():
         strings['item.myvillage.'+m['id']]=m['name']
+        strings['tag.item.'+m['tag'].replace(':','.').replace('/','.')]=m['name']
         strings['tooltip.myvillage.forging_material.'+m['id']]=m['description']
         strings['tooltip.myvillage.forging_material.source.'+m['id']]=m['acquisition']
     return strings
@@ -67,7 +69,8 @@ def outputs(root=ROOT):
     base=root/'src/main/resources';result={}
     encode=lambda v:(json.dumps(v,ensure_ascii=False,indent=2)+'\n').encode()
     for m in load(root/'tools/forging/materials.json'):
-        name=m['id']
+        name=m['id'];namespace,tag=m['tag'].split(':')
+        result[base/f'data/{namespace}/tags/item/{tag}.json']=encode({'replace':False,'values':['myvillage:'+name]})
         result[base/f'assets/myvillage/textures/item/{name}.png']=png(icon(name))
         result[base/f'assets/myvillage/models/item/{name}.json']=encode({'parent':'minecraft:item/generated','textures':{'layer0':'myvillage:item/'+name}})
     return result
