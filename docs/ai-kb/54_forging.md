@@ -224,3 +224,5 @@ Modal `--preset forging-quality-preview` checks generated resources, builds the
 jar and runs presentation-only fixture captures. It selects all five qualities,
 both weapons, hotbar/inventory/chest, renamed/enchanted/damaged items and saved
 component non-mutation. This is not a crafting or broad compatibility rerun.
+
+Delivery evidence: [2026-10-17 weapon quality colors and frames](../testing/2026-10-17-forging-quality.md).
