@@ -9,13 +9,13 @@ from .sword_qi import DEFAULT_OUT,WEAPON,TARGET,parse_events
 from .xgame import Game
 
 
-def observe(session,out=DEFAULT_OUT/'observer',log=print,timeout=180,tick_rate=10,hold_seconds=1.2):
+def observe(session,out=DEFAULT_OUT/'observer',log=print,timeout=180,tick_rate=10,hold_seconds=1.2,move_while_charging=False):
     out=Path(out);out.mkdir(parents=True,exist_ok=True)
     display=f':{procs.free_display()}'
     game_dir=REPO/'run-combat-capture/observer';game_dir.mkdir(parents=True,exist_ok=True)
     merge_options(game_dir/'options.txt',{**CLIENT_OPTIONS,'lang':'en_us','renderDistance':'4','simulationDistance':'3','maxFps':'30'})
     env=dict(os.environ,DISPLAY=display,JAVA_TOOL_OPTIONS='-Xmx768m')
-    handles=[];owned=[];start=time.monotonic();report={'method':'second real Minecraft client on separate Xvfb, same dedicated server; actor uses mapped right mouse','owner_verdict':'not_verified','sound':'not_verified','observer_username':'CaptureWatch','minecraft_heap_cap':'768 MiB via JAVA_TOOL_OPTIONS','observer_max_fps':30,'server_tick_rate':tick_rate,'hold_seconds':hold_seconds}
+    handles=[];owned=[];start=time.monotonic();report={'method':'second real Minecraft client on separate Xvfb, same dedicated server; actor uses mapped right mouse','owner_verdict':'not_verified','sound':'not_verified','observer_username':'CaptureWatch','minecraft_heap_cap':'768 MiB via JAVA_TOOL_OPTIONS','observer_max_fps':30,'server_tick_rate':tick_rate,'hold_seconds':hold_seconds,'move_while_charging':move_while_charging}
     try:
         procs.set_child_subreaper()
         xlog=open(out/'xvfb.log','w');handles.append(xlog)
@@ -52,12 +52,15 @@ def observe(session,out=DEFAULT_OUT/'observer',log=print,timeout=180,tick_rate=1
         recorder=subprocess.Popen(ffmpeg_record_argv(display,video,9,fps=30),stdout=subprocess.DEVNULL,stderr=subprocess.PIPE)
         try:
             time.sleep(.5);session.game.require_ingame('observer trial actor charge');session.game.xdo('mousedown','3')
+            if move_while_charging: session.game.xdo('keydown','w')
             time.sleep(min(.5,hold_seconds));game.shot(out/'observer_charging.png',max_wait=.3)
+            if move_while_charging: session.game.xdo('keyup','w')
             time.sleep(max(0,hold_seconds-.5));session.game.xdo('mouseup','3')
             time.sleep(2);rc=recorder.wait(timeout=20)
             if rc:raise RuntimeError(f'observer recording failed {rc}')
         finally:
             session.game.xdo('mouseup','3')
+            if move_while_charging: session.game.xdo('keyup','w')
             if recorder.poll() is None:recorder.terminate();recorder.wait(timeout=5)
         after=scene.parse_float_data(session.run(f'data get entity {TARGET} Health',warn=False)[0])
         with (LOG_DIR/'server.log').open('rb') as stream:stream.seek(mark);lines=[l for l in stream.read().decode(errors='replace').splitlines() if 'SWORD_QI ' in l]

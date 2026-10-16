@@ -548,7 +548,7 @@ public final class CombatAnimationController {
                 speed = Math.clamp(charge.get().tick() - controller.getAnimationTicks(), 0.0F, 1.0F);
             } else speed = isLocal(player) ? localRate(player) : clampRate(remoteRate);
             previousLocomotion = locomotion;
-            float target = lifecycle.allowsLocomotion()
+            float target = lifecycle.allowsLocomotion() || charge.isPresent()
                     ? LocomotionBlend.target(player.walkAnimation.speed())
                     : 0.0F;
             locomotion = LocomotionBlend.step(locomotion, target);
@@ -573,8 +573,8 @@ public final class CombatAnimationController {
             if (charge.isPresent() && controller != null && charge.get().move().move().id().equals(currentAnimation)) {
                 speed = Math.clamp(charge.get().holdTick() - controller.getAnimationTicks(), 0.0F, 1.0F);
                 if (speed == 0.0F) {
-                    // Do not leak SpeedModifier's last fractional tick into a held charge pose.
-                    locomotionWeight = 0.0F;
+                    // Hold the arms exactly while the legs retain the ordinary walking blend.
+                    locomotionWeight = LocomotionBlend.lerp(previousLocomotion, locomotion, data.getPartialTick());
                     data.setPartialTick(0.0F);
                     if (anim != null) anim.setupAnim(data);
                     return;

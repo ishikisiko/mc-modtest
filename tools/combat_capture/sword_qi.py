@@ -158,12 +158,22 @@ class SwordQiCapture:
                 time.sleep(max(0, hold - .3))
             finally:
                 self.g.xdo('mouseup', '3')
+            # Sample cost after the authoritative event, before screenshot latency / regeneration.
+            if trial['expect'] != 'client_gate':
+                deadline = time.monotonic() + 2
+                while time.monotonic() < deadline:
+                    with log_file.open('rb') as stream:
+                        stream.seek(mark); current = parse_events(stream.read().decode('utf-8', 'replace').splitlines())
+                    if any(e.get('result') in {'released', 'cancelled', 'rejected'} for e in current): break
+                    time.sleep(.05)
+                else: raise RuntimeError('No authoritative release/cancel event before cost readback')
+            after_profile = self.profile()
             time.sleep(2.5)
             if trial.get('cancel') == 'menu':
                 self.g.xdo('key','Escape'); time.sleep(.6)
             if trial.get('charge_shot') or trial.get('cancel'):
                 self.g.shot(self.out / f'{name}-after.png', max_wait=.3)
-            after = self.health(); after_profile = self.profile()
+            after = self.health(); final_profile = self.profile()
             with log_file.open('rb') as stream:
                 stream.seek(mark); lines = stream.read().decode('utf-8', 'replace').splitlines()
             lines = [line for line in lines if 'SWORD_QI ' in line]
@@ -177,7 +187,8 @@ class SwordQiCapture:
                        and (power_before - power_after == sum(costs) if costs else power_after >= power_before))
             row = dict(trial, start_utc=started, end_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
                        wall_s=round(time.monotonic()-t0,3), health_before=hp, health_after=after,
-                       profile_before=before, profile_after=after_profile, power_before=power_before, power_after=power_after,
+                       profile_before=before, profile_after=after_profile, profile_end=final_profile,
+                       power_before=power_before, power_after=power_after,
                        expected_cost=sum(costs), cost_passed=cost_ok, events=events, video=video.name,
                        passed=expectation_met(trial, events, hp, after) and cost_ok)
             self.manifest['trials'].append(row)
