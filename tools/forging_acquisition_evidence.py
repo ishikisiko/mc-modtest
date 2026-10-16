@@ -116,6 +116,13 @@ class AcquisitionEvidence(ForgingEvidence):
         u=self.s.username;x,y,z=pos
         # Clear only the approach, never the naturally generated target block.
         self.rc(f'forceload add {x-16} {z-16} {x+16} {z+16}')
+        # Transparent temporary walls keep river current from changing the mapped eye ray.
+        # The original target is the only unmodified opening in the front wall.
+        for wall in [
+            (x-2,y,z-4,x-2,y+3,z),(x+2,y,z-4,x+2,y+3,z),
+            (x-1,y,z-4,x+1,y+3,z-4),(x-1,y+3,z-3,x+1,y+3,z),
+            (x-1,y,z,x-1,y+2,z),(x+1,y,z,x+1,y+2,z),(x,y+1,z,x,y+2,z)]:
+            self.rc('fill '+self.coords(wall)+' minecraft:glass')
         self.rc(f'fill {x-1} {y} {z-3} {x+1} {y+2} {z-1} minecraft:air')
         self.rc(f'fill {x-1} {y-1} {z-3} {x+1} {y-1} {z-1} minecraft:stone')
         self.rc(f'setblock {x-1} {y} {z-2} minecraft:torch')
@@ -123,6 +130,8 @@ class AcquisitionEvidence(ForgingEvidence):
         self.look((x+.5,y,z-2.5),(x+.5,y+.5,z+.5));self.capture(label+'-before.png');before=self.count(item)
         self.s.game.xdo('mousedown','1')
         try:self.poll(lambda:self.block_exists(pos,block),lambda b:not b,18,'mapped mining '+label)
+        except RuntimeError:
+            self.capture(label+'-failed.png');self.rc(f'data get entity {u} Pos');self.rc(f'data get entity {u} SelectedItem');raise
         finally:self.s.game.xdo('mouseup','1')
         self.rc(f'tp {u} {x+.5} {y} {z+.5}')
         if expect:

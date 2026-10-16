@@ -111,7 +111,7 @@ def outputs(root=ROOT):
     sand=d['sand']
     put('data/myvillage/worldgen/configured_feature/edge_tempering_sand.json',{'type':'myvillage:edge_tempering_sand','config':{key:sand[key] for key in ('radius','water_radius','max_water_depth','max_blocks')}})
     put('data/myvillage/worldgen/placed_feature/edge_tempering_sand.json',{'feature':'myvillage:edge_tempering_sand','placement':[
-        {'type':'minecraft:count','count':sand['attempts_per_chunk']},{'type':'minecraft:in_square'},{'type':'minecraft:biome'}]})
+        {'type':'minecraft:count','count':sand['attempts_per_chunk']},{'type':'minecraft:in_square'},{'type':'minecraft:heightmap','heightmap':'WORLD_SURFACE_WG'},{'type':'minecraft:biome'}]})
     put('data/myvillage/tags/worldgen/biome/has_edge_tempering_sand.json',{'replace':False,'values':sand['biomes']})
     put('data/myvillage/neoforge/biome_modifier/add_edge_tempering_sand.json',{'type':'neoforge:add_features','biomes':'#myvillage:has_edge_tempering_sand','features':['myvillage:edge_tempering_sand'],'step':'local_modifications'})
     for stage in range(7):out[base/f'assets/myvillage/textures/gui/copper_infusion_{stage}.png']=png(infusion_texture(stage))

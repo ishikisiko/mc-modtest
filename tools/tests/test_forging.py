@@ -132,6 +132,9 @@ class AcquisitionResourcesTest(unittest.TestCase):
         sand=obj('data/myvillage/worldgen/configured_feature/edge_tempering_sand.json')
         self.assertEqual('myvillage:edge_tempering_sand',sand['type'])
         self.assertEqual(1,sand['config']['max_water_depth'])
+        placement=obj('data/myvillage/worldgen/placed_feature/edge_tempering_sand.json')['placement']
+        self.assertEqual({'type':'minecraft:heightmap','heightmap':'WORLD_SURFACE_WG'},placement[-2])
+        self.assertEqual({'type':'minecraft:biome'},placement[-1])
         self.assertEqual(config['sand']['biomes'],obj('data/myvillage/tags/worldgen/biome/has_edge_tempering_sand.json')['values'])
     def test_invalid_acquisition_bounds_are_rejected_before_export(self):
         import tempfile

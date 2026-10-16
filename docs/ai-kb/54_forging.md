@@ -133,7 +133,7 @@ protocol 26 covers the new menu, component and block registries.
 - `edge_tempering_sand_deposit` is a stable compact sediment block, shovel-mineable.
   `EdgeSandFeature` examines real topography and replacement tags; it places bounded
   patches only beside water or in the authored shallow depth. Biome placement is
-  limited by `has_edge_tempering_sand`. It never replaces deep floors or arbitrary
+  limited by `has_edge_tempering_sand`, evaluated after surface-height placement. It never replaces deep floors or arbitrary
   inland ground. Silk Touch yields the block; ordinary extraction gives usable sand.
 
 Both sources generate in new Overworld chunks only, are shared finite world blocks,
