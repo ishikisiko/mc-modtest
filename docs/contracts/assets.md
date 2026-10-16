@@ -38,6 +38,7 @@
 - 功能物品的耗材、冷却、命中、掉落与持久化由服务器决定。注册存在不等于模型/配方/资源完整。
 - 生成资源只改 authored inputs 后再生成；生成器的 `--check` 用于被修改的资源族。准确列出的 jar 内容检查只在需要交付/检查 jar 时执行。
 - 灵石矿工具等级、Silk Touch/Fortune、掉落和 Overworld 分层以资源 JSON 为准。普通灵石保持普通物品；修炼、炼丹等消费者拥有自己的扣除事务。不要凭空扩展为货币、冶炼或高阶石。
+- 炼器矿材由 `tools/forging/acquisition.py` 生成资源；自然矿脉/砂层的参数来自 `forging/acquisition.json`。玄铁使用原 registry ID，天然获取只在新生成区块接入，采集与精准采集不能造成材料重复掉落。
 - 两块入门石碑分别注册、分别交互，不拥有玩家档案的 BlockEntity；获取方法与自然生成状态按当前实现说明。
 - 经架是上下两格、下格唯一归属根；两格交互均回到该根。拆除最多掉落一次，修复不覆盖障碍，也不丢弃仍有合法归属的旧下格。
 
@@ -50,5 +51,3 @@
 - GuideME 通过 Maven 依赖；根 `guidebook/` 是唯一 authored Markdown，构建单向打包。使用绑定组件显示按键，保持 G 不被 MyVillage 默认占用；不自动迁移玩家键位。手册调用 GuideME API，不新增开书网络协议；21.1.17 的 custom_colors 限制见 KB31。
 
 入口：[蓝图](../ai-kb/02_blueprint_schema.md)、[DSL](../ai-kb/05_vanilla_structure_nbt.md)、[物品](../ai-kb/22_mod_item_creation.md)、[GuideME](../ai-kb/31_guideme_cultivation_guide.md)。
-
-- 炼器矿材由 `tools/forging/acquisition.py` 生成资源；自然矿脉/砂层的参数来自 `forging/acquisition.json`。玄铁使用原 registry ID，天然获取只在新生成区块接入，采集与精准采集不能造成材料重复掉落。

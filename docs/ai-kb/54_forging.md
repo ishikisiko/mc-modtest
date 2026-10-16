@@ -161,3 +161,5 @@ weapons. Generation/harvest tuning is an initial balance candidate, not owner ap
 
 Historical workbench evidence applies only to 0.57.2:
 [2026-10-17 forging materials](../testing/2026-10-17-forging-materials.md).
+
+Current acquisition evidence: [2026-10-17 forging acquisition](../testing/2026-10-17-forging-acquisition.md).
