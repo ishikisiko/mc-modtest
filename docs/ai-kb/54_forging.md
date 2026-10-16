@@ -91,7 +91,7 @@ feel and FPS remain `not_verified` until separately observed.
 Ding delivery evidence: [2026-10-16 forging ding](../testing/2026-10-16-forging-ding.md).
 
 
-## Material acquisition (0.58.0)
+## Material acquisition (0.58.1)
 
 Three ordinary additive items retain their registry IDs and consumers in
 `forging/rules.json`. `xuantie_ingot` now displays as 玄铁 / Dark Iron, with a raw
@@ -103,7 +103,7 @@ The removed 0.57.2 workbench recipes/advancements remain explicit retired output
 
 The existing ding menu opens `CopperInfusionMenu` through a bounded button intent.
 It retains the same placed-block validity, living owner, current-menu and spectator
-checks. A batch uses ordinary vanilla copper ingots, an input slot and a take-only
+checks. A batch accepts `c:ingots/copper` members, an input slot and a take-only
 output slot. Start/resume requires awakening; each server pulse plans a complete
 batch charge before calling `CultivationService.spendSpiritualPower`. There is no
 client-side cost or item mutation. A successful pulse updates the ingots or converts
@@ -122,8 +122,8 @@ not refund its invested qi.
 Each viewer owns their temporary slots. Another player using the same ding has a
 separate batch. The ding's short shared light/particle pulse is cosmetic only. The
 screen displays the input/output, remaining batch cost, available power and gradual
-red runes. Partial vanilla copper has a localized progress tooltip. Compatibility
-protocol 26 covers the new menu, component and block registries.
+red runes. Any item with paid infusion metadata has a localized progress tooltip, even if a reload removes its copper tag membership. Compatibility
+protocol 27 covers the new menu, component and block registries.
 
 ### Natural extraction
 
@@ -144,7 +144,7 @@ weapons. Generation/harvest tuning is an initial balance candidate, not owner ap
 
 - `src/main/resources/data/myvillage/forging/acquisition.json`: sole authored infusion,
   ore and sand tuning. `InfusionRules` consumes the infusion section at runtime.
-- `tools/forging/materials.json` schema v3: IDs, names, descriptions and acquisition
+- `tools/forging/materials.json` schema v4: IDs, material tags, names, descriptions and acquisition
   hints. `materials.py`: item sprites and models.
 - `tools/forging/acquisition.py`: tuning validation, deposit textures/models/loot/tags,
   configured/placed features, biome modifiers and infusion screen sprites/strings.
@@ -163,3 +163,41 @@ Historical workbench evidence applies only to 0.57.2:
 [2026-10-17 forging materials](../testing/2026-10-17-forging-materials.md).
 
 Current acquisition evidence: [2026-10-17 forging acquisition](../testing/2026-10-17-forging-acquisition.md).
+
+
+## Tag compatibility and allocation
+
+Default trait costs use `#myvillage:forging_materials/{xuantie,chitong,edge_tempering_sand}`.
+`materials.json` owns each tag ID and member identity; the generator emits item tags
+and bilingual tag labels. `acquisition.py` additionally emits block/item
+`c:ores/xuantie` -> `c:ores` and the independent sand-deposit classification.
+Special materials are not members of ordinary copper/iron/sand tags.
+
+`ForgingIngredients` resolves live item-tag membership. The cost map still accepts
+concrete item IDs, including version-1 rules; current rules use schema version 2.
+The client counts all matching stacks, displays an available member (or a defined
+member when absent), and uses a localized tag name. Empty tags display a barrier
+placeholder and cannot silently fall back to the original material.
+
+`ForgingCosts` performs an integral flow allocation between inventory stacks and
+requirements, then applies the result only to copies. Residual paths allow a broad
+tag to release an item needed by a narrower requirement. A shared stack never pays
+two costs with the same units; no feasible assignment means no consumption. Tests
+compare 6,912 small overlap graphs against exhaustive assignments, in addition to
+concrete-ID, empty-tag and mixed-stack cases.
+
+Infusion slot insertion, shift-click and per-pulse eligibility all use the common
+copper tag. Paid progress remains on the original input item, including external
+copper ingots. Removal from the tag pauses eligibility without erasing the component;
+restoring membership allows continuation. One batch is still one stack, so differing
+item IDs or progress values are not merged. Tag recognition does not imply compatibility
+with arbitrary custom behavior implemented by every third-party item.
+
+Modal `--preset forging-tags` builds the jar and runs the focused tag collector.
+It uses a disposable-world datapack with vanilla stand-ins to prove the actual
+membership/reload path: common and special tags, alternative copper and restart,
+alternative additives, overlap reallocation/refusal, and empty-tag refusal. It does
+not repeat natural worldgen or claim a tested external modpack. The Java tests use
+`--preset forging-build` separately.
+
+Tag integration evidence: [2026-10-17 forging tags](../testing/2026-10-17-forging-tags.md).

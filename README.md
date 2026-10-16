@@ -4582,10 +4582,33 @@ Current quality validation: [0.52.0 developer evidence](docs/testing/2026-10-16-
 
 三种辅材已接入各自的生存获取路线，采得或处理后直接放在背包中供炼器消耗：
 
-- **赤铜锭**：右键炼器鼎，点击右上角“赤铜灌灵”，把原版铜锭放入左槽（可 Shift 点击）。点击“开始 / 继续”，逐次消耗自己的灵力；完成后从右槽取走整批赤铜。界面显示本批剩余耗灵，灵力不足会暂停。暂停、关闭、离开鼎或重启后，已付进度保留在铜锭上；关闭时材料和产物返回本人背包，背包满时按原版规则掉落。每位玩家独立操作，关闭后不会继续离线加工。导灵专长用于青锋剑。
+- **赤铜锭**：右键炼器鼎，点击右上角“赤铜灌灵”，把原版或同标签铜锭放入左槽（可 Shift 点击）。点击“开始 / 继续”，逐次消耗自己的灵力；完成后从右槽取走整批赤铜。界面显示本批剩余耗灵，灵力不足会暂停。暂停、关闭、离开鼎或重启后，已付进度保留在铜锭上；关闭时材料和产物返回本人背包，背包满时按原版规则掉落。每位玩家独立操作，关闭后不会继续离线加工。导灵专长用于青锋剑。
 - **玄铁**：在主世界深层洞穴寻找黑银纹理的玄铁矿脉，使用铁镐或更好的镐开采，直接得到玄铁。对应坚韧专长；旧物品 `myvillage:xuantie_ingot` 保留，显示名不再带“锭”。
 - **淬锋砂**：沿河滩、浅水和岩岸寻找带浅金晶粒的砂层，用铲直接采得，对应锋锐专长。砂层为有限矿产，不会在原地自动刷新。
 
 玄铁矿与砂层的自然生成只作用于**新生成的主世界区块**；已有区块不会自动补矿。精准采集可取得矿块/砂层本身，玄铁矿支持时运。三种辅材均没有工作台获取配方；剑枪基础用料与维修规则保持原样。
 
 批量上限、耗灵、脉冲间隔、矿脉范围和采集数量以 [`acquisition.json`](src/main/resources/data/myvillage/forging/acquisition.json) 为准，专长用料以 [`rules.json`](src/main/resources/data/myvillage/forging/rules.json) 为准。
+
+
+### 材料标签与互通（0.58.1）
+
+- 灌灵原料识别 **`c:ingots/copper`**，其他模组加入这个通用标签的铜锭也可使用。每批仍是一个物品堆叠，不同物品或不同灌灵进度不会强行合并。
+- 玄铁：**`myvillage:forging_materials/xuantie`**。
+- 赤铜：**`myvillage:forging_materials/chitong`**。
+- 淬锋砂：**`myvillage:forging_materials/edge_tempering_sand`**。
+
+三种专长辅材通过这些独立标签扣料；物品名称相同不代表自动互通。赤铜没有加入普通铜锭标签，玄铁和淬锋砂也不当作普通铁锭、沙子使用。玄铁矿及其方块物品另加入 `c:ores/xuantie` 和 `c:ores`；砂层方块/物品用 `myvillage:deposits/edge_tempering_sand` 分类。
+
+例如，整合包可以在数据包的 `data/myvillage/tags/item/forging_materials/xuantie.json` 中加入其他模组的等价材料（下例 ID 需要换成目标物品，`required: false` 允许该模组未安装）：
+
+```json
+{
+  "replace": false,
+  "values": [{"id": "othermod:dark_iron", "required": false}]
+}
+```
+
+标签随数据包重载更新。空标签会拒绝炼制；缺料时不部分扣除。某件物品同时匹配多个用料要求时只会被扣一次，并会寻找有效的完整分配方案。灌灵中的材料若被移出铜锭标签，会暂停且保留进度，重新加入后可继续。
+
+炼器 `rules.json` 的成本键支持原有 `namespace:item` 和新增的 `#namespace:tag/path`；剑枪基础用料、维修默认用料保持原样。
