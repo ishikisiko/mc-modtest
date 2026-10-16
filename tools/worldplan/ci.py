@@ -14,6 +14,7 @@ commands=[
     [sys.executable,'tools/worldplan/preview.py','--seed','20261017'],
     [sys.executable,'tools/worldplan/preview.py','--seed','-9223372036854775808','--out','out/preview/worldplan/min-seed'],
     [sys.executable,'tools/worldplan/acceptance.py'],
+    [sys.executable,'tools/worldplan/capture.py'],
 ]
 result={'source':subprocess.check_output(['git','rev-parse','HEAD'],cwd=ROOT,text=True).strip(),'environment':'isolated GitHub Actions; Modal credentials unavailable; not owner PC','commands':[]}
 try:

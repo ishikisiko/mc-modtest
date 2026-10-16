@@ -30,6 +30,10 @@ jobs:
           curl -fL --retry 3 'https://mediafilez.forgecdn.net/files/7611/367/PlayerAnimationLibNeoforge-1.1.4%2Bmc.1.21.1.jar' -o 'PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar'
           echo 'b0836ad98db1e614f1e62cb40d5943eb4ba7d51f298e4b3ad0746770364ab072  PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar' | sha256sum -c -
           chmod +x gradlew
+      - name: Physical-client dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends xvfb xdotool imagemagick libgl1-mesa-dri libglx-mesa0 libxrandr2 libxi6 libxinerama1 libxcursor1
       - name: Focused checks
         run: python3 tools/worldplan/ci.py
       - name: Export exact source and logs

@@ -31,9 +31,10 @@ def port():
         s.bind(('127.0.0.1',0));return s.getsockname()[1]
 
 class Server:
-    def __init__(self,name,label,planned=True,structures=True):
+    def __init__(self,name,label,planned=True,structures=True,view_distance=3):
         self.name,self.label=name,label
         self.planned,self.structures=planned,structures
+        self.view_distance=max(3,min(12,int(view_distance)))
         self.password,self.rport,self.sport=secrets.token_hex(20),port(),port()
         self.proc=None;self.log=None;self.commands=[];self.world=GAME/name
     def __enter__(self):
@@ -43,7 +44,7 @@ class Server:
             'level-name':self.name,'level-seed':SEED,'level-type':'myvillage\\:cultivation' if self.planned else 'minecraft\\:normal',
             'generate-structures':str(self.structures).lower(),'generator-settings':'{}','gamemode':'creative','difficulty':'peaceful',
             'spawn-protection':0,'spawn-monsters':'false','spawn-animals':'false','spawn-npcs':'false','allow-flight':'true',
-            'view-distance':3,'simulation-distance':3,'max-tick-time':180000,'max-players':2,'sync-chunk-writes':'true','pause-when-empty-seconds':-1}
+            'view-distance':self.view_distance,'simulation-distance':3,'max-tick-time':180000,'max-players':2,'sync-chunk-writes':'true','pause-when-empty-seconds':-1}
         self.backups={}
         for filename,body in [('server.properties','\n'.join(f'{k}={v}' for k,v in values.items())+'\n'),('eula.txt','eula=true\n')]:
             path=GAME/filename;self.backups[path]=path.read_bytes() if path.exists() else None;path.write_text(body)
@@ -107,7 +108,7 @@ def check_jar():
         names=set(z.namelist());tiles=[n for n in names if n.startswith('data/myvillage/structure/worldplan/yunshan_v1/') and n.endswith('.nbt')]
         assert len(tiles)==35
         for name in ['data/myvillage/worldgen/world_preset/cultivation.json','data/myvillage/worldplan/frozen_v1.json','com/example/myvillage/worldplan/runtime/PlannedChunkGenerator.class']:assert name in names,name
-        assert 'WorldPlanReservationMixin' in json.loads(z.read('myvillage.mixins.json'))['mixins']
+        assert {'WorldPlanReservationMixin','WorldPlanOreMixin'}.issubset(json.loads(z.read('myvillage.mixins.json'))['mixins'])
     return {'file':jars[0].name,'sha256':hashlib.sha256(jars[0].read_bytes()).hexdigest(),'tiles':35}
 
 def main():
@@ -131,13 +132,13 @@ def main():
             partial=s.query('audit_city');assert partial['loaded_tiles']>0 and partial['missing_tiles']>0 and partial['differences']==0,partial
             result['checks']['partial_city']=partial
             marker=(city['x']+8,city['baseY']+city['height']-2,city['z']+8);at=' '.join(map(str,marker))
-            assert 'WP_AIR' in s.cmd(f'execute if block {at} minecraft:air run say WP_AIR')
+            reply=s.cmd(f'execute if block {at} minecraft:air');assert 'Test passed' in reply,reply
             s.cmd(f'setblock {at} minecraft:gold_block');s.cmd('save-all flush')
         result['checks']['saved_a']=check_saved(GAME/world_a,expected)
         with Server(world_a,'a-restart') as s:
             assert s.query('info')['plan_sha256']==expected
             s.query('pregen_city reverse')
-            assert 'WP_KEPT' in s.cmd(f'execute if block {at} minecraft:gold_block run say WP_KEPT')
+            reply=s.cmd(f'execute if block {at} minecraft:gold_block');assert 'Test passed' in reply,reply
             changed=s.query('audit_city');assert changed['missing_tiles']==0 and changed['differences']==1,changed
             s.cmd(f'setblock {at} minecraft:air');clean=s.query('audit_city');assert clean['complete'],clean
             result['checks']['city_a']=clean;result['checks']['player_edit_survived_restart_and_extension']=True;result['checks']['saved_plan_unchanged']=True
@@ -151,7 +152,14 @@ def main():
             result['checks']['noise_b']=other;s.query('pregen_city reverse');clean_b=s.query('audit_city');assert clean_b['complete'],clean_b
             assert clean_b['actual_sha256']==clean['actual_sha256'],(clean_b,clean)
             result['checks']['city_b']=clean_b;shutil.copytree(s.world/'data/myvillage/worldplan',OUT/'actual-world-atlas',dirs_exist_ok=True)
-        result['checks']['saved_b']=check_saved(GAME/world_b,expected);result['status']='pass'
+        result['checks']['saved_b']=check_saved(GAME/world_b,expected)
+        ordinary='worldplan_ordinary_'+suffix
+        with Server(ordinary,'ordinary-preset',planned=False) as s:
+            reply=s.cmd('myvillage worldplan info');assert 'not using myvillage:cultivation' in reply,reply
+        _,ordinary_data=read_gzipped_nbt(str(GAME/ordinary/'level.dat'))
+        ordinary_generator=ordinary_data['Data']['WorldGenSettings']['dimensions']['minecraft:overworld']['generator']
+        assert ordinary_generator['type']=='minecraft:noise' and 'plan_hash' not in ordinary_generator
+        result['checks']['ordinary_world_not_converted']=True;result['status']='pass'
         with zipfile.ZipFile(OUT/'worldplan-acceptance-world.zip','w',zipfile.ZIP_DEFLATED) as z:
             for path in sorted((GAME/world_a).rglob('*')):
                 if path.is_file() and path.name not in ('session.lock','level.dat_old'):z.write(path,'worldplan-acceptance/'+str(path.relative_to(GAME/world_a)))
