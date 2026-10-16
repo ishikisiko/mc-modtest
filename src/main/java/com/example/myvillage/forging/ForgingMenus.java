@@ -12,6 +12,8 @@ public final class ForgingMenus {
     private static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(Registries.MENU, MyVillageMod.MOD_ID);
     public static final Supplier<MenuType<ForgingMenu>> TABLE = MENUS.register("forging_table",
             () -> new MenuType<>(ForgingMenu::new, FeatureFlags.DEFAULT_FLAGS));
+    public static final Supplier<MenuType<CopperInfusionMenu>> INFUSION = MENUS.register("copper_infusion",
+            () -> new MenuType<>(CopperInfusionMenu::new, FeatureFlags.DEFAULT_FLAGS));
     private ForgingMenus() {}
     public static void register(IEventBus bus) { MENUS.register(bus); }
 }

@@ -1,0 +1,9 @@
+{
+  "type": "myvillage:edge_tempering_sand",
+  "config": {
+    "radius": 3,
+    "water_radius": 4,
+    "max_water_depth": 1,
+    "max_blocks": 10
+  }
+}

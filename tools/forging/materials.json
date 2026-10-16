@@ -1,16 +1,20 @@
 {
-  "version": 2,
+  "version": 3,
   "materials": [
     {
       "id": "xuantie_ingot",
       "name": [
-        "Dark Iron Ingot",
-        "玄铁锭"
+        "Dark Iron",
+        "玄铁"
       ],
       "trait": "tough",
       "description": [
         "Reinforces a forged weapon's durability and repair yield.",
         "用于坚韧专长，提高成器耐久与维修效率。"
+      ],
+      "acquisition": [
+        "Mine dark iron veins in deep caves with an iron pickaxe.",
+        "用铁镐开采深层洞穴中的玄铁矿脉。"
       ]
     },
     {
@@ -23,6 +27,10 @@
       "description": [
         "Conducts spiritual power, reducing learned Sword Qi costs.",
         "用于导灵专长，降低已学剑气的耗灵。"
+      ],
+      "acquisition": [
+        "Infuse vanilla copper ingots with your qi at a forging ding.",
+        "在炼器鼎中向原版铜锭灌注自身灵力。"
       ]
     },
     {
@@ -35,6 +43,10 @@
       "description": [
         "Tempers a keen edge, increasing forged weapon attack damage.",
         "用于锋锐专长，提高成器攻击伤害。"
+      ],
+      "acquisition": [
+        "Dig visible deposits on riverbanks and in shallows with a shovel.",
+        "用铲采集河滩和浅水处可见的淬锋砂层。"
       ]
     }
   ]

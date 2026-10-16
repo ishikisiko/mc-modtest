@@ -29,6 +29,8 @@ public final class ForgingScreen extends AbstractContainerScreen<ForgingMenu> {
     private Component itemName(String id){return BuiltInRegistries.ITEM.get(ResourceLocation.parse(id)).getDescription();}
     @Override protected void init(){
         super.init();recipes.clear();traits.clear();
+        addRenderableWidget(Button.builder(Component.translatable("screen.myvillage.infusion.title"),b->send(ForgingMenu.INFUSE))
+                .bounds(leftPos+204,topPos+4,88,18).build());
         for(int i=0;i<ForgingRules.get().recipes().size();i++){
             final int index=i;
             recipes.add(addRenderableWidget(Button.builder(itemName(ForgingRules.get().recipes().get(i).output()),b->send(ForgingMenu.RECIPE_BASE+index))
@@ -96,6 +98,9 @@ public final class ForgingScreen extends AbstractContainerScreen<ForgingMenu> {
     }
     @EventBusSubscriber(modid=MyVillageMod.MOD_ID,value=Dist.CLIENT)
     public static final class Events{
-        @SubscribeEvent public static void screens(RegisterMenuScreensEvent event){event.register(ForgingMenus.TABLE.get(),ForgingScreen::new);}
+        @SubscribeEvent public static void screens(RegisterMenuScreensEvent event){
+            event.register(ForgingMenus.TABLE.get(),ForgingScreen::new);
+            event.register(ForgingMenus.INFUSION.get(),CopperInfusionScreen::new);
+        }
     }
 }

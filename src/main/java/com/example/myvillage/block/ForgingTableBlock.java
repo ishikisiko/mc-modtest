@@ -60,6 +60,19 @@ public final class ForgingTableBlock extends Block {
                 feedback.sparkCount(),feedback.sparkSpread(),feedback.sparkSpread(),feedback.sparkSpread(),feedback.sparkSpeed());
         level.playSound(null,pos,SoundEvents.ANVIL_USE,SoundSource.BLOCKS,feedback.soundVolume(),feedback.soundPitch());
     }
+    /** Each paid pulse gives a gentle visible cue; it never owns material state. */
+    public static void infusing(ServerLevel level,BlockPos pos,boolean complete) {
+        var state=level.getBlockState(pos);
+        if(!(state.getBlock() instanceof ForgingTableBlock block))return;
+        var visuals=ForgingDingVisuals.get();var feedback=visuals.feedback();
+        if(!state.getValue(LIT)){
+            level.setBlock(pos,state.setValue(LIT,true),Block.UPDATE_ALL);
+            level.scheduleTick(pos,block,feedback.durationTicks());
+        }
+        level.sendParticles(ParticleTypes.ENCHANT,pos.getX()+visuals.hearthX(),pos.getY()+visuals.hearthY(),pos.getZ()+visuals.hearthZ(),
+                feedback.sparkCount(),feedback.sparkSpread(),feedback.sparkSpread(),feedback.sparkSpread(),feedback.sparkSpeed());
+        if(complete)level.playSound(null,pos,SoundEvents.AMETHYST_BLOCK_CHIME,SoundSource.BLOCKS,feedback.soundVolume(),feedback.soundPitch());
+    }
     @Override protected void onPlace(BlockState state,Level level,BlockPos pos,BlockState old,boolean moved) {
         super.onPlace(state,level,pos,old,moved);
         if (!level.isClientSide() && state.getValue(LIT)) level.scheduleTick(pos,this,ForgingDingVisuals.get().feedback().durationTicks());

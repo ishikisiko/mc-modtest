@@ -1,0 +1,8 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#minecraft:is_overworld",
+  "features": [
+    "myvillage:xuantie_ore"
+  ],
+  "step": "underground_ores"
+}

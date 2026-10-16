@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "infusion": {
+    "max_batch": 16,
+    "qi_per_ingot": 6,
+    "qi_per_pulse": 1,
+    "pulse_ticks": 20
+  },
+  "xuantie": {
+    "vein_size": 9,
+    "attempts_per_chunk": 5,
+    "min_y": -56,
+    "max_y": -8,
+    "drop_min": 1,
+    "drop_max": 2
+  },
+  "sand": {
+    "attempts_per_chunk": 5,
+    "radius": 3,
+    "water_radius": 4,
+    "max_water_depth": 1,
+    "max_blocks": 10,
+    "drop_min": 1,
+    "drop_max": 2,
+    "biomes": ["#minecraft:is_river", "minecraft:windswept_gravelly_hills", "minecraft:windswept_hills", "minecraft:stony_shore"]
+  }
+}

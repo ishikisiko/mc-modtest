@@ -112,3 +112,33 @@ class MaterialResourcesTest(unittest.TestCase):
             self.assertGreater(opaque,150);self.assertLess(opaque,650)
             self.assertEqual(0,rows[0][0][3]);seen.add(png(rows))
         self.assertEqual(3,len(seen))
+
+class AcquisitionResourcesTest(unittest.TestCase):
+    def test_natural_sources_have_tools_drops_biomes_and_bounded_generation(self):
+        from tools.forging import acquisition
+        config=acquisition.load();out=acquisition.outputs();base=ROOT/'src/main/resources'
+        def obj(path):return json.loads(out[base/path])
+        ore=obj('data/myvillage/worldgen/configured_feature/xuantie_ore.json')
+        self.assertEqual(config['xuantie']['vein_size'],ore['config']['size'])
+        self.assertEqual(0,ore['config']['discard_chance_on_air_exposure'])
+        self.assertIn('myvillage:xuantie_ore',obj('data/minecraft/tags/block/needs_iron_tool.json')['values'])
+        self.assertIn('myvillage:edge_tempering_sand_deposit',obj('data/minecraft/tags/block/mineable/shovel.json')['values'])
+        for block,item in [('xuantie_ore','xuantie_ingot'),('edge_tempering_sand_deposit','edge_tempering_sand')]:
+            loot=obj(f'data/myvillage/loot_table/blocks/{block}.json')
+            alternatives=loot['pools'][0]['entries'][0]['children']
+            self.assertEqual('myvillage:'+block,alternatives[0]['name'])
+            self.assertEqual('myvillage:'+item,alternatives[1]['name'])
+            self.assertGreaterEqual(alternatives[1]['functions'][0]['count']['min'],1)
+        sand=obj('data/myvillage/worldgen/configured_feature/edge_tempering_sand.json')
+        self.assertEqual('myvillage:edge_tempering_sand',sand['type'])
+        self.assertEqual(1,sand['config']['max_water_depth'])
+        self.assertEqual(config['sand']['biomes'],obj('data/myvillage/tags/worldgen/biome/has_edge_tempering_sand.json')['values'])
+    def test_invalid_acquisition_bounds_are_rejected_before_export(self):
+        import tempfile
+        from tools.forging import acquisition
+        source=acquisition.load()
+        for group,key,value in [('infusion','qi_per_ingot',0),('infusion','max_batch',65),('infusion','qi_per_pulse',100),('xuantie','min_y',100),('sand','max_water_depth',3),('sand','drop_min',0)]:
+            data=json.loads(json.dumps(source));data[group][key]=value
+            with tempfile.TemporaryDirectory() as temp:
+                root=Path(temp);p=root/'src/main/resources/data/myvillage/forging/acquisition.json';p.parent.mkdir(parents=True);p.write_text(json.dumps(data))
+                with self.assertRaises(ValueError):acquisition.load(root)

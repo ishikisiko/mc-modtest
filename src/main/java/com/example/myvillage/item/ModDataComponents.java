@@ -15,6 +15,11 @@ public final class ModDataComponents {
     public static final DeferredRegister.DataComponents DATA_COMPONENTS =
             DeferredRegister.createDataComponents(Registries.DATA_COMPONENT_TYPE, "myvillage");
 
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<com.example.myvillage.forging.CopperInfusion>> COPPER_INFUSION =
+            DATA_COMPONENTS.registerComponentType("copper_infusion", builder -> builder
+                    .persistent(com.example.myvillage.forging.CopperInfusion.CODEC)
+                    .networkSynchronized(com.example.myvillage.forging.CopperInfusion.STREAM_CODEC));
+
     /** The technique a manual teaches. */
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<ResourceLocation>> TECHNIQUE =
             DATA_COMPONENTS.registerComponentType("technique", builder -> builder

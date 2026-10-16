@@ -7,15 +7,15 @@ ROOT=Path(__file__).resolve().parents[2]
 
 def load(path=None):
     data=json.loads((path or ROOT/'tools/forging/materials.json').read_text())
-    if set(data)!={'version','materials'} or data['version']!=2:raise ValueError('Material schema')
+    if set(data)!={'version','materials'} or data['version']!=3:raise ValueError('Material schema')
     materials=data['materials'];ids=set();traits=set()
     for m in materials:
-        if set(m)!={'id','name','trait','description'}:raise ValueError('Material fields')
+        if set(m)!={'id','name','trait','description','acquisition'}:raise ValueError('Material fields')
         if not re.fullmatch('[a-z0-9_]+',m['id']) or m['id'] in ids:raise ValueError('Material id')
         ids.add(m['id'])
         if m['trait'] not in ('sharp','channeling','tough') or m['trait'] in traits:raise ValueError('Material trait')
         traits.add(m['trait'])
-        for key in ('name','description'):
+        for key in ('name','description','acquisition'):
             if len(m[key])!=2 or not all(isinstance(s,str) and s.strip() for s in m[key]):raise ValueError('Bilingual material strings')
     if len(materials)!=3 or traits!={'sharp','channeling','tough'}:raise ValueError('Three specialized materials required')
     return materials
@@ -25,11 +25,18 @@ def lang():
     for m in load():
         strings['item.myvillage.'+m['id']]=m['name']
         strings['tooltip.myvillage.forging_material.'+m['id']]=m['description']
+        strings['tooltip.myvillage.forging_material.source.'+m['id']]=m['acquisition']
     return strings
 
 def icon(item):
     c=Canvas()
-    if item in ('xuantie_ingot','chitong_ingot'):
+    if item=='xuantie_ingot':
+        c.poly([(3,21),(5,12),(12,6),(20,8),(28,16),(26,24),(16,28),(7,26)],(24,34,45))
+        c.poly([(5,12),(12,6),(20,8),(24,16),(15,22),(3,21)],(76,94,111))
+        c.poly([(15,22),(24,16),(28,16),(26,24),(16,28)],(36,48,61))
+        c.line(6,12,12,8,(173,204,220));c.line(12,8,19,10,(112,146,167))
+        c.line(8,20,14,15,(173,204,220));c.line(14,15,21,16,(112,146,167));c.line(18,24,23,20,(112,146,167))
+    elif item=='chitong_ingot':
         iron=item=='xuantie_ingot'
         top,front,side,shine=((76,94,111),(36,48,61),(24,34,45),(173,204,220)) if iron else ((202,125,76),(140,66,42),(91,44,35),(248,190,113))
         c.poly([(3,17),(9,10),(24,8),(29,14),(23,23),(7,26),(3,22)],side)
@@ -42,7 +49,7 @@ def icon(item):
             c.line(14,14,17,16,(112,146,167));c.put(11,12,shine);c.put(23,11,shine)
         else:
             c.line(11,15,18,12,(88,53,39));c.line(18,12,22,13,(88,53,39));c.line(22,13,15,16,(88,53,39))
-            c.line(12,14,18,13,(110,187,171));c.line(18,13,20,14,(156,224,205));c.put(9,16,(95,155,143))
+            c.line(12,14,18,13,(255,98,70));c.line(18,13,20,14,(255,169,103));c.put(9,16,(230,83,53))
     elif item=='edge_tempering_sand':
         c.poly([(3,20),(8,15),(25,14),(29,18),(27,25),(17,28),(6,26)],(36,45,51))
         c.poly([(4,20),(9,17),(25,16),(28,19),(24,24),(8,25)],(76,88,93))
@@ -86,5 +93,5 @@ def preview(root=ROOT):
         d.text((x+150,318),label,font=small,fill=(163,190,181),anchor='mm')
         d.text((x+150,352),m['id'],font=small,fill=(136,158,151),anchor='mm')
     sheet.save(out/'materials.png')
-    (out/'index.html').write_text('<!doctype html><meta charset="utf-8"><title>炼器材料</title><style>body{background:#1b2525;color:#eadbb7;font:16px system-ui;max-width:1000px;margin:24px auto}img{width:100%;image-rendering:pixelated}</style><h1>玄铁锭、赤铜锭与淬锋砂</h1><p>读取正式 32px 物品贴图放大。三种材料分别接入坚韧、导灵与锋锐专长。</p><img src="materials.png">')
+    (out/'index.html').write_text('<!doctype html><meta charset="utf-8"><title>炼器材料</title><style>body{background:#1b2525;color:#eadbb7;font:16px system-ui;max-width:1000px;margin:24px auto}img{width:100%;image-rendering:pixelated}</style><h1>玄铁、赤铜锭与淬锋砂</h1><p>读取正式 32px 物品贴图放大。三种材料分别接入坚韧、导灵与锋锐专长。</p><img src="materials.png">')
     print('Material preview:',out)

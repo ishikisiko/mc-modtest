@@ -1,0 +1,8 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": "#myvillage:has_edge_tempering_sand",
+  "features": [
+    "myvillage:edge_tempering_sand"
+  ],
+  "step": "local_modifications"
+}

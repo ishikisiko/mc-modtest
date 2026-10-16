@@ -179,6 +179,11 @@ public final class ModItems {
             ITEMS.registerItem("spirit_stone_ore",
                     props -> new BlockItem(ModBlocks.SPIRIT_STONE_ORE.get(), props));
 
+    public static final DeferredItem<BlockItem> XUANTIE_ORE_ITEM = ITEMS.registerItem("xuantie_ore",
+            props -> new BlockItem(ModBlocks.XUANTIE_ORE.get(),props));
+    public static final DeferredItem<BlockItem> EDGE_TEMPERING_SAND_DEPOSIT_ITEM = ITEMS.registerItem("edge_tempering_sand_deposit",
+            props -> new BlockItem(ModBlocks.EDGE_TEMPERING_SAND_DEPOSIT.get(),props));
+
     public static final DeferredItem<BlockItem> DEEPSLATE_SPIRIT_STONE_ORE_ITEM =
             ITEMS.registerItem("deepslate_spirit_stone_ore",
                     props -> new BlockItem(ModBlocks.DEEPSLATE_SPIRIT_STONE_ORE.get(), props));
@@ -317,6 +322,8 @@ public final class ModItems {
                         output.accept(PILL_NINGSHEN.get());
 
                         output.accept(SPIRIT_STONE_ORE_ITEM.get());
+                        output.accept(XUANTIE_ORE_ITEM.get());
+                        output.accept(EDGE_TEMPERING_SAND_DEPOSIT_ITEM.get());
                         output.accept(DEEPSLATE_SPIRIT_STONE_ORE_ITEM.get());
                         for (DeferredItem<TechniqueManualItem> manual : MANUALS) {
                             output.accept(manual.get());

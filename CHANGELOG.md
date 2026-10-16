@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.58.0
+
+- 赤铜改为炼器鼎批量灌灵：放入原版铜锭，逐次消耗自身灵力，暂停、退出与重启保留已付进度；材料与结果按玩家独立。
+- 新增深层玄铁矿脉、河岸与浅水淬锋砂层，分别以铁镐和铲采集，直接供炼器使用；玄铁保留原物品 ID，改用原矿形态和名称。
+- 三种辅材不再有工作台获取配方，新增双语来源提示、灌灵界面与渐显赤纹。新增菜单、矿物注册和进度组件，兼容协议升为 26。
+
 ## 0.57.3
 
 - 移除玄铁锭、赤铜锭、淬锋砂的工作台合成与配方书入口，清理错误的工作台获取提示；生成器检查旧配方不会残留。

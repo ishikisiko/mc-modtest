@@ -86,6 +86,12 @@ public final class ModBlocks {
                             .lightLevel(state -> state.getValue(ForgingTableBlock.LIT)
                                     ? com.example.myvillage.forging.ForgingDingVisuals.get().feedback().lightLevel() : 0));
 
+    public static final DeferredBlock<Block> XUANTIE_ORE = BLOCKS.registerBlock("xuantie_ore",Block::new,
+            BlockBehaviour.Properties.of().mapColor(MapColor.DEEPSLATE).strength(4.5F,3.0F)
+                    .requiresCorrectToolForDrops().sound(SoundType.DEEPSLATE));
+    public static final DeferredBlock<Block> EDGE_TEMPERING_SAND_DEPOSIT = BLOCKS.registerBlock("edge_tempering_sand_deposit",Block::new,
+            BlockBehaviour.Properties.of().mapColor(MapColor.SAND).strength(.8F).requiresCorrectToolForDrops().sound(SoundType.SAND));
+
     public static final DeferredBlock<AlchemyFurnaceBlock> ALCHEMY_FURNACE =
             BLOCKS.registerBlock("alchemy_furnace", AlchemyFurnaceBlock::new,
                     BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(3.5F).sound(SoundType.COPPER)
@@ -121,6 +127,7 @@ public final class ModBlocks {
                             .randomTicks().instabreak().sound(SoundType.CROP).pushReaction(PushReaction.DESTROY));
 
     private static final List<String> BLOCK_IDS = List.of(
+            "xuantie_ore", "edge_tempering_sand_deposit",
             "battle_cache", "ruin_core",
             "spirit_soil", "spirit_leaf_crop", "dew_blossom_crop", "sunroot_crop", "blood_berry_crop", "cloud_fungus_crop", "calm_lotus_crop",
             "alchemy_furnace",

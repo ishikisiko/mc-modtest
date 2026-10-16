@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "myvillage:block/edge_tempering_sand_deposit"
+  }
+}

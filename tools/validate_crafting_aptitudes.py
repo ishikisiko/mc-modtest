@@ -204,7 +204,7 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> dict:
              'CRAFTING_SNAPSHOT_CODEC', f'snapshot codec must encode {field}')
     need('CraftingAptitudes.CODEC' in payload, 'CRAFTING_SNAPSHOT_CODEC', 'snapshot must use the bounded immutable state codec')
     protocol = sources[JAVA / 'network/ModPayloads.java']
-    need(bool(re.search(r'PROTOCOL_VERSION\s*=\s*"25"', protocol)), 'CRAFTING_PROTOCOL', 'crafting snapshot wire format requires protocol 25')
+    need(bool(re.search(r'PROTOCOL_VERSION\s*=\s*"26"', protocol)), 'CRAFTING_PROTOCOL', 'crafting snapshot wire format requires protocol 26')
     network = sources[JAVA / 'cultivation/network/CultivationPayloads.java']
     need(bool(re.search(r'playToClient\s*\(\s*CultivationSnapshotPayload\.TYPE', network))
          and not re.search(r'playToServer\s*\(\s*CultivationSnapshotPayload\.TYPE', network),

@@ -16,7 +16,7 @@ import java.util.*;
 /** Private workbench session. Button intents are bounded; only the server commits costs/results. */
 public final class ForgingMenu extends AbstractContainerMenu {
     public static final int WIDTH=304, HEIGHT=238;
-    public static final int FORGE=0, REPAIR=1, RECIPE_BASE=10, TRAIT_BASE=30;
+    public static final int FORGE=0, REPAIR=1, RECIPE_BASE=10, TRAIT_BASE=30, INFUSE=50;
     private final Inventory inventory;
     private final ContainerLevelAccess access;
     private final SimpleContainer work=new SimpleContainer(2);
@@ -56,6 +56,11 @@ public final class ForgingMenu extends AbstractContainerMenu {
     private boolean reject(int status){data.set(2,status);broadcastChanges();return false;}
     @Override public boolean clickMenuButton(Player player,int button){
         if(!(player instanceof ServerPlayer server)||player.containerMenu!=this||!player.isAlive()||player.isSpectator()||!stillValid(player))return false;
+        if(button==INFUSE){
+            server.openMenu(new SimpleMenuProvider((id,inv,viewer)->new CopperInfusionMenu(id,inv,access),
+                    net.minecraft.network.chat.Component.translatable("screen.myvillage.infusion.title")));
+            return true;
+        }
         var rules=ForgingRules.get();
         if(button>=RECIPE_BASE&&button<RECIPE_BASE+rules.recipes().size()){
             int i=button-RECIPE_BASE;if(!knows(i))return reject(1);

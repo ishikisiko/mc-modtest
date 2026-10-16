@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "#minecraft:is_river",
+    "minecraft:windswept_gravelly_hills",
+    "minecraft:windswept_hills",
+    "minecraft:stony_shore"
+  ]
+}
