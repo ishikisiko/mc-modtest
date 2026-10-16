@@ -1363,7 +1363,7 @@
   "screen.myvillage.forging.cap": "品质上限：%s",
   "screen.myvillage.forging.awaken": "觉醒后可炼制",
   "screen.myvillage.forging.costs": "从背包消耗以下材料",
-  "screen.myvillage.forging.slots": "修 → 成",
+  "screen.myvillage.forging.slots": "维修 / 产物",
   "screen.myvillage.forging.learn_hint": "先右键使用对应器谱。",
   "screen.myvillage.forging.forge_hint": "每次炼制一件，随机品质不超过资质上限。取走产物后才能再次炼制。",
   "screen.myvillage.forging.repair_hint": "将受损剑枪放入左槽。维修保留品质、命名与附魔。每次消耗：",

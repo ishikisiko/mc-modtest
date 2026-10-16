@@ -23,7 +23,7 @@ public final class ForgingScreen extends AbstractContainerScreen<ForgingMenu> {
     private Button forge,repair;
     public ForgingScreen(ForgingMenu menu,Inventory inventory,Component title){
         super(menu,inventory,title);imageWidth=ForgingMenu.WIDTH;imageHeight=ForgingMenu.HEIGHT;
-        inventoryLabelX=70;inventoryLabelY=144;
+        inventoryLabelX=8;inventoryLabelY=160;
     }
     private void send(int action){if(minecraft!=null&&minecraft.gameMode!=null)minecraft.gameMode.handleInventoryButtonClick(menu.containerId,action);}
     private Component itemName(String id){return BuiltInRegistries.ITEM.get(ResourceLocation.parse(id)).getDescription();}

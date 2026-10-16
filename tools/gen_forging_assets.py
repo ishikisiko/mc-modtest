@@ -21,7 +21,7 @@ for key,en,zh in [('sharp','Sharp','锋锐'),('channeling','Channeling','导灵'
 SCREEN={
  'forge':('Forge','炼制'),'repair':('Repair','维修'),'cap':('Quality cap: %s','品质上限：%s'),
  'awaken':('Awaken before forging','觉醒后可炼制'),'costs':('Materials from inventory','从背包消耗以下材料'),
- 'slots':('In → Out','修 → 成'),'learn_hint':('Use the matching pattern first.','先右键使用对应器谱。'),
+ 'slots':('In → Out','维修 / 产物'),'learn_hint':('Use the matching pattern first.','先右键使用对应器谱。'),
  'forge_hint':('Forge one weapon. Quality is rolled within your aptitude cap. Take the output before forging again.','每次炼制一件，随机品质不超过资质上限。取走产物后才能再次炼制。'),
  'repair_hint':('Put a damaged sword or spear in the left slot. Repair preserves quality, name and enchantments. Costs per use:','将受损剑枪放入左槽。维修保留品质、命名与附魔。每次消耗：'),
  'trait.sharp':('Quartz increases attack damage. Quality improves the bonus.','石英提高攻击伤害，品质越高加成越大。'),
