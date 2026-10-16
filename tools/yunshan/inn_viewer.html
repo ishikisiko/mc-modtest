@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>云栖客栈 · 独立蓝图 v1</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#eee9de;color:#292c29;font:15px system-ui,sans-serif}main{max-width:1160px;margin:auto;padding:24px}h1{font-size:26px;margin:0 0 8px}p{line-height:1.7;margin:8px 0}.muted{color:#62675f;font-size:13px}nav{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0 12px}button,a.download{font:inherit;color:inherit;background:#faf8f0;border:1px solid #a8aca0;border-radius:6px;padding:9px 14px;cursor:pointer;text-decoration:none}button.active{background:#344b42;color:#fff}#scene{width:100%;height:520px;display:block;touch-action:none;border-radius:10px}#caption{font-size:14px;margin:10px 0}section{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:18px 0}.panel{background:#faf8f1;padding:18px;border-radius:10px}h2{font-size:17px;margin:0 0 8px}.downloads{display:flex;gap:8px;flex-wrap:wrap}ul{padding-left:20px;line-height:1.8}.foot{font-size:13px;color:#65675f}a{color:#31594d}@media(max-width:620px){main{padding:14px}section{grid-template-columns:1fr}#scene{height:430px}h1{font-size:22px}}
+</style>
+<main><h1>云栖客栈 <small style="font-size:14px;font-weight:normal">第一栋功能建筑 · v1</small></h1>
+<p>南门广场北侧原商铺地块 · 白墙、深瓦与木构 · 13 × 15 格用地</p>
+<p class="muted">由实际蓝图方块生成的离线色块预览。楼梯、台阶、门和家具采用简化形状；不是游戏截图。</p>
+<nav><button data-view="full" class="active">建筑全貌</button><button data-view="front">正立面</button><button data-view="ground">一层剖切</button><button data-view="upper">二层剖切</button><button data-view="entry">入口视角</button></nav>
+<canvas id="scene"></canvas><p id="caption"></p>
+<section><div class="panel"><h2>本轮做好的空间</h2><p>一层：檐廊、通透入口、接待柜台、两处食桌、后厨。<br>二层：独立客房两间、床铺与储物、后侧走廊。</p><p class="muted">楼梯净宽 1 格，沿原地块做紧凑布局；后续需在游戏里验证通行手感。</p></div><div class="panel"><h2>另存与保留</h2><p>客栈以独立 JSON / NBT / SCHEM 导出。原 D1 的源文件和截图另有完整备份，未覆盖旧街区。</p><p class="muted">尚未放入 dev1。客房已有原版床，收费住宿、接引 NPC 和委托功能尚未接入。</p></div></section>
+<div class="downloads"><a class="download" download href="yunshan_south_gate_inn_v1.schem">下载 WorldEdit 蓝图</a><a class="download" download href="yunshan_south_gate_inn_v1.nbt">下载 NBT</a><a class="download" download href="yunshan_south_gate_inn_v1.blueprint.json">下载展开蓝图</a><a class="download" download href="yunshan_d1_before_inn_v1.zip">原 D1 资料备份</a></div>
+<p class="foot">拖动旋转 · 滚轮缩放。建筑全貌为北向独立版本，接入 D1 时需旋转 180°。安装坐标以交付说明为准。<br>已检查 7 处目标的离线连通性和两种导出格式的全方块一致性；实机表现、碰撞及玩家验收仍待验证。</p></main>
+<script>/*THREE*/</script><script>/*ORBIT*/</script>
+<script>
+const D=/*DATA*/;
+const scene=new THREE.Scene();scene.background=new THREE.Color('#c5d4d4');
+const canvas=document.querySelector('#scene');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,preserveDrawingBuffer:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+const camera=new THREE.PerspectiveCamera(43,1,.1,180);const controls=new THREE.OrbitControls(camera,canvas);controls.enableDamping=true;
+scene.add(new THREE.HemisphereLight(0xf2f6e9,0x7b7362,.85));const sun=new THREE.DirectionalLight(0xffe4bd,.85);sun.position.set(-15,32,-24);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-25,right:25,top:25,bottom:-25,near:.5,far:100});sun.shadow.bias=-.0005;scene.add(sun);
+const building=new THREE.Group();scene.add(building);const materials={};const all=[];
+function material(color){return materials[color]||(materials[color]=new THREE.MeshLambertMaterial({color}));}
+function color(name){if(name.includes('deepslate'))return '#41494c';if(name.includes('calcite'))return '#e8e4d6';if(name.includes('stone_brick'))return '#92958b';if(name.includes('log'))return '#604b38';if(name.includes('glass'))return '#6d8584';if(name.includes('bamboo'))return '#b69f68';if(name.includes('lantern'))return '#edb969';if(name.includes('red_bed'))return '#9a4f42';if(name.includes('smoker'))return '#777467';return '#a08054';}
+function shape(name,p){const full=[0,0,0,1,1,1];if(name.endsWith('_slab'))return [[0,p.type==='top'?.5:0,0,1,p.type==='top'?1:.5,1]];
+if(name.endsWith('_stairs')){let top=p.half==='top',lo=top?0:.5,hi=top?.5:1;let q={east:[.5,lo,0,1,hi,1],west:[0,lo,0,.5,hi,1],south:[0,lo,.5,1,hi,1],north:[0,lo,0,1,hi,.5]}[p.facing];return [[0,top?.5:0,0,1,top?1:.5,1],q];}
+if(name.endsWith('_trapdoor')){const bars=[];for(const u of [0,.42,.88]){bars.push([u,0,0,u+.12,1,.18]);bars.push([0,u,0,1,u+.12,.18]);}return bars.map(b=>p.facing==='north'?[b[0],b[1],b[2]+.82,b[3],b[4],b[5]+.82]:p.facing==='west'?[b[2]+.82,b[1],b[0],b[5]+.82,b[4],b[3]]:p.facing==='east'?[b[2],b[1],b[0],b[5],b[4],b[3]]:b);}
+if(name.endsWith('_door'))return [[0,0,.05,1,1,.24]];
+if(name.includes('wall_sign'))return [[0,.25,.88,1,.75,1]];
+if(name.includes('lantern'))return [[.3,.1,.3,.7,.65,.7],[.44,.65,.44,.56,1,.56]];
+if(name.endsWith('_bed'))return [[0,0,0,1,.56,1]];
+if(name.endsWith('_pressure_plate'))return [[.05,0,.05,.95,.07,.95]];
+if(name.endsWith('_fence'))return [[.37,0,.37,.63,1,.63]];
+return [full];}
+for(const [x,y,z,state]of D.blocks){let [name,rest]=state.split('[');if(name==='minecraft:air')continue;let props=Object.fromEntries((rest||'').replace(']','').split(',').filter(Boolean).map(s=>s.split('=')));
+for(const b of shape(name,props)){const [a,c,e,f,g,h]=b;const m=new THREE.Mesh(new THREE.BoxGeometry(f-a,g-c,h-e),material(color(name)));m.position.set(x+(a+f)/2,y+(c+g)/2,z+(e+h)/2);m.castShadow=true;m.receiveShadow=true;m.userData={y,z};building.add(m);all.push(m);}}
+// Label is the sign's authored text, rendered above its actual board.
+const signCanvas=document.createElement('canvas');signCanvas.width=512;signCanvas.height=256;const ctx=signCanvas.getContext('2d');ctx.fillStyle='#b49c73';ctx.fillRect(0,0,512,256);ctx.fillStyle='#302c25';ctx.textAlign='center';ctx.font='bold 65px serif';ctx.fillText(D.signs[0].messages[1],256,123);ctx.font='32px serif';ctx.fillText(D.signs[0].messages[2],256,181);
+const sign=new THREE.Mesh(new THREE.PlaneGeometry(1,.5),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(signCanvas),side:THREE.DoubleSide}));sign.position.set(6.5,4.5,1.87);sign.rotation.y=Math.PI;sign.userData={y:4};building.add(sign);all.push(sign);
+const ground=new THREE.Mesh(new THREE.BoxGeometry(27,.1,29),material('#b7b69e'));ground.position.set(6.5,-.1,7);ground.receiveShadow=true;scene.add(ground);
+const captions={full:'体量沿用原街区比例，前檐廊增强客栈入口识别。',front:'正面朝广场：三格入口、连续檐廊、上层两间客房。',ground:'一层剖切：左侧柜台与后厨，右侧食桌，中间楼梯通往二层。',upper:'二层剖切：两侧客房，后侧走廊；中间楼梯井已留空。',entry:'入口视角（眼高约 1.62 格）：进门即可识别柜台和上楼方向。'};
+const views={full:[[24,20,-24],[6.5,7,7]],front:[[6.5,9,-27],[6.5,7,6]],ground:[[18,23,-15],[6.5,1.8,7]],upper:[[18,24,-15],[6.5,6.8,8]],entry:[[6.5,2.62,1.4],[6.5,2.62,10]]};
+window.setView=function(name){for(const m of all)m.visible=name==='ground'?m.userData.y<5:name==='upper'?m.userData.y>=5&&m.userData.y<8&&m.userData.z>=3:true;ground.visible=name!=='upper';camera.position.fromArray(views[name][0]);controls.target.fromArray(views[name][1]);controls.update();document.querySelector('#caption').textContent=captions[name];document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===name));window.currentView=name;};
+document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>setView(b.dataset.view));
+function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix();}window.addEventListener('resize',resize);resize();setView('full');
+window.__ready=true;function frame(){requestAnimationFrame(frame);controls.update();renderer.render(scene,camera);}frame();
+</script></html>
