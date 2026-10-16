@@ -32,6 +32,18 @@ def check_roof(blocks, spec, size):
     Eight-neighbour connectivity allows the edge contact of normal stair roofs,
     but rejects a real half-block air gap. This is not a lighting simulation.
     """
+    if spec.get('axis', 'x') == 'z':
+        directions = {'north':'west', 'south':'east', 'west':'north', 'east':'south'}
+        transposed = {}
+        for (x,y,z),state in blocks.items():
+            name, props = nbt.parse_block_state(state)
+            if props.get('facing') in directions:
+                props['facing'] = directions[props['facing']]
+            transposed[z,y,x] = name + ('['+','.join(f'{k}={v}' for k,v in props.items())+']' if props else '')
+        result = check_roof(transposed, {'min_y':spec['min_y'], 'x_range':spec['z_range'],
+                                        'z_range':spec['x_range']}, [size[2],size[1],size[0]])
+        return {**result, 'section_axis':'x'}
+    assert spec.get('axis', 'x') == 'x', 'unsupported roof axis'
     xmin, xmax = spec['x_range']
     checked = []
     for z in range(spec['z_range'][0], spec['z_range'][1]+1):
@@ -66,6 +78,22 @@ def check_roof(blocks, spec, size):
         assert any(x == 2*xmax+1 for x,y in seen), f'roof shell gap at z={z}'
         checked.append(z)
     return {'connected_sections': checked, 'resolution_blocks': 0.5}
+
+
+def check_wall_roof_joins(blocks, runs):
+    """Check the authored wall/eave contacts for missing lower half-blocks."""
+    checked = 0
+    for run in runs:
+        low, high = run['from'], run['to']
+        for x in range(low[0],high[0]+1):
+            for y in range(low[1],high[1]+1):
+                for z in range(low[2],high[2]+1):
+                    name, props = nbt.parse_block_state(blocks.get((x,y,z),'minecraft:air'))
+                    below, bp = nbt.parse_block_state(blocks.get((x,y-1,z),'minecraft:air'))
+                    assert name != 'minecraft:air' and not (name.endswith('_slab') and props.get('type')=='top'), f'wall/eave gap at {(x,y,z)}'
+                    assert below != 'minecraft:air' and not (below.endswith('_slab') and bp.get('type')=='bottom'), f'unsupported wall/eave at {(x,y,z)}'
+                    checked += 1
+    return checked
 
 
 def check_walks(blocks, targets, size):
@@ -163,6 +191,8 @@ def build(source, out):
     size, _, blocks, _ = nbt.expand_structure(data)
     walks = check_walks(blocks, data['walk_targets'], size)
     roof = check_roof(blocks, data['roof_check'], size) if 'roof_check' in data else 'not_checked_legacy'
+    roofs = [check_roof(blocks, spec, size) for spec in data.get('roof_checks', [])]
+    joins = check_wall_roof_joins(blocks,data.get('wall_roof_joins',[]))
     structure = export.Structure(blocks)
     assert list(structure.size) == size
     out.mkdir(parents=True, exist_ok=True)
@@ -184,12 +214,18 @@ def build(source, out):
               'source_sha256': hashlib.sha256(source.read_bytes()).hexdigest(),
               'walk_targets': walks, 'walk_check': 'conservative block topology; doors assumed open; no jumping',
               'roof_shell': roof,
+              'roof_sections': roofs, 'wall_roof_contacts': joins,
               'export_roundtrip': 'all cells and sign text match in NBT and Sponge v2',
               'site': data['site'],
               'not_verified': ['actual_game_placement', 'player_collision', 'visual_acceptance', 'NPC_services', 'FPS']}
     (out/'report.json').write_text(json.dumps(report, ensure_ascii=False, indent=2)+'\n')
     # Preview renderer reads this normalized DSL, not the blueprint-v1 format.
     (out/'preview.json').write_text(json.dumps(data, ensure_ascii=False)+'\n')
+    if 'presentation' in data:
+        from yunshan.preview_building import render_viewer
+        render_viewer(data, blocks, out)
+        print(json.dumps(report, ensure_ascii=False, indent=2))
+        return report
     template = (ROOT/'tools/yunshan/inn_viewer.html').read_text()
     version = data['id'].rsplit('_',1)[-1]
     template = template.replace('yunshan_south_gate_inn_v1', data['id'].split(':')[1])

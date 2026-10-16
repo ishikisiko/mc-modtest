@@ -1,56 +1,90 @@
-# 云山 D1：南门客栈 v2
+# 云山 D1：功能建筑独立蓝图
 
-v2 修复 v1 主屋顶两侧的半格贯通漏缝：将两侧 26 块下半砖改为上半砖，使檐口
-接上上坡瓦面；外檐和屋脊高度、地块、室内布局不变。v1 源文件和 `out/preview/yunshan-inn-v1/`
-交付保持原样。默认构建输出到 `out/preview/yunshan-inn-v2/`。
+本批为建筑候选，未修改玩家 `dev1` 存档、模组 jar 或自然生成。
+保留原街区地块，按用途设计不同的外形与室内，不把独栋候选称为已经替换完成的整城。
 
-第一栋功能建筑的独立建筑候选。它具有接待、用餐、后厨和两间客房的空间，
-原版床、木门、烟熏炉和储物桶使用原版方块；尚未接入收费住宿、任务或 NPC。
-本轮未修改玩家 `dev1` 存档，未加入模组 jar 或自然生成。
+## 当前版本与来源
 
-## 来源与另存
+当前清单为 `blueprints/yunshan/functional_buildings_v1.json`，每栋的唯一 authored
+input 是该清单引用的手工 JSON DSL。尺寸、调色板、屋顶、地块、可达目标和设施均在
+各自的 JSON 中定义。没有新增 settlement family、屋顶分派或功能方块 registry ID。
 
-- 当前唯一 authored input：`blueprints/yunshan/south_gate_inn_v2.json`，手工 JSON DSL。
-- 使用已有 NBT 与 Sponge v2 exporter；没有新增 settlement family 或屋顶分派。
-- 输出：`out/preview/yunshan-inn-v2/yunshan_south_gate_inn_v2.{blueprint.json,nbt,schem}`。
-- 预览：同目录 `index.html`，实际方块驱动的离线简化模型，可切换一、二层和入口视角。
-- 原资料：`out/yunshan-blueprint/`、`out/yunshan-d1-build/`、`out/yunshan-scale-probe/`。
-  本次另存这些目录中的 140 个文件为
-  `out/preview/yunshan-inn-v1/yunshan_d1_before_inn_v1.zip`，逐文件哈希在同目录
-  `baseline-sha256.json`。这些忽略目录中的备份不是 Git 交付内容。
-- 原整街区 `yunshan_d1_district.schem` 的旧记录指向玩家电脑 WorldEdit 目录；
-  该文件本轮未连接读取，备份 ZIP 不含玩家世界或这份原始 SCHEM。
+| 建筑 | Authored input | 本轮空间 / 已有设施 |
+|---|---|---|
+| 百草堂 | `apothecary_v1.json` | 药柜、取药柜台、诊榻、后院；已有炼丹炉 |
+| 百炼铺 | `smithy_v1.json` | 铺面、敞开锻打棚、砖烟道；已有炼器鼎、原版铁砧 / 高炉 / 磨石 |
+| 问道院 | `initiation_hall_v1.json` | 前庭、石阶、檐廊与正堂；独立测灵石碑、传承石碑 |
+| 云栖客栈 | `south_gate_inn_v3.json` | 大堂、柜台、后厨、两间客房；原版床与储物 |
 
-## 重建与检查
+药铺、铁匠铺和传功院的前向默认都是低 z。`site.rotation_quarters` 描述安装到
+原地块所需的旋转；原地块定位以 `d1_site_reference.json` 中带来源哈希的快照为准，
+不是对玩家当前世界的重新扫描。新建的单层候选保留较高的空气清理体积，
+以覆盖原多层民居的屋顶；导出尺寸中的高度不等于新建筑实际高度。
+
+现有功能方块只是按位置放入蓝图，未改其服务器逻辑。容器为空，商人、委托和
+收费住宿尚未接入；其游戏内放置和交互本轮 `not_verified`。
+
+## 重建与最小检查
 
 ```bash
-python3 tools/yunshan/build_inn.py
-python3 -m unittest discover -s tools/tests -p test_yunshan_inn.py
+python3 tools/yunshan/build_functional.py
+python3 -m unittest discover -s tools/tests -p 'test_yunshan*.py'
 ```
 
-构建时检查七处目标的连通性、两格净空、无跳跃的楼梯方向，并逐格回读对比 NBT、
-SCHEM 与源数据，核对招牌文字。门按打开处理，家具和薄装饰按完整障碍保守处理。
-该检查不替代游戏碰撞、格窗实际外观、光照、玩家手感和性能验收。
-负例测试验证封门、堵楼梯井和反向楼梯会失败。
-v2 新增半格分辨率的屋顶截面连接检查，覆盖整个主屋顶的 13 个截面；
-旧 v1 会触发漏缝失败。边接触按正常阶梯瓦面允许通过，不把此检查称为游戏光照验证。
+构建输出到 `out/preview/yunshan-functional-v1/`，下设 `apothecary/`、`smithy/`、
+`initiation_hall/` 和 `inn/`。每栋输出默认方向的 `.blueprint.json`、`.nbt`、`.schem`，
+以及按地块旋转的 `_site.nbt`、`_site.schem`、`placement.json` 与离线检查报告。
+`index.html` 是四栋总览及原街区定位图；每栋页面可旋转并查看室内剖切。
 
-预览使用仓库内 vendored Three.js，不依赖 CDN。仅用于人工交付时复用正确的
-预览服务；不得在同端口覆盖其他接口。支持移动端和五个视角。
+构建检查：
 
-## 位置与安装边界
+- 使用原地块的尺寸、标高与朝向，旋转后不越界，不给两栋分配同一地块。
+- 两格净空与无跳跃楼梯路线；门按打开处理，家具和薄装饰保守视作完整障碍。
+- 半格分辨率的主屋面截面连接，以及显式墙顶 / 瓦檐接触点。
+- 已有设施没有被墙或家具覆盖，状态存在于当前 blockstates，接近目标可达。
+- 默认与旋转版本的 NBT / SCHEM 均逐格回读对比，保留招牌文字。
+- 回归测试覆盖旧屋面漏缝、墙顶漏缝、错误楼梯方向、堵入口、错误地块旋转、
+  设施被覆盖和非法状态；二进制导出具有重复生成一致性。
 
-使用原 `gateN-1` 用地；位置数据以 authored input 的 `site` 为准。
-当地块宽 13、深 15；地面层为 local y=0，一层脚底 y=1，二层脚底 y=6。
-单格宽楼梯通向后侧走廊，两间客房分别从走廊进入。
+这些检查不能替代 Minecraft 的碰撞、光照、设备交互、实际窗格表现和玩家验收。
+屋面检查允许正常阶梯瓦面的边接触，不声称验证了游戏光照。
 
-导出为低 z 朝前的独立建筑，SCHEM Offset 为 `[0,0,0]`，并显式包含空气。
-接入原 D1 时需将建筑及方块朝向整体旋转 180°，把旋转后的最小角对齐 `site`
-中的位置；不要直接把默认朝向贴在南门。旋转映射是
-`(x,y,z) -> (sizeX-1-x,y,sizeZ-1-z)`，旋转后范围不能超出地块。
-正式替换前应保存当前世界该区域的新备份，先在副本核对角点、门朝向和屋顶边界。
-替换需包含空气来清掉原屋内部，不能使用忽略空气的粘贴。
+## 可选离线截图与交付
 
-本轮提供的是另存建筑候选，尚未实机安装；不提供未经验证的自动覆盖命令。
-后续要把整街区另存为 v2，应在应用建筑并验收后重新导出整街区，不能把独栋
-SCHEM 称为已更新的整城蓝图。
+预览使用仓库 vendored Three.js，功能方块轮廓读取它们原有模型，未修改这些模型。
+材质采用色块，普通家具采用简化形状，页面明确标注不是游戏截图。
+
+仅在实际人工预览交付时复用正确的 HTTP 服务。本机既有服务目录为 `out/preview/`，
+人工入口为 `http://43.156.135.198:8765/yunshan-functional-v1/`；不要占用或替换同端口的其他接口。
+有可用的 Playwright 与 Chromium 时可运行：
+
+```bash
+# 可通过 PLAYWRIGHT_CORE 和 CHROMIUM_EXECUTABLE 指向已有安装。
+node tools/yunshan/capture.mjs out/preview/yunshan-functional-v1 \
+  http://10.3.0.5:8765/yunshan-functional-v1
+# 截图产生后再构建一次，将代表画面收进交付 ZIP。
+python3 tools/yunshan/build_functional.py
+```
+
+交付包是 `yunshan_functional_buildings_v1.zip`，包括逐栋蓝图、定位说明、源 JSON、
+报告与已有代表画面，不含游戏存档。`_site` 版本已经旋转，Clipboard Offset 为零，
+其最小角对齐 `placement.json` 的 `min_corner`。默认版本不要直接贴到南门。
+
+文件显式包含空气来清除旧屋，安装前应备份当前世界对应区域，先在副本核对
+边界、门朝向、旧屋顶清理和实际功能。不能用忽略空气的粘贴完成旧屋替换。
+本轮没有执行安装，也不提供未经实机验证的自动覆盖命令。
+
+## 保留的旧版与原资料
+
+客栈 v1、v2 源文件与已交付目录保持原样。v2 把两排下半砖改为上半砖，修正屋面
+纵向漏缝；v3 改为双层半砖，补齐檐口下方与墙顶间的半格收口，室内和建筑外轮廓不变。
+历史命令 `python3 tools/yunshan/build_inn.py` 仍默认重建独立 v2；当前批次请用上述清单命令。
+
+原资料在 `out/yunshan-blueprint/`、`out/yunshan-d1-build/`、`out/yunshan-scale-probe/`。
+第一轮保存的 140 个文件备份为
+`out/preview/yunshan-inn-v1/yunshan_d1_before_inn_v1.zip`，逐文件哈希位于同目录
+`baseline-sha256.json`。这些忽略目录不是 Git 交付内容。
+
+原整街区 `yunshan_d1_district.schem` 的旧记录指向玩家电脑的 WorldEdit 目录；
+本轮未连接读取，备份 ZIP 不含玩家世界或该原始 SCHEM。整街区的下一版应在
+实际应用新建筑并验收后重新导出，不能把本批独栋 ZIP 称为已更新的整城蓝图。

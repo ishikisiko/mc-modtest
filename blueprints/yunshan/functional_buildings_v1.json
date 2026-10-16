@@ -1,0 +1,11 @@
+{
+  "name": "云山 D1 功能建筑 · 第一批",
+  "site_reference": "d1_site_reference.json",
+  "buildings": [
+    "apothecary_v1.json",
+    "smithy_v1.json",
+    "initiation_hall_v1.json",
+    "south_gate_inn_v3.json"
+  ],
+  "status": "offline_candidates_not_placed"
+}

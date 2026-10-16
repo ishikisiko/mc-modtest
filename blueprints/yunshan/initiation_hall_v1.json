@@ -1,0 +1,245 @@
+{
+  "id": "myvillage:yunshan_initiation_hall_v1",
+  "author": "MyVillage",
+  "mc_version": "1.21.1",
+  "size": [
+    13,
+    20,
+    15
+  ],
+  "fill_air": true,
+  "description": "问道院。独立另存建筑；低 z 朝前。填充空气的高度包括原民居清理范围。",
+  "site": {
+    "lot_id": "A3-1",
+    "facing": "E",
+    "rotation_quarters": 1,
+    "world_min": [
+      2937,
+      70,
+      257
+    ],
+    "world_max": [
+      2951,
+      89,
+      269
+    ],
+    "original_world": "dev1",
+    "status": "offline_candidate_not_placed"
+  },
+  "palette": {
+    "stone": "minecraft:stone_bricks",
+    "wall": "minecraft:smooth_quartz",
+    "wood": "minecraft:spruce_planks",
+    "post": "minecraft:spruce_log[axis=y]",
+    "beam_x": "minecraft:spruce_log[axis=x]",
+    "beam_z": "minecraft:spruce_log[axis=z]",
+    "air": "minecraft:air",
+    "tile": "minecraft:deepslate_tiles",
+    "paving": "minecraft:polished_andesite"
+  },
+  "walk_targets": {
+    "entry": [
+      6,
+      1,
+      0
+    ],
+    "courtyard": [
+      6,
+      1,
+      3
+    ],
+    "porch": [
+      6,
+      2,
+      6
+    ],
+    "hall": [
+      6,
+      2,
+      8
+    ],
+    "testing": [
+      3,
+      2,
+      8
+    ],
+    "inheritance": [
+      9,
+      2,
+      8
+    ],
+    "lecture": [
+      6,
+      2,
+      10
+    ]
+  },
+  "signs": [
+    {
+      "pos": [
+        6,
+        5,
+        5
+      ],
+      "messages": [
+        "",
+        "问道院",
+        "测灵 · 传功",
+        ""
+      ]
+    }
+  ],
+  "roof_checks": [
+    {
+      "axis": "z",
+      "min_y": 6,
+      "x_range": [
+        0,
+        12
+      ],
+      "z_range": [
+        5,
+        13
+      ]
+    }
+  ],
+  "wall_roof_joins": [
+    {
+      "from": [
+        1,
+        7,
+        7
+      ],
+      "to": [
+        11,
+        7,
+        7
+      ]
+    },
+    {
+      "from": [
+        1,
+        6,
+        12
+      ],
+      "to": [
+        11,
+        6,
+        12
+      ]
+    }
+  ],
+  "service_blocks": [
+    {
+      "name": "测灵石碑",
+      "pos": [
+        3,
+        3,
+        9
+      ],
+      "state": "myvillage:spirit_testing_stele",
+      "approach": "testing"
+    },
+    {
+      "name": "传承石碑",
+      "pos": [
+        9,
+        3,
+        9
+      ],
+      "state": "myvillage:technique_inheritance_stele",
+      "approach": "inheritance"
+    }
+  ],
+  "presentation": {
+    "name": "问道院",
+    "role": "initiation_hall",
+    "summary": "小型入门传功院：前庭、台阶、檐廊与两块入门石碑。",
+    "spaces": [
+      "前庭和中央石阶，保留入门仪式的空间",
+      "测灵与传承石碑分别安放，互不合并",
+      "后堂经书、讲席与安静修习位置"
+    ],
+    "stage": "建筑蓝图；未放入 dev1，商人和委托尚未接入",
+    "cut_y": 5,
+    "eye": [
+      6.5,
+      2.62,
+      1
+    ],
+    "eye_target": [
+      6.5,
+      3.3,
+      10
+    ],
+    "accent": "#66658a"
+  }
+,
+  "ops": [
+    {"op":"fill","from":[0,0,0],"to":[12,0,14],"state":"stone"},
+    {"op":"fill","from":[5,0,0],"to":[7,0,4],"state":"paving"},
+    {"op":"fill","from":[1,1,6],"to":[11,1,13],"state":"stone"},
+    {"op":"fill","from":[2,1,7],"to":[10,1,11],"state":"paving"},
+    {"op":"fill","from":[5,1,5],"to":[7,1,5],"state":"minecraft:stone_brick_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[1,2,7],"to":[11,5,7],"state":"wall"},
+    {"op":"fill","from":[1,2,12],"to":[11,5,12],"state":"wall"},
+    {"op":"fill","from":[1,2,8],"to":[1,6,11],"state":"wall"},
+    {"op":"fill","from":[11,2,8],"to":[11,6,11],"state":"wall"},
+    {"op":"fill","from":[1,2,6],"to":[1,4,6],"state":"post"},
+    {"op":"fill","from":[4,2,6],"to":[4,4,6],"state":"post"},
+    {"op":"fill","from":[8,2,6],"to":[8,4,6],"state":"post"},
+    {"op":"fill","from":[11,2,6],"to":[11,4,6],"state":"post"},
+    {"op":"fill","from":[1,5,6],"to":[11,5,6],"state":"beam_x"},
+    {"op":"fill","from":[1,5,7],"to":[11,5,7],"state":"beam_x"},
+    {"op":"fill","from":[5,2,7],"to":[7,4,7],"state":"air"},
+    {"op":"set","pos":[2,3,7],"state":"minecraft:bamboo_trapdoor[facing=north,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"set","pos":[2,4,7],"state":"minecraft:bamboo_trapdoor[facing=north,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"set","pos":[3,3,7],"state":"minecraft:bamboo_trapdoor[facing=north,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"set","pos":[3,4,7],"state":"minecraft:bamboo_trapdoor[facing=north,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"set","pos":[9,3,7],"state":"minecraft:bamboo_trapdoor[facing=north,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"set","pos":[9,4,7],"state":"minecraft:bamboo_trapdoor[facing=north,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"set","pos":[10,3,7],"state":"minecraft:bamboo_trapdoor[facing=north,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"set","pos":[10,4,7],"state":"minecraft:bamboo_trapdoor[facing=north,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[0,6,5],"to":[12,6,5],"state":"minecraft:deepslate_tile_slab[type=top,waterlogged=false]"},
+    {"op":"fill","from":[0,6,13],"to":[12,6,13],"state":"minecraft:deepslate_tile_slab[type=top,waterlogged=false]"},
+    {"op":"fill","from":[0,6,6],"to":[12,6,6],"state":"minecraft:deepslate_tile_slab[type=double,waterlogged=false]"},
+    {"op":"fill","from":[0,6,12],"to":[12,6,12],"state":"minecraft:deepslate_tile_slab[type=double,waterlogged=false]"},
+    {"op":"fill","from":[0,7,7],"to":[12,7,7],"state":"minecraft:deepslate_tile_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[0,7,11],"to":[12,7,11],"state":"minecraft:deepslate_tile_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[0,8,8],"to":[12,8,8],"state":"minecraft:deepslate_tile_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[0,8,10],"to":[12,8,10],"state":"minecraft:deepslate_tile_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[0,8,9],"to":[12,8,9],"state":"tile"},
+    {"op":"fill","from":[0,9,9],"to":[12,9,9],"state":"minecraft:deepslate_tile_slab[type=bottom,waterlogged=false]"},
+    {"op":"fill","from":[1,6,7],"to":[1,6,7],"state":"wall"},
+    {"op":"fill","from":[1,6,8],"to":[1,7,8],"state":"wall"},
+    {"op":"fill","from":[1,6,9],"to":[1,7,9],"state":"wall"},
+    {"op":"fill","from":[1,6,10],"to":[1,7,10],"state":"wall"},
+    {"op":"fill","from":[1,6,11],"to":[1,6,11],"state":"wall"},
+    {"op":"fill","from":[11,6,7],"to":[11,6,7],"state":"wall"},
+    {"op":"fill","from":[11,6,8],"to":[11,7,8],"state":"wall"},
+    {"op":"fill","from":[11,6,9],"to":[11,7,9],"state":"wall"},
+    {"op":"fill","from":[11,6,10],"to":[11,7,10],"state":"wall"},
+    {"op":"fill","from":[11,6,11],"to":[11,6,11],"state":"wall"},
+    {"op":"fill","from":[1,6,7],"to":[11,6,7],"state":"beam_x"},
+    {"op":"fill","from":[1,1,1],"to":[1,2,4],"state":"wall"},
+    {"op":"fill","from":[1,3,1],"to":[1,3,4],"state":"minecraft:deepslate_tile_slab[type=bottom,waterlogged=false]"},
+    {"op":"fill","from":[11,1,1],"to":[11,2,4],"state":"wall"},
+    {"op":"fill","from":[11,3,1],"to":[11,3,4],"state":"minecraft:deepslate_tile_slab[type=bottom,waterlogged=false]"},
+    {"op":"set","pos":[2,1,3],"state":"minecraft:chiseled_stone_bricks"},
+    {"op":"set","pos":[2,2,3],"state":"minecraft:potted_bamboo"},
+    {"op":"set","pos":[10,1,3],"state":"minecraft:chiseled_stone_bricks"},
+    {"op":"set","pos":[10,2,3],"state":"minecraft:potted_bamboo"},
+    {"op":"set","pos":[3,2,9],"state":"minecraft:chiseled_stone_bricks"},
+    {"op":"set","pos":[3,3,9],"state":"myvillage:spirit_testing_stele"},
+    {"op":"set","pos":[9,2,9],"state":"minecraft:chiseled_stone_bricks"},
+    {"op":"set","pos":[9,3,9],"state":"myvillage:technique_inheritance_stele"},
+    {"op":"fill","from":[2,2,11],"to":[4,3,11],"state":"minecraft:bookshelf"},
+    {"op":"fill","from":[8,2,11],"to":[10,3,11],"state":"minecraft:bookshelf"},
+    {"op":"set","pos":[6,2,11],"state":"minecraft:lectern[facing=north,has_book=false,powered=false]"},
+    {"op":"set","pos":[4,1,10],"state":"minecraft:chiseled_stone_bricks"},
+    {"op":"set","pos":[8,1,10],"state":"minecraft:chiseled_stone_bricks"},
+    {"op":"set","pos":[3,4,6],"state":"minecraft:lantern[hanging=true,waterlogged=false]"},
+    {"op":"set","pos":[9,4,6],"state":"minecraft:lantern[hanging=true,waterlogged=false]"},
+    {"op":"set","pos":[6,5,5],"state":"minecraft:spruce_wall_sign[facing=north,waterlogged=false]"}
+  ]
+}
