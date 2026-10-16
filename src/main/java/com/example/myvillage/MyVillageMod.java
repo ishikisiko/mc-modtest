@@ -102,6 +102,8 @@ public final class MyVillageMod {
         ModEntities.register(modEventBus);
         ModBlocks.register(modEventBus);
         ModBlockEntities.register(modEventBus);
+        com.example.myvillage.forging.ForgingMenus.register(modEventBus);
+        modEventBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(() -> { com.example.myvillage.forging.ForgingRules.get(); }));
         AlchemyMenus.register(modEventBus);
         modEventBus.addListener((FMLCommonSetupEvent event) -> event.enqueueWork(() -> { AlchemyRules.get(); }));
         ModItems.register(modEventBus);

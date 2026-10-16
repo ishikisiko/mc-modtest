@@ -38,7 +38,7 @@ LANG = {
     "alchemy.myvillage.quality.4": ("Perfect", "极品"),
     "item.myvillage.alchemy.quality_name": ("%s %s", "%s%s"),
     "tooltip.myvillage.alchemy.quality": ("Quality: %s", "品质：%s"),
-    "screen.myvillage.crafting.foundation": ("Alchemy batches use your quality ceiling. Forging production is not available yet.", "炼丹成品受你的品质上限限制；炼器生产尚未开放。"),
+    "screen.myvillage.crafting.foundation": ("Alchemy and forging use your quality ceilings. Learn patterns and use a Forging Table.", "炼丹与炼器成品受品质上限限制；学会器谱后可在炼器台制作。"),
     "container.myvillage.alchemy_furnace": ("Bronze Alchemy Furnace", "青铜丹炉"),
     "alchemy.myvillage.formula_hint": ("Use to learn permanently; brewing needs no formula item", "右键永久学习，炼丹不再需要携带丹方"),
     "alchemy.myvillage.ingredients": ("Ingredients: %s + %s", "药材：%s + %s"),

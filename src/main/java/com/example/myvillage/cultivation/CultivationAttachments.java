@@ -34,6 +34,11 @@ public final class CultivationAttachments {
                     .builder(() -> com.example.myvillage.alchemy.LearnedFormulas.EMPTY)
                     .serialize(com.example.myvillage.alchemy.LearnedFormulas.CODEC).copyOnDeath().build());
 
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<com.example.myvillage.alchemy.LearnedFormulas>> FORGE_PATTERNS =
+            ATTACHMENT_TYPES.register("learned_forge_patterns", () -> AttachmentType
+                    .builder(() -> com.example.myvillage.alchemy.LearnedFormulas.EMPTY)
+                    .serialize(com.example.myvillage.alchemy.LearnedFormulas.CODEC).copyOnDeath().build());
+
     private CultivationAttachments() {
     }
 

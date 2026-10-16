@@ -136,6 +136,12 @@ public final class ModItems {
 
     public static final DeferredItem<BlockItem> SPIRIT_SOIL = ITEMS.registerItem("spirit_soil",
             props -> new BlockItem(ModBlocks.SPIRIT_SOIL.get(), props));
+    public static final DeferredItem<BlockItem> FORGING_TABLE = ITEMS.registerItem("forging_table",
+            props -> new BlockItem(ModBlocks.FORGING_TABLE.get(), props));
+    public static final DeferredItem<ForgePatternItem> PATTERN_QINGFENG_SWORD = ITEMS.registerItem("pattern_qingfeng_sword",
+            props -> new ForgePatternItem(props, "qingfeng_sword"));
+    public static final DeferredItem<ForgePatternItem> PATTERN_LINGXIAO_SPEAR = ITEMS.registerItem("pattern_lingxiao_spear",
+            props -> new ForgePatternItem(props, "lingxiao_spear"));
     public static final DeferredItem<BlockItem> ALCHEMY_FURNACE = ITEMS.registerItem("alchemy_furnace",
             props -> new BlockItem(ModBlocks.ALCHEMY_FURNACE.get(), props));
     public static final DeferredItem<ItemNameBlockItem> SPIRIT_LEAF = ITEMS.registerItem("spirit_leaf",
@@ -284,6 +290,9 @@ public final class ModItems {
                         output.accept(LOW_GRADE_SPIRIT_STONE.get());
                         output.accept(DEMON_LURE_PEARL.get());
                         output.accept(SPIRIT_SOIL.get());
+                        output.accept(FORGING_TABLE.get());
+                        output.accept(PATTERN_QINGFENG_SWORD.get());
+                        output.accept(PATTERN_LINGXIAO_SPEAR.get());
                         output.accept(ALCHEMY_FURNACE.get());
                         output.accept(SPIRIT_LEAF.get());
                         output.accept(DEW_BLOSSOM.get());

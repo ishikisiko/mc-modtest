@@ -69,7 +69,7 @@ See [recorded runs and retries](../testing/2026-10-16-alchemy-quality.md). Owner
 balance and wider multiplayer remain `not_verified`. Natural acquisition,
 cold legacy-save migration and other unobserved lifecycle surfaces remain
 `not_verified`. Wild plant worldgen, skill XP, toxicity,
-furnace failure and forging production remain outside this slice.
+furnace failure remain outside this slice. Forging production is covered by [KB54](54_forging.md).
 
 See also: [alchemy-foundation](../contracts/cultivation.md#alchemy-foundation),
 [alchemy-quality](../contracts/cultivation.md#alchemy-quality),

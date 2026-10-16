@@ -61,6 +61,8 @@ PRESETS = {
                        ["python3", "tools/gen_danxia_ruin.py", "--check"],
                        ["./gradlew", "test", "--tests", "com.example.myvillage.ruins.*", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
                        ["python3", "tools/danxia_ruin_evidence.py"]],
+    "forging-build": [["python3", "tools/gen_forging_assets.py", "--check"],
+                      ["./gradlew", "test", "--tests", "com.example.myvillage.forging.*", "--tests", "com.example.myvillage.alchemy.LearnedFormulasTest", "--tests", "com.example.myvillage.item.CombatWeaponItemTest", "--tests", "com.example.myvillage.combat.network.CombatPayloadTest", "--tests", "com.example.myvillage.combat.session.JianqiJueSkillTest", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"]],
     "alchemy-build": [["./gradlew", "test", "--tests", "com.example.myvillage.alchemy.*", "build", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"]],
     "fates": [["./gradlew", "test", "--tests", "com.example.myvillage.cultivation.fate.FateFoundationTest", "build", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"]],
     "release": [["python3", "tools/release_gate.py"]],
@@ -69,6 +71,7 @@ PRESETS = {
     "alchemy-quality": [["python3", "tools/run_chunky_acceptance.py", "--stage", "1"],
                         ["python3", "tools/alchemy_quality_evidence.py"]],
 }
+PRESETS["forging-runtime"] = PRESETS["forging-build"] + [["python3", "tools/forging_evidence.py"]]
 PRESETS["release-alchemy"] = PRESETS["release"] + PRESETS["alchemy-quality"]
 ALCHEMY_CASES = ("brewing", "multiplayer", "medicine", "persistence", "ui")
 

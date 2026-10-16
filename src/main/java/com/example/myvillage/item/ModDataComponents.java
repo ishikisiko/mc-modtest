@@ -33,6 +33,11 @@ public final class ModDataComponents {
                     .persistent(PillQuality.CODEC)
                     .networkSynchronized(PillQuality.STREAM_CODEC));
 
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<com.example.myvillage.forging.ForgeMark>> FORGE_MARK =
+            DATA_COMPONENTS.registerComponentType("forge_mark", builder -> builder
+                    .persistent(com.example.myvillage.forging.ForgeMark.CODEC)
+                    .networkSynchronized(com.example.myvillage.forging.ForgeMark.STREAM_CODEC));
+
     private ModDataComponents() {
     }
 

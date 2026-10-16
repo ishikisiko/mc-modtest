@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.57.0
+
+- 新增炼器雏形：炼器台、永久学习的青锋剑/凌霄枪器谱、背包扣料、手动单件炼制与下中上极品。
+- 原有剑枪承载持久品质和专长：锋锐增加攻击、导灵降低已学剑气耗灵、坚韧增加耐久和维修效率；长枪暂不开放导灵。
+- 炼器台维修保留命名、附魔与品质；私人菜单关闭返还暂存物品，服务器原子校验和扣料。基础工作台青锋剑配方保留。
+- 雏形使用原版锻造台和书本外观，未加入计时小游戏、改炼、器阶升炼或特殊矿物。网络兼容版本为 23。
+
 ## 0.56.0-fix5
 
 - 剑气基础射程提高到 20 格，满蓄力 30 格，中间随蓄力程度递增；服务器飞行时长、命中窗口及终点限位同步使用实际射程。

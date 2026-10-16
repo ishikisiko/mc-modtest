@@ -1,10 +1,11 @@
 {
   "replace": false,
   "values": [
-    "myvillage:spirit_testing_stele",
-    "myvillage:technique_inheritance_stele",
-    "myvillage:spirit_stone_ore",
+    "myvillage:alchemy_furnace",
     "myvillage:deepslate_spirit_stone_ore",
-    "myvillage:alchemy_furnace"
+    "myvillage:forging_table",
+    "myvillage:spirit_stone_ore",
+    "myvillage:spirit_testing_stele",
+    "myvillage:technique_inheritance_stele"
   ]
 }

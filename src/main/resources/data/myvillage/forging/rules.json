@@ -1,0 +1,102 @@
+{
+  "version": 1,
+  "recipes": [
+    {
+      "id": "qingfeng_sword",
+      "pattern": "myvillage:pattern_qingfeng_sword",
+      "output": "myvillage:qingfeng_sword",
+      "costs": {
+        "minecraft:diamond": 2,
+        "minecraft:stick": 1,
+        "myvillage:low_grade_spirit_stone": 2
+      },
+      "traits": [
+        "sharp",
+        "channeling",
+        "tough"
+      ]
+    },
+    {
+      "id": "lingxiao_spear",
+      "pattern": "myvillage:pattern_lingxiao_spear",
+      "output": "myvillage:lingxiao_spear",
+      "costs": {
+        "minecraft:diamond": 3,
+        "minecraft:stick": 2,
+        "myvillage:low_grade_spirit_stone": 2
+      },
+      "traits": [
+        "sharp",
+        "tough"
+      ]
+    }
+  ],
+  "traits": {
+    "sharp": {
+      "costs": {
+        "minecraft:quartz": 2
+      },
+      "values": [
+        1,
+        1.5,
+        2,
+        3
+      ]
+    },
+    "channeling": {
+      "costs": {
+        "minecraft:lapis_lazuli": 4
+      },
+      "values": [
+        0.1,
+        0.15,
+        0.2,
+        0.25
+      ]
+    },
+    "tough": {
+      "costs": {
+        "minecraft:iron_ingot": 4
+      },
+      "values": [
+        1.5,
+        1.75,
+        2,
+        2.5
+      ]
+    }
+  },
+  "quality_weights": [
+    [
+      100,
+      0,
+      0,
+      0
+    ],
+    [
+      60,
+      40,
+      0,
+      0
+    ],
+    [
+      40,
+      35,
+      25,
+      0
+    ],
+    [
+      25,
+      30,
+      30,
+      15
+    ]
+  ],
+  "repair": {
+    "costs": {
+      "minecraft:iron_ingot": 1,
+      "myvillage:low_grade_spirit_stone": 1
+    },
+    "fraction": 0.25
+  }
+}

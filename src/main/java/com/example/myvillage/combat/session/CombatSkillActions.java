@@ -101,7 +101,7 @@ final class CombatSkillActions {
         if (e == null || !e.state().charging()) return Optional.empty();
         CombatSkillSession state = e.state();
         long now = player.serverLevel().getGameTime();
-        long cost = state.costAt(now);
+        long cost = com.example.myvillage.forging.ForgedEquipment.qiCost(player.getMainHandItem(), state.costAt(now));
         if (!CultivationService.spendSpiritualPower(player, cost)) {
             send(player, state, Phase.REJECTED, player.position(), player.getLookAngle());
             stop(player, "POWER");

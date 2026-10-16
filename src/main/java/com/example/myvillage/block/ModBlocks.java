@@ -79,6 +79,10 @@ public final class ModBlocks {
                     Block::new,
                     deepslateSpiritStoneOreProperties());
 
+    public static final DeferredBlock<ForgingTableBlock> FORGING_TABLE =
+            BLOCKS.registerBlock("forging_table", ForgingTableBlock::new,
+                    BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(3.5F).sound(SoundType.METAL));
+
     public static final DeferredBlock<AlchemyFurnaceBlock> ALCHEMY_FURNACE =
             BLOCKS.registerBlock("alchemy_furnace", AlchemyFurnaceBlock::new,
                     BlockBehaviour.Properties.of().mapColor(MapColor.METAL).strength(3.5F).sound(SoundType.COPPER)

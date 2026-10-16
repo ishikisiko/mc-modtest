@@ -4,7 +4,7 @@ The owner selected a hard ceiling on **same-recipe product quality**, not on
 Huang/Xuan/Di/Tian recipe grade. This foundation adds two persistent player
 aptitudes and authoritative ceilings. Alchemy now freezes the initiating player's
 ceiling at each manual furnace start and produces bounded quality-bearing pills
-(see [alchemy](49_alchemy.md)); forging production and crafting experience remain
+(see [alchemy](49_alchemy.md)); forging production is implemented in [KB54](54_forging.md); crafting experience remains
 unimplemented.
 
 ## Sources and boundaries
@@ -27,7 +27,7 @@ unimplemented.
   Protocol21; no new payload or cache. `ClientCultivationState` keeps the same
   three caches and clears the added state with the owning snapshot on disconnect.
 - `CraftingPage` through `PanelContext`/`PanelTheme`: read-only H page, appended
-  View. It describes alchemy quality as implemented and forging as pending.
+  View. It describes alchemy quality as implemented and forging as implemented.
   Page-local diagnostic `CRAFTING_UI` records geometry/visibility for mapped evidence, not a client result authority.
 - `cultivation crafting` / `xiulian jiyi`: shared status/set command trees with
   English/pinyin aliases; setters require initialized awakened target and keep

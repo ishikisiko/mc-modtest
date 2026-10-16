@@ -28,6 +28,23 @@ public class CombatWeaponItem extends SwordItem {
     }
 
     @Override
+    public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext context,
+            java.util.List<net.minecraft.network.chat.Component> lines, net.minecraft.world.item.TooltipFlag flag) {
+        super.appendHoverText(stack, context, lines, flag);
+        var mark = stack.get(ModDataComponents.FORGE_MARK.get());
+        if (mark != null) {
+            lines.add(net.minecraft.network.chat.Component.translatable("tooltip.myvillage.forging.mark",
+                    net.minecraft.network.chat.Component.translatable("forging.myvillage.quality." + mark.quality()),
+                    net.minecraft.network.chat.Component.translatable("forging.myvillage.trait." + mark.trait()))
+                    .withStyle(net.minecraft.ChatFormatting.GOLD));
+            double value = com.example.myvillage.forging.ForgingRules.get().trait(mark.trait()).value(mark.quality());
+            String amount = java.math.BigDecimal.valueOf(mark.trait().equals("channeling") ? value * 100 : value).stripTrailingZeros().toPlainString();
+            lines.add(net.minecraft.network.chat.Component.translatable("tooltip.myvillage.forging." + mark.trait(), amount)
+                    .withStyle(net.minecraft.ChatFormatting.GRAY));
+        }
+    }
+
+    @Override
     public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
         return reequips(
                 ItemStack.isSameItem(oldStack, newStack) && oldStack.getCount() == newStack.getCount(),
