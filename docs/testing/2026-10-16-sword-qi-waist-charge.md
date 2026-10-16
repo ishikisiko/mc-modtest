@@ -63,3 +63,9 @@ no packaged runtime/resource inputs differ from the tested commit.
 Preview: `http://43.156.135.198:8765/sword_qi_waist/`.
 Owner appearance/feel, sound, FPS, balance and broad multiplayer experience remain
 `not_verified`; cloud checks and developer inspection are not owner acceptance.
+
+## Owner follow-up
+
+On 2026-10-16 the owner said “动作就这样吧”, accepting this animation version
+for retention. Animation direction is owner-accepted; this does not assert
+separate acceptance of sound, FPS, balance or broad multiplayer experience.
