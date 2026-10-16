@@ -204,3 +204,5 @@ normal-speed charging/release observation. Actual evidence is recorded separatel
 Charging stance evidence: [0.56.0-fix3](../testing/2026-10-16-sword-qi-charge-stance.md).
 
 Waist-draw visual and parity evidence: [0.56.0-fix4](../testing/2026-10-16-sword-qi-waist-charge.md).
+
+Charged travel range evidence: [0.56.0-fix5](../testing/2026-10-16-sword-qi-range.md).
