@@ -24,7 +24,7 @@ unimplemented.
   legitimately maps to lower quality. Rebuild/restart for rule changes.
 - `CultivationSnapshotPayload`: existing clientbound snapshot includes crafting
   state and two server-computed caps (0 pending,1..4 lower/middle/upper/perfect).
-  This snapshot layout was introduced in protocol21; current builds require protocol24. No new payload or cache. `ClientCultivationState` keeps the same
+  This snapshot layout was introduced in protocol21; current builds require protocol25. No new payload or cache. `ClientCultivationState` keeps the same
   three caches and clears the added state with the owning snapshot on disconnect.
 - `CraftingPage` through `PanelContext`/`PanelTheme`: read-only H page, appended
   View. It describes alchemy quality as implemented and forging as implemented.

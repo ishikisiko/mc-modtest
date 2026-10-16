@@ -62,7 +62,7 @@ impact-based checks in the workflow.
 | 51 | [Spirit Farming](51_spirit_farming.md) | Permanent spirit-only soil, six existing herbs as planting/harvest items, three growth stages and authored 3D models/loot. |
 | 52 | [Danxia Ruins](52_danxia_ruins.md) | Natural ruined monastery, herb garden and underground archive, shared persistent array choice, structure guardians, generated resources and focused cloud evidence. |
 | 53 | [Combat Ruins and Demon Lure Pearl](53_combat_ruins.md) | Native garrison route and sunken sanctuary waves, bound guardian death receipts, sealed shared caches and focused cloud evidence. |
-| 54 | [Forging Prototype](54_forging.md) | Learned weapon patterns, private workbench transactions, quality-capped equipment traits, repair, iron/copper ding models and feedback, and focused cloud checks. |
+| 54 | [Forging Prototype](54_forging.md) | Learned weapon patterns, private workbench transactions, quality-capped equipment traits, repair, iron/copper ding models and feedback, three craftable additives, and focused cloud checks. |
 
 Test evidence: [Historical Modal runner verification](../testing/2026-10-14-modal-test-runner.md); [2026-10-14 spiritual power and sword qi environment/timings](../testing/2026-10-14-spiritual-power.md).
 

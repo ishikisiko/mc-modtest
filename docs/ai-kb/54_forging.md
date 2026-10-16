@@ -1,4 +1,4 @@
-# Forging prototype (0.57.1)
+# Forging prototype (0.57.2)
 
 The prototype closes learned patterns → material selection → one manually forged
 weapon → actual equipment effects → repair. It uses the existing Qingfeng Sword
@@ -18,7 +18,7 @@ and Lingxiao Spear IDs, models, animations and combat registry. The table now us
   at disconnect/death. No automation/hopper inventory exists.
 - Vanilla menu DataSlots carry per-viewer knowledge and quality cap; buttons carry
   bounded indices only. Every request checks the owning active menu, life,
-  spectator status, block and distance. Both sides require protocol24.
+  spectator status, block and distance. Both sides require protocol25.
 - `ForgingCosts.plan` works on copies of the main inventory/hotbar. Only after all
   preconditions and result construction succeed are costs and output committed
   together on the server. An occupied output blocks further crafting/repair.
@@ -89,3 +89,30 @@ run, not a repeat of all forging/multiplayer acceptance. Owner appearance, sound
 feel and FPS remain `not_verified` until separately observed.
 
 Ding delivery evidence: [2026-10-16 forging ding](../testing/2026-10-16-forging-ding.md).
+
+
+## Dedicated materials (0.57.2)
+
+`tools/forging/materials.json` owns three materials' names/descriptions and
+acquisition ingredient counts; `materials.py` owns their 32px pixel icons and
+vanilla crafting/recipe-book advancement outputs. The existing
+`gen_forging_assets.py` includes these outputs. `--materials-preview` renders the
+actual generated PNGs without rebuilding the ding previews.
+
+- `xuantie_ingot` / 玄铁锭: reinforced iron, consumed by tough.
+- `chitong_ingot` / 赤铜锭: infused copper, consumed by channeling (sword only).
+- `edge_tempering_sand` / 淬锋砂: quartz/flint abrasive, consumed by sharp.
+
+These are ordinary stackable items with localized tooltips (`ForgingMaterialItem`),
+not new ores or a separate production machine. Workbench acquisition uses existing
+vanilla materials plus low-grade spirit stones. Finding the primary raw ingredient
+unlocks the corresponding recipe. `forging/rules.json` remains the sole source for
+which additive and count a trait consumes. Base weapon materials, quality weights,
+trait effects and repair remain unchanged. Old weapons require no migration.
+
+`--preset forging-materials` checks generator outputs, forging/protocol Java tests
+and jar packaging, then runs mapped vanilla crafting of all three materials and
+uses those actual outputs to forge three trait-bearing swords. A raw-quartz
+rejection case checks that the old additive cannot bypass processing. Raw input
+items are administrator fixtures; natural mining, owner balance/appearance and
+new broad multiplayer/lifecycle checks are not claimed by this bounded run.

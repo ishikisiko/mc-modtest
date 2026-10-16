@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:quartz"
+    },
+    {
+      "item": "minecraft:quartz"
+    },
+    {
+      "item": "minecraft:flint"
+    },
+    {
+      "item": "myvillage:low_grade_spirit_stone"
+    }
+  ],
+  "result": {
+    "id": "myvillage:edge_tempering_sand",
+    "count": 1
+  }
+}

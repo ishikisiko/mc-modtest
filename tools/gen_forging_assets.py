@@ -6,7 +6,7 @@ from pathlib import Path
 import sys
 ROOT=Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:sys.path.insert(0,str(ROOT))
-from tools.forging import ding
+from tools.forging import ding,materials
 LANG={
  'block.myvillage.forging_table':('Forging Ding','炼器鼎'),
  'item.myvillage.pattern_qingfeng_sword':('Pattern: Qingfeng Sword','青锋剑器谱'),
@@ -27,9 +27,9 @@ SCREEN={
  'slots':('In → Out','维修 / 产物'),'learn_hint':('Use the matching pattern first.','先右键使用对应器谱。'),
  'forge_hint':('Forge one weapon. Quality is rolled within your aptitude cap. Take the output before forging again.','每次炼制一件，随机品质不超过资质上限。取走产物后才能再次炼制。'),
  'repair_hint':('Put a damaged sword or spear in the left slot. Repair preserves quality, name and enchantments. Costs per use:','将受损剑枪放入左槽。维修保留品质、命名与附魔。每次消耗：'),
- 'trait.sharp':('Quartz increases attack damage. Quality improves the bonus.','石英提高攻击伤害，品质越高加成越大。'),
- 'trait.channeling':('Lapis reduces learned Sword Qi costs. Does not grant the skill.','青金石降低已学剑气的耗灵，不会直接授予剑气。'),
- 'trait.tough':('Iron increases durability and repair yield.','铁锭提高最大耐久和单次维修量。'),
+ 'trait.sharp':('Edge-tempering sand increases attack damage. Quality improves the bonus.','淬锋砂提高攻击伤害，品质越高加成越大。'),
+ 'trait.channeling':('Spirit copper reduces learned Sword Qi costs. Does not grant the skill.','赤铜锭降低已学剑气的耗灵，不会直接授予剑气。'),
+ 'trait.tough':('Dark iron increases durability and repair yield.','玄铁锭提高最大耐久和单次维修量。'),
  'unsupported':('This weapon has no matching Qi skill yet.','此武器暂时没有对应的耗灵主动技。'),
  'status.0':('Choose a pattern and trait.','选择器谱和专长。'),'status.1':('Pattern not learned.','尚未学会器谱。'),
  'status.2':('Awaken first.','请先觉醒。'),'status.3':('Take the output first.','请先取走产物。'),
@@ -37,6 +37,7 @@ SCREEN={
  'status.6':('Check repair slot / trait.','检查维修槽或专长。'),'status.7':('Forged. Take the weapon.','炼制完成，请取走。'),
  'status.8':('Repaired. Take the weapon.','维修完成，请取走。')}
 LANG.update({'screen.myvillage.forging.'+k:v for k,v in SCREEN.items()})
+LANG.update(materials.lang())
 def encoded(value):return (json.dumps(value,ensure_ascii=False,indent=2)+'\n').encode()
 def outputs(root=ROOT):
     files={}
@@ -57,9 +58,10 @@ def outputs(root=ROOT):
     path=root/'src/main/resources/data/minecraft/tags/block/mineable/pickaxe.json'
     tag=json.loads(path.read_text());tag['values']=sorted(set(tag['values'])|{'myvillage:forging_table'});files[path]=encoded(tag)
     files.update(ding.outputs(root))
+    files.update(materials.outputs(root))
     return files
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--check',action='store_true');p.add_argument('--preview',action='store_true');a=p.parse_args();stale=[]
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--check',action='store_true');p.add_argument('--preview',action='store_true');p.add_argument('--materials-preview',action='store_true');a=p.parse_args();stale=[]
     for path,data in outputs().items():
         if a.check:
             if not path.exists() or path.read_bytes()!=data:stale.append(str(path.relative_to(ROOT)))
@@ -67,5 +69,6 @@ def main():
     if stale:print('\n'.join(stale));return 1
     print('Forging assets '+('match' if a.check else 'generated'))
     if a.preview:ding.preview()
+    if a.materials_preview:materials.preview()
     return 0
 if __name__=='__main__':raise SystemExit(main())

@@ -136,6 +136,12 @@ public final class ModItems {
 
     public static final DeferredItem<BlockItem> SPIRIT_SOIL = ITEMS.registerItem("spirit_soil",
             props -> new BlockItem(ModBlocks.SPIRIT_SOIL.get(), props));
+    public static final DeferredItem<ForgingMaterialItem> XUANTIE_INGOT = ITEMS.registerItem("xuantie_ingot",
+            props -> new ForgingMaterialItem(props,"xuantie_ingot"));
+    public static final DeferredItem<ForgingMaterialItem> CHITONG_INGOT = ITEMS.registerItem("chitong_ingot",
+            props -> new ForgingMaterialItem(props,"chitong_ingot"));
+    public static final DeferredItem<ForgingMaterialItem> EDGE_TEMPERING_SAND = ITEMS.registerItem("edge_tempering_sand",
+            props -> new ForgingMaterialItem(props,"edge_tempering_sand"));
     public static final DeferredItem<BlockItem> FORGING_TABLE = ITEMS.registerItem("forging_table",
             props -> new BlockItem(ModBlocks.FORGING_TABLE.get(), props));
     public static final DeferredItem<ForgePatternItem> PATTERN_QINGFENG_SWORD = ITEMS.registerItem("pattern_qingfeng_sword",
@@ -291,6 +297,9 @@ public final class ModItems {
                         output.accept(DEMON_LURE_PEARL.get());
                         output.accept(SPIRIT_SOIL.get());
                         output.accept(FORGING_TABLE.get());
+                        output.accept(XUANTIE_INGOT.get());
+                        output.accept(CHITONG_INGOT.get());
+                        output.accept(EDGE_TEMPERING_SAND.get());
                         output.accept(PATTERN_QINGFENG_SWORD.get());
                         output.accept(PATTERN_LINGXIAO_SPEAR.get());
                         output.accept(ALCHEMY_FURNACE.get());

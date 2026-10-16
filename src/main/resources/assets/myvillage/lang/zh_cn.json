@@ -1367,9 +1367,9 @@
   "screen.myvillage.forging.learn_hint": "先右键使用对应器谱。",
   "screen.myvillage.forging.forge_hint": "每次炼制一件，随机品质不超过资质上限。取走产物后才能再次炼制。",
   "screen.myvillage.forging.repair_hint": "将受损剑枪放入左槽。维修保留品质、命名与附魔。每次消耗：",
-  "screen.myvillage.forging.trait.sharp": "石英提高攻击伤害，品质越高加成越大。",
-  "screen.myvillage.forging.trait.channeling": "青金石降低已学剑气的耗灵，不会直接授予剑气。",
-  "screen.myvillage.forging.trait.tough": "铁锭提高最大耐久和单次维修量。",
+  "screen.myvillage.forging.trait.sharp": "淬锋砂提高攻击伤害，品质越高加成越大。",
+  "screen.myvillage.forging.trait.channeling": "赤铜锭降低已学剑气的耗灵，不会直接授予剑气。",
+  "screen.myvillage.forging.trait.tough": "玄铁锭提高最大耐久和单次维修量。",
   "screen.myvillage.forging.unsupported": "此武器暂时没有对应的耗灵主动技。",
   "screen.myvillage.forging.status.0": "选择器谱和专长。",
   "screen.myvillage.forging.status.1": "尚未学会器谱。",
@@ -1379,5 +1379,12 @@
   "screen.myvillage.forging.status.5": "请放入受损剑枪。",
   "screen.myvillage.forging.status.6": "检查维修槽或专长。",
   "screen.myvillage.forging.status.7": "炼制完成，请取走。",
-  "screen.myvillage.forging.status.8": "维修完成，请取走。"
+  "screen.myvillage.forging.status.8": "维修完成，请取走。",
+  "tooltip.myvillage.forging_material.craft": "工作台加工获得，在炼器鼎中用作辅材。",
+  "item.myvillage.xuantie_ingot": "玄铁锭",
+  "tooltip.myvillage.forging_material.xuantie_ingot": "用于坚韧专长，提高成器耐久与维修效率。",
+  "item.myvillage.chitong_ingot": "赤铜锭",
+  "tooltip.myvillage.forging_material.chitong_ingot": "用于导灵专长，降低已学剑气的耗灵。",
+  "item.myvillage.edge_tempering_sand": "淬锋砂",
+  "tooltip.myvillage.forging_material.edge_tempering_sand": "用于锋锐专长，提高成器攻击伤害。"
 }

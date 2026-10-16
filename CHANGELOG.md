@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.57.2
+
+- 新增玄铁锭、赤铜锭与淬锋砂，提供独立 32px 图标、双语用途提示、创造栏和可解锁的工作台配方。
+- 三种材料分别成为坚韧、导灵、锋锐专长的炼器辅材；原版铁锭/青金石/石英需先加工，不能直接替代。剑枪基础用料、品质效果与维修配方保持原样。
+- 为避免旧客户端仍显示旧辅材，客户端/服务器兼容协议升为 25。
+
 ## 0.57.1
 
 - 炼器台升级为玄铁赤铜炼器鼎：宽腹三足、双立耳、敞口火膛，独立像素贴图、物品模型、四向摆放和同源碰撞；沿用 `myvillage:forging_table`，旧方块默认朝北、暗炉。

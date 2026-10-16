@@ -32,7 +32,7 @@ controls, quality probabilities, effects and administrator fixtures.
   inputs/selection are locked. Ingredients/fuel commit once with output; output
   blockage pauses without cost or reroll. Completion requires another manual start.
   Unload pauses; breaking preserves held items but abandons unfinished output.
-  No hopper capability is advertised. This alchemy wire layout was introduced in protocol22; current builds require protocol24.
+  No hopper capability is advertised. This alchemy wire layout was introduced in protocol22; current builds require protocol25.
 - `PillQuality` uses bounded persistent/networked `myvillage:pill_quality`, integers
   1..4 (lower/middle/upper/perfect), on the three existing pill IDs. Missing is
   lower; ordinary new lower pills omit it and stack with legacy pills. Explicit
@@ -48,7 +48,7 @@ controls, quality probabilities, effects and administrator fixtures.
   remaining counters/quality. Vanilla cooldown shading is presentation only.
 - Power replacement stays behind `CultivationService`. Ningshen affects only
   post-cap normal/spirit meditation stability, never progress, study, mastery or
-  advancement. Profile remains v4. This alchemy wire layout was introduced in protocol22; current builds require protocol24.
+  advancement. Profile remains v4. This alchemy wire layout was introduced in protocol22; current builds require protocol25.
 - `tools/gen_alchemy_assets.py` owns models, textures, bilingual keys, recipes,
   loot and tags. Never hand-edit generated outputs. `--check` is deterministic;
   `--preview` writes actual-model previews to `out/preview/alchemy/`.
