@@ -30,3 +30,6 @@ class ForgingResourcesTest(unittest.TestCase):
         self.assertEqual(['python3','tools/forging_evidence.py'],commands[-1])
         self.assertIn('com.example.myvillage.forging.*',commands[-2])
         self.assertFalse(any('release_gate.py' in ' '.join(c) for c in commands))
+        lifecycle=commands_for('forging-lifecycle')
+        self.assertEqual(['python3','tools/forging_evidence.py','--lifecycle-only'],lifecycle[-1])
+        self.assertNotIn('test',lifecycle[0])

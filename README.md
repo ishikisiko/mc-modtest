@@ -4320,7 +4320,7 @@ learned list and cannot start an unlearned recipe or replace an active batch.
 
 Old furnaces keep their saved items and valid active batches. A physical sheet
 left in the old formula slot appears as a return-only **旧丹方 / Old copy** slot;
-take it back and use it to learn. Both client and server require 0.52.3/protocol22.
+take it back and use it to learn. Current client and server require 0.57.0/protocol23.
 
 | Formula / pill IDs | Herbs | Lower-quality baseline effect |
 |---|---|---|
@@ -4493,8 +4493,7 @@ Press **H → 技艺 / Crafting** to see two independent innate aptitudes and th
 highest product quality each allows. These ceilings concern **the quality of an
 item made from the same recipe**; they do not restrict 黄/玄/地/天 recipe grade.
 Alchemy freezes the initiating player's ceiling for each manually started batch
-and rolls only within it (see [alchemy](#alchemy-炼丹-0520)). Forging production
-is not implemented. The H page displays this boundary and remains read-only.
+and rolls only within it (see [alchemy](#alchemy-炼丹-0520)). Forging now uses the same cap in its own production path (see [KB54](docs/ai-kb/54_forging.md)). The H page remains read-only.
 
 | Aptitude | Maximum product quality |
 |---|---|
@@ -4512,7 +4511,7 @@ death, reconnect, restart, dimension changes, clearing/reawakening the root and
 resetting the cultivation profile. Ordinary practice cannot exceed the quality
 ceiling; no training or natural aptitude-upgrade mechanic is added in this slice.
 
-Both client and server need 0.52.0 (protocol21). The server sends the quality
+Current client and server need 0.57.0 (protocol23). The server sends the quality
 ceilings with the existing owning cultivation snapshot; H cannot modify them.
 
 Administrator diagnostics (permission2) support both command roots and aliases:

@@ -104,7 +104,7 @@ class ForgingEvidence(AlchemyEvidence):
         self.check('repair_returns_once_on_close',len(rows)==1,rows)
         repaired=rows[0];prior=damaged['components'];actual=repaired['components']
         self.check('repair_preserves_all_other_components',{k:v for k,v in prior.items() if k!='minecraft:damage'}=={k:v for k,v in actual.items() if k!='minecraft:damage'},actual)
-        mark=prior[MARK];maximum=prior.get('minecraft:max_damage',1561)
+        mark=prior[MARK];maximum=prior['minecraft:max_damage']
         multiplier=self.rules['traits']['tough']['values'][mark['quality']-1] if mark['trait']=='tough' else 1
         expected=max(0,900-math.ceil(maximum*self.rules['repair']['fraction']*multiplier))
         self.check('repair_actual_durability',actual.get('minecraft:damage',0)==expected,{'expected':expected,'actual':actual})
@@ -146,16 +146,31 @@ class ForgingEvidence(AlchemyEvidence):
             self.check('knowledge_stays_private',self.learned(v)==['qingfeng_sword'],self.learned(v))
         self.report['completed'].append('two_players');self.report['multiplayer']='bounded_developer_checks_pass'
         self.rc(f'myvillage cultivation crafting set {u} forging 100');self.forge(0,'sharp',cap=4)
+        self.persistence()
+    def persistence(self):
         before=self.inventory();knowledge=self.learned();self.rc('save-all flush');self.stop();self.language='en_us';self.start(reuse=True)
         self.check('weapon_components_restart',self.inventory()==before,self.inventory());self.check('knowledge_restart',self.learned()==knowledge,self.learned())
         self.open_table();self.capture('english-menu.png');self.close_menu()
-        self.rc(f'kill {self.s.username}');self.poll(lambda:self.s.game.pointer_grabbed(),bool,15,'respawn')
+        self.rc(f'kill {self.s.username}')
+        self.poll(lambda:scene.parse_float_data(self.rc(f'data get entity {self.s.username} Health')),lambda hp:hp is not None and hp>0,15,'server confirms living respawn')
+        self.poll(lambda:self.s.game.pointer_grabbed(),bool,15,'respawn input')
         self.poll(lambda:self.learned(),lambda x:x==knowledge,15,'knowledge after death');self.check('knowledge_copy_on_death',self.learned()==knowledge,self.learned())
         self.report['completed'].append('persistence');self.report['status']='pass'
+    def lifecycle_only(self):
+        self.report['selected']=['learning','forging','persistence']
+        self.start();u=self.s.username
+        for c in (*scene.world_rules(),*scene.player_setup(u,'minecraft:air'),'myvillage world pause','forceload add -16 -16 32 32',f'setblock {POS} myvillage:forging_table'):
+            self.rc(c)
+        self.learn('qingfeng_sword');self.report['completed'].append('learning')
+        self.rc(f'myvillage cultivation awaken {u}');self.rc(f'myvillage cultivation crafting set {u} forging 100')
+        self.forge(0,'sharp',cap=4);self.report['completed'].append('forging')
+        self.persistence()
 
 def main():
-    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--out',type=Path,default=ROOT/'out/preview/forging_runtime');a=p.parse_args();e=ForgingEvidence(a.out)
-    try:e.run()
+    p=argparse.ArgumentParser(description=__doc__);p.add_argument('--out',type=Path,default=ROOT/'out/preview/forging_runtime');p.add_argument('--lifecycle-only',action='store_true');a=p.parse_args();e=ForgingEvidence(a.out)
+    try:
+        if a.lifecycle_only:e.lifecycle_only()
+        else:e.run()
     except BaseException as error:e.report['status']='fail';e.report['failures'].append(repr(error));e.save();raise
     finally:
         if e.s:e.stop()

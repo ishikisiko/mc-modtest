@@ -50,7 +50,10 @@ and runs forging metadata/cost/effect tests plus learned-knowledge, combat item,
 protocol and sword-qi regression tests. `--preset forging-runtime` adds
 `tools/forging_evidence.py`: real mapped learning, crafting, repair, cost checks,
 two private player sessions and restart/death persistence. RCON is only fixture
-setup and readback. Per-run results belong in the delivery evidence record.
+setup and readback. `--preset forging-lifecycle` is a narrower diagnostic that
+builds the jar and runs learning/forging/restart/death, explicitly waiting for
+positive server health after respawn before reading knowledge. It omits combat
+and multiplayer checks. Per-run results belong in the delivery evidence record.
 
 Unobserved appearance, sound, feel, balance, owner FPS, broad multiplayer and
 natural survival acquisition stay `not_verified`. No timed crafting, minigame,
