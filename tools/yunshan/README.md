@@ -1,9 +1,45 @@
 # 云山 D1：功能建筑独立蓝图
 
+## 三格入口放大版与实际游戏导出
+
+放大版清单为 `blueprints/yunshan/functional_buildings_v2.json`，使用药铺 / 铁匠铺 /
+传功院 v2 和客栈 v4。主开间从约 13 格扩大到 19 格，主入口统一净高 3 格；
+床、门、炼丹炉等交互设施维持游戏本来的尺寸。客栈为两格宽楼梯、连续侧廊和
+四间客房，各建筑增加对应的工作、储物、照明与生活细节。
+
+这些建筑已经超出原地块，`site.placement_mode=showcase` 明确使用独立样板场。
+位置不是旧城安装坐标，旧地块仍需重新规划。所有此前版本保留。
+
+```bash
+python3 tools/yunshan/build_functional.py \
+  --manifest blueprints/yunshan/functional_buildings_v2.json \
+  --out out/preview/yunshan-functional-v2
+python3 -m unittest discover -s tools/tests -p 'test_yunshan*.py'
+# 固定提交后在 Modal 运行，不能用本机 Minecraft 回退：
+.venv-modal/bin/python -m tools.modal_runner run \
+  --preset yunshan-buildings --ref HEAD --timeout 3600
+```
+
+`game_evidence.py` 只允许在 Modal 的 `/workspace/repo` 执行。它用 RCON 放置模板
+和读取服务器状态，使用实际 W 键穿过四个入口并登上客栈楼梯，右键检查已有设施。
+随后在游戏的结构方块界面点击保存，轮询实际 NBT 文件，再逐格核对方块和结构状态。
+红石 SAVE 只写内存，因此这里明确使用界面 SAVE 按钮写入磁盘。
+
+`game_export.py` 保持游戏保存的 NBT 字节原样，并将其转换成 Sponge v2 SCHEM，
+保留所有 NBT 数值 / 数组类型、招牌、容器及其他方块实体。运行产物在
+`out/preview/yunshan-functional-v2/runtime/`，包括四栋游戏蓝图包和独立样板世界。
+具体成功 / 失败以该轮 `evidence.json` 及 Modal `state.json` 为准，不能把离线导出
+或仅存在工具脚本当作实际游戏验证。
+
+样板世界不含商人、委托或收费住宿流程；云端软件渲染不验证玩家电脑 FPS。
+它是建筑验证世界，不是已经改造完成的原 `dev1` 街区。
+
+## 保留的小版
+
 本批为建筑候选，未修改玩家 `dev1` 存档、模组 jar 或自然生成。
 保留原街区地块，按用途设计不同的外形与室内，不把独栋候选称为已经替换完成的整城。
 
-## 当前版本与来源
+## 小版来源
 
 当前清单为 `blueprints/yunshan/functional_buildings_v1.json`，每栋的唯一 authored
 input 是该清单引用的手工 JSON DSL。尺寸、调色板、屋顶、地块、可达目标和设施均在

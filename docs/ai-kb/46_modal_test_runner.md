@@ -73,6 +73,7 @@ artifacts and confirmed cleanup are recorded.
 | `smoke` | Java version, Python dependency imports, Xvfb `glxinfo` | `pass` (authenticated second attempt; downloaded evidence and confirmed termination) |
 | `python` | `python3 -m unittest discover -s tools/tests` | `pass` (1053 tests) |
 | `crops-build` | SpiritCropsTest and jar build only | Per-run result required |
+| `yunshan-buildings` | Expanded-building checks and authored exports, committed-resource jar, actual client placement/traversal/facility checks and mapped structure-block SAVE exports | Per-run artifacts and cleanup required; no owner-PC launch |
 | `combat-ruins-build` | Combat ruin generation/path checks, ruins Java tests and committed-resource jar | Per-run result required |
 | `combat-ruins-runtime` | Above checks plus natural worldgen, mapped combat/cache, multiplayer and restart evidence | Per-run result required |
 | `danxia-build` | Ruin generator/path and affected tooling tests, ruins Java tests and jar build | Per-run result required |

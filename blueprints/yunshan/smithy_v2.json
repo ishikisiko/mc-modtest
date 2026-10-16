@@ -1,0 +1,399 @@
+{
+  "id": "myvillage:yunshan_smithy_v2",
+  "author": "MyVillage",
+  "mc_version": "1.21.1",
+  "size": [
+    19,
+    20,
+    23
+  ],
+  "fill_air": true,
+  "description": "百炼铺放大版：主入口净高三格，结构按约1.5倍重新组织，家具和设施保留游戏实际尺寸。",
+  "site": {
+    "lot_id": "gateNE-1",
+    "facing": "N",
+    "rotation_quarters": 0,
+    "world_min": [
+      48,
+      -61,
+      0
+    ],
+    "world_max": [
+      66,
+      -42,
+      22
+    ],
+    "placement_mode": "showcase",
+    "original_city_fit": "requires_replanning",
+    "status": "authored_for_game_placement"
+  },
+  "entrance": {
+    "x_range": [
+      4,
+      8
+    ],
+    "floor_y": 1,
+    "z": 6,
+    "clear_height": 3
+  },
+  "walk_targets": {
+    "entry": [
+      6,
+      1,
+      0
+    ],
+    "hall": [
+      6,
+      1,
+      8
+    ],
+    "forging": [
+      4,
+      1,
+      14
+    ],
+    "tools": [
+      7,
+      1,
+      15
+    ],
+    "anvil": [
+      16,
+      1,
+      9
+    ],
+    "furnace": [
+      14,
+      1,
+      15
+    ],
+    "water": [
+      16,
+      1,
+      13
+    ],
+    "stores": [
+      4,
+      1,
+      18
+    ]
+  },
+  "walk_trials": [
+    {
+      "name": "main_entry",
+      "start": [
+        6.5,
+        1,
+        3.5
+      ],
+      "yaw": 0,
+      "end_z": 8,
+      "min_y": 1,
+      "timeout_s": 4
+    }
+  ],
+  "signs": [
+    {
+      "pos": [
+        6,
+        4,
+        5
+      ],
+      "messages": [
+        "",
+        "百炼铺",
+        "炼器 · 修缮",
+        ""
+      ]
+    },
+    {
+      "pos": [
+        3,
+        3,
+        19
+      ],
+      "messages": [
+        "",
+        "料库",
+        "按需取用",
+        ""
+      ]
+    }
+  ],
+  "service_blocks": [
+    {
+      "pos": [
+        4,
+        1,
+        15
+      ],
+      "state": "myvillage:forging_table[facing=north,lit=false]",
+      "name": "炼器鼎",
+      "approach": "forging"
+    }
+  ],
+  "roof_checks": [
+    {
+      "axis": "x",
+      "min_y": 6,
+      "x_range": [
+        0,
+        12
+      ],
+      "z_range": [
+        5,
+        21
+      ]
+    },
+    {
+      "axis": "x",
+      "min_y": 5,
+      "x_range": [
+        10,
+        18
+      ],
+      "z_range": [
+        6,
+        20
+      ]
+    }
+  ],
+  "wall_roof_joins": [
+    {
+      "from": [
+        1,
+        6,
+        7
+      ],
+      "to": [
+        1,
+        6,
+        19
+      ]
+    },
+    {
+      "from": [
+        11,
+        6,
+        7
+      ],
+      "to": [
+        11,
+        6,
+        19
+      ]
+    }
+  ],
+  "palette": {
+    "stone": "minecraft:stone_bricks",
+    "paving": "minecraft:polished_andesite",
+    "wall": "minecraft:calcite",
+    "wood": "minecraft:spruce_planks",
+    "post": "minecraft:spruce_log[axis=y]",
+    "beam_x": "minecraft:spruce_log[axis=x]",
+    "beam_z": "minecraft:spruce_log[axis=z]",
+    "tile": "minecraft:deepslate_tiles",
+    "air": "minecraft:air"
+  },
+  "presentation": {
+    "name": "百炼铺",
+    "role": "smithy",
+    "summary": "工具铺与敞开工棚分开，增加双炉烟道、炼器位和淬火水槽。",
+    "spaces": [
+      "三格主入口与独立工具储物间",
+      "炼器鼎、工作台、工具架与材料架",
+      "敞棚铁砧、磨石、双炉烟道和水槽"
+    ],
+    "stage": "放大版样板建筑；原地块已不足以直接容纳，回填旧城需另行规划。",
+    "accent": "#9a694b",
+    "cut_y": 5,
+    "eye": [
+      6.5,
+      2.62,
+      2
+    ],
+    "eye_target": [
+      6.5,
+      2.62,
+      14
+    ]
+  },
+  "game_shots": [
+    {
+      "name": "exterior",
+      "pos": [
+        29,
+        14,
+        -12
+      ],
+      "target": [
+        9.5,
+        4.5,
+        10.35
+      ]
+    },
+    {
+      "name": "front",
+      "pos": [
+        9.5,
+        1,
+        -12
+      ],
+      "target": [
+        9.5,
+        4.5,
+        5.75
+      ]
+    },
+    {
+      "name": "interior",
+      "pos": [
+        8.5,
+        1,
+        8
+      ],
+      "target": [
+        4.5,
+        2,
+        15.5
+      ]
+    },
+    {
+      "name": "forge_yard",
+      "pos": [
+        17,
+        1,
+        7
+      ],
+      "target": [
+        14,
+        2.6,
+        16
+      ]
+    },
+    {
+      "name": "rear",
+      "pos": [
+        -9,
+        12,
+        35
+      ],
+      "target": [
+        9.5,
+        4.0,
+        13.799999999999999
+      ]
+    }
+  ]
+,
+  "ops": [
+    {"op":"fill","from":[0,0,0],"to":[18,0,22],"state":"stone"},
+    {"op":"fill","from":[2,0,7],"to":[10,0,19],"state":"paving"},
+    {"op":"fill","from":[1,1,6],"to":[11,5,6],"state":"wall"},
+    {"op":"fill","from":[1,1,20],"to":[11,5,20],"state":"wall"},
+    {"op":"fill","from":[1,1,7],"to":[1,5,19],"state":"wall"},
+    {"op":"fill","from":[11,1,7],"to":[11,5,19],"state":"wall"},
+    {"op":"fill","from":[1,1,6],"to":[11,1,6],"state":"stone"},
+    {"op":"fill","from":[1,1,20],"to":[11,1,20],"state":"stone"},
+    {"op":"fill","from":[1,1,7],"to":[1,1,19],"state":"stone"},
+    {"op":"fill","from":[11,1,7],"to":[11,1,19],"state":"stone"},
+    {"op":"fill","from":[1,2,6],"to":[1,5,6],"state":"post"},
+    {"op":"fill","from":[1,2,13],"to":[1,5,13],"state":"post"},
+    {"op":"fill","from":[1,2,20],"to":[1,5,20],"state":"post"},
+    {"op":"fill","from":[11,2,6],"to":[11,5,6],"state":"post"},
+    {"op":"fill","from":[11,2,13],"to":[11,5,13],"state":"post"},
+    {"op":"fill","from":[11,2,20],"to":[11,5,20],"state":"post"},
+    {"op":"fill","from":[1,5,6],"to":[11,5,6],"state":"beam_x"},
+    {"op":"fill","from":[4,1,6],"to":[8,3,6],"state":"air"},
+    {"op":"fill","from":[11,1,12],"to":[11,3,14],"state":"air"},
+    {"op":"fill","from":[1,2,9],"to":[1,4,9],"state":"minecraft:bamboo_trapdoor[facing=west,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[1,2,10],"to":[1,4,10],"state":"minecraft:bamboo_trapdoor[facing=west,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[1,2,16],"to":[1,4,16],"state":"minecraft:bamboo_trapdoor[facing=west,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[1,2,17],"to":[1,4,17],"state":"minecraft:bamboo_trapdoor[facing=west,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[0,6,5],"to":[0,6,21],"state":"minecraft:deepslate_tile_slab[type=top,waterlogged=false]"},
+    {"op":"fill","from":[12,6,5],"to":[12,6,21],"state":"minecraft:deepslate_tile_slab[type=top,waterlogged=false]"},
+    {"op":"fill","from":[1,6,5],"to":[1,6,21],"state":"minecraft:deepslate_tile_slab[type=double,waterlogged=false]"},
+    {"op":"fill","from":[11,6,5],"to":[11,6,21],"state":"minecraft:deepslate_tile_slab[type=double,waterlogged=false]"},
+    {"op":"fill","from":[2,7,5],"to":[2,7,21],"state":"minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[10,7,5],"to":[10,7,21],"state":"minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[3,8,5],"to":[3,8,21],"state":"minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[9,8,5],"to":[9,8,21],"state":"minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[4,9,5],"to":[4,9,21],"state":"minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[8,9,5],"to":[8,9,21],"state":"minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[5,10,5],"to":[5,10,21],"state":"minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[7,10,5],"to":[7,10,21],"state":"minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[6,10,5],"to":[6,10,21],"state":"tile"},
+    {"op":"fill","from":[6,11,5],"to":[6,11,21],"state":"minecraft:deepslate_tile_slab[type=bottom,waterlogged=false]"},
+    {"op":"fill","from":[2,6,6],"to":[2,6,6],"state":"wall"},
+    {"op":"fill","from":[3,6,6],"to":[3,7,6],"state":"wall"},
+    {"op":"fill","from":[4,6,6],"to":[4,8,6],"state":"wall"},
+    {"op":"fill","from":[5,6,6],"to":[5,9,6],"state":"wall"},
+    {"op":"fill","from":[6,6,6],"to":[6,9,6],"state":"wall"},
+    {"op":"fill","from":[7,6,6],"to":[7,9,6],"state":"wall"},
+    {"op":"fill","from":[8,6,6],"to":[8,8,6],"state":"wall"},
+    {"op":"fill","from":[9,6,6],"to":[9,7,6],"state":"wall"},
+    {"op":"fill","from":[10,6,6],"to":[10,6,6],"state":"wall"},
+    {"op":"fill","from":[2,6,20],"to":[2,6,20],"state":"wall"},
+    {"op":"fill","from":[3,6,20],"to":[3,7,20],"state":"wall"},
+    {"op":"fill","from":[4,6,20],"to":[4,8,20],"state":"wall"},
+    {"op":"fill","from":[5,6,20],"to":[5,9,20],"state":"wall"},
+    {"op":"fill","from":[6,6,20],"to":[6,9,20],"state":"wall"},
+    {"op":"fill","from":[7,6,20],"to":[7,9,20],"state":"wall"},
+    {"op":"fill","from":[8,6,20],"to":[8,8,20],"state":"wall"},
+    {"op":"fill","from":[9,6,20],"to":[9,7,20],"state":"wall"},
+    {"op":"fill","from":[10,6,20],"to":[10,6,20],"state":"wall"},
+    {"op":"fill","from":[10,8,6],"to":[10,8,20],"state":"minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[11,7,6],"to":[11,7,20],"state":"minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[12,6,6],"to":[12,6,20],"state":"minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[13,5,6],"to":[13,5,20],"state":"minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[14,5,6],"to":[14,5,20],"state":"minecraft:deepslate_tile_slab[type=double,waterlogged=false]"},
+    {"op":"fill","from":[15,5,6],"to":[15,5,20],"state":"minecraft:deepslate_tile_slab[type=double,waterlogged=false]"},
+    {"op":"fill","from":[16,5,6],"to":[16,5,20],"state":"minecraft:deepslate_tile_slab[type=double,waterlogged=false]"},
+    {"op":"fill","from":[17,5,6],"to":[17,5,20],"state":"minecraft:deepslate_tile_slab[type=double,waterlogged=false]"},
+    {"op":"fill","from":[18,5,6],"to":[18,5,20],"state":"minecraft:deepslate_tile_slab[type=top,waterlogged=false]"},
+    {"op":"fill","from":[11,6,6],"to":[11,6,20],"state":"tile"},
+    {"op":"fill","from":[14,1,6],"to":[14,4,6],"state":"post"},
+    {"op":"fill","from":[17,1,6],"to":[17,4,6],"state":"post"},
+    {"op":"fill","from":[14,1,20],"to":[14,4,20],"state":"post"},
+    {"op":"fill","from":[17,1,20],"to":[17,4,20],"state":"post"},
+    {"op":"fill","from":[12,1,20],"to":[17,2,20],"state":"stone"},
+    {"op":"set","pos":[4,1,15],"state":"myvillage:forging_table[facing=north,lit=false]"},
+    {"op":"set","pos":[7,1,16],"state":"minecraft:smithing_table"},
+    {"op":"set","pos":[3,1,19],"state":"minecraft:crafting_table"},
+    {"op":"set","pos":[2,1,19],"state":"minecraft:barrel[facing=north,open=false]"},
+    {"op":"set","pos":[2,2,19],"state":"minecraft:barrel[facing=north,open=false]"},
+    {"op":"set","pos":[3,1,19],"state":"minecraft:barrel[facing=north,open=false]"},
+    {"op":"set","pos":[3,2,19],"state":"minecraft:barrel[facing=north,open=false]"},
+    {"op":"set","pos":[4,1,19],"state":"minecraft:barrel[facing=north,open=false]"},
+    {"op":"set","pos":[8,1,19],"state":"minecraft:barrel[facing=north,open=false]"},
+    {"op":"set","pos":[8,2,19],"state":"minecraft:barrel[facing=north,open=false]"},
+    {"op":"set","pos":[9,1,19],"state":"minecraft:barrel[facing=north,open=false]"},
+    {"op":"set","pos":[9,2,19],"state":"minecraft:barrel[facing=north,open=false]"},
+    {"op":"set","pos":[2,1,9],"state":"minecraft:stripped_spruce_log[axis=x]"},
+    {"op":"set","pos":[2,1,10],"state":"minecraft:stripped_spruce_log[axis=x]"},
+    {"op":"set","pos":[2,1,11],"state":"minecraft:stripped_spruce_log[axis=x]"},
+    {"op":"set","pos":[16,1,10],"state":"minecraft:anvil[facing=north]"},
+    {"op":"set","pos":[15,1,7],"state":"minecraft:grindstone[face=floor,facing=north]"},
+    {"op":"set","pos":[14,1,16],"state":"minecraft:blast_furnace[facing=north,lit=false]"},
+    {"op":"set","pos":[15,1,16],"state":"minecraft:blast_furnace[facing=north,lit=false]"},
+    {"op":"fill","from":[14,2,16],"to":[15,12,17],"state":"minecraft:bricks"},
+    {"op":"fill","from":[13,13,15],"to":[16,13,18],"state":"minecraft:brick_slab[type=bottom,waterlogged=false]"},
+    {"op":"set","pos":[14,13,17],"state":"minecraft:campfire[facing=north,lit=true,signal_fire=false,waterlogged=false]"},
+    {"op":"set","pos":[17,1,13],"state":"minecraft:water_cauldron[level=3]"},
+    {"op":"set","pos":[17,1,14],"state":"minecraft:water_cauldron[level=3]"},
+    {"op":"set","pos":[4,6,11],"state":"wood"},
+    {"op":"set","pos":[4,5,11],"state":"minecraft:lantern[hanging=true,waterlogged=false]"},
+    {"op":"set","pos":[8,6,18],"state":"wood"},
+    {"op":"set","pos":[8,5,18],"state":"minecraft:lantern[hanging=true,waterlogged=false]"},
+    {"op":"set","pos":[14,4,9],"state":"minecraft:lantern[hanging=true,waterlogged=false]"},
+    {"op":"set","pos":[17,4,18],"state":"minecraft:lantern[hanging=true,waterlogged=false]"},
+    {"op":"set","pos":[6,4,5],"state":"minecraft:spruce_wall_sign[facing=north,waterlogged=false]"},
+    {"op":"set","pos":[3,3,19],"state":"minecraft:spruce_wall_sign[facing=north,waterlogged=false]"},
+    {"op":"fill","from":[4,6,11],"to":[4,8,11],"state":"minecraft:chain[axis=y,waterlogged=false]"},
+    {"op":"fill","from":[8,6,18],"to":[8,8,18],"state":"minecraft:chain[axis=y,waterlogged=false]"},
+    {"op":"fill","from":[6,6,6],"to":[6,9,6],"state":"post"},
+    {"op":"fill","from":[6,6,20],"to":[6,9,20],"state":"post"},
+    {"op":"fill","from":[3,7,6],"to":[9,7,6],"state":"beam_x"},
+    {"op":"fill","from":[3,7,20],"to":[9,7,20],"state":"beam_x"}
+  ]
+}

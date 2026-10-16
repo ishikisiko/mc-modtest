@@ -7,7 +7,7 @@ const D=/*DATA*/;const P=D.presentation;document.title=P.name+' · 云山独立�
 document.querySelector('#name').textContent=P.name;document.querySelector('#summary').textContent=P.summary;document.querySelector('#stage').textContent=P.stage;
 for(const text of P.spaces){const li=document.createElement('li');li.textContent=text;document.querySelector('#spaces').append(li);}
 document.querySelector('#services').textContent=D.services.length?'已布置：'+D.services.map(s=>s.name).join('、')+'。沿用当前模组设施，不代表本次已做实机交互验收。':'床铺、储物和大堂已布置；收费住宿待后续接入。';
-document.querySelector('#site').textContent='原地块 '+D.site.lot_id+' · 朝向 '+D.site.facing+' · 独立版本 '+D.id.split('_').pop()+'。原街区和旧版蓝图保留。';
+document.querySelector('#site').textContent=D.site.placement_mode==='showcase'?'放大版独立样板场 · '+D.size[0]+' × '+D.size[2]+' 格。原地块不足以容纳，回填旧城需重新规划。':'原地块 '+D.site.lot_id+' · 朝向 '+D.site.facing+' · 独立版本 '+D.id.split('_').pop()+'。原街区和旧版蓝图保留。';
 for(const [suffix,label]of [['.schem','默认方向 SCHEM'],['_site.schem','已转向地块的 SCHEM'],['.nbt','NBT'],['.blueprint.json','展开蓝图']]){const a=document.createElement('a');a.href=D.id+suffix;a.download='';a.textContent=label;document.querySelector('#downloads').append(a);}
 const scene=new THREE.Scene();scene.background=new THREE.Color('#c8d4d2');const canvas=document.querySelector('#scene');let renderer;
 try{renderer=new THREE.WebGLRenderer({canvas,antialias:true,preserveDrawingBuffer:true});}catch(e){document.querySelector('#error').textContent='无法启用 WebGL：'+e.message;throw e;}
@@ -25,6 +25,7 @@ if(n.endsWith('_wall_sign'))return [[0,.25,.88,1,.75,1]];
 if(n.endsWith('_wall'))return [[.3,0,.3,.7,1,.7]];
 if(n.endsWith('_fence'))return [[.375,0,.375,.625,1,.625]];
 if(n.endsWith('_pressure_plate'))return [[.05,0,.05,.95,.06,.95]];
+if(n==='minecraft:chain')return [[.44,0,.44,.56,1,.56]];
 if(n.endsWith('_bed'))return [[0,0,0,1,.56,1]];
 if(n==='minecraft:lantern')return [[.3,.1,.3,.7,.65,.7],[.44,.65,.44,.56,p.hanging==='true'?1:.78,.56]];
 if(n.includes('cauldron'))return [[0,0,0,1,.2,1],[0,.2,0,.15,1,1],[.85,.2,0,1,1,1],[.15,.2,0,.85,1,.15],[.15,.2,.85,.85,1,1],[.15,.65,.15,.85,.68,.85]];

@@ -1,0 +1,395 @@
+{
+  "id": "myvillage:yunshan_apothecary_v2",
+  "author": "MyVillage",
+  "mc_version": "1.21.1",
+  "size": [
+    19,
+    18,
+    17
+  ],
+  "fill_air": true,
+  "description": "百草堂放大版：主入口净高三格，结构按约1.5倍重新组织，家具和设施保留游戏实际尺寸。",
+  "site": {
+    "lot_id": "A2E-1",
+    "facing": "N",
+    "rotation_quarters": 0,
+    "world_min": [
+      0,
+      -61,
+      0
+    ],
+    "world_max": [
+      18,
+      -44,
+      16
+    ],
+    "placement_mode": "showcase",
+    "original_city_fit": "requires_replanning",
+    "status": "authored_for_game_placement"
+  },
+  "entrance": {
+    "x_range": [
+      7,
+      11
+    ],
+    "floor_y": 1,
+    "z": 3,
+    "clear_height": 3
+  },
+  "walk_targets": {
+    "entry": [
+      9,
+      1,
+      0
+    ],
+    "counter": [
+      4,
+      1,
+      6
+    ],
+    "dispensing": [
+      5,
+      1,
+      11
+    ],
+    "alchemy": [
+      14,
+      1,
+      10
+    ],
+    "rest": [
+      3,
+      1,
+      6
+    ],
+    "yard": [
+      9,
+      1,
+      15
+    ],
+    "preparation": [
+      12,
+      1,
+      10
+    ]
+  },
+  "walk_trials": [
+    {
+      "name": "main_entry",
+      "start": [
+        9.5,
+        1,
+        0.5
+      ],
+      "yaw": 0,
+      "end_z": 5,
+      "min_y": 1,
+      "timeout_s": 4
+    }
+  ],
+  "signs": [
+    {
+      "pos": [
+        9,
+        4,
+        2
+      ],
+      "messages": [
+        "",
+        "百草堂",
+        "药材 · 炼丹",
+        ""
+      ]
+    },
+    {
+      "pos": [
+        4,
+        4,
+        12
+      ],
+      "messages": [
+        "",
+        "药柜",
+        "备料取药",
+        ""
+      ]
+    }
+  ],
+  "service_blocks": [
+    {
+      "pos": [
+        14,
+        1,
+        11
+      ],
+      "state": "myvillage:alchemy_furnace[facing=north,lit=false]",
+      "name": "炼丹炉",
+      "approach": "alchemy"
+    }
+  ],
+  "roof_checks": [
+    {
+      "axis": "z",
+      "min_y": 6,
+      "x_range": [
+        0,
+        18
+      ],
+      "z_range": [
+        2,
+        14
+      ]
+    }
+  ],
+  "wall_roof_joins": [
+    {
+      "from": [
+        1,
+        6,
+        3
+      ],
+      "to": [
+        17,
+        6,
+        3
+      ]
+    },
+    {
+      "from": [
+        1,
+        6,
+        13
+      ],
+      "to": [
+        17,
+        6,
+        13
+      ]
+    }
+  ],
+  "palette": {
+    "stone": "minecraft:stone_bricks",
+    "paving": "minecraft:polished_andesite",
+    "wall": "minecraft:calcite",
+    "wood": "minecraft:spruce_planks",
+    "post": "minecraft:spruce_log[axis=y]",
+    "beam_x": "minecraft:spruce_log[axis=x]",
+    "beam_z": "minecraft:spruce_log[axis=z]",
+    "tile": "minecraft:deepslate_tiles",
+    "air": "minecraft:air"
+  },
+  "presentation": {
+    "name": "百草堂",
+    "role": "apothecary",
+    "summary": "加宽诊疗与取药区，后侧独立炼丹和备料，主入口净高三格。",
+    "spaces": [
+      "诊榻、候诊长凳与取药柜台",
+      "成组药柜、炼丹炉、水槽和备料台",
+      "后院盆栽、晾晒架与储物"
+    ],
+    "stage": "放大版样板建筑；原地块已不足以直接容纳，回填旧城需另行规划。",
+    "accent": "#65814f",
+    "cut_y": 5,
+    "eye": [
+      9.5,
+      2.62,
+      1
+    ],
+    "eye_target": [
+      9.5,
+      2.62,
+      12
+    ]
+  },
+  "game_shots": [
+    {
+      "name": "exterior",
+      "pos": [
+        29,
+        14,
+        -12
+      ],
+      "target": [
+        9.5,
+        4.5,
+        7.65
+      ]
+    },
+    {
+      "name": "front",
+      "pos": [
+        9.5,
+        1,
+        -12
+      ],
+      "target": [
+        9.5,
+        4.5,
+        4.25
+      ]
+    },
+    {
+      "name": "interior",
+      "pos": [
+        9.5,
+        1,
+        5.5
+      ],
+      "target": [
+        4,
+        2.5,
+        10
+      ]
+    },
+    {
+      "name": "alchemy",
+      "pos": [
+        10.5,
+        1,
+        9
+      ],
+      "target": [
+        14.5,
+        1.8,
+        11.5
+      ]
+    },
+    {
+      "name": "rear",
+      "pos": [
+        -9,
+        12,
+        29
+      ],
+      "target": [
+        9.5,
+        4.0,
+        10.2
+      ]
+    }
+  ]
+,
+  "ops": [
+    {"op":"fill","from":[0,0,0],"to":[18,0,16],"state":"stone"},
+    {"op":"fill","from":[2,0,4],"to":[16,0,12],"state":"wood"},
+    {"op":"fill","from":[8,0,0],"to":[10,0,16],"state":"paving"},
+    {"op":"fill","from":[1,1,3],"to":[17,5,3],"state":"wall"},
+    {"op":"fill","from":[1,1,13],"to":[17,5,13],"state":"wall"},
+    {"op":"fill","from":[1,1,4],"to":[1,5,12],"state":"wall"},
+    {"op":"fill","from":[17,1,4],"to":[17,5,12],"state":"wall"},
+    {"op":"fill","from":[1,1,3],"to":[1,5,3],"state":"post"},
+    {"op":"fill","from":[1,1,13],"to":[1,5,13],"state":"post"},
+    {"op":"fill","from":[6,1,3],"to":[6,5,3],"state":"post"},
+    {"op":"fill","from":[6,1,13],"to":[6,5,13],"state":"post"},
+    {"op":"fill","from":[12,1,3],"to":[12,5,3],"state":"post"},
+    {"op":"fill","from":[12,1,13],"to":[12,5,13],"state":"post"},
+    {"op":"fill","from":[17,1,3],"to":[17,5,3],"state":"post"},
+    {"op":"fill","from":[17,1,13],"to":[17,5,13],"state":"post"},
+    {"op":"fill","from":[1,5,3],"to":[17,5,3],"state":"beam_x"},
+    {"op":"fill","from":[1,5,13],"to":[17,5,13],"state":"beam_x"},
+    {"op":"fill","from":[7,1,3],"to":[11,3,3],"state":"air"},
+    {"op":"fill","from":[8,1,13],"to":[10,3,13],"state":"air"},
+    {"op":"fill","from":[3,2,3],"to":[3,4,3],"state":"minecraft:bamboo_trapdoor[facing=north,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[4,2,3],"to":[4,4,3],"state":"minecraft:bamboo_trapdoor[facing=north,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[5,2,3],"to":[5,4,3],"state":"minecraft:bamboo_trapdoor[facing=north,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[13,2,3],"to":[13,4,3],"state":"minecraft:bamboo_trapdoor[facing=north,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[14,2,3],"to":[14,4,3],"state":"minecraft:bamboo_trapdoor[facing=north,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[15,2,3],"to":[15,4,3],"state":"minecraft:bamboo_trapdoor[facing=north,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[1,2,6],"to":[1,4,6],"state":"minecraft:bamboo_trapdoor[facing=west,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[1,2,7],"to":[1,4,7],"state":"minecraft:bamboo_trapdoor[facing=west,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[1,2,10],"to":[1,4,10],"state":"minecraft:bamboo_trapdoor[facing=west,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[1,2,11],"to":[1,4,11],"state":"minecraft:bamboo_trapdoor[facing=west,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[17,2,6],"to":[17,4,6],"state":"minecraft:bamboo_trapdoor[facing=east,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[17,2,7],"to":[17,4,7],"state":"minecraft:bamboo_trapdoor[facing=east,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[17,2,10],"to":[17,4,10],"state":"minecraft:bamboo_trapdoor[facing=east,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[17,2,11],"to":[17,4,11],"state":"minecraft:bamboo_trapdoor[facing=east,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[4,2,3],"to":[4,4,3],"state":"post"},
+    {"op":"fill","from":[14,2,3],"to":[14,4,3],"state":"post"},
+    {"op":"fill","from":[0,6,2],"to":[18,6,2],"state":"minecraft:deepslate_tile_slab[type=top,waterlogged=false]"},
+    {"op":"fill","from":[0,6,14],"to":[18,6,14],"state":"minecraft:deepslate_tile_slab[type=top,waterlogged=false]"},
+    {"op":"fill","from":[0,6,3],"to":[18,6,3],"state":"minecraft:deepslate_tile_slab[type=double,waterlogged=false]"},
+    {"op":"fill","from":[0,6,13],"to":[18,6,13],"state":"minecraft:deepslate_tile_slab[type=double,waterlogged=false]"},
+    {"op":"fill","from":[0,7,4],"to":[18,7,4],"state":"minecraft:deepslate_tile_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[0,7,12],"to":[18,7,12],"state":"minecraft:deepslate_tile_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[0,8,5],"to":[18,8,5],"state":"minecraft:deepslate_tile_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[0,8,11],"to":[18,8,11],"state":"minecraft:deepslate_tile_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[0,9,6],"to":[18,9,6],"state":"minecraft:deepslate_tile_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[0,9,10],"to":[18,9,10],"state":"minecraft:deepslate_tile_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[0,10,7],"to":[18,10,7],"state":"minecraft:deepslate_tile_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[0,10,9],"to":[18,10,9],"state":"minecraft:deepslate_tile_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[0,10,8],"to":[18,10,8],"state":"tile"},
+    {"op":"fill","from":[0,11,8],"to":[18,11,8],"state":"minecraft:deepslate_tile_slab[type=bottom,waterlogged=false]"},
+    {"op":"fill","from":[1,6,4],"to":[1,6,4],"state":"wall"},
+    {"op":"fill","from":[1,6,5],"to":[1,7,5],"state":"wall"},
+    {"op":"fill","from":[1,6,6],"to":[1,8,6],"state":"wall"},
+    {"op":"fill","from":[1,6,7],"to":[1,9,7],"state":"wall"},
+    {"op":"fill","from":[1,6,8],"to":[1,9,8],"state":"wall"},
+    {"op":"fill","from":[1,6,9],"to":[1,9,9],"state":"wall"},
+    {"op":"fill","from":[1,6,10],"to":[1,8,10],"state":"wall"},
+    {"op":"fill","from":[1,6,11],"to":[1,7,11],"state":"wall"},
+    {"op":"fill","from":[1,6,12],"to":[1,6,12],"state":"wall"},
+    {"op":"fill","from":[17,6,4],"to":[17,6,4],"state":"wall"},
+    {"op":"fill","from":[17,6,5],"to":[17,7,5],"state":"wall"},
+    {"op":"fill","from":[17,6,6],"to":[17,8,6],"state":"wall"},
+    {"op":"fill","from":[17,6,7],"to":[17,9,7],"state":"wall"},
+    {"op":"fill","from":[17,6,8],"to":[17,9,8],"state":"wall"},
+    {"op":"fill","from":[17,6,9],"to":[17,9,9],"state":"wall"},
+    {"op":"fill","from":[17,6,10],"to":[17,8,10],"state":"wall"},
+    {"op":"fill","from":[17,6,11],"to":[17,7,11],"state":"wall"},
+    {"op":"fill","from":[17,6,12],"to":[17,6,12],"state":"wall"},
+    {"op":"fill","from":[2,1,7],"to":[6,1,7],"state":"wood"},
+    {"op":"fill","from":[2,2,7],"to":[6,2,7],"state":"minecraft:spruce_slab[type=bottom,waterlogged=false]"},
+    {"op":"fill","from":[12,1,7],"to":[16,1,7],"state":"wood"},
+    {"op":"fill","from":[12,2,7],"to":[16,2,7],"state":"minecraft:spruce_slab[type=bottom,waterlogged=false]"},
+    {"op":"set","pos":[2,1,12],"state":"minecraft:barrel[facing=north,open=false]"},
+    {"op":"set","pos":[2,2,12],"state":"minecraft:barrel[facing=north,open=false]"},
+    {"op":"set","pos":[2,3,12],"state":"minecraft:barrel[facing=north,open=false]"},
+    {"op":"set","pos":[3,1,12],"state":"minecraft:barrel[facing=north,open=false]"},
+    {"op":"set","pos":[3,2,12],"state":"minecraft:barrel[facing=north,open=false]"},
+    {"op":"set","pos":[3,3,12],"state":"minecraft:barrel[facing=north,open=false]"},
+    {"op":"set","pos":[4,1,12],"state":"minecraft:barrel[facing=north,open=false]"},
+    {"op":"set","pos":[4,2,12],"state":"minecraft:barrel[facing=north,open=false]"},
+    {"op":"set","pos":[4,3,12],"state":"minecraft:barrel[facing=north,open=false]"},
+    {"op":"set","pos":[5,1,12],"state":"minecraft:barrel[facing=north,open=false]"},
+    {"op":"set","pos":[5,2,12],"state":"minecraft:barrel[facing=north,open=false]"},
+    {"op":"set","pos":[5,3,12],"state":"minecraft:barrel[facing=north,open=false]"},
+    {"op":"set","pos":[6,1,12],"state":"minecraft:barrel[facing=north,open=false]"},
+    {"op":"set","pos":[6,2,12],"state":"minecraft:barrel[facing=north,open=false]"},
+    {"op":"set","pos":[6,3,12],"state":"minecraft:barrel[facing=north,open=false]"},
+    {"op":"set","pos":[2,1,5],"state":"minecraft:white_bed[facing=north,part=head,occupied=false]"},
+    {"op":"set","pos":[2,1,6],"state":"minecraft:white_bed[facing=north,part=foot,occupied=false]"},
+    {"op":"set","pos":[4,1,5],"state":"minecraft:spruce_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"set","pos":[5,1,5],"state":"minecraft:spruce_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"set","pos":[6,1,4],"state":"minecraft:bookshelf"},
+    {"op":"set","pos":[14,1,11],"state":"myvillage:alchemy_furnace[facing=north,lit=false]"},
+    {"op":"set","pos":[16,1,11],"state":"minecraft:water_cauldron[level=3]"},
+    {"op":"set","pos":[12,1,11],"state":"minecraft:crafting_table"},
+    {"op":"set","pos":[12,2,11],"state":"minecraft:brewing_stand[has_bottle_0=false,has_bottle_1=false,has_bottle_2=false]"},
+    {"op":"set","pos":[16,1,12],"state":"minecraft:barrel[facing=north,open=false]"},
+    {"op":"set","pos":[3,1,16],"state":"minecraft:smooth_stone"},
+    {"op":"set","pos":[3,2,16],"state":"minecraft:potted_fern"},
+    {"op":"set","pos":[5,1,16],"state":"minecraft:smooth_stone"},
+    {"op":"set","pos":[5,2,16],"state":"minecraft:potted_azalea_bush"},
+    {"op":"set","pos":[13,1,15],"state":"minecraft:smooth_stone"},
+    {"op":"set","pos":[13,2,15],"state":"minecraft:potted_fern"},
+    {"op":"set","pos":[15,1,15],"state":"minecraft:smooth_stone"},
+    {"op":"set","pos":[15,2,15],"state":"minecraft:potted_azalea_bush"},
+    {"op":"set","pos":[2,1,15],"state":"minecraft:spruce_fence[east=false,north=false,south=false,west=false,waterlogged=false]"},
+    {"op":"set","pos":[6,1,15],"state":"minecraft:spruce_fence[east=false,north=false,south=false,west=false,waterlogged=false]"},
+    {"op":"fill","from":[2,2,15],"to":[6,2,15],"state":"minecraft:spruce_slab[type=bottom,waterlogged=false]"},
+    {"op":"set","pos":[4,6,9],"state":"wood"},
+    {"op":"set","pos":[4,5,9],"state":"minecraft:lantern[hanging=true,waterlogged=false]"},
+    {"op":"set","pos":[14,6,9],"state":"wood"},
+    {"op":"set","pos":[14,5,9],"state":"minecraft:lantern[hanging=true,waterlogged=false]"},
+    {"op":"set","pos":[3,1,1],"state":"minecraft:lantern[hanging=false,waterlogged=false]"},
+    {"op":"set","pos":[15,1,1],"state":"minecraft:lantern[hanging=false,waterlogged=false]"},
+    {"op":"set","pos":[9,4,2],"state":"minecraft:spruce_wall_sign[facing=north,waterlogged=false]"},
+    {"op":"set","pos":[4,4,12],"state":"minecraft:spruce_wall_sign[facing=north,waterlogged=false]"},
+    {"op":"fill","from":[4,6,9],"to":[4,9,9],"state":"minecraft:chain[axis=y,waterlogged=false]"},
+    {"op":"fill","from":[14,6,9],"to":[14,9,9],"state":"minecraft:chain[axis=y,waterlogged=false]"},
+    {"op":"fill","from":[1,6,8],"to":[1,9,8],"state":"post"},
+    {"op":"fill","from":[17,6,8],"to":[17,9,8],"state":"post"},
+    {"op":"fill","from":[1,7,5],"to":[1,7,11],"state":"beam_z"},
+    {"op":"fill","from":[17,7,5],"to":[17,7,11],"state":"beam_z"}
+  ]
+}

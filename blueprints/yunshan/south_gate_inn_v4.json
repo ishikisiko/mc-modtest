@@ -1,0 +1,520 @@
+{
+  "id": "myvillage:yunshan_south_gate_inn_v4",
+  "author": "MyVillage",
+  "mc_version": "1.21.1",
+  "size": [
+    19,
+    24,
+    23
+  ],
+  "fill_air": true,
+  "description": "云栖客栈放大版：主入口净高三格，结构按约1.5倍重新组织，家具和设施保留游戏实际尺寸。",
+  "site": {
+    "lot_id": "gateN-1",
+    "facing": "N",
+    "rotation_quarters": 0,
+    "world_min": [
+      48,
+      -61,
+      48
+    ],
+    "world_max": [
+      66,
+      -38,
+      70
+    ],
+    "placement_mode": "showcase",
+    "original_city_fit": "requires_replanning",
+    "status": "authored_for_game_placement"
+  },
+  "entrance": {
+    "x_range": [
+      7,
+      11
+    ],
+    "floor_y": 1,
+    "z": 4,
+    "clear_height": 3
+  },
+  "walk_targets": {
+    "entry": [
+      9,
+      1,
+      0
+    ],
+    "hall": [
+      9,
+      1,
+      6
+    ],
+    "counter": [
+      4,
+      1,
+      7
+    ],
+    "kitchen": [
+      4,
+      1,
+      18
+    ],
+    "dining": [
+      12,
+      1,
+      12
+    ],
+    "landing": [
+      8,
+      7,
+      15
+    ],
+    "west_front": [
+      4,
+      7,
+      7
+    ],
+    "east_front": [
+      14,
+      7,
+      7
+    ],
+    "west_rear": [
+      4,
+      7,
+      17
+    ],
+    "east_rear": [
+      14,
+      7,
+      17
+    ]
+  },
+  "walk_trials": [
+    {
+      "name": "main_entry",
+      "start": [
+        9.5,
+        1,
+        1.5
+      ],
+      "yaw": 0,
+      "end_z": 6,
+      "min_y": 1,
+      "timeout_s": 4
+    },
+    {
+      "name": "two_wide_stair",
+      "start": [
+        7.5,
+        1,
+        8.5
+      ],
+      "yaw": 0,
+      "end_z": 15.5,
+      "min_y": 7,
+      "timeout_s": 6
+    }
+  ],
+  "signs": [
+    {
+      "pos": [
+        9,
+        4,
+        3
+      ],
+      "messages": [
+        "",
+        "云栖客栈",
+        "歇脚 · 留宿",
+        ""
+      ]
+    },
+    {
+      "pos": [
+        4,
+        3,
+        20
+      ],
+      "messages": [
+        "",
+        "后厨",
+        "备餐 · 储物",
+        ""
+      ]
+    }
+  ],
+  "service_blocks": [],
+  "roof_checks": [
+    {
+      "axis": "x",
+      "min_y": 12,
+      "x_range": [
+        0,
+        18
+      ],
+      "z_range": [
+        3,
+        22
+      ]
+    }
+  ],
+  "wall_roof_joins": [
+    {
+      "from": [
+        1,
+        12,
+        4
+      ],
+      "to": [
+        1,
+        12,
+        21
+      ]
+    },
+    {
+      "from": [
+        17,
+        12,
+        4
+      ],
+      "to": [
+        17,
+        12,
+        21
+      ]
+    }
+  ],
+  "palette": {
+    "stone": "minecraft:stone_bricks",
+    "paving": "minecraft:polished_andesite",
+    "wall": "minecraft:calcite",
+    "wood": "minecraft:spruce_planks",
+    "post": "minecraft:spruce_log[axis=y]",
+    "beam_x": "minecraft:spruce_log[axis=x]",
+    "beam_z": "minecraft:spruce_log[axis=z]",
+    "tile": "minecraft:deepslate_tiles",
+    "air": "minecraft:air"
+  },
+  "presentation": {
+    "name": "云栖客栈",
+    "role": "inn",
+    "summary": "扩大公共大堂和后厨，双宽楼梯连通四间客房，主入口净高三格。",
+    "spaces": [
+      "大堂柜台、两处餐桌、后厨和储物区",
+      "两格宽楼梯及绕行走廊，避免楼梯井截断通路",
+      "四间客房，各有床铺、储物、书案和照明"
+    ],
+    "stage": "放大版样板建筑；原地块已不足以直接容纳，回填旧城需另行规划。",
+    "accent": "#587368",
+    "cut_y": 6,
+    "eye": [
+      9.5,
+      2.62,
+      1
+    ],
+    "eye_target": [
+      9.5,
+      2.62,
+      12
+    ],
+    "upper_cut": [
+      6,
+      10
+    ]
+  },
+  "game_shots": [
+    {
+      "name": "exterior",
+      "pos": [
+        29,
+        20,
+        -12
+      ],
+      "target": [
+        9.5,
+        7.2,
+        10.35
+      ]
+    },
+    {
+      "name": "front",
+      "pos": [
+        9.5,
+        1,
+        -12
+      ],
+      "target": [
+        9.5,
+        7.2,
+        5.75
+      ]
+    },
+    {
+      "name": "interior",
+      "pos": [
+        9.5,
+        1,
+        5.5
+      ],
+      "target": [
+        14,
+        2,
+        12
+      ]
+    },
+    {
+      "name": "guestroom",
+      "pos": [
+        4.5,
+        7,
+        17.5
+      ],
+      "target": [
+        3,
+        8,
+        19.5
+      ]
+    },
+    {
+      "name": "upper_corridor",
+      "pos": [
+        11.5,
+        7,
+        18.5
+      ],
+      "target": [
+        10.5,
+        8,
+        8
+      ]
+    },
+    {
+      "name": "rear",
+      "pos": [
+        -9,
+        18,
+        35
+      ],
+      "target": [
+        9.5,
+        6.4,
+        13.799999999999999
+      ]
+    }
+  ]
+,
+  "ops": [
+    {"op":"fill","from":[0,0,0],"to":[18,0,22],"state":"stone"},
+    {"op":"fill","from":[2,0,5],"to":[16,0,20],"state":"wood"},
+    {"op":"fill","from":[8,0,0],"to":[11,0,8],"state":"paving"},
+    {"op":"fill","from":[1,1,4],"to":[17,11,4],"state":"wall"},
+    {"op":"fill","from":[1,1,21],"to":[17,11,21],"state":"wall"},
+    {"op":"fill","from":[1,1,5],"to":[1,11,20],"state":"wall"},
+    {"op":"fill","from":[17,1,5],"to":[17,11,20],"state":"wall"},
+    {"op":"fill","from":[2,6,5],"to":[16,6,20],"state":"wood"},
+    {"op":"fill","from":[2,12,5],"to":[16,12,20],"state":"wood"},
+    {"op":"fill","from":[1,1,4],"to":[1,11,4],"state":"post"},
+    {"op":"fill","from":[1,1,21],"to":[1,11,21],"state":"post"},
+    {"op":"fill","from":[6,1,4],"to":[6,11,4],"state":"post"},
+    {"op":"fill","from":[6,1,21],"to":[6,11,21],"state":"post"},
+    {"op":"fill","from":[12,1,4],"to":[12,11,4],"state":"post"},
+    {"op":"fill","from":[12,1,21],"to":[12,11,21],"state":"post"},
+    {"op":"fill","from":[17,1,4],"to":[17,11,4],"state":"post"},
+    {"op":"fill","from":[17,1,21],"to":[17,11,21],"state":"post"},
+    {"op":"fill","from":[1,1,10],"to":[1,11,10],"state":"post"},
+    {"op":"fill","from":[1,1,15],"to":[1,11,15],"state":"post"},
+    {"op":"fill","from":[1,5,4],"to":[1,5,21],"state":"beam_z"},
+    {"op":"fill","from":[1,11,4],"to":[1,11,21],"state":"beam_z"},
+    {"op":"fill","from":[17,1,10],"to":[17,11,10],"state":"post"},
+    {"op":"fill","from":[17,1,15],"to":[17,11,15],"state":"post"},
+    {"op":"fill","from":[17,5,4],"to":[17,5,21],"state":"beam_z"},
+    {"op":"fill","from":[17,11,4],"to":[17,11,21],"state":"beam_z"},
+    {"op":"fill","from":[1,5,4],"to":[17,5,4],"state":"beam_x"},
+    {"op":"fill","from":[1,11,4],"to":[17,11,4],"state":"beam_x"},
+    {"op":"fill","from":[1,5,21],"to":[17,5,21],"state":"beam_x"},
+    {"op":"fill","from":[1,11,21],"to":[17,11,21],"state":"beam_x"},
+    {"op":"fill","from":[7,1,4],"to":[11,3,4],"state":"air"},
+    {"op":"fill","from":[3,2,4],"to":[3,4,4],"state":"minecraft:bamboo_trapdoor[facing=north,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[3,8,4],"to":[3,10,4],"state":"minecraft:bamboo_trapdoor[facing=north,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[4,2,4],"to":[4,4,4],"state":"minecraft:bamboo_trapdoor[facing=north,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[4,8,4],"to":[4,10,4],"state":"minecraft:bamboo_trapdoor[facing=north,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[5,2,4],"to":[5,4,4],"state":"minecraft:bamboo_trapdoor[facing=north,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[5,8,4],"to":[5,10,4],"state":"minecraft:bamboo_trapdoor[facing=north,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[13,2,4],"to":[13,4,4],"state":"minecraft:bamboo_trapdoor[facing=north,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[13,8,4],"to":[13,10,4],"state":"minecraft:bamboo_trapdoor[facing=north,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[14,2,4],"to":[14,4,4],"state":"minecraft:bamboo_trapdoor[facing=north,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[14,8,4],"to":[14,10,4],"state":"minecraft:bamboo_trapdoor[facing=north,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[15,2,4],"to":[15,4,4],"state":"minecraft:bamboo_trapdoor[facing=north,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[15,8,4],"to":[15,10,4],"state":"minecraft:bamboo_trapdoor[facing=north,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[4,2,4],"to":[4,4,4],"state":"post"},
+    {"op":"fill","from":[4,8,4],"to":[4,10,4],"state":"post"},
+    {"op":"fill","from":[14,2,4],"to":[14,4,4],"state":"post"},
+    {"op":"fill","from":[14,8,4],"to":[14,10,4],"state":"post"},
+    {"op":"fill","from":[1,2,7],"to":[1,4,7],"state":"minecraft:bamboo_trapdoor[facing=west,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[1,8,7],"to":[1,10,7],"state":"minecraft:bamboo_trapdoor[facing=west,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[1,2,8],"to":[1,4,8],"state":"minecraft:bamboo_trapdoor[facing=west,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[1,8,8],"to":[1,10,8],"state":"minecraft:bamboo_trapdoor[facing=west,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[1,2,17],"to":[1,4,17],"state":"minecraft:bamboo_trapdoor[facing=west,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[1,8,17],"to":[1,10,17],"state":"minecraft:bamboo_trapdoor[facing=west,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[1,2,18],"to":[1,4,18],"state":"minecraft:bamboo_trapdoor[facing=west,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[1,8,18],"to":[1,10,18],"state":"minecraft:bamboo_trapdoor[facing=west,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[17,2,7],"to":[17,4,7],"state":"minecraft:bamboo_trapdoor[facing=east,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[17,8,7],"to":[17,10,7],"state":"minecraft:bamboo_trapdoor[facing=east,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[17,2,8],"to":[17,4,8],"state":"minecraft:bamboo_trapdoor[facing=east,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[17,8,8],"to":[17,10,8],"state":"minecraft:bamboo_trapdoor[facing=east,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[17,2,17],"to":[17,4,17],"state":"minecraft:bamboo_trapdoor[facing=east,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[17,8,17],"to":[17,10,17],"state":"minecraft:bamboo_trapdoor[facing=east,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[17,2,18],"to":[17,4,18],"state":"minecraft:bamboo_trapdoor[facing=east,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[17,8,18],"to":[17,10,18],"state":"minecraft:bamboo_trapdoor[facing=east,half=bottom,open=true,powered=false,waterlogged=false]"},
+    {"op":"fill","from":[6,7,5],"to":[6,11,20],"state":"wood"},
+    {"op":"fill","from":[12,7,5],"to":[12,11,20],"state":"wood"},
+    {"op":"fill","from":[2,7,13],"to":[5,11,13],"state":"wall"},
+    {"op":"fill","from":[13,7,13],"to":[16,11,13],"state":"wall"},
+    {"op":"set","pos":[6,7,7],"state":"minecraft:spruce_door[facing=east,half=lower,hinge=left,open=false,powered=false]"},
+    {"op":"set","pos":[6,8,7],"state":"minecraft:spruce_door[facing=east,half=upper,hinge=left,open=false,powered=false]"},
+    {"op":"set","pos":[6,9,7],"state":"minecraft:glass"},
+    {"op":"set","pos":[6,7,17],"state":"minecraft:spruce_door[facing=east,half=lower,hinge=left,open=false,powered=false]"},
+    {"op":"set","pos":[6,8,17],"state":"minecraft:spruce_door[facing=east,half=upper,hinge=left,open=false,powered=false]"},
+    {"op":"set","pos":[6,9,17],"state":"minecraft:glass"},
+    {"op":"set","pos":[12,7,7],"state":"minecraft:spruce_door[facing=west,half=lower,hinge=left,open=false,powered=false]"},
+    {"op":"set","pos":[12,8,7],"state":"minecraft:spruce_door[facing=west,half=upper,hinge=left,open=false,powered=false]"},
+    {"op":"set","pos":[12,9,7],"state":"minecraft:glass"},
+    {"op":"set","pos":[12,7,17],"state":"minecraft:spruce_door[facing=west,half=lower,hinge=left,open=false,powered=false]"},
+    {"op":"set","pos":[12,8,17],"state":"minecraft:spruce_door[facing=west,half=upper,hinge=left,open=false,powered=false]"},
+    {"op":"set","pos":[12,9,17],"state":"minecraft:glass"},
+    {"op":"fill","from":[7,6,9],"to":[8,6,14],"state":"air"},
+    {"op":"fill","from":[7,1,9],"to":[8,1,9],"state":"minecraft:spruce_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[7,1,10],"to":[8,1,10],"state":"wood"},
+    {"op":"fill","from":[7,2,10],"to":[8,2,10],"state":"minecraft:spruce_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[7,1,11],"to":[8,2,11],"state":"wood"},
+    {"op":"fill","from":[7,3,11],"to":[8,3,11],"state":"minecraft:spruce_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[7,1,12],"to":[8,3,12],"state":"wood"},
+    {"op":"fill","from":[7,4,12],"to":[8,4,12],"state":"minecraft:spruce_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[7,1,13],"to":[8,4,13],"state":"wood"},
+    {"op":"fill","from":[7,5,13],"to":[8,5,13],"state":"minecraft:spruce_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[7,1,14],"to":[8,5,14],"state":"wood"},
+    {"op":"fill","from":[7,6,14],"to":[8,6,14],"state":"minecraft:spruce_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[9,7,9],"to":[9,7,14],"state":"minecraft:spruce_fence[east=false,north=false,south=false,west=false,waterlogged=false]"},
+    {"op":"fill","from":[2,1,8],"to":[5,1,8],"state":"wood"},
+    {"op":"fill","from":[2,2,8],"to":[5,2,8],"state":"minecraft:spruce_slab[type=bottom,waterlogged=false]"},
+    {"op":"set","pos":[2,1,10],"state":"minecraft:bookshelf"},
+    {"op":"set","pos":[2,2,10],"state":"minecraft:bookshelf"},
+    {"op":"set","pos":[13,1,8],"state":"minecraft:spruce_fence[east=false,north=false,south=false,west=false,waterlogged=false]"},
+    {"op":"set","pos":[15,1,8],"state":"minecraft:spruce_fence[east=false,north=false,south=false,west=false,waterlogged=false]"},
+    {"op":"fill","from":[13,2,8],"to":[15,2,8],"state":"minecraft:spruce_slab[type=bottom,waterlogged=false]"},
+    {"op":"set","pos":[13,1,7],"state":"minecraft:spruce_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"set","pos":[13,1,9],"state":"minecraft:spruce_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"set","pos":[14,1,7],"state":"minecraft:spruce_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"set","pos":[14,1,9],"state":"minecraft:spruce_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"set","pos":[15,1,7],"state":"minecraft:spruce_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"set","pos":[15,1,9],"state":"minecraft:spruce_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"set","pos":[13,1,13],"state":"minecraft:spruce_fence[east=false,north=false,south=false,west=false,waterlogged=false]"},
+    {"op":"set","pos":[15,1,13],"state":"minecraft:spruce_fence[east=false,north=false,south=false,west=false,waterlogged=false]"},
+    {"op":"fill","from":[13,2,13],"to":[15,2,13],"state":"minecraft:spruce_slab[type=bottom,waterlogged=false]"},
+    {"op":"set","pos":[13,1,12],"state":"minecraft:spruce_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"set","pos":[13,1,14],"state":"minecraft:spruce_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"set","pos":[14,1,12],"state":"minecraft:spruce_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"set","pos":[14,1,14],"state":"minecraft:spruce_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"set","pos":[15,1,12],"state":"minecraft:spruce_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"set","pos":[15,1,14],"state":"minecraft:spruce_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"set","pos":[2,1,20],"state":"minecraft:smoker[facing=north,lit=false]"},
+    {"op":"set","pos":[3,1,20],"state":"minecraft:smoker[facing=north,lit=false]"},
+    {"op":"set","pos":[5,1,20],"state":"minecraft:crafting_table"},
+    {"op":"set","pos":[2,1,18],"state":"minecraft:water_cauldron[level=3]"},
+    {"op":"set","pos":[5,1,19],"state":"minecraft:barrel[facing=north,open=false]"},
+    {"op":"fill","from":[13,1,20],"to":[16,1,20],"state":"minecraft:barrel[facing=north,open=false]"},
+    {"op":"set","pos":[2,7,5],"state":"minecraft:red_bed[facing=north,part=head,occupied=false]"},
+    {"op":"set","pos":[2,7,6],"state":"minecraft:red_bed[facing=north,part=foot,occupied=false]"},
+    {"op":"set","pos":[3,7,5],"state":"minecraft:barrel[facing=up,open=false]"},
+    {"op":"set","pos":[4,7,10],"state":"minecraft:spruce_stairs[facing=south,half=top,shape=straight,waterlogged=false]"},
+    {"op":"set","pos":[4,7,9],"state":"minecraft:spruce_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"set","pos":[4,11,8],"state":"minecraft:lantern[hanging=true,waterlogged=false]"},
+    {"op":"set","pos":[15,7,5],"state":"minecraft:red_bed[facing=north,part=head,occupied=false]"},
+    {"op":"set","pos":[15,7,6],"state":"minecraft:red_bed[facing=north,part=foot,occupied=false]"},
+    {"op":"set","pos":[14,7,5],"state":"minecraft:barrel[facing=up,open=false]"},
+    {"op":"set","pos":[14,7,10],"state":"minecraft:spruce_stairs[facing=south,half=top,shape=straight,waterlogged=false]"},
+    {"op":"set","pos":[14,7,9],"state":"minecraft:spruce_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"set","pos":[14,11,8],"state":"minecraft:lantern[hanging=true,waterlogged=false]"},
+    {"op":"set","pos":[2,7,15],"state":"minecraft:red_bed[facing=north,part=head,occupied=false]"},
+    {"op":"set","pos":[2,7,16],"state":"minecraft:red_bed[facing=north,part=foot,occupied=false]"},
+    {"op":"set","pos":[3,7,15],"state":"minecraft:barrel[facing=up,open=false]"},
+    {"op":"set","pos":[4,7,20],"state":"minecraft:spruce_stairs[facing=south,half=top,shape=straight,waterlogged=false]"},
+    {"op":"set","pos":[4,7,19],"state":"minecraft:spruce_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"set","pos":[4,11,18],"state":"minecraft:lantern[hanging=true,waterlogged=false]"},
+    {"op":"set","pos":[15,7,15],"state":"minecraft:red_bed[facing=north,part=head,occupied=false]"},
+    {"op":"set","pos":[15,7,16],"state":"minecraft:red_bed[facing=north,part=foot,occupied=false]"},
+    {"op":"set","pos":[14,7,15],"state":"minecraft:barrel[facing=up,open=false]"},
+    {"op":"set","pos":[14,7,20],"state":"minecraft:spruce_stairs[facing=south,half=top,shape=straight,waterlogged=false]"},
+    {"op":"set","pos":[14,7,19],"state":"minecraft:spruce_stairs[facing=north,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"set","pos":[14,11,18],"state":"minecraft:lantern[hanging=true,waterlogged=false]"},
+    {"op":"set","pos":[4,5,6],"state":"minecraft:lantern[hanging=true,waterlogged=false]"},
+    {"op":"set","pos":[14,5,11],"state":"minecraft:lantern[hanging=true,waterlogged=false]"},
+    {"op":"set","pos":[4,5,17],"state":"minecraft:lantern[hanging=true,waterlogged=false]"},
+    {"op":"fill","from":[0,12,3],"to":[0,12,22],"state":"minecraft:deepslate_tile_slab[type=top,waterlogged=false]"},
+    {"op":"fill","from":[18,12,3],"to":[18,12,22],"state":"minecraft:deepslate_tile_slab[type=top,waterlogged=false]"},
+    {"op":"fill","from":[1,12,3],"to":[1,12,22],"state":"minecraft:deepslate_tile_slab[type=double,waterlogged=false]"},
+    {"op":"fill","from":[17,12,3],"to":[17,12,22],"state":"minecraft:deepslate_tile_slab[type=double,waterlogged=false]"},
+    {"op":"fill","from":[2,13,3],"to":[2,13,22],"state":"minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[16,13,3],"to":[16,13,22],"state":"minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[3,14,3],"to":[3,14,22],"state":"minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[15,14,3],"to":[15,14,22],"state":"minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[4,15,3],"to":[4,15,22],"state":"minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[14,15,3],"to":[14,15,22],"state":"minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[5,16,3],"to":[5,16,22],"state":"minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[13,16,3],"to":[13,16,22],"state":"minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[6,17,3],"to":[6,17,22],"state":"minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[12,17,3],"to":[12,17,22],"state":"minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[7,18,3],"to":[7,18,22],"state":"minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[11,18,3],"to":[11,18,22],"state":"minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[8,19,3],"to":[8,19,22],"state":"minecraft:deepslate_tile_stairs[facing=east,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[10,19,3],"to":[10,19,22],"state":"minecraft:deepslate_tile_stairs[facing=west,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[9,19,3],"to":[9,19,22],"state":"tile"},
+    {"op":"fill","from":[9,20,3],"to":[9,20,22],"state":"minecraft:deepslate_tile_slab[type=bottom,waterlogged=false]"},
+    {"op":"fill","from":[2,12,4],"to":[2,12,4],"state":"wall"},
+    {"op":"fill","from":[3,12,4],"to":[3,13,4],"state":"wall"},
+    {"op":"fill","from":[4,12,4],"to":[4,14,4],"state":"wall"},
+    {"op":"fill","from":[5,12,4],"to":[5,15,4],"state":"wall"},
+    {"op":"fill","from":[6,12,4],"to":[6,16,4],"state":"wall"},
+    {"op":"fill","from":[7,12,4],"to":[7,17,4],"state":"wall"},
+    {"op":"fill","from":[8,12,4],"to":[8,18,4],"state":"wall"},
+    {"op":"fill","from":[9,12,4],"to":[9,18,4],"state":"wall"},
+    {"op":"fill","from":[10,12,4],"to":[10,18,4],"state":"wall"},
+    {"op":"fill","from":[11,12,4],"to":[11,17,4],"state":"wall"},
+    {"op":"fill","from":[12,12,4],"to":[12,16,4],"state":"wall"},
+    {"op":"fill","from":[13,12,4],"to":[13,15,4],"state":"wall"},
+    {"op":"fill","from":[14,12,4],"to":[14,14,4],"state":"wall"},
+    {"op":"fill","from":[15,12,4],"to":[15,13,4],"state":"wall"},
+    {"op":"fill","from":[16,12,4],"to":[16,12,4],"state":"wall"},
+    {"op":"fill","from":[2,12,21],"to":[2,12,21],"state":"wall"},
+    {"op":"fill","from":[3,12,21],"to":[3,13,21],"state":"wall"},
+    {"op":"fill","from":[4,12,21],"to":[4,14,21],"state":"wall"},
+    {"op":"fill","from":[5,12,21],"to":[5,15,21],"state":"wall"},
+    {"op":"fill","from":[6,12,21],"to":[6,16,21],"state":"wall"},
+    {"op":"fill","from":[7,12,21],"to":[7,17,21],"state":"wall"},
+    {"op":"fill","from":[8,12,21],"to":[8,18,21],"state":"wall"},
+    {"op":"fill","from":[9,12,21],"to":[9,18,21],"state":"wall"},
+    {"op":"fill","from":[10,12,21],"to":[10,18,21],"state":"wall"},
+    {"op":"fill","from":[11,12,21],"to":[11,17,21],"state":"wall"},
+    {"op":"fill","from":[12,12,21],"to":[12,16,21],"state":"wall"},
+    {"op":"fill","from":[13,12,21],"to":[13,15,21],"state":"wall"},
+    {"op":"fill","from":[14,12,21],"to":[14,14,21],"state":"wall"},
+    {"op":"fill","from":[15,12,21],"to":[15,13,21],"state":"wall"},
+    {"op":"fill","from":[16,12,21],"to":[16,12,21],"state":"wall"},
+    {"op":"fill","from":[1,1,1],"to":[1,4,1],"state":"post"},
+    {"op":"fill","from":[6,1,1],"to":[6,4,1],"state":"post"},
+    {"op":"fill","from":[12,1,1],"to":[12,4,1],"state":"post"},
+    {"op":"fill","from":[17,1,1],"to":[17,4,1],"state":"post"},
+    {"op":"fill","from":[1,5,1],"to":[17,5,1],"state":"beam_x"},
+    {"op":"fill","from":[0,5,0],"to":[18,5,0],"state":"minecraft:deepslate_tile_slab[type=top,waterlogged=false]"},
+    {"op":"fill","from":[0,5,1],"to":[18,5,1],"state":"minecraft:deepslate_tile_slab[type=double,waterlogged=false]"},
+    {"op":"fill","from":[0,6,2],"to":[18,6,2],"state":"minecraft:deepslate_tile_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"fill","from":[0,7,3],"to":[18,7,3],"state":"minecraft:deepslate_tile_stairs[facing=south,half=bottom,shape=straight,waterlogged=false]"},
+    {"op":"set","pos":[3,4,1],"state":"minecraft:lantern[hanging=true,waterlogged=false]"},
+    {"op":"set","pos":[15,4,1],"state":"minecraft:lantern[hanging=true,waterlogged=false]"},
+    {"op":"set","pos":[9,4,3],"state":"minecraft:spruce_wall_sign[facing=north,waterlogged=false]"},
+    {"op":"set","pos":[4,3,20],"state":"minecraft:spruce_wall_sign[facing=north,waterlogged=false]"},
+    {"op":"fill","from":[9,12,4],"to":[9,18,4],"state":"post"},
+    {"op":"fill","from":[9,12,21],"to":[9,18,21],"state":"post"},
+    {"op":"fill","from":[6,14,4],"to":[12,14,4],"state":"beam_x"},
+    {"op":"fill","from":[6,14,21],"to":[12,14,21],"state":"beam_x"}
+  ]
+}

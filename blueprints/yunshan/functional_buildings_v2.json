@@ -1,0 +1,13 @@
+{
+  "name": "云山功能建筑 · 三格入口放大版",
+  "site_reference": "d1_site_reference.json",
+  "layout": "showcase",
+  "bundle": "yunshan_functional_buildings_v2.zip",
+  "buildings": [
+    "apothecary_v2.json",
+    "smithy_v2.json",
+    "initiation_hall_v2.json",
+    "south_gate_inn_v4.json"
+  ],
+  "status": "authored_for_actual_game_build"
+}

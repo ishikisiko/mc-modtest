@@ -85,6 +85,12 @@ PRESETS["pill-quality-preview"] = [["python3", "tools/gen_alchemy_assets.py", "-
 PRESETS["forging-acquisition"] = PRESETS["forging-build"] + [["python3", "tools/forging_acquisition_evidence.py"]]
 PRESETS["forging-acquisition-preview"] = [PRESETS["forging-lifecycle"][0],["python3", "tools/forging_acquisition_evidence.py", "--visual-only", "--out", "out/preview/forging_acquisition/showcase"]]
 PRESETS["release-alchemy"] = PRESETS["release"] + PRESETS["alchemy-quality"]
+PRESETS["yunshan-buildings"] = [
+    ["python3", "-m", "unittest", "tools.tests.test_yunshan_expanded"],
+    ["python3", "tools/yunshan/build_functional.py", "--manifest", "blueprints/yunshan/functional_buildings_v2.json", "--out", "out/preview/yunshan-functional-v2"],
+    ["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
+    ["python3", "tools/yunshan/game_evidence.py"],
+]
 ALCHEMY_CASES = ("brewing", "multiplayer", "medicine", "persistence", "ui")
 
 

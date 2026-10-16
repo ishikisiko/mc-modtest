@@ -44,6 +44,15 @@ def rotated_state(state,quarters):
 
 def validate_site(data,reference):
     site = data['site']
+    if site.get('placement_mode')=='showcase':
+        assert site['original_city_fit']=='requires_replanning'
+        assert site['rotation_quarters']==0 and site['facing']=='N'
+        assert site['world_max']==[site['world_min'][i]+data['size'][i]-1 for i in range(3)]
+        assert all(0<n<=48 for n in data['size']), 'must fit a vanilla structure-block export'
+        return {'lot_id':site['lot_id'],'size_after_rotation':data['size'],
+                'world_min':site['world_min'],'world_max':site['world_max'],'facing':'N',
+                'rotation_quarters':0,'matches_original_lot':False,'placement_mode':'showcase',
+                'original_city_fit':'requires_replanning'}
     lot = next(l for l in reference['lots'] if l['id']==site['lot_id'])
     q = site['rotation_quarters']
     assert q == {'N':0,'E':1,'S':2,'W':3}[lot['facing']]
@@ -137,8 +146,17 @@ def overview(reference,entries,out):
     (out/'index.html').write_text(page)
 
 
+def showcase_overview(entries,out,manifest):
+    cards=[]
+    for e in entries:
+        d=e['data'];p=d['presentation'];role=p['role'];size=d['size'];minimum=d['site']['world_min']
+        cards.append(f'<article><a href="{role}/index.html"><img src="{role}/full.png" alt="{html.escape(p["name"])}"><h2>{html.escape(p["name"])}</h2></a><p>{html.escape(p["summary"])}</p><p>用地 {size[0]} × {size[2]} 格 · 主入口净高 3 格<br>样板区最小角：{minimum}</p></article>')
+    page='''<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>云山建筑放大版</title><style>*{box-sizing:border-box}body{margin:0;background:#eeeae0;color:#30382f;font:15px system-ui}main{max-width:1100px;margin:auto;padding:24px}h1{font-size:27px}p{line-height:1.8}a{color:#3d6554}.cards{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:24px 0}article{background:#faf8f0;border-radius:10px;overflow:hidden}article p,article h2{margin:15px}article a{color:inherit;text-decoration:none}article img{display:block;width:100%;aspect-ratio:1.9;object-fit:cover}.note{padding:18px;background:#faf8f0;border-radius:9px}.button{display:inline-block;padding:10px 16px;border-radius:6px;background:#45634f;color:white;text-decoration:none}@media(max-width:600px){.cards{grid-template-columns:1fr}main{padding:15px}}</style><main><h1>云山功能建筑 · 三格入口放大版</h1><p>四栋按约 1.5 倍建筑尺度重新组织，主入口统一净高三格；床、炉、铁砧等设施保持正常大小。原小版独立保留。</p><div class="note">放大后的建筑已超出原街区小地块。这一版先在独立样板场实建；回填旧城需重排地块，不能直接覆盖原位置。下方为离线模型预览，实机产物另有运行记录。</div><p><a class="button" href="'''+manifest['bundle']+'''" download>下载放大版 authored 蓝图包</a>　<a href="runtime/index.html">查看游戏内实建与导出</a></p><div class="cards">'''+''.join(cards)+'''</div><p>尚未接入商人、收费住宿与委托。运行报告区分离线检查、真实客户端观察和玩家验收。</p></main></html>'''
+    (out/'index.html').write_text(page)
+
+
 def package(out,source_dir,entries,manifest):
-    with zipfile.ZipFile(out/'yunshan_functional_buildings_v1.zip','w',zipfile.ZIP_DEFLATED) as z:
+    with zipfile.ZipFile(out/manifest.get('bundle','yunshan_functional_buildings_v1.zip'),'w',zipfile.ZIP_DEFLATED) as z:
         for e in entries:
             role=e['data']['presentation']['role'];folder=out/role
             for pattern in ('*.schem','*.nbt','*.blueprint.json','placement.json','report.json','full.png','cut.png'):
@@ -158,6 +176,12 @@ def build_batch(manifest_path,out):
         assert lotid not in seen, 'two buildings assigned to same lot'
         seen.add(lotid);placement=validate_site(data,reference)
         size,_,blocks,_=nbt.expand_structure(data);services=validate_services(data,blocks)
+        if 'entrance' in data:
+            e=data['entrance'];assert e['clear_height']==3
+            for x in range(e['x_range'][0],e['x_range'][1]+1):
+                for y in range(e['floor_y'],e['floor_y']+3):
+                    assert blocks[x,y,e['z']]=='minecraft:air', f'blocked three-high entrance: {filename}'
+                assert blocks[x,e['floor_y']+3,e['z']]!='minecraft:air', 'entrance lintel is missing'
         folder=out/data['presentation']['role'];report=build(source,folder)
         placement.update(export_site(data,blocks,folder));placement['services']=services
         (folder/'placement.json').write_text(json.dumps(placement,ensure_ascii=False,indent=2)+'\n')
@@ -169,7 +193,9 @@ def build_batch(manifest_path,out):
              'not_verified':['actual_game_placement','player_collision','facility_interaction','NPC_services','visual_acceptance','FPS'],
              'preserved':['original_D1','south_gate_inn_v1','south_gate_inn_v2']}
     (out/'batch-report.json').write_text(json.dumps(report,ensure_ascii=False,indent=2)+'\n')
-    overview(reference,entries,out);package(out,source_dir,entries,manifest)
+    if manifest.get('layout')=='showcase':showcase_overview(entries,out,manifest)
+    else:overview(reference,entries,out)
+    package(out,source_dir,entries,manifest)
     return report
 
 
