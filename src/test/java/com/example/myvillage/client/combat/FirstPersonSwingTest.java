@@ -163,14 +163,23 @@ final class FirstPersonSwingTest {
     }
 
     @Test
-    void tipStaysAboveTheGripWheneverTheBladeIsVisible() throws IOException {
+    void forwardPosesKeepTheTipUpAndWaistDrawKeepsTheHiltVisible() throws IOException {
         FirstPersonSwing swing = shipped();
         for (FirstPersonSwing.Move move : swing.moves()) {
             int onScreenTips = 0;
+            int forwardSamples = 0;
             int samples = move.totalTicks() * 4;
             for (int sample = 0; sample <= samples; sample++) {
                 float tick = sample / 4.0F;
                 Blade blade = blade(swing, move.sample(tick));
+                if (waistDraw(move) && tick < move.contactTick()) {
+                    // A blade pointing behind the eye has no projected tip. Its hilt
+                    // must remain readable throughout the draw instead.
+                    assertTrue(onScreen(blade.grip) && onScreen(blade.guard),
+                            move.id() + " chamber hilt hidden at " + tick);
+                    continue;
+                }
+                forwardSamples++;
                 assertTrue(blade.tipAboveGrip() || blade.visibleFraction == 0.0F,
                         move.id() + " blade hangs tip-down on screen at tick " + tick);
                 if (onScreen(blade.tip)) {
@@ -180,7 +189,7 @@ final class FirstPersonSwingTest {
                     assertTrue(blade.visibleFraction >= 0.5F, move.id() + " wind-up off screen at " + tick);
                 }
             }
-            assertTrue(onScreenTips >= 0.8F * (samples + 1), move.id() + " tip on screen " + onScreenTips);
+            assertTrue(onScreenTips >= 0.8F * forwardSamples, move.id() + " tip on screen " + onScreenTips);
         }
     }
 
@@ -189,8 +198,19 @@ final class FirstPersonSwingTest {
         FirstPersonSwing swing = shipped();
         for (FirstPersonSwing.Move move : swing.moves()) {
             Blade previous = null;
+            Vector3f previousAxis = null;
             for (float tick = move.strikeStartTick(); tick <= move.strikeEndTick(); tick += 0.25F) {
-                Blade blade = blade(swing, move.sample(tick));
+                var pose = move.sample(tick);
+                Vector3f axis = point(swing, pose, TIP).sub(point(swing, pose, HANDLE)).normalize();
+                if (previousAxis != null) {
+                    assertTrue(axis.dot(previousAxis) > 0, move.id() + " spatial flip at " + tick);
+                }
+                previousAxis = axis;
+                Blade blade = blade(swing, pose);
+                if (waistDraw(move) && tick < move.contactTick()) {
+                    previous = null;
+                    continue;
+                }
                 assertTrue(blade.projectedLength() >= 0.25F * HEIGHT,
                         move.id() + " blade collapses to a stub at tick " + tick);
                 if (previous != null) {
@@ -210,21 +230,46 @@ final class FirstPersonSwingTest {
             float gripTravel = 0.0F;
             float tipTravel = 0.0F;
             Blade previous = null;
+            Vector3f previousGrip = null, previousTip = null;
             for (float tick = move.strikeStartTick(); tick <= move.strikeEndTick(); tick += 0.25F) {
                 FirstPersonSwing.Pose pose = move.sample(tick);
                 assertTrue(pose.reach() >= 0.55F - 1.0E-4F && pose.reach() <= 0.65F + 1.0E-4F,
                         move.id() + " strike reach " + pose.reach());
                 Blade blade = blade(swing, pose);
+                Vector3f grip = point(swing, pose, HANDLE), tip = point(swing, pose, TIP);
                 if (previous != null) {
-                    gripTravel += distance(previous.grip, blade.grip);
-                    tipTravel += distance(previous.tip, blade.tip);
+                    // The waist draw crosses the eye plane; measure its complete
+                    // arc in view space, where no point disappears at the near plane.
+                    gripTravel += waistDraw(move) ? previousGrip.distance(grip) : distance(previous.grip, blade.grip);
+                    tipTravel += waistDraw(move) ? previousTip.distance(tip) : distance(previous.tip, blade.tip);
                 }
                 previous = blade;
+                previousGrip = grip;
+                previousTip = tip;
             }
             assertTrue(tipTravel >= 1.8F * gripTravel, move.id() + " tip " + tipTravel + " vs grip " + gripTravel);
             float contactLift = move.sample(move.contactTick()).lift();
             assertTrue(contactLift >= -65.0F && contactLift <= -50.0F, move.id() + " contact lift " + contactLift);
         }
+    }
+
+    private static boolean waistDraw(FirstPersonSwing.Move move) {
+        return move.id().getPath().equals("basic_sword_02_horizontal_cut");
+    }
+
+    @Test
+    void chargedWaistPosePointsBackwardWithAnUnfoldedWrist() throws IOException {
+        FirstPersonSwing swing = shipped();
+        var skill = CombatTestData.styles().skills().stream()
+                .filter(entry -> entry.id().getPath().equals("jianqi_jue")).findFirst().orElseThrow();
+        var move = swing.moves().stream().filter(entry -> entry.id().equals(skill.feedbackMove())).findFirst().orElseThrow();
+        var pose = move.sample(skill.chargePoseTicks());
+        Vector3f grip = point(swing, pose, HANDLE);
+        Vector3f axis = point(swing, pose, TIP).sub(grip).normalize();
+        assertTrue(grip.x < 0 && grip.y < 0, "hilt stays low-left");
+        assertTrue(axis.z > 0.8F && Math.abs(axis.y) < 0.1F, "blade lies level toward the rear");
+        var arm = FirstPersonArmIk.solve(HumanoidArm.RIGHT, 0.0F, swing, pose, new Vector3f());
+        assertTrue(Math.abs(arm.flexion()) < 45 && Math.abs(arm.deviation()) < 45, "wrist must not fold backward");
     }
 
     @Test
