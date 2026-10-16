@@ -34,11 +34,14 @@ class PillFrames(QualityEvidence):
         s = self.gui()[2]
         def pixel(pos, dx, dy):
             return image.getpixel(((pos[0] + dx) * s + s // 2, (pos[1] + dy) * s + s // 2))
-        # Stone has no white icon pixels here. These are the actual vanilla "16" glyphs.
-        mask = [(x, y) for x in range(7, 18) for y in range(8, 18) if pixel(reference, x, y) == (255, 255, 255)]
+        # Keep the sample inside the icon, excluding the white right/bottom slot rim.
+        # GUI font pixels can be near-white (252), not literal 255, after shading.
+        mask = [(x, y, pixel(reference, x, y)) for x in range(6, 16) for y in range(8, 16)
+                if pixel(reference, x, y)[0] == pixel(reference, x, y)[1] == pixel(reference, x, y)[2]
+                and pixel(reference, x, y)[0] >= 240]
         self.check('count_reference_visible', len(mask) >= 8, {'white_glyph_pixels': len(mask)})
         for name, pos in slots:
-            hits = sum(pixel(pos, x, y) == (255, 255, 255) for x, y in mask)
+            hits = sum(pixel(pos, x, y) == rgb for x, y, rgb in mask)
             self.check('count_preserved_' + name, hits == len(mask), {'matching': hits, 'required': len(mask)})
 
     def run(self):
