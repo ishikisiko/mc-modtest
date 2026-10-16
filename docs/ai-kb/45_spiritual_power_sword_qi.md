@@ -192,3 +192,5 @@ server damage, cost or target selection.
 `--preset sword-qi-charge` checks timing arithmetic, schema compatibility, client
 animation/input regressions, then mapped casts/cancellations and a second client's
 normal-speed charging/release observation. Actual evidence is recorded separately.
+
+Charging stance evidence: [0.56.0-fix3](../testing/2026-10-16-sword-qi-charge-stance.md).
