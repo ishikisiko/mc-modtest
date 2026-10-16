@@ -87,3 +87,5 @@ forging / protocol Java tests and jar, then mapped placement/forging/repair visu
 capture plus an actual saved lit pulse and restart. This is a presentation-focused
 run, not a repeat of all forging/multiplayer acceptance. Owner appearance, sound,
 feel and FPS remain `not_verified` until separately observed.
+
+Ding delivery evidence: [2026-10-16 forging ding](../testing/2026-10-16-forging-ding.md).
