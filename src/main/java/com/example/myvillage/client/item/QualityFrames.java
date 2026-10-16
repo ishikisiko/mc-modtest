@@ -1,8 +1,7 @@
-package com.example.myvillage.client.forging;
+package com.example.myvillage.client.item;
 
 import com.example.myvillage.MyVillageMod;
-import com.example.myvillage.forging.ForgingQualityDisplay;
-import com.example.myvillage.item.CombatWeaponItem;
+import com.example.myvillage.item.QualityDisplay;
 import com.example.myvillage.item.ModItems;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -14,11 +13,11 @@ import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
 import net.neoforged.neoforge.client.event.RenderTooltipEvent;
 
 /** One presentation palette across inventory, containers, hotbar and item tooltips. */
-public final class ForgingQualityFrames {
-    private ForgingQualityFrames() {}
+public final class QualityFrames {
+    private QualityFrames() {}
 
     private static int color(ItemStack stack) {
-        return 0xFF000000 | ForgingQualityDisplay.color(ForgingQualityDisplay.quality(stack));
+        return 0xFF000000 | QualityDisplay.color(QualityDisplay.quality(stack));
     }
 
     private static boolean decorate(GuiGraphics graphics, Font font, ItemStack stack, int x, int y) {
@@ -39,8 +38,8 @@ public final class ForgingQualityFrames {
         @SubscribeEvent
         public static void register(RegisterItemDecorationsEvent event) {
             for (var entry : ModItems.ITEMS.getEntries()) {
-                if (entry.get() instanceof CombatWeaponItem) {
-                    event.register(entry.get(), ForgingQualityFrames::decorate);
+                if (QualityDisplay.supports(entry.get())) {
+                    event.register(entry.get(), QualityFrames::decorate);
                 }
             }
         }
@@ -50,8 +49,8 @@ public final class ForgingQualityFrames {
     public static final class Tooltips {
         @SubscribeEvent
         public static void color(RenderTooltipEvent.Color event) {
-            if (!(event.getItemStack().getItem() instanceof CombatWeaponItem)) return;
-            int color = ForgingQualityFrames.color(event.getItemStack());
+            if (!QualityDisplay.supports(event.getItemStack().getItem())) return;
+            int color = QualityFrames.color(event.getItemStack());
             event.setBorderStart(color);
             event.setBorderEnd(color);
         }

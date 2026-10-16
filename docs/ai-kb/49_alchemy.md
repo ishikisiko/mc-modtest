@@ -83,3 +83,18 @@ See also: [alchemy-foundation](../contracts/cultivation.md#alchemy-foundation),
 0.52.3 focused tests, build and owner-client layout: [verification record](../testing/2026-10-16-learned-formulas.md).
 
 Six herb items are plantable on permanent Spirit Soil since 0.53.0; see [spirit farming](51_spirit_farming.md).
+
+## Quality frames (0.58.3)
+
+`item.QualityDisplay` owns the shared green/blue/purple/gold palette and delegates
+pill classification to `PillQuality.get`; missing components remain Lower rather
+than the weapon-only Mundane display. `PillQuality.name` and `AlchemyPillItem`
+use that palette for ceiling/name text, including a quality line for renamed pills.
+`client.item.QualityFrames` registers all three pills alongside basic combat weapons
+for icon decoration and tooltip border coloring. Stack counts remain above the
+1px frame. Rendering never applies/replaces a saved quality component.
+
+Modal `--preset pill-quality-preview` runs `PillQualityTest`, builds the jar, then
+captures mapped inventory/chest/hotbar views with all pill types and qualities,
+legacy/explicit lower and renamed items, count glyph preservation, and adjacent
+weapon frame checks. It does not repeat brewing or medicine-effect acceptance.

@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.58.3
+
+- 回灵丹、养元丹、凝神丹接入品质色框：下品绿、中品蓝、上品紫、极品金；物品图标、悬浮说明框和名称统一配色。
+- 丹药与基础兵器共用显示配色及边框渲染；旧丹药仍按下品显示，品质、药效、堆叠规则和存档组件不变。
+
 ## 0.58.2
 
 - 兵器品质统一配色：非炼器兵器为白色凡品，炼器下品绿、中品蓝、上品紫、极品金；名称、品质提示和炼器品质上限同步着色。

@@ -5,6 +5,7 @@ import com.example.myvillage.alchemy.MedicineRuntime;
 import com.example.myvillage.alchemy.MedicineEffects;
 import com.example.myvillage.alchemy.PillQuality;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -60,13 +61,21 @@ public final class AlchemyPillItem extends Item {
 
     @Override
     public Component getName(ItemStack stack) {
-        return Component.translatable("item.myvillage.alchemy.quality_name", PillQuality.name(PillQuality.get(stack)),
-                super.getName(stack));
+        int quality = PillQuality.get(stack);
+        return Component.empty().append(Component.translatable("item.myvillage.alchemy.quality_name", PillQuality.name(quality),
+                super.getName(stack)).withStyle(style -> style.withColor(QualityDisplay.color(quality))));
     }
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> lines, TooltipFlag flag) {
         super.appendHoverText(stack, context, lines, flag);
+        int quality = PillQuality.get(stack);
+        if (!lines.isEmpty()) lines.set(0, lines.getFirst().copy()
+                .withStyle(style -> style.withColor(QualityDisplay.color(quality))));
+        if (stack.has(DataComponents.CUSTOM_NAME) || stack.has(DataComponents.ITEM_NAME)) {
+            lines.add(Component.translatable("tooltip.myvillage.alchemy.quality", PillQuality.name(quality))
+                    .withStyle(style -> style.withColor(QualityDisplay.color(quality))));
+        }
         var rules = AlchemyRules.get();
         double factor = rules.qualityMultiplier(PillQuality.get(stack));
         Object[] arguments = switch (effectId) {

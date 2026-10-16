@@ -204,7 +204,7 @@ Tag integration evidence: [2026-10-17 forging tags](../testing/2026-10-17-forgin
 
 ## Quality presentation (0.58.2)
 
-`ForgingQualityDisplay` owns the shared palette and localized quality labels:
+`item.QualityDisplay` owns the shared palette; `ForgingQualityDisplay` provides localized weapon quality labels:
 unmarked weapons show white 凡品 / Mundane; qualities 1–4 show green, blue,
 purple and gold. The display-only zero is never written into `ForgeMark`, whose
 codec remains 1–4. Existing stacks need no migration and enchantment does not
@@ -212,8 +212,9 @@ promote forging quality.
 
 `CombatWeaponItem` colors the name and quality tooltip, including ordinary anvil
 names without mutating their saved components. `ForgingScreen` colors the ceiling
-label from the same palette. Client-only `ForgingQualityFrames` registers an
-`IItemDecorator` for registered `CombatWeaponItem`s and a `RenderTooltipEvent.Color` listener.
+label from the same palette. Client-only `client.item.QualityFrames` registers an
+`IItemDecorator` for registered `CombatWeaponItem`s and, since 0.58.3, `AlchemyPillItem`s,
+plus a `RenderTooltipEvent.Color` listener.
 This also keeps the non-forgeable basic gauntlet consistently white/Mundane,
 without adding a gauntlet forging recipe.
 The 1px icon frame lies outside the 16px icon, below count text, and follows the

@@ -1,6 +1,7 @@
 package com.example.myvillage.forging;
 
 import com.example.myvillage.item.ModDataComponents;
+import com.example.myvillage.item.QualityDisplay;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
@@ -15,14 +16,7 @@ public final class ForgingQualityDisplay {
     }
 
     public static int color(int quality) {
-        return switch (quality) {
-            case 0 -> 0xFFFFFF;
-            case 1 -> 0x55FF55;
-            case 2 -> 0x5555FF;
-            case 3 -> 0xAA55FF;
-            case 4 -> 0xFFAA00;
-            default -> throw new IllegalArgumentException("Invalid displayed forging quality: " + quality);
-        };
+        return QualityDisplay.color(quality);
     }
 
     public static MutableComponent name(int quality) {

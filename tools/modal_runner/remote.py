@@ -78,6 +78,9 @@ PRESETS["forging-lifecycle"] = [["./gradlew", "jar", "-x", "generateAllStructure
 PRESETS["forging-runtime"] = PRESETS["forging-build"] + [["python3", "tools/forging_evidence.py"]]
 PRESETS["forging-tags"] = [PRESETS["forging-build"][0],PRESETS["forging-lifecycle"][0],["python3", "tools/forging_tags_evidence.py"]]
 PRESETS["forging-quality-preview"] = [PRESETS["forging-build"][0],PRESETS["forging-lifecycle"][0],["python3", "tools/forging_quality_evidence.py"]]
+PRESETS["pill-quality-preview"] = [["python3", "tools/gen_alchemy_assets.py", "--check"],
+    ["./gradlew", "test", "--tests", "com.example.myvillage.alchemy.PillQualityTest", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
+    ["python3", "tools/pill_quality_frames_evidence.py"]]
 PRESETS["forging-acquisition"] = PRESETS["forging-build"] + [["python3", "tools/forging_acquisition_evidence.py"]]
 PRESETS["forging-acquisition-preview"] = [PRESETS["forging-lifecycle"][0],["python3", "tools/forging_acquisition_evidence.py", "--visual-only", "--out", "out/preview/forging_acquisition/showcase"]]
 PRESETS["release-alchemy"] = PRESETS["release"] + PRESETS["alchemy-quality"]

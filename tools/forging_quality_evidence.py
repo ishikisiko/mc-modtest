@@ -55,13 +55,15 @@ class QualityEvidence(ForgingEvidence):
         subprocess.run(['import', '-silent', '-window', window, str(path)], env=game.env, check=True, timeout=30)
         return Image.open(path).convert('RGB')
 
-    def frame(self, image, x, y, quality, name):
+    def frame(self, image, x, y, quality, name, count_overlay=False):
         s = self.gui()[2]
         rgb = tuple((COLORS[quality] >> shift) & 255 for shift in (16, 8, 0))
         edge = ([(i, -1) for i in range(-1, 17)] + [(i, 16) for i in range(-1, 17)]
                 + [(-1, j) for j in range(16)] + [(16, j) for j in range(16)])
+        if count_overlay:
+            edge = [(i, j) for i, j in edge if not (i >= 8 and j >= 8)]
         hits = sum(image.getpixel(((x + i) * s + s // 2, (y + j) * s + s // 2)) == rgb for i, j in edge)
-        self.check(name, hits >= 64, {'quality': quality, 'matching_border_pixels': hits, 'sampled': len(edge)})
+        self.check(name, hits >= len(edge) - 4, {'quality': quality, 'matching_border_pixels': hits, 'sampled': len(edge)})
 
     def tooltip(self, x, y, quality, name):
         self.move(x, y)

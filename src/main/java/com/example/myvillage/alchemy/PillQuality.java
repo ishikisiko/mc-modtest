@@ -1,6 +1,7 @@
 package com.example.myvillage.alchemy;
 
 import com.example.myvillage.item.ModDataComponents;
+import com.example.myvillage.item.QualityDisplay;
 import com.mojang.serialization.Codec;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.component.DataComponentType;
@@ -36,7 +37,8 @@ public final class PillQuality {
     }
 
     public static Component name(int quality) {
-        return Component.translatable("alchemy.myvillage.quality." + require(quality));
+        return Component.translatable("alchemy.myvillage.quality." + require(quality))
+                .withStyle(style -> style.withColor(QualityDisplay.color(quality)));
     }
 
     public static int require(int quality) {
