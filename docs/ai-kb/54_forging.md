@@ -201,3 +201,24 @@ not repeat natural worldgen or claim a tested external modpack. The Java tests u
 `--preset forging-build` separately.
 
 Tag integration evidence: [2026-10-17 forging tags](../testing/2026-10-17-forging-tags.md).
+
+## Quality presentation (0.58.2)
+
+`ForgingQualityDisplay` owns the shared palette and localized quality labels:
+unmarked weapons show white 凡品 / Mundane; qualities 1–4 show green, blue,
+purple and gold. The display-only zero is never written into `ForgeMark`, whose
+codec remains 1–4. Existing stacks need no migration and enchantment does not
+promote forging quality.
+
+`CombatWeaponItem` colors the name and quality tooltip, including ordinary anvil
+names without mutating their saved components. `ForgingScreen` colors the ceiling
+label from the same palette. Client-only `ForgingQualityFrames` registers an
+`IItemDecorator` for both weapon IDs and a `RenderTooltipEvent.Color` listener.
+The 1px icon frame lies outside the 16px icon, below count text, and follows the
+normal item-decoration path in inventories, containers and the hotbar. Tooltip
+borders use the same color; the background and layout remain vanilla.
+
+Modal `--preset forging-quality-preview` checks generated resources, builds the
+jar and runs presentation-only fixture captures. It selects all five qualities,
+both weapons, hotbar/inventory/chest, renamed/enchanted/damaged items and saved
+component non-mutation. This is not a crafting or broad compatibility rerun.

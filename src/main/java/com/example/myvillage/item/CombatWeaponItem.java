@@ -1,5 +1,7 @@
 package com.example.myvillage.item;
 
+import com.example.myvillage.forging.ForgingQualityDisplay;
+import net.minecraft.network.chat.Component;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
@@ -28,19 +30,33 @@ public class CombatWeaponItem extends SwordItem {
     }
 
     @Override
+    public Component getName(ItemStack stack) {
+        // A styled child keeps vanilla rarity/enchantment styling on the wrapper
+        // from replacing the actual quality color of the weapon name.
+        return Component.empty().append(super.getName(stack).copy()
+                .withStyle(style -> style.withColor(ForgingQualityDisplay.color(ForgingQualityDisplay.quality(stack)))));
+    }
+
+    @Override
     public void appendHoverText(ItemStack stack, net.minecraft.world.item.Item.TooltipContext context,
             java.util.List<net.minecraft.network.chat.Component> lines, net.minecraft.world.item.TooltipFlag flag) {
         super.appendHoverText(stack, context, lines, flag);
         var mark = stack.get(ModDataComponents.FORGE_MARK.get());
+        int quality = ForgingQualityDisplay.quality(stack);
+        int color = ForgingQualityDisplay.color(quality);
+        // Also covers anvil names, which bypass Item#getName. Do not mutate saved names.
+        if (!lines.isEmpty()) lines.set(0, lines.getFirst().copy().withStyle(style -> style.withColor(color)));
         if (mark != null) {
             lines.add(net.minecraft.network.chat.Component.translatable("tooltip.myvillage.forging.mark",
-                    net.minecraft.network.chat.Component.translatable("forging.myvillage.quality." + mark.quality()),
+                    ForgingQualityDisplay.name(quality),
                     net.minecraft.network.chat.Component.translatable("forging.myvillage.trait." + mark.trait()))
-                    .withStyle(net.minecraft.ChatFormatting.GOLD));
+                    .withStyle(style -> style.withColor(color)));
             double value = com.example.myvillage.forging.ForgingRules.get().trait(mark.trait()).value(mark.quality());
             String amount = java.math.BigDecimal.valueOf(mark.trait().equals("channeling") ? value * 100 : value).stripTrailingZeros().toPlainString();
             lines.add(net.minecraft.network.chat.Component.translatable("tooltip.myvillage.forging." + mark.trait(), amount)
                     .withStyle(net.minecraft.ChatFormatting.GRAY));
+        } else {
+            lines.add(ForgingQualityDisplay.name(0));
         }
     }
 

@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.58.2
+
+- 兵器品质统一配色：非炼器兵器为白色凡品，炼器下品绿、中品蓝、上品紫、极品金；名称、品质提示和炼器品质上限同步着色。
+- 青锋剑与凌霄枪在背包、容器、快捷栏显示品质色框，悬浮说明框采用同色边框；旧兵器按现有炼器标记直接显示，无需重新炼制。
+
 ## 0.58.1
 
 - 炼器支持物品 ID 与 `#标签` 用料，玄铁、赤铜、淬锋砂各有独立材料标签；标签重叠时统一分配库存，避免重复扣算或误报缺料。

@@ -82,7 +82,7 @@ public final class ForgingScreen extends AbstractContainerScreen<ForgingMenu> {
     }
     @Override protected void renderLabels(GuiGraphics g,int mx,int my){
         g.drawString(font,title,10,8,0xFFE5D5AF,false);
-        Component cap=menu.qualityCap()>0?Component.translatable(KEY+"cap",Component.translatable("forging.myvillage.quality."+menu.qualityCap())):Component.translatable(KEY+"awaken");
+        Component cap=menu.qualityCap()>0?Component.translatable(KEY+"cap",ForgingQualityDisplay.name(menu.qualityCap())):Component.translatable(KEY+"awaken");
         g.drawString(font,cap,112,26,0xFFD9B568,false);
         g.drawString(font,Component.translatable(KEY+"costs"),112,40,0xFFC5C6B7,false);
         g.drawWordWrap(font,Component.translatable(KEY+"status."+menu.status()),112,86,116,0xFFE5D5AF);

@@ -78,6 +78,7 @@ artifacts and confirmed cleanup are recorded.
 | `danxia-build` | Ruin generator/path and affected tooling tests, ruins Java tests and jar build | Per-run result required |
 | `danxia-runtime` | Generated-resource check, committed-resource jar, natural-world ruins and mapped interaction/restart evidence | Per-run result required |
 | `forging-tags` | Jar plus disposable datapack aliases, mapped tag costs/infusion, reload and restart; Java tests use forging-build | Per-run result required |
+| `forging-quality-preview` | Generated-resource check, jar and mapped UI captures of quality names, icon frames and tooltip borders across hotbar/inventory/chest | Per-run result required |
 | `forging-acquisition-preview` | Jar and settled staged material screenshots only; no gameplay verdict | Per-run artifacts required |
 | `forging-acquisition` | Forging build, natural deposit readback, mapped mining and infusion, partial restart and two-client private batches | Per-run result required |
 | `forging-ding` | Ding geometry/state/protocol tests, jar, mapped placement and pulse/restart visual evidence | Per-run result required |

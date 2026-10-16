@@ -1409,5 +1409,6 @@
   "tooltip.myvillage.infused_copper": "每锭已灌灵：%s / %s；可放回炼器鼎继续。",
   "tag.item.myvillage.forging_materials.xuantie": "玄铁",
   "tag.item.myvillage.forging_materials.chitong": "赤铜锭",
-  "tag.item.myvillage.forging_materials.edge_tempering_sand": "淬锋砂"
+  "tag.item.myvillage.forging_materials.edge_tempering_sand": "淬锋砂",
+  "forging.myvillage.quality.0": "凡品"
 }

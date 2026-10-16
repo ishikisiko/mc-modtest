@@ -15,6 +15,7 @@ LANG={
  'message.myvillage.forging.formula_learned':('Learned %s','已学会：%s'),
  'message.myvillage.forging.formula_known':('Already learned %s','已经学会：%s'),
  'tooltip.myvillage.forging.mark':('%s · %s','%s · %s'),
+ 'forging.myvillage.quality.0':('Mundane','凡品'),
  'tooltip.myvillage.forging.sharp':('Forging attack bonus: +%s','炼器攻击加成：+%s'),
  'tooltip.myvillage.forging.channeling':('Sword Qi cost reduction: %s%%','剑气耗灵降低：%s%%'),
  'tooltip.myvillage.forging.tough':('Durability and repair yield: ×%s','耐久与维修效率：×%s'),

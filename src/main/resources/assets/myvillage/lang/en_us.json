@@ -1425,5 +1425,6 @@
   "tooltip.myvillage.infused_copper": "Infused qi per ingot: %s / %s; resume at a forging ding.",
   "tag.item.myvillage.forging_materials.xuantie": "Dark Iron",
   "tag.item.myvillage.forging_materials.chitong": "Spirit Copper Ingot",
-  "tag.item.myvillage.forging_materials.edge_tempering_sand": "Edge-tempering Sand"
+  "tag.item.myvillage.forging_materials.edge_tempering_sand": "Edge-tempering Sand",
+  "forging.myvillage.quality.0": "Mundane"
 }
