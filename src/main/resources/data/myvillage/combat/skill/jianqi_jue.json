@@ -15,5 +15,6 @@
   "movement_multiplier": 0.6,
   "launch_height": 1.2,
   "feedback_move": "myvillage:basic_sword_02_horizontal_cut",
-  "reaction_move": "myvillage:basic_sword_04_diagonal_cut"
+  "reaction_move": "myvillage:basic_sword_04_diagonal_cut",
+  "charge_pose_ticks": 3
 }

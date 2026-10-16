@@ -93,6 +93,22 @@ public final class CombatAnimationController {
         return controller;
     }
 
+    /** Play only the accepted charge's preparation, then hold its authored left-side pose. */
+    static void beginCharge(AbstractClientPlayer player, ClientSwordQi.ChargePose pose) {
+        controller(player).ifPresent(controller -> {
+            LayerState state = state(player, controller);
+            var id = pose.move().move().id();
+            controller.replaceAnimationWithFade(AbstractFadeModifier.standardFadeIn(START_FADE_TICKS,
+                    EasingType.EASE_OUT_SINE), id);
+            if (controller.triggerAnimation(id, pose.tick())) {
+                state.currentAnimation = id;
+                state.readyIdle = pose.move().style().readyIdleAnimation();
+                state.lifecycle.startMove();
+                state.remoteHitStop.clear();
+            }
+        });
+    }
+
     public static boolean play(
             AbstractClientPlayer player,
             ResourceLocation animationId,
@@ -526,7 +542,11 @@ public final class CombatAnimationController {
                 return;
             }
             float remoteRate = remoteHitStop.advance(now);
-            speed = isLocal(player) ? localRate(player) : clampRate(remoteRate);
+            var charge = ClientSwordQi.chargePose(player.getId(), 0);
+            if (charge.isPresent() && controller != null && charge.get().move().move().id().equals(currentAnimation)) {
+                // The rate lands exactly on the held key and cannot progress into the slash.
+                speed = Math.clamp(charge.get().tick() - controller.getAnimationTicks(), 0.0F, 1.0F);
+            } else speed = isLocal(player) ? localRate(player) : clampRate(remoteRate);
             previousLocomotion = locomotion;
             float target = lifecycle.allowsLocomotion()
                     ? LocomotionBlend.target(player.walkAnimation.speed())
@@ -548,7 +568,18 @@ public final class CombatAnimationController {
                 }
                 return;
             }
-            if (isLocal(player)) {
+            var charge = ClientSwordQi.chargePose(player.getId(), 0);
+            var controller = getController();
+            if (charge.isPresent() && controller != null && charge.get().move().move().id().equals(currentAnimation)) {
+                speed = Math.clamp(charge.get().holdTick() - controller.getAnimationTicks(), 0.0F, 1.0F);
+                if (speed == 0.0F) {
+                    // Do not leak SpeedModifier's last fractional tick into a held charge pose.
+                    locomotionWeight = 0.0F;
+                    data.setPartialTick(0.0F);
+                    if (anim != null) anim.setupAnim(data);
+                    return;
+                }
+            } else if (isLocal(player)) {
                 speed = localRate(player);
             }
             locomotionWeight = LocomotionBlend.lerp(previousLocomotion, locomotion, data.getPartialTick());

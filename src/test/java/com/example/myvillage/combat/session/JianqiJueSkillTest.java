@@ -19,6 +19,22 @@ class JianqiJueSkillTest {
         assertEquals(0, move.feedback().cutRollDegrees());
     }
 
+    @Test void preparationIsPlayedDuringChargeAndOnlyTheRemainingSlashRunsAfterRelease() {
+        for (int elapsed = 0; elapsed <= skill.chargeTicks(); elapsed++) {
+            int level = skill.chargeLevel(elapsed);
+            int prepared = Math.min(elapsed, skill.chargePoseTicks());
+            assertEquals(prepared, skill.releaseAnimationOffset(level));
+            assertEquals(skill.releaseTicks(), prepared + skill.releaseDelay(level));
+            assertEquals(prepared, skill.chargePoseTick(elapsed), 1e-8);
+            var state = charge(); state.release(100 + elapsed, Vec3.ZERO, new Vec3(0, 0, 1));
+            assertFalse(state.waveActive(100 + elapsed + skill.releaseDelay(level) - 1));
+            assertTrue(state.waveActive(100 + elapsed + skill.releaseDelay(level)));
+        }
+        assertEquals(skill.chargePoseTicks(), skill.chargePoseTick(10000));
+        assertEquals(0, skill.chargePoseTick(-1));
+        assertEquals(0, skill.chargePoseTick(Double.NaN));
+    }
+
     @Test void serverClockBoundsChargeAndRoundsCostOnce() {
         CombatSkillSession charge = charge();
         assertEquals(8, charge.costAt(100));
@@ -40,7 +56,7 @@ class JianqiJueSkillTest {
         CombatSession.StartEvent start = session.startExternal(move, 120, CombatTestData.QINGFENG_SWORD,
                 ResourceLocation.withDefaultNamespace("overworld"), 42);
         assertTrue(session.isExternal()); assertEquals(1, start.revision());
-        assertEquals(skill.releaseTicks(), move.activeStartTick());
+        assertEquals(skill.releaseDelay(255), move.activeStartTick());
         assertTrue(move.step().isEmpty());
         assertEquals(1.35, move.damageMultiplier(), 1.0E-8);
         assertEquals(CombatSession.IntentDecision.REJECTED_TIMING, session.acceptIntent(
@@ -70,9 +86,9 @@ class JianqiJueSkillTest {
     @Test void pitchedWaveWaitsForWindupThenAdvancesToRangeOnce() {
         CombatSkillSession charge = charge();
         charge.release(120, Vec3.ZERO, new Vec3(0, .6, .8));
-        assertFalse(charge.waveActive(120 + skill.releaseTicks() - 1));
+        assertFalse(charge.waveActive(120 + skill.releaseDelay(charge.chargeLevel()) - 1));
         for (int i = 0; i < skill.travelTicks(); i++) {
-            assertTrue(charge.waveActive(120 + skill.releaseTicks() + i));
+            assertTrue(charge.waveActive(120 + skill.releaseDelay(charge.chargeLevel()) + i));
             charge.advance(charge.nextPosition(), false);
         }
         assertEquals(skill.range(), charge.position().length(), 1.0E-8);

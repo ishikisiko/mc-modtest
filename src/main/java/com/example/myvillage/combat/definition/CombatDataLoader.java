@@ -190,7 +190,7 @@ public final class CombatDataLoader {
         Fields root = new Fields(file, "", json, Set.of("schema", "id", "school", "charge_ticks",
                 "release_ticks", "recovery_ticks", "speed", "range", "half_width", "half_height",
                 "maximum_targets", "damage_multiplier", "charge_scale", "movement_multiplier",
-                "launch_height", "feedback_move", "reaction_move"));
+                "launch_height", "feedback_move", "reaction_move", "charge_pose_ticks"));
         root.schema();
         if (!root.id("id").equals(expectedId)) {
             throw root.error("id", "does not match the index id " + expectedId);
@@ -202,7 +202,8 @@ public final class CombatDataLoader {
                 root.positiveNumber("half_height"), root.positiveInteger("maximum_targets"),
                 root.positiveNumber("damage_multiplier"), root.positiveNumber("charge_scale"),
                 root.positiveNumber("movement_multiplier"), root.positiveNumber("launch_height"),
-                root.id("feedback_move"), root.optionalId("reaction_move").orElseGet(() -> root.id("feedback_move"))));
+                root.id("feedback_move"), root.optionalId("reaction_move").orElseGet(() -> root.id("feedback_move")),
+                json.has("charge_pose_ticks") ? root.integer("charge_pose_ticks") : 0));
     }
 
     private static AttackMoveDefinition parseMove(Fields move) {

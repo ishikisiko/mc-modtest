@@ -474,7 +474,7 @@ SKILL = obj({
     "maximum_targets": integer(1), "damage_multiplier": number(positive=True),
     "charge_scale": number(1), "movement_multiplier": number(positive=True),
     "launch_height": number(positive=True), "feedback_move": resource_id,
-}, {"reaction_move": resource_id})
+}, {"reaction_move": resource_id, "charge_pose_ticks": integer(0)})
 INDEX = obj({"schema": constant(SCHEMA_VERSION), "styles": id_list, "weapons": id_list}, {"skills": id_list})
 
 
@@ -615,6 +615,9 @@ def validate_skill(document: Any, file: str) -> list[Issue]:
         for key, maximum in maximums.items():
             if document[key] > maximum:
                 c.fail("INVARIANT", key, f"must be <= {maximum}")
+        pose = document.get("charge_pose_ticks", 0)
+        if pose >= document["release_ticks"] or pose > document["charge_ticks"] or (pose > 0 and document["charge_ticks"] > 255):
+            c.fail("INVARIANT", "charge_pose_ticks", "must fit before release and charge, with charge <= 255 ticks")
         if document["range"] / document["speed"] > 1200:
             c.fail("INVARIANT", "speed", "travel time must be <= 1200 ticks")
     return c.issues

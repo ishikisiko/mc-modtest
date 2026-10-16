@@ -76,6 +76,14 @@ class CombatDataTest(unittest.TestCase):
         self.root = Path(self.temp_dir.name)
         shutil.copytree(combat_data.ROOT / DATA, self.root / DATA)
 
+    def test_charge_pose_must_stop_before_contact_and_allow_exact_charge_byte_timing(self):
+        path=f"{DATA}/skill/jianqi_jue.json";skill=self.read(path)
+        skill.pop('charge_pose_ticks',None);self.write(path,skill);self.assertFalse(self.issues())
+        skill['charge_pose_ticks']=skill['release_ticks'];self.write(path,skill)
+        self.assertTrue(any(i.field=='charge_pose_ticks' for i in self.issues()))
+        skill['charge_pose_ticks']=3;skill['charge_ticks']=256;self.write(path,skill)
+        self.assertTrue(any(i.field=='charge_pose_ticks' for i in self.issues()))
+
     def test_optional_skill_reaction_reference_and_legacy_fallback(self) -> None:
         path = f"{DATA}/skill/jianqi_jue.json"
         skill = self.read(path); skill.pop('reaction_move', None); self.write(path, skill)

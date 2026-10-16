@@ -21,6 +21,16 @@ class SwordQiPresentationTest(unittest.TestCase):
                              'First-person contact and third-person forward crossing must release together')
         planes=[k['plane'] for k in fp['keys'] if 'plane' in k]
         self.assertTrue(planes);self.assertTrue(all(p==0 for p in planes))
+    def test_charge_holds_left_before_the_horizontal_strike(self):
+        skill=json.loads((ROOT/'src/main/resources/data/myvillage/combat/skill/jianqi_jue.json').read_text())
+        pose=next(k for k in BASIC_SWORD_MOVES[skill['feedback_move']].keys if k.tick==skill['charge_pose_ticks'])
+        self.assertEqual(pose.phase,'coil');self.assertLess(pose.blade[0],-90)
+        self.assertLess(skill['charge_pose_ticks'],skill['release_ticks'])
+        rig=json.loads((ROOT/'src/main/resources/assets/myvillage/combat/qingfeng_first_person.json').read_text())
+        fp=rig['moves'][skill['feedback_move']]
+        self.assertLess(skill['charge_pose_ticks'],fp['strike'][0])
+        self.assertLess(fp['strike'][0],fp['contact'])
+
     def test_art_profile_has_a_thin_rim_and_separated_short_trails(self):
         p=json.loads((ROOT/'src/main/resources/assets/myvillage/combat/sword_qi_wave.json').read_text())
         self.assertTrue(all(b['thickness']<=.2 for b in p['bands']))

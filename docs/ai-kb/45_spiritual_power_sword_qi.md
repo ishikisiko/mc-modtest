@@ -169,3 +169,26 @@ the owner's build-only request.
 Area-fix developer evidence: [0.56.0-fix1 record](../testing/2026-10-16-sword-qi-area.md).
 
 Horizontal thin-blade follow-up: [0.56.0-fix2 evidence](../testing/2026-10-16-sword-qi-horizontal-blade.md).
+
+## Charging stance (0.56.0-fix3)
+
+Optional `charge_pose_ticks` selects the preparation prefix of the skill's feedback
+animation; it defaults to zero for old skill files. Sword qi uses the horizontal
+cut's left-side coil at tick 3, before the first-person strike begins at 3.3.
+Accepted CHARGING drives the first-person shared item/arm sampler and the remote
+PAL layer through that prefix and holds it. No probe or separate client hit authority
+is used. The partial tick is pinned when PAL reaches the held key.
+
+On release, the existing charge byte reconstructs the completed prefix. With a
+positive charge pose, charge duration is bounded to 255 ticks so integer server
+charge ages reconstruct exactly. Both `CombatSkillSession.waveActive` and the
+external attack window use `release_ticks - completed_prefix`. The animation/trail
+starts at that prefix, so total visual contact remains at tick 5, with two ticks
+remaining after a fully prepared coil. Quick taps use their partial preparation.
+GUI/weapon/damage cancellation and lifecycle removal clear the held pose; the local
+hand captures its last displayed pose for the normal blend-out. No pose data enters
+server damage, cost or target selection.
+
+`--preset sword-qi-charge` checks timing arithmetic, schema compatibility, client
+animation/input regressions, then mapped casts/cancellations and a second client's
+normal-speed charging/release observation. Actual evidence is recorded separately.

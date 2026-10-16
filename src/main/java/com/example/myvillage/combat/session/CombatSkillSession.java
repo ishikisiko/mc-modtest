@@ -52,7 +52,7 @@ public final class CombatSkillSession {
         return true;
     }
     public boolean waveActive(long tick) {
-        return !charging() && !waveStopped && tick >= releaseTick + skill.releaseTicks()
+        return !charging() && !waveStopped && tick >= releaseTick + skill.releaseDelay(chargeLevel)
                 && travelled < skill.range();
     }
     public Vec3 nextPosition() { return origin.add(direction.scale(Math.min(skill.range(), travelled + skill.speed()))); }

@@ -47,6 +47,7 @@ def observe(session,out=DEFAULT_OUT/'observer',log=print,timeout=180,tick_rate=1
                     'summon minecraft:iron_golem .5 -60 6.5 {NoAI:1b,PersistenceRequired:1b,Tags:["sword_qi_target"]}',warn=False)
         session.game.key('1');scene.ensure_cultivation(session);time.sleep(1)
         before=scene.parse_float_data(session.run(f'data get entity {TARGET} Health',warn=False)[0]);mark=(LOG_DIR/'server.log').stat().st_size
+        game.shot(out/'observer_before.png',max_wait=.3)
         video=out/'observer_cast.mp4'
         recorder=subprocess.Popen(ffmpeg_record_argv(display,video,9,fps=30),stdout=subprocess.DEVNULL,stderr=subprocess.PIPE)
         try:

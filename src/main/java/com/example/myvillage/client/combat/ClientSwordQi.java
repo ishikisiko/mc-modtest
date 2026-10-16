@@ -33,6 +33,37 @@ import java.util.Map;
 @EventBusSubscriber(modid = MyVillageMod.MOD_ID, value = Dist.CLIENT)
 public final class ClientSwordQi {
     private record Charge(ResourceLocation skill, long localStart, long revision) { }
+    record ChargePose(CombatStyles.MoveRef move, float tick, float holdTick) { }
+
+    static java.util.Optional<ChargePose> chargePose(int entityId, float partialTick) {
+        var charge = CHARGES.get(entityId);
+        if (charge == null) return java.util.Optional.empty();
+        return CombatStyles.bundled().skill(charge.skill()).filter(skill -> skill.chargePoseTicks() > 0)
+                .flatMap(skill -> CombatStyles.bundled().move(skill.feedbackMove()).map(move ->
+                        new ChargePose(move, (float) skill.chargePoseTick(ClientCombatClock.now(partialTick) - charge.localStart()),
+                                skill.chargePoseTicks())));
+    }
+
+    static int releaseAnimationOffset(int entityId, long revision) {
+        var release = RELEASES.get(entityId);
+        if (release == null || release.revision() != revision) return 0;
+        return CombatStyles.bundled().skill(release.skillId())
+                .map(skill -> skill.releaseAnimationOffset(release.chargeLevel())).orElse(0);
+    }
+
+    /** Capture the held hand before removing its pose; cancellation blends back, release continues it. */
+    private static void endCharge(int entityId, boolean released) {
+        var charge = CHARGES.get(entityId);
+        if (charge == null) return;
+        var mc = Minecraft.getInstance();
+        var entity = mc.level == null ? null : mc.level.getEntity(entityId);
+        if (entity instanceof net.minecraft.client.player.AbstractClientPlayer player) {
+            FirstPersonWeaponAnimator.leaveCharge(player);
+            CHARGES.remove(entityId);
+            if (!released) CombatStyles.bundled().styleFor(player.getMainHandItem())
+                    .ifPresent(style -> CombatAnimationController.transition(player, style.readyIdleAnimation()));
+        } else CHARGES.remove(entityId);
+    }
     private static final Map<Integer, Charge> CHARGES = new HashMap<>();
     private static final Map<Integer, Long> REVISIONS = new HashMap<>();
     private static final Map<Integer, CombatSkillStatePayload> RELEASES = new HashMap<>();
@@ -101,10 +132,11 @@ public final class ClientSwordQi {
             PacketDistributor.sendToServer(CombatReleaseIntentPayload.INSTANCE);
         }
         long now = ClientCombatClock.ticks();
-        CHARGES.entrySet().removeIf(entry -> {
+        for (var entry : java.util.List.copyOf(CHARGES.entrySet())) {
             var skill = CombatStyles.bundled().skill(entry.getValue().skill()).orElse(null);
-            return skill == null || now - entry.getValue().localStart() > skill.chargeTicks() + 40;
-        });
+            if (skill == null || now - entry.getValue().localStart() > skill.chargeTicks() + 40)
+                endCharge(entry.getKey(), false);
+        }
         for (var entry : CHARGES.entrySet()) {
             var entity = mc.level.getEntity(entry.getKey());
             if (entity == null) continue;
@@ -123,21 +155,26 @@ public final class ClientSwordQi {
         if (payload.revision() < previous) return;
         REVISIONS.put(payload.attackerEntityId(), payload.revision());
         switch (payload.phase()) {
-            case CHARGING -> CHARGES.put(payload.attackerEntityId(), new Charge(payload.skillId(),
-                    ClientCombatClock.localTickAgo(ClientCombatClock.elapsedSinceServer(payload.serverTick())), payload.revision()));
+            case CHARGING -> {
+                CHARGES.put(payload.attackerEntityId(), new Charge(payload.skillId(),
+                        ClientCombatClock.localTickAgo(ClientCombatClock.elapsedSinceServer(payload.serverTick())), payload.revision()));
+                var entity = mc.level.getEntity(payload.attackerEntityId());
+                if (entity instanceof net.minecraft.client.player.AbstractClientPlayer player)
+                    chargePose(player.getId(), 0).ifPresent(pose -> CombatAnimationController.beginCharge(player, pose));
+            }
             case RELEASED -> {
-                CHARGES.remove(payload.attackerEntityId());
+                endCharge(payload.attackerEntityId(), true);
                 RELEASES.put(payload.attackerEntityId(), payload);
                 SwordQiWaveRenderer.released(payload);
             }
             case WAVE -> SwordQiWaveRenderer.update(payload);
             case STOPPED -> {
-                CHARGES.remove(payload.attackerEntityId());
+                endCharge(payload.attackerEntityId(), false);
                 RELEASES.remove(payload.attackerEntityId());
                 SwordQiWaveRenderer.stop(payload.attackerEntityId());
             }
             default -> {
-                CHARGES.remove(payload.attackerEntityId());
+                endCharge(payload.attackerEntityId(), false);
                 if (mc.player != null && payload.attackerEntityId() == mc.player.getId()) refusedAt = ClientCombatClock.ticks();
             }
         }
@@ -174,13 +211,14 @@ public final class ClientSwordQi {
     }
 
     static void forgetEntity(int entityId) {
-        CHARGES.remove(entityId);
+        endCharge(entityId, false);
         RELEASES.remove(entityId);
         REVISIONS.remove(entityId);
         SwordQiWaveRenderer.stop(entityId);
     }
 
     private static void clear() {
+        for (int id : java.util.List.copyOf(CHARGES.keySet())) endCharge(id, false);
         CHARGES.clear();
         REVISIONS.clear();
         RELEASES.clear();

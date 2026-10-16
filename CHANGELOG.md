@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.56.0-fix3
+
+- 剑气开始蓄力时即将剑收到左侧并保持蓄势，第一/第三人称同步；释放从蓄势姿态接横斩，不再重复前摇。
+- 服务端按已完成的准备动作计算剩余出射延迟；快点按与满蓄力均对齐刃口接触帧，成本、伤害和范围不变。
+- 取消、切武器和生命周期清理会结束蓄势并收回姿态，避免手臂卡住。
+
 ## 0.56.0-fix2
 
 - 剑气释放改为横斩，在剑刃扫过前方时出射；首帧从服务器出射点连续插值，避免直接跳到两格外。

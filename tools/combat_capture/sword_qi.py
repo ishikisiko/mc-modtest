@@ -142,6 +142,7 @@ class SwordQiCapture:
         log_file = LOG_DIR / 'server.log'; mark = log_file.stat().st_size
         name = trial['id']; video = self.out / f'{name}.mp4'
         hold = trial.get('hold', .35)
+        if trial.get('charge_shot'): self.g.shot(self.out / f'{name}-before.png', max_wait=.3)
         recorder = subprocess.Popen(ffmpeg_record_argv(self.s.state['display'], video, hold + 5),
                                     stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE)
         try:
@@ -149,6 +150,7 @@ class SwordQiCapture:
             self.g.xdo('mousedown', '3')
             try:
                 time.sleep(.3)
+                if trial.get('charge_shot'): self.g.shot(self.out / f'{name}-charging.png', max_wait=.3)
                 if trial.get('cancel') in ('switch', 'same_weapon'): self.g.key('2')
                 elif trial.get('cancel') == 'damage': self.run(f'damage {self.user} 1 minecraft:generic')
                 elif trial.get('cancel') == 'dodge': self.g.key('Alt_L')
@@ -159,6 +161,8 @@ class SwordQiCapture:
             time.sleep(2.5)
             if trial.get('cancel') == 'menu':
                 self.g.xdo('key','Escape'); time.sleep(.6)
+            if trial.get('charge_shot') or trial.get('cancel'):
+                self.g.shot(self.out / f'{name}-after.png', max_wait=.3)
             after = self.health(); after_profile = self.profile()
             with log_file.open('rb') as stream:
                 stream.seek(mark); lines = stream.read().decode('utf-8', 'replace').splitlines()

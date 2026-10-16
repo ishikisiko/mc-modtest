@@ -325,8 +325,9 @@ public final class ClientCombatEvents {
                 && ClientCombatState.predictionPending();
         // The server's start enters the local clock here, once.
         long elapsed = ClientCombatClock.elapsedSinceServer(payload.serverStartTick());
-        CombatAnimationController.play(player, payload.moveId(), (float) elapsed);
-        CombatWorldTrails.start(player, started.get().move(), (float) elapsed, payload.facingYaw());
+        float animationElapsed = elapsed + ClientSwordQi.releaseAnimationOffset(payload.attackerEntityId(), payload.revision());
+        CombatAnimationController.play(player, payload.moveId(), animationElapsed);
+        CombatWorldTrails.start(player, started.get().move(), animationElapsed, payload.facingYaw());
         if (player == minecraft.player) {
             if (!localPredictionPending) {
                 player.swing(InteractionHand.MAIN_HAND, false);

@@ -117,6 +117,16 @@ public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
         animator.blendTicks = CHAIN_BLEND_TICKS;
     }
 
+    static void leaveCharge(AbstractClientPlayer player) {
+        if (player != Minecraft.getInstance().player || !(player instanceof LocalPlayer local)) return;
+        FirstPersonSwingResources.forHeld(local).ifPresent(rig -> {
+            INSTANCE.blendFrom = INSTANCE.currentPose(local, 0, rig.swing());
+            INSTANCE.blendStartTick = ClientCombatClock.ticks();
+            INSTANCE.blendTicks = BLEND_OUT_TICKS;
+        });
+        INSTANCE.clear();
+    }
+
     static void stop(AbstractClientPlayer player) {
         if (player == Minecraft.getInstance().player) {
             INSTANCE.beginBlendOut(player);
@@ -304,6 +314,11 @@ public final class FirstPersonWeaponAnimator implements IClientItemExtensions {
     Optional<Frame> currentFrame(LocalPlayer player, float partialTick) {
         if (probeFrame != null) {
             return holdsStyle(player, probeStyle) ? Optional.of(probeFrame) : Optional.empty();
+        }
+        var charge = ClientSwordQi.chargePose(player.getId(), partialTick);
+        if (charge.isPresent() && holdsStyle(player, charge.get().move().style())
+                && ClientCombatState.mode() == CombatMode.CULTIVATION) {
+            return Optional.of(new Frame(charge.get().move().index(), charge.get().tick(), false));
         }
         if (activeMoveIndex < 0 || timeline == null) {
             return Optional.empty();
