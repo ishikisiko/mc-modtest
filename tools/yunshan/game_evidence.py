@@ -155,7 +155,13 @@ class BuildingEvidence(Evidence):
         u=self.s.username;self.set_hud(False);self.rc(f'gamemode survival {u}')
         for service in d.get('service_blocks',[]):
             p=d['walk_targets'][service['approach']];pos=self.xyz(d,[p[0]+.5,p[1],p[2]+.5]);b=service['pos'];target=self.xyz(d,[b[0]+.5,b[1]+.5,b[2]+.5])
+            # Keep the ray below the small furnace's upper rim, rather than
+            # looking almost vertically down from the immediately adjacent cell.
+            dx,dz=pos[0]-target[0],pos[2]-target[2];length=math.hypot(dx,dz)
+            pos[0]=target[0]+2.2*dx/length;pos[2]=target[2]+2.2*dz/length
+            self.rc(f'clear {u}')
             yaw,pitch=aim(pos,target);self.teleport(pos,yaw,pitch)
+            self.s.game.shot(self.out/d['presentation']['role']/(service['approach']+'-before-use.png'),max_wait=2,settle=.45)
             before=self.rc(f'myvillage cultivation info {u}') if 'inheritance_stele' in service['state'] else None
             self.s.game.require_ingame('mapped facility use');self.s.game.xdo('click','3')
             if 'inheritance_stele' in service['state']:
@@ -179,6 +185,7 @@ class BuildingEvidence(Evidence):
         self.set_hud(False);self.rc(f'gamemode creative {self.s.username}')
         pos=[block[0]-2.5,y+1,z+.5];target=[block[0]+.5,block[1]+.5,z+.5]
         yaw,pitch=aim(pos,target);self.teleport(pos,yaw,pitch)
+        self.s.game.shot(self.out/d['presentation']['role']/'structure-before-use.png',max_wait=2,settle=.45)
         self.s.game.require_ingame('structure-block editor');self.s.game.xdo('click','3')
         self.poll(self.s.game.pointer_grabbed,lambda p:not p,8,'structure editor opened')
         folder=self.out/d['presentation']['role'];window=self.s.game.xdo('search','--name','Minecraft').split()[0]
