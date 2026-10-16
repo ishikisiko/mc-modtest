@@ -72,6 +72,14 @@ crescent mesh between received positions without extrapolating through a wall.
 Since 0.46.2 its thicker body and brighter leading edge improve visibility;
 the mesh stays inside the received authoritative wave bounds. This changes
 presentation only, not damage, collision, charge cost, speed or range.
+In 0.56.0-fix1 the authored half-width/half-height increase from 1.1/0.25 to
+2.0/0.45. Both the server envelope and the existing crescent renderer consume
+these values: uncharged width/thickness is 4.0/0.9 blocks and full charge is
+6.0/1.35. This is an explicit collision-area change, unlike the earlier cosmetic
+polish. Shape, damage, target cap, cost, speed and range retain their existing rules.
+Wider edges still stop at walls; the full-charge horizontal blade clears flat ground.
+`--preset sword-qi-area` tests authored collision/mesh bounds and mapped lateral,
+vertical, outside-envelope and wall cases without unrelated full-release scenarios.
 Charge uses enchant particles and the HUD; release reuses the existing diagonal
 first/third-person attack clip. Direction (yaw and pitch) is frozen at release.
 The full swept envelope is conservative near oblique walls; an edge obstruction

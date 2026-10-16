@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.56.0-fix1
+
+- 剑气诀的命中与视觉同步扩大：点按宽 4 格、厚 0.9 格；满蓄力宽 6 格、厚 1.35 格。月牙形和现有蓄力缩放沿用同一尺寸配置。
+- 新增横向、纵向扩展边缘与范围外对照检查，保留完整墙和侧缘墙阻挡验证。
+
 ## 0.56.0
 
 - 新增一次性物品「引魔珠」与工作台配方；在合格空地召唤三波战斗试炼，成功后才消耗。

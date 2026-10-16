@@ -41,6 +41,13 @@ def trial_plan():
         {'id': 'not_learned', 'learned': False, 'expect': 'client_gate'},
         {'id': 'tap_hit', 'expect': 'hit'},
         {'id': 'charged_hit', 'hold': 2.4, 'expect': 'hit'},
+        # Targets beyond the pre-0.56.0-fix1 envelope, plus explicit outside controls.
+        {'id': 'tap_wide_edge', 'target_x': 3.1, 'expect': 'hit'},
+        {'id': 'tap_outside_width', 'target_x': 3.8, 'expect': 'range'},
+        {'id': 'charged_wide_edge', 'target_x': 4.1, 'hold': 2.4, 'expect': 'hit'},
+        {'id': 'charged_outside_width', 'target_x': 4.5, 'hold': 2.4, 'expect': 'range'},
+        {'id': 'tap_high_edge', 'target_y': -58.45, 'no_gravity': True, 'expect': 'hit'},
+        {'id': 'charged_high_edge', 'target_y': -58.2, 'no_gravity': True, 'hold': 2.4, 'expect': 'hit'},
         {'id': 'wall', 'wall': 'full', 'expect': 'wall'},
         {'id': 'edge_wall', 'wall': 'edge', 'target_x': 1.25, 'expect': 'wall'},
         {'id': 'out_of_range', 'target_z': 11.5, 'expect': 'range'},
@@ -81,8 +88,10 @@ class SwordQiCapture:
     def __init__(self, session, out, log=print):
         self.s, self.g, self.user, self.out, self.log = session, session.game, session.username, Path(out), log
         self.out.mkdir(parents=True, exist_ok=True)
+        skill = json.loads((REPO / 'src/main/resources/data/myvillage/combat/skill/jianqi_jue.json').read_text())
         self.manifest = {'kind': 'sword_qi', 'created_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
                          'method': 'mapped right mouse down/up; server RCON preparation and health; no DevBridge or pose probe',
+                         'wave_dimensions': {k: skill[k] for k in ('half_width', 'half_height', 'charge_scale')},
                          'preparation': 'admin boundary fixtures (learn/fill/targets); not natural acquisition evidence',
                          'owner_verdict': 'not_verified', 'natural_acquisition': 'not_verified',
                          'restart_persistence': 'not_verified', 'two_clients': 'not_verified',
@@ -118,7 +127,7 @@ class SwordQiCapture:
         self.run(f'myvillage cultivation {"learn" if trial.get("learned", True) else "forget"} {self.user} {TECHNIQUE}',
                  (f'myvillage cultivation qi set {self.user} {trial["power"]}' if 'power' in trial else f'myvillage cultivation qi fill {self.user}'))
         x = trial.get('target_x', .5)
-        self.run(f'summon minecraft:iron_golem {x} -60 {trial.get("target_z", 6.5)} {{NoAI:1b,PersistenceRequired:1b,Tags:["sword_qi_target"]}}')
+        self.run(f'summon minecraft:iron_golem {x} {trial.get("target_y", -60)} {trial.get("target_z", 6.5)} {{NoAI:1b,NoGravity:{1 if trial.get("no_gravity") else 0}b,PersistenceRequired:1b,Tags:["sword_qi_target"]}}')
         if trial.get('wall') == 'full':
             self.run('fill -2 -60 3 2 -56 3 minecraft:stone')
         elif trial.get('wall') == 'edge':

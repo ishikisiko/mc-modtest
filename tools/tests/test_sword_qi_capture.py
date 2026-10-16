@@ -9,6 +9,15 @@ from tools.combat_capture.cli import build_parser
 
 
 class SwordQiEvidenceTest(unittest.TestCase):
+    def test_new_margin_fixtures_require_hits_and_have_outside_controls(self):
+        plan={t['id']:t for t in trial_plan()}
+        for name in ('tap_wide_edge','charged_wide_edge','tap_high_edge','charged_high_edge'):
+            self.assertEqual(plan[name]['expect'],'hit')
+        for name in ('tap_outside_width','charged_outside_width'):
+            self.assertEqual(plan[name]['expect'],'range')
+        self.assertTrue(plan['tap_high_edge']['no_gravity'])
+        self.assertTrue(plan['charged_high_edge']['no_gravity'])
+
     def test_power_snapshot_and_client_gate(self):
         self.assertEqual(parse_power('Spiritual power CaptureDev: current=20, cap=40, recovery_ticks=5'),20)
         self.assertIsNone(parse_power('Unknown command'))

@@ -7,7 +7,9 @@ import static org.junit.jupiter.api.Assertions.*;
 class SwordQiWaveShapeTest {
     @Test void allChargeLevelsHaveFiniteVerticesInsideReceivedWidthAndHeight() {
         for (int level : new int[]{0, 1, 127, 255}) {
-            double scale = 1 + .5 * level / 255.0, width = 1.1 * scale, height = .25 * scale;
+            var skill = com.example.myvillage.combat.definition.CombatTestData.styles().skill(
+                    net.minecraft.resources.ResourceLocation.parse("myvillage:jianqi_jue")).orElseThrow();
+            double scale = skill.scale(level), width = skill.halfWidth() * scale, height = skill.halfHeight() * scale;
             vertices(width, height).forEach(v -> {
                 assertTrue(Double.isFinite(v.x()) && Double.isFinite(v.y()) && Double.isFinite(v.z()));
                 assertTrue(Math.abs(v.x()) <= width + 1e-12);
