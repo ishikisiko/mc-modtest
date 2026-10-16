@@ -116,3 +116,5 @@ uses those actual outputs to forge three trait-bearing swords. A raw-quartz
 rejection case checks that the old additive cannot bypass processing. Raw input
 items are administrator fixtures; natural mining, owner balance/appearance and
 new broad multiplayer/lifecycle checks are not claimed by this bounded run.
+
+Materials delivery evidence: [2026-10-17 forging materials](../testing/2026-10-17-forging-materials.md).
