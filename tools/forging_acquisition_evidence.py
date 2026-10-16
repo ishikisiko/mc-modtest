@@ -106,10 +106,11 @@ class AcquisitionEvidence(ForgingEvidence):
             self.rc('forceload remove '+self.coords(bounds))
         self.check('natural_ore_generated',bool(found[ORE]),len(found[ORE]))
         self.check('natural_sand_generated',bool(found[SAND]),len(found[SAND]))
-        ore=sorted(found[ORE],key=lambda p:abs(p[1]+30))[0];sand=found[SAND][0]
+        ore=sorted(found[ORE],key=lambda p:abs(p[1]+30))[0]
+        sand=next((p for p in found[SAND] if self.block_exists((p[0],p[1]+1,p[2]),'minecraft:air')),found[SAND][0])
         self.report['natural_targets']={'ore':ore,'sand':sand}
         self.check('ore_in_authored_depth',all(self.acquisition['xuantie']['min_y']-9<=p[1]<=self.acquisition['xuantie']['max_y']+9 for p in found[ORE]),{'sample':ore,'count':len(found[ORE])})
-        self.look((sand[0]+7,sand[1]+7,sand[2]-8),(sand[0]+.5,sand[1]+.5,sand[2]+.5),mode='spectator');self.capture('natural-river-sand.png')
+        self.look((sand[0]+.5,sand[1]+3,sand[2]-3),(sand[0]+.5,sand[1]+.5,sand[2]+.5),mode='spectator');self.capture('natural-river-sand.png')
         self.report['completed'].append('natural_deposits');return ore,sand
     def mining(self,pos,block,tool,item,label,expect=True):
         u=self.s.username;x,y,z=pos
@@ -117,6 +118,7 @@ class AcquisitionEvidence(ForgingEvidence):
         self.rc(f'forceload add {x-16} {z-16} {x+16} {z+16}')
         self.rc(f'fill {x-1} {y} {z-3} {x+1} {y+2} {z-1} minecraft:air')
         self.rc(f'fill {x-1} {y-1} {z-3} {x+1} {y-1} {z-1} minecraft:stone')
+        self.rc(f'setblock {x-1} {y} {z-2} minecraft:torch')
         self.rc(f'item replace entity {u} hotbar.0 with {tool}');self.s.game.key('1')
         self.look((x+.5,y,z-2.5),(x+.5,y+.5,z+.5));self.capture(label+'-before.png');before=self.count(item)
         self.s.game.xdo('mousedown','1')
@@ -145,11 +147,11 @@ class AcquisitionEvidence(ForgingEvidence):
         self.click(78+(slot%9)*18,222 if slot<9 else 164+((slot-9)//9)*18,shift=True,game=game)
     def infusion_cases(self):
         self.platform();u=self.s.username
-        self.rc(f'item replace entity {u} hotbar.1 with minecraft:copper_ingot 4');self.s.game.key('1')
+        self.rc(f'give {u} minecraft:copper_ingot 4');self.s.game.key('1')
         original=self.copper_stacks();self.infusion();self.insert_copper();self.click(120,137);time.sleep(.5);self.close_menu()
         self.check('unawakened_refused',self.copper_stacks()==original and self.count('myvillage:chitong_ingot')==0,self.inventory())
-        self.rc(f'myvillage cultivation awaken {u}');self.rc(f'myvillage cultivation setpower {u} 3')
-        self.infusion();self.insert_copper();self.click(120,137);time.sleep(1.5);self.capture('insufficient-qi.png');self.close_menu()
+        self.rc(f'myvillage cultivation awaken {u}')
+        self.infusion();self.insert_copper();self.rc(f'myvillage cultivation setpower {u} 0');self.click(120,137);time.sleep(1.2);self.capture('insufficient-qi.png');self.close_menu()
         self.check('insufficient_qi_no_partial_pulse',self.copper_stacks()==original and self.count('myvillage:chitong_ingot')==0,self.copper_stacks())
         self.rc(f'myvillage cultivation setpower {u} 30');self.infusion();self.insert_copper();self.click(120,137)
         self.poll(lambda:self.profile()['power'],lambda n:n<=22,8,'two paid pulses');self.click(220,137);self.capture('paused-infusion-zh.png');self.close_menu()

@@ -91,39 +91,73 @@ feel and FPS remain `not_verified` until separately observed.
 Ding delivery evidence: [2026-10-16 forging ding](../testing/2026-10-16-forging-ding.md).
 
 
-## Dedicated materials (0.57.3)
+## Material acquisition (0.58.0)
 
-`tools/forging/materials.json` schema v2 owns the three materials' IDs, names,
-traits and descriptions. `materials.py` owns their 32px pixel icons and item
-models. It no longer accepts acquisition ingredients or produces recipes.
-`gen_forging_assets.py` removes the six explicitly retired recipe/advancement
-paths during generation; `--check` rejects lingering retired outputs.
-`--materials-preview` renders the generated PNGs without rebuilding ding previews.
+Three ordinary additive items retain their registry IDs and consumers in
+`forging/rules.json`. `xuantie_ingot` now displays as 玄铁 / Dark Iron, with a raw
+mineral silhouette. Existing stacks and old forged weapons need no migration.
+The removed 0.57.2 workbench recipes/advancements remain explicit retired outputs;
+`gen_forging_assets.py --check` rejects their reappearance.
 
-- `xuantie_ingot` / 玄铁锭: consumed by tough.
-- `chitong_ingot` / 赤铜锭: consumed by channeling (sword only).
-- `edge_tempering_sand` / 淬锋砂: consumed by sharp.
+### Copper infusion
 
-These remain ordinary stackable items with localized purpose tooltips
-(`ForgingMaterialItem`). Existing stacks and the creative inventory remain usable.
-**There is currently no survival acquisition route for these three materials.**
-`forging/rules.json` remains the sole source for additive consumption. Base weapon
-materials, quality weights, trait effects and repair remain unchanged. Old weapons
-require no migration. No new acquisition gameplay is claimed by this removal.
+The existing ding menu opens `CopperInfusionMenu` through a bounded button intent.
+It retains the same placed-block validity, living owner, current-menu and spectator
+checks. A batch uses ordinary vanilla copper ingots, an input slot and a take-only
+output slot. Start/resume requires awakening; each server pulse plans a complete
+batch charge before calling `CultivationService.spendSpiritualPower`. There is no
+client-side cost or item mutation. A successful pulse updates the ingots or converts
+the whole batch; insufficient power pauses without a partial charge.
 
-The obsolete `forging-materials` preset and workbench collector were retired.
-Use the resource tests and `--preset forging-build` for this change; do not reuse
-0.57.2 workbench evidence as current acquisition proof. The historical report is
+`myvillage:copper_infusion` is bounded, persistent and network-synchronized **paid qi
+per ingot**. Progress moves with the copper, so splitting cannot multiply investment,
+and stacks with different paid progress do not merge. The rules plan only the
+remaining cost, including a final shorter pulse. Closing, walking away, logout or
+block removal returns both temporary slots through vanilla `clearContainer`; a full
+inventory drops the items by vanilla rules. Normal death-drop/keepInventory behavior
+applies. The paused progress survives item saves/restart; there is no offline job.
+Using unfinished copper in another vanilla recipe can consume it normally and does
+not refund its invested qi.
+
+Each viewer owns their temporary slots. Another player using the same ding has a
+separate batch. The ding's short shared light/particle pulse is cosmetic only. The
+screen displays the input/output, remaining batch cost, available power and gradual
+red runes. Partial vanilla copper has a localized progress tooltip. Compatibility
+protocol 26 covers the new menu, component and block registries.
+
+### Natural extraction
+
+- `xuantie_ore` is a vanilla ore configured feature in Overworld stone/deepslate,
+  restricted to the authored deep height range. Air exposure is retained. Iron-tier
+  pickaxe drops raw `xuantie_ingot`; Silk Touch yields the block and Fortune applies.
+- `edge_tempering_sand_deposit` is a stable compact sediment block, shovel-mineable.
+  `EdgeSandFeature` examines real topography and replacement tags; it places bounded
+  patches only beside water or in the authored shallow depth. Biome placement is
+  limited by `has_edge_tempering_sand`. It never replaces deep floors or arbitrary
+  inland ground. Silk Touch yields the block; ordinary extraction gives usable sand.
+
+Both sources generate in new Overworld chunks only, are shared finite world blocks,
+and have no local refill timer. Finding and clearing one deposit can supply several
+weapons. Generation/harvest tuning is an initial balance candidate, not owner approval.
+
+### Sources and focused checks
+
+- `src/main/resources/data/myvillage/forging/acquisition.json`: sole authored infusion,
+  ore and sand tuning. `InfusionRules` consumes the infusion section at runtime.
+- `tools/forging/materials.json` schema v3: IDs, names, descriptions and acquisition
+  hints. `materials.py`: item sprites and models.
+- `tools/forging/acquisition.py`: tuning validation, deposit textures/models/loot/tags,
+  configured/placed features, biome modifiers and infusion screen sprites/strings.
+- `gen_forging_assets.py`: integrates these outputs; `--materials-preview` renders
+  actual item PNGs. Never hand-edit the generated assets.
+- `CopperInfusionTest`: progress codec/wire bounds, costs, partial resumption, splitting,
+  batch limits and insufficient-power refusal. Python tests check generator drift,
+  retired outputs, worldgen/drop/tool resources and the chunk-palette evidence parser.
+- Modal `--preset forging-acquisition`: focused build plus real natural-world deposit
+  readback, mapped mining/tool gates, infusion/refusal, interrupted restart, two-client
+  batches and forging with the acquired materials. Administrative teleports, tools,
+  copper/power and safe access tunnels are fixtures; they do not prove discovery time,
+  owner balance, appearance or feel. Those remain `not_verified`.
+
+Historical workbench evidence applies only to 0.57.2:
 [2026-10-17 forging materials](../testing/2026-10-17-forging-materials.md).
-
-### 获取方式方向（设计建议，未实现）
-
-目标是让辅材对应不同的出行动机，找到后直接用于炼器，不再增加原矿、粉末、精炼锭等加工中间层。
-
-- **玄铁：找矿。** 山体裂隙/洞穴可见少量玄铁矿脉，地表露头作为线索；每个矿点保底产出，深处矿点更多但伴随环境风险。自然产物宜显示为“玄铁”，沿用既有 registry ID，命名和外观待对应实现时确定。
-- **赤铜：拆取。** 从遗迹中明确可见的废弃机关、炉芯拆得，地点本身交代用途；风险来自守卫或机关。普通宝箱只能作为补充，不能成为唯一来源，也不让妖兽掉金属锭。可选择绕开守卫取少量，或清理后取完整器件中的材料。
-- **淬锋砂：择时采集。** 风蚀山口/峡谷的特殊砂层被风吹露后可采，玩家观察风势，在安全间隙进入。采集直接得到淬锋砂，不增加筛砂配方，也不采用原版砂砾超低概率掉落。
-
-首批应保证线索可见、成功找到后有确定收益、小量即能试做一把兵器。
-矿点消耗、砂层补充和多人共享规则需随实际采集玩法一并落实；不能依赖
-有限的一次性遗迹宝箱供应长期消耗品。以上地点、交互和补充机制均未进入当前版本。
