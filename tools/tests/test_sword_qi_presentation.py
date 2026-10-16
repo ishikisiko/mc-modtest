@@ -1,7 +1,8 @@
 import json
+import math
 from pathlib import Path
 import unittest
-from tools.gen_sword_pal_anims import BASIC_SWORD_MOVES
+from tools.gen_sword_pal_anims import BASIC_SWORD_MOVES, resolve, skeleton, shaft_body_gaps
 ROOT=Path(__file__).resolve().parents[2]
 
 class SwordQiPresentationTest(unittest.TestCase):
@@ -24,12 +25,29 @@ class SwordQiPresentationTest(unittest.TestCase):
     def test_charge_holds_left_before_the_horizontal_strike(self):
         skill=json.loads((ROOT/'src/main/resources/data/myvillage/combat/skill/jianqi_jue.json').read_text())
         pose=next(k for k in BASIC_SWORD_MOVES[skill['feedback_move']].keys if k.tick==skill['charge_pose_ticks'])
-        self.assertEqual(pose.phase,'coil');self.assertLess(pose.blade[0],-90)
+        self.assertEqual(pose.phase,'coil')
+        keys=BASIC_SWORD_MOVES[skill['feedback_move']].keys
+        held=resolve(keys)[keys.index(pose)];points=skeleton(held)
+        grip,tip=points['grip'],points['tip']
+        self.assertLess(grip[0],-.15, 'Grip stays on the left of the body')
+        self.assertTrue(.8 < grip[1] < 1.1, 'Grip stays at waist height')
+        self.assertLess(tip[2]-grip[2],-.8, 'Blade points behind the player')
+        self.assertLess(abs(tip[1]-grip[1]),.08, 'Held blade stays nearly horizontal')
+        self.assertGreater(shaft_body_gaps(held,points)['torso'],.5, 'Blade clears the torso')
         self.assertLess(skill['charge_pose_ticks'],skill['release_ticks'])
         rig=json.loads((ROOT/'src/main/resources/assets/myvillage/combat/qingfeng_first_person.json').read_text())
         fp=rig['moves'][skill['feedback_move']]
         self.assertLess(skill['charge_pose_ticks'],fp['strike'][0])
         self.assertLess(fp['strike'][0],fp['contact'])
+        # A long hold samples between these two keys. Check the actual blade axis,
+        # not the visible screen diagonal (the tip should be behind the camera).
+        pose=dict(rig['neutral'])
+        for key in fp['keys'][1:3]:
+            pose.update(key)
+            elevation=math.radians(pose['lift'])
+            forward=-math.sin(elevation)*math.cos(math.radians(pose['sweep']+pose['lead']))
+            self.assertLess(forward,-.8)
+            self.assertLess(abs(math.cos(elevation)),.1)
 
     def test_art_profile_has_a_thin_rim_and_separated_short_trails(self):
         p=json.loads((ROOT/'src/main/resources/assets/myvillage/combat/sword_qi_wave.json').read_text())

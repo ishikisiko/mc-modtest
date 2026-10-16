@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.56.0-fix4
+
+- 剑气蓄力改为左腰收剑、剑身近水平向后；第一人称握柄留在左下方，修正回握手腕角度，释放衔接横斩。
+- 同步横斩准备段的 PAL 动画与第一人称 rig；普攻第二段沿用同一收势，战斗数值和施放时序不变。
+
 ## 0.56.0-fix3
 
 - 剑气开始蓄力时即将剑收到左侧并保持蓄势，第一/第三人称同步；释放从蓄势姿态接横斩，不再重复前摇。

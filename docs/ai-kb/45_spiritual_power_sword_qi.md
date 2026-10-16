@@ -174,7 +174,11 @@ Horizontal thin-blade follow-up: [0.56.0-fix2 evidence](../testing/2026-10-16-sw
 
 Optional `charge_pose_ticks` selects the preparation prefix of the skill's feedback
 animation; it defaults to zero for old skill files. Sword qi uses the horizontal
-cut's left-side coil at tick 3, before the first-person strike begins at 3.3.
+cut's left-waist coil at tick 3, before the first-person strike begins at 3.3.
+Since 0.56.0-fix4 the grip sits at waist height and the blade points nearly
+horizontally backward. First person keeps the hilt low-left within view; the
+blade tip is behind the camera. This is the shared horizontal-cut preparation,
+so ordinary combo move 2 also uses the new coil.
 Accepted CHARGING drives the first-person shared item/arm sampler and the remote
 PAL layer through that prefix and holds it. No probe or separate client hit authority
 is used. The partial tick is pinned when PAL reaches the held key.
