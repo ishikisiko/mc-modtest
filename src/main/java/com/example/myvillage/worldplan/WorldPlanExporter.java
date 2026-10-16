@@ -76,9 +76,9 @@ const RAW=
 """+encoded+"""
 ;const A=
 """+grid+"""
-;const D=JSON.parse(RAW),SEED='
+;const D=JSON.parse(RAW),SEED=`
 """+p.seed()+"""
-'.trim();const tip=document.querySelector('#tip'),svg=document.querySelector('#map svg');
+`.trim();const tip=document.querySelector('#tip'),svg=document.querySelector('#map svg');
 document.querySelector('#summary').textContent=`种子 ${SEED} · ${D.graph.count} 个核心州域 · 无限外域 · 预览半径 ${A.radius} 格`;
 document.querySelector('#sites').textContent=`云山街区：${D.city.host}\n西北角：${D.city.x}, ${D.city.baseY}, ${D.city.z}\n尺寸：${D.city.width} × ${D.city.depth}\n出生点：${D.spawn.x}, ${D.spawn.y}, ${D.spawn.z}\n出生州：${D.spawn.regionId}`;
 document.querySelector('#hash').textContent='规划校验 '+D.plan_sha256;

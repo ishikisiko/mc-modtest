@@ -66,6 +66,8 @@ public final class WildernessRuntime {
     }
     public static Optional<String> regionAt(ServerLevel level, BlockPos pos) {
         if (!level.dimension().equals(Level.OVERWORLD)) return Optional.empty();
+        var planned = com.example.myvillage.worldplan.runtime.WorldPlanRuntime.context(level,pos.getX(),pos.getZ());
+        if(planned.isPresent())return Optional.of(planned.get().profileId());
         return RegionRuntimeService.regionAt(pos.getX(), pos.getZ())
                 .filter(id -> WildernessRules.bundled().region(id).isPresent());
     }
@@ -82,7 +84,15 @@ public final class WildernessRuntime {
         Optional<String> region = regionAt(level, pos);
         if (region.isEmpty()) { event.setSpawnCancelled(true); return; }
         // Entity RNG supplies one explicit input, exactly once, before this immutable birth is persisted.
-        if (beast.wildernessBirth().isEmpty()) assign(beast, region.get(), level.getSeed(), beast.getRandom().nextLong(), true);
+        if (beast.wildernessBirth().isEmpty()) {
+            var planned = com.example.myvillage.worldplan.runtime.WorldPlanRuntime.context(level,pos.getX(),pos.getZ());
+            if(planned.isPresent() && !planned.get().core()) {
+                var context=planned.get();
+                RealmKey realm=WildernessRules.bundled().region(context.profileId()).orElseThrow().beast()
+                        .sample(level.getSeed(),context.regionId(),beast.getRandom().nextLong());
+                beast.assignWildernessBirth(new BeastBirth(realm,context.regionId(),pos.getX(),pos.getY(),pos.getZ(),true));
+            } else assign(beast,region.get(),level.getSeed(),beast.getRandom().nextLong(),true);
+        }
     }
     private static boolean assign(BeastEntity beast, String region, long seed, long input, boolean natural) {
         RealmKey realm = WildernessRules.bundled().region(region).orElseThrow().beast().sample(seed, region, input);
@@ -120,15 +130,18 @@ public final class WildernessRuntime {
         result.put("dimension", source.getLevel().dimension().location().toString());
         result.put("pos", List.of(pos.getX(), pos.getY(), pos.getZ()));
         result.put("region", region.orElse(""));
+        com.example.myvillage.worldplan.runtime.WorldPlanRuntime.context(source.getLevel(),pos.getX(),pos.getZ())
+                .ifPresent(c -> result.put("worldplanContext",c));
         result.put("rulesHash", WildernessRules.bundled().hash());
         result.put("settings", WildernessRules.bundled().rogues());
         region.ifPresent(id -> {
             WildernessRules.Region range = WildernessRules.bundled().region(id).orElseThrow();
             result.put("beastRange", List.of(range.beast().min(), range.beast().max()));
             result.put("rogueRange", List.of(range.rogue().min(), range.rogue().max()));
-            Optional<WorldSim> sim = WorldSimRuntime.sim();
+            boolean outer=com.example.myvillage.worldplan.runtime.WorldPlanRuntime.context(source.getLevel(),pos.getX(),pos.getZ()).map(c->!c.core()).orElse(false);
+            Optional<WorldSim> sim = outer?Optional.empty():WorldSimRuntime.sim();
             result.put("eligibleRogues", sim.map(s -> WildAvatarPlanner.candidates(s.livingIn(id), id, range.rogue(), s.seed()).size()).orElse(0));
-            result.put("projectedRogues", WorldSimAvatars.wildCount(id));
+            result.put("projectedRogues", outer?0:WorldSimAvatars.wildCount(id));
         });
         result.put("avatarsTotal", WorldSimAvatars.totalCount());
         result.put("wildAvatarsTotal", WorldSimAvatars.wildCount(null));

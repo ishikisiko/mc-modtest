@@ -44,6 +44,8 @@ public final class GatePlacement {
         if (at.isEmpty() || !at.get().equals(regionId)) {
             return false;
         }
+        // Reserve planned city sites before ledger compounds are sited.
+        if (ctx.graph.geometry() != null && ctx.graph.geometry().reserved(x, z, g.minSpacing())) return false;
         long minSq = (long) g.minSpacing() * g.minSpacing();
         for (Sect s : ctx.state.sects.values()) {
             if (s.id == ignoreSectId) {

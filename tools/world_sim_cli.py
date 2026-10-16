@@ -31,7 +31,7 @@ REGION = REPO / "src/main/java/com/example/myvillage/region/runtime"
 # Pure region classes the sim core and its CLI use (RegionCatalogLoader is not pure).
 REGION_CLASSES = [
     "RegionGraph", "GenRegion", "GenEdge", "IntRange", "RegionQueries", "RegionPlacement",
-    "RegionContract", "RegionJson", "RegionTopologyGenerator", "Ruleset", "RegionProfile",
+    "RegionGeometry", "RegionContract", "RegionJson", "RegionTopologyGenerator", "Ruleset", "RegionProfile",
     "RegionRng", "RegionHash", "UnsatisfiableRulesetException",
 ]
 MAIN = "com.example.myvillage.sim.cli.SimCli"
