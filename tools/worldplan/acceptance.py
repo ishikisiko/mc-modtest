@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Bounded dedicated-server acceptance. Unique disposable worlds, loopback RCON, owned child processes only."""
 from __future__ import annotations
+from contextlib import contextmanager
 import hashlib
 import json
 import os
@@ -94,6 +95,23 @@ class Server:
                 else:path.write_bytes(content)
             write(OUT/(self.label+'-commands.json'),self.commands);write(OUT/(self.label+'-cleanup.json'),cleanup)
 
+@contextmanager
+def test_tickets(server,x0,z0,x1=None,z1=None):
+    """Bounded test-only tickets emulate a player keeping the inspected chunks interactive."""
+    x1=x0 if x1 is None else x1;z1=z0 if z1 is None else z1
+    server.cmd(f'forceload add {x0} {z0} {x1} {z1}')
+    try:
+        deadline=time.monotonic()+30
+        while True:
+            replies=[server.cmd(f'execute if loaded {x} 80 {z}') for x,z in [(x0,z0),(x1,z1)]]
+            if all('Test passed' in reply for reply in replies):break
+            if time.monotonic()>deadline:raise RuntimeError(f'Test chunks did not become interactive: {replies}')
+            time.sleep(.2)
+        yield
+    finally:
+        server.cmd(f'forceload remove {x0} {z0} {x1} {z1}')
+        server.cmd('forceload query')
+
 def check_saved(world,expected):
     _,tag=read_gzipped_nbt(str(world/'level.dat'))
     generator=tag['Data']['WorldGenSettings']['dimensions']['minecraft:overworld']['generator']
@@ -132,15 +150,17 @@ def main():
             partial=s.query('audit_city');assert partial['loaded_tiles']>0 and partial['missing_tiles']>0 and partial['differences']==0,partial
             result['checks']['partial_city']=partial
             marker=(city['x']+8,city['baseY']+city['height']-2,city['z']+8);at=' '.join(map(str,marker))
-            reply=s.cmd(f'execute if block {at} minecraft:air');assert 'Test passed' in reply,reply
-            s.cmd(f'setblock {at} minecraft:gold_block');s.cmd('save-all flush')
+            with test_tickets(s,marker[0],marker[2]):
+                reply=s.cmd(f'execute if block {at} minecraft:air');assert 'Test passed' in reply,reply
+                s.cmd(f'setblock {at} minecraft:gold_block');s.cmd('save-all flush')
         result['checks']['saved_a']=check_saved(GAME/world_a,expected)
         with Server(world_a,'a-restart') as s:
             assert s.query('info')['plan_sha256']==expected
             s.query('pregen_city reverse')
-            reply=s.cmd(f'execute if block {at} minecraft:gold_block');assert 'Test passed' in reply,reply
-            changed=s.query('audit_city');assert changed['missing_tiles']==0 and changed['differences']==1,changed
-            s.cmd(f'setblock {at} minecraft:air');clean=s.query('audit_city');assert clean['complete'],clean
+            with test_tickets(s,city['x'],city['z'],city['x']+city['width']-1,city['z']+city['depth']-1):
+                reply=s.cmd(f'execute if block {at} minecraft:gold_block');assert 'Test passed' in reply,reply
+                changed=s.query('audit_city');assert changed['missing_tiles']==0 and changed['differences']==1,changed
+                s.cmd(f'setblock {at} minecraft:air');clean=s.query('audit_city');assert clean['complete'],clean
             result['checks']['city_a']=clean;result['checks']['player_edit_survived_restart_and_extension']=True;result['checks']['saved_plan_unchanged']=True
         result['checks']['saved_a_again']=check_saved(GAME/world_a,expected)
         with Server(world_b,'b-reversed-order') as s:
@@ -149,8 +169,10 @@ def main():
                 check=s.query(f'probe {x} {z}');assert check['height_mismatches']==0 and check['exact_noise_stage'],check
                 assert check['height_sha256']==heights[f'{x},{z}']['height_sha256'],check
                 other[f'{x},{z}']=check
-            result['checks']['noise_b']=other;s.query('pregen_city reverse');clean_b=s.query('audit_city');assert clean_b['complete'],clean_b
-            assert clean_b['actual_sha256']==clean['actual_sha256'],(clean_b,clean)
+            result['checks']['noise_b']=other;s.query('pregen_city reverse')
+            with test_tickets(s,city['x'],city['z'],city['x']+city['width']-1,city['z']+city['depth']-1):
+                clean_b=s.query('audit_city');assert clean_b['complete'],clean_b
+                assert clean_b['actual_sha256']==clean['actual_sha256'],(clean_b,clean)
             result['checks']['city_b']=clean_b;shutil.copytree(s.world/'data/myvillage/worldplan',OUT/'actual-world-atlas',dirs_exist_ok=True)
         result['checks']['saved_b']=check_saved(GAME/world_b,expected)
         ordinary='worldplan_ordinary_'+suffix
@@ -159,7 +181,9 @@ def main():
         _,ordinary_data=read_gzipped_nbt(str(GAME/ordinary/'level.dat'))
         ordinary_generator=ordinary_data['Data']['WorldGenSettings']['dimensions']['minecraft:overworld']['generator']
         assert ordinary_generator['type']=='minecraft:noise' and 'plan_hash' not in ordinary_generator
-        result['checks']['ordinary_world_not_converted']=True;result['status']='pass'
+        result['checks']['ordinary_world_not_converted']=True
+        result['checks']['test_tickets']='one marker chunk, then at most 35 already-generated city chunks for audit; released before every shutdown'
+        result['status']='pass'
         with zipfile.ZipFile(OUT/'worldplan-acceptance-world.zip','w',zipfile.ZIP_DEFLATED) as z:
             for path in sorted((GAME/world_a).rglob('*')):
                 if path.is_file() and path.name not in ('session.lock','level.dat_old'):z.write(path,'worldplan-acceptance/'+str(path.relative_to(GAME/world_a)))
