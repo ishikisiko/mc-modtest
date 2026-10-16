@@ -17,7 +17,7 @@ public final class ModBlockEntities {
     @SuppressWarnings("DataFlowIssue")
     public static final Supplier<BlockEntityType<com.example.myvillage.ruins.BattleCacheBlockEntity>> BATTLE_CACHE =
             BLOCK_ENTITIES.register("battle_cache", () -> BlockEntityType.Builder.of(
-                    com.example.myvillage.ruins.BattleCacheBlockEntity::new, ModBlocks.BATTLE_CACHE.get()).build(null));
+                    com.example.myvillage.ruins.BattleCacheBlockEntity::new, ModBlocks.BATTLE_CACHE.get(), ModBlocks.DEMON_TRIAL_CORE.get()).build(null));
 
     @SuppressWarnings("DataFlowIssue")
     public static final Supplier<BlockEntityType<com.example.myvillage.ruins.RuinCoreBlockEntity>> RUIN_CORE =

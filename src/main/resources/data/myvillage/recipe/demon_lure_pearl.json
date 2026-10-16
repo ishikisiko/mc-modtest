@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    " S ",
+    "BEB",
+    " S "
+  ],
+  "key": {
+    "S": {
+      "item": "myvillage:low_grade_spirit_stone"
+    },
+    "B": {
+      "item": "minecraft:bone"
+    },
+    "E": {
+      "item": "minecraft:ender_pearl"
+    }
+  },
+  "result": {
+    "id": "myvillage:demon_lure_pearl",
+    "count": 1
+  }
+}

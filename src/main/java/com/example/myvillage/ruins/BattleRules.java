@@ -12,7 +12,7 @@ public record BattleRules(String id, String mode, RuinRules.Pos cache, RuinRules
         double triggerRadius, String manual, List<RuinRules.Reward> rewards, List<Wave> waves) {
     public record Guard(String entity, RuinRules.Pos pos, String realm, int stage, String weapon, boolean elite) {}
     public record Wave(RuinRules.Pos trigger, List<Guard> guards) {}
-    private static final Set<String> IDS = Set.of("duange_ruin", "fuyao_ruin");
+    private static final Set<String> IDS = Set.of("duange_ruin", "fuyao_ruin", "demon_trial");
     private static final class Bundled {
         static final Map<String, BattleRules> ALL = load();
         static Map<String, BattleRules> load() {

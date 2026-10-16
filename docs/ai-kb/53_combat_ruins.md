@@ -69,3 +69,26 @@ Owner appearance, combat balance/feel, audio/FPS and multiplayer experience rema
 [the 0.55.0 delivery record](../testing/2026-10-16-combat-ruins.md): 76 actual-game checks,
 including two real clients and two normal restarts, passed. The preset definition alone is
 not evidence of acceptance.
+
+## Portable trial (0.56.0)
+
+`DemonLurePearlItem` creates a `demon_trial_core` only on validated flat, empty,
+loaded ground; it consumes one pearl after `summonTrial()` initializes a new
+server-owned encounter. This core uses the existing battle block entity type,
+receipts, guardian runtime, inventory and persistence. Initialization cannot reset
+an existing core. `DemonTrialRules` and `ruins/demon_trial.json` own placement limits,
+stack/cooldown, three waves and rewards. Failure does not consume a pearl. Creative
+is cost-free but only nearby survival players drive the battle.
+
+Unlike fixed ruin caches, the portable core disappears when its rewarded inventory
+is empty. A fresh pearl then starts a fresh encounter. No separate dimension or
+terrain replacement is involved. The item has a shaped recipe and recipe-book
+unlock; `tools/gen_demon_trial.py` owns its model, core models, recipes and language.
+The faceted 3D item/core reuse vanilla textures; no imported portal assets.
+
+`--preset demon-trial` runs focused resource tests, all ruins Java state/rule tests,
+jar packaging and `tools/demon_trial_evidence.py`: mapped item activation and
+rejections, shared admission, three mapped combat waves, reward extraction, cleanup,
+re-use with another pearl and normal save/restart. Preset existence is not a pass;
+consult the delivery record for observed results. Appearance/balance remain
+`not_verified` until owner acceptance.

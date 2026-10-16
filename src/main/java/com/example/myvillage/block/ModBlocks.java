@@ -27,6 +27,12 @@ public final class ModBlocks {
                     .sound(SoundType.METAL).pushReaction(PushReaction.BLOCK)
                     .lightLevel(state -> state.getValue(BattleCacheBlock.LIT) ? 10 : 3));
 
+    /** Summoned encounter anchor; only the consumable item creates initialized trials. */
+    public static final DeferredBlock<BattleCacheBlock> DEMON_TRIAL_CORE = BLOCKS.registerBlock("demon_trial_core", BattleCacheBlock::new,
+            BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_PURPLE).strength(-1.0F, 3600000F).noOcclusion().noLootTable()
+                    .sound(SoundType.AMETHYST).pushReaction(PushReaction.BLOCK)
+                    .lightLevel(state -> state.getValue(BattleCacheBlock.LIT) ? 12 : 5));
+
     public static final DeferredBlock<RuinCoreBlock> RUIN_CORE = BLOCKS.registerBlock("ruin_core", RuinCoreBlock::new,
             BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_CYAN).strength(3.0F).noOcclusion().noLootTable()
                     .sound(SoundType.STONE).pushReaction(PushReaction.BLOCK)

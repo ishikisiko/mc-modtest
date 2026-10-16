@@ -30,6 +30,15 @@ public final class BattleCacheBlockEntity extends BlockEntity implements Worldly
     private long nextWaveAt;
     public BattleCacheBlockEntity(BlockPos p,BlockState s){super(ModBlockEntities.BATTLE_CACHE.get(),p,s);}
     private BattleRules rules(){return BattleRules.get(kind);}
+    public boolean isSummonedTrial(){return getBlockState().is(ModBlocks.DEMON_TRIAL_CORE.get());}
+    /** Server-only initialization. Existing encounters, inventories and guards can never be reset. */
+    public boolean summonTrial(){
+        if(!(level instanceof ServerLevel) || !isSummonedTrial() || !kind.isEmpty()
+                || progress.state()!=BattleProgress.State.DORMANT)return false;
+        kind="demon_trial";
+        progress=new BattleProgress(rules().waves().stream().map(w->w.guards().size()).toList(),"READY",0,List.of(),List.of());
+        progress.start();nextWaveAt=level.getGameTime()+rules().waveDelayTicks();setChanged();return true;
+    }
     private BlockPos target(RuinRules.Pos p){
         int turns=switch(getBlockState().getValue(BattleCacheBlock.FACING)){case EAST->1;case SOUTH->2;case WEST->3;default->0;};
         var d=p.subtract(rules().cache()).rotate(turns);return worldPosition.offset(d.x(),d.y(),d.z());
@@ -40,7 +49,7 @@ public final class BattleCacheBlockEntity extends BlockEntity implements Worldly
         double radius=rules().leashRadius();
         return server.players().stream().filter(this::eligible).filter(p->p.distanceToSqr(worldPosition.getCenter())<=radius*radius).toList();
     }
-    private void message(ServerPlayer p,String key,Object...args){p.displayClientMessage(Component.translatable("message.myvillage.battle."+key,args),true);}
+    private void message(ServerPlayer p,String key,Object...args){p.displayClientMessage(Component.translatable("message.myvillage."+(isSummonedTrial()?"demon_trial.":"battle.")+key,args),true);}
     public void use(ServerPlayer p){
         var r=rules();
         if(r==null || !p.isAlive() || p.isSpectator() || !p.mayBuild() || p.level()!=level
@@ -57,7 +66,11 @@ public final class BattleCacheBlockEntity extends BlockEntity implements Worldly
         var r=rules();
         if(!(level instanceof ServerLevel server) || r==null || progress.state()==BattleProgress.State.DORMANT
                 || server.getGameTime()%r.tickInterval()!=0)return;
-        if(progress.state()==BattleProgress.State.REWARDED)return;
+        if(progress.state()==BattleProgress.State.REWARDED){
+            // Extraction is saved before cleanup. An emptied portable trial leaves no permanent block.
+            if(isSummonedTrial() && isEmpty())server.removeBlock(worldPosition,false);
+            return;
+        }
         var players=nearby();
         var receipts=BattleReceipts.get(server);
         for(int i=0;i<progress.count();i++){
@@ -118,9 +131,13 @@ public final class BattleCacheBlockEntity extends BlockEntity implements Worldly
         server.sendParticles(net.minecraft.core.particles.ParticleTypes.SOUL,p.getX()+.5,p.getY()+1,p.getZ()+.5,12,.3,.6,.3,0);
     }
     private void reward(ServerLevel server){
-        var r=rules(); ItemStack manual=TechniqueManualItem.manualFor(server.registryAccess(),ResourceLocation.parse(r.manual()));
-        if(manual.isEmpty())return;
-        var rewards=NonNullList.withSize(27,ItemStack.EMPTY);rewards.set(0,manual);int slot=1;
+        var r=rules();
+        var rewards=NonNullList.withSize(27,ItemStack.EMPTY);int slot=0;
+        if(!r.manual().isEmpty()){
+            ItemStack manual=TechniqueManualItem.manualFor(server.registryAccess(),ResourceLocation.parse(r.manual()));
+            if(manual.isEmpty())return;
+            rewards.set(slot++,manual);
+        }
         for(var reward:r.rewards()){
             var key=ResourceLocation.parse(reward.id());if(!BuiltInRegistries.ITEM.containsKey(key))return;
             ItemStack stack=new ItemStack(BuiltInRegistries.ITEM.get(key),reward.count());
@@ -146,7 +163,7 @@ public final class BattleCacheBlockEntity extends BlockEntity implements Worldly
         items=NonNullList.withSize(27,ItemStack.EMPTY);
         if(progress.state()==BattleProgress.State.REWARDED)ContainerHelper.loadAllItems(tag,items,registries);
     }
-    @Override public Component getDisplayName(){return Component.translatable("block.myvillage.battle_cache");}
+    @Override public Component getDisplayName(){return Component.translatable(isSummonedTrial()?"block.myvillage.demon_trial_core":"block.myvillage.battle_cache");}
     @Override public AbstractContainerMenu createMenu(int id,Inventory inv,Player player){return progress.state()==BattleProgress.State.REWARDED?ChestMenu.threeRows(id,inv,this):null;}
     @Override public int getContainerSize(){return 27;}
     @Override public boolean isEmpty(){return items.stream().allMatch(ItemStack::isEmpty);}

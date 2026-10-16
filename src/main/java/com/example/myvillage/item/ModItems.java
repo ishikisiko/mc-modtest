@@ -157,6 +157,9 @@ public final class ModItems {
     public static final DeferredItem<FormulaItem> FORMULA_NINGSHEN = ITEMS.registerItem("formula_ningshen", props -> new FormulaItem(props, "ningshen"));
     public static final DeferredItem<AlchemyPillItem> PILL_NINGSHEN = ITEMS.registerItem("pill_ningshen", props -> new AlchemyPillItem(props.stacksTo(16), "ningshen"));
 
+    public static final DeferredItem<DemonLurePearlItem> DEMON_LURE_PEARL =
+            ITEMS.registerItem("demon_lure_pearl", DemonLurePearlItem::new);
+
     public static final DeferredItem<Item> LOW_GRADE_SPIRIT_STONE =
             ITEMS.registerSimpleItem("low_grade_spirit_stone");
 
@@ -279,6 +282,7 @@ public final class ModItems {
                         output.accept(LINGXIAO_SPEAR.get());
                         output.accept(XUANTIE_GAUNTLET.get());
                         output.accept(LOW_GRADE_SPIRIT_STONE.get());
+                        output.accept(DEMON_LURE_PEARL.get());
                         output.accept(SPIRIT_SOIL.get());
                         output.accept(ALCHEMY_FURNACE.get());
                         output.accept(SPIRIT_LEAF.get());

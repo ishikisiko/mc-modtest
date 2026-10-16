@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.56.0
+
+- 新增一次性物品「引魔珠」与工作台配方；在合格空地召唤三波战斗试炼，成功后才消耗。
+- 新增引魔试炼核心：复用服务器守卫死亡回执、进度保存与共享一次性奖励；领奖取空后消散，可用新珠重开。
+- 新增立体珠体与红/青封印核心模型、双语提示，以及物品交互和存档定向验证。
+
 ## 0.55.0
 
 - 新增自然生成战斗遗迹「断戈营垒」和「伏妖残殿」，分别提供三段推进与三波妖兽挑战。

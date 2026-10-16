@@ -1,0 +1,167 @@
+{
+  "version": 1,
+  "id": "demon_trial",
+  "mode": "arena",
+  "cache": [
+    6,
+    0,
+    6
+  ],
+  "entry": [
+    6,
+    0,
+    3
+  ],
+  "tick_interval": 10,
+  "wave_delay_ticks": 100,
+  "interaction_distance": 6,
+  "leash_radius": 24,
+  "trigger_radius": 12,
+  "manual": "",
+  "rewards": [
+    {
+      "id": "myvillage:low_grade_spirit_stone",
+      "count": 12
+    },
+    {
+      "id": "myvillage:pill_huiling",
+      "count": 2
+    },
+    {
+      "id": "myvillage:pill_yangyuan",
+      "count": 2
+    }
+  ],
+  "waves": [
+    {
+      "trigger": [
+        6,
+        0,
+        6
+      ],
+      "guards": [
+        {
+          "entity": "minecraft:zombie",
+          "pos": [
+            2,
+            0,
+            6
+          ],
+          "realm": "myvillage:qi_refining",
+          "stage": 0,
+          "weapon": "minecraft:stone_sword",
+          "elite": false
+        },
+        {
+          "entity": "minecraft:zombie",
+          "pos": [
+            10,
+            0,
+            6
+          ],
+          "realm": "myvillage:qi_refining",
+          "stage": 0,
+          "weapon": "minecraft:stone_sword",
+          "elite": false
+        }
+      ]
+    },
+    {
+      "trigger": [
+        6,
+        0,
+        6
+      ],
+      "guards": [
+        {
+          "entity": "myvillage:demon_wolf",
+          "pos": [
+            3,
+            0,
+            3
+          ],
+          "realm": "myvillage:qi_refining",
+          "stage": 1,
+          "weapon": "",
+          "elite": false
+        },
+        {
+          "entity": "myvillage:demon_wolf",
+          "pos": [
+            9,
+            0,
+            9
+          ],
+          "realm": "myvillage:qi_refining",
+          "stage": 1,
+          "weapon": "",
+          "elite": false
+        },
+        {
+          "entity": "minecraft:skeleton",
+          "pos": [
+            9,
+            0,
+            3
+          ],
+          "realm": "myvillage:qi_refining",
+          "stage": 0,
+          "weapon": "minecraft:bow",
+          "elite": false
+        }
+      ]
+    },
+    {
+      "trigger": [
+        6,
+        0,
+        6
+      ],
+      "guards": [
+        {
+          "entity": "myvillage:demon_wolf",
+          "pos": [
+            6,
+            0,
+            2
+          ],
+          "realm": "myvillage:qi_refining",
+          "stage": 2,
+          "weapon": "",
+          "elite": true
+        },
+        {
+          "entity": "minecraft:zombie",
+          "pos": [
+            2,
+            0,
+            9
+          ],
+          "realm": "myvillage:qi_refining",
+          "stage": 1,
+          "weapon": "minecraft:iron_sword",
+          "elite": false
+        },
+        {
+          "entity": "minecraft:zombie",
+          "pos": [
+            10,
+            0,
+            9
+          ],
+          "realm": "myvillage:qi_refining",
+          "stage": 1,
+          "weapon": "minecraft:iron_sword",
+          "elite": false
+        }
+      ]
+    }
+  ],
+  "summoning": {
+    "clear_radius": 6,
+    "clear_height": 3,
+    "separation": 32,
+    "stack_size": 16,
+    "cooldown_ticks": 20
+  }
+}
