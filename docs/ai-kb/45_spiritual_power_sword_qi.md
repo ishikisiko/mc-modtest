@@ -167,3 +167,5 @@ the owner's build-only request.
 - [INDEX.md](INDEX.md)
 
 Area-fix developer evidence: [0.56.0-fix1 record](../testing/2026-10-16-sword-qi-area.md).
+
+Horizontal thin-blade follow-up: [0.56.0-fix2 evidence](../testing/2026-10-16-sword-qi-horizontal-blade.md).

@@ -15,6 +15,12 @@ class SwordQiPresentationTest(unittest.TestCase):
         before=max((k for k in keys if k.tick<release.tick),key=lambda k:k.tick)
         after=min((k for k in keys if k.tick>release.tick),key=lambda k:k.tick)
         self.assertLess(before.blade[0],0);self.assertGreater(after.blade[0],0)
+        rig=json.loads((ROOT/'src/main/resources/assets/myvillage/combat/qingfeng_first_person.json').read_text())
+        fp=rig['moves'][skill['feedback_move']]
+        self.assertLessEqual(abs(fp['contact']-skill['release_ticks']),.2,
+                             'First-person contact and third-person forward crossing must release together')
+        planes=[k['plane'] for k in fp['keys'] if 'plane' in k]
+        self.assertTrue(planes);self.assertTrue(all(p==0 for p in planes))
     def test_art_profile_has_a_thin_rim_and_separated_short_trails(self):
         p=json.loads((ROOT/'src/main/resources/assets/myvillage/combat/sword_qi_wave.json').read_text())
         self.assertTrue(all(b['thickness']<=.2 for b in p['bands']))
