@@ -86,6 +86,7 @@ class QualityEvidence(ForgingEvidence):
         for q in range(5):
             self.rc(f'item replace entity {u} hotbar.{q} with {spec("qingfeng_sword", q)}')
             self.rc(f'item replace entity {u} inventory.{q} with {spec("lingxiao_spear", q)}')
+        self.rc(f'item replace entity {u} inventory.5 with myvillage:xuantie_gauntlet')
         enchanted = {'minecraft:enchantments': {'levels': {'minecraft:unbreaking': 1}}, 'minecraft:damage': 100}
         self.rc(f'item replace entity {u} hotbar.5 with {spec("qingfeng_sword", 3, **enchanted)}')
         self.rc(f'item replace entity {u} hotbar.6 with {spec("qingfeng_sword", 0, **enchanted)}')
@@ -109,6 +110,7 @@ class QualityEvidence(ForgingEvidence):
         for q in range(5):
             self.frame(image, left + 70 + 18 * q, top + 214, q, 'sword_inventory_frame_' + str(q))
             self.frame(image, left + 70 + 18 * q, top + 156, q, 'spear_inventory_frame_' + str(q))
+        self.frame(image, left + 70 + 18 * 5, top + 156, 0, 'mundane_gauntlet_frame')
         self.report['completed'].append('forging_inventory')
         for q in range(5):
             self.tooltip(left + 78 + 18 * q, top + 222, q, 'quality-' + str(q) + '-tooltip')

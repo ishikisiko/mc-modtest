@@ -213,7 +213,9 @@ promote forging quality.
 `CombatWeaponItem` colors the name and quality tooltip, including ordinary anvil
 names without mutating their saved components. `ForgingScreen` colors the ceiling
 label from the same palette. Client-only `ForgingQualityFrames` registers an
-`IItemDecorator` for both weapon IDs and a `RenderTooltipEvent.Color` listener.
+`IItemDecorator` for registered `CombatWeaponItem`s and a `RenderTooltipEvent.Color` listener.
+This also keeps the non-forgeable basic gauntlet consistently white/Mundane,
+without adding a gauntlet forging recipe.
 The 1px icon frame lies outside the 16px icon, below count text, and follows the
 normal item-decoration path in inventories, containers and the hotbar. Tooltip
 borders use the same color; the background and layout remain vanilla.

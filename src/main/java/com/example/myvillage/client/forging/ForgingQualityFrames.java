@@ -38,8 +38,11 @@ public final class ForgingQualityFrames {
     public static final class Registration {
         @SubscribeEvent
         public static void register(RegisterItemDecorationsEvent event) {
-            event.register(ModItems.QINGFENG_SWORD.get(), ForgingQualityFrames::decorate);
-            event.register(ModItems.LINGXIAO_SPEAR.get(), ForgingQualityFrames::decorate);
+            for (var entry : ModItems.ITEMS.getEntries()) {
+                if (entry.get() instanceof CombatWeaponItem) {
+                    event.register(entry.get(), ForgingQualityFrames::decorate);
+                }
+            }
         }
     }
 
