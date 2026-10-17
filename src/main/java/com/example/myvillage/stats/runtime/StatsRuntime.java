@@ -107,6 +107,15 @@ public final class StatsRuntime {
 
     /** Saved modifiers restore max health before vanilla reads current Health from entity NBT. */
     public static void applyRealm(LivingEntity entity, String canonicalRealm, int zeroBasedStage) {
+        applyRealm(entity, canonicalRealm, zeroBasedStage, false);
+    }
+
+    /** Native base attributes can exceed the authored beast envelope; effective caps still apply. */
+    public static void applyVanillaRealm(LivingEntity entity, String canonicalRealm, int zeroBasedStage) {
+        applyRealm(entity, canonicalRealm, zeroBasedStage, true);
+    }
+
+    private static void applyRealm(LivingEntity entity, String canonicalRealm, int zeroBasedStage, boolean vanilla) {
         requireServer(entity);
         StatsRules rules = StatsRules.bundled();
         RealmKey key = rules.realmKey(canonicalRealm, zeroBasedStage);
@@ -115,12 +124,14 @@ public final class StatsRuntime {
         if (health == null) {
             throw new IllegalArgumentException("Entity has no max health attribute");
         }
-        RealmStats.Derived derived = RealmStats.derived(rules, key,
-                health.getBaseValue(), attack == null ? 0 : attack.getBaseValue());
+        double baseHealth = health.getBaseValue(), baseAttack = attack == null ? 0 : attack.getBaseValue();
+        RealmStats.Derived derived = vanilla ? RealmStats.vanillaDerived(rules, key, baseHealth, baseAttack)
+                : RealmStats.derived(rules, key, baseHealth, baseAttack);
         float oldMax = entity.getMaxHealth();
         float oldHealth = entity.getHealth();
-        RealmAttributeModifiers.replace(health, REALM_HEALTH, derived.factor());
-        RealmAttributeModifiers.replace(attack, REALM_ATTACK, derived.factor());
+        RealmAttributeModifiers.replace(health, REALM_HEALTH, vanilla ? derived.health() / baseHealth : derived.factor());
+        RealmAttributeModifiers.replace(attack, REALM_ATTACK,
+                vanilla && baseAttack > 0 ? derived.attack() / baseAttack : derived.factor());
         float current = RealmHealthPolicy.refreshed(oldHealth, oldMax, entity.getMaxHealth());
         if (current != oldHealth) {
             entity.setHealth(current);

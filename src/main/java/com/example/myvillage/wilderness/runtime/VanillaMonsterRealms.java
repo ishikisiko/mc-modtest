@@ -65,7 +65,7 @@ public final class VanillaMonsterRealms {
         CompoundTag birth = mob.getPersistentData().getCompound(BIRTH);
         if (!birth.getBoolean("pending")) return; // Saved modifiers already restore before Health; never heal on reload.
         if (!mob.getPersistentData().contains(REALM)) {
-            StatsRuntime.applyRealm(mob, birth.getString("realm"), birth.getInt("stage"));
+            StatsRuntime.applyVanillaRealm(mob, birth.getString("realm"), birth.getInt("stage"));
             mob.setHealth(mob.getMaxHealth());
         }
         birth.remove("pending");
@@ -77,7 +77,7 @@ public final class VanillaMonsterRealms {
         CompoundTag birth = parent.getPersistentData().getCompound(BIRTH).copy();
         if (birth.getBoolean("pending")) return;
         double fraction = freshSplit ? 1 : Math.min(1, child.getHealth() / child.getMaxHealth());
-        StatsRuntime.applyRealm(child, birth.getString("realm"), birth.getInt("stage"));
+        StatsRuntime.applyVanillaRealm(child, birth.getString("realm"), birth.getInt("stage"));
         child.setHealth((float) (child.getMaxHealth() * fraction));
         child.getPersistentData().put(BIRTH, birth);
     }

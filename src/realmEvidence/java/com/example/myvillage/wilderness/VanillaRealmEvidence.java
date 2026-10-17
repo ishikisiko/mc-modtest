@@ -34,6 +34,10 @@ public final class VanillaRealmEvidence {
     private static final List<Map<String,Object>> CHECKS = new ArrayList<>();
     private static int ticks;
     private static boolean finished;
+    private static boolean initialDone;
+    private static final boolean RESTART_BOOT = Files.exists(OUT.resolve("restart.json"));
+    private static List<Mob> splitChildren = List.of();
+    private static LivingEntity converted;
     private static final String BIRTH = VanillaMonsterRealms.BIRTH;
     private static void check(String name, boolean pass, Object detail) {
         CHECKS.add(Map.of("name",name,"passed",pass,"detail",String.valueOf(detail)));
@@ -54,6 +58,14 @@ public final class VanillaRealmEvidence {
         mob.getAttribute(Attributes.MAX_HEALTH).setBaseValue(1024);mob.setHealth(1024);
         return mob;
     }
+    @SubscribeEvent(priority=net.neoforged.bus.api.EventPriority.LOWEST)
+    public static void split(net.neoforged.neoforge.event.entity.living.MobSplitEvent event) {
+        splitChildren=List.copyOf(event.getChildren());
+    }
+    @SubscribeEvent(priority=net.neoforged.bus.api.EventPriority.LOWEST)
+    public static void conversion(net.neoforged.neoforge.event.entity.living.LivingConversionEvent.Post event) {
+        converted=event.getOutcome();
+    }
     @SubscribeEvent public static void tick(ServerTickEvent.Post event) {
         if(finished || ++ticks<40)return;
         MinecraftServer server=event.getServer();
@@ -61,7 +73,7 @@ public final class VanillaRealmEvidence {
             Files.createDirectories(OUT);
             server.overworld().getGameRules().getRule(GameRules.RULE_DOMOBSPAWNING).set(false,server);
             server.overworld().setDayTime(18000);
-            if(Files.exists(OUT.resolve("restart.json"))) {
+            if(RESTART_BOOT) {
                 var data=JsonParser.parseString(Files.readString(OUT.resolve("restart.json"))).getAsJsonObject();
                 UUID uuid=UUID.fromString(data.get("uuid").getAsString());
                 server.overworld().getChunk(data.get("x").getAsInt()>>4,data.get("z").getAsInt()>>4);
@@ -75,9 +87,11 @@ public final class VanillaRealmEvidence {
                 check("real_restart_birth_unchanged",mob.getPersistentData().getCompound(BIRTH).toString().equals(data.get("birth").getAsString()),mob.getPersistentData());
                 finish(server,"restart",null);
             } else {
-                run(server); finish(server,"initial",null);
+                if(!initialDone){run(server);initialDone=true;}
+                // Allow native entity-section loading/movement and save queues to settle.
+                if(ticks>=100)finish(server,"initial",null);
             }
-        } catch(Throwable error) { finish(server,Files.exists(OUT.resolve("restart.json"))?"restart":"initial",error); }
+        } catch(Throwable error) { finish(server,RESTART_BOOT?"restart":"initial",error); }
     }
     private static void finish(MinecraftServer server,String phase,Throwable error) {
         finished=true;
@@ -104,8 +118,10 @@ public final class VanillaRealmEvidence {
             near("birth_full_health_"+region.id(),mob.getHealth(),mob.getMaxHealth());mob.discard();
         }
         BlockPos p=new BlockPos(0,200,0);
-        for(var type:List.of(EntityType.SKELETON,EntityType.CREEPER,EntityType.SPIDER,EntityType.SLIME,EntityType.ENDERMAN,EntityType.WITCH,EntityType.PHANTOM)){
-            Mob mob=spawn(level,type,p,MobSpawnType.NATURAL);
+        for(var type:net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE){
+            if(!VanillaMonsterRules.bundled().includes(net.minecraft.core.registries.BuiltInRegistries.ENTITY_TYPE.getKey(type).toString(),type.getCategory()==MobCategory.MONSTER))continue;
+            @SuppressWarnings("unchecked") var mobType=(EntityType<? extends Mob>)type;
+            Mob mob=spawn(level,mobType,p,MobSpawnType.NATURAL);
             check("ordinary_"+type,factor(mob)>1,StatsRuntime.info(mob));mob.discard();
         }
         for(var reason:MobSpawnType.values()){
@@ -152,9 +168,10 @@ public final class VanillaRealmEvidence {
         Slime slime=spawn(level,EntityType.SLIME,p.offset(32,0,0),MobSpawnType.NATURAL);slime.setSize(4,true);
         var slimeBirth=slime.getPersistentData().getCompound(BIRTH).copy();var box=slime.getBoundingBox().inflate(6);
         slime.setHealth(0);slime.remove(Entity.RemovalReason.KILLED);
-        var children=level.getEntitiesOfClass(Slime.class,box);
+        var children=splitChildren;
         check("native_split_has_children",children.size()>=2,children.size());
-        for(Slime child:children){
+        for(Mob child:children){
+            check("split_child_added",child.isAddedToLevel(),child.getUUID());
             check("split_inherits_birth",slimeBirth.equals(child.getPersistentData().getCompound(BIRTH)),child.getPersistentData());
             near("split_health_scaled",child.getMaxHealth(),child.getAttribute(Attributes.MAX_HEALTH).getBaseValue()*factor(child));
             child.setHealth(child.getMaxHealth()/2);CompoundTag saved=new CompoundTag();child.saveWithoutId(saved);
@@ -164,10 +181,9 @@ public final class VanillaRealmEvidence {
         Zombie converting=spawn(level,EntityType.ZOMBIE,p.offset(48,0,0),MobSpawnType.NATURAL);
         var original=converting.getPersistentData().getCompound(BIRTH).copy();
         var method=Zombie.class.getDeclaredMethod("convertToZombieType",EntityType.class);method.setAccessible(true);method.invoke(converting,EntityType.DROWNED);
-        var drowned=level.getEntitiesOfClass(Drowned.class,converting.getBoundingBox().inflate(3));
-        check("native_conversion_exists",drowned.size()==1,drowned.size());
-        check("conversion_inherits_birth",original.equals(drowned.getFirst().getPersistentData().getCompound(BIRTH)),drowned.getFirst().getPersistentData());
-        near("conversion_health_scaled",drowned.getFirst().getHealth(),drowned.getFirst().getMaxHealth());drowned.getFirst().discard();
+        check("native_conversion_exists",converted instanceof Drowned && converted.isAddedToLevel(),converted);
+        check("conversion_inherits_birth",original.equals(converted.getPersistentData().getCompound(BIRTH)),converted.getPersistentData());
+        near("conversion_health_scaled",converted.getHealth(),converted.getMaxHealth());converted.discard();
         var birth=zombie.getPersistentData().getCompound(BIRTH).copy();
         int[] destination=RegionPlacement.worldBlockFromGraph(graph.regions().stream().filter(r->!r.id().equals("zhongzhou")).findFirst().orElseThrow().posX(),graph.regions().stream().filter(r->!r.id().equals("zhongzhou")).findFirst().orElseThrow().posZ());
         BlockPos dest=new BlockPos(destination[0],200,destination[1]);level.getChunk(dest);zombie.teleportTo(dest.getX()+.5,200,dest.getZ()+.5);

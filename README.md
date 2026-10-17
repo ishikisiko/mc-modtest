@@ -910,6 +910,20 @@ ordering. No innate armor or new equipment set is granted.
 Attribute refresh does not heal or stack old realm modifiers. Saved modifiers
 preserve high current health through a save/restart.
 
+Since 0.63.1, newly spawned ordinary vanilla monsters also use the region's
+beast realm range. Natural births, spawners, patrols and other configured
+gameplay spawns receive a permanent birth assignment. Crossing regions or
+restarting does not reroll it; slime children and hostile conversions inherit
+it. Existing unassigned mobs, command/egg spawns, unsupported areas/dimensions
+and the excluded dragon/wither/warden/elder guardian retain baseline behavior.
+Melee uses the attack attribute; configured projectile, magic and explosion
+damage receives its realm multiplier once before normal mitigation. Explosion
+radius and potion duration are unchanged. Scope is configured in
+`data/myvillage/wilderness/vanilla_monsters.json`; ranges remain in the existing
+`wilderness/rules.json`. Region tier does not dynamically change these ranges.
+Inspect a nearby zombie with
+`/myvillage stats info @e[type=minecraft:zombie,sort=nearest,limit=1]`.
+
 `data/myvillage/wilderness/rules.json` gives each region an inclusive realm and
 stage range for beasts and rogue cultivators. Natural wolves keep their birth
 realm when moving or reloading; command/egg wolves retain their old baseline.

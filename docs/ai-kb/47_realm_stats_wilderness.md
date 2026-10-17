@@ -147,6 +147,12 @@ splits and hostile conversions inherit that record. Outer worldplan births
 retain their actual outer region ID while consuming their profile's range;
 actual region `tier` does not change that range.
 
+Native bases such as ravager health can exceed the authored player/beast base
+envelope. `RealmStats.vanillaDerived` preserves those bases and caps derived
+values at the configured effective limits; it does not loosen authored-data
+validation. The realm assignment still supplies the common growth factor for
+armor pressure and non-attribute damage.
+
 Melee and slime contact already consume the attack attribute. Declared arrow,
 trident, projectile, magic, explosion and thorns sources from assigned vanilla
 monsters instead apply one growth factor at `LivingIncomingDamageEvent` before

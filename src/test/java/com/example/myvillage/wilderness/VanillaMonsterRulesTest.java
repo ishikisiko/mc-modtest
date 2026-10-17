@@ -4,6 +4,15 @@ import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 
 class VanillaMonsterRulesTest {
+    @Test void vanillaLargeBaseSaturatesWithoutChangingAuthoredBeastLimits() {
+        var rules = com.example.myvillage.stats.StatsRules.bundled();
+        var realm = rules.realmKey("myvillage:nascent_soul", 2);
+        var derived = com.example.myvillage.stats.RealmStats.vanillaDerived(rules, realm, 100, 30);
+        assertEquals(rules.limits().maxHealth(), derived.health());
+        assertEquals(30 * rules.growth(realm), derived.attack());
+        assertThrows(IllegalArgumentException.class,
+                () -> com.example.myvillage.stats.RealmStats.derived(rules, realm, 100, 30));
+    }
     @Test void scopeExcludesBossesOtherModsAndPassiveEntities() {
         var rules = VanillaMonsterRules.bundled();
         for (String id : new String[]{"zombie", "skeleton", "creeper", "slime", "enderman", "witch"})
