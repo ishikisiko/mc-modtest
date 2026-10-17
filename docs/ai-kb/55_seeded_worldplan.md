@@ -6,7 +6,11 @@ The owner-facing rules, creation instructions, CLI, safety model, constraints an
 
 ## Ownership and generation
 
-0.59.1 makes newly created cultivation worlds use `planned_v2` / `worldplan_v2`.
+0.59.1-fix1 makes new cultivation worlds use `planned_v3` / `worldplan_v3`. `rules_v3.json` restores the exact V1 biome as the source; `WorldPlanEcotone` consults eight unmodified source samples at a maximum Euclidean radius of 32 blocks. Only authored incompatible group pairs receive a transition biome. A transition never feeds into another sample, so it cannot propagate into the interior or depend on visit order. Outside this local neighbourhood the original biome ID, including `grove`, is retained. The canopy-safe spawn and city audit remain in place.
+
+V2 was too broad: averaging climates changed entire biome interiors and displaced the snowline. The V3 regression measures original snow-type retention in the reproduction area, plus both original endpoints and the maximum transition width. `legacy_v2_hashes.json` and jar-derived V2 sample fixtures preserve already-created V2 saves.
+
+0.59.1 originally made newly created cultivation worlds use `planned_v2` / `worldplan_v2`.
 `rules_v2.json` adds a bounded continuous climate field and ordered temperature/moisture biome bands over the unchanged V1 geography. Core regions and outer cells blend climate with the same deterministic spatial ownership; the radial core/outer transition blends both sides. No per-block random biome dithering is used. Climate configuration is frozen into the save.
 
 Existing V1 worlds retain their codec, algorithm, terrain, biomes and city templates. `legacy_v1_hashes.json` pins the released frozen rules and 35 NBT resources; generation fails on drift. The 0.59.0 jar-derived test fixture pins three seeds and 51 sample coordinates. New ecology therefore requires a new world, not a `/reload` or deletion of chunks from an old save.
@@ -24,7 +28,7 @@ New V2 rules enable `clear_spawn_canopy`: decoration cannot place a canopy anywh
 
 ## Persistence and scope
 
-Frozen JSON rules and a plan fingerprint are encoded in the generator in `level.dat`; tile resource hashes detect incompatible resource replacement. Do not mutate V1 algorithms or remove its assets when old saves still use it. Introduce versioned algorithms and assets instead. Full chunks are never rebuilt from the atlas.
+Frozen JSON rules and a plan fingerprint are encoded in the generator in `level.dat`; tile resource hashes detect incompatible resource replacement. Do not mutate released V1/V2/V3 algorithms or remove their assets when old saves still use them. Introduce versioned algorithms and assets instead. Full chunks are never rebuilt from the atlas.
 
 The core is a 4000-block radius, with a continuous terrain blend into stateless outer cells. Outer queries inspect only a bounded neighbourhood and return stable coordinate-based region IDs. Negative coordinates use floor. Queries and exports do not force chunks.
 
@@ -34,9 +38,11 @@ The city is emitted in chunk generation rather than as a vanilla StructureStart,
 
 ## Checks
 
+The [0.59.1-fix1 local-ecotone verification record](../testing/2026-10-17-worldplan-local-ecotones.md) records V3's original-snow retention, seven native biome samples, mapped traversal, spawn/city checks and V1/V2/V3 reopen compatibility.
+
 The [0.59.1 owner-PC and cloud verification record](../testing/2026-10-17-worldplan-ecology.md) records the initial canopy failure, the final scoped checks, the conservative uncovered-dirt limitation and the matching jar hash.
 
-Focused cloud build: `.venv-modal/bin/python -m tools.modal_runner run --preset worldplan-build --ref <commit> --timeout 1800`. This generates/checks owned resources, tests worldplan/region and direct simulation consumers, and builds the jar. The owner-authorized DevHost client can separately verify the old V1 world, the new V2 ecotone and the audit classifier.
+Focused cloud build: `.venv-modal/bin/python -m tools.modal_runner run --preset worldplan-build --ref <commit> --timeout 1800`. This generates/checks owned resources, tests worldplan/region and direct simulation consumers, and builds the jar. The owner-authorized DevHost client can separately verify old V1/V2 worlds, new V3 local ecotones and the audit classifier.
 
 `audit_city` retains `raw_differences` and raw block hashes. It reports `natural_changes` separately only for expected grass becoming plain dirt while the original template's opaque cover is still intact. `differences` and `complete` refer to the remaining changes; `strict_complete` requires raw equality. Missing roads/walls, uncovered dirt edits and altered cover are not ignored. Exact reverse-order hash tests disable random ticks explicitly; gameplay audits keep normal random ticks.
 

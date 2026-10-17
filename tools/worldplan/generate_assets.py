@@ -124,7 +124,15 @@ def generate(out:Path)->dict:
     current=copy.deepcopy(authored)
     current['algorithm']=v2['algorithm'];current['ecology']=v2['ecology']
     write_json(out/'data/myvillage/worldplan/frozen_v2.json',current)
-    generator['type']='myvillage:planned_v2'
+    legacy_v2=json.loads((AUTHORED.parent/'legacy_v2_hashes.json').read_text())
+    for resource,expected in legacy_v2['resources'].items():
+        assert digest((out/resource).read_bytes())==expected, f'Frozen V2 resource changed: {resource}'
+    v3=json.loads((AUTHORED.parent/'rules_v3.json').read_text())
+    assert v3['base']==AUTHORED.name and v3['algorithm']=='myvillage:worldplan_v3'
+    current=copy.deepcopy(authored)
+    current['algorithm']=v3['algorithm'];current['ecotone']=v3['ecotone']
+    write_json(out/'data/myvillage/worldplan/frozen_v3.json',current)
+    generator['type']='myvillage:planned_v3'
     generator['rules']=json.dumps(current,ensure_ascii=False,sort_keys=True,separators=(',',':'))
     write_json(out/'data/myvillage/worldgen/world_preset/cultivation.json',preset)
     write_json(out/'data/minecraft/tags/worldgen/world_preset/normal.json',{'replace':False,'values':['myvillage:cultivation']})

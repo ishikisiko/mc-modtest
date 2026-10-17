@@ -12,15 +12,16 @@ import java.util.stream.Stream;
 
 /** Seed-bound surface ecology; the original overworld source retains underground cave biomes. */
 public final class PlannedBiomeSource extends BiomeSource {
-    public static final MapCodec<PlannedBiomeSource> CODEC=createCodec(false);
-    public static final MapCodec<PlannedBiomeSource> CODEC_V2=createCodec(true);
-    private static MapCodec<PlannedBiomeSource> createCodec(boolean v2){return RecordCodecBuilder.mapCodec(i->i.group(
+    public static final MapCodec<PlannedBiomeSource> CODEC=createCodec(WorldPlanRules.LEGACY_ALGORITHM);
+    public static final MapCodec<PlannedBiomeSource> CODEC_V2=createCodec(WorldPlanRules.V2_ALGORITHM);
+    public static final MapCodec<PlannedBiomeSource> CODEC_V3=createCodec(WorldPlanRules.ALGORITHM);
+    private static MapCodec<PlannedBiomeSource> createCodec(String algorithm){return RecordCodecBuilder.mapCodec(i->i.group(
         BiomeSource.CODEC.fieldOf("delegate").forGetter(s->s.original),
         Codec.STRING.fieldOf("rules").forGetter(s->s.rules.json()),
         Codec.LONG.fieldOf("seed").forGetter(s->s.plan==null?0L:s.plan.seed())
     ).apply(i,(source,json,seed)->{
         WorldPlanRules rules=new WorldPlanRules(json);
-        if(v2!=(rules.ecology!=null))throw new IllegalArgumentException("Biome source type must match frozen algorithm");
+        if(!algorithm.equals(rules.algorithm))throw new IllegalArgumentException("Biome source type must match frozen algorithm");
         PlannedBiomeSource result=new PlannedBiomeSource(source,rules);
         result.bind(new WorldPlan(seed,result.rules),null);return result;
     }));}
@@ -43,6 +44,7 @@ public final class PlannedBiomeSource extends BiomeSource {
         Set<String> required=new HashSet<>(Set.of("minecraft:ocean","minecraft:deep_ocean","minecraft:beach"));
         rules.profiles.forEach(p->required.addAll(p.biomes()));
         if(rules.ecology!=null)required.addAll(rules.ecology.biomes());
+        if(rules.ecotone!=null)required.addAll(rules.ecotone.biomes());
         if(!entries.keySet().containsAll(required)){required.removeAll(entries.keySet());throw new IllegalArgumentException("Worldplan delegate biome source is missing "+required);}
         holders=Map.copyOf(entries);return holders;
     }
@@ -50,7 +52,7 @@ public final class PlannedBiomeSource extends BiomeSource {
         if(sampler!=null)resolvedHolders();
         terrainSampler=sampler;columns.clear();this.plan=plan;
     }
-    @Override protected MapCodec<? extends BiomeSource> codec(){return rules.ecology==null?CODEC:CODEC_V2;}
+    @Override protected MapCodec<? extends BiomeSource> codec(){return switch(rules.algorithm){case WorldPlanRules.LEGACY_ALGORITHM->CODEC;case WorldPlanRules.V2_ALGORITHM->CODEC_V2;default->CODEC_V3;};}
     @Override protected Stream<Holder<Biome>> collectPossibleBiomes(){return original.possibleBiomes().stream();}
     @Override public Holder<Biome> getNoiseBiome(int x,int y,int z,Climate.Sampler sampler){
         WorldPlan p=plan;if(p==null)throw new IllegalStateException("Planned biome source used before world seed binding");

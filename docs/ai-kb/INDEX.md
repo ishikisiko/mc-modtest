@@ -63,7 +63,7 @@ impact-based checks in the workflow.
 | 52 | [Danxia Ruins](52_danxia_ruins.md) | Natural ruined monastery, herb garden and underground archive, shared persistent array choice, structure guardians, generated resources and focused cloud evidence. |
 | 53 | [Combat Ruins and Demon Lure Pearl](53_combat_ruins.md) | Native garrison route and sunken sanctuary waves, bound guardian death receipts, sealed shared caches and focused cloud evidence. |
 | 54 | [Forging Prototype](54_forging.md) | Learned weapon patterns, private workbench transactions, quality-capped equipment traits, repair, iron/copper ding models and feedback, batch copper infusion, deep ore and river-sediment additives, and focused cloud checks. |
-| 55 | [Seeded Worldplan](55_seeded_worldplan.md) | Frozen V1/V2 continents, continuous V2 climate, chunk-owned city slices, conservative runtime audits and saved-world compatibility. |
+| 55 | [Seeded Worldplan](55_seeded_worldplan.md) | Frozen V1/V2/V3 continents, bounded V3 ecotones preserving original biome interiors, chunk-owned city slices and conservative runtime audits. |
 | 56 | [NPC Semi-autonomy](56_npc_semi_autonomy.md) | 0.60.0 first town-life slice: every-player social identity, persistent resident plans and supplies, Yunshan place adapters, one avatar authority, observed/cold execution, save v4 and owner test handoff. |
 
 Test evidence: [Historical Modal runner verification](../testing/2026-10-14-modal-test-runner.md); [2026-10-14 spiritual power and sword qi environment/timings](../testing/2026-10-14-spiritual-power.md).

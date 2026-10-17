@@ -1,0 +1,24 @@
+{
+  "base": "rules_v1.json",
+  "algorithm": "myvillage:worldplan_v3",
+  "ecotone": {
+    "radius": 32,
+    "clear_spawn_canopy": true,
+    "groups": {
+      "cold": ["minecraft:snowy_plains", "minecraft:grove"],
+      "cool": ["minecraft:taiga", "minecraft:stony_peaks", "minecraft:windswept_forest", "minecraft:windswept_hills"],
+      "temperate": ["minecraft:plains", "minecraft:forest", "minecraft:meadow", "minecraft:dark_forest"],
+      "warm": ["minecraft:jungle", "minecraft:bamboo_jungle", "minecraft:sparse_jungle"],
+      "arid": ["minecraft:desert", "minecraft:badlands", "minecraft:wooded_badlands", "minecraft:eroded_badlands"],
+      "water": ["minecraft:deep_ocean", "minecraft:ocean", "minecraft:beach", "minecraft:stony_shore"]
+    },
+    "transitions": [
+      {"from": "cold", "near": ["warm", "arid", "temperate"], "biome": "minecraft:taiga"},
+      {"from": "warm", "near": ["cold"], "biome": "minecraft:forest"},
+      {"from": "arid", "near": ["cold"], "biome": "minecraft:savanna"},
+      {"from": "cool", "near": ["warm", "arid"], "biome": "minecraft:forest"},
+      {"from": "warm", "near": ["cool"], "biome": "minecraft:sparse_jungle"},
+      {"from": "arid", "near": ["cool"], "biome": "minecraft:savanna"}
+    ]
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "source_commit": "1acfb41364c3bfb41a7209d1255994a03d510ade",
+  "jar_sha256": "2325ba2c7dd22424bd07901afb7901cbd8e0aeec60a9a20e10fc1ab36376161f",
+  "resources": {
+    "data/myvillage/worldplan/frozen_v2.json": "7f477bf2ef14486bd0ad37f3c3ac59ba4b48e741aca11ad252c60fb810b14466"
+  }
+}

@@ -115,7 +115,7 @@ def test_tickets(server,x0,z0,x1=None,z1=None):
 def check_saved(world,expected):
     _,tag=read_gzipped_nbt(str(world/'level.dat'))
     generator=tag['Data']['WorldGenSettings']['dimensions']['minecraft:overworld']['generator']
-    assert generator['type']=='myvillage:planned_v2',generator
+    assert generator['type']=='myvillage:planned_v3',generator
     assert generator['plan_hash']==expected
     rules=json.loads(generator['rules']);assert rules['core_radius']==4000 and len(rules['city']['layout']['tiles'])==35
     return {'plan_sha256':generator['plan_hash'],'rules_bytes':len(generator['rules'].encode()),'algorithm':rules['algorithm']}
@@ -126,7 +126,7 @@ def check_jar():
     with zipfile.ZipFile(jars[0]) as z:
         names=set(z.namelist());tiles=[n for n in names if n.startswith('data/myvillage/structure/worldplan/yunshan_v1/') and n.endswith('.nbt')]
         assert len(tiles)==35
-        for name in ['data/myvillage/worldgen/world_preset/cultivation.json','data/myvillage/worldplan/frozen_v1.json','data/myvillage/worldplan/frozen_v2.json','com/example/myvillage/worldplan/runtime/PlannedChunkGenerator.class']:assert name in names,name
+        for name in ['data/myvillage/worldgen/world_preset/cultivation.json','data/myvillage/worldplan/frozen_v1.json','data/myvillage/worldplan/frozen_v2.json','data/myvillage/worldplan/frozen_v3.json','com/example/myvillage/worldplan/runtime/PlannedChunkGenerator.class']:assert name in names,name
         assert {'WorldPlanReservationMixin','WorldPlanOreMixin'}.issubset(json.loads(z.read('myvillage.mixins.json'))['mixins'])
     return {'file':jars[0].name,'sha256':hashlib.sha256(jars[0].read_bytes()).hexdigest(),'tiles':35}
 

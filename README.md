@@ -36,9 +36,9 @@ systems when the data and runtime pipeline are ready.
 
 实现说明见 [KB56](docs/ai-kb/56_npc_semi_autonomy.md)，**构建入口、测试场景与尚未验证的项目见 [NPC 生活验证交接](docs/testing/2026-10-17-npc-life.md)**。新版本写入命簿 v4，旧存档迁移与回退检查请在存档副本进行。
 
-## 修仙大陆与生态过渡（0.59.1）
+## 修仙大陆与局部生态过渡（0.59.1-fix1）
 
-新建世界选择“修仙大陆（种子蓝图）”，使用 V2 连续温湿度生态过渡；已有 V1 世界保持原生成规则，不自动重刷。`/myvillage worldplan info` 可查看算法和规划哈希。城市审计区分正常遮阴草方块退化与实际损坏，同时保留原始差异。
+新建世界选择“修仙大陆（种子蓝图）”，使用 V3 局部过渡：保留原雪林、竹林等主体群系，仅在不相容交界 32 格内调整植被。已有 V1/V2 世界保持各自冻结规则，不自动重刷。`/myvillage worldplan info` 可查看算法和规划哈希。城市审计区分正常遮阴草方块退化与实际损坏，同时保留原始差异。
 
 创建方式、旧档兼容与验收见 [修仙大陆说明](docs/worldplan/acceptance.md)。局部云端构建使用 Modal `--preset worldplan-build`；玩家画面与手感仍单独验收。
 
