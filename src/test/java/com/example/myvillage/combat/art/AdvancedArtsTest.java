@@ -28,7 +28,8 @@ class AdvancedArtsTest {
             assertTrue(ArtDefinition.forSlot(family,1).isPresent());
             assertTrue(ArtDefinition.forSlot(family,2).isEmpty());
         }
-        assertEquals(1,CombatStyles.bundled().skills().size());
+        assertEquals(Set.of("jianqi_jue", "sword_obsession_wave", "innate_sword_heart_wave"),
+                CombatStyles.bundled().skills().stream().map(s -> s.id().getPath()).collect(java.util.stream.Collectors.toSet()));
         assertEquals("jianqi_jue",CombatStyles.bundled().skills().getFirst().id().getPath());
     }
     @Test void manualCodecAndCostMatchRuntime() throws Exception {

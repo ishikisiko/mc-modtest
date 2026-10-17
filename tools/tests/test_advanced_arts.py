@@ -72,7 +72,8 @@ class AdvancedArtsDataTests(unittest.TestCase):
 
     def test_no_runtime_changes_to_baseline_index_or_skill(self):
         index=gen.read(ROOT/gen.DATA/'combat/index.json')
-        self.assertEqual(['myvillage:jianqi_jue'],index['skills'])
+        self.assertEqual(['myvillage:jianqi_jue', 'myvillage:sword_obsession_wave',
+                          'myvillage:innate_sword_heart_wave'],index['skills'])
         self.assertEqual({'schema','styles','weapons','skills'},set(index))
         self.assertEqual(3,len(index['styles']))
 

@@ -485,7 +485,12 @@ class CombatDataTest(unittest.TestCase):
         with self.assertRaises(combat_data.CombatDataError) as raised:
             combat_data.load_strict(self.root)
         self.assertEqual({"UNKNOWN_FIELD", "REFERENCE"}, {i.code for i in raised.exception.issues})
-        self.assertEqual(4, len(raised.exception.issues))
+        expected = {(STYLE, "moves[1].unknown"), (WEAPON, "style")}
+        # All three mainline sword-wave consumers must report both missing move references.
+        for name in ("jianqi_jue", "sword_obsession_wave", "innate_sword_heart_wave"):
+            for field in ("reaction_move", "feedback_move"):
+                expected.add((f"src/main/resources/data/myvillage/combat/skill/{name}.json", field))
+        self.assertEqual(expected, {(i.file, i.field) for i in raised.exception.issues})
         self.assertIn("moves[1].unknown", str(raised.exception))
         self.assertIn("feedback_move", str(raised.exception))
         self.assertIn("reaction_move", str(raised.exception))
