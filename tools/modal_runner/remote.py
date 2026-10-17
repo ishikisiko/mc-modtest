@@ -114,7 +114,7 @@ PRESETS["npc-combat-runtime"] = [
     ["python3", "tools/yunshan/build_functional.py", "--manifest", "blueprints/yunshan/functional_buildings_v2.json", "--out", "out/preview/npc-life-buildings"],
     ["python3", "tools/npc_combat_evidence.py"],
 ]
-NPC_COMBAT_CASES = ("duel", "reactions", "cross_targets", "collision", "retreat", "ledge", "life", "lifecycle", "death", "sources", "observers")
+NPC_COMBAT_CASES = ("duel", "reactions", "cross_targets", "group_hits", "collision", "retreat", "ledge", "life", "lifecycle", "death", "sources", "observers")
 
 
 def select_npc_combat_cases(value=None):

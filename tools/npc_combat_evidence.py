@@ -173,6 +173,43 @@ class NpcCombatEvidence(NpcLifeEvidence):
         self.check('npc_versus_beast_uses_real_attacks',True,{'before':before,'after':[self.hp(a),self.hp(wolf)]})
         self.rc(f'kill {a}');self.rc(f'kill {wolf}')
 
+    def group_hits(self):
+        self.arena(); u=self.s.username
+        target='@e[tag=npc_group_target,limit=1]'
+        self.rc('summon myvillage:cultivator .5 -60 3 {Tags:["npc_group_target"],Health:240f,attributes:[{id:"minecraft:generic.max_health",base:240d}]}')
+        self.rc('team add npc_combat_fixture')
+        self.rc('team modify npc_combat_fixture friendlyFire false')
+        try:
+            self.rc(f'team join npc_combat_fixture {u}'); self.rc(f'team join npc_combat_fixture {target}')
+            self.rc(f'tp {u} .5 -60 1 0 0'); self.s.game.require_ingame('mapped allied attack')
+            time.sleep(.25); self.s.game.xdo('click','1'); time.sleep(1)
+            self.check('shared_sword_respects_allied_damage_permission',self.hp(target)==240
+                and not self.inspect(target).get('NpcCombatView',{}).get('engaged'),self.inspect(target))
+        finally:self.rc('team remove npc_combat_fixture')
+        attackers=[]
+        self.rc(f'gamemode creative {u}')
+        for i,x in enumerate((-1,2)):
+            actor=f'@e[tag=npc_group_{i},limit=1]'; attackers.append(actor)
+            self.rc(f'summon myvillage:cultivator {x} -60 4 {{Tags:["npc_group_{i}"],Health:80f,attributes:[{{id:"minecraft:generic.max_health",base:80d}}]}}')
+            self.rc(f'damage {actor} 0.1 minecraft:mob_attack by {target}')
+        samples=[]; end=time.monotonic()+8
+        while time.monotonic()<end:
+            samples.append({'target':self.inspect(target),'attackers':[self.inspect(a) for a in attackers]})
+            time.sleep(.15)
+        def worn(body): return body['HandItems'][0].get('components',{}).get('minecraft:damage',0)>0
+        self.check('multiple_real_attackers_damage_one_body', samples[-1]['target']['Health']<240
+            and all(any(worn(sample['attackers'][i]) for sample in samples) for i in (0,1)),
+            {'health':[sample['target']['Health'] for sample in samples],
+             'positions':[sample['target']['Pos'] for sample in samples],
+             'reactions':[sample['target'].get('NpcCombatView',{}) for sample in samples]})
+        for actor in attackers:self.rc(f'kill {actor}')
+        self.poll(lambda:self.inspect(target).get('NpcCombatView',{}),
+            lambda v:not v.get('reaction_frozen') and not v.get('reaction_stunned') and not v.get('engaged'),
+            12,'stacked control ends after attackers stop')
+        health=self.hp(target);time.sleep(1)
+        self.check('stacked_hits_do_not_leave_permanent_control_or_delayed_damage',self.hp(target)>=health, self.inspect(target))
+        self.rc(f'kill {target}')
+
     def collision(self):
         self.arena(); target='@e[tag=npc_collision,limit=1]'
         self.rc('summon myvillage:cultivator .5 -60 3 {Tags:["npc_collision"],Health:80f,attributes:[{id:"minecraft:generic.max_health",base:80d}]}')
@@ -397,7 +434,7 @@ class NpcCombatEvidence(NpcLifeEvidence):
         life_prepared=False
         for case in self.report['selected']:
             started=time.monotonic()
-            if case not in ('duel','reactions','cross_targets','collision','retreat','ledge'):
+            if case not in ('duel','reactions','cross_targets','group_hits','collision','retreat','ledge'):
                 if not life_prepared:
                     self.prepare_life(); life_prepared=True
                 self.center(); self.rc('myvillage world resume')
@@ -417,7 +454,7 @@ class NpcCombatEvidence(NpcLifeEvidence):
                 print('CASE FAILED',case,repr(error),flush=True)
             finally:
                 self.rc('tick unfreeze');self.rc('tick rate 20');self.rc(f'gamemode creative {self.s.username}')
-                for tag in ('npc_duel','npc_reactions','npc_cross_a','npc_cross_b','npc_cross_wolf','npc_collision','npc_retreat','npc_ledge'):
+                for tag in ('npc_duel','npc_reactions','npc_cross_a','npc_cross_b','npc_cross_wolf','npc_group_target','npc_group_0','npc_group_1','npc_collision','npc_retreat','npc_ledge'):
                     self.rc(f'kill @e[tag={tag}]')
             self.save()
 

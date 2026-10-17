@@ -218,6 +218,7 @@ def index_html(npc, out):
         img("hero.png", "左前 3/4"), img("hero_back.png", "右后 3/4"), img("turntable.gif", "转台（带 idle）"),
         img("turnaround.png", "六视图"), img("closeups.png", "细节特写"), img("face.png", "脸部"),
         img("scale.png", "与玩家并排"),
+        img("combat.gif", "基础剑五段连招 · 离线动作预览"), img("combat.png", "基础剑动作分解"),
         img("walk_front.gif", "walk · 左前"), img("walk_side.gif", "walk · 侧面"), img("walk_back.gif", "walk · 右后"),
         img("walk.png", "walk 分解"), img("idle.png", "idle 分解"), img("atlas.png", "贴图图集"),
     ])
