@@ -131,6 +131,9 @@ class NpcCombatLedgerTest {
         assertTrue(NpcCombatLedger.die(ctx, 1, lease, PLAYER, "Alice", "player", 40));
         assertTrue(ctx.state.playerMembers.isEmpty());
         assertTrue(ctx.state.combat.sectGrievances.get(1).containsKey(PLAYER));
+        assertEquals(com.example.myvillage.sim.Admission.STANDING_TOO_LOW,
+                PlayerAffairs.admission(ctx, PLAYER.substring(7), 1,
+                    new com.example.myvillage.sim.PlayerQualification("qi_refining", 0, true, 5000)).reason());
         var restored = StateCodec.fromBytes(StateCodec.toBytes(ctx.state, data.realms()), data.realms());
         assertEquals(ctx.state.combat.sectGrievances, restored.combat.sectGrievances);
     }

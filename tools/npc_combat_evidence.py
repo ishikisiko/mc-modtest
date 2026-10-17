@@ -55,6 +55,7 @@ class NpcCombatEvidence(NpcLifeEvidence):
         self.rc(f'attribute {u} minecraft:generic.max_health base set 80')
         self.rc(f'effect give {u} minecraft:instant_health 1 10 true')
         self.rc(f'effect give {u} minecraft:saturation 99999 0 true')
+        self.rc(f'effect clear {u} minecraft:resistance')
         self.rc(f'effect give {u} minecraft:resistance 99999 2 true')
         self.equip()
 
@@ -345,11 +346,12 @@ class NpcCombatEvidence(NpcLifeEvidence):
 
     def run(self):
         self.start()
-        if any(c not in ('duel','reactions','cross_targets','collision') for c in self.report['selected']):
-            self.prepare_life()
+        life_prepared=False
         for case in self.report['selected']:
             started=time.monotonic()
             if case not in ('duel','reactions','cross_targets','collision'):
+                if not life_prepared:
+                    self.prepare_life(); life_prepared=True
                 self.center(); self.rc('myvillage world resume')
                 living = self.ledger('case-'+case)['persons']
                 alive = {p['id'] for p in living}

@@ -277,6 +277,10 @@ public final class WorldSim {
         return (grudges != null && grudges.containsKey(actor.stableKey()))
                 || (sectGrudges != null && sectGrudges.containsKey(actor.stableKey()));
     }
+    public boolean sectCombatGrudge(int sectId, String playerId) {
+        var grievances = ctx.state.combat.sectGrievances.get(sectId);
+        return grievances != null && grievances.containsKey("player:" + playerId);
+    }
     public String killerName(int id) {
         var tomb = ctx.state.tombstones.get(id);
         if (tomb == null) return "";
