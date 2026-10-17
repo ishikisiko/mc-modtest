@@ -32,8 +32,10 @@ class NpcEvidenceTests(unittest.TestCase):
     def test_runtime_builds_before_game_without_full_release(self):
         runtime = commands_for('npc-life-runtime')
         self.assertEqual(runtime[0], commands_for('npc-life-build')[0])
-        self.assertEqual(runtime[1][:2], ['./gradlew', 'jar'])
-        self.assertNotIn('test', runtime[1])
+        self.assertEqual(runtime[1][:4], ['./gradlew', 'test', '--tests',
+                                         'com.example.myvillage.block.AlchemyFurnaceNavigationTest'])
+        self.assertIn('jar', runtime[1])
+        self.assertEqual(runtime[1].count('--tests'), 1)
         self.assertEqual(runtime[-1][:2], ['python3', 'tools/npc_life_evidence.py'])
         self.assertFalse(any('release_gate.py' in part or 'run_chunky_acceptance.py' in part
                              for command in runtime for part in command))

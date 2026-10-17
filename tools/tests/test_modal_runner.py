@@ -146,6 +146,7 @@ class LifecycleTests(unittest.TestCase):
             "com.example.myvillage.sim.SimDataLoaderTest",
             "com.example.myvillage.sim.SimPurityGuardTest",
             "com.example.myvillage.sim.SettlementSchedulerTest",
+            "com.example.myvillage.block.AlchemyFurnaceNavigationTest",
         })
         self.assertEqual(gradle[gradle.index("jar"):], [
             "jar", "-x", "generateAllStructures", "--no-daemon",

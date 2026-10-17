@@ -31,6 +31,7 @@ PRESETS = {
          "--tests", "com.example.myvillage.sim.SimDataLoaderTest",
          "--tests", "com.example.myvillage.sim.SimPurityGuardTest",
          "--tests", "com.example.myvillage.sim.SettlementSchedulerTest",
+         "--tests", "com.example.myvillage.block.AlchemyFurnaceNavigationTest",
          "jar", "-x", "generateAllStructures", "--no-daemon",
          "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
     ],
@@ -113,7 +114,8 @@ PRESETS["yunshan-buildings"] = [
 ]
 PRESETS["npc-life-runtime"] = [
     ["python3", "tools/gen_npc_life_places.py", "--check"],
-    ["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
+    ["./gradlew", "test", "--tests", "com.example.myvillage.block.AlchemyFurnaceNavigationTest",
+     "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
     ["python3", "tools/yunshan/build_functional.py", "--manifest", "blueprints/yunshan/functional_buildings_v2.json", "--out", "out/preview/npc-life-buildings"],
     ["python3", "tools/npc_life_evidence.py"],
 ]
