@@ -37,8 +37,8 @@ class NpcCombatLedgerTest {
     }
     static NpcCombatProfile profile(double health, long revision) {
         return new NpcCombatProfile(health, 20, 12, "{id:\"myvillage:qingfeng_sword\",count:1}",
-                400, revision, PLAYER, new NpcCombatProfile.Body("minecraft:overworld", "region", 2, 70, 3,
-                    0, -0.5, 0, 9, 60));
+                400, revision, PLAYER, 320, new NpcCombatProfile.Body("minecraft:overworld", "region", 2, 70, 3,
+                    0, -0.5, 0, 9, 60, false));
     }
     @Test void oneLeaseRejectsOldBodiesAndDoesNotRefreshLosses() {
         var ctx = ctx(); long first = NpcCombatLedger.claim(ctx, 1, profile(20, 0));
@@ -87,7 +87,7 @@ class NpcCombatLedgerTest {
         assertTrue(NpcCombatLedger.die(ctx, 1, lease, "npc:2", "npc2", "mob", 40));
         assertEquals(1, ctx.state.persons.get(2).kills); assertEquals(2, ctx.state.tombstones.get(1).killerId);
         long another = NpcCombatLedger.claim(ctx, 3, profile(20, 0));
-        assertTrue(NpcCombatLedger.die(ctx, 3, another, "environment:fall", "fall", "fall", 40));
+        assertTrue(NpcCombatLedger.die(ctx, 3, another, "environment:fall", "", "fall", 40));
         assertEquals(-1, ctx.state.tombstones.get(3).killerId);
     }
     @Test void allNearFieldPeopleAreExcludedAsBothInitiatorAndVictimOfColdConflicts() {
@@ -108,6 +108,33 @@ class NpcCombatLedgerTest {
         assertEquals("waiting", resident.phase); assertEquals(0, resident.progressTicks);
         assertEquals("", resident.targetId);
     }
+    @Test void savingDuringCombatCannotResumeAnOldJobOnLoad() {
+        var ctx = ctx(); LifeResident resident = new LifeResident(); resident.personId = 1;
+        resident.phase = "working"; resident.targetId = "shop"; resident.progressTicks = 95; resident.requiredTicks = 100;
+        ctx.state.life.residents.put(1, resident);
+        long lease = NpcCombatLedger.claim(ctx, 1, profile(7, 1));
+        NpcCombatLedger.engage(ctx, 1, lease, true);
+        var saved = com.example.myvillage.sim.combat.NpcCombatCodec.write(ctx.state.combat);
+        var restored = com.example.myvillage.sim.combat.NpcCombatCodec.read(saved, ctx.state);
+        assertEquals("waiting", resident.phase); assertEquals(0, resident.progressTicks);
+        assertTrue(restored.leases.isEmpty()); assertTrue(restored.engaged.isEmpty());
+        assertEquals(profile(7, 1), restored.profiles.get(1));
+    }
+
+    @Test void killingASectMemberRecordsPlayerEnmityEvenWithoutPlayerMembership() {
+        var ctx = ctx(); var sect = new com.example.myvillage.sim.model.Sect();
+        sect.id = 1; sect.name = "test"; sect.homeRegionId = ctx.state.persons.get(1).regionId;
+        sect.masterId = 3; ctx.state.sects.put(1, sect); ctx.state.persons.get(1).sectId = 1;
+        ctx.state.persons.get(3).sectId = 1; ctx.state.persons.get(3).rank = "sect_master";
+        ctx.membershipChanged();
+        long lease = NpcCombatLedger.claim(ctx, 1, profile(7, 1));
+        assertTrue(NpcCombatLedger.die(ctx, 1, lease, PLAYER, "Alice", "player", 40));
+        assertTrue(ctx.state.playerMembers.isEmpty());
+        assertTrue(ctx.state.combat.sectGrievances.get(1).containsKey(PLAYER));
+        var restored = StateCodec.fromBytes(StateCodec.toBytes(ctx.state, data.realms()), data.realms());
+        assertEquals(ctx.state.combat.sectGrievances, restored.combat.sectGrievances);
+    }
+
     @Test void malformedOrDuplicateCombatSaveFailsInsteadOfSilentlyResetting() {
         var ctx = ctx(); NpcCombatLedger.claim(ctx, 1, profile(7, 1));
         var root = StateCodec.toJson(ctx.state, data.realms());

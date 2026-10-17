@@ -8,6 +8,7 @@ public final class NpcCombatState {
     public final TreeMap<Integer, NpcCombatProfile> profiles = new TreeMap<>();
     /** NPC-to-player grievances supplement the existing NPC Relation records. */
     public final TreeMap<Integer, TreeMap<String, Long>> grievances = new TreeMap<>();
+    public final TreeMap<Integer, TreeMap<String, Long>> sectGrievances = new TreeMap<>();
     public final transient TreeMap<Integer, Long> leases = new TreeMap<>();
     public final transient java.util.Set<Integer> engaged = new java.util.HashSet<>();
 }

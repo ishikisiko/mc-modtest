@@ -33,7 +33,7 @@ public final class NpcCombatLedger {
         ctx.state.combat.profiles.put(id, update);
         Person p = ctx.state.persons.get(id);
         p.injury = Math.clamp((int) Math.round(100 * (1 - update.health() / update.maximumHealth())), 0, 100);
-        if (update.lastAttacker().startsWith("npc:")) p.injurerId = ActorRef.parse(update.lastAttacker()).personId();
+        p.injurerId = update.lastAttacker().startsWith("npc:") ? ActorRef.parse(update.lastAttacker()).personId() : -1;
         return true;
     }
 
@@ -59,7 +59,7 @@ public final class NpcCombatLedger {
         double health = Math.max(Math.min(1, old.maximumHealth()), old.maximumHealth() * (1 - p.injury / 100.0));
         if (Math.abs(health - old.health()) < 0.000001) return;
         ctx.state.combat.profiles.put(p.id, new NpcCombatProfile(health, old.maximumHealth(), old.spirit(),
-                old.weapon(), old.recoveryUntil(), Math.incrementExact(old.revision()), old.lastAttacker(), old.body()));
+                old.weapon(), old.recoveryUntil(), Math.incrementExact(old.revision()), old.lastAttacker(), old.lastDamageTick(), old.body()));
     }
 
     public static boolean die(SimContext ctx, int id, long epoch, String killer, String killerName,
@@ -69,9 +69,12 @@ public final class NpcCombatLedger {
             throw new IllegalArgumentException("invalid_combat_death");
         ActorRef actor = killer.startsWith("npc:") || killer.startsWith("player:") ? ActorRef.parse(killer) : null;
         Person victim = ctx.state.persons.get(id);
-        long event = ctx.chronicle.event("slain", Math.max(2, Deaths.importance(ctx, victim)))
-                .actors(id).region(victim.regionId)
-                .say(TextKeys.P + "near_death", victim.name(), killerName, cause);
+        var message = ctx.chronicle.event("slain", Math.max(2, Deaths.importance(ctx, victim)))
+                .actors(id).region(victim.regionId);
+        String causeWord = "@commands.myvillage.world.cause." + cause;
+        long event = killerName.isEmpty()
+                ? message.say(TextKeys.P + "near_death_environment", victim.name(), causeWord)
+                : message.say(TextKeys.P + "near_death", victim.name(), killerName, causeWord);
         Person npcKiller = actor != null && actor.kind() == ActorRef.Kind.NPC
                 ? ctx.state.persons.get(actor.personId()) : null;
         if (npcKiller != null && npcKiller != victim) {
@@ -88,10 +91,11 @@ public final class NpcCombatLedger {
                         ctx.state.combat.grievances.computeIfAbsent(other.id, ignored -> new java.util.TreeMap<>())
                                 .put(actor.stableKey(), event);
                 }
+                if (victim.sectId >= 0) ctx.state.combat.sectGrievances
+                        .computeIfAbsent(victim.sectId, ignored -> new java.util.TreeMap<>()).put(actor.stableKey(), event);
                 var member = ctx.state.playerMembers.get(actor.playerId());
                 if (member != null && victim.sectId >= 0)
-                    member.standings.put(victim.sectId, Math.clamp(member.standings.getOrDefault(victim.sectId, 0)
-                            - playerStandingPenalty, -100, 100));
+                    PlayerAffairs.addStanding(member, victim.sectId, -playerStandingPenalty);
             }
             Deaths.bury(ctx, victim, cause, actor != null && actor.kind() == ActorRef.Kind.NPC ? actor.personId() : -1, event);
         }

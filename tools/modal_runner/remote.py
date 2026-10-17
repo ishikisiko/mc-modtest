@@ -114,7 +114,7 @@ PRESETS["npc-combat-runtime"] = [
     ["python3", "tools/yunshan/build_functional.py", "--manifest", "blueprints/yunshan/functional_buildings_v2.json", "--out", "out/preview/npc-life-buildings"],
     ["python3", "tools/npc_combat_evidence.py"],
 ]
-NPC_COMBAT_CASES = ("duel", "life", "lifecycle", "death", "observers")
+NPC_COMBAT_CASES = ("duel", "reactions", "cross_targets", "collision", "life", "lifecycle", "death", "sources", "observers")
 
 
 def select_npc_combat_cases(value=None):
@@ -249,7 +249,10 @@ def commands_for(preset, cases=None):
     if preset == "alchemy-quality":
         commands[-1] += ["--cases", ",".join(select_cases(cases))]
     if preset == "npc-combat-runtime":
-        commands[-1] += ["--cases", ",".join(select_npc_combat_cases(cases))]
+        selected = select_npc_combat_cases(cases)
+        if selected == list(NPC_COMBAT_CASES):
+            commands[0] = list(PRESETS["npc-combat-build"][0])
+        commands[-1] += ["--cases", ",".join(selected)]
     if preset == "npc-life-runtime":
         commands[-1] += ["--cases", ",".join(select_npc_life_cases(cases))]
     if preset == "fates-purple-runtime":

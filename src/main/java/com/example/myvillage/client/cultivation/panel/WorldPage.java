@@ -859,8 +859,10 @@ public final class WorldPage extends PanelPage {
             cursor += ROW + 1;
             if (d.killerId() >= 0 || !d.killerName().isEmpty()) {
                 rx = beside(cursor, portraitEnd, x);
-                cursor += linkPair(c, "screen.myvillage.cultivation.world.killer", orNone(d.killerName()),
+                if (d.killerId() >= 0) cursor += linkPair(c, "screen.myvillage.cultivation.world.killer", orNone(d.killerName()),
                         toPerson(d.killerId()), rx, cursor, x + width - rx);
+                else cursor += pair(c, "screen.myvillage.cultivation.world.killer", orNone(d.killerName()),
+                        rx, cursor, x + width - rx);
             }
         }
         return Math.max(cursor - 1 - y, portraitTop + PORTRAIT - y);

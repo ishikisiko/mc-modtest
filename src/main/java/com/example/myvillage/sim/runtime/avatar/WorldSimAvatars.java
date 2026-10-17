@@ -512,6 +512,13 @@ public final class WorldSimAvatars {
         }
     }
 
+    /** A combat cutover validates earned work without spawning/removing bodies reentrantly. */
+    public static void validateLifeWorkplaces() {
+        for (Avatar avatar : AVATARS.values()) {
+            if (avatar.life()) avatar.entity().validateLedgerLifeWorkplace();
+        }
+    }
+
     /** Called before WorldSimRuntime drops its facade on server stop. Does not report anybody dead. */
     public static void flushLife() {
         WorldSim sim = WorldSimRuntime.sim().orElse(null);

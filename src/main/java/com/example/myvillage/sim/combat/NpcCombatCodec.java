@@ -30,6 +30,12 @@ public final class NpcCombatCodec {
             e.addProperty("actor", actor); e.addProperty("event", event); grievances.add(e);
         }));
         root.add("grievances", grievances);
+        JsonArray sects = new JsonArray();
+        state.sectGrievances.forEach((id, actors) -> actors.forEach((actor, event) -> {
+            JsonObject e = new JsonObject(); e.addProperty("sect", id);
+            e.addProperty("actor", actor); e.addProperty("event", event); sects.add(e);
+        }));
+        root.add("sect_grievances", sects);
         JsonArray suspended = new JsonArray();
         state.engaged.stream().sorted().forEach(suspended::add);
         root.add("suspended", suspended);
@@ -47,6 +53,14 @@ public final class NpcCombatCodec {
                 var p = JSON.fromJson(e.get("state"), NpcCombatProfile.class);
                 if (p == null || !world.persons.containsKey(id) || state.profiles.putIfAbsent(id, p) != null)
                     throw new IllegalArgumentException("profile identity");
+            }
+            if (root.has("sect_grievances")) for (var element : root.getAsJsonArray("sect_grievances")) {
+                var e = element.getAsJsonObject(); int id = e.get("sect").getAsInt();
+                String actor = ActorRef.parse(e.get("actor").getAsString()).stableKey();
+                long event = e.get("event").getAsLong();
+                if (!world.sects.containsKey(id) || event < 0
+                        || state.sectGrievances.computeIfAbsent(id, ignored -> new java.util.TreeMap<>()).putIfAbsent(actor, event) != null)
+                    throw new IllegalArgumentException("sect grievance identity");
             }
             if (root.has("suspended")) for (var element : root.getAsJsonArray("suspended")) {
                 int id = element.getAsInt();

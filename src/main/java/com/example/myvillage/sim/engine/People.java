@@ -15,7 +15,9 @@ public final class People {
 
     /** Residents at any distance and all leased near-field people are excluded from regional movement/conflict. */
     static boolean lifeResident(SimContext ctx, Person p) {
-        return ctx.state.life.residents.containsKey(p.id) || ctx.state.combat.leases.containsKey(p.id);
+        var combat = ctx.state.combat.profiles.get(p.id);
+        return ctx.state.life.residents.containsKey(p.id) || ctx.state.combat.leases.containsKey(p.id)
+                || (combat != null && combat.body() != null && combat.body().unresolved());
     }
 
     /**

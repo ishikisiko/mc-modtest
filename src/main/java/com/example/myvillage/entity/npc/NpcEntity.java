@@ -86,7 +86,7 @@ public abstract class NpcEntity extends PathfinderMob {
     static final String COMBAT_INITIALIZED_TAG = "NpcCombatInitialized";
     boolean combatInitialized;
     long combatEpoch = -1;
-    long nextCombatDecision, lastThreatTick, nextRecoveryTick;
+    long nextCombatDecision, lastThreatTick, nextRecoveryTick, combatLastDamageTick;
     String combatLastAttacker = "";
     net.minecraft.world.phys.Vec3 combatAnchor = net.minecraft.world.phys.Vec3.ZERO;
 
@@ -287,6 +287,11 @@ public abstract class NpcEntity extends PathfinderMob {
 
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand hand) {
+        if (combatEngaged()) {
+            if (!level().isClientSide()) player.displayClientMessage(
+                    net.minecraft.network.chat.Component.translatable("entity.myvillage.cultivator.in_combat"), true);
+            return InteractionResult.CONSUME;
+        }
         if (!isLedgerAvatar()) {
             return super.mobInteract(player, hand);
         }
@@ -308,6 +313,8 @@ public abstract class NpcEntity extends PathfinderMob {
         // Read-only /data diagnostics. Never read back as authority when an entity is copied.
         CompoundTag diagnostic = combatState().copy();
         diagnostic.putLong("epoch", combatEpoch);
+        diagnostic.putBoolean("reaction_frozen", com.example.myvillage.combat.runtime.CombatReactionService.isFrozen(this));
+        diagnostic.putBoolean("reaction_stunned", com.example.myvillage.combat.runtime.CombatReactionService.isStunned(this));
         diagnostic.putLong("recovery_until", com.example.myvillage.combat.session.CombatSessionManager.recoveryUntil(this));
         if (getTarget() != null) diagnostic.putUUID("target", getTarget().getUUID());
         tag.put("NpcCombatView", diagnostic);

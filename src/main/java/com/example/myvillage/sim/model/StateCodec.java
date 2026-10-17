@@ -387,6 +387,7 @@ public final class StateCodec {
             Tombstone t = readTombstone(to, realms);
             s.tombstones.put(t.id, t);
         }
+        if (o.integer("version") >= 5 && !o.has("combat")) throw new SimFormatException("version 5 requires combat state");
         s.combat = com.example.myvillage.sim.combat.NpcCombatCodec.read(o.has("combat") ? o.obj("combat").json : null, s);
         long lastId = 0;
         for (Obj eo : o.objects("chronicle")) {

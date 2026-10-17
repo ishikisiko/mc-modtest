@@ -52,9 +52,10 @@ class NpcCombatEvidence(NpcLifeEvidence):
         self.poll(lambda:self.rc('execute if loaded 0 -60 2'), lambda r:'passed' in r, 30, 'arena loaded')
         self.rc('fill -20 -61 -20 20 -61 20 minecraft:stone')
         self.rc(f'gamemode survival {u}')
-        self.rc(f'attribute {u} minecraft:generic.max_health base set 1024')
+        self.rc(f'attribute {u} minecraft:generic.max_health base set 80')
         self.rc(f'effect give {u} minecraft:instant_health 1 10 true')
         self.rc(f'effect give {u} minecraft:saturation 99999 0 true')
+        self.rc(f'effect give {u} minecraft:resistance 99999 2 true')
         self.equip()
 
     def mapped_hit(self, selector, label):
@@ -119,6 +120,75 @@ class NpcCombatEvidence(NpcLifeEvidence):
         # The unprotected duel case above establishes real NPC outgoing damage.
         self.rc(f'effect give {self.s.username} minecraft:resistance 99999 4 true')
 
+    def reactions(self):
+        self.arena()
+        target='@e[tag=npc_reactions,limit=1]'
+        self.rc('summon myvillage:cultivator .5 -60 3 {Tags:["npc_reactions"],Health:80f,attributes:[{id:"minecraft:generic.max_health",base:80d}]}')
+        self.mapped_hit(target,'reaction_mapped_provocation')
+        self.rc('tick rate 5')
+        try:
+            active=self.poll(lambda:self.inspect(target).get('NpcCombatView',{}),lambda v:'move' in v,15,'NPC starts a real attack')
+            self.mapped_hit(target,'mapped_hit_interrupts_npc_action')
+            stopped=self.poll(lambda:self.inspect(target).get('NpcCombatView',{}),
+                lambda v:v.get('reaction_stunned') and 'move' not in v,5,'stagger clears action')
+            health=self.hp(); samples=[]
+            deadline=time.monotonic()+8
+            while time.monotonic()<deadline:
+                view=self.inspect(target).get('NpcCombatView',{})
+                if not view.get('reaction_stunned') and not view.get('reaction_frozen'): break
+                samples.append({'view':view,'health':self.hp()}); time.sleep(.08)
+            self.check('no_hidden_damage_during_stagger', bool(samples) and all(s['health']==health for s in samples),
+                       {'active':active,'interrupted':stopped,'samples':samples})
+        finally:
+            self.rc('tick rate 20');self.rc(f'gamemode creative {self.s.username}');self.rc(f'kill {target}')
+
+    def cross_targets(self):
+        self.arena(); self.rc(f'gamemode creative {self.s.username}')
+        a='@e[tag=npc_cross_a,limit=1]'; b='@e[tag=npc_cross_b,limit=1]'
+        for tag,z in [('npc_cross_a',3),('npc_cross_b',5)]:
+            self.rc(f'summon myvillage:cultivator .5 -60 {z} {{Tags:["{tag}"],Health:80f,attributes:[{{id:"minecraft:generic.max_health",base:80d}}]}}')
+        self.rc(f'damage {b} 0.1 minecraft:mob_attack by {a}')
+        before=[self.hp(a),self.hp(b)]
+        self.poll(lambda:[self.hp(a),self.hp(b)],lambda hp:all(hp[i]<before[i] for i in (0,1)),15,'actual NPC versus NPC retaliation')
+        self.check('npc_versus_npc_uses_real_attacks',True,{'before':before,'after':[self.hp(a),self.hp(b)]})
+        self.rc(f'kill {a}');self.rc(f'kill {b}')
+        self.rc('summon myvillage:cultivator .5 -60 3 {Tags:["npc_cross_a"],Health:80f,attributes:[{id:"minecraft:generic.max_health",base:80d}]}')
+        self.rc('summon myvillage:demon_wolf .5 -60 5 {Tags:["npc_cross_wolf"],Health:80f,attributes:[{id:"minecraft:generic.max_health",base:80d}]}')
+        wolf='@e[tag=npc_cross_wolf,limit=1]'
+        self.rc(f'damage {wolf} 0.1 minecraft:mob_attack by {a}')
+        before=[self.hp(a),self.hp(wolf)]
+        self.poll(lambda:[self.hp(a),self.hp(wolf)],lambda hp:all(hp[i]<before[i] for i in (0,1)),20,'actual NPC versus beast retaliation')
+        self.check('npc_versus_beast_uses_real_attacks',True,{'before':before,'after':[self.hp(a),self.hp(wolf)]})
+        self.rc(f'kill {a}');self.rc(f'kill {wolf}')
+
+    def collision(self):
+        self.arena(); target='@e[tag=npc_collision,limit=1]'
+        self.rc('summon myvillage:cultivator .5 -60 3 {Tags:["npc_collision"],Health:80f,attributes:[{id:"minecraft:generic.max_health",base:80d}]}')
+        self.mapped_hit(target,'collision_mapped_provocation')
+        self.poll(lambda:self.inspect(target).get('NpcCombatView',{}),lambda v:'move' in v,12,'attack before wall')
+        self.rc('tick freeze')
+        try:
+            self.rc(f'tp {self.s.username} .5 -60 .5 0 0')
+            self.rc(f'tp {target} .5 -60 3.5 180 0')
+            self.rc('fill -10 -60 2 10 -56 2 minecraft:stone')
+            before=self.hp()
+        finally: self.rc('tick unfreeze')
+        time.sleep(2)
+        body=self.inspect(target)
+        self.check('wall_blocks_attack_and_body',self.hp()==before and body['Pos'][2]>=3,
+                   {'health_before':before,'health_after':self.hp(),'npc':body})
+        self.rc('fill -10 -60 2 10 -56 2 minecraft:air')
+        # Three ordinary steps: choose navigation until the common hit geometry can reach.
+        self.rc('fill -2 -60 5 2 -60 9 minecraft:stone')
+        self.rc('fill -2 -59 6 2 -59 9 minecraft:stone')
+        self.rc('fill -2 -58 7 2 -58 9 minecraft:stone')
+        self.rc(f'tp {self.s.username} .5 -57 8.5 180 0')
+        self.rc(f'tp {target} .5 -60 3.5 0 0')
+        climbed=self.poll(lambda:self.inspect(target),lambda b:b['Pos'][1]>-59,20,'NPC climbs actual steps')
+        self.check('npc_chases_up_steps',climbed['Pos'][1]>-59,climbed['Pos'])
+        self.rc(f'gamemode creative {self.s.username}');self.rc(f'kill {target}')
+        self.rc('fill -2 -60 5 2 -57 9 minecraft:air')
+
     def life(self):
         pid = self.ids['innkeeper']
         self.poll(lambda:self.status(pid), lambda r:r['phase']=='working', 100, 'resident reaches actual workplace')
@@ -147,6 +217,8 @@ class NpcCombatEvidence(NpcLifeEvidence):
         self.rc(f'gamemode creative {self.s.username}')
         self.poll(lambda:self.body(pid).get('NpcCombatView',{}), lambda v:not v.get('engaged'), 12, 'lifecycle disengage')
         before = self.body(pid)
+        self.rc(f'summon myvillage:cultivator {before["Pos"][0]} {before["Pos"][1]} {before["Pos"][2]} {{WorldSimPerson:{pid}}}')
+        self.check('copied_avatar_identity_rejected',self.count(pid)==1 and self.body(pid)['UUID']==before['UUID'],{'person':pid})
         self.rc('myvillage world pause')
         self.away()
         self.poll(lambda:self.count(pid), lambda count:count==0, 35, 'physical body withdrawn')
@@ -183,11 +255,18 @@ class NpcCombatEvidence(NpcLifeEvidence):
         # A low-health fixture lets the actual mapped sword, not a kill command, produce the death.
         self.rc(f'data merge entity {self.entity(pid)} {{Health:1f,NoAI:1b}}')
         body = self.body(pid); x,y,z = body['Pos']
-        pos = [x,y,z-2]
-        yaw,pitch = aim(pos,[x,y+1.15,z]); self.rc(teleport_command(self.s.username,pos,yaw,pitch))
-        self.s.game.require_ingame('mapped lethal NPC sword hit'); time.sleep(.3)
-        self.s.game.xdo('click','1')
-        state = self.poll(lambda:self.ledger('death-poll'), lambda s:any(p['id']==pid for p in s['tombstones']), 10, 'actual death committed')
+        state=None
+        for dx,dz in ((0,-2),(0,2),(-2,0),(2,0)):
+            bx,by,bz=math.floor(x+dx),math.floor(y),math.floor(z+dz)
+            if 'passed' not in self.rc(f'execute if block {bx} {by} {bz} minecraft:air if block {bx} {by+1} {bz} minecraft:air unless block {bx} {by-1} {bz} minecraft:air'):continue
+            pos=[bx+.5,by,bz+.5]
+            yaw,pitch=aim(pos,[x,y+1.15,z]);self.rc(teleport_command(self.s.username,pos,yaw,pitch))
+            self.s.game.require_ingame('mapped lethal NPC sword hit');time.sleep(.3);self.s.game.xdo('click','1')
+            try:
+                state=self.poll(lambda:self.ledger('death-poll'),lambda s:any(p['id']==pid for p in s['tombstones']),3,'actual death committed')
+                break
+            except TimeoutError:continue
+        self.check('mapped_sword_commits_real_death',state is not None,{'person':pid})
         tomb = next(p for p in state['tombstones'] if p['id']==pid)
         self.check('mapped_death_has_player_attribution', tomb['killer_actor'].startswith('player:') and tomb['killer_name']==self.s.username, tomb)
         self.check('death_removes_person_profile_and_resident', all(p['id']!=pid for p in state['persons'])
@@ -197,6 +276,46 @@ class NpcCombatEvidence(NpcLifeEvidence):
         state = self.ledger('dead-return')
         self.check('dead_person_never_reprojects_or_duplicates_receipt', self.count(pid)==0
             and len([p for p in state['tombstones'] if p['id']==pid])==1, tomb)
+
+    def sources(self):
+        from tools.combat_capture.rcon import connect
+        self.rc('myvillage world pause')
+        state=self.ledger('sect-combat-before')
+        members=lambda sect:[p for p in state['persons'] if p['sect']==sect['id'] and p['status']=='at_sect']
+        sect=max((s for s in state['sects'] if s['state']=='active' and len(members(s))>=2),key=lambda s:len(members(s)))
+        x,z=sect['gate_x'],sect['gate_z'];u=self.s.username
+        self.rc(f'gamemode creative {u}');self.rc(teleport_command(u,[x+.5,-60,z-20.5]))
+        command=f'myvillage world sect {sect["id"]} build'
+        with connect(self.s.state['rcon_port'],self.s.state['rcon_password'],retries=1,timeout=180) as r:
+            reply=r.cmd(command)
+        self.report['commands'].append({'command':command,'reply':reply,'purpose':'authored sect fixture'})
+        self.rc(teleport_command(u,[x+.5,-59,z+5.5]))
+        def projected():
+            result=[]
+            for person in members(sect):
+                if self.count(person['id'])==1:result.append(person['id'])
+            return result
+        ids=self.poll(projected,bool,60,'actual sect projection')
+        pid=ids[0];self.equip();self.rc(f'gamemode survival {u}');self.rc(f'effect give {u} minecraft:resistance 99999 4 true')
+        self.mapped_hit(self.entity(pid),'sect_avatar_mapped_damage')
+        self.poll(lambda:self.body(pid).get('NpcCombatView',{}),lambda v:v.get('engaged'),10,'sect self defence')
+        profile=next(p['state'] for p in self.ledger('sect-combat')['combat']['profiles'] if p['person']==pid)
+        self.check('sect_projection_uses_durable_combat_profile',profile['health']<profile['maximumHealth'],profile)
+        self.rc(f'gamemode creative {u}')
+        origin=self.one('myvillage wilderness info 0 -60 0','WILDERNESS_INFO')
+        center=None
+        for candidate in origin['centers']:
+            info=self.one(f'myvillage wilderness info {candidate["x"]} -60 {candidate["z"]}','WILDERNESS_INFO')
+            if info.get('eligibleRogues',0)>0:center=candidate;break
+        self.check('wilderness_has_existing_person',center is not None,origin['centers'])
+        self.rc(teleport_command(u,[center['x']+.5,-60,center['z']+.5]))
+        selector='@e[type=myvillage:cultivator,tag=myvillage:wild_avatar,sort=nearest,limit=1]'
+        wild=self.poll(lambda:self.rc(f'data get entity {selector}'),lambda r:'data: ' in r,40,'actual wild projection')
+        pid=read_data(wild)['WorldSimPerson'];self.equip();self.rc(f'gamemode survival {u}')
+        self.mapped_hit(self.entity(pid),'wild_avatar_mapped_damage')
+        profile=next(p['state'] for p in self.ledger('wild-combat')['combat']['profiles'] if p['person']==pid)
+        self.check('wild_projection_uses_same_ledger_authority',profile['health']<profile['maximumHealth'] and self.body(pid)['NpcCombatView']['epoch']>0,profile)
+        self.rc(f'gamemode creative {u}');self.center()
 
     def observers(self):
         pid = self.ids['innkeeper']
@@ -226,11 +345,11 @@ class NpcCombatEvidence(NpcLifeEvidence):
 
     def run(self):
         self.start()
-        if any(c!='duel' for c in self.report['selected']):
+        if any(c not in ('duel','reactions','cross_targets','collision') for c in self.report['selected']):
             self.prepare_life()
         for case in self.report['selected']:
             started=time.monotonic()
-            if case != 'duel':
+            if case not in ('duel','reactions','cross_targets','collision'):
                 self.center(); self.rc('myvillage world resume')
                 living = self.ledger('case-'+case)['persons']
                 alive = {p['id'] for p in living}

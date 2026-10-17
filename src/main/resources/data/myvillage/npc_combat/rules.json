@@ -17,5 +17,6 @@
   "recoveryDelayTicks": 200,
   "healIntervalTicks": 40,
   "healFraction": 0.01,
-  "playerKillStandingPenalty": 40
+  "playerKillStandingPenalty": 40,
+  "attributionTicks": 100
 }

@@ -67,7 +67,8 @@ public final class NpcCombatGoal extends Goal {
         var style = CombatStyles.bundled().styleFor(npc.getMainHandItem());
         if (style.isEmpty()) return;
         double range = style.get().moves().get(0).range();
-        if (npc.distanceToSqr(target) <= range * range && npc.hasLineOfSight(target)) {
+        if (npc.distanceToSqr(target) <= range * range && npc.hasLineOfSight(target)
+                && com.example.myvillage.combat.runtime.CombatHitResolver.canReach(npc, target, style.get().moves().get(0), yaw)) {
             npc.getNavigation().stop();
             CombatSessionManager.handleAttackIntent(npc);
         } else npc.getNavigation().moveTo(target, rules.approachSpeed());

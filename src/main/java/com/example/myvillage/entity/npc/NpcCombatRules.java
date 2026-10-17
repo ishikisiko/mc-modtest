@@ -9,7 +9,7 @@ public record NpcCombatRules(int schema, String weapon, double health, double at
         double followRange, long spirit, int decisionTicks, int reactionTicks, double pursuitRadius,
         int lostTargetTicks, double retreatFraction, double escapeDistance, double approachSpeed,
         double retreatSpeed, int recoveryDelayTicks, int healIntervalTicks, double healFraction,
-        int playerKillStandingPenalty) {
+        int playerKillStandingPenalty, int attributionTicks) {
     private static final String PATH = "/data/myvillage/npc_combat/rules.json";
     private static final NpcCombatRules INSTANCE = load();
     public NpcCombatRules {
@@ -19,7 +19,7 @@ public record NpcCombatRules(int schema, String weapon, double health, double at
                 || lostTargetTicks < 1 || !(retreatFraction > 0 && retreatFraction < 1)
                 || !positive(escapeDistance) || !positive(approachSpeed) || !positive(retreatSpeed)
                 || recoveryDelayTicks < 1 || healIntervalTicks < 1 || !(healFraction > 0 && healFraction <= 1)
-                || playerKillStandingPenalty < 0 || playerKillStandingPenalty > 100)
+                || attributionTicks < 0 || playerKillStandingPenalty < 0 || playerKillStandingPenalty > 100)
             throw new IllegalArgumentException("invalid_npc_combat_rules");
     }
     private static boolean positive(double value) { return Double.isFinite(value) && value > 0; }

@@ -136,10 +136,12 @@ public final class CombatEvents {
     }
 
     private static void onServerStopping(ServerStoppingEvent event) {
+        com.example.myvillage.entity.npc.NpcCombatRuntime.flush();
         CombatSessionManager.clearAll(event.getServer(), CombatStopReason.SERVER_STOPPING);
         CombatReactionService.clearAll();
         CombatDodgeService.clearAll();
         CombatService.clearRuntime();
+        com.example.myvillage.entity.npc.NpcCombatRuntime.clear();
     }
 
     /** Our hits replace vanilla's hurt knockback with the move's own reaction impulse. */

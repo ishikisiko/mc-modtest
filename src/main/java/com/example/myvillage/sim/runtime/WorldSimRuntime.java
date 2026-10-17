@@ -215,6 +215,18 @@ public final class WorldSimRuntime {
         deactivate("the server is stopping");
     }
 
+    /** Settle the life clock at a combat boundary so a sub-interval fight cannot earn wages. */
+    public static void settleLifeBeforeCombatChange() {
+        if (server == null || saved == null) return;
+        WorldSim live = sim().orElse(null);
+        if (live == null) return;
+        CultivationServerConfig.Scale scale = CultivationServerConfig.scale();
+        NpcLifeSites.tick(server, live);
+        WorldSimAvatars.validateLifeWorkplaces();
+        long now = CultivationCalendarSavedData.get(server.overworld()).elapsedCalendarTicks();
+        if (live.advanceLife(now, scale.ticksPerDay())) saved.setDirty();
+    }
+
     // ------------------------------------------------------------------ queries and admin actions
 
     /** The live driver, or empty while the ledger is inactive. */

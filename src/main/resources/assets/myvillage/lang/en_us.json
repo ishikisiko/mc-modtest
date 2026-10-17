@@ -1580,5 +1580,17 @@
   "combat.myvillage.art.bengshan_jin.description": "An uppercut followed by a ground-shock palm launches and scatters nearby enemies without breaking blocks.",
   "cultivation.technique.myvillage.jingang_zhen": "Adamant Reversal",
   "combat.myvillage.art.jingang_zhen.description": "Time the opening ward against a frontal hit to reduce damage and empower a radial palm reversal.",
-  "world_sim.event.near_death.1": "%s died in the world. Responsible: %s. Cause: %s."
+  "world_sim.event.near_death.1": "%s died in the world. Responsible: %s. Cause: %s.",
+  "entity.myvillage.cultivator.in_combat": "They are in combat.",
+  "commands.myvillage.world.cause.player": "Killed by a player",
+  "commands.myvillage.world.cause.mob": "Killed by a creature",
+  "commands.myvillage.world.cause.fall": "Fell to their death",
+  "commands.myvillage.world.cause.lava": "Died in lava",
+  "commands.myvillage.world.cause.inFire": "Died in fire",
+  "commands.myvillage.world.cause.onFire": "Burned to death",
+  "commands.myvillage.world.cause.drown": "Drowned",
+  "commands.myvillage.world.cause.inWall": "Suffocated",
+  "commands.myvillage.world.cause.genericKill": "Killed by command",
+  "commands.myvillage.world.cause.outOfWorld": "Fell into the void",
+  "world_sim.event.near_death_environment.1": "%1$s died. Cause: %2$s."
 }

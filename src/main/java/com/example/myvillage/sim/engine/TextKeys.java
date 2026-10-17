@@ -199,6 +199,7 @@ public final class TextKeys {
         Map<String, int[]> f = new LinkedHashMap<>();
         int w = WHO;
         f.put(P + "near_death", new int[] {3, 1});
+        f.put(P + "near_death_environment", new int[] {2, 1});
         f.put(STAGE_UP, new int[] {w + 1, 2});
         f.put(STAGE_UP_INSIGHT, new int[] {w + 1, 2});
         f.put(DEATH_OLD_AGE, new int[] {w + 2, 3});

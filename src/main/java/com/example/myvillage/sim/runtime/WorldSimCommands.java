@@ -280,8 +280,8 @@ public final class WorldSimCommands {
             } else {
                 send(source, () -> WorldSimText.line("person.death", sect, dateOf(sim, p.deathDay(), dpy),
                         WorldSimText.cause(p.deathCause())));
-                if (p.killerId() >= 0) {
-                    send(source, () -> WorldSimText.line("person.killer", nameOf(sim, p.killerId())));
+                if (!sim.killerName(p.id()).isEmpty()) {
+                    send(source, () -> WorldSimText.line("person.killer", sim.killerName(p.id())));
                 }
             }
         }

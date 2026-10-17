@@ -14,6 +14,14 @@ from tools.modal_runner import remote, runner
 
 
 class ArchiveTests(unittest.TestCase):
+    def test_npc_combat_selection_runs_only_declared_scenarios(self):
+        self.assertEqual(remote.select_npc_combat_cases('death,life'), ['life','death'])
+        self.assertEqual(remote.commands_for('npc-combat-runtime','duel')[-1][-2:], ['--cases','duel'])
+        self.assertIn('test', remote.commands_for('npc-combat-runtime','all')[0])
+        self.assertNotIn('test', remote.commands_for('npc-combat-runtime','duel')[0])
+        for value in ('', 'missing', 'duel,duel'):
+            with self.assertRaises(ValueError): remote.select_npc_combat_cases(value)
+
     def test_advanced_fate_case_selection_is_bounded_and_independent(self):
         self.assertEqual(remote.select_advanced_fate_cases('fire_spirit,wind_step'), ['wind_step','fire_spirit'])
         self.assertEqual(remote.commands_for('advanced-fates-runtime','sword_heart')[-1][-2:],['--cases','sword_heart'])

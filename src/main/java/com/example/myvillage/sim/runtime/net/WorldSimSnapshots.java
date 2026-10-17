@@ -315,7 +315,7 @@ public final class WorldSimSnapshots {
             }
             return new WorldSimSnapshot.PersonDetail(personSummary(p), p.gender(), p.birthDay(),
                     p.alive() ? -1 : p.deathDay(), p.alive() ? "" : p.deathCause(), p.alive() ? -1 : p.killerId(),
-                    p.alive() ? "" : personName(p.killerId()), p.rootGrade(), p.alive() ? p.root() : List.of(),
+                    p.alive() ? "" : sim.killerName(p.id()), p.rootGrade(), p.alive() ? p.root() : List.of(),
                     p.alive() ? p.progress() : 0.0, p.masterId(), personName(p.masterId()),
                     regionName(p.regionId()), p.status(), p.techniqueName(), p.alive() ? p.injury() : 0, relations);
         }

@@ -229,8 +229,7 @@ public final class LifeEngine {
         if (ctx.state.combat.engaged.contains(r.personId) || (r.observed && !r.embodied)) return;
         var combatProfile = ctx.state.combat.profiles.get(r.personId);
         if (!r.embodied && combatProfile != null && combatProfile.body() != null
-                && (combatProfile.body().fallDistance() > 0 || combatProfile.body().velocityY() < -0.1
-                    || combatProfile.body().fireTicks() > 0)) return;
+                && combatProfile.body().unresolved()) return;
         long left = elapsed;
         int transitions = 0;
         while (left > 0 && transitions < rules(ctx).maxTransitionsPerTick()) {

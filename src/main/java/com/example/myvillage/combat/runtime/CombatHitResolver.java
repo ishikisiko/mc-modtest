@@ -27,6 +27,16 @@ public final class CombatHitResolver {
     private CombatHitResolver() {
     }
 
+    /** AI reach decision uses the same samples and vertical tolerances as an actual strike. */
+    public static boolean canReach(LivingEntity attacker, Entity target, AttackMoveDefinition move, float yaw) {
+        for (var sample : move.hitbox().samples()) {
+            var world = CombatGeometry.transform(sample, attacker.position(), yaw);
+            if (CombatGeometry.firstContact(world, target.getBoundingBox(), move.hitbox().horizontalTolerance(),
+                    move.hitbox().verticalTolerance()).isPresent()) return !blockedByWall(attacker, target);
+        }
+        return false;
+    }
+
     public static Resolution resolve(
             LivingEntity attacker,
             CombatSession session,

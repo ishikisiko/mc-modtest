@@ -272,7 +272,16 @@ public final class WorldSim {
     public boolean combatEngaged(int id) { return ctx.state.combat.engaged.contains(id); }
     public boolean combatGrudge(int id, ActorRef actor) {
         var grudges = ctx.state.combat.grievances.get(id);
-        return grudges != null && grudges.containsKey(actor.stableKey());
+        var person = ctx.state.persons.get(id);
+        var sectGrudges = person == null ? null : ctx.state.combat.sectGrievances.get(person.sectId);
+        return (grudges != null && grudges.containsKey(actor.stableKey()))
+                || (sectGrudges != null && sectGrudges.containsKey(actor.stableKey()));
+    }
+    public String killerName(int id) {
+        var tomb = ctx.state.tombstones.get(id);
+        if (tomb == null) return "";
+        if (!tomb.killerName.isEmpty()) return tomb.killerName;
+        return person(tomb.killerId).map(PersonView::name).orElse("");
     }
     public boolean combatDeath(int id, long epoch, String killer, String name, String cause, int standingPenalty) {
         return com.example.myvillage.sim.engine.NpcCombatLedger.die(ctx, id, epoch, killer, name, cause, standingPenalty);

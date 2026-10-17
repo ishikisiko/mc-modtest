@@ -570,7 +570,7 @@ public final class PlayerAffairs {
         m.rootPeakBp = q.rootPeakBp();
     }
 
-    private static void addStanding(PlayerMember m, int sectId, int delta) {
+    static void addStanding(PlayerMember m, int sectId, int delta) {
         int v = m.standings.getOrDefault(sectId, 0) + delta;
         m.standings.put(sectId, Math.max(STANDING_MIN, Math.min(STANDING_MAX, v)));
     }

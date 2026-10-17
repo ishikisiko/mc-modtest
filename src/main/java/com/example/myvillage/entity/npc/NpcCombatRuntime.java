@@ -42,7 +42,7 @@ public final class NpcCombatRuntime {
     public static boolean bind(WorldSim sim, NpcEntity npc, PersonView person) {
         equipInitial(npc);
         var initial = new NpcCombatProfile(Math.max(1, npc.getMaxHealth() * (1 - person.injury() / 100.0)),
-                npc.getMaxHealth(), NpcCombatRules.get().spirit(), weapon(npc), 0, 0, "", null);
+                npc.getMaxHealth(), NpcCombatRules.get().spirit(), weapon(npc), 0, 0, "", 0, null);
         long epoch = sim.claimCombat(person.id(), initial);
         if (epoch < 0) return false;
         npc.combatEpoch = epoch;
@@ -56,12 +56,14 @@ public final class NpcCombatRuntime {
         }
         npc.setHealth((float) Math.min(npc.getMaxHealth(), profile.health()));
         npc.combatLastAttacker = profile.lastAttacker();
+        npc.combatLastDamageTick = profile.lastDamageTick();
         var body = profile.body();
         if (body != null && (sim.life(person.id()).isEmpty() || unresolved(body))
                 && body.region().equals(person.regionId())
                 && body.dimension().equals(npc.level().dimension().location().toString())) {
             npc.setPos(body.x(), body.y(), body.z());
             npc.setDeltaMovement(body.velocityX(), body.velocityY(), body.velocityZ());
+            npc.setOnGround(body.grounded());
             npc.fallDistance = body.fallDistance();
             npc.setRemainingFireTicks(body.fireTicks());
         }
@@ -83,11 +85,11 @@ public final class NpcCombatRuntime {
     }
 
     public static boolean unresolved(NpcCombatProfile.Body body) {
-        return body.fallDistance() > 0 || body.velocityY() < -0.1 || body.fireTicks() > 0;
+        return body.unresolved();
     }
 
     public static boolean canAct(NpcEntity npc) {
-        return !npc.level().isClientSide() && npc.isAlive() && !npc.isRemoved() && managed(npc);
+        return !npc.level().isClientSide() && npc.isAlive() && !npc.isRemoved() && !npc.isNoAi() && managed(npc);
     }
 
     public static void joined(NpcEntity npc) {
@@ -99,7 +101,13 @@ public final class NpcCombatRuntime {
 
     public static void attacked(NpcEntity npc, DamageSource source) {
         if (!canAct(npc)) return;
-        npc.combatLastAttacker = actor(source);
+        if (source.getEntity() instanceof LivingEntity) {
+            npc.combatLastAttacker = actor(source);
+            npc.combatLastDamageTick = npc.level().getGameTime();
+            if (source.getEntity() instanceof ServerPlayer player) WorldSimRuntime.sim().ifPresent(sim -> {
+                if (sim.registerPlayerActor(player.getUUID().toString(), player.getGameProfile().getName())) dirty(npc);
+            });
+        }
         npc.nextRecoveryTick = npc.level().getGameTime() + NpcCombatRules.get().recoveryDelayTicks();
         if (source.getEntity() instanceof LivingEntity attacker && CombatActors.mayHarm(npc, attacker)) {
             if (npc.getTarget() == null) {
@@ -110,10 +118,16 @@ public final class NpcCombatRuntime {
             npc.lastThreatTick = npc.level().getGameTime();
             engage(npc, true);
         }
+        if (npc.getTarget() == null && npc.isLedgerAvatar()) {
+            // Environmental injury also interrupts work, without inventing a combat opponent.
+            engage(npc, true); engage(npc, false);
+        }
         checkpoint(npc);
     }
 
     public static void engage(NpcEntity npc, boolean fighting) {
+        if (npc.combatEngaged() == fighting) return;
+        if (npc.isLedgerAvatar()) WorldSimRuntime.settleLifeBeforeCombatChange();
         if (npc.isLedgerAvatar()) WorldSimRuntime.sim().ifPresent(s -> {
             if (s.engageCombat(npc.ledgerPersonId(), npc.combatEpoch, fighting)) dirty(npc);
         });
@@ -135,14 +149,14 @@ public final class NpcCombatRuntime {
             var person = sim.person(npc.ledgerPersonId()).orElseThrow();
             Vec3 v = npc.getDeltaMovement();
             var body = new NpcCombatProfile.Body(npc.level().dimension().location().toString(), person.regionId(),
-                    npc.getX(), npc.getY(), npc.getZ(), v.x, v.y, v.z, Math.max(0, npc.fallDistance), Math.max(0, npc.getRemainingFireTicks()));
+                    npc.getX(), npc.getY(), npc.getZ(), v.x, v.y, v.z, Math.max(0, npc.fallDistance), Math.max(0, npc.getRemainingFireTicks()), npc.onGround());
             double health = Math.clamp(npc.getHealth(), 0, npc.getMaxHealth());
             String equipment = weapon(npc);
             long recovery = CombatSessionManager.recoveryUntil(npc);
             if (health == old.health() && npc.getMaxHealth() == old.maximumHealth() && equipment.equals(old.weapon())
-                    && recovery == old.recoveryUntil() && body.equals(old.body()) && old.lastAttacker().equals(npc.combatLastAttacker)) return;
+                    && recovery == old.recoveryUntil() && body.equals(old.body()) && old.lastAttacker().equals(npc.combatLastAttacker) && old.lastDamageTick() == npc.combatLastDamageTick) return;
             if (sim.checkpointCombat(npc.ledgerPersonId(), npc.combatEpoch, new NpcCombatProfile(health,
-                    npc.getMaxHealth(), old.spirit(), equipment, recovery, Math.incrementExact(old.revision()), npc.combatLastAttacker, body))) dirty(npc);
+                    npc.getMaxHealth(), old.spirit(), equipment, recovery, Math.incrementExact(old.revision()), npc.combatLastAttacker, npc.combatLastDamageTick, body))) dirty(npc);
         });
     }
 
@@ -152,7 +166,14 @@ public final class NpcCombatRuntime {
             if (source.getEntity() instanceof ServerPlayer player)
                 sim.registerPlayerActor(player.getUUID().toString(), player.getGameProfile().getName());
             String killer = actor(source);
-            String name = source.getEntity() == null ? source.getMsgId() : source.getEntity().getName().getString();
+            String name = source.getEntity() == null ? "" : source.getEntity().getName().getString();
+            long since = npc.level().getGameTime() - npc.combatLastDamageTick;
+            if (source.getEntity() == null && !source.is(net.minecraft.world.damagesource.DamageTypes.GENERIC_KILL) && since >= 0 && since <= NpcCombatRules.get().attributionTicks()
+                    && (npc.combatLastAttacker.startsWith("player:") || npc.combatLastAttacker.startsWith("npc:"))) {
+                killer = npc.combatLastAttacker;
+                var ref = com.example.myvillage.sim.social.ActorRef.parse(killer);
+                name = sim.actor(ref).map(a -> a.name()).orElse(killer);
+            }
             if (sim.combatDeath(npc.ledgerPersonId(), npc.combatEpoch, killer, name,
                     source.getMsgId(), NpcCombatRules.get().playerKillStandingPenalty())) {
                 LoggerFactory.getLogger(NpcCombatRuntime.class).info("NPC_COMBAT death person={} epoch={} killer={} cause={}",
@@ -166,6 +187,7 @@ public final class NpcCombatRuntime {
     public static void leaving(NpcEntity npc) {
         if (npc.level().isClientSide()) return;
         checkpoint(npc);
+        if (npc.combatEngaged()) engage(npc, false);
         if (npc.isLedgerAvatar()) WorldSimRuntime.sim().ifPresent(sim -> {
             if (sim.releaseCombat(npc.ledgerPersonId(), npc.combatEpoch)) dirty(npc);
         });
@@ -187,6 +209,9 @@ public final class NpcCombatRuntime {
         }
     }
 
+    public static void flush() {
+        for (NpcEntity npc : BODIES.values().toArray(NpcEntity[]::new)) checkpoint(npc);
+    }
     public static void clear() { BODIES.clear(); }
     private static String weapon(NpcEntity npc) {
         return npc.getMainHandItem().isEmpty() ? "" : npc.getMainHandItem().save(npc.registryAccess()).toString();
