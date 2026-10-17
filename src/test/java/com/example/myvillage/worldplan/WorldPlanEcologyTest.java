@@ -28,7 +28,7 @@ class WorldPlanEcologyTest {
         }
     }
     @Test void newEcologyDoesNotMoveTerrainCitiesSpawnOrRegionIdentity() throws Exception {
-        var oldRules=rules(WorldPlanRules.LEGACY_RESOURCE);var current=rules(WorldPlanRules.RESOURCE);
+        var oldRules=rules(WorldPlanRules.LEGACY_RESOURCE);var current=rules(WorldPlanRules.V2_RESOURCE);
         for(long seed:new long[]{20261017,0,Long.MIN_VALUE}) {
             var a=new WorldPlan(seed,oldRules);var b=new WorldPlan(seed,current);
             assertEquals(a.city(),b.city());assertEquals(a.spawn(),b.spawn());
@@ -40,7 +40,7 @@ class WorldPlanEcologyTest {
         }
     }
     @Test void reportedJungleSnowBoundaryHasTemperateBufferInsteadOfSpeckles() throws Exception {
-        var p=new WorldPlan(20261017,rules(WorldPlanRules.RESOURCE));
+        var p=new WorldPlan(20261017,rules(WorldPlanRules.V2_RESOURCE));
         Set<String> temperate=Set.of("minecraft:forest","minecraft:dark_forest","minecraft:meadow","minecraft:taiga","minecraft:savanna");
         for(int x=3990;x<=4050;x+=4)for(int z=-48;z<=48;z+=4)
             assertTrue(temperate.contains(p.sample(x,z).biome()),"buffer at "+x+","+z);
@@ -51,7 +51,7 @@ class WorldPlanEcologyTest {
         }
     }
     @Test void climateRemainsContinuousAtCoreAndNegativeOuterCellBoundaries() throws Exception {
-        var p=new WorldPlan(20261017,rules(WorldPlanRules.RESOURCE));
+        var p=new WorldPlan(20261017,rules(WorldPlanRules.V2_RESOURCE));
         for(int x:new int[]{-29990000,-4800,-4320,-4000,-3680,-2400,0,2400,3680,4000,4320,4800,29990000})
             for(int z:new int[]{-4000,0,4000,999999}) {
                 var a=p.climate(x-.001,z);var b=p.climate(x+.001,z);
@@ -60,7 +60,7 @@ class WorldPlanEcologyTest {
             }
     }
     @Test void badClimateCannotSilentlyChangeFrozenWorld() throws Exception {
-        var base=JsonParser.parseString(rules(WorldPlanRules.RESOURCE).json()).getAsJsonObject();
+        var base=JsonParser.parseString(rules(WorldPlanRules.V2_RESOURCE).json()).getAsJsonObject();
         var wide=base.deepCopy();wide.getAsJsonObject("ecology").addProperty("blend",100000);
         assertThrows(IllegalArgumentException.class,()->new WorldPlanRules(wide.toString()));
         var missing=base.deepCopy();missing.remove("ecology");
@@ -77,7 +77,7 @@ class WorldPlanEcologyTest {
         assertFalse(CityAuditPolicy.naturalChange("minecraft:stone_bricks","minecraft:dirt",true));
     }
     @Test void newSpawnPadRejectsCanopiesWithoutRewritingV1OrOlderFrozenV2() throws Exception {
-        var current=rules(WorldPlanRules.RESOURCE);var p=new WorldPlan(20261017,current);var s=p.spawn();
+        var current=rules(WorldPlanRules.V2_RESOURCE);var p=new WorldPlan(20261017,current);var s=p.spawn();
         assertTrue(p.reserved(s.x(),s.y()+40,s.z()));
         assertTrue(p.reserved(s.x()+current.spawnPadRadius,s.y()+80,s.z()));
         assertFalse(p.reserved(s.x()+current.spawnPadRadius+1,s.y()+40,s.z()));

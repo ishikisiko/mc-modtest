@@ -181,7 +181,7 @@ public final class WorldPlan {
     public boolean reserved(int x,int y,int z) {
         return(city.contains(x,z,rules.city.margin())&&y>=city.baseY-rules.surfaceSeal&&y<city.baseY+city.height)
             ||(Math.abs((long)x-spawn.x)<=rules.spawnPadRadius&&Math.abs((long)z-spawn.z)<=rules.spawnPadRadius&&y>=spawn.y-1
-                &&((rules.ecology!=null&&rules.ecology.clearSpawnCanopy)||y<spawn.y+5));
+                &&(rules.clearSpawnCanopy()||y<spawn.y+5));
     }
     public boolean intersectsCity(int minX,int minZ,int maxX,int maxZ) {
         int m=rules.city.structureBuffer()+rules.city.margin();return minX<city.x+city.width+m&&maxX>=city.x-m&&minZ<city.z+city.depth+m&&maxZ>=city.z-m;
@@ -261,9 +261,25 @@ public final class WorldPlan {
         if(surface<rules.seaLevel-8)biome="minecraft:deep_ocean";
         else if(surface<rules.seaLevel)biome="minecraft:ocean";
         else if(surface<=rules.seaLevel+2)biome="minecraft:beach";
+        else if(rules.ecotone!=null)biome=rules.ecotone.apply(x,z,originalLandBiome(p,x,z),this::originalBiomeAt);
         else if(rules.ecology!=null)biome=rules.ecology.biome(climate(x,z,v.height));
-        else{double n=noise(seed^mix(p.id().hashCode())^43,x/(rules.terrainScale*2),z/(rules.terrainScale*2));biome=p.biomes().get(n<-.22?0:n>.22?2:1);}
+        else biome=originalLandBiome(p,x,z);
         return new Context(id,name,p.id(),core,tier,v.qi,v.danger,surface,biome);
+    }
+    private String originalLandBiome(WorldPlanRules.Profile p,int x,int z){
+        double n=noise(seed^mix(p.id().hashCode())^43,x/(rules.terrainScale*2),z/(rules.terrainScale*2));
+        return p.biomes().get(n<-.22?0:n>.22?2:1);
+    }
+    /** Unmodified V1 source, never the output of another transition. */
+    public String originalBiomeAt(int x,int z){
+        int surface=surfaceY(x,z);
+        if(surface<rules.seaLevel-8)return "minecraft:deep_ocean";
+        if(surface<rules.seaLevel)return "minecraft:ocean";
+        if(surface<=rules.seaLevel+2)return "minecraft:beach";
+        WorldPlanRules.Profile p;
+        if(StrictMath.hypot(x,z)<=rules.coreRadius){double[] q=geometry.warp(x,z);p=nearest(q[0],q[1]).profile;}
+        else p=nearestOuter(x,z,neighbourhood(x,z)).profile;
+        return originalLandBiome(p,x,z);
     }
     public WorldPlanEcology.Climate climate(double x,double z) { return climate(x,z,height(x,z)); }
     private WorldPlanEcology.Climate climate(double x,double z,double height) {

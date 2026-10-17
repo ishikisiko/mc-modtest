@@ -32,8 +32,10 @@ public final class WorldPlanRuntime {
     static{
         GENERATORS.register("planned_v1",()->PlannedChunkGenerator.CODEC);
         GENERATORS.register("planned_v2",()->PlannedChunkGenerator.CODEC_V2);
+        GENERATORS.register("planned_v3",()->PlannedChunkGenerator.CODEC_V3);
         SOURCES.register("planned_source_v1",()->PlannedBiomeSource.CODEC);
         SOURCES.register("planned_source_v2",()->PlannedBiomeSource.CODEC_V2);
+        SOURCES.register("planned_source_v3",()->PlannedBiomeSource.CODEC_V3);
     }
     private WorldPlanRuntime() {}
     public static void register(IEventBus bus){
@@ -53,7 +55,7 @@ public final class WorldPlanRuntime {
         if(!(event.getLevel() instanceof ServerLevel level))return;
         generator(level).ifPresent(g->{var spawn=g.plan().spawn();BlockPos at=new BlockPos(spawn.x(),spawn.y(),spawn.z());
             level.setDefaultSpawnPos(at,0);RegionRuntimeState.get(level).markSpawnBound(spawn.regionId(),at);
-            if(g.rules().ecology!=null&&g.rules().ecology.clearSpawnCanopy){
+            if(g.rules().clearSpawnCanopy()){
                 var radius=level.getGameRules().getRule(GameRules.RULE_SPAWN_RADIUS);
                 radius.set(Math.min(radius.get(),g.rules().spawnPadRadius),level.getServer());
             }

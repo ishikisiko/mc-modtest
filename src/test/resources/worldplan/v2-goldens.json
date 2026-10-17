@@ -1,0 +1,785 @@
+[
+  {
+    "seed": "20261017",
+    "plan_sha256": "e4d8af91592688b57bf3a6c9fb096f3413e80834320565fa6fede2d8f7e4b33c",
+    "samples": [
+      {
+        "x": 381,
+        "z": 1273,
+        "context": {
+          "regionId": "donghai",
+          "displayName": "东海",
+          "profileId": "donghai",
+          "core": true,
+          "tier": 17,
+          "qi": 3.7011303997068254,
+          "danger": 4.5,
+          "surfaceY": 75,
+          "biome": "minecraft:forest"
+        }
+      },
+      {
+        "x": 488,
+        "z": 72,
+        "context": {
+          "regionId": "zhongzhou",
+          "displayName": "中州",
+          "profileId": "zhongzhou",
+          "core": true,
+          "tier": 20,
+          "qi": 7.842491266785672,
+          "danger": 4.5,
+          "surfaceY": 95,
+          "biome": "minecraft:forest"
+        }
+      },
+      {
+        "x": 3990,
+        "z": 0,
+        "context": {
+          "regionId": "moyu",
+          "displayName": "魔域",
+          "profileId": "moyu",
+          "core": true,
+          "tier": 12,
+          "qi": 5.363214896615367,
+          "danger": 6.093979268140953,
+          "surfaceY": 84,
+          "biome": "minecraft:forest"
+        }
+      },
+      {
+        "x": 4000,
+        "z": 0,
+        "context": {
+          "regionId": "moyu",
+          "displayName": "魔域",
+          "profileId": "moyu",
+          "core": true,
+          "tier": 12,
+          "qi": 5.346592580377303,
+          "danger": 6.077469889992054,
+          "surfaceY": 86,
+          "biome": "minecraft:forest"
+        }
+      },
+      {
+        "x": 4010,
+        "z": 0,
+        "context": {
+          "regionId": "outer/1/0",
+          "displayName": "北原外域〔1,0〕",
+          "profileId": "beiyuan",
+          "core": false,
+          "tier": 10,
+          "qi": 5.328332412987404,
+          "danger": 6.061047558370478,
+          "surfaceY": 88,
+          "biome": "minecraft:forest"
+        }
+      },
+      {
+        "x": 4020,
+        "z": -100,
+        "context": {
+          "regionId": "outer/1/-1",
+          "displayName": "南疆外域〔1,-1〕",
+          "profileId": "nanjiang",
+          "core": false,
+          "tier": 7,
+          "qi": 5.4202850550779385,
+          "danger": 6.480585738817994,
+          "surfaceY": 85,
+          "biome": "minecraft:forest"
+        }
+      },
+      {
+        "x": 4020,
+        "z": -32,
+        "context": {
+          "regionId": "outer/1/-1",
+          "displayName": "南疆外域〔1,-1〕",
+          "profileId": "nanjiang",
+          "core": false,
+          "tier": 7,
+          "qi": 5.340497761998309,
+          "danger": 6.150272595815347,
+          "surfaceY": 89,
+          "biome": "minecraft:forest"
+        }
+      },
+      {
+        "x": 4020,
+        "z": 0,
+        "context": {
+          "regionId": "outer/1/0",
+          "displayName": "北原外域〔1,0〕",
+          "profileId": "beiyuan",
+          "core": false,
+          "tier": 10,
+          "qi": 5.308414822993081,
+          "danger": 6.044784753515835,
+          "surfaceY": 89,
+          "biome": "minecraft:forest"
+        }
+      },
+      {
+        "x": 4320,
+        "z": 0,
+        "context": {
+          "regionId": "outer/1/0",
+          "displayName": "北原外域〔1,0〕",
+          "profileId": "beiyuan",
+          "core": false,
+          "tier": 10,
+          "qi": 4.664208020364499,
+          "danger": 5.760567945224142,
+          "surfaceY": 91,
+          "biome": "minecraft:forest"
+        }
+      },
+      {
+        "x": 4600,
+        "z": 0,
+        "context": {
+          "regionId": "outer/2/0",
+          "displayName": "西漠外域〔2,0〕",
+          "profileId": "ximo",
+          "core": false,
+          "tier": 12,
+          "qi": 3.984805540441703,
+          "danger": 6.197312329280579,
+          "surfaceY": 100,
+          "biome": "minecraft:forest"
+        }
+      },
+      {
+        "x": -4000,
+        "z": 0,
+        "context": {
+          "regionId": "nanjiang",
+          "displayName": "南疆",
+          "profileId": "nanjiang",
+          "core": true,
+          "tier": 18,
+          "qi": 4.913017071793921,
+          "danger": 5.5,
+          "surfaceY": 86,
+          "biome": "minecraft:forest"
+        }
+      },
+      {
+        "x": -4320,
+        "z": 0,
+        "context": {
+          "regionId": "outer/-2/-1",
+          "displayName": "北原外域〔-2,-1〕",
+          "profileId": "beiyuan",
+          "core": false,
+          "tier": 8,
+          "qi": 5.108742207501226,
+          "danger": 4.5,
+          "surfaceY": 75,
+          "biome": "minecraft:snowy_taiga"
+        }
+      },
+      {
+        "x": 0,
+        "z": 4000,
+        "context": {
+          "regionId": "nanjiang",
+          "displayName": "南疆",
+          "profileId": "nanjiang",
+          "core": true,
+          "tier": 18,
+          "qi": 3.9851131868389946,
+          "danger": 6.32928709320578,
+          "surfaceY": 96,
+          "biome": "minecraft:forest"
+        }
+      },
+      {
+        "x": 0,
+        "z": -4320,
+        "context": {
+          "regionId": "outer/0/-2",
+          "displayName": "灵岳外域〔0,-2〕",
+          "profileId": "lingyue",
+          "core": false,
+          "tier": 10,
+          "qi": 7.379406745895022,
+          "danger": 5.5,
+          "surfaceY": 157,
+          "biome": "minecraft:forest"
+        }
+      },
+      {
+        "x": 100000,
+        "z": -100000,
+        "context": {
+          "regionId": "outer/41/-42",
+          "displayName": "东荒外域〔41,-42〕",
+          "profileId": "donghuang",
+          "core": false,
+          "tier": 10,
+          "qi": 4.216411251410123,
+          "danger": 5.5,
+          "surfaceY": 93,
+          "biome": "minecraft:dark_forest"
+        }
+      },
+      {
+        "x": -29990000,
+        "z": 999999,
+        "context": {
+          "regionId": "outer/-12496/416",
+          "displayName": "魔域外域〔-12496,416〕",
+          "profileId": "moyu",
+          "core": false,
+          "tier": 16,
+          "qi": 5.2669120861348775,
+          "danger": 7.703471946055711,
+          "surfaceY": 66,
+          "biome": "minecraft:forest"
+        }
+      },
+      {
+        "x": 29990000,
+        "z": -999999,
+        "context": {
+          "regionId": "outer/12495/-417",
+          "displayName": "中州外域〔12495,-417〕",
+          "profileId": "zhongzhou",
+          "core": false,
+          "tier": 13,
+          "qi": 7.8951476107415735,
+          "danger": 4.5,
+          "surfaceY": 91,
+          "biome": "minecraft:forest"
+        }
+      }
+    ]
+  },
+  {
+    "seed": "0",
+    "plan_sha256": "6d4b47c3c1af5273b3e97ee2d0e1f93cd3358d39969b2de6b973cdbdf7282694",
+    "samples": [
+      {
+        "x": 381,
+        "z": 1273,
+        "context": {
+          "regionId": "lingyue",
+          "displayName": "灵岳",
+          "profileId": "lingyue",
+          "core": true,
+          "tier": 17,
+          "qi": 7.355529529736262,
+          "danger": 5.488708050513588,
+          "surfaceY": 131,
+          "biome": "minecraft:forest"
+        }
+      },
+      {
+        "x": 488,
+        "z": 72,
+        "context": {
+          "regionId": "zhongzhou",
+          "displayName": "中州",
+          "profileId": "zhongzhou",
+          "core": true,
+          "tier": 20,
+          "qi": 7.324172205146106,
+          "danger": 4.987882124031647,
+          "surfaceY": 118,
+          "biome": "minecraft:forest"
+        }
+      },
+      {
+        "x": 3990,
+        "z": 0,
+        "context": {
+          "regionId": "donghuang",
+          "displayName": "东荒",
+          "profileId": "donghuang",
+          "core": true,
+          "tier": 13,
+          "qi": 3.5682979758739632,
+          "danger": 5.023429870605469,
+          "surfaceY": 54,
+          "biome": "minecraft:deep_ocean"
+        }
+      },
+      {
+        "x": 4000,
+        "z": 0,
+        "context": {
+          "regionId": "donghuang",
+          "displayName": "东荒",
+          "profileId": "donghuang",
+          "core": true,
+          "tier": 13,
+          "qi": 3.5707368869045264,
+          "danger": 5.0,
+          "surfaceY": 55,
+          "biome": "minecraft:ocean"
+        }
+      },
+      {
+        "x": 4010,
+        "z": 0,
+        "context": {
+          "regionId": "outer/1/-1",
+          "displayName": "东海外域〔1,-1〕",
+          "profileId": "donghai",
+          "core": false,
+          "tier": 12,
+          "qi": 3.573211632905628,
+          "danger": 4.976570129394531,
+          "surfaceY": 57,
+          "biome": "minecraft:ocean"
+        }
+      },
+      {
+        "x": 4020,
+        "z": -100,
+        "context": {
+          "regionId": "outer/1/-1",
+          "displayName": "东海外域〔1,-1〕",
+          "profileId": "donghai",
+          "core": false,
+          "tier": 12,
+          "qi": 3.604136294180699,
+          "danger": 4.95028348204727,
+          "surfaceY": 57,
+          "biome": "minecraft:ocean"
+        }
+      },
+      {
+        "x": 4020,
+        "z": -32,
+        "context": {
+          "regionId": "outer/1/-1",
+          "displayName": "东海外域〔1,-1〕",
+          "profileId": "donghai",
+          "core": false,
+          "tier": 12,
+          "qi": 3.5787841046880957,
+          "danger": 4.952888705889518,
+          "surfaceY": 58,
+          "biome": "minecraft:ocean"
+        }
+      },
+      {
+        "x": 4020,
+        "z": 0,
+        "context": {
+          "regionId": "outer/1/-1",
+          "displayName": "东海外域〔1,-1〕",
+          "profileId": "donghai",
+          "core": false,
+          "tier": 12,
+          "qi": 3.575719654236515,
+          "danger": 4.95318603515625,
+          "surfaceY": 57,
+          "biome": "minecraft:ocean"
+        }
+      },
+      {
+        "x": 4320,
+        "z": 0,
+        "context": {
+          "regionId": "outer/1/-1",
+          "displayName": "东海外域〔1,-1〕",
+          "profileId": "donghai",
+          "core": false,
+          "tier": 12,
+          "qi": 3.681217506710193,
+          "danger": 4.554960004660707,
+          "surfaceY": 59,
+          "biome": "minecraft:ocean"
+        }
+      },
+      {
+        "x": 4600,
+        "z": 0,
+        "context": {
+          "regionId": "outer/1/-1",
+          "displayName": "东海外域〔1,-1〕",
+          "profileId": "donghai",
+          "core": false,
+          "tier": 12,
+          "qi": 3.912406529211591,
+          "danger": 4.946752361708229,
+          "surfaceY": 69,
+          "biome": "minecraft:dark_forest"
+        }
+      },
+      {
+        "x": -4000,
+        "z": 0,
+        "context": {
+          "regionId": "beiyuan",
+          "displayName": "北原",
+          "profileId": "beiyuan",
+          "core": true,
+          "tier": 15,
+          "qi": 4.223477504167732,
+          "danger": 4.5,
+          "surfaceY": 88,
+          "biome": "minecraft:forest"
+        }
+      },
+      {
+        "x": -4320,
+        "z": 0,
+        "context": {
+          "regionId": "outer/-2/-1",
+          "displayName": "东海外域〔-2,-1〕",
+          "profileId": "donghai",
+          "core": false,
+          "tier": 4,
+          "qi": 3.4409726065608255,
+          "danger": 4.5,
+          "surfaceY": 71,
+          "biome": "minecraft:forest"
+        }
+      },
+      {
+        "x": 0,
+        "z": 4000,
+        "context": {
+          "regionId": "moyu",
+          "displayName": "魔域",
+          "profileId": "moyu",
+          "core": true,
+          "tier": 18,
+          "qi": 4.919714464100158,
+          "danger": 7.663726420467471,
+          "surfaceY": 85,
+          "biome": "minecraft:forest"
+        }
+      },
+      {
+        "x": 0,
+        "z": -4320,
+        "context": {
+          "regionId": "outer/-1/-2",
+          "displayName": "魔域外域〔-1,-2〕",
+          "profileId": "moyu",
+          "core": false,
+          "tier": 20,
+          "qi": 5.533496247336375,
+          "danger": 9.0,
+          "surfaceY": 94,
+          "biome": "minecraft:forest"
+        }
+      },
+      {
+        "x": 100000,
+        "z": -100000,
+        "context": {
+          "regionId": "outer/41/-42",
+          "displayName": "东荒外域〔41,-42〕",
+          "profileId": "donghuang",
+          "core": false,
+          "tier": 8,
+          "qi": 3.819886382022955,
+          "danger": 5.5,
+          "surfaceY": 59,
+          "biome": "minecraft:ocean"
+        }
+      },
+      {
+        "x": -29990000,
+        "z": 999999,
+        "context": {
+          "regionId": "outer/-12496/416",
+          "displayName": "南疆外域〔-12496,416〕",
+          "profileId": "nanjiang",
+          "core": false,
+          "tier": 9,
+          "qi": 4.903208369009022,
+          "danger": 6.5,
+          "surfaceY": 94,
+          "biome": "minecraft:bamboo_jungle"
+        }
+      },
+      {
+        "x": 29990000,
+        "z": -999999,
+        "context": {
+          "regionId": "outer/12495/-417",
+          "displayName": "南疆外域〔12495,-417〕",
+          "profileId": "nanjiang",
+          "core": false,
+          "tier": 6,
+          "qi": 4.687127697536083,
+          "danger": 6.5,
+          "surfaceY": 91,
+          "biome": "minecraft:bamboo_jungle"
+        }
+      }
+    ]
+  },
+  {
+    "seed": "-9223372036854775808",
+    "plan_sha256": "f1fcaaab8201a7945296a569b5583d8147488a8b32713cae5489fc6fbe74eeaf",
+    "samples": [
+      {
+        "x": 381,
+        "z": 1273,
+        "context": {
+          "regionId": "donghai",
+          "displayName": "东海",
+          "profileId": "donghai",
+          "core": true,
+          "tier": 18,
+          "qi": 5.0648649039617615,
+          "danger": 4.5,
+          "surfaceY": 56,
+          "biome": "minecraft:ocean"
+        }
+      },
+      {
+        "x": 488,
+        "z": 72,
+        "context": {
+          "regionId": "zhongzhou",
+          "displayName": "中州",
+          "profileId": "zhongzhou",
+          "core": true,
+          "tier": 20,
+          "qi": 8.252790518115587,
+          "danger": 4.5,
+          "surfaceY": 83,
+          "biome": "minecraft:forest"
+        }
+      },
+      {
+        "x": 3990,
+        "z": 0,
+        "context": {
+          "regionId": "ximo",
+          "displayName": "西漠",
+          "profileId": "ximo",
+          "core": true,
+          "tier": 15,
+          "qi": 3.653323247482446,
+          "danger": 6.084422264002622,
+          "surfaceY": 84,
+          "biome": "minecraft:savanna"
+        }
+      },
+      {
+        "x": 4000,
+        "z": 0,
+        "context": {
+          "regionId": "ximo",
+          "displayName": "西漠",
+          "profileId": "ximo",
+          "core": true,
+          "tier": 15,
+          "qi": 3.6878946995543407,
+          "danger": 6.059488159609629,
+          "surfaceY": 85,
+          "biome": "minecraft:savanna"
+        }
+      },
+      {
+        "x": 4010,
+        "z": 0,
+        "context": {
+          "regionId": "outer/1/0",
+          "displayName": "东荒外域〔1,0〕",
+          "profileId": "donghuang",
+          "core": false,
+          "tier": 8,
+          "qi": 3.722911574307656,
+          "danger": 6.034250234285263,
+          "surfaceY": 87,
+          "biome": "minecraft:savanna"
+        }
+      },
+      {
+        "x": 4020,
+        "z": -100,
+        "context": {
+          "regionId": "outer/1/0",
+          "displayName": "东荒外域〔1,0〕",
+          "profileId": "donghuang",
+          "core": false,
+          "tier": 8,
+          "qi": 3.5888286500578386,
+          "danger": 6.177234676005226,
+          "surfaceY": 76,
+          "biome": "minecraft:savanna"
+        }
+      },
+      {
+        "x": 4020,
+        "z": -32,
+        "context": {
+          "regionId": "outer/1/0",
+          "displayName": "东荒外域〔1,0〕",
+          "profileId": "donghuang",
+          "core": false,
+          "tier": 8,
+          "qi": 3.6948434974203614,
+          "danger": 6.072119946083729,
+          "surfaceY": 84,
+          "biome": "minecraft:savanna"
+        }
+      },
+      {
+        "x": 4020,
+        "z": 0,
+        "context": {
+          "regionId": "outer/1/0",
+          "displayName": "东荒外域〔1,0〕",
+          "profileId": "donghuang",
+          "core": false,
+          "tier": 8,
+          "qi": 3.7582962508397677,
+          "danger": 6.008775994521435,
+          "surfaceY": 88,
+          "biome": "minecraft:forest"
+        }
+      },
+      {
+        "x": 4320,
+        "z": 0,
+        "context": {
+          "regionId": "outer/1/0",
+          "displayName": "东荒外域〔1,0〕",
+          "profileId": "donghuang",
+          "core": false,
+          "tier": 8,
+          "qi": 4.575359484038413,
+          "danger": 5.5,
+          "surfaceY": 114,
+          "biome": "minecraft:forest"
+        }
+      },
+      {
+        "x": 4600,
+        "z": 0,
+        "context": {
+          "regionId": "outer/1/0",
+          "displayName": "东荒外域〔1,0〕",
+          "profileId": "donghuang",
+          "core": false,
+          "tier": 8,
+          "qi": 4.720737280754962,
+          "danger": 5.471959764248509,
+          "surfaceY": 154,
+          "biome": "minecraft:forest"
+        }
+      },
+      {
+        "x": -4000,
+        "z": 0,
+        "context": {
+          "regionId": "moyu",
+          "displayName": "魔域",
+          "profileId": "moyu",
+          "core": true,
+          "tier": 14,
+          "qi": 6.082473506687858,
+          "danger": 6.75,
+          "surfaceY": 125,
+          "biome": "minecraft:meadow"
+        }
+      },
+      {
+        "x": -4320,
+        "z": 0,
+        "context": {
+          "regionId": "outer/-2/-1",
+          "displayName": "北原外域〔-2,-1〕",
+          "profileId": "beiyuan",
+          "core": false,
+          "tier": 14,
+          "qi": 5.378703276772054,
+          "danger": 4.5,
+          "surfaceY": 89,
+          "biome": "minecraft:snowy_taiga"
+        }
+      },
+      {
+        "x": 0,
+        "z": 4000,
+        "context": {
+          "regionId": "donghai",
+          "displayName": "东海",
+          "profileId": "donghai",
+          "core": true,
+          "tier": 18,
+          "qi": 3.7078053206082737,
+          "danger": 4.946564286539563,
+          "surfaceY": 80,
+          "biome": "minecraft:forest"
+        }
+      },
+      {
+        "x": 0,
+        "z": -4320,
+        "context": {
+          "regionId": "outer/-1/-2",
+          "displayName": "东荒外域〔-1,-2〕",
+          "profileId": "donghuang",
+          "core": false,
+          "tier": 14,
+          "qi": 4.641776336520771,
+          "danger": 5.202933881969138,
+          "surfaceY": 114,
+          "biome": "minecraft:forest"
+        }
+      },
+      {
+        "x": 100000,
+        "z": -100000,
+        "context": {
+          "regionId": "outer/41/-42",
+          "displayName": "灵岳外域〔41,-42〕",
+          "profileId": "lingyue",
+          "core": false,
+          "tier": 13,
+          "qi": 6.786157506663582,
+          "danger": 5.5,
+          "surfaceY": 125,
+          "biome": "minecraft:taiga"
+        }
+      },
+      {
+        "x": -29990000,
+        "z": 999999,
+        "context": {
+          "regionId": "outer/-12496/416",
+          "displayName": "灵岳外域〔-12496,416〕",
+          "profileId": "lingyue",
+          "core": false,
+          "tier": 13,
+          "qi": 6.877537628773302,
+          "danger": 5.5,
+          "surfaceY": 140,
+          "biome": "minecraft:forest"
+        }
+      },
+      {
+        "x": 29990000,
+        "z": -999999,
+        "context": {
+          "regionId": "outer/12495/-417",
+          "displayName": "南疆外域〔12495,-417〕",
+          "profileId": "nanjiang",
+          "core": false,
+          "tier": 5,
+          "qi": 5.569503132153593,
+          "danger": 6.5,
+          "surfaceY": 103,
+          "biome": "minecraft:jungle"
+        }
+      }
+    ]
+  }
+]

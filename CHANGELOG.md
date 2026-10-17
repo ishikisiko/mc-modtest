@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.59.1-fix1
+
+- 新大陆改用 V3 局部生态过渡：恢复 V1 原群系作为主体，仅在不相容群系交界 32 格内使用过渡植被；保留原 `grove` 雪林、竹林及原有群系变体，不再对整片州域重新分类。
+- 新增原雪地保留率、冷热两侧原群系、过渡带上限和 V2 已发布样本回归；V1/V2 存档及资源不变，保留出生树冠保护和保守城市审计。
+
 ## 0.59.1
 
 - 新建修仙大陆使用 V2 冻结生态：州域内外连续混合温度、湿度与高程降温，通过温带植被衔接雪地和暖地；地形、州域身份、城市与出生位置保持同种子一致。
