@@ -438,8 +438,8 @@ def plan_fit(survey,candidate,config=None):
              'existing_retaining_edges':len(seams['existing_retaining_edges']),'boundary_delta':max(delta[k] for k in boundary),
              'water_leaks':len(leaks),'outgoing_length':len(route),
              'road_foundation_columns':len(path_clear),'road_foundation_blocks':len(path_clear)*cfg['blend']['surface_support_depth'],
-             'generated_surface_support_columns':len(path_clear|wet|bank),
-             'generated_surface_support_blocks':len(path_clear|wet|bank)*cfg['blend']['surface_support_depth'],
+             'generated_surface_support_columns':len(path_clear|wet|{k for k in bank if changed[k]}),
+             'generated_surface_support_blocks':len(path_clear|wet|{k for k in bank if changed[k]})*cfg['blend']['surface_support_depth'],
              'peripheral_art_columns_discarded':volume.size[0]*volume.size[2]-len(core)-len(wet)}
     return {'cfg':cfg,'survey':s,'candidate':candidate,'source':data,'transform':t,'core':core,'wet':wet,
             'before':before,'after':after,'changed':changed,'path_surface':path_surface,'path_clear':path_clear,
@@ -700,6 +700,28 @@ def route_probes(result):
     return probes
 
 
+def surface_subgrade_probes(result):
+    """Only generated gravity surfaces have an authored stone subgrade.
+
+    A same-height native bank may stay entirely untouched. Its surface is
+    checked by expected_probe; its natural dirt cannot be asserted as stone.
+    """
+    probes=[];s=result['survey'];cfg=result['cfg']
+    for category,keys in [('shore_subgrade',result['bank']),('lake_subgrade',result['wet'])]:
+        generated=[]
+        for k in sorted(keys):
+            if not result['changed'][k] or k in result['core']:continue
+            state=(cfg['lake']['bed_material'] if k in result['wet'] else
+                   result['path_surface'].get(k,cfg['materials']['bank']))
+            if k in result['path_clear'] or nbt.parse_block_state(state)[0] in cfg['blend']['gravity_materials']:
+                generated.append(k)
+        for k in generated[::max(1,len(generated)//8)]:
+            x,z=s.pos(k)
+            for depth in range(2,cfg['blend']['surface_support_depth']+2):
+                probes.append({'category':category,'pos':[x,result['after'][k]-depth,z],'state':cfg['materials']['body']})
+    return probes
+
+
 def compile_fit(survey,candidate,out,config=None,source_manifest=None):
     started=time.monotonic();result=plan_fit(survey,candidate,config);out=Path(out)
     meta=write_preview(result,out)
@@ -723,11 +745,7 @@ def compile_fit(survey,candidate,out,config=None,source_manifest=None):
         probes.append({'category':'foundation','pos':[x,foundation_y,z],'state':result['cfg']['materials']['body']})
         probes.append({'category':'foundation_contact','pos':[x,min(s.ground[k]-1,foundation_y),z],'state':result['cfg']['materials']['body']})
     probes.extend(route_probes(result))
-    for category,keys in [('shore_subgrade',sorted(result['bank'])),('lake_subgrade',sorted(result['wet']))]:
-        for k in keys[::max(1,len(keys)//8)]:
-            x,z=s.pos(k)
-            for depth in range(2,result['cfg']['blend']['surface_support_depth']+2):
-                probes.append({'category':category,'pos':[x,result['after'][k]-depth,z],'state':result['cfg']['materials']['body']})
+    probes.extend(surface_subgrade_probes(result))
     wetkeys=sorted(result['wet'])
     for k in wetkeys[::max(1,len(wetkeys)//8)]:
         x,z=s.pos(k);probes.append({'category':'water','pos':[x,result['candidate']['water_surface']-1,z],

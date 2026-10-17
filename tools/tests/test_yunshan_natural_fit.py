@@ -140,6 +140,20 @@ class NaturalFitTests(unittest.TestCase):
         self.assertIn('facing=north',surfaces[route[2]])
         self.assertEqual(surfaces[survey.index(1,3)],'minecraft:gravel')
 
+    def test_native_same_height_bank_keeps_dirt_and_has_no_generated_subgrade_assertion(self):
+        # Retained seed0 MCA at (89,62,-12) is dirt; the bank's ground feet
+        # already match Y64. No terrain command writes that column.
+        cfg=fit.config_data()
+        survey=fit.Survey({'window':[89,-12,91,-11],'width':2,'depth':1,'ground_y':[64,70],
+                          'surface_y':[64,70],'water_y':[None,None],
+                          'ground_palette':['minecraft:grass_block[snowy=false]'],'ground_index':[0,0]})
+        r={'cfg':cfg,'survey':survey,'after':[64,64],'changed':[False,True],'core':{},
+           'wet':set(),'candidate':{'water_surface':63},'path_clear':set(),'bank':{0,1},'path_surface':{}}
+        commands=list(fit.terrain_commands(r));probes=fit.surface_subgrade_probes(r)
+        self.assertTrue(all(c['world_min'][0]==90 and c['world_max'][0]==90 for c in commands))
+        self.assertEqual([p['pos'] for p in probes],[[90,62,-12],[90,61,-12]])
+        self.assertEqual(fit.expected_probe(r,0,'shore')['state'],'minecraft:grass_block[snowy=false]')
+
     def test_native_tail_is_level_from_last_road_stair_and_final_long_leg_is_mapped(self):
         cfg=fit.config_data();route=list(range(8));heights=[63,63]+[64]*6
         levels,errors=fit.road_levels(route,heights,{0},6,cfg)
