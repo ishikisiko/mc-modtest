@@ -50,6 +50,31 @@ def assets(state):
             for r in state['life']['residents']}
 
 
+def restart_preserves_life(before, stopped, after, rules):
+    """Work is saved exactly; withdrawing a moving body recomputes travel from its feet."""
+    rows = [{r['person_id']: r for r in s['life']['residents']} for s in (before, stopped, after)]
+    if not (rows[0].keys() == rows[1].keys() == rows[2].keys()):
+        return False
+    omit = {'epoch', 'pause_ticks'}
+    project = lambda r, excluded: {k: v for k, v in r.items() if k not in excluded}
+    for pid, initial in rows[0].items():
+        saved, loaded = rows[1][pid], rows[2][pid]
+        if project(saved, omit) != project(loaded, omit):
+            return False
+        moving = initial['phase'] == 'moving'
+        changed = {'x', 'y', 'z', 'progress_ticks', 'required_ticks'} if moving else set()
+        if project(initial, omit | changed) != project(saved, omit | changed):
+            return False
+        if moving:
+            site = next(s for s in stopped['life']['sites'] if s['id'] == saved['site_id'])
+            target = next(p for p in site['places'] if p['id'] == saved['target_id'])
+            distance = math.sqrt(sum((saved[k]-target[k])**2 for k in ('x', 'y', 'z')))
+            expected = max(1, math.ceil(distance * rules['travel_ticks_per_block']))
+            if saved['progress_ticks'] != 0 or saved['required_ticks'] != expected:
+                return False
+    return before['life']['supplies'] == stopped['life']['supplies'] == after['life']['supplies']
+
+
 class NpcLifeEvidence(Evidence):
     def __init__(self, out, cases=None):
         super().__init__(out)
@@ -367,8 +392,9 @@ class NpcLifeEvidence(Evidence):
         after = self.ledger('restart-paused')
         fields = ('person_id', 'revision', 'phase', 'activity', 'target_id', 'progress_ticks', 'completed_activities', 'coins', 'herbs')
         project = lambda s: [{k: r[k] for k in fields} for r in s['life']['residents']]
-        self.check('restart_exact_activity_and_balances', project(before) == project(stopped) == project(after)
-            and before['life']['supplies'] == after['life']['supplies'], {'before': project(before), 'after': project(after)})
+        self.check('restart_exact_work_balances_and_recomputed_travel',
+            restart_preserves_life(before, stopped, after, self.rules),
+            {'before': project(before), 'stopped': project(stopped), 'after': project(after)})
         self.rc('myvillage world resume')
         rows = self.poll(self.residents, lambda rows: all(r['embodied'] for r in rows), 30, 'new leases')
         self.check('restart_renews_leases', all(r['epoch'] > next(b['epoch'] for b in before_rows if b['personId'] == r['personId']) for r in rows), rows)

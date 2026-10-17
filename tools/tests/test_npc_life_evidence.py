@@ -1,14 +1,39 @@
 """Reject false runtime evidence; these are parser checks, not game passes."""
 import json
+import copy
 from pathlib import Path
 import tempfile
 import unittest
-from tools.npc_life_evidence import resident_rows, read_ledger, assets
+from tools.npc_life_evidence import resident_rows, read_ledger, assets, restart_preserves_life
 from tools.modal_runner.remote import commands_for, select_npc_life_cases
 from tools.yunshan.game_export import nbt, write_typed
 
 
 class NpcEvidenceTests(unittest.TestCase):
+    def test_restart_allows_only_recomputed_travel_and_transient_lease(self):
+        moving = dict(person_id=1, site_id='town', target_id='shop', phase='moving',
+                      x=0, y=64, z=0, progress_ticks=80, required_ticks=100,
+                      coins=6, completed_activities=2, epoch=1, pause_ticks=0)
+        working = dict(moving, person_id=2, phase='working', progress_ticks=30)
+        before = {'life': {'residents': [moving, working], 'supplies': {'town': {'stock': 2}},
+                          'sites': [{'id': 'town', 'places': [{'id': 'shop', 'x': 6, 'y': 64, 'z': 8}]}]}}
+        stopped = copy.deepcopy(before)
+        stopped['life']['residents'][0]['progress_ticks'] = 0
+        after = copy.deepcopy(stopped)
+        after['life']['residents'][0]['epoch'] = 3
+        rules = {'travel_ticks_per_block': 10}
+        self.assertTrue(restart_preserves_life(before, stopped, after, rules))
+        for resident, field, value in ((0, 'required_ticks', 80), (0, 'progress_ticks', 80),
+                                       (1, 'progress_ticks', 0), (1, 'coins', 7),
+                                       (1, 'completed_activities', 3)):
+            bad_stop, bad_after = copy.deepcopy(stopped), copy.deepcopy(after)
+            for state in (bad_stop, bad_after):
+                state['life']['residents'][resident][field] = value
+            self.assertFalse(restart_preserves_life(before, bad_stop, bad_after, rules), field)
+        bad = copy.deepcopy(after)
+        bad['life']['supplies']['town']['stock'] = 3
+        self.assertFalse(restart_preserves_life(before, stopped, bad, rules))
+
     def test_only_diagnostic_lines_and_duplicate_rejection(self):
         row = {'personId': 42, 'phase': 'moving'}
         line = 'NPC_LIFE '+json.dumps(row)
