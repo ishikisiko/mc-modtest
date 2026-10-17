@@ -34,43 +34,18 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 
 /**
- * A humanoid NPC drawn from its own model, clip and texture files (see {@code NpcRenderer}).
+ * Humanoid body shared by summoned cultivators and ledger projections. Server AI submits
+ * basic sword intents to CombatSessionManager; the shared executor owns timing and damage.
+ * A managed ledger body is temporary: identity, equipment and losses belong to WorldSim.
+ * Copies of avatar NBT are refused by WorldSimAvatars, and stale leases cannot submit results.
  *
- * <p>This base only gives the figure a body in the world: it floats, strolls, and looks at nearby
- * players. It has no target, attack, trade or dialogue; whether an NPC is a friend or a foe is
- * decided by what a subclass adds later. It never despawns by distance.
+ * <p>Look, colours, dialogue role and an atomic combat snapshot are tracked to clients.
+ * The snapshot seeds the current phase for late observers. Appearance assets and grip bones
+ * remain owned by tools/npcgen; no client types are loaded by this entity.
  *
- * <p><b>Ledger avatar.</b> The world simulation may project a person of its ledger (命簿) as an NPC
- * ({@link #becomeLedgerAvatar}). Such an avatar belongs to the simulation, which spawns, renames and
- * withdraws it: it is never saved with its chunk, cannot be attacked or hurt (except by what bypasses
- * invulnerability, such as {@code /kill} or the void), does not burn, is not pushed, does not stroll
- * (it still looks at players and around). A resident with a persistent life record receives a
- * separately authorised navigation goal; residents can pause and describe their activity when
- * spoken to. A dialogue role also opens the sect dialogue ({@link SectDialogue}). Its
- * ledger person id is synced to clients. An NPC summoned by a command or a spawn egg has id
- * {@link #NO_LEDGER_PERSON} and behaves exactly as described above.
- *
- * <p><b>Look (外观).</b> One entity type can wear several looks (model, clips and texture sets),
- * named by {@link #looks()} with {@link #LOOK_DEFAULT} first. The look is synced to clients
- * ({@link #look()}), which pick the renderer files by it, and saved as {@value #LOOK_TAG} only
- * when it is not the default ({@code /summon myvillage:cultivator ~ ~ ~ {Look:"f_novice"}}); a
- * saved name the type does not list is ignored. An NPC from a spawn egg draws a random look from
- * {@link #looks()} (the default included); an avatar's look is set by the world simulation.
- *
- * <p><b>Colours (发色瞳色).</b> An avatar's hair and eye colours follow its person's portrait
- * ({@link NpcColours}, synced as one int): the client recolours the look's texture with them. They
- * are set by the world simulation when it spawns or reconciles the avatar, and saved as
- * {@value #COLOURS_TAG} (the packed int) when set, so a summoned NPC can wear them too
- * ({@code /summon myvillage:cultivator ~ ~ ~ {Colours:68}}); an NPC without them keeps the colours
- * baked into its texture.
- *
- * <p><b>Ledger role (命簿角色).</b> An avatar may carry a dialogue role ({@link #ledgerRole()}:
- * {@link #ROLE_NONE}, {@link #ROLE_STEWARD} or {@link #ROLE_ELDER}), synced to clients and set by
- * the world simulation whenever it spawns or reconciles the avatar. It is never saved; a summoned
- * NPC keeps {@link #ROLE_NONE}.
- *
- * <p>Client: {@link #idleAnimationState()} runs from the first client tick; the walk clip is driven
- * by vanilla limb swing.
+ * <p>Residents suspend their life executor during combat. On disengagement they must route
+ * back to a workplace or home. Discard/unload checkpoints a body; only a completed die call
+ * commits a death, with the original damage attribution.
  */
 public abstract class NpcEntity extends PathfinderMob {
     public static final String IDLE_CLIP = "idle";
@@ -108,6 +83,8 @@ public abstract class NpcEntity extends PathfinderMob {
 
     private static final EntityDataAccessor<CompoundTag> DATA_COMBAT =
             SynchedEntityData.defineId(NpcEntity.class, EntityDataSerializers.COMPOUND_TAG);
+    static final String COMBAT_INITIALIZED_TAG = "NpcCombatInitialized";
+    boolean combatInitialized;
     long combatEpoch = -1;
     long nextCombatDecision, lastThreatTick, nextRecoveryTick;
     String combatLastAttacker = "";
@@ -327,6 +304,7 @@ public abstract class NpcEntity extends PathfinderMob {
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
+        tag.putBoolean(COMBAT_INITIALIZED_TAG, combatInitialized);
         // Read-only /data diagnostics. Never read back as authority when an entity is copied.
         CompoundTag diagnostic = combatState().copy();
         diagnostic.putLong("epoch", combatEpoch);
@@ -347,6 +325,7 @@ public abstract class NpcEntity extends PathfinderMob {
     @Override
     public void readAdditionalSaveData(CompoundTag tag) {
         super.readAdditionalSaveData(tag);
+        combatInitialized = tag.getBoolean(COMBAT_INITIALIZED_TAG);
         if (tag.contains(LEDGER_PERSON_TAG, Tag.TAG_INT) && tag.getInt(LEDGER_PERSON_TAG) >= 0) {
             becomeLedgerAvatar(tag.getInt(LEDGER_PERSON_TAG));
         }

@@ -9,11 +9,7 @@ import net.minecraft.client.model.HierarchicalModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.util.Mth;
 
-/**
- * Generic model for any {@link NpcEntity}: the bones of its model file, an {@code idle} clip that
- * always runs and a {@code walk} clip driven by limb swing. Each frame it resets the pose, turns
- * the model file's {@code look.bone} by the clamped head yaw and pitch, and adds both clips.
- */
+/** Generated humanoid rig. An attack owns its bones; guard locomotion retains planted-foot walking. */
 public class NpcModel<T extends NpcEntity> extends HierarchicalModel<T> {
     /** Limb swing amount times this is the walk clip's weight (capped at 1). */
     static final float WALK_SCALE = 2.5F;

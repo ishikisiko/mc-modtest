@@ -31,6 +31,7 @@ public final class NpcCombatRuntime {
     public static NpcEntity find(UUID id) { return BODIES.get(id); }
 
     public static void equipInitial(NpcEntity npc) {
+        npc.combatInitialized = true;
         if (!npc.getMainHandItem().isEmpty()) return;
         var id = ResourceLocation.parse(NpcCombatRules.get().weapon());
         if (!BuiltInRegistries.ITEM.containsKey(id)) throw new IllegalStateException("Missing NPC weapon " + id);
@@ -90,7 +91,10 @@ public final class NpcCombatRuntime {
     }
 
     public static void joined(NpcEntity npc) {
-        if (!npc.isLedgerAvatar()) BODIES.put(npc.getUUID(), npc);
+        if (!npc.isLedgerAvatar()) {
+            if (!npc.combatInitialized) equipInitial(npc);
+            BODIES.put(npc.getUUID(), npc);
+        }
     }
 
     public static void attacked(NpcEntity npc, DamageSource source) {

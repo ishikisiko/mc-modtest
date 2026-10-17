@@ -24,7 +24,7 @@ entity:
   display_name:
     zh_cn: 修仙者
     en_us: Cultivator
-  fantasy_role: 宗门弟子模样的人形 NPC；月白长袍外罩藏青对襟长比甲，束发戴冠。敌友未定，本版本只是一个能站、能走、会看人的身体；世界模拟也用它作命簿人物在山门院中的临时化身（见 world_sim_avatar）
+  fantasy_role: 宗门弟子模样的人形 NPC；月白长袍外罩藏青对襟长比甲，束发戴冠。中立自卫的持剑修士；世界模拟将同一身体用于宗门、散修和城镇居民的临时化身（见 world_sim_avatar）
   kind: npc
   base_class: com.example.myvillage.entity.npc.NpcEntity
   java_class: com.example.myvillage.entity.npc.CultivatorEntity
@@ -63,12 +63,16 @@ attributes:
     - attack_damage
     - attack_knockback
     - follow_range
-  note: placeholder body values until the friend-or-foe design replaces them
+  note: gameplay values come from data/myvillage/npc_combat/rules.json; realm modifiers use StatsRuntime
 
 behavior:
   goals:
     - priority: 0
       id: float
+    - priority: 1
+      id: npc_combat_intents_and_movement
+    - priority: 2
+      id: managed_resident_life
     - priority: 5
       id: water_avoiding_random_stroll
     - priority: 6
@@ -117,6 +121,10 @@ state:
       source: com.example.myvillage.entity.npc.NpcEntity#DATA_COLOURS
       meaning: the packed NpcColours (hair colour << 4 | eye colour of the person's PortraitSpec) the client recolours the look's texture with (NpcSkins, from the look's npc/<name>_roles.png); -1 = none, the baked colours; an avatar's is set by the world simulation at spawn and on reconcile (0.45.1)
   persisted:
+    - id: NpcCombatInitialized
+      type: boolean
+      source: com.example.myvillage.entity.npc.NpcEntity#COMBAT_INITIALIZED_TAG
+      written: Ordinary NPCs initialize equipment once, including legacy saves and summon-with-NBT; an intentionally empty or broken weapon never refills on reload.
     - id: WorldSimPerson
       type: int
       source: com.example.myvillage.entity.npc.NpcEntity#LEDGER_PERSON_TAG
@@ -327,6 +335,8 @@ acceptance:
     - walk
     - hurt
     - death
+    - sword_attack
+    - retreat
   human_verdict_required: true
   human_verdict_status: not_verified
   human_verdict_note: owner on 0.34.0, own PC, 2026-10-06 — clothes, back view, poses seen from behind and the walk accepted; the face rejected (像大佛的脸，没有俊朗英气). The 0.34.1 face and every other surface are not_verified; see the README ledger. The 0.41.0 looks f_novice and f_adept were judged only from offline previews and headless captures (owner's PC unavailable) and are not_verified; see the README "Looks (0.41.0)" ledger.
@@ -334,14 +344,13 @@ acceptance:
 assumptions:
   - 当前仓库基线为 Minecraft 1.21.1、NeoForge 21.1.233、Java 21，mod id 为 myvillage，Java 包根为 com.example.myvillage。
   - 不使用玩家模型和玩家皮肤格式；模型、动画与贴图由 tools/npcgen 生成，复用妖兽的模型/动画文件 schema 与原版 ModelPart、AnimationDefinition，不引入 GeckoLib 或新依赖。
-  - 敌友未定：本版本没有目标、攻击、交易、对话；后续设计在 NpcEntity 子类上添加，或把美术文件交给敌对框架使用。
-  - 本版本不自然生成，没有掉落：只能 /summon 或刷怪蛋；另由 WorldSimAvatars 在山门内或玩家附近的有效区域投影符合条件的命簿人物为临时化身，化身不存盘、不可伤害；宗门执事和长老的对话仍由服务器验证，散修化身不新增自主敌友行为。
+  - 中立、自卫、有界追击和负伤撤退；基础剑连招共用玩家执行器。宗门与生活交互沿用现有服务器入口。
+  - 本版本不自然生成，没有掉落：只能 /summon 或刷怪蛋；另由 WorldSimAvatars 在山门内或玩家附近的有效区域投影符合条件的命簿人物为临时化身，化身不存盘；只有当前受管理身体可受伤并回写命簿。宗门执事和长老的对话仍由服务器验证。
 
 out_of_scope:
-  - disposition_friend_or_foe
-  - combat
-  - dialogue_and_trade
+  - proactive_faction_warfare_and_group_tactics
+  - non_sword_weapons_and_active_skills
+  - trading
   - natural_spawning
   - drops
   - custom_audio
-  - held_items

@@ -85,7 +85,7 @@ class NpcCombatEvidence(NpcLifeEvidence):
     def duel(self):
         self.arena()
         target = '@e[tag=npc_duel,limit=1]'
-        self.rc('summon myvillage:cultivator .5 -60 3.0 {Tags:["npc_duel"],PersistenceRequired:1b,Health:80f,Attributes:[{Name:"minecraft:generic.max_health",Base:80d}]}')
+        self.rc('summon myvillage:cultivator .5 -60 3.0 {Tags:["npc_duel"],PersistenceRequired:1b,Health:80f,attributes:[{id:"minecraft:generic.max_health",base:80d}]}')
         self.poll(lambda:self.inspect(target), lambda b:bool(b['HandItems'][0]), 5, 'NPC equipped sword')
         before = self.hp()
         video = subprocess.Popen(ffmpeg_record_argv(self.s.state['display'], self.out/'sword-duel.mp4', 12))
