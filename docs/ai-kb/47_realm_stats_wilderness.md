@@ -167,6 +167,7 @@ boots an isolated dedicated server twice for native spawn/damage/convert/split
 fixtures and real save/restart. `src/realmEvidence/java` is opt-in through
 `-PvanillaRealmEvidence`; packaging with that flag is forbidden. These are
 developer fixtures, not stochastic spawn-density or mapped-player evidence.
+See [the measured 0.63.1 report](../testing/2026-10-18-vanilla-monster-realms.md).
 
 Rogue encounters select existing living, eligible unsected ledger people in
 the local region. `WorldSimAvatars` is still the sole avatar spawner, and its
