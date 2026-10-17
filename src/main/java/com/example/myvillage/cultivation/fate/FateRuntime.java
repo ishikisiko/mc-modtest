@@ -35,6 +35,7 @@ public final class FateRuntime {
                 AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     }
     public static void refresh(ServerPlayer player) {
+        CultivationService.clampSpiritualPower(player);
         float oldHealth = player.getHealth();
         replace(player.getAttribute(Attributes.MAX_HEALTH), HEALTH, FateService.effect(player, "health"));
         double speed = FateService.effect(player, "speed");
@@ -105,7 +106,7 @@ public final class FateRuntime {
     }
     public static void respawn(ServerPlayer player) {
         FateState s = FateService.state(player);
-        CultivationService.replaceFates(player, s.timers(s.recoveryReadyAt(), 0, 0, s.hunterReadyAt()), false);
+        CultivationService.replaceFates(player, s.afterDeath(), false);
     }
     private static void tick(ServerTickEvent.Post event) {
         for (ServerPlayer player : event.getServer().getPlayerList().getPlayers()) {

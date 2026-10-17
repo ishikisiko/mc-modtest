@@ -4,6 +4,10 @@
   "tier": 3,
   "cost": 4,
   "group": "pill_dao",
-  "placeholder": true,
-  "effects": {}
+  "effects": {
+    "pill_healing_bonus": 0.5,
+    "pill_shield_fraction": 0.25,
+    "pill_shield_ticks": 160,
+    "pill_shield_cooldown": 600
+  }
 }

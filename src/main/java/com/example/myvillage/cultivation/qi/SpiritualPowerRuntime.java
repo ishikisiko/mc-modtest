@@ -86,7 +86,7 @@ public final class SpiritualPowerRuntime {
             if (!player.isAlive() || player.isSpectator()) continue;
             CultivationService.clampSpiritualPower(player);
             CultivationProfile profile = CultivationService.getProfile(player);
-            long cap = SpiritualPower.cap(player.registryAccess(), profile);
+            long cap = CultivationService.spiritualPowerCap(player);
             if (!TIMERS.containsKey(player.getUUID())) initialize(player);
             // A spend may occur before this tick's Post event: do not count that same tick as elapsed.
             if (RESET_TICKS.getOrDefault(player.getUUID(), Integer.MIN_VALUE) == server.getTickCount()) continue;

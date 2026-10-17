@@ -39,7 +39,10 @@ public final class CultivationService {
     /** The sole writer of the independent immutable innate-fate attachment. */
     public static void replaceFates(ServerPlayer player, com.example.myvillage.cultivation.fate.FateState replacement, boolean synchronize) {
         Objects.requireNonNull(replacement, "replacement");
+        var previous = com.example.myvillage.cultivation.fate.FateService.state(player);
         player.setData(CultivationAttachments.FATES.get(), replacement);
+        if (previous.confirmed() != replacement.confirmed() || !previous.selected().equals(replacement.selected()))
+            clampSpiritualPower(player);
         if (synchronize) {
             com.example.myvillage.cultivation.fate.FateRuntime.refresh(player);
             syncToClient(player);
@@ -168,13 +171,19 @@ public final class CultivationService {
                 "set current spiritual power=" + amount);
     }
 
-    /** The stage cap is definition data and is shared with the owning client's synced registry. */
+    /** Effective capacity includes confirmed, eligible fate data; an increase never grants power. */
     public static long spiritualPowerCap(ServerPlayer player) {
-        return spiritualPowerCap(player.registryAccess(), getProfile(player));
+        return spiritualPowerCap(player.registryAccess(), getProfile(player),
+                com.example.myvillage.cultivation.fate.FateService.state(player));
     }
 
     public static long spiritualPowerCap(RegistryAccess registries, CultivationProfile profile) {
         return SpiritualPower.cap(registries, profile);
+    }
+
+    public static long spiritualPowerCap(RegistryAccess registries, CultivationProfile profile,
+            com.example.myvillage.cultivation.fate.FateState fates) {
+        return SpiritualPower.cap(registries, profile, fates);
     }
 
     /** Server-thread atomic check-and-commit: insufficient qi never changes the profile or timer. */
@@ -191,7 +200,8 @@ public final class CultivationService {
 
     public static Result recoverSpiritualPower(ServerPlayer player, long amount) {
         return updateScalar(player, profile -> profile.withCurrentSpiritualPower(SpiritualPower.recover(
-                profile.currentSpiritualPower(), spiritualPowerCap(player.registryAccess(), profile), amount)),
+                profile.currentSpiritualPower(), spiritualPowerCap(player.registryAccess(), profile,
+                        com.example.myvillage.cultivation.fate.FateService.state(player)), amount)),
                 "recovered spiritual power=" + amount);
     }
 
@@ -393,7 +403,8 @@ public final class CultivationService {
             String successMessage) {
         CultivationProfile previous = getProfile(player);
         replacement = replacement.withCurrentSpiritualPower(SpiritualPower.clamp(
-                replacement.currentSpiritualPower(), spiritualPowerCap(player.registryAccess(), replacement)));
+                replacement.currentSpiritualPower(), spiritualPowerCap(player.registryAccess(), replacement,
+                        com.example.myvillage.cultivation.fate.FateService.state(player))));
         player.setData(CultivationAttachments.PROFILE.get(), replacement);
         if (!previous.realmId().equals(replacement.realmId())
                 || !previous.stageId().equals(replacement.stageId())) {

@@ -16,7 +16,9 @@ public record FateDefinition(String translationKey, String descriptionKey, int t
             "gain", "study", "fire_bonus", "environment_fire_reduction", "recovery_threshold",
             "recovery_fraction", "recovery_ticks", "recovery_cooldown", "hunter_bonus",
             "hunter_recovery", "hunter_cooldown", "low_threshold", "low_reduction", "low_knockback",
-            "damage_bonus", "low_speed", "low_speed_threshold");
+            "damage_bonus", "low_speed", "low_speed_threshold", "power_cap_bonus", "skill_refund_fraction",
+            "pill_healing_bonus", "pill_shield_fraction", "pill_shield_ticks", "pill_shield_cooldown",
+            "bones_threshold", "bones_damage_bonus", "bones_knockback_radius", "bones_knockback_strength");
     public static final Codec<FateDefinition> CODEC = RecordCodecBuilder.create(i -> i.group(
             Codec.STRING.fieldOf("translation_key").forGetter(FateDefinition::translationKey),
             Codec.STRING.fieldOf("description_key").forGetter(FateDefinition::descriptionKey),
@@ -38,6 +40,8 @@ public record FateDefinition(String translationKey, String descriptionKey, int t
                 throw new IllegalArgumentException("Invalid fate effect " + k);
             if (k.endsWith("ticks") || k.endsWith("cooldown")) {
                 if (v < 1 || v != Math.rint(v)) throw new IllegalArgumentException("Invalid tick count " + k);
+            } else if (k.equals("bones_knockback_radius")) {
+                if (v <= 0 || v > 16) throw new IllegalArgumentException("Invalid bounded radius " + k);
             } else if (v > 1 || (v < 0 && !k.equals("health"))) {
                 throw new IllegalArgumentException("Invalid fraction " + k);
             }
@@ -47,6 +51,12 @@ public record FateDefinition(String translationKey, String descriptionKey, int t
             throw new IllegalArgumentException("Incomplete recovery effect");
         if (value(effects, "hunter_recovery") > 0 && value(effects, "hunter_cooldown") <= 0)
             throw new IllegalArgumentException("Missing hunter cooldown");
+        if (value(effects, "pill_shield_fraction") > 0 && (value(effects, "pill_shield_ticks") <= 0
+                || value(effects, "pill_shield_cooldown") <= 0))
+            throw new IllegalArgumentException("Incomplete pill shield effect");
+        if (value(effects, "bones_threshold") > 0 && (value(effects, "bones_damage_bonus") <= 0
+                || value(effects, "bones_knockback_radius") <= 0 || value(effects, "bones_knockback_strength") <= 0))
+            throw new IllegalArgumentException("Incomplete tempered bones effect");
     }
     private static double value(Map<String, Double> values, String key) { return values.getOrDefault(key, 0.0); }
     public double effect(String key) { return value(effects, key); }

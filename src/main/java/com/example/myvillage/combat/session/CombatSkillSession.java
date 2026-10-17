@@ -1,6 +1,7 @@
 package com.example.myvillage.combat.session;
 
 import com.example.myvillage.combat.definition.CombatSkillDefinition;
+import com.example.myvillage.cultivation.qi.OpenMeridians;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.phys.Vec3;
 import java.util.Objects;
@@ -18,6 +19,9 @@ public final class CombatSkillSession {
     private Vec3 direction = new Vec3(0, 0, 1);
     private double travelled;
     private boolean waveStopped;
+    private long paidPower;
+    private long hitRefund;
+    private boolean refundClaimed;
 
     public CombatSkillSession(CombatSkillDefinition skill, ResourceLocation technique, int baseCost,
                               long chargeStart, long revision) {
@@ -39,16 +43,31 @@ public final class CombatSkillSession {
     public Vec3 position() { return origin.add(direction.scale(travelled)); }
     public boolean waveStopped() { return waveStopped; }
     public double scale() { return skill.scale(chargeLevel); }
+    public long paidPower() { return paidPower; }
+
+    /** Called only by this cast's accepted direct skill hit, never by damage-event derivatives. */
+    public long claimHitRefund() {
+        if (charging() || refundClaimed) return 0;
+        refundClaimed = true;
+        return hitRefund;
+    }
 
     /** Called only AFTER CultivationService commits the cost. A duplicate release cannot mutate state. */
     public boolean release(long tick, Vec3 origin, Vec3 direction) {
+        return release(tick, origin, direction, 0, 0);
+    }
+
+    /** Freeze the final post-forging payment and authored refund when this cast is paid. */
+    public boolean release(long tick, Vec3 origin, Vec3 direction, long paidPower, double refundFraction) {
         if (!charging()) return false;
         if (tick < chargeStart || !Double.isFinite(origin.lengthSqr())
                 || !Double.isFinite(direction.lengthSqr()) || direction.lengthSqr() < 1.0E-12) {
             throw new IllegalArgumentException("Invalid server release geometry/time");
         }
+        long refund = OpenMeridians.refund(paidPower, refundFraction);
         this.chargeLevel = levelAt(tick); this.releaseTick = tick;
         this.origin = origin; this.direction = direction.normalize();
+        this.paidPower = paidPower; this.hitRefund = refund;
         return true;
     }
     public boolean waveActive(long tick) {

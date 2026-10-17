@@ -18,7 +18,9 @@ DATA = 'src/main/resources/data/myvillage/myvillage/innate_fate'
 EFFECTS = {'health','speed','knockback','fall_reduction','gain','study','fire_bonus','environment_fire_reduction',
            'recovery_threshold','recovery_fraction','recovery_ticks','recovery_cooldown','hunter_bonus',
            'hunter_recovery','hunter_cooldown','low_threshold','low_reduction','low_knockback','damage_bonus',
-           'low_speed','low_speed_threshold'}
+           'low_speed','low_speed_threshold','power_cap_bonus','skill_refund_fraction',
+           'pill_healing_bonus','pill_shield_fraction','pill_shield_ticks','pill_shield_cooldown',
+           'bones_threshold','bones_damage_bonus','bones_knockback_radius','bones_knockback_strength'}
 
 def validate(root: Path = ROOT, jar: Path | None = None) -> list[str]:
     errors=[]
@@ -53,11 +55,14 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> list[str]:
             need(k in EFFECTS,'FATE_EFFECT_UNKNOWN: '+name+' '+k)
             valid=type(v) in (int,float) and math.isfinite(v)
             if k.endswith(('ticks','cooldown')):valid=valid and v==int(v) and 1<=v<=24000
+            elif k=='bones_knockback_radius':valid=valid and 0<v<=16
             else:valid=valid and (-.9 if k=='health' else 0)<=v<=1
             need(valid,'FATE_EFFECT_VALUE: '+name+' '+k)
             need(all('fate.myvillage.effect.'+k in lang for lang in langs),'FATE_EFFECT_LANG: '+k)
         if effects.get('recovery_fraction',0)>0:need(all(effects.get(k,0)>0 for k in ('recovery_threshold','recovery_ticks','recovery_cooldown')),'FATE_RECOVERY: '+name)
         if effects.get('hunter_recovery',0)>0:need(effects.get('hunter_cooldown',0)>0,'FATE_HUNTER: '+name)
+        if effects.get('pill_shield_fraction',0)>0:need(all(effects.get(k,0)>0 for k in ('pill_shield_ticks','pill_shield_cooldown')),'FATE_PILL_SHIELD: '+name)
+        if effects.get('bones_threshold',0)>0:need(all(effects.get(k,0)>0 for k in ('bones_damage_bonus','bones_knockback_radius','bones_knockback_strength')),'FATE_BONES: '+name)
         need(0<=d.get('minimum_share',0)<=10000 and 1<=d.get('maximum_roots',5)<=5,'FATE_ROOT: '+name)
     need(len(set(ordinary))>=3,'FATE_LOW_BUDGET: three distinct ordinary groups required')
     weights=rules.get('tier_weights',[])

@@ -4,6 +4,7 @@ import com.example.myvillage.alchemy.AlchemyRules;
 import com.example.myvillage.alchemy.MedicineRuntime;
 import com.example.myvillage.alchemy.MedicineEffects;
 import com.example.myvillage.alchemy.PillQuality;
+import com.example.myvillage.cultivation.fate.PillAegisRuntime;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -53,8 +54,10 @@ public final class AlchemyPillItem extends Item {
 
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity entity) {
-        if (entity instanceof ServerPlayer player && MedicineRuntime.consume(player, effectId, PillQuality.get(stack))) {
+        if (!stack.isEmpty() && entity instanceof ServerPlayer player
+                && MedicineRuntime.consume(player, effectId, PillQuality.get(stack))) {
             if (!player.getAbilities().instabuild) stack.shrink(1);
+            PillAegisRuntime.afterSuccessfulConsumption(player, effectId);
         }
         return stack;
     }

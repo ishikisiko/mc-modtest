@@ -27,6 +27,15 @@ class FateValidatorTest(unittest.TestCase):
         self.edit('robust',lambda d:d['effects'].update(health=8));self.assertTrue(any('VALUE' in x for x in validate(self.root)))
     def test_recovery_requires_cooldown(self):
         self.edit('alchemist_descendant',lambda d:d['effects'].pop('recovery_cooldown'));self.assertTrue(any('RECOVERY' in x for x in validate(self.root)))
+    def test_shield_requires_cooldown(self):
+        self.edit('pill_aegis',lambda d:d['effects'].pop('pill_shield_cooldown'))
+        self.assertTrue(any('PILL_SHIELD' in x for x in validate(self.root)))
+    def test_bones_requires_bounded_knockback(self):
+        self.edit('tempered_bones',lambda d:d['effects'].update(bones_knockback_radius=17))
+        self.assertTrue(any('VALUE' in x for x in validate(self.root)))
+    def test_bones_cannot_be_enabled_without_release_damage(self):
+        self.edit('tempered_bones',lambda d:d['effects'].pop('bones_damage_bonus'))
+        self.assertTrue(any('BONES' in x for x in validate(self.root)))
     def test_tier_cost_match(self):
         self.edit('robust',lambda d:d.update(cost=6));self.assertTrue(any('COST' in x for x in validate(self.root)))
     def test_three_ordinary_groups(self):

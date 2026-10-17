@@ -2,7 +2,7 @@ package com.example.myvillage.client.cultivation;
 
 import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.client.combat.ClientSwordQi;
-import com.example.myvillage.cultivation.data.ModCultivationRegistries;
+import com.example.myvillage.cultivation.qi.SpiritualPower;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.DeltaTracker;
@@ -31,12 +31,10 @@ public final class QiBarLayer {
     private static void render(GuiGraphics graphics, DeltaTracker delta) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.player == null || mc.level == null || mc.options.hideGui || mc.player.isSpectator()) return;
-        var profile = ClientCultivationState.latest().orElse(null);
-        if (profile == null) return;
-        long maximum = mc.level.registryAccess().registry(ModCultivationRegistries.REALMS)
-                .flatMap(registry -> registry.getOptional(profile.realmId()))
-                .flatMap(realm -> realm.stages().stream().filter(stage -> stage.id().equals(profile.stageId())).findFirst())
-                .map(stage -> stage.spiritualPowerCap()).orElse(0L);
+        var snapshot = ClientCultivationState.snapshot().orElse(null);
+        if (snapshot == null) return;
+        var profile = snapshot.profile();
+        long maximum = SpiritualPower.cap(mc.level.registryAccess(), profile, snapshot.fates());
         if (maximum <= 0) return;
         long now = ClientSwordQi.presentationTick();
         if (previous != profile.currentSpiritualPower()) {

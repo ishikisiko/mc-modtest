@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.60.1
+
+- 经脉通达、吞丹化势、百炼战骨由可选占位转为实际效果：灵力扩容与一次施法返还、养元丹增益与独立护盾、敌方伤害积蓄战意及近战反攻。
+- 保留已选天命 ID，旧存档新增战斗状态默认为空；死亡与管理员重置清除护盾/战意，保留既有冷却。天命快照新增可选状态，网络兼容版本升至 29。
+- 新增对应纯逻辑、施法、品质、持久化回归与局部 Modal 构建入口；实际游戏验证范围在本次交付记录中单独标明。
+
 ## 0.60.0-fix1
 
 - NPC 生活寻路在受限已加载范围只返回部分路径时，尝试已登记且实际可达的建筑入口作为中途点，避免在客栈客房或药铺墙边反复走同一死路。中途点不触发到站或工作结算，不强载区块。

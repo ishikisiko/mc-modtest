@@ -59,6 +59,11 @@ public record PanelContext(
     public java.util.Map<String, com.example.myvillage.cultivation.fate.FateDefinition> fateDefinitions() {
         return com.example.myvillage.cultivation.fate.FateService.definitions(registries);
     }
+    public String spiritualPowerValue() {
+        if (profile == null) return unavailableText();
+        long cap = com.example.myvillage.cultivation.qi.SpiritualPower.cap(registries, profile, fates());
+        return profile.currentSpiritualPower() + " / " + cap;
+    }
     public String text(String key, Object... arguments) {
         return Component.translatable(key, arguments).getString();
     }

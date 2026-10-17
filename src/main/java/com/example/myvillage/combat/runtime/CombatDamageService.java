@@ -19,6 +19,8 @@ import net.neoforged.neoforge.common.CommonHooks;
 public final class CombatDamageService {
     /** The target whose {@code hurt} call is one of our hits, so its vanilla knockback is dropped. */
     private static final ThreadLocal<Entity> RESOLVING_TARGET = new ThreadLocal<>();
+    /** External sword-qi actions share this service but are not melee attacks. */
+    private static final ThreadLocal<Entity> RESOLVING_SKILL_TARGET = new ThreadLocal<>();
 
     private CombatDamageService() {
     }
@@ -54,12 +56,19 @@ public final class CombatDamageService {
         // the previous timer unchanged.
         int previousInvulnerableTime = target.invulnerableTime;
         target.invulnerableTime = 0;
+        Entity previousTarget = RESOLVING_TARGET.get();
+        Entity previousSkillTarget = RESOLVING_SKILL_TARGET.get();
         RESOLVING_TARGET.set(target);
+        if (session.isExternal()) RESOLVING_SKILL_TARGET.set(target);
+        else RESOLVING_SKILL_TARGET.remove();
         boolean hurt;
         try {
             hurt = StatsRuntime.hurt(attacker, target, source, damage);
         } finally {
-            RESOLVING_TARGET.remove();
+            if (previousTarget == null) RESOLVING_TARGET.remove();
+            else RESOLVING_TARGET.set(previousTarget);
+            if (previousSkillTarget == null) RESOLVING_SKILL_TARGET.remove();
+            else RESOLVING_SKILL_TARGET.set(previousSkillTarget);
             target.invulnerableTime = Math.max(previousInvulnerableTime, target.invulnerableTime);
         }
         if (!hurt) {
@@ -107,6 +116,11 @@ public final class CombatDamageService {
     public static boolean isResolvingHit(Entity entity) {
         Entity target = RESOLVING_TARGET.get();
         return target != null && target == entity;
+    }
+
+    /** Only the exact target of the current external-skill hurt call is excluded from melee fates. */
+    public static boolean isResolvingSkillHit(Entity entity) {
+        return RESOLVING_SKILL_TARGET.get() == entity;
     }
 
     /**

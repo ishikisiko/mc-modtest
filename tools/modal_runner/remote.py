@@ -119,6 +119,18 @@ PRESETS["npc-life-runtime"] = [
     ["python3", "tools/yunshan/build_functional.py", "--manifest", "blueprints/yunshan/functional_buildings_v2.json", "--out", "out/preview/npc-life-buildings"],
     ["python3", "tools/npc_life_evidence.py"],
 ]
+PRESETS["fates-purple-build"] = [
+    ["python3", "tools/validate_innate_fates.py"],
+    ["./gradlew", "test", "--tests", "com.example.myvillage.cultivation.fate.*",
+     "--tests", "com.example.myvillage.cultivation.qi.*",
+     "--tests", "com.example.myvillage.cultivation.GoldenCoreProgressionTest",
+     "--tests", "com.example.myvillage.combat.session.OpenMeridiansSkillRefundTest",
+     "--tests", "com.example.myvillage.combat.session.JianqiJueSkillTest",
+     "--tests", "com.example.myvillage.forging.OpenMeridiansForgingRefundTest",
+     "--tests", "com.example.myvillage.forging.ForgingTest",
+     "--tests", "com.example.myvillage.alchemy.Medicine*Test",
+     "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
+]
 ALCHEMY_CASES = ("brewing", "multiplayer", "medicine", "persistence", "ui")
 NPC_LIFE_CASES = ("bind_idempotence", "demo_identity", "day_loop", "conversation",
                   "blocked_route", "removed_facility", "unload_return", "restart_mid_activity",

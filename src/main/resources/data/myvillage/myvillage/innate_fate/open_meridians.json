@@ -4,6 +4,8 @@
   "tier": 3,
   "cost": 4,
   "group": "spirit_body",
-  "placeholder": true,
-  "effects": {}
+  "effects": {
+    "power_cap_bonus": 0.4,
+    "skill_refund_fraction": 0.25
+  }
 }

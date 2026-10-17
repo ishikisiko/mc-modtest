@@ -151,6 +151,17 @@ public final class CombatReactionService {
         }
     }
 
+    /** Add a separate authoritative pulse without letting a frozen hit's later launch erase it. */
+    public static boolean holdAdditionalImpulse(LivingEntity target, Vec3 additional) {
+        Reaction reaction = REACTIONS.get(target.getId());
+        if (reaction == null || reaction.target != target || target.level().getGameTime() >= reaction.freezeUntil)
+            return false;
+        Vec3 pending = reaction.pendingImpulse;
+        reaction.pendingImpulse = pending == null ? additional
+                : new Vec3(pending.x + additional.x, Math.max(pending.y, additional.y), pending.z + additional.z);
+        return true;
+    }
+
     /** Cancels a frozen mob's tick and holds a stunned mob's AI still. */
     public static void onEntityTickPre(EntityTickEvent.Pre event) {
         Entity entity = event.getEntity();

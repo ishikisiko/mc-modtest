@@ -36,8 +36,7 @@ public final class FateCommands {
                     FateService.forget(p);
                     // Advance revision, so previously queued confirmations cannot apply to the reset draft.
                     FateState old = FateService.state(p);
-                    FateState fresh = new FateState(Math.addExact(old.revision(), 1), old.rolls(), java.util.List.of(), "",
-                            java.util.List.of(), false, old.recoveryReadyAt(), 0, 0, old.hunterReadyAt());
+                    FateState fresh = old.resetChoices();
                     CultivationService.replaceFates(p, fresh, true);
                     return info(c.getSource(), p);
                 })));

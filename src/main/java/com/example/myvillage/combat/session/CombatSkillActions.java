@@ -10,6 +10,7 @@ import com.example.myvillage.combat.runtime.CombatFeedbackService;
 import com.example.myvillage.combat.runtime.CombatHitResolver;
 import com.example.myvillage.combat.runtime.CombatWaveResolver;
 import com.example.myvillage.cultivation.CultivationService;
+import com.example.myvillage.cultivation.fate.FateService;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.data.TechniqueCategory;
 import com.example.myvillage.cultivation.data.TechniqueDefinition;
@@ -110,7 +111,8 @@ final class CombatSkillActions {
             CombatSessionManager.clearCommitment(player);
             return Optional.empty();
         }
-        state.release(now, player.position().add(0, state.skill().launchHeight(), 0), player.getLookAngle());
+        state.release(now, player.position().add(0, state.skill().launchHeight(), 0), player.getLookAngle(),
+                cost, FateService.effect(player, "skill_refund_fraction"));
         CombatSession.StartEvent start = session.startExternal(state.skill().releaseMove(CombatStyles.bundled(),
                         state.chargeLevel()), now,
                 net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem()),
@@ -139,6 +141,15 @@ final class CombatSkillActions {
             // Enchantment retaliation/death can synchronously interrupt the owner inside hurt().
             if (ENTRIES.get(player.getUUID()) != e || !session.hasActiveAction()) return;
             if (damage.successful()) {
+                long refund = state.claimHitRefund();
+                if (refund > 0) {
+                    long beforeRefund = CultivationService.getProfile(player).currentSpiritualPower();
+                    var refunded = CultivationService.recoverSpiritualPower(player, refund);
+                    LOGGER.info("SWORD_QI player={} t={} result=hit_refund skill={} revision={} paid={} refund={} recovered={} success={}",
+                            player.getGameProfile().getName(), now, state.skill().id(), state.revision(),
+                            state.paidPower(), refund, Math.max(0, refunded.profile().currentSpiritualPower() - beforeRefund),
+                            refunded.success());
+                }
                 successful.add(new CombatHitResolver.TargetContact(contact.target(),
                         state.origin().distanceToSqr(contact.position()), contact.position()));
                 LOGGER.info("SWORD_QI player={} t={} result=hit revision={} target={} damage={}",

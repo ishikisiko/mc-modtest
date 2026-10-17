@@ -4,6 +4,8 @@ import com.example.myvillage.MyVillageMod;
 import com.example.myvillage.cultivation.CultivationService;
 import com.example.myvillage.cultivation.data.ModCultivationRegistries;
 import com.example.myvillage.cultivation.data.RealmStageDefinition;
+import com.example.myvillage.cultivation.fate.FateService;
+import com.example.myvillage.cultivation.fate.PillAegisEffects;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -137,7 +139,9 @@ public final class MedicineRuntime {
         if (current.equals(MedicineState.EMPTY)) return;
         var effect = AlchemyRules.get().effects().yangyuan();
         MedicineState.Tick tick = current.tick(effect.intervalTicks());
-        if (tick.heal()) player.heal((float) (player.getMaxHealth() * effect.healFraction() * AlchemyRules.get().qualityMultiplier(current.quality())));
+        if (tick.heal()) player.heal((float) PillAegisEffects.healingAmount(current.effect(),
+                player.getMaxHealth() * effect.healFraction() * AlchemyRules.get().qualityMultiplier(current.quality()),
+                FateService.effect(player, "pill_healing_bonus")));
         store(player, tick.next());
     }
 

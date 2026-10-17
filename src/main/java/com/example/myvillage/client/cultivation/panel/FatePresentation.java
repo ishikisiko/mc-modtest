@@ -23,6 +23,8 @@ public final class FatePresentation {
         for (var e : new TreeMap<>(def.effects()).entrySet()) {
             boolean ticks = e.getKey().endsWith("ticks") || e.getKey().endsWith("cooldown");
             String value = ticks ? String.format(Locale.ROOT, "%.1fs", e.getValue() / 20)
+                    : e.getKey().endsWith("radius") ? String.format(Locale.ROOT, "%.1f", e.getValue())
+                    : e.getKey().endsWith("strength") ? String.format(Locale.ROOT, "%.2f", e.getValue())
                     : String.format(Locale.ROOT, "%+.0f%%", e.getValue() * 100);
             lines.add(Component.translatable("fate.myvillage.effect." + e.getKey()).append(": " + value));
         }

@@ -126,6 +126,9 @@ public final class MyVillageMod {
         NeoForge.EVENT_BUS.addListener(RegionRuntimeService::onServerStopping);
         WorldSimRuntime.register(); // after the region runtime: genesis needs its graph
         StatsRuntime.register();
+        // Aegis consumes damage after typed resistance, without altering vanilla absorption.
+        com.example.myvillage.cultivation.fate.PillAegisRuntime.register();
+        com.example.myvillage.cultivation.fate.TemperedBonesRuntime.register();
         NeoForge.EVENT_BUS.addListener(com.example.myvillage.ruins.RuinGuardians::onJoin);
         NeoForge.EVENT_BUS.addListener(net.neoforged.bus.api.EventPriority.LOWEST, com.example.myvillage.ruins.BattleReceipts::death);
         NeoForge.EVENT_BUS.addListener(com.example.myvillage.ruins.BattleReceipts::leave);

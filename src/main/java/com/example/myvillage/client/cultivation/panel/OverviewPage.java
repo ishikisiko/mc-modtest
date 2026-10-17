@@ -98,7 +98,7 @@ public final class OverviewPage extends PanelPage {
                 graphics,
                 font,
                 context.text("screen.myvillage.cultivation.power"),
-                Long.toString(profile.currentSpiritualPower()),
+                context.spiritualPowerValue(),
                 innerX,
                 cursor,
                 half,
