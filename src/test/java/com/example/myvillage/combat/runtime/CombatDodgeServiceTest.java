@@ -134,7 +134,7 @@ class CombatDodgeServiceTest {
                 "DODGE_DEBUG player=Dev t=1236 cancelled_damage=6.00 source=minecraft:mob_attack",
                 CombatDodgeService.cancelledLine("Dev", 1236L, 6.0F, "minecraft:mob_attack"));
         assertEquals(
-                List.of("STATE", "MODE", "AIRBORNE", "NO_TECHNIQUE", "COOLDOWN", "TIMING", "BLOCKED"),
+                List.of("STATE", "MODE", "AIRBORNE", "NO_TECHNIQUE", "COOLDOWN", "TIMING", "BLOCKED", "NO_POWER"),
                 java.util.Arrays.stream(CombatDodgeService.Rejection.values()).map(Enum::name).toList());
     }
 

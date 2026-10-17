@@ -4,6 +4,12 @@
   "tier": 4,
   "cost": 5,
   "group": "spirit_body",
-  "placeholder": true,
-  "effects": {}
+  "effects": {
+    "fire_burn_fraction": 0.2,
+    "fire_burn_ticks": 60,
+    "fire_burn_interval_ticks": 20,
+    "fire_burst_hits": 3,
+    "fire_burst_multiplier": 0.8,
+    "fire_burst_cooldown_ticks": 100
+  }
 }

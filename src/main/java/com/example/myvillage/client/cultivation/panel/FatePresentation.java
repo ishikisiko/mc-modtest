@@ -23,7 +23,7 @@ public final class FatePresentation {
         for (var e : new TreeMap<>(def.effects()).entrySet()) {
             boolean ticks = e.getKey().endsWith("ticks") || e.getKey().endsWith("cooldown");
             String value = ticks ? String.format(Locale.ROOT, "%.1fs", e.getValue() / 20)
-                    : e.getKey().endsWith("stacks") ? String.format(Locale.ROOT, "%.0f", e.getValue())
+                    : (e.getKey().endsWith("stacks") || e.getKey().endsWith("hits") || e.getKey().equals("air_dodge")) ? String.format(Locale.ROOT, "%.0f", e.getValue())
                     : e.getKey().endsWith("radius") ? String.format(Locale.ROOT, "%.1f", e.getValue())
                     : e.getKey().endsWith("strength") ? String.format(Locale.ROOT, "%.2f", e.getValue())
                     : String.format(Locale.ROOT, "%+.0f%%", e.getValue() * 100);

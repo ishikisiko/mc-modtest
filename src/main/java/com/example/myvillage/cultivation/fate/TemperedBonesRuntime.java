@@ -68,7 +68,14 @@ public final class TemperedBonesRuntime {
                 armed = attacker;
             }
         }
+        CombatDamageService.primaryFraction(target, primaryFraction);
         DAMAGE.put(event.getContainer(), new DamageFrame(target.getHealth(), armed, primaryFraction));
+    }
+
+    /** Read before the LOWEST post listener removes this exact container's receipt. */
+    public static double primaryFraction(DamageContainer container) {
+        var frame = DAMAGE.get(container);
+        return frame == null ? 1 : frame.primaryFraction();
     }
 
     private static void beforeDamage(LivingDamageEvent.Pre event) {

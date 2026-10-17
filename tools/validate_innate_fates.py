@@ -20,6 +20,9 @@ EFFECTS = {'health','speed','knockback','fall_reduction','gain','study','fire_bo
            'hunter_recovery','hunter_cooldown','low_threshold','low_reduction','low_knockback','damage_bonus',
            'low_speed','low_speed_threshold','power_cap_bonus','skill_refund_fraction',
            'pill_healing_bonus','pill_shield_fraction','pill_shield_ticks','pill_shield_cooldown',
+           'air_dodge','dodge_speed_bonus','dodge_speed_ticks',
+           'heart_window_ticks','heart_opening_ticks','heart_cooldown','heart_critical_bonus',
+           'fire_burn_fraction','fire_burn_ticks','fire_burn_interval_ticks','fire_burst_hits','fire_burst_multiplier','fire_burst_cooldown_ticks',
            'sword_stack_bonus','sword_max_stacks','sword_timeout_ticks','bones_threshold','bones_damage_bonus','bones_knockback_radius','bones_knockback_strength'}
 
 def validate(root: Path = ROOT, jar: Path | None = None) -> list[str]:
@@ -55,7 +58,7 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> list[str]:
             need(k in EFFECTS,'FATE_EFFECT_UNKNOWN: '+name+' '+k)
             valid=type(v) in (int,float) and math.isfinite(v)
             if k.endswith(('ticks','cooldown')):valid=valid and v==int(v) and 1<=v<=24000
-            elif k=='sword_max_stacks':valid=valid and v==int(v) and 1<=v<=64
+            elif k in ('sword_max_stacks','fire_burst_hits'):valid=valid and v==int(v) and 1<=v<=64
             elif k=='bones_knockback_radius':valid=valid and 0<v<=16
             else:valid=valid and (-.9 if k=='health' else 0)<=v<=1
             need(valid,'FATE_EFFECT_VALUE: '+name+' '+k)
@@ -64,8 +67,15 @@ def validate(root: Path = ROOT, jar: Path | None = None) -> list[str]:
         if effects.get('hunter_recovery',0)>0:need(effects.get('hunter_cooldown',0)>0,'FATE_HUNTER: '+name)
         if effects.get('pill_shield_fraction',0)>0:need(all(effects.get(k,0)>0 for k in ('pill_shield_ticks','pill_shield_cooldown')),'FATE_PILL_SHIELD: '+name)
         if effects.get('bones_threshold',0)>0:need(all(effects.get(k,0)>0 for k in ('bones_damage_bonus','bones_knockback_radius','bones_knockback_strength')),'FATE_BONES: '+name)
+        if effects.get('air_dodge',0)>0:
+            need(effects['air_dodge']==1 and all(effects.get(k,0)>0 for k in ('dodge_speed_bonus','dodge_speed_ticks')),'FATE_WIND: '+name)
+        if effects.get('heart_critical_bonus',0)>0:
+            need(all(effects.get(k,0)>0 for k in ('heart_window_ticks','heart_opening_ticks','heart_cooldown')),'FATE_HEART: '+name)
+        if effects.get('fire_burn_fraction',0)>0:
+            need(all(effects.get(k,0)>0 for k in ('fire_burn_ticks','fire_burn_interval_ticks','fire_burst_hits','fire_burst_multiplier','fire_burst_cooldown_ticks')),'FATE_FIRE: '+name)
         if effects.get('sword_stack_bonus',0)>0:
             need(all(effects.get(k,0)>0 for k in ('sword_max_stacks','sword_timeout_ticks')),'FATE_SWORD: '+name)
+        if effects.get('sword_stack_bonus',0)>0 or effects.get('heart_critical_bonus',0)>0:
             skill=d.get('derived_skill','')
             need(isinstance(skill,str) and re.fullmatch(r'[a-z0-9_.-]+:[a-z0-9_/.-]+',skill) is not None,'FATE_DERIVED_SKILL: '+name)
             if isinstance(skill,str) and ':' in skill:

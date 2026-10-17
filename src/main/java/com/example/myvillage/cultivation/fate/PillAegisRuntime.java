@@ -62,6 +62,7 @@ public final class PillAegisRuntime {
         if (result.blocked() > 0) {
             event.setNewDamage(result.damage());
             TemperedBonesRuntime.shieldAbsorbed(event.getContainer(), result.blocked());
+            SwordHeartRuntime.shieldAbsorbed(event.getContainer(), result.blocked());
             player.displayClientMessage(Component.translatable(MESSAGE + "blocked", number(result.blocked()),
                     number(result.next().shield())), true);
         }

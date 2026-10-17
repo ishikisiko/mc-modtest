@@ -4,6 +4,11 @@
   "tier": 4,
   "cost": 5,
   "group": "sword_dao",
-  "placeholder": true,
-  "effects": {}
+  "effects": {
+    "heart_window_ticks": 4,
+    "heart_opening_ticks": 60,
+    "heart_cooldown": 160,
+    "heart_critical_bonus": 0.5
+  },
+  "derived_skill": "myvillage:innate_sword_heart_wave"
 }

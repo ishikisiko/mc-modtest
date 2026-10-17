@@ -112,6 +112,7 @@ public final class FateRuntime {
         CultivationService.replaceFates(player, s.afterDeath(), false);
     }
     private static void tick(ServerTickEvent.Post event) {
+        WindStepRuntime.tick(event.getServer());
         for (ServerPlayer player : event.getServer().getPlayerList().getPlayers()) {
             refresh(player);
             FateState state = FateService.state(player);

@@ -3,6 +3,7 @@ package com.example.myvillage.combat.runtime;
 import com.example.myvillage.combat.definition.AttackMoveDefinition;
 import com.example.myvillage.combat.definition.StepDefinition;
 import com.example.myvillage.combat.session.CombatSession;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ClipContext;
@@ -14,6 +15,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.Optional;
 import java.util.OptionalDouble;
 import java.util.function.DoublePredicate;
+import java.util.function.Predicate;
 
 /**
  * Server-decided action footwork. The server chooses whether and how far the attacker steps
@@ -86,6 +88,24 @@ public final class CombatStepService {
                 maximumDistance,
                 SAMPLE_INCREMENT,
                 distance -> isSafeDestination(player, forward.scale(distance), supportDepth));
+    }
+
+    /**
+     * Air movement has no destination-floor requirement. Test the entire swept body, not a center
+     * ray or only the endpoint: a thin wall, overhang or stair must never be skipped. The enclosing
+     * swept box deliberately errs towards refusing tight diagonal gaps.
+     */
+    static double safeAirDistance(ServerPlayer player, Vec3 forward, double maximumDistance) {
+        return chooseAirDistance(player.getBoundingBox(), forward, maximumDistance, swept ->
+                player.serverLevel().hasChunksAt(BlockPos.containing(swept.minX, swept.minY, swept.minZ),
+                        BlockPos.containing(swept.maxX, swept.maxY, swept.maxZ))
+                        && player.serverLevel().getWorldBorder().isWithinBounds(swept)
+                        && player.serverLevel().noCollision(player, swept));
+    }
+
+    static double chooseAirDistance(AABB body, Vec3 forward, double maximumDistance, Predicate<AABB> clearSweep) {
+        return chooseSafeDistance(maximumDistance, SAMPLE_INCREMENT,
+                distance -> clearSweep.test(body.expandTowards(forward.scale(distance)).deflate(1.0E-5)));
     }
 
     /** Initial ground speed (blocks per tick) that slides a grounded entity {@code distance}. */

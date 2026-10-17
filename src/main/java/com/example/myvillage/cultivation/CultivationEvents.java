@@ -78,6 +78,8 @@ public final class CultivationEvents {
 
     private static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
+            // Short proc windows never resume after a disconnect/crash; deadlines remain saved.
+            com.example.myvillage.cultivation.fate.SwordHeartRuntime.forget(player);
             CultivationService.initializeCraftingAptitudes(player);
             StatsRuntime.refreshPlayer(player);
             SpiritualPowerRuntime.initialize(player);
@@ -104,6 +106,7 @@ public final class CultivationEvents {
 
     private static void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
         if (event.getEntity() instanceof ServerPlayer player) {
+            com.example.myvillage.cultivation.fate.FateService.forget(player);
             StatsRuntime.refreshPlayer(player);
             MeditationManager.requestStop(player, MeditationStopReason.DIMENSION_CHANGED);
             CultivationTimeRuntime.onPlayerChangedDimension(player);

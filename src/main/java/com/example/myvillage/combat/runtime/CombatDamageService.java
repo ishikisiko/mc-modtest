@@ -23,6 +23,12 @@ public final class CombatDamageService {
     private static final ThreadLocal<Entity> RESOLVING_SKILL_TARGET = new ThreadLocal<>();
 
     private static final ThreadLocal<Entity> DERIVED_TARGET = new ThreadLocal<>();
+    private static final ThreadLocal<PrimaryAttribution> PRIMARY = new ThreadLocal<>();
+    private static final class PrimaryAttribution {
+        private final Entity target;
+        private double fraction = 1;
+        private PrimaryAttribution(Entity target) { this.target = target; }
+    }
 
     private CombatDamageService() {
     }
@@ -74,6 +80,9 @@ public final class CombatDamageService {
         Entity previousTarget = RESOLVING_TARGET.get();
         Entity previousSkillTarget = RESOLVING_SKILL_TARGET.get();
         Entity previousDerived = DERIVED_TARGET.get();
+        PrimaryAttribution previousAttribution = PRIMARY.get();
+        PrimaryAttribution attribution = new PrimaryAttribution(target);
+        PRIMARY.set(attribution);
         if (derived) DERIVED_TARGET.set(target); else DERIVED_TARGET.remove();
         RESOLVING_TARGET.set(target);
         if (session.isExternal()) RESOLVING_SKILL_TARGET.set(target);
@@ -82,6 +91,7 @@ public final class CombatDamageService {
         try {
             hurt = StatsRuntime.hurt(attacker, target, source, damage);
         } finally {
+            if (previousAttribution == null) PRIMARY.remove(); else PRIMARY.set(previousAttribution);
             if (previousDerived == null) DERIVED_TARGET.remove(); else DERIVED_TARGET.set(previousDerived);
             if (previousTarget == null) RESOLVING_TARGET.remove();
             else RESOLVING_TARGET.set(previousTarget);
@@ -92,6 +102,10 @@ public final class CombatDamageService {
         if (!hurt) {
             return DamageResult.rejected();
         }
+
+        // Freeze the primary receipt before enchantment post-effects can cause nested damage.
+        double primaryActualDamage = target instanceof LivingEntity living
+                ? Math.min(healthBefore, Math.max(0, healthBefore - Math.max(0, living.getHealth()))) : 0;
 
         // Vanilla sources (ATTACK_KNOCKBACK attribute, Knockback enchantments) keep contributing
         // in vanilla units: knockback strength k moves a target at k * 0.5 blocks per tick.
@@ -123,8 +137,44 @@ public final class CombatDamageService {
             attacker.awardStat(Stats.DAMAGE_DEALT, Math.round(actualDamage * 10.0F));
             attacker.causeFoodExhaustion(0.1F);
         }
-        if (!derived) com.example.myvillage.cultivation.fate.SwordObsessionRuntime.accepted(attacker, session);
+        if (!derived) {
+            com.example.myvillage.cultivation.fate.SwordObsessionRuntime.accepted(attacker, session);
+            if (target instanceof LivingEntity living) {
+                double primaryLoss = primaryActualDamage * attribution.fraction;
+                com.example.myvillage.cultivation.fate.FireSpiritRuntime.directHit(
+                        attacker, living, primaryLoss, attributeDamage);
+            }
+        }
         return new DamageResult(true, damage, actualDamage);
+    }
+
+    /** A bonus-damage listener annotates only the exact synchronous primary hit. */
+    public static void primaryFraction(Entity target, double fraction) {
+        var attribution = PRIMARY.get();
+        if (attribution != null && attribution.target == target && Double.isFinite(fraction))
+            attribution.fraction = Math.clamp(fraction, 0, 1);
+    }
+
+    /** Attributed secondary damage shares all mitigation, but cannot cause offensive fate procs. */
+    public static boolean hurtDerived(ServerPlayer attacker, LivingEntity target, DamageSource source, float damage) {
+        if (!attacker.isAlive() || attacker.isRemoved() || target.level() != attacker.level()
+                || !target.isAlive() || target.isRemoved() || target == attacker
+                || attacker.isAlliedTo(target) || target.isAlliedTo(attacker)
+                || (target instanceof ServerPlayer player && !attacker.canHarmPlayer(player))
+                || !Float.isFinite(damage) || damage <= 0 || target.isInvulnerableTo(source)) return false;
+        Entity previousDerived = DERIVED_TARGET.get();
+        Entity previousSkill = RESOLVING_SKILL_TARGET.get();
+        int previousInvulnerableTime = target.invulnerableTime;
+        DERIVED_TARGET.set(target);
+        RESOLVING_SKILL_TARGET.set(target);
+        target.invulnerableTime = 0;
+        try {
+            return StatsRuntime.hurt(attacker, target, source, damage);
+        } finally {
+            if (previousDerived == null) DERIVED_TARGET.remove(); else DERIVED_TARGET.set(previousDerived);
+            if (previousSkill == null) RESOLVING_SKILL_TARGET.remove(); else RESOLVING_SKILL_TARGET.set(previousSkill);
+            target.invulnerableTime = Math.max(previousInvulnerableTime, target.invulnerableTime);
+        }
     }
 
     /**

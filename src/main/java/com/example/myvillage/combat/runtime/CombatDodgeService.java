@@ -13,6 +13,8 @@ import com.example.myvillage.cultivation.data.TechniqueCategory;
 import com.example.myvillage.cultivation.data.TechniqueDefinition;
 import com.example.myvillage.cultivation.data.TechniqueEffects;
 import com.example.myvillage.cultivation.meditation.MeditationManager;
+import com.example.myvillage.cultivation.fate.SwordHeartRuntime;
+import com.example.myvillage.cultivation.fate.WindStepRuntime;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
@@ -33,6 +35,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
+import java.util.function.BooleanSupplier;
 
 /**
  * Server-authoritative 身法 dodge. The client sends only the key press and its eight-way movement
@@ -52,7 +55,8 @@ import java.util.function.Function;
  *       {@code DODGE_DEBUG} log line the capture tooling parses.</li>
  * </ol>
  *
- * <p>{@code qi_cost} is read with the rest of the data but not charged in this version.
+ * <p>Legacy ground dodges remain free. Wind-step air dodges pay the selected movement's
+ * {@code qi_cost}, and share both their in-memory and saved cooldown with ground dodges.
  */
 public final class CombatDodgeService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CombatDodgeService.class);
@@ -75,7 +79,8 @@ public final class CombatDodgeService {
         NO_TECHNIQUE,
         COOLDOWN,
         TIMING,
-        BLOCKED
+        BLOCKED,
+        NO_POWER
     }
 
     /** The movement technique a dodge uses. */
@@ -135,6 +140,10 @@ public final class CombatDodgeService {
         Objects.requireNonNull(player, "player");
         Objects.requireNonNull(direction, "direction");
         long now = player.serverLevel().getGameTime();
+        boolean windStep = WindStepRuntime.enabled(player);
+        // The wind-step charge must not be bypassed by a forged onGround packet.
+        boolean grounded = windStep ? WindStepRuntime.grounded(player) : supported(player);
+        boolean airDodge = !grounded && windStep;
 
         // 1. Preconditions.
         Optional<Rejection> precondition = preconditionFailure(
@@ -142,7 +151,7 @@ public final class CombatDodgeService {
                 player.isSpectator() || player.isSleeping() || player.isUsingItem() || player.isPassenger()
                         || MeditationManager.status(player).state().active(),
                 CombatService.getMode(player) == CombatMode.CULTIVATION,
-                supported(player));
+                grounded || (airDodge && WindStepRuntime.airChargeAvailable(player)));
         if (precondition.isPresent()) {
             return reject(player, now, precondition.get());
         }
@@ -159,7 +168,7 @@ public final class CombatDodgeService {
 
         // 3. Cooldown.
         DodgeState previous = STATES.get(player.getUUID());
-        if (previous != null && !ready(now, previous.readyTick())) {
+        if ((previous != null && !ready(now, previous.readyTick())) || !WindStepRuntime.cooldownReady(player)) {
             return reject(player, now, Rejection.COOLDOWN);
         }
 
@@ -172,15 +181,27 @@ public final class CombatDodgeService {
         // 5. The impulse.
         float yaw = Mth.wrapDegrees(direction.worldYaw(player.getYRot()));
         Vec3 forward = forward(yaw);
-        double distance = CombatStepService.safeDistance(player, forward, movement.dashDistance(), SUPPORT_DEPTH);
+        double distance = airDodge
+                ? CombatStepService.safeAirDistance(player, forward, movement.dashDistance())
+                : CombatStepService.safeDistance(player, forward, movement.dashDistance(), SUPPORT_DEPTH);
         if (!(distance > 0.0)) {
             return reject(player, now, Rejection.BLOCKED);
         }
-        if (!CombatSessionManager.tryDodgeCancel(player)) {
-            return reject(player, now, Rejection.TIMING);
+        if (airDodge && !hasAirDodgePower(player, movement.qiCost()))
+            return reject(player, now, Rejection.NO_POWER);
+        if (airDodge) {
+            Vec3 destination = player.position().add(forward.scale(distance));
+            Optional<Rejection> failure = commitAirDodge(
+                    () -> CultivationService.spendSpiritualPower(player, movement.qiCost()),
+                    () -> CombatSessionManager.tryDodgeCancel(player),
+                    () -> CultivationService.recoverSpiritualPower(player, movement.qiCost()),
+                    () -> teleportAirborne(player, destination));
+            if (failure.isPresent()) return reject(player, now, failure.get());
+        } else {
+            if (!CombatSessionManager.tryDodgeCancel(player)) return reject(player, now, Rejection.TIMING);
+            double speed = CombatStepService.impulseForDistance(distance);
+            player.setDeltaMovement(forward.x * speed, GROUND_PRESS, forward.z * speed);
         }
-        double speed = CombatStepService.impulseForDistance(distance);
-        player.setDeltaMovement(forward.x * speed, GROUND_PRESS, forward.z * speed);
         player.hurtMarked = true;
         player.setSprinting(false);
 
@@ -188,6 +209,7 @@ public final class CombatDodgeService {
         int invulnerableTicks = movement.invulnerableTicks();
         int durationTicks = durationTicks(invulnerableTicks);
         int cooldownTicks = movement.cooldownTicks();
+        WindStepRuntime.onSuccessfulDodge(player, airDodge, cooldownTicks);
         ResourceLocation techniqueId = choice.get().id();
         STATES.put(player.getUUID(), new DodgeState(
                 now,
@@ -249,6 +271,8 @@ public final class CombatDodgeService {
             return;
         }
         event.setCanceled(true);
+        DodgeState state = STATES.get(player.getUUID());
+        SwordHeartRuntime.onDodgedAttack(player, source, event.getAmount(), state.startTick());
         LOGGER.info(cancelledLine(
                 player.getGameProfile().getName(),
                 player.serverLevel().getGameTime(),
@@ -281,7 +305,41 @@ public final class CombatDodgeService {
     /** For the status command: ticks until the next dodge is accepted (0 = ready). */
     public static long cooldownRemaining(ServerPlayer player) {
         DodgeState state = STATES.get(player.getUUID());
-        return state == null ? 0L : remaining(player.serverLevel().getGameTime(), state.readyTick());
+        long ordinary = state == null ? 0L : remaining(player.serverLevel().getGameTime(), state.readyTick());
+        return Math.max(ordinary, WindStepRuntime.cooldownRemaining(player));
+    }
+
+    private static boolean hasAirDodgePower(ServerPlayer player, int qiCost) {
+        return com.example.myvillage.cultivation.qi.SpiritualPower.spend(
+                CultivationService.getProfile(player).currentSpiritualPower(),
+                CultivationService.spiritualPowerCap(player), qiCost).isPresent();
+    }
+
+    /**
+     * All geometry/timing checks precede this commit. Payment failure leaves an attack running;
+     * an unexpected cancel refusal refunds payment and never submits a move or consumes a charge.
+     */
+    static Optional<Rejection> commitAirDodge(BooleanSupplier pay, BooleanSupplier cancel,
+            Runnable refund, Runnable move) {
+        if (!pay.getAsBoolean()) return Optional.of(Rejection.NO_POWER);
+        if (!cancel.getAsBoolean()) {
+            refund.run();
+            return Optional.of(Rejection.TIMING);
+        }
+        move.run();
+        return Optional.empty();
+    }
+
+    /** One already collision-checked air step; no lift or fall-distance reset. */
+    private static void teleportAirborne(ServerPlayer player, Vec3 destination) {
+        Vec3 velocity = player.getDeltaMovement();
+        float fallDistance = player.fallDistance;
+        // Vanilla's teleport acknowledgement prevents the next queued old position packet undoing
+        // the authoritative step. Unlike Entity.move, teleport/absMoveTo has no synchronous
+        // entityInside callbacks: fire/portal contact cannot interleave with payment and window setup.
+        player.connection.teleport(destination.x, destination.y, destination.z, player.getYRot(), player.getXRot());
+        player.setDeltaMovement(0, velocity.y, 0);
+        player.fallDistance = fallDistance;
     }
 
     /** For the status command: ticks of invulnerability left (0 = no window open). */

@@ -45,6 +45,21 @@ class FateValidatorTest(unittest.TestCase):
     def test_sword_stacks_are_bounded_integers(self):
         self.edit('sword_obsession',lambda d:d['effects'].update(sword_max_stacks=5.5))
         self.assertTrue(any('VALUE' in x for x in validate(self.root)))
+    def test_heart_requires_real_window(self):
+        self.edit('innate_sword_heart',lambda d:d['effects'].pop('heart_window_ticks'))
+        self.assertTrue(any('FATE_HEART' in x for x in validate(self.root)))
+    def test_heart_requires_registered_wave(self):
+        self.edit('innate_sword_heart',lambda d:d.update(derived_skill='myvillage:missing'))
+        self.assertTrue(any('FATE_DERIVED_SKILL' in x for x in validate(self.root)))
+    def test_wind_requires_speed_duration(self):
+        self.edit('wind_step',lambda d:d['effects'].pop('dodge_speed_ticks'))
+        self.assertTrue(any('FATE_WIND' in x for x in validate(self.root)))
+    def test_fire_requires_interval(self):
+        self.edit('fire_spirit_body',lambda d:d['effects'].pop('fire_burn_interval_ticks'))
+        self.assertTrue(any('FATE_FIRE' in x for x in validate(self.root)))
+    def test_fire_hits_are_bounded_integers(self):
+        self.edit('fire_spirit_body',lambda d:d['effects'].update(fire_burst_hits=3.5))
+        self.assertTrue(any('VALUE' in x for x in validate(self.root)))
     def test_tier_cost_match(self):
         self.edit('robust',lambda d:d.update(cost=6));self.assertTrue(any('COST' in x for x in validate(self.root)))
     def test_three_ordinary_groups(self):

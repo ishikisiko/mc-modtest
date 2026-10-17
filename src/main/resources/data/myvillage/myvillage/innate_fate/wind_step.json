@@ -1,0 +1,12 @@
+{
+  "translation_key": "fate.myvillage.wind_step",
+  "description_key": "fate.myvillage.wind_step.description",
+  "tier": 2,
+  "cost": 3,
+  "group": "movement",
+  "effects": {
+    "air_dodge": 1.0,
+    "dodge_speed_bonus": 0.25,
+    "dodge_speed_ticks": 40
+  }
+}

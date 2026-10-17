@@ -18,6 +18,9 @@ public record FateDefinition(String translationKey, String descriptionKey, int t
             "hunter_recovery", "hunter_cooldown", "low_threshold", "low_reduction", "low_knockback",
             "damage_bonus", "low_speed", "low_speed_threshold", "power_cap_bonus", "skill_refund_fraction",
             "pill_healing_bonus", "pill_shield_fraction", "pill_shield_ticks", "pill_shield_cooldown",
+            "air_dodge", "dodge_speed_bonus", "dodge_speed_ticks",
+            "heart_window_ticks", "heart_opening_ticks", "heart_cooldown", "heart_critical_bonus",
+            "fire_burn_fraction", "fire_burn_ticks", "fire_burn_interval_ticks", "fire_burst_hits", "fire_burst_multiplier", "fire_burst_cooldown_ticks",
             "sword_stack_bonus", "sword_max_stacks", "sword_timeout_ticks", "bones_threshold", "bones_damage_bonus", "bones_knockback_radius", "bones_knockback_strength");
     public static final Codec<FateDefinition> CODEC = RecordCodecBuilder.create(i -> i.group(
             Codec.STRING.fieldOf("translation_key").forGetter(FateDefinition::translationKey),
@@ -47,7 +50,7 @@ public record FateDefinition(String translationKey, String descriptionKey, int t
                 throw new IllegalArgumentException("Invalid fate effect " + k);
             if (k.endsWith("ticks") || k.endsWith("cooldown")) {
                 if (v < 1 || v != Math.rint(v)) throw new IllegalArgumentException("Invalid tick count " + k);
-            } else if (k.equals("sword_max_stacks")) {
+            } else if ((k.equals("sword_max_stacks") || k.equals("fire_burst_hits"))) {
                 if (v < 1 || v > 64 || v != Math.rint(v)) throw new IllegalArgumentException("Invalid stack cap");
             } else if (k.equals("bones_knockback_radius")) {
                 if (v <= 0 || v > 16) throw new IllegalArgumentException("Invalid bounded radius " + k);
@@ -55,6 +58,16 @@ public record FateDefinition(String translationKey, String descriptionKey, int t
                 throw new IllegalArgumentException("Invalid fraction " + k);
             }
         });
+        if (value(effects, "air_dodge") > 0 && (value(effects, "air_dodge") != 1
+                || value(effects, "dodge_speed_bonus") <= 0 || value(effects, "dodge_speed_ticks") <= 0))
+            throw new IllegalArgumentException("Incomplete air dodge effect");
+        if (value(effects, "heart_critical_bonus") > 0 && (value(effects, "heart_window_ticks") <= 0
+                || value(effects, "heart_opening_ticks") <= 0 || value(effects, "heart_cooldown") <= 0
+                || derivedSkill.isEmpty())) throw new IllegalArgumentException("Incomplete sword heart effect");
+        if (value(effects, "fire_burn_fraction") > 0 && (value(effects, "fire_burn_ticks") <= 0 || value(effects, "fire_burn_interval_ticks") <= 0
+                || value(effects, "fire_burst_hits") <= 0 || value(effects, "fire_burst_multiplier") <= 0
+                || value(effects, "fire_burst_cooldown_ticks") <= 0))
+            throw new IllegalArgumentException("Incomplete fire spirit effect");
         if (value(effects, "sword_stack_bonus") > 0 && (value(effects, "sword_max_stacks") <= 0
                 || value(effects, "sword_timeout_ticks") <= 0 || derivedSkill.isEmpty()))
             throw new IllegalArgumentException("Incomplete sword streak effect");

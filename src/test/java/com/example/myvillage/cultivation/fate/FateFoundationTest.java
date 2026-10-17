@@ -47,7 +47,7 @@ class FateFoundationTest {
     }
     @Test void highTierPlaceholdersDecodeSelectAndHaveNoEffects() throws Exception {
         Map<String, FateDefinition> pool = new TreeMap<>(defs);
-        for (String id : List.of("fire_spirit_body", "innate_sword_heart", "flawless_dao_heart")) {
+        for (String id : List.of("metal_spirit_body", "water_spirit_body", "flawless_dao_heart")) {
             try (var in = FateFoundationTest.class.getResourceAsStream("/data/myvillage/myvillage/innate_fate/" + id + ".json")) {
                 assertNotNull(in);
                 var definition = FateDefinition.CODEC.parse(JsonOps.INSTANCE,

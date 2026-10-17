@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.61.0
+
+- 实装先天剑心、踏风步和火灵之体：精闪后的暴击贯穿剑气、单次空中闪避与加速、带归属的真火灼烧和三击焰爆。
+- 新增持久天命冷却与空闪消耗状态，统一派生伤害防递归及主伤归属；协议更新为 31。
+- 地面闪避仍免费；踏风步空闪按已学身法配置支付灵力并共用冷却。
+
 ## 0.60.2
 
 - 实装剑痴：剑招命中叠加剑势，满层终段追加独立剑气，换武器或断连超时清空。
