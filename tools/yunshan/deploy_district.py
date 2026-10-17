@@ -261,15 +261,39 @@ def checked_command(bridge,command,record=None):
     other_nochange=('The specified properties already have these values','指定属性已经拥有这些值',
                     'No chunks were marked for force loading','No chunks were unmarked for force loading',
                     '没有区块被标记为强制加载','没有区块被取消标记为强制加载')
-    if record and 'state' in record and any(s in output for s in block_nochange):
+    guarded=re.match(r'^execute if score #delivery ysd1delivery matches (\d+) run ',command)
+
+    def verify_guard():
+        if guarded:
+            score=bridge.call('POST','/command',{'command':'scoreboard players get #delivery ysd1delivery'})
+            if not score.get('success') or score.get('result')!=int(guarded.group(1)):
+                raise RuntimeError('Deployment guard failed during independent no-change verification')
+
+    if record and 'state' in record and (any(s in output for s in block_nochange) or (guarded and not output)):
+        # execute can discard the underlying fill/setblock no-change text.
+        # Air already present in another save must NEVER establish guard success.
+        verify_guard()
         lo,hi=record['lo'],record['hi']
         area=bridge.call('GET','/world/area',dict(zip(('x1','y1','z1','x2','y2','z2'),lo+hi),includeAir='true'))
         counts=area.get('counts',{})
         if sum(counts.values())==math.prod(b-a+1 for a,b in zip(lo,hi)) and all(state_matches(s,record['state']) for s in counts):
+            verify_guard()
             return result
-    elif any(s in output for s in other_nochange):
+    elif record and 'sign' in record and guarded and (not output or any(s in output for s in other_nochange[:2])):
+        verify_guard()
+        # A guarded merge may also suppress its no-change text. Test precisely
+        # the supplied NBT, under the same guard, without another mutation.
+        payload=json.dumps(record['sign'],ensure_ascii=False,separators=(',',':'))
+        condition=command[:guarded.end()-4]+'if data block '+' '.join(map(str,record['pos']))+' '+payload+' run time query gametime'
+        verified=bridge.call('POST','/command',{'command':condition})
+        if verified.get('success'):
+            verify_guard()
+            return result
+    elif record is None and any(s in output for s in other_nochange):
+        verify_guard()
         return result
-    raise RuntimeError(f'Command failed: {command[:180]}: {output[:300]}')
+    public_command=re.sub(r'(matches )\d+',r'\1<redacted>',command)
+    raise RuntimeError(f'Command failed: {public_command[:180]}: {output[:300]}')
 
 
 def write_json(path,data):

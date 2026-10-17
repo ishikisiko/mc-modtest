@@ -32,14 +32,14 @@ class FakeBridge:
             return {'counts':self.area_counts}
         if path=='/command':
             command=params['command']
+            if command.startswith('scoreboard players get'):
+                return {'success':True,'result':self.token,'output':[]}
             if self.fail and self.fail in command:
                 return {'success':False,'output':['Permission denied']}
             if self.command_result is not None:
                 return self.command_result
             if command.startswith('scoreboard players set'):
                 self.token=int(command.split()[-1])
-            if command.startswith('scoreboard players get'):
-                return {'success':True,'result':self.token,'output':[]}
             return {'success':True,'result':1,'output':[]}
         raise AssertionError(path)
 
@@ -113,6 +113,64 @@ class DistrictDeploymentTest(unittest.TestCase):
         bridge.area_counts={'minecraft:dirt':1}
         with self.assertRaisesRegex(RuntimeError,'Command failed'):
             checked_command(bridge,record['command'],record)
+
+    def test_empty_guarded_air_nochange_requires_correct_guard_and_full_box(self):
+        bridge=FakeBridge()
+        bridge.token=123
+        bridge.command_result={'success':False,'result':0,'output':[]}
+        bridge.area_counts={'minecraft:air':4}
+        record=block_record((0,0,0),(1,0,1),'minecraft:air')
+        command='execute if score #delivery ysd1delivery matches 123 run '+record['command']
+        checked_command(bridge,command,record)
+        self.assertEqual(sum(path=='/world/area' for _,path,_ in bridge.calls),1)
+        self.assertEqual(sum(path=='/command' and p['command'].startswith('scoreboard players get')
+                             for _,path,p in bridge.calls),2)
+        bridge.token=456
+        bridge.calls=[]
+        with self.assertRaisesRegex(RuntimeError,'Deployment guard failed'):
+            checked_command(bridge,command,record)
+        self.assertFalse(any(path=='/world/area' for _,path,_ in bridge.calls))
+        bridge.token=123
+        for counts in ({'minecraft:stone':4},{'minecraft:air':3}):
+            with self.subTest(counts=counts):
+                bridge.area_counts=counts
+                with self.assertRaisesRegex(RuntimeError,'Command failed') as error:
+                    checked_command(bridge,command,record)
+                self.assertNotIn('matches 123',str(error.exception))
+
+    def test_guarded_real_error_is_not_accepted_even_if_box_already_matches(self):
+        bridge=FakeBridge()
+        bridge.token=123
+        bridge.area_counts={'minecraft:air':1}
+        bridge.command_result={'success':False,'output':['Permission denied']}
+        record=block_record((0,0,0),(0,0,0),'minecraft:air')
+        with self.assertRaisesRegex(RuntimeError,'Command failed'):
+            checked_command(bridge,'execute if score #delivery ysd1delivery matches 123 run '+record['command'],record)
+        self.assertFalse(any(path=='/world/area' for _,path,_ in bridge.calls))
+
+    def test_empty_guarded_sign_nochange_requires_exact_nbt_condition(self):
+        bridge=FakeBridge()
+        bridge.token=123
+        original=bridge.call
+        matching=True
+        def sign_query(method,path,params=None):
+            if path=='/command' and 'if data block' in params['command']:
+                bridge.calls.append((method,path,params))
+                return {'success':matching,'result':1 if matching else 0,'output':[]}
+            return original(method,path,params)
+        bridge.call=sign_query
+        bridge.command_result={'success':False,'result':0,'output':[]}
+        record={'pos':[1,2,3],'sign':{'is_waxed':False},'command':'data merge block 1 2 3 {"is_waxed":false}'}
+        command='execute if score #delivery ysd1delivery matches 123 run '+record['command']
+        checked_command(bridge,command,record)
+        query=next(params['command'] for _,path,params in bridge.calls if path=='/command' and 'if data block' in params['command'])
+        self.assertEqual(query,'execute if score #delivery ysd1delivery matches 123 if data block 1 2 3 {"is_waxed":false} run time query gametime')
+        matching=False
+        with self.assertRaisesRegex(RuntimeError,'Command failed'):
+            checked_command(bridge,command,record)
+        bridge.token=456
+        with self.assertRaisesRegex(RuntimeError,'Deployment guard failed'):
+            checked_command(bridge,command,record)
 
     def test_interrupted_resume_replays_nonclear_only_and_completed_is_protected(self):
         plan=export_plan(self.volume(),[])
