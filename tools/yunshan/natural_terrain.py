@@ -72,18 +72,30 @@ def read_region(path):
     raw=Path(path).read_bytes()
     if len(raw)<8192:
         raise ValueError(f'truncated Anvil header: {path}')
-    chunks={}
+    chunks={};occupied=set()
     for index in range(1024):
         location=int.from_bytes(raw[index*4:index*4+4],'big')
         offset,count=location>>8,location&255
         if not offset and not count:
             continue
         start=offset*4096
-        if offset<2 or not count or start+count*4096>len(raw):
+        if offset<2 or not count or start+5>len(raw):
             raise ValueError(f'invalid Anvil sector offset: {path}, chunk {index}')
+        allocated_end=start+count*4096
+        # Region snapshots may end immediately after the final valid payload,
+        # without zero-padding its last sector. Missing complete sectors or
+        # overlapping allocations are still invalid header offsets.
+        if allocated_end>len(raw) and allocated_end!=math.ceil(len(raw)/4096)*4096:
+            raise ValueError(f'invalid Anvil sector allocation: {path}, chunk {index}')
+        allocation=set(range(offset,offset+count))
+        if allocation&occupied:
+            raise ValueError(f'overlapping Anvil sector allocation: {path}, chunk {index}')
+        occupied.update(allocation)
         length=struct.unpack('>I',raw[start:start+4])[0]
         if length<1 or length+4>count*4096:
             raise ValueError(f'invalid Anvil chunk length: {path}, chunk {index}')
+        if start+4+length>len(raw):
+            raise ValueError(f'truncated Anvil chunk payload: {path}, chunk {index}')
         scheme=raw[start+4]
         if scheme&128:
             raise ValueError('external .mcc chunks are unsupported; explicit snapshot required')

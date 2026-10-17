@@ -1,5 +1,6 @@
 """Small genuine Anvil/NBT fixtures exercise terrain sampling, never a game."""
 import copy
+import base64
 import gzip
 import math
 from pathlib import Path
@@ -9,7 +10,7 @@ import unittest
 import zlib
 
 from tools.yunshan.natural_terrain import (decode_section,expanded_window,rank_sites,
-    read_settings,rotate_column,sample_chunk,sample_window,section_state,unpack_padded)
+    read_region,read_settings,rotate_column,sample_chunk,sample_window,section_state,unpack_padded)
 
 
 def packed(values,bits):
@@ -63,6 +64,29 @@ def saved_chunk(chunk):
 
 
 class NaturalTerrainTest(unittest.TestCase):
+    def test_actual_snapshot_terminal_chunk_needs_payload_not_sector_padding(self):
+        # Unchanged zlib payload from retained Modal snapshot coarse-west,
+        # r.-2.-1.mca index927: its 354-byte chunk length ends exactly at EOF.
+        encoded='eJzF1ktOwzAQBuC/NLR59AVsEEdhCwuQACFeEqvKTaet1bxkTxBwL87DRQrBIYWWCwze2R7PN979IeCjc8uKS4ujVGcUGzXjY8umjLk0NLasDNs2vNfr3FZVtQowmCR5vBxTxpo1WdTLFbysCzyEF8ryfTFVTGhu30KEvz2t29zQjAxlsXseotMggIf+ebZQE800vdPp+vV39+em+7t7e0Z6vuBUFRYBfEsx6zxzTYHDEL1mONeRyQboFiohZqpvWz68K+W69jcfVdqgnmCi83S73q/rMdoUFonSmXVnrccVRJgPGeZThqlkGMgwLRlmR4ZpyzCeDLMrw3RkmK4M48swgQwTyjCRDNOTYfoyzECGGcowIxlmT4bZl2EO6tz2Jz4GiBqWdbz8ORq4yMfXJnch0epsHtQBD/+02ohOFasHMtaFTWDo8mbvRJknN9ilsss6ikazpNTTrS/gC+bo890='
+        compressed=base64.b64decode(encoded)
+        body=struct.pack('>I',len(compressed)+1)+bytes([2])+compressed
+        self.assertEqual(len(body),358)
+        header=bytearray(8192);header[927*4:927*4+4]=((2<<8)|1).to_bytes(4,'big')
+        with tempfile.TemporaryDirectory() as temporary:
+            path=Path(temporary)/'r.-2.-1.mca'
+            path.write_bytes(header+body)
+            chunks,_=read_region(path)
+            self.assertEqual((chunks[31,28]['xPos'],chunks[31,28]['zPos']),(-33,-4))
+            self.assertEqual(chunks[31,28]['DataVersion'],3955)
+            path.write_bytes(header+body[:-1])
+            with self.assertRaisesRegex(ValueError,'truncated Anvil chunk payload'):read_region(path)
+            oversized=bytearray(header);oversized[927*4:927*4+4]=((2<<8)|2).to_bytes(4,'big')
+            path.write_bytes(oversized+body)
+            with self.assertRaisesRegex(ValueError,'invalid Anvil sector allocation'):read_region(path)
+            overlapping=bytearray(header);overlapping[0:4]=((2<<8)|1).to_bytes(4,'big')
+            path.write_bytes(overlapping+body)
+            with self.assertRaisesRegex(ValueError,'overlapping Anvil sector allocation'):read_region(path)
+
     def test_padding_signed_longs_and_palette_boundaries(self):
         values=[i%17 for i in range(4096)]
         data=packed(values,5)
