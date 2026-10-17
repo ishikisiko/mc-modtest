@@ -15,7 +15,7 @@ import tarfile
 import time
 import uuid
 
-from .remote import PAL, CATALOG, DEPENDENCIES, PRESETS, commands_for, select_cases, select_npc_life_cases, select_fate_purple_cases, safe_extract, sha256
+from .remote import PAL, CATALOG, DEPENDENCIES, PRESETS, commands_for, select_cases, select_npc_life_cases, select_fate_purple_cases, select_advanced_fate_cases, safe_extract, sha256
 
 REPO = Path(__file__).resolve().parents[2]
 APP = "myvillage-tests"
@@ -83,7 +83,8 @@ def prepare(repo: Path, ref: str, preset: str, timeout: int, out: Path, cases=No
                "commands": commands,
                "cases": (select_cases(cases) if preset == "alchemy-quality" else
                          select_npc_life_cases(cases) if preset == "npc-life-runtime" else
-                         select_fate_purple_cases(cases) if preset == "fates-purple-runtime" else None)}
+                         select_fate_purple_cases(cases) if preset == "fates-purple-runtime" else
+                         select_advanced_fate_cases(cases) if preset == "advanced-fates-runtime" else None)}
     request["archive_seconds"] = round(time.monotonic() - started, 3)
     write_json(out / "request.json", request)
     return request
@@ -206,7 +207,7 @@ def main(argv=None) -> int:
     parser.add_argument("--ref", default="HEAD")
     parser.add_argument("--preset", choices=PRESETS, default="smoke")
     parser.add_argument("--timeout", type=int, default=1800)
-    parser.add_argument("--cases", help="alchemy-quality, npc-life-runtime or fates-purple-runtime: all or comma-separated scenario names")
+    parser.add_argument("--cases", help="alchemy-quality, npc-life-runtime, fates-purple-runtime or advanced-fates-runtime: all or comma-separated scenario names")
     parser.add_argument("--run", type=Path, help="Existing local run directory for status/terminate")
     args = parser.parse_args(argv)
     try:

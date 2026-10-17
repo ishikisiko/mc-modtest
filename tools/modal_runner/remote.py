@@ -162,6 +162,7 @@ PRESETS["advanced-fates-runtime"] = [
     ["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
     ["python3", "tools/advanced_fates_evidence.py"],
 ]
+ADVANCED_FATE_CASES = ("sword_heart", "wind_step", "fire_spirit")
 FATE_PURPLE_CASES = ("meridians", "pill_aegis", "tempered_bones", "lifecycle")
 ALCHEMY_CASES = ("brewing", "multiplayer", "medicine", "persistence", "ui")
 NPC_LIFE_CASES = ("bind_idempotence", "demo_identity", "day_loop", "conversation",
@@ -191,8 +192,8 @@ def select_cases(value=None):
 
 
 def commands_for(preset, cases=None):
-    if cases is not None and preset not in ("alchemy-quality", "npc-life-runtime", "fates-purple-runtime"):
-        raise ValueError("--cases is only supported by alchemy-quality, npc-life-runtime and fates-purple-runtime")
+    if cases is not None and preset not in ("alchemy-quality", "npc-life-runtime", "fates-purple-runtime", "advanced-fates-runtime"):
+        raise ValueError("--cases is only supported by alchemy-quality, npc-life-runtime, fates-purple-runtime and advanced-fates-runtime")
     commands = [list(command) for command in PRESETS[preset]]
     if preset == "alchemy-quality":
         commands[-1] += ["--cases", ",".join(select_cases(cases))]
@@ -200,6 +201,8 @@ def commands_for(preset, cases=None):
         commands[-1] += ["--cases", ",".join(select_npc_life_cases(cases))]
     if preset == "fates-purple-runtime":
         commands[-1] += ["--cases", ",".join(select_fate_purple_cases(cases))]
+    if preset == "advanced-fates-runtime":
+        commands[-1] += ["--cases", ",".join(select_advanced_fate_cases(cases))]
     return commands
 
 
@@ -210,6 +213,15 @@ def select_fate_purple_cases(value=None):
     if len(names) != len(set(names)) or any(name not in FATE_PURPLE_CASES for name in names):
         raise ValueError("Fate cases must be all or unique names from: " + ",".join(FATE_PURPLE_CASES))
     return [name for name in FATE_PURPLE_CASES if name in names]
+
+
+def select_advanced_fate_cases(value=None):
+    if value is None or value == "all":
+        return list(ADVANCED_FATE_CASES)
+    names = [name.strip() for name in value.split(",")]
+    if len(names) != len(set(names)) or any(name not in ADVANCED_FATE_CASES for name in names):
+        raise ValueError("Advanced fate cases must be all or unique names from: " + ",".join(ADVANCED_FATE_CASES))
+    return [name for name in ADVANCED_FATE_CASES if name in names]
 
 
 ARTIFACT_ROOTS = ("build/libs", "build/test-results", "build/reports", "reports",

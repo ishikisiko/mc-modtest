@@ -14,6 +14,13 @@ from tools.modal_runner import remote, runner
 
 
 class ArchiveTests(unittest.TestCase):
+    def test_advanced_fate_case_selection_is_bounded_and_independent(self):
+        self.assertEqual(remote.select_advanced_fate_cases('fire_spirit,wind_step'), ['wind_step','fire_spirit'])
+        self.assertEqual(remote.commands_for('advanced-fates-runtime','sword_heart')[-1][-2:],['--cases','sword_heart'])
+        self.assertNotIn('--cases',remote.PRESETS['advanced-fates-runtime'][-1])
+        for value in ('', 'missing', 'wind_step,wind_step'):
+            with self.assertRaises(ValueError):remote.select_advanced_fate_cases(value)
+
     def test_release_archive_baseline_detects_generated_drift(self):
         with tempfile.TemporaryDirectory() as directory:
             repo = Path(directory)

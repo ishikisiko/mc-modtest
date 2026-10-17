@@ -111,6 +111,8 @@ public final class FireSpiritRuntime {
             TARGETS.put(key, tracked);
         }
         long now = clock(attacker.getServer());
+        LOGGER.info("FIRE_SPIRIT_HIT owner={} target={} tick={} primary={} weapon_damage={}",
+                attacker.getUUID(), target.getUUID(), now, actualPrimaryHealthLoss, weaponAttackAttribute);
         tracked.state().burn(now, actualPrimaryHealthLoss, fraction, duration, interval);
         FateState latest = FateService.state(attacker);
         FireSpiritCooldownState saved = latest.fireSpirit();
