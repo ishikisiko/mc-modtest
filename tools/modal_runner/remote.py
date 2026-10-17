@@ -93,6 +93,18 @@ PRESETS = {
     "alchemy-quality": [["python3", "tools/run_chunky_acceptance.py", "--stage", "1"],
                         ["python3", "tools/alchemy_quality_evidence.py"]],
 }
+PRESETS["advanced-arts-build"] = [
+    ["python3", "tools/gen_advanced_arts.py", "--check"],
+    ["python3", "tools/gen_technique_catalogue.py", "--check"],
+    ["python3", "-m", "unittest", "tools.tests.test_advanced_arts", "tools.tests.test_combat_data"],
+    ["./gradlew", "test", "--tests", "com.example.myvillage.combat.art.*",
+     "--tests", "com.example.myvillage.combat.session.*", "--tests", "com.example.myvillage.combat.network.*",
+     "--tests", "com.example.myvillage.combat.runtime.*",
+    "--tests", "com.example.myvillage.cultivation.fate.*",
+    "--tests", "com.example.myvillage.client.combat.AdvancedArtClientStateTest",
+     "--tests", "com.example.myvillage.client.combat.ClientCombatStateTest",
+     "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
+]
 PRESETS["forging-ding"] = [["python3", "tools/gen_forging_assets.py", "--check"],
     ["./gradlew", "test", "--tests", "com.example.myvillage.block.ForgingDingTest", "--tests", "com.example.myvillage.forging.*", "--tests", "com.example.myvillage.combat.network.CombatPayloadTest", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
     ["python3", "tools/forging_ding_evidence.py"]]

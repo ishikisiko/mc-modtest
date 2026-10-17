@@ -1,0 +1,23 @@
+{
+  "translation_key": "cultivation.technique.myvillage.hengsao_qianjun",
+  "category": "active",
+  "grade": 2,
+  "elements": [],
+  "school": "myvillage:spear",
+  "requirements": {
+    "minimum_realm": "myvillage:qi_refining",
+    "minimum_stage": "myvillage:qi_refining_4"
+  },
+  "effects": {
+    "active": {
+      "skill": "myvillage:hengsao_qianjun",
+      "qi_cost": 18,
+      "slots": 1
+    }
+  },
+  "study": {
+    "points": 600,
+    "gates": 0,
+    "gate_stability_cost": 0
+  }
+}

@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.62.0
+
+- 加入剑、枪、拳各两招书本学习的进阶武技，Z/C 施放，服务器统一负责分段、成本、冷却和命中。
+- 合并近期天命伤害归因与武技环形击退，保留派生伤害隔离及原有普通连招。
+
 ## 0.61.0
 
 - 实装先天剑心、踏风步和火灵之体：精闪后的暴击贯穿剑气、单次空中闪避与加速、带归属的真火灼烧和三击焰爆。

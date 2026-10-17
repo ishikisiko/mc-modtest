@@ -77,3 +77,5 @@ See [contracts/README.md](../contracts/README.md) for the eight topic documents
 and retained capability anchors. [OpenSpec cleanup](../maintenance/openspec-cleanup.md)
 records the consolidation and historical source. New KB notes belong in the table
 above and link the relevant contract. Update only affected documentation.
+
+高级武技开发分支：[六招实现、技能书入口与验证范围](../features/advanced-weapon-arts.md)。

@@ -23,12 +23,20 @@ public final class ClientCombatKeyMappings {
             GLFW.GLFW_KEY_LEFT_ALT,
             "key.categories.myvillage");
 
+    public static final KeyMapping ART_PRIMARY = new KeyMapping(
+            "key.myvillage.art_primary", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_Z, "key.categories.myvillage");
+    public static final KeyMapping ART_SECONDARY = new KeyMapping(
+            "key.myvillage.art_secondary", InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_C, "key.categories.myvillage");
+
     public ClientCombatKeyMappings(IEventBus modEventBus) {
+        ClientAdvancedArts.install(modEventBus);
         modEventBus.addListener(ClientCombatKeyMappings::registerKeyMappings);
     }
 
     private static void registerKeyMappings(RegisterKeyMappingsEvent event) {
         event.register(TOGGLE_COMBAT_MODE);
         event.register(DODGE);
+        event.register(ART_PRIMARY);
+        event.register(ART_SECONDARY);
     }
 }

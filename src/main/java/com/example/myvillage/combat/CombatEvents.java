@@ -108,7 +108,7 @@ public final class CombatEvents {
 
     private static void onLivingDamage(LivingDamageEvent.Post event) {
         if (event.getNewDamage() > 0 && event.getEntity() instanceof ServerPlayer player) {
-            CombatSessionManager.onSkillDamage(player);
+            CombatSessionManager.onSkillDamage(player, event.getSource());
         }
     }
 

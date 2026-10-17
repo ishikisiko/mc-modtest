@@ -2,7 +2,7 @@
   "schema": 1,
   "namespace": "myvillage",
   "grades": {"huang": 1, "xuan": 2, "di": 3, "tian": 4},
-  "hand_written_techniques": ["basic_breathing"],
+  "hand_written_techniques": ["basic_breathing", "qinglian_jiange", "huifeng_jianzhen", "canglong_chushui", "hengsao_qianjun", "bengshan_jin", "jingang_zhen"],
   "requirements": {
     "by_grade": {
       "1": {"realm": "qi_refining", "stage_number": 1},

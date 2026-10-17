@@ -38,16 +38,23 @@ public final class CombatDamageService {
             Entity target,
             AttackMoveDefinition move,
             CombatSession session) {
-        return apply(attacker, target, move, session, false);
+        return apply(attacker, target, move, session, session.facingYaw(), false);
     }
 
     public static DamageResult applyDerived(ServerPlayer attacker, Entity target,
             AttackMoveDefinition move, CombatSession session) {
-        return apply(attacker, target, move, session, true);
+        return apply(attacker, target, move, session, session.facingYaw(), true);
+    }
+
+    /** Area arts radiate reactions while retaining the single authoritative damage pipeline. */
+    public static DamageResult apply(ServerPlayer attacker, Entity target, AttackMoveDefinition move,
+            CombatSession session, float reactionYaw) {
+        return apply(attacker, target, move, session, reactionYaw, false);
     }
 
     private static DamageResult apply(ServerPlayer attacker, Entity target,
-            AttackMoveDefinition move, CombatSession session, boolean derived) {
+            AttackMoveDefinition move, CombatSession session, float reactionYaw, boolean derived) {
+        if (!Float.isFinite(reactionYaw)) throw new IllegalArgumentException("Non-finite reaction yaw");
         if ((!derived && !CommonHooks.onPlayerAttackTarget(attacker, target))
                 || !target.isAttackable()
                 || target.skipAttackInteraction(attacker)) {
@@ -115,7 +122,7 @@ public final class CombatDamageService {
                 ? living.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE)
                 : 0.0;
         Vec3 impulse = CombatReactionMath.impulse(
-                move.reaction(), session.facingYaw(), Math.max(0.0F, knockback) * 0.5, resistance);
+                move.reaction(), reactionYaw, Math.max(0.0F, knockback) * 0.5, resistance);
         if (target instanceof LivingEntity living) {
             CombatReactionService.onHit(living, move, feedbackFreezeTicks(move), impulse);
         } else if (target.isPushable() && impulse.horizontalDistanceSqr() > 0.0) {

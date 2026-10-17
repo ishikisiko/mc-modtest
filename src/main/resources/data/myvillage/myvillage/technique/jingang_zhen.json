@@ -1,0 +1,23 @@
+{
+  "translation_key": "cultivation.technique.myvillage.jingang_zhen",
+  "category": "active",
+  "grade": 2,
+  "elements": [],
+  "school": "myvillage:fist",
+  "requirements": {
+    "minimum_realm": "myvillage:qi_refining",
+    "minimum_stage": "myvillage:qi_refining_4"
+  },
+  "effects": {
+    "active": {
+      "skill": "myvillage:jingang_zhen",
+      "qi_cost": 14,
+      "slots": 1
+    }
+  },
+  "study": {
+    "points": 600,
+    "gates": 0,
+    "gate_stability_cost": 0
+  }
+}

@@ -334,7 +334,8 @@ public final class ClientCombatEvents {
                 player.setSprinting(false);
             }
             ClientCombatState.trackLocalAction(style, moveIndex, ClientCombatClock.localTickAgo(elapsed), payload.revision());
-            var skillMove = ClientSwordQi.releasedMove(player.getId(), payload.revision());
+            var skillMove = ClientSwordQi.releasedMove(player.getId(), payload.revision())
+                    .or(() -> ClientAdvancedArts.startedMove(player.getId(), payload.revision()));
             skillMove.ifPresent(ClientCombatState::externalMove);
             ClientCombatState.confirmPrediction(skillMove.isPresent() ? 0 : (moveIndex + 1) % style.moves().size());
         }
