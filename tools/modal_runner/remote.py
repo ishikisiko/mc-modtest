@@ -118,6 +118,20 @@ PRESETS["npc-life-runtime"] = [
     ["python3", "tools/npc_life_evidence.py"],
 ]
 ALCHEMY_CASES = ("brewing", "multiplayer", "medicine", "persistence", "ui")
+NPC_LIFE_CASES = ("bind_idempotence", "demo_identity", "day_loop", "conversation",
+                  "blocked_route", "removed_facility", "unload_return", "restart_mid_activity",
+                  "two_players", "avatar_cap", "occupied_spawn", "sect_regression")
+
+
+def select_npc_life_cases(value=None):
+    if value is None or value == "all":
+        return list(NPC_LIFE_CASES)
+    names = [name.strip() for name in value.split(",")]
+    if len(names) != len(set(names)) or any(name not in NPC_LIFE_CASES for name in names):
+        raise ValueError("NPC cases must be all or unique names from: " + ",".join(NPC_LIFE_CASES))
+    # Every fresh isolated world needs actual registration and existing identities.
+    required = {"bind_idempotence", "demo_identity", *names}
+    return [name for name in NPC_LIFE_CASES if name in required]
 
 
 def select_cases(value=None):
@@ -131,11 +145,13 @@ def select_cases(value=None):
 
 
 def commands_for(preset, cases=None):
-    if cases is not None and preset != "alchemy-quality":
+    if cases is not None and preset not in ("alchemy-quality", "npc-life-runtime"):
         raise ValueError("--cases is only supported by alchemy-quality; release-alchemy always runs all cases")
     commands = [list(command) for command in PRESETS[preset]]
     if preset == "alchemy-quality":
         commands[-1] += ["--cases", ",".join(select_cases(cases))]
+    if preset == "npc-life-runtime":
+        commands[-1] += ["--cases", ",".join(select_npc_life_cases(cases))]
     return commands
 
 

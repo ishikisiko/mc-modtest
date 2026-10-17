@@ -23,10 +23,9 @@ from tools.alchemy_quality_evidence import SecondClient, read_data
 from tools.combat_capture import session as cs
 from tools.yunshan.game_evidence import aim, teleport_command
 from tools.yunshan.game_export import read_typed
+from tools.modal_runner.remote import NPC_LIFE_CASES, select_npc_life_cases
 
-CASES = ('bind_idempotence', 'demo_identity', 'day_loop', 'conversation',
-         'blocked_route', 'removed_facility', 'unload_return',
-         'restart_mid_activity', 'two_players', 'avatar_cap', 'occupied_spawn')
+CASES = NPC_LIFE_CASES
 FAILURES = {'stuck', 'path_unavailable', 'path_timeout', 'target_blocked', 'facility_missing'}
 
 
@@ -52,9 +51,9 @@ def assets(state):
 
 
 class NpcLifeEvidence(Evidence):
-    def __init__(self, out):
+    def __init__(self, out, cases=None):
         super().__init__(out)
-        self.report.update(kind='npc_life_runtime', selected=list(CASES), completed=[], cases={},
+        self.report.update(kind='npc_life_runtime', selected=select_npc_life_cases(cases), completed=[], cases={},
             unrun=list(CASES), sect_regression='not_verified', owner_sound='not_verified',
             owner_fps='not_verified', owner_appearance='not_verified', natural_worldgen='not_verified',
             method='actual NPC Goal; mapped right mouse; RCON fixture/readback; read-only saved ledger',
@@ -85,6 +84,12 @@ class NpcLifeEvidence(Evidence):
     def start(self, reuse=False):
         if ROOT != Path('/workspace/repo'):
             raise RuntimeError('NPC game evidence requires the disposable Modal checkout')
+        if not reuse:
+            # A standard supported population tier, fixed before genesis. The small
+            # seed-20261002 fixture was retained separately as a demo shortage.
+            config = cs.SERVER_DIR/'config/myvillage-world_sim-server.toml'
+            config.parent.mkdir(parents=True, exist_ok=True)
+            config.write_text('[world_sim]\ntier = "large"\n')
         cs.merge_options(cs.CLIENT_DIR/'options.txt', {'key_key.use': 'key.mouse.right'})
         super().start(reuse)
         request = json.loads(Path('/workspace/request.json').read_text())
@@ -134,6 +139,7 @@ class NpcLifeEvidence(Evidence):
             self.rc(command)
         origin = self.one('myvillage wilderness info 0 -60 0', 'WILDERNESS_INFO')
         candidates = self.ledger('candidate-selection')
+        self.report['population_tier'] = candidates['tier']
         by_region = {}
         for person in candidates['persons']:
             if person['sect'] < 0 and person['rank'] == 'rogue' and person['status'] not in ('travelling', 'secluded'):
@@ -381,7 +387,9 @@ class NpcLifeEvidence(Evidence):
         self.rc('myvillage world pause')
         self.stop()
         config = cs.SERVER_DIR/cs.LEVEL_NAME/'serverconfig/myvillage-world_sim-server.toml'
-        original = config.read_text()
+        config_existed = config.exists()
+        original = (config if config_existed else cs.SERVER_DIR/'config/myvillage-world_sim-server.toml').read_text()
+        config.parent.mkdir(parents=True, exist_ok=True)
         changed, n = re.subn(r'(?m)^(\s*max_avatars\s*=\s*)\d+', r'\g<1>1', original)
         self.check('avatar_cap_config_found', n == 1, {'path': str(config)})
         config.write_text(changed)
@@ -399,7 +407,10 @@ class NpcLifeEvidence(Evidence):
             if self.s:
                 self.rc('myvillage world pause')
                 self.stop()
-            config.write_text(original)
+            if config_existed:
+                config.write_text(original)
+            else:
+                config.unlink()
             self.start(reuse=True)
             self.center()
             self.rc('myvillage world resume')
@@ -428,10 +439,120 @@ class NpcLifeEvidence(Evidence):
             self.rc(f'setblock {pos} minecraft:air')
         self.poll(lambda: self.status(pid), lambda r: r['embodied'], 30, 'unobstructed spawn')
 
+    def sect_dialogue(self, person, label):
+        body = self.body(person)
+        x, y, z = body['Pos']
+        position = None
+        for dx, dz in ((0, 2), (0, -2), (2, 0), (-2, 0)):
+            bx, by, bz = math.floor(x+dx), math.floor(y), math.floor(z+dz)
+            reply = self.rc(f'execute if block {bx} {by} {bz} minecraft:air if block {bx} {by+1} {bz} minecraft:air unless block {bx} {by-1} {bz} minecraft:air')
+            if 'passed' in reply:
+                position = [bx+.5, by, bz+.5]
+                break
+        self.check(label+'_standing_space', position is not None, position)
+        yaw, pitch = aim(position, [x, y+1.2, z])
+        self.rc(teleport_command(self.s.username, position, yaw, pitch))
+        self.rc(f'clear {self.s.username}')
+        self.s.game.require_ingame('mapped sect dialogue')
+        log = cs.CLIENT_DIR/'logs/latest.log'
+        offset = log.stat().st_size
+        time.sleep(.6)
+        self.s.game.xdo('click', '3')
+        self.poll(self.s.game.pointer_grabbed, lambda v: not v, 10, label+' opens')
+        time.sleep(.5)
+        text = log.read_bytes()[offset:].decode(errors='replace')
+        options = {}
+        for m in re.finditer(r'SECT_DIALOGUE option=(\w+) x=(\d+) y=(\d+) w=(\d+) h=(\d+)', text):
+            key, x, y, w, h = m.groups()
+            options[key] = [int(x)+int(w)//2, int(y)+int(h)//2]
+        self.check(label+'_dialogue_options', bool(options), options)
+        raw, _ = self.s.game.stable_grab(max_wait=3)
+        self.s.game.save_png(raw, self.out/(label+'.png'))
+        return options
+
+    def close_screen(self):
+        if not self.s.game.pointer_grabbed():
+            self.s.game.xdo('key', 'Escape')
+            self.poll(self.s.game.pointer_grabbed, bool, 8, 'dialogue closed')
+
+    def choose_option(self, options, option):
+        self.check('sect_option_'+option, option in options, options)
+        x, y = options[option]
+        self.s.game.xdo('mousemove', str(x), str(y))
+        self.s.game.xdo('click', '1')
+        time.sleep(.6)
+        self.close_screen()
+
+    def sect_regression(self):
+        from tools.combat_capture.rcon import connect
+        from tools.world_sim_entry_evidence import panel_tab_center
+        self.rc('myvillage world pause')
+        initial = self.ledger('sect-before')
+        members = lambda sect: [p for p in initial['persons'] if p['sect'] == sect['id'] and p['status'] == 'at_sect']
+        sects = [s for s in initial['sects'] if s['state'] == 'active' and len(members(s)) >= 2]
+        self.check('existing_sect_fixture', bool(sects), {'count': len(sects)})
+        sect = max(sects, key=lambda s: len(members(s)))
+        sid, u = sect['id'], self.s.username
+        x, z = sect['gate_x'], sect['gate_z']
+        self.rc(teleport_command(u, [x+.5, -60, z-20.5]))
+        command = f'myvillage world sect {sid} build'
+        with connect(self.s.state['rcon_port'], self.s.state['rcon_password'], retries=1, timeout=180) as r:
+            reply = r.cmd(command)
+        self.report['commands'].append({'command': command, 'reply': reply, 'purpose': 'admin gate fixture; no natural-realization claim'})
+        self.save()
+        self.rc(teleport_command(u, [x+.5, -59, z+5.5]))
+        def avatars():
+            found = {}
+            for p in members(sect):
+                reply = self.rc(f'data get entity {self.entity(p["id"])}')
+                if 'data: ' in reply:
+                    found[p['id']] = read_data(reply)
+            return found
+        bodies = self.poll(avatars, lambda rows: any('avatar.steward' in b.get('CustomName', '') for b in rows.values()), 60, 'actual sect steward')
+        steward = next(pid for pid, b in bodies.items() if 'avatar.steward' in b.get('CustomName', ''))
+        self.check('town_residents_excluded_from_gate_avatars', not set(bodies).intersection(self.ids.values()), {'steward': steward, 'gate_people': list(bodies)})
+        self.rc(f'myvillage cultivation setroot {u} 4000 1500 1500 1500 1500')
+        self.rc(f'myvillage cultivation setrealm {u} myvillage:mortal myvillage:mortal_qi_sensed')
+        options = self.sect_dialogue(steward, 'sect-join')
+        self.choose_option(options, 'JOIN')
+        joined = self.ledger('sect-joined')
+        member = next((p for p in joined['player_members'] if p['name'] == u), None)
+        self.check('mapped_sect_join', member is not None and member['sect'] == sid, member)
+        options = self.sect_dialogue(steward, 'sect-task')
+        self.choose_option(options, 'TASK_ACCEPT')
+        tasked = self.ledger('sect-task-accepted')
+        member = next(p for p in tasked['player_members'] if p['name'] == u)
+        self.check('mapped_task_acceptance', bool(member['task']), member)
+        self.rc(f'myvillage world sect {sid} rank {u} inner')
+        elders = [p for p in members(sect) if p['rank'] in ('elder', 'master') and p['id'] in bodies and p['id'] != steward]
+        self.check('existing_elder_available', bool(elders), [p['id'] for p in elders])
+        options = self.sect_dialogue(elders[0]['id'], 'sect-elder')
+        self.check('elder_interaction_available', 'APPRENTICE' in options or 'FAREWELL' in options, options)
+        self.close_screen()
+        self.s.game.xdo('key', 'h')
+        self.poll(self.s.game.pointer_grabbed, lambda p: not p, 8, 'H panel opens')
+        px, py = panel_tab_center('world')
+        self.s.game.xdo('mousemove', str(px), str(py))
+        self.s.game.xdo('click', '1')
+        time.sleep(1)
+        raw, _ = self.s.game.stable_grab(max_wait=3)
+        self.s.game.save_png(raw, self.out/'sect-world-panel.png')
+        self.close_screen()
+        options = self.sect_dialogue(steward, 'sect-leave')
+        self.choose_option(options, 'LEAVE')
+        left = self.ledger('sect-left')
+        member = next(p for p in left['player_members'] if p['name'] == u)
+        self.check('mapped_sect_leave', member['sect'] == -1, member)
+        self.center()
+        after = self.ledger('sect-return')
+        self.check('town_identity_and_work_preserved_during_sect_visit', assets(initial) == assets(after), {'before': assets(initial), 'after': assets(after)})
+        self.rc('myvillage world resume')
+        self.report['sect_regression'] = 'mapped_join_task_accept_elder_dialogue_leave_and_panel_capture; task_completion_not_verified'
+
     def run(self):
         self.start()
         self.setup()
-        for name in CASES:
+        for name in self.report['selected']:
             started = time.monotonic()
             self.report['unrun'].remove(name)
             try:
@@ -463,8 +584,9 @@ class NpcLifeEvidence(Evidence):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--out', type=Path, default=ROOT/'out/preview/npc-life')
+    parser.add_argument('--cases')
     args = parser.parse_args()
-    evidence = NpcLifeEvidence(args.out)
+    evidence = NpcLifeEvidence(args.out, args.cases)
     try:
         evidence.run()
     except Exception as error:

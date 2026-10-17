@@ -15,7 +15,7 @@ import tarfile
 import time
 import uuid
 
-from .remote import PAL, CATALOG, DEPENDENCIES, PRESETS, commands_for, select_cases, safe_extract, sha256
+from .remote import PAL, CATALOG, DEPENDENCIES, PRESETS, commands_for, select_cases, select_npc_life_cases, safe_extract, sha256
 
 REPO = Path(__file__).resolve().parents[2]
 APP = "myvillage-tests"
@@ -81,7 +81,8 @@ def prepare(repo: Path, ref: str, preset: str, timeout: int, out: Path, cases=No
                "inputs": {"source.tar": sha256(archive), **{name: sha256(out / name) for name in DEPENDENCIES},
                           "remote.py": sha256(out / "remote.py")},
                "commands": commands,
-               "cases": select_cases(cases) if preset == "alchemy-quality" else None}
+               "cases": (select_cases(cases) if preset == "alchemy-quality" else
+                         select_npc_life_cases(cases) if preset == "npc-life-runtime" else None)}
     request["archive_seconds"] = round(time.monotonic() - started, 3)
     write_json(out / "request.json", request)
     return request
@@ -204,7 +205,7 @@ def main(argv=None) -> int:
     parser.add_argument("--ref", default="HEAD")
     parser.add_argument("--preset", choices=PRESETS, default="smoke")
     parser.add_argument("--timeout", type=int, default=1800)
-    parser.add_argument("--cases", help="alchemy-quality only: all or comma-separated scenario names")
+    parser.add_argument("--cases", help="alchemy-quality or npc-life-runtime: all or comma-separated scenario names")
     parser.add_argument("--run", type=Path, help="Existing local run directory for status/terminate")
     args = parser.parse_args(argv)
     try:

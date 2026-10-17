@@ -4,7 +4,7 @@ from pathlib import Path
 import tempfile
 import unittest
 from tools.npc_life_evidence import resident_rows, read_ledger, assets
-from tools.modal_runner.remote import commands_for
+from tools.modal_runner.remote import commands_for, select_npc_life_cases
 from tools.yunshan.game_export import nbt, write_typed
 
 
@@ -34,9 +34,17 @@ class NpcEvidenceTests(unittest.TestCase):
         self.assertEqual(runtime[0], commands_for('npc-life-build')[0])
         self.assertEqual(runtime[1][:2], ['./gradlew', 'jar'])
         self.assertNotIn('test', runtime[1])
-        self.assertEqual(runtime[-1], ['python3', 'tools/npc_life_evidence.py'])
+        self.assertEqual(runtime[-1][:2], ['python3', 'tools/npc_life_evidence.py'])
         self.assertFalse(any('release_gate.py' in part or 'run_chunky_acceptance.py' in part
                              for command in runtime for part in command))
+
+    def test_targeted_cases_keep_registration_and_reject_typos(self):
+        cases = select_npc_life_cases('avatar_cap,conversation')
+        self.assertEqual(cases, ['bind_idempotence', 'demo_identity', 'conversation', 'avatar_cap'])
+        self.assertEqual(commands_for('npc-life-runtime', 'avatar_cap,conversation')[-1][-1], ','.join(cases))
+        for invalid in ('', 'typo', 'avatar_cap,avatar_cap'):
+            with self.assertRaises(ValueError):
+                select_npc_life_cases(invalid)
 
 
 if __name__ == '__main__':
