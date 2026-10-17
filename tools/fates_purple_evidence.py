@@ -81,6 +81,11 @@ class PurpleEvidence(FateEvidence):
                     f'myvillage cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1',
                     f'myvillage cultivation learn {u} myvillage:jianqi_jue'):
             self.rc(cmd)
+        # The inheritance command does not awaken a missing root. Establish it through
+        # the actual testing-stele input before the targeted candidate fixture can roll.
+        self.open_stele(); self.leave_stele()
+        self.check('mapped_root_prepared', self.root() is not None, self.root())
+        self.rc(f'myvillage cultivation initiate {u}')
         self.home()
 
     def home(self):
@@ -96,6 +101,8 @@ class PurpleEvidence(FateEvidence):
             self.rc(f'myvillage cultivation fate roll {self.s.username}')
             time.sleep(.22)
             state = self.state()
+            if len(state['candidates']) != 6:
+                raise RuntimeError('Candidate preparation rejected: '+str(state))
             if wanted not in state['candidates']:
                 continue
             index = state['candidates'].index(wanted)
