@@ -10,7 +10,7 @@ import importlib.util
 from .. import gen_qingfeng_sword_model as pngio
 from ..beastgen import anim, cuboid, paint
 from ..beastgen.build import REPO, RESOURCES, dumps, same_file
-from . import roles
+from . import roles, combat
 
 # One definition per look: `defs/<name>.py` declares ENTITY (the entity's texture directory), NAME
 # (the files' name prefix) and LOOK (NpcEntity's look id), so several looks of one entity type share
@@ -45,6 +45,7 @@ class Built:
         self.name = name
         self.d = definition(name)
         self.model = self.d.build_model()
+        combat.add_grips(self.model)
         problems = self.model.problems()
         if problems:
             raise SystemExit("model problems:\n  " + "\n  ".join(problems))
@@ -53,7 +54,7 @@ class Built:
         self.texels = paint.texels(self.model, {c.name for _, c in self.model.cubes()})
         self.texture = paint.image(self.model, self.d.painter(self.model), self.texels)
         self.roles = roles.export(self)
-        self.clips = self.d.clips(self.model)
+        self.clips = self.d.clips(self.model) + combat.clips(self.model)
         self.model_doc = cuboid.model_json(self.model)
         self.anim_doc = anim.clips_json(self.model.id, self.clips)
 

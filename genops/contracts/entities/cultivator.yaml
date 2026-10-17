@@ -60,6 +60,9 @@ attributes:
   registered:
     - max_health
     - movement_speed
+    - attack_damage
+    - attack_knockback
+    - follow_range
   note: placeholder body values until the friend-or-foe design replaces them
 
 behavior:
@@ -89,6 +92,10 @@ behavior:
 
 state:
   synced:
+    - id: combat_action
+      type: compound_tag
+      source: com.example.myvillage.entity.npc.NpcEntity#DATA_COMBAT
+      meaning: Atomic current action, server stamp, elapsed phase, revision, facing and freeze; initial entity pairing includes the snapshot for late observers.
     - id: ledger_person_id
       type: int
       default: -1
@@ -192,6 +199,24 @@ rendering:
     - id: walk
       loop: true
       driver: animateWalk, at the rate that keeps the planted foot still
+    - id: sword_ready
+      loop: true
+      driver: held guard while engaged and between attacks
+    - id: basic_sword_01_thrust
+      loop: false
+      driver: shared combat action snapshot
+    - id: basic_sword_02_horizontal_cut
+      loop: false
+      driver: shared combat action snapshot
+    - id: basic_sword_03_rising_cut
+      loop: false
+      driver: shared combat action snapshot
+    - id: basic_sword_04_diagonal_cut
+      loop: false
+      driver: shared combat action snapshot
+    - id: basic_sword_05_lunge_thrust
+      loop: false
+      driver: shared combat action snapshot
     - id: hurt
       loop: false
       source: vanilla_living_entity_render_state

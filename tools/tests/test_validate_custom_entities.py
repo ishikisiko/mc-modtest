@@ -230,7 +230,7 @@ class NpcValidationTest(unittest.TestCase):
         npc = report["npcs"][NPC]
         self.assertEqual(LOOKS, list(npc["looks"]))
         self.assertEqual([], unexpected_errors(report))
-        self.assertEqual(["idle", "walk"], npc["clips"])
+        self.assertTrue({"idle", "walk", "sword_ready"} <= set(npc["clips"]))
         self.assertEqual(self.model["scale"], npc["scale"])
         self.assertEqual([self.model["texture"]["width"], self.model["texture"]["height"]], npc["texture"])
         for look in LOOKS:
@@ -238,7 +238,7 @@ class NpcValidationTest(unittest.TestCase):
                 self.assertEqual(3, npc["looks"][look]["errors"], look)  # model, clips, texture missing
                 continue
             self.assertEqual(0, npc["looks"][look]["errors"], look)
-            self.assertEqual(["idle", "walk"], npc["looks"][look]["clips"], look)
+            self.assertTrue({"idle", "walk", "sword_ready"} <= set(npc["looks"][look]["clips"]), look)
             self.assertEqual(self.model["scale"], npc["looks"][look]["scale"], look)
 
     def test_definitions_group_by_entity_and_a_missing_module_is_a_missing_file(self) -> None:
@@ -382,7 +382,7 @@ class NpcValidationTest(unittest.TestCase):
         sources = {base: (java / "NpcEntity.java").read_text(encoding="utf-8"),
                    cls: (java / "CultivatorEntity.java").read_text(encoding="utf-8")}
         self.assertEqual([], MODULE.check_npc_state(self.contract, sources))
-        self.assertEqual(["ledger_person_id", "look", "ledger_role", "colours"],
+        self.assertEqual(["combat_action", "ledger_person_id", "look", "ledger_role", "colours"],
                          [e["id"] for e in MODULE.yaml_list_entries(MODULE.yaml_block(self.contract, "state"), "synced")])
 
         def state(synced: str, persisted: str) -> str:

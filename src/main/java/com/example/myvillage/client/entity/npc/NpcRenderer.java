@@ -75,6 +75,7 @@ public class NpcRenderer<T extends NpcEntity> extends MobRenderer<T, NpcModel<T>
         this.npcId = npcId;
         this.looks = looks;
         this.fallback = looks.get(NpcEntity.LOOK_DEFAULT);
+        addLayer(new NpcWeaponLayer<>(this));
     }
 
     @Override
@@ -263,7 +264,7 @@ public class NpcRenderer<T extends NpcEntity> extends MobRenderer<T, NpcModel<T>
         LOGGER.info("NPC {} look {}: scale {}, walk rate {} (planted foot {} blocks per clip second)",
                 npcId, look, modelFile.scale(), walkRate, Math.round(footSpeed * 1000.0) / 1000.0);
         NpcModel<T> model = new NpcModel<>(context.bakeLayer(layer(npcId, look)), modelFile,
-                clips.get(NpcEntity.IDLE_CLIP), clips.get(NpcEntity.WALK_CLIP), walkRate);
+                clips.get(NpcEntity.IDLE_CLIP), clips.get(NpcEntity.WALK_CLIP), walkRate, clips);
         return new Loaded<>(look, model, modelFile.shadowRadius(), modelFile.scale(), texture(npcId, look));
     }
 

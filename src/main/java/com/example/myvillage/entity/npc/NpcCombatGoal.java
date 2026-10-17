@@ -20,7 +20,11 @@ public final class NpcCombatGoal extends Goal {
     @Override public boolean canContinueToUse() { return canUse(); }
     @Override public boolean requiresUpdateEveryTick() { return true; }
     @Override public void start() { npc.getNavigation().stop(); NpcCombatRuntime.engage(npc, true); }
-    @Override public void stop() { NpcCombatRuntime.disengage(npc); }
+    @Override public void stop() {
+        npc.getNavigation().stop();
+        // Stun disables Goal flags temporarily; it must not erase the attacker or resume wages.
+        if (npc.getTarget() == null || !NpcCombatRuntime.canAct(npc)) NpcCombatRuntime.disengage(npc);
+    }
 
     @Override public void tick() {
         var target = npc.getTarget();

@@ -198,6 +198,7 @@ public final class TextKeys {
     public static Map<String, int[]> families(SimData data) {
         Map<String, int[]> f = new LinkedHashMap<>();
         int w = WHO;
+        f.put(P + "near_death", new int[] {3, 1});
         f.put(STAGE_UP, new int[] {w + 1, 2});
         f.put(STAGE_UP_INSIGHT, new int[] {w + 1, 2});
         f.put(DEATH_OLD_AGE, new int[] {w + 2, 3});
@@ -319,7 +320,6 @@ public final class TextKeys {
     /** Keys earlier builds emitted (still rendered for old saves), with their param counts. */
     public static Map<String, Integer> legacyKeys(SimData data) {
         TreeMap<String, Integer> keys = new TreeMap<>();
-        keys.put(P + "near_death", 3);
         keys.put(P + "stage_up", 2);
         keys.put(P + "death.old_age", 2);
         keys.put(P + "death.old_age.master", 3);

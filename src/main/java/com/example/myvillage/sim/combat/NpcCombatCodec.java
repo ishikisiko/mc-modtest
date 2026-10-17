@@ -30,6 +30,9 @@ public final class NpcCombatCodec {
             e.addProperty("actor", actor); e.addProperty("event", event); grievances.add(e);
         }));
         root.add("grievances", grievances);
+        JsonArray suspended = new JsonArray();
+        state.engaged.stream().sorted().forEach(suspended::add);
+        root.add("suspended", suspended);
         return root;
     }
 
@@ -44,6 +47,16 @@ public final class NpcCombatCodec {
                 var p = JSON.fromJson(e.get("state"), NpcCombatProfile.class);
                 if (p == null || !world.persons.containsKey(id) || state.profiles.putIfAbsent(id, p) != null)
                     throw new IllegalArgumentException("profile identity");
+            }
+            if (root.has("suspended")) for (var element : root.getAsJsonArray("suspended")) {
+                int id = element.getAsInt();
+                if (!world.persons.containsKey(id)) throw new IllegalArgumentException("suspended identity");
+                var r = world.life.residents.get(id);
+                if (r != null) {
+                    r.phase = "waiting"; r.targetId = ""; r.progressTicks = 0; r.requiredTicks = 0;
+                    r.pauseTicks = 0; r.retryAfter = 0; r.reason = "combat_reload";
+                    r.revision = Math.incrementExact(r.revision);
+                }
             }
             for (var element : root.getAsJsonArray("grievances")) {
                 var e = element.getAsJsonObject(); int id = e.get("person").getAsInt();

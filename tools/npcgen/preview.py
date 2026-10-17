@@ -21,7 +21,7 @@ from ..combat_preview import sheets
 from .build import REPO, Built, same_file
 
 OUT = REPO / "out/preview"
-PARTS = ("views", "closeups", "face", "atlas", "sheets", "gifs", "index")
+PARTS = ("views", "closeups", "face", "atlas", "sheets", "gifs", "combat", "index")
 
 # camera directions, from the figure toward the camera (the figure faces -Z, its left is -X)
 VIEWS = (
@@ -241,6 +241,55 @@ figcaption {{ padding-top: 6px; color: #9aa3b2; font-size: 13px; }}
     (out / "index.html").write_text(html, encoding="utf-8")
 
 
+def held_weapon_quads(npc, clip, seconds):
+    from ..combat_preview import item_model
+    from .. import gen_sword_pal_anims as sword
+    rig = sword.weapon_rig(sword.BASIC_SWORD)
+    assets = item_model.Assets([REPO / "src/main/resources"], None)
+    document = json.loads(sword.SWORD_MODEL_3D.read_text())
+    resolved = item_model.resolve_model(assets, document, "myvillage:item/qingfeng_sword_3d")
+    offsets = {}
+    if clip:
+        length, loop, channels = npc.clips[clip]
+        anim.clip_offsets(channels, length, loop, seconds, into=offsets)
+    matrix = np.asarray(anim.posed_matrices(npc.model, offsets)["grip_right" if clip else "sword_stowed"])
+    result = []
+    for i, element in enumerate(resolved.elements):
+        for quad in item_model.element_quads(assets, resolved, element, i):
+            local = (quad.pos - np.asarray(rig.grip) * 16) * rig.display_scale / npc.model.scale
+            points = local @ matrix[:3, :3].T + matrix[:3, 3]
+            world = np.c_[-points[:, 0] / 16 * npc.model.scale,
+                          (1.501 - points[:, 1] / 16) * npc.model.scale,
+                          points[:, 2] / 16 * npc.model.scale]
+            result.append((world, quad.uv, quad.tex, None))
+    return result
+
+
+def combat_sheets(npc, out):
+    from .. import gen_sword_pal_anims as sword
+    from PIL import Image
+    bound = sword.bind(sword.BASIC_SWORD, sword.combat_styles()[sword.BASIC_SWORD.style_id])
+    rows = []
+    for move in bound:
+        clip = move.move_id.split(":", 1)[1]
+        cells = []
+        for tick in (0, max(0, move.active_start - 1), move.active_start, move.active_end, move.total - 1):
+            seconds = tick / 20
+            quads = npc.quads(clip, seconds) + held_weapon_quads(npc, clip, seconds)
+            fr = Frame((-0.9, .25, -1), 360, 460, 155, (0, 1, 0), ss=2)
+            im = render(quads, fr, cull=False)
+            cells.append(sheets.labelled(im, [f"{clip} / tick {tick}"], 360))
+        rows.append(cells)
+    sheets.grid(rows, [f"{npc.name} / shared sword poses", "anticipation | active window | recovery; actual held weapon"]).save(out / "combat.png")
+    frames = []
+    clip = bound[1].move_id.split(":", 1)[1]
+    for tick in range(bound[1].total * 2):
+        seconds = tick / 40
+        quads = npc.quads(clip, seconds) + held_weapon_quads(npc, clip, seconds)
+        frames.append(render(quads, Frame((-0.9, .25, -1), 600, 640, 220, (0, 1, 0), ss=2), cull=False))
+    frames[0].save(out / "combat.gif", save_all=True, append_images=frames[1:], duration=50, loop=0)
+
+
 def run(name, only=None):
     parts = PARTS if not only else tuple(p.strip() for p in only.split(","))
     unknown = [p for p in parts if p not in PARTS]
@@ -250,7 +299,7 @@ def run(name, only=None):
     out = OUT / name
     out.mkdir(parents=True, exist_ok=True)
     steps = {"views": turnaround, "closeups": closeups, "face": face_sheet, "atlas": atlas, "sheets": clip_sheets,
-             "gifs": gifs, "index": index_html}
+             "gifs": gifs, "combat": combat_sheets, "index": index_html}
     for part in PARTS:
         if part in parts:
             steps[part](npc, out)

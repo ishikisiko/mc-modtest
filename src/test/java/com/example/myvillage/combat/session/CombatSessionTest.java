@@ -21,6 +21,23 @@ class CombatSessionTest {
     }
 
     @Test
+    void hitStopPreservesActionPhaseAndBufferedInputThenInterruptClearsIt() {
+        var move = session.acceptIntent(100, WEAPON, WORLD, 20).start().orElseThrow().move();
+        long frozenAt = 100 + move.bufferStartTick();
+        session.acceptIntent(frozenAt, WEAPON, WORLD, 20);
+        int phase = session.actionTick(frozenAt);
+        for (int i = 1; i <= 4; i++) {
+            session.pauseOneTick();
+            assertEquals(phase, session.actionTick(frozenAt + i));
+            assertTrue(session.bufferedIntent());
+        }
+        assertTrue(session.tick(100 + move.chainTick() + 4).start().isPresent());
+        session.interrupt(CombatStopReason.DISALLOWED);
+        assertFalse(session.hasActiveAction()); assertFalse(session.bufferedIntent());
+        assertTrue(session.tick(1000).start().isEmpty());
+    }
+
+    @Test
     void fiveBufferedInputsAdvanceExactlyOneMoveAtATimeAndReset() {
         long tick = 100;
         CombatSession.StartEvent current = session.acceptIntent(tick, WEAPON, WORLD, 20.0F)

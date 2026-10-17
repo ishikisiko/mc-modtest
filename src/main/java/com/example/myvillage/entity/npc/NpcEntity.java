@@ -327,6 +327,12 @@ public abstract class NpcEntity extends PathfinderMob {
     @Override
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
+        // Read-only /data diagnostics. Never read back as authority when an entity is copied.
+        CompoundTag diagnostic = combatState().copy();
+        diagnostic.putLong("epoch", combatEpoch);
+        diagnostic.putLong("recovery_until", com.example.myvillage.combat.session.CombatSessionManager.recoveryUntil(this));
+        if (getTarget() != null) diagnostic.putUUID("target", getTarget().getUUID());
+        tag.put("NpcCombatView", diagnostic);
         if (isLedgerAvatar()) {
             tag.putInt(LEDGER_PERSON_TAG, ledgerPersonId());
         }

@@ -561,6 +561,27 @@
           "mirror": true
         }
       ]
+    },
+    {
+      "name": "grip_right",
+      "parent": "forearm_right",
+      "pivot": [0.0, 11.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "grip_left",
+      "parent": "forearm_left",
+      "pivot": [0.0, 11.0, 0.0],
+      "rotation": [0.0, 0.0, 0.0],
+      "cubes": []
+    },
+    {
+      "name": "sword_stowed",
+      "parent": "body",
+      "pivot": [-6.5, -4.0, 7.5],
+      "rotation": [180.0, 0.0, -18.0],
+      "cubes": []
     }
   ]
 }
