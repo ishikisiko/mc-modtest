@@ -50,7 +50,7 @@ public final class CombatSessionManager {
     }
 
     public static boolean handleAttackIntent(ServerPlayer player) {
-        if (CombatSkillActions.has(player)) {
+        if (CombatSkillActions.has(player) || CombatArtActions.has(player)) {
             sendRejection(player);
             return false;
         }
@@ -103,13 +103,35 @@ public final class CombatSessionManager {
         return true;
     }
 
+    /** Two bounded advanced-art slots share the same authoritative action ownership. */
+    public static boolean handleArtIntent(ServerPlayer player, int slot) {
+        if (!CombatArtActions.intentDue(player, slot)
+                || eligibilityFailure(player, null) != null || CombatDodgeService.isDodging(player)) return false;
+        long tick = player.serverLevel().getGameTime();
+        CombatSession session = SESSIONS.get(player.getUUID());
+        if (CombatSkillActions.has(player) || CombatArtActions.has(player)
+                || (session != null && session.hasActiveAction())
+                || !CombatTimingPolicy.recoveryComplete(tick,
+                    BLOCKED_UNTIL_TICKS.getOrDefault(player.getUUID(), Long.MIN_VALUE))) return false;
+        CombatStyleDefinition style = CombatStyles.bundled().styleFor(player.getMainHandItem()).orElseThrow();
+        if (!CombatTimingPolicy.allowsIntent(LAST_INTENT_TICKS.get(player.getUUID()), tick,
+                style.minimumIntentIntervalTicks())) return false;
+        session = SESSIONS.computeIfAbsent(player.getUUID(), ignored -> new CombatSession(style));
+        session.useStyle(style);
+        Optional<CombatSession.StartEvent> start = CombatArtActions.start(player, session, slot);
+        if (start.isEmpty()) return false;
+        LAST_INTENT_TICKS.put(player.getUUID(), tick);
+        beginAction(player, start.get());
+        return true;
+    }
+
     public static boolean handleChargeIntent(ServerPlayer player) {
         long tick = player.serverLevel().getGameTime();
         if (eligibilityFailure(player, null) != null || CombatDodgeService.isDodging(player)) {
             return CombatSkillActions.reject(player, "STATE");
         }
         CombatSession session = SESSIONS.get(player.getUUID());
-        if (CombatSkillActions.has(player) || (session != null && session.hasActiveAction())
+        if (CombatSkillActions.has(player) || CombatArtActions.has(player) || (session != null && session.hasActiveAction())
                 || !CombatTimingPolicy.recoveryComplete(tick,
                 BLOCKED_UNTIL_TICKS.getOrDefault(player.getUUID(), Long.MIN_VALUE))) {
             return CombatSkillActions.reject(player, "BUSY");
@@ -147,8 +169,12 @@ public final class CombatSessionManager {
     }
 
     /** Positive resolved damage interrupts charge/action without refunding an already released skill. */
-    public static void onSkillDamage(ServerPlayer player) {
-        if (CombatSkillActions.has(player)) interrupt(player, CombatStopReason.CHARGE_CANCELLED, true);
+    public static void onSkillDamage(ServerPlayer player) { onSkillDamage(player, null); }
+
+    public static void onSkillDamage(ServerPlayer player, net.minecraft.world.damagesource.DamageSource source) {
+        if (CombatSkillActions.has(player)
+                || (CombatArtActions.has(player) && CombatArtActions.damageInterrupts(player, source)))
+            interrupt(player, CombatStopReason.CHARGE_CANCELLED, true);
     }
 
     public static void tick(MinecraftServer server) {
@@ -160,7 +186,8 @@ public final class CombatSessionManager {
             }
             CombatSession session = SESSIONS.get(playerId);
             CombatStopReason failure = eligibilityFailure(player, session);
-            if (failure == null && !CombatSkillActions.valid(player)) failure = CombatStopReason.WEAPON_CHANGED;
+            if (failure == null && (!CombatSkillActions.valid(player) || !CombatArtActions.valid(player)))
+                failure = CombatStopReason.WEAPON_CHANGED;
             if (failure != null) {
                 interrupt(player, failure, preservesRecovery(failure));
                 continue;
@@ -183,7 +210,13 @@ public final class CombatSessionManager {
                     CombatFeedbackService.swing(player, move);
                 }
                 if (session.isExternal()) {
-                    CombatSkillActions.resolve(player, session);
+                    if (CombatArtActions.has(player)) {
+                        Optional<CombatHitResolver.StepSweep> sweep = Optional.ofNullable(STEP_SWEEPS.get(playerId))
+                                .filter(record -> record.revision() == session.revision()).map(StepRecord::sweep);
+                        CombatArtActions.resolve(player, session, sweep);
+                    } else {
+                        CombatSkillActions.resolve(player, session);
+                    }
                 } else if (move.isActiveTick(actionTick)) {
                     Optional<CombatHitResolver.StepSweep> sweep = Optional.ofNullable(STEP_SWEEPS.get(playerId))
                             .filter(record -> record.revision() == session.revision())
@@ -211,9 +244,12 @@ public final class CombatSessionManager {
             } else if (transition.stop().isPresent()) {
                 CombatSkillActions.stop(player, "COMPLETED");
                 STEP_SWEEPS.remove(playerId);
-                clearCommitment(player);
+                Optional<CombatSession.StartEvent> nextArtPhase = CombatArtActions.advance(player);
+                if (nextArtPhase.isPresent()) beginAction(player, nextArtPhase.get());
+                else clearCommitment(player);
             }
         }
+        CombatArtActions.prune(server.overworld().getGameTime());
         BLOCKED_UNTIL_TICKS.entrySet().removeIf(entry -> {
             ServerPlayer player = server.getPlayerList().getPlayer(entry.getKey());
             return player == null || player.serverLevel().getGameTime() >= entry.getValue();
@@ -240,7 +276,7 @@ public final class CombatSessionManager {
         if (!dodgeCancelAllowed(session, tick)) {
             return false;
         }
-        if (CombatSkillActions.has(player) || (session != null && session.hasActiveAction())) {
+        if (CombatSkillActions.has(player) || CombatArtActions.has(player) || (session != null && session.hasActiveAction())) {
             interrupt(player, CombatStopReason.DODGED, false);
         }
         return true;
@@ -259,6 +295,7 @@ public final class CombatSessionManager {
             CombatStopReason reason,
             boolean preserveRecovery) {
         boolean cancelledCharge = CombatSkillActions.charging(player);
+        CombatArtActions.stop(player, reason.name());
         CombatSkillActions.stop(player, reason.name());
         CombatSession session = SESSIONS.get(player.getUUID());
         if (session == null) {
@@ -332,6 +369,7 @@ public final class CombatSessionManager {
 
     public static void removeRuntime(UUID playerId, boolean discardRecovery) {
         CombatSkillActions.remove(playerId);
+        CombatArtActions.remove(playerId);
         SESSIONS.remove(playerId);
         STEP_SWEEPS.remove(playerId);
         LAST_INTENT_TICKS.remove(playerId);
@@ -354,6 +392,7 @@ public final class CombatSessionManager {
             }
         }
         CombatSkillActions.clear();
+        CombatArtActions.clear();
         SESSIONS.clear();
         BLOCKED_UNTIL_TICKS.clear();
         LAST_INTENT_TICKS.clear();

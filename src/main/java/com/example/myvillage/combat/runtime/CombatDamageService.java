@@ -28,6 +28,13 @@ public final class CombatDamageService {
             Entity target,
             AttackMoveDefinition move,
             CombatSession session) {
+        return apply(attacker, target, move, session, session.facingYaw());
+    }
+
+    /** Area arts can radiate their reaction without changing the shared single damage pipeline. */
+    public static DamageResult apply(ServerPlayer attacker, Entity target, AttackMoveDefinition move,
+                                     CombatSession session, float reactionYaw) {
+        if (!Float.isFinite(reactionYaw)) throw new IllegalArgumentException("Non-finite reaction yaw");
         if (!CommonHooks.onPlayerAttackTarget(attacker, target)
                 || !target.isAttackable()
                 || target.skipAttackInteraction(attacker)) {
@@ -74,7 +81,7 @@ public final class CombatDamageService {
                 ? living.getAttributeValue(Attributes.KNOCKBACK_RESISTANCE)
                 : 0.0;
         Vec3 impulse = CombatReactionMath.impulse(
-                move.reaction(), session.facingYaw(), Math.max(0.0F, knockback) * 0.5, resistance);
+                move.reaction(), reactionYaw, Math.max(0.0F, knockback) * 0.5, resistance);
         if (target instanceof LivingEntity living) {
             CombatReactionService.onHit(living, move, feedbackFreezeTicks(move), impulse);
         } else if (target.isPushable() && impulse.horizontalDistanceSqr() > 0.0) {

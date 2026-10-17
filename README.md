@@ -4657,3 +4657,7 @@ Current quality validation: [0.52.0 developer evidence](docs/testing/2026-10-16-
 标签随数据包重载更新。空标签会拒绝炼制；缺料时不部分扣除。某件物品同时匹配多个用料要求时只会被扣一次，并会寻找有效的完整分配方案。灌灵中的材料若被移出铜锭标签，会暂停且保留进度，重新加入后可继续。
 
 炼器 `rules.json` 的成本键支持原有 `namespace:item` 和新增的 `#namespace:tag/path`；剑枪基础用料、维修默认用料保持原样。
+
+## Advanced weapon arts (development branch)
+
+Sword, spear and fist each gain two learned arts on remappable Z/C keys. The existing right-click sword qi is unchanged. Reach Qi Refining IV, obtain the matching manuals (`/function myvillage:advanced_arts_books` for an administrator), study them, and use the matching weapon in cultivation combat mode. See [the feature guide](docs/features/advanced-weapon-arts.md) for all six arts, choreography/VFX, authoritative rules and explicit unverified build/gameplay checks. No new JAR release is declared by this branch.

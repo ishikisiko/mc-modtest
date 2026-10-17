@@ -11,6 +11,8 @@
 ## 战斗权威与数据
 
 - move/weapon/skill 文件由 `data/myvillage/combat/index.json` 索引，双方读同一资源。所有 timing、命中采样、位移、反应、反馈和镜头数值在数据中，不在 Java 复制。
+- 多段高级武技单独读取 `combat/advanced_arts.json`，由 `tools/advanced_arts/arts.json` 和 `gen_advanced_arts.py` 生成。复用旧动作片段但不追加基础连招；技能书仍是原有功法定义，冷却按玩家与武技 ID 计时。
+- 高级武技 C2S 仅一字节槽位 0/1，客户端外部动作标记阻止基础连招预测；格挡只保护首段前摇正面，范围命中沿用友军/PvP/视线/伤害管线。
 - 两个攻击 C2S 为空；闪避仅一字节八向意图，剑气充能/释放/取消也为空。时间、命中、伤害、连段、取消、位移、冷却和无敌窗口均属服务器。
 - 武器条目通过 style/family 选择行为；combat 包不得硬编码物品或妖兽名称。CombatWeaponItem 保留原版 re-equip 规则但去除耐久变化触发的重复装备动画。
 - move 满足 active/buffer/chain/total 的时序约束；样本按 tick 非递减排序，多样本活动帧数量一致，绘制轨迹的远端达到武器 tip radius。仅 presentation 的 trail.samples 不参与服务器命中。

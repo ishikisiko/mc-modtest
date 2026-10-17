@@ -1,0 +1,196 @@
+package com.example.myvillage.combat.session;
+
+import com.example.myvillage.combat.art.*;
+import com.example.myvillage.combat.definition.*;
+import com.example.myvillage.combat.network.CombatArtStatePayload;
+import com.example.myvillage.combat.runtime.*;
+import com.example.myvillage.cultivation.CultivationService;
+import com.example.myvillage.cultivation.data.ModCultivationRegistries;
+import com.example.myvillage.cultivation.data.TechniqueCategory;
+import com.example.myvillage.cultivation.technique.TechniqueRequirementEvaluator;
+import com.example.myvillage.forging.ForgedEquipment;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import java.util.*;
+
+/** Metadata subordinate to CombatSessionManager. Never ticks/moves an independent attack session. */
+public final class CombatArtActions {
+    private static final Logger LOG = LoggerFactory.getLogger(CombatArtActions.class);
+    private static final Map<UUID,Entry> ENTRIES = new HashMap<>();
+    private static final ArtCooldowns COOLDOWNS = new ArtCooldowns();
+    private static final Map<UUID,Long> LAST_REQUEST = new HashMap<>();
+    private CombatArtActions() {}
+    private static final class Entry {
+        final ArtDefinition art;
+        final ItemStack held;
+        final int slot;
+        final ResourceLocation dimension;
+        final CombatSession session;
+        int phase;
+        boolean counter;
+        net.minecraft.world.damagesource.DamageSource guardedSource;
+        long guardedTick;
+        Entry(ServerPlayer player,ArtDefinition art,CombatSession session) {
+            this.art=art;this.held=player.getMainHandItem();this.slot=player.getInventory().selected;
+            this.dimension=player.level().dimension().location();this.session=session;
+        }
+    }
+    private static long clock(ServerPlayer player) { return player.serverLevel().getServer().overworld().getGameTime(); }
+    public static boolean has(ServerPlayer player) { return ENTRIES.containsKey(player.getUUID()); }
+    public static boolean intentDue(ServerPlayer player,int slot) {
+        if (!ArtMath.validSlot(slot)) return false;
+        long now=clock(player);
+        Long last=LAST_REQUEST.put(player.getUUID(),now);
+        return last==null || now-last>=2;
+    }
+    static Optional<CombatSession.StartEvent> start(ServerPlayer player,CombatSession session,int slot) {
+        Optional<String> family=CombatStyles.bundled().weapon(player.getMainHandItem()).flatMap(WeaponDefinition::family);
+        Optional<ArtDefinition> found=family.flatMap(f -> ArtDefinition.forSlot(f,slot));
+        if (found.isEmpty()) return Optional.empty();
+        ArtDefinition art=found.get();
+        if (!authorized(player,art)) {
+            refuse(player,"unlearned",Component.translatable(art.translationKey()));return Optional.empty();
+        }
+        if (player.containerMenu!=player.inventoryMenu) return Optional.empty();
+        if (art.requiresGround() && !player.onGround()) {
+            refuse(player,"ground",Component.empty());return Optional.empty();
+        }
+        int remaining=COOLDOWNS.remaining(player.getUUID(),art.id().toString(),clock(player));
+        if (remaining>0) {
+            sendCooldown(player,art,remaining);
+            refuse(player,"cooldown",Component.literal(String.format(java.util.Locale.ROOT,"%.1f",remaining/20.0)));
+            return Optional.empty();
+        }
+        long cost=ForgedEquipment.qiCost(player.getMainHandItem(),art.qiCost());
+        // All validation precedes the single atomic spend. Interrupted casts are not refunded.
+        if (!CultivationService.spendSpiritualPower(player,cost)) {
+            refuse(player,"power",Component.literal(Long.toString(cost)));return Optional.empty();
+        }
+        COOLDOWNS.start(player.getUUID(),art.id().toString(),clock(player),art.cooldownTicks());
+        Entry e=new Entry(player,art,session);ENTRIES.put(player.getUUID(),e);
+        player.displayClientMessage(Component.translatable(art.translationKey()),true);
+        LOG.info("ADVANCED_ART player={} result=start art={} cost={}",player.getGameProfile().getName(),art.id(),cost);
+        return Optional.of(beginPhase(player,e));
+    }
+    private static CombatSession.StartEvent beginPhase(ServerPlayer player,Entry e) {
+        AttackMoveDefinition move=e.art.phases().get(e.phase).move(CombatStyles.bundled(),1);
+        var start=e.session.startExternal(move,player.serverLevel().getGameTime(),
+                BuiltInRegistries.ITEM.getKey(player.getMainHandItem().getItem()),e.dimension,player.getYRot());
+        send(player,e,CombatArtStatePayload.START,player.position());
+        return start;
+    }
+    /** Recheck current registry facts and realm after reload/admin changes, not just learned IDs. */
+    private static boolean authorized(ServerPlayer player,ArtDefinition art) {
+        var profile=CultivationService.getProfile(player);
+        var technique=ModCultivationRegistries.technique(player.registryAccess(),art.id());
+        var family=CombatStyles.bundled().weapon(player.getMainHandItem()).flatMap(WeaponDefinition::family);
+        return profile.learnedTechniques().containsKey(art.id()) && technique.isPresent()
+                && technique.get().category()==TechniqueCategory.ACTIVE
+                && technique.get().school().equals(Optional.of(art.school()))
+                && family.equals(Optional.of(art.family()))
+                && ModCultivationRegistries.school(player.registryAccess(),art.school())
+                    .flatMap(s -> s.weaponFamily()).equals(family)
+                && technique.get().effects().flatMap(e -> e.active())
+                    .filter(a -> a.skill().equals(art.id()) && a.qiCost()==art.qiCost()).isPresent()
+                && TechniqueRequirementEvaluator.evaluate(player.registryAccess(),profile,technique.get()).satisfied();
+    }
+    static boolean valid(ServerPlayer player) {
+        Entry e=ENTRIES.get(player.getUUID());
+        return e==null || (e.held==player.getMainHandItem() && e.slot==player.getInventory().selected
+                && e.dimension.equals(player.level().dimension().location())
+                && player.containerMenu==player.inventoryMenu && authorized(player,e.art));
+    }
+    static void resolve(ServerPlayer player,CombatSession session,Optional<CombatHitResolver.StepSweep> step) {
+        Entry e=ENTRIES.get(player.getUUID());if(e==null)return;
+        int age=session.actionTick(player.serverLevel().getGameTime());
+        ArtDefinition.Phase phase=e.art.phases().get(e.phase);
+        Vec3 origin=step.map(s -> s.originAt(age)).orElseGet(player::position);
+        if (ArtMath.guarding(e.phase,age,session.currentMove().activeStartTick(),e.art.guardReduction()) && age%2==0)
+            send(player,e,CombatArtStatePayload.WARD,origin);
+        if (!session.currentMove().isActiveTick(age)) return;
+        AttackMoveDefinition damageMove=phase.move(CombatStyles.bundled(),e.counter?e.art.counterMultiplier():1);
+        List<CombatHitResolver.TargetContact> successful=new ArrayList<>();
+        for (var contact:ArtHitResolver.resolve(player,session,phase,origin)) {
+            if (!session.markAttempted(contact.target().getId())) continue;
+            // Ring reactions radiate away from the caster; a rear target must not be pulled inward.
+            Vec3 radial=contact.target().position().subtract(origin);
+            float reactionYaw=phase.shape().equals("ring") && radial.horizontalDistanceSqr()>1e-8
+                    ? (float)Math.toDegrees(Math.atan2(-radial.x,radial.z)) : session.facingYaw();
+            var damage=CombatDamageService.apply(player,contact.target(),damageMove,session,reactionYaw);
+            // Thorns and other synchronous callbacks can remove this entry during hurt().
+            if (ENTRIES.get(player.getUUID())!=e || !session.hasActiveAction()) return;
+            if (damage.successful()) successful.add(contact);
+        }
+        CombatFeedbackService.hit(player,damageMove,session.revision(),successful);
+        send(player,e,CombatArtStatePayload.PULSE,origin);
+    }
+    static Optional<CombatSession.StartEvent> advance(ServerPlayer player) {
+        Entry e=ENTRIES.get(player.getUUID());if(e==null)return Optional.empty();
+        if (e.phase+1>=e.art.phases().size()) { stop(player,"COMPLETED");return Optional.empty(); }
+        e.phase++;e.guardedSource=null;
+        return Optional.of(beginPhase(player,e));
+    }
+    /** Called for every incoming hit, before the existing positive-damage interruption hook. */
+    public static void guard(LivingIncomingDamageEvent event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        Entry e=ENTRIES.get(player.getUUID());if(e==null)return;
+        e.guardedSource=null;
+        if (!player.isAlive() || !valid(player) || !e.session.hasActiveAction()) return;
+        int age=e.session.actionTick(player.serverLevel().getGameTime());
+        if (!ArtMath.guarding(e.phase,age,e.session.currentMove().activeStartTick(),e.art.guardReduction())) return;
+        var source=event.getSource();
+        if (source.is(DamageTypeTags.BYPASSES_SHIELD) || source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)
+                || source.getEntity()==null || source.getSourcePosition()==null || !(event.getAmount()>0)) return;
+        Vec3 delta=source.getEntity().position().subtract(player.position());
+        if (source.getDirectEntity() instanceof net.minecraft.world.entity.projectile.Projectile projectile
+                && projectile.getDeltaMovement().horizontalDistanceSqr()>.0001)
+            delta=projectile.getDeltaMovement().scale(-1);
+        if (!ArtMath.inArc(delta.x,delta.z,e.session.facingYaw(),e.art.guardArc())) return;
+        event.setAmount((float)(event.getAmount()*(1-e.art.guardReduction())));
+        e.guardedSource=source;e.guardedTick=player.serverLevel().getGameTime();
+    }
+    /** Match the exact source and tick, so another simultaneous hit cannot borrow a guard. */
+    static boolean damageInterrupts(ServerPlayer player,net.minecraft.world.damagesource.DamageSource source) {
+        Entry e=ENTRIES.get(player.getUUID());
+        if(e==null) return false;
+        if(source!=null && e.guardedSource==source && e.guardedTick==player.serverLevel().getGameTime()) {
+            e.guardedSource=null;e.counter=true;
+            player.displayClientMessage(Component.translatable("combat.myvillage.art.counter"),true);
+            return false;
+        }
+        return e.art.interruptOnDamage();
+    }
+    static void stop(ServerPlayer player,String reason) {
+        Entry e=ENTRIES.remove(player.getUUID());if(e==null)return;
+        send(player,e,CombatArtStatePayload.STOP,player.position());
+        LOG.info("ADVANCED_ART player={} result=stop art={} reason={}",player.getGameProfile().getName(),e.art.id(),reason);
+    }
+    static void remove(UUID player) { ENTRIES.remove(player);LAST_REQUEST.remove(player); }
+    static void clear() { ENTRIES.clear();LAST_REQUEST.clear();COOLDOWNS.clear(); }
+    static void prune(long now) { COOLDOWNS.prune(now); }
+    public static void syncCooldowns(ServerPlayer player) {
+        for (var art:ArtDefinition.all()) sendCooldown(player,art,COOLDOWNS.remaining(player.getUUID(),art.id().toString(),clock(player)));
+    }
+    private static void sendCooldown(ServerPlayer player,ArtDefinition art,int remaining) {
+        PacketDistributor.sendToPlayer(player,new CombatArtStatePayload(player.getId(),art.id(),
+                CombatArtStatePayload.COOLDOWN,0,0,0,player.serverLevel().getGameTime(),player.position(),player.getYRot(),remaining));
+    }
+    private static void send(ServerPlayer player,Entry e,int kind,Vec3 origin) {
+        int age=Math.max(0,e.session.actionTick(player.serverLevel().getGameTime()));
+        PacketDistributor.sendToPlayersTrackingEntityAndSelf(player,new CombatArtStatePayload(player.getId(),e.art.id(),
+                kind,e.phase,age,e.session.revision(),player.serverLevel().getGameTime(),origin,e.session.facingYaw(),
+                COOLDOWNS.remaining(player.getUUID(),e.art.id().toString(),clock(player))));
+    }
+    private static void refuse(ServerPlayer player,String why,Component detail) {
+        player.displayClientMessage(Component.translatable("combat.myvillage.art."+why,detail),true);
+    }
+}

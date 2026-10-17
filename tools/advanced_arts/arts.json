@@ -1,0 +1,481 @@
+{
+  "schema": 1,
+  "arts": [
+    {
+      "id": "myvillage:qinglian_jiange",
+      "name_zh": "青莲剑歌",
+      "name_en": "Jade Lotus Refrain",
+      "family": "sword",
+      "school": "myvillage:sword",
+      "slot": 0,
+      "qi_cost": 18,
+      "cooldown_ticks": 160,
+      "grade": 2,
+      "minimum_realm": "myvillage:qi_refining",
+      "minimum_stage": "myvillage:qi_refining_4",
+      "study": {
+        "points": 600,
+        "gates": 0,
+        "gate_stability_cost": 0
+      },
+      "guard_reduction": 0,
+      "guard_arc_degrees": 160,
+      "counter_multiplier": 1,
+      "color": [
+        0.3,
+        0.95,
+        0.82
+      ],
+      "particle_count": 36,
+      "description_zh": "三段剑光连斩，末斩扩大范围并击退。适合清理前方敌群。",
+      "phases": [
+        {
+          "move": "myvillage:basic_sword_02_horizontal_cut",
+          "shape": "fan",
+          "reach": 3.6,
+          "arc_degrees": 150,
+          "width": 0.6,
+          "height": 1.0,
+          "half_height": 0.8,
+          "damage_multiplier": 0.8,
+          "maximum_targets": 6,
+          "step_distance": 0.5,
+          "reaction": {
+            "hitstun_ticks": 8,
+            "slide_distance": 0.3,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "arc"
+        },
+        {
+          "move": "myvillage:basic_sword_03_rising_cut",
+          "shape": "fan",
+          "reach": 3.8,
+          "arc_degrees": 140,
+          "width": 0.6,
+          "height": 1.0,
+          "half_height": 0.8,
+          "damage_multiplier": 0.85,
+          "maximum_targets": 6,
+          "step_distance": 0.4,
+          "reaction": {
+            "hitstun_ticks": 8,
+            "slide_distance": 0.3,
+            "lift": 0.2,
+            "lateral_bias": 0
+          },
+          "fx": "helix"
+        },
+        {
+          "move": "myvillage:basic_sword_04_diagonal_cut",
+          "shape": "fan",
+          "reach": 4.5,
+          "arc_degrees": 170,
+          "width": 0.6,
+          "height": 1.0,
+          "half_height": 0.8,
+          "damage_multiplier": 1.5,
+          "maximum_targets": 6,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 14,
+            "slide_distance": 1.3,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "lotus"
+        }
+      ],
+      "requires_ground": false,
+      "interrupt_on_damage": false,
+      "fx_lifetime_ticks": 8,
+      "cast_pitch": 1.25,
+      "description_en": "Three advancing cuts culminate in a wide lotus arc. A frontal crowd-clearing art."
+    },
+    {
+      "id": "myvillage:huifeng_jianzhen",
+      "name_zh": "回风剑阵",
+      "name_en": "Returning Wind Guard",
+      "family": "sword",
+      "school": "myvillage:sword",
+      "slot": 1,
+      "qi_cost": 14,
+      "cooldown_ticks": 180,
+      "grade": 2,
+      "minimum_realm": "myvillage:qi_refining",
+      "minimum_stage": "myvillage:qi_refining_4",
+      "study": {
+        "points": 600,
+        "gates": 0,
+        "gate_stability_cost": 0
+      },
+      "guard_reduction": 0.65,
+      "guard_arc_degrees": 160,
+      "counter_multiplier": 1.6,
+      "color": [
+        0.3,
+        0.95,
+        0.82
+      ],
+      "particle_count": 36,
+      "description_zh": "起手迎敌可减伤；成功承受正面攻击后，本次反击强化。随后环斩解围。",
+      "phases": [
+        {
+          "move": "myvillage:basic_sword_02_horizontal_cut",
+          "shape": "ring",
+          "reach": 3.8,
+          "arc_degrees": 360,
+          "width": 0.6,
+          "height": 1.0,
+          "half_height": 0.8,
+          "damage_multiplier": 0.85,
+          "maximum_targets": 6,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 10,
+            "slide_distance": 0.7,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "ring"
+        },
+        {
+          "move": "myvillage:basic_sword_04_diagonal_cut",
+          "shape": "fan",
+          "reach": 4.4,
+          "arc_degrees": 160,
+          "width": 0.6,
+          "height": 1.0,
+          "half_height": 0.8,
+          "damage_multiplier": 1.25,
+          "maximum_targets": 6,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 13,
+            "slide_distance": 1.5,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "lotus"
+        }
+      ],
+      "requires_ground": false,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 8,
+      "cast_pitch": 1.25,
+      "description_en": "Time the opening ward against a frontal hit to reduce damage and empower this cast. Ring slash followed by a counter-cut."
+    },
+    {
+      "id": "myvillage:canglong_chushui",
+      "name_zh": "苍龙出水",
+      "name_en": "Azure Dragon Surge",
+      "family": "spear",
+      "school": "myvillage:spear",
+      "slot": 0,
+      "qi_cost": 20,
+      "cooldown_ticks": 180,
+      "grade": 2,
+      "minimum_realm": "myvillage:qi_refining",
+      "minimum_stage": "myvillage:qi_refining_4",
+      "study": {
+        "points": 600,
+        "gates": 0,
+        "gate_stability_cost": 0
+      },
+      "guard_reduction": 0,
+      "guard_arc_degrees": 160,
+      "counter_multiplier": 1,
+      "color": [
+        0.25,
+        0.65,
+        1.0
+      ],
+      "particle_count": 36,
+      "description_zh": "三次循地突进穿刺，可贯穿一线多名敌人；遇墙或悬崖停止位移。",
+      "phases": [
+        {
+          "move": "myvillage:basic_spear_01_mid_thrust",
+          "shape": "line",
+          "reach": 5.0,
+          "arc_degrees": 120,
+          "width": 0.7,
+          "height": 1.0,
+          "half_height": 0.8,
+          "damage_multiplier": 0.7,
+          "maximum_targets": 6,
+          "step_distance": 1.2,
+          "reaction": {
+            "hitstun_ticks": 8,
+            "slide_distance": 0.1,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "helix"
+        },
+        {
+          "move": "myvillage:basic_spear_01_mid_thrust",
+          "shape": "line",
+          "reach": 5.2,
+          "arc_degrees": 120,
+          "width": 0.8,
+          "height": 1.0,
+          "half_height": 0.8,
+          "damage_multiplier": 0.8,
+          "maximum_targets": 6,
+          "step_distance": 1.2,
+          "reaction": {
+            "hitstun_ticks": 8,
+            "slide_distance": 0.2,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "helix"
+        },
+        {
+          "move": "myvillage:basic_spear_01_mid_thrust",
+          "shape": "line",
+          "reach": 6.0,
+          "arc_degrees": 120,
+          "width": 0.9,
+          "height": 1.0,
+          "half_height": 0.8,
+          "damage_multiplier": 1.5,
+          "maximum_targets": 6,
+          "step_distance": 1.4,
+          "reaction": {
+            "hitstun_ticks": 14,
+            "slide_distance": 2.0,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "helix"
+        }
+      ],
+      "requires_ground": true,
+      "interrupt_on_damage": false,
+      "fx_lifetime_ticks": 8,
+      "cast_pitch": 1.25,
+      "description_en": "Three grounded surges pierce several enemies in a line. Steps respect walls and ledges."
+    },
+    {
+      "id": "myvillage:hengsao_qianjun",
+      "name_zh": "横扫千军",
+      "name_en": "Thousand-Army Sweep",
+      "family": "spear",
+      "school": "myvillage:spear",
+      "slot": 1,
+      "qi_cost": 18,
+      "cooldown_ticks": 200,
+      "grade": 2,
+      "minimum_realm": "myvillage:qi_refining",
+      "minimum_stage": "myvillage:qi_refining_4",
+      "study": {
+        "points": 600,
+        "gates": 0,
+        "gate_stability_cost": 0
+      },
+      "guard_reduction": 0,
+      "guard_arc_degrees": 160,
+      "counter_multiplier": 1,
+      "color": [
+        0.25,
+        0.65,
+        1.0
+      ],
+      "particle_count": 36,
+      "description_zh": "两重环形枪罡，先牵制近敌，再击退四周敌群，争取重新站位空间。",
+      "phases": [
+        {
+          "move": "myvillage:basic_spear_02_sweep",
+          "shape": "ring",
+          "reach": 4.4,
+          "arc_degrees": 360,
+          "width": 0.6,
+          "height": 1.0,
+          "half_height": 0.8,
+          "damage_multiplier": 0.95,
+          "maximum_targets": 6,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 12,
+            "slide_distance": 0.3,
+            "lift": 0.12,
+            "lateral_bias": 0
+          },
+          "fx": "ring"
+        },
+        {
+          "move": "myvillage:basic_spear_02_sweep",
+          "shape": "ring",
+          "reach": 4.8,
+          "arc_degrees": 360,
+          "width": 0.6,
+          "height": 1.0,
+          "half_height": 0.8,
+          "damage_multiplier": 1.25,
+          "maximum_targets": 6,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 16,
+            "slide_distance": 2.4,
+            "lift": 0.15,
+            "lateral_bias": 0
+          },
+          "fx": "ring"
+        }
+      ],
+      "requires_ground": true,
+      "interrupt_on_damage": false,
+      "fx_lifetime_ticks": 8,
+      "cast_pitch": 1.25,
+      "description_en": "Two circular spear auras stagger nearby enemies, then push them outward to create space."
+    },
+    {
+      "id": "myvillage:bengshan_jin",
+      "name_zh": "崩山劲",
+      "name_en": "Mountain-Breaking Palm",
+      "family": "fist",
+      "school": "myvillage:fist",
+      "slot": 0,
+      "qi_cost": 16,
+      "cooldown_ticks": 160,
+      "grade": 2,
+      "minimum_realm": "myvillage:qi_refining",
+      "minimum_stage": "myvillage:qi_refining_4",
+      "study": {
+        "points": 600,
+        "gates": 0,
+        "gate_stability_cost": 0
+      },
+      "guard_reduction": 0,
+      "guard_arc_degrees": 160,
+      "counter_multiplier": 1,
+      "color": [
+        1.0,
+        0.64,
+        0.2
+      ],
+      "particle_count": 36,
+      "description_zh": "近身挑击接震地掌，以灵力震环打击周围目标；不破坏地形。",
+      "phases": [
+        {
+          "move": "myvillage:basic_fist_03_uppercut",
+          "shape": "fan",
+          "reach": 2.5,
+          "arc_degrees": 100,
+          "width": 0.6,
+          "height": 1.0,
+          "half_height": 0.8,
+          "damage_multiplier": 0.85,
+          "maximum_targets": 6,
+          "step_distance": 0.6,
+          "reaction": {
+            "hitstun_ticks": 10,
+            "slide_distance": 0.3,
+            "lift": 0.3,
+            "lateral_bias": 0
+          },
+          "fx": "helix"
+        },
+        {
+          "move": "myvillage:basic_fist_04_chop",
+          "shape": "ring",
+          "reach": 4.0,
+          "arc_degrees": 360,
+          "width": 0.6,
+          "height": 1.0,
+          "half_height": 0.8,
+          "damage_multiplier": 1.6,
+          "maximum_targets": 6,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 16,
+            "slide_distance": 1.8,
+            "lift": 0.25,
+            "lateral_bias": 0
+          },
+          "fx": "shock"
+        }
+      ],
+      "requires_ground": true,
+      "interrupt_on_damage": false,
+      "fx_lifetime_ticks": 8,
+      "cast_pitch": 0.65,
+      "description_en": "An uppercut followed by a ground-shock palm launches and scatters nearby enemies without breaking blocks."
+    },
+    {
+      "id": "myvillage:jingang_zhen",
+      "name_zh": "金刚震",
+      "name_en": "Adamant Reversal",
+      "family": "fist",
+      "school": "myvillage:fist",
+      "slot": 1,
+      "qi_cost": 14,
+      "cooldown_ticks": 200,
+      "grade": 2,
+      "minimum_realm": "myvillage:qi_refining",
+      "minimum_stage": "myvillage:qi_refining_4",
+      "study": {
+        "points": 600,
+        "gates": 0,
+        "gate_stability_cost": 0
+      },
+      "guard_reduction": 0.75,
+      "guard_arc_degrees": 160,
+      "counter_multiplier": 1.8,
+      "color": [
+        1.0,
+        0.64,
+        0.2
+      ],
+      "particle_count": 36,
+      "description_zh": "起手凝罡抵御正面攻击，格挡成功强化震掌；震开贴身敌群。",
+      "phases": [
+        {
+          "move": "myvillage:basic_fist_04_chop",
+          "shape": "ring",
+          "reach": 3.0,
+          "arc_degrees": 360,
+          "width": 0.6,
+          "height": 1.0,
+          "half_height": 0.8,
+          "damage_multiplier": 0.7,
+          "maximum_targets": 6,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 10,
+            "slide_distance": 0.3,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "shock"
+        },
+        {
+          "move": "myvillage:basic_fist_02_horizontal_palm",
+          "shape": "ring",
+          "reach": 4.2,
+          "arc_degrees": 360,
+          "width": 0.6,
+          "height": 1.0,
+          "half_height": 0.8,
+          "damage_multiplier": 1.3,
+          "maximum_targets": 6,
+          "step_distance": 0,
+          "reaction": {
+            "hitstun_ticks": 16,
+            "slide_distance": 2.6,
+            "lift": 0,
+            "lateral_bias": 0
+          },
+          "fx": "shock"
+        }
+      ],
+      "requires_ground": true,
+      "interrupt_on_damage": true,
+      "fx_lifetime_ticks": 8,
+      "cast_pitch": 0.65,
+      "description_en": "Time the opening ward against a frontal hit to reduce damage and empower a radial palm reversal."
+    }
+  ]
+}
