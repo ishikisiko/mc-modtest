@@ -71,8 +71,8 @@ artifacts and confirmed cleanup are recorded.
 | Preset | Command / role | Real cloud status |
 |---|---|---|
 | `smoke` | Java version, Python dependency imports, Xvfb `glxinfo` | `pass` (authenticated second attempt; downloaded evidence and confirmed termination) |
-| `npc-life-build` | Life resource check, focused generator tests, 10 simulation Java classes and jar | [NPC life evidence](../testing/2026-10-17-npc-life.md): original feature commit compiled and 98 tests passed |
-| `npc-life-runtime` | Life resource check, committed-resource jar, authored showcase, real NPC Goals and mapped conversations/lifecycle checks | Supports `--cases`; always includes registration/identity prerequisites. Per-run cases and limitations in [NPC life evidence](../testing/2026-10-17-npc-life.md) |
+| `npc-life-build` | Life resource check, focused generator tests, 10 simulation Java classes plus furnace navigation regression and jar | [NPC life evidence](../testing/2026-10-17-npc-life.md): original feature commit compiled and 98 simulation tests passed; furnace regression added during runtime fixes |
+| `npc-life-runtime` | Life resource check, furnace navigation regression, committed-resource jar, authored showcase, real NPC Goals and mapped conversations/lifecycle checks | Supports `--cases`; always includes registration/identity prerequisites. Per-run cases and limitations in [NPC life evidence](../testing/2026-10-17-npc-life.md) |
 | `python` | `python3 -m unittest discover -s tools/tests` | `pass` (1053 tests) |
 | `crops-build` | SpiritCropsTest and jar build only | Per-run result required |
 | `worldplan-build` | Frozen V1/V2 resource checks, worldplan/region and direct simulation tests, jar only | Per-run result required; no game launch |

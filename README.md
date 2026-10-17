@@ -16,7 +16,7 @@ systems when the data and runtime pipeline are ready.
 > technical notes and [technical contracts](docs/contracts/README.md).
 > **Workflow:** [docs/WORKFLOW.md](docs/WORKFLOW.md); [CRAFT](CRAFT.md) is optional.
 
-## NPC 半自主生活首期（0.60.0）
+## NPC 半自主生活首期（0.60.0-fix1）
 
 命簿现在为每位登录玩家保存独立社会身份，并能把现有人物分配到真实城镇的住处与岗位。散修可在生活需求、盘缠和性格影响下选择歇息、当值、采药、交货、吐纳和小聚；右键生活化身会显示当前安排，短暂停步，并记住与玩家的交谈。
 
@@ -34,7 +34,7 @@ systems when the data and runtime pipeline are ready.
 
 近处需要实际走到目标格，远处沿用相同活动记录；工作进度跨化身撤离和存档保存。物资目前是有限的命簿账户，尚未接真实灵植收割、玩家交易或实体背包；化身保持原有无敌语义。本期的休息与工作使用到点停留表现。
 
-实现说明见 [KB56](docs/ai-kb/56_npc_semi_autonomy.md)，**构建入口、测试场景与尚未验证的项目见 [NPC 生活验证交接](docs/testing/2026-10-17-npc-life.md)**。新版本写入命簿 v4，旧存档迁移与回退检查请在存档副本进行。
+实现说明见 [KB56](docs/ai-kb/56_npc_semi_autonomy.md)，**云端验证结果、构建入口与尚未验证的项目见 [NPC 生活验证交接](docs/testing/2026-10-17-npc-life.md)**。新版本写入命簿 v4，旧存档迁移与回退检查请在存档副本进行。
 
 ## 修仙大陆与局部生态过渡（0.59.1-fix1）
 
