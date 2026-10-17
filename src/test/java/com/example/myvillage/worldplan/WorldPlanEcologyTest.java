@@ -76,4 +76,14 @@ class WorldPlanEcologyTest {
         assertFalse(CityAuditPolicy.naturalChange("minecraft:stone_bricks","minecraft:air",true));
         assertFalse(CityAuditPolicy.naturalChange("minecraft:stone_bricks","minecraft:dirt",true));
     }
+    @Test void newSpawnPadRejectsCanopiesWithoutRewritingV1OrOlderFrozenV2() throws Exception {
+        var current=rules(WorldPlanRules.RESOURCE);var p=new WorldPlan(20261017,current);var s=p.spawn();
+        assertTrue(p.reserved(s.x(),s.y()+40,s.z()));
+        assertTrue(p.reserved(s.x()+current.spawnPadRadius,s.y()+80,s.z()));
+        assertFalse(p.reserved(s.x()+current.spawnPadRadius+1,s.y()+40,s.z()));
+        var legacy=new WorldPlan(20261017,rules(WorldPlanRules.LEGACY_RESOURCE));
+        assertFalse(legacy.reserved(s.x(),s.y()+40,s.z()));
+        var old=JsonParser.parseString(current.json()).getAsJsonObject();old.getAsJsonObject("ecology").remove("clear_spawn_canopy");
+        assertFalse(new WorldPlan(20261017,new WorldPlanRules(old.toString())).reserved(s.x(),s.y()+40,s.z()));
+    }
 }

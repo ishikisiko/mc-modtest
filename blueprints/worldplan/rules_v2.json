@@ -2,6 +2,7 @@
   "base": "rules_v1.json",
   "algorithm": "myvillage:worldplan_v2",
   "ecology": {
+    "clear_spawn_canopy": true,
     "blend": 720,
     "noise_scale": 900,
     "temperature_variation": 0.035,

@@ -14,12 +14,17 @@ public final class WorldPlanEcology {
     private record MoistureBand(double max, String biome) {}
     private record Band(double max, List<MoistureBand> moisture) {}
     public final double blend, noiseScale, temperatureVariation, moistureVariation, coolingStartY, coolingPerBlock;
+    public final boolean clearSpawnCanopy;
     private final Map<String, Climate> profiles;
     private final List<Band> bands;
     private final Set<String> biomes;
 
     public WorldPlanEcology(JsonObject data, Set<String> profileIds, int cellSize) {
         if (data == null) throw new IllegalArgumentException("V2 requires frozen ecology");
+        JsonElement canopy=data.get("clear_spawn_canopy");
+        if(canopy!=null&&(!canopy.isJsonPrimitive()||!canopy.getAsJsonPrimitive().isBoolean()))
+            throw new IllegalArgumentException("clear_spawn_canopy must be boolean");
+        clearSpawnCanopy=canopy!=null&&canopy.getAsBoolean();
         // Same bounded 5x5 outer-cell neighbourhood as the terrain sampler.
         blend = number(data,"blend",64,cellSize/3.0);
         noiseScale = number(data,"noise_scale",128,10000);

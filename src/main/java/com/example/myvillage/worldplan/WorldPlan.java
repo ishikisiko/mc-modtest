@@ -180,7 +180,8 @@ public final class WorldPlan {
     }
     public boolean reserved(int x,int y,int z) {
         return(city.contains(x,z,rules.city.margin())&&y>=city.baseY-rules.surfaceSeal&&y<city.baseY+city.height)
-            ||(Math.abs((long)x-spawn.x)<=rules.spawnPadRadius&&Math.abs((long)z-spawn.z)<=rules.spawnPadRadius&&y>=spawn.y-1&&y<spawn.y+5);
+            ||(Math.abs((long)x-spawn.x)<=rules.spawnPadRadius&&Math.abs((long)z-spawn.z)<=rules.spawnPadRadius&&y>=spawn.y-1
+                &&((rules.ecology!=null&&rules.ecology.clearSpawnCanopy)||y<spawn.y+5));
     }
     public boolean intersectsCity(int minX,int minZ,int maxX,int maxZ) {
         int m=rules.city.structureBuffer()+rules.city.margin();return minX<city.x+city.width+m&&maxX>=city.x-m&&minZ<city.z+city.depth+m&&maxZ>=city.z-m;

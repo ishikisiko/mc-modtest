@@ -9,6 +9,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.storage.LevelResource;
@@ -52,6 +53,10 @@ public final class WorldPlanRuntime {
         if(!(event.getLevel() instanceof ServerLevel level))return;
         generator(level).ifPresent(g->{var spawn=g.plan().spawn();BlockPos at=new BlockPos(spawn.x(),spawn.y(),spawn.z());
             level.setDefaultSpawnPos(at,0);RegionRuntimeState.get(level).markSpawnBound(spawn.regionId(),at);
+            if(g.rules().ecology!=null&&g.rules().ecology.clearSpawnCanopy){
+                var radius=level.getGameRules().getRule(GameRules.RULE_SPAWN_RADIUS);
+                radius.set(Math.min(radius.get(),g.rules().spawnPadRadius),level.getServer());
+            }
             // First creation only; restarts and custom administrator spawns are never overwritten.
             event.setCanceled(true);
         });
