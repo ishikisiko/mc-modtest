@@ -4,6 +4,9 @@ import com.example.myvillage.sim.SettlementScheduler;
 import com.example.myvillage.sim.SimEvent;
 import com.example.myvillage.sim.SimFormatException;
 import com.example.myvillage.sim.data.RealmTable;
+import com.example.myvillage.sim.life.LifeCodec;
+import com.example.myvillage.sim.social.SocialCodec;
+import com.example.myvillage.sim.social.SocialEngine;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
@@ -29,8 +32,10 @@ public final class StateCodec {
      * an older payload reads with none. 0.43.0 adds the player task fields ({@code task},
      * {@code task_progress}, {@code task_target}, {@code task_year}) without a version change: they
      * are always written, read as optional, and an older payload reads with no task.
+     * 4: independent social identities and persistent town life; older saves are backfilled only
+     * from their existing player memberships and start with no life assignments.
      */
-    public static final int VERSION = 3;
+    public static final int VERSION = 4;
 
     private static final Gson GSON = new GsonBuilder().disableHtmlEscaping().create();
 
@@ -87,6 +92,8 @@ public final class StateCodec {
             players.add(playerMember(m));
         }
         o.add("player_members", players);
+        o.add("social", SocialCodec.write(s.social));
+        o.add("life", LifeCodec.write(s.life));
         JsonArray persons = new JsonArray();
         for (Person p : s.persons.values()) {
             persons.add(person(p, realms));
@@ -365,6 +372,9 @@ public final class StateCodec {
                 throw new SimFormatException("player_members lists player \"" + m.playerId + "\" twice");
             }
         }
+        s.social = SocialCodec.read(o.has("social") ? o.obj("social").json : null);
+        if (o.integer("version") < 4) SocialEngine.backfillMembers(s.social, s);
+        s.life = LifeCodec.read(o.has("life") ? o.obj("life").json : null);
         for (Obj po : o.objects("persons")) {
             Person p = readPerson(po, realms);
             s.persons.put(p.id, p);

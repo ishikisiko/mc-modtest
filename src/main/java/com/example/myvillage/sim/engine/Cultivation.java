@@ -17,7 +17,13 @@ public final class Cultivation {
     }
 
     public static void daily(SimContext ctx, Person p) {
-        p.progress += Rates.linear(yearlyRate(ctx, p), ctx.dpy);
+        daily(ctx, p, 1.0);
+    }
+
+    /** Life residents earn only the share of a day spent cultivating; other people keep their rate. */
+    public static void daily(SimContext ctx, Person p, double share) {
+        if (!Double.isFinite(share) || share < 0 || share > 1) throw new IllegalArgumentException("cultivation share");
+        p.progress += Rates.linear(yearlyRate(ctx, p), ctx.dpy) * share;
         RealmTable.Realm realm = ctx.realm(p);
         while (p.stage < realm.lastStage() && p.progress >= realm.stage(p.stage).cap()) {
             p.progress -= realm.stage(p.stage).cap();

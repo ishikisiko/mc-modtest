@@ -10,9 +10,15 @@ import com.example.myvillage.sim.PersonView;
 import com.example.myvillage.sim.SectView;
 import com.example.myvillage.sim.SimEvent;
 import com.example.myvillage.sim.WorldSim;
+import com.example.myvillage.sim.life.LifeResidentView;
+import com.example.myvillage.sim.life.LifeRules;
+import com.example.myvillage.sim.life.LifeSite;
 import com.example.myvillage.sim.runtime.WorldSimRuntime;
+import com.example.myvillage.sim.runtime.WorldSimSavedData;
 import com.example.myvillage.sim.runtime.WorldSimServerConfig;
 import com.example.myvillage.sim.runtime.WorldSimText;
+import com.example.myvillage.sim.runtime.life.NpcLifeInteraction;
+import com.example.myvillage.sim.runtime.life.NpcLifeSites;
 import com.example.myvillage.stats.runtime.StatsRuntime;
 import com.example.myvillage.wilderness.WildernessRules;
 import com.example.myvillage.wilderness.runtime.WildernessRuntime;
@@ -86,8 +92,14 @@ public final class WorldSimAvatars {
     static final String STEWARD_NAME_KEY = "entity.myvillage.cultivator.avatar.steward";
 
     /** {@code role} is the dialogue role last set on the entity ({@link NpcEntity#ledgerRole()}). */
-    private record Avatar(int personId, int sectId, CultivatorEntity entity, BlockPos cell, String role, String wildRegion) {
+    private record Avatar(int personId, int sectId, CultivatorEntity entity, BlockPos cell, String role,
+                          String wildRegion, String lifeSite, long lifeEpoch) {
+        Avatar(int personId, int sectId, CultivatorEntity entity, BlockPos cell, String role, String wildRegion) {
+            this(personId, sectId, entity, cell, role, wildRegion, null, -1);
+        }
         boolean wild() { return wildRegion != null; }
+        boolean life() { return lifeSite != null; }
+        boolean legacySect() { return !wild() && !life(); }
     }
 
     /**
@@ -124,6 +136,7 @@ public final class WorldSimAvatars {
         AVATARS.clear();
         CELLS.clear();
         WILD_RETRY_CURSORS.clear();
+        NpcLifeInteraction.clear();
         ticks = 0;
         coloursFailureLogged = false;
     }
@@ -132,10 +145,12 @@ public final class WorldSimAvatars {
         discardAll("the server is stopping");
         CELLS.clear();
         WILD_RETRY_CURSORS.clear();
+        NpcLifeInteraction.clear();
     }
 
     static void onServerTick(ServerTickEvent.Post event) {
-        if (++ticks % PASS_TICKS != 0) {
+        ticks++;
+        if (ticks % PASS_TICKS != 0) {
             return;
         }
         try {
@@ -165,7 +180,7 @@ public final class WorldSimAvatars {
         }
         Set<Integer> sects = new HashSet<>();
         for (Avatar a : AVATARS.values()) {
-            if (!a.wild()) sects.add(a.sectId());
+            if (a.legacySect()) sects.add(a.sectId());
         }
         for (int sectId : sects) {
             Optional<SectView> sect = sim.sect(sectId);
@@ -176,6 +191,7 @@ public final class WorldSimAvatars {
             reconcile(sectId, selected(sim, sectId));
         }
         reconcileWild(server.overworld(), sim);
+        reconcileLife(server, sim);
     }
 
     /** The build command changed this sect's gate: its avatars and cached cells are stale. */
@@ -187,13 +203,19 @@ public final class WorldSimAvatars {
     // ------------------------------------------------------------------ the pass
 
     private static void pass(MinecraftServer server) {
-        AVATARS.values().removeIf(a -> a.entity().isRemoved()); // killed or otherwise gone: respawned below
         Optional<WorldSim> active = WorldSimRuntime.sim();
         if (active.isEmpty() || !WorldSimServerConfig.avatarsEnabled()) {
             discardAll(active.isEmpty() ? "the ledger is inactive" : "avatars are disabled");
             return;
         }
         WorldSim sim = active.get();
+        Iterator<Avatar> removed = AVATARS.values().iterator();
+        while (removed.hasNext()) {
+            Avatar a = removed.next();
+            if (!a.life() && a.entity().isRemoved()) {
+                removed.remove();
+            }
+        }
         ServerLevel level = server.overworld();
         int spawnRadius = WorldSimServerConfig.avatarSpawnRadius();
         int withdrawRadius = WorldSimServerConfig.avatarWithdrawRadius();
@@ -250,7 +272,8 @@ public final class WorldSimAvatars {
     private static Selection selected(WorldSim sim, int sectId) {
         List<String> realmOrder = sim.realmIds();
         int stewardId = sim.stewardOf(sectId).map(PersonView::id).orElse(-1);
-        return new Selection(AvatarPlanner.select(sim.membersAt(sectId), realmOrder,
+        List<PersonView> legacy = sim.membersAt(sectId).stream().filter(p -> sim.life(p.id()).isEmpty()).toList();
+        return new Selection(AvatarPlanner.select(legacy, realmOrder,
                 WorldSimServerConfig.maxAvatarsPerSect(), stewardId), stewardId, List.copyOf(realmOrder), sim.day(),
                 WorldSimRuntime.daysPerYear());
     }
@@ -283,7 +306,7 @@ public final class WorldSimAvatars {
         while (it.hasNext()) {
             Map.Entry<Integer, Avatar> entry = it.next();
             Avatar a = entry.getValue();
-            if (a.sectId() != sectId) {
+            if (!a.legacySect() || a.sectId() != sectId) {
                 continue;
             }
             PersonView p = byId.get(a.personId());
@@ -322,7 +345,7 @@ public final class WorldSimAvatars {
                 g -> SectCourtyard.cells(g.seed(), g.anchor(), g.variant()));
         List<BlockPos> occupied = new ArrayList<>();
         for (Avatar a : AVATARS.values()) {
-            if (a.sectId() == sectId) {
+            if (a.legacySect() && a.sectId() == sectId) {
                 occupied.add(a.cell());
             }
         }
@@ -358,6 +381,12 @@ public final class WorldSimAvatars {
 
     private static boolean spawn(ServerLevel level, PersonView p, int sectId, BlockPos cell, String role,
                                  Selection selection, String wildRegion) {
+        return spawn(level, p, sectId, cell, role, selection, wildRegion, null, -1);
+    }
+
+    /** All three projection sources use this one spawner and the same identity and capacity map. */
+    private static boolean spawn(ServerLevel level, PersonView p, int sectId, BlockPos cell, String role,
+                                 Selection selection, String wildRegion, String lifeSite, long lifeEpoch) {
         if (AVATARS.containsKey(p.id()) || AVATARS.size() >= WorldSimServerConfig.maxAvatars()) return false;
         CultivatorEntity entity = ModEntities.CULTIVATOR.get().create(level);
         if (entity == null) {
@@ -369,7 +398,9 @@ public final class WorldSimAvatars {
         entity.moveTo(cell.getX() + 0.5, cell.getY(), cell.getZ() + 0.5, yaw, 0.0F);
         entity.setYHeadRot(yaw);
         entity.setYBodyRot(yaw);
-        if (wildRegion != null && (!loadedArea(level, entity.getBoundingBox()) || !level.noCollision(entity))) return false;
+        if ((wildRegion != null || lifeSite != null)
+                && (!loadedArea(level, entity.getBoundingBox())
+                    || !level.getWorldBorder().isWithinBounds(entity.getBoundingBox()) || !level.noCollision(entity))) return false;
         entity.setLedgerRole(role);
         entity.setLook(CultivatorLooks.forPerson(p, selection.realmOrder()));
         applyColours(entity, p, selection);
@@ -377,7 +408,11 @@ public final class WorldSimAvatars {
         entity.setCustomNameVisible(true);
         StatsRuntime.applyRealm(entity, p.realmId(), p.stage());
         entity.setHealth(entity.getMaxHealth());
-        Avatar avatar = new Avatar(p.id(), sectId, entity, cell, role, wildRegion);
+        if (lifeSite != null) {
+            entity.enableLedgerLife(lifeEpoch);
+            entity.addTag("myvillage:life_avatar"); // diagnostic only; the shared map still owns identity
+        }
+        Avatar avatar = new Avatar(p.id(), sectId, entity, cell, role, wildRegion, lifeSite, lifeEpoch);
         AVATARS.put(p.id(), avatar); // before adding, so the join check knows it
         if (!level.addFreshEntity(entity)) {
             AVATARS.remove(p.id());
@@ -419,6 +454,207 @@ public final class WorldSimAvatars {
         String key = NpcEntity.ROLE_STEWARD.equals(role) ? STEWARD_NAME_KEY : NAME_KEY;
         return Component.translatable(key, p.name(), WorldSimText.realm(p.realmId()),
                 p.sectId() == -1 && p.rank().equals("rogue") ? WorldSimText.rank("rogue") : p.sectName());
+    }
+
+    // ------------------------------------------------------------------ persistent residents
+
+    /** The current executor token only when this exact entity belongs to the shared identity map. */
+    public static long lifeEpoch(NpcEntity npc) {
+        Avatar a = AVATARS.get(npc.ledgerPersonId());
+        return a != null && a.life() && a.entity() == npc ? a.lifeEpoch() : -1;
+    }
+
+    public static boolean isManagedLife(NpcEntity npc, long epoch) {
+        return epoch >= 0 && lifeEpoch(npc) == epoch;
+    }
+
+    /** Read-only diagnostic; residents count against the same global cap as every other avatar. */
+    public static int lifeCount(String siteId) {
+        int count = 0;
+        for (Avatar a : AVATARS.values()) {
+            if (a.life() && (siteId == null || siteId.equals(a.lifeSite()))) count++;
+        }
+        return count;
+    }
+
+    /**
+     * Called by WorldSimRuntime before advancing life, after checking loaded facilities. Presence
+     * is observed even when a cap, obstruction or disabled avatars prevents a body from spawning:
+     * a resident near a player must not fall through to invisible cold work. The two radii provide
+     * the same hysteresis for an unembodied resident as for an existing body.
+     */
+    public static void prepareLife(MinecraftServer server, WorldSim sim) {
+        reconcileLife(server, sim);
+        LifeRules rules = sim.lifeRules();
+        for (LifeResidentView life : sim.lifeResidents()) {
+            LifeSite site = sim.lifeSite(life.siteId()).orElse(null);
+            ServerLevel level = site == null ? null : NpcLifeSites.level(server, site);
+            double radius = rules.spawnRadius() + (life.observed() ? rules.withdrawMargin() : 0);
+            boolean observed = level != null
+                    && nearestLifePlayer(level, life.x() + .5, life.y(), life.z() + .5) <= radius;
+            sim.setLifeObserved(life.personId(), observed);
+        }
+        if (!WorldSimServerConfig.avatarsEnabled()) {
+            discardAll("avatars are disabled");
+            return;
+        }
+        ensureLife(server, sim);
+        for (Avatar avatar : AVATARS.values()) {
+            if (avatar.life()) avatar.entity().validateLedgerLifeWorkplace();
+        }
+    }
+
+    /** Called before WorldSimRuntime drops its facade on server stop. Does not report anybody dead. */
+    public static void flushLife() {
+        WorldSim sim = WorldSimRuntime.sim().orElse(null);
+        if (sim == null) return;
+        for (Avatar a : AVATARS.values()) {
+            if (a.life()) {
+                a.entity().getNavigation().stop();
+                releaseLife(sim, a);
+            }
+        }
+    }
+
+    private static void reconcileLife(MinecraftServer server, WorldSim sim) {
+        LifeRules rules = sim.lifeRules();
+        Selection presentation = new Selection(List.of(), -1, sim.realmIds(), sim.day(), WorldSimRuntime.daysPerYear());
+        Iterator<Map.Entry<Integer, Avatar>> it = AVATARS.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<Integer, Avatar> entry = it.next();
+            Avatar a = entry.getValue();
+            LifeResidentView life = sim.life(a.personId()).orElse(null);
+            if (!a.life()) {
+                // An enrolled resident has one physical location and never falls back to gate/wild sampling.
+                if (life != null) {
+                    a.entity().discard();
+                    it.remove();
+                }
+                continue;
+            }
+            LifeSite site = life == null ? null : sim.lifeSite(life.siteId()).orElse(null);
+            PersonView person = sim.person(a.personId()).filter(PersonView::alive).orElse(null);
+            ServerLevel level = site == null ? null : NpcLifeSites.level(server, site);
+            if (life == null || person == null || site == null || level == null
+                    || !life.embodied() || life.epoch() != a.lifeEpoch() || !life.siteId().equals(a.lifeSite())
+                    || a.entity().isRemoved() || !a.entity().isAlive() || a.entity().level() != level
+                    || !loadedArea(level, a.entity().getBoundingBox())
+                    || nearestLifePlayer(level, a.entity().getX(), a.entity().getY(), a.entity().getZ())
+                        > rules.spawnRadius() + rules.withdrawMargin()) {
+                releaseLife(sim, a);
+                a.entity().discard();
+                it.remove();
+                continue;
+            }
+            BlockPos current = a.entity().blockPosition();
+            if (sim.checkpointLife(a.personId(), a.lifeEpoch(), current.getX(), current.getY(), current.getZ())) {
+                markLifeDirty(server);
+            }
+            String role = role(person, -1); // a town resident is not the gate's stationed steward
+            a.entity().setLedgerRole(role);
+            if (!role.equals(a.role()) || person.sectId() != a.sectId()) {
+                entry.setValue(new Avatar(a.personId(), person.sectId(), a.entity(), current, role,
+                        null, a.lifeSite(), a.lifeEpoch()));
+            }
+            refreshLifePresentation(a.entity(), person, life, role, presentation);
+        }
+    }
+
+    private record LifeCandidate(LifeResidentView resident, ServerLevel level, double distance) { }
+
+    private static void ensureLife(MinecraftServer server, WorldSim sim) {
+        LifeRules rules = sim.lifeRules();
+        List<LifeCandidate> candidates = new ArrayList<>();
+        for (LifeResidentView life : sim.lifeResidents()) {
+            if (AVATARS.containsKey(life.personId())) continue;
+            LifeSite site = sim.lifeSite(life.siteId()).orElse(null);
+            ServerLevel level = site == null ? null : NpcLifeSites.level(server, site);
+            if (level == null) continue;
+            double distance = nearestLifePlayer(level, life.x() + .5, life.y(), life.z() + .5);
+            if (distance <= rules.spawnRadius()) candidates.add(new LifeCandidate(life, level, distance));
+        }
+        candidates.sort(Comparator.comparingDouble(LifeCandidate::distance)
+                .thenComparingInt(c -> c.resident().personId()));
+        Selection presentation = new Selection(List.of(), -1, sim.realmIds(), sim.day(), WorldSimRuntime.daysPerYear());
+        for (LifeCandidate candidate : candidates) {
+            if (AVATARS.size() >= WorldSimServerConfig.maxAvatars()) break;
+            LifeResidentView life = candidate.resident();
+            if (lifeCount(life.siteId()) >= rules.maxResidentsPerSite()) continue;
+            PersonView person = sim.person(life.personId()).filter(PersonView::alive).orElse(null);
+            if (person == null || AVATARS.containsKey(person.id())) continue;
+            BlockPos cell = new BlockPos(life.x(), life.y(), life.z());
+            if (!lifeGround(candidate.level(), cell)) continue;
+
+            // A surviving token without a managed entity can only be an interrupted projection.
+            // Release it before issuing the replacement executor; never create a second map entry.
+            if (life.embodied()) sim.releaseLife(life.personId(), life.epoch(), life.x(), life.y(), life.z());
+            long epoch = sim.activateLife(life.personId());
+            if (epoch < 0) continue;
+            markLifeDirty(server);
+            String role = role(person, -1);
+            boolean spawned = false;
+            try {
+                spawned = spawn(candidate.level(), person, person.sectId(), cell, role, presentation,
+                        null, life.siteId(), epoch);
+                if (spawned) {
+                    LifeResidentView active = sim.life(person.id()).orElse(life);
+                    refreshLifePresentation(AVATARS.get(person.id()).entity(), person, active, role, presentation);
+                    LOGGER.info("NPC_LIFE_AVATAR action=spawn person={} site={} epoch={} x={} y={} z={}",
+                            person.id(), life.siteId(), epoch, cell.getX(), cell.getY(), cell.getZ());
+                }
+            } finally {
+                if (!spawned && sim.releaseLife(life.personId(), epoch, cell.getX(), cell.getY(), cell.getZ())) {
+                    markLifeDirty(server);
+                }
+            }
+        }
+    }
+
+    private static boolean lifeGround(ServerLevel level, BlockPos cell) {
+        if (cell.getY() <= level.getMinBuildHeight() || cell.getY() + 2 >= level.getMaxBuildHeight()
+                || !loadedArea(level, new AABB(cell).expandTowards(0, 2, 0))) return false;
+        return level.getBlockState(cell.below()).isFaceSturdy(level, cell.below(), Direction.UP)
+                && level.getFluidState(cell.below()).isEmpty() && level.getFluidState(cell).isEmpty()
+                && level.getFluidState(cell.above()).isEmpty();
+    }
+
+    private static double nearestLifePlayer(ServerLevel level, double x, double y, double z) {
+        double distance = Double.POSITIVE_INFINITY;
+        for (ServerPlayer player : level.players()) {
+            if (!player.isSpectator() && player.isAlive()) {
+                distance = Math.min(distance, Math.sqrt(player.distanceToSqr(x, y, z)));
+            }
+        }
+        return distance;
+    }
+
+    private static void refreshLifePresentation(CultivatorEntity entity, PersonView person, LifeResidentView life,
+                                                String role, Selection presentation) {
+        Component name = name(person, role).copy().append(" · ").append(NpcLifeInteraction.stateText(life));
+        if (!Objects.equals(entity.getCustomName(), name)) {
+            entity.setCustomName(name);
+            LOGGER.info("NPC_LIFE_AVATAR action=state person={} activity={} phase={} revision={} reason={}",
+                    person.id(), life.activity(), life.phase(), life.revision(), life.reason());
+        }
+        String look = CultivatorLooks.forPerson(person, presentation.realmOrder());
+        if (!look.equals(entity.look())) entity.setLook(look);
+        applyColours(entity, person, presentation);
+        StatsRuntime.applyRealm(entity, person.realmId(), person.stage());
+    }
+
+    private static void releaseLife(WorldSim sim, Avatar avatar) {
+        if (!avatar.life()) return;
+        BlockPos position = avatar.entity().blockPosition();
+        if (sim.releaseLife(avatar.personId(), avatar.lifeEpoch(), position.getX(), position.getY(), position.getZ())) {
+            MinecraftServer server = avatar.entity().level().getServer();
+            if (server != null) markLifeDirty(server);
+            LOGGER.info("NPC_LIFE_AVATAR action=release person={} site={} epoch={} x={} y={} z={}",
+                    avatar.personId(), avatar.lifeSite(), avatar.lifeEpoch(), position.getX(), position.getY(), position.getZ());
+        }
+    }
+
+    private static void markLifeDirty(MinecraftServer server) {
+        WorldSimSavedData.get(server.overworld()).setDirty();
     }
 
     // ------------------------------------------------------------------ wilderness
@@ -463,7 +699,7 @@ public final class WorldSimAvatars {
             if (!a.wild()) continue;
             PersonView person = sim.person(a.personId()).orElse(null);
             Optional<WildernessRules.Region> region = rules.region(a.wildRegion());
-            boolean eligible = person != null && region.isPresent()
+            boolean eligible = person != null && sim.life(a.personId()).isEmpty() && region.isPresent()
                     && WildAvatarPlanner.eligible(person, a.wildRegion(), region.get().rogue());
             BlockPos cell = a.entity().blockPosition();
             if (!eligible || a.entity().isRemoved() || !a.entity().level().dimension().equals(Level.OVERWORLD)
@@ -496,7 +732,8 @@ public final class WorldSimAvatars {
             if (at.isEmpty()) continue;
             String region = at.get();
             List<PersonView> eligible = candidates.computeIfAbsent(region, id -> WildAvatarPlanner.candidates(
-                    sim.livingIn(id), id, rules.region(id).orElseThrow().rogue(), sim.seed()));
+                    sim.livingIn(id).stream().filter(p -> sim.life(p.id()).isEmpty()).toList(),
+                    id, rules.region(id).orElseThrow().rogue(), sim.seed()));
             // Advance once per region per pass, even when all its attempted columns are obstructed.
             // Several nearby players use the same starting cursor and the shared occupied-person map.
             int cursor = passCursors.computeIfAbsent(region, id -> {
@@ -545,7 +782,7 @@ public final class WorldSimAvatars {
         Iterator<Avatar> it = AVATARS.values().iterator();
         while (it.hasNext()) {
             Avatar a = it.next();
-            if (a.sectId() == sectId) {
+            if (a.legacySect() && a.sectId() == sectId) {
                 a.entity().discard();
                 it.remove();
                 n++;
@@ -561,7 +798,9 @@ public final class WorldSimAvatars {
             return;
         }
         int n = AVATARS.size();
+        WorldSim sim = WorldSimRuntime.sim().orElse(null);
         for (Avatar a : AVATARS.values()) {
+            if (sim != null) releaseLife(sim, a);
             a.entity().discard();
         }
         AVATARS.clear();
@@ -571,7 +810,7 @@ public final class WorldSimAvatars {
     private static Set<Integer> sectsWithAvatars() {
         Set<Integer> out = new HashSet<>();
         for (Avatar a : AVATARS.values()) {
-            if (!a.wild()) out.add(a.sectId());
+            if (a.legacySect()) out.add(a.sectId());
         }
         return out;
     }
@@ -579,7 +818,7 @@ public final class WorldSimAvatars {
     private static int count(int sectId) {
         int n = 0;
         for (Avatar a : AVATARS.values()) {
-            if (a.sectId() == sectId) {
+            if (a.legacySect() && a.sectId() == sectId) {
                 n++;
             }
         }

@@ -18,7 +18,7 @@ public final class Danger {
     }
 
     public static void daily(SimContext ctx, Person p) {
-        if (!p.status.equals("travelling")) {
+        if (People.lifeResident(ctx, p) || !p.status.equals("travelling")) {
             return;
         }
         Rules.Danger d = ctx.rules.danger();

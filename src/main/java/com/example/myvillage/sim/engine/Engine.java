@@ -1,6 +1,7 @@
 package com.example.myvillage.sim.engine;
 
 import com.example.myvillage.sim.SimEvent;
+import com.example.myvillage.sim.life.LifeEngine;
 import com.example.myvillage.sim.model.Person;
 import java.util.List;
 
@@ -37,11 +38,16 @@ public final class Engine {
             if (p == null) {
                 continue;
             }
-            Cultivation.daily(ctx, p);
-            Breakthrough.daily(ctx, p);
+            boolean townResident = ctx.state.life.residents.containsKey(id);
+            double cultivationShare = LifeEngine.takeCultivationShare(ctx, id);
+            Cultivation.daily(ctx, p, cultivationShare);
+            if (cultivationShare > 0) Breakthrough.daily(ctx, p);
             if (ctx.alive(p)) {
                 Lifespan.daily(ctx, p);
             }
+            // Town ownership applies both near and far. Lifespan and earned cultivation outcomes
+            // remain authoritative; invisible travel/combat waits for an embodied outcome bridge.
+            if (townResident) continue;
             if (ctx.alive(p)) {
                 Travel.daily(ctx, p);
             }
@@ -60,6 +66,7 @@ public final class Engine {
         }
         PlayerAffairs.daily(ctx);
         Succession.settle(ctx);
+        ctx.state.life.residents.entrySet().removeIf(e -> !ctx.state.persons.containsKey(e.getKey()));
         List<SimEvent> today = ctx.chronicle.endDay();
         ctx.state.day++;
         return today;

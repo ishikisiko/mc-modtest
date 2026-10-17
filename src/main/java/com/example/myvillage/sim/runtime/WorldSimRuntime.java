@@ -11,6 +11,7 @@ import com.example.myvillage.sim.WorldSim;
 import com.example.myvillage.sim.runtime.avatar.GateRealizer;
 import com.example.myvillage.sim.runtime.avatar.WorldSimAvatars;
 import com.example.myvillage.sim.runtime.player.WorldSimPlayers;
+import com.example.myvillage.sim.runtime.life.NpcLifeSites;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -163,6 +164,9 @@ public final class WorldSimRuntime {
         driver = new WorldSimDriver(live);
         saved.attach(() -> new WorldSimSavedData.Snapshot(live.tierId(), live.scheduler().paused(), live.toBytes()));
         inactiveReason = null;
+        live.rebaseLifeClock(CultivationCalendarSavedData.get(overworld).elapsedCalendarTicks(),
+                CultivationServerConfig.scale().ticksPerDay());
+        WorldSimPlayers.registerOnline(server, live);
     }
 
     static void onServerTick(ServerTickEvent.Post event) {
@@ -174,6 +178,15 @@ public final class WorldSimRuntime {
         CultivationServerConfig.Scale scale = CultivationServerConfig.scale();
         List<SimEvent> events;
         try {
+            WorldSim live = d.sim();
+            long calendarTicks = CultivationCalendarSavedData.get(s.overworld()).elapsedCalendarTicks();
+            if (s.getTickCount() % live.lifeRules().runtimeIntervalTicks() == 0
+                    || calendarTicks / scale.ticksPerDay() != live.lifeClockTicks() / scale.ticksPerDay()) {
+                // Observe removed/blocked facilities before any work is settled for this interval.
+                NpcLifeSites.tick(s, live);
+                WorldSimAvatars.prepareLife(s, live);
+                if (live.advanceLife(calendarTicks, scale.ticksPerDay())) saved.setDirty();
+            }
             events = d.tick(calendarDay(s), WorldSimDriver.pendingCap(WorldSimServerConfig.catchUpCapDays(), data),
                     scale.daysPerYear());
         } catch (RuntimeException ex) {
@@ -190,6 +203,8 @@ public final class WorldSimRuntime {
 
     static void onServerStopping(ServerStoppingEvent event) {
         // The final world save runs after this event; the save data keeps its live binding for it.
+        WorldSimAvatars.flushLife();
+        NpcLifeSites.reset();
         if (saved != null && saved.attached()) {
             saved.setDirty();
         }
@@ -255,6 +270,8 @@ public final class WorldSimRuntime {
             return false;
         }
         d.setPaused(paused);
+        d.sim().rebaseLifeClock(CultivationCalendarSavedData.get(server.overworld()).elapsedCalendarTicks(),
+                CultivationServerConfig.scale().ticksPerDay());
         d.consumeSchedulerChange();
         saved.setDirty();
         LOGGER.info("World sim settlement {} by command at sim day {}", paused ? "paused" : "resumed", d.sim().day());

@@ -9,6 +9,18 @@ import com.example.myvillage.sim.engine.AdminActs;
 import com.example.myvillage.sim.engine.Engine;
 import com.example.myvillage.sim.engine.PlayerAffairs;
 import com.example.myvillage.sim.engine.SimContext;
+import com.example.myvillage.sim.life.LifeCodec;
+import com.example.myvillage.sim.life.LifeEngine;
+import com.example.myvillage.sim.life.LifePlace;
+import com.example.myvillage.sim.life.LifeResidentView;
+import com.example.myvillage.sim.life.LifeRules;
+import com.example.myvillage.sim.life.LifeSite;
+import com.example.myvillage.sim.life.LifeSupplyView;
+import com.example.myvillage.sim.social.ActorRef;
+import com.example.myvillage.sim.social.ActorView;
+import com.example.myvillage.sim.social.ConversationView;
+import com.example.myvillage.sim.social.SocialEngine;
+import com.example.myvillage.sim.social.SocialRelationView;
 import com.example.myvillage.sim.model.Person;
 import com.example.myvillage.sim.model.PlayerMember;
 import com.example.myvillage.sim.model.Relation;
@@ -87,6 +99,8 @@ public final class WorldSim {
         for (Sect s : state.sects.values()) {
             requireRegion(ctx, s.homeRegionId, "sect " + s.id);
         }
+        for (LifeSite site : state.life.sites.values()) requireRegion(ctx, site.regionId(), "life site " + site.id());
+        LifeCodec.validate(state, data.lifeRules());
         return new WorldSim(ctx, null);
     }
 
@@ -160,6 +174,80 @@ public final class WorldSim {
 
     public String tierId() {
         return ctx.state.tierId;
+    }
+
+    // ------------------------------------------------------------------ social identities and town life
+
+    public boolean registerPlayerActor(String playerId, String playerName) {
+        return SocialEngine.registerPlayerActor(ctx.state.social, ctx.state, playerId, playerName);
+    }
+
+    public Optional<ActorView> actor(ActorRef ref) { return SocialEngine.actor(ctx.state.social, ctx.state, ref); }
+
+    public Optional<SocialRelationView> socialRelation(ActorRef observer, ActorRef other) {
+        return SocialEngine.relation(ctx.state.social, observer, other);
+    }
+
+    public ConversationView conversationContext(int npcId, String playerId) {
+        return SocialEngine.conversationContext(ctx.state.social, ctx.state, npcId, playerId);
+    }
+
+    public boolean rememberConversation(int npcId, String playerId) {
+        return SocialEngine.rememberConversation(ctx.state.social, ctx.state, npcId, playerId,
+                lifeRules().socialMemoryLimit(), lifeRules().socialFamiliarityGain(), lifeRules().socialStandingMax());
+    }
+
+    public LifeRules lifeRules() { return ctx.data.lifeRules(); }
+    public long lifeClockTicks() { return ctx.state.life.clockTicks; }
+    public List<LifeSite> lifeSites() { return List.copyOf(ctx.state.life.sites.values()); }
+    public Optional<LifeSite> lifeSite(String id) { return Optional.ofNullable(ctx.state.life.sites.get(id)); }
+
+    public List<LifeResidentView> lifeResidents() {
+        return ctx.state.life.residents.values().stream().filter(r -> ctx.state.persons.containsKey(r.personId))
+                .map(r -> r.view()).toList();
+    }
+
+    public Optional<LifeResidentView> life(int id) {
+        var resident = ctx.state.life.residents.get(id);
+        return resident == null || !ctx.state.persons.containsKey(id) ? Optional.empty() : Optional.of(resident.view());
+    }
+
+    public Optional<LifeSupplyView> lifeSupply(String siteId) {
+        var supply = ctx.state.life.supplies.get(siteId);
+        return supply == null ? Optional.empty() : Optional.of(new LifeSupplyView(supply.stock, supply.medicine,
+                supply.treasury, supply.gatheredToday, supply.services));
+    }
+
+    public boolean registerLifeSite(LifeSite site) { return LifeEngine.registerSite(ctx, site); }
+    public boolean addLifePlace(String siteId, LifePlace place) { return LifeEngine.addPlace(ctx, siteId, place); }
+    public boolean assignLife(int id, String siteId, String role, String home, String work) {
+        return LifeEngine.assign(ctx, id, siteId, role, home, work);
+    }
+    public boolean unassignLife(int id) { return LifeEngine.unassign(ctx, id); }
+    public boolean setLifePlaceAvailability(String siteId, String placeId, String status) {
+        return LifeEngine.availability(ctx, siteId, placeId, status);
+    }
+    public long activateLife(int id) { return LifeEngine.activate(ctx, id); }
+    public boolean checkpointLife(int id, long epoch, int x, int y, int z) {
+        return LifeEngine.checkpoint(ctx, id, epoch, x, y, z);
+    }
+    public boolean releaseLife(int id, long epoch, int x, int y, int z) {
+        return LifeEngine.release(ctx, id, epoch, x, y, z);
+    }
+    public boolean arriveLife(int id, long epoch, long revision) { return LifeEngine.arrive(ctx, id, epoch, revision); }
+    public boolean failLife(int id, long epoch, long revision, String reason) {
+        return LifeEngine.fail(ctx, id, epoch, revision, reason);
+    }
+    public boolean pauseLife(int id, long ticks) { return LifeEngine.pause(ctx, id, ticks); }
+    public boolean setLifeObserved(int id, boolean observed) { return LifeEngine.observed(ctx, id, observed); }
+
+    /** Effective shared-calendar ticks only. Paused intervals are rebased without payouts. */
+    public boolean advanceLife(long calendarTicks, int ticksPerDay) {
+        return LifeEngine.clock(ctx, calendarTicks, ticksPerDay, ctx.state.scheduler.paused());
+    }
+
+    public boolean rebaseLifeClock(long calendarTicks, int ticksPerDay) {
+        return LifeEngine.clock(ctx, calendarTicks, ticksPerDay, true);
     }
 
     // ------------------------------------------------------------------ views
@@ -448,6 +536,7 @@ public final class WorldSim {
     public Optional<PersonView> stewardOf(int sectId) {
         PersonView best = null;
         for (PersonView p : membersAt(sectId)) {
+            if (ctx.state.life.residents.containsKey(p.id())) continue;
             if (best == null || stewardOrder(p.rank()) < stewardOrder(best.rank())
                     || (stewardOrder(p.rank()) == stewardOrder(best.rank()) && p.id() < best.id())) {
                 best = p;
@@ -495,7 +584,9 @@ public final class WorldSim {
      * {@code player_leave} event. The join standing, snapshot and {@code player_join} event apply.
      */
     public SimEvent joinSect(String playerId, String playerName, int sectId, PlayerQualification q, boolean force) {
-        return PlayerAffairs.join(ctx, playerId, playerName, sectId, q, force);
+        SimEvent event = PlayerAffairs.join(ctx, playerId, playerName, sectId, q, force);
+        SocialEngine.backfillMembers(ctx.state.social, ctx.state);
+        return event;
     }
 
     /**

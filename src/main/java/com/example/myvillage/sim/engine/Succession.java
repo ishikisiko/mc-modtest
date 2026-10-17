@@ -59,7 +59,9 @@ public final class Succession {
         if (elders.size() >= 2) {
             Person second = elders.get(1);
             SimRng rng = ctx.rng(sect.id, Purpose.SECT_SUCCESSION);
-            if (SimContext.standing(heir) - SimContext.standing(second) <= r.contestGap()
+            // A resident can inherit a title, but cannot be drafted into an invisible duel.
+            if (!People.lifeResident(ctx, heir) && !People.lifeResident(ctx, second)
+                    && SimContext.standing(heir) - SimContext.standing(second) <= r.contestGap()
                     && second.ambition >= r.contestAmbition() && rng.chance(r.contestChance())) {
                 rival = second;
             }

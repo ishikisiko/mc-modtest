@@ -1,0 +1,490 @@
+{
+  "schema": 1,
+  "generated_from": "blueprints/npc_life/layouts.json",
+  "coordinate_semantics": "local feet position; bind origin is the minimum layout corner",
+  "gather_semantics": "Explicit bounded ledger resource point; no crop blocks are generated or harvested",
+  "layouts": [
+    {
+      "id": "yunshan_planned_v1",
+      "name": "云山古城·生活街区",
+      "size": [
+        80,
+        32,
+        112
+      ],
+      "source_origin": [
+        2921,
+        67,
+        241
+      ],
+      "worldplan_layout_hash": "5e782d299c43aadae3088e29253db40fb1992bc56375537de34b09e2d607b922",
+      "source_hashes": {
+        "blueprints/worldplan/yunshan_placeholder_v1.json": "87bf8a0d00ec7b7f12ba49568194de957d576a633c0e0864df5e3d8449d10be9",
+        "blueprints/yunshan/apothecary_v1.json": "18142224a5d3e2231e9618457e4696f740bf189f639fa65db08253e6f6966098",
+        "blueprints/yunshan/d1_site_reference.json": "26432d468f2a237da2ab69eb474cdc335bf9ea026f9b4f2879630aebe5915c30",
+        "blueprints/yunshan/functional_buildings_v1.json": "f883fa392270db3784012128e92ffebfb9c4f1b52abb2941377a74123d9c4314",
+        "blueprints/yunshan/initiation_hall_v1.json": "c22ae24036eef5b386bcb787e1e94147af1e3445c08603c8abf834d8fe322b04",
+        "blueprints/yunshan/smithy_v1.json": "68c0f7584781fee778c6ad14f170a0f9e8aece4bd55c148cefe85537983f7402",
+        "blueprints/yunshan/south_gate_inn_v3.json": "7add8a69cac0a42e71f57dca71b96e00202cc358f5991bba555485c321d97ee1"
+      },
+      "places": [
+        {
+          "id": "inn_entry",
+          "kind": "entry",
+          "pos": [
+            31,
+            1,
+            90
+          ],
+          "capacity": 1,
+          "block": "",
+          "block_pos": [
+            0,
+            0,
+            0
+          ],
+          "source": "blueprints/yunshan/south_gate_inn_v3.json",
+          "target": "entry"
+        },
+        {
+          "id": "inn_work",
+          "kind": "work",
+          "pos": [
+            34,
+            1,
+            85
+          ],
+          "capacity": 1,
+          "block": "",
+          "block_pos": [
+            0,
+            0,
+            0
+          ],
+          "source": "blueprints/yunshan/south_gate_inn_v3.json",
+          "target": "counter"
+        },
+        {
+          "id": "inn_rest",
+          "kind": "rest",
+          "pos": [
+            34,
+            1,
+            79
+          ],
+          "capacity": 1,
+          "block": "",
+          "block_pos": [
+            0,
+            0,
+            0
+          ],
+          "source": "blueprints/yunshan/south_gate_inn_v3.json",
+          "target": "prep"
+        },
+        {
+          "id": "inn_social",
+          "kind": "social",
+          "pos": [
+            31,
+            1,
+            86
+          ],
+          "capacity": 1,
+          "block": "",
+          "block_pos": [
+            0,
+            0,
+            0
+          ],
+          "source": "blueprints/yunshan/south_gate_inn_v3.json",
+          "target": "hall"
+        },
+        {
+          "id": "guest_west",
+          "kind": "rest",
+          "pos": [
+            34,
+            6,
+            82
+          ],
+          "capacity": 1,
+          "block": "minecraft:red_bed",
+          "block_pos": [
+            35,
+            6,
+            86
+          ],
+          "source": "blueprints/yunshan/south_gate_inn_v3.json",
+          "target": "west_room"
+        },
+        {
+          "id": "guest_east",
+          "kind": "rest",
+          "pos": [
+            28,
+            6,
+            82
+          ],
+          "capacity": 1,
+          "block": "minecraft:red_bed",
+          "block_pos": [
+            27,
+            6,
+            86
+          ],
+          "source": "blueprints/yunshan/south_gate_inn_v3.json",
+          "target": "east_room"
+        },
+        {
+          "id": "herbalist_entry",
+          "kind": "entry",
+          "pos": [
+            43,
+            3,
+            57
+          ],
+          "capacity": 1,
+          "block": "",
+          "block_pos": [
+            0,
+            0,
+            0
+          ],
+          "source": "blueprints/yunshan/apothecary_v1.json",
+          "target": "entry"
+        },
+        {
+          "id": "herbalist_work",
+          "kind": "work",
+          "pos": [
+            48,
+            3,
+            54
+          ],
+          "capacity": 1,
+          "block": "myvillage:alchemy_furnace",
+          "block_pos": [
+            49,
+            3,
+            54
+          ],
+          "source": "blueprints/yunshan/apothecary_v1.json",
+          "target": "alchemy"
+        },
+        {
+          "id": "herbalist_rest",
+          "kind": "rest",
+          "pos": [
+            45,
+            3,
+            59
+          ],
+          "capacity": 1,
+          "block": "minecraft:white_bed",
+          "block_pos": [
+            45,
+            3,
+            61
+          ],
+          "source": "blueprints/yunshan/apothecary_v1.json",
+          "target": "rest"
+        },
+        {
+          "id": "herb_market",
+          "kind": "market",
+          "pos": [
+            46,
+            3,
+            60
+          ],
+          "capacity": 1,
+          "block": "",
+          "block_pos": [
+            0,
+            0,
+            0
+          ],
+          "source": "blueprints/yunshan/apothecary_v1.json",
+          "target": "counter"
+        },
+        {
+          "id": "herb_yard",
+          "kind": "cultivate",
+          "pos": [
+            52,
+            3,
+            57
+          ],
+          "capacity": 1,
+          "block": "",
+          "block_pos": [
+            0,
+            0,
+            0
+          ],
+          "source": "blueprints/yunshan/apothecary_v1.json",
+          "target": "yard"
+        }
+      ]
+    },
+    {
+      "id": "yunshan_showcase_v2",
+      "name": "云山放大建筑·生活样板",
+      "size": [
+        67,
+        24,
+        71
+      ],
+      "source_origin": [
+        0,
+        -61,
+        0
+      ],
+      "worldplan_layout_hash": "",
+      "source_hashes": {
+        "blueprints/yunshan/apothecary_v2.json": "791e3457adad2c7f7f32f639bc39537c26c698ec4deaa86c8a5333fd4f361974",
+        "blueprints/yunshan/functional_buildings_v2.json": "39c77df78d1b9414833b0be8e859a9e0f23078f5023e060160d1c35ddea91f64",
+        "blueprints/yunshan/initiation_hall_v2.json": "2d1cf5a4ef63721f7280aa9d361e792f155ab2c64675f4df10a3a7310366a8f6",
+        "blueprints/yunshan/smithy_v2.json": "27791b6e97a2f4e9ccb97fb33e8982845ab490af834b6eb6b28a428d1021dd7a",
+        "blueprints/yunshan/south_gate_inn_v4.json": "0b729623b355514d290c334f737abb2643dd096a034eb0f5e0ac72e0016feec3"
+      },
+      "places": [
+        {
+          "id": "inn_entry",
+          "kind": "entry",
+          "pos": [
+            57,
+            1,
+            48
+          ],
+          "capacity": 1,
+          "block": "",
+          "block_pos": [
+            0,
+            0,
+            0
+          ],
+          "source": "blueprints/yunshan/south_gate_inn_v4.json",
+          "target": "entry"
+        },
+        {
+          "id": "inn_work",
+          "kind": "work",
+          "pos": [
+            52,
+            1,
+            55
+          ],
+          "capacity": 1,
+          "block": "",
+          "block_pos": [
+            0,
+            0,
+            0
+          ],
+          "source": "blueprints/yunshan/south_gate_inn_v4.json",
+          "target": "counter"
+        },
+        {
+          "id": "inn_rest",
+          "kind": "rest",
+          "pos": [
+            52,
+            1,
+            66
+          ],
+          "capacity": 1,
+          "block": "",
+          "block_pos": [
+            0,
+            0,
+            0
+          ],
+          "source": "blueprints/yunshan/south_gate_inn_v4.json",
+          "target": "kitchen"
+        },
+        {
+          "id": "inn_social",
+          "kind": "social",
+          "pos": [
+            60,
+            1,
+            60
+          ],
+          "capacity": 1,
+          "block": "",
+          "block_pos": [
+            0,
+            0,
+            0
+          ],
+          "source": "blueprints/yunshan/south_gate_inn_v4.json",
+          "target": "dining"
+        },
+        {
+          "id": "guest_west",
+          "kind": "rest",
+          "pos": [
+            52,
+            7,
+            55
+          ],
+          "capacity": 1,
+          "block": "minecraft:red_bed",
+          "block_pos": [
+            50,
+            7,
+            53
+          ],
+          "source": "blueprints/yunshan/south_gate_inn_v4.json",
+          "target": "west_front"
+        },
+        {
+          "id": "guest_east",
+          "kind": "rest",
+          "pos": [
+            62,
+            7,
+            55
+          ],
+          "capacity": 1,
+          "block": "minecraft:red_bed",
+          "block_pos": [
+            63,
+            7,
+            53
+          ],
+          "source": "blueprints/yunshan/south_gate_inn_v4.json",
+          "target": "east_front"
+        },
+        {
+          "id": "guest_west_rear",
+          "kind": "rest",
+          "pos": [
+            52,
+            7,
+            65
+          ],
+          "capacity": 1,
+          "block": "minecraft:red_bed",
+          "block_pos": [
+            50,
+            7,
+            63
+          ],
+          "source": "blueprints/yunshan/south_gate_inn_v4.json",
+          "target": "west_rear"
+        },
+        {
+          "id": "guest_east_rear",
+          "kind": "rest",
+          "pos": [
+            62,
+            7,
+            65
+          ],
+          "capacity": 1,
+          "block": "minecraft:red_bed",
+          "block_pos": [
+            63,
+            7,
+            63
+          ],
+          "source": "blueprints/yunshan/south_gate_inn_v4.json",
+          "target": "east_rear"
+        },
+        {
+          "id": "herbalist_entry",
+          "kind": "entry",
+          "pos": [
+            9,
+            1,
+            0
+          ],
+          "capacity": 1,
+          "block": "",
+          "block_pos": [
+            0,
+            0,
+            0
+          ],
+          "source": "blueprints/yunshan/apothecary_v2.json",
+          "target": "entry"
+        },
+        {
+          "id": "herbalist_work",
+          "kind": "work",
+          "pos": [
+            14,
+            1,
+            10
+          ],
+          "capacity": 1,
+          "block": "myvillage:alchemy_furnace",
+          "block_pos": [
+            14,
+            1,
+            11
+          ],
+          "source": "blueprints/yunshan/apothecary_v2.json",
+          "target": "alchemy"
+        },
+        {
+          "id": "herbalist_rest",
+          "kind": "rest",
+          "pos": [
+            3,
+            1,
+            6
+          ],
+          "capacity": 1,
+          "block": "minecraft:white_bed",
+          "block_pos": [
+            2,
+            1,
+            5
+          ],
+          "source": "blueprints/yunshan/apothecary_v2.json",
+          "target": "rest"
+        },
+        {
+          "id": "herb_market",
+          "kind": "market",
+          "pos": [
+            4,
+            1,
+            6
+          ],
+          "capacity": 1,
+          "block": "",
+          "block_pos": [
+            0,
+            0,
+            0
+          ],
+          "source": "blueprints/yunshan/apothecary_v2.json",
+          "target": "counter"
+        },
+        {
+          "id": "herb_yard",
+          "kind": "cultivate",
+          "pos": [
+            9,
+            1,
+            15
+          ],
+          "capacity": 1,
+          "block": "",
+          "block_pos": [
+            0,
+            0,
+            0
+          ],
+          "source": "blueprints/yunshan/apothecary_v2.json",
+          "target": "yard"
+        }
+      ]
+    }
+  ]
+}

@@ -1,6 +1,8 @@
 package com.example.myvillage.entity.npc;
 
 import com.example.myvillage.portrait.NpcColours;
+import com.example.myvillage.sim.runtime.life.NpcLifeGoal;
+import com.example.myvillage.sim.runtime.life.NpcLifeInteraction;
 import com.example.myvillage.sim.runtime.player.SectDialogue;
 import java.util.List;
 import javax.annotation.Nullable;
@@ -23,8 +25,10 @@ import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
+import net.minecraft.world.entity.ai.goal.OpenDoorGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
+import net.minecraft.world.entity.ai.navigation.GroundPathNavigation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -40,8 +44,9 @@ import net.minecraft.world.level.ServerLevelAccessor;
  * ({@link #becomeLedgerAvatar}). Such an avatar belongs to the simulation, which spawns, renames and
  * withdraws it: it is never saved with its chunk, cannot be attacked or hurt (except by what bypasses
  * invulnerability, such as {@code /kill} or the void), does not burn, is not pushed, does not stroll
- * (it still looks at players and around), and does nothing when a player interacts with it unless
- * it has a dialogue role (below), when the server opens the sect dialogue ({@link SectDialogue}). Its
+ * (it still looks at players and around). A resident with a persistent life record receives a
+ * separately authorised navigation goal; residents can pause and describe their activity when
+ * spoken to. A dialogue role also opens the sect dialogue ({@link SectDialogue}). Its
  * ledger person id is synced to clients. An NPC summoned by a command or a spawn egg has id
  * {@link #NO_LEDGER_PERSON} and behaves exactly as described above.
  *
@@ -103,6 +108,9 @@ public abstract class NpcEntity extends PathfinderMob {
 
     private final AnimationState idleAnimationState = new AnimationState();
     private Goal strollGoal;
+    /** Transient executor only. Identity, activity, position and progress live in the world ledger. */
+    private NpcLifeGoal lifeGoal;
+    private Goal lifeDoorGoal;
 
     protected NpcEntity(EntityType<? extends NpcEntity> entityType, Level level) {
         super(entityType, level);
@@ -185,6 +193,31 @@ public abstract class NpcEntity extends PathfinderMob {
         getNavigation().stop();
     }
 
+    /** Installs the manager's current life executor; copied entity NBT never installs this goal. */
+    public void enableLedgerLife(long epoch) {
+        if (level().isClientSide() || !isLedgerAvatar()) {
+            throw new IllegalStateException("life behaviour requires a server ledger avatar");
+        }
+        if (lifeGoal != null) {
+            goalSelector.removeGoal(lifeGoal);
+        }
+        if (lifeDoorGoal != null) {
+            goalSelector.removeGoal(lifeDoorGoal);
+        }
+        if (getNavigation() instanceof GroundPathNavigation ground) {
+            ground.setCanOpenDoors(true);
+            lifeDoorGoal = new OpenDoorGoal(this, true);
+            goalSelector.addGoal(1, lifeDoorGoal);
+        }
+        lifeGoal = new NpcLifeGoal(this, epoch);
+        goalSelector.addGoal(2, lifeGoal);
+    }
+
+    /** Rechecks an active job before ledger work can be paid, including a newly projected body. */
+    public void validateLedgerLifeWorkplace() {
+        if (lifeGoal != null) lifeGoal.validateWorkplaceBeforeSettlement();
+    }
+
     /** The ledger person this NPC projects, or {@link #NO_LEDGER_PERSON}. */
     public int ledgerPersonId() {
         return entityData.get(DATA_LEDGER_PERSON);
@@ -227,8 +260,10 @@ public abstract class NpcEntity extends PathfinderMob {
         if (!isLedgerAvatar()) {
             return super.mobInteract(player, hand);
         }
+        boolean lifeInteraction = player instanceof ServerPlayer serverPlayer
+                && NpcLifeInteraction.interact(serverPlayer, this);
         if (ROLE_NONE.equals(ledgerRole())) {
-            return InteractionResult.PASS;
+            return lifeInteraction ? InteractionResult.CONSUME : InteractionResult.PASS;
         }
         if (player instanceof ServerPlayer serverPlayer) {
             SectDialogue.open(serverPlayer, this); // checks everything itself; a refusal is a chat line or nothing

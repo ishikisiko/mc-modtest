@@ -4,6 +4,7 @@ import com.example.myvillage.sim.data.ContentTables;
 import com.example.myvillage.sim.data.EncounterTable;
 import com.example.myvillage.sim.data.RealmTable;
 import com.example.myvillage.sim.data.Rules;
+import com.example.myvillage.sim.life.LifeRules;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -21,7 +22,8 @@ public record SimData(
         List<ContentTables.Technique> techniques,
         ContentTables.Lore lore,
         List<ContentTables.Heritage> heritages,
-        List<ContentTables.SectTask> sectTasks) {
+        List<ContentTables.SectTask> sectTasks,
+        LifeRules lifeRules) {
 
     public static final String DIRECTORY = "data/myvillage/world_sim/";
 

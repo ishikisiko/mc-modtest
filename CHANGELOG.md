@@ -7,6 +7,15 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.60.0
+
+- NPC 半自主生活首期：独立玩家社会身份覆盖未入宗玩家，近距交谈保留熟悉关系与有限记忆，原宗门成员、借阅和任务记录继续沿用。
+- 命簿新增持久的城镇场所、住处、岗位与短期活动；散修和住镇宗门成员共用原人物 ID，可歇息、当值、采药、交货、修炼和小聚。
+- 云山规划城与大型展示街区使用 authored 场所适配；新增 `/myvillage life` 登记、四人示例、手工分配、解除与状态检查命令。
+- 近处化身实际到站后才工作；远处按同一活动记录简化推进。执行租约、活动版本、场所观测和有限物资账户防止重复化身与收益，附近没有成功生成身体时等待。
+- 住镇人物不再被后台旅行或不可见战斗调走，寿元和实际修炼结果保留；保存格式 v4 接受旧版，重启恢复活动进度。
+- 新增纯核回归、场所生成检查和 `npc-life-build` Modal 局部编译入口。完整游戏运行、真实寻路、重启和多人验证留在 `docs/testing/2026-10-17-npc-life.md`；本期未接真实物品经济与 NPC 战斗。
+
 ## 0.59.1
 
 - 新建修仙大陆使用 V2 冻结生态：州域内外连续混合温度、湿度与高程降温，通过温带植被衔接雪地和暖地；地形、州域身份、城市与出生位置保持同种子一致。

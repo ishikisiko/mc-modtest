@@ -33,6 +33,7 @@ public final class Fortunes {
     }
 
     public static void daily(SimContext ctx, Person p) {
+        if (People.lifeResident(ctx, p)) return;
         Rules.Fortune f = ctx.rules.fortune();
         GenRegion region = ctx.region(p.regionId);
         RegionState rs = ctx.state.regions.get(p.regionId);
@@ -149,13 +150,14 @@ public final class Fortunes {
 
     /** Another traveller may contest the find; returns who keeps it (null when the finder died for nothing). */
     private static Person contest(SimContext ctx, Person finder, EncounterTable.Encounter e, long eventId, String item) {
+        if (People.lifeResident(ctx, finder)) return finder;
         SimRng rng = ctx.rng(finder.id, Purpose.FORTUNE_EFFECT, 1);
         if (!rng.chance(ctx.rules.fortune().contestChance())) {
             return finder;
         }
         List<Person> rivals = new ArrayList<>();
         for (Person q : ctx.peopleIn(finder.regionId)) {
-            if (q != finder && ctx.alive(q) && q.status.equals("travelling")
+            if (q != finder && ctx.alive(q) && !People.lifeResident(ctx, q) && q.status.equals("travelling")
                     && (q.sectId < 0 || q.sectId != finder.sectId)) {
                 rivals.add(q);
             }

@@ -31,7 +31,8 @@ import org.slf4j.LoggerFactory;
  * qualification from the cultivation profile, joins and leaves through the {@code WorldSim}
  * facade, marks {@code WorldSimSavedData} dirty, sends the player's chat lines and logs
  * {@code SECT_ENTRY player=<name> intent=JOIN|LEAVE sect=<id> result=ok|<reason>}.
- * {@link #register()} refreshes snapshots on login and on settlement days, and tells an online
+ * {@link #register()} registers every player's social identity and refreshes existing membership
+ * snapshots on login and on settlement days, and tells an online
  * player the day's {@code player_*} events about them and the day's news of their sect
  * ({@link SectNews}, slice 4) wherever they are ({@link #announce}).
  *
@@ -84,15 +85,20 @@ public final class WorldSimPlayers {
     }
 
     static void onDaySettled(MinecraftServer server, WorldSim sim, List<SimEvent> events) {
-        List<ServerPlayer> online = server.getPlayerList().getPlayers();
-        boolean members = false;
-        for (ServerPlayer player : online) {
-            members |= refresh(sim, player);
-        }
-        if (members) {
-            markDirty(server);
-        }
+        registerOnline(server, sim);
         announce(server, sim, events);
+    }
+
+    /**
+     * Registers already-online players when the ledger activates and at settlement. Never creates
+     * a PlayerMember for a player who has not joined a sect. The caller may invoke this at startup.
+     */
+    public static void registerOnline(MinecraftServer server, WorldSim sim) {
+        boolean changed = false;
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            changed |= refresh(sim, player);
+        }
+        if (changed) markDirty(server);
     }
 
     /**
@@ -122,11 +128,12 @@ public final class WorldSimPlayers {
         }
     }
 
-    /** Refreshes the player's snapshot; true when the player has a ledger record (so the save changed). */
+    /** Registers social identity for everyone; refreshes qualification only for existing members. */
     private static boolean refresh(WorldSim sim, ServerPlayer player) {
         String id = player.getUUID().toString();
+        boolean changed = sim.registerPlayerActor(id, player.getGameProfile().getName());
         if (sim.playerMember(id).isEmpty()) {
-            return false;
+            return changed;
         }
         sim.updatePlayerQualification(id, player.getGameProfile().getName(), qualification(player));
         return true;

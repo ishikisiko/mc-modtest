@@ -19,6 +19,7 @@ public final class Travel {
     }
 
     public static void daily(SimContext ctx, Person p) {
+        if (People.lifeResident(ctx, p)) return;
         switch (p.status) {
             case "secluded" -> {
                 if (ctx.day() >= p.statusUntil) {
@@ -67,6 +68,7 @@ public final class Travel {
 
     /** Starts (or extends) a journey toward {@code dest} lasting at least {@code years}. */
     static void depart(SimContext ctx, Person p, String dest, int years) {
+        if (People.lifeResident(ctx, p)) return;
         p.status = "travelling";
         p.destRegionId = dest;
         p.statusUntil = Math.max(p.statusUntil, ctx.day() + (long) years * ctx.dpy);
@@ -75,6 +77,10 @@ public final class Travel {
     private static void journey(SimContext ctx, Person p) {
         Rules.Travel t = ctx.rules.travel();
         Person quarry = p.quarryId >= 0 ? ctx.state.persons.get(p.quarryId) : null;
+        if (quarry != null && People.lifeResident(ctx, quarry)) {
+            p.quarryId = -1;
+            quarry = null;
+        }
         if (quarry != null) {
             p.destRegionId = quarry.regionId;
         } else if (ctx.day() >= p.statusUntil) {

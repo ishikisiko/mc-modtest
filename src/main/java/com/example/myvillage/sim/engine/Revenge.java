@@ -31,6 +31,7 @@ public final class Revenge {
 
     /** Whether {@code p} judges a fight with {@code target} worth it now. */
     static boolean dares(SimContext ctx, Person p, Person target) {
+        if (People.lifeResident(ctx, p) || People.lifeResident(ctx, target)) return false;
         Rules.Revenge r = ctx.rules.revenge();
         if (p.aggression >= r.recklessAggression()) {
             return true;
@@ -40,7 +41,15 @@ public final class Revenge {
     }
 
     public static void daily(SimContext ctx, Person p) {
+        if (People.lifeResident(ctx, p)) {
+            p.quarryId = -1;
+            return;
+        }
         Person quarry = p.quarryId >= 0 ? ctx.state.persons.get(p.quarryId) : null;
+        if (quarry != null && People.lifeResident(ctx, quarry)) {
+            p.quarryId = -1;
+            return;
+        }
         if (p.quarryId >= 0 && quarry == null) {
             p.quarryId = -1;
         }
@@ -71,7 +80,7 @@ public final class Revenge {
                 continue;
             }
             Person target = ctx.state.persons.get(g.other);
-            if (target == null || (target.sectId >= 0 && target.sectId == p.sectId
+            if (target == null || People.lifeResident(ctx, target) || (target.sectId >= 0 && target.sectId == p.sectId
                     && (target.realm != p.realm || target.rank.equals("sect_master") || p.rank.equals("sect_master")))) {
                 continue;
             }

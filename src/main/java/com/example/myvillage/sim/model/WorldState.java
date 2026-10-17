@@ -2,6 +2,8 @@ package com.example.myvillage.sim.model;
 
 import com.example.myvillage.sim.SettlementScheduler;
 import com.example.myvillage.sim.SimEvent;
+import com.example.myvillage.sim.life.LifeState;
+import com.example.myvillage.sim.social.SocialState;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
@@ -28,6 +30,10 @@ public final class WorldState {
      * Saved by StateCodec version 3 as {@code player_members}.
      */
     public final TreeMap<String, PlayerMember> playerMembers = new TreeMap<>();
+    /** Every observed player has a social identity; membership is still an independent record. */
+    public SocialState social = new SocialState();
+    /** Persistent town plans; NPC entities are temporary projections of these same people. */
+    public LifeState life = new LifeState();
     /** Kept chronicle entries in id order (pruned per design §3.5). */
     public final List<SimEvent> chronicle = new ArrayList<>();
     public SettlementScheduler scheduler = new SettlementScheduler();

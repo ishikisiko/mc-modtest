@@ -125,6 +125,38 @@ class ArchiveTests(unittest.TestCase):
 
 
 class LifecycleTests(unittest.TestCase):
+    def test_npc_life_build_is_focused_and_never_launches_game_or_release(self):
+        commands = remote.commands_for("npc-life-build")
+        self.assertEqual(commands[:2], [
+            ["python3", "tools/gen_npc_life_places.py", "--check"],
+            ["python3", "-m", "unittest", "tools.tests.test_npc_life_places"],
+        ])
+        self.assertEqual(len(commands), 3)
+        gradle = commands[2]
+        self.assertEqual(gradle[:2], ["./gradlew", "test"])
+        selected = {gradle[i + 1] for i, arg in enumerate(gradle) if arg == "--tests"}
+        self.assertEqual(selected, {
+            "com.example.myvillage.sim.WorldSimLifeTest",
+            "com.example.myvillage.sim.WorldSimSocialTest",
+            "com.example.myvillage.sim.engine.NpcLifeMacroTest",
+            "com.example.myvillage.sim.WorldSimSaveLoadTest",
+            "com.example.myvillage.sim.WorldSimPlayerMembersTest",
+            "com.example.myvillage.sim.WorldSimDeterminismTest",
+            "com.example.myvillage.sim.WorldSimTasksTest",
+            "com.example.myvillage.sim.SimDataLoaderTest",
+            "com.example.myvillage.sim.SimPurityGuardTest",
+            "com.example.myvillage.sim.SettlementSchedulerTest",
+        })
+        self.assertEqual(gradle[gradle.index("jar"):], [
+            "jar", "-x", "generateAllStructures", "--no-daemon",
+            "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4",
+        ])
+        forbidden = ("runClient", "runServer", "runGameTestServer", "Chunky", "chunky",
+                     "release_gate", "combat_capture", "game_evidence", "release-alchemy")
+        for command in commands:
+            self.assertFalse(any(token in " ".join(command) for token in forbidden), command)
+        self.assertNotIn("build", gradle, "selected tests and jar do not expand to a full build/release")
+
     def test_remote_release_and_alchemy_quality_commands(self):
         self.assertEqual(remote.PRESETS["release"], [["python3", "tools/release_gate.py"]])
         self.assertEqual(remote.PRESETS["alchemy-quality"], [

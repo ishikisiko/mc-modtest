@@ -18,6 +18,7 @@ public final class Meetings {
     }
 
     public static void daily(SimContext ctx, Person p) {
+        if (People.lifeResident(ctx, p)) return;
         Rules.Meetings m = ctx.rules.meetings();
         double perYear = m.ratePerYear().getOrDefault(p.status, 0.0);
         SimRng rng = ctx.rng(p.id, Purpose.MEETING);
@@ -29,7 +30,7 @@ public final class Meetings {
             return;
         }
         Person q = here.get(ctx.rng(p.id, Purpose.MEETING_PARTNER).nextInt(here.size()));
-        if (q == p || !ctx.alive(q) || (p.status.equals("at_sect") && q.status.equals("at_sect")
+        if (q == p || !ctx.alive(q) || People.lifeResident(ctx, q) || (p.status.equals("at_sect") && q.status.equals("at_sect")
                 && p.sectId >= 0 && p.sectId == q.sectId)) {
             return;
         }
@@ -37,6 +38,7 @@ public final class Meetings {
     }
 
     static void meet(SimContext ctx, Person p, Person q, SimRng rng) {
+        if (People.lifeResident(ctx, p) || People.lifeResident(ctx, q)) return;
         Rules.Meetings m = ctx.rules.meetings();
         boolean sameSect = p.sectId >= 0 && p.sectId == q.sectId;
         if (Combat.atWar(ctx, p, q)) {

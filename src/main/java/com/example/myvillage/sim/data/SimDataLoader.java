@@ -1,6 +1,7 @@
 package com.example.myvillage.sim.data;
 
 import com.example.myvillage.sim.SimData;
+import com.example.myvillage.sim.life.LifeRules;
 import com.example.myvillage.sim.SimDataException;
 import com.google.gson.JsonObject;
 import java.io.IOException;
@@ -59,7 +60,9 @@ public final class SimDataLoader {
                         "unknown technique " + id);
             }
         }
-        return new SimData(rules, realms, encounters, names, techniques, lore, heritages, sectTasks);
+        String lifeRulesFile = SimData.DIRECTORY + "life_rules.json";
+        LifeRules lifeRules = LifeRules.parse(lifeRulesFile, read(opener, lifeRulesFile));
+        return new SimData(rules, realms, encounters, names, techniques, lore, heritages, sectTasks, lifeRules);
     }
 
     private static JsonObject read(SimData.ResourceOpener opener, String file) {

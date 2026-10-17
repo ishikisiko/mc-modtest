@@ -257,7 +257,8 @@ public final class MyVillageMod {
                         .then(CombatCommands.command())
                         .then(BeastCommands.command())
                         .then(StatsCommands.command())
-                        .then(WorldSimCommands.command()));
+                        .then(WorldSimCommands.command())
+                        .then(com.example.myvillage.sim.runtime.life.NpcLifeCommands.command()));
     }
 
     private int placeNamedStructure(CommandSourceStack source, String rawId) throws CommandSyntaxException {

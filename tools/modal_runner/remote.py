@@ -17,6 +17,23 @@ PAL = "PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar"
 CATALOG = "exmod/mod_block_catalog.json"
 DEPENDENCIES = (PAL, CATALOG)
 PRESETS = {
+    "npc-life-build": [
+        ["python3", "tools/gen_npc_life_places.py", "--check"],
+        ["python3", "-m", "unittest", "tools.tests.test_npc_life_places"],
+        ["./gradlew", "test",
+         "--tests", "com.example.myvillage.sim.WorldSimLifeTest",
+         "--tests", "com.example.myvillage.sim.WorldSimSocialTest",
+         "--tests", "com.example.myvillage.sim.engine.NpcLifeMacroTest",
+         "--tests", "com.example.myvillage.sim.WorldSimSaveLoadTest",
+         "--tests", "com.example.myvillage.sim.WorldSimPlayerMembersTest",
+         "--tests", "com.example.myvillage.sim.WorldSimDeterminismTest",
+         "--tests", "com.example.myvillage.sim.WorldSimTasksTest",
+         "--tests", "com.example.myvillage.sim.SimDataLoaderTest",
+         "--tests", "com.example.myvillage.sim.SimPurityGuardTest",
+         "--tests", "com.example.myvillage.sim.SettlementSchedulerTest",
+         "jar", "-x", "generateAllStructures", "--no-daemon",
+         "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
+    ],
     "worldplan-build": [["python3", "tools/worldplan/generate_assets.py"],
                        ["python3", "tools/worldplan/generate_assets.py", "--check"],
                        ["./gradlew", "test", "--tests", "*worldplan*", "--tests", "*region.runtime*", "--tests", "*WorldSimGenesisTest*", "--tests", "*SimPurityGuardTest*", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"]],

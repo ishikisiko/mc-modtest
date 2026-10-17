@@ -13,6 +13,11 @@ public final class People {
     private People() {
     }
 
+    /** Life residents use their activity executor at every distance, not the regional simulator. */
+    static boolean lifeResident(SimContext ctx, Person p) {
+        return ctx.state.life.residents.containsKey(p.id);
+    }
+
     /**
      * Creates a person and adds them to the ledger.
      *
@@ -51,10 +56,14 @@ public final class People {
     public static void join(SimContext ctx, Person p, Sect sect, String rank) {
         p.sectId = sect.id;
         p.rank = rank;
-        p.regionId = sect.homeRegionId;
-        p.homeRegionId = sect.homeRegionId;
-        p.status = "at_sect";
-        p.statusUntil = -1;
+        // Annexation or an explicit identity change may alter affiliation without moving a
+        // shopkeeper out of their registered home/workplace, even while its chunk is unloaded.
+        if (!lifeResident(ctx, p)) {
+            p.regionId = sect.homeRegionId;
+            p.homeRegionId = sect.homeRegionId;
+            p.status = "at_sect";
+            p.statusUntil = -1;
+        }
         p.joinedDay = ctx.day();
         ctx.membershipChanged();
     }

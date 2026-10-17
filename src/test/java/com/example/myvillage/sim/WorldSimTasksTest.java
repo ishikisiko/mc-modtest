@@ -320,7 +320,7 @@ class WorldSimTasksTest {
 
     private static SimData withTasks(SimData d, List<ContentTables.SectTask> tasks) {
         return new SimData(d.rules(), d.realms(), d.encounters(), d.names(), d.techniques(), d.lore(),
-                d.heritages(), tasks);
+                d.heritages(), tasks, d.lifeRules());
     }
 
     @Test

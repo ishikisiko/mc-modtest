@@ -145,3 +145,15 @@ tasks.register('generateWorldPlanAssets', Exec) {
 }
 sourceSets.main.resources.srcDir(layout.buildDirectory.dir('generated/worldplan/resources'))
 tasks.named('processResources') { dependsOn 'generateWorldPlanAssets' }
+
+// Metadata follows authored building adapters without modifying the frozen worldplan structures.
+tasks.register('generateNpcLifePlaces', Exec) {
+    workingDir = projectDir
+    executable = pythonExecutable.get()
+    args 'tools/gen_npc_life_places.py'
+    inputs.files(fileTree('blueprints/npc_life'), fileTree('blueprints/yunshan'), fileTree('blueprints/worldplan'),
+            fileTree('tools/yunshan'), fileTree('tools/buildgen'),
+            files('tools/gen_npc_life_places.py', 'tools/json_to_nbt.py', 'tools/voxel_dump_to_structures.py'))
+    outputs.file('src/main/resources/data/myvillage/npc_life/places.json')
+}
+tasks.named('processResources') { dependsOn 'generateNpcLifePlaces' }

@@ -217,14 +217,15 @@ public final class SectPolitics {
 
     /** A sect's champion: its strongest member not carrying a serious wound, else its strongest. */
     private static Person champion(SimContext ctx, Sect sect, Rules.SectRelations r) {
+        List<Person> candidates = ctx.members(sect.id).stream().filter(p -> !People.lifeResident(ctx, p)).toList();
         Person best = null;
-        for (Person p : ctx.members(sect.id)) {
+        for (Person p : candidates) {
             if (p.injury <= r.championMaxInjury()
                     && (best == null || SimContext.standing(p) > SimContext.standing(best))) {
                 best = p;
             }
         }
-        return best != null ? best : Succession.strongest(ctx.members(sect.id), false);
+        return best != null ? best : Succession.strongest(candidates, false);
     }
 
     private static void endWar(SimContext ctx, SectRelation ab, SectRelation ba) {
@@ -300,9 +301,11 @@ public final class SectPolitics {
     static void makeRogue(SimContext ctx, Person p) {
         p.sectId = -1;
         p.rank = "rogue";
-        p.homeRegionId = p.regionId;
-        if (p.status.equals("secluded")) {
-            p.status = "at_sect";
+        if (!People.lifeResident(ctx, p)) {
+            p.homeRegionId = p.regionId;
+            if (p.status.equals("secluded")) {
+                p.status = "at_sect";
+            }
         }
         ctx.membershipChanged();
     }
@@ -333,7 +336,7 @@ public final class SectPolitics {
         boolean declining = sect.declineSinceDay >= 0;
         double rate = declining ? d.desertRatePerYear() : d.desertionRatePerYear();
         for (Person p : new ArrayList<>(ctx.members(sect.id))) {
-            if (p.rank.equals("sect_master")) {
+            if (p.rank.equals("sect_master") || People.lifeResident(ctx, p)) {
                 continue;
             }
             SimRng rng = ctx.rng(p.id, Purpose.DESERTION);
@@ -399,7 +402,7 @@ public final class SectPolitics {
             return;
         }
         for (Person p : members) {
-            if (p.rank.equals("elder") && p.ambition >= d.schismAmbition() && p.loyalty < 50
+            if (!People.lifeResident(ctx, p) && p.rank.equals("elder") && p.ambition >= d.schismAmbition() && p.loyalty < 50
                     && ctx.rng(p.id, Purpose.SECT_SCHISM).chance(d.schismRatePerYear())) {
                 Sect created = foundSect(ctx, p, sect, followersOf(ctx, p, sect), -1, TextKeys.SECT_SCHISM);
                 if (created != null) {
@@ -419,7 +422,7 @@ public final class SectPolitics {
             if (out.size() >= cap) {
                 break;
             }
-            if (p == leader || p.rank.equals("sect_master")) {
+            if (p == leader || p.rank.equals("sect_master") || People.lifeResident(ctx, p)) {
                 continue;
             }
             boolean disciple = p.masterId == leader.id;
@@ -444,7 +447,7 @@ public final class SectPolitics {
             return;
         }
         for (Person p : new ArrayList<>(ctx.state.persons.values())) {
-            if (p.sectId >= 0 || p.ambition >= ctx.rules.founding().minAmbition() && SectAffairs.reached(ctx, p,
+            if (People.lifeResident(ctx, p) || p.sectId >= 0 || p.ambition >= ctx.rules.founding().minAmbition() && SectAffairs.reached(ctx, p,
                     ctx.rules.founding().minRealm())) {
                 continue;
             }
@@ -485,7 +488,7 @@ public final class SectPolitics {
                 ? f.ratePerYear() * (1.0 + f.deficitBoost() * (tier.sects() - active) / (double) tier.sects())
                 : f.ratePerYear() * StrictMath.pow(tier.sects() / (double) Math.max(1, active), f.surplusExponent());
         for (Person p : new ArrayList<>(ctx.state.persons.values())) {
-            if (p.sectId >= 0 || p.ambition < f.minAmbition() || !SectAffairs.reached(ctx, p, f.minRealm())
+            if (People.lifeResident(ctx, p) || p.sectId >= 0 || p.ambition < f.minAmbition() || !SectAffairs.reached(ctx, p, f.minRealm())
                     || Succession.yearsLeft(ctx, p) < f.minYearsLeft()) {
                 continue;
             }
@@ -515,7 +518,7 @@ public final class SectPolitics {
             if (out.size() >= wanted) {
                 break;
             }
-            if (q != founder && ctx.alive(q) && q.sectId < 0 && q.realm <= founder.realm
+            if (q != founder && ctx.alive(q) && !People.lifeResident(ctx, q) && q.sectId < 0 && q.realm <= founder.realm
                     && (q.hasRelation(founder.id, Relation.FRIEND) || q.ambition < 50)) {
                 out.add(q);
             }
@@ -531,9 +534,10 @@ public final class SectPolitics {
      * @param family {@link TextKeys#SECT_SPLIT}, {@link TextKeys#SECT_SCHISM} or {@link TextKeys#SECT_FOUNDED}
      */
     static Sect foundSect(SimContext ctx, Person leader, Sect parent, List<Person> followers, long cause, String family) {
-        if (Succession.yearsLeft(ctx, leader) < ctx.rules.founding().minYearsLeft()) {
+        if (People.lifeResident(ctx, leader) || Succession.yearsLeft(ctx, leader) < ctx.rules.founding().minYearsLeft()) {
             return null;
         }
+        followers = followers.stream().filter(p -> !People.lifeResident(ctx, p)).toList();
         if (parent != null && followers.size() < ctx.rules.succession().minSplitFollowers()) {
             return null;
         }
