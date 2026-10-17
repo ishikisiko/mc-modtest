@@ -1,0 +1,41 @@
+"""Reject false runtime evidence; these are parser checks, not game passes."""
+import json
+from pathlib import Path
+import tempfile
+import unittest
+from tools.npc_life_evidence import resident_rows, read_ledger, assets
+from tools.modal_runner.remote import commands_for
+from tools.yunshan.game_export import nbt, write_typed
+
+
+class NpcEvidenceTests(unittest.TestCase):
+    def test_only_diagnostic_lines_and_duplicate_rejection(self):
+        row = {'personId': 42, 'phase': 'moving'}
+        line = 'NPC_LIFE '+json.dumps(row)
+        self.assertEqual(resident_rows('localized status\n'+line), [row])
+        self.assertEqual(resident_rows('Command failed'), [])
+        with self.assertRaisesRegex(ValueError, 'Duplicate'):
+            resident_rows(line+'\n'+line)
+        with self.assertRaises(ValueError):
+            resident_rows('NPC_LIFE {broken')
+
+    def test_saved_utf8_payload_and_assets(self):
+        state = {'name': '云山', 'life': {'residents': [
+            {'person_id': 4, 'herbs': 2, 'coins': 6, 'completed_activities': 1}]}}
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory)/'ledger.dat'
+            root = nbt.Compound({'data': nbt.Compound({'payload': nbt.Tag(7, json.dumps(state, ensure_ascii=False).encode())})})
+            write_typed(path, '', root)
+            self.assertEqual(read_ledger(path), state)
+        self.assertEqual(assets(state), {4: (2, 6, 1)})
+
+    def test_runtime_builds_before_game_without_full_release(self):
+        runtime = commands_for('npc-life-runtime')
+        self.assertEqual(runtime[:3], commands_for('npc-life-build'))
+        self.assertEqual(runtime[-1], ['python3', 'tools/npc_life_evidence.py'])
+        self.assertFalse(any('release_gate.py' in part or 'run_chunky_acceptance.py' in part
+                             for command in runtime for part in command))
+
+
+if __name__ == '__main__':
+    unittest.main()

@@ -111,6 +111,10 @@ PRESETS["yunshan-buildings"] = [
     ["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
     ["python3", "tools/yunshan/game_evidence.py"],
 ]
+PRESETS["npc-life-runtime"] = PRESETS["npc-life-build"] + [
+    ["python3", "tools/yunshan/build_functional.py", "--manifest", "blueprints/yunshan/functional_buildings_v2.json", "--out", "out/preview/npc-life-buildings"],
+    ["python3", "tools/npc_life_evidence.py"],
+]
 ALCHEMY_CASES = ("brewing", "multiplayer", "medicine", "persistence", "ui")
 
 
