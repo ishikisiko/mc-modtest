@@ -183,7 +183,7 @@ public final class ClientAdvancedArts {
         var family=CombatStyles.bundled().weapon(mc.player.getMainHandItem()).flatMap(WeaponDefinition::family);
         var profile=ClientCultivationState.latest().orElse(null);
         if(family.isEmpty() || profile==null)return;
-        int width=Math.min(210,g.guiWidth()-16),x=g.guiWidth()-width-8,y=g.guiHeight()-78;
+        int width=Math.min(210,g.guiWidth()-16),x=g.guiWidth()-width-8,y=g.guiHeight()-120;
         if(width<100 || y<48)return;
         for(int slot=0;slot<2;slot++) {
             var art=ArtDefinition.forSlot(family.get(),slot).orElse(null);if(art==null)continue;

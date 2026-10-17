@@ -2,6 +2,7 @@
 """Scoped advanced-art integration checks; real mapped keys in an isolated Modal world."""
 from pathlib import Path
 import json
+import argparse
 import sys
 import time
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -86,6 +87,18 @@ class ArtsEvidence(PurpleEvidence):
     def done(self, case):
         self.report['completed'].append(case);self.report['unrun'].remove(case);self.save()
 
+    def hud_smoke(self):
+        self.report.update(selected=['hud_layout'], completed=[], unrun=['hud_layout'],
+                           method='mapped Z/C with administrator-learned art fixtures; representative HUD screenshots')
+        self.start();self.setup();u=self.s.username
+        self.rc(f'myvillage cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_4')
+        for art in self.arts[:2]:
+            self.rc(f'myvillage cultivation learn {u} {art["id"]}')
+            self.prepare(art);target=self.dummy('arts_hud',(.5,-60,2.8))
+            self.cast_art(art,target,shot=True)
+            self.rc('kill @e[tag=arts_hud]')
+        self.done('hud_layout')
+
     def run(self):
         self.start();self.setup();u=self.s.username
         self.rc('fill -12 -61 -12 12 -61 12 minecraft:stone')
@@ -165,8 +178,11 @@ class ArtsEvidence(PurpleEvidence):
 
 
 def main():
+    parser=argparse.ArgumentParser();parser.add_argument('--hud-only',action='store_true');args=parser.parse_args()
     e=ArtsEvidence(ROOT/'out/preview/advanced-arts')
-    try:e.run()
+    try:
+        if args.hud_only:e.hud_smoke()
+        else:e.run()
     except BaseException as error:
         e.report['failures'].append(type(error).__name__+': '+str(error));raise
     finally:
