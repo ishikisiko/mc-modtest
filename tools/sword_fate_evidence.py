@@ -42,6 +42,10 @@ class SwordEvidence(PurpleEvidence):
         self.equip('myvillage:qingfeng_sword');scene.ensure_cultivation(self.s)
         near=self.dummy('sword_near',(.5,-60,2.5))
         baseline,_=self.combo(near)
+        self.report['baseline_damage']=baseline
+        self.rc('kill @e[tag=sword_near]')
+        self.poll(lambda:self.rc('execute if entity @e[tag=sword_near]'),
+                  lambda reply:'passed' not in reply,timeout=4,label='stele sightline cleared')
         self.choose_focus('sword_obsession')
         self.equip('myvillage:qingfeng_sword');scene.ensure_cultivation(self.s)
         far=self.dummy('sword_far',(.5,-60,8))
@@ -68,6 +72,11 @@ class SwordEvidence(PurpleEvidence):
         before=self.hp(far);start=self.offset();self.combo(near);log=self.logs(start)
         self.check('wave_stops_at_wall',self.hp(far)==before and 'reason=WALL' in log,log)
         self.rc('fill -2 -60 5 3 -56 5 minecraft:air')
+        self.check('swap_fixture_has_live_streak',self.state()['sword_stacks']==5,self.state())
+        self.s.game.key('2');time.sleep(.2)
+        self.check('mapped_slot_swap_clears_streak',self.state()['sword_stacks']==0,self.state())
+        self.s.game.key('1');time.sleep(.2)
+        self.check('returning_to_same_sword_does_not_restore_stacks',self.state()['sword_stacks']==0,self.state())
         with SecondClient(self) as guest:
             self.rc(f'tp {guest.username} 4.5 -60 2.5 90 0')
             guest_before=self.one(f'myvillage cultivation fate status {guest.username}','FATES')
@@ -77,10 +86,6 @@ class SwordEvidence(PurpleEvidence):
                        and guest_before['sword_stacks']==guest_after['sword_stacks']==0,
                        {'owner':self.state()['sword_stacks'],'guest':guest_after})
             self.report['multiplayer']='two_actual_clients_private_streak_readbacks'
-        self.s.game.key('2');time.sleep(.2)
-        self.check('mapped_slot_swap_clears_streak',self.state()['sword_stacks']==0,self.state())
-        self.s.game.key('1');time.sleep(.2)
-        self.check('returning_to_same_sword_does_not_restore_stacks',self.state()['sword_stacks']==0,self.state())
         # Active sword qi uses its normal empty intent; it must not build a melee streak.
         events=self.cast('active_qi_regression',hold=.15)
         self.check('active_skill_still_hits_without_stacking',any(e.get('result')=='hit' for e in events)
