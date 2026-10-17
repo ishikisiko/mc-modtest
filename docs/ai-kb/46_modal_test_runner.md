@@ -83,6 +83,7 @@ artifacts and confirmed cleanup are recorded.
 | `crops-build` | SpiritCropsTest and jar build only | Per-run result required |
 | `worldplan-build` | Frozen V1/V2 resource checks, worldplan/region and direct simulation tests, jar only | Per-run result required; no game launch |
 | `yunshan-buildings` | Expanded-building checks and authored exports, committed-resource jar, actual client placement/traversal/facility checks and mapped structure-block SAVE exports | Per-run artifacts and cleanup required; no owner-PC launch |
+| `yunshan-district` | Full D1 city generation and tile exports, focused tests, committed-resource jar, real mapped roads/rotated entries/facilities and saved world ZIP; flat preview translation is explicit | [D1 city evidence and separate owner delivery](../testing/2026-10-18-yunshan-d1-city.md); software-rendered oblique view reviewed, vertical view limited by distance fog |
 | `combat-ruins-build` | Combat ruin generation/path checks, ruins Java tests and committed-resource jar | Per-run result required |
 | `combat-ruins-runtime` | Above checks plus natural worldgen, mapped combat/cache, multiplayer and restart evidence | Per-run result required |
 | `danxia-build` | Ruin generator/path and affected tooling tests, ruins Java tests and jar build | Per-run result required |

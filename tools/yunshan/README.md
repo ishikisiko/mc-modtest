@@ -2,6 +2,9 @@
 
 ## D1 完整可玩街区（规划已确认）
 
+实际云端及玩家端交付记录见
+[2026-10-18 整城实机与交付](../../docs/testing/2026-10-18-yunshan-d1-city.md)。
+
 `build_district.py` 读取已确认总图、`district_realization_v2.json` 的材质/边界，
 以及 `baseline/d1_columns.json` 和 `baseline_houses.py` 的不可变旧城资料，
 重建 70 所完整民居、四馆、地形、湖面、街阶、原门楼/鼓楼体块及树井。

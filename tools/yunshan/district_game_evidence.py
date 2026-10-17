@@ -329,11 +329,16 @@ class DistrictEvidence(BuildingEvidence):
         self.save()
 
     def page(self):
-        images = [f'<figure><img src="{html.escape(c["name"])}.png"><figcaption>{html.escape(c["name"])}</figcaption></figure>' for c in self.report['screenshots']]
+        # The extreme vertical camera reaches the distance-fog band. Preserve
+        # that raw frame for diagnosis; use the inspected oblique view as the
+        # complete-city presentation instead of hiding its visual limitation.
+        order={'district_overview':0,'south_gate_overview':1,'market':2}
+        shots=sorted((c for c in self.report['screenshots'] if c['name'] in order),key=lambda c:order[c['name']])
+        images = [f'<figure><a href="{html.escape(c["name"])}.png"><img src="{html.escape(c["name"])}.png"></a><figcaption>{html.escape(c["name"])}</figcaption></figure>' for c in shots]
         for data in self.buildings:
             role = html.escape(data['presentation']['role'])
             images.extend(f'<figure><img src="{role}/{name}.png"><figcaption>{html.escape(data["presentation"]["name"])} · {name}</figcaption></figure>' for name in ('front', 'interior'))
-        (self.out/'index.html').write_text('<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>云山 D1 v2 完整街区</title><style>body{margin:24px;background:#eeeae0;color:#30382f;font:16px system-ui}main{max-width:1280px;margin:auto}section{display:grid;grid-template-columns:1fr 1fr}figure{margin:12px}img{width:100%}p{line-height:1.8}@media(max-width:700px){section{display:block}}</style><main><h1>云山 D1 v2 · 完整街区实际游戏</h1><p>完整地形、街巷与建筑已放入独立 Minecraft 世界；下方是云端真实客户端截图。修改街道、四栋旋转建筑入口、客栈楼梯和设施使用以实际 W 键及右键采集。软件渲染不代表玩家 FPS、外观或手感验收。</p><p><a href="yunshan_d1_v2_world.zip" download>下载完整可进入世界</a> · <a href="evidence.json">查看实际证据</a></p><p>世界需要匹配的 MyVillage 及依赖。世界包保留数据、维度、玩家与模组状态。全城 SCHEM 为生成源文件，未宣称由游戏导出。</p><section>'+''.join(images)+'</section></main></html>')
+        (self.out/'index.html').write_text('<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>云山 D1 v2 完整街区</title><style>body{margin:24px;background:#eeeae0;color:#30382f;font:16px system-ui}main{max-width:1280px;margin:auto}section{display:grid;grid-template-columns:1fr 1fr}figure{margin:12px}figure:first-child{grid-column:1/-1}img{width:100%}p{line-height:1.8}@media(max-width:700px){section{display:block}}</style><main><h1>云山 D1 v2 · 完整街区实际游戏</h1><p>完整地形、街巷与建筑已放入独立 Minecraft 世界；下方是云端真实客户端截图。修改街道、四栋旋转建筑入口、客栈楼梯和设施使用以实际 W 键及右键采集。软件渲染不代表玩家 FPS、外观或手感验收。</p><p><a href="yunshan_d1_v2_world.zip" download>下载完整可进入世界</a> · <a href="../runtime-build/yunshan_d1_v2.schem" download>下载整城源蓝图</a> · <a href="evidence.json">查看实际证据</a></p><p>世界需要匹配的 MyVillage 及依赖。世界包保留数据、维度、玩家与模组状态。全城 SCHEM 为生成源文件，未宣称由游戏导出。</p><section>'+''.join(images)+'</section><p><a href="complete_district_aerial.png">垂直俯拍原始帧</a>：距离雾遮蔽部分地面，仅保留作采集诊断，不用于外观验收。</p></main></html>')
 
     def run(self):
         self.start(); self.setup()
