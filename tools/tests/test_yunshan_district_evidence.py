@@ -10,7 +10,7 @@ import zipfile
 from tools.combat_capture.session import SessionConfig, server_properties
 from tools.modal_runner.remote import commands_for
 from tools.yunshan.district_game_evidence import (
-    DistrictEvidence, chunk_rectangle, package_world, traversal_passed, world_position,
+    DistrictEvidence, chunk_rectangle, chunk_readiness_commands, package_world, traversal_passed, world_position,
 )
 from tools.yunshan.game_export import plain, read_typed, write_typed
 from tools.realm_stats_evidence import Evidence
@@ -84,6 +84,16 @@ class PreviewTranslationTests(unittest.TestCase):
 
 
 class DistrictCoordinatesTests(unittest.TestCase):
+    def test_large_district_readiness_fits_rcon_receive_buffer(self):
+        import re
+        commands=chunk_readiness_commands([2850,-60,110],[3059,21,374])
+        self.assertGreater(len(commands),1)
+        self.assertTrue(all(len(c.encode('utf-8'))+14<1460 for c in commands))
+        actual=[tuple(map(int,m)) for c in commands for m in re.findall(r'if loaded (-?\d+) (-?\d+) (-?\d+)',c)]
+        expected={(x*16,-60,z*16) for x in range(178,192) for z in range(6,24)}
+        self.assertEqual(len(actual),252)
+        self.assertEqual(set(actual),expected)
+
     def test_continuous_and_block_centers_coincide_for_every_rotation(self):
         size = [19, 24, 23]
         for quarter in range(4):

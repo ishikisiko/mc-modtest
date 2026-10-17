@@ -56,6 +56,24 @@ def chunk_rectangle(origin, size):
     return [x, z, end_x, end_z]
 
 
+def chunk_readiness_commands(minimum, maximum):
+    """Keep RCON packets below RconClient's 1460-byte receive buffer.
+
+    Reserve framing/headroom by bounding each UTF-8 command to 1200 bytes.
+    A whole 252-column conjunction exceeds that server buffer and is closed
+    before Brigadier can execute it.
+    """
+    commands=[]; current='execute'
+    for x in range(minimum[0]//16, maximum[0]//16+1):
+        for z in range(minimum[2]//16, maximum[2]//16+1):
+            condition=f' if loaded {x*16} {minimum[1]} {z*16}'
+            if len((current+condition).encode('utf-8'))>1200:
+                commands.append(current); current='execute'
+            current+=condition
+    if current!='execute':commands.append(current)
+    return commands
+
+
 def traversal_passed(start, end, current, min_y):
     dx, dz = end[0]-start[0], end[2]-start[2]
     length = math.hypot(dx, dz)
@@ -272,13 +290,12 @@ class DistrictEvidence(BuildingEvidence):
                 # The centered 16-chunk view covers every district column.
                 # Wait on actual server chunk availability before allowing
                 # the client time to receive and tessellate the full district.
-                conditions = ' '.join(f'if loaded {x*16} {minimum[1]} {z*16}'
-                    for x in range(minimum[0]//16, maximum[0]//16+1)
-                    for z in range(minimum[2]//16, maximum[2]//16+1))
                 began = time.monotonic()
-                reply = self.poll(lambda: self.rc('execute '+conditions), lambda value: 'passed' in value,
-                                  60, 'all district chunk columns available at centered camera')
-                readiness = {'server_all_columns': reply, 'server_wait_s': round(time.monotonic()-began, 3),
+                replies=[]
+                for command in chunk_readiness_commands(minimum,maximum):
+                    replies.append(self.poll(lambda:self.rc(command),lambda value:'passed' in value,
+                        max(.2,60-(time.monotonic()-began)), 'district chunk batch available at centered camera'))
+                readiness = {'server_all_columns': replies, 'server_wait_s': round(time.monotonic()-began, 3),
                              'client_render_completion': 'not instrumented; bounded stable-frame sampling and screenshot review required'}
                 # Three bounded samples, separated in time, retain the final
                 # frame rather than accepting the first identical sky frame.
