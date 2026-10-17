@@ -152,8 +152,11 @@ def refine_candidate(survey, candidate, settings):
 
 
 class NaturalEvidence(DistrictEvidence):
-    def __init__(self, out, site_id=None):
+    def __init__(self, out, site_id=None, seed=20261002):
         Evidence.__init__(self, out)
+        if type(seed) is not int or not -(1 << 63) <= seed < (1 << 63):
+            raise ValueError("seed must be a signed 64-bit integer")
+        self.seed = seed
         self.site_id = site_id
         self.hud_hidden = False
         self.buildings = []
@@ -166,7 +169,7 @@ class NaturalEvidence(DistrictEvidence):
             command_attempt_count=0, command_success_count=0, command_failure_count=0,
             owner_appearance='not_verified', owner_feel='not_verified',
             owner_sound='not_verified', owner_fps='not_verified', multiplayer='not_verified',
-            software_rendering=True, world_seed=20261002,
+            software_rendering=True, world_seed=seed,
             method='real normal terrain; immutable flushed MCA survey; sparse fitting; actual mapped W; before/after real-client frames')
         self.report['scope'] = 'single_authored_site' if site_id is not None else 'three_candidate_comparison'
         self.report['candidate_manifest'] = 'candidates.json' if site_id is not None else 'top3.json'
@@ -230,11 +233,11 @@ class NaturalEvidence(DistrictEvidence):
         with self.phase('normal_client_server_start'):
             cs.merge_options(cs.CLIENT_DIR/'options.txt', {'key_key.forward': 'key.keyboard.w', 'key_key.use': 'key.mouse.right'})
             state = cs.start(cs.SessionConfig(session_id=secrets.token_hex(6), language='zh_cn',
-                lock=str(procs.default_lock_path(ROOT)), natural_terrain=True, view_distance=16))
+                lock=str(procs.default_lock_path(ROOT)), natural_terrain=True, view_distance=16, world_seed=self.seed))
             self.s = cs.Session.attach(ui_check=True); self.sessions += 1
             properties = dict(line.split('=', 1) for line in (cs.SERVER_DIR/'server.properties').read_text().splitlines() if '=' in line and not line.startswith('#'))
             self.check('actual_normal_generator', properties.get('level-type') == 'minecraft\\:normal'
-                       and properties.get('level-seed') == '20261002',
+                       and properties.get('level-seed') == str(self.seed),
                        {key: properties.get(key) for key in ('level-type', 'level-seed', 'generate-structures', 'view-distance')})
             self.report['capture_start_timings'] = state.get('timings', {})
             self.report['graphics'] = subprocess.check_output(['glxinfo', '-B'], env=self.s.game.env, text=True, timeout=20)
@@ -263,7 +266,7 @@ class NaturalEvidence(DistrictEvidence):
                 hashes = snapshot_regions(cs.SERVER_DIR/cs.LEVEL_NAME, window, original)
             finally:
                 self.rc('save-on')
-            result = sample_window(original, window, 20261002, settings=settings)
+            result = sample_window(original, window, self.seed, settings=settings)
             survey_path = self.out/'surveys'/(label+'.json'); survey_path.parent.mkdir(exist_ok=True)
             survey_path.write_text(json.dumps(result, ensure_ascii=False)+'\n')
             self.report['snapshots'].append({'label': label, 'window': window, 'chunk_batches': len(batches),
@@ -376,7 +379,7 @@ class NaturalEvidence(DistrictEvidence):
         from tools.yunshan.natural_terrain import read_settings, coarse_windows, rank_sites, expanded_window, evaluate_site
         from tools.yunshan.fit_natural import preview_fit, compile_fit
         settings = read_settings()
-        if settings['seed'] != 20261002:
+        if settings['seed'] != 20261002 or self.seed != 20261002:
             raise ValueError('Natural evidence requires the fixed authored seed 20261002')
         refinement = None
         if self.site_id is not None:

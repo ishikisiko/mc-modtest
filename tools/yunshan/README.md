@@ -17,8 +17,32 @@ Anvil 区块，核对种子、生成器、完整区块和区域文件哈希；�
 新增普通接缝受每格高差约束；原有台地挡墙和原生断崖单列，不用原外围
 山体作为拟合目标。出城路、保水、核心与边界检查失败时，候选不能落位。
 
-`candidate_refinements` 可记录基于已采真实地形的明确位置微调；
-`evaluate_site` 重新计算评分和资格，采集记录同时保留原坐标与指标。
+`auto_sites.py` 提供多种子自动入口：在配置的中心与环带窗口中粗筛四个朝向，
+按评分尝试候选，再对完整外围重新采样、重算并检查实际写入列。它不读取
+`candidate_refinements`，也不保证每个种子都能在有限范围内找到位置。
+
+硬拒绝包括过深水域、过大高差/土方、施工范围内已有建筑/地表结构保留区、
+地表岩浆等危险方块，以及完整拟合中的水位不合、漏水、陡边、无干燥出口。
+建筑/危险方块/结构保留区逐列检查，不能仅靠稀疏评分抽样放行。结构保留区
+来自实际区块的 starts/references；明确列出的地下结构不因平面投影被整片
+拒绝，表面人工方块检查仍生效。人工方块识别偏保守，天然圆石可能导致拒绝。
+
+配置 `automatic` 管理窗口、候选预算、拒绝阈值与验证种子。输出
+`selection.json` 记录来源哈希、规则、候选评分、拒绝原因、计数和预算。
+无合格位置返回 `no_suitable_site_within_budget`，独立 CLI 退出码2，不产生
+施工；缺失区块、种子错配和程序错误直接失败，不伪装成普通地形拒绝。
+
+```bash
+# 已完整生成并停服/保存快照的任意种子世界，只选址、不写世界：
+python3 -m tools.yunshan.auto_sites --world /path/to/snapshot --seed 12345 --out reports/yunshan-selection
+# 三个真实普通世界独立采样；首个通过者执行放置、映射通行和存档导出：
+.venv-modal/bin/python -m tools.modal_runner run --preset yunshan-auto-sites --ref HEAD --timeout 3600
+# 云端采集器也可显式 --seeds 12345 -67890；--selection-only 跳过施工与通行。
+```
+
+以上是自动选址/落位工具，还没有注册到模组的普通世界自然生成事件。
+旧 `candidate_refinements` 仅保留给固定种子的历史预览复验；`evaluate_site`
+仍可用于对指定实测位置重新评分。
 
 重型采样、放置及客户端采集只在固定提交的 Modal 中执行：
 

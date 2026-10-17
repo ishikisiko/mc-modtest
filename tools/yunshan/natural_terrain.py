@@ -120,6 +120,7 @@ def sample_chunk(chunk,settings=None):
     minimum=settings['world_min_y'];maximum=minimum+settings['world_height']-1
     natural={'minecraft:'+name for name in settings['natural_ground_blocks']}
     artificial=set(settings['artificial_blocks'])
+    hazards=set(settings.get('hazard_blocks', []))
     suffixes=tuple(settings['artificial_block_suffixes'])
     air={'minecraft:air','minecraft:cave_air','minecraft:void_air'}
     def state(x,y,z):
@@ -135,17 +136,18 @@ def sample_chunk(chunk,settings=None):
             top=hint-1
             while top<maximum and state(x,top+1,z).split('[',1)[0] not in air:top+=1
             while top>=minimum and state(x,top,z).split('[',1)[0] in air:top-=1
-            ground=None;ground_state=None;water=None;built=False
+            ground=None;ground_state=None;water=None;built=False;hazard=False
             for y in range(top,minimum-1,-1):
                 current=state(x,y,z);name=current.split('[',1)[0]
                 if water is None and name=='minecraft:water':water=y+1
+                if name in hazards:hazard=True
                 if name in artificial or name.endswith(suffixes):built=True
                 if name in natural or name.endswith('_ore'):
                     ground,ground_state=y+1,current
                     break
             if ground is None:raise ValueError(f'no natural solid ground in FULL chunk column {x},{z}')
             columns.append({'ground_y':ground,'surface_y':top+1,'water_y':water,
-                            'ground_state':ground_state,'artificial':built})
+                            'ground_state':ground_state,'artificial':built,'hazard':hazard})
     return columns,bool(heights)
 
 
@@ -164,7 +166,8 @@ def sample_window(world_dir,window,seed,settings=None):
     result={'format':1,'window':[x0,z0,x1,z1],'width':width,'depth':depth,
             'ground_y':[None]*(width*depth),'surface_y':[None]*(width*depth),
             'water_y':[None]*(width*depth),'ground_index':[None]*(width*depth),
-            'artificial':[False]*(width*depth),'ground_palette':[]}
+            'artificial':[False]*(width*depth),'hazard':[False]*(width*depth),
+            'surface_structure':[False]*(width*depth),'ground_palette':[]}
     palette={};regions={};hashes={};heightmapped=0;chunks_count=0;structures=[];versions=set()
     for cz in range(z0//16,(z1-1)//16+1):
         for cx in range(x0//16,(x1-1)//16+1):
@@ -179,12 +182,19 @@ def sample_window(world_dir,window,seed,settings=None):
             columns,uses_heightmap=sample_chunk(chunk,settings)
             heightmapped+=uses_heightmap;chunks_count+=1
             if 'DataVersion' in chunk:versions.add(chunk['DataVersion'])
-            for key,start in chunk.get('structures',{}).get('starts',{}).items():
-                if start and start.get('id')!='INVALID':structures.append({'chunk':[cx,cz],'id':key})
+            structure_data=chunk.get('structures',{})
+            occupied=set()
+            for key,start in structure_data.get('starts',{}).items():
+                if start and start.get('id')!='INVALID':occupied.add(key)
+            for key,references in structure_data.get('References',structure_data.get('references',{})).items():
+                if references:occupied.add(key)
+            protected=occupied-set(settings.get('underground_structures', []))
+            for key in sorted(protected):structures.append({'chunk':[cx,cz],'id':key,'source':'structure start/reference chunk reservation'})
             for z in range(max(z0,cz*16),min(z1,(cz+1)*16)):
                 for x in range(max(x0,cx*16),min(x1,(cx+1)*16)):
                     column=columns[(z%16)*16+x%16];index=(z-z0)*width+x-x0
-                    for key in ('ground_y','surface_y','water_y','artificial'):result[key][index]=column[key]
+                    for key in ('ground_y','surface_y','water_y','artificial','hazard'):result[key][index]=column[key]
+                    result['surface_structure'][index]=bool(protected)
                     state=column['ground_state']
                     if state not in palette:
                         palette[state]=len(palette);result['ground_palette'].append(state)
@@ -230,7 +240,7 @@ def rotate_column(x,z,width,depth,q):
     return z,width-1-x
 
 
-def rank_sites(surveys,core=None,settings=None,rotations=None):
+def candidate_pool(surveys,core=None,settings=None,rotations=None):
     settings=settings or read_settings();core=core or source_core(settings)
     rotations=tuple(range(4)) if rotations is None else tuple(rotations)
     if not rotations or any(type(q) is not int or q not in range(4) for q in rotations):
@@ -296,6 +306,12 @@ def rank_sites(surveys,core=None,settings=None,rotations=None):
                         'water_surface':water_surface,'dy':dy,'score':round(score,4),'metrics':metrics,
                         'eligible':not reasons,'limitations':reasons,'survey_index':si,'size':[rw,rd]})
     ranked.sort(key=lambda c:(not c['eligible'],c['score'],c['id']))
+    return ranked
+
+
+def rank_sites(surveys,core=None,settings=None,rotations=None):
+    settings=settings or read_settings()
+    ranked=candidate_pool(surveys,core,settings,rotations)
     selected=[]
     for candidate in ranked:
         cx,cz=[candidate['origin'][i]+candidate['size'][i]/2 for i in range(2)]
@@ -329,7 +345,7 @@ def evaluate_site(survey,origin,rotation_quarters,core=None,settings=None):
     if survey['width']!=x1-x0 or survey['depth']!=z1-z0:
         raise ValueError('survey dimensions disagree with its window')
     cropped={**survey,'window':[ox,oz,ox+rw,oz+rd],'width':rw,'depth':rd}
-    for key in ('ground_y','water_y','surface_y','ground_index','artificial'):
+    for key in ('ground_y','water_y','surface_y','ground_index','artificial','hazard','surface_structure'):
         if key not in survey:
             if key in ('ground_y','water_y'):raise ValueError('survey array missing: '+key)
             continue

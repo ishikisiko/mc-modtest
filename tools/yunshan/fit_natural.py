@@ -29,6 +29,10 @@ from yunshan.plan_district import rect_cells,street_cells,polygon_cells
 DEFAULT_CONFIG=ROOT/'blueprints/yunshan/natural_fit.json'
 
 
+class UnsuitableTerrain(ValueError):
+    """Valid surveyed terrain cannot satisfy the authored fitting constraints."""
+
+
 def load(value):
     return value if isinstance(value,dict) else json.loads(Path(value).read_text())
 
@@ -383,7 +387,7 @@ def plan_fit(survey,candidate,config=None):
             for zz in range(z-half,z+half+1):
                 j=s.index(xx,zz)
                 if j in core or j in tail_guard:continue
-                if j in wet:raise ValueError('outgoing road width enters retained water')
+                if j in wet:raise UnsuitableTerrain('outgoing road width enters retained water')
                 after[j]=center_levels.get(j,center_levels[k]);changed[j]=True;path_clear.add(j)
                 path_surface[j]=cfg['materials']['road']
     path_surface,road_stair_errors=road_stairs(s,route,after,path_clear,cfg)
