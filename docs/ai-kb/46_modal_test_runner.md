@@ -71,6 +71,8 @@ artifacts and confirmed cleanup are recorded.
 | Preset | Command / role | Real cloud status |
 |---|---|---|
 | `smoke` | Java version, Python dependency imports, Xvfb `glxinfo` | `pass` (authenticated second attempt; downloaded evidence and confirmed termination) |
+| `fates-purple-build` | Fate validator, focused fate/qi/medicine/forging Java tests, jar | [0.60.1 evidence](../testing/2026-10-17-purple-fates.md): 106 focused tests and actual NeoForge compilation passed |
+| `fates-purple-runtime` | Committed-resource jar plus mapped purple-fate scenarios | Supports independent `--cases meridians,pill_aegis,tempered_bones,lifecycle`; same-source main cases plus lifecycle retry passed; isolated fixture explicitly enables PvP |
 | `npc-life-build` | Life resource check, focused generator tests, 10 simulation Java classes plus furnace navigation regression and jar | [NPC life evidence](../testing/2026-10-17-npc-life.md): original feature commit compiled and 98 simulation tests passed; furnace regression added during runtime fixes |
 | `npc-life-runtime` | Life resource check, furnace navigation regression, committed-resource jar, authored showcase, real NPC Goals and mapped conversations/lifecycle checks | Supports `--cases`; always includes registration/identity prerequisites. Per-run cases and limitations in [NPC life evidence](../testing/2026-10-17-npc-life.md) |
 | `python` | `python3 -m unittest discover -s tools/tests` | `pass` (1053 tests) |

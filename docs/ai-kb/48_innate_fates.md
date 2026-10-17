@@ -1,6 +1,6 @@
 # Innate Fates (先天气运)
 
-There are eight implemented effects, 17 selectable purple/gold/red placeholders,
+There are eleven implemented effects, 14 selectable purple/gold/red placeholders,
 and 11 design-only traits in the [36-trait catalogue](../innate-fates-design.json).
 Placeholders use explicit `placeholder: true`, empty effects and bilingual no-effect
 labels. They keep tier costs and exclusive groups but temporarily omit root gates.
@@ -56,7 +56,8 @@ adds further ordinary entries if needed to guarantee a legal low-budget triple.
 ## Effects and boundaries
 
 The implemented IDs are `robust`, `lightfoot`, `bright`, `fire_affinity`,
-`alchemist_descendant`, `beast_hunter`, `unyielding`, and `burning_star`.
+`alchemist_descendant`, `beast_hunter`, `unyielding`, `burning_star`,
+`open_meridians`, `pill_aegis`, and `tempered_bones`.
 Definitions and bilingual effect labels determine what the page shows.
 
 Health/speed use stable permanent attribute modifiers, composed with realm
@@ -84,6 +85,50 @@ recovery. It does not reward assistants, neutral creatures or players.
 Bright aptitude multiplies cultivation progress gain, not stability, and adds
 its study bonus to the existing study bonus basis points. Existing integer
 rounding, study gates and atomic profile/manual commit ordering remain intact.
+
+## Purple batch (0.60.1)
+
+`open_meridians` applies a definition-owned bonus to the realm qi cap. The effective
+cap is shared by all player spend/recovery/commit paths and the owning H/HUD reads;
+raising a cap never fills the extra capacity. A sword-qi cast freezes the actual
+post-forging payment and refund fraction at release, then claims at most one
+refund on a successful hit. No hit, zero payment, or derived attack grants a refund.
+
+`pill_aegis` enhances only `yangyuan` (Vitality/养元丹) healing, composed once with
+pill quality. Successful normal pill consumption grants an independent shield;
+failed uses, Huiling and Ningshen pills do not grant it. The shield is applied after
+armor/magic/typed resistance and before vanilla absorption. It neither overwrites
+nor removes absorption from other sources, never blocks void/admin damage, and
+retains its cooldown when it expires, breaks, or the player dies. Existing medicine
+cooldowns and damage-interrupted healing still apply. Fully shielded hits do not
+lose health and therefore retain the pre-existing no-health-damage healing rule.
+
+`tempered_bones` accumulates actual health lost to direct enemy attacks; environment,
+self, allied, reflected, and bonus retaliation damage do not charge it. Hostile mobs,
+mobs actively attacking the player, and non-allied PvP opponents are recognized.
+Ready resolve adds one base weapon-attribute damage contribution to the next
+accepted melee hit, then releases an enemy-only knockback pulse. Vanilla melee and
+authored sword/spear melee are supported; sword qi is explicitly excluded. A real
+shield/absorption hit consumes ready resolve too, avoiding repeated free bonuses.
+The enhanced hit uses one vanilla mitigation pass; its primary-damage proportion
+alone can charge the defender's own resolve. Knockback composes with an authored
+hit's delayed freeze reaction instead of being overwritten by it.
+
+Both combat states are optional nested fields in the existing immutable `FateState`
+codec. Old confirmed IDs keep their choices and gain the new effect definitions;
+missing states decode empty. `CultivationService.replaceFates` remains the only
+writer. Death discards shield and resolve while retaining cooldown deadlines;
+operator reset also preserves cooldowns. Remaining resolve persists across ordinary
+logout/restart. Network protocol is 29 for the expanded snapshot/effect contract.
+No new selection/root gates, rarity weights, point budgets or exclusivity groups
+are added. The two body traits still exclude each other.
+
+Dedicated cloud presets are `fates-purple-build` (106 focused tests at initial
+validation plus jar) and `fates-purple-runtime` (mapped confirmation, cast/pill/melee,
+private two-client state and lifecycle probes). Runtime accepts `--cases` with
+`meridians,pill_aegis,tempered_bones,lifecycle`; each prepares its own trait. Use
+[the batch verification record](../testing/2026-10-17-purple-fates.md) for actual
+run IDs, commits, failed attempts and owner-acceptance limits.
 
 ## Commands and checks
 
@@ -116,7 +161,7 @@ default command without that flag runs the full stele UI, existing effects and
 restart suite. The README ledger separates automated input/lifecycle evidence
 from owner feel/multiplayer.
 
-The other 28 effects remain unimplemented (17 have selectable placeholders). Root
+The other 25 effects remain unimplemented (14 have selectable placeholders). Root
 rerolls, Phoenix revival, orbiting swords, counterattacks, companions and treasure
 routes have no runtime effect. See [deferred roadmap](14_deferred_roadmap.md).
 

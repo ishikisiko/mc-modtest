@@ -4174,7 +4174,7 @@ same draft and lock without rerolling. Existing awakened saves may choose once;
 confirmed characters see their stored result. **H → Fates / 先天** only shows the
 result or directs you back to the stele. The inheritance stele remains a separate
 learning step. Existing roots are preserved; explicit rerolls only change fate
-candidates. The pool now contains eight working traits and 17 purple/gold/red placeholders.
+candidates. The pool now contains eleven working traits and 14 purple/gold/red placeholders.
 Placeholders are explicitly labeled, can be selected and saved, and grant no effects;
 they temporarily have no element/purity gate. Eleven lower-tier designs remain deferred.
 All six tier weights are equal (within each available tier, candidates are uniform).
@@ -4193,6 +4193,11 @@ The [36-trait catalogue](docs/innate-fates-design.json) distinguishes these stat
 | 猎妖老手 / Beast Hunter | `myvillage:beast_hunter` | blue / 3 |
 | 不屈 / Unyielding | `myvillage:unyielding` | blue / 3 |
 | 燃命凶星 / Burning Star | `myvillage:burning_star` | purple / 4 |
+| 经脉通达 / Open Meridians | `myvillage:open_meridians` | purple / 4 |
+| 吞丹化势 / Pill Aegis | `myvillage:pill_aegis` | purple / 4 |
+| 百炼战骨 / Tempered Bones | `myvillage:tempered_bones` | purple / 4 |
+
+0.60.1 activates three previously selectable placeholders: Open Meridians raises qi capacity and refunds one successful paid cast; Pill Aegis enhances Vitality Pills and grants an independent temporary shield; Tempered Bones converts hostile health loss into one enhanced melee hit and knockback. Existing selected IDs work after upgrading without rerolling. See [purple-fate validation](docs/testing/2026-10-17-purple-fates.md) for actual cloud coverage and limits.
 
 The awakening screen and H result page display current effect values from synchronized data. Locking preserves
 one candidate but does not force selection. Confirmed choices cannot be rerolled

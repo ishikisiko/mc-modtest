@@ -1,7 +1,7 @@
 {
-  "status": "8 implemented effects, 17 selectable high-tier placeholders, 11 design-only traits",
+  "status": "11 implemented effects, 14 selectable high-tier placeholders, 11 design-only traits",
   "source": "https://xiantian-fates-36.h905382624.chatgpt.site",
-  "revision": "2.2",
+  "revision": "2.3",
   "tiers": [
     {
       "name": "普通",
@@ -365,7 +365,7 @@
       "maxRoots": 5,
       "focus": "战斗",
       "runtime_id": "myvillage:pill_aegis",
-      "implementation": "selectable_placeholder"
+      "implementation": "purple_batch"
     },
     {
       "id": "fate-21",
@@ -381,7 +381,7 @@
       "maxRoots": 5,
       "focus": "战斗",
       "runtime_id": "myvillage:tempered_bones",
-      "implementation": "selectable_placeholder"
+      "implementation": "purple_batch"
     },
     {
       "id": "fate-22",
@@ -397,7 +397,7 @@
       "maxRoots": 5,
       "focus": "战斗",
       "runtime_id": "myvillage:open_meridians",
-      "implementation": "selectable_placeholder"
+      "implementation": "purple_batch"
     },
     {
       "id": "fate-23",
