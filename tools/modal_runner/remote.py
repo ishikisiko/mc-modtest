@@ -120,7 +120,7 @@ PRESETS["npc-life-runtime"] = [
 ALCHEMY_CASES = ("brewing", "multiplayer", "medicine", "persistence", "ui")
 NPC_LIFE_CASES = ("bind_idempotence", "demo_identity", "day_loop", "conversation",
                   "blocked_route", "removed_facility", "unload_return", "restart_mid_activity",
-                  "two_players", "avatar_cap", "occupied_spawn", "sect_regression")
+                  "two_players", "avatar_cap", "occupied_spawn", "unsafe_checkpoint", "sect_regression")
 
 
 def select_npc_life_cases(value=None):

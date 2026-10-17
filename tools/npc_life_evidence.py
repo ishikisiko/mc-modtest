@@ -451,6 +451,37 @@ class NpcLifeEvidence(Evidence):
             self.rc(f'setblock {pos} minecraft:air')
         self.poll(lambda: self.status(pid), lambda r: r['embodied'], 30, 'unobstructed spawn')
 
+    def unsafe_checkpoint(self):
+        # Controlled projector regression, explicitly not natural movement or mapped input.
+        self.center()
+        pid = self.ids['innkeeper']
+        self.poll(lambda: self.status(pid), lambda r: r['embodied'] and r['phase'] == 'working', 120, 'stable worker before checkpoint fixture')
+        self.rc('myvillage world pause')
+        before = self.status(pid)
+        body = self.body(pid)
+        x, y, z = body['Pos']
+        selector = self.entity(pid)
+        try:
+            self.rc(f'data merge entity {selector} {{NoGravity:1b}}')
+            self.rc(teleport_command(selector, [x, y+1, z]))
+            time.sleep(2)
+            suspended = self.status(pid)
+            self.check('unsupported_body_does_not_replace_safe_checkpoint',
+                (suspended['x'], suspended['y'], suspended['z']) == (before['x'], before['y'], before['z']),
+                {'fixture': 'admin no-gravity one-block lift; not natural movement', 'before': before,
+                 'suspended': suspended, 'actual_body': self.body(pid)['Pos']})
+            self.away()
+            withdrawn = self.poll(lambda: self.status(pid), lambda r: not r['embodied'], 30, 'suspended withdrawal')
+            self.check('withdrawal_keeps_safe_checkpoint_and_assets', all(withdrawn[k] == before[k]
+                for k in ('x', 'y', 'z', 'herbs', 'coins', 'completedActivities')), {'before': before, 'after': withdrawn})
+            self.center()
+            restored = self.poll(lambda: self.status(pid), lambda r: r['embodied'], 30, 'safe respawn after suspension')
+            self.check('safe_checkpoint_respawns_new_lease', restored['epoch'] > before['epoch'] and self.count(pid) == 1,
+                {'before': before, 'after': restored, 'actual_body': self.body(pid)['Pos']})
+        finally:
+            self.rc(f'data merge entity {selector} {{NoGravity:0b}}')
+            self.rc('myvillage world resume')
+
     def sect_dialogue(self, person, label):
         body = self.body(person)
         x, y, z = body['Pos']

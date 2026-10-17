@@ -164,8 +164,7 @@ public final class NpcLifeGoal extends Goal {
         if (distance <= arrival * arrival && npc.blockPosition().equals(new BlockPos(target.x(), target.y(), target.z()))) {
             stop();
             if ("moving".equals(life.phase())) {
-                boolean changed = sim.checkpointLife(life.personId(), epoch,
-                        npc.blockPosition().getX(), npc.blockPosition().getY(), npc.blockPosition().getZ());
+                boolean changed = WorldSimAvatars.checkpointLifeAtSafeFeet(sim, npc, epoch);
                 changed |= sim.arriveLife(life.personId(), epoch, revision);
                 if (changed) dirty(level);
             }
@@ -268,8 +267,7 @@ public final class NpcLifeGoal extends Goal {
         stop();
         if (failedRevision == life.revision()) return;
         failedRevision = life.revision();
-        boolean changed = sim.checkpointLife(life.personId(), epoch,
-                npc.blockPosition().getX(), npc.blockPosition().getY(), npc.blockPosition().getZ());
+        boolean changed = WorldSimAvatars.checkpointLifeAtSafeFeet(sim, npc, epoch);
         changed |= sim.failLife(life.personId(), epoch, life.revision(), reason);
         if (changed) dirty(level);
     }

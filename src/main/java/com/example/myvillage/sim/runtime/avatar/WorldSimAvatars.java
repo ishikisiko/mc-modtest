@@ -547,7 +547,7 @@ public final class WorldSimAvatars {
                 continue;
             }
             BlockPos current = a.entity().blockPosition();
-            if (sim.checkpointLife(a.personId(), a.lifeEpoch(), current.getX(), current.getY(), current.getZ())) {
+            if (checkpointLifeAtSafeFeet(sim, a.entity(), a.lifeEpoch())) {
                 markLifeDirty(server);
             }
             String role = role(person, -1); // a town resident is not the gate's stationed steward
@@ -644,13 +644,34 @@ public final class WorldSimAvatars {
 
     private static void releaseLife(WorldSim sim, Avatar avatar) {
         if (!avatar.life()) return;
-        BlockPos position = avatar.entity().blockPosition();
+        checkpointLifeAtSafeFeet(sim, avatar.entity(), avatar.lifeEpoch());
+        LifeResidentView life = sim.life(avatar.personId()).orElse(null);
+        if (life == null) return;
+        BlockPos position = new BlockPos(life.x(), life.y(), life.z());
         if (sim.releaseLife(avatar.personId(), avatar.lifeEpoch(), position.getX(), position.getY(), position.getZ())) {
             MinecraftServer server = avatar.entity().level().getServer();
             if (server != null) markLifeDirty(server);
             LOGGER.info("NPC_LIFE_AVATAR action=release person={} site={} epoch={} x={} y={} z={}",
                     avatar.personId(), avatar.lifeSite(), avatar.lifeEpoch(), position.getX(), position.getY(), position.getZ());
         }
+    }
+
+    /**
+     * The ledger stores whole feet cells. A jumping body or a body halfway up a stair can occupy
+     * a cell whose center is inside furniture or above unsupported air. Remember only cells the
+     * body has actually visited and can stand in again; withdrawal keeps the last such checkpoint.
+     * Temporary entity occupancy is not a permanent obstruction, so only block shapes are tested.
+     */
+    public static boolean checkpointLifeAtSafeFeet(WorldSim sim, NpcEntity npc, long epoch) {
+        if (!(npc.level() instanceof ServerLevel level) || !isManagedLife(npc, epoch)) return false;
+        BlockPos cell = npc.blockPosition();
+        if (!lifeGround(level, cell)) return false;
+        double halfWidth = npc.getBbWidth() / 2.0;
+        AABB box = new AABB(cell.getX() + .5 - halfWidth, cell.getY(), cell.getZ() + .5 - halfWidth,
+                cell.getX() + .5 + halfWidth, cell.getY() + npc.getBbHeight(), cell.getZ() + .5 + halfWidth);
+        if (!level.getWorldBorder().isWithinBounds(box)) return false;
+        for (var shape : level.getBlockCollisions(npc, box)) if (!shape.isEmpty()) return false;
+        return sim.checkpointLife(npc.ledgerPersonId(), epoch, cell.getX(), cell.getY(), cell.getZ());
     }
 
     private static void markLifeDirty(MinecraftServer server) {
