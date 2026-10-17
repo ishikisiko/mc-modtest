@@ -198,6 +198,9 @@ public abstract class NpcEntity extends PathfinderMob {
         if (level().isClientSide() || !isLedgerAvatar()) {
             throw new IllegalStateException("life behaviour requires a server ledger avatar");
         }
+        // Open decorative shutters are classified as TRAPDOOR by vanilla even when their
+        // vertical collision blocks the crossing. Town routes use doors and authored entries.
+        setPathfindingMalus(net.minecraft.world.level.pathfinder.PathType.TRAPDOOR, -1.0F);
         if (lifeGoal != null) {
             goalSelector.removeGoal(lifeGoal);
         }

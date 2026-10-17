@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.state.*;
 import net.minecraft.world.level.block.state.properties.*;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.*;
+import net.minecraft.world.level.pathfinder.PathComputationType;
 
 /** Bronze three-legged furnace, with saved server inventory and a vanilla synchronized menu. */
 public final class AlchemyFurnaceBlock extends Block implements EntityBlock {
@@ -32,6 +33,8 @@ public final class AlchemyFurnaceBlock extends Block implements EntityBlock {
     @Override protected BlockState rotate(BlockState state, Rotation rotation) { return state.setValue(FACING, rotation.rotate(state.getValue(FACING))); }
     @Override protected BlockState mirror(BlockState state, Mirror mirror) { return state.rotate(mirror.getRotation(state.getValue(FACING))); }
     @Override protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) { return state.getValue(FACING).getAxis() == Direction.Axis.Z ? NS : EW; }
+    // A non-full decorative collision shape is still solid equipment, not an open walking cell.
+    @Override protected boolean isPathfindable(BlockState state, PathComputationType type) { return false; }
     @Override public BlockEntity newBlockEntity(BlockPos pos, BlockState state) { return new AlchemyFurnaceBlockEntity(pos, state); }
     @Override public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         return level.isClientSide() || type != ModBlockEntities.ALCHEMY_FURNACE.get() ? null
