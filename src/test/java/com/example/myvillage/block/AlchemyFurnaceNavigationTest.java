@@ -16,8 +16,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
-import net.minecraft.world.level.pathfinder.PathType;
-import net.minecraft.world.level.pathfinder.WalkNodeEvaluator;
+import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.neoforged.fml.loading.LoadingModList;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -40,10 +39,6 @@ class AlchemyFurnaceNavigationTest {
         }
     }
 
-    private static class Probe extends WalkNodeEvaluator {
-        static PathType classify(BlockGetter view) { return getPathTypeFromState(view, BlockPos.ZERO); }
-    }
-
     private record View(BlockState state) implements BlockGetter {
         @Override public BlockState getBlockState(BlockPos pos) {
             return pos.equals(BlockPos.ZERO) ? state : Blocks.AIR.defaultBlockState();
@@ -54,12 +49,14 @@ class AlchemyFurnaceNavigationTest {
         @Override public int getMinBuildHeight() { return -1; }
     }
 
-    @Test void vanillaWalkingEvaluatorDoesNotTreatThePartialFurnaceAsAir() {
-        assertEquals(PathType.OPEN, Probe.classify(new View(Blocks.AIR.defaultBlockState())));
+    @Test void partialFurnaceCollisionStillBlocksLandNavigationInEveryState() {
+        // The block-level contract needs no NeoForge fluid registry. The full walking evaluator
+        // is exercised by the Modal NPC route; plain Bootstrap only initializes vanilla registries.
+        assertTrue(Blocks.AIR.defaultBlockState().isPathfindable(PathComputationType.LAND));
         for (BlockState state : furnace.getStateDefinition().getPossibleStates()) {
             var view = new View(state);
             assertFalse(state.isCollisionShapeFullBlock(view, BlockPos.ZERO));
-            assertEquals(PathType.BLOCKED, Probe.classify(view), state.toString());
+            assertFalse(state.isPathfindable(PathComputationType.LAND), state.toString());
         }
     }
 }
