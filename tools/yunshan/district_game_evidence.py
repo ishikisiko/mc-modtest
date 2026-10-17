@@ -27,6 +27,7 @@ from tools.json_to_nbt import String
 from tools.yunshan.game_evidence import BuildingEvidence
 from tools.yunshan.build_functional import rotated_state
 from tools.yunshan.game_export import read_typed, write_typed
+from tools.yunshan.preview_site import translate_manifest
 from tools.combat_capture import session as cs, scene, procs
 
 
@@ -102,7 +103,7 @@ class DistrictEvidence(BuildingEvidence):
     def __init__(self, manifest, out):
         Evidence.__init__(self, out)
         self.manifest = manifest
-        self.spec = json.loads(manifest.read_text())
+        self.spec = translate_manifest(json.loads(manifest.read_text()))
         self.hud_hidden = False
         self.buildings = []
         for installation in self.spec['buildings']:
@@ -123,6 +124,8 @@ class DistrictEvidence(BuildingEvidence):
                     'buildings': {d['_installation']['source']: hashlib.sha256((ROOT/'blueprints/yunshan'/d['_installation']['source']).read_bytes()).hexdigest() for d in self.buildings},
                     'tiles': {t['nbt']: hashlib.sha256((manifest.parent/t['nbt']).read_bytes()).hexdigest() for t in self.spec['tiles']}},
             source_schematic='authored/generated district source; not exported from Minecraft')
+        self.report['preview_site'] = {key: self.spec[key] for key in (
+            'original_world_coordinates', 'applied_preview_translation', 'world_offset', 'world_min', 'world_max')}
         self.save()
 
     def save(self):
@@ -193,6 +196,11 @@ class DistrictEvidence(BuildingEvidence):
             try:
                 probe = tile['probe']; xyz = ' '.join(map(str, probe['pos']))
                 self.poll(lambda: self.rc('execute if loaded '+xyz), lambda reply: 'passed' in reply, 30, tile['id']+' chunks loaded')
+                if not placed:
+                    support = [tile['world_min'][0], self.spec['world_min'][1]-1, tile['world_min'][2]]
+                    grounded = self.rc('execute if block '+' '.join(map(str,support))+' minecraft:grass_block')
+                    self.check('preview_base_meets_flat_world_surface', 'passed' in grounded,
+                               {'below_city_base':support,'readback':grounded})
                 # A differing marker makes even an all-air tile's readback
                 # meaningful: pre-existing flat-world air cannot satisfy it.
                 marker = 'minecraft:bedrock' if probe['state'].split('[', 1)[0] == 'minecraft:barrier' else 'minecraft:barrier'

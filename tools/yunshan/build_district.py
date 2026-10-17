@@ -439,6 +439,7 @@ def build(config_path,out):
     if sum(math.prod(t['size']) for t in tiles)!=len(volume.cells):raise AssertionError('tile partition lost cells')
     ox,oy,oz=site['world_offset'];spawn=cfg['recommended_spawn_artwork']
     manifest={'schema_version':1,'id':'myvillage:yunshan_d1_v2','source_plan':cfg['plan'],
+        'preview_translation':cfg.get('preview_translation',[0,0,0]),
         'world_offset':site['world_offset'],'world_min':volume.minimum,'world_max':volume.maximum,'size':volume.size,
         'schem':'yunshan_d1_v2.schem','clipboard_offset':[0,0,0],
         'tiles':tiles,'buildings':buildings,'retained_houses':[{k:v for k,v in h.items() if not k.startswith('_')} for h in houses],'routes':report['routes'],

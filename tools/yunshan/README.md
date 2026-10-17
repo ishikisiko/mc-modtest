@@ -1,5 +1,45 @@
 # 云山 D1：功能建筑独立蓝图
 
+## D1 完整可玩街区（规划已确认）
+
+`build_district.py` 读取已确认总图、`district_realization_v2.json` 的材质/边界，
+以及 `baseline/d1_columns.json` 和 `baseline_houses.py` 的不可变旧城资料，
+重建 70 所完整民居、四馆、地形、湖面、街阶、原门楼/鼓楼体块及树井。
+地块填挖以实心台地和挡墙落实，旧城门墙体内显式贯通通道。
+
+```bash
+python3 tools/yunshan/build_district.py
+python3 -m unittest tools.tests.test_yunshan_district_build tools.tests.test_yunshan_district_evidence
+# 只对已经提交的固定源运行重型工作：
+.venv-modal/bin/python -m tools.modal_runner run --preset yunshan-district --ref HEAD --timeout 2400
+```
+
+`out/preview/yunshan-d1-v2/runtime-build/` 包含完整零 offset SCHEM、189 个
+不超过 32³ 的 NBT tiles、独立 datapack、绝对坐标 manifest 和方块检查报告。
+SCHEM 是生成源蓝图；真实游戏保存的世界 ZIP 由采集器另行输出，不能混称。
+
+原蓝图坐标保留给历史存档参考。**独立平坦预览世界统一使用配置中的
+`preview_translation`**；当前整体下移 122 格，使原 Y62 地基直接接住
+默认平坦世界的地表，出生点随之移动。`preview_site.py` 统一转换模板、
+入口、路线、探针和摄像机，拒绝重复转换；建筑相对位置及城内高差不变。
+
+采集器实际放置整城，并用映射 W/右键检查北移井巷、药圃后巷、南门通道、
+旋转后的四馆入口、客栈楼梯与设施，保存真实客户端画面及完整世界 ZIP。
+其 `evidence.json` 的 selected/completed/unrun 和 cleanup 才是运行结论。
+旧广场中的鼓楼和陈设占用会单列；本次改动地块/道路的障碍不允许豁免。
+
+玩家端交付使用独立、唯一的 DevBridge flat creative 世界；先完成云端验证。
+`deploy_district.py` 默认只导出分阶段命令并逐格重放核对；显式 `--execute`
+才向指定新世界写入。它验证世界身份、区块加载、命令结果及专属世界令牌，
+最多四个连接，门床成对串行放置，最后写题字。不使用旧的 `d1push.py`。
+默认执行不会覆盖既有进度；`--resume` 只允许恢复同一未完成任务，已完成
+任务拒绝恢复，防止覆盖玩家后续修改。`prepare_delivery.py` 另可生成带
+ZIP 哈希和拒绝覆盖逻辑的 Windows 导入脚本。
+
+本轮不改变 mod 运行时，不升版本。门楼/鼓楼沿用旧 D1 体块；NPC 商人、
+委托与收费住宿没有因整城落位而自动增加。玩家外观、手感、音效、FPS
+和广泛多人验收仍需另行观察。
+
 ## D1 新总图规划（2026-10-18）
 
 `blueprints/yunshan/district_plan_v2.json` 是四栋放大建筑的整街区落位候选。

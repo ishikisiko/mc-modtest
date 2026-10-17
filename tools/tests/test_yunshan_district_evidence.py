@@ -14,7 +14,73 @@ from tools.yunshan.district_game_evidence import (
 )
 from tools.yunshan.game_export import plain, read_typed, write_typed
 from tools.realm_stats_evidence import Evidence
+from tools.yunshan.preview_site import translate_manifest, translate_point
 import tools.json_to_nbt as nbt
+
+
+class PreviewTranslationTests(unittest.TestCase):
+    def fixture(self):
+        return {'preview_translation': [0, -122, 0], 'world_offset': [2995, 30, -30],
+            'world_min': [2850, 62, 110], 'world_max': [3059, 143, 374], 'size': [210, 82, 265],
+            'tiles': [{'world_min': [2850, 62, 110], 'size': [32, 32, 32],
+                       'nbt': 'tiles/fixture.nbt', 'sha256': 'unchanged',
+                       'probe': {'pos': [2850, 62, 110], 'state': 'minecraft:stone'}}],
+            'buildings': [{'world_min': [2936, 67, 309], 'world_max': [2954, 90, 331],
+                'proposed_world_min': [2936, 67, 309], 'threshold_world_y': 68,
+                'size': [19, 24, 23], 'level': 38, 'min': [-59, 339], 'rotation_quarters': 2,
+                'door': [2945, 68, 327], 'approach': [2945, 68, 332]}],
+            'routes': {'inn': [[2945, 68, 336], [2945, 68, 335], [2945, 68, 334]]},
+            'path_trials': [{'start': [2945.5, 70, 306.5], 'end': [2938.5, 72, 306.5], 'min_y': 71.9}],
+            'recommended_spawn': {'pos': [2963.5, 68, 336.5], 'yaw': 180},
+            'fixture_cameras': [{'pos': [2965.5, 111, 385.5], 'yaw': 180, 'pitch': 31}],
+            'signs': [{'pos': [2945, 71, 328], 'messages': ['原字保留']}],
+            'retained_houses': [{'door': [2911, 75, 281], 'id': 'S2_N-1'}]}
+
+    def test_translation_preserves_source_geometry_and_source_inputs(self):
+        source = self.fixture(); original = json.dumps(source, sort_keys=True)
+        translated = translate_manifest(source)
+        self.assertEqual(json.dumps(source, sort_keys=True), original)
+        self.assertEqual(translated['world_min'], [2850, -60, 110])
+        self.assertEqual(translated['world_max'], [3059, 21, 374])
+        self.assertEqual(translated['world_offset'], [2995, -92, -30])
+        self.assertEqual(translated['original_world_coordinates']['world_min'], source['world_min'])
+        self.assertEqual(translated['applied_preview_translation'], [0, -122, 0])
+        self.assertEqual(translated['size'], source['size'])
+        for field in ('size', 'nbt', 'sha256'):
+            self.assertEqual(translated['tiles'][0][field], source['tiles'][0][field])
+        for field in ('level', 'min', 'rotation_quarters', 'size'):
+            self.assertEqual(translated['buildings'][0][field], source['buildings'][0][field])
+        for key in ('world_min', 'world_max', 'proposed_world_min', 'door', 'approach'):
+            self.assertEqual(translated['buildings'][0][key], translate_point(source['buildings'][0][key], [0, -122, 0]))
+        self.assertEqual(translated['buildings'][0]['threshold_world_y'], -54)
+        self.assertEqual(translated['tiles'][0]['probe']['pos'], [2850, -60, 110])
+        self.assertEqual(translated['recommended_spawn']['pos'], [2963.5, -54, 336.5])
+        self.assertEqual(translated['fixture_cameras'][0]['pos'], [2965.5, -11, 385.5])
+        self.assertEqual(translated['signs'][0]['pos'], [2945, -51, 328])
+        self.assertEqual(translated['retained_houses'][0]['door'], [2911, -47, 281])
+        self.assertEqual(translated['path_trials'][0]['min_y'], source['path_trials'][0]['min_y']-122)
+        for key in ('start', 'end'):
+            self.assertEqual(translated['path_trials'][0][key], translate_point(source['path_trials'][0][key], [0, -122, 0]))
+        self.assertEqual(translated['routes']['inn'], [[p[0], p[1]-122, p[2]] for p in source['routes']['inn']])
+        # Quarter-turn building traversal retains exactly the same vector and
+        # stair rise after relocation; only absolute world height changes.
+        before, after = source['buildings'][0], translated['buildings'][0]
+        for local in ([9.5, 1, 1.5], [7.5, 1, 8.5], [7.5, 7, 15.5]):
+            self.assertEqual(world_position(after, [19, 24, 23], local),
+                translate_point(world_position(before, [19, 24, 23], local), [0, -122, 0]))
+
+    def test_double_application_missing_delta_and_invalid_coordinates_are_rejected(self):
+        source = self.fixture()
+        with self.assertRaisesRegex(ValueError, 'already applied'):
+            translate_manifest(translate_manifest(source))
+        del source['preview_translation']
+        with self.assertRaisesRegex(ValueError, 'explicitly declare'):
+            translate_manifest(source)
+        for delta in ([0, -122.0, 0], [False, -122, 0], [0, 0], [0, -500, 0]):
+            source = self.fixture(); source['preview_translation'] = delta
+            with self.assertRaises(ValueError): translate_manifest(source)
+        for point in ([0, float('nan'), 0], [0, True, 0], [0, 0]):
+            with self.assertRaises(ValueError): translate_point(point, [0, -122, 0])
 
 
 class DistrictCoordinatesTests(unittest.TestCase):

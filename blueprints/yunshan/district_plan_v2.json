@@ -1,6 +1,6 @@
 {
   "name": "云山 D1 · 四馆入城",
-  "status": "planning_preview_pending_owner_review",
+  "status": "owner_plan_accepted_pending_game_review",
   "site_reference": "d1_site_reference.json",
   "landscape_reference": "d1_landscape_reference.json",
   "coordinate_convention": "Inclusive block rectangles [x,z,x,z]; north is -z; level is exterior walking-foot height in artwork coordinates. Template foundation world Y = level + world_offset.y - 1. Rotation is clockwise from north.",

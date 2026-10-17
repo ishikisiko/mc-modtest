@@ -3,6 +3,7 @@
   "baseline": "baseline/d1_columns.json",
   "y_base": 62,
   "y_top": 143,
+  "preview_translation": [0, -122, 0],
   "tile_size": 32,
   "water_level": 38,
   "lake_bed_level": 35,
