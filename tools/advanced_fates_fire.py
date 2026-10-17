@@ -137,6 +137,9 @@ def run(e):
               and close(trace.get('afterResistance', -1), trace.get('postVanilla', -1)*(1-resistance)),
               {'fire_ticks': fire, 'trace': trace})
         e.rc(f'kill {target}')
+        # LivingEntity remains pickable throughout its 20-tick death animation.
+        e.poll(lambda:e.rc(f'execute if entity {target}'),lambda reply:'passed' not in reply,
+               timeout=4,label=label+' dying target removed before reusing aim point')
 
     def burst_hits(target, identity, count):
         return [mapped_hit(target, identity) for _ in range(count)]

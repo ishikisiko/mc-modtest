@@ -103,8 +103,11 @@ class AdvancedEvidence(PurpleEvidence):
             self.check('restart_preserves_selected_fates',after['selected']==before['selected'],{'before':before,'after':after})
             for field,keys in [('sword_heart',('cooldown_ready_at',)),('wind_step',('ready_at',)),('fire_spirit',('deadlines',))]:
                 a=before.get(field,{});b=after.get(field,{})
-                self.check('restart_preserves_'+field+'_deadlines',all(a.get(k)==b.get(k) for k in keys),{'before':a,'after':b})
-            self.check('restart_discards_short_opening',after.get('sword_heart',{}).get('opening_expires_at',0)==0,after)
+                if any(a.get(k) for k in keys):
+                    self.check('restart_preserves_'+field+'_deadlines',all(a.get(k)==b.get(k) for k in keys),{'before':a,'after':b})
+                else:
+                    self.report.setdefault('lifecycle_unobserved',[]).append(field+'_nonzero_deadline')
+            self.check('restart_has_no_short_opening',after.get('sword_heart',{}).get('opening_expires_at',0)==0,after)
             self.check('airborne_restart_does_not_refill_charge',position[1]>-50
                        and after.get('wind_step',{}).get('air_spent',True),{'pos':position,'state':after})
             log=cs.LOG_DIR/'server.log';offset=log.stat().st_size
