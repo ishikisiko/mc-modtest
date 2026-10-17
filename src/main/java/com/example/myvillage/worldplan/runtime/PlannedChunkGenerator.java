@@ -24,13 +24,19 @@ import java.util.concurrent.CompletableFuture;
 
 /** Opt-in world type. Every write belongs to the current chunk; frozen rules live in level.dat. */
 public final class PlannedChunkGenerator extends ChunkGenerator {
-    public static final MapCodec<PlannedChunkGenerator> CODEC=RecordCodecBuilder.mapCodec(i->i.group(
+    public static final MapCodec<PlannedChunkGenerator> CODEC=createCodec(false);
+    public static final MapCodec<PlannedChunkGenerator> CODEC_V2=createCodec(true);
+    private static MapCodec<PlannedChunkGenerator> createCodec(boolean v2){return RecordCodecBuilder.mapCodec(i->i.group(
         BiomeSource.CODEC.fieldOf("biome_source").forGetter(g->g.originalSource),
         NoiseGeneratorSettings.CODEC.fieldOf("settings").forGetter(g->g.settings),
         Codec.STRING.fieldOf("rules").forGetter(g->g.rules.json()),
         Codec.STRING.optionalFieldOf("plan_hash","").forGetter(PlannedChunkGenerator::savedFingerprint),
         RegistryOps.retrieveGetter(Registries.NOISE)
-    ).apply(i,(source,settings,json,hash,noises)->new PlannedChunkGenerator(source,settings,new WorldPlanRules(json),hash,noises)));
+    ).apply(i,(source,settings,json,hash,noises)->{
+        WorldPlanRules rules=new WorldPlanRules(json);
+        if(v2!=(rules.ecology!=null))throw new IllegalArgumentException("Generator type must match frozen algorithm");
+        return new PlannedChunkGenerator(source,settings,rules,hash,noises);
+    }));}
     private final BiomeSource originalSource;
     private final Holder<NoiseGeneratorSettings> settings;
     private final HolderGetter<NormalNoise.NoiseParameters> noises;
@@ -48,7 +54,7 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
         // Holder values are deliberately not accessed during registry decoding.
         terrain=new NoiseBasedChunkGenerator(planned,settings);
     }
-    @Override protected MapCodec<? extends ChunkGenerator> codec(){return CODEC;}
+    @Override protected MapCodec<? extends ChunkGenerator> codec(){return rules.ecology==null?CODEC:CODEC_V2;}
     public WorldPlan plan(){WorldPlan p=plan;if(p==null)throw new IllegalStateException("Worldplan requested before createState seed binding");return p;}
     public WorldPlanRules rules(){return rules;}
     public RandomState terrainState(){RandomState state=terrainState;if(state==null)throw new IllegalStateException("Worldplan noise requested before createState");return state;}
@@ -121,6 +127,6 @@ public final class PlannedChunkGenerator extends ChunkGenerator {
         for(int y=min;y<max;y++)states[y-min]=columnBlock(nativeColumn.getBlock(y),y,target,nativeFloor);return new NoiseColumn(min,states);
     }
     @Override public void addDebugScreenInfo(List<String> lines,RandomState ignored,BlockPos pos){
-        WorldPlan.Context c=plan().sample(pos.getX(),pos.getZ());lines.add("Worldplan V1: "+c.displayName()+" tier="+c.tier()+" terrain="+c.surfaceY()+" hash="+plan().fingerprint().substring(0,12));
+        WorldPlan.Context c=plan().sample(pos.getX(),pos.getZ());lines.add("Worldplan "+rules.algorithm+": "+c.displayName()+" tier="+c.tier()+" terrain="+c.surfaceY()+" hash="+plan().fingerprint().substring(0,12));
     }
 }

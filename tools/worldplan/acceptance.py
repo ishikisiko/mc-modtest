@@ -115,17 +115,18 @@ def test_tickets(server,x0,z0,x1=None,z1=None):
 def check_saved(world,expected):
     _,tag=read_gzipped_nbt(str(world/'level.dat'))
     generator=tag['Data']['WorldGenSettings']['dimensions']['minecraft:overworld']['generator']
-    assert generator['type']=='myvillage:planned_v1',generator
+    assert generator['type']=='myvillage:planned_v2',generator
     assert generator['plan_hash']==expected
     rules=json.loads(generator['rules']);assert rules['core_radius']==4000 and len(rules['city']['layout']['tiles'])==35
     return {'plan_sha256':generator['plan_hash'],'rules_bytes':len(generator['rules'].encode()),'algorithm':rules['algorithm']}
 
 def check_jar():
-    jars=list((ROOT/'build/libs').glob('myvillage-0.59.0.jar'));assert len(jars)==1,jars
+    version=next(line.split('=',1)[1].strip() for line in (ROOT/'gradle.properties').read_text().splitlines() if line.startswith('mod_version='))
+    jars=list((ROOT/'build/libs').glob(f'myvillage-{version}.jar'));assert len(jars)==1,jars
     with zipfile.ZipFile(jars[0]) as z:
         names=set(z.namelist());tiles=[n for n in names if n.startswith('data/myvillage/structure/worldplan/yunshan_v1/') and n.endswith('.nbt')]
         assert len(tiles)==35
-        for name in ['data/myvillage/worldgen/world_preset/cultivation.json','data/myvillage/worldplan/frozen_v1.json','com/example/myvillage/worldplan/runtime/PlannedChunkGenerator.class']:assert name in names,name
+        for name in ['data/myvillage/worldgen/world_preset/cultivation.json','data/myvillage/worldplan/frozen_v1.json','data/myvillage/worldplan/frozen_v2.json','com/example/myvillage/worldplan/runtime/PlannedChunkGenerator.class']:assert name in names,name
         assert {'WorldPlanReservationMixin','WorldPlanOreMixin'}.issubset(json.loads(z.read('myvillage.mixins.json'))['mixins'])
     return {'file':jars[0].name,'sha256':hashlib.sha256(jars[0].read_bytes()).hexdigest(),'tiles':35}
 
@@ -137,6 +138,7 @@ def main():
     try:
         result['jar']=check_jar()
         with Server(world_a,'a-create') as s:
+            s.cmd('gamerule randomTickSpeed 0')  # Exact order hashes compare immutable generation, not elapsed grass decay.
             info=s.query('info');expected=info['plan_sha256'];city=info['city'];result['info']=info
             atlas=json.loads((s.world/'data/myvillage/worldplan/worldplan.json').read_text())
             assert atlas['plan_sha256']==expected and str(atlas['seed'])==str(SEED)
@@ -164,6 +166,7 @@ def main():
             result['checks']['city_a']=clean;result['checks']['player_edit_survived_restart_and_extension']=True;result['checks']['saved_plan_unchanged']=True
         result['checks']['saved_a_again']=check_saved(GAME/world_a,expected)
         with Server(world_b,'b-reversed-order') as s:
+            s.cmd('gamerule randomTickSpeed 0')
             assert s.query('info')['plan_sha256']==expected;other={}
             for x,z in reversed(probes):
                 check=s.query(f'probe {x} {z}');assert check['height_mismatches']==0 and check['exact_noise_stage'],check

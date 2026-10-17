@@ -12,14 +12,18 @@ import java.util.stream.Stream;
 
 /** Seed-bound surface ecology; the original overworld source retains underground cave biomes. */
 public final class PlannedBiomeSource extends BiomeSource {
-    public static final MapCodec<PlannedBiomeSource> CODEC=RecordCodecBuilder.mapCodec(i->i.group(
+    public static final MapCodec<PlannedBiomeSource> CODEC=createCodec(false);
+    public static final MapCodec<PlannedBiomeSource> CODEC_V2=createCodec(true);
+    private static MapCodec<PlannedBiomeSource> createCodec(boolean v2){return RecordCodecBuilder.mapCodec(i->i.group(
         BiomeSource.CODEC.fieldOf("delegate").forGetter(s->s.original),
         Codec.STRING.fieldOf("rules").forGetter(s->s.rules.json()),
         Codec.LONG.fieldOf("seed").forGetter(s->s.plan==null?0L:s.plan.seed())
     ).apply(i,(source,json,seed)->{
-        PlannedBiomeSource result=new PlannedBiomeSource(source,new WorldPlanRules(json));
+        WorldPlanRules rules=new WorldPlanRules(json);
+        if(v2!=(rules.ecology!=null))throw new IllegalArgumentException("Biome source type must match frozen algorithm");
+        PlannedBiomeSource result=new PlannedBiomeSource(source,rules);
         result.bind(new WorldPlan(seed,result.rules),null);return result;
-    }));
+    }));}
     private final BiomeSource original;
     private final WorldPlanRules rules;
     private volatile Map<String,Holder<Biome>> holders;
@@ -38,6 +42,7 @@ public final class PlannedBiomeSource extends BiomeSource {
         for(Holder<Biome> b:original.possibleBiomes())b.unwrapKey().ifPresent(k->entries.put(k.location().toString(),b));
         Set<String> required=new HashSet<>(Set.of("minecraft:ocean","minecraft:deep_ocean","minecraft:beach"));
         rules.profiles.forEach(p->required.addAll(p.biomes()));
+        if(rules.ecology!=null)required.addAll(rules.ecology.biomes());
         if(!entries.keySet().containsAll(required)){required.removeAll(entries.keySet());throw new IllegalArgumentException("Worldplan delegate biome source is missing "+required);}
         holders=Map.copyOf(entries);return holders;
     }
@@ -45,7 +50,7 @@ public final class PlannedBiomeSource extends BiomeSource {
         if(sampler!=null)resolvedHolders();
         terrainSampler=sampler;columns.clear();this.plan=plan;
     }
-    @Override protected MapCodec<? extends BiomeSource> codec(){return CODEC;}
+    @Override protected MapCodec<? extends BiomeSource> codec(){return rules.ecology==null?CODEC:CODEC_V2;}
     @Override protected Stream<Holder<Biome>> collectPossibleBiomes(){return original.possibleBiomes().stream();}
     @Override public Holder<Biome> getNoiseBiome(int x,int y,int z,Climate.Sampler sampler){
         WorldPlan p=plan;if(p==null)throw new IllegalStateException("Planned biome source used before world seed binding");

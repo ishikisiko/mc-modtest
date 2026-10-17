@@ -43,11 +43,11 @@ public final class WorldPlan {
             new IntRange(p.dangerMin(),p.dangerMax()),p.role().equals("walled")?List.of():List.of("sect"),p.nominalTier(),r.x/RegionPlacement.SCALE,r.z/RegionPlacement.SCALE));}
         for(Border e:borders)es.add(new GenEdge(e.a,e.b,e.passable?RegionContract.EDGE_LIAN:RegionContract.EDGE_GE,
             e.passable?null:(e.separator.equals("sea")?RegionContract.SEP_OCEAN:RegionContract.SEP_MOUNTAIN),e.gate?RegionContract.PASS_GUANAI:null));
-        RegionGraph preliminary=new RegionGraph(seed,WorldPlanRules.ALGORITHM,rs.size(),new IntRange(rules.tierMin,rules.tierMax),rules.stepMax,List.copyOf(rs),List.copyOf(es),geometry);
+        RegionGraph preliminary=new RegionGraph(seed,rules.algorithm,rs.size(),new IntRange(rules.tierMin,rules.tierMax),rules.stepMax,List.copyOf(rs),List.copyOf(es),geometry);
         city=chooseCity(preliminary);
         RegionGeometry reserved=new RegionGeometry(seed,rules.coreRadius,rules.warpScale,rules.warpAmplitude,
             List.of(new RegionGeometry.Reservation(rules.city.id(),city.x,city.z,city.x+city.width-1,city.z+city.depth-1)));
-        graph=new RegionGraph(seed,WorldPlanRules.ALGORITHM,rs.size(),new IntRange(rules.tierMin,rules.tierMax),rules.stepMax,List.copyOf(rs),List.copyOf(es),reserved);
+        graph=new RegionGraph(seed,rules.algorithm,rs.size(),new IntRange(rules.tierMin,rules.tierMax),rules.stepMax,List.copyOf(rs),List.copyOf(es),reserved);
         spawn=chooseSpawn();fingerprint=WorldPlanRules.sha256(manifest(false).toString());
     }
     public long seed(){return seed;}
@@ -260,12 +260,40 @@ public final class WorldPlan {
         if(surface<rules.seaLevel-8)biome="minecraft:deep_ocean";
         else if(surface<rules.seaLevel)biome="minecraft:ocean";
         else if(surface<=rules.seaLevel+2)biome="minecraft:beach";
+        else if(rules.ecology!=null)biome=rules.ecology.biome(climate(x,z,v.height));
         else{double n=noise(seed^mix(p.id().hashCode())^43,x/(rules.terrainScale*2),z/(rules.terrainScale*2));biome=p.biomes().get(n<-.22?0:n>.22?2:1);}
         return new Context(id,name,p.id(),core,tier,v.qi,v.danger,surface,biome);
     }
+    public WorldPlanEcology.Climate climate(double x,double z) { return climate(x,z,height(x,z)); }
+    private WorldPlanEcology.Climate climate(double x,double z,double height) {
+        WorldPlanEcology e=Objects.requireNonNull(rules.ecology,"V1 does not use blended climate");
+        double transition=smooth((StrictMath.hypot(x,z)-(rules.coreRadius-rules.coreBlend))/(2*rules.coreBlend));
+        WorldPlanEcology.Climate c;
+        if(transition<=0)c=coreClimate(x,z);
+        else if(transition>=1)c=outerClimate(x,z);
+        else c=coreClimate(x,z).mix(outerClimate(x,z),transition);
+        double temperature=c.temperature()+noise(seed^0x45434F54454D50L,x/e.noiseScale,z/e.noiseScale)*e.temperatureVariation
+            -Math.max(0,height-e.coolingStartY)*e.coolingPerBlock;
+        double moisture=c.moisture()+noise(seed^0x45434F4D4F4953L,x/e.noiseScale,z/e.noiseScale)*e.moistureVariation;
+        return new WorldPlanEcology.Climate(Math.clamp(temperature,0,1),Math.clamp(moisture,0,1));
+    }
+    private WorldPlanEcology.Climate coreClimate(double x,double z) {
+        double[] q=geometry.warp(x,z);Region closest=nearest(q[0],q[1]);
+        double min=StrictMath.hypot(q[0]-closest.x,q[1]-closest.z),sum=0,t=0,m=0;
+        for(Region r:regions){double w=1-(StrictMath.hypot(q[0]-r.x,q[1]-r.z)-min)/rules.ecology.blend;
+            if(w<=0)continue;w=smooth(w);var c=rules.ecology.profile(r.id());sum+=w;t+=w*c.temperature();m+=w*c.moisture();}
+        return new WorldPlanEcology.Climate(t/sum,m/sum);
+    }
+    private WorldPlanEcology.Climate outerClimate(double x,double z) {
+        List<Outer> cells=neighbourhood(x,z);Outer closest=nearestOuter(x,z,cells);
+        double min=StrictMath.hypot(x-closest.x,z-closest.z),sum=0,t=0,m=0;
+        for(Outer r:cells){double w=1-(StrictMath.hypot(x-r.x,z-r.z)-min)/rules.ecology.blend;
+            if(w<=0)continue;w=smooth(w);var c=rules.ecology.profile(r.profile.id());sum+=w;t+=w*c.temperature();m+=w*c.moisture();}
+        return new WorldPlanEcology.Climate(t/sum,m/sum);
+    }
     public JsonObject manifest(){return manifest(true);}
     private JsonObject manifest(boolean includeFingerprint) {
-        JsonObject root=new JsonObject();root.addProperty("schema",1);root.addProperty("algorithm",WorldPlanRules.ALGORITHM);
+        JsonObject root=new JsonObject();root.addProperty("schema",1);root.addProperty("algorithm",rules.algorithm);
         root.addProperty("seed",seed);root.addProperty("rules_sha256",rules.fingerprint());
         if(includeFingerprint)root.addProperty("plan_sha256",fingerprint);
         root.add("rules",JsonParser.parseString(rules.json()));root.add("graph",JsonParser.parseString(graph.toCanonicalJson()));

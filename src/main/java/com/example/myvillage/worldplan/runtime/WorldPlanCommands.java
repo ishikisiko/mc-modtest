@@ -42,6 +42,7 @@ public final class WorldPlanCommands {
     private static int fail(CommandSourceStack s,Exception e){s.sendFailure(Component.literal("Worldplan: "+e.getMessage()));return 0;}
     private static int info(CommandSourceStack s){try{
         var p=generator(s).plan();JsonObject o=new JsonObject();o.addProperty("active",true);o.addProperty("seed",Long.toString(p.seed()));
+        o.addProperty("algorithm",p.rules().algorithm);
         o.addProperty("plan_sha256",p.fingerprint());o.addProperty("rules_sha256",p.rules().fingerprint());o.add("city",WorldPlanRules.JSON.toJsonTree(p.city()));
         o.add("spawn",WorldPlanRules.JSON.toJsonTree(p.spawn()));o.addProperty("structures_enabled",s.getServer().getWorldData().worldGenOptions().generateStructures());
         o.addProperty("atlas_directory",WorldPlanRuntime.directory(s.getLevel()).toString());return reply(s,o);

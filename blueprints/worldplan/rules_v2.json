@@ -1,0 +1,29 @@
+{
+  "base": "rules_v1.json",
+  "algorithm": "myvillage:worldplan_v2",
+  "ecology": {
+    "blend": 720,
+    "noise_scale": 900,
+    "temperature_variation": 0.035,
+    "moisture_variation": 0.06,
+    "cooling_start_y": 160,
+    "cooling_per_block": 0.002,
+    "profiles": {
+      "zhongzhou": {"temperature": 0.55, "moisture": 0.55},
+      "lingyue": {"temperature": 0.31, "moisture": 0.45},
+      "ximo": {"temperature": 0.92, "moisture": 0.08},
+      "donghai": {"temperature": 0.60, "moisture": 0.70},
+      "beiyuan": {"temperature": 0.08, "moisture": 0.55},
+      "donghuang": {"temperature": 0.52, "moisture": 0.86},
+      "nanjiang": {"temperature": 0.92, "moisture": 0.94},
+      "moyu": {"temperature": 0.72, "moisture": 0.24}
+    },
+    "bands": [
+      {"max_temperature": 0.16, "moisture": [{"max": 0.4, "biome": "minecraft:snowy_plains"}, {"max": 2, "biome": "minecraft:snowy_taiga"}]},
+      {"max_temperature": 0.32, "moisture": [{"max": 2, "biome": "minecraft:taiga"}]},
+      {"max_temperature": 0.62, "moisture": [{"max": 0.4, "biome": "minecraft:meadow"}, {"max": 0.78, "biome": "minecraft:forest"}, {"max": 2, "biome": "minecraft:dark_forest"}]},
+      {"max_temperature": 0.80, "moisture": [{"max": 0.32, "biome": "minecraft:savanna"}, {"max": 0.74, "biome": "minecraft:forest"}, {"max": 2, "biome": "minecraft:sparse_jungle"}]},
+      {"max_temperature": 2, "moisture": [{"max": 0.18, "biome": "minecraft:desert"}, {"max": 0.32, "biome": "minecraft:badlands"}, {"max": 0.70, "biome": "minecraft:savanna"}, {"max": 0.90, "biome": "minecraft:jungle"}, {"max": 2, "biome": "minecraft:bamboo_jungle"}]}
+    ]
+  }
+}

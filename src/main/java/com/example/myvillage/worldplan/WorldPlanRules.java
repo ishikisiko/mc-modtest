@@ -7,8 +7,10 @@ import java.util.*;
 
 /** Validated, frozen generation inputs. Runtime code never rereads mutable configuration per chunk. */
 public final class WorldPlanRules {
-    public static final String ALGORITHM = "myvillage:worldplan_v1";
-    public static final String RESOURCE = "/data/myvillage/worldplan/frozen_v1.json";
+    public static final String LEGACY_ALGORITHM = "myvillage:worldplan_v1";
+    public static final String ALGORITHM = "myvillage:worldplan_v2";
+    public static final String LEGACY_RESOURCE = "/data/myvillage/worldplan/frozen_v1.json";
+    public static final String RESOURCE = "/data/myvillage/worldplan/frozen_v2.json";
     public static final Gson JSON = new GsonBuilder().disableHtmlEscaping().create();
     public record Profile(String id, String name, String role, int nominalTier, int qiMin, int qiMax,
                           int dangerMin, int dangerMax, double base, double amplitude,
@@ -41,11 +43,14 @@ public final class WorldPlanRules {
     public final List<Profile> profiles;
     public final CityRules city;
     public final Map<String, StructurePolicy> structurePolicies;
+    public final String algorithm;
+    public final WorldPlanEcology ecology;
     private final String canonicalJson, fingerprint;
 
     public WorldPlanRules(String json) {
         JsonObject r = JsonParser.parseString(json).getAsJsonObject();
-        if (integer(r, "schema", 1, 1) != 1 || !ALGORITHM.equals(text(r, "algorithm")))
+        algorithm = text(r, "algorithm");
+        if (integer(r, "schema", 1, 1) != 1 || !Set.of(LEGACY_ALGORITHM, ALGORITHM).contains(algorithm))
             throw new IllegalArgumentException("Unsupported worldplan algorithm; retain the matching mod version for this world");
         coreRadius = integer(r, "core_radius", 2000, 32000);
         coreBlend = integer(r, "core_blend", 64, coreRadius / 3);
@@ -152,6 +157,7 @@ public final class WorldPlanRules {
             if (policies.get(id).minimumTier() > policies.get(id).maximumTier()) throw new IllegalArgumentException("Reversed policy tier " + id);
         }
         structurePolicies = Map.copyOf(policies);
+        ecology = ALGORITHM.equals(algorithm) ? new WorldPlanEcology(r.getAsJsonObject("ecology"), ids, outerCellSize) : null;
         canonicalJson = JSON.toJson(sorted(r));
         fingerprint = sha256(canonicalJson);
     }

@@ -17,6 +17,9 @@ PAL = "PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar"
 CATALOG = "exmod/mod_block_catalog.json"
 DEPENDENCIES = (PAL, CATALOG)
 PRESETS = {
+    "worldplan-build": [["python3", "tools/worldplan/generate_assets.py"],
+                       ["python3", "tools/worldplan/generate_assets.py", "--check"],
+                       ["./gradlew", "test", "--tests", "*worldplan*", "--tests", "*region.runtime*", "--tests", "*WorldSimGenesisTest*", "--tests", "*SimPurityGuardTest*", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx3g", "--max-workers=4"]],
     "smoke": [["java", "-version"], ["python3", "-c", "import yaml, numpy, PIL; print('python dependencies OK')"],
               ["xvfb-run", "-a", "glxinfo", "-B"]],
     "python": [["python3", "-m", "unittest", "discover", "-s", "tools/tests"]],

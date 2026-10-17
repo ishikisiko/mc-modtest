@@ -6,6 +6,11 @@ The owner-facing rules, creation instructions, CLI, safety model, constraints an
 
 ## Ownership and generation
 
+0.59.1 makes newly created cultivation worlds use `planned_v2` / `worldplan_v2`.
+`rules_v2.json` adds a bounded continuous climate field and ordered temperature/moisture biome bands over the unchanged V1 geography. Core regions and outer cells blend climate with the same deterministic spatial ownership; the radial core/outer transition blends both sides. No per-block random biome dithering is used. Climate configuration is frozen into the save.
+
+Existing V1 worlds retain their codec, algorithm, terrain, biomes and city templates. `legacy_v1_hashes.json` pins the released frozen rules and 35 NBT resources; generation fails on drift. The 0.59.0 jar-derived test fixture pins three seeds and 51 sample coordinates. New ecology therefore requires a new world, not a `/reload` or deletion of chunks from an old save.
+
 - `blueprints/worldplan/rules_v1.json`: authored macro rules and terrain profile weights.
 - `blueprints/worldplan/yunshan_placeholder_v1.json`: the placement fixture of the four tracked Yunshan buildings. The missing external full D1 city is not recreated by assertion.
 - `tools/worldplan/generate_assets.py`: compiles the original Yunshan blueprints, validates paths and services, cuts exactly 35 complete 16×32×16 NBT tiles, and writes frozen rules and the native world preset under `build/generated/worldplan/resources`.
@@ -26,6 +31,10 @@ RegionRuntime and the finite core world-sim graph use the same planned geometry.
 The city is emitted in chunk generation rather than as a vanilla StructureStart, so its lookup entry point is `worldplan city`, not a fictional `/locate` structure ID. Macro dashed routes are graph relationships, not generated highways. Maps sample pre-decoration terrain and cannot substitute for real chunk or visual evidence.
 
 ## Checks
+
+Focused cloud build: `.venv-modal/bin/python -m tools.modal_runner run --preset worldplan-build --ref <commit> --timeout 1800`. This generates/checks owned resources, tests worldplan/region and direct simulation consumers, and builds the jar. The owner-authorized DevHost client can separately verify the old V1 world, the new V2 ecotone and the audit classifier.
+
+`audit_city` retains `raw_differences` and raw block hashes. It reports `natural_changes` separately only for expected grass becoming plain dirt while the original template's opaque cover is still intact. `differences` and `complete` refer to the remaining changes; `strict_complete` requires raw equality. Missing roads/walls, uncovered dirt edits and altered cover are not ignored. Exact reverse-order hash tests disable random ticks explicitly; gameplay audits keep normal random ticks.
 
 Run `tools/worldplan/ci.py` in the isolated cloud environment configured by the feature workflow, or the separate commands in the acceptance document. Checks cover generated-resource round trips, 510 seed layouts, legacy region parity and sim boundaries, real NOISE columns, city tiling, save/restart, opposite visit order, preservation of a player-placed marker, ordinary-world opt-out and native client images. Results live in `reports/worldplan/`, not in an assumed pass statement in this note.
 

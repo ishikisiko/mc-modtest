@@ -106,6 +106,9 @@ def generate(out:Path)->dict:
         profile=json.loads((catalog/(name+'.json')).read_text());profile.pop('admitted_subjects',None);profiles.append({**profile,**terrain})
     authored['profiles']=profiles;authored['city']['layout']=compiled_layout
     write_json(out/'data/myvillage/worldplan/frozen_v1.json',authored)
+    legacy=json.loads((AUTHORED.parent/'legacy_v1_hashes.json').read_text())
+    for resource,expected in legacy['resources'].items():
+        assert digest((out/resource).read_bytes())==expected, f'Frozen V1 resource changed: {resource}; keep old authored inputs and version new assets separately'
     write_json(out/'data/myvillage/worldplan/yunshan_v1.json',{'schema':1,**compiled_layout,**report,'scope':'four original source buildings; new placement streets/walls; not the unavailable complete D1 city'})
     source={'type':'minecraft:multi_noise','preset':'minecraft:overworld'}
     generator={'type':'myvillage:planned_v1','biome_source':source,'settings':'minecraft:overworld','rules':json.dumps(authored,ensure_ascii=False,sort_keys=True,separators=(',',':'))}
@@ -114,6 +117,15 @@ def generate(out:Path)->dict:
         'minecraft:the_nether':{'type':'minecraft:the_nether','generator':{'type':'minecraft:noise','settings':'minecraft:nether','biome_source':{'type':'minecraft:multi_noise','preset':'minecraft:nether'}}},
         'minecraft:the_end':{'type':'minecraft:the_end','generator':{'type':'minecraft:noise','settings':'minecraft:end','biome_source':{'type':'minecraft:the_end'}}}
     }}
+    # Keep the complete V1 rules and city resource bytes for existing saves.
+    # New worlds opt into a distinct codec and frozen climate algorithm.
+    v2=json.loads((AUTHORED.parent/'rules_v2.json').read_text())
+    assert v2['base']==AUTHORED.name and v2['algorithm']=='myvillage:worldplan_v2'
+    current=copy.deepcopy(authored)
+    current['algorithm']=v2['algorithm'];current['ecology']=v2['ecology']
+    write_json(out/'data/myvillage/worldplan/frozen_v2.json',current)
+    generator['type']='myvillage:planned_v2'
+    generator['rules']=json.dumps(current,ensure_ascii=False,sort_keys=True,separators=(',',':'))
     write_json(out/'data/myvillage/worldgen/world_preset/cultivation.json',preset)
     write_json(out/'data/minecraft/tags/worldgen/world_preset/normal.json',{'replace':False,'values':['myvillage:cultivation']})
     # Language entries aggregate across asset namespaces without replacing the existing mod file.

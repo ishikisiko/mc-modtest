@@ -28,7 +28,12 @@ public final class WorldPlanRuntime {
     private static final Logger LOG=LoggerFactory.getLogger(WorldPlanRuntime.class);
     private static final DeferredRegister<MapCodec<? extends ChunkGenerator>> GENERATORS=DeferredRegister.create(Registries.CHUNK_GENERATOR,MyVillageMod.MOD_ID);
     private static final DeferredRegister<MapCodec<? extends BiomeSource>> SOURCES=DeferredRegister.create(Registries.BIOME_SOURCE,MyVillageMod.MOD_ID);
-    static{GENERATORS.register("planned_v1",()->PlannedChunkGenerator.CODEC);SOURCES.register("planned_source_v1",()->PlannedBiomeSource.CODEC);}
+    static{
+        GENERATORS.register("planned_v1",()->PlannedChunkGenerator.CODEC);
+        GENERATORS.register("planned_v2",()->PlannedChunkGenerator.CODEC_V2);
+        SOURCES.register("planned_source_v1",()->PlannedBiomeSource.CODEC);
+        SOURCES.register("planned_source_v2",()->PlannedBiomeSource.CODEC_V2);
+    }
     private WorldPlanRuntime() {}
     public static void register(IEventBus bus){
         GENERATORS.register(bus);SOURCES.register(bus);NeoForge.EVENT_BUS.addListener(WorldPlanRuntime::createSpawn);

@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.59.1
+
+- 新建修仙大陆使用 V2 冻结生态：州域内外连续混合温度、湿度与高程降温，通过温带植被衔接雪地和暖地；地形、州域身份、城市与出生位置保持同种子一致。
+- 旧 V1 存档继续使用原算法和原城市资源，保留规则与 35 个模板的已发布哈希，不自动迁移或重刷旧区块。
+- 城市审计分开报告原始差异、正常遮阴草方块退化和实际改动；缺失道路/建筑仍失败。增加 V1 发布样本回归、V2 过渡检查和 Modal 局部构建入口。
+
 ## 0.59.0
 
 - 新增可选“修仙大陆（种子蓝图）”世界类型：4000 格核心洲域、山海边界、连续外域以及存档内冻结规则。
