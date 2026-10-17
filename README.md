@@ -4174,7 +4174,7 @@ same draft and lock without rerolling. Existing awakened saves may choose once;
 confirmed characters see their stored result. **H → Fates / 先天** only shows the
 result or directs you back to the stele. The inheritance stele remains a separate
 learning step. Existing roots are preserved; explicit rerolls only change fate
-candidates. The pool now contains eleven working traits and 14 purple/gold/red placeholders.
+candidates. The pool now contains twelve working traits and 13 purple/gold/red placeholders.
 Placeholders are explicitly labeled, can be selected and saved, and grant no effects;
 they temporarily have no element/purity gate. Eleven lower-tier designs remain deferred.
 All six tier weights are equal (within each available tier, candidates are uniform).

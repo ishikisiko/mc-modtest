@@ -139,7 +139,9 @@ PRESETS["fates-purple-runtime"] = [
 PRESETS["sword-fate-build"] = [
     ["python3", "tools/validate_innate_fates.py"],
     ["./gradlew", "test", "--tests", "com.example.myvillage.cultivation.fate.*",
-     "--tests", "com.example.myvillage.combat.*", "--tests", "com.example.myvillage.client.combat.*",
+     "--tests", "com.example.myvillage.combat.*",
+     "--tests", "com.example.myvillage.client.combat.SwordQiWaveShapeTest",
+     "--tests", "com.example.myvillage.client.combat.QiUseLatchTest",
      "--tests", "com.example.myvillage.client.cultivation.*",
      "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
 ]

@@ -42,3 +42,5 @@
 - 水平 item renderer 与平滑插值只在客户端；不恢复原版客户端载具坐标权威，不加预测性移动包。
 
 入口：[战斗集成](../ai-kb/32_pal_combat_integration.md)、[数据与采集](../ai-kb/34_combat_data_and_capture.md)、[双手枪](../ai-kb/35_lingxiao_spear.md)、[新武器](../ai-kb/36_new_combat_weapon.md)、[妖兽](../ai-kb/38_hostile_beasts.md)、[NPC](../ai-kb/39_humanoid_npcs.md)、[飞剑](../ai-kb/27_rideable_flying_sword.md)。检查依改动选择，旧全量清单不是每次必跑。
+
+- 派生剑气由服务器创建，独立记录每波的有界目标去重和飞行位置；沿用扫掠碰撞与合法目标/PvP/墙体规则。客户端实例键区分主动动作与派生波 ID，派生消息不改主动充能姿态或连招 revision。

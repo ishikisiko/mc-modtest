@@ -47,7 +47,7 @@ class FateFoundationTest {
     }
     @Test void highTierPlaceholdersDecodeSelectAndHaveNoEffects() throws Exception {
         Map<String, FateDefinition> pool = new TreeMap<>(defs);
-        for (String id : List.of("sword_obsession", "innate_sword_heart", "flawless_dao_heart")) {
+        for (String id : List.of("fire_spirit_body", "innate_sword_heart", "flawless_dao_heart")) {
             try (var in = FateFoundationTest.class.getResourceAsStream("/data/myvillage/myvillage/innate_fate/" + id + ".json")) {
                 assertNotNull(in);
                 var definition = FateDefinition.CODEC.parse(JsonOps.INSTANCE,
@@ -192,6 +192,25 @@ class FateFoundationTest {
             assertEquals(snapshot, CultivationSnapshotPayload.STREAM_CODEC.decode(buffer)); assertEquals(0, buffer.readableBytes());
         } finally { buffer.release(); }
     }
+    @Test void swordObsessionDefinitionIsCompleteAndCodecPreservesItsWaveReference() throws Exception {
+        try (var in = FateFoundationTest.class.getResourceAsStream("/data/myvillage/myvillage/innate_fate/sword_obsession.json")) {
+            assertNotNull(in);
+            var definition = FateDefinition.CODEC.parse(JsonOps.INSTANCE,
+                    JsonParser.parseReader(new InputStreamReader(in, StandardCharsets.UTF_8))).getOrThrow();
+            assertEquals(.08, definition.effect("sword_stack_bonus"));
+            assertEquals(5, definition.effect("sword_max_stacks"));
+            assertEquals(100, definition.effect("sword_timeout_ticks"));
+            assertEquals("myvillage:sword_obsession_wave", definition.derivedSkill().orElseThrow().toString());
+            assertEquals(definition, FateDefinition.CODEC.parse(JsonOps.INSTANCE,
+                    FateDefinition.CODEC.encodeStart(JsonOps.INSTANCE, definition).getOrThrow()).getOrThrow());
+        }
+        assertThrows(IllegalArgumentException.class, () -> new FateDefinition("a", "b", 3, 4, "g", true,
+                Map.of("sword_stack_bonus", .08, "sword_max_stacks", 5.0, "sword_timeout_ticks", 100.0),
+                Optional.empty(), 0, 5));
+        assertThrows(IllegalArgumentException.class, () -> new FateDefinition("a", "b", 3, 4, "g", true,
+                Map.of("sword_max_stacks", 5.5), Optional.empty(), 0, 5));
+    }
+
     @Test void invalidDataDoesNotEnableUnimplementedEffects() {
         assertThrows(IllegalArgumentException.class, () -> new FateDefinition("a", "b", 0, 1, "g", true, Map.of("phoenix", 1.0), Optional.empty(), 0, 5));
         assertThrows(IllegalArgumentException.class, () -> new FateDefinition("a", "b", 0, 1, "g", true, Map.of("health", Double.NaN), Optional.empty(), 0, 5));

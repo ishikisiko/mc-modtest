@@ -1,6 +1,6 @@
 # Innate Fates (先天气运)
 
-There are eleven implemented effects, 14 selectable purple/gold/red placeholders,
+There are twelve implemented effects, 13 selectable purple/gold/red placeholders,
 and 11 design-only traits in the [36-trait catalogue](../innate-fates-design.json).
 Placeholders use explicit `placeholder: true`, empty effects and bilingual no-effect
 labels. They keep tier costs and exclusive groups but temporarily omit root gates.
@@ -57,7 +57,7 @@ adds further ordinary entries if needed to guarantee a legal low-budget triple.
 
 The implemented IDs are `robust`, `lightfoot`, `bright`, `fire_affinity`,
 `alchemist_descendant`, `beast_hunter`, `unyielding`, `burning_star`,
-`open_meridians`, `pill_aegis`, and `tempered_bones`.
+`open_meridians`, `pill_aegis`, `tempered_bones`, and `sword_obsession`.
 Definitions and bilingual effect labels determine what the page shows.
 
 Health/speed use stable permanent attribute modifiers, composed with realm
@@ -130,6 +130,39 @@ private two-client state and lifecycle probes). Runtime accepts `--cases` with
 [the batch verification record](../testing/2026-10-17-purple-fates.md) for actual
 run IDs, commits, failed attempts and owner-acceptance limits.
 
+## Sword Obsession (0.60.2)
+
+`sword_obsession` uses the authored `sword_stack_bonus`, `sword_max_stacks`, and
+`sword_timeout_ticks` fields. Registered sword-family ordinary combo hits earn
+one stack per move, after an accepted hurt call. All targets in a sweep receive
+the same pre-hit stack bonus. At full stacks, an accepted last-move hit emits
+one wave, including when that hit earns the final stack; the proc does not consume
+stacks. Empty swings do not refresh the timer. Active sword qi and vanilla-mode
+attacks do not earn stacks. Changing the exact held stack/slot, death, logout,
+dimension, or eligibility clears the streak; restart never restores it. No
+persistent attachment or owner snapshot fields were added. Operator `fate status`
+adds `sword_stacks` as a read-only diagnostic.
+
+The fate's `derived_skill` references the separately authored combat skill
+`sword_obsession_wave`. `DerivedSwordWaves` owns flight and target ledgers separate
+from `CombatSessionManager`'s active action. It shares the continuous collision,
+wall/unloaded-chunk stopping, allied/PvP filters and single mitigation path.
+A derivative consumes neither qi nor extra weapon durability, has no cast refund,
+and cannot build sword stacks, trigger outgoing fates/enchantment post-effects,
+or charge a defender's Tempered Bones. Defensive reductions still apply normally.
+Server safety caps bound instances and target counts. Weapon changes/death/offline
+or dimension changes cancel remaining flight.
+
+Protocol 30 adds a derived-skill registry reference and three server-only passive
+wave phases. `ClientSwordQi` routes those phases directly to instances keyed by
+owner and wave ID; they do not mutate active charge/action revision or pose state.
+The existing crescent mesh is reused, with dimensions from the derived skill.
+Ordinary `jianqi_jue` data and its charge-scaled range are unchanged.
+
+Focused presets: `sword-fate-build` and `sword-fate-runtime`. The latter uses real
+mapped selection, five-move sword combos and active skill input in an isolated
+world; see [the validation record](../testing/2026-10-17-sword-obsession.md).
+
 ## Commands and checks
 
 README contains testing-stele entry, read-only H usage and matching
@@ -161,7 +194,7 @@ default command without that flag runs the full stele UI, existing effects and
 restart suite. The README ledger separates automated input/lifecycle evidence
 from owner feel/multiplayer.
 
-The other 25 effects remain unimplemented (14 have selectable placeholders). Root
+The other 24 effects remain unimplemented (13 have selectable placeholders). Root
 rerolls, Phoenix revival, orbiting swords, counterattacks, companions and treasure
 routes have no runtime effect. See [deferred roadmap](14_deferred_roadmap.md).
 
