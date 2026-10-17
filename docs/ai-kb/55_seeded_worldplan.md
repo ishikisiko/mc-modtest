@@ -11,6 +11,8 @@ The owner-facing rules, creation instructions, CLI, safety model, constraints an
 
 Existing V1 worlds retain their codec, algorithm, terrain, biomes and city templates. `legacy_v1_hashes.json` pins the released frozen rules and 35 NBT resources; generation fails on drift. The 0.59.0 jar-derived test fixture pins three seeds and 51 sample coordinates. New ecology therefore requires a new world, not a `/reload` or deletion of chunks from an old save.
 
+New V2 rules enable `clear_spawn_canopy`: decoration cannot place a canopy anywhere above the spawn pad, and first-world creation caps `spawnRadius` at the pad radius. Player builds and existing worlds' gamerules remain untouched; older frozen V2 rules without this flag keep their previous behavior.
+
 - `blueprints/worldplan/rules_v1.json`: authored macro rules and terrain profile weights.
 - `blueprints/worldplan/yunshan_placeholder_v1.json`: the placement fixture of the four tracked Yunshan buildings. The missing external full D1 city is not recreated by assertion.
 - `tools/worldplan/generate_assets.py`: compiles the original Yunshan blueprints, validates paths and services, cuts exactly 35 complete 16×32×16 NBT tiles, and writes frozen rules and the native world preset under `build/generated/worldplan/resources`.
@@ -31,6 +33,8 @@ RegionRuntime and the finite core world-sim graph use the same planned geometry.
 The city is emitted in chunk generation rather than as a vanilla StructureStart, so its lookup entry point is `worldplan city`, not a fictional `/locate` structure ID. Macro dashed routes are graph relationships, not generated highways. Maps sample pre-decoration terrain and cannot substitute for real chunk or visual evidence.
 
 ## Checks
+
+The [0.59.1 owner-PC and cloud verification record](../testing/2026-10-17-worldplan-ecology.md) records the initial canopy failure, the final scoped checks, the conservative uncovered-dirt limitation and the matching jar hash.
 
 Focused cloud build: `.venv-modal/bin/python -m tools.modal_runner run --preset worldplan-build --ref <commit> --timeout 1800`. This generates/checks owned resources, tests worldplan/region and direct simulation consumers, and builds the jar. The owner-authorized DevHost client can separately verify the old V1 world, the new V2 ecotone and the audit classifier.
 
