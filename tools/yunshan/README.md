@@ -1,5 +1,35 @@
 # 云山 D1：功能建筑独立蓝图
 
+## D1 新总图规划（2026-10-18）
+
+`blueprints/yunshan/district_plan_v2.json` 是四栋放大建筑的整街区落位候选。
+客栈面向南门广场，百炼铺位于门西工坊区，百草堂及药圃位于御街中段，
+问道院位于市集南侧。旧 89 地块中重组 19 个、保留 70 个，新增四栋后共 74 栋。
+井巷下段向北移八格，药圃南侧新增三格后巷；四个院场局部填挖 3–4 格，
+挡墙及实体台阶构造仍需下一阶段设计。这是规划候选，未写入原世界。
+
+```bash
+python3 tools/yunshan/plan_district.py
+python3 -m unittest discover -s tools/tests -p 'test_yunshan_district_plan.py'
+```
+
+产物为 `out/preview/yunshan-d1-v2/index.html`、高清矢量 `blueprint.svg`、
+完整 `layout.json` 与 `report.json`。页面可切换原布局/新布局/拆改叠加，
+选择节点并放大，查看门外路线、院场标高和改造代价。已有独栋实机截图若存在，
+会内嵌为建筑参考；它们不是新城实机图。复用服务时预览地址为
+`http://43.156.135.198:8765/yunshan-d1-v2/`。
+
+旧地块与路网来自 `d1_site_reference.json`；台地、水面和地标来自
+`d1_landscape_reference.json` 的历史不可变快照，均保留源哈希。
+矩形上界包含末格；建筑旋转从朝北起顺时针计数。基础世界 Y 为
+`level + world_offset.y - 1`，不是建筑门槛高度；内部石阶由原建筑输入负责。
+建筑尺寸只读原独栋 authored inputs，不修改独栋样板场坐标。
+
+规划检查覆盖占地避让、地块拆改清单、道路净空、水面与地标避让，
+以及南门到四处门外和市集的带标高网格连通。不能代替 Minecraft 碰撞验证。
+旋转后建筑交互、当前存档地形、挡墙方块实现、整城 SCHEM 导出及玩家外观
+验收均为 `not_verified`。本轮不构建 jar、不启动 Minecraft。
+
 ## 三格入口放大版与实际游戏导出
 
 本轮已经完成云端实机建造、通行、设施交互和结构方块保存，18 个检查通过。

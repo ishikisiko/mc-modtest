@@ -1,0 +1,63 @@
+{
+  "name": "云山 D1 · 四馆入城",
+  "status": "planning_preview_pending_owner_review",
+  "site_reference": "d1_site_reference.json",
+  "landscape_reference": "d1_landscape_reference.json",
+  "coordinate_convention": "Inclusive block rectangles [x,z,x,z]; north is -z; level is exterior walking-foot height in artwork coordinates. Template foundation world Y = level + world_offset.y - 1. Rotation is clockwise from north.",
+  "intent": "保留正阳门、御街、镜湖、市集和西坡住区，以四处功能院场串联南门至市集的日常路线。",
+  "buildings": [
+    {
+      "key": "inn", "number": "01", "name": "云栖客栈", "source": "south_gate_inn_v4.json",
+      "min": [-59,339], "rotation_quarters": 2, "level": 38, "color": "#b05d3d",
+      "site": [-59,339,-37,361],
+      "remove_lots": ["gateN-1","A2-2","W0_1E-1","W0_1E-2","W0_2E-2"],
+      "description": "南门内西侧，朝南迎客。客栈用地向后街扩展，门前广场向西接到入口；井巷北移，为完整进深让位。",
+      "earthwork": "院场统一步行标高 38；原后街侧 42 台地局部下切 4 格，西侧挡墙保留后街高差。",
+      "preview": "yunshan-functional-v2/runtime/inn/exterior.png"
+    },
+    {
+      "key": "smithy", "number": "02", "name": "百炼铺", "source": "smithy_v2.json",
+      "min": [-86,342], "rotation_quarters": 0, "level": 45, "color": "#986b36",
+      "site": [-86,340,-67,370],
+      "remove_lots": ["S0_N-1","S1b_S-1","W0_1W-1","W0_1W-2","W1p_1E-1"],
+      "description": "门西工坊区，主入口朝北接井巷上段。锻打棚与后勤空地留在西侧街区，和湖岸、客房入口分开。",
+      "earthwork": "院场步行标高 45；东侧原 42 台地局部抬高 3 格，挡墙收边；南侧不直接开口到低处顺城巷。",
+      "preview": "yunshan-functional-v2/runtime/smithy/exterior.png"
+    },
+    {
+      "key": "apothecary", "number": "03", "name": "百草堂", "source": "apothecary_v2.json",
+      "min": [-60,287], "rotation_quarters": 1, "level": 41, "color": "#40846e",
+      "site": [-73,284,-44,311],
+      "remove_lots": ["A3-1","A3-2","W1_3E-1","W1_3E-2","W1_3E-3"],
+      "description": "御街中段朝东开门，背后布置药圃。南侧三格后巷接西市街，用四级台阶消化高差，形成前街与后街的通路。",
+      "earthwork": "药铺及药圃步行标高 41；西侧原 45 台地局部下切 4 格，由后巷台阶接回西市街。",
+      "preview": "yunshan-functional-v2/runtime/apothecary/exterior.png"
+    },
+    {
+      "key": "initiation_hall", "number": "04", "name": "问道院", "source": "initiation_hall_v2.json",
+      "min": [-71,217], "rotation_quarters": 1, "level": 45, "color": "#646b9e",
+      "site": [-72,215,-49,240],
+      "remove_lots": ["A5-1","A5-2","W1_5E-1","W1_5E-2"],
+      "description": "市集南侧朝东开门，前庭接御街。与市集留一段过渡，仪式与学习集中在院内；鼓楼继续作为市集地标。",
+      "earthwork": "院场外部步行标高 45；原西侧 48 台地局部下切 3 格，保留建筑内部自带石阶。",
+      "preview": "yunshan-functional-v2/runtime/initiation_hall/exterior.png"
+    }
+  ],
+  "replace_streets": [
+    {"id":"S1a","name":"井巷 · 北移八格","kind":"stair","width":3,"pts":[[-41,336,40],[-52,336,40],[-54,336,42],[-62,336,42]]}
+  ],
+  "add_streets": [
+    {"id":"HERB_LANE","name":"药圃后巷","kind":"stair","width":3,"pts":[[-76,309,45],[-73,309,45],[-69,309,41],[-39,309,41]]}
+  ],
+  "forecourts": [
+    {"id":"INN_FORE","name":"客栈门前广场延伸","rect":[-59,362,-49,369],"level":38},
+    {"id":"FORGE_FORE","name":"锻坊门前坪","rect":[-86,340,-75,341],"level":45}
+  ],
+  "gardens": [
+    {"name":"药圃","rect":[-72,286,-63,304],"level":41,"color":"#9dbd8c"},
+    {"name":"后勤院","rect":[-85,366,-69,369],"level":45,"color":"#c3b38a"}
+  ],
+  "gate_start": [-32,366],
+  "market_target": [-44,190],
+  "not_verified": ["owner_visual_acceptance","live_world_terrain","retaining_wall_block_design","rotated_template_gameplay","full_city_schem_export","npc_services","sound","fps","multiplayer"]
+}
