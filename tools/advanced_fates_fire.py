@@ -138,7 +138,8 @@ def run(e):
               {'fire_ticks': fire, 'trace': trace})
         e.rc(f'kill {target}')
         # LivingEntity remains pickable throughout its 20-tick death animation.
-        e.poll(lambda:e.rc(f'execute if entity {target}'),lambda reply:'passed' not in reply,
+        # @e adds an isAlive predicate; exact UUID lookup observes actual removal.
+        e.poll(lambda:e.rc(f'execute if entity {identity}'),lambda reply:'passed' not in reply,
                timeout=4,label=label+' dying target removed before reusing aim point')
 
     def burst_hits(target, identity, count):
