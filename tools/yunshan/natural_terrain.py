@@ -230,8 +230,11 @@ def rotate_column(x,z,width,depth,q):
     return z,width-1-x
 
 
-def rank_sites(surveys,core=None,settings=None):
+def rank_sites(surveys,core=None,settings=None,rotations=None):
     settings=settings or read_settings();core=core or source_core(settings)
+    rotations=tuple(range(4)) if rotations is None else tuple(rotations)
+    if not rotations or any(type(q) is not int or q not in range(4) for q in rotations):
+        raise ValueError('rotations must contain quarter turns in 0..3')
     width,_,depth=core['size'];stride=settings['sample_stride'];ranked=[]
     core_water=core.get('water_mask') or [False]*(width*depth)
     column_weights=core.get('column_weights') or [1.0]*(width*depth)
@@ -241,7 +244,7 @@ def rank_sites(surveys,core=None,settings=None):
     for si,survey in enumerate(surveys):
         x0,z0,x1,z1=survey['window'];sw=survey['width']
         artificial=survey.get('artificial') or [False]*len(survey['ground_y'])
-        for q in range(4):
+        for q in rotations:
             rw,rd=(depth,width) if q%2 else (width,depth)
             transformed=[(*rotate_column(x,z,width,depth,q),y,wet,weight,outlet) for x,z,y,wet,weight,outlet in samples]
             for oz in range(z0,z1-rd+1,settings['origin_stride']):
@@ -302,6 +305,45 @@ def rank_sites(surveys,core=None,settings=None):
     if len(selected)<settings['candidate_count']:
         raise ValueError(f'only {len(selected)} spatially distinct candidates; expand real survey coverage')
     return selected
+
+
+def evaluate_site(survey,origin,rotation_quarters,core=None,settings=None):
+    """Re-score exactly one surveyed footprint using the ranking implementation.
+
+    Uses no inferred terrain or inherited score. Its returned candidate has the
+    ordinary rank_sites schema; callers may preserve their original ID/rank and
+    record refinement lineage separately. Neighbor roughness is bounded to the
+    exact footprint, so no unsurveyed outside columns can enter this score.
+    """
+    settings=settings or read_settings();core=core or source_core(settings)
+    if type(rotation_quarters) is not int or rotation_quarters not in range(4):
+        raise ValueError('rotation_quarters must be in 0..3')
+    if len(origin)!=2 or any(type(value) is not int for value in origin):
+        raise ValueError('origin must contain two integer world coordinates')
+    width,_,depth=core['size']
+    rw,rd=(depth,width) if rotation_quarters%2 else (width,depth)
+    x0,z0,x1,z1=survey['window']
+    ox,oz=origin
+    if not (x0<=ox and z0<=oz and ox+rw<=x1 and oz+rd<=z1):
+        raise ValueError('survey does not cover the entire candidate footprint')
+    if survey['width']!=x1-x0 or survey['depth']!=z1-z0:
+        raise ValueError('survey dimensions disagree with its window')
+    cropped={**survey,'window':[ox,oz,ox+rw,oz+rd],'width':rw,'depth':rd}
+    for key in ('ground_y','water_y','surface_y','ground_index','artificial'):
+        if key not in survey:
+            if key in ('ground_y','water_y'):raise ValueError('survey array missing: '+key)
+            continue
+        values=survey[key]
+        if len(values)!=survey['width']*survey['depth']:
+            raise ValueError('survey array size: '+key)
+        cropped[key]=[value for z in range(oz,oz+rd)
+                      for value in values[(z-z0)*survey['width']+ox-x0:(z-z0)*survey['width']+ox-x0+rw]]
+        if key=='ground_y' and any(type(value) is not int for value in cropped[key]):
+            raise ValueError('survey has missing or noninteger natural ground in candidate footprint')
+        if key=='water_y' and any(value is not None and type(value) is not int for value in cropped[key]):
+            raise ValueError('survey has invalid water feet in candidate footprint')
+    bounded_settings={**settings,'candidate_count':1}
+    return rank_sites([cropped],core,bounded_settings,rotations=[rotation_quarters])[0]
 
 
 def expanded_window(candidate,settings=None):

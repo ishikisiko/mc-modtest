@@ -9,7 +9,7 @@ import tempfile
 import unittest
 import zlib
 
-from tools.yunshan.natural_terrain import (decode_section,expanded_window,rank_sites,
+from tools.yunshan.natural_terrain import (decode_section,evaluate_site,expanded_window,rank_sites,
     read_region,read_settings,rotate_column,sample_chunk,sample_window,section_state,unpack_padded)
 
 
@@ -193,6 +193,35 @@ class NaturalTerrainTest(unittest.TestCase):
         candidates=rank_sites(surveys,core,settings)
         self.assertTrue(all(c['rotation_quarters']==0 for c in candidates))
         self.assertTrue(all(c['metrics']['slope_mismatch']==0 for c in candidates))
+
+    def test_single_site_uses_same_rank_score_for_exact_footprint_and_rotation(self):
+        settings=self.settings()
+        core={'size':[3,4,4],'ground_y':[68+x for z in range(4) for x in range(3)],'water_surface':68}
+        survey=self.survey(-10)
+        before=copy.deepcopy(survey)
+        candidate=evaluate_site(survey,[-9,1],1,core,settings)
+        self.assertEqual(candidate['origin'],[-9,1])
+        self.assertEqual(candidate['rotation_quarters'],1)
+        self.assertEqual(candidate['size'],[4,3])
+        cropped={**survey,'window':[-9,1,-5,4],'width':4,'depth':3,
+                 'ground_y':[63]*12,'surface_y':[63]*12,'water_y':[None]*12,'artificial':[False]*12}
+        expected=rank_sites([cropped],core,{**settings,'candidate_count':1},rotations=[1])[0]
+        self.assertEqual(candidate,expected)
+        self.assertEqual(survey,before)
+        self.assertEqual(settings['candidate_count'],3)
+        survey['ground_y'][1*8+1]=80
+        changed=evaluate_site(survey,[-9,1],1,core,settings)
+        self.assertNotEqual(changed['score'],candidate['score'])
+
+    def test_single_site_refuses_missing_extent_or_missing_column(self):
+        settings=self.settings()
+        core={'size':[3,4,4],'ground_y':[68]*12,'water_surface':68}
+        for origin,q in (([-11,0],0),([-4,6],1),([-9,-1],0),([-9,0],4)):
+            with self.subTest(origin=origin,q=q),self.assertRaises(ValueError):
+                evaluate_site(self.survey(-10),origin,q,core,settings)
+        survey=self.survey(-10);survey['ground_y'][0]=None
+        with self.assertRaisesRegex(ValueError,'missing or noninteger'):
+            evaluate_site(survey,[-10,0],0,core,settings)
 
 
 if __name__=='__main__':unittest.main()

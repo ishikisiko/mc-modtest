@@ -36,13 +36,22 @@ def build(directory: Path):
         plan = candidate.get('preview_paths', {}).get('preview.svg')
         if plan and not (directory / plan).is_file():
             plan = None
+        fitting = candidate.get('fit_validation', {})
+        fit_label = '通过' if fitting.get('passed') else '未通过'
+        if fitting.get('checks', {}).get('outgoing_reaches_untouched_native_ground') is False:
+            fit_label = '出城路未接通'
+        refinement = ''
+        if candidate.get('refined_from'):
+            previous = candidate['refined_from']['origin']
+            dx, dz = [candidate['origin'][axis] - previous[axis] for axis in (0, 1)]
+            refinement = f'<p>实测后微调：ΔX {dx}，ΔZ {dz}；已重新评分与检查。</p>'
         cards.append(f'''<article class="candidate {'selected' if candidate['id'] == selected else ''}">
         <div class="cardtitle"><h3>选址 {candidate['rank']}</h3><span>{'已实机落位' if candidate['id'] == selected else '备选地形'}</span></div>
         {f'<a href="{esc(picture)}"><img src="{esc(picture)}" alt="候选原生地形实机图"></a>' if picture else ''}
         <p>西北角 {esc(candidate['origin'])} · 整体旋转 {candidate['rotation_quarters'] * 90}° · 水面 Y {candidate['water_surface']}</p>
         <dl><div><dt>平均填挖</dt><dd>{metrics['mean_earthwork']:.1f} 格</dd></div>
         <div><dt>原地面高程</dt><dd>{metrics['height_min']}–{metrics['height_max']}</dd></div>
-        <div><dt>筛选门禁</dt><dd>{'通过' if candidate.get('eligible') else '不适用'}</dd></div></dl>
+        <div><dt>融合检查</dt><dd>{esc(fit_label)}</dd></div></dl>{refinement}
         {f'<a class="plan" href="{esc(plan)}">查看地形融合规划图 ↗</a>' if plan else ''}
         </article>''')
     comparisons = []

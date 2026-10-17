@@ -15,6 +15,13 @@
   "origin_stride": 16,
   "sample_stride": 8,
   "candidate_count": 3,
+  "candidate_refinements": {
+    "site-1-q0--96--112": {
+      "origin": [-96, -96],
+      "rotation_quarters": 0,
+      "why": "avoid higher native water contact and reduce excavation"
+    }
+  },
   "minimum_site_separation": 384,
   "expanded_size": [512, 608],
   "minimum_margin": 96,

@@ -10,7 +10,7 @@ import zipfile
 from tools.modal_runner.remote import commands_for
 from tools.yunshan.natural_evidence import (
     NaturalEvidence, digest, generation_batches, operation_bounds,
-    probe_groups, snapshot_regions, terrain_batches,
+    probe_groups, snapshot_regions, terrain_batches, refine_candidate,
 )
 from tools.yunshan.district_game_evidence import package_world
 from tools.yunshan.game_export import write_typed
@@ -87,41 +87,72 @@ class NaturalSnapshotTests(unittest.TestCase):
 
 
 class NaturalLifecycleTests(unittest.TestCase):
-    def test_failed_top_fit_keeps_before_evidence_and_selects_next_valid_real_site(self):
+    def test_refined_scores_reorder_selection_without_repeating_survey_or_losing_failed_before(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory); evidence = NaturalEvidence(root)
             candidates = [{'id': name, 'origin': [index*768, 0], 'size': [210, 265],
-                           'rotation_quarters': 0, 'water_surface': 63, 'eligible': True}
+                           'rotation_quarters': 0, 'water_surface': 63, 'eligible': True,
+                           'score': index+1, 'rank': index+1, 'metrics': {'original': name}}
                           for index, name in enumerate(('a', 'b', 'c'))]
+            settings = {'seed': 20261002, 'candidate_refinements': {'c': {
+                'origin': [1536, 16], 'rotation_quarters': 0, 'why': 'use sampled lower earthwork position'}}}
+            evaluated = {**candidates[2], 'id': 'site-0-evaluated', 'origin': [1536, 16],
+                         'score': .5, 'rank': 1, 'metrics': {'recomputed': True}}
             cameras = [{'name': 'matched', 'pos': [900, 120, 100], 'yaw': 90, 'pitch': 20}]
             def preview(survey, candidate, out):
                 if candidate['id'] == 'a': raise ValueError('outgoing road has no acceptable route')
-                return {'validation': {'passed': candidate['id'] == 'b'}, 'fixture_cameras': cameras}
+                return {'validation': {'passed': True}, 'fixture_cameras': cameras}
             def compile_site(survey, candidate, out):
-                self.assertEqual(candidate['id'], 'b')
+                self.assertEqual(candidate['id'], 'c')
                 result = {'validation': {'passed': True}, 'fixture_cameras': cameras}
                 out.mkdir(parents=True); (out/'fit.json').write_text(json.dumps(result))
                 return result
             def capture(candidate, camera_array, stage):
                 evidence.report['screenshots'].extend({'candidate': candidate, 'stage': stage,
                     'camera': camera, 'file': candidate+'-'+stage+'.png'} for camera in camera_array)
-            with (patch('tools.yunshan.natural_terrain.read_settings', return_value={'seed': 20261002}),
+            with (patch('tools.yunshan.natural_terrain.read_settings', return_value=settings),
                   patch('tools.yunshan.natural_terrain.coarse_windows', return_value=[{'id': 'actual', 'window': [0, 0, 32, 32]}]),
                   patch('tools.yunshan.natural_terrain.rank_sites', return_value=candidates),
                   patch('tools.yunshan.natural_terrain.expanded_window', return_value=[0, 0, 32, 32]),
+                  patch('tools.yunshan.natural_terrain.evaluate_site', return_value=evaluated) as evaluate,
                   patch('tools.yunshan.fit_natural.preview_fit', side_effect=preview),
                   patch('tools.yunshan.fit_natural.compile_fit', side_effect=compile_site),
-                  patch.object(evidence, 'start'), patch.object(evidence, 'survey', return_value={}),
+                  patch.object(evidence, 'start'), patch.object(evidence, 'survey', return_value={}) as survey,
                   patch.object(evidence, 'capture', side_effect=capture), patch.object(evidence, 'apply_fit'),
                   patch.object(evidence, 'verify_fit'), patch.object(evidence, 'finish_world')):
                 evidence.run()
-            self.assertEqual(evidence.report['selected_id'], 'b')
+            self.assertEqual(evidence.report['selected_id'], 'c')
+            self.assertEqual(evidence.report['selection_order'], ['c', 'a', 'b'])
+            self.assertEqual(survey.call_count, 4, 'One coarse and three expanded surveys; refinement must reuse its survey')
+            evaluate.assert_called_once_with({}, [1536, 16], 0, settings=settings)
+            refined = evidence.report['candidates'][2]
+            self.assertEqual(refined['rank'], 3)
+            self.assertEqual(refined['refined_from']['score'], 3)
+            self.assertEqual(refined['refined_from']['origin'], [1536, 0])
+            self.assertEqual(refined['score'], .5)
+            self.assertEqual(refined['metrics'], {'recomputed': True})
             self.assertFalse(candidates[0]['fit_validation']['passed'])
             self.assertIn('no acceptable route', candidates[0]['fit_validation']['reason'])
             self.assertTrue((root/'sites/a/fit-preview.json').is_file())
             self.assertEqual({shot['candidate'] for shot in evidence.report['screenshots'] if shot['stage'] == 'before'}, {'a', 'b', 'c'})
-            self.assertEqual({shot['candidate'] for shot in evidence.report['screenshots'] if shot['stage'] == 'after'}, {'b'})
+            self.assertEqual({shot['candidate'] for shot in evidence.report['screenshots'] if shot['stage'] == 'after'}, {'c'})
             self.assertEqual(evidence.report['fit_manifest']['path'], 'fit/fit.json')
+
+    def test_refinement_eligibility_is_fresh_and_missing_actual_coverage_remains_failure(self):
+        original = {'id': 'center', 'origin': [-96, -112], 'rotation_quarters': 0,
+                    'score': 9, 'eligible': True, 'metrics': {'old': 1}}
+        settings = {'candidate_refinements': {'center': {
+            'origin': [-96, -96], 'rotation_quarters': 0, 'reason': 'real survey refinement'}}}
+        evaluated = {**original, 'id': 'new-point', 'origin': [-96, -96],
+                     'score': 11, 'eligible': False, 'metrics': {'new': 1}, 'limitations': ['water mismatch']}
+        with patch('tools.yunshan.natural_terrain.evaluate_site', return_value=evaluated):
+            refined = refine_candidate({'actual': True}, original, settings)
+        self.assertFalse(refined['eligible'])
+        self.assertEqual(refined['limitations'], ['water mismatch'])
+        self.assertEqual(original['origin'], [-96, -112])
+        with patch('tools.yunshan.natural_terrain.evaluate_site', side_effect=ValueError('missing surveyed footprint')):
+            with self.assertRaisesRegex(ValueError, 'missing surveyed footprint'):
+                refine_candidate({}, original, settings)
 
     def test_failed_sparse_placement_always_unfreezes_before_cleanup(self):
         with tempfile.TemporaryDirectory() as directory:

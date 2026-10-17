@@ -8,12 +8,12 @@
     "warp_wavelength": 41,
     "natural_slope_cost": 0.035,
     "maximum_ground_step": 2,
-    "relaxation_passes": 18,
     "vegetation_clearance": 2,
     "topsoil_depth": 3,
     "shore_bank_width": 3,
     "bank_freeboard": 0,
-    "foundation_anchor_depth": 1
+    "foundation_anchor_depth": 1,
+    "existing_retaining_radius": 2
   },
   "preserve": {
     "gate_rect": [
@@ -117,6 +117,7 @@
     "maximum_boundary_delta": 0,
     "maximum_core_mismatches": 0,
     "maximum_water_leaks": 0,
-    "minimum_outgoing_length": 20
+    "minimum_outgoing_length": 20,
+    "maximum_new_step_excess": 0
   }
 }

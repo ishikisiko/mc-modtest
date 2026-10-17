@@ -174,6 +174,108 @@ def road_route(survey,after,changed,core,wet,transform,cfg):
     return route[::-1]
 
 
+def seam_limits(s,core,wet,data,transform,cfg):
+    """Permit existing retaining edges near the core, never old art mountains.
+
+    Source heights are consulted only as *edge differences*, not target levels.
+    Natural pre-existing cliffs outside the core are also retained as limits.
+    """
+    n=len(s.ground);maximum=cfg['blend']['maximum_ground_step']
+    near=set(core);front=set(core)
+    for _ in range(cfg['blend']['existing_retaining_radius']):
+        front={j for k in front for j in s.neighbors(k)}-near;near.update(front)
+    ox,oy,oz=data[2]['world_offset'];old={};oldkind={}
+    for (x,z),level in data[5].items():
+        wx,wz=transform.xz(x+ox,z+oz)
+        if s.x0<=wx<s.x1 and s.z0<=wz<s.z1:
+            k=s.index(wx,wz);old[k]=level+oy+transform.dy;oldkind[k]=data[6][x,z]
+    blocked=set(wet)|{k for k,y in enumerate(s.water) if y is not None and k not in core}
+    horizontal=[None]*n;vertical=[None]*n;historic={}
+    for k in range(n):
+        if k in blocked:continue
+        for j,limits in ((k+1,horizontal),(k+s.width,vertical)):
+            if j>=n or (j==k+1 and j//s.width!=k//s.width) or j in blocked:continue
+            limit=maximum
+            if k in core and j in core:
+                a=max(old[k],transform.candidate['water_surface']+1) if oldkind[k]=='bridge' else old[k]
+                b=max(old[j],transform.candidate['water_surface']+1) if oldkind[j]=='bridge' else old[j]
+                limit=max(limit,abs(a-b))
+            if k not in core and j not in core:limit=max(limit,abs(s.ground[k]-s.ground[j]))
+            if k in old and j in old and k in near and j in near and not(oldkind[k]=='art' and oldkind[j]=='art'):
+                prior=abs(old[k]-old[j])
+                if prior>limit:limit=prior;historic[k,j]=prior
+            limits[k]=limit
+    return {'horizontal':horizontal,'vertical':vertical,'blocked':blocked,'historic':historic,'old':old}
+
+
+def weighted_neighbors(s,limits,k):
+    x=k%s.width
+    if x and limits['horizontal'][k-1] is not None:yield k-1,limits['horizontal'][k-1]
+    if x+1<s.width and limits['horizontal'][k] is not None:yield k+1,limits['horizontal'][k]
+    if k>=s.width and limits['vertical'][k-s.width] is not None:yield k-s.width,limits['vertical'][k-s.width]
+    if k+s.width<len(s.ground) and limits['vertical'][k] is not None:yield k+s.width,limits['vertical'][k]
+
+
+def minimum_envelope(s,limits,seeds):
+    values=list(seeds);queue=[(v,k) for k,v in enumerate(values) if math.isfinite(v)]
+    heapq.heapify(queue)
+    while queue:
+        value,k=heapq.heappop(queue)
+        if value!=values[k]:continue
+        for j,step in weighted_neighbors(s,limits,k):
+            candidate=value+step
+            if candidate<values[j]:values[j]=candidate;heapq.heappush(queue,(candidate,j))
+    return values
+
+
+def project_blend(s,target,core,wet,bank,influence,limits,plane,cfg,extra_fixed=None):
+    """Project onto feasible weighted step bounds without Jacobi oscillation.
+
+    Each envelope is a shortest-path transform: O(N log N), no radius-squared
+    scans or convergence loop. Convex averaging retains every edge bound; final
+    nearest-integer rounding retains integral bounds too. Fixed terrain/core
+    values remain exact because the target is first clamped to their envelopes.
+    """
+    fixed={k:target[k] for k in range(len(target)) if k not in limits['blocked']
+           and (k in core or not influence[k])}
+    fixed.update(extra_fixed or {})
+    upper_seeds=[math.inf]*len(target);lower_seeds=[math.inf]*len(target)
+    for k,y in fixed.items():upper_seeds[k]=y;lower_seeds[k]=-y
+    for k in bank:lower_seeds[k]=min(lower_seeds[k],-plane-cfg['blend']['bank_freeboard'])
+    upper=minimum_envelope(s,limits,upper_seeds)
+    lower=[-y for y in minimum_envelope(s,limits,lower_seeds)]
+    conflicts=[k for k in range(len(target)) if k not in limits['blocked'] and lower[k]>upper[k]+1e-7]
+    if conflicts:
+        return list(target),{'passed':False,'infeasible_columns':len(conflicts),
+                             'examples':[{'pos':s.pos(k),'lower':lower[k],'upper':upper[k]} for k in conflicts[:12]]}
+    feasible=[target[k] if k in limits['blocked'] else max(lower[k],min(upper[k],float(target[k]))) for k in range(len(target))]
+    below=minimum_envelope(s,limits,feasible)
+    above=[-y for y in minimum_envelope(s,limits,[-v for v in feasible])]
+    result=[target[k] if k in limits['blocked'] else round((below[k]+above[k])/2) for k in range(len(target))]
+    if any(result[k]!=y for k,y in fixed.items()):raise AssertionError('seam projection changed a fixed column')
+    return result,{'passed':True,'infeasible_columns':0,'examples':[]}
+
+
+def seam_statistics(s,after,core,wet,changed,limits,cfg):
+    maximum=cfg['blend']['maximum_ground_step'];new=[];retaining=[];natural=[];largest_new=0
+    for k in range(len(after)):
+        for j,array in ((k+1,limits['horizontal']),(k+s.width,limits['vertical'])):
+            allowed=array[k]
+            if allowed is None or j>=len(after) or (j==k+1 and j//s.width!=k//s.width):continue
+            if (k in core and j in core) or not(changed[k] or changed[j]):continue
+            step=abs(after[k]-after[j]);largest_new=max(largest_new,step if allowed<=maximum else 0)
+            if step<=maximum:continue
+            item={'a':[s.pos(k)[0],after[k],s.pos(k)[1]],'b':[s.pos(j)[0],after[j],s.pos(j)[1]],'step':step,'allowed_step':allowed,
+                  'core_boundary':(k in core)!=(j in core),'source_step':abs(limits['old'].get(k,after[k])-limits['old'].get(j,after[j]))}
+            if step>allowed:new.append(item)
+            elif (min(k,j),max(k,j)) in limits['historic']:retaining.append(item)
+            else:natural.append(item)
+    return {'coordinate_convention':'absolute world x,y,z feet','maximum_new_step':largest_new,'new_step_excess_count':len(new),
+            'maximum_new_step_excess':max((p['step']-p['allowed_step'] for p in new),default=0),
+            'new_steep_edges':sorted(new,key=lambda p:p['step'],reverse=True),
+            'existing_retaining_edges':retaining,'existing_natural_edges':natural}
+
+
 def plan_fit(survey,candidate,config=None):
     cfg=config_data(config);s=Survey(survey);candidate=load(candidate)
     source_config=ROOT/'blueprints/yunshan'/cfg['source_config'];data=source_data(str(source_config))
@@ -202,30 +304,18 @@ def plan_fit(survey,candidate,config=None):
             # Native lakes, rivers and ocean outside the authored basin survive.
             continue
         u=1-distance_k/r;weight=u*u*(3-2*u)
-        after[k]=round(before[k]+(nearest[k]-before[k])*weight)
-        influence[k]=after[k]!=before[k]
+        after[k]=before[k]+(nearest[k]-before[k])*weight
+        influence[k]=True
     # Dry land immediately bounding the fixed lake must contain its water.
     bank=set()
     for k in wet:
         for j in s.neighbors(k):
             if j not in wet and j not in core and s.water[j] is None:
                 bank.add(j);after[j]=max(after[j],plane+cfg['blend']['bank_freeboard']);influence[j]=True
-    # Constrained relaxation removes sharp seams through the irregular blend,
-    # while native outer boundary and the complete authored core remain fixed.
-    maximum=cfg['blend']['maximum_ground_step']
-    adjustable=[k for k in range(len(after)) if influence[k] and k not in core and k not in wet and k not in bank]
-    for _ in range(cfg['blend']['relaxation_passes']):
-        updates=[]
-        for k in adjustable:
-            ns=[after[j] for j in s.neighbors(k) if j not in wet]
-            if not ns:continue
-            lo,hi=min(ns),max(ns)
-            value=after[k]
-            if value>lo+maximum:value=max(lo+maximum,value-1)
-            elif value<hi-maximum:value=min(hi-maximum,value+1)
-            if value!=after[k]:updates.append((k,value))
-        if not updates:break
-        for k,y in updates:after[k]=y
+    # Float targets + exact weighted envelopes replace oscillating integer
+    # min/max relaxation. Only existing retaining *differences* are exceptions.
+    limits=seam_limits(s,core,wet,data,t,cfg)
+    after,projection=project_blend(s,after,core,wet,bank,influence,limits,plane,cfg)
     changed=[after[k]!=before[k] or k in core or k in wet for k in range(len(after))]
     route_error=None
     try:route=road_route(s,after,changed,set(core),wet,t,cfg)
@@ -254,6 +344,18 @@ def plan_fit(survey,candidate,config=None):
             for zz in range(z-half,z+half+1):
                 j=s.index(xx,zz)
                 if j in path_clear and after[j]==after[high]:path_surface[j]=state
+    seams=seam_statistics(s,after,core,wet,changed,limits,cfg)
+    if seams['new_step_excess_count']:
+        road_influence=list(influence)
+        for k in path_clear:
+            road_influence[k]=True
+            for j in s.neighbors(k):
+                if j not in tail_guard:road_influence[j]=True
+        after,road_projection=project_blend(s,after,core,wet,bank,road_influence,limits,plane,cfg,
+                                           {k:after[k] for k in path_clear|tail_guard})
+        projection['road_projection']=road_projection
+        changed=[after[k]!=before[k] or k in core or k in wet or k in path_clear for k in range(len(after))]
+        seams=seam_statistics(s,after,core,wet,changed,limits,cfg)
     # Add same-level natural water to the containment check only; leave its
     # original block columns untouched. No rectangular water rim is exported.
     water_surface={k:plane for k in wet}
@@ -270,7 +372,9 @@ def plan_fit(survey,candidate,config=None):
     core_mismatch=[]
     for k,y in hard.items():
         if after[k]!=y:core_mismatch.append(k)
-    checks={'boundary_unchanged':all(not changed[k] and after[k]==before[k] for k in boundary),
+    checks={'seam_projection_feasible':projection['passed'] and projection.get('road_projection',{'passed':True})['passed'],
+            'no_new_steep_seams':seams['maximum_new_step_excess']<=cfg['gates']['maximum_new_step_excess'],
+            'boundary_unchanged':all(not changed[k] and after[k]==before[k] for k in boundary),
             'water_contained':len(leaks)<=cfg['gates']['maximum_water_leaks'],
             'protected_core_heights_preserved':len(core_mismatch)<=cfg['gates']['maximum_core_mismatches'],
             'outgoing_reaches_untouched_native_ground':bool(route) and all(not changed[k] for k in route[-untouched_tail:]),
@@ -280,12 +384,14 @@ def plan_fit(survey,candidate,config=None):
     metrics={'modified_columns':len(modified),'protected_columns':len(core),'authored_lake_columns':len(wet),
              'cut_blocks':sum(max(0,before[k]-after[k]) for k in modified),
              'fill_blocks':sum(max(0,after[k]-before[k]) for k in modified),
-             'maximum_cut_or_fill':max(delta),'boundary_delta':max(delta[k] for k in boundary),
+             'maximum_cut_or_fill':max(delta),'maximum_new_step':seams['maximum_new_step'],
+             'new_step_excess_count':seams['new_step_excess_count'],'maximum_new_step_excess':seams['maximum_new_step_excess'],
+             'existing_retaining_edges':len(seams['existing_retaining_edges']),'boundary_delta':max(delta[k] for k in boundary),
              'water_leaks':len(leaks),'outgoing_length':len(route),
              'peripheral_art_columns_discarded':volume.size[0]*volume.size[2]-len(core)-len(wet)}
     return {'cfg':cfg,'survey':s,'candidate':candidate,'source':data,'transform':t,'core':core,'wet':wet,
             'before':before,'after':after,'changed':changed,'path_surface':path_surface,'path_clear':path_clear,
-            'route':route,'bank':bank,'metrics':metrics,'validation':{'passed':all(checks.values()),'checks':checks,'water_leaks':leaks[:20],'native_water_mismatches':water_mismatches[:20],'outgoing_error':route_error}}
+            'route':route,'bank':bank,'seams':seams,'projection':projection,'metrics':metrics,'validation':{'passed':all(checks.values()),'checks':checks,'water_leaks':leaks[:20],'native_water_mismatches':water_mismatches[:20],'outgoing_error':route_error,'seam_projection':projection,'new_steep_edges':seams['new_steep_edges'][:20]}}
 
 
 def metadata(result):
@@ -342,6 +448,7 @@ def metadata(result):
             'world_max':[s.x1-1,max(volume.maximum[1]+t.dy,max(s.surface)),s.z1-1],
             'buildings':buildings,'routes':routes,'path_trials':trials,'recommended_spawn':{'pos':spawn,'yaw':180+t.q*90,'pitch':0},
             'fixture_cameras':cameras,'matched_cameras':cameras,'metrics':result['metrics'],'validation':result['validation'],
+            'seam_analysis':result['seams'],
             'survey_provenance':s.data.get('provenance',{}),'not_verified':['live_collision','natural_visual_acceptance','fps','npc_services','multiplayer']}
 
 

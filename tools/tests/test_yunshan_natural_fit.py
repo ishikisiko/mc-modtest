@@ -46,6 +46,35 @@ class NaturalFitTests(unittest.TestCase):
         # the result is neither a rectangular slab nor a filled circular mound.
         self.assertGreater(sum(not changed for changed in r['changed']),30000)
 
+    def test_new_steep_edges_are_gated_and_historical_walls_are_reported(self):
+        r=self.result;seams=r['seams']
+        self.assertTrue(r['validation']['checks']['no_new_steep_seams'])
+        self.assertEqual(seams['new_step_excess_count'],0)
+        self.assertLessEqual(seams['maximum_new_step'],2)
+        self.assertTrue(seams['existing_retaining_edges'])
+        for edge in seams['existing_retaining_edges']:
+            self.assertGreater(edge['source_step'],2)
+            self.assertLessEqual(edge['step'],edge['source_step'])
+        # These previously became 6/6/6/4-block new drops despite original
+        # source pairs being level or at most two blocks apart.
+        for a,b in [((90,238),(90,239)),((43,66),(43,67)),
+                    ((60,13),(61,13)),((59,129),(59,130))]:
+            self.assertLessEqual(abs(r['after'][r['survey'].index(*a)]-
+                                     r['after'][r['survey'].index(*b)]),2,(a,b))
+
+    def test_envelope_projection_is_stable_and_rejects_inconsistent_fixed_levels(self):
+        survey=fit.Survey({'window':[0,0,3,1],'width':3,'depth':1,'ground_y':[0,0,0],
+                          'surface_y':[0,0,0],'water_y':[None]*3,
+                          'ground_palette':['minecraft:stone'],'ground_index':[0]*3})
+        limits={'horizontal':[2,2,None],'vertical':[None]*3,'blocked':set()}
+        cfg=fit.config_data()
+        first,report=fit.project_blend(survey,[0,10.,0],set(),set(),set(),[False,True,False],limits,0,cfg)
+        self.assertTrue(report['passed']);self.assertEqual(first,[0,2,0])
+        second,report=fit.project_blend(survey,first,set(),set(),set(),[False,True,False],limits,0,cfg)
+        self.assertTrue(report['passed']);self.assertEqual(second,first)
+        _,report=fit.project_blend(survey,[0,10,0],{0,1,2},set(),set(),[False]*3,limits,0,cfg)
+        self.assertFalse(report['passed']);self.assertGreater(report['infeasible_columns'],0)
+
     def test_wrong_water_translation_and_missing_survey_margin_fail(self):
         c={**self.candidate,'dy':1}
         with self.assertRaisesRegex(ValueError,'align original lake'):fit.plan_fit(self.survey,c)

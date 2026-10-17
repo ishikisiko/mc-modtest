@@ -127,6 +127,30 @@ def raw_site_cameras(candidate):
     return cameras
 
 
+def refine_candidate(survey, candidate, settings):
+    """Re-evaluate an authored site adjustment against its existing MCA survey."""
+    refinement = settings.get('candidate_refinements', {}).get(candidate['id'])
+    if refinement is None:
+        return candidate
+    from tools.yunshan.natural_terrain import evaluate_site
+    reason = refinement.get('reason', refinement.get('why'))
+    if not isinstance(reason, str) or not reason.strip():
+        raise ValueError('Candidate refinement requires an explicit reason')
+    evaluated = evaluate_site(survey, refinement['origin'], refinement['rotation_quarters'], settings=settings)
+    result = copy.deepcopy(candidate)
+    result.update(evaluated)
+    # Keep the original comparison-row identity and rank. Coordinates, score,
+    # eligibility and metrics are exclusively the fresh point evaluation.
+    result['id'] = candidate['id']
+    if 'rank' in candidate:
+        result['rank'] = candidate['rank']
+    result['refined_from'] = {'original_id': candidate['id'], **{
+        key: copy.deepcopy(candidate[key]) for key in ('origin', 'rotation_quarters', 'score', 'metrics', 'eligible', 'limitations') if key in candidate}}
+    result['refinement_reason'] = reason
+    result['refinement_evaluation_id'] = evaluated['id']
+    return result
+
+
 class NaturalEvidence(DistrictEvidence):
     def __init__(self, out):
         Evidence.__init__(self, out)
@@ -336,8 +360,10 @@ class NaturalEvidence(DistrictEvidence):
         self.report['candidates'] = candidates
         self.report['completed'].append('three_distinct_sites')
         expanded = {}
-        for candidate in candidates:
+        for index, candidate in enumerate(candidates):
             survey = self.survey(expanded_window(candidate, settings=settings), 'expanded-'+candidate['id'], settings)
+            candidate = refine_candidate(survey, candidate, settings)
+            candidates[index] = candidate
             expanded[candidate['id']] = survey
             preview_directory = self.out/'sites'/candidate['id']
             try:
@@ -357,8 +383,10 @@ class NaturalEvidence(DistrictEvidence):
             (self.out/'top3.json').write_text(json.dumps(candidates, ensure_ascii=False, indent=2)+'\n')
         self.report['completed'].append('before_frames')
         selected = manifest = directory = None
+        selection_order = sorted(candidates, key=lambda candidate: candidate.get('score', math.inf))
+        self.report['selection_order'] = [candidate['id'] for candidate in selection_order]
         with self.phase('compile_natural_fit'):
-            for candidate in candidates:
+            for candidate in selection_order:
                 if candidate.get('eligible') is not True or candidate['fit_validation'].get('passed') is not True:
                     continue
                 attempt = self.out/'fit_attempts'/candidate['id']
