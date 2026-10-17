@@ -2,9 +2,8 @@
 import json
 from pathlib import Path
 import tempfile
-from types import SimpleNamespace
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 import zipfile
 
 from tools.modal_runner.remote import commands_for
@@ -185,12 +184,44 @@ class NaturalLifecycleTests(unittest.TestCase):
     def test_rcon_logs_stream_without_unbounded_report_copy_and_rejects_oversized_packets(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory); evidence = NaturalEvidence(root)
-            evidence.s = SimpleNamespace(run=lambda command, warn: ['actual server reply'])
+            evidence.s = MagicMock()
+            client = evidence.s.rcon.return_value.__enter__.return_value
+            def reply(command):
+                self.assertEqual(client.timeout, 45)
+                client.sock.settimeout.assert_called_once_with(45)
+                return 'actual server reply'
+            client.cmd.side_effect = reply
             self.assertEqual(evidence.rc('seed'), 'actual server reply')
             self.assertEqual(json.loads((root/'commands.jsonl').read_text())['command'], 'seed')
             self.assertEqual(evidence.report['command_count'], 1)
+            self.assertEqual(evidence.report['command_attempt_count'], 1)
+            self.assertEqual(evidence.report['command_success_count'], 1)
+            evidence.s.rcon.assert_called_once_with(retries=1)
             self.assertEqual(evidence.report['commands'], [])
             with self.assertRaisesRegex(ValueError, '1200-byte'): evidence.rc('x'*1201)
+            self.assertEqual(evidence.report['command_attempt_count'], 1)
+
+    def test_timed_out_edit_is_logged_once_and_never_replayed(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory); evidence = NaturalEvidence(root); evidence.s = MagicMock()
+            client = evidence.s.rcon.return_value.__enter__.return_value
+            client.cmd.side_effect = TimeoutError('server reply timed out')
+            command = 'forceload add -928 -192 -673 63'
+            with self.assertRaisesRegex(TimeoutError, 'server reply timed out'):
+                evidence.rc(command)
+            evidence.s.rcon.assert_called_once_with(retries=1)
+            client.cmd.assert_called_once_with(command)
+            client.sock.settimeout.assert_called_once_with(45)
+            self.assertEqual(client.timeout, 45)
+            record = json.loads((root/'commands.jsonl').read_text())
+            self.assertEqual(record['command'], command)
+            self.assertIn('server reply timed out', record['error'])
+            self.assertTrue(record['outcome_unknown'])
+            self.assertEqual(record['attempt'], 1)
+            self.assertEqual(evidence.report['command_count'], 1)
+            self.assertEqual(evidence.report['command_attempt_count'], 1)
+            self.assertEqual(evidence.report['command_failure_count'], 1)
+            self.assertEqual(evidence.report['command_success_count'], 0)
 
     def test_natural_preset_excludes_flat_game_capture_and_full_release(self):
         commands = commands_for('yunshan-natural')

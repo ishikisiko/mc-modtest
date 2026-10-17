@@ -161,7 +161,9 @@ class NaturalEvidence(DistrictEvidence):
                       'sparse_natural_fit', 'mapped_outgoing_paths', 'mapped_rotated_core_entry',
                       'support_shore_boundary_readback', 'matched_after_frames', 'playable_world_export'],
             completed=[], screenshots=[], snapshots=[], buildings={}, command_log='commands.jsonl',
-            command_count=0, owner_appearance='not_verified', owner_feel='not_verified',
+            command_count=0, command_count_semantics='attempts including failed calls',
+            command_attempt_count=0, command_success_count=0, command_failure_count=0,
+            owner_appearance='not_verified', owner_feel='not_verified',
             owner_sound='not_verified', owner_fps='not_verified', multiplayer='not_verified',
             software_rendering=True, world_seed=20261002,
             method='real normal terrain; immutable flushed MCA survey; sparse fitting; actual mapped W; before/after real-client frames')
@@ -170,11 +172,28 @@ class NaturalEvidence(DistrictEvidence):
     def rc(self, command):
         if len(command.encode('utf-8')) > 1200:
             raise ValueError('RCON command exceeds the 1200-byte safe packet budget')
-        reply = self.s.run(command, warn=False)[0]
-        with (self.out/'commands.jsonl').open('a') as stream:
-            stream.write(json.dumps({'command': command, 'reply': reply}, ensure_ascii=False)+'\n')
         self.report['command_count'] += 1
-        return reply
+        self.report['command_attempt_count'] += 1
+        record = {'attempt': self.report['command_attempt_count'], 'command': command, 'timeout_s': 45}
+        began = time.monotonic()
+        try:
+            with self.s.rcon(retries=1) as client:
+                client.timeout = 45
+                client.sock.settimeout(45)
+                reply = client.cmd(command)
+                record['reply'] = reply
+            self.report['command_success_count'] += 1
+            return reply
+        except BaseException as error:
+            self.report['command_failure_count'] += 1
+            record.update(error=repr(error), outcome_unknown=True)
+            # The server may already have applied the command. Preserve the
+            # failed attempt and propagate it; never replay a timed-out edit.
+            raise
+        finally:
+            record['wall_s'] = round(time.monotonic()-began, 3)
+            with (self.out/'commands.jsonl').open('a') as stream:
+                stream.write(json.dumps(record, ensure_ascii=False)+'\n')
 
     @contextmanager
     def phase(self, name):
