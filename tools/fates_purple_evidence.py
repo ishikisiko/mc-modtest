@@ -87,12 +87,21 @@ class PurpleEvidence(FateEvidence):
         self.rc(f'myvillage cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1')
         self.rc(f'myvillage cultivation learn {u} myvillage:jianqi_jue')
         self.home()
+        self.rc(f'spawnpoint {u} 0 -60 0')
 
     def home(self):
         self.rc(f'tp {self.s.username} .5 -60 .5 0 0')
+        self.poll(lambda:self.rc('execute if loaded 0 -60 2'),lambda reply:'passed' in reply,
+                  timeout=25,label='fixture chunk loaded after travel/respawn')
         self.rc('setblock 0 -59 2 minecraft:air')
         self.rc('setblock 0 -60 2 minecraft:air')
         self.s.game.require_ingame('purple fate probe')
+
+    def stele_fixture(self):
+        # The regional birth location can be far from this fixture after death. Load by
+        # actual player presence before placing the stele; a successful tp is not chunk proof.
+        self.home()
+        super().stele_fixture()
 
     def choose_focus(self, focus):
         self.reset()
