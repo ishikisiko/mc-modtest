@@ -1,0 +1,30 @@
+{
+  "format": 1,
+  "seed": 20261002,
+  "world_min_y": -64,
+  "world_height": 384,
+  "source_water_surface": 68,
+  "search_windows": [
+    {"id": "west", "window": [-928, -192, -608, 192]},
+    {"id": "center", "window": [-160, -192, 160, 192]},
+    {"id": "east", "window": [608, -192, 928, 192]},
+    {"id": "southwest", "window": [-928, 576, -608, 960]},
+    {"id": "south", "window": [-160, 576, 160, 960]},
+    {"id": "southeast", "window": [608, 576, 928, 960]}
+  ],
+  "origin_stride": 16,
+  "sample_stride": 8,
+  "candidate_count": 3,
+  "minimum_site_separation": 384,
+  "expanded_size": [512, 608],
+  "minimum_margin": 96,
+  "water_surface_fallback": 63,
+  "column_weights": {"protected_core": 1.0, "lake": 0.5, "peripheral_art": 0.05},
+  "outlet_band": 16,
+  "water_surface_tolerance": 2,
+  "weights": {"mean_earthwork": 1.0, "p90_earthwork": 0.35, "roughness": 2.0, "slope_mismatch": 8.0, "water_mismatch": 12.0, "outlet_mismatch": 18.0, "deep_water_fraction": 24.0, "artificial_fraction": 1000.0},
+  "gates": {"max_mean_earthwork": 28.0, "max_roughness": 12.0, "max_deep_water_fraction": 0.45, "max_artificial_fraction": 0.005, "deep_water_depth": 8},
+  "natural_ground_blocks": ["grass_block", "dirt", "coarse_dirt", "rooted_dirt", "podzol", "mycelium", "mud", "packed_mud", "clay", "sand", "red_sand", "gravel", "stone", "deepslate", "granite", "diorite", "andesite", "tuff", "calcite", "dripstone_block", "sandstone", "red_sandstone", "terracotta", "white_terracotta", "orange_terracotta", "magenta_terracotta", "light_blue_terracotta", "yellow_terracotta", "lime_terracotta", "pink_terracotta", "gray_terracotta", "light_gray_terracotta", "cyan_terracotta", "purple_terracotta", "blue_terracotta", "brown_terracotta", "green_terracotta", "red_terracotta", "black_terracotta", "snow_block", "ice", "packed_ice", "blue_ice", "moss_block", "bedrock", "obsidian", "basalt", "smooth_basalt", "blackstone", "amethyst_block", "budding_amethyst", "magma_block", "netherrack", "end_stone", "soul_sand", "soul_soil"],
+  "artificial_block_suffixes": ["_planks", "_bricks", "_stairs", "_slab", "_fence", "_fence_gate", "_door", "_trapdoor", "_bed", "_sign", "_hanging_sign", "_glass", "_glass_pane", "_carpet"],
+  "artificial_blocks": ["minecraft:chest", "minecraft:barrel", "minecraft:crafting_table", "minecraft:furnace", "minecraft:smoker", "minecraft:blast_furnace", "minecraft:spawner", "minecraft:torch", "minecraft:wall_torch", "minecraft:cobblestone", "minecraft:mossy_cobblestone", "minecraft:bricks", "minecraft:glass", "minecraft:glass_pane", "minecraft:bookshelf", "minecraft:chiseled_bookshelf", "minecraft:bell", "minecraft:lantern", "minecraft:campfire", "minecraft:hay_block", "minecraft:farmland", "minecraft:dirt_path", "minecraft:rail", "minecraft:powered_rail", "minecraft:ladder", "minecraft:chain", "minecraft:prismarine", "minecraft:dark_prismarine", "minecraft:sea_lantern"]
+}

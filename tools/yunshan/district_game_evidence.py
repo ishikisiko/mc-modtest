@@ -84,8 +84,10 @@ def traversal_passed(start, end, current, min_y):
     return along >= length-.15 and across <= .85 and current[1] >= min_y-.1
 
 
-def package_world(world, output, *, level_name='云山 D1 v2 · 完整街区'):
+def package_world(world, output, *, level_name='云山 D1 v2 · 完整街区', folder_name='Yunshan D1 v2'):
     """Keep the entire stopped world, including mod attachments and player state."""
+    if not isinstance(folder_name, str) or not folder_name or '/' in folder_name or '\\' in folder_name or folder_name in ('.', '..'):
+        raise ValueError('World export folder_name must be a single folder name')
     if not (world/'level.dat').is_file():
         raise FileNotFoundError('Stopped Minecraft world has no level.dat')
     # Only the display name changes. In particular, Data/attachments, dimensions,
@@ -105,7 +107,7 @@ def package_world(world, output, *, level_name='云山 D1 v2 · 完整街区'):
                 continue
             if not path.resolve().is_relative_to(world.resolve()):
                 raise ValueError(f'World export escaped its root: {relative}')
-            archive.write(path, 'Yunshan D1 v2/'+relative.as_posix())
+            archive.write(path, folder_name+'/'+relative.as_posix())
             files.append(relative.as_posix())
     with zipfile.ZipFile(output) as archive:
         bad = archive.testzip()
@@ -114,7 +116,7 @@ def package_world(world, output, *, level_name='云山 D1 v2 · 完整街区'):
     return {'file': output.name, 'files': len(files),
             'sha256': hashlib.sha256(output.read_bytes()).hexdigest(),
             'preserves': ['dimensions', 'data', 'playerdata', 'stats', 'advancements', 'mod attachments'],
-            'excluded': ['session.lock'], 'level_name': level_name}
+            'excluded': ['session.lock'], 'level_name': level_name, 'folder_name': folder_name}
 
 
 class DistrictEvidence(BuildingEvidence):

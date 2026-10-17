@@ -174,6 +174,11 @@ PRESETS["yunshan-district"] = [
     ["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
     ["python3", "tools/yunshan/district_game_evidence.py"],
 ]
+PRESETS["yunshan-natural"] = [
+    ["python3", "-m", "unittest", "tools.tests.test_yunshan_natural_evidence", "tools.tests.test_yunshan_natural_terrain", "tools.tests.test_yunshan_natural_fit"],
+    ["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
+    ["python3", "tools/yunshan/natural_evidence.py"],
+]
 PRESETS["npc-life-runtime"] = [
     ["python3", "tools/gen_npc_life_places.py", "--check"],
     ["./gradlew", "test", "--tests", "com.example.myvillage.block.AlchemyFurnaceNavigationTest",
