@@ -3,7 +3,8 @@
 ## 自然地形落位与外围融合
 
 选址比较、失败原因及实机证据见
-[自然地形融合记录](../../docs/testing/2026-10-18-yunshan-natural-fit.md)。
+[自然地形融合记录](../../docs/testing/2026-10-18-yunshan-natural-fit.md)；
+多种子自动选址见[自动选址验证记录](../../docs/testing/2026-10-18-yunshan-auto-sites.md)。
 
 自然世界候选采用独立的普通世界。`natural_terrain.py` 读取实际保存的
 Anvil 区块，核对种子、生成器、完整区块和区域文件哈希；从树冠和水体下方

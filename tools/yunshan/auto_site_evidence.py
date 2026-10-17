@@ -19,9 +19,13 @@ from tools.yunshan.natural_evidence import NaturalEvidence, digest
 class AutomaticEvidence(NaturalEvidence):
     def __init__(self, out, seed):
         super().__init__(out, seed=seed)
+        # This collector emits selection.json, not the legacy top3 manifest.
+        self.report.pop('candidate_manifest', None)
         self.report.update(kind='yunshan_automatic_site', scope='bounded_multi_seed_search',
                            selected=['automatic_actual_terrain_search'], completed=[],
-                           not_selected=['authored_coordinate_refinements'])
+                           not_selected=['authored_coordinate_refinements'],
+                           method='actual normal-world snapshots and bounded automatic selection; '
+                                  'placement and mapped W only for explicitly completed stages')
         self.save()
 
     def automatic(self, settings, place=False):
