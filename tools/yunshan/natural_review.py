@@ -84,7 +84,7 @@ def build(directory: Path):
     <div class="status">云端验证：{'通过' if evidence['status'] == 'pass' else esc(evidence['status'])} · 已完成 {len(completed)}/{len(evidence.get('selected', []))} 个采集阶段{f' · 尚缺 {esc(missing)}' if missing else ''}</div>
     <h2>同位置、同角度的前后对比</h2><select id="camera" aria-label="切换对比视角">{options}</select>{''.join(comparisons)}
     <h2>{candidates_title}</h2>{comparison_note}<div class="cards">{''.join(cards)}</div>
-    <h2>进入完整世界</h2><p class="intro">将 ZIP 中的独立世界文件夹导入匹配的 Minecraft 模组实例。请保留独立目录；世界名为“云山 · 自然山水融合预览”。原来的云山世界和平坦预览世界保持原样。</p>{download}
+    <h2>进入完整世界</h2><p class="intro">使用 Minecraft 1.21.1、NeoForge 21.1.233 和 MyVillage 0.63.1。解压后将含 level.dat 的独立世界文件夹放入该实例的 saves 目录；世界名为“云山 · 自然山水融合预览”。保留独立目录，原来的云山世界和平坦预览世界保持原样。</p>{download}
     <footer>这些画面为云端软件渲染。玩家外观、手感、音效、FPS 与广泛多人验收仍为 not_verified。<br>源提交 {esc(evidence.get('source_commit', '未记录'))} · 模组 {esc(evidence.get('mod_version', '未记录'))} · <a href="evidence.json">完整采集记录</a> · <a href="{esc(candidate_file)}">选址指标</a> · <a href="{esc(fit_manifest)}">融合清单</a></footer>
     </main><script>document.querySelector('#camera').addEventListener('change',event=>{{document.querySelectorAll('.comparison').forEach(node=>node.hidden=node.dataset.index!==event.target.value)}});</script></html>'''
     (directory / 'index.html').write_text(text, encoding='utf-8')
