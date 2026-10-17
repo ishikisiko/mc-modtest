@@ -105,6 +105,10 @@ PRESETS["advanced-arts-build"] = [
      "--tests", "com.example.myvillage.client.combat.ClientCombatStateTest",
      "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
 ]
+PRESETS["advanced-arts-runtime"] = [
+    ["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
+    ["python3", "tools/advanced_arts_evidence.py"],
+]
 PRESETS["forging-ding"] = [["python3", "tools/gen_forging_assets.py", "--check"],
     ["./gradlew", "test", "--tests", "com.example.myvillage.block.ForgingDingTest", "--tests", "com.example.myvillage.forging.*", "--tests", "com.example.myvillage.combat.network.CombatPayloadTest", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
     ["python3", "tools/forging_ding_evidence.py"]]
