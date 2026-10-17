@@ -157,3 +157,9 @@ times. The README command manual and acceptance ledger are the user-facing
 entry point. Automated evidence does not establish owner combat feel, encounter
 density or multiplayer acceptance.
 See [the measured verification report](../testing/2026-10-14-realm-stats.md).
+
+
+0.61.0 adds `myvillage:fire_spirit`, tagged as fire damage, for attributed fate burns
+and bursts. It uses the existing fire-resistance channel without changing physical
+hits or granting the other elemental attack routes. Derivative amounts enter the
+ordinary mitigation path once, with explicit no-proc attribution; see [48](48_innate_fates.md).

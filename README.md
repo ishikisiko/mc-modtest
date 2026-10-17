@@ -4174,9 +4174,9 @@ same draft and lock without rerolling. Existing awakened saves may choose once;
 confirmed characters see their stored result. **H → Fates / 先天** only shows the
 result or directs you back to the stele. The inheritance stele remains a separate
 learning step. Existing roots are preserved; explicit rerolls only change fate
-candidates. The pool now contains twelve working traits and 13 purple/gold/red placeholders.
+candidates. The pool now contains fifteen working traits and 11 purple/gold/red placeholders.
 Placeholders are explicitly labeled, can be selected and saved, and grant no effects;
-they temporarily have no element/purity gate. Eleven lower-tier designs remain deferred.
+they temporarily have no element/purity gate. Ten lower-tier designs remain deferred.
 All six tier weights are equal (within each available tier, candidates are uniform).
 Two ordinary candidates remain guaranteed, so the final six cards are not uniformly
 distributed across tiers. Existing drafts/confirmed choices are preserved: restart
@@ -4197,10 +4197,15 @@ The [36-trait catalogue](docs/innate-fates-design.json) distinguishes these stat
 | 吞丹化势 / Pill Aegis | `myvillage:pill_aegis` | purple / 4 |
 | 百炼战骨 / Tempered Bones | `myvillage:tempered_bones` | purple / 4 |
 | 剑痴 / Sword Obsession | `myvillage:sword_obsession` | purple / 4 |
+| 踏风步 / Wind Step | `myvillage:wind_step` | blue / 3 |
+| 先天剑心 / Innate Sword Heart | `myvillage:innate_sword_heart` | gold / 5 |
+| 火灵之体 / Fire Spirit Body | `myvillage:fire_spirit_body` | gold / 5 |
 
 0.60.1 activates three previously selectable placeholders: Open Meridians raises qi capacity and refunds one successful paid cast; Pill Aegis enhances Vitality Pills and grants an independent temporary shield; Tempered Bones converts hostile health loss into one enhanced melee hit and knockback. Existing selected IDs work after upgrading without rerolling. See [purple-fate validation](docs/testing/2026-10-17-purple-fates.md) for actual cloud coverage and limits.
 
 0.60.2 activates Sword Obsession: select it at the testing stele, equip the Qingfeng Sword, enter cultivation combat mode and land the ordinary combo. Each move earns at most one momentum stack; a full-stack finishing hit adds one independent sword wave. Missing for the configured timeout or changing weapons clears momentum. Active/derived sword qi does not earn stacks. See [sword-fate verification](docs/testing/2026-10-17-sword-obsession.md).
+
+0.61.0 adds three combat fates. **Innate Sword Heart** rewards a real perfect dodge with one critical sword hit and a piercing wave. **Wind Step** allows one air dodge per landing and briefly boosts speed after dodging: learn a movement technique, use the existing dodge key (Left Alt), and pay that technique's qi cost only in the air; ground dodges remain free. It excludes Lightfoot. **Fire Spirit Body** adds attributed burning to direct health damage and triggers a target-only burst on repeated hits. Saved cooldowns survive death/reconnect, and derivatives do not recursively trigger offensive fates. See [advanced-fate verification](docs/testing/2026-10-17-advanced-fates.md).
 
 The awakening screen and H result page display current effect values from synchronized data. Locking preserves
 one candidate but does not force selection. Confirmed choices cannot be rerolled

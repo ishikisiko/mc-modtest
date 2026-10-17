@@ -1,7 +1,7 @@
 # Innate Fates (先天气运)
 
-There are twelve implemented effects, 13 selectable purple/gold/red placeholders,
-and 11 design-only traits in the [36-trait catalogue](../innate-fates-design.json).
+There are fifteen implemented effects, 11 selectable purple/gold/red placeholders,
+and 10 design-only traits in the [36-trait catalogue](../innate-fates-design.json).
 Placeholders use explicit `placeholder: true`, empty effects and bilingual no-effect
 labels. They keep tier costs and exclusive groups but temporarily omit root gates.
 All tier weights are equal; the two ordinary guarantees still bias the final draft.
@@ -57,7 +57,8 @@ adds further ordinary entries if needed to guarantee a legal low-budget triple.
 
 The implemented IDs are `robust`, `lightfoot`, `bright`, `fire_affinity`,
 `alchemist_descendant`, `beast_hunter`, `unyielding`, `burning_star`,
-`open_meridians`, `pill_aegis`, `tempered_bones`, and `sword_obsession`.
+`open_meridians`, `pill_aegis`, `tempered_bones`, `sword_obsession`,
+`innate_sword_heart`, `wind_step`, and `fire_spirit_body`.
 Definitions and bilingual effect labels determine what the page shows.
 
 Health/speed use stable permanent attribute modifiers, composed with realm
@@ -163,6 +164,60 @@ Focused presets: `sword-fate-build` and `sword-fate-runtime`. The latter uses re
 mapped selection, five-move sword combos and active skill input in an isolated
 world; see [the validation record](../testing/2026-10-17-sword-obsession.md).
 
+## Advanced batch (0.61.0)
+
+`innate_sword_heart` earns an opening only when the server's dodge window really
+cancels a positive direct enemy attack inside `heart_window_ticks`. Merely pressing
+the dodge key, environmental damage, damage-over-time, retaliation, derived hits,
+self/allied damage and bypass sources cannot earn it. The opening and proc cooldown
+use persistent overworld deadlines; the short opening is discarded on logout,
+login, death, dimension change and reset, while cooldown survives. The next accepted
+registered-sword melee hit gets one critical multiplier and launches the configured
+piercing wave. A real shield contact consumes it too. Vanilla critical-event receipts
+prevent applying the multiplier twice; a sweep spends the opening on its first
+accepted target only. Active sword qi cannot spend it. Wave aim is the server yaw
+at the empowered hit and uses the existing crescent presentation.
+
+`wind_step` grants one air dodge per server-observed geometric landing and a short
+post-dodge speed modifier. Existing ground dodges remain free; only air dodges pay
+the selected movement technique's `qi_cost`. Ground and air dodges share the normal
+cooldown, with a saved deadline preventing reconnect resets. The default saved air
+charge is spent until a real landing is observed. Geometry ignores the network
+onGround bit: thin valid edge support counts, side walls do not. An observed
+fall-to-ground transition restores the charge immediately; fresh ground initialization
+uses two observations. A conservative swept player volume checks collision, loaded
+chunks and the world border before any payment or action cancellation. The committed
+air step uses a server teleport, preserving vertical velocity/fall distance; it does
+not probe with `Entity.move`, which would run fire/portal callbacks mid-transaction.
+The instant air step's feel remains a player-acceptance surface. No movement input
+packet was expanded and the original ground impulse is retained.
+
+`fire_spirit_body` records each real primary hit's actual health loss, excluding
+absorption, overkill and Tempered Bones' added contribution. Authored attacks report
+one frozen receipt before enchantment post-effects; vanilla melee/projectiles use
+an exact damage-container fallback. Per-hit burn budgets are distributed according
+to `fire_burn_ticks` and `fire_burn_interval_ticks`, with the last installment paying
+the exact remainder. Repeated direct hits on the same target queue one target-only
+burst from weapon attack damage. Hits during cooldown can bank a bounded stack,
+but a new real hit is needed after the deadline to trigger again. Cooldowns are
+saved per attacker/target UUID pair; temporary burns and stacks stop on departure,
+death or target unload. Completed empty ledgers are reclaimed; target/bucket counts
+have explicit safety bounds and active cooldowns are never evicted for a new proc.
+
+All fire derivatives use `CombatDamageService.hurtDerived`, which scopes them out
+of offensive fates, casts/refunds, precision rewards and defender resolve charging.
+The `fire_spirit` damage type has `is_fire` and `no_knockback` tags, passes vanilla
+and typed mitigation once, and never uses vanilla ignition as a substitute for
+attributed damage. Vanilla fire particles provide presentation; no new art assets
+or terrain-changing explosion were introduced.
+
+`FateState` has optional `sword_heart`, `wind_step`, and `fire_spirit` nested codecs.
+All immutable writers preserve other states; death/reset discard benefits while
+keeping cooldowns. The old constructors and absent-field defaults remain supported.
+Protocol 31 covers the expanded synchronized fate state/definitions. Focused presets
+are `advanced-fates-build` and `advanced-fates-runtime`; runtime accepts independent
+`sword_heart,wind_step,fire_spirit` cases. See [verification and limitations](../testing/2026-10-17-advanced-fates.md).
+
 ## Commands and checks
 
 README contains testing-stele entry, read-only H usage and matching
@@ -194,7 +249,7 @@ default command without that flag runs the full stele UI, existing effects and
 restart suite. The README ledger separates automated input/lifecycle evidence
 from owner feel/multiplayer.
 
-The other 24 effects remain unimplemented (13 have selectable placeholders). Root
+The other 21 effects remain unimplemented (11 have selectable placeholders). Root
 rerolls, Phoenix revival, orbiting swords, counterattacks, companions and treasure
 routes have no runtime effect. See [deferred roadmap](14_deferred_roadmap.md).
 

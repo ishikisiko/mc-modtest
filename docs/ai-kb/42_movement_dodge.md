@@ -91,7 +91,8 @@ Each refusal logs one `rejected` line and changes nothing:
     particles at the feet spread along the travel axis, `combat.sword.thrust`
     at volume 0.6, pitch 0.75 for everyone nearby), and the `started` line.
 
-`qi_cost` is decoded with the rest of the block but not charged.
+`qi_cost` is decoded with the rest of the block. Ground dodges remain free; since
+0.61.0 the Wind Step fate pays this cost for its air dodge (see below).
 
 While the window is open:
 
@@ -253,12 +254,12 @@ The first run (flat impulse) measured 5.39 blocks for the back step and an
 
 ## Not implemented
 
-- Dodge `qi_cost` is deliberately not charged. The power pool, recovery and
+- Ground dodge `qi_cost` is deliberately not charged; Wind Step air dodges pay it since 0.61.0. The power pool, recovery and
   HUD now exist for sword qi ([45](45_spiritual_power_sword_qi.md)); this slice
-  leaves movement free.
+  leaves ordinary ground movement free.
 - A dash pose, a HUD cooldown readout, mastery tiers, and a chosen-technique
   slot (the highest grade is always used).
-- Owner decisions still open: the Left Alt default, whether to charge qi,
+- Owner decisions still open: the Left Alt default, whether to charge ground-dodge qi,
   the feel of 5/7 invulnerable ticks, 30/24 cooldown ticks and 3.5/4.5
   blocks, a dedicated pose, and whether movement techniques stay in the
   ledger's pool.
@@ -269,3 +270,14 @@ The first run (flat impulse) measured 5.39 blocks for the back step and an
 - Briefs: `docs/movement-dodge-brief.md`, `docs/technique-system-brief.md`
 - [combat-style-data](../contracts/combat-entities.md#combat-style-data), [combat-capture-tooling](../contracts/tooling.md#combat-capture-tooling), [hostile-beast-runtime](../contracts/combat-entities.md#hostile-beast-runtime), [cultivation-definition-registries](../contracts/cultivation.md#cultivation-definition-registries)
 - Knowledge-base index: [INDEX.md](INDEX.md)
+
+## Wind Step and precision rewards (0.61.0)
+
+The optional Wind Step fate extends this same server input route with a single
+saved air charge, a shared persisted cooldown, collision-checked server air movement
+and a short speed modifier. It does not alter normal ground displacement or its
+free cost. The Sword Heart fate receives only the actual canceled-damage receipt
+from `onIncomingDamage`, including the original dodge start tick, and filters it
+before granting an opening. Its precision window is separate from total dodge
+invulnerability. See [48](48_innate_fates.md#advanced-batch-0610) for state, collision,
+transaction and lifecycle boundaries and the linked focused validation record.

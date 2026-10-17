@@ -310,14 +310,14 @@
       "kind": "禀赋",
       "flavor": "一步离地，再踏一程。",
       "effect": "获得一次空中闪避；闪避后移动速度 +25%，持续 2 秒。",
-      "tradeoff": "每次落地重置空闪；消耗正常闪避灵力，与地面闪避共用冷却。",
+      "tradeoff": "每次落地重置空闪；空闪按已学身法配置耗灵，与地面闪避共用冷却；地面闪避暂仍免费。",
       "group": "身法",
       "element": null,
       "min": 0,
       "maxRoots": 5,
       "focus": "战斗 · 探索",
-      "runtime_id": null,
-      "implementation": "planned"
+      "runtime_id": "myvillage:wind_step",
+      "implementation": "advanced_batch"
     },
     {
       "id": "fate-18",
@@ -445,7 +445,7 @@
       "maxRoots": 3,
       "focus": "战斗",
       "runtime_id": "myvillage:fire_spirit_body",
-      "implementation": "selectable_placeholder"
+      "implementation": "advanced_batch"
     },
     {
       "id": "fate-26",
@@ -525,7 +525,7 @@
       "maxRoots": 5,
       "focus": "战斗",
       "runtime_id": "myvillage:innate_sword_heart",
-      "implementation": "selectable_placeholder"
+      "implementation": "advanced_batch"
     },
     {
       "id": "fate-31",
