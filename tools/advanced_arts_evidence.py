@@ -29,7 +29,7 @@ class ArtsEvidence(PurpleEvidence):
     def logs(self, offset=0):
         with (cs.LOG_DIR/'server.log').open('rb') as stream:
             stream.seek(offset)
-            return stream.read().decode(errors='replace')
+            return '\n'.join(line for line in stream.read().decode(errors='replace').splitlines() if 'ADVANCED_ART' in line)
 
     def offset(self):
         return (cs.LOG_DIR/'server.log').stat().st_size
@@ -95,7 +95,8 @@ class ArtsEvidence(PurpleEvidence):
         # Each actual book starts with zero comprehension and is consumed by ordinary study.
         for art in self.arts:
             self.home();self.s.game.key('1')
-            self.rc(f'item replace entity {u} hotbar.0 with myvillage:manual_active_2[myvillage:technique="{art["id"]}"]')
+            reply=self.rc(f'item replace entity {u} hotbar.0 with myvillage:manual_active_xuan[myvillage:technique="{art["id"]}"]')
+            self.check(art['id']+'_book_fixture', 'Replaced a slot' in reply, reply)
             time.sleep(.3)
             self.s.game.xdo('click','3')
             self.poll(self.learned, lambda s:art['id'] in s, timeout=90, label='mapped book learning '+art['id'])
