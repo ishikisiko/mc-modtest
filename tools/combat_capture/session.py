@@ -73,7 +73,9 @@ CLIENT_OPTIONS = {
 
 
 def server_properties(server_port: int, rcon_port: int, password: str, *, natural_monsters: bool = False,
-                      natural_terrain: bool = False, pvp: bool = False) -> dict:
+                      natural_terrain: bool = False, pvp: bool = False, view_distance: int = 6) -> dict:
+    if isinstance(view_distance, bool) or not isinstance(view_distance, int) or not 2 <= view_distance <= 32:
+        raise ValueError('Capture view_distance must be an integer in 2..32')
     properties = {
         "server-ip": "127.0.0.1",
         "server-port": str(server_port),
@@ -103,7 +105,7 @@ def server_properties(server_port: int, rcon_port: int, password: str, *, natura
         "allow-flight": "true",
         "allow-nether": "false",
         "max-players": "2",
-        "view-distance": "6",
+        "view-distance": str(view_distance),
         "simulation-distance": "4",
         "max-tick-time": "-1",
         "enable-command-block": "false",
@@ -203,6 +205,7 @@ class SessionConfig:
     natural_monsters: bool = False
     natural_terrain: bool = False
     pvp: bool = False
+    view_distance: int = 6
 
 
 class StopRequested(Exception):
@@ -300,7 +303,8 @@ class Supervisor:
         password = secrets.token_urlsafe(18)
         self.state.update(server_port=server_port, rcon_port=rcon_port, rcon_password=password)
         values = server_properties(server_port, rcon_port, password, natural_monsters=self.cfg.natural_monsters,
-                                   natural_terrain=self.cfg.natural_terrain, pvp=self.cfg.pvp)
+                                   natural_terrain=self.cfg.natural_terrain, pvp=self.cfg.pvp,
+                                   view_distance=self.cfg.view_distance)
         self.state["natural_monsters"] = self.cfg.natural_monsters
         self.state["natural_terrain"] = self.cfg.natural_terrain
         self.state["pvp"] = self.cfg.pvp
@@ -338,7 +342,8 @@ class Supervisor:
 
     def start_client(self):
         self.set_phase("starting_client")
-        merge_options(CLIENT_DIR / "options.txt", {**CLIENT_OPTIONS, "lang": self.cfg.language})
+        merge_options(CLIENT_DIR / "options.txt", {**CLIENT_OPTIONS, "lang": self.cfg.language,
+                                                 "renderDistance": str(self.cfg.view_distance)})
         self.state["language"] = self.cfg.language
         env = dict(os.environ, DISPLAY=self.state["display"])
         self.state["client_log"] = str(CLIENT_DIR / "logs" / "latest.log")
