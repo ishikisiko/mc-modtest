@@ -67,7 +67,9 @@ public final class PlayerAffairs {
             return Admission.refused(Admission.REJOIN_COOLDOWN);
         }
         int standing = m == null ? 0 : m.standings.getOrDefault(sectId, 0);
-        if (standing < rules.leave().rejoinStandingAtLeast()) {
+        var grievance = ctx.state.combat.sectGrievances.get(sectId);
+        if ((grievance != null && grievance.containsKey("player:" + playerId))
+                || standing < rules.leave().rejoinStandingAtLeast()) {
             return Admission.refused(Admission.STANDING_TOO_LOW);
         }
         Rules.PlayerAdmission ad = rules.admission();
