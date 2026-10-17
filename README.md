@@ -4196,8 +4196,11 @@ The [36-trait catalogue](docs/innate-fates-design.json) distinguishes these stat
 | 经脉通达 / Open Meridians | `myvillage:open_meridians` | purple / 4 |
 | 吞丹化势 / Pill Aegis | `myvillage:pill_aegis` | purple / 4 |
 | 百炼战骨 / Tempered Bones | `myvillage:tempered_bones` | purple / 4 |
+| 剑痴 / Sword Obsession | `myvillage:sword_obsession` | purple / 4 |
 
 0.60.1 activates three previously selectable placeholders: Open Meridians raises qi capacity and refunds one successful paid cast; Pill Aegis enhances Vitality Pills and grants an independent temporary shield; Tempered Bones converts hostile health loss into one enhanced melee hit and knockback. Existing selected IDs work after upgrading without rerolling. See [purple-fate validation](docs/testing/2026-10-17-purple-fates.md) for actual cloud coverage and limits.
+
+0.60.2 activates Sword Obsession: select it at the testing stele, equip the Qingfeng Sword, enter cultivation combat mode and land the ordinary combo. Each move earns at most one momentum stack; a full-stack finishing hit adds one independent sword wave. Missing for the configured timeout or changing weapons clears momentum. Active/derived sword qi does not earn stacks. See [sword-fate verification](docs/testing/2026-10-17-sword-obsession.md).
 
 The awakening screen and H result page display current effect values from synchronized data. Locking preserves
 one candidate but does not force selection. Confirmed choices cannot be rerolled
