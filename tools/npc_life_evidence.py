@@ -133,14 +133,17 @@ class NpcLifeEvidence(Evidence):
                         'gamerule spawnChunkRadius 0', 'time set day'):
             self.rc(command)
         origin = self.one('myvillage wilderness info 0 -60 0', 'WILDERNESS_INFO')
-        options = [({'x': 0, 'z': 0}, origin)]
-        for center in origin['centers']:
-            if options[-1][1].get('eligibleRogues', 0) >= 4:
-                break
-            options.append((center, self.one(f'myvillage wilderness info {center["x"]} -60 {center["z"]}', 'WILDERNESS_INFO')))
-        chosen = next(((c, s) for c, s in options if s.get('eligibleRogues', 0) >= 4), None)
-        self.check('four_existing_local_candidates', chosen is not None, options)
-        self.offset = [chosen[0]['x'], chosen[0]['z']]
+        candidates = self.ledger('candidate-selection')
+        by_region = {}
+        for person in candidates['persons']:
+            if person['sect'] < 0 and person['rank'] == 'rogue' and person['status'] not in ('travelling', 'secluded'):
+                by_region.setdefault(person['region'], []).append(person['id'])
+        centers = {c['region']: c for c in origin['centers']}
+        eligible = [region for region, people in by_region.items() if len(people) >= 4 and region in centers]
+        self.check('four_existing_local_candidates', bool(eligible), by_region)
+        region = max(eligible, key=lambda r: len(by_region[r]))
+        chosen = centers[region]
+        self.offset = [chosen['x'], chosen['z']]
         x, z = self.offset
         self.center()
         self.rc(f'forceload add {x-16} {z-32} {x+88} {z+88}')
