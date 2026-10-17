@@ -3,6 +3,8 @@
 from __future__ import annotations
 import argparse
 import json
+import math
+import re
 from pathlib import Path
 import sys
 import time
@@ -12,6 +14,20 @@ from tools.modal_runner.remote import ADVANCED_FATE_CASES, select_advanced_fate_
 from tools.combat_capture import session as cs
 
 
+def parse_scalar(reply):
+    """Typed SNBT scalars, attribute readbacks and scoreboard readbacks only."""
+    if 'data: ' in reply:
+        from tools.alchemy_quality_evidence import read_data
+        value=read_data(reply)
+    else:
+        score=re.search(r'\bhas (-?\d+) \[[^\]\r\n]+\]\s*$',reply)
+        tail=re.search(r'(-?\d+(?:\.\d+)?)\s*$',reply)
+        value=float((score or tail).group(1)) if score or tail else None
+    if type(value) not in (int,float) or not math.isfinite(value):
+        raise ValueError('Not a finite numeric readback: '+reply)
+    return float(value)
+
+
 class AdvancedEvidence(PurpleEvidence):
     def __init__(self,out,cases=None):
         super().__init__(out)
@@ -19,6 +35,9 @@ class AdvancedEvidence(PurpleEvidence):
         self.report.update(kind='advanced_fates',selected=selected,completed=[],unrun=list(ADVANCED_FATE_CASES),
                            cases={},method='mapped stele, attack and dodge input; commands only prepare/read fixtures and labelled boundary probes')
         self.root_out=out
+
+    def number(self,command):
+        return parse_scalar(self.rc(command))
 
     def setup(self):
         super().setup()

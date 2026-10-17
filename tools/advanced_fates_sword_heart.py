@@ -308,7 +308,7 @@ def run(e):
                       [f'damage {user} 1 minecraft:player_attack by {visitor}'], report, active_cooldown=True)
             _negative(e, guest, 'environment_boundary', 'minecraft:generic',
                       [f'damage {user} 1 minecraft:generic'], report)
-            _negative(e, guest, 'poison_boundary', 'minecraft:magic',
+            _negative(e, guest, 'poison_boundary', 'neoforge:poison',
                       [f'effect give {user} minecraft:poison 3 4 true'], report)
             _negative(e, guest, 'reflection_boundary', 'minecraft:thorns',
                       [f'damage {user} 1 minecraft:thorns by {visitor}'], report)
