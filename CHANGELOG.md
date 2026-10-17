@@ -10,6 +10,7 @@ together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 ## 0.62.0
 
 - 加入剑、枪、拳各两招书本学习的进阶武技，Z/C 施放，服务器统一负责分段、成本、冷却和命中。
+- 修正武技快捷栏与中央动作提示的重叠。
 - 合并近期天命伤害归因与武技环形击退，保留派生伤害隔离及原有普通连招。
 
 ## 0.61.0

@@ -71,6 +71,9 @@ artifacts and confirmed cleanup are recorded.
 | Preset | Command / role | Real cloud status |
 |---|---|---|
 | `smoke` | Java version, Python dependency imports, Xvfb `glxinfo` | `pass` (authenticated second attempt; downloaded evidence and confirmed termination) |
+| `advanced-arts-build` | 生成资源检查、武技/战斗/天命相关 Java 测试和 jar | [0.62.0 合并测试](../testing/2026-10-18-advanced-weapon-arts.md) |
+| `advanced-arts-hud` | jar 与映射 Z/C 的快捷栏布局短探针 | 仅代表性 HUD 检查，不是完整玩法复验 |
+| `advanced-arts-runtime` | committed-resource jar、六本书真实研读、Z/C 施放、拒绝/碰撞/友伤、守势、换武器、双客户端与重启 | 具体完成项和限制见同一专项记录；不启动 Chunky |
 | `fates-purple-build` | Fate validator, focused fate/qi/medicine/forging Java tests, jar | [0.60.1 evidence](../testing/2026-10-17-purple-fates.md): 106 focused tests and actual NeoForge compilation passed |
 | `fates-purple-runtime` | Committed-resource jar plus mapped purple-fate scenarios | Supports independent `--cases meridians,pill_aegis,tempered_bones,lifecycle`; same-source main cases plus lifecycle retry passed; isolated fixture explicitly enables PvP |
 | `npc-life-build` | Life resource check, focused generator tests, 10 simulation Java classes plus furnace navigation regression and jar | [NPC life evidence](../testing/2026-10-17-npc-life.md): original feature commit compiled and 98 simulation tests passed; furnace regression added during runtime fixes |

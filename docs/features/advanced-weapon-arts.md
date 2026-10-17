@@ -1,6 +1,7 @@
 # 高级武技：剑、枪、拳各两招
 
-本功能在独立开发分支交付，未合并主分支、未发布新版本 JAR。参数唯一来源是
+本功能随 0.62.0 交付；合并测试与实机证据见
+[专项测试记录](../testing/2026-10-18-advanced-weapon-arts.md)。参数唯一来源是
 `tools/advanced_arts/arts.json`；运行 `python tools/gen_advanced_arts.py` 生成资源。
 
 ## 玩家入口
@@ -85,32 +86,28 @@ Boss 抗性仍适用。
 
 ## 检查与未验证项
 
-已执行的轻量检查：
+生成与本地针对性检查：
 
 ```bash
-python tools/gen_advanced_arts.py --check
-python tools/gen_technique_catalogue.py --check
-python tools/check_advanced_arts.py
-python -m unittest tools.tests.test_advanced_arts tools.tests.test_combat_data tools.tests.test_gen_technique_catalogue tools.tests.test_modal_runner
+python3 tools/gen_advanced_arts.py --check
+python3 tools/gen_technique_catalogue.py --check
+python3 tools/check_advanced_arts.py
+python3 -m unittest tools.tests.test_advanced_arts tools.tests.test_combat_data tools.tests.test_gen_technique_catalogue tools.tests.test_modal_runner
 ```
 
-`check_advanced_arts.py` 实际编译并执行生产代码中的纯数值、冷却和特效网格类；
-此外仅对其余 Java 做语法解析。**语法通过不等于 Minecraft API 类型检查或模组构建通过**。
-`AdvancedArtsTest` 与 `AdvancedArtClientStateTest` 已加入工程，覆盖功法 Codec、包编码、
-分段去重、外部动作取消以及客户端基础连招复位，但此环境没有运行它们。
-
-准备好仓库要求的精确 PAL JAR、方块目录和 Modal 认证后，固定当前提交运行：
+固定提交的云端入口：
 
 ```bash
 python -m tools.modal_runner run --ref HEAD --preset advanced-arts-build
+python -m tools.modal_runner run --ref HEAD --preset advanced-arts-runtime --timeout 2400
 ```
 
-此 preset 只跑相关单元测试与 JAR 打包，不自动启动无关 Chunky/世界生成验收。
-当前云端编辑环境缺少这些依赖和认证，未进行 Gradle 模组构建；不能把未运行的
-JUnit、专用服务器启动、实际技能书学习、碰撞/友伤、单人和双人客户端、画面/手感/
-音效/FPS 检查记为通过。旧姿态离线预览只用于设计参考，不是新技能实机证据。
+build 覆盖武技、战斗会话/网络/伤害、天命与客户端动作状态的相关 JUnit，并编译打包。
+runtime 使用隔离存档与真实客户端映射输入，覆盖六本书从零研读、六招 Z/C、扣费与冷却、
+未学/境界不足/灵力不足、墙体/友军、正面守势、换武器中断、双客户端与重启学习状态。
+管理员命令只准备和读取夹具；守势的入站伤害为明确标注的边界探针。
+具体完成范围与失败重跑记录以专项测试记录为准。
 
-实机验收应覆盖六招的 Z/C 映射输入、空挥扣费、未学/境界不足/灵力不足/冷却拒绝、
-三段命中与去重、墙后与友军不受伤、枪突进遇墙/崖停止、格挡正反方向与过期边界、
-换武器/死亡/重连/换维度后的状态及冷却、多人观察一致，以及释放完再按左键仍从
-基础第一招起手。视觉部分需分别看第一/第三人称，不将离线数据通过替代观感认可。
+自动检查不替代玩家画面、手感、平衡、音效、FPS 验收。未单独观察的多目标逐段去重、
+环形击退方向、枪突进崖边、背面/过期格挡、死亡/重连/跨维度的非零冷却、
+多人视效同步仍为 `not_verified`。技能书世界自然获取尚未加入，测试通过不表示已实现。
