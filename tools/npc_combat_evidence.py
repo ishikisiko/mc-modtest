@@ -8,6 +8,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import re
 from pathlib import Path
 import subprocess
 import sys
@@ -156,9 +157,18 @@ class NpcCombatEvidence(NpcLifeEvidence):
         self.rc('summon myvillage:cultivator .5 -60 3 {Tags:["npc_cross_a"],Health:80f,attributes:[{id:"minecraft:generic.max_health",base:80d}]}')
         self.rc('summon myvillage:demon_wolf .5 -60 5 {Tags:["npc_cross_wolf"],Health:80f,attributes:[{id:"minecraft:generic.max_health",base:80d}]}')
         wolf='@e[tag=npc_cross_wolf,limit=1]'
-        self.rc(f'damage {wolf} 0.1 minecraft:mob_attack by {a}')
+        self.rc('myvillage beast debug on')
+        self.poll(lambda:self.rc(f'myvillage beast status {wolf}'),
+                  lambda line:(m:=re.search(r'\bt=(\d+)',line)) is not None and int(m[1])>=2,
+                  5,'beast has entered its real AI loop')
+        # Provoke the NPC. Its actual sword then triggers the beast's vanilla retaliation goal.
+        self.rc(f'damage {a} 0.1 minecraft:mob_attack by {wolf}')
         before=[self.hp(a),self.hp(wolf)]
-        self.poll(lambda:[self.hp(a),self.hp(wolf)],lambda hp:all(hp[i]<before[i] for i in (0,1)),20,'actual NPC versus beast retaliation')
+        try:
+            self.poll(lambda:[self.hp(a),self.hp(wolf)],lambda hp:all(hp[i]<before[i] for i in (0,1)),20,'actual NPC versus beast retaliation')
+        finally:
+            self.rc(f'myvillage beast status {wolf}');self.inspect(a);self.inspect(wolf)
+            self.rc('myvillage beast debug off')
         self.check('npc_versus_beast_uses_real_attacks',True,{'before':before,'after':[self.hp(a),self.hp(wolf)]})
         self.rc(f'kill {a}');self.rc(f'kill {wolf}')
 
@@ -189,6 +199,37 @@ class NpcCombatEvidence(NpcLifeEvidence):
         self.check('npc_chases_up_steps',climbed['Pos'][1]>-59,climbed['Pos'])
         self.rc(f'gamemode creative {self.s.username}');self.rc(f'kill {target}')
         self.rc('fill -2 -60 5 2 -57 9 minecraft:air')
+
+    def retreat(self):
+        self.arena();target='@e[tag=npc_retreat,limit=1]'
+        self.rc('summon myvillage:cultivator .5 -60 3 {Tags:["npc_retreat"],Health:20f,attributes:[{id:"minecraft:generic.max_health",base:80d}]}')
+        self.mapped_hit(target,'mapped_hit_triggers_wounded_retreat')
+        start=self.inspect(target)
+        after=self.poll(lambda:self.inspect(target),lambda b:not b.get('NpcCombatView',{}).get('engaged'),25,'wounded NPC escapes')
+        distance=math.dist(start['Pos'],after['Pos'])
+        self.check('wounded_npc_moves_away_and_disengages',distance>5 and after['Health']>0,
+                   {'start':start,'end':after,'distance':distance})
+        self.rc(f'kill {target}')
+
+    def ledge(self):
+        self.arena();u=self.s.username;target='@e[tag=npc_ledge,limit=1]'
+        self.rc(f'effect clear {u} minecraft:resistance');self.rc(f'effect give {u} minecraft:resistance 99999 4 true')
+        self.rc('fill -2 -55 0 2 -55 3 minecraft:stone')
+        self.rc('fill -2 -55 5 2 -55 8 minecraft:stone')
+        self.rc('summon myvillage:cultivator .5 -54 3.5 {Tags:["npc_ledge"],Health:80f,attributes:[{id:"minecraft:generic.max_health",base:80d}]}')
+        self.rc(f'tp {u} .5 -54 5.5 180 0')
+        self.s.game.require_ingame('ledge mapped provocation');time.sleep(.3)
+        before=self.hp(target);self.s.game.xdo('click','1')
+        self.poll(lambda:self.hp(target),lambda hp:hp<before,4,'mapped attack across gap')
+        samples=[];end=time.monotonic()+10
+        while time.monotonic()<end:
+            samples.append(self.inspect(target));time.sleep(.12)
+        moves={b.get('NpcCombatView',{}).get('move') for b in samples}
+        self.check('actual_lunge_does_not_step_into_unsupported_gap',
+            'myvillage:basic_sword_05_lunge_thrust' in moves and all(b['Pos'][1]>=-54.05 and b['Pos'][2]<4.31 for b in samples),
+            {'moves':sorted(str(m) for m in moves),'positions':[b['Pos'] for b in samples]})
+        self.rc(f'gamemode creative {u}');self.rc(f'kill {target}')
+        self.rc('fill -2 -55 0 2 -54 8 minecraft:air')
 
     def life(self):
         pid = self.ids['innkeeper']
@@ -349,7 +390,7 @@ class NpcCombatEvidence(NpcLifeEvidence):
         life_prepared=False
         for case in self.report['selected']:
             started=time.monotonic()
-            if case not in ('duel','reactions','cross_targets','collision'):
+            if case not in ('duel','reactions','cross_targets','collision','retreat','ledge'):
                 if not life_prepared:
                     self.prepare_life(); life_prepared=True
                 self.center(); self.rc('myvillage world resume')
@@ -358,13 +399,19 @@ class NpcCombatEvidence(NpcLifeEvidence):
                 for pid in self.ids.values():
                     if pid in alive:
                         self.poll(lambda pid=pid:self.count(pid), lambda n:n==1, 35, 'resident body for '+case)
+            self.report['unrun'].remove(case)
             try:
                 getattr(self,case)()
                 self.report['cases'][case]={'result':'pass','wall_seconds':round(time.monotonic()-started,3)}
-                self.report['completed'].append(case); self.report['unrun'].remove(case)
+                self.report['completed'].append(case)
             except Exception as error:
                 self.report['cases'][case]={'result':'fail','error':repr(error)}
-                self.report['failures'].append(case+': '+repr(error)); self.save(); raise
+                self.report['failures'].append(case+': '+repr(error)); self.save()
+                print('CASE FAILED',case,repr(error),flush=True)
+            finally:
+                self.rc('tick unfreeze');self.rc('tick rate 20');self.rc(f'gamemode creative {self.s.username}')
+                for tag in ('npc_duel','npc_reactions','npc_cross_a','npc_cross_b','npc_cross_wolf','npc_collision','npc_retreat','npc_ledge'):
+                    self.rc(f'kill @e[tag={tag}]')
             self.save()
 
 

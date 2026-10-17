@@ -1576,5 +1576,9 @@
   "commands.myvillage.world.cause.inWall": "窒息身亡",
   "commands.myvillage.world.cause.genericKill": "强制死亡",
   "commands.myvillage.world.cause.outOfWorld": "坠入虚空",
-  "world_sim.event.near_death_environment.1": "%1$s身亡，死因：%2$s。"
+  "world_sim.event.near_death_environment.1": "%1$s身亡，死因：%2$s。",
+  "message.myvillage.life.reason.combat": "我正在交战，暂时无法当值。",
+  "message.myvillage.life.reason.combat_return": "刚结束交战，我要重新安排接下来的活动。",
+  "message.myvillage.life.reason.combat_reload": "上次交战打断了我的活动，我要重新安排行程。",
+  "message.myvillage.life.reason.combat_recovery": "我受了伤，要先回住处休养。"
 }

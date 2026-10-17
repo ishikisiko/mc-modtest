@@ -1592,5 +1592,9 @@
   "commands.myvillage.world.cause.inWall": "Suffocated",
   "commands.myvillage.world.cause.genericKill": "Killed by command",
   "commands.myvillage.world.cause.outOfWorld": "Fell into the void",
-  "world_sim.event.near_death_environment.1": "%1$s died. Cause: %2$s."
+  "world_sim.event.near_death_environment.1": "%1$s died. Cause: %2$s.",
+  "message.myvillage.life.reason.combat": "I am in combat and cannot work.",
+  "message.myvillage.life.reason.combat_return": "The fight is over. I need to return before resuming my activities.",
+  "message.myvillage.life.reason.combat_reload": "Combat interrupted my plans. I need to arrange my next activity.",
+  "message.myvillage.life.reason.combat_recovery": "I am wounded and need to rest at home first."
 }

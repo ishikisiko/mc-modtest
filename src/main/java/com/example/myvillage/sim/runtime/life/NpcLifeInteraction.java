@@ -23,7 +23,7 @@ public final class NpcLifeInteraction {
     private static final Set<String> REASONS = Set.of("facility_missing", "target_blocked", "path_unavailable",
             "path_timeout", "stuck", "target_unloaded", "too_far", "stale_target", "registered",
             "injured", "night", "tired", "sell_herbs", "prepare_medicine", "inn_service", "earn_living",
-            "meet_neighbors", "cultivate", "idle_rest", "no_available_place", "cannot_afford_cultivation", "unknown");
+            "meet_neighbors", "cultivate", "idle_rest", "no_available_place", "cannot_afford_cultivation", "combat", "combat_return", "combat_reload", "combat_recovery", "unknown");
 
     private NpcLifeInteraction() { }
 
