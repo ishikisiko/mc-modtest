@@ -1,0 +1,56 @@
+name: Worldplan cloud acceptance
+on:
+  push:
+    branches: [feature/seeded-worldplan-20261017]
+    paths-ignore: ['docs/**']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: worldplan-acceptance
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: false
+      - name: Exact PAL dependency
+        run: |
+          curl -fL --retry 3 'https://mediafilez.forgecdn.net/files/7611/367/PlayerAnimationLibNeoforge-1.1.4%2Bmc.1.21.1.jar' -o 'PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar'
+          echo 'b0836ad98db1e614f1e62cb40d5943eb4ba7d51f298e4b3ad0746770364ab072  PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar' | sha256sum -c -
+          chmod +x gradlew
+      - name: Physical-client dependencies
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends xvfb xdotool imagemagick libgl1-mesa-dri libglx-mesa0 libxrandr2 libxi6 libxinerama1 libxcursor1
+      - name: Focused checks
+        run: python3 tools/worldplan/ci.py
+      - name: Export exact source and logs
+        if: always()
+        run: |
+          mkdir -p reports/worldplan
+          git rev-parse HEAD > reports/worldplan/source-commit.txt
+          git bundle create reports/worldplan/source.bundle --all
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: worldplan-delivery-${{ github.run_number }}
+          path: |
+            reports/worldplan/
+            build/libs/*.jar
+            build/test-results/
+            build/reports/tests/
+            build/worldplan/asset-report.json
+            out/preview/worldplan/
+          retention-days: 7

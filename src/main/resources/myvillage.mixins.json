@@ -5,7 +5,9 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "CombatRulesMixin",
-    "LivingDamageContainerAccess"
+    "LivingDamageContainerAccess",
+    "WorldPlanReservationMixin",
+    "WorldPlanOreMixin"
   ],
   "injectors": {
     "defaultRequire": 1

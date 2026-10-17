@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.59.0
+
+- 新增可选“修仙大陆（种子蓝图）”世界类型：4000 格核心洲域、山海边界、连续外域以及存档内冻结规则。
+- 同源宏观舆图自动导出；云山四栋功能建筑按原相对位置组成 35 个区块切片，按需自然生成，不强制加载整城。
+- 新增只读规划/城市核验和有界开发探针；默认世界与旧存档不自动迁移。完整古城和玩家美术验收不作已完成声明。
+
 ## 0.58.4
 
 - 新增“品质取物器”：创造栏获取，持有后任意模式可右键打开；按名称或 ID 搜索模组物品，选择支持的品质、兵器专长，取一个或一组。

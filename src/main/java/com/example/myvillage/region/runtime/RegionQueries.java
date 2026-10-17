@@ -37,15 +37,17 @@ public final class RegionQueries {
         if (graph.regions().isEmpty()) {
             return Optional.empty();
         }
-        if (!RegionPlacement.isWithinBoundedArea(worldX, worldZ)) {
+        if (Math.hypot(worldX, worldZ) > (graph.geometry() == null ? RegionPlacement.RADIUS_WORLD : graph.geometry().radius())) {
             return Optional.empty();
         }
+        double[] q = graph.geometry() == null ? new double[] {worldX, worldZ}
+                : graph.geometry().warp(worldX, worldZ);
         GenRegion nearest = null;
         double nearestDistSq = Double.POSITIVE_INFINITY;
         for (GenRegion r : graph.regions()) {
             int[] center = RegionPlacement.worldBlockFromGraph(r.posX(), r.posZ());
-            double dx = center[0] - worldX;
-            double dz = center[1] - worldZ;
+            double dx = center[0] - q[0];
+            double dz = center[1] - q[1];
             double distSq = dx * dx + dz * dz;
             // Tie-break by region id so the boundary assignment is deterministic.
             if (distSq < nearestDistSq

@@ -131,3 +131,17 @@ tasks.named('processResources') {
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8'
 }
+
+// Generated-resource ownership remains with authored worldplan and Yunshan inputs.
+tasks.register('generateWorldPlanAssets', Exec) {
+    workingDir = projectDir
+    executable = pythonExecutable.get()
+    args 'tools/worldplan/generate_assets.py'
+    inputs.files(fileTree('blueprints/worldplan'), fileTree('blueprints/yunshan'),
+            fileTree('src/main/resources/data/myvillage/worldgen/region_profile'),
+            fileTree('tools/worldplan'), fileTree('tools/yunshan'), fileTree('tools/buildgen'),
+            files('tools/json_to_nbt.py', 'tools/voxel_dump_to_structures.py'))
+    outputs.dir(layout.buildDirectory.dir('generated/worldplan/resources'))
+}
+sourceSets.main.resources.srcDir(layout.buildDirectory.dir('generated/worldplan/resources'))
+tasks.named('processResources') { dependsOn 'generateWorldPlanAssets' }

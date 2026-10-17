@@ -30,7 +30,18 @@ public record RegionGraph(
         IntRange tierRange,
         int tierStep,
         List<GenRegion> regions,
-        List<GenEdge> edges) {
+        List<GenEdge> edges,
+        RegionGeometry geometry) {
+
+    /** Preserve the legacy constructor and byte-identical legacy canonical JSON. */
+    public RegionGraph(long seed, String rulesetId, int count, IntRange tierRange, int tierStep,
+                       List<GenRegion> regions, List<GenEdge> edges) {
+        this(seed, rulesetId, count, tierRange, tierStep, regions, edges, null);
+    }
+    public RegionGraph {
+        regions = List.copyOf(regions);
+        edges = List.copyOf(edges);
+    }
 
     /** Region whose id equals {@code id}; throws if absent. */
     public GenRegion regionById(String id) {
@@ -60,6 +71,15 @@ public record RegionGraph(
         root.put("tier_step", tierStep);
         root.put("regions", regionTree());
         root.put("edges", edgeTree());
+        if (geometry != null) {
+            TreeMap<String, Object> shape = new TreeMap<>();
+            shape.put("seed", geometry.seed());
+            shape.put("radius", geometry.radius());
+            shape.put("warp_scale", geometry.warpScale());
+            shape.put("warp_amplitude", geometry.warpAmplitude());
+            shape.put("reservations", geometry.reservations());
+            root.put("geometry", shape);
+        }
         return root;
     }
 

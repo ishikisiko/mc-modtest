@@ -55,10 +55,16 @@ public final class RegionRuntimeService {
         ServerLevel overworld = server.overworld();
         cachedServer = server;
         try {
-            RegionCatalogLoader.RegionData data = RegionCatalogLoader.loadFromResourceManager(
-                    server.getResourceManager(), MyVillageMod.MOD_ID);
             long seed = overworld.getSeed();
-            RegionGraph graph = RegionTopologyGenerator.generate(seed, data.ruleset(), data.catalog());
+            var planned = com.example.myvillage.worldplan.runtime.WorldPlanRuntime.generator(overworld);
+            RegionGraph graph;
+            if (planned.isPresent()) {
+                graph = planned.get().plan().graph();
+            } else {
+                RegionCatalogLoader.RegionData data = RegionCatalogLoader.loadFromResourceManager(
+                        server.getResourceManager(), MyVillageMod.MOD_ID);
+                graph = RegionTopologyGenerator.generate(seed, data.ruleset(), data.catalog());
+            }
             cachedGraph = graph;
             cachedSpawn = RegionSpawnSelector.select(graph).orElse(null);
             cachedLadder = RungLadder.ladder(graph);
