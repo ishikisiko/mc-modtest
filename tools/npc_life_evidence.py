@@ -247,14 +247,26 @@ class NpcLifeEvidence(Evidence):
             if 'passed' in reply:
                 possible.append([px+.5, py, pz+.5])
         self.check('conversation_standing_space', bool(possible), possible)
-        position = possible[0]
-        yaw, pitch = aim(position, [x, y+1.1, z])
-        self.rc(teleport_command(username, position, yaw, pitch))
-        self.rc(f'clear {username}')
-        game.require_ingame('NPC mapped conversation')
-        time.sleep(.5)
-        game.xdo('click', '3')
-        self.poll(lambda: self.status(person), lambda r: r['pauseTicks'] > 0, 8, 'mapped conversation pause')
+        contacted = False
+        for attempt, position in enumerate(possible):
+            # Empty feet/head cells do not prove line of sight past a counter.
+            # Try the other genuinely standable approaches if the mapped ray misses.
+            yaw, pitch = aim(position, [x, y+1.5, z])
+            self.rc(teleport_command(username, position, yaw, pitch))
+            self.rc(f'clear {username}')
+            game.require_ingame('NPC mapped conversation')
+            time.sleep(.5)
+            game.shot(self.out/f'conversation-{username}-approach-{attempt}.png', max_wait=2, settle=.1)
+            game.xdo('mousedown', '3')
+            time.sleep(.1)
+            game.xdo('mouseup', '3')
+            try:
+                self.poll(lambda: self.status(person), lambda r: r['pauseTicks'] > 0, 3, 'mapped conversation pause')
+                contacted = True
+                break
+            except TimeoutError:
+                continue
+        self.check('mapped_conversation_reaches_resident', contacted, {'person': person, 'approaches': possible})
         game.shot(self.out/f'conversation-{username}.png', max_wait=3, settle=.2)
         self.rc('myvillage world resume')
 
@@ -566,6 +578,7 @@ class NpcLifeEvidence(Evidence):
                 if name in ('bind_idempotence', 'demo_identity'):
                     raise
                 if self.s:
+                    self.close_screen()
                     self.rc('myvillage world resume')
                     self.center()
             finally:
