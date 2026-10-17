@@ -190,7 +190,7 @@ class NpcCombatEvidence(NpcLifeEvidence):
         self.rc(f'gamemode creative {u}')
         for i,x in enumerate((-1,2)):
             actor=f'@e[tag=npc_group_{i},limit=1]'; attackers.append(actor)
-            self.rc(f'summon myvillage:cultivator {x} -60 4 {{Tags:["npc_group_{i}"],Health:80f,attributes:[{{id:"minecraft:generic.max_health",base:80d}}]}}')
+            self.rc(f'summon myvillage:cultivator {x} -60 4 {{Tags:["npc_group_{i}"],Health:240f,attributes:[{{id:"minecraft:generic.max_health",base:240d}}]}}')
             self.rc(f'damage {actor} 0.1 minecraft:mob_attack by {target}')
         samples=[]; end=time.monotonic()+8
         while time.monotonic()<end:
