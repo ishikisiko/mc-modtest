@@ -38,9 +38,11 @@ The city is emitted in chunk generation rather than as a vanilla StructureStart,
 
 ## Checks
 
+The [0.59.1-fix1 local-ecotone verification record](../testing/2026-10-17-worldplan-local-ecotones.md) records V3's original-snow retention, seven native biome samples, mapped traversal, spawn/city checks and V1/V2/V3 reopen compatibility.
+
 The [0.59.1 owner-PC and cloud verification record](../testing/2026-10-17-worldplan-ecology.md) records the initial canopy failure, the final scoped checks, the conservative uncovered-dirt limitation and the matching jar hash.
 
-Focused cloud build: `.venv-modal/bin/python -m tools.modal_runner run --preset worldplan-build --ref <commit> --timeout 1800`. This generates/checks owned resources, tests worldplan/region and direct simulation consumers, and builds the jar. The owner-authorized DevHost client can separately verify the old V1 world, the new V2 ecotone and the audit classifier.
+Focused cloud build: `.venv-modal/bin/python -m tools.modal_runner run --preset worldplan-build --ref <commit> --timeout 1800`. This generates/checks owned resources, tests worldplan/region and direct simulation consumers, and builds the jar. The owner-authorized DevHost client can separately verify old V1/V2 worlds, new V3 local ecotones and the audit classifier.
 
 `audit_city` retains `raw_differences` and raw block hashes. It reports `natural_changes` separately only for expected grass becoming plain dirt while the original template's opaque cover is still intact. `differences` and `complete` refer to the remaining changes; `strict_complete` requires raw equality. Missing roads/walls, uncovered dirt edits and altered cover are not ignored. Exact reverse-order hash tests disable random ticks explicitly; gameplay audits keep normal random ticks.
 
