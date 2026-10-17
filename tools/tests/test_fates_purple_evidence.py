@@ -2,9 +2,15 @@ import copy
 import unittest
 from tools.fates_purple_evidence import selected_cases, refund_is_once
 from tools.modal_runner.remote import commands_for
+from tools.combat_capture.session import server_properties, SessionConfig
 
 
 class PurpleEvidenceTests(unittest.TestCase):
+    def test_pvp_is_explicitly_enabled_only_by_opted_in_fixture(self):
+        self.assertFalse(SessionConfig(session_id='test').pvp)
+        self.assertEqual(server_properties(1,2,'test')['pvp'],'false')
+        self.assertEqual(server_properties(1,2,'test',pvp=True)['pvp'],'true')
+
     def test_cases_are_independent_and_canonical(self):
         self.assertEqual(['pill_aegis', 'lifecycle'], selected_cases('lifecycle,pill_aegis'))
         self.assertEqual(commands_for('fates-purple-runtime', 'lifecycle')[-1][-2:], ['--cases','lifecycle'])

@@ -29,10 +29,10 @@ class FateEvidence(Evidence):
         self.report.update(kind='innate_fates_first_batch',owner_verdict='not_verified',multiplayer='not_verified',
                            method='mapped stele right click and awakening/H-page input; RCON fixtures/readback only; real client; no DevBridge')
         self.report.pop('natural_encounter_density',None)
-    def start(self,reuse=False,language='en_us'):
+    def start(self,reuse=False,language='en_us',pvp=False):
         started=time.monotonic()
         state=cs.start(cs.SessionConfig(session_id=secrets.token_hex(6),reuse_world=reuse,language=language,
-                                       lock=str(procs.default_lock_path(ROOT))))
+                                       lock=str(procs.default_lock_path(ROOT)),pvp=pvp))
         self.s=cs.Session.attach(ui_check=True);self.sessions+=1
         self.report['phases'].append({'phase':'restart_setup' if reuse else 'initial_setup','language':language,
                                      'wall_s':round(time.monotonic()-started,3),'capture_timings':state.get('timings',{})})

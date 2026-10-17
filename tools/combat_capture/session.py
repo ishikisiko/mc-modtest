@@ -73,7 +73,7 @@ CLIENT_OPTIONS = {
 
 
 def server_properties(server_port: int, rcon_port: int, password: str, *, natural_monsters: bool = False,
-                      natural_terrain: bool = False) -> dict:
+                      natural_terrain: bool = False, pvp: bool = False) -> dict:
     properties = {
         "server-ip": "127.0.0.1",
         "server-port": str(server_port),
@@ -99,7 +99,7 @@ def server_properties(server_port: int, rcon_port: int, password: str, *, natura
         "spawn-monsters": "true" if natural_monsters else "false",
         "spawn-animals": "false",
         "spawn-npcs": "false",
-        "pvp": "false",
+        "pvp": "true" if pvp else "false",
         "allow-flight": "true",
         "allow-nether": "false",
         "max-players": "2",
@@ -202,6 +202,7 @@ class SessionConfig:
     language: str = "en_us"
     natural_monsters: bool = False
     natural_terrain: bool = False
+    pvp: bool = False
 
 
 class StopRequested(Exception):
@@ -299,9 +300,10 @@ class Supervisor:
         password = secrets.token_urlsafe(18)
         self.state.update(server_port=server_port, rcon_port=rcon_port, rcon_password=password)
         values = server_properties(server_port, rcon_port, password, natural_monsters=self.cfg.natural_monsters,
-                                   natural_terrain=self.cfg.natural_terrain)
+                                   natural_terrain=self.cfg.natural_terrain, pvp=self.cfg.pvp)
         self.state["natural_monsters"] = self.cfg.natural_monsters
         self.state["natural_terrain"] = self.cfg.natural_terrain
+        self.state["pvp"] = self.cfg.pvp
         fd = os.open(str(props), os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             f.write("# written by tools/combat_capture for a capture session; the original is restored at stop\n")

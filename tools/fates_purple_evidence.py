@@ -68,7 +68,8 @@ class PurpleEvidence(FateEvidence):
         if ROOT != Path('/workspace/repo'):
             raise RuntimeError('Gameplay runs only in the disposable Modal checkout')
         cs.merge_options(cs.CLIENT_DIR/'options.txt', {'key_key.use': 'key.mouse.right'})
-        super().start(reuse, language)
+        super().start(reuse, language, pvp=True)
+        self.report['pvp_enabled'] = self.s.state['pvp']
         self.report['source_commit'] = json.loads(Path('/workspace/request.json').read_text())['commit']
         self.report['jar_sha256'] = {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
                                     for p in (ROOT/'build/libs').glob('*.jar')}
@@ -76,16 +77,15 @@ class PurpleEvidence(FateEvidence):
     def setup(self):
         u = self.s.username
         for cmd in (*scene.world_rules(), *scene.player_setup(u, 'minecraft:air'),
-                    'gamerule naturalRegeneration false', 'myvillage world pause',
-                    f'myvillage cultivation initiate {u}',
-                    f'myvillage cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1',
-                    f'myvillage cultivation learn {u} myvillage:jianqi_jue'):
+                    'gamerule naturalRegeneration false', 'myvillage world pause'):
             self.rc(cmd)
         # The inheritance command does not awaken a missing root. Establish it through
         # the actual testing-stele input before the targeted candidate fixture can roll.
         self.open_stele(); self.leave_stele()
         self.check('mapped_root_prepared', self.root() is not None, self.root())
         self.rc(f'myvillage cultivation initiate {u}')
+        self.rc(f'myvillage cultivation setrealm {u} myvillage:qi_refining myvillage:qi_refining_1')
+        self.rc(f'myvillage cultivation learn {u} myvillage:jianqi_jue')
         self.home()
 
     def home(self):
@@ -147,13 +147,15 @@ class PurpleEvidence(FateEvidence):
     def held_count(self):
         return sum(s.get('count', 0) for s in self.inventory() if s.get('Slot') == 0)
 
-    def dummy(self, tag='purple_target', pos=(.5, -60, 6), resistance=1):
+    def dummy(self, tag='purple_target', pos=(.5, -60, 6), resistance=1, movable=False):
         self.rc(f'kill @e[tag={tag}]')
         x,y,z = pos
         self.rc(f'summon minecraft:husk {x} {y} {z} '
-                '{NoAI:1b,PersistenceRequired:1b,Silent:1b,Health:1000f,Tags:["'+tag+'"],attributes:['
+                '{NoAI:'+('0b' if movable else '1b')+',PersistenceRequired:1b,Silent:1b,Health:1000f,Tags:["'+tag+'"],attributes:['
                 '{id:"minecraft:generic.max_health",base:1000d},'
                 '{id:"minecraft:generic.armor",base:0d},'
+                '{id:"minecraft:generic.movement_speed",base:0d},'
+                '{id:"minecraft:generic.follow_range",base:0d},'
                 '{id:"minecraft:generic.knockback_resistance",base:'+str(resistance)+'d}]}')
         target = '@e[tag='+tag+',limit=1]'
         self.poll(lambda: self.hp(target), lambda n: n > 0, label='dummy created')
@@ -219,16 +221,30 @@ class PurpleEvidence(FateEvidence):
         def ready():
             state = self.state(); aegis = {**{'cooldown_ready_at':0}, **state.get('pill_aegis',{})}
             medicine = read_data(self.rc(f'data get entity {self.s.username}'))
-            current = medicine.get('ForgeData',{}).get('myvillage_medicine',{})
-            return state['now'] >= aegis['cooldown_ready_at'] and current.get('cooldown_ticks',0)==0
+            current = medicine.get('NeoForgeData',{}).get('myvillage_medicine',{})
+            return (state['now'] >= aegis['cooldown_ready_at'] and current.get('cooldown_ticks',0)==0
+                    and current.get('effect_ticks',0)==0)
         self.poll(ready,bool,timeout=38,label='medicine and shield cooldown')
 
     def pill_aegis(self):
         self.choose_focus('pill_aegis'); u=self.s.username; self.heal()
         maximum=self.maximum(); e=self.definitions['myvillage:pill_aegis']['effects']
+        self.equip('myvillage:pill_yangyuan',2)
+        self.s.game.xdo('mousedown','3')
+        try:
+            time.sleep(self.medicine['use_ticks']/20+.4)
+        finally:
+            self.s.game.xdo('mouseup','3')
+        self.check('full_health_rejects_pill_and_shield',self.held_count()==2
+                   and self.own_state('pill_aegis')['shield']==0, self.own_state('pill_aegis'))
         self.rc(f'damage {u} {maximum*.5} minecraft:generic'); time.sleep(.6)
         hp=self.hp(); shield=self.use_pill(quality=2)
+        now=self.state()['now']
         self.check('mapped_pill_grants_independent_shield',close(shield['shield'],maximum*e['pill_shield_fraction'],.01),shield)
+        self.check('shield_and_cooldown_authored_deadlines',
+                   e['pill_shield_ticks']-20<=shield['shield_expires_at']-now<=e['pill_shield_ticks']
+                   and e['pill_shield_cooldown']-20<=shield['cooldown_ready_at']-now<=e['pill_shield_cooldown'],
+                   {'state':shield,'now':now})
         self.capture('pill-aegis-granted.png')
         # Poll the first actual treatment interval, then measure at most one additional tick.
         healed=self.poll(self.hp,lambda n:n>hp+.01,timeout=3,label='quality healing tick')
@@ -240,9 +256,14 @@ class PurpleEvidence(FateEvidence):
         after=self.own_state('pill_aegis')
         self.check('shield_before_vanilla_absorption',close(before['shield']-after['shield'],2,.02)
                    and close(self.number(f'data get entity {u} AbsorptionAmount'),absorption,.02),{'before':before,'after':after,'absorption':absorption})
-        count=self.held_count(); self.s.game.xdo('click','3'); time.sleep(.4)
+        count=self.held_count(); self.s.game.xdo('mousedown','3')
+        try:
+            time.sleep(self.medicine['use_ticks']/20+.4)
+        finally:
+            self.s.game.xdo('mouseup','3')
         self.check('cooldown_rejects_without_consumption',self.held_count()==count and self.own_state('pill_aegis')['cooldown_ready_at']==shield['cooldown_ready_at'],self.own_state('pill_aegis'))
         self.poll(lambda:self.own_state('pill_aegis'),lambda s:s['shield']==0,timeout=10,label='shield expires')
+        self.check('shield_did_not_expire_early',self.state()['now']>=shield['shield_expires_at'],shield)
         self.check('expiry_preserves_other_absorption',close(self.number(f'data get entity {u} AbsorptionAmount'),absorption,.02),self.own_state('pill_aegis'))
         self.rc(f'effect clear {u} minecraft:absorption')
 
@@ -270,12 +291,14 @@ class PurpleEvidence(FateEvidence):
         self.heal(); self.rc(f'damage {u} 2 minecraft:generic'); time.sleep(.6)
         self.check('environment_does_not_charge',self.own_state('tempered_bones')['damage']==0,self.own_state('tempered_bones'))
         self.bones_charge()
-        target=self.dummy('purple_target',(.5,-60,2.5)); bystander=self.dummy('purple_bystander',(2.5,-60,.5),0)
-        baseline_pos=read_data(self.rc(f'data get entity {bystander} Pos'))
+        target=self.dummy('purple_target',(.5,-60,2.5))
         before=self.own_state('tempered_bones'); events=self.cast('bones_qi')
-        self.check('sword_qi_does_not_spend_bones',self.own_state('tempered_bones')['ready'],{'state':before,'cast':events})
+        self.check('sword_qi_does_not_spend_bones',self.own_state('tempered_bones')['ready']
+                   and any(r.get('result')=='hit' and float(r.get('damage',0))>0 for r in events),{'state':before,'cast':events})
         # Compare two identical vanilla hits against armor-free stationary targets.
         target=self.dummy('purple_target',(.5,-60,2.5))
+        bystander=self.dummy('purple_bystander',(2.5,-60,.5),0,movable=True)
+        baseline_pos=read_data(self.rc(f'data get entity {bystander} Pos'))
         extra=self.melee(target)
         self.check('melee_consumes_ready_once',not self.own_state('tempered_bones')['ready'],self.own_state('tempered_bones'))
         moved=read_data(self.rc(f'data get entity {bystander} Pos'))
@@ -284,25 +307,35 @@ class PurpleEvidence(FateEvidence):
         weapon=self.number(f'attribute {u} minecraft:generic.attack_damage get')
         self.check('one_weapon_base_bonus',close(extra-normal,weapon,.1),{'enhanced':extra,'normal':normal,'weapon':weapon})
         # A second actual player attacks through mapped input; both allocations remain private.
+        for tag in ('purple_target','purple_bystander','purple_attacker'):
+            self.rc(f'kill @e[tag={tag}]')
         with SecondClient(self) as guest:
             v,g=guest.username,guest.game
             self.rc(f'gamemode survival {v}')
             self.rc(f'item replace entity {v} weapon.mainhand with minecraft:iron_sword')
             self.heal(); self.home()
             self.rc(f'tp {v} .5 -60 2.5 180 0')
+            other_before=self.one(f'myvillage cultivation fate status {v}','FATES').get('tempered_bones',{})
             time.sleep(1.3); before_hp=self.hp()
             g.require_ingame('second player mapped melee'); g.xdo('click','1')
             self.poll(self.hp,lambda n:n<before_hp,timeout=5,label='second player real hit')
             loss=before_hp-self.hp(); charge=self.own_state('tempered_bones')
             self.check('mapped_pvp_health_loss_charges_owner',close(charge['damage'],min(loss,self.maximum()*.3),.1),{'loss':loss,'charge':charge})
             other=self.one(f'myvillage cultivation fate status {v}','FATES')
-            self.check('other_player_does_not_inherit_charge',not other.get('tempered_bones',{}).get('ready',False),other)
+            self.check('other_player_does_not_inherit_charge',other.get('tempered_bones',{})==other_before,other)
         self.report['multiplayer']='two_actual_clients_mapped_pvp_and_private_fate_state'
+        selected=self.state()['selected']; self.rc(f'kill {u}')
+        self.poll(self.hp,lambda n:n>0,timeout=8,label='bones normal respawn')
+        self.check('bones_death_clears_charge_preserves_choice',
+                   self.own_state('tempered_bones')=={'damage':0,'ready':False} and self.state()['selected']==selected,
+                   self.state())
 
     def lifecycle(self):
         self.choose_focus('pill_aegis'); self.wait_medicine_ready(); u=self.s.username
         self.heal(); self.rc(f'damage {u} {self.maximum()*.5} minecraft:generic'); time.sleep(.6)
         shield=self.use_pill(); selected=self.state()['selected']
+        self.check('lifecycle_starts_with_actual_live_shield',shield['shield']>0
+                   and shield['shield_expires_at']>self.state()['now'],shield)
         self.rc(f'kill {u}')
         self.poll(self.hp,lambda n:n>0,timeout=8,label='normal respawn')
         after=self.own_state('pill_aegis')
@@ -339,8 +372,12 @@ def main():
     args=p.parse_args();e=PurpleEvidence(args.out,args.cases)
     try:
         e.run()
+    except BaseException as error:
+        e.report['failures'].append(type(error).__name__+': '+str(error))
+        raise
     finally:
         if e.s: e.stop()
+        e.report['passed']=not e.report['failures'] and e.report['completed']==e.report['selected']
         e.save()
     return 1 if e.report['failures'] else 0
 
