@@ -152,6 +152,13 @@ public final class ClientSwordQi {
     private static void receive(CombatSkillStatePayload payload) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.level == null) return;
+        // Passive instances do not touch active charge poses, action revisions or releases.
+        switch (payload.phase()) {
+            case DERIVED_RELEASED -> { SwordQiWaveRenderer.released(payload); return; }
+            case DERIVED_WAVE -> { SwordQiWaveRenderer.update(payload); return; }
+            case DERIVED_STOPPED -> { SwordQiWaveRenderer.stopDerived(payload); return; }
+            default -> { }
+        }
         long previous = REVISIONS.getOrDefault(payload.attackerEntityId(), Long.MIN_VALUE);
         if (payload.revision() < previous) return;
         REVISIONS.put(payload.attackerEntityId(), payload.revision());
@@ -215,7 +222,7 @@ public final class ClientSwordQi {
         endCharge(entityId, false);
         RELEASES.remove(entityId);
         REVISIONS.remove(entityId);
-        SwordQiWaveRenderer.stop(entityId);
+        SwordQiWaveRenderer.forget(entityId);
     }
 
     private static void clear() {

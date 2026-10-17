@@ -4,6 +4,10 @@
   "tier": 3,
   "cost": 4,
   "group": "sword_dao",
-  "placeholder": true,
-  "effects": {}
+  "effects": {
+    "sword_stack_bonus": 0.08,
+    "sword_max_stacks": 5,
+    "sword_timeout_ticks": 100
+  },
+  "derived_skill": "myvillage:sword_obsession_wave"
 }

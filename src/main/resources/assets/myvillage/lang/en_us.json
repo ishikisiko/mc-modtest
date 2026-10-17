@@ -1266,8 +1266,8 @@
   "screen.myvillage.alchemy.locked": "Brewing · Locked",
   "screen.myvillage.alchemy.ceiling": "Skill %s · %s",
   "screen.myvillage.alchemy.ceiling_pending": "Aptitude locked on start",
-  "fate.myvillage.sword_obsession": "Sword Obsession (Placeholder)",
-  "fate.myvillage.sword_obsession.description": "Placeholder: no gameplay effects yet.",
+  "fate.myvillage.sword_obsession": "Sword Obsession",
+  "fate.myvillage.sword_obsession.description": "Sword melee hits build momentum; a finishing hit at full stacks launches a sword wave. Timeout or weapon swap clears the streak; derived waves never build stacks or trigger further procs.",
   "fate.myvillage.pill_aegis": "Pill Aegis",
   "fate.myvillage.pill_aegis.description": "Vitality Pills heal more and grant a separate temporary shield after successful use. Shields do not stack. Medicine cooldown and damage-interrupted healing still apply.",
   "fate.myvillage.tempered_bones": "Tempered Bones",
@@ -1536,5 +1536,8 @@
   "fate.myvillage.pill_aegis.blocked": "Shield blocked %s damage; %s remains",
   "fate.myvillage.pill_aegis.expired": "Pill Aegis: shield expired",
   "fate.myvillage.tempered_bones.ready": "Tempered Bones: resolve full; your next melee hit will release it",
-  "fate.myvillage.tempered_bones.trigger": "Tempered Bones: resolve unleashed!"
+  "fate.myvillage.tempered_bones.trigger": "Tempered Bones: resolve unleashed!",
+  "fate.myvillage.effect.sword_stack_bonus": "Sword damage per stack",
+  "fate.myvillage.effect.sword_max_stacks": "Maximum sword stacks",
+  "fate.myvillage.effect.sword_timeout_ticks": "Sword streak timeout"
 }

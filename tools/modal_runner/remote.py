@@ -136,6 +136,17 @@ PRESETS["fates-purple-runtime"] = [
     ["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
     ["python3", "tools/fates_purple_evidence.py"],
 ]
+PRESETS["sword-fate-build"] = [
+    ["python3", "tools/validate_innate_fates.py"],
+    ["./gradlew", "test", "--tests", "com.example.myvillage.cultivation.fate.*",
+     "--tests", "com.example.myvillage.combat.*", "--tests", "com.example.myvillage.client.combat.*",
+     "--tests", "com.example.myvillage.client.cultivation.*",
+     "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
+]
+PRESETS["sword-fate-runtime"] = [
+    ["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
+    ["python3", "tools/sword_fate_evidence.py"],
+]
 FATE_PURPLE_CASES = ("meridians", "pill_aegis", "tempered_bones", "lifecycle")
 ALCHEMY_CASES = ("brewing", "multiplayer", "medicine", "persistence", "ui")
 NPC_LIFE_CASES = ("bind_idempotence", "demo_identity", "day_loop", "conversation",

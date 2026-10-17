@@ -11,7 +11,7 @@ import java.util.Objects;
 /** Server presentation only. No client can supply a charge, aim, position, hit or cost. */
 public record CombatSkillStatePayload(int attackerEntityId, ResourceLocation skillId, long revision,
         long serverTick, Phase phase, Vec3 origin, Vec3 direction, int chargeLevel) implements CustomPacketPayload {
-    public enum Phase { CHARGING, RELEASED, WAVE, STOPPED, REJECTED }
+    public enum Phase { CHARGING, RELEASED, WAVE, STOPPED, REJECTED, DERIVED_RELEASED, DERIVED_WAVE, DERIVED_STOPPED }
     public static final Type<CombatSkillStatePayload> TYPE = new Type<>(
             ResourceLocation.fromNamespaceAndPath(MyVillageMod.MOD_ID, "combat_skill_state"));
     public static final StreamCodec<RegistryFriendlyByteBuf, CombatSkillStatePayload> STREAM_CODEC = StreamCodec.of(

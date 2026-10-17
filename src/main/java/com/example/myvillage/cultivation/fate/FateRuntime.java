@@ -55,7 +55,8 @@ public final class FateRuntime {
     private static void incoming(LivingIncomingDamageEvent event) {
         if (event.getEntity().level().isClientSide() || event.getSource().is(DamageTypeTags.BYPASSES_INVULNERABILITY)) return;
         var source = event.getSource(); double damage = event.getAmount();
-        if (source.getEntity() instanceof ServerPlayer attacker) {
+        if (source.getEntity() instanceof ServerPlayer attacker
+                && !com.example.myvillage.combat.runtime.CombatDamageService.isDerivedHit(event.getEntity())) {
             // Authored attacks/projectiles only; environmental fire has no player source.
             boolean direct = personallyCaused(source, attacker);
             damage *= FateEffects.damageFactor(direct ? FateService.effect(attacker, "damage_bonus") : 0,
@@ -81,6 +82,7 @@ public final class FateRuntime {
     }
     /** Drops happen only after death was accepted, so canceled death never rewards the killer. */
     private static void drops(LivingDropsEvent event) {
+        if (com.example.myvillage.combat.runtime.CombatDamageService.isDerivedHit(event.getEntity())) return;
         if (!(event.getSource().getEntity() instanceof ServerPlayer player) || !hostile(event.getEntity(), player)
                 || !personallyCaused(event.getSource(), player)) return;
         // Pet/summon sources identify their own entity, not their owner.
@@ -105,6 +107,7 @@ public final class FateRuntime {
         event.setStrength((float) (event.getStrength() * factor));
     }
     public static void respawn(ServerPlayer player) {
+        SwordObsessionRuntime.forget(player);
         FateState s = FateService.state(player);
         CultivationService.replaceFates(player, s.afterDeath(), false);
     }

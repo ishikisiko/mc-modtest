@@ -257,6 +257,8 @@ public final class CombatSession {
 
     public boolean isExternal() { return externalMove != null; }
 
+    public boolean isFinisher() { return hasActiveAction() && !isExternal() && currentMoveIndex == style.moves().size() - 1; }
+
     private StartEvent start(
             int moveIndex,
             long serverTick,

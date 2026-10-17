@@ -7,6 +7,11 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.60.2
+
+- 实装剑痴：剑招命中叠加剑势，满层终段追加独立剑气，换武器或断连超时清空。
+- 增加服务器派生剑气通道与独立客户端实例；不抢占连招/主动施法、不重复消耗耐久、不返还灵力或递归触发天命。协议更新为 30。
+
 ## 0.60.1
 
 - 经脉通达、吞丹化势、百炼战骨由可选占位转为实际效果：灵力扩容与一次施法返还、养元丹增益与独立护盾、敌方伤害积蓄战意及近战反攻。

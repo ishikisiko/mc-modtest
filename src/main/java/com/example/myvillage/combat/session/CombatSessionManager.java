@@ -152,6 +152,8 @@ public final class CombatSessionManager {
     }
 
     public static void tick(MinecraftServer server) {
+        com.example.myvillage.cultivation.fate.SwordObsessionRuntime.tick(server);
+        com.example.myvillage.combat.runtime.DerivedSwordWaves.tick(server);
         for (UUID playerId : SESSIONS.keySet().toArray(UUID[]::new)) {
             ServerPlayer player = server.getPlayerList().getPlayer(playerId);
             if (player == null) {

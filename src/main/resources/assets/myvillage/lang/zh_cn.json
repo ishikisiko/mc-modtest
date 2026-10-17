@@ -1250,8 +1250,8 @@
   "screen.myvillage.alchemy.locked": "炼制中 · 材料已锁定",
   "screen.myvillage.alchemy.ceiling": "资质 %s · 本炉上限：%s",
   "screen.myvillage.alchemy.ceiling_pending": "开炉时锁定你的炼丹资质",
-  "fate.myvillage.sword_obsession": "剑痴（占位）",
-  "fate.myvillage.sword_obsession.description": "占位天命，暂无实际效果。一剑未尽，下一剑已至。",
+  "fate.myvillage.sword_obsession": "剑痴",
+  "fate.myvillage.sword_obsession.description": "剑招命中叠加剑势，满层终段命中追加一道剑气；超时或换武器清空，追加剑气不叠层、不递归触发。",
   "fate.myvillage.pill_aegis": "吞丹化势",
   "fate.myvillage.pill_aegis.description": "养元丹回复增强，成功服用后化出限时独立护盾。护盾不叠加，仍遵守用药冷却；受伤中断回血的规则不变。",
   "fate.myvillage.tempered_bones": "百炼战骨",
@@ -1520,5 +1520,8 @@
   "fate.myvillage.pill_aegis.blocked": "护盾抵挡 %s 伤害，剩余 %s",
   "fate.myvillage.pill_aegis.expired": "吞丹化势：护盾消散",
   "fate.myvillage.tempered_bones.ready": "百炼战骨：战意已满，下一次近战命中释放",
-  "fate.myvillage.tempered_bones.trigger": "百炼战骨：战意迸发！"
+  "fate.myvillage.tempered_bones.trigger": "百炼战骨：战意迸发！",
+  "fate.myvillage.effect.sword_stack_bonus": "每层剑招增伤",
+  "fate.myvillage.effect.sword_max_stacks": "剑势层数上限",
+  "fate.myvillage.effect.sword_timeout_ticks": "剑势断连时限"
 }

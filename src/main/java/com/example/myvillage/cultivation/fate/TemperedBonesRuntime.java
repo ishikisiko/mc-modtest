@@ -107,7 +107,7 @@ public final class TemperedBonesRuntime {
         if (event.getNewDamage() > 0 && actual > 0 && frame.armedAttacker() != null)
             trigger(frame.armedAttacker());
         if (!(target instanceof ServerPlayer player) || !player.isAlive() || event.getNewDamage() <= 0) return;
-        boolean enemy = enemyDirectAttack(event.getSource(), player);
+        boolean enemy = !CombatDamageService.isDerivedHit(player) && enemyDirectAttack(event.getSource(), player);
         double lost = TemperedBonesEffects.primaryHealthLoss(frame.healthBefore(), player.getHealth(), frame.primaryFraction());
         FateState latest = FateService.state(player);
         TemperedBonesState previous = latest.temperedBones();

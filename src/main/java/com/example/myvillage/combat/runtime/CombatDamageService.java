@@ -22,6 +22,8 @@ public final class CombatDamageService {
     /** External sword-qi actions share this service but are not melee attacks. */
     private static final ThreadLocal<Entity> RESOLVING_SKILL_TARGET = new ThreadLocal<>();
 
+    private static final ThreadLocal<Entity> DERIVED_TARGET = new ThreadLocal<>();
+
     private CombatDamageService() {
     }
 
@@ -30,7 +32,17 @@ public final class CombatDamageService {
             Entity target,
             AttackMoveDefinition move,
             CombatSession session) {
-        if (!CommonHooks.onPlayerAttackTarget(attacker, target)
+        return apply(attacker, target, move, session, false);
+    }
+
+    public static DamageResult applyDerived(ServerPlayer attacker, Entity target,
+            AttackMoveDefinition move, CombatSession session) {
+        return apply(attacker, target, move, session, true);
+    }
+
+    private static DamageResult apply(ServerPlayer attacker, Entity target,
+            AttackMoveDefinition move, CombatSession session, boolean derived) {
+        if ((!derived && !CommonHooks.onPlayerAttackTarget(attacker, target))
                 || !target.isAttackable()
                 || target.skipAttackInteraction(attacker)) {
             return DamageResult.rejected();
@@ -40,9 +52,12 @@ public final class CombatDamageService {
         ItemStack weapon = attacker.getMainHandItem();
         DamageSource source = attacker.damageSources().playerAttack(attacker);
         float attributeDamage = (float) attacker.getAttributeValue(Attributes.ATTACK_DAMAGE);
-        float damage = StatsRuntime.outgoing(attacker, attributeDamage, move.damageMultiplier());
-        damage += weapon.getItem().getAttackDamageBonus(target, attributeDamage, source);
-        damage = EnchantmentHelper.modifyDamage(level, weapon, target, source, damage);
+        double streak = derived ? 1 : com.example.myvillage.cultivation.fate.SwordObsessionRuntime.multiplier(attacker, session);
+        float damage = StatsRuntime.outgoing(attacker, attributeDamage, move.damageMultiplier() * streak);
+        if (!derived) {
+            damage += weapon.getItem().getAttackDamageBonus(target, attributeDamage, source);
+            damage = EnchantmentHelper.modifyDamage(level, weapon, target, source, damage);
+        }
         if (!(damage > 0.0F) || target.isInvulnerableTo(source)) {
             return DamageResult.rejected();
         }
@@ -58,6 +73,8 @@ public final class CombatDamageService {
         target.invulnerableTime = 0;
         Entity previousTarget = RESOLVING_TARGET.get();
         Entity previousSkillTarget = RESOLVING_SKILL_TARGET.get();
+        Entity previousDerived = DERIVED_TARGET.get();
+        if (derived) DERIVED_TARGET.set(target); else DERIVED_TARGET.remove();
         RESOLVING_TARGET.set(target);
         if (session.isExternal()) RESOLVING_SKILL_TARGET.set(target);
         else RESOLVING_SKILL_TARGET.remove();
@@ -65,6 +82,7 @@ public final class CombatDamageService {
         try {
             hurt = StatsRuntime.hurt(attacker, target, source, damage);
         } finally {
+            if (previousDerived == null) DERIVED_TARGET.remove(); else DERIVED_TARGET.set(previousDerived);
             if (previousTarget == null) RESOLVING_TARGET.remove();
             else RESOLVING_TARGET.set(previousTarget);
             if (previousSkillTarget == null) RESOLVING_SKILL_TARGET.remove();
@@ -89,9 +107,9 @@ public final class CombatDamageService {
         } else if (target.isPushable() && impulse.horizontalDistanceSqr() > 0.0) {
             target.push(impulse.x, Math.max(0.1, impulse.y), impulse.z);
         }
-        EnchantmentHelper.doPostAttackEffectsWithItemSource(level, target, source, weapon);
+        if (!derived) EnchantmentHelper.doPostAttackEffectsWithItemSource(level, target, source, weapon);
 
-        if (target instanceof LivingEntity living && session.markDurabilityCharged()) {
+        if (!derived && target instanceof LivingEntity living && session.markDurabilityCharged()) {
             if (weapon.hurtEnemy(living, attacker)) {
                 weapon.postHurtEnemy(living, attacker);
             }
@@ -100,11 +118,12 @@ public final class CombatDamageService {
         float actualDamage = target instanceof LivingEntity living
                 ? Math.max(0.0F, healthBefore - living.getHealth())
                 : damage;
-        if (session.markBookkeepingApplied()) {
+        if (!derived && session.markBookkeepingApplied()) {
             attacker.setLastHurtMob(target);
             attacker.awardStat(Stats.DAMAGE_DEALT, Math.round(actualDamage * 10.0F));
             attacker.causeFoodExhaustion(0.1F);
         }
+        if (!derived) com.example.myvillage.cultivation.fate.SwordObsessionRuntime.accepted(attacker, session);
         return new DamageResult(true, damage, actualDamage);
     }
 
@@ -113,6 +132,8 @@ public final class CombatDamageService {
      * LivingKnockBackEvent listener cancels vanilla's hurt knockback (0.4 toward the attacker
      * plus a forced hop) for exactly that entity; our reaction impulse replaces it.
      */
+    public static boolean isDerivedHit(Entity entity) { return DERIVED_TARGET.get() == entity; }
+
     public static boolean isResolvingHit(Entity entity) {
         Entity target = RESOLVING_TARGET.get();
         return target != null && target == entity;

@@ -97,7 +97,8 @@ public final class FateService {
     public static void forget(ServerPlayer player) {
         REQUESTS.remove(player.getUUID());
         TemperedBonesRuntime.forget(player);
+        SwordObsessionRuntime.forget(player);
         SteleAwakeningSessions.forget(player);
     }
-    public static void stop() { REQUESTS.clear(); TemperedBonesRuntime.stop(); }
+    public static void stop() { REQUESTS.clear(); TemperedBonesRuntime.stop(); SwordObsessionRuntime.clear(); }
 }

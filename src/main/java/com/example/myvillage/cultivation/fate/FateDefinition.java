@@ -11,14 +11,14 @@ import net.minecraft.resources.ResourceLocation;
 /** Synced data, never client authority. No gameplay number lives in a trait-id branch. */
 public record FateDefinition(String translationKey, String descriptionKey, int tier, int cost,
         String group, boolean enabled, Map<String, Double> effects,
-        Optional<ResourceLocation> element, int minimumShare, int maximumRoots) {
+        Optional<ResourceLocation> element, int minimumShare, int maximumRoots, Optional<ResourceLocation> derivedSkill) {
     public static final Set<String> EFFECTS = Set.of("health", "speed", "knockback", "fall_reduction",
             "gain", "study", "fire_bonus", "environment_fire_reduction", "recovery_threshold",
             "recovery_fraction", "recovery_ticks", "recovery_cooldown", "hunter_bonus",
             "hunter_recovery", "hunter_cooldown", "low_threshold", "low_reduction", "low_knockback",
             "damage_bonus", "low_speed", "low_speed_threshold", "power_cap_bonus", "skill_refund_fraction",
             "pill_healing_bonus", "pill_shield_fraction", "pill_shield_ticks", "pill_shield_cooldown",
-            "bones_threshold", "bones_damage_bonus", "bones_knockback_radius", "bones_knockback_strength");
+            "sword_stack_bonus", "sword_max_stacks", "sword_timeout_ticks", "bones_threshold", "bones_damage_bonus", "bones_knockback_radius", "bones_knockback_strength");
     public static final Codec<FateDefinition> CODEC = RecordCodecBuilder.create(i -> i.group(
             Codec.STRING.fieldOf("translation_key").forGetter(FateDefinition::translationKey),
             Codec.STRING.fieldOf("description_key").forGetter(FateDefinition::descriptionKey),
@@ -29,8 +29,15 @@ public record FateDefinition(String translationKey, String descriptionKey, int t
             Codec.unboundedMap(Codec.STRING, Codec.DOUBLE).fieldOf("effects").forGetter(FateDefinition::effects),
             ResourceLocation.CODEC.optionalFieldOf("element").forGetter(FateDefinition::element),
             Codec.intRange(0, 10000).optionalFieldOf("minimum_share", 0).forGetter(FateDefinition::minimumShare),
-            Codec.intRange(1, 5).optionalFieldOf("maximum_roots", 5).forGetter(FateDefinition::maximumRoots)
+            Codec.intRange(1, 5).optionalFieldOf("maximum_roots", 5).forGetter(FateDefinition::maximumRoots),
+            ResourceLocation.CODEC.optionalFieldOf("derived_skill").forGetter(FateDefinition::derivedSkill)
     ).apply(i, FateDefinition::new));
+    public FateDefinition(String translationKey, String descriptionKey, int tier, int cost,
+            String group, boolean enabled, Map<String, Double> effects,
+            Optional<ResourceLocation> element, int minimumShare, int maximumRoots) {
+        this(translationKey, descriptionKey, tier, cost, group, enabled, effects, element,
+                minimumShare, maximumRoots, Optional.empty());
+    }
     public FateDefinition {
         if (translationKey.isBlank() || descriptionKey.isBlank() || group.isBlank()
                 || tier < 0 || tier > 5 || cost != tier + 1) throw new IllegalArgumentException("Invalid fate metadata");
@@ -40,12 +47,17 @@ public record FateDefinition(String translationKey, String descriptionKey, int t
                 throw new IllegalArgumentException("Invalid fate effect " + k);
             if (k.endsWith("ticks") || k.endsWith("cooldown")) {
                 if (v < 1 || v != Math.rint(v)) throw new IllegalArgumentException("Invalid tick count " + k);
+            } else if (k.equals("sword_max_stacks")) {
+                if (v < 1 || v > 64 || v != Math.rint(v)) throw new IllegalArgumentException("Invalid stack cap");
             } else if (k.equals("bones_knockback_radius")) {
                 if (v <= 0 || v > 16) throw new IllegalArgumentException("Invalid bounded radius " + k);
             } else if (v > 1 || (v < 0 && !k.equals("health"))) {
                 throw new IllegalArgumentException("Invalid fraction " + k);
             }
         });
+        if (value(effects, "sword_stack_bonus") > 0 && (value(effects, "sword_max_stacks") <= 0
+                || value(effects, "sword_timeout_ticks") <= 0 || derivedSkill.isEmpty()))
+            throw new IllegalArgumentException("Incomplete sword streak effect");
         if (value(effects, "recovery_fraction") > 0 && (value(effects, "recovery_ticks") <= 0
                 || value(effects, "recovery_cooldown") <= 0 || value(effects, "recovery_threshold") <= 0))
             throw new IllegalArgumentException("Incomplete recovery effect");

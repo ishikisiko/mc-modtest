@@ -55,6 +55,7 @@ public final class FateCommands {
         var json = FateState.CODEC.encodeStart(com.mojang.serialization.JsonOps.INSTANCE, s).getOrThrow().getAsJsonObject();
         json.addProperty("player", p.getGameProfile().getName());
         json.addProperty("budget", FateService.budget());
+        json.addProperty("sword_stacks", SwordObsessionRuntime.stacks(p));
         json.addProperty("now", p.getServer().overworld().getGameTime());
         long token = SteleAwakeningSessions.currentToken(p);
         json.addProperty("awakening_session", SteleAwakeningSessions.valid(p, token) ? token : 0);

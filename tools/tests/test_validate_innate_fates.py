@@ -8,7 +8,7 @@ from tools.validate_innate_fates import ROOT, JAVA, DATA, validate
 class FateValidatorTest(unittest.TestCase):
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup);self.root=Path(self.tmp.name)
-        for rel in [DATA,'src/main/resources/data/myvillage/fates','src/main/resources/assets/myvillage/lang',JAVA+'cultivation/fate']:
+        for rel in [DATA,'src/main/resources/data/myvillage/combat','src/main/resources/data/myvillage/fates','src/main/resources/assets/myvillage/lang',JAVA+'cultivation/fate']:
             shutil.copytree(ROOT/rel,self.root/rel)
         for rel in [JAVA+'cultivation/CultivationService.java',JAVA+'cultivation/CultivationAttachments.java',JAVA+'cultivation/network/FateIntentPayload.java',JAVA+'client/cultivation/panel/FatesPage.java',JAVA+'client/cultivation/AwakeningScreen.java',JAVA+'cultivation/network/CultivationPayloads.java',JAVA+'cultivation/network/AwakeningOpenPayload.java',JAVA+'cultivation/network/AwakeningClosePayload.java',JAVA+'block/SpiritTestingSteleBlock.java']:
             p=self.root/rel;p.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(ROOT/rel,p)
@@ -36,6 +36,15 @@ class FateValidatorTest(unittest.TestCase):
     def test_bones_cannot_be_enabled_without_release_damage(self):
         self.edit('tempered_bones',lambda d:d['effects'].pop('bones_damage_bonus'))
         self.assertTrue(any('BONES' in x for x in validate(self.root)))
+    def test_sword_requires_timeout(self):
+        self.edit('sword_obsession',lambda d:d['effects'].pop('sword_timeout_ticks'))
+        self.assertTrue(any('FATE_SWORD' in x for x in validate(self.root)))
+    def test_sword_requires_loaded_wave(self):
+        self.edit('sword_obsession',lambda d:d.update(derived_skill='myvillage:missing'))
+        self.assertTrue(any('FATE_DERIVED_SKILL' in x for x in validate(self.root)))
+    def test_sword_stacks_are_bounded_integers(self):
+        self.edit('sword_obsession',lambda d:d['effects'].update(sword_max_stacks=5.5))
+        self.assertTrue(any('VALUE' in x for x in validate(self.root)))
     def test_tier_cost_match(self):
         self.edit('robust',lambda d:d.update(cost=6));self.assertTrue(any('COST' in x for x in validate(self.root)))
     def test_three_ordinary_groups(self):

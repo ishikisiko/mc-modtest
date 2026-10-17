@@ -349,7 +349,7 @@
       "maxRoots": 5,
       "focus": "战斗",
       "runtime_id": "myvillage:sword_obsession",
-      "implementation": "selectable_placeholder"
+      "implementation": "sword_batch"
     },
     {
       "id": "fate-20",
