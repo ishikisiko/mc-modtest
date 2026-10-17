@@ -7,6 +7,7 @@ import sys
 import time
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from tools.fates_purple_evidence import PurpleEvidence, ROOT
+from tools.alchemy_quality_evidence import SecondClient
 from tools.combat_capture import scene, session as cs
 
 
@@ -67,6 +68,15 @@ class SwordEvidence(PurpleEvidence):
         before=self.hp(far);start=self.offset();self.combo(near);log=self.logs(start)
         self.check('wave_stops_at_wall',self.hp(far)==before and 'reason=WALL' in log,log)
         self.rc('fill -2 -60 5 3 -56 5 minecraft:air')
+        with SecondClient(self) as guest:
+            self.rc(f'tp {guest.username} 4.5 -60 2.5 90 0')
+            guest_before=self.one(f'myvillage cultivation fate status {guest.username}','FATES')
+            self.combo(near)
+            guest_after=self.one(f'myvillage cultivation fate status {guest.username}','FATES')
+            self.check('two_clients_keep_private_sword_streaks',self.state()['sword_stacks']==5
+                       and guest_before['sword_stacks']==guest_after['sword_stacks']==0,
+                       {'owner':self.state()['sword_stacks'],'guest':guest_after})
+            self.report['multiplayer']='two_actual_clients_private_streak_readbacks'
         self.s.game.key('2');time.sleep(.2)
         self.check('mapped_slot_swap_clears_streak',self.state()['sword_stacks']==0,self.state())
         self.s.game.key('1');time.sleep(.2)
