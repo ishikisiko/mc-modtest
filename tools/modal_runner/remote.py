@@ -17,6 +17,11 @@ PAL = "PlayerAnimationLibNeoforge-1.1.4+mc.1.21.1.jar"
 CATALOG = "exmod/mod_block_catalog.json"
 DEPENDENCIES = (PAL, CATALOG)
 PRESETS = {
+    "vanilla-monster-realms": [
+        ["./gradlew", "test", "--tests", "com.example.myvillage.stats.*", "--tests", "com.example.myvillage.wilderness.*",
+         "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
+        ["python3", "tools/vanilla_monster_realm_evidence.py"],
+    ],
     "npc-life-build": [
         ["python3", "tools/gen_npc_life_places.py", "--check"],
         ["python3", "-m", "unittest", "tools.tests.test_npc_life_places"],

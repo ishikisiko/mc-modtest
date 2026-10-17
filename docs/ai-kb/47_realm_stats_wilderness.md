@@ -127,6 +127,41 @@ or reloading never rerolls it. Legacy command/egg wolves retain their baseline;
 diagnostic assigned wolves are explicitly distinguished from natural spawns.
 The existing empty loot table and combat presentation remain unchanged.
 
+### Ordinary vanilla monsters (0.63.1)
+
+`VanillaMonsterRealms` consumes the same region `beast` ranges. Its separate
+`wilderness/vanilla_monsters.json` declares eligible spawn reasons, excluded
+special monsters and non-attribute damage types. Only `minecraft` entities in
+the `MONSTER` category are eligible. Natural/chunk births, spawners (including
+trial spawners), structures, patrols, events, reinforcements and other declared
+gameplay births are covered; command/egg births and previously saved unassigned
+entities retain baseline. Wither, dragon, warden and elder guardian are excluded.
+No region assignment is invented outside the supported overworld area.
+
+The finalize-spawn event records a pending birth before vanilla initialization;
+the entity-join event applies permanent health/attack modifiers after native
+size and attribute initialization, then fills health once. The saved
+`myvillage:vanilla_monster_birth` records realm/stage, profile, actual region,
+birth coordinates and reason. Later joins do not heal or reroll. Native slime
+splits and hostile conversions inherit that record. Outer worldplan births
+retain their actual outer region ID while consuming their profile's range;
+actual region `tier` does not change that range.
+
+Melee and slime contact already consume the attack attribute. Declared arrow,
+trident, projectile, magic, explosion and thorns sources from assigned vanilla
+monsters instead apply one growth factor at `LivingIncomingDamageEvent` before
+defense. This also covers explicitly assigned ruin monsters. Environmental
+damage and unassigned attackers are unchanged. Potion duration, ongoing poison
+without an attributable owner, explosion radius and block destruction are not
+scaled. Existing armor/typed-resistance stages still execute once.
+
+Bounded validation: `.venv-modal/bin/python -m tools.modal_runner run --preset vanilla-monster-realms --ref <commit>`.
+The preset runs stats/wilderness unit tests, builds the deliverable jar, and
+boots an isolated dedicated server twice for native spawn/damage/convert/split
+fixtures and real save/restart. `src/realmEvidence/java` is opt-in through
+`-PvanillaRealmEvidence`; packaging with that flag is forbidden. These are
+developer fixtures, not stochastic spawn-density or mapped-player evidence.
+
 Rogue encounters select existing living, eligible unsected ledger people in
 the local region. `WorldSimAvatars` is still the sole avatar spawner, and its
 global identity map prevents a person appearing twice for two players. Wild

@@ -7,6 +7,12 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.63.1
+
+- 普通原版敌对生物的新出生个体按洲域妖兽范围获得境界，出生后持久保存；跨洲、重载不重抽，僵尸转化和史莱姆分裂继承原出生记录。
+- 近战使用统一境界属性；箭矢、三叉戟、爆炸及配置中的非属性伤害在原版减伤前应用一次境界倍率。遗迹明确赋境界的原版怪物也复用该伤害路径。
+- 保留旧个体、命令/刷怪蛋、区域外和其他维度的无分配基线；特殊 Boss 类不纳入普通怪物分配。新增局部 Modal 构建和双启动服务器验证入口。
+
 ## 0.63.0
 
 - 持剑修仙者以服务器 AI 提交基础连招意图，共用玩家的招式时间轴、命中、伤害与装备消耗；支持自卫、负伤后撤和有界追击。

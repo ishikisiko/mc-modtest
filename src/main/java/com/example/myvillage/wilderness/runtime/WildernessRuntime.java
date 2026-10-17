@@ -53,6 +53,7 @@ public final class WildernessRuntime {
     private WildernessRuntime() { }
     public static void register() {
         WildernessRules.bundled();
+        VanillaMonsterRealms.register();
         NeoForge.EVENT_BUS.addListener(WildernessRuntime::onFinalizeSpawn);
         NeoForge.EVENT_BUS.addListener(WildernessRuntime::onCommands);
         NeoForge.EVENT_BUS.addListener(WildernessRuntime::onServerStarted);

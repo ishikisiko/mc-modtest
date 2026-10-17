@@ -1,0 +1,6 @@
+{
+  "schema": 1,
+  "excluded_entities": ["minecraft:ender_dragon", "minecraft:wither", "minecraft:warden", "minecraft:elder_guardian"],
+  "spawn_reasons": ["NATURAL", "CHUNK_GENERATION", "SPAWNER", "TRIAL_SPAWNER", "STRUCTURE", "PATROL", "EVENT", "REINFORCEMENT", "JOCKEY", "TRIGGERED", "MOB_SUMMONED"],
+  "non_attribute_damage_types": ["minecraft:arrow", "minecraft:trident", "minecraft:mob_projectile", "minecraft:fireball", "minecraft:indirect_magic", "minecraft:magic", "minecraft:explosion", "minecraft:player_explosion", "minecraft:thorns"]
+}

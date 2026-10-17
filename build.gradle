@@ -104,6 +104,14 @@ neoForge {
     }
 }
 
+// Opt-in dedicated-server evidence; never compiled or packaged in the deliverable jar.
+if (providers.gradleProperty('vanillaRealmEvidence').isPresent()) {
+    sourceSets.main.java.srcDir('src/realmEvidence/java')
+    tasks.named('jar') {
+        doFirst { throw new GradleException('Evidence classes must not be packaged; build jar without -PvanillaRealmEvidence') }
+    }
+}
+
 import org.gradle.internal.os.OperatingSystem
 
 def pythonExecutable = providers.environmentVariable('PYTHON').orElse(
