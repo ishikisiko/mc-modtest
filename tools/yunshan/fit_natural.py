@@ -276,6 +276,59 @@ def seam_statistics(s,after,core,wet,changed,limits,cfg):
             'existing_retaining_edges':retaining,'existing_natural_edges':natural}
 
 
+def road_levels(route,after,core,tail,cfg):
+    """Meet an untouched full-block tail at equal height, with the stair before it."""
+    levels={k:after[k] for k in route};last=len(route)-tail-1;errors=[]
+    if last>=0 and levels[route[last+1]]>levels[route[last]]:
+        levels[route[last]]=levels[route[last+1]]
+        for i in range(last-1,-1,-1):
+            k=route[i];required=levels[route[i+1]]-cfg['outgoing_road']['maximum_grade']
+            if required>levels[k]:
+                if k in core:errors.append({'column':k,'required':required,'fixed':levels[k]});break
+                levels[k]=required
+    return levels,errors
+
+
+def road_stairs(s,route,after,path_clear,cfg):
+    """Widen risers only perpendicular to ascent; centerline intent wins."""
+    surfaces={k:cfg['materials']['road'] for k in path_clear};required={};errors=[]
+    for a,b in zip(route,route[1:]):
+        if after[a]==after[b]:continue
+        low,high=(a,b) if after[a]<after[b] else (b,a)
+        if high not in path_clear:continue
+        lx,lz=s.pos(low);hx,hz=s.pos(high);direction=(hx-lx,hz-lz)
+        if high in required and required[high]!=direction:
+            errors.append({'pos':[hx,after[high],hz],'directions':[required[high],direction]})
+        else:required[high]=direction
+    centers=set(route);half=cfg['outgoing_road']['width']//2
+    for high,(dx,dz) in required.items():
+        x,z=s.pos(high);state=cfg['materials']['road_stairs']+f'[facing={city.FACE[dx,dz]},half=bottom]'
+        surfaces[high]=state
+        for offset in range(-half,half+1):
+            j=s.index(x-dz*offset,z+dx*offset)
+            if j not in path_clear or after[j]!=after[high] or (j in centers and j!=high):continue
+            # A side strip may touch a different turn's strip. Never overwrite
+            # a distinct stair direction; each center keeps its own exact riser.
+            if '_stairs[' not in surfaces[j] or surfaces[j]==state:surfaces[j]=state
+    return surfaces,errors
+
+
+def road_surface_checks(s,route,after,core,path_surface,data,transform):
+    errors=[]
+    for a,b in zip(route,route[1:]):
+        if after[a]==after[b]:continue
+        low,high=(a,b) if after[a]<after[b] else (b,a)
+        hx,hz=s.pos(high);lx,lz=s.pos(low)
+        if high in path_surface:state=path_surface[high]
+        elif high in core:
+            sx,sz=core[high];state=rotated_state(data[4].get((sx,after[high]-transform.dy-1,sz)),transform.q)
+        else:state=s.state(high)
+        name,props=nbt.parse_block_state(state)
+        if not name.endswith('_stairs') or props.get('facing')!=city.FACE[hx-lx,hz-lz]:
+            errors.append({'pos':[hx,after[high],hz],'state':state,'required_facing':city.FACE[hx-lx,hz-lz]})
+    return errors
+
+
 def plan_fit(survey,candidate,config=None):
     cfg=config_data(config);s=Survey(survey);candidate=load(candidate)
     source_config=ROOT/'blueprints/yunshan'/cfg['source_config'];data=source_data(str(source_config))
@@ -322,7 +375,7 @@ def plan_fit(survey,candidate,config=None):
     except ValueError as error:route=[];route_error=str(error)
     path_surface={};path_clear=set();half=cfg['outgoing_road']['width']//2
     untouched_tail=cfg['outgoing_road']['minimum_untouched_tail']
-    center_levels={k:after[k] for k in route}
+    center_levels,road_handoff_errors=road_levels(route,after,set(core),untouched_tail,cfg)
     tail_guard=set(route[-untouched_tail:])
     for k in route[:-untouched_tail]:
         x,z=s.pos(k)
@@ -333,17 +386,7 @@ def plan_fit(survey,candidate,config=None):
                 if j in wet:raise ValueError('outgoing road width enters retained water')
                 after[j]=center_levels.get(j,center_levels[k]);changed[j]=True;path_clear.add(j)
                 path_surface[j]=cfg['materials']['road']
-    for a,b in zip(route,route[1:]):
-        if after[a]==after[b]:continue
-        low,high=(a,b) if after[a]<after[b] else (b,a)
-        if high not in path_clear:continue
-        lx,lz=s.pos(low);hx,hz=s.pos(high)
-        state=cfg['materials']['road_stairs']+f'[facing={city.FACE[hx-lx,hz-lz]},half=bottom]'
-        x,z=s.pos(high)
-        for xx in range(x-half,x+half+1):
-            for zz in range(z-half,z+half+1):
-                j=s.index(xx,zz)
-                if j in path_clear and after[j]==after[high]:path_surface[j]=state
+    path_surface,road_stair_errors=road_stairs(s,route,after,path_clear,cfg)
     seams=seam_statistics(s,after,core,wet,changed,limits,cfg)
     if seams['new_step_excess_count']:
         road_influence=list(influence)
@@ -356,6 +399,7 @@ def plan_fit(survey,candidate,config=None):
         projection['road_projection']=road_projection
         changed=[after[k]!=before[k] or k in core or k in wet or k in path_clear for k in range(len(after))]
         seams=seam_statistics(s,after,core,wet,changed,limits,cfg)
+    road_collision_errors=road_surface_checks(s,route,after,core,path_surface,data,t)
     # Add same-level natural water to the containment check only; leave its
     # original block columns untouched. No rectangular water rim is exported.
     water_surface={k:plane for k in wet}
@@ -372,7 +416,8 @@ def plan_fit(survey,candidate,config=None):
     core_mismatch=[]
     for k,y in hard.items():
         if after[k]!=y:core_mismatch.append(k)
-    checks={'seam_projection_feasible':projection['passed'] and projection.get('road_projection',{'passed':True})['passed'],
+    checks={'outgoing_stairs_match_all_height_changes':not road_collision_errors and not road_stair_errors and not road_handoff_errors,
+            'seam_projection_feasible':projection['passed'] and projection.get('road_projection',{'passed':True})['passed'],
             'no_new_steep_seams':seams['maximum_new_step_excess']<=cfg['gates']['maximum_new_step_excess'],
             'boundary_unchanged':all(not changed[k] and after[k]==before[k] for k in boundary),
             'water_contained':len(leaks)<=cfg['gates']['maximum_water_leaks'],
@@ -388,10 +433,14 @@ def plan_fit(survey,candidate,config=None):
              'new_step_excess_count':seams['new_step_excess_count'],'maximum_new_step_excess':seams['maximum_new_step_excess'],
              'existing_retaining_edges':len(seams['existing_retaining_edges']),'boundary_delta':max(delta[k] for k in boundary),
              'water_leaks':len(leaks),'outgoing_length':len(route),
+             'road_foundation_columns':len(path_clear),'road_foundation_blocks':len(path_clear)*cfg['blend']['surface_support_depth'],
+             'generated_surface_support_columns':len(path_clear|wet|bank),
+             'generated_surface_support_blocks':len(path_clear|wet|bank)*cfg['blend']['surface_support_depth'],
              'peripheral_art_columns_discarded':volume.size[0]*volume.size[2]-len(core)-len(wet)}
     return {'cfg':cfg,'survey':s,'candidate':candidate,'source':data,'transform':t,'core':core,'wet':wet,
             'before':before,'after':after,'changed':changed,'path_surface':path_surface,'path_clear':path_clear,
-            'route':route,'bank':bank,'seams':seams,'projection':projection,'metrics':metrics,'validation':{'passed':all(checks.values()),'checks':checks,'water_leaks':leaks[:20],'native_water_mismatches':water_mismatches[:20],'outgoing_error':route_error,'seam_projection':projection,'new_steep_edges':seams['new_steep_edges'][:20]}}
+            'route':route,'bank':bank,'seams':seams,'projection':projection,'metrics':metrics,'validation':{'passed':all(checks.values()),'checks':checks,'water_leaks':leaks[:20],'native_water_mismatches':water_mismatches[:20],'outgoing_error':route_error,'seam_projection':projection,'new_steep_edges':seams['new_steep_edges'][:20],
+            'road_collision_errors':road_collision_errors,'road_stair_conflicts':road_stair_errors,'road_handoff_errors':road_handoff_errors}}
 
 
 def metadata(result):
@@ -416,15 +465,15 @@ def metadata(result):
     trials=city.path_trials(routes)
     # Real outgoing path bends: test each monotone straight part independently,
     # and retain the complete route for live walk-through/player navigation.
-    segments=[];start=0
+    segments=[];start=0;minimum_run=result['cfg']['outgoing_road']['minimum_mapped_segment_run']
     for i in range(1,len(route)):
         direction=(route[i][0]-route[i-1][0],route[i][2]-route[i-1][2])
         if i>1 and direction!=previous:
-            if i-1-start>=3:segments.append(route[start:i])
+            if i-1-start>=minimum_run:segments.append(route[start:i])
             start=i-1
         previous=direction
-    if len(route)-1-start>=3:segments.append(route[start:])
-    for i,part in enumerate(segments[:4]):
+    if len(route)-1-start>=minimum_run:segments.append(route[start:])
+    for i,part in enumerate(segments):
         a,b=part[0],part[-1];dx=b[0]-a[0];dz=b[2]-a[2]
         trials.append({'name':f'natural_exit_segment_{i+1}','start':[a[0]+.5,a[1],a[2]+.5],
                        'end':[b[0]+.5,b[1],b[2]+.5],'min_y':b[1]-.1,'timeout_s':max(15,len(part)*.5),
@@ -522,13 +571,21 @@ def terrain_commands(result):
             byrow[z].append((x,min(native-1,foundation_y),foundation_y,materials['body']))
         bottom=min(native-1,target-1)
         if target-depth-1>=bottom:byrow[z].append((x,bottom,target-depth-1,materials['body']))
-        if k in wet:
-            byrow[z].append((x,max(bottom,target-depth),target-1,cfg['lake']['bed_material']))
-            byrow[z].append((x,target,plane-1,cfg['lake']['water_material']))
-        else:
-            if target-2>=max(bottom,target-depth):byrow[z].append((x,max(bottom,target-depth),target-2,materials['soil']))
-            surface_state=result['path_surface'].get(k,materials['bank'] if k in result['bank'] else materials['surface'])
-            byrow[z].append((x,target-1,target-1,surface_state))
+        surface_state=(cfg['lake']['bed_material'] if k in wet else
+                       result['path_surface'].get(k,materials['bank'] if k in result['bank'] else materials['surface']))
+        gravity=nbt.parse_block_state(surface_state)[0] in cfg['blend']['gravity_materials']
+        needs_support=gravity or k in result['path_clear']
+        if needs_support and k not in core:
+            support_depth=cfg['blend']['surface_support_depth']
+            if support_depth<1:raise ValueError('generated surface support depth must be positive')
+            # Surface samples do not reveal aquifers/caves *below* a tall
+            # overhang. Always write this local nonfalling subgrade, even when
+            # native ground_y is higher than the excavated walking/bed level.
+            byrow[z].append((x,target-support_depth-1,target-2,materials['body']))
+        elif target-2>=max(bottom,target-depth):
+            byrow[z].append((x,max(bottom,target-depth),target-2,materials['soil']))
+        byrow[z].append((x,target-1,target-1,surface_state))
+        if k in wet:byrow[z].append((x,target,plane-1,cfg['lake']['water_material']))
     # Merge identical vertical intervals into x-runs, then consecutive z rows.
     active={};boxes=[]
     for z in range(s.z0,s.z1):
@@ -551,7 +608,8 @@ def terrain_commands(result):
         active=next_active
     boxes.extend((key,za,zb) for key,(za,zb) in active.items())
     # Clear before fills. Source semantic tiles are applied after this stream.
-    boxes.sort(key=lambda b:0 if b[0][4]==materials['air'] else 2 if b[0][4]==cfg['lake']['water_material'] else 1)
+    gravity_surfaces=set(cfg['blend']['gravity_materials'])
+    boxes.sort(key=lambda b:0 if b[0][4]==materials['air'] else 3 if b[0][4]==cfg['lake']['water_material'] else 2 if b[0][4] in gravity_surfaces else 1)
     for (x0,x1,y0,y1,state),z0,z1 in boxes:
         for lo,hi in split_fill([x0,y0,z0],[x1,y1,z1],cfg['export']['fill_limit']):
             if min(lo[1],hi[1])<-64 or max(lo[1],hi[1])>319:raise ValueError('terrain command exceeds overworld height')
@@ -615,6 +673,29 @@ def expected_probe(result,k,category):
     return {'category':category,'pos':[x,target-1,z],'state':state}
 
 
+def route_probes(result):
+    """Every route cell: final floor, local subgrade and full walking headroom."""
+    probes=[];s=result['survey'];cfg=result['cfg'];t=result['transform']
+    for k in result['route']:
+        probes.append(expected_probe(result,k,'path'))
+        x,z=s.pos(k);feet=result['after'][k]
+        for dy in range(cfg['outgoing_road']['clearance']):
+            state=cfg['materials']['air']
+            if k in result['core']:
+                sx,sz=result['core'][k]
+                state=rotated_state(result['source'][4].get((sx,feet+dy-t.dy,sz)),t.q)
+                if not city.passable(state):raise ValueError(f'blocked core road headroom at {x,feet+dy,z}: {state}')
+            probes.append({'category':'path_clearance','pos':[x,feet+dy,z],'state':state})
+        if k in result['path_clear']:
+            for depth in range(2,cfg['blend']['surface_support_depth']+2):
+                probes.append({'category':'path_subgrade','pos':[x,feet-depth,z],'state':cfg['materials']['body']})
+        elif k in result['core']:
+            sx,sz=result['core'][k]
+            state=rotated_state(result['source'][4].get((sx,feet-2-t.dy,sz)),t.q)
+            probes.append({'category':'path_subgrade','pos':[x,feet-2,z],'state':state})
+    return probes
+
+
 def compile_fit(survey,candidate,out,config=None,source_manifest=None):
     started=time.monotonic();result=plan_fit(survey,candidate,config);out=Path(out)
     meta=write_preview(result,out)
@@ -637,6 +718,12 @@ def compile_fit(survey,candidate,out,config=None,source_manifest=None):
         x,z=s.pos(k)
         probes.append({'category':'foundation','pos':[x,foundation_y,z],'state':result['cfg']['materials']['body']})
         probes.append({'category':'foundation_contact','pos':[x,min(s.ground[k]-1,foundation_y),z],'state':result['cfg']['materials']['body']})
+    probes.extend(route_probes(result))
+    for category,keys in [('shore_subgrade',sorted(result['bank'])),('lake_subgrade',sorted(result['wet']))]:
+        for k in keys[::max(1,len(keys)//8)]:
+            x,z=s.pos(k)
+            for depth in range(2,result['cfg']['blend']['surface_support_depth']+2):
+                probes.append({'category':category,'pos':[x,result['after'][k]-depth,z],'state':result['cfg']['materials']['body']})
     wetkeys=sorted(result['wet'])
     for k in wetkeys[::max(1,len(wetkeys)//8)]:
         x,z=s.pos(k);probes.append({'category':'water','pos':[x,result['candidate']['water_surface']-1,z],

@@ -179,6 +179,9 @@ PRESETS["yunshan-natural"] = [
     ["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
     ["python3", "tools/yunshan/natural_evidence.py"],
 ]
+PRESETS["yunshan-natural-site"] = [list(command) for command in PRESETS["yunshan-natural"][:-1]] + [
+    ["python3", "tools/yunshan/natural_evidence.py", "--site-id", "site-1-q0--96--112"],
+]
 PRESETS["npc-life-runtime"] = [
     ["python3", "tools/gen_npc_life_places.py", "--check"],
     ["./gradlew", "test", "--tests", "com.example.myvillage.block.AlchemyFurnaceNavigationTest",

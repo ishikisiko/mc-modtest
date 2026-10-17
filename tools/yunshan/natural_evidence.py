@@ -152,8 +152,9 @@ def refine_candidate(survey, candidate, settings):
 
 
 class NaturalEvidence(DistrictEvidence):
-    def __init__(self, out):
+    def __init__(self, out, site_id=None):
         Evidence.__init__(self, out)
+        self.site_id = site_id
         self.hud_hidden = False
         self.buildings = []
         self.report.update(kind='yunshan_normal_world_fusion', status='running',
@@ -167,6 +168,12 @@ class NaturalEvidence(DistrictEvidence):
             owner_sound='not_verified', owner_fps='not_verified', multiplayer='not_verified',
             software_rendering=True, world_seed=20261002,
             method='real normal terrain; immutable flushed MCA survey; sparse fitting; actual mapped W; before/after real-client frames')
+        self.report['scope'] = 'single_authored_site' if site_id is not None else 'three_candidate_comparison'
+        self.report['candidate_manifest'] = 'candidates.json' if site_id is not None else 'top3.json'
+        if site_id is not None:
+            self.report['site_id'] = site_id
+            self.report['selected'] = ['single_site_actual_survey', *self.report['selected'][2:]]
+            self.report['not_selected'] = ['actual_normal_terrain_survey', 'three_distinct_sites']
         self.save()
 
     def rc(self, command):
@@ -366,22 +373,40 @@ class NaturalEvidence(DistrictEvidence):
         self.report['completed'].append('playable_world_export'); self.save()
 
     def run(self):
-        from tools.yunshan.natural_terrain import read_settings, coarse_windows, rank_sites, expanded_window
+        from tools.yunshan.natural_terrain import read_settings, coarse_windows, rank_sites, expanded_window, evaluate_site
         from tools.yunshan.fit_natural import preview_fit, compile_fit
         settings = read_settings()
         if settings['seed'] != 20261002:
             raise ValueError('Natural evidence requires the fixed authored seed 20261002')
+        refinement = None
+        if self.site_id is not None:
+            if self.site_id not in settings.get('candidate_refinements', {}):
+                raise ValueError('--site-id must name an authored candidate_refinements entry')
+            refinement = settings['candidate_refinements'][self.site_id]
         self.start()
-        surveys = [self.survey(window['window'], 'coarse-'+window['id'], settings) for window in coarse_windows(settings)]
-        self.report['completed'].append('actual_normal_terrain_survey')
-        candidates = rank_sites(surveys, settings=settings)[:3]
-        self.check('three_independent_actual_sites', len(candidates) == 3, candidates)
-        self.report['candidates'] = candidates
-        self.report['completed'].append('three_distinct_sites')
         expanded = {}
+        if self.site_id is not None:
+            descriptor = {'id': self.site_id, 'origin': refinement['origin'],
+                          'rotation_quarters': refinement['rotation_quarters']}
+            survey = self.survey(expanded_window(descriptor, settings=settings), 'expanded-'+self.site_id, settings)
+            candidate = evaluate_site(survey, refinement['origin'], refinement['rotation_quarters'], settings=settings)
+            candidate['evaluation_id'] = candidate['id']; candidate['id'] = self.site_id
+            candidate['authored_site'] = {'config_key': self.site_id, **copy.deepcopy(refinement)}
+            candidates = [candidate]; expanded[self.site_id] = survey
+            self.report['completed'].append('single_site_actual_survey')
+        else:
+            surveys = [self.survey(window['window'], 'coarse-'+window['id'], settings) for window in coarse_windows(settings)]
+            self.report['completed'].append('actual_normal_terrain_survey')
+            candidates = rank_sites(surveys, settings=settings)[:3]
+            self.check('three_independent_actual_sites', len(candidates) == 3, candidates)
+            self.report['completed'].append('three_distinct_sites')
+        self.report['candidates'] = candidates
         for index, candidate in enumerate(candidates):
-            survey = self.survey(expanded_window(candidate, settings=settings), 'expanded-'+candidate['id'], settings)
-            candidate = refine_candidate(survey, candidate, settings)
+            if candidate['id'] in expanded:
+                survey = expanded[candidate['id']]
+            else:
+                survey = self.survey(expanded_window(candidate, settings=settings), 'expanded-'+candidate['id'], settings)
+                candidate = refine_candidate(survey, candidate, settings)
             candidates[index] = candidate
             expanded[candidate['id']] = survey
             preview_directory = self.out/'sites'/candidate['id']
@@ -399,7 +424,7 @@ class NaturalEvidence(DistrictEvidence):
                 for name in ('fit-preview.json', 'heightmaps.json', 'preview.svg') if (preview_directory/name).is_file()}
             candidate['before_screenshots'] = [shot['file'] for shot in self.report['screenshots']
                 if shot['candidate'] == candidate['id'] and shot['stage'] == 'before']
-            (self.out/'top3.json').write_text(json.dumps(candidates, ensure_ascii=False, indent=2)+'\n')
+            (self.out/self.report['candidate_manifest']).write_text(json.dumps(candidates, ensure_ascii=False, indent=2)+'\n')
         self.report['completed'].append('before_frames')
         selected = manifest = directory = None
         selection_order = sorted(candidates, key=lambda candidate: candidate.get('score', math.inf))
@@ -425,7 +450,7 @@ class NaturalEvidence(DistrictEvidence):
         stable_directory = self.out/'fit'
         directory.rename(stable_directory); directory = stable_directory
         self.report['selected_id'] = selected['id']; self.report['recommended_site'] = selected['id']
-        (self.out/'top3.json').write_text(json.dumps(candidates, ensure_ascii=False, indent=2)+'\n')
+        (self.out/self.report['candidate_manifest']).write_text(json.dumps(candidates, ensure_ascii=False, indent=2)+'\n')
         self.check('compiled_fit_validation', manifest['validation']['passed'] is True, manifest['validation'])
         before_cameras = [shot['camera'] for shot in self.report['screenshots']
             if shot['candidate'] == selected['id'] and shot['stage'] == 'before']
@@ -443,7 +468,8 @@ class NaturalEvidence(DistrictEvidence):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--out', type=Path, default=ROOT/'out/preview/yunshan-natural/runtime')
-    args = parser.parse_args(); evidence = NaturalEvidence(args.out)
+    parser.add_argument('--site-id', help='Revalidate one authored candidate_refinements key using its own actual survey')
+    args = parser.parse_args(); evidence = NaturalEvidence(args.out, site_id=args.site_id)
     try:
         evidence.run()
     except BaseException as error:

@@ -86,6 +86,69 @@ class NaturalSnapshotTests(unittest.TestCase):
 
 
 class NaturalLifecycleTests(unittest.TestCase):
+    def test_single_site_reads_one_authored_expanded_survey_and_keeps_scope_honest(self):
+        for eligible in (True, False):
+            with self.subTest(eligible=eligible), tempfile.TemporaryDirectory() as directory:
+                root = Path(directory); site_id = 'site-1-q0--96--112'
+                evidence = NaturalEvidence(root, site_id=site_id)
+                settings = {'seed': 20261002, 'candidate_refinements': {site_id: {
+                    'origin': [-96, -96], 'rotation_quarters': 0, 'why': 'authored actual-MCA refinement'}}}
+                actual_survey = {'provenance': {'status': 'saved_anvil_snapshot'}, 'ground_y': [63]}
+                evaluated = {'id': 'evaluated-actual-point', 'origin': [-96, -96],
+                    'rotation_quarters': 0, 'water_surface': 63, 'score': .123,
+                    'metrics': {'actual_read': True}, 'eligible': eligible}
+                cameras = [{'name': 'matched', 'pos': [80, 120, 80], 'yaw': 90, 'pitch': 20}]
+                compiled = {'validation': {'passed': True}, 'fixture_cameras': cameras}
+                def compile_site(survey, candidate, out):
+                    self.assertIs(survey, actual_survey)
+                    self.assertEqual(candidate['score'], .123)
+                    out.mkdir(parents=True); (out/'fit.json').write_text(json.dumps(compiled))
+                    return compiled
+                def capture(candidate, camera_array, stage):
+                    evidence.report['screenshots'].extend({'candidate': candidate, 'stage': stage,
+                        'camera': camera, 'file': stage+'.png'} for camera in camera_array)
+                with (patch('tools.yunshan.natural_terrain.read_settings', return_value=settings),
+                      patch('tools.yunshan.natural_terrain.coarse_windows') as coarse,
+                      patch('tools.yunshan.natural_terrain.rank_sites') as rank,
+                      patch('tools.yunshan.natural_terrain.expanded_window', return_value=[-247, -267, 265, 341]) as window,
+                      patch('tools.yunshan.natural_terrain.evaluate_site', return_value=evaluated) as evaluate,
+                      patch('tools.yunshan.fit_natural.preview_fit', return_value=compiled),
+                      patch('tools.yunshan.fit_natural.compile_fit', side_effect=compile_site) as compile_call,
+                      patch.object(evidence, 'start'), patch.object(evidence, 'survey', return_value=actual_survey) as survey,
+                      patch.object(evidence, 'capture', side_effect=capture), patch.object(evidence, 'apply_fit') as apply,
+                      patch.object(evidence, 'verify_fit') as verify, patch.object(evidence, 'finish_world')):
+                    if eligible:
+                        evidence.run()
+                        verify.assert_called_once(); apply.assert_called_once()
+                        self.assertEqual(evidence.report['selected_id'], site_id)
+                    else:
+                        with self.assertRaisesRegex(AssertionError, 'selected_site_passes_authored_and_fit_gates'):
+                            evidence.run()
+                        compile_call.assert_not_called(); verify.assert_not_called(); apply.assert_not_called()
+                coarse.assert_not_called(); rank.assert_not_called()
+                window.assert_called_once_with({'id': site_id, 'origin': [-96, -96], 'rotation_quarters': 0}, settings=settings)
+                survey.assert_called_once_with([-247, -267, 265, 341], 'expanded-'+site_id, settings)
+                evaluate.assert_called_once_with(actual_survey, [-96, -96], 0, settings=settings)
+                self.assertIn('single_site_actual_survey', evidence.report['selected'])
+                self.assertIn('single_site_actual_survey', evidence.report['completed'])
+                self.assertNotIn('three_distinct_sites', evidence.report['selected'])
+                self.assertNotIn('three_distinct_sites', evidence.report['completed'])
+                self.assertEqual(evidence.report['scope'], 'single_authored_site')
+                self.assertEqual(len(evidence.report['candidates']), 1)
+                self.assertEqual(evidence.report['candidates'][0]['score'], .123)
+                self.assertTrue((root/'candidates.json').is_file())
+                self.assertFalse((root/'top3.json').exists())
+
+    def test_single_site_rejects_non_authored_coordinates_before_start(self):
+        for site_id in ('-96,-96', ''):
+            with self.subTest(site_id=site_id), tempfile.TemporaryDirectory() as directory:
+                evidence = NaturalEvidence(Path(directory), site_id=site_id)
+                with (patch('tools.yunshan.natural_terrain.read_settings', return_value={
+                        'seed': 20261002, 'candidate_refinements': {}}), patch.object(evidence, 'start') as start):
+                    with self.assertRaisesRegex(ValueError, 'authored candidate_refinements'):
+                        evidence.run()
+                    start.assert_not_called()
+
     def test_refined_scores_reorder_selection_without_repeating_survey_or_losing_failed_before(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory); evidence = NaturalEvidence(root)
@@ -231,6 +294,9 @@ class NaturalLifecycleTests(unittest.TestCase):
         joined = ' '.join(' '.join(command) for command in commands)
         for excluded in ('release_gate', 'run_chunky_acceptance', 'district_game_evidence.py', 'runClient'):
             self.assertNotIn(excluded, joined)
+        single = commands_for('yunshan-natural-site')
+        self.assertEqual(single[:-1], commands[:-1])
+        self.assertEqual(single[-1], ['python3', 'tools/yunshan/natural_evidence.py', '--site-id', 'site-1-q0--96--112'])
 
 
 if __name__ == '__main__': unittest.main()

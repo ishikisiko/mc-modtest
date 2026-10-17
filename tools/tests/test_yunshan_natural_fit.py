@@ -97,6 +97,62 @@ class NaturalFitTests(unittest.TestCase):
             self.assertTrue(r['changed'][s.index(lo[0],lo[2])])
             self.assertTrue(r['changed'][s.index(hi[0],hi[2])])
 
+    def test_overhang_aquifer_gravity_surfaces_have_two_local_solid_layers(self):
+        # run5 x19,z164/165: the sampled surface is high stone, with hidden
+        # water immediately beneath the excavated gravel road at Y62.
+        cfg=fit.config_data()
+        survey=fit.Survey({'window':[0,0,1,1],'width':1,'depth':1,'ground_y':[97],
+                          'surface_y':[97],'water_y':[None],'ground_palette':['minecraft:stone'],'ground_index':[0]})
+        def settled_y(cells,start):
+            y=start
+            while cells.get(y-1,'minecraft:stone') in ('minecraft:air','minecraft:water'):y-=1
+            return y
+        for kind in ('road','shore','lake'):
+            feet=60 if kind=='lake' else 63
+            material='minecraft:sand' if kind=='lake' else 'minecraft:gravel'
+            cells={y:'minecraft:stone' for y in range(50,101)}
+            cells.update({y:'minecraft:water' for y in range(feet-6,feet)})
+            thin=dict(cells);thin[feet-1]=material
+            self.assertLess(settled_y(thin,feet-1),feet-1)
+            r={'cfg':cfg,'survey':survey,'after':[feet],'changed':[True],'core':{},
+               'wet':{0} if kind=='lake' else set(),'candidate':{'water_surface':63},
+               'path_clear':{0} if kind=='road' else set(),'bank':{0} if kind=='shore' else set(),
+               'path_surface':{0:material} if kind=='road' else {}}
+            commands=list(fit.terrain_commands(r))
+            for command in commands:
+                state=command['command'].split()[-1]
+                if state==material:
+                    self.assertEqual(cells[feet-2],'minecraft:stone')
+                    self.assertEqual(cells[feet-3],'minecraft:stone')
+                for y in range(command['world_min'][1],command['world_max'][1]+1):cells[y]=state
+            self.assertEqual(cells[feet-1],material)
+            self.assertEqual(settled_y(cells,feet-1),feet-1)
+            self.assertEqual(cells[feet-4],'minecraft:water','keep the deeper aquifer intact')
+
+    def test_stair_width_never_overwrites_opposite_centerline_risers(self):
+        survey=fit.Survey({'window':[0,0,5,5],'width':5,'depth':5,'ground_y':[64]*25,
+                          'surface_y':[64]*25,'water_y':[None]*25,'ground_palette':['minecraft:stone'],'ground_index':[0]*25})
+        route=[survey.index(x,z) for x,z in [(1,1),(1,2),(2,2),(2,3)]]
+        heights=[64]*25;heights[route[0]]=63;heights[route[-1]]=63
+        surfaces,errors=fit.road_stairs(survey,route,heights,set(range(25)),fit.config_data())
+        self.assertFalse(errors)
+        self.assertIn('facing=south',surfaces[route[1]])
+        self.assertIn('facing=north',surfaces[route[2]])
+        self.assertEqual(surfaces[survey.index(1,3)],'minecraft:gravel')
+
+    def test_native_tail_is_level_from_last_road_stair_and_final_long_leg_is_mapped(self):
+        cfg=fit.config_data();route=list(range(8));heights=[63,63]+[64]*6
+        levels,errors=fit.road_levels(route,heights,{0},6,cfg)
+        self.assertFalse(errors);self.assertEqual(levels[1],64)
+        self.assertEqual([levels[k] for k in route[-6:]],[64]*6)
+        r=dict(self.result);s=r['survey'];points=[(-80,-80)];x,z=points[0]
+        for dx,dz in [(1,0),(0,1)]*3:
+            for _ in range(4):x+=dx;z+=dz;points.append((x,z))
+        r['route']=[s.index(x,z) for x,z in points]
+        meta=fit.metadata(r);trials=[t for t in meta['path_trials'] if t['name'].startswith('natural_exit_segment_')]
+        self.assertEqual(len(trials),6)
+        self.assertEqual(trials[-1]['end'][::2],[points[-1][0]+.5,points[-1][1]+.5])
+
     def test_sparse_core_tiles_keep_signs_air_and_untouched_holes(self):
         volume=Volume((0,62,0),(2,65,2));volume.set((0,62,0),'spruce_log[axis=x]')
         volume.set((0,63,0),'oak_wall_sign[facing=north]')

@@ -2,6 +2,9 @@
 
 ## 自然地形落位与外围融合
 
+选址比较、失败原因及实机证据见
+[自然地形融合记录](../../docs/testing/2026-10-18-yunshan-natural-fit.md)。
+
 自然世界候选采用独立的普通世界。`natural_terrain.py` 读取实际保存的
 Anvil 区块，核对种子、生成器、完整区块和区域文件哈希；从树冠和水体下方
 寻找真实地面，再比较空间独立的落位与整体旋转。缺失区块不能补成虚构地形。
@@ -11,11 +14,20 @@ Anvil 区块，核对种子、生成器、完整区块和区域文件哈希；�
 将旧裁切山体外围替换为通向原生地表的过渡，处理湖岸、地基和出城道路。
 水面是整体高度锚点；此流程不能复用平坦预览的 `preview_translation`。
 保留核心、外围改动和未改地表分别输出，便于核对。
+新增普通接缝受每格高差约束；原有台地挡墙和原生断崖单列，不用原外围
+山体作为拟合目标。出城路、保水、核心与边界检查失败时，候选不能落位。
+
+`candidate_refinements` 可记录基于已采真实地形的明确位置微调；
+`evaluate_site` 重新计算评分和资格，采集记录同时保留原坐标与指标。
 
 重型采样、放置及客户端采集只在固定提交的 Modal 中执行：
 
 ```bash
+python3 -m unittest tools.tests.test_yunshan_natural_terrain tools.tests.test_yunshan_natural_fit tools.tests.test_yunshan_natural_evidence
 .venv-modal/bin/python -m tools.modal_runner run --preset yunshan-natural --ref HEAD --timeout 3600
+# 选址已有真实证据，只复验已记录的中部微调场地：
+.venv-modal/bin/python -m tools.modal_runner run --preset yunshan-natural-site --ref HEAD --timeout 2400
+python3 tools/yunshan/natural_review.py out/preview/yunshan-natural/runtime
 ```
 
 选址高度图属于开发者规划证据；实际放置后的截图、映射通行记录和完整

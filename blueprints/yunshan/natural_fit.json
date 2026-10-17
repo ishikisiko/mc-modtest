@@ -13,7 +13,13 @@
     "shore_bank_width": 3,
     "bank_freeboard": 0,
     "foundation_anchor_depth": 1,
-    "existing_retaining_radius": 2
+    "existing_retaining_radius": 2,
+    "surface_support_depth": 2,
+    "gravity_materials": [
+      "minecraft:gravel",
+      "minecraft:sand",
+      "minecraft:red_sand"
+    ]
   },
   "preserve": {
     "gate_rect": [
@@ -63,7 +69,8 @@
     "cost_rise": 4,
     "cost_turn": 0.8,
     "cost_distance": 1,
-    "maximum_backtrack": 2
+    "maximum_backtrack": 2,
+    "minimum_mapped_segment_run": 3
   },
   "materials": {
     "body": "minecraft:stone",
