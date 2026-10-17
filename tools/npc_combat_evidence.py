@@ -395,7 +395,7 @@ class NpcCombatEvidence(NpcLifeEvidence):
             if info.get('eligibleRogues',0)>0:center=candidate;break
         self.check('wilderness_has_existing_person',center is not None,origin['centers'])
         self.rc(teleport_command(u,[center['x']+.5,-60,center['z']+.5]))
-        selector='@e[type=myvillage:cultivator,tag="myvillage:wild_avatar",sort=nearest,limit=1]'
+        selector='@e[type=myvillage:cultivator,nbt={Tags:["myvillage:wild_avatar"]},sort=nearest,limit=1]'
         wild=self.poll(lambda:self.rc(f'data get entity {selector}'),lambda r:'data: ' in r,40,'actual wild projection')
         pid=read_data(wild)['WorldSimPerson'];self.equip();self.rc(f'gamemode survival {u}')
         self.mapped_hit(self.entity(pid),'wild_avatar_mapped_damage')
