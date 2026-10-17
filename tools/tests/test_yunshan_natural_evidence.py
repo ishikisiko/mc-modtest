@@ -134,7 +134,8 @@ class NaturalLifecycleTests(unittest.TestCase):
     def test_local_start_is_refused_before_any_game_process(self):
         with tempfile.TemporaryDirectory() as directory:
             evidence = NaturalEvidence(Path(directory))
-            with patch('tools.yunshan.natural_evidence.cs.start') as start:
+            with (patch('tools.yunshan.natural_evidence.ROOT', Path('/local-only-test')),
+                    patch('tools.yunshan.natural_evidence.cs.start') as start):
                 with self.assertRaisesRegex(RuntimeError, 'Modal disposable'): evidence.start()
                 start.assert_not_called()
 
