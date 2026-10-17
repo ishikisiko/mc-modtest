@@ -56,7 +56,8 @@ public final class NpcCombatRuntime {
         npc.setHealth((float) Math.min(npc.getMaxHealth(), profile.health()));
         npc.combatLastAttacker = profile.lastAttacker();
         var body = profile.body();
-        if (body != null && body.region().equals(person.regionId())
+        if (body != null && (sim.life(person.id()).isEmpty() || unresolved(body))
+                && body.region().equals(person.regionId())
                 && body.dimension().equals(npc.level().dimension().location().toString())) {
             npc.setPos(body.x(), body.y(), body.z());
             npc.setDeltaMovement(body.velocityX(), body.velocityY(), body.velocityZ());
@@ -73,6 +74,15 @@ public final class NpcCombatRuntime {
     public static boolean managed(NpcEntity npc) {
         return BODIES.get(npc.getUUID()) == npc && (!npc.isLedgerAvatar()
                 || WorldSimRuntime.sim().map(s -> s.ownsCombat(npc.ledgerPersonId(), npc.combatEpoch)).orElse(false));
+    }
+
+    public static boolean canTick(NpcEntity npc) {
+        return npc.level() instanceof ServerLevel level && level.isPositionEntityTicking(npc.blockPosition())
+                && !level.tickRateManager().isEntityFrozen(npc);
+    }
+
+    public static boolean unresolved(NpcCombatProfile.Body body) {
+        return body.fallDistance() > 0 || body.velocityY() < -0.1 || body.fireTicks() > 0;
     }
 
     public static boolean canAct(NpcEntity npc) {
@@ -163,7 +173,7 @@ public final class NpcCombatRuntime {
     public static void tick(MinecraftServer server) {
         for (NpcEntity npc : BODIES.values().toArray(NpcEntity[]::new)) {
             if (npc.isRemoved()) { leaving(npc); continue; }
-            if (!canAct(npc)) continue;
+            if (!canAct(npc) || !canTick(npc)) continue;
             if (npc.getTarget() == null && npc.onGround() && !npc.isOnFire() && !npc.isInWater()
                     && npc.level().getGameTime() >= npc.nextRecoveryTick) {
                 npc.nextRecoveryTick = npc.level().getGameTime() + NpcCombatRules.get().healIntervalTicks();

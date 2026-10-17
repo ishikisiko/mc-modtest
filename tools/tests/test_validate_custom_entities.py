@@ -392,7 +392,7 @@ class NpcValidationTest(unittest.TestCase):
 
         empty = state(" []", " []")
         self.assertEqual([f"java_synced_data_not_in_contract:{base}#{field}"
-                          for field in ("DATA_COLOURS", "DATA_LEDGER_PERSON", "DATA_LEDGER_ROLE", "DATA_LOOK")],
+                          for field in ("DATA_COLOURS", "DATA_COMBAT", "DATA_LEDGER_PERSON", "DATA_LEDGER_ROLE", "DATA_LOOK")],
                          MODULE.check_npc_state(empty, sources))
         renamed = self.contract.replace("NpcEntity#DATA_LEDGER_PERSON", "NpcEntity#DATA_PERSON")
         self.assertIn(f"contract_synced_without_java_field:{base}#DATA_PERSON", MODULE.check_npc_state(renamed, sources))

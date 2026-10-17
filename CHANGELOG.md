@@ -7,6 +7,13 @@ All notable project changes should be recorded here when a version is prepared.
 The authoritative version-bump rule (increments and the files that must move
 together) lives in `docs/WORKFLOW.md` (the version section). Follow it there.
 
+## 0.63.0
+
+- 持剑修仙者以服务器 AI 提交基础连招意图，共用玩家的招式时间轴、命中、伤害与装备消耗；支持自卫、负伤后撤和有界追击。
+- 命簿化身新增统一近场执行权与持久战斗档案，保存生命损耗、装备、恢复限制和身体状态；真实死亡一次性回写，保留 NPC、玩家或环境归因。
+- 战斗暂停居民生活收益，脱战后重新导航到设施；三套现有人物外观新增剑招、持剑与中途追踪动作快照。命簿存档格式升级为 5，网络版本升级为 32。
+- 首批范围为基础剑战斗；枪、拳、主动武技、剑气、技能身法与群体战术另行扩展。验证结果见本次 NPC 战斗交付记录。
+
 ## 0.62.0
 
 - 加入剑、枪、拳各两招书本学习的进阶武技，Z/C 施放，服务器统一负责分段、成本、冷却和命中。

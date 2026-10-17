@@ -227,6 +227,10 @@ public final class LifeEngine {
     private static void advance(SimContext ctx, LifeResident r, long at, long elapsed) {
         // A nearby resident waiting for a safe body or a free avatar slot must not work invisibly.
         if (ctx.state.combat.engaged.contains(r.personId) || (r.observed && !r.embodied)) return;
+        var combatProfile = ctx.state.combat.profiles.get(r.personId);
+        if (!r.embodied && combatProfile != null && combatProfile.body() != null
+                && (combatProfile.body().fallDistance() > 0 || combatProfile.body().velocityY() < -0.1
+                    || combatProfile.body().fireTicks() > 0)) return;
         long left = elapsed;
         int transitions = 0;
         while (left > 0 && transitions < rules(ctx).maxTransitionsPerTick()) {

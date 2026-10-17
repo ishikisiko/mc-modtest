@@ -288,6 +288,7 @@ public final class CombatSessionManager {
     }
 
     private static void tickNpc(NpcEntity npc) {
+        if (!NpcCombatRuntime.canTick(npc)) return;
         CombatSession session = SESSIONS.get(npc.getUUID());
         long tick = npc.level().getGameTime();
         if (!NpcCombatRuntime.canAct(npc) || weaponFailure(CombatStyles.bundled().styleFor(npc.getMainHandItem()), session) != null) {

@@ -15,7 +15,7 @@ import tarfile
 import time
 import uuid
 
-from .remote import PAL, CATALOG, DEPENDENCIES, PRESETS, commands_for, select_cases, select_npc_life_cases, select_fate_purple_cases, select_advanced_fate_cases, safe_extract, sha256
+from .remote import PAL, CATALOG, DEPENDENCIES, PRESETS, commands_for, select_cases, select_npc_life_cases, select_fate_purple_cases, select_advanced_fate_cases, select_npc_combat_cases, safe_extract, sha256
 
 REPO = Path(__file__).resolve().parents[2]
 APP = "myvillage-tests"
@@ -83,6 +83,7 @@ def prepare(repo: Path, ref: str, preset: str, timeout: int, out: Path, cases=No
                "commands": commands,
                "cases": (select_cases(cases) if preset == "alchemy-quality" else
                          select_npc_life_cases(cases) if preset == "npc-life-runtime" else
+                         select_npc_combat_cases(cases) if preset == "npc-combat-runtime" else
                          select_fate_purple_cases(cases) if preset == "fates-purple-runtime" else
                          select_advanced_fate_cases(cases) if preset == "advanced-fates-runtime" else None)}
     request["archive_seconds"] = round(time.monotonic() - started, 3)

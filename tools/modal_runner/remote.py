@@ -104,6 +104,23 @@ PRESETS["npc-combat-build"] = [
      "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
 ]
 
+PRESETS["npc-combat-runtime"] = [
+    ["./gradlew", "jar", "-x", "generateAllStructures", "--no-daemon", "-Dorg.gradle.jvmargs=-Xmx2g", "--max-workers=4"],
+    ["python3", "tools/yunshan/build_functional.py", "--manifest", "blueprints/yunshan/functional_buildings_v2.json", "--out", "out/preview/npc-life-buildings"],
+    ["python3", "tools/npc_combat_evidence.py"],
+]
+NPC_COMBAT_CASES = ("duel", "life", "lifecycle", "death", "observers")
+
+
+def select_npc_combat_cases(value=None):
+    if value is None or value == "all":
+        return list(NPC_COMBAT_CASES)
+    names = [name.strip() for name in value.split(",")]
+    if len(names) != len(set(names)) or any(name not in NPC_COMBAT_CASES for name in names):
+        raise ValueError("NPC combat cases must be all or unique names from: " + ",".join(NPC_COMBAT_CASES))
+    return [name for name in NPC_COMBAT_CASES if name in names]
+
+
 PRESETS["advanced-arts-build"] = [
     ["python3", "tools/gen_advanced_arts.py", "--check"],
     ["python3", "tools/gen_technique_catalogue.py", "--check"],
@@ -221,11 +238,13 @@ def select_cases(value=None):
 
 
 def commands_for(preset, cases=None):
-    if cases is not None and preset not in ("alchemy-quality", "npc-life-runtime", "fates-purple-runtime", "advanced-fates-runtime"):
+    if cases is not None and preset not in ("alchemy-quality", "npc-life-runtime", "fates-purple-runtime", "advanced-fates-runtime", "npc-combat-runtime"):
         raise ValueError("--cases is only supported by alchemy-quality, npc-life-runtime, fates-purple-runtime and advanced-fates-runtime")
     commands = [list(command) for command in PRESETS[preset]]
     if preset == "alchemy-quality":
         commands[-1] += ["--cases", ",".join(select_cases(cases))]
+    if preset == "npc-combat-runtime":
+        commands[-1] += ["--cases", ",".join(select_npc_combat_cases(cases))]
     if preset == "npc-life-runtime":
         commands[-1] += ["--cases", ",".join(select_npc_life_cases(cases))]
     if preset == "fates-purple-runtime":
